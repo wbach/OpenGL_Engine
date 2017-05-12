@@ -1,0 +1,293 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E17E8D53-C66F-494E-B495-00EE34A0B66D}</ProjectGuid>
+    <RootNamespace>GameEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\bin\GameEngine\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\GameEngine\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\bin\GameEngine\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\GameEngine\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)\bin\GameEngine\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\GameEngine\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\bin\GameEngine\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\GameEngine\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3;glfw3dll;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>comctl32.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\;..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>.Tools\rapidxml-1.13;..\Tools\fbx_sdk\include;..\Tools\Assimp\include;..\Tools\SDL2-2.0.3\include\;..\Tools\glm;..\Tools\;..\Tools\freeImage;..\Tools\freetype\include;..\Tools\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>comctl32.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3;glfw3dll;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Api\Api.hpp" />
+    <ClInclude Include="Api\SDL2\InputSDL.h" />
+    <ClInclude Include="Api\SDL2\SDLOpenGL.h" />
+    <ClInclude Include="Camera\Camera.h" />
+    <ClInclude Include="Camera\Camera2D.h" />
+    <ClInclude Include="Camera\FirstPersonCamera.h" />
+    <ClInclude Include="Camera\Frustrum.h" />
+    <ClInclude Include="Camera\Plane.h" />
+    <ClInclude Include="Camera\ThridPersonCamera.h" />
+    <ClInclude Include="Debug_\Log.h" />
+    <ClInclude Include="Display\DisplayManager.hpp" />
+    <ClInclude Include="Engine\Engine.h" />
+    <ClInclude Include="Engine\Projection.h" />
+    <ClInclude Include="Input\GameActions.h" />
+    <ClInclude Include="Input\Input.h" />
+    <ClInclude Include="Input\InputManager.h" />
+    <ClInclude Include="Lights\Light.h" />
+    <ClInclude Include="Objects\RenderAble\Grass.h" />
+    <ClInclude Include="Objects\RenderAble\Entity.h" />
+    <ClInclude Include="Objects\RenderAble\Terrain.h" />
+    <ClInclude Include="Renderers\Entity\EntityRenderer.h" />
+    <ClInclude Include="Renderers\Entity\Shaders\GeometryEntityShader.h" />
+    <ClInclude Include="Renderers\Framebuffer\DeferedFrameBuffer\DeferedFrameBuffer.h" />
+    <ClInclude Include="Renderers\Framebuffer\FrameBuffer.h" />
+    <ClInclude Include="Renderers\FullRenderer.h" />
+    <ClInclude Include="Renderers\Grass\GrassRenderer.h" />
+    <ClInclude Include="Renderers\GUI\GuiElement.h" />
+    <ClInclude Include="Renderers\GUI\GuiRenderer.h" />
+    <ClInclude Include="Renderers\GUI\Text\Font.h" />
+    <ClInclude Include="Renderers\GUI\Text\FontShader.h" />
+    <ClInclude Include="Renderers\GUI\Text\GuiText.h" />
+    <ClInclude Include="Renderers\GUI\Text\GuiTextElement.h" />
+    <ClInclude Include="Renderers\LightPassRenderer.h" />
+    <ClInclude Include="Renderers\LodingScreenRenderer.h" />
+    <ClInclude Include="Renderers\Renderer.h" />
+    <ClInclude Include="Renderers\SimpleRenderer.h" />
+    <ClInclude Include="Renderers\SkyBox\Shaders\SkyBoxShader.h" />
+    <ClInclude Include="Renderers\SkyBox\SkyBoxRenderer.h" />
+    <ClInclude Include="Renderers\Terrain\Shaders\TerrainShader.h" />
+    <ClInclude Include="Renderers\Terrain\TerrainRenderer.h" />
+    <ClInclude Include="Resources\Models\Assimp\AssimpModel.h" />
+    <ClInclude Include="Resources\Models\Bone.h" />
+    <ClInclude Include="Resources\Models\BoundingBox.h" />
+    <ClInclude Include="Resources\Models\Material.h" />
+    <ClInclude Include="Resources\Models\Mesh.h" />
+    <ClInclude Include="Resources\Models\Model.h" />
+    <ClInclude Include="Resources\Models\MyOBJ\MyModel.h" />
+    <ClInclude Include="Resources\OpenGLLoader.h" />
+    <ClInclude Include="Resources\OpenGLObject.h" />
+    <ClInclude Include="Resources\ResourceManager.h" />
+    <ClInclude Include="Objects\GameObject.h" />
+    <ClInclude Include="Objects\Transform.h" />
+    <ClInclude Include="Resources\SimpleModels\Quad.h" />
+    <ClInclude Include="Resources\TextureLoader.h" />
+    <ClInclude Include="Resources\Textures\CubeMapTexture.h" />
+    <ClInclude Include="Resources\Textures\Image.h" />
+    <ClInclude Include="Resources\Textures\MaterialTexture.h" />
+    <ClInclude Include="Resources\Textures\Texture.h" />
+    <ClInclude Include="Scene\Scene.hpp" />
+    <ClInclude Include="Shaders\Deffered\LightPassShader.h" />
+    <ClInclude Include="Renderers\Grass\Shaders\GrassShader.h" />
+    <ClInclude Include="Shaders\Loading\LoadingShader.h" />
+    <ClInclude Include="Shaders\ShaderProgram.h" />
+    <ClInclude Include="Renderers\Entity\Shaders\EntityShader.h" />
+    <ClInclude Include="Renderers\Entity\Shaders\SimpleEnityShader.h" />
+    <ClInclude Include="Time\DayNightCycle.h" />
+    <ClInclude Include="Time\GameTime.h" />
+    <ClInclude Include="Utils\GLM\GLMUtils.h" />
+    <ClInclude Include="Utils\OpenGL\OpenGLUtils.h" />
+    <ClInclude Include="Utils\optional.h" />
+    <ClInclude Include="Utils\ParseUtils.h" />
+    <ClInclude Include="Utils\Pathes.h" />
+    <ClInclude Include="Utils\Types.h" />
+    <ClInclude Include="Utils\Utils.h" />
+    <ClInclude Include="Utils\XML\SceneReader.h" />
+    <ClInclude Include="Utils\XML\XMLUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Api\SDL2\InputSDL.cpp" />
+    <ClCompile Include="Api\SDL2\SDLOpenGL.cpp" />
+    <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Camera\FirstPersonCamera.cpp" />
+    <ClCompile Include="Camera\Frustrum.cpp" />
+    <ClCompile Include="Camera\ThridPersonCamera.cpp" />
+    <ClCompile Include="Debug_\Log.cpp" />
+    <ClCompile Include="Display\DisplayManager.cpp" />
+    <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Input\Input.cpp" />
+    <ClCompile Include="Input\InputManager.cpp" />
+    <ClCompile Include="Lights\Light.cpp" />
+    <ClCompile Include="Objects\GameObject.cpp" />
+    <ClCompile Include="Objects\RenderAble\Entity.cpp" />
+    <ClCompile Include="Objects\RenderAble\Terrain.cpp" />
+    <ClCompile Include="Objects\Transform.cpp" />
+    <ClCompile Include="Renderers\Entity\EntityRenderer.cpp" />
+    <ClCompile Include="Renderers\Entity\Shaders\GeometryEntityShader.cpp" />
+    <ClCompile Include="Renderers\Framebuffer\DeferedFrameBuffer\DeferedFrameBuffer.cpp" />
+    <ClCompile Include="Renderers\Framebuffer\FrameBuffer.cpp" />
+    <ClCompile Include="Renderers\FullRenderer.cpp" />
+    <ClCompile Include="Renderers\Grass\GrassRenderer.cpp" />
+    <ClCompile Include="Renderers\GUI\GuiElement.cpp" />
+    <ClCompile Include="Renderers\GUI\GuiRenderer.cpp" />
+    <ClCompile Include="Renderers\GUI\Text\Font.cpp" />
+    <ClCompile Include="Renderers\GUI\Text\FontShader.cpp" />
+    <ClCompile Include="Renderers\LightPassRenderer.cpp" />
+    <ClCompile Include="Renderers\LodingScreenRenderer.cpp" />
+    <ClCompile Include="Renderers\Renderer.cpp" />
+    <ClCompile Include="Renderers\SimpleRenderer.cpp" />
+    <ClCompile Include="Renderers\SkyBox\Shaders\SkyBoxShader.cpp" />
+    <ClCompile Include="Renderers\SkyBox\SkyBoxRenderer.cpp" />
+    <ClCompile Include="Renderers\Terrain\Shaders\TerrainShader.cpp" />
+    <ClCompile Include="Renderers\Terrain\TerrainRenderer.cpp" />
+    <ClCompile Include="Resources\Models\Assimp\AssimpModel.cpp" />
+    <ClCompile Include="Resources\Models\Mesh.cpp" />
+    <ClCompile Include="Resources\Models\Model.cpp" />
+    <ClCompile Include="Resources\Models\MyOBJ\MyModel.cpp" />
+    <ClCompile Include="Resources\OpenGLLoader.cpp" />
+    <ClCompile Include="Resources\ResourceManager.cpp" />
+    <ClCompile Include="Resources\TextureLoader.cpp" />
+    <ClCompile Include="Resources\Textures\CubeMapTexture.cpp" />
+    <ClCompile Include="Resources\Textures\MaterialTexture.cpp" />
+    <ClCompile Include="Resources\Textures\Texture.cpp" />
+    <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="Shaders\Deffered\LightPassShader.cpp" />
+    <ClCompile Include="Renderers\Grass\Shaders\GrassShader.cpp" />
+    <ClCompile Include="Shaders\Loading\LoadingShader.cpp" />
+    <ClCompile Include="Shaders\ShaderProgram.cpp" />
+    <ClCompile Include="Renderers\Entity\Shaders\EntityShader.cpp" />
+    <ClCompile Include="Renderers\Entity\Shaders\SimpleEnityShader.cpp" />
+    <ClCompile Include="Time\DayNightCycle.cpp" />
+    <ClCompile Include="Time\GameTime.cpp" />
+    <ClCompile Include="Utils\GLM\GLMUtils.cpp" />
+    <ClCompile Include="Utils\OpenGL\OpenGLUtils.cpp" />
+    <ClCompile Include="Utils\ParseUtils.cpp" />
+    <ClCompile Include="Utils\Utils.cpp" />
+    <ClCompile Include="Utils\XML\SceneReader.cpp" />
+    <ClCompile Include="Utils\XML\XMLUtils.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

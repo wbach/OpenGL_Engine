@@ -15,10 +15,10 @@ MainScene::MainScene(CEngine &engine)
 	gui_renderer->AddElement(guiText);
 
 	SGuiTextElement score;
-	score.text = "Lorem Ipsum jest tekstem stosowanym jako przyk³adowy wype³niacz w przemyœle poligraficznym. Zosta³ po raz pierwszy u¿yty w XV w. przez nieznanego drukarza do wype³nienia tekstem próbnej ksi¹¿ki. Piêæ wieków póŸniej zacz¹³ byæ u¿ywany przemyœle elektronicznym, pozostaj¹c praktycznie niezmienionym. Spopularyzowa³ siê w latach 60. XX w. wraz z publikacj¹ arkuszy Letrasetu, zawieraj¹cych fragmenty Lorem Ipsum, a ostatnio z zawieraj¹cym ró¿ne wersje Lorem Ipsum oprogramowaniem przeznaczonym do realizacji druków na komputerach osobistych, jak Aldus PageMaker.";
+	score.text = "Lorem Ipsum jest tekstem stosowanym\njako przyk³adowy wype³niacz w przemyœle poligraficznym.\nZosta³ po raz pierwszy u¿yty w XV w.\nprzez nieznanego drukarza do wype³nienia tekstem próbnej ksi¹¿ki. Piêæ wieków póŸniej zacz¹³ byæ u¿ywany przemyœle elektronicznym, pozostaj¹c praktycznie niezmienionym. Spopularyzowa³ siê w latach 60. XX w. wraz z publikacj¹ arkuszy Letrasetu, zawieraj¹cych fragmenty Lorem Ipsum, a ostatnio z zawieraj¹cym ró¿ne wersje Lorem Ipsum oprogramowaniem przeznaczonym do realizacji druków na komputerach osobistych, jak Aldus PageMaker.";
 	score.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
 
-	score.position = glm::vec2(-0.55, -0.0);
+	score.position = glm::vec2(-0.9, 0.9);
 	guiText->texts["Line_p1"] = score;
 
 	engine.m_Renderers.emplace_back(gui_renderer);

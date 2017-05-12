@@ -26,8 +26,8 @@ int CreateVertex(vec3 offset, vec2 text_coord)
 {
 	if( offset.y > 0.f)
 	{
-		offset.x += sin(GlobalTime);
-		offset.z += cos(GlobalTime);
+		//offset.x += sin(GlobalTime);
+		//offset.z += cos(GlobalTime);
 	}
 	vec4 actual_offset = vec4(offset * size, .0f);
 	vec4 world_position = (gl_in[0].gl_Position + actual_offset);

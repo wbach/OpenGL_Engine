@@ -17,7 +17,7 @@ Logs/
 
 
 #Moje
-*.vcxproj
+#*.vcxproj
 *.filters
 *.user
 
