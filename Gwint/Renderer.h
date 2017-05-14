@@ -6,7 +6,7 @@
 class CGwitRenderer : public SimpleRenderer
 {
 public:
-	CGwitRenderer(SProjection* projection_matrix)
+	CGwitRenderer(CProjection* projection_matrix)
 		: SimpleRenderer(projection_matrix)
 		, renderer_quad(nullptr)
 		, bg_texture(nullptr)

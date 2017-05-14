@@ -1,12 +1,16 @@
 #pragma once
 #include "../Renderer.h"
 #include "Shaders/TerrainShader.h"
-#include "../../Utils/OpenGL/OpenGLUtils.h"
+#include <list>
+
+class CModel;
+struct STerrain;
+class CProjection;
 
 class CTerrainRenderer : public CRenderer
 {
 public:
-	CTerrainRenderer(SProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
+	CTerrainRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
 	// Loading lights itp to shader
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;
@@ -15,13 +19,13 @@ public:
 	virtual void Subscribe(CGameObject* gameObject) override;
 	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
 private:
-	void BindTextures(CTerrain* terrain) const;
+	void BindTextures(STerrain* terrain) const;
 
 
 	CTerrainShader m_Shader;
-	SProjection*	m_ProjectionMatrix;
+	CProjection*	m_ProjectionMatrix;
 
-	std::list<CTerrain*> m_Subscribes;
+	std::list<STerrain*> m_Subscribes;
 
 	glm::vec4	m_ClipPlane;
 };

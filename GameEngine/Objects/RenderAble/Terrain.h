@@ -1,8 +1,10 @@
 #pragma once
 #include "../GameObject.h"
 #include "../../Resources/SimpleModels/Quad.h"
-#include "../../Resources/Textures/Texture.h"
-#include "../../Resources/Models/Model.h"
+
+class CTexture;
+class CModel;
+struct SImage;
 
 static const float TERRAIN_SIZE = 200.f;
 
@@ -16,7 +18,7 @@ struct TerrainTextures
 	CTexture* m_DisplacementMap		= nullptr;
 };
 
-struct CTerrain : public CGameObject
+struct STerrain : public CGameObject
 {
 	enum TexturesTypes
 	{
@@ -35,7 +37,7 @@ struct CTerrain : public CGameObject
 		count
 	};
 
-	CTerrain();
+	STerrain();
 
 	void SetHeight(int x, int y, float value);
 

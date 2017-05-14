@@ -1,5 +1,6 @@
 #include "LodingScreenRenderer.h"
 #include "../Utils/GLM/GLMUtils.h"
+#include "../Resources/Textures/Texture.h"
 
 CLoadingScreenRenderer::CLoadingScreenRenderer(CTexture * bgTexture, CTexture * circleTexture)
 	: circleTexture(circleTexture)

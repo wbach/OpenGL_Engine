@@ -2,16 +2,16 @@
 #include "glm/glm.hpp"
 #include "../Utils/Utils.h"
 
-class SProjection
+class CProjection
 {
 public:
-	SProjection()
-		: SProjection({640,480}, .1f, 1000.f, 50.f)
+	CProjection()
+		: CProjection({640,480}, .1f, 1000.f, 50.f)
 	{}
-	SProjection(const wb::vec2i& window_size)
-		: SProjection(window_size, .1f, 1000.f, 50.f)
+	CProjection(const wb::vec2i& window_size)
+		: CProjection(window_size, .1f, 1000.f, 50.f)
 	{}
-	SProjection(const wb::vec2i& window_size, float near, float far, float fov)
+	CProjection(const wb::vec2i& window_size, float near, float far, float fov)
 		: m_WindowSize(window_size)
 		, m_NearPlane(near)
 		, m_FarPlane(far)

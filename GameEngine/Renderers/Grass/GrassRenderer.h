@@ -1,12 +1,14 @@
 #pragma once
 #include "../Renderer.h"
 #include "Shaders/GrassShader.h"
-#include "../../Objects/RenderAble/Grass.h"
+
+struct SGrass;
+class CProjection;
 
 class CGrassRenderer : public CRenderer
 {
 public:
-	CGrassRenderer(SProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
+	CGrassRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;
 	virtual void Render(CScene* scene) override;
@@ -14,7 +16,8 @@ public:
 	virtual void Subscribe(CGameObject* gameObject) override;
 private:
 	CGrassShader m_Shader;
-	SProjection* m_Projection;
+	CProjection* m_Projection;
 
-	std::list<CGrass*> m_Subscribes;
+	std::list<SGrass*> m_Subscribes;
+	float viewDistance = 30.f;
 };

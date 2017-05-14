@@ -1,6 +1,11 @@
 #include "EntityRenderer.h"
+#include "../../Engine/Projection.h"
+#include "../../Scene/Scene.hpp"
+#include "../../Objects/RenderAble/Entity.h"
+#include "../../Utils/OpenGL/OpenGLUtils.h"
+#include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
-CEntityRenderer::CEntityRenderer(SProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
 	: m_ProjectionMatrix(projection_matrix)
 	, m_ClipPlane(glm::vec4(0, 1, 0, 100000))
 	, CRenderer(framebuffer)

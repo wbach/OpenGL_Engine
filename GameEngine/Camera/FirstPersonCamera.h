@@ -1,11 +1,8 @@
 #pragma once
 #include "Camera.h"
-#include "../Input/InputManager.h"
-#include "../Display/DisplayManager.hpp"
-#include <stdio.h>
-#include <stdlib.h>
 
-static glm::vec3 zero(0);
+class CInputManager;
+class CDisplayManager;
 
 class CFirstPersonCamera : public CCamera
 {
@@ -15,7 +12,6 @@ public:
 
 	void Move() override;
 	void AttachToObject(glm::vec3& position_entity, glm::vec3& rotation_entity) override;
-
 private:
 	void MoveCamera(float dist, float dir);
 	void MoveCameraUp(float dist, float dir);

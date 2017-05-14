@@ -1,17 +1,11 @@
 #pragma once
-#include "../Input/Input.h"
+#include "ApiMessages.h"
 #include <memory>
+#include <string>
 
 class CInput;
+
 static std::unique_ptr<CInput> s_input = nullptr;
-namespace ApiMessages 
-{
-	enum Type
-	{
-		NONE = 0,
-		QUIT
-	};
-}
 
 class CApi 
 {

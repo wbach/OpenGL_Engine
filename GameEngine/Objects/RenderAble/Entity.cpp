@@ -1,5 +1,7 @@
 #include "Entity.h"
 #include "../../Debug_/Log.h"
+#include "../../Resources/Models/Model.h"
+#include "../../Resources/ResourceManager.h"
 
 CEntity::CEntity()
 {

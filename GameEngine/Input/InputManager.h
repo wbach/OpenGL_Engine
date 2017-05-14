@@ -2,6 +2,8 @@
 #include "Input.h"
 #include <memory>
 
+class CInput;
+
 class CInputManager
 {
 public:	

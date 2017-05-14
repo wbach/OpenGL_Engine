@@ -1,6 +1,12 @@
 #include "SkyBoxRenderer.h"
+#include "../Framebuffer/FrameBuffer.h"
+#include "../../Utils/OpenGL/OpenGLUtils.h"
+#include "../../Resources/Models/Model.h"
+#include "../../Resources/Textures/Texture.h"
+#include "../../Engine/Projection.h"
+#include "../../Scene/Scene.hpp"
 
-CSkyBoxRenderer::CSkyBoxRenderer(SProjection *projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
     : m_Model(nullptr)
 	, m_DayTexture(nullptr)
 	, m_NightTexture(nullptr)

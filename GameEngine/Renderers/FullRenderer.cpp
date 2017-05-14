@@ -1,19 +1,27 @@
 #include "FullRenderer.h"
+#include "LightPassRenderer.h"
+
 #include "Entity/EntityRenderer.h"
 #include "Terrain/TerrainRenderer.h"
 #include "SkyBox/SkyBoxRenderer.h"
 #include "Grass/GrassRenderer.h"
-#include "LightPassRenderer.h"
+#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
-FullRenderer::FullRenderer(SProjection* projection_matrix)
+#include "../Engine/Configuration.h"
+#include "../Engine/Projection.h"
+
+
+FullRenderer::FullRenderer(CProjection* projection_matrix)
 	: m_ProjectionMatrix(projection_matrix)
 	, m_DefferedFrameBuffer(new CDefferedFrameBuffer())
-{
-	m_Renderers.emplace_back(new CLightPassRenderer(projection_matrix, m_DefferedFrameBuffer));
-    m_Renderers.emplace_back(new CGrassRenderer(projection_matrix, m_DefferedFrameBuffer));
+{	
+	if(SConfiguration::Instance().advancedGrass)
+		m_Renderers.emplace_back(new CGrassRenderer(projection_matrix, m_DefferedFrameBuffer));
+
 	m_Renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, m_DefferedFrameBuffer));
     m_Renderers.emplace_back(new CTerrainRenderer(projection_matrix, m_DefferedFrameBuffer));
 	m_Renderers.emplace_back(new CEntityRenderer(projection_matrix, m_DefferedFrameBuffer));	
+	m_Renderers.emplace_back(new CLightPassRenderer(projection_matrix, m_DefferedFrameBuffer));
 }
 
 void FullRenderer::Init()

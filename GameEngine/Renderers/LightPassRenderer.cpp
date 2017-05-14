@@ -1,6 +1,9 @@
 #include "LightPassRenderer.h"
+#include "Framebuffer/FrameBuffer.h"
+#include "../Engine/Projection.h"
+#include "../Scene/Scene.hpp"
 
-CLightPassRenderer::CLightPassRenderer(SProjection * projection, std::weak_ptr<CFrameBuffer> frambuffer)
+CLightPassRenderer::CLightPassRenderer(CProjection * projection, std::weak_ptr<CFrameBuffer> frambuffer)
 	: m_Projection(projection)
 	, CRenderer(frambuffer)
 {

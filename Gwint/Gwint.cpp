@@ -4,7 +4,7 @@
 
 void CGwintGame::Start()
 {
-	engine.m_Projection = SProjection(wb::vec2i{ 640, 600 }, 0.01f, 100.f, 50);
+	engine.m_Projection = CProjection(wb::vec2i{ 640, 600 }, 0.01f, 100.f, 50);
 	renderer = new CGwitRenderer(&engine.m_Projection);
 	engine.m_Renderers.emplace_back(renderer);
 

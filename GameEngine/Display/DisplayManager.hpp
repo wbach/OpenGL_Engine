@@ -1,14 +1,16 @@
 #pragma once
-#include "../Api/Api.hpp"
 #include "../Api/SDL2/SDLOpenGL.h"
 #include "../Utils/Utils.h"
 #include <memory>
 #include <string>
-#include <glm/glm.hpp>
+
+class CApi;
+class CInput;
 
 class CDisplayManager
 {
 public:
+	CDisplayManager();
 	CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen);
 	CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
 	ApiMessages::Type PeekMessage();

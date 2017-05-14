@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Api\Api.hpp" />
+    <ClInclude Include="Api\ApiMessages.h" />
     <ClInclude Include="Api\SDL2\InputSDL.h" />
     <ClInclude Include="Api\SDL2\SDLOpenGL.h" />
     <ClInclude Include="Camera\Camera.h" />
@@ -160,12 +161,16 @@
     <ClInclude Include="Camera\ThridPersonCamera.h" />
     <ClInclude Include="Debug_\Log.h" />
     <ClInclude Include="Display\DisplayManager.hpp" />
+    <ClInclude Include="Engine\Configuration.h" />
     <ClInclude Include="Engine\Engine.h" />
+    <ClInclude Include="Engine\LoD.h" />
     <ClInclude Include="Engine\Projection.h" />
     <ClInclude Include="Input\GameActions.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\InputManager.h" />
+    <ClInclude Include="Input\KeyCodes.h" />
     <ClInclude Include="Lights\Light.h" />
+    <ClInclude Include="Lights\LightTypes.h" />
     <ClInclude Include="Objects\RenderAble\Grass.h" />
     <ClInclude Include="Objects\RenderAble\Entity.h" />
     <ClInclude Include="Objects\RenderAble\Terrain.h" />
@@ -207,6 +212,7 @@
     <ClInclude Include="Resources\Textures\Image.h" />
     <ClInclude Include="Resources\Textures\MaterialTexture.h" />
     <ClInclude Include="Resources\Textures\Texture.h" />
+    <ClInclude Include="Resources\Textures\TextureFlip.h" />
     <ClInclude Include="Scene\Scene.hpp" />
     <ClInclude Include="Shaders\Deffered\LightPassShader.h" />
     <ClInclude Include="Renderers\Grass\Shaders\GrassShader.h" />
@@ -235,6 +241,7 @@
     <ClCompile Include="Camera\ThridPersonCamera.cpp" />
     <ClCompile Include="Debug_\Log.cpp" />
     <ClCompile Include="Display\DisplayManager.cpp" />
+    <ClCompile Include="Engine\Configuration.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\InputManager.cpp" />

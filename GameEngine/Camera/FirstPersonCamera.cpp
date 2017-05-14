@@ -1,4 +1,8 @@
 #include "FirstPersonCamera.h"
+#include "../Input/InputManager.h"
+#include "../Display/DisplayManager.hpp"
+
+static glm::vec3 zero(0);
 
 CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager)
 : m_LookPosition(zero)

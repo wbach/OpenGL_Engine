@@ -13,7 +13,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 {
 	if (m_Image.m_Data == nullptr || m_IsInit)
 	{
-		Log("[Error] OGL There was an error loading the texture : " + m_Filename);
+		Log("[Error] OGL There was an error loading the texture : " + filename);
 		return;
 	}
 
@@ -23,7 +23,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 	if (hubo_error)
 	{
 		delete[] m_Image.m_Data;
-		Log("[Error] OGL There was an error loading the texture : " + m_Filename);
+		Log("[Error] OGL There was an error loading the texture : " + filename);
 		return;
 	}
 

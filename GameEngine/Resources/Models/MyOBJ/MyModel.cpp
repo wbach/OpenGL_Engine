@@ -135,12 +135,12 @@ void CMyModel::ReadMaterialFile(const std::string& file_name)
 		if (!prefix.compare("map_Kd"))
 		{
 			if (current_material != nullptr)
-				current_material->m_DiffuseTexture = m_TextureLodaer.LoadTexture("../Data/Textures/" + value, true, TextureType::MATERIAL);
+				current_material->m_DiffuseTexture = m_TextureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
 		}
 		if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
 		{
 			if (current_material != nullptr)
-				current_material->m_NormalTexture = m_TextureLodaer.LoadTexture("../Data/Textures/" + value, true, TextureType::MATERIAL);
+				current_material->m_NormalTexture = m_TextureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
 		}
 	}
 

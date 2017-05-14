@@ -1,7 +1,7 @@
 #pragma once
+#include "../Utils/Types.h"
 #include <string>
 #include <list>
-#include "../Utils/Types.h"
 
 class CLogger
 {

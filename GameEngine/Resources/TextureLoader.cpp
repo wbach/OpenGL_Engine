@@ -1,4 +1,11 @@
 #include "TextureLoader.h"
+#include "OpenGLLoader.h"
+#include "Textures/MaterialTexture.h"
+#include "Textures/CubeMapTexture.h"
+#include "../Debug_/Log.h"
+#include "../Engine/Configuration.h"
+#include <FreeImage.h>
+#include <algorithm>
 
 CTextureLoader::CTextureLoader(std::vector<std::unique_ptr<CTexture>>& textures_vector, COpenGLLoader & openGLLoader)
 	: m_Textures(textures_vector)
@@ -6,7 +13,7 @@ CTextureLoader::CTextureLoader(std::vector<std::unique_ptr<CTexture>>& textures_
 {
 }
 
-void CTextureLoader::ReadFile(const std::string & file, SImage& image, TextureFlip::Type flip_mode)
+void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool applySizeLimit, TextureFlip::Type flip_mode)
 {
 	FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file.c_str(), 0);
 	if (formato == FIF_UNKNOWN)
@@ -36,7 +43,26 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, TextureFl
 		FreeImage_FlipHorizontal(imagen);
 
 	int w = FreeImage_GetWidth(imagen);
-	int h = FreeImage_GetHeight(imagen);
+	int h = FreeImage_GetHeight(imagen);	
+	
+	if (applySizeLimit)
+	{
+		auto& texture_size = SConfiguration::Instance().maxTextureResolutuion;
+		bool resize_texture = false;
+
+		if (w > texture_size.x)
+		{
+			w = texture_size.x;
+			resize_texture = true;
+		}
+		if (h > texture_size.y)
+		{
+			h = texture_size.y;
+			resize_texture = true;
+		}
+		if (resize_texture)
+			imagen = FreeImage_Rescale(imagen, w, h, FILTER_BSPLINE);
+	}
 
 	image.m_Width = w;
 	image.m_Height = h;
@@ -57,14 +83,14 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, TextureFl
     Log("File: " + file + " is loaded.");
 }
 
-CTexture* CTextureLoader::LoadTexture(const std::string & file, bool opengl_pass, TextureType::Type type, TextureFlip::Type flip_mode)
+CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLimit, bool opengl_pass, TextureType::Type type, TextureFlip::Type flip_mode)
 {
 	for (auto& t : m_Textures)
         if (t->GetFileName() == file)
             return t.get();
 
 	SImage texture; 
-	ReadFile(file, texture, flip_mode);
+	ReadFile(file, texture, applySizeLimit, flip_mode);
 
 	switch (type)
 	{
@@ -77,14 +103,14 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool opengl_pass
 	return m_Textures.back().get();
 }
 
-CTexture * CTextureLoader::LoadTextureImmediately(const std::string & file, TextureType::Type type, TextureFlip::Type flip_mode)
+CTexture * CTextureLoader::LoadTextureImmediately(const std::string & file, bool applySizeLimit, TextureType::Type type, TextureFlip::Type flip_mode)
 {
-	auto texture = LoadTexture(file, false, type, flip_mode);
+	auto texture = LoadTexture(file, applySizeLimit, false, type, flip_mode);
 	texture->OpenGLLoadingPass();
 	return texture;
 }
 
-CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool opengl_pass)
+CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit, bool opengl_pass)
 {
 	if (files.size() != 6)
 	{
@@ -97,7 +123,7 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool ope
 
 	int x = 0;
 	for (const auto& file : files)
-		ReadFile(file, images[x++], TextureFlip::VERTICAL);
+		ReadFile(file, images[x++], applySizeLimit, TextureFlip::VERTICAL);
 
 	m_Textures.emplace_back(new CCubeMapTexture(files[0], images));
 

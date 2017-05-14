@@ -42,4 +42,9 @@ namespace Utils
 	std::string ConvertToRelativePath(std::string path);	
 	int NextP2(int a);
 	bool CheckFileExist(const std::string& file);
+
+	//catch exception and log
+	float StringToFloat(const std::string& str);
+	int StringToInt(const std::string& str);
+	bool StringToBool(const std::string& str);
 }

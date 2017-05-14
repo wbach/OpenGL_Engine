@@ -1,4 +1,5 @@
 #include "InputSDL.h"
+#include <SDL2/SDL.h>
 
 CInputSDL::CInputSDL(SDL_Window* sdl_window)
 : m_SdlWindow(sdl_window)

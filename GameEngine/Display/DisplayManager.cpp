@@ -1,5 +1,9 @@
 #include "DisplayManager.hpp"
+#include "../Input/Input.h"
 #include "../Debug_/Log.h"
+
+CDisplayManager::CDisplayManager()
+{}
 
 CDisplayManager::CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen)
 	: CDisplayManager(std::make_unique<CSdlOpenGlApi>(), window_name, w, h, full_screen)

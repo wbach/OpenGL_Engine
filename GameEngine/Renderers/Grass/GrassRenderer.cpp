@@ -1,6 +1,13 @@
 #include "GrassRenderer.h"
 
-CGrassRenderer::CGrassRenderer(SProjection * projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+#include "../Framebuffer/FrameBuffer.h"
+
+#include "../../Scene/Scene.hpp"
+#include "../../Engine/Projection.h"
+#include "../../Engine/Configuration.h"
+#include "../../Objects/RenderAble/Grass.h"
+
+CGrassRenderer::CGrassRenderer(CProjection * projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
 	: m_Projection(projection_matrix)
 	, CRenderer(framebuffer)
 {	
@@ -12,12 +19,13 @@ void CGrassRenderer::Init()
 	m_Shader.Start();
 	m_Shader.LoadProjectionMatrix(m_Projection->GetProjectionMatrix());
 	m_Shader.Stop();
+
+	viewDistance = SConfiguration::Instance().floraViewDistance;
 	Log("Grass renderer initialized.");
 }
 
 void CGrassRenderer::PrepareFrame(CScene * scene)
-{
-		
+{		
 }
 
 void CGrassRenderer::Render(CScene * scene)
@@ -31,7 +39,7 @@ void CGrassRenderer::Render(CScene * scene)
 	m_Shader.LoadGlobalTime(scene->GetGlobalTime());
 	m_Shader.LoadShadowValues(0.f, 0.f, 512.f);
 	m_Shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-    m_Shader.LoadViewDistance(30.f);
+    m_Shader.LoadViewDistance(viewDistance);
 
 	Utils::DisableCulling();
 
@@ -54,9 +62,7 @@ void CGrassRenderer::Render(CScene * scene)
 			glDisableVertexAttribArray(0);
 			glBindVertexArray(0);
 		}
-
 	}
-
 	Utils::EnableCulling();
 	
 	m_Shader.Stop();
@@ -68,7 +74,7 @@ void CGrassRenderer::EndFrame(CScene * scene)
 
 void CGrassRenderer::Subscribe(CGameObject * gameObject)
 {
-	auto grass = dynamic_cast<CGrass*>(gameObject);
+	auto grass = dynamic_cast<SGrass*>(gameObject);
 	if (grass != nullptr)
 		m_Subscribes.push_back(grass);
 }

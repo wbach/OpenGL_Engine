@@ -24,7 +24,7 @@ void CCubeMapTexture::OpenGLLoadingPass()
 		for(auto& i : m_Images)
 			delete[] i.m_Data;
 
-		Log("[Error] OGL There was an error loading the texture : " + m_Filename);
+		Log("[Error] OGL There was an error loading the texture : " + filename);
 		return;
 	}
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_Id);

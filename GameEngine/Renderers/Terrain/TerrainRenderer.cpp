@@ -1,9 +1,13 @@
 #include "TerrainRenderer.h"
+#include "../Framebuffer/FrameBuffer.h"
+
+#include "../../Engine/Projection.h"
+#include "../../Scene/Scene.hpp"
 #include "../../Utils/GLM/GLMUtils.h"
 
 const float heightFactor = 25.f;
 
-CTerrainRenderer::CTerrainRenderer(SProjection * projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+CTerrainRenderer::CTerrainRenderer(CProjection * projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
 	: m_ProjectionMatrix(projection_matrix)
 	, m_ClipPlane(glm::vec4(0, 1, 0, 100000))
 	, CRenderer(framebuffer)
@@ -31,9 +35,7 @@ void CTerrainRenderer::PrepareFrame(CScene * scene)
 	for (auto& sub : m_Subscribes)
 	{
 		sub->m_Quad.Init();
-	}
-	
-	
+	}	
 
 	m_Shader.Start();
 	m_Shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
@@ -80,12 +82,11 @@ void CTerrainRenderer::Render(CScene * scene)
 
 void CTerrainRenderer::EndFrame(CScene * scene)
 {
-
 }
 
 void CTerrainRenderer::Subscribe(CGameObject * gameObject)
 {
-	auto terrain = dynamic_cast<CTerrain*>(gameObject);
+	auto terrain = dynamic_cast<STerrain*>(gameObject);
 	if (terrain != nullptr)
 		m_Subscribes.push_back(terrain);
 }
@@ -94,7 +95,7 @@ void CTerrainRenderer::RenderModel(CModel * model, const glm::mat4 & transform_m
 {
 }
 
-void CTerrainRenderer::BindTextures(CTerrain * terrain) const
+void CTerrainRenderer::BindTextures(STerrain * terrain) const
 {
 	int i = 0;
 	for (auto& t : terrain->m_Textures)

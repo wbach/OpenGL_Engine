@@ -72,3 +72,55 @@ bool Utils::CheckFileExist(const std::string & file)
 	f.close();
 	return exist;
 }
+
+float Utils::StringToFloat(const std::string & str)
+{
+	float f = 0.0f;
+	try
+	{
+		f = std::stof(str);
+	}
+	catch (const std::invalid_argument& e)
+	{
+		std::string s = e.what();
+		Log("Utils::StringToFloat invalid_argument. : " + s);
+	}
+	catch (const std::out_of_range& e)
+	{
+		std::string s = e.what();
+		Log("Utils::StringToFloat out_of_range. : " + s);
+	}
+	return f;
+}
+
+int Utils::StringToInt(const std::string & str)
+{
+	int i = 0;
+	try
+	{
+		i = std::stoi(str);
+	}
+	catch (const std::invalid_argument& e)
+	{
+		std::string s = e.what();
+		Log("Utils::StringToInt invalid_argument. : " + s);
+	}
+	catch (const std::out_of_range& e)
+	{
+		std::string s = e.what();
+		Log("Utils::StringToInt out_of_range. : " + s);
+	}
+	return i;
+}
+
+bool Utils::StringToBool(const std::string & str)
+{
+	if (str == "1")
+		return true;
+	if (str == "0")
+		return false;
+
+	auto s = str;
+	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+	return (s == "true" ? true : false);
+}

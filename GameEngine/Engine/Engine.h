@@ -1,17 +1,17 @@
 #pragma once
+#include "Projection.h"
 #include "../Display/DisplayManager.hpp"
 #include "../Input/InputManager.h"
-#include "../Scene/Scene.hpp"
-#include "../Renderers/LodingScreenRenderer.h"
 #include "../Resources/ResourceManager.h"
-#include "Projection.h"
-#include "Configuration.h"
+#include "../Renderers/LodingScreenRenderer.h"
+
+class CScene;
+class CLoadingScreenRenderer;
 
 class CEngine
 {
 public:
     CEngine();
-	int  ReadConfiguration(const std::string& file_name);
 	void Init();
 	void GameLoop();
 	void OpenGLLoadingPass(std::thread& loading_thread);
@@ -20,8 +20,7 @@ public:
 	void SetIsLoading(bool is);
 	bool GetIsLoading();
 
-    SConfiguration m_Configuration;
-	SProjection m_Projection;
+	CProjection m_Projection;
 	CDisplayManager m_DisplayManager;
 	CInputManager	m_InputManager;
 	std::unique_ptr<CScene> m_Scene;
@@ -33,5 +32,5 @@ private:
 	CResourceManager m_ResorceManager;
 
 	bool m_IsLoading;
-	std::mutex m_LoadingMutex;    
+	std::mutex m_LoadingMutex;
 };

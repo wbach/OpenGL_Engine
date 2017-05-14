@@ -1,9 +1,10 @@
 #pragma once
-#include "../Scene/Scene.hpp"
-#include "../Engine/Projection.h"
-#include "../Objects/GameObject.h"
-#include "../Debug_/Log.h"
-#include "Framebuffer/FrameBuffer.h"
+#include "../Utils/Types.h"
+#include <memory>
+
+class CScene;
+class CFrameBuffer;
+class CGameObject;
 
 class CRenderer
 {

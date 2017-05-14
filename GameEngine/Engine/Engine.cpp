@@ -1,4 +1,7 @@
 #include "Engine.h"
+#include "Configuration.h"
+#include "../Api/ApiMessages.h"
+#include "../Scene/Scene.hpp"
 #include "../Renderers/FullRenderer.h"
 #include "../Renderers/SimpleRenderer.h"
 #include "../Renderers/GUI/GuiRenderer.h"
@@ -6,11 +9,13 @@
 #include <fstream>
 
 CEngine::CEngine()
-    : m_DisplayManager("window_name", 1000, 600, 0)
-    , m_Projection({1000, 600})
 {
+	auto& conf = SConfiguration::Instance();
+	conf.ReadFromFile("../Data/Conf.xml");	
+
+	m_DisplayManager = CDisplayManager(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
 	m_DisplayManager.SetInput(m_InputManager.m_Input);
-    ReadConfiguration("../Data/Conf.ini");
+	m_Projection = conf.resolution;
 }
 
 void CEngine::GameLoop()
@@ -122,65 +127,31 @@ bool CEngine::GetIsLoading()
 	return m_IsLoading;
 }
 
-int CEngine::ReadConfiguration(const std::string & file_name)
-{
-	std::ifstream file;
-	file.open(file_name);
-	if (!file.is_open())
-	{
-		Log("[Error] Cant open configuration file.");
-		return -1;
-	}
-	std::string line;
-
-	while (std::getline(file, line))
-	{
-		std::string var = line.substr(0, line.find_last_of("="));
-		std::string value = line.substr(line.find_last_of("=") + 1);
-
-        /*
-        if (var.compare("Name") == 0)				m_Configuration.m_WindowName = value;
-        if (var.compare("Resolution") == 0)			m_Configuration.m_WindowSize = Get::Vector2d(value);
-        if (var.compare("FullScreen") == 0)			m_Configuration.m_FullScreen = Get::Boolean(value);
-		if (var.compare("RefreshRate") == 0)		m_RefreshRate = Get::Int(value);
-		if (var.compare("Sound") == 0)				m_IsSound = Get::Boolean(value);
-		if (var.compare("SoundVolume") == 0)		m_SoundVolume = Get::Float(value);
-		if (var.compare("RenderingResolution") == 0)	m_RenderingResolutionModifier = Get::Float(value);
-		if (var.compare("WaterQuality") == 0)		m_WaterQuality = Get::Float(value);
-		if (var.compare("WaterReflectionResolution") == 0)	m_ReflectionSize = Get::Vector2d(value);
-		if (var.compare("WaterRefractionResolution") == 0)	m_RefractionSize = Get::Vector2d(value);
-		if (var.compare("TextureMaxResolution") == 0)	m_MaxTextureResolution = Get::Vector2d(value);
-		if (var.compare("Shadows") == 0)			m_IsShadows = Get::Boolean(value);
-		if (var.compare("ShadowsDistance") == 0)	m_ShadowsDistance = Get::Float(value);
-		if (var.compare("ShadowMapSize") == 0)		m_ShadowMapSize = Get::Float(value);
-		if (var.compare("ViewDistance") == 0)		m_ViewDistance = Get::Float(value);
-		if (var.compare("GrassViewDistance") == 0)	m_GrassViewDistance = Get::Float(value);
-        if (var.compare("SimpleRender") == 0)		m_UsingSimpleRender = Get::Boolean(value); //*/
-
-	}
-	file.close();
-	return 0;
-}
-
 void CEngine::Init()
 {
 	glEnable(GL_DEPTH_TEST);
 
-	//if (m_Renderer == nullptr)
-	//{
-	//	Error("Main Renderer not set!");
-	//		exit(-1);
-	//}
 	if (m_Renderers.empty())
 	{
-		Log("Renderer not set, take default renderer (FullRenderer).");
-		m_Renderers.emplace_back(new FullRenderer(&m_Projection));
+		//Log("Renderer not set, take default renderer (FullRenderer).");
+		
+		auto renderer = SConfiguration::Instance().rendererType;
+
+		if (renderer == SConfiguration::RendererType::FULL_RENDERER)
+		{
+			m_Renderers.emplace_back(new FullRenderer(&m_Projection));
+		}
+		else
+		{
+			m_Renderers.emplace_back(new SimpleRenderer(&m_Projection));
+		}
+
 	}
 	for(auto& renderer : m_Renderers)
 		renderer->Init();
 	
-	auto circleTexture	= m_ResorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/circle2.png");
-	auto bgtexture		= m_ResorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", TextureType::MATERIAL, TextureFlip::VERTICAL);
+	auto circleTexture	= m_ResorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/circle2.png", false);
+	auto bgtexture		= m_ResorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::VERTICAL);
 	m_LoadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
 	m_LoadingScreenRenderer->Init();
 }

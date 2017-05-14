@@ -2,7 +2,7 @@
 #include "glm/glm.hpp"
 #include "../Utils/Types.h"
 
-struct CTransform
+class CTransform
 {
 public:
 	CTransform();

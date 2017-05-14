@@ -5,8 +5,6 @@
 #include "../Input/InputManager.h"
 #include "../Display/DisplayManager.hpp"
 
-static glm::vec3 zero(0);
-
 class CFirstPersonCamera : public CCamera
 {
 public:

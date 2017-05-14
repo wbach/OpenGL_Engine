@@ -1,6 +1,8 @@
 #pragma once
 #include "../../Input/Input.h"
-#include <SDL2/SDL.h>
+#include <glm/glm.hpp>
+
+struct SDL_Window;
 
 class CInputSDL : public CInput
 {

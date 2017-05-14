@@ -2,10 +2,15 @@
 #include "Renderer.h"
 #include "Entity/Shaders/SimpleEnityShader.h"
 
+class CModel;
+class CEntity;
+struct SMaterial;
+class CProjection;
+
 class SimpleRenderer : public CRenderer
 {
 public:
-    SimpleRenderer(SProjection* projection_matrix);
+    SimpleRenderer(CProjection* projection_matrix);
 
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;
@@ -17,7 +22,7 @@ private:
 	void BindTextures(const SMaterial& material) const;
 
 	CSimpleEntityShader m_Shader;
-	SProjection* m_ProjectionMatrix;
+	CProjection* m_ProjectionMatrix;
 
 	std::list<CEntity*> m_Subscribes;
 };

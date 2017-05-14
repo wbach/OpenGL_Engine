@@ -1,9 +1,9 @@
 #pragma once
-#include "../../Debug_/Log.h"
 #include "../Api.hpp"
-#include "InputSDL.h"
 #include <SDL2/SDL.h>
 #include <memory>
+
+class CInput;
 
 class CSdlOpenGlApi : public CApi
 {

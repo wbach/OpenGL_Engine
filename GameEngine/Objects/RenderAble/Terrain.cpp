@@ -1,7 +1,10 @@
 #include "Terrain.h"
 #include "../../Utils/GLM/GLMUtils.h"
+#include "../../Resources/Models/Model.h"
+#include "../../Resources/Textures/Image.h"
+#include "../../Resources/Textures/Texture.h"
 
-CTerrain::CTerrain()
+STerrain::STerrain()
 {	
 	for (auto& texture : m_Textures)
 	{
@@ -9,17 +12,17 @@ CTerrain::CTerrain()
 	}
 }
 
-void CTerrain::SetHeight(int x, int y, float value)
+void STerrain::SetHeight(int x, int y, float value)
 {
 	m_Heights[x + y*m_HeightMapResolution] = value;
 }
 
-const float CTerrain::GetHeightofTerrain(glm::vec2 posXZ) const
+const float STerrain::GetHeightofTerrain(glm::vec2 posXZ) const
 {
 	return GetHeightofTerrain(posXZ.x, posXZ.y);
 }
 
-const float CTerrain::GetHeightofTerrain(float worldX, float worldZ) const
+const float STerrain::GetHeightofTerrain(float worldX, float worldZ) const
 {
 	float terrain_x = worldX - m_WorldTransform.GetPositionXZ().x;
 	float terrain_z = worldZ - m_WorldTransform.GetPositionXZ().y;
@@ -49,12 +52,12 @@ const float CTerrain::GetHeightofTerrain(float worldX, float worldZ) const
 	return answer;
 }
 
-void CTerrain::InitHeights(int x, int y)
+void STerrain::InitHeights(int x, int y)
 {
 	m_Heights.resize(x*y);
 }
 
-void CTerrain::LoadHeight(SImage& height_map)
+void STerrain::LoadHeight(SImage& height_map)
 {
 	if (height_map.m_Data == nullptr)
 	{
@@ -99,12 +102,12 @@ void CTerrain::LoadHeight(SImage& height_map)
 	}*/
 }
 
-const float& CTerrain::GetHeight(int x, int y) const
+const float& STerrain::GetHeight(int x, int y) const
 {
 	return m_Heights[x + y*m_HeightMapResolution];
 }
 
-void CTerrain::Render()
+void STerrain::Render()
 {
 	m_Quad.Render(GL_PATCHES);
 }

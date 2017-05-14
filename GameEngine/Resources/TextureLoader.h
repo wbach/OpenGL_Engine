@@ -1,16 +1,12 @@
 #pragma once
-#include "../Debug_/Log.h"
-#include "Models/Material.h"
-#include "Textures/MaterialTexture.h"
-#include "Textures/CubeMapTexture.h"
-#include "OpenGLLoader.h"
+#include "Textures/TextureFlip.h"
 #include <string>
 #include <vector>
-#include <FreeImage.h>
 #include <memory>
-#include <algorithm>
-#include <list>
-#include <FreeImage.h>
+
+class CTexture;
+class COpenGLLoader;
+struct SImage;
 
 namespace TextureType
 {
@@ -24,13 +20,12 @@ class CTextureLoader
 {
 public:
 	CTextureLoader(std::vector<std::unique_ptr<CTexture>>& textures_vector, COpenGLLoader& openGLLoader);
-	void ReadFile(const std::string& file, SImage& image, TextureFlip::Type flip_mode = TextureFlip::NONE);
+	void ReadFile(const std::string& file, SImage& image, bool applySizeLimit = true, TextureFlip::Type flip_mode = TextureFlip::NONE);
 	//Return place in texture loader not in OpenGL
-	CTexture* LoadTexture(const std::string& file, bool opengl_pass = true, TextureType::Type type = TextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::NONE);
-	CTexture* LoadTextureImmediately(const std::string& file, TextureType::Type type = TextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::NONE);
-	CTexture* LoadCubeMap(std::vector<std::string>& files, bool opengl_pass = true);
+	CTexture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool opengl_pass = true, TextureType::Type type = TextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::NONE);
+	CTexture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, TextureType::Type type = TextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::NONE);
+	CTexture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool opengl_pass = true);
 private:
 	std::vector<std::unique_ptr<CTexture>>& m_Textures;
 	COpenGLLoader&   m_OpenGLLoader;
-	glm::vec2 m_MaxTextureResolution;
 };

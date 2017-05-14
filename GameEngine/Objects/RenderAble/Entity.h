@@ -1,7 +1,9 @@
 #pragma once
 #include "../GameObject.h"
-#include "../../Resources/Models/Model.h"
-#include "../../Resources/ResourceManager.h"
+#include <string>
+
+class CModel;
+class CResourceManager;
 
 class CEntity : public CGameObject
 {

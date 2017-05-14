@@ -1,6 +1,8 @@
 #include "SimpleRenderer.h"
+#include "../Engine/Projection.h"
+#include "../Scene/Scene.hpp"
 
-SimpleRenderer::SimpleRenderer(SProjection* projection_matrix)
+SimpleRenderer::SimpleRenderer(CProjection* projection_matrix)
 	: m_ProjectionMatrix(projection_matrix)
 {
 }

@@ -1,7 +1,9 @@
 #pragma once
 #include "Renderer.h"
 #include "../Shaders/Loading/LoadingShader.h"
-#include "GUI/GuiRenderer.h"
+#include "../Resources/SimpleModels/Quad.h"
+
+class CTexture;
 
 class CLoadingScreenRenderer : public CRenderer
 {

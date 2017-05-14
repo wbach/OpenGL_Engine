@@ -44,7 +44,7 @@ CLight::CLight()
 {
 }
 
-const int& CLight::GetType() const
+LightType::Type CLight::GetType() const
 {
 	return m_Type;
 }
@@ -64,9 +64,14 @@ const glm::vec3& CLight::GetAttenuation() const
 	return m_Attenuation;
 }
 
-const float& CLight::GetCutoff() const
+float CLight::GetCutoff() const
 {
 	return m_CutOff;
+}
+
+void CLight::SetType(LightType::Type type)
+{ 
+	m_Type = type; 
 }
 void CLight::SetPosition(const glm::vec3& position)
 {

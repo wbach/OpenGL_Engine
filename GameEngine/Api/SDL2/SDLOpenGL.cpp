@@ -1,5 +1,8 @@
 #include "SDLOpenGL.h"
+#include "../../Debug_/Log.h"
+#include "../../Input/Input.h"
 #include "../Api.hpp"
+#include "InputSDL.h"
 #include <GL/glew.h>
 
 CSdlOpenGlApi::~CSdlOpenGlApi()

@@ -1,13 +1,13 @@
 #pragma once
 #include "../GameObject.h"
-#include "../../Resources/ResourceManager.h"
-#include "../../Resources/Models/Model.h"
 #include <vector>
 
-struct CGrass : public CGameObject
+class CModel;
+
+struct SGrass : public CGameObject
 {
-	virtual ~CGrass() {}
-	CGrass()
+	virtual ~SGrass() {}
+	SGrass()
 	{ 	
 	
 	}
