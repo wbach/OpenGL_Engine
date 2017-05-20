@@ -10,7 +10,7 @@ class CProjection;
 class CTerrainRenderer : public CRenderer
 {
 public:
-	CTerrainRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
+	CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
 	// Loading lights itp to shader
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;

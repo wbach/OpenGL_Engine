@@ -1,4 +1,5 @@
 #include "SimpleRenderer.h"
+#include "../Objects/RenderAble/Entity.h"
 #include "../Engine/Projection.h"
 #include "../Scene/Scene.hpp"
 

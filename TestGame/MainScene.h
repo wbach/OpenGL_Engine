@@ -1,11 +1,12 @@
 #pragma once
 #include "../GameEngine/Scene/Scene.hpp"
+#include "../GameEngine/Objects/ObjectBuilder.h"
 #include "Player.h"
 #include <map>
 
 class CPlayer;
 class CEngine;
-struct STerrain;
+//struct STerrain;
 
 class MainScene : public CScene
 {
@@ -16,11 +17,12 @@ public:
     virtual void	PostInitialize() {};
     virtual int		Update();
 private:
-    std::map<STerrain::TexturesTypes, std::string> CreateTerrainTexturesMap();
-    void AddTerrain(std::map<STerrain::TexturesTypes, std::string>& textures, const glm::vec3& position);
-    void AddGrass();
+   TerrainTexturesMap CreateTerrainTexturesMap();
+    void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
+    std::vector<float> CreateGrassPositions(CGameObject*);
     CPlayer* player;
-    STerrain *terrain;
+	std::vector<CGameObject*> terrains;
+  //  STerrain *terrain;
     double time_clock = 0;
     CEngine& engine;
 };

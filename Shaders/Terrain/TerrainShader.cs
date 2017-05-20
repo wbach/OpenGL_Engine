@@ -17,16 +17,23 @@ out Vertex
 	vec3 normal;	
 } Out[];
 
-patch out Patch
+struct PatchData
 {
 	mat4 viewProjection;
-} OutPatch;
+};
+
+patch out PatchData outPatch;
+
+//patch out Patch
+//{
+//	mat4 viewProjection;
+//} OutPatch;
                                                     													
 void main()
 {
 	if( gl_InvocationID == 0 )
     {
-		OutPatch.viewProjection = In[gl_InvocationID].viewProjection;
+		outPatch.viewProjection = In[gl_InvocationID].viewProjection;
        // gl_TessLevelOuter[0] = 2;
        // gl_TessLevelOuter[1] = 2;
        // gl_TessLevelOuter[2] = 2;

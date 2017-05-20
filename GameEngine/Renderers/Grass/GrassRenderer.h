@@ -8,7 +8,7 @@ class CProjection;
 class CGrassRenderer : public CRenderer
 {
 public:
-	CGrassRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
+	CGrassRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;
 	virtual void Render(CScene* scene) override;

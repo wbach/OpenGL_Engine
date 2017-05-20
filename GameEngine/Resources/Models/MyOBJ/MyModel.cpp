@@ -314,7 +314,7 @@ void CMyModel::AddFinalMeshes()
 		for (auto& mesh : obj.meshes)
 		{
 			mesh.IndexinVBO();
-			AddMesh(mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, mesh.material, m_BonesInfo.bones);
+			AddMesh(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones);
 		}
 	}
 }

@@ -158,6 +158,9 @@ namespace XMLParser
 
 		auto str = Utils::ReadFile(file);
 
+		if (str.empty())
+			return config;
+
 		rapidxml::xml_document<> document;
 		try
 		{

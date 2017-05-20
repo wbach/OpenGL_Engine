@@ -10,7 +10,7 @@ struct SMaterial;
 class CSkyBoxRenderer : public CRenderer
 {
 public:
-    CSkyBoxRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
+    CSkyBoxRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
     virtual void Init() override;
     virtual void PrepareFrame(CScene* scene) override;
     virtual void Render(CScene* scene) override;

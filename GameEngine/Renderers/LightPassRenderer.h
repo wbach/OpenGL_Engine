@@ -8,7 +8,7 @@ class CProjection;
 class CLightPassRenderer : public CRenderer
 {
 public:
-	CLightPassRenderer(CProjection* projection, std::weak_ptr<CFrameBuffer> frambuffer);
+	CLightPassRenderer(CProjection* projection, CFrameBuffer* frambuffer);
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;
 	virtual void Render(CScene* scene) override;

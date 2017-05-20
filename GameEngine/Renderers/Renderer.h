@@ -10,7 +10,7 @@ class CRenderer
 {
 public:
 	CRenderer() {}
-	CRenderer(std::weak_ptr<CFrameBuffer> target) : m_Target(target){}
+	CRenderer(CFrameBuffer* target) : m_Target(target){}
 	virtual ~CRenderer() {}
     virtual void Init() = 0 ;
     virtual void PrepareFrame(CScene* scene) = 0;
@@ -26,5 +26,5 @@ protected:
 	uint m_RendererVertixesPerFrame = 0;
 	uint m_MaxVerices = 0;
 
-	std::weak_ptr<CFrameBuffer> m_Target;
+	CFrameBuffer* m_Target = nullptr;
 };

@@ -1,15 +1,9 @@
 #pragma once
 //#define _CRT_SECURE_NO_WARNINGS
 #include "../Utils/Utils.h"
-#include <string>
-#include <fstream>
-#include <iostream>
 #include <GL/glew.h>
 #include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "../Debug_/Log.h"
+#include <list>
 
 const int MAX_BONES = 100;
 

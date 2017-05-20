@@ -171,9 +171,11 @@
     <ClInclude Include="Input\KeyCodes.h" />
     <ClInclude Include="Lights\Light.h" />
     <ClInclude Include="Lights\LightTypes.h" />
+    <ClInclude Include="Objects\ObjectBuilder.h" />
     <ClInclude Include="Objects\RenderAble\Grass.h" />
     <ClInclude Include="Objects\RenderAble\Entity.h" />
     <ClInclude Include="Objects\RenderAble\Terrain.h" />
+    <ClInclude Include="Objects\RenderAble\TerrainTexturesTypes.h" />
     <ClInclude Include="Renderers\Entity\EntityRenderer.h" />
     <ClInclude Include="Renderers\Entity\Shaders\GeometryEntityShader.h" />
     <ClInclude Include="Renderers\Framebuffer\DeferedFrameBuffer\DeferedFrameBuffer.h" />
@@ -224,11 +226,13 @@
     <ClInclude Include="Time\GameTime.h" />
     <ClInclude Include="Utils\GLM\GLMUtils.h" />
     <ClInclude Include="Utils\OpenGL\OpenGLUtils.h" />
-    <ClInclude Include="Utils\optional.h" />
+    <ClInclude Include="Utils\optional.hpp" />
     <ClInclude Include="Utils\ParseUtils.h" />
     <ClInclude Include="Utils\Pathes.h" />
     <ClInclude Include="Utils\Types.h" />
     <ClInclude Include="Utils\Utils.h" />
+    <ClInclude Include="Utils\XML\BasicParseMethods.hpp" />
+    <ClInclude Include="Utils\XML\BasicSerializedMethods.hpp" />
     <ClInclude Include="Utils\XML\SceneReader.h" />
     <ClInclude Include="Utils\XML\XMLUtils.h" />
   </ItemGroup>
@@ -247,6 +251,7 @@
     <ClCompile Include="Input\InputManager.cpp" />
     <ClCompile Include="Lights\Light.cpp" />
     <ClCompile Include="Objects\GameObject.cpp" />
+    <ClCompile Include="Objects\ObjectBuilder.cpp" />
     <ClCompile Include="Objects\RenderAble\Entity.cpp" />
     <ClCompile Include="Objects\RenderAble\Terrain.cpp" />
     <ClCompile Include="Objects\Transform.cpp" />
@@ -291,6 +296,8 @@
     <ClCompile Include="Utils\OpenGL\OpenGLUtils.cpp" />
     <ClCompile Include="Utils\ParseUtils.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
+    <ClCompile Include="Utils\XML\BasicParseMethods.cpp" />
+    <ClCompile Include="Utils\XML\BasicSerializedMethods.cpp" />
     <ClCompile Include="Utils\XML\SceneReader.cpp" />
     <ClCompile Include="Utils\XML\XMLUtils.cpp" />
   </ItemGroup>

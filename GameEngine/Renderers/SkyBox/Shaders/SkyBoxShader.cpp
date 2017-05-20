@@ -1,4 +1,5 @@
 #include "SkyBoxShader.h"
+#include "glm/gtx/transform.hpp"
 
 void CSkyBoxShader::Init()
 {

@@ -9,7 +9,7 @@ class CModel;
 class CEntityRenderer : public CRenderer
 {
 public:
-	CEntityRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer);
+	CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
 	// Loading lights itp to shader
 	virtual void Init() override;
 	virtual void PrepareFrame(CScene* scene) override;

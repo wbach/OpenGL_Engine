@@ -4,6 +4,18 @@ layout( triangles, equal_spacing, ccw ) in;
 uniform sampler2D gDisplacementMap;
 uniform float heightFactor;
 
+struct PatchData
+{
+	mat4 viewProjection;
+};
+
+patch in PatchData InPatch;
+
+//patch in Patch
+//{
+//	mat4 viewProjection;
+//} InPatch;
+
 in Vertex
 {
 	vec3 position;
@@ -17,11 +29,6 @@ out Vertex
 	vec2 textCoord;
 	vec3 normal;	
 } Out;
-
-patch in Patch
-{
-	mat4 viewProjection;
-} InPatch;
 
 vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2)
 {

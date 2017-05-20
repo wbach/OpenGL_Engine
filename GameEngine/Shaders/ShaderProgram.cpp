@@ -1,4 +1,9 @@
 #include "ShaderProgram.h"
+#include "../Debug_/Log.h"
+#include "glm/gtc/type_ptr.hpp"
+#include <string>
+#include <fstream>
+
 CShaderProgram::~CShaderProgram()
 {
 	Stop();

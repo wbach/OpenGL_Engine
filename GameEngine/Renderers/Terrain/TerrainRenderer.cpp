@@ -1,13 +1,13 @@
 #include "TerrainRenderer.h"
 #include "../Framebuffer/FrameBuffer.h"
-
-#include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
+#include "../../Engine/Projection.h"
+#include "../../Objects/RenderAble/Terrain.h"
 #include "../../Utils/GLM/GLMUtils.h"
 
 const float heightFactor = 25.f;
 
-CTerrainRenderer::CTerrainRenderer(CProjection * projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+CTerrainRenderer::CTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
 	: m_ProjectionMatrix(projection_matrix)
 	, m_ClipPlane(glm::vec4(0, 1, 0, 100000))
 	, CRenderer(framebuffer)
@@ -25,6 +25,7 @@ void CTerrainRenderer::Init()
 	m_Shader.Load(CTerrainShader::UniformLocation::Viewport, glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
 	m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
 	m_Shader.Load(CTerrainShader::UniformLocation::ProjectionMatrix, m_ProjectionMatrix->GetProjectionMatrix());
+	m_Shader.Load(CTerrainShader::UniformLocation::HeightFactor, heightFactor);
 	m_Shader.Stop();	
 
 	Log("CTerrainRenderer initialized.");
@@ -39,9 +40,9 @@ void CTerrainRenderer::PrepareFrame(CScene * scene)
 
 	m_Shader.Start();
 	m_Shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
-	m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));
-	m_Shader.Load(CTerrainShader::UniformLocation::HeightFactor, heightFactor);	
-	m_Shader.Load(CTerrainShader::UniformLocation::LodFactor, 4);
+	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));
+	
+	//m_Shader.Load(CTerrainShader::UniformLocation::LodFactor, 4);
 	//m_Shader.LoadClipPlane(m_ClipPlane);
 	//m_Shader.LoadShadowValues(0.f, 10.f, 10.f);
 
@@ -52,11 +53,10 @@ void CTerrainRenderer::PrepareFrame(CScene * scene)
 
 void CTerrainRenderer::Render(CScene * scene)
 {
-	auto target = m_Target.lock();
-	if (!target)
+	if (m_Target == nullptr)
 		return;
 
-	target->BindToDraw();
+	m_Target->BindToDraw();
 	m_Shader.Start();
 
 	for (auto& sub : m_Subscribes)

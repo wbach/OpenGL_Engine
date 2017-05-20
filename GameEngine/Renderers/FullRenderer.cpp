@@ -9,19 +9,19 @@
 
 #include "../Engine/Configuration.h"
 #include "../Engine/Projection.h"
-
+#include "../Debug_/Log.h"
 
 FullRenderer::FullRenderer(CProjection* projection_matrix)
 	: m_ProjectionMatrix(projection_matrix)
 	, m_DefferedFrameBuffer(new CDefferedFrameBuffer())
 {	
 	if(SConfiguration::Instance().advancedGrass)
-		m_Renderers.emplace_back(new CGrassRenderer(projection_matrix, m_DefferedFrameBuffer));
+		m_Renderers.emplace_back(new CGrassRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
 
-	m_Renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, m_DefferedFrameBuffer));
-    m_Renderers.emplace_back(new CTerrainRenderer(projection_matrix, m_DefferedFrameBuffer));
-	m_Renderers.emplace_back(new CEntityRenderer(projection_matrix, m_DefferedFrameBuffer));	
-	m_Renderers.emplace_back(new CLightPassRenderer(projection_matrix, m_DefferedFrameBuffer));
+	m_Renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
+    m_Renderers.emplace_back(new CTerrainRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
+	m_Renderers.emplace_back(new CEntityRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
+	m_Renderers.emplace_back(new CLightPassRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
 }
 
 void FullRenderer::Init()

@@ -6,7 +6,7 @@
 #include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
 
-CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, CFrameBuffer* framebuffer)
     : m_Model(nullptr)
 	, m_DayTexture(nullptr)
 	, m_NightTexture(nullptr)
@@ -36,11 +36,10 @@ void CSkyBoxRenderer::PrepareFrame(CScene *scene)
    m_Shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), scene->GetDeltaTime(), 500.f);
    m_Shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
 
-   auto target = m_Target.lock();
-   if (!target)
+   if (m_Target == nullptr)
        return;
 
-   target->BindToDraw();
+   m_Target->BindToDraw();
 
    for(const auto& mesh : m_Model->GetMeshes())
    {

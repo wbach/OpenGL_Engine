@@ -7,7 +7,7 @@
 #include "../../Engine/Configuration.h"
 #include "../../Objects/RenderAble/Grass.h"
 
-CGrassRenderer::CGrassRenderer(CProjection * projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+CGrassRenderer::CGrassRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
 	: m_Projection(projection_matrix)
 	, CRenderer(framebuffer)
 {	
@@ -30,10 +30,9 @@ void CGrassRenderer::PrepareFrame(CScene * scene)
 
 void CGrassRenderer::Render(CScene * scene)
 {
-	auto target = m_Target.lock();
-	if (!target)
+	if (m_Target == nullptr)
 		return;
-	target->BindToDraw();
+	m_Target->BindToDraw();
 
 	m_Shader.Start();
 	m_Shader.LoadGlobalTime(scene->GetGlobalTime());

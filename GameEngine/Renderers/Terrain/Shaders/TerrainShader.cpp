@@ -1,5 +1,4 @@
 #include "TerrainShader.h"
-#include "../../../Debug_/Log.h"
 
 CTerrainShader::CTerrainShader()
 {
@@ -28,7 +27,8 @@ void CTerrainShader::GetAllUniformLocations()
 	uniformLocations[UniformLocation::LodFactor] = GetUniformLocation("LodFactor");
 	uniformLocations[UniformLocation::HeightFactor] = GetUniformLocation("heightFactor");
 	uniformLocations[UniformLocation::Viewport] = GetUniformLocation("viewport");
-	uniformLocations[UniformLocation::DisplacementMap] = GetUniformLocation("gDisplacementMap");	
+	uniformLocations[UniformLocation::DisplacementMap] = GetUniformLocation("gDisplacementMap");
+	uniformLocations[UniformLocation::ViewDistance] = GetUniformLocation("ViewDistance");
 
 	//Get location of samplers 2d
 	uniformLocations[UniformLocation::BlendMap] = GetUniformLocation("BlendMap");

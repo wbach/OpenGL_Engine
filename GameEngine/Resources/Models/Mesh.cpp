@@ -7,13 +7,13 @@ CMesh::CMesh()
 }
 
 CMesh::CMesh(
-	std::vector<float>& positions, 
-	std::vector<float>& text_coords,
-	std::vector<float>& normals,
-	std::vector<float>& tangents,
-	std::vector<unsigned short>& indices,
-	SMaterial & material,
-	std::vector<SVertexBoneData>& bones)
+	const SMaterial & material,
+	const std::vector<float>& positions, 
+	const std::vector<float>& text_coords,
+	const std::vector<float>& normals,
+	const std::vector<float>& tangents,
+	const std::vector<unsigned short>& indices,	
+	const std::vector<SVertexBoneData>& bones)
 {
 	m_Positions  = std::move(positions);
 	m_TextCoords = std::move(text_coords);

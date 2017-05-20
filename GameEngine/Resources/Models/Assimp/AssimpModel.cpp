@@ -291,7 +291,7 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 		}
 	}
 
-	AddMesh(postions, text_coords, normals, tangents, indices, material, bones_info.bones);
+	AddMesh(material, postions, text_coords, normals, tangents, indices, bones_info.bones);
 }
 
 void CAssimModel::RecursiveProcess(std::string file_path, aiNode *node, const aiScene *scene)

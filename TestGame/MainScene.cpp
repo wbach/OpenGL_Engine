@@ -48,7 +48,7 @@ int MainScene::Initialize()
     auto terrain_textures = CreateTerrainTexturesMap();
     AddTerrain(terrain_textures, glm::vec3(1.f));
 	//AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
-    AddGrass();
+   // AddGrass();
 
     m_DayNightCycle.SetDirectionalLight(&m_DirectionalLight);
     m_DayNightCycle.SetTime(.5f);
@@ -80,84 +80,105 @@ int MainScene::Update()
         time_clock = 0;
     }
 
-    m_DayNightCycle.Update(m_DeltaTime);
+    m_DayNightCycle.Update(m_DeltaTime); 
 
-    player->Move(m_DeltaTime);
-    player->CheckInputs();
+	for (auto& terrain : terrains)
+	{
+		auto new_position = terrain->CollisionDetection(player->m_WorldTransform.GetPosition());
 
-    if(terrain != nullptr)
-    {
-        auto height = terrain->GetHeightofTerrain(player->m_WorldTransform.GetPositionXZ());
-        auto ppos = player->m_WorldTransform.GetPosition();
-        if (ppos.y < height)
-        {
-            ppos.y = height;
-            player->SetPosition(ppos);
-        }
-    }
+		if (!new_position)
+			continue;
+
+		auto ppos = player->m_WorldTransform.GetPosition();
+		if (ppos.y < new_position.GetValue().y)
+			player->SetPosition(new_position.GetValue());
+	}
+
+	player->Move(m_DeltaTime);
+	player->CheckInputs();
 
     return 0;
 }
 
-std::map<STerrain::TexturesTypes, std::string> MainScene::CreateTerrainTexturesMap()
+TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 {
     return
     {
-        { STerrain::blendMap , "../Data/Textures/testBlendMap.png"},
-        { STerrain::backgorundTexture, "../Data/Textures/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
-        { STerrain::redTexture, "../Data/Textures/165.png",  },
-        { STerrain::greenTexture,"../Data/Textures/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        { STerrain::blueTexture, "../Data/Textures/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-        { STerrain::displacementMap, "../Data/Textures/heightmap.png" }
+        { Terrain::blendMap , "../Data/Textures/testBlendMap.png"},
+        { Terrain::backgorundTexture, "../Data/Textures/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
+        { Terrain::redTexture, "../Data/Textures/165.png",  },
+        { Terrain::greenTexture,"../Data/Textures/G3_Nature_Ground_Path_03_Diffuse_01.png"},
+        { Terrain::blueTexture, "../Data/Textures/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
+        { Terrain::displacementMap, "../Data/Textures/heightmap.png" }
     };
 }
 
-void MainScene::AddTerrain(std::map<STerrain::TexturesTypes, std::string> &textures, const glm::vec3& position)
+void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position)
 {
-    if(textures[STerrain::displacementMap].empty())
-    {
-        Error("Displacement map is not set while creating terrain.");
-        return;
-    }
+	//, CreateGrassPositions(), "../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
+	auto terrain = ObjectBuilder::CreateTerrain(m_ResourceManager, textures);
 
-    terrain = new STerrain();
-    for(const auto& t : textures)
-         terrain->SetTexture(m_ResourceManager.GetTextureLaoder().LoadTexture(t.second), t.first);
-
-    SImage height_map;
-    m_ResourceManager.GetTextureLaoder().ReadFile(textures[STerrain::displacementMap], height_map, TextureFlip::VERTICAL);
-    terrain->LoadHeight(height_map);
-
-    terrain->model = m_ResourceManager.LoadModel("../Data/Example/quad.obj");
-    m_ResourceManager.GetOpenGlLoader().AddObjectToOpenGLLoadingPass(terrain->model);
-
+	if (terrain == nullptr)
+	{
+		Error("MainScene::AddTerrain : terrain is nullptr.");
+		return;
+	}	
     AddGameObject(terrain, position);
     engine.m_Renderers[0]->Subscribe(terrain);
+	terrains.push_back(terrain);
 }
 
-void MainScene::AddGrass()
+std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 {
-    std::vector<float> grass_position;
-    std::vector<unsigned short> indicies;
-    std::vector<float> empty_float_vec;
-    std::vector<SVertexBoneData> empty_bones;
-    SMaterial grass_material;
+	std::vector<float> grass_positions;
+	for (float y = 0.f; y < 200.f; y += 1.5f)
+	{
+		for (float x = 0.f; x < 200.f; x += 1.5f)
+		{
+			float xpos = x + ((rand() % 200 - 100) / 100.f);
+			float zpos = y + ((rand() % 200 - 100) / 100.f);
+			float ypos = 0.f;		
 
-    for(float y = 0.f ; y < 200.f; y += 1.5f)
-    {
-        for (float x = 0.f; x < 200.f; x += 1.5f)
-        {
-            grass_position.push_back(x + ((rand() % 200 - 100) / 100.f));
-            auto height = terrain != nullptr ? terrain->GetHeightofTerrain(x, y) : 0;
-            grass_position.push_back(height + 1.f);
-            grass_position.push_back(y + ((rand() % 200 - 100) / 100.f));
-        }
-    }
+			if (object != nullptr)
+			{
+				auto height = object->CollisionDetection(glm::vec3(xpos, 0, zpos));
+				if (height)
+					ypos = height.GetValue().y;
+			}		
+			grass_positions.push_back(xpos);
+			grass_positions.push_back(ypos);
+			grass_positions.push_back(zpos);
+		}
+	}
+	return grass_positions;
 
-    SGrass* grass = new SGrass();
-    grass->model = new CModel();
-    grass_material.m_DiffuseTexture = m_ResourceManager.GetTextureLaoder().LoadTexture("../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
-    grass->model->AddMesh(grass_position, empty_float_vec, empty_float_vec, empty_float_vec, indicies, grass_material, empty_bones);
-    m_ResourceManager.AddModel(grass->model);
-    engine.m_Renderers[0]->Subscribe(grass);
+	//if (terrain == nullptr)
+	//{
+	//	Error("MainScene::AddGrass : terrain is nullptr.");
+	//	return;
+	//}
+
+ //   std::vector<float> grass_position;
+ //   std::vector<unsigned short> indicies;
+ //   std::vector<float> empty_float_vec;
+ //   std::vector<SVertexBoneData> empty_bones;
+ //   SMaterial grass_material;
+
+ //   for(float y = 0.f ; y < 200.f; y += 1.5f)
+ //   {
+ //       for (float x = 0.f; x < 200.f; x += 1.5f)
+ //       {
+ //           grass_position.push_back(x + ((rand() % 200 - 100) / 100.f));
+ //           auto height = terrain != nullptr ? terrain->GetHeightofTerrain(x, y) : 0;
+ //           grass_position.push_back(height + 1.f);
+ //           grass_position.push_back(y + ((rand() % 200 - 100) / 100.f));
+ //       }
+ //   }
+
+ //   SGrass* grass = new SGrass();
+ //   grass->model = new CModel();
+ //   grass_material.m_DiffuseTexture = m_ResourceManager.GetTextureLaoder().LoadTexture("../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+ //   grass->model->AddMesh(grass_position, empty_float_vec, empty_float_vec, empty_float_vec, indicies, grass_material, empty_bones);
+ //   m_ResourceManager.AddModel(grass->model);
+ //   engine.m_Renderers[0]->Subscribe(grass);
 }

@@ -23,7 +23,7 @@ void CModel::OpenGLLoadingPass()
 		mesh.OpenGLLoadingPass();
 }
 
-CMesh * CModel::AddMesh(std::vector<float>& positions, std::vector<float>& text_coords, std::vector<float>& normals, std::vector<float>& tangents, std::vector<unsigned short>& indices, SMaterial & material, std::vector<SVertexBoneData>& bones)
+CMesh * CModel::AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<unsigned short>& indices,  const std::vector<SVertexBoneData>& bones)
 {
 
 	/*std::ofstream f("tangents.txt");
@@ -34,7 +34,7 @@ CMesh * CModel::AddMesh(std::vector<float>& positions, std::vector<float>& text_
 	f.close();*/
     //CMesh mesh(positions, text_coords, normals, tangents, indices, material, bones);
 	// Normalize to define scale (height) 1 unit = 1 metr
-    m_Meshes.emplace_back(positions, text_coords, normals, tangents, indices, material, bones);
+    m_Meshes.emplace_back(material, positions, text_coords, normals, tangents, indices, bones);
 	CalculateBoudnigBox();
 	return &m_Meshes.back();
 }

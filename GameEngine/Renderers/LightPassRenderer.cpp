@@ -3,7 +3,7 @@
 #include "../Engine/Projection.h"
 #include "../Scene/Scene.hpp"
 
-CLightPassRenderer::CLightPassRenderer(CProjection * projection, std::weak_ptr<CFrameBuffer> frambuffer)
+CLightPassRenderer::CLightPassRenderer(CProjection * projection, CFrameBuffer* frambuffer)
 	: m_Projection(projection)
 	, CRenderer(frambuffer)
 {
@@ -40,13 +40,11 @@ void CLightPassRenderer::EndFrame(CScene * scene)
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 
-	auto target = m_Target.lock();
-
-	if (target == nullptr)
+	if (m_Target == nullptr)
 		return;
 
-	target->BindTextures();
-	target->UnBind();
+	m_Target->BindTextures();
+	m_Target->UnBind();
 
 	m_Shader.Start();
 	m_Shader.LoadSkyColour(glm::vec3(0.8) /** scene->m_DayNightCycle.GetDayNightBlendFactor()*/);

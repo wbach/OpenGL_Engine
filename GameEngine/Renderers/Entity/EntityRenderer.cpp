@@ -5,7 +5,10 @@
 #include "../../Utils/OpenGL/OpenGLUtils.h"
 #include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
-CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, std::weak_ptr<CFrameBuffer> framebuffer)
+//Get Entity by reference
+static std::list<CEntity*> sEmptyEntityList;
+
+CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer)
 	: m_ProjectionMatrix(projection_matrix)
 	, m_ClipPlane(glm::vec4(0, 1, 0, 100000))
 	, CRenderer(framebuffer)
@@ -40,10 +43,9 @@ void CEntityRenderer::PrepareFrame(CScene * scene)
 
 void CEntityRenderer::Render(CScene * scene)
 {
-	auto target = m_Target.lock();
-	if (!target)
+	if (m_Target == nullptr)
 		return;
-	target->BindToDraw();
+	m_Target->BindToDraw();
 
 	m_Shader.Start();
 
@@ -85,13 +87,9 @@ void CEntityRenderer::Render(CScene * scene)
 
 				RenderModel(model, entity->m_WorldTransform.GetMatrix());
 			}
-
-
 			//subscirbes.insert(subscirbes.end(), sub.begin(), sub.end());
 		}
-	}
-
-	
+	}	
 	m_Shader.Stop();
 }
 
@@ -124,10 +122,10 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 
 const std::list<CEntity*>& CEntityRenderer::GetEntity(uint x, uint y) const
 {
-	if (m_Subscribes.empty()) return std::list<CEntity*>();
+	if (m_Subscribes.empty()) return sEmptyEntityList;
 
 	if ((x + y*gridSize) > m_Subscribes.size())
-		return std::list<CEntity*>();
+		return sEmptyEntityList;
 
 	return m_Subscribes[x + y*gridSize];
 }

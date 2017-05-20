@@ -1,14 +1,14 @@
 #pragma once
-#include "../Objects/GameObject.h"
 #include "../Camera/Camera.h"
 #include "../Lights/Light.h"
-#include "../Objects/RenderAble/Entity.h"
-#include "../Objects/RenderAble/Terrain.h"
-#include "../Resources/ResourceManager.h"
 #include "../Time/DayNightCycle.h"
+#include "../Objects/GameObject.h"
+#include "../Resources/ResourceManager.h"
+#include "../Utils/Types.h"
 #include <vector>
 #include <list>
-#include "../Utils/Types.h"
+#include <memory>
+
 //Object in scene are in grid (one grid size)
 const uint OBJECT_GRID_SIZE = 500;
 // const int grid count y in worlds
