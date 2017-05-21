@@ -20,7 +20,7 @@ void CTerrainRenderer::Init()
     shader.Start();
     assert(projectionMatrix != nullptr);
 
-	GLfloat viewport[4];
+    GLfloat viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
     shader.Load(CTerrainShader::UniformLocation::Viewport, glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
     //m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
@@ -62,7 +62,8 @@ void CTerrainRenderer::Render(CScene * scene)
     for (auto& sub : subscribes)
 	{
         auto position = sub->worldTransform.GetPosition();
-		position *= glm::vec3(100, -heightFactor / 2.f, 100);
+        //position *= glm::vec3(100, 0, 100);
+        position = glm::vec3(0,100, 0);
         shader.Load(CTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
 
 		BindTextures(sub);

@@ -37,10 +37,10 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 		return;
 	}
 
-	if (flip_mode == TextureFlip::VERTICAL || flip_mode == TextureFlip::BOTH)
-		FreeImage_FlipVertical(imagen);
-	if (flip_mode == TextureFlip::HORIZONTAL || flip_mode == TextureFlip::BOTH)
-		FreeImage_FlipHorizontal(imagen);
+    if (flip_mode == TextureFlip::Type::VERTICAL || flip_mode == TextureFlip::Type::BOTH)
+        FreeImage_FlipVertical(imagen);
+    if (flip_mode == TextureFlip::Type::HORIZONTAL || flip_mode == TextureFlip::Type::BOTH)
+        FreeImage_FlipHorizontal(imagen);
 
 	int w = FreeImage_GetWidth(imagen);
 	int h = FreeImage_GetHeight(imagen);	
@@ -123,7 +123,7 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool app
 
 	int x = 0;
 	for (const auto& file : files)
-		ReadFile(file, images[x++], applySizeLimit, TextureFlip::VERTICAL);
+        ReadFile(file, images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
 
     textures.emplace_back(new CCubeMapTexture(files[0], images));
 

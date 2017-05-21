@@ -150,7 +150,7 @@ void CEngine::Init()
 		renderer->Init();
 	
 	auto circleTexture	= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/circle2.png", false);
-	auto bgtexture		= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::VERTICAL);
+    auto bgtexture		= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::Type::VERTICAL);
 	loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
 	loadingScreenRenderer->Init();
 }

@@ -62,7 +62,7 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
     for (auto& sub : subscribes)
 	{
         auto position = sub->worldTransform.GetPosition();
-		position *= glm::vec3(100, -heightFactor / 2.f, 100);
+        position *= glm::vec3(100, 1, 100);
         shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
 
 		BindTextures(sub);

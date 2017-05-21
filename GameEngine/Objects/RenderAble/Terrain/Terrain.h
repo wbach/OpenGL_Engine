@@ -32,7 +32,7 @@ struct STerrain : public CGameObject
 	wb::optional<float>	GetHeightofTerrain(float worldX, float worldZ) const;
 	float	GetHeight(int x, int y) const;	
 	void	InitHeights(int x, int y);
-	void	LoadHeight(SImage& height_map);
+    void	LoadHeight(const SImage& height_map);
 
     void SetTexture(CTexture* texture, Terrain::TexturesTypes type);
 

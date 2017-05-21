@@ -73,7 +73,7 @@ void STerrain::InitHeights(int x, int y)
     heights.resize(x*y);
 }
 
-void STerrain::LoadHeight(SImage& height_map)
+void STerrain::LoadHeight(const SImage &height_map)
 {
     if (height_map.data == nullptr)
 	{
@@ -115,6 +115,8 @@ void STerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)
 
 float STerrain::GetHeight(int x, int y) const
 {
+    if(heights.empty())
+        return 0;
     return heights[x + y*heightMapResolution];
 }
 

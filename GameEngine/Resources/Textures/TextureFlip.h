@@ -2,7 +2,8 @@
 
 namespace TextureFlip
 {
-	enum Type {
+    enum class Type
+    {
 		NONE = 0,
 		VERTICAL,
 		HORIZONTAL,

@@ -10,9 +10,9 @@ namespace TerrainUtils
 {
 	void LoadHeightMap(CResourceManager& manager, STerrain* terrain, const std::string& height_map_file)
 	{
-		SImage height_map;
-		manager.GetTextureLaoder().ReadFile(height_map_file, height_map, TextureFlip::VERTICAL);
-		terrain->LoadHeight(height_map);
+        SImage height_map;
+        manager.GetTextureLaoder().ReadFile(height_map_file, height_map, false, TextureFlip::Type::VERTICAL);
+        terrain->LoadHeight(height_map);
 	}
 
 	void LoadTextures(CResourceManager& manager, STerrain* terrain, TerrainTexturesMap& textures)
