@@ -7,7 +7,7 @@ CScene::CScene()
 
 CGameObject* CScene::AddGameObject(CGameObject* object, const glm::vec3& position)
 {
-	object->m_WorldTransform.SetPosition(position);
+	object->worldTransform.SetPosition(position);
 	gameObjects.emplace_back(object);
 	return gameObjects.back().get();
 }

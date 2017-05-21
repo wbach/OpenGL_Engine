@@ -5,7 +5,7 @@
 #include "../../Scene/Scene.hpp"
 #include "../../Engine/Projection.h"
 #include "../../Engine/Configuration.h"
-#include "../../Objects/RenderAble/Grass.h"
+#include "../../Objects/RenderAble/Flora/Grass/Grass.h"
 #include "../../Utils/OpenGL/OpenGLUtils.h"
 
 CGrassRenderer::CGrassRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)

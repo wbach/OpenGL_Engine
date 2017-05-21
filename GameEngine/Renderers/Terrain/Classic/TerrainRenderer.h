@@ -1,5 +1,5 @@
 #pragma once
-#include "../Renderer.h"
+#include "../../Renderer.h"
 #include "Shaders/TerrainShader.h"
 #include <list>
 
@@ -18,6 +18,7 @@ public:
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
 	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
+
 private:
 	void BindTextures(STerrain* terrain) const;
 

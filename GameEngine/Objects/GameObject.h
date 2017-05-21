@@ -11,8 +11,8 @@ public:
 	virtual ~CGameObject() {}
 	CGameObject();
     const std::list<std::unique_ptr<CGameObject>>& GetChildrens() { return childrens; }
-	CTransform m_LocalTransform;
-	CTransform m_WorldTransform;
+    CTransform localTransform;
+    CTransform worldTransform;
 	virtual wb::optional<glm::vec3> CollisionDetection(const glm::vec3&) { return wb::optional<glm::vec3>(); }
 
 protected:

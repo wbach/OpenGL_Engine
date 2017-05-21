@@ -1,4 +1,4 @@
-#include "BasicParseMethods.hpp"
+#include "ParseMethods.hpp"
 #include <rapidxml.hpp>
 #include <algorithm>
 #include <iostream>
@@ -6,11 +6,11 @@
 
 namespace XMLParser
 {
-    void ParseXML(rapidxml::xml_node<char>* node, std::string& str)
+    void Parse(rapidxml::xml_node<char>* node, std::string& str)
     {
         str = node->value();
     }
-    void ParseXML(rapidxml::xml_node<char>* node, int& value)
+    void Parse(rapidxml::xml_node<char>* node, int& value)
     {
         std::string str(node->value());
         if (!str.empty())
@@ -21,15 +21,15 @@ namespace XMLParser
             }
             catch (const std::out_of_range& err)
             {
-                std::cerr << "ParseXML int :  out_of_range " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse int :  out_of_range " << err.what() << " : " << str<< std::endl;
             }
             catch (const std::invalid_argument& err)
             {
-                std::cerr << "ParseXML int :  invalid_argument " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse int :  invalid_argument " << err.what() << " : " << str<< std::endl;
             }
         }
     }
-    void ParseXML(rapidxml::xml_node<char>* node, float& value)
+    void Parse(rapidxml::xml_node<char>* node, float& value)
     {
         std::string str(node->value());
         if (!str.empty())
@@ -40,15 +40,15 @@ namespace XMLParser
             }
             catch (const std::out_of_range& err)
             {
-                std::cerr << "ParseXML float :  out_of_range " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse float :  out_of_range " << err.what() << " : " << str<< std::endl;
             }
             catch (const std::invalid_argument& err)
             {
-                std::cerr << "ParseXML float :  invalid_argument " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse float :  invalid_argument " << err.what() << " : " << str<< std::endl;
             }
         }
     }
-    void ParseXML(rapidxml::xml_node<char>* node, double& value)
+    void Parse(rapidxml::xml_node<char>* node, double& value)
     {
         std::string str(node->value());
         if (!str.empty())
@@ -59,21 +59,21 @@ namespace XMLParser
             }
             catch (const std::out_of_range& err)
             {
-                std::cerr << "ParseXML double :  out_of_range " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse double :  out_of_range " << err.what() << " : " << str<< std::endl;
             }
             catch (const std::invalid_argument& err)
             {
-                std::cerr << "ParseXML double :  invalid_argument " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse double :  invalid_argument " << err.what() << " : " << str<< std::endl;
             }
         }
     }
-    void ParseXML(rapidxml::xml_node<char>* node, bool& value)
+    void Parse(rapidxml::xml_node<char>* node, bool& value)
     {
         std::string node_val(node->value());
         std::transform(node_val.begin(), node_val.end(), node_val.begin(), ::tolower);
         value = node_val == "true" ? true : false;
     }
-    void ParseXML(rapidxml::xml_node<char>* node, unsigned int& value)
+    void Parse(rapidxml::xml_node<char>* node, unsigned int& value)
     {
         std::string str(node->value());
         if (!str.empty())
@@ -84,15 +84,15 @@ namespace XMLParser
             }
             catch (const std::out_of_range& err)
             {
-                std::cerr << "ParseXML unsigned int :  out_of_range " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse unsigned int :  out_of_range " << err.what() << " : " << str<< std::endl;
             }
             catch (const std::invalid_argument& err)
             {
-                std::cerr << "ParseXML unsigned int :  invalid_argument " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse unsigned int :  invalid_argument " << err.what() << " : " << str<< std::endl;
             }
         }
     }
-    void ParseXML(rapidxml::xml_node<char>* node, unsigned long& value)
+    void Parse(rapidxml::xml_node<char>* node, unsigned long& value)
     {
         std::string str(node->value());
         if (!str.empty())
@@ -103,15 +103,15 @@ namespace XMLParser
             }
             catch (const std::out_of_range& err)
             {
-                std::cerr << "ParseXML unsigned long :  out_of_range " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse unsigned long :  out_of_range " << err.what() << " : " << str<< std::endl;
             }
             catch (const std::invalid_argument& err)
             {
-                std::cerr << "ParseXML unsigned long :  invalid_argument " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse unsigned long :  invalid_argument " << err.what() << " : " << str<< std::endl;
             }
         }
     }
-    void ParseXML(rapidxml::xml_node<char>* node, unsigned long long& value)
+    void Parse(rapidxml::xml_node<char>* node, unsigned long long& value)
     {
         std::string str(node->value());
         if (!str.empty())
@@ -122,11 +122,11 @@ namespace XMLParser
             }
             catch (const std::out_of_range& err)
             {
-                std::cerr << "ParseXML unsigned long long:  out_of_range " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse unsigned long long:  out_of_range " << err.what() << " : " << str<< std::endl;
             }
             catch (const std::invalid_argument& err)
             {
-                std::cerr << "ParseXML unsigned long long:  invalid_argument " << err.what() << " : " << str<< std::endl;
+                std::cerr << "Parse unsigned long long:  invalid_argument " << err.what() << " : " << str<< std::endl;
             }
         }
     }

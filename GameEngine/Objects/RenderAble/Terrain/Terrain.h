@@ -1,7 +1,7 @@
 #pragma once
 #include "TerrainTexturesTypes.h"
-#include "../GameObject.h"
-#include "../../Resources/SimpleModels/Quad.h"
+#include "../../GameObject.h"
+#include "../../../Resources/SimpleModels/Quad.h"
 
 class CTexture;
 class CModel;

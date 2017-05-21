@@ -1,4 +1,4 @@
-#include "BasicSerializedMethods.hpp"
+#include "SerializedMethods.hpp"
 #include <rapidxml.hpp>
 
 namespace XMLParser

@@ -33,7 +33,7 @@ void main()
 {
 	if( gl_InvocationID == 0 )
     {
-		outPatch.viewProjection = In[gl_InvocationID].viewProjection;
+		
        // gl_TessLevelOuter[0] = 2;
        // gl_TessLevelOuter[1] = 2;
        // gl_TessLevelOuter[2] = 2;

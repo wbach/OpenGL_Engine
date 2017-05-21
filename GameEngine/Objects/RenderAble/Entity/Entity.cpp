@@ -1,7 +1,7 @@
 #include "Entity.h"
-#include "../../Debug_/Log.h"
-#include "../../Resources/Models/Model.h"
-#include "../../Resources/ResourceManager.h"
+#include "../../../Debug_/Log.h"
+#include "../../../Resources/Models/Model.h"
+#include "../../../Resources/ResourceManager.h"
 
 CEntity::CEntity()
 {
@@ -21,7 +21,7 @@ CEntity::CEntity(const glm::vec3 normalized_v, CModel * model_lvl_1, CModel * mo
     model[0] = model_lvl_1;
     model[1] = model_lvl_2;
     model[2] = model_lvl_3;
-	m_WorldTransform.SetNormalizedSize(normalized_v);
+    worldTransform.SetNormalizedSize(normalized_v);
 }
 
 CModel * CEntity::GetModel(uint i)
@@ -51,6 +51,6 @@ void CEntity::LoadModel(CResourceManager & manager, const glm::vec3 & normalized
         manager.GetOpenGlLoader().AddObjectToOpenGLLoadingPass(model[i]);
         model[i]->CalculateBoudnigBox();
         auto vec = model[i]->GetNormalizedScaleVector(normalized_scale.x, normalized_scale.y, normalized_scale.z);
-		m_WorldTransform.SetNormalizedSize(vec);
+        worldTransform.SetNormalizedSize(vec);
 	}
 }

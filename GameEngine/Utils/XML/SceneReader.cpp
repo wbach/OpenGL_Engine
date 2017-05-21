@@ -4,28 +4,10 @@
 #include "../../Debug_/Log.h"
 #include "../../Objects/GameObject.h"
 #include "../../Scene/Scene.hpp"
+#include "ParseMethods.hpp"
 
 using namespace rapidxml;
 
-float ToFloat(const std::string& s)
-{
-	float x = 0.f;
-	try
-	{
-		x = std::stof(s);
-	}
-	catch (const std::invalid_argument& e)
-	{
-		std::string er = e.what();
-		Error("ParseVector3d : " + er);
-	}
-	catch (const std::out_of_range& e)
-	{
-		std::string er = e.what();
-		Error("ParseVector3d : " + er);
-	}
-	return x;
-}
 
 glm::vec3 ParseVector3d(xml_node<>* root)
 {
@@ -35,11 +17,11 @@ glm::vec3 ParseVector3d(xml_node<>* root)
 		std::string name = node->name();
 		std::string value = node->value();
 		if (name == "x")
-			vec.x = ToFloat(value);
+            XMLParser::Parse(node, vec.x);
 		else if (name == "y")
-			vec.y = ToFloat(value);
+            XMLParser::Parse(node, vec.y);
 		else if (name == "z")
-			vec.z = ToFloat(value);
+            XMLParser::Parse(node, vec.z);
 	}
 	return vec;
 }

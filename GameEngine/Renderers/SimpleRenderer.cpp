@@ -1,5 +1,5 @@
 #include "SimpleRenderer.h"
-#include "../Objects/RenderAble/Entity.h"
+#include "../Objects/RenderAble/Entity/Entity.h"
 #include "../Engine/Projection.h"
 #include "../Scene/Scene.hpp"
 #include "../Utils/OpenGL/OpenGLUtils.h"
@@ -31,7 +31,7 @@ void SimpleRenderer::Render(CScene * scene)
 		if (entity->GetModel(0) == nullptr)
 			continue;
 
-		RenderModel(entity->GetModel(0), entity->m_WorldTransform.GetMatrix());
+        RenderModel(entity->GetModel(0), entity->worldTransform.GetMatrix());
 	}
 }
 

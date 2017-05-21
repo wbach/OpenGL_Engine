@@ -1,8 +1,8 @@
 #include "Terrain.h"
-#include "../../Utils/GLM/GLMUtils.h"
-#include "../../Resources/Models/Model.h"
-#include "../../Resources/Textures/Image.h"
-#include "../../Resources/Textures/Texture.h"
+#include "../../../Utils/GLM/GLMUtils.h"
+#include "../../../Resources/Models/Model.h"
+#include "../../../Resources/Textures/Image.h"
+#include "../../../Resources/Textures/Texture.h"
 
 STerrain::STerrain()
 {	
@@ -40,8 +40,8 @@ wb::optional<float> STerrain::GetHeightofTerrain(float worldX, float worldZ) con
 {
 	wb::optional<float> result;
 
-	float terrain_x = worldX - m_WorldTransform.GetPositionXZ().x;
-	float terrain_z = worldZ - m_WorldTransform.GetPositionXZ().y;
+    float terrain_x = worldX - worldTransform.GetPositionXZ().x;
+    float terrain_z = worldZ - worldTransform.GetPositionXZ().y;
 
     float grid_squere_size = TERRAIN_SIZE / ((float) heightMapResolution - 1);
 	int grid_x = (int)floor(terrain_x / grid_squere_size);

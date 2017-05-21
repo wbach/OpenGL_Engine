@@ -12,20 +12,20 @@ void CPlayer::SetAction(CharacterActions::Type action)
 
 void CPlayer::SetPosition(const glm::vec3 & position)
 {
-    m_WorldTransform.SetPosition(position);
+    worldTransform.SetPosition(position);
 }
 
 void CPlayer::Move(const float & delta_time)
 {
 	CheckInputs();
-	m_WorldTransform.IncreaseRotation(0, characterStats.currentTurnSpeed * delta_time, 0);
+    worldTransform.IncreaseRotation(0, characterStats.currentTurnSpeed * delta_time, 0);
 	float distance = characterStats.currentMoveSpeed * delta_time;
-	float dx = static_cast<float>(distance * sin(Utils::ToRadians(m_WorldTransform.GetRotation().y)));
-	float dz = static_cast<float>(distance * cos(Utils::ToRadians(m_WorldTransform.GetRotation().y)));
-	m_WorldTransform.IncrasePosition(dx, 0.f, dz);
+    float dx = static_cast<float>(distance * sin(Utils::ToRadians(worldTransform.GetRotation().y)));
+    float dz = static_cast<float>(distance * cos(Utils::ToRadians(worldTransform.GetRotation().y)));
+    worldTransform.IncrasePosition(dx, 0.f, dz);
 
 	upwardsSpeed += -10.f* delta_time;
-	m_WorldTransform.IncrasePosition(0.f, upwardsSpeed * 0.01f, 0.f);
+    worldTransform.IncrasePosition(0.f, upwardsSpeed * 0.01f, 0.f);
 }
 
 void CPlayer::Jump()

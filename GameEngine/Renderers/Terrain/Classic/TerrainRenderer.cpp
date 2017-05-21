@@ -1,9 +1,9 @@
 #include "TerrainRenderer.h"
-#include "../Framebuffer/FrameBuffer.h"
-#include "../../Scene/Scene.hpp"
-#include "../../Engine/Projection.h"
-#include "../../Objects/RenderAble/Terrain.h"
-#include "../../Utils/GLM/GLMUtils.h"
+#include "../../Framebuffer/FrameBuffer.h"
+#include "../../../Scene/Scene.hpp"
+#include "../../../Engine/Projection.h"
+#include "../../../Objects/RenderAble/Terrain/Terrain.h"
+#include "../../../Utils/GLM/GLMUtils.h"
 
 const float heightFactor = 25.f;
 
@@ -61,7 +61,7 @@ void CTerrainRenderer::Render(CScene * scene)
 
     for (auto& sub : subscribes)
 	{
-		auto position = sub->m_WorldTransform.GetPosition();
+        auto position = sub->worldTransform.GetPosition();
 		position *= glm::vec3(100, -heightFactor / 2.f, 100);
         shader.Load(CTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
 

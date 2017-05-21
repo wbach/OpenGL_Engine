@@ -1,7 +1,7 @@
 #include "EntityRenderer.h"
 #include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
-#include "../../Objects/RenderAble/Entity.h"
+#include "../../Objects/RenderAble/Entity/Entity.h"
 #include "../../Utils/OpenGL/OpenGLUtils.h"
 #include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
@@ -60,7 +60,7 @@ void CEntityRenderer::Render(CScene * scene)
 		if (entity->GetModel(0) == nullptr)
 			continue;
 
-		RenderModel(entity->GetModel(0), entity->m_WorldTransform.GetMatrix());
+        RenderModel(entity->GetModel(0), entity->worldTransform.GetMatrix());
 	}
 
 	for (int y = -2; y <= 2; y++)
@@ -85,7 +85,7 @@ void CEntityRenderer::Render(CScene * scene)
 				if (model == nullptr)
 					continue;
 
-				RenderModel(model, entity->m_WorldTransform.GetMatrix());
+                RenderModel(model, entity->worldTransform.GetMatrix());
 			}
 			//subscirbes.insert(subscirbes.end(), sub.begin(), sub.end());
 		}
@@ -110,7 +110,7 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 		dynamicSubscribes.push_back(entity);
 		return;
 	}
-	wb::vec2i index = CalcualteCoorditantes(entity->m_WorldTransform.GetPosition());
+	wb::vec2i index = CalcualteCoorditantes(entity->worldTransform.GetPosition());
 
 	//if (xi < gridSize && xi >0)
 	//	return;

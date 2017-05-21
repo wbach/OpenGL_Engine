@@ -1,7 +1,7 @@
 #include "ObjectBuilder.h"
-#include "RenderAble/Entity.h"
-#include "RenderAble/Terrain.h"
-#include "RenderAble/Grass.h"
+#include "RenderAble/Entity/Entity.h"
+#include "RenderAble/Terrain/Terrain.h"
+#include "RenderAble/Flora/Grass/Grass.h"
 #include "../Resources/Textures/Image.h"
 #include "../Resources/ResourceManager.h"
 

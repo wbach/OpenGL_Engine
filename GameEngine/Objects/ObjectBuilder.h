@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderAble/TerrainTexturesTypes.h"
+#include "RenderAble/Terrain/TerrainTexturesTypes.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <map>

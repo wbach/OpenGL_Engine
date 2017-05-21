@@ -1,6 +1,6 @@
 #pragma once
 #include "../GameEngine/Input/InputManager.h"
-#include "../GameEngine/Objects/RenderAble/Entity.h"
+#include "../GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "CharacterStats.h"
 
 namespace CharacterActions

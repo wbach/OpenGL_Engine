@@ -2,7 +2,7 @@
 #include "LightPassRenderer.h"
 
 #include "Entity/EntityRenderer.h"
-#include "Terrain/TerrainRenderer.h"
+#include "Terrain/Tesselation/TerrainRenderer.h"
 #include "SkyBox/SkyBoxRenderer.h"
 #include "Grass/GrassRenderer.h"
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
@@ -19,7 +19,7 @@ FullRenderer::FullRenderer(CProjection* projection_matrix)
 		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
 
 	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
-    renderers.emplace_back(new CTerrainRenderer(projection_matrix, defferedFrameBuffer.get()));
+    renderers.emplace_back(new CTessellationTerrainRenderer(projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CEntityRenderer(projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CLightPassRenderer(projection_matrix, defferedFrameBuffer.get()));
 }

@@ -1,13 +1,13 @@
 #include "MainScene.h"
 #include "../GameEngine/Utils/GLM/GLMUtils.h"
 #include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Objects/RenderAble/Grass.h"
+#include "../GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
 #include "../GameEngine/Camera/FirstPersonCamera.h"
 #include "../GameEngine/Camera/ThridPersonCamera.h"
 #include "../GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "../GameEngine/Resources/Textures/Image.h"
-#include "../GameEngine/Objects/RenderAble/Terrain.h"
+#include "../GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 
 MainScene::MainScene(CEngine &engine)
     : engine(engine)
@@ -33,29 +33,40 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
-    auto crate = AddGameObject(new CEntity(resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Crate/crate.obj"), glm::vec3(0,0, -5));
+    auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Crate/crate.obj");
+    auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -5));
     engine.renderers[0]->Subscribe(crate);
 
-    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Triss/Triss.obj"), glm::vec3(0, 0, 0);
-	player->dynamic = true;
-    AddGameObject(player);
+    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Triss/Triss.obj");
+    player->dynamic = true;
+    AddGameObject(player, glm::vec3(1,0,1));
     engine.renderers[0]->Subscribe(player);
 
-    auto small_house = AddGameObject(new CEntity(resourceManager, glm::vec3(0,5,0), "../Data/Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj"), glm::vec3(0.f, 0.f, -5.f));
+    auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "../Data/Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj");
+    auto small_house = AddGameObject(small_hause_obj, glm::vec3(15.f, 0.f, 35.f));
     engine.renderers[0]->Subscribe(small_house);
 
     auto terrain_textures = CreateTerrainTexturesMap();
     AddTerrain(terrain_textures, glm::vec3(1.f));
-
     //AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
-    //AddGrass();
+   // AddGrass();
+
+    for (const auto& terrain : terrains)
+    {
+        auto grass_position = CreateGrassPositions(terrain);
+
+        auto grass_obj = ObjectBuilder::CreateGrass(resourceManager, grass_position, "../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+        AddGameObject(grass_obj);
+        engine.renderers[0]->Subscribe(grass_obj);
+    }
+
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
     //m_Camera = std::make_unique<CFirstPersonCamera>(&engine.m_InputManager, &engine.m_DisplayManager);
 
-    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->m_WorldTransform);
+    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
 
     return 0;
 }
@@ -87,12 +98,12 @@ int MainScene::Update()
 
 	for (auto& terrain : terrains)
 	{
-		auto new_position = terrain->CollisionDetection(player->m_WorldTransform.GetPosition());
+        auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
 
 		if (!new_position)
 			continue;
 
-		auto ppos = player->m_WorldTransform.GetPosition();
+        auto ppos = player->worldTransform.GetPosition();
 		if (ppos.y < new_position.GetValue().y)
 			player->SetPosition(new_position.GetValue());
 	}
