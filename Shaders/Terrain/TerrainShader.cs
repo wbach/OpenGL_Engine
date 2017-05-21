@@ -14,15 +14,16 @@ out Vertex
 {
 	vec3 position;
 	vec2 textCoord;
-	vec3 normal;	
+	vec3 normal;
+	mat4 viewProjection;	
 } Out[];
 
-struct PatchData
-{
-	mat4 viewProjection;
-};
+//struct PatchData
+//{
+//	mat4 viewProjection;
+//};
 
-patch out PatchData outPatch;
+//patch out PatchData outPatch;
 
 //patch out Patch
 //{
@@ -33,7 +34,8 @@ void main()
 {
 	if( gl_InvocationID == 0 )
     {
-		
+    	//OutPatch.viewProjection = In[gl_InvocationID].viewProjection;
+		//outPatch.viewProjection = In[gl_InvocationID].viewProjection;
        // gl_TessLevelOuter[0] = 2;
        // gl_TessLevelOuter[1] = 2;
        // gl_TessLevelOuter[2] = 2;
@@ -48,6 +50,7 @@ void main()
     }
 
     // kopiowanie wybranego standardowego atrybutu wierzchołka
+    Out[gl_InvocationID].viewProjection = In[gl_InvocationID].viewProjection;
 	Out[gl_InvocationID].textCoord = In[gl_InvocationID].textCoord;
 	Out[gl_InvocationID].normal = In[gl_InvocationID].normal;
 	Out[gl_InvocationID].position = In[gl_InvocationID].position;

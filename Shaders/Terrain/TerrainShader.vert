@@ -19,10 +19,10 @@ out Vertex
 	mat4 viewProjection;
 } Out;
 
-vec2 Project(const mat4 viewProjection)
+vec2 Project(const mat4 modelViewProjectionMatrix)
 {
     // transformacja współrzędnych
-    vec4 win = viewProjection * TransformationMatrix * vec4(Position, 1.f);
+    vec4 win = modelViewProjectionMatrix * vec4(Position, 1.f);
     if( win[3] == 0.0 ) return vec2( 0.0 );
     win /= win[3];
 
@@ -43,7 +43,7 @@ void main()
 	
 	Out.position 	= (TransformationMatrix * vec4(Position, 1.f)).xyz;
 	Out.normal 		= (TransformationMatrix * vec4(Normal, 1.f)).xyz;
-	Out.winPosition = Project(Out.viewProjection);
+	Out.winPosition = Project(modelViewProjectionMatrix);
 	Out.textCoord 	= TexCoord;
 
 	gl_Position 	= vec4(Out.position, 1.f);
