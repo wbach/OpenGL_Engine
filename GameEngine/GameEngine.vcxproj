@@ -172,10 +172,11 @@
     <ClInclude Include="Lights\Light.h" />
     <ClInclude Include="Lights\LightTypes.h" />
     <ClInclude Include="Objects\ObjectBuilder.h" />
-    <ClInclude Include="Objects\RenderAble\Grass.h" />
-    <ClInclude Include="Objects\RenderAble\Entity.h" />
-    <ClInclude Include="Objects\RenderAble\Terrain.h" />
-    <ClInclude Include="Objects\RenderAble\TerrainTexturesTypes.h" />
+    <ClInclude Include="Objects\RenderAble\Entity\Entity.h" />
+    <ClInclude Include="Objects\RenderAble\Flora\Grass\Grass.h" />
+    <ClInclude Include="Objects\RenderAble\Terrain\Terrain.h" />
+    <ClInclude Include="Objects\RenderAble\Terrain\TerrainBuilder.h" />
+    <ClInclude Include="Objects\RenderAble\Terrain\TerrainTexturesTypes.h" />
     <ClInclude Include="Renderers\Entity\EntityRenderer.h" />
     <ClInclude Include="Renderers\Entity\Shaders\GeometryEntityShader.h" />
     <ClInclude Include="Renderers\Framebuffer\DeferedFrameBuffer\DeferedFrameBuffer.h" />
@@ -194,8 +195,10 @@
     <ClInclude Include="Renderers\SimpleRenderer.h" />
     <ClInclude Include="Renderers\SkyBox\Shaders\SkyBoxShader.h" />
     <ClInclude Include="Renderers\SkyBox\SkyBoxRenderer.h" />
-    <ClInclude Include="Renderers\Terrain\Shaders\TerrainShader.h" />
-    <ClInclude Include="Renderers\Terrain\TerrainRenderer.h" />
+    <ClInclude Include="Renderers\Terrain\Classic\Shaders\TerrainShader.h" />
+    <ClInclude Include="Renderers\Terrain\Classic\TerrainRenderer.h" />
+    <ClInclude Include="Renderers\Terrain\Tesselation\Shaders\TesselationTerrainShader.h" />
+    <ClInclude Include="Renderers\Terrain\Tesselation\TessellationTerrainRenderer.h" />
     <ClInclude Include="Resources\Models\Assimp\AssimpModel.h" />
     <ClInclude Include="Resources\Models\Bone.h" />
     <ClInclude Include="Resources\Models\BoundingBox.h" />
@@ -224,6 +227,7 @@
     <ClInclude Include="Renderers\Entity\Shaders\SimpleEnityShader.h" />
     <ClInclude Include="Time\DayNightCycle.h" />
     <ClInclude Include="Time\GameTime.h" />
+    <ClInclude Include="Utils\EngineUitls.h" />
     <ClInclude Include="Utils\GLM\GLMUtils.h" />
     <ClInclude Include="Utils\OpenGL\OpenGLUtils.h" />
     <ClInclude Include="Utils\optional.hpp" />
@@ -231,9 +235,9 @@
     <ClInclude Include="Utils\Pathes.h" />
     <ClInclude Include="Utils\Types.h" />
     <ClInclude Include="Utils\Utils.h" />
-    <ClInclude Include="Utils\XML\BasicParseMethods.hpp" />
-    <ClInclude Include="Utils\XML\BasicSerializedMethods.hpp" />
+    <ClInclude Include="Utils\XML\ParseMethods.hpp" />
     <ClInclude Include="Utils\XML\SceneReader.h" />
+    <ClInclude Include="Utils\XML\SerializedMethods.hpp" />
     <ClInclude Include="Utils\XML\XMLUtils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -247,13 +251,14 @@
     <ClCompile Include="Display\DisplayManager.cpp" />
     <ClCompile Include="Engine\Configuration.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine\Projection.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\InputManager.cpp" />
     <ClCompile Include="Lights\Light.cpp" />
     <ClCompile Include="Objects\GameObject.cpp" />
     <ClCompile Include="Objects\ObjectBuilder.cpp" />
-    <ClCompile Include="Objects\RenderAble\Entity.cpp" />
-    <ClCompile Include="Objects\RenderAble\Terrain.cpp" />
+    <ClCompile Include="Objects\RenderAble\Entity\Entity.cpp" />
+    <ClCompile Include="Objects\RenderAble\Terrain\Terrain.cpp" />
     <ClCompile Include="Objects\Transform.cpp" />
     <ClCompile Include="Renderers\Entity\EntityRenderer.cpp" />
     <ClCompile Include="Renderers\Entity\Shaders\GeometryEntityShader.cpp" />
@@ -271,8 +276,10 @@
     <ClCompile Include="Renderers\SimpleRenderer.cpp" />
     <ClCompile Include="Renderers\SkyBox\Shaders\SkyBoxShader.cpp" />
     <ClCompile Include="Renderers\SkyBox\SkyBoxRenderer.cpp" />
-    <ClCompile Include="Renderers\Terrain\Shaders\TerrainShader.cpp" />
-    <ClCompile Include="Renderers\Terrain\TerrainRenderer.cpp" />
+    <ClCompile Include="Renderers\Terrain\Classic\Shaders\TerrainShader.cpp" />
+    <ClCompile Include="Renderers\Terrain\Classic\TerrainRenderer.cpp" />
+    <ClCompile Include="Renderers\Terrain\Tesselation\Shaders\TesselationTerrainShader.cpp" />
+    <ClCompile Include="Renderers\Terrain\Tesselation\TessellationTerrainRenderer.cpp" />
     <ClCompile Include="Resources\Models\Assimp\AssimpModel.cpp" />
     <ClCompile Include="Resources\Models\Mesh.cpp" />
     <ClCompile Include="Resources\Models\Model.cpp" />
@@ -292,13 +299,14 @@
     <ClCompile Include="Renderers\Entity\Shaders\SimpleEnityShader.cpp" />
     <ClCompile Include="Time\DayNightCycle.cpp" />
     <ClCompile Include="Time\GameTime.cpp" />
+    <ClCompile Include="Utils\EngineUitls.cpp" />
     <ClCompile Include="Utils\GLM\GLMUtils.cpp" />
     <ClCompile Include="Utils\OpenGL\OpenGLUtils.cpp" />
     <ClCompile Include="Utils\ParseUtils.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
-    <ClCompile Include="Utils\XML\BasicParseMethods.cpp" />
-    <ClCompile Include="Utils\XML\BasicSerializedMethods.cpp" />
+    <ClCompile Include="Utils\XML\ParseMethods.cpp" />
     <ClCompile Include="Utils\XML\SceneReader.cpp" />
+    <ClCompile Include="Utils\XML\SerializedMethods.cpp" />
     <ClCompile Include="Utils\XML\XMLUtils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

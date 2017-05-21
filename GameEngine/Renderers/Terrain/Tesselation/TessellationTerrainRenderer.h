@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Renderer.h"
-#include "Shaders/TerrainShader.h"
+#include "Shaders/TesselationTerrainShader.h"
 #include <list>
 
 class CModel;
@@ -22,7 +22,7 @@ private:
 	void BindTextures(STerrain* terrain) const;
 
 private:
-    CTerrainShader  shader;
+    CTesselationTerrainShader  shader;
     CProjection*	projectionMatrix;
 
     glm::vec4	clipPlane;

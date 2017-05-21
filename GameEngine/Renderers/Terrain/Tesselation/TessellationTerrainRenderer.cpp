@@ -1,4 +1,4 @@
-#include "TerrainRenderer.h"
+#include "TessellationTerrainRenderer.h"
 #include "../../Framebuffer/FrameBuffer.h"
 #include "../../../Scene/Scene.hpp"
 #include "../../../Engine/Projection.h"
@@ -22,10 +22,10 @@ void CTessellationTerrainRenderer::Init()
 
 	GLfloat viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
-    shader.Load(CTerrainShader::UniformLocation::Viewport, glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
+    shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
     //m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
-    shader.Load(CTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
-    shader.Load(CTerrainShader::UniformLocation::HeightFactor, heightFactor);
+    shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+    shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, heightFactor);
     shader.Stop();
 
 	Log("CTerrainRenderer initialized.");
@@ -39,7 +39,7 @@ void CTessellationTerrainRenderer::PrepareFrame(CScene * scene)
 	}	
 
     shader.Start();
-    shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
+    shader.Load(CTesselationTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));
 	
 	//m_Shader.Load(CTerrainShader::UniformLocation::LodFactor, 4);
@@ -63,7 +63,7 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
 	{
         auto position = sub->worldTransform.GetPosition();
 		position *= glm::vec3(100, -heightFactor / 2.f, 100);
-        shader.Load(CTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
+        shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
 
 		BindTextures(sub);
 

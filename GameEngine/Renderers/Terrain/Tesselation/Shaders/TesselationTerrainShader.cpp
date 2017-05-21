@@ -1,12 +1,12 @@
-#include "TerrainShader.h"
+#include "TesselationTerrainShader.h"
 
-CTerrainShader::CTerrainShader()
+CTesselationTerrainShader::CTesselationTerrainShader()
 {
 	for (uint x = 0; x < UniformLocation::Count; x++)
 		uniformLocations[x] = -1;
 }
 
-void CTerrainShader::Init()
+void CTesselationTerrainShader::Init()
 {	
 	CreateProgram();
 	AddShader("../Shaders/Terrain/TerrainShader.vert", GL_VERTEX_SHADER);
@@ -16,7 +16,7 @@ void CTerrainShader::Init()
 	FinalizeShader();
 }
 
-void CTerrainShader::GetAllUniformLocations()
+void CTesselationTerrainShader::GetAllUniformLocations()
 {
 	uniformLocations[UniformLocation::TransformMatrix] = GetUniformLocation("TransformationMatrix");
 	uniformLocations[UniformLocation::ProjectionMatrix] = GetUniformLocation("ProjectionMatrix");
@@ -52,14 +52,14 @@ void CTerrainShader::GetAllUniformLocations()
 			Log("CTerrainShader::GetAllUniformLocations() : UniformLocation " + std::to_string(x) + " not set!" );
 }
 
-void CTerrainShader::BindAttributes()
+void CTesselationTerrainShader::BindAttributes()
 {
 	BindAttribute(0, "Position");
 	BindAttribute(1, "TexCoord");
 	BindAttribute(2, "Normal");
 }
 
-void CTerrainShader::ConnectTextureUnits() const
+void CTesselationTerrainShader::ConnectTextureUnits() const
 {
     LoadValue(uniformLocations[UniformLocation::BackgroundTexture], 0);
     LoadValue(uniformLocations[UniformLocation::rTexture], 1);

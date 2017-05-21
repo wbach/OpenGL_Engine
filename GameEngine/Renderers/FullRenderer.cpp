@@ -2,7 +2,7 @@
 #include "LightPassRenderer.h"
 
 #include "Entity/EntityRenderer.h"
-#include "Terrain/Tesselation/TerrainRenderer.h"
+#include "Terrain/Tesselation/TessellationTerrainRenderer.h"
 #include "SkyBox/SkyBoxRenderer.h"
 #include "Grass/GrassRenderer.h"
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"

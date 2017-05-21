@@ -3,7 +3,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "../../../../Debug_/Log.h"
 
-class CTerrainShader : public CShaderProgram
+class CTesselationTerrainShader : public CShaderProgram
 {
 public:
 	enum UniformLocation
@@ -32,7 +32,7 @@ public:
 	};
 
 
-	CTerrainShader();
+	CTesselationTerrainShader();
 	virtual void Init();
 	void GetAllUniformLocations();
 	void BindAttributes() override;

@@ -173,7 +173,7 @@ void CFont::CreateList(FT_Face face, char ch)
         for (uint i = 0; i < width; i++)
 		{
 			expanded_data[2 * (i + j*width)] = expanded_data[2 * (i + j*width) + 1] =
-				(i >= bitmap.width || j >= bitmap.rows) ?
+				(i >= (uint)bitmap.width || j >= (uint)bitmap.rows) ?
 				0 : bitmap.buffer[i + bitmap.width*j];
 		}
 	}
