@@ -23,12 +23,9 @@ namespace CharacterActions
 class CPlayer : public CEntity
 {
 public:
-	CPlayer(CInputManager* input_manager, CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename)
-		: m_InputManager(input_manager)
-		, CEntity(manager, normalized_scale, filename)
-	{}
+    CPlayer(CInputManager* input_manager, CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename);
 	
-	CharacterActions::Type GetAction() { return m_Action; }
+    CharacterActions::Type GetAction() { return action; }
 	void SetAction(CharacterActions::Type action);
 	void SetPosition(const glm::vec3& position);
 
@@ -36,10 +33,10 @@ public:
 	void Jump();
 	void CheckInputs();
 private:
-	CInputManager* m_InputManager;
-	CharacterActions::Type m_Action = CharacterActions::IDLE;
-	SCharacterStats m_CharacterStats;
+    CInputManager* inputManager;
+    CharacterActions::Type action = CharacterActions::IDLE;
+    SCharacterStats characterStats;
 
-	bool m_IsGrounded = false;
+    bool isGrounded = false;
 	float upwardsSpeed = 0.f;
 };

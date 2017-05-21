@@ -13,8 +13,9 @@ public:
 	virtual void PrepareFrame(CScene* scene) override;
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
+
 private:
-	CLightPassShader m_Shader;
-	CProjection* m_Projection;
-	SSimpleQuad m_Quad;
+    CProjection* projection;
+    CLightPassShader shader;
+    SSimpleQuad quad;
 };

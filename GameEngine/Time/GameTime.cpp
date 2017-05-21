@@ -2,13 +2,13 @@
 
 void CGameTime::Update(const float & delta_time)
 {
-	m_DeltaGameTime = delta_time / 1000;
-	m_CurrentTime += m_DeltaGameTime;
+    deltaGameTime = delta_time / 1000;
+    currentTime += deltaGameTime;
 
-	if (m_CurrentTime > 1)
-		m_CurrentTime -= 1;
-	if (m_CurrentTime < 0)
-		m_CurrentTime += 1;
+    if (currentTime > 1)
+        currentTime -= 1;
+    if (currentTime < 0)
+        currentTime += 1;
 
-	m_DeltaTime = delta_time;	
+    deltaTime = delta_time;
 }

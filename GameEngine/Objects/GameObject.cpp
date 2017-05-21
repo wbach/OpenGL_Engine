@@ -1,9 +1,9 @@
 #include "GameObject.h"
 #include "../Utils/Types.h"
 
-uint CGameObject::s_ID = 0;
+uint CGameObject::s_id = 0;
 
 CGameObject::CGameObject()
-	: m_ID(s_ID++)
+	: id(s_id++)
 {
 }

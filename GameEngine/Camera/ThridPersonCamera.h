@@ -24,12 +24,12 @@ private:
 	void CalculatePitch(glm::vec2 d_move);
 	void CalculateAngleAroundPlayer(glm::vec2 d_move);
 
-	CTransform&	m_LookAtTransform;
+private:
+    CInputManager *inputManager;
+    CTransform&	lookAtTransform;
 
-	bool		m_IsShowCursor;
-	glm::vec3	m_Offset;
-	float		m_Mousevel;
-	bool		m_CaptureMouse;
-	int			m_WindowWidth, m_WindowHeight;
-	CInputManager *m_InputManager;
+    bool		isShowCursor;
+    glm::vec3	offset;
+    float		mousevel;
+    bool		captureMouse;
 };

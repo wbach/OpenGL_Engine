@@ -37,14 +37,14 @@ struct SVertexBoneData
 };
 struct SBoneInfo
 {
-	glm::mat4 BoneOffset = glm::mat4(0.f);
-	glm::mat4 FinalTransformation = glm::mat4(0.f);
+    glm::mat4 boneOffset = glm::mat4(0.f);
+    glm::mat4 finalTransformation = glm::mat4(0.f);
 };
 
 struct SBonesInfo
 {
-	std::vector<SBoneInfo>		 bone_info;
+    std::vector<SBoneInfo>		 boneInfo;
 	std::vector<SVertexBoneData> bones;
-	std::map<std::string, uint> bone_mapping; // maps a bone name to its index
-	uint num_bones = 0;	
+    std::map<std::string, uint>  boneMapping; // maps a bone name to its index
+    uint numBones = 0;
 };

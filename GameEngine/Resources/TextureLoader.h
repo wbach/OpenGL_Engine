@@ -26,6 +26,6 @@ public:
 	CTexture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, TextureType::Type type = TextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::NONE);
 	CTexture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool opengl_pass = true);
 private:
-	std::vector<std::unique_ptr<CTexture>>& m_Textures;
-	COpenGLLoader&   m_OpenGLLoader;
+    std::vector<std::unique_ptr<CTexture>>& textures;
+    COpenGLLoader&   openGLLoader;
 };

@@ -23,8 +23,8 @@ public:
 	virtual double GetTime() override;
 	virtual void SetCursorPosition(int x, int y) override;
 private:
-	SDL_GLContext m_GlContext;
-	SDL_Window* m_Window;
-	SDL_Event m_Event;
-	Uint32 m_StartTime;
+    SDL_GLContext glContext;
+    SDL_Window* window;
+    SDL_Event event;
+    Uint32 startTime;
 };

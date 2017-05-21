@@ -32,18 +32,19 @@ public:
 private:
 	void CreateList(FT_Face face, char ch);
 
-	glm::mat4 m_TransformationMatrix = glm::mat4(1);
+private:
+    glm::mat4 transformationMatrix = glm::mat4(1);
 
-	SCharacter m_Characters[m_MaxCharacters];
+    SCharacter characters[m_MaxCharacters];
 
-	int	   m_QuadIndicesSize;
-	GLuint m_QuadVao;
-	GLuint m_QuadIndices;
-	GLuint m_QuadVertex;
-	GLuint m_QuadTexCoord;
+    int	   quadIndicesSize;
+    GLuint quadVao;
+    GLuint quadIndices;
+    GLuint quadVertex;
+    GLuint quadTexCoord;
 
-	GLuint m_ListBase;
-	int m_BaseHeight = 100;	
+    GLuint listBase;
+    int baseHeight = 100;
 
-	bool m_IsInit = false;
+    bool isInit = false;
 };

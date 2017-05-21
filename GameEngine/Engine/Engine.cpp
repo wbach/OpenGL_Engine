@@ -13,9 +13,9 @@ CEngine::CEngine()
 	auto& conf = SConfiguration::Instance();
 	conf.ReadFromFile("../Data/Conf.xml");	
 
-	m_DisplayManager = CDisplayManager(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
-	m_DisplayManager.SetInput(m_InputManager.m_Input);
-	m_Projection = conf.resolution;
+	displayManager = CDisplayManager(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
+	displayManager.SetInput(inputManager.input);
+	projection = conf.resolution;
 }
 
 void CEngine::GameLoop()
@@ -28,49 +28,48 @@ void CEngine::GameLoop()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(.8f, .8f, .8f, 1.f);
 
-		m_ApiMessage = m_DisplayManager.PeekMessage();
+		m_ApiMessage = displayManager.PeekMessage();
 
-		if (m_InputManager.GetKey(KeyCodes::ESCAPE))
+		if (inputManager.GetKey(KeyCodes::ESCAPE))
 			m_ApiMessage = ApiMessages::QUIT;		
 
-		if (m_Scene != nullptr)
+		if (scene != nullptr)
 		{
-			switch (m_Scene->Update())
+			switch (scene->Update())
 			{
 			case 1: m_ApiMessage = ApiMessages::QUIT; break;
 			}
 
-			for (auto& renderer : m_Renderers)
+			for (auto& renderer : renderers)
 			{
-				renderer->PrepareFrame(m_Scene.get());
-				renderer->Render(m_Scene.get());
-				renderer->EndFrame(m_Scene.get());
+				renderer->PrepareFrame(scene.get());
+				renderer->Render(scene.get());
+				renderer->EndFrame(scene.get());
 			}						
 		}
-		m_DisplayManager.Update();
-		m_InputManager.CheckReleasedKeys();
+		displayManager.Update();
+		inputManager.CheckReleasedKeys();
 	}
 }
 
 void CEngine::OpenGLLoadingPass(std::thread& loading_thread)
 {
-	auto object_count = m_Scene->m_ObjectCount;
+    auto object_count = scene->objectCount;
 	auto object_loaded = 0;
 
 	if (object_count <= 0)
 		object_count = 1;
 
-	int x = 0;
 	bool  load = true;
-	m_DisplayManager.GetSync() = true;
-	bool post_load = false;
+	displayManager.GetSync() = true;
+
 	while (load)
 	{
-		m_DisplayManager.PeekMessage();
+		displayManager.PeekMessage();
 
 		load = GetIsLoading();
 
-		auto obj = m_Scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLLoadingPass();
+		auto obj = scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLLoadingPass();
 		if (obj != nullptr)
 		{
 			load = true;
@@ -80,15 +79,15 @@ void CEngine::OpenGLLoadingPass(std::thread& loading_thread)
 			std::cout << "Loading... " + std::to_string((int)((float)object_loaded / (float)object_count) *100.f) + "%" << std::endl;
 		}
 
-		m_LoadingScreenRenderer->Render(nullptr);
-		m_DisplayManager.Update();
+		loadingScreenRenderer->Render(nullptr);
+		displayManager.Update();
 	}
 	loading_thread.join();
 	load = true;
 	while (load)
 	{
-		m_DisplayManager.PeekMessage();
-		auto obj = m_Scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLPostLoadingPass();
+		displayManager.PeekMessage();
+		auto obj = scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLPostLoadingPass();
 		if (obj != nullptr)
 		{
 			load = true;
@@ -99,16 +98,16 @@ void CEngine::OpenGLLoadingPass(std::thread& loading_thread)
 		{
 			load = false;
 		}
-		m_LoadingScreenRenderer->Render(nullptr);
-		m_DisplayManager.Update();
+		loadingScreenRenderer->Render(nullptr);
+		displayManager.Update();
 	}
 }
 
 void CEngine::LoadScene()
 {
-	if (m_Scene == nullptr) return;
+	if (scene == nullptr) return;
 	auto start = std::chrono::high_resolution_clock::now();
-	m_Scene->Initialize();
+	scene->Initialize();
 	auto end = std::chrono::high_resolution_clock::now();
 	Log("Scene loading time: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.f ) + "s.");
 //	std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -117,21 +116,21 @@ void CEngine::LoadScene()
 
 void CEngine::SetIsLoading(bool is)
 {
-	std::lock_guard<std::mutex> lock(m_LoadingMutex);
-	m_IsLoading = is;
+	std::lock_guard<std::mutex> lock(loadingMutex);
+	isLoading = is;
 }
 
 bool CEngine::GetIsLoading()
 {
-	std::lock_guard<std::mutex> lock(m_LoadingMutex);
-	return m_IsLoading;
+	std::lock_guard<std::mutex> lock(loadingMutex);
+	return isLoading;
 }
 
 void CEngine::Init()
 {
 	glEnable(GL_DEPTH_TEST);
 
-	if (m_Renderers.empty())
+	if (renderers.empty())
 	{
 		//Log("Renderer not set, take default renderer (FullRenderer).");
 		
@@ -139,25 +138,25 @@ void CEngine::Init()
 
 		if (renderer == SConfiguration::RendererType::FULL_RENDERER)
 		{
-			m_Renderers.emplace_back(new FullRenderer(&m_Projection));
+			renderers.emplace_back(new FullRenderer(&projection));
 		}
 		else
 		{
-			m_Renderers.emplace_back(new SimpleRenderer(&m_Projection));
+			renderers.emplace_back(new SimpleRenderer(&projection));
 		}
 
 	}
-	for(auto& renderer : m_Renderers)
+	for(auto& renderer : renderers)
 		renderer->Init();
 	
-	auto circleTexture	= m_ResorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/circle2.png", false);
-	auto bgtexture		= m_ResorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::VERTICAL);
-	m_LoadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
-	m_LoadingScreenRenderer->Init();
+	auto circleTexture	= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/circle2.png", false);
+	auto bgtexture		= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::VERTICAL);
+	loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
+	loadingScreenRenderer->Init();
 }
 void CEngine::PreperaScene()
 {
-	m_IsLoading = true;
+	isLoading = true;
 	std::thread loading_thread(&CEngine::LoadScene, this);
 	OpenGLLoadingPass(loading_thread);
 }

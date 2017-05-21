@@ -29,7 +29,7 @@ public:
 
 	//GetObjects
     std::list<CGameObject*> GetObjectInRange(const glm::vec3& position, float range);
-	const std::list<std::unique_ptr<CGameObject>>& GetGameObjects() { return m_GameObjects; }
+    const std::list<std::unique_ptr<CGameObject>>& GetGameObjects() { return gameObjects; }
 
 	//Cameras
 	CCamera* GetCamera();
@@ -37,28 +37,30 @@ public:
 	//Lights
 	const CLight& GetDirectionalLight() const;
 	const std::vector<CLight>&	GetLights() const;
-	const CDayNightCycle& GetDayNightCycle() const { return m_DayNightCycle; }
+    const CDayNightCycle& GetDayNightCycle() const { return dayNightCycle; }
 
 	//Resources
-	CResourceManager& GetResourceManager() { return m_ResourceManager; }
+    CResourceManager& GetResourceManager() { return resourceManager; }
 
-	float GetDeltaTime() { return m_DeltaTime; }
-	float GetGlobalTime() { return m_GloabalTime; }
+    float GetDeltaTime() { return deltaTime; }
+    float GetGlobalTime() { return gloabalTime; }
 
-	uint m_ObjectCount;
+public:
+    uint objectCount;
+
 protected:
 	//Minimum one light on scene only (night - decrease strength)
-	CDayNightCycle		m_DayNightCycle;
-	CLight				m_DirectionalLight;
+    CDayNightCycle		dayNightCycle;
+    CLight				directionalLight;
 
-	std::vector<CLight>	m_Lights;
+    std::vector<CLight>	lights;
 
-    std::list<std::unique_ptr<CGameObject>>  m_GameObjects;
+    std::list<std::unique_ptr<CGameObject>>  gameObjects;
 
-    std::unique_ptr<CCamera> m_Camera;
+    std::unique_ptr<CCamera> camera;
 
-	CResourceManager m_ResourceManager;
+    CResourceManager resourceManager;
 
-	float m_DeltaTime = 0;
-	float m_GloabalTime = 0.f;	
+    float deltaTime = 0;
+    float gloabalTime = 0.f;
 };

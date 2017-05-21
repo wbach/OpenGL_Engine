@@ -18,7 +18,7 @@ namespace VertexBufferObjects
 		BONES,
 		COUNT,
 	};
-};
+}
 
 class CMesh : public COpenGLObject
 {
@@ -28,6 +28,7 @@ public:
 		const std::vector<unsigned short>& indices = std::vector<unsigned short>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
 	CMesh(const CMesh&) = delete;
 	CMesh(CMesh&&) = default;
+
 	virtual ~CMesh();
 	virtual void OpenGLLoadingPass() override;
 	virtual void OpenGLPostLoadingPass() override;
@@ -49,33 +50,31 @@ public:
 	const uint& GetVbo(VertexBufferObjects::Type type) const;
 	const uint& GetVertexCount() const;
 	const SMaterial& GetMaterial() const;
-	const std::vector<uint>& GetUsedAttributes() const { return m_Attributes; }
+    const std::vector<uint>& GetUsedAttributes() const { return attributes; }
 
-	void SetMaterial(const SMaterial& material)
-	{
-		m_Material = material;
-	}
+    void SetMaterial(const SMaterial& material);
 
 	void ClearData();
+
 private:
-    SMaterial	 m_Material;
-	uint m_Vao;
-	uint m_Vbos[VertexBufferObjects::COUNT];
-	uint m_VertexCount;
+    SMaterial material;
+    uint vao;
+    uint vbos[VertexBufferObjects::COUNT];
+	uint vertexCount;
 	//used attributes
-	std::vector<uint> m_Attributes;
+    std::vector<uint> attributes;
 
-    std::vector<float> m_Positions;
-	std::vector<float> m_TextCoords;
-	std::vector<float> m_Normals;
-	std::vector<float> m_Tangents;
-	std::vector<unsigned short> m_Indices;
-	std::vector<SVertexBoneData> m_Bones;
-	std::vector<glm::mat4> m_InstancedMatrixes;
+    std::vector<float> positions;
+    std::vector<float> textCoords;
+    std::vector<float> normals;
+    std::vector<float> tangents;
+    std::vector<unsigned short> indices;
+    std::vector<SVertexBoneData> bones;
+    std::vector<glm::mat4> instancedMatrixes;
 
-	bool m_IsInit = false;
-	bool m_TransformVboCreated = false;
-	bool m_BonesInShader = false;
+    bool isInit = false;
+    bool transformVboCreated = false;
+    bool bonesInShader = false;
 
-	BoundingBox m_BoundingBox;
+	BoundingBox boundingBox;
 };

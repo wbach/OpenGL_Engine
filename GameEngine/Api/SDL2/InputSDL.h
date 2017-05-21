@@ -27,5 +27,5 @@ public:
 private:
 	int KeyToSDL(int i);
 
-	SDL_Window* m_SdlWindow;	
+    SDL_Window* sdlWindow;
 };

@@ -1,27 +1,24 @@
 #include "InputManager.h"
 
 CInputManager::CInputManager()
-: m_Input(nullptr)
+: input(nullptr)
 {
-
 }
 
 void CInputManager::ClearBuffer()
 {
-	if (m_Input != nullptr)
-	{
-		m_Input->ClearKeyBuffer();
-	}
+    if (input != nullptr)
+        input->ClearKeyBuffer();
 }
 
 KeyCodes::Type CInputManager::GetKeyCode(GameActions::Type action)
 {
-	return m_Input->m_KeyGameActions[action];
+    return input->keyGameActions[action];
 }
 
 bool CInputManager::GetKeyDown(KeyCodes::Type key)
 {
-	return m_Input->GetKeyDown(key);
+    return input->GetKeyDown(key);
 }
 
 bool CInputManager::GetKeyUp(KeyCodes::Type key)
@@ -31,40 +28,33 @@ bool CInputManager::GetKeyUp(KeyCodes::Type key)
 
 bool CInputManager::GetKey(KeyCodes::Type key)
 {
-
-	if (m_Input != nullptr)
-	{
-		return m_Input->GetKey(key);
-	}
+    if (input != nullptr)
+        return input->GetKey(key);
 	return false;
 }
 
 void CInputManager::CheckReleasedKeys()
 {
-	if (m_Input != nullptr)
-	{
-		m_Input->CheckReleasedKeys();
-	}
+    if (input != nullptr)
+        input->CheckReleasedKeys();
 }
 
 bool CInputManager::GetKeyDown(GameActions::Type action)
 {
-	if (m_Input != nullptr)
-	{
-		return m_Input->GetKeyDown(m_Input->m_KeyGameActions[action]);
-	}
+    if (input != nullptr)
+        return input->GetKeyDown(input->keyGameActions[action]);
 	return false;
 }
 
 bool CInputManager::GetKey(GameActions::Type action)
 {
-	if (m_Input != nullptr)
+    if (input != nullptr)
 	{
-		if (m_Input->m_KeyGameActions[action] == KeyCodes::LMOUSE ||
-			m_Input->m_KeyGameActions[action] == KeyCodes::RMOUSE)
-			return m_Input->GetMouseKey(m_Input->m_KeyGameActions[action]);
+        if (input->keyGameActions[action] == KeyCodes::LMOUSE ||
+            input->keyGameActions[action] == KeyCodes::RMOUSE)
+            return input->GetMouseKey(input->keyGameActions[action]);
 
-		return m_Input->GetKey(m_Input->m_KeyGameActions[action]);
+        return input->GetKey(input->keyGameActions[action]);
 	}
 	return false;
 }
@@ -81,22 +71,22 @@ bool CInputManager::GetMouseKeyUp(int key)
 
 bool CInputManager::GetMouseKey(int key)
 {
-	if (m_Input != nullptr)
-		return m_Input->GetMouseKey(key);
+    if (input != nullptr)
+        return input->GetMouseKey(key);
 	return false;
 }
 
 glm::vec2 CInputManager::GetMousePosition()
 {
-	if (m_Input != nullptr)
-		return m_Input->GetMousePosition();
+    if (input != nullptr)
+        return input->GetMousePosition();
 	return glm::vec2();
 }
 
 glm::vec2 CInputManager::CalcualteMouseMove()
 {
-	if (m_Input != nullptr)
-		return m_Input->CalcualteMouseMove();
+    if (input != nullptr)
+        return input->CalcualteMouseMove();
 
 	return glm::vec2();
 }

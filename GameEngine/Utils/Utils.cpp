@@ -2,6 +2,7 @@
 #include "../Debug_/Log.h"
 #include <algorithm>
 #include <fstream>
+#include <stdexcept>
 
 std::vector<std::string> Utils::SplitString(const std::string & s, char split_char)
 {

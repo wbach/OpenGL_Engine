@@ -24,6 +24,7 @@ public:
 	void SetNormalizedSize(const glm::vec3& size);
 	void SetScale(const glm::vec3& s);
 	void SetPosition(const glm::vec3& pos);
+
 private:
 	glm::vec3 position;
 	glm::vec3 rotation;

@@ -26,10 +26,11 @@ public:
 	virtual void ClearKeyBuffer() = 0;
 
 	void CheckReleasedKeys();
-	KeyCodes::Type m_KeyGameActions[GameActions::COUNT];
 
-	CApi* m_Api;
+public:
+    KeyCodes::Type keyGameActions[GameActions::COUNT];
+    CApi* api;
 
 private:
-	std::list<std::pair<KeyCodes::Type, bool>> m_PressedKeys;
+    std::list<std::pair<KeyCodes::Type, bool>> pressedKeys;
 };

@@ -6,7 +6,6 @@
 
 class CPlayer;
 class CEngine;
-//struct STerrain;
 
 class MainScene : public CScene
 {
@@ -16,13 +15,15 @@ public:
     virtual int		Initialize();
     virtual void	PostInitialize() {};
     virtual int		Update();
+
 private:
    TerrainTexturesMap CreateTerrainTexturesMap();
     void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
     std::vector<float> CreateGrassPositions(CGameObject*);
+
+private:
     CPlayer* player;
 	std::vector<CGameObject*> terrains;
-  //  STerrain *terrain;
-    double time_clock = 0;
+    double timeClock = 0;
     CEngine& engine;
 };

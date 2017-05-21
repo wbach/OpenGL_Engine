@@ -3,22 +3,22 @@
 
 CAssimModel::CAssimModel(CTextureLoader & texture_lodaer)
 	: CModel()
-	, m_TextureLodaer(texture_lodaer)
-	, m_CurrentTime(0)
-	, m_Scene(nullptr)
-	, m_IsInit(false)
+	, textureLodaer(texture_lodaer)
+	, currentTime(0)
+	, scene(nullptr)
+	, isInit(false)
 {
 }
 
 void CAssimModel::InitModel(const std::string& file_name)
 {
-	m_Filename = file_name;
-	std::replace(m_Filename.begin(), m_Filename.end(), '\\', '/');
-	std::string path = m_Filename.substr(0, m_Filename.find_last_of('/'));
+    filename = file_name;
+    std::replace(filename.begin(), filename.end(), '\\', '/');
+    std::string path = filename.substr(0, filename.find_last_of('/'));
 
 	if (!Utils::CheckFileExist(file_name))
 	{
-		std::string error = "[Error] The file " + m_Filename + " wasnt successfuly opened";
+        std::string error = "[Error] The file " + filename + " wasnt successfuly opened";
 		Log(error);
 		throw std::runtime_error(error.c_str());
 	}
@@ -29,18 +29,18 @@ void CAssimModel::InitModel(const std::string& file_name)
 		| aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
 	//if(normals == "flat" ) flags |= aiProcess_GenNormals ;
 	//if(normals == "smooth" ) flags |= aiProcess_GenSmoothNormals ;
-	m_Scene = importer.ReadFile(m_Filename.c_str(), flags);// aiImportFile(m_Filename.c_str(), flags);
-	if (m_Scene)
+    scene = importer.ReadFile(filename.c_str(), flags);// aiImportFile(m_Filename.c_str(), flags);
+	if (scene)
 	{
-		if (m_Scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !m_Scene->mRootNode)
+		if (scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
-			std::string error = "[Error] The file " + m_Filename + " wasnt successfuly opened - AI_SCENE_FLAGS_INCOMPLETE";
+            std::string error = "[Error] The file " + filename + " wasnt successfuly opened - AI_SCENE_FLAGS_INCOMPLETE";
 			throw std::runtime_error(error.c_str());
 		}
-		aiMatrix4x4 m = m_Scene->mRootNode->mTransformation;
-		m_GlobalInverseTransform = ToGlmMatrix(m);
-		RecursiveProcess("../Data/Textures/", m_Scene->mRootNode, m_Scene);
-		m_IsInit = true;
+		aiMatrix4x4 m = scene->mRootNode->mTransformation;
+		globalInverseTransform = ToGlmMatrix(m);
+		RecursiveProcess("../Data/Textures/", scene->mRootNode, scene);
+		isInit = true;
 		//aiReleaseImport(m_Scene);
 	}
 	else
@@ -85,14 +85,14 @@ void CAssimModel::ReadCollisions(std::string file_name, std::vector<float>& post
 
 CAssimModel::~CAssimModel()
 {
-	if (!m_IsInit)
+	if (!isInit)
 		return;
 
-	if (m_Scene != nullptr)
+	if (scene != nullptr)
 	{
 		///aiReleaseImport(m_Scene);
 	}
-	Log("Destructor assimp model : " + m_Filename);
+    Log("Destructor assimp model : " + filename);
 }
 void CAssimModel::RecursiveProcess(const aiScene *scene, aiNode * node, std::vector<float>& postions, std::vector<float>& normals, std::vector<uint>& indices)
 {
@@ -136,8 +136,8 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 	std::vector<float> tangents;
 	std::vector<unsigned short> indices;
 
-	m_BonesInfo.push_back(SBonesInfo());
-	SBonesInfo& bones_info = m_BonesInfo.back();
+	bonesInfo.push_back(SBonesInfo());
+	SBonesInfo& bones_info = bonesInfo.back();
 	bones_info.bones.resize(mesh->mNumVertices);
 
 	aiColor4D diff;
@@ -222,18 +222,19 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 		uint BoneIndex = 0;
 		std::string BoneName(mesh->mBones[i]->mName.data);
 		//cout << BoneName << endl;
-		if (bones_info.bone_mapping.find(BoneName) == bones_info.bone_mapping.end())
+		if (bones_info.boneMapping.find(BoneName) == bones_info.boneMapping.end())
 		{
 			// Allocate an index for a new bone
-			BoneIndex = bones_info.num_bones;
-			bones_info.num_bones++;
+			BoneIndex = bones_info.numBones;
+			bones_info.numBones++;
 			SBoneInfo bi;
-			bones_info.bone_info.push_back(bi);
-			bones_info.bone_info[BoneIndex].BoneOffset = ToGlmMatrix(mesh->mBones[i]->mOffsetMatrix);
-			bones_info.bone_mapping[BoneName] = BoneIndex;
+			bones_info.boneInfo.push_back(bi);
+            bones_info.boneInfo[BoneIndex].boneOffset = ToGlmMatrix(mesh->mBones[i]->mOffsetMatrix);
+			bones_info.boneMapping[BoneName] = BoneIndex;
 		}
-		else {
-			BoneIndex = bones_info.bone_mapping[BoneName];
+        else
+        {
+			BoneIndex = bones_info.boneMapping[BoneName];
 		}
 
 		for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++)
@@ -267,8 +268,8 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 
 		try
 		{
-			auto texture = m_TextureLodaer.LoadTexture(file_path + s.c_str(), true, TextureType::MATERIAL);
-			material.m_DiffuseTexture = texture;
+			auto texture = textureLodaer.LoadTexture(file_path + s.c_str(), true, TextureType::MATERIAL);
+			material.diffuseTexture = texture;
 		}
 		catch (const std::runtime_error& e)
 		{
@@ -282,8 +283,8 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 		mat->GetTexture(aiTextureType_HEIGHT, i, &str);
 		try
 		{
-			auto texture = m_TextureLodaer.LoadTexture(file_path + str.C_Str(), true, TextureType::MATERIAL);
-			material.m_NormalTexture = texture;
+			auto texture = textureLodaer.LoadTexture(file_path + str.C_Str(), true, TextureType::MATERIAL);
+			material.normalTexture = texture;
 		}
 		catch (const std::runtime_error& e)
 		{
@@ -336,39 +337,39 @@ glm::mat4 CAssimModel::ToGlmMatrix(const aiMatrix3x3 & assimp_atrix)
 	return m;
 }
 
-void CAssimModel::SetTime(const float & time) { m_CurrentTime = time; }
+void CAssimModel::SetTime(const float & time) { currentTime = time; }
 
 void CAssimModel::Update(float delta_time)
 {
-	m_CurrentTime += delta_time;
+	currentTime += delta_time;
 	//if (m_CurrentTime > 1)
 	//	m_CurrentTime = 0;
 	int x = 0;
-	for (SBonesInfo& info : m_BonesInfo)
+	for (SBonesInfo& info : bonesInfo)
 	{
-		BoneTransform(info.num_bones, info.bone_info, info.bone_mapping, m_CurrentTime, m_BoneTransformMatrixes[x++]);
+		BoneTransform(info.numBones, info.boneInfo, info.boneMapping, currentTime, boneTransformMatrixes[x++]);
 	}
 }
 
-const std::vector<glm::mat4>* CAssimModel::GetBonesTransforms(uint mesh_id) { return  &m_BoneTransformMatrixes[mesh_id]; }
+const std::vector<glm::mat4>* CAssimModel::GetBonesTransforms(uint mesh_id) { return  &boneTransformMatrixes[mesh_id]; }
 
 void CAssimModel::BoneTransform(uint num_bones, std::vector<SBoneInfo>& bone_info, std::map<std::string, uint>& bone_mapping, float TimeInSeconds, std::vector<glm::mat4>& Transforms)
 {
 	glm::mat4 Identity(1.0f);
 
-	float TicksPerSecond = (float)m_Scene->mAnimations[0]->mTicksPerSecond != 0 ?
-		(float)m_Scene->mAnimations[0]->mTicksPerSecond : 25.0f;
+	float TicksPerSecond = (float)scene->mAnimations[0]->mTicksPerSecond != 0 ?
+		(float)scene->mAnimations[0]->mTicksPerSecond : 25.0f;
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
-	float AnimationTime = (float)fmod(TimeInTicks, m_Scene->mAnimations[0]->mDuration);
+	float AnimationTime = (float)fmod(TimeInTicks, scene->mAnimations[0]->mDuration);
 
-	ReadNodeHeirarchy(bone_mapping, bone_info, AnimationTime, m_Scene->mRootNode, Identity);
+	ReadNodeHeirarchy(bone_mapping, bone_info, AnimationTime, scene->mRootNode, Identity);
 
 	//	Transforms.resize(num_bones);
 
 	for (uint i = 0; i < num_bones; i++)
 	{
 		if (Transforms.size() < i + 1) Transforms.push_back(glm::mat4(1.f));
-		Transforms[i] = bone_info[i].FinalTransformation;
+        Transforms[i] = bone_info[i].finalTransformation;
 	}
 }
 
@@ -376,7 +377,7 @@ void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint>& bone_mapping, s
 {
 	std::string NodeName(pNode->mName.data);
 
-	const aiAnimation* pAnimation = m_Scene->mAnimations[0];
+	const aiAnimation* pAnimation = scene->mAnimations[0];
 
 	glm::mat4 NodeTransformation = ToGlmMatrix(pNode->mTransformation);
 
@@ -410,8 +411,8 @@ void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint>& bone_mapping, s
 	if (bone_mapping.find(NodeName) != bone_mapping.end())
 	{
 		uint BoneIndex = bone_mapping[NodeName];
-		bone_info[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation *
-			bone_info[BoneIndex].BoneOffset;
+        bone_info[BoneIndex].finalTransformation = globalInverseTransform * GlobalTransformation *
+            bone_info[BoneIndex].boneOffset;
 	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++)

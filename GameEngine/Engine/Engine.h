@@ -20,17 +20,19 @@ public:
 	void SetIsLoading(bool is);
 	bool GetIsLoading();
 
-	CProjection m_Projection;
-	CDisplayManager m_DisplayManager;
-	CInputManager	m_InputManager;
-	std::unique_ptr<CScene> m_Scene;
-	std::vector<std::unique_ptr<CRenderer>> m_Renderers;
+public:
+    CProjection projection;
+    CDisplayManager displayManager;
+    CInputManager	inputManager;
+    std::unique_ptr<CScene> scene;
+    std::vector<std::unique_ptr<CRenderer>> renderers;
+
 private:	
-	std::unique_ptr<CLoadingScreenRenderer> m_LoadingScreenRenderer;	
+    std::unique_ptr<CLoadingScreenRenderer> loadingScreenRenderer;
 	
 	//Global items, loading screen etc...
-	CResourceManager m_ResorceManager;
+    CResourceManager resorceManager;
 
-	bool m_IsLoading;
-	std::mutex m_LoadingMutex;
+    bool isLoading;
+    std::mutex loadingMutex;
 };

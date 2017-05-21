@@ -20,11 +20,12 @@ private:
 	void LockCamera();
 	glm::vec2 CalcualteMouseMove();
 
-	glm::vec3& m_LookPosition;
-	glm::vec3& m_LookRotation;
+private:
+    glm::vec3& lookPosition;
+    glm::vec3& lookRotation;
 
 
-	CInputManager*   m_InputManager;
-	CDisplayManager* m_DisplayManager;
+    CInputManager*   inputManager;
+    CDisplayManager* displayManager;
 };
 

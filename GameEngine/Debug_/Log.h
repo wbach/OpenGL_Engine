@@ -17,8 +17,9 @@ private:
 	CLogger();
 	void CreateLogFile();
 
-	std::string m_FileName;
-	std::list<std::string> m_Logs;
+private:
+    std::string fileName;
+    std::list<std::string> logs;
 	bool enabled = false;
 };
 

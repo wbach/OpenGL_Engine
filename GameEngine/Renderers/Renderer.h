@@ -10,7 +10,7 @@ class CRenderer
 {
 public:
 	CRenderer() {}
-	CRenderer(CFrameBuffer* target) : m_Target(target){}
+    CRenderer(CFrameBuffer* target) : target(target){}
 	virtual ~CRenderer() {}
     virtual void Init() = 0 ;
     virtual void PrepareFrame(CScene* scene) = 0;
@@ -20,11 +20,12 @@ public:
     //Debug
     const uint& GetObjectsPerFrame();
 	const uint& GetVertexPerFrame();
+
 protected:
     //Debug variables
-    uint m_RendererObjectPerFrame = 0;
-	uint m_RendererVertixesPerFrame = 0;
-	uint m_MaxVerices = 0;
+    uint rendererObjectPerFrame = 0;
+    uint rendererVertixesPerFrame = 0;
+    uint maxVerices = 0;
 
-	CFrameBuffer* m_Target = nullptr;
+    CFrameBuffer* target = nullptr;
 };

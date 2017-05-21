@@ -15,9 +15,9 @@ public:
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
 private:
-	CGrassShader m_Shader;
-	CProjection* m_Projection;
+    CGrassShader shader;
+    CProjection* projection;
 
-	std::list<SGrass*> m_Subscribes;
+    std::list<SGrass*> subscribes;
 	float viewDistance = 30.f;
 };

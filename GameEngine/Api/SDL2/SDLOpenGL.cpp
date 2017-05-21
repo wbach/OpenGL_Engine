@@ -7,7 +7,7 @@
 
 CSdlOpenGlApi::~CSdlOpenGlApi()
 {
-	SDL_GL_DeleteContext(m_GlContext);
+    SDL_GL_DeleteContext(glContext);
 	SDL_Quit();
 }
 
@@ -18,12 +18,12 @@ void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int
 #ifdef EDITOR
 	flags |= SDL_WINDOW_BORDERLESS;
 #endif
-	if (!(m_Window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags)))
+    if (!(window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags)))
 	{
 		Log("[Error] SDL_CreateWindow error.");
 		return;
 	}
-	if (!(m_GlContext = SDL_GL_CreateContext(m_Window)))
+    if (!(glContext = SDL_GL_CreateContext(window)))
 	{
 		Log("[Error] SDL_GL_CreateContext error.");
 		return;
@@ -52,19 +52,19 @@ void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int
 
 void CSdlOpenGlApi::UpdateWindow()
 {
-	SDL_GL_SwapWindow(m_Window);
+    SDL_GL_SwapWindow(window);
 }
 void CSdlOpenGlApi::SetFullScreen(bool full_screen)
 {
 	if (full_screen)
-		SDL_SetWindowFullscreen(m_Window, SDL_TRUE);
+        SDL_SetWindowFullscreen(window, SDL_TRUE);
 	else
-		SDL_SetWindowFullscreen(m_Window, SDL_FALSE);
+        SDL_SetWindowFullscreen(window, SDL_FALSE);
 }
 
 bool CSdlOpenGlApi::CheckActiveWindow()
 {
-	if ((SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS))
+    if ((SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS))
 	{
 		return true;
 	}
@@ -81,7 +81,7 @@ void CSdlOpenGlApi::ShowCursor(bool show)
 
 void CSdlOpenGlApi::SetInput(std::unique_ptr<CInput>& input)
 {
-	input = std::make_unique<CInputSDL>(m_Window);
+    input = std::make_unique<CInputSDL>(window);
 }
 
 double CSdlOpenGlApi::GetTime()
@@ -91,25 +91,25 @@ double CSdlOpenGlApi::GetTime()
 
 void CSdlOpenGlApi::SetCursorPosition(int x, int y)
 {
-	SDL_WarpMouseInWindow(m_Window, x, y);
+    SDL_WarpMouseInWindow(window, x, y);
 }
 
 void CSdlOpenGlApi::BeginFrame()
 {
-	m_StartTime = SDL_GetTicks();
+    startTime = SDL_GetTicks();
 }
 
 void CSdlOpenGlApi::LockFps(float fps)
 {
-	if (static_cast<Uint32>(1000.0f / fps ) > SDL_GetTicks() - m_StartTime)  SDL_Delay(static_cast<Uint32>(1000.0f / fps ) - (SDL_GetTicks() - m_StartTime));
+    if (static_cast<Uint32>(1000.0f / fps ) > SDL_GetTicks() - startTime)  SDL_Delay(static_cast<Uint32>(1000.0f / fps ) - (SDL_GetTicks() - startTime));
 }
 
 ApiMessages::Type CSdlOpenGlApi::PeekMessages()
 {	
 	BeginFrame();
-	while (SDL_PollEvent(&m_Event))
+    while (SDL_PollEvent(&event))
 	{
-		switch (m_Event.type)
+        switch (event.type)
 		{
 			case SDL_QUIT: return ApiMessages::QUIT;
 			case SDL_MOUSEBUTTONDOWN:
@@ -119,7 +119,7 @@ ApiMessages::Type CSdlOpenGlApi::PeekMessages()
 
 			//	m_Event.key.keysym.unicode;
 
-				switch (m_Event.key.keysym.sym)
+                switch (event.key.keysym.sym)
 				{
 				case SDLK_F9: break; // m_DisplayManager.SetFullScreen(); 
 				case SDLK_ESCAPE: return ApiMessages::QUIT;

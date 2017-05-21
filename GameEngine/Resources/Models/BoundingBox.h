@@ -3,8 +3,8 @@
 
 struct BoundingBox
 {
-	glm::vec3	m_BoundingBoxMin,
-				m_BoundingBoxMax,
-				m_BoundingCenter,
-				m_BoundingSize;
+    glm::vec3	min,
+                max,
+                center,
+                size;
 };

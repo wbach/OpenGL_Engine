@@ -17,8 +17,7 @@ public:
 	virtual void Subscribe(CGameObject* gameObject) {}
 	// create unique_ptr from ptr
 	void AddElement(CGuiElement* element);
+
 private: 
-	std::vector<std::unique_ptr<CGuiElement>> m_GuiElements;
-
-
+    std::vector<std::unique_ptr<CGuiElement>> guiElements;
 };

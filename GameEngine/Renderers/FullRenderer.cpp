@@ -12,23 +12,23 @@
 #include "../Debug_/Log.h"
 
 FullRenderer::FullRenderer(CProjection* projection_matrix)
-	: m_ProjectionMatrix(projection_matrix)
-	, m_DefferedFrameBuffer(new CDefferedFrameBuffer())
+	: projectionMatrix(projection_matrix)
+	, defferedFrameBuffer(new CDefferedFrameBuffer())
 {	
 	if(SConfiguration::Instance().advancedGrass)
-		m_Renderers.emplace_back(new CGrassRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
+		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
 
-	m_Renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
-    m_Renderers.emplace_back(new CTerrainRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
-	m_Renderers.emplace_back(new CEntityRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
-	m_Renderers.emplace_back(new CLightPassRenderer(projection_matrix, m_DefferedFrameBuffer.get()));
+	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
+    renderers.emplace_back(new CTerrainRenderer(projection_matrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new CEntityRenderer(projection_matrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new CLightPassRenderer(projection_matrix, defferedFrameBuffer.get()));
 }
 
 void FullRenderer::Init()
 {
-	m_DefferedFrameBuffer->Init(m_ProjectionMatrix->GetWindowSize());
+	defferedFrameBuffer->Init(projectionMatrix->GetWindowSize());
 
-     for(auto& renderer : m_Renderers)
+     for(auto& renderer : renderers)
     {
         renderer->Init();
     }
@@ -36,9 +36,9 @@ void FullRenderer::Init()
 }
 void FullRenderer::PrepareFrame(CScene* scene)
 {
-	m_DefferedFrameBuffer->Clean();
+	defferedFrameBuffer->Clean();
 
-    for(auto& renderer : m_Renderers)
+    for(auto& renderer : renderers)
     {
         renderer->PrepareFrame(scene);
     }	
@@ -47,14 +47,14 @@ void FullRenderer::PrepareFrame(CScene* scene)
 }
 void FullRenderer::Render(CScene* scene)
 {
-    for(auto& renderer : m_Renderers)
+    for(auto& renderer : renderers)
     {
         renderer->Render(scene);
     }
 }
 void FullRenderer::EndFrame(CScene* scene)
 {
-    for(auto& renderer : m_Renderers)
+    for(auto& renderer : renderers)
     {
         renderer->EndFrame(scene);
     }
@@ -62,6 +62,6 @@ void FullRenderer::EndFrame(CScene* scene)
 
 void FullRenderer::Subscribe(CGameObject * gameObject)
 {
-	for (auto& renderer : m_Renderers)
+	for (auto& renderer : renderers)
 		renderer->Subscribe(gameObject);
 }

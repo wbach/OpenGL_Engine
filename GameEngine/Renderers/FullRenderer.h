@@ -17,9 +17,9 @@ public:
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
 private:
-	CProjection* m_ProjectionMatrix;
+    CProjection* projectionMatrix;
 
 	//ShadowMap renderes, etc...
-	std::vector<std::unique_ptr<CRenderer>> m_Renderers;
-	std::shared_ptr<CDefferedFrameBuffer> m_DefferedFrameBuffer;
+    std::vector<std::unique_ptr<CRenderer>> renderers;
+    std::shared_ptr<CDefferedFrameBuffer> defferedFrameBuffer;
 };

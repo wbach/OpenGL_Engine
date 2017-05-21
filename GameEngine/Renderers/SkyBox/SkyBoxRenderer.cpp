@@ -7,23 +7,22 @@
 #include "../../Scene/Scene.hpp"
 
 CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, CFrameBuffer* framebuffer)
-    : m_Model(nullptr)
-	, m_DayTexture(nullptr)
-	, m_NightTexture(nullptr)
-    , m_ProjectionMatrix(projection_matrix)
-    , CRenderer(framebuffer)
+    : CRenderer(framebuffer)
+    , model(nullptr)
+	, dayTexture(nullptr)
+	, nightTexture(nullptr)
+    , projectionMatrix(projection_matrix) 
 {
-
 }
 
 void CSkyBoxRenderer::Init()
 {
-    m_Shader.Init();
-    m_Shader.Start();
-    m_Shader.LoadProjectionMatrix(m_ProjectionMatrix->GetProjectionMatrix());
-    m_Shader.LoadFogColour(.8f, .8f, .8f);
-    m_Shader.LoadBlendFactor(1.f);
-    m_Shader.Stop();
+    shader.Init();
+    shader.Start();
+    shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
+    shader.LoadFogColour(.8f, .8f, .8f);
+    shader.LoadBlendFactor(1.f);
+    shader.Stop();
 	Log("Skybox renderer initialized.");
 }
 
@@ -32,16 +31,16 @@ void CSkyBoxRenderer::PrepareFrame(CScene *scene)
 	InitMembers(scene);
 
 	Utils::DisableCulling();
-   m_Shader.Start();
-   m_Shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), scene->GetDeltaTime(), 500.f);
-   m_Shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
+   shader.Start();
+   shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), scene->GetDeltaTime(), 500.f);
+   shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
 
-   if (m_Target == nullptr)
+   if (target == nullptr)
        return;
 
-   m_Target->BindToDraw();
+   target->BindToDraw();
 
-   for(const auto& mesh : m_Model->GetMeshes())
+   for(const auto& mesh : model->GetMeshes())
    {
 	   Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
 	   BindTextures(mesh.GetMaterial());
@@ -49,7 +48,7 @@ void CSkyBoxRenderer::PrepareFrame(CScene *scene)
 	   Utils::DisableVao(mesh.GetUsedAttributes());
    }
    Utils::EnableCulling();
-   m_Shader.Stop();
+   shader.Stop();
 }
 
 void CSkyBoxRenderer::Render(CScene *scene)
@@ -69,12 +68,12 @@ void CSkyBoxRenderer::Subscribe(CGameObject *gameObject)
 
 void CSkyBoxRenderer::InitMembers(CScene* scene)
 {
-	if (m_Model == nullptr)
+	if (model == nullptr)
 	{
-		m_Model = scene->GetResourceManager().LoadModel("../Data/Meshes/SkyBox/cube.obj");
-		m_Model->OpenGLLoadingPass();
+		model = scene->GetResourceManager().LoadModel("../Data/Meshes/SkyBox/cube.obj");
+		model->OpenGLLoadingPass();
 	}
-	if (m_DayTexture == nullptr)
+	if (dayTexture == nullptr)
 	{
 		std::vector<std::string> dayTextures
 		{
@@ -85,10 +84,10 @@ void CSkyBoxRenderer::InitMembers(CScene* scene)
 			"../Data/Skybox/TropicalSunnyDay/back.png",			
 			"../Data/Skybox/TropicalSunnyDay/front.png"			
 		};
-		m_DayTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(dayTextures, false);
-		m_DayTexture->OpenGLLoadingPass();
+		dayTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(dayTextures, false);
+		dayTexture->OpenGLLoadingPass();
 	}
-	if (m_NightTexture == nullptr)
+	if (nightTexture == nullptr)
 	{
 		std::vector<std::string> nightTextures
 		{
@@ -99,22 +98,22 @@ void CSkyBoxRenderer::InitMembers(CScene* scene)
 			"../Data/Skybox/Night/back.png",
 			"../Data/Skybox/Night/front.png"
 		};
-		m_NightTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(nightTextures, false);
-		m_NightTexture->OpenGLLoadingPass();
+		nightTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(nightTextures, false);
+		nightTexture->OpenGLLoadingPass();
 	}
 }
 
 void CSkyBoxRenderer::BindTextures(const SMaterial & material) const
 {
-	if (m_DayTexture != nullptr)
+	if (dayTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_DayTexture->GetId());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, dayTexture->GetId());
 	}
 
-	if (m_NightTexture != nullptr)
+	if (nightTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_NightTexture->GetId());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, nightTexture->GetId());
 	}
 }

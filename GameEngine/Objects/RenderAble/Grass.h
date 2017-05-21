@@ -8,9 +8,9 @@ struct SGrass : public CGameObject
 {
 	virtual ~SGrass() {}
 	SGrass()
-	{ 	
-	
+    {
 	}
+
 	CModel *model;
 	std::vector<float> grassvertex;
 };

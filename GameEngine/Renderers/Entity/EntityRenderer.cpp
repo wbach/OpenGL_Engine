@@ -9,45 +9,45 @@
 static std::list<CEntity*> sEmptyEntityList;
 
 CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer)
-	: m_ProjectionMatrix(projection_matrix)
-	, m_ClipPlane(glm::vec4(0, 1, 0, 100000))
-	, CRenderer(framebuffer)
+    : CRenderer(framebuffer)
+    , projectionMatrix(projection_matrix)
+	, clipPlane(glm::vec4(0, 1, 0, 100000))
 {
-	m_Subscribes.resize(gridSize * gridSize);
+	subscribes.resize(gridSize * gridSize);
 }
 
 void CEntityRenderer::Init()
 {
     Log("Start initialize entity renderer...");
-	m_Shader.Init();
-	m_Shader.Start();
-	assert(m_ProjectionMatrix != nullptr);
-	m_Shader.LoadViewDistance(500.f);
-	m_Shader.LoadProjectionMatrix(m_ProjectionMatrix->GetProjectionMatrix());
-	m_Shader.Stop();
+	shader.Init();
+	shader.Start();
+	assert(projectionMatrix != nullptr);
+	shader.LoadViewDistance(500.f);
+	shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
+	shader.Stop();
 
 	Log("CEntityRenderer initialized.");
 }
 
 void CEntityRenderer::PrepareFrame(CScene * scene)
 {
-	m_Shader.Start();
-	m_Shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-	m_Shader.LoadClipPlane(m_ClipPlane);
-	m_Shader.LoadShadowValues(0.f, 10.f, 10.f);
+	shader.Start();
+	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+	shader.LoadClipPlane(clipPlane);
+	shader.LoadShadowValues(0.f, 10.f, 10.f);
 
-	m_RendererObjectPerFrame = 0;
-	m_RendererVertixesPerFrame = 0;
-	m_Shader.Stop();
+	rendererObjectPerFrame = 0;
+	rendererVertixesPerFrame = 0;
+	shader.Stop();
 }
 
 void CEntityRenderer::Render(CScene * scene)
 {
-	if (m_Target == nullptr)
+	if (target == nullptr)
 		return;
-	m_Target->BindToDraw();
+	target->BindToDraw();
 
-	m_Shader.Start();
+	shader.Start();
 
 	auto index = CalcualteCoorditantes(scene->GetCamera()->GetPosition());
 
@@ -90,12 +90,12 @@ void CEntityRenderer::Render(CScene * scene)
 			//subscirbes.insert(subscirbes.end(), sub.begin(), sub.end());
 		}
 	}	
-	m_Shader.Stop();
+	shader.Stop();
 }
 
 void CEntityRenderer::EndFrame(CScene * scene)
 {	
-	m_Shader.Stop();
+	shader.Stop();
 }
 
 void CEntityRenderer::Subscribe(CGameObject * gameObject)
@@ -117,25 +117,25 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 	//if (yi > 0 && yi < yi * gridSize)
 	//	return;
 
-	m_Subscribes[index.x + index.y*gridSize].push_back(entity);
+	subscribes[index.x + index.y*gridSize].push_back(entity);
 }
 
 const std::list<CEntity*>& CEntityRenderer::GetEntity(uint x, uint y) const
 {
-	if (m_Subscribes.empty()) return sEmptyEntityList;
+	if (subscribes.empty()) return sEmptyEntityList;
 
-	if ((x + y*gridSize) > m_Subscribes.size())
+	if ((x + y*gridSize) > subscribes.size())
 		return sEmptyEntityList;
 
-	return m_Subscribes[x + y*gridSize];
+	return subscribes[x + y*gridSize];
 }
 
 void CEntityRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
 {
-	m_Shader.LoadTransformMatrix(transform_matrix);	
-	m_Shader.LoadUseInstancedRendering(0.f);
-	m_Shader.LoadUseFakeLight(0.f);
-	m_Shader.LoadUseBonesTransformation(0.f);
+	shader.LoadTransformMatrix(transform_matrix);	
+	shader.LoadUseInstancedRendering(0.f);
+	shader.LoadUseFakeLight(0.f);
+	shader.LoadUseBonesTransformation(0.f);
 
 	for (const auto& mesh : model->GetMeshes())
 	{
@@ -162,36 +162,36 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 	if (material.isTransparency)
 		Utils::DisableCulling();
 
-	m_Shader.LoadMeshMaterial(material);
+	shader.LoadMeshMaterial(material);
 
-	if (material.m_DiffuseTexture != nullptr)
+	if (material.diffuseTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material.m_DiffuseTexture->GetId());	
-		m_Shader.LoadUseTexture(1.f);
+		glBindTexture(GL_TEXTURE_2D, material.diffuseTexture->GetId());	
+		shader.LoadUseTexture(1.f);
 	}
 	else
-		m_Shader.LoadUseTexture(0.f);
+		shader.LoadUseTexture(0.f);
 
-	if (material.m_AmbientTexture != nullptr)
+	if (material.ambientTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, material.m_AmbientTexture->GetId());
+		glBindTexture(GL_TEXTURE_2D, material.ambientTexture->GetId());
 	}
 
-	if (material.m_NormalTexture != nullptr)
+	if (material.normalTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, material.m_NormalTexture->GetId());
-		m_Shader.LoadUseNormalMap(1.f);
+		glBindTexture(GL_TEXTURE_2D, material.normalTexture->GetId());
+		shader.LoadUseNormalMap(1.f);
 	}
 	else
-		m_Shader.LoadUseNormalMap(0.f);
+		shader.LoadUseNormalMap(0.f);
 
-	if (material.m_SpecularTexture != nullptr)
+	if (material.specularTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, material.m_SpecularTexture->GetId());
+		glBindTexture(GL_TEXTURE_2D, material.specularTexture->GetId());
 	}
 }
 

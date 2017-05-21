@@ -59,6 +59,7 @@ private:
 	void ProcesMaterial(WBLoader::Object* object, WBLoader::Mesh*& mesh, const std::string& value);
 	void AddFinalMeshes();	
 
+private:
 	std::list<WBLoader::Object> objects;
 	std::list<SMaterial> materials;
 
@@ -66,5 +67,5 @@ private:
 	std::vector<glm::vec2> text_coords;
 	std::vector<glm::vec3> normals;
 
-	CTextureLoader&	m_TextureLodaer;
+    CTextureLoader&	textureLodaer;
 };

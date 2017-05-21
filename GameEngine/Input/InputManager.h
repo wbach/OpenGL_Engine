@@ -28,8 +28,9 @@ public:
 
 	glm::vec2 CalcualteMouseMove();
 
-	std::unique_ptr<CInput> m_Input;
-private:
-	
-	int m_InputSource = 0;
+public:
+    std::unique_ptr<CInput> input;
+
+private:	
+    int inputSource = 0;
 };

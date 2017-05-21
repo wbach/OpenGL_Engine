@@ -2,30 +2,31 @@
 #include "../Objects/RenderAble/Entity.h"
 #include "../Engine/Projection.h"
 #include "../Scene/Scene.hpp"
+#include "../Utils/OpenGL/OpenGLUtils.h"
 
 SimpleRenderer::SimpleRenderer(CProjection* projection_matrix)
-	: m_ProjectionMatrix(projection_matrix)
+    : projectionMatrix(projection_matrix)
 {
 }
 
 void SimpleRenderer::Init()
 {
-	m_Shader.Init();
-	m_Shader.Start();
-	assert(m_ProjectionMatrix != nullptr);
-	m_Shader.LoadProjectionMatrix(m_ProjectionMatrix->GetProjectionMatrix());
-	m_Shader.Stop();
+    shader.Init();
+    shader.Start();
+    assert(projectionMatrix != nullptr);
+    shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
+    shader.Stop();
 }
 
 void SimpleRenderer::PrepareFrame(CScene * scene)
 {
-	m_Shader.Start();
-	m_Shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+    shader.Start();
+    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
 }
 
 void SimpleRenderer::Render(CScene * scene)
 {
-	for (auto& entity : m_Subscribes)
+    for (auto& entity : subscribes)
 	{
 		if (entity->GetModel(0) == nullptr)
 			continue;
@@ -36,19 +37,19 @@ void SimpleRenderer::Render(CScene * scene)
 
 void SimpleRenderer::EndFrame(CScene * scene)
 {
-	m_Shader.Stop();
+    shader.Stop();
 }
 
 void SimpleRenderer::Subscribe(CGameObject * gameObject)
 {
 	auto entity = dynamic_cast<CEntity*>(gameObject);
 	if (entity != nullptr)
-		m_Subscribes.push_back(entity);
+        subscribes.push_back(entity);
 }
 
 void SimpleRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
 {
-	m_Shader.LoadTransformMatrix(transform_matrix);
+    shader.LoadTransformMatrix(transform_matrix);
 
 	for (const auto& mesh : model->GetMeshes())
 	{
@@ -61,10 +62,10 @@ void SimpleRenderer::RenderModel(CModel * model, const glm::mat4 & transform_mat
 
 void SimpleRenderer::BindTextures(const SMaterial & material) const
 {
-	if (material.m_DiffuseTexture != nullptr)
+    if (material.diffuseTexture != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material.m_DiffuseTexture->GetId());	
+        glBindTexture(GL_TEXTURE_2D, material.diffuseTexture->GetId());
 			//TODO : load using texture to shader
 			//m_SimpleShader.LOad
 	}

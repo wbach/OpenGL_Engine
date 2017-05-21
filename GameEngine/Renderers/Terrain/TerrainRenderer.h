@@ -21,11 +21,11 @@ public:
 private:
 	void BindTextures(STerrain* terrain) const;
 
+private:
+    CTerrainShader  shader;
+    CProjection*	projectionMatrix;
 
-	CTerrainShader m_Shader;
-	CProjection*	m_ProjectionMatrix;
+    glm::vec4	clipPlane;
 
-	std::list<STerrain*> m_Subscribes;
-
-	glm::vec4	m_ClipPlane;
+    std::list<STerrain*> subscribes;
 };

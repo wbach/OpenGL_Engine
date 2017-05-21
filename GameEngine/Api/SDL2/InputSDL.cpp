@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 
 CInputSDL::CInputSDL(SDL_Window* sdl_window)
-: m_SdlWindow(sdl_window)
+: sdlWindow(sdl_window)
 {
 }
 
@@ -36,7 +36,7 @@ glm::vec2 CInputSDL::CalcualteMouseMove()
 	int w = 320;
 	int h = 240;
 
-	SDL_GetWindowSize(m_SdlWindow, &w, &h);
+    SDL_GetWindowSize(sdlWindow, &w, &h);
 
 	int tmp_x, tmp_y;
 	SDL_GetMouseState(&tmp_x, &tmp_y);
@@ -44,7 +44,7 @@ glm::vec2 CInputSDL::CalcualteMouseMove()
 	glm::vec2 dmove(0);
 	dmove.x = ((float)w / 2.f - (float)tmp_x);
 	dmove.y = ((float)h / 2.f - (float)tmp_y);
-	SDL_WarpMouseInWindow(m_SdlWindow, w / 2, h / 2);
+    SDL_WarpMouseInWindow(sdlWindow, w / 2, h / 2);
 
 	return dmove;
 }

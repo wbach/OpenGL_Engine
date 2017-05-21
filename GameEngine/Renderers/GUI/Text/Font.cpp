@@ -3,13 +3,13 @@
 
 CFont::~CFont()
 {
-	if (!m_IsInit) return;
-	Utils::DeleteQuad(m_QuadVao, m_QuadIndices, m_QuadVertex, m_QuadTexCoord);
-	for (SCharacter& character : m_Characters)
+	if (!isInit) return;
+	Utils::DeleteQuad(quadVao, quadIndices, quadVertex, quadTexCoord);
+	for (SCharacter& character : characters)
 	{
 		glDeleteTextures(1, &character.id);
 	}
-	glDeleteLists(m_ListBase, m_MaxCharacters);
+	glDeleteLists(listBase, m_MaxCharacters);
 }
 
 void CFont::Init(const std::string& file_name, const wb::vec2i& window_size)
@@ -26,7 +26,7 @@ void CFont::Init(const std::string& file_name, const wb::vec2i& window_size)
 	if (FT_Init_FreeType(&library))
 		throw std::runtime_error("FT_Init_FreeType failed");
 
-	Utils::CreateQuad(m_QuadVao, m_QuadIndices, m_QuadVertex, m_QuadTexCoord, m_QuadIndicesSize);
+	Utils::CreateQuad(quadVao, quadIndices, quadVertex, quadTexCoord, quadIndicesSize);
 
 	//The object in which Freetype holds information on a given
 	//font is called a "face".
@@ -42,14 +42,14 @@ void CFont::Init(const std::string& file_name, const wb::vec2i& window_size)
 	//in terms of 1/64ths of pixels.  Thus, to make a font
 	//h pixels high, we need to request a size of h*64.
 	//(h << 6 is just a prettier way of writting h*64)
-	FT_Set_Char_Size(face, m_BaseHeight << 6, m_BaseHeight << 6, 96, 96);
+	FT_Set_Char_Size(face, baseHeight << 6, baseHeight << 6, 96, 96);
 
 	//Here we ask opengl to allocate resources for
 	//all the textures and displays lists which we
 	//are about to create.
-	m_ListBase = glGenLists(m_MaxCharacters);
+	listBase = glGenLists(m_MaxCharacters);
 
-	for (SCharacter& character : m_Characters)
+	for (SCharacter& character : characters)
 	{
 		glGenTextures(1, &character.id);
 	}
@@ -65,7 +65,7 @@ void CFont::Init(const std::string& file_name, const wb::vec2i& window_size)
 	//Ditto for the library.
 	FT_Done_FreeType(library);
 
-	m_IsInit = true;
+	isInit = true;
 }
 
 void CFont::Print(const int& x, const int& y, const std::string& fmt) const
@@ -80,7 +80,7 @@ void CFont::Print(const int& x, const int& y, const std::string& fmt) const
 	gluOrtho2D(viewport[0], viewport[2], viewport[1], viewport[3]);
 	glPopAttrib();
 
-	float h = m_BaseHeight / .63f;						//We make the height about 1.5* that of
+	float h = baseHeight / .63f;						//We make the height about 1.5* that of
 
 	std::vector<std::string> lines;
 	std::string line;
@@ -107,7 +107,7 @@ void CFont::Print(const int& x, const int& y, const std::string& fmt) const
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glListBase(m_ListBase);
+	glListBase(listBase);
 
 	float modelview_matrix[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix);
@@ -154,8 +154,8 @@ void CFont::CreateList(FT_Face face, char ch)
 	//Use our helper function to get the widths of
 	//the bitmap data that we will need in order to create
 	//our texture.
-	int width = Utils::NextP2(bitmap.width);
-	int height = Utils::NextP2(bitmap.rows);
+    uint width = Utils::NextP2(bitmap.width);
+    uint height = Utils::NextP2(bitmap.rows);
 
 	//Allocate memory for the texture data.
 	GLubyte* expanded_data = new GLubyte[2 * width * height];
@@ -168,9 +168,9 @@ void CFont::CreateList(FT_Face face, char ch)
 	//We use the ?: operator so that value which we use
 	//will be 0 if we are in the padding zone, and whatever
 	//is the the Freetype bitmap otherwise.
-	for (int j = 0; j <height; j++) 
+    for (uint j = 0; j <height; j++)
 	{
-		for (int i = 0; i < width; i++) 
+        for (uint i = 0; i < width; i++)
 		{
 			expanded_data[2 * (i + j*width)] = expanded_data[2 * (i + j*width) + 1] =
 				(i >= bitmap.width || j >= bitmap.rows) ?
@@ -179,7 +179,7 @@ void CFont::CreateList(FT_Face face, char ch)
 	}
 
 	//Now we just setup some texture paramaters.
-	glBindTexture(GL_TEXTURE_2D, m_Characters[ch].id);
+    glBindTexture(GL_TEXTURE_2D, characters[(short)ch].id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -193,9 +193,9 @@ void CFont::CreateList(FT_Face face, char ch)
 	delete[] expanded_data;
 
 	//So now we can create the display list
-	glNewList(m_ListBase + ch, GL_COMPILE);
+	glNewList(listBase + ch, GL_COMPILE);
 
-	glBindTexture(GL_TEXTURE_2D, m_Characters[ch].id);
+    glBindTexture(GL_TEXTURE_2D, characters[(short)ch].id);
 
 	glPushMatrix();
 

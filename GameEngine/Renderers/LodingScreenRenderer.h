@@ -10,13 +10,13 @@ class CLoadingScreenRenderer : public CRenderer
 public:
 	CLoadingScreenRenderer(CTexture* bgTexture, CTexture* circleTexture);
 	virtual void Init() override;
-	virtual void PrepareFrame(CScene* scene) override {};
-	virtual void Render(CScene* scene)  override;
-	virtual void EndFrame(CScene* scene) override {};
+    virtual void PrepareFrame(CScene*) override {};
+    virtual void Render(CScene*)  override;
+    virtual void EndFrame(CScene*) override {};
 private:
-	CLoadingShader m_LoadingShader;
-	SSimpleQuad   quad;
-	CTexture*	  circleTexture;
-	CTexture*	  backgroundTexture;
-	glm::mat4	  transformation_matrix;
+    CLoadingShader loadingShader;
+    SSimpleQuad    quad;
+    CTexture*	   circleTexture;
+    CTexture*	   backgroundTexture;
+    glm::mat4	   transformationMatrix;
 };

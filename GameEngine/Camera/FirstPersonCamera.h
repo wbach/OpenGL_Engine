@@ -17,16 +17,14 @@ private:
 	void MoveCameraUp(float dist, float dir);
 	void LockCamera();
 	glm::vec2 CalcualteMouseMove();
+private:
+    CInputManager*   inputManager;
+    CDisplayManager* displayManager;
 
-	float m_Mousevel;
-	float m_Movevel;
+    glm::vec3& lookPosition;
+    glm::vec3& lookRotation;
 
-	glm::vec3& m_LookPosition;
-	glm::vec3& m_LookRotation;
-
-	bool m_IsFreeCamera = true;
-
-	CInputManager*   m_InputManager;
-	CDisplayManager* m_DisplayManager;
+    bool isFreeCamera = true;
+    float mousevel = 0.f;
+    float movevel  = 0.f;
 };
-

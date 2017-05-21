@@ -10,25 +10,25 @@ CDisplayManager::CDisplayManager(const std::string& window_name, const int& w, c
 {
 }
 
-CDisplayManager::CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen)
-	: m_Api(std::move(api)) 
-	, m_FPS_CAP(60)
-	, m_LastFrameTime(0)
-	, m_WindowsSize({w, h})
+CDisplayManager::CDisplayManager(std::unique_ptr<CApi> capi, const std::string& window_name, const int& w, const int& h, bool full_screen)
+    : api(std::move(capi))
+    , lastFrameTime(0)
+    , fpsCap(60)
+    , windowsSize({w, h})
 {
-	if (m_Api == nullptr) 
+    if (api == nullptr)
 	{
 		Log("[Error] API not set!.Press any key.");
 		return;
 	}
 		
-	m_Api->CreateOpenGLWindow(window_name, w, h, full_screen);
+    api->CreateOpenGLWindow(window_name, w, h, full_screen);
 }
 
 ApiMessages::Type CDisplayManager::PeekMessage()
 {
-	if (m_Api != nullptr)
-		return	m_Api->PeekMessages();
+    if (api != nullptr)
+        return	api->PeekMessages();
 	return ApiMessages::NONE;
 }
 
@@ -36,80 +36,80 @@ void CDisplayManager::Update()
 {
 	CalculateFPS();
 	double current_frame_time = GetCurrentTime();
-	m_Delta = (current_frame_time - m_LastFrameTime);
-	m_LastFrameTime = current_frame_time;
+    deltaTime = (current_frame_time - lastFrameTime);
+    lastFrameTime = current_frame_time;
 
-	if (m_Api != nullptr)
-		m_Api->UpdateWindow();
+    if (api != nullptr)
+        api->UpdateWindow();
 
-	if (m_Api != nullptr && m_Sync)
-		m_Api->LockFps((float)m_FPS_CAP);
+    if (api != nullptr && sync)
+        api->LockFps((float)fpsCap);
 }
 
 void CDisplayManager::SetRefreshRate(const int & rate)
 {
-	m_FPS_CAP = rate;
+    fpsCap = rate;
 }
 
 void CDisplayManager::SetFullScreen(bool full_screen)
 {
-	if (m_Api != nullptr)
-		m_Api->SetFullScreen(m_IsFullScreen);
+    if (api != nullptr)
+        api->SetFullScreen(isFullScreen);
 }
 
 void CDisplayManager::CalculateFPS()
 {
-	m_FrameCount++;
+    frameCount++;
 
-	m_CurrentTime = static_cast<float>(m_Api->GetTime());
+    currentTime = static_cast<float>(api->GetTime());
 
-	int time_interval = (int)(m_CurrentTime - m_PreviousTime);
+    int time_interval = (int)(currentTime - previousTime);
 
 	if (time_interval > 1)
 	{
-		m_Fps = m_FrameCount / (time_interval);
-		m_PreviousTime = m_CurrentTime;
-		m_FrameCount = 0;
+        fps = frameCount / (time_interval);
+        previousTime = currentTime;
+        frameCount = 0;
 	}
 }
 
 const int CDisplayManager::GetFps()
 {
-	return (int)m_Fps;
+    return (int)fps;
 }
 
 const float CDisplayManager::GetCurrentTime()
 {
-	if (m_Api != nullptr && m_Time)
-		return (float)m_Api->GetTime();
+    if (api != nullptr && time)
+        return (float)api->GetTime();
 	return 0.f;
 }
 
 const wb::vec2i & CDisplayManager::GetWindowSize()
 {
-	return m_WindowsSize;
+    return windowsSize;
 }
 
 void CDisplayManager::ShowCoursor(bool show)
 {
-	if (m_Api != nullptr)
-		m_Api->ShowCursor(show);
+    if (api != nullptr)
+        api->ShowCursor(show);
 }
 
 bool CDisplayManager::CheckActiveWindow()
 {
-	if (m_Api != nullptr)
-		return m_Api->CheckActiveWindow();
+    if (api != nullptr)
+        return api->CheckActiveWindow();
 	return false;
 }
 
 void CDisplayManager::SetApi(std::unique_ptr<CApi>& api)
 {
-	m_Api = std::move(api);
+    api = std::move(api);
 }
 
 void CDisplayManager::SetInput(std::unique_ptr<CInput>& input)
 {
-	if (m_Api != nullptr)
-		m_Api->SetInput(input);
+    if (api != nullptr)
+        api->SetInput(input);
 }

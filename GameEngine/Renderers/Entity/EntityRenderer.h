@@ -23,13 +23,15 @@ private:
 	const std::list<CEntity*>& GetEntity(uint x, uint y) const;
 	void BindMaterial(const SMaterial& material) const;
 	void UnBindMaterial(const SMaterial& material) const;
-	CEntityGeometryPassShader m_Shader;
-	CProjection* m_ProjectionMatrix;
 
-	glm::vec4	m_ClipPlane;
+private:
+    CEntityGeometryPassShader shader;
+    CProjection* projectionMatrix;
+
+    glm::vec4	clipPlane;
 
 	std::list<CEntity*> dynamicSubscribes;
-	std::vector<std::list<CEntity*>> m_Subscribes;
+    std::vector<std::list<CEntity*>> subscribes;
 
 	const uint gridSize = 1000;
 	const uint gridCellSize = 25;

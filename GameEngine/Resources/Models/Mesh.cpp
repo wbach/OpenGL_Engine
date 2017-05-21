@@ -7,94 +7,94 @@ CMesh::CMesh()
 }
 
 CMesh::CMesh(
-	const SMaterial & material,
-	const std::vector<float>& positions, 
+    const SMaterial & mat,
+    const std::vector<float>& pos,
 	const std::vector<float>& text_coords,
-	const std::vector<float>& normals,
-	const std::vector<float>& tangents,
-	const std::vector<unsigned short>& indices,	
-	const std::vector<SVertexBoneData>& bones)
+    const std::vector<float>& norm,
+    const std::vector<float>& tang,
+    const std::vector<unsigned short>& ind,
+    const std::vector<SVertexBoneData>& bon)
 {
-	m_Positions  = std::move(positions);
-	m_TextCoords = std::move(text_coords);
-	m_Normals    = std::move(normals);
-	m_Tangents	 = std::move(tangents);
-	m_Indices	 = std::move(indices);
-	m_Tangents	 = std::move(tangents);
-	m_Bones		 = std::move(bones);
-	m_Material	 = material;	
-    m_VertexCount = m_Indices.size() > 0 ? m_Indices.size() : m_Positions.size() / 3;
+    positions    = std::move(pos);
+    textCoords   = std::move(text_coords);
+    normals      = std::move(norm);
+    tangents	 = std::move(tang);
+    indices	     = std::move(ind);
+    tangents	 = std::move(tangents);
+    bones		 = std::move(bon);
+    material	 = mat;
+    vertexCount  = indices.size() > 0 ? indices.size() : positions.size() / 3;
 
-	if (!m_Positions.empty())	m_Attributes.push_back(0);
-	if (!m_TextCoords.empty())	m_Attributes.push_back(1);
-	if (!m_Normals.empty())		m_Attributes.push_back(2);
-	if (!m_Tangents.empty())	m_Attributes.push_back(3);
+    if (!positions.empty())	attributes.push_back(0);
+    if (!textCoords.empty())	attributes.push_back(1);
+    if (!normals.empty())		attributes.push_back(2);
+    if (!tangents.empty())	attributes.push_back(3);
 
-	CalculateBoudnigBox(m_Positions);
+    CalculateBoudnigBox(positions);
 }
 
 CMesh::~CMesh()
 {
-	if (!m_IsInit) return;
+    if (!isInit) return;
 
-    for(auto& vbo : m_Vbos)
+    for(auto& vbo : vbos)
     {
         if(vbo != 0)
         glDeleteBuffers(1, &vbo);
     }
-	glDeleteVertexArrays(1, &m_Vao);
-	m_IsInit = false;
+    glDeleteVertexArrays(1, &vao);
+    isInit = false;
 }
 void CMesh::CalculateBoudnigBox(const std::vector<float>& positions)
 {
-	Utils::CalculateBoudnigBox(positions, m_BoundingBox.m_BoundingBoxMin, m_BoundingBox.m_BoundingBoxMax, m_BoundingBox.m_BoundingSize, m_BoundingBox.m_BoundingCenter);
+    Utils::CalculateBoudnigBox(positions, boundingBox.min, boundingBox.max, boundingBox.size, boundingBox.center);
 }
 
 void CMesh::UpdateVertexPosition(const std::vector<float>& vertices) const
 {
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vbos[VertexBufferObjects::POSITION]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::POSITION]);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), &vertices[0]);
 }
 
 void CMesh::CreateVaoMesh()
 {
-	m_Vao = Utils::CreateVao();
+    vao = Utils::CreateVao();
 
-    if (m_Indices.size() > 0)
+    if (indices.size() > 0)
     {
-        GLuint vboId = Utils::BindIndicesBuffer(m_Indices);
-        m_Vbos[VertexBufferObjects::INDICES] = vboId;
+        GLuint vboId = Utils::BindIndicesBuffer(indices);
+        vbos[VertexBufferObjects::INDICES] = vboId;
     }
 
-	if (m_Positions.size() > 0)
+    if (positions.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(0, 3, m_Positions);
-		m_Vbos[VertexBufferObjects::POSITION] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(0, 3, positions);
+        vbos[VertexBufferObjects::POSITION] = vboId;
 	}
-	if (m_TextCoords.size() > 0)
+    if (textCoords.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(1, 2, m_TextCoords);
-		m_Vbos[VertexBufferObjects::TEXT_COORD] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(1, 2, textCoords);
+        vbos[VertexBufferObjects::TEXT_COORD] = vboId;
 	}
-	if (m_Normals.size() > 0)
+    if (normals.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(2, 3, m_Normals);
-		m_Vbos[VertexBufferObjects::NORMAL] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(2, 3, normals);
+        vbos[VertexBufferObjects::NORMAL] = vboId;
 	}
-	if (m_Tangents.size() > 0)
+    if (tangents.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(3, 3, m_Tangents);
-		m_Vbos[VertexBufferObjects::TANGENT] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(3, 3, tangents);
+        vbos[VertexBufferObjects::TANGENT] = vboId;
 	}
 	Utils::UnbindVao();
-	m_IsInit = true;
+    isInit = true;
 }
 
 void CMesh::CreateTransformsVbo(std::vector<glm::mat4>& m)
 {
-	glBindVertexArray(m_Vao);
-	glGenBuffers(1, &m_Vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindVertexArray(vao);
+    glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
 
 	for (uint i = 0; i < 4; i++)
 	{
@@ -105,15 +105,15 @@ void CMesh::CreateTransformsVbo(std::vector<glm::mat4>& m)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * m.size(), &m[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	m_TransformVboCreated = true;
+    transformVboCreated = true;
 }
 
 void CMesh::UpdateTransformVbo(std::vector<glm::mat4>& m)
 {
-	glDeleteBuffers(1, &m_Vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-	glBindVertexArray(m_Vao);
-	glGenBuffers(1, &m_Vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glDeleteBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindVertexArray(vao);
+    glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
 	for (uint i = 0; i < 4; i++)
 	{
 		glEnableVertexAttribArray(4 + i);
@@ -127,30 +127,30 @@ void CMesh::UpdateTransformVbo(std::vector<glm::mat4>& m)
 
 void CMesh::CreateBoneVbo(const std::vector<SVertexBoneData>& bones)
 {
-	glBindVertexArray(m_Vao);
-	glGenBuffers(1, &m_Vbos[VertexBufferObjects::BONES]);
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vbos[VertexBufferObjects::BONES]);
+    glBindVertexArray(vao);
+    glGenBuffers(1, &vbos[VertexBufferObjects::BONES]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::BONES]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bones[0]) * bones.size(), &bones[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(8);
 	glVertexAttribIPointer(8, 4, GL_INT, sizeof(SVertexBoneData), (const GLvoid*)0);
 	glEnableVertexAttribArray(9);
 	glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(SVertexBoneData), (const GLvoid*)16);
 	glBindVertexArray(0);
-	m_BonesInShader = true;
+    bonesInShader = true;
 }
 
 void CMesh::SetInstancedMatrixes(const std::vector<glm::mat4>& m)
 {
-	m_InstancedMatrixes = m;
+    instancedMatrixes = m;
 }
 
 void CMesh::OpenGLLoadingPass()
 {
 	CreateVaoMesh();
 
-	if (!m_Bones.empty())
+    if (!bones.empty())
 	{
-		CreateBoneVbo(m_Bones);
+        CreateBoneVbo(bones);
 	}
 
 	ClearData();
@@ -158,55 +158,60 @@ void CMesh::OpenGLLoadingPass()
 
 void CMesh::OpenGLPostLoadingPass()
 {
-	CreateTransformsVbo(m_InstancedMatrixes);
+    CreateTransformsVbo(instancedMatrixes);
 }
 
 const GLuint& CMesh::GetVao() const
 {
-	return m_Vao;
+    return vao;
 }
 
 const GLuint & CMesh::GetVbo(VertexBufferObjects::Type type) const
 {
-	return m_Vbos[type];
+    return vbos[type];
 }
 
 const SMaterial & CMesh::GetMaterial() const
 {
-	return m_Material;
+    return material;
+}
+
+void CMesh::SetMaterial(const SMaterial& mat)
+{
+    material = mat;
 }
 
 void CMesh::ClearData()
 {
-	m_Positions.clear();
-	m_TextCoords.clear();
-	m_Normals.clear();
-	m_Tangents.clear();
-	m_Indices.clear();
-	m_Bones.clear();
-	m_InstancedMatrixes.clear();
+    positions.clear();
+    textCoords.clear();
+    normals.clear();
+    tangents.clear();
+    indices.clear();
+    bones.clear();
+    instancedMatrixes.clear();
 }
 
 const glm::vec3 & CMesh::GetBoundingSize()
 {
-	return m_BoundingBox.m_BoundingSize;
+    return boundingBox.size;
 }
 
 const glm::vec3 & CMesh::GetBoundingMin()
 {
-	return m_BoundingBox.m_BoundingBoxMin;
+    return boundingBox.min;
 }
 
 const glm::vec3 & CMesh::GetBoundingMax()
 {
-	return m_BoundingBox.m_BoundingBoxMax;
+    return boundingBox.max;
 }
 
 const glm::vec3 & CMesh::GetBoundingCenter()
 {
-	return m_BoundingBox.m_BoundingCenter;
+    return boundingBox.center;
 }
 const GLuint& CMesh::GetVertexCount() const
 {
-	return m_VertexCount;
+    return vertexCount;
 }

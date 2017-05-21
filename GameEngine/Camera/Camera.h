@@ -8,7 +8,7 @@ public:
 	virtual void CalculateInput();
 	virtual void Move();
 	virtual void CalculateZoom(float zoom_lvl) {}
-	virtual void AttachToObject(glm::vec3& position_entity, glm::vec3& rotation_entity) {};
+    virtual void AttachToObject(glm::vec3&, glm::vec3&) {};
 
 	CCamera();
 	virtual ~CCamera() {}
@@ -41,17 +41,17 @@ public:
 	bool CheckFrustrumSphereCulling(const glm::vec3& position, const float& radius);
 
 protected:
-	float m_DistanceFromPlayer;
-	float m_AngleAroundPlayer;
+    float distanceFromPlayer;
+    float angleAroundPlayer;
 
-	float m_Pitch;
-	float m_Yaw;
-	float m_Roll;
+    float pitch;
+    float yaw;
+    float roll;
 
-	glm::vec3 m_Position;
-	glm::mat4 m_ViewMatrix;
+    glm::vec3 position;
+    glm::mat4 viewMatrix;
 	//To frustrum culling
-	glm::mat4 m_ProjectionMatrix;
+    glm::mat4 projectionMatrix;
 	
-	CFrustrum m_Frustrum;
+    CFrustrum frustrum;
 };

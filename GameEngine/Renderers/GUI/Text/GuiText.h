@@ -10,8 +10,8 @@ class CGuiText : public CGuiElement
 {
 public:
 	CGuiText(const std::string& font_file, const wb::vec2i& window_size) 
-		: m_FontFile(font_file)
-		, m_WindowSize(window_size)
+        : fontFile(font_file)
+        , windowSize(window_size)
 	{
 	}
 	virtual ~CGuiText() override
@@ -19,13 +19,13 @@ public:
 	}
 	virtual void Init() override
 	{
-		m_Font.Init(m_FontFile, m_WindowSize);
-		m_Shader.Init();		
+        font.Init(fontFile, windowSize);
+        shader.Init();
 		Log("CGuiText (GuiRenderer) is initialized.");
 	}
 	virtual void Render() override
 	{
-		m_Shader.Start();
+        shader.Start();
 		glActiveTexture(GL_TEXTURE0);
 		glPushMatrix();
 		glLoadIdentity();
@@ -37,17 +37,17 @@ public:
 			auto text = p.second;
 			GLfloat active_color[] = { text.colour.x, text.colour.y, text.colour.z, 1 };
 			glColor4fv(active_color);
-			m_Shader.loadTranslation(text.position);
+            shader.loadTranslation(text.position);
 			glScalef(text.m_size, text.m_size, text.m_size);
-			m_Font.Print((int)text.position.x, (int)text.position.y, text.text.c_str());
+            font.Print((int)text.position.x, (int)text.position.y, text.text.c_str());
 		}
 		glPopMatrix();
-		m_Shader.Stop();
+        shader.Stop();
 	}
 	std::map<std::string, SGuiTextElement> texts;
 private:
-	CFont		 m_Font;
-	FontShader	 m_Shader;
-	std::string  m_FontFile;
-	wb::vec2i	 m_WindowSize;
+    CFont		 font;
+    FontShader	 shader;
+    std::string  fontFile;
+    wb::vec2i	 windowSize;
 };

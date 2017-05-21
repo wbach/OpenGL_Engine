@@ -4,13 +4,13 @@
 #include "../../../Utils/ParseUtils.h"
 
 CMyModel::CMyModel(CTextureLoader & texture_lodaer)
-	: m_TextureLodaer(texture_lodaer)
+    : textureLodaer(texture_lodaer)
 {
 }
 
 CMyModel::~CMyModel()
 {
-	Log("Destructor my model : " + m_Filename);
+    Log("Destructor my model : " + filename);
 }
 
 void CMyModel::InitModel(const std::string & file_name)
@@ -135,12 +135,12 @@ void CMyModel::ReadMaterialFile(const std::string& file_name)
 		if (!prefix.compare("map_Kd"))
 		{
 			if (current_material != nullptr)
-				current_material->m_DiffuseTexture = m_TextureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
+                current_material->diffuseTexture = textureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
 		}
 		if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
 		{
 			if (current_material != nullptr)
-				current_material->m_NormalTexture = m_TextureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
+                current_material->normalTexture = textureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
 		}
 	}
 
@@ -150,7 +150,7 @@ void CMyModel::ProcesVertex(WBLoader::Object * object, const std::string& value)
 {	
 	if (object == nullptr)
 	{
-		auto err = "[Error] parsing obj file. " + m_Filename + "\n";
+        auto err = "[Error] parsing obj file. " + filename + "\n";
 		throw std::runtime_error(err.c_str());
 	}
 	auto v = Get::Vector3d(value, ' ');
@@ -163,7 +163,7 @@ void CMyModel::ProcesNormal(WBLoader::Object * object, const std::string & value
 {	
 	if (object == nullptr)
 	{
-		auto err = "[Error] parsing obj file. " + m_Filename + "\n";
+        auto err = "[Error] parsing obj file. " + filename + "\n";
 		throw std::runtime_error(err.c_str());
 	}
 	auto v = Get::Vector3d(value, ' ');
@@ -176,7 +176,7 @@ void CMyModel::ProcesUVs(WBLoader::Object * object, const std::string & value)
 {	
 	if (object == nullptr)
 	{
-		auto err = "[Error] parsing obj file. " + m_Filename + "\n";
+        auto err = "[Error] parsing obj file. " + filename + "\n";
 		throw std::runtime_error(err.c_str());
 	}
 	auto v = Get::Vector2d(value, ' ');
@@ -189,7 +189,7 @@ void CMyModel::ProcesFace(WBLoader::Object * object, WBLoader::Mesh* mesh, const
 {
 	if (object == nullptr && mesh == nullptr)
 	{
-		auto err = "[Error] parsing obj file. " + m_Filename + "\n";
+        auto err = "[Error] parsing obj file. " + filename + "\n";
 		throw std::runtime_error(err.c_str());
 	}
 	
@@ -291,7 +291,7 @@ void CMyModel::ProcesMaterial(WBLoader::Object * object, WBLoader::Mesh *& mesh,
 {
 	if (object == nullptr)
 	{
-		auto err = "[Error] parsing obj file. " + m_Filename + "\n";
+        auto err = "[Error] parsing obj file. " + filename + "\n";
 		throw std::runtime_error(err.c_str());
 	}
 

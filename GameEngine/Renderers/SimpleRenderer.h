@@ -18,11 +18,13 @@ public:
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
 	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
+
 private:
 	void BindTextures(const SMaterial& material) const;
 
-	CSimpleEntityShader m_Shader;
-	CProjection* m_ProjectionMatrix;
+private:
+    CSimpleEntityShader shader;
+    CProjection* projectionMatrix;
 
-	std::list<CEntity*> m_Subscribes;
+    std::list<CEntity*> subscribes;
 };

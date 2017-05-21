@@ -2,13 +2,13 @@
 
 CTexture::CTexture(const std::string & file, const std::string & filepath, bool applySizeLimit)
 	: filename(file)
-	, m_Fullpath(filepath)
+	, fullpath(filepath)
 	, applySizeLimit(applySizeLimit)
 {
 }
 CTexture::~CTexture()
 {
-	if (!m_IsInit)
+	if (!isInit)
 		return;
-	glDeleteTextures(1, &m_Id);
+	glDeleteTextures(1, &id);
 }

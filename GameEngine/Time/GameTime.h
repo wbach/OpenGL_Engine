@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+
 class CGameTime
 {
 public:
@@ -11,36 +12,38 @@ public:
 	float GetDeltaTime() const;
 	float GetDeltaGameTime() const;
 	void SetTime(const float& time);
+
 protected:
-	float m_CurrentTime = 0.12f;
-	float m_DeltaTime = 0.f;
-	float m_DeltaGameTime = 0.f;
+    float currentTime = 0.12f;
+    float deltaTime = 0.f;
+    float deltaGameTime = 0.f;
 };
+
 inline float CGameTime::GetHours() const
 {
-	return m_CurrentTime*24.f;
+    return currentTime*24.f;
 }
 inline float CGameTime::GetMinutes() const
 {
-	return m_CurrentTime*24.f*60.f;
+    return currentTime*24.f*60.f;
 }
 inline float CGameTime::GetSeconds() const
 {
-	return m_CurrentTime*24.f*60.f*60.f;
+    return currentTime*24.f*60.f*60.f;
 }
 inline float CGameTime::GetTime() const
 {
-	return m_CurrentTime;
+    return currentTime;
 }
 inline float CGameTime::GetDeltaTime() const
 {
-	return m_DeltaTime;
+    return deltaTime;
 }
 inline float CGameTime::GetDeltaGameTime() const
 {
-	return m_DeltaGameTime;
+    return deltaGameTime;
 }
 inline void CGameTime::SetTime(const float& time)
 {
-	m_CurrentTime = time;
+    currentTime = time;
 }

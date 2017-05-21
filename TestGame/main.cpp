@@ -5,7 +5,7 @@ void TestGameStart()
 {
     CEngine engine;
 	engine.Init();
-    engine.m_Scene = std::make_unique<MainScene>(engine);
+    engine.scene = std::make_unique<MainScene>(engine);
 	engine.PreperaScene();
 	engine.GameLoop();
 }

@@ -18,10 +18,11 @@ public:
 	const glm::vec3& GetAttenuation() const;
 	float GetCutoff() const;
 	void SetType(LightType::Type type);
+
 private:
-	LightType::Type m_Type;
-	glm::vec3 m_Position;
-	glm::vec3 m_Colour;
-	glm::vec3 m_Attenuation;
-	float m_CutOff;
+    LightType::Type type;
+    glm::vec3 position;
+    glm::vec3 colour;
+    glm::vec3 attenuation;
+    float cutOff;
 };

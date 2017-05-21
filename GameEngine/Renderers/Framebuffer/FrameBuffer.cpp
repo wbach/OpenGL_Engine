@@ -4,18 +4,18 @@
 
 void CFrameBuffer::CreateFrameBuffer()
 {
-	glGenFramebuffers(1, &m_Fbo);
-	m_IsInitialized = true;
+    glGenFramebuffers(1, &fbo);
+    isInitialized = true;
 }
 
 void CFrameBuffer::AddTexture(GLuint & texture)
 {
-	m_Textures.push_back(texture);
+    textures.push_back(texture);
 }
 
 void CFrameBuffer::SetDepthTexture(const GLuint & texture)
 {
-	m_DepthTexture = texture;
+    depthTexture = texture;
 }
 
 int CFrameBuffer::CheckStatus()
@@ -32,41 +32,41 @@ int CFrameBuffer::CheckStatus()
 
 const GLuint & CFrameBuffer::GetFbo()
 {
-	return m_Fbo;
+    return fbo;
 }
 
 const GLuint & CFrameBuffer::GetDepthTexture()
 {
-	return m_DepthTexture;
+    return depthTexture;
 }
 
 const GLuint & CFrameBuffer::GetTexture(const uint & id)
 {
-	if (id > m_Textures.size())
+    if (id > textures.size())
 		return Utils::s_GLuint_zero;
-	return m_Textures[id];
+    return textures[id];
 }
 
 void CFrameBuffer::BindTextures(int offset)
 {
 	int nr = 0;
-	for (GLuint& i : m_Textures)
+    for (GLuint& i : textures)
 	{
 		glActiveTexture(GL_TEXTURE0 + offset + nr++);
 		glBindTexture(GL_TEXTURE_2D, i);
 	}
 	glActiveTexture(GL_TEXTURE0 + offset + nr);
-	glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
+    glBindTexture(GL_TEXTURE_2D, depthTexture);
 }
 
 void CFrameBuffer::BindToDraw()
 {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 }
 
 void CFrameBuffer::Bind()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_Fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
 
 void CFrameBuffer::UnBind()
@@ -81,17 +81,17 @@ void CFrameBuffer::UnBindDraw()
 
 CFrameBuffer::~CFrameBuffer()
 {
-	if (!m_IsInitialized) return;
+    if (!isInitialized) return;
 
-	for (GLuint& tex : m_Textures)
+    for (GLuint& tex : textures)
 		glDeleteTextures(1, &tex);
 
-	glDeleteTextures(1, &m_DepthTexture);
-	if (m_DepthStorage)
-		glDeleteRenderbuffers(1, &m_DepthTexture);
+    glDeleteTextures(1, &depthTexture);
+    if (depthStorage)
+        glDeleteRenderbuffers(1, &depthTexture);
 	else
-		glDeleteTextures(1, &m_DepthTexture);
+        glDeleteTextures(1, &depthTexture);
 
-	if (m_Fbo != 0)
-		glDeleteFramebuffers(1, &m_Fbo);
+    if (fbo != 0)
+        glDeleteFramebuffers(1, &fbo);
 }

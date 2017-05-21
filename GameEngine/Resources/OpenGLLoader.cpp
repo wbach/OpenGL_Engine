@@ -2,31 +2,31 @@
 
 void COpenGLLoader::AddObjectToOpenGLLoadingPass(COpenGLObject* obj)
 {
-	std::lock_guard<std::mutex> lock(m_Mutex);
-	m_OpenGLPassLoad.push_back(obj);
+    std::lock_guard<std::mutex> lock(mutex);
+    openGLPassLoad.push_back(obj);
 }
 COpenGLObject* COpenGLLoader::GetObjectToOpenGLLoadingPass()
 {
-	std::lock_guard<std::mutex> lock(m_Mutex);
-	if (m_OpenGLPassLoad.empty())
+    std::lock_guard<std::mutex> lock(mutex);
+    if (openGLPassLoad.empty())
 		return nullptr;
-	COpenGLObject *obj = m_OpenGLPassLoad.back();
-	m_OpenGLPassLoad.pop_back();
+    COpenGLObject *obj = openGLPassLoad.back();
+    openGLPassLoad.pop_back();
 	return obj;
 }
 
 void COpenGLLoader::AddObjectToOpenGLPostLoadingPass(COpenGLObject * obj)
 {
-	std::lock_guard<std::mutex> lock(m_Mutex2);
-	m_OpenGLPostPassLoad.push_back(obj);
+    std::lock_guard<std::mutex> lock(mutex2);
+    openGLPostPassLoad.push_back(obj);
 }
 
 COpenGLObject * COpenGLLoader::GetObjectToOpenGLPostLoadingPass()
 {
-	std::lock_guard<std::mutex> lock(m_Mutex2);
-	if (m_OpenGLPostPassLoad.empty())
+    std::lock_guard<std::mutex> lock(mutex2);
+    if (openGLPostPassLoad.empty())
 		return nullptr;
-	COpenGLObject *obj = m_OpenGLPostPassLoad.back();
-	m_OpenGLPostPassLoad.pop_back();
+    COpenGLObject *obj = openGLPostPassLoad.back();
+    openGLPostPassLoad.pop_back();
 	return obj;
 }

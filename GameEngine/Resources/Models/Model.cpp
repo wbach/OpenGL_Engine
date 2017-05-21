@@ -9,7 +9,7 @@ CModel::CModel()
 
 void CModel::InitModel(const std::string&  file_name)
 {
-	m_Filename = file_name;
+	filename = file_name;
 	Log(file_name + " succesful loaded");
 }
 
@@ -19,7 +19,7 @@ CModel::~CModel()
 
 void CModel::OpenGLLoadingPass()
 {
-	for (auto& mesh : m_Meshes)
+	for (auto& mesh : meshes)
 		mesh.OpenGLLoadingPass();
 }
 
@@ -34,24 +34,24 @@ CMesh * CModel::AddMesh(const SMaterial& material, const std::vector<float>& pos
 	f.close();*/
     //CMesh mesh(positions, text_coords, normals, tangents, indices, material, bones);
 	// Normalize to define scale (height) 1 unit = 1 metr
-    m_Meshes.emplace_back(material, positions, text_coords, normals, tangents, indices, bones);
+    meshes.emplace_back(material, positions, text_coords, normals, tangents, indices, bones);
 	CalculateBoudnigBox();
-	return &m_Meshes.back();
+	return &meshes.back();
 }
 
 void CModel::SetMaterial(const SMaterial & material, uint id)
 {
 	if (id == 0)
 	{
-		for (auto& mesh : m_Meshes)
+		for (auto& mesh : meshes)
 		{
 			mesh.SetMaterial(material);
 		}
 	}
 	else
 	{
-		int x = 0;
-		for (auto& mesh : m_Meshes)
+        uint x = 0;
+		for (auto& mesh : meshes)
 		{
 			if (x == id)
 			{
@@ -79,13 +79,13 @@ glm::vec3 CModel::GetNormalizedScaleVector(float w, float h, float z) const
 	switch (axis)
 	{
 	case 1:
-		scale_vector = glm::vec3(w / m_BoundingBox.m_BoundingSize.x, w / m_BoundingBox.m_BoundingSize.x, w / m_BoundingBox.m_BoundingSize.x);
+		scale_vector = glm::vec3(w / boundingBox.size.x, w / boundingBox.size.x, w / boundingBox.size.x);
 		break;
-	case 2: scale_vector = glm::vec3(h / m_BoundingBox.m_BoundingSize.y, h / m_BoundingBox.m_BoundingSize.y, h / m_BoundingBox.m_BoundingSize.y);
+	case 2: scale_vector = glm::vec3(h / boundingBox.size.y, h / boundingBox.size.y, h / boundingBox.size.y);
 		break;
-	case 3: scale_vector = glm::vec3(z / m_BoundingBox.m_BoundingSize.z, z / m_BoundingBox.m_BoundingSize.z, z / m_BoundingBox.m_BoundingSize.z);
+	case 3: scale_vector = glm::vec3(z / boundingBox.size.z, z / boundingBox.size.z, z / boundingBox.size.z);
 		break;
-	default: scale_vector = glm::vec3(w / m_BoundingBox.m_BoundingSize.x, h / m_BoundingBox.m_BoundingSize.y, z / m_BoundingBox.m_BoundingSize.z);
+	default: scale_vector = glm::vec3(w / boundingBox.size.x, h / boundingBox.size.y, z / boundingBox.size.z);
 		break;
 	}
 		
@@ -96,22 +96,22 @@ glm::vec3 CModel::GetNormalizedScaleVector(float w, float h, float z) const
 void CModel::CalculateBoudnigBox()
 {
 	bool first = true;
-	for (auto& mesh : m_Meshes)
+	for (auto& mesh : meshes)
 	{
 		if (first)
 		{
-			m_BoundingBox.m_BoundingBoxMin = mesh.GetBoundingMin();
-			m_BoundingBox.m_BoundingBoxMax = mesh.GetBoundingMax();
+			boundingBox.min = mesh.GetBoundingMin();
+			boundingBox.max = mesh.GetBoundingMax();
 			first = false;
 		}
 		else
 		{
-			m_BoundingBox.m_BoundingBoxMin = Utils::CalculateMinimumVector(m_BoundingBox.m_BoundingBoxMin, mesh.GetBoundingMin());
-			m_BoundingBox.m_BoundingBoxMax = Utils::CalculateMinimumVector(mesh.GetBoundingMax(), m_BoundingBox.m_BoundingBoxMax);
-			m_BoundingBox.m_BoundingBoxMax = Utils::CalculateMinimumVector(m_BoundingBox.m_BoundingBoxMax, mesh.GetBoundingMax());
+			boundingBox.min = Utils::CalculateMinimumVector(boundingBox.min, mesh.GetBoundingMin());
+			boundingBox.max = Utils::CalculateMinimumVector(mesh.GetBoundingMax(), boundingBox.max);
+			boundingBox.max = Utils::CalculateMinimumVector(boundingBox.max, mesh.GetBoundingMax());
 		}
 	}
-	m_BoundingBox.m_BoundingSize = m_BoundingBox.m_BoundingBoxMax - m_BoundingBox.m_BoundingBoxMin;
-	m_BoundingBox.m_BoundingCenter = (m_BoundingBox.m_BoundingBoxMax + m_BoundingBox.m_BoundingBoxMin) / 2.f;
+	boundingBox.size = boundingBox.max - boundingBox.min;
+	boundingBox.center = (boundingBox.max + boundingBox.min) / 2.f;
 }
 

@@ -1,20 +1,25 @@
 #include "Player.h"
 
+CPlayer::CPlayer(CInputManager *input_manager, CResourceManager &manager, const glm::vec3 &normalized_scale, const std::string &filename)
+    : CEntity(manager, normalized_scale, filename)
+    , inputManager(input_manager)
+{}
+
 void CPlayer::SetAction(CharacterActions::Type action)
 {
-	m_Action = action;
+    action = action;
 }
 
 void CPlayer::SetPosition(const glm::vec3 & position)
 {
-	m_WorldTransform.SetPosition(position);
+    m_WorldTransform.SetPosition(position);
 }
 
 void CPlayer::Move(const float & delta_time)
 {
 	CheckInputs();
-	m_WorldTransform.IncreaseRotation(0, m_CharacterStats.m_CurrentTurnSpeed * delta_time, 0);
-	float distance = m_CharacterStats.m_CurrentMoveSpeed * delta_time;
+	m_WorldTransform.IncreaseRotation(0, characterStats.currentTurnSpeed * delta_time, 0);
+	float distance = characterStats.currentMoveSpeed * delta_time;
 	float dx = static_cast<float>(distance * sin(Utils::ToRadians(m_WorldTransform.GetRotation().y)));
 	float dz = static_cast<float>(distance * cos(Utils::ToRadians(m_WorldTransform.GetRotation().y)));
 	m_WorldTransform.IncrasePosition(dx, 0.f, dz);
@@ -25,40 +30,40 @@ void CPlayer::Move(const float & delta_time)
 
 void CPlayer::Jump()
 {
-	if (m_IsGrounded)
+	if (isGrounded)
 	{
-		upwardsSpeed = m_CharacterStats.m_JumpPower;
-		m_IsGrounded = false;
+		upwardsSpeed = characterStats.jumpPower;
+		isGrounded = false;
 	}
 }
 
 void CPlayer::CheckInputs()
 {
-	if (m_InputManager == nullptr) return;
+	if (inputManager == nullptr) return;
 
 	bool move_key_pres = false;
 
-	if (m_InputManager->GetKey(GameActions::MOVE_FORWARD))
+	if (inputManager->GetKey(GameActions::MOVE_FORWARD))
 	{
-		m_CharacterStats.m_CurrentMoveSpeed = m_CharacterStats.m_RunSpeed;
+		characterStats.currentMoveSpeed = characterStats.runSpeed;
 		SetAction(CharacterActions::RUN);
 		move_key_pres = true;
 	}
-	else if (m_InputManager->GetKey(GameActions::MOVE_BACKWARD))
+	else if (inputManager->GetKey(GameActions::MOVE_BACKWARD))
 	{
-		m_CharacterStats.m_CurrentMoveSpeed = -m_CharacterStats.m_RunSpeed;
+		characterStats.currentMoveSpeed = -characterStats.runSpeed;
 		SetAction(CharacterActions::RUN);
 		move_key_pres = true;
 	}
-	else if (m_InputManager->GetKey(GameActions::ATTACK_1))
+	else if (inputManager->GetKey(GameActions::ATTACK_1))
 	{
 		SetAction(CharacterActions::ATTACK_1);
 	}
-	else if (m_InputManager->GetKey(GameActions::ATTACK_2))
+	else if (inputManager->GetKey(GameActions::ATTACK_2))
 	{
 		SetAction(CharacterActions::ATTACK_2);
 	}
-	else if (m_InputManager->GetKey(GameActions::ATTACK_3))
+	else if (inputManager->GetKey(GameActions::ATTACK_3))
 	{
 		SetAction(CharacterActions::ATTACK_3);
 	}
@@ -68,22 +73,22 @@ void CPlayer::CheckInputs()
 	}
 
 	if (!move_key_pres)
-		m_CharacterStats.m_CurrentMoveSpeed = 0;
+		characterStats.currentMoveSpeed = 0;
 
-	if (m_InputManager->GetKey(KeyCodes::D))
+	if (inputManager->GetKey(KeyCodes::D))
 	{
-		m_CharacterStats.m_CurrentTurnSpeed = -m_CharacterStats.m_TurnSpeed;
+        characterStats.currentTurnSpeed = -characterStats.turnSpeed;
 	}
-	else if (m_InputManager->GetKey(KeyCodes::A))
+	else if (inputManager->GetKey(KeyCodes::A))
 	{
-		m_CharacterStats.m_CurrentTurnSpeed = m_CharacterStats.m_TurnSpeed;
+        characterStats.currentTurnSpeed = characterStats.turnSpeed;
 	}
 	else
 	{
-		m_CharacterStats.m_CurrentTurnSpeed = 0;
+		characterStats.currentTurnSpeed = 0;
 	}
 
-	if (m_InputManager->GetKey(GameActions::JUMP))
+	if (inputManager->GetKey(GameActions::JUMP))
 	{
 		Jump();
 	}

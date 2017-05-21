@@ -32,8 +32,9 @@ protected:
 	void LoadValue(uint loacation, const glm::vec4& value) const;
 	void LoadValue(uint loacation, const glm::mat3& value) const;
 	void LoadValue(uint loacation, const glm::mat4& value) const;
+
 private:
-	int m_ProgramID = 0;
-	std::list<GLuint> m_ShaderObjectsList;
+    int programID = 0;
+    std::list<GLuint> shaderObjectsList;
 	std::string name;
 };

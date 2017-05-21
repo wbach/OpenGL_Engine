@@ -10,8 +10,8 @@ class CCubeMapTexture : public CTexture
 public:
 	CCubeMapTexture(const std::string& name, const std::vector<SImage>& image);
 	virtual void OpenGLLoadingPass() override;
-private:
-	SImage m_Images[6];
 
-	bool m_KeepData = false;
+private:
+    SImage images[6];
+    bool keepData = false;
 };

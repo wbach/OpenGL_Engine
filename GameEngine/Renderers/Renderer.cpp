@@ -1,11 +1,11 @@
 #include "Renderer.h"
 
-const uint & CRenderer::GetObjectsPerFrame()
+const uint& CRenderer::GetObjectsPerFrame()
 {
-	return m_RendererObjectPerFrame;
+    return rendererObjectPerFrame;
 }
 
-const uint & CRenderer::GetVertexPerFrame()
+const uint& CRenderer::GetVertexPerFrame()
 {
-	return m_RendererVertixesPerFrame;
+    return rendererVertixesPerFrame;
 }

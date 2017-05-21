@@ -20,5 +20,5 @@ public:
 	bool SphereIntersection(const glm::vec3& center, const float& radius);
 
 private:
-	CPlane m_Planes[6];
+    CPlane planes[6];
 };

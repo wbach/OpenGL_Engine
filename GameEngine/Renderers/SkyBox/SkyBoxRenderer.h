@@ -19,12 +19,13 @@ public:
 private:
 	void InitMembers(CScene* scene);
 	void BindTextures(const SMaterial& material) const;
-    CSkyBoxShader   m_Shader;
-    CModel*         m_Model;
-	CTexture*		m_DayTexture;
-	CTexture*		m_NightTexture;
 
-    CProjection*	m_ProjectionMatrix;
-    glm::vec4	m_ClipPlane;
+private:
+    CSkyBoxShader   shader;
+    CModel*         model;
+    CTexture*		dayTexture;
+    CTexture*		nightTexture;
+
+    CProjection*	projectionMatrix;
+    glm::vec4       clipPlane;
 };
-

@@ -10,7 +10,7 @@
 
 namespace Utils
 {
-	static int s_intmone = -1;
+    //static int s_intmone = -1;
 	static glm::vec2 s_vec2_zero(0);
 	static glm::vec3 s_vec3_zero(0);
 	static glm::mat4 s_mat4_one(1.f);

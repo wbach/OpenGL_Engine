@@ -12,33 +12,33 @@ public:
     CModel(const CModel& ) = delete;
 
 	virtual ~CModel();
-	virtual void Update(float dt) {};	
+    virtual void Update(float) {};
 	virtual const std::vector<glm::mat4>* GetBonesTransforms(uint mesh_id) { return nullptr; }
-	virtual void AddCurrentFramePtr(uint* ptr) { m_CurrentFrames.push_back(ptr); }
+    virtual void AddCurrentFramePtr(uint* ptr) { currentFrames.push_back(ptr); }
 	virtual void SetCurrentFrame(uint& current_frame) {}
 	virtual void SetTime(const float& time) {}
 
 	void OpenGLLoadingPass();
 	CMesh* AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords = std::vector<float>(), const std::vector<float>& normals = std::vector<float>(), const std::vector<float>& tangents = std::vector<float>(),
 		const std::vector<unsigned short>& indices = std::vector<unsigned short>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
-	const std::list<CMesh>& GetMeshes() const {return m_Meshes;	}
+    const std::list<CMesh>& GetMeshes() const {return meshes;	}
 	void SetMaterial(const SMaterial& material, uint mesh = 0);
 	glm::vec3 GetNormalizedScaleVector(float x, float y, float z) const;
 	void	CalculateBoudnigBox();
 
-	bool operator==(const CModel &q) { return m_Filename.compare(q.m_Filename) == 0; }
-	bool operator==(const std::string &file) { return m_Filename.compare(file) == 0; }
-	const std::string& GetFileName() {return m_Filename;}
+    bool operator==(const CModel &q) { return filename.compare(q.filename) == 0; }
+    bool operator==(const std::string &file) { return filename.compare(file) == 0; }
+    const std::string& GetFileName() {return filename;}
 
 protected:
-	std::list<CMesh> m_Meshes;
-	std::string m_Filename;
+    std::list<CMesh> meshes;
+    std::string filename;
 	//For all model
-	BoundingBox m_BoundingBox;
+    BoundingBox boundingBox;
 
 	//One model in memory for all entities, so we need have time from outside to update (each entity can have diffrent animation progress)
-	std::list<uint*> m_CurrentFrames;
+    std::list<uint*> currentFrames;
 
-    uint m_Id = 0;
-    static uint s_Id;
+    uint id = 0;
+    static uint s_id;
 };

@@ -7,37 +7,37 @@ CInput::CInput()
 
 void CInput::SetDefaultKeys()
 {
-	m_KeyGameActions[GameActions::MOVE_FORWARD] = KeyCodes::W;
-	m_KeyGameActions[GameActions::MOVE_BACKWARD] = KeyCodes::S;
-	m_KeyGameActions[GameActions::MOVE_LEFT] = KeyCodes::Q;
-	m_KeyGameActions[GameActions::MOVE_RIGHT] = KeyCodes::R;
-	m_KeyGameActions[GameActions::TURN_LEFT] = KeyCodes::A;
-	m_KeyGameActions[GameActions::TURN_RIGHT] = KeyCodes::D;
-	m_KeyGameActions[GameActions::JUMP] = KeyCodes::SPACE;
-	m_KeyGameActions[GameActions::ATTACK_1] = KeyCodes::LMOUSE;
-	m_KeyGameActions[GameActions::ATTACK_2] = KeyCodes::RMOUSE;
-	m_KeyGameActions[GameActions::ATTACK_3] = KeyCodes::Z;
-	m_KeyGameActions[GameActions::SPELL_1] = KeyCodes::W;
-	m_KeyGameActions[GameActions::SPELL_2] = KeyCodes::W;
-	m_KeyGameActions[GameActions::SPELL_3] = KeyCodes::W;
-	m_KeyGameActions[GameActions::SPELL_4] = KeyCodes::W;
-	m_KeyGameActions[GameActions::GUI_STATS_WINDOW] = KeyCodes::C;
-	m_KeyGameActions[GameActions::GUI_INVENTORY_WINDOW] = KeyCodes::I;
-	m_KeyGameActions[GameActions::GUI_PAUSE_MENU_WINDOW] = KeyCodes::ESCAPE;
-	m_KeyGameActions[GameActions::ITEM_1] = KeyCodes::W;
-	m_KeyGameActions[GameActions::ITEM_2] = KeyCodes::W;
-	m_KeyGameActions[GameActions::ITEM_3] = KeyCodes::W;
-	m_KeyGameActions[GameActions::ITEM_4] = KeyCodes::W;
-	m_KeyGameActions[GameActions::ITEM_5] = KeyCodes::W;
-	m_KeyGameActions[GameActions::ITEM_6] = KeyCodes::W;
-	m_KeyGameActions[GameActions::WORLD_MAP] = KeyCodes::M;
+    keyGameActions[GameActions::MOVE_FORWARD] = KeyCodes::W;
+    keyGameActions[GameActions::MOVE_BACKWARD] = KeyCodes::S;
+    keyGameActions[GameActions::MOVE_LEFT] = KeyCodes::Q;
+    keyGameActions[GameActions::MOVE_RIGHT] = KeyCodes::R;
+    keyGameActions[GameActions::TURN_LEFT] = KeyCodes::A;
+    keyGameActions[GameActions::TURN_RIGHT] = KeyCodes::D;
+    keyGameActions[GameActions::JUMP] = KeyCodes::SPACE;
+    keyGameActions[GameActions::ATTACK_1] = KeyCodes::LMOUSE;
+    keyGameActions[GameActions::ATTACK_2] = KeyCodes::RMOUSE;
+    keyGameActions[GameActions::ATTACK_3] = KeyCodes::Z;
+    keyGameActions[GameActions::SPELL_1] = KeyCodes::W;
+    keyGameActions[GameActions::SPELL_2] = KeyCodes::W;
+    keyGameActions[GameActions::SPELL_3] = KeyCodes::W;
+    keyGameActions[GameActions::SPELL_4] = KeyCodes::W;
+    keyGameActions[GameActions::GUI_STATS_WINDOW] = KeyCodes::C;
+    keyGameActions[GameActions::GUI_INVENTORY_WINDOW] = KeyCodes::I;
+    keyGameActions[GameActions::GUI_PAUSE_MENU_WINDOW] = KeyCodes::ESCAPE;
+    keyGameActions[GameActions::ITEM_1] = KeyCodes::W;
+    keyGameActions[GameActions::ITEM_2] = KeyCodes::W;
+    keyGameActions[GameActions::ITEM_3] = KeyCodes::W;
+    keyGameActions[GameActions::ITEM_4] = KeyCodes::W;
+    keyGameActions[GameActions::ITEM_5] = KeyCodes::W;
+    keyGameActions[GameActions::ITEM_6] = KeyCodes::W;
+    keyGameActions[GameActions::WORLD_MAP] = KeyCodes::M;
 }
 
 bool CInput::GetKeyDown(KeyCodes::Type  i)
 {	
 	if (GetKey(i))
 	{
-		for (auto& k : m_PressedKeys)
+        for (auto& k : pressedKeys)
 		{
 			if (k.first == i)
 			{
@@ -46,7 +46,7 @@ bool CInput::GetKeyDown(KeyCodes::Type  i)
 			}
 		}
 
-		m_PressedKeys.push_back({ i, true });
+        pressedKeys.push_back({ i, true });
 		return true;
 	}	
 	return false;
@@ -60,7 +60,7 @@ bool CInput::GetKeyUp(KeyCodes::Type i)
 
 void CInput::CheckReleasedKeys()
 {
-	for (std::list<std::pair<KeyCodes::Type, bool>>::iterator iter = m_PressedKeys.begin(); iter != m_PressedKeys.end(); ++iter)
+    for (std::list<std::pair<KeyCodes::Type, bool>>::iterator iter = pressedKeys.begin(); iter != pressedKeys.end(); ++iter)
 	{
 		if (iter->second)
 		{
@@ -68,7 +68,7 @@ void CInput::CheckReleasedKeys()
 		}
 		else
 		{
-			m_PressedKeys.erase(iter);
+            pressedKeys.erase(iter);
 			return;
 		}
 	}

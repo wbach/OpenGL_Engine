@@ -11,12 +11,12 @@ static const float TERRAIN_SIZE = 200.f;
 
 struct TerrainTextures
 {
-	CTexture* m_BlendMap			= nullptr;
-	CTexture* m_BackgorundTexture	= nullptr;
-	CTexture* m_RedTexture			= nullptr;
-	CTexture* m_GreenTexture		= nullptr;
-	CTexture* m_BlueTexture			= nullptr;
-	CTexture* m_DisplacementMap		= nullptr;
+    CTexture* blendMap			= nullptr;
+    CTexture* backgorundTexture	= nullptr;
+    CTexture* redTexture			= nullptr;
+    CTexture* greenTexture		= nullptr;
+    CTexture* blueTexture			= nullptr;
+    CTexture* displacementMap		= nullptr;
 };
 
 struct STerrain : public CGameObject
@@ -34,23 +34,17 @@ struct STerrain : public CGameObject
 	void	InitHeights(int x, int y);
 	void	LoadHeight(SImage& height_map);
 
-	void SetTexture(CTexture* texture, Terrain::TexturesTypes type)
-	{
-		if (type == Terrain::TexturesTypes::count)
-			return;
-
-		m_Textures[type] = texture;
-	}
+    void SetTexture(CTexture* texture, Terrain::TexturesTypes type);
 
 	void Render();
 
 	//HeightMap
-	int m_HeightMapResolution;
+    int heightMapResolution;
 
-	std::vector<float> m_Heights;
+    std::vector<float> heights;
 
-	CTexture* m_Textures[Terrain::TexturesTypes::count];
+    CTexture* textures[Terrain::TexturesTypes::count];
 	CModel* model;
-	SSimpleQuad m_Quad;
-	float m_DispFactor;
+    SSimpleQuad quad;
+    float dispFactor;
 };

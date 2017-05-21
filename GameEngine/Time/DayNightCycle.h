@@ -20,24 +20,26 @@ public:
 	const bool IsFirstHalfMorning() const;
 	const bool IsFirstHalfEvening() const;
 	float GetDayNightBlendFactor() const;
+
 private:
-	CLight*   m_DirectionalLight;
-	glm::vec3 m_SunRiseColor;
-	glm::vec3 m_MidDayColor;
-	glm::vec3 m_SunSetColor;
-	glm::vec3 m_NightColor;
+    CLight*   directionalLight;
+    glm::vec3 sunRiseColor;
+    glm::vec3 midDayColor;
+    glm::vec3 sunSetColor;
+    glm::vec3 nightColor;
 
-	float m_DayNightBlendFactor;
-	float m_DayStart;
-	float m_DayEnd;
-	float m_NightStart;
-	float m_NightEnd;
-	float m_MorningDuration;
-	float m_EveningDuration;
+    float dayNightBlendFactor;
+    float dayStart;
+    float dayEnd;
+    float nightStart;
+    float nightEnd;
+    float morningDuration;
+    float eveningDuration;
 
-	glm::vec3 m_DefaultSunPos;
+    glm::vec3 defaultSunPos;
 };
+
 inline float CDayNightCycle::GetDayNightBlendFactor() const
 {
-	return m_DayNightBlendFactor;
+    return dayNightBlendFactor;
 }

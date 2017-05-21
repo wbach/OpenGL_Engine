@@ -21,10 +21,11 @@ public:
 	void UnBind();
 	void UnBindDraw();
 	~CFrameBuffer();
+
 protected:
-	bool m_IsInitialized = false;
-	GLuint m_Fbo;
-	GLuint m_DepthTexture;
-	std::vector<GLuint> m_Textures;
-	bool m_DepthStorage = false;
+    bool isInitialized = false;
+    GLuint fbo;
+    GLuint depthTexture;
+    std::vector<GLuint> textures;
+    bool depthStorage = false;
 };

@@ -50,7 +50,7 @@ namespace TerrainUtils
 	SMaterial CreateGrassMaterial(CResourceManager& manager, const std::string& texture)
 	{
 		SMaterial grass_material;
-		grass_material.m_DiffuseTexture = manager.GetTextureLaoder().LoadTexture(texture);
+        grass_material.diffuseTexture = manager.GetTextureLaoder().LoadTexture(texture);
 		return grass_material;
 	}
 

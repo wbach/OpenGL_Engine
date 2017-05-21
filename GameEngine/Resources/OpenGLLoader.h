@@ -10,9 +10,10 @@ public:
 	COpenGLObject*	GetObjectToOpenGLLoadingPass();
 	void 			AddObjectToOpenGLPostLoadingPass(COpenGLObject* obj);
 	COpenGLObject*	GetObjectToOpenGLPostLoadingPass();
+
 private:
-	std::list<COpenGLObject*> m_OpenGLPassLoad;
-	std::list<COpenGLObject*> m_OpenGLPostPassLoad;
-	std::mutex m_Mutex;
-	std::mutex m_Mutex2;
+    std::list<COpenGLObject*> openGLPassLoad;
+    std::list<COpenGLObject*> openGLPostPassLoad;
+    std::mutex mutex;
+    std::mutex mutex2;
 };

@@ -20,10 +20,10 @@ public:
 	void SetFullScreen(bool full_screen);
 	void CalculateFPS();
 	const int GetFps();
-	const int& GetFPSCap() { return m_FPS_CAP; }
+    const int& GetFPSCap() { return fpsCap; }
 
 	const float GetCurrentTime();
-	const double GetDeltaTime() const { return m_Delta; }
+    const double GetDeltaTime() const { return deltaTime; }
 
 	const wb::vec2i& GetWindowSize();
 
@@ -33,23 +33,24 @@ public:
 	void SetApi(std::unique_ptr<CApi>& api);
 	void SetInput(std::unique_ptr<CInput>&);
 
-	void EnableTime() { m_Time = true; }
-	void DisableTime() { m_Time = false; }
+    void EnableTime() { time = true; }
+    void DisableTime() { time = false; }
 
-	bool& GetSync() { return m_Sync; }
+    bool& GetSync() { return sync; }
+
 private:
-	std::unique_ptr<CApi> m_Api;
+    std::unique_ptr<CApi> api;
 
-	bool m_Time = true;
+    bool time = true;
 
-	double m_LastFrameTime;
-	double m_Delta;
-	float m_CurrentTime, m_PreviousTime;
-	float m_FrameCount, m_Fps;
+    double lastFrameTime;
+    double deltaTime;
+    float currentTime, previousTime;
+    float frameCount, fps;
 
-	int m_FPS_CAP;
-	bool m_IsFullScreen;
-	wb::vec2i m_WindowsSize;
+    int fpsCap;
+    bool isFullScreen;
+    wb::vec2i windowsSize;
 
-	bool m_Sync = true;
+    bool sync = true;
 };

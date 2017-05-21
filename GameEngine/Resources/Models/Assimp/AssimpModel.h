@@ -37,17 +37,15 @@ private:
 	void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
 	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
 
-	float m_CurrentTime;
-	// For all subMeshes
-	std::vector<SBonesInfo> m_BonesInfo;
+private:
+    CTextureLoader&	textureLodaer;
+    float currentTime;
+    const aiScene* scene;
+    bool isInit;
 
-	CTextureLoader&	m_TextureLodaer;
+    std::vector<SBonesInfo> bonesInfo;
+    glm::mat4 globalInverseTransform;
+    std::vector<glm::mat4> boneTransformMatrixes[50];
 
-	Assimp::Importer importer;
-	const aiScene *m_Scene;
-	glm::mat4 m_GlobalInverseTransform;
-
-	std::vector<glm::mat4> m_BoneTransformMatrixes[50];
-
-	bool m_IsInit;
+    Assimp::Importer importer;
 };

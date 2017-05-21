@@ -1,20 +1,21 @@
 #include "ResourceManager.h"
+#include "Models/Assimp/AssimpModel.h"
+#include "Models/MyOBJ/MyModel.h"
 
 CResourceManager::CResourceManager()
-	:  m_TextureLoader(m_Textures, m_OpenGlLoader)
+    :  textureLoader(textures, openGlLoader)
 {
 }
 
 CModel * CResourceManager::LoadModel(const std::string & file)
 {
-
-	for (const auto& model : m_Models)
+    for (const auto& model : models)
 	{
 		if (model->GetFileName().compare(file) == 0)
 			return model.get();
 	}
 	//CAssimModel  CMyModel
-	m_Models.emplace_back(new CMyModel(m_TextureLoader));
-    m_Models.back()->InitModel(file);
-	return m_Models.back().get();
+    models.emplace_back(new CMyModel(textureLoader));
+    models.back()->InitModel(file);
+    return models.back().get();
 }

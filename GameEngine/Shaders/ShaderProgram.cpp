@@ -8,19 +8,19 @@ CShaderProgram::~CShaderProgram()
 {
 	Stop();
 
-	for (auto& id : m_ShaderObjectsList)
+    for (auto& id : shaderObjectsList)
 	{
-		glDetachShader(m_ProgramID, id);
+        glDetachShader(programID, id);
 		glDeleteShader(id);
 	}
 
-	if (m_ProgramID != 0)
-		glDeleteProgram(m_ProgramID);
+    if (programID != 0)
+        glDeleteProgram(programID);
 }
 bool CShaderProgram::CreateProgram()
 {
-	m_ProgramID = glCreateProgram();
-	if (m_ProgramID == 0)
+    programID = glCreateProgram();
+    if (programID == 0)
 	{
 		Error("[Error] Error creating shader program.");
 		return false;
@@ -43,7 +43,7 @@ bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
 		return false;
 	}
 
-	m_ShaderObjectsList.push_back(id);
+    shaderObjectsList.push_back(id);
 
 	const char* csource = source.c_str();
 
@@ -65,7 +65,7 @@ bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
 	if (id == GL_FALSE)
 	{
 	}
-	glAttachShader(m_ProgramID, id);
+    glAttachShader(programID, id);
 
 	return true;
 }
@@ -74,38 +74,38 @@ bool CShaderProgram::FinalizeShader()
 {
 	BindAttributes();
 
-	glLinkProgram(m_ProgramID);
+    glLinkProgram(programID);
 
 	GLint Success = 0;
 	GLchar ErrorLog[1024] = { 0 };
 
-	glGetProgramiv(m_ProgramID, GL_LINK_STATUS, &Success);
+    glGetProgramiv(programID, GL_LINK_STATUS, &Success);
 	if (Success == 0)
 	{
-		glGetProgramInfoLog(m_ProgramID, sizeof(ErrorLog), NULL, ErrorLog);
+        glGetProgramInfoLog(programID, sizeof(ErrorLog), NULL, ErrorLog);
 		Error("[Error] Error linking shader program: " + name + " : " + std::string(ErrorLog));
 		return false;
 	}
 
-	glUseProgram(m_ProgramID);
+    glUseProgram(programID);
 
 	GetAllUniformLocations();
 	ConnectTextureUnits();
 
-	glValidateProgram(m_ProgramID);
-	glGetProgramiv(m_ProgramID, GL_VALIDATE_STATUS, &Success);
+    glValidateProgram(programID);
+    glGetProgramiv(programID, GL_VALIDATE_STATUS, &Success);
 
 	if (!Success)
 	{
-		glGetProgramInfoLog(m_ProgramID, sizeof(ErrorLog), NULL, ErrorLog);
+        glGetProgramInfoLog(programID, sizeof(ErrorLog), NULL, ErrorLog);
 		Error("[Error] Invalid shader program : " + name + " : " + std::string(ErrorLog));
 		return false;
 	}
 
-	for (auto& id : m_ShaderObjectsList)
+    for (auto& id : shaderObjectsList)
 		glDeleteShader(id);
 
-	m_ShaderObjectsList.clear();
+    shaderObjectsList.clear();
 
 	if (glGetError() != GL_NO_ERROR)
 	{
@@ -120,7 +120,7 @@ bool CShaderProgram::FinalizeShader()
 
 void CShaderProgram::Start() const
 {
-	glUseProgram(m_ProgramID);
+    glUseProgram(programID);
 }
 void CShaderProgram::Stop() const
 {
@@ -128,11 +128,11 @@ void CShaderProgram::Stop() const
 }
 int CShaderProgram::GetUniformLocation(const std::string& uniformName) const
 {
-	return glGetUniformLocation(m_ProgramID, uniformName.c_str());
+    return glGetUniformLocation(programID, uniformName.c_str());
 }
 void CShaderProgram::BindAttribute(int attribute, const std::string& variableName) const
 {
-	glBindAttribLocation(m_ProgramID, attribute, variableName.c_str());
+    glBindAttribLocation(programID, attribute, variableName.c_str());
 }
 void CShaderProgram::LoadValue(uint loacation, const glm::mat4& value) const
 {

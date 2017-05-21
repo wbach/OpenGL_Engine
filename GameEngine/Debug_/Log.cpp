@@ -26,8 +26,8 @@ void CLogger::Logg(const std::string& log)
 	if (!enabled)
 		return;
 	std::cout << log << std::endl;
-	m_Logs.push_back(log);
-	std::ofstream file(m_FileName, std::ios_base::app);
+    logs.push_back(log);
+    std::ofstream file(fileName, std::ios_base::app);
 	file << log << '\n';
 	file.close();
 }
@@ -40,8 +40,8 @@ void CLogger::MessageBox(uint flags, const std::string& title, const std::string
 }
 void CLogger::SaveToFile() const
 {
-	std::ofstream file(m_FileName, std::ios_base::app);
-	for (const auto& log : m_Logs)
+    std::ofstream file(fileName, std::ios_base::app);
+    for (const auto& log : logs)
 		file << log.c_str() << '\n';
 	file.close();
 }
@@ -51,7 +51,6 @@ CLogger::~CLogger()
 
 CLogger::CLogger()
 {
-
 }
 
 void CLogger::CreateLogFile()
@@ -61,7 +60,7 @@ void CLogger::CreateLogFile()
 
 	std::stringstream ss;
 	ss << in_time_t;
-	m_FileName = "Logs/Logs" + ss.str() + ".txt";
-	std::ofstream file(m_FileName);
+    fileName = "Logs/Logs" + ss.str() + ".txt";
+    std::ofstream file(fileName);
 	file.close();
 }

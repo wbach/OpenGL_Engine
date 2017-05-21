@@ -13,7 +13,7 @@ MainScene::MainScene(CEngine &engine)
     : engine(engine)
 {
 	CGUIRenderer* gui_renderer = new CGUIRenderer();
-	auto guiText = new CGuiText("../Data/GUI/consola.ttf", engine.m_Projection.GetWindowSize());
+    auto guiText = new CGuiText("../Data/GUI/consola.ttf", engine.projection.GetWindowSize());
 	gui_renderer->AddElement(guiText);
 
 	SGuiTextElement score;
@@ -23,64 +23,67 @@ MainScene::MainScene(CEngine &engine)
 	score.position = glm::vec2(-0.9, 0.9);
 	guiText->texts["Line_p1"] = score;
 
-	engine.m_Renderers.emplace_back(gui_renderer);
+    engine.renderers.emplace_back(gui_renderer);
 	gui_renderer->Init();
 }
 
 MainScene::~MainScene()
 {
-
 }
 
 int MainScene::Initialize()
 {
-    auto crate = AddGameObject(new CEntity(m_ResourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Crate/crate.obj"), glm::vec3(0,0, -5));
-    engine.m_Renderers[0]->Subscribe(crate);
+    auto crate = AddGameObject(new CEntity(resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Crate/crate.obj"), glm::vec3(0,0, -5));
+    engine.renderers[0]->Subscribe(crate);
 
-    player = new CPlayer(&engine.m_InputManager, m_ResourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Triss/Triss.obj"), glm::vec3(0, 0, 0);
+    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Triss/Triss.obj"), glm::vec3(0, 0, 0);
 	player->dynamic = true;
     AddGameObject(player);
-    engine.m_Renderers[0]->Subscribe(player);
+    engine.renderers[0]->Subscribe(player);
 
-    auto small_house = AddGameObject(new CEntity(m_ResourceManager, glm::vec3(0,5,0), "../Data/Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj"), glm::vec3(0.f, 0.f, -5.f));
-    engine.m_Renderers[0]->Subscribe(small_house);
+    auto small_house = AddGameObject(new CEntity(resourceManager, glm::vec3(0,5,0), "../Data/Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj"), glm::vec3(0.f, 0.f, -5.f));
+    engine.renderers[0]->Subscribe(small_house);
 
     auto terrain_textures = CreateTerrainTexturesMap();
     AddTerrain(terrain_textures, glm::vec3(1.f));
-	//AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
-   // AddGrass();
 
-    m_DayNightCycle.SetDirectionalLight(&m_DirectionalLight);
-    m_DayNightCycle.SetTime(.5f);
+    //AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
+    //AddGrass();
+
+    dayNightCycle.SetDirectionalLight(&directionalLight);
+    dayNightCycle.SetTime(.5f);
 
     //m_Camera = std::make_unique<CFirstPersonCamera>(&engine.m_InputManager, &engine.m_DisplayManager);
 
-    m_Camera = std::make_unique<CThirdPersonCamera>(&engine.m_InputManager, player->m_WorldTransform);	
+    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->m_WorldTransform);
 
     return 0;
 }
 
 int MainScene::Update()
 {
-    if (m_Camera != nullptr)
+    if (camera != nullptr)
     {
-        m_Camera->CalculateInput();
-        m_Camera->Move();
+        camera->CalculateInput();
+        camera->Move();
     }
-    m_DeltaTime = static_cast<float>(engine.m_DisplayManager.GetDeltaTime());
-    m_GloabalTime += m_DeltaTime;
+    deltaTime = static_cast<float>(engine.displayManager.GetDeltaTime());
+    gloabalTime += deltaTime;
 
-    time_clock += m_DeltaTime;
-    if(time_clock > 1.f)
+    timeClock += deltaTime;
+    if(timeClock > 1.f)
     {
         int hour = 0, minutes = 0;
-        m_DayNightCycle.GetCurrentHour(hour, minutes);
+        dayNightCycle.GetCurrentHour(hour, minutes);
         std::cout << "Game Time : " << hour << " : " << minutes << "\n";
-        Utils::PrintVector("Light position : ", this->m_DirectionalLight.GetPosition());
-        time_clock = 0;
+        Utils::PrintVector("Light position : ", this->directionalLight.GetPosition());
+        timeClock = 0;
     }
 
-    m_DayNightCycle.Update(m_DeltaTime); 
+    dayNightCycle.Update(deltaTime);
+
+    player->Move(deltaTime);
+    player->CheckInputs();
 
 	for (auto& terrain : terrains)
 	{
@@ -93,10 +96,6 @@ int MainScene::Update()
 		if (ppos.y < new_position.GetValue().y)
 			player->SetPosition(new_position.GetValue());
 	}
-
-	player->Move(m_DeltaTime);
-	player->CheckInputs();
-
     return 0;
 }
 
@@ -116,7 +115,7 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position)
 {
 	//, CreateGrassPositions(), "../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
-	auto terrain = ObjectBuilder::CreateTerrain(m_ResourceManager, textures);
+    auto terrain = ObjectBuilder::CreateTerrain(resourceManager, textures);
 
 	if (terrain == nullptr)
 	{
@@ -124,7 +123,7 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
 		return;
 	}	
     AddGameObject(terrain, position);
-    engine.m_Renderers[0]->Subscribe(terrain);
+    engine.renderers[0]->Subscribe(terrain);
 	terrains.push_back(terrain);
 }
 

@@ -5,8 +5,8 @@
 
 CEntity::CEntity()
 {
-	for (auto& model : m_Model)
-		model = nullptr;
+    for (auto& m : model)
+        m = nullptr;
 }
 
 CEntity::CEntity(CResourceManager & manager, const glm::vec3 & normalized_scale, const std::string& filename, const std::string& filename2, const std::string& filename3)
@@ -18,9 +18,9 @@ CEntity::CEntity(CResourceManager & manager, const glm::vec3 & normalized_scale,
 
 CEntity::CEntity(const glm::vec3 normalized_v, CModel * model_lvl_1, CModel * model_lvl_2, CModel * model_lvl_3)
 {
-	m_Model[0] = model_lvl_1;
-	m_Model[1] = model_lvl_2;
-	m_Model[2] = model_lvl_3;
+    model[0] = model_lvl_1;
+    model[1] = model_lvl_2;
+    model[2] = model_lvl_3;
 	m_WorldTransform.SetNormalizedSize(normalized_v);
 }
 
@@ -37,20 +37,20 @@ CModel * CEntity::GetModel(uint i)
 		Log("CEntity::GetModel out of range < 0");
 	}
 
-	if (m_Model[i] == nullptr)
-		return m_Model[0];
+    if (model[i] == nullptr)
+        return model[0];
 
-	return m_Model[i];
+    return model[i];
 }
 
 void CEntity::LoadModel(CResourceManager & manager, const glm::vec3 & normalized_scale, const std::string & filename, uint i)
 {
 	if (!filename.empty())
 	{
-		m_Model[i] = manager.LoadModel(filename);
-		manager.GetOpenGlLoader().AddObjectToOpenGLLoadingPass(m_Model[i]);
-		m_Model[i]->CalculateBoudnigBox();
-		auto vec = m_Model[i]->GetNormalizedScaleVector(normalized_scale.x, normalized_scale.y, normalized_scale.z);
+        model[i] = manager.LoadModel(filename);
+        manager.GetOpenGlLoader().AddObjectToOpenGLLoadingPass(model[i]);
+        model[i]->CalculateBoudnigBox();
+        auto vec = model[i]->GetNormalizedScaleVector(normalized_scale.x, normalized_scale.y, normalized_scale.z);
 		m_WorldTransform.SetNormalizedSize(vec);
 	}
 }

@@ -3,25 +3,25 @@
 
 struct SCharacterStats
 {
-	int m_CurrentHealth = 60;
-	int m_MaxHealth = 100;
+    int currentHealth = 60;
+    int maxHealth = 100;
 
-	int m_CurrentMana = 10;
-	int m_MaxMana = 10;
+    int currentMana = 10;
+    int maxMana = 10;
 
-	int m_CurrentStamina = 50;
-	int m_MaxStamina = 50;
+    int currentStamina = 50;
+    int maxStamina = 50;
 
-	float m_Range = 1.f;
-	float m_RunSpeed = Utils::KmToMs(45.f);
-	float m_WalkSpeed = Utils::KmToMs(5.f);
-	float m_CurrentMoveSpeed = 0.f;
-	float m_CurrentTurnSpeed = 0.f;
-	float m_JumpPower = 25.f;
-	float m_TurnSpeed = 160.f;
+    float range = 1.f;
+    float runSpeed = Utils::KmToMs(45.f);
+    float walkSpeed = Utils::KmToMs(5.f);
+    float currentMoveSpeed = 0.f;
+    float currentTurnSpeed = 0.f;
+    float jumpPower = 25.f;
+    float turnSpeed = 160.f;
 
-	int m_Strength = 10;
-	int m_Agility = 10;
-	int m_Vitality = 10;
-	int m_Energy = 10;
+    int strength = 10;
+    int agility = 10;
+    int vitality = 10;
+    int energy = 10;
 };

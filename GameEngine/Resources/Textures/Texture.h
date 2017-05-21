@@ -12,14 +12,16 @@ public:
 	virtual ~CTexture();
 
 	virtual void OpenGLLoadingPass() = 0;
-	const GLuint& GetId() const { return m_Id; }
+    const GLuint& GetId() const { return id; }
 	const std::string GetFileName() { return filename; }
-	const std::string GetFilPath() { return m_Fullpath; }
-protected:
-	GLuint m_Id = 0;
-	bool m_IsInit = false;
-	bool applySizeLimit = true;
+    const std::string GetFilPath() { return fullpath; }
 
-	std::string filename;
-	std::string m_Fullpath;
+protected:
+    std::string filename;
+    std::string fullpath;
+
+    bool applySizeLimit = true;
+
+    GLuint id = 0;
+    bool isInit = false;
 };

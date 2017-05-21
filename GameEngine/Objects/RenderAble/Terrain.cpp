@@ -6,7 +6,7 @@
 
 STerrain::STerrain()
 {	
-	for (auto& texture : m_Textures)
+    for (auto& texture : textures)
 	{
 		texture = nullptr;
 	}
@@ -14,20 +14,21 @@ STerrain::STerrain()
 
 wb::optional<glm::vec3> STerrain::CollisionDetection(const glm::vec3 & v)
 {
-	glm::vec3 position;
+    wb::optional<glm::vec3> position;
 	auto height = GetHeightofTerrain(v.x, v.z);
 
 	if (height)
 	{
-		position = v;
-		position.y = height.GetValue();
+        glm::vec3 p = v;
+        p.y = height.GetValue();
+        position = p;
 	}
 	return position;
 }
 
 void STerrain::SetHeight(int x, int y, float value)
 {
-	m_Heights[x + y*m_HeightMapResolution] = value;
+    heights[x + y*heightMapResolution] = value;
 }
 
 wb::optional<float> STerrain::GetHeightofTerrain(glm::vec2 posXZ) const
@@ -42,11 +43,11 @@ wb::optional<float> STerrain::GetHeightofTerrain(float worldX, float worldZ) con
 	float terrain_x = worldX - m_WorldTransform.GetPositionXZ().x;
 	float terrain_z = worldZ - m_WorldTransform.GetPositionXZ().y;
 
-	float grid_squere_size = TERRAIN_SIZE / ((float) m_HeightMapResolution - 1);
+    float grid_squere_size = TERRAIN_SIZE / ((float) heightMapResolution - 1);
 	int grid_x = (int)floor(terrain_x / grid_squere_size);
 	int grid_z = (int)floor(terrain_z / grid_squere_size);
 
-	if (grid_x >= m_HeightMapResolution - 1 || grid_z >= m_HeightMapResolution - 1 || grid_x < 0 || grid_z < 0)
+    if (grid_x >= heightMapResolution - 1 || grid_z >= heightMapResolution - 1 || grid_x < 0 || grid_z < 0)
 		return result;
 
 	float x_coord = (fmod(terrain_x, grid_squere_size)) / grid_squere_size;
@@ -69,47 +70,55 @@ wb::optional<float> STerrain::GetHeightofTerrain(float worldX, float worldZ) con
 
 void STerrain::InitHeights(int x, int y)
 {
-	m_Heights.resize(x*y);
+    heights.resize(x*y);
 }
 
 void STerrain::LoadHeight(SImage& height_map)
 {
-	if (height_map.m_Data == nullptr)
+    if (height_map.data == nullptr)
 	{
 		Log("Loading terrain heights faild. Height map is nullptr.");
 		return;
 	}
 
-	m_HeightMapResolution = height_map.m_Height;
+    heightMapResolution = height_map.height;
 
-	auto h = height_map.m_Height;
-	auto w = height_map.m_Width;
+    auto h = height_map.height;
+    auto w = height_map.width;
 
 	InitHeights(w, h);
 	
 	//bgr2rgb
 	for (uint j = 0; j<w*h; j++)
 	{
-		float r = static_cast<float>(height_map.m_Data[j * 4 + 0]);
-		float g = static_cast<float>(height_map.m_Data[j *4 + 1]);
-		float b = static_cast<float>(height_map.m_Data[j * 4 + 2]);
-		float a = static_cast<float>(height_map.m_Data[j * 4 + 3]);
+        float r = static_cast<float>(height_map.data[j * 4 + 0]);
+        //float g = static_cast<float>(height_map.m_Data[j *4 + 1]);
+        //float b = static_cast<float>(height_map.m_Data[j * 4 + 2]);
+        //float a = static_cast<float>(height_map.m_Data[j * 4 + 3]);
 		float height = r;
 		auto max = 255.f;
 		height /= max;
 		height *= 2.f;
 		height -= 1.f;
 		height *= 25.f;
-		m_Heights[j] = height;
+        heights[j] = height;
 	}
+}
+
+void STerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)
+{
+    if (type == Terrain::TexturesTypes::count)
+        return;
+
+    textures[type] = texture;
 }
 
 float STerrain::GetHeight(int x, int y) const
 {
-	return m_Heights[x + y*m_HeightMapResolution];
+    return heights[x + y*heightMapResolution];
 }
 
 void STerrain::Render()
 {
-	m_Quad.Render(GL_PATCHES);
+    quad.Render(GL_PATCHES);
 }

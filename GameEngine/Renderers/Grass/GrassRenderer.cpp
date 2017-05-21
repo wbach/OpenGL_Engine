@@ -6,19 +6,20 @@
 #include "../../Engine/Projection.h"
 #include "../../Engine/Configuration.h"
 #include "../../Objects/RenderAble/Grass.h"
+#include "../../Utils/OpenGL/OpenGLUtils.h"
 
 CGrassRenderer::CGrassRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
-	: m_Projection(projection_matrix)
-	, CRenderer(framebuffer)
+    : CRenderer(framebuffer)
+    , projection(projection_matrix)
 {	
 }
 
 void CGrassRenderer::Init()
 {	
-	m_Shader.Init();
-	m_Shader.Start();
-	m_Shader.LoadProjectionMatrix(m_Projection->GetProjectionMatrix());
-	m_Shader.Stop();
+	shader.Init();
+	shader.Start();
+	shader.LoadProjectionMatrix(projection->GetProjectionMatrix());
+	shader.Stop();
 
 	viewDistance = SConfiguration::Instance().floraViewDistance;
 	Log("Grass renderer initialized.");
@@ -30,31 +31,31 @@ void CGrassRenderer::PrepareFrame(CScene * scene)
 
 void CGrassRenderer::Render(CScene * scene)
 {
-	if (m_Target == nullptr)
+	if (target == nullptr)
 		return;
-	m_Target->BindToDraw();
+	target->BindToDraw();
 
-	m_Shader.Start();
-	m_Shader.LoadGlobalTime(scene->GetGlobalTime());
-	m_Shader.LoadShadowValues(0.f, 0.f, 512.f);
-	m_Shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-    m_Shader.LoadViewDistance(viewDistance);
+	shader.Start();
+	shader.LoadGlobalTime(scene->GetGlobalTime());
+	shader.LoadShadowValues(0.f, 0.f, 512.f);
+	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+    shader.LoadViewDistance(viewDistance);
 
 	Utils::DisableCulling();
 
 	glActiveTexture(GL_TEXTURE0);	
 
-	for (const auto& s : m_Subscribes)
+	for (const auto& s : subscribes)
 	{
 		if (s->model == nullptr)
 			continue;
 
 		for (const auto& mesh : s->model->GetMeshes())
 		{
-			if (mesh.GetMaterial().m_DiffuseTexture == nullptr)
+            if (mesh.GetMaterial().diffuseTexture == nullptr)
 				continue;
 
-			glBindTexture(GL_TEXTURE_2D, mesh.GetMaterial().m_DiffuseTexture->GetId());
+            glBindTexture(GL_TEXTURE_2D, mesh.GetMaterial().diffuseTexture->GetId());
 			glBindVertexArray(mesh.GetVao());
 			glEnableVertexAttribArray(0);
 			glDrawArrays(GL_POINTS, 0, mesh.GetVertexCount());
@@ -64,7 +65,7 @@ void CGrassRenderer::Render(CScene * scene)
 	}
 	Utils::EnableCulling();
 	
-	m_Shader.Stop();
+	shader.Stop();
 }
 
 void CGrassRenderer::EndFrame(CScene * scene)
@@ -75,5 +76,5 @@ void CGrassRenderer::Subscribe(CGameObject * gameObject)
 {
 	auto grass = dynamic_cast<SGrass*>(gameObject);
 	if (grass != nullptr)
-		m_Subscribes.push_back(grass);
+		subscribes.push_back(grass);
 }
