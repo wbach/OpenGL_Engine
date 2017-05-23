@@ -146,6 +146,9 @@ void CMesh::SetInstancedMatrixes(const std::vector<glm::mat4>& m)
 
 void CMesh::OpenGLLoadingPass()
 {
+    if (isInOpenGL())
+        return;
+
 	CreateVaoMesh();
 
     if (!bones.empty())
@@ -154,6 +157,8 @@ void CMesh::OpenGLLoadingPass()
 	}
 
 	ClearData();
+
+    COpenGLObject::OpenGLLoadingPass();
 }
 
 void CMesh::OpenGLPostLoadingPass()

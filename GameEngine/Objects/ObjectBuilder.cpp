@@ -23,7 +23,7 @@ namespace TerrainUtils
 
 	void LoadSimpleMesh(CResourceManager& manager, STerrain* terrain)
 	{
-		terrain->model = manager.LoadModel("../Data/Example/quad.obj");
+        terrain->model = manager.LoadModel("Example/quad.obj");
 		manager.GetOpenGlLoader().AddObjectToOpenGLLoadingPass(terrain->model);
 	}	
 

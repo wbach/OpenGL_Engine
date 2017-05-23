@@ -11,8 +11,8 @@ CModel * CResourceManager::LoadModel(const std::string & file)
 {
     for (const auto& model : models)
 	{
-		if (model->GetFileName().compare(file) == 0)
-			return model.get();
+        if (model->GetFileName().compare(file) == 0)
+            return model.get();
 	}
 	//CAssimModel  CMyModel
     models.emplace_back(new CMyModel(textureLoader));

@@ -15,6 +15,7 @@ void CModel::InitModel(const std::string&  file_name)
 
 CModel::~CModel() 
 {
+    Log(filename + " ::~CModel()");
 }
 
 void CModel::OpenGLLoadingPass()

@@ -37,6 +37,10 @@ int MainScene::Initialize()
     auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -5));
     engine.renderers[0]->Subscribe(crate);
 
+    auto crate_obj_2 = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Crate/crate.obj");
+    auto crate_2 = AddGameObject(crate_obj_2, glm::vec3(10,0, -5));
+    engine.renderers[0]->Subscribe(crate_2);
+
     player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "Meshes/Triss/Triss.obj");
     player->dynamic = true;
     AddGameObject(player, glm::vec3(1,0,1));
@@ -48,7 +52,9 @@ int MainScene::Initialize()
 
     auto terrain_textures = CreateTerrainTexturesMap();
     AddTerrain(terrain_textures, glm::vec3(1.f));
-    //AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
+    AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
+    AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, -1.f));
+    AddTerrain(terrain_textures, glm::vec3(1.f, 1.f, -1.f));
    // AddGrass();
 
     for (const auto& terrain : terrains)
@@ -127,15 +133,14 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
 {
 	//, CreateGrassPositions(), "../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     auto terrain = ObjectBuilder::CreateTerrain(resourceManager, textures);
-
 	if (terrain == nullptr)
 	{
 		Error("MainScene::AddTerrain : terrain is nullptr.");
 		return;
-	}	
-    AddGameObject(terrain, position);
-    engine.renderers[0]->Subscribe(terrain);
-	terrains.push_back(terrain);
+    }    
+    auto terr = AddGameObject(terrain, position);
+    terrains.push_back(terr);
+    engine.renderers[0]->Subscribe(terr);
 }
 
 std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)

@@ -44,7 +44,7 @@ struct STerrain : public CGameObject
     std::vector<float> heights;
 
     CTexture* textures[Terrain::TexturesTypes::count];
-	CModel* model;
+    CModel* model = nullptr;
     SSimpleQuad quad;
     float dispFactor;
 };
