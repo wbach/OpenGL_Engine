@@ -21,11 +21,13 @@ void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int
     if (!(window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags)))
 	{
 		Log("[Error] SDL_CreateWindow error.");
+        exit(0);
 		return;
 	}
     if (!(glContext = SDL_GL_CreateContext(window)))
 	{
 		Log("[Error] SDL_GL_CreateContext error.");
+        exit(0);
 		return;
 	}
 	if (full_screen)
@@ -36,6 +38,7 @@ void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int
 	{
 		std::string err(reinterpret_cast< char const * >(glewGetErrorString(glew_init_result)));
 		Log("[Error] Glew init error : " + err);
+        exit(0);
 		return;
 	}
 	std::string ver(reinterpret_cast< char const * >(glGetString(GL_VERSION)));

@@ -1,5 +1,6 @@
 #include "Font.h"
 #include "../../../Utils/OpenGL/OpenGLUtils.h"
+#include "../../../Engine/Configuration.h"
 
 CFont::~CFont()
 {
@@ -12,8 +13,9 @@ CFont::~CFont()
 	glDeleteLists(listBase, m_MaxCharacters);
 }
 
-void CFont::Init(const std::string& file_name, const wb::vec2i& window_size)
+void CFont::Init(const std::string& file_name_relative, const wb::vec2i& window_size)
 {
+    auto file_name = EngineConf.dataFilesLocation + file_name_relative;
 	std::ifstream tryfile(file_name);
 	if (!tryfile.is_open()) {
 		std::cout << "[Error] The file " << file_name << " wasnt successfuly opened \n";

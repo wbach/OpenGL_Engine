@@ -3,8 +3,8 @@
 void CLoadingShader::Init()
 {
 	CreateProgram();
-	AddShader("../Shaders/Game/loadingShader.vert", GL_VERTEX_SHADER);
-	AddShader("../Shaders/Game/loadingShader.frag", GL_FRAGMENT_SHADER);
+    AddShader("Game/loadingShader.vert", GL_VERTEX_SHADER);
+    AddShader("Game/loadingShader.frag", GL_FRAGMENT_SHADER);
 	FinalizeShader();
 }
 void CLoadingShader::GetAllUniformLocations() 

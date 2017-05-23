@@ -11,7 +11,7 @@
 CEngine::CEngine()
 {
 	auto& conf = SConfiguration::Instance();
-	conf.ReadFromFile("../Data/Conf.xml");	
+    conf.ReadFromFile("Conf.xml");
 
 	displayManager = CDisplayManager(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
 	displayManager.SetInput(inputManager.input);
@@ -147,10 +147,10 @@ void CEngine::Init()
 
 	}
 	for(auto& renderer : renderers)
-		renderer->Init();
-	
-	auto circleTexture	= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/circle2.png", false);
-    auto bgtexture		= resorceManager.GetTextureLaoder().LoadTextureImmediately("../Data/GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+        renderer->Init();
+
+    auto circleTexture	= resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false);
+    auto bgtexture		= resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::Type::VERTICAL);
 	loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
 	loadingScreenRenderer->Init();
 }

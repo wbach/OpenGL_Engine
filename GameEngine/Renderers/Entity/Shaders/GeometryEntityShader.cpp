@@ -46,8 +46,8 @@ void CEntityGeometryPassShader::BindAttributes()
 void CEntityGeometryPassShader::Init()
 {
 	CreateProgram();
-	AddShader("../Shaders/Entity/EntityGeometryPassShader.vert", GL_VERTEX_SHADER);
-	AddShader("../Shaders/Entity/EntityGeometryPassShader.frag", GL_FRAGMENT_SHADER);
+    AddShader("Entity/EntityGeometryPassShader.vert", GL_VERTEX_SHADER);
+    AddShader("Entity/EntityGeometryPassShader.frag", GL_FRAGMENT_SHADER);
 	FinalizeShader();
 }
 

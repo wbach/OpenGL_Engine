@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <sstream>
 #include "../../../Utils/ParseUtils.h"
+#include "../../../Engine/Configuration.h"
 
 CMyModel::CMyModel(CTextureLoader & texture_lodaer)
     : textureLodaer(texture_lodaer)
@@ -19,8 +20,9 @@ void CMyModel::InitModel(const std::string & file_name)
 	AddFinalMeshes();
 	CModel::InitModel(file_name);
 }
-void CMyModel::ParseObjFile(const std::string& file_name)
+void CMyModel::ParseObjFile(const std::string& relative_file_name)
 {
+    auto file_name = EngineConf.dataFilesLocation + relative_file_name ;
 	auto file = Utils::ReadFile(file_name);
 	std::string path, filename;
 	Utils::GetFileAndPath(file_name, filename, path);

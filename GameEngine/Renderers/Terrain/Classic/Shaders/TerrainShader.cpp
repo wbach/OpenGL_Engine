@@ -9,10 +9,10 @@ CTerrainShader::CTerrainShader()
 void CTerrainShader::Init()
 {	
 	CreateProgram();
-	AddShader("../Shaders/Terrain/TerrainShader.vert", GL_VERTEX_SHADER);
-	AddShader("../Shaders/Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER);
-	AddShader("../Shaders/Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER);
-    AddShader("../Shaders/Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER);
+    AddShader("Terrain/TerrainShader.vert", GL_VERTEX_SHADER);
+    AddShader("Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER);
+    AddShader("Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER);
+    AddShader("Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER);
 	FinalizeShader();
 }
 

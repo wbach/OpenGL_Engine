@@ -15,17 +15,19 @@ CTextureLoader::CTextureLoader(std::vector<std::unique_ptr<CTexture>>& textures_
 
 void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool applySizeLimit, TextureFlip::Type flip_mode)
 {
-	FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file.c_str(), 0);
+    auto file_location = EngineConf.dataFilesLocation + file;
+
+    FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file_location.c_str(), 0);
 	if (formato == FIF_UNKNOWN)
 	{
-        Log("[Error] GetFileType: wrong image format or file does not exist : " + file);
+        Log("[Error] GetFileType: wrong image format or file does not exist : " + file_location);
 		return;
 	}
 
-	FIBITMAP* imagen2 = FreeImage_Load(formato, file.c_str());
+    FIBITMAP* imagen2 = FreeImage_Load(formato, file_location.c_str());
 	if (!imagen2)
 	{
-        Log("[Error] FreeImageLoad: wrong image format or file does not exist : " + file);
+        Log("[Error] FreeImageLoad: wrong image format or file does not exist : " + file_location);
 		return;
 	}
 
@@ -33,7 +35,7 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 	if (!imagen)
 	{
 		FreeImage_Unload(imagen2);
-		Log("[Error] Cant convert to 32 bits : " + file);
+        Log("[Error] Cant convert to 32 bits : " + file_location);
 		return;
 	}
 
@@ -47,7 +49,7 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 	
 	if (applySizeLimit)
 	{
-		auto& texture_size = SConfiguration::Instance().maxTextureResolutuion;
+        auto& texture_size = EngineConf.maxTextureResolutuion;
 		bool resize_texture = false;
 
 		if (w > texture_size.x)
@@ -80,7 +82,7 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 	}
 	FreeImage_Unload(imagen);
 	FreeImage_Unload(imagen2);
-    Log("File: " + file + " is loaded.");
+    Log("File: " + file_location + " is loaded.");
 }
 
 CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLimit, bool opengl_pass, TextureType::Type type, TextureFlip::Type flip_mode)

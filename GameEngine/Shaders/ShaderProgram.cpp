@@ -1,6 +1,7 @@
 #include "ShaderProgram.h"
 #include "../Debug_/Log.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "../Engine/Configuration.h"
 #include <string>
 #include <fstream>
 
@@ -32,7 +33,9 @@ bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
 {
 	name = filename;
 
-	std::string source = Utils::ReadFile(filename);
+    auto root_folder = EngineConf.shadersFilesLocation;
+    auto full_path = root_folder + filename;
+    std::string source = Utils::ReadFile(full_path);
 
 	uint id;
 	id = glCreateShader(mode);

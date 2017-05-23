@@ -149,6 +149,10 @@ namespace XMLParser
 				ParseShadowsConfig(snode, config);
 			if (name == "Water")
 				ParseWaterConfig(snode, config);
+            if (name == "DataLocation")
+                config.dataFilesLocation = value;
+            if (name == "ShadersLocation")
+                config.shadersFilesLocation = value;
 		}
 	}
 

@@ -13,7 +13,7 @@ MainScene::MainScene(CEngine &engine)
     : engine(engine)
 {
 	CGUIRenderer* gui_renderer = new CGUIRenderer();
-    auto guiText = new CGuiText("../Data/GUI/consola.ttf", engine.projection.GetWindowSize());
+    auto guiText = new CGuiText("GUI/consola.ttf", engine.projection.GetWindowSize());
 	gui_renderer->AddElement(guiText);
 
 	SGuiTextElement score;
@@ -33,16 +33,16 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
-    auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Crate/crate.obj");
+    auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Crate/crate.obj");
     auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -5));
     engine.renderers[0]->Subscribe(crate);
 
-    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "../Data/Meshes/Triss/Triss.obj");
+    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "Meshes/Triss/Triss.obj");
     player->dynamic = true;
     AddGameObject(player, glm::vec3(1,0,1));
     engine.renderers[0]->Subscribe(player);
 
-    auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "../Data/Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj");
+    auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj");
     auto small_house = AddGameObject(small_hause_obj, glm::vec3(15.f, 0.f, 35.f));
     engine.renderers[0]->Subscribe(small_house);
 
@@ -55,7 +55,7 @@ int MainScene::Initialize()
     {
         auto grass_position = CreateGrassPositions(terrain);
 
-        auto grass_obj = ObjectBuilder::CreateGrass(resourceManager, grass_position, "../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+        auto grass_obj = ObjectBuilder::CreateGrass(resourceManager, grass_position, "Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
         AddGameObject(grass_obj);
         engine.renderers[0]->Subscribe(grass_obj);
     }
@@ -114,12 +114,12 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 {
     return
     {
-        { Terrain::blendMap , "../Data/Textures/testBlendMap.png"},
-        { Terrain::backgorundTexture, "../Data/Textures/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
-        { Terrain::redTexture, "../Data/Textures/165.png",  },
-        { Terrain::greenTexture,"../Data/Textures/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        { Terrain::blueTexture, "../Data/Textures/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-        { Terrain::displacementMap, "../Data/Textures/heightmap.png" }
+        { Terrain::blendMap , "Textures/testBlendMap.png"},
+        { Terrain::backgorundTexture, "Textures/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
+        { Terrain::redTexture, "Textures/165.png",  },
+        { Terrain::greenTexture,"Textures/G3_Nature_Ground_Path_03_Diffuse_01.png"},
+        { Terrain::blueTexture, "Textures/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
+        { Terrain::displacementMap, "Textures/heightmap.png" }
     };
 }
 

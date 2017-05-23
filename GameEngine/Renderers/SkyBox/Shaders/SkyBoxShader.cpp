@@ -4,8 +4,8 @@
 void CSkyBoxShader::Init()
 {
     CreateProgram();
-    AddShader("../Shaders/SkyBox/SkyboxVertexShader.vert", GL_VERTEX_SHADER);
-    AddShader("../Shaders/SkyBox/SkyboxFragmentShader.frag", GL_FRAGMENT_SHADER);
+    AddShader("SkyBox/SkyboxVertexShader.vert", GL_VERTEX_SHADER);
+    AddShader("SkyBox/SkyboxFragmentShader.frag", GL_FRAGMENT_SHADER);
     FinalizeShader();
 
     m_Rotation = 0.f;

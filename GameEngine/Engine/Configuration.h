@@ -5,11 +5,14 @@
 class SConfiguration
 {
 public:
-	enum class RendererType
-	{
-		SIMPLE_RENDERER = 0,
-		FULL_RENDERER
-	};
+    enum class RendererType
+    {
+        SIMPLE_RENDERER = 0,
+        FULL_RENDERER
+    };
+
+    std::string dataFilesLocation = "../Data/";
+    std::string shadersFilesLocation = "../Shaders/";
 
 	static SConfiguration& Instance();
 
@@ -53,3 +56,5 @@ private:
 	SConfiguration() {}
 	SConfiguration(const SConfiguration &) {}
 };
+
+#define EngineConf SConfiguration::Instance()
