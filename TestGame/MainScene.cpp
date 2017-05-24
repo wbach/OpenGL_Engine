@@ -51,10 +51,18 @@ int MainScene::Initialize()
     engine.renderers[0]->Subscribe(small_house);
 
     auto terrain_textures = CreateTerrainTexturesMap();
-    AddTerrain(terrain_textures, glm::vec3(1.f));
-    AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, 1.f));
-    AddTerrain(terrain_textures, glm::vec3(-1.f, 1.f, -1.f));
-    AddTerrain(terrain_textures, glm::vec3(1.f, 1.f, -1.f));
+    
+  //  AddTerrain(terrain_textures, glm::vec3(1));
+
+    //in terrain.h
+    const float terrain_size = 200.f;
+    for(float y =-10*terrain_size; y <= 10*terrain_size; y+=terrain_size)
+        for(float x = -10*terrain_size; x <= 10*terrain_size; x+=terrain_size)
+        {
+            //if(x==0 || y==0) continue;
+            AddTerrain(terrain_textures, glm::vec3(x, 1.f, y));
+        }
+   
    // AddGrass();
 
     for (const auto& terrain : terrains)

@@ -4,6 +4,7 @@
 #include "../../../Engine/Projection.h"
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
 #include "../../../Utils/GLM/GLMUtils.h"
+#include "../../../Utils/EngineUitls.h"
 
 const float heightFactor = 25.f;
 
@@ -12,6 +13,7 @@ CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * project
     , projectionMatrix(projection_matrix)
     , clipPlane(glm::vec4(0, 1, 0, 100000))
 {
+    AllocateTerrainsGrid();
 }
 
 void CTessellationTerrainRenderer::Init()
@@ -59,10 +61,11 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
     target->BindToDraw();
     shader.Start();
 
+    Log("Current terrains count to render : " + std::to_string(subscribes.size()) );
     for (auto& sub : subscribes)
-	{
+    {
         auto position = sub->worldTransform.GetPosition();
-        position *= glm::vec3(100, 1, 100);
+       // position *= glm::vec3(1, 1, 100);
         shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
 
 		BindTextures(sub);
@@ -86,16 +89,22 @@ void CTessellationTerrainRenderer::EndFrame(CScene * scene)
 
 void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
 {
-	auto terrain = dynamic_cast<STerrain*>(gameObject);
-	if (terrain != nullptr)
-        subscribes.push_back(terrain);
+    auto terrain = dynamic_cast<TerrainPtr>(gameObject);
+    if (terrain == nullptr)
+        return;
+
+    auto position_in_grid = Utils::CalculatePlaceInGird(terrain->worldTransform.GetPosition(), TERRAIN_SIZE);
+
+
+
+    subscribes.push_back(terrain);
 }
 
 void CTessellationTerrainRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
 {
 }
 
-void CTessellationTerrainRenderer::BindTextures(STerrain * terrain) const
+void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
 {
 	int i = 0;
     for (auto& t : terrain->textures)
@@ -106,5 +115,32 @@ void CTessellationTerrainRenderer::BindTextures(STerrain * terrain) const
 			glBindTexture(GL_TEXTURE_2D, t->GetId());
 		}
 		i++;
-	}
+    }
+}
+
+TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const glm::vec3& position, float range) const
+{
+//    TerrainPtrs terrain_list;
+
+
+
+
+}
+
+void CTessellationTerrainRenderer::AllocateTerrainsGrid()
+{
+    subscribes.resize(gridSize * gridSize);
+}
+
+void CTessellationTerrainRenderer::AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i &pos)
+{
+    int index = pos.x + gridSize*pos.y;
+
+    if(index > subscribes.size())
+    {
+        ++gridSize;
+        AllocateTerrainsGrid();
+    }
+
+    subscribes[index] = terrain;
 }

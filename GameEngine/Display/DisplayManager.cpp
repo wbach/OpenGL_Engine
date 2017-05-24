@@ -70,6 +70,7 @@ void CDisplayManager::CalculateFPS()
         fps = frameCount / (time_interval);
         previousTime = currentTime;
         frameCount = 0;
+        Log("Fps : " + std::to_string(fps));
 	}
 }
 

@@ -1,10 +1,10 @@
 #pragma once
-#include <memory>
 #include "Types.h"
-
-class CTexture;
+#include <glm/glm.hpp>
+#include <memory>
 
 namespace Utils
 {
-	void BindTexure(std::weak_ptr<CTexture> texture, uint id);
+    wb::vec2i CalculatePlaceInGird(const glm::vec2& position, float gridSize);
+    wb::vec2i CalculatePlaceInGird(const glm::vec3& position, float gridSize);
 }

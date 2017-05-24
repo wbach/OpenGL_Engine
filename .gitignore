@@ -3,6 +3,7 @@ bin/
 Tools/
 Intermediate/
 Logs/
+GameEngineCM/output/
 
 *.zip
 

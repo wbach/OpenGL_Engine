@@ -1,11 +1,15 @@
 #pragma once
-#include "../../Renderer.h"
 #include "Shaders/TesselationTerrainShader.h"
-#include <list>
+#include "../../Renderer.h"
+#include "../../../Utils/Types.h"
+#include <vector>
 
 class CModel;
 struct STerrain;
 class CProjection;
+
+typedef STerrain* TerrainPtr;
+typedef std::vector<TerrainPtr> TerrainPtrs;
 
 class CTessellationTerrainRenderer : public CRenderer
 {
@@ -19,7 +23,10 @@ public:
 	virtual void Subscribe(CGameObject* gameObject) override;
 	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
 private:
-	void BindTextures(STerrain* terrain) const;
+    void BindTextures(TerrainPtr terrain) const;
+    TerrainPtrs GetTerrainsInRange(const glm::vec3& position, float range) const;
+    void AllocateTerrainsGrid();
+    void AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i& pos);
 
 private:
     CTesselationTerrainShader  shader;
@@ -27,5 +34,6 @@ private:
 
     glm::vec4	clipPlane;
 
-    std::list<STerrain*> subscribes;
+    uint gridSize = 10;
+    TerrainPtrs subscribes;
 };
