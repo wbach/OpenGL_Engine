@@ -4,6 +4,7 @@
 #include "../../../Engine/Projection.h"
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
 #include "../../../Utils/GLM/GLMUtils.h"
+#include "../../../Utils/OpenGL/OpenGLUtils.h"
 
 const float heightFactor = 25.f;
 
@@ -33,11 +34,6 @@ void CTerrainRenderer::Init()
 
 void CTerrainRenderer::PrepareFrame(CScene * scene)
 {
-    for (auto& sub : subscribes)
-	{
-        sub->quad.Init();
-	}	
-
     shader.Start();
     shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));

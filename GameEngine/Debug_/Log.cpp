@@ -60,7 +60,7 @@ void CLogger::CreateLogFile()
 
 	std::stringstream ss;
 	ss << in_time_t;
-    fileName = "Logs/Logs" + ss.str() + ".txt";
+    fileName = "Logs/Logs.txt";
     std::ofstream file(fileName);
 	file.close();
 }

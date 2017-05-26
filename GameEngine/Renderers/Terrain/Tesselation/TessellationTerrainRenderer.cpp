@@ -5,6 +5,7 @@
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
 #include "../../../Utils/GLM/GLMUtils.h"
 #include "../../../Utils/EngineUitls.h"
+#include "../../../Utils/OpenGL/OpenGLUtils.h"
 
 const float heightFactor = 25.f;
 
@@ -34,12 +35,7 @@ void CTessellationTerrainRenderer::Init()
 }
 
 void CTessellationTerrainRenderer::PrepareFrame(CScene * scene)
-{
-    for (auto& sub : subscribes)
-	{
-        sub->quad.Init();
-	}	
-
+{ 
     shader.Start();
     shader.Load(CTesselationTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));
@@ -61,9 +57,13 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
     target->BindToDraw();
     shader.Start();
 
-    Log("Current terrains count to render : " + std::to_string(subscribes.size()) );
-    for (auto& sub : subscribes)
+	auto subscribes_in_range = GetTerrainsInRange(scene->GetCamera()->GetPosition(), 2);
+
+    Log("Current terrains count to render : " + std::to_string(subscribes_in_range.size()) );
+    for (auto& sub : subscribes_in_range)
     {
+		if (sub == nullptr) continue;
+
         auto position = sub->worldTransform.GetPosition();
        // position *= glm::vec3(1, 1, 100);
         shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
@@ -94,10 +94,12 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
         return;
 
     auto position_in_grid = Utils::CalculatePlaceInGird(terrain->worldTransform.GetPosition(), TERRAIN_SIZE);
+	Log("Position : " + wb::to_string(position_in_grid));
+	auto index = Utils::Calcualte1DindexInArray(position_in_grid, gridSize);
+	Log("Index : " + std::to_string(index));
+	subscribes[index] = terrain;
 
-
-
-    subscribes.push_back(terrain);
+    //subscribes.push_back(terrain);
 }
 
 void CTessellationTerrainRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
@@ -118,13 +120,29 @@ void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
     }
 }
 
-TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const glm::vec3& position, float range) const
+TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const glm::vec3& position, int range) const
 {
-//    TerrainPtrs terrain_list;
+   TerrainPtrs terrain_list;
 
+	auto position_in_grid = Utils::CalculatePlaceInGird(position, TERRAIN_SIZE);
 
+	auto edge_min_max_y = Utils::CalcualeteEdgeMinMaxValueInGrid(position_in_grid.y, range, gridSize);
+	auto edge_min_max_x = Utils::CalcualeteEdgeMinMaxValueInGrid(position_in_grid.x, range, gridSize);
 
+	/*Log("Position " + Utils::ToString(position));
+	Log("Position in grid : " + wb::to_string(position_in_grid));
+	Log("Min x: " + wb::to_string(edge_min_max_x));
+	Log("Min y: " + wb::to_string(edge_min_max_y));*/
 
+   for(int y = edge_min_max_y.x; y <= edge_min_max_y.y; y++)
+	   for (int x = edge_min_max_x.x; x <= edge_min_max_x.y; x++)
+	   {
+		   auto index = Utils::Calcualte1DindexInArray(x, y, gridSize);
+		  // Log("I: " + std::to_string(index));
+		   terrain_list.push_back(subscribes[index]);
+	   }		   
+
+	return terrain_list;
 }
 
 void CTessellationTerrainRenderer::AllocateTerrainsGrid()
@@ -134,13 +152,12 @@ void CTessellationTerrainRenderer::AllocateTerrainsGrid()
 
 void CTessellationTerrainRenderer::AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i &pos)
 {
-    int index = pos.x + gridSize*pos.y;
+	int index = Utils::Calcualte1DindexInArray(pos, gridSize);
 
-    if(index > subscribes.size())
+    if(index > static_cast<int>(subscribes.size()))
     {
         ++gridSize;
         AllocateTerrainsGrid();
     }
-
-    subscribes[index] = terrain;
+ //   subscribes[index] = terrain;
 }

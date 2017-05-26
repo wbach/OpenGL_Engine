@@ -303,6 +303,7 @@
     <ClCompile Include="Utils\GLM\GLMUtils.cpp" />
     <ClCompile Include="Utils\OpenGL\OpenGLUtils.cpp" />
     <ClCompile Include="Utils\ParseUtils.cpp" />
+    <ClCompile Include="Utils\Types.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
     <ClCompile Include="Utils\XML\ParseMethods.cpp" />
     <ClCompile Include="Utils\XML\SceneReader.cpp" />

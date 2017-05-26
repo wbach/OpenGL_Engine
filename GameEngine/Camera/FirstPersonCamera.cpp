@@ -11,8 +11,7 @@ CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayMan
 , lookRotation(zero)
 , isFreeCamera(true)
 , mousevel(0.1f)
-, movevel(10.0f)
-
+, movevel(50.0f)
 {
 	pitch = 9;
 	yaw	= 100;
@@ -25,8 +24,7 @@ CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayMan
 , lookRotation(rotation_entity)
 , isFreeCamera(false)
 , mousevel(0.2f)
-, movevel(10.0f)
-
+, movevel(50.0f)
 {
 	pitch = 9.0f;
 	yaw	= 100.0f;

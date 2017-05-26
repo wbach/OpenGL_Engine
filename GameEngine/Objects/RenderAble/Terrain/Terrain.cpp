@@ -119,8 +119,3 @@ float STerrain::GetHeight(int x, int y) const
         return 0;
     return heights[x + y*heightMapResolution];
 }
-
-void STerrain::Render()
-{
-    quad.Render(GL_PATCHES);
-}

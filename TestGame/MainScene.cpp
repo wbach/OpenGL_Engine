@@ -56,8 +56,8 @@ int MainScene::Initialize()
 
     //in terrain.h
     const float terrain_size = 200.f;
-    for(float y =-10*terrain_size; y <= 10*terrain_size; y+=terrain_size)
-        for(float x = -10*terrain_size; x <= 10*terrain_size; x+=terrain_size)
+    for(float y = 0; y < 20*terrain_size; y+=terrain_size)
+        for(float x = 0; x < 20*terrain_size; x+=terrain_size)
         {
             //if(x==0 || y==0) continue;
             AddTerrain(terrain_textures, glm::vec3(x, 1.f, y));

@@ -1,7 +1,7 @@
 #pragma once
 #include "TerrainTexturesTypes.h"
 #include "../../GameObject.h"
-#include "../../../Resources/SimpleModels/Quad.h"
+#include <vector>
 
 class CTexture;
 class CModel;
@@ -11,10 +11,10 @@ static const float TERRAIN_SIZE = 200.f;
 
 struct TerrainTextures
 {
-    CTexture* blendMap			= nullptr;
-    CTexture* backgorundTexture	= nullptr;
+    CTexture* blendMap				= nullptr;
+    CTexture* backgorundTexture		= nullptr;
     CTexture* redTexture			= nullptr;
-    CTexture* greenTexture		= nullptr;
+    CTexture* greenTexture			= nullptr;
     CTexture* blueTexture			= nullptr;
     CTexture* displacementMap		= nullptr;
 };
@@ -36,8 +36,6 @@ struct STerrain : public CGameObject
 
     void SetTexture(CTexture* texture, Terrain::TexturesTypes type);
 
-	void Render();
-
 	//HeightMap
     int heightMapResolution;
 
@@ -45,6 +43,5 @@ struct STerrain : public CGameObject
 
     CTexture* textures[Terrain::TexturesTypes::count];
     CModel* model = nullptr;
-    SSimpleQuad quad;
     float dispFactor;
 };

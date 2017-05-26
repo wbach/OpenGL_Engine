@@ -3,6 +3,8 @@
 #define M_PI    3.14159265358979323846264338327950288   /* pi */
 #endif
 
+#include <string>
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
@@ -16,6 +18,7 @@ namespace wb
 		int x;
 		int y;
 	};
+
 	struct vec3i
 	{
 		int x;
@@ -31,4 +34,7 @@ namespace wb
 			return x != v.x || y != v.y || z != v.z;
 		};
 	};
+
+	std::string to_string(const vec2i& v);
+	std::string to_string(const vec3i& v);
 }

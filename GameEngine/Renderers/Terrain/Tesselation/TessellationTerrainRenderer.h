@@ -24,7 +24,7 @@ public:
 	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
 private:
     void BindTextures(TerrainPtr terrain) const;
-    TerrainPtrs GetTerrainsInRange(const glm::vec3& position, float range) const;
+    TerrainPtrs GetTerrainsInRange(const glm::vec3& position, int range) const;
     void AllocateTerrainsGrid();
     void AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i& pos);
 
@@ -34,6 +34,6 @@ private:
 
     glm::vec4	clipPlane;
 
-    uint gridSize = 10;
+    uint gridSize = 20;
     TerrainPtrs subscribes;
 };
