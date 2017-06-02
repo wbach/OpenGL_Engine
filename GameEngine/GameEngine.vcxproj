@@ -205,7 +205,7 @@
     <ClInclude Include="Resources\Models\Material.h" />
     <ClInclude Include="Resources\Models\Mesh.h" />
     <ClInclude Include="Resources\Models\Model.h" />
-    <ClInclude Include="Resources\Models\MyOBJ\MyModel.h" />
+    <ClInclude Include="Resources\Models\WBLoader\MyModel.h" />
     <ClInclude Include="Resources\OpenGLLoader.h" />
     <ClInclude Include="Resources\OpenGLObject.h" />
     <ClInclude Include="Resources\ResourceManager.h" />
@@ -283,7 +283,7 @@
     <ClCompile Include="Resources\Models\Assimp\AssimpModel.cpp" />
     <ClCompile Include="Resources\Models\Mesh.cpp" />
     <ClCompile Include="Resources\Models\Model.cpp" />
-    <ClCompile Include="Resources\Models\MyOBJ\MyModel.cpp" />
+    <ClCompile Include="Resources\Models\WBLoader\MyModel.cpp" />
     <ClCompile Include="Resources\OpenGLLoader.cpp" />
     <ClCompile Include="Resources\ResourceManager.cpp" />
     <ClCompile Include="Resources\TextureLoader.cpp" />
