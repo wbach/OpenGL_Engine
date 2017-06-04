@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <list>
 
 namespace Utils
 {
@@ -38,7 +39,9 @@ namespace Utils
 	}
 	std::vector<std::string> SplitString(const std::string& s, char split_char);
 	std::string ReadFile(const std::string& file_name);
+	std::list<std::string> ReadFileLines(const std::string& file_name);
 	void GetFileAndPath(const std::string& full, std::string& filename, std::string& path);
+	std::string GetFileExtension(const std::string& file_name);
 	std::string ConvertToRelativePath(std::string path);	
 	int NextP2(int a);
 	bool CheckFileExist(const std::string& file);

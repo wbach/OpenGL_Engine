@@ -26,16 +26,16 @@ void CModel::OpenGLLoadingPass()
 
 CMesh * CModel::AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<unsigned short>& indices,  const std::vector<SVertexBoneData>& bones)
 {
-
-	/*std::ofstream f("tangents.txt");
-	for (auto& i : tangents)
-	{
-		f << i << "\n";
-	}
-	f.close();*/
     //CMesh mesh(positions, text_coords, normals, tangents, indices, material, bones);
 	// Normalize to define scale (height) 1 unit = 1 metr
     meshes.emplace_back(material, positions, text_coords, normals, tangents, indices, bones);
+	CalculateBoudnigBox();
+	return &meshes.back();
+}
+
+CMesh * CModel::AddMesh(CMesh& mesh)
+{
+	meshes.push_back(std::move(mesh));
 	CalculateBoudnigBox();
 	return &meshes.back();
 }

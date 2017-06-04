@@ -58,9 +58,11 @@ public:
 
 private:
     SMaterial material;
+
     uint vao;
     uint vbos[VertexBufferObjects::COUNT];
 	uint vertexCount;
+
 	//used attributes
     std::vector<uint> attributes;
 
@@ -68,6 +70,7 @@ private:
     std::vector<float> textCoords;
     std::vector<float> normals;
     std::vector<float> tangents;
+	std::vector<float> bitangents;
     std::vector<unsigned short> indices;
     std::vector<SVertexBoneData> bones;
     std::vector<glm::mat4> instancedMatrixes;

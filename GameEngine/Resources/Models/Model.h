@@ -21,6 +21,7 @@ public:
 	void OpenGLLoadingPass();
 	CMesh* AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords = std::vector<float>(), const std::vector<float>& normals = std::vector<float>(), const std::vector<float>& tangents = std::vector<float>(),
 		const std::vector<unsigned short>& indices = std::vector<unsigned short>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
+	CMesh* AddMesh(CMesh& mesh);
     const std::list<CMesh>& GetMeshes() const {return meshes;	}
 	void SetMaterial(const SMaterial& material, uint mesh = 0);
 	glm::vec3 GetNormalizedScaleVector(float x, float y, float z) const;

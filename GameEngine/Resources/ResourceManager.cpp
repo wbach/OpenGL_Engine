@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 #include "Models/Assimp/AssimpModel.h"
-#include "Models/MyOBJ/MyModel.h"
+#include "Models/WBLoader/MyModel.h"
 
 CResourceManager::CResourceManager()
     :  textureLoader(textures, openGlLoader)

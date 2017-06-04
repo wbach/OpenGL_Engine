@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GwintServer", "GwintServer\
 		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngineTests", "GameEngineTests\GameEngineTests.vcxproj", "{2BE6755D-3432-439E-B1A0-D39125B16AB9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -60,6 +62,14 @@ Global
 		{D23B021D-1E19-47CC-B2E2-2541F678F2F4}.Release|x64.Build.0 = Release|x64
 		{D23B021D-1E19-47CC-B2E2-2541F678F2F4}.Release|x86.ActiveCfg = Release|Win32
 		{D23B021D-1E19-47CC-B2E2-2541F678F2F4}.Release|x86.Build.0 = Release|Win32
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Debug|x64.ActiveCfg = Debug|x64
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Debug|x64.Build.0 = Debug|x64
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Debug|x86.ActiveCfg = Debug|Win32
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Debug|x86.Build.0 = Debug|Win32
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Release|x64.ActiveCfg = Release|x64
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Release|x64.Build.0 = Release|x64
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Release|x86.ActiveCfg = Release|Win32
+		{2BE6755D-3432-439E-B1A0-D39125B16AB9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

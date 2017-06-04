@@ -39,12 +39,44 @@ std::string Utils::ReadFile(const std::string & file_name)
 	return out;
 }
 
+std::list<std::string> Utils::ReadFileLines(const std::string & file_name)
+{
+	std::list<std::string> output;
+	std::ifstream f(file_name);
+	if (!f.is_open())
+	{
+		Error("Cannot open file : " + file_name);
+		return output;
+	}
+
+	std::string line;
+
+	while (std::getline(f, line))
+		output.push_back(line);
+
+	f.close();
+	return output;
+}
+
 void Utils::GetFileAndPath(const std::string & full, std::string & filename, std::string & path)
 {
 	auto file = full;
 	std::replace(file.begin(), file.end(), '\\', '/');
 	path = file.substr(0, file.find_last_of('/'));
 	filename = file.substr(file.find_last_of('/') + 1);
+}
+
+std::string Utils::GetFileExtension(const std::string & file_name)
+{
+	if (file_name.empty())
+		return{};
+
+	auto pos = file_name.find_last_of('.') + 1;
+
+	if (pos >= file_name.size())
+		return{};
+
+	return file_name.substr(pos);
 }
 
 std::string Utils::ConvertToRelativePath(std::string path)
