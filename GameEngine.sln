@@ -21,6 +21,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GwintServer", "GwintServer\
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngineTests", "GameEngineTests\GameEngineTests.vcxproj", "{2BE6755D-3432-439E-B1A0-D39125B16AB9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
