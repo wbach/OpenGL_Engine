@@ -4,6 +4,7 @@ Tools/
 Intermediate/
 Logs/
 GameEngineCM/output/
+Data
 
 *.zip
 
