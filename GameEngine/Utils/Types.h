@@ -5,8 +5,12 @@
 
 #include <string>
 
-typedef unsigned int uint;
 typedef unsigned char uchar;
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
+
+typedef int int32;
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
@@ -15,15 +19,15 @@ namespace wb
 {
 	struct vec2i
 	{
-		int x;
-		int y;
+		int32 x;
+		int32 y;
 	};
 
 	struct vec3i
 	{
-		int x;
-		int y;
-		int z;
+		int32 x;
+		int32 y;
+		int32 z;
 
 		bool operator==(const vec3i& v) const
 		{

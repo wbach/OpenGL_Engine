@@ -45,12 +45,12 @@ int Utils::CreateVao()
 	return vao_id;
 }
 
-GLuint Utils::BindIndicesBuffer(const std::vector<unsigned short>& indices)
+GLuint Utils::BindIndicesBuffer(const std::vector<uint16>& indices)
 {
 	GLuint vbo_id;
 	glGenBuffers(1, &vbo_id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_id);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), &indices[0], GL_STATIC_DRAW);
 	return vbo_id;
 }
 
@@ -65,14 +65,14 @@ GLuint Utils::StoreDataInAttributesList(const int & attributeNumber, const int &
 	return vbo_id;
 }
 
-void Utils::EnableVao(uint vao, const std::vector<uint>& attributes)
+void Utils::EnableVao(uint32 vao, const std::vector<uint32>& attributes)
 {
 	glBindVertexArray(vao);
 	for (const auto& i : attributes)
 		glEnableVertexAttribArray(i);
 }
 
-void Utils::DisableVao(const std::vector<uint>& attributes)
+void Utils::DisableVao(const std::vector<uint32>& attributes)
 {
 	for (const auto& i : attributes)
 		glDisableVertexAttribArray(i);
@@ -121,7 +121,7 @@ void Utils::CreateQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, 
 		0, 1,
 		1, 1,
 		1, 0 };
-	std::vector<unsigned short> indices = { 0, 1, 3, 3, 1, 2 };
+	std::vector<uint16> indices = { 0, 1, 3, 3, 1, 2 };
 	indices_size = indices.size();
 	vao = CreateVao();
 	vbo_indices = BindIndicesBuffer(indices);

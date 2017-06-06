@@ -12,7 +12,7 @@ public:
 	void LoadProjectionMatrix(const glm::mat4& matrix) const;
 	void LoadViewMatrix(const glm::mat4& matrix) const;
 	void LoadUseBonesTransformation(const float& is) const;
-	void LoadBoneTransform(const glm::mat4& transform, uint id) const;
+	void LoadBoneTransform(const glm::mat4& transform, uint32 id) const;
 	void LoadUseInstancedRendering(const float& use) const;
 
 protected:

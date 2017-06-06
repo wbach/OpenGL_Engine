@@ -5,7 +5,7 @@
 struct SImage
 {
     GLubyte* data = nullptr;
-    uint width = 0, height = 0;
+    uint32 width = 0, height = 0;
 
 	~SImage()
 	{

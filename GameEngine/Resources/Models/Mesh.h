@@ -25,7 +25,7 @@ class CMesh : public COpenGLObject
 public:
 	CMesh();
 	CMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords = std::vector<float>(), const std::vector<float>& normals = std::vector<float>(), const std::vector<float>& tangents = std::vector<float>(),
-		const std::vector<unsigned short>& indices = std::vector<unsigned short>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
+		const std::vector<uint16>& indices = std::vector<uint16>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
 	CMesh(const CMesh&) = delete;
 	CMesh(CMesh&&) = default;
 
@@ -46,11 +46,11 @@ public:
 	const glm::vec3& GetBoundingMax();
 	const glm::vec3& GetBoundingCenter();
 
-    const uint& GetVao() const;
-	const uint& GetVbo(VertexBufferObjects::Type type) const;
-	const uint& GetVertexCount() const;
+    const uint32& GetVao() const;
+	const uint32& GetVbo(VertexBufferObjects::Type type) const;
+	const uint32& GetVertexCount() const;
 	const SMaterial& GetMaterial() const;
-    const std::vector<uint>& GetUsedAttributes() const { return attributes; }
+    const std::vector<uint32>& GetUsedAttributes() const { return attributes; }
 
     void SetMaterial(const SMaterial& material);
 
@@ -59,19 +59,19 @@ public:
 private:
     SMaterial material;
 
-    uint vao;
-    uint vbos[VertexBufferObjects::COUNT];
-	uint vertexCount;
+    uint32 vao;
+    uint32 vbos[VertexBufferObjects::COUNT];
+	uint32 vertexCount;
 
 	//used attributes
-    std::vector<uint> attributes;
+    std::vector<uint32> attributes;
 
     std::vector<float> positions;
     std::vector<float> textCoords;
     std::vector<float> normals;
     std::vector<float> tangents;
 	std::vector<float> bitangents;
-    std::vector<unsigned short> indices;
+    std::vector<uint16> indices;
     std::vector<SVertexBoneData> bones;
     std::vector<glm::mat4> instancedMatrixes;
 

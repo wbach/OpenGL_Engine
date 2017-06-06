@@ -23,7 +23,7 @@ void CAssimModel::InitModel(const std::string& file_name)
 		throw std::runtime_error(error.c_str());
 	}
 
-	uint flags =
+	uint32 flags =
 		aiProcess_Triangulate | aiProcess_CalcTangentSpace
 		| aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices
 		| aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
@@ -52,7 +52,7 @@ void CAssimModel::InitModel(const std::string& file_name)
 	CModel::InitModel(file_name);
 }
 
-void CAssimModel::ReadCollisions(std::string file_name, std::vector<float>& postions, std::vector<float>& normals, std::vector<uint>& indices)
+void CAssimModel::ReadCollisions(std::string file_name, std::vector<float>& postions, std::vector<float>& normals, std::vector<uint32>& indices)
 {
 	if (!Utils::CheckFileExist(file_name))
 	{
@@ -62,7 +62,7 @@ void CAssimModel::ReadCollisions(std::string file_name, std::vector<float>& post
 	}
 
 	//Assimp::Importer importer;
-	uint flags = aiProcess_Triangulate;
+	uint32 flags = aiProcess_Triangulate;
 
 	const aiScene *scene = aiImportFile(file_name.c_str(), flags);
 	if (scene)
@@ -94,14 +94,14 @@ CAssimModel::~CAssimModel()
 	}
     Log("Destructor assimp model : " + filename);
 }
-void CAssimModel::RecursiveProcess(const aiScene *scene, aiNode * node, std::vector<float>& postions, std::vector<float>& normals, std::vector<uint>& indices)
+void CAssimModel::RecursiveProcess(const aiScene *scene, aiNode * node, std::vector<float>& postions, std::vector<float>& normals, std::vector<uint32>& indices)
 {
 	//proces
-	for (uint i = 0; i<node->mNumMeshes; i++)
+	for (uint32 i = 0; i<node->mNumMeshes; i++)
 	{
 		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
 
-		for (uint i = 0; i< mesh->mNumVertices; i++)
+		for (uint32 i = 0; i< mesh->mNumVertices; i++)
 		{
 			postions.push_back(mesh->mVertices[i].x);
 			postions.push_back(mesh->mVertices[i].y);
@@ -113,17 +113,17 @@ void CAssimModel::RecursiveProcess(const aiScene *scene, aiNode * node, std::vec
 		}
 
 		int offset = indices.size();
-		for (unsigned short i = 0; i<mesh->mNumFaces; i++)
+		for (uint16 i = 0; i<mesh->mNumFaces; i++)
 		{
 			aiFace face = mesh->mFaces[i];
-			for (unsigned short j = 0; j<face.mNumIndices; j++)
+			for (uint16 j = 0; j<face.mNumIndices; j++)
 			{
 				indices.push_back(face.mIndices[j] + offset);
 			}
 		}
 	}
 	//r
-	for (uint i = 0; i <node->mNumChildren; i++)
+	for (uint32 i = 0; i <node->mNumChildren; i++)
 	{
 		RecursiveProcess(scene, node->mChildren[i], postions, normals, indices);
 	}
@@ -134,7 +134,7 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 	std::vector<float> text_coords;
 	std::vector<float> normals;
 	std::vector<float> tangents;
-	std::vector<unsigned short> indices;
+	std::vector<uint16> indices;
 
 	bonesInfo.push_back(SBonesInfo());
 	SBonesInfo& bones_info = bonesInfo.back();
@@ -160,7 +160,7 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 	glm::vec3 defaultSpec(spec.r, spec.g, spec.b);
 	glm::vec3 defaultAmb(amb.r, amb.g, amb.b);
 
-	for (uint i = 0; i< mesh->mNumVertices; i++)
+	for (uint32 i = 0; i< mesh->mNumVertices; i++)
 	{
 
 		postions.push_back(mesh->mVertices[i].x);
@@ -206,20 +206,20 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 		}
 	}
 
-	for (unsigned short i = 0; i<mesh->mNumFaces; i++)
+	for (uint16 i = 0; i<mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
-		for (unsigned short j = 0; j<face.mNumIndices; j++)
+		for (uint16 j = 0; j<face.mNumIndices; j++)
 		{
-			indices.push_back(static_cast<unsigned short>(face.mIndices[j]));
+			indices.push_back(static_cast<uint16>(face.mIndices[j]));
 		}
 	}
 	if (mesh->mNumBones < 1)
 		bones_info.bones.clear();
 
-	for (uint i = 0; i < mesh->mNumBones; i++)
+	for (uint32 i = 0; i < mesh->mNumBones; i++)
 	{
-		uint BoneIndex = 0;
+		uint32 BoneIndex = 0;
 		std::string BoneName(mesh->mBones[i]->mName.data);
 		//cout << BoneName << endl;
 		if (bones_info.boneMapping.find(BoneName) == bones_info.boneMapping.end())
@@ -237,9 +237,9 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 			BoneIndex = bones_info.boneMapping[BoneName];
 		}
 
-		for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+		for (uint32 j = 0; j < mesh->mBones[i]->mNumWeights; j++)
 		{
-			uint vertexid = mesh->mBones[i]->mWeights[j].mVertexId;
+			uint32 vertexid = mesh->mBones[i]->mWeights[j].mVertexId;
 			float weight = mesh->mBones[i]->mWeights[j].mWeight;
 			bones_info.bones[vertexid].AddBoneData(BoneIndex, weight);
 		}
@@ -258,7 +258,7 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 	material.shineDamper = shine_damper;
 	material.reflectivity = reflectivity;
 
-	for (uint i = 0; i <mat->GetTextureCount(aiTextureType_DIFFUSE); i++)
+	for (uint32 i = 0; i <mat->GetTextureCount(aiTextureType_DIFFUSE); i++)
 	{
 		aiString str;
 		mat->GetTexture(aiTextureType_DIFFUSE, i, &str);
@@ -277,7 +277,7 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 		}
 
 	}
-	for (uint i = 0; i <mat->GetTextureCount(aiTextureType_HEIGHT); i++)
+	for (uint32 i = 0; i <mat->GetTextureCount(aiTextureType_HEIGHT); i++)
 	{
 		aiString str;
 		mat->GetTexture(aiTextureType_HEIGHT, i, &str);
@@ -298,7 +298,7 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 void CAssimModel::RecursiveProcess(std::string file_path, aiNode *node, const aiScene *scene)
 {
 	//proces
-	for (uint i = 0; i<node->mNumMeshes; i++)
+	for (uint32 i = 0; i<node->mNumMeshes; i++)
 	{
 		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
 		try
@@ -311,7 +311,7 @@ void CAssimModel::RecursiveProcess(std::string file_path, aiNode *node, const ai
 		}
 	}
 	//r
-	for (uint i = 0; i <node->mNumChildren; i++)
+	for (uint32 i = 0; i <node->mNumChildren; i++)
 	{
 		RecursiveProcess(file_path, node->mChildren[i], scene);
 	}
@@ -351,9 +351,9 @@ void CAssimModel::Update(float delta_time)
 	}
 }
 
-const std::vector<glm::mat4>* CAssimModel::GetBonesTransforms(uint mesh_id) { return  &boneTransformMatrixes[mesh_id]; }
+const std::vector<glm::mat4>* CAssimModel::GetBonesTransforms(uint32 mesh_id) { return  &boneTransformMatrixes[mesh_id]; }
 
-void CAssimModel::BoneTransform(uint num_bones, std::vector<SBoneInfo>& bone_info, std::map<std::string, uint>& bone_mapping, float TimeInSeconds, std::vector<glm::mat4>& Transforms)
+void CAssimModel::BoneTransform(uint32 num_bones, std::vector<SBoneInfo>& bone_info, std::map<std::string, uint32>& bone_mapping, float TimeInSeconds, std::vector<glm::mat4>& Transforms)
 {
 	glm::mat4 Identity(1.0f);
 
@@ -366,14 +366,14 @@ void CAssimModel::BoneTransform(uint num_bones, std::vector<SBoneInfo>& bone_inf
 
 	//	Transforms.resize(num_bones);
 
-	for (uint i = 0; i < num_bones; i++)
+	for (uint32 i = 0; i < num_bones; i++)
 	{
 		if (Transforms.size() < i + 1) Transforms.push_back(glm::mat4(1.f));
         Transforms[i] = bone_info[i].finalTransformation;
 	}
 }
 
-void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint>& bone_mapping, std::vector<SBoneInfo>& bone_info, float AnimationTime, const aiNode * pNode, const glm::mat4 & ParentTransform)
+void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint32>& bone_mapping, std::vector<SBoneInfo>& bone_info, float AnimationTime, const aiNode * pNode, const glm::mat4 & ParentTransform)
 {
 	std::string NodeName(pNode->mName.data);
 
@@ -410,12 +410,12 @@ void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint>& bone_mapping, s
 
 	if (bone_mapping.find(NodeName) != bone_mapping.end())
 	{
-		uint BoneIndex = bone_mapping[NodeName];
+		uint32 BoneIndex = bone_mapping[NodeName];
         bone_info[BoneIndex].finalTransformation = globalInverseTransform * GlobalTransformation *
             bone_info[BoneIndex].boneOffset;
 	}
 
-	for (uint i = 0; i < pNode->mNumChildren; i++)
+	for (uint32 i = 0; i < pNode->mNumChildren; i++)
 	{
 		ReadNodeHeirarchy(bone_mapping, bone_info, AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
@@ -428,7 +428,7 @@ void CAssimModel::CalcInterpolatedPosition(aiVector3D & Out, float AnimationTime
 		return;
 	}
 
-	uint PositionIndex = FindPosition(AnimationTime, pNodeAnim);
+	uint32 PositionIndex = FindPosition(AnimationTime, pNodeAnim);
 	unsigned NextPositionIndex = (PositionIndex + 1);
 	assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
 	float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
@@ -448,8 +448,8 @@ void CAssimModel::CalcInterpolatedRotation(aiQuaternion & Out, float AnimationTi
 		return;
 	}
 
-	uint RotationIndex = FindRotation(AnimationTime, pNodeAnim);
-	uint NextRotationIndex = (RotationIndex + 1);
+	uint32 RotationIndex = FindRotation(AnimationTime, pNodeAnim);
+	uint32 NextRotationIndex = (RotationIndex + 1);
 	assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
@@ -467,8 +467,8 @@ void CAssimModel::CalcInterpolatedScaling(aiVector3D & Out, float AnimationTime,
 		return;
 	}
 
-	uint ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
-	uint NextScalingIndex = (ScalingIndex + 1);
+	uint32 ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
+	uint32 NextScalingIndex = (ScalingIndex + 1);
 	assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
 	float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
@@ -481,7 +481,7 @@ void CAssimModel::CalcInterpolatedScaling(aiVector3D & Out, float AnimationTime,
 
 const aiNodeAnim * CAssimModel::FindNodeAnim(const aiAnimation * pAnimation, const std::string NodeName)
 {
-	for (uint i = 0; i < pAnimation->mNumChannels; i++)
+	for (uint32 i = 0; i < pAnimation->mNumChannels; i++)
 	{
 		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
 
@@ -493,9 +493,9 @@ const aiNodeAnim * CAssimModel::FindNodeAnim(const aiAnimation * pAnimation, con
 	return nullptr;
 }
 
-uint CAssimModel::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim)
+uint32 CAssimModel::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
-	for (uint i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++)
+	for (uint32 i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++)
 	{
 		if (AnimationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime)
 		{
@@ -506,10 +506,10 @@ uint CAssimModel::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim
 	return 0;
 }
 
-uint CAssimModel::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim)
+uint32 CAssimModel::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
 	assert(pNodeAnim->mNumRotationKeys > 0);
-	for (uint i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++)
+	for (uint32 i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++)
 	{
 		if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime)
 		{
@@ -521,11 +521,11 @@ uint CAssimModel::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim
 	return 0;
 }
 
-uint CAssimModel::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAnim)
+uint32 CAssimModel::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
 	assert(pNodeAnim->mNumScalingKeys > 0);
 
-	for (uint i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++)
+	for (uint32 i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++)
 	{
 		if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime)
 		{

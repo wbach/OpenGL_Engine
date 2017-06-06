@@ -10,12 +10,12 @@ CTransform::CTransform(const glm::vec3 & pos) : CTransform(pos, glm::vec3(0)) {}
 CTransform::CTransform(const glm::vec3 & pos, const glm::vec3 & rot) : CTransform(pos, rot, glm::vec3(1)) {}
 CTransform::CTransform(const glm::vec3 & pos, const glm::vec3 & rot, const glm::vec3 & scale) : position(pos), rotation(rot), scale(scale), matrix(Utils::CreateTransformationMatrix(pos, rot, scale)) {}
 
-void CTransform::IncrasePosition(float dx, float dy, float dz, uint index)
+void CTransform::IncrasePosition(float dx, float dy, float dz, uint32 index)
 {
 	IncrasePosition(glm::vec3(dx, dy, dz));
 }
 
-void CTransform::IncrasePosition(glm::vec3 v, uint index)
+void CTransform::IncrasePosition(glm::vec3 v, uint32 index)
 {
 	position += v;
 	UpdateMatrix();

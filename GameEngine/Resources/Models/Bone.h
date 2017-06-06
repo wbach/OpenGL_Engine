@@ -12,7 +12,7 @@ const int NUM_BONES_PER_VEREX = 4;
 
 struct SVertexBoneData
 {
-	uint ids[NUM_BONES_PER_VEREX];
+	uint32 ids[NUM_BONES_PER_VEREX];
 	float weights[NUM_BONES_PER_VEREX];
 
 	SVertexBoneData()
@@ -21,9 +21,9 @@ struct SVertexBoneData
 		memset(weights, 0, sizeof(weights));
 	}
 
-	void AddBoneData(uint bone_id, float weight)
+	void AddBoneData(uint32 bone_id, float weight)
 	{
-		for (uint i = 0; i < NUM_BONES_PER_VEREX; i++)
+		for (uint32 i = 0; i < NUM_BONES_PER_VEREX; i++)
 		{
 			if (abs(weights[i]) < FLT_MIN)
 			{
@@ -45,6 +45,6 @@ struct SBonesInfo
 {
     std::vector<SBoneInfo>		 boneInfo;
 	std::vector<SVertexBoneData> bones;
-    std::map<std::string, uint>  boneMapping; // maps a bone name to its index
-    uint numBones = 0;
+    std::map<std::string, uint32>  boneMapping; // maps a bone name to its index
+    uint32 numBones = 0;
 };

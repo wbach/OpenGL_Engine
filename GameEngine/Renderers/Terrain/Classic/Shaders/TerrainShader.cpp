@@ -2,7 +2,7 @@
 
 CTerrainShader::CTerrainShader()
 {
-	for (uint x = 0; x < UniformLocation::Count; x++)
+	for (uint32 x = 0; x < UniformLocation::Count; x++)
 		uniformLocations[x] = -1;
 }
 
@@ -47,7 +47,7 @@ void CTerrainShader::GetAllUniformLocations()
 	uniformLocations[UniformLocation::RockNormalTexture] = GetUniformLocation("RockTextureNormal");
 	uniformLocations[UniformLocation::DisplacementMap] = GetUniformLocation("gDisplacementMap");
 
-	for (uint x = 0; x < UniformLocation::Count; x++)
+	for (uint32 x = 0; x < UniformLocation::Count; x++)
 		if (uniformLocations[x] == -1)
 			Log("CTerrainShader::GetAllUniformLocations() : UniformLocation " + std::to_string(x) + " not set!" );
 }

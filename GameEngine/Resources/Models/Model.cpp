@@ -24,7 +24,7 @@ void CModel::OpenGLLoadingPass()
 		mesh.OpenGLLoadingPass();
 }
 
-CMesh * CModel::AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<unsigned short>& indices,  const std::vector<SVertexBoneData>& bones)
+CMesh * CModel::AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<uint16>& indices,  const std::vector<SVertexBoneData>& bones)
 {
     //CMesh mesh(positions, text_coords, normals, tangents, indices, material, bones);
 	// Normalize to define scale (height) 1 unit = 1 metr
@@ -40,7 +40,7 @@ CMesh * CModel::AddMesh(CMesh& mesh)
 	return &meshes.back();
 }
 
-void CModel::SetMaterial(const SMaterial & material, uint id)
+void CModel::SetMaterial(const SMaterial & material, uint32 id)
 {
 	if (id == 0)
 	{
@@ -51,7 +51,7 @@ void CModel::SetMaterial(const SMaterial & material, uint id)
 	}
 	else
 	{
-        uint x = 0;
+        uint32 x = 0;
 		for (auto& mesh : meshes)
 		{
 			if (x == id)

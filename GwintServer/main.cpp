@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[])
 {
-	srand((uint)time(NULL));
+	srand((uint32)time(NULL));
 	GameServer game_server;
 	/*
 	std::ofstream ofile("example_msg.xml");

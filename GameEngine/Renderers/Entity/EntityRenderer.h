@@ -20,7 +20,7 @@ public:
 	
 private:
 	wb::vec2i CalcualteCoorditantes(const glm::vec3& v) const;
-	const std::list<CEntity*>& GetEntity(uint x, uint y) const;
+	const std::list<CEntity*>& GetEntity(uint32 x, uint32 y) const;
 	void BindMaterial(const SMaterial& material) const;
 	void UnBindMaterial(const SMaterial& material) const;
 
@@ -33,6 +33,6 @@ private:
 	std::list<CEntity*> dynamicSubscribes;
     std::vector<std::list<CEntity*>> subscribes;
 
-	const uint gridSize = 1000;
-	const uint gridCellSize = 25;
+	const uint32 gridSize = 1000;
+	const uint32 gridCellSize = 25;
 };

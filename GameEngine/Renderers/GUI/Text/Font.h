@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include "../../../Utils/Utils.h"
 
-static const uint m_MaxCharacters = 128;
+static const uint32 m_MaxCharacters = 128;
 
 struct SCharacter
 {

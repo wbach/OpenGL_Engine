@@ -4,5 +4,5 @@
 struct SwapCardMessage
 {
 	// card number in hand
-	uint card;
+	uint32 card;
 };

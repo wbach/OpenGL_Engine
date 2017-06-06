@@ -40,7 +40,7 @@ const GLuint & CFrameBuffer::GetDepthTexture()
     return depthTexture;
 }
 
-const GLuint & CFrameBuffer::GetTexture(const uint & id)
+const GLuint & CFrameBuffer::GetTexture(const uint32 & id)
 {
     if (id > textures.size())
 		return Utils::s_GLuint_zero;

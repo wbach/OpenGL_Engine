@@ -10,9 +10,9 @@
 #include <memory>
 
 //Object in scene are in grid (one grid size)
-const uint OBJECT_GRID_SIZE = 500;
+const uint32 OBJECT_GRID_SIZE = 500;
 // const int grid count y in worlds
-const uint OBJECT_GRID_COUNT = 100;
+const uint32 OBJECT_GRID_COUNT = 100;
 
 class CScene
 {
@@ -46,7 +46,7 @@ public:
     float GetGlobalTime() { return gloabalTime; }
 
 public:
-    uint objectCount;
+    uint32 objectCount;
 
 protected:
 	//Minimum one light on scene only (night - decrease strength)

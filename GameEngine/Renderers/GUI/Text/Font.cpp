@@ -114,7 +114,7 @@ void CFont::Print(const int& x, const int& y, const std::string& fmt) const
 	float modelview_matrix[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix);
 
-	for (uint i = 0; i<lines.size(); i++)
+	for (uint32 i = 0; i<lines.size(); i++)
 	{
 		glPushMatrix();
 		glLoadIdentity();
@@ -156,8 +156,8 @@ void CFont::CreateList(FT_Face face, char ch)
 	//Use our helper function to get the widths of
 	//the bitmap data that we will need in order to create
 	//our texture.
-    uint width = Utils::NextP2(bitmap.width);
-    uint height = Utils::NextP2(bitmap.rows);
+    uint32 width = Utils::NextP2(bitmap.width);
+    uint32 height = Utils::NextP2(bitmap.rows);
 
 	//Allocate memory for the texture data.
 	GLubyte* expanded_data = new GLubyte[2 * width * height];
@@ -170,12 +170,12 @@ void CFont::CreateList(FT_Face face, char ch)
 	//We use the ?: operator so that value which we use
 	//will be 0 if we are in the padding zone, and whatever
 	//is the the Freetype bitmap otherwise.
-    for (uint j = 0; j <height; j++)
+    for (uint32 j = 0; j <height; j++)
 	{
-        for (uint i = 0; i < width; i++)
+        for (uint32 i = 0; i < width; i++)
 		{
 			expanded_data[2 * (i + j*width)] = expanded_data[2 * (i + j*width) + 1] =
-				(i >= (uint)bitmap.width || j >= (uint)bitmap.rows) ?
+				(i >= (uint32)bitmap.width || j >= (uint32)bitmap.rows) ?
 				0 : bitmap.buffer[i + bitmap.width*j];
 		}
 	}

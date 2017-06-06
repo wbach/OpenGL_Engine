@@ -89,7 +89,7 @@ void STerrain::LoadHeight(const SImage &height_map)
 	InitHeights(w, h);
 	
 	//bgr2rgb
-	for (uint j = 0; j<w*h; j++)
+	for (uint32 j = 0; j<w*h; j++)
 	{
         float r = static_cast<float>(height_map.data[j * 4 + 0]);
         //float g = static_cast<float>(height_map.m_Data[j *4 + 1]);

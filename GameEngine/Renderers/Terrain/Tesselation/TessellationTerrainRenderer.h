@@ -34,6 +34,6 @@ private:
 
     glm::vec4	clipPlane;
 
-    uint gridSize = 20;
+    uint32 gridSize = 20;
     TerrainPtrs subscribes;
 };

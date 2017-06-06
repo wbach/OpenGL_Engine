@@ -6,8 +6,8 @@
 #include <atomic>
 #include <list>
 
-const unsigned short PORT = 1234; // The port we are connecting to
-const unsigned short BUFFER_SIZE = 512;  // Size of our message buffer (i.e. maximum length of characters in a message)
+const uint16 PORT = 1234; // The port we are connecting to
+const uint16 BUFFER_SIZE = 512;  // Size of our message buffer (i.e. maximum length of characters in a message)
 
 class SDLClientGetway
 {

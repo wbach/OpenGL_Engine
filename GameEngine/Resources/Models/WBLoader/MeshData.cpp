@@ -13,7 +13,7 @@ namespace WBLoader
 			return -1;
 	}
 
-	int FindIndexFast(std::map<wb::vec3i, unsigned short>& vertexes, const wb::vec3i & v)
+	int FindIndexFast(std::map<wb::vec3i, uint16>& vertexes, const wb::vec3i & v)
 	{
 		auto it = vertexes.find(v);
 		if (it == vertexes.end())
@@ -39,14 +39,14 @@ namespace WBLoader
 		computeTangentBasis();
 
 		//std::list<wb::vec3i> out_indexes;
-		std::map<wb::vec3i, unsigned short> out_indexes;
+		std::map<wb::vec3i, uint16> out_indexes;
 		for (auto& v : vertexBuffer)
 		{
 			//auto i = FindIndex(out_indexes, v.indexes);
 			auto i = FindIndexFast(out_indexes, v.indexes);
 			if (i >= 0)
 			{
-				indices.push_back(static_cast<unsigned short>(i));
+				indices.push_back(static_cast<uint16>(i));
 
 				ftangents[3 * i] = v.tangents.x;
 				ftangents[3 * i + 1] = v.tangents.y;
@@ -66,7 +66,7 @@ namespace WBLoader
 				AddVec3ToFloatBuffer(ftangents, v.tangents);
 				AddVec3ToFloatBuffer(fbitangents, v.bitangents);
 
-				auto newIndex = (unsigned short)out_indexes.size();
+				auto newIndex = (uint16)out_indexes.size();
 				//out_indexes.push_back(v.indexes);
 				out_indexes[v.indexes] = newIndex;
 				indices.push_back(newIndex);
@@ -76,7 +76,7 @@ namespace WBLoader
 
 	void Mesh::computeTangentBasis()
 	{
-		for (uint i = 0; i < vertexBuffer.size(); i += 3) 
+		for (uint32 i = 0; i < vertexBuffer.size(); i += 3) 
 		{
 			// Shortcuts for vertices
 			glm::vec3 & v0 = vertexBuffer[i + 0].position;
@@ -112,7 +112,7 @@ namespace WBLoader
 		}
 
 		// See "Going Further"
-		for (uint i = 0; i < vertexBuffer.size(); i += 1)
+		for (uint32 i = 0; i < vertexBuffer.size(); i += 1)
 		{
 			glm::vec3 & n = vertexBuffer[i].normal;
 			glm::vec3 & t = vertexBuffer[i].tangents;

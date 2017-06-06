@@ -1,9 +1,9 @@
 #include "WaveFrontObj.h"
-#include "MeshData.h"
-#include "../Mesh.h"
-#include "../../TextureLoader.h"
-#include "../../../Utils/ParseUtils.h"
-#include "../../../Engine/Configuration.h"
+#include "../MeshData.h"
+#include "../../Mesh.h"
+#include "../../../TextureLoader.h"
+#include "../../../../Utils/ParseUtils.h"
+#include "../../../../Engine/Configuration.h"
 #include <algorithm>
 
 namespace WBLoader

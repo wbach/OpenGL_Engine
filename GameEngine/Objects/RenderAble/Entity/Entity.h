@@ -13,12 +13,12 @@ public:
 	CEntity(const glm::vec3 normalized_v, CModel* model_lvl_1, CModel* model_lvl_2 = nullptr, CModel* model_lvl_3 = nullptr);
 
     virtual ~CEntity() {}
-    CModel* GetModel(uint i);
+    CModel* GetModel(uint32 i);
 public:
 	bool dynamic = false;
 
 private:
-	void LoadModel(CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename, uint i);
+	void LoadModel(CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename, uint32 i);
 
     CModel* model[3];
 };

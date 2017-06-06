@@ -24,7 +24,7 @@ CEntity::CEntity(const glm::vec3 normalized_v, CModel * model_lvl_1, CModel * mo
     worldTransform.SetNormalizedSize(normalized_v);
 }
 
-CModel * CEntity::GetModel(uint i)
+CModel * CEntity::GetModel(uint32 i)
 {
 	if (i > 2)
 	{
@@ -43,7 +43,7 @@ CModel * CEntity::GetModel(uint i)
     return model[i];
 }
 
-void CEntity::LoadModel(CResourceManager & manager, const glm::vec3 & normalized_scale, const std::string & filename, uint i)
+void CEntity::LoadModel(CResourceManager & manager, const glm::vec3 & normalized_scale, const std::string & filename, uint32 i)
 {
 	if (!filename.empty())
 	{

@@ -18,6 +18,6 @@ public:
 protected:
     std::list<std::unique_ptr<CGameObject>> childrens;
     std::string name;
-    static uint s_id;
-    uint id;
+    static uint32 s_id;
+    uint32 id;
 };

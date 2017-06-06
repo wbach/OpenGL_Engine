@@ -10,7 +10,7 @@ public:
 	void EnableLogs();
 	void ErrorLog(const std::string& log);
 	void Logg(const std::string& log);
-	void MessageBox(uint flags, const std::string& title, const std::string& message);
+	void MessageBox(uint32 flags, const std::string& title, const std::string& message);
 	void SaveToFile() const;
 	~CLogger();
 private:

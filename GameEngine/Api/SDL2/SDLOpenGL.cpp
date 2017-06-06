@@ -14,7 +14,7 @@ CSdlOpenGlApi::~CSdlOpenGlApi()
 void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int& width, const int& height, bool full_screen)
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	uint flags = SDL_WINDOW_OPENGL;
+	uint32 flags = SDL_WINDOW_OPENGL;
 #ifdef EDITOR
 	flags |= SDL_WINDOW_BORDERLESS;
 #endif

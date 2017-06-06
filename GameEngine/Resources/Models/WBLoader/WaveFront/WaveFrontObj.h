@@ -1,6 +1,6 @@
 #pragma once
-#include "MeshData.h"
-#include "IMeshLoader.h"
+#include "../MeshData.h"
+#include "../IMeshLoader.h"
 #include <list>
 
 class CTextureLoader;

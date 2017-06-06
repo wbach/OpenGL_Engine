@@ -31,7 +31,7 @@ void CLogger::Logg(const std::string& log)
 	file << log << '\n';
 	file.close();
 }
-void CLogger::MessageBox(uint flags, const std::string& title, const std::string& message)
+void CLogger::MessageBox(uint32 flags, const std::string& title, const std::string& message)
 {
 	SDL_ShowSimpleMessageBox(flags,
 		title.c_str(),

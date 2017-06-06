@@ -11,16 +11,16 @@ struct GamePlayer
 {
 	Player player;
 	std::string deck_xml;
-	uint swaped_cards_at_start = 0;
+	uint32 swaped_cards_at_start = 0;
 	bool accepted_deck = false;		 //download deck
 	bool accepted_enemy_deck = false;
 	bool have_cards_in_hand = false;
 	bool end_choosing_cards = false; //swap cards at the start
 	bool pushed_card = false;
 	bool end_move = false;
-	std::map<uint, uint> cards_to_swap;
-	uint totalScore = 0;
-	uint won_rounds = 0;
+	std::map<uint32, uint32> cards_to_swap;
+	uint32 totalScore = 0;
+	uint32 won_rounds = 0;
 
 	void ResetToNextMove()
 	{
@@ -76,12 +76,12 @@ private:
 	void EndRound();
 	void ClearGameLines();
 
-	void SendCardsInHand(uint player_index);
-	void WaitForAkceptDeckPlayer(uint player_index);
-	void PushCard(uint who, uint i);
-	void SwapCardsPlayer(uint player_index);
-	void AddPushCard(const GwentMessages::PushCardMessage& msg, uint player_index);
-	GwentMessages::ScoreMessage PrepareScoreMsg(uint player);	
+	void SendCardsInHand(uint32 player_index);
+	void WaitForAkceptDeckPlayer(uint32 player_index);
+	void PushCard(uint32 who, uint32 i);
+	void SwapCardsPlayer(uint32 player_index);
+	void AddPushCard(const GwentMessages::PushCardMessage& msg, uint32 player_index);
+	GwentMessages::ScoreMessage PrepareScoreMsg(uint32 player);	
 
 	CInputManager m_InputManager;
 	CDisplayManager display;
@@ -92,5 +92,5 @@ private:
 
 	GameStates current_state = GameStates::WAIT_FOR_PLAYERS;
 
-	uint player_start_game = 3; //
+	uint32 player_start_game = 3; //
 };

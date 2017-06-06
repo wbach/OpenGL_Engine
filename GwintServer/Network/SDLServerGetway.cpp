@@ -18,7 +18,7 @@ SDLServerGetway::~SDLServerGetway()
 	SDL_Quit();
 }
 
-void SDLServerGetway::Start(unsigned short port)
+void SDLServerGetway::Start(uint16 port)
 {
 	if (SDLNet_Init() == -1)
 	{
@@ -53,10 +53,10 @@ void SDLServerGetway::Start(unsigned short port)
 		//... and then outputting them cast to integers. Then read the last 16 bits of the serverIP object to get the port number
 		std::string str =
 			"Successfully resolved server host to IP: " +
-			std::to_string((unsigned short)dotQuad[0]) + "." +
-			std::to_string((unsigned short)dotQuad[1]) + "." +
-			std::to_string((unsigned short)dotQuad[2]) + "." +
-			std::to_string((unsigned short)dotQuad[3]) +
+			std::to_string((uint16)dotQuad[0]) + "." +
+			std::to_string((uint16)dotQuad[1]) + "." +
+			std::to_string((uint16)dotQuad[2]) + "." +
+			std::to_string((uint16)dotQuad[3]) +
 			" port " + std::to_string(SDLNet_Read16(&serverIP.port));
 		Log(str);
 	}
@@ -129,7 +129,7 @@ void SDLServerGetway::CheckNewConnections()
 	} // End of if server socket is has activity check
 }
 
-bool SDLServerGetway::WaitForRespone(uint& user_index, const std::string & response, uint time)
+bool SDLServerGetway::WaitForRespone(uint32& user_index, const std::string & response, uint32 time)
 {
 	auto t1 = std::chrono::high_resolution_clock::now();
 	while (1)
@@ -198,7 +198,7 @@ void SDLServerGetway::GetMessage()
 	}
 }
 
-std::string SDLServerGetway::GetMessage(uint player_index)
+std::string SDLServerGetway::GetMessage(uint32 player_index)
 {
 	if (!m_IncomingMessages.empty())
 	{
@@ -216,7 +216,7 @@ std::string SDLServerGetway::GetMessage(uint player_index)
 	return std::string();
 }
 
-std::string SDLServerGetway::GetFirstMessageToUser(uint index)
+std::string SDLServerGetway::GetFirstMessageToUser(uint32 index)
 {
 	for (auto it = m_IncomingMessages.begin(); it != m_IncomingMessages.end(); ++it)
 	{
@@ -235,7 +235,7 @@ void SDLServerGetway::SendMessage(const UserData& user, const std::string & mess
 	NetworkUtils::SendMessage(user.socket, message);
 }
 
-void SDLServerGetway::SendMessage(uint user, const std::string & message)
+void SDLServerGetway::SendMessage(uint32 user, const std::string & message)
 {
 	if (user >= users.size())
 		return;
@@ -251,11 +251,11 @@ void SDLServerGetway::SendMessage(std::string & message)
 	}
 }
 
-void SDLServerGetway::DisconnectUser(uint user_id)
+void SDLServerGetway::DisconnectUser(uint32 user_id)
 {
 	//...so output a suitable message and then...
 	
-	for (uint x = 0; x < users.size(); ++x)
+	for (uint32 x = 0; x < users.size(); ++x)
 	{
 		if (users[x].id == user_id)
 		{

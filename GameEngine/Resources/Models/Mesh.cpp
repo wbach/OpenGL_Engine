@@ -12,7 +12,7 @@ CMesh::CMesh(
 	const std::vector<float>& text_coords,
     const std::vector<float>& norm,
     const std::vector<float>& tang,
-    const std::vector<unsigned short>& ind,
+    const std::vector<uint16>& ind,
     const std::vector<SVertexBoneData>& bon)
 {
     positions    = std::move(pos);
@@ -96,7 +96,7 @@ void CMesh::CreateTransformsVbo(std::vector<glm::mat4>& m)
     glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
 
-	for (uint i = 0; i < 4; i++)
+	for (uint32 i = 0; i < 4; i++)
 	{
 		glEnableVertexAttribArray(4 + i);
 		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
@@ -114,7 +114,7 @@ void CMesh::UpdateTransformVbo(std::vector<glm::mat4>& m)
     glBindVertexArray(vao);
     glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-	for (uint i = 0; i < 4; i++)
+	for (uint32 i = 0; i < 4; i++)
 	{
 		glEnableVertexAttribArray(4 + i);
 		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));

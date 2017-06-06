@@ -37,7 +37,7 @@ void Utils::PrintVector(const std::string & text, const glm::vec2 & v)
 
 void Utils::PrintMatrix(const std::string & text, const glm::mat4 & m)
 {
-	for (uint y = 0; y < 4; y++)
+	for (uint32 y = 0; y < 4; y++)
 		std::cout << text << m[y][0] << " " << m[y][1] << " " << m[y][2] << " " << m[y][3] << std::endl;
 }
 
@@ -88,7 +88,7 @@ void Utils::CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3 &
 	bounding_min.x = bounding_max.x = positions[0];
 	bounding_min.y = bounding_max.y = positions[1];
 	bounding_min.z = bounding_max.z = positions[2];
-	for (uint i = 0; i < positions.size(); i += 3)
+	for (uint32 i = 0; i < positions.size(); i += 3)
 	{
 		if (positions[i] < bounding_min.x) bounding_min.x = positions[i];
 		if (positions[i] > bounding_max.x) bounding_max.x = positions[i];

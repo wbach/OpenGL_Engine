@@ -1,15 +1,19 @@
 #include "MyModel.h"
-#include "WaveFrontObj.h"
+#include "Collada/ColladaDae.h"
+#include "WaveFront/WaveFrontObj.h"
+
 #include "../../../Utils/ParseUtils.h"
 #include "../../../Engine/Configuration.h"
-#include <algorithm>
+
 #include <sstream>
+#include <algorithm>
 
 
 CMyModel::CMyModel(CTextureLoader & textureloader)
 	: textureloader(textureloader)
 {
 	meshLoaders.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
+	meshLoaders.emplace_back(new WBLoader::ColladaDae(textureloader));
 }
 
 CMyModel::~CMyModel()

@@ -18,14 +18,14 @@ public:
 	virtual void EndFrame(CScene* scene) = 0;
 	virtual void Subscribe(CGameObject* gameObject) {}
     //Debug
-    const uint& GetObjectsPerFrame();
-	const uint& GetVertexPerFrame();
+    const uint32& GetObjectsPerFrame();
+	const uint32& GetVertexPerFrame();
 
 protected:
     //Debug variables
-    uint rendererObjectPerFrame = 0;
-    uint rendererVertixesPerFrame = 0;
-    uint maxVerices = 0;
+    uint32 rendererObjectPerFrame = 0;
+    uint32 rendererVertixesPerFrame = 0;
+    uint32 maxVerices = 0;
 
     CFrameBuffer* target = nullptr;
 };

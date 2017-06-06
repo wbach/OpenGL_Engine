@@ -11,8 +11,8 @@ public:
 	CTransform(const glm::vec3& pos, const glm::vec3& rot);
 	CTransform(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale);
 	
-	void IncrasePosition(float dx, float dy, float dz, uint index = 0);
-	void IncrasePosition(glm::vec3 v, uint index = 0);
+	void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
+	void IncrasePosition(glm::vec3 v, uint32 index = 0);
 	void IncreaseRotation(float dx, float dy, float dz);
 	void UpdateMatrix();
 	

@@ -14,7 +14,7 @@ public:
 	int CheckStatus();
 	const GLuint& GetFbo();
 	const GLuint& GetDepthTexture();
-	const GLuint& GetTexture(const uint& id);
+	const GLuint& GetTexture(const uint32& id);
 	void BindTextures(int offset = 0);
 	void BindToDraw();
 	void Bind();

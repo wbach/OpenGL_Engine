@@ -51,7 +51,7 @@ void CEntityShader::LoadUseBonesTransformation(const float & is) const
 {
 	LoadValue(location_UseBoneTransform, is);
 }
-void CEntityShader::LoadBoneTransform(const glm::mat4 & transform, uint id) const
+void CEntityShader::LoadBoneTransform(const glm::mat4 & transform, uint32 id) const
 {
 	LoadValue(location_Bones[id], transform);
 }

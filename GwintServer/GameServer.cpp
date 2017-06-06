@@ -53,7 +53,7 @@ bool GameServer::WaitForPlayers()
 	return false;
 }
 
-void GameServer::PushCard(uint who, uint i)
+void GameServer::PushCard(uint32 who, uint32 i)
 {
 	//if (who == 0)
 	//{
@@ -170,7 +170,7 @@ bool GameServer::SendCardsInHand()
 
 	while (1)
 	{
-		uint player_index;
+		uint32 player_index;
 		if (SDLServerGetway::Instance().WaitForRespone(player_index, "HAND_CARDS_OK", 10))
 		{
 			player[player_index].have_cards_in_hand = true;
@@ -195,12 +195,12 @@ bool GameServer::SendCardsInHand()
 	return false;
 }
 
-void GameServer::SendCardsInHand(uint player_index)
+void GameServer::SendCardsInHand(uint32 player_index)
 {
 	if (player[player_index].have_cards_in_hand)
 		return;
 
-	uint i = 0;
+	uint32 i = 0;
 	auto& p = player[player_index].player;
 
 	SDLServerGetway::Instance().SendMessage(player_index, "BEGIN_XML_MESSAGE");
@@ -216,14 +216,14 @@ void GameServer::SendCardsInHand(uint player_index)
 	SDLServerGetway::Instance().SendMessage(player_index, "END_XML_MESSAGE");
 }
 
-void GameServer::WaitForAkceptDeckPlayer(uint player_index)
+void GameServer::WaitForAkceptDeckPlayer(uint32 player_index)
 {
 	if (player[player_index].accepted_deck)
 		return;
 
 	SDLServerGetway::Instance().SendMessage(player_index, player[player_index].deck_xml);
 	std::cout << "Wait for client 1 accepting deck\n";
-	uint user_index;
+	uint32 user_index;
 	if (SDLServerGetway::Instance().WaitForRespone(user_index, "DECK_OK", 0))
 	{
 		if (user_index == player_index)
@@ -234,7 +234,7 @@ void GameServer::WaitForAkceptDeckPlayer(uint player_index)
 	}	
 }
 
-void GameServer::SwapCardsPlayer(uint player_index)
+void GameServer::SwapCardsPlayer(uint32 player_index)
 {	
 	if (!SDLServerGetway::Instance().m_IncomingMessages.empty())
 	{
@@ -276,7 +276,7 @@ void GameServer::SwapCardsPlayer(uint player_index)
 			auto card = player[player_index].player.cards_in_hand[msg.index];
 			if (msg.card_name == card.name)
 			{
-				uint i;
+				uint32 i;
 				if (player[player_index].cards_to_swap.empty())
 				{
 					i = rand() % player[player_index].player.cards_in_deck.size();
@@ -302,9 +302,9 @@ void GameServer::SwapCardsPlayer(uint player_index)
 	}
 }
 
-void GameServer::AddPushCard(const GwentMessages::PushCardMessage & msg, uint player_index)
+void GameServer::AddPushCard(const GwentMessages::PushCardMessage & msg, uint32 player_index)
 {
-	uint index = 0;
+	uint32 index = 0;
 	auto& cards = player[player_index].player.cards_in_hand;
 	for (const auto& card : cards)
 	{
@@ -328,7 +328,7 @@ void GameServer::AddPushCard(const GwentMessages::PushCardMessage & msg, uint pl
 	}
 }
 
-GwentMessages::ScoreMessage GameServer::PrepareScoreMsg(uint player_index)
+GwentMessages::ScoreMessage GameServer::PrepareScoreMsg(uint32 player_index)
 {
 	GwentMessages::ScoreMessage score_msg;
 	score_msg.scorePlayer[GwentMessages::ScoreMessage::Total] = 0;
@@ -423,10 +423,10 @@ bool GameServer::SwapCardStarProcedure()
 	if (player[0].end_choosing_cards && player[1].end_choosing_cards)
 		return true;
 
-	uint pIndex;
+	uint32 pIndex;
 	if (SDLServerGetway::Instance().WaitForRespone(pIndex, "SWAP_CARD_OK", 10))
 	{
-		std::list<uint> card_to_remove;
+		std::list<uint32> card_to_remove;
 		for (const auto& pair : player[pIndex].cards_to_swap)
 		{
 			auto card = player[pIndex].player.cards_in_hand[pair.first];
@@ -530,7 +530,7 @@ bool GameServer::Player1Move()
 		}
 	}	
 
-	uint pIndex = 0;
+	uint32 pIndex = 0;
 	if (SDLServerGetway::Instance().WaitForRespone(pIndex, "PUSH_CARD_OK", 10) || player[0].player.cards_in_hand.empty() || player[0].end_move)
 	{
 		//player[pIndex].pushed_card = true;
@@ -587,7 +587,7 @@ bool GameServer::Player2Move()
 		}
 	}
 
-	uint pIndex = 0;
+	uint32 pIndex = 0;
 	if (player[1].player.cards_in_hand.empty() || SDLServerGetway::Instance().WaitForRespone(pIndex, "PUSH_CARD_OK", 10) || player[1].end_move)
 	{
 		//player[pIndex].pushed_card = true;

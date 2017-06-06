@@ -33,7 +33,7 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
-    auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Crate/crate.obj");
+    auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Example/scene.dae");
     auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -5));
     engine.renderers[0]->Subscribe(crate);
 
@@ -182,7 +182,7 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 	//}
 
  //   std::vector<float> grass_position;
- //   std::vector<unsigned short> indicies;
+ //   std::vector<uint16> indicies;
  //   std::vector<float> empty_float_vec;
  //   std::vector<SVertexBoneData> empty_bones;
  //   SMaterial grass_material;

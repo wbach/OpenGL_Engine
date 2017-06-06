@@ -15,11 +15,11 @@ namespace Utils
 
 	int CreateVao();
 
-	GLuint BindIndicesBuffer(const std::vector<unsigned short>& indices);
+	GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 
 	GLuint StoreDataInAttributesList(const int & attributeNumber, const int & coordinateSize, const std::vector<float>& data);
-	void EnableVao(uint vao, const std::vector<uint>& attributes);
-	void DisableVao(const std::vector<uint>& attributes);
+	void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
+	void DisableVao(const std::vector<uint32>& attributes);
 	void UnbindVao();
 
 	void EnableCulling();

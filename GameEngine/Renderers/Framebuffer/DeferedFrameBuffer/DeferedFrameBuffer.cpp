@@ -5,7 +5,7 @@ void CDefferedFrameBuffer::Init(const wb::vec2i& size)
 	CreateFrameBuffer();
 	BindToDraw();
 
-	for (uint i = 0; i < 4; i++)
+	for (uint32 i = 0; i < 4; i++)
 	{
 		GLuint texture;
 		glGenTextures(1, &texture);

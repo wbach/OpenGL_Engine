@@ -69,7 +69,7 @@ void CEntityRenderer::Render(CScene * scene)
 		{
 			auto sub = GetEntity(index.x + x, index.y + y);
 
-			uint level_of_detail = 0;
+			uint32 level_of_detail = 0;
 
 			if (y > 1 || y < -1 || x > 2 || x < -2)
 				level_of_detail = 2;
@@ -120,7 +120,7 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 	subscribes[index.x + index.y*gridSize].push_back(entity);
 }
 
-const std::list<CEntity*>& CEntityRenderer::GetEntity(uint x, uint y) const
+const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 {
 	if (subscribes.empty()) return sEmptyEntityList;
 
