@@ -17,6 +17,18 @@ TEST_F(ColladaLoaderMock, GetTypeFromStringTest)
 	EXPECT_NE(WBLoader::ColladaTypes::POSITIONS, GetType(normals_str));
 }
 
+TEST_F(ColladaLoaderMock, GetGeometryNameFromString)
+{
+	const std::string name_Str = "Cube-mesh";
+	EXPECT_EQ("Cube", GetObjectName(name_Str));
+
+	const std::string name_Str2 = "Cube_001-mesh";
+	EXPECT_EQ("Cube_001", GetObjectName(name_Str2));
+
+	const std::string name_Str3 = "Suzanne-mesh";
+	EXPECT_EQ("Suzanne", GetObjectName(name_Str3));
+}
+
 TEST_F(ColladaLoaderMock, GetFloatsFromString)
 {
 	std::vector<float> ref( { 1.f, 1.f, -1.f, 1.f, -1.f, -1.f, -1.f, -0.9999998f, -1.f, -0.9999997f, 1.f, -1.f, 1.f, 0.9999995f, 1.f, 0.9999994f, -1.000001f, 1.f, -1.f, -0.9999997f

@@ -21,6 +21,8 @@ namespace WBLoader
 
 	struct Mesh
 	{
+		std::string name;
+
 		std::vector<glm::vec3> vertex;
 		std::vector<glm::vec2> text_coords;
 		std::vector<glm::vec3> normals;
@@ -44,6 +46,7 @@ namespace WBLoader
 	{
 		std::string name;
 		std::vector<Mesh> meshes;
+		glm::mat4 transformMatrix;
 	};
 
 	int FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v);

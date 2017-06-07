@@ -23,11 +23,20 @@ namespace WBLoader
 		virtual bool CheckExtension(const std::string& filename) override;
 	protected:
 		void ProccesColladaNode(const rapidxml::xml_document<char>& document);
-		void ProccesLibraryGeometryNode(rapidxml::xml_node<char>* root);
+
+		//Geometry
+		void ProccesLibraryGeometryNode(rapidxml::xml_node<char>* root);		
 		WBLoader::Object ProccesGeometryNode(rapidxml::xml_node<char>* root);
 		WBLoader::Mesh ProccesMeshNode(rapidxml::xml_node<char>* root);
 		void ProccesMeshSourceNode(rapidxml::xml_node<char>* root, WBLoader::Mesh& out_mesh);
 		void ProccesPolyListNode(rapidxml::xml_node<char>* root, WBLoader::Mesh& out_mesh);
+
+		//VisualScenes
+		void ProccesLibraryVisualScenesNode(rapidxml::xml_node<char>* root);
+		void ProccesVisualScebeNode(rapidxml::xml_node<char>* root);
+		void ProccesVisualSceneNodeInNode(rapidxml::xml_node<char>* root, WBLoader::Object& object);
+
+		std::string GetName(const std::string& str) const;
 		ColladaTypes::ArrayType GetArrayType(const std::string& str) const;
 
 		std::vector<glm::vec2> GetVectors2dFromString(const std::string& str) const;

@@ -3,6 +3,7 @@
 #include "../../../../Utils/XML/XMLUtils.h"
 #include "../../../../Engine/Configuration.h"
 #include <rapidxml.hpp>
+#include <algorithm>
 
 namespace WBLoader
 {
@@ -65,6 +66,8 @@ namespace WBLoader
 
 			if (node_data.name == "library_geometries")
 				ProccesLibraryGeometryNode(snode);
+			if (node_data.name == "library_visual_scenes")
+				ProccesLibraryVisualScenesNode(snode);
 		}
 	}
 	void ColladaDae::ProccesLibraryGeometryNode(rapidxml::xml_node<char>* root)
@@ -77,9 +80,78 @@ namespace WBLoader
 				objects.push_back(ProccesGeometryNode(snode));
 		}
 	}
+	void ColladaDae::ProccesLibraryVisualScenesNode(rapidxml::xml_node<char>* root)
+	{
+		if (objects.empty())
+		{
+			Error(parsingFileName + " : No geometry objects but parse visual scene node");
+			return;
+		}
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "visual_scene")
+				ProccesVisualScebeNode(snode);
+		}
+	}
+	void ColladaDae::ProccesVisualScebeNode(rapidxml::xml_node<char>* root)
+	{
+		
+
+	}
+	void ColladaDae::ProccesVisualSceneNodeInNode(rapidxml::xml_node<char>* root, WBLoader::Object & object)
+	{
+	/*	auto id_attribute = root->first_attribute("id");
+
+		if (id_attribute == 0)
+		{
+			Log(parsingFileName + " : ColladaDae::ProccesVisualScebeNode attribute 'id' not found.");
+			return;
+		}
+		auto att_data = Utils::GetRapidAttributeData(id_attribute);
+		auto obj = std::find_if(objects.begin(), objects.end(), [&att_data](WBLoader::Object o)
+		{
+			return (o.name == att_data.value);
+
+		});
+
+		if (obj == objects.end())
+		{
+			Log(parsingFileName + " : ColladaDae::ProccesVisualScebeNode object '" + att_data.value + "' not found.");
+			return;
+		}
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "node")
+				ProccesVisualSceneNodeInNode(snode, *obj);
+		}*/
+
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "matrix")
+			{
+			}
+		}
+	}
 	WBLoader::Object ColladaDae::ProccesGeometryNode(rapidxml::xml_node<char>* root)
 	{
 		WBLoader::Object out;
+
+		auto id_attribute = root->first_attribute("id");
+
+		if (id_attribute != 0)
+		{
+			auto att_data = Utils::GetRapidAttributeData(id_attribute);
+			out.name = GetName(att_data.value);			
+		}
 
 		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
 		{
@@ -246,6 +318,11 @@ namespace WBLoader
 			out.push_back(a);
 		}
 		return out;
+	}
+
+	std::string ColladaDae::GetName(const std::string & str) const
+	{
+		return str.substr(0, str.find("-mesh") );
 	}
 
 	ColladaTypes::ArrayType ColladaDae::GetArrayType(const std::string & str) const

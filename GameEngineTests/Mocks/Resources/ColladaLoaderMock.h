@@ -19,5 +19,10 @@ struct ColladaLoaderMock : public WBLoader::ColladaDae, public ::testing::Test
 		return GetFloatsFromString(str);
 	}
 
+	std::string GetObjectName(const std::string& str) const
+	{
+		return GetName(str);
+	}
+
 	TextureLoaderMock textureLoaderMock;
 };
