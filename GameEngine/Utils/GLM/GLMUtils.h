@@ -16,6 +16,8 @@ namespace Utils
 	static glm::mat4 s_mat4_one(1.f);
 	
 
+	glm::vec3 Vec4ToVec3(const glm::vec4& v);
+
 	glm::vec3 ColorLerpRGB(const glm::vec3 & c1, const glm::vec3 & c2, const float & blend);
 
 	glm::vec3 TransformPoint(const glm::vec3 & point, const glm::mat4 & matrix);

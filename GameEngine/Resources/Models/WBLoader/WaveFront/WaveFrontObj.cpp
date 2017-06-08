@@ -149,12 +149,12 @@ namespace WBLoader
 			if (!prefix.compare("map_Kd"))
 			{
 				if (current_material != nullptr)
-					current_material->diffuseTexture = textureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
+					current_material->diffuseTexture = textureLodaer.LoadTexture( EngineConf.dataFilesLocation + "Textures/" + value, true, true, TextureType::MATERIAL);
 			}
 			if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
 			{
 				if (current_material != nullptr)
-					current_material->normalTexture = textureLodaer.LoadTexture("../Data/Textures/" + value, true, true, TextureType::MATERIAL);
+					current_material->normalTexture = textureLodaer.LoadTexture(EngineConf.dataFilesLocation + "Textures/" + value, true, true, TextureType::MATERIAL);
 			}
 		}
 

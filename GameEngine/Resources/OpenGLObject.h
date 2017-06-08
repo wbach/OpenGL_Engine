@@ -11,6 +11,7 @@ public:
     {
         return loaded;
     }
+
 protected:
     bool loaded = false;
 };

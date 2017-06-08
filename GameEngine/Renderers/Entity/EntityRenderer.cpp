@@ -131,8 +131,7 @@ const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 }
 
 void CEntityRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
-{
-	shader.LoadTransformMatrix(transform_matrix);	
+{	
 	shader.LoadUseInstancedRendering(0.f);
 	shader.LoadUseFakeLight(0.f);
 	shader.LoadUseBonesTransformation(0.f);
@@ -141,6 +140,9 @@ void CEntityRenderer::RenderModel(CModel * model, const glm::mat4 & transform_ma
 	{
 		Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
 		BindMaterial(mesh.GetMaterial());			
+
+		auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
+		shader.LoadTransformMatrix(transform_matrix_);
 
 		glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
 		Utils::DisableVao(mesh.GetUsedAttributes());

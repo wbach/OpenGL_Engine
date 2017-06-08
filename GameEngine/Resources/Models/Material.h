@@ -14,6 +14,7 @@ struct SMaterial
 
 	float shineDamper  = 0.f;
 	float reflectivity = 0.f;
+	float indexOfRefraction = 0.f;
 
 	bool isTransparency  = false;
 	bool useFakeLighting = false;

@@ -1,5 +1,8 @@
 #include "ColladaDae.h"
+#include "../../../TextureLoader.h"
 #include "../../../../Utils/Utils.h"
+#include "../../../../Utils/GLM/GLMUtils.h"
+#include "../../../../Utils/ParseUtils.h"
 #include "../../../../Utils/XML/XMLUtils.h"
 #include "../../../../Engine/Configuration.h"
 #include <rapidxml.hpp>
@@ -7,11 +10,11 @@
 
 namespace WBLoader
 {
-	ColladaDae::ColladaDae(CTextureLoader & textureLodaer)
+	ColladaDae::ColladaDae(CTextureLoader& textureLodaer)
 		: textureLodaer(textureLodaer)
 	{
 	}
-	void ColladaDae::ParseFile(const std::string & filename)
+	void ColladaDae::ParseFile(const std::string& filename)
 	{
 		auto file_name = EngineConf.dataFilesLocation + filename;
 
@@ -35,9 +38,9 @@ namespace WBLoader
 
 		ProccesColladaNode(document);		
 	}
-	std::list<CMesh> ColladaDae::CreateFinalMesh()
+	CMeshList ColladaDae::CreateFinalMesh()
 	{
-		std::list<CMesh> out;
+		CMeshList out;
 
 		SBonesInfo m_BonesInfo;
 		for (auto& obj : objects)
@@ -46,17 +49,17 @@ namespace WBLoader
 			{
 				mesh.IndexinVBO();
 				//output.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones);
-				out.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones);
+				out.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones, obj.transformMatrix);
 			}
 		}
 		return out;
 	}
-	bool ColladaDae::CheckExtension(const std::string & filename)
+	bool ColladaDae::CheckExtension(const std::string& filename)
 	{
 		auto ext = Utils::GetFileExtension(filename);
 		return ext == "dae" || ext == "DAE" || ext == "Dae";
 	}
-	void ColladaDae::ProccesColladaNode(const rapidxml::xml_document<char>& document)
+	void ColladaDae::ProccesColladaNode(const XMLDocument& document)
 	{
 		auto root = document.first_node();
 
@@ -68,9 +71,213 @@ namespace WBLoader
 				ProccesLibraryGeometryNode(snode);
 			if (node_data.name == "library_visual_scenes")
 				ProccesLibraryVisualScenesNode(snode);
+			if (node_data.name == "library_images")
+				ProccesLibraryImages(snode);
+			if (node_data.name == "library_effects")
+				ProccesLibraryEffects(snode);
 		}
 	}
-	void ColladaDae::ProccesLibraryGeometryNode(rapidxml::xml_node<char>* root)
+
+	void ColladaDae::ProccesLibraryImages(XMLNode* root)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "image")
+				ProccesImage(snode);
+		}
+	}
+	void ColladaDae::ProccesImage(XMLNode * root)
+	{
+		auto id_attribute = root->first_attribute("id");
+		if (id_attribute == 0)
+		{
+			Log(parsingFileName + " : ColladaDae::ProccesImage image id attriubte not found");
+			return;
+		}
+
+		auto att_data = Utils::GetRapidAttributeData(id_attribute);
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "init_from")
+				texturesMap[att_data.value] = textureLodaer.LoadTexture(EngineConf.dataFilesLocation + "Textures/" + node_data.value, true, true, TextureType::MATERIAL);  ;
+		}
+	}
+	void ColladaDae::ProccesLibraryEffects(XMLNode* root)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "effect")
+				ProccesEffect(snode);
+		}
+	}
+	void ColladaDae::ProccesEffect(XMLNode * root)
+	{
+		auto id_attribute = root->first_attribute("id");
+		if (id_attribute == 0)
+		{
+			Log("ColladaDae::ProccesEffect material not found");
+			return;
+		}
+
+		auto att_data = Utils::GetRapidAttributeData(id_attribute);
+		auto material_name = GetName(att_data.value, "-effect");
+
+		materialMap[material_name].name = material_name;
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "profile_COMMON")
+				ProccesProfileCommon(snode, material_name);
+		}
+	}
+	void ColladaDae::ProccesProfileCommon(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "newparam")
+				ProccesNewParam(snode);
+			if (node_data.name == "technique")
+				ProccesTechnique(snode, material_name);
+		}
+	}
+	void ColladaDae::ProccesTechnique(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "phong")
+				ProccesPhong(snode, material_name);
+		}
+	}
+	void ColladaDae::ProccesNewParam(XMLNode * root)
+	{
+	}
+	void ColladaDae::ProccesPhong(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "emission")
+				ProccesEmission(snode, material_name);
+			if (node_data.name == "ambient")
+				ProccesAmbient(snode, material_name);
+			if (node_data.name == "diffuse")
+				ProccesDiffuse(snode, material_name);
+			if (node_data.name == "specular")
+				ProccesSpecular(snode, material_name);
+			if (node_data.name == "shininess")
+				ProccesShininess(snode, material_name);
+			if (node_data.name == "index_of_refraction")
+				ProccesIndexOfRefraction(snode, material_name);
+		}
+
+	}
+	void ColladaDae::ProccesAmbient(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "color")
+				materialMap[material_name].ambient = Utils::Vec4ToVec3(Get::Vector4d(node_data.value, ' '));
+			if (node_data.name == "texture")
+			{
+				auto texture_name = snode->first_attribute("texture");
+				if (texture_name != 0)
+				{
+					auto att_data = Utils::GetRapidAttributeData(texture_name);
+					auto name = GetName(att_data.value, "-sampler");
+					materialMap[material_name].ambientTexture = texturesMap[name];
+				}
+			}				
+		}
+	}
+	void ColladaDae::ProccesDiffuse(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "color")
+				materialMap[material_name].diffuse = Utils::Vec4ToVec3(Get::Vector4d(node_data.value, ' '));
+			if (node_data.name == "texture")
+			{
+				auto texture_name = snode->first_attribute("texture");
+				if (texture_name != 0)
+				{
+					auto att_data = Utils::GetRapidAttributeData(texture_name);
+					auto name = GetName(att_data.value, "-sampler");
+					materialMap[material_name].diffuseTexture = texturesMap[name];
+				}
+			}
+		}
+	}
+	void ColladaDae::ProccesSpecular(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "color")
+				materialMap[material_name].specular = Utils::Vec4ToVec3(Get::Vector4d(node_data.value, ' '));
+			if (node_data.name == "texture")
+			{
+				auto texture_name = snode->first_attribute("texture");
+				if (texture_name != 0)
+				{
+					auto att_data = Utils::GetRapidAttributeData(texture_name);
+					auto name = GetName(att_data.value, "-sampler");
+					materialMap[material_name].specularTexture = texturesMap[name];
+				}
+			}
+		}
+	}
+	void ColladaDae::ProccesShininess(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "float")
+				materialMap[material_name].shineDamper = Utils::StringToFloat(node_data.value);			
+		}
+	}
+	void ColladaDae::ProccesIndexOfRefraction(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "float")
+				materialMap[material_name].indexOfRefraction = Utils::StringToFloat(node_data.value);
+		}
+	}
+	void ColladaDae::ProccesEmission(XMLNode * root, const std::string& material_name)
+	{
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "color")
+			{
+				//To do... ?
+			}
+		}
+	}
+	void ColladaDae::ProccesLibraryGeometryNode(XMLNode* root)
 	{
 		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
 		{
@@ -80,7 +287,7 @@ namespace WBLoader
 				objects.push_back(ProccesGeometryNode(snode));
 		}
 	}
-	void ColladaDae::ProccesLibraryVisualScenesNode(rapidxml::xml_node<char>* root)
+	void ColladaDae::ProccesLibraryVisualScenesNode(XMLNode* root)
 	{
 		if (objects.empty())
 		{
@@ -96,14 +303,19 @@ namespace WBLoader
 				ProccesVisualScebeNode(snode);
 		}
 	}
-	void ColladaDae::ProccesVisualScebeNode(rapidxml::xml_node<char>* root)
+	void ColladaDae::ProccesVisualScebeNode(XMLNode* root)
 	{
-		
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
 
+			if (node_data.name == "node")
+				ProccesVisualSceneNodeInNode(snode);
+		}
 	}
-	void ColladaDae::ProccesVisualSceneNodeInNode(rapidxml::xml_node<char>* root, WBLoader::Object & object)
+	void ColladaDae::ProccesVisualSceneNodeInNode(XMLNode* root)
 	{
-	/*	auto id_attribute = root->first_attribute("id");
+		auto id_attribute = root->first_attribute("id");
 
 		if (id_attribute == 0)
 		{
@@ -127,10 +339,14 @@ namespace WBLoader
 		{
 			auto node_data = Utils::GetRapidNodeData(snode);
 
-			if (node_data.name == "node")
-				ProccesVisualSceneNodeInNode(snode, *obj);
-		}*/
-
+			if (node_data.name == "matrix")
+			{
+				obj->transformMatrix = GetMatrixFromString(node_data.value);
+			}
+		}
+	}
+	void ColladaDae::ProccesVisualSceneNodeInNode(XMLNode* root, WBLoader::Object& object)
+	{
 
 		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
 		{
@@ -141,45 +357,7 @@ namespace WBLoader
 			}
 		}
 	}
-	WBLoader::Object ColladaDae::ProccesGeometryNode(rapidxml::xml_node<char>* root)
-	{
-		WBLoader::Object out;
-
-		auto id_attribute = root->first_attribute("id");
-
-		if (id_attribute != 0)
-		{
-			auto att_data = Utils::GetRapidAttributeData(id_attribute);
-			out.name = GetName(att_data.value);			
-		}
-
-		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
-		{
-			auto node_data = Utils::GetRapidNodeData(snode);
-
-			if (node_data.name == "mesh")
-				out.meshes.push_back(ProccesMeshNode(snode));
-		}
-
-		return out;
-	}
-	WBLoader::Mesh ColladaDae::ProccesMeshNode(rapidxml::xml_node<char>* root)
-	{
-		WBLoader::Mesh out;
-
-		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
-		{
-			auto node_data = Utils::GetRapidNodeData(snode);
-
-			if (node_data.name == "source")
-				ProccesMeshSourceNode(snode, out);
-			if (node_data.name == "polylist")
-				ProccesPolyListNode(snode, out);
-		}
-		return out;
-
-	}
-	void ColladaDae::ProccesMeshSourceNode(rapidxml::xml_node<char>* root, WBLoader::Mesh& out_mesh)
+	void ColladaDae::ProccesMeshSourceNode(XMLNode* root, WBLoader::Mesh& out_mesh)
 	{
 		ColladaTypes::ArrayType type;
 
@@ -216,9 +394,17 @@ namespace WBLoader
 			}			
 		}
 	}
-
-	void ColladaDae::ProccesPolyListNode(rapidxml::xml_node<char>* root, WBLoader::Mesh & out_mesh)
+	void ColladaDae::ProccesPolyListNode(XMLNode* root, WBLoader::Mesh& out_mesh)
 	{
+		auto id_attribute = root->first_attribute("material");
+		if (id_attribute != 0)
+		{
+			auto att_data = Utils::GetRapidAttributeData(id_attribute);
+			auto material_name = GetName(att_data.value, "-material");
+
+			out_mesh.material = materialMap[material_name];
+		}
+
 		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
 		{
 			auto node_data = Utils::GetRapidNodeData(snode);
@@ -233,6 +419,7 @@ namespace WBLoader
 
 					vb.position = out_mesh.vertex[indices[x]];
 					vb.normal = out_mesh.normals[indices[x + 1]];
+					vb.uvs = out_mesh.text_coords[indices[x + 2]];
 					vb.indexes.x = indices[x];
 					vb.indexes.y = indices[x + 1];
 					vb.indexes.z = indices[x + 2];
@@ -242,14 +429,68 @@ namespace WBLoader
 			}
 		}
 	}
-
-	std::vector<glm::vec2> ColladaDae::GetVectors2dFromString(const std::string & str) const
+	WBLoader::Object ColladaDae::ProccesGeometryNode(XMLNode* root)
 	{
-		std::vector<glm::vec2> out;
+		WBLoader::Object out;
+
+		auto id_attribute = root->first_attribute("id");
+
+		if (id_attribute != 0)
+		{
+			auto att_data = Utils::GetRapidAttributeData(id_attribute);
+			out.name = GetName(att_data.value, "-mesh");
+		}
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "mesh")
+				out.meshes.push_back(ProccesMeshNode(snode));
+		}
+
+		return out;
+	}
+	WBLoader::Mesh ColladaDae::ProccesMeshNode(XMLNode* root)
+	{
+		WBLoader::Mesh out;
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+
+			if (node_data.name == "source")
+				ProccesMeshSourceNode(snode, out);
+			if (node_data.name == "polylist")
+				ProccesPolyListNode(snode, out);
+		}
+		return out;
+
+	}
+	glm::mat4 ColladaDae::GetMatrixFromString(const std::string& str) const
+	{
+		auto mdata = GetFloatsFromString(str);
+		glm::mat4 transform_matrix(1.f);
+		if (mdata.size() != 16)
+		{
+			Log("ColladaDae::GetMatrixFromString string is wrong size.");
+			return transform_matrix;
+		}
+		
+		uint16 i = 0;
+		for (uint16 y = 0; y < 4; ++y)
+			for (uint16 x = 0; x < 4; ++x)
+				transform_matrix[x][y] = mdata[i++];
+
+		return transform_matrix;
+	}
+	Vec2Vector ColladaDae::GetVectors2dFromString(const std::string& str) const
+	{
+		Vec2Vector out;
 
 		auto strs = Utils::SplitString(str, ' ');
 
-		std::vector<float> tmp;
+		FloatVector tmp;
 
 		for (const auto& str : strs)
 		{
@@ -266,14 +507,13 @@ namespace WBLoader
 
 		return out;
 	}
-
-	std::vector<glm::vec3> ColladaDae::GetVectors3dFromString(const std::string & str) const
+	Vec3Vector ColladaDae::GetVectors3dFromString(const std::string& str) const
 	{
-		std::vector<glm::vec3> out;
+		Vec3Vector out;
 
 		auto strs = Utils::SplitString(str, ' ');
 
-		std::vector<float> tmp;
+		FloatVector tmp;
 
 		for (const auto& str : strs)
 		{
@@ -290,10 +530,9 @@ namespace WBLoader
 
 		return out;
 	}
-
-	std::vector<float> ColladaDae::GetFloatsFromString(const std::string& str) const
+	FloatVector ColladaDae::GetFloatsFromString(const std::string& str) const
 	{
-		std::vector<float> out;
+		FloatVector out;
 
 		auto strs = Utils::SplitString(str, ' ');
 
@@ -305,10 +544,9 @@ namespace WBLoader
 
 		return out;
 	}
-
-	std::vector<uint16> ColladaDae::GetIntsFromString(const std::string & str) const
+	Uint16Vector ColladaDae::GetIntsFromString(const std::string& str) const
 	{
-		std::vector<uint16> out;
+		Uint16Vector out;
 
 		auto strs = Utils::SplitString(str, ' ');
 
@@ -318,14 +556,12 @@ namespace WBLoader
 			out.push_back(a);
 		}
 		return out;
-	}
-
-	std::string ColladaDae::GetName(const std::string & str) const
+	}	
+	std::string ColladaDae::GetName(const std::string& str, const std::string& postfix) const
 	{
-		return str.substr(0, str.find("-mesh") );
+		return str.substr(0, str.find(postfix));
 	}
-
-	ColladaTypes::ArrayType ColladaDae::GetArrayType(const std::string & str) const
+	ColladaTypes::ArrayType ColladaDae::GetArrayType(const std::string& str) const
 	{
 		auto pos = str.find("positions");
 		if (pos != std::string::npos)

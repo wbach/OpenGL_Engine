@@ -1,5 +1,10 @@
 #include "GLMUtils.h"
 
+glm::vec3 Utils::Vec4ToVec3(const glm::vec4 & v)
+{
+	return glm::vec3(v.x, v.y, v.z);
+}
+
 glm::vec3 Utils::ColorLerpRGB(const glm::vec3 & c1, const glm::vec3 & c2, const float & blend)
 {
 	glm::vec3 color;

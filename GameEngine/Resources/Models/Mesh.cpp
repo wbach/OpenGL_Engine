@@ -13,7 +13,9 @@ CMesh::CMesh(
     const std::vector<float>& norm,
     const std::vector<float>& tang,
     const std::vector<uint16>& ind,
-    const std::vector<SVertexBoneData>& bon)
+    const std::vector<SVertexBoneData>& bon,
+	const glm::mat4& mtransform
+)
 {
     positions    = std::move(pos);
     textCoords   = std::move(text_coords);
@@ -23,6 +25,7 @@ CMesh::CMesh(
     tangents	 = std::move(tangents);
     bones		 = std::move(bon);
     material	 = mat;
+	transform	 = mtransform;
     vertexCount  = indices.size() > 0 ? indices.size() : positions.size() / 3;
 
     if (!positions.empty())	attributes.push_back(0);

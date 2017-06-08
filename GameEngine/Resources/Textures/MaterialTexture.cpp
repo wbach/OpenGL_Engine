@@ -44,4 +44,6 @@ void CMaterialTexture::OpenGLLoadingPass()
         image.data = nullptr;
 	}		
     isInit = true;
+
+	Log("File " + filename + " is in GPU. OpenGL pass succes");
 }

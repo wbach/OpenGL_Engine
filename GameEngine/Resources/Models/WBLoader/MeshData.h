@@ -19,6 +19,22 @@ namespace WBLoader
 		uint32 material_id;
 	};
 
+	struct MaterialLayer
+	{
+		glm::vec4 color;
+		std::string textureName;
+	};
+
+	//struct Material
+	//{
+	//	MaterialLayer emmision;
+	//	MaterialLayer ambient;
+	//	MaterialLayer diffuse;
+	//	MaterialLayer specular;
+	//	float shininess;
+	//	float indexOfRefraction;
+	//};
+
 	struct Mesh
 	{
 		std::string name;
@@ -26,6 +42,7 @@ namespace WBLoader
 		std::vector<glm::vec3> vertex;
 		std::vector<glm::vec2> text_coords;
 		std::vector<glm::vec3> normals;
+		//Material ogrin_material;
 
 		std::vector<VertexBuffer> vertexBuffer;
 
@@ -35,7 +52,6 @@ namespace WBLoader
 		std::vector<float> fnormal;
 		std::vector<float> ftangents;
 		std::vector<float> fbitangents;
-
 		SMaterial material;
 
 		void IndexinVBO();

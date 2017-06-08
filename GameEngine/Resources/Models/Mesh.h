@@ -25,7 +25,7 @@ class CMesh : public COpenGLObject
 public:
 	CMesh();
 	CMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords = std::vector<float>(), const std::vector<float>& normals = std::vector<float>(), const std::vector<float>& tangents = std::vector<float>(),
-		const std::vector<uint16>& indices = std::vector<uint16>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
+		const std::vector<uint16>& indices = std::vector<uint16>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>(), const glm::mat4& transform = glm::mat4(1.f));
 	CMesh(const CMesh&) = delete;
 	CMesh(CMesh&&) = default;
 
@@ -51,6 +51,8 @@ public:
 	const uint32& GetVertexCount() const;
 	const SMaterial& GetMaterial() const;
     const std::vector<uint32>& GetUsedAttributes() const { return attributes; }
+
+	const glm::mat4& GetMeshTransform() const { return transform; }
 
     void SetMaterial(const SMaterial& material);
 
@@ -78,6 +80,9 @@ private:
     bool isInit = false;
     bool transformVboCreated = false;
     bool bonesInShader = false;
+
+	//local transform in mesh
+	glm::mat4 transform;
 
 	BoundingBox boundingBox;
 };

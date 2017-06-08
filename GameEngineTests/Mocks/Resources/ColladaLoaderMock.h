@@ -21,7 +21,7 @@ struct ColladaLoaderMock : public WBLoader::ColladaDae, public ::testing::Test
 
 	std::string GetObjectName(const std::string& str) const
 	{
-		return GetName(str);
+		return GetName(str, "-mesh");
 	}
 
 	TextureLoaderMock textureLoaderMock;
