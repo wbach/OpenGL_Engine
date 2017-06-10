@@ -12,6 +12,7 @@ class CEngine
 {
 public:
     CEngine();
+	~CEngine();
 	void Init();
 	void GameLoop();
 	void OpenGLLoadingPass(std::thread& loading_thread);

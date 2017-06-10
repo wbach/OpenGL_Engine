@@ -34,19 +34,19 @@ MainScene::~MainScene()
 int MainScene::Initialize()
 {
     auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Example/scene.dae");
-    auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -5));
+    auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -7));
     engine.renderers[0]->Subscribe(crate);
 
     auto crate_obj_2 = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Crate/crate.obj");
     auto crate_2 = AddGameObject(crate_obj_2, glm::vec3(10,0, -5));
     engine.renderers[0]->Subscribe(crate_2);
 
-    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "Meshes/Triss/Triss.obj");
+    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 2, 0), "Meshes/Triss/Triss.dae");
     player->dynamic = true;
     AddGameObject(player, glm::vec3(1,0,1));
     engine.renderers[0]->Subscribe(player);
 
-    auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "Meshes/smallHouse1/smallHouse1.obj", "../Data/Example/monkey.obj", "../Data/Example/cube.obj");
+    auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "Meshes/smallHouse1/smallHouse1.obj", "Example/monkey.obj", "Example/cube.obj");
     auto small_house = AddGameObject(small_hause_obj, glm::vec3(15.f, 0.f, 35.f));
     engine.renderers[0]->Subscribe(small_house);
 
@@ -154,12 +154,12 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
 std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 {
 	std::vector<float> grass_positions;
-	for (float y = 0.f; y < 200.f; y += 1.5f)
+	for (float y = 0.f; y < 200.f; y += 10.5f)
 	{
-		for (float x = 0.f; x < 200.f; x += 1.5f)
+		for (float x = 0.f; x < 200.f; x += 10.5f)
 		{
-			float xpos = x + ((rand() % 200 - 100) / 100.f);
-			float zpos = y + ((rand() % 200 - 100) / 100.f);
+			float xpos = x + ((rand() % 400 - 200) / 10.f);
+			float zpos = y + ((rand() % 400 - 200) / 10.f);
 			float ypos = 0.f;		
 
 			if (object != nullptr)

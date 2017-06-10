@@ -33,8 +33,7 @@ bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
 {
 	name = filename;
 
-    auto root_folder = EngineConf.shadersFilesLocation;
-    auto full_path = root_folder + filename;
+    auto full_path = EngineConf_GetFullShaderPath(filename);
     std::string source = Utils::ReadFile(full_path);
 
 	uint32 id;

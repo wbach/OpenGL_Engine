@@ -15,8 +15,7 @@ CTextureLoader::CTextureLoader(std::vector<std::unique_ptr<CTexture>>& textures_
 
 void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool applySizeLimit, TextureFlip::Type flip_mode)
 {
-    auto file_location = EngineConf.dataFilesLocation + file;
-
+    auto file_location = file;
     FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file_location.c_str(), 0);
 	if (formato == FIF_UNKNOWN)
 	{
@@ -92,7 +91,7 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLi
             return t.get();
 
 	SImage texture; 
-	ReadFile(file, texture, applySizeLimit, flip_mode);
+	ReadFile(EngineConf_GetFullDataPath(file), texture, applySizeLimit, flip_mode);
 
 	switch (type)
 	{
@@ -125,7 +124,7 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool app
 
 	int x = 0;
 	for (const auto& file : files)
-        ReadFile(file, images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
+        ReadFile(EngineConf_GetFullDataPath(file), images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
 
     textures.emplace_back(new CCubeMapTexture(files[0], images));
 

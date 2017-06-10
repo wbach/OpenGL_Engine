@@ -4,7 +4,6 @@
 #include "../../../../Utils/GLM/GLMUtils.h"
 #include "../../../../Utils/ParseUtils.h"
 #include "../../../../Utils/XML/XMLUtils.h"
-#include "../../../../Engine/Configuration.h"
 #include <rapidxml.hpp>
 #include <algorithm>
 
@@ -16,7 +15,7 @@ namespace WBLoader
 	}
 	void ColladaDae::ParseFile(const std::string& filename)
 	{
-		auto file_name = EngineConf.dataFilesLocation + filename;
+		auto file_name = filename;
 
 		parsingFileName = filename;
 		fileData = Utils::ReadFile(file_name);
@@ -104,7 +103,7 @@ namespace WBLoader
 			auto node_data = Utils::GetRapidNodeData(snode);
 
 			if (node_data.name == "init_from")
-				texturesMap[att_data.value] = textureLodaer.LoadTexture(EngineConf.dataFilesLocation + "Textures/" + node_data.value, true, true, TextureType::MATERIAL);  ;
+				texturesMap[att_data.value] = textureLodaer.LoadTexture("Textures/" + node_data.value, true, true, TextureType::MATERIAL);  ;
 		}
 	}
 	void ColladaDae::ProccesLibraryEffects(XMLNode* root)

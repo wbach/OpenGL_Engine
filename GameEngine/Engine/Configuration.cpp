@@ -2,6 +2,7 @@
 #include "../Debug_/Log.h"
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
+#include <fstream>
 
 namespace XMLParser
 {
@@ -198,6 +199,70 @@ SConfiguration & SConfiguration::Instance()
 {
 	static SConfiguration conf;
 	return conf;
+}
+
+std::string SConfiguration::GetFullDataPath(const std::string & file_name)
+{
+	auto path = dataFilesLocation + file_name;
+	requiredFiles.push_back(path);
+	return path;
+}
+
+std::string SConfiguration::GetFullShaderPath(const std::string & file_name)
+{
+	auto path = shadersFilesLocation + file_name;
+	requiredFiles.push_back(path);
+	return path;
+}
+
+std::string SConfiguration::GetFilePatch(const std::string & file_full_path) const
+{
+	if (file_full_path.empty())
+		return{};
+
+	auto data_index = file_full_path.find(dataFilesLocation);
+	uint32 size = dataFilesLocation.size();
+
+	if (data_index == std::string::npos)
+	{
+		data_index = file_full_path.find(shadersFilesLocation);
+		size = shadersFilesLocation.size();
+	}
+
+	auto str = file_full_path.substr(data_index + size);
+
+	return str;
+}
+
+void SConfiguration::AddRequiredFile(const std::string & file)
+{
+	requiredFiles.push_back(file);
+}
+
+void SConfiguration::SaveRequiredFiles()
+{
+	std::ofstream output(GetFullDataPath(requiredFilesOutputFile));
+
+	if (!output.is_open())
+	{
+		Log("Cant open file : " + GetFullDataPath(requiredFilesOutputFile));
+		return;
+	}
+
+	for (const auto& str : requiredFiles)
+	{
+		/*while (1)
+		{
+			auto i = str.find("../");
+			if (i == std::string::npos)
+				break;
+
+			str = str.substr(i+3);
+		}*/
+		
+		output << str << std::endl;
+	}
+	output.close();
 }
 
 void SConfiguration::ReadFromFile(const std::string & filename)

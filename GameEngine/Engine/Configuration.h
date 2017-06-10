@@ -11,12 +11,18 @@ public:
         FULL_RENDERER
     };
 
+	static SConfiguration& Instance();
+	std::string GetFullDataPath(const std::string& file_name);
+	std::string GetFullShaderPath(const std::string& file_name);
+	std::string GetFilePatch(const std::string& file_full_path) const;
+	void AddRequiredFile(const std::string& file);
+	void SaveRequiredFiles();
+	void ReadFromFile(const std::string& filename);
+
     std::string dataFilesLocation = "../Data/";
     std::string shadersFilesLocation = "../Shaders/";
 
-	static SConfiguration& Instance();
-
-	void ReadFromFile(const std::string& filename);
+	std::vector<std::string> requiredFiles;
 
     //Window
     std::string windowName = "Default Window Name";
@@ -52,9 +58,17 @@ public:
 	RendererType rendererType = RendererType::FULL_RENDERER;   //simple renderer/full renderer
 	LoD			 startLod;
     //float       m_RenderingResolution = 1.f;
+
+	std::string requiredFilesOutputFile = "required_files.inf";
+
 private:
 	SConfiguration() {}
 	SConfiguration(const SConfiguration &) {}
 };
 
 #define EngineConf SConfiguration::Instance()
+#define EngineConf_SaveRequiredFiles() SConfiguration::Instance().SaveRequiredFiles()
+#define EngineConf_GetFullDataPath(x) SConfiguration::Instance().GetFullDataPath(x)
+#define EngineConf_GetFullShaderPath(x) SConfiguration::Instance().GetFullShaderPath(x)
+#define EngineConf_GetOrginFilePath(x) SConfiguration::Instance().GetFilePatch(x)
+#define EngineConf_AddRequiredFile(x) SConfiguration::Instance().AddRequiredFile(x)

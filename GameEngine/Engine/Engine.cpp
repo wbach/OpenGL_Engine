@@ -10,12 +10,18 @@
 
 CEngine::CEngine()
 {
-	auto& conf = SConfiguration::Instance();
-    conf.ReadFromFile("Conf.xml");
+	auto& conf = EngineConf;
+	EngineConf.ReadFromFile("Conf.xml");
+	EngineConf_AddRequiredFile("Conf.xml");
 
 	displayManager = CDisplayManager(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
 	displayManager.SetInput(inputManager.input);
 	projection = conf.resolution;
+}
+
+CEngine::~CEngine()
+{
+	EngineConf_SaveRequiredFiles();
 }
 
 void CEngine::GameLoop()
@@ -158,5 +164,5 @@ void CEngine::PreperaScene()
 {
 	isLoading = true;
 	std::thread loading_thread(&CEngine::LoadScene, this);
-	OpenGLLoadingPass(loading_thread);
+	OpenGLLoadingPass(loading_thread);	
 }

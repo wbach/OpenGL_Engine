@@ -3,8 +3,8 @@
 
 void FontShader::Init() {
 	CreateProgram();
-	AddShader("../Shaders/Font/fontVertex.vert", GL_VERTEX_SHADER);
-	AddShader("../Shaders/Font/fontFragment.frag", GL_FRAGMENT_SHADER);
+	AddShader("Font/fontVertex.vert", GL_VERTEX_SHADER);
+	AddShader("Font/fontFragment.frag", GL_FRAGMENT_SHADER);
 	FinalizeShader();
 
 	Start();

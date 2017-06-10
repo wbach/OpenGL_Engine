@@ -45,15 +45,14 @@ namespace WBLoader
 		return ext == "obj" || ext == "OBJ" || ext == "Obj";
 	}
 
-	void WaveFrontObjLoader::GetFileData(const std::string & relative_file_name)
+	void WaveFrontObjLoader::GetFileData(const std::string & file_name)
 	{
-		auto file_name = EngineConf.dataFilesLocation + relative_file_name;
 		fileData = Utils::ReadFileLines(file_name);
 
 		if (fileData.empty())
 			return;
 
-		Utils::GetFileAndPath(file_name, filename, path);
+		Utils::GetFileAndPath(file_name, filename, path);		
 	}
 	void WaveFrontObjLoader::ProcessFileData()
 	{
@@ -91,6 +90,8 @@ namespace WBLoader
 
 	void WaveFrontObjLoader::ReadMaterialFile(const std::string& file_name)
 	{
+		EngineConf_AddRequiredFile(file_name);
+
 		auto file = Utils::ReadFile(file_name);
 
 		std::istringstream f(file);
@@ -149,12 +150,12 @@ namespace WBLoader
 			if (!prefix.compare("map_Kd"))
 			{
 				if (current_material != nullptr)
-					current_material->diffuseTexture = textureLodaer.LoadTexture( EngineConf.dataFilesLocation + "Textures/" + value, true, true, TextureType::MATERIAL);
+					current_material->diffuseTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, TextureType::MATERIAL);
 			}
 			if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
 			{
 				if (current_material != nullptr)
-					current_material->normalTexture = textureLodaer.LoadTexture(EngineConf.dataFilesLocation + "Textures/" + value, true, true, TextureType::MATERIAL);
+					current_material->normalTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, TextureType::MATERIAL);
 			}
 		}
 

@@ -7,13 +7,13 @@ CModel::CModel()
 
 }
 
-void CModel::InitModel(const std::string&  file_name)
+void CModel::InitModel(const std::string& file_name)
 {
 	filename = file_name;
 	Log(file_name + " succesful loaded");
 }
 
-CModel::~CModel() 
+CModel::~CModel()
 {
     Log(filename + " ::~CModel()");
 }

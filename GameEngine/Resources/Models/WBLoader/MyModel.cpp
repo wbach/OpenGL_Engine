@@ -23,9 +23,7 @@ CMyModel::~CMyModel()
 
 void CMyModel::InitModel(const std::string & file_name)
 {
-	filename = file_name;
-
-	auto extension = Utils::GetFileExtension(filename);
+	auto extension = Utils::GetFileExtension(file_name);
 	
 	auto IMeshLoader = GetActiveLoader(extension);
 	
@@ -35,11 +33,11 @@ void CMyModel::InitModel(const std::string & file_name)
 		return;
 	}
 
-	IMeshLoader->ParseFile(filename);
+	IMeshLoader->ParseFile(file_name);
 	for (auto& mesh : IMeshLoader->CreateFinalMesh())
 		AddMesh(mesh);
 
-	CModel::InitModel(filename);
+	CModel::InitModel(file_name);
 }
 
 WBLoader::IMeshLoader* CMyModel::GetActiveLoader(const std::string & extension)
