@@ -65,7 +65,7 @@ int MainScene::Initialize()
    
    // AddGrass();
 
-    for (const auto& terrain : terrains)
+  /*  for (const auto& terrain : terrains)
     {
         auto grass_position = CreateGrassPositions(terrain);
 
@@ -73,8 +73,7 @@ int MainScene::Initialize()
         AddGameObject(grass_obj);
         engine.renderers[0]->Subscribe(grass_obj);
     }
-
-
+*/
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
@@ -110,17 +109,17 @@ int MainScene::Update()
     player->Move(deltaTime);
     player->CheckInputs();
 
-	for (auto& terrain : terrains)
-	{
-        auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
+	//for (auto& terrain : terrains)
+	//{
+ //       auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
 
-		if (!new_position)
-			continue;
+	//	if (!new_position)
+	//		continue;
 
-        auto ppos = player->worldTransform.GetPosition();
-		if (ppos.y < new_position.GetValue().y)
-			player->SetPosition(new_position.GetValue());
-	}
+ //       auto ppos = player->worldTransform.GetPosition();
+	//	if (ppos.y < new_position.GetValue().y)
+	//		player->SetPosition(new_position.GetValue());
+	//}
     return 0;
 }
 

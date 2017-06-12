@@ -5,10 +5,10 @@
 #include <vector>
 
 class CModel;
-struct STerrain;
+class CTerrainWrapper;
 class CProjection;
 
-typedef STerrain* TerrainPtr;
+typedef CTerrainWrapper* TerrainPtr;
 typedef std::vector<TerrainPtr> TerrainPtrs;
 
 class CTessellationTerrainRenderer : public CRenderer

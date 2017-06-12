@@ -12,8 +12,8 @@ public:
     };
 
 	static SConfiguration& Instance();
-	std::string GetFullDataPath(const std::string& file_name);
-	std::string GetFullShaderPath(const std::string& file_name);
+	std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
+	std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
 	std::string GetFilePatch(const std::string& file_full_path) const;
 	void AddRequiredFile(const std::string& file);
 	void SaveRequiredFiles();
@@ -68,7 +68,9 @@ private:
 
 #define EngineConf SConfiguration::Instance()
 #define EngineConf_SaveRequiredFiles() SConfiguration::Instance().SaveRequiredFiles()
-#define EngineConf_GetFullDataPath(x) SConfiguration::Instance().GetFullDataPath(x)
-#define EngineConf_GetFullShaderPath(x) SConfiguration::Instance().GetFullShaderPath(x)
+#define EngineConf_GetFullDataPath(x) SConfiguration::Instance().GetFullDataPath(x, false)
+#define EngineConf_GetFullDataPathAddToRequierd(x) SConfiguration::Instance().GetFullDataPath(x)
+#define EngineConf_GetFullShaderPath(x) SConfiguration::Instance().GetFullShaderPath(x, false)
+#define EngineConf_GetFullShaderPathAddToRequierd(x) SConfiguration::Instance().GetFullShaderPath(x)
 #define EngineConf_GetOrginFilePath(x) SConfiguration::Instance().GetFilePatch(x)
 #define EngineConf_AddRequiredFile(x) SConfiguration::Instance().AddRequiredFile(x)

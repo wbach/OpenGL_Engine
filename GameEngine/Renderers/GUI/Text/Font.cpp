@@ -14,8 +14,9 @@ CFont::~CFont()
 }
 
 void CFont::Init(const std::string& file_name_relative, const wb::vec2i& window_size)
-{
-	auto file_name = EngineConf_GetFullDataPath(file_name_relative);
+{	
+	auto file_name = EngineConf_GetFullDataPathAddToRequierd(file_name_relative);
+
 	std::ifstream tryfile(file_name);
 	if (!tryfile.is_open()) {
 		std::cout << "[Error] The file " << file_name << " wasnt successfuly opened \n";

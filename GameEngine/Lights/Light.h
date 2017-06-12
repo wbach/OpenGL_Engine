@@ -1,6 +1,6 @@
 #pragma once
 #include "LightTypes.h"
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 class CLight
 {	

@@ -10,9 +10,6 @@ void TestGameStart()
 	engine.GameLoop();
 }
 
-
-
-
 int main(int argc, char* argv[])
 {	
 	//MemoryTest();

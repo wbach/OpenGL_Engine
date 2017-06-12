@@ -22,7 +22,6 @@ CMesh::CMesh(
     normals      = std::move(norm);
     tangents	 = std::move(tang);
     indices	     = std::move(ind);
-    tangents	 = std::move(tangents);
     bones		 = std::move(bon);
     material	 = mat;
 	transform	 = mtransform;

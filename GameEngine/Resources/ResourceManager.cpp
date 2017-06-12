@@ -10,14 +10,34 @@ CResourceManager::CResourceManager()
 
 CModel * CResourceManager::LoadModel(const std::string & file)
 {
-    for (const auto& model : models)
+	auto count = modelsIds.count(EngineConf_GetFullDataPath(file));
+
+	if (count > 0)
 	{
-		auto filename_exist = EngineConf_GetOrginFilePath(model->GetFileName());
-        if (filename_exist == file)
-            return model.get();
+		auto i = modelsIds[EngineConf_GetFullDataPath(file)];
+		Log("Model already loaded, id : " + std::to_string(modelsIds[EngineConf_GetFullDataPath(file)]));
+		return models[i].get();
 	}
+
+	
+ //   for (const auto& model : models)
+	//{
+	//	auto filename_exist = EngineConf_GetOrginFilePath(model->GetFileName());
+ //       if (filename_exist == file)
+ //           return model.get();
+	//}
+
 	//CAssimModel  CMyModel
-    models.emplace_back(new CMyModel(textureLoader));
-    models.back()->InitModel(EngineConf_GetFullDataPath(file));
-    return models.back().get();
+	auto model = new CMyModel(textureLoader);
+    models.emplace_back(model);
+	model->InitModel(EngineConf_GetFullDataPathAddToRequierd(file));
+	modelsIds[model->GetFileName()] = models.size() - 1;
+    return model;
+}
+
+void CResourceManager::AddModel(CModel * model) 
+{ 
+	models.emplace_back(model);
+	modelsIds[model->GetFileName()] = models.size() - 1;
+	openGlLoader.AddObjectToOpenGLLoadingPass(model);
 }

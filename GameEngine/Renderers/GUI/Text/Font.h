@@ -4,7 +4,7 @@
 #include <freetype2/ftglyph.h>
 #include <freetype2/ftoutln.h>
 #include <freetype2/fttrigon.h>
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <fstream>
 #include <iostream>

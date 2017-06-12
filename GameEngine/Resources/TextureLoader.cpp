@@ -91,7 +91,7 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLi
             return t.get();
 
 	SImage texture; 
-	ReadFile(EngineConf_GetFullDataPath(file), texture, applySizeLimit, flip_mode);
+	ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), texture, applySizeLimit, flip_mode);
 
 	switch (type)
 	{
@@ -124,7 +124,7 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool app
 
 	int x = 0;
 	for (const auto& file : files)
-        ReadFile(EngineConf_GetFullDataPath(file), images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
+        ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
 
     textures.emplace_back(new CCubeMapTexture(files[0], images));
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include "../Utils/Utils.h"
 
 class CProjection

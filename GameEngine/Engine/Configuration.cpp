@@ -201,17 +201,19 @@ SConfiguration & SConfiguration::Instance()
 	return conf;
 }
 
-std::string SConfiguration::GetFullDataPath(const std::string & file_name)
+std::string SConfiguration::GetFullDataPath(const std::string & file_name, bool addToRequierd)
 {
 	auto path = dataFilesLocation + file_name;
-	requiredFiles.push_back(path);
+	if(addToRequierd)
+		requiredFiles.push_back(path);
 	return path;
 }
 
-std::string SConfiguration::GetFullShaderPath(const std::string & file_name)
+std::string SConfiguration::GetFullShaderPath(const std::string & file_name, bool addToRequierd)
 {
 	auto path = shadersFilesLocation + file_name;
-	requiredFiles.push_back(path);
+	if (addToRequierd)
+		requiredFiles.push_back(path);
 	return path;
 }
 

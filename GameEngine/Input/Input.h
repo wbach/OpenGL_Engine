@@ -1,7 +1,7 @@
 #pragma once
 #include "KeyCodes.h"
 #include "GameActions.h"
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include <list>
 
 class CApi;

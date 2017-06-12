@@ -22,6 +22,7 @@ void CModel::OpenGLLoadingPass()
 {
 	for (auto& mesh : meshes)
 		mesh.OpenGLLoadingPass();
+	COpenGLObject::OpenGLLoadingPass();
 }
 
 CMesh * CModel::AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<uint16>& indices,  const std::vector<SVertexBoneData>& bones)

@@ -30,6 +30,10 @@ void CEngine::GameLoop()
 
 	while (m_ApiMessage != ApiMessages::QUIT)
 	{
+		auto obj = scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLLoadingPass();
+		if (obj != nullptr && !obj->isInOpenGL())
+			obj->OpenGLLoadingPass();
+
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(.8f, .8f, .8f, 1.f);

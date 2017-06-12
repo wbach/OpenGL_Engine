@@ -3,6 +3,7 @@
 #include "../../../Scene/Scene.hpp"
 #include "../../../Engine/Projection.h"
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
+#include "../../../Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "../../../Utils/GLM/GLMUtils.h"
 #include "../../../Utils/EngineUitls.h"
 #include "../../../Utils/OpenGL/OpenGLUtils.h"
@@ -59,10 +60,10 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
 
 	auto subscribes_in_range = GetTerrainsInRange(scene->GetCamera()->GetPosition(), 2);
 
-    Log("Current terrains count to render : " + std::to_string(subscribes_in_range.size()) );
+    //Log("Current terrains count to render : " + std::to_string(subscribes_in_range.size()) );
     for (auto& sub : subscribes_in_range)
     {
-		if (sub == nullptr) continue;
+		if (sub == nullptr || !sub->Get()->model->isInOpenGL()) continue;
 
         auto position = sub->worldTransform.GetPosition();
        // position *= glm::vec3(1, 1, 100);
@@ -70,9 +71,9 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
 
 		BindTextures(sub);
 
-		if (sub->model != nullptr)
+		if (sub->Get()->model != nullptr)
 		{
-			for (auto& m : sub->model->GetMeshes())
+			for (auto& m : sub->Get()->model->GetMeshes())
             {
                 Utils::EnableVao(m.GetVao(), m.GetUsedAttributes());
                 glDrawElements(GL_PATCHES, m.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
@@ -94,9 +95,9 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
         return;
 
     auto position_in_grid = Utils::CalculatePlaceInGird(terrain->worldTransform.GetPosition(), TERRAIN_SIZE);
-	Log("Position : " + wb::to_string(position_in_grid));
+	//Log("Position : " + wb::to_string(position_in_grid));
 	auto index = Utils::Calcualte1DindexInArray(position_in_grid, gridSize);
-	Log("Index : " + std::to_string(index));
+	//Log("Index : " + std::to_string(index));
 	subscribes[index] = terrain;
 
     //subscribes.push_back(terrain);
@@ -109,7 +110,7 @@ void CTessellationTerrainRenderer::RenderModel(CModel * model, const glm::mat4 &
 void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
 {
 	int i = 0;
-    for (auto& t : terrain->textures)
+    for (auto& t : terrain->Get()->textures)
 	{
 		if (t != nullptr)
 		{
