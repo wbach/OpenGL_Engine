@@ -10,7 +10,6 @@ CModel::CModel()
 void CModel::InitModel(const std::string& file_name)
 {
 	filename = file_name;
-	Log(file_name + " succesful loaded");
 }
 
 CModel::~CModel()
@@ -22,6 +21,8 @@ void CModel::OpenGLLoadingPass()
 {
 	for (auto& mesh : meshes)
 		mesh.OpenGLLoadingPass();
+
+	Log(filename + " ::~CModel()");
 	COpenGLObject::OpenGLLoadingPass();
 }
 

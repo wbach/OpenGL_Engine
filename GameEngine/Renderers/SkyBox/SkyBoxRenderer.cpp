@@ -30,10 +30,13 @@ void CSkyBoxRenderer::PrepareFrame(CScene *scene)
 {
 	InitMembers(scene);
 
+	if (model == nullptr || !model->isInOpenGL())
+		return;
+
 	Utils::DisableCulling();
-   shader.Start();
-   shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), scene->GetDeltaTime(), 500.f);
-   shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
+	shader.Start();
+	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), scene->GetDeltaTime(), 500.f);
+	shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
 
    if (target == nullptr)
        return;
@@ -85,7 +88,7 @@ void CSkyBoxRenderer::InitMembers(CScene* scene)
 			"Skybox/TropicalSunnyDay/front.png"			
 		};
 		dayTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(dayTextures, false);
-		dayTexture->OpenGLLoadingPass();
+	//	dayTexture->OpenGLLoadingPass();
 	}
 	if (nightTexture == nullptr)
 	{
@@ -99,7 +102,7 @@ void CSkyBoxRenderer::InitMembers(CScene* scene)
 			"Skybox/Night/front.png"
 		};
 		nightTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(nightTextures, false);
-		nightTexture->OpenGLLoadingPass();
+		//nightTexture->OpenGLLoadingPass();
 	}
 }
 

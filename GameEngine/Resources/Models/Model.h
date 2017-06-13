@@ -18,7 +18,8 @@ public:
 	virtual void SetCurrentFrame(uint32& current_frame) {}
 	virtual void SetTime(const float& time) {}
 
-	void OpenGLLoadingPass();
+	virtual void OpenGLLoadingPass() override;
+
 	CMesh* AddMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords = std::vector<float>(), const std::vector<float>& normals = std::vector<float>(), const std::vector<float>& tangents = std::vector<float>(),
 		const std::vector<uint16>& indices = std::vector<uint16>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>());
 	CMesh* AddMesh(CMesh& mesh);

@@ -16,6 +16,7 @@ public:
 	CMyModel(CTextureLoader& textureloader);
 	virtual			~CMyModel() override;
 	virtual void	InitModel(const std::string& file_name) override;
+	virtual void OpenGLLoadingPass() override;
 private:
 	WBLoader::IMeshLoader* GetActiveLoader(const std::string& extension);
 private:

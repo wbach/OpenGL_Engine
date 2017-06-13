@@ -23,6 +23,8 @@ CMyModel::~CMyModel()
 
 void CMyModel::InitModel(const std::string & file_name)
 {
+	CModel::InitModel(file_name);
+
 	auto extension = Utils::GetFileExtension(file_name);
 	
 	auto IMeshLoader = GetActiveLoader(extension);
@@ -37,7 +39,12 @@ void CMyModel::InitModel(const std::string & file_name)
 	for (auto& mesh : IMeshLoader->CreateFinalMesh())
 		AddMesh(mesh);
 
-	CModel::InitModel(file_name);
+	Log(file_name + " succesful loaded");
+}
+
+void CMyModel::OpenGLLoadingPass()
+{
+	CModel::OpenGLLoadingPass();
 }
 
 WBLoader::IMeshLoader* CMyModel::GetActiveLoader(const std::string & extension)
