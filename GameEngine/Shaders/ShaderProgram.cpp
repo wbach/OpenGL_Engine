@@ -34,6 +34,8 @@ bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
 	name = filename;
 
     auto full_path = EngineConf_GetFullShaderPath(filename);
+	EngineConf_AddRequiredFile(full_path);
+
     std::string source = Utils::ReadFile(full_path);
 
 	uint32 id;

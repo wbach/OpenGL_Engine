@@ -107,20 +107,20 @@ int MainScene::Update()
 
     dayNightCycle.Update(deltaTime);
 
-    player->Move(deltaTime);
+	player->Move(deltaTime);
     player->CheckInputs();
 
-	//for (auto& terrain : terrains)
-	//{
- //       auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
+	for (auto& terrain : terrains)
+	{
+        auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
 
-	//	if (!new_position)
-	//		continue;
+		if (!new_position)
+			continue;
 
- //       auto ppos = player->worldTransform.GetPosition();
-	//	if (ppos.y < new_position.GetValue().y)
-	//		player->SetPosition(new_position.GetValue());
-	//}
+        auto ppos = player->worldTransform.GetPosition();
+		if (ppos.y < new_position.GetValue().y)
+			player->SetPosition(new_position.GetValue());
+	}
     return 0;
 }
 

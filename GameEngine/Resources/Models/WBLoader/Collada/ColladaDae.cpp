@@ -341,6 +341,8 @@ namespace WBLoader
 			if (node_data.name == "matrix")
 			{
 				obj->transformMatrix = GetMatrixFromString(node_data.value);
+				//Hack, object is rotated
+				obj->transformMatrix*= glm::rotate(-90.f, 1.0f, 0.0f, 0.0f);
 			}
 		}
 	}
