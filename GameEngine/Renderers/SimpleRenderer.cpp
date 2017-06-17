@@ -2,7 +2,8 @@
 #include "../Objects/RenderAble/Entity/Entity.h"
 #include "../Engine/Projection.h"
 #include "../Scene/Scene.hpp"
-#include "../Utils/OpenGL/OpenGLUtils.h"
+
+#include "OpenGL/OpenGLUtils.h"
 
 SimpleRenderer::SimpleRenderer(CProjection* projection_matrix)
     : projectionMatrix(projection_matrix)

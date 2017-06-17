@@ -1,6 +1,6 @@
 #pragma once
-#include "../../../Utils/Types.h"
 #include "../Material.h"
+#include "Types.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include <list>

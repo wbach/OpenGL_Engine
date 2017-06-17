@@ -1,6 +1,7 @@
 #include "Model.h"
-#include "../../Debug_/Log.h"
-#include "../../Utils/GLM/GLMUtils.h"
+
+#include "Logger/Log.h"
+#include "GLM/GLMUtils.h"
 
 CModel::CModel()
 {

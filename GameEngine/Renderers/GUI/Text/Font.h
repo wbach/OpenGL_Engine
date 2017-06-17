@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils.h"
 #include <freetype2/ft2build.h>
 #include <freetype2/freetype.h>
 #include <freetype2/ftglyph.h>
@@ -11,7 +12,6 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include "../../../Utils/Utils.h"
 
 static const uint32 m_MaxCharacters = 128;
 

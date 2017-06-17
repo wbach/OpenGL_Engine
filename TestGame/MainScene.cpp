@@ -1,5 +1,4 @@
 #include "MainScene.h"
-#include "../GameEngine/Utils/GLM/GLMUtils.h"
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
 #include "../GameEngine/Camera/FirstPersonCamera.h"
@@ -8,6 +7,7 @@
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "../GameEngine/Resources/Textures/Image.h"
 #include "../GameEngine/Objects/RenderAble/Terrain/Terrain.h"
+#include "GLM/GLMUtils.h"
 
 MainScene::MainScene(CEngine &engine)
     : engine(engine)
@@ -33,9 +33,13 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
-    auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Example/scene.dae");
-    auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -7));
-    engine.renderers[0]->Subscribe(crate);
+   // auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Example/scene.dae");
+  //  auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -7));
+  //  engine.renderers[0]->Subscribe(crate);
+
+	auto character_running_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+	auto ch = AddGameObject(character_running_obj, glm::vec3(0, 0, -7));
+	engine.renderers[0]->Subscribe(ch);
 
     auto crate_obj_2 = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Crate/crate.obj");
     auto crate_2 = AddGameObject(crate_obj_2, glm::vec3(10,0, -5));

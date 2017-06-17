@@ -1,6 +1,8 @@
 #include "DayNightCycle.h"
-#include "../Utils/GLM/GLMUtils.h"
-#include "../Debug_/Log.h"
+
+#include "GLM/GLMUtils.h"
+#include "Logger/Log.h"
+
 #include <GL/glew.h>
 
 CDayNightCycle::CDayNightCycle()

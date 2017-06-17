@@ -1,5 +1,5 @@
 #include "MaterialTexture.h"
-
+#include "Logger/Log.h"
 
 CMaterialTexture::CMaterialTexture(bool keepData, const std::string & file, const std::string & filepath, const SImage & image)
 	: CTexture(file, filepath)

@@ -2,9 +2,10 @@
 #include "Collada/ColladaDae.h"
 #include "WaveFront/WaveFrontObj.h"
 
-#include "../../../Utils/ParseUtils.h"
 #include "../../../Engine/Configuration.h"
 
+#include "Logger/Log.h"
+#include "ParseUtils.h"
 #include <sstream>
 #include <algorithm>
 

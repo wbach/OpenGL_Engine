@@ -1,5 +1,5 @@
 #include "Frustrum.h"
-#include "../Utils/Utils.h"
+#include "Utils.h"
 
 void CFrustrum::CalculatePlanes(const glm::mat4& projection_view_matrix)
 {

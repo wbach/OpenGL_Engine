@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include "../../Utils/Types.h"
+#include "Types.h"
 
 struct SImage
 {

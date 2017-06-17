@@ -9,7 +9,7 @@
 
 #include "../Engine/Configuration.h"
 #include "../Engine/Projection.h"
-#include "../Debug_/Log.h"
+#include "Logger/Log.h"
 
 FullRenderer::FullRenderer(CProjection* projection_matrix)
 	: projectionMatrix(projection_matrix)

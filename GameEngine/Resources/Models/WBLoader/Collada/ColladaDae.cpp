@@ -1,9 +1,12 @@
 #include "ColladaDae.h"
 #include "../../../TextureLoader.h"
-#include "../../../../Utils/Utils.h"
-#include "../../../../Utils/GLM/GLMUtils.h"
-#include "../../../../Utils/ParseUtils.h"
-#include "../../../../Utils/XML/XMLUtils.h"
+
+#include "GLM/GLMUtils.h"
+#include "ParseUtils.h"
+#include "XML/XMLUtils.h"
+#include "Logger/Log.h"
+#include "Utils.h"
+
 #include <rapidxml.hpp>
 #include <algorithm>
 
@@ -406,6 +409,15 @@ namespace WBLoader
 			out_mesh.material = materialMap[material_name];
 		}
 
+		int buffers_count = 0;
+
+		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+			if (node_data.name == "input")
+				++buffers_count;
+		}
+
 		for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
 		{
 			auto node_data = Utils::GetRapidNodeData(snode);
@@ -414,15 +426,22 @@ namespace WBLoader
 			{
 				auto indices = GetIntsFromString(node_data.value);
 
-				for (uint32 x = 0; x < indices.size(); x += 3)
+				for (uint32 x = 0; x < indices.size(); x += buffers_count)
 				{
 					WBLoader::VertexBuffer vb;
 
+					if(buffers_count >= 1)
 					vb.position = out_mesh.vertex[indices[x]];
+					if (buffers_count >= 2)
 					vb.normal = out_mesh.normals[indices[x + 1]];
+					if (buffers_count >= 3)
 					vb.uvs = out_mesh.text_coords[indices[x + 2]];
+
+					if (buffers_count >= 1)
 					vb.indexes.x = indices[x];
+					if (buffers_count >= 2)
 					vb.indexes.y = indices[x + 1];
+					if (buffers_count >= 3)
 					vb.indexes.z = indices[x + 2];
 
 					out_mesh.vertexBuffer.push_back(vb);

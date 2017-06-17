@@ -1,5 +1,4 @@
 #pragma once
-#include "../../Debug_/Log.h"
 #include "Texture.h"
 #include "Image.h"
 #include <stdexcept>

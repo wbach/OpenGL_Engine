@@ -1,5 +1,6 @@
 #include "AssimpModel.h"
-#include "../../../Utils/GLM/GLMUtils.h"
+#include "GLM/GLMUtils.h"
+#include "Logger/Log.h"
 
 CAssimModel::CAssimModel(CTextureLoader & texture_lodaer)
 	: CModel()

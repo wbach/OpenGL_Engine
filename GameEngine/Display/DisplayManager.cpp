@@ -1,6 +1,6 @@
 #include "DisplayManager.hpp"
 #include "../Input/Input.h"
-#include "../Debug_/Log.h"
+#include "Logger/Log.h"
 
 CDisplayManager::CDisplayManager()
 {}

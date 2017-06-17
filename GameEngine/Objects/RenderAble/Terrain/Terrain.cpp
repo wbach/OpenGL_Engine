@@ -1,8 +1,10 @@
 #include "Terrain.h"
-#include "../../../Utils/GLM/GLMUtils.h"
 #include "../../../Resources/Models/Model.h"
 #include "../../../Resources/Textures/Image.h"
 #include "../../../Resources/Textures/Texture.h"
+
+#include "GLM/GLMUtils.h"
+#include "Logger/Log.h"
 
 STerrain::STerrain()
 {	

@@ -2,6 +2,7 @@
 #include "Framebuffer/FrameBuffer.h"
 #include "../Engine/Projection.h"
 #include "../Scene/Scene.hpp"
+#include "Logger/Log.h"
 
 CLightPassRenderer::CLightPassRenderer(CProjection * projection, CFrameBuffer* frambuffer)
     : CRenderer(frambuffer)

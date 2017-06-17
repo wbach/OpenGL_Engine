@@ -1,7 +1,7 @@
 #include "TerrainWrapper.h"
 #include "Terrain.h"
 #include "TerrainCreateUtils.h"
-#include "../../../Debug_/Log.h"
+#include "Logger/Log.h"
 
 wb::optional<glm::vec3> CTerrainWrapper::CollisionDetection(const glm::vec3& v)
 {

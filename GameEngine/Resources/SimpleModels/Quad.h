@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Utils/OpenGL/OpenGLUtils.h"
+#include "OpenGL/OpenGLUtils.h"
 
 struct SSimpleQuad
 {

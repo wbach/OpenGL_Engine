@@ -1,5 +1,5 @@
 #include "Transform.h"
-#include "../Utils/GLM/GLMUtils.h"
+#include "GLM/GLMUtils.h"
 
 CTransform::CTransform() :CTransform(glm::vec3(0)) {}
 

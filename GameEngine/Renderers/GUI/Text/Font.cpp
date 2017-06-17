@@ -1,6 +1,6 @@
 #include "Font.h"
-#include "../../../Utils/OpenGL/OpenGLUtils.h"
 #include "../../../Engine/Configuration.h"
+#include "OpenGL/OpenGLUtils.h"
 
 CFont::~CFont()
 {

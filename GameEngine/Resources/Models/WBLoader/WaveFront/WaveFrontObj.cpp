@@ -2,8 +2,10 @@
 #include "../MeshData.h"
 #include "../../Mesh.h"
 #include "../../../TextureLoader.h"
-#include "../../../../Utils/ParseUtils.h"
 #include "../../../../Engine/Configuration.h"
+
+#include "ParseUtils.h"
+
 #include <algorithm>
 
 namespace WBLoader

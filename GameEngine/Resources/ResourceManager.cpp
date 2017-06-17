@@ -2,6 +2,7 @@
 #include "Models/Assimp/AssimpModel.h"
 #include "Models/WBLoader/MyModel.h"
 #include "../Engine/Configuration.h"
+#include "Logger/Log.h"
 
 CResourceManager::CResourceManager()
     :  textureLoader(textures, openGlLoader)

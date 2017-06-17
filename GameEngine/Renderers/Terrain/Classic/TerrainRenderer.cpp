@@ -3,8 +3,9 @@
 #include "../../../Scene/Scene.hpp"
 #include "../../../Engine/Projection.h"
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
-#include "../../../Utils/GLM/GLMUtils.h"
-#include "../../../Utils/OpenGL/OpenGLUtils.h"
+
+#include "OpenGL/OpenGLUtils.h"
+#include "GLM/GLMUtils.h"
 
 const float heightFactor = 25.f;
 

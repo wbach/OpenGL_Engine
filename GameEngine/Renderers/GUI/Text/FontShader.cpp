@@ -1,5 +1,5 @@
 #include "FontShader.h"
-#include "../../../Utils/GLM/GLMUtils.h"
+#include "GLM/GLMUtils.h"
 
 void FontShader::Init() {
 	CreateProgram();

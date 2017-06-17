@@ -1,5 +1,5 @@
 #include "Entity.h"
-#include "../../../Debug_/Log.h"
+#include "Logger/Log.h"
 #include "../../../Resources/Models/Model.h"
 #include "../../../Resources/ResourceManager.h"
 

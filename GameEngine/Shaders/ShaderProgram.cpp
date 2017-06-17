@@ -1,7 +1,7 @@
 #include "ShaderProgram.h"
-#include "../Debug_/Log.h"
-#include "glm/gtc/type_ptr.hpp"
 #include "../Engine/Configuration.h"
+#include "Logger/Log.h"
+#include "glm/gtc/type_ptr.hpp"
 #include <string>
 #include <fstream>
 

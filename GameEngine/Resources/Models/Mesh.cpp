@@ -1,6 +1,6 @@
 #include "Mesh.h"
-#include "../../Utils/GLM/GLMUtils.h"
-#include "../../Utils/OpenGL/OpenGLUtils.h"
+#include "GLM/GLMUtils.h"
+#include "OpenGL/OpenGLUtils.h"
 
 CMesh::CMesh()
 {

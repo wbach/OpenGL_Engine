@@ -2,7 +2,7 @@
 #include "../GuiElement.h"
 #include "FontShader.h"
 #include "Font.h"
-#include "../../../../GameEngine/Debug_/Log.h"
+#include "Logger/Log.h"
 #include "GuiTextElement.h"
 #include <map>
 

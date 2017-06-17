@@ -19,19 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9B0F6058-09C8-4B74-8910-4229AA0C016E}</ProjectGuid>
-    <RootNamespace>TestGame</RootNamespace>
+    <ProjectGuid>{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}</ProjectGuid>
+    <RootNamespace>Utils</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -69,20 +69,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\bin\TestGame\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\TestGame\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\Utils\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\Utils\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\bin\TestGame\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\TestGame\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\bin\TestGame\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\TestGame\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\bin\TestGame\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\TestGame\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\Utils\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\Utils\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,12 +82,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>GameEngine.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Tools\Windows\fbx_sdk\lib\vs2015\x86\release;..\Tools\Windows\Assimp\lib\x86;..\Tools\Windows\GL;..\Tools\Windows\SDL2-2.0.3\lib\x86;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\lib;..\Tools\Windows\GLFW3\lib-vc2015;..\bin\GameEngine\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -103,14 +94,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Tools\fbx_sdk\include;..\Tools\Assimp\include;..\Tools\SDL2-2.0.3\include\;..\Tools\glm;..\Tools\;..\Tools\freeImage;..\Tools\freetype\include;..\Tools\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3;glfw3dll;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -119,14 +103,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;..\Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>GameEngine.lib;Utils.lib;comctl32.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Tools\Windows\;..\Tools\Windows\fbx_sdk\lib\vs2015\x86\release;..\Tools\Windows\Assimp\lib\x86;..\Tools\Windows\GL;..\Tools\Windows\SDL2-2.0.3\lib\x86;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\lib;..\Tools\Windows\GLFW3\lib-vc2015;..\bin\GameEngine\Release;..\bin\Utils\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\;..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -137,26 +121,39 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.Tools\rapidxml-1.13;..\Tools\fbx_sdk\include;..\Tools\Assimp\include;..\Tools\SDL2-2.0.3\include\;..\Tools\glm;..\Tools\;..\Tools\freeImage;..\Tools\freetype\include;..\Tools\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>comctl32.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3;glfw3dll;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Tools\fbx_sdk\lib\vs2015\x86\release;..\Tools\Assimp\lib\x86;..\Tools\GL;..\Tools\SDL2-2.0.3\lib\x86;..\Tools\freeImage;..\Tools\freetype\lib;..\Tools\GLFW3\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainScene.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="EngineUitls.cpp" />
+    <ClCompile Include="GLM\GLMUtils.cpp" />
+    <ClCompile Include="Logger\Log.cpp" />
+    <ClCompile Include="OpenGL\OpenGLUtils.cpp" />
+    <ClCompile Include="ParseUtils.cpp" />
+    <ClCompile Include="Types.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="XML\ParseMethods.cpp" />
+    <ClCompile Include="XML\SceneReader.cpp" />
+    <ClCompile Include="XML\SerializedMethods.cpp" />
+    <ClCompile Include="XML\XMLUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CharacterStats.h" />
-    <ClInclude Include="MainScene.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="EngineUitls.h" />
+    <ClInclude Include="GLM\GLMUtils.h" />
+    <ClInclude Include="Logger\Log.h" />
+    <ClInclude Include="OpenGL\OpenGLUtils.h" />
+    <ClInclude Include="optional.hpp" />
+    <ClInclude Include="ParseUtils.h" />
+    <ClInclude Include="Pathes.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="XML\ParseMethods.hpp" />
+    <ClInclude Include="XML\SceneReader.h" />
+    <ClInclude Include="XML\SerializedMethods.hpp" />
+    <ClInclude Include="XML\XMLUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

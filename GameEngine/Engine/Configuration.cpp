@@ -1,5 +1,5 @@
 #include "Configuration.h"
-#include "../Debug_/Log.h"
+#include "Logger/Log.h"
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include <fstream>

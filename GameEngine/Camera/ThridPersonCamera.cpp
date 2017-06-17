@@ -1,7 +1,7 @@
 #include "ThridPersonCamera.h"
-#include "../Utils/Utils.h"
 #include "../Input/InputManager.h"
 #include "../Objects/Transform.h"
+#include "Utils.h"
 
 CThirdPersonCamera::CThirdPersonCamera(CInputManager* input_manager, CTransform& look_at)
 : inputManager(input_manager)

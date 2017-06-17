@@ -1,6 +1,6 @@
 #include "FrameBuffer.h"
-#include "../../Utils/OpenGL/OpenGLUtils.h"
-#include "../../Debug_/Log.h"
+#include "OpenGL/OpenGLUtils.h"
+#include "Logger/Log.h"
 
 void CFrameBuffer::CreateFrameBuffer()
 {

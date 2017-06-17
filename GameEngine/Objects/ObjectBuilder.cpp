@@ -6,6 +6,7 @@
 #include "../Resources/Textures/Image.h"
 #include "../Resources/ResourceManager.h"
 #include "RenderAble/Terrain/TerrainCreateUtils.h"
+#include "Logger/Log.h"
 
 CGameObject * ObjectBuilder::CreateEntity(CResourceManager& manager, const glm::vec3 & normalized_scale, const std::string & mesh_lod_1, const std::string & mesh_lod_2, const std::string & mesh_lod_3)
 {

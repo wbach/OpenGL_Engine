@@ -3,7 +3,13 @@
 #define M_PI    3.14159265358979323846264338327950288   /* pi */
 #endif
 
+#include <glm/glm.hpp>
 #include <string>
+
+typedef glm::vec3 vec3;
+typedef glm::vec2 vec2;
+typedef glm::vec4 vec4;
+typedef glm::mat4 mat4;
 
 typedef unsigned char uchar;
 typedef unsigned char uint8;

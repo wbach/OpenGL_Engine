@@ -1,4 +1,5 @@
 #include "CubeMapTexture.h"
+#include "Logger/Log.h"
 
 CCubeMapTexture::CCubeMapTexture(const std::string& name, const std::vector<SImage>& image)
 	: CTexture(name, name)

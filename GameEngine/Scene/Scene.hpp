@@ -4,7 +4,7 @@
 #include "../Time/DayNightCycle.h"
 #include "../Objects/GameObject.h"
 #include "../Resources/ResourceManager.h"
-#include "../Utils/Types.h"
+#include "Types.h"
 #include <vector>
 #include <list>
 #include <memory>

@@ -1,6 +1,6 @@
 #pragma once
 #include "../Api/SDL2/SDLOpenGL.h"
-#include "../Utils/Utils.h"
+#include "Utils.h"
 #include <memory>
 #include <string>
 

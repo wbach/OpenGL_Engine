@@ -1,12 +1,13 @@
 #include "GrassRenderer.h"
 
 #include "../Framebuffer/FrameBuffer.h"
-
 #include "../../Scene/Scene.hpp"
 #include "../../Engine/Projection.h"
 #include "../../Engine/Configuration.h"
 #include "../../Objects/RenderAble/Flora/Grass/Grass.h"
-#include "../../Utils/OpenGL/OpenGLUtils.h"
+
+#include "OpenGL/OpenGLUtils.h"
+#include "Logger/Log.h"
 
 CGrassRenderer::CGrassRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)

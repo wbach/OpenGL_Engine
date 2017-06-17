@@ -1,5 +1,6 @@
 #include "MainScene.h"
 #include "../GameEngine/Engine/Engine.h"
+#include "Logger/Log.h"
 
 void TestGameStart()
 {

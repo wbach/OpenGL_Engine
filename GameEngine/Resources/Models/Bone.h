@@ -1,12 +1,12 @@
 #pragma once
-#include <string.h>
-#include <math.h>
-#include <cfloat>
-#include <iostream>
+#include "Types.h"
 #include <glm/glm.hpp>
+#include <string.h>
+#include <iostream>
+#include <cfloat> 
+#include <math.h>
 #include <vector>
 #include <map>
-#include "../../Debug_/Log.h"
 
 const int NUM_BONES_PER_VEREX = 4;
 
@@ -15,25 +15,9 @@ struct SVertexBoneData
 	uint32 ids[NUM_BONES_PER_VEREX];
 	float weights[NUM_BONES_PER_VEREX];
 
-	SVertexBoneData()
-	{
-		memset(ids, 0, sizeof(ids));
-		memset(weights, 0, sizeof(weights));
-	}
+	SVertexBoneData();
 
-	void AddBoneData(uint32 bone_id, float weight)
-	{
-		for (uint32 i = 0; i < NUM_BONES_PER_VEREX; i++)
-		{
-			if (abs(weights[i]) < FLT_MIN)
-			{
-				ids[i] = bone_id;
-				weights[i] = weight;
-				return;
-			}
-		}
-		Log("[Error] To many bones per vertex. Current limit : " + std::to_string(NUM_BONES_PER_VEREX));
-	}
+	void AddBoneData(uint32 bone_id, float weight);
 };
 struct SBoneInfo
 {

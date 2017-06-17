@@ -1,6 +1,6 @@
 #include "Camera.h"
-#include "../Utils/Utils.h"
-#include "../Utils/GLM/GLMUtils.h"
+#include "Utils.h"
+#include "GLM/GLMUtils.h"
 
 CCamera::CCamera() 
 : distanceFromPlayer(99)

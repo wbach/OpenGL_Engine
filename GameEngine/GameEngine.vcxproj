@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;..\Utils\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;..\Utils\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -159,7 +159,6 @@
     <ClInclude Include="Camera\Frustrum.h" />
     <ClInclude Include="Camera\Plane.h" />
     <ClInclude Include="Camera\ThridPersonCamera.h" />
-    <ClInclude Include="Debug_\Log.h" />
     <ClInclude Include="Display\DisplayManager.hpp" />
     <ClInclude Include="Engine\Configuration.h" />
     <ClInclude Include="Engine\Engine.h" />
@@ -210,6 +209,7 @@
     <ClInclude Include="Resources\Models\Model.h" />
     <ClInclude Include="Resources\Models\WBLoader\Collada\ColladaDae.h" />
     <ClInclude Include="Resources\Models\WBLoader\Collada\ColladaDaeTypes.h" />
+    <ClInclude Include="Resources\Models\WBLoader\Collada\Join.h" />
     <ClInclude Include="Resources\Models\WBLoader\IMeshLoader.h" />
     <ClInclude Include="Resources\Models\WBLoader\MeshData.h" />
     <ClInclude Include="Resources\Models\WBLoader\MyModel.h" />
@@ -235,18 +235,6 @@
     <ClInclude Include="Renderers\Entity\Shaders\SimpleEnityShader.h" />
     <ClInclude Include="Time\DayNightCycle.h" />
     <ClInclude Include="Time\GameTime.h" />
-    <ClInclude Include="Utils\EngineUitls.h" />
-    <ClInclude Include="Utils\GLM\GLMUtils.h" />
-    <ClInclude Include="Utils\OpenGL\OpenGLUtils.h" />
-    <ClInclude Include="Utils\optional.hpp" />
-    <ClInclude Include="Utils\ParseUtils.h" />
-    <ClInclude Include="Utils\Pathes.h" />
-    <ClInclude Include="Utils\Types.h" />
-    <ClInclude Include="Utils\Utils.h" />
-    <ClInclude Include="Utils\XML\ParseMethods.hpp" />
-    <ClInclude Include="Utils\XML\SceneReader.h" />
-    <ClInclude Include="Utils\XML\SerializedMethods.hpp" />
-    <ClInclude Include="Utils\XML\XMLUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Api\SDL2\InputSDL.cpp" />
@@ -255,7 +243,6 @@
     <ClCompile Include="Camera\FirstPersonCamera.cpp" />
     <ClCompile Include="Camera\Frustrum.cpp" />
     <ClCompile Include="Camera\ThridPersonCamera.cpp" />
-    <ClCompile Include="Debug_\Log.cpp" />
     <ClCompile Include="Display\DisplayManager.cpp" />
     <ClCompile Include="Engine\Configuration.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
@@ -292,6 +279,7 @@
     <ClCompile Include="Renderers\Terrain\Tesselation\Shaders\TesselationTerrainShader.cpp" />
     <ClCompile Include="Renderers\Terrain\Tesselation\TessellationTerrainRenderer.cpp" />
     <ClCompile Include="Resources\Models\Assimp\AssimpModel.cpp" />
+    <ClCompile Include="Resources\Models\Bone.cpp" />
     <ClCompile Include="Resources\Models\Mesh.cpp" />
     <ClCompile Include="Resources\Models\Model.cpp" />
     <ClCompile Include="Resources\Models\WBLoader\Collada\ColladaDae.cpp" />
@@ -313,16 +301,6 @@
     <ClCompile Include="Renderers\Entity\Shaders\SimpleEnityShader.cpp" />
     <ClCompile Include="Time\DayNightCycle.cpp" />
     <ClCompile Include="Time\GameTime.cpp" />
-    <ClCompile Include="Utils\EngineUitls.cpp" />
-    <ClCompile Include="Utils\GLM\GLMUtils.cpp" />
-    <ClCompile Include="Utils\OpenGL\OpenGLUtils.cpp" />
-    <ClCompile Include="Utils\ParseUtils.cpp" />
-    <ClCompile Include="Utils\Types.cpp" />
-    <ClCompile Include="Utils\Utils.cpp" />
-    <ClCompile Include="Utils\XML\ParseMethods.cpp" />
-    <ClCompile Include="Utils\XML\SceneReader.cpp" />
-    <ClCompile Include="Utils\XML\SerializedMethods.cpp" />
-    <ClCompile Include="Utils\XML\XMLUtils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

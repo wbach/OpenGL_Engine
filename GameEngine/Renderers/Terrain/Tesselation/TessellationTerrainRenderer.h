@@ -1,7 +1,9 @@
 #pragma once
 #include "Shaders/TesselationTerrainShader.h"
 #include "../../Renderer.h"
-#include "../../../Utils/Types.h"
+
+#include "Types.h"
+
 #include <vector>
 
 class CModel;

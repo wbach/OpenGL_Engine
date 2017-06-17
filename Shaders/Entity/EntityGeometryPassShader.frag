@@ -22,7 +22,7 @@ in float ShadowMapSize;
 layout (location = 0) out vec4 WorldPosOut;   
 layout (location = 1) out vec4 DiffuseOut;     
 layout (location = 2) out vec4 NormalOut;     
-layout (location = 3) out vec3 MaterialSpecular;  
+layout (location = 3) out vec4 MaterialSpecular;  
 				
 uniform float 	  UseTexture;				
 uniform sampler2D gColorMap;
@@ -100,5 +100,5 @@ void main()
 		normal    = normalize(Normal0);
 
 	NormalOut = vec4(normal, 1.f); // w use fog
-	MaterialSpecular = ModelMaterial.m_Specular;
+	MaterialSpecular = vec4(ModelMaterial.m_Specular, ModelMaterial.m_ShineDamper);
 }

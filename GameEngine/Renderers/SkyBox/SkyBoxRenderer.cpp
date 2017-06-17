@@ -1,10 +1,11 @@
 #include "SkyBoxRenderer.h"
 #include "../Framebuffer/FrameBuffer.h"
-#include "../../Utils/OpenGL/OpenGLUtils.h"
 #include "../../Resources/Models/Model.h"
 #include "../../Resources/Textures/Texture.h"
 #include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
+#include "OpenGL/OpenGLUtils.h"
+#include "Logger/Log.h"
 
 CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)

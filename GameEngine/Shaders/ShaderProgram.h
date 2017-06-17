@@ -1,6 +1,6 @@
 #pragma once
 //#define _CRT_SECURE_NO_WARNINGS
-#include "../Utils/Utils.h"
+#include "Utils.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <list>

@@ -34,5 +34,5 @@ private:
     std::vector<std::list<CEntity*>> subscribes;
 
 	const uint32 gridSize = 1000;
-	const uint32 gridCellSize = 25;
+	const uint32 gridCellSize = 250;
 };

@@ -1,5 +1,5 @@
 #include "SDLOpenGL.h"
-#include "../../Debug_/Log.h"
+#include "Logger/Log.h"
 #include "../../Input/Input.h"
 #include "../Api.hpp"
 #include "InputSDL.h"

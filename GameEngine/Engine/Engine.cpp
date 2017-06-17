@@ -5,7 +5,7 @@
 #include "../Renderers/FullRenderer.h"
 #include "../Renderers/SimpleRenderer.h"
 #include "../Renderers/GUI/GuiRenderer.h"
-#include "../Debug_/Log.h"
+#include "Logger/Log.h"
 #include <fstream>
 
 CEngine::CEngine()

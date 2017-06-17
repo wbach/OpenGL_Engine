@@ -1,5 +1,5 @@
 #pragma once
-#include "../GameEngine/Utils/Utils.h"
+#include "Utils.h"
 
 struct SCharacterStats
 {

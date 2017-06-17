@@ -2,8 +2,8 @@
 #include "OpenGLLoader.h"
 #include "Textures/MaterialTexture.h"
 #include "Textures/CubeMapTexture.h"
-#include "../Debug_/Log.h"
 #include "../Engine/Configuration.h"
+#include "Logger/Log.h"
 #include <FreeImage.h>
 #include <algorithm>
 

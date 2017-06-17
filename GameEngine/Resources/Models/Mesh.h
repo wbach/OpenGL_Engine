@@ -2,8 +2,8 @@
 #include <vector>
 #include "Material.h"
 #include "Bone.h"
-#include "../../Utils/Utils.h"
 #include "BoundingBox.h"
+#include "Utils.h"
 
 namespace VertexBufferObjects
 {

@@ -2,8 +2,10 @@
 #include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
 #include "../../Objects/RenderAble/Entity/Entity.h"
-#include "../../Utils/OpenGL/OpenGLUtils.h"
 #include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
+
+#include "OpenGL/OpenGLUtils.h"
+#include "Logger/Log.h"
 
 //Get Entity by reference
 static std::list<CEntity*> sEmptyEntityList;

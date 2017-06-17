@@ -1,5 +1,5 @@
 #pragma once
-#include "../Utils/Utils.h"
+#include "Utils.h"
 #include "LoD.h"
 
 class SConfiguration
