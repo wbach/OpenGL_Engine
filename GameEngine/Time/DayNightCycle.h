@@ -23,10 +23,10 @@ public:
 
 private:
     CLight*   directionalLight;
-    glm::vec3 sunRiseColor;
-    glm::vec3 midDayColor;
-    glm::vec3 sunSetColor;
-    glm::vec3 nightColor;
+    vec3 sunRiseColor;
+    vec3 midDayColor;
+    vec3 sunSetColor;
+    vec3 nightColor;
 
     float dayNightBlendFactor;
     float dayStart;
@@ -36,7 +36,7 @@ private:
     float morningDuration;
     float eveningDuration;
 
-    glm::vec3 defaultSunPos;
+    vec3 defaultSunPos;
 };
 
 inline float CDayNightCycle::GetDayNightBlendFactor() const

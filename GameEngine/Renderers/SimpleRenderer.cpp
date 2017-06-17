@@ -48,7 +48,7 @@ void SimpleRenderer::Subscribe(CGameObject * gameObject)
         subscribes.push_back(entity);
 }
 
-void SimpleRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
+void SimpleRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
     shader.LoadTransformMatrix(transform_matrix);
 

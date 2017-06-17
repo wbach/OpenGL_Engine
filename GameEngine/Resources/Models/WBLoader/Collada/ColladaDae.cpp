@@ -487,10 +487,10 @@ namespace WBLoader
 		return out;
 
 	}
-	glm::mat4 ColladaDae::GetMatrixFromString(const std::string& str) const
+	mat4 ColladaDae::GetMatrixFromString(const std::string& str) const
 	{
 		auto mdata = GetFloatsFromString(str);
-		glm::mat4 transform_matrix(1.f);
+		mat4 transform_matrix(1.f);
 		if (mdata.size() != 16)
 		{
 			Log("ColladaDae::GetMatrixFromString string is wrong size.");
@@ -519,7 +519,7 @@ namespace WBLoader
 
 			if (tmp.size() >= 2)
 			{
-				glm::vec2 v(tmp[0], tmp[1]);
+				vec2 v(tmp[0], tmp[1]);
 				out.push_back(v);
 				tmp.clear();
 			}
@@ -542,7 +542,7 @@ namespace WBLoader
 
 			if (tmp.size() >= 3)
 			{
-				glm::vec3 v(tmp[0], tmp[1], tmp[2]);
+				vec3 v(tmp[0], tmp[1], tmp[2]);
 				out.push_back(v);
 				tmp.clear();
 			}

@@ -5,7 +5,6 @@
 #include <freetype2/ftglyph.h>
 #include <freetype2/ftoutln.h>
 #include <freetype2/fttrigon.h>
-#include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <fstream>
 #include <iostream>
@@ -33,7 +32,7 @@ private:
 	void CreateList(FT_Face face, char ch);
 
 private:
-    glm::mat4 transformationMatrix = glm::mat4(1);
+    mat4 transformationMatrix = mat4(1);
 
     SCharacter characters[m_MaxCharacters];
 

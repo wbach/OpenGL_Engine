@@ -25,10 +25,10 @@ public:
 	virtual int	 Update() = 0;
 
 	//Add Entities
-	CGameObject* AddGameObject(CGameObject* object, const glm::vec3& position = glm::vec3(0.f));
+	CGameObject* AddGameObject(CGameObject* object, const vec3& position = vec3(0.f));
 
 	//GetObjects
-    std::list<CGameObject*> GetObjectInRange(const glm::vec3& position, float range);
+    std::list<CGameObject*> GetObjectInRange(const vec3& position, float range);
     const std::list<std::unique_ptr<CGameObject>>& GetGameObjects() { return gameObjects; }
 
 	//Cameras

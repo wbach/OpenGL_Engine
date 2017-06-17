@@ -12,18 +12,18 @@ void CSkyBoxShader::Init()
     m_RotationSpeed = 0.1f;
 }
 
-void CSkyBoxShader::LoadProjectionMatrix(const glm::mat4& matrix) const
+void CSkyBoxShader::LoadProjectionMatrix(const mat4& matrix) const
 {
 	LoadValue(location_ProjectionMatrix, matrix);
 }
 
-void CSkyBoxShader::LoadViewMatrix(glm::mat4 matrix, const float& deltaTime, const float& distance_view)
+void CSkyBoxShader::LoadViewMatrix(mat4 matrix, const float& deltaTime, const float& distance_view)
 {
 	matrix[3][0] = 0;
 	matrix[3][1] = 0;
 	matrix[3][2] = 0;
 	m_Rotation += m_RotationSpeed * deltaTime;
-	matrix *= glm::scale(glm::vec3(distance_view *0.5f));
+	matrix *= glm::scale(vec3(distance_view *0.5f));
 	matrix *= glm::rotate((float) m_Rotation, .0f, 1.f, .0f);
 	LoadValue(location_ViewMatrix, matrix);
 }
@@ -40,7 +40,7 @@ void CSkyBoxShader::GetAllUniformLocations()
 
 void CSkyBoxShader::LoadFogColour(const float& r, const float& g, const float& b) const
 {
-	LoadValue(location_FogColour, glm::vec3(r, g, b));
+	LoadValue(location_FogColour, vec3(r, g, b));
 }
 
 void CSkyBoxShader::LoadBlendFactor(const float& factor)const

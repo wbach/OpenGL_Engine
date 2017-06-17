@@ -8,7 +8,7 @@ void FontShader::Init() {
 	FinalizeShader();
 
 	Start();
-	glm::mat4 scaleMat = Utils::CreateTransformationMatrix(glm::vec2(0), glm::vec2(0.0005, 0.001));
+	mat4 scaleMat = Utils::CreateTransformationMatrix(vec2(0), vec2(0.0005, 0.001));
 	loadTransformation(scaleMat);
 	Stop();
 }
@@ -24,16 +24,16 @@ void FontShader::BindAttributes()
 
 }
 
-void FontShader::loadColour(const glm::vec3 & colour) const
+void FontShader::loadColour(const vec3 & colour) const
 {
 }
 
-void FontShader::loadTranslation(const glm::vec2 & pos) const
+void FontShader::loadTranslation(const vec2 & pos) const
 {
 	LoadValue(location_translation, pos);
 }
 
-void FontShader::loadTransformation(const glm::mat4 & pos) const
+void FontShader::loadTransformation(const mat4 & pos) const
 {
 	LoadValue(location_transformationMatrix, pos);
 }

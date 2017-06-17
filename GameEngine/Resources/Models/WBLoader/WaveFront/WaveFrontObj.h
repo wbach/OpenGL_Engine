@@ -33,8 +33,8 @@ namespace WBLoader
 		std::list<WBLoader::Object> objects;
 		std::list<SMaterial> materials;
 
-		std::vector<glm::vec3> vertex;
-		std::vector<glm::vec2> text_coords;
-		std::vector<glm::vec3> normals;
+		std::vector<vec3> vertex;
+		std::vector<vec2> text_coords;
+		std::vector<vec3> normals;
 	};
 }

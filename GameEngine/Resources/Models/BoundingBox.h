@@ -1,10 +1,10 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "Types.h"
 
 struct BoundingBox
 {
-    glm::vec3	min,
-                max,
-                center,
-                size;
+    vec3	min,
+            max,
+            center,
+            size;
 };

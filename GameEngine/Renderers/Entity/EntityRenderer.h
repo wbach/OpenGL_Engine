@@ -16,10 +16,10 @@ public:
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
-	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
+	void RenderModel(CModel* model, const mat4& transform_matrix) const;
 	
 private:
-	wb::vec2i CalcualteCoorditantes(const glm::vec3& v) const;
+	wb::vec2i CalcualteCoorditantes(const vec3& v) const;
 	const std::list<CEntity*>& GetEntity(uint32 x, uint32 y) const;
 	void BindMaterial(const SMaterial& material) const;
 	void UnBindMaterial(const SMaterial& material) const;
@@ -28,7 +28,7 @@ private:
     CEntityGeometryPassShader shader;
     CProjection* projectionMatrix;
 
-    glm::vec4	clipPlane;
+    vec4	clipPlane;
 
 	std::list<CEntity*> dynamicSubscribes;
     std::vector<std::list<CEntity*>> subscribes;

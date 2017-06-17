@@ -9,20 +9,20 @@ class CFirstPersonCamera : public CCamera
 {
 public:
 	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, glm::vec3& position_entity, glm::vec3& rotation_entity);
+	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, vec3& position_entity, vec3& rotation_entity);
 
 	void Move() override;
-	void AttachToObject(glm::vec3& position_entity, glm::vec3& rotation_entity) override;
+	void AttachToObject(vec3& position_entity, vec3& rotation_entity) override;
 
 private:
 	void MoveCamera(float dist, float dir);
 	void MoveCameraUp(float dist, float dir);
 	void LockCamera();
-	glm::vec2 CalcualteMouseMove();
+	vec2 CalcualteMouseMove();
 
 private:
-    glm::vec3& lookPosition;
-    glm::vec3& lookRotation;
+    vec3& lookPosition;
+    vec3& lookRotation;
 
 
     CInputManager*   inputManager;

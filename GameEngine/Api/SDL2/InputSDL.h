@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Input/Input.h"
-#include <glm/glm.hpp>
+#include "Types.h"
 
 struct SDL_Window;
 
@@ -17,8 +17,8 @@ public:
 	virtual bool GetMouseKeyDown(int key) override;
 	virtual bool GetMouseKeyUp(int key) override;
 	virtual bool GetMouseKey(int key) override;
-	virtual glm::vec2 CalcualteMouseMove() override;
-	virtual glm::vec2 GetMousePosition() override;
+	virtual vec2 CalcualteMouseMove() override;
+	virtual vec2 GetMousePosition() override;
 
 	//not use in SDL
 	virtual void SetKeyToBuffer(int key, bool value) override;

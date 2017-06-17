@@ -1,6 +1,5 @@
 #pragma once
 #include "Types.h"
-#include <glm/glm.hpp>
 #include <string.h>
 #include <iostream>
 #include <cfloat> 
@@ -21,8 +20,8 @@ struct SVertexBoneData
 };
 struct SBoneInfo
 {
-    glm::mat4 boneOffset = glm::mat4(0.f);
-    glm::mat4 finalTransformation = glm::mat4(0.f);
+    mat4 boneOffset = mat4(0.f);
+    mat4 finalTransformation = mat4(0.f);
 };
 
 struct SBonesInfo

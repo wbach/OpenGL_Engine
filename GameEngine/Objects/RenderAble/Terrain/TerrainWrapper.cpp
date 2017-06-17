@@ -3,7 +3,7 @@
 #include "TerrainCreateUtils.h"
 #include "Logger/Log.h"
 
-wb::optional<glm::vec3> CTerrainWrapper::CollisionDetection(const glm::vec3& v)
+wb::optional<vec3> CTerrainWrapper::CollisionDetection(const vec3& v)
 {
 	return Get()->CollisionDetection(v);
 }

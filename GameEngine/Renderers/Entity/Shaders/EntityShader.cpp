@@ -33,17 +33,17 @@ void CEntityShader::LoadUseInstancedRendering(const float & use) const
 {
 	LoadValue(location_IsInstancedRender, use);
 }
-void CEntityShader::LoadTransformMatrix(const glm::mat4& matrix) const
+void CEntityShader::LoadTransformMatrix(const mat4& matrix) const
 {
 	LoadValue(location_TransformationMatrix, matrix);
 }
 
-void CEntityShader::LoadProjectionMatrix(const glm::mat4& matrix) const
+void CEntityShader::LoadProjectionMatrix(const mat4& matrix) const
 {
 	LoadValue(location_ProjectionMatrix, matrix);
 }
 
-void CEntityShader::LoadViewMatrix(const glm::mat4& matrix) const
+void CEntityShader::LoadViewMatrix(const mat4& matrix) const
 {
 	LoadValue(location_ViewMatrix, matrix);
 }
@@ -51,7 +51,7 @@ void CEntityShader::LoadUseBonesTransformation(const float & is) const
 {
 	LoadValue(location_UseBoneTransform, is);
 }
-void CEntityShader::LoadBoneTransform(const glm::mat4 & transform, uint32 id) const
+void CEntityShader::LoadBoneTransform(const mat4 & transform, uint32 id) const
 {
 	LoadValue(location_Bones[id], transform);
 }

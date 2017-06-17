@@ -1,7 +1,6 @@
 #pragma once
 #include "../Material.h"
 #include "Types.h"
-#include <glm/glm.hpp>
 #include <vector>
 #include <list>
 #include <map>
@@ -11,17 +10,17 @@ namespace WBLoader
 	struct VertexBuffer
 	{
 		wb::vec3i indexes;
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec3 tangents;
-		glm::vec3 bitangents;
-		glm::vec2 uvs;
+		vec3 position;
+		vec3 normal;
+		vec3 tangents;
+		vec3 bitangents;
+		vec2 uvs;
 		uint32 material_id;
 	};
 
 	struct MaterialLayer
 	{
-		glm::vec4 color;
+		vec4 color;
 		std::string textureName;
 	};
 
@@ -39,9 +38,9 @@ namespace WBLoader
 	{
 		std::string name;
 
-		std::vector<glm::vec3> vertex;
-		std::vector<glm::vec2> text_coords;
-		std::vector<glm::vec3> normals;
+		std::vector<vec3> vertex;
+		std::vector<vec2> text_coords;
+		std::vector<vec3> normals;
 		//Material ogrin_material;
 
 		std::vector<VertexBuffer> vertexBuffer;
@@ -62,11 +61,11 @@ namespace WBLoader
 	{
 		std::string name;
 		std::vector<Mesh> meshes;
-		glm::mat4 transformMatrix;
+		mat4 transformMatrix;
 	};
 
 	int FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v);
 	int FindIndexFast(std::map<wb::vec3i, uint16>& vertexes, const wb::vec3i& v);
-	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const glm::vec3& v);
-	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const glm::vec2& v);	
+	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const vec3& v);
+	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2& v);	
 }

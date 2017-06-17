@@ -24,9 +24,9 @@ public:
 	bool GetMouseKeyDown(int key);
 	bool GetMouseKeyUp(int key);
 	bool GetMouseKey(int key);
-	glm::vec2 GetMousePosition();
+	vec2 GetMousePosition();
 
-	glm::vec2 CalcualteMouseMove();
+	vec2 CalcualteMouseMove();
 
 public:
     std::unique_ptr<CInput> input;

@@ -1,8 +1,8 @@
 #pragma once
 //#define _CRT_SECURE_NO_WARNINGS
 #include "Utils.h"
+#include "Types.h"
 #include <GL/glew.h>
-#include <glm/glm.hpp>
 #include <list>
 
 const int MAX_BONES = 100;
@@ -27,11 +27,11 @@ protected:
 	virtual void ConnectTextureUnits() const {}
 	void LoadValue(uint32 loacation, const int& value) const;
 	void LoadValue(uint32 loacation, const float& value) const;
-	void LoadValue(uint32 loacation, const glm::vec2& value) const;
-	void LoadValue(uint32 loacation, const glm::vec3& value) const;
-	void LoadValue(uint32 loacation, const glm::vec4& value) const;
-	void LoadValue(uint32 loacation, const glm::mat3& value) const;
-	void LoadValue(uint32 loacation, const glm::mat4& value) const;
+	void LoadValue(uint32 loacation, const vec2& value) const;
+	void LoadValue(uint32 loacation, const vec3& value) const;
+	void LoadValue(uint32 loacation, const vec4& value) const;
+	void LoadValue(uint32 loacation, const mat3& value) const;
+	void LoadValue(uint32 loacation, const mat4& value) const;
 
 private:
     int programID = 0;

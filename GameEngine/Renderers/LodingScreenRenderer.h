@@ -18,5 +18,5 @@ private:
     SSimpleQuad    quad;
     CTexture*	   circleTexture;
     CTexture*	   backgroundTexture;
-    glm::mat4	   transformationMatrix;
+    mat4	   transformationMatrix;
 };

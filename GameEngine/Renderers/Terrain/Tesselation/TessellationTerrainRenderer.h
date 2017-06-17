@@ -23,10 +23,10 @@ public:
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
-	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
+	void RenderModel(CModel* model, const mat4& transform_matrix) const;
 private:
     void BindTextures(TerrainPtr terrain) const;
-    TerrainPtrs GetTerrainsInRange(const glm::vec3& position, int range) const;
+    TerrainPtrs GetTerrainsInRange(const vec3& position, int range) const;
     void AllocateTerrainsGrid();
     void AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i& pos);
 
@@ -34,7 +34,7 @@ private:
     CTesselationTerrainShader  shader;
     CProjection*	projectionMatrix;
 
-    glm::vec4	clipPlane;
+    vec4	clipPlane;
 
     uint32 gridSize = 20;
     TerrainPtrs subscribes;

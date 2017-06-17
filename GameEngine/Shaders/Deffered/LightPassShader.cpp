@@ -54,14 +54,14 @@ void CLightPassShader::LoadLight(const CLight& light, const int& i) const
 	LoadValue(location_LightCutOff[i], light.GetCutoff());
 }
 
-void CLightPassShader::LoadCameraPosition(const glm::vec3& camera_position) const
+void CLightPassShader::LoadCameraPosition(const vec3& camera_position) const
 {
 	LoadValue(location_CameraPosition, camera_position);
 }
 
 void CLightPassShader::LoadScreenSize(const wb::vec2i& screen_size)
 {
-	LoadValue(location_ScreenSize, glm::vec2((float)screen_size.x , (float) screen_size.y));
+	LoadValue(location_ScreenSize, vec2((float)screen_size.x , (float) screen_size.y));
 }
 
 void CLightPassShader::ConnectTextureUnits() const
@@ -73,7 +73,7 @@ void CLightPassShader::ConnectTextureUnits() const
 	LoadValue(location_DepthTexture, 4);
 
 }
-void CLightPassShader::LoadSkyColour(const glm::vec3& color) const
+void CLightPassShader::LoadSkyColour(const vec3& color) const
 {
 	LoadValue(location_SkyColour, color);
 }

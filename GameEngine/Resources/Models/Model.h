@@ -13,7 +13,7 @@ public:
 
 	virtual ~CModel();
     virtual void Update(float) {};
-	virtual const std::vector<glm::mat4>* GetBonesTransforms(uint32 mesh_id) { return nullptr; }
+	virtual const std::vector<mat4>* GetBonesTransforms(uint32 mesh_id) { return nullptr; }
     virtual void AddCurrentFramePtr(uint32* ptr) { currentFrames.push_back(ptr); }
 	virtual void SetCurrentFrame(uint32& current_frame) {}
 	virtual void SetTime(const float& time) {}
@@ -25,7 +25,7 @@ public:
 	CMesh* AddMesh(CMesh& mesh);
     const std::list<CMesh>& GetMeshes() const {return meshes;	}
 	void SetMaterial(const SMaterial& material, uint32 mesh = 0);
-	glm::vec3 GetNormalizedScaleVector(float x, float y, float z) const;
+	vec3 GetNormalizedScaleVector(float x, float y, float z) const;
 	void	CalculateBoudnigBox();
 
     bool operator==(const CModel &q) { return filename.compare(q.filename) == 0; }

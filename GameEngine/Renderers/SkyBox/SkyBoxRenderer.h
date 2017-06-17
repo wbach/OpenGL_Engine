@@ -27,5 +27,5 @@ private:
     CTexture*		nightTexture;
 
     CProjection*	projectionMatrix;
-    glm::vec4       clipPlane;
+    vec4       clipPlane;
 };

@@ -14,7 +14,7 @@ CMesh::CMesh(
     const std::vector<float>& tang,
     const std::vector<uint16>& ind,
     const std::vector<SVertexBoneData>& bon,
-	const glm::mat4& mtransform
+	const mat4& mtransform
 )
 {
     positions    = std::move(pos);
@@ -92,7 +92,7 @@ void CMesh::CreateVaoMesh()
     isInit = true;
 }
 
-void CMesh::CreateTransformsVbo(std::vector<glm::mat4>& m)
+void CMesh::CreateTransformsVbo(std::vector<mat4>& m)
 {
     glBindVertexArray(vao);
     glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
@@ -101,16 +101,16 @@ void CMesh::CreateTransformsVbo(std::vector<glm::mat4>& m)
 	for (uint32 i = 0; i < 4; i++)
 	{
 		glEnableVertexAttribArray(4 + i);
-		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
 		glVertexAttribDivisor(4 + i, 1);
 	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * m.size(), &m[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * m.size(), &m[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
     transformVboCreated = true;
 }
 
-void CMesh::UpdateTransformVbo(std::vector<glm::mat4>& m)
+void CMesh::UpdateTransformVbo(std::vector<mat4>& m)
 {
     glDeleteBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBindVertexArray(vao);
@@ -119,10 +119,10 @@ void CMesh::UpdateTransformVbo(std::vector<glm::mat4>& m)
 	for (uint32 i = 0; i < 4; i++)
 	{
 		glEnableVertexAttribArray(4 + i);
-		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
 		glVertexAttribDivisor(4 + i, 1);
 	}
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * m.size(), &m[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * m.size(), &m[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -141,7 +141,7 @@ void CMesh::CreateBoneVbo(const std::vector<SVertexBoneData>& bones)
     bonesInShader = true;
 }
 
-void CMesh::SetInstancedMatrixes(const std::vector<glm::mat4>& m)
+void CMesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 {
     instancedMatrixes = m;
 }
@@ -199,22 +199,22 @@ void CMesh::ClearData()
     instancedMatrixes.clear();
 }
 
-const glm::vec3 & CMesh::GetBoundingSize()
+const vec3 & CMesh::GetBoundingSize()
 {
     return boundingBox.size;
 }
 
-const glm::vec3 & CMesh::GetBoundingMin()
+const vec3 & CMesh::GetBoundingMin()
 {
     return boundingBox.min;
 }
 
-const glm::vec3 & CMesh::GetBoundingMax()
+const vec3 & CMesh::GetBoundingMax()
 {
     return boundingBox.max;
 }
 
-const glm::vec3 & CMesh::GetBoundingCenter()
+const vec3 & CMesh::GetBoundingCenter()
 {
     return boundingBox.center;
 }

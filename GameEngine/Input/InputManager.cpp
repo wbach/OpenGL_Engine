@@ -76,17 +76,17 @@ bool CInputManager::GetMouseKey(int key)
 	return false;
 }
 
-glm::vec2 CInputManager::GetMousePosition()
+vec2 CInputManager::GetMousePosition()
 {
     if (input != nullptr)
         return input->GetMousePosition();
-	return glm::vec2();
+	return vec2();
 }
 
-glm::vec2 CInputManager::CalcualteMouseMove()
+vec2 CInputManager::CalcualteMouseMove()
 {
     if (input != nullptr)
         return input->CalcualteMouseMove();
 
-	return glm::vec2();
+	return vec2();
 }

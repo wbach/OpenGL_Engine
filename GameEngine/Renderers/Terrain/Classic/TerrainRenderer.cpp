@@ -12,7 +12,7 @@ const float heightFactor = 25.f;
 CTerrainRenderer::CTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
-    , clipPlane(glm::vec4(0, 1, 0, 100000))
+    , clipPlane(vec4(0, 1, 0, 100000))
 {
 }
 
@@ -24,7 +24,7 @@ void CTerrainRenderer::Init()
 
     GLfloat viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
-    shader.Load(CTerrainShader::UniformLocation::Viewport, glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
+    shader.Load(CTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
     //m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
     shader.Load(CTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
     shader.Load(CTerrainShader::UniformLocation::HeightFactor, heightFactor);
@@ -37,7 +37,7 @@ void CTerrainRenderer::PrepareFrame(CScene * scene)
 {
     shader.Start();
     shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
-	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));
+	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, vec2(1000, 600));
 	
 	//m_Shader.Load(CTerrainShader::UniformLocation::LodFactor, 4);
 	//m_Shader.LoadClipPlane(m_ClipPlane);
@@ -59,9 +59,9 @@ void CTerrainRenderer::Render(CScene * scene)
     for (auto& sub : subscribes)
 	{
         auto position = sub->worldTransform.GetPosition();
-        //position *= glm::vec3(100, 0, 100);
-        position = glm::vec3(0,100, 0);
-        shader.Load(CTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
+        //position *= vec3(100, 0, 100);
+        position = vec3(0,100, 0);
+        shader.Load(CTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(100)));
 
 		BindTextures(sub);
 
@@ -89,7 +89,7 @@ void CTerrainRenderer::Subscribe(CGameObject * gameObject)
         subscribes.push_back(terrain);
 }
 
-void CTerrainRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
+void CTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
 }
 

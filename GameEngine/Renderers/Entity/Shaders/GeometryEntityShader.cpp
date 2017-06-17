@@ -73,17 +73,17 @@ void CEntityGeometryPassShader::LoadMeshMaterial(const SMaterial & material) con
 	LoadValue(location_MaterialSpecular, material.specular);
 }
 
-void CEntityGeometryPassShader::LoadToShadowSpaceMatrix(const glm::mat4 & matrix) const
+void CEntityGeometryPassShader::LoadToShadowSpaceMatrix(const mat4 & matrix) const
 {
 	LoadValue(location_ToShadowMapSpace, matrix);
 }
 
 void CEntityGeometryPassShader::LoadShadowValues(const float & is, const float & distance, const float & shadow_map_size) const
 {
-	LoadValue(location_ShadowVariables, glm::vec3(is, distance - 5, shadow_map_size));
+	LoadValue(location_ShadowVariables, vec3(is, distance - 5, shadow_map_size));
 }
 
-void CEntityGeometryPassShader::LoadClipPlane(const glm::vec4 clip_plane) const
+void CEntityGeometryPassShader::LoadClipPlane(const vec4 clip_plane) const
 {
 	LoadValue(location_ClipPlane, clip_plane);
 }

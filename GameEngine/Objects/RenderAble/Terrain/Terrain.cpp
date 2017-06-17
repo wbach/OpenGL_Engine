@@ -14,14 +14,14 @@ STerrain::STerrain()
 	}
 }
 
-wb::optional<glm::vec3> STerrain::CollisionDetection(const glm::vec3 & v)
+wb::optional<vec3> STerrain::CollisionDetection(const vec3 & v)
 {
-    wb::optional<glm::vec3> position;
+    wb::optional<vec3> position;
 	auto height = GetHeightofTerrain(v.x, v.z);
 
 	if (height)
 	{
-        glm::vec3 p = v;
+        vec3 p = v;
         p.y = height.GetValue();
         position = p;
 	}
@@ -33,7 +33,7 @@ void STerrain::SetHeight(int x, int y, float value)
     heights[x + y*heightMapResolution] = value;
 }
 
-wb::optional<float> STerrain::GetHeightofTerrain(glm::vec2 posXZ) const
+wb::optional<float> STerrain::GetHeightofTerrain(vec2 posXZ) const
 {
 	return GetHeightofTerrain(posXZ.x, posXZ.y);
 }
@@ -57,14 +57,14 @@ wb::optional<float> STerrain::GetHeightofTerrain(float worldX, float worldZ) con
 
 	if (x_coord <= (1 - z_coord))
 	{
-		result = Utils::BarryCentric(glm::vec3(0, GetHeight(grid_x, grid_z), 0), glm::vec3(1, GetHeight(grid_x + 1, grid_z), 0),
-			glm::vec3(0, GetHeight(grid_x, grid_z + 1), 1), glm::vec2(x_coord, z_coord));
+		result = Utils::BarryCentric(vec3(0, GetHeight(grid_x, grid_z), 0), vec3(1, GetHeight(grid_x + 1, grid_z), 0),
+			vec3(0, GetHeight(grid_x, grid_z + 1), 1), vec2(x_coord, z_coord));
 
 	}
 	else
 	{
-		result = Utils::BarryCentric(glm::vec3(1, GetHeight(grid_x + 1, grid_z), 0), glm::vec3(1, GetHeight(grid_x + 1, grid_z + 1), 1),
-			glm::vec3(0, GetHeight(grid_x, grid_z + 1), 1), glm::vec2(x_coord, z_coord));
+		result = Utils::BarryCentric(vec3(1, GetHeight(grid_x + 1, grid_z), 0), vec3(1, GetHeight(grid_x + 1, grid_z + 1), 1),
+			vec3(0, GetHeight(grid_x, grid_z + 1), 1), vec2(x_coord, z_coord));
 	}
 
 	return result;

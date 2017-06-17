@@ -18,10 +18,10 @@ public:
 	void LoadUseNormalMap(const float& use) const;
 	void LoadMeshMaterial(const SMaterial& material) const;
 
-	void LoadToShadowSpaceMatrix(const glm::mat4& matrix) const;
+	void LoadToShadowSpaceMatrix(const mat4& matrix) const;
 	void LoadShadowValues(const float& is, const float& distance, const float& shadow_map_size) const;
 
-	void LoadClipPlane(const glm::vec4 clip_plane = glm::vec4(0, 1, 0, 100000)) const;
+	void LoadClipPlane(const vec4 clip_plane = vec4(0, 1, 0, 100000)) const;
 
 	void LoadUseTexture(const float& is) const;
 private:

@@ -17,7 +17,7 @@ public:
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
-	void RenderModel(CModel* model, const glm::mat4& transform_matrix) const;
+	void RenderModel(CModel* model, const mat4& transform_matrix) const;
 
 private:
 	void BindTextures(STerrain* terrain) const;
@@ -26,7 +26,7 @@ private:
     CTerrainShader  shader;
     CProjection*	projectionMatrix;
 
-    glm::vec4	clipPlane;
+    vec4	clipPlane;
 
     std::list<STerrain*> subscribes;
 };

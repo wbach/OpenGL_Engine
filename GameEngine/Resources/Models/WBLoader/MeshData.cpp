@@ -21,14 +21,14 @@ namespace WBLoader
 		return it->second;
 	}
 
-	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const glm::vec3 & v)
+	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const vec3 & v)
 	{
 		buffer.push_back(v.x);
 		buffer.push_back(v.y);
 		buffer.push_back(v.z);
 	}
 
-	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const glm::vec2 & v)
+	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2 & v)
 	{
 		buffer.push_back(v.x);
 		buffer.push_back(v.y);
@@ -79,26 +79,26 @@ namespace WBLoader
 		for (uint32 i = 0; i < vertexBuffer.size(); i += 3) 
 		{
 			// Shortcuts for vertices
-			glm::vec3 & v0 = vertexBuffer[i + 0].position;
-			glm::vec3 & v1 = vertexBuffer[i + 1].position;
-			glm::vec3 & v2 = vertexBuffer[i + 2].position;
+			vec3 & v0 = vertexBuffer[i + 0].position;
+			vec3 & v1 = vertexBuffer[i + 1].position;
+			vec3 & v2 = vertexBuffer[i + 2].position;
 
 			// Shortcuts for UVs
-			glm::vec2 & uv0 = vertexBuffer[i + 0].uvs;
-			glm::vec2 & uv1 = vertexBuffer[i + 1].uvs;
-			glm::vec2 & uv2 = vertexBuffer[i + 2].uvs;
+			vec2 & uv0 = vertexBuffer[i + 0].uvs;
+			vec2 & uv1 = vertexBuffer[i + 1].uvs;
+			vec2 & uv2 = vertexBuffer[i + 2].uvs;
 
 			// Edges of the triangle : postion delta
-			glm::vec3 deltaPos1 = v1 - v0;
-			glm::vec3 deltaPos2 = v2 - v0;
+			vec3 deltaPos1 = v1 - v0;
+			vec3 deltaPos2 = v2 - v0;
 
 			// UV delta
-			glm::vec2 deltaUV1 = uv1 - uv0;
-			glm::vec2 deltaUV2 = uv2 - uv0;
+			vec2 deltaUV1 = uv1 - uv0;
+			vec2 deltaUV2 = uv2 - uv0;
 
 			float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-			glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y)*r;
-			glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x)*r;
+			vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y)*r;
+			vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x)*r;
 
 			// Set the same tangent for all three vertices of the triangle.
 			// They will be merged later, in vboindexer.cpp
@@ -114,9 +114,9 @@ namespace WBLoader
 		// See "Going Further"
 		for (uint32 i = 0; i < vertexBuffer.size(); i += 1)
 		{
-			glm::vec3 & n = vertexBuffer[i].normal;
-			glm::vec3 & t = vertexBuffer[i].tangents;
-			glm::vec3 & b = vertexBuffer[i].bitangents;
+			vec3 & n = vertexBuffer[i].normal;
+			vec3 & t = vertexBuffer[i].tangents;
+			vec3 & b = vertexBuffer[i].bitangents;
 
 			// Gram-Schmidt orthogonalize
 			t = glm::normalize(t - n * glm::dot(n, t));

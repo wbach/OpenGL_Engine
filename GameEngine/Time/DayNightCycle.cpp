@@ -11,7 +11,7 @@ CDayNightCycle::CDayNightCycle()
     , sunRiseColor(Utils::RGBtoFloat(253.f, 168.f, 87.f))
     , midDayColor(1.f, 0.784314f, 0.588235)
     , sunSetColor(Utils::RGBtoFloat(253.f, 94.f, 83.f))
-    , nightColor(glm::vec3(.01f))
+    , nightColor(vec3(.01f))
     , dayNightBlendFactor(0.5f)
     , dayStart(.45f)
     , dayEnd(.75f)
@@ -20,7 +20,7 @@ CDayNightCycle::CDayNightCycle()
 {
     morningDuration = dayStart - nightEnd;
     eveningDuration = nightStart - dayEnd;
-    defaultSunPos = glm::vec3(10000, 15000, 10000);
+    defaultSunPos = vec3(10000, 15000, 10000);
 }
 void CDayNightCycle::Update(const float & delta_time)
 {
@@ -47,7 +47,7 @@ void CDayNightCycle::UpdateSunColor()
 	}
 	if (IsMorning())
 	{
-		glm::vec3 color;
+		vec3 color;
         float half_moorning_duration = morningDuration / 2.f;
 		if (IsFirstHalfMorning())
 		{
@@ -63,7 +63,7 @@ void CDayNightCycle::UpdateSunColor()
 	}
 	if (IsEvening())
 	{
-		glm::vec3 color;
+		vec3 color;
         float half_evening = eveningDuration / 2.f;
 		if (IsFirstHalfEvening())
 		{
@@ -87,7 +87,7 @@ void CDayNightCycle::UpdateSunPosition()
 		Log("Directional light not set in CDayNightCycle but is used.");
 		return;
 	}
-    glm::vec3 current_pos = directionalLight->GetPosition();
+    vec3 current_pos = directionalLight->GetPosition();
 
     float m_SunAngle = currentTime * 360.f;
 	float rad = (m_SunAngle)*static_cast<float>(M_PI) / 180.0f + static_cast<float>(M_PI) / 2.f;

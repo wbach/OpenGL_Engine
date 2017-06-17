@@ -16,20 +16,20 @@ private:
 	void LockCamera();
 	void SetCaptureMouse(bool capture);	
 	void CalculateCameraPosition(float horizontal_distance, float vertical_distance);
-	void SetPosition(glm::vec3 position);
+	void SetPosition(vec3 position);
 	float CalculateHorizontalDistance();
 	float CalculateVerticalDistance();
 
-	glm::vec2 CalcualteMouseMove();
-	void CalculatePitch(glm::vec2 d_move);
-	void CalculateAngleAroundPlayer(glm::vec2 d_move);
+	vec2 CalcualteMouseMove();
+	void CalculatePitch(vec2 d_move);
+	void CalculateAngleAroundPlayer(vec2 d_move);
 
 private:
     CInputManager *inputManager;
     CTransform&	lookAtTransform;
 
     bool		isShowCursor;
-    glm::vec3	offset;
+    vec3	offset;
     float		mousevel;
     bool		captureMouse;
 };

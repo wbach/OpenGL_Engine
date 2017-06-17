@@ -14,7 +14,7 @@ namespace TerrainUtils
 
 	void LoadSimpleMesh(CResourceManager& manager, STerrain*& terrain);
 
-	//std::vector<float> CreateGrassPosition(STerrain* terrain, const std::vector<glm::vec2>& grass_xz_position)
+	//std::vector<float> CreateGrassPosition(STerrain* terrain, const std::vector<vec2>& grass_xz_position)
 	//{
 	//	std::vector<float> positions;
 	//	for (const auto& xz : grass_xz_position)

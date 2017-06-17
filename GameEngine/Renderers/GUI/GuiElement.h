@@ -7,5 +7,5 @@ public:
 	virtual ~CGuiElement() = 0;
 	virtual void Init() = 0;
 	virtual void Render() = 0;
-	glm::vec2 position;
+	vec2 position;
 };

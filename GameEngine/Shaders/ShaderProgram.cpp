@@ -138,11 +138,11 @@ void CShaderProgram::BindAttribute(int attribute, const std::string& variableNam
 {
     glBindAttribLocation(programID, attribute, variableName.c_str());
 }
-void CShaderProgram::LoadValue(uint32 loacation, const glm::mat4& value) const
+void CShaderProgram::LoadValue(uint32 loacation, const mat4& value) const
 {
 	glUniformMatrix4fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
 }
-void CShaderProgram::LoadValue(uint32 loacation, const glm::mat3& value) const
+void CShaderProgram::LoadValue(uint32 loacation, const mat3& value) const
 {
 	glUniformMatrix3fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
 }
@@ -157,17 +157,17 @@ void CShaderProgram::LoadValue(uint32 loacation, const int& value) const
 	glUniform1i(loacation, value);
 }
 
-void CShaderProgram::LoadValue(uint32 loacation, const glm::vec2& value) const
+void CShaderProgram::LoadValue(uint32 loacation, const vec2& value) const
 {
 	glUniform2fv(loacation, 1, glm::value_ptr(value));
 }
 
-void CShaderProgram::LoadValue(uint32 loacation, const glm::vec3& value) const
+void CShaderProgram::LoadValue(uint32 loacation, const vec3& value) const
 {
 	glUniform3fv(loacation, 1, glm::value_ptr(value));
 }
 
-void CShaderProgram::LoadValue(uint32 loacation, const glm::vec4& value) const
+void CShaderProgram::LoadValue(uint32 loacation, const vec4& value) const
 {
 	glUniform4fv(loacation, 1, glm::value_ptr(value));
 }

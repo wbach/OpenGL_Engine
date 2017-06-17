@@ -14,7 +14,7 @@ const float heightFactor = 25.f;
 CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
-    , clipPlane(glm::vec4(0, 1, 0, 100000))
+    , clipPlane(vec4(0, 1, 0, 100000))
 {
     AllocateTerrainsGrid();
 }
@@ -27,7 +27,7 @@ void CTessellationTerrainRenderer::Init()
 
 	GLfloat viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
-    shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, glm::vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
+    shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
     //m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
     shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
     shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, heightFactor);
@@ -40,7 +40,7 @@ void CTessellationTerrainRenderer::PrepareFrame(CScene * scene)
 { 
     shader.Start();
     shader.Load(CTesselationTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
-	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, glm::vec2(1000, 600));
+	//m_Shader.Load(CTerrainShader::UniformLocation::ScreenSize, vec2(1000, 600));
 	
 	//m_Shader.Load(CTerrainShader::UniformLocation::LodFactor, 4);
 	//m_Shader.LoadClipPlane(m_ClipPlane);
@@ -67,8 +67,8 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
 		if (sub == nullptr || !sub->Get()->model->isInOpenGL()) continue;
 
         auto position = sub->worldTransform.GetPosition();
-       // position *= glm::vec3(1, 1, 100);
-        shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, glm::vec3(0, 0, 0), glm::vec3(100)));
+       // position *= vec3(1, 1, 100);
+        shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(100)));
 
 		BindTextures(sub);
 
@@ -104,7 +104,7 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
     //subscribes.push_back(terrain);
 }
 
-void CTessellationTerrainRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
+void CTessellationTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
 }
 
@@ -122,7 +122,7 @@ void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
     }
 }
 
-TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const glm::vec3& position, int range) const
+TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const vec3& position, int range) const
 {
    TerrainPtrs terrain_list;
 

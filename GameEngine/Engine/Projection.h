@@ -1,6 +1,5 @@
 #pragma once
-#include <glm/glm.hpp>
-#include "Utils.h"
+#include "Types.h"
 
 class CProjection
 {
@@ -8,8 +7,8 @@ public:
     CProjection();
     CProjection(const wb::vec2i& window_size);
     CProjection(const wb::vec2i& window_size, float near, float far, float fov);
-    const glm::mat4& GetProjectionMatrix() const;
-    glm::mat4* GetProjectionMatrixPtr() { return &projectionMatrix; }
+    const mat4& GetProjectionMatrix() const;
+    mat4* GetProjectionMatrixPtr() { return &projectionMatrix; }
     const wb::vec2i& GetWindowSize();
     float GetViewDistance();
     void CreateProjectionMatrix();
@@ -20,5 +19,5 @@ private:
     float nearPlane;
     float farPlane;
     float fov;
-    glm::mat4 projectionMatrix;
+    mat4 projectionMatrix;
 };

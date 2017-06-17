@@ -8,7 +8,7 @@
 #include "RenderAble/Terrain/TerrainCreateUtils.h"
 #include "Logger/Log.h"
 
-CGameObject * ObjectBuilder::CreateEntity(CResourceManager& manager, const glm::vec3 & normalized_scale, const std::string & mesh_lod_1, const std::string & mesh_lod_2, const std::string & mesh_lod_3)
+CGameObject * ObjectBuilder::CreateEntity(CResourceManager& manager, const vec3 & normalized_scale, const std::string & mesh_lod_1, const std::string & mesh_lod_2, const std::string & mesh_lod_3)
 {
 	return new CEntity(manager, normalized_scale, mesh_lod_1, mesh_lod_2, mesh_lod_3);
 }

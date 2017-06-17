@@ -1,34 +1,33 @@
 #pragma once
-#include <glm/glm.hpp>
 #include "Types.h"
 
 class CTransform
 {
 public:
 	CTransform();
-	CTransform(const glm::vec2& pos);
-	CTransform(const glm::vec3& pos);
-	CTransform(const glm::vec3& pos, const glm::vec3& rot);
-	CTransform(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale);
+	CTransform(const vec2& pos);
+	CTransform(const vec3& pos);
+	CTransform(const vec3& pos, const vec3& rot);
+	CTransform(const vec3& pos, const vec3& rot, const vec3& scale);
 	
 	void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
-	void IncrasePosition(glm::vec3 v, uint32 index = 0);
+	void IncrasePosition(vec3 v, uint32 index = 0);
 	void IncreaseRotation(float dx, float dy, float dz);
 	void UpdateMatrix();
 	
-	glm::vec3 GetPosition() const;
-	glm::vec3 GetRotation() const;
-	glm::vec2 GetPositionXZ() const;
-	const glm::mat4& GetMatrix() const;
+	vec3 GetPosition() const;
+	vec3 GetRotation() const;
+	vec2 GetPositionXZ() const;
+	const mat4& GetMatrix() const;
 
-	void SetNormalizedSize(const glm::vec3& size);
-	void SetScale(const glm::vec3& s);
-	void SetPosition(const glm::vec3& pos);
+	void SetNormalizedSize(const vec3& size);
+	void SetScale(const vec3& s);
+	void SetPosition(const vec3& pos);
 
 private:
-	glm::vec3 position;
-	glm::vec3 rotation;
-	glm::vec3 scale;
-	glm::mat4 matrix;
-	glm::vec3 normalized = glm::vec3(1.f);
+	vec3 position;
+	vec3 rotation;
+	vec3 scale;
+	mat4 matrix;
+	vec3 normalized = vec3(1.f);
 };

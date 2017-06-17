@@ -20,8 +20,8 @@ namespace WBLoader
 	typedef std::map<std::string, CTexture*> TexturesMap;
 	typedef std::map<std::string, SMaterial> MaterialMap;
 
-	typedef std::vector<glm::vec2> Vec2Vector;
-	typedef std::vector<glm::vec3> Vec3Vector;
+	typedef std::vector<vec2> Vec2Vector;
+	typedef std::vector<vec3> Vec3Vector;
 	typedef std::vector<float> FloatVector;
 	typedef std::vector<uint16> Uint16Vector;
 
@@ -72,7 +72,7 @@ namespace WBLoader
 		std::string GetName(const std::string& str, const std::string& postfix) const;
 		ColladaTypes::ArrayType GetArrayType(const std::string& str) const;
 
-		glm::mat4 GetMatrixFromString(const std::string& str) const;
+		mat4 GetMatrixFromString(const std::string& str) const;
 		Vec2Vector GetVectors2dFromString(const std::string& str) const;
 		Vec3Vector GetVectors3dFromString(const std::string& str) const;
 		FloatVector GetFloatsFromString(const std::string& str) const;

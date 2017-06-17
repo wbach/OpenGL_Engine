@@ -66,11 +66,11 @@ void CModel::SetMaterial(const SMaterial & material, uint32 id)
 	}
 }
 
-glm::vec3 CModel::GetNormalizedScaleVector(float w, float h, float z) const
+vec3 CModel::GetNormalizedScaleVector(float w, float h, float z) const
 {
 	int axis;
 	if (w == 0 && h == 0 && z == 0)
-		return glm::vec3(1);
+		return vec3(1);
 	else if (w != 0 && h == 0 && z == 0)
 		axis = 1;
 	else if (w == 0 && h != 0 && z == 0)
@@ -79,17 +79,17 @@ glm::vec3 CModel::GetNormalizedScaleVector(float w, float h, float z) const
 		axis = 3;
 
 
-	glm::vec3 scale_vector(1.f);
+	vec3 scale_vector(1.f);
 	switch (axis)
 	{
 	case 1:
-		scale_vector = glm::vec3(w / boundingBox.size.x, w / boundingBox.size.x, w / boundingBox.size.x);
+		scale_vector = vec3(w / boundingBox.size.x, w / boundingBox.size.x, w / boundingBox.size.x);
 		break;
-	case 2: scale_vector = glm::vec3(h / boundingBox.size.y, h / boundingBox.size.y, h / boundingBox.size.y);
+	case 2: scale_vector = vec3(h / boundingBox.size.y, h / boundingBox.size.y, h / boundingBox.size.y);
 		break;
-	case 3: scale_vector = glm::vec3(z / boundingBox.size.z, z / boundingBox.size.z, z / boundingBox.size.z);
+	case 3: scale_vector = vec3(z / boundingBox.size.z, z / boundingBox.size.z, z / boundingBox.size.z);
 		break;
-	default: scale_vector = glm::vec3(w / boundingBox.size.x, h / boundingBox.size.y, z / boundingBox.size.z);
+	default: scale_vector = vec3(w / boundingBox.size.x, h / boundingBox.size.y, z / boundingBox.size.z);
 		break;
 	}
 		

@@ -14,9 +14,9 @@ public:
 
 	void LoadLightNumber(const int& i) const;
 	void LoadLight(const CLight& light, const int& i) const;
-	void LoadCameraPosition(const glm::vec3& camera_position) const;
+	void LoadCameraPosition(const vec3& camera_position) const;
 
-	void LoadSkyColour(const glm::vec3& color) const;
+	void LoadSkyColour(const vec3& color) const;
 	void LoadViewDistance(const float& distance) const;
 
 	void LoadScreenSize(const wb::vec2i& screen_size);

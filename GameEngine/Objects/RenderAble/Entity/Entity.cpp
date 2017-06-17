@@ -9,14 +9,14 @@ CEntity::CEntity()
         m = nullptr;
 }
 
-CEntity::CEntity(CResourceManager & manager, const glm::vec3 & normalized_scale, const std::string& filename, const std::string& filename2, const std::string& filename3)
+CEntity::CEntity(CResourceManager & manager, const vec3 & normalized_scale, const std::string& filename, const std::string& filename2, const std::string& filename3)
 {
 	LoadModel(manager, normalized_scale, filename, 0);
 	LoadModel(manager, normalized_scale, filename2, 1);
 	LoadModel(manager, normalized_scale, filename3, 2);
 }
 
-CEntity::CEntity(const glm::vec3 normalized_v, CModel * model_lvl_1, CModel * model_lvl_2, CModel * model_lvl_3)
+CEntity::CEntity(const vec3 normalized_v, CModel * model_lvl_1, CModel * model_lvl_2, CModel * model_lvl_3)
 {
     model[0] = model_lvl_1;
     model[1] = model_lvl_2;
@@ -43,7 +43,7 @@ CModel * CEntity::GetModel(uint32 i)
     return model[i];
 }
 
-void CEntity::LoadModel(CResourceManager & manager, const glm::vec3 & normalized_scale, const std::string & filename, uint32 i)
+void CEntity::LoadModel(CResourceManager & manager, const vec3 & normalized_scale, const std::string & filename, uint32 i)
 {
 	if (!filename.empty())
 	{

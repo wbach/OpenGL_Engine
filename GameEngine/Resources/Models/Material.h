@@ -1,16 +1,16 @@
 #pragma once
-#include <string>
-#include <glm/glm.hpp>
-#include <vector>
 #include "../Textures/Texture.h"
+#include "Types.h"
+#include <string>
+#include <vector>
 
 struct SMaterial
 {
 	std::string name;
 
-	glm::vec3 ambient  = glm::vec3(0);
-	glm::vec3 diffuse  = glm::vec3(0.8);
-	glm::vec3 specular = glm::vec3(0);
+	vec3 ambient  = vec3(0);
+	vec3 diffuse  = vec3(0.8);
+	vec3 specular = vec3(0);
 
 	float shineDamper  = 0.f;
 	float reflectivity = 0.f;

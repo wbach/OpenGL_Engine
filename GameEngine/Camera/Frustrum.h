@@ -16,8 +16,8 @@ namespace FrustrumPlane
 class CFrustrum
 {
 public:
-	void CalculatePlanes(const glm::mat4& projection_view_matrix);
-	bool SphereIntersection(const glm::vec3& center, const float& radius);
+	void CalculatePlanes(const mat4& projection_view_matrix);
+	bool SphereIntersection(const vec3& center, const float& radius);
 
 private:
     CPlane planes[6];

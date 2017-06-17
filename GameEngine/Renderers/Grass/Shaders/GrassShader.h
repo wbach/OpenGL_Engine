@@ -5,14 +5,14 @@ class CGrassShader : public CShaderProgram
 {
 public:
 	void Init();
-	void LoadTransformMatrix(const glm::mat4&) const;
-	void LoadProjectionMatrix(const glm::mat4&) const;
-	void LoadViewMatrix(const glm::mat4&) const;
+	void LoadTransformMatrix(const mat4&) const;
+	void LoadProjectionMatrix(const mat4&) const;
+	void LoadViewMatrix(const mat4&) const;
 
 	void LoadGlobalTime(const float& time) const;
 	void LoadViewDistance(const float& distance) const;
 
-	void LoadToShadowSpaceMatrix(const glm::mat4& matrix) const;
+	void LoadToShadowSpaceMatrix(const mat4& matrix) const;
 	void LoadShadowValues(const float& is, const float& distance, const float& shadow_map_size) const;
 
 	void ConnectTextureUnits() const override;

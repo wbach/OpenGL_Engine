@@ -1,5 +1,5 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "Types.h"
 
 class CPlane
 {
@@ -14,6 +14,6 @@ public:
 	}
 
 public:
-	glm::vec3 normal; // The normal
+	vec3 normal; // The normal
 	float distanceToOrgin;  // The "distance" to the origin.
 };

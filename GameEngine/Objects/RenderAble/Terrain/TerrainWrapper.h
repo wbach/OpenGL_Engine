@@ -10,7 +10,7 @@ class CTerrainWrapper : public CGameObject
 public:
 	CTerrainWrapper(CResourceManager& manager, TerrainTexturesMap texture);
 	~CTerrainWrapper();
-	virtual wb::optional<glm::vec3> CollisionDetection(const glm::vec3&) override;
+	virtual wb::optional<vec3> CollisionDetection(const vec3&) override;
 	STerrain* Get();
 private:
 	std::unique_ptr<STerrain> terrain;

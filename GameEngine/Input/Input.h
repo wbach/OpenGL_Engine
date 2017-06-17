@@ -1,7 +1,7 @@
 #pragma once
 #include "KeyCodes.h"
 #include "GameActions.h"
-#include <glm/glm.hpp>
+#include "Types.h"
 #include <list>
 
 class CApi;
@@ -18,8 +18,8 @@ public:
 	virtual bool GetMouseKeyDown(int key) = 0;
 	virtual bool GetMouseKeyUp(int key) = 0;
 	virtual bool GetMouseKey(int key) = 0;
-	virtual glm::vec2 CalcualteMouseMove() = 0;
-	virtual glm::vec2 GetMousePosition() = 0;
+	virtual vec2 CalcualteMouseMove() = 0;
+	virtual vec2 GetMousePosition() = 0;
 
 	virtual void SetCursorPosition(int x, int y) = 0;
 	virtual void SetKeyToBuffer(int key, bool value) = 0;

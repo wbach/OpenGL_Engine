@@ -12,7 +12,7 @@ void CLoadingScreenRenderer::Init()
 {
 	quad.Init();
 	loadingShader.Init();
-	transformationMatrix = Utils::CreateTransformationMatrix(glm::vec3(0.81, -0.75, -0.01), glm::vec3(0), glm::vec3(0.1));
+	transformationMatrix = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.01), vec3(0), vec3(0.1));
 }
 
 void CLoadingScreenRenderer::Render(CScene * scene)
@@ -31,7 +31,7 @@ void CLoadingScreenRenderer::Render(CScene * scene)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, backgroundTexture->GetId());
-	loadingShader.LoadTransformMatrix(glm::mat4(1.f));
+	loadingShader.LoadTransformMatrix(mat4(1.f));
     Utils::SimpleRenderVao(quad.vao, quad.indicesSize, 2);
 	loadingShader.Stop();
 }

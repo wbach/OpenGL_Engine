@@ -30,15 +30,15 @@ void CLoadingShader::BindAttributes()
 	BindAttribute(0, "position");
 	BindAttribute(1, "textureCoords");
 }
-void CLoadingShader::LoadTransformMatrix(const glm::mat4& matrix) const 
+void CLoadingShader::LoadTransformMatrix(const mat4& matrix) const 
 {
 	LoadValue(location_transformationMatrix, matrix);
 }
-void CLoadingShader::LoadProjectionMatrix(const glm::mat4& matrix) const
+void CLoadingShader::LoadProjectionMatrix(const mat4& matrix) const
 {
 	LoadValue(location_projectionMatrix, matrix);
 }
-void CLoadingShader::LoadViewMatrix(const glm::mat4& matrix) const
+void CLoadingShader::LoadViewMatrix(const mat4& matrix) const
 {
 	LoadValue(location_viewMatrix, matrix);
 }

@@ -13,7 +13,7 @@ static std::list<CEntity*> sEmptyEntityList;
 CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
-	, clipPlane(glm::vec4(0, 1, 0, 100000))
+	, clipPlane(vec4(0, 1, 0, 100000))
 {
 	subscribes.resize(gridSize * gridSize);
 }
@@ -132,7 +132,7 @@ const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 	return subscribes[x + y*gridSize];
 }
 
-void CEntityRenderer::RenderModel(CModel * model, const glm::mat4 & transform_matrix) const
+void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {	
 	shader.LoadUseInstancedRendering(0.f);
 	shader.LoadUseFakeLight(0.f);
@@ -153,7 +153,7 @@ void CEntityRenderer::RenderModel(CModel * model, const glm::mat4 & transform_ma
 	}
 }
 
-wb::vec2i CEntityRenderer::CalcualteCoorditantes(const glm::vec3 & v) const
+wb::vec2i CEntityRenderer::CalcualteCoorditantes(const vec3 & v) const
 {
 	wb::vec2i w;
 	w.x = static_cast<int>(v.x) / static_cast<int>(gridCellSize) + gridSize / 2;

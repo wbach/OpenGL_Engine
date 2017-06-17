@@ -14,7 +14,7 @@ void CLightPassRenderer::Init()
 {
 	shader.Init();
 	shader.Start();
-	shader.LoadSkyColour(glm::vec3(0.0));
+	shader.LoadSkyColour(vec3(0.0));
 	shader.LoadScreenSize(projection->GetWindowSize());
 	shader.LoadViewDistance(projection->GetViewDistance());
 	shader.Stop();
@@ -48,7 +48,7 @@ void CLightPassRenderer::EndFrame(CScene * scene)
 	target->UnBind();
 
 	shader.Start();
-	shader.LoadSkyColour(glm::vec3(0.8) /** scene->m_DayNightCycle.GetDayNightBlendFactor()*/);
+	shader.LoadSkyColour(vec3(0.8) /** scene->m_DayNightCycle.GetDayNightBlendFactor()*/);
 	shader.LoadCameraPosition(scene->GetCamera()->GetPosition());
 	shader.LoadLight(scene->GetDirectionalLight(), 0);
 	int lights = scene->GetLights().size() + 1;

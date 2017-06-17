@@ -25,7 +25,7 @@ class CMesh : public COpenGLObject
 public:
 	CMesh();
 	CMesh(const SMaterial& material, const std::vector<float>& positions, const std::vector<float>& text_coords = std::vector<float>(), const std::vector<float>& normals = std::vector<float>(), const std::vector<float>& tangents = std::vector<float>(),
-		const std::vector<uint16>& indices = std::vector<uint16>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>(), const glm::mat4& transform = glm::mat4(1.f));
+		const std::vector<uint16>& indices = std::vector<uint16>(), const std::vector<SVertexBoneData>& bones = std::vector<SVertexBoneData>(), const mat4& transform = mat4(1.f));
 	CMesh(const CMesh&) = delete;
 	CMesh(CMesh&&) = default;
 
@@ -34,17 +34,17 @@ public:
 	virtual void OpenGLPostLoadingPass() override;
 
 	void CreateVaoMesh();
-	void CreateTransformsVbo(std::vector<glm::mat4>& m);
-	void UpdateTransformVbo(std::vector<glm::mat4>& m);
+	void CreateTransformsVbo(std::vector<mat4>& m);
+	void UpdateTransformVbo(std::vector<mat4>& m);
 	void CreateBoneVbo(const std::vector<SVertexBoneData>& bones);
 	void CalculateBoudnigBox(const std::vector<float>& positions);
 	void UpdateVertexPosition(const std::vector<float>& vertices) const;
-	void SetInstancedMatrixes(const std::vector<glm::mat4>& m);
+	void SetInstancedMatrixes(const std::vector<mat4>& m);
 
-	const glm::vec3& GetBoundingSize();
-	const glm::vec3& GetBoundingMin();
-	const glm::vec3& GetBoundingMax();
-	const glm::vec3& GetBoundingCenter();
+	const vec3& GetBoundingSize();
+	const vec3& GetBoundingMin();
+	const vec3& GetBoundingMax();
+	const vec3& GetBoundingCenter();
 
     const uint32& GetVao() const;
 	const uint32& GetVbo(VertexBufferObjects::Type type) const;
@@ -52,7 +52,7 @@ public:
 	const SMaterial& GetMaterial() const;
     const std::vector<uint32>& GetUsedAttributes() const { return attributes; }
 
-	const glm::mat4& GetMeshTransform() const { return transform; }
+	const mat4& GetMeshTransform() const { return transform; }
 
     void SetMaterial(const SMaterial& material);
 
@@ -75,14 +75,14 @@ private:
 	std::vector<float> bitangents;
     std::vector<uint16> indices;
     std::vector<SVertexBoneData> bones;
-    std::vector<glm::mat4> instancedMatrixes;
+    std::vector<mat4> instancedMatrixes;
 
     bool isInit = false;
     bool transformVboCreated = false;
     bool bonesInShader = false;
 
 	//local transform in mesh
-	glm::mat4 transform;
+	mat4 transform;
 
 	BoundingBox boundingBox;
 };

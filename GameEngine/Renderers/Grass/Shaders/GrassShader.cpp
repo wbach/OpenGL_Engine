@@ -9,17 +9,17 @@ void CGrassShader::Init()
     FinalizeShader();
 }
 
-void CGrassShader::LoadTransformMatrix(const glm::mat4 & m ) const
+void CGrassShader::LoadTransformMatrix(const mat4 & m ) const
 {
 	LoadValue(location_TransformationMatrix, m);
 }
 
-void CGrassShader::LoadProjectionMatrix(const glm::mat4 &m) const
+void CGrassShader::LoadProjectionMatrix(const mat4 &m) const
 {
 	LoadValue(location_ProjectionMatrix, m);
 }
 
-void CGrassShader::LoadViewMatrix(const glm::mat4 &m) const
+void CGrassShader::LoadViewMatrix(const mat4 &m) const
 {
 	LoadValue(location_ViewMatrix, m);
 }
@@ -29,14 +29,14 @@ void CGrassShader::LoadGlobalTime(const float & time) const
 	LoadValue(location_GlobalTime, time);
 }
 
-void CGrassShader::LoadToShadowSpaceMatrix(const glm::mat4 & matrix) const
+void CGrassShader::LoadToShadowSpaceMatrix(const mat4 & matrix) const
 {
 	LoadValue(location_ToShadowMapSpace, matrix);
 }
 
 void CGrassShader::LoadShadowValues(const float & is, const float & distance, const float & shadow_map_size) const
 {
-	LoadValue(location_ShadowVariables, glm::vec3(is, distance - 5, shadow_map_size));
+	LoadValue(location_ShadowVariables, vec3(is, distance - 5, shadow_map_size));
 }
 void CGrassShader::LoadViewDistance(const float& distance) const
 {

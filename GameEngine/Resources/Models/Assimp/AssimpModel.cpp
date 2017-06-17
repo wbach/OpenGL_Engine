@@ -157,9 +157,9 @@ void CAssimModel::ProcessMesh(std::string file_path, aiMesh* mesh, const aiScene
 	aiGetMaterialFloat(mat, AI_MATKEY_REFLECTIVITY, &reflectivity);
 	aiGetMaterialFloat(mat, AI_MATKEY_OPACITY, &transparent);
 
-	glm::vec3 defaultDiff(diff.r, diff.g, diff.b);
-	glm::vec3 defaultSpec(spec.r, spec.g, spec.b);
-	glm::vec3 defaultAmb(amb.r, amb.g, amb.b);
+	vec3 defaultDiff(diff.r, diff.g, diff.b);
+	vec3 defaultSpec(spec.r, spec.g, spec.b);
+	vec3 defaultAmb(amb.r, amb.g, amb.b);
 
 	for (uint32 i = 0; i< mesh->mNumVertices; i++)
 	{
@@ -318,9 +318,9 @@ void CAssimModel::RecursiveProcess(std::string file_path, aiNode *node, const ai
 	}
 }
 
-glm::mat4 CAssimModel::ToGlmMatrix(const aiMatrix4x4 & assimp_atrix)
+mat4 CAssimModel::ToGlmMatrix(const aiMatrix4x4 & assimp_atrix)
 {
-	glm::mat4 m;
+	mat4 m;
 	m[0][0] = assimp_atrix.a1; m[0][1] = assimp_atrix.b1; m[0][2] = assimp_atrix.c1; m[0][3] = assimp_atrix.d1;
 	m[1][0] = assimp_atrix.a2; m[1][1] = assimp_atrix.b2; m[1][2] = assimp_atrix.c2; m[1][3] = assimp_atrix.d2;
 	m[2][0] = assimp_atrix.a3; m[2][1] = assimp_atrix.b3; m[2][2] = assimp_atrix.c3; m[2][3] = assimp_atrix.d3;
@@ -328,9 +328,9 @@ glm::mat4 CAssimModel::ToGlmMatrix(const aiMatrix4x4 & assimp_atrix)
 	return m;
 }
 
-glm::mat4 CAssimModel::ToGlmMatrix(const aiMatrix3x3 & assimp_atrix)
+mat4 CAssimModel::ToGlmMatrix(const aiMatrix3x3 & assimp_atrix)
 {
-	glm::mat4 m;
+	mat4 m;
 	m[0][0] = assimp_atrix.a1; m[0][1] = assimp_atrix.b1; m[0][2] = assimp_atrix.c1; m[0][3] = 0;
 	m[1][0] = assimp_atrix.a2; m[1][1] = assimp_atrix.b2; m[1][2] = assimp_atrix.c2; m[1][3] = 0;
 	m[2][0] = assimp_atrix.a3; m[2][1] = assimp_atrix.b3; m[2][2] = assimp_atrix.c3; m[2][3] = 0;
@@ -352,11 +352,11 @@ void CAssimModel::Update(float delta_time)
 	}
 }
 
-const std::vector<glm::mat4>* CAssimModel::GetBonesTransforms(uint32 mesh_id) { return  &boneTransformMatrixes[mesh_id]; }
+const std::vector<mat4>* CAssimModel::GetBonesTransforms(uint32 mesh_id) { return  &boneTransformMatrixes[mesh_id]; }
 
-void CAssimModel::BoneTransform(uint32 num_bones, std::vector<SBoneInfo>& bone_info, std::map<std::string, uint32>& bone_mapping, float TimeInSeconds, std::vector<glm::mat4>& Transforms)
+void CAssimModel::BoneTransform(uint32 num_bones, std::vector<SBoneInfo>& bone_info, std::map<std::string, uint32>& bone_mapping, float TimeInSeconds, std::vector<mat4>& Transforms)
 {
-	glm::mat4 Identity(1.0f);
+	mat4 Identity(1.0f);
 
 	float TicksPerSecond = (float)scene->mAnimations[0]->mTicksPerSecond != 0 ?
 		(float)scene->mAnimations[0]->mTicksPerSecond : 25.0f;
@@ -369,18 +369,18 @@ void CAssimModel::BoneTransform(uint32 num_bones, std::vector<SBoneInfo>& bone_i
 
 	for (uint32 i = 0; i < num_bones; i++)
 	{
-		if (Transforms.size() < i + 1) Transforms.push_back(glm::mat4(1.f));
+		if (Transforms.size() < i + 1) Transforms.push_back(mat4(1.f));
         Transforms[i] = bone_info[i].finalTransformation;
 	}
 }
 
-void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint32>& bone_mapping, std::vector<SBoneInfo>& bone_info, float AnimationTime, const aiNode * pNode, const glm::mat4 & ParentTransform)
+void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint32>& bone_mapping, std::vector<SBoneInfo>& bone_info, float AnimationTime, const aiNode * pNode, const mat4 & ParentTransform)
 {
 	std::string NodeName(pNode->mName.data);
 
 	const aiAnimation* pAnimation = scene->mAnimations[0];
 
-	glm::mat4 NodeTransformation = ToGlmMatrix(pNode->mTransformation);
+	mat4 NodeTransformation = ToGlmMatrix(pNode->mTransformation);
 
 	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
 
@@ -389,25 +389,25 @@ void CAssimModel::ReadNodeHeirarchy(std::map<std::string, uint32>& bone_mapping,
 		// Interpolate scaling and generate scaling transformation matrix
 		aiVector3D Scaling;
 		CalcInterpolatedScaling(Scaling, AnimationTime, pNodeAnim);
-		glm::mat4 ScalingM(1.f);
+		mat4 ScalingM(1.f);
 		ScalingM = glm::scale(Scaling.x, Scaling.y, Scaling.z);
 
 		// Interpolate rotation and generate rotation transformation matrix
 		aiQuaternion RotationQ;
 		CalcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
-		glm::mat4 RotationM = glm::mat4(1.f);//glm::mat4(RotationQ.GetMatrix());
+		mat4 RotationM = mat4(1.f);//mat4(RotationQ.GetMatrix());
 		RotationM = ToGlmMatrix(RotationQ.GetMatrix());
 		// Interpolate translation and generate translation transformation matrix
 		aiVector3D Translation(1.f);
 		CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
-		glm::mat4 TranslationM(1.f);
-		TranslationM = glm::translate(glm::vec3(Translation.x, Translation.y, Translation.z));
+		mat4 TranslationM(1.f);
+		TranslationM = glm::translate(vec3(Translation.x, Translation.y, Translation.z));
 
 		// Combine the above transformations
 		NodeTransformation = TranslationM * RotationM * ScalingM;
 	}
 
-	glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
+	mat4 GlobalTransformation = ParentTransform * NodeTransformation;
 
 	if (bone_mapping.find(NodeName) != bone_mapping.end())
 	{

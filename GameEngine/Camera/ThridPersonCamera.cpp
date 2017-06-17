@@ -32,7 +32,7 @@ void CThirdPersonCamera::LockCamera()
 
 void CThirdPersonCamera::CalculateInput()
 {
-	glm::vec2 d_move = CalcualteMouseMove() * mousevel;
+	vec2 d_move = CalcualteMouseMove() * mousevel;
 	CalculatePitch(d_move);
 	CalculateAngleAroundPlayer(d_move);
 	LockCamera();
@@ -47,7 +47,7 @@ void CThirdPersonCamera::Move()
 
 	CCamera::Move();
 }
-void CThirdPersonCamera::SetPosition(glm::vec3 position)
+void CThirdPersonCamera::SetPosition(vec3 position)
 {
 	position = position;
 }
@@ -77,17 +77,17 @@ void CThirdPersonCamera::CalculateZoom(float zoom_lvl)
 	this->distanceFromPlayer += zoom_lvl;
 }
 
-glm::vec2 CThirdPersonCamera::CalcualteMouseMove()
+vec2 CThirdPersonCamera::CalcualteMouseMove()
 {
 	return inputManager->CalcualteMouseMove();
 }
 
-void CThirdPersonCamera::CalculatePitch(glm::vec2 d_move)
+void CThirdPersonCamera::CalculatePitch(vec2 d_move)
 {
 		pitch -= d_move.y;
 }
 
-void CThirdPersonCamera::CalculateAngleAroundPlayer(glm::vec2 d_move)
+void CThirdPersonCamera::CalculateAngleAroundPlayer(vec2 d_move)
 {
 	float angle_change	 = d_move.x;
 	angleAroundPlayer -= angle_change;

@@ -8,9 +8,9 @@ public:
 	CLoadingShader() {}
 	void Init();
 	void LoadIsTextured(const float&) const;	
-	void LoadTransformMatrix(const glm::mat4&) const;
-	void LoadProjectionMatrix(const glm::mat4&) const;
-	void LoadViewMatrix(const glm::mat4&) const;
+	void LoadTransformMatrix(const mat4&) const;
+	void LoadProjectionMatrix(const mat4&) const;
+	void LoadViewMatrix(const mat4&) const;
 	void LoadAlphaValue(const float&) const;
 	void ConnectTextureUnits() const override;
 

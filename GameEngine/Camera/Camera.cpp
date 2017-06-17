@@ -14,12 +14,12 @@ CCamera::CCamera()
 	UpdateFrustrum();
 }
 
-void CCamera::SetProjectionMatrix(const glm::mat4 & projection_matrix)
+void CCamera::SetProjectionMatrix(const mat4 & projection_matrix)
 {
     projectionMatrix = projection_matrix;
 }
 
-void CCamera::SetPosition(glm::vec3 position)
+void CCamera::SetPosition(vec3 position)
 {
     position = position;
 }
@@ -27,7 +27,7 @@ void CCamera::UpdateFrustrum()
 {
     frustrum.CalculatePlanes(projectionMatrix * viewMatrix);
 }
-bool CCamera::CheckFrustrumSphereCulling(const glm::vec3 & position, const float& radius)
+bool CCamera::CheckFrustrumSphereCulling(const vec3 & position, const float& radius)
 {	
     return !frustrum.SphereIntersection(position, radius);
 	return false;// 
@@ -47,12 +47,12 @@ void CCamera::InvertPitch()
     pitch *= -1.0f;
 }
 
-const glm::vec3 CCamera::GetDirection() const
+const vec3 CCamera::GetDirection() const
 {
     float pitch_ = Utils::ToRadians(pitch);
     float yaw_ = Utils::ToRadians(yaw);
     float xzLen = cos(pitch_);
-	glm::vec3 dir;
+	vec3 dir;
     dir.z = xzLen * cos(yaw_);
     dir.y = sin(pitch_);
     dir.x = xzLen * sin(-yaw_);
@@ -60,14 +60,14 @@ const glm::vec3 CCamera::GetDirection() const
 	return dir;
 }
 
-const glm::vec3& CCamera::GetPosition() const
+const vec3& CCamera::GetPosition() const
 {
     return position;
 }
 
-const glm::vec3 CCamera::GetRotation() const 
+const vec3 CCamera::GetRotation() const 
 {
-    return glm::vec3(pitch, yaw, roll);
+    return vec3(pitch, yaw, roll);
 }
 
 const float& CCamera::GetPitch() const
@@ -121,20 +121,20 @@ void CCamera::SetRoll(float roll)
 
 void CCamera::UpdateViewMatrix() 
 {
-    viewMatrix  = glm::mat4(1.0);
+    viewMatrix  = mat4(1.0);
     viewMatrix *= glm::rotate(pitch, 1.0f, 0.0f, 0.0f);
     viewMatrix *= glm::rotate(yaw, 0.0f, 1.0f, 0.0f);
     viewMatrix *= glm::rotate(roll, 0.0f, 0.0f, 1.0f);
     viewMatrix *= glm::translate(-position);
 }
 
-const glm::mat4& CCamera::GetViewMatrix() const
+const mat4& CCamera::GetViewMatrix() const
 {
     return viewMatrix;
 }
 
-const glm::vec2 CCamera::GetPositionXZ() const
+const vec2 CCamera::GetPositionXZ() const
 {
-    return glm::vec2(position.x, position.z);
+    return vec2(position.x, position.z);
 }
 

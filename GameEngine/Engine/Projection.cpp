@@ -1,4 +1,5 @@
 #include "Projection.h"
+#include "Utils.h"
 
 CProjection::CProjection()
     : CProjection({640,480}, .1f, 1000.f, 50.f)
@@ -17,7 +18,7 @@ CProjection::CProjection(const wb::vec2i &window_size, float near, float far, fl
     CreateProjectionMatrix();
 }
 
-const glm::mat4 &CProjection::GetProjectionMatrix() const
+const mat4 &CProjection::GetProjectionMatrix() const
 {
     return projectionMatrix;
 }
@@ -51,7 +52,7 @@ void CProjection::CreateProjectionMatrix()
 void CProjection::OrthographicProjection()
 {
     float length = 100.f;
-    projectionMatrix = glm::mat4(1.f);
+    projectionMatrix = mat4(1.f);
     projectionMatrix[0][0] = 2.f / windowSize.x;
     projectionMatrix[1][1] = 2.f / windowSize.y;
     projectionMatrix[2][2] = -2.f / length;

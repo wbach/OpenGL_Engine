@@ -1,6 +1,5 @@
 #pragma once
 #include "../../../../Shaders/ShaderProgram.h"
-#include "glm/gtc/matrix_transform.hpp"
 #include "Logger/Log.h"
 
 class CTesselationTerrainShader : public CShaderProgram

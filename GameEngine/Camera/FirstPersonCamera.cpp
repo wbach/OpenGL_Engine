@@ -2,7 +2,7 @@
 #include "../Input/InputManager.h"
 #include "../Display/DisplayManager.hpp"
 
-static glm::vec3 zero(0);
+static vec3 zero(0);
 
 CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager)
 : inputManager(input_manager)
@@ -17,7 +17,7 @@ CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayMan
 	yaw	= 100;
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, glm::vec3& position_entity, glm::vec3& rotation_entity)
+CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, vec3& position_entity, vec3& rotation_entity)
 : inputManager(input_manager)
 , displayManager(display_manager)
 , lookPosition(position_entity)
@@ -50,7 +50,7 @@ void CFirstPersonCamera::Move()
 	//	m_Position.y		+= 10;
 	//	m_Yaw				 = -m_LookRotation.y +180;
 
-	//	glm::vec2 d_move	 = CalcualteMouseMove(win);
+	//	vec2 d_move	 = CalcualteMouseMove(win);
 	//	m_LookRotation.y	+= d_move.x;
 	//	m_Pitch				-= d_move.y;
 	//	LockCamera();
@@ -60,7 +60,7 @@ void CFirstPersonCamera::Move()
 
 	if (inputManager->GetMouseKey(KeyCodes::LMOUSE))
 	{
-		glm::vec2 dmove = CalcualteMouseMove();
+		vec2 dmove = CalcualteMouseMove();
 		yaw -= dmove.x;
 		pitch -= dmove.y;
 		LockCamera();
@@ -96,14 +96,14 @@ void CFirstPersonCamera::Move()
 
 	CCamera::Move();
 }
-void CFirstPersonCamera::AttachToObject(glm::vec3& position_entity, glm::vec3& rotation_entity) {
+void CFirstPersonCamera::AttachToObject(vec3& position_entity, vec3& rotation_entity) {
 	lookPosition = position_entity;
 	lookRotation = rotation_entity;
 	isFreeCamera = false;
 }
-glm::vec2 CFirstPersonCamera::CalcualteMouseMove()
+vec2 CFirstPersonCamera::CalcualteMouseMove()
 {
-	glm::vec2 d_move = inputManager->CalcualteMouseMove() * mousevel;
+	vec2 d_move = inputManager->CalcualteMouseMove() * mousevel;
 	return d_move;
 }
 
