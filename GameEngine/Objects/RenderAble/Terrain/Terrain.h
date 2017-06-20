@@ -7,7 +7,7 @@ class CTexture;
 class CModel;
 struct SImage;
 
-static const float TERRAIN_SIZE = 200.f;
+static const float TERRAIN_SIZE = 600.f;
 
 struct TerrainTextures
 {

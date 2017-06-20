@@ -207,9 +207,13 @@
     <ClInclude Include="Resources\Models\Material.h" />
     <ClInclude Include="Resources\Models\Mesh.h" />
     <ClInclude Include="Resources\Models\Model.h" />
+    <ClInclude Include="Resources\Models\WBLoader\Collada\Animation.h" />
+    <ClInclude Include="Resources\Models\WBLoader\Collada\Animator.h" />
     <ClInclude Include="Resources\Models\WBLoader\Collada\ColladaDae.h" />
     <ClInclude Include="Resources\Models\WBLoader\Collada\ColladaDaeTypes.h" />
     <ClInclude Include="Resources\Models\WBLoader\Collada\Join.h" />
+    <ClInclude Include="Resources\Models\WBLoader\Collada\JoinTransform.h" />
+    <ClInclude Include="Resources\Models\WBLoader\Collada\KeyFrame.h" />
     <ClInclude Include="Resources\Models\WBLoader\IMeshLoader.h" />
     <ClInclude Include="Resources\Models\WBLoader\MeshData.h" />
     <ClInclude Include="Resources\Models\WBLoader\MyModel.h" />

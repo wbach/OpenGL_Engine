@@ -33,9 +33,9 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
-   // auto crate_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Example/scene.dae");
-  //  auto crate = AddGameObject(crate_obj, glm::vec3(0,0, -7));
-  //  engine.renderers[0]->Subscribe(crate);
+    auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 6, 0), "Meshes/Bialczyk/Bialczyk.obj");
+    auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100,0, -7));
+    engine.renderers[0]->Subscribe(bialczyk);
 
 	auto character_running_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
 	auto ch = AddGameObject(character_running_obj, glm::vec3(0, 0, -7));
@@ -59,7 +59,7 @@ int MainScene::Initialize()
   //  AddTerrain(terrain_textures, glm::vec3(1));
 
     //in terrain.h
-    const float terrain_size = 200.f;
+    const float terrain_size = 600.f;
 	const float terrains_count = 20;
     for(float y = 0; y < terrains_count*terrain_size; y+=terrain_size)
         for(float x = 0; x < terrains_count*terrain_size; x+=terrain_size)
@@ -132,12 +132,12 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 {
     return
     {
-        { Terrain::blendMap , "Textures/testBlendMap.png"},
-        { Terrain::backgorundTexture, "Textures/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
-        { Terrain::redTexture, "Textures/165.png",  },
-        { Terrain::greenTexture,"Textures/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        { Terrain::blueTexture, "Textures/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-        { Terrain::displacementMap, "Textures/heightmap.png" }
+        { Terrain::blendMap , "Textures/Terrain/BlendMaps/testBlendMap.png"},
+        { Terrain::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
+        { Terrain::redTexture, "Textures/Terrain/Ground/165.png",  },
+        { Terrain::greenTexture,"Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
+        { Terrain::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
+        { Terrain::displacementMap, "Textures/Terrain/HeightMaps/heightmap.png" }
     };
 }
 
