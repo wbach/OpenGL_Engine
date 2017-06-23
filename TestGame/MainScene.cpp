@@ -33,8 +33,8 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
-    auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 6, 0), "Meshes/Bialczyk/Bialczyk.obj");
-    auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100,0, -7));
+    auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
+    auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
     engine.renderers[0]->Subscribe(bialczyk);
 
 	auto character_running_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
@@ -58,11 +58,9 @@ int MainScene::Initialize()
     
   //  AddTerrain(terrain_textures, glm::vec3(1));
 
-    //in terrain.h
-    const float terrain_size = 600.f;
 	const float terrains_count = 20;
-    for(float y = 0; y < terrains_count*terrain_size; y+=terrain_size)
-        for(float x = 0; x < terrains_count*terrain_size; x+=terrain_size)
+    for(float y = 0; y < terrains_count*TERRAIN_SIZE; y+= TERRAIN_SIZE)
+        for(float x = 0; x < terrains_count*TERRAIN_SIZE; x+= TERRAIN_SIZE)
         {
             //if(x==0 || y==0) continue;
             AddTerrain(terrain_textures, glm::vec3(x, 1.f, y));

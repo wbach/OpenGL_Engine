@@ -39,6 +39,7 @@ struct STerrain : public CGameObject
 	//HeightMap
     int heightMapResolution;
 
+	float heightFactor = 5.f;
     std::vector<float> heights;
 
     CTexture* textures[Terrain::TexturesTypes::count];

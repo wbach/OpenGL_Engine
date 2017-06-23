@@ -9,8 +9,6 @@
 #include "GLM/GLMUtils.h"
 #include "EngineUitls.h"
 
-const float heightFactor = 25.f;
-
 CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
@@ -29,8 +27,7 @@ void CTessellationTerrainRenderer::Init()
 	glGetFloatv(GL_VIEWPORT, viewport);
     shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
     //m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
-    shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
-    shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, heightFactor);
+    shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());    
     shader.Stop();
 
 	Log("CTerrainRenderer initialized.");
@@ -66,9 +63,11 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
     {
 		if (sub == nullptr || !sub->Get()->model->isInOpenGL()) continue;
 
+		shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, sub->Get()->heightFactor);
+
         auto position = sub->worldTransform.GetPosition();
        // position *= vec3(1, 1, 100);
-        shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(100)));
+        shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(TERRAIN_SIZE /2.f)));
 
 		BindTextures(sub);
 

@@ -3,7 +3,7 @@
 #include "../../ObjectBuilder.h"
 #include <memory>
 
-struct STerrain;
+struct STerrain ;
 
 class CTerrainWrapper : public CGameObject
 {
