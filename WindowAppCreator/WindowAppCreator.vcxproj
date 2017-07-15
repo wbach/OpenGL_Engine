@@ -110,18 +110,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Items\Item.cpp" />
+    <ClCompile Include="Items\Window.cpp" />
+    <ClCompile Include="Items\windows\Button\Win32_Button.cpp" />
     <ClCompile Include="Items\windows\WindowsItemsBuilder.cpp" />
-    <ClCompile Include="Items\windows\Window\Window.cpp" />
+    <ClCompile Include="Items\windows\Window\Win32_Window.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WindowAppCreator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Items\Actions.h" />
+    <ClInclude Include="Items\Button.h" />
     <ClInclude Include="Items\Item.h" />
     <ClInclude Include="Items\IItemBuidler.h" />
+    <ClInclude Include="Items\ItemMessages.h" />
     <ClInclude Include="Items\Rect.h" />
     <ClInclude Include="Items\Window.h" />
+    <ClInclude Include="Items\windows\Button\Win32_Button.h" />
     <ClInclude Include="Items\windows\WindowsItemsBuilder.h" />
-    <ClInclude Include="Items\windows\Window\Window.h" />
+    <ClInclude Include="Items\windows\Window\Win32_Window.h" />
     <ClInclude Include="Items\windows\WindowsItem.h" />
     <ClInclude Include="WindowAppCreator.h" />
   </ItemGroup>

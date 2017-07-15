@@ -11,10 +11,16 @@ ItemBuilderPtr CreateItemBuilderPtr(Args&&... args)
 	return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-struct WindowAppCreator
+class WindowAppCreator
 {
+public:
 	WindowAppCreator();
-
-	ItemBuilderPtr itemBuilder;
+	void Init();
+	void Run();
+public:
 	ItemsMap items;
+	ItemBuilderPtr itemBuilder;
+
+private:
+
 };

@@ -1,27 +1,32 @@
 #pragma once
 #include "./Item.h"
+#include "IItemBuidler.h"
 #include <functional>
 #include <unordered_map>
 #include <list>
 
+class Window;
+
+typedef std::shared_ptr<Window> WindowPtr;
 typedef std::unordered_map<unsigned int, std::function<void()>> FunctionsMap;
 
-enum ActionsType
+template<typename T, typename... Args>
+WindowPtr CreateWindowPtr(Args&&... args)
 {
-	ON_CREATE,
-	ON_EXIT,
-	ON_PRESS,
-	ON_TOUCH,
-	COUNT
-};
+	return std::make_shared<T>(std::forward<Args>(args)...);
+}
 
-class Window : public Item
+class Window : public virtual Item
 {	
 public:
-	virtual void Create() = 0;
+	virtual ~Window() {}
+
+public:
 	void RegisterAction(ActionsType, unsigned int, std::function<void()>);
+	virtual void AddChild(ItemPtr) override;
+protected:
+	virtual ItemMessage Init() = 0;
 
 protected:
-	FunctionsMap OnCreateFunctions[ActionsType::COUNT];
-	std::list<ItemPtr> children;
+	FunctionsMap actions[ActionsType::COUNT];	
 };

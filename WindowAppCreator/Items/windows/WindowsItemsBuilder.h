@@ -3,5 +3,7 @@
 
 struct WidowsItemBuidler : public IItemBuidler
 {
-	virtual ItemPtr CreateSingleWindow() override;
+	virtual ItemPtr CreateWindowItem() override;
+	virtual ItemPtr CreateWindowItem(int, int, const std::string&) override;
+	virtual ItemPtr CreateButton(int, int, int, int, const std::string&, std::function<void()>) override;
 };

@@ -1,7 +1,14 @@
 #pragma once
 #include "Rect.h"
+#include "ItemMessages.h"
+#include "Actions.h"
+
+#include <list>
 #include <string>
 #include <memory>
+#include <functional>
+
+struct Item;
 
 typedef std::shared_ptr<Item> ItemPtr;
 
@@ -13,16 +20,19 @@ ItemPtr CreateItemPtr(Args&&... args)
 
 struct Item
 {
-	Item()
-		: name("default name")
-		, title("default title")
-		, id(0)
-	{
-	}
+	Item();
 	virtual ~Item() {};
-	virtual void Init() = 0;
+	virtual ItemMessage Init() = 0;
+	virtual ItemMessage Update() { return{}; }
+	virtual void AddChild(ItemPtr);
+	std::function<void()> OnClick = nullptr;
+
 	Rect rect;
 	std::string name;
 	std::string title;
-	unsigned int id;	
+
+	std::list<ItemPtr> children;
+
+	unsigned int id;
+	static unsigned int s_Id;
 };
