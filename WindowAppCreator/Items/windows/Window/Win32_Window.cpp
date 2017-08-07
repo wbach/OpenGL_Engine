@@ -37,6 +37,7 @@ namespace WindowTools
 namespace Win32
 {
 	Win32_Window::Win32_Window()
+		: Win32_Window(640, 480, "title")
 	{
 	}
 	Win32_Window::Win32_Window(int width, int height, const std::string & title)
@@ -44,10 +45,10 @@ namespace Win32
 		rect.width = width;
 		rect.height = height;
 		this->title = title;
+		WindowTools::SetWindowClass(*this);
 	}
 	ItemMessage Win32_Window::Init()
-	{
-		WindowTools::SetWindowClass(*this);
+	{		
 		WindowTools::SetRegisterClass(*this);
 		Win32_Item::CreateItem();
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (long)this);
@@ -60,11 +61,29 @@ namespace Win32
 
 	ItemMessage Win32_Window::Update()
 	{
-		while (GetMessage(&communicate, NULL, 0, 0))
+		bool run = true;
+		while (run)
+		{
+			Win32_Item::Update();
+			if (PeekMessage(&communicate, NULL, 0, 0, PM_REMOVE))	// Is There A Message Waiting?
+			{
+				if (communicate.message == WM_QUIT)				// Have We Received A Quit Message?
+				{
+					run = false;							// If So done=TRUE
+				}
+				else									// If Not, Deal With Window Messages
+				{
+					TranslateMessage(&communicate);				// Translate The Message
+					DispatchMessage(&communicate);				// Dispatch The Message
+				}
+			}
+		}
+	/*	while (GetMessage(&communicate, NULL, 0, 0))
 		{
 			TranslateMessage(&communicate);
 			DispatchMessage(&communicate);
-		}
+			Win32_Item::Update();
+		}*/
 		return ItemMessage::SUCCES;
 	}
 

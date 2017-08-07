@@ -42,14 +42,6 @@ void Start()
 	app.items["MainWindow"]->AddChild(app.items["testButton2"]);
 	app.items["testButton2"]->Init();
 
-	app.items["childWindow"] = app.itemBuilder->CreateWindowItem(320, 240, "child window");
-	app.items["MainWindow"]->AddChild(app.items["childWindow"]);
-	app.items["childWindow"]->Init();
-
-	app.items["testButton3"] = app.itemBuilder->CreateButton(10, 100, 100, 30, "Przycisk 2 haxd", TestFunction3);
-	app.items["childWindow"]->AddChild(app.items["testButton3"]);
-	app.items["testButton3"]->Init();
-
 	app.Init();
 	app.Run();
 }
