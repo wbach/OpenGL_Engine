@@ -1,1 +1,20 @@
-D:/GoogleDrive/baszek91/GameEngineUtils/Conf.xml
+<config>
+	<Window name="Gota - OpenGL" width="1100" height="700" fullscreen="false" refreshRate="60"/>
+	<Sound enabled="true" volume="1.0"/>
+	<Engine>
+		<DataLocation>../Data/</DataLocation>
+		<ShadersLocation>../Shaders/</ShadersLocation>
+		<ViewDistance>250</ViewDistance>
+		<Renderer>
+		 	<start_lod_lvl>2</start_lod_lvl>
+		 	<type>1</type>
+		 </Renderer>
+		<TextureMaxResolution width="512" height="512"/>
+		<Flora viewDistance="10" grass="true"/>
+		<Shadows enabled="true" distance="35" shadowMapSize="4096"/>
+		<Water quality="1">
+			<Reflection width="320" height="240"/>
+			<Refraction width="640" height="480"/>
+		</Water>
+	</Engine>
+</config>
