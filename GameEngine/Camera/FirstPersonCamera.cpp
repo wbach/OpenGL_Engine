@@ -5,98 +5,64 @@
 static vec3 zero(0);
 
 CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager)
-: inputManager(input_manager)
-, displayManager(display_manager)
-, lookPosition(zero)
-, lookRotation(zero)
-, isFreeCamera(true)
-, mousevel(0.1f)
-, movevel(50.0f)
+	: CFirstPersonCamera(input_manager, display_manager, .2f, 50.f, zero, zero, true)
 {
-	pitch = 9;
-	yaw	= 100;
+}
+
+CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float mouse_velocity, float move_velocity)
+	: CFirstPersonCamera(input_manager, display_manager, mouse_velocity, move_velocity, zero, zero, false)
+{
 }
 
 CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, vec3& position_entity, vec3& rotation_entity)
-: inputManager(input_manager)
-, displayManager(display_manager)
-, lookPosition(position_entity)
-, lookRotation(rotation_entity)
-, isFreeCamera(false)
-, mousevel(0.2f)
-, movevel(50.0f)
+	: CFirstPersonCamera(input_manager, display_manager, .2f, 50.f, position_entity, rotation_entity, false)
 {
-	pitch = 9.0f;
-	yaw	= 100.0f;
+}
+
+CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
+	: CCamera(9.f, 100.f)
+	, inputManager(input_manager)
+	, displayManager(display_manager)
+	, lookPosition(position_entity)
+	, lookRotation(rotation_entity)
+	, isFreeCamera(freeCamera)
+	, mousevel(mouse_velocity)
+	, movevel(move_velocity)
+{
 }
 
 void CFirstPersonCamera::LockCamera()
 {
-	if(pitch > 90)
-		pitch = 90;
-	if(pitch < -90)
-		pitch = -90;
-	if(yaw < 0.0)
-		yaw += 360.0;
-	if(yaw > 360.0)
-		yaw -= 360;
+	LockPitch();
+	LockYaw();
+}
+
+void CFirstPersonCamera::LockPitch()
+{
+	if (pitch > 90.f)
+		pitch = 90.f;
+	if (pitch < -90.f)
+		pitch = -90.f;
+}
+
+void CFirstPersonCamera::LockYaw()
+{
+	if (yaw < 0.f)
+		yaw += 360.f;
+	if (yaw > 360.f)
+		yaw -= 360.f;
 }
 
 void CFirstPersonCamera::Move()
 {
-	//if (!m_IsFreeCamera)
-	//{
-	//	m_Position			 = m_LookPosition;
-	//	m_Position.y		+= 10;
-	//	m_Yaw				 = -m_LookRotation.y +180;
-
-	//	vec2 d_move	 = CalcualteMouseMove(win);
-	//	m_LookRotation.y	+= d_move.x;
-	//	m_Pitch				-= d_move.y;
-	//	LockCamera();
-	//	this->UpdateViewMatrix();
-	//	return;
-	//}
-
-	if (inputManager->GetMouseKey(KeyCodes::LMOUSE))
-	{
-		vec2 dmove = CalcualteMouseMove();
-		yaw -= dmove.x;
-		pitch -= dmove.y;
-		LockCamera();
-	}
-	//}
-	//else
-	//{
-	//	SDL_ShowCursor(SDL_ENABLE);
-	//}
-
-	//const Uint8* state = SDL_GetKeyboardState(NULL);
-
-	float move_velocity = movevel * static_cast<float>(displayManager->GetDeltaTime());
-	if (inputManager->GetKey(KeyCodes::UARROW) )
-	{
-		if(pitch != 90 && pitch != -90)
-			MoveCamera(move_velocity, 0.0);
-		MoveCameraUp(move_velocity, 0.0);
-	}else if (inputManager->GetKey(KeyCodes::DARROW))
-	{
-		if (pitch != 90 && pitch != -90)
-			MoveCamera(move_velocity, 180.0);
-		MoveCameraUp(move_velocity, 180.0);
-	}
-	if (inputManager->GetKey(KeyCodes::LARROW))
-	{
-		MoveCamera(-move_velocity, 90.0);
-	}
-	else if (inputManager->GetKey(KeyCodes::RARROW))
-	{
-		MoveCamera(-move_velocity, 270);
-	}
-
+	ApllyMove();
+	CalculateMoveVelocity();
+	CheckAndProccesDirections();
 	CCamera::Move();
 }
-void CFirstPersonCamera::AttachToObject(vec3& position_entity, vec3& rotation_entity) {
+
+void CFirstPersonCamera::AttachToObject(vec3& position_entity, vec3& rotation_entity)
+{
 	lookPosition = position_entity;
 	lookRotation = rotation_entity;
 	isFreeCamera = false;
@@ -107,15 +73,82 @@ vec2 CFirstPersonCamera::CalcualteMouseMove()
 	return d_move;
 }
 
+void CFirstPersonCamera::ApllyMove()
+{
+	if (!inputManager->GetMouseKey(KeyCodes::LMOUSE))
+		return;
+
+	vec2 dmove = CalcualteMouseMove();
+	yaw -= dmove.x;
+	pitch -= dmove.y;
+	LockCamera();
+}
+
+void CFirstPersonCamera::CalculateMoveVelocity()
+{
+	currentMoveVelocity = movevel * static_cast<float>(displayManager->GetDeltaTime());
+}
+
+void CFirstPersonCamera::CheckAndProccesDirections()
+{
+	CheckAndProccesUpDirection();
+	CheckAndProccesDownDirection();
+
+	CheckAndProccesLeftDirection();
+	CheckAndProccesRightDirection();
+}
+
+bool CFirstPersonCamera::CheckAndProccesUpDirection()
+{
+	if (!inputManager->GetKey(KeyCodes::UARROW))
+		return false;
+
+	if (pitch != 90.f && pitch != -90.f)
+		MoveCamera(currentMoveVelocity, 0.f);
+
+	MoveCameraUp(currentMoveVelocity, 0.f);
+	return true;
+}
+
+bool CFirstPersonCamera::CheckAndProccesDownDirection()
+{
+	if (!inputManager->GetKey(KeyCodes::DARROW))
+		return false;
+
+	if (pitch != 90.f && pitch != -90.f)
+		MoveCamera(currentMoveVelocity, 180.f);
+
+	MoveCameraUp(currentMoveVelocity, 180.f);
+	return true;
+}
+
+bool CFirstPersonCamera::CheckAndProccesLeftDirection()
+{
+	if (!inputManager->GetKey(KeyCodes::LARROW))
+		return false;
+
+	MoveCamera(-currentMoveVelocity, 90.f);
+	return true;
+}
+
+bool CFirstPersonCamera::CheckAndProccesRightDirection()
+{
+	if (!inputManager->GetKey(KeyCodes::RARROW))
+		return false;
+
+	MoveCamera(-currentMoveVelocity, 270.f);
+	return true;
+}
+
 void CFirstPersonCamera::MoveCamera(float dist, float dir)
 {
-	float rad		 = (yaw +dir)*static_cast<float>(M_PI) / 180.0f;
-	position.x	-= sin(-rad)*dist ;
-	position.z	-= cos(-rad)*dist;
+	float rad = (yaw + dir)*static_cast<float>(M_PI) / 180.f;
+	position.x -= sin(-rad)*dist;
+	position.z -= cos(-rad)*dist;
 }
 
 void CFirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
-	float rad		 = (pitch +dir)*static_cast<float>(M_PI) / 180.0f;
-	position.y	+= sin(-rad)*dist;
+	float rad = (pitch + dir)*static_cast<float>(M_PI) / 180.f;
+	position.y += sin(-rad)*dist;
 }

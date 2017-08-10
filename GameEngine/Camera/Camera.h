@@ -11,6 +11,8 @@ public:
     virtual void AttachToObject(vec3&, vec3&) {};
 
 	CCamera();
+	CCamera(float pitch, float yaw);
+
 	virtual ~CCamera() {}
 	void SetProjectionMatrix(const mat4& projection_matrix);
 	void UpdateViewMatrix();

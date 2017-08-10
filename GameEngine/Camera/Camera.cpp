@@ -14,6 +14,12 @@ CCamera::CCamera()
 	UpdateFrustrum();
 }
 
+CCamera::CCamera(float pitch, float yaw)
+	: pitch(pitch)
+	, yaw(yaw)
+{
+}
+
 void CCamera::SetProjectionMatrix(const mat4 & projection_matrix)
 {
     projectionMatrix = projection_matrix;
