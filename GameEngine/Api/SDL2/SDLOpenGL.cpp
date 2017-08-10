@@ -7,74 +7,41 @@
 
 CSdlOpenGlApi::~CSdlOpenGlApi()
 {
-    SDL_GL_DeleteContext(glContext);
+	SDL_GL_DeleteContext(glContext);
 	SDL_Quit();
 }
 
 void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int& width, const int& height, bool full_screen)
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	uint32 flags = SDL_WINDOW_OPENGL;
-#ifdef EDITOR
-	flags |= SDL_WINDOW_BORDERLESS;
-#endif
-    if (!(window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags)))
-	{
-		Log("[Error] SDL_CreateWindow error.");
-        exit(0);
-		return;
-	}
-    if (!(glContext = SDL_GL_CreateContext(window)))
-	{
-		Log("[Error] SDL_GL_CreateContext error.");
-        exit(0);
-		return;
-	}
+
+	auto flags = CreateWindowFlags();
+	CreateWindow(window_name, width, height, flags);
+
+	CreateGLContext();
+
 	if (full_screen)
 		SetFullScreen(true);
 
-	GLint glew_init_result = glewInit();
-	if (glew_init_result != GLEW_OK)
-	{
-		std::string err(reinterpret_cast< char const * >(glewGetErrorString(glew_init_result)));
-		Log("[Error] Glew init error : " + err);
-        exit(0);
-		return;
-	}
-	std::string ver(reinterpret_cast< char const * >(glGetString(GL_VERSION)));
-	Log("GL version: " + ver);
-
-	std::string glslver(reinterpret_cast< char const * >(glGetString(GL_SHADING_LANGUAGE_VERSION)));
-	Log("GLSL version: " + glslver);
-
-	GLint MaxPatchVertices = 0;
-	glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
-	Log("Max supported patch vertices :" +  std::to_string(MaxPatchVertices));
-	glPatchParameteri(GL_PATCH_VERTICES, 3);
+	InitGlew();
+	PrintOpenGLInfo();
 }
 
 void CSdlOpenGlApi::UpdateWindow()
 {
-    SDL_GL_SwapWindow(window);
+	SDL_GL_SwapWindow(window);
 }
 void CSdlOpenGlApi::SetFullScreen(bool full_screen)
 {
 	if (full_screen)
-        SDL_SetWindowFullscreen(window, SDL_TRUE);
+		SDL_SetWindowFullscreen(window, SDL_TRUE);
 	else
-        SDL_SetWindowFullscreen(window, SDL_FALSE);
+		SDL_SetWindowFullscreen(window, SDL_FALSE);
 }
 
 bool CSdlOpenGlApi::CheckActiveWindow()
 {
-    if ((SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
 }
 
 void CSdlOpenGlApi::ShowCursor(bool show)
@@ -84,7 +51,7 @@ void CSdlOpenGlApi::ShowCursor(bool show)
 
 void CSdlOpenGlApi::SetInput(std::unique_ptr<CInput>& input)
 {
-    input = std::make_unique<CInputSDL>(window);
+	input = std::make_unique<CInputSDL>(window);
 }
 
 double CSdlOpenGlApi::GetTime()
@@ -94,45 +61,104 @@ double CSdlOpenGlApi::GetTime()
 
 void CSdlOpenGlApi::SetCursorPosition(int x, int y)
 {
-    SDL_WarpMouseInWindow(window, x, y);
+	SDL_WarpMouseInWindow(window, x, y);
+}
+
+uint32 CSdlOpenGlApi::CreateWindowFlags() const
+{
+	uint32 flags = SDL_WINDOW_OPENGL;
+#ifdef EDITOR
+	flags |= SDL_WINDOW_BORDERLESS;
+#endif
+	return flags;
+}
+
+void CSdlOpenGlApi::CreateWindow(const std::string & window_name, const int & width, const int & height, uint32 flags)
+{
+	if (window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags))
+		return;
+
+	Log("[Error] SDL_CreateWindow error.");
+	exit(-1);
+}
+
+void CSdlOpenGlApi::CreateGLContext()
+{
+	if (glContext = SDL_GL_CreateContext(window))
+		return;
+
+	Log("[Error] SDL_GL_CreateContext error.");
+	exit(-1);
+}
+
+void CSdlOpenGlApi::InitGlew()
+{
+	GLint glew_init_result = glewInit();
+	if (glew_init_result == GLEW_OK)
+		return;
+
+	std::string err(reinterpret_cast<char const *>(glewGetErrorString(glew_init_result)));
+	Log("[Error] Glew init error : " + err);
+	exit(-1);
+}
+
+void CSdlOpenGlApi::PrintOpenGLInfo()
+{
+	std::string ver(reinterpret_cast<char const *>(glGetString(GL_VERSION)));
+	Log("GL version: " + ver);
+
+	std::string glslver(reinterpret_cast<char const *>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+	Log("GLSL version: " + glslver);
+
+	GLint MaxPatchVertices = 0;
+	glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
+	Log("Max supported patch vertices :" + std::to_string(MaxPatchVertices));
+	glPatchParameteri(GL_PATCH_VERTICES, 3);
 }
 
 void CSdlOpenGlApi::BeginFrame()
 {
-    startTime = SDL_GetTicks();
+	startTime = SDL_GetTicks();
 }
 
 void CSdlOpenGlApi::LockFps(float fps)
 {
-    if (static_cast<Uint32>(1000.0f / fps ) > SDL_GetTicks() - startTime)  SDL_Delay(static_cast<Uint32>(1000.0f / fps ) - (SDL_GetTicks() - startTime));
+	auto delay = static_cast<Uint32>(1000.0f / fps);
+	auto duration = SDL_GetTicks() - startTime;
+
+	if (delay > duration)
+		SDL_Delay(delay - duration);
 }
 
 ApiMessages::Type CSdlOpenGlApi::PeekMessages()
-{	
+{
 	BeginFrame();
-    while (SDL_PollEvent(&event))
+	while (SDL_PollEvent(&event))
+		return ProcessSdlEvent();
+}
+
+ApiMessages::Type CSdlOpenGlApi::ProcessSdlEvent() const
+{
+	switch (event.type)
 	{
-        switch (event.type)
-		{
-			case SDL_QUIT: return ApiMessages::QUIT;
-			case SDL_MOUSEBUTTONDOWN:
+	case SDL_QUIT: 
+		return ApiMessages::QUIT;
+	case SDL_MOUSEBUTTONDOWN:
+		break;
+	case SDL_KEYDOWN:
+		return ProccesSdlKeyDown();
+	case SDL_FINGERDOWN:
+		break;
+	}
 
-				break;
-			case SDL_KEYDOWN:
+	return ApiMessages::NONE;
+}
 
-			//	m_Event.key.keysym.unicode;
-
-                switch (event.key.keysym.sym)
-				{
-				case SDLK_F9: break; // m_DisplayManager.SetFullScreen(); 
-				case SDLK_ESCAPE: return ApiMessages::QUIT;
-				}
-				break;
-			case SDL_FINGERDOWN:
-			{
-
-			}
-		}
+ApiMessages::Type CSdlOpenGlApi::ProccesSdlKeyDown() const
+{
+	switch (event.key.keysym.sym)
+	{
+	case SDLK_ESCAPE: return ApiMessages::QUIT;
 	}
 	return ApiMessages::NONE;
 }

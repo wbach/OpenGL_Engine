@@ -1,5 +1,6 @@
 #pragma once
 #include "../Api.hpp"
+#include "Types.h"
 #include <SDL2/SDL.h>
 #include <memory>
 
@@ -22,9 +23,21 @@ public:
 	virtual void SetInput(std::unique_ptr<CInput>&) override;
 	virtual double GetTime() override;
 	virtual void SetCursorPosition(int x, int y) override;
+
 private:
-    SDL_GLContext glContext;
-    SDL_Window* window;
-    SDL_Event event;
-    Uint32 startTime;
+	uint32 CreateWindowFlags() const;
+	void CreateWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
+	void CreateGLContext();
+	void InitGlew();
+	void PrintOpenGLInfo();
+
+private:
+	ApiMessages::Type ProcessSdlEvent() const;
+	ApiMessages::Type ProccesSdlKeyDown() const;
+
+private:
+	SDL_GLContext glContext;
+	SDL_Window* window;
+	SDL_Event event;
+	Uint32 startTime;
 };
