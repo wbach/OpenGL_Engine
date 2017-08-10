@@ -9,8 +9,6 @@
 #include "GLM/GLMUtils.h"
 #include "EngineUitls.h"
 
-const float heightFactor = 25.f;
-
 CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
@@ -24,14 +22,7 @@ void CTessellationTerrainRenderer::Init()
     shader.Init();
     shader.Start();
     assert(projectionMatrix != nullptr);
-
-	GLfloat viewport[4];
-	glGetFloatv(GL_VIEWPORT, viewport);
-    shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
-    //m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
-    shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
-    shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, heightFactor);
-    shader.Stop();
+	InitShaderFromLocalVariables();
 
 	Log("CTerrainRenderer initialized.");
 }
@@ -58,31 +49,60 @@ void CTessellationTerrainRenderer::Render(CScene * scene)
 
     target->BindToDraw();
     shader.Start();
-
-	auto subscribes_in_range = GetTerrainsInRange(scene->GetCamera()->GetPosition(), 2);
-
-    //Log("Current terrains count to render : " + std::to_string(subscribes_in_range.size()) );
-    for (auto& sub : subscribes_in_range)
-    {
-		if (sub == nullptr || !sub->Get()->model->isInOpenGL()) continue;
-
-        auto position = sub->worldTransform.GetPosition();
-       // position *= vec3(1, 1, 100);
-        shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(100)));
-
-		BindTextures(sub);
-
-		if (sub->Get()->model != nullptr)
-		{
-			for (auto& m : sub->Get()->model->GetMeshes())
-            {
-                Utils::EnableVao(m.GetVao(), m.GetUsedAttributes());
-                glDrawElements(GL_PATCHES, m.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-                Utils::DisableVao(m.GetUsedAttributes());
-			}				
-		}
-    }
+	RenderSubscribers(scene->GetCamera()->GetPosition(), 2);
     shader.Stop();
+}
+
+void CTessellationTerrainRenderer::RenderSubscribers(const vec3 & camera_position, int range) const
+{
+	auto subscribes_in_range = GetTerrainsInRange(camera_position, range);
+    //Log("Current terrains count to render : " + std::to_string(subscribes_in_range.size()) );
+	for (auto& sub : subscribes_in_range)
+		RenderSubscriber(sub);
+}
+
+void CTessellationTerrainRenderer::RenderSubscriber(TerrainPtr sub) const
+{
+	if (sub == nullptr || !sub->Get()->model->isInOpenGL())
+		return;
+
+	PrepareShadersBeforeFrame(sub);
+	BindTextures(sub);
+
+	if (!CheckModelExist(sub))
+		return;
+	
+	RenderModel(sub->Get()->model);
+}
+
+void CTessellationTerrainRenderer::RenderTerrainMesh(const CMesh& m) const
+{
+	Utils::EnableVao(m.GetVao(), m.GetUsedAttributes());
+	glDrawElements(GL_PATCHES, m.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+	Utils::DisableVao(m.GetUsedAttributes());
+}
+
+void CTessellationTerrainRenderer::PrepareShadersBeforeFrame(TerrainPtr sub) const
+{
+	shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, sub->Get()->heightFactor);
+
+	auto position = sub->worldTransform.GetPosition();
+	shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(TERRAIN_SIZE / 2.f)));
+}
+
+bool CTessellationTerrainRenderer::CheckModelExist(TerrainPtr sub) const
+{
+	return sub->Get()->model != nullptr;
+}
+
+void CTessellationTerrainRenderer::InitShaderFromLocalVariables() const
+{
+	GLfloat viewport[4];
+	glGetFloatv(GL_VIEWPORT, viewport);
+	shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
+	//m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
+	shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+	shader.Stop();
 }
 
 void CTessellationTerrainRenderer::EndFrame(CScene * scene)
@@ -100,34 +120,34 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
 	auto index = Utils::Calcualte1DindexInArray(position_in_grid, gridSize);
 	//Log("Index : " + std::to_string(index));
 	subscribes[index] = terrain;
-
     //subscribes.push_back(terrain);
 }
 
-void CTessellationTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
+void CTessellationTerrainRenderer::RenderModel(CModel * model) const
 {
+	for (auto& m : model->GetMeshes())
+		RenderTerrainMesh(m);
 }
 
 void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
 {
 	int i = 0;
     for (auto& t : terrain->Get()->textures)
-	{
-		if (t != nullptr)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, t->GetId());
-		}
-		i++;
-    }
+		BindTexture(t, i++);
+}
+
+void CTessellationTerrainRenderer::BindTexture(CTexture* texture, int id) const
+{
+	if (texture == nullptr)
+		return;
+	
+	glActiveTexture(GL_TEXTURE0 + id);
+	glBindTexture(GL_TEXTURE_2D, texture->GetId());	
 }
 
 TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const vec3& position, int range) const
 {
-   TerrainPtrs terrain_list;
-
 	auto position_in_grid = Utils::CalculatePlaceInGird(position, TERRAIN_SIZE);
-
 	auto edge_min_max_y = Utils::CalcualeteEdgeMinMaxValueInGrid(position_in_grid.y, range, gridSize);
 	auto edge_min_max_x = Utils::CalcualeteEdgeMinMaxValueInGrid(position_in_grid.x, range, gridSize);
 
@@ -135,16 +155,8 @@ TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const vec3& positio
 	Log("Position in grid : " + wb::to_string(position_in_grid));
 	Log("Min x: " + wb::to_string(edge_min_max_x));
 	Log("Min y: " + wb::to_string(edge_min_max_y));*/
-
-   for(int y = edge_min_max_y.x; y <= edge_min_max_y.y; y++)
-	   for (int x = edge_min_max_x.x; x <= edge_min_max_x.y; x++)
-	   {
-		   auto index = Utils::Calcualte1DindexInArray(x, y, gridSize);
-		  // Log("I: " + std::to_string(index));
-		   terrain_list.push_back(subscribes[index]);
-	   }		   
-
-	return terrain_list;
+	   
+	return AddTerrainsToGrid(position_in_grid, edge_min_max_x, edge_min_max_y);
 }
 
 void CTessellationTerrainRenderer::AllocateTerrainsGrid()
@@ -152,14 +164,18 @@ void CTessellationTerrainRenderer::AllocateTerrainsGrid()
     subscribes.resize(gridSize * gridSize);
 }
 
-void CTessellationTerrainRenderer::AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i &pos)
+TerrainPtrs CTessellationTerrainRenderer::AddTerrainsToGrid(const wb::vec2i & position_in_grid, const wb::vec2i & edge_min_max_x, const wb::vec2i & edge_min_max_y) const
 {
-	int index = Utils::Calcualte1DindexInArray(pos, gridSize);
+	TerrainPtrs terrain_list;
+	for (int y = edge_min_max_y.x; y <= edge_min_max_y.y; y++)
+		for (int x = edge_min_max_x.x; x <= edge_min_max_x.y; x++)
+			AddTerrainToGrid(terrain_list, x, y);
+	return terrain_list;
+}
 
-    if(index > static_cast<int>(subscribes.size()))
-    {
-        ++gridSize;
-        AllocateTerrainsGrid();
-    }
- //   subscribes[index] = terrain;
+void CTessellationTerrainRenderer::AddTerrainToGrid(TerrainPtrs& terrain_list, int x, int y) const
+{
+	auto index = Utils::Calcualte1DindexInArray(x, y, gridSize);
+	// Log("I: " + std::to_string(index));
+	terrain_list.push_back(subscribes[index]);
 }

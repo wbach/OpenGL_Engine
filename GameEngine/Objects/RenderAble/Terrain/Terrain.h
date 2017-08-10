@@ -7,7 +7,7 @@ class CTexture;
 class CModel;
 struct SImage;
 
-static const float TERRAIN_SIZE = 200.f;
+static const float TERRAIN_SIZE = 600.f;
 
 struct TerrainTextures
 {
@@ -39,6 +39,7 @@ struct STerrain : public CGameObject
 	//HeightMap
     int heightMapResolution;
 
+	float heightFactor = 5.f;
     std::vector<float> heights;
 
     CTexture* textures[Terrain::TexturesTypes::count];

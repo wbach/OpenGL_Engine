@@ -38,7 +38,7 @@ public:
 	void ConnectTextureUnits() const override;
 
 	template<class T>
-	void Load(UniformLocation location, T value)
+	void Load(UniformLocation location, T value) const
 	{
 		if(uniformLocations[location] < 0)
 			Error("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));

@@ -1,4 +1,5 @@
 #pragma once
+#include "Join.h"
 #include "ColladaDaeTypes.h"
 #include "../MeshData.h"
 #include "../IMeshLoader.h"
@@ -17,13 +18,17 @@ namespace WBLoader
 {
 	typedef std::list<CMesh> CMeshList;
 	typedef std::list<WBLoader::Object> ObjectsList;
+
+	typedef std::map<std::string, Join> JointsMap;
 	typedef std::map<std::string, CTexture*> TexturesMap;
 	typedef std::map<std::string, SMaterial> MaterialMap;
 
-	typedef std::vector<vec2> Vec2Vector;
-	typedef std::vector<vec3> Vec3Vector;
-	typedef std::vector<float> FloatVector;
-	typedef std::vector<uint16> Uint16Vector;
+	typedef std::vector<mat4>		 Mat4Vector;
+	typedef std::vector<vec2>		 Vec2Vector;
+	typedef std::vector<vec3>		 Vec3Vector;
+	typedef std::vector<float>		 FloatVector;
+	typedef std::vector<uint16>		 Uint16Vector;
+	typedef std::vector<std::string> StrVector;
 
 	typedef rapidxml::xml_node<char> XMLNode;
 	typedef rapidxml::xml_document<char> XMLDocument;
@@ -49,8 +54,8 @@ namespace WBLoader
 		void ProccesLibraryVisualScenesNode(XMLNode* root);
 		void ProccesVisualScebeNode(XMLNode* root);
 		void ProccesVisualSceneNodeInNode(XMLNode* root);
-
 		void ProccesVisualSceneNodeInNode(XMLNode* root, WBLoader::Object& object);
+
 		//Materials
 		void ProccesLibraryEffects(XMLNode* root);
 		void ProccesEffect(XMLNode* root);
@@ -69,18 +74,31 @@ namespace WBLoader
 		void ProccesLibraryImages(XMLNode* root);
 		void ProccesImage(XMLNode* root);
 
+		//Animations
+
+		//Controllers
+		void ProccesLibraryControllers(XMLNode* root);
+		void ProccesController(XMLNode* root);
+		void ProccesSkin(XMLNode* root);
+		void ProccesSkinSource(XMLNode* root);
+		StrVector ProccesNameArray(XMLNode* root);
+
 		std::string GetName(const std::string& str, const std::string& postfix) const;
 		ColladaTypes::ArrayType GetArrayType(const std::string& str) const;
 
 		mat4 GetMatrixFromString(const std::string& str) const;
+		Mat4Vector GetMatrixesFromString(const std::string& str) const;
 		Vec2Vector GetVectors2dFromString(const std::string& str) const;
 		Vec3Vector GetVectors3dFromString(const std::string& str) const;
 		FloatVector GetFloatsFromString(const std::string& str) const;
 		Uint16Vector GetIntsFromString(const std::string& str) const;
+		StrVector GetStringsFromString(const std::string& str) const;
+
 	protected:
 		ObjectsList objects;
 		TexturesMap texturesMap;
-		MaterialMap materialMap;
+		MaterialMap materialMap;		
+		JointsMap joints;
 
 		std::string fileData;
 		std::string parsingFileName;

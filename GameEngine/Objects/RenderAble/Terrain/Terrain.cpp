@@ -102,7 +102,7 @@ void STerrain::LoadHeight(const SImage &height_map)
 		height /= max;
 		height *= 2.f;
 		height -= 1.f;
-		height *= 25.f;
+		height *= heightFactor;
         heights[j] = height;
 	}
 }

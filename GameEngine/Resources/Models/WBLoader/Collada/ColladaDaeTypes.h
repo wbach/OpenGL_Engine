@@ -10,6 +10,9 @@ namespace WBLoader
 			POSITIONS,
 			NORMALS,
 			TEXT_COORD,
+			JOINT_NAMES,
+			BIND_POSES_ARRAY,
+			JOINT_WEIGHTS,
 			UNKNOWN
 		};
 
