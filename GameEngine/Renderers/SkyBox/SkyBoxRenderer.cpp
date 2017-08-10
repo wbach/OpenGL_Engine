@@ -1,6 +1,7 @@
 #include "SkyBoxRenderer.h"
 #include "../Framebuffer/FrameBuffer.h"
 #include "../../Resources/Models/Model.h"
+#include "../../Resources/ResourceManager.h"
 #include "../../Resources/Textures/Texture.h"
 #include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
@@ -8,51 +9,78 @@
 #include "Logger/Log.h"
 
 CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, CFrameBuffer* framebuffer)
-    : CRenderer(framebuffer)
-    , model(nullptr)
+	: CRenderer(framebuffer)
+	, model(nullptr)
 	, dayTexture(nullptr)
 	, nightTexture(nullptr)
-    , projectionMatrix(projection_matrix) 
+	, projectionMatrix(projection_matrix)
 {
 }
 
 void CSkyBoxRenderer::Init()
 {
-    shader.Init();
-    shader.Start();
-    shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
-    shader.LoadFogColour(.8f, .8f, .8f);
-    shader.LoadBlendFactor(1.f);
-    shader.Stop();
+	shader.Init();
+	shader.Start();
+	shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
+	shader.LoadFogColour(.8f, .8f, .8f);
+	shader.LoadBlendFactor(1.f);
+	shader.Stop();
 	Log("Skybox renderer initialized.");
+}
+
+void CSkyBoxRenderer::PrepareToRendering(CScene * scene)
+{
+	Utils::DisableCulling();
+	shader.Start();
+	PrepareShaderBeforeFrameRender(scene);	
+}
+
+void CSkyBoxRenderer::EndRendering()
+{
+	Utils::EnableCulling();
+	shader.Stop();
 }
 
 void CSkyBoxRenderer::PrepareFrame(CScene *scene)
 {
 	InitMembers(scene);
 
-	if (model == nullptr || !model->isInOpenGL())
+	if (!CheckModelIsReadyToRender())
 		return;
 
-	Utils::DisableCulling();
-	shader.Start();
+	PrepareToRendering(scene);
+
+	if (!SetTarget())
+		return;
+
+	RenderSkyBoxModel();
+	EndRendering();	
+}
+
+bool CSkyBoxRenderer::SetTarget()
+{
+	if (target == nullptr)
+		return false;
+
+	target->BindToDraw();
+	return true;
+}
+
+bool CSkyBoxRenderer::CheckModelIsReadyToRender()
+{
+	return model != nullptr && model->isInOpenGL();
+}
+
+void CSkyBoxRenderer::PrepareShaderBeforeFrameRender(CScene *scene)
+{
 	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), scene->GetDeltaTime(), 500.f);
 	shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
+}
 
-   if (target == nullptr)
-       return;
-
-   target->BindToDraw();
-
-   for(const auto& mesh : model->GetMeshes())
-   {
-	   Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
-	   BindTextures(mesh.GetMaterial());
-       glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-	   Utils::DisableVao(mesh.GetUsedAttributes());
-   }
-   Utils::EnableCulling();
-   shader.Stop();
+void CSkyBoxRenderer::RenderSkyBoxModel()
+{
+	for (const auto& mesh : model->GetMeshes())
+		RenderSkyBoxMesh(mesh);
 }
 
 void CSkyBoxRenderer::Render(CScene *scene)
@@ -72,52 +100,80 @@ void CSkyBoxRenderer::Subscribe(CGameObject *gameObject)
 
 void CSkyBoxRenderer::InitMembers(CScene* scene)
 {
-	if (model == nullptr)
+	LoadModel(scene->GetResourceManager());
+	CreateDayTextures(scene->GetResourceManager());
+	CreateNightTextures(scene->GetResourceManager());	
+}
+
+void CSkyBoxRenderer::LoadModel(CResourceManager& resource_manager)
+{
+	if (model != nullptr)
+		return;
+
+	model = resource_manager.LoadModel("Meshes/SkyBox/cube.obj");
+	model->OpenGLLoadingPass();
+}
+
+void CSkyBoxRenderer::CreateDayTextures(CResourceManager& resource_manager)
+{
+	if (dayTexture != nullptr)
+		return;
+
+	std::vector<std::string> dayTextures
 	{
-		model = scene->GetResourceManager().LoadModel("Meshes/SkyBox/cube.obj");
-		model->OpenGLLoadingPass();
-	}
-	if (dayTexture == nullptr)
+		"Skybox/TropicalSunnyDay/right.png",
+		"Skybox/TropicalSunnyDay/left.png",
+		"Skybox/TropicalSunnyDay/top.png",
+		"Skybox/TropicalSunnyDay/bottom.png",
+		"Skybox/TropicalSunnyDay/back.png",
+		"Skybox/TropicalSunnyDay/front.png"
+	};
+
+	dayTexture = LoadCubeMapTexture(resource_manager, dayTextures);
+}
+
+void CSkyBoxRenderer::CreateNightTextures(CResourceManager& resource_manager)
+{
+	if (nightTexture != nullptr)
+		return;
+
+	std::vector<std::string> nightTextures
 	{
-		std::vector<std::string> dayTextures
-		{
-			"Skybox/TropicalSunnyDay/right.png",
-			"Skybox/TropicalSunnyDay/left.png",
-			"Skybox/TropicalSunnyDay/top.png",
-			"Skybox/TropicalSunnyDay/bottom.png",
-			"Skybox/TropicalSunnyDay/back.png",			
-			"Skybox/TropicalSunnyDay/front.png"			
-		};
-		dayTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(dayTextures, false);
-	//	dayTexture->OpenGLLoadingPass();
-	}
-	if (nightTexture == nullptr)
-	{
-		std::vector<std::string> nightTextures
-		{
-			"Skybox/Night/right.png",
-			"Skybox/Night/left.png",
-			"Skybox/Night/top.png",
-			"Skybox/Night/bottom.png",
-			"Skybox/Night/back.png",
-			"Skybox/Night/front.png"
-		};
-		nightTexture = scene->GetResourceManager().GetTextureLaoder().LoadCubeMap(nightTextures, false);
-		//nightTexture->OpenGLLoadingPass();
-	}
+		"Skybox/Night/right.png",
+		"Skybox/Night/left.png",
+		"Skybox/Night/top.png",
+		"Skybox/Night/bottom.png",
+		"Skybox/Night/back.png",
+		"Skybox/Night/front.png"
+	};
+
+	nightTexture = LoadCubeMapTexture(resource_manager, nightTextures);
+}
+
+CTexture* CSkyBoxRenderer::LoadCubeMapTexture(CResourceManager& resource_manager, std::vector<std::string> textures_files)
+{
+	return resource_manager.GetTextureLaoder().LoadCubeMap(textures_files, false);
 }
 
 void CSkyBoxRenderer::BindTextures(const SMaterial & material) const
 {
-	if (dayTexture != nullptr)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, dayTexture->GetId());
-	}
+	BindCubeMapTexture(dayTexture, 0);
+	BindCubeMapTexture(nightTexture, 1);
+}
 
-	if (nightTexture != nullptr)
-	{
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, nightTexture->GetId());
-	}
+void CSkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
+{
+	if (texture == nullptr)
+		return;
+
+	glActiveTexture(GL_TEXTURE0 + id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture->GetId());
+}
+
+void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
+{
+	Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
+	BindTextures(mesh.GetMaterial());
+	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+	Utils::DisableVao(mesh.GetUsedAttributes());
 }
