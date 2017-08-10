@@ -7,6 +7,8 @@
 #include <vector>
 
 class CModel;
+class CMesh;
+class CTexture;
 class CTerrainWrapper;
 class CProjection;
 
@@ -23,12 +25,20 @@ public:
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
-	void RenderModel(CModel* model, const mat4& transform_matrix) const;
+
 private:
+	void RenderModel(CModel* model) const;
     void BindTextures(TerrainPtr terrain) const;
-    TerrainPtrs GetTerrainsInRange(const vec3& position, int range) const;
+	void BindTexture(CTexture*, int id) const;
     void AllocateTerrainsGrid();
-    void AddTerrainToGrid(TerrainPtr terrain, const wb::vec2i& pos);
+    TerrainPtrs GetTerrainsInRange(const vec3& position, int range) const;
+	TerrainPtrs AddTerrainsToGrid(const wb::vec2i& position_in_grid, const wb::vec2i& edge_min_max_x, const wb::vec2i& edge_min_max_y) const;
+    void AddTerrainToGrid(TerrainPtrs& terrains, int x, int y) const;
+	void RenderSubscribers(const vec3& camera_position, int range) const;
+	void RenderSubscriber(TerrainPtr) const;
+	void RenderTerrainMesh(const CMesh&) const;
+	void PrepareShadersBeforeFrame(TerrainPtr) const;
+	bool CheckModelExist(TerrainPtr) const;
 
 private:
     CTesselationTerrainShader  shader;
