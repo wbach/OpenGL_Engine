@@ -39,6 +39,10 @@ public:
     bool& GetSync() { return sync; }
 
 private:
+	void CheckFpsTimeElapsed(int time_interval);
+	int CalculateFpsTimeInterval();
+
+private:
     std::unique_ptr<CApi> api;
 
     bool time = true;
