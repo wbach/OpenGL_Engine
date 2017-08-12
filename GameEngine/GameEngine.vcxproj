@@ -231,6 +231,7 @@
     <ClInclude Include="Resources\Textures\Texture.h" />
     <ClInclude Include="Resources\Textures\TextureFlip.h" />
     <ClInclude Include="Scene\Scene.hpp" />
+    <ClInclude Include="Scene\SceneLoader.h" />
     <ClInclude Include="Shaders\Deffered\LightPassShader.h" />
     <ClInclude Include="Renderers\Grass\Shaders\GrassShader.h" />
     <ClInclude Include="Shaders\Loading\LoadingShader.h" />
@@ -297,6 +298,7 @@
     <ClCompile Include="Resources\Textures\MaterialTexture.cpp" />
     <ClCompile Include="Resources\Textures\Texture.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="Scene\SceneLoader.cpp" />
     <ClCompile Include="Shaders\Deffered\LightPassShader.cpp" />
     <ClCompile Include="Renderers\Grass\Shaders\GrassShader.cpp" />
     <ClCompile Include="Shaders\Loading\LoadingShader.cpp" />
