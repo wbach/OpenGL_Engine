@@ -8,13 +8,13 @@ typedef std::map<Terrain::TexturesTypes, std::string> TerrainTexturesMap;
 
 namespace TerrainUtils
 {
-	void LoadHeightMap(CResourceManager& manager, STerrain* terrain, const std::string& height_map_file);
+	void LoadHeightMap(CResourceManager& manager, CTerrain* terrain, const std::string& height_map_file);
 
-	void LoadTextures(CResourceManager& manager, STerrain* terrain, TerrainTexturesMap& textures);
+	void LoadTextures(CResourceManager& manager, CTerrain* terrain, TerrainTexturesMap& textures);
 
-	void LoadSimpleMesh(CResourceManager& manager, STerrain*& terrain);
+	void LoadSimpleMesh(CResourceManager& manager, CTerrain*& terrain);
 
-	//std::vector<float> CreateGrassPosition(STerrain* terrain, const std::vector<vec2>& grass_xz_position)
+	//std::vector<float> CreateGrassPosition(CTerrain* terrain, const std::vector<vec2>& grass_xz_position)
 	//{
 	//	std::vector<float> positions;
 	//	for (const auto& xz : grass_xz_position)

@@ -19,7 +19,7 @@ CTerrainWrapper::~CTerrainWrapper()
 {
 }
 
-STerrain* CTerrainWrapper::Get()
+CTerrain* CTerrainWrapper::Get()
 {
 	if (terrain == nullptr)
 	{
@@ -30,11 +30,11 @@ STerrain* CTerrainWrapper::Get()
 			return nullptr;
 		}
 
-		auto terrainptr = new STerrain();
+		auto terrainptr = new CTerrain();
 		TerrainUtils::LoadSimpleMesh(manager, terrainptr);
 		TerrainUtils::LoadTextures(manager, terrainptr, texturesMap);
 		TerrainUtils::LoadHeightMap(manager, terrainptr, texturesMap[Terrain::displacementMap]);
-		terrain = std::unique_ptr<STerrain>(terrainptr);
+		terrain = std::unique_ptr<CTerrain>(terrainptr);
 	}
 
 	return terrain.get();

@@ -3,7 +3,7 @@
 #include "../../ObjectBuilder.h"
 #include <memory>
 
-struct STerrain ;
+class CTerrain ;
 
 class CTerrainWrapper : public CGameObject
 {
@@ -11,9 +11,9 @@ public:
 	CTerrainWrapper(CResourceManager& manager, TerrainTexturesMap texture);
 	~CTerrainWrapper();
 	virtual wb::optional<vec3> CollisionDetection(const vec3&) override;
-	STerrain* Get();
+	CTerrain* Get();
 private:
-	std::unique_ptr<STerrain> terrain;
+	std::unique_ptr<CTerrain> terrain;
 	TerrainTexturesMap texturesMap;
 	CResourceManager& manager;
 };

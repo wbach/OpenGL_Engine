@@ -4,6 +4,7 @@
 #include <mutex>
 
 class CScene;
+class COpenGLObject;
 class CDisplayManager;
 class CResourceManager;
 class CLoadingScreenRenderer;
@@ -20,6 +21,9 @@ private:
 	void LoadScene(CScene* scene);
 	void SetIsLoading(bool is);
 	bool GetIsLoading();
+	bool ProccesLoadingLoop(COpenGLObject * obj);
+	bool LoadObject(COpenGLObject * obj);
+	void UpdateScreen();
 	void LoadingLoop(CScene* scene);
 	void CheckObjectCount(CScene* scene);
 	void PostLoadingPass(CScene* scene);

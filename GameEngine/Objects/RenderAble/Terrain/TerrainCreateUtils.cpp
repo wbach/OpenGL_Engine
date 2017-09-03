@@ -1,20 +1,20 @@
 #include "TerrainCreateUtils.h"
 #include "../../../Engine/Configuration.h"
 
-void TerrainUtils::LoadHeightMap(CResourceManager & manager, STerrain * terrain, const std::string & height_map_file)
+void TerrainUtils::LoadHeightMap(CResourceManager & manager, CTerrain * terrain, const std::string & height_map_file)
 {
 	SImage height_map;
 	manager.GetTextureLaoder().ReadFile(EngineConf_GetFullDataPath(height_map_file), height_map, false, TextureFlip::Type::VERTICAL);
 	terrain->LoadHeight(height_map);
 }
 
-void TerrainUtils::LoadTextures(CResourceManager & manager, STerrain * terrain, TerrainTexturesMap & textures)
+void TerrainUtils::LoadTextures(CResourceManager & manager, CTerrain * terrain, TerrainTexturesMap & textures)
 {
 	for (const auto& t : textures)
 		terrain->SetTexture(manager.GetTextureLaoder().LoadTexture(t.second), t.first);
 }
 
-void TerrainUtils::LoadSimpleMesh(CResourceManager & manager, STerrain*& terrain)
+void TerrainUtils::LoadSimpleMesh(CResourceManager & manager, CTerrain*& terrain)
 {
 	terrain->model = manager.LoadModel("Example/quad.obj");
 	manager.GetOpenGlLoader().AddObjectToOpenGLLoadingPass(terrain->model);

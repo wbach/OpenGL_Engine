@@ -4,7 +4,7 @@
 #include <list>
 
 class CModel;
-struct STerrain;
+class CTerrain;
 class CProjection;
 
 class CTerrainRenderer : public CRenderer
@@ -20,7 +20,7 @@ public:
 	void RenderModel(CModel* model, const mat4& transform_matrix) const;
 
 private:
-	void BindTextures(STerrain* terrain) const;
+	void BindTextures(CTerrain* terrain) const;
 
 private:
     CTerrainShader  shader;
@@ -28,5 +28,5 @@ private:
 
     vec4	clipPlane;
 
-    std::list<STerrain*> subscribes;
+    std::list<CTerrain*> subscribes;
 };

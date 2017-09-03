@@ -120,8 +120,8 @@ int MainScene::Update()
 			continue;
 
         auto ppos = player->worldTransform.GetPosition();
-		if (ppos.y < new_position.GetValue().y)
-			player->SetPosition(new_position.GetValue());
+		if (ppos.y < new_position.value().y)
+			player->SetPosition(new_position.value());
 	}
     return 0;
 }
@@ -168,7 +168,7 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 			{
 				auto height = object->CollisionDetection(glm::vec3(xpos, 0, zpos));
 				if (height)
-					ypos = height.GetValue().y;
+					ypos = height.value().y;
 			}		
 			grass_positions.push_back(xpos);
 			grass_positions.push_back(ypos);

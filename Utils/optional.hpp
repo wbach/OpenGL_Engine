@@ -8,29 +8,29 @@ namespace wb
 	public:
 		optional() = default;
 		optional(const T& v)
-			: hasValue(true)
-			, value(v)
+			: hasvalue_(true)
+			, value_(v)
 		{
 		}
 
 		optional(const optional<T>& v)
-			: hasValue(v.hasValue)
-			, value(v.value)
+			: hasvalue_(v.hasvalue_)
+			, value_(v.value_)
 		{
 		}
 
 		bool operator==(const T& v) const
 		{
-			return value == v;
+			return value_ == v;
 		}
 
 		bool operator==(const optional<T>& v) const
 		{
-			if (hasValue && v.hasValue)
-				return value == v.value;
+			if (hasvalue_ && v.hasvalue_)
+				return value_ == v.value_;
 
 			//both uninitialized
-			if (!hasValue && !v.hasValue)
+			if (!hasvalue_ && !v.hasvalue_)
 				return true;
 
 			return false;
@@ -38,74 +38,74 @@ namespace wb
 
 		bool operator!() const
 		{
-			return !hasValue;
+			return !hasvalue_;
 		}
 		operator bool() const
 		{
-			return hasValue;
+			return hasvalue_;
 		}
 
 		bool operator>(const T& v) const
 		{
-			return value > v.value;
+			return value_ > v.value_;
 		}
 
 		bool operator<(const T& v) const
 		{
-			return value < v.value;
+			return value_ < v.value_;
 		}
 		bool operator>=(const T& v) const
 		{
-			return value >= v.value;
+			return value_ >= v.value_;
 		}
 		bool operator<=(const T& v) const
 		{
-			return value <= v.value;
+			return value_ <= v.value_;
 		}
 		optional operator=(const T& v)
 		{
-			this->value = v;
-			this->hasValue = true;
+			this->value_ = v;
+			this->hasvalue_ = true;
 			return *this;
 		}
 		optional & operator++() {
-			++value;
+			++value_;
 			return *this;
 		}
 		optional operator+ (const T &v)
 		{
 			optional o;
-			o.value = value + v;
-			o.hasValue = hasValue;
+			o.value_ = value_ + v;
+			o.hasvalue_ = hasvalue_;
 			return o;
 		}
 		optional operator- (const T &v)
 		{
 			optional o;
-			o.value = value + v.value;
-			o.hasValue = hasValue;
+			o.value_ = value_ + v.value_;
+			o.hasvalue_ = hasvalue_;
 			return o;
 		}
 		optional operator* (const T &v)
 		{
 			optional o;
-			o.value = value * v;
-			o.hasValue = hasValue;
+			o.value_ = value_ * v;
+			o.hasvalue_ = hasvalue_;
 			return o;
 		}
 		optional operator/ (const T &v)
 		{
 			optional o;
-			o.value = value / v;
-			o.hasValue = hasValue;
+			o.value_ = value_ / v;
+			o.hasvalue_ = hasvalue_;
 			return o;
 		}
-		const T& GetValue() const
+		const T& value() const
 		{
-			return value;
+			return value_;
 		}
 	private:
-		bool hasValue = false;
-		T value;
+		bool hasvalue_ = false;
+		T value_;
 	};
 }

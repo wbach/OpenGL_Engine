@@ -84,7 +84,7 @@ void CTerrainRenderer::EndFrame(CScene * scene)
 
 void CTerrainRenderer::Subscribe(CGameObject * gameObject)
 {
-	auto terrain = dynamic_cast<STerrain*>(gameObject);
+	auto terrain = dynamic_cast<CTerrain*>(gameObject);
 	if (terrain != nullptr)
         subscribes.push_back(terrain);
 }
@@ -93,7 +93,7 @@ void CTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix
 {
 }
 
-void CTerrainRenderer::BindTextures(STerrain * terrain) const
+void CTerrainRenderer::BindTextures(CTerrain * terrain) const
 {
 	int i = 0;
     for (auto& t : terrain->textures)
