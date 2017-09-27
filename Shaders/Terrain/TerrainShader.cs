@@ -18,6 +18,10 @@ out Vertex
 	mat4 viewProjection;	
 } Out[];
 
+//	[Debug]
+uniform float distanceDev;
+uniform int minTessLevelOuter;
+
 //struct PatchData
 //{
 //	mat4 viewProjection;
@@ -43,9 +47,12 @@ void main()
 	    float d01 = distance( In[0].winPosition, In[1].winPosition );
 		float d12 = distance( In[1].winPosition, In[2].winPosition );
 		float d20 = distance( In[2].winPosition, In[0].winPosition );
-		gl_TessLevelOuter[0] = min( max( 1.0, d12 / 50.0 ), 10 );
-		gl_TessLevelOuter[1] = min( max( 1.0, d20 / 50.0 ), 10 );
-		gl_TessLevelOuter[2] = min( max( 1.0, d01 / 50.0 ), 10 );//gl_MaxTessGenLevel
+
+		int a = minTessLevelOuter;
+
+		gl_TessLevelOuter[0] = min( max( 1.0, d12 / distanceDev ), minTessLevelOuter );
+		gl_TessLevelOuter[1] = min( max( 1.0, d20 / distanceDev ), minTessLevelOuter );
+		gl_TessLevelOuter[2] = min( max( 1.0, d01 / distanceDev ), minTessLevelOuter );//gl_MaxTessGenLevel
 		gl_TessLevelInner[0] = (gl_TessLevelOuter[0] + gl_TessLevelOuter[1] + gl_TessLevelOuter[2]) / 3.0;
     }
 

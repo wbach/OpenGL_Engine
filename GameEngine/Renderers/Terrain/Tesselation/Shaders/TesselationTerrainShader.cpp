@@ -7,12 +7,12 @@ CTesselationTerrainShader::CTesselationTerrainShader()
 }
 
 void CTesselationTerrainShader::Init()
-{	
+{
 	CreateProgram();
-    AddShader("Terrain/TerrainShader.vert", GL_VERTEX_SHADER);
-    AddShader("Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER);
-    AddShader("Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER);
-    AddShader("Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER);
+	AddShader("Terrain/TerrainShader.vert", GL_VERTEX_SHADER);
+	AddShader("Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER);
+	AddShader("Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER);
+	AddShader("Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER);
 	FinalizeShader();
 }
 
@@ -47,9 +47,12 @@ void CTesselationTerrainShader::GetAllUniformLocations()
 	uniformLocations[UniformLocation::RockNormalTexture] = GetUniformLocation("RockTextureNormal");
 	uniformLocations[UniformLocation::DisplacementMap] = GetUniformLocation("gDisplacementMap");
 
+	uniformLocations[UniformLocation::distanceDev] = GetUniformLocation("distanceDev");
+	uniformLocations[UniformLocation::minTessLevelOuter] = GetUniformLocation("minTessLevelOuter");
+
 	for (uint32 x = 0; x < UniformLocation::Count; x++)
 		if (uniformLocations[x] == -1)
-			Log("CTerrainShader::GetAllUniformLocations() : UniformLocation " + std::to_string(x) + " not set!" );
+			Log("CTerrainShader::GetAllUniformLocations() : UniformLocation " + std::to_string(x) + " not set!");
 }
 
 void CTesselationTerrainShader::BindAttributes()
@@ -61,16 +64,16 @@ void CTesselationTerrainShader::BindAttributes()
 
 void CTesselationTerrainShader::ConnectTextureUnits() const
 {
-    LoadValue(uniformLocations[UniformLocation::BackgroundTexture], 0);
-    LoadValue(uniformLocations[UniformLocation::rTexture], 1);
-    LoadValue(uniformLocations[UniformLocation::gTexture], 2);
-    LoadValue(uniformLocations[UniformLocation::bTexture], 3);
-    LoadValue(uniformLocations[UniformLocation::BlendMap], 4);
-    LoadValue(uniformLocations[UniformLocation::BackgroundNormalTexture], 5);
-    LoadValue(uniformLocations[UniformLocation::rNormalTexture], 6);
-    LoadValue(uniformLocations[UniformLocation::gNormalTexture], 7);
-    LoadValue(uniformLocations[UniformLocation::bNormalTexture], 8);
-    LoadValue(uniformLocations[UniformLocation::RockTexture], 9);
-    LoadValue(uniformLocations[UniformLocation::RockNormalTexture], 10);
-    LoadValue(uniformLocations[UniformLocation::DisplacementMap], 11);
+	LoadValue(uniformLocations[UniformLocation::BackgroundTexture], 0);
+	LoadValue(uniformLocations[UniformLocation::rTexture], 1);
+	LoadValue(uniformLocations[UniformLocation::gTexture], 2);
+	LoadValue(uniformLocations[UniformLocation::bTexture], 3);
+	LoadValue(uniformLocations[UniformLocation::BlendMap], 4);
+	LoadValue(uniformLocations[UniformLocation::BackgroundNormalTexture], 5);
+	LoadValue(uniformLocations[UniformLocation::rNormalTexture], 6);
+	LoadValue(uniformLocations[UniformLocation::gNormalTexture], 7);
+	LoadValue(uniformLocations[UniformLocation::bNormalTexture], 8);
+	LoadValue(uniformLocations[UniformLocation::RockTexture], 9);
+	LoadValue(uniformLocations[UniformLocation::RockNormalTexture], 10);
+	LoadValue(uniformLocations[UniformLocation::DisplacementMap], 11);
 }

@@ -25,6 +25,20 @@ std::vector<std::string> Utils::SplitString(const std::string & s, char split_ch
 	return tokens;
 }
 
+std::string Utils::ReadFileBinary(const std::string & file_name)
+{
+	std::ifstream t(file_name, std::ios::binary);
+	if (!t.is_open())
+	{
+		Error("Cannot open file : " + file_name);
+		return std::string();
+	}
+	std::string out = std::string((std::istreambuf_iterator<char>(t)),
+								  std::istreambuf_iterator<char>());
+	t.close();
+	return out;
+}
+
 std::string Utils::ReadFile(const std::string & file_name)
 {
 	std::ifstream t(file_name);
@@ -104,6 +118,16 @@ bool Utils::CheckFileExist(const std::string & file)
 	bool exist = f.is_open();
 	f.close();
 	return exist;
+}
+
+bool Utils::CheckExtension(const std::string & file, const std::string & ext)
+{
+	auto pos = file.find_last_of('.');
+	if (pos == std::string::npos)
+		return false;
+
+	auto extInFile = file.substr(pos + 1);
+	return extInFile == ext;
 }
 
 float Utils::StringToFloat(const std::string & str)

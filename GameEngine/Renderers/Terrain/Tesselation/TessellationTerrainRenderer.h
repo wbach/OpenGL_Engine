@@ -49,4 +49,9 @@ private:
 
     uint32 gridSize = 20;
     TerrainPtrs subscribes;
+
+	//debug
+public:
+	static float distanceDev;
+	static int minTessLevelOuter;
 };

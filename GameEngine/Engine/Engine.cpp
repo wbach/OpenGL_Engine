@@ -10,6 +10,7 @@
 #include <fstream>
 
 CEngine::CEngine()
+	: debuger(inputManager)
 {
 	ReadConfigFile("Conf.xml");
 	SetDisplay();
@@ -50,10 +51,15 @@ ApiMessages::Type CEngine::MainLoop()
 	LoadObjects();
 	apiMessage = PrepareFrame();
 
+	DebugRenderOptionsControl();
+
 	if (inputManager.GetKey(KeyCodes::ESCAPE))
 		apiMessage = ApiMessages::QUIT;
 
 	ProccesScene();
+
+	debuger.Render();
+
 	displayManager.Update();
 	inputManager.CheckReleasedKeys();
 
@@ -91,9 +97,21 @@ void CEngine::Render(CRenderer* renderer)
 
 void CEngine::LoadObjects()
 {
+	if (scene == nullptr)
+		return;
+
 	auto obj = scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLLoadingPass();
 	if (obj != nullptr && !obj->isInOpenGL())
 		obj->OpenGLLoadingPass();
+}
+
+void CEngine::DebugRenderOptionsControl()
+{
+	if (inputManager.GetKeyDown(KeyCodes::V))
+	{
+		debuger.TurnOnOff();
+	}
+	debuger.Execute();
 }
 
 ApiMessages::Type CEngine::CheckSceneMessages()
@@ -123,6 +141,9 @@ void CEngine::Init()
 
 void CEngine::PreperaScene()
 {
+	if (scene == nullptr)
+		return;
+
 	LoadScene();
 }
 

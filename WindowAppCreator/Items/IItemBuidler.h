@@ -1,6 +1,9 @@
 #pragma once
 #include "Item.h"
 #include "Window.h"
+#include <map>
+
+typedef std::multimap<ActionsType, std::function<void()>> ActionsMap;
 
 struct IItemBuidler
 {
@@ -8,7 +11,7 @@ struct IItemBuidler
 	//CreateWindow with default params
 	virtual ItemPtr CreateWindowItem() = 0;
 	//width, height, title
-	virtual ItemPtr CreateWindowItem(int, int, const std::string&) = 0;
+	virtual ItemPtr CreateWindowItem(int, int, const std::string&, ActionsMap = ActionsMap()) = 0;
 	//width, height, title
 	virtual ItemPtr CreateChildWindowItem(int, int, const std::string&) = 0;
 	//pos x, pos y, width, height, title

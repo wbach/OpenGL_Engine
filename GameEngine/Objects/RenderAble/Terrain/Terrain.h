@@ -24,13 +24,14 @@ public:
 	float	GetHeight(int x, int y) const;
 	void	InitHeights(int x, int y);
 	void	LoadHeight(const SImage& height_map);
+	void    LoadHeight(const std::string& rawFileName, int height, int width) const;
 
 	void SetTexture(CTexture* texture, Terrain::TexturesTypes type);
 
 	//HeightMap
 	int heightMapResolution;
 
-	float heightFactor = 5.f;
+	float heightFactor = 1.f;
 	std::vector<float> heights;
 
 	CTexture* textures[Terrain::TexturesTypes::count];
@@ -43,6 +44,7 @@ private:
 	bool IsInLeftTriangle(const vec2 & position) const;
 	bool IsValidGridCoordinate(const vec2i& position) const;
 	float ConvertColourToHeight(float colourValue) const;
+	float GetHeightInTerrainQuad(const vec2i & gridCoord, const vec2 & localPosition) const;
 	wb::optional<vec3> UpdatePositionIfIsUnderTerrain(const vec3& current_pos, const wb::optional<float>& height) const;
 
 private:

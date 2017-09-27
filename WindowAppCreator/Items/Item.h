@@ -13,10 +13,17 @@ struct Item;
 typedef std::shared_ptr<Item> ItemPtr;
 
 template<typename T, typename... Args>
+ItemPtr CreateItemPtr(T* t)
+{
+	return std::shared_ptr<T>(t);
+}
+
+template<typename T, typename... Args>
 ItemPtr CreateItemPtr(Args&&... args)
 {
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
+
 template<typename T, typename... Args>
 ItemPtr CreateItemPtrFromRawPtr(Args&&... args)
 {

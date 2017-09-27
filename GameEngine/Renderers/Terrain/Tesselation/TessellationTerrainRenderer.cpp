@@ -9,6 +9,9 @@
 #include "GLM/GLMUtils.h"
 #include "EngineUitls.h"
 
+float CTessellationTerrainRenderer::distanceDev = 50.f;
+int CTessellationTerrainRenderer::minTessLevelOuter = 10;
+
 CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
@@ -77,6 +80,9 @@ void CTessellationTerrainRenderer::RenderSubscriber(TerrainPtr sub) const
 
 void CTessellationTerrainRenderer::RenderTerrainMesh(const CMesh& m) const
 {
+	shader.Load(CTesselationTerrainShader::UniformLocation::distanceDev, distanceDev);
+	shader.Load(CTesselationTerrainShader::UniformLocation::minTessLevelOuter, minTessLevelOuter);
+
 	Utils::EnableVao(m.GetVao(), m.GetUsedAttributes());
 	glDrawElements(GL_PATCHES, m.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
 	Utils::DisableVao(m.GetUsedAttributes());
@@ -102,11 +108,13 @@ void CTessellationTerrainRenderer::InitShaderFromLocalVariables() const
 	shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
 	//m_Shader.Load(CTerrainShader::UniformLocation::ViewDistance, 500.f);
 	shader.Load(CTesselationTerrainShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+
 	shader.Stop();
 }
 
 void CTessellationTerrainRenderer::EndFrame(CScene * scene)
 {
+
 }
 
 void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)

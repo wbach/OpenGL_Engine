@@ -38,6 +38,7 @@ namespace Utils
 		return os.str();
 	}
 	std::vector<std::string> SplitString(const std::string& s, char split_char);
+	std::string ReadFileBinary(const std::string& file_name);
 	std::string ReadFile(const std::string& file_name);
 	std::list<std::string> ReadFileLines(const std::string& file_name);
 	void GetFileAndPath(const std::string& full, std::string& filename, std::string& path);
@@ -45,7 +46,7 @@ namespace Utils
 	std::string ConvertToRelativePath(std::string path);	
 	int NextP2(int a);
 	bool CheckFileExist(const std::string& file);
-
+	bool CheckExtension(const std::string& file, const std::string& ext);
 	//catch exception and log
 	float StringToFloat(const std::string& str);
 	int StringToInt(const std::string& str);

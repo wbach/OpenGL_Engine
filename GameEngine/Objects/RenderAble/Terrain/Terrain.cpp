@@ -44,25 +44,7 @@ wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ) con
 	if (IsValidGridCoordinate(gridCoord))
 		return result;
 
-	auto positionInQuad = GetPositionInQuad(localPosition);
-
-	vec3 p3(0, GetHeight(gridCoord.x, gridCoord.y + 1), 1);
-	vec3 p1, p2;
-
-	if (IsInLeftTriangle(positionInQuad))
-	{
-		p1 = vec3(0, GetHeight(gridCoord.x, gridCoord.y), 0);
-		p2 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y), 0);
-	}
-	else
-	{
-		p1 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y), 0);
-		p2 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y + 1), 1);
-	}
-
-	result = Utils::BarryCentric(p1, p2, p3, positionInQuad);
-
-	return result;
+	return GetHeightInTerrainQuad(gridCoord, localPosition);
 }
 
 void CTerrain::InitHeights(int x, int y)
@@ -88,6 +70,16 @@ void CTerrain::LoadHeight(const SImage &height_map)
 	//bgr2rgb
 	for (uint32 j = 0; j < w*h; j++)
 		heights[j] = ConvertColourToHeight(static_cast<float>(height_map.data[j * 4 + 0]));
+}
+
+void CTerrain::LoadHeight(const std::string & rawFileName, int height, int width) const
+{
+	auto data = Utils::ReadFile(rawFileName);
+
+	for (auto b : data)
+	{
+
+	}
 }
 
 void CTerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)
@@ -140,6 +132,27 @@ float CTerrain::ConvertColourToHeight(float colourValue) const
 	colourValue -= 1.f;
 	colourValue *= heightFactor;
 	return colourValue;
+}
+
+float CTerrain::GetHeightInTerrainQuad(const vec2i & gridCoord, const vec2 & localPosition) const
+{
+	auto positionInQuad = GetPositionInQuad(localPosition);
+
+	vec3 p3(0, GetHeight(gridCoord.x, gridCoord.y + 1), 1);
+	vec3 p1, p2;
+
+	if (IsInLeftTriangle(positionInQuad))
+	{
+		p1 = vec3(0, GetHeight(gridCoord.x, gridCoord.y), 0);
+		p2 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+	}
+	else
+	{
+		p1 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+		p2 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y + 1), 1);
+	}
+
+	return Utils::BarryCentric(p1, p2, p3, positionInQuad);
 }
 
 wb::optional<vec3> CTerrain::UpdatePositionIfIsUnderTerrain(const vec3& current_pos, const wb::optional<float>& height) const

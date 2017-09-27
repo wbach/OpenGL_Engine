@@ -7,10 +7,16 @@ ItemPtr WidowsItemBuidler::CreateWindowItem()
 	auto ptr = CreateItemPtr<Win32::Win32_Window>();
 	return ptr;
 }
-ItemPtr WidowsItemBuidler::CreateWindowItem(int width, int height, const std::string& title)
+ItemPtr WidowsItemBuidler::CreateWindowItem(int width, int height, const std::string& title, std::multimap<ActionsType, std::function<void()>> functions)
 {
-	auto ptr = CreateItemPtr<Win32::Win32_Window>(width, height, title);
-	return ptr;
+	int id = 0;
+
+	auto window = new Win32::Win32_Window(width, height, title);
+	for (const auto& f : functions)
+	{
+		window->RegisterAction(f.first, ++id, f.second);
+	}
+	return CreateItemPtr<Win32::Win32_Window>(window);
 }
 
 ItemPtr WidowsItemBuidler::CreateChildWindowItem(int width, int height, const std::string& title)

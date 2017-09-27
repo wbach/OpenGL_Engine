@@ -25,13 +25,23 @@ void TestFunction3()
 	MessageBox(NULL, "Nacisnales prycisk   3    \n\n! xd", "Super!", MB_ICONEXCLAMATION);
 #endif
 }
+#include <functional>
+
+void ExitFunction()
+{
+	exit(0);
+}
 
 void Start()
 {
 	if (app.itemBuilder == nullptr)
 		return;
 
-	app.items["MainWindow"] = app.itemBuilder->CreateWindowItem(640, 480, "Moj tytu³");
+	app.items["MainWindow"] = app.itemBuilder->CreateWindowItem(640, 480, "Moj tytu³", 
+	{
+		{ActionsType::ON_EXIT, std::bind(ExitFunction)}
+	});
+
 	app.items["MainWindow"]->Init();
 
 	app.items["testButton"] = app.itemBuilder->CreateButton(10, 10, 100, 30, "Przycisk haxd", TestFunction);

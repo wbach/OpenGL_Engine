@@ -161,6 +161,7 @@
     <ClInclude Include="Camera\ThridPersonCamera.h" />
     <ClInclude Include="Display\DisplayManager.hpp" />
     <ClInclude Include="Engine\Configuration.h" />
+    <ClInclude Include="Engine\Debuger.h" />
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\LoD.h" />
     <ClInclude Include="Engine\Projection.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="Camera\ThridPersonCamera.cpp" />
     <ClCompile Include="Display\DisplayManager.cpp" />
     <ClCompile Include="Engine\Configuration.cpp" />
+    <ClCompile Include="Engine\Debuger.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Engine\Projection.cpp" />
     <ClCompile Include="Input\Input.cpp" />

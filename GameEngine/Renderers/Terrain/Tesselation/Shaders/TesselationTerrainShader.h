@@ -27,6 +27,8 @@ public:
 		gNormalTexture,
 		RockNormalTexture,
 		DisplacementMap,
+		distanceDev,
+		minTessLevelOuter,
 		Count
 	};
 

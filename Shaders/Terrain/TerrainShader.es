@@ -50,7 +50,7 @@ void main()
 	Out.normal	 	= vec3(0.f, 1.f, 0.f);
 	Out.textCoord	= interpolate2D(In[0].textCoord, In[1].textCoord, In[2].textCoord);
 	
-	float displacement = 2.f * texture(gDisplacementMap, Out.textCoord.xy).x - 1.f;
+	float displacement = 2.f * (texture(gDisplacementMap, Out.textCoord.xy).x* 32.f) - 1.f;
 
 	Out.position.y -= 1.f;
 	Out.position += Out.normal * displacement * heightFactor;
