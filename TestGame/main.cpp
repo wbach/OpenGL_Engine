@@ -293,9 +293,6 @@ void TestGameStart()
 
 int main(int argc, char* argv[])
 {	
-	
-
-
 	//MemoryTest();
 	//auto data = ReadFile(EngineConf_GetFullDataPath("Textures/Terrain/HeightMaps/terrain.raw"));
 	//SaveTextureToFile("D:\\_Projects\\OpenGL_Engine\\Data\\Textures\\Terrain\\HeightMaps\\heightmap.png", data, 513, 513);

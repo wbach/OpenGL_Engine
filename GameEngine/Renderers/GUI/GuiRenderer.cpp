@@ -28,4 +28,5 @@ void CGUIRenderer::EndFrame(CScene * scene)
 void CGUIRenderer::AddElement(CGuiElement * element)
 {
     guiElements.emplace_back(element);
+	element->Init();
 }

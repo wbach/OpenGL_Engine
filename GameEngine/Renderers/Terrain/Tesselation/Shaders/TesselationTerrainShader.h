@@ -43,7 +43,7 @@ public:
 	void Load(UniformLocation location, T value) const
 	{
 		if(uniformLocations[location] < 0)
-			Error("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));
+			Log("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));
 		LoadValue(uniformLocations[location], value);
 	}
 protected:

@@ -9,12 +9,10 @@
 #include "Logger/Log.h"
 #include <fstream>
 
-CEngine::CEngine()
-	: debuger(inputManager)
+CEngine::CEngine()	
 {
 	ReadConfigFile("Conf.xml");
-	SetDisplay();
-	debuger.AddAction(KeyCodes::R, std::bind(&CEngine::ReloadShadersInRenderer, this));
+	SetDisplay();	
 }
 
 CEngine::~CEngine()
@@ -52,14 +50,10 @@ ApiMessages::Type CEngine::MainLoop()
 	LoadObjects();
 	apiMessage = PrepareFrame();
 
-	DebugRenderOptionsControl();
-
 	if (inputManager.GetKey(KeyCodes::ESCAPE))
 		apiMessage = ApiMessages::QUIT;
 
 	ProccesScene();
-
-	debuger.Render();
 
 	displayManager.Update();
 	inputManager.CheckReleasedKeys();
@@ -104,23 +98,6 @@ void CEngine::LoadObjects()
 	auto obj = scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLLoadingPass();
 	if (obj != nullptr && !obj->isInOpenGL())
 		obj->OpenGLLoadingPass();
-}
-
-void CEngine::DebugRenderOptionsControl()
-{
-	if (inputManager.GetKeyDown(KeyCodes::V))
-	{
-		debuger.TurnOnOff();
-	}
-	debuger.Execute();
-}
-
-void CEngine::ReloadShadersInRenderer()
-{
-	for (auto& renderer : renderers)
-	{
-		renderer->ReloadShaders();
-	}
 }
 
 ApiMessages::Type CEngine::CheckSceneMessages()

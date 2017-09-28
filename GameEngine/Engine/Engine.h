@@ -3,7 +3,6 @@
 #include "../Display/DisplayManager.hpp"
 #include "../Input/InputManager.h"
 #include "../Resources/ResourceManager.h"
-#include "Debuger.h"
 
 class CScene;
 class CRenderer;
@@ -35,8 +34,6 @@ private:
 	void RenderScene();
 	void Render(CRenderer*);
 	void LoadObjects();
-	void DebugRenderOptionsControl();
-	void ReloadShadersInRenderer();
 
 	ApiMessages::Type ProccesScene();
 	ApiMessages::Type CheckSceneMessages();
@@ -44,6 +41,5 @@ private:
 
 private:	
 	//Global items, loading screen etc...
-    CResourceManager resorceManager;
-	CDebuger debuger;
+    CResourceManager resorceManager;	
 };

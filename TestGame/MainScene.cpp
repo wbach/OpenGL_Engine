@@ -11,22 +11,10 @@
 
 MainScene::MainScene(CEngine &engine)
     : engine(engine)
+	, debuger(engine.inputManager)
 {
-	CGUIRenderer* gui_renderer = new CGUIRenderer();
-    auto guiText = new CGuiText("GUI/consola.ttf", engine.projection.GetWindowSize());
-	gui_renderer->AddElement(guiText);
-
-	SGuiTextElement score;
-	score.text =
-		"V -  on/off debug keys."
-		"G -  on/off grid";
-	score.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
-
-	score.position = glm::vec2(-0.9, 0.9);
-	guiText->texts["Line_p1"] = score;
-
-    engine.renderers.emplace_back(gui_renderer);
-	gui_renderer->Init();
+	InitGui();
+	debuger.AddAction(KeyCodes::R, std::bind(&MainScene::ReloadShadersInRenderer, this));
 }
 
 MainScene::~MainScene()
@@ -125,6 +113,9 @@ int MainScene::Update()
 		if (ppos.y < new_position.value().y)
 			player->SetPosition(new_position.value());
 	}
+
+	DebugRenderOptionsControl();
+
     return 0;
 }
 
@@ -208,4 +199,43 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
  //   grass->model->AddMesh(grass_position, empty_float_vec, empty_float_vec, empty_float_vec, indicies, grass_material, empty_bones);
  //   m_ResourceManager.AddModel(grass->model);
  //   engine.m_Renderers[0]->Subscribe(grass);
+}
+
+void MainScene::InitGui()
+{
+	CGUIRenderer* gui_renderer = new CGUIRenderer();
+	auto guiText = new CGuiText("GUI/consola.ttf", engine.projection.GetWindowSize());
+	gui_renderer->AddElement(guiText);
+
+	SGuiTextElement score;
+	score.text =
+		"V -  on/off debug keys."
+		"G -  on/off grid";
+	score.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
+
+	score.position = glm::vec2(-0.9, 0.9);
+	guiText->texts["Line_p1"] = score;
+
+	engine.renderers.emplace_back(gui_renderer);
+
+	debuger.SetGuiRenderer(gui_renderer);
+	debuger.Init();
+	//gui_renderer->Init();
+}
+
+void MainScene::DebugRenderOptionsControl()
+{
+	if (engine.inputManager.GetKeyDown(KeyCodes::V))
+	{
+		debuger.TurnOnOff();
+	}
+	debuger.Execute();
+}
+
+void MainScene::ReloadShadersInRenderer()
+{
+	for (auto& renderer : engine.renderers)
+	{
+		renderer->ReloadShaders();
+	}
 }

@@ -9,8 +9,8 @@
 #include "GLM/GLMUtils.h"
 #include "EngineUitls.h"
 
-float CTessellationTerrainRenderer::distanceDev = 50.f;
-int CTessellationTerrainRenderer::minTessLevelOuter = 10;
+float CTessellationTerrainRenderer::distanceDev = 5.f;
+int CTessellationTerrainRenderer::minTessLevelOuter = 8;
 
 CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)

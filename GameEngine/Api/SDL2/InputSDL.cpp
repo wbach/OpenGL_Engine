@@ -78,50 +78,52 @@ vec2 CInputSDL::GetMousePosition()
 	SDL_GetMouseState(&tmp_x, &tmp_y);
 	return vec2(tmp_x, tmp_y);
 }
+
+#define ReturnSDLKey(x, y) if (key == x) return y;
+
 int CInputSDL::KeyToSDL(int key)
 {
-
-	if (key == KeyCodes::LMOUSE) return SDL_BUTTON_LEFT;
-	if (key == KeyCodes::RMOUSE) return SDL_BUTTON_RIGHT; 
-	
-	if (key == KeyCodes::Q) return SDL_SCANCODE_Q; 
-	if (key == KeyCodes::W) return SDL_SCANCODE_W; 
-	if (key == KeyCodes::E) return SDL_SCANCODE_E; 
-	if (key == KeyCodes::R) return SDL_SCANCODE_R; 
-	if (key == KeyCodes::T) return SDL_SCANCODE_T; 
-	if (key == KeyCodes::Y) return SDL_SCANCODE_Y; 
-	if (key == KeyCodes::U) return SDL_SCANCODE_U; 
-	if (key == KeyCodes::I) return SDL_SCANCODE_I; 
-	if (key == KeyCodes::O) return SDL_SCANCODE_O; 
-	if (key == KeyCodes::P) return SDL_SCANCODE_P; 
-	if (key == KeyCodes::A) return SDL_SCANCODE_A; 
-	if (key == KeyCodes::S) return SDL_SCANCODE_S; 
-	if (key == KeyCodes::D) return SDL_SCANCODE_D; 
-	if (key == KeyCodes::F) return SDL_SCANCODE_F; 
-	if (key == KeyCodes::G) return SDL_SCANCODE_G; 
-	if (key == KeyCodes::H) return SDL_SCANCODE_H; 
-	if (key == KeyCodes::J) return SDL_SCANCODE_J; 
-	if (key == KeyCodes::K) return SDL_SCANCODE_K; 
-	if (key == KeyCodes::L) return SDL_SCANCODE_L; 
-	if (key == KeyCodes::Z) return SDL_SCANCODE_Z; 
-	if (key == KeyCodes::X) return SDL_SCANCODE_X; 
-	if (key == KeyCodes::C) return SDL_SCANCODE_C; 
-	if (key == KeyCodes::V) return SDL_SCANCODE_V; 
-	if (key == KeyCodes::B) return SDL_SCANCODE_B; 
-	if (key == KeyCodes::N) return SDL_SCANCODE_N; 
-	if (key == KeyCodes::M) return SDL_SCANCODE_M; 
-
-	if (key == KeyCodes::LCTRL) return SDL_SCANCODE_LCTRL;
-	if (key == KeyCodes::ENTER) return SDL_SCANCODE_RETURN;
-	if (key == KeyCodes::SPACE) return SDL_SCANCODE_SPACE;
-	if (key == KeyCodes::ESCAPE) return SDL_SCANCODE_ESCAPE;
-
-	if (key == KeyCodes::LARROW) return SDL_SCANCODE_LEFT;
-	if (key == KeyCodes::RARROW) return SDL_SCANCODE_RIGHT;
-	if (key == KeyCodes::UARROW) return SDL_SCANCODE_UP;
-	if (key == KeyCodes::DARROW) return SDL_SCANCODE_DOWN;
+	ReturnSDLKey(KeyCodes::LMOUSE, SDL_BUTTON_LEFT);
+	ReturnSDLKey(KeyCodes::RMOUSE, SDL_BUTTON_RIGHT);
+	ReturnSDLKey(KeyCodes::Q, SDL_SCANCODE_Q);
+	ReturnSDLKey(KeyCodes::W, SDL_SCANCODE_W);
+	ReturnSDLKey(KeyCodes::E, SDL_SCANCODE_E);
+	ReturnSDLKey(KeyCodes::R, SDL_SCANCODE_R);
+	ReturnSDLKey(KeyCodes::T, SDL_SCANCODE_T);
+	ReturnSDLKey(KeyCodes::Y, SDL_SCANCODE_Y);
+	ReturnSDLKey(KeyCodes::U, SDL_SCANCODE_U);
+	ReturnSDLKey(KeyCodes::I, SDL_SCANCODE_I);
+	ReturnSDLKey(KeyCodes::O, SDL_SCANCODE_O);
+	ReturnSDLKey(KeyCodes::P, SDL_SCANCODE_P);
+	ReturnSDLKey(KeyCodes::A, SDL_SCANCODE_A);
+	ReturnSDLKey(KeyCodes::S, SDL_SCANCODE_S);
+	ReturnSDLKey(KeyCodes::D, SDL_SCANCODE_D);
+	ReturnSDLKey(KeyCodes::F, SDL_SCANCODE_F);
+	ReturnSDLKey(KeyCodes::G, SDL_SCANCODE_G);
+	ReturnSDLKey(KeyCodes::H, SDL_SCANCODE_H);
+	ReturnSDLKey(KeyCodes::J, SDL_SCANCODE_J);
+	ReturnSDLKey(KeyCodes::K, SDL_SCANCODE_K);
+	ReturnSDLKey(KeyCodes::L, SDL_SCANCODE_L);
+	ReturnSDLKey(KeyCodes::Z, SDL_SCANCODE_Z);
+	ReturnSDLKey(KeyCodes::X, SDL_SCANCODE_X);
+	ReturnSDLKey(KeyCodes::C, SDL_SCANCODE_C);
+	ReturnSDLKey(KeyCodes::V, SDL_SCANCODE_V);
+	ReturnSDLKey(KeyCodes::B, SDL_SCANCODE_B);
+	ReturnSDLKey(KeyCodes::N, SDL_SCANCODE_N);
+	ReturnSDLKey(KeyCodes::M, SDL_SCANCODE_M);
+	ReturnSDLKey(KeyCodes::LCTRL, SDL_SCANCODE_LCTRL);
+	ReturnSDLKey(KeyCodes::ENTER, SDL_SCANCODE_RETURN);
+	ReturnSDLKey(KeyCodes::SPACE, SDL_SCANCODE_SPACE);
+	ReturnSDLKey(KeyCodes::ESCAPE, SDL_SCANCODE_ESCAPE);
+	ReturnSDLKey(KeyCodes::LARROW, SDL_SCANCODE_LEFT);
+	ReturnSDLKey(KeyCodes::RARROW, SDL_SCANCODE_RIGHT);
+	ReturnSDLKey(KeyCodes::UARROW, SDL_SCANCODE_UP);
+	ReturnSDLKey(KeyCodes::DARROW, SDL_SCANCODE_DOWN);
+	ReturnSDLKey(KeyCodes::F1, SDL_SCANCODE_F1);
 	return -1;
 }
+
+#undef ReturnSDLKey
 
 void CInputSDL::SetCursorPosition(int x, int y)
 {

@@ -135,6 +135,8 @@ ApiMessages::Type CSdlOpenGlApi::PeekMessages()
 	BeginFrame();
 	while (SDL_PollEvent(&event))
 		return ProcessSdlEvent();
+
+	return ApiMessages::NONE;
 }
 
 ApiMessages::Type CSdlOpenGlApi::ProcessSdlEvent() const

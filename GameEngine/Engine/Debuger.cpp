@@ -5,10 +5,10 @@
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 #include <iostream>
 
-CGUIRenderer gui_renderer;
-
 CDebuger::CDebuger(CInputManager & input)
 	: inputManager(input)
+	, gui_renderer(nullptr)
+	, guiText(nullptr)
 {
 }
 
@@ -19,10 +19,15 @@ void CDebuger::TurnOnOff()
 
 void CDebuger::Execute()
 {
+	if (inputManager.GetKeyDown(KeyCodes::V))
+	{
+		TurnOnOff();
+	}
+
 	if (!isEnabled)
 		return;
 
-	if(!isInit)
+	UpdateCommandText();
 
 	Keys();
 	RenderAllasGrid();
@@ -42,6 +47,9 @@ void CDebuger::Render()
 	if (!isEnabled)
 		return;
 
+	if (!isSetGuiRenderer())
+		return;
+
 	//std::cout << "*******************************************"
 	//	<< "Debug : on, " << std::endl;
 
@@ -51,6 +59,11 @@ void CDebuger::Render()
 void CDebuger::AddAction(KeyCodes::Type key, std::function<void()> action)
 {
 	actions[key] = action;
+}
+
+void CDebuger::SetGuiRenderer(CGUIRenderer * renderer)
+{
+	gui_renderer = renderer;
 }
 
 void CDebuger::RenderAllasGrid()
@@ -67,11 +80,6 @@ void CDebuger::Keys()
 	if (inputManager.GetKeyDown(KeyCodes::G))
 	{
 		renderAsGrid = !renderAsGrid;
-	}
-
-	if (inputManager.GetKey(KeyCodes::R))
-	{
-
 	}
 
 	if (inputManager.GetKey(KeyCodes::Z))
@@ -100,19 +108,36 @@ void CDebuger::Keys()
 	}
 }
 
+void CDebuger::UpdateCommandText()
+{
+	if (guiText == nullptr)
+		return;
+	auto& text = guiText->texts["comandsLine"].text;
+	text.clear();
+	for (const auto& c : commandsHistory)
+	{
+		text += c;
+		text += "\n";
+	}
+}
+
 void CDebuger::Init()
 {
-	auto guiText = new CGuiText("GUI/consola.ttf", {640, 480});
-	gui_renderer.AddElement(guiText);
+	guiText = new CGuiText("GUI/consola.ttf", {640, 480});
+	gui_renderer->AddElement(guiText);
 
 	SGuiTextElement score;
-	score.text = "Debug: on";
+	score.text = "";
+	score.m_size = 0.5;
 	score.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
 
-	score.position = glm::vec2(-0.9, 0.5);
-	guiText->texts["Line_p1"] = score;
-
-	gui_renderer.Init();
+	score.position = glm::vec2(-0.95, 0.0);
+	guiText->texts["comandsLine"] = score;
 
 	isInit = true;
+}
+
+bool CDebuger::isSetGuiRenderer() const
+{
+	return gui_renderer != nullptr;
 }
