@@ -1,5 +1,9 @@
 #pragma once
 #include "../Input/InputManager.h"
+#include <functional>
+#include <unordered_map>
+
+typedef std::unordered_map<KeyCodes::Type, std::function<void()>> Actions;
 
 class CDebuger
 {
@@ -8,6 +12,7 @@ public:
 	void TurnOnOff();
 	void Execute();
 	void Render();
+	void AddAction(KeyCodes::Type key, std::function<void()> action);
 
 private:
 	void RenderAllasGrid();	
@@ -19,4 +24,5 @@ private:
 	bool isEnabled = false;
 	bool renderAsGrid = false;
 	CInputManager& inputManager;
+	Actions actions;
 };

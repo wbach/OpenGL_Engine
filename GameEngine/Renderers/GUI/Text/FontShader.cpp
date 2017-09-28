@@ -1,11 +1,15 @@
 #include "FontShader.h"
 #include "GLM/GLMUtils.h"
 
-void FontShader::Init() {
-	CreateProgram();
-	AddShader("Font/fontVertex.vert", GL_VERTEX_SHADER);
-	AddShader("Font/fontFragment.frag", GL_FRAGMENT_SHADER);
-	FinalizeShader();
+void FontShader::Init()
+{
+	SetFiles
+	({
+		{"Font/fontVertex.vert", GL_VERTEX_SHADER},
+		{"Font/fontFragment.frag", GL_FRAGMENT_SHADER}
+	});
+
+	CShaderProgram::Init();
 
 	Start();
 	mat4 scaleMat = Utils::CreateTransformationMatrix(vec2(0), vec2(0.0005, 0.001));

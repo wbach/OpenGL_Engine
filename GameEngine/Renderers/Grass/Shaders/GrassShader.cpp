@@ -2,14 +2,17 @@
 
 void CGrassShader::Init()
 {
-    CreateProgram();
-    AddShader("Grass/GrassShader.vert", GL_VERTEX_SHADER);
-    AddShader("Grass/GrassShader.frag", GL_FRAGMENT_SHADER);
-    AddShader("Grass/GrassShader.geom", GL_GEOMETRY_SHADER);
-    FinalizeShader();
+	SetFiles
+	({
+		{ "Grass/GrassShader.vert", GL_VERTEX_SHADER },
+		{ "Grass/GrassShader.frag", GL_FRAGMENT_SHADER },
+		{ "Grass/GrassShader.geom", GL_GEOMETRY_SHADER }
+	});
+
+	CShaderProgram::Init();
 }
 
-void CGrassShader::LoadTransformMatrix(const mat4 & m ) const
+void CGrassShader::LoadTransformMatrix(const mat4 & m) const
 {
 	LoadValue(location_TransformationMatrix, m);
 }

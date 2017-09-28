@@ -25,6 +25,7 @@ public:
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) override;
+	virtual void ReloadShaders() override;
 
 private:
 	void RenderModel(CModel* model) const;

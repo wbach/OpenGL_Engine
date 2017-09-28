@@ -63,3 +63,11 @@ void FullRenderer::Subscribe(CGameObject * gameObject)
 	for (auto& renderer : renderers)
 		renderer->Subscribe(gameObject);
 }
+
+void FullRenderer::ReloadShaders()
+{
+	for (auto& renderer : renderers)
+	{
+		renderer->ReloadShaders();
+	}
+}

@@ -14,6 +14,7 @@ CEngine::CEngine()
 {
 	ReadConfigFile("Conf.xml");
 	SetDisplay();
+	debuger.AddAction(KeyCodes::R, std::bind(&CEngine::ReloadShadersInRenderer, this));
 }
 
 CEngine::~CEngine()
@@ -112,6 +113,14 @@ void CEngine::DebugRenderOptionsControl()
 		debuger.TurnOnOff();
 	}
 	debuger.Execute();
+}
+
+void CEngine::ReloadShadersInRenderer()
+{
+	for (auto& renderer : renderers)
+	{
+		renderer->ReloadShaders();
+	}
 }
 
 ApiMessages::Type CEngine::CheckSceneMessages()

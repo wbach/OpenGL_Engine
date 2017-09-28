@@ -8,12 +8,15 @@ CTesselationTerrainShader::CTesselationTerrainShader()
 
 void CTesselationTerrainShader::Init()
 {
-	CreateProgram();
-	AddShader("Terrain/TerrainShader.vert", GL_VERTEX_SHADER);
-	AddShader("Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER);
-	AddShader("Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER);
-	AddShader("Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER);
-	FinalizeShader();
+	SetFiles
+	({
+		{"Terrain/TerrainShader.vert", GL_VERTEX_SHADER},
+		{"Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER},
+		{"Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER},
+		{"Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER}
+	});
+
+	CShaderProgram::Init();
 }
 
 void CTesselationTerrainShader::GetAllUniformLocations()

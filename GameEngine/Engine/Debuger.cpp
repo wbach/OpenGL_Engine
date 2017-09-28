@@ -26,6 +26,15 @@ void CDebuger::Execute()
 
 	Keys();
 	RenderAllasGrid();
+
+	for (auto& action : actions)
+	{
+		if (inputManager.GetKeyDown(action.first))
+		{
+			action.second();
+		}
+	}
+
 }
 
 void CDebuger::Render()
@@ -37,6 +46,11 @@ void CDebuger::Render()
 	//	<< "Debug : on, " << std::endl;
 
 	//gui_renderer.Render(nullptr);
+}
+
+void CDebuger::AddAction(KeyCodes::Type key, std::function<void()> action)
+{
+	actions[key] = action;
 }
 
 void CDebuger::RenderAllasGrid()
@@ -53,6 +67,11 @@ void CDebuger::Keys()
 	if (inputManager.GetKeyDown(KeyCodes::G))
 	{
 		renderAsGrid = !renderAsGrid;
+	}
+
+	if (inputManager.GetKey(KeyCodes::R))
+	{
+
 	}
 
 	if (inputManager.GetKey(KeyCodes::Z))

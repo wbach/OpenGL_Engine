@@ -18,20 +18,24 @@ void CLoadingScreenRenderer::Init()
 void CLoadingScreenRenderer::Render(CScene * scene)
 {
 	loadingShader.Start();
-	// render
+	prepareRender();
+	renderQuad(transformationMatrix, circleTexture->GetId());
+	renderQuad(mat4(1.f), backgroundTexture->GetId());
+	loadingShader.Stop();
+}
+
+void CLoadingScreenRenderer::prepareRender()
+{
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.117f, 0.117f, 0.117f, 1.f);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, circleTexture->GetId());
+	glClearColor(0.117f, 0.117f, .117f, 1.f);
 	transformationMatrix *= glm::rotate(-1.f, 0.0f, 0.0f, 1.0f);
-	loadingShader.LoadTransformMatrix(transformationMatrix);
-    Utils::SimpleRenderVao(quad.vao, quad.indicesSize, 2);
+}
 
+void CLoadingScreenRenderer::renderQuad(const glm::mat4 & transformMatrix, uint32 textureId) const
+{
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, backgroundTexture->GetId());
-	loadingShader.LoadTransformMatrix(mat4(1.f));
-    Utils::SimpleRenderVao(quad.vao, quad.indicesSize, 2);
-	loadingShader.Stop();
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	loadingShader.LoadTransformMatrix(transformMatrix);
+	Utils::SimpleRenderVao(quad.vao, quad.indicesSize, 2);
 }

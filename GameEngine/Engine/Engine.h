@@ -36,6 +36,7 @@ private:
 	void Render(CRenderer*);
 	void LoadObjects();
 	void DebugRenderOptionsControl();
+	void ReloadShadersInRenderer();
 
 	ApiMessages::Type ProccesScene();
 	ApiMessages::Type CheckSceneMessages();

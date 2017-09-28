@@ -103,6 +103,7 @@ bool CTessellationTerrainRenderer::CheckModelExist(TerrainPtr sub) const
 
 void CTessellationTerrainRenderer::InitShaderFromLocalVariables() const
 {
+	shader.Start();
 	GLfloat viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
 	shader.Load(CTesselationTerrainShader::UniformLocation::Viewport, vec4(viewport[0], viewport[1], viewport[2], viewport[3]));
@@ -129,6 +130,12 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
 	//Log("Index : " + std::to_string(index));
 	subscribes[index] = terrain;
     //subscribes.push_back(terrain);
+}
+
+void CTessellationTerrainRenderer::ReloadShaders()
+{
+	shader.Reload();
+	InitShaderFromLocalVariables();
 }
 
 void CTessellationTerrainRenderer::RenderModel(CModel * model) const

@@ -49,10 +49,14 @@ void main()
 		float d20 = distance( In[2].winPosition, In[0].winPosition );
 
 		int a = minTessLevelOuter;
-
-		gl_TessLevelOuter[0] = min( max( 1.0, d12 / distanceDev ), minTessLevelOuter );
-		gl_TessLevelOuter[1] = min( max( 1.0, d20 / distanceDev ), minTessLevelOuter );
-		gl_TessLevelOuter[2] = min( max( 1.0, d01 / distanceDev ), minTessLevelOuter );//gl_MaxTessGenLevel
+		float dist = distanceDev;
+		dist = 5;
+		
+		int minLvl = minTessLevelOuter;
+		minLvl = 8;
+		gl_TessLevelOuter[0] = min( max( 1.0, d12 / dist ), minLvl );
+		gl_TessLevelOuter[1] = min( max( 1.0, d20 / dist ), minLvl );
+		gl_TessLevelOuter[2] = min( max( 1.0, d01 / dist ), minLvl );//gl_MaxTessGenLevel
 		gl_TessLevelInner[0] = (gl_TessLevelOuter[0] + gl_TessLevelOuter[1] + gl_TessLevelOuter[2]) / 3.0;
     }
 

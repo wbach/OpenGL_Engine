@@ -3,13 +3,16 @@
 
 void CSkyBoxShader::Init()
 {
-    CreateProgram();
-    AddShader("SkyBox/SkyboxVertexShader.vert", GL_VERTEX_SHADER);
-    AddShader("SkyBox/SkyboxFragmentShader.frag", GL_FRAGMENT_SHADER);
-    FinalizeShader();
-
     m_Rotation = 0.f;
     m_RotationSpeed = 0.1f;
+
+	SetFiles
+	({
+		{"SkyBox/SkyboxVertexShader.vert", GL_VERTEX_SHADER},
+		{"SkyBox/SkyboxFragmentShader.frag", GL_FRAGMENT_SHADER}
+	});
+
+	CShaderProgram::Init();
 }
 
 void CSkyBoxShader::LoadProjectionMatrix(const mat4& matrix) const

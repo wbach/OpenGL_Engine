@@ -2,10 +2,13 @@
 
 void CLightPassShader::Init()
 {
-	CreateProgram();
-    AddShader("Light/LightPassShader.vert", GL_VERTEX_SHADER);
-    AddShader("Light/LightPassShader.frag", GL_FRAGMENT_SHADER);
-	FinalizeShader();
+	SetFiles
+	({
+		{"Light/LightPassShader.vert", GL_VERTEX_SHADER},
+		{"Light/LightPassShader.frag", GL_FRAGMENT_SHADER},
+	});
+	
+	CShaderProgram::Init();
 }
 void CLightPassShader::GetAllUniformLocations()
 {

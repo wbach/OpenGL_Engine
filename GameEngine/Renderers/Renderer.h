@@ -13,6 +13,7 @@ public:
     CRenderer(CFrameBuffer* target) : target(target){}
 	virtual ~CRenderer() {}
     virtual void Init() = 0 ;
+	virtual void ReloadShaders() {};
     virtual void PrepareFrame(CScene* scene) = 0;
     virtual void Render(CScene* scene) = 0;
 	virtual void EndFrame(CScene* scene) = 0;

@@ -11,5 +11,5 @@ void main()
 {                                                                                   
     gl_Position = transformationMatrix * vec4(position, 1.0);   
                                     
-    TexCoordOut = textureCoords;                                                         
+    TexCoordOut = textureCoords;                                                   
 }
