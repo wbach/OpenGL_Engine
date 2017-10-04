@@ -12,7 +12,8 @@ class CDisplayManager
 public:
 	CDisplayManager();
 	CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen);
-	CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
+        CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
+        ~CDisplayManager();
 	ApiMessages::Type PeekMessage();
 	void Update();
 

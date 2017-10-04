@@ -8,6 +8,7 @@
 CSdlOpenGlApi::~CSdlOpenGlApi()
 {
 	SDL_GL_DeleteContext(glContext);
+    SDL_QuitSubSystem(SDL_INIT_EVERYTHING);
 	SDL_Quit();
 }
 
@@ -24,7 +25,7 @@ void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int
 		SetFullScreen(true);
 
 	InitGlew();
-	PrintOpenGLInfo();
+    PrintOpenGLInfo();
 }
 
 void CSdlOpenGlApi::UpdateWindow()

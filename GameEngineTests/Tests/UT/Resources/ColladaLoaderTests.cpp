@@ -1,5 +1,6 @@
 #include "../../Mocks/Resources/ColladaLoaderMock.h"
 #include "Resources/Models/WBLoader/Collada/ColladaDaeTypes.h"
+#include "Engine/Configuration.h"
 #include <gtest/gtest.h>
 
 TEST_F(ColladaLoaderMock, GetTypeFromStringTest)
@@ -46,3 +47,8 @@ TEST_F(ColladaLoaderMock, GetFloatsFromString)
 		EXPECT_EQ(ref[x], result[x]);
 	}
 }
+
+//TEST_F(ColladaLoaderMock, GetGeometryNameFromString)
+//{
+//    WBLoader::ColladaDae model;
+//}

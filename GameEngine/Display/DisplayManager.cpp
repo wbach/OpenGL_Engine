@@ -7,12 +7,12 @@ CDisplayManager::CDisplayManager()
 }
 
 CDisplayManager::CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen)
-	: CDisplayManager(std::make_unique<CSdlOpenGlApi>(), window_name, w, h, full_screen)
+    : CDisplayManager(std::make_unique<CSdlOpenGlApi>(), window_name, w, h, full_screen)
 {
 }
 
 CDisplayManager::CDisplayManager(std::unique_ptr<CApi> capi, const std::string& window_name, const int& w, const int& h, bool full_screen)
-	: api(std::move(capi))
+    : api(std::move(capi))
 	, lastFrameTime(0)
 	, fpsCap(60)
 	, windowsSize({w, h})
@@ -23,7 +23,12 @@ CDisplayManager::CDisplayManager(std::unique_ptr<CApi> capi, const std::string& 
 		return;
 	}
 
-	api->CreateOpenGLWindow(window_name, w, h, full_screen);
+    api->CreateOpenGLWindow(window_name, w, h, full_screen);
+}
+
+CDisplayManager::~CDisplayManager()
+{
+   Log(__func__);
 }
 
 ApiMessages::Type CDisplayManager::PeekMessage()

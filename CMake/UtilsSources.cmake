@@ -1,0 +1,13 @@
+set(UtilsSources
+../Utils/XML/SceneReader.cpp
+../Utils/XML/SerializedMethods.cpp
+../Utils/XML/ParseMethods.cpp
+../Utils/XML/XMLUtils.cpp
+../Utils/OpenGL/OpenGLUtils.cpp
+../Utils/ParseUtils.cpp
+../Utils/Logger/Log.cpp
+../Utils/GLM/GLMUtils.cpp
+../Utils/EngineUitls.cpp
+../Utils/Types.cpp
+../Utils/Utils.cpp
+)

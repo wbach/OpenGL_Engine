@@ -158,7 +158,7 @@ namespace XMLParser
 	}
 
 	SConfiguration& ReadConfigFile(const std::string& file)
-	{
+    {
 		auto& config = SConfiguration::Instance();
 
 		auto str = Utils::ReadFile(file);
@@ -166,6 +166,7 @@ namespace XMLParser
 		if (str.empty())
 			return config;
 
+return config;
 		rapidxml::xml_document<> document;
 		try
 		{

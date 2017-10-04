@@ -70,7 +70,7 @@ int MainScene::Initialize()
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
-    camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.displayManager);
+    camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager());
 
     //camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
 
@@ -84,7 +84,7 @@ int MainScene::Update()
         camera->CalculateInput();
         camera->Move();
     }
-    deltaTime = static_cast<float>(engine.displayManager.GetDeltaTime());
+    deltaTime = static_cast<float>(engine.GetDisplayManager().GetDeltaTime());
     gloabalTime += deltaTime;
 
     timeClock += deltaTime;

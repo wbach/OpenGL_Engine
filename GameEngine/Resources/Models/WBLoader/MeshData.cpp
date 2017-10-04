@@ -1,4 +1,5 @@
 #include "MeshData.h"
+#include <algorithm>
 
 namespace WBLoader
 {

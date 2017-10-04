@@ -18,7 +18,7 @@ void CLogger::EnableLogs()
 }
 void CLogger::ErrorLog(const std::string& log)
 {
-	MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
+    MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
 	Log("[Error] " + log);
 }
 void CLogger::Logg(const std::string& log)
@@ -34,8 +34,8 @@ void CLogger::Logg(const std::string& log)
 void CLogger::MessageBox(uint32 flags, const std::string& title, const std::string& message)
 {
 	SDL_ShowSimpleMessageBox(flags,
-		title.c_str(),
-		message.c_str(),
+        title.c_str(),
+        message.c_str(),
 		NULL);
 }
 void CLogger::SaveToFile() const

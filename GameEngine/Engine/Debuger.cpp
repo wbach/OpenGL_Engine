@@ -1,5 +1,5 @@
 #include "Debuger.h"
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include "../Renderers/Terrain/Tesselation/TessellationTerrainRenderer.h"
 #include "../GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"

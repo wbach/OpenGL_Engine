@@ -1,6 +1,6 @@
 #include "GameTime.h"
 
-void CGameTime::Update(const float & delta_time)
+void CGameTime::Update(const float& delta_time)
 {
     deltaGameTime = delta_time / 1000;
     currentTime += deltaGameTime;

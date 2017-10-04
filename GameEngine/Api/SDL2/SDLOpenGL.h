@@ -9,7 +9,7 @@ class CInput;
 class CSdlOpenGlApi : public CApi
 {
 public:
-	~CSdlOpenGlApi();
+        virtual ~CSdlOpenGlApi() override;
 	virtual void CreateOpenGLWindow(const std::string& window_name, const int& width, const int& height, bool full_screen) override;
 	virtual ApiMessages::Type PeekMessages() override;
 	virtual void UpdateWindow() override;

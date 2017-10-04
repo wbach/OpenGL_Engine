@@ -9,10 +9,11 @@
 #include "Logger/Log.h"
 #include <fstream>
 
-CEngine::CEngine()	
+CEngine::CEngine()
+    : displayManager(nullptr)
 {
 	ReadConfigFile("Conf.xml");
-	SetDisplay();	
+    SetDisplay();
 }
 
 CEngine::~CEngine()
@@ -22,17 +23,16 @@ CEngine::~CEngine()
 
 void CEngine::ReadConfigFile(const std::string & file_name)
 {
-	auto& conf = EngineConf;
-	EngineConf.ReadFromFile("Conf.xml");
-	EngineConf_AddRequiredFile("Conf.xml");
+    EngineConf.ReadFromFile(file_name);
+    EngineConf_AddRequiredFile(file_name);
 }
 
 void CEngine::SetDisplay()
 {
 	auto& conf = EngineConf;
-	displayManager = CDisplayManager(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
-	displayManager.SetInput(inputManager.input);
-	projection = conf.resolution;
+    displayManager = std::make_unique<CDisplayManager>(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
+    displayManager->SetInput(inputManager.input);
+    projection = conf.resolution;
 }
 
 void CEngine::GameLoop()
@@ -40,7 +40,12 @@ void CEngine::GameLoop()
 	ApiMessages::Type apiMessage = ApiMessages::NONE;
 
 	while (apiMessage != ApiMessages::QUIT)
-		apiMessage = MainLoop();
+        apiMessage = MainLoop();
+}
+
+CDisplayManager &CEngine::GetDisplayManager()
+{
+    return *displayManager.get();
 }
 
 ApiMessages::Type CEngine::MainLoop()
@@ -55,7 +60,7 @@ ApiMessages::Type CEngine::MainLoop()
 
 	ProccesScene();
 
-	displayManager.Update();
+    displayManager->Update();
 	inputManager.CheckReleasedKeys();
 
 	return apiMessage;
@@ -115,7 +120,7 @@ ApiMessages::Type CEngine::PrepareFrame()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(.8f, .8f, .8f, 1.f);
-	return displayManager.PeekMessage();
+    return displayManager->PeekMessage();
 }
 
 void CEngine::Init()
@@ -149,7 +154,7 @@ void CEngine::SetDefaultRenderer()
 
 void CEngine::LoadScene()
 {
-	SceneLoader sceneLoader(displayManager, resorceManager);
+    SceneLoader sceneLoader(GetDisplayManager(), resorceManager);
 	sceneLoader.Load(scene.get());
 }
 
