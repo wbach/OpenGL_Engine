@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,15 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{47F36A37-C53F-45FF-93F6-2090D75680AC}</ProjectGuid>
-    <RootNamespace>Gwint</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{B89BB922-72D9-4471-825E-BFC2B53B9F4C}</ProjectGuid>
+    <RootNamespace>TerrainGeneration</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -40,13 +41,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -68,44 +69,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\bin\Gwint\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\Gwint\$(Configuration)\</IntDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\bin\Gwint\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\Gwint\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\TerrainGeneration\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\TerrainGeneration\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\bin\Gwint\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\Gwint\$(Configuration)\</IntDir>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\bin\TerrainGeneration\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\TerrainGeneration\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\bin\Gwint\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\Gwint\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Tools\Windows\rapidxml-1.13;..\Tools\Windows\fbx_sdk\include;..\Tools\Windows\Assimp\include;..\Tools\Windows\SDL2-2.0.3\include\;..\Tools\Windows\glm\;..\Tools\Windows;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\include;..\Tools\Windows\GLFW3\include;..\GameEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>GameEngine.lib;libfbxsdk-md.lib;FreeImage.lib;SDL2.lib;glew32.lib;glu32.lib;SDL2main.lib;SDL2test.lib;SDL2_image.lib;opengl32.lib;assimp.lib;libfreetype.lib;glfw3.lib;glfw3dll.lib;SDL2_net.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Tools\Windows\fbx_sdk\lib\vs2015\x86\release;..\Tools\Windows\Assimp\lib\x86;..\Tools\Windows\GL;..\Tools\Windows\SDL2-2.0.3\lib\x86;..\Tools\Windows\freeImage;..\Tools\Windows\freetype\lib;..\Tools\Windows\GLFW3\lib-vc2015;..\bin\GameEngine\Debug;E:\Projects\Git\GameEngine\Tools\Windows\SDL2_net-2.0.1\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -118,6 +89,27 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\Tools\Windows\libnoise\libnoiseheaders-1.0.0\include\ </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>libnoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Tools\Windows\libnoise\libnoisedll-1.0.0\bin\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -133,33 +125,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Cards\CardReader.cpp" />
-    <ClCompile Include="Cards\GameCards.cpp" />
-    <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="Gwint.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Network\NetworkUtils.cpp" />
-    <ClCompile Include="Network\SDLClientGetway.cpp" />
-    <ClCompile Include="States\State.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Tests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cards\Card.h" />
-    <ClInclude Include="Cards\CardReader.h" />
-    <ClInclude Include="Cards\GameCards.h" />
-    <ClInclude Include="GameLine.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="Gwint.h" />
-    <ClInclude Include="Messages\Messages.h" />
-    <ClInclude Include="Network\NetworkStates.h" />
-    <ClInclude Include="Network\NetworkUtils.h" />
-    <ClInclude Include="Network\SDLClientGetway.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="States\ChooseCardState.h" />
-    <ClInclude Include="States\EnemyMockState.h" />
-    <ClInclude Include="States\EnemyState.h" />
-    <ClInclude Include="States\PlayerMoveState.h" />
-    <ClInclude Include="States\State.h" />
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="SingleTon.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
