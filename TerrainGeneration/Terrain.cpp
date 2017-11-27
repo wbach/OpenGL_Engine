@@ -1,5 +1,6 @@
 #include "Terrain.h"
 #include <iostream>
+#include <thread>
 #include "Image.h"
 #include "Configuration.h"
 #include "SingleTon.h"
@@ -98,8 +99,8 @@ void Terrain::CreateBitmapData()
 void Terrain::CalcualteFloatData(int scale)
 {
 	std::vector<std::thread> threads;
-	threads.resize(CONF.threadsCount);
-	int part = height / CONF.threadsCount;
+        threads.resize(CONF.threadsCount);
+        int part = height / CONF.threadsCount;
 
 	int x = 0;
 	for (auto& thread : threads)

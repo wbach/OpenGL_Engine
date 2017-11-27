@@ -1,16 +1,18 @@
 #pragma once
 
-template<class T>
+template <class T>
 class SingleTon
 {
 public:
-	static T& Get()
-	{
-		static T type;
-		return type;
-	}
+    static T& Get()
+    {
+        static T type;
+        return type;
+    }
 
 private:
-	SingleTon() {}
-	T type;
+    SingleTon()
+    {
+    }
+    T type;
 };
