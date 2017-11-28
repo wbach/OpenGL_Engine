@@ -53,45 +53,8 @@ void CEntityRenderer::Render(CScene * scene)
 
 	auto index = CalcualteCoorditantes(scene->GetCamera()->GetPosition());
 
-	auto subscirbes = dynamicSubscribes;
-
-	for (auto& entity : subscirbes)
-	{
-		if (entity == nullptr)
-			Log("[Error] Null subsciber in EnityRenderer.");
-		if (entity->GetModel(0) == nullptr)
-			continue;
-
-        RenderModel(entity->GetModel(0), entity->worldTransform.GetMatrix());
-	}
-
-	for (int y = -2; y <= 2; y++)
-	{
-		for (int x = -2; x <= 2; x++)
-		{
-			auto sub = GetEntity(index.x + x, index.y + y);
-
-			uint32 level_of_detail = 0;
-
-			if (y > 1 || y < -1 || x > 2 || x < -2)
-				level_of_detail = 2;
-			else if (y > 0 || y < 0 || x > 0 || x < 0)
-				level_of_detail = 1;
-
-			for (auto& entity : sub)
-			{
-				if (entity == nullptr)
-					Log("[Error] Null subsciber in EnityRenderer.");
-
-				auto model = entity->GetModel(level_of_detail);
-				if (model == nullptr)
-					continue;
-
-                RenderModel(model, entity->worldTransform.GetMatrix());
-			}
-			//subscirbes.insert(subscirbes.end(), sub.begin(), sub.end());
-		}
-	}	
+    RenderDynamicsEntities();
+    RenderStaticEntities(index);
 	shader.Stop();
 }
 
@@ -150,7 +113,50 @@ void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix)
 		Utils::DisableVao(mesh.GetUsedAttributes());
 
 		UnBindMaterial(mesh.GetMaterial());
-	}
+    }
+}
+
+void CEntityRenderer::RenderDynamicsEntities()
+{
+    for (auto& entity : dynamicSubscribes)
+    {
+        if (entity == nullptr)
+            Log("[Error] Null subsciber in EnityRenderer.");
+        if (entity->GetModel(0) == nullptr)
+            continue;
+
+        RenderModel(entity->GetModel(0), entity->worldTransform.GetMatrix());
+    }
+}
+
+void CEntityRenderer::RenderStaticEntities(const wb::vec2i &index)
+{
+    for (int y = -2; y <= 2; y++)
+    {
+        for (int x = -2; x <= 2; x++)
+        {
+            auto sub = GetEntity(index.x + x, index.y + y);
+
+            uint32 level_of_detail = 0;
+
+            if (y > 1 || y < -1 || x > 2 || x < -2)
+                level_of_detail = 2;
+            else if (y > 0 || y < 0 || x > 0 || x < 0)
+                level_of_detail = 1;
+
+            for (auto& entity : sub)
+            {
+                if (entity == nullptr)
+                    Log("[Error] Null subsciber in EnityRenderer.");
+
+                auto model = entity->GetModel(level_of_detail);
+                if (model == nullptr)
+                    continue;
+
+                RenderModel(model, entity->worldTransform.GetMatrix());
+            }
+        }
+    }
 }
 
 wb::vec2i CEntityRenderer::CalcualteCoorditantes(const vec3 & v) const

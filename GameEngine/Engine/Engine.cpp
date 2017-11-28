@@ -143,9 +143,9 @@ void CEngine::SetDefaultRenderer()
 	if (!renderers.empty())
 		return;
 
-	auto rendererType = SConfiguration::Instance().rendererType;
+    auto rendererType = EngineConf.rendererType;
 
-	if (rendererType == SConfiguration::RendererType::FULL_RENDERER)
+    if (rendererType == SEngineConfiguration::RendererType::FULL_RENDERER)
 		renderers.emplace_back(new FullRenderer(&projection));
 	else
 		renderers.emplace_back(new SimpleRenderer(&projection));

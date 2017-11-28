@@ -5,17 +5,22 @@ class CProjection
 {
 public:
     CProjection();
-    CProjection(const wb::vec2i& window_size);
-    CProjection(const wb::vec2i& window_size, float near, float far, float fov);
-    const mat4& GetProjectionMatrix() const;
-    mat4* GetProjectionMatrixPtr() { return &projectionMatrix; }
-    const wb::vec2i& GetWindowSize();
-    float GetViewDistance();
+    CProjection(const vec2i& window_size);
+    CProjection(const vec2i& window_size, float near, float far, float fov);
+
     void CreateProjectionMatrix();
     void OrthographicProjection();
 
-private:	
-    wb::vec2i windowSize;
+    float GetViewDistance() const;
+    float GetFoV() const {return fov;}
+    float GetFar() const {return farPlane;}
+    float GetNear() const {return nearPlane;}
+    const vec2i& GetWindowSize() const;
+    const mat4& GetProjectionMatrix() const;
+    mat4* GetProjectionMatrixPtr() { return &projectionMatrix; }
+
+private:
+    vec2i windowSize;
     float nearPlane;
     float farPlane;
     float fov;

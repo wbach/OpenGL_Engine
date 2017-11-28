@@ -53,7 +53,7 @@ int MainScene::Initialize()
         for(float x = 0; x < terrains_count*TERRAIN_SIZE; x+= TERRAIN_SIZE)
         {
             //if(x==0 || y==0) continue;
-            AddTerrain(terrain_textures, glm::vec3(x, 1.f, y));
+            AddTerrain(terrain_textures, glm::vec3(x, -50.f, y));
         }
    
    // AddGrass();
@@ -70,9 +70,9 @@ int MainScene::Initialize()
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
-    camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager());
+    //camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager());
 
-    //camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
+    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
 
     return 0;
 }

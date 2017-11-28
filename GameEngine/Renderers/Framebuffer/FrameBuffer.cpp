@@ -1,6 +1,6 @@
 #include "FrameBuffer.h"
-#include "OpenGL/OpenGLUtils.h"
 #include "Logger/Log.h"
+#include "OpenGL/OpenGLUtils.h"
 
 void CFrameBuffer::CreateFrameBuffer()
 {
@@ -8,54 +8,54 @@ void CFrameBuffer::CreateFrameBuffer()
     isInitialized = true;
 }
 
-void CFrameBuffer::AddTexture(GLuint & texture)
+void CFrameBuffer::AddTexture(GLuint& texture)
 {
     textures.push_back(texture);
 }
 
-void CFrameBuffer::SetDepthTexture(const GLuint & texture)
+void CFrameBuffer::SetDepthTexture(const GLuint& texture)
 {
     depthTexture = texture;
 }
 
 int CFrameBuffer::CheckStatus()
 {
-	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
-	if (Status != GL_FRAMEBUFFER_COMPLETE)
-	{
-		Log("[Error] FB error, status: " + std::to_string(Status));
-		return -1;
-	}
-	return 0;
+    if (Status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        Log("[Error] FB error, status: " + std::to_string(Status));
+        return -1;
+    }
+    return 0;
 }
 
-const GLuint & CFrameBuffer::GetFbo()
+const GLuint& CFrameBuffer::GetFbo()
 {
     return fbo;
 }
 
-const GLuint & CFrameBuffer::GetDepthTexture()
+const GLuint& CFrameBuffer::GetDepthTexture()
 {
     return depthTexture;
 }
 
-const GLuint & CFrameBuffer::GetTexture(const uint32 & id)
+const GLuint& CFrameBuffer::GetTexture(const uint32& id)
 {
     if (id > textures.size())
-		return Utils::s_GLuint_zero;
+        return Utils::s_GLuint_zero;
     return textures[id];
 }
 
 void CFrameBuffer::BindTextures(int offset)
 {
-	int nr = 0;
+    int nr = 0;
     for (GLuint& i : textures)
-	{
-		glActiveTexture(GL_TEXTURE0 + offset + nr++);
-		glBindTexture(GL_TEXTURE_2D, i);
-	}
-	glActiveTexture(GL_TEXTURE0 + offset + nr);
+    {
+        glActiveTexture(GL_TEXTURE0 + offset + nr++);
+        glBindTexture(GL_TEXTURE_2D, i);
+    }
+    glActiveTexture(GL_TEXTURE0 + offset + nr);
     glBindTexture(GL_TEXTURE_2D, depthTexture);
 }
 
@@ -71,27 +71,33 @@ void CFrameBuffer::Bind()
 
 void CFrameBuffer::UnBind()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void CFrameBuffer::UnBindDraw()
 {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 CFrameBuffer::~CFrameBuffer()
 {
-    if (!isInitialized) return;
+    if (!isInitialized)
+        return;
 
-    for (GLuint& tex : textures)
-		glDeleteTextures(1, &tex);
+    CleanTexures();
 
     glDeleteTextures(1, &depthTexture);
     if (depthStorage)
         glDeleteRenderbuffers(1, &depthTexture);
-	else
+    else
         glDeleteTextures(1, &depthTexture);
 
     if (fbo != 0)
         glDeleteFramebuffers(1, &fbo);
+}
+
+void CFrameBuffer::CleanTexures()
+{
+    for (GLuint& tex : textures)
+        glDeleteTextures(1, &tex);
 }

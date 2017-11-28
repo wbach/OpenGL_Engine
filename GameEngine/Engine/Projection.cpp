@@ -1,15 +1,16 @@
 #include "Projection.h"
 #include "Utils.h"
+#include "math.hpp"
 
 CProjection::CProjection()
     : CProjection({640,480}, .1f, 1000.f, 50.f)
 {}
 
-CProjection::CProjection(const wb::vec2i &window_size)
+CProjection::CProjection(const vec2i &window_size)
     : CProjection(window_size, .1f, 1000.f, 50.f)
 {}
 
-CProjection::CProjection(const wb::vec2i &window_size, float near, float far, float fov)
+CProjection::CProjection(const vec2i &window_size, float near, float far, float fov)
     : windowSize(window_size)
     , nearPlane(near)
     , farPlane(far)
@@ -23,13 +24,13 @@ const mat4 &CProjection::GetProjectionMatrix() const
     return projectionMatrix;
 }
 
-const wb::vec2i &CProjection::GetWindowSize()
+const vec2i &CProjection::GetWindowSize() const
 {
     return windowSize;
 }
 
 
-float CProjection::GetViewDistance()
+float CProjection::GetViewDistance() const
 {
     return 0.8f * farPlane;
 }

@@ -24,6 +24,7 @@ public:
 	void LoadClipPlane(const vec4 clip_plane = vec4(0, 1, 0, 100000)) const;
 
 	void LoadUseTexture(const float& is) const;
+
 private:
 	//Textures locations
 	int location_UseTexture;

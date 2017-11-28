@@ -1,4 +1,5 @@
 #include "GLMUtils.h"
+#include "math.hpp"
 
 glm::vec3 Utils::Vec4ToVec3(const glm::vec4 & v)
 {
@@ -162,4 +163,35 @@ std::string Utils::ToString(const glm::mat4 & m)
 	for (int y = 0; y < 4; y++)
 		s += std::to_string(m[y][0]) + " " + std::to_string(m[y][1]) + " " + std::to_string(m[y][2]) + " " + std::to_string(m[y][3]) + "\n";
 	return s;
+}
+
+mat4 Utils::CreateOrthoProjectionMatrix(float width, float height, float length)
+{
+    mat4 projectonMatrix(1.f);
+    projectonMatrix[0][0] = 2.f / width;
+    projectonMatrix[1][1] = 2.f / height;
+    projectonMatrix[2][2] = -2.f / length;
+    projectonMatrix[3][3] = 1.f;
+    return projectonMatrix;
+}
+
+mat4 Utils::CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center)
+{
+    direction = glm::normalize(direction);
+    center *= -1.0f;
+
+    mat4 lightViewMatrix(1.0);
+
+    float length = glm::length(glm::vec2(direction.x, direction.z));
+    float pitch  = (float)Utils::ToDegrees(acos(length));
+
+    lightViewMatrix *= glm::rotate(pitch, glm::vec3(1, 0, 0));
+
+    float yaw = (float)Utils::ToDegrees(((float)atan(direction.x / direction.z)));
+    yaw       = direction.z > 0 ? yaw - 180 : yaw;
+
+    lightViewMatrix *= glm::rotate((float)-(yaw), glm::vec3(0, 1, 0));
+    lightViewMatrix *= glm::translate(center);
+
+    return lightViewMatrix;
 }

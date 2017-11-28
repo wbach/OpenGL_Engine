@@ -59,6 +59,10 @@ set(GameEngineSources
 ../GameEngine/Renderers/LodingScreenRenderer.cpp
 ../GameEngine/Renderers/Grass/GrassRenderer.cpp
 ../GameEngine/Renderers/Grass/Shaders/GrassShader.cpp
+../GameEngine/Renderers/Shadows/ShadowMapRenderer.cpp
+../GameEngine/Renderers/Shadows/ShadowBox.cpp
+../GameEngine/Renderers/Shadows/ShadowFrameBuffer.cpp
+../GameEngine/Renderers/Shadows/Shaders/ShadowShader.cpp
 ../GameEngine/Camera/FirstPersonCamera.cpp
 ../GameEngine/Camera/Camera.cpp
 ../GameEngine/Camera/Frustrum.cpp

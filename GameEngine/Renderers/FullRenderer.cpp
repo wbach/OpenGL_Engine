@@ -1,10 +1,12 @@
 #include "FullRenderer.h"
 #include "LightPassRenderer.h"
 
-#include "Entity/EntityRenderer.h"
-#include "Terrain/Tesselation/TessellationTerrainRenderer.h"
-#include "SkyBox/SkyBoxRenderer.h"
 #include "Grass/GrassRenderer.h"
+#include "Entity/EntityRenderer.h"
+#include "SkyBox/SkyBoxRenderer.h"
+#include "Shadows/ShadowMapRenderer.hpp"
+#include "Shadows/ShadowFrameBuffer.h"
+#include "Terrain/Tesselation/TessellationTerrainRenderer.h"
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
 #include "../Engine/Configuration.h"
@@ -14,8 +16,12 @@
 FullRenderer::FullRenderer(CProjection* projection_matrix)
 	: projectionMatrix(projection_matrix)
 	, defferedFrameBuffer(new CDefferedFrameBuffer())
+    , shadowsFrameBuffer(new CShadowFrameBuffer())
 {	
-	if(SConfiguration::Instance().advancedGrass)
+    if(EngineConf.isShadows)
+        renderers.emplace_back(new CShadowMapRenderer(projection_matrix, shadowsFrameBuffer.get()));
+
+    if(EngineConf.advancedGrass)
 		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
 
 	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));

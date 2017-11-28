@@ -8,7 +8,6 @@
 void TestGameStart()
 {
     CEngine engine;
-    return;
 	engine.Init();
     engine.scene = std::make_unique<MainScene>(engine);
 	engine.PreperaScene();
