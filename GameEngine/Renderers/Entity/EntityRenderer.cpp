@@ -102,18 +102,21 @@ void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix)
 	shader.LoadUseBonesTransformation(0.f);
 
 	for (const auto& mesh : model->GetMeshes())
-	{
-		Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
-		BindMaterial(mesh.GetMaterial());			
+        RenderMesh(mesh, transform_matrix);
+}
 
-		auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
-		shader.LoadTransformMatrix(transform_matrix_);
+void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix) const
+{
+    Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
+    BindMaterial(mesh.GetMaterial());
 
-		glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-		Utils::DisableVao(mesh.GetUsedAttributes());
+    auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
+    shader.LoadTransformMatrix(transform_matrix_);
 
-		UnBindMaterial(mesh.GetMaterial());
-    }
+    glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+    Utils::DisableVao(mesh.GetUsedAttributes());
+
+    UnBindMaterial(mesh.GetMaterial());
 }
 
 void CEntityRenderer::RenderDynamicsEntities()
@@ -167,6 +170,12 @@ wb::vec2i CEntityRenderer::CalcualteCoorditantes(const vec3 & v) const
 	return w;
 }
 
+void ActiveTexture(int i, CTexture* texture)
+{
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, texture->GetId());
+}
+
 void CEntityRenderer::BindMaterial(const SMaterial & material) const
 {
 	if (material.isTransparency)
@@ -176,8 +185,7 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 
 	if (material.diffuseTexture != nullptr)
 	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material.diffuseTexture->GetId());	
+        ActiveTexture(0, material.diffuseTexture);
 		shader.LoadUseTexture(1.f);
 	}
 	else
@@ -185,24 +193,19 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 
 	if (material.ambientTexture != nullptr)
 	{
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, material.ambientTexture->GetId());
+        ActiveTexture(1, material.ambientTexture);
 	}
 
 	if (material.normalTexture != nullptr)
 	{
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, material.normalTexture->GetId());
+        ActiveTexture(2, material.normalTexture);
 		shader.LoadUseNormalMap(1.f);
 	}
 	else
 		shader.LoadUseNormalMap(0.f);
 
 	if (material.specularTexture != nullptr)
-	{
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, material.specularTexture->GetId());
-	}
+        ActiveTexture(3, material.specularTexture);
 }
 
 void CEntityRenderer::UnBindMaterial(const SMaterial & material) const

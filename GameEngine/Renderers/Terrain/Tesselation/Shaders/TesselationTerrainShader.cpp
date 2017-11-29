@@ -53,6 +53,8 @@ void CTesselationTerrainShader::GetAllUniformLocations()
 	uniformLocations[UniformLocation::distanceDev] = GetUniformLocation("distanceDev");
 	uniformLocations[UniformLocation::minTessLevelOuter] = GetUniformLocation("minTessLevelOuter");
 
+    uniformLocations[UniformLocation::shadowMap] = GetUniformLocation("shadowMap");
+
 	for (uint32 x = 0; x < UniformLocation::Count; x++)
 		if (uniformLocations[x] == -1)
 			Log("CTerrainShader::GetAllUniformLocations() : UniformLocation " + std::to_string(x) + " not set!");
@@ -79,4 +81,5 @@ void CTesselationTerrainShader::ConnectTextureUnits() const
 	LoadValue(uniformLocations[UniformLocation::RockTexture], 9);
 	LoadValue(uniformLocations[UniformLocation::RockNormalTexture], 10);
 	LoadValue(uniformLocations[UniformLocation::DisplacementMap], 11);
+    LoadValue(uniformLocations[UniformLocation::shadowMap], 12);
 }

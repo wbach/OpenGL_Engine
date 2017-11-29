@@ -5,7 +5,7 @@ void CShadowShader::Init()
     SetFiles
     ({
         {"Shadows/ShadowVertexShader.vert", GL_VERTEX_SHADER},
-        {"Shadows/ShadowVertexShader.frag", GL_FRAGMENT_SHADER}
+        {"Shadows/ShadowFragmentShader.frag", GL_FRAGMENT_SHADER}
     });
 
     CShaderProgram::Init();

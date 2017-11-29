@@ -61,6 +61,8 @@ struct SEngineConfiguration
     // float       m_RenderingResolution = 1.f;
 
     std::string requiredFilesOutputFile = "required_files.inf";
+
+    std::vector<int> texturesIds;// dirty hack, debug
 };
 
 #define EngineConf SingleTon<SEngineConfiguration>::Get()

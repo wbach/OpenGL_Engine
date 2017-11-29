@@ -20,16 +20,19 @@ uniform sampler2D bTexture ;
 uniform sampler2D BackgroundTextureNormal;
 uniform sampler2D rTextureNormal ;
 uniform sampler2D gTextureNormal ;
-uniform sampler2D bTextureNormal ;        
+uniform sampler2D bTextureNormal ; 
 
 uniform sampler2D RockTexture;
 uniform sampler2D RockTextureNormal;     
+
+uniform sampler2D shadowMap;
 		
 in float Distance;
 uniform float ViewDistance;
 
 vec4 CalculateTerrainColor()
 {
+    vec4 tmp = texture(shadowMap, In.textCoord) ; // to rmeove
 	vec4 blend_map_colour = texture(BlendMap, In.textCoord) ;
 		
 	float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;

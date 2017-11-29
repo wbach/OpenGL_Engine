@@ -4,8 +4,8 @@
 class CGuiElement
 {
 public:
-	virtual ~CGuiElement() = 0;
-	virtual void Init() = 0;
-	virtual void Render() = 0;
-	vec2 position;
+    virtual ~CGuiElement() = 0;
+    virtual void Init()    = 0;
+    virtual void Render()  = 0;
+    vec2 position;
 };

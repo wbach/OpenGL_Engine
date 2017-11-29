@@ -146,6 +146,11 @@ void CMesh::SetInstancedMatrixes(const std::vector<mat4>& m)
     instancedMatrixes = m;
 }
 
+bool CMesh::IsInit() const
+{
+    return isInit;
+}
+
 void CMesh::OpenGLLoadingPass()
 {
     if (isInOpenGL())

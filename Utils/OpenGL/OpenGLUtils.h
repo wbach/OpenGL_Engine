@@ -32,4 +32,7 @@ namespace Utils
 
 	void DeleteQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, GLuint & vbo_text_coord);
 
+        void EnableVertexAttribArrays(const std::vector<GLuint>&);
+        void DisableVertexAttribArrays(const std::vector<GLuint>&);
+        void ActiveBindTexture(int i, int id);
 }

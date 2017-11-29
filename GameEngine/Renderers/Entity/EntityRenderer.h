@@ -5,6 +5,7 @@
 class CProjection;
 class CEntity;
 class CModel;
+class CMesh;
 
 class CEntityRenderer : public CRenderer
 {
@@ -16,9 +17,10 @@ public:
     virtual void Render(CScene* scene) override;
     virtual void EndFrame(CScene* scene) override;
     virtual void Subscribe(CGameObject* gameObject) override;
-    void RenderModel(CModel* model, const mat4& transform_matrix) const;
 
 private:
+    void RenderModel(CModel* model, const mat4& transform_matrix) const;
+    void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
     void RenderDynamicsEntities();
     void RenderStaticEntities(const wb::vec2i& index);
     wb::vec2i CalcualteCoorditantes(const vec3& v) const;

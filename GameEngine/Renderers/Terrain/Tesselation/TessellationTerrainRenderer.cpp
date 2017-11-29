@@ -4,6 +4,7 @@
 #include "../../../Engine/Projection.h"
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
 #include "../../../Objects/RenderAble/Terrain/TerrainWrapper.h"
+#include "../../Shadows/ShadowFrameBuffer.h"
 
 #include "OpenGL/OpenGLUtils.h"
 #include "GLM/GLMUtils.h"
@@ -12,10 +13,11 @@
 float CTessellationTerrainRenderer::distanceDev = 5.f;
 int CTessellationTerrainRenderer::minTessLevelOuter = 8;
 
-CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
+CTessellationTerrainRenderer::CTessellationTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer, CShadowFrameBuffer* shadowFramebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
     , clipPlane(vec4(0, 1, 0, 100000))
+    , shadowFramebuffer(shadowFramebuffer)
 {
     AllocateTerrainsGrid();
 }
@@ -149,6 +151,8 @@ void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
 	int i = 0;
     for (auto& t : terrain->Get()->textures)
 		BindTexture(t, i++);
+
+    Utils::ActiveBindTexture(i, shadowFramebuffer->GetShadowMap());
 }
 
 void CTessellationTerrainRenderer::BindTexture(CTexture* texture, int id) const
@@ -159,6 +163,7 @@ void CTessellationTerrainRenderer::BindTexture(CTexture* texture, int id) const
 	glActiveTexture(GL_TEXTURE0 + id);
 	glBindTexture(GL_TEXTURE_2D, texture->GetId());	
 }
+
 
 TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const vec3& position, int range) const
 {

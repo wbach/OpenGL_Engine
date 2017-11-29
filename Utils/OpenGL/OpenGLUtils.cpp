@@ -135,5 +135,22 @@ void Utils::DeleteQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, 
 	glDeleteBuffers(1, &vbo_indices);
 	glDeleteBuffers(1, &vbo_vertex);
 	glDeleteBuffers(1, &vbo_text_coord);
-	glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &vao);
+}
+void Utils::EnableVertexAttribArrays(const std::vector<GLuint> & v)
+{
+    for(auto i : v)
+        glEnableVertexAttribArray(i);
+}
+
+void Utils::DisableVertexAttribArrays(const std::vector<GLuint> & v)
+{
+    for(auto iter = v.end(); iter != v.begin(); iter--)
+        glDisableVertexAttribArray(*iter);
+}
+
+void Utils::ActiveBindTexture(int i, int id)
+{
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, id);
 }
