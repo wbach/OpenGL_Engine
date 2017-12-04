@@ -57,7 +57,7 @@ void CFirstPersonCamera::Move()
 {
 	ApllyMove();
 	CalculateMoveVelocity();
-	CheckAndProccesDirections();
+    CheckAndProccesDirections();
 	CCamera::Move();
 }
 
@@ -142,13 +142,13 @@ bool CFirstPersonCamera::CheckAndProccesRightDirection()
 
 void CFirstPersonCamera::MoveCamera(float dist, float dir)
 {
-	float rad = (yaw + dir)*static_cast<float>(M_PI) / 180.f;
+    float rad = (yaw + dir)*static_cast<float>(M_PI) / 180.f;
 	position.x -= sin(-rad)*dist;
 	position.z -= cos(-rad)*dist;
 }
 
 void CFirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
-	float rad = (pitch + dir)*static_cast<float>(M_PI) / 180.f;
+    float rad = (pitch + dir)*static_cast<float>(M_PI) / 180.f;
 	position.y += sin(-rad)*dist;
 }

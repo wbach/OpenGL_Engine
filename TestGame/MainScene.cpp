@@ -70,9 +70,9 @@ int MainScene::Initialize()
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
-    //camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager());
+   camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager());
 
-    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
+    //camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
 
     return 0;
 }

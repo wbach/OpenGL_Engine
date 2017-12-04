@@ -16,6 +16,35 @@ std::string ToStr(const T& t)
     os << t;
     return os.str();
 }
+
+template<class T>
+class ObjectGrid
+{
+public:
+    enum ObjectType
+    {
+        STATIC,
+        DYNAMIC
+    };
+    ObjectGrid(vec2i size)
+        : size(size)
+    {
+        staticObjects.resize(size.x * size.y);
+    }
+    void AddObject(T*, ObjectType type)
+    {
+        //if(type == ObjectType::STATIC)
+            //staticObjects.
+    }
+
+private:
+    std::list<T*> dynamicObjects;
+    std::vector<T*> staticObjects;
+
+    vec2i size;
+    vec2i offset;
+};
+
 std::vector<std::string> SplitString(const std::string& s, char split_char);
 std::string ReadFileBinary(const std::string& file_name);
 std::string ReadFile(const std::string& file_name);

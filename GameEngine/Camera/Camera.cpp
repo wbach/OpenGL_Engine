@@ -3,21 +3,21 @@
 #include "GLM/GLMUtils.h"
 
 CCamera::CCamera() 
-: distanceFromPlayer(99)
-, angleAroundPlayer(0)
-, pitch(20)
-, yaw(0)
-, roll(0)
-, position(0)
+: CCamera(20, 0)
 {	
-	UpdateViewMatrix();
-	UpdateFrustrum();
+
 }
 
 CCamera::CCamera(float pitch, float yaw)
 	: pitch(pitch)
 	, yaw(yaw)
+    , distanceFromPlayer(99)
+    , angleAroundPlayer(0)
+    , roll(0)
+    , position(0)
 {
+    UpdateViewMatrix();
+    UpdateFrustrum();
 }
 
 void CCamera::SetProjectionMatrix(const mat4 & projection_matrix)
