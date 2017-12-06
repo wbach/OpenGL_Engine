@@ -4,6 +4,7 @@ set(UtilsSources
 ../Utils/XML/ParseMethods.cpp
 ../Utils/XML/XMLUtils.cpp
 ../Utils/OpenGL/OpenGLUtils.cpp
+../Utils/OpenGL/VaoEnableController.cpp
 ../Utils/ParseUtils.cpp
 ../Utils/Logger/Log.cpp
 ../Utils/GLM/GLMUtils.cpp
