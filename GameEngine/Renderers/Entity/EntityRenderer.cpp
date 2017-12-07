@@ -107,14 +107,13 @@ void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix)
 
 void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix) const
 {
-    Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
+    Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
     BindMaterial(mesh.GetMaterial());
 
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader.LoadTransformMatrix(transform_matrix_);
 
     glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-    Utils::DisableVao(mesh.GetUsedAttributes());
 
     UnBindMaterial(mesh.GetMaterial());
 }

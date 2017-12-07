@@ -2,37 +2,36 @@
 #include <GL/glew.h>
 #include <vector>
 #include "../Types.h"
+#include "VaoEnableController.hpp"
 
 namespace Utils
 {
-	static const GLuint s_GLuint_zero = 0;
+static const GLuint s_GLuint_zero = 0;
 
-	void BindFrameBuffer(const int & frameBuffer, const int & width, const int & height);
+void BindFrameBuffer(const int& frameBuffer, const int& width, const int& height);
 
-	int CreateFrameBuffer();
+int CreateFrameBuffer();
 
-	int CreateDepthBufferAttachment(const int & width, const int & height);
+int CreateDepthBufferAttachment(const int& width, const int& height);
 
-	int CreateVao();
+int CreateVao();
 
-	GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
+GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 
-	GLuint StoreDataInAttributesList(const int & attributeNumber, const int & coordinateSize, const std::vector<float>& data);
-	void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
-	void DisableVao(const std::vector<uint32>& attributes);
-	void UnbindVao();
+GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<float>& data);
+//void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
+//void DisableVao(const std::vector<uint32>& attributes);
+void UnbindVao();
 
-	void EnableCulling();
+void EnableCulling();
 
-	void DisableCulling();
+void DisableCulling();
 
-	void SimpleRenderVao(const GLuint & vao, int indices, int attributes = 1, GLenum mode = GL_TRIANGLES);
+void SimpleRenderVao(const GLuint& vao, int indices, int attributes = 1, GLenum mode = GL_TRIANGLES);
 
-	void CreateQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, GLuint & vbo_text_coord, int & indices_size);
+void CreateQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size);
 
-	void DeleteQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, GLuint & vbo_text_coord);
+void DeleteQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord);
 
-        void EnableVertexAttribArrays(const std::vector<GLuint>&);
-        void DisableVertexAttribArrays(const std::vector<GLuint>&);
-        void ActiveBindTexture(int i, int id);
+void ActiveBindTexture(int i, int id);
 }

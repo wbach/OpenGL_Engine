@@ -54,10 +54,9 @@ void SimpleRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) 
 
 	for (const auto& mesh : model->GetMeshes())
 	{
-		Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
+        Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
 		BindTextures(mesh.GetMaterial());
 		glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-		Utils::DisableVao(mesh.GetUsedAttributes());
 	}
 }
 

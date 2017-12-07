@@ -88,11 +88,8 @@ void CGrassRenderer::RenderModel(CModel* model)
 void CGrassRenderer::RenderMesh(const CMesh& mesh)
 {
     glBindTexture(GL_TEXTURE_2D, mesh.GetMaterial().diffuseTexture->GetId());
-    glBindVertexArray(mesh.GetVao());
-    glEnableVertexAttribArray(0);
+    Utils::EnableVao ev(mesh.GetVao(), {0});
     glDrawArrays(GL_POINTS, 0, mesh.GetVertexCount());
-    glDisableVertexAttribArray(0);
-    glBindVertexArray(0);
 }
 
 void CGrassRenderer::PrepareShader(CScene* scene)

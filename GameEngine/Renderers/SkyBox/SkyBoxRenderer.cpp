@@ -172,8 +172,7 @@ void CSkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
 
 void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
 {
-	Utils::EnableVao(mesh.GetVao(), mesh.GetUsedAttributes());
+    Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
 	BindTextures(mesh.GetMaterial());
 	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-	Utils::DisableVao(mesh.GetUsedAttributes());
 }

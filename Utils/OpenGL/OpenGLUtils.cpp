@@ -65,19 +65,19 @@ GLuint Utils::StoreDataInAttributesList(const int & attributeNumber, const int &
 	return vbo_id;
 }
 
-void Utils::EnableVao(uint32 vao, const std::vector<uint32>& attributes)
-{
-	glBindVertexArray(vao);
-	for (const auto& i : attributes)
-		glEnableVertexAttribArray(i);
-}
+//void Utils::EnableVao(uint32 vao, const std::vector<uint32>& attributes)
+//{
+//	glBindVertexArray(vao);
+//	for (const auto& i : attributes)
+//		glEnableVertexAttribArray(i);
+//}
 
-void Utils::DisableVao(const std::vector<uint32>& attributes)
-{
-	for (const auto& i : attributes)
-		glDisableVertexAttribArray(i);
-	glBindVertexArray(0);
-}
+//void Utils::DisableVao(const std::vector<uint32>& attributes)
+//{
+//	for (const auto& i : attributes)
+//		glDisableVertexAttribArray(i);
+//	glBindVertexArray(0);
+//}
 
 void Utils::UnbindVao()
 {
@@ -136,17 +136,6 @@ void Utils::DeleteQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, 
 	glDeleteBuffers(1, &vbo_vertex);
 	glDeleteBuffers(1, &vbo_text_coord);
     glDeleteVertexArrays(1, &vao);
-}
-void Utils::EnableVertexAttribArrays(const std::vector<GLuint> & v)
-{
-    for(auto i : v)
-        glEnableVertexAttribArray(i);
-}
-
-void Utils::DisableVertexAttribArrays(const std::vector<GLuint> & v)
-{
-    for(auto iter = v.end(); iter != v.begin(); iter--)
-        glDisableVertexAttribArray(*iter);
 }
 
 void Utils::ActiveBindTexture(int i, int id)

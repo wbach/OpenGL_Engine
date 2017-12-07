@@ -30,11 +30,9 @@ void CShadowMapRenderer::PrepareFrame(CScene* scene)
 
 void CShadowMapRenderer::Render(CScene *scene)
 {
-    return;
-    std::cout << __func__ << " sbucribes: " << subscribes.size() << std::endl;
     PrepareRender(scene);
     PrepareShader(scene->GetCamera());
-  //  RenderSubscribes();
+    RenderSubscribes();
     shader.Stop();
     shadowFrameBuffer->UnbindFrameBuffer();
 }
@@ -98,8 +96,8 @@ void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_mat
     if(!mesh.IsInit())
         return;
 
-    glBindVertexArray(mesh.GetVao());
-    Utils::EnableVertexAttribArrays({0, 1});
+    Utils::EnableVao ev(mesh.GetVao(), {0, 1});
+
     BindMaterial(mesh.GetMaterial());
 
     shader.LoadUseBonesTransformation(0.f);
@@ -109,8 +107,6 @@ void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_mat
     shader.LoadTransformMatrix(transform_matrix_);
 
     glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-    Utils::DisableVertexAttribArrays({0, 1});
-    glBindVertexArray(0);
 }
 
 void CShadowMapRenderer::BindMaterial(const SMaterial& material) const

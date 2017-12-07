@@ -1,5 +1,6 @@
 #include "VaoEnableController.hpp"
 #include <GL/glew.h>
+#include <iostream>
 
 Utils::EnableVao::EnableVao(uint32 vao, const std::vector<uint32> &vertexArrays)
     : v(vertexArrays)

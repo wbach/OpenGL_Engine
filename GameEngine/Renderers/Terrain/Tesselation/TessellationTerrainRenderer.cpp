@@ -85,9 +85,8 @@ void CTessellationTerrainRenderer::RenderTerrainMesh(const CMesh& m) const
 	shader.Load(CTesselationTerrainShader::UniformLocation::distanceDev, distanceDev);
 	shader.Load(CTesselationTerrainShader::UniformLocation::minTessLevelOuter, minTessLevelOuter);
 
-	Utils::EnableVao(m.GetVao(), m.GetUsedAttributes());
+    Utils::EnableVao ev(m.GetVao(), m.GetUsedAttributes());
 	glDrawElements(GL_PATCHES, m.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-	Utils::DisableVao(m.GetUsedAttributes());
 }
 
 void CTessellationTerrainRenderer::PrepareShadersBeforeFrame(TerrainPtr sub) const
