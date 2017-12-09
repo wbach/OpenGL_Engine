@@ -1,13 +1,14 @@
 #include "ShadowMapRenderer.hpp"
 #include "ShadowFrameBuffer.h"
-#include "Engine/Projection.h"
+
+#include "../../Engine/Configuration.h"
+#include "../../Engine/Projection.h"
+#include "../../Camera/Camera.h"
 #include "../../Objects/RenderAble/Entity/Entity.h"
-#include "Camera/Camera.h"
+
 #include "GLM/GLMUtils.h"
 #include "OpenGL/OpenGLUtils.h"
 #include "math.hpp"
-
-#include "Engine/Configuration.h"
 
 CShadowMapRenderer::CShadowMapRenderer(CProjection* projection, CShadowFrameBuffer* framebuffer)
 : shadowBox(projection)

@@ -1,6 +1,6 @@
 #include "ShadowFrameBuffer.h"
 #include "OpenGL/OpenGLUtils.h"
-#include "Engine/Configuration.h"
+#include "../../Engine/Configuration.h"
 
 CShadowFrameBuffer::CShadowFrameBuffer()
     : m_WindowSize(EngineConf.resolution)

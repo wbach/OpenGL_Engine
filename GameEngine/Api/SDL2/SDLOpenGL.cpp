@@ -17,7 +17,7 @@ void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	auto flags = CreateWindowFlags();
-	CreateWindow(window_name, width, height, flags);
+	CreateSDLWindow(window_name, width, height, flags);
 
 	CreateGLContext();
 
@@ -74,7 +74,7 @@ uint32 CSdlOpenGlApi::CreateWindowFlags() const
 	return flags;
 }
 
-void CSdlOpenGlApi::CreateWindow(const std::string & window_name, const int & width, const int & height, uint32 flags)
+void CSdlOpenGlApi::CreateSDLWindow(const std::string & window_name, const int & width, const int & height, uint32 flags)
 {
 	if (window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags))
 		return;

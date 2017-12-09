@@ -31,7 +31,7 @@ CDisplayManager::~CDisplayManager()
    Log(__func__);
 }
 
-ApiMessages::Type CDisplayManager::PeekMessage()
+ApiMessages::Type CDisplayManager::PeekApiMessage()
 {
 	if (api != nullptr)
 		return	api->PeekMessages();

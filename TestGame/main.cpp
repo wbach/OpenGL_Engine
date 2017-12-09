@@ -18,6 +18,10 @@ void TestGameStart()
 
 int main(int argc, char* argv[])
 {	
+	#ifdef BACHU_HAHAH
+	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
+	#endif
+
 	CLogger::Instance().EnableLogs();
 	TestGameStart();
 	return 0;

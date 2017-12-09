@@ -56,7 +56,7 @@ bool SceneLoader::GetIsLoading()
 
 bool SceneLoader::ProccesLoadingLoop(COpenGLObject* obj)
 {
-	displayManager.PeekMessage();
+	displayManager.PeekApiMessage();
 
 	auto load = GetIsLoading();
 	if (LoadObject(obj))

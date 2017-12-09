@@ -1,7 +1,7 @@
 #pragma once
 #include "ShadowBox.h"
 #include "../Renderer.h"
-#include "Scene/Scene.hpp"
+#include "../../Scene/Scene.hpp"
 #include "Shaders/ShadowShader.h"
 
 class CMesh;

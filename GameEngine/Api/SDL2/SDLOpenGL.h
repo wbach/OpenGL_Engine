@@ -26,7 +26,7 @@ public:
 
 private:
 	uint32 CreateWindowFlags() const;
-	void CreateWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
+	void CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
 	void CreateGLContext();
 	void InitGlew();
 	void PrintOpenGLInfo();

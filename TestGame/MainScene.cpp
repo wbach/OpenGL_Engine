@@ -45,7 +45,7 @@ int MainScene::Initialize()
     engine.renderers[0]->Subscribe(small_house);
 
     auto terrain_textures = CreateTerrainTexturesMap();
-    
+
   //  AddTerrain(terrain_textures, glm::vec3(1));
 
 	const float terrains_count = 2;
@@ -72,7 +72,8 @@ int MainScene::Initialize()
 
    camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager());
 
-    //camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
+   // camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
+
 
     return 0;
 }

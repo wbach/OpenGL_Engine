@@ -14,7 +14,7 @@ public:
 	CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen);
         CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
         ~CDisplayManager();
-	ApiMessages::Type PeekMessage();
+	ApiMessages::Type PeekApiMessage();
 	void Update();
 
 	void SetRefreshRate(const int& rate);

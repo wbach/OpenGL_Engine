@@ -120,7 +120,7 @@ ApiMessages::Type CEngine::PrepareFrame()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(.8f, .8f, .8f, 1.f);
-    return displayManager->PeekMessage();
+    return displayManager->PeekApiMessage();
 }
 
 void CEngine::Init()

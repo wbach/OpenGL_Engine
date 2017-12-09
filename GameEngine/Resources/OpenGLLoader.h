@@ -1,8 +1,8 @@
 #pragma once
 #include <list>
 #include "OpenGLObject.h"
-#include <thread>
-#include <mutex>
+#include "Thread.hpp"
+
 class COpenGLLoader
 {
 public:
