@@ -3,34 +3,34 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngine", "GameEngine\GameEngine.vcxproj", "{E17E8D53-C66F-494E-B495-00EE34A0B66D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngine", "GameEngine.vcxproj", "{E17E8D53-C66F-494E-B495-00EE34A0B66D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGame", "TestGame\TestGame.vcxproj", "{9B0F6058-09C8-4B74-8910-4229AA0C016E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGame", "TestGame.vcxproj", "{9B0F6058-09C8-4B74-8910-4229AA0C016E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gwint", "Gwint\Gwint.vcxproj", "{47F36A37-C53F-45FF-93F6-2090D75680AC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gwint", "Gwint.vcxproj", "{47F36A37-C53F-45FF-93F6-2090D75680AC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GwintServer", "GwintServer\GwintServer.vcxproj", "{D23B021D-1E19-47CC-B2E2-2541F678F2F4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GwintServer", "GwintServer.vcxproj", "{D23B021D-1E19-47CC-B2E2-2541F678F2F4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngineTests", "GameEngineTests\GameEngineTests.vcxproj", "{2BE6755D-3432-439E-B1A0-D39125B16AB9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngineTests", "GameEngineTests.vcxproj", "{2BE6755D-3432-439E-B1A0-D39125B16AB9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "Utils\Utils.vcxproj", "{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "Utils.vcxproj", "{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerrainGeneration", "TerrainGeneration\TerrainGeneration.vcxproj", "{B89BB922-72D9-4471-825E-BFC2B53B9F4C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerrainGeneration", "TerrainGeneration.vcxproj", "{B89BB922-72D9-4471-825E-BFC2B53B9F4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
