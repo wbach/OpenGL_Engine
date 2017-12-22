@@ -23,6 +23,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 	#v=#${line::-1}
 	headers+=($line)
 done < "$3"
+# ./prepareProject.sh GameEngine CMake/Sources/GameEngineSources.cmake CMake/Includes/GameEngineIncludes.cmake > gameEngine.xml
 
 sdkVersion="10.0.16299.0"
 projectName=$1
