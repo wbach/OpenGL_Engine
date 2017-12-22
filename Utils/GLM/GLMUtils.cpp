@@ -1,5 +1,5 @@
 #include "GLMUtils.h"
-#include "math.hpp"
+#include "../math.hpp"
 
 glm::vec3 Utils::Vec4ToVec3(const glm::vec4 & v)
 {

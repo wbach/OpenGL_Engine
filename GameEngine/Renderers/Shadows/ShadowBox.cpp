@@ -44,7 +44,7 @@ std::vector<vec4> CShadowBox::CalculateFrustumPoints(CCamera* camera)
 
 const float CShadowBox::GetAspectRatio() const
 {
-	return m_WindowSize.x / m_WindowSize.y;
+	return static_cast<float>(m_WindowSize.x) / static_cast<float>(m_WindowSize.y);
 }
 
 void CShadowBox::SetLightViewMatrix(const mat4& matrix)

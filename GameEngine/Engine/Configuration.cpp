@@ -1,8 +1,8 @@
 #include "Configuration.h"
 #include <fstream>
 #include "Logger/Log.h"
-#include "rapidxml-1.13/rapidxml.hpp"
-#include "rapidxml-1.13/rapidxml_print.hpp"
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
 
 namespace XMLParser
 {
