@@ -1,6 +1,7 @@
 Data/
 bin/
 build/
+Build/
 Tools/
 Intermediate/
 Logs/
@@ -22,7 +23,8 @@ Tools
 
 
 #Moje
-#*.vcxproj
+*.sln
+*.vcxproj
 *.filters
 *.user
 

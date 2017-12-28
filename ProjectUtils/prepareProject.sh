@@ -218,5 +218,5 @@ projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
   #\"\'\$\(Configuration\)\|\$\(Platform\)\'==\'Debug\|Win32\'\"
   
 
-echo $projectNameFileString
+echo "$projectNameFileString"
 
