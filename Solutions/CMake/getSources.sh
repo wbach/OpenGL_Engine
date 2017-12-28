@@ -13,7 +13,6 @@ do
 	if [[ $i < 3 ]]; then
 	  continue
 	fi
-	echo $var
 	find $LOCATION -iname *."$var" >> $OUTNAME
 
 done
