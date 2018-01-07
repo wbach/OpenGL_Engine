@@ -41,12 +41,12 @@ struct SEngineConfiguration
     vec2i waterRefractionResolution = {320, 240};
 
     // Models
-    vec2i maxTextureResolutuion = {4096, 4096};
+    vec2i maxTextureResolutuion = {128, 128};
 
     // Shadows
     bool isShadows        = true;
     float shadowsDistance = 200.f;
-    int shadowMapSize     = 4096;
+    int shadowMapSize     = 1024;
 
     // ViewDistance
     float viewDistance = 200.f;

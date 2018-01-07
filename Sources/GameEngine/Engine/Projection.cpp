@@ -19,13 +19,35 @@ CProjection::CProjection(const vec2i &window_size, float near, float far, float 
     CreateProjectionMatrix();
 }
 
-const mat4 &CProjection::GetProjectionMatrix() const
+CProjection::CProjection(const CProjection & p)
+	: windowSize(p.windowSize)
+	, nearPlane(p.nearPlane)
+	, farPlane(p.farPlane)
+	, fov(p.fov)
+	, projectionMatrix(p.projectionMatrix)
+	, mmutex()
 {
+}
+
+CProjection& CProjection::operator=(const CProjection& p)
+{
+	windowSize	= p.windowSize;
+	nearPlane	= p.nearPlane;
+	farPlane	= p.farPlane;
+	fov			= p.fov;
+	projectionMatrix = p.projectionMatrix;
+	return *this;
+}
+
+const mat4 &CProjection::GetProjectionMatrix()
+{
+	std::lock_guard<std::mutex> l(mmutex);
     return projectionMatrix;
 }
 
-const vec2i &CProjection::GetWindowSize() const
+const vec2i &CProjection::GetWindowSize()
 {
+	std::lock_guard<std::mutex> l(wmutex);
     return windowSize;
 }
 

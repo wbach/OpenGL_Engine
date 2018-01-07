@@ -36,7 +36,7 @@ void SceneLoader::OpenGLLoadingPass(CScene* scene, std::thread & loading_thread)
 
 void SceneLoader::Init()
 {
-	auto circleTexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false);
+	auto circleTexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false, TextureType::MATERIAL);
 	auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::Type::VERTICAL);
 	loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
 	loadingScreenRenderer->Init();

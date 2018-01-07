@@ -1,5 +1,6 @@
 #pragma once
 #include "../Api/SDL2/SDLOpenGL.h"
+#include "TimeMeasurer.h"
 #include "Utils.h"
 #include <memory>
 #include <string>
@@ -19,12 +20,12 @@ public:
 
 	void SetRefreshRate(const int& rate);
 	void SetFullScreen(bool full_screen);
-	void CalculateFPS();
+
 	const int GetFps();
     const int& GetFPSCap() { return fpsCap; }
 
 	const float GetCurrentTime();
-    const double GetDeltaTime() const { return deltaTime; }
+    const double GetDeltaTime() const { return timeMeasurer.GetDeltaTime(); }
 
 	const wb::vec2i& GetWindowSize();
 
@@ -40,18 +41,13 @@ public:
     bool& GetSync() { return sync; }
 
 private:
-	void CheckFpsTimeElapsed(int time_interval);
-	int CalculateFpsTimeInterval();
+	void PrintFps();
 
 private:
     std::unique_ptr<CApi> api;
+	GameEngine::Time::CTimeMeasurer timeMeasurer;
 
-    bool time = true;
-
-    double lastFrameTime;
-    double deltaTime;
-    float currentTime, previousTime;
-    float frameCount, fps;
+    bool time = true; 
 
     int fpsCap;
     bool isFullScreen;

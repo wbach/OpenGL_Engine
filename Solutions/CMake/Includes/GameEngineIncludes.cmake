@@ -8,11 +8,13 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Camera/Frustrum.h
 ../../Sources/GameEngine/Camera/Plane.h
 ../../Sources/GameEngine/Camera/ThridPersonCamera.h
+../../Sources/GameEngine/Display/TimeMeasurer.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Debuger.h
 ../../Sources/GameEngine/Engine/Engine.h
 ../../Sources/GameEngine/Engine/LoD.h
 ../../Sources/GameEngine/Engine/Projection.h
+../../Sources/GameEngine/Engine/ThreadSync.h
 ../../Sources/GameEngine/Input/GameActions.h
 ../../Sources/GameEngine/Input/Input.h
 ../../Sources/GameEngine/Input/InputManager.h

@@ -28,6 +28,7 @@ void CCubeMapTexture::OpenGLLoadingPass()
 		Log("[Error] OGL There was an error loading the texture : " + filename);
 		return;
 	}
+	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 	for (int x = 0; x < 6; x++)
 	{

@@ -10,6 +10,7 @@ class CResourceManager
 {
 public:
 	CResourceManager();
+	~CResourceManager();
 	CModel* LoadModel(const std::string& file);
 	void AddModel(CModel * model);
     CModel* GetModel(uint32 id) { return models[id].get(); }

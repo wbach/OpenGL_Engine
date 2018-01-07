@@ -13,7 +13,6 @@ CDisplayManager::CDisplayManager(const std::string& window_name, const int& w, c
 
 CDisplayManager::CDisplayManager(std::unique_ptr<CApi> capi, const std::string& window_name, const int& w, const int& h, bool full_screen)
     : api(std::move(capi))
-	, lastFrameTime(0)
 	, fpsCap(60)
 	, windowsSize({w, h})
 {
@@ -24,6 +23,7 @@ CDisplayManager::CDisplayManager(std::unique_ptr<CApi> capi, const std::string& 
 	}
 
     api->CreateOpenGLWindow(window_name, w, h, full_screen);
+	timeMeasurer.AddOnTickCallback(std::bind(&CDisplayManager::PrintFps, this));
 }
 
 CDisplayManager::~CDisplayManager()
@@ -38,12 +38,15 @@ ApiMessages::Type CDisplayManager::PeekApiMessage()
 	return ApiMessages::NONE;
 }
 
+void CDisplayManager::PrintFps()
+{
+	std::string msg = "Thread id : renderer, fps : " + std::to_string(timeMeasurer.GetFps());
+	Log(msg);
+}
+
 void CDisplayManager::Update()
 {
-	CalculateFPS();
-	double current_frame_time = GetCurrentTime();
-	deltaTime = (current_frame_time - lastFrameTime);
-	lastFrameTime = current_frame_time;
+	timeMeasurer.Calculate();	
 
 	if (api != nullptr)
 		api->UpdateWindow();
@@ -63,33 +66,9 @@ void CDisplayManager::SetFullScreen(bool full_screen)
 		api->SetFullScreen(isFullScreen);
 }
 
-void CDisplayManager::CalculateFPS()
-{
-	frameCount++;
-	auto time_interval = CalculateFpsTimeInterval();
-	CheckFpsTimeElapsed(time_interval);
-}
-
-void CDisplayManager::CheckFpsTimeElapsed(int time_interval)
-{
-	if (time_interval < 1)
-		return;
-
-	fps = frameCount / (time_interval);
-	previousTime = currentTime;
-	frameCount = 0;
-	Log("Fps : " + std::to_string(fps));
-}
-
-int CDisplayManager::CalculateFpsTimeInterval()
-{
-	currentTime = static_cast<float>(api->GetTime());
-	return static_cast<int>(currentTime - previousTime);
-}
-
 const int CDisplayManager::GetFps()
 {
-	return static_cast<int>(fps);
+	return static_cast<int>(timeMeasurer.GetFps());
 }
 
 const float CDisplayManager::GetCurrentTime()

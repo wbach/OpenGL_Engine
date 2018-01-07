@@ -31,6 +31,12 @@ void CLogger::Logg(const std::string& log)
 	file << log << '\n';
 	file.close();
 }
+void CLogger::LoggToFileOnly(const std::string & log)
+{
+	std::ofstream file(fileName, std::ios_base::app);
+	file << log << '\n';
+	file.close();
+}
 void CLogger::MessageBox(uint32 flags, const std::string& title, const std::string& message)
 {
     return;
@@ -61,6 +67,7 @@ void CLogger::CreateLogFile()
 
 	std::stringstream ss;
 	ss << in_time_t;
+	system("mkdir Logs");
     fileName = "Logs/Logs.txt";
     std::ofstream file(fileName);
 	file.close();

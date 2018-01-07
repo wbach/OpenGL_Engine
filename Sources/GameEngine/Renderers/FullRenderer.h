@@ -11,6 +11,7 @@ class FullRenderer : public CRenderer
 {
 public:
     FullRenderer(CProjection* projection_matrix);
+	~FullRenderer();
     // Loading lights itp to shader
     virtual void Init() override;
     virtual void PrepareFrame(CScene* scene) override;

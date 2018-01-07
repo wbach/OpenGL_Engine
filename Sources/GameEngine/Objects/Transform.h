@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include <mutex>
 
 class CTransform
 {
@@ -15,19 +16,19 @@ public:
 	void IncreaseRotation(float dx, float dy, float dz);
 	void UpdateMatrix();
 	
-	vec3 GetPosition() const;
-	vec3 GetRotation() const;
-	vec2 GetPositionXZ() const;
-	const mat4& GetMatrix() const;
+	const vec3& GetPosition();
+	const vec3& GetRotation();
+	vec2 GetPositionXZ();
+	const mat4& GetMatrix();
 
 	void SetNormalizedSize(const vec3& size);
 	void SetScale(const vec3& s);
 	void SetPosition(const vec3& pos);
 
 private:
-	vec3 position;
-	vec3 rotation;
-	vec3 scale;
-	mat4 matrix;
-	vec3 normalized = vec3(1.f);
+	vec3 position;	std::mutex pmutex;
+	vec3 rotation;	std::mutex rmutex;
+	vec3 scale;		std::mutex smutex;
+	mat4 matrix;	std::mutex mmutex;
+	vec3 normalized = vec3(1.f); 
 };

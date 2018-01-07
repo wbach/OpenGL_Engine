@@ -25,18 +25,19 @@ void CCamera::SetProjectionMatrix(const mat4 & projection_matrix)
     projectionMatrix = projection_matrix;
 }
 
-void CCamera::SetPosition(vec3 position)
+void CCamera::SetPosition(vec3 p)
 {
-    position = position;
+	std::lock_guard<std::mutex> l(pmutex);
+    position = p;
 }
 void CCamera::UpdateFrustrum()
 {
+	std::lock_guard<std::mutex> l(viewMatrixMutex);
     frustrum.CalculatePlanes(projectionMatrix * viewMatrix);
 }
 bool CCamera::CheckFrustrumSphereCulling(const vec3 & position, const float& radius)
 {	
     return !frustrum.SphereIntersection(position, radius);
-	return false;// 
 }
 void CCamera::CalculateInput()
 {
@@ -44,19 +45,18 @@ void CCamera::CalculateInput()
 void CCamera::Move()
 {
 	UpdateViewMatrix();
-	UpdateFrustrum();
+//	UpdateFrustrum();
 }
-
 
 void CCamera::InvertPitch()
 {
-    pitch *= -1.0f;
+	pitch.store(pitch.load() - 1.0f);
 }
 
 const vec3 CCamera::GetDirection() const
 {
-    float pitch_ = Utils::ToRadians(pitch);
-    float yaw_ = Utils::ToRadians(yaw);
+    float pitch_ = Utils::ToRadians(pitch.load());
+    float yaw_ = Utils::ToRadians(yaw.load());
     float xzLen = cos(pitch_);
 	vec3 dir;
     dir.z = xzLen * cos(yaw_);
@@ -66,19 +66,15 @@ const vec3 CCamera::GetDirection() const
 	return dir;
 }
 
-const vec3& CCamera::GetPosition() const
+const vec3& CCamera::GetPosition()
 {
+	std::lock_guard<std::mutex> l(pmutex);
     return position;
 }
 
 const vec3 CCamera::GetRotation() const 
 {
     return vec3(pitch, yaw, roll);
-}
-
-const float& CCamera::GetPitch() const
-{
-    return pitch;
 }
 
 const float& CCamera::GetDistance() const
@@ -91,19 +87,24 @@ void CCamera::SetDistance(float dist)
 	distanceFromPlayer = dist;
 }
 
-void CCamera::SetPitch(float pitch)
+float CCamera::GetPitch()
 {
-    pitch = pitch;
+    return pitch.load();
 }
 
-const float& CCamera::GetYaw() const
+void CCamera::SetPitch(float p)
 {
-    return yaw;
+	pitch.store(p);
 }
 
-void CCamera::SetYaw(float yaw)
+float CCamera::GetYaw()
 {
-    yaw = yaw;
+    return yaw.load();
+}
+
+void CCamera::SetYaw(float y)
+{
+	yaw.store(y);
 }
 
 const float& CCamera::GetAngleAround() const
@@ -116,26 +117,35 @@ void CCamera::SetAngleAround(float a)
     angleAroundPlayer = a;
 }
 
-const float& CCamera::GetRoll() const
+float CCamera::GetRoll()
 {
-    return roll;
+    return roll.load();
 }
-void CCamera::SetRoll(float roll)
+void CCamera::SetRoll(float r)
 {
-    roll = roll;
+	roll.store(r);
 }
 
 void CCamera::UpdateViewMatrix() 
 {
-    viewMatrix  = mat4(1.0);
-    viewMatrix *= glm::rotate(pitch, 1.0f, 0.0f, 0.0f);
-    viewMatrix *= glm::rotate(yaw, 0.0f, 1.0f, 0.0f);
-    viewMatrix *= glm::rotate(roll, 0.0f, 0.0f, 1.0f);
-    viewMatrix *= glm::translate(-position);
+	float p = GetPitch();
+	float y = GetYaw();
+	float r = GetRoll();
+	auto pos = GetPosition();
+
+	mat4 v(1.0f);
+    v *= glm::rotate(p, 1.0f, 0.0f, 0.0f);
+    v *= glm::rotate(y, 0.0f, 1.0f, 0.0f);
+    v *= glm::rotate(r, 0.0f, 0.0f, 1.0f);
+    v *= glm::translate(-pos);
+
+	std::lock_guard<std::mutex> l(viewMatrixMutex);
+	viewMatrix = v;
 }
 
-const mat4& CCamera::GetViewMatrix() const
+const mat4& CCamera::GetViewMatrix()
 {
+	std::lock_guard<std::mutex> l(viewMatrixMutex);
     return viewMatrix;
 }
 

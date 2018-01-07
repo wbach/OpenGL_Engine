@@ -22,7 +22,7 @@ public:
     void Bind();
     void UnBind();
     void UnBindDraw();
-    ~CFrameBuffer();
+    virtual ~CFrameBuffer();
 
 protected:
     void CleanTexures();

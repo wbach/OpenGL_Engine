@@ -109,6 +109,9 @@ do
 	additionalLibsDir=$additionalLibsDir'..\..\Build\bin\'$d'\$(Configuration)\;'
 done
 
+outDir='$(SolutionDir)..\..\Build\bin\'$projectName'\$(Configuration)\'
+inDir='$(SolutionDir)..\..\Build\Intermediate\'$projectName'\$(Configuration)\'
+
 projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
@@ -153,12 +156,12 @@ projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
    <PropertyGroup Condition='$configuration_1'>
-    <OutDir>$(SolutionDir)..\..\Build\bin\'$projectName'\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\Build\Intermediate\'$projectName'\$(Configuration)\</IntDir>
+    <OutDir>'$outDir'</OutDir>
+    <IntDir>'$inDir'</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition='$configuration_2'>
-    <OutDir>$(SolutionDir)\bin\'$projectName'\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\Intermediate\'$projectName'\$(Configuration)\</IntDir>
+    <OutDir>'$outDir'</OutDir>
+    <IntDir>'$inDir'</IntDir>
   </PropertyGroup>
     <ItemDefinitionGroup Condition='$configuration_1'>
     <ClCompile>

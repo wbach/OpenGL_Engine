@@ -5,24 +5,22 @@
 #include <fstream>
 #include "FreeImage.h"
 
+
 void TestGameStart()
 {
-    CEngine engine;
+	GameEngine::CEngine engine;
 	engine.Init();
     engine.scene = std::make_unique<MainScene>(engine);
 	engine.PreperaScene();
 	engine.GameLoop();
 }
 
-
-
 int main(int argc, char* argv[])
 {	
 	#ifdef BACHU_HAHAH
 	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
 	#endif
-
-	CLogger::Instance().EnableLogs();
+	CLogger::Instance().EnableLogs();	
 	TestGameStart();
 	return 0;
 }

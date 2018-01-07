@@ -1,4 +1,6 @@
 #!/bin/bash
+./getAllSourcesAndIncludes.sh
+
 utilsId='{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}'
 gameEngineId='{E17E8D53-C66F-494E-B495-00EE34A0B66D}'
 testGameId='{9B0F6058-09C8-4B74-8910-4229AA0C016E}'

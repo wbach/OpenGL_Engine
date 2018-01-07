@@ -28,12 +28,12 @@ void CTerrain::SetHeight(int x, int y, float value)
 	heights[x + y*heightMapResolution] = value;
 }
 
-wb::optional<float> CTerrain::GetHeightofTerrain(vec2 posXZ) const
+wb::optional<float> CTerrain::GetHeightofTerrain(vec2 posXZ)
 {
 	return GetHeightofTerrain(posXZ.x, posXZ.y);
 }
 
-wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ) const
+wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ)
 {
 	wb::optional<float> result;
 
@@ -90,7 +90,7 @@ void CTerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)
 	textures[type] = texture;
 }
 
-vec2 CTerrain::GetLocalPositionOnTerrain(float worldX, float worldZ) const
+vec2 CTerrain::GetLocalPositionOnTerrain(float worldX, float worldZ)
 {
 	float terrain_x = worldX - worldTransform.GetPositionXZ().x;
 	float terrain_z = worldZ - worldTransform.GetPositionXZ().y;

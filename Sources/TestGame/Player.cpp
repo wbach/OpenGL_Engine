@@ -5,14 +5,30 @@ CPlayer::CPlayer(CInputManager *input_manager, CResourceManager &manager, const 
     , inputManager(input_manager)
 {}
 
-void CPlayer::SetAction(CharacterActions::Type action)
+void CPlayer::SetAction(CharacterActions::Type a)
 {
-    action = action;
+    action = a;
 }
 
-void CPlayer::SetPosition(const glm::vec3 & position)
+void CPlayer::SetPosition(const glm::vec3 & p)
 {
-    worldTransform.SetPosition(position);
+    worldTransform.SetPosition(p);
+}
+
+void CPlayer::Update(float deltaTime)
+{
+	CheckInputs();
+
+	for (auto state : states)
+		ProcessState(state);
+}
+
+void CPlayer::ProcessState(CharacterActions::Type type)
+{
+	switch (type)
+	{
+	//case:
+	}
 }
 
 void CPlayer::Move(const float & delta_time)
@@ -24,8 +40,8 @@ void CPlayer::Move(const float & delta_time)
     float dz = static_cast<float>(distance * cos(Utils::ToRadians(worldTransform.GetRotation().y)));
     worldTransform.IncrasePosition(dx, 0.f, dz);
 
-	upwardsSpeed += -10.f* delta_time;
-    worldTransform.IncrasePosition(0.f, upwardsSpeed * 0.01f, 0.f);
+	//upwardsSpeed += -10.f* delta_time;
+   // worldTransform.IncrasePosition(0.f, upwardsSpeed * 0.01f, 0.f);
 }
 
 void CPlayer::Jump()

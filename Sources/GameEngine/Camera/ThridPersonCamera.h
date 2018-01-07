@@ -7,7 +7,7 @@ class CInputManager;
 class CThirdPersonCamera : public CCamera
 {
 public:
-	CThirdPersonCamera(CInputManager *input_manager, CTransform& lookAt);
+	CThirdPersonCamera(CInputManager *input_manager, CTransform& lookAt, float* deltaTime = nullptr);
 
 	void CalculateInput() override;
 	void Move() override;
@@ -30,8 +30,9 @@ private:
     CInputManager *inputManager;
     CTransform&	lookAtTransform;
 
-    bool		isShowCursor;
+    bool	isShowCursor;
     vec3	offset;
-    float		mousevel;
-    bool		captureMouse;
+    float	mousevel;
+    bool	captureMouse;
+	float*  deltaTime;
 };

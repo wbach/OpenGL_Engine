@@ -1,8 +1,13 @@
 #include "Scene.hpp"
-
+#include "Logger/Log.h"
 CScene::CScene()
 	: directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 {
+}
+
+inline CScene::~CScene() 
+{
+	Log(__FUNCTION__);
 }
 
 CGameObject* CScene::AddGameObject(CGameObject* object, const vec3& position)

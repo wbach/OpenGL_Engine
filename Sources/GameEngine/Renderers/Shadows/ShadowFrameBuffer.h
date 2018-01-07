@@ -6,7 +6,7 @@ class CShadowFrameBuffer
 {
 public:
     CShadowFrameBuffer();
-    ~CShadowFrameBuffer();
+    virtual ~CShadowFrameBuffer();
 
     void BindFBO();
     void UnbindFrameBuffer() const;

@@ -28,6 +28,8 @@ void CMaterialTexture::OpenGLLoadingPass()
 	}
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
+	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
+
     glBindTexture(GL_TEXTURE_2D, id);
 	// Give the image to OpenGL
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)image.data);

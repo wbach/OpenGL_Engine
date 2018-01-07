@@ -19,22 +19,17 @@ class CScene
 public:
     CScene();
 
-    virtual ~CScene()
-    {
-    }
+	virtual ~CScene();
     virtual int Initialize() = 0;
     virtual void PostInitialize(){}
-    virtual int Update() = 0;
+    virtual int Update(float deltaTime) = 0;
 
     // Add Entities
     CGameObject* AddGameObject(CGameObject* object, const vec3& position = vec3(0.f));
 
     // GetObjects
     std::list<CGameObject*> GetObjectInRange(const vec3& position, float range);
-    const std::list<std::unique_ptr<CGameObject>>& GetGameObjects()
-    {
-        return gameObjects;
-    }
+	inline const std::list<std::unique_ptr<CGameObject>>& GetGameObjects();
 
     // Cameras
     CCamera* GetCamera();
@@ -42,25 +37,11 @@ public:
     // Lights
     const CLight& GetDirectionalLight() const;
     const std::vector<CLight>& GetLights() const;
-    const CDayNightCycle& GetDayNightCycle() const
-    {
-        return dayNightCycle;
-    }
+	inline const CDayNightCycle& GetDayNightCycle() const;
 
     // Resources
-    CResourceManager& GetResourceManager()
-    {
-        return resourceManager;
-    }
-
-    float GetDeltaTime()
-    {
-        return deltaTime;
-    }
-    float GetGlobalTime()
-    {
-        return gloabalTime;
-    }
+	inline CResourceManager& GetResourceManager();
+	inline float GetGlobalTime();
 
 public:
     uint32 objectCount;
@@ -78,6 +59,26 @@ protected:
 
     CResourceManager resourceManager;
 
-    float deltaTime   = 0;
     float gloabalTime = 0.f;
 };
+
+inline const std::list<std::unique_ptr<CGameObject>>& CScene::GetGameObjects()
+{
+	return gameObjects;
+}
+
+inline const CDayNightCycle& CScene::GetDayNightCycle() const
+{
+	return dayNightCycle;
+}
+
+// Resources
+inline CResourceManager& CScene::GetResourceManager()
+{
+	return resourceManager;
+}
+
+inline float CScene::GetGlobalTime()
+{
+	return gloabalTime;
+}

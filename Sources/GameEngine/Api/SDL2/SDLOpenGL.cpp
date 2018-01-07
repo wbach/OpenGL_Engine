@@ -4,17 +4,29 @@
 #include "../Api.hpp"
 #include "InputSDL.h"
 #include <GL/glew.h>
+/*
+SDL_INIT_TIMER	Initializes the timer subsystem.
+SDL_INIT_AUDIO	Initializes the audio subsystem.
+SDL_INIT_VIDEO	Initializes the video subsystem.
+SDL_INIT_CDROM	Initializes the cdrom subsystem.
+SDL_INIT_JOYSTICK	Initializes the joystick subsystem.
+SDL_INIT_EVERYTHING	Initialize all of the above.
+SDL_INIT_NOPARACHUTE	Prevents SDL from catching fatal signals.
+SDL_INIT_EVENTTHREAD
 
+*/
 CSdlOpenGlApi::~CSdlOpenGlApi()
 {
+	Log("CSdlOpenGlApi::~CSdlOpenGlApi() DeleteContext");
 	SDL_GL_DeleteContext(glContext);
-    SDL_QuitSubSystem(SDL_INIT_EVERYTHING);
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_Quit();
 }
 
 void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int& width, const int& height, bool full_screen)
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
+
+	SDL_Init(SDL_INIT_VIDEO);
 
 	auto flags = CreateWindowFlags();
 	CreateSDLWindow(window_name, width, height, flags);

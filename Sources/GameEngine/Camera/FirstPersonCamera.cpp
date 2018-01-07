@@ -1,25 +1,29 @@
 #include "FirstPersonCamera.h"
 #include "../Input/InputManager.h"
 #include "../Display/DisplayManager.hpp"
+#include "math.hpp"
 
 static vec3 zero(0);
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager)
-	: CFirstPersonCamera(input_manager, display_manager, .2f, 50.f, zero, zero, true)
+const float defaultCamSpeed = Utils::KmToMs<float>(60);
+const float defaultCamRotationSpeed = 50.f;
+
+CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime)
+	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float mouse_velocity, float move_velocity)
-	: CFirstPersonCamera(input_manager, display_manager, mouse_velocity, move_velocity, zero, zero, false)
+CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity)
+	: CFirstPersonCamera(input_manager, display_manager, deltaTime, mouse_velocity, move_velocity, zero, zero, false)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, vec3& position_entity, vec3& rotation_entity)
-	: CFirstPersonCamera(input_manager, display_manager, .2f, 50.f, position_entity, rotation_entity, false)
+CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity)
+	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, position_entity, rotation_entity, false)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
+CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
 	: CCamera(9.f, 100.f)
 	, inputManager(input_manager)
 	, displayManager(display_manager)
@@ -28,6 +32,7 @@ CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayMa
 	, isFreeCamera(freeCamera)
 	, mousevel(mouse_velocity)
 	, movevel(move_velocity)
+	, deltaTime(deltaTime)
 {
 }
 
@@ -39,18 +44,22 @@ void CFirstPersonCamera::LockCamera()
 
 void CFirstPersonCamera::LockPitch()
 {
-	if (pitch > 90.f)
-		pitch = 90.f;
-	if (pitch < -90.f)
-		pitch = -90.f;
+	float p = pitch.load();
+
+	if (p > 90.f)
+		pitch.store(90.f);
+	if (p < -90.f)
+		pitch.store(-90.f);
 }
 
 void CFirstPersonCamera::LockYaw()
 {
-	if (yaw < 0.f)
-		yaw += 360.f;
-	if (yaw > 360.f)
-		yaw -= 360.f;
+	float y = yaw.load();
+
+	if (y < 0.f)
+		yaw.store(y + 360.f);
+	if (y > 360.f)
+		yaw.store(y - 360.f);
 }
 
 void CFirstPersonCamera::Move()
@@ -79,8 +88,8 @@ void CFirstPersonCamera::ApllyMove()
 		return;
 
 	vec2 dmove = CalcualteMouseMove();
-	yaw -= dmove.x;
-	pitch -= dmove.y;
+	yaw.store(yaw.load() - dmove.x);// *deltaTime;
+	pitch.store(pitch.load() - dmove.y);// *deltaTime;
 	LockCamera();
 }
 
@@ -103,7 +112,7 @@ bool CFirstPersonCamera::CheckAndProccesUpDirection()
 	if (!inputManager->GetKey(KeyCodes::UARROW))
 		return false;
 
-	if (pitch != 90.f && pitch != -90.f)
+	if (pitch.load() != 90.f && pitch.load() != -90.f)
 		MoveCamera(currentMoveVelocity, 0.f);
 
 	MoveCameraUp(currentMoveVelocity, 0.f);
@@ -115,7 +124,7 @@ bool CFirstPersonCamera::CheckAndProccesDownDirection()
 	if (!inputManager->GetKey(KeyCodes::DARROW))
 		return false;
 
-	if (pitch != 90.f && pitch != -90.f)
+	if (pitch.load() != 90.f && pitch.load() != -90.f)
 		MoveCamera(currentMoveVelocity, 180.f);
 
 	MoveCameraUp(currentMoveVelocity, 180.f);
@@ -142,13 +151,13 @@ bool CFirstPersonCamera::CheckAndProccesRightDirection()
 
 void CFirstPersonCamera::MoveCamera(float dist, float dir)
 {
-    float rad = (yaw + dir)*static_cast<float>(M_PI) / 180.f;
-	position.x -= sin(-rad)*dist;
-	position.z -= cos(-rad)*dist;
+    float rad = (yaw.load() + dir)*static_cast<float>(M_PI) / 180.f;
+	position.x -= sin(-rad)*dist*deltaTime;
+	position.z -= cos(-rad)*dist*deltaTime;
 }
 
 void CFirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
-    float rad = (pitch + dir)*static_cast<float>(M_PI) / 180.f;
-	position.y += sin(-rad)*dist;
+    float rad = (pitch.load() + dir)*static_cast<float>(M_PI) / 180.f;
+	position.y += sin(-rad)*dist*deltaTime;
 }

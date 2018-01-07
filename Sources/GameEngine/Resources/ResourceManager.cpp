@@ -9,6 +9,11 @@ CResourceManager::CResourceManager()
 {
 }
 
+CResourceManager::~CResourceManager()
+{
+	Log(__FUNCTION__);
+}
+
 CModel * CResourceManager::LoadModel(const std::string & file)
 {
 	auto count = modelsIds.count(EngineConf_GetFullDataPath(file));

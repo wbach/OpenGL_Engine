@@ -2,10 +2,12 @@
 #include "../GameEngine/Input/InputManager.h"
 #include "../GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "CharacterStats.h"
+#include <list>
 
 namespace CharacterActions
 {
-	enum Type {
+	enum Type
+	{
 		IDLE = 0,
 		RUN,
 		WALK,
@@ -26,8 +28,12 @@ public:
     CPlayer(CInputManager* input_manager, CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename);
 	
     CharacterActions::Type GetAction() { return action; }
-	void SetAction(CharacterActions::Type action);
-	void SetPosition(const glm::vec3& position);
+	void SetAction(CharacterActions::Type a);
+	void SetPosition(const glm::vec3& p);
+
+
+	void Update(float deltaTime);
+	void ProcessState(CharacterActions::Type type);
 
 	void Move(const float& delta_time);
 	void Jump();
@@ -39,4 +45,6 @@ private:
 
     bool isGrounded = false;
 	float upwardsSpeed = 0.f;
+
+	std::list<CharacterActions::Type> states;
 };

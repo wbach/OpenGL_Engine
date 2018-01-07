@@ -7,10 +7,10 @@ class CDisplayManager;
 class CFirstPersonCamera : public CCamera
 {
 public:
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float mouse_velocity, float move_velocity);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, vec3& position_entity, vec3& rotation_entity);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float mouse_velocity, float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
+	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime);
+	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, float mouse_velocity, float move_velocity);
+	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity);
+	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
 
 	void Move() override;
 	void AttachToObject(vec3& position_entity, vec3& rotation_entity) override;
@@ -44,4 +44,5 @@ private:
     float movevel  = 0.f;
 
 	float currentMoveVelocity;
+	float& deltaTime;
 };

@@ -18,8 +18,8 @@ public:
 
 	void SetHeight(int x, int y, float value);
 	//Height Map
-	wb::optional<float>	GetHeightofTerrain(vec2 posXZ) const;
-	wb::optional<float>	GetHeightofTerrain(float worldX, float worldZ) const;
+	wb::optional<float>	GetHeightofTerrain(vec2 posXZ);
+	wb::optional<float>	GetHeightofTerrain(float worldX, float worldZ);
 
 	float	GetHeight(int x, int y) const;
 	void	InitHeights(int x, int y);
@@ -38,7 +38,7 @@ public:
 	CModel* model = nullptr;
 
 private:
-	vec2 GetLocalPositionOnTerrain(float worldX, float worldZ) const;
+	vec2 GetLocalPositionOnTerrain(float worldX, float worldZ);
 	vec2i GetGridCoord(const vec2& position) const;
 	vec2 GetPositionInQuad(const vec2 & position) const;
 	bool IsInLeftTriangle(const vec2 & position) const;

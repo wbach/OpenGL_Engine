@@ -81,6 +81,8 @@ void CFrameBuffer::UnBindDraw()
 
 CFrameBuffer::~CFrameBuffer()
 {
+	Log(__FUNCTION__);
+
     if (!isInitialized)
         return;
 
@@ -94,6 +96,7 @@ CFrameBuffer::~CFrameBuffer()
 
     if (fbo != 0)
         glDeleteFramebuffers(1, &fbo);
+
 }
 
 void CFrameBuffer::CleanTexures()

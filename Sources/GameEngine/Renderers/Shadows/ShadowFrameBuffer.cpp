@@ -1,6 +1,7 @@
 #include "ShadowFrameBuffer.h"
 #include "OpenGL/OpenGLUtils.h"
 #include "../../Engine/Configuration.h"
+#include "Logger/Log.h"
 
 CShadowFrameBuffer::CShadowFrameBuffer()
     : m_WindowSize(EngineConf.resolution)
@@ -11,7 +12,7 @@ CShadowFrameBuffer::CShadowFrameBuffer()
 
 CShadowFrameBuffer::~CShadowFrameBuffer()
 {
-	if (!m_IsInit) return;
+	Log(__FUNCTION__);
 
 	glDeleteTextures(1, &m_ShadowMap);
 	glDeleteFramebuffers(1, &m_Fbo);
