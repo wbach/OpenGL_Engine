@@ -2,6 +2,13 @@
 #include "Types.h"
 #include <mutex>
 
+enum Axis
+{
+	X = 0,
+	Y,
+	Z
+};
+
 class CTransform
 {
 public:
@@ -24,6 +31,7 @@ public:
 	void SetNormalizedSize(const vec3& size);
 	void SetScale(const vec3& s);
 	void SetPosition(const vec3& pos);
+	void SetRotate(Axis axis, float v);
 
 private:
 	vec3 position;	std::mutex pmutex;

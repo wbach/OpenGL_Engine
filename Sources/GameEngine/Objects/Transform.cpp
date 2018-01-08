@@ -93,3 +93,16 @@ void CTransform::SetPosition(const vec3 & pos)
 	position = pos;  
 	UpdateMatrix();
 }
+
+void CTransform::SetRotate(Axis axis, float v)
+{
+	std::lock_guard<std::mutex> l(rmutex);
+	switch (axis)
+	{
+	case X: rotation.x = v; break;
+	case Y: rotation.y = v; break;
+	case Z: rotation.z = v; break;
+	}
+	
+	UpdateMatrix();
+}

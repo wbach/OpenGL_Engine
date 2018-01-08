@@ -1,24 +1,23 @@
 #include "TimeMeasurer.h"
+#include "../Engine/Configuration.h"
+#include "Logger/Log.h"
 #include <chrono>
 #include <thread>
-
-//to rmeove
-#include <iostream>
-#include <SDL2/SDL.h>
 
 namespace GameEngine
 {
 	namespace Time
 	{
 		CTimeMeasurer::CTimeMeasurer()
-			: lockFps(30)
-			, vsync(true)
+			: lockFps(EngineConf.refresRate)
+			, vsync(EngineConf.vsync)
 			, frameCount(0)
 			, fps(0)
 			, deltaTime(0)
 			, frameTime(0)
 			, lockframeTime(1000.0 / lockFps)
 		{
+			Log("CTimeMeasurer::CTimeMeasurer() Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
 		}
 
 		void CTimeMeasurer::AddOnTickCallback(Callback c)

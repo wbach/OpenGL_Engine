@@ -90,7 +90,7 @@ int MainScene::Update(float dt)
 
     if (camera != nullptr)
     {
-        camera->CalculateInput();
+       // camera->CalculateInput();
         camera->Move();
     }
 
@@ -115,7 +115,8 @@ int MainScene::Update(float dt)
 
     dayNightCycle.Update(deltaTime);
 
-	player->Move(deltaTime);
+	//player->Move(deltaTime);
+	player->Update(deltaTime);
     player->CheckInputs();
 
 	for (auto& terrain : terrains)

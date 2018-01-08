@@ -28,8 +28,9 @@ struct SEngineConfiguration
     vec2i resolution   = {1000, 600};
     vec2i windowSize   = {1000, 600};
 
-    bool fullScreen        = false;
-    float refresRate       = 60;
+    bool fullScreen	 = false;
+    float refresRate = 60;
+	float vsync		 = true;
 
     // Sound
     bool sound        = true;

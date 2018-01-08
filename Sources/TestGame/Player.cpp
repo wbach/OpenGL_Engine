@@ -1,9 +1,12 @@
 #include "Player.h"
+#include "Logger/Log.h"
 
 CPlayer::CPlayer(CInputManager *input_manager, CResourceManager &manager, const glm::vec3 &normalized_scale, const std::string &filename)
     : CEntity(manager, normalized_scale, filename)
     , inputManager(input_manager)
-{}
+{
+	referenceTime = std::chrono::high_resolution_clock::now();
+}
 
 void CPlayer::SetAction(CharacterActions::Type a)
 {
@@ -18,94 +21,171 @@ void CPlayer::SetPosition(const glm::vec3 & p)
 void CPlayer::Update(float deltaTime)
 {
 	CheckInputs();
+	//float time = std::chrono::high_resolution_clock::now();
 
-	for (auto state : states)
+	for (auto state = states.begin(); state != states.end(); ++state)
 		ProcessState(state);
 }
 
-void CPlayer::ProcessState(CharacterActions::Type type)
+void CPlayer::ProcessState(std::list<CharacterActions::Type>::iterator& state)
 {
-	switch (type)
+	float time = GetTime();
+
+	switch (*state)
 	{
-	//case:
+	case CharacterActions::MOVE_FORWARD:  MoveState(state, time); break;
+	case CharacterActions::MOVE_BACKWARD: MoveState(state, time); break;
+
+	case CharacterActions::ROTATE_LEFT:	 RotateState(state, time); break;
+	case CharacterActions::ROTATE_RIGHT: RotateState(state, time); break;
 	}
-}
-
-void CPlayer::Move(const float & delta_time)
-{
-	CheckInputs();
-    worldTransform.IncreaseRotation(0, characterStats.currentTurnSpeed * delta_time, 0);
-	float distance = characterStats.currentMoveSpeed * delta_time;
-    float dx = static_cast<float>(distance * sin(Utils::ToRadians(worldTransform.GetRotation().y)));
-    float dz = static_cast<float>(distance * cos(Utils::ToRadians(worldTransform.GetRotation().y)));
-    worldTransform.IncrasePosition(dx, 0.f, dz);
-
-	//upwardsSpeed += -10.f* delta_time;
-   // worldTransform.IncrasePosition(0.f, upwardsSpeed * 0.01f, 0.f);
 }
 
 void CPlayer::Jump()
 {
-	if (isGrounded)
-	{
-		upwardsSpeed = characterStats.jumpPower;
-		isGrounded = false;
-	}
+	if (!isGrounded)
+		return;
+
+	upwardsSpeed = characterStats.jumpPower;
+	isGrounded = false;
 }
 
 void CPlayer::CheckInputs()
 {
 	if (inputManager == nullptr) return;
 
-	bool move_key_pres = false;
+	MoveInputs();
+}
 
-	if (inputManager->GetKey(GameActions::MOVE_FORWARD))
-	{
-		characterStats.currentMoveSpeed = characterStats.runSpeed;
-		SetAction(CharacterActions::RUN);
-		move_key_pres = true;
-	}
-	else if (inputManager->GetKey(GameActions::MOVE_BACKWARD))
-	{
-		characterStats.currentMoveSpeed = -characterStats.runSpeed;
-		SetAction(CharacterActions::RUN);
-		move_key_pres = true;
-	}
-	else if (inputManager->GetKey(GameActions::ATTACK_1))
-	{
-		SetAction(CharacterActions::ATTACK_1);
-	}
-	else if (inputManager->GetKey(GameActions::ATTACK_2))
-	{
-		SetAction(CharacterActions::ATTACK_2);
-	}
-	else if (inputManager->GetKey(GameActions::ATTACK_3))
-	{
-		SetAction(CharacterActions::ATTACK_3);
-	}
-	else
-	{
-		SetAction(CharacterActions::IDLE);
-	}
+void CPlayer::MoveInputs()
+{
+	if (inputManager->GetKey(GameActions::MOVE_FORWARD))	
+		MoveForward();
+	
+	if (inputManager->GetKey(GameActions::MOVE_BACKWARD))
+		MoveBackward();
 
-	if (!move_key_pres)
-		characterStats.currentMoveSpeed = 0;
+	if (inputManager->GetKey(GameActions::TURN_LEFT))
+		RotateLeft();
 
-	if (inputManager->GetKey(KeyCodes::D))
-	{
-        characterStats.currentTurnSpeed = -characterStats.turnSpeed;
-	}
-	else if (inputManager->GetKey(KeyCodes::A))
-	{
-        characterStats.currentTurnSpeed = characterStats.turnSpeed;
-	}
-	else
-	{
-		characterStats.currentTurnSpeed = 0;
-	}
+	if (inputManager->GetKey(GameActions::TURN_RIGHT))
+		RotateRight();
+}
 
-	if (inputManager->GetKey(GameActions::JUMP))
+float CPlayer::GetTime() const
+{
+	auto currnet = std::chrono::high_resolution_clock::now() - referenceTime;
+	return DurationToFloatMs(currnet) / 1000.0f;
+}
+
+void CPlayer::SetRotateStateInfo(RotationDirection dir)
+{
+	float timeInterval = 0.05f;
+	rotateStateInfo.startValue		= worldTransform.GetRotation().y;
+	rotateStateInfo.currentValue	= characterStats.turnSpeed * timeInterval * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
+	rotateStateInfo.startTime		= GetTime();
+	rotateStateInfo.endTime			= rotateStateInfo.startTime + timeInterval;
+}
+
+void CPlayer::RotateLeft()
+{
+	if (FindState(CharacterActions::ROTATE_LEFT))
+		return;
+
+	states.remove(CharacterActions::ROTATE_RIGHT);
+	states.push_front(CharacterActions::ROTATE_LEFT);
+	SetRotateStateInfo(RotationDirection::LEFT);
+}
+
+void CPlayer::RotateRight()
+{
+	if (FindState(CharacterActions::ROTATE_RIGHT))
+		return;
+
+	states.remove(CharacterActions::ROTATE_LEFT);
+	states.push_front(CharacterActions::ROTATE_RIGHT);
+	SetRotateStateInfo(RotationDirection::RIGHT);	
+}
+
+void CPlayer::RotateState(std::list<CharacterActions::Type>::iterator & state, float time)
+{
+	float rotateValue = CalculateNewValueInTimeInterval<float>(rotateStateInfo, time);
+
+	LockRotate(rotateValue);
+
+	worldTransform.SetRotate(Axis::Y, rotateValue);
+	RemoveStateIfTimeElapsed(state, time, rotateStateInfo.endTime);
+}
+
+void CPlayer::RemoveStateIfTimeElapsed(std::list<CharacterActions::Type>::iterator & state, float time, float endTime)
+{
+	if (time > endTime)
+		state = states.erase(state);
+}
+
+void CPlayer::LockRotate(float& rotate)
+{
+	if (rotate < 0.f)
+		rotate += 360.0f;
+
+	if (rotate > 360.0f)
+		rotate -= 360.0f;
+}
+
+void CPlayer::MoveForward()
+{
+	if (FindState(CharacterActions::MOVE_FORWARD))
+		return;
+	
+	states.remove(CharacterActions::MOVE_BACKWARD);
+	states.push_front(CharacterActions::MOVE_FORWARD);
+
+	float timeInterval = 0.05f;
+	moveStateInfo.startValue	= worldTransform.GetPositionXZ();
+	moveStateInfo.currentValue	= CalculateMoveVector(Direction::FORWARD) * timeInterval;
+	moveStateInfo.startTime		= GetTime();
+	moveStateInfo.endTime		= moveStateInfo.startTime + timeInterval;
+	
+}
+
+void CPlayer::MoveBackward()
+{
+	if (FindState(CharacterActions::MOVE_BACKWARD))
+		return;
+
+	states.remove(CharacterActions::MOVE_FORWARD);
+	states.push_front(CharacterActions::MOVE_BACKWARD);
+
+	float timeInterval = 0.05f;
+	moveStateInfo.startValue	= worldTransform.GetPositionXZ();
+	moveStateInfo.currentValue	= CalculateMoveVector(Direction::BACKWARD) * timeInterval;
+	moveStateInfo.startTime		= GetTime();
+	moveStateInfo.endTime		= moveStateInfo.startTime + timeInterval;
+}
+
+void CPlayer::MoveState(std::list<CharacterActions::Type>::iterator & state, float time)
+{
+	vec2 rotateValue = CalculateNewValueInTimeInterval<vec2>(moveStateInfo, time);
+	worldTransform.SetPosition(vec3(rotateValue.x, 0, rotateValue.y));
+	RemoveStateIfTimeElapsed(state, time, moveStateInfo.endTime);
+}
+
+vec2 CPlayer::CalculateMoveVector(Direction direction)
+{
+	float rad = Utils::ToRadians(worldTransform.GetRotation().y);
+	auto v = vec2(characterStats.runSpeed * (direction == Direction::BACKWARD ? -1.f : 1.f) );
+	v.x *= sin(rad);
+	v.y *= cos(rad);
+
+	return v;
+}
+
+bool CPlayer::FindState(CharacterActions::Type state)
+{
+	for (auto state_it = states.begin(); state_it != states.end(); ++state_it)
 	{
-		Jump();
+		if (*state_it == state)
+			return true;
 	}
+	return false;
 }

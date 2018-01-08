@@ -40,6 +40,8 @@ void ParseWindow(rapidxml::xml_node<>* node, SEngineConfiguration& config)
             config.fullScreen = Utils::StringToBool(value);
         else if (name == "refreshRate")
             config.refresRate = Utils::StringToFloat(value);
+		else if (name == "vsync")
+			config.vsync = Utils::StringToBool(value);
     }
 }
 
@@ -156,14 +158,22 @@ void ParseEngineConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
+void CreateConfigFile(const std::string& filename)
+{
+
+}
+
 SEngineConfiguration& ReadConfigFile(const std::string& file)
 {
     auto& config = EngineConf;
 
     auto str = Utils::ReadFile(file);
 
-    if (str.empty())
-        return config;
+	if (str.empty())
+	{
+		CreateConfigFile(file);
+		return config;
+	}
 
     rapidxml::xml_document<> document;
     try
@@ -240,7 +250,7 @@ void SEngineConfiguration::SaveRequiredFiles()
 
     if (!output.is_open())
     {
-        Log("Cant open file : " + GetFullDataPath(requiredFilesOutputFile));
+        Log("Cant open file : " + GetFullDataPath(requiredFilesOutputFile));		
         return;
     }
 
