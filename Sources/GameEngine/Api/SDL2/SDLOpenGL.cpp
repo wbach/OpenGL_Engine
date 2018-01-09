@@ -136,11 +136,12 @@ void CSdlOpenGlApi::BeginFrame()
 
 void CSdlOpenGlApi::LockFps(float fps)
 {
-	auto delay = static_cast<Uint32>(1000.0f / fps);
-	auto duration = SDL_GetTicks() - startTime;
+	// Now Lock in Time Measurer function to delete
+	// auto delay = static_cast<Uint32>(1000.0f / fps);
+	// auto duration = SDL_GetTicks() - startTime;
 
-	if (delay > duration)
-		SDL_Delay(delay - duration);
+	// if (delay > duration)
+	// 	SDL_Delay(delay - duration);
 }
 
 ApiMessages::Type CSdlOpenGlApi::PeekMessages()

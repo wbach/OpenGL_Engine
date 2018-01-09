@@ -20,7 +20,7 @@ namespace GameEngine
 		, threadSync()
 		, resorceManager()
 	{
-		ReadConfigFile("d:/Projects/OpenGL_Engine/Build/bin/TestGame/Debug/Conf.xml");
+		ReadConfigFile("./Conf.xml");
 		SetDisplay();
 	}
 

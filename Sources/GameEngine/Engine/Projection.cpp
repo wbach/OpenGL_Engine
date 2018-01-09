@@ -10,11 +10,11 @@ CProjection::CProjection(const vec2i &window_size)
     : CProjection(window_size, .1f, 1000.f, 50.f)
 {}
 
-CProjection::CProjection(const vec2i &window_size, float near, float far, float fov)
+CProjection::CProjection(const vec2i &window_size, float near_, float far_, float fov_)
     : windowSize(window_size)
-    , nearPlane(near)
-    , farPlane(far)
-    , fov(fov)
+    , nearPlane(near_)
+    , farPlane(far_)
+    , fov(fov_)
 {
     CreateProjectionMatrix();
 }
