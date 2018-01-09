@@ -8,8 +8,6 @@ namespace GameEngine
 {
 	namespace Time
 	{
-		typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
-		typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 		typedef std::function<void()> Callback;
 		typedef std::vector<Callback> Callbacks;
 
@@ -25,8 +23,8 @@ namespace GameEngine
 
 		private:
 			void RunCallbacks() const;
-			int CTimeMeasurer::CalculateFpsTimeInterval();
-			void CTimeMeasurer::CheckFpsTimeElapsed(int time_interval);
+			int  CalculateFpsTimeInterval();
+			void CheckFpsTimeElapsed(int time_interval);
 			void Lock();
 
 		private:

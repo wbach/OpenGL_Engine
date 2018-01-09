@@ -1,7 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "Frustrum.h"
-#include "Thread.hpp"
+#include "Mutex.hpp"
 #include <atomic>
 
 class CCamera

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "Thread.hpp"
+#include "Mutex.hpp"
 
 class CScene;
 class COpenGLObject;

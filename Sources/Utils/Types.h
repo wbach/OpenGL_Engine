@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <string>
+#include <chrono>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
@@ -67,3 +68,15 @@ typedef glm::vec4 vec4;
 
 typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
+
+
+typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
+
+// Specyfic types for different os
+
+#ifdef USE_WINDOWS_THREADS
+    typedef std::chrono::_V2::system_clock::time_point Timepoint;
+#else
+    typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
+#endif
+

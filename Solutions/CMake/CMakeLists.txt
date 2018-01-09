@@ -24,10 +24,10 @@ include(./Sources/WindowsSources.cmake)
 include(./Sources/Unix.cmake)
 
 include_directories(
-../Utils/
-../Tools/common/
-../Tools/common/glm
-../Tools/common/rapidxml-1.13/
+../../Sources/Utils/
+../../Tools/common/
+../../Tools/common/glm
+../../Tools/common/rapidxml-1.13/
 )
 
 if(BUILD_UTILS)
@@ -41,8 +41,8 @@ if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
 endif()
 
 if(BUILD_TEST_GAME)
-    include(./Sources/TestGame.cmake)
-    add_executable(TestGlGame ${TestGame})
+    include(./Sources/TestGameSources.cmake)
+    add_executable(TestGlGame ${TestGameSources})
     target_link_libraries(TestGlGame GameEngineLib UtilsLib ${LinkingLibs})
 endif()
 

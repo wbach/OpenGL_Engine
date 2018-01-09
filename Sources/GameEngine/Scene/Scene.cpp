@@ -5,7 +5,7 @@ CScene::CScene()
 {
 }
 
-inline CScene::~CScene() 
+CScene::~CScene() 
 {
 	Log(__FUNCTION__);
 }

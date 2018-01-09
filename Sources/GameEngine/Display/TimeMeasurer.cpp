@@ -1,6 +1,7 @@
 #include "TimeMeasurer.h"
 #include "../Engine/Configuration.h"
 #include "Logger/Log.h"
+#include "Thread.hpp"
 #include <chrono>
 #include <thread>
 

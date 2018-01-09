@@ -2,8 +2,8 @@
 #include "Scene.hpp"
 #include "../Display/DisplayManager.hpp"
 #include "../Renderers/LodingScreenRenderer.h"
-#include "Logger/Log.h"
 #include "../Input/Input.h"
+#include "Logger/Log.h"
 
 SceneLoader::SceneLoader(CDisplayManager & displayManager, CResourceManager & resorceManager)
 	: displayManager(displayManager)

@@ -8,10 +8,6 @@
 #define DurationToDoubleMs(x) std::chrono::duration<double, std::milli>(x).count()
 #define DurationToFloatMs(x) std::chrono::duration<float, std::milli>(x).count()
 
-
-typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
-typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
-
 enum class Direction
 {
 	FORWARD,
