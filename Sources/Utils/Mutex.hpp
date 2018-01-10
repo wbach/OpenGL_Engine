@@ -1,5 +1,5 @@
 #pragma once
-#ifdef USE_WINDOWS_THREADS
+#ifdef USE_MINGW
 #include <mingw.mutex.h>
 #else
 #include <mutex>

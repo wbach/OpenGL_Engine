@@ -8,6 +8,8 @@ if(UNIX)
     pkg_check_modules(FREETYPE REQUIRED freetype2)
     pkg_check_modules(GLU REQUIRED glu)
 
+    add_definitions(-DUSE_GNU)
+    
     set(LinkingLibs
         SDL2main
         SDL2

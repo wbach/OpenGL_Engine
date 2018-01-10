@@ -24,7 +24,8 @@ if(MINGW)
         ../../Tools/Windows/GLFW3/lib-vc2015/
         )
 
-        add_definitions(-DUSE_WINDOWS_THREADS)
+        add_definitions(-DUSE_GNU)
+        add_definitions(-DUSE_MINGW)
 
         set(LinkingLibs
             SDL2main

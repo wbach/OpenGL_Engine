@@ -74,7 +74,7 @@ typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::ste
 
 // Specyfic types for different os
 
-#ifdef USE_WINDOWS_THREADS
+#ifdef USE_GNU
     typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
     typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;

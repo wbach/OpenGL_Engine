@@ -4,3 +4,5 @@ sudo apt-get install libassimp-dev
 sudo apt-get install libfreeimage3 libfreeimage-dev
 sudo apt-get install libfreetype6-dev
 
+#apt-get install libsdl2-dev && apt-get install libglew-dev && apt-get install libassimp-dev && apt-get install libfreeimage3 libfreeimage-dev && apt-get install libfreetype6-dev
+
