@@ -1,5 +1,7 @@
 #include "Engine.h"
+#include "SingleTon.h"
 #include "Configuration.h"
+#include "AplicationContext.h"
 #include "../Api/ApiMessages.h"
 #include "../Scene/Scene.hpp"
 #include "../Scene/SceneLoader.h"
@@ -88,11 +90,10 @@ namespace GameEngine
 			Log("CEngine::ProccesScene(): No scene set!");
 			return message;
 		}
-
 		//message = CheckSceneMessages();
 
+		std::lock_guard<std::mutex>(SingleTon<SAplicationContext>::Get().renderingMutex);
 		RenderScene();
-
 		return message;
 	}
 

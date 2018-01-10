@@ -1,4 +1,6 @@
 #include "MainScene.h"
+#include "SingleTon.h"
+#include "../GameEngine/Engine/AplicationContext.h"
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
 #include "../GameEngine/Camera/FirstPersonCamera.h"
@@ -8,7 +10,7 @@
 #include "../GameEngine/Resources/Textures/Image.h"
 #include "../GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "GLM/GLMUtils.h"
-
+#include "Thread.hpp"
 MainScene::MainScene(GameEngine::CEngine &engine)
     : engine(engine)
 	, debuger(engine.inputManager)
@@ -73,7 +75,7 @@ int MainScene::Initialize()
 
   // camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager(), deltaTime);
 
-    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform, &deltaTime);
+    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
 
 	if (camera != nullptr)
 	{
@@ -86,39 +88,43 @@ int MainScene::Initialize()
 //#include <stdio.h>
 int MainScene::Update(float dt)
 {
+	if (camera == nullptr)
+	{
+	   Log("MainScene::Update camera is nullptr.");
+	   return -1;
+	}
+
 	deltaTime = dt;
-
-    if (camera != nullptr)
-    {
-       // camera->CalculateInput();
-        camera->Move();
-    }
-
-	//LogToFile("DT: " + std::to_string(deltaTime));
-	//printf("Dt : %f\n", deltaTime);
-	//std::cout << "Dt: " << deltaTime << std::endl;
-
-//	if (engine.inputManager.GetKey(KeyCodes::ESCAPE))
-	//	return 1;
-
     gloabalTime += deltaTime;
 
-    timeClock += deltaTime;
+    timeClock += deltaTime;    
     if(timeClock > 1.f)
     {
         int hour = 0, minutes = 0;
         dayNightCycle.GetCurrentHour(hour, minutes);
-        //std::cout << "Game Time : " << hour << " : " << minutes << "\n";
-        //Utils::PrintVector("Light position : ", this->directionalLight.GetPosition());
         timeClock = 0;
+        Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
     }
 
     dayNightCycle.Update(deltaTime);
+	
+    CheckCollisions();
+	DebugRenderOptionsControl();
+	UpdatePlayerandCamera(deltaTime);
 
-	//player->Move(deltaTime);
-	player->Update(deltaTime);
-    player->CheckInputs();
+    return 0;
+}
 
+void MainScene::UpdatePlayerandCamera(float time)
+{
+	camera->CalculateInput();
+	std::lock_guard<std::mutex>(SingleTon<GameEngine::SAplicationContext>::Get().renderingMutex);
+    player->Update(time);
+    camera->Move();
+}
+
+void MainScene::CheckCollisions()
+{
 	for (auto& terrain : terrains)
 	{
         auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
@@ -130,10 +136,6 @@ int MainScene::Update(float dt)
 		if (ppos.y < new_position.value().y)
 			player->SetPosition(new_position.value());
 	}
-
-	DebugRenderOptionsControl();
-
-    return 0;
 }
 
 TerrainTexturesMap MainScene::CreateTerrainTexturesMap()

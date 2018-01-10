@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "Clock.hpp"
 
 class CTransform;
 class CInputManager;
@@ -7,7 +8,7 @@ class CInputManager;
 class CThirdPersonCamera : public CCamera
 {
 public:
-	CThirdPersonCamera(CInputManager *input_manager, CTransform& lookAt, float* deltaTime = nullptr);
+	CThirdPersonCamera(CInputManager *input_manager, CTransform& lookAt);
 
 	void CalculateInput() override;
 	void Move() override;
@@ -34,5 +35,6 @@ private:
     vec3	offset;
     float	mousevel;
     bool	captureMouse;
-	float*  deltaTime;
+
+	Utils::CClock clock;
 };

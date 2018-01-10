@@ -3,16 +3,16 @@
 #include "../Objects/Transform.h"
 #include "Utils.h"
 
-CThirdPersonCamera::CThirdPersonCamera(CInputManager* input_manager, CTransform& look_at, float* deltaTime)
+CThirdPersonCamera::CThirdPersonCamera(CInputManager* input_manager, CTransform& look_at)
 	: inputManager(input_manager)
 	, lookAtTransform(look_at)
 	, isShowCursor(false)
-	, offset(0.0f)
-	, mousevel(20000000.f)
+	, offset(0.f, 1.0f, 0.f)
+	, mousevel(0.5f)
 	, captureMouse(true)
-	, deltaTime(deltaTime)
+	, clock(std::chrono::milliseconds(5))
 {
-	distanceFromPlayer = 8.0f;
+	distanceFromPlayer = 12.0f;
 }
 
 void CThirdPersonCamera::SetCaptureMouse(bool capture)
@@ -48,7 +48,10 @@ void CThirdPersonCamera::LockCamera()
 
 void CThirdPersonCamera::CalculateInput()
 {
-	vec2 d_move = CalcualteMouseMove() * mousevel * (deltaTime ? *deltaTime : 1.f);
+	if (!clock.OnTick())
+		return;
+
+	vec2 d_move = CalcualteMouseMove() * mousevel;
 	CalculatePitch(d_move);
 	CalculateAngleAroundPlayer(d_move);
 	LockCamera();

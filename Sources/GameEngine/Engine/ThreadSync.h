@@ -46,21 +46,15 @@ namespace GameEngine
 			void Update()
 			{
 				while (isRunning.load())
-				{
-					timeMeasurer.Calculate();				
+				{			
+					timeMeasurer.Calculate();
 
 					float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
-					//std::cout << "deltaTime : " << deltaTime << std::endl;					
-
 					switch (func(deltaTime))
 					{
 					case 1: isRunning.store(false); break;
 					}
-
 					timeMeasurer.EndFrame();
-
-					//Log(__FUNCTION__);
-					//std::this_thread::sleep_for(std::chrono::milliseconds(50));
 				}
 			}
 

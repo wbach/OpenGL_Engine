@@ -15,7 +15,11 @@ namespace GameEngine
 			, frameCount(0)
 			, fps(0)
 			, deltaTime(0)
+			, deltaTime2(0)
 			, frameTime(0)
+			, lastFrameTime2(std::chrono::high_resolution_clock::now())
+			, lastFrameTime(std::chrono::high_resolution_clock::now())
+			, previousTime(std::chrono::high_resolution_clock::now())
 			, lockframeTime(1000.0 / lockFps)
 		{
 			Log("CTimeMeasurer::CTimeMeasurer() Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
@@ -28,9 +32,12 @@ namespace GameEngine
 
 		void CTimeMeasurer::Calculate()
 		{
+			currentTime = std::chrono::high_resolution_clock::now();
 			frameCount++;
+
 			auto time_interval = CalculateFpsTimeInterval();
-			CheckFpsTimeElapsed(time_interval / 1000);			
+			CheckFpsTimeElapsed(time_interval);
+
 			Lock();
 			lastFrameTime = std::chrono::high_resolution_clock::now();
 		}
@@ -52,10 +59,9 @@ namespace GameEngine
 		}
 
 		int CTimeMeasurer::CalculateFpsTimeInterval()
-		{			
-			currentTime = std::chrono::high_resolution_clock::now();
-
+		{	
 			deltaTime = currentTime - lastFrameTime;
+
 			auto d = currentTime - previousTime;
 
 			return static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(d).count());
@@ -63,10 +69,11 @@ namespace GameEngine
 
 		void CTimeMeasurer::CheckFpsTimeElapsed(int time_interval)
 		{
-			if (time_interval < 1)
+			if (time_interval < 1000)
 				return;
 
-			fps = frameCount / (time_interval);
+			float time_interval_ms = static_cast<float>(time_interval) / 1000.0f;
+			fps = frameCount / time_interval_ms;
 			previousTime = currentTime;
 			frameCount = 0;
 			RunCallbacks();

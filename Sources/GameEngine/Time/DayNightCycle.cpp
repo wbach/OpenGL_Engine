@@ -51,12 +51,12 @@ void CDayNightCycle::UpdateSunColor()
         float half_moorning_duration = morningDuration / 2.f;
 		if (IsFirstHalfMorning())
 		{
-            float r = (currentTime - nightEnd) * 1.f / half_moorning_duration;
+            float r = (currentTime_ - nightEnd) * 1.f / half_moorning_duration;
             color = Utils::ColorLerpRGB(nightColor, sunRiseColor, r);
 		}
 		else
 		{
-            float r = (currentTime - nightEnd - half_moorning_duration) * 1.f / half_moorning_duration;
+            float r = (currentTime_ - nightEnd - half_moorning_duration) * 1.f / half_moorning_duration;
             color = Utils::ColorLerpRGB(sunRiseColor, midDayColor, r);
 		}
         directionalLight->SetColor(color);
@@ -67,12 +67,12 @@ void CDayNightCycle::UpdateSunColor()
         float half_evening = eveningDuration / 2.f;
 		if (IsFirstHalfEvening())
 		{
-            float r = (currentTime - dayEnd) * 1.f / half_evening;
+            float r = (currentTime_ - dayEnd) * 1.f / half_evening;
             color = Utils::ColorLerpRGB(midDayColor, sunSetColor, r);
 		}
 		else
 		{
-            float r = (currentTime - dayEnd - half_evening) * 1.f / half_evening;
+            float r = (currentTime_ - dayEnd - half_evening) * 1.f / half_evening;
             color = Utils::ColorLerpRGB(sunSetColor, nightColor, r);
 
 		}
@@ -89,7 +89,7 @@ void CDayNightCycle::UpdateSunPosition()
 	}
     vec3 current_pos = directionalLight->GetPosition();
 
-    float m_SunAngle = currentTime * 360.f;
+    float m_SunAngle = currentTime_ * 360.f;
 	float rad = (m_SunAngle)*static_cast<float>(M_PI) / 180.0f + static_cast<float>(M_PI) / 2.f;
     current_pos.x = defaultSunPos.x * cos(rad);
     current_pos.y = defaultSunPos.y * fabs(cos(rad / 2.f)) + 1000.f;
@@ -115,11 +115,11 @@ void CDayNightCycle::CalculateBlendFactor()
 	}
 	else if (IsMorning())
 	{
-        dayNightBlendFactor = (currentTime - nightEnd) * 1.f / morningDuration;
+        dayNightBlendFactor = (currentTime_ - nightEnd) * 1.f / morningDuration;
 	}
 	else if (IsEvening())
 	{
-        dayNightBlendFactor = 1.f - (currentTime - dayEnd) * 1.f / eveningDuration;
+        dayNightBlendFactor = 1.f - (currentTime_ - dayEnd) * 1.f / eveningDuration;
 	}
 	else
 	{
@@ -137,48 +137,36 @@ const void CDayNightCycle::GetCurrentHour(int & hour, int & minutes) const
 {
 	hour = static_cast<int>(GetHours());
 
-    minutes = static_cast<int>(currentTime*24.f*60.f - (hour * 60.f));
+    minutes = static_cast<int>(currentTime_*24.f*60.f - (hour * 60.f));
 	return void();
 }
 
 const bool CDayNightCycle::IsDay() const
 {
-    if (currentTime > dayStart && currentTime < dayEnd)
-		return true;
-	return false;
+    return (currentTime_ > dayStart && currentTime_ < dayEnd);
 }
 
 const bool CDayNightCycle::IsNight() const
 {
-    if (currentTime > nightStart || currentTime < nightEnd)
-		return true;
-	return false;
+    return (currentTime_ > nightStart || currentTime_ < nightEnd);
 }
 
 const bool CDayNightCycle::IsMorning() const
 {
-    if (currentTime > nightEnd && currentTime < dayStart)
-		return true;
-	return false;
+    return (currentTime_ > nightEnd && currentTime_ < dayStart);
 }
 
 const bool CDayNightCycle::IsEvening() const
 {
-    if (currentTime > dayEnd && currentTime < nightStart)
-		return true;
-	return false;
+    return (currentTime_ > dayEnd && currentTime_ < nightStart);
 }
 
 const bool CDayNightCycle::IsFirstHalfMorning() const
 {
-    if (currentTime > nightEnd && currentTime < (nightEnd + morningDuration/2.f))
-		return true;
-	return false;
+    return (currentTime_ > nightEnd && currentTime_ < (nightEnd + morningDuration/2.f));
 }
 
 const bool CDayNightCycle::IsFirstHalfEvening() const
 {
-    if (currentTime > dayEnd && currentTime < (dayEnd + eveningDuration / 2.f))
-		return true;
-	return false;
+    return (currentTime_ > dayEnd && currentTime_ < (dayEnd + eveningDuration / 2.f));
 }

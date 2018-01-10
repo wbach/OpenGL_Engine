@@ -23,14 +23,14 @@ void CPlayer::Update(float deltaTime)
 	CheckInputs();
 	//float time = std::chrono::high_resolution_clock::now();
 
-	for (auto state = states.begin(); state != states.end(); ++state)
-		ProcessState(state);
-}
-
-void CPlayer::ProcessState(std::list<CharacterActions::Type>::iterator& state)
-{
 	float time = GetTime();
 
+	for (auto state = states.begin(); state != states.end(); ++state)
+		ProcessState(state, time);
+}
+
+void CPlayer::ProcessState(std::list<CharacterActions::Type>::iterator& state, float time)
+{
 	switch (*state)
 	{
 	case CharacterActions::MOVE_FORWARD:  MoveState(state, time); break;

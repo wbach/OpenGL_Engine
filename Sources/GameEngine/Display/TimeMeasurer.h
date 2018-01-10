@@ -34,7 +34,7 @@ namespace GameEngine
 			bool vsync;
 
 			Delta deltaTime, deltaTime2;
-			Timepoint lastFrameTime;
+			Timepoint lastFrameTime, lastFrameTime2;
 
 			Timepoint currentTime, previousTime;
 			float frameCount, fps;

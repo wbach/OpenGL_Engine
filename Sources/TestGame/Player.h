@@ -61,7 +61,7 @@ public:
 	void SetPosition(const glm::vec3& p);
 
 	void Update(float deltaTime);
-	void ProcessState(std::list<CharacterActions::Type>::iterator& state);
+	void ProcessState(std::list<CharacterActions::Type>::iterator& state, float time);
 	bool FindState(CharacterActions::Type state);
 
 	void Jump();

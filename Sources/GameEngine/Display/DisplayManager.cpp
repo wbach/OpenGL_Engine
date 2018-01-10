@@ -46,13 +46,13 @@ void CDisplayManager::PrintFps()
 
 void CDisplayManager::Update()
 {
-	timeMeasurer.Calculate();	
-
 	if (api != nullptr)
 		api->UpdateWindow();
 
 	if (api != nullptr && sync)
 		api->LockFps((float) fpsCap);
+
+	timeMeasurer.Calculate();
 }
 
 void CDisplayManager::SetRefreshRate(const int & rate)
