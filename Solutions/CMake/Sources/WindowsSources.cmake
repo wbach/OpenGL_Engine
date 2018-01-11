@@ -5,6 +5,7 @@ if(MINGW)
         ../../Tools/Windows/fbx_sdk/include/
         ../../Tools/Windows/Assimp/include/
         ../../Tools/Windows/SDL2-2.0.3/include/
+		../../Tools/Windows/SDL2_net-2.0.1/include/
         ../../Tools/Windows/
         ../../Tools/common/glm/
         ../../Tools/Windows/
@@ -19,6 +20,7 @@ if(MINGW)
         ../../Tools/Windows/Assimp/lib/x86/
         ../../Tools/Windows/GL/
         ../../Tools/Windows/SDL2-2.0.3/lib/x86/
+		../../Tools/Windows/SDL2_net-2.0.1/lib/x86/
         ../../Tools/Windows/freeImage/
         ../../Tools/Windows/freetype/lib/
         ../../Tools/Windows/GLFW3/lib-vc2015/
@@ -30,6 +32,7 @@ if(MINGW)
         set(LinkingLibs
             SDL2main
             SDL2
+			SDL2_net
             glew32
             glu32
             opengl32

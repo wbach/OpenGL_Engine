@@ -2,22 +2,24 @@ project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
 option(BUILD_UTILS "Build game engine utils" ON)
-option(BUILD_UTILS "Build game engine utils" ON)
-option(BUILD_LIB_NOISE "Build libnoise" ON)
+option(BUILD_UTILS_NETWORK "Build game engine network utils" OFF)
+option(BUILD_LIB_NOISE "Build libnoise" OFF)
 option(BUILD_GAME_ENGINE "Build game engine" ON)
 option(BUILD_TESTS "Build game engine" OFF)
 option(BUILD_TEST_GAME "Build test game" OFF)
+option(BUILD_RPG_GAME_SERVER "Build rpg game server" OFF)
 option(BUILD_TERRAIN_GENERATOR "Build terrain generator" OFF)
 
 message(STATUS "Build game engine utils: ${BUILD_UTILS}")
+message(STATUS "Build game engine network utils: ${BUILD_UTILS_NETWORK}")
 message(STATUS "Build game engine: ${BUILD_GAME_ENGINE}")
 message(STATUS "Build game engine tests: ${BUILD_TESTS}")
 message(STATUS "Build test game: ${BUILD_TEST_GAME}")
+message(STATUS "Build rpg game server: ${BUILD_RPG_GAME_SERVER}")
 message(STATUS "Build terrain generator: ${BUILD_TERRAIN_GENERATOR}")
 
 add_compile_options(
     -std=c++14
-    -I/usr/include/freetype2
 )
 
 include(./Sources/WindowsSources.cmake)
@@ -35,6 +37,11 @@ if(BUILD_UTILS)
     add_library(UtilsLib ${UtilsSources})
 endif()
 
+if(BUILD_UTILS_NETWORK)
+    include(./Sources/UtilsNetworkSources.cmake)
+    add_library(UtilsNetworkLib ${UtilsNetworkSources})
+endif()
+
 if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
     include(./Sources/GameEngineSources.cmake)
     add_library(GameEngineLib ${GameEngineSources})
@@ -44,6 +51,12 @@ if(BUILD_TEST_GAME)
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
     target_link_libraries(TestGlGame GameEngineLib UtilsLib ${LinkingLibs})
+endif()
+
+if(BUILD_RPG_GAME_SERVER)
+    include(./Sources/RpgGameServerSources.cmake)
+    add_executable(RpgGameServer ${RpgGameServerSources})
+    target_link_libraries(RpgGameServer UtilsLib UtilsNetworkLib ${LinkingLibs})
 endif()
 
 if(BUILD_LIB_NOISE OR BUILD_TERRAIN_GENERATOR)

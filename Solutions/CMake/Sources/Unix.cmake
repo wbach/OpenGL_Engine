@@ -1,6 +1,7 @@
 if(UNIX)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2 REQUIRED sdl2)
+	pkg_check_modules(SDL_net REQUIRED SDL2_net)
     pkg_check_modules(GL REQUIRED gl)
     pkg_check_modules(GLEW REQUIRED glew)
     pkg_check_modules(ASSIMP REQUIRED assimp)
@@ -13,6 +14,7 @@ if(UNIX)
     set(LinkingLibs
         SDL2main
         SDL2
+		SDL2_net
         GL
         GLU
         GLEW

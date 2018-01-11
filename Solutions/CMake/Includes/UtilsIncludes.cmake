@@ -10,7 +10,9 @@ set(UtilsIncludes
 ../../Sources/Utils/Utils.h
 ../../Sources/Utils/XML/SceneReader.h
 ../../Sources/Utils/XML/XMLUtils.h
+../../Sources/Utils/Clock.hpp
 ../../Sources/Utils/math.hpp
+../../Sources/Utils/Mutex.hpp
 ../../Sources/Utils/OpenGL/VaoEnableController.hpp
 ../../Sources/Utils/optional.hpp
 ../../Sources/Utils/Thread.hpp

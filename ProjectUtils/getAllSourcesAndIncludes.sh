@@ -25,8 +25,14 @@ cd ../Solutions/CMake/
 ../../ProjectUtils/getSources.sh "../../Sources/Utils/" UtilsIncludes "h" "hpp"
 ../../ProjectUtils/getSources.sh "../../Sources/Utils/" UtilsSources "c" "cpp"
 
+../../ProjectUtils/getSources.sh "../../Sources/UtilsNetwork/" UtilsNetworkIncludes "h" "hpp"
+../../ProjectUtils/getSources.sh "../../Sources/UtilsNetwork/" UtilsNetworkSources "c" "cpp"
+
 ../../ProjectUtils/getSources.sh "../../Sources/WindowAppCreator/" WindowAppCreatorIncludes "h" "hpp"
 ../../ProjectUtils/getSources.sh "../../Sources/WindowAppCreator/" WindowAppCreatorSources "c" "cpp"
+
+../../ProjectUtils/getSources.sh "../../Sources/RpgGameServer/" RpgGameServerIncludes "h" "hpp"
+../../ProjectUtils/getSources.sh "../../Sources/RpgGameServer/" RpgGameServerSources "c" "cpp"
 
 mv ./GameEngineIncludes.cmake ./Includes/
 mv ./EditorIncludes.cmake ./Includes/
@@ -36,7 +42,9 @@ mv ./GwintServerIncludes.cmake ./Includes/
 mv ./TerrainGenerationIncludes.cmake ./Includes/
 mv ./TestGameIncludes.cmake ./Includes/
 mv ./UtilsIncludes.cmake ./Includes/
+mv ./UtilsNetworkIncludes.cmake ./Includes/
 mv ./WindowAppCreatorIncludes.cmake ./Includes/
+mv ./RpgGameServerIncludes.cmake ./Includes/
 
 mv ./GameEngineSources.cmake ./Sources/
 mv ./EditorSources.cmake ./Sources/
@@ -46,6 +54,8 @@ mv ./GwintServerSources.cmake ./Sources/
 mv ./TerrainGenerationSources.cmake ./Sources/
 mv ./TestGameSources.cmake ./Sources/
 mv ./UtilsSources.cmake ./Sources/
+mv ./UtilsNetworkSources.cmake ./Sources/
 mv ./WindowAppCreatorSources.cmake ./Sources/
+mv ./RpgGameServerSources.cmake ./Sources/
 
 cd ../../ProjectUtils/

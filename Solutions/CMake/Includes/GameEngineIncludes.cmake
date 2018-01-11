@@ -9,6 +9,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Camera/Plane.h
 ../../Sources/GameEngine/Camera/ThridPersonCamera.h
 ../../Sources/GameEngine/Display/TimeMeasurer.h
+../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Debuger.h
 ../../Sources/GameEngine/Engine/Engine.h
