@@ -1,4 +1,4 @@
-#include "Getway.h"
+#include "CGetway.h"
 
 #include "Types.h"
 #include "Utils.h"

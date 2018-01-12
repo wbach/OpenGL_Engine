@@ -6,14 +6,11 @@
 #include <vector>
 #include <map>
 
-
 namespace UtlisNetwork
 {
-
 class SDLServerGetway
 {
 public:
-	static SDLServerGetway& Instance();
 	~SDLServerGetway();
 	void Start(uint16 port = 1234);
 	void CheckNewConnections();
@@ -40,7 +37,5 @@ private:
 	uint32 m_ClientsCount = 0;
 
 	char buffer[BUFFER_SIZE];
-
-	SDLServerGetway() {}
 };
 } // UtilsNetwork

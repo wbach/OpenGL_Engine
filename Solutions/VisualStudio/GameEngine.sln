@@ -2,6 +2,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RpgGameServer", "..\..\Sources\RpgGameServer\RpgGameServer.vcxproj", "{8F388312-4ADF-43B0-8ED8-609078431905}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
+		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B} = {9D8201EF-3E5A-44CB-95DB-97D5935EF93B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UtilsNetwork", "..\..\Sources\UtilsNetwork\UtilsNetwork.vcxproj", "{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "..\..\Sources\Utils\Utils.vcxproj", "{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngine", "..\..\Sources\GameEngine\GameEngine.vcxproj", "{E17E8D53-C66F-494E-B495-00EE34A0B66D}"
@@ -37,6 +48,14 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F388312-4ADF-43B0-8ED8-609078431905}.Debug|x86.ActiveCfg = Debug|Win32
+		{8F388312-4ADF-43B0-8ED8-609078431905}.Debug|x86.Build.0 = Debug|Win32
+		{8F388312-4ADF-43B0-8ED8-609078431905}.Release|x86.ActiveCfg = Release|Win32
+		{8F388312-4ADF-43B0-8ED8-609078431905}.Release|x86.Build.0 = Release|Win32
+		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}.Debug|x86.ActiveCfg = Debug|Win32
+		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}.Debug|x86.Build.0 = Debug|Win32
+		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}.Release|x86.ActiveCfg = Release|Win32
+		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}.Release|x86.Build.0 = Release|Win32
 		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}.Debug|x86.ActiveCfg = Debug|Win32
 		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}.Debug|x86.Build.0 = Debug|Win32
 		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}.Release|x86.ActiveCfg = Release|Win32

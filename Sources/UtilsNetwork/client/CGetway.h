@@ -28,7 +28,7 @@ private:
 	SDLNet_SocketSet socketSet;
 	IPaddress serverIP;       // The IP we will connect to
 	TCPsocket clientSocket;   // The socket to use
-	std::string   serverName;     // The server name
+	std::string serverName;     // The server name
 
 	bool init = false;
 

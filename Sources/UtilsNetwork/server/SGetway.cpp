@@ -1,16 +1,9 @@
-#include "Getway.h"
+#include "SGetway.h"
 #include "Logger/Log.h"
 #include "Thread.hpp"
 
 namespace UtlisNetwork
 {
-
-SDLServerGetway & SDLServerGetway::Instance()
-{
-	static SDLServerGetway getway;
-	return getway;
-}
-
 SDLServerGetway::~SDLServerGetway()
 {
 	SDLNet_FreeSocketSet(socketSet);

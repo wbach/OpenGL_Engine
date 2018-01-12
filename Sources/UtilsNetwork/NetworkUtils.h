@@ -15,4 +15,6 @@ namespace UtlisNetwork
 	void SendSingleMessage(TCPsocket socket, const std::string & message);
 	void SendMessage(TCPsocket socket, const std::string & message);
 	int CheckIncomingMessage(std::list<std::string>& incoming_messages, TCPsocket socket, bool& complex_msg_recv);
+	std::string IpAddressToString(IPaddress ipAddress);
+
 } // UtlisNetwork

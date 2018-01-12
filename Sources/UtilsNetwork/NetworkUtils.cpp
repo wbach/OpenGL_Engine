@@ -155,4 +155,18 @@ int CheckIncomingMessage(std::list<std::string>& incoming_messages, TCPsocket so
 	}
 	return recv_bytes;
 }
+
+std::string IpAddressToString(IPaddress ipAddress)
+{
+	Uint8 * dotQuad = (Uint8*)&ipAddress.host;
+
+	std::string str =
+		std::to_string((uint16)dotQuad[0]) + "." +
+		std::to_string((uint16)dotQuad[1]) + "." +
+		std::to_string((uint16)dotQuad[2]) + "." +
+		std::to_string((uint16)dotQuad[3]) +
+		" port " + std::to_string(SDLNet_Read16(&ipAddress.port));
+
+	return str;
+}
 } // Utils Network

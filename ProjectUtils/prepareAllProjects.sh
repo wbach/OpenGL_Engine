@@ -14,13 +14,14 @@ TerrainGenerationId='{B89BB922-72D9-4471-825E-BFC2B53B9F4C}'
 
 #ge='GameEngine:'$gameEngineId':'$utilsId
 #./prepareSolution.sh name:id:dependID...:dependId...:..
-./prepareSolution.sh 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId: 'UtilsNetwork:'$utilsNetworkIdId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId > ../Solutions/VisualStudio/GameEngine.sln
+./prepareSolution.sh 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId: 'UtilsNetwork:'$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId > ../Solutions/VisualStudio/GameEngine.sln
 
 ./prepareProject.sh GameEngine ../Solutions/CMake/Sources/GameEngineSources.cmake ../Solutions/CMake/Includes/GameEngineIncludes.cmake $gameEngineId StaticLibrary > ../Sources/GameEngine/GameEngine.vcxproj
 
 ./prepareProject.sh TestGame ../Solutions/CMake/Sources/TestGameSources.cmake ../Solutions/CMake/Includes/TestGameIncludes.cmake $testGameId Application GameEngine Utils > ../Sources/TestGame/TestGame.vcxproj
 
 ./prepareProject.sh RpgGameServer ../Solutions/CMake/Sources/RpgGameServerSources.cmake ../Solutions/CMake/Includes/RpgGameServerIncludes.cmake $testGameId Application Utils UtilsNetwork > ../Sources/RpgGameServer/RpgGameServer.vcxproj
+
 ./prepareProject.sh Gwint ../Solutions/CMake/Sources/GwintSources.cmake ../Solutions/CMake/Includes/GwintIncludes.cmake $GwintId Application GameEngine Utils > ../Sources/Gwint/Gwint.vcxproj
 
 ./prepareProject.sh GwintServer ../Solutions/CMake/Sources/GwintServerSources.cmake ../Solutions/CMake/Includes/GwintServerIncludes.cmake $GwintServerId Application GameEngine Utils > ../Sources/GwintServer/GwintServer.vcxproj

@@ -1,8 +1,13 @@
-#include <iostream>
-#include <SDL2/SDL_net.h>
+#include "Gateway.h"
+#include "Logger/Log.h"
+
 
 int main(int argc, char** argv)
 {
-	std::cout << "RPG GameServer v 0.1" << std::endl;
+	CLogger::Instance().EnableLogs();
+	
+	Log("RPG GameServer v 0.1");	
+	Network::CGateway gateway;
+	gateway.StartServer(30, 1991);
 	return 0;
 }

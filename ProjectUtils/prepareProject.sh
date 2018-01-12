@@ -65,6 +65,7 @@ additionalIncludesDir='
 ..\..\Tools\Windows\fbx_sdk\include;
 ..\..\Tools\Windows\Assimp\include;
 ..\..\Tools\Windows\SDL2-2.0.3\include\;
+..\..\Tools\Windows\SDL2_net-2.0.1\include\;
 ..\..\Tools\common\glm\;
 ..\..\Tools\Windows;
 ..\..\Tools\Windows\freeImage;
@@ -84,6 +85,7 @@ glew32.lib;
 glu32.lib;
 SDL2main.lib;
 SDL2test.lib;
+SDL2_net.lib;
 SDL2_image.lib;
 opengl32.lib;
 assimp.lib;
@@ -100,6 +102,7 @@ additionalLibsDir='
 '$toolsDir'\Assimp\lib\x86;
 '$toolsDir'\GL;
 '$toolsDir'\SDL2-2.0.3\lib\x86;
+'$toolsDir'\SDL2_net-2.0.1\lib\x86;
 '$toolsDir'\freeImage;
 '$toolsDir'\freetype\lib;
 '$toolsDir'\GLFW3\lib-vc2015;

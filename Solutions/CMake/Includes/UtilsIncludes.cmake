@@ -7,6 +7,7 @@ set(UtilsIncludes
 ../../Sources/Utils/Pathes.h
 ../../Sources/Utils/SingleTon.h
 ../../Sources/Utils/Types.h
+../../Sources/Utils/UndifineWindows.h
 ../../Sources/Utils/Utils.h
 ../../Sources/Utils/XML/SceneReader.h
 ../../Sources/Utils/XML/XMLUtils.h
