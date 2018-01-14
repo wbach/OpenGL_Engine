@@ -5,6 +5,7 @@
 #include "Thread.hpp"
 #include <chrono>
 #include "Message.h"
+#include <functional>
 
 namespace Network
 {
