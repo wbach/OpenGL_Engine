@@ -10,7 +10,7 @@ namespace GameEngine
 	namespace Time
 	{
 		CTimeMeasurer::CTimeMeasurer()
-			: lockFps(EngineConf.refresRate)
+			: lockFps(static_cast<uint32>(EngineConf.refresRate))
 			, vsync(EngineConf.vsync)
 			, frameCount(0)
 			, fps(0)

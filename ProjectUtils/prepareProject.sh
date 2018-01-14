@@ -71,6 +71,8 @@ additionalIncludesDir='
 ..\..\Tools\Windows\freeImage;
 ..\..\Tools\Windows\freetype\include;
 ..\..\Tools\Windows\GLFW3\include;
+..\..\Tools\Windows\gtest\include;
+..\..\Tools\Windows\gmock\include;
 '
 for d in "${depend[@]}"
 do
@@ -91,7 +93,9 @@ opengl32.lib;
 assimp.lib;
 libfreetype.lib;
 glfw3.lib;
-glfw3dll.lib;'
+glfw3dll.lib;
+gtest.lib;
+gmock.lib;'
 for d in "${depend[@]}"
 do
 	additionalLibs=$additionalLibs$d'.lib;'
@@ -106,6 +110,8 @@ additionalLibsDir='
 '$toolsDir'\freeImage;
 '$toolsDir'\freetype\lib;
 '$toolsDir'\GLFW3\lib-vc2015;
+'$toolsDir'\gtest\lib\x86\Release;
+'$toolsDir'\gmock\lib\x86\Release;
 '
 for d in "${depend[@]}"
 do
@@ -175,6 +181,7 @@ projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 	  <MultiProcessorCompilation>true</MultiProcessorCompilation>
 	  <MinimalRebuild>false</MinimalRebuild>
+          <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -193,6 +200,7 @@ projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 	  <MultiProcessorCompilation>true</MultiProcessorCompilation>
 	  <MinimalRebuild>false</MinimalRebuild>
+          <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
