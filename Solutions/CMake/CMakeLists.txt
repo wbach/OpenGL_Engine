@@ -27,6 +27,7 @@ include(./Sources/Unix.cmake)
 
 include_directories(
 ../../Sources/Utils/
+../../Sources/UtilsNetwork/
 ../../Tools/common/
 ../../Tools/common/glm
 ../../Tools/common/rapidxml-1.13/
@@ -56,7 +57,7 @@ endif()
 if(BUILD_RPG_GAME_SERVER)
     include(./Sources/RpgGameServerSources.cmake)
     add_executable(RpgGameServer ${RpgGameServerSources})
-    target_link_libraries(RpgGameServer UtilsLib UtilsNetworkLib ${LinkingLibs})
+    target_link_libraries(RpgGameServer  UtilsNetworkLib UtilsLib ${LinkingLibs})
 endif()
 
 if(BUILD_LIB_NOISE OR BUILD_TERRAIN_GENERATOR)
