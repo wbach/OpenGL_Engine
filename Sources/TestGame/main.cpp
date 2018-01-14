@@ -4,7 +4,8 @@
 #include "Logger/Log.h"
 #include <fstream>
 #include "FreeImage.h"
-
+#include "../UtilsNetwork/Gateway.h"
+#include <conio.h>
 
 void TestGameStart()
 {
@@ -20,7 +21,13 @@ int main(int argc, char* argv[])
 	#ifdef BACHU_HAHAH
 	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
 	#endif
-	CLogger::Instance().EnableLogs();	
+	CLogger::Instance().EnableLogs();
+	
+	//Network::CGateway gateway;
+	//gateway.ConnectToServer("baszek", "haslo", 1991);
+
+	//_getch();
+	//return 0;
 	TestGameStart();
 	return 0;
 }

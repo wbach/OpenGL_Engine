@@ -6,7 +6,7 @@
 
 typedef struct _TCPsocket *TCPsocket;
 
-namespace UtlisNetwork
+namespace UtilsNetwork
 {
 	const uint16 BUFFER_SIZE = 512;
 	const uint16 PORT = 1234; // The port we are connecting to

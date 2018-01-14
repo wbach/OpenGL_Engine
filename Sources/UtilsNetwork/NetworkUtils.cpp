@@ -4,7 +4,7 @@
 #include "Logger/Log.h"
 #include <algorithm>
 
-namespace UtlisNetwork
+namespace UtilsNetwork
 {
 bool CheckComplexMessage(std::list<std::string>& incoming_messages)
 {

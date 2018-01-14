@@ -30,7 +30,7 @@ struct SEngineConfiguration
 
     bool fullScreen	 = false;
     float refresRate = 60;
-	float vsync		 = true;
+	bool vsync		 = true;
 
     // Sound
     bool sound        = true;

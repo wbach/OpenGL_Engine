@@ -1,6 +1,15 @@
 set(UtilsNetworkIncludes
-../../Sources/UtilsNetwork/client/Getway.h
+../../Sources/UtilsNetwork/ClientCreator.h
+../../Sources/UtilsNetwork/ConectContext.h
+../../Sources/UtilsNetwork/ConnectionManager.h
+../../Sources/UtilsNetwork/Gateway.h
+../../Sources/UtilsNetwork/ISDLNetWrapper.h
+../../Sources/UtilsNetwork/Message.h
+../../Sources/UtilsNetwork/NetworkCreator.h
 ../../Sources/UtilsNetwork/NetworkUtils.h
-../../Sources/UtilsNetwork/server/Getway.h
+../../Sources/UtilsNetwork/Reciever.h
+../../Sources/UtilsNetwork/SDLNetWrapper.h
+../../Sources/UtilsNetwork/Sender.h
+../../Sources/UtilsNetwork/ServerCreator.h
 ../../Sources/UtilsNetwork/User.h
 )
