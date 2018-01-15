@@ -12,6 +12,7 @@ namespace Network
 	CGateway::CGateway()
 		: connectionManager_(new SDLNetWrapper(), context_)
 		, running(true)
+		, isServer(false)
 	{
 	}
 	CGateway::~CGateway()
@@ -27,16 +28,100 @@ namespace Network
 	void CGateway::StartServer(uint32 maxClients, uint32 port)
 	{
 		context_ = serverCreator_.Create(maxClients, port);
-		networkThread_	= std::thread(std::bind(&CGateway::ServerMainLoop, this));
-		//recvThread_		= std::thread(std::bind(&CGateway::ProccesRecv, this));
-
+		isServer = true;
+		RunThreads();
 	}
 	void CGateway::ConnectToServer(const std::string& username, const std::string& password, uint32 port)
 	{
 		context_ = clientCreator_.ConnectToServer(username, password, port);
-		networkThread_ = std::thread(std::bind(&CGateway::ClientMainLoop, this));
+		RunThreads();
 	}
-	void CGateway::ServerMainLoop()
+	
+	void CGateway::RunThreads()
+	{
+		networkThread_ = std::thread(std::bind(&CGateway::ProccesSend, this));
+		//recvThread_ = std::thread(std::bind(&CGateway::ProccesRecv, this));
+	}
+
+	void CGateway::ProccesSend()
+	{
+		while (running.load())
+		{
+			Log("CGateway::MainLoop.");
+
+			if (isServer)
+				connectionManager_.CheckNewConnectionsToServer();		
+
+			if (!isServer)
+			{
+				auto msg = receiver_.Receive(context_.socket);
+				AddToInbox(0, msg);
+			}
+
+			//if (!isServer) // tmp hack
+			//for (auto& user : context_.users)
+			//{
+			//	auto msg = receiver_.Receive(user.second->socket);
+			//	AddToInbox(user.first, msg);
+			//}
+
+			for (auto msg : outbox_)
+			{
+				auto socket = context_.users[msg.first]->socket;
+				sender_.SendTcp(socket, msg.second.get());
+			}
+			ClearOutbox();
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		}
+	}
+
+	void CGateway::ProccesRecv()
+	{
+		while (running.load())
+		{
+			for (auto& user : context_.users)
+			{
+				auto msg = receiver_.Receive(user.second->socket);
+				AddToInbox(user.first, msg);
+			}
+			
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		}
+	}
+
+	void CGateway::AddToInbox(uint32 userId, std::shared_ptr<IMessage> message)
+	{
+		std::lock_guard<std::mutex> lk(inboxMutex_);
+		inbox_.push_back({ userId , message });
+	}
+
+	void CGateway::ClearOutbox()
+	{
+		std::lock_guard<std::mutex> lk(outboxMutex_);
+		outbox_.clear();
+	}
+
+	void CGateway::AddToOutbox(uint32 userId, std::shared_ptr<IMessage> message)
+	{
+		std::lock_guard<std::mutex> lk(outboxMutex_);
+		outbox_.push_back({ userId , message });
+	}
+
+	std::shared_ptr<BoxMessage> CGateway::PopInBox()
+	{
+		if (inbox_.empty())
+			return nullptr;
+		auto result = inbox_.front();
+		return std::make_shared<BoxMessage>(result);
+	}
+
+	void CGateway::SubscribeForNewUser(CreationFunc func)
+	{
+		connectionManager_.SubscribeForNewUser(func);
+	}
+
+	/*void CGateway::ProccesSend()
 	{
 		TestData tdata;
 		tdata.position = vec3(1.f, 2.f, 3.f);
@@ -74,12 +159,5 @@ namespace Network
 			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 			receiver_.Receive(context_.socket);
 		}
-	}
-	void CGateway::ProccesRecv()
-	{
-		while (running.load())
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		}
-	}
+	}*/
 }

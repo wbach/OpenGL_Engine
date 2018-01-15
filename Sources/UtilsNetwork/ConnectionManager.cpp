@@ -37,7 +37,7 @@ namespace Network
 	{
 		Receiver receiver;
 
-		auto& user = *userIter;
+		auto& user = userIter->second;
 
 		auto msg = receiver.Receive(user->socket);
 
@@ -55,13 +55,18 @@ namespace Network
 		auto name = amsg->GetUserName();
 		auto pass = amsg->GetPassword();
 
-		Log("User login: " + name + "\nPassword: " + pass);
+		//Log("User login: " + name + "\nPassword: " + pass);
 
 		if (usersDb_[name] == pass)
 		{
 			ConnectionMessage conMsg(ConnectionStatus::CONNECTED);
 			sender_.SendTcp(user->socket, &conMsg);
-			context_.users.push_back(user);
+
+			context_.users[user->id] = user;
+
+			for (auto s : newUserSubscribes_)
+				s(user->id);
+
 			Log(name + " connected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 		}
 		else
@@ -88,7 +93,7 @@ namespace Network
 
 		sdlNetWrapper_->TCPAddSocket(context_.socketSet, usr->socket);		
 
-		notAuthenticatedUsers.push_back(usr);
+		notAuthenticatedUsers[usr->id] = usr;
 
 		++clientsCount_;
 
@@ -115,6 +120,15 @@ namespace Network
 			return false;
 
 		return true;
+	}
+
+	void ConnectionManager::SubscribeForNewUser(CreationFunc func)
+	{
+		newUserSubscribes_.push_back(func);
+	}
+
+	void ConnectionManager::SubscribeForDisconnectUser(CreationFunc func)
+	{
 	}
 
 	void ConnectionManager::DissmissConection()

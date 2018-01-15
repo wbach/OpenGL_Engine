@@ -5,10 +5,11 @@
 #include <vector>
 #include <memory>
 #include <SDL2/SDL_net.h>
+#include <unordered_map>
 
 namespace Network
 {
-	typedef std::vector<std::shared_ptr<UtilsNetwork::UserData>> Users;
+	typedef std::unordered_map<uint32, std::shared_ptr<UtilsNetwork::UserData>> Users;
 
 	struct ConectContext
 	{	

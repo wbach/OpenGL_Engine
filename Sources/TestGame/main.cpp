@@ -23,11 +23,18 @@ int main(int argc, char* argv[])
 	#endif
 	CLogger::Instance().EnableLogs();
 	
-	//Network::CGateway gateway;
-	//gateway.ConnectToServer("baszek", "haslo", 1991);
+	Network::CGateway gateway;
+	gateway.ConnectToServer("baszek", "haslo", 1991);
 
-	//_getch();
-	//return 0;
+	while (true)
+	{
+		Log("ClientMainLoop.");
+		auto msg = gateway.PopInBox();
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
+
+	_getch();
+	return 0;
 	TestGameStart();
 	return 0;
 }

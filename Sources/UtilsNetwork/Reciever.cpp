@@ -12,6 +12,7 @@ namespace Network
 
 	std::shared_ptr<IMessage> Receiver::Receive(TCPsocket socket)
 	{
+		Log("Receiver::Receive");
 		std::shared_ptr<IMessage> result;
 
 		//char buffer[512];

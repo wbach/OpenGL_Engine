@@ -5,7 +5,7 @@
 #include "Message.h"
 #include "Sender.h"
 
-const char fileName[] = "../Data/server.conf";
+const char fileName[] = "./server.conf";
 
 namespace Network
 {

@@ -3,6 +3,7 @@
 #include "Sender.h"
 #include "Reciever.h"
 #include "Thread.hpp"
+#include "Mutex.hpp"
 #include "ConectContext.h"
 #include "ConnectionManager.h"
 #include "ServerCreator.h"
@@ -11,6 +12,9 @@
 
 namespace Network
 {
+	
+	typedef std::pair<uint32, std::shared_ptr<IMessage>> BoxMessage;
+
 	class CGateway
 	{
 	public:
@@ -18,12 +22,16 @@ namespace Network
 		~CGateway();
 		void StartServer(uint32 maxClients, uint32 port);
 		void ConnectToServer(const std::string& username, const std::string& password, uint32 port);
-		void ServerMainLoop();
-		void ClientMainLoop();
+		void SubscribeForNewUser(CreationFunc func);
+		void AddToOutbox(uint32 userId, std::shared_ptr<IMessage> message);
+		std::shared_ptr<BoxMessage> PopInBox();
 
+	private:
+		void RunThreads();
+		void ProccesSend();
 		void ProccesRecv();
-
-		//void SubscribeForNewUser(uint32 userId);
+		void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
+		void ClearOutbox();
 
 	private:
 		ConectContext context_;
@@ -35,5 +43,11 @@ namespace Network
 		std::atomic_bool running;
 		ServerCreator serverCreator_;
 		ClientCreator clientCreator_;
+		bool isServer;
+
+		std::mutex outboxMutex_;
+		std::mutex inboxMutex_;
+		std::list<BoxMessage> outbox_;
+		std::list<BoxMessage> inbox_;
 	};
 }

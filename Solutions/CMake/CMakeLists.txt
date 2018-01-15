@@ -10,6 +10,9 @@ option(BUILD_TEST_GAME "Build test game" OFF)
 option(BUILD_RPG_GAME_SERVER "Build rpg game server" OFF)
 option(BUILD_TERRAIN_GENERATOR "Build terrain generator" OFF)
 
+option(BUILD_I386 "32bit build" ON)
+
+message(STATUS "32bit build: ${BUILD_I386}")
 message(STATUS "Build game engine utils: ${BUILD_UTILS}")
 message(STATUS "Build game engine network utils: ${BUILD_UTILS_NETWORK}")
 message(STATUS "Build game engine: ${BUILD_GAME_ENGINE}")
@@ -21,6 +24,13 @@ message(STATUS "Build terrain generator: ${BUILD_TERRAIN_GENERATOR}")
 add_compile_options(
     -std=c++14
 )
+
+if(BUILD_I386)
+	add_compile_options( -m32	)
+        set_property(GLOBAL PROPERTY COMPILE_FLAGS "-m32")
+	 set_property(GLOBAL PROPERTY  LINK_FLAGS "-m32")
+	#set_target_properties(GLOBAL PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+endif()
 
 include(./Sources/WindowsSources.cmake)
 include(./Sources/Unix.cmake)
@@ -36,27 +46,32 @@ include_directories(
 if(BUILD_UTILS)
     include(./Sources/UtilsSources.cmake)
     add_library(UtilsLib ${UtilsSources})
+set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
 if(BUILD_UTILS_NETWORK)
     include(./Sources/UtilsNetworkSources.cmake)
     add_library(UtilsNetworkLib ${UtilsNetworkSources})
+set_target_properties(UtilsNetworkLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
 if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
     include(./Sources/GameEngineSources.cmake)
     add_library(GameEngineLib ${GameEngineSources})
+set_target_properties(GameEngineLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
 if(BUILD_TEST_GAME)
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
-    target_link_libraries(TestGlGame GameEngineLib UtilsLib ${LinkingLibs})
+set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    target_link_libraries(TestGlGame GameEngineLib UtilsNetworkLib UtilsLib ${LinkingLibs})
 endif()
 
 if(BUILD_RPG_GAME_SERVER)
     include(./Sources/RpgGameServerSources.cmake)
     add_executable(RpgGameServer ${RpgGameServerSources})
+set_target_properties(RpgGameServer PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     target_link_libraries(RpgGameServer  UtilsNetworkLib UtilsLib ${LinkingLibs})
 endif()
 
