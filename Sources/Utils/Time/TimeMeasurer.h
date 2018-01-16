@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-namespace GameEngine
+namespace Utils
 {
 	namespace Time
 	{
@@ -15,8 +15,9 @@ namespace GameEngine
 		{
 		public:
 			CTimeMeasurer();
+			CTimeMeasurer(uint32 lockFps, bool vsync = true);
 			void AddOnTickCallback(Callback);
-			void Calculate();
+			void CalculateAndLock();
 			void EndFrame();
 			float GetFps() const;
 			const double inline GetDeltaTime() const;
@@ -48,4 +49,4 @@ namespace GameEngine
 			return static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime2).count()) / 1000000000.0;
 		}
 	} // TimeMeasurer
-} // GameEngine
+} // Utils

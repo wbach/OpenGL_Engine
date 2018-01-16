@@ -5,30 +5,27 @@
 #include "Message.h"
 #include "Sender.h"
 
-const char fileName[] = "./server.conf";
+
 
 namespace Network
 {
 	ClientCreator::ClientCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper)
 		: sdlNetWrapper_(sdlNetWrapper)
 	{
-		serverName = Utils::ReadFile(fileName);
-		Log("Server : " + serverName);
 	}
 
 	ClientCreator::ClientCreator(ISDLNetWrapper * sdlNetWrapper)
-	{
-		serverName = Utils::ReadFile(fileName);
-		Log("Server : " + serverName);
+	{		
 	}
 
-	ConectContext ClientCreator::ConnectToServer(const std::string& username, const std::string& password, uint32 port)
+	ConectContext ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
 	{
 		context_.port = port;
+		context_.serverName = host;
 
 		if (!Init())			return context_;
 		if (!AllocSocketSet(1)) return context_;
-		if (!ResolveHost(serverName.c_str())) return context_;
+		if (!ResolveHost(context_.serverName.c_str())) return context_;
 		if (!ResolveIp())		return context_;
 		if (!OpenTcp())			return context_;
 		if (!AddSocketTcp())	return context_;
@@ -39,14 +36,13 @@ namespace Network
 	}
 	ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
 	{		
-		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);
-		int gotServerResponse = sdlNetWrapper_->SocketReady((SDLNet_GenericSocket) context_.socket);
-
-		if (gotServerResponse == 0)
-			return ClientCreator::NOT_CONNECTED;
+		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);	
 
 		Receiver receiver;
 		auto msg = receiver.Receive(context_.socket);
+
+		if (msg == nullptr)
+			return ClientCreator::NOT_CONNECTED;
 
 		auto connectingMsg = GetAndValidateConnectionMessage(msg.get());
 		if (connectingMsg == nullptr) return ClientCreator::NOT_CONNECTED;
@@ -72,14 +68,13 @@ namespace Network
 		Sender sender;
 		sender.SendTcp(context_.socket, &msg);
 		
-		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);
-		int gotServerResponse = sdlNetWrapper_->SocketReady((SDLNet_GenericSocket)context_.socket);
-
-		if (gotServerResponse == 0)
-			return false;
+		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);		
 
 		Receiver receiver;
 		auto recvMsg = receiver.Receive(context_.socket);
+
+		if (recvMsg == nullptr)
+			return false;
 
 		auto connectingMsg = GetAndValidateConnectionMessage(recvMsg.get());
 		if (connectingMsg == nullptr) return false;

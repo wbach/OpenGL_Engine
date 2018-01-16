@@ -4,6 +4,7 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/ConnectionManager.h
 ../../Sources/UtilsNetwork/Gateway.h
 ../../Sources/UtilsNetwork/ISDLNetWrapper.h
+../../Sources/UtilsNetwork/Message.h
 ../../Sources/UtilsNetwork/NetworkCreator.h
 ../../Sources/UtilsNetwork/NetworkUtils.h
 ../../Sources/UtilsNetwork/Reciever.h

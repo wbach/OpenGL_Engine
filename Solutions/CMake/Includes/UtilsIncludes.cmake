@@ -6,6 +6,8 @@ set(UtilsIncludes
 ../../Sources/Utils/ParseUtils.h
 ../../Sources/Utils/Pathes.h
 ../../Sources/Utils/SingleTon.h
+../../Sources/Utils/ThreadSync.h
+../../Sources/Utils/Time/TimeMeasurer.h
 ../../Sources/Utils/Types.h
 ../../Sources/Utils/UndifineWindows.h
 ../../Sources/Utils/Utils.h

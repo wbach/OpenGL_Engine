@@ -17,7 +17,9 @@ namespace Network
 
 	void ConnectionManager::CheckNewConnectionsToServer()
 	{
-		if (!CheckSocketsActivity())
+		WaitForAuthentication();
+
+		if (!IsSomthingOnServerSocket())
 			return;
 
 		CreateClientSocketIfAvailable();
@@ -31,6 +33,11 @@ namespace Network
 			if (!ProccessAuthentication(iter))
 				++iter;
 		}
+	}
+
+	bool ConnectionManager::IsSomthingOnServerSocket()
+	{
+		return sdlNetWrapper_->SocketReady((SDLNet_GenericSocket)context_.socket) > 0;
 	}
 
 	bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
@@ -100,26 +107,12 @@ namespace Network
 		ConnectionMessage conMsg(ConnectionStatus::WAIT_FOR_AUTHENTICATION);
 		sender_.SendTcp(usr->socket, &conMsg);
 
-		/*std::string ok = "OK";
-		sdlNetWrapper_->SendTcp(usr->socket, (void *)ok.c_str(), ok.size() + 1);*/
-
 		Log("Client connected. Wait for authentication. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
-		//Log("Client connected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 	}
 
 	bool ConnectionManager::CheckSocketsActivity()
 	{		
-		int numActiveSockets = sdlNetWrapper_->CheckSockets(context_.socketSet, 0);
-
-/*		if (numActiveSockets == 0)
-			return false;	*/	
-
-		WaitForAuthentication();
-
-		if (sdlNetWrapper_->SocketReady((SDLNet_GenericSocket) context_.socket) == 0)
-			return false;
-
-		return true;
+		return (sdlNetWrapper_->CheckSockets(context_.socketSet, 0)) > 0;
 	}
 
 	void ConnectionManager::SubscribeForNewUser(CreationFunc func)

@@ -47,7 +47,7 @@ namespace GameEngine
 		ApiMessages::Type PrepareFrame();
 
 	private:
-		Thread::ThreadSync threadSync;
+		Utils::Thread::ThreadSync threadSync;
 		// Global items, loading screen etc...
 		CResourceManager resorceManager;
 	};

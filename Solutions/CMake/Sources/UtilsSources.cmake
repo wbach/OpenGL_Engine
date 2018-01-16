@@ -5,6 +5,7 @@ set(UtilsSources
 ../../Sources/Utils/OpenGL/OpenGLUtils.cpp
 ../../Sources/Utils/OpenGL/VaoEnableController.cpp
 ../../Sources/Utils/ParseUtils.cpp
+../../Sources/Utils/Time/TimeMeasurer.cpp
 ../../Sources/Utils/Types.cpp
 ../../Sources/Utils/Utils.cpp
 ../../Sources/Utils/XML/ParseMethods.cpp

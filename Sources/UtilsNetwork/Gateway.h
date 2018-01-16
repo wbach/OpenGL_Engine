@@ -8,12 +8,13 @@
 #include "ConnectionManager.h"
 #include "ServerCreator.h"
 #include "ClientCreator.h"
+#include "Time/TimeMeasurer.h"
 #include <atomic>
 
 namespace Network
-{
-	
+{	
 	typedef std::pair<uint32, std::shared_ptr<IMessage>> BoxMessage;
+	typedef std::function<void(const BoxMessage&)> OnMessageArrived;
 
 	class CGateway
 	{
@@ -21,17 +22,20 @@ namespace Network
 		CGateway();
 		~CGateway();
 		void StartServer(uint32 maxClients, uint32 port);
-		void ConnectToServer(const std::string& username, const std::string& password, uint32 port);
+		void ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 		void SubscribeForNewUser(CreationFunc func);
+		void SubscribeOnMessageArrived(OnMessageArrived func);
 		void AddToOutbox(uint32 userId, std::shared_ptr<IMessage> message);
-		std::shared_ptr<BoxMessage> PopInBox();
+		void AddToOutbox(std::shared_ptr<IMessage> message);
+		//std::shared_ptr<BoxMessage> PopInBox();
 
 	private:
-		void RunThreads();
-		void ProccesSend();
-		void ProccesRecv();
-		void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
+		void ReceiveAllMessages();
+		void SendAllMessages();
+		void MainLoop();
+		//void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
 		void ClearOutbox();
+		void PrintFps();
 
 	private:
 		ConectContext context_;
@@ -43,11 +47,13 @@ namespace Network
 		std::atomic_bool running;
 		ServerCreator serverCreator_;
 		ClientCreator clientCreator_;
+		Utils::Time::CTimeMeasurer timeMeasurer_;
 		bool isServer;
 
 		std::mutex outboxMutex_;
 		std::mutex inboxMutex_;
 		std::list<BoxMessage> outbox_;
-		std::list<BoxMessage> inbox_;
+		//std::list<BoxMessage> inbox_;
+		std::list<OnMessageArrived> onMessageArrivedSubcribes_;
 	};
 }

@@ -18,6 +18,7 @@ namespace Network
 		IPaddress		 serverIP;
 		TCPsocket		 socket;
 		SDLNet_SocketSet socketSet;
+		std::string		 serverName;
 		Users users;
 
 		ConectContext()

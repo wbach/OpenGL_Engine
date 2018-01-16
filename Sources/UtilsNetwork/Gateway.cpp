@@ -12,6 +12,7 @@ namespace Network
 	CGateway::CGateway()
 		: connectionManager_(new SDLNetWrapper(), context_)
 		, running(true)
+		, timeMeasurer_(60)
 		, isServer(false)
 	{
 	}
@@ -29,71 +30,59 @@ namespace Network
 	{
 		context_ = serverCreator_.Create(maxClients, port);
 		isServer = true;
-		RunThreads();
+		networkThread_ = std::thread(std::bind(&CGateway::MainLoop, this));
 	}
-	void CGateway::ConnectToServer(const std::string& username, const std::string& password, uint32 port)
+	void CGateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
 	{
-		context_ = clientCreator_.ConnectToServer(username, password, port);
-		RunThreads();
-	}
-	
-	void CGateway::RunThreads()
-	{
-		networkThread_ = std::thread(std::bind(&CGateway::ProccesSend, this));
-		//recvThread_ = std::thread(std::bind(&CGateway::ProccesRecv, this));
-	}
+		context_ = clientCreator_.ConnectToServer(username, password, host, port);
+		
+		//from client pov is only one user - server
 
-	void CGateway::ProccesSend()
+		context_.users[0] = std::make_shared<UtilsNetwork::UserData>();
+		context_.users[0]->socket = context_.socket;
+
+		recvThread_ = std::thread(std::bind(&CGateway::MainLoop, this));
+	}	
+
+	void CGateway::ReceiveAllMessages()
 	{
-		while (running.load())
+		if (!connectionManager_.CheckSocketsActivity())
+			return;
+		
+		if (isServer)
+			connectionManager_.CheckNewConnectionsToServer();
+
+		for (auto& user : context_.users)
 		{
-			Log("CGateway::MainLoop.");
+			auto msg = receiver_.Receive(user.second->socket);
 
-			if (isServer)
-				connectionManager_.CheckNewConnectionsToServer();		
-
-			if (!isServer)
+			for (auto& sub : onMessageArrivedSubcribes_)
 			{
-				auto msg = receiver_.Receive(context_.socket);
-				AddToInbox(0, msg);
+				sub({ user.first, msg });
 			}
-
-			//if (!isServer) // tmp hack
-			//for (auto& user : context_.users)
-			//{
-			//	auto msg = receiver_.Receive(user.second->socket);
-			//	AddToInbox(user.first, msg);
-			//}
-
-			for (auto msg : outbox_)
-			{
-				auto socket = context_.users[msg.first]->socket;
-				sender_.SendTcp(socket, msg.second.get());
-			}
-			ClearOutbox();
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		}
 	}
 
-	void CGateway::ProccesRecv()
+	void CGateway::SendAllMessages()
 	{
-		while (running.load())
+		for (auto msg : outbox_)
 		{
-			for (auto& user : context_.users)
-			{
-				auto msg = receiver_.Receive(user.second->socket);
-				AddToInbox(user.first, msg);
-			}
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			auto socket = context_.users[msg.first]->socket;
+			sender_.SendTcp(socket, msg.second.get());
 		}
+		ClearOutbox();
 	}
 
-	void CGateway::AddToInbox(uint32 userId, std::shared_ptr<IMessage> message)
+	void CGateway::MainLoop()
 	{
-		std::lock_guard<std::mutex> lk(inboxMutex_);
-		inbox_.push_back({ userId , message });
+		timeMeasurer_.AddOnTickCallback(std::bind(&CGateway::PrintFps, this));
+
+		while (running.load())
+		{			
+			ReceiveAllMessages();
+			SendAllMessages();
+			timeMeasurer_.CalculateAndLock();		
+		}
 	}
 
 	void CGateway::ClearOutbox()
@@ -102,62 +91,38 @@ namespace Network
 		outbox_.clear();
 	}
 
+	void CGateway::PrintFps()
+	{
+		std::string msg = "MainLoop fps : " + std::to_string(timeMeasurer_.GetFps());
+		Log(msg);
+	}
+
 	void CGateway::AddToOutbox(uint32 userId, std::shared_ptr<IMessage> message)
 	{
 		std::lock_guard<std::mutex> lk(outboxMutex_);
 		outbox_.push_back({ userId , message });
 	}
 
-	std::shared_ptr<BoxMessage> CGateway::PopInBox()
+	void CGateway::AddToOutbox(std::shared_ptr<IMessage> message)
 	{
-		if (inbox_.empty())
-			return nullptr;
-		auto result = inbox_.front();
-		return std::make_shared<BoxMessage>(result);
+		std::lock_guard<std::mutex> lk(outboxMutex_);
+		outbox_.push_back({ 0 , message });
 	}
+
+	//std::shared_ptr<BoxMessage> CGateway::PopInBox()
+	//{
+	//	if (inbox_.empty())
+	//		return nullptr;
+	//	auto result = inbox_.front();
+	//	return std::make_shared<BoxMessage>(result);
+	//}
 
 	void CGateway::SubscribeForNewUser(CreationFunc func)
 	{
 		connectionManager_.SubscribeForNewUser(func);
 	}
-
-	/*void CGateway::ProccesSend()
+	void CGateway::SubscribeOnMessageArrived(OnMessageArrived func)
 	{
-		TestData tdata;
-		tdata.position = vec3(1.f, 2.f, 3.f);
-		tdata.rotation = vec3(4.f, 5.f, 6.f);
-
-		ConnectionMessage conMsg;
-		conMsg.connectionStatus = ConnectionStatus::CONNECTED;
-
-		while (running.load())
-		{
-			Log("CGateway::ServerMainLoop CheckNewConnectionsToServer.");
-			connectionManager_.CheckNewConnectionsToServer();
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-			for(auto& user : context_.users)
-			{
-				++tdata.id;				
-				tdata.position += vec3(0.25, 0.1, 0.2);
-				sender_.SendTcp(user->socket, &tdata);
-			}
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-			for (auto& user : context_.users)
-			{
-				sender_.SendTcp(user->socket, &conMsg);
-			}
-		}
+		onMessageArrivedSubcribes_.push_back(func);
 	}
-	void CGateway::ClientMainLoop()
-	{
-		while (running.load())
-		{
-			Log("CGateway::ClientMainLoop.");
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-			receiver_.Receive(context_.socket);
-		}
-	}*/
 }

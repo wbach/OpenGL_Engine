@@ -1,17 +1,23 @@
 #include "TimeMeasurer.h"
-#include "../Engine/Configuration.h"
+#include "../GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 #include "Thread.hpp"
 #include <chrono>
 #include <thread>
 
-namespace GameEngine
+namespace Utils
 {
 	namespace Time
 	{
 		CTimeMeasurer::CTimeMeasurer()
-			: lockFps(static_cast<uint32>(EngineConf.refresRate))
-			, vsync(EngineConf.vsync)
+			: CTimeMeasurer(static_cast<uint32>(EngineConf.refresRate), EngineConf.vsync)
+		{
+			Log("CTimeMeasurer::CTimeMeasurer() Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
+		}
+
+		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, bool vsync)
+			: lockFps(lockFps)
+			, vsync(vsync)
 			, frameCount(0)
 			, fps(0)
 			, deltaTime(0)
@@ -22,7 +28,7 @@ namespace GameEngine
 			, previousTime(std::chrono::high_resolution_clock::now())
 			, lockframeTime(1000.0 / lockFps)
 		{
-			Log("CTimeMeasurer::CTimeMeasurer() Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
+
 		}
 
 		void CTimeMeasurer::AddOnTickCallback(Callback c)
@@ -30,7 +36,7 @@ namespace GameEngine
 			callbacks.push_back(c);
 		}
 
-		void CTimeMeasurer::Calculate()
+		void CTimeMeasurer::CalculateAndLock()
 		{
 			currentTime = std::chrono::high_resolution_clock::now();
 			frameCount++;
@@ -94,4 +100,4 @@ namespace GameEngine
 		}
 
 	} // TimeMeasurer
-} // GameEngine
+} // Utils

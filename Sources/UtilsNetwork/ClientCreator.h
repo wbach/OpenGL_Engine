@@ -18,15 +18,14 @@ namespace Network
 	public:
 		ClientCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper = std::shared_ptr<ISDLNetWrapper>(new SDLNetWrapper()));
 		ClientCreator(ISDLNetWrapper* sdlNetWrapper);
-		ConectContext ConnectToServer(const std::string& username, const std::string& password, uint32 port);
+		ConectContext ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 
 	private:
 		ConnectionState WaitForAcceptConnection();
 		ConnectionMessage* GetAndValidateConnectionMessage(IMessage* msg);
 		bool WaitForAuthentication(const std::string& username, const std::string& password);
 
-	private:
-		std::string serverName;
+	private:		
 		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
 	};
 }

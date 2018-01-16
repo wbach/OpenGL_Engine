@@ -1,6 +1,6 @@
 #pragma once
 #include "../Api/SDL2/SDLOpenGL.h"
-#include "TimeMeasurer.h"
+#include "Time/TimeMeasurer.h"
 #include "Utils.h"
 #include <memory>
 #include <string>
@@ -45,7 +45,7 @@ private:
 
 private:
     std::unique_ptr<CApi> api;
-	GameEngine::Time::CTimeMeasurer timeMeasurer;
+	Utils::Time::CTimeMeasurer timeMeasurer;
 
     bool time = true; 
 

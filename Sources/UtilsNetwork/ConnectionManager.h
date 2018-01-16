@@ -21,6 +21,7 @@ namespace Network
 
 	private:
 		void WaitForAuthentication();
+		bool IsSomthingOnServerSocket();
 		bool ProccessAuthentication(Users::iterator& userIter);
 		void CreateClientSocketIfAvailable();
 		void DissmissConection();

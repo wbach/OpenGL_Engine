@@ -52,7 +52,7 @@ void CDisplayManager::Update()
 	if (api != nullptr && sync)
 		api->LockFps((float) fpsCap);
 
-	timeMeasurer.Calculate();
+	timeMeasurer.CalculateAndLock();
 }
 
 void CDisplayManager::SetRefreshRate(const int & rate)

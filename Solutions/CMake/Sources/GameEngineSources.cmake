@@ -6,7 +6,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Camera/Frustrum.cpp
 ../../Sources/GameEngine/Camera/ThridPersonCamera.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
-../../Sources/GameEngine/Display/TimeMeasurer.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
 ../../Sources/GameEngine/Engine/Debuger.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp
