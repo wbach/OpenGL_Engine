@@ -6,6 +6,7 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/ISDLNetWrapper.h
 ../../Sources/UtilsNetwork/Message.h
 ../../Sources/UtilsNetwork/NetworkCreator.h
+../../Sources/UtilsNetwork/NetworkTypes.h
 ../../Sources/UtilsNetwork/NetworkUtils.h
 ../../Sources/UtilsNetwork/Reciever.h
 ../../Sources/UtilsNetwork/SDLNetWrapper.h

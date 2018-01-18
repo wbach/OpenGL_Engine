@@ -9,13 +9,11 @@
 #include "ServerCreator.h"
 #include "ClientCreator.h"
 #include "Time/TimeMeasurer.h"
+#include "NetworkTypes.h"
 #include <atomic>
 
 namespace Network
-{	
-	typedef std::pair<uint32, std::shared_ptr<IMessage>> BoxMessage;
-	typedef std::function<void(const BoxMessage&)> OnMessageArrived;
-
+{
 	class CGateway
 	{
 	public:
@@ -25,8 +23,8 @@ namespace Network
 		void ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 		void SubscribeForNewUser(CreationFunc func);
 		void SubscribeOnMessageArrived(OnMessageArrived func);
-		void AddToOutbox(uint32 userId, std::shared_ptr<IMessage> message);
-		void AddToOutbox(std::shared_ptr<IMessage> message);
+		void AddToOutbox(uint32 userId, IMessagePtr message);
+		//void AddToOutbox(IMessagePtr message);
 		//std::shared_ptr<BoxMessage> PopInBox();
 
 	private:
@@ -56,4 +54,6 @@ namespace Network
 		//std::list<BoxMessage> inbox_;
 		std::list<OnMessageArrived> onMessageArrivedSubcribes_;
 	};
+
+	typedef std::shared_ptr<CGateway> GatewayPtr;
 }

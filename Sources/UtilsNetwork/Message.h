@@ -1,6 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "GLM/GLMUtils.h"
+#include <memory>
 
 namespace Network
 {
@@ -24,6 +25,13 @@ namespace Network
 		uint8 msgType;
 	};
 
+	typedef std::shared_ptr<IMessage> IMessagePtr;
+
+	//enum MessageTarget
+	//{
+	//	DEDICATED,
+	//	ALL
+	//};
 
 	struct MessageHeader
 	{
@@ -31,13 +39,22 @@ namespace Network
 		uint8  msgType;
 	};
 
-	struct TestData : public IMessage
+	enum TransformMessageTypes
 	{
-		TestData() 
+		MOVE_FORWARD,
+		MOVE_BACKWARD,
+		ROTATE_RIGHT,
+		ROTATE_LEFT,
+		JUMP
+	};
+
+	struct TransformMsg : public IMessage
+	{
+		TransformMsg() 
 			: IMessage(MessageTypes::TestDataMsg)
 		{}
 		uint32 id = 0;
-		uint32 type = 0;
+		TransformMessageTypes type;
 		vec3 position;
 		vec3 rotation;
 		//std::string str;

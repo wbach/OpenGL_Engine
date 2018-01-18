@@ -8,7 +8,7 @@
 
 namespace Network
 {
-	typedef std::function<void(uint32)> CreationFunc;
+	typedef std::function<void(const std::string&, uint32)> CreationFunc;
 
 	class ConnectionManager
 	{

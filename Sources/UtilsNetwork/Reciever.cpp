@@ -29,7 +29,7 @@ namespace Network
 		switch (header.msgType)
 		{
 		case MessageTypes::ConnectionMsg:	result = GetIMessage<ConnectionMessage>(socket);		break;
-		case MessageTypes::TestDataMsg:		result = GetIMessage<TestData>(socket);					break;
+		case MessageTypes::TestDataMsg:		result = GetIMessage<TransformMsg>(socket);					break;
 		case MessageTypes::Authentication:	result = GetIMessage<AuthenticationMessage>(socket);	break;
 		}
 		return result;

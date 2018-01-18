@@ -19,12 +19,6 @@ namespace Network
 	CGateway::~CGateway()
 	{
 		running.store(false);
-
-		if (networkThread_.joinable())
-			networkThread_.join();
-
-		if (recvThread_.joinable())
-			recvThread_.join();
 	}
 	void CGateway::StartServer(uint32 maxClients, uint32 port)
 	{
@@ -97,17 +91,17 @@ namespace Network
 		Log(msg);
 	}
 
-	void CGateway::AddToOutbox(uint32 userId, std::shared_ptr<IMessage> message)
+	void CGateway::AddToOutbox(uint32 userId, IMessagePtr message)
 	{
 		std::lock_guard<std::mutex> lk(outboxMutex_);
 		outbox_.push_back({ userId , message });
 	}
 
-	void CGateway::AddToOutbox(std::shared_ptr<IMessage> message)
-	{
-		std::lock_guard<std::mutex> lk(outboxMutex_);
-		outbox_.push_back({ 0 , message });
-	}
+	//void CGateway::AddToOutbox(IMessagePtr message)
+	//{
+	//	std::lock_guard<std::mutex> lk(outboxMutex_);
+	//	outbox_.push_back({ 0 , message });
+	//}
 
 	//std::shared_ptr<BoxMessage> CGateway::PopInBox()
 	//{

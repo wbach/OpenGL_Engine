@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	gateway.ConnectToServer("baszek", "haslo", serverAdress, 1991);
 
 
-	Network::TestData tdata;
+	Network::TransformMsg tdata;
 	tdata.position = vec3(1.f, 2.f, 3.f);
 	tdata.rotation = vec3(4.f, 5.f, 6.f);
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 		Log("ClientMainLoop.");
 		//auto msg = gateway.PopInBox();
 	
-		auto m = std::make_shared<Network::TestData>(tdata);
+		auto m = std::make_shared<Network::TransformMsg>(tdata);
 		gateway.AddToOutbox(0, m);	
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(400));

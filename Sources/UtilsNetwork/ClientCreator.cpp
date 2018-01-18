@@ -31,6 +31,7 @@ namespace Network
 		if (!AddSocketTcp())	return context_;
 		if (WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION) return context_;
 		if (!WaitForAuthentication(username, password)) return context_;
+		isCreated = true;
 
 		return context_;
 	}

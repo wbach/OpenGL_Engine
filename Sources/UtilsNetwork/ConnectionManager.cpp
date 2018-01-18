@@ -72,7 +72,7 @@ namespace Network
 			context_.users[user->id] = user;
 
 			for (auto s : newUserSubscribes_)
-				s(user->id);
+				s(name, user->id);
 
 			Log(name + " connected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 		}

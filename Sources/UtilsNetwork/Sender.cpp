@@ -29,7 +29,7 @@ namespace Network
 		switch (msg->GetType())
 		{
 		case MessageTypes::ConnectionMsg:	if (!SendIMessage<ConnectionMessage>(socket, msg))		return false;	break;
-		case MessageTypes::TestDataMsg: 	if (!SendIMessage<TestData>(socket, msg))				return false;	break;
+		case MessageTypes::TestDataMsg: 	if (!SendIMessage<TransformMsg>(socket, msg))				return false;	break;
 		case MessageTypes::Authentication: 	if (!SendIMessage<AuthenticationMessage>(socket, msg))	return false;	break;
 		}
 
