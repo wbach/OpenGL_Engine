@@ -13,12 +13,12 @@ namespace GameServer
 		class LocalDatabase
 		{
 		public:
-			LocalDatabase(IDatabaseWrapperPtr dataBase);
+			LocalDatabase(std::shared_ptr<IDatabaseWrapper> dataBase);
 			void Synchronize();
 
 		private:
 			CharactersMap allCharacters_;
-			IDatabaseWrapperPtr dataBase_;
+			std::shared_ptr<IDatabaseWrapper> dataBase_;
 		};
 	} // DataBase
 } // GameServer

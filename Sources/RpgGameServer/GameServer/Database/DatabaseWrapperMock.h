@@ -10,10 +10,8 @@ namespace GameServer
 		public:
 			DatabaseWrapperMock();
 			virtual UserCharacterVec GetCharacterByUser(uint32 id) override;
-			virtual Hero::BaseHeroPtr GetCharacter(uint32 id) override;
-
-		private:
-			
+			virtual CharacterInDataBase GetCharacterData(uint32 id) override;
+			virtual ~DatabaseWrapperMock() override {}
 		};
 	} // Database
 } // GameServer

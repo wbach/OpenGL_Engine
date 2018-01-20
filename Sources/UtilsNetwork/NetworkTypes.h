@@ -1,6 +1,6 @@
 #pragma once
 #include "Types.h"
-#include "Message.h"
+#include "Messages/IMessage.h"
 #include <functional>
 
 namespace Network

@@ -4,7 +4,7 @@
 #include <SDL2/SDL_net.h>
 #include "Thread.hpp"
 #include <chrono>
-#include "Message.h"
+#include "Messages/IMessage.h"
 #include <functional>
 
 namespace Network
@@ -49,6 +49,8 @@ namespace Network
 		for (auto& user : context_.users)
 		{
 			auto msg = receiver_.Receive(user.second->socket);
+
+			if (!msg) continue;
 
 			for (auto& sub : onMessageArrivedSubcribes_)
 			{

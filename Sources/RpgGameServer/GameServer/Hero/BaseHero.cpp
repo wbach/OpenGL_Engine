@@ -1,7 +1,21 @@
 #include "BaseHero.h"
 
-void GameServer::Hero::BaseHero::Handle(const Network::BoxMessage & message)
+namespace GameServer
 {
-	for (auto& c : controllers_)
-		c->Handle(message);
-}
+	namespace Hero
+	{
+		void BaseHero::UpdateAllControllers(float dt)
+		{
+			for (auto& controller : controllers_)
+				controller.second->Update(dt);
+		}
+		void BaseHero::AddController(Controllers::IControllerPtr cotroller)
+		{
+			controllers_[cotroller->GetType()] = cotroller;
+		}
+		Controllers::IControllerPtr BaseHero::GetControllerByType(Controllers::Types type)
+		{
+			return controllers_[type];
+		}
+	} // Hero
+} // GameServer

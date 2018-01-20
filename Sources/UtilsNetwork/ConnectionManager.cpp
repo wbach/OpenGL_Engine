@@ -1,6 +1,8 @@
 #include "ConnectionManager.h"
 #include "Logger/Log.h"
 #include "Reciever.h"
+#include "Messages/Conntection/ConnectionMessage.h"
+#include "Messages/Conntection/AuthenticationMessage.h"
 
 namespace Network
 {

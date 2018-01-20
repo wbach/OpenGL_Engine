@@ -1,6 +1,10 @@
 #include "Sender.h"
 #include "Logger/Log.h"
-#include "Message.h"
+#include "Messages/Conntection/ConnectionMessage.h"
+#include "Messages/Conntection/AuthenticationMessage.h"
+#include "Messages/TransformMessages/TransformMsg.h"
+#include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
+#include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
 
 namespace Network
 {
@@ -29,8 +33,11 @@ namespace Network
 		switch (msg->GetType())
 		{
 		case MessageTypes::ConnectionMsg:	if (!SendIMessage<ConnectionMessage>(socket, msg))		return false;	break;
-		case MessageTypes::TestDataMsg: 	if (!SendIMessage<TransformMsg>(socket, msg))				return false;	break;
+		case MessageTypes::Transform: 	if (!SendIMessage<TransformMsg>(socket, msg))				return false;	break;
 		case MessageTypes::Authentication: 	if (!SendIMessage<AuthenticationMessage>(socket, msg))	return false;	break;
+		case MessageTypes::SelectCharacterReq: 	if (!SendIMessage<SelectCharacterMsgReq>(socket, msg))		return false;	break;
+		case MessageTypes::SelectCharacterResp: 	if (!SendIMessage<SelectCharacterMsgResp>(socket, msg))	return false;	break;
+
 		}
 
 		return true;

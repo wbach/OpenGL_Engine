@@ -4,7 +4,7 @@ namespace GameServer
 {
 	namespace Database
 	{
-		LocalDatabase::LocalDatabase(IDatabaseWrapperPtr dataBase)
+		LocalDatabase::LocalDatabase(std::shared_ptr<IDatabaseWrapper> dataBase)
 			: dataBase_(dataBase)
 		{
 		}

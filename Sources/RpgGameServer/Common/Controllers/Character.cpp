@@ -1,6 +1,5 @@
 #include "Character.h"
 #include "Logger/Log.h"
-#include "Message.h"
 #include "math.hpp"
 
 namespace GameServer
@@ -19,27 +18,6 @@ namespace GameServer
 		void CharacterController::SetPosition(const glm::vec3 & p)
 		{
 		    transform_.SetPosition(p);
-		}
-
-		void CharacterController::Handle(const Network::BoxMessage& message)
-		{
-			if (!CheckType(message))
-				return;
-
-			auto msg = dynamic_cast<Network::TransformMsg*>(message.second.get());
-
-			if (msg == nullptr)
-				return;
-
-			switch (msg->type)
-			{
-			case Network::TransformMessageTypes::MOVE_FORWARD:	AddState(CharacterActions::MOVE_FORWARD); break;
-			case Network::TransformMessageTypes::MOVE_BACKWARD:	AddState(CharacterActions::MOVE_BACKWARD); break;
-			case Network::TransformMessageTypes::ROTATE_RIGHT:	AddState(CharacterActions::ROTATE_RIGHT); break;
-			case Network::TransformMessageTypes::ROTATE_LEFT:	AddState(CharacterActions::ROTATE_LEFT); break;
-			case Network::TransformMessageTypes::JUMP:			/*AddState(CharacterActions::JUMP);*/ break;
-			}
-
 		}
 
 		void CharacterController::Update(float deltaTime)

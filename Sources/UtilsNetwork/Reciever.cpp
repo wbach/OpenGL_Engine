@@ -1,7 +1,11 @@
 #include "Reciever.h"
 #include "Logger/Log.h"
 #include "GLM/GLMUtils.h"
-#include "Message.h"
+#include "Messages/Conntection/ConnectionMessage.h"
+#include "Messages/Conntection/AuthenticationMessage.h"
+#include "Messages/TransformMessages/TransformMsg.h"
+#include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
+#include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
 
 namespace Network
 {
@@ -29,8 +33,10 @@ namespace Network
 		switch (header.msgType)
 		{
 		case MessageTypes::ConnectionMsg:	result = GetIMessage<ConnectionMessage>(socket);		break;
-		case MessageTypes::TestDataMsg:		result = GetIMessage<TransformMsg>(socket);					break;
+		case MessageTypes::Transform:		result = GetIMessage<TransformMsg>(socket);				break;
 		case MessageTypes::Authentication:	result = GetIMessage<AuthenticationMessage>(socket);	break;
+		case MessageTypes::SelectCharacterReq:	result = GetIMessage<SelectCharacterMsgReq>(socket);	break;
+		case MessageTypes::SelectCharacterResp:	result = GetIMessage<SelectCharacterMsgResp>(socket);	break;
 		}
 		return result;
 	}

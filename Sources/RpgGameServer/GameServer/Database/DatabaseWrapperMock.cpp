@@ -1,6 +1,7 @@
 #include "DatabaseWrapperMock.h"
 #include "../Hero/Classes/Knight.h"
 
+
 namespace GameServer
 {
 	namespace Database
@@ -18,9 +19,11 @@ namespace GameServer
 			return {98, 101, 56};
 		}
 
-		Hero::BaseHeroPtr DatabaseWrapperMock::GetCharacter(uint32 id)
+		CharacterInDataBase DatabaseWrapperMock::GetCharacterData(uint32 id)
 		{
-			return Hero::BaseHeroPtr();
+			CharacterInDataBase data;
+			data.mapId = 1;
+			return data;
 		}
 
 	} // Database

@@ -38,13 +38,11 @@ namespace GameServer
 	{
 	public:
 		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
-
-		virtual void Handle(const Network::BoxMessage& mesage) override;
 		virtual void Update(float dt) override;
+		void AddState(CharacterActions::Type action);
 
 	private:
 		CharacterActions::Type GetAction() { return action; }
-		void AddState(CharacterActions::Type action);
 		void SetPosition(const glm::vec3& p);
 
 		bool FindState(CharacterActions::Type state);

@@ -1,6 +1,6 @@
 #pragma once
-#include "Message.h"
-#include "NetworkTypes.h"
+#include "ControllersTypes.h"
+#include <memory>
 
 namespace GameServer
 {
@@ -11,16 +11,10 @@ namespace GameServer
 		public:
 			virtual ~IController() {}
 			virtual void Update(float dt) = 0;
-			virtual void Handle(const Network::BoxMessage& mesage) = 0;
-
-		protected:
-			bool CheckType(const Network::BoxMessage& mesage)
-			{
-				return mesage.second->GetType() == type_;
-			}
+			Controllers::Types GetType() { return type_; }
 
 		private:
-			Network::MessageTypes type_;
+			Controllers::Types type_;
 		};
 
 		typedef std::shared_ptr<IController> IControllerPtr;

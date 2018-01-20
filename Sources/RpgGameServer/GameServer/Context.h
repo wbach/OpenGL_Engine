@@ -1,22 +1,34 @@
 #pragma once
 #include "Database/IDatabaseWrapper.h"
-#include "Message.h"
+#include "Messages/IMessage.h"
+#include "User.h"
+#include "Manager.h"
+#include "Mutex.hpp"
 
 namespace GameServer
 {
 	typedef std::function<void(uint32, Network::IMessagePtr)> SendMessage;
 
-	struct Context
+	class Context
 	{
-		Context() 
-		{
-		}
+	public:
 		Context(Database::IDatabaseWrapperPtr databaseWrapperPtr, SendMessage sendMessage)
 			: databaseWrapper_(databaseWrapperPtr)
 			, sendMessage_(sendMessage)
+			, manager_(databaseWrapper_)
 		{}
 
+		void NewUser(const std::string& name, uint32 id);
+		const UsersMap& GetUsers();
+		User& GetUser(uint32 id) { return users_[id]; }
+
+	public:
 		Database::IDatabaseWrapperPtr databaseWrapper_;
 		SendMessage sendMessage_;
+		Manager		manager_;
+
+	private:
+		std::mutex usersMutex;
+		UsersMap   users_;
 	};
-}
+} // GameServer

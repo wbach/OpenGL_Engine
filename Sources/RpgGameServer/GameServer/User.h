@@ -1,17 +1,12 @@
 #pragma once
 #include "Types.h"
-#include "Message.h"
-#include "Context.h"
 #include <vector>
 #include <list>
+#include "optional.hpp"
+#include <unordered_map>
 
 namespace GameServer
 {
-	namespace Database
-	{
-		class IDatabaseWrapper;
-	}
-
 	enum UserState
 	{
 		CharacterSelect,
@@ -19,23 +14,29 @@ namespace GameServer
 		InGame
 	};
 
+	typedef std::vector<uint32> Characters;
+
 	class User
 	{
 	public:
 		User() {}
-		User(Context, const std::string& name, uint32 id);
+		User(const std::string& name, uint32 id);
 		uint32 GetId();
-		uint32 GetUsageCharacterId();
-		Network::IMessagePtr Handle(const Network::IMessagePtr);
+		bool HasCharacter(uint32 id);
+		void SetUsageCharacter(uint32);
+		void SetCharacters(Characters characters);
+		wb::optional<uint32> GetUsageCharacterId();
 
 	private:
 		uint32 id_;
-		std::string name_;		
+		std::string name_;
 		
-		uint32 usageCharacterId_;
-		std::vector<uint32> characters_;
+		UserState state_;
+		Characters  characters_;
 
-		std::list<UserState> state_;
-		Context context_;
+		wb::optional<uint32>  usageCharacterId_;
 	};
+
+	typedef std::unordered_map<uint32, User> UsersMap;
+
 } // GameServer

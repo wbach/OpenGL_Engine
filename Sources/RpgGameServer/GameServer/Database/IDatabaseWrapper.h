@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include "Types/Character.h"
 #include "../Hero/BaseHero.h"
 #include <vector>
 #include <memory>
@@ -17,13 +18,12 @@ namespace GameServer
 		public:
 			virtual ~IDatabaseWrapper() {}
 			virtual UserCharacterVec  GetCharacterByUser(uint32 id) = 0;
-			virtual Hero::BaseHeroPtr GetCharacter(uint32 id) = 0;
+			virtual CharacterInDataBase GetCharacterData(uint32 id) = 0;
 
 		protected:
 			CharactersMap allCharacters_;
 		};
 
 		typedef std::shared_ptr<IDatabaseWrapper> IDatabaseWrapperPtr;
-
 	} // DataBase
 } // GameServer
