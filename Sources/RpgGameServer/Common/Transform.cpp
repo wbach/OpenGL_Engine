@@ -27,6 +27,15 @@ namespace common
 	{
 	}
 
+	Transform::Transform(const Transform & t)
+		: position(t.position)
+		, rotation(t.rotation)
+		, scale(t.scale)
+		, matrix(t.matrix)
+		, normalized(t.normalized)
+	{
+	}
+
 	void Transform::IncrasePosition(float dx, float dy, float dz, uint32 index)
 	{
 		IncrasePosition(vec3(dx, dy, dz));

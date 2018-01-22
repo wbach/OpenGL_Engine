@@ -53,7 +53,22 @@ namespace GameServer
 			case Network::TransformMessageTypes::JUMP:			/*AddState(CharacterActions::JUMP);*/ break;
 			}		
 
+			Network::TransformMsg tdata;
+			tdata.position = characterController->GetTransform().GetPosition();
+			tdata.rotation = characterController->GetTransform().GetRotation();
+			tdata.id = msg->id;
+			tdata.type = msg->type;
+			auto m = std::make_shared<Network::TransformMsg>(tdata);
 
+			SendToAll(m);
+		}
+
+		void CharacterControllerHandler::SendToAll(const Network::IMessagePtr& message)
+		{
+			for (auto& user : context_.GetUsers())
+			{
+				context_.sendMessage_(user.first, message);
+			}
 		}
 	} // Handler
 } // GameServer

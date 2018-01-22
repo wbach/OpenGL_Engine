@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 	std::string  serverAdress  = Utils::ReadFile(serverAdressFilename);
 	Log("Server : " + serverAdress);
 
-	gateway.SubscribeOnMessageArrived(std::bind(&OnMessageArrived, std::placeholders::_1));
+	//gateway.SubscribeOnMessageArrived(std::bind(&OnMessageArrived, std::placeholders::_1));
 	
 	gateway.ConnectToServer("baszek", "haslo", serverAdress, 1991);
 	Network::SelectCharacterMsgReq characterSelectReq;
@@ -66,6 +66,8 @@ int main(int argc, char* argv[])
 	
 		auto m = std::make_shared<Network::TransformMsg>(tdata);
 		gateway.AddToOutbox(0, m);	
+
+		gateway.PopInBox();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(400));
 	}

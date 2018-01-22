@@ -7,7 +7,8 @@ namespace GameServer
 	namespace Controllers
 	{
 		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower)
-			: transform_(transform)
+			: IController(CharacterControllerType)
+			, transform_(transform)
 			, turnSpeed_(turnSpeed)
 			, jumpPower_(jumpPower)
 			, runSpeed_(runSpeed)
@@ -62,6 +63,11 @@ namespace GameServer
 
 			if (action == CharacterActions::ROTATE_RIGHT)
 				RotateRight();
+		}
+
+		common::Transform & CharacterController::GetTransform()
+		{
+			return transform_;
 		}
 
 		float CharacterController::GetTime() const

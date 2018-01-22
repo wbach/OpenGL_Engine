@@ -9,6 +9,9 @@ namespace GameServer
 		class IController
 		{
 		public:
+			IController(Controllers::Types type)
+				: type_(type)
+			{}
 			virtual ~IController() {}
 			virtual void Update(float dt) = 0;
 			Controllers::Types GetType() { return type_; }

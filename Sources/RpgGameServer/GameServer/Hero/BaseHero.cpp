@@ -15,6 +15,9 @@ namespace GameServer
 		}
 		Controllers::IControllerPtr BaseHero::GetControllerByType(Controllers::Types type)
 		{
+			if (controllers_.count(type) == 0)
+				return nullptr;
+
 			return controllers_[type];
 		}
 	} // Hero

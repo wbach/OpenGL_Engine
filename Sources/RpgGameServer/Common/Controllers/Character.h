@@ -40,6 +40,7 @@ namespace GameServer
 		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
 		virtual void Update(float dt) override;
 		void AddState(CharacterActions::Type action);
+		common::Transform& GetTransform();
 
 	private:
 		CharacterActions::Type GetAction() { return action; }

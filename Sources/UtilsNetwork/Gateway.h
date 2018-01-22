@@ -22,16 +22,16 @@ namespace Network
 		void StartServer(uint32 maxClients, uint32 port);
 		void ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 		void SubscribeForNewUser(CreationFunc func);
-		void SubscribeOnMessageArrived(OnMessageArrived func);
+		//void SubscribeOnMessageArrived(OnMessageArrived func);
 		void AddToOutbox(uint32 userId, IMessagePtr message);
 		//void AddToOutbox(IMessagePtr message);
-		//std::shared_ptr<BoxMessage> PopInBox();
+		std::shared_ptr<BoxMessage> PopInBox();
 
 	private:
 		void ReceiveAllMessages();
 		void SendAllMessages();
 		void MainLoop();
-		//void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
+		void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
 		void ClearOutbox();
 		void PrintFps();
 
@@ -51,7 +51,7 @@ namespace Network
 		std::mutex outboxMutex_;
 		std::mutex inboxMutex_;
 		std::list<BoxMessage> outbox_;
-		//std::list<BoxMessage> inbox_;
+		std::list<BoxMessage> inbox_;
 		std::list<OnMessageArrived> onMessageArrivedSubcribes_;
 	};
 

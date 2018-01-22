@@ -19,7 +19,9 @@ namespace common
 		Transform(const vec3& pos);
 		Transform(const vec3& pos, const vec3& rot);
 		Transform(const vec3& pos, const vec3& rot, const vec3& scale);
-		
+		Transform(const Transform& transform);
+
+
 		void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
 		void IncrasePosition(vec3 v, uint32 index = 0);
 		void IncreaseRotation(float dx, float dy, float dz);

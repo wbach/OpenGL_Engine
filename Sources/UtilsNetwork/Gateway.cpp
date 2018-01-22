@@ -51,11 +51,13 @@ namespace Network
 			auto msg = receiver_.Receive(user.second->socket);
 
 			if (!msg) continue;
+			
+			AddToInbox(user.first, msg);
 
-			for (auto& sub : onMessageArrivedSubcribes_)
+			/*for (auto& sub : onMessageArrivedSubcribes_)
 			{
 				sub({ user.first, msg });
-			}
+			}*/
 		}
 	}
 
@@ -79,6 +81,12 @@ namespace Network
 			SendAllMessages();
 			timeMeasurer_.CalculateAndLock();		
 		}
+	}
+
+	void CGateway::AddToInbox(uint32 userId, std::shared_ptr<IMessage> message)
+	{
+		std::lock_guard<std::mutex> l(inboxMutex_);
+		inbox_.push_back({ userId , message });
 	}
 
 	void CGateway::ClearOutbox()
@@ -105,20 +113,22 @@ namespace Network
 	//	outbox_.push_back({ 0 , message });
 	//}
 
-	//std::shared_ptr<BoxMessage> CGateway::PopInBox()
-	//{
-	//	if (inbox_.empty())
-	//		return nullptr;
-	//	auto result = inbox_.front();
-	//	return std::make_shared<BoxMessage>(result);
-	//}
+	std::shared_ptr<BoxMessage> CGateway::PopInBox()
+	{
+		std::lock_guard<std::mutex> l(inboxMutex_);
+		if (inbox_.empty())
+			return nullptr;
+		auto result = inbox_.front();
+		inbox_.pop_front();
+		return std::make_shared<BoxMessage>(result);
+	}
 
 	void CGateway::SubscribeForNewUser(CreationFunc func)
 	{
 		connectionManager_.SubscribeForNewUser(func);
 	}
-	void CGateway::SubscribeOnMessageArrived(OnMessageArrived func)
+	/*void CGateway::SubscribeOnMessageArrived(OnMessageArrived func)
 	{
 		onMessageArrivedSubcribes_.push_back(func);
-	}
+	}*/
 }

@@ -16,7 +16,7 @@ namespace GameServer
 	{		
 		gateway_->StartServer(30, 1991);
 		gateway_->SubscribeForNewUser(std::bind(&Context::NewUser, &context_, std::placeholders::_1, std::placeholders::_2));
-		gateway_->SubscribeOnMessageArrived(std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
+		//gateway_->SubscribeOnMessageArrived(std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
 
 		Handler::IHandlerPtr distributeHandler(new Handler::DistributeHandler(context_));
 		Handler::IHandlerPtr selectCharacterHandler(new Handler::SelectCharacterHandler(context_));
@@ -24,7 +24,7 @@ namespace GameServer
 		
 		dispatcher_.AddHandlers(
 			{
-			distributeHandler,
+			//distributeHandler,
 			selectCharacterHandler,
 			characterControllerHandler
 			});
@@ -40,6 +40,9 @@ namespace GameServer
 		{
 			ProccesSdlEvent();
 			context_.manager_.UpdateAllControllers(static_cast<float>(timeMeasurer.GetDeltaTime()));
+			auto msg = gateway_->PopInBox();
+			if (msg != nullptr)
+				OnMessageArrived(*msg.get());
 			timeMeasurer.CalculateAndLock();
 		}
 	}
