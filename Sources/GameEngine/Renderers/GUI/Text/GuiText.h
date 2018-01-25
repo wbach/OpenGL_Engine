@@ -14,6 +14,7 @@ public:
     }
     virtual ~CGuiText() override
     {
+		Log(__FUNCTION__);
     }
     virtual void Init() override
     {

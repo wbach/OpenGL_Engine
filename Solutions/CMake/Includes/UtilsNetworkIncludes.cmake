@@ -16,6 +16,7 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/Messages/MessageStatus.h
 ../../Sources/UtilsNetwork/Messages/MessageTarget.h
 ../../Sources/UtilsNetwork/Messages/MessageTypes.h
+../../Sources/UtilsNetwork/Messages/PingMessage.h
 ../../Sources/UtilsNetwork/Messages/SelectCharacter/SelectCharacterMsgReq.h
 ../../Sources/UtilsNetwork/Messages/SelectCharacter/SelectCharacterMsgResp.h
 ../../Sources/UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h

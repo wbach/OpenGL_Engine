@@ -89,8 +89,9 @@ namespace Network
 		{
 			auto& user = context_.users[msg.first];
 			auto socket = user->socket;
+			auto status = sender_.SendTcp(socket, msg.second.get());
 
-			if (sender_.SendTcp(socket, msg.second.get()) == SentStatus::ERROR)
+			if (status == SentStatus::ERROR)
 			{
 				if (!user->connectionFailsStart)
 				{

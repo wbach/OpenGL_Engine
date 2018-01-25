@@ -3,3 +3,5 @@
 #undef GetMessage
 #undef near
 #undef far
+#undef SentStatus
+#undef ERROR

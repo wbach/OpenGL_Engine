@@ -3,6 +3,7 @@
 #include "GameActions.h"
 #include "Types.h"
 #include <list>
+#include <vector>
 #include <unordered_map>
 #include <set>
 

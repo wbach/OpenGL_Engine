@@ -10,7 +10,6 @@ set(RpgGameServerIncludes
 ../../Sources/RpgGameServer/GameServer/Database/DatabaseWrapperMock.h
 ../../Sources/RpgGameServer/GameServer/Database/IDatabaseWrapper.h
 ../../Sources/RpgGameServer/GameServer/Database/LocalDatabase.h
-../../Sources/RpgGameServer/GameServer/Database/Types/Character.h
 ../../Sources/RpgGameServer/GameServer/Database/User.h
 ../../Sources/RpgGameServer/GameServer/Dispatcher.h
 ../../Sources/RpgGameServer/GameServer/GameServer.h
@@ -21,6 +20,7 @@ set(RpgGameServerIncludes
 ../../Sources/RpgGameServer/GameServer/Handlers/SelectCharacter/SelectCharacterHandler.h
 ../../Sources/RpgGameServer/GameServer/Hero/BaseHero.h
 ../../Sources/RpgGameServer/GameServer/Hero/CharacetrContext.h
+../../Sources/RpgGameServer/GameServer/Hero/CharacterData.h
 ../../Sources/RpgGameServer/GameServer/Hero/Classes/Knight.h
 ../../Sources/RpgGameServer/GameServer/Hero/Stats.h
 ../../Sources/RpgGameServer/GameServer/Manager.h

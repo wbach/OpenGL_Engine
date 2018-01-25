@@ -12,6 +12,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Debuger.h
 ../../Sources/GameEngine/Engine/Engine.h
+../../Sources/GameEngine/Engine/EngineEvent.h
 ../../Sources/GameEngine/Engine/LoD.h
 ../../Sources/GameEngine/Engine/Projection.h
 ../../Sources/GameEngine/Input/GameActions.h
@@ -40,6 +41,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/FullRenderer.h
 ../../Sources/GameEngine/Renderers/Grass/GrassRenderer.h
 ../../Sources/GameEngine/Renderers/Grass/Shaders/GrassShader.h
+../../Sources/GameEngine/Renderers/GUI/GuiContext.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.h
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Text/Font.h
