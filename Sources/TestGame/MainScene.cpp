@@ -14,8 +14,8 @@
 MainScene::MainScene(GameEngine::CEngine &engine)
     : engine(engine)
 	, debuger(engine.inputManager)
-{
-	//InitGui();
+{	
+	InitGui();
 	debuger.AddAction(KeyCodes::R, std::bind(&MainScene::ReloadShadersInRenderer, this));
 }
 
@@ -26,6 +26,8 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
+	
+
     auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
     auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
     engine.renderers[0]->Subscribe(bialczyk);
@@ -222,10 +224,6 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 
 void MainScene::InitGui()
 {
-	CGUIRenderer* gui_renderer = new CGUIRenderer();
-	auto guiText = new CGuiText("GUI/consola.ttf", engine.projection.GetWindowSize());
-	gui_renderer->AddElement(guiText);
-
 	SGuiTextElement score;
 	score.text =
 		"V -  on/off debug keys."
@@ -233,12 +231,10 @@ void MainScene::InitGui()
 	score.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
 
 	score.position = glm::vec2(-0.9, 0.9);
-	guiText->texts["Line_p1"] = score;
+	engine.gui.texts->texts["Line_p1"] = score;	
 
-	engine.renderers.emplace_back(gui_renderer);
-
-	debuger.SetGuiRenderer(gui_renderer);
-	debuger.Init();
+	//debuger.SetGuiRenderer(engine.gui.renderer);
+	//debuger.Init();
 	//gui_renderer->Init();
 }
 

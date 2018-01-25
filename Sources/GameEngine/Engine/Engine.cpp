@@ -73,12 +73,6 @@ namespace GameEngine
 		engineEvents.push_back(event);
 	}
 
-	void CEngine::AddRenderer(RenderersTypes type, CRenderer* renderer)
-	{
-		rendererTypesMap[type] = renderers.size();
-		renderers.emplace_back(renderer);
-	}
-
 	CDisplayManager &CEngine::GetDisplayManager()
 	{
 		return *displayManager.get();
@@ -220,9 +214,11 @@ namespace GameEngine
 		auto rendererType = EngineConf.rendererType;
 
 		if (rendererType == SEngineConfiguration::RendererType::FULL_RENDERER)
-			AddRenderer(RenderersTypes::ObjectsRenderer, new FullRenderer(&projection));
+			renderers.emplace_back(new FullRenderer(&projection));
 		else
-			AddRenderer(RenderersTypes::ObjectsRenderer, new SimpleRenderer(&projection));
+			renderers.emplace_back(new SimpleRenderer(&projection));
+
+		InitGuiRenderer();
 	}
 
 	void CEngine::LoadScene()
@@ -235,5 +231,13 @@ namespace GameEngine
 	{
 		for (auto& renderer : renderers)
 			renderer->Init();
+	}
+
+	void CEngine::InitGuiRenderer()
+	{
+		gui.renderer = new CGUIRenderer();
+		gui.texts = new CGuiText("GUI/consola.ttf", projection.GetWindowSize());
+		gui.renderer->AddElement(gui.texts);
+		renderers.emplace_back(gui.renderer);
 	}
 } // GameEngine

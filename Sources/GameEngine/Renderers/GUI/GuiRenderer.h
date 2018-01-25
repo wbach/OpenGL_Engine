@@ -19,5 +19,5 @@ public:
 	void AddElement(CGuiElement* element);
 
 private: 
-    std::vector<std::unique_ptr<CGuiElement>> guiElements;
+    std::vector<std::shared_ptr<CGuiElement>> guiElements;
 };

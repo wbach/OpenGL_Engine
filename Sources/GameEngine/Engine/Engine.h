@@ -2,6 +2,7 @@
 #include "../Display/DisplayManager.hpp"
 #include "../Input/InputManager.h"
 #include "../Resources/ResourceManager.h"
+#include "../Renderers/GUI/GuiContext.h"
 #include "Projection.h"
 #include "ThreadSync.h"
 #include "EngineEvent.h"
@@ -13,12 +14,6 @@ class CLoadingScreenRenderer;
 
 namespace GameEngine
 {
-	enum class RenderersTypes
-	{
-		ObjectsRenderer,
-		GuiRenderer
-	};
-
 	class CEngine
 	{
 	private:
@@ -32,20 +27,20 @@ namespace GameEngine
 		void GameLoop();
 		void LoadNextScene();
 		void AddEngineEvent(EngineEvent event);
-		void AddRenderer(RenderersTypes type, CRenderer* renderer);
 
 	public:
+		GUI::GuiContext gui;
 		CDisplayManager & GetDisplayManager();
 		CProjection projection;
 		CInputManager inputManager;
 		std::shared_ptr<CScene> scene;
 		std::vector<std::shared_ptr<CScene>> scenes;
-		std::vector<std::unique_ptr<CRenderer>> renderers;
-		std::unordered_map<RenderersTypes, uint32> rendererTypesMap;
+		std::vector<std::shared_ptr<CRenderer>> renderers;
 
 	private:
 		void ReadConfigFile(const std::string& file_name);
 		void SetDisplay();
+		void InitGuiRenderer();
 		ApiMessages::Type MainLoop();
 		void SetDefaultRenderer();
 		void LoadScene();

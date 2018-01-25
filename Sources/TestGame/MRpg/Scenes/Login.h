@@ -29,7 +29,6 @@ namespace MmmoRpg
 		Network::CGateway& gateway_;
 		std::string serverAddress_;
 
-		CGuiText* guitexts;
 		SGuiTextElement guiLogin_;
 		SGuiTextElement guiPass_;
 
