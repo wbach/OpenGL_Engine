@@ -25,6 +25,7 @@ namespace Utils
 			void PrintFps();
 
 			bool isFree;
+			bool isStarted;
 			frameFunc func;
 			uint32 threadId;
 			std::thread thread;

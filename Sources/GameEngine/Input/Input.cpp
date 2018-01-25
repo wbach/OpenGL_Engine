@@ -1,8 +1,69 @@
 #include "Input.h"
+#include <algorithm>
 
 CInput::CInput()
 {
 	SetDefaultKeys();
+
+	smallCharKeys =
+	{
+		{ KeyCodes::Q, 'q' },
+		{ KeyCodes::W, 'w' },
+		{ KeyCodes::E, 'e' },
+		{ KeyCodes::R, 'r' },
+		{ KeyCodes::T, 't' },
+		{ KeyCodes::Y, 'y' },
+		{ KeyCodes::U, 'u' },
+		{ KeyCodes::I, 'i' },
+		{ KeyCodes::O, 'o' },
+		{ KeyCodes::O, 'p' },
+		{ KeyCodes::A, 'a' },
+		{ KeyCodes::S, 's' },
+		{ KeyCodes::D, 'd' },
+		{ KeyCodes::F, 'f' },
+		{ KeyCodes::G, 'g' },
+		{ KeyCodes::H, 'h' },
+		{ KeyCodes::J, 'j' },
+		{ KeyCodes::K, 'k' },
+		{ KeyCodes::L, 'l' },
+		{ KeyCodes::Z, 'z' },
+		{ KeyCodes::X, 'x' },
+		{ KeyCodes::C, 'c' },
+		{ KeyCodes::V, 'v' },
+		{ KeyCodes::B, 'b' },
+		{ KeyCodes::N, 'n' },
+		{ KeyCodes::M, 'm' }
+	};
+
+	bigCharKeys =
+	{
+		{ KeyCodes::Q, 'Q' },
+		{ KeyCodes::W, 'W' },
+		{ KeyCodes::E, 'E' },
+		{ KeyCodes::R, 'R' },
+		{ KeyCodes::T, 'T' },
+		{ KeyCodes::Y, 'Y' },
+		{ KeyCodes::U, 'U' },
+		{ KeyCodes::I, 'I' },
+		{ KeyCodes::O, 'O' },
+		{ KeyCodes::O, 'P' },
+		{ KeyCodes::A, 'A' },
+		{ KeyCodes::S, 'S' },
+		{ KeyCodes::D, 'D' },
+		{ KeyCodes::F, 'F' },
+		{ KeyCodes::G, 'G' },
+		{ KeyCodes::H, 'H' },
+		{ KeyCodes::J, 'J' },
+		{ KeyCodes::K, 'K' },
+		{ KeyCodes::L, 'L' },
+		{ KeyCodes::Z, 'Z' },
+		{ KeyCodes::X, 'X' },
+		{ KeyCodes::C, 'C' },
+		{ KeyCodes::V, 'V' },
+		{ KeyCodes::B, 'B' },
+		{ KeyCodes::N, 'N' },
+		{ KeyCodes::M, 'M' }
+	};
 }
 
 void CInput::SetDefaultKeys()
@@ -35,27 +96,41 @@ void CInput::SetDefaultKeys()
 
 bool CInput::GetKeyDown(KeyCodes::Type  i)
 {	
-	if (GetKey(i))
-	{
-        for (auto& k : pressedKeys)
-		{
-			if (k.first == i)
-			{
-				k.second = true;
-				return false;
-			}
-		}
+	if (!GetKey(i))
+		return false;
 
-        pressedKeys.push_back({ i, true });
-		return true;
-	}	
-	return false;
+	if (IsPressed(i))
+		return false;
+
+    pressedKeys.push_back({ i, true });
+	return true;
 }
 
 bool CInput::GetKeyUp(KeyCodes::Type i)
 {
 	//m_PressedKeys.erase(i);	
 	return false;
+}
+
+std::vector<KeyCodes::Type> CInput::GetKeyDown()
+{
+	auto key = GetKey();
+
+	if (key.empty())
+		return {};
+
+	std::vector<KeyCodes::Type> result;
+
+	for (auto i : key)
+	{
+		if (IsPressed(i))
+			continue;
+
+		pressedKeys.push_back({ i, true });
+		result.push_back(i);
+	}
+	
+	return result;
 }
 
 void CInput::CheckReleasedKeys()
@@ -72,4 +147,46 @@ void CInput::CheckReleasedKeys()
 			return;
 		}
 	}
+}
+
+std::vector<char> CInput::GetCharKey(KeyCodes::Type key)
+{
+	return {};
+}
+
+std::vector<char> CInput::GetCharKey()
+{
+	std::unordered_map<KeyCodes::Type, char> * map = &smallCharKeys;
+	std::vector<char> result;
+
+	if(GetKey(KeyCodes::LSHIFT))
+		map = &bigCharKeys;
+
+	auto key = GetKeyDown();
+
+	if (key.empty())
+		return result;
+
+	for (auto k : key)
+	{
+		if (map->count(k) == 0)
+			continue;
+
+		char c = (*map)[k];
+		result.push_back(c);
+	}
+	return result;
+}
+
+bool CInput::IsPressed(KeyCodes::Type key)
+{
+	for (auto& k : pressedKeys)
+	{
+		if (k.first == key)
+		{
+			k.second = true;
+			return true;
+		}
+	}
+	return false;
 }

@@ -17,14 +17,18 @@ namespace GameServer
 	void Manager::AddHero(uint32 id)
 	{
 		auto characterData = databaseWrapper_->GetCharacterData(id);
+		auto characterStats = databaseWrapper_->GetCharacterStats(id);
+
+		if (!characterData)
+			return;
 
 		auto knight = HeroFactory::CreateKnight();
 
-		knight->context_.mapId = characterData.mapId;
-		knight->context_.stats_ = characterData.stats;
+		knight->context_.data_.mapId = characterData.value().mapId;
+		knight->context_.stats_ = characterStats.value();
 		CreateCharacterController(knight, Controllers::CharacterControllerType);
 
-		maps_[characterData.mapId].AddCharacter(id, knight);
+		maps_[characterData.value().mapId].AddCharacter(id, knight);
 	}
 	void Manager::UpdateAllControllers(float dt)
 	{

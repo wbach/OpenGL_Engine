@@ -15,7 +15,7 @@ MainScene::MainScene(GameEngine::CEngine &engine)
     : engine(engine)
 	, debuger(engine.inputManager)
 {
-	InitGui();
+	//InitGui();
 	debuger.AddAction(KeyCodes::R, std::bind(&MainScene::ReloadShadersInRenderer, this));
 }
 
@@ -222,7 +222,6 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 
 void MainScene::InitGui()
 {
-	return;
 	CGUIRenderer* gui_renderer = new CGUIRenderer();
 	auto guiText = new CGuiText("GUI/consola.ttf", engine.projection.GetWindowSize());
 	gui_renderer->AddElement(guiText);

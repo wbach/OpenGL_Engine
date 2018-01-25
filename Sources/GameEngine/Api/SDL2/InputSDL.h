@@ -13,10 +13,14 @@ public:
 	virtual bool GetKey(KeyCodes::Type  i) override;
 	virtual bool GetKeyDown(KeyCodes::Type  i) override;
 	
+	virtual std::vector<KeyCodes::Type> GetKey() override;
+	virtual std::vector<KeyCodes::Type> GetKeyUp() override;
+	virtual std::vector<KeyCodes::Type> GetKeyDown() override;
+
 	//Mouse
-	virtual bool GetMouseKeyDown(int key) override;
-	virtual bool GetMouseKeyUp(int key) override;
-	virtual bool GetMouseKey(int key) override;
+	virtual bool GetMouseKeyDown(KeyCodes::Type key) override;
+	virtual bool GetMouseKeyUp(KeyCodes::Type key) override;
+	virtual bool GetMouseKey(KeyCodes::Type key) override;
 	virtual vec2 CalcualteMouseMove() override;
 	virtual vec2 GetMousePosition() override;
 
@@ -24,8 +28,10 @@ public:
 	virtual void SetKeyToBuffer(int key, bool value) override;
 	virtual void ClearKeyBuffer() override;
 	virtual void SetCursorPosition(int x, int y) override;
+
+	virtual void GetPressedKeys();
 private:
-	int KeyToSDL(int i);
+	std::unordered_map<KeyCodes::Type, int> keys;
 
     SDL_Window* sdlWindow;
 };

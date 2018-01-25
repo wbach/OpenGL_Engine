@@ -9,6 +9,7 @@ namespace Utils
 			, func(func)
 			, isRunning(true)
 			, isFree(false)
+			, isStarted(false)
 		{
 		}
 
@@ -17,6 +18,7 @@ namespace Utils
 			, func(s.func)
 			, isRunning(s.isRunning.load())
 			, isFree(s.isFree)
+			, isStarted(false)
 		{
 		}
 
@@ -24,10 +26,14 @@ namespace Utils
 		{
 			thread = std::thread(std::bind(&Subscriber::Update, this));
 			timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
+			isStarted = true;
 		}
 
 		void Subscriber::Stop()
 		{
+			if (!isStarted)
+				return;
+
 			isRunning.store(false);
 			thread.join();
 		}
@@ -45,6 +51,7 @@ namespace Utils
 				}
 				timeMeasurer.EndFrame();
 			}
+			Log("Subscriber::Update, End thread.");
 		}
 
 		void Subscriber::PrintFps()

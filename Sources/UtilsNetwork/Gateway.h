@@ -36,23 +36,27 @@ namespace Network
 		void PrintFps();
 
 	private:
-		ConectContext context_;
-		ConnectionManager connectionManager_;
+		ISDLNetWrapperPtr iSDLNetWrapperPtr_;
+
 		Sender sender_;
 		Receiver receiver_;
-		std::thread  networkThread_;
-		std::thread  recvThread_;
-		std::atomic_bool running;
+		ConectContext context_;
+		ConnectionManager connectionManager_;
+
 		ServerCreator serverCreator_;
 		ClientCreator clientCreator_;
-		Utils::Time::CTimeMeasurer timeMeasurer_;
-		bool isServer;
-
+		
 		std::mutex outboxMutex_;
 		std::mutex inboxMutex_;
+
 		std::list<BoxMessage> outbox_;
 		std::list<BoxMessage> inbox_;
 		std::list<OnMessageArrived> onMessageArrivedSubcribes_;
+
+		Utils::Time::CTimeMeasurer timeMeasurer_;
+		bool isServer;
+		std::thread  networkThread_;
+		std::atomic_bool running;
 	};
 
 	typedef std::shared_ptr<CGateway> GatewayPtr;

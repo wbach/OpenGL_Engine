@@ -1,20 +1,16 @@
 #include "ClientCreator.h"
 #include "Utils.h"
 #include "Logger/Log.h"
-#include "Reciever.h"
-#include "Sender.h"
 #include "Messages/Conntection/ConnectionMessage.h"
 #include "Messages/Conntection/AuthenticationMessage.h"
 
 namespace Network
 {
-	ClientCreator::ClientCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper)
+	ClientCreator::ClientCreator(ISDLNetWrapperPtr sdlNetWrapper)
 		: sdlNetWrapper_(sdlNetWrapper)
+		, sender_(sdlNetWrapper)
+		, receiver_(sdlNetWrapper)
 	{
-	}
-
-	ClientCreator::ClientCreator(ISDLNetWrapper * sdlNetWrapper)
-	{		
 	}
 
 	ConectContext ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
@@ -37,16 +33,15 @@ namespace Network
 	ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
 	{		
 		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);	
-
-		Receiver receiver;
-		auto msg = receiver.Receive(context_.socket);
+		
+		RecvError err;
+		auto msg = receiver_.Receive(context_.socket, err);
 
 		if (msg == nullptr)
 			return ClientCreator::NOT_CONNECTED;
 
 		auto connectingMsg = GetAndValidateConnectionMessage(msg.get());
-		if (connectingMsg == nullptr) return ClientCreator::NOT_CONNECTED;
-		
+		if (connectingMsg == nullptr) return ClientCreator::NOT_CONNECTED;		
 
 		if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
 		{
@@ -65,13 +60,12 @@ namespace Network
 	{
 		AuthenticationMessage msg(username, password);
 
-		Sender sender;
-		sender.SendTcp(context_.socket, &msg);
+		sender_.SendTcp(context_.socket, &msg);
 		
 		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);		
 
-		Receiver receiver;
-		auto recvMsg = receiver.Receive(context_.socket);
+		RecvError err;
+		auto recvMsg = receiver_.Receive(context_.socket, err);
 
 		if (recvMsg == nullptr)
 			return false;

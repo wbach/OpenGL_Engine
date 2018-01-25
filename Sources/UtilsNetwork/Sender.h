@@ -8,31 +8,38 @@
 
 namespace Network
 {	
+	enum class SentStatus
+	{
+		OK,
+		ERROR,
+		EMPTY,
+		CAST_ERROR
+	};
 	class Sender
 	{
 	public:
-		Sender(ISDLNetWrapper* sdlNetWrapper = new SDLNetWrapper());
-		bool SendTcp(TCPsocket socket, IMessage* msg);
+		Sender(ISDLNetWrapperPtr sdlNetWrapper);
+		SentStatus SendTcp(TCPsocket socket, IMessage* msg);
 
 	private:
 		template <class T>
-		bool SendIMessage(TCPsocket socket, IMessage* msg)
+		SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
 		{
 			auto final_msg = dynamic_cast<T*>(msg);
 			if (final_msg == nullptr)
 			{
 				Log("[Error] Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
-				return false;
+				return SentStatus::CAST_ERROR;
 			}
 
 			int sentBytes = sdlNetWrapper_->SendTcp(socket, final_msg, sizeof(T));
 
 			if (sentBytes == 0)
-				return false;
+				return SentStatus::ERROR;
 
 			Log("Sent message bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(T)));
 			Log(final_msg->ToString());
-			return true;
+			return SentStatus::OK;
 		}
 
 	private:

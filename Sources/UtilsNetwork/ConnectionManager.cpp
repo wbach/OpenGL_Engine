@@ -1,16 +1,16 @@
 #include "ConnectionManager.h"
 #include "Logger/Log.h"
-#include "Reciever.h"
 #include "Messages/Conntection/ConnectionMessage.h"
 #include "Messages/Conntection/AuthenticationMessage.h"
 
 namespace Network
 {
-	ConnectionManager::ConnectionManager(ISDLNetWrapper* sdlNetWrapper, ConectContext& context)
+	ConnectionManager::ConnectionManager(ISDLNetWrapperPtr sdlNetWrapper, ConectContext& context)
 		: context_(context)
 		, clientsCount_(0)
 		, sdlNetWrapper_(sdlNetWrapper)
 		, sender_(sdlNetWrapper)
+		, receiver_(sdlNetWrapper)
 	{
 		usersDb_ = {
 			{"baszek", "haslo"}
@@ -44,11 +44,10 @@ namespace Network
 
 	bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
 	{
-		Receiver receiver;
-
 		auto& user = userIter->second;
 
-		auto msg = receiver.Receive(user->socket);
+		RecvError err;
+		auto msg = receiver_.Receive(user->socket, err);
 
 		if (msg == nullptr)
 			return false;
@@ -126,6 +125,13 @@ namespace Network
 	{
 	}
 
+	void ConnectionManager::DisconectUser(uint32 id)
+	{
+		sdlNetWrapper_->TCPCloseAndDeleteSocket(context_.socketSet, context_.users[id]->socket);
+		--clientsCount_;
+		Log("User disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+	}
+
 	void ConnectionManager::DissmissConection()
 	{
 		if (IsSpace())
@@ -140,7 +146,8 @@ namespace Network
 
 		/*std::string full = "FULL";
 		sdlNetWrapper_->SendTcp(tempSock, (void *)full.c_str(), full.size() + 1);*/
-		sdlNetWrapper_->TCPClose(tempSock);
+
+		sdlNetWrapper_->TCPCloseAndDeleteSocket(context_.socketSet, tempSock);
 	}
 
 	bool ConnectionManager::IsSpace() const

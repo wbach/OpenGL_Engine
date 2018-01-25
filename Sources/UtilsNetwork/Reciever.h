@@ -9,11 +9,18 @@ namespace Network
 {
 	class IMessage;
 
+	enum class RecvError
+	{
+		None,
+		Disconnect,
+		ZeroBytes
+	};
+
 	class Receiver
 	{
 	public:
-		Receiver(ISDLNetWrapper* sdlNetWrapper = new SDLNetWrapper());
-		std::shared_ptr<IMessage> Receive(TCPsocket socket);
+		Receiver(ISDLNetWrapperPtr sdlNetWrapper);
+		std::shared_ptr<IMessage> Receive(TCPsocket socket, RecvError& error);
 
 	private:
 		template<class T>
@@ -22,12 +29,12 @@ namespace Network
 			T msg;
 			auto recvBytes = sdlNetWrapper_->RecvTcp(socket, &msg, sizeof(msg));
 
-			Log(msg.ToString());
+			Log("Recv bytes: " + std::to_string(recvBytes) + "Message:\n" + msg.ToString());
 
 			return std::make_shared<T>(msg);
 		}
 
 	private:
-		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
+		ISDLNetWrapperPtr sdlNetWrapper_;
 	};
 }

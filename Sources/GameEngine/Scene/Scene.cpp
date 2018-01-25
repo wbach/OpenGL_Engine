@@ -2,6 +2,7 @@
 #include "Logger/Log.h"
 CScene::CScene()
 	: directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
+	, camera(new CCamera)
 {
 }
 

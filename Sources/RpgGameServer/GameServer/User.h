@@ -23,6 +23,7 @@ namespace GameServer
 		User(const std::string& name, uint32 id);
 		uint32 GetId();
 		bool HasCharacter(uint32 id);
+		const Characters& GetCharacters();
 		void SetUsageCharacter(uint32);
 		void SetCharacters(Characters characters);
 		wb::optional<uint32> GetUsageCharacterId();

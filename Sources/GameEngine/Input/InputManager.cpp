@@ -1,8 +1,16 @@
 #include "InputManager.h"
 
+// TO DO: issue : keydown when called 2 times or more only one can working
+
 CInputManager::CInputManager()
 : input(nullptr)
 {
+}
+
+void CInputManager::GetPressedKeys()
+{
+	if (input != nullptr)
+		input->GetPressedKeys();
 }
 
 void CInputManager::ClearBuffer()
@@ -59,17 +67,17 @@ bool CInputManager::GetKey(GameActions::Type action)
 	return false;
 }
 
-bool CInputManager::GetMouseKeyDown(int key)
+bool CInputManager::GetMouseKeyDown(KeyCodes::Type key)
 {
 	return false;
 }
 
-bool CInputManager::GetMouseKeyUp(int key)
+bool CInputManager::GetMouseKeyUp(KeyCodes::Type key)
 {
 	return false;
 }
 
-bool CInputManager::GetMouseKey(int key)
+bool CInputManager::GetMouseKey(KeyCodes::Type key)
 {
     if (input != nullptr)
         return input->GetMouseKey(key);
@@ -89,4 +97,42 @@ vec2 CInputManager::CalcualteMouseMove()
         return input->CalcualteMouseMove();
 
 	return vec2();
+}
+
+std::vector<char> CInputManager::GetCharKey(KeyCodes::Type key)
+{
+	if (input != nullptr)
+		return input->GetCharKey(key);
+	return std::vector<char>();
+}
+
+std::vector<char> CInputManager::GetCharKey()
+{
+	if (input != nullptr)
+		return input->GetCharKey();
+	return std::vector<char>();
+}
+
+std::vector<KeyCodes::Type> CInputManager::GetKey()
+{
+	if (input != nullptr)
+		return input->GetKey();
+
+	return std::vector<KeyCodes::Type>();
+}
+
+std::vector<KeyCodes::Type> CInputManager::GetKeyUp()
+{
+	if (input != nullptr)
+		return input->GetKeyUp();
+
+	return std::vector<KeyCodes::Type>();
+}
+
+std::vector<KeyCodes::Type> CInputManager::GetKeyDown()
+{
+	if (input != nullptr)
+		return input->GetKeyDown();
+
+	return std::vector<KeyCodes::Type>();
 }

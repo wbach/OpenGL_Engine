@@ -3,6 +3,7 @@
 #include "ConectContext.h"
 #include "ISDLNetWrapper.h"
 #include "Sender.h"
+#include "Reciever.h"
 #include <unordered_map>
 #include <functional>
 
@@ -13,11 +14,12 @@ namespace Network
 	class ConnectionManager
 	{
 	public:
-		ConnectionManager(ISDLNetWrapper* sdlNetWrapper, ConectContext& context);
+		ConnectionManager(ISDLNetWrapperPtr sdlNetWrapper, ConectContext& context);
 		void CheckNewConnectionsToServer();
 		bool CheckSocketsActivity();
 		void SubscribeForNewUser(CreationFunc func);
 		void SubscribeForDisconnectUser(CreationFunc func);
+		void DisconectUser(uint32 id);
 
 	private:
 		void WaitForAuthentication();
@@ -30,8 +32,9 @@ namespace Network
 	private:
 		ConectContext& context_;
 		uint32 clientsCount_;
-		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
-		Sender sender_;		
+		ISDLNetWrapperPtr sdlNetWrapper_;
+		Sender sender_;
+		Receiver receiver_;
 		Users notAuthenticatedUsers;
 		std::vector<CreationFunc> newUserSubscribes_;
 

@@ -13,7 +13,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 {
     if (image.data == nullptr || isInit)
 	{
-		Log("[Error] OGL There was an error loading the texture : " + filename);
+		Log("[Error] OGL There was an error loading the texture : " + filename + ". data is null or is initialized.");
 		return;
 	}
 
@@ -23,7 +23,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 	if (hubo_error)
 	{
         delete[] image.data;
-		Log("[Error] OGL There was an error loading the texture : " + filename);
+		Log("[Error] OGL There was an error loading the texture : " + filename + " cannot create texture.");
 		return;
 	}
 

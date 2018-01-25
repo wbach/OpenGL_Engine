@@ -1,6 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "User.h"
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -12,14 +13,14 @@ namespace Network
 	typedef std::unordered_map<uint32, std::shared_ptr<UtilsNetwork::UserData>> Users;
 
 	struct ConectContext
-	{	
+	{
+		Users users;
 		uint32			 maxClients;
 		uint32			 port;
 		IPaddress		 serverIP;
 		TCPsocket		 socket;
 		SDLNet_SocketSet socketSet;
-		std::string		 serverName;
-		Users users;
+		std::string		 serverName;		
 
 		ConectContext()
 			: ConectContext(30, 1991)

@@ -10,7 +10,8 @@ namespace GameServer
 		public:
 			DatabaseWrapperMock();
 			virtual UserCharacterVec GetCharacterByUser(uint32 id) override;
-			virtual CharacterInDataBase GetCharacterData(uint32 id) override;
+			virtual wb::optional<Hero::CharacterData> GetCharacterData(uint32 id) override;
+			virtual wb::optional<Hero::Stats> GetCharacterStats(uint32 stats) override;
 			virtual ~DatabaseWrapperMock() override {}
 		};
 	} // Database

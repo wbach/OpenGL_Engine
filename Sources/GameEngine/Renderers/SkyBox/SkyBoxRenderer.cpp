@@ -1,7 +1,7 @@
 #include "SkyBoxRenderer.h"
 #include "../Framebuffer/FrameBuffer.h"
 #include "../../Resources/Models/Model.h"
-#include "../../Resources/ResourceManager.h"
+
 #include "../../Resources/Textures/Texture.h"
 #include "../../Engine/Projection.h"
 #include "../../Scene/Scene.hpp"
@@ -101,9 +101,9 @@ void CSkyBoxRenderer::Subscribe(CGameObject *gameObject)
 
 void CSkyBoxRenderer::InitMembers(CScene* scene)
 {
-	LoadModel(scene->GetResourceManager());
-	CreateDayTextures(scene->GetResourceManager());
-	CreateNightTextures(scene->GetResourceManager());	
+	LoadModel(resourceManager);
+	CreateDayTextures(resourceManager);
+	CreateNightTextures(resourceManager);
 }
 
 void CSkyBoxRenderer::LoadModel(CResourceManager& resource_manager)
@@ -131,6 +131,7 @@ void CSkyBoxRenderer::CreateDayTextures(CResourceManager& resource_manager)
 	};
 
 	dayTexture = LoadCubeMapTexture(resource_manager, dayTextures);
+	dayTexture->OpenGLLoadingPass();
 }
 
 void CSkyBoxRenderer::CreateNightTextures(CResourceManager& resource_manager)
@@ -149,6 +150,7 @@ void CSkyBoxRenderer::CreateNightTextures(CResourceManager& resource_manager)
 	};
 
 	nightTexture = LoadCubeMapTexture(resource_manager, nightTextures);
+	nightTexture->OpenGLLoadingPass();
 }
 
 CTexture* CSkyBoxRenderer::LoadCubeMapTexture(CResourceManager& resource_manager, std::vector<std::string> textures_files)

@@ -14,6 +14,8 @@ namespace Network
 		virtual TCPsocket TCPOpen(IPaddress *ip) const override;
 		virtual const char* GetError() const override;
 		virtual int TCPAddSocket(SDLNet_SocketSet set, TCPsocket sock) const override;
+		virtual int TCPDeleteSocket(SDLNet_SocketSet set, TCPsocket sock) const override;
+		virtual int TCPCloseAndDeleteSocket(SDLNet_SocketSet set, TCPsocket sock) const override;
 		virtual int SendTcp(TCPsocket sock, const void *data, int len) const override;
 		virtual int RecvTcp(TCPsocket sock, void *data, int maxlen) const override;
 		virtual int CheckSockets(SDLNet_SocketSet set, Uint32 timeout) const override;

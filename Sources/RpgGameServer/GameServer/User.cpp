@@ -35,4 +35,9 @@ namespace GameServer
 	{
 		usageCharacterId_ = id;
 	}
+
+	const Characters& User::GetCharacters()
+	{
+		return characters_;
+	}
 } // GameServer

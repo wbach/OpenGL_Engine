@@ -1,6 +1,7 @@
 #pragma once
 #include "Types.h"
 #include <SDL2/SDL_net.h>
+#include <memory>
 
 namespace Network
 {
@@ -15,6 +16,8 @@ namespace Network
 		virtual TCPsocket TCPOpen(IPaddress *ip) const = 0;
 		virtual const char* GetError() const = 0;
 		virtual int TCPAddSocket(SDLNet_SocketSet set, TCPsocket sock) const = 0;
+		virtual int TCPDeleteSocket(SDLNet_SocketSet set, TCPsocket sock) const = 0;
+		virtual int TCPCloseAndDeleteSocket(SDLNet_SocketSet set, TCPsocket sock) const = 0;
 		virtual int SendTcp(TCPsocket sock, const void *data, int len) const = 0;
 		virtual int RecvTcp(TCPsocket sock, void *data, int maxlen) const = 0;
 		virtual int CheckSockets(SDLNet_SocketSet set, Uint32 timeout) const = 0;
@@ -22,4 +25,6 @@ namespace Network
 		virtual TCPsocket TCPAccept(TCPsocket server) const = 0;
 		virtual void TCPClose(TCPsocket sock) const = 0;
 	};
+
+	typedef std::shared_ptr<ISDLNetWrapper> ISDLNetWrapperPtr;
 }

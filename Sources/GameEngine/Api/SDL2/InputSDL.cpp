@@ -4,6 +4,50 @@
 CInputSDL::CInputSDL(SDL_Window* sdl_window)
 : sdlWindow(sdl_window)
 {
+	keys =
+	{
+		{KeyCodes::LMOUSE, SDL_BUTTON_LEFT},
+		{KeyCodes::RMOUSE, SDL_BUTTON_RIGHT},
+		{KeyCodes::Q, SDL_SCANCODE_Q},
+		{KeyCodes::W, SDL_SCANCODE_W},
+		{KeyCodes::E, SDL_SCANCODE_E},
+		{KeyCodes::R, SDL_SCANCODE_R},
+		{KeyCodes::T, SDL_SCANCODE_T},
+		{KeyCodes::Y, SDL_SCANCODE_Y},
+		{KeyCodes::U, SDL_SCANCODE_U},
+		{KeyCodes::I, SDL_SCANCODE_I},
+		{KeyCodes::O, SDL_SCANCODE_O},
+		{KeyCodes::P, SDL_SCANCODE_P},
+		{KeyCodes::A, SDL_SCANCODE_A},
+		{KeyCodes::S, SDL_SCANCODE_S},
+		{KeyCodes::D, SDL_SCANCODE_D},
+		{KeyCodes::F, SDL_SCANCODE_F},
+		{KeyCodes::G, SDL_SCANCODE_G},
+		{KeyCodes::H, SDL_SCANCODE_H},
+		{KeyCodes::J, SDL_SCANCODE_J},
+		{KeyCodes::K, SDL_SCANCODE_K},
+		{KeyCodes::L, SDL_SCANCODE_L},
+		{KeyCodes::Z, SDL_SCANCODE_Z},
+		{KeyCodes::X, SDL_SCANCODE_X},
+		{KeyCodes::C, SDL_SCANCODE_C},
+		{KeyCodes::V, SDL_SCANCODE_V},
+		{KeyCodes::B, SDL_SCANCODE_B},
+		{KeyCodes::N, SDL_SCANCODE_N},
+		{KeyCodes::M, SDL_SCANCODE_M},
+		{KeyCodes::LCTRL, SDL_SCANCODE_LCTRL},
+		{KeyCodes::ENTER, SDL_SCANCODE_RETURN},
+		{KeyCodes::SPACE, SDL_SCANCODE_SPACE},
+		{KeyCodes::ESCAPE, SDL_SCANCODE_ESCAPE},
+		{KeyCodes::LARROW, SDL_SCANCODE_LEFT},
+		{KeyCodes::RARROW, SDL_SCANCODE_RIGHT},
+		{KeyCodes::UARROW, SDL_SCANCODE_UP},
+		{KeyCodes::DARROW, SDL_SCANCODE_DOWN},
+		{KeyCodes::F1, SDL_SCANCODE_F1},
+		{KeyCodes::TAB, SDL_SCANCODE_TAB},
+		{KeyCodes::LSHIFT, SDL_SCANCODE_LSHIFT},
+		{KeyCodes::RSHIFT, SDL_SCANCODE_RSHIFT},
+		{KeyCodes::BACKSPACE, SDL_SCANCODE_BACKSPACE }
+	};
 }
 
 bool CInputSDL::GetKeyUp(KeyCodes::Type key)
@@ -14,21 +58,38 @@ bool CInputSDL::GetKeyUp(KeyCodes::Type key)
 
 bool CInputSDL::GetKey(KeyCodes::Type key)
 {
-	const Uint8* state = SDL_GetKeyboardState(NULL);
-
-	int sdl_key_scan_code = KeyToSDL(key);
-
-	if (sdl_key_scan_code >= 0)
-		if (state[sdl_key_scan_code])
-		{
+	for (auto k : keyBuffer)
+	{
+		if (k == key)
 			return true;
-		}
+	}
 	return false;
 }
 
 bool CInputSDL::GetKeyDown(KeyCodes::Type keys)
 {
 	return CInput::GetKeyDown(keys);
+}
+
+std::vector<KeyCodes::Type> CInputSDL::GetKey()
+{
+	std::vector<KeyCodes::Type> result;
+	result.reserve(keyBuffer.size());
+
+	for (auto key : keyBuffer)
+		result.push_back(key);
+
+	return result;
+}
+
+std::vector<KeyCodes::Type> CInputSDL::GetKeyUp()
+{
+	return {};
+}
+
+std::vector<KeyCodes::Type> CInputSDL::GetKeyDown()
+{
+	return CInput::GetKeyDown();
 }
 
 vec2 CInputSDL::CalcualteMouseMove()
@@ -49,28 +110,19 @@ vec2 CInputSDL::CalcualteMouseMove()
 	return dmove;
 }
 
-
-
-bool CInputSDL::GetMouseKeyDown(int key)
+bool CInputSDL::GetMouseKeyDown(KeyCodes::Type key)
 {
 	return false;
 }
 
-bool CInputSDL::GetMouseKeyUp(int key)
+bool CInputSDL::GetMouseKeyUp(KeyCodes::Type key)
 {
 	return false;
 }
 
-bool CInputSDL::GetMouseKey(int key)
+bool CInputSDL::GetMouseKey(KeyCodes::Type key)
 {
-	int sdl_key_scan_code = KeyToSDL(key);
-
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(sdl_key_scan_code))
-	{
-		return true;
-	}
-
-	return false;
+	return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(keys[key]);
 }
 vec2 CInputSDL::GetMousePosition()
 {
@@ -79,54 +131,23 @@ vec2 CInputSDL::GetMousePosition()
 	return vec2(tmp_x, tmp_y);
 }
 
-#define ReturnSDLKey(x, y) if (key == x) return y;
-
-int CInputSDL::KeyToSDL(int key)
-{
-	ReturnSDLKey(KeyCodes::LMOUSE, SDL_BUTTON_LEFT);
-	ReturnSDLKey(KeyCodes::RMOUSE, SDL_BUTTON_RIGHT);
-	ReturnSDLKey(KeyCodes::Q, SDL_SCANCODE_Q);
-	ReturnSDLKey(KeyCodes::W, SDL_SCANCODE_W);
-	ReturnSDLKey(KeyCodes::E, SDL_SCANCODE_E);
-	ReturnSDLKey(KeyCodes::R, SDL_SCANCODE_R);
-	ReturnSDLKey(KeyCodes::T, SDL_SCANCODE_T);
-	ReturnSDLKey(KeyCodes::Y, SDL_SCANCODE_Y);
-	ReturnSDLKey(KeyCodes::U, SDL_SCANCODE_U);
-	ReturnSDLKey(KeyCodes::I, SDL_SCANCODE_I);
-	ReturnSDLKey(KeyCodes::O, SDL_SCANCODE_O);
-	ReturnSDLKey(KeyCodes::P, SDL_SCANCODE_P);
-	ReturnSDLKey(KeyCodes::A, SDL_SCANCODE_A);
-	ReturnSDLKey(KeyCodes::S, SDL_SCANCODE_S);
-	ReturnSDLKey(KeyCodes::D, SDL_SCANCODE_D);
-	ReturnSDLKey(KeyCodes::F, SDL_SCANCODE_F);
-	ReturnSDLKey(KeyCodes::G, SDL_SCANCODE_G);
-	ReturnSDLKey(KeyCodes::H, SDL_SCANCODE_H);
-	ReturnSDLKey(KeyCodes::J, SDL_SCANCODE_J);
-	ReturnSDLKey(KeyCodes::K, SDL_SCANCODE_K);
-	ReturnSDLKey(KeyCodes::L, SDL_SCANCODE_L);
-	ReturnSDLKey(KeyCodes::Z, SDL_SCANCODE_Z);
-	ReturnSDLKey(KeyCodes::X, SDL_SCANCODE_X);
-	ReturnSDLKey(KeyCodes::C, SDL_SCANCODE_C);
-	ReturnSDLKey(KeyCodes::V, SDL_SCANCODE_V);
-	ReturnSDLKey(KeyCodes::B, SDL_SCANCODE_B);
-	ReturnSDLKey(KeyCodes::N, SDL_SCANCODE_N);
-	ReturnSDLKey(KeyCodes::M, SDL_SCANCODE_M);
-	ReturnSDLKey(KeyCodes::LCTRL, SDL_SCANCODE_LCTRL);
-	ReturnSDLKey(KeyCodes::ENTER, SDL_SCANCODE_RETURN);
-	ReturnSDLKey(KeyCodes::SPACE, SDL_SCANCODE_SPACE);
-	ReturnSDLKey(KeyCodes::ESCAPE, SDL_SCANCODE_ESCAPE);
-	ReturnSDLKey(KeyCodes::LARROW, SDL_SCANCODE_LEFT);
-	ReturnSDLKey(KeyCodes::RARROW, SDL_SCANCODE_RIGHT);
-	ReturnSDLKey(KeyCodes::UARROW, SDL_SCANCODE_UP);
-	ReturnSDLKey(KeyCodes::DARROW, SDL_SCANCODE_DOWN);
-	ReturnSDLKey(KeyCodes::F1, SDL_SCANCODE_F1);
-	return -1;
-}
-
-#undef ReturnSDLKey
-
 void CInputSDL::SetCursorPosition(int x, int y)
 {
+}
+
+void CInputSDL::GetPressedKeys()
+{
+	keyBuffer.clear();
+
+	const Uint8* state = SDL_GetKeyboardState(NULL);
+
+	for (const auto& p : keys)
+	{
+		if (state[p.second])
+		{
+			keyBuffer.insert(p.first);
+		}
+	}
 }
 
 void CInputSDL::SetKeyToBuffer(int key, bool value)

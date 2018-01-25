@@ -5,6 +5,7 @@ namespace Network
 	enum MessageTypes
 	{
 		Any,
+		Ping,
 		Transform,
 		Authentication,
 		ConnectionMsg,
@@ -12,5 +13,7 @@ namespace Network
 		SelectCharacterResp,
 		CreateCharacterReq,
 		CreateCharacterResp,
+		GetCharactersReq,
+		GetCharactersResp,
 	};
 } // Network

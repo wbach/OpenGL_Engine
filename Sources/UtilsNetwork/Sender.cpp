@@ -5,20 +5,24 @@
 #include "Messages/TransformMessages/TransformMsg.h"
 #include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
 #include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
+#include "Messages/GetCharacters/GetCharactersMsgReq.h"
+#include "Messages/GetCharacters/GetCharactersMsgResp.h"
 
 namespace Network
 {
-	Sender::Sender(ISDLNetWrapper * sdlNetWrapper)
+	Sender::Sender(ISDLNetWrapperPtr sdlNetWrapper)
 		: sdlNetWrapper_(sdlNetWrapper)
 	{
 	}	
 
-	bool Sender::SendTcp(TCPsocket socket, IMessage* msg)
+#define Convert(messageType, type) case messageType: if (SendIMessage<type>(socket, msg) != SentStatus::OK)	return SentStatus::ERROR; break;
+
+	SentStatus Sender::SendTcp(TCPsocket socket, IMessage* msg)
 	{
 		if (msg == nullptr)
 		{
 			Log("Sender::SendTcp: Try send nullptr msg.");
-			return false;
+			return SentStatus::EMPTY;
 		}
 
 		MessageHeader header;
@@ -28,19 +32,20 @@ namespace Network
 		Log("Sent header bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(header)));
 
 		if (sentBytes == 0)
-			return false;
+			return SentStatus::ERROR;	
 
 		switch (msg->GetType())
 		{
-		case MessageTypes::ConnectionMsg:	if (!SendIMessage<ConnectionMessage>(socket, msg))		return false;	break;
-		case MessageTypes::Transform: 	if (!SendIMessage<TransformMsg>(socket, msg))				return false;	break;
-		case MessageTypes::Authentication: 	if (!SendIMessage<AuthenticationMessage>(socket, msg))	return false;	break;
-		case MessageTypes::SelectCharacterReq: 	if (!SendIMessage<SelectCharacterMsgReq>(socket, msg))		return false;	break;
-		case MessageTypes::SelectCharacterResp: 	if (!SendIMessage<SelectCharacterMsgResp>(socket, msg))	return false;	break;
-
+			Convert(MessageTypes::ConnectionMsg,		ConnectionMessage);
+			Convert(MessageTypes::Transform,			TransformMsg);
+			Convert(MessageTypes::Authentication,		AuthenticationMessage);
+			Convert(MessageTypes::SelectCharacterReq,	SelectCharacterMsgReq);
+			Convert(MessageTypes::SelectCharacterResp,	SelectCharacterMsgResp);
+			Convert(MessageTypes::GetCharactersReq,		GetCharactersMsgReq);
+			Convert(MessageTypes::GetCharactersResp,	GetCharactersMsgResp);
 		}
 
-		return true;
+		return SentStatus::OK;
 	}	
 }
 

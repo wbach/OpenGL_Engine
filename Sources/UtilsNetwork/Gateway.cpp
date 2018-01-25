@@ -10,15 +10,23 @@
 namespace Network
 {
 	CGateway::CGateway()
-		: connectionManager_(new SDLNetWrapper(), context_)
+		: iSDLNetWrapperPtr_(new SDLNetWrapper)
+		, connectionManager_(iSDLNetWrapperPtr_, context_)
+		, clientCreator_(iSDLNetWrapperPtr_)
 		, running(true)
 		, timeMeasurer_(60)
 		, isServer(false)
+		, sender_(iSDLNetWrapperPtr_)
+		, receiver_(iSDLNetWrapperPtr_)
 	{
 	}
 	CGateway::~CGateway()
 	{
+		outbox_.clear();
+		inbox_.clear();
 		running.store(false);
+		if(networkThread_.joinable())
+		networkThread_.join();
 	}
 	void CGateway::StartServer(uint32 maxClients, uint32 port)
 	{
@@ -35,7 +43,7 @@ namespace Network
 		context_.users[0] = std::make_shared<UtilsNetwork::UserData>();
 		context_.users[0]->socket = context_.socket;
 
-		recvThread_ = std::thread(std::bind(&CGateway::MainLoop, this));
+		networkThread_ = std::thread(std::bind(&CGateway::MainLoop, this));
 	}	
 
 	void CGateway::ReceiveAllMessages()
@@ -46,9 +54,23 @@ namespace Network
 		if (isServer)
 			connectionManager_.CheckNewConnectionsToServer();
 
-		for (auto& user : context_.users)
+
+		for (auto iter = context_.users.begin(); iter != context_.users.end();)
 		{
-			auto msg = receiver_.Receive(user.second->socket);
+			auto& user = *iter;
+
+			RecvError err;
+			auto msg = receiver_.Receive(user.second->socket, err);
+
+			if (err == RecvError::Disconnect)
+			{
+				connectionManager_.DisconectUser(user.second->id);
+				iter = context_.users.erase(iter);
+			}
+			else
+			{
+				++iter;
+			}
 
 			if (!msg) continue;
 			
@@ -65,8 +87,29 @@ namespace Network
 	{
 		for (auto msg : outbox_)
 		{
-			auto socket = context_.users[msg.first]->socket;
-			sender_.SendTcp(socket, msg.second.get());
+			auto& user = context_.users[msg.first];
+			auto socket = user->socket;
+
+			if (sender_.SendTcp(socket, msg.second.get()) == SentStatus::ERROR)
+			{
+				if (!user->connectionFailsStart)
+				{
+					user->connectionFailsStart = std::chrono::high_resolution_clock::now();
+				}
+				else
+				{
+					auto dt = std::chrono::high_resolution_clock::now() - user->connectionFailsStart.value();
+					auto t = std::chrono::duration_cast<std::chrono::seconds>(dt);
+					if (t > std::chrono::seconds(2))
+					{
+						connectionManager_.DisconectUser(user->id);
+					}
+				}
+			}
+			else
+			{
+				user->connectionFailsStart = wb::optional<Timepoint>();
+			}
 		}
 		ClearOutbox();
 	}

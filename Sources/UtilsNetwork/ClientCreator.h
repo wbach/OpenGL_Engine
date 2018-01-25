@@ -1,5 +1,7 @@
 #pragma once
 #include "NetworkCreator.h"
+#include "Sender.h"
+#include "Reciever.h"
 
 namespace Network
 {
@@ -16,8 +18,7 @@ namespace Network
 		};
 
 	public:
-		ClientCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper = std::shared_ptr<ISDLNetWrapper>(new SDLNetWrapper()));
-		ClientCreator(ISDLNetWrapper* sdlNetWrapper);
+		ClientCreator(ISDLNetWrapperPtr sdlNetWrapper);
 		ConectContext ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 
 	private:
@@ -25,7 +26,9 @@ namespace Network
 		ConnectionMessage* GetAndValidateConnectionMessage(IMessage* msg);
 		bool WaitForAuthentication(const std::string& username, const std::string& password);
 
-	private:		
-		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
+	private:
+		ISDLNetWrapperPtr sdlNetWrapper_;
+		Sender sender_;
+		Receiver receiver_;
 	};
 }

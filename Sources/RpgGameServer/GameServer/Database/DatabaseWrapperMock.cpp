@@ -19,11 +19,50 @@ namespace GameServer
 			return {98, 101, 56};
 		}
 
-		CharacterInDataBase DatabaseWrapperMock::GetCharacterData(uint32 id)
+		wb::optional<Hero::CharacterData> DatabaseWrapperMock::GetCharacterData(uint32 id)
 		{
-			CharacterInDataBase data;
-			data.mapId = 1;
+			Hero::CharacterData data;
+
+			switch (id)
+			{
+			case 98:
+			{
+				data.mapId = 1;
+				data.lvl = 12;
+				data.classId = 1;
+				data.name = "BaszekBK";
+			}
+			break;
+			case 101:
+			{
+				data.mapId = 1;
+				data.lvl = 12;
+				data.classId = 1;
+				data.name = "Super-Knight";
+			}
+			break;
+			case 56:
+			{
+				data.mapId = 1;
+				data.lvl = 151;
+				data.classId = 1;
+				data.name = "Black Knight";
+			}
+			break;
+			default:
+				{					
+					data.mapId = 1;
+					data.lvl = 1;
+					data.classId = 1;
+					data.name = "BaszekBK";					
+				}
+			}
 			return data;
+		}
+
+		wb::optional<Hero::Stats> DatabaseWrapperMock::GetCharacterStats(uint32 stats)
+		{			
+			return Hero::Stats();
 		}
 
 	} // Database

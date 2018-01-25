@@ -2,6 +2,7 @@
 #include "Types.h"
 #include "MessageTypes.h"
 #include <memory>
+#include <cstring>
 
 namespace Network
 {

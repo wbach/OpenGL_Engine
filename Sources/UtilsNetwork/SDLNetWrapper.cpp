@@ -30,6 +30,15 @@ namespace Network
 	{
 		return SDLNet_TCP_AddSocket(set, sock);
 	}
+	int SDLNetWrapper::TCPDeleteSocket(SDLNet_SocketSet set, TCPsocket sock) const
+	{
+		return SDLNet_TCP_DelSocket(set, sock);
+	}
+	int SDLNetWrapper::TCPCloseAndDeleteSocket(SDLNet_SocketSet set, TCPsocket sock) const
+	{
+		TCPClose(sock);
+		return SDLNet_TCP_DelSocket(set, sock);
+	}
 	int SDLNetWrapper::SendTcp(TCPsocket sock, const void * data, int len) const
 	{
 		return SDLNet_TCP_Send(sock, data, len);

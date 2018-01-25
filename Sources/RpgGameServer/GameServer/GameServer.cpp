@@ -5,6 +5,7 @@
 #include "Handlers/Distribute/DistributeHandler.h"
 #include "Handlers/CharacterController/CharacterControllerHandler.h"
 #include "Handlers/SelectCharacter/SelectCharacterHandler.h"
+#include "Handlers/GetCharacters/GetCharactersHandler.h"
 #include "Time/TimeMeasurer.h"
 
 namespace GameServer
@@ -19,6 +20,7 @@ namespace GameServer
 		//gateway_->SubscribeOnMessageArrived(std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
 
 		Handler::IHandlerPtr distributeHandler(new Handler::DistributeHandler(context_));
+		Handler::IHandlerPtr getCharactersHandler(new Handler::GetCharactersHandler(context_));
 		Handler::IHandlerPtr selectCharacterHandler(new Handler::SelectCharacterHandler(context_));
 		Handler::IHandlerPtr characterControllerHandler(new Handler::CharacterControllerHandler(context_));
 		
@@ -26,7 +28,8 @@ namespace GameServer
 			{
 			//distributeHandler,
 			selectCharacterHandler,
-			characterControllerHandler
+			characterControllerHandler,
+			getCharactersHandler
 			});
 
 

@@ -2,6 +2,7 @@
 #include "Types.h"
 #include <SDL2/SDL_net.h>
 #include "SDLNetWrapper.h"
+#include "optional.hpp"
 
 namespace UtilsNetwork
 {
@@ -11,6 +12,7 @@ namespace UtilsNetwork
 		uint32 timeout;
 		uint32 id;
 		bool authenticated;
+		wb::optional<Timepoint>	connectionFailsStart;
 
 		UserData()
 			: socket(nullptr)

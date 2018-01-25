@@ -21,6 +21,8 @@ namespace GameEngine
 		, renderers()
 		, threadSync()
 		, resorceManager()
+		, currentSceneId(0)
+		, isLoading(false)
 	{
 		ReadConfigFile("./Conf.xml");
 		SetDisplay();
@@ -59,6 +61,24 @@ namespace GameEngine
 		threadSync.Stop();
 	}
 
+	void CEngine::LoadNextScene()
+	{
+		scene = scenes[++currentSceneId];
+		PreperaScene();
+	}
+
+	void CEngine::AddEngineEvent(EngineEvent event)
+	{
+		std::lock_guard<std::mutex> lk(engineEventsMutex);
+		engineEvents.push_back(event);
+	}
+
+	void CEngine::AddRenderer(RenderersTypes type, CRenderer* renderer)
+	{
+		rendererTypesMap[type] = renderers.size();
+		renderers.emplace_back(renderer);
+	}
+
 	CDisplayManager &CEngine::GetDisplayManager()
 	{
 		return *displayManager.get();
@@ -68,6 +88,11 @@ namespace GameEngine
 	{
 		ApiMessages::Type apiMessage = ApiMessages::NONE;
 
+		if (isLoading.load())
+			return apiMessage;		
+
+		inputManager.GetPressedKeys();
+
 		LoadObjects();
 		apiMessage = PrepareFrame();
 
@@ -75,6 +100,7 @@ namespace GameEngine
 			apiMessage = ApiMessages::QUIT;
 
 		ProccesScene();
+		ProcessEngineEvents();
 
 		displayManager->Update();
 		inputManager.CheckReleasedKeys();
@@ -94,6 +120,7 @@ namespace GameEngine
 
 		std::lock_guard<std::mutex>(SingleTon<SAplicationContext>::Get().renderingMutex);
 		RenderScene();
+		
 		return message;
 	}
 
@@ -120,8 +147,36 @@ namespace GameEngine
 			obj->OpenGLLoadingPass();
 	}
 
+	void CEngine::ProcessEngineEvents()
+	{
+		EngineEvent event;
+		{
+			std::lock_guard<std::mutex> lk(engineEventsMutex);
+
+			if (engineEvents.empty())
+				return;
+
+			event = engineEvents.front();
+			engineEvents.pop_front(); 
+		}
+
+		switch (event)
+		{
+		case EngineEvent::LOAD_NEXT_SCENE:
+			threadSync.Stop();
+			isLoading.store(true);
+			LoadNextScene();
+			break;
+		case EngineEvent::QUIT:
+			break;
+		}
+	}
+
 	ApiMessages::Type CEngine::CheckSceneMessages(float deltaTime)
 	{
+		if (isLoading.load())
+			return ApiMessages::NONE;
+
 		switch (scene->Update(deltaTime))
 		{
 		case 1: return ApiMessages::QUIT; break;
@@ -151,6 +206,10 @@ namespace GameEngine
 			return;
 
 		LoadScene();
+
+		threadSync.Start();
+
+		isLoading.store(false);
 	}
 
 	void CEngine::SetDefaultRenderer()
@@ -161,10 +220,9 @@ namespace GameEngine
 		auto rendererType = EngineConf.rendererType;
 
 		if (rendererType == SEngineConfiguration::RendererType::FULL_RENDERER)
-			renderers.emplace_back(new FullRenderer(&projection));
+			AddRenderer(RenderersTypes::ObjectsRenderer, new FullRenderer(&projection));
 		else
-			renderers.emplace_back(new SimpleRenderer(&projection));
-
+			AddRenderer(RenderersTypes::ObjectsRenderer, new SimpleRenderer(&projection));
 	}
 
 	void CEngine::LoadScene()

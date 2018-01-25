@@ -1,12 +1,12 @@
 #pragma once
 #include "../Renderer.h"
 #include "Shaders/SkyBoxShader.h"
-
+#include "../../Resources/ResourceManager.h"
 class CModel;
 class CMesh;
 class CTexture;
 class CProjection;
-class CResourceManager;
+//class CResourceManager;
 struct SMaterial;
 
 class CSkyBoxRenderer : public CRenderer
@@ -40,7 +40,7 @@ private:
     CModel* model;
     CTexture* dayTexture;
     CTexture* nightTexture;
-
+	CResourceManager resourceManager; // TO DO: remove when creat texutres will be outsiede
     CProjection* projectionMatrix;
     vec4 clipPlane;
 };

@@ -5,7 +5,7 @@ namespace GameServer
 {
 	namespace HeroFactory
 	{
-		Hero::BaseHeroPtr HeroFactory::CreateKnight()
+		Hero::BaseHeroPtr CreateKnight()
 		{
 			return std::make_shared<Hero::Knight>();
 		}
