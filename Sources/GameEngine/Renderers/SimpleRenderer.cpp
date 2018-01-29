@@ -1,6 +1,6 @@
 #include "SimpleRenderer.h"
 #include "../Objects/RenderAble/Entity/Entity.h"
-#include "../Engine/Projection.h"
+#include "../Renderers/Projection.h"
 #include "../Scene/Scene.hpp"
 
 #include "OpenGL/OpenGLUtils.h"

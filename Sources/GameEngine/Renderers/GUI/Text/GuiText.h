@@ -6,6 +6,8 @@
 #include "GuiTextElement.h"
 #include "Logger/Log.h"
 
+typedef std::map<std::string, SGuiTextElement> GuiTexts;
+
 class CGuiText : public CGuiElement
 {
 public:
@@ -43,7 +45,7 @@ public:
         glPopMatrix();
         shader.Stop();
     }
-    std::map<std::string, SGuiTextElement> texts;
+	GuiTexts texts;
 
 private:
     CFont font;

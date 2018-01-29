@@ -8,7 +8,8 @@
 namespace MmmoRpg
 {
 	SelectCharacterScene::SelectCharacterScene(GameEngine::CEngine & engine, Network::CGateway & gateway)
-		: engine_(engine)
+		: CScene("SelectCharacterScene")
+		, engine_(engine)
 		, gateway_(gateway)
 	{
 	}

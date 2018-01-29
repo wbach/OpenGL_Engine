@@ -9,8 +9,8 @@ void TestGameStart()
 {
 	GameEngine::CEngine engine;
 	engine.Init();
-    engine.scene = std::make_shared<MainScene>(engine);
-	engine.PreperaScene();
+	engine.sceneManager_.AddScene(new MainScene(engine));
+	engine.sceneManager_.SetActiveScene("MainScene");
 	engine.GameLoop();
 }
 
@@ -19,9 +19,9 @@ int main(int argc, char* argv[])
 	#ifdef BACHU_HAHAH
 	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
 	#endif
-	//CLogger::Instance().EnableLogs();
-	//TestGameStart();
+	CLogger::Instance().EnableLogs();
+	TestGameStart();
 
-	MmmoRpg::StartGame();
+	//MmmoRpg::StartGame();
 	return 0;
 }

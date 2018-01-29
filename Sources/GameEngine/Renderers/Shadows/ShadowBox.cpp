@@ -3,7 +3,7 @@
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 #include "../../Engine/Configuration.h"
-#include "../../Engine/Projection.h"
+#include "../../Renderers/Projection.h"
 
 CShadowBox::CShadowBox(CProjection* projection)
 : m_LightViewMatrix(1.f)

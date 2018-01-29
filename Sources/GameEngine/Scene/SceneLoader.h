@@ -1,7 +1,8 @@
 #pragma once
-#include <memory>
+#include "../Resources/ResourceManager.h"
 #include "Thread.hpp"
 #include "Mutex.hpp"
+#include <memory>
 
 class CScene;
 class COpenGLObject;
@@ -12,9 +13,9 @@ class CLoadingScreenRenderer;
 class SceneLoader
 {
 public:
-	SceneLoader(CDisplayManager& displayManager, CResourceManager& resorceManager);
+	SceneLoader(std::shared_ptr<CDisplayManager>& displayManager);
 	~SceneLoader();
-	void Load(CScene* scene);
+	bool Load(CScene* scene);
 
 private:
 	void Init();
@@ -27,7 +28,6 @@ private:
 	void LoadingLoop(CScene* scene);
 	void CheckObjectCount(CScene* scene);
 	void PostLoadingPass(CScene* scene);
-
 	void OpenGLLoadingPass(CScene* scene, std::thread& loading_thread);
 
 private:
@@ -38,6 +38,6 @@ private:
 	bool isLoading;
 	std::mutex loadingMutex;
 
-	CDisplayManager& displayManager;
-	CResourceManager& resorceManager;
+	std::shared_ptr<CDisplayManager>& displayManager;
+	CResourceManager resorceManager;
 };

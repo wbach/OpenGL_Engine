@@ -7,7 +7,8 @@ std::unordered_map<KeyCodes::Type, char> keys_;
 namespace MmmoRpg
 {
 	LoginScene::LoginScene(GameEngine::CEngine & engine, Network::CGateway & gateway, const std::string& serverAddress)
-		: engine_(engine)
+		: CScene("LoginScene")
+		, engine_(engine)
 		, gateway_(gateway)
 		, serverAddress_(serverAddress)
 	{
@@ -22,8 +23,8 @@ namespace MmmoRpg
 		guiPass_.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
 		guiPass_.position = glm::vec2(-0.5, 0.0);
 
-		engine_.gui.texts->texts["login"] = guiLogin_;
-		engine_.gui.texts->texts["pass"]	= guiPass_;
+		engine_.renderersManager_.GuiText("login") = guiLogin_;
+		engine_.renderersManager_.GuiText("pass") = guiPass_;
 
 	}
 	LoginScene::~LoginScene()
@@ -44,12 +45,12 @@ namespace MmmoRpg
 		if (tryToLogin)
 			return 0;
 
-		auto& guiTexts = engine_.gui.texts->texts;
+	//	auto& guiTexts = engine_.renderersManager_.guiContext_.texts->texts;
 
-		if(guiTexts.count("login") > 0)
-			guiTexts["login"].text = "Login : " + login_ + (loginOrPasswordInput ? "" : "_");
-		if (guiTexts.count("pass") > 0)
-			guiTexts["pass"].text = "Password : " + passwordToShow_ + (!loginOrPasswordInput ? "" : "_");;
+		//if(guiTexts.count("login") > 0)
+			engine_.renderersManager_.GuiText("login").text = "Login : " + login_ + (loginOrPasswordInput ? "" : "_");
+	//	if (guiTexts.count("pass") > 0)
+			engine_.renderersManager_.GuiText("pass").text = "Password : " + passwordToShow_ + (!loginOrPasswordInput ? "" : "_");;
 
 		if (engine_.inputManager.GetKeyDown(KeyCodes::TAB))
 			loginOrPasswordInput = !loginOrPasswordInput;
@@ -71,8 +72,8 @@ namespace MmmoRpg
 			gateway_.ConnectToServer(login_, password_, serverAddress_, 1991);
 			tryToLogin = true;
 			engine_.AddEngineEvent(GameEngine::EngineEvent::LOAD_NEXT_SCENE);
-			guiTexts.clear();
-			engine_.renderers.pop_back();
+			//guiTexts.clear();
+			//engine_.renderers.pop_back();
 		}
 
 		for (const auto& p : engine_.inputManager.GetCharKey())

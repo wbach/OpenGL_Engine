@@ -18,14 +18,10 @@ namespace MmmoRpg
 			Log("Server : " + serverAdress);
 
 			engine.Init();
-			engine.scene = std::make_shared<LoginScene>(engine, gateway, serverAdress);
-			engine.scenes = 
-			{
-				std::make_shared<LoginScene>(engine, gateway, serverAdress),
-				std::make_shared<MainScene>(engine),
-				std::make_shared<SelectCharacterScene>(engine, gateway)
-			};
-			engine.PreperaScene();
+			engine.sceneManager_.AddScene(new LoginScene(engine, gateway, serverAdress));
+			engine.sceneManager_.AddScene(new MainScene(engine));
+			engine.sceneManager_.AddScene(new SelectCharacterScene(engine, gateway));
+			engine.sceneManager_.SetActiveScene("LoginScene");
 			engine.GameLoop();
 		}
 	private:

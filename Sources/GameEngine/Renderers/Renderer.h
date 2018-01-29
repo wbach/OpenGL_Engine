@@ -1,6 +1,7 @@
 #pragma once
-#include <memory>
 #include "Types.h"
+#include <memory>
+#include <vector>
 
 class CScene;
 class CFrameBuffer;
@@ -30,3 +31,6 @@ protected:
 
     CFrameBuffer* target = nullptr;
 };
+
+typedef std::unique_ptr<CRenderer> RendererPtr;
+typedef std::vector<RendererPtr>   RenderersPtrVec;

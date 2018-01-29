@@ -5,30 +5,33 @@
 #include "../Input/Input.h"
 #include "Logger/Log.h"
 
-SceneLoader::SceneLoader(CDisplayManager & displayManager, CResourceManager & resorceManager)
+SceneLoader::SceneLoader(std::shared_ptr<CDisplayManager>& displayManager)
 	: displayManager(displayManager)
-	, resorceManager(resorceManager)
 	, objectLoaded(0)
 	, objectCount(0)
-{
-	Init();
+{	
 }
 
 SceneLoader::~SceneLoader()
 {
 }
 
-void SceneLoader::Load(CScene * scene)
+bool SceneLoader::Load(CScene * scene)
 {
+	if (displayManager == nullptr)
+		return false;
+
+	Init();
+
 	isLoading = true;
 	std::thread loading_thread(&SceneLoader::LoadScene, this, scene);
 	OpenGLLoadingPass(scene, loading_thread);
+	return true;
 }
 
 void SceneLoader::OpenGLLoadingPass(CScene* scene, std::thread & loading_thread)
 {
 	CheckObjectCount(scene);
-	displayManager.GetSync() = true;
 	LoadingLoop(scene);
 	loading_thread.join();
 	PostLoadingPass(scene);
@@ -56,7 +59,8 @@ bool SceneLoader::GetIsLoading()
 
 bool SceneLoader::ProccesLoadingLoop(COpenGLObject* obj)
 {
-	displayManager.PeekApiMessage();
+	if (displayManager != nullptr)
+		displayManager->PeekApiMessage();
 
 	auto load = GetIsLoading();
 	if (LoadObject(obj))
@@ -72,7 +76,7 @@ bool SceneLoader::LoadObject(COpenGLObject* obj)
 		return false;
 
 	obj->OpenGLLoadingPass();
-	objectLoaded++;
+	++objectLoaded;
 
 	std::cout << "Loading... " + std::to_string((int) ((float) objectLoaded / (float) objectCount) *100.f) + "%" << std::endl;
 	return true;
@@ -82,7 +86,11 @@ void SceneLoader::UpdateScreen()
 {
 	if (loadingScreenRenderer != nullptr)
 		loadingScreenRenderer->Render(nullptr);
-	displayManager.Update();
+
+	if (displayManager == nullptr)
+		return;
+
+	displayManager->Update();
 }
 
 void SceneLoader::LoadingLoop(CScene * scene)
@@ -108,29 +116,6 @@ void SceneLoader::PostLoadingPass(CScene* scene)
 
 	while (load)
 		load = ProccesLoadingLoop(objLoader.GetObjectToOpenGLPostLoadingPass());
-
-/*
-
-	bool load = true;
-	while (load)
-	{
-		displayManager.PeekMessage();
-		auto obj = scene->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLPostLoadingPass();
-		if (obj != nullptr)
-		{
-			load = true;
-			obj->OpenGLPostLoadingPass();
-			objectLoaded++;
-		}
-		else
-		{
-			load = false;
-		}
-
-		if (loadingScreenRenderer != nullptr)
-			loadingScreenRenderer->Render(nullptr);
-		displayManager.Update();
-	}*/
 }
 
 void SceneLoader::LoadScene(CScene* scene)

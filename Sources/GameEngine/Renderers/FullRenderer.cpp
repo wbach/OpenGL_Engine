@@ -10,7 +10,7 @@
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
 #include "../Engine/Configuration.h"
-#include "../Engine/Projection.h"
+#include "../Renderers/Projection.h"
 #include "Logger/Log.h"
 
 FullRenderer::FullRenderer(CProjection* projection_matrix)

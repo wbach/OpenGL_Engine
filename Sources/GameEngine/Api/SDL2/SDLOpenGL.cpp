@@ -25,7 +25,6 @@ CSdlOpenGlApi::~CSdlOpenGlApi()
 
 void CSdlOpenGlApi::CreateOpenGLWindow(const std::string& window_name, const int& width, const int& height, bool full_screen)
 {
-
 	SDL_Init(SDL_INIT_VIDEO);
 
 	auto flags = CreateWindowFlags();

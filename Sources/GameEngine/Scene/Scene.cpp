@@ -1,12 +1,13 @@
 #include "Scene.hpp"
 #include "Logger/Log.h"
-CScene::CScene()
-	: directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
-	, camera(new CCamera)
-{
-}
 
-CScene::~CScene() 
+CScene::CScene(const std::string & name)
+	: name(name)
+	, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
+	, camera(new CCamera)
+{}
+
+CScene::~CScene()
 {
 	Log(__FUNCTION__);
 }
@@ -16,6 +17,11 @@ CGameObject* CScene::AddGameObject(CGameObject* object, const vec3& position)
 	object->worldTransform.SetPosition(position);
 	gameObjects.emplace_back(object);
 	return gameObjects.back().get();
+}
+
+void CScene::SetAddSceneEventCallback(AddEvent func)
+{
+	addSceneEvent = func;
 }
 
 std::list<CGameObject*> CScene::GetObjectInRange(const vec3 & position, float range)
