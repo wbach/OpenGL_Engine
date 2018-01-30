@@ -19,6 +19,7 @@ public:
     virtual void Render(CScene* scene)       = 0;
     virtual void EndFrame(CScene* scene)     = 0;
     virtual void Subscribe(CGameObject* gameObject);
+	virtual void UnSubscribeAll();
     // Debug
     const uint32& GetObjectsPerFrame();
     const uint32& GetVertexPerFrame();

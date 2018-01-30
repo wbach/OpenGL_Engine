@@ -15,6 +15,7 @@ public:
 	virtual void Render(CScene* scene) override;
 	virtual void EndFrame(CScene* scene) override;
 	virtual void Subscribe(CGameObject* gameObject) {}
+	virtual void UnSubscribeAll() override;
 	// create unique_ptr from ptr
 	void AddElement(CGuiElement* element);
 

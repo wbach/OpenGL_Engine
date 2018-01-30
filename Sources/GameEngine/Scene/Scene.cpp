@@ -1,11 +1,15 @@
 #include "Scene.hpp"
+#include "../Renderers/GUI/GuiRenderer.h"
 #include "Logger/Log.h"
 
 CScene::CScene(const std::string & name)
 	: name(name)
 	, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 	, camera(new CCamera)
-{}
+	, gui_(nullptr)
+	, inputManager_(nullptr)
+{
+}
 
 CScene::~CScene()
 {
@@ -19,7 +23,7 @@ CGameObject* CScene::AddGameObject(CGameObject* object, const vec3& position)
 	return gameObjects.back().get();
 }
 
-void CScene::SetAddSceneEventCallback(AddEvent func)
+void CScene::SetAddSceneEventCallback(GameEngine::AddEvent func)
 {
 	addSceneEvent = func;
 }

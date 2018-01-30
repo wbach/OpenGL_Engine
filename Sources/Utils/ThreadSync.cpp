@@ -43,12 +43,8 @@ namespace Utils
 			while (isRunning.load())
 			{
 				timeMeasurer.CalculateAndLock();
-
 				float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
-				switch (func(deltaTime))
-				{
-				case 1: isRunning.store(false); break;
-				}
+				func(deltaTime);
 				timeMeasurer.EndFrame();
 			}
 			Log("Subscriber::Update, End thread.");

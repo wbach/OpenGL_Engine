@@ -75,6 +75,12 @@ void FullRenderer::Subscribe(CGameObject * gameObject)
 		renderer->Subscribe(gameObject);
 }
 
+void FullRenderer::UnSubscribeAll()
+{
+	for (auto& r : renderers)
+		r->UnSubscribeAll();
+}
+
 void FullRenderer::ReloadShaders()
 {
 	for (auto& renderer : renderers)

@@ -24,6 +24,12 @@ void CGUIRenderer::EndFrame(CScene * scene)
 {
 }
 
+void CGUIRenderer::UnSubscribeAll()
+{
+	for (auto& el : guiElements)
+		el->UnSubscribeAll();
+}
+
 
 void CGUIRenderer::AddElement(CGuiElement * element)
 {

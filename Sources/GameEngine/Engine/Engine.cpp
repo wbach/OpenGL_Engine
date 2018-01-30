@@ -8,10 +8,10 @@
 
 namespace GameEngine
 {
-	CEngine::CEngine()
+	CEngine::CEngine(ISceneFactoryPtr sceneFactory)
 		: displayManager(nullptr)
 		, inputManager()
-		, sceneManager_(displayManager, inputManager, renderersManager_)
+		, sceneManager_(sceneFactory, displayManager, inputManager, renderersManager_, guiContext_)
 		, introRenderer_(displayManager)
 	{
 		ReadConfigFile("./Conf.xml");
@@ -69,6 +69,7 @@ namespace GameEngine
 			apiMessage = ApiMessages::QUIT;
 
 		renderersManager_.RenderScene(sceneManager_.GetActiveScene());
+		sceneManager_.Update();
 
 		ProcessEngineEvents();
 

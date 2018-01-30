@@ -1,5 +1,6 @@
 #pragma once
 #include "../Types.h"
+#include "Mutex.hpp"
 #include <string>
 #include <list>
 
@@ -19,6 +20,7 @@ private:
 	void CreateLogFile();
 
 private:
+	std::mutex printMutex_;
     std::string fileName;
     std::list<std::string> logs;
 	bool enabled = false;

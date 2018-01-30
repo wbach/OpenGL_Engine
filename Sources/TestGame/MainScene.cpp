@@ -12,12 +12,11 @@
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
-MainScene::MainScene(GameEngine::CEngine &engine)
+MainScene::MainScene()
     : CScene("MainScene")
-	, engine(engine)
-	, debuger(engine.inputManager)
+	, debuger(*inputManager_)
 {	
-	InitGui();
+	//InitGui();
 	debuger.AddAction(KeyCodes::R, std::bind(&MainScene::ReloadShadersInRenderer, this));
 }
 
@@ -28,9 +27,10 @@ MainScene::~MainScene()
 
 int MainScene::Initialize()
 {
+	Log("MainScene::Initialize()");
 	auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
     auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
-	engine.renderersManager_.Subscribe(bialczyk);
+	renderersManager_->Subscribe(bialczyk);
 
 	//auto character_running_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
 	//auto ch = AddGameObject(character_running_obj, glm::vec3(0, 0, -7));
@@ -40,10 +40,10 @@ int MainScene::Initialize()
  //   auto crate_2 = AddGameObject(crate_obj_2, glm::vec3(10,0, -5));
  //   engine.renderers[0]->Subscribe(crate_2);
 
-    player = new CPlayer(&engine.inputManager, resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+    player = new CPlayer(inputManager_, resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
     player->dynamic = true;
     AddGameObject(player, glm::vec3(1,0,1));
-	engine.renderersManager_.Subscribe(player);
+	renderersManager_->Subscribe(player);
 
     //auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "Meshes/smallHouse1/smallHouse1.obj", "Example/monkey.obj", "Example/cube.obj");
     //auto small_house = AddGameObject(small_hause_obj, glm::vec3(15.f, 0.f, 35.f));
@@ -77,7 +77,7 @@ int MainScene::Initialize()
 
   // camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager(), deltaTime);
 
-    camera = std::make_unique<CThirdPersonCamera>(&engine.inputManager, player->worldTransform);
+    camera = std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform);
 
 	if (camera != nullptr)
 	{
@@ -107,6 +107,12 @@ int MainScene::Update(float dt)
         timeClock = 0;
         Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
     }
+
+	if (inputManager_->GetKeyDown(KeyCodes::ENTER))
+	{
+		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainScene");
+		addSceneEvent(e);
+	}
 
     dayNightCycle.Update(deltaTime);
 	
@@ -164,7 +170,7 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
     }    
     auto terr = AddGameObject(terrain, position);
     terrains.push_back(terr);
-    engine.renderersManager_.Subscribe(terr);
+    renderersManager_->Subscribe(terr);
 }
 
 std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
@@ -240,11 +246,11 @@ void MainScene::InitGui()
 
 void MainScene::DebugRenderOptionsControl()
 {
-	if (engine.inputManager.GetKeyDown(KeyCodes::V))
+	/*if (inputManager_->GetKeyDown(KeyCodes::V))
 	{
 		debuger.TurnOnOff();
 	}
-	debuger.Execute();
+	debuger.Execute();*/
 }
 
 void MainScene::ReloadShadersInRenderer()

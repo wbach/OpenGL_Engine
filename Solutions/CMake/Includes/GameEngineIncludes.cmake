@@ -13,8 +13,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Engine/Debuger.h
 ../../Sources/GameEngine/Engine/Engine.h
 ../../Sources/GameEngine/Engine/EngineEvent.h
+../../Sources/GameEngine/Engine/IntroRenderer.h
 ../../Sources/GameEngine/Engine/LoD.h
-../../Sources/GameEngine/Engine/Projection.h
 ../../Sources/GameEngine/Input/GameActions.h
 ../../Sources/GameEngine/Input/Input.h
 ../../Sources/GameEngine/Input/InputManager.h
@@ -50,7 +50,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
 ../../Sources/GameEngine/Renderers/LightPassRenderer.h
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
+../../Sources/GameEngine/Renderers/Projection.h
 ../../Sources/GameEngine/Renderers/Renderer.h
+../../Sources/GameEngine/Renderers/RenderersManager.h
 ../../Sources/GameEngine/Renderers/Shadows/Shaders/ShadowShader.h
 ../../Sources/GameEngine/Renderers/Shadows/ShadowBox.h
 ../../Sources/GameEngine/Renderers/Shadows/ShadowFrameBuffer.h
@@ -88,7 +90,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
 ../../Sources/GameEngine/Resources/Textures/Texture.h
 ../../Sources/GameEngine/Resources/Textures/TextureFlip.h
+../../Sources/GameEngine/Scene/ISceneFactory.h
+../../Sources/GameEngine/Scene/SceneEvents.h
 ../../Sources/GameEngine/Scene/SceneLoader.h
+../../Sources/GameEngine/Scene/SceneManager.h
+../../Sources/GameEngine/Scene/SceneWrapper.h
 ../../Sources/GameEngine/Shaders/Deffered/LightPassShader.h
 ../../Sources/GameEngine/Shaders/Loading/LoadingShader.h
 ../../Sources/GameEngine/Shaders/ShaderProgram.h

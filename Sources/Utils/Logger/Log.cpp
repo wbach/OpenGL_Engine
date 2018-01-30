@@ -25,6 +25,9 @@ void CLogger::Logg(const std::string& log)
 {
 	if (!enabled)
 		return;
+
+	std::lock_guard<std::mutex> lk(printMutex_);
+
 	std::cout << log << std::endl;
     logs.push_back(log);
     std::ofstream file(fileName, std::ios_base::app);
@@ -33,6 +36,8 @@ void CLogger::Logg(const std::string& log)
 }
 void CLogger::LoggToFileOnly(const std::string & log)
 {
+	std::lock_guard<std::mutex> lk(printMutex_);
+
 	std::ofstream file(fileName, std::ios_base::app);
 	file << log << '\n';
 	file.close();

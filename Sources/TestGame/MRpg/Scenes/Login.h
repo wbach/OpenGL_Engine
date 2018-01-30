@@ -18,14 +18,13 @@ namespace MmmoRpg
 	class LoginScene : public CScene
 	{
 	public:
-		LoginScene(GameEngine::CEngine& engine, Network::CGateway& gateway, const std::string& serverAddress);
+		LoginScene(Network::CGateway& gateway, const std::string& serverAddress);
 		virtual ~LoginScene() override;
 		virtual int		Initialize() override;
 		virtual void	PostInitialize() override;
 		virtual int		Update(float deltaTime) override;
 
 	private:
-		GameEngine::CEngine& engine_;
 		Network::CGateway& gateway_;
 		std::string serverAddress_;
 

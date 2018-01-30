@@ -7,35 +7,71 @@ namespace GameEngine
 {
 	SceneWrapper::SceneWrapper(std::shared_ptr<CDisplayManager>& displayManager)
 		: displayManager_(displayManager)
+		, state_(SceneWrapperState::SceneNotSet)
 	{
 	}
 
 	void SceneWrapper::Set(ScenePtr scene)
 	{
-		activeScene = scene;
+		SaveSetState(SceneWrapperState::SceneNotSet);
+
+		activeScene.reset();
+		activeScene = std::move(scene);
+
+		SaveSetState(SceneWrapperState::ReadyToInitialized);
 	}
 
-	CScene* SceneWrapper::Get()
+	void SceneWrapper::Init()
 	{
-		if (isInitialized)
-			return activeScene.get();
+		std::lock_guard<std::mutex> lk(initMutex_);
 
-		if (!activeScene)
+		if (SaveGetState() != SceneWrapperState::ReadyToInitialized)
 		{
-			Log("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
-			return nullptr;
-		}	
+			Error("SceneWrapper::Init() Wrong state.");
+			return;
+		}
+		SaveSetState(SceneWrapperState::Initializing);
 
 		SceneLoader sceneloader(displayManager_);
 		if (!sceneloader.Load(activeScene.get()))
-			return nullptr;
+			return;
 
-		isInitialized = true;
-		return activeScene.get();
+		SaveSetState(SceneWrapperState::Initilaized);
 	}
 
 	bool SceneWrapper::IsInitialized()
 	{
-		return isInitialized;
+		return SaveGetState() == SceneWrapperState::Initilaized;
+	}
+
+	SceneWrapperState SceneWrapper::SaveGetState()
+	{
+		std::lock_guard<std::mutex> lk(stateMutex_);
+		return state_;
+	}
+
+	void SceneWrapper::SaveSetState(SceneWrapperState state)
+	{
+		std::lock_guard<std::mutex> lk(stateMutex_);
+		state_ = state;
+	}
+
+	CScene* SceneWrapper::Get()
+	{
+		if (SaveGetState() == SceneWrapperState::Initilaized)
+			return activeScene.get();
+
+		if (SaveGetState() == SceneWrapperState::SceneNotSet)
+			Log("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+
+		return nullptr;
+	}
+
+	SceneWrapperState SceneWrapper::GetState()
+	{
+		if (activeScene == nullptr)
+			return SceneWrapperState::SceneNotSet;
+
+		return SaveGetState();
 	}
 } // GameEngine

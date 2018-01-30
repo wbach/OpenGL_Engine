@@ -21,6 +21,10 @@ void CRenderer::Subscribe(CGameObject*)
 {
 }
 
+void CRenderer::UnSubscribeAll()
+{
+}
+
 const uint32& CRenderer::GetObjectsPerFrame()
 {
     return rendererObjectPerFrame;

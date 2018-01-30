@@ -85,6 +85,13 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 	subscribes[index.x + index.y*gridSize].push_back(entity);
 }
 
+void CEntityRenderer::UnSubscribeAll()
+{
+	dynamicSubscribes.clear();
+	subscribes.clear();
+	subscribes.resize(gridSize * gridSize);
+}
+
 const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 {
 	if (subscribes.empty()) return sEmptyEntityList;

@@ -18,6 +18,7 @@ namespace GameEngine
 			const CProjection& GetProjection() const;
 			void RenderScene(CScene* scene);
 			void Subscribe(CGameObject* gameObject);
+			void UnSubscribeAll();
 			SGuiTextElement& GuiText(const std::string& label);
 
 		private:

@@ -6,15 +6,11 @@
 #include <map>
 
 class CPlayer;
-namespace GameEngine
-{ 
-class CEngine;
-} // GameEngine
 
 class MainScene : public CScene
 {
 public:
-	MainScene(GameEngine::CEngine& engine);
+	MainScene();
 	virtual ~MainScene() override;
 	virtual int		Initialize() override;
 	virtual void	PostInitialize() override {};
@@ -34,7 +30,6 @@ private:
 	CPlayer* player;
 	std::vector<CGameObject*> terrains;
 	double timeClock = 0;
-	GameEngine::CEngine& engine;
 	CDebuger debuger;
 	float deltaTime;
 };

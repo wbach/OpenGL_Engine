@@ -17,6 +17,7 @@ public:
     virtual void Render(CScene* scene) override;
     virtual void EndFrame(CScene* scene) override;
     virtual void Subscribe(CGameObject* gameObject) override;
+	virtual void UnSubscribeAll() override;
 
 private:
     void RenderModel(CModel* model, const mat4& transform_matrix) const;

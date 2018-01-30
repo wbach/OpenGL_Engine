@@ -12,7 +12,7 @@ namespace Utils
 {
 	namespace Thread
 	{
-		typedef std::function<ApiMessages::Type(float deltaTime)> frameFunc;
+		typedef std::function<void (float deltaTime)> frameFunc;
 
 		struct Subscriber
 		{

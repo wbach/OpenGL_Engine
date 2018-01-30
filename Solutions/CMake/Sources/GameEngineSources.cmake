@@ -9,7 +9,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Engine/Configuration.cpp
 ../../Sources/GameEngine/Engine/Debuger.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp
-../../Sources/GameEngine/Engine/Projection.cpp
+../../Sources/GameEngine/Engine/IntroRenderer.cpp
 ../../Sources/GameEngine/Input/Input.cpp
 ../../Sources/GameEngine/Input/InputManager.cpp
 ../../Sources/GameEngine/Lights/Light.cpp
@@ -34,9 +34,12 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/Font.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
+../../Sources/GameEngine/Renderers/GUI/Text/GuiText.cpp
 ../../Sources/GameEngine/Renderers/LightPassRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp
+../../Sources/GameEngine/Renderers/Projection.cpp
 ../../Sources/GameEngine/Renderers/Renderer.cpp
+../../Sources/GameEngine/Renderers/RenderersManager.cpp
 ../../Sources/GameEngine/Renderers/Shadows/Shaders/ShadowShader.cpp
 ../../Sources/GameEngine/Renderers/Shadows/ShadowBox.cpp
 ../../Sources/GameEngine/Renderers/Shadows/ShadowFrameBuffer.cpp
@@ -65,6 +68,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Textures/Texture.cpp
 ../../Sources/GameEngine/Scene/Scene.cpp
 ../../Sources/GameEngine/Scene/SceneLoader.cpp
+../../Sources/GameEngine/Scene/SceneManager.cpp
+../../Sources/GameEngine/Scene/SceneWrapper.cpp
 ../../Sources/GameEngine/Shaders/Deffered/LightPassShader.cpp
 ../../Sources/GameEngine/Shaders/Loading/LoadingShader.cpp
 ../../Sources/GameEngine/Shaders/ShaderProgram.cpp

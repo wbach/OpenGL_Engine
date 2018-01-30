@@ -18,7 +18,7 @@ namespace GameEngine
 		std::shared_ptr<CDisplayManager> displayManager;
 
 	public:
-		CEngine();
+		CEngine(ISceneFactoryPtr sceneFactory);
 		~CEngine();
 		void Init();
 		void GameLoop();

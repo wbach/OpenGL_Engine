@@ -65,6 +65,11 @@ namespace GameEngine
 			for (auto& renderer : renderers_)
 				renderer->Subscribe(gameObject);
 		}
+		void RenderersManager::UnSubscribeAll()
+		{
+			for (auto& r : renderers_)
+				r->UnSubscribeAll();
+		}
 		SGuiTextElement& RenderersManager::GuiText(const std::string & label)
 		{
 			return guiContext_.texts->texts[label];

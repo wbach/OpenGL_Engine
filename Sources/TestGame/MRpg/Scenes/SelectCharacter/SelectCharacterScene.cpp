@@ -7,9 +7,8 @@
 
 namespace MmmoRpg
 {
-	SelectCharacterScene::SelectCharacterScene(GameEngine::CEngine & engine, Network::CGateway & gateway)
+	SelectCharacterScene::SelectCharacterScene(Network::CGateway& gateway)
 		: CScene("SelectCharacterScene")
-		, engine_(engine)
 		, gateway_(gateway)
 	{
 	}
@@ -18,6 +17,8 @@ namespace MmmoRpg
 	}
 	int SelectCharacterScene::Initialize()
 	{
+		return 0;
+
 		Network::GetCharactersMsgReq getCharactersMsgReq;
 		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::GetCharactersMsgReq>(getCharactersMsgReq));
 
@@ -47,6 +48,7 @@ namespace MmmoRpg
 	}
 	void SelectCharacterScene::PostInitialize()
 	{
+		return;
 		Network::SelectCharacterMsgReq characterSelectReq;
 		characterSelectReq.id = 101;
 		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::SelectCharacterMsgReq>(characterSelectReq));

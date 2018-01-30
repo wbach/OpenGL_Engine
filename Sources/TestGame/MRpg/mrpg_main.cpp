@@ -3,9 +3,7 @@
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Engine/Configuration.h"
 #include "../UtilsNetwork/Gateway.h"
-#include "Scenes/Login.h"
-#include "Scenes/SelectCharacter/SelectCharacterScene.h"
-#include "../MainScene.h"
+#include "Scenes/ScenesFactory.h"
 
 namespace MmmoRpg
 {
@@ -13,14 +11,15 @@ namespace MmmoRpg
 	{
 	public:
 		Game()
+			: engine(std::make_shared<SceneFactory>(gateway, serverAdress))
 		{
 			std::string  serverAdress = Utils::ReadFile("./server.conf");
 			Log("Server : " + serverAdress);
 
 			engine.Init();
-			engine.sceneManager_.AddScene(new LoginScene(engine, gateway, serverAdress));
-			engine.sceneManager_.AddScene(new MainScene(engine));
-			engine.sceneManager_.AddScene(new SelectCharacterScene(engine, gateway));
+			engine.sceneManager_.AddScene("LoginScene");
+			engine.sceneManager_.AddScene("MainScene");
+			engine.sceneManager_.AddScene("SelectCharacterScene");
 			engine.sceneManager_.SetActiveScene("LoginScene");
 			engine.GameLoop();
 		}
