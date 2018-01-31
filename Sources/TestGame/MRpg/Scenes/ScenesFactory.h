@@ -17,6 +17,7 @@ namespace MmmoRpg
 		GameEngine::ScenePtr CreateMainScene();
 		GameEngine::ScenePtr CreateLoginScene();
 		GameEngine::ScenePtr CreateSelectCharacterScene();
+		GameEngine::ScenePtr CreateGuiEditorScene();
 
 	private:
 		Network::CGateway& gateway_;

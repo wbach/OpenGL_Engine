@@ -34,6 +34,18 @@ namespace GameEngine
 				{
 					return transformMatrix_;
 				}
+				const vec2 GetPosition() const
+				{
+					return position_;
+				}
+				const vec2 GetScale() const
+				{
+					return scale_;
+				}
+				float GetRotation()
+				{
+					return rotation_;
+				}
 			private:
 				void UpdateTransformMatrix() 
 				{

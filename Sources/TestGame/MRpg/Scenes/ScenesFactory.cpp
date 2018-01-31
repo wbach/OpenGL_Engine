@@ -2,6 +2,7 @@
 #include "Login.h"
 #include "SelectCharacter/SelectCharacterScene.h"
 #include "../../MainScene.h"
+#include "../../GuiEdytorScene.h"
 #include "Logger/Log.h"
 
 namespace MmmoRpg
@@ -13,6 +14,7 @@ namespace MmmoRpg
 		AddScene("LoginScene", std::bind(&SceneFactory::CreateLoginScene, this));
 		AddScene("SelectCharacterScene", std::bind(&SceneFactory::CreateSelectCharacterScene, this));
 		AddScene("MainScene", std::bind(&SceneFactory::CreateMainScene, this));
+		AddScene("GuiEdytorScene", std::bind(&SceneFactory::CreateGuiEditorScene, this));
 	}
 	
 	GameEngine::ScenePtr SceneFactory::CreateMainScene()
@@ -26,5 +28,9 @@ namespace MmmoRpg
 	GameEngine::ScenePtr SceneFactory::CreateSelectCharacterScene()
 	{
 		return std::make_unique<SelectCharacterScene>(gateway_);
+	}
+	GameEngine::ScenePtr SceneFactory::CreateGuiEditorScene()
+	{
+		return std::make_unique<GuiEdytorScene>();
 	}
 } // MmmoRpg

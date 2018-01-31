@@ -6,6 +6,7 @@
 #include "../UtilsNetwork/Messages/GetCharacters/GetCharactersMsgResp.h"
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "../GameEngine/Objects/ObjectBuilder.h"
 
 namespace MmmoRpg
 {
@@ -18,8 +19,8 @@ namespace MmmoRpg
 		characterSelectText_.position = glm::vec2(-0.25, 0.5);
 	}
 	SelectCharacterScene::~SelectCharacterScene()
-	{		
-		
+	{
+
 	}
 	int SelectCharacterScene::Initialize()
 	{
@@ -28,6 +29,50 @@ namespace MmmoRpg
 		renderersManager_->GuiTexture("bg") = guiTexture;
 
 		renderersManager_->GuiText("SelectCharacter") = characterSelectText_;
+
+		SGuiTextElement characterSelectText_;
+
+		auto textColour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
+
+		//characterSelectText_.text = "Slot 1";
+		//characterSelectText_.colour = textColour;
+		//characterSelectText_.position = vec2(-0.925455, -0.477143);
+		//renderersManager_->GuiText("slot1") = characterSelectText_;
+
+		characterSelectText_.text = "Slot 2";
+		characterSelectText_.colour = textColour;
+		characterSelectText_.position = vec2(-0.441818, -0.477143);
+		renderersManager_->GuiText("slot2") = characterSelectText_;
+
+		//characterSelectText_.text = "Slot 3";
+		//characterSelectText_.colour = textColour;
+		//characterSelectText_.position = vec2(0.0327272, -0.474286);
+		//renderersManager_->GuiText("slot3") = characterSelectText_;
+
+		//characterSelectText_.text = "Slot 4";
+		//characterSelectText_.colour = textColour;
+		//characterSelectText_.position = vec2(0.516364, -0.471429);
+		//renderersManager_->GuiText("slot4") = characterSelectText_;
+
+		//camera->SetPosition(vec3());
+		//CGameObject* obj[5];
+		//CGameObject* addobj[5];
+		//obj[0] = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 0.5, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+		//addobj[0] = AddGameObject(obj[0], glm::vec3(-3, -3, -5));
+		//renderersManager_->Subscribe(addobj[0]);
+
+		//obj[1] = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 0.5, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+		//addobj[1] = AddGameObject(obj[1], glm::vec3(-1.5, -3, -5));
+		//renderersManager_->Subscribe(addobj[1]);
+
+		//obj[2] = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 0.5, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+		//addobj[2] = AddGameObject(obj[2], glm::vec3(0.5, -3, -5));
+		//renderersManager_->Subscribe(addobj[2]);
+
+		//obj[3] = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 0.5, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+		//addobj[3] = AddGameObject(obj[3], glm::vec3(2.5, -3, -5));
+		//renderersManager_->Subscribe(addobj[3]);
+
 
 		return 0;
 

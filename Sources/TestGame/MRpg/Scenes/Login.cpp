@@ -87,10 +87,6 @@ namespace MmmoRpg
 			addSceneEvent(e);
 		}
 
-		//auto mouseMove = inputManager_->GetMousePosition();
-		//Log(Utils::ToString(mouseMove));
-		//renderersManager_->GuiText("pass").position = mouseMove;
-
 		for (const auto& p : inputManager_->GetCharKey())
 			(*tmp) += p;
 

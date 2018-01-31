@@ -17,7 +17,10 @@ namespace MmmoRpg
 			Log("Server : " + serverAdress);
 
 			engine.Init();
+			//LoginScene
+			//engine.sceneManager_.SetActiveScene("GuiEdytorScene");
 			engine.sceneManager_.SetActiveScene("LoginScene");
+			//engine.sceneManager_.SetActiveScene("SelectCharacterScene");
 			engine.GameLoop();
 		}
 	private:
