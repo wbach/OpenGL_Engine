@@ -6,17 +6,25 @@
 
 namespace MmmoRpg
 {
-	std::unique_ptr<CScene> SceneFactory::Create(const std::string& sceneName)
+	SceneFactory::SceneFactory(Network::CGateway & gateway, std::string & serverAdress)
+		: gateway_(gateway)
+		, serverAdress_(serverAdress)
 	{
-		if (sceneName == "MainScene")
-			return std::make_unique<MainScene>();
-		if (sceneName == "LoginScene")
-			return std::make_unique<LoginScene>(gateway_, serverAdress_);
-		if (sceneName == "SelectCharacterScene")
-			return std::make_unique<SelectCharacterScene>(gateway_);
-
-		Log("SceneFactory::Create scene : " + sceneName + " not found.");
-
-		return nullptr;
+		AddScene("LoginScene", std::bind(&SceneFactory::CreateLoginScene, this));
+		AddScene("SelectCharacterScene", std::bind(&SceneFactory::CreateSelectCharacterScene, this));
+		AddScene("MainScene", std::bind(&SceneFactory::CreateMainScene, this));
+	}
+	
+	GameEngine::ScenePtr SceneFactory::CreateMainScene()
+	{
+		return std::make_unique<MainScene>();
+	}
+	GameEngine::ScenePtr SceneFactory::CreateLoginScene()
+	{
+		return std::make_unique<LoginScene>(gateway_, serverAdress_);
+	}
+	GameEngine::ScenePtr SceneFactory::CreateSelectCharacterScene()
+	{
+		return std::make_unique<SelectCharacterScene>(gateway_);
 	}
 } // MmmoRpg

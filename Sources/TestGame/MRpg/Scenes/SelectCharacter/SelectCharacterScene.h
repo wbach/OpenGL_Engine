@@ -1,6 +1,7 @@
 #pragma once
 #include "../GameEngine/Scene/Scene.hpp"
 #include "../UtilsNetwork/Messages/GetCharacters/CharacterInfo.h"
+#include "../GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include <vector>
 
 namespace Network
@@ -20,6 +21,7 @@ namespace MmmoRpg
 		virtual int		Update(float deltaTime) override;
 
 	private:
+		SGuiTextElement characterSelectText_;
 		Network::CGateway& gateway_;
 		std::vector<Network::CharacterInfo> charactersData_;
 	};

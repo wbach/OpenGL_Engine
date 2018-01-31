@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-	SceneManager::SceneManager(ISceneFactoryPtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, CInputManager& inputManager, Renderer::RenderersManager& renderersManager, GUI::GuiContext& guiContext)
+	SceneManager::SceneManager(SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, CInputManager& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
 		: sceneFactory_(sceneFactory)
 		, displayManager_(displayManager)
 		, inputManager_(inputManager)
@@ -68,34 +68,11 @@ namespace GameEngine
 		}
 
 	}
-	void SceneManager::AddScene(const std::string& scene)
+	void SceneManager::SetActiveScene(const std::string& name)
 	{
-		scenes_.emplace_back(scene);
+		LoadScene(name);
 	}
-	void SceneManager::SetActiveScene(const std::string & name)
-	{
-		auto id = GetSceneId(name);
 
-		if (!id)
-		{
-			Log("SceneManager::SetActiveScene scene \"" + name + "\" not found.");
-			return;
-		}
-
-		currentSceneId_ = id.value();
-		LoadScene(currentSceneId_);
-	}
-	wb::optional<uint32> SceneManager::GetSceneId(const std::string & name) const
-	{
-		uint32 i = 0;
-		for (const auto& scene : scenes_)
-		{
-			if (scene == name)
-				return i;
-			++i;
-		}
-		return wb::optional<uint32>();
-	}
 	void SceneManager::UpadteScene(float dt)
 	{
 		if (!sceneWrapper_.IsInitialized())
@@ -123,7 +100,7 @@ namespace GameEngine
 	}
 	void SceneManager::LoadNextScene()
 	{
-		if (currentSceneId_ >= scenes_.size() - 1)
+		if (currentSceneId_ >= sceneFactory_->ScenesSize() - 1)
 		{
 			Log("SceneManager::LoadNextScene() no more scenes found.");
 			return;
@@ -139,30 +116,44 @@ namespace GameEngine
 		}
 		LoadScene(--currentSceneId_);
 	}
-	void SceneManager::LoadScene(const std::string & name)
+
+	template<class T>
+	void SceneManager::JustLoadScene(T scene)
 	{
-		auto sceneId = GetSceneId(name);
-		if (!sceneId)
-		{
-			Log("SceneManager::LoadScene() " + name + " not found.");
-			return;
-		}
-		LoadScene(sceneId.value());
+		renderersManager_.UnSubscribeAll();
+		auto s = sceneFactory_->Create(scene);
+		SetSceneContext(s.get());
+		sceneWrapper_.Set(std::move(s));
 	}
+
 	void SceneManager::LoadScene(uint32 id)
 	{
-		if (currentSceneId_ >= scenes_.size())
+		if (!sceneFactory_->IsExist(id))
 		{
 			Log("SceneManager::LoadScene() no more scenes found.");
 			return;
 		}
-		renderersManager_.UnSubscribeAll();
+		currentSceneId_ = id;
+		JustLoadScene<uint32>(id);
+	}
+	
+	void SceneManager::LoadScene(const std::string & name)
+	{
+		if (!sceneFactory_->IsExist(name))
+		{
+			Log("SceneManager::LoadScene() " + name + " not found.");
+			return;
+		}
 
-		auto scene = sceneFactory_->Create(scenes_[id]);
+		currentSceneId_ = sceneFactory_->GetSceneId(name);
+		JustLoadScene<const std::string&>(name);
+	}
+	void SceneManager::SetSceneContext(CScene* scene)
+	{
 		scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
 		scene->SetGuiContext(&guiContext_);
 		scene->SetInputManager(&inputManager_);
-		scene->SetRenderersManager(&renderersManager_);
-		sceneWrapper_.Set(std::move(scene));
+		scene->SetRenderersManager(&renderersManager_);		
 	}
+
 } // GameEngine

@@ -4,6 +4,7 @@
 #include "../UtilsNetwork/Messages/SelectCharacter/SelectCharacterMsgResp.h"
 #include "../UtilsNetwork/Messages/GetCharacters/GetCharactersMsgReq.h"
 #include "../UtilsNetwork/Messages/GetCharacters/GetCharactersMsgResp.h"
+#include "../GameEngine/Engine/Engine.h"
 
 namespace MmmoRpg
 {
@@ -11,12 +12,18 @@ namespace MmmoRpg
 		: CScene("SelectCharacterScene")
 		, gateway_(gateway)
 	{
+		characterSelectText_.text = "SelectCharacterScene";
+		characterSelectText_.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
+		characterSelectText_.position = glm::vec2(0, 0.0);
 	}
 	SelectCharacterScene::~SelectCharacterScene()
 	{
+		
 	}
 	int SelectCharacterScene::Initialize()
 	{
+		renderersManager_->GuiText("SelectCharacter") = characterSelectText_;
+
 		return 0;
 
 		Network::GetCharactersMsgReq getCharactersMsgReq;
@@ -57,6 +64,16 @@ namespace MmmoRpg
 	}
 	int SelectCharacterScene::Update(float deltaTime)
 	{
+		if (!inputManager_)
+		{
+			Log("SelectCharacterScene::Update inputManager_ is null.");
+			return 0;
+		}
+		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
+		{
+			GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE, "MainScene");
+			addSceneEvent(e);
+		}
 		return 0;
 	}
 }

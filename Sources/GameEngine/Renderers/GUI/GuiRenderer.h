@@ -1,9 +1,9 @@
 #pragma once
+#include "GuiElement.h"
+#include "../Renderer.h"
 #include <memory>
 #include <vector>
 #include <GL/glew.h>
-#include "Text/GuiText.h"
-#include "../Renderer.h"
 
 class CGUIRenderer : public CRenderer
 {
@@ -20,5 +20,5 @@ public:
 	void AddElement(CGuiElement* element);
 
 private: 
-    std::vector<std::shared_ptr<CGuiElement>> guiElements;
+    std::vector<CGuiElementPtr> guiElements;
 };

@@ -28,7 +28,7 @@ namespace GameEngine
 			void Render(CScene* scene, CRenderer* renderer);
 
 		private:
-			GUI::GuiContext guiContext_;
+			Renderer::Gui::GuiContext guiContext_;
 			RenderersPtrVec renderers_;
 			CProjection projection_;
 		};

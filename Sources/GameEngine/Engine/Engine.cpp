@@ -8,7 +8,7 @@
 
 namespace GameEngine
 {
-	CEngine::CEngine(ISceneFactoryPtr sceneFactory)
+	CEngine::CEngine(SceneFactoryBasePtr sceneFactory)
 		: displayManager(nullptr)
 		, inputManager()
 		, sceneManager_(sceneFactory, displayManager, inputManager, renderersManager_, guiContext_)

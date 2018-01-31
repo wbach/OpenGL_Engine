@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/ISceneFactory.h"
+#include "Scene/SceneFactoryBase.h"
 
 namespace Network
 {
@@ -7,21 +7,19 @@ namespace Network
 } // Network
 
 namespace MmmoRpg
-{
-	class SceneFactory : public GameEngine::ISceneFactory
+{	
+	class SceneFactory : public GameEngine::SceneFactoryBase
 	{
 	public:
-		SceneFactory(Network::CGateway& gateway, std::string& serverAdress)
-			: gateway_(gateway)
-			, serverAdress_(serverAdress)
-		{
+		SceneFactory(Network::CGateway& gateway, std::string& serverAdress);
 
-		}
-		// Inherited via ISceneFactory
-		virtual std::unique_ptr<CScene> Create(const std::string &) override;
+	private:
+		GameEngine::ScenePtr CreateMainScene();
+		GameEngine::ScenePtr CreateLoginScene();
+		GameEngine::ScenePtr CreateSelectCharacterScene();
 
 	private:
 		Network::CGateway& gateway_;
-		std::string& serverAdress_;
+		std::string& serverAdress_;		
 	};
 }

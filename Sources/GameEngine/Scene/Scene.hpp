@@ -60,7 +60,7 @@ public:
 	inline float GetGlobalTime();
 
 	// GUi
-	void SetGuiContext(GameEngine::GUI::GuiContext* c);
+	void SetGuiContext(GameEngine::Renderer::Gui::GuiContext* c);
 	void SetInputManager(CInputManager* input);
 	void SetRenderersManager(GameEngine::Renderer::RenderersManager* manager);
 
@@ -71,7 +71,7 @@ protected:
 	std::string name;
 	GameEngine::AddEvent addSceneEvent;
 
-	GameEngine::GUI::GuiContext* gui_;
+	GameEngine::Renderer::Gui::GuiContext* gui_;
 	CInputManager* inputManager_;
 	GameEngine::Renderer::RenderersManager* renderersManager_;
 
@@ -108,7 +108,7 @@ inline float CScene::GetGlobalTime()
 	return gloabalTime;
 }
 
-inline void CScene::SetGuiContext(GameEngine::GUI::GuiContext* c)
+inline void CScene::SetGuiContext(GameEngine::Renderer::Gui::GuiContext* c)
 {
 	gui_ = c;
 }

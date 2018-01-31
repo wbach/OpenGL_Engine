@@ -1,6 +1,7 @@
 #pragma once
 #include "../GameEngine/Scene/Scene.hpp"
 #include "../GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "../GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include <unordered_map>
 
 namespace GameEngine

@@ -1,12 +1,12 @@
 #pragma once
-#include <map>
+#include <unordered_map>
 #include "../GuiElement.h"
 #include "Font.h"
 #include "FontShader.h"
 #include "GuiTextElement.h"
 #include "Logger/Log.h"
 
-typedef std::map<std::string, SGuiTextElement> GuiTexts;
+typedef std::unordered_map<std::string, SGuiTextElement> GuiTexts;
 
 class CGuiText : public CGuiElement
 {

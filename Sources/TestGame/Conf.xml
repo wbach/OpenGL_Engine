@@ -1,15 +1,15 @@
 <config>
-	<Window name="Gota - OpenGL" width="800" height="480" fullscreen="false" refreshRate="30" vsync="false"/>
+	<Window name="Gota - OpenGL" width="1100" height="700" fullscreen="false" refreshRate="15" vsync="false"/>
 	<Sound enabled="true" volume="1.0"/>
 	<Engine>
-		<DataLocation>D:/Projects/OpenGL_Engine/Data/</DataLocation>
-		<ShadersLocation>D:/Projects/OpenGL_Engine/Sources/Shaders/</ShadersLocation>
+		<DataLocation>C:/Data/Projects/Private/OpenGL_Bin/Data/</DataLocation>
+		<ShadersLocation>C:/Data/Projects/Private/OpenGL_Bin/Shaders/</ShadersLocation>
 		<ViewDistance>250</ViewDistance>
 		<Renderer>
 		 	<start_lod_lvl>2</start_lod_lvl>
 		 	<type>1</type>
 		 </Renderer>
-		<TextureMaxResolution width="512" height="512"/>
+		<TextureMaxResolution width="128" height="128"/>
 		<Flora viewDistance="10" grass="true"/>
 		<Shadows enabled="false" distance="35" shadowMapSize="128"/>
 		<Water quality="1">

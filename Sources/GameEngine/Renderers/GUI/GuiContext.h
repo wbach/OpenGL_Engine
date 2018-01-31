@@ -5,12 +5,18 @@ class CGUIRenderer;
 
 namespace GameEngine
 {
-	namespace GUI
+	namespace Renderer
 	{
-		struct GuiContext
+		namespace Gui
 		{
-			CGuiText* texts		    = nullptr;
-			CGUIRenderer* renderer  = nullptr;
-		};
+			class CGuiTexture;
+
+			struct GuiContext
+			{
+				CGuiText* texts = nullptr;
+				CGuiTexture* texures = nullptr;
+				CGUIRenderer* renderer = nullptr;
+			};
+		}
 	}
 }

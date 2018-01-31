@@ -1,6 +1,7 @@
 #include "Login.h"
 #include "../UtilsNetwork/Gateway.h"
 #include "../GameEngine/Engine/Engine.h"
+#include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 
 std::unordered_map<KeyCodes::Type, char> keys_;
 
@@ -21,9 +22,6 @@ namespace MmmoRpg
 		guiPass_.text = "Password :";
 		guiPass_.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
 		guiPass_.position = glm::vec2(-0.5, 0.0);
-
-	
-
 	}
 	LoginScene::~LoginScene()
 	{

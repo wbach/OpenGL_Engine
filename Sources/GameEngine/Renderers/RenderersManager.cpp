@@ -2,6 +2,8 @@
 #include "SimpleRenderer.h"
 #include "FullRenderer.h"
 #include "GUI/GuiRenderer.h"
+#include "GUI/Text/GuiText.h"
+#include "GUI/Texutre/GuiTexture.hpp"
 #include "../Engine/Configuration.h"
 #include "../Engine/AplicationContext.h"
 #include "Logger/Log.h"
@@ -49,7 +51,9 @@ namespace GameEngine
 		{
 			guiContext_.renderer = new CGUIRenderer();
 			guiContext_.texts = new CGuiText("GUI/consola.ttf", projection_.GetWindowSize());
+			//guiContext_.texures = new Renderer::Gui::CGuiTexture();
 			guiContext_.renderer->AddElement(guiContext_.texts);
+			//guiContext_.renderer->AddElement(guiContext_.texures);
 			renderers_.emplace_back(guiContext_.renderer);
 		}
 		void RenderersManager::RenderScene(CScene* scene)

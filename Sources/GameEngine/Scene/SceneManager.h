@@ -1,5 +1,5 @@
 #pragma once
-#include "ISceneFactory.h"
+#include "SceneFactoryBase.h"
 #include "ThreadSync.h"
 #include "SceneWrapper.h"
 #include "SceneEvents.h"
@@ -11,30 +11,27 @@ class CInputManager;
 
 namespace GameEngine
 {
-	namespace GUI
-	{
-		struct GuiContext;
-	}
-
 	namespace Renderer
 	{
+		namespace Gui
+		{
+			struct GuiContext;
+		}
+
 		class RenderersManager;
 	} // Renderer
-
-	typedef std::vector<std::string> ScenesVec;
-
+	
 	class SceneManager
 	{
 	public:
-		SceneManager(ISceneFactoryPtr, std::shared_ptr<CDisplayManager>&, CInputManager&, Renderer::RenderersManager&, GUI::GuiContext& guiContext);
+		SceneManager(SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, CInputManager&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
 		~SceneManager();
 		CScene* GetActiveScene();
 		void InitActiveScene();
 		void RuntimeLoadObjectToGpu();
 		void Update();		
-		void AddScene(const std::string&);
 		void SetActiveScene(const std::string& name);		
-		wb::optional<uint32> GetSceneId(const std::string& name) const;
+
 
 	private:
 		void ProccessEvents();
@@ -46,13 +43,16 @@ namespace GameEngine
 		void LoadPreviousScene();
 		void LoadScene(const std::string&);
 		void LoadScene(uint32 id);
+		void SetSceneContext(CScene* scene);
+		
+		template<class T>
+		void JustLoadScene(T scene);
 
 	private:
-		ISceneFactoryPtr sceneFactory_;
+		SceneFactoryBasePtr sceneFactory_;
 
 		uint32 currentSceneId_;
 		SceneWrapper sceneWrapper_;
-		ScenesVec  scenes_;
 
 		std::mutex eventMutex_;
 		std::queue<GameEngine::SceneEvent> events_;
@@ -60,7 +60,7 @@ namespace GameEngine
 		std::shared_ptr<CDisplayManager>& displayManager_;
 		CInputManager& inputManager_;
 		Renderer::RenderersManager& renderersManager_;
-		GUI::GuiContext& guiContext_;
+		Renderer::Gui::GuiContext& guiContext_;
 
 		Utils::Thread::ThreadSync threadSync_;
 	};
