@@ -20,7 +20,7 @@ namespace Network
 		CGateway();
 		~CGateway();
 		void StartServer(uint32 maxClients, uint32 port);
-		void ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
+		bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 		void SubscribeForNewUser(CreationFunc func);
 		//void SubscribeOnMessageArrived(OnMessageArrived func);
 		void AddToOutbox(uint32 userId, IMessagePtr message);

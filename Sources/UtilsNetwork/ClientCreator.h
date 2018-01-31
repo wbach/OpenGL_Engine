@@ -2,6 +2,7 @@
 #include "NetworkCreator.h"
 #include "Sender.h"
 #include "Reciever.h"
+#include "optional.hpp"
 
 namespace Network
 {
@@ -19,7 +20,7 @@ namespace Network
 
 	public:
 		ClientCreator(ISDLNetWrapperPtr sdlNetWrapper);
-		ConectContext ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
+		wb::optional<ConectContext> ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 
 	private:
 		ConnectionState WaitForAcceptConnection();

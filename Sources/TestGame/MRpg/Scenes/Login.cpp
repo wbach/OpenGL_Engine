@@ -3,6 +3,7 @@
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "../UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
 
 std::unordered_map<KeyCodes::Type, char> keys_;
 
@@ -44,6 +45,10 @@ namespace MmmoRpg
 		renderersManager_->GuiText("pass") = guiPass_;
 		renderersManager_->GuiTexture("bg") = guiTexture;
 		renderersManager_->GuiTexture("loginBox") = loginBox;
+
+		renderersManager_->GuiText("Error") = guiLogin_;
+		renderersManager_->GuiText("Error").position.y -= 0.5f;
+		renderersManager_->GuiText("Error").text = "";
 		return 0;
 	}
 	void LoginScene::PostInitialize()
@@ -79,12 +84,20 @@ namespace MmmoRpg
 			if (login_.empty() || password_.empty())
 				return 0;
 
-			//gateway_.ConnectToServer(login_, password_, serverAddress_, 1991);
-			tryToLogin = true;
-			//engine_.AddEngineEvent(GameEngine::EngineEvent::LOAD_NEXT_SCENE);
+			auto isConnected = gateway_.ConnectToServer(login_, password_, serverAddress_, 1991);
 
-			GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE);
-			addSceneEvent(e);
+			if (isConnected)
+			{
+				renderersManager_->GuiText("Error").text = "Connected.";
+				GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE);
+				addSceneEvent(e);
+			}
+			else
+			{
+				renderersManager_->GuiText("Error").text = "Connection Error.";
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		}
 
 		for (const auto& p : inputManager_->GetCharKey())

@@ -34,16 +34,23 @@ namespace Network
 		isServer = true;
 		networkThread_ = std::thread(std::bind(&CGateway::MainLoop, this));
 	}
-	void CGateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+	bool CGateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
 	{
-		context_ = clientCreator_.ConnectToServer(username, password, host, port);
+		auto op_context = clientCreator_.ConnectToServer(username, password, host, port);
 		
+		if (!op_context)
+			return false;
+
+		context_ = op_context.value();
+
 		//from client pov is only one user - server
 
 		context_.users[0] = std::make_shared<UtilsNetwork::UserData>();
 		context_.users[0]->socket = context_.socket;
 
 		networkThread_ = std::thread(std::bind(&CGateway::MainLoop, this));
+
+		return true;
 	}	
 
 	void CGateway::ReceiveAllMessages()

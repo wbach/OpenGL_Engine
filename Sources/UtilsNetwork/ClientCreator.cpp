@@ -13,19 +13,19 @@ namespace Network
 	{
 	}
 
-	ConectContext ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+	wb::optional<ConectContext> ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
 	{
 		context_.port = port;
 		context_.serverName = host;
 
-		if (!Init())			return context_;
-		if (!AllocSocketSet(1)) return context_;
-		if (!ResolveHost(context_.serverName.c_str())) return context_;
-		if (!ResolveIp())		return context_;
-		if (!OpenTcp())			return context_;
-		if (!AddSocketTcp())	return context_;
-		if (WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION) return context_;
-		if (!WaitForAuthentication(username, password)) return context_;
+		if (!Init())			return wb::optional<ConectContext>();
+		if (!AllocSocketSet(1)) return wb::optional<ConectContext>();
+		if (!ResolveHost(context_.serverName.c_str())) return wb::optional<ConectContext>();
+		if (!ResolveIp())		return wb::optional<ConectContext>();
+		if (!OpenTcp())			return wb::optional<ConectContext>();
+		if (!AddSocketTcp())	return wb::optional<ConectContext>();
+		if (WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION) return wb::optional<ConectContext>();
+		if (!WaitForAuthentication(username, password)) return wb::optional<ConectContext>();
 		isCreated = true;
 
 		return context_;

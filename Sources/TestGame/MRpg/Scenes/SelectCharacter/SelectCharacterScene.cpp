@@ -74,7 +74,7 @@ namespace MmmoRpg
 		//renderersManager_->Subscribe(addobj[3]);
 
 
-		return 0;
+	//	return 0;
 
 		Network::GetCharactersMsgReq getCharactersMsgReq;
 		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::GetCharactersMsgReq>(getCharactersMsgReq));
@@ -85,6 +85,9 @@ namespace MmmoRpg
 
 		auto myCharacters = gateway_.PopInBox();
 
+		characterSelectText_.position.x = -0.5f;
+		characterSelectText_.position.y = 0.25f;
+
 		if (myCharacters)
 		{
 			auto msg = dynamic_cast<Network::GetCharactersMsgResp*>(myCharacters->second.get());
@@ -92,10 +95,20 @@ namespace MmmoRpg
 			{
 				Log("My characters : ");
 				Log(msg->ToString());
+
+				int i = 0;
+
 				for (const auto& cd : msg->characterInfo)
 				{
 					if (!cd) continue;
 					charactersData_.push_back(cd.value());
+
+					//*******
+					characterSelectText_.position.x += 0.2f;
+					characterSelectText_.text = std::to_string(cd.value().id_);
+					renderersManager_->GuiText("ID_" + std::to_string(i++)) = characterSelectText_;
+
+					//*****
 				}
 			}
 		}
