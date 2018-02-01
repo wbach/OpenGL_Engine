@@ -163,7 +163,7 @@ wb::optional<vec3> CTerrain::UpdatePositionIfIsUnderTerrain(const vec3& current_
 		return{};
 
 	vec3 p = current_pos;
-	p.y = height.value();
+	p.y = height.constValue();
 
 	return p;
 }

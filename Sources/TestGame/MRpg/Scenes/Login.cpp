@@ -5,10 +5,9 @@
 #include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "../UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
 
-std::unordered_map<KeyCodes::Type, char> keys_;
-
 namespace MmmoRpg
 {
+	//TO DO: remove pause when fix getdown key in input manager
 	LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddress)
 		: CScene("LoginScene")
 		, gateway_(gateway)
@@ -26,9 +25,6 @@ namespace MmmoRpg
 		guiPass_.text = "Password :";
 		guiPass_.colour = textColor;
 		guiPass_.position = glm::vec2(-0.249091, -0.262857);
-	}
-	LoginScene::~LoginScene()
-	{
 	}
 	int LoginScene::Initialize()
 	{	
@@ -57,56 +53,77 @@ namespace MmmoRpg
 
 	int LoginScene::Update(float deltaTime)
 	{
-		/*if (tryToLogin)
-			return 0;*/
+		PrintLoginAndPassword();
 
-	//	auto& guiTexts = engine_.renderersManager_.guiContext_.texts->texts;
-
-		//if(guiTexts.count("login") > 0)
-			renderersManager_->GuiText("login").text = login_ + (loginOrPasswordInput ? "" : "_");
-	//	if (guiTexts.count("pass") > 0)
-			renderersManager_->GuiText("pass").text = passwordToShow_ + (!loginOrPasswordInput ? "" : "_");;
+		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
+			ConnectToServer();
 
 		if (inputManager_->GetKeyDown(KeyCodes::TAB))
-			loginOrPasswordInput = !loginOrPasswordInput;
+			SwapLoginPassword();
 
+		InsertText(); // TO DO: move to game engine
+
+		return 0;
+	}
+
+	void LoginScene::PrintLoginAndPassword()
+	{
+		renderersManager_->GuiText("login").text = login_ + (loginOrPasswordInput ? "" : "_");
+		renderersManager_->GuiText("pass").text = PasswordToStars() + (!loginOrPasswordInput ? "" : "_");
+	}
+	void LoginScene::ConnectToServer()
+	{
+		if (login_.empty() || password_.empty())
+			return;
+
+		auto isConnected = gateway_.ConnectToServer(login_, password_, serverAddress_, 1991);
+
+		if (!isConnected)
+		{
+			renderersManager_->GuiText("Error").text = "Connection Error.";
+			Pause();
+			return;
+		}
+
+		renderersManager_->GuiText("Error").text = "Connected.";
+		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE);
+		addSceneEvent(e);
+	}
+	std::string LoginScene::PasswordToStars()
+	{
+		std::string passwordToShow;
+		for (auto c : password_)
+			passwordToShow += '*';
+		return passwordToShow;
+	}
+	void LoginScene::InsertText()
+	{
 		std::string* tmp = &login_;
 
 		if (loginOrPasswordInput)
 			tmp = &password_;
 
 		if (inputManager_->GetKeyDown(KeyCodes::BACKSPACE))
-			if(!tmp->empty())
-				tmp->pop_back();		
-		
-		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
 		{
-			if (login_.empty() || password_.empty())
-				return 0;
-
-			auto isConnected = gateway_.ConnectToServer(login_, password_, serverAddress_, 1991);
-
-			if (isConnected)
-			{
-				renderersManager_->GuiText("Error").text = "Connected.";
-				GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE);
-				addSceneEvent(e);
-			}
-			else
-			{
-				renderersManager_->GuiText("Error").text = "Connection Error.";
-			}
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			if(!tmp->empty())
+				tmp->pop_back();
+			Pause();
 		}
 
 		for (const auto& p : inputManager_->GetCharKey())
+		{
 			(*tmp) += p;
+			Pause();
+		}
 
-		passwordToShow_.clear();
-		for (auto c : password_)
-			passwordToShow_ += '*';
-
-		return 0;
 	}
-}
+	void LoginScene::SwapLoginPassword()
+	{
+		loginOrPasswordInput = !loginOrPasswordInput;
+		Pause();
+	}
+	void LoginScene::Pause()
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
+} // MmmoRpg

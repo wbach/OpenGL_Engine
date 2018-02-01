@@ -12,7 +12,7 @@ namespace GameEngine
 namespace Network
 {
 	class CGateway;
-}
+} // Network
 
 namespace MmmoRpg
 {
@@ -20,10 +20,17 @@ namespace MmmoRpg
 	{
 	public:
 		LoginScene(Network::CGateway& gateway, const std::string& serverAddress);
-		virtual ~LoginScene() override;
 		virtual int		Initialize() override;
 		virtual void	PostInitialize() override;
 		virtual int		Update(float deltaTime) override;
+
+	private:
+		void PrintLoginAndPassword();
+		void ConnectToServer();
+		std::string PasswordToStars();
+		void InsertText();
+		void SwapLoginPassword();
+		void Pause();
 
 	private:
 		Network::CGateway& gateway_;
@@ -34,9 +41,8 @@ namespace MmmoRpg
 
 		std::string login_;
 		std::string password_;
-		std::string passwordToShow_;
-		
+
 		bool loginOrPasswordInput;
 		bool tryToLogin;
 	};
-}
+} // MmmoRpg

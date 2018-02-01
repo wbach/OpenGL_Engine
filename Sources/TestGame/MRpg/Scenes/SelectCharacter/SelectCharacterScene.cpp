@@ -13,9 +13,11 @@ namespace MmmoRpg
 	SelectCharacterScene::SelectCharacterScene(Network::CGateway& gateway)
 		: CScene("SelectCharacterScene")
 		, gateway_(gateway)
+		, state_(State::GET_CHARACTER)
+		, itemsTextColour_(0, 162.f / 255.f, 232.f / 255.f)
 	{
 		characterSelectText_.text = "Select Character";
-		characterSelectText_.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
+		characterSelectText_.colour = itemsTextColour_;
 		characterSelectText_.position = glm::vec2(-0.25, 0.5);
 	}
 	SelectCharacterScene::~SelectCharacterScene()
@@ -30,29 +32,6 @@ namespace MmmoRpg
 
 		renderersManager_->GuiText("SelectCharacter") = characterSelectText_;
 
-		SGuiTextElement characterSelectText_;
-
-		auto textColour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
-
-		//characterSelectText_.text = "Slot 1";
-		//characterSelectText_.colour = textColour;
-		//characterSelectText_.position = vec2(-0.925455, -0.477143);
-		//renderersManager_->GuiText("slot1") = characterSelectText_;
-
-		characterSelectText_.text = "Slot 2";
-		characterSelectText_.colour = textColour;
-		characterSelectText_.position = vec2(-0.441818, -0.477143);
-		renderersManager_->GuiText("slot2") = characterSelectText_;
-
-		//characterSelectText_.text = "Slot 3";
-		//characterSelectText_.colour = textColour;
-		//characterSelectText_.position = vec2(0.0327272, -0.474286);
-		//renderersManager_->GuiText("slot3") = characterSelectText_;
-
-		//characterSelectText_.text = "Slot 4";
-		//characterSelectText_.colour = textColour;
-		//characterSelectText_.position = vec2(0.516364, -0.471429);
-		//renderersManager_->GuiText("slot4") = characterSelectText_;
 
 		//camera->SetPosition(vec3());
 		//CGameObject* obj[5];
@@ -76,43 +55,8 @@ namespace MmmoRpg
 
 	//	return 0;
 
-		Network::GetCharactersMsgReq getCharactersMsgReq;
-		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::GetCharactersMsgReq>(getCharactersMsgReq));
-
-
-		Log("Wait for get my characters.");
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-		auto myCharacters = gateway_.PopInBox();
-
-		characterSelectText_.position.x = -0.5f;
-		characterSelectText_.position.y = 0.25f;
-
-		if (myCharacters)
-		{
-			auto msg = dynamic_cast<Network::GetCharactersMsgResp*>(myCharacters->second.get());
-			if (msg)
-			{
-				Log("My characters : ");
-				Log(msg->ToString());
-
-				int i = 0;
-
-				for (const auto& cd : msg->characterInfo)
-				{
-					if (!cd) continue;
-					charactersData_.push_back(cd.value());
-
-					//*******
-					characterSelectText_.position.x += 0.2f;
-					characterSelectText_.text = std::to_string(cd.value().id_);
-					renderersManager_->GuiText("ID_" + std::to_string(i++)) = characterSelectText_;
-
-					//*****
-				}
-			}
-		}
-		Log("SelectCharacterScene::Initialized");
+		SendGetCharacter();
+		WaitForGetCharacterResp();
 
 		return 0;
 	}
@@ -127,16 +71,187 @@ namespace MmmoRpg
 	}
 	int SelectCharacterScene::Update(float deltaTime)
 	{
-		if (!inputManager_)
+		switch (state_)
 		{
-			Log("SelectCharacterScene::Update inputManager_ is null.");
-			return 0;
+		case State::GET_CHARACTER:
+			WaitForGetCharacterResp();
+			break;
+		case State::SELECT_CHARACTER:
+			SelectCharacterState();
+			break;
+		case State::WAIT_FOR_SELECT_CHARACTER_RESP:
+			WaitForSelectCharacterResp();
+			break;
 		}
-		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
-		{
-			GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE, "MainScene");
-			addSceneEvent(e);
-		}
+
 		return 0;
 	}
-}
+	void SelectCharacterScene::SendSelectCharacterReq()
+	{
+		if (!currentSelectCharacterId_)
+		{
+			Log("SelectCharacterScene::SendSelectCharacterReq : Character not selected");
+			return;
+		}
+
+		Network::SelectCharacterMsgReq characterSelectReq;
+		characterSelectReq.id = charactersData_[currentSelectCharacterId_.constValue()].characterInfo.id_;
+		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::SelectCharacterMsgReq>(characterSelectReq));
+		selectedCharacterMsgSentTime_ = std::chrono::high_resolution_clock::now();
+		Log("SelectCharacterScene::SendSelectCharacterReq : Character selected");
+	}
+	void SelectCharacterScene::WaitForSelectCharacterResp()
+	{
+		auto now = std::chrono::high_resolution_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(now - selectedCharacterMsgSentTime_).count() > 3 )
+		{
+			Log("SelectCharacterScene::WaitForSelectCharacterResp : time out.");
+			state_ = State::SELECT_CHARACTER;
+			return;
+		}
+
+		auto msg = gateway_.PopInBox();
+		if (msg == nullptr)
+			return;
+		auto resp = Network::castMessageAs<Network::SelectCharacterMsgResp>(msg->second);
+
+		if (resp->status_ == Network::MessageStatus::Fail)
+		{
+			Log(" SelectCharacterScene::WaitForSelectCharacterResp : server refused select that character " + std::to_string(resp->id));
+			state_ = State::SELECT_CHARACTER;
+			return;
+		}
+		// id = game, set selected characeter
+		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE, "MainScene");
+		addSceneEvent(e);
+
+		state_ = State::END;
+	}
+	void SelectCharacterScene::SendGetCharacter()
+	{
+		Network::GetCharactersMsgReq getCharactersMsgReq;
+		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::GetCharactersMsgReq>(getCharactersMsgReq));
+	}
+	void SelectCharacterScene::WaitForGetCharacterResp()
+	{
+		Log("Wait for get my characters.");
+
+		auto myCharacters = gateway_.PopInBox();
+
+		if (myCharacters == nullptr)
+			return;
+
+		auto msg = Network::castMessageAs<Network::GetCharactersMsgResp>(myCharacters->second);
+
+		if (msg == nullptr)
+		{
+			Log("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " + std::to_string(msg->GetType()));
+			return;
+		}
+
+		for (const auto& cd : msg->characterInfo)
+		{
+			if (!cd) continue;
+			AddSlot(cd.constValue());
+		}
+
+		state_ = State::SELECT_CHARACTER;
+	}
+	void SelectCharacterScene::SlotToRenderer(const CharacterSlot& slot, uint32 id)
+	{
+		int i = 0;
+		for (const auto& text : slot.texts)
+		{
+			auto name = "Slot_" + std::to_string(id) + "_" + std::to_string(i++);
+			renderersManager_->GuiText(name) = text.second;
+		}
+	}
+	void SelectCharacterScene::AddSlot(const Network::CharacterInfo& info)
+	{
+		vec2 offsetX(0.25f, 0.f);
+		vec2 offsetY(0.0f, -0.1f);
+		vec2 startPosition(-0.441818, -0.477143);
+		float size = .5f;
+
+		uint32 slotId = charactersData_.size();
+		vec2 finalPos = startPosition + offsetX * static_cast<float>(slotId);
+
+		CharacterSlot newSlot;
+		newSlot.texts[CharacterSlot::TextType::NICK].text = info.GetName();
+		newSlot.texts[CharacterSlot::TextType::NICK].m_size = size;
+		newSlot.texts[CharacterSlot::TextType::NICK].colour = itemsTextColour_;
+		newSlot.texts[CharacterSlot::TextType::NICK].position = finalPos + offsetY;
+		newSlot.texts[CharacterSlot::TextType::LVL].m_size = size;
+		newSlot.texts[CharacterSlot::TextType::LVL].text = "Lvl : " + std::to_string(info.lvl_);
+		newSlot.texts[CharacterSlot::TextType::LVL].colour = itemsTextColour_;
+		newSlot.texts[CharacterSlot::TextType::LVL].position = finalPos + 2.f*offsetY;
+		newSlot.texts[CharacterSlot::TextType::CLASSNAME].m_size = size;
+		newSlot.texts[CharacterSlot::TextType::CLASSNAME].text = "Class id : " + std::to_string(info.classId_);
+		newSlot.texts[CharacterSlot::TextType::CLASSNAME].colour = itemsTextColour_;
+		newSlot.texts[CharacterSlot::TextType::CLASSNAME].position = finalPos + 3.f*offsetY;;
+		newSlot.characterInfo = info;
+		SlotToRenderer(newSlot, slotId);
+		charactersData_.push_back(newSlot);
+	}
+	void SelectCharacterScene::SetCurrentChoiceText()
+	{
+		if (charactersData_.empty() || !currentSelectCharacterId_)
+			return;
+
+		renderersManager_->GuiText("CurrentChoice") = characterSelectText_;
+		renderersManager_->GuiText("CurrentChoice").position = vec2(-0.2, 0);
+		renderersManager_->GuiText("CurrentChoice").text = charactersData_[currentSelectCharacterId_.value()].characterInfo.GetName();
+	}
+	void SelectCharacterScene::Pause()
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
+	void SelectCharacterScene::CheckRangeSelectedCharacter()
+	{
+		if (!currentSelectCharacterId_)
+			return;
+		
+		auto& v = currentSelectCharacterId_.value();
+		auto size = static_cast<uint8>(charactersData_.size());
+
+		if (v >= size)
+			v = size - 1;
+
+		if (v < 0)
+			v = 0;
+	}
+	void SelectCharacterScene::ChangeSelectedCharacter(int8 dir)
+	{
+		if (!currentSelectCharacterId_)
+		{
+			currentSelectCharacterId_ = 0;
+			return;
+		}
+
+		currentSelectCharacterId_.value() += dir;
+	}
+	void SelectCharacterScene::SelectCharacterState()
+	{
+		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
+		{
+			SendSelectCharacterReq();
+			Pause();
+			state_ = State::WAIT_FOR_SELECT_CHARACTER_RESP;
+		}
+
+		if (inputManager_->GetKeyDown(KeyCodes::A))
+		{
+			ChangeSelectedCharacter(-1);
+			Pause();
+		}
+
+		if (inputManager_->GetKeyDown(KeyCodes::D))
+		{
+			ChangeSelectedCharacter(1);
+			Pause();
+		}
+
+		CheckRangeSelectedCharacter();
+		SetCurrentChoiceText();
+	}
+} // MmmoRpg

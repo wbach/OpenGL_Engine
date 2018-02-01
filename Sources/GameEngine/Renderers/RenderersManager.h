@@ -12,7 +12,7 @@ namespace GameEngine
 	{
 		namespace Gui
 		{
-			struct GuiTextureElement;
+			class GuiTextureElement;
 		} // Gui
 
 		class RenderersManager

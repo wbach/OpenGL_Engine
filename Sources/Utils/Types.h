@@ -7,12 +7,14 @@
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
 #endif
 
-typedef unsigned char uchar;
-typedef unsigned char uint8;
+typedef unsigned char  uchar;
+typedef unsigned char  uint8;
 typedef unsigned short uint16;
-typedef unsigned int uint32;
+typedef unsigned int   uint32;
 
-typedef int int32;
+typedef char  int8;
+typedef short int16;
+typedef int   int32;
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))

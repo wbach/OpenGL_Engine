@@ -41,7 +41,7 @@ namespace Network
 		if (recvBytes == 0)
 		{
 			Log("Recv header bytes: " + std::to_string(recvBytes));
-			error = RecvError::ZeroBytes;
+			error = RecvError::Disconnect;//RecvError::ZeroBytes;
 			return nullptr;
 		}			
 

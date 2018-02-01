@@ -100,7 +100,11 @@ namespace wb
 			o.hasvalue_ = hasvalue_;
 			return o;
 		}
-		const T& value() const
+		const T& constValue() const
+		{
+			return value_;
+		}
+		T& value()
 		{
 			return value_;
 		}

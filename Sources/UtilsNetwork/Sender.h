@@ -25,7 +25,7 @@ namespace Network
 		template <class T>
 		SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
 		{
-			auto final_msg = dynamic_cast<T*>(msg);
+			auto final_msg = castMessageAs<T>(msg);
 			if (final_msg == nullptr)
 			{
 				Log("[Error] Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));

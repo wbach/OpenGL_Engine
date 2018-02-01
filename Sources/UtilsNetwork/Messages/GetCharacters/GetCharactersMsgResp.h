@@ -23,7 +23,7 @@ namespace Network
 			{
 				if(!ci)	continue;
 
-				result += "\nId : " + std::to_string(ci.value().id_);
+				result += "\nId : " + std::to_string(ci.constValue().id_);
 			}
 
 			return result + "\n}";

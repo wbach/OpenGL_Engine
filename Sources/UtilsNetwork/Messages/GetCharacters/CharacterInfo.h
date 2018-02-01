@@ -25,7 +25,7 @@ namespace Network
 			CopyToArray(name_, name);
 		}
 
-		std::string GetName()
+		std::string GetName() const
 		{
 			return name_;
 		}

@@ -12,11 +12,12 @@ void CGuiText::UnSubscribeAll()
 void CGuiText::Render()
 {
 	shader.Start();
-	glActiveTexture(GL_TEXTURE0);
-	glPushMatrix();
-	glLoadIdentity();
+	glActiveTexture(GL_TEXTURE0);	
 	for (const auto& p : texts)
 	{
+		glPushMatrix();
+		glLoadIdentity();
+
 		if (!p.second.isActive)
 			continue;
 
@@ -26,8 +27,8 @@ void CGuiText::Render()
 		shader.loadTranslation(text.position);
 		glScalef(text.m_size, text.m_size, text.m_size);
 		font.Print((int)text.position.x, (int)text.position.y, text.text.c_str());
-	}
-	glPopMatrix();
+		glPopMatrix();
+	}	
 	shader.Stop();
 }
 

@@ -28,7 +28,7 @@ namespace GameServer
 			case 98:
 			{
 				data.mapId = 1;
-				data.lvl = 12;
+				data.lvl = 24;
 				data.classId = 1;
 				data.name = "BaszekBK";
 			}

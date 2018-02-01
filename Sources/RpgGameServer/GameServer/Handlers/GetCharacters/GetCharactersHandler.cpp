@@ -17,7 +17,7 @@ namespace GameServer
 			uint8 i = 0;
 			for(const auto& characterId : userCharacters)
 			{
-				if(i>=5) break;
+				if( i >= Network::charactersPerAcount) break;
 
 				auto c = context_.databaseWrapper_->GetCharacterData(characterId);
 				

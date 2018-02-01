@@ -3,6 +3,7 @@
 #include "MessageTypes.h"
 #include <memory>
 #include <cstring>
+#include <Logger/Log.h>
 
 namespace Network
 {
@@ -48,5 +49,28 @@ namespace Network
 	static IMessagePtr CreateIMessagePtr(const T& msg)
 	{
 		return std::make_shared<T>(msg);
+	}
+
+	template<class T>
+	std::shared_ptr<T> castMessageAs(IMessagePtr ptr)
+	{
+		auto msg = std::static_pointer_cast<T>(ptr);
+		if (msg == nullptr)
+		{
+			Log("Cant cast type : " + std::to_string(ptr->GetType()));
+			return nullptr;
+		}
+		return msg;
+	}
+	template<class T>
+	T* castMessageAs(IMessage* ptr)
+	{
+		auto msg = static_cast<T*>(ptr);
+		if (msg == nullptr)
+		{
+			Log("Cant cast type : " + std::to_string(ptr->GetType()));
+			return nullptr;
+		}
+		return msg;
 	}
 }
