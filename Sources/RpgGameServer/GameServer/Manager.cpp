@@ -26,7 +26,7 @@ namespace GameServer
 
 		knight->context_.data_.mapId = characterData.value().mapId;
 		knight->context_.stats_ = characterStats.value();
-		CreateCharacterController(knight, Controllers::CharacterControllerType);
+		CreateCharacterController(knight, common::Controllers::CharacterControllerType);
 
 		maps_[characterData.value().mapId].AddCharacter(id, knight);
 	}

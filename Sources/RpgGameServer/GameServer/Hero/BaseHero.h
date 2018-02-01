@@ -1,6 +1,6 @@
 #pragma once
 #include "CharacetrContext.h"
-#include "../../common/Controllers/IController.h"
+#include "../../../Common/Controllers/IController.h"
 #include <memory>
 #include <unordered_map>
 
@@ -25,11 +25,11 @@ namespace GameServer
 			//virtual void UseAbility(int id) = 0;
 			//virtual void UseBaseAttack() = 0;
 			
-			void AddController(Controllers::IControllerPtr cotroller);
+			void AddController(common::Controllers::IControllerPtr cotroller);
 			
 			uint8 GetClass() {return class_;}
 			const std::string& GetName() { return name_; }
-			Controllers::IControllerPtr GetControllerByType(Controllers::Types type);
+			common::Controllers::IControllerPtr GetControllerByType(common::Controllers::Types type);
 			
 			void UpdateAllControllers(float dt);
 			
@@ -40,7 +40,7 @@ namespace GameServer
 			uint8 class_;
 			std::string modelName_;
 			std::string name_;
-			std::unordered_map<Controllers::Types, Controllers::IControllerPtr> controllers_;
+			std::unordered_map<common::Controllers::Types, common::Controllers::IControllerPtr> controllers_;
 		};
 
 		typedef std::shared_ptr<Hero::BaseHero> BaseHeroPtr;

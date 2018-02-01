@@ -9,11 +9,11 @@ namespace GameServer
 			for (auto& controller : controllers_)
 				controller.second->Update(dt);
 		}
-		void BaseHero::AddController(Controllers::IControllerPtr cotroller)
+		void BaseHero::AddController(common::Controllers::IControllerPtr cotroller)
 		{
 			controllers_[cotroller->GetType()] = cotroller;
 		}
-		Controllers::IControllerPtr BaseHero::GetControllerByType(Controllers::Types type)
+		common::Controllers::IControllerPtr BaseHero::GetControllerByType(common::Controllers::Types type)
 		{
 			if (controllers_.count(type) == 0)
 				return nullptr;

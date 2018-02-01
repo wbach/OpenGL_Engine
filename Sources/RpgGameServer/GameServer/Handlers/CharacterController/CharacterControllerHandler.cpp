@@ -1,6 +1,8 @@
 #include "CharacterControllerHandler.h"
-#include "../../../Common/Controllers/Character.h"
+#include "../../../../Common/Controllers/CharacterController/Character.h"
 #include "Messages/TransformMessages/TransformMsg.h"
+
+using namespace common::Controllers;
 
 namespace GameServer
 {
@@ -29,7 +31,7 @@ namespace GameServer
 				return;
 			}
 
-			auto controller = hero->GetControllerByType(Controllers::CharacterControllerType);
+			auto controller = hero->GetControllerByType(CharacterControllerType);
 
 			if (controller == nullptr)
 			{
@@ -37,7 +39,7 @@ namespace GameServer
 				return;
 			}
 
-			auto characterController = dynamic_cast<Controllers::CharacterController*>(controller.get());
+			auto characterController = dynamic_cast<CharacterController*>(controller.get());
 
 			auto msg = dynamic_cast<Network::TransformMsg*>(message.second.get());
 
@@ -46,10 +48,10 @@ namespace GameServer
 
 			switch (msg->type)
 			{
-			case Network::TransformMessageTypes::MOVE_FORWARD:	characterController->AddState(Controllers::CharacterActions::MOVE_FORWARD); break;
-			case Network::TransformMessageTypes::MOVE_BACKWARD:	characterController->AddState(Controllers::CharacterActions::MOVE_BACKWARD); break;
-			case Network::TransformMessageTypes::ROTATE_RIGHT:	characterController->AddState(Controllers::CharacterActions::ROTATE_RIGHT); break;
-			case Network::TransformMessageTypes::ROTATE_LEFT:	characterController->AddState(Controllers::CharacterActions::ROTATE_LEFT); break;
+			case Network::TransformMessageTypes::MOVE_FORWARD:	characterController->AddState(CharacterActions::MOVE_FORWARD); break;
+			case Network::TransformMessageTypes::MOVE_BACKWARD:	characterController->AddState(CharacterActions::MOVE_BACKWARD); break;
+			case Network::TransformMessageTypes::ROTATE_RIGHT:	characterController->AddState(CharacterActions::ROTATE_RIGHT); break;
+			case Network::TransformMessageTypes::ROTATE_LEFT:	characterController->AddState(CharacterActions::ROTATE_LEFT); break;
 			case Network::TransformMessageTypes::JUMP:			/*AddState(CharacterActions::JUMP);*/ break;
 			}		
 
