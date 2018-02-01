@@ -31,7 +31,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainCreateUtils.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h
-../../Sources/GameEngine/Objects/Transform.h
 ../../Sources/GameEngine/Renderers/Entity/EntityRenderer.h
 ../../Sources/GameEngine/Renderers/Entity/Shaders/EntityShader.h
 ../../Sources/GameEngine/Renderers/Entity/Shaders/GeometryEntityShader.h

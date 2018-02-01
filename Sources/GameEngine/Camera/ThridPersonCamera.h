@@ -2,13 +2,16 @@
 #include "Camera.h"
 #include "Clock.hpp"
 
-class CTransform;
+namespace common
+{
+	class Transform;
+} // common
 class CInputManager;
 
 class CThirdPersonCamera : public CCamera
 {
 public:
-	CThirdPersonCamera(CInputManager *input_manager, CTransform& lookAt);
+	CThirdPersonCamera(CInputManager *input_manager, common::Transform& lookAt);
 
 	void CalculateInput() override;
 	void Move() override;
@@ -29,7 +32,7 @@ private:
 
 private:
     CInputManager *inputManager;
-    CTransform&	lookAtTransform;
+	common::Transform&	lookAtTransform;
 
     bool	isShowCursor;
     vec3	offset;

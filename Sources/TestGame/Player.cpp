@@ -113,7 +113,7 @@ void CPlayer::RotateState(std::list<CharacterActions::Type>::iterator & state, f
 
 	LockRotate(rotateValue);
 
-	worldTransform.SetRotate(Axis::Y, rotateValue);
+	worldTransform.SetRotate(common::Axis::Y, rotateValue);
 	RemoveStateIfTimeElapsed(state, time, rotateStateInfo.endTime);
 }
 

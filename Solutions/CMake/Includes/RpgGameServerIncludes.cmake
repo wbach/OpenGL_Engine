@@ -1,9 +1,4 @@
 set(RpgGameServerIncludes
-../../Sources/RpgGameServer/Common/Controllers/Character.h
-../../Sources/RpgGameServer/Common/Controllers/CharacterActions.h
-../../Sources/RpgGameServer/Common/Controllers/ControllersTypes.h
-../../Sources/RpgGameServer/Common/Controllers/IController.h
-../../Sources/RpgGameServer/Common/Transform.h
 ../../Sources/RpgGameServer/GameServer/AbstractUser.h
 ../../Sources/RpgGameServer/GameServer/Context.h
 ../../Sources/RpgGameServer/GameServer/ControllerCreator.h

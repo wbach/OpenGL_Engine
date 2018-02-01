@@ -20,7 +20,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/Terrain.cpp
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainCreateUtils.cpp
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.cpp
-../../Sources/GameEngine/Objects/Transform.cpp
 ../../Sources/GameEngine/Renderers/Entity/EntityRenderer.cpp
 ../../Sources/GameEngine/Renderers/Entity/Shaders/EntityShader.cpp
 ../../Sources/GameEngine/Renderers/Entity/Shaders/GeometryEntityShader.cpp

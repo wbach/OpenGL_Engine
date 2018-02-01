@@ -1,6 +1,4 @@
 set(RpgGameServerSources
-../../Sources/RpgGameServer/Common/Controllers/Character.cpp
-../../Sources/RpgGameServer/Common/Transform.cpp
 ../../Sources/RpgGameServer/GameServer/Context.cpp
 ../../Sources/RpgGameServer/GameServer/ControllerCreator.cpp
 ../../Sources/RpgGameServer/GameServer/Database/DatabaseWrapperMock.cpp

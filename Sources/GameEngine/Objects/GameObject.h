@@ -1,5 +1,5 @@
 #pragma once
-#include "Transform.h"
+#include "../../Common/Transform.h"
 #include "optional.hpp"
 #include <string>
 #include <list>
@@ -11,8 +11,8 @@ public:
 	virtual ~CGameObject() {}
 	CGameObject();
     const std::list<std::unique_ptr<CGameObject>>& GetChildrens() { return childrens; }
-    CTransform localTransform;
-    CTransform worldTransform;
+	common::Transform localTransform;
+	common::Transform worldTransform;
 	virtual wb::optional<vec3> CollisionDetection(const vec3&) { return wb::optional<vec3>(); }
 
 protected:
