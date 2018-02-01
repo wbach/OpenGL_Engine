@@ -35,6 +35,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Text/Font.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiText.cpp
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.cpp
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
 ../../Sources/GameEngine/Renderers/LightPassRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp
 ../../Sources/GameEngine/Renderers/Projection.cpp
@@ -67,6 +69,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.cpp
 ../../Sources/GameEngine/Resources/Textures/Texture.cpp
 ../../Sources/GameEngine/Scene/Scene.cpp
+../../Sources/GameEngine/Scene/SceneFactoryBase.cpp
 ../../Sources/GameEngine/Scene/SceneLoader.cpp
 ../../Sources/GameEngine/Scene/SceneManager.cpp
 ../../Sources/GameEngine/Scene/SceneWrapper.cpp

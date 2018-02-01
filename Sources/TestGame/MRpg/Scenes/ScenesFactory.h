@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/SceneFactoryBase.h"
+#include "../../../GameEngine/Scene/SceneFactoryBase.h"
 
 namespace Network
 {

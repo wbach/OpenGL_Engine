@@ -34,6 +34,9 @@ cd ../Solutions/CMake/
 ../../ProjectUtils/getSources.sh "../../Sources/RpgGameServer/" RpgGameServerIncludes "h" "hpp"
 ../../ProjectUtils/getSources.sh "../../Sources/RpgGameServer/" RpgGameServerSources "c" "cpp"
 
+../../ProjectUtils/getSources.sh "../../Sources/Common/" CommonIncludes "h" "hpp"
+../../ProjectUtils/getSources.sh "../../Sources/Common/" CommonSources "c" "cpp"
+
 mv ./GameEngineIncludes.cmake ./Includes/
 mv ./EditorIncludes.cmake ./Includes/
 mv ./GameEngineTestsIncludes.cmake ./Includes/
@@ -45,6 +48,7 @@ mv ./UtilsIncludes.cmake ./Includes/
 mv ./UtilsNetworkIncludes.cmake ./Includes/
 mv ./WindowAppCreatorIncludes.cmake ./Includes/
 mv ./RpgGameServerIncludes.cmake ./Includes/
+mv ./CommonIncludes.cmake ./Includes/
 
 mv ./GameEngineSources.cmake ./Sources/
 mv ./EditorSources.cmake ./Sources/
@@ -57,5 +61,6 @@ mv ./UtilsSources.cmake ./Sources/
 mv ./UtilsNetworkSources.cmake ./Sources/
 mv ./WindowAppCreatorSources.cmake ./Sources/
 mv ./RpgGameServerSources.cmake ./Sources/
+mv ./CommonSources.cmake ./Sources/
 
 cd ../../ProjectUtils/

@@ -6,6 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RpgGameServer", "..\..\Sour
 	ProjectSection(ProjectDependencies) = postProject
 		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
 		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B} = {9D8201EF-3E5A-44CB-95DB-97D5935EF93B}
+		{5ADAA6FD-1BB7-4369-825D-7777126B7817} = {5ADAA6FD-1BB7-4369-825D-7777126B7817}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UtilsNetwork", "..\..\Sources\UtilsNetwork\UtilsNetwork.vcxproj", "{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}"
@@ -23,6 +24,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGame", "..\..\Sources\TestGame\TestGame.vcxproj", "{9B0F6058-09C8-4B74-8910-4229AA0C016E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E17E8D53-C66F-494E-B495-00EE34A0B66D} = {E17E8D53-C66F-494E-B495-00EE34A0B66D}
+		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
+		{9D8201EF-3E5A-44CB-95DB-97D5935EF93B} = {9D8201EF-3E5A-44CB-95DB-97D5935EF93B}
+		{5ADAA6FD-1BB7-4369-825D-7777126B7817} = {5ADAA6FD-1BB7-4369-825D-7777126B7817}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gwint", "..\..\Sources\Gwint\Gwint.vcxproj", "{47F36A37-C53F-45FF-93F6-2090D75680AC}"
@@ -41,6 +45,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameEngineTests", "..\..\So
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TerrainGeneration", "..\..\Sources\TerrainGeneration\TerrainGeneration.vcxproj", "{B89BB922-72D9-4471-825E-BFC2B53B9F4C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "..\..\Sources\Common\Common.vcxproj", "{5ADAA6FD-1BB7-4369-825D-7777126B7817}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +93,10 @@ Global
 		{B89BB922-72D9-4471-825E-BFC2B53B9F4C}.Debug|x86.Build.0 = Debug|Win32
 		{B89BB922-72D9-4471-825E-BFC2B53B9F4C}.Release|x86.ActiveCfg = Release|Win32
 		{B89BB922-72D9-4471-825E-BFC2B53B9F4C}.Release|x86.Build.0 = Release|Win32
+		{5ADAA6FD-1BB7-4369-825D-7777126B7817}.Debug|x86.ActiveCfg = Debug|Win32
+		{5ADAA6FD-1BB7-4369-825D-7777126B7817}.Debug|x86.Build.0 = Debug|Win32
+		{5ADAA6FD-1BB7-4369-825D-7777126B7817}.Release|x86.ActiveCfg = Release|Win32
+		{5ADAA6FD-1BB7-4369-825D-7777126B7817}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

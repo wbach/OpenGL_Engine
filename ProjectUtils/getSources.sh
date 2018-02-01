@@ -3,7 +3,7 @@
 LOCATION="$1"
 NAME="$2"
 OUTNAME=$NAME".cmake"
-rm $OUTNAME
+echo "Generate : "$OUTNAME
 touch $OUTNAME
 echo "set("$NAME >> $OUTNAME
 i=0

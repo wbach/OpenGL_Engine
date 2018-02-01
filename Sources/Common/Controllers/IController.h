@@ -1,0 +1,25 @@
+#pragma once
+#include "ControllersTypes.h"
+#include <memory>
+
+namespace common
+{
+	namespace Controllers
+	{
+		class IController
+		{
+		public:
+			IController(Controllers::Types type)
+				: type_(type)
+			{}
+			virtual ~IController() {}
+			virtual void Update(float dt) = 0;
+			Controllers::Types GetType() { return type_; }
+
+		private:
+			Controllers::Types type_;
+		};
+
+		typedef std::shared_ptr<IController> IControllerPtr;
+	} // Controllers
+} // common

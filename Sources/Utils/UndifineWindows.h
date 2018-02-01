@@ -5,3 +5,4 @@
 #undef far
 #undef SentStatus
 #undef ERROR
+#undef GetCurrentTime

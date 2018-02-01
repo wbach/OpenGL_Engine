@@ -1,4 +1,5 @@
 set(TestGameSources
+../../Sources/TestGame/GuiEdytorScene.cpp
 ../../Sources/TestGame/main.cpp
 ../../Sources/TestGame/MainScene.cpp
 ../../Sources/TestGame/MRpg/mrpg_main.cpp

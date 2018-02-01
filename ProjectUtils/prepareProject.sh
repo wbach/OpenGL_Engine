@@ -121,7 +121,7 @@ done
 outDir='$(SolutionDir)..\..\Build\bin\'$projectName'\$(Configuration)\'
 inDir='$(SolutionDir)..\..\Build\Intermediate\'$projectName'\$(Configuration)\'
 
-projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
+echo '<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -212,25 +212,21 @@ projectNameFileString='<?xml version="1.0" encoding="utf-8"?>
     </Link>
   </ItemDefinitionGroup><ItemGroup>
   '
-  #vs_sources=();
 	for cpp in "${sources[@]}"
 	do
-		vs_s=$'<ClCompile Include="'
-		#vs_sources+=($vs_s)
-		projectNameFileString=$projectNameFileString" $vs_s"$cpp'" />'
+		echo $'<ClCompile Include="'" $vs_s"$cpp'" />'
 	done
-	projectNameFileString=$projectNameFileString'</ItemGroup><ItemGroup>'
+	echo '</ItemGroup>'
+  echo '<ItemGroup>'
 	
 	for inc in "${headers[@]}"
 	do
-		vs_s=$'<ClInclude Include="'
-		projectNameFileString=$projectNameFileString" $vs_s"$inc'" />'
+		echo $'<ClInclude Include="'" $vs_s"$inc'" />'
 	done
 	
-	projectNameFileString=$projectNameFileString'</ItemGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
+  echo '</ItemGroup>'
+	echo '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
 	
   #\"\'\$\(Configuration\)\|\$\(Platform\)\'==\'Debug\|Win32\'\"
   
-
-echo "$projectNameFileString"
 

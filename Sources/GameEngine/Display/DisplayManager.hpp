@@ -24,7 +24,7 @@ public:
 	const int GetFps();
     const int& GetFPSCap() { return fpsCap; }
 
-	const float GetCurrentTime();
+	float GetCurrentTime();
     const double GetDeltaTime() const { return timeMeasurer.GetDeltaTime(); }
 
 	const wb::vec2i& GetWindowSize();

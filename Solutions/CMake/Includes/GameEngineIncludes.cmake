@@ -48,6 +48,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiText.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
 ../../Sources/GameEngine/Renderers/LightPassRenderer.h
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Projection.h
@@ -90,8 +92,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
 ../../Sources/GameEngine/Resources/Textures/Texture.h
 ../../Sources/GameEngine/Resources/Textures/TextureFlip.h
-../../Sources/GameEngine/Scene/ISceneFactory.h
 ../../Sources/GameEngine/Scene/SceneEvents.h
+../../Sources/GameEngine/Scene/SceneFactoryBase.h
 ../../Sources/GameEngine/Scene/SceneLoader.h
 ../../Sources/GameEngine/Scene/SceneManager.h
 ../../Sources/GameEngine/Scene/SceneWrapper.h
@@ -103,7 +105,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Api/Api.hpp
 ../../Sources/GameEngine/Common/common.hpp
 ../../Sources/GameEngine/Display/DisplayManager.hpp
-../../Sources/GameEngine/Renderers/GUI/GuiTexture.hpp
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.hpp
 ../../Sources/GameEngine/Renderers/Shadows/ShadowMapRenderer.hpp
 ../../Sources/GameEngine/Scene/Scene.hpp
 )

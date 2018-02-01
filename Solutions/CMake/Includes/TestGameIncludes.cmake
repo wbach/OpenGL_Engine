@@ -1,5 +1,6 @@
 set(TestGameIncludes
 ../../Sources/TestGame/CharacterStats.h
+../../Sources/TestGame/GuiEdytorScene.h
 ../../Sources/TestGame/MainScene.h
 ../../Sources/TestGame/MRpg/mrpg_main.h
 ../../Sources/TestGame/MRpg/Scenes/Login.h

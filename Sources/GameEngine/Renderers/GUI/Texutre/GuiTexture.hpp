@@ -2,8 +2,8 @@
 #include "../GuiElement.h"
 #include "GuiTextureElement.h"
 #include "GuiTextureShader.h"
-#include "../../Resources/Textures/Texture.h"
-#include "../../Resources/SimpleModels/Quad.h"
+#include "../../../Resources/Textures/Texture.h"
+#include "../../../Resources/SimpleModels/Quad.h"
 #include <unordered_map>
 
 namespace GameEngine

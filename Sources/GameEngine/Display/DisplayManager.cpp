@@ -71,7 +71,7 @@ const int CDisplayManager::GetFps()
 	return static_cast<int>(timeMeasurer.GetFps());
 }
 
-const float CDisplayManager::GetCurrentTime()
+float CDisplayManager::GetCurrentTime()
 {
 	if (api != nullptr && time)
 		return static_cast<float>(api->GetTime());
