@@ -4,6 +4,7 @@
 #include "User.h"
 #include "Manager.h"
 #include "Mutex.hpp"
+#include <functional>
 
 namespace GameServer
 {

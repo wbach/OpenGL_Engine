@@ -1,4 +1,6 @@
 if(UNIX)
+	include_directories(/usr/include/freetype2)
+	
 	if(BUILD_I386)
 	else()
 		find_package(PkgConfig REQUIRED)
