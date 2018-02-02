@@ -1,7 +1,8 @@
 #pragma once
 #include "Mesh.h"
-#include <list>
 #include "../OpenGLObject.h"
+#include <list>
+#include <memory>
 
 class CModel : public COpenGLObject
 {
@@ -25,7 +26,8 @@ public:
 	CMesh* AddMesh(CMesh& mesh);
     const std::list<CMesh>& GetMeshes() const {return meshes;	}
 	void SetMaterial(const SMaterial& material, uint32 mesh = 0);
-	vec3 GetNormalizedScaleVector(float x, float y, float z) const;
+	void SetNormalizedScaleVector(float x, float y, float z);
+	vec3 GetNormalizedScaleVector() const;
 	void	CalculateBoudnigBox();
 
     bool operator==(const CModel &q) { return filename.compare(q.filename) == 0; }
@@ -33,14 +35,17 @@ public:
     const std::string& GetFileName() {return filename;}
 
 protected:
-    std::list<CMesh> meshes;
     std::string filename;
+    std::list<CMesh> meshes;
+	vec3 normalizedScaleVec_;
 	//For all model
     BoundingBox boundingBox;
-
 	//One model in memory for all entities, so we need have time from outside to update (each entity can have diffrent animation progress)
     std::list<uint32*> currentFrames;
 
     uint32 id = 0;
     static uint32 s_id;
 };
+
+typedef CModel* ModelRawPtr;
+typedef std::shared_ptr<CModel> ModelPtr;

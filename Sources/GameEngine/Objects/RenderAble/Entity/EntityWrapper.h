@@ -5,9 +5,14 @@
 class CEntityWrapper
 {
 public:
-	CEntityWrapper();
-	CEntityWrapper(CResourceManager& manager, const vec3& normalized_scale, const std::string& filename, const std::string& filename2 = "", const std::string& filename3 = "");
-	CEntityWrapper(const vec3 normalized_v, CModel* model_lvl_1, CModel* model_lvl_2 = nullptr, CModel* model_lvl_3 = nullptr);
+	CEntityWrapper(CResourceManager* manager, const vec3& normalizeScale);
+	CEntityWrapper(const vec3& normalizeScale, GameEngine::ModelWrapper modelWrapper);
+	CEntity* Get();
+
 private:
-	std::unique_ptr<CEntity> entity;
+	vec3 normalizeScale_;
+	CResourceManager* manager_;
+	std::unique_ptr<CEntity> entity_;
+
+	GameEngine::ModelWrapper modelWrapper_;
 };

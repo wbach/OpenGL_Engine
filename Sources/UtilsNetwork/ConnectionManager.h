@@ -4,6 +4,7 @@
 #include "ISDLNetWrapper.h"
 #include "Sender.h"
 #include "Reciever.h"
+#include "UserAccount.h"
 #include <unordered_map>
 #include <functional>
 
@@ -39,6 +40,6 @@ namespace Network
 		std::vector<CreationFunc> newUserSubscribes_;
 
 		// tmp simple dataBase
-		std::unordered_map<std::string, std::string> usersDb_;
+		std::unordered_map<std::string, UserAccount> usersDb_;
 	};
 }

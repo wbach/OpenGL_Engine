@@ -1,16 +1,36 @@
 #include "EntityWrapper.h"
 
-CEntityWrapper::CEntityWrapper()
-	: entity(nullptr)
+
+CEntityWrapper::CEntityWrapper(CResourceManager* manager, const vec3& normalizeScale)
+	: normalizeScale_(normalizeScale)
+	, manager_(manager)
+	, entity_(nullptr)
 {
+
 }
 
-CEntityWrapper::CEntityWrapper(CResourceManager & manager, const vec3 & normalized_scale, const std::string & filename, const std::string & filename2, const std::string & filename3)
-	: entity(nullptr)
+CEntityWrapper::CEntityWrapper(const vec3& normalizeScale, GameEngine::ModelWrapper modelWrapper)
+	: normalizeScale_(normalizeScale)
+	, manager_(nullptr)
+	, entity_(nullptr)
+	, modelWrapper_(modelWrapper)
 {
+
 }
 
-CEntityWrapper::CEntityWrapper(const vec3 normalized_v, CModel * model_lvl_1, CModel * model_lvl_2, CModel * model_lvl_3)
-	: entity(nullptr)
+CEntity* CEntityWrapper::Get()
 {
+	if (entity_ != nullptr)
+		return entity_.get();
+
+	if (manager_ == nullptr)
+	{
+		entity_ = std::make_unique<CEntity>(normalizeScale_, modelWrapper_);
+	}
+	else
+	{
+		entity_ = std::make_unique<CEntity>(manager_, normalizeScale_);
+	}
+
+	return entity_.get();
 }

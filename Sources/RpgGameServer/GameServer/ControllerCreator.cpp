@@ -1,12 +1,12 @@
 #include "ControllerCreator.h"
-#include "../../Common/Controllers/CharacterController/Character.h"
-
+#include "../../Common/Controllers/ControllersFactory.h"
+#include "../../Common/Hero/Stats.h"
+#
 namespace GameServer
 {
-	void CreateCharacterController(Hero::BaseHeroPtr hero, common::Controllers::Types type)
+	void CreateCharacterController(Hero::BaseHeroPtr hero)
 	{
-		//CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
-		hero->AddController(std::make_shared<common::Controllers::CharacterController>(hero->context_.transform_, hero->context_.stats_.runSpeed, hero->context_.stats_.turnSpeed, hero->context_.stats_.jumpPower));
+		hero->AddController(common::Controllers::CreateCharacterController(hero->context_.transform_, hero->context_.commonStats_));
 	}
 } // GameServer
 

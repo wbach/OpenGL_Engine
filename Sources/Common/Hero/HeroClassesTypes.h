@@ -6,7 +6,7 @@ namespace common
 	{
 		enum HeroClassesTypes
 		{
-			KNIGHT,
+			KNIGHT = 0,
 			WIZARD,
 			ELF
 		};

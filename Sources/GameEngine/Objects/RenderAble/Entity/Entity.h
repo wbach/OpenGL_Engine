@@ -1,28 +1,24 @@
 #pragma once
 #include <string>
 #include "../../GameObject.h"
+#include "../../../Resources/Models/ModelWrapper.h"
 
-class CModel;
 class CResourceManager;
 
 class CEntity : public CGameObject
 {
 public:
-    CEntity();
-    CEntity(CResourceManager& manager, const vec3& normalized_scale, const std::string& filename, const std::string& filename2 = "",
-            const std::string& filename3 = "");
-    CEntity(const vec3 normalized_v, CModel* model_lvl_1, CModel* model_lvl_2 = nullptr, CModel* model_lvl_3 = nullptr);
-
-    virtual ~CEntity()
-    {
-    }
-    CModel* GetModel(uint32 i);
+	CEntity(CResourceManager* manager, const vec3& normalizeScale);
+    CEntity(const vec3& normalizeScale, GameEngine::ModelWrapper modelWrapper);
+    void AddModel(const std::string& filename, GameEngine::LevelOfDetail i);
+	void SetResourceManager(CResourceManager* manager);
+	ModelRawPtr GetModel(GameEngine::LevelOfDetail i);
 
 public:
     bool dynamic = false;
 
 private:
-    void LoadModel(CResourceManager& manager, const vec3& normalized_scale, const std::string& filename, uint32 i);
-
-    CModel* model[3];
+	vec3 normalizedScale_;
+	CResourceManager* manager_;
+	GameEngine::ModelWrapper modelWrapper_;
 };

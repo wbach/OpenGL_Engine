@@ -131,10 +131,10 @@ void CEntityRenderer::RenderDynamicsEntities()
     {
         if (entity == nullptr)
             Log("[Error] Null subsciber in EnityRenderer.");
-        if (entity->GetModel(0) == nullptr)
+        if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
             continue;
 
-        RenderModel(entity->GetModel(0), entity->worldTransform.GetMatrix());
+        RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
     }
 }
 
@@ -146,12 +146,12 @@ void CEntityRenderer::RenderStaticEntities(const wb::vec2i &index)
         {
             auto sub = GetEntity(index.x + x, index.y + y);
 
-            uint32 level_of_detail = 0;
+			GameEngine::LevelOfDetail level_of_detail = GameEngine::LevelOfDetail::L1;
 
             if (y > 1 || y < -1 || x > 2 || x < -2)
-                level_of_detail = 2;
+                level_of_detail = GameEngine::LevelOfDetail::L2;
             else if (y > 0 || y < 0 || x > 0 || x < 0)
-                level_of_detail = 1;
+                level_of_detail = GameEngine::LevelOfDetail::L3;
 
             for (auto& entity : sub)
             {

@@ -2,9 +2,10 @@
 #include "Logger/Log.h"
 
 CPlayer::CPlayer(CInputManager *input_manager, CResourceManager &manager, const glm::vec3 &normalized_scale, const std::string &filename)
-    : CEntity(manager, normalized_scale, filename)
+    : CEntity(&manager, normalized_scale)
     , inputManager(input_manager)
 {
+	AddModel(filename, GameEngine::LevelOfDetail::L1);
 	referenceTime = std::chrono::high_resolution_clock::now();
 }
 

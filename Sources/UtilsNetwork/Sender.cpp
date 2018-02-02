@@ -7,6 +7,9 @@
 #include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
 #include "Messages/GetCharacters/GetCharactersMsgReq.h"
 #include "Messages/GetCharacters/GetCharactersMsgResp.h"
+#include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
+#include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
+#include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
 
 namespace Network
 {
@@ -43,6 +46,9 @@ namespace Network
 			Convert(MessageTypes::SelectCharacterResp,	SelectCharacterMsgResp);
 			Convert(MessageTypes::GetCharactersReq,		GetCharactersMsgReq);
 			Convert(MessageTypes::GetCharactersResp,	GetCharactersMsgResp);
+			Convert(MessageTypes::GetCharacterDataReq,  GetCharacterDataMsgReq);
+			Convert(MessageTypes::GetCharacterDataResp, GetCharacterDataMsgResp);
+			Convert(MessageTypes::GetCharactersDataReq, GetCharactersDataMsgReq);
 		}
 
 		return SentStatus::OK;

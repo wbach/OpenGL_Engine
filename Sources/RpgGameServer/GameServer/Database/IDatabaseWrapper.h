@@ -1,9 +1,8 @@
 #pragma once
 #include "Types.h"
 #include "optional.hpp"
-#include "../Hero/CharacterData.h"
 #include "../Hero/BaseHero.h"
-#include "../Hero/Stats.h"
+#include "../../../Common/Hero/Stats.h"
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -20,8 +19,8 @@ namespace GameServer
 		public:
 			virtual ~IDatabaseWrapper() {}
 			virtual UserCharacterVec  GetCharacterByUser(uint32 id) = 0;
-			virtual wb::optional<Hero::CharacterData> GetCharacterData(uint32 id) = 0;
-			virtual wb::optional<Hero::Stats> GetCharacterStats(uint32 stats) = 0;
+			virtual wb::optional<common::Hero::CharacterData> GetCharacterData(uint32 id) = 0;
+			virtual wb::optional<common::Hero::Stats> GetCharacterStats(uint32 stats) = 0;
 
 		protected:
 			CharactersMap allCharacters_;

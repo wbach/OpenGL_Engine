@@ -15,5 +15,8 @@ namespace Network
 		CreateCharacterResp,
 		GetCharactersReq,
 		GetCharactersResp,
+		GetCharacterDataReq,
+		GetCharacterDataResp,
+		GetCharactersDataReq
 	};
 } // Network

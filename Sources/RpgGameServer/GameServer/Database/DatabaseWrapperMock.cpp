@@ -12,16 +12,25 @@ namespace GameServer
 				{ 98,  std::make_shared<Hero::Knight>("BaszekBK") },
 				{ 101, std::make_shared<Hero::Knight>("Super-Knight") },
 				{ 56,  std::make_shared<Hero::Knight>("Black Knight") },
+				{ 58,  std::make_shared<Hero::Knight>("Baszek2 BK") },
+				{ 62,  std::make_shared<Hero::Knight>("Baszek2 DK") },
+				{ 63,  std::make_shared<Hero::Knight>("Baszek2 BBK") },
 				});
 		}
 		UserCharacterVec DatabaseWrapperMock::GetCharacterByUser(uint32 id)
 		{
-			return {98, 101, 56};
+			if (id == 14)
+				return { 98, 101, 56 };
+			
+			if( id == 7)
+				return { 58, 62, 63 };
+
+			return {};
 		}
 
-		wb::optional<Hero::CharacterData> DatabaseWrapperMock::GetCharacterData(uint32 id)
+		wb::optional<common::Hero::CharacterData> DatabaseWrapperMock::GetCharacterData(uint32 id)
 		{
-			Hero::CharacterData data;
+			common::Hero::CharacterData data;
 
 			switch (id)
 			{
@@ -60,9 +69,9 @@ namespace GameServer
 			return data;
 		}
 
-		wb::optional<Hero::Stats> DatabaseWrapperMock::GetCharacterStats(uint32 stats)
+		wb::optional<common::Hero::Stats> DatabaseWrapperMock::GetCharacterStats(uint32 stats)
 		{			
-			return Hero::Stats();
+			return common::Hero::Stats();
 		}
 
 	} // Database

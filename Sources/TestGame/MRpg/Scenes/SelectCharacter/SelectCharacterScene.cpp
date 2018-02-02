@@ -121,6 +121,7 @@ namespace MmmoRpg
 			state_ = State::SELECT_CHARACTER;
 			return;
 		}
+
 		// id = game, set selected characeter
 		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE, "MainScene");
 		addSceneEvent(e);

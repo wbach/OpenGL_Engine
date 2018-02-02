@@ -6,6 +6,7 @@
 #include "Handlers/CharacterController/CharacterControllerHandler.h"
 #include "Handlers/SelectCharacter/SelectCharacterHandler.h"
 #include "Handlers/GetCharacters/GetCharactersHandler.h"
+#include "Handlers/GetCharactersData/GetCharactersDataHandler.h"
 #include "Time/TimeMeasurer.h"
 
 namespace GameServer
@@ -23,13 +24,15 @@ namespace GameServer
 		Handler::IHandlerPtr getCharactersHandler(new Handler::GetCharactersHandler(context_));
 		Handler::IHandlerPtr selectCharacterHandler(new Handler::SelectCharacterHandler(context_));
 		Handler::IHandlerPtr characterControllerHandler(new Handler::CharacterControllerHandler(context_));
+		Handler::IHandlerPtr getCharacterDataHandler(new Handler::GetCharactersDataHandler(context_));
 		
 		dispatcher_.AddHandlers(
 			{
 			//distributeHandler,
 			selectCharacterHandler,
 			characterControllerHandler,
-			getCharactersHandler
+			getCharactersHandler,
+			getCharacterDataHandler
 			});
 
 

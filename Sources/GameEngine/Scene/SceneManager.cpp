@@ -154,6 +154,7 @@ namespace GameEngine
 		scene->SetGuiContext(&guiContext_);
 		scene->SetInputManager(&inputManager_);
 		scene->SetRenderersManager(&renderersManager_);		
+		scene->SetDisplayManager(displayManager_.get());
 	}
 
 } // GameEngine

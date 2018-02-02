@@ -28,7 +28,7 @@ MainScene::~MainScene()
 int MainScene::Initialize()
 {
 	Log("MainScene::Initialize()");
-	auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
+	auto bialczyk_obj = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
     auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
 	renderersManager_->Subscribe(bialczyk);
 

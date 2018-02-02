@@ -8,28 +8,19 @@ namespace UtilsNetwork
 {
 	struct UserData
 	{
-		TCPsocket socket;
-		uint32 timeout;
+		TCPsocket socket;		
 		uint32 id;
-		bool authenticated;
 		wb::optional<Timepoint>	connectionFailsStart;
 
 		UserData()
 			: socket(nullptr)
-			, timeout(0)
-			, authenticated(false)
 		{
-			static int s_id = 0;
-			id = s_id++;
 		}
-
-		bool isSocketReady()
+		uint32 GetNextId()
 		{
-			return sdlNetWrapper.SocketReady((SDLNet_GenericSocket) socket);
+			static uint32 s_id = 0;
+			return s_id++;
 		}
-
-		Network::SDLNetWrapper sdlNetWrapper;
-
 		virtual ~UserData() {}
 	};
 } // UtlisNetwork

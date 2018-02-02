@@ -4,5 +4,5 @@
 
 namespace GameServer
 {
-	void CreateCharacterController(Hero::BaseHeroPtr, common::Controllers::Types type);
+	void CreateCharacterController(Hero::BaseHeroPtr);
 } // GameServer

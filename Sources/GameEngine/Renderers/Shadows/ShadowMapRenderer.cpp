@@ -88,7 +88,7 @@ void CShadowMapRenderer::RenderSubscribes() const
 
 void CShadowMapRenderer::RenderEntity(CEntity* entity) const
 {
-    for (const CMesh& mesh : entity->GetModel(0)->GetMeshes())
+    for (const CMesh& mesh : entity->GetModel(GameEngine::LevelOfDetail::L1)->GetMeshes())
         RenderMesh(mesh, entity->worldTransform.GetMatrix());
 }
 

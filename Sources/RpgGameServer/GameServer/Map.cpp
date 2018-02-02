@@ -18,4 +18,8 @@ namespace GameServer
 		for (auto& c : characters_)
 			c.second->UpdateAllControllers(dt);		
 	}
+	const CharactersMap & Map::GetAllCharacters() const
+	{
+		return characters_;
+	}
 } // GameServer

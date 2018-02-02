@@ -17,6 +17,7 @@ const uint32 OBJECT_GRID_SIZE = 500;
 const uint32 OBJECT_GRID_COUNT = 100;
 
 class CInputManager;
+class CDisplayManager;
 
 namespace GameEngine
 {
@@ -63,6 +64,7 @@ public:
 	void SetGuiContext(GameEngine::Renderer::Gui::GuiContext* c);
 	void SetInputManager(CInputManager* input);
 	void SetRenderersManager(GameEngine::Renderer::RenderersManager* manager);
+	void SetDisplayManager(CDisplayManager* displayManager);
 
 public:
 	uint32 objectCount;
@@ -73,6 +75,7 @@ protected:
 
 	GameEngine::Renderer::Gui::GuiContext* gui_;
 	CInputManager* inputManager_;
+	CDisplayManager* displayManager_;
 	GameEngine::Renderer::RenderersManager* renderersManager_;
 
 	// Minimum one light on scene only (night - decrease strength)
@@ -121,4 +124,9 @@ inline void CScene::SetInputManager(CInputManager* input)
 inline void CScene::SetRenderersManager(GameEngine::Renderer::RenderersManager* manager)
 {
 	renderersManager_ = manager;
+}
+
+inline void CScene::SetDisplayManager(CDisplayManager* displayManager)
+{
+	displayManager_ = displayManager;
 }

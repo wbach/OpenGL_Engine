@@ -5,8 +5,8 @@
 
 static vec3 zero(0);
 
-const float defaultCamSpeed = Utils::KmToMs<float>(60);
-const float defaultCamRotationSpeed = 50.f;
+const float defaultCamSpeed = Utils::KmToMs<float>(15);
+const float defaultCamRotationSpeed = 0.2f;
 
 CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime)
 	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
@@ -95,7 +95,7 @@ void CFirstPersonCamera::ApllyMove()
 
 void CFirstPersonCamera::CalculateMoveVelocity()
 {
-	currentMoveVelocity = movevel * static_cast<float>(displayManager->GetDeltaTime());
+	currentMoveVelocity = movevel;// *static_cast<float>(displayManager->GetDeltaTime());
 }
 
 void CFirstPersonCamera::CheckAndProccesDirections()

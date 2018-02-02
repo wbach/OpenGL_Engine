@@ -8,7 +8,7 @@
 namespace Network
 {
 	class CGateway;
-}
+} // Network
 
 namespace MmmoRpg
 {

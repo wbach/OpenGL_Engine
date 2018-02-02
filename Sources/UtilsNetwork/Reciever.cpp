@@ -8,6 +8,11 @@
 #include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
 #include "Messages/GetCharacters/GetCharactersMsgReq.h"
 #include "Messages/GetCharacters/GetCharactersMsgResp.h"
+#include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
+#include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
+#include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
+
+#define Case(x, y) case x: result = GetIMessage<y>(socket); break
 
 namespace Network
 {
@@ -47,13 +52,16 @@ namespace Network
 
 		switch (header.msgType)
 		{
-		case MessageTypes::ConnectionMsg:	result = GetIMessage<ConnectionMessage>(socket);		break;
-		case MessageTypes::Transform:		result = GetIMessage<TransformMsg>(socket);				break;
-		case MessageTypes::Authentication:	result = GetIMessage<AuthenticationMessage>(socket);	break;
-		case MessageTypes::SelectCharacterReq:	result = GetIMessage<SelectCharacterMsgReq>(socket);	break;
-		case MessageTypes::SelectCharacterResp:	result = GetIMessage<SelectCharacterMsgResp>(socket);	break;
-		case MessageTypes::GetCharactersReq:	result = GetIMessage<GetCharactersMsgReq>(socket);	break;
-		case MessageTypes::GetCharactersResp:	result = GetIMessage<GetCharactersMsgResp>(socket);	break;
+			Case(MessageTypes::ConnectionMsg,		 ConnectionMessage);
+			Case(MessageTypes::Transform,			 TransformMsg);
+			Case(MessageTypes::Authentication,		 AuthenticationMessage);
+			Case(MessageTypes::SelectCharacterReq,	 SelectCharacterMsgReq);
+			Case(MessageTypes::SelectCharacterResp,  SelectCharacterMsgResp);
+			Case(MessageTypes::GetCharactersReq,	 GetCharactersMsgReq);
+			Case(MessageTypes::GetCharactersResp,	 GetCharactersMsgResp);
+			Case(MessageTypes::GetCharacterDataReq,  GetCharacterDataMsgReq);
+			Case(MessageTypes::GetCharacterDataResp, GetCharacterDataMsgResp);
+			Case(MessageTypes::GetCharactersDataReq, GetCharactersDataMsgReq);
 		}
 		return result;
 	}

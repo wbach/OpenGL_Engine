@@ -66,35 +66,39 @@ void CModel::SetMaterial(const SMaterial & material, uint32 id)
 	}
 }
 
-vec3 CModel::GetNormalizedScaleVector(float w, float h, float z) const
-{
-	int axis;
+void CModel::SetNormalizedScaleVector(float w, float h, float z)
+{	
 	if (w == 0 && h == 0 && z == 0)
-		return vec3(1);
-	else if (w != 0 && h == 0 && z == 0)
+	{
+		normalizedScaleVec_ = vec3(1.f);
+		return;
+	}
+
+	int axis;
+	if (w != 0 && h == 0 && z == 0)
 		axis = 1;
 	else if (w == 0 && h != 0 && z == 0)
 		axis = 2;
 	else if (w == 0 && h == 0 && z != 0)
 		axis = 3;
 
-
-	vec3 scale_vector(1.f);
 	switch (axis)
 	{
 	case 1:
-		scale_vector = vec3(w / boundingBox.size.x, w / boundingBox.size.x, w / boundingBox.size.x);
+		normalizedScaleVec_ = vec3(w / boundingBox.size.x, w / boundingBox.size.x, w / boundingBox.size.x);
 		break;
-	case 2: scale_vector = vec3(h / boundingBox.size.y, h / boundingBox.size.y, h / boundingBox.size.y);
+	case 2: normalizedScaleVec_ = vec3(h / boundingBox.size.y, h / boundingBox.size.y, h / boundingBox.size.y);
 		break;
-	case 3: scale_vector = vec3(z / boundingBox.size.z, z / boundingBox.size.z, z / boundingBox.size.z);
+	case 3: normalizedScaleVec_ = vec3(z / boundingBox.size.z, z / boundingBox.size.z, z / boundingBox.size.z);
 		break;
-	default: scale_vector = vec3(w / boundingBox.size.x, h / boundingBox.size.y, z / boundingBox.size.z);
+	default: normalizedScaleVec_ = vec3(w / boundingBox.size.x, h / boundingBox.size.y, z / boundingBox.size.z);
 		break;
-	}
-		
-	return scale_vector;
-	
+	}	
+}
+
+vec3 CModel::GetNormalizedScaleVector() const
+{
+	return normalizedScaleVec_;
 }
 
 void CModel::CalculateBoudnigBox()

@@ -13,7 +13,12 @@ namespace Network
 		, receiver_(sdlNetWrapper)
 	{
 		usersDb_ = {
-			{"baszek", "haslo"}
+			{ "baszek", UserAccount{ 14, "baszek", "haslo"} },
+			{ "baszeka", UserAccount{ 7, "baszeka", "haslo" } },
+			{ "baszekb", UserAccount{ 55, "baszekb", "haslo" } },
+			{ "baszekb", UserAccount{ 21, "baszekc", "haslo" } },
+			{ "baszekd", UserAccount{ 13, "baszekd", "haslo" } },
+
 		};
 	}
 
@@ -55,34 +60,54 @@ namespace Network
 		if (msg->GetType() != MessageTypes::Authentication)
 			return false;
 
-		auto amsg = dynamic_cast<AuthenticationMessage*>(msg.get());
+		auto amsg = castMessageAs<AuthenticationMessage>(msg.get());
 
 		if (amsg == nullptr)
 			return false;
 
 		auto name = amsg->GetUserName();
 		auto pass = amsg->GetPassword();
+		auto connectedUserId = usersDb_[name].id;
+		bool authenticated = true;
 
-		//Log("User login: " + name + "\nPassword: " + pass);
+		ConnectionStatus errorConnectionStatus = ConnectionStatus::ERROR_FAILD_AUTHENTICATION;
+		std::string errorString = "Wrong username or password for ";
+		if (usersDb_.count(name) == 0)
+			authenticated = false;
 
-		if (usersDb_[name] == pass)
+		if (usersDb_[name].password != pass)
+			authenticated = false;
+		
+		for (const auto& existingUser : context_.users)
+		{
+			if (existingUser.second->id == connectedUserId)
+			{
+				errorConnectionStatus = ConnectionStatus::ACCOUNT_IN_USE;
+				authenticated = false;
+				errorString = "Account in use : ";
+				break;
+			}
+		}
+
+		if (authenticated)
 		{
 			ConnectionMessage conMsg(ConnectionStatus::CONNECTED);
-			sender_.SendTcp(user->socket, &conMsg);
+			sender_.SendTcp(user->socket, &conMsg);			
 
-			context_.users[user->id] = user;
+			user->id = connectedUserId;
+			context_.users[connectedUserId] = user;
 
 			for (auto s : newUserSubscribes_)
-				s(name, user->id);
+				s(name, connectedUserId);
 
 			Log(name + " connected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 		}
 		else
 		{
-			ConnectionMessage conMsg(ConnectionStatus::ERROR_FAILD_AUTHENTICATION);
+			ConnectionMessage conMsg(errorConnectionStatus);
 			sender_.SendTcp(user->socket, &conMsg);
 			--clientsCount_;
-			Log("Wrong username or password for " + name + ". Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+			Log(errorString + name + ". Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 		}
 
 		userIter = notAuthenticatedUsers.erase(userIter);
@@ -99,9 +124,9 @@ namespace Network
 
 		usr->socket = sdlNetWrapper_->TCPAccept(context_.socket);
 
-		sdlNetWrapper_->TCPAddSocket(context_.socketSet, usr->socket);		
+		sdlNetWrapper_->TCPAddSocket(context_.socketSet, usr->socket);
 
-		notAuthenticatedUsers[usr->id] = usr;
+		notAuthenticatedUsers[usr->GetNextId()] = usr;
 
 		++clientsCount_;
 
@@ -112,7 +137,7 @@ namespace Network
 	}
 
 	bool ConnectionManager::CheckSocketsActivity()
-	{		
+	{
 		return (sdlNetWrapper_->CheckSockets(context_.socketSet, 0)) > 0;
 	}
 

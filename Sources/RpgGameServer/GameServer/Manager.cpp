@@ -1,6 +1,7 @@
 #include "Manager.h"
 #include "Hero/HeroFactory.hpp"
 #include "ControllerCreator.h"
+#include "Logger/Log.h"
 
 namespace GameServer
 {
@@ -26,7 +27,7 @@ namespace GameServer
 
 		knight->context_.data_.mapId = characterData.value().mapId;
 		knight->context_.stats_ = characterStats.value();
-		CreateCharacterController(knight, common::Controllers::CharacterControllerType);
+		CreateCharacterController(knight);
 
 		maps_[characterData.value().mapId].AddCharacter(id, knight);
 	}
@@ -34,5 +35,14 @@ namespace GameServer
 	{
 		for (auto& map : maps_)
 			map.UpdateAllControllers(dt);
+	}
+	const CharactersMap& Manager::GetAllCharactersInMap(uint32 mapId) const
+	{
+		if (mapId >= maps_.size())
+		{
+			Log("anager::GetAllCharactersInMap: map id : "+ std::to_string(mapId) + " not found.");
+			return emptyCharactersMap_;
+		}
+		return maps_[mapId].GetAllCharacters();
 	}
 } // GameServer

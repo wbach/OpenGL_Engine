@@ -4,6 +4,7 @@
 #include "../GameEngine/Engine/Configuration.h"
 #include "../UtilsNetwork/Gateway.h"
 #include "Scenes/ScenesFactory.h"
+#include "../../Common/Hero/HeroClassesTypes.h"
 
 namespace MmmoRpg
 {

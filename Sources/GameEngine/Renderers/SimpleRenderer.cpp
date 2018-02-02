@@ -29,10 +29,10 @@ void SimpleRenderer::Render(CScene * scene)
 {
     for (auto& entity : subscribes)
 	{
-		if (entity->GetModel(0) == nullptr)
+		if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
 			continue;
 
-        RenderModel(entity->GetModel(0), entity->worldTransform.GetMatrix());
+        RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
 	}
 }
 

@@ -1,7 +1,9 @@
 #pragma once
-#include "CharacterData.h"
-#include "Stats.h"
+#include "../../../Common/Hero/Stats.h"
 #include "../../../Common/Transform.h"
+
+using namespace common;
+using namespace common::Hero;
 
 namespace GameServer
 {
@@ -11,7 +13,8 @@ namespace GameServer
 		{
 			Stats stats_;
 			CharacterData data_;
-			common::Transform transform_;
+			Transform transform_;
+			CommonStats commonStats_;
 
 			void AddExp(uint32 exp)
 			{
