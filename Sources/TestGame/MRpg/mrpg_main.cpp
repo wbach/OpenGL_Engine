@@ -1,10 +1,11 @@
 #include "mrpg_main.h"
-#include "Logger/Log.h"
+#include "MrpgGameContext.h"
+#include "../UtilsNetwork/Gateway.h"
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Engine/Configuration.h"
-#include "../UtilsNetwork/Gateway.h"
-#include "Scenes/ScenesFactory.h"
 #include "../../Common/Hero/HeroClassesTypes.h"
+#include "Scenes/ScenesFactory.h"
+#include "Logger/Log.h"
 
 namespace MmmoRpg
 {
@@ -12,7 +13,7 @@ namespace MmmoRpg
 	{
 	public:
 		Game()
-			: engine(std::make_shared<SceneFactory>(gateway, serverAdress))
+			: engine(std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
 		{
 			std::string  serverAdress = Utils::ReadFile("./server.conf");
 			Log("Server : " + serverAdress);
@@ -28,6 +29,7 @@ namespace MmmoRpg
 		Network::CGateway gateway;
 		GameEngine::CEngine engine;
 		std::string serverAdress;
+		MrpgGameContext gameContext_;
 	};
 
 	void StartGame()

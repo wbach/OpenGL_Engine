@@ -1,6 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "optional.hpp"
+#include "DatabaseTransformInfo.h"
 #include "../Hero/BaseHero.h"
 #include "../../../Common/Hero/Stats.h"
 #include <vector>
@@ -21,6 +22,7 @@ namespace GameServer
 			virtual UserCharacterVec  GetCharacterByUser(uint32 id) = 0;
 			virtual wb::optional<common::Hero::CharacterData> GetCharacterData(uint32 id) = 0;
 			virtual wb::optional<common::Hero::Stats> GetCharacterStats(uint32 stats) = 0;
+			virtual wb::optional<DatabaseTransformInfo> GetTransformInfo(uint32 characterId) = 0;
 
 		protected:
 			CharactersMap allCharacters_;

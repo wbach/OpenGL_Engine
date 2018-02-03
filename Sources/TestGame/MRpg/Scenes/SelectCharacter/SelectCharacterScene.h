@@ -2,6 +2,7 @@
 #include "../GameEngine/Scene/Scene.hpp"
 #include "../UtilsNetwork/Messages/GetCharacters/CharacterInfo.h"
 #include "../GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "../../MrpgGameContext.h"
 #include "optional.hpp"
 #include <vector>
 
@@ -35,7 +36,7 @@ namespace MmmoRpg
 		};
 
 	public:
-		SelectCharacterScene(Network::CGateway& gateway);
+		SelectCharacterScene(Network::CGateway& gateway, MrpgGameContext& gameContext);
 		virtual ~SelectCharacterScene() override;
 		virtual int		Initialize() override;
 		virtual void	PostInitialize() override;
@@ -62,5 +63,6 @@ namespace MmmoRpg
 		std::vector<CharacterSlot> charactersData_;
 		vec3 itemsTextColour_;
 		Timepoint selectedCharacterMsgSentTime_;
+		MrpgGameContext& gameContext_;
 	};
 }

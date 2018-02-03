@@ -17,7 +17,7 @@ namespace GameServer
 			virtual void ProcessMessage(const Network::BoxMessage& message) override;
 			
 		private:
-			void SendResponse(bool status, uint32 userId, uint32 characterId);
+			void SendResponse(bool status, uint32 userId, uint32 characterId, uint32 mapId);
 
 		private:
 			Context & context_;

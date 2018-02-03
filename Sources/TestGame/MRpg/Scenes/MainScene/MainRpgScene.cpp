@@ -11,6 +11,7 @@
 #include "../GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "../GameEngine/Resources/Models/ModelFactory.h"
 
+#include "../../Characters/PlayerController.h"
 #include "../../../../UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
 #include "../../../../Common/Hero/HeroClassesTypes.h"
 
@@ -19,9 +20,10 @@
 
 namespace MmmoRpg
 {
-	MainRpgScene::MainRpgScene(Network::CGateway& gateway)
+	MainRpgScene::MainRpgScene(Network::CGateway& gateway, MrpgGameContext& gameContext)
 		: CScene("MainRpgScene")
 		, gateway_(gateway)
+		, gameContext_(gameContext)
 	{
 	}
 
@@ -58,6 +60,7 @@ namespace MmmoRpg
 	int MainRpgScene::Update(float dt)
 	{
 		CheckIncomingMessages();
+		ControlPlayer();
 
 		if (camera == nullptr)
 		{
@@ -207,6 +210,20 @@ namespace MmmoRpg
 		entity->dynamic = true;
 		AddGameObject(entity, msg->position);
 		renderersManager_->Subscribe(entity);
+
+		if (msg->networkCharcterId == gameContext_.selectedCharacterId)
+		{
+			camera = std::make_unique<CThirdPersonCamera>(inputManager_, entity->worldTransform);
+			playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_.selectedCharacterId, gateway_);
+		}
+	}
+
+	void MainRpgScene::ControlPlayer()
+	{
+		if (playerController_ == nullptr)
+			return;
+
+		playerController_->Control();
 	}
 
 	void MainRpgScene::InitGui()

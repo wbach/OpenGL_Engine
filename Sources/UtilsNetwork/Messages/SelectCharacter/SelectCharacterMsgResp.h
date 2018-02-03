@@ -12,11 +12,12 @@ namespace Network
 		{}
 
 		uint32 id = 0;
+		uint32 mapId = 0;
 		MessageStatus status_;
 
 		virtual std::string ToString() override
 		{
-			return "Selected character ID: " + std::to_string(id) + " status : " + (status_ == MessageStatus::Ok ? "Ok" : "Fail");
+			return "Selected character ID: " + std::to_string(id) + " on map : " + std::to_string(mapId) + " status : " + (status_ == MessageStatus::Ok ? "Ok" : "Fail");
 		}
 	};
 } // Network

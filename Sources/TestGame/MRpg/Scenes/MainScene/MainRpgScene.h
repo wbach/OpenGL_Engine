@@ -3,7 +3,7 @@
 #include "../GameEngine/Engine/Debuger.h"
 #include "../GameEngine/Objects/ObjectBuilder.h"
 #include "../../Characters/NetworkCharacter.h"
-
+#include "../../MrpgGameContext.h"
 #include "../UtilsNetwork/Gateway.h"
 #include "../../../../UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgResp.h"
 #include <unordered_map>
@@ -15,10 +15,12 @@
 
 namespace MmmoRpg
 {
+	class PlayerController;
+
 	class MainRpgScene : public CScene
 	{
 	public:
-		MainRpgScene(Network::CGateway& gateway);
+		MainRpgScene(Network::CGateway& gateway, MrpgGameContext& gameContext);
 		virtual ~MainRpgScene() override;
 		virtual int		Initialize() override;
 		virtual void	PostInitialize() override {};
@@ -37,6 +39,7 @@ namespace MmmoRpg
 		void WaitForNetworkCharacters();
 		void CheckIncomingMessages();
 		void HandleNetworkCharacterMsg(std::shared_ptr<Network::GetCharacterDataMsgResp> msg);
+		void ControlPlayer();
 
 	private:
 		std::vector<CGameObject*> terrains;
@@ -44,5 +47,7 @@ namespace MmmoRpg
 		float deltaTime;
 		std::unordered_map<uint32, std::shared_ptr<NetworkCharacter>> networkCharacters_;
 		Network::CGateway& gateway_;
+		MrpgGameContext& gameContext_;
+		std::shared_ptr<PlayerController> playerController_;
 	};
 } // MmmoRpg

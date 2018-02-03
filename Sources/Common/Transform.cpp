@@ -105,6 +105,13 @@ namespace common
 		UpdateMatrix();
 	}
 
+	void Transform::SetRotation(const vec3 & r)
+	{
+		std::lock_guard<std::mutex> l(rmutex);
+		rotation = r;
+		UpdateMatrix();
+	}
+
 	void Transform::SetRotate(Axis axis, float v)
 	{
 		std::lock_guard<std::mutex> l(rmutex);

@@ -13,11 +13,17 @@ namespace GameServer
 			if (!msg) return;
 
 			auto userId = message.first;
-			auto characterId = msg->id;
+			auto characterId = msg->id;			
 
-			auto& user = context_.GetUser(userId);
+			auto& user = context_.GetUser(userId);			
 			bool hasChar = user.HasCharacter(characterId);
-			SendResponse(hasChar, userId, characterId);
+
+			uint32 mapId = 0;
+			
+			if(hasChar)
+				mapId = context_.databaseWrapper_->GetCharacterData(characterId).value().mapId;
+
+			SendResponse(hasChar, userId, characterId, mapId);
 
 			if (!hasChar)
 			{
@@ -31,11 +37,12 @@ namespace GameServer
 			//user.GetUsageCharacterId
 
 		}
-		void SelectCharacterHandler::SendResponse(bool status, uint32 userId, uint32 characterId)
+		void SelectCharacterHandler::SendResponse(bool status, uint32 userId, uint32 characterId, uint32 mapId)
 		{
 			Network::SelectCharacterMsgResp resp;
 			resp.status_ = status ? Network::MessageStatus::Ok : Network::MessageStatus::Fail;
 			resp.id = characterId;
+			resp.mapId = mapId;
 			context_.sendMessage_(userId, Network::CreateIMessagePtr<Network::SelectCharacterMsgResp>(resp));
 		}
 	} // Handler

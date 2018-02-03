@@ -35,6 +35,7 @@ namespace common
 		void SetNormalizedSize(const vec3& size);
 		void SetScale(const vec3& s);
 		void SetPosition(const vec3& pos);
+		void SetRotation(const vec3& r);
 		void SetRotate(Axis axis, float v);
 
 	private:

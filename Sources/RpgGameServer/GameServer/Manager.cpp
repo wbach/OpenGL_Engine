@@ -19,6 +19,7 @@ namespace GameServer
 	{
 		auto characterData = databaseWrapper_->GetCharacterData(id);
 		auto characterStats = databaseWrapper_->GetCharacterStats(id);
+		auto characterTransformInfo = databaseWrapper_->GetTransformInfo(id);
 
 		if (!characterData)
 			return;
@@ -27,6 +28,12 @@ namespace GameServer
 
 		knight->context_.data_.mapId = characterData.value().mapId;
 		knight->context_.stats_ = characterStats.value();
+
+		if (characterTransformInfo)
+		{
+			knight->context_.transform_.SetPosition(characterTransformInfo.value().position);
+			knight->context_.transform_.SetRotation(characterTransformInfo.value().rotation);
+		}
 		CreateCharacterController(knight);
 
 		maps_[characterData.value().mapId].AddCharacter(id, knight);

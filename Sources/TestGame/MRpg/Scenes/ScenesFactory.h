@@ -1,5 +1,6 @@
 #pragma once
 #include "../../../GameEngine/Scene/SceneFactoryBase.h"
+#include "../MrpgGameContext.h"
 
 namespace Network
 {
@@ -11,7 +12,7 @@ namespace MmmoRpg
 	class SceneFactory : public GameEngine::SceneFactoryBase
 	{
 	public:
-		SceneFactory(Network::CGateway& gateway, std::string& serverAdress);
+		SceneFactory(Network::CGateway& gateway, std::string& serverAdress, MrpgGameContext& gameContext);
 
 	private:
 		GameEngine::ScenePtr CreateMainScene();
@@ -21,6 +22,7 @@ namespace MmmoRpg
 
 	private:
 		Network::CGateway& gateway_;
-		std::string& serverAdress_;		
+		std::string& serverAdress_;
+		MrpgGameContext& gameContext_;
 	};
 }

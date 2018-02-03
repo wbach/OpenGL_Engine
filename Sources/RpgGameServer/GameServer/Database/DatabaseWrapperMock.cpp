@@ -39,7 +39,7 @@ namespace GameServer
 				data.mapId = 1;
 				data.lvl = 24;
 				data.classId = 1;
-				data.name = "BaszekBK";
+				data.name = allCharacters_[id]->GetName();
 			}
 			break;
 			case 101:
@@ -47,7 +47,7 @@ namespace GameServer
 				data.mapId = 1;
 				data.lvl = 12;
 				data.classId = 1;
-				data.name = "Super-Knight";
+				data.name = allCharacters_[id]->GetName();
 			}
 			break;
 			case 56:
@@ -55,15 +55,39 @@ namespace GameServer
 				data.mapId = 1;
 				data.lvl = 151;
 				data.classId = 1;
-				data.name = "Black Knight";
+				data.name = allCharacters_[id]->GetName();
+			}
+			break;
+			case 58:
+			{
+				data.mapId = 1;
+				data.lvl = 2;
+				data.classId = 1;
+				data.name = allCharacters_[id]->GetName();
+			}
+			break;
+			case 62:
+			{
+				data.mapId = 1;
+				data.lvl = 6;
+				data.classId = 1;
+				data.name = allCharacters_[id]->GetName();
+			}
+			break;
+			case 63:
+			{
+				data.mapId = 1;
+				data.lvl = 80;
+				data.classId = 1;
+				data.name = allCharacters_[id]->GetName();
 			}
 			break;
 			default:
-				{					
+				{
 					data.mapId = 1;
 					data.lvl = 1;
 					data.classId = 1;
-					data.name = "BaszekBK";					
+					data.name = "Mock : default";					
 				}
 			}
 			return data;
@@ -72,6 +96,21 @@ namespace GameServer
 		wb::optional<common::Hero::Stats> DatabaseWrapperMock::GetCharacterStats(uint32 stats)
 		{			
 			return common::Hero::Stats();
+		}
+
+		wb::optional<DatabaseTransformInfo> DatabaseWrapperMock::GetTransformInfo(uint32 characterId)
+		{
+			switch (characterId)
+			{
+			case 98: return DatabaseTransformInfo{ 98, vec3(1.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
+			case 101: return DatabaseTransformInfo{ 98, vec3(2.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
+			case 56: return DatabaseTransformInfo{ 98, vec3(1.f, 0.f, 2.f), vec3(0.0f) }; // TO DO : more
+			case 58: return DatabaseTransformInfo{ 98, vec3(2.f, 0.f, 2.f), vec3(0.0f) }; // TO DO : more
+			case 62: return DatabaseTransformInfo{ 98, vec3(0.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
+			case 63: return DatabaseTransformInfo{ 98, vec3(2.f, 0.f, 0.f), vec3(0.0f) }; // TO DO : more
+
+			}
+			return wb::optional<DatabaseTransformInfo>();
 		}
 
 	} // Database

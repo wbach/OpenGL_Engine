@@ -16,6 +16,7 @@ namespace Network
 		common::Hero::CommonStats commonStats;
 		common::Hero::CharacterData characterData;
 		vec3 position;
+		vec3 rotation;
 
 		virtual std::string ToString() override
 		{

@@ -7,9 +7,10 @@
 
 namespace MmmoRpg
 {
-	SceneFactory::SceneFactory(Network::CGateway & gateway, std::string & serverAdress)
+	SceneFactory::SceneFactory(Network::CGateway& gateway, std::string& serverAdress, MrpgGameContext& gameContext)
 		: gateway_(gateway)
 		, serverAdress_(serverAdress)
+		, gameContext_(gameContext)
 	{
 		AddScene("LoginScene", std::bind(&SceneFactory::CreateLoginScene, this));
 		AddScene("SelectCharacterScene", std::bind(&SceneFactory::CreateSelectCharacterScene, this));
@@ -19,7 +20,7 @@ namespace MmmoRpg
 	
 	GameEngine::ScenePtr SceneFactory::CreateMainScene()
 	{
-		return std::make_unique<MainRpgScene>(gateway_);
+		return std::make_unique<MainRpgScene>(gateway_, gameContext_);
 	}
 	GameEngine::ScenePtr SceneFactory::CreateLoginScene()
 	{
@@ -27,7 +28,7 @@ namespace MmmoRpg
 	}
 	GameEngine::ScenePtr SceneFactory::CreateSelectCharacterScene()
 	{
-		return std::make_unique<SelectCharacterScene>(gateway_);
+		return std::make_unique<SelectCharacterScene>(gateway_, gameContext_);
 	}
 	GameEngine::ScenePtr SceneFactory::CreateGuiEditorScene()
 	{

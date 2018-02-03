@@ -28,7 +28,8 @@ namespace GameServer
 				resp.networkCharcterId = c.first;
 				resp.characterData = characterContext.data_;
 				resp.commonStats = characterContext.commonStats_;
-				resp.position = characterContext.transform_.GetPosition();				
+				resp.position = characterContext.transform_.GetPosition();
+				resp.rotation = characterContext.transform_.GetRotation();
 				context_.sendMessage_(message.first, Network::CreateIMessagePtr<Network::GetCharacterDataMsgResp>(resp));
 			}
 		}

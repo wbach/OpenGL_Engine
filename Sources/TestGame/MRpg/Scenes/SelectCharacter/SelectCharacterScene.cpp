@@ -10,9 +10,10 @@
 
 namespace MmmoRpg
 {
-	SelectCharacterScene::SelectCharacterScene(Network::CGateway& gateway)
+	SelectCharacterScene::SelectCharacterScene(Network::CGateway& gateway, MrpgGameContext& gameContext)
 		: CScene("SelectCharacterScene")
 		, gateway_(gateway)
+		, gameContext_(gameContext)
 		, state_(State::GET_CHARACTER)
 		, itemsTextColour_(0, 162.f / 255.f, 232.f / 255.f)
 	{
@@ -62,12 +63,6 @@ namespace MmmoRpg
 	}
 	void SelectCharacterScene::PostInitialize()
 	{
-		return;
-		Network::SelectCharacterMsgReq characterSelectReq;
-		characterSelectReq.id = 101;
-		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::SelectCharacterMsgReq>(characterSelectReq));
-		Log("Wait for character select...");
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 	int SelectCharacterScene::Update(float deltaTime)
 	{
@@ -122,8 +117,17 @@ namespace MmmoRpg
 			return;
 		}
 
+		std::string sceneName = "MainScene";
+
+		switch(resp->mapId)
+		{
+		case 1: sceneName = "MainScene";
+			break;
+		}
+
 		// id = game, set selected characeter
-		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE, "MainScene");
+		gameContext_.selectedCharacterId = resp->id;
+		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
 		addSceneEvent(e);
 
 		state_ = State::END;
