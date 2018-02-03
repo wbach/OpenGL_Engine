@@ -51,9 +51,9 @@ namespace GameEngine
 		{
 			guiContext_.renderer = new CGUIRenderer();
 			guiContext_.texts = new CGuiText("GUI/consola.ttf", projection_.GetWindowSize());
-			//guiContext_.texures = new Renderer::Gui::CGuiTexture();
+			guiContext_.texures = new Renderer::Gui::CGuiTexture();
+			guiContext_.renderer->AddElement(guiContext_.texures);
 			guiContext_.renderer->AddElement(guiContext_.texts);
-			//guiContext_.renderer->AddElement(guiContext_.texures);
 			renderers_.emplace_back(guiContext_.renderer);
 		}
 		void RenderersManager::RenderScene(CScene* scene)
@@ -77,6 +77,10 @@ namespace GameEngine
 		SGuiTextElement& RenderersManager::GuiText(const std::string & label)
 		{
 			return guiContext_.texts->texts[label];
+		}
+		Gui::GuiTextureElement& RenderersManager::GuiTexture(const std::string & label)
+		{
+			return guiContext_.texures->guiTextures_[label];
 		}
 		void RenderersManager::Render(CScene* scene, CRenderer* renderer)
 		{

@@ -29,7 +29,7 @@ namespace GameEngine
 			{
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, te.texture->GetId());
-				shader_.LoadTransformMatrix(te.transformMatrix_);
+				shader_.LoadTransformMatrix(te.GetMatrix());
 				Utils::SimpleRenderVao(quad_.vao, quad_.indicesSize, 2);
 			}
 		} // Gui

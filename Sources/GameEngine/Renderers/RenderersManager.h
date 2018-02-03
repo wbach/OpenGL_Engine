@@ -10,6 +10,11 @@ namespace GameEngine
 {
 	namespace Renderer
 	{
+		namespace Gui
+		{
+			struct GuiTextureElement;
+		} // Gui
+
 		class RenderersManager
 		{
 		public:
@@ -20,6 +25,7 @@ namespace GameEngine
 			void Subscribe(CGameObject* gameObject);
 			void UnSubscribeAll();
 			SGuiTextElement& GuiText(const std::string& label);
+			Gui::GuiTextureElement& GuiTexture(const std::string& label);
 
 		private:
 			void InitProjection();

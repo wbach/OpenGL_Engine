@@ -5,6 +5,7 @@
 #include "../UtilsNetwork/Messages/GetCharacters/GetCharactersMsgReq.h"
 #include "../UtilsNetwork/Messages/GetCharacters/GetCharactersMsgResp.h"
 #include "../GameEngine/Engine/Engine.h"
+#include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 
 namespace MmmoRpg
 {
@@ -12,16 +13,20 @@ namespace MmmoRpg
 		: CScene("SelectCharacterScene")
 		, gateway_(gateway)
 	{
-		characterSelectText_.text = "SelectCharacterScene";
+		characterSelectText_.text = "Select Character";
 		characterSelectText_.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
-		characterSelectText_.position = glm::vec2(0, 0.0);
+		characterSelectText_.position = glm::vec2(-0.25, 0.5);
 	}
 	SelectCharacterScene::~SelectCharacterScene()
-	{
+	{		
 		
 	}
 	int SelectCharacterScene::Initialize()
 	{
+		GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+		guiTexture.texture = resourceManager.GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
+		renderersManager_->GuiTexture("bg") = guiTexture;
+
 		renderersManager_->GuiText("SelectCharacter") = characterSelectText_;
 
 		return 0;
