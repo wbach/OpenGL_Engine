@@ -13,10 +13,9 @@ namespace GameServer
 
 		protected:
 			virtual void ProcessMessage(const Network::BoxMessage& message) override;
-			void SendToAll(const Network::IMessagePtr& message);
 
 		private:
-			Context & context_;
+			Context& context_;
 		};
 	} // Handler
 } // GameServer

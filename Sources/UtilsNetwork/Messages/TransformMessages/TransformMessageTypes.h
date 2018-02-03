@@ -11,4 +11,9 @@ namespace Network
 		ROTATE_LEFT,
 		JUMP
 	};
+	enum TransformAction
+	{
+		PUSH,
+		POP
+	};
 } // Network

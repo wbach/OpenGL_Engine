@@ -15,6 +15,7 @@ namespace common
 				ROTATE_RIGHT,
 				RUN,
 				WALK,
+				JUMP,
 				ATTACK_1,
 				ATTACK_2,
 				ATTACK_3,

@@ -1,7 +1,6 @@
 #pragma once
 #include "../../Input/InputManager.h"
 #include "Types.h"
-#include "BidirectionalUnorderedMap.h"
 #include "optional.hpp"
 #include "Mutex.hpp"
 
@@ -37,9 +36,7 @@ namespace GameEngine
 		wb::optional<KeyEvent> GetEvent();
 
 	private:
-		std::mutex keyEventMutex_;
-
-		BidirectionalUnorderedMap<KeyCodes::Type, int> keys;
+		std::mutex keyEventMutex_;	
 
 		std::list<KeyEvent> keyEvents_;
 		SDL_Window* sdlWindow;

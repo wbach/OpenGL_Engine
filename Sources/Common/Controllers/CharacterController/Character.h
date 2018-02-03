@@ -40,6 +40,7 @@ namespace common
 		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
 		virtual void Update(float dt) override;
 		void AddState(CharacterActions::Type action);
+		void RemoveState(CharacterActions::Type action);
 		common::Transform& GetTransform();
 
 	private:
@@ -72,9 +73,9 @@ namespace common
 	private:
 		Timepoint referenceTime;
 		CharacterActions::Type action = CharacterActions::IDLE;
-
 		common::Transform& transform_;
 
+		float moveTime_ = 0.05f;
 		float runSpeed_ = 0.0f;
 		float turnSpeed_ = 0.0f;
 		float jumpPower_ = 0.0f;

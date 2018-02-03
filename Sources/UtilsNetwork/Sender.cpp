@@ -2,7 +2,8 @@
 #include "Logger/Log.h"
 #include "Messages/Conntection/ConnectionMessage.h"
 #include "Messages/Conntection/AuthenticationMessage.h"
-#include "Messages/TransformMessages/TransformMsg.h"
+#include "Messages/TransformMessages/TransformMsgReq.h"
+#include "Messages/TransformMessages/TransformMsgResp.h"
 #include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
 #include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
 #include "Messages/GetCharacters/GetCharactersMsgReq.h"
@@ -40,7 +41,8 @@ namespace Network
 		switch (msg->GetType())
 		{
 			Convert(MessageTypes::ConnectionMsg,		ConnectionMessage);
-			Convert(MessageTypes::Transform,			TransformMsg);
+			Convert(MessageTypes::TransformReq,			TransformMsgReq);
+			Convert(MessageTypes::TransformResp,		TransformMsgResp);
 			Convert(MessageTypes::Authentication,		AuthenticationMessage);
 			Convert(MessageTypes::SelectCharacterReq,	SelectCharacterMsgReq);
 			Convert(MessageTypes::SelectCharacterResp,	SelectCharacterMsgResp);

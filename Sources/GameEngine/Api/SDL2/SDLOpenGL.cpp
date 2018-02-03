@@ -1,8 +1,9 @@
 #include "SDLOpenGL.h"
-#include "Logger/Log.h"
-#include "../../Input/InputManager.h"
-#include "../Api.hpp"
 #include "InputSDL.h"
+#include "../Api.hpp"
+#include "../../Input/InputManager.h"
+#include "Logger/Log.h"
+#include <SDL2/SDL.h>
 #include <GL/glew.h>
 /*
 SDL_INIT_TIMER	Initializes the timer subsystem.

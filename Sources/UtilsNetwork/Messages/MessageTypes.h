@@ -6,7 +6,8 @@ namespace Network
 	{
 		Any,
 		Ping,
-		Transform,
+		TransformReq,
+		TransformResp,
 		Authentication,
 		ConnectionMsg,
 		SelectCharacterReq,

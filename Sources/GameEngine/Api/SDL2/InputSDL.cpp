@@ -1,53 +1,17 @@
 #include "InputSDL.h"
-#include <SDL2/SDL.h>
+#include "SdlKeyConverter.h"
 
-#define insertKey(x, y) keys.Insert(x, y)
+#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_mouse.h>
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_events.h>
+
+
 namespace GameEngine
 {
 	InputSDL::InputSDL(SDL_Window* sdl_window)
 		: sdlWindow(sdl_window)
-	{
-		insertKey(KeyCodes::LMOUSE, SDL_BUTTON_LEFT);
-		insertKey(KeyCodes::RMOUSE, SDL_BUTTON_RIGHT);
-		insertKey(KeyCodes::Q, SDL_SCANCODE_Q);
-		insertKey(KeyCodes::W, SDL_SCANCODE_W);
-		insertKey(KeyCodes::E, SDL_SCANCODE_E);
-		insertKey(KeyCodes::R, SDL_SCANCODE_R);
-		insertKey(KeyCodes::T, SDL_SCANCODE_T);
-		insertKey(KeyCodes::Y, SDL_SCANCODE_Y);
-		insertKey(KeyCodes::U, SDL_SCANCODE_U);
-		insertKey(KeyCodes::I, SDL_SCANCODE_I);
-		insertKey(KeyCodes::O, SDL_SCANCODE_O);
-		insertKey(KeyCodes::P, SDL_SCANCODE_P);
-		insertKey(KeyCodes::A, SDL_SCANCODE_A);
-		insertKey(KeyCodes::S, SDL_SCANCODE_S);
-		insertKey(KeyCodes::D, SDL_SCANCODE_D);
-		insertKey(KeyCodes::F, SDL_SCANCODE_F);
-		insertKey(KeyCodes::G, SDL_SCANCODE_G);
-		insertKey(KeyCodes::H, SDL_SCANCODE_H);
-		insertKey(KeyCodes::J, SDL_SCANCODE_J);
-		insertKey(KeyCodes::K, SDL_SCANCODE_K);
-		insertKey(KeyCodes::L, SDL_SCANCODE_L);
-		insertKey(KeyCodes::Z, SDL_SCANCODE_Z);
-		insertKey(KeyCodes::X, SDL_SCANCODE_X);
-		insertKey(KeyCodes::C, SDL_SCANCODE_C);
-		insertKey(KeyCodes::V, SDL_SCANCODE_V);
-		insertKey(KeyCodes::B, SDL_SCANCODE_B);
-		insertKey(KeyCodes::N, SDL_SCANCODE_N);
-		insertKey(KeyCodes::M, SDL_SCANCODE_M);
-		insertKey(KeyCodes::LCTRL, SDL_SCANCODE_LCTRL);
-		insertKey(KeyCodes::ENTER, SDL_SCANCODE_RETURN);
-		insertKey(KeyCodes::SPACE, SDL_SCANCODE_SPACE);
-		insertKey(KeyCodes::ESCAPE, SDL_SCANCODE_ESCAPE);
-		insertKey(KeyCodes::LARROW, SDL_SCANCODE_LEFT);
-		insertKey(KeyCodes::RARROW, SDL_SCANCODE_RIGHT);
-		insertKey(KeyCodes::UARROW, SDL_SCANCODE_UP);
-		insertKey(KeyCodes::DARROW, SDL_SCANCODE_DOWN);
-		insertKey(KeyCodes::F1, SDL_SCANCODE_F1);
-		insertKey(KeyCodes::TAB, SDL_SCANCODE_TAB);
-		insertKey(KeyCodes::LSHIFT, SDL_SCANCODE_LSHIFT);
-		insertKey(KeyCodes::RSHIFT, SDL_SCANCODE_RSHIFT);
-		insertKey(KeyCodes::BACKSPACE, SDL_SCANCODE_BACKSPACE);
+	{		
 	}
 
 	bool InputSDL::GetKey(KeyCodes::Type key)
@@ -80,7 +44,7 @@ namespace GameEngine
 
 	bool InputSDL::GetMouseKey(KeyCodes::Type key)
 	{
-		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(keys[key]);
+		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SdlKeyConverter::Convert(key));
 	}
 
 	vec2 InputSDL::GetMousePosition()
@@ -109,7 +73,7 @@ namespace GameEngine
 		int32 arraySize;
 		const Uint8* state = SDL_GetKeyboardState(&arraySize);
 
-		for (const auto& p : keys.GetXY())
+		for (const auto& p : SdlKeyConverter::keys.GetXY())
 		{
 			if (state[p.second])
 			{
@@ -132,7 +96,7 @@ namespace GameEngine
 		auto type = e.value().first;
 		auto value = e.value().second;
 
-		auto keyCode = keys[value];
+		auto keyCode = SdlKeyConverter::keys[value];
 
 		if (type == SDL_KEYDOWN)
 		{

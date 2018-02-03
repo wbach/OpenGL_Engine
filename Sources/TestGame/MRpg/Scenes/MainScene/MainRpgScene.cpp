@@ -14,6 +14,8 @@
 #include "../../Characters/PlayerController.h"
 #include "../../../../UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
 #include "../../../../Common/Hero/HeroClassesTypes.h"
+#include "../../../../Common/Controllers/CharacterController/Character.h"
+#include "../../../../Common/Controllers/CharacterController/NetworkActionsConverter.h"
 
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
@@ -53,11 +55,11 @@ namespace MmmoRpg
 			camera->Move();
 		}
 
-		inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]()
-		{
-			GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainRpgScene");
-			addSceneEvent(e);
-		});
+		//inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]()
+		//{
+		//	GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainRpgScene");
+		//	addSceneEvent(e);
+		//});
 
 		return 0;
 	}
@@ -65,7 +67,11 @@ namespace MmmoRpg
 	int MainRpgScene::Update(float dt)
 	{
 		CheckIncomingMessages();
-		ControlPlayer();
+
+		for (auto& character : networkCharacters_)
+		{
+			character.second->UpdateControllers(dt);
+		}
 
 		if (camera == nullptr)
 		{
@@ -175,7 +181,14 @@ namespace MmmoRpg
 					return;
 				HandleNetworkCharacterMsg(getCharacterDataResp);
 			}
-
+			break;
+			case Network::MessageTypes::TransformResp:
+			{
+				auto transformMsg = Network::castMessageAs<Network::TransformMsgResp>(msg->second);
+				if (transformMsg == nullptr)
+					return;
+				HandleTransformMsg(transformMsg);
+			}
 			break;
 		}
 	}
@@ -212,17 +225,28 @@ namespace MmmoRpg
 
 		if (msg->networkCharcterId == gameContext_.selectedCharacterId)
 		{
-			camera = std::make_unique<CThirdPersonCamera>(inputManager_, entity->worldTransform);
+			//camera = std::make_unique<CThirdPersonCamera>(inputManager_, entity->worldTransform);
 			playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_.selectedCharacterId, gateway_);
 		}
 	}
 
-	void MainRpgScene::ControlPlayer()
+	void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
 	{
-		if (playerController_ == nullptr)
-			return;
+		auto characterId = msg->id;
+		networkCharacters_[msg->id]->GetEntity()->localTransform.SetPosition(msg->position);
+		networkCharacters_[msg->id]->GetEntity()->localTransform.SetRotation(msg->rotation);
+		auto& icontroller = networkCharacters_[msg->id]->GetControllerByType(common::Controllers::Types::CharacterControllerType);
+		auto controller = common::Controllers::castControllerAs<common::Controllers::CharacterController>(icontroller);
 
-		playerController_->Control();
+		switch (msg->action)
+		{
+		case Network::TransformAction::PUSH:
+			controller->AddState(common::Controllers::NetworkActionsConverter::Convert(msg->type));
+			break;
+		case Network::TransformAction::POP:
+			controller->RemoveState(common::Controllers::NetworkActionsConverter::Convert(msg->type));
+			break;
+		}		
 	}
 
 	void MainRpgScene::InitGui()

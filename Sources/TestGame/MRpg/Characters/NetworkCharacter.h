@@ -23,6 +23,7 @@ namespace MmmoRpg
 	public:
 		NetworkCharacter(uint32 id, const vec3& scale, const common::Hero::CommonStats&, GameEngine::ModelWrapper modelWrapper);
 		std::shared_ptr<common::Controllers::IController> GetControllerByType(common::Controllers::Types type);
+		void UpdateControllers(float dt);
 		uint32 GetId();
 		CEntity* GetEntity();
 

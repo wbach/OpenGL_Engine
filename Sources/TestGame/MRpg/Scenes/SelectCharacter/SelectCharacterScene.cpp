@@ -142,11 +142,11 @@ namespace MmmoRpg
 			return;
 		}
 
-		std::string sceneName = "MainScene";
+		std::string sceneName = "MainRpgScene";
 
 		switch(resp->mapId)
 		{
-		case 1: sceneName = "MainScene";
+		case 1: sceneName = "MainRpgScene";
 			break;
 		}
 

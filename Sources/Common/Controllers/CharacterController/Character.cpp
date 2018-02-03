@@ -12,6 +12,7 @@ namespace common
 			, turnSpeed_(turnSpeed)
 			, jumpPower_(jumpPower)
 			, runSpeed_(runSpeed)
+			, moveTime_(1000.0f)
 		{
 			referenceTime = std::chrono::high_resolution_clock::now();
 		}
@@ -65,6 +66,11 @@ namespace common
 				RotateRight();
 		}
 
+		void CharacterController::RemoveState(CharacterActions::Type action)
+		{
+			states.remove(action);
+		}
+
 		common::Transform & CharacterController::GetTransform()
 		{
 			return transform_;
@@ -78,11 +84,10 @@ namespace common
 
 		void CharacterController::SetRotateStateInfo(RotationDirection dir)
 		{
-			float timeInterval = 0.05f;
 			rotateStateInfo.startValue		= transform_.GetRotation().y;
-			rotateStateInfo.currentValue	= turnSpeed_ * timeInterval * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
+			rotateStateInfo.currentValue	= turnSpeed_ * moveTime_ * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
 			rotateStateInfo.startTime		= GetTime();
-			rotateStateInfo.endTime			= rotateStateInfo.startTime + timeInterval;
+			rotateStateInfo.endTime			= rotateStateInfo.startTime + moveTime_;
 		}
 
 		void CharacterController::RotateLeft()
@@ -138,11 +143,10 @@ namespace common
 			states.remove(CharacterActions::MOVE_BACKWARD);
 			states.push_front(CharacterActions::MOVE_FORWARD);
 
-			float timeInterval = 0.05f;
 			moveStateInfo.startValue	= transform_.GetPositionXZ();
-			moveStateInfo.currentValue	= CalculateMoveVector(Direction::FORWARD) * timeInterval;
+			moveStateInfo.currentValue	= CalculateMoveVector(Direction::FORWARD) * moveTime_;
 			moveStateInfo.startTime		= GetTime();
-			moveStateInfo.endTime		= moveStateInfo.startTime + timeInterval;			
+			moveStateInfo.endTime		= moveStateInfo.startTime + moveTime_;
 		}
 
 		void CharacterController::MoveBackward()
@@ -153,11 +157,10 @@ namespace common
 			states.remove(CharacterActions::MOVE_FORWARD);
 			states.push_front(CharacterActions::MOVE_BACKWARD);
 
-			float timeInterval = 0.05f;
 			moveStateInfo.startValue	= transform_.GetPositionXZ();
-			moveStateInfo.currentValue	= CalculateMoveVector(Direction::BACKWARD) * timeInterval;
+			moveStateInfo.currentValue	= CalculateMoveVector(Direction::BACKWARD) * moveTime_;
 			moveStateInfo.startTime		= GetTime();
-			moveStateInfo.endTime		= moveStateInfo.startTime + timeInterval;
+			moveStateInfo.endTime		= moveStateInfo.startTime + moveTime_;
 		}
 
 		void CharacterController::MoveState(std::list<CharacterActions::Type>::iterator & state, float time)
@@ -179,12 +182,7 @@ namespace common
 
 		bool CharacterController::FindState(CharacterActions::Type state)
 		{
-			for (auto state_it = states.begin(); state_it != states.end(); ++state_it)
-			{
-				if (*state_it == state)
-					return true;
-			}
-			return false;
+			return std::find(states.begin(), states.end(), state) != states.end();
 		}
 	} // Controllers
 } // common

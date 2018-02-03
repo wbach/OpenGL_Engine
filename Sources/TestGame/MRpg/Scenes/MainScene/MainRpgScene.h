@@ -6,6 +6,9 @@
 #include "../../MrpgGameContext.h"
 #include "../UtilsNetwork/Gateway.h"
 #include "../../../../UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgResp.h"
+#include "../../../../UtilsNetwork/Messages/TransformMessages/TransformMsgResp.h"
+#include "../../../../UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
+#include "../../../../Common/Controllers/CharacterController/CharacterActions.h"
 #include <unordered_map>
 
 //namespace Network
@@ -39,7 +42,7 @@ namespace MmmoRpg
 		void WaitForNetworkCharacters();
 		void CheckIncomingMessages();
 		void HandleNetworkCharacterMsg(std::shared_ptr<Network::GetCharacterDataMsgResp> msg);
-		void ControlPlayer();
+		void HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg);
 
 	private:
 		std::vector<CGameObject*> terrains;

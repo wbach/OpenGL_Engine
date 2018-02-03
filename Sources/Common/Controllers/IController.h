@@ -21,5 +21,27 @@ namespace common
 		};
 
 		typedef std::shared_ptr<IController> IControllerPtr;
+		template<class T>
+		std::shared_ptr<T> castControllerAs(IControllerPtr ptr)
+		{
+			auto msg = std::static_pointer_cast<T>(ptr);
+			if (msg == nullptr)
+			{
+				Log("Cant cast type : " + std::to_string(ptr->GetType()));
+				return nullptr;
+			}
+			return msg;
+		}
+		template<class T>
+		T* castControllerAs(IController* ptr)
+		{
+			auto msg = static_cast<T*>(ptr);
+			if (msg == nullptr)
+			{
+				Log("Cant cast type : " + std::to_string(ptr->GetType()));
+				return nullptr;
+			}
+			return msg;
+		}
 	} // Controllers
 } // common

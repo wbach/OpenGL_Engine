@@ -3,7 +3,8 @@
 #include "GLM/GLMUtils.h"
 #include "Messages/Conntection/ConnectionMessage.h"
 #include "Messages/Conntection/AuthenticationMessage.h"
-#include "Messages/TransformMessages/TransformMsg.h"
+#include "Messages/TransformMessages/TransformMsgReq.h"
+#include "Messages/TransformMessages/TransformMsgResp.h"
 #include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
 #include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
 #include "Messages/GetCharacters/GetCharactersMsgReq.h"
@@ -53,7 +54,8 @@ namespace Network
 		switch (header.msgType)
 		{
 			Case(MessageTypes::ConnectionMsg,		 ConnectionMessage);
-			Case(MessageTypes::Transform,			 TransformMsg);
+			Case(MessageTypes::TransformReq,		 TransformMsgReq);
+			Case(MessageTypes::TransformResp,		 TransformMsgResp);
 			Case(MessageTypes::Authentication,		 AuthenticationMessage);
 			Case(MessageTypes::SelectCharacterReq,	 SelectCharacterMsgReq);
 			Case(MessageTypes::SelectCharacterResp,  SelectCharacterMsgResp);

@@ -1,6 +1,6 @@
 #include "NetworkCharacter.h"
 #include "../../../Common/Controllers/ControllersFactory.h"
-//#include "../../../Common/Controllers/IController.h"
+#include "../../../Common/Controllers/IController.h"
 
 namespace MmmoRpg
 {
@@ -19,6 +19,11 @@ namespace MmmoRpg
 			return nullptr;
 
 		return controllers_[type];
+	}
+	void NetworkCharacter::UpdateControllers(float dt)
+	{
+		for (auto& controller : controllers_)
+			controller.second->Update(dt);
 	}
 	uint32 NetworkCharacter::GetId()
 	{
