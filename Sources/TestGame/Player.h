@@ -54,7 +54,7 @@ struct SEventInfo
 class CPlayer : public CEntity
 {
 public:
-    CPlayer(CInputManager* input_manager, CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename);
+    CPlayer(GameEngine::InputManager* input_manager, CResourceManager& manager, const glm::vec3& normalized_scale, const std::string& filename);
 	
     CharacterActions::Type GetAction() { return action; }
 	void SetAction(CharacterActions::Type a);
@@ -90,7 +90,7 @@ private:
 
 private:
 	Timepoint referenceTime;
-    CInputManager* inputManager;
+	GameEngine::InputManager* inputManager;
     CharacterActions::Type action = CharacterActions::IDLE;
     SCharacterStats characterStats;
 

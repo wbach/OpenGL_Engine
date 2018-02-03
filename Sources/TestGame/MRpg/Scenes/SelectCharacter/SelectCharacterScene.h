@@ -25,7 +25,7 @@ namespace MmmoRpg
 		std::unordered_map<TextType, SGuiTextElement> texts;
 	};
 
-	class SelectCharacterScene : public CScene
+	class SelectCharacterScene : public GameEngine::Scene
 	{
 		enum State
 		{

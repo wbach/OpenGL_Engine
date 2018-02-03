@@ -21,7 +21,7 @@
 namespace MmmoRpg
 {
 	MainRpgScene::MainRpgScene(Network::CGateway& gateway, MrpgGameContext& gameContext)
-		: CScene("MainRpgScene")
+		: GameEngine::Scene("MainRpgScene")
 		, gateway_(gateway)
 		, gameContext_(gameContext)
 	{
@@ -53,6 +53,11 @@ namespace MmmoRpg
 			camera->Move();
 		}
 
+		inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]()
+		{
+			GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainRpgScene");
+			addSceneEvent(e);
+		});
 
 		return 0;
 	}
@@ -78,13 +83,7 @@ namespace MmmoRpg
 			dayNightCycle.GetCurrentHour(hour, minutes);
 			timeClock = 0;
 			Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
-		}
-
-		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
-		{
-			GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainRpgScene");
-			addSceneEvent(e);
-		}
+		}		
 
 		dayNightCycle.Update(deltaTime);
 

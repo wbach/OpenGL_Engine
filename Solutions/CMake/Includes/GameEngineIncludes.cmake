@@ -16,9 +16,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Engine/IntroRenderer.h
 ../../Sources/GameEngine/Engine/LoD.h
 ../../Sources/GameEngine/Input/GameActions.h
-../../Sources/GameEngine/Input/Input.h
 ../../Sources/GameEngine/Input/InputManager.h
 ../../Sources/GameEngine/Input/KeyCodes.h
+../../Sources/GameEngine/Input/KeyCodeToCharConverter.h
 ../../Sources/GameEngine/Lights/Light.h
 ../../Sources/GameEngine/Lights/LightTypes.h
 ../../Sources/GameEngine/Objects/GameObject.h
@@ -70,6 +70,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/Material.h
 ../../Sources/GameEngine/Resources/Models/Mesh.h
 ../../Sources/GameEngine/Resources/Models/Model.h
+../../Sources/GameEngine/Resources/Models/ModelFactory.h
+../../Sources/GameEngine/Resources/Models/ModelWrapper.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Animation.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Animator.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/ColladaDae.h

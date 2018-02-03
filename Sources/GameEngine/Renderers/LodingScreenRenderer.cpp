@@ -15,7 +15,7 @@ void CLoadingScreenRenderer::Init()
 	transformationMatrix = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.01), vec3(0), vec3(0.1));
 }
 
-void CLoadingScreenRenderer::Render(CScene * scene)
+void CLoadingScreenRenderer::Render(GameEngine::Scene* scene)
 {
 	loadingShader.Start();
 	prepareRender();

@@ -4,11 +4,11 @@
 #include <functional>
 #include <unordered_map>
 
-class CScene;
-
 namespace GameEngine
 {
-	typedef std::unique_ptr<CScene> ScenePtr;
+	class Scene;
+
+	typedef std::unique_ptr<Scene> ScenePtr;
 	typedef std::function<ScenePtr()> CreateFunction;
 	typedef std::unordered_map<std::string, CreateFunction> ScenesMap;
 	typedef std::unordered_map<uint32, std::string> OrderMap;

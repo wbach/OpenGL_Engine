@@ -24,11 +24,11 @@ void CGrassRenderer::Init()
     Log("Grass renderer initialized.");
 }
 
-void CGrassRenderer::PrepareFrame(CScene* scene)
+void CGrassRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
 }
 
-void CGrassRenderer::Render(CScene* scene)
+void CGrassRenderer::Render(GameEngine::Scene* scene)
 {
     if (target == nullptr)
         return;
@@ -38,7 +38,7 @@ void CGrassRenderer::Render(CScene* scene)
     EndRender();
 }
 
-void CGrassRenderer::EndFrame(CScene* scene)
+void CGrassRenderer::EndFrame(GameEngine::Scene* scene)
 {
 }
 
@@ -49,7 +49,7 @@ void CGrassRenderer::Subscribe(CGameObject* gameObject)
         subscribes.push_back(grass);
 }
 
-void CGrassRenderer::PrepareRender(CScene* scene)
+void CGrassRenderer::PrepareRender(GameEngine::Scene* scene)
 {
     target->BindToDraw();
     PrepareShader(scene);
@@ -92,7 +92,7 @@ void CGrassRenderer::RenderMesh(const CMesh& mesh)
     glDrawArrays(GL_POINTS, 0, mesh.GetVertexCount());
 }
 
-void CGrassRenderer::PrepareShader(CScene* scene)
+void CGrassRenderer::PrepareShader(GameEngine::Scene* scene)
 {
     shader.Start();
     shader.LoadGlobalTime(scene->GetGlobalTime());

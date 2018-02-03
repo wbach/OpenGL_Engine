@@ -10,9 +10,9 @@ class CLoadingScreenRenderer : public CRenderer
 public:
     CLoadingScreenRenderer(CTexture* bgTexture, CTexture* circleTexture);
     virtual void Init() override;
-    virtual void PrepareFrame(CScene*) override{}
-    virtual void Render(CScene*) override;
-    virtual void EndFrame(CScene*) override{}
+    virtual void PrepareFrame(GameEngine::Scene*) override{}
+    virtual void Render(GameEngine::Scene*) override;
+    virtual void EndFrame(GameEngine::Scene*) override{}
 
 private:
     void prepareRender();

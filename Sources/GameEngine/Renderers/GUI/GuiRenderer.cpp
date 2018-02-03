@@ -8,11 +8,11 @@ void CGUIRenderer::Init()
 	}
 }
 
-void CGUIRenderer::PrepareFrame(CScene * scene)
+void CGUIRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
 }
 
-void CGUIRenderer::Render(CScene * scene)
+void CGUIRenderer::Render(GameEngine::Scene* scene)
 {
     for (const auto& element : guiElements)
 	{
@@ -20,7 +20,7 @@ void CGUIRenderer::Render(CScene * scene)
 	}
 }
 
-void CGUIRenderer::EndFrame(CScene * scene)
+void CGUIRenderer::EndFrame(GameEngine::Scene* scene)
 {
 }
 

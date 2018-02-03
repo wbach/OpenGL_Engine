@@ -3,7 +3,7 @@
 #include "../../Common/Transform.h"
 #include "Utils.h"
 
-CThirdPersonCamera::CThirdPersonCamera(CInputManager* input_manager, common::Transform& look_at)
+CThirdPersonCamera::CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform& look_at)
 	: inputManager(input_manager)
 	, lookAtTransform(look_at)
 	, isShowCursor(false)

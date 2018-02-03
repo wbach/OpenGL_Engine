@@ -15,7 +15,7 @@ namespace Utils
 		{
 		public:
 			CTimeMeasurer();
-			CTimeMeasurer(uint32 lockFps, bool vsync = true);
+			CTimeMeasurer(uint32 lockFps, bool vsync = true, uint32 frequency = 1000);
 			void AddOnTickCallback(Callback);
 			void CalculateAndLock();
 			void EndFrame();
@@ -24,14 +24,14 @@ namespace Utils
 
 		private:
 			void RunCallbacks() const;
-			int  CalculateFpsTimeInterval();
-			void CheckFpsTimeElapsed(int time_interval);
+			uint32  CalculateFpsTimeInterval();
+			void CheckFpsTimeElapsed(uint32 time_interval);
 			void Lock();
 
 		private:
 			uint32 lockFps;
+			uint32 frequency_;
 			Callbacks callbacks;
-
 			bool vsync;
 
 			Delta deltaTime, deltaTime2;

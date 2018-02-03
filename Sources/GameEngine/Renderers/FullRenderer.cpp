@@ -45,7 +45,7 @@ void FullRenderer::Init()
     }
 	Log("FullRenderer initialized.");
 }
-void FullRenderer::PrepareFrame(CScene* scene)
+void FullRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
 	defferedFrameBuffer->Clean();
 
@@ -54,14 +54,14 @@ void FullRenderer::PrepareFrame(CScene* scene)
         renderer->PrepareFrame(scene);
     }
 }
-void FullRenderer::Render(CScene* scene)
+void FullRenderer::Render(GameEngine::Scene* scene)
 {
     for(auto& renderer : renderers)
     {
         renderer->Render(scene);
     }
 }
-void FullRenderer::EndFrame(CScene* scene)
+void FullRenderer::EndFrame(GameEngine::Scene* scene)
 {
     for(auto& renderer : renderers)
     {
@@ -69,7 +69,7 @@ void FullRenderer::EndFrame(CScene* scene)
     }
 }
 
-void FullRenderer::Subscribe(CGameObject * gameObject)
+void FullRenderer::Subscribe(CGameObject* gameObject)
 {
 	for (auto& renderer : renderers)
 		renderer->Subscribe(gameObject);

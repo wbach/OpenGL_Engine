@@ -16,117 +16,121 @@ const uint32 OBJECT_GRID_SIZE = 500;
 // const int grid count y in worlds
 const uint32 OBJECT_GRID_COUNT = 100;
 
-class CInputManager;
-class CDisplayManager;
-
 namespace GameEngine
 {
+	class CDisplayManager;
+	class InputManager;
+
 	namespace Renderer
 	{
 		class RenderersManager;
 	} // Renderer
-} // GameEngine
 
-typedef  std::list<std::unique_ptr<CGameObject>> GameObjects;
+	typedef  std::list<std::unique_ptr<CGameObject>> GameObjects;
 
-class CScene
-{
-public:
-	CScene(const std::string& name);
+	class Scene
+	{
+	public:
+		Scene(const std::string& name);
 
-	virtual ~CScene();
-	virtual int Initialize() { return 0; };
-	virtual void PostInitialize() {}
-	virtual int Update(float deltaTime) { return 0; };
-	const std::string& GetName() { return name; }
+		virtual ~Scene();
+		virtual int Initialize() { return 0; };
+		virtual void PostInitialize() {}	
+		void FullUpdate(float deltaTime);
 
-	// Add Entities
-	CGameObject* AddGameObject(CGameObject* object, const vec3& position = vec3(0.f));
-	void SetAddSceneEventCallback(GameEngine::AddEvent func);
+		const std::string& GetName() { return name; }
 
-	// GetObjects
-	std::list<CGameObject*> GetObjectInRange(const vec3& position, float range);
-	inline const GameObjects& GetGameObjects();
+		// Add Entities
+		CGameObject* AddGameObject(CGameObject* object, const vec3& position = vec3(0.f));
+		void SetAddSceneEventCallback(AddEvent func);
 
-	// Cameras
-	CCamera* GetCamera();
+		// GetObjects
+		std::list<CGameObject*> GetObjectInRange(const vec3& position, float range);
+		inline const GameObjects& GetGameObjects();
 
-	// Lights
-	const CLight& GetDirectionalLight() const;
-	const std::vector<CLight>& GetLights() const;
-	inline const CDayNightCycle& GetDayNightCycle() const;
+		// Cameras
+		CCamera* GetCamera();
+
+		// Lights
+		const CLight& GetDirectionalLight() const;
+		const std::vector<CLight>& GetLights() const;
+		inline const CDayNightCycle& GetDayNightCycle() const;
+
+		// Resources
+		inline CResourceManager& GetResourceManager();
+		inline float GetGlobalTime();
+
+		// GUi
+		void SetGuiContext(Renderer::Gui::GuiContext* c);
+		void SetInputManager(InputManager* input);
+		void SetRenderersManager(Renderer::RenderersManager* manager);
+		void SetDisplayManager(CDisplayManager* displayManager);
+
+	public:
+		uint32 objectCount;
+
+	protected:
+		virtual int Update(float deltaTime) { return 0; };
+
+	protected:
+		std::string name;
+		AddEvent addSceneEvent;
+
+		Renderer::Gui::GuiContext* gui_;
+		InputManager* inputManager_;
+		CDisplayManager* displayManager_;
+		Renderer::RenderersManager* renderersManager_;
+
+		// Minimum one light on scene only (night - decrease strength)
+		float gloabalTime = 0.f;
+		CLight directionalLight;
+		std::vector<CLight> lights;
+		CDayNightCycle dayNightCycle;
+
+		std::unique_ptr<CCamera> camera;
+		CResourceManager resourceManager;
+
+		GameObjects gameObjects;
+	};
+
+	inline const GameObjects& Scene::GetGameObjects()
+	{
+		return gameObjects;
+	}
+
+	inline const CDayNightCycle& Scene::GetDayNightCycle() const
+	{
+		return dayNightCycle;
+	}
 
 	// Resources
-	inline CResourceManager& GetResourceManager();
-	inline float GetGlobalTime();
+	inline CResourceManager& Scene::GetResourceManager()
+	{
+		return resourceManager;
+	}
 
-	// GUi
-	void SetGuiContext(GameEngine::Renderer::Gui::GuiContext* c);
-	void SetInputManager(CInputManager* input);
-	void SetRenderersManager(GameEngine::Renderer::RenderersManager* manager);
-	void SetDisplayManager(CDisplayManager* displayManager);
+	inline float Scene::GetGlobalTime()
+	{
+		return gloabalTime;
+	}
 
-public:
-	uint32 objectCount;
+	inline void Scene::SetGuiContext(Renderer::Gui::GuiContext* c)
+	{
+		gui_ = c;
+	}
 
-protected:
-	std::string name;
-	GameEngine::AddEvent addSceneEvent;
+	inline void Scene::SetInputManager(InputManager* input)
+	{
+		inputManager_ = input;
+	}
 
-	GameEngine::Renderer::Gui::GuiContext* gui_;
-	CInputManager* inputManager_;
-	CDisplayManager* displayManager_;
-	GameEngine::Renderer::RenderersManager* renderersManager_;
+	inline void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
+	{
+		renderersManager_ = manager;
+	}
 
-	// Minimum one light on scene only (night - decrease strength)
-	float gloabalTime = 0.f;
-	CLight directionalLight;
-	std::vector<CLight> lights;
-	CDayNightCycle dayNightCycle;
-
-	std::unique_ptr<CCamera> camera;
-	CResourceManager resourceManager;
-
-	GameObjects gameObjects;
-};
-
-inline const GameObjects& CScene::GetGameObjects()
-{
-	return gameObjects;
-}
-
-inline const CDayNightCycle& CScene::GetDayNightCycle() const
-{
-	return dayNightCycle;
-}
-
-// Resources
-inline CResourceManager& CScene::GetResourceManager()
-{
-	return resourceManager;
-}
-
-inline float CScene::GetGlobalTime()
-{
-	return gloabalTime;
-}
-
-inline void CScene::SetGuiContext(GameEngine::Renderer::Gui::GuiContext* c)
-{
-	gui_ = c;
-}
-
-inline void CScene::SetInputManager(CInputManager* input)
-{
-	inputManager_ = input;
-}
-
-inline void CScene::SetRenderersManager(GameEngine::Renderer::RenderersManager* manager)
-{
-	renderersManager_ = manager;
-}
-
-inline void CScene::SetDisplayManager(CDisplayManager* displayManager)
-{
-	displayManager_ = displayManager;
-}
+	inline void Scene::SetDisplayManager(CDisplayManager* displayManager)
+	{
+		displayManager_ = displayManager;
+	}
+} // GameEngine

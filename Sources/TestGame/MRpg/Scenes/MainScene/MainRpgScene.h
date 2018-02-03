@@ -17,7 +17,7 @@ namespace MmmoRpg
 {
 	class PlayerController;
 
-	class MainRpgScene : public CScene
+	class MainRpgScene : public GameEngine::Scene
 	{
 	public:
 		MainRpgScene(Network::CGateway& gateway, MrpgGameContext& gameContext);

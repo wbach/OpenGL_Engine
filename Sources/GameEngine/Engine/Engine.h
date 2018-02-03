@@ -7,11 +7,12 @@
 #include "ThreadSync.h"
 #include "EngineEvent.h"
 
-class CDisplayManager;
 class CLoadingScreenRenderer;
 
 namespace GameEngine
 {
+	class CDisplayManager;
+
 	class CEngine
 	{
 	private:
@@ -27,7 +28,7 @@ namespace GameEngine
 
 	public:
 		Renderer::Gui::GuiContext guiContext_;
-		CInputManager inputManager;		
+		InputManagerPtr inputManager_;
 		Renderer::RenderersManager renderersManager_;
 		SceneManager sceneManager_;
 

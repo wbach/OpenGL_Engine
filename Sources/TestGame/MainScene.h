@@ -7,7 +7,7 @@
 
 class CPlayer;
 
-class MainScene : public CScene
+class MainScene : public GameEngine::Scene
 {
 public:
 	MainScene();

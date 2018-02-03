@@ -3,13 +3,12 @@
 #include <vector>
 #include "Mutex.hpp"
 
-class CScene;
-class CDisplayManager;
-
-typedef std::unique_ptr<CScene> ScenePtr;
-
 namespace GameEngine
 {
+	class Scene;
+	class CDisplayManager;
+	typedef std::unique_ptr<Scene> ScenePtr;
+	
 	enum SceneWrapperState
 	{
 		SceneNotSet,
@@ -23,7 +22,7 @@ namespace GameEngine
 	public:
 		SceneWrapper(std::shared_ptr<CDisplayManager>&);
 
-		CScene* Get();
+		Scene* Get();
 		SceneWrapperState GetState();
 		void Set(ScenePtr scene);
 		void Init();
@@ -41,5 +40,4 @@ namespace GameEngine
 		std::shared_ptr<CDisplayManager>& displayManager_;
 		SceneWrapperState state_;
 	};
-
 } // GameEngine

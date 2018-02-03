@@ -5,7 +5,7 @@
 #include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 #include <unordered_map>
 
-class GuiEdytorScene : public CScene
+class GuiEdytorScene : public GameEngine::Scene
 {
 public:
 	enum class GuiEditingType

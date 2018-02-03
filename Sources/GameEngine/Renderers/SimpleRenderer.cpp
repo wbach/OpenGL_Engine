@@ -19,13 +19,13 @@ void SimpleRenderer::Init()
     shader.Stop();
 }
 
-void SimpleRenderer::PrepareFrame(CScene * scene)
+void SimpleRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
     shader.Start();
     shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
 }
 
-void SimpleRenderer::Render(CScene * scene)
+void SimpleRenderer::Render(GameEngine::Scene* scene)
 {
     for (auto& entity : subscribes)
 	{
@@ -36,7 +36,7 @@ void SimpleRenderer::Render(CScene * scene)
 	}
 }
 
-void SimpleRenderer::EndFrame(CScene * scene)
+void SimpleRenderer::EndFrame(GameEngine::Scene* scene)
 {
     shader.Stop();
 }

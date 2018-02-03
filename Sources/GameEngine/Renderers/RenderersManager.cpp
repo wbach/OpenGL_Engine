@@ -56,7 +56,7 @@ namespace GameEngine
 			guiContext_.renderer->AddElement(guiContext_.texts);
 			renderers_.emplace_back(guiContext_.renderer);
 		}
-		void RenderersManager::RenderScene(CScene* scene)
+		void RenderersManager::RenderScene(Scene* scene)
 		{
 			if (scene == nullptr)
 				return;
@@ -82,7 +82,7 @@ namespace GameEngine
 		{
 			return guiContext_.texures->guiTextures_[label];
 		}
-		void RenderersManager::Render(CScene* scene, CRenderer* renderer)
+		void RenderersManager::Render(Scene* scene, CRenderer* renderer)
 		{
 			std::lock_guard<std::mutex>(SingleTon<SAplicationContext>::Get().renderingMutex);
 			renderer->PrepareFrame(scene);

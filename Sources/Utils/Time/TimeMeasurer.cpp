@@ -15,7 +15,7 @@ namespace Utils
 			Log("CTimeMeasurer::CTimeMeasurer() Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
 		}
 
-		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, bool vsync)
+		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, bool vsync, uint32 frequency)
 			: lockFps(lockFps)
 			, vsync(vsync)
 			, frameCount(0)
@@ -26,7 +26,8 @@ namespace Utils
 			, lastFrameTime2(std::chrono::high_resolution_clock::now())
 			, lastFrameTime(std::chrono::high_resolution_clock::now())
 			, previousTime(std::chrono::high_resolution_clock::now())
-			, lockframeTime(1000.0 / lockFps)
+			, lockframeTime(frequency / lockFps)
+			, frequency_(frequency)
 		{
 
 		}
@@ -64,21 +65,21 @@ namespace Utils
 				c();
 		}
 
-		int CTimeMeasurer::CalculateFpsTimeInterval()
+		uint32 CTimeMeasurer::CalculateFpsTimeInterval()
 		{	
 			deltaTime = currentTime - lastFrameTime;
 
 			auto d = currentTime - previousTime;
 
-			return static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(d).count());
+			return static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(d).count());
 		}
 
-		void CTimeMeasurer::CheckFpsTimeElapsed(int time_interval)
+		void CTimeMeasurer::CheckFpsTimeElapsed(uint32 time_interval)
 		{
-			if (time_interval < 1000)
+			if (time_interval < frequency_)
 				return;
 
-			float time_interval_ms = static_cast<float>(time_interval) / 1000.0f;
+			float time_interval_ms = static_cast<float>(time_interval) / static_cast<float>(frequency_);
 			fps = frameCount / time_interval_ms;
 			previousTime = currentTime;
 			frameCount = 0;

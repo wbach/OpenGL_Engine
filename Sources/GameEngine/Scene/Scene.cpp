@@ -1,52 +1,70 @@
 #include "Scene.hpp"
 #include "../Renderers/GUI/GuiRenderer.h"
+#include "../Input/InputManager.h"
 #include "Logger/Log.h"
 
-CScene::CScene(const std::string & name)
-	: name(name)
-	, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
-	, camera(new CCamera)
-	, gui_(nullptr)
-	, inputManager_(nullptr)
+namespace GameEngine
 {
-}
+	Scene::Scene(const std::string& name)
+		: name(name)
+		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
+		, camera(new CCamera)
+		, gui_(nullptr)
+		, inputManager_(nullptr)
+	{
+	}
 
-CScene::~CScene()
-{
-	Log(__FUNCTION__);
-}
+	Scene::~Scene()
+	{
+		Log(__FUNCTION__);
+		if (inputManager_ != nullptr)
+		{
+			inputManager_->UnsubscribeAll();
+		}
+	}
 
-CGameObject* CScene::AddGameObject(CGameObject* object, const vec3& position)
-{
-	object->worldTransform.SetPosition(position);
-	gameObjects.emplace_back(object);
-	return gameObjects.back().get();
-}
+	void Scene::FullUpdate(float deltaTime)
+	{
+		Update(deltaTime);
+		
+		if (inputManager_ != nullptr)
+		{
+			inputManager_->ProcessKeysEvents();
+		}
+	}
 
-void CScene::SetAddSceneEventCallback(GameEngine::AddEvent func)
-{
-	addSceneEvent = func;
-}
+	CGameObject* Scene::AddGameObject(CGameObject* object, const vec3& position)
+	{
+		object->worldTransform.SetPosition(position);
+		gameObjects.emplace_back(object);
+		return gameObjects.back().get();
+	}
 
-std::list<CGameObject*> CScene::GetObjectInRange(const vec3 & position, float range)
-{
-    //int x = static_cast<uint>(position.x / OBJECT_GRID_SIZE);
-    //int y = static_cast<uint>(position.z / OBJECT_GRID_SIZE);
+	void Scene::SetAddSceneEventCallback(AddEvent func)
+	{
+		addSceneEvent = func;
+	}
 
-	return std::list<CGameObject*>();// m_ObjectInGrid[x + y*OBJECT_GRID_COUNT];
-}
+	std::list<CGameObject*> Scene::GetObjectInRange(const vec3 & position, float range)
+	{
+		//int x = static_cast<uint>(position.x / OBJECT_GRID_SIZE);
+		//int y = static_cast<uint>(position.z / OBJECT_GRID_SIZE);
 
-CCamera * CScene::GetCamera()
-{
-	return camera.get();
-}
+		return std::list<CGameObject*>();// m_ObjectInGrid[x + y*OBJECT_GRID_COUNT];
+	}
 
-const CLight & CScene::GetDirectionalLight() const
-{
-	return directionalLight;
-}
+	CCamera* Scene::GetCamera()
+	{
+		return camera.get();
+	}
 
-const std::vector<CLight>& CScene::GetLights() const
-{
-	return lights;
-}
+	const CLight & Scene::GetDirectionalLight() const
+	{
+		return directionalLight;
+	}
+
+	const std::vector<CLight>& Scene::GetLights() const
+	{
+		return lights;
+	}
+} // GameEngine

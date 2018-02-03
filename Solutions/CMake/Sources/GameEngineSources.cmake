@@ -10,8 +10,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Engine/Debuger.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp
 ../../Sources/GameEngine/Engine/IntroRenderer.cpp
-../../Sources/GameEngine/Input/Input.cpp
 ../../Sources/GameEngine/Input/InputManager.cpp
+../../Sources/GameEngine/Input/KeyCodeToCharConverter.cpp
 ../../Sources/GameEngine/Lights/Light.cpp
 ../../Sources/GameEngine/Objects/GameObject.cpp
 ../../Sources/GameEngine/Objects/ObjectBuilder.cpp
@@ -56,6 +56,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/Bone.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp
 ../../Sources/GameEngine/Resources/Models/Model.cpp
+../../Sources/GameEngine/Resources/Models/ModelFactory.cpp
+../../Sources/GameEngine/Resources/Models/ModelWrapper.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/ColladaDae.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MyModel.cpp

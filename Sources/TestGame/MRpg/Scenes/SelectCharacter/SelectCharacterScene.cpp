@@ -11,7 +11,7 @@
 namespace MmmoRpg
 {
 	SelectCharacterScene::SelectCharacterScene(Network::CGateway& gateway, MrpgGameContext& gameContext)
-		: CScene("SelectCharacterScene")
+		: GameEngine::Scene("SelectCharacterScene")
 		, gateway_(gateway)
 		, gameContext_(gameContext)
 		, state_(State::GET_CHARACTER)
@@ -55,6 +55,31 @@ namespace MmmoRpg
 
 
 	//	return 0;
+
+		inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]()
+		{
+			if (state_ != State::SELECT_CHARACTER)
+				return;
+
+			SendSelectCharacterReq();
+			state_ = State::WAIT_FOR_SELECT_CHARACTER_RESP;
+		});
+
+		inputManager_->SubscribeOnKeyDown(KeyCodes::A, [&]()
+		{
+			if (state_ != State::SELECT_CHARACTER)
+				return;
+			ChangeSelectedCharacter(-1);
+			CheckRangeSelectedCharacter();
+		});
+
+		inputManager_->SubscribeOnKeyDown(KeyCodes::D, [&]()
+		{
+			if (state_ != State::SELECT_CHARACTER)
+				return;
+			ChangeSelectedCharacter(1);
+			CheckRangeSelectedCharacter();
+		});
 
 		SendGetCharacter();
 		WaitForGetCharacterResp();
@@ -237,26 +262,7 @@ namespace MmmoRpg
 	}
 	void SelectCharacterScene::SelectCharacterState()
 	{
-		if (inputManager_->GetKeyDown(KeyCodes::ENTER))
-		{
-			SendSelectCharacterReq();
-			Pause();
-			state_ = State::WAIT_FOR_SELECT_CHARACTER_RESP;
-		}
-
-		if (inputManager_->GetKeyDown(KeyCodes::A))
-		{
-			ChangeSelectedCharacter(-1);
-			Pause();
-		}
-
-		if (inputManager_->GetKeyDown(KeyCodes::D))
-		{
-			ChangeSelectedCharacter(1);
-			Pause();
-		}
-
-		CheckRangeSelectedCharacter();
+		
 		SetCurrentChoiceText();
 	}
 } // MmmoRpg

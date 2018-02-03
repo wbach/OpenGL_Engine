@@ -10,8 +10,7 @@ namespace GameEngine
 {
 	CEngine::CEngine(SceneFactoryBasePtr sceneFactory)
 		: displayManager(nullptr)
-		, inputManager()
-		, sceneManager_(sceneFactory, displayManager, inputManager, renderersManager_, guiContext_)
+		, sceneManager_(sceneFactory, displayManager, inputManager_, renderersManager_, guiContext_)
 		, introRenderer_(displayManager)
 	{
 		ReadConfigFile("./Conf.xml");
@@ -34,7 +33,7 @@ namespace GameEngine
 	{
 		auto& conf = EngineConf;
 		displayManager = std::make_shared<CDisplayManager>(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
-		displayManager->SetInput(inputManager.input);
+		inputManager_ = displayManager->GetApi()->CreateInput();
 		introRenderer_.Render();
 	}
 
@@ -61,11 +60,11 @@ namespace GameEngine
 	{
 		ApiMessages::Type apiMessage = ApiMessages::NONE;
 
-		inputManager.GetPressedKeys();
+		inputManager_->GetPressedKeys();
 		sceneManager_.RuntimeLoadObjectToGpu();
 		apiMessage = PrepareFrame();
 
-		if (inputManager.GetKey(KeyCodes::ESCAPE))
+		if (inputManager_->GetKey(KeyCodes::ESCAPE))
 			apiMessage = ApiMessages::QUIT;
 
 		renderersManager_.RenderScene(sceneManager_.GetActiveScene());
@@ -74,7 +73,6 @@ namespace GameEngine
 		ProcessEngineEvents();
 
 		displayManager->Update();
-		inputManager.CheckReleasedKeys();
 
 		return apiMessage;
 	}

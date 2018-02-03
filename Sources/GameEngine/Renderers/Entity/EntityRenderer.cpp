@@ -31,7 +31,7 @@ void CEntityRenderer::Init()
 	Log("CEntityRenderer initialized.");
 }
 
-void CEntityRenderer::PrepareFrame(CScene * scene)
+void CEntityRenderer::PrepareFrame(GameEngine::Scene * scene)
 {
 	shader.Start();
 	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
@@ -43,7 +43,7 @@ void CEntityRenderer::PrepareFrame(CScene * scene)
 	shader.Stop();
 }
 
-void CEntityRenderer::Render(CScene * scene)
+void CEntityRenderer::Render(GameEngine::Scene * scene)
 {
 	if (target == nullptr)
 		return;
@@ -58,7 +58,7 @@ void CEntityRenderer::Render(CScene * scene)
 	shader.Stop();
 }
 
-void CEntityRenderer::EndFrame(CScene * scene)
+void CEntityRenderer::EndFrame(GameEngine::Scene* scene)
 {	
 	shader.Stop();
 }

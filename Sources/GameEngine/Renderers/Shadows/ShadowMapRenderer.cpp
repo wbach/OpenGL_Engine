@@ -24,12 +24,12 @@ void CShadowMapRenderer::Init()
     shader.Init();
 }
 
-void CShadowMapRenderer::PrepareFrame(CScene* scene)
+void CShadowMapRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
 
 }
 
-void CShadowMapRenderer::Render(CScene *scene)
+void CShadowMapRenderer::Render(GameEngine::Scene* scene)
 {
     PrepareRender(scene);
     PrepareShader(scene->GetCamera());
@@ -38,7 +38,7 @@ void CShadowMapRenderer::Render(CScene *scene)
     shadowFrameBuffer->UnbindFrameBuffer();
 }
 
-void CShadowMapRenderer::EndFrame(CScene* scene)
+void CShadowMapRenderer::EndFrame(GameEngine::Scene* scene)
 {
 
 }
@@ -53,7 +53,7 @@ void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
     subscribes.push_back((entity));
 }
 
-void CShadowMapRenderer::PrepareRender(CScene* scene)
+void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
 {
     shadowFrameBuffer->BindFBO();
     glEnable(GL_DEPTH_TEST);

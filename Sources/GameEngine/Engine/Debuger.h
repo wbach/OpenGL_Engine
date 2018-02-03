@@ -10,7 +10,7 @@ typedef std::unordered_map<KeyCodes::Type, std::function<void()>> Actions;
 class CDebuger
 {
 public:
-	CDebuger(CInputManager& input);
+	CDebuger(GameEngine::InputManager* input);
 	void TurnOnOff();
 	void Execute();
 	void Render();
@@ -29,7 +29,7 @@ private:
 	bool isInit = false;
 	bool isEnabled = false;
 	bool renderAsGrid = false;
-	CInputManager& inputManager;
+	GameEngine::InputManager* inputManager;
 	CGUIRenderer* gui_renderer;
 	Actions actions;
 

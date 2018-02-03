@@ -3,9 +3,13 @@
 #include <memory>
 #include <vector>
 
-class CScene;
 class CFrameBuffer;
 class CGameObject;
+
+namespace GameEngine
+{
+	class Scene;
+} // GameEngine
 
 class CRenderer
 {
@@ -15,9 +19,9 @@ public:
     virtual ~CRenderer();
     virtual void Init() = 0;
     virtual void ReloadShaders();
-    virtual void PrepareFrame(CScene* scene) = 0;
-    virtual void Render(CScene* scene)       = 0;
-    virtual void EndFrame(CScene* scene)     = 0;
+    virtual void PrepareFrame(GameEngine::Scene* scene) = 0;
+    virtual void Render(GameEngine::Scene* scene)       = 0;
+    virtual void EndFrame(GameEngine::Scene* scene)     = 0;
     virtual void Subscribe(CGameObject* gameObject);
 	virtual void UnSubscribeAll();
     // Debug

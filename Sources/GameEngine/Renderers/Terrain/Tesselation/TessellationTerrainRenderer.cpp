@@ -32,7 +32,7 @@ void CTessellationTerrainRenderer::Init()
 	Log("CTerrainRenderer initialized.");
 }
 
-void CTessellationTerrainRenderer::PrepareFrame(CScene * scene)
+void CTessellationTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
 { 
     shader.Start();
     shader.Load(CTesselationTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
@@ -47,7 +47,7 @@ void CTessellationTerrainRenderer::PrepareFrame(CScene * scene)
     shader.Stop();
 }
 
-void CTessellationTerrainRenderer::Render(CScene * scene)
+void CTessellationTerrainRenderer::Render(GameEngine::Scene* scene)
 {
     if (target == nullptr)
 		return;
@@ -114,7 +114,7 @@ void CTessellationTerrainRenderer::InitShaderFromLocalVariables() const
 	shader.Stop();
 }
 
-void CTessellationTerrainRenderer::EndFrame(CScene * scene)
+void CTessellationTerrainRenderer::EndFrame(GameEngine::Scene * scene)
 {
 
 }

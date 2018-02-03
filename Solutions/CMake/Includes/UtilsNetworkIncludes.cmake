@@ -9,6 +9,9 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/Messages/Conntection/ConnectionStatus.h
 ../../Sources/UtilsNetwork/Messages/CreateCharacter/CreateCharacterMsgReq.h
 ../../Sources/UtilsNetwork/Messages/CreateCharacter/CreateCharacterMsgResp.h
+../../Sources/UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgReq.h
+../../Sources/UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgResp.h
+../../Sources/UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h
 ../../Sources/UtilsNetwork/Messages/GetCharacters/CharacterInfo.h
 ../../Sources/UtilsNetwork/Messages/GetCharacters/GetCharactersMsgReq.h
 ../../Sources/UtilsNetwork/Messages/GetCharacters/GetCharactersMsgResp.h
@@ -29,4 +32,5 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/Sender.h
 ../../Sources/UtilsNetwork/ServerCreator.h
 ../../Sources/UtilsNetwork/User.h
+../../Sources/UtilsNetwork/UserAccount.h
 )

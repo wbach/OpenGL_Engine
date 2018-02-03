@@ -12,18 +12,18 @@ class CGrassRenderer : public CRenderer
 public:
     CGrassRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
     virtual void Init() override;
-    virtual void PrepareFrame(CScene* scene) override;
-    virtual void Render(CScene* scene) override;
-    virtual void EndFrame(CScene* scene) override;
+    virtual void PrepareFrame(GameEngine::Scene* scene) override;
+    virtual void Render(GameEngine::Scene* scene) override;
+    virtual void EndFrame(GameEngine::Scene* scene) override;
     virtual void Subscribe(CGameObject* gameObject) override;
 
 private:
-    void PrepareRender(CScene* scene);
+    void PrepareRender(GameEngine::Scene* scene);
     void EndRender() const;
     void RenderSubscribes();
     void RenderModel(CModel* model);
     void RenderMesh(const CMesh& mesh);
-    void PrepareShader(CScene* scene);
+    void PrepareShader(GameEngine::Scene* scene);
 
 private:
     CGrassShader shader;

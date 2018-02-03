@@ -6,12 +6,16 @@ namespace common
 {
 	class Transform;
 } // common
-class CInputManager;
+
+namespace GameEngine
+{
+	class InputManager;
+} // GameEngine
 
 class CThirdPersonCamera : public CCamera
 {
 public:
-	CThirdPersonCamera(CInputManager *input_manager, common::Transform& lookAt);
+	CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform& lookAt);
 
 	void CalculateInput() override;
 	void Move() override;
@@ -31,7 +35,7 @@ private:
 	void CalculateAngleAroundPlayer(vec2 d_move);
 
 private:
-    CInputManager *inputManager;
+	GameEngine::InputManager* inputManager;
 	common::Transform&	lookAtTransform;
 
     bool	isShowCursor;

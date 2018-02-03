@@ -5,10 +5,10 @@
 #include "Types.h"
 #include <memory>
 
-class CDisplayManager;
-
 namespace GameEngine
 {
+	class CDisplayManager;
+
 	class IntroRenderer
 	{
 	public:

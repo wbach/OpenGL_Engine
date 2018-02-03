@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Logger/Log.h"
 
-CPlayer::CPlayer(CInputManager *input_manager, CResourceManager &manager, const glm::vec3 &normalized_scale, const std::string &filename)
+CPlayer::CPlayer(GameEngine::InputManager* input_manager, CResourceManager &manager, const glm::vec3 &normalized_scale, const std::string &filename)
     : CEntity(&manager, normalized_scale)
     , inputManager(input_manager)
 {
@@ -60,7 +60,7 @@ void CPlayer::CheckInputs()
 
 void CPlayer::MoveInputs()
 {
-	if (inputManager->GetKey(GameActions::MOVE_FORWARD))	
+	/*if (inputManager->GetKey(GameActions::MOVE_FORWARD))	
 		MoveForward();
 	
 	if (inputManager->GetKey(GameActions::MOVE_BACKWARD))
@@ -70,7 +70,7 @@ void CPlayer::MoveInputs()
 		RotateLeft();
 
 	if (inputManager->GetKey(GameActions::TURN_RIGHT))
-		RotateRight();
+		RotateRight();*/
 }
 
 float CPlayer::GetTime() const

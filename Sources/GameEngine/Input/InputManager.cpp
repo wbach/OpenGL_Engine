@@ -1,138 +1,59 @@
 #include "InputManager.h"
-
-// TO DO: issue : keydown when called 2 times or more only one can working
-
-CInputManager::CInputManager()
-: input(nullptr)
+#include <algorithm>
+namespace GameEngine
 {
-}
-
-void CInputManager::GetPressedKeys()
-{
-	if (input != nullptr)
-		input->GetPressedKeys();
-}
-
-void CInputManager::ClearBuffer()
-{
-    if (input != nullptr)
-        input->ClearKeyBuffer();
-}
-
-KeyCodes::Type CInputManager::GetKeyCode(GameActions::Type action)
-{
-    return input->keyGameActions[action];
-}
-
-bool CInputManager::GetKeyDown(KeyCodes::Type key)
-{
-    return input->GetKeyDown(key);
-}
-
-bool CInputManager::GetKeyUp(KeyCodes::Type key)
-{
-	return false;
-}
-
-bool CInputManager::GetKey(KeyCodes::Type key)
-{
-    if (input != nullptr)
-        return input->GetKey(key);
-	return false;
-}
-
-void CInputManager::CheckReleasedKeys()
-{
-    if (input != nullptr)
-        input->CheckReleasedKeys();
-}
-
-bool CInputManager::GetKeyDown(GameActions::Type action)
-{
-    if (input != nullptr)
-        return input->GetKeyDown(input->keyGameActions[action]);
-	return false;
-}
-
-bool CInputManager::GetKey(GameActions::Type action)
-{
-    if (input != nullptr)
+	InputManager::InputManager()
 	{
-        if (input->keyGameActions[action] == KeyCodes::LMOUSE ||
-            input->keyGameActions[action] == KeyCodes::RMOUSE)
-            return input->GetMouseKey(input->keyGameActions[action]);
-
-        return input->GetKey(input->keyGameActions[action]);
+		SetDefaultKeys();
 	}
-	return false;
-}
 
-bool CInputManager::GetMouseKeyDown(KeyCodes::Type key)
-{
-	return false;
-}
+	void InputManager::SetDefaultKeys()
+	{
+		keyGameActions[GameActions::MOVE_FORWARD] = KeyCodes::W;
+		keyGameActions[GameActions::MOVE_BACKWARD] = KeyCodes::S;
+		keyGameActions[GameActions::MOVE_LEFT] = KeyCodes::Q;
+		keyGameActions[GameActions::MOVE_RIGHT] = KeyCodes::R;
+		keyGameActions[GameActions::TURN_LEFT] = KeyCodes::A;
+		keyGameActions[GameActions::TURN_RIGHT] = KeyCodes::D;
+		keyGameActions[GameActions::JUMP] = KeyCodes::SPACE;
+		keyGameActions[GameActions::ATTACK_1] = KeyCodes::LMOUSE;
+		keyGameActions[GameActions::ATTACK_2] = KeyCodes::RMOUSE;
+		keyGameActions[GameActions::ATTACK_3] = KeyCodes::Z;
+		keyGameActions[GameActions::SPELL_1] = KeyCodes::W;
+		keyGameActions[GameActions::SPELL_2] = KeyCodes::W;
+		keyGameActions[GameActions::SPELL_3] = KeyCodes::W;
+		keyGameActions[GameActions::SPELL_4] = KeyCodes::W;
+		keyGameActions[GameActions::GUI_STATS_WINDOW] = KeyCodes::C;
+		keyGameActions[GameActions::GUI_INVENTORY_WINDOW] = KeyCodes::I;
+		keyGameActions[GameActions::GUI_PAUSE_MENU_WINDOW] = KeyCodes::ESCAPE;
+		keyGameActions[GameActions::ITEM_1] = KeyCodes::W;
+		keyGameActions[GameActions::ITEM_2] = KeyCodes::W;
+		keyGameActions[GameActions::ITEM_3] = KeyCodes::W;
+		keyGameActions[GameActions::ITEM_4] = KeyCodes::W;
+		keyGameActions[GameActions::ITEM_5] = KeyCodes::W;
+		keyGameActions[GameActions::ITEM_6] = KeyCodes::W;
+		keyGameActions[GameActions::WORLD_MAP] = KeyCodes::M;
+	}
 
-bool CInputManager::GetMouseKeyUp(KeyCodes::Type key)
-{
-	return false;
-}
+	void InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
+	{
+		keyDownSubscribers_[key].push_back(func);
+	}
 
-bool CInputManager::GetMouseKey(KeyCodes::Type key)
-{
-    if (input != nullptr)
-        return input->GetMouseKey(key);
-	return false;
-}
+	void InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
+	{
+		keyUpSubscribers_[key].push_back(func);
+	}
 
-vec2 CInputManager::GetMousePosition()
-{
-    if (input != nullptr)
-        return input->GetMousePosition();
-	return vec2();
-}
+	void InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
+	{
+		keysSubscribers_.push_back(func);
+	}
 
-vec2 CInputManager::CalcualteMouseMove()
-{
-    if (input != nullptr)
-        return input->CalcualteMouseMove();
-
-	return vec2();
-}
-
-std::vector<char> CInputManager::GetCharKey(KeyCodes::Type key)
-{
-	if (input != nullptr)
-		return input->GetCharKey(key);
-	return std::vector<char>();
-}
-
-std::vector<char> CInputManager::GetCharKey()
-{
-	if (input != nullptr)
-		return input->GetCharKey();
-	return std::vector<char>();
-}
-
-std::vector<KeyCodes::Type> CInputManager::GetKey()
-{
-	if (input != nullptr)
-		return input->GetKey();
-
-	return std::vector<KeyCodes::Type>();
-}
-
-std::vector<KeyCodes::Type> CInputManager::GetKeyUp()
-{
-	if (input != nullptr)
-		return input->GetKeyUp();
-
-	return std::vector<KeyCodes::Type>();
-}
-
-std::vector<KeyCodes::Type> CInputManager::GetKeyDown()
-{
-	if (input != nullptr)
-		return input->GetKeyDown();
-
-	return std::vector<KeyCodes::Type>();
-}
+	void InputManager::UnsubscribeAll()
+	{
+		keysSubscribers_.clear();
+		keyUpSubscribers_.clear();
+		keyDownSubscribers_.clear();
+	}
+} // GameEngine

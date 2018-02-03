@@ -7,8 +7,6 @@
 #include "optional.hpp"
 #include <queue>
 
-class CInputManager;
-
 namespace GameEngine
 {
 	namespace Renderer
@@ -21,12 +19,14 @@ namespace GameEngine
 		class RenderersManager;
 	} // Renderer
 	
+	class InputManager;
+
 	class SceneManager
 	{
 	public:
-		SceneManager(SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, CInputManager&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
+		SceneManager(SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
 		~SceneManager();
-		CScene* GetActiveScene();
+		Scene* GetActiveScene();
 		void InitActiveScene();
 		void RuntimeLoadObjectToGpu();
 		void Update();		
@@ -43,7 +43,7 @@ namespace GameEngine
 		void LoadPreviousScene();
 		void LoadScene(const std::string&);
 		void LoadScene(uint32 id);
-		void SetSceneContext(CScene* scene);
+		void SetSceneContext(Scene* scene);
 		
 		template<class T>
 		void JustLoadScene(T scene);
@@ -58,7 +58,7 @@ namespace GameEngine
 		std::queue<GameEngine::SceneEvent> events_;
 
 		std::shared_ptr<CDisplayManager>& displayManager_;
-		CInputManager& inputManager_;
+		std::shared_ptr<InputManager>& inputManager_;
 		Renderer::RenderersManager& renderersManager_;
 		Renderer::Gui::GuiContext& guiContext_;
 

@@ -1,37 +1,48 @@
 #pragma once
-#include "../../Input/Input.h"
+#include "../../Input/InputManager.h"
 #include "Types.h"
+#include "BidirectionalUnorderedMap.h"
+#include "optional.hpp"
+#include "Mutex.hpp"
 
 struct SDL_Window;
 
-class CInputSDL : public CInput
+namespace GameEngine
 {
-public:
-	CInputSDL(SDL_Window* sdl_window);
-	// Keyboard
-	virtual bool GetKeyUp(KeyCodes::Type  i) override;
-	virtual bool GetKey(KeyCodes::Type  i) override;
-	virtual bool GetKeyDown(KeyCodes::Type  i) override;
-	
-	virtual std::vector<KeyCodes::Type> GetKey() override;
-	virtual std::vector<KeyCodes::Type> GetKeyUp() override;
-	virtual std::vector<KeyCodes::Type> GetKeyDown() override;
+	typedef std::pair<uint32, uint32> KeyEvent;
 
-	//Mouse
-	virtual bool GetMouseKeyDown(KeyCodes::Type key) override;
-	virtual bool GetMouseKeyUp(KeyCodes::Type key) override;
-	virtual bool GetMouseKey(KeyCodes::Type key) override;
-	virtual vec2 CalcualteMouseMove() override;
-	virtual vec2 GetMousePosition() override;
+	class InputSDL : public InputManager
+	{
+	public:
+		InputSDL(SDL_Window* sdl_window);
+		// Keyboard
+		virtual bool GetKey(KeyCodes::Type  i) override;
 
-	//not use in SDL
-	virtual void SetKeyToBuffer(int key, bool value) override;
-	virtual void ClearKeyBuffer() override;
-	virtual void SetCursorPosition(int x, int y) override;
+		// Mouse
+		virtual bool GetMouseKey(KeyCodes::Type key) override;
+		virtual vec2 CalcualteMouseMove() override;
+		virtual vec2 GetMousePosition() override;
 
-	virtual void GetPressedKeys();
-private:
-	std::unordered_map<KeyCodes::Type, int> keys;
+		//not use in SDL
+		virtual void SetKeyToBuffer(int key, bool value) override;
+		virtual void ClearKeyBuffer() override;
+		virtual void SetCursorPosition(int x, int y) override;
 
-    SDL_Window* sdlWindow;
-};
+		virtual void GetPressedKeys() override;
+		virtual void ProcessKeysEvents() override;
+
+		void AddKeyEvent(uint32 eventType, uint32 sdlKey);
+
+	private:
+		wb::optional<KeyEvent> GetEvent();
+
+	private:
+		std::mutex keyEventMutex_;
+
+		BidirectionalUnorderedMap<KeyCodes::Type, int> keys;
+
+		std::list<KeyEvent> keyEvents_;
+		SDL_Window* sdlWindow;
+	};
+
+} // GameEngine

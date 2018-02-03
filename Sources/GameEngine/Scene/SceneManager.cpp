@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-	SceneManager::SceneManager(SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, CInputManager& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
+	SceneManager::SceneManager(SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
 		: sceneFactory_(sceneFactory)
 		, displayManager_(displayManager)
 		, inputManager_(inputManager)
@@ -22,7 +22,7 @@ namespace GameEngine
 	{
 		threadSync_.Stop();
 	}
-	CScene* SceneManager::GetActiveScene()
+	Scene* SceneManager::GetActiveScene()
 	{
 		return sceneWrapper_.Get();
 	}
@@ -78,7 +78,7 @@ namespace GameEngine
 		if (!sceneWrapper_.IsInitialized())
 			return;
 
-		sceneWrapper_.Get()->Update(dt);
+		sceneWrapper_.Get()->FullUpdate(dt);
 	}
 	void SceneManager::AddSceneEvent(const SceneEvent& e)
 	{
@@ -148,11 +148,11 @@ namespace GameEngine
 		currentSceneId_ = sceneFactory_->GetSceneId(name);
 		JustLoadScene<const std::string&>(name);
 	}
-	void SceneManager::SetSceneContext(CScene* scene)
+	void SceneManager::SetSceneContext(Scene* scene)
 	{
 		scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
 		scene->SetGuiContext(&guiContext_);
-		scene->SetInputManager(&inputManager_);
+		scene->SetInputManager(inputManager_.get());
 		scene->SetRenderersManager(&renderersManager_);		
 		scene->SetDisplayManager(displayManager_.get());
 	}

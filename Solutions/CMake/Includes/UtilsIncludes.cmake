@@ -1,4 +1,5 @@
 set(UtilsIncludes
+../../Sources/Utils/BidirectionalUnorderedMap.h
 ../../Sources/Utils/EngineUitls.h
 ../../Sources/Utils/GLM/GLMUtils.h
 ../../Sources/Utils/Logger/Log.h

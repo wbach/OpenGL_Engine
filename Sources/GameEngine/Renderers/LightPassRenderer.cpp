@@ -24,16 +24,16 @@ void CLightPassRenderer::Init()
 	Log("CLightPassRenderer initialized.");
 }
 
-void CLightPassRenderer::PrepareFrame(CScene * scene)
+void CLightPassRenderer::PrepareFrame(GameEngine::Scene* scene)
 {	
 }
 
-void CLightPassRenderer::Render(CScene * scene)
+void CLightPassRenderer::Render(GameEngine::Scene* scene)
 {	
 	
 }
 
-void CLightPassRenderer::EndFrame(CScene * scene)
+void CLightPassRenderer::EndFrame(GameEngine::Scene* scene)
 {
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glPolygonMode(GL_BACK, GL_FILL);

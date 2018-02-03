@@ -2,7 +2,6 @@
 #include "../Display/DisplayManager.hpp"
 #include "../Resources/SimpleModels/Quad.h"
 #include "../Shaders/Loading/LoadingShader.h"
-#include "../Input/Input.h"
 #include "GLM/GLMUtils.h"
 
 namespace GameEngine

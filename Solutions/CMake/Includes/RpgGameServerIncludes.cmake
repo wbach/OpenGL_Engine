@@ -2,6 +2,7 @@ set(RpgGameServerIncludes
 ../../Sources/RpgGameServer/GameServer/AbstractUser.h
 ../../Sources/RpgGameServer/GameServer/Context.h
 ../../Sources/RpgGameServer/GameServer/ControllerCreator.h
+../../Sources/RpgGameServer/GameServer/Database/DatabaseTransformInfo.h
 ../../Sources/RpgGameServer/GameServer/Database/DatabaseWrapperMock.h
 ../../Sources/RpgGameServer/GameServer/Database/IDatabaseWrapper.h
 ../../Sources/RpgGameServer/GameServer/Database/LocalDatabase.h
@@ -11,13 +12,12 @@ set(RpgGameServerIncludes
 ../../Sources/RpgGameServer/GameServer/Handlers/CharacterController/CharacterControllerHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/Distribute/DistributeHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/GetCharacters/GetCharactersHandler.h
+../../Sources/RpgGameServer/GameServer/Handlers/GetCharactersData/GetCharactersDataHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/IHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/SelectCharacter/SelectCharacterHandler.h
 ../../Sources/RpgGameServer/GameServer/Hero/BaseHero.h
 ../../Sources/RpgGameServer/GameServer/Hero/CharacetrContext.h
-../../Sources/RpgGameServer/GameServer/Hero/CharacterData.h
 ../../Sources/RpgGameServer/GameServer/Hero/Classes/Knight.h
-../../Sources/RpgGameServer/GameServer/Hero/Stats.h
 ../../Sources/RpgGameServer/GameServer/Manager.h
 ../../Sources/RpgGameServer/GameServer/Map.h
 ../../Sources/RpgGameServer/GameServer/Scenarios/CharacterSelect/CharacterSelect.h

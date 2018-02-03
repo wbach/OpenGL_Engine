@@ -1,46 +1,51 @@
 #pragma once
-#include "Input.h"
+#include "Types.h"
+#include "KeyCodes.h"
+#include "GameActions.h"
+#include <set>
+#include <list>
 #include <memory>
+#include <functional>
+#include <unordered_map>
 
-class CInput;
-
-class CInputManager
+namespace GameEngine
 {
-public:	
-	CInputManager();
-	void GetPressedKeys();
-	void CheckReleasedKeys();
+	typedef std::function<void()> KeyPressedFunc;
+	typedef std::list<KeyPressedFunc> KeySubscribers;
+	typedef std::unordered_map<KeyCodes::Type, KeySubscribers> KeyPressedSubscribers;
+	typedef std::function<void(KeyCodes::Type key)> KeysPressedFunc;
+	typedef std::list<KeysPressedFunc> KeysSubscribers;
 
-	void ClearBuffer();
+	class InputManager
+	{
+	public:
+		InputManager();
+		void SetDefaultKeys();
+		virtual bool GetKey(KeyCodes::Type i) = 0;
+		virtual bool GetMouseKey(KeyCodes::Type key) = 0;
+		virtual vec2 CalcualteMouseMove() = 0;
+		virtual vec2 GetMousePosition() = 0;
 
-	KeyCodes::Type GetKeyCode(GameActions::Type action);
+		virtual void SetCursorPosition(int x, int y) = 0;
+		virtual void SetKeyToBuffer(int key, bool value) = 0;
+		virtual void ClearKeyBuffer() = 0;
+		virtual void GetPressedKeys() = 0;
+		virtual void ProcessKeysEvents() = 0;
+		void SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
+		void SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
+		void SubscribeOnAnyKeyPress(KeysPressedFunc func);
 
-	bool GetKeyDown(KeyCodes::Type key);
-	bool GetKeyUp(KeyCodes::Type key) ;
-	bool GetKey(KeyCodes::Type key);
+		void UnsubscribeAll();
 
-	std::vector<KeyCodes::Type> GetKey();
-	std::vector<KeyCodes::Type> GetKeyUp();
-	std::vector<KeyCodes::Type> GetKeyDown();
+	public:
+		std::unordered_map<GameActions::Type, KeyCodes::Type> keyGameActions;
 
-	
-	bool GetKeyDown(GameActions::Type action);
-	bool GetKeyUp(GameActions::Type action);
-	bool GetKey(GameActions::Type action);
+	protected:
+		std::set<KeyCodes::Type> keyBuffer;
+		KeyPressedSubscribers keyDownSubscribers_;
+		KeyPressedSubscribers keyUpSubscribers_;
+		KeysSubscribers keysSubscribers_;
+	};
 
-	bool GetMouseKeyDown(KeyCodes::Type key);
-	bool GetMouseKeyUp(KeyCodes::Type key);
-	bool GetMouseKey(KeyCodes::Type key);
-	vec2 GetMousePosition();
-
-	vec2 CalcualteMouseMove();
-
-	std::vector<char> GetCharKey(KeyCodes::Type key);
-	std::vector<char> GetCharKey();
-
-public:
-    std::unique_ptr<CInput> input;
-
-private:	
-    int inputSource = 0;
-};
+	typedef std::shared_ptr<InputManager> InputManagerPtr;
+} // GameEngine

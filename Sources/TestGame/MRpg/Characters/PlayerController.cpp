@@ -4,7 +4,7 @@
 
 namespace MmmoRpg
 {
-	PlayerController::PlayerController(CInputManager* manager, uint32& characterId, Network::CGateway& gateway)
+	PlayerController::PlayerController(GameEngine::InputManager* manager, uint32& characterId, Network::CGateway& gateway)
 		: characterId_(characterId)
 		, inputManager_(manager)
 		, gateway_(gateway)
@@ -12,7 +12,7 @@ namespace MmmoRpg
 	}
 	void PlayerController::Control()
 	{
-		if (inputManager_->GetKeyUp(KeyCodes::D))
+		if (inputManager_->GetKey(KeyCodes::D))
 		{
 
 		}

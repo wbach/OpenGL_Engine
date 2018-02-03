@@ -33,7 +33,7 @@ void CTerrainRenderer::Init()
 	Log("CTerrainRenderer initialized.");
 }
 
-void CTerrainRenderer::PrepareFrame(CScene * scene)
+void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
     shader.Start();
     shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
@@ -48,7 +48,7 @@ void CTerrainRenderer::PrepareFrame(CScene * scene)
     shader.Stop();
 }
 
-void CTerrainRenderer::Render(CScene * scene)
+void CTerrainRenderer::Render(GameEngine::Scene* scene)
 {
     if (target == nullptr)
 		return;
@@ -77,7 +77,7 @@ void CTerrainRenderer::Render(CScene * scene)
     shader.Stop();
 }
 
-void CTerrainRenderer::EndFrame(CScene * scene)
+void CTerrainRenderer::EndFrame(GameEngine::Scene* scene)
 {
 }
 

@@ -56,7 +56,7 @@ namespace GameEngine
 		state_ = state;
 	}
 
-	CScene* SceneWrapper::Get()
+	Scene* SceneWrapper::Get()
 	{
 		if (SaveGetState() == SceneWrapperState::Initilaized)
 			return activeScene.get();

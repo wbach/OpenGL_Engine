@@ -3,11 +3,12 @@
 #include "Projection.h"
 #include "GUI/GuiContext.h"
 
-class CScene;
 struct SGuiTextElement;
 
 namespace GameEngine
 {
+	class Scene;
+
 	namespace Renderer
 	{
 		namespace Gui
@@ -21,7 +22,7 @@ namespace GameEngine
 			RenderersManager();
 			void Init();
 			const CProjection& GetProjection() const;
-			void RenderScene(CScene* scene);
+			void RenderScene(Scene* scene);
 			void Subscribe(CGameObject* gameObject);
 			void UnSubscribeAll();
 			SGuiTextElement& GuiText(const std::string& label);
@@ -31,7 +32,7 @@ namespace GameEngine
 			void InitProjection();
 			void InitMainRenderer();
 			void InitGuiRenderer();
-			void Render(CScene* scene, CRenderer* renderer);
+			void Render(Scene* scene, CRenderer* renderer);
 
 		private:
 			Renderer::Gui::GuiContext guiContext_;

@@ -13,8 +13,8 @@
 #include "Thread.hpp"
 
 MainScene::MainScene()
-    : CScene("MainScene")
-	, debuger(*inputManager_)
+    : GameEngine::Scene("MainScene")
+	, debuger(inputManager_)
 {	
 	//InitGui();
 	debuger.AddAction(KeyCodes::R, std::bind(&MainScene::ReloadShadersInRenderer, this));
@@ -108,11 +108,11 @@ int MainScene::Update(float dt)
         Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
     }
 
-	if (inputManager_->GetKeyDown(KeyCodes::ENTER))
-	{
-		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainScene");
-		addSceneEvent(e);
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::ENTER))
+	//{
+	//	GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainScene");
+	//	addSceneEvent(e);
+	//}
 
     dayNightCycle.Update(deltaTime);
 	

@@ -5,7 +5,7 @@
 #include "Thread.hpp"
 
 GuiEdytorScene::GuiEdytorScene()
-	: CScene("GuiEdytorScene")
+	: GameEngine::Scene("GuiEdytorScene")
 	, attached(false)
 {
 }
@@ -72,41 +72,41 @@ int GuiEdytorScene::Update(float deltaTime)
 	renderersManager_->GuiText("Element").text = "Current Element :" + std::to_string(currentEditElement_.second);
 
 
-	if (inputManager_->GetKeyDown(KeyCodes::TAB))
-	{
-		NextType();
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::TAB))
+	//{
+	//	NextType();
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//}
 
-	if (inputManager_->GetKeyDown(KeyCodes::A))
-	{
-		PreviousElement();
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::A))
+	//{
+	//	PreviousElement();
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//}
 
-	if (inputManager_->GetKeyDown(KeyCodes::D))
-	{
-		NextElement();
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::D))
+	//{
+	//	NextElement();
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//}
 
-	if (inputManager_->GetKeyDown(KeyCodes::S))
-	{
-		Save();
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::S))
+	//{
+	//	Save();
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//}
 
-	if (inputManager_->GetKeyDown(KeyCodes::ENTER))
-	{
-		AddElement();
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::ENTER))
+	//{
+	//	AddElement();
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//}
 
-	if (inputManager_->GetKeyDown(KeyCodes::SPACE))
-	{
-		attached = !attached;
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	//if (inputManager_->GetKeyDown(KeyCodes::SPACE))
+	//{
+	//	attached = !attached;
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//}
 
 	return 0;
 }

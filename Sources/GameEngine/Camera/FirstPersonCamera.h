@@ -1,16 +1,19 @@
 #pragma once
 #include "Camera.h"
 
-class CInputManager;
-class CDisplayManager;
+namespace GameEngine
+{
+	class CDisplayManager;
+	class InputManager;
+} // GameEngine
 
 class CFirstPersonCamera : public CCamera
 {
 public:
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, float mouse_velocity, float move_velocity);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity);
-	CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
+	CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime);
+	CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime, float mouse_velocity, float move_velocity);
+	CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity);
+	CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
 
 	void Move() override;
 	void AttachToObject(vec3& position_entity, vec3& rotation_entity) override;
@@ -33,8 +36,8 @@ private:
 	void LockYaw();
 
 private:
-    CInputManager*   inputManager;
-    CDisplayManager* displayManager;
+	GameEngine::InputManager*   inputManager;
+	GameEngine::CDisplayManager* displayManager;
 
     vec3& lookPosition;
     vec3& lookRotation;

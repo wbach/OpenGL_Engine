@@ -5,7 +5,7 @@
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 #include <iostream>
 
-CDebuger::CDebuger(CInputManager & input)
+CDebuger::CDebuger(GameEngine::InputManager* input)
 	: inputManager(input)
 	, gui_renderer(nullptr)
 	, guiText(nullptr)
@@ -19,10 +19,10 @@ void CDebuger::TurnOnOff()
 
 void CDebuger::Execute()
 {
-	if (inputManager.GetKeyDown(KeyCodes::V))
+	/*if (inputManager.GetKeyDown(KeyCodes::V))
 	{
 		TurnOnOff();
-	}
+	}*/
 
 	if (!isEnabled)
 		return;
@@ -34,10 +34,10 @@ void CDebuger::Execute()
 
 	for (auto& action : actions)
 	{
-		if (inputManager.GetKeyDown(action.first))
+		/*if (inputManager.GetKeyDown(action.first))
 		{
 			action.second();
-		}
+		}*/
 	}
 
 }
@@ -77,7 +77,7 @@ void CDebuger::RenderAllasGrid()
 
 void CDebuger::Keys()
 {
-	if (inputManager.GetKeyDown(KeyCodes::G))
+	/*if (inputManager.GetKeyDown(KeyCodes::G))
 	{
 		renderAsGrid = !renderAsGrid;
 	}
@@ -105,7 +105,7 @@ void CDebuger::Keys()
 	if (inputManager.GetKey(KeyCodes::L))
 	{
 		std::cout << CTessellationTerrainRenderer::minTessLevelOuter << " " << CTessellationTerrainRenderer::distanceDev << std::endl;
-	}
+	}*/
 }
 
 void CDebuger::UpdateCommandText()

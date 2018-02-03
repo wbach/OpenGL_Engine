@@ -8,22 +8,22 @@ static vec3 zero(0);
 const float defaultCamSpeed = Utils::KmToMs<float>(15);
 const float defaultCamRotationSpeed = 0.2f;
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime)
 	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity)
 	: CFirstPersonCamera(input_manager, display_manager, deltaTime, mouse_velocity, move_velocity, zero, zero, false)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager *input_manager, CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity)
 	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, position_entity, rotation_entity, false)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(CInputManager * input_manager, CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
 	: CCamera(9.f, 100.f)
 	, inputManager(input_manager)
 	, displayManager(display_manager)

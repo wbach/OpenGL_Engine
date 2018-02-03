@@ -5,53 +5,55 @@
 #include <memory>
 #include <string>
 
-class CApi;
-class CInput;
-
-class CDisplayManager
+namespace GameEngine
 {
-public:
-	CDisplayManager();
-	CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen);
-        CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
-        ~CDisplayManager();
-	ApiMessages::Type PeekApiMessage();
-	void Update();
+	class CApi;
 
-	void SetRefreshRate(const int& rate);
-	void SetFullScreen(bool full_screen);
+	class CDisplayManager
+	{
+	public:
+		CDisplayManager();
+		CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen);
+		CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
+		~CDisplayManager();
+		ApiMessages::Type PeekApiMessage();
+		void Update();
 
-	const int GetFps();
-    const int& GetFPSCap() { return fpsCap; }
+		void SetRefreshRate(const int& rate);
+		void SetFullScreen(bool full_screen);
 
-	float GetCurrentTime();
-    const double GetDeltaTime() const { return timeMeasurer.GetDeltaTime(); }
+		const int GetFps();
+		const int& GetFPSCap() { return fpsCap; }
 
-	const wb::vec2i& GetWindowSize();
+		float GetCurrentTime();
+		const double GetDeltaTime() const { return timeMeasurer.GetDeltaTime(); }
 
-	void ShowCoursor(bool show);
-	bool CheckActiveWindow();
+		const wb::vec2i& GetWindowSize();
 
-	void SetApi(std::unique_ptr<CApi>& api);
-	void SetInput(std::unique_ptr<CInput>&);
+		void ShowCoursor(bool show);
+		bool CheckActiveWindow();
 
-    void EnableTime() { time = true; }
-    void DisableTime() { time = false; }
+		void SetApi(std::unique_ptr<CApi>& api);
+		CApi* GetApi() { return api.get(); }
 
-    bool& GetSync() { return sync; }
+		void EnableTime() { time = true; }
+		void DisableTime() { time = false; }
 
-private:
-	void PrintFps();
+		bool& GetSync() { return sync; }
 
-private:
-    std::unique_ptr<CApi> api;
-	Utils::Time::CTimeMeasurer timeMeasurer;
+	private:
+		void PrintFps();
 
-    bool time = true; 
+	private:
+		std::unique_ptr<CApi> api;
+		Utils::Time::CTimeMeasurer timeMeasurer;
 
-    int fpsCap;
-    bool isFullScreen;
-    wb::vec2i windowsSize;
+		bool time = true;
 
-    bool sync = true;
-};
+		int fpsCap;
+		bool isFullScreen;
+		wb::vec2i windowsSize;
+
+		bool sync = true;
+	};
+} // GameEngine

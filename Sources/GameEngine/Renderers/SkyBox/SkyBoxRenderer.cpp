@@ -28,7 +28,7 @@ void CSkyBoxRenderer::Init()
 	Log("Skybox renderer initialized.");
 }
 
-void CSkyBoxRenderer::PrepareToRendering(CScene * scene)
+void CSkyBoxRenderer::PrepareToRendering(GameEngine::Scene* scene)
 {
 	Utils::DisableCulling();
 	shader.Start();
@@ -41,7 +41,7 @@ void CSkyBoxRenderer::EndRendering()
 	shader.Stop();
 }
 
-void CSkyBoxRenderer::PrepareFrame(CScene *scene)
+void CSkyBoxRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
 	InitMembers(scene);
 
@@ -71,7 +71,7 @@ bool CSkyBoxRenderer::CheckModelIsReadyToRender()
 	return model != nullptr && model->isInOpenGL();
 }
 
-void CSkyBoxRenderer::PrepareShaderBeforeFrameRender(CScene *scene)
+void CSkyBoxRenderer::PrepareShaderBeforeFrameRender(GameEngine::Scene *scene)
 {
 	// TO DO - delta time
 	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), 0.1f, 500.f);
@@ -84,12 +84,12 @@ void CSkyBoxRenderer::RenderSkyBoxModel()
 		RenderSkyBoxMesh(mesh);
 }
 
-void CSkyBoxRenderer::Render(CScene *scene)
+void CSkyBoxRenderer::Render(GameEngine::Scene* scene)
 {
 
 }
 
-void CSkyBoxRenderer::EndFrame(CScene *scene)
+void CSkyBoxRenderer::EndFrame(GameEngine::Scene* scene)
 {
 
 }
@@ -99,7 +99,7 @@ void CSkyBoxRenderer::Subscribe(CGameObject *gameObject)
 
 }
 
-void CSkyBoxRenderer::InitMembers(CScene* scene)
+void CSkyBoxRenderer::InitMembers(GameEngine::Scene* scene)
 {
 	LoadModel(resourceManager);
 	CreateDayTextures(resourceManager);

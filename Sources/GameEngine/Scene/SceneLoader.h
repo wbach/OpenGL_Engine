@@ -4,40 +4,44 @@
 #include "Mutex.hpp"
 #include <memory>
 
-class CScene;
 class COpenGLObject;
-class CDisplayManager;
 class CResourceManager;
 class CLoadingScreenRenderer;
 
-class SceneLoader
+namespace GameEngine
 {
-public:
-	SceneLoader(std::shared_ptr<CDisplayManager>& displayManager);
-	~SceneLoader();
-	bool Load(CScene* scene);
+	class Scene;
+	class CDisplayManager;
 
-private:
-	void Init();
-	void LoadScene(CScene* scene);
-	void SetIsLoading(bool is);
-	bool GetIsLoading();
-	bool ProccesLoadingLoop(COpenGLObject * obj);
-	bool LoadObject(COpenGLObject * obj);
-	void UpdateScreen();
-	void LoadingLoop(CScene* scene);
-	void CheckObjectCount(CScene* scene);
-	void PostLoadingPass(CScene* scene);
-	void OpenGLLoadingPass(CScene* scene, std::thread& loading_thread);
+	class SceneLoader
+	{
+	public:
+		SceneLoader(std::shared_ptr<CDisplayManager>& displayManager);
+		~SceneLoader();
+		bool Load(Scene* scene);
 
-private:
-	int objectCount;
-	int objectLoaded;
-	std::unique_ptr<CLoadingScreenRenderer> loadingScreenRenderer;
+	private:
+		void Init();
+		void LoadScene(Scene* scene);
+		void SetIsLoading(bool is);
+		bool GetIsLoading();
+		bool ProccesLoadingLoop(COpenGLObject * obj);
+		bool LoadObject(COpenGLObject * obj);
+		void UpdateScreen();
+		void LoadingLoop(Scene* scene);
+		void CheckObjectCount(Scene* scene);
+		void PostLoadingPass(Scene* scene);
+		void OpenGLLoadingPass(Scene* scene, std::thread& loading_thread);
 
-	bool isLoading;
-	std::mutex loadingMutex;
+	private:
+		int objectCount;
+		int objectLoaded;
+		std::unique_ptr<CLoadingScreenRenderer> loadingScreenRenderer;
 
-	std::shared_ptr<CDisplayManager>& displayManager;
-	CResourceManager resorceManager;
-};
+		bool isLoading;
+		std::mutex loadingMutex;
+
+		std::shared_ptr<CDisplayManager>& displayManager;
+		CResourceManager resorceManager;
+	};
+} // GameEngine
