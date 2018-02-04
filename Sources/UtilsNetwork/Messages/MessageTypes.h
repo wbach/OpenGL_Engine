@@ -1,4 +1,5 @@
 #pragma once
+#include "Types.h"
 
 namespace Network
 {
@@ -20,4 +21,5 @@ namespace Network
 		GetCharacterDataResp,
 		GetCharactersDataReq
 	};
+	std::string to_string(uint8 type);
 } // Network

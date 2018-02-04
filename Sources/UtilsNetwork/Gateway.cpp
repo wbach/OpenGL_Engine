@@ -11,13 +11,13 @@ namespace Network
 {
 	CGateway::CGateway()
 		: iSDLNetWrapperPtr_(new SDLNetWrapper)
-		, connectionManager_(iSDLNetWrapperPtr_, context_)
-		, clientCreator_(iSDLNetWrapperPtr_)
+		, timeMeasurer_(300, false)
+		, sender_(timeMeasurer_, iSDLNetWrapperPtr_)
+		, receiver_(timeMeasurer_, iSDLNetWrapperPtr_)
+		, connectionManager_(sender_, receiver_, iSDLNetWrapperPtr_, context_)
+		, clientCreator_(sender_, receiver_, iSDLNetWrapperPtr_)
 		, running(true)
-		, timeMeasurer_(60)
 		, isServer(false)
-		, sender_(iSDLNetWrapperPtr_)
-		, receiver_(iSDLNetWrapperPtr_)
 	{
 	}
 	CGateway::~CGateway()
@@ -92,13 +92,19 @@ namespace Network
 
 	void CGateway::SendAllMessages()
 	{
-		for (auto msg : outbox_)
+		while (true)
 		{
-			auto& user = context_.users[msg.first];
-			auto socket = user->socket;
-			auto status = sender_.SendTcp(socket, msg.second.get());
+			auto msg = PopOutBox();
+			if (msg == nullptr)
+				break;
+			
+			//Log("CGateway::SendAllMessages() " + Network::to_string(msg->second->GetType()) + ".");
 
-			if (status == SentStatus::ERROR)
+			auto& user = context_.users[msg->first];
+			auto socket = user->socket;
+			auto status = sender_.SendTcp(socket, msg->second.get());
+
+			if (status != SentStatus::OK)
 			{
 				if (!user->connectionFailsStart)
 				{
@@ -113,13 +119,13 @@ namespace Network
 						connectionManager_.DisconectUser(user->id);
 					}
 				}
+				Log("Sent " + Network::to_string(msg->second->GetType()) + " failed.");
 			}
 			else
 			{
 				user->connectionFailsStart = wb::optional<Timepoint>();
 			}
 		}
-		ClearOutbox();
 	}
 
 	void CGateway::MainLoop()
@@ -140,6 +146,23 @@ namespace Network
 		inbox_.push_back({ userId , message });
 	}
 
+	uint32 CGateway::GetOutBoxSize()
+	{
+		std::lock_guard<std::mutex> lk(outboxMutex_);
+		auto i = outbox_.size();
+		return i;
+	}
+
+	std::shared_ptr<BoxMessage> CGateway::PopOutBox()
+	{
+		std::lock_guard<std::mutex> lk(outboxMutex_);
+		if (outbox_.empty())
+			return nullptr;
+		auto result = outbox_.front();
+		outbox_.pop_front();
+		return std::make_shared<BoxMessage>(result);
+	}
+
 	void CGateway::ClearOutbox()
 	{
 		std::lock_guard<std::mutex> lk(outboxMutex_);
@@ -148,7 +171,7 @@ namespace Network
 
 	void CGateway::PrintFps()
 	{
-		std::string msg = "MainLoop fps : " + std::to_string(timeMeasurer_.GetFps());
+		std::string msg = "Network thread fps : " + std::to_string(timeMeasurer_.GetFps());
 		Log(msg);
 	}
 

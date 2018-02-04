@@ -5,12 +5,12 @@
 
 namespace Network
 {
-	ConnectionManager::ConnectionManager(ISDLNetWrapperPtr sdlNetWrapper, ConectContext& context)
+	ConnectionManager::ConnectionManager(Sender& sender, Receiver& receiver, ISDLNetWrapperPtr sdlNetWrapper, ConectContext& context)
 		: context_(context)
 		, clientsCount_(0)
 		, sdlNetWrapper_(sdlNetWrapper)
-		, sender_(sdlNetWrapper)
-		, receiver_(sdlNetWrapper)
+		, sender_(sender)
+		, receiver_(receiver)
 	{
 		usersDb_ = {
 			{ "baszek", UserAccount{ 14, "baszek", "haslo"} },
@@ -18,7 +18,6 @@ namespace Network
 			{ "baszekb", UserAccount{ 55, "baszekb", "haslo" } },
 			{ "baszekb", UserAccount{ 21, "baszekc", "haslo" } },
 			{ "baszekd", UserAccount{ 13, "baszekd", "haslo" } },
-
 		};
 	}
 

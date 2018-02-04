@@ -159,6 +159,7 @@ namespace MmmoRpg
 	}
 	void SelectCharacterScene::SendGetCharacter()
 	{
+		Log("SelectCharacterScene::SendGetCharacter()");
 		Network::GetCharactersMsgReq getCharactersMsgReq;
 		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::GetCharactersMsgReq>(getCharactersMsgReq));
 	}

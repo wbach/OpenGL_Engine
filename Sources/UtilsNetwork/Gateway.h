@@ -32,11 +32,14 @@ namespace Network
 		void SendAllMessages();
 		void MainLoop();
 		void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
+		uint32 GetOutBoxSize();
+		std::shared_ptr<BoxMessage> PopOutBox();
 		void ClearOutbox();
 		void PrintFps();
 
 	private:
 		ISDLNetWrapperPtr iSDLNetWrapperPtr_;
+		Utils::Time::CTimeMeasurer timeMeasurer_;
 
 		Sender sender_;
 		Receiver receiver_;
@@ -53,7 +56,6 @@ namespace Network
 		std::list<BoxMessage> inbox_;
 		std::list<OnMessageArrived> onMessageArrivedSubcribes_;
 
-		Utils::Time::CTimeMeasurer timeMeasurer_;
 		bool isServer;
 		std::thread  networkThread_;
 		std::atomic_bool running;

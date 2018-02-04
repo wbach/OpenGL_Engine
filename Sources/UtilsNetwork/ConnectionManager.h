@@ -15,7 +15,7 @@ namespace Network
 	class ConnectionManager
 	{
 	public:
-		ConnectionManager(ISDLNetWrapperPtr sdlNetWrapper, ConectContext& context);
+		ConnectionManager(Sender& sender, Receiver& receiver, ISDLNetWrapperPtr sdlNetWrapper, ConectContext& context);
 		void CheckNewConnectionsToServer();
 		bool CheckSocketsActivity();
 		void SubscribeForNewUser(CreationFunc func);
@@ -34,8 +34,8 @@ namespace Network
 		ConectContext& context_;
 		uint32 clientsCount_;
 		ISDLNetWrapperPtr sdlNetWrapper_;
-		Sender sender_;
-		Receiver receiver_;
+		Sender& sender_;
+		Receiver& receiver_;
 		Users notAuthenticatedUsers;
 		std::vector<CreationFunc> newUserSubscribes_;
 

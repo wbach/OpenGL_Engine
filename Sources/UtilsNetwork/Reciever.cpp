@@ -12,14 +12,18 @@
 #include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
 #include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
 #include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
+#include "Time/TimeMeasurer.h"
 
-#define Case(x, y) case x: result = GetIMessage<y>(socket); break
+#define Case(x, y) case x: result = GetIMessage<y>(socket, error); break
 
 namespace Network
 {
-	Receiver::Receiver(ISDLNetWrapperPtr sdlNetWrapper)
+	Receiver::Receiver(Utils::Time::CTimeMeasurer& tm, ISDLNetWrapperPtr sdlNetWrapper)
 		: sdlNetWrapper_(sdlNetWrapper)
+		, timer_(tm)
+		, recvBytes_(0)
 	{
+		timer_.AddOnTickCallback(std::bind(&Receiver::PrintRecvBytesPerSec, this));
 	}
 
 	std::shared_ptr<IMessage> Receiver::Receive(TCPsocket socket, RecvError& error)
@@ -29,27 +33,23 @@ namespace Network
 		if (sdlNetWrapper_->SocketReady((SDLNet_GenericSocket) socket) == 0)
 			return nullptr;
 
-		Log("Receiver::Receive");
+		//Log("Receiver::Receive");
 		std::shared_ptr<IMessage> result;
 
 		//char buffer[512];
 		MessageHeader header;
 		int recvBytes = sdlNetWrapper_->RecvTcp(socket, &header, sizeof(header));
-		Log(std::string("Receive header, msg type : ") + std::to_string(header.msgType));
+		Log("Receive : " + Network::to_string(header.msgType));
+		//Log(std::string("Receive header, msg type : ") + std::to_string(header.msgType));
 
-		if (recvBytes == -1)
+		if (recvBytes <= 0)
 		{
 			Log("Recv header bytes : -1, Disconnect.");
 			error = RecvError::Disconnect;
 			return nullptr;
-		}
+		}		
 
-		if (recvBytes == 0)
-		{
-			Log("Recv header bytes: " + std::to_string(recvBytes));
-			error = RecvError::Disconnect;//RecvError::ZeroBytes;
-			return nullptr;
-		}			
+		recvBytes_ += recvBytes;
 
 		switch (header.msgType)
 		{
@@ -66,5 +66,12 @@ namespace Network
 			Case(MessageTypes::GetCharactersDataReq, GetCharactersDataMsgReq);
 		}
 		return result;
+	}
+
+	void Receiver::PrintRecvBytesPerSec()
+	{
+		auto recvPerSec = recvBytes_;// / 1000;
+		Log("Recv : " + std::to_string(recvPerSec) + " B/s");
+		recvBytes_ = 0;
 	}
 } // Network

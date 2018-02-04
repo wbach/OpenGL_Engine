@@ -6,6 +6,14 @@
 #include <memory>
 #include "Logger/Log.h"
 
+namespace Utils
+{
+	namespace Time
+	{
+		class CTimeMeasurer;
+	} // Time
+} // Utils
+
 namespace Network
 {	
 	enum class SentStatus
@@ -18,10 +26,12 @@ namespace Network
 	class Sender
 	{
 	public:
-		Sender(ISDLNetWrapperPtr sdlNetWrapper);
+		Sender(Utils::Time::CTimeMeasurer&, ISDLNetWrapperPtr sdlNetWrapper);
 		SentStatus SendTcp(TCPsocket socket, IMessage* msg);
 
 	private:
+		void PrintSentBytesPerSec();
+
 		template <class T>
 		SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
 		{
@@ -32,17 +42,22 @@ namespace Network
 				return SentStatus::CAST_ERROR;
 			}
 
+			int length = sizeof(T);
 			int sentBytes = sdlNetWrapper_->SendTcp(socket, final_msg, sizeof(T));
 
-			if (sentBytes == 0)
+			if (sentBytes < length)
 				return SentStatus::ERROR;
 
-			Log("Sent message bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(T)));
-			Log(final_msg->ToString());
+			sentBytes_ += sentBytes;
+
+			//Log("Sent message bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(T)));
+			//Log(final_msg->ToString());
 			return SentStatus::OK;
 		}
 
 	private:
+		uint32 sentBytes_;
+		Utils::Time::CTimeMeasurer& timer_;
 		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
 	};
 }

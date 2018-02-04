@@ -6,10 +6,10 @@
 
 namespace Network
 {
-	ClientCreator::ClientCreator(ISDLNetWrapperPtr sdlNetWrapper)
+	ClientCreator::ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapperPtr sdlNetWrapper)
 		: sdlNetWrapper_(sdlNetWrapper)
-		, sender_(sdlNetWrapper)
-		, receiver_(sdlNetWrapper)
+		, sender_(sender)
+		, receiver_(receiver)
 	{
 	}
 

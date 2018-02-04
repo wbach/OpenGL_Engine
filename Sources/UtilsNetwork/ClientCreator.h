@@ -19,7 +19,7 @@ namespace Network
 		};
 
 	public:
-		ClientCreator(ISDLNetWrapperPtr sdlNetWrapper);
+		ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapperPtr sdlNetWrapper);
 		wb::optional<ConectContext> ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 
 	private:
@@ -29,7 +29,7 @@ namespace Network
 
 	private:
 		ISDLNetWrapperPtr sdlNetWrapper_;
-		Sender sender_;
-		Receiver receiver_;
+		Sender& sender_;
+		Receiver& receiver_;
 	};
 }
