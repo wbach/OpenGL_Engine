@@ -1,12 +1,12 @@
 #pragma once
-#include "../IHandler.h"
+#include "Common/MessageHandling/AbstractHandler.h"
 #include "../../Context.h"
 
 namespace GameServer
 {
 	namespace Handler
 	{
-		class CharacterControllerHandler : public IHandler
+		class CharacterControllerHandler : public common::AbstractHandler
 		{
 		public:
 			CharacterControllerHandler(Context& context);

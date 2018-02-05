@@ -13,11 +13,8 @@ namespace GameEngine
 
 	void SceneWrapper::Set(ScenePtr scene)
 	{
-		SaveSetState(SceneWrapperState::SceneNotSet);
-
-		activeScene.reset();
+		Reset();
 		activeScene = std::move(scene);
-
 		SaveSetState(SceneWrapperState::ReadyToInitialized);
 	}
 
@@ -73,5 +70,10 @@ namespace GameEngine
 			return SceneWrapperState::SceneNotSet;
 
 		return SaveGetState();
+	}
+	void SceneWrapper::Reset()
+	{
+		SaveSetState(SceneWrapperState::SceneNotSet);
+		activeScene.reset(nullptr);
 	}
 } // GameEngine

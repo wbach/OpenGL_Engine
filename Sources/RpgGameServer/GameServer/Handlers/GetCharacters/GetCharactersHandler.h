@@ -1,16 +1,16 @@
 #pragma once
-#include "../IHandler.h"
+#include "Common/MessageHandling/AbstractHandler.h"
 #include "../../Context.h"
 
 namespace GameServer
 {
 	namespace Handler
 	{
-		class GetCharactersHandler : public IHandler
+		class GetCharactersHandler : public common::AbstractHandler
 		{
 		public:
 			GetCharactersHandler(Context& context)
-				: IHandler({ Network::MessageTypes::GetCharactersReq })
+				: common::AbstractHandler({ Network::MessageTypes::GetCharactersReq })
 				, context_(context)
 			{}
 		protected:

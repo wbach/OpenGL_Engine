@@ -1,9 +1,10 @@
 #include "mrpg_main.h"
+#include "Gateway.h"
+#include "Common/MessageHandling/Dispatcher.h"
 #include "MrpgGameContext.h"
-#include "../UtilsNetwork/Gateway.h"
-#include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Engine/Configuration.h"
-#include "../../Common/Hero/HeroClassesTypes.h"
+#include "Engine/Engine.h"
+#include "Engine/Configuration.h"
+#include "Common/Hero/HeroClassesTypes.h"
 #include "Scenes/ScenesFactory.h"
 #include "Logger/Log.h"
 
@@ -13,9 +14,9 @@ namespace MmmoRpg
 	{
 	public:
 		Game()
-			: engine(std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+			: serverAdress(Utils::ReadFile("./server.conf"))
+			, engine(std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
 		{
-			std::string  serverAdress = Utils::ReadFile("./server.conf");
 			Log("Server : " + serverAdress);
 
 			engine.Init();
@@ -26,9 +27,9 @@ namespace MmmoRpg
 			engine.GameLoop();
 		}
 	private:
+		std::string serverAdress;
 		Network::CGateway gateway;
 		GameEngine::CEngine engine;
-		std::string serverAdress;
 		MrpgGameContext gameContext_;
 	};
 

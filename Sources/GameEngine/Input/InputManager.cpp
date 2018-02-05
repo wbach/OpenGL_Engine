@@ -56,4 +56,16 @@ namespace GameEngine
 		keyUpSubscribers_.clear();
 		keyDownSubscribers_.clear();
 	}
+	void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
+	{
+		if (keyDownSubscribers_.count(key) == 0)
+			return;
+		keyDownSubscribers_.erase(key);
+	}
+	void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
+	{
+		if (keyUpSubscribers_.count(key) == 0)
+			return;
+		keyUpSubscribers_.erase(key);
+	}
 } // GameEngine

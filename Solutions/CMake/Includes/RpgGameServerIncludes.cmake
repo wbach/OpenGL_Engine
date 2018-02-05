@@ -7,13 +7,11 @@ set(RpgGameServerIncludes
 ../../Sources/RpgGameServer/GameServer/Database/IDatabaseWrapper.h
 ../../Sources/RpgGameServer/GameServer/Database/LocalDatabase.h
 ../../Sources/RpgGameServer/GameServer/Database/User.h
-../../Sources/RpgGameServer/GameServer/Dispatcher.h
 ../../Sources/RpgGameServer/GameServer/GameServer.h
 ../../Sources/RpgGameServer/GameServer/Handlers/CharacterController/CharacterControllerHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/Distribute/DistributeHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/GetCharacters/GetCharactersHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/GetCharactersData/GetCharactersDataHandler.h
-../../Sources/RpgGameServer/GameServer/Handlers/IHandler.h
 ../../Sources/RpgGameServer/GameServer/Handlers/SelectCharacter/SelectCharacterHandler.h
 ../../Sources/RpgGameServer/GameServer/Hero/BaseHero.h
 ../../Sources/RpgGameServer/GameServer/Hero/CharacetrContext.h

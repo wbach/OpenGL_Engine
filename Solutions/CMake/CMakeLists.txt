@@ -37,6 +37,7 @@ include(./Sources/WindowsSources.cmake)
 include(./Sources/Unix.cmake)
 
 include_directories(
+../../Sources/
 ../../Sources/Utils/
 ../../Sources/UtilsNetwork/
 ../../Tools/common/
@@ -69,6 +70,9 @@ set_target_properties(GameEngineLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "
 endif()
 
 if(BUILD_TEST_GAME)
+	include_directories(
+	../../Sources/GameEngine/
+	)
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
 set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")

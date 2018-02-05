@@ -24,6 +24,7 @@ namespace GameEngine
 
 		Scene* Get();
 		SceneWrapperState GetState();
+		void Reset();
 		void Set(ScenePtr scene);
 		void Init();
 		bool IsInitialized();

@@ -1,8 +1,11 @@
 #pragma once
 #include "../Types.h"
+#include "Thread.hpp"
 #include "Mutex.hpp"
+#include "Time/TimeMeasurer.h"
 #include <string>
 #include <list>
+#include <atomic>
 
 class CLogger
 {
@@ -18,12 +21,18 @@ public:
 private:
 	CLogger();
 	void CreateLogFile();
+	void ProccesLog();
+	std::string GetLog();
 
 private:
 	std::mutex printMutex_;
     std::string fileName;
     std::list<std::string> logs;
 	bool enabled = false;
+
+	std::atomic_bool running_;
+	std::thread loggerThread_;
+	Utils::Time::CTimeMeasurer timer_;
 };
 
 #define LogToFile(x) do {CLogger::Instance().LoggToFileOnly(x);} while(0)

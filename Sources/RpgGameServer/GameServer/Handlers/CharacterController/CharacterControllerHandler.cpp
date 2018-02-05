@@ -1,6 +1,6 @@
 #include "CharacterControllerHandler.h"
-#include "../../../../Common/Controllers/CharacterController/Character.h"
-#include "../../../../Common/Controllers/CharacterController/NetworkActionsConverter.h"
+#include "Common/Controllers/CharacterController/Character.h"
+#include "Common/Controllers/CharacterController/NetworkActionsConverter.h"
 #include "Messages/TransformMessages/TransformMsgReq.h"
 #include "Messages/TransformMessages/TransformMsgResp.h"
 
@@ -11,7 +11,7 @@ namespace GameServer
 	namespace Handler
 	{
 		CharacterControllerHandler::CharacterControllerHandler(Context& context)
-			: IHandler(Network::MessageTypes::TransformReq)
+			: common::AbstractHandler(Network::MessageTypes::TransformReq)
 			, context_(context)
 		{}
 
@@ -58,17 +58,16 @@ namespace GameServer
 				break;
 			}
 
-			Network::TransformMsgResp tdata;
-			tdata.position = characterController->GetTransform().GetPosition();
-			tdata.rotation = characterController->GetTransform().GetRotation();
-			tdata.id = msg->id;
-			tdata.type = msg->type;
-			tdata.action = msg->action;
+			auto tdata = std::make_unique < Network::TransformMsgResp> ();
+			tdata->position = characterController->GetTransform().GetPosition();
+			tdata->rotation = characterController->GetTransform().GetRotation();
+			tdata->id = msg->id;
+			tdata->type = msg->type;
+			tdata->action = msg->action;
 
-			auto m = Network::CreateIMessagePtr<Network::TransformMsgResp>(tdata);
 			for (auto& user : context_.GetUsers())
 			{
-				context_.sendMessage_(user.first, m);
+				context_.sendMessage_(user.first, tdata.get());
 			}
 		}
 	} // Handler

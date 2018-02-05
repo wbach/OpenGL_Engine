@@ -2,44 +2,43 @@
 #include "Types.h"
 #include "Sender.h"
 #include "Reciever.h"
-#include "Thread.hpp"
-#include "Mutex.hpp"
 #include "ConectContext.h"
 #include "ConnectionManager.h"
 #include "ServerCreator.h"
 #include "ClientCreator.h"
-#include "Time/TimeMeasurer.h"
 #include "NetworkTypes.h"
-#include <atomic>
+#include "Time/TimeMeasurer.h"
+#include <vector>
+#include <unordered_map>
 
 namespace Network
 {
+	typedef std::function<void(uint32)> DisconectFunc;
+
 	class CGateway
 	{
 	public:
 		CGateway();
-		~CGateway();
+		CGateway(Utils::Time::CTimeMeasurer timeMeasurer);
+		virtual ~CGateway();
 		void StartServer(uint32 maxClients, uint32 port);
 		bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 		void SubscribeForNewUser(CreationFunc func);
-		//void SubscribeOnMessageArrived(OnMessageArrived func);
-		void AddToOutbox(uint32 userId, IMessagePtr message);
-		//void AddToOutbox(IMessagePtr message);
-		std::shared_ptr<BoxMessage> PopInBox();
+		void SubscribeForDisconnectUser(DisconectFunc func);
+		void SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func);
+		void UnsubscrieOnMessageArrived(const std::string& label);
+		void UnsubscribeAllOnMessageArrived();
 
-	private:
-		void ReceiveAllMessages();
-		void SendAllMessages();
-		void MainLoop();
-		void AddToInbox(uint32 userId, std::shared_ptr<IMessage> message);
-		uint32 GetOutBoxSize();
-		std::shared_ptr<BoxMessage> PopOutBox();
-		void ClearOutbox();
-		void PrintFps();
+		bool Send(IMessage* message);
+		bool Send(uint32 userId, IMessage* message);
+		void Update();
 
-	private:
-		ISDLNetWrapperPtr iSDLNetWrapperPtr_;
+	protected:
+		void DisconnectUser(uint32 id);
+
+	protected:
 		Utils::Time::CTimeMeasurer timeMeasurer_;
+		ISDLNetWrapperPtr iSDLNetWrapperPtr_;
 
 		Sender sender_;
 		Receiver receiver_;
@@ -48,17 +47,12 @@ namespace Network
 
 		ServerCreator serverCreator_;
 		ClientCreator clientCreator_;
-		
-		std::mutex outboxMutex_;
-		std::mutex inboxMutex_;
 
-		std::list<BoxMessage> outbox_;
-		std::list<BoxMessage> inbox_;
-		std::list<OnMessageArrived> onMessageArrivedSubcribes_;
+		std::unordered_map<std::string, OnMessageArrived> onMessageArrivedSubcribes_;
+		std::vector<DisconectFunc> disconnectSubscribes_;
 
 		bool isServer;
-		std::thread  networkThread_;
-		std::atomic_bool running;
+		bool running;
 	};
 
 	typedef std::shared_ptr<CGateway> GatewayPtr;

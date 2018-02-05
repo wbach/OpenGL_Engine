@@ -10,9 +10,9 @@ namespace GameServer
 		{
 			auto userId = message.first;
 			auto& user = context_.GetUser(userId);
-			auto userCharacters = user.GetCharacters();
+			auto userCharacters = user.GetCharacters();			
 
-			Network::GetCharactersMsgResp charactersMsgResp;
+			auto charactersMsgResp = std::make_unique<Network::GetCharactersMsgResp>();
 
 			uint8 i = 0;
 			for(const auto& characterId : userCharacters)
@@ -27,15 +27,15 @@ namespace GameServer
 					continue;
 				}
 
-				auto& character = c.value();
+				auto& character = c.value();				
 
-				charactersMsgResp.characterInfo[i++] = Network::CharacterInfo(
+				charactersMsgResp->characterInfo[i++] = Network::CharacterInfo(
 													characterId, character.name,
 													character.lvl,
 													character.classId);
 			}
 
-			context_.sendMessage_(userId, Network::CreateIMessagePtr<Network::GetCharactersMsgResp>(charactersMsgResp));
+			context_.sendMessage_(userId, charactersMsgResp.get());
 		}
 	} // Handler
 } // GameServer

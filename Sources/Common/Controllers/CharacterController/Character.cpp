@@ -1,5 +1,6 @@
 #include "Character.h"
 #include "Logger/Log.h"
+#include <algorithm>
 #include "math.hpp"
 
 namespace common

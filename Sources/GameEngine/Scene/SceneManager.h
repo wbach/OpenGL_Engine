@@ -32,7 +32,6 @@ namespace GameEngine
 		void Update();		
 		void SetActiveScene(const std::string& name);		
 
-
 	private:
 		void ProccessEvents();
 		void UpadteScene(float dt);

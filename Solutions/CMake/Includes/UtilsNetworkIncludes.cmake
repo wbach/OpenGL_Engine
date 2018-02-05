@@ -1,4 +1,5 @@
 set(UtilsNetworkIncludes
+../../Sources/UtilsNetwork/BoxesGateway.h
 ../../Sources/UtilsNetwork/ClientCreator.h
 ../../Sources/UtilsNetwork/ConectContext.h
 ../../Sources/UtilsNetwork/ConnectionManager.h
@@ -20,10 +21,12 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/Messages/MessageTarget.h
 ../../Sources/UtilsNetwork/Messages/MessageTypes.h
 ../../Sources/UtilsNetwork/Messages/PingMessage.h
+../../Sources/UtilsNetwork/Messages/RemoveCharacter/DisconnectCharacterMsg.h
 ../../Sources/UtilsNetwork/Messages/SelectCharacter/SelectCharacterMsgReq.h
 ../../Sources/UtilsNetwork/Messages/SelectCharacter/SelectCharacterMsgResp.h
 ../../Sources/UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h
-../../Sources/UtilsNetwork/Messages/TransformMessages/TransformMsg.h
+../../Sources/UtilsNetwork/Messages/TransformMessages/TransformMsgReq.h
+../../Sources/UtilsNetwork/Messages/TransformMessages/TransformMsgResp.h
 ../../Sources/UtilsNetwork/NetworkCreator.h
 ../../Sources/UtilsNetwork/NetworkTypes.h
 ../../Sources/UtilsNetwork/NetworkUtils.h

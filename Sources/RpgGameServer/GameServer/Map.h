@@ -11,6 +11,7 @@ namespace GameServer
 	public:
 		Hero::BaseHeroPtr GetCharacter(uint32 id);
 		void AddCharacter(uint32 characterId, Hero::BaseHeroPtr);
+		void RemoveCharacter(uint32 id);
 		void UpdateAllControllers(float dt);
 		const CharactersMap& GetAllCharacters() const;
 

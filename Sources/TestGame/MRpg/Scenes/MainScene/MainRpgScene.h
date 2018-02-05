@@ -1,29 +1,26 @@
 #pragma once
-#include "../GameEngine/Scene/Scene.hpp"
-#include "../GameEngine/Engine/Debuger.h"
-#include "../GameEngine/Objects/ObjectBuilder.h"
-#include "../../Characters/NetworkCharacter.h"
-#include "../../MrpgGameContext.h"
-#include "../UtilsNetwork/Gateway.h"
-#include "../../../../UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgResp.h"
-#include "../../../../UtilsNetwork/Messages/TransformMessages/TransformMsgResp.h"
-#include "../../../../UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
-#include "../../../../Common/Controllers/CharacterController/CharacterActions.h"
+#include "Gateway.h"
+#include "../MRpgScene.h"
+#include "Objects/ObjectBuilder.h"
+#include "TestGame/MRpg/Characters/NetworkCharacter.h"
+#include "Common/Controllers/CharacterController/CharacterActions.h"
+#include "Messages/TransformMessages/TransformMsgResp.h"
 #include <unordered_map>
 
-//namespace Network
-//{
-//	class CGateway;
-//} // Network
+
+namespace Network
+{
+	class GetCharacterDataMsgResp;
+} // Network
 
 namespace MmmoRpg
 {
 	class PlayerController;
 
-	class MainRpgScene : public GameEngine::Scene
+	class MainRpgScene : public MRpgScene
 	{
 	public:
-		MainRpgScene(Network::CGateway& gateway, MrpgGameContext& gameContext);
+		MainRpgScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
 		virtual ~MainRpgScene() override;
 		virtual int		Initialize() override;
 		virtual void	PostInitialize() override {};
@@ -40,17 +37,15 @@ namespace MmmoRpg
 	private:
 		void ReqNetworkSceneCharacters();
 		void WaitForNetworkCharacters();
-		void CheckIncomingMessages();
+		void Dispatch(const Network::BoxMessage& msg);
 		void HandleNetworkCharacterMsg(std::shared_ptr<Network::GetCharacterDataMsgResp> msg);
 		void HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg);
 
 	private:
-		std::vector<CGameObject*> terrains;
-		double timeClock = 0;
 		float deltaTime;
+		double timeClock = 0;
+		std::vector<CGameObject*> terrains;
 		std::unordered_map<uint32, std::shared_ptr<NetworkCharacter>> networkCharacters_;
-		Network::CGateway& gateway_;
-		MrpgGameContext& gameContext_;
 		std::shared_ptr<PlayerController> playerController_;
 	};
 } // MmmoRpg

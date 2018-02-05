@@ -121,6 +121,7 @@ namespace GameEngine
 	void SceneManager::JustLoadScene(T scene)
 	{
 		renderersManager_.UnSubscribeAll();
+		sceneWrapper_.Reset();
 		auto s = sceneFactory_->Create(scene);
 		SetSceneContext(s.get());
 		sceneWrapper_.Set(std::move(s));

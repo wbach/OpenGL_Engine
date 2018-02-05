@@ -47,7 +47,6 @@ namespace Network
 			}
 
 			//Log("Recv bytes: " + std::to_string(recvBytes) + "Message:\n" + msg.ToString());
-
 			recvBytes_ += recvBytes;
 			return std::make_shared<T>(msg);
 		}

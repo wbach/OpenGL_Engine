@@ -61,6 +61,7 @@ toolsDir='..\..\Tools\Windows'
 
 additionalIncludesDir='
 ..\..\Sources\Utils;
+..\..\Sources;
 ..\..\Tools\common\rapidxml-1.13;
 ..\..\Tools\Windows\fbx_sdk\include;
 ..\..\Tools\Windows\Assimp\include;
@@ -225,7 +226,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
 	done
 	
   echo '</ItemGroup>'
-	echo '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
+  echo '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
 	
   #\"\'\$\(Configuration\)\|\$\(Platform\)\'==\'Debug\|Win32\'\"
   

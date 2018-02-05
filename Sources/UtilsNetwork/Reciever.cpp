@@ -12,6 +12,7 @@
 #include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
 #include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
 #include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
+#include "Messages/RemoveCharacter/DisconnectCharacterMsg.h"
 #include "Time/TimeMeasurer.h"
 
 #define Case(x, y) case x: result = GetIMessage<y>(socket, error); break
@@ -28,6 +29,8 @@ namespace Network
 
 	std::shared_ptr<IMessage> Receiver::Receive(TCPsocket socket, RecvError& error)
 	{
+		Log("Times test : Receive time: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
+
 		error = RecvError::None;
 
 		if (sdlNetWrapper_->SocketReady((SDLNet_GenericSocket) socket) == 0)
@@ -54,6 +57,7 @@ namespace Network
 		switch (header.msgType)
 		{
 			Case(MessageTypes::ConnectionMsg,		 ConnectionMessage);
+			Case(MessageTypes::DisconnectCharacter,	 DisconnectCharacterMsg);
 			Case(MessageTypes::TransformReq,		 TransformMsgReq);
 			Case(MessageTypes::TransformResp,		 TransformMsgResp);
 			Case(MessageTypes::Authentication,		 AuthenticationMessage);

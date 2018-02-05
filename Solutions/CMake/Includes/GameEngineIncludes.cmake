@@ -1,6 +1,7 @@
 set(GameEngineIncludes
 ../../Sources/GameEngine/Api/ApiMessages.h
 ../../Sources/GameEngine/Api/SDL2/InputSDL.h
+../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.h
 ../../Sources/GameEngine/Api/SDL2/SDLOpenGL.h
 ../../Sources/GameEngine/Camera/Camera.h
 ../../Sources/GameEngine/Camera/Camera2D.h

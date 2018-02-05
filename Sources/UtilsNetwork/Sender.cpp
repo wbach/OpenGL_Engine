@@ -10,9 +10,10 @@
 #include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
 #include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
 #include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
+#include "Messages/RemoveCharacter/DisconnectCharacterMsg.h"
 #include "Time/TimeMeasurer.h"
 #include "Logger/Log.h"
-
+//#include <ctime>
 namespace Network
 {
 	Sender::Sender(Utils::Time::CTimeMeasurer& tm, ISDLNetWrapperPtr sdlNetWrapper)
@@ -27,6 +28,8 @@ namespace Network
 
 	SentStatus Sender::SendTcp(TCPsocket socket, IMessage* msg)
 	{
+		Log("Times test : Sent time: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
+
 		if (msg == nullptr)
 		{
 			Log("Sender::SendTcp: Try send nullptr msg.");
@@ -50,6 +53,7 @@ namespace Network
 		switch (msg->GetType())
 		{
 			Convert(MessageTypes::ConnectionMsg,		ConnectionMessage);
+			Convert(MessageTypes::DisconnectCharacter,	DisconnectCharacterMsg);
 			Convert(MessageTypes::TransformReq,			TransformMsgReq);
 			Convert(MessageTypes::TransformResp,		TransformMsgResp);
 			Convert(MessageTypes::Authentication,		AuthenticationMessage);

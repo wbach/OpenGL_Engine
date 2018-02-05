@@ -3,7 +3,6 @@ set(RpgGameServerSources
 ../../Sources/RpgGameServer/GameServer/ControllerCreator.cpp
 ../../Sources/RpgGameServer/GameServer/Database/DatabaseWrapperMock.cpp
 ../../Sources/RpgGameServer/GameServer/Database/LocalDatabase.cpp
-../../Sources/RpgGameServer/GameServer/Dispatcher.cpp
 ../../Sources/RpgGameServer/GameServer/GameServer.cpp
 ../../Sources/RpgGameServer/GameServer/Handlers/CharacterController/CharacterControllerHandler.cpp
 ../../Sources/RpgGameServer/GameServer/Handlers/Distribute/DistributeHandler.cpp

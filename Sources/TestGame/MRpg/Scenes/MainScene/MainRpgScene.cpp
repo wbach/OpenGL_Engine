@@ -1,31 +1,34 @@
 #include "MainRpgScene.h"
 #include "SingleTon.h"
-#include "../GameEngine/Engine/AplicationContext.h"
-#include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
-#include "../GameEngine/Camera/FirstPersonCamera.h"
-#include "../GameEngine/Camera/ThridPersonCamera.h"
-#include "../GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "../GameEngine/Renderers/GUI/Text/GuiText.h"
-#include "../GameEngine/Resources/Textures/Image.h"
-#include "../GameEngine/Objects/RenderAble/Terrain/Terrain.h"
-#include "../GameEngine/Resources/Models/ModelFactory.h"
+#include "Engine/AplicationContext.h"
+#include "Engine/Engine.h"
+#include "Objects/RenderAble/Flora/Grass/Grass.h"
+#include "Camera/FirstPersonCamera.h"
+#include "Camera/ThridPersonCamera.h"
+#include "Renderers/GUI/GuiRenderer.h"
+#include "Renderers/GUI/Text/GuiText.h"
+#include "Resources/Textures/Image.h"
+#include "Objects/RenderAble/Terrain/Terrain.h"
+#include "Resources/Models/ModelFactory.h"
 
-#include "../../Characters/PlayerController.h"
-#include "../../../../UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
-#include "../../../../Common/Hero/HeroClassesTypes.h"
-#include "../../../../Common/Controllers/CharacterController/Character.h"
-#include "../../../../Common/Controllers/CharacterController/NetworkActionsConverter.h"
+#include "TestGame/MRpg/Characters/PlayerController.h"
+#include "Common/Hero/HeroClassesTypes.h"
+#include "Common/Controllers/CharacterController/Character.h"
+#include "Common/Controllers/CharacterController/NetworkActionsConverter.h"
+
+#include "UtilsNetwork/Messages/TransformMessages/TransformMsgResp.h"
+#include "UtilsNetwork/Messages/RemoveCharacter/DisconnectCharacterMsg.h"
+#include "UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
+#include "UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
+#include "UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgResp.h"
 
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
 namespace MmmoRpg
 {
-	MainRpgScene::MainRpgScene(Network::CGateway& gateway, MrpgGameContext& gameContext)
-		: GameEngine::Scene("MainRpgScene")
-		, gateway_(gateway)
-		, gameContext_(gameContext)
+	MainRpgScene::MainRpgScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
+		: MRpgScene("MainRpgScene", gateway, serverAddress, gameContext_)
 	{
 	}
 
@@ -61,12 +64,13 @@ namespace MmmoRpg
 		//	addSceneEvent(e);
 		//});
 
+		gateway_.SubscribeOnMessageArrived("Dispatch", std::bind(&MainRpgScene::Dispatch, this, std::placeholders::_1));
 		return 0;
 	}
 
 	int MainRpgScene::Update(float dt)
 	{
-		CheckIncomingMessages();
+		gateway_.Update();
 
 		for (auto& character : networkCharacters_)
 		{
@@ -155,28 +159,37 @@ namespace MmmoRpg
 
 	void MainRpgScene::ReqNetworkSceneCharacters()
 	{
-		Network::GetCharactersDataMsgReq characterMsgReq;
-		characterMsgReq.mapId = 1;// hack id : 1
-		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::GetCharactersDataMsgReq>(characterMsgReq));
+		auto characterMsgReq = std::make_unique<Network::GetCharactersDataMsgReq>();
+		characterMsgReq->mapId = 1;// hack id : 1
+		gateway_.Send(characterMsgReq.get());
 	}
 
 	void MainRpgScene::WaitForNetworkCharacters()
 	{
 	}
 
-	void MainRpgScene::CheckIncomingMessages()
+	void MainRpgScene::Dispatch(const Network::BoxMessage& msg)
 	{
-		auto msg = gateway_.PopInBox();
-		if (msg == nullptr)
+		if (msg.second == nullptr)
 			return;
 
-		Log(" MainRpgScene::CheckIncomingMessages Got msg type : " + std::to_string(msg->second->GetType()));
+		Log(" MainRpgScene::CheckIncomingMessages Got msg type : " + std::to_string(msg.second->GetType()));
 
-		switch (msg->second->GetType())
+		switch (msg.second->GetType())
 		{
+			case Network::MessageTypes::DisconnectCharacter:
+			{
+				auto disconnectCharacterMsg = Network::castMessageAs<Network::DisconnectCharacterMsg>(msg.second.get());
+				if (disconnectCharacterMsg == nullptr)
+					return;
+
+				networkCharacters_.erase(disconnectCharacterMsg->id);
+					
+			}
+			break;
 			case Network::MessageTypes::GetCharacterDataResp:
 			{
-				auto getCharacterDataResp = Network::castMessageAs<Network::GetCharacterDataMsgResp>(msg->second);
+				auto getCharacterDataResp = Network::castMessageAs<Network::GetCharacterDataMsgResp>(msg.second);
 				if (getCharacterDataResp == nullptr)
 					return;
 				HandleNetworkCharacterMsg(getCharacterDataResp);
@@ -184,7 +197,7 @@ namespace MmmoRpg
 			break;
 			case Network::MessageTypes::TransformResp:
 			{
-				auto transformMsg = Network::castMessageAs<Network::TransformMsgResp>(msg->second);
+				auto transformMsg = Network::castMessageAs<Network::TransformMsgResp>(msg.second);
 				if (transformMsg == nullptr)
 					return;
 				HandleTransformMsg(transformMsg);
@@ -195,6 +208,9 @@ namespace MmmoRpg
 
 	void MainRpgScene::HandleNetworkCharacterMsg(std::shared_ptr<Network::GetCharacterDataMsgResp> msg)
 	{
+		if (networkCharacters_.count(msg->networkCharcterId) > 0)
+			return;
+
 		//NetworkCharacter(uint32 id, const vec3& scale, GameEngine::ModelWrapper modelWrapper);
 		GameEngine::ModelWrapper modelWrapper;
 		vec3 normalizedSize;
@@ -232,11 +248,15 @@ namespace MmmoRpg
 
 	void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
 	{
+		Log("Times test : Resp: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC) + " Action: " + std::to_string(msg->action));
+
 		auto characterId = msg->id;
-		networkCharacters_[msg->id]->GetEntity()->localTransform.SetPosition(msg->position);
-		networkCharacters_[msg->id]->GetEntity()->localTransform.SetRotation(msg->rotation);
-		auto& icontroller = networkCharacters_[msg->id]->GetControllerByType(common::Controllers::Types::CharacterControllerType);
+		Log("msg->position : " + Utils::ToString(msg->position) + " msg->rotation : " + Utils::ToString(msg->rotation));
+		networkCharacters_[msg->id]->GetEntity()->worldTransform.SetPosition(msg->position);
+		networkCharacters_[msg->id]->GetEntity()->worldTransform.SetRotation(msg->rotation);
+		auto icontroller = networkCharacters_[msg->id]->GetControllerByType(common::Controllers::Types::CharacterControllerType);
 		auto controller = common::Controllers::castControllerAs<common::Controllers::CharacterController>(icontroller);
+		Log("Controller->position : " + Utils::ToString(controller->GetTransform().GetPosition()) + " Controller->rotation : " + Utils::ToString(controller->GetTransform().GetRotation()));
 
 		switch (msg->action)
 		{

@@ -14,17 +14,18 @@ namespace GameServer
 	GameServer::GameServer()
 		: running_(true)
 		, gateway_(new Network::CGateway())
-		, context_(std::make_shared<Database::DatabaseWrapperMock>(), std::bind(&Network::CGateway::AddToOutbox, gateway_.get(), std::placeholders::_1, std::placeholders::_2))
+		, context_(std::make_shared<Database::DatabaseWrapperMock>(), std::bind(&GameServer::Send, this, std::placeholders::_1, std::placeholders::_2))
 	{		
 		gateway_->StartServer(30, 1991);
 		gateway_->SubscribeForNewUser(std::bind(&Context::NewUser, &context_, std::placeholders::_1, std::placeholders::_2));
+		gateway_->SubscribeForDisconnectUser(std::bind(&Context::DeleteUser, &context_, std::placeholders::_1));
 		//gateway_->SubscribeOnMessageArrived(std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
 
-		Handler::IHandlerPtr distributeHandler(new Handler::DistributeHandler(context_));
-		Handler::IHandlerPtr getCharactersHandler(new Handler::GetCharactersHandler(context_));
-		Handler::IHandlerPtr selectCharacterHandler(new Handler::SelectCharacterHandler(context_));
-		Handler::IHandlerPtr characterControllerHandler(new Handler::CharacterControllerHandler(context_));
-		Handler::IHandlerPtr getCharacterDataHandler(new Handler::GetCharactersDataHandler(context_));
+		common::AbstractHandlerPtr distributeHandler(new Handler::DistributeHandler(context_));
+		common::AbstractHandlerPtr getCharactersHandler(new Handler::GetCharactersHandler(context_));
+		common::AbstractHandlerPtr selectCharacterHandler(new Handler::SelectCharacterHandler(context_));
+		common::AbstractHandlerPtr characterControllerHandler(new Handler::CharacterControllerHandler(context_));
+		common::AbstractHandlerPtr getCharacterDataHandler(new Handler::GetCharactersDataHandler(context_));
 		
 		dispatcher_.AddHandlers(
 			{
@@ -36,19 +37,20 @@ namespace GameServer
 			});
 
 
+		gateway_->SubscribeOnMessageArrived("Dispat", std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
+
 		Update();
 	}
+
 	void GameServer::Update()
 	{	
-		Utils::Time::CTimeMeasurer timeMeasurer(60);;
+		Utils::Time::CTimeMeasurer timeMeasurer(120, false);
 
 		while (running_)
 		{
+			gateway_->Update();
 			ProccesSdlEvent();
 			context_.manager_.UpdateAllControllers(static_cast<float>(timeMeasurer.GetDeltaTime()));
-			auto msg = gateway_->PopInBox();
-			if (msg != nullptr)
-				OnMessageArrived(*msg.get());
 			timeMeasurer.CalculateAndLock();
 		}
 	}
@@ -56,7 +58,13 @@ namespace GameServer
 	void GameServer::OnMessageArrived(const Network::BoxMessage & mesage)
 	{
 		dispatcher_.Dispatch(mesage);
-	}	
+	}
+
+	void GameServer::Send(uint32 id, Network::IMessage* ptr)
+	{
+		gateway_->Send(id, ptr);
+	}
+
 
 	void GameServer::ProccesSdlEvent()
 	{

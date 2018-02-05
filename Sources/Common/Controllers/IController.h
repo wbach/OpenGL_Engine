@@ -1,5 +1,6 @@
 #pragma once
 #include "ControllersTypes.h"
+#include "Logger/Log.h"
 #include <memory>
 
 namespace common

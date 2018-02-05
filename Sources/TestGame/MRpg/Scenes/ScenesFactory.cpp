@@ -1,8 +1,8 @@
 #include "ScenesFactory.h"
-#include "Login.h"
-#include "SelectCharacter/SelectCharacterScene.h"
+#include "Login/Login.h"
 #include "MainScene/MainRpgScene.h"
-#include "../../GuiEdytorScene.h"
+#include "TestGame/GuiEdytorScene.h"
+#include "SelectCharacter/SelectCharacterScene.h"
 #include "Logger/Log.h"
 
 namespace MmmoRpg
@@ -20,15 +20,15 @@ namespace MmmoRpg
 	
 	GameEngine::ScenePtr SceneFactory::CreateMainScene()
 	{
-		return std::make_unique<MainRpgScene>(gateway_, gameContext_);
+		return std::make_unique<MainRpgScene>(gateway_, serverAdress_, gameContext_);
 	}
 	GameEngine::ScenePtr SceneFactory::CreateLoginScene()
 	{
-		return std::make_unique<LoginScene>(gateway_, serverAdress_);
+		return std::make_unique<LoginScene>(gateway_, serverAdress_, gameContext_);
 	}
 	GameEngine::ScenePtr SceneFactory::CreateSelectCharacterScene()
 	{
-		return std::make_unique<SelectCharacterScene>(gateway_, gameContext_);
+		return std::make_unique<SelectCharacterScene>(gateway_, serverAdress_, gameContext_);
 	}
 	GameEngine::ScenePtr SceneFactory::CreateGuiEditorScene()
 	{

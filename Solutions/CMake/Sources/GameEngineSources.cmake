@@ -1,5 +1,6 @@
 set(GameEngineSources
 ../../Sources/GameEngine/Api/SDL2/InputSDL.cpp
+../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.cpp
 ../../Sources/GameEngine/Api/SDL2/SDLOpenGL.cpp
 ../../Sources/GameEngine/Camera/Camera.cpp
 ../../Sources/GameEngine/Camera/FirstPersonCamera.cpp

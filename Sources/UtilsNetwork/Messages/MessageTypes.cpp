@@ -18,5 +18,6 @@ std::string Network::to_string(uint8 type)
 	Return(GetCharacterDataReq);
 	Return(GetCharacterDataResp);
 	Return(GetCharactersDataReq);
+	Return(DisconnectCharacter);
 	return std::to_string(type);
 }

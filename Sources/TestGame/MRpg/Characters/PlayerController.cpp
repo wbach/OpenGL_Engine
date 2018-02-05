@@ -1,7 +1,9 @@
 #include "PlayerController.h"
-#include "../../../UtilsNetwork/Gateway.h"
-#include "../../../GameEngine/Input/InputManager.h"
-#include "../../../UtilsNetwork/Messages/TransformMessages/TransformMsgReq.h"
+#include "Input/InputManager.h"
+#include "UtilsNetwork/Gateway.h"
+#include "Messages/TransformMessages/TransformMsgReq.h"
+#include <algorithm>
+#include <ctime>
 
 namespace MmmoRpg
 {
@@ -18,11 +20,20 @@ namespace MmmoRpg
 		if (FindState(type) && action == Network::TransformAction::PUSH)
 			return;
 
-		Network::TransformMsgReq msg;
+		Log("Times test : Req: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC) + " Action: " + std::to_string(action));
+
+	/*	Network::TransformMsgReq msg;
 		msg.type = type;
 		msg.id = characterId_;
 		msg.action = action;
-		gateway_.AddToOutbox(0, Network::CreateIMessagePtr<Network::TransformMsgReq>(msg));
+		*/
+
+		auto msg = std::make_unique<Network::TransformMsgReq>();
+		msg->type = type;
+		msg->id = characterId_;
+		msg->action = action;
+
+		gateway_.Send(msg.get());
 
 		if (action == Network::TransformAction::PUSH)
 			states_.push_back(type);

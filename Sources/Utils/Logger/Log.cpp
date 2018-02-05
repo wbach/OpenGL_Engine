@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-CLogger & CLogger::Instance()
+CLogger& CLogger::Instance()
 {
 	static CLogger logger;
 	return logger;
@@ -15,6 +15,7 @@ void CLogger::EnableLogs()
 {
 	enabled = true;
 	CreateLogFile();
+	loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
 }
 void CLogger::ErrorLog(const std::string& log)
 {
@@ -27,12 +28,7 @@ void CLogger::Logg(const std::string& log)
 		return;
 
 	std::lock_guard<std::mutex> lk(printMutex_);
-
-	std::cout << log << std::endl;
-    logs.push_back(log);
-    std::ofstream file(fileName, std::ios_base::app);
-	file << log << '\n';
-	file.close();
+	logs.push_back(log);
 }
 void CLogger::LoggToFileOnly(const std::string & log)
 {
@@ -59,10 +55,17 @@ void CLogger::SaveToFile() const
 }
 CLogger::~CLogger()
 {
+	if (enabled)
+	{
+		running_.store(false);
+		loggerThread_.join();
+	}
 }
 
 CLogger::CLogger()
-{
+	: timer_(5)
+	, running_(true)
+{	
 }
 
 void CLogger::CreateLogFile()
@@ -76,4 +79,34 @@ void CLogger::CreateLogFile()
     fileName = "Logs/Logs.txt";
     std::ofstream file(fileName);
 	file.close();
+}
+
+void CLogger::ProccesLog()
+{
+	while (running_.load())
+	{
+		std::ofstream file(fileName, std::ios_base::app);
+		while (true)
+		{
+			auto log = GetLog();
+			if (log.empty())
+				break;
+			std::cout << log << std::endl;			
+			file << log << '\n';		
+		}
+		file.close();
+		timer_.CalculateAndLock();
+	}
+}
+
+std::string CLogger::GetLog()
+{
+	std::lock_guard<std::mutex> lk(printMutex_);
+
+	if (logs.empty())
+		return "";
+
+	auto l = logs.front();
+	logs.pop_front();
+	return l;
 }

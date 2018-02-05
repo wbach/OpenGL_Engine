@@ -39,11 +39,11 @@ namespace GameServer
 		}
 		void SelectCharacterHandler::SendResponse(bool status, uint32 userId, uint32 characterId, uint32 mapId)
 		{
-			Network::SelectCharacterMsgResp resp;
-			resp.status_ = status ? Network::MessageStatus::Ok : Network::MessageStatus::Fail;
-			resp.id = characterId;
-			resp.mapId = mapId;
-			context_.sendMessage_(userId, Network::CreateIMessagePtr<Network::SelectCharacterMsgResp>(resp));
+			auto resp = std::make_unique<Network::SelectCharacterMsgResp>();
+			resp->status_ = status ? Network::MessageStatus::Ok : Network::MessageStatus::Fail;
+			resp->id = characterId;
+			resp->mapId = mapId;
+			context_.sendMessage_(userId, resp.get());
 		}
 	} // Handler
 } // GameServer

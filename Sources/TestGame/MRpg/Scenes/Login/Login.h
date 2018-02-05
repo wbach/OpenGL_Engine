@@ -1,14 +1,7 @@
 #pragma once
-#include "../GameEngine/Scene/Scene.hpp"
-#include "../GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "../GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "../MRpgScene.h"
 #include "Time/TimeMeasurer.h"
-#include <unordered_map>
-
-namespace GameEngine
-{
-	class CEngine;
-} // GameEngine
+#include "Renderers/GUI/Text/GuiTextElement.h"
 
 namespace Network
 {
@@ -17,10 +10,10 @@ namespace Network
 
 namespace MmmoRpg
 {
-	class LoginScene : public GameEngine::Scene
+	class LoginScene : public MRpgScene
 	{
 	public:
-		LoginScene(Network::CGateway& gateway, const std::string& serverAddress);
+		LoginScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
 		virtual int		Initialize() override;
 		virtual void	PostInitialize() override;
 		virtual int		Update(float deltaTime) override;
@@ -33,9 +26,6 @@ namespace MmmoRpg
 		void SwapCursor();
 
 	private:
-		Network::CGateway& gateway_;
-		std::string serverAddress_;
-
 		Utils::Time::CTimeMeasurer cursorTimer_;
 
 		SGuiTextElement guiLogin_;

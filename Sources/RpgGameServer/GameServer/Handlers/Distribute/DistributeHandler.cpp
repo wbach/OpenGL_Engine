@@ -14,7 +14,7 @@ namespace GameServer
 			{
 			case Network::MessageTarget::All:
 				for (auto& user : context_.GetUsers())
-					context_.sendMessage_(message.first, message.second);
+					context_.sendMessage_(message.first, message.second.get());
 				break;
 			}		
 		}

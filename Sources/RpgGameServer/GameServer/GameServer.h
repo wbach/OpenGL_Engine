@@ -1,7 +1,7 @@
 #pragma once
 #include "Gateway.h"
 #include "Context.h"
-#include "Dispatcher.h"
+#include "Common/MessageHandling/Dispatcher.h"
 
 namespace GameServer
 {
@@ -13,12 +13,12 @@ namespace GameServer
 
 	private:
 		void OnMessageArrived(const Network::BoxMessage& mesage);
-		
+		void Send(uint32, Network::IMessage*);
 		void ProccesSdlEvent();
 
 	private:
 		bool running_;		
-		Dispacher dispatcher_;
+		common::Dispacher dispatcher_;
 
 		Network::GatewayPtr gateway_;
 		Context context_;

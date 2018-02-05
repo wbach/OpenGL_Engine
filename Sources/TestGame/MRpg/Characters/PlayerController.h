@@ -24,7 +24,6 @@ namespace MmmoRpg
 		bool FindState(Network::TransformMessageTypes type);
 		void SubscribeForPushActions();
 		void SubscribeForPopActions();
-
 	private:
 		uint32 characterId_;
 		GameEngine::InputManager* inputManager_;

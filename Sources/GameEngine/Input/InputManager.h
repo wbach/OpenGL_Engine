@@ -31,9 +31,13 @@ namespace GameEngine
 		virtual void ClearKeyBuffer() = 0;
 		virtual void GetPressedKeys() = 0;
 		virtual void ProcessKeysEvents() = 0;
+
 		void SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
 		void SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
 		void SubscribeOnAnyKeyPress(KeysPressedFunc func);
+
+		void UnsubscribeOnKeyDown(KeyCodes::Type key);
+		void UnsubscribeOnKeyUp(KeyCodes::Type key);
 
 		void UnsubscribeAll();
 

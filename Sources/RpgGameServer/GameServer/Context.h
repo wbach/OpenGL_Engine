@@ -8,7 +8,7 @@
 
 namespace GameServer
 {
-	typedef std::function<void(uint32, Network::IMessagePtr)> SendMessage;
+	typedef std::function<void(uint32, Network::IMessage*)> SendMessage;
 
 	class Context
 	{
@@ -20,6 +20,7 @@ namespace GameServer
 		{}
 
 		void NewUser(const std::string& name, uint32 id);
+		void DeleteUser(uint32 id);
 		const UsersMap& GetUsers();
 		User& GetUser(uint32 id) { return users_[id]; }
 

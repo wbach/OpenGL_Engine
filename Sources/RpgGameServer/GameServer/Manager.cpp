@@ -38,6 +38,18 @@ namespace GameServer
 
 		maps_[characterData.value().mapId].AddCharacter(id, knight);
 	}
+	void Manager::RemoveHero(uint32 id)
+	{
+		for (auto& m : maps_)
+		{
+			auto character = m.GetCharacter(id);
+			if (character != nullptr)
+			{
+				m.RemoveCharacter(id);
+				return;
+			}
+		}
+	}
 	void Manager::UpdateAllControllers(float dt)
 	{
 		for (auto& map : maps_)

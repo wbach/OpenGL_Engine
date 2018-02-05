@@ -1,18 +1,16 @@
 #include "Login.h"
-#include "../UtilsNetwork/Gateway.h"
-#include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Renderers/GUI/Text/GuiText.h"
-#include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
-#include "../UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
-#include "../GameEngine/Input/KeyCodeToCharConverter.h"
+#include "Gateway.h"
+#include "Engine/Engine.h"
+#include "Renderers/GUI/Text/GuiText.h"
+#include "Input/KeyCodeToCharConverter.h"
+#include "Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
 
 namespace MmmoRpg
 {
 	//TO DO: remove pause when fix getdown key in input manager
-	LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddress)
-		: GameEngine::Scene("LoginScene")
-		, gateway_(gateway)
-		, serverAddress_(serverAddress)
+	LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
+		: MRpgScene("LoginScene", gateway, serverAddress, gameContext)
 		, cursorTimer_(60, false, 250)
 		, loginOrPasswordInput(false)
 		, showCursor_(false)
@@ -84,6 +82,7 @@ namespace MmmoRpg
 
 	int LoginScene::Update(float deltaTime)
 	{
+		gateway_.Update();
 		PrintLoginAndPassword();
 		cursorTimer_.CalculateAndLock();
 		return 0;

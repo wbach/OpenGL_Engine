@@ -13,6 +13,13 @@ namespace GameServer
 	{
 		characters_[characterId] = hero;
 	}
+	void Map::RemoveCharacter(uint32 id)
+	{
+		if (characters_.count(id) == 0)
+			return;
+
+		characters_.erase(id);
+	}
 	void Map::UpdateAllControllers(float dt)
 	{
 		for (auto& c : characters_)
