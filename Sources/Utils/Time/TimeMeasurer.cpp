@@ -12,7 +12,7 @@ namespace Utils
 		CTimeMeasurer::CTimeMeasurer()
 			: CTimeMeasurer(static_cast<uint32>(EngineConf.refresRate), EngineConf.vsync)
 		{
-			Log("CTimeMeasurer::CTimeMeasurer() Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
+			Log("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
 		}
 
 		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, bool vsync, uint32 frequency)

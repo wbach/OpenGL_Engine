@@ -7,3 +7,8 @@ CGameObject::CGameObject()
 	: id(s_id++)
 {
 }
+
+uint32 CGameObject::GetId() const
+{
+	return id;
+}

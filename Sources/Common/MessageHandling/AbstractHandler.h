@@ -1,5 +1,6 @@
 #pragma once
 #include "UtilsNetwork/NetworkTypes.h"
+#include "Logger/Log.h"
 
 namespace common
 {
@@ -24,6 +25,8 @@ namespace common
 				return false;
 
 			ProcessMessage(message);
+
+			Log(Network::to_string(message.second->GetType()));
 
 			return true;
 		};

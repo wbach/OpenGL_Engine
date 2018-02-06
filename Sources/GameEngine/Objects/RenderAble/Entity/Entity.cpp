@@ -1,8 +1,8 @@
 #include "Entity.h"
 #include "Logger/Log.h"
-#include "../../../Resources/Models/Model.h"
-#include "../../../Resources/Models/ModelFactory.h"
-#include "../../../Resources/ResourceManager.h"
+#include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/Models/ModelFactory.h"
+#include "GameEngine/Resources/ResourceManager.h"
 
 CEntity::CEntity(CResourceManager* manager, const vec3& normalizedScale)
 	: normalizedScale_(normalizedScale)
@@ -11,12 +11,11 @@ CEntity::CEntity(CResourceManager* manager, const vec3& normalizedScale)
 	worldTransform.SetNormalizedSize(normalizedScale_);
 }
 
-CEntity::CEntity(const vec3& normalizeScale, GameEngine::ModelWrapper modelWrapper)
-	: normalizedScale_(normalizeScale)
-	, manager_(nullptr)
+CEntity::CEntity(const GameEngine::ModelWrapper& modelWrapper)
+	: manager_(nullptr)
 	, modelWrapper_(modelWrapper) 
 {
-	worldTransform.SetNormalizedSize(normalizedScale_);
+	worldTransform.SetNormalizedSize(modelWrapper_.GetScale());
 }
 
 ModelRawPtr CEntity::GetModel(GameEngine::LevelOfDetail i)

@@ -41,6 +41,6 @@ namespace MmmoRpg
 		std::vector<CharacterSlot>& charactersData_;
 
 		SGuiTextElement characterSelectText_;
-		wb::optional<int8> currentSelectCharacterId_;		
+		wb::optional<int8> currentSelectCharacterId_;
 	};
 }

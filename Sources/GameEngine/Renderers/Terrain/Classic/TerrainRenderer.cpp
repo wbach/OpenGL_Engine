@@ -88,6 +88,18 @@ void CTerrainRenderer::Subscribe(CGameObject * gameObject)
         subscribes.push_back(terrain);
 }
 
+void CTerrainRenderer::UnSubscribe(CGameObject * gameObject)
+{
+	for (auto iter = subscribes.begin(); iter != subscribes.end(); ++iter)
+	{
+		if ((*iter)->GetId() == gameObject->GetId())
+		{
+			subscribes.erase(iter);
+			return;
+		}
+	}
+}
+
 void CTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
 }

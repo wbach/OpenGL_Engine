@@ -30,10 +30,10 @@ namespace GameServer
 		dispatcher_.AddHandlers(
 			{
 			//distributeHandler,
-			selectCharacterHandler,
-			characterControllerHandler,
-			getCharactersHandler,
-			getCharacterDataHandler
+			{ "distributeHandler" , selectCharacterHandler },
+			{ "distributeHandler" , characterControllerHandler },
+			{ "distributeHandler" , getCharactersHandler },
+			{ "distributeHandler" , getCharacterDataHandler }
 			});
 
 

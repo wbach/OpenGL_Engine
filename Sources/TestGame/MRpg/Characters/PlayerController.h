@@ -1,6 +1,7 @@
 #pragma once
-#include "../../../Common/Hero/Stats.h"
-#include "../../../UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
+#include "Common/Hero/Stats.h"
+#include "UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
+#include <memory>
 
 namespace GameEngine
 {
@@ -14,10 +15,12 @@ namespace Network
 
 namespace MmmoRpg
 {
+	struct MrpgGameContext;
+
 	class PlayerController
 	{
 	public:
-		PlayerController(GameEngine::InputManager* manager, uint32 characterId, Network::CGateway& gateway);
+		PlayerController(GameEngine::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway);
 
 	private:
 		void SendTransformMessage(Network::TransformMessageTypes type, Network::TransformAction action);
@@ -25,9 +28,11 @@ namespace MmmoRpg
 		void SubscribeForPushActions();
 		void SubscribeForPopActions();
 	private:
-		uint32 characterId_;
+		MrpgGameContext& gameContext_;
 		GameEngine::InputManager* inputManager_;
 		Network::CGateway& gateway_;
 		std::list<Network::TransformMessageTypes> states_;
 	};
+
+	typedef std::unique_ptr<PlayerController> PlayerControllerPtr;
 } // MmmoRpg

@@ -25,7 +25,7 @@ namespace Network
 		bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 		void SubscribeForNewUser(CreationFunc func);
 		void SubscribeForDisconnectUser(DisconectFunc func);
-		void SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func);
+		void SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, MessageTypes messageType = MessageTypes::Any);
 		void UnsubscrieOnMessageArrived(const std::string& label);
 		void UnsubscribeAllOnMessageArrived();
 
@@ -48,7 +48,7 @@ namespace Network
 		ServerCreator serverCreator_;
 		ClientCreator clientCreator_;
 
-		std::unordered_map<std::string, OnMessageArrived> onMessageArrivedSubcribes_;
+		std::unordered_map<std::string, std::pair<MessageTypes, OnMessageArrived>> onMessageArrivedSubcribes_;
 		std::vector<DisconectFunc> disconnectSubscribes_;
 
 		bool isServer;

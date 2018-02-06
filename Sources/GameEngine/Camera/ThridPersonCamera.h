@@ -20,6 +20,7 @@ public:
 	void CalculateInput() override;
 	void Move() override;
 	void CalculateZoom(float zoom_lvl) override;
+
 private:
 	void LockCamera();
 	void SetCaptureMouse(bool capture);

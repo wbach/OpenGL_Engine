@@ -86,7 +86,11 @@ namespace Network
 
 			for (auto& sub : onMessageArrivedSubcribes_)
 			{
-				sub.second({ user.first, msg });
+				auto subscribedType = sub.second.first;
+				auto subscribedFunc = sub.second.second;
+
+				if(subscribedType  == MessageTypes::Any || subscribedType == msg->GetType())
+					subscribedFunc({ user.first, msg });
 			}
 		}
 	}
@@ -120,9 +124,9 @@ namespace Network
 		connectionManager_.SubscribeForNewUser(func);
 	}
 
-	void CGateway::SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func)
+	void CGateway::SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, MessageTypes type)
 	{
-		onMessageArrivedSubcribes_[label] = func;
+		onMessageArrivedSubcribes_[label] = { type, func };
 	}
 	void CGateway::UnsubscribeAllOnMessageArrived()
 	{

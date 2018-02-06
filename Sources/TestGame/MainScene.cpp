@@ -29,8 +29,8 @@ int MainScene::Initialize()
 {
 	Log("MainScene::Initialize()");
 	auto bialczyk_obj = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
-    auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
-	renderersManager_->Subscribe(bialczyk);
+    AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
+	renderersManager_->Subscribe(bialczyk_obj);
 
 	//auto character_running_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
 	//auto ch = AddGameObject(character_running_obj, glm::vec3(0, 0, -7));
@@ -168,9 +168,9 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
 		Error("MainScene::AddTerrain : terrain is nullptr.");
 		return;
     }    
-    auto terr = AddGameObject(terrain, position);
-    terrains.push_back(terr);
-    renderersManager_->Subscribe(terr);
+    AddGameObject(terrain, position);
+    terrains.push_back(terrain);
+    renderersManager_->Subscribe(terrain);
 }
 
 std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)

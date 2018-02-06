@@ -3,8 +3,14 @@
 
 namespace MmmoRpg
 {
+	enum SelectedCharacterState
+	{
+		NOT_SET,
+		NOT_CONNECTED_WITH_PLAYER,
+		READY_TO_USE
+	};
 	struct MrpgGameContext
 	{
-		uint32 selectedCharacterId;
+		std::pair<uint32, SelectedCharacterState> selectedCharacterId;
 	};
 }
