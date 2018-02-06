@@ -14,6 +14,7 @@ public:
 	common::Transform localTransform;
 	common::Transform worldTransform;
 	virtual wb::optional<vec3> CollisionDetection(const vec3&) { return wb::optional<vec3>(); }
+	uint32 GetId() const; 
 
 protected:
     std::list<std::unique_ptr<CGameObject>> childrens;

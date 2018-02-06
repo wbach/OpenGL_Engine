@@ -17,8 +17,10 @@ namespace GameEngine
 		ModelWrapper() {}
 		void Add(ModelRawPtr model, LevelOfDetail lvl);
 		ModelRawPtr Get(LevelOfDetail lvl);
+		vec3 GetScale();
 
 	private:
+		vec3 normalizedScale_;
 		std::unordered_map<LevelOfDetail, ModelRawPtr> models_;
 	};
 } // GameEngine

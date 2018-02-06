@@ -1,17 +1,9 @@
 #pragma once
 #include "Gateway.h"
-#include "../MRpgScene.h"
-#include "Objects/ObjectBuilder.h"
-#include "TestGame/MRpg/Characters/NetworkCharacter.h"
-#include "Common/Controllers/CharacterController/CharacterActions.h"
-#include "Messages/TransformMessages/TransformMsgResp.h"
-#include <unordered_map>
-
-
-namespace Network
-{
-	class GetCharacterDataMsgResp;
-} // Network
+#include "TestGame/MRpg/Scenes/MRpgScene.h"
+#include "TestGame/MRpg/MrpgGameContext.h"
+#include "TestGame/MRpg/Characters/ModelsCreator.h"
+#include "TestGame/MRpg/Characters/NetworkCharacterManger.h"
 
 namespace MmmoRpg
 {
@@ -27,25 +19,15 @@ namespace MmmoRpg
 		virtual int		Update(float deltaTime) override;
 
 	private:
-		void InitGui();
 		void UpdatePlayerandCamera(float time);
-		void CheckCollisions();
-		void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
-		TerrainTexturesMap CreateTerrainTexturesMap();
-		std::vector<float> CreateGrassPositions(CGameObject*);
 
 	private:
 		void ReqNetworkSceneCharacters();
-		void WaitForNetworkCharacters();
-		void Dispatch(const Network::BoxMessage& msg);
-		void HandleNetworkCharacterMsg(std::shared_ptr<Network::GetCharacterDataMsgResp> msg);
-		void HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg);
 
 	private:
-		float deltaTime;
-		double timeClock = 0;
-		std::vector<CGameObject*> terrains;
-		std::unordered_map<uint32, std::shared_ptr<NetworkCharacter>> networkCharacters_;
 		std::shared_ptr<PlayerController> playerController_;
+		NetworkCharacterManagerPtr networkCharacterManager_;
+		ModelsCreatorPtr modelsCreator_;
+		common::Transform cameraTarget_;
 	};
 } // MmmoRpg

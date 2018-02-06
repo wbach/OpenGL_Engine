@@ -23,6 +23,7 @@ public:
     virtual void Render(GameEngine::Scene* scene)       = 0;
     virtual void EndFrame(GameEngine::Scene* scene)     = 0;
     virtual void Subscribe(CGameObject* gameObject);
+	virtual void UnSubscribe(CGameObject* gameObject) {}
 	virtual void UnSubscribeAll();
     // Debug
     const uint32& GetObjectsPerFrame();

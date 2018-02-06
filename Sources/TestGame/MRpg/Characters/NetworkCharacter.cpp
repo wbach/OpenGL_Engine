@@ -1,11 +1,12 @@
 #include "NetworkCharacter.h"
-#include "../../../Common/Controllers/ControllersFactory.h"
-#include "../../../Common/Controllers/IController.h"
+//#include "Common/Hero/Stats.h"
+#include "Common/Controllers/ControllersFactory.h"
+#include "Common/Controllers/IController.h"
 
 namespace MmmoRpg
 {
-	NetworkCharacter::NetworkCharacter(uint32 id, const vec3 & scale, const common::Hero::CommonStats& stats, GameEngine::ModelWrapper modelWrapper)
-		: enitityWrapper_(scale, modelWrapper)
+	NetworkCharacter::NetworkCharacter(uint32 id, const common::Hero::CommonStats& stats, GameEngine::ModelWrapper modelWrapper)
+		: enitityWrapper_(modelWrapper)
 		, id_(id)
 		, stats_(stats)
 	{

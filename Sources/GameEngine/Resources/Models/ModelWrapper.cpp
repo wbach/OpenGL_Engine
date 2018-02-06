@@ -1,10 +1,12 @@
 #include "ModelWrapper.h"
+#include "Model.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 	void ModelWrapper::Add(ModelRawPtr model, LevelOfDetail lvl)
 	{
+		normalizedScale_ = model->GetNormalizedScaleVector();
 		models_[lvl] = model;
 	}
 	ModelRawPtr ModelWrapper::Get(LevelOfDetail lvl)
@@ -19,5 +21,9 @@ namespace GameEngine
 		}
 
 		return nullptr;
+	}
+	vec3 ModelWrapper::GetScale()
+	{
+		return normalizedScale_;
 	}
 } // GameEngine

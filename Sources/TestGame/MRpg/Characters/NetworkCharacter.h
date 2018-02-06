@@ -1,12 +1,17 @@
 #pragma once
-#include "../../../Common/Hero/Stats.h"
-#include "../../../Common/Hero/HeroClassesTypes.h"
-#include "../../../Common/Controllers/ControllersTypes.h"
-#include "../../../GameEngine/Objects/RenderAble/Entity/EntityWrapper.h"
+#include "Common/Hero/Stats.h"
+#include "Common/Hero/HeroClassesTypes.h"
+#include "Common/Controllers/ControllersTypes.h"
+#include "GameEngine/Objects/RenderAble/Entity/EntityWrapper.h"
 #include <unordered_map>
 
 namespace common
 {
+	namespace Hero
+	{
+		struct CommonStats;
+	} // Hero
+
 	namespace Controllers
 	{
 		class IController;
@@ -21,7 +26,7 @@ namespace MmmoRpg
 	class NetworkCharacter 
 	{
 	public:
-		NetworkCharacter(uint32 id, const vec3& scale, const common::Hero::CommonStats&, GameEngine::ModelWrapper modelWrapper);
+		NetworkCharacter(uint32 id, const common::Hero::CommonStats&, GameEngine::ModelWrapper modelWrapper);
 		std::shared_ptr<common::Controllers::IController> GetControllerByType(common::Controllers::Types type);
 		void UpdateControllers(float dt);
 		uint32 GetId();

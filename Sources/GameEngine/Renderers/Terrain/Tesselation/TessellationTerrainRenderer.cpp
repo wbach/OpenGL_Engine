@@ -133,6 +133,18 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
     //subscribes.push_back(terrain);
 }
 
+void CTessellationTerrainRenderer::UnSubscribe(CGameObject * gameObject)
+{
+	for (auto iter = subscribes.begin(); iter != subscribes.end(); ++iter)
+	{
+		if ((*iter)->GetId() == gameObject->GetId())
+		{
+			subscribes.erase(iter);
+			return;
+		}
+	}
+}
+
 void CTessellationTerrainRenderer::ReloadShaders()
 {
 	shader.Reload();

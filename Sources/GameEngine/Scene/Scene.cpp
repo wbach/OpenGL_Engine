@@ -33,11 +33,10 @@ namespace GameEngine
 		}
 	}
 
-	CGameObject* Scene::AddGameObject(CGameObject* object, const vec3& position)
+	void Scene::AddGameObject(CGameObject* object, const vec3& position)
 	{
 		object->worldTransform.SetPosition(position);
 		gameObjects.emplace_back(object);
-		return gameObjects.back().get();
 	}
 
 	void Scene::SetAddSceneEventCallback(AddEvent func)

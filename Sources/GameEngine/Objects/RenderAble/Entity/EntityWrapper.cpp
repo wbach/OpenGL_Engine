@@ -1,6 +1,5 @@
 #include "EntityWrapper.h"
 
-
 CEntityWrapper::CEntityWrapper(CResourceManager* manager, const vec3& normalizeScale)
 	: normalizeScale_(normalizeScale)
 	, manager_(manager)
@@ -9,9 +8,8 @@ CEntityWrapper::CEntityWrapper(CResourceManager* manager, const vec3& normalizeS
 
 }
 
-CEntityWrapper::CEntityWrapper(const vec3& normalizeScale, GameEngine::ModelWrapper modelWrapper)
-	: normalizeScale_(normalizeScale)
-	, manager_(nullptr)
+CEntityWrapper::CEntityWrapper( GameEngine::ModelWrapper modelWrapper)
+	: manager_(nullptr)
 	, entity_(nullptr)
 	, modelWrapper_(modelWrapper)
 {
@@ -25,7 +23,7 @@ CEntity* CEntityWrapper::Get()
 
 	if (manager_ == nullptr)
 	{
-		entity_ = std::make_unique<CEntity>(normalizeScale_, modelWrapper_);
+		entity_ = std::make_unique<CEntity>(modelWrapper_);
 	}
 	else
 	{

@@ -2,13 +2,14 @@
 #include "Input/InputManager.h"
 #include "UtilsNetwork/Gateway.h"
 #include "Messages/TransformMessages/TransformMsgReq.h"
+#include "TestGame/MRpg/MrpgGameContext.h"
 #include <algorithm>
 #include <ctime>
 
 namespace MmmoRpg
 {
-	PlayerController::PlayerController(GameEngine::InputManager* manager, uint32 characterId, Network::CGateway& gateway)
-		: characterId_(characterId)
+	PlayerController::PlayerController(GameEngine::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway)
+		: gameContext_(gameContext)
 		, inputManager_(manager)
 		, gateway_(gateway)
 	{
@@ -17,20 +18,17 @@ namespace MmmoRpg
 	}
 	void PlayerController::SendTransformMessage(Network::TransformMessageTypes type, Network::TransformAction action)
 	{
+		if (gameContext_.selectedCharacterId.second != SelectedCharacterState::READY_TO_USE)
+			return;
+
 		if (FindState(type) && action == Network::TransformAction::PUSH)
 			return;
 
 		Log("Times test : Req: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC) + " Action: " + std::to_string(action));
 
-	/*	Network::TransformMsgReq msg;
-		msg.type = type;
-		msg.id = characterId_;
-		msg.action = action;
-		*/
-
 		auto msg = std::make_unique<Network::TransformMsgReq>();
 		msg->type = type;
-		msg->id = characterId_;
+		msg->id = gameContext_.selectedCharacterId.first;
 		msg->action = action;
 
 		gateway_.Send(msg.get());

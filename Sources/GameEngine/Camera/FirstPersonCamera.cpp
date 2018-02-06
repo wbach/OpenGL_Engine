@@ -8,22 +8,22 @@ static vec3 zero(0);
 const float defaultCamSpeed = Utils::KmToMs<float>(15);
 const float defaultCamRotationSpeed = 0.2f;
 
-CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime)
-	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager)
+	: CFirstPersonCamera(input_manager, display_manager, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity)
-	: CFirstPersonCamera(input_manager, display_manager, deltaTime, mouse_velocity, move_velocity, zero, zero, false)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager * display_manager, float mouse_velocity, float move_velocity)
+	: CFirstPersonCamera(input_manager, display_manager, mouse_velocity, move_velocity, zero, zero, false)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float& deltaTime, vec3& position_entity, vec3& rotation_entity)
-	: CFirstPersonCamera(input_manager, display_manager, deltaTime, defaultCamRotationSpeed, defaultCamSpeed, position_entity, rotation_entity, false)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, vec3& position_entity, vec3& rotation_entity)
+	: CFirstPersonCamera(input_manager, display_manager, defaultCamRotationSpeed, defaultCamSpeed, position_entity, rotation_entity, false)
 {
 }
 
-CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager * display_manager, float& deltaTime, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
+CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager * display_manager, float mouse_velocity, float move_velocity, vec3 & position_entity, vec3 & rotation_entity, bool freeCamera)
 	: CCamera(9.f, 100.f)
 	, inputManager(input_manager)
 	, displayManager(display_manager)
@@ -32,7 +32,6 @@ CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, 
 	, isFreeCamera(freeCamera)
 	, mousevel(mouse_velocity)
 	, movevel(move_velocity)
-	, deltaTime(deltaTime)
 {
 }
 
@@ -152,12 +151,12 @@ bool CFirstPersonCamera::CheckAndProccesRightDirection()
 void CFirstPersonCamera::MoveCamera(float dist, float dir)
 {
     float rad = (yaw.load() + dir)*static_cast<float>(M_PI) / 180.f;
-	position.x -= sin(-rad)*dist*deltaTime;
-	position.z -= cos(-rad)*dist*deltaTime;
+	position.x -= sin(-rad)*dist;
+	position.z -= cos(-rad)*dist;
 }
 
 void CFirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
     float rad = (pitch.load() + dir)*static_cast<float>(M_PI) / 180.f;
-	position.y += sin(-rad)*dist*deltaTime;
+	position.y += sin(-rad)*dist;
 }

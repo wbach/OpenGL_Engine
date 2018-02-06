@@ -64,7 +64,7 @@ namespace MmmoRpg
 			if (!currentSelectCharacterId_)
 				return;
 
-			gameContext_.selectedCharacterId = currentSelectCharacterId_.constValue();
+			gameContext_.selectedCharacterId = { currentSelectCharacterId_.constValue(), SelectedCharacterState::NOT_CONNECTED_WITH_PLAYER };
 			status_ = StateStatus::DONE;
 		});
 

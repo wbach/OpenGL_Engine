@@ -29,7 +29,7 @@ namespace Network
 
 	std::shared_ptr<IMessage> Receiver::Receive(TCPsocket socket, RecvError& error)
 	{
-		Log("Times test : Receive time: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
+		Log("Times test : " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
 
 		error = RecvError::None;
 
@@ -42,7 +42,7 @@ namespace Network
 		//char buffer[512];
 		MessageHeader header;
 		int recvBytes = sdlNetWrapper_->RecvTcp(socket, &header, sizeof(header));
-		Log("Receive : " + Network::to_string(header.msgType));
+		Log(Network::to_string(header.msgType));
 		//Log(std::string("Receive header, msg type : ") + std::to_string(header.msgType));
 
 		if (recvBytes <= 0)

@@ -6,7 +6,7 @@ class CEntityWrapper
 {
 public:
 	CEntityWrapper(CResourceManager* manager, const vec3& normalizeScale);
-	CEntityWrapper(const vec3& normalizeScale, GameEngine::ModelWrapper modelWrapper);
+	CEntityWrapper(GameEngine::ModelWrapper modelWrapper);
 	CEntity* Get();
 
 private:

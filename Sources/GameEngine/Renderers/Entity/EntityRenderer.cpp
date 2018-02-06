@@ -85,6 +85,30 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 	subscribes[index.x + index.y*gridSize].push_back(entity);
 }
 
+void CEntityRenderer::UnSubscribe(CGameObject * gameObject)
+{
+	for (auto iter = dynamicSubscribes.begin(); iter != dynamicSubscribes.end(); ++iter)
+	{
+		if ((*iter)->GetId() == gameObject->GetId())
+		{
+			dynamicSubscribes.erase(iter);
+			return;
+		}
+	}
+
+	for (auto& list : subscribes)
+	{
+		for (auto iter = list.begin(); iter != list.end(); ++iter)
+		{
+			if ((*iter)->GetId() == gameObject->GetId())
+			{
+				list.erase(iter);
+				return;
+			}
+		}
+	}
+}
+
 void CEntityRenderer::UnSubscribeAll()
 {
 	dynamicSubscribes.clear();

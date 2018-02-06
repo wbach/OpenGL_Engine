@@ -69,6 +69,11 @@ namespace GameEngine
 			for (auto& renderer : renderers_)
 				renderer->Subscribe(gameObject);
 		}
+		void RenderersManager::UnSubscribe(CGameObject* gameObject)
+		{
+			for (auto& r : renderers_)
+				r->UnSubscribe(gameObject);
+		}
 		void RenderersManager::UnSubscribeAll()
 		{
 			for (auto& r : renderers_)

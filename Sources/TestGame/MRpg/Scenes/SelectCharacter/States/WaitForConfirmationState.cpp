@@ -24,7 +24,7 @@ namespace MmmoRpg
 	void WaitForConfirmationState::SendSelectCharacterReq()
 	{
 		auto characterSelectReq = std::make_unique<Network::SelectCharacterMsgReq>();
-		characterSelectReq->id = charactersData_[gameContext_.selectedCharacterId].characterInfo.id_;
+		characterSelectReq->id = charactersData_[gameContext_.selectedCharacterId.first].characterInfo.id_;
 		gateway_.Send(characterSelectReq.get());
 		sentTime_ = std::chrono::high_resolution_clock::now();
 		Log("SelectCharacterScene::SendSelectCharacterReq : Character selected");
@@ -49,7 +49,7 @@ namespace MmmoRpg
 			break;
 		}
 
-		gameContext_.selectedCharacterId = characterId;
+		gameContext_.selectedCharacterId = { characterId, SelectedCharacterState::NOT_CONNECTED_WITH_PLAYER };
 		GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
 		addSceneEvent(e);
 		status_ = StateStatus::DONE;

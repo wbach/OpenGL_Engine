@@ -1,34 +1,19 @@
 #include "MainRpgScene.h"
-#include "SingleTon.h"
-#include "Engine/AplicationContext.h"
-#include "Engine/Engine.h"
-#include "Objects/RenderAble/Flora/Grass/Grass.h"
 #include "Camera/FirstPersonCamera.h"
 #include "Camera/ThridPersonCamera.h"
-#include "Renderers/GUI/GuiRenderer.h"
-#include "Renderers/GUI/Text/GuiText.h"
-#include "Resources/Textures/Image.h"
-#include "Objects/RenderAble/Terrain/Terrain.h"
-#include "Resources/Models/ModelFactory.h"
-
+#include "GameEngine/Objects/ObjectBuilder.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 #include "TestGame/MRpg/Characters/PlayerController.h"
-#include "Common/Hero/HeroClassesTypes.h"
-#include "Common/Controllers/CharacterController/Character.h"
-#include "Common/Controllers/CharacterController/NetworkActionsConverter.h"
-
-#include "UtilsNetwork/Messages/TransformMessages/TransformMsgResp.h"
 #include "UtilsNetwork/Messages/RemoveCharacter/DisconnectCharacterMsg.h"
 #include "UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
 #include "UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
-#include "UtilsNetwork/Messages/GetCharacterData/GetCharacterDataMsgResp.h"
-
-#include "GLM/GLMUtils.h"
-#include "Thread.hpp"
+#include "TestGame/MRpg/Handlers/GetCharacterData/GetCharacterDataHandler.h"
+#include "TestGame/MRpg/Handlers/DisconnectCharacter/DisconnectHandler.h"
 
 namespace MmmoRpg
 {
 	MainRpgScene::MainRpgScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
-		: MRpgScene("MainRpgScene", gateway, serverAddress, gameContext_)
+		: MRpgScene("MainRpgScene", gateway, serverAddress, gameContext)
 	{
 	}
 
@@ -39,214 +24,55 @@ namespace MmmoRpg
 
 	int MainRpgScene::Initialize()
 	{
+		Log("MainRpgScene::Initialize()");
+
+		modelsCreator_ = std::make_unique<ModelsCreator>(&resourceManager);
+		networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1, std::placeholders::_2));
+		
+		dispatcher_.AddHandler("GetCharacterDataHandler", new GetCharacterDataHandler(*networkCharacterManager_, gameContext_));
+		dispatcher_.AddHandler("DisconnectHandler", new DisconnectHandler(*networkCharacterManager_));
+
 		ReqNetworkSceneCharacters();
 		
-		Log("MainRpgScene::Initialize()");
 		auto bialczyk_obj = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
-		auto bialczyk = AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
-		renderersManager_->Subscribe(bialczyk);
+		AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
+		renderersManager_->Subscribe(bialczyk_obj);
+
+		//camera = std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform);
+		camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
+		playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_, gateway_);
+
 
 		dayNightCycle.SetDirectionalLight(&directionalLight);
 		dayNightCycle.SetTime(.5f);
-
-		//camera = std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform);
-		camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_, deltaTime);
-
-		if (camera != nullptr)
-		{
-			camera->CalculateInput();
-			camera->Move();
-		}
-
-		//inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]()
-		//{
-		//	GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainRpgScene");
-		//	addSceneEvent(e);
-		//});
-
-		gateway_.SubscribeOnMessageArrived("Dispatch", std::bind(&MainRpgScene::Dispatch, this, std::placeholders::_1));
 		return 0;
 	}
 
 	int MainRpgScene::Update(float dt)
 	{
 		gateway_.Update();
-
-		for (auto& character : networkCharacters_)
-		{
-			character.second->UpdateControllers(dt);
-		}
-
-		if (camera == nullptr)
-		{
-			Log("MainRpgScene::Update camera is nullptr.");
-			return -1;
-		}
-
-		deltaTime = dt;
-		gloabalTime += deltaTime;
-
-		timeClock += deltaTime;
-		if (timeClock > 1.f)
-		{
-			int hour = 0, minutes = 0;
-			dayNightCycle.GetCurrentHour(hour, minutes);
-			timeClock = 0;
-			Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
-		}		
-
-		dayNightCycle.Update(deltaTime);
-
-		CheckCollisions();
-		UpdatePlayerandCamera(deltaTime);
-
+		networkCharacterManager_->Update(dt);
+		dayNightCycle.Update(dt);
+		UpdatePlayerandCamera(dt);
 		return 0;
 	}
 
 	void MainRpgScene::UpdatePlayerandCamera(float time)
 	{
 		camera->CalculateInput();
-		std::lock_guard<std::mutex>(SingleTon<GameEngine::SAplicationContext>::Get().renderingMutex);
 		//player->Update(time);
 		camera->Move();
 	}
 
-	void MainRpgScene::CheckCollisions()
-	{
-		//for (auto& terrain : terrains)
-		//{
-		//	auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
-
-		//	if (!new_position)
-		//		continue;
-
-		//	auto ppos = player->worldTransform.GetPosition();
-		//	if (ppos.y < new_position.value().y)
-		//		player->SetPosition(new_position.value());
-		//}
-	}
-
-	TerrainTexturesMap MainRpgScene::CreateTerrainTexturesMap()
-	{
-		return
-		{
-			{ Terrain::blendMap , "Textures/Terrain/BlendMaps/testBlendMap.png" },
-			{ Terrain::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
-			{ Terrain::redTexture, "Textures/Terrain/Ground/165.png", },
-			{ Terrain::greenTexture,"Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png" },
-			{ Terrain::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-			{ Terrain::displacementMap, "Textures/Terrain/HeightMaps/heightmap.png" }
-		};
-	}
-
-	void MainRpgScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position)
-	{
-		auto terrain = ObjectBuilder::CreateTerrain(resourceManager, textures);
-		if (terrain == nullptr)
-		{
-			Error("MainRpgScene::AddTerrain : terrain is nullptr.");
-			return;
-		}
-		auto terr = AddGameObject(terrain, position);
-		terrains.push_back(terr);
-		renderersManager_->Subscribe(terr);
-	}
-
-	std::vector<float> MainRpgScene::CreateGrassPositions(CGameObject* object)
-	{
-		return {};
-	}
-
 	void MainRpgScene::ReqNetworkSceneCharacters()
 	{
+		Log("Send request");
 		auto characterMsgReq = std::make_unique<Network::GetCharactersDataMsgReq>();
 		characterMsgReq->mapId = 1;// hack id : 1
 		gateway_.Send(characterMsgReq.get());
 	}
 
-	void MainRpgScene::WaitForNetworkCharacters()
-	{
-	}
-
-	void MainRpgScene::Dispatch(const Network::BoxMessage& msg)
-	{
-		if (msg.second == nullptr)
-			return;
-
-		Log(" MainRpgScene::CheckIncomingMessages Got msg type : " + std::to_string(msg.second->GetType()));
-
-		switch (msg.second->GetType())
-		{
-			case Network::MessageTypes::DisconnectCharacter:
-			{
-				auto disconnectCharacterMsg = Network::castMessageAs<Network::DisconnectCharacterMsg>(msg.second.get());
-				if (disconnectCharacterMsg == nullptr)
-					return;
-
-				networkCharacters_.erase(disconnectCharacterMsg->id);
-					
-			}
-			break;
-			case Network::MessageTypes::GetCharacterDataResp:
-			{
-				auto getCharacterDataResp = Network::castMessageAs<Network::GetCharacterDataMsgResp>(msg.second);
-				if (getCharacterDataResp == nullptr)
-					return;
-				HandleNetworkCharacterMsg(getCharacterDataResp);
-			}
-			break;
-			case Network::MessageTypes::TransformResp:
-			{
-				auto transformMsg = Network::castMessageAs<Network::TransformMsgResp>(msg.second);
-				if (transformMsg == nullptr)
-					return;
-				HandleTransformMsg(transformMsg);
-			}
-			break;
-		}
-	}
-
-	void MainRpgScene::HandleNetworkCharacterMsg(std::shared_ptr<Network::GetCharacterDataMsgResp> msg)
-	{
-		if (networkCharacters_.count(msg->networkCharcterId) > 0)
-			return;
-
-		//NetworkCharacter(uint32 id, const vec3& scale, GameEngine::ModelWrapper modelWrapper);
-		GameEngine::ModelWrapper modelWrapper;
-		vec3 normalizedSize;
-
-	/*	switch (msg->characterData.classId)
-		{
-		case common::Hero::HeroClassesTypes::KNIGHT: 
-			break;
-		case common::Hero::HeroClassesTypes::ELF:
-			break;
-		case common::Hero::HeroClassesTypes::WIZARD:
-			break;
-		default:
-		{*/
-			auto model = GameEngine::LoadModel(&resourceManager, vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
-			normalizedSize = model->GetNormalizedScaleVector();
-			modelWrapper.Add(model, GameEngine::LevelOfDetail::L1);
-	/*	}		
-		break;
-		}*/
-
-		networkCharacters_[msg->networkCharcterId] = std::make_shared<NetworkCharacter>(msg->networkCharcterId, normalizedSize, msg->commonStats, modelWrapper);
-		
-		auto entity = networkCharacters_[msg->networkCharcterId]->GetEntity();
-		entity->dynamic = true;
-		AddGameObject(entity, msg->position);
-		renderersManager_->Subscribe(entity);
-
-		if (msg->networkCharcterId == gameContext_.selectedCharacterId)
-		{
-			//camera = std::make_unique<CThirdPersonCamera>(inputManager_, entity->worldTransform);
-			playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_.selectedCharacterId, gateway_);
-		}
-	}
-
-	void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
+	/*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
 	{
 		Log("Times test : Resp: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC) + " Action: " + std::to_string(msg->action));
 
@@ -267,10 +93,5 @@ namespace MmmoRpg
 			controller->RemoveState(common::Controllers::NetworkActionsConverter::Convert(msg->type));
 			break;
 		}		
-	}
-
-	void MainRpgScene::InitGui()
-	{
-
-	}
+	}*/
 } // MmmoRpg

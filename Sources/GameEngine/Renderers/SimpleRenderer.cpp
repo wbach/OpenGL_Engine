@@ -48,6 +48,18 @@ void SimpleRenderer::Subscribe(CGameObject * gameObject)
         subscribes.push_back(entity);
 }
 
+void SimpleRenderer::UnSubscribe(CGameObject* gameObject)
+{
+	for (auto iter = subscribes.begin(); iter != subscribes.end(); ++iter)
+	{
+		if ((*iter)->GetId() == gameObject->GetId())
+		{
+			subscribes.erase(iter);
+			return;
+		}
+	}
+}
+
 void SimpleRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
     shader.LoadTransformMatrix(transform_matrix);
