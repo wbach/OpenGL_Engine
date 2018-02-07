@@ -10,6 +10,7 @@ set(TestGameIncludes
 ../../Sources/TestGame/MRpg/Handlers/GetCharacter/GetCharactersHandler.h
 ../../Sources/TestGame/MRpg/Handlers/GetCharacterData/GetCharacterDataHandler.h
 ../../Sources/TestGame/MRpg/Handlers/SelectCharacter/SelectCharacterHandler.h
+../../Sources/TestGame/MRpg/Handlers/Transform/TransformHandler.h
 ../../Sources/TestGame/MRpg/MessageProccesing/Dispatcher.h
 ../../Sources/TestGame/MRpg/MrpgGameContext.h
 ../../Sources/TestGame/MRpg/mrpg_main.h
