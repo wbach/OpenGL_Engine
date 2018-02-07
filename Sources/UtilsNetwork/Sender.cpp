@@ -72,6 +72,7 @@ namespace Network
 	{
 		auto recvPerSec = sentBytes_;// / 1000;
 		Log("Send : " + std::to_string(recvPerSec) + " B/s");
+		std::cout << " Send : " << std::to_string(recvPerSec) << " B/s" << std::endl;
 		sentBytes_ = 0;
 	}
 

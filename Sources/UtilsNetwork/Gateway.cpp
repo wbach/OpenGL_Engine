@@ -70,13 +70,14 @@ namespace Network
 		{
 			auto& user = *iter;
 
-			RecvError err;
+			RecvError err = RecvError::None;
 			auto msg = receiver_.Receive(user.second->socket, err);
 
 			if (err == RecvError::Disconnect)
 			{
 				DisconnectUser(user.second->id);				
 				iter = context_.users.erase(iter);
+				continue;
 			}
 			else
 			{				

@@ -16,6 +16,12 @@ namespace GameServer
 				{ 62,  std::make_shared<Hero::Knight>("Baszek2 DK") },
 				{ 63,  std::make_shared<Hero::Knight>("Baszek2 BBK") },
 				});
+
+			for (int x = 100; x < 200; ++x)
+			{
+				auto name = "mock_" + std::to_string(x);
+				allCharacters_[x] = std::make_shared<Hero::Knight>(name);
+			}
 		}
 		UserCharacterVec DatabaseWrapperMock::GetCharacterByUser(uint32 id)
 		{
@@ -24,6 +30,9 @@ namespace GameServer
 			
 			if( id == 7)
 				return { 58, 62, 63 };
+
+			if (id >= 100 && id < 200)
+				return { id };
 
 			return {};
 		}
@@ -87,7 +96,7 @@ namespace GameServer
 					data.mapId = 1;
 					data.lvl = 1;
 					data.classId = 1;
-					data.name = "Mock : default";					
+					data.name = allCharacters_[id]->GetName();
 				}
 			}
 			return data;
@@ -103,11 +112,18 @@ namespace GameServer
 			switch (characterId)
 			{
 			case 98: return DatabaseTransformInfo{ 98, vec3(1.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
-			case 101: return DatabaseTransformInfo{ 98, vec3(2.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
-			case 56: return DatabaseTransformInfo{ 98, vec3(1.f, 0.f, 2.f), vec3(0.0f) }; // TO DO : more
-			case 58: return DatabaseTransformInfo{ 98, vec3(2.f, 0.f, 2.f), vec3(0.0f) }; // TO DO : more
-			case 62: return DatabaseTransformInfo{ 98, vec3(0.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
-			case 63: return DatabaseTransformInfo{ 98, vec3(2.f, 0.f, 0.f), vec3(0.0f) }; // TO DO : more
+			case 101: return DatabaseTransformInfo{ 101, vec3(2.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
+			case 56: return DatabaseTransformInfo{ 56, vec3(1.f, 0.f, 2.f), vec3(0.0f) }; // TO DO : more
+			case 58: return DatabaseTransformInfo{ 58, vec3(2.f, 0.f, 2.f), vec3(0.0f) }; // TO DO : more
+			case 62: return DatabaseTransformInfo{ 62, vec3(0.f, 0.f, 1.f), vec3(0.0f) }; // TO DO : more
+			case 63: return DatabaseTransformInfo{ 63, vec3(2.f, 0.f, 0.f), vec3(0.0f) }; // TO DO : more
+			default: 
+			{
+				float x = static_cast<float>(rand() % 1000) / 500.f;
+				float z = static_cast<float>(rand() % 1000) / 500.f;
+				return DatabaseTransformInfo{ characterId, vec3(2.f, 0.f, 0.f), vec3(x, 0.0f, z) }; // TO DO : more
+			}
+				break;
 
 			}
 			return wb::optional<DatabaseTransformInfo>();

@@ -8,6 +8,8 @@
 #include "Scenes/ScenesFactory.h"
 #include "Logger/Log.h"
 
+#include "PlayerMock.h"
+
 namespace MmmoRpg
 {
 	class Game
@@ -35,7 +37,9 @@ namespace MmmoRpg
 
 	void StartGame()
 	{
-		CLogger::Instance().EnableLogs();
-		Game game;
+		//CLogger::Instance().EnableLogs();
+		//Game game;
+
+		Mock::StartMock();
 	}
 }

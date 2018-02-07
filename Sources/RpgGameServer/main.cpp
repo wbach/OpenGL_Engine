@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	CLogger::Instance().EnableLogs();	
+	//CLogger::Instance().EnableLogs();	
 
 	Log("RPG GameServer v 0.1");
 

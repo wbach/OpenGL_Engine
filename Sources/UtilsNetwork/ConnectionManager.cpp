@@ -19,6 +19,12 @@ namespace Network
 			{ "baszekb", UserAccount{ 21, "baszekc", "haslo" } },
 			{ "baszekd", UserAccount{ 13, "baszekd", "haslo" } },
 		};
+
+		for (uint32 x = 100; x < 200; ++x)
+		{
+			auto name = "mock_" + std::to_string(x);
+			usersDb_[name] = UserAccount{ x, "name", "haslo" };
+		}
 	}
 
 	void ConnectionManager::CheckNewConnectionsToServer()

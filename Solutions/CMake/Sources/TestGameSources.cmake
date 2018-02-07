@@ -12,6 +12,7 @@ set(TestGameSources
 ../../Sources/TestGame/MRpg/Handlers/SelectCharacter/SelectCharacterHandler.cpp
 ../../Sources/TestGame/MRpg/Handlers/Transform/TransformHandler.cpp
 ../../Sources/TestGame/MRpg/mrpg_main.cpp
+../../Sources/TestGame/MRpg/PlayerMock.cpp
 ../../Sources/TestGame/MRpg/Scenes/Login/Login.cpp
 ../../Sources/TestGame/MRpg/Scenes/MainScene/MainRpgScene.cpp
 ../../Sources/TestGame/MRpg/Scenes/MRpgScene.cpp

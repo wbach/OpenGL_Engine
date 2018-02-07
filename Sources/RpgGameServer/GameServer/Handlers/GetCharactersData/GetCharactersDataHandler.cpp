@@ -39,6 +39,20 @@ namespace GameServer
 		{
 			auto msg = Network::castMessageAs<Network::GetCharacterDataMsgReq>(message.second);
 
+			auto hero = context_.manager_.GetHero(msg->networkCharacterId);
+
+			if (hero == nullptr)
+				return;
+
+			auto resp = std::make_unique<Network::GetCharacterDataMsgResp>();
+			auto& characterContext = hero->context_;
+			resp->networkCharcterId = msg->networkCharacterId;
+			resp->characterData = characterContext.data_;
+			resp->commonStats = characterContext.commonStats_;
+			resp->position = characterContext.transform_.GetPosition();
+			resp->rotation = characterContext.transform_.GetRotation();
+
+			context_.sendMessage_(message.first, resp.get());
 		}
 	} // Handler
 } // GameServer

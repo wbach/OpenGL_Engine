@@ -14,6 +14,7 @@ set(TestGameIncludes
 ../../Sources/TestGame/MRpg/MessageProccesing/Dispatcher.h
 ../../Sources/TestGame/MRpg/MrpgGameContext.h
 ../../Sources/TestGame/MRpg/mrpg_main.h
+../../Sources/TestGame/MRpg/PlayerMock.h
 ../../Sources/TestGame/MRpg/Scenes/Login/Login.h
 ../../Sources/TestGame/MRpg/Scenes/MainScene/MainRpgScene.h
 ../../Sources/TestGame/MRpg/Scenes/MRpgScene.h

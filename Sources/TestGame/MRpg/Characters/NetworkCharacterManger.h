@@ -13,7 +13,6 @@ namespace common
 
 namespace GameEngine
 {
-	class InputManager;
 	namespace Renderer
 	{
 		class RenderersManager;
