@@ -16,7 +16,7 @@ namespace GameEngine
 
 	Scene::~Scene()
 	{
-		Log(__FUNCTION__);
+		Log("");
 		if (inputManager_ != nullptr)
 		{
 			inputManager_->UnsubscribeAll();
@@ -33,9 +33,10 @@ namespace GameEngine
 		}
 	}
 
-	void Scene::AddGameObject(CGameObject* object, const vec3& position)
+	void Scene::AddGameObject(CGameObject* object, const vec3& position, const vec3& rotation)
 	{
 		object->worldTransform.SetPosition(position);
+		object->worldTransform.SetRotation(rotation);
 		gameObjects.emplace_back(object);
 	}
 

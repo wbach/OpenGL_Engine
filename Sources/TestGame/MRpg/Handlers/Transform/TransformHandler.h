@@ -1,21 +1,28 @@
 #pragma once
 #include "Common/MessageHandling/AbstractHandler.h"
 
+namespace Network
+{
+	struct TransformMsgResp;
+}
+
 namespace MmmoRpg
 {
 	class NetworkCharacterManager;
 
-	class DisconnectHandler : public common::AbstractHandler
+	class TransformHandler : public common::AbstractHandler
 	{
 	public:
-		DisconnectHandler(NetworkCharacterManager& networkCharacterManager)
-			: common::AbstractHandler({ Network::MessageTypes::DisconnectCharacter })
+		TransformHandler(NetworkCharacterManager& networkCharacterManager)
+			: common::AbstractHandler({ Network::MessageTypes::TransformResp })
 			, networkCharacterManager_(networkCharacterManager)
 		{
 		}
 
 	protected:
 		virtual void ProcessMessage(const Network::BoxMessage& message) override;
+		void HandleTransformMsg(const Network::TransformMsgResp& msg);
 		NetworkCharacterManager&  networkCharacterManager_;
 	};
+
 } // MmmoRpg

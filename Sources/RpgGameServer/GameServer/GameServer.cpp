@@ -31,11 +31,10 @@ namespace GameServer
 			{
 			//distributeHandler,
 			{ "distributeHandler" , selectCharacterHandler },
-			{ "distributeHandler" , characterControllerHandler },
-			{ "distributeHandler" , getCharactersHandler },
-			{ "distributeHandler" , getCharacterDataHandler }
+			{ "getCharactersHandler" , characterControllerHandler },
+			{ "selectCharacterHandler" , getCharactersHandler },
+			{ "getCharacterDataHandler" , getCharacterDataHandler }
 			});
-
 
 		gateway_->SubscribeOnMessageArrived("Dispat", std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
 

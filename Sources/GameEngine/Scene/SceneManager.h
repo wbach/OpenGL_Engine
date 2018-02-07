@@ -31,6 +31,7 @@ namespace GameEngine
 		void RuntimeLoadObjectToGpu();
 		void Update();		
 		void SetActiveScene(const std::string& name);		
+		void Reset();
 
 	private:
 		void ProccessEvents();

@@ -41,7 +41,7 @@ namespace GameEngine
 		const std::string& GetName() { return name; }
 
 		// Add Entities
-		void AddGameObject(CGameObject* object, const vec3& position = vec3(0.f));
+		void AddGameObject(CGameObject* object, const vec3& position = vec3(0.f), const vec3& rotation = vec3(0.0f));
 		void SetAddSceneEventCallback(AddEvent func);
 
 		// GetObjects

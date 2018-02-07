@@ -73,6 +73,11 @@ namespace GameEngine
 		LoadScene(name);
 	}
 
+	void SceneManager::Reset()
+	{
+		sceneWrapper_.Reset();
+	}
+
 	void SceneManager::UpadteScene(float dt)
 	{
 		if (!sceneWrapper_.IsInitialized())

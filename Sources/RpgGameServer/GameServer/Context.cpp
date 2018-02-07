@@ -13,11 +13,13 @@ void Context::NewUser(const std::string& name, uint32 id)
 
 void Context::DeleteUser(uint32 id)
 {
+	Log("");
+
 	std::lock_guard<std::mutex> lk(usersMutex);
 	auto usageCharacter = users_[id].GetUsageCharacterId();
 
 	if (usageCharacter)
-		manager_.RemoveHero(id);
+		manager_.RemoveHero(usageCharacter.value());
 
 	users_.erase(id);
 

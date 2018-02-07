@@ -40,6 +40,7 @@ namespace GameServer
 	}
 	void Manager::RemoveHero(uint32 id)
 	{
+		Log("");
 		for (auto& m : maps_)
 		{
 			auto character = m.GetCharacter(id);

@@ -20,6 +20,7 @@ namespace GameEngine
 	{
 	public:
 		InputManager();
+		~InputManager();
 		void SetDefaultKeys();
 		virtual bool GetKey(KeyCodes::Type i) = 0;
 		virtual bool GetMouseKey(KeyCodes::Type key) = 0;

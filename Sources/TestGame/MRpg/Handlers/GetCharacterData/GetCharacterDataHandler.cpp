@@ -19,7 +19,7 @@ namespace MmmoRpg
 
 	void GetCharacterDataHandler::HandleNetworkCharacterMsg(const Network::GetCharacterDataMsgResp& data)
 	{
-		networkCharacterManager_.AddCharacter(data.networkCharcterId, data.characterData.classId, data.position, data.commonStats);
+		networkCharacterManager_.AddCharacter(data.networkCharcterId, data.characterData.classId, data.position, data.rotation, data.commonStats);
 
 		if (data.networkCharcterId == gameContext_.selectedCharacterId.first)
 			gameContext_.selectedCharacterId.second = SelectedCharacterState::READY_TO_USE;

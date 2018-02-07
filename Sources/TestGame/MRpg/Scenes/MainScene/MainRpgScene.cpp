@@ -9,6 +9,7 @@
 #include "UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
 #include "TestGame/MRpg/Handlers/GetCharacterData/GetCharacterDataHandler.h"
 #include "TestGame/MRpg/Handlers/DisconnectCharacter/DisconnectHandler.h"
+#include "TestGame/MRpg/Handlers/Transform/TransformHandler.h"
 
 namespace MmmoRpg
 {
@@ -27,10 +28,11 @@ namespace MmmoRpg
 		Log("MainRpgScene::Initialize()");
 
 		modelsCreator_ = std::make_unique<ModelsCreator>(&resourceManager);
-		networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1, std::placeholders::_2));
+		networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 		
 		dispatcher_.AddHandler("GetCharacterDataHandler", new GetCharacterDataHandler(*networkCharacterManager_, gameContext_));
 		dispatcher_.AddHandler("DisconnectHandler", new DisconnectHandler(*networkCharacterManager_));
+		dispatcher_.AddHandler("TransformHandler", new TransformHandler(*networkCharacterManager_));
 
 		ReqNetworkSceneCharacters();
 		

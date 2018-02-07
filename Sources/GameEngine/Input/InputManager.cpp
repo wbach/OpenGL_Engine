@@ -7,6 +7,10 @@ namespace GameEngine
 		SetDefaultKeys();
 	}
 
+	InputManager::~InputManager()
+	{
+	}
+
 	void InputManager::SetDefaultKeys()
 	{
 		keyGameActions[GameActions::MOVE_FORWARD] = KeyCodes::W;

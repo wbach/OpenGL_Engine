@@ -5,7 +5,7 @@ class CGameObject;
 
 namespace Network
 {
-	class GetCharacterDataMsgResp;
+	struct GetCharacterDataMsgResp;
 } // Network
 
 namespace MmmoRpg

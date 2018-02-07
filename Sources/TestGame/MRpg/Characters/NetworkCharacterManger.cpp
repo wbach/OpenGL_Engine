@@ -11,7 +11,7 @@ namespace MmmoRpg
 	{
 	}
 
-	void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3& position, const common::Hero::CommonStats& stats)
+	void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3& position, const vec3& rotation, const common::Hero::CommonStats& stats)
 	{
 		if (networkCharacters_.count(id) > 0)
 			return;
@@ -20,7 +20,7 @@ namespace MmmoRpg
 		networkCharacters_[id] = std::make_shared<NetworkCharacter>(id, stats, modelWrapper);
 		auto entity = networkCharacters_[id]->GetEntity();
 		entity->dynamic = true;
-		addObject_(entity, position);
+		addObject_(entity, position, rotation);
 		rendererManager_.Subscribe(entity);
 	}
 	void NetworkCharacterManager::Update(float deltaTime)
@@ -36,5 +36,12 @@ namespace MmmoRpg
 			return;
 		rendererManager_.UnSubscribe(networkCharacters_[id]->GetEntity());
 		networkCharacters_.erase(id);
+	}
+	NetworkCharacter* NetworkCharacterManager::GetCharacter(uint32 id)
+	{
+		if (networkCharacters_.count(id) == 0)
+			return nullptr;
+		
+		return networkCharacters_[id].get();
 	}
 } // MmmoRpg

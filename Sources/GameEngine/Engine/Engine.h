@@ -28,9 +28,9 @@ namespace GameEngine
 
 	public:
 		Renderer::Gui::GuiContext guiContext_;
+		SceneManager sceneManager_;
 		InputManagerPtr inputManager_;
 		Renderer::RenderersManager renderersManager_;
-		SceneManager sceneManager_;
 
 	private:
 		void ReadConfigFile(const std::string& file_name);

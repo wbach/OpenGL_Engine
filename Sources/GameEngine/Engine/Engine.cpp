@@ -11,6 +11,7 @@ namespace GameEngine
 	CEngine::CEngine(SceneFactoryBasePtr sceneFactory)
 		: displayManager(nullptr)
 		, sceneManager_(sceneFactory, displayManager, inputManager_, renderersManager_, guiContext_)
+		, inputManager_(nullptr)
 		, introRenderer_(displayManager)
 	{
 		ReadConfigFile("./Conf.xml");
@@ -19,7 +20,8 @@ namespace GameEngine
 
 	CEngine::~CEngine()
 	{
-		Log(__FUNCTION__);
+		sceneManager_.Reset();
+		Log("");
 		EngineConf_SaveRequiredFiles();
 	}
 
