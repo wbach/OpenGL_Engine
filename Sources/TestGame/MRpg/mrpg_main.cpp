@@ -37,9 +37,7 @@ namespace MmmoRpg
 
 	void StartGame()
 	{
-		//CLogger::Instance().EnableLogs();
-		//Game game;
-
-		Mock::StartMock();
+		Game game;
+		//Mock::StartMock();
 	}
 }

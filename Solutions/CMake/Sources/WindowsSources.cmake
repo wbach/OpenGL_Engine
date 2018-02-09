@@ -1,4 +1,5 @@
 if(MINGW)
+   message(STATUS "MINGW : ON")
     include_directories(
         ../../Tools/Windows/Mingw
         ../../Tools/Windows/rapidxml-1.13/

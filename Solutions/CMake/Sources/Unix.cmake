@@ -1,4 +1,5 @@
 if(UNIX)
+	message(STATUS "Unix : ON")
 	include_directories(/usr/include/freetype2)
 	
 	if(BUILD_I386)

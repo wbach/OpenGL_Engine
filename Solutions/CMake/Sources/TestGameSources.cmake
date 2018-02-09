@@ -1,7 +1,6 @@
 set(TestGameSources
 ../../Sources/TestGame/GuiEdytorScene.cpp
 ../../Sources/TestGame/main.cpp
-../../Sources/TestGame/MainScene.cpp
 ../../Sources/TestGame/MRpg/Characters/ModelsCreator.cpp
 ../../Sources/TestGame/MRpg/Characters/NetworkCharacter.cpp
 ../../Sources/TestGame/MRpg/Characters/NetworkCharacterManger.cpp
@@ -22,4 +21,8 @@ set(TestGameSources
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/SelectingCharacterState.cpp
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/WaitForConfirmationState.cpp
 ../../Sources/TestGame/Player.cpp
+../../Sources/TestGame/Single/PlayerInputController.cpp
+../../Sources/TestGame/Single/Scene/MainScene.cpp
+../../Sources/TestGame/Single/Scene/TestSceneFactory.cpp
+../../Sources/TestGame/Single/SingleStart.cpp
 )

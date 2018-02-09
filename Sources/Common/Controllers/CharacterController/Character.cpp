@@ -2,17 +2,18 @@
 #include "Logger/Log.h"
 #include <algorithm>
 #include "math.hpp"
-
+#include "GLM/GLMUtils.h" // to remove
 namespace common
 {
 	namespace Controllers
 	{
-		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower)
+		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower, OnUpdate onUpdate)
 			: IController(CharacterControllerType)
 			, transform_(transform)
 			, turnSpeed_(turnSpeed)
 			, jumpPower_(jumpPower)
 			, runSpeed_(runSpeed)
+			, onUpdate_(onUpdate)
 			, moveTime_(1000.0f)
 		{
 			referenceTime = std::chrono::high_resolution_clock::now();
@@ -20,7 +21,7 @@ namespace common
 
 		void CharacterController::SetPosition(const glm::vec3 & p)
 		{
-		    transform_.SetPosition(p);
+			transform_.SetPosition(p);
 		}
 
 		void CharacterController::Update(float deltaTime)
@@ -40,7 +41,7 @@ namespace common
 
 			case CharacterActions::ROTATE_LEFT:	 RotateState(state, time); break;
 			case CharacterActions::ROTATE_RIGHT: RotateState(state, time); break;
-			}
+			}			
 		}
 
 		void CharacterController::Jump()
@@ -56,7 +57,7 @@ namespace common
 		{
 			if (action == CharacterActions::MOVE_FORWARD)
 				MoveForward();
-			
+
 			if (action == CharacterActions::MOVE_BACKWARD)
 				MoveBackward();
 
@@ -85,10 +86,11 @@ namespace common
 
 		void CharacterController::SetRotateStateInfo(RotationDirection dir)
 		{
-			rotateStateInfo.startValue		= transform_.GetRotation().y;
-			rotateStateInfo.currentValue	= turnSpeed_ * moveTime_ * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
-			rotateStateInfo.startTime		= GetTime();
-			rotateStateInfo.endTime			= rotateStateInfo.startTime + moveTime_;
+			rotateStateInfo.startValue = transform_.GetRotation().y;
+			rotateStateInfo.currentValue = turnSpeed_ * moveTime_ * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
+			rotateStateInfo.startTime = GetTime();
+			rotateStateInfo.direction = dir;
+			rotateStateInfo.endTime = rotateStateInfo.startTime + moveTime_;
 		}
 
 		void CharacterController::RotateLeft()
@@ -108,12 +110,12 @@ namespace common
 
 			states.remove(CharacterActions::ROTATE_LEFT);
 			states.push_front(CharacterActions::ROTATE_RIGHT);
-			SetRotateStateInfo(RotationDirection::RIGHT);	
+			SetRotateStateInfo(RotationDirection::RIGHT);
 		}
 
 		void CharacterController::RotateState(std::list<CharacterActions::Type>::iterator& state, float time)
 		{
-			float rotateValue = CalculateNewValueInTimeInterval<float>(rotateStateInfo, time);
+			float rotateValue = CalculateNewValueInTimeInterval<float, RotationDirection>(rotateStateInfo, time);
 
 			LockRotate(rotateValue);
 
@@ -140,14 +142,15 @@ namespace common
 		{
 			if (FindState(CharacterActions::MOVE_FORWARD))
 				return;
-			
+
 			states.remove(CharacterActions::MOVE_BACKWARD);
 			states.push_front(CharacterActions::MOVE_FORWARD);
 
-			moveStateInfo.startValue	= transform_.GetPositionXZ();
-			moveStateInfo.currentValue	= CalculateMoveVector(Direction::FORWARD) * moveTime_;
-			moveStateInfo.startTime		= GetTime();
-			moveStateInfo.endTime		= moveStateInfo.startTime + moveTime_;
+			moveStateInfo.startValue = transform_.GetPositionXZ();
+			moveStateInfo.currentValue = CalculateMoveVector(Direction::FORWARD) * moveTime_;
+			moveStateInfo.direction = Direction::FORWARD;
+			moveStateInfo.startTime = GetTime();
+			moveStateInfo.endTime = moveStateInfo.startTime + moveTime_;
 		}
 
 		void CharacterController::MoveBackward()
@@ -158,23 +161,33 @@ namespace common
 			states.remove(CharacterActions::MOVE_FORWARD);
 			states.push_front(CharacterActions::MOVE_BACKWARD);
 
-			moveStateInfo.startValue	= transform_.GetPositionXZ();
-			moveStateInfo.currentValue	= CalculateMoveVector(Direction::BACKWARD) * moveTime_;
-			moveStateInfo.startTime		= GetTime();
-			moveStateInfo.endTime		= moveStateInfo.startTime + moveTime_;
+			moveStateInfo.startValue = transform_.GetPositionXZ();
+			moveStateInfo.currentValue = CalculateMoveVector(Direction::BACKWARD) * moveTime_;
+			moveStateInfo.direction = Direction::BACKWARD;
+			moveStateInfo.startTime = GetTime();
+			moveStateInfo.endTime = moveStateInfo.startTime + moveTime_;
 		}
+
 
 		void CharacterController::MoveState(std::list<CharacterActions::Type>::iterator & state, float time)
 		{
-			vec2 rotateValue = CalculateNewValueInTimeInterval<vec2>(moveStateInfo, time);
+			vec2 rotateValue = CalculateNewValueInTimeInterval<vec2, Direction>(moveStateInfo, time);
 			transform_.SetPosition(vec3(rotateValue.x, 0, rotateValue.y));
+			if (onUpdate_ != nullptr)
+				onUpdate_(transform_.GetPosition());
 			RemoveStateIfTimeElapsed(state, time, moveStateInfo.endTime);
+
+			float dt = (moveStateInfo.endTime - time) / moveTime_;
+			moveStateInfo.startValue = transform_.GetPositionXZ();
+			moveStateInfo.currentValue = CalculateMoveVector(moveStateInfo.direction) * moveTime_;
+			moveStateInfo.currentValue *= dt;
+			moveStateInfo.startTime = time;
 		}
 
 		vec2 CharacterController::CalculateMoveVector(Direction direction)
 		{
 			float rad = Utils::ToRadians(transform_.GetRotation().y);
-			auto v = vec2(runSpeed_ * (direction == Direction::BACKWARD ? -1.f : 1.f) );
+			auto v = vec2(runSpeed_ * (direction == Direction::BACKWARD ? -1.f : 1.f));
 			v.x *= sin(rad);
 			v.y *= cos(rad);
 

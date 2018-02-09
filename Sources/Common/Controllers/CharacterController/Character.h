@@ -25,19 +25,22 @@ namespace common
 		RIGHT
 	};
 
-	template<class T>
+	template<class T, class D>
 	struct SEventInfo
 	{
 		T startValue;
 		T currentValue;
+		D direction;
 		float startTime;
 		float endTime;
 	};
 
 	class CharacterController : public IController
 	{
+		typedef std::function<void (const vec3&)> OnUpdate;
+
 	public:
-		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
+		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower, OnUpdate onUpdate = nullptr);
 		virtual void Update(float dt) override;
 		void AddState(CharacterActions::Type action);
 		void RemoveState(CharacterActions::Type action);
@@ -64,8 +67,8 @@ namespace common
 		void MoveState(std::list<CharacterActions::Type>::iterator& state, float time);
 		vec2 CalculateMoveVector(Direction direction);
 
-		template<class T>
-		T CalculateNewValueInTimeInterval(SEventInfo<T>& t, float time)
+		template<class T, class D>
+		T CalculateNewValueInTimeInterval(SEventInfo<T, D>& t, float time)
 		{
 			return t.startValue + t.currentValue * (time - t.startTime) / (t.endTime - t.startTime);
 		}
@@ -73,19 +76,20 @@ namespace common
 	private:
 		Timepoint referenceTime;
 		CharacterActions::Type action = CharacterActions::IDLE;
+		OnUpdate onUpdate_;
 		common::Transform& transform_;
 
-		float moveTime_ = 0.05f;
-		float runSpeed_ = 0.0f;
-		float turnSpeed_ = 0.0f;
-		float jumpPower_ = 0.0f;
+		float moveTime_;
+		float runSpeed_;
+		float turnSpeed_;
+		float jumpPower_;
 		bool isGrounded = false;
 		float upwardsSpeed = 0.f;
 
 		std::list<CharacterActions::Type> states;
 
-		SEventInfo<vec2>  moveStateInfo;
-		SEventInfo<float> rotateStateInfo;
+		SEventInfo<vec2, Direction>  moveStateInfo;
+		SEventInfo<float, RotationDirection> rotateStateInfo;
 	};
 	} // Controllers
 } // common

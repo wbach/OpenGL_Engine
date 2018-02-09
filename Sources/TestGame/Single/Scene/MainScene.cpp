@@ -1,14 +1,14 @@
 #include "MainScene.h"
 #include "SingleTon.h"
-#include "../GameEngine/Engine/AplicationContext.h"
-#include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
-#include "../GameEngine/Camera/FirstPersonCamera.h"
-#include "../GameEngine/Camera/ThridPersonCamera.h"
-#include "../GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "../GameEngine/Renderers/GUI/Text/GuiText.h"
-#include "../GameEngine/Resources/Textures/Image.h"
-#include "../GameEngine/Objects/RenderAble/Terrain/Terrain.h"
+#include "GameEngine/Engine/AplicationContext.h"
+#include "GameEngine/Engine/Engine.h"
+#include "GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
+#include "GameEngine/Camera/FirstPersonCamera.h"
+#include "GameEngine/Camera/ThridPersonCamera.h"
+#include "GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Renderers/GUI/Text/GuiText.h"
+#include "GameEngine/Resources/Textures/Image.h"
+#include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -40,10 +40,19 @@ int MainScene::Initialize()
  //   auto crate_2 = AddGameObject(crate_obj_2, glm::vec3(10,0, -5));
  //   engine.renderers[0]->Subscribe(crate_2);
 
-    player = new CPlayer(inputManager_, resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
-    player->dynamic = true;
-    AddGameObject(player, glm::vec3(1,0,1));
+ //   player = new CPlayer(inputManager_, resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+ //   player->dynamic = true;
+ //   AddGameObject(player, glm::vec3(1,0,1));
+	//renderersManager_->Subscribe(player);
+
+
+	auto player = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+	AddGameObject(player, glm::vec3(1, 0, 1));
 	renderersManager_->Subscribe(player);
+
+	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower, std::bind(&MainScene::OnPlayerPositionUpdate, this, std::placeholders::_1));
+	playerInputController_ = std::make_shared<PlayerInputController>(inputManager_, characterController_.get());
+
 
     //auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "Meshes/smallHouse1/smallHouse1.obj", "Example/monkey.obj", "Example/cube.obj");
     //auto small_house = AddGameObject(small_hause_obj, glm::vec3(15.f, 0.f, 35.f));
@@ -127,13 +136,12 @@ void MainScene::UpdatePlayerandCamera(float time)
 {
 	camera->CalculateInput();
 	std::lock_guard<std::mutex>(SingleTon<GameEngine::SAplicationContext>::Get().renderingMutex);
-    player->Update(time);
-    camera->Move();
+	characterController_->Update(time);   
 }
 
 void MainScene::CheckCollisions()
 {
-	for (auto& terrain : terrains)
+	/*for (auto& terrain : terrains)
 	{
         auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
 
@@ -143,7 +151,13 @@ void MainScene::CheckCollisions()
         auto ppos = player->worldTransform.GetPosition();
 		if (ppos.y < new_position.value().y)
 			player->SetPosition(new_position.value());
-	}
+	}*/
+}
+
+void MainScene::OnPlayerPositionUpdate(const vec3& position)
+{
+	//lookAtCameraTransform_.SetPosition(position);
+	camera->Move();
 }
 
 TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
@@ -161,7 +175,7 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 
 void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position)
 {
-	//, CreateGrassPositions(), "../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
+	//, CreateGrassPositions(), "Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     auto terrain = ObjectBuilder::CreateTerrain(resourceManager, textures);
 	if (terrain == nullptr)
 	{
@@ -222,7 +236,7 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 
  //   SGrass* grass = new SGrass();
  //   grass->model = new CModel();
- //   grass_material.m_DiffuseTexture = m_ResourceManager.GetTextureLaoder().LoadTexture("../Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+ //   grass_material.m_DiffuseTexture = m_ResourceManager.GetTextureLaoder().LoadTexture("Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
  //   grass->model->AddMesh(grass_position, empty_float_vec, empty_float_vec, empty_float_vec, indicies, grass_material, empty_bones);
  //   m_ResourceManager.AddModel(grass->model);
  //   engine.m_Renderers[0]->Subscribe(grass);

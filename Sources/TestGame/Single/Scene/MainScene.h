@@ -1,8 +1,10 @@
 #pragma once
-#include "../GameEngine/Scene/Scene.hpp"
-#include "../GameEngine/Engine/Debuger.h"
-#include "../GameEngine/Objects/ObjectBuilder.h"
-#include "Player.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Engine/Debuger.h"
+#include "GameEngine/Objects/ObjectBuilder.h"
+#include "Common/Controllers/CharacterController/Character.h"
+#include "TestGame/Single/PlayerInputController.h"
+#include "Common/Hero/Stats.h"
 #include <map>
 
 class CPlayer;
@@ -22,12 +24,18 @@ private:
 	void ReloadShadersInRenderer();
 	void DebugRenderOptionsControl();
 	void CheckCollisions();
+	void OnPlayerPositionUpdate(const vec3& position);
 	void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 	TerrainTexturesMap CreateTerrainTexturesMap();
 	std::vector<float> CreateGrassPositions(CGameObject*);
 
 private:
-	CPlayer* player;
+	std::shared_ptr<common::Controllers::CharacterController> characterController_;
+	std::shared_ptr<PlayerInputController> playerInputController_;
+	common::Hero::CommonStats playerStats_;
+
+	common::Transform lookAtCameraTransform_;
+
 	std::vector<CGameObject*> terrains;
 	double timeClock = 0;
 	CDebuger debuger;

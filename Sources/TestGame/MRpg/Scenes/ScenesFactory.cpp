@@ -17,7 +17,7 @@ namespace MmmoRpg
 		AddScene("MainRpgScene", std::bind(&SceneFactory::CreateMainScene, this));
 		AddScene("GuiEdytorScene", std::bind(&SceneFactory::CreateGuiEditorScene, this));
 	}
-	
+
 	GameEngine::ScenePtr SceneFactory::CreateMainScene()
 	{
 		return std::make_unique<MainRpgScene>(gateway_, serverAdress_, gameContext_);

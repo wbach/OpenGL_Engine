@@ -1,7 +1,6 @@
 set(TestGameIncludes
 ../../Sources/TestGame/CharacterStats.h
 ../../Sources/TestGame/GuiEdytorScene.h
-../../Sources/TestGame/MainScene.h
 ../../Sources/TestGame/MRpg/Characters/ModelsCreator.h
 ../../Sources/TestGame/MRpg/Characters/NetworkCharacter.h
 ../../Sources/TestGame/MRpg/Characters/NetworkCharacterManger.h
@@ -26,4 +25,8 @@ set(TestGameIncludes
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/SelectingCharacterState.h
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/WaitForConfirmationState.h
 ../../Sources/TestGame/Player.h
+../../Sources/TestGame/Single/PlayerInputController.h
+../../Sources/TestGame/Single/Scene/MainScene.h
+../../Sources/TestGame/Single/Scene/TestSceneFactory.h
+../../Sources/TestGame/Single/SingleStart.h
 )
