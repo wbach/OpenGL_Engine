@@ -89,7 +89,6 @@ namespace GameEngine
 		}
 		void RenderersManager::Render(Scene* scene, CRenderer* renderer)
 		{
-			std::lock_guard<std::mutex>(SingleTon<SAplicationContext>::Get().renderingMutex);
 			renderer->PrepareFrame(scene);
 			renderer->Render(scene);
 			renderer->EndFrame(scene);

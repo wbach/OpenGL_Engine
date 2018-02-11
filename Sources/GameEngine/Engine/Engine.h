@@ -24,6 +24,7 @@ namespace GameEngine
 		void Init();
 		void GameLoop();
 		void AddEngineEvent(EngineEvent event);
+		void Render();
 		CDisplayManager & GetDisplayManager();
 
 	public:

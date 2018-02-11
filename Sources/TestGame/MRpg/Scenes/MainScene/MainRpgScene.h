@@ -7,7 +7,7 @@
 
 namespace MmmoRpg
 {
-	class PlayerController;
+	class PlayerController;	
 
 	class MainRpgScene : public MRpgScene
 	{
@@ -23,6 +23,7 @@ namespace MmmoRpg
 
 	private:
 		void ReqNetworkSceneCharacters();
+		void OnGetPlayer(NetworkCharacter* character);
 
 	private:
 		std::shared_ptr<PlayerController> playerController_;

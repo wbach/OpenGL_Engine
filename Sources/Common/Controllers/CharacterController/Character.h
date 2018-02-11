@@ -40,7 +40,7 @@ namespace common
 		typedef std::function<void (const vec3&)> OnUpdate;
 
 	public:
-		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower, OnUpdate onUpdate = nullptr);
+		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
 		virtual void Update(float dt) override;
 		void AddState(CharacterActions::Type action);
 		void RemoveState(CharacterActions::Type action);
@@ -70,13 +70,19 @@ namespace common
 		template<class T, class D>
 		T CalculateNewValueInTimeInterval(SEventInfo<T, D>& t, float time)
 		{
-			return t.startValue + t.currentValue * (time - t.startTime) / (t.endTime - t.startTime);
+			float totalMoveTime = t.endTime - t.startTime;
+
+			if (fabs(totalMoveTime) < FLT_EPSILON)
+			{
+				return t.startValue;
+			}
+
+			return t.startValue + t.currentValue * (time - t.startTime) / totalMoveTime;
 		}
 
 	private:
 		Timepoint referenceTime;
 		CharacterActions::Type action = CharacterActions::IDLE;
-		OnUpdate onUpdate_;
 		common::Transform& transform_;
 
 		float moveTime_;

@@ -4,6 +4,9 @@
 #include "../../Objects/RenderAble/Entity/Entity.h"
 #include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
+#include "SingleTon.h"
+#include "GameEngine/Engine/AplicationContext.h"
+
 #include "OpenGL/OpenGLUtils.h"
 #include "Logger/Log.h"
 
@@ -14,6 +17,7 @@ CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* f
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
 	, clipPlane(vec4(0, 1, 0, 100000))
+	, attachedToCamera_(nullptr)
 {
 	subscribes.resize(gridSize * gridSize);
 }
@@ -34,7 +38,21 @@ void CEntityRenderer::Init()
 void CEntityRenderer::PrepareFrame(GameEngine::Scene * scene)
 {
 	shader.Start();
-	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+
+	{
+		// synchronize threads (camera = > following object
+		if (attachedToCamera_ != nullptr)
+		{
+			//std::lock_guard<std::mutex> tl(attachedToCamera_->worldTransform.transformMutex);
+			attachedCameraTransformMatrix_ = attachedToCamera_->worldTransform.GetMatrix();
+			shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+		}
+		else
+		{
+			shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+		}		
+	}
+
 	shader.LoadClipPlane(clipPlane);
 	shader.LoadShadowValues(0.f, 10.f, 10.f);
 
@@ -52,8 +70,9 @@ void CEntityRenderer::Render(GameEngine::Scene * scene)
 	shader.Start();
 
 	auto index = CalcualteCoorditantes(scene->GetCamera()->GetPosition());
-
-    RenderDynamicsEntities();
+	
+	RenderAttachedToCamera();
+	RenderDynamicsEntities();
     RenderStaticEntities(index);
 	shader.Stop();
 }
@@ -69,6 +88,12 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 
 	if (entity == nullptr)
 		return;
+
+	if (entity->attachedToCamera)
+	{
+		attachedToCamera_ = entity;
+		return;
+	}
 
 	if (entity->dynamic)
 	{
@@ -143,10 +168,20 @@ void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix
 
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader.LoadTransformMatrix(transform_matrix_);
-
     glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
 
     UnBindMaterial(mesh.GetMaterial());
+}
+
+void CEntityRenderer::RenderAttachedToCamera()
+{
+	if (attachedToCamera_ == nullptr)
+		return;
+
+	if (attachedToCamera_->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
+		return;
+
+	RenderModel(attachedToCamera_->GetModel(GameEngine::LevelOfDetail::L1), attachedCameraTransformMatrix_);
 }
 
 void CEntityRenderer::RenderDynamicsEntities()
@@ -157,7 +192,7 @@ void CEntityRenderer::RenderDynamicsEntities()
             Log("[Error] Null subsciber in EnityRenderer.");
         if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
             continue;
-
+		
         RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
     }
 }

@@ -1,12 +1,14 @@
 #include "NetworkCharacterManger.h"
 #include "ModelsCreator.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "TestGame/MRpg/MrpgGameContext.h"
 
 namespace MmmoRpg
 {
-	NetworkCharacterManager::NetworkCharacterManager(ModelsCreator* modelCreator, GameEngine::Renderer::RenderersManager& rendererManager, AddObject addObject)
+	NetworkCharacterManager::NetworkCharacterManager(ModelsCreator* modelCreator, GameEngine::Renderer::RenderersManager& rendererManager, MrpgGameContext& gameContext, AddObject addObject)
 		: modelCreator_(modelCreator)
 		, rendererManager_(rendererManager)
+		, gameContext_(gameContext)
 		, addObject_(addObject)
 	{
 	}
@@ -19,8 +21,19 @@ namespace MmmoRpg
 		auto modelWrapper = modelCreator_->CreateHero(classId);
 		networkCharacters_[id] = std::make_shared<NetworkCharacter>(id, stats, modelWrapper);
 		auto entity = networkCharacters_[id]->GetEntity();
-		entity->dynamic = true;
+		entity->dynamic = true;		
 		addObject_(entity, position, rotation);
+		
+
+		if (id == gameContext_.selectedCharacterId.first)
+		{
+			gameContext_.selectedCharacterId.second = SelectedCharacterState::READY_TO_USE;
+			entity->attachedToCamera = true; // hack?
+
+			for (auto& s : onPlayerSubscribers_)
+				s(networkCharacters_[id].get());
+		}
+
 		rendererManager_.Subscribe(entity);
 	}
 	void NetworkCharacterManager::Update(float deltaTime)
@@ -43,5 +56,9 @@ namespace MmmoRpg
 			return nullptr;
 		
 		return networkCharacters_[id].get();
+	}
+	void NetworkCharacterManager::SubscribeOnGetPlayer(OnGetPlayer f)
+	{
+		onPlayerSubscribers_.push_back(f);
 	}
 } // MmmoRpg

@@ -16,6 +16,7 @@ public:
 
 public:
     bool dynamic = false;
+	bool attachedToCamera = false;
 
 private:
 	vec3 normalizedScale_;

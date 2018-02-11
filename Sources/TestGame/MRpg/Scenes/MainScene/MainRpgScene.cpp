@@ -10,6 +10,8 @@
 #include "TestGame/MRpg/Handlers/GetCharacterData/GetCharacterDataHandler.h"
 #include "TestGame/MRpg/Handlers/DisconnectCharacter/DisconnectHandler.h"
 #include "TestGame/MRpg/Handlers/Transform/TransformHandler.h"
+#include "SingleTon.h"
+#include "GameEngine/Engine/AplicationContext.h"
 
 namespace MmmoRpg
 {
@@ -28,9 +30,10 @@ namespace MmmoRpg
 		Log("MainRpgScene::Initialize()");
 
 		modelsCreator_ = std::make_unique<ModelsCreator>(&resourceManager);
-		networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-		
-		dispatcher_.AddHandler("GetCharacterDataHandler", new GetCharacterDataHandler(*networkCharacterManager_, gameContext_));
+		networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+		networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
+
+		dispatcher_.AddHandler("GetCharacterDataHandler", new GetCharacterDataHandler(*networkCharacterManager_));
 		dispatcher_.AddHandler("DisconnectHandler", new DisconnectHandler(*networkCharacterManager_));
 		dispatcher_.AddHandler("TransformHandler", new TransformHandler(*networkCharacterManager_));
 
@@ -40,8 +43,8 @@ namespace MmmoRpg
 		AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
 		renderersManager_->Subscribe(bialczyk_obj);
 
-		//camera = std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform);
-		camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
+		
+		//camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
 		playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_, gateway_);
 
 
@@ -62,7 +65,6 @@ namespace MmmoRpg
 	void MainRpgScene::UpdatePlayerandCamera(float time)
 	{
 		camera->CalculateInput();
-		//player->Update(time);
 		camera->Move();
 	}
 
@@ -72,6 +74,11 @@ namespace MmmoRpg
 		auto characterMsgReq = std::make_unique<Network::GetCharactersDataMsgReq>();
 		characterMsgReq->mapId = 1;// hack id : 1
 		gateway_.Send(characterMsgReq.get());
+	}
+
+	void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
+	{
+		camera = std::make_unique<CThirdPersonCamera>(inputManager_, character->GetEntity()->worldTransform);
 	}
 
 	/*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)

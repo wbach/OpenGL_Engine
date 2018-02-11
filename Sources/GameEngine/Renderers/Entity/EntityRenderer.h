@@ -23,6 +23,7 @@ public:
 private:
     void RenderModel(CModel* model, const mat4& transform_matrix) const;
     void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
+	void RenderAttachedToCamera();
     void RenderDynamicsEntities();
     void RenderStaticEntities(const wb::vec2i& index);
     wb::vec2i CalcualteCoorditantes(const vec3& v) const;
@@ -36,6 +37,8 @@ private:
 
     vec4 clipPlane;
 
+	CEntity* attachedToCamera_;
+	glm::mat4 attachedCameraTransformMatrix_;
     std::list<CEntity*> dynamicSubscribes;
     std::vector<std::list<CEntity*>> subscribes;
 

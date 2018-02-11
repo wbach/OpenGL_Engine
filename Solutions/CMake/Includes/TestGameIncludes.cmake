@@ -24,7 +24,6 @@ set(TestGameIncludes
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/ISelectState.h
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/SelectingCharacterState.h
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/WaitForConfirmationState.h
-../../Sources/TestGame/Player.h
 ../../Sources/TestGame/Single/PlayerInputController.h
 ../../Sources/TestGame/Single/Scene/MainScene.h
 ../../Sources/TestGame/Single/Scene/TestSceneFactory.h

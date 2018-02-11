@@ -2,6 +2,7 @@
 #include "SingleTon.h"
 #include "Configuration.h"
 #include "../Api/ApiMessages.h"
+#include "AplicationContext.h"
 #include <GL/glew.h>
 #include "Logger/Log.h"
 #include <fstream>
@@ -36,7 +37,7 @@ namespace GameEngine
 		auto& conf = EngineConf;
 		displayManager = std::make_shared<CDisplayManager>(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
 		inputManager_ = displayManager->GetApi()->CreateInput();
-		introRenderer_.Render();
+		introRenderer_.Render();		
 	}
 
 	void CEngine::GameLoop()
@@ -51,6 +52,11 @@ namespace GameEngine
 	{
 		std::lock_guard<std::mutex> lk(engineEventsMutex);
 		engineEvents.push_back(event);
+	}
+
+	void CEngine::Render()
+	{		
+		renderersManager_.RenderScene(sceneManager_.GetActiveScene());
 	}
 
 	CDisplayManager &CEngine::GetDisplayManager()
@@ -69,7 +75,7 @@ namespace GameEngine
 		if (inputManager_->GetKey(KeyCodes::ESCAPE))
 			apiMessage = ApiMessages::QUIT;
 
-		renderersManager_.RenderScene(sceneManager_.GetActiveScene());
+		Render();
 		sceneManager_.Update();
 
 		ProcessEngineEvents();

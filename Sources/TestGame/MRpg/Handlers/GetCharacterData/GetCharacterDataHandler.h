@@ -10,8 +10,7 @@ namespace Network
 
 namespace MmmoRpg
 {
-	class NetworkCharacterManager;
-	struct MrpgGameContext;
+	class NetworkCharacterManager;	
 
 	class GetCharacterDataHandler : public common::AbstractHandler
 	{
@@ -19,18 +18,16 @@ namespace MmmoRpg
 		typedef std::function<void(CGameObject*, const vec3&)> AddGameObject;
 
 	public:
-		GetCharacterDataHandler(NetworkCharacterManager& networkCharacterManager, MrpgGameContext& gameContext)
+		GetCharacterDataHandler(NetworkCharacterManager& networkCharacterManager)
 			: common::AbstractHandler({ Network::MessageTypes::GetCharacterDataResp })
 			, networkCharacterManager_(networkCharacterManager)
-			, gameContext_(gameContext)
 		{
 		}
 	private:
 		void HandleNetworkCharacterMsg(const Network::GetCharacterDataMsgResp& data);
 
-	protected:
+	protected:		
 		virtual void ProcessMessage(const Network::BoxMessage& message) override;
 		NetworkCharacterManager&  networkCharacterManager_;
-		MrpgGameContext& gameContext_;
 	};
 } // MmmoRpg

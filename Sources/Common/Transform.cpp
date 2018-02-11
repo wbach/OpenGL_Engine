@@ -59,6 +59,14 @@ namespace common
 	{
 		std::lock_guard<std::mutex> l(mmutex);
 		matrix = Utils::CreateTransformationMatrix(position, rotation, scale * normalized);
+
+		for (auto& sub : transformChangeSubscribers_)
+			sub(position, rotation, scale, matrix);
+	}
+
+	void Transform::SubscribeOnChange(TransformChangeSubscribers subscriber)
+	{
+		transformChangeSubscribers_.push_back(subscriber);
 	}
 
 	const vec3& Transform::GetPosition()

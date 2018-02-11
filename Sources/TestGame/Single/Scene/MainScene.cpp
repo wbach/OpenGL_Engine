@@ -9,6 +9,7 @@
 #include "GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
+#include "GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -47,12 +48,14 @@ int MainScene::Initialize()
 
 
 	auto player = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+	auto pentity = static_cast<CEntity*>(player);
+	pentity->dynamic = true;
+	pentity->attachedToCamera = true;
 	AddGameObject(player, glm::vec3(1, 0, 1));
 	renderersManager_->Subscribe(player);
 
-	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower, std::bind(&MainScene::OnPlayerPositionUpdate, this, std::placeholders::_1));
+	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 	playerInputController_ = std::make_shared<PlayerInputController>(inputManager_, characterController_.get());
-
 
     //auto small_hause_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 5, 0), "Meshes/smallHouse1/smallHouse1.obj", "Example/monkey.obj", "Example/cube.obj");
     //auto small_house = AddGameObject(small_hause_obj, glm::vec3(15.f, 0.f, 35.f));
@@ -84,7 +87,7 @@ int MainScene::Initialize()
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
-  // camera = std::make_unique<CFirstPersonCamera>(&engine.inputManager, &engine.GetDisplayManager(), deltaTime);
+  //  camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
 
     camera = std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform);
 
@@ -127,16 +130,19 @@ int MainScene::Update(float dt)
 	
     CheckCollisions();
 	DebugRenderOptionsControl();
+
 	UpdatePlayerandCamera(deltaTime);
+
+
 
     return 0;
 }
 
 void MainScene::UpdatePlayerandCamera(float time)
-{
+{	
 	camera->CalculateInput();
-	std::lock_guard<std::mutex>(SingleTon<GameEngine::SAplicationContext>::Get().renderingMutex);
-	characterController_->Update(time);   
+	characterController_->Update(deltaTime);
+	camera->Move();
 }
 
 void MainScene::CheckCollisions()
@@ -156,8 +162,7 @@ void MainScene::CheckCollisions()
 
 void MainScene::OnPlayerPositionUpdate(const vec3& position)
 {
-	//lookAtCameraTransform_.SetPosition(position);
-	camera->Move();
+	camera->Move();	
 }
 
 TerrainTexturesMap MainScene::CreateTerrainTexturesMap()

@@ -1,7 +1,6 @@
 #include "GetCharacterDataHandler.h"
 #include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
 #include "TestGame/MRpg/Characters/NetworkCharacterManger.h"
-#include "TestGame/MRpg/MrpgGameContext.h"
 
 namespace MmmoRpg
 {
@@ -19,10 +18,7 @@ namespace MmmoRpg
 
 	void GetCharacterDataHandler::HandleNetworkCharacterMsg(const Network::GetCharacterDataMsgResp& data)
 	{
-		networkCharacterManager_.AddCharacter(data.networkCharcterId, data.characterData.classId, data.position, data.rotation, data.commonStats);
-
-		if (data.networkCharcterId == gameContext_.selectedCharacterId.first)
-			gameContext_.selectedCharacterId.second = SelectedCharacterState::READY_TO_USE;
+		networkCharacterManager_.AddCharacter(data.networkCharcterId, data.characterData.classId, data.position, data.rotation, data.commonStats);		
 	}
 
 } // MmmoRpg

@@ -7,13 +7,12 @@ namespace common
 {
 	namespace Controllers
 	{
-		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower, OnUpdate onUpdate)
+		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower)
 			: IController(CharacterControllerType)
 			, transform_(transform)
 			, turnSpeed_(turnSpeed)
 			, jumpPower_(jumpPower)
 			, runSpeed_(runSpeed)
-			, onUpdate_(onUpdate)
 			, moveTime_(1000.0f)
 		{
 			referenceTime = std::chrono::high_resolution_clock::now();
@@ -173,8 +172,6 @@ namespace common
 		{
 			vec2 rotateValue = CalculateNewValueInTimeInterval<vec2, Direction>(moveStateInfo, time);
 			transform_.SetPosition(vec3(rotateValue.x, 0, rotateValue.y));
-			if (onUpdate_ != nullptr)
-				onUpdate_(transform_.GetPosition());
 			RemoveStateIfTimeElapsed(state, time, moveStateInfo.endTime);
 
 			float dt = (moveStateInfo.endTime - time) / moveTime_;
