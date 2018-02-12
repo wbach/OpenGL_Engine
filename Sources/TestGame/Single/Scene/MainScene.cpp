@@ -47,7 +47,7 @@ int MainScene::Initialize()
 	//renderersManager_->Subscribe(player);
 
 
-	auto player = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+	player = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 1.8, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
 	auto pentity = static_cast<CEntity*>(player);
 	pentity->dynamic = true;
 	pentity->attachedToCamera = true;
@@ -63,7 +63,7 @@ int MainScene::Initialize()
 
     auto terrain_textures = CreateTerrainTexturesMap();
 
-  //  AddTerrain(terrain_textures, glm::vec3(1));
+    AddTerrain(terrain_textures, glm::vec3(1));
 
 	//const float terrains_count = 2;
  //   for(float y = 0; y < terrains_count*TERRAIN_SIZE; y+= TERRAIN_SIZE)
@@ -89,13 +89,36 @@ int MainScene::Initialize()
 
   //  camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
 
-    camera = std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform);
+    SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform));
+	camType = CameraType::ThridPerson;
 
 	if (camera != nullptr)
 	{
 		camera->CalculateInput();
 		camera->Move();
 	}
+
+
+	inputManager_->SubscribeOnKeyDown(KeyCodes::C, [&]() 
+	{
+		auto pos = camera->GetPosition();
+		auto rotation = camera->GetRotation();
+
+		if (camType == CameraType::FirstPerson)
+		{
+			camType = CameraType::ThridPerson;
+			SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform));
+		}
+		else if(camType == CameraType::ThridPerson)
+		{
+			camType = CameraType::FirstPerson;
+			SetCamera(std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_));
+		}
+		camera->SetPosition(pos);
+		camera->SetPitch(rotation.x);
+		camera->SetYaw(rotation.y);
+		camera->SetRoll(rotation.z);
+	});
 
     return 0;
 }

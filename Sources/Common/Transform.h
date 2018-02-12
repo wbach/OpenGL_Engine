@@ -1,7 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "Mutex.hpp"
-#include <list>
+#include <unordered_map>
 #include <functional>
 
 namespace common
@@ -25,7 +25,9 @@ namespace common
 		Transform(const vec3& pos, const vec3& rot, const vec3& scale);
 		Transform(const Transform& transform);
 
-		void SubscribeOnChange(TransformChangeSubscribers subscriber);
+		void SubscribeOnChange(const std::string& label, TransformChangeSubscribers subscriber);
+		void UnsubscribeOnChange(const std::string& label);
+
 		void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
 		void IncrasePosition(vec3 v, uint32 index = 0);
 		void IncreaseRotation(float dx, float dy, float dz);
@@ -43,7 +45,7 @@ namespace common
 		void SetRotate(Axis axis, float v);
 
 	private:
-		std::list<TransformChangeSubscribers> transformChangeSubscribers_;
+		std::unordered_map<std::string, TransformChangeSubscribers> transformChangeSubscribers_;
 		vec3 position;	std::mutex pmutex;
 		vec3 rotation;	std::mutex rmutex;
 		vec3 scale;		std::mutex smutex;

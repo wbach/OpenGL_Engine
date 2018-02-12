@@ -61,12 +61,18 @@ namespace common
 		matrix = Utils::CreateTransformationMatrix(position, rotation, scale * normalized);
 
 		for (auto& sub : transformChangeSubscribers_)
-			sub(position, rotation, scale, matrix);
+			sub.second(position, rotation, scale, matrix);
 	}
 
-	void Transform::SubscribeOnChange(TransformChangeSubscribers subscriber)
+	void Transform::SubscribeOnChange(const std::string& label, TransformChangeSubscribers subscriber)
 	{
-		transformChangeSubscribers_.push_back(subscriber);
+		transformChangeSubscribers_[label] = subscriber;
+	}
+
+	void Transform::UnsubscribeOnChange(const std::string & label)
+	{
+		if (transformChangeSubscribers_.count(label) != 0)
+			transformChangeSubscribers_.erase(label);
 	}
 
 	const vec3& Transform::GetPosition()

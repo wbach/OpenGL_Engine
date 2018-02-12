@@ -55,7 +55,14 @@ namespace GameEngine
 
 	CCamera* Scene::GetCamera()
 	{
+		//std::lock_guard<std::mutex> lk(cameraMutex);
 		return camera.get();
+	}
+
+	void Scene::SetCamera(std::unique_ptr<CCamera> cam)
+	{
+		//std::lock_guard<std::mutex> lk(cameraMutex);
+		camera = std::move(cam);
 	}
 
 	const CLight & Scene::GetDirectionalLight() const

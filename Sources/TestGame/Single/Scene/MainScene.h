@@ -8,6 +8,13 @@
 #include <map>
 
 class CPlayer;
+class CGameObject;
+
+enum class CameraType
+{
+	FirstPerson,
+	ThridPerson
+};
 
 class MainScene : public GameEngine::Scene
 {
@@ -24,6 +31,7 @@ private:
 	void ReloadShadersInRenderer();
 	void DebugRenderOptionsControl();
 	void CheckCollisions();
+	void SwapCamera();
 	void OnPlayerPositionUpdate(const vec3& position);
 	void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 	TerrainTexturesMap CreateTerrainTexturesMap();
@@ -40,4 +48,7 @@ private:
 	double timeClock = 0;
 	CDebuger debuger;
 	float deltaTime;
+
+	CameraType camType;
+	CGameObject* player;
 };

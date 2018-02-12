@@ -20,14 +20,20 @@ CThirdPersonCamera::CThirdPersonCamera(GameEngine::InputManager* input_manager, 
 	, destinationPosition(0)
 	, destinationYaw(0)
 	, destinationPitch(0)
+	, lookAt(look_at)
 {
 	lookAtPosition = look_at.GetPosition();
 	lookAtRotataion = look_at.GetRotation();
-	look_at.SubscribeOnChange(std::bind(&CThirdPersonCamera::OnLookAtChange, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+	look_at.SubscribeOnChange("CThirdPersonCamera", std::bind(&CThirdPersonCamera::OnLookAtChange, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 	
 	
 	distanceFromPlayer = 12.0f;
 	referenceTime = std::chrono::high_resolution_clock::now();
+}
+
+CThirdPersonCamera::~CThirdPersonCamera()
+{
+	lookAt.UnsubscribeOnChange("CThirdPersonCamera");
 }
 
 void CThirdPersonCamera::SetCaptureMouse(bool capture)

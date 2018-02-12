@@ -34,7 +34,7 @@ class CThirdPersonCamera : public CCamera
 {
 public:
 	CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform& lookAt);
-
+	virtual ~CThirdPersonCamera() override;
 	void CalculateInput() override;
 	void Move() override;
 	void CalculateZoom(float zoom_lvl) override;
@@ -81,7 +81,7 @@ private:
 
 private:
 	GameEngine::InputManager* inputManager;
-	
+	common::Transform& lookAt; //only for unsubscribe
 	vec3 lookAtPosition;
 	vec3 lookAtRotataion;
 

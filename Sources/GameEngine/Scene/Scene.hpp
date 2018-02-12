@@ -10,6 +10,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+//#include "Mutex.hpp"
 
 // Object in scene are in grid (one grid size)
 const uint32 OBJECT_GRID_SIZE = 500;
@@ -50,6 +51,7 @@ namespace GameEngine
 
 		// Cameras
 		CCamera* GetCamera();
+		void SetCamera(std::unique_ptr<CCamera> camera);
 
 		// Lights
 		const CLight& GetDirectionalLight() const;
@@ -88,6 +90,8 @@ namespace GameEngine
 		CDayNightCycle dayNightCycle;
 
 		std::unique_ptr<CCamera> camera;
+	//	std::mutex cameraMutex;
+
 		CResourceManager resourceManager;
 
 		GameObjects gameObjects;
