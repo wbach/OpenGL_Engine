@@ -3,11 +3,11 @@
 #include "math.hpp"
 
 CProjection::CProjection()
-    : CProjection({640,480}, .1f, 1000.f, 50.f)
+    : CProjection({640,480}, .1f, 2000.f, 50.f)
 {}
 
 CProjection::CProjection(const vec2i &window_size)
-    : CProjection(window_size, .1f, 1000.f, 50.f)
+    : CProjection(window_size, .1f, 2000.f, 50.f)
 {}
 
 CProjection::CProjection(const vec2i &window_size, float near_, float far_, float fov_)

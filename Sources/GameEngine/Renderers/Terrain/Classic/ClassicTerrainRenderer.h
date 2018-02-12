@@ -1,16 +1,16 @@
 #pragma once
 #include "../../Renderer.h"
-#include "Shaders/TerrainShader.h"
+#include "Shaders/ClassicTerrainShader.h"
 #include <list>
 
 class CModel;
 class CTerrain;
 class CProjection;
 
-class CTerrainRenderer : public CRenderer
+class ClassicTerrainRenderer : public CRenderer
 {
 public:
-	CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
+	ClassicTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
 	// Loading lights itp to shader
 	virtual void Init() override;
 	virtual void PrepareFrame(GameEngine::Scene* scene) override;

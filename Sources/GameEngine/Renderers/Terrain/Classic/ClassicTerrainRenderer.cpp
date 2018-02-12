@@ -1,4 +1,4 @@
-#include "TerrainRenderer.h"
+#include "ClassicTerrainRenderer.h"
 #include "../../Framebuffer/FrameBuffer.h"
 #include "../../../Scene/Scene.hpp"
 #include "../../../Renderers/Projection.h"
@@ -9,14 +9,14 @@
 
 const float heightFactor = 25.f;
 
-CTerrainRenderer::CTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
+ClassicTerrainRenderer::ClassicTerrainRenderer(CProjection * projection_matrix, CFrameBuffer* framebuffer)
     : CRenderer(framebuffer)
     , projectionMatrix(projection_matrix)
     , clipPlane(vec4(0, 1, 0, 100000))
 {
 }
 
-void CTerrainRenderer::Init()
+void ClassicTerrainRenderer::Init()
 {
     shader.Init();
     shader.Start();
@@ -30,10 +30,10 @@ void CTerrainRenderer::Init()
     shader.Load(CTerrainShader::UniformLocation::HeightFactor, heightFactor);
     shader.Stop();
 
-	Log("CTerrainRenderer initialized.");
+	Log("ClassicTerrainRenderer initialized.");
 }
 
-void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
+void ClassicTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
     shader.Start();
     shader.Load(CTerrainShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
@@ -48,7 +48,7 @@ void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
     shader.Stop();
 }
 
-void CTerrainRenderer::Render(GameEngine::Scene* scene)
+void ClassicTerrainRenderer::Render(GameEngine::Scene* scene)
 {
     if (target == nullptr)
 		return;
@@ -77,18 +77,18 @@ void CTerrainRenderer::Render(GameEngine::Scene* scene)
     shader.Stop();
 }
 
-void CTerrainRenderer::EndFrame(GameEngine::Scene* scene)
+void ClassicTerrainRenderer::EndFrame(GameEngine::Scene* scene)
 {
 }
 
-void CTerrainRenderer::Subscribe(CGameObject * gameObject)
+void ClassicTerrainRenderer::Subscribe(CGameObject * gameObject)
 {
 	auto terrain = dynamic_cast<CTerrain*>(gameObject);
 	if (terrain != nullptr)
         subscribes.push_back(terrain);
 }
 
-void CTerrainRenderer::UnSubscribe(CGameObject * gameObject)
+void ClassicTerrainRenderer::UnSubscribe(CGameObject * gameObject)
 {
 	for (auto iter = subscribes.begin(); iter != subscribes.end(); ++iter)
 	{
@@ -100,11 +100,11 @@ void CTerrainRenderer::UnSubscribe(CGameObject * gameObject)
 	}
 }
 
-void CTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
+void ClassicTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
 }
 
-void CTerrainRenderer::BindTextures(CTerrain * terrain) const
+void ClassicTerrainRenderer::BindTextures(CTerrain * terrain) const
 {
 	int i = 0;
     for (auto& t : terrain->textures)

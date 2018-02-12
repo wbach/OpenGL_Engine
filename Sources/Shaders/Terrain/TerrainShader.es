@@ -1,59 +1,42 @@
-#version 400
-layout( triangles, equal_spacing, ccw ) in;
+#version 420 core
 
-uniform sampler2D gDisplacementMap;
-uniform float heightFactor;
+layout (quads, fractional_odd_spacing) in;
 
-//struct PatchData
-//{
-//	mat4 viewProjection;
-//};
+uniform sampler2D tex_displacement;
 
-//patch in PatchData InPatch;
+uniform mat4 mv_matrix;
+uniform mat4 proj_matrix;
+uniform float dmap_depth;
 
-//patch in Patch
-//{
-//	mat4 viewProjection;
-//} InPatch;
-
-in Vertex
+in TCS_OUT
 {
-	vec3 position;
-	vec2 textCoord;
-	vec3 normal;
-	mat4 viewProjection;
-} In[];
+    vec2 tc;
+} tes_in[];
 
-out Vertex
+out TES_OUT
 {
-	vec3 position;
-	vec2 textCoord;
-	vec3 normal;	
-} Out;
+    vec2 tc;
+    vec3 world_coord;
+    vec3 eye_coord;
+    vec4 position;
+} tes_out;
 
-vec2 interpolate2D(vec2 v0, vec2 v1, vec2 v2)
+void main(void)
 {
-   	return vec2(gl_TessCoord.x) * v0 + vec2(gl_TessCoord.y) * v1 + vec2(gl_TessCoord.z) * v2;
-}
+    vec2 tc1 = mix(tes_in[0].tc, tes_in[1].tc, gl_TessCoord.x);
+    vec2 tc2 = mix(tes_in[2].tc, tes_in[3].tc, gl_TessCoord.x);
+    vec2 tc = mix(tc2, tc1, gl_TessCoord.y);
 
-vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
-{
-   	return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
-}
+    vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
+    vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
+    vec4 p = mix(p2, p1, gl_TessCoord.y);
+    p.y += texture(tex_displacement, tc).r * dmap_depth;
 
-void main()
-{
-	Out.normal = interpolate3D(In[0].normal, In[1].normal, In[2].normal);
-   	Out.normal = normalize(Out.normal);
-				  
-    Out.position	= interpolate3D(In[0].position, In[1].position, In[2].position);
-	Out.normal	 	= vec3(0.f, 1.f, 0.f);
-	Out.textCoord	= interpolate2D(In[0].textCoord, In[1].textCoord, In[2].textCoord);
-	
-	float displacement = 2.f * (texture(gDisplacementMap, Out.textCoord.xy).x* 32.f) - 1.f;
+    vec4 P_eye = mv_matrix * p;
 
-	Out.position.y -= 1.f;
-	Out.position += Out.normal * displacement * heightFactor;
-	
-	gl_Position = In[0].viewProjection * vec4(Out.position, 1.f);
+    tes_out.tc = tc;
+    tes_out.world_coord = p.xyz;
+    tes_out.eye_coord = P_eye.xyz;
+    tes_out.position = proj_matrix * P_eye;
+    gl_Position = tes_out.position - vec4(0.f, 100.f, 0.f, 0.f);
 }

@@ -74,7 +74,7 @@ bool CSkyBoxRenderer::CheckModelIsReadyToRender()
 void CSkyBoxRenderer::PrepareShaderBeforeFrameRender(GameEngine::Scene *scene)
 {
 	// TO DO - delta time
-	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), 0.1f, 500.f);
+	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), 0.1f, 1500.f);
 	shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
 }
 

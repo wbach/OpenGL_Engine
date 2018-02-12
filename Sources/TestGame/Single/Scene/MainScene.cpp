@@ -197,7 +197,7 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
         { Terrain::redTexture, "Textures/Terrain/Ground/165.png",  },
         { Terrain::greenTexture,"Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
         { Terrain::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-        { Terrain::displacementMap, "Textures/Terrain/HeightMaps/heightmap.png" }
+        { Terrain::displacementMap, "Textures/Terrain/HeightMaps/HelionHightMap.png" }
     };
 }
 

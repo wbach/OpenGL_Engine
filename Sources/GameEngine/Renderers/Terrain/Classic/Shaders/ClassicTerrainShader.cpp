@@ -1,4 +1,4 @@
-#include "TerrainShader.h"
+#include "ClassicTerrainShader.h"
 
 CTerrainShader::CTerrainShader()
 {

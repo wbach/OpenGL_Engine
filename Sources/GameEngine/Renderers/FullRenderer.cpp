@@ -6,7 +6,7 @@
 #include "SkyBox/SkyBoxRenderer.h"
 #include "Shadows/ShadowMapRenderer.hpp"
 #include "Shadows/ShadowFrameBuffer.h"
-#include "Terrain/Tesselation/TessellationTerrainRenderer.h"
+#include "Terrain/TerrainRenderer.h"
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
 #include "../Engine/Configuration.h"
@@ -25,7 +25,7 @@ FullRenderer::FullRenderer(CProjection* projection_matrix)
 		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
 
 	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
-    renderers.emplace_back(new CTessellationTerrainRenderer(projection_matrix, defferedFrameBuffer.get(), shadowsFrameBuffer.get()));
+    renderers.emplace_back(new GameEngine::CTerrainRenderer(projection_matrix, defferedFrameBuffer.get(), shadowsFrameBuffer.get()));
 	renderers.emplace_back(new CEntityRenderer(projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CLightPassRenderer(projection_matrix, defferedFrameBuffer.get()));
 }
