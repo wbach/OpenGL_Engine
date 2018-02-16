@@ -1,4 +1,5 @@
 #pragma once
+#include "TerrainDef.h"
 #include "TerrainTexturesTypes.h"
 #include "../../GameObject.h"
 #include <vector>
@@ -7,14 +8,13 @@ class CTexture;
 class CModel;
 struct SImage;
 
-static const float TERRAIN_SIZE = 1600.f;
-
 class CTerrain : public CGameObject
 {
 public:
 	CTerrain();
 	virtual ~CTerrain() override;
 	virtual wb::optional<vec3> CollisionDetection(const vec3&) override;
+	glm::mat4 GetTransformMatrix();
 
 	void SetHeight(int x, int y, float value);
 	//Height Map
@@ -24,15 +24,8 @@ public:
 	float	GetHeight(int x, int y) const;
 	void	InitHeights(int x, int y);
 	void	LoadHeight(const SImage& height_map);
-	void    LoadHeight(const std::string& rawFileName, int height, int width) const;
 
 	void SetTexture(CTexture* texture, Terrain::TexturesTypes type);
-
-	//HeightMap
-	int heightMapResolution;
-
-	float heightFactor = 1.f;
-	std::vector<float> heights;
 
 	CTexture* textures[Terrain::TexturesTypes::count];
 	CModel* model = nullptr;
@@ -43,11 +36,12 @@ private:
 	vec2 GetPositionInQuad(const vec2 & position) const;
 	bool IsInLeftTriangle(const vec2 & position) const;
 	bool IsValidGridCoordinate(const vec2i& position) const;
-	float ConvertColourToHeight(float colourValue) const;
 	float GetHeightInTerrainQuad(const vec2i & gridCoord, const vec2 & localPosition) const;
 	wb::optional<vec3> UpdatePositionIfIsUnderTerrain(const vec3& current_pos, const wb::optional<float>& height) const;
 
 private:
+	int heightMapResolution;
 	float dispFactor;
 	float gridSquereSize;
+	std::vector<float> heights;
 };

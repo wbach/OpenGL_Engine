@@ -66,7 +66,7 @@ bool CShaderProgram::CreateProgram()
 
 bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
 {
-	name = filename;
+	name = filename.substr(0, filename.find_last_of('.'));
 
 	auto full_path = EngineConf_GetFullShaderPath(filename);
 	EngineConf_AddRequiredFile(full_path);

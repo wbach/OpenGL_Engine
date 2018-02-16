@@ -9,7 +9,6 @@ namespace GameEngine
 		: name(name)
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new CCamera)
-		, gui_(nullptr)
 		, inputManager_(nullptr)
 	{
 	}

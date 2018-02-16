@@ -5,6 +5,7 @@
 #include "../../../Objects/RenderAble/Terrain/Terrain.h"
 #include "../../../Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "../../Shadows/ShadowFrameBuffer.h"
+#include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
 
 #include "OpenGL/OpenGLUtils.h"
 #include "GLM/GLMUtils.h"
@@ -91,7 +92,7 @@ void CTessellationTerrainRenderer::RenderTerrainMesh(const CMesh& m) const
 
 void CTessellationTerrainRenderer::PrepareShadersBeforeFrame(TerrainPtr sub) const
 {
-	shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, sub->Get()->heightFactor);
+	shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, TERRAIN_HEIGHT_FACTOR);
 
 	auto position = sub->worldTransform.GetPosition();
 	shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(TERRAIN_SIZE / 2.f)));

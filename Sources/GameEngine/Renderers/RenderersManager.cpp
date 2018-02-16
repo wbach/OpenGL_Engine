@@ -13,6 +13,7 @@ namespace GameEngine
 	namespace Renderer
 	{
 		RenderersManager::RenderersManager()
+			: markToReloadShaders_(false)
 		{
 
 		}
@@ -61,8 +62,24 @@ namespace GameEngine
 			if (scene == nullptr)
 				return;
 
+			ReloadShadersExecution();
+
 			for (auto& renderer : renderers_)
 				Render(scene, renderer.get());
+		}
+		void RenderersManager::ReloadShaders()
+		{
+			markToReloadShaders_.store(true);
+		}
+		void RenderersManager::ReloadShadersExecution()
+		{
+			if (!markToReloadShaders_.load())
+				return;
+
+			for (auto& renderer : renderers_)
+				renderer->ReloadShaders();
+
+			markToReloadShaders_.store(false);
 		}
 		void RenderersManager::Subscribe(CGameObject* gameObject)
 		{

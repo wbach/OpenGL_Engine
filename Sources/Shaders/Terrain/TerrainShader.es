@@ -2,20 +2,20 @@
 
 layout (quads, fractional_odd_spacing) in;
 
-uniform sampler2D tex_displacement;
+uniform sampler2D displacementTexture;
 
-uniform mat4 mv_matrix;
-uniform mat4 proj_matrix;
-uniform float dmap_depth;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform float heightFactor;
 
 in TCS_OUT
 {
-    vec2 tc;
+    vec2 textCoord;
 } tes_in[];
 
 out TES_OUT
 {
-    vec2 tc;
+    vec2 textCoord;
     vec3 world_coord;
     vec3 eye_coord;
     vec4 position;
@@ -23,20 +23,20 @@ out TES_OUT
 
 void main(void)
 {
-    vec2 tc1 = mix(tes_in[0].tc, tes_in[1].tc, gl_TessCoord.x);
-    vec2 tc2 = mix(tes_in[2].tc, tes_in[3].tc, gl_TessCoord.x);
-    vec2 tc = mix(tc2, tc1, gl_TessCoord.y);
+    vec2 tc1 = mix(tes_in[0].textCoord, tes_in[1].textCoord, gl_TessCoord.x);
+    vec2 tc2 = mix(tes_in[2].textCoord, tes_in[3].textCoord, gl_TessCoord.x);
+    vec2 textCoord = mix(tc2, tc1, gl_TessCoord.y);
 
     vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
     vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
     vec4 p = mix(p2, p1, gl_TessCoord.y);
-    p.y += texture(tex_displacement, tc).r * dmap_depth;
+    p.y += texture(displacementTexture, textCoord).r * heightFactor;
+    //p.y += -1.f
+    vec4 P_eye = modelViewMatrix * p;
 
-    vec4 P_eye = mv_matrix * p;
-
-    tes_out.tc = tc;
+    tes_out.textCoord = textCoord;
     tes_out.world_coord = p.xyz;
     tes_out.eye_coord = P_eye.xyz;
-    tes_out.position = proj_matrix * P_eye;
-    gl_Position = tes_out.position - vec4(0.f, 100.f, 0.f, 0.f);
+    tes_out.position = projectionMatrix * P_eye;
+    gl_Position = tes_out.position;
 }

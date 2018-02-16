@@ -24,12 +24,14 @@ namespace GameEngine
 		virtual void EndFrame(GameEngine::Scene* scene) override;
 		virtual void Subscribe(CGameObject* gameObject) override;
 		virtual void UnSubscribe(CGameObject* gameObject) override;
+		virtual void ReloadShaders() override;
 
 	private:
 		void BindTexture(CTexture* texture, int id) const;
 		void BindTextures(TerrainPtr terrain) const;
-		void RenderSubscribers(const vec3 & camera_position, int range) const;
+		void RenderSubscribers(const mat4& viewMatrix, int range) const;
 		void RenderSubscriber(TerrainPtr) const;
+		void InitShader();
 
 	private:
 		TerrainShader  shader;

@@ -63,7 +63,6 @@ namespace GameEngine
 		inline float GetGlobalTime();
 
 		// GUi
-		void SetGuiContext(Renderer::Gui::GuiContext* c);
 		void SetInputManager(InputManager* input);
 		void SetRenderersManager(Renderer::RenderersManager* manager);
 		void SetDisplayManager(CDisplayManager* displayManager);
@@ -78,7 +77,7 @@ namespace GameEngine
 		std::string name;
 		AddEvent addSceneEvent;
 
-		Renderer::Gui::GuiContext* gui_;
+		//Renderer::Gui::GuiContext* gui_;
 		InputManager* inputManager_;
 		CDisplayManager* displayManager_;
 		Renderer::RenderersManager* renderersManager_;
@@ -116,11 +115,6 @@ namespace GameEngine
 	inline float Scene::GetGlobalTime()
 	{
 		return gloabalTime;
-	}
-
-	inline void Scene::SetGuiContext(Renderer::Gui::GuiContext* c)
-	{
-		gui_ = c;
 	}
 
 	inline void Scene::SetInputManager(InputManager* input)

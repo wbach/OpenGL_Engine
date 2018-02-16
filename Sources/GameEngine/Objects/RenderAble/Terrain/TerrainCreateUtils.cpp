@@ -1,17 +1,33 @@
 #include "TerrainCreateUtils.h"
-#include "../../../Engine/Configuration.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "Logger/Log.h"
 
-void TerrainUtils::LoadHeightMap(CResourceManager & manager, CTerrain * terrain, const std::string & height_map_file)
+void TerrainUtils::LoadHeightMap(CResourceManager& manager, CTerrain* terrain, const std::string & height_map_file)
 {
-	SImage height_map;
-	manager.GetTextureLaoder().ReadFile(EngineConf_GetFullDataPath(height_map_file), height_map, false, TextureFlip::Type::VERTICAL);
-	terrain->LoadHeight(height_map);
+	auto t = manager.GetTextureLaoder().LoadHeightMap(height_map_file, true);
+
+	if (t == nullptr)
+	{
+		Log("hight map is nullptr.");
+		return;
+	}
+
+	terrain->SetTexture(t, Terrain::TexturesTypes::displacementMap);
+
+	auto hightmap = static_cast<HeightMap*>(t);
+	terrain->LoadHeight(*hightmap->GetImage());
 }
 
-void TerrainUtils::LoadTextures(CResourceManager & manager, CTerrain * terrain, TerrainTexturesMap & textures)
+void TerrainUtils::LoadTextures(CResourceManager& manager, CTerrain* terrain, TerrainTexturesMap& textures)
 {
 	for (const auto& t : textures)
+	{
+		if (t.first == Terrain::TexturesTypes::displacementMap)
+			continue;
+
 		terrain->SetTexture(manager.GetTextureLaoder().LoadTexture(t.second), t.first);
+	}
 }
 
 void TerrainUtils::LoadSimpleMesh(CResourceManager & manager, CTerrain*& terrain)

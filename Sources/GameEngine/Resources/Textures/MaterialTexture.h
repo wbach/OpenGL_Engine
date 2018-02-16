@@ -6,10 +6,10 @@
 class CMaterialTexture : public CTexture
 {
 public:
-	CMaterialTexture(bool keepData, const std::string& file , const std::string& filepath, const SImage& image );
+	CMaterialTexture(bool keepData, const std::string& file , const std::string& filepath, SImagePtr image );
 	virtual void OpenGLLoadingPass() override;
 
 private:
-    SImage image;
+	SImagePtr image;
     bool keepData = false;
 };

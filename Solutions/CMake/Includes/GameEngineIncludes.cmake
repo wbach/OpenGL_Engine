@@ -30,6 +30,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/Terrain.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainBuilder.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainCreateUtils.h
+../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainDef.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h
 ../../Sources/GameEngine/Renderers/Entity/EntityRenderer.h
@@ -61,8 +62,10 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/SimpleRenderer.h
 ../../Sources/GameEngine/Renderers/SkyBox/Shaders/SkyBoxShader.h
 ../../Sources/GameEngine/Renderers/SkyBox/SkyBoxRenderer.h
-../../Sources/GameEngine/Renderers/Terrain/Classic/Shaders/TerrainShader.h
-../../Sources/GameEngine/Renderers/Terrain/Classic/TerrainRenderer.h
+../../Sources/GameEngine/Renderers/Terrain/Classic/ClassicTerrainRenderer.h
+../../Sources/GameEngine/Renderers/Terrain/Classic/Shaders/ClassicTerrainShader.h
+../../Sources/GameEngine/Renderers/Terrain/Shaders/TerrainShader.h
+../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.h
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.h
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.h
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.h
@@ -90,6 +93,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/SimpleModels/Quad.h
 ../../Sources/GameEngine/Resources/TextureLoader.h
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.h
+../../Sources/GameEngine/Resources/Textures/HeightMap.h
 ../../Sources/GameEngine/Resources/Textures/Image.h
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
 ../../Sources/GameEngine/Resources/Textures/Texture.h

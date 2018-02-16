@@ -2,27 +2,28 @@
 
 out VS_OUT
 {
-    vec2 tc;
+    vec2 textCoord;
 } vs_out;
 
-uniform mat4 transformMatrix;
+const float SCALE = 10.f;  // have to the same as in c++ code, TerrainDef.h
+const float VERTEX = 0.5f * SCALE;
+const float POSITION_OFFSET = 31.5f * SCALE;
+const float INVERTED_SCALE = 1.f / SCALE;
+
+const vec4 vertices[] = vec4[](vec4(-VERTEX, 0.0, -VERTEX, 1.0),
+                               vec4( VERTEX, 0.0, -VERTEX, 1.0),
+                               vec4(-VERTEX, 0.0,  VERTEX, 1.0),
+                               vec4( VERTEX, 0.0,  VERTEX, 1.0));
+
 
 void main(void)
 {
-    const vec4 vertices[] = vec4[](vec4(-0.5, 0.0, -0.5, 1.0),
-                                   vec4( 0.5, 0.0, -0.5, 1.0),
-                                   vec4(-0.5, 0.0,  0.5, 1.0),
-                                   vec4( 0.5, 0.0,  0.5, 1.0));
-
     int x = gl_InstanceID & 63;
     int y = gl_InstanceID >> 6;
-    vec2 offs = vec2(x, y);
+    vec2 textureOffset = vec2(x, y);
 
-    vec4 pos = vertices[gl_VertexID];
+    vs_out.textCoord = (vertices[gl_VertexID].xz * INVERTED_SCALE + textureOffset + vec2(0.5) ) / 64.0;
 
-    vs_out.tc = (pos.xz + offs + vec2(0.5)) / 64.0;
-    vec4 position = pos + vec4(float(x - 32), 0.0,
-                                               float(y - 32), 0.0);
-
-    gl_Position = position;
+    gl_Position = vertices[gl_VertexID] + vec4(float(x*SCALE - POSITION_OFFSET), 0.0,
+                                               float(y*SCALE - POSITION_OFFSET), 0.0);
 }

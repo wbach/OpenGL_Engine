@@ -119,6 +119,14 @@ namespace common
 		UpdateMatrix();
 	}
 
+	void Transform::SetPositionXZ(const vec2 & pos)
+	{
+		std::lock_guard<std::mutex> l(pmutex);
+		position.x = pos.x;
+		position.z = pos.y;
+		UpdateMatrix();
+	}
+
 	void Transform::SetRotation(const vec3 & r)
 	{
 		std::lock_guard<std::mutex> l(rmutex);

@@ -157,7 +157,6 @@ namespace GameEngine
 	void SceneManager::SetSceneContext(Scene* scene)
 	{
 		scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
-		scene->SetGuiContext(&guiContext_);
 		scene->SetInputManager(inputManager_.get());
 		scene->SetRenderersManager(&renderersManager_);		
 		scene->SetDisplayManager(displayManager_.get());

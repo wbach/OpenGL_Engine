@@ -16,7 +16,7 @@ TEST_F(testStruct, dummyTest)
 
 int main(int argc, char** argv)
 {
-	SDL_I
+	//SDL_I
 	CLogger::Instance().EnableLogs();
 	::testing::InitGoogleTest(&argc, argv);
 	::testing::InitGoogleMock(&argc, argv);

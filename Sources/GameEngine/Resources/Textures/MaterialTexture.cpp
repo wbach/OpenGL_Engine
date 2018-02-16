@@ -1,7 +1,7 @@
 #include "MaterialTexture.h"
 #include "Logger/Log.h"
 
-CMaterialTexture::CMaterialTexture(bool keepData, const std::string & file, const std::string & filepath, const SImage & image)
+CMaterialTexture::CMaterialTexture(bool keepData, const std::string & file, const std::string & filepath, SImagePtr image)
 	: CTexture(file, filepath)
     , image(image)
     , keepData(keepData)
@@ -11,7 +11,7 @@ CMaterialTexture::CMaterialTexture(bool keepData, const std::string & file, cons
 
 void CMaterialTexture::OpenGLLoadingPass()
 {
-    if (image.data == nullptr || isInit)
+    if (image->data.empty()|| isInit)
 	{
 		Log("[Error] OGL There was an error loading the texture : " + filename + ". data is null or is initialized.");
 		return;
@@ -22,7 +22,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 
 	if (hubo_error)
 	{
-        delete[] image.data;
+		image->data.clear();
 		Log("[Error] OGL There was an error loading the texture : " + filename + " cannot create texture.");
 		return;
 	}
@@ -32,7 +32,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 
     glBindTexture(GL_TEXTURE_2D, id);
 	// Give the image to OpenGL
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)image.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width, image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*) &image->data[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -42,8 +42,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 
     if (!keepData)
 	{
-        delete[] image.data;
-        image.data = nullptr;
+        image->data.clear();
 	}		
     isInit = true;
 

@@ -33,6 +33,9 @@ int MainScene::Initialize()
     AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
 	renderersManager_->Subscribe(bialczyk_obj);
 
+
+	renderersManager_->GuiText("playerPos").position = vec2(-0.9, 0.75);
+
 	//auto character_running_obj = ObjectBuilder::CreateEntity(resourceManager, glm::vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
 	//auto ch = AddGameObject(character_running_obj, glm::vec3(0, 0, -7));
 	//engine.renderers[0]->Subscribe(ch);
@@ -51,7 +54,7 @@ int MainScene::Initialize()
 	auto pentity = static_cast<CEntity*>(player);
 	pentity->dynamic = true;
 	pentity->attachedToCamera = true;
-	AddGameObject(player, glm::vec3(1, 0, 1));
+	AddGameObject(player, glm::vec3(-32.5f, 0, -32.5f));
 	renderersManager_->Subscribe(player);
 
 	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
@@ -97,6 +100,11 @@ int MainScene::Initialize()
 		camera->CalculateInput();
 		camera->Move();
 	}
+
+	inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]()
+	{		
+		renderersManager_->ReloadShaders();
+	});
 
 
 	inputManager_->SubscribeOnKeyDown(KeyCodes::C, [&]() 
@@ -170,7 +178,7 @@ void MainScene::UpdatePlayerandCamera(float time)
 
 void MainScene::CheckCollisions()
 {
-	/*for (auto& terrain : terrains)
+	for (auto& terrain : terrains)
 	{
         auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
 
@@ -178,9 +186,13 @@ void MainScene::CheckCollisions()
 			continue;
 
         auto ppos = player->worldTransform.GetPosition();
-		if (ppos.y < new_position.value().y)
-			player->SetPosition(new_position.value());
-	}*/
+		//if (ppos.y < new_position.value().y)
+		player->worldTransform.SetPosition(new_position.value());
+
+		renderersManager_->GuiText("playerPos").text = Utils::ToString(ppos);
+
+		//Log(Utils::ToString(ppos));
+	}
 }
 
 void MainScene::OnPlayerPositionUpdate(const vec3& position)
@@ -197,7 +209,7 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
         { Terrain::redTexture, "Textures/Terrain/Ground/165.png",  },
         { Terrain::greenTexture,"Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
         { Terrain::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-        { Terrain::displacementMap, "Textures/Terrain/HeightMaps/HelionHightMap.png" }
+        { Terrain::displacementMap, "Textures/Terrain/HeightMaps/Terrain.terrain" }
     };
 }
 

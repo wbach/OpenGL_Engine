@@ -12,7 +12,8 @@ namespace TextureType
 {
 enum Type
 {
-    MATERIAL = 0
+    MATERIAL = 0,
+	HEIGHT_MAP
 };
 }
 
@@ -27,6 +28,7 @@ public:
     CTexture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, TextureType::Type type = TextureType::MATERIAL,
                                      TextureFlip::Type flip_mode = TextureFlip::Type::NONE);
     CTexture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool opengl_pass = true);
+	CTexture* LoadHeightMap(const std::string& filename, bool opengl_pass = true);
 
 private:
     std::vector<std::unique_ptr<CTexture>>& textures;

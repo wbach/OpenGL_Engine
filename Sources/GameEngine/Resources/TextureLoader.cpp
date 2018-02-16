@@ -1,11 +1,14 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "TextureLoader.h"
 #include "OpenGLLoader.h"
 #include "Textures/MaterialTexture.h"
 #include "Textures/CubeMapTexture.h"
 #include "../Engine/Configuration.h"
+#include "Textures/HeightMap.h"
 #include "Logger/Log.h"
 #include <FreeImage.h>
 #include <algorithm>
+#include <fstream>
 
 CTextureLoader::CTextureLoader(std::vector<std::unique_ptr<CTexture>>& textures_vector, COpenGLLoader & openGLLoader)
     : textures(textures_vector)
@@ -69,16 +72,20 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
     image.height = h;
 
 	char* pixeles = (char*)FreeImage_GetBits(imagen);
-
-    image.data = new GLubyte[4 * w*h];
+	Log("File convert bgr2rgb" + file_location + ".");
+	//image.data.resize(4*w*h);
+	auto data = new GLubyte[4 * w*h];
 	//bgr2rgb
 	for (int j = 0; j<w*h; j++)
 	{
-        image.data[j * 4 + 0] = pixeles[j * 4 + 2];
-        image.data[j * 4 + 1] = pixeles[j * 4 + 1];
-        image.data[j * 4 + 2] = pixeles[j * 4 + 0];
-        image.data[j * 4 + 3] = pixeles[j * 4 + 3];
+        data[j * 4 + 0] = pixeles[j * 4 + 2];
+        data[j * 4 + 1] = pixeles[j * 4 + 1];
+        data[j * 4 + 2] = pixeles[j * 4 + 0];
+        data[j * 4 + 3] = pixeles[j * 4 + 3];
 	}
+
+	image.data = std::vector<GLubyte>(data, data + 4*w*h);
+
 	FreeImage_Unload(imagen);
 	FreeImage_Unload(imagen2);
     Log("File: " + file_location + " is loaded.");
@@ -90,8 +97,8 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLi
         if (t->GetFileName() == file)
             return t.get();
 
-	SImage texture; 
-	ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), texture, applySizeLimit, flip_mode);
+	SImagePtr texture(new SImage);
+	ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), *texture, applySizeLimit, flip_mode);
 
 	switch (type)
 	{
@@ -119,12 +126,15 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool app
 		return nullptr;
 	}
 
-	std::vector<SImage> images;
+	std::vector<SImagePtr> images;
 	images.resize(6);
 
 	int x = 0;
 	for (const auto& file : files)
-        ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
+	{
+		images[x] = std::make_shared<SImage>();
+        ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), *images[x++], applySizeLimit, TextureFlip::Type::VERTICAL);
+	}
 
     textures.emplace_back(new CCubeMapTexture(files[0], images));
 
@@ -134,4 +144,46 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool app
         openGLLoader.AddObjectToOpenGLLoadingPass(texture);
 
 	return texture;
+}
+
+CTexture* CTextureLoader::LoadHeightMap(const std::string& filename, bool opengl_pass)
+{	
+	auto fp = fopen(EngineConf_GetFullDataPathAddToRequierd(filename).c_str(), "rb");
+
+	if (!fp)
+	{
+		Log("[Error] GetFileType: wrong image format or file does not exist : " + filename);
+		return nullptr;
+	}
+
+	struct Header
+	{
+		uint32 width;
+		uint32 height;
+	};
+
+	Header header;
+	fread(&header, sizeof(Header), 1, fp);
+
+	Log(" Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
+
+	SImagePtr texture(new SImage);
+	auto& text = *texture;
+	text.width = header.width;
+	text.height = header.height;
+
+	auto size = header.width * header.height;
+
+	text.floatData.resize(size);
+	//memset(&text.floatData[0], 0, size);
+	fread(&text.floatData[0], sizeof(float), size, fp);
+	fclose(fp);
+
+	auto heightmap_texture = new HeightMap(true, filename, filename, texture);
+	textures.emplace_back(heightmap_texture);
+
+	if (opengl_pass)
+		openGLLoader.AddObjectToOpenGLLoadingPass(heightmap_texture);
+
+	return heightmap_texture;
 }

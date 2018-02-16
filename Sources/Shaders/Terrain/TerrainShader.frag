@@ -2,7 +2,7 @@
 
 in TES_OUT
 {
-    vec2 tc;
+    vec2 textCoord;
     vec3 world_coord;
     vec3 eye_coord;
     vec4 position;
@@ -30,10 +30,10 @@ uniform sampler2D shadowMap;
 
 vec4 CalculateTerrainColor()
 {
-	vec4 blend_map_colour = texture(BlendMap, fs_in.tc) ;
+	vec4 blend_map_colour = texture(BlendMap, fs_in.textCoord) ;
 		
 	float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;
-	vec2 tiled_coords = fs_in.tc * 40.0f ;
+	vec2 tiled_coords = fs_in.textCoord * 50.0f ;
 
 	float normal_y = 1.f;//abs(normalize(In.normal).y);
 

@@ -2,12 +2,11 @@
 #include "../../../Resources/Models/Model.h"
 #include "../../../Resources/Textures/Image.h"
 #include "../../../Resources/Textures/Texture.h"
-
+#include <climits>
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 
 CTerrain::CTerrain()
-	: gridSquereSize(TERRAIN_SIZE / ((float) heightMapResolution - 1))
 {
 	for (auto& texture : textures)
 		texture = nullptr;
@@ -23,6 +22,11 @@ wb::optional<vec3> CTerrain::CollisionDetection(const vec3 & v)
 	return UpdatePositionIfIsUnderTerrain(v, height);
 }
 
+glm::mat4 CTerrain::GetTransformMatrix()
+{
+	return worldTransform.GetMatrix();
+}
+
 void CTerrain::SetHeight(int x, int y, float value)
 {
 	heights[x + y*heightMapResolution] = value;
@@ -30,7 +34,7 @@ void CTerrain::SetHeight(int x, int y, float value)
 
 wb::optional<float> CTerrain::GetHeightofTerrain(vec2 posXZ)
 {
-	return GetHeightofTerrain(posXZ.x, posXZ.y);
+	return GetHeightofTerrain(posXZ.x, posXZ.y).value();
 }
 
 wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ)
@@ -39,7 +43,7 @@ wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ)
 
 	auto localPosition = GetLocalPositionOnTerrain(worldX, worldZ);
 
-	auto gridCoord = GetGridCoord(localPosition);
+	auto gridCoord = GetGridCoord(localPosition + vec2(TERRAIN_HALF_TOTAL_SIZE));
 
 	if (IsValidGridCoordinate(gridCoord))
 		return result;
@@ -51,16 +55,16 @@ void CTerrain::InitHeights(int x, int y)
 {
 	heights.resize(x*y);
 }
-
 void CTerrain::LoadHeight(const SImage &height_map)
 {
-	if (height_map.data == nullptr)
+	if (height_map.floatData.empty())
 	{
 		Log("Loading terrain heights faild. Height map is nullptr.");
 		return;
 	}
 
 	heightMapResolution = height_map.height;
+	gridSquereSize = (TERRAIN_TOTAL_SIZE / ((float) heightMapResolution - 1));
 
 	auto h = height_map.height;
 	auto w = height_map.width;
@@ -68,18 +72,9 @@ void CTerrain::LoadHeight(const SImage &height_map)
 	InitHeights(w, h);
 
 	//bgr2rgb
-	for (uint32 j = 0; j < w*h; j++)
-		heights[j] = ConvertColourToHeight(static_cast<float>(height_map.data[j * 4 + 0]));
-}
-
-void CTerrain::LoadHeight(const std::string & rawFileName, int height, int width) const
-{
-	auto data = Utils::ReadFile(rawFileName);
-
-	for (auto b : data)
-	{
-
-	}
+	uint32 i = 0;
+	for(auto hight : height_map.floatData)
+		heights[i++] = (hight * TERRAIN_HEIGHT_FACTOR);
 }
 
 void CTerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)
@@ -100,8 +95,8 @@ vec2 CTerrain::GetLocalPositionOnTerrain(float worldX, float worldZ)
 
 vec2i CTerrain::GetGridCoord(const vec2 & position) const
 {
-	int x = (int) floor(position.x / gridSquereSize);
-	int y = (int) floor(position.y / gridSquereSize);
+	int x = (int) floor( position.x / gridSquereSize );
+	int y = (int) floor( position.y / gridSquereSize );
 
 	return vec2i(x, y);
 }
@@ -122,16 +117,6 @@ bool CTerrain::IsInLeftTriangle(const vec2 & position) const
 bool CTerrain::IsValidGridCoordinate(const vec2i & position) const
 {
 	return (position.x >= heightMapResolution - 1 || position.y >= heightMapResolution - 1 || position.x < 0 || position.y < 0);
-}
-
-float CTerrain::ConvertColourToHeight(float colourValue) const
-{
-	auto max = 255.f;
-	colourValue /= max;
-	colourValue *= 2.f;
-	colourValue -= 1.f;
-	colourValue *= heightFactor;
-	return colourValue;
 }
 
 float CTerrain::GetHeightInTerrainQuad(const vec2i & gridCoord, const vec2 & localPosition) const
@@ -157,9 +142,7 @@ float CTerrain::GetHeightInTerrainQuad(const vec2i & gridCoord, const vec2 & loc
 
 wb::optional<vec3> CTerrain::UpdatePositionIfIsUnderTerrain(const vec3& current_pos, const wb::optional<float>& height) const
 {
-	wb::optional<vec3> position;
-
-	if (height)
+	if (!height)
 		return{};
 
 	vec3 p = current_pos;

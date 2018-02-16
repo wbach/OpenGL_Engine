@@ -1,7 +1,7 @@
 #include "CubeMapTexture.h"
 #include "Logger/Log.h"
 
-CCubeMapTexture::CCubeMapTexture(const std::string& name, const std::vector<SImage>& image)
+CCubeMapTexture::CCubeMapTexture(const std::string& name, const std::vector<SImagePtr>& image)
 	: CTexture(name, name)
 {
 	if (image.size() != 6)
@@ -22,8 +22,8 @@ void CCubeMapTexture::OpenGLLoadingPass()
 
 	if (hubo_error)
 	{
-        for(auto& i : images)
-            delete[] i.data;
+		for (auto& i : images)
+			i->data.clear();
 
 		Log("[Error] OGL There was an error loading the texture : " + filename);
 		return;
@@ -32,16 +32,13 @@ void CCubeMapTexture::OpenGLLoadingPass()
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 	for (int x = 0; x < 6; x++)
 	{
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_RGBA, images[x].width, images[x].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*) images[x].data);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_RGBA, images[x]->width, images[x]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*) &images[x]->data[0]);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        if (images[x].data != nullptr)
-		{
-            delete[] images[x].data;
-		}
+		images[x]->data.clear();
 	}
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     isInit = true;

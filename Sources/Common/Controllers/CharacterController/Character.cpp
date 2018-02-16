@@ -170,8 +170,9 @@ namespace common
 
 		void CharacterController::MoveState(std::list<CharacterActions::Type>::iterator & state, float time)
 		{
-			vec2 rotateValue = CalculateNewValueInTimeInterval<vec2, Direction>(moveStateInfo, time);
-			transform_.SetPosition(vec3(rotateValue.x, 0, rotateValue.y));
+			vec2 posValue = CalculateNewValueInTimeInterval<vec2, Direction>(moveStateInfo, time);
+
+			transform_.SetPositionXZ(posValue);
 			RemoveStateIfTimeElapsed(state, time, moveStateInfo.endTime);
 
 			float dt = (moveStateInfo.endTime - time) / moveTime_;

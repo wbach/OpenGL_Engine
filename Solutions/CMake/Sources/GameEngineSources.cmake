@@ -49,8 +49,10 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/SimpleRenderer.cpp
 ../../Sources/GameEngine/Renderers/SkyBox/Shaders/SkyBoxShader.cpp
 ../../Sources/GameEngine/Renderers/SkyBox/SkyBoxRenderer.cpp
-../../Sources/GameEngine/Renderers/Terrain/Classic/Shaders/TerrainShader.cpp
-../../Sources/GameEngine/Renderers/Terrain/Classic/TerrainRenderer.cpp
+../../Sources/GameEngine/Renderers/Terrain/Classic/ClassicTerrainRenderer.cpp
+../../Sources/GameEngine/Renderers/Terrain/Classic/Shaders/ClassicTerrainShader.cpp
+../../Sources/GameEngine/Renderers/Terrain/Shaders/TerrainShader.cpp
+../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
@@ -68,6 +70,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/TextureLoader.cpp
 ../../Sources/GameEngine/Resources/textureloadertests.cpp
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.cpp
+../../Sources/GameEngine/Resources/Textures/HeightMap.cpp
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.cpp
 ../../Sources/GameEngine/Resources/Textures/Texture.cpp
 ../../Sources/GameEngine/Scene/Scene.cpp

@@ -10,12 +10,11 @@ namespace GameEngine
 	public:
 		enum UniformLocation
 		{
-			transformMatrix,
-			mvp_matrix,
-			tex_displacement,
-			mv_matrix,
-			proj_matrix,
-			dmap_depth,
+			modelViewProjectionMatrix,
+			displacementTexture,
+			modelViewMatrix,
+			projectionMatrix,
+			heightFactor,
 			BlendMap,
 			BackgroundTexture,
 			rTexture,
@@ -31,7 +30,6 @@ namespace GameEngine
 		};
 
 		TerrainShader();
-		virtual void Init();
 		void GetAllUniformLocations();
 		void BindAttributes() override;
 		void ConnectTextureUnits() const override;

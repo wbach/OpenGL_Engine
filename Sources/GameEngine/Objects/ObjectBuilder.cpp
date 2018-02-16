@@ -39,6 +39,7 @@ CGameObject * ObjectBuilder::CreateTerrain(CResourceManager& manager, TerrainTex
 	}
 
 	auto terrain = new CTerrainWrapper(manager, textures);
+	terrain->Get();
 	//TerrainUtils::LoadTextures(manager, terrain, textures);
 	//TerrainUtils::LoadHeightMap(manager, terrain, textures[Terrain::displacementMap]);
 	//TerrainUtils::LoadSimpleMesh(manager, terrain);	
