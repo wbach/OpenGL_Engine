@@ -38,7 +38,7 @@ public:
 	void CalculateInput() override;
 	void Move() override;
 	void CalculateZoom(float zoom_lvl) override;
-	void OnLookAtChange(const vec3& pos, const vec3& rot, const vec3& scale, const mat4&);
+	void OnLookAtChange(const vec3& pos, const vec3& rot, const vec3& scale);
 
 private:
 	void LockCamera();

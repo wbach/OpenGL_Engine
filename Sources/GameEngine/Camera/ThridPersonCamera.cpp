@@ -24,10 +24,10 @@ CThirdPersonCamera::CThirdPersonCamera(GameEngine::InputManager* input_manager, 
 {
 	lookAtPosition = look_at.GetPosition();
 	lookAtRotataion = look_at.GetRotation();
-	look_at.SubscribeOnChange("CThirdPersonCamera", std::bind(&CThirdPersonCamera::OnLookAtChange, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+	look_at.SubscribeOnChange("CThirdPersonCamera", std::bind(&CThirdPersonCamera::OnLookAtChange, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	
 	
-	distanceFromPlayer = 12.0f;
+	distanceFromPlayer = 2.0f;
 	referenceTime = std::chrono::high_resolution_clock::now();
 }
 
@@ -209,7 +209,7 @@ void CThirdPersonCamera::CalculateZoom(float zoom_lvl)
 	this->distanceFromPlayer += zoom_lvl;
 }
 
-void CThirdPersonCamera::OnLookAtChange(const vec3 & pos, const vec3 & rotation, const vec3&, const mat4 &)
+void CThirdPersonCamera::OnLookAtChange(const vec3 & pos, const vec3 & rotation, const vec3&)
 {
 	lookAtRotataion = rotation;
 	lookAtPosition = pos;

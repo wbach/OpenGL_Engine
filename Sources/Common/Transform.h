@@ -3,6 +3,7 @@
 #include "Mutex.hpp"
 #include <unordered_map>
 #include <functional>
+#include <atomic>
 
 namespace common
 {
@@ -13,7 +14,7 @@ namespace common
 		Z
 	};
 	
-	typedef std::function<void(const vec3& pos, const vec3& rot, const vec3& scale, const mat4&)> TransformChangeSubscribers;
+	typedef std::function<void(const vec3& pos, const vec3& rot, const vec3& scale)> TransformChangeSubscribers;
 
 	class Transform
 	{
@@ -31,10 +32,10 @@ namespace common
 		void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
 		void IncrasePosition(vec3 v, uint32 index = 0);
 		void IncreaseRotation(float dx, float dy, float dz);
-		void UpdateMatrix();
 		
-		const vec3& GetPosition();
-		const vec3& GetRotation();
+		vec3 GetPosition();
+		vec3 GetRotation();
+		vec3 GetScale();
 		vec2 GetPositionXZ();
 		const mat4& GetMatrix();
 
@@ -46,10 +47,15 @@ namespace common
 		void SetRotate(Axis axis, float v);
 
 	private:
+		void TransformChanged();
+		void UpdateMatrix();
+
+	private:
 		std::unordered_map<std::string, TransformChangeSubscribers> transformChangeSubscribers_;
 		vec3 position;	std::mutex pmutex;
 		vec3 rotation;	std::mutex rmutex;
 		vec3 scale;		std::mutex smutex;
-		mat4 matrix;	std::mutex mmutex;
+		std::atomic_bool matrixChanged;
+		mat4 matrix;
 	};
 } // common

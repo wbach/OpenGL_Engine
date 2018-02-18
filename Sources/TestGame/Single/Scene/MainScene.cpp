@@ -15,10 +15,7 @@
 
 MainScene::MainScene()
     : GameEngine::Scene("MainScene")
-	, debuger(inputManager_)
 {	
-	//InitGui();
-	debuger.AddAction(KeyCodes::R, std::bind(&MainScene::ReloadShadersInRenderer, this));
 }
 
 MainScene::~MainScene()
@@ -29,25 +26,18 @@ MainScene::~MainScene()
 int MainScene::Initialize()
 {
 	Log("MainScene::Initialize()");
+	renderersManager_->GuiText("playerPos").position = vec2(-0.9, 0.75);
 
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
 
-	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 25, vec2(-10, 0));
-	AddStaticEntity("Meshes/Barrel/barrel.obj", 1, vec2(0, 0));
+	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 25.f, vec2(-10, 0));
+	AddStaticEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(0, 0));
 	
-
-	renderersManager_->GuiText("playerPos").position = vec2(-0.9, 0.75);
-	player = ObjectBuilder::CreateEntity(&resourceManager, "Meshes/DaeAnimationExample/CharacterRunning.dae");
-	player->worldTransform.SetScale(1.8f);
-	player->worldTransform.SetRotate(common::Axis::Z, 90.0f);
-
+	player = AddStaticEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(-2, 0));
 	auto pentity = static_cast<CEntity*>(player);
 	pentity->dynamic = true;
 	pentity->attachedToCamera = true;
-	//AddGameObject(player, glm::vec3(-32.5f, 0, -32.5f));
-	AddGameObject(player, glm::vec3(0, 0, 0));
-	renderersManager_->Subscribe(player);
 
 	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 	playerInputController_ = std::make_shared<PlayerInputController>(inputManager_, characterController_.get());
@@ -56,16 +46,54 @@ int MainScene::Initialize()
     dayNightCycle.SetTime(.5f);
 
   //  camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
-
     SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform));
 	camType = CameraType::ThridPerson;
 
-	if (camera != nullptr)
+	KeyOperations();
+
+    return 0;
+}
+
+int MainScene::Update(float dt)
+{
+	if (camera == nullptr)
 	{
-		camera->CalculateInput();
-		camera->Move();
+	   Log("MainScene::Update camera is nullptr.");
+	   return -1;
 	}
 
+	deltaTime = dt;
+    gloabalTime += deltaTime;
+
+    timeClock += deltaTime;
+    if(timeClock > 1.f)
+    {
+        int hour = 0, minutes = 0;
+        dayNightCycle.GetCurrentHour(hour, minutes);
+        timeClock = 0;
+        Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
+    }
+
+    dayNightCycle.Update(deltaTime);
+
+	player->worldTransform.IncrasePosition(0.f, -9.8f * deltaTime, 0.f);
+
+    CheckCollisions();
+	UpdatePlayerandCamera(deltaTime);
+
+	renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
+    return 0;
+}
+
+void MainScene::UpdatePlayerandCamera(float time)
+{	
+	camera->CalculateInput();
+	characterController_->Update(deltaTime);
+	camera->Move();
+}
+
+void MainScene::KeyOperations()
+{
 	inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [&]()
 	{
 		auto d = camera->GetDistance() - 0.5f;
@@ -79,7 +107,7 @@ int MainScene::Initialize()
 	});
 
 	inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]()
-	{		
+	{
 		renderersManager_->ReloadShaders();
 	});
 
@@ -90,10 +118,10 @@ int MainScene::Initialize()
 
 	inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]()
 	{
-		player->worldTransform.SetPosition(vec3(0,0,0));
+		player->worldTransform.SetPosition(vec3(0, 0, 0));
 	});
 
-	inputManager_->SubscribeOnKeyDown(KeyCodes::C, [&]() 
+	inputManager_->SubscribeOnKeyDown(KeyCodes::C, [&]()
 	{
 		auto pos = camera->GetPosition();
 		auto rotation = camera->GetRotation();
@@ -103,7 +131,7 @@ int MainScene::Initialize()
 			camType = CameraType::ThridPerson;
 			SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform));
 		}
-		else if(camType == CameraType::ThridPerson)
+		else if (camType == CameraType::ThridPerson)
 		{
 			camType = CameraType::FirstPerson;
 			SetCamera(std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_));
@@ -113,59 +141,10 @@ int MainScene::Initialize()
 		camera->SetYaw(rotation.y);
 		camera->SetRoll(rotation.z);
 	});
-
-    return 0;
-}
-//#include <stdio.h>
-int MainScene::Update(float dt)
-{
-	if (camera == nullptr)
-	{
-	   Log("MainScene::Update camera is nullptr.");
-	   return -1;
-	}
-
-	deltaTime = dt;
-    gloabalTime += deltaTime;
-
-    timeClock += deltaTime;    
-    if(timeClock > 1.f)
-    {
-        int hour = 0, minutes = 0;
-        dayNightCycle.GetCurrentHour(hour, minutes);
-        timeClock = 0;
-        Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
-    }
-
-	//if (inputManager_->GetKeyDown(KeyCodes::ENTER))
-	//{
-	//	GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, "MainScene");
-	//	addSceneEvent(e);
-	//}
-
-    dayNightCycle.Update(deltaTime);
-	
-    CheckCollisions();
-	DebugRenderOptionsControl();
-
-	UpdatePlayerandCamera(deltaTime);
-
-
-	renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
-    return 0;
-}
-
-void MainScene::UpdatePlayerandCamera(float time)
-{	
-	camera->CalculateInput();
-	characterController_->Update(deltaTime);
-	camera->Move();
 }
 
 void MainScene::CheckCollisions()
 {
-	player->worldTransform.IncrasePosition(0.f, -9.8f, 0.f);
-
 	for (auto& terrain : terrains)
 	{
         auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
@@ -177,14 +156,7 @@ void MainScene::CheckCollisions()
 		
 		if (ppos.y < new_position.value().y)
 			player->worldTransform.SetPosition(new_position.value());
-
-		//Log(Utils::ToString(ppos));
 	}
-}
-
-void MainScene::OnPlayerPositionUpdate(const vec3& position)
-{
-	camera->Move();	
 }
 
 TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
@@ -252,39 +224,9 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 		}
 	}
 	return grass_positions;
-
-	//if (terrain == nullptr)
-	//{
-	//	Error("MainScene::AddGrass : terrain is nullptr.");
-	//	return;
-	//}
-
- //   std::vector<float> grass_position;
- //   std::vector<uint16> indicies;
- //   std::vector<float> empty_float_vec;
- //   std::vector<SVertexBoneData> empty_bones;
- //   SMaterial grass_material;
-
- //   for(float y = 0.f ; y < 200.f; y += 1.5f)
- //   {
- //       for (float x = 0.f; x < 200.f; x += 1.5f)
- //       {
- //           grass_position.push_back(x + ((rand() % 200 - 100) / 100.f));
- //           auto height = terrain != nullptr ? terrain->GetHeightofTerrain(x, y) : 0;
- //           grass_position.push_back(height + 1.f);
- //           grass_position.push_back(y + ((rand() % 200 - 100) / 100.f));
- //       }
- //   }
-
- //   SGrass* grass = new SGrass();
- //   grass->model = new CModel();
- //   grass_material.m_DiffuseTexture = m_ResourceManager.GetTextureLaoder().LoadTexture("Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png");
- //   grass->model->AddMesh(grass_position, empty_float_vec, empty_float_vec, empty_float_vec, indicies, grass_material, empty_bones);
- //   m_ResourceManager.AddModel(grass->model);
- //   engine.m_Renderers[0]->Subscribe(grass);
 }
 
-void MainScene::AddStaticEntity(const std::string & modelName, float scale, const vec2 & position)
+CGameObject* MainScene::AddStaticEntity(const std::string & modelName, float scale, const vec2 & position)
 {
 	auto obj = ObjectBuilder::CreateEntity(&resourceManager, modelName);
 	obj->worldTransform.SetScale(scale);
@@ -302,37 +244,10 @@ void MainScene::AddStaticEntity(const std::string & modelName, float scale, cons
 	}
 	AddGameObject(obj, obj_pos);
 	renderersManager_->Subscribe(obj);
+	return obj;
 }
 
 void MainScene::InitGui()
 {
-	SGuiTextElement score;
-	score.text =
-		"V -  on/off debug keys."
-		"G -  on/off grid";
-	score.colour = glm::vec3(0, 162.f / 255.f, 232.f / 255.f);
 
-	score.position = glm::vec2(-0.9, 0.9);
-	//engine.gui.texts->texts["Line_p1"] = score;	
-
-	//debuger.SetGuiRenderer(engine.gui.renderer);
-	//debuger.Init();
-	//gui_renderer->Init();
-}
-
-void MainScene::DebugRenderOptionsControl()
-{
-	/*if (inputManager_->GetKeyDown(KeyCodes::V))
-	{
-		debuger.TurnOnOff();
-	}
-	debuger.Execute();*/
-}
-
-void MainScene::ReloadShadersInRenderer()
-{
-	/*for (auto& renderer : engine.renderers)
-	{
-		renderer->ReloadShaders();
-	}*/
 }

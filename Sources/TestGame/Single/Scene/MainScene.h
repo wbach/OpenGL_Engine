@@ -1,6 +1,5 @@
 #pragma once
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Engine/Debuger.h"
 #include "GameEngine/Objects/ObjectBuilder.h"
 #include "Common/Controllers/CharacterController/Character.h"
 #include "TestGame/Single/PlayerInputController.h"
@@ -28,15 +27,12 @@ public:
 private:
 	void InitGui();
 	void UpdatePlayerandCamera(float time);
-	void ReloadShadersInRenderer();
-	void DebugRenderOptionsControl();
+	void KeyOperations();
 	void CheckCollisions();
-	void SwapCamera();
-	void OnPlayerPositionUpdate(const vec3& position);
 	void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 	TerrainTexturesMap CreateTerrainTexturesMap();
 	std::vector<float> CreateGrassPositions(CGameObject*);
-	void AddStaticEntity(const std::string& modelName, float scale, const vec2& position);
+	CGameObject* AddStaticEntity(const std::string& modelName, float scale, const vec2& position);
 
 private:
 	std::shared_ptr<common::Controllers::CharacterController> characterController_;
@@ -47,7 +43,6 @@ private:
 
 	std::vector<CGameObject*> terrains;
 	double timeClock = 0;
-	CDebuger debuger;
 	float deltaTime;
 
 	CameraType camType;
