@@ -38,7 +38,7 @@ namespace common
 		vec2 GetPositionXZ();
 		const mat4& GetMatrix();
 
-		void SetNormalizedSize(const vec3& size);
+		void SetScale(float s);
 		void SetScale(const vec3& s);
 		void SetPosition(const vec3& pos);
 		void SetPositionXZ(const vec2& pos);
@@ -51,6 +51,5 @@ namespace common
 		vec3 rotation;	std::mutex rmutex;
 		vec3 scale;		std::mutex smutex;
 		mat4 matrix;	std::mutex mmutex;
-		vec3 normalized = vec3(1.f); 
 	};
 } // common

@@ -8,6 +8,7 @@ namespace GameEngine
 	({
 		{ KeyCodes::LMOUSE, SDL_BUTTON_LEFT },
 		{ KeyCodes::RMOUSE, SDL_BUTTON_RIGHT },
+		{ KeyCodes::MOUSE_WHEEL, SDL_BUTTON_MIDDLE },
 		{ KeyCodes::Q, SDL_SCANCODE_Q },
 		{ KeyCodes::W, SDL_SCANCODE_W },
 		{ KeyCodes::E, SDL_SCANCODE_E },

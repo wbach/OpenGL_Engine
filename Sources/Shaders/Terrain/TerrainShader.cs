@@ -14,6 +14,13 @@ out TCS_OUT
 
 uniform mat4 modelViewProjectionMatrix;
 
+const float scale = 32.f;
+
+float CalculateTessLvl(vec4 p1, vec4 p2)
+{
+    return length(p1.xy - p2.xy) * scale + 1.0;
+}
+
 void main(void)
 {
     if (gl_InvocationID == 0)
@@ -22,10 +29,17 @@ void main(void)
         vec4 p1 = modelViewProjectionMatrix * gl_in[1].gl_Position;
         vec4 p2 = modelViewProjectionMatrix * gl_in[2].gl_Position;
         vec4 p3 = modelViewProjectionMatrix * gl_in[3].gl_Position;
+
         p0 /= p0.w;
         p1 /= p1.w;
         p2 /= p2.w;
         p3 /= p3.w;
+      
+        float distanceToCamera_p0 = length(gl_in[0].gl_Position.xz);
+        float distanceToCamera_p1 = length(gl_in[1].gl_Position.xz);
+        float distanceToCamera_p2 = length(gl_in[2].gl_Position.xz);
+        float distanceToCamera_p3 = length(gl_in[3].gl_Position.xz);
+
         if (p0.z <= 0.0 ||
             p1.z <= 0.0 ||
             p2.z <= 0.0 ||
@@ -38,11 +52,12 @@ void main(void)
          }
          else
          {
-            const float scale = 16.f;
-            float l0 = length(p2.xy - p0.xy) * scale + 1.0;
-            float l1 = length(p3.xy - p2.xy) * scale + 1.0;
-            float l2 = length(p3.xy - p1.xy) * scale + 1.0;
-            float l3 = length(p1.xy - p0.xy) * scale + 1.0;
+            float l0 = CalculateTessLvl(p2, p0);
+            float l1 = CalculateTessLvl(p3, p2);
+            float l2 = CalculateTessLvl(p3, p1);
+            float l3 = CalculateTessLvl(p1, p0);
+
+
             gl_TessLevelOuter[0] = l0;
             gl_TessLevelOuter[1] = l1;
             gl_TessLevelOuter[2] = l2;

@@ -36,6 +36,7 @@ private:
 	void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 	TerrainTexturesMap CreateTerrainTexturesMap();
 	std::vector<float> CreateGrassPositions(CGameObject*);
+	void AddStaticEntity(const std::string& modelName, float scale, const vec2& position);
 
 private:
 	std::shared_ptr<common::Controllers::CharacterController> characterController_;
@@ -51,4 +52,5 @@ private:
 
 	CameraType camType;
 	CGameObject* player;
+	std::vector<CGameObject*> terrains_;
 };

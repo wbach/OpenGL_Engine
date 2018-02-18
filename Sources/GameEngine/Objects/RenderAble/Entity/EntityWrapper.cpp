@@ -1,8 +1,7 @@
 #include "EntityWrapper.h"
 
-CEntityWrapper::CEntityWrapper(CResourceManager* manager, const vec3& normalizeScale)
-	: normalizeScale_(normalizeScale)
-	, manager_(manager)
+CEntityWrapper::CEntityWrapper(CResourceManager* manager)
+	: manager_(manager)
 	, entity_(nullptr)
 {
 
@@ -27,7 +26,7 @@ CEntity* CEntityWrapper::Get()
 	}
 	else
 	{
-		entity_ = std::make_unique<CEntity>(manager_, normalizeScale_);
+		entity_ = std::make_unique<CEntity>(manager_);
 	}
 
 	return entity_.get();

@@ -29,12 +29,6 @@ namespace GameEngine
 	}
 	void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
 	{
-		shader.Start(); //* Utils::CreateTransformationMatrix(vec3(0), vec3(0), vec3(100))
-
-		auto transform = Utils::CreateTransformationMatrix(vec3(0.f, -100.f, 0.f), vec3(0), vec3(100));
-
-		
-		shader.Stop();
 	}
 	void CTerrainRenderer::Render(GameEngine::Scene * scene)
 	{
@@ -43,6 +37,7 @@ namespace GameEngine
 
 		target->BindToDraw();
 		shader.Start();
+		shader.Load(TerrainShader::playerPosition, scene->GetCamera()->GetPosition());
 		RenderSubscribers(scene->GetCamera()->GetViewMatrix(), 2);
 		shader.Stop();
 
@@ -51,8 +46,13 @@ namespace GameEngine
 	{
 		for (auto& sub : subscribes)
 		{
-			auto modelViewMatrix = viewMatrix * sub->Get()->GetTransformMatrix();			
-			shader.Load(TerrainShader::modelViewMatrix, modelViewMatrix);
+			auto modelViewMatrix = viewMatrix;
+
+			modelViewMatrix[3][0] = 0;
+			modelViewMatrix[3][1] = 0;
+			modelViewMatrix[3][2] = 0;
+
+			shader.Load(TerrainShader::modelViewMatrix, modelViewMatrix);			
 			shader.Load(TerrainShader::modelViewProjectionMatrix, projectionMatrix->GetProjectionMatrix() * modelViewMatrix);
 			RenderSubscriber(sub);
 		}
@@ -64,17 +64,15 @@ namespace GameEngine
 
 		BindTextures(sub);
 
-	//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glBindVertexArray(vao);
-		glDrawArraysInstanced(GL_PATCHES, 0, 4, 64 * 64);
+		glDrawArraysInstanced(GL_PATCHES, 0, 4, Terrain::SIZE * Terrain::SIZE);
 		glBindVertexArray(0);
-	//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	void CTerrainRenderer::InitShader()
 	{
 		shader.Init();
 		shader.Start();
-		shader.Load(TerrainShader::heightFactor, TERRAIN_HEIGHT_FACTOR);
+		shader.Load(TerrainShader::heightFactor, Terrain::HEIGHT_FACTOR);
 		shader.Load(TerrainShader::projectionMatrix, projectionMatrix->GetProjectionMatrix());
 		shader.Stop();
 	}

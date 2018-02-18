@@ -4,18 +4,15 @@
 #include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 
-CEntity::CEntity(CResourceManager* manager, const vec3& normalizedScale)
-	: normalizedScale_(normalizedScale)
-	, manager_(manager)
+CEntity::CEntity(CResourceManager* manager)
+	: manager_(manager)
 {
-	worldTransform.SetNormalizedSize(normalizedScale_);
 }
 
 CEntity::CEntity(const GameEngine::ModelWrapper& modelWrapper)
 	: manager_(nullptr)
 	, modelWrapper_(modelWrapper) 
 {
-	worldTransform.SetNormalizedSize(modelWrapper_.GetScale());
 }
 
 ModelRawPtr CEntity::GetModel(GameEngine::LevelOfDetail i)
@@ -28,8 +25,7 @@ void CEntity::AddModel(const std::string& filename, GameEngine::LevelOfDetail i)
 	if (filename.empty() || manager_ == nullptr)
 		return;
 	
-	auto model = GameEngine::LoadModel(manager_, normalizedScale_, filename);
-	worldTransform.SetNormalizedSize(model->GetNormalizedScaleVector());
+	auto model = GameEngine::LoadModel(manager_, filename);
 	modelWrapper_.Add(model, i);
 }
 

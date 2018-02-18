@@ -43,7 +43,7 @@ wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ)
 
 	auto localPosition = GetLocalPositionOnTerrain(worldX, worldZ);
 
-	auto gridCoord = GetGridCoord(localPosition + vec2(TERRAIN_HALF_TOTAL_SIZE));
+	auto gridCoord = GetGridCoord(localPosition + vec2(Terrain::HALF_TOTAL_SIZE));
 
 	if (IsValidGridCoordinate(gridCoord))
 		return result;
@@ -64,7 +64,7 @@ void CTerrain::LoadHeight(const SImage &height_map)
 	}
 
 	heightMapResolution = height_map.height;
-	gridSquereSize = (TERRAIN_TOTAL_SIZE / ((float) heightMapResolution - 1));
+	gridSquereSize = (Terrain::TOTAL_SIZE * Terrain::PART_SIZE / ((float) heightMapResolution - 1));
 
 	auto h = height_map.height;
 	auto w = height_map.width;
@@ -74,7 +74,7 @@ void CTerrain::LoadHeight(const SImage &height_map)
 	//bgr2rgb
 	uint32 i = 0;
 	for(auto hight : height_map.floatData)
-		heights[i++] = (hight * TERRAIN_HEIGHT_FACTOR);
+		heights[i++] = (hight * Terrain::HEIGHT_FACTOR);
 }
 
 void CTerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)

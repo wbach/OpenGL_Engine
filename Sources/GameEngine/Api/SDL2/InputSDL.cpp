@@ -6,7 +6,7 @@
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_events.h>
 
-
+#include "Logger/Log.h"
 namespace GameEngine
 {
 	InputSDL::InputSDL(SDL_Window* sdl_window)
@@ -83,39 +83,61 @@ namespace GameEngine
 	}
 
 	void InputSDL::AddKeyEvent(uint32 eventType, uint32 sdlKey)
-	{
+	{		
+		if (FindEvent(eventType, sdlKey))
+			return;
+
+
 		std::lock_guard<std::mutex> lk(keyEventMutex_);
+		Log("" + std::to_string(eventType) + ", " + std::to_string(sdlKey) + ", size : " + std::to_string(keyEvents_.size()));
+
 		keyEvents_.push_back({ eventType , sdlKey });
 	}
 
 	void InputSDL::ProcessKeysEvents()
 	{
-		auto e = GetEvent();
-		if (!e) return;
-
-		auto type = e.value().first;
-		auto value = e.value().second;
-
-		auto keyCode = SdlKeyConverter::keys[value];
-
-		if (type == SDL_KEYDOWN)
+		while (true)
 		{
-			for (const auto& subscriber : keyDownSubscribers_[keyCode])
+			auto e = GetEvent();
+
+			if (!e) return;
+
+			auto type = e.value().first;
+			auto value = e.value().second;
+
+			auto keyCode = SdlKeyConverter::keys[value];
+
+			if (type == SDL_KEYDOWN)
 			{
-				subscriber();
+				for (const auto& subscriber : keyDownSubscribers_[keyCode])
+				{
+					subscriber();
+				}
+				for (const auto& keysSubscriber : keysSubscribers_)
+				{
+					keysSubscriber(keyCode);
+				}
 			}
-			for (const auto& keysSubscriber : keysSubscribers_)
+			else if (type == SDL_KEYUP)
 			{
-				keysSubscriber(keyCode);
-			}
-		}
-		else if (type == SDL_KEYUP)
-		{
-			for (const auto& subscriber : keyUpSubscribers_[keyCode])
-			{
-				subscriber();
+				for (const auto& subscriber : keyUpSubscribers_[keyCode])
+				{
+					subscriber();
+				}
 			}
 		}		
+	}
+
+	bool InputSDL::FindEvent(uint32 eventType, uint32 sdlKey)
+	{
+		std::lock_guard<std::mutex> lk(keyEventMutex_);
+
+		for (const auto& e : keyEvents_)
+		{
+			if (e.second == sdlKey && e.first == eventType)
+				return true;
+		}
+		return false;
 	}
 
 	wb::optional<KeyEvent> InputSDL::GetEvent()

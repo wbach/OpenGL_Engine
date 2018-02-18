@@ -39,7 +39,7 @@ namespace MmmoRpg
 
 		ReqNetworkSceneCharacters();
 		
-		auto bialczyk_obj = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 2, 0), "Meshes/Bialczyk/Bialczyk.obj");
+		auto bialczyk_obj = ObjectBuilder::CreateEntity(&resourceManager, "Meshes/Bialczyk/Bialczyk.obj");
 		AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
 		renderersManager_->Subscribe(bialczyk_obj);
 

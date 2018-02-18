@@ -17,13 +17,19 @@ void StartMessage()
 
 
 
+
 int main(int argc, char* argv[])
 {	
+	//int i = 0;
+	//for (i = 0; i < LAST; i++) {
+	//	printf("%d %s\n", i, strings[i]);
+	//}
+
 	#ifdef BACHU_HAHAH
 	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
 	#endif
 
-	StartMessage();
+ 	StartMessage();
 
 	CLogger::Instance().EnableLogs();
 

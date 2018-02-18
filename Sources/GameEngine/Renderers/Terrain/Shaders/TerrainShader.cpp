@@ -1,5 +1,7 @@
 #include "TerrainShader.h"
 
+#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+
 namespace GameEngine
 {
 	TerrainShader::TerrainShader()
@@ -14,28 +16,25 @@ namespace GameEngine
 	}
 
 	void TerrainShader::GetAllUniformLocations()
-	{
-		uniformLocations[UniformLocation::modelViewProjectionMatrix] = GetUniformLocation("modelViewProjectionMatrix");
-		uniformLocations[UniformLocation::modelViewMatrix] = GetUniformLocation("modelViewMatrix");
-		uniformLocations[UniformLocation::projectionMatrix]  = GetUniformLocation("projectionMatrix");
-		uniformLocations[UniformLocation::heightFactor] = GetUniformLocation("heightFactor");
-
-		uniformLocations[UniformLocation::displacementTexture] = GetUniformLocation("displacementTexture");
-
-		uniformLocations[UniformLocation::BlendMap] = GetUniformLocation("BlendMap");
-		uniformLocations[UniformLocation::BackgroundTexture] = GetUniformLocation("BackgroundTexture");
-		uniformLocations[UniformLocation::rTexture] = GetUniformLocation("rTexture");
-		uniformLocations[UniformLocation::bTexture] = GetUniformLocation("bTexture");
-		uniformLocations[UniformLocation::gTexture] = GetUniformLocation("gTexture");
-		uniformLocations[UniformLocation::RockTexture] = GetUniformLocation("RockTexture");
-		
-		uniformLocations[UniformLocation::BackgroundNormalTexture] = GetUniformLocation("BackgroundTextureNormal");
-		uniformLocations[UniformLocation::rNormalTexture] = GetUniformLocation("rTextureNormal");
-		uniformLocations[UniformLocation::bNormalTexture] = GetUniformLocation("bTextureNormal");
-		uniformLocations[UniformLocation::gNormalTexture] = GetUniformLocation("gTextureNormal");
-		uniformLocations[UniformLocation::RockNormalTexture] = GetUniformLocation("RockTextureNormal");
-
-		uniformLocations[UniformLocation::shadowMap] = GetUniformLocation("shadowMap");
+	{		
+		GetLocation(playerPosition);
+		GetLocation(modelViewProjectionMatrix);
+		GetLocation(modelViewMatrix);
+		GetLocation(projectionMatrix);
+		GetLocation(heightFactor);
+		GetLocation(displacementTexture);
+		GetLocation(BlendMap);
+		GetLocation(BackgroundTexture);
+		GetLocation(rTexture);
+		GetLocation(bTexture);
+		GetLocation(gTexture);
+		GetLocation(RockTexture);
+		GetLocation(BackgroundNormalTexture);
+		GetLocation(rNormalTexture);
+		GetLocation(bNormalTexture);
+		GetLocation(gNormalTexture);
+		GetLocation(RockNormalTexture);
+		GetLocation(shadowMap);
 	}
 	void TerrainShader::BindAttributes()
 	{

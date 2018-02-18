@@ -1,5 +1,6 @@
 #include "MeshData.h"
 #include <algorithm>
+#include "Logger/Log.h"
 
 namespace WBLoader
 {
@@ -35,12 +36,29 @@ namespace WBLoader
 		buffer.push_back(v.y);
 	}
 
+	void minMax(float v , float& min, float& max)
+	{
+		if (v < min)
+			min = v;
+
+		if (v > max)
+			max = v;
+	}
+
+	void Mesh::Normalize(float factor)
+	{
+		for (auto& v : vertexBuffer)
+		{
+			v.position /= factor;
+		}
+	}
+
 	void Mesh::IndexinVBO()
 	{
 		computeTangentBasis();
 
-		//std::list<wb::vec3i> out_indexes;
-		std::map<wb::vec3i, uint16> out_indexes;
+		std::map<wb::vec3i, uint16> out_indexes;		
+
 		for (auto& v : vertexBuffer)
 		{
 			//auto i = FindIndex(out_indexes, v.indexes);
@@ -127,5 +145,29 @@ namespace WBLoader
 				t = t * -1.0f;
 			}
 		}
+	}
+	float Mesh::GetScaleFactor() const
+	{
+		vec3 min(std::numeric_limits<float>::max());
+		vec3 max(-std::numeric_limits<float>::max());
+
+		for (const auto& v : vertexBuffer)
+		{
+			minMax(v.position.x, min.x, max.x);
+			minMax(v.position.y, min.y, max.y);
+			minMax(v.position.z, min.z, max.z);
+		}
+
+		float lx = fabs(max.x - min.x);
+		float ly = fabs(max.y - min.y);
+		float lz = fabs(max.z - min.z);
+
+		float maxD = lx;
+		if (ly > maxD)
+			maxD = ly;
+		if (lz > maxD)
+			maxD = lz;
+
+		return maxD;
 	}
 }

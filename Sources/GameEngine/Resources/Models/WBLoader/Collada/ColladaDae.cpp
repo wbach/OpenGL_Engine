@@ -16,22 +16,6 @@ namespace WBLoader
 		: textureLodaer(textureLodaer)
 	{
 	}
-	CMeshList ColladaDae::CreateFinalMesh()
-	{
-		CMeshList out;
-
-		SBonesInfo m_BonesInfo;
-		for (auto& obj : objects)
-		{
-			for (auto& mesh : obj.meshes)
-			{
-				mesh.IndexinVBO();
-				//output.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones);
-				out.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones, obj.transformMatrix);
-			}
-		}
-		return out;
-	}
 
 	void ColladaDae::ParseFile(const std::string& filename)
 	{

@@ -17,7 +17,8 @@ private:
 	void SubscribeForPushActions();
 	void SubscribeForPopActions();
 	bool FindState(common::Controllers::CharacterActions::Type type);
-
+	void AddState(common::Controllers::CharacterActions::Type state);
+	void RemoveState(common::Controllers::CharacterActions::Type state);
 private:
 	GameEngine::InputManager* inputManager_;
 	common::Controllers::CharacterController* characterController_;

@@ -20,69 +20,60 @@ void PlayerInputController::SubscribeForPushActions()
 {
 	inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]()
 	{
-		if (FindState(MOVE_FORWARD))
-			return;
-
-		characterController_->AddState(MOVE_FORWARD);
-		states_.push_back(MOVE_FORWARD);
+		AddState(MOVE_FORWARD);
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::S, [&]()
 	{
-		if (FindState(MOVE_BACKWARD))
-			return;
-		characterController_->AddState(MOVE_BACKWARD);
-		states_.push_back(MOVE_BACKWARD);
+		AddState(MOVE_BACKWARD);
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::A, [&]()
 	{
-		if (FindState(ROTATE_LEFT))
-			return;
-		characterController_->AddState(ROTATE_LEFT);
-		states_.push_back(ROTATE_LEFT);
+		AddState(ROTATE_LEFT);
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::D, [&]()
 	{
-		if (FindState(ROTATE_RIGHT))
-			return;
-		characterController_->AddState(ROTATE_RIGHT);
-		states_.push_back(ROTATE_RIGHT);
+		AddState(ROTATE_RIGHT);
 	});
 }
 void PlayerInputController::SubscribeForPopActions()
 {
 	inputManager_->SubscribeOnKeyUp(KeyCodes::W, [&]()
 	{
-		if (!FindState(MOVE_FORWARD))
-			return;
-		characterController_->RemoveState(MOVE_FORWARD);
-		states_.remove(MOVE_FORWARD);
+		RemoveState(MOVE_FORWARD);
 	});
 	inputManager_->SubscribeOnKeyUp(KeyCodes::S, [&]()
 	{
-		if (!FindState(MOVE_FORWARD))
-			return;
-		characterController_->RemoveState(MOVE_FORWARD);
-		states_.remove(MOVE_FORWARD);
-
-		characterController_->RemoveState(common::Controllers::CharacterActions::MOVE_BACKWARD);
+		RemoveState(MOVE_BACKWARD);
 	});
 	inputManager_->SubscribeOnKeyUp(KeyCodes::A, [&]()
 	{
-		if (!FindState(ROTATE_LEFT))
-			return;
-		characterController_->RemoveState(ROTATE_LEFT);
-		states_.remove(ROTATE_LEFT);
+		RemoveState(ROTATE_LEFT);
 	});
 	inputManager_->SubscribeOnKeyUp(KeyCodes::D, [&]()
 	{
-		if (!FindState(ROTATE_RIGHT))
-			return;
-		characterController_->RemoveState(ROTATE_RIGHT);
-		states_.remove(ROTATE_RIGHT);
+		RemoveState(ROTATE_RIGHT);
 	});
 }
 
 bool PlayerInputController::FindState(common::Controllers::CharacterActions::Type type)
 {
 	return std::find(states_.begin(), states_.end(), type) != states_.end();;
+}
+
+void PlayerInputController::AddState(common::Controllers::CharacterActions::Type state)
+{
+	if (FindState(state))
+		return;
+
+	characterController_->AddState(state);
+	states_.push_back(state);
+}
+
+void PlayerInputController::RemoveState(common::Controllers::CharacterActions::Type state)
+{
+	if (!FindState(state))
+		return;
+
+	characterController_->RemoveState(state);
+	states_.remove(state);
 }

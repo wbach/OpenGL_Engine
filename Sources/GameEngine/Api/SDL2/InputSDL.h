@@ -33,6 +33,7 @@ namespace GameEngine
 		void AddKeyEvent(uint32 eventType, uint32 sdlKey);
 
 	private:
+		bool FindEvent(uint32 eventType, uint32 sdlKey);
 		wb::optional<KeyEvent> GetEvent();
 
 	private:

@@ -53,8 +53,11 @@ namespace WBLoader
 		std::vector<float> fbitangents;
 		SMaterial material;
 
+		void Normalize(float factor);
 		void IndexinVBO();
 		void computeTangentBasis();
+
+		float GetScaleFactor() const;
 	};
 
 	struct Object

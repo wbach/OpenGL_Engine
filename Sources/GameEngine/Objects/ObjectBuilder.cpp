@@ -8,9 +8,9 @@
 #include "RenderAble/Terrain/TerrainCreateUtils.h"
 #include "Logger/Log.h"
 
-CGameObject * ObjectBuilder::CreateEntity(CResourceManager* manager, const vec3 & normalized_scale, const std::string & mesh_lod_1, const std::string & mesh_lod_2, const std::string & mesh_lod_3)
+CGameObject * ObjectBuilder::CreateEntity(CResourceManager* manager, const std::string & mesh_lod_1, const std::string & mesh_lod_2, const std::string & mesh_lod_3)
 {
-	auto e = new CEntity(manager, normalized_scale);
+	auto e = new CEntity(manager);
 	if (!mesh_lod_1.empty())
 		e->AddModel(mesh_lod_1, GameEngine::LevelOfDetail::L1);
 	if (!mesh_lod_2.empty())

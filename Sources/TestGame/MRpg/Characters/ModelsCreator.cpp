@@ -36,7 +36,7 @@ namespace MmmoRpg
 		break;
 		}
 
-		auto model = GameEngine::LoadModel(resourceManager_, vec3(0, 2, 0), "Meshes/DaeAnimationExample/CharacterRunning.dae");
+		auto model = GameEngine::LoadModel(resourceManager_, "Meshes/DaeAnimationExample/CharacterRunning.dae");
 		modelWrapper.Add(model, GameEngine::LevelOfDetail::L1);
 		return modelWrapper;
 	}

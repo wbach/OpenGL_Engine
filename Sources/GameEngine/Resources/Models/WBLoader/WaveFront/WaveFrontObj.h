@@ -1,5 +1,4 @@
 #pragma once
-#include "../MeshData.h"
 #include "../IMeshLoader.h"
 #include <list>
 
@@ -7,13 +6,13 @@ class CTextureLoader;
 
 namespace WBLoader
 {
-	class WaveFrontObjLoader : public IMeshLoader
+	class WaveFrontObjLoader : public AbstractMeshLoader
 	{
 	public:
 		WaveFrontObjLoader(CTextureLoader& textureLodaer);
 		virtual void ParseFile(const std::string& filename) override;
-		virtual std::list<CMesh> CreateFinalMesh() override;
 		virtual bool CheckExtension(const std::string& filename) override;
+
 	private:
 		void GetFileData(const std::string& file_name);
 		void ProcessFileData();
@@ -29,8 +28,7 @@ namespace WBLoader
 		std::string path;
 		std::string filename;
 		CTextureLoader&	textureLodaer;
-
-		std::list<WBLoader::Object> objects;
+		
 		std::list<SMaterial> materials;
 
 		std::vector<vec3> vertex;

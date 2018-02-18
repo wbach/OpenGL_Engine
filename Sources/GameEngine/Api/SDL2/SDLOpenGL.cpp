@@ -152,7 +152,10 @@ namespace GameEngine
 	{
 		BeginFrame();
 		while (SDL_PollEvent(&event))
-			return ProcessSdlEvent();
+		{
+			if (ProcessSdlEvent() == ApiMessages::QUIT)
+				return ApiMessages::QUIT;
+		}
 
 		return ApiMessages::NONE;
 	}
@@ -165,6 +168,17 @@ namespace GameEngine
 			return ApiMessages::QUIT;
 		case SDL_MOUSEBUTTONDOWN:
 			break;
+		case SDL_MOUSEWHEEL:
+			if (event.wheel.y == -1)
+			{
+				addKeyEvent_(SDL_KEYUP, SDL_BUTTON_MIDDLE);
+			}
+			else if (event.wheel.y == 1)
+			{
+				addKeyEvent_(SDL_KEYDOWN, SDL_BUTTON_MIDDLE);
+			}
+			
+			break;
 		case SDL_KEYDOWN:
 			ProccesSdlKeyDown(SDL_KEYDOWN);
 			break;
@@ -174,13 +188,15 @@ namespace GameEngine
 		case SDL_FINGERDOWN:
 			break;
 		}
-
 		return ApiMessages::NONE;
 	}
 
 	void CSdlOpenGlApi::ProccesSdlKeyDown(uint32 type) const
 	{
 		if (addKeyEvent_ == nullptr)
+			return;
+
+		if (event.key.repeat != 0)
 			return;
 
 		auto key = event.key.keysym.sym;

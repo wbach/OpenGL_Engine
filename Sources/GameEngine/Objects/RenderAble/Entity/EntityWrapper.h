@@ -5,7 +5,7 @@
 class CEntityWrapper
 {
 public:
-	CEntityWrapper(CResourceManager* manager, const vec3& normalizeScale);
+	CEntityWrapper(CResourceManager* manager);
 	CEntityWrapper(GameEngine::ModelWrapper modelWrapper);
 	CEntity* Get();
 

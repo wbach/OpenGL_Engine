@@ -92,10 +92,10 @@ void CTessellationTerrainRenderer::RenderTerrainMesh(const CMesh& m) const
 
 void CTessellationTerrainRenderer::PrepareShadersBeforeFrame(TerrainPtr sub) const
 {
-	shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, TERRAIN_HEIGHT_FACTOR);
+	shader.Load(CTesselationTerrainShader::UniformLocation::HeightFactor, Terrain::HEIGHT_FACTOR);
 
 	auto position = sub->worldTransform.GetPosition();
-	shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(TERRAIN_SIZE / 2.f)));
+	shader.Load(CTesselationTerrainShader::UniformLocation::TransformMatrix, Utils::CreateTransformationMatrix(position, vec3(0, 0, 0), vec3(Terrain::SIZE / 2.f)));
 }
 
 bool CTessellationTerrainRenderer::CheckModelExist(TerrainPtr sub) const
@@ -126,7 +126,7 @@ void CTessellationTerrainRenderer::Subscribe(CGameObject * gameObject)
     if (terrain == nullptr)
         return;
 
-    auto position_in_grid = Utils::CalculatePlaceInGird(terrain->worldTransform.GetPosition(), TERRAIN_SIZE);
+    auto position_in_grid = Utils::CalculatePlaceInGird(terrain->worldTransform.GetPosition(), Terrain::SIZE);
 	//Log("Position : " + wb::to_string(position_in_grid));
 	auto index = Utils::Calcualte1DindexInArray(position_in_grid, gridSize);
 	//Log("Index : " + std::to_string(index));
@@ -179,7 +179,7 @@ void CTessellationTerrainRenderer::BindTexture(CTexture* texture, int id) const
 
 TerrainPtrs CTessellationTerrainRenderer::GetTerrainsInRange(const vec3& position, int range) const
 {
-	auto position_in_grid = Utils::CalculatePlaceInGird(position, TERRAIN_SIZE);
+	auto position_in_grid = Utils::CalculatePlaceInGird(position, Terrain::SIZE);
 	auto edge_min_max_y = Utils::CalcualeteEdgeMinMaxValueInGrid(position_in_grid.y, range, gridSize);
 	auto edge_min_max_x = Utils::CalcualeteEdgeMinMaxValueInGrid(position_in_grid.x, range, gridSize);
 

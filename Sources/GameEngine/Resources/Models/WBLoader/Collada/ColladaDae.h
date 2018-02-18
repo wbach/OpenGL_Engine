@@ -35,12 +35,11 @@ namespace WBLoader
     typedef rapidxml::xml_node<char> XMLNode;
     typedef rapidxml::xml_document<char> XMLDocument;
 
-    class ColladaDae : public IMeshLoader
+    class ColladaDae : public AbstractMeshLoader
     {
     public:
         ColladaDae(CTextureLoader& textureLodaer);
         virtual void ParseFile(const std::string& filename) override;
-        virtual CMeshList CreateFinalMesh() override;
         virtual bool CheckExtension(const std::string& filename) override;
 
     protected:
@@ -98,7 +97,6 @@ namespace WBLoader
         StrVector GetStringsFromString(const std::string& str) const;
 
     protected:
-        ObjectsList objects;
         TexturesMap texturesMap;
         MaterialMap materialMap;
         JointsMap joints;

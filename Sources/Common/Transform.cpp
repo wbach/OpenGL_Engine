@@ -32,7 +32,6 @@ namespace common
 		, rotation(t.rotation)
 		, scale(t.scale)
 		, matrix(t.matrix)
-		, normalized(t.normalized)
 	{
 	}
 
@@ -58,7 +57,7 @@ namespace common
 	void Transform::UpdateMatrix()
 	{
 		std::lock_guard<std::mutex> l(mmutex);
-		matrix = Utils::CreateTransformationMatrix(position, rotation, scale * normalized);
+		matrix = Utils::CreateTransformationMatrix(position, rotation, scale );
 
 		for (auto& sub : transformChangeSubscribers_)
 			sub.second(position, rotation, scale, matrix);
@@ -99,9 +98,10 @@ namespace common
 		return matrix;
 	}
 
-	void Transform::SetNormalizedSize(const vec3 & size)
+	void Transform::SetScale(float s)
 	{
-		normalized = size;
+		std::lock_guard<std::mutex> l(smutex);
+		scale = vec3(s);
 		UpdateMatrix();
 	}
 

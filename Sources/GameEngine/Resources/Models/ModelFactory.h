@@ -6,5 +6,5 @@ class CResourceManager;
 
 namespace GameEngine
 {
-	CModel* LoadModel(CResourceManager* manager, const vec3& normalizedScale, const std::string& filename);
+	CModel* LoadModel(CResourceManager* manager, const std::string& filename);
 }

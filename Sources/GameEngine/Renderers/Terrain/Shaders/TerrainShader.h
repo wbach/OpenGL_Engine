@@ -6,10 +6,11 @@
 namespace GameEngine
 {
 	class TerrainShader : public CShaderProgram
-	{
+	{		
 	public:
 		enum UniformLocation
 		{
+			playerPosition,
 			modelViewProjectionMatrix,
 			displacementTexture,
 			modelViewMatrix,

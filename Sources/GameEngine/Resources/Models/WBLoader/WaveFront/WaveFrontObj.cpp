@@ -25,22 +25,6 @@ namespace WBLoader
 		ProcessFileData();
 	}
 
-	std::list<CMesh> WaveFrontObjLoader::CreateFinalMesh()
-	{
-		std::list<CMesh> output;
-
-		SBonesInfo m_BonesInfo;
-		for (auto& obj : objects)
-		{
-			for (auto& mesh : obj.meshes)
-			{
-				mesh.IndexinVBO();
-				output.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones);
-			}
-		}
-		return output;
-	}
-
 	bool WaveFrontObjLoader::CheckExtension(const std::string & filename)
 	{
 		auto ext = Utils::GetFileExtension(filename);

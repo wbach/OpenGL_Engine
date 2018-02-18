@@ -10,6 +10,22 @@
 
 namespace GameEngine
 {
+	struct RenderAsLine
+	{
+		RenderAsLine(bool use)
+			: use(use)
+		{
+			if (use)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		~RenderAsLine()
+		{
+			if (use)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		bool use;
+	};
+
 	namespace Renderer
 	{
 		RenderersManager::RenderersManager()
@@ -64,6 +80,8 @@ namespace GameEngine
 
 			ReloadShadersExecution();
 
+			RenderAsLine lineMode(renderAsLines.load());
+
 			for (auto& renderer : renderers_)
 				Render(scene, renderer.get());
 		}
@@ -95,6 +113,10 @@ namespace GameEngine
 		{
 			for (auto& r : renderers_)
 				r->UnSubscribeAll();
+		}
+		void RenderersManager::SwapLineFaceRender()
+		{
+			renderAsLines.store(!renderAsLines.load());
 		}
 		SGuiTextElement& RenderersManager::GuiText(const std::string & label)
 		{

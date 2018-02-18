@@ -48,7 +48,7 @@ void CMyModel::OpenGLLoadingPass()
 	CModel::OpenGLLoadingPass();
 }
 
-WBLoader::IMeshLoader* CMyModel::GetActiveLoader(const std::string & extension)
+WBLoader::AbstractMeshLoader* CMyModel::GetActiveLoader(const std::string & extension)
 {
 	for (auto& loader : meshLoaders)
 	{

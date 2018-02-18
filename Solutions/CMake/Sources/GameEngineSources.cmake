@@ -62,6 +62,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/ModelFactory.cpp
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/ColladaDae.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/IMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MyModel.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp

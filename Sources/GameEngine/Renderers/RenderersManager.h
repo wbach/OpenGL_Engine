@@ -28,6 +28,7 @@ namespace GameEngine
 			void Subscribe(CGameObject* gameObject);
 			void UnSubscribe(CGameObject* gameObject);
 			void UnSubscribeAll();
+			void SwapLineFaceRender();
 			SGuiTextElement& GuiText(const std::string& label);
 			Gui::GuiTextureElement& GuiTexture(const std::string& label);
 
@@ -39,6 +40,7 @@ namespace GameEngine
 			void Render(Scene* scene, CRenderer* renderer);
 			
 		private:
+			std::atomic_bool renderAsLines;
 			std::atomic_bool markToReloadShaders_;
 			Renderer::Gui::GuiContext guiContext_;
 			RenderersPtrVec renderers_;
