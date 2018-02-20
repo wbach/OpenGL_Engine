@@ -18,7 +18,7 @@ struct SMaterial
 	vec3 m_Diffuse;
 	vec3 m_Specular;
 	float m_ShineDamper;
-};                                                  
+};
 uniform sampler2D PositionMap;
 uniform sampler2D ColorMap;
 uniform sampler2D NormalMap;
@@ -29,10 +29,10 @@ uniform vec3	  CameraPosition;
 uniform vec2	  ScreenSize;
 
 uniform int		NumberOfLights;
-uniform SLight  lights[MAX_LIGHTS];										             
+uniform SLight  lights[MAX_LIGHTS];
 
 //Fog
-uniform vec3 SkyColour; 	
+uniform vec3 SkyColour;
 uniform	float ViewDistance;
 const	float density = 0.0025 ;
 const	float gradient = 2.5 ;

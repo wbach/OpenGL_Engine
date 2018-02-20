@@ -1,7 +1,8 @@
 #pragma once
 #include "TerrainDef.h"
 #include "TerrainTexturesTypes.h"
-#include "../../GameObject.h"
+#include "GameEngine/Objects/GameObject.h"
+#include <unordered_map>
 #include <vector>
 
 class CTexture;
@@ -27,7 +28,7 @@ public:
 
 	void SetTexture(CTexture* texture, Terrain::TexturesTypes type);
 
-	CTexture* textures[Terrain::TexturesTypes::count];
+	std::unordered_map<Terrain::TexturesTypes, CTexture*> textures;
 	CModel* model = nullptr;
 
 private:

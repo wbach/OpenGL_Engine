@@ -25,15 +25,6 @@ CModel* CResourceManager::LoadModel(const std::string & file)
 		return models[i].get();
 	}
 
-	
- //   for (const auto& model : models)
-	//{
-	//	auto filename_exist = EngineConf_GetOrginFilePath(model->GetFileName());
- //       if (filename_exist == file)
- //           return model.get();
-	//}
-
-	//CAssimModel  CMyModel
 	auto model = new CMyModel(textureLoader);
     models.emplace_back(model);
 	model->InitModel(EngineConf_GetFullDataPathAddToRequierd(file));

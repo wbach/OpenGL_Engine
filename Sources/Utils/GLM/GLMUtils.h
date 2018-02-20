@@ -20,8 +20,10 @@ void PrintVector(const std::string& text, const glm::vec3& v);
 void PrintVector(const std::string& text, const glm::vec2& v);
 void PrintMatrix(const std::string& text, const glm::mat4& m);
 
-glm::vec2 toScreenSpace(glm::vec2& position, glm::vec2& window_size);
+bool Compare(const glm::vec2& v1, const glm::vec2& v2);
+bool Compare(const glm::vec3& v1, const glm::vec3& v2);
 
+glm::vec2 toScreenSpace(glm::vec2& position, glm::vec2& window_size);
 glm::vec3 Vec4ToVec3(const glm::vec4& v);
 glm::vec3 ColorLerpRGB(const glm::vec3& c1, const glm::vec3& c2, const float& blend);
 glm::vec3 TransformPoint(const glm::vec3& point, const glm::mat4& matrix);

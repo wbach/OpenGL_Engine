@@ -9,7 +9,7 @@ namespace common
 	{
 		struct CommonStats
 		{
-			float runSpeed = Utils::KmToMs(45.f);
+			float runSpeed = Utils::KmToMs(10.f);
 			float walkSpeed = Utils::KmToMs(5.f);
 			float jumpPower = 25.f;
 			float turnSpeed = 160.f;

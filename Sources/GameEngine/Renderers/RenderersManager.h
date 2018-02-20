@@ -3,13 +3,14 @@
 #include "Projection.h"
 #include "GUI/GuiContext.h"
 #include <atomic>
+#include <list>
 
 struct SGuiTextElement;
+class CGameObject;
 
 namespace GameEngine
 {
 	class Scene;
-
 	namespace Renderer
 	{
 		namespace Gui
@@ -34,6 +35,8 @@ namespace GameEngine
 
 		private:
 			void ReloadShadersExecution();
+			void UpdateCamera(Scene* scene);
+			void TakeSnapShoots();
 			void InitProjection();
 			void InitMainRenderer();
 			void InitGuiRenderer();
@@ -45,6 +48,7 @@ namespace GameEngine
 			Renderer::Gui::GuiContext guiContext_;
 			RenderersPtrVec renderers_;
 			CProjection projection_;
+			std::list<CGameObject*> dynamincObjects_;
 		};
 	} // Renderer
 } // GameEngine

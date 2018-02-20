@@ -14,10 +14,6 @@ public:
 	void SetResourceManager(CResourceManager* manager);
 	ModelRawPtr GetModel(GameEngine::LevelOfDetail i);
 
-public:
-    bool dynamic = false;
-	bool attachedToCamera = false;
-
 private:
 	CResourceManager* manager_;
 	GameEngine::ModelWrapper modelWrapper_;

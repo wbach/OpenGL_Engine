@@ -1,6 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include "Clock.hpp"
+#include "Mutex.hpp"
 #include <list>
 
 namespace common
@@ -33,14 +34,16 @@ struct CameraEvent
 class CThirdPersonCamera : public CCamera
 {
 public:
-	CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform& lookAt);
+	CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform* lookAt);
 	virtual ~CThirdPersonCamera() override;
 	void CalculateInput() override;
 	void Move() override;
 	void CalculateZoom(float zoom_lvl) override;
-	void OnLookAtChange(const vec3& pos, const vec3& rot, const vec3& scale);
+	void SetLookAtTransform(common::Transform* lookAt);
 
 private:
+	void StaticCameraMove();
+	void SmoothCameraMove();
 	void LockCamera();
 	void SetCaptureMouse(bool capture);
 	void LockPitch();
@@ -56,22 +59,13 @@ private:
 	bool IsOnDestinationPos();
 	bool IsOnDestinationPitch();
 	bool IsOnDestinationYaw();
+	void ProcessStates();
 
 	float GetTime() const;
 	bool FindState(CameraState state);
 
 	template<class T>
-	T CalculateNewValueInTimeInterval(const CameraEvent<T>& t, float time) const
-	{
-		float totalMoveTime = t.endTime - t.startTime;
-
-		if (fabs(totalMoveTime) < FLT_EPSILON)
-		{
-			return t.startValue;
-		}
-
-		return t.startValue + t.moveValue * (time - t.startTime) / totalMoveTime;
-	}
+	T CalculateNewValueInTimeInterval(const CameraEvent<T>& t, float time) const;
 
 	template<class T>
 	T ProcessState(CameraEvent<T>& stateInfo, const T& destination, float time, bool& remove);
@@ -81,9 +75,10 @@ private:
 
 private:
 	GameEngine::InputManager* inputManager;
-	common::Transform& lookAt; //only for unsubscribe
-	vec3 lookAtPosition;
-	vec3 lookAtRotataion;
+	common::Transform* lookAt_;
+
+	vec3 lookAtPosition_;
+	vec3 lookAtRotataion_;
 
     bool	isShowCursor;
     vec3	offset;
@@ -97,8 +92,6 @@ private:
 	vec3 destinationPosition;
 	
 	CameraEvent<vec3> moveStateInfo_;
-	CameraEvent<float> rotatePitchStateInfo_;
-	CameraEvent<float> rotateYawStateInfo_;
 
 	Timepoint referenceTime;
 	std::list<CameraState> states_;

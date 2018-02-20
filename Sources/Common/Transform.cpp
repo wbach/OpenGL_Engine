@@ -1,5 +1,6 @@
 #include "Transform.h"
 #include "GLM/GLMUtils.h"
+#include <limits>
 
 namespace common
 {
@@ -8,19 +9,17 @@ namespace common
 	Transform::Transform(const vec3 & pos) : Transform(pos, vec3(0)){}
 	Transform::Transform(const vec3 & pos, const vec3 & rot) : Transform(pos, rot, vec3(1)){}
 	Transform::Transform(const vec3 & pos, const vec3 & rot, const vec3 & scale) 
-		: position(pos)
-		, rotation(rot)
-		, scale(scale)
-		, matrixChanged(true)
+		: isDynamic_(false)
+		, context_({ pos, rot, scale})
+		, snapshoot_({ pos, rot, scale })
 		, matrix(Utils::CreateTransformationMatrix(pos, rot, scale))
 	{
 	}
 
 	Transform::Transform(const Transform & t)
-		: position(t.position)
-		, rotation(t.rotation)
-		, scale(t.scale)
-		, matrixChanged(true)
+		: isDynamic_(t.isDynamic_)
+		, context_(t.context_)
+		, snapshoot_(t.snapshoot_)
 		, matrix(t.matrix)
 	{
 	}
@@ -32,121 +31,101 @@ namespace common
 
 	void Transform::IncrasePosition(vec3 v, uint32 index)
 	{
-		std::lock_guard<std::mutex> l(pmutex);
-		position += v;
-
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.position += v;
 	}
 
 	void Transform::IncreaseRotation(float dx, float dy, float dz)
 	{
-		std::lock_guard<std::mutex> l(rmutex);
-		rotation += vec3(dx, dy, dz);
-
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.rotation += vec3(dx, dy, dz);
 	}
 
 	void Transform::SetScale(float s)
 	{
-		std::lock_guard<std::mutex> l(smutex);
-		scale = vec3(s);
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.scale = vec3(s);
 	}
 
-	void Transform::SetScale(const vec3 & s)
+	void Transform::SetScale(const vec3& s)
 	{
-		std::lock_guard<std::mutex> l(smutex);
-		scale = s;
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.scale = s;
 	}
 
 	void Transform::SetPosition(const vec3 & pos)
 	{
-		std::lock_guard<std::mutex> l(pmutex);
-		position = pos;
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.position = pos;
 	}
 
 	void Transform::SetPositionXZ(const vec2 & pos)
 	{
-		std::lock_guard<std::mutex> l(pmutex);
-		position.x = pos.x;
-		position.z = pos.y;
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.position.x = pos.x;
+		context_.position.z = pos.y;
 	}
 
 	void Transform::SetRotation(const vec3 & r)
 	{
-		std::lock_guard<std::mutex> l(rmutex);
-		rotation = r;
-		TransformChanged();
+		std::lock_guard<std::mutex> l(contextMutex_);
+		context_.rotation = r;
 	}
 
 	void Transform::SetRotate(Axis axis, float v)
 	{
-		std::lock_guard<std::mutex> l(rmutex);
+		std::lock_guard<std::mutex> l(contextMutex_);
 		switch (axis)
 		{
-		case X: rotation.x = v; break;
-		case Y: rotation.y = v; break;
-		case Z: rotation.z = v; break;
+		case X: context_.rotation.x = v; break;
+		case Y: context_.rotation.y = v; break;
+		case Z: context_.rotation.z = v; break;
 		}
-		TransformChanged();
 	}
 
-	void Transform::TransformChanged()
+	void Transform::TakeSnapShoot()
 	{
-		matrixChanged.store(true);
-
-		for (auto& sub : transformChangeSubscribers_)
-			sub.second(position, rotation, scale);
+		std::lock_guard<std::mutex> l(contextMutex_);
+		snapshoot_ = context_;
+		UpdateMatrix();
 	}
 
 	void Transform::UpdateMatrix()
 	{
-		matrix = Utils::CreateTransformationMatrix(GetPosition(), GetRotation(), GetScale());
-		matrixChanged.store(false);	
+		matrix = Utils::CreateTransformationMatrix(context_.position, context_.rotation, context_.scale);
 	}
 
-	void Transform::SubscribeOnChange(const std::string& label, TransformChangeSubscribers subscriber)
+	const TransformContext& Transform::GetSnapShoot() const
 	{
-		transformChangeSubscribers_[label] = subscriber;
-	}
-
-	void Transform::UnsubscribeOnChange(const std::string & label)
-	{
-		if (transformChangeSubscribers_.count(label) != 0)
-			transformChangeSubscribers_.erase(label);
+		return snapshoot_;
 	}
 
 	vec3 Transform::GetPosition()
 	{
-		std::lock_guard<std::mutex> l(pmutex);
-		return position;
+		std::lock_guard<std::mutex> l(contextMutex_);
+		return context_.position;
 	}
 
 	vec3 Transform::GetRotation()
 	{
-		std::lock_guard<std::mutex> l(rmutex);
-		return rotation;
+		std::lock_guard<std::mutex> l(contextMutex_);
+		return context_.rotation;
 	}
 
 	vec3 Transform::GetScale()
 	{
-		std::lock_guard<std::mutex> l(smutex);
-		return scale;
+		std::lock_guard<std::mutex> l(contextMutex_);
+		return context_.scale;
 	}
 
 	vec2 Transform::GetPositionXZ()
 	{
-		std::lock_guard<std::mutex> l(pmutex);
-		return vec2(position.x, position.z);
+		std::lock_guard<std::mutex> l(contextMutex_);
+		return vec2(context_.position.x, context_.position.z);
 	}
 
 	const mat4& Transform::GetMatrix()
 	{
-		if(matrixChanged.load())
-			UpdateMatrix();
 		return matrix;
 	}
 } // common

@@ -279,7 +279,7 @@ namespace Mock
 				{
 					auto now = std::chrono::high_resolution_clock::now();
 					auto t = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(now - sentTransformTime_).count());
-					ping += t;
+					ping += static_cast<int>(t);
 					ping /= 2;
 
 					Log("Got TransformResp, server response time : " + std::to_string(t) + "ms");					

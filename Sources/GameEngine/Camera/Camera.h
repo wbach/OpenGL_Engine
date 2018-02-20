@@ -8,20 +8,20 @@ class CCamera
 {
 public:
 	virtual void CalculateInput();
-	virtual void Move();
+	virtual void Move() {}
 	virtual void CalculateZoom(float zoom_lvl) {}
-    virtual void AttachToObject(vec3&, vec3&) {};
 
 	CCamera();
 	CCamera(float pitch, float yaw);
-
 	virtual ~CCamera() {}
+
+	void UpdateMatrix();
 	void SetProjectionMatrix(const mat4& projection_matrix);
 	void UpdateViewMatrix();
-	void InvertPitch();	
+	void InvertPitch();
 
-	const float& GetDistance() const;
-	const float& GetAngleAround() const;
+	float GetDistance() const;
+	float GetAngleAround() const;
 
 	void SetAngleAround(float a);
 	void SetDistance(float dist);

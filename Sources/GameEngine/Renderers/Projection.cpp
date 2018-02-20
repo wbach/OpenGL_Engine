@@ -1,14 +1,13 @@
 #include "Projection.h"
 #include "Utils.h"
 #include "math.hpp"
-#include <limits>
 
 CProjection::CProjection()
     : CProjection({640,480})
 {}
 
 CProjection::CProjection(const vec2i &window_size)
-    : CProjection(window_size, 0.001f, std::numeric_limits<float>::max(), 50.f)
+    : CProjection(window_size, 0.001f, 10000.f, 50.f)
 {}
 
 CProjection::CProjection(const vec2i &window_size, float near_, float far_, float fov_)
@@ -16,6 +15,7 @@ CProjection::CProjection(const vec2i &window_size, float near_, float far_, floa
     , nearPlane(near_)
     , farPlane(far_)
     , fov(fov_)
+
 {
     CreateProjectionMatrix();
 }

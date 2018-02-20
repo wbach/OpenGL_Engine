@@ -94,6 +94,11 @@ namespace GameEngine
 		keyEvents_.push_back({ eventType , sdlKey });
 	}
 
+	void InputSDL::ShowCursor(bool is)
+	{
+		SDL_ShowCursor(is ? SDL_ENABLE : SDL_DISABLE);
+	}
+
 	void InputSDL::ProcessKeysEvents()
 	{
 		while (true)

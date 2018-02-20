@@ -8,8 +8,6 @@
 
 CTerrain::CTerrain()
 {
-	for (auto& texture : textures)
-		texture = nullptr;
 }
 
 CTerrain::~CTerrain()
@@ -79,9 +77,6 @@ void CTerrain::LoadHeight(const SImage &height_map)
 
 void CTerrain::SetTexture(CTexture *texture, Terrain::TexturesTypes type)
 {
-	if (type == Terrain::TexturesTypes::count)
-		return;
-
 	textures[type] = texture;
 }
 

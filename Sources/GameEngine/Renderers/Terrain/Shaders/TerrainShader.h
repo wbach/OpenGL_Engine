@@ -16,18 +16,21 @@ namespace GameEngine
 			modelViewMatrix,
 			projectionMatrix,
 			heightFactor,
-			BlendMap,
-			BackgroundTexture,
-			rTexture,
-			bTexture,
-			gTexture,
-			RockTexture,
-			BackgroundNormalTexture,
-			rNormalTexture,
-			bNormalTexture,
-			gNormalTexture,
-			RockNormalTexture,
-			shadowMap
+			shadowMap,
+			blendMap,
+			backgorundTexture,
+			backgorundTextureNormal,
+			redTexture,
+			redTextureNormal,
+			greenTexture,
+			greenTextureNormal,
+			blueTexture,
+			blueTextureNormal,
+			rockTexture,
+			rockNormalTexture,
+			snowTexture,
+			snowNormalTexture,
+			displacementMap
 		};
 
 		TerrainShader();

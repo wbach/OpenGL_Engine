@@ -160,11 +160,10 @@ void CTessellationTerrainRenderer::RenderModel(CModel * model) const
 
 void CTessellationTerrainRenderer::BindTextures(TerrainPtr terrain) const
 {
-	int i = 0;
-    for (auto& t : terrain->Get()->textures)
-		BindTexture(t, i++);
+    Utils::ActiveBindTexture(0, shadowFramebuffer->GetShadowMap());
 
-    Utils::ActiveBindTexture(i, shadowFramebuffer->GetShadowMap());
+    for (auto& t : terrain->Get()->textures)
+		BindTexture(t.second, t.first);
 }
 
 void CTessellationTerrainRenderer::BindTexture(CTexture* texture, int id) const

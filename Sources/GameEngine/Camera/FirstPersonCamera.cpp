@@ -66,15 +66,8 @@ void CFirstPersonCamera::Move()
 	ApllyMove();
 	CalculateMoveVelocity();
     CheckAndProccesDirections();
-	CCamera::Move();
 }
 
-void CFirstPersonCamera::AttachToObject(vec3& position_entity, vec3& rotation_entity)
-{
-	lookPosition = position_entity;
-	lookRotation = rotation_entity;
-	isFreeCamera = false;
-}
 vec2 CFirstPersonCamera::CalcualteMouseMove()
 {
 	vec2 d_move = inputManager->CalcualteMouseMove() * mousevel;

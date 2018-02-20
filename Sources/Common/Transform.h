@@ -1,9 +1,6 @@
 #pragma once
 #include "Types.h"
 #include "Mutex.hpp"
-#include <unordered_map>
-#include <functional>
-#include <atomic>
 
 namespace common
 {
@@ -13,8 +10,13 @@ namespace common
 		Y,
 		Z
 	};
-	
-	typedef std::function<void(const vec3& pos, const vec3& rot, const vec3& scale)> TransformChangeSubscribers;
+
+	struct TransformContext
+	{
+		vec3 position;
+		vec3 rotation;
+		vec3 scale;
+	};
 
 	class Transform
 	{
@@ -26,13 +28,12 @@ namespace common
 		Transform(const vec3& pos, const vec3& rot, const vec3& scale);
 		Transform(const Transform& transform);
 
-		void SubscribeOnChange(const std::string& label, TransformChangeSubscribers subscriber);
-		void UnsubscribeOnChange(const std::string& label);
-
+		void TakeSnapShoot();
+		const TransformContext& GetSnapShoot() const;
 		void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
 		void IncrasePosition(vec3 v, uint32 index = 0);
 		void IncreaseRotation(float dx, float dy, float dz);
-		
+
 		vec3 GetPosition();
 		vec3 GetRotation();
 		vec3 GetScale();
@@ -46,16 +47,16 @@ namespace common
 		void SetRotation(const vec3& r);
 		void SetRotate(Axis axis, float v);
 
+	public:
+		bool isDynamic_;
+
 	private:
-		void TransformChanged();
 		void UpdateMatrix();
 
 	private:
-		std::unordered_map<std::string, TransformChangeSubscribers> transformChangeSubscribers_;
-		vec3 position;	std::mutex pmutex;
-		vec3 rotation;	std::mutex rmutex;
-		vec3 scale;		std::mutex smutex;
-		std::atomic_bool matrixChanged;
+		std::mutex contextMutex_;
+		TransformContext context_;
+		TransformContext snapshoot_;
 		mat4 matrix;
 	};
 } // common

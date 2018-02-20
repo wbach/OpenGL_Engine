@@ -3,9 +3,11 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
+#include "GameEngine/Renderers/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "GLM/GLMUtils.h"
+#include "OpenGL/OpenGLUtils.h"
 
 namespace GameEngine
 {
@@ -30,7 +32,7 @@ namespace GameEngine
 	void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
 	{
 	}
-	void CTerrainRenderer::Render(GameEngine::Scene * scene)
+	void CTerrainRenderer::Render(GameEngine::Scene* scene)
 	{
 		if (target == nullptr)
 			return;
@@ -52,7 +54,7 @@ namespace GameEngine
 			modelViewMatrix[3][1] = 0;
 			modelViewMatrix[3][2] = 0;
 
-			shader.Load(TerrainShader::modelViewMatrix, modelViewMatrix);			
+			shader.Load(TerrainShader::modelViewMatrix, modelViewMatrix);
 			shader.Load(TerrainShader::modelViewProjectionMatrix, projectionMatrix->GetProjectionMatrix() * modelViewMatrix);
 			RenderSubscriber(sub);
 		}
@@ -65,7 +67,7 @@ namespace GameEngine
 		BindTextures(sub);
 
 		glBindVertexArray(vao);
-		glDrawArraysInstanced(GL_PATCHES, 0, 4, Terrain::SIZE * Terrain::SIZE);
+		glDrawArraysInstanced(GL_PATCHES, 0, 4, static_cast<int>(Terrain::SIZE * Terrain::SIZE));
 		glBindVertexArray(0);
 	}
 	void CTerrainRenderer::InitShader()
@@ -78,17 +80,17 @@ namespace GameEngine
 	}
 	void CTerrainRenderer::BindTextures(TerrainPtr terrain) const
 	{
-		int i = 0;
+		Utils::ActiveBindTexture(0, shadowFramebuffer->GetShadowMap());
+
 		for (auto& t : terrain->Get()->textures)
-			BindTexture(t, i++);
+			BindTexture(t.second, t.first);
 	}
 	void CTerrainRenderer::BindTexture(CTexture* texture, int id) const
 	{
 		if (texture == nullptr)
 			return;
 
-		glActiveTexture(GL_TEXTURE0 + id);
-		glBindTexture(GL_TEXTURE_2D, texture->GetId());
+		Utils::ActiveBindTexture(id, texture->GetId());
 	}
 	void CTerrainRenderer::EndFrame(GameEngine::Scene * scene)
 	{

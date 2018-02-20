@@ -1,11 +1,15 @@
 #include "RenderersManager.h"
-#include "SimpleRenderer.h"
+
 #include "FullRenderer.h"
+#include "SimpleRenderer.h"
 #include "GUI/GuiRenderer.h"
 #include "GUI/Text/GuiText.h"
 #include "GUI/Texutre/GuiTexture.hpp"
-#include "../Engine/Configuration.h"
-#include "../Engine/AplicationContext.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/AplicationContext.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -36,6 +40,22 @@ namespace GameEngine
 		const CProjection& RenderersManager::GetProjection() const
 		{
 			return projection_;
+		}
+		void RenderersManager::UpdateCamera(Scene * scene)
+		{
+			auto camera = scene->GetCamera();
+
+			if (camera == nullptr)
+				return;
+
+			camera->CalculateInput();
+			camera->Move();
+			camera->UpdateMatrix();
+		}
+		void RenderersManager::TakeSnapShoots()
+		{
+			for (auto& obj : dynamincObjects_)
+				obj->worldTransform.TakeSnapShoot();
 		}
 		void RenderersManager::Init()
 		{
@@ -78,6 +98,8 @@ namespace GameEngine
 			if (scene == nullptr)
 				return;
 
+			TakeSnapShoots();
+			UpdateCamera(scene);
 			ReloadShadersExecution();
 
 			RenderAsLine lineMode(renderAsLines.load());
@@ -101,11 +123,30 @@ namespace GameEngine
 		}
 		void RenderersManager::Subscribe(CGameObject* gameObject)
 		{
+			if (gameObject == nullptr)
+				return;
+
+			if (gameObject->worldTransform.isDynamic_)
+				dynamincObjects_.push_back(gameObject);
+
 			for (auto& renderer : renderers_)
 				renderer->Subscribe(gameObject);
 		}
 		void RenderersManager::UnSubscribe(CGameObject* gameObject)
 		{
+			for (auto iter = dynamincObjects_.begin(); iter != dynamincObjects_.end();)
+			{
+				if (gameObject->GetId())
+				{
+					iter = dynamincObjects_.erase(iter);
+					break;
+				}
+				else
+				{
+					++iter;
+				}
+			}
+
 			for (auto& r : renderers_)
 				r->UnSubscribe(gameObject);
 		}
@@ -113,6 +154,8 @@ namespace GameEngine
 		{
 			for (auto& r : renderers_)
 				r->UnSubscribeAll();
+
+			dynamincObjects_.clear();
 		}
 		void RenderersManager::SwapLineFaceRender()
 		{

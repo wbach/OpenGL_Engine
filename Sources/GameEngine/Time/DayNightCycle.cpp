@@ -133,12 +133,13 @@ void CDayNightCycle::SetDirectionalLight(CLight * light)
     directionalLight = light;
 }
 
-const void CDayNightCycle::GetCurrentHour(int & hour, int & minutes) const
+const wb::vec2i CDayNightCycle::GetCurrentHour() const
 {
-	hour = static_cast<int>(GetHours());
+	int hour = static_cast<int>(GetHours());
 
-    minutes = static_cast<int>(currentTime_*24.f*60.f - (hour * 60.f));
-	return void();
+    int minutes = static_cast<int>(currentTime_*24.f*60.f - (hour * 60.f));
+
+	return wb::vec2i(hour, minutes);
 }
 
 const bool CDayNightCycle::IsDay() const

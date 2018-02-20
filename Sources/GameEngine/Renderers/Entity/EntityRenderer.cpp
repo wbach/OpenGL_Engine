@@ -14,17 +14,16 @@
 static std::list<CEntity*> sEmptyEntityList;
 
 CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer)
-    : CRenderer(framebuffer)
-    , projectionMatrix(projection_matrix)
+	: CRenderer(framebuffer)
+	, projectionMatrix(projection_matrix)
 	, clipPlane(vec4(0, 1, 0, 100000))
-	, attachedToCamera_(nullptr)
 {
 	subscribes.resize(gridSize * gridSize);
 }
 
 void CEntityRenderer::Init()
 {
-    Log("Start initialize entity renderer...");
+	Log("Start initialize entity renderer...");
 	shader.Init();
 	shader.Start();
 	assert(projectionMatrix != nullptr);
@@ -38,21 +37,7 @@ void CEntityRenderer::Init()
 void CEntityRenderer::PrepareFrame(GameEngine::Scene * scene)
 {
 	shader.Start();
-
-	{
-		// synchronize threads (camera = > following object
-		if (attachedToCamera_ != nullptr)
-		{
-			//std::lock_guard<std::mutex> tl(attachedToCamera_->worldTransform.transformMutex);
-			attachedCameraTransformMatrix_ = attachedToCamera_->worldTransform.GetMatrix();
-			shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-		}
-		else
-		{
-			shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-		}		
-	}
-
+	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
 	shader.LoadClipPlane(clipPlane);
 	shader.LoadShadowValues(0.f, 10.f, 10.f);
 
@@ -65,20 +50,18 @@ void CEntityRenderer::Render(GameEngine::Scene * scene)
 {
 	if (target == nullptr)
 		return;
-	target->BindToDraw();
-
-	shader.Start();
 
 	auto index = CalcualteCoorditantes(scene->GetCamera()->GetPosition());
 	
-	RenderAttachedToCamera();
+	target->BindToDraw();
+	shader.Start();
 	RenderDynamicsEntities();
-    RenderStaticEntities(index);
+	RenderStaticEntities(index);
 	shader.Stop();
 }
 
 void CEntityRenderer::EndFrame(GameEngine::Scene* scene)
-{	
+{
 	shader.Stop();
 }
 
@@ -89,13 +72,7 @@ void CEntityRenderer::Subscribe(CGameObject * gameObject)
 	if (entity == nullptr)
 		return;
 
-	if (entity->attachedToCamera)
-	{
-		attachedToCamera_ = entity;
-		return;
-	}
-
-	if (entity->dynamic)
+	if (entity->worldTransform.isDynamic_)
 	{
 		dynamicSubscribes.push_back(entity);
 		return;
@@ -145,86 +122,75 @@ const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 {
 	if (subscribes.empty()) return sEmptyEntityList;
 
-	if ((x + y*gridSize) > subscribes.size())
+	if ((x + y * gridSize) > subscribes.size())
 		return sEmptyEntityList;
 
-	return subscribes[x + y*gridSize];
+	return subscribes[x + y * gridSize];
 }
 
 void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
-{	
+{
 	shader.LoadUseInstancedRendering(0.f);
 	shader.LoadUseFakeLight(0.f);
 	shader.LoadUseBonesTransformation(0.f);
 
 	for (const auto& mesh : model->GetMeshes())
-        RenderMesh(mesh, transform_matrix);
+		RenderMesh(mesh, transform_matrix);
 }
 
 void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix) const
 {
-    Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
-    BindMaterial(mesh.GetMaterial());
+	Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
+	BindMaterial(mesh.GetMaterial());
 
-    auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
-    shader.LoadTransformMatrix(transform_matrix_);
-    glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+	auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
+	shader.LoadTransformMatrix(transform_matrix_);
+	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
 
-    UnBindMaterial(mesh.GetMaterial());
-}
-
-void CEntityRenderer::RenderAttachedToCamera()
-{
-	if (attachedToCamera_ == nullptr)
-		return;
-
-	if (attachedToCamera_->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
-		return;
-
-	RenderModel(attachedToCamera_->GetModel(GameEngine::LevelOfDetail::L1), attachedCameraTransformMatrix_);
+	UnBindMaterial(mesh.GetMaterial());
 }
 
 void CEntityRenderer::RenderDynamicsEntities()
 {
-    for (auto& entity : dynamicSubscribes)
-    {
-        if (entity == nullptr)
-            Log("[Error] Null subsciber in EnityRenderer.");
-        if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
-            continue;
-		
-        RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
-    }
+	for (auto& entity : dynamicSubscribes)
+	{
+		if (entity == nullptr)
+			Log("[Error] Null subsciber in EnityRenderer.");
+		if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
+			continue;
+
+		RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
+	}
 }
 
 void CEntityRenderer::RenderStaticEntities(const wb::vec2i &index)
 {
-    for (int y = -2; y <= 2; y++)
-    {
-        for (int x = -2; x <= 2; x++)
-        {
-            auto sub = GetEntity(index.x + x, index.y + y);
+	for (int y = -2; y <= 2; y++)
+	{
+		for (int x = -2; x <= 2; x++)
+		{
+			auto sub = GetEntity(index.x + x, index.y + y);
 
 			GameEngine::LevelOfDetail level_of_detail = GameEngine::LevelOfDetail::L1;
 
-            if (y > 1 || y < -1 || x > 2 || x < -2)
-                level_of_detail = GameEngine::LevelOfDetail::L2;
-            else if (y > 0 || y < 0 || x > 0 || x < 0)
-                level_of_detail = GameEngine::LevelOfDetail::L3;
+			if (y > 1 || y < -1 || x > 2 || x < -2)
+				level_of_detail = GameEngine::LevelOfDetail::L2;
+			else if (y > 0 || y < 0 || x > 0 || x < 0)
+				level_of_detail = GameEngine::LevelOfDetail::L3;
 
-            for (auto& entity : sub)
-            {
-                if (entity == nullptr)
-                    Log("[Error] Null subsciber in EnityRenderer.");
+			for (auto& entity : sub)
+			{
+				if (entity == nullptr)
+					Log("[Error] Null subsciber in EnityRenderer.");
 
-                auto model = entity->GetModel(level_of_detail);
-                if (model == nullptr)
-                    continue;
+				auto model = entity->GetModel(level_of_detail);
+				if (model == nullptr)
+					continue;
 
-                RenderModel(model, entity->worldTransform.GetMatrix());
-            }
-        }
-    }
+				RenderModel(model, entity->worldTransform.GetMatrix());
+			}
+		}
+	}
 }
 
 wb::vec2i CEntityRenderer::CalcualteCoorditantes(const vec3 & v) const
@@ -237,8 +203,8 @@ wb::vec2i CEntityRenderer::CalcualteCoorditantes(const vec3 & v) const
 
 void ActiveTexture(int i, CTexture* texture)
 {
-    glActiveTexture(GL_TEXTURE0 + i);
-    glBindTexture(GL_TEXTURE_2D, texture->GetId());
+	glActiveTexture(GL_TEXTURE0 + i);
+	glBindTexture(GL_TEXTURE_2D, texture->GetId());
 }
 
 void CEntityRenderer::BindMaterial(const SMaterial & material) const
@@ -250,7 +216,7 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 
 	if (material.diffuseTexture != nullptr)
 	{
-        ActiveTexture(0, material.diffuseTexture);
+		ActiveTexture(0, material.diffuseTexture);
 		shader.LoadUseTexture(1.f);
 	}
 	else
@@ -258,23 +224,23 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 
 	if (material.ambientTexture != nullptr)
 	{
-        ActiveTexture(1, material.ambientTexture);
+		ActiveTexture(1, material.ambientTexture);
 	}
 
 	if (material.normalTexture != nullptr)
 	{
-        ActiveTexture(2, material.normalTexture);
+		ActiveTexture(2, material.normalTexture);
 		shader.LoadUseNormalMap(1.f);
 	}
 	else
 		shader.LoadUseNormalMap(0.f);
 
 	if (material.specularTexture != nullptr)
-        ActiveTexture(3, material.specularTexture);
+		ActiveTexture(3, material.specularTexture);
 }
 
 void CEntityRenderer::UnBindMaterial(const SMaterial & material) const
 {
-    if (material.isTransparency)
-        Utils::EnableCulling();
+	if (material.isTransparency)
+		Utils::EnableCulling();
 }

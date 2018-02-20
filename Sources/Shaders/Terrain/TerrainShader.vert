@@ -6,7 +6,7 @@ out VS_OUT
 } vs_out;
 
 const float SIZE = 64.f;
-const float PART_SIZE = 32.0f;
+const float PART_SIZE = 16.0f;
 
 const int VSCALE = 10;
 const float VERTEX = 0.5f * VSCALE;

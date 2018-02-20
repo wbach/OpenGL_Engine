@@ -47,6 +47,16 @@ void Utils::PrintMatrix(const std::string & text, const glm::mat4 & m)
 		std::cout << text << m[y][0] << " " << m[y][1] << " " << m[y][2] << " " << m[y][3] << std::endl;
 }
 
+bool Utils::Compare(const glm::vec2& v1, const glm::vec2& v2)
+{
+	return glm::length(v1 - v2) < std::numeric_limits<float>::epsilon();
+}
+
+bool Utils::Compare(const glm::vec3& v1, const glm::vec3& v2)
+{
+	return glm::length(v1 - v2) < std::numeric_limits<float>::epsilon();
+}
+
 void Utils::PrtintMat4(const glm::mat4 & mat)
 {
 	printf("\nMat:\n %f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n\n",

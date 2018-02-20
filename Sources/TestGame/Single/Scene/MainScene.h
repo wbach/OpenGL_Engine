@@ -28,7 +28,7 @@ private:
 	void InitGui();
 	void UpdatePlayerandCamera(float time);
 	void KeyOperations();
-	void CheckCollisions();
+	void CheckCollisions(float dt);
 	void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 	TerrainTexturesMap CreateTerrainTexturesMap();
 	std::vector<float> CreateGrassPositions(CGameObject*);

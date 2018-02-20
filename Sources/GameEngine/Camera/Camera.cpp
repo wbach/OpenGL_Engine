@@ -20,6 +20,12 @@ CCamera::CCamera(float pitch, float yaw)
     UpdateFrustrum();
 }
 
+void CCamera::UpdateMatrix()
+{
+	UpdateViewMatrix();
+	UpdateFrustrum();
+}
+
 void CCamera::SetProjectionMatrix(const mat4 & projection_matrix)
 {
     projectionMatrix = projection_matrix;
@@ -42,12 +48,6 @@ bool CCamera::CheckFrustrumSphereCulling(const vec3 & position, const float& rad
 void CCamera::CalculateInput()
 {
 }
-void CCamera::Move()
-{
-	UpdateViewMatrix();
-//	UpdateFrustrum();
-}
-
 void CCamera::InvertPitch()
 {
 	pitch.store(pitch.load() - 1.0f);
@@ -77,7 +77,7 @@ const vec3 CCamera::GetRotation() const
     return vec3(pitch, yaw, roll);
 }
 
-const float& CCamera::GetDistance() const
+float CCamera::GetDistance() const
 {
 	return distanceFromPlayer;
 }
@@ -107,7 +107,7 @@ void CCamera::SetYaw(float y)
 	yaw.store(y);
 }
 
-const float& CCamera::GetAngleAround() const
+float CCamera::GetAngleAround() const
 {
     return angleAroundPlayer;
 }
@@ -133,19 +133,15 @@ void CCamera::UpdateViewMatrix()
 	float r = GetRoll();
 	auto pos = GetPosition();
 
-	mat4 v(1.0f);
-    v *= glm::rotate(p, 1.0f, 0.0f, 0.0f);
-    v *= glm::rotate(y, 0.0f, 1.0f, 0.0f);
-    v *= glm::rotate(r, 0.0f, 0.0f, 1.0f);
-    v *= glm::translate(-pos);
-
-	std::lock_guard<std::mutex> l(viewMatrixMutex);
-	viewMatrix = v;
+	viewMatrix = mat4(1.0f);
+	viewMatrix *= glm::rotate(p, 1.0f, 0.0f, 0.0f);
+	viewMatrix *= glm::rotate(y, 0.0f, 1.0f, 0.0f);
+	viewMatrix *= glm::rotate(r, 0.0f, 0.0f, 1.0f);
+	viewMatrix *= glm::translate(-pos);
 }
 
 const mat4& CCamera::GetViewMatrix()
 {
-	std::lock_guard<std::mutex> l(viewMatrixMutex);
     return viewMatrix;
 }
 
@@ -153,4 +149,3 @@ const vec2 CCamera::GetPositionXZ() const
 {
     return vec2(position.x, position.z);
 }
-

@@ -4,18 +4,19 @@ namespace Terrain
 {
 	enum TexturesTypes
 	{
+		blendMap = 1,
 		backgorundTexture,
-		redTexture,
-		greenTexture,
-		blueTexture,
-		blendMap,
 		backgorundTextureNormal,
+		redTexture,
 		redTextureNormal,
+		greenTexture,
 		greenTextureNormal,
+		blueTexture,
 		blueTextureNormal,
 		rockTexture,
 		rockNormalTexture,
-		displacementMap,
-		count
+		snowTexture,
+		snowNormalTexture,
+		displacementMap
 	};
 }

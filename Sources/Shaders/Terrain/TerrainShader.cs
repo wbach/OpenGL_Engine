@@ -14,7 +14,7 @@ out TCS_OUT
 
 uniform mat4 modelViewProjectionMatrix;
 
-const float scale = 32.f;
+const float scale = 64.f;
 
 float CalculateTessLvl(vec4 p1, vec4 p2)
 {

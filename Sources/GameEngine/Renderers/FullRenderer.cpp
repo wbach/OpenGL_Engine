@@ -24,7 +24,7 @@ FullRenderer::FullRenderer(CProjection* projection_matrix)
     if(EngineConf.advancedGrass)
 		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
 
-	//renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
     renderers.emplace_back(new GameEngine::CTerrainRenderer(projection_matrix, defferedFrameBuffer.get(), shadowsFrameBuffer.get()));
 	renderers.emplace_back(new CEntityRenderer(projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CLightPassRenderer(projection_matrix, defferedFrameBuffer.get()));

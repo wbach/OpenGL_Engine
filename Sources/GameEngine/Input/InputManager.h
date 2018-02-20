@@ -33,6 +33,8 @@ namespace GameEngine
 		virtual void GetPressedKeys() = 0;
 		virtual void ProcessKeysEvents() = 0;
 
+		virtual void ShowCursor(bool) {};
+
 		void SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
 		void SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
 		void SubscribeOnAnyKeyPress(KeysPressedFunc func);

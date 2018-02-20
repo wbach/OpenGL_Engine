@@ -31,6 +31,7 @@ namespace GameEngine
 		virtual void ProcessKeysEvents() override;
 
 		void AddKeyEvent(uint32 eventType, uint32 sdlKey);
+		virtual void ShowCursor(bool) override;
 
 	private:
 		bool FindEvent(uint32 eventType, uint32 sdlKey);

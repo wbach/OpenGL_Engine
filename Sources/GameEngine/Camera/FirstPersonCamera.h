@@ -16,7 +16,6 @@ public:
 	CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager, float mouse_velocity, float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
 
 	void Move() override;
-	void AttachToObject(vec3& position_entity, vec3& rotation_entity) override;
 
 private:
 	void ApllyMove();

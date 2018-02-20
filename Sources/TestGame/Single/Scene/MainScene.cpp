@@ -26,18 +26,23 @@ MainScene::~MainScene()
 int MainScene::Initialize()
 {
 	Log("MainScene::Initialize()");
-	renderersManager_->GuiText("playerPos").position = vec2(-0.9, 0.75);
+	
+	renderersManager_->GuiText("playerPos").position = vec2(-0.9, -0.9);
+	renderersManager_->GuiText("playerPos").m_size = .5f;
+	renderersManager_->GuiText("gameTime").position = vec2(0.75, 0.9);
+	renderersManager_->GuiText("gameTime").m_size = 0.5f;
+	renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
 
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
 
-	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 25.f, vec2(-10, 0));
-	AddStaticEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(0, 0));
+	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(-83, -28));
+	AddStaticEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(-83, -25));
 	
-	player = AddStaticEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(-2, 0));
-	auto pentity = static_cast<CEntity*>(player);
-	pentity->dynamic = true;
-	pentity->attachedToCamera = true;
+	player = AddStaticEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(-83, -20));
+	player->worldTransform.isDynamic_ = true;
+	renderersManager_->UnSubscribe(player);
+	renderersManager_->Subscribe(player);
 
 	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 	playerInputController_ = std::make_shared<PlayerInputController>(inputManager_, characterController_.get());
@@ -46,7 +51,7 @@ int MainScene::Initialize()
     dayNightCycle.SetTime(.5f);
 
   //  camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
-    SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform));
+    SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
 	camType = CameraType::ThridPerson;
 
 	KeyOperations();
@@ -56,29 +61,25 @@ int MainScene::Initialize()
 
 int MainScene::Update(float dt)
 {
+	deltaTime = dt;
 	if (camera == nullptr)
 	{
 	   Log("MainScene::Update camera is nullptr.");
 	   return -1;
 	}
 
-	deltaTime = dt;
-    gloabalTime += deltaTime;
+ //   gloabalTime += deltaTime;
+ //   timeClock += deltaTime;
 
-    timeClock += deltaTime;
     if(timeClock > 1.f)
     {
-        int hour = 0, minutes = 0;
-        dayNightCycle.GetCurrentHour(hour, minutes);
         timeClock = 0;
-        Log("Game Time : " + std::to_string(hour) + ":" + std::to_string(minutes));
+		renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
     }
 
-    dayNightCycle.Update(deltaTime);
+    //dayNightCycle.Update(deltaTime);
 
-	player->worldTransform.IncrasePosition(0.f, -9.8f * deltaTime, 0.f);
-
-    CheckCollisions();
+    CheckCollisions(deltaTime);
 	UpdatePlayerandCamera(deltaTime);
 
 	renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
@@ -87,9 +88,9 @@ int MainScene::Update(float dt)
 
 void MainScene::UpdatePlayerandCamera(float time)
 {	
-	camera->CalculateInput();
+	//camera->CalculateInput();
 	characterController_->Update(deltaTime);
-	camera->Move();
+	//camera->Move();
 }
 
 void MainScene::KeyOperations()
@@ -129,7 +130,7 @@ void MainScene::KeyOperations()
 		if (camType == CameraType::FirstPerson)
 		{
 			camType = CameraType::ThridPerson;
-			SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, player->worldTransform));
+			SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
 		}
 		else if (camType == CameraType::ThridPerson)
 		{
@@ -143,20 +144,31 @@ void MainScene::KeyOperations()
 	});
 }
 
-void MainScene::CheckCollisions()
+void MainScene::CheckCollisions(float dt)
 {
+	float g = 9.8f * deltaTime;
+	auto playerPos = player->worldTransform.GetPosition();
+
+	playerPos.y -= g;
+
+	bool wasCollision = false;
+
 	for (auto& terrain : terrains)
 	{
-        auto new_position = terrain->CollisionDetection(player->worldTransform.GetPosition());
+        auto new_position = terrain->CollisionDetection(playerPos);
 
 		if (!new_position)
 			continue;
 
-        auto ppos = player->worldTransform.GetPosition();
-		
-		if (ppos.y < new_position.value().y)
+		if ( playerPos.y < new_position.value().y)
+		{
+			wasCollision = true;
 			player->worldTransform.SetPosition(new_position.value());
+			break;
+		}
 	}
+
+	if (!wasCollision)	player->worldTransform.IncrasePosition(0.f, -g, 0.f);
 }
 
 TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
@@ -165,8 +177,10 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
     {
         { Terrain::blendMap , "Textures/Terrain/BlendMaps/testBlendMap.png"},
         { Terrain::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png" },
-        { Terrain::redTexture, "Textures/Terrain/Ground/165.png",  },
-        { Terrain::greenTexture,"Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
+        { Terrain::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png",  },
+		{ Terrain::rockTexture, "Textures/Terrain/Ground/G3_Nature_Wall_Stone_12_Diffuse_01.png", },
+		{ Terrain::snowTexture, "Textures/Terrain/Ground/snow512.png", },
+        { Terrain::greenTexture,"Textures/Terrain/Ground/grassFlowers.png"},
         { Terrain::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
         { Terrain::displacementMap, "Textures/Terrain/HeightMaps/Terrain.terrain" }
     };
@@ -226,7 +240,7 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
 	return grass_positions;
 }
 
-CGameObject* MainScene::AddStaticEntity(const std::string & modelName, float scale, const vec2 & position)
+CGameObject* MainScene::AddStaticEntity(const std::string& modelName, float scale, const vec2& position)
 {
 	auto obj = ObjectBuilder::CreateEntity(&resourceManager, modelName);
 	obj->worldTransform.SetScale(scale);
@@ -244,6 +258,7 @@ CGameObject* MainScene::AddStaticEntity(const std::string & modelName, float sca
 	}
 	AddGameObject(obj, obj_pos);
 	renderersManager_->Subscribe(obj);
+	obj->worldTransform.TakeSnapShoot();
 	return obj;
 }
 

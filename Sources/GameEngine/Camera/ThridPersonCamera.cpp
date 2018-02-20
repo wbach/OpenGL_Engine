@@ -1,39 +1,33 @@
 #include "ThridPersonCamera.h"
-#include "../Input/InputManager.h"
-#include "../../Common/Transform.h"
+#include "Common/Transform.h"
+#include "GameEngine/Input/InputManager.h"
 #include "Utils.h"
-#include <algorithm>
 #include "Logger/Log.h"
 #include "GLM/GLMUtils.h"
+#include <algorithm>
 #include <cmath>
 
 #define DurationToFloatMs(x) std::chrono::duration<float, std::milli>(x).count()
 
-CThirdPersonCamera::CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform& look_at)
+CThirdPersonCamera::CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform* look_at)
 	: inputManager(input_manager)
 	, isShowCursor(false)
-	, offset(0.f, 1.0f, 0.f)
+	, offset(0.f, 1.8f, 0.f)
 	, mousevel(0.5f)
-	, moveTime(0.125f)
+	, moveTime(.125f)
 	, captureMouse(true)
 	, clock(std::chrono::milliseconds(5))
 	, destinationPosition(0)
 	, destinationYaw(0)
 	, destinationPitch(0)
-	, lookAt(look_at)
-{
-	lookAtPosition = look_at.GetPosition();
-	lookAtRotataion = look_at.GetRotation();
-	look_at.SubscribeOnChange("CThirdPersonCamera", std::bind(&CThirdPersonCamera::OnLookAtChange, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	
-	
+	, lookAt_(look_at)
+{	
 	distanceFromPlayer = 2.0f;
 	referenceTime = std::chrono::high_resolution_clock::now();
 }
 
 CThirdPersonCamera::~CThirdPersonCamera()
 {
-	lookAt.UnsubscribeOnChange("CThirdPersonCamera");
 }
 
 void CThirdPersonCamera::SetCaptureMouse(bool capture)
@@ -57,6 +51,13 @@ void CThirdPersonCamera::LockYaw()
 		destinationYaw -= 360.0f;
 }
 
+void CThirdPersonCamera::StaticCameraMove()
+{
+	pitch.store(destinationPitch);
+	yaw.store(destinationYaw);
+	SetPosition(destinationPosition);
+}
+
 void CThirdPersonCamera::LockCamera()
 {
 	LockPitch();
@@ -65,12 +66,20 @@ void CThirdPersonCamera::LockCamera()
 
 void CThirdPersonCamera::CalculateInput()
 {
+	if (inputManager->GetKey(KeyCodes::LCTRL))
+	{
+		inputManager->ShowCursor(true);
+		return;
+	}
+
+	inputManager->ShowCursor(false);
+
 	if (!clock.OnTick())
 		return;
 
 	vec2 d_move = CalcualteMouseMove() * mousevel;
 	CalculatePitch(d_move);
-	CalculateAngleAroundPlayer(d_move);	
+	CalculateAngleAroundPlayer(d_move);
 }
 
 float CThirdPersonCamera::GetTime() const
@@ -131,11 +140,22 @@ void CThirdPersonCamera::ControlState(CameraEvent<T>& stateInfo, CameraState sta
 
 void CThirdPersonCamera::Move()
 {
+	lookAtPosition_ = lookAt_->GetSnapShoot().position;
+	lookAtRotataion_ = lookAt_->GetSnapShoot().rotation;
+
 	float horizontal_distance = CalculateHorizontalDistance();
 	float vertical_distance = CalculateVerticalDistance();
 	CalculateCameraPosition(horizontal_distance, vertical_distance);
 	CalculateYaw();
 
+	StaticCameraMove();
+	//SmoothCameraMove();
+
+	LockCamera();
+}
+
+void CThirdPersonCamera::SmoothCameraMove()
+{
 	float time = GetTime();
 
 	for (auto state = states_.begin(); state != states_.end(); )
@@ -144,12 +164,12 @@ void CThirdPersonCamera::Move()
 
 		switch (*state)
 		{
-			case CameraState::MOVING:
-			{				
-				auto newPos = ProcessState<vec3>(moveStateInfo_, destinationPosition, time, remove);
-				SetPosition(newPos);
-				break;
-			}
+		case CameraState::MOVING:
+		{
+			auto newPos = ProcessState<vec3>(moveStateInfo_, destinationPosition, time, remove);
+			SetPosition(newPos);
+			break;
+		}
 		}
 
 		if (remove)
@@ -162,30 +182,28 @@ void CThirdPersonCamera::Move()
 		}
 	}
 
-	auto xyz = GetPosition() - lookAtPosition - vec3(0, 1.8f, 0);
-	auto yalpha = Utils::ToDegrees(atan2(xyz.z, xyz.x) - M_PI /2.f);
-	auto palpha = Utils::ToDegrees(atan2(xyz.y, sqrt(xyz.x * xyz.x + xyz.z*xyz.z)));
+	auto xyz = GetPosition() - lookAtPosition_;
+	float yalpha = Utils::ToDegrees(atan2(xyz.z, xyz.x) - static_cast<float>(M_PI) / 2.f);
+	float palpha = Utils::ToDegrees(atan2(xyz.y, sqrt(xyz.x * xyz.x + xyz.z*xyz.z)));
 
 	pitch.store(palpha);
 	yaw.store(yalpha);
-	LockCamera();
-
 	ControlState<vec3>(moveStateInfo_, CameraState::MOVING, GetPosition(), destinationPosition, time, IsOnDestinationPos());
-	CCamera::Move();
 }
+
 void CThirdPersonCamera::SetPosition(vec3 position_)
 {
 	CCamera::SetPosition(position_);
 }
 void CThirdPersonCamera::CalculateCameraPosition(float horizontal_distance, float vertical_distance)
 {
-	float theata = lookAtRotataion.y + angleAroundPlayer;
+	float theata = lookAtRotataion_.y + angleAroundPlayer;
 	float x_offset = (float) (horizontal_distance * sin(Utils::ToRadians(theata)));
 	float z_offset = (float) (horizontal_distance * cos(Utils::ToRadians(theata)));
 
-	destinationPosition.x = lookAtPosition.x - x_offset;
-	destinationPosition.y = lookAtPosition.y + vertical_distance + 1.8f;
-	destinationPosition.z = lookAtPosition.z - z_offset;
+	destinationPosition.x = lookAtPosition_.x - x_offset;
+	destinationPosition.y = lookAtPosition_.y + vertical_distance;
+	destinationPosition.z = lookAtPosition_.z - z_offset;
 	destinationPosition += offset;
 }
 
@@ -201,7 +219,7 @@ float CThirdPersonCamera::CalculateVerticalDistance()
 
 void CThirdPersonCamera::CalculateYaw()
 {
-	destinationYaw = 180 - (lookAtRotataion.y + angleAroundPlayer);
+	destinationYaw = 180 - (lookAtRotataion_.y + angleAroundPlayer);
 }
 
 void CThirdPersonCamera::CalculateZoom(float zoom_lvl)
@@ -209,11 +227,9 @@ void CThirdPersonCamera::CalculateZoom(float zoom_lvl)
 	this->distanceFromPlayer += zoom_lvl;
 }
 
-void CThirdPersonCamera::OnLookAtChange(const vec3 & pos, const vec3 & rotation, const vec3&)
+void CThirdPersonCamera::SetLookAtTransform(common::Transform * lookAt)
 {
-	lookAtRotataion = rotation;
-	lookAtPosition = pos;
-	Move();
+	lookAt_ = lookAt;
 }
 
 vec2 CThirdPersonCamera::CalcualteMouseMove()
@@ -253,4 +269,17 @@ bool CThirdPersonCamera::IsOnDestinationYaw()
 	auto l = pitch.load() - destinationPitch;
 
 	return fabs(l) < 0.1f;
+}
+
+template<class T>
+T CThirdPersonCamera::CalculateNewValueInTimeInterval(const CameraEvent<T>& t, float time) const
+{
+	float totalMoveTime = t.endTime - t.startTime;
+
+	if (fabs(totalMoveTime) < FLT_EPSILON)
+	{
+		return t.startValue;
+	}
+
+	return t.startValue + t.moveValue * (time - t.startTime) / totalMoveTime;
 }

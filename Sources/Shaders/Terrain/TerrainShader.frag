@@ -6,6 +6,7 @@ in TES_OUT
     vec3 world_coord;
     vec3 eye_coord;
     vec4 position;
+    vec3 normal;
 } fs_in;
 
 layout (location = 0) out vec4 WorldPosOut;
@@ -13,41 +14,53 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 SpecularOut;
 
-uniform sampler2D BlendMap;
-uniform sampler2D BackgroundTexture;
-uniform sampler2D rTexture;
-uniform sampler2D gTexture;
-uniform sampler2D bTexture;
-uniform sampler2D BackgroundTextureNormal;
-uniform sampler2D rTextureNormal;
-uniform sampler2D gTextureNormal;
-uniform sampler2D bTextureNormal;
-
-uniform sampler2D RockTexture;
-uniform sampler2D RockTextureNormal;
-
 uniform sampler2D shadowMap;
+uniform sampler2D blendMap;
+uniform sampler2D backgorundTexture;
+uniform sampler2D backgorundTextureNormal;
+uniform sampler2D redTexture;
+uniform sampler2D redTextureNormal;
+uniform sampler2D greenTexture;
+uniform sampler2D greenTextureNormal;
+uniform sampler2D blueTexture;
+uniform sampler2D blueTextureNormal;
+uniform sampler2D rockTexture;
+uniform sampler2D rockNormalTexture;
+uniform sampler2D snowTexture;
+uniform sampler2D snowTextureNormal;
+
+const float EPSILON = 0.005f;
+
+vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float normalFactor)
+{
+	vec4 baseColor = texture(textureId, textCoords) * factor * normalFactor;
+	vec4 rockColor = texture(rockTexture, textCoords) * factor * (1.f - normalFactor);
+
+	return  baseColor + rockColor;
+}
 
 vec4 CalculateTerrainColor()
 {
-	vec4 blend_map_colour = texture(BlendMap, fs_in.textCoord) ;
+	vec4 blend_map_colour = texture(blendMap, fs_in.textCoord) ;
 		
 	float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;
-	vec2 tiled_coords = fs_in.textCoord * 800.0f ;
+	vec2 tiled_coords = fs_in.textCoord * 200.0f ;
 
-	float normal_y = 1.f;//abs(normalize(In.normal).y);
+	float normalFactor = dot(fs_in.normal, vec3(0.f, 4.f, 0.f));
 
-	normal_y = normal_y *2;
+	if (normalFactor > 1 ) normalFactor = 1;
 
-	if (normal_y > 1 ) normal_y = 1;
-
-	vec4 backgorund_texture_colour = texture(BackgroundTexture, tiled_coords) * back_texture_amount * normal_y + ( texture(RockTexture, tiled_coords * 0.5) * back_texture_amount * (1 - normal_y)) ;
-	
-	vec4 r_texture_colour = texture(rTexture, tiled_coords) * blend_map_colour.r;
-	vec4 g_texture_colour = texture(gTexture, tiled_coords) * blend_map_colour.g;
-	vec4 b_texture_colour = texture(bTexture, tiled_coords) * blend_map_colour.b;
+	vec4 backgorund_texture_colour = CalculateColor(backgorundTexture, back_texture_amount, tiled_coords, normalFactor);
+	vec4 r_texture_colour = CalculateColor(redTexture, blend_map_colour.r, tiled_coords, normalFactor);
+	vec4 g_texture_colour = CalculateColor(greenTexture, blend_map_colour.g, tiled_coords, normalFactor);
+	vec4 b_texture_colour = CalculateColor(blueTexture, blend_map_colour.b, tiled_coords, normalFactor);
 
 	return backgorund_texture_colour + r_texture_colour + g_texture_colour + b_texture_colour ;
+}
+
+bool OutOfHeightMapSize()
+{
+	return (fs_in.textCoord.x < EPSILON || fs_in.textCoord.x > (1.f - EPSILON) || fs_in.textCoord.y <EPSILON || fs_in.textCoord.y > (1.f - EPSILON));
 }
 
 void main()
@@ -55,8 +68,11 @@ void main()
 	//if (Distance > ViewDistance)
 	//discard;
 
+	if (OutOfHeightMapSize())
+		discard;
+
 	WorldPosOut     = fs_in.position;
 	DiffuseOut      = CalculateTerrainColor();
-	NormalOut       = vec4(0.0f, 1.0f, 0.f, 1.f);
+	NormalOut       = vec4(fs_in.normal, 1.0f);//vec4(0.0f, 1.0f, 0.f, 1.f);
 	SpecularOut     = vec4(0.f);
 }

@@ -16,6 +16,10 @@ namespace GameEngine
 	Scene::~Scene()
 	{
 		Log("");
+		
+		camera.reset();
+		gameObjects.clear();
+
 		if (inputManager_ != nullptr)
 		{
 			inputManager_->UnsubscribeAll();

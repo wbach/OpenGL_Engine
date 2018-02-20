@@ -106,14 +106,9 @@ void ClassicTerrainRenderer::RenderModel(CModel * model, const mat4 & transform_
 
 void ClassicTerrainRenderer::BindTextures(CTerrain * terrain) const
 {
-	int i = 0;
+
     for (auto& t : terrain->textures)
 	{
-		if (t != nullptr)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, t->GetId());
-		}
-		i++;
+		Utils::ActiveBindTexture(t.first, t.second->GetId());
 	}
 }

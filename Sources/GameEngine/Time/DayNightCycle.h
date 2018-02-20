@@ -1,6 +1,7 @@
 #pragma once
 #include "../Lights/Light.h"
 #include "GameTime.h"
+#include "Types.h"
 
 class CDayNightCycle : public CGameTime
 {
@@ -12,7 +13,7 @@ public:
 	void CalculateBlendFactor();
 	void SetDirectionalLight(CLight* light);
 
-	const void GetCurrentHour(int& hour, int& minutes) const;
+	const wb::vec2i GetCurrentHour() const;
 	const bool IsDay() const;
 	const bool IsNight() const;
 	const bool IsMorning() const;
