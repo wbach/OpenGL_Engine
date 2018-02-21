@@ -31,7 +31,7 @@ private:
 	void CheckCollisions(float dt);
 	void AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 	TerrainTexturesMap CreateTerrainTexturesMap();
-	std::vector<float> CreateGrassPositions(CGameObject*);
+	std::vector<float> CreateGrassPositions(CGameObject*, vec2);
 	CGameObject* AddStaticEntity(const std::string& modelName, float scale, const vec2& position);
 
 private:

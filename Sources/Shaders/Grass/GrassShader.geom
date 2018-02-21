@@ -20,7 +20,7 @@ out vec3 WorldPos;
 
 uniform float ViewDistance;
 
-const float size = 1.0f;
+const float size = 0.35f;
 
 int CreateVertex(vec3 offset, vec2 text_coord)
 {
@@ -30,16 +30,17 @@ int CreateVertex(vec3 offset, vec2 text_coord)
 		//offset.z += cos(GlobalTime);
 	}
 	vec4 actual_offset = vec4(offset * size, .0f);
+	actual_offset.y += size;
 	vec4 world_position = (gl_in[0].gl_Position + actual_offset);
 	vec4 model_view_position  = ViewMatrix * world_position;	
 	
 	float Distance = length(model_view_position.xyz) ;
-	//if (Distance > ViewDistance)
-	//return -1;
+	//if (Distance > ViewDistance + 50.f) return -1;
 	
 	gl_Position = ProjectionMatrix * model_view_position;
 	TexCoord = vec2((text_coord.x+1.0)/2.0, 1 - (-text_coord.y+1.0)/2.0);
 	WorldPos = world_position.xyz;
+	WorldPos.y += size;
 	
 	if (ShadowVariables.x > 0.5f)
 	{

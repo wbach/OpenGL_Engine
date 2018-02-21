@@ -2,6 +2,7 @@
 #include "LoD.h"
 #include "Utils.h"
 #include "SingleTon.h"
+#include <unordered_map>
 
 struct SEngineConfiguration
 {
@@ -63,7 +64,7 @@ struct SEngineConfiguration
 
     std::string requiredFilesOutputFile = "required_files.inf";
 
-    std::vector<int> texturesIds;// dirty hack, debug
+    std::unordered_map<std::string,int> texturesIds;// dirty hack, debug
 };
 
 #define EngineConf SingleTon<SEngineConfiguration>::Get()

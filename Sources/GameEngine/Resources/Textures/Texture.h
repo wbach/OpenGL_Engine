@@ -13,7 +13,7 @@ public:
     CTexture(const std::string& file, const std::string& filepath, bool applySizeLimit = true);
     virtual ~CTexture();
 
-    virtual void OpenGLLoadingPass() = 0;
+	virtual void OpenGLLoadingPass() {}
     const GLuint& GetId() const
     {
         return id;
@@ -26,6 +26,10 @@ public:
     {
         return fullpath;
     }
+	void SetExistId(GLuint i)
+	{
+		id = i;
+	}
 
 protected:
     std::string filename;

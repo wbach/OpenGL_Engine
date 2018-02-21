@@ -66,9 +66,8 @@ namespace GameEngine
 
 		BindTextures(sub);
 
-		glBindVertexArray(vao);
+		Utils::EnableVao ev(vao, {});
 		glDrawArraysInstanced(GL_PATCHES, 0, 4, static_cast<int>(Terrain::SIZE * Terrain::SIZE));
-		glBindVertexArray(0);
 	}
 	void CTerrainRenderer::InitShader()
 	{

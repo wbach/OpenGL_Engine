@@ -38,8 +38,9 @@ FullRenderer::~FullRenderer()
 void FullRenderer::Init()
 {
 	defferedFrameBuffer->Init(projectionMatrix->GetWindowSize());
+	shadowsFrameBuffer->InitialiseFrameBuffer();
 
-     for(auto& renderer : renderers)
+    for(auto& renderer : renderers)
     {
         renderer->Init();
     }

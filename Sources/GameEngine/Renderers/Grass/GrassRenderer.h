@@ -16,8 +16,10 @@ public:
     virtual void Render(GameEngine::Scene* scene) override;
     virtual void EndFrame(GameEngine::Scene* scene) override;
     virtual void Subscribe(CGameObject* gameObject) override;
+	virtual void ReloadShaders() override;
 
 private:
+	void InitShader();
     void PrepareRender(GameEngine::Scene* scene);
     void EndRender() const;
     void RenderSubscribes();

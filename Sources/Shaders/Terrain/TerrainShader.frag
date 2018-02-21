@@ -7,6 +7,7 @@ in TES_OUT
     vec3 eye_coord;
     vec4 position;
     vec3 normal;
+    float height;
 } fs_in;
 
 layout (location = 0) out vec4 WorldPosOut;
@@ -48,9 +49,12 @@ vec4 CalculateTerrainColor()
 
 	float normalFactor = dot(fs_in.normal, vec3(0.f, 4.f, 0.f));
 
-	if (normalFactor > 1 ) normalFactor = 1;
+	if (normalFactor > 1 )
+	 normalFactor = 1;
 
-	vec4 backgorund_texture_colour = CalculateColor(backgorundTexture, back_texture_amount, tiled_coords, normalFactor);
+	vec4 backgorund_texture_colour;
+	backgorund_texture_colour = CalculateColor(backgorundTexture, back_texture_amount, tiled_coords, normalFactor);
+
 	vec4 r_texture_colour = CalculateColor(redTexture, blend_map_colour.r, tiled_coords, normalFactor);
 	vec4 g_texture_colour = CalculateColor(greenTexture, blend_map_colour.g, tiled_coords, normalFactor);
 	vec4 b_texture_colour = CalculateColor(blueTexture, blend_map_colour.b, tiled_coords, normalFactor);

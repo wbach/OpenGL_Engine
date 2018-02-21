@@ -6,7 +6,8 @@ namespace common
 	{
 		enum Types
 		{
-			CharacterControllerType
+			CharacterControllerType,
+			Collider
 		};
 
 	} // Controllers

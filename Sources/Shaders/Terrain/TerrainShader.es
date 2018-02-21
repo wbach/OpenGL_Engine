@@ -20,6 +20,7 @@ out TES_OUT
     vec3 eye_coord;
     vec4 position;
     vec3 normal;
+    float height;
 } tes_out;
 
 float GetHeight(vec2 v)
@@ -39,6 +40,8 @@ void main(void)
     vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
     vec4 p = mix(p2, p1, gl_TessCoord.y);
     p.y += GetHeight(textCoord);
+
+    tes_out.height = GetHeight(textCoord);
 
     float heightL = GetHeight(textCoord - vec2(resolution, 0));
     float heightR = GetHeight(textCoord + vec2(resolution, 0));

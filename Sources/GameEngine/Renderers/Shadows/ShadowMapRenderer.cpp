@@ -10,18 +10,20 @@
 #include "OpenGL/OpenGLUtils.h"
 #include "math.hpp"
 
+
 CShadowMapRenderer::CShadowMapRenderer(CProjection* projection, CShadowFrameBuffer* framebuffer)
 : shadowBox(projection)
 , projection(projection)
 , shadowFrameBuffer(framebuffer)
 , projectionViewMatrix(1.f)
 {
-    EngineConf.texturesIds.push_back(shadowFrameBuffer->GetShadowMap());
+
 }
 
 void CShadowMapRenderer::Init()
 {
     shader.Init();
+	EngineConf.texturesIds["shadowMap"] = shadowFrameBuffer->GetShadowMap();
 }
 
 void CShadowMapRenderer::PrepareFrame(GameEngine::Scene* scene)

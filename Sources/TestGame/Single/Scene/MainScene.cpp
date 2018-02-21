@@ -2,6 +2,7 @@
 #include "SingleTon.h"
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Engine.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
@@ -10,6 +11,7 @@
 #include "GameEngine/Resources/Textures/Image.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
+#include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -33,16 +35,32 @@ int MainScene::Initialize()
 	renderersManager_->GuiText("gameTime").m_size = 0.5f;
 	renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
 
+	GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+	guiTexture.texture = new CTexture();
+	guiTexture.SetScale(vec2(0.25, 0.25));
+	guiTexture.SetPosition(vec2(0.5, 0.5));
+	renderersManager_->GuiTexture("shadowMap") = guiTexture;
+
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
 
-	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(-83, -28));
-	AddStaticEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(-83, -25));
+	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
+	AddStaticEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
 	
-	player = AddStaticEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(-83, -20));
+	player = AddStaticEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(395, 560));
 	player->worldTransform.isDynamic_ = true;
 	renderersManager_->UnSubscribe(player);
 	renderersManager_->Subscribe(player);
+	
+
+	for (const auto& terrain : terrains)
+	{
+		auto grass_position = CreateGrassPositions(terrain, vec2(375, 550));
+
+		auto grass_obj = ObjectBuilder::CreateGrass(resourceManager, grass_position, "Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+		AddGameObject(grass_obj);
+		renderersManager_->Subscribe(grass_obj);
+	}
 
 	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 	playerInputController_ = std::make_shared<PlayerInputController>(inputManager_, characterController_.get());
@@ -68,13 +86,15 @@ int MainScene::Update(float dt)
 	   return -1;
 	}
 
+	renderersManager_->GuiTexture("shadowMap").texture->SetExistId(EngineConf.texturesIds["shadowMap"]);
+
  //   gloabalTime += deltaTime;
  //   timeClock += deltaTime;
 
     if(timeClock > 1.f)
     {
         timeClock = 0;
-		renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
+		renderersManager_->GuiText("gameTime").text = "Game Time: " + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
     }
 
     //dayNightCycle.Update(deltaTime);
@@ -215,12 +235,12 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
 	//	}
 }
 
-std::vector<float> MainScene::CreateGrassPositions(CGameObject* object)
+std::vector<float> MainScene::CreateGrassPositions(CGameObject* object, vec2 pos)
 {
 	std::vector<float> grass_positions;
-	for (float y = 0.f; y < 200.f; y += 10.5f)
+	for (float y = pos.y; y < pos.y + 50.f; y += .5f)
 	{
-		for (float x = 0.f; x < 200.f; x += 10.5f)
+		for (float x = pos.x; x < pos.x + 50.f; x += .5f)
 		{
 			float xpos = x + ((rand() % 400 - 200) / 10.f);
 			float zpos = y + ((rand() % 400 - 200) / 10.f);

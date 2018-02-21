@@ -15,10 +15,7 @@ CGrassRenderer::CGrassRenderer(CProjection* projection_matrix, CFrameBuffer* fra
 
 void CGrassRenderer::Init()
 {
-    shader.Init();
-    shader.Start();
-    shader.LoadProjectionMatrix(projection->GetProjectionMatrix());
-    shader.Stop();
+	InitShader();
 
     viewDistance = EngineConf.floraViewDistance;
     Log("Grass renderer initialized.");
@@ -47,6 +44,22 @@ void CGrassRenderer::Subscribe(CGameObject* gameObject)
     auto grass = dynamic_cast<SGrass*>(gameObject);
     if (grass != nullptr)
         subscribes.push_back(grass);
+}
+
+void CGrassRenderer::ReloadShaders()
+{
+	shader.Reload();
+	InitShader();
+}
+
+void CGrassRenderer::InitShader()
+{
+	shader.Init();
+	shader.Start();
+	shader.LoadProjectionMatrix(projection->GetProjectionMatrix());
+	shader.LoadShadowValues(0.f, 0.f, 512.f);
+	shader.LoadViewDistance(viewDistance);
+	shader.Stop();
 }
 
 void CGrassRenderer::PrepareRender(GameEngine::Scene* scene)
@@ -96,7 +109,5 @@ void CGrassRenderer::PrepareShader(GameEngine::Scene* scene)
 {
     shader.Start();
     shader.LoadGlobalTime(scene->GetGlobalTime());
-    shader.LoadShadowValues(0.f, 0.f, 512.f);
     shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-    shader.LoadViewDistance(viewDistance);
 }
