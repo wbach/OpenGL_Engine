@@ -44,14 +44,10 @@ int MainScene::Initialize()
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
 
-	AddStaticEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
-	AddStaticEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
+	AddEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
+	AddEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
 	
-	player = AddStaticEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(395, 560));
-	player->worldTransform.isDynamic_ = true;
-	renderersManager_->UnSubscribe(player);
-	renderersManager_->Subscribe(player);
-	
+	player = AddEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(395, 560), true);
 
 	for (const auto& terrain : terrains)
 	{
@@ -68,9 +64,9 @@ int MainScene::Initialize()
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
-  //  camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
-    SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
-	camType = CameraType::ThridPerson;
+    camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
+   // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
+	camType = CameraType::FirstPerson;
 
 	KeyOperations();
 
@@ -260,10 +256,11 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object, vec2 pos
 	return grass_positions;
 }
 
-CGameObject* MainScene::AddStaticEntity(const std::string& modelName, float scale, const vec2& position)
+CGameObject* MainScene::AddEntity(const std::string& modelName, float scale, const vec2& position, bool isDynamic)
 {
 	auto obj = ObjectBuilder::CreateEntity(&resourceManager, modelName);
 	obj->worldTransform.SetScale(scale);
+	obj->worldTransform.isDynamic_ = isDynamic;
 
 	vec3 obj_pos(position.x, 0, position.y);
 

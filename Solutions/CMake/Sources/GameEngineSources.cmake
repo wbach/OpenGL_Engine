@@ -65,6 +65,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/IMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MyModel.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
 ../../Sources/GameEngine/Resources/OpenGLLoader.cpp
 ../../Sources/GameEngine/Resources/ResourceManager.cpp

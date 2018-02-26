@@ -5,16 +5,18 @@ layout (vertices = 4) out;
 in VS_OUT
 {
     vec2 textCoord;
+    vec3 camPos;
 } tcs_in[];
 
 out TCS_OUT
 {
     vec2 textCoord;
+    vec3 camPos;
 } tcs_out[];
 
 uniform mat4 modelViewProjectionMatrix;
 
-const float scale = 64.f;
+const float scale = 16.f;
 
 float CalculateTessLvl(vec4 p1, vec4 p2)
 {
@@ -68,4 +70,5 @@ void main(void)
     }
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     tcs_out[gl_InvocationID].textCoord = tcs_in[gl_InvocationID].textCoord;
+    tcs_out[gl_InvocationID].camPos = tcs_in[gl_InvocationID].camPos;
 }

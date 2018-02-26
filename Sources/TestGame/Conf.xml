@@ -1,5 +1,5 @@
 <config>
-	<Window name="Gota - OpenGL" width="1100" height="700" fullscreen="false" refreshRate="60" vsync="false"/>
+	<Window name="Gota - OpenGL" width="800" height="600" fullscreen="false" refreshRate="60" vsync="false"/>
 	<Sound enabled="true" volume="1.0"/>
 	<Engine>
 		<DataLocation>C:/Data/Projects/Private/OpenGL_Bin/Data/</DataLocation>
@@ -11,7 +11,7 @@
 		 </Renderer>
 		<TextureMaxResolution width="4096" height="4096"/>
 		<Flora viewDistance="10" grass="true"/>
-		<Shadows enabled="false" distance="35" shadowMapSize="128"/>
+		<Shadows enabled="true" distance="35" shadowMapSize="4096"/>
 		<Water quality="1">
 			<Reflection width="320" height="240"/>
 			<Refraction width="640" height="480"/>

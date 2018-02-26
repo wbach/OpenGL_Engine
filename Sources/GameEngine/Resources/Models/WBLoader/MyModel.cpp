@@ -1,8 +1,9 @@
 #include "MyModel.h"
 #include "Collada/ColladaDae.h"
 #include "WaveFront/WaveFrontObj.h"
+#include "Terrain/TerrainMeshLoader.h"
 
-#include "../../../Engine/Configuration.h"
+#include "GameEngine/Engine/Configuration.h"
 
 #include "Logger/Log.h"
 #include "ParseUtils.h"
@@ -15,6 +16,7 @@ CMyModel::CMyModel(CTextureLoader & textureloader)
 {
 	meshLoaders.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
 	meshLoaders.emplace_back(new WBLoader::ColladaDae(textureloader));
+	meshLoaders.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
 }
 
 CMyModel::~CMyModel()

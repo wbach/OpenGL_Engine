@@ -7,6 +7,7 @@
 #include "Shadows/ShadowMapRenderer.hpp"
 #include "Shadows/ShadowFrameBuffer.h"
 #include "Terrain/TerrainRenderer.h"
+#include "Terrain/Classic/ClassicTerrainRenderer.h"
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
 #include "../Engine/Configuration.h"
@@ -16,16 +17,18 @@
 FullRenderer::FullRenderer(CProjection* projection_matrix)
 	: projectionMatrix(projection_matrix)
 	, defferedFrameBuffer(new CDefferedFrameBuffer())
-    , shadowsFrameBuffer(new CShadowFrameBuffer())
 {	
+	rendererContext_.shadowsFrameBuffer = std::make_shared<CShadowFrameBuffer>();
+
     if(EngineConf.isShadows)
-        renderers.emplace_back(new CShadowMapRenderer(projection_matrix, shadowsFrameBuffer.get()));
+        renderers.emplace_back(new CShadowMapRenderer(projection_matrix, &rendererContext_));
 
     if(EngineConf.advancedGrass)
 		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
 
 	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
-    renderers.emplace_back(new GameEngine::CTerrainRenderer(projection_matrix, defferedFrameBuffer.get(), shadowsFrameBuffer.get()));
+    renderers.emplace_back(new GameEngine::CTerrainRenderer(projection_matrix, defferedFrameBuffer.get(), &rendererContext_));
+	//renderers.emplace_back(new ClassicTerrainRenderer(projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CEntityRenderer(projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CLightPassRenderer(projection_matrix, defferedFrameBuffer.get()));
 }
@@ -38,7 +41,7 @@ FullRenderer::~FullRenderer()
 void FullRenderer::Init()
 {
 	defferedFrameBuffer->Init(projectionMatrix->GetWindowSize());
-	shadowsFrameBuffer->InitialiseFrameBuffer();
+	rendererContext_.shadowsFrameBuffer->InitialiseFrameBuffer();
 
     for(auto& renderer : renderers)
     {

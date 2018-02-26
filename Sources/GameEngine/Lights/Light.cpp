@@ -64,6 +64,11 @@ const vec3& CLight::GetAttenuation() const
     return attenuation;
 }
 
+vec3 CLight::GetDirection() const
+{
+	return type == LightType::DIRECTIONAL_LIGHT ? position * -1.f : direction;
+}
+
 float CLight::GetCutoff() const
 {
     return cutOff;

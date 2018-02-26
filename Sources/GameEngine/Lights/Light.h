@@ -16,11 +16,13 @@ public:
 	const vec3& GetPosition() const;
 	const vec3& GetColour() const;
 	const vec3& GetAttenuation() const;
+	vec3 GetDirection() const;
 	float GetCutoff() const;
 	void SetType(LightType::Type type);
 
 private:
     LightType::Type type;
+	vec3 direction;
     vec3 position;
     vec3 colour;
     vec3 attenuation;

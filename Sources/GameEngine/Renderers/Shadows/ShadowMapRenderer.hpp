@@ -1,8 +1,9 @@
 #pragma once
 #include "ShadowBox.h"
-#include "../Renderer.h"
-#include "../../Scene/Scene.hpp"
 #include "Shaders/ShadowShader.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Renderers/Renderer.h"
+#include "GameEngine/Renderers/RendererContext.h"
 
 class CMesh;
 class CEntity;
@@ -14,7 +15,7 @@ struct SMaterial;
 class CShadowMapRenderer : public CRenderer
 {
 public:
-    CShadowMapRenderer(CProjection* projection, CShadowFrameBuffer* framebuffer);
+    CShadowMapRenderer(CProjection* projection, GameEngine::RendererContext* rendererContext);
     virtual void Init() override;
     virtual void PrepareFrame(GameEngine::Scene* scene) override;
     virtual void Render(GameEngine::Scene* scene) override;
@@ -24,7 +25,6 @@ public:
 private:
     void PrepareRender(GameEngine::Scene*);
     void PrepareShader(CCamera*) const;
-    void PrepareLightViewMatrix(const glm::vec3& light_direction);
     void RenderSubscribes() const;
     void RenderEntity(CEntity*) const;
     void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
@@ -32,9 +32,11 @@ private:
 
 private:
     CProjection* projection;
-    CShadowFrameBuffer* shadowFrameBuffer;
+	GameEngine::RendererContext* rendererContext_;
     CShadowShader shader;
     CShadowBox shadowBox;
+	CShadowBox shadowBox2;
     mat4 projectionViewMatrix;
+	mat4 viewOffset;
     std::vector<CEntity*> subscribes;
 };

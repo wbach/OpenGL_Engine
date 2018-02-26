@@ -33,6 +33,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainDef.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h
+../../Sources/GameEngine/Physics/BaseCollider.h
+../../Sources/GameEngine/Physics/PhysicsScene.h
+../../Sources/GameEngine/Physics/Rigidbody.h
 ../../Sources/GameEngine/Renderers/Entity/EntityRenderer.h
 ../../Sources/GameEngine/Renderers/Entity/Shaders/EntityShader.h
 ../../Sources/GameEngine/Renderers/Entity/Shaders/GeometryEntityShader.h
@@ -55,6 +58,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Projection.h
 ../../Sources/GameEngine/Renderers/Renderer.h
+../../Sources/GameEngine/Renderers/RendererContext.h
 ../../Sources/GameEngine/Renderers/RenderersManager.h
 ../../Sources/GameEngine/Renderers/Shadows/Shaders/ShadowShader.h
 ../../Sources/GameEngine/Renderers/Shadows/ShadowBox.h
@@ -86,6 +90,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/WBLoader/IMeshLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/MyModel.h
+../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.h
 ../../Sources/GameEngine/Resources/OpenGLLoader.h
 ../../Sources/GameEngine/Resources/OpenGLObject.h

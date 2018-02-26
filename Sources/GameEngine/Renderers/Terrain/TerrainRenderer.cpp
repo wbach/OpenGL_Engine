@@ -1,6 +1,7 @@
 #include "TerrainRenderer.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "GameEngine/Renderers/Shadows/ShadowFrameBuffer.h"
@@ -11,11 +12,11 @@
 
 namespace GameEngine
 {
-	CTerrainRenderer::CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer, CShadowFrameBuffer* shadowFramebuffer)
+	CTerrainRenderer::CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext)
 		: CRenderer(framebuffer)
 		, projectionMatrix(projection_matrix)
 		, clipPlane(vec4(0, 1, 0, 100000))
-		, shadowFramebuffer(shadowFramebuffer)
+		, rendererContext_(shadowRendererContext)
 	{
 	}
 	void CTerrainRenderer::Init()
@@ -39,29 +40,31 @@ namespace GameEngine
 
 		target->BindToDraw();
 		shader.Start();
+		shader.Load(TerrainShader::lightDirection, scene->GetDirectionalLight().GetDirection());
 		shader.Load(TerrainShader::playerPosition, scene->GetCamera()->GetPosition());
-		RenderSubscribers(scene->GetCamera()->GetViewMatrix(), 2);
+		shader.Load(TerrainShader::toShadowMapSpace, rendererContext_->toShadowMapZeroMatrix_);
+
+		auto modelViewMatrix = scene->GetCamera()->GetViewMatrix();
+		modelViewMatrix[3][0] = 0;
+		modelViewMatrix[3][1] = 0;
+		modelViewMatrix[3][2] = 0;
+
+		RenderSubscribers(modelViewMatrix, 2);
 		shader.Stop();
 
 	}
 	void CTerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
 	{
 		for (auto& sub : subscribes)
-		{
-			auto modelViewMatrix = viewMatrix;
-
-			modelViewMatrix[3][0] = 0;
-			modelViewMatrix[3][1] = 0;
-			modelViewMatrix[3][2] = 0;
-
-			shader.Load(TerrainShader::modelViewMatrix, modelViewMatrix);
-			shader.Load(TerrainShader::modelViewProjectionMatrix, projectionMatrix->GetProjectionMatrix() * modelViewMatrix);
+		{			
+			shader.Load(TerrainShader::modelViewMatrix, viewMatrix);
+			shader.Load(TerrainShader::modelViewProjectionMatrix, projectionMatrix->GetProjectionMatrix() * viewMatrix);
 			RenderSubscriber(sub);
 		}
 	}
 	void CTerrainRenderer::RenderSubscriber(TerrainPtr sub) const
 	{
-		if (sub == nullptr || !sub->Get()->model->isInOpenGL())
+		if (sub == nullptr)
 			return;
 
 		BindTextures(sub);
@@ -74,12 +77,13 @@ namespace GameEngine
 		shader.Init();
 		shader.Start();
 		shader.Load(TerrainShader::heightFactor, Terrain::HEIGHT_FACTOR);
+		shader.Load(TerrainShader::shadowVariables, vec3(1.f, 35.f, 2048.f));
 		shader.Load(TerrainShader::projectionMatrix, projectionMatrix->GetProjectionMatrix());
 		shader.Stop();
 	}
 	void CTerrainRenderer::BindTextures(TerrainPtr terrain) const
 	{
-		Utils::ActiveBindTexture(0, shadowFramebuffer->GetShadowMap());
+		Utils::ActiveBindTexture(0, rendererContext_->shadowsFrameBuffer->GetShadowMap());
 
 		for (auto& t : terrain->Get()->textures)
 			BindTexture(t.second, t.first);

@@ -11,11 +11,14 @@ namespace GameEngine
 		enum UniformLocation
 		{
 			playerPosition,
+			lightDirection,
 			modelViewProjectionMatrix,
 			displacementTexture,
 			modelViewMatrix,
 			projectionMatrix,
 			heightFactor,
+			toShadowMapSpace,
+			shadowVariables,
 			shadowMap,
 			blendMap,
 			backgorundTexture,

@@ -19,11 +19,14 @@ namespace GameEngine
 	void TerrainShader::GetAllUniformLocations()
 	{
 		GetLocation(playerPosition);
+		GetLocation(lightDirection);
 		GetLocation(modelViewProjectionMatrix);
+		GetLocation(displacementTexture);
 		GetLocation(modelViewMatrix);
 		GetLocation(projectionMatrix);
 		GetLocation(heightFactor);
-		GetLocation(displacementTexture);
+		GetLocation(toShadowMapSpace);
+		GetLocation(shadowVariables);
 		GetLocation(shadowMap);
 		GetLocation(blendMap);
 		GetLocation(backgorundTexture);

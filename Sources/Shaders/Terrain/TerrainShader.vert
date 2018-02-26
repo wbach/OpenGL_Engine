@@ -3,6 +3,7 @@
 out VS_OUT
 {
     vec2 textCoord;
+    vec3 camPos;
 } vs_out;
 
 const float SIZE = 64.f;
@@ -22,6 +23,8 @@ const vec4 vertices[] = vec4[](vec4(-VERTEX, 0.0, -VERTEX, 1.0),
 
 void main(void)
 {
+    vs_out.camPos = playerPosition;
+    
     int x = gl_InstanceID & 63;
     int y = gl_InstanceID >> 6;
     x = x * VSCALE;

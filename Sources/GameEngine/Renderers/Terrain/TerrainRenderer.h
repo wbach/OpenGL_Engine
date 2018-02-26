@@ -7,16 +7,17 @@ class CModel;
 class CTexture;
 class CProjection;
 class CTerrainWrapper;
-class CShadowFrameBuffer;
 typedef CTerrainWrapper* TerrainPtr;
 typedef std::vector<TerrainPtr> TerrainPtrs;
 
 namespace GameEngine
 {
+	struct RendererContext;
+
 	class CTerrainRenderer : public CRenderer
 	{
 	public:
-		CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer, CShadowFrameBuffer* shadowFramebuffer);
+		CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext);
 		// Loading lights itp to shader
 		virtual void Init() override;
 		virtual void PrepareFrame(GameEngine::Scene* scene) override;
@@ -36,7 +37,7 @@ namespace GameEngine
 	private:
 		TerrainShader  shader;
 		CProjection*	projectionMatrix;
-		CShadowFrameBuffer* shadowFramebuffer;
+		RendererContext* rendererContext_;
 
 		vec4	clipPlane;
 

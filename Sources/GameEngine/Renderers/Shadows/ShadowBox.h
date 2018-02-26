@@ -16,7 +16,8 @@ public:
     float GetHeight() const;
     float GetLength() const;
     const float GetAspectRatio() const;
-    void SetLightViewMatrix(const mat4& matrix);
+    void CalculateMatrixes(const vec3& lightDirection);
+	const mat4& GetProjectionViewMatrix() const;
 
 private:
     void FindMinMax(const vec4& point);
@@ -33,6 +34,7 @@ private:
     vec3 m_Max;
 
     mat4 m_LightViewMatrix;
+	mat4 projectionViewMatrix;
 
     float m_FarHeight, m_FarWidth, m_NearHeight, m_NearWidth;
     float m_Fov, m_NearPlane;

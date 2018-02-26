@@ -5,7 +5,7 @@
 
 static vec3 zero(0);
 
-const float defaultCamSpeed = Utils::KmToMs<float>(15);
+const float defaultCamSpeed = Utils::KmToMs<float>(1);
 const float defaultCamRotationSpeed = 0.2f;
 
 CFirstPersonCamera::CFirstPersonCamera(GameEngine::InputManager* input_manager, GameEngine::CDisplayManager *display_manager)

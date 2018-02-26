@@ -1,5 +1,5 @@
 #include "ColladaDae.h"
-#include "../../../TextureLoader.h"
+#include "GameEngine/Resources/TextureLoader.h"
 
 #include "GLM/GLMUtils.h"
 #include "ParseUtils.h"
@@ -128,7 +128,7 @@ namespace WBLoader
 			auto node_data = Utils::GetRapidNodeData(snode);
 
 			if (node_data.name == "init_from")
-				texturesMap[att_data.value] = textureLodaer.LoadTexture("Textures/" + node_data.value, true, true, TextureType::MATERIAL);  ;
+				texturesMap[att_data.value] = textureLodaer.LoadTexture("Textures/" + node_data.value, true, true, TextureType::MATERIAL);
 		}
 	}
 	void ColladaDae::ProccesLibraryEffects(XMLNode* root)

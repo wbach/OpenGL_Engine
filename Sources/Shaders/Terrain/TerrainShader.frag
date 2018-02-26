@@ -8,6 +8,9 @@ in TES_OUT
     vec4 position;
     vec3 normal;
     float height;
+    vec4 shadowCoords;
+    float useShadows;
+    float shadowMapSize;
 } fs_in;
 
 layout (location = 0) out vec4 WorldPosOut;
@@ -15,7 +18,7 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 SpecularOut;
 
-uniform sampler2D shadowMap;
+uniform sampler2DShadow shadowMap;
 uniform sampler2D blendMap;
 uniform sampler2D backgorundTexture;
 uniform sampler2D backgorundTextureNormal;
@@ -38,6 +41,32 @@ vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float no
 	vec4 rockColor = texture(rockTexture, textCoords) * factor * (1.f - normalFactor);
 
 	return  baseColor + rockColor;
+}
+
+float CalculateShadowFactor()
+{
+    float xOffset = 1.f / fs_in.shadowMapSize;
+    float yOffset = 1.f / fs_in.shadowMapSize;
+
+    float factor = 0.f;
+
+	float a = 0.f;
+    for (int y = -1 ; y <= 1 ; y++) 
+	{
+        for (int x = -1 ; x <= 1 ; x++) 
+		{
+            vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
+            vec3 uvc = vec3(fs_in.shadowCoords.xy + offsets, fs_in.shadowCoords.z);
+			
+			if (texture(shadowMap, uvc) >  0.f)
+				factor += (fs_in.shadowCoords.w * .4f);
+		   ++a;
+        }
+    }
+	float value = (0.5 + (factor / a)) ;
+	if( value > 1 )
+		value = 1 ;
+    return value ;
 }
 
 vec4 CalculateTerrainColor()
@@ -75,8 +104,10 @@ void main()
 	if (OutOfHeightMapSize())
 		discard;
 
+	float shadow_factor = CalculateShadowFactor();
+
 	WorldPosOut     = fs_in.position;
-	DiffuseOut      = CalculateTerrainColor();
+	DiffuseOut      = CalculateTerrainColor() * shadow_factor;
 	NormalOut       = vec4(fs_in.normal, 1.0f);//vec4(0.0f, 1.0f, 0.f, 1.f);
 	SpecularOut     = vec4(0.f);
 }

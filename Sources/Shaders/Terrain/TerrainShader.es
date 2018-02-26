@@ -4,6 +4,7 @@ layout (quads, fractional_odd_spacing) in;
 
 uniform sampler2D displacementMap;
 
+uniform vec3 lightDirection;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 uniform float heightFactor;
@@ -11,6 +12,7 @@ uniform float heightFactor;
 in TCS_OUT
 {
     vec2 textCoord;
+    vec3 camPos;
 } tes_in[];
 
 out TES_OUT
@@ -21,7 +23,13 @@ out TES_OUT
     vec4 position;
     vec3 normal;
     float height;
+    vec4 shadowCoords;
+    float useShadows;
+    float shadowMapSize;
 } tes_out;
+
+uniform mat4 toShadowMapSpace;
+uniform vec3 shadowVariables;
 
 float GetHeight(vec2 v)
 {
@@ -56,5 +64,25 @@ void main(void)
     tes_out.world_coord = p.xyz;
     tes_out.eye_coord = P_eye.xyz;
     tes_out.position = projectionMatrix * P_eye;
+
     gl_Position = tes_out.position;
+
+    if (shadowVariables.x > 0.5f)
+    {
+        tes_out.shadowMapSize = shadowVariables.z;
+        vec3 pos = p.xyz;
+        pos -= normalize(lightDirection) * 25.f;
+
+        float shadow_distance       = shadowVariables.y;
+        const float transition_distance = 2.f;
+
+        vec4 pe = modelViewMatrix * vec4(pos, 1.0f);
+
+        float distance_to_cam   = length(pe.xyz);
+
+        tes_out.shadowCoords    = toShadowMapSpace * vec4(pos, 1.f);
+        distance_to_cam         = distance_to_cam - (shadow_distance - transition_distance);
+        distance_to_cam         = distance_to_cam / shadow_distance;
+        tes_out.shadowCoords.w  = clamp(1.f - distance_to_cam, 0.f, 1.f);
+    }
 }

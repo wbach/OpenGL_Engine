@@ -5,7 +5,7 @@
 
 void TerrainUtils::LoadHeightMap(CResourceManager& manager, CTerrain* terrain, const std::string & height_map_file)
 {
-	auto t = manager.GetTextureLaoder().LoadHeightMap(height_map_file, true);
+	auto t = manager.GetTextureLaoder().LoadHeightMap(EngineConf_GetFullDataPathAddToRequierd(height_map_file), true);
 
 	if (t == nullptr)
 	{

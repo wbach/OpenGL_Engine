@@ -1,9 +1,10 @@
 #pragma once
+#include "RendererContext.h"
+#include "Renderer.h"
 #include <memory>
 #include <vector>
-#include "Renderer.h"
 
-class CShadowFrameBuffer;
+
 class CDefferedFrameBuffer;
 class CProjection;
 
@@ -28,5 +29,6 @@ private:
     // ShadowMap renderes, etc...
     std::vector<std::unique_ptr<CRenderer>> renderers;
     std::shared_ptr<CDefferedFrameBuffer> defferedFrameBuffer;
-    std::shared_ptr<CShadowFrameBuffer> shadowsFrameBuffer;
+   
+	GameEngine::RendererContext rendererContext_;
 };

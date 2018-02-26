@@ -9,21 +9,23 @@
 #include "GLM/GLMUtils.h"
 #include "OpenGL/OpenGLUtils.h"
 #include "math.hpp"
+#include "Logger/Log.h"
 
 
-CShadowMapRenderer::CShadowMapRenderer(CProjection* projection, CShadowFrameBuffer* framebuffer)
+CShadowMapRenderer::CShadowMapRenderer(CProjection* projection, GameEngine::RendererContext* rendererContext)
 : shadowBox(projection)
+, shadowBox2(projection)
 , projection(projection)
-, shadowFrameBuffer(framebuffer)
+, rendererContext_(rendererContext)
 , projectionViewMatrix(1.f)
+, viewOffset(Utils::CreateOffset())
 {
-
 }
 
 void CShadowMapRenderer::Init()
 {
     shader.Init();
-	EngineConf.texturesIds["shadowMap"] = shadowFrameBuffer->GetShadowMap();
+	EngineConf.texturesIds["shadowMap"] = rendererContext_->shadowsFrameBuffer->GetShadowMap();
 }
 
 void CShadowMapRenderer::PrepareFrame(GameEngine::Scene* scene)
@@ -37,7 +39,7 @@ void CShadowMapRenderer::Render(GameEngine::Scene* scene)
     PrepareShader(scene->GetCamera());
     RenderSubscribes();
     shader.Stop();
-    shadowFrameBuffer->UnbindFrameBuffer();
+	rendererContext_->shadowsFrameBuffer->UnbindFrameBuffer();
 }
 
 void CShadowMapRenderer::EndFrame(GameEngine::Scene* scene)
@@ -57,29 +59,23 @@ void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
 
 void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
 {
-    shadowFrameBuffer->BindFBO();
+	rendererContext_->shadowsFrameBuffer->BindFBO();
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
     shadowBox.Update(scene->GetCamera());
 
-    try
-    {
-        auto light_direction = scene->GetDirectionalLight().GetPosition() * -1.f;
-        PrepareLightViewMatrix(light_direction);
-    }
-    catch (const std::exception& e)
-    {
-        e.what();
-        return;
-    }
-}
+	auto cameraPos = scene->GetCamera()->GetPosition();
+	scene->GetCamera()->SetPosition(vec3(0, 0, 0));
+	shadowBox2.Update(scene->GetCamera());
+	scene->GetCamera()->SetPosition(cameraPos);
 
-void CShadowMapRenderer::PrepareLightViewMatrix(const glm::vec3& light_direction)
-{
-    auto projection_matrix = Utils::CreateOrthoProjectionMatrix(shadowBox.GetWidth(), shadowBox.GetHeight(), shadowBox.GetLength());
-    auto lightViewMatrix = Utils::CreateLightViewMatrix(light_direction, shadowBox.GetCenter());
-    shadowBox.SetLightViewMatrix(lightViewMatrix);
-    projectionViewMatrix = projection_matrix * lightViewMatrix;
+
+	auto light_direction = scene->GetDirectionalLight().GetDirection();
+	shadowBox.CalculateMatrixes(light_direction);
+	shadowBox2.CalculateMatrixes(light_direction);
+
+
+	rendererContext_->toShadowMapZeroMatrix_ = viewOffset * shadowBox2.GetProjectionViewMatrix();
 }
 
 void CShadowMapRenderer::RenderSubscribes() const
@@ -124,7 +120,7 @@ void CShadowMapRenderer::BindMaterial(const SMaterial& material) const
 void CShadowMapRenderer::PrepareShader(CCamera* camera) const
 {
     shader.Start();
-    shader.LoadProjectionMatrix(projectionViewMatrix);
+    shader.LoadProjectionMatrix(shadowBox.GetProjectionViewMatrix());
     shader.LoadViewMatrix(camera->GetViewMatrix());
 }
 

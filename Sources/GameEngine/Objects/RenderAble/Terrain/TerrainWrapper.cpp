@@ -31,7 +31,8 @@ CTerrain* CTerrainWrapper::Get()
 		}
 
 		auto terrainptr = new CTerrain();
-		TerrainUtils::LoadSimpleMesh(manager, terrainptr);
+		//TerrainUtils::LoadSimpleMesh(manager, terrainptr); //forTesselationTErrain
+		//terrainptr->model = manager.LoadModel(texturesMap[Terrain::displacementMap]);
 		TerrainUtils::LoadTextures(manager, terrainptr, texturesMap);
 		TerrainUtils::LoadHeightMap(manager, terrainptr, texturesMap[Terrain::displacementMap]);
 		terrain = std::unique_ptr<CTerrain>(terrainptr);

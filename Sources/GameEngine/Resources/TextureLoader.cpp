@@ -148,7 +148,7 @@ CTexture * CTextureLoader::LoadCubeMap(std::vector<std::string>& files, bool app
 
 CTexture* CTextureLoader::LoadHeightMap(const std::string& filename, bool opengl_pass)
 {	
-	auto fp = fopen(EngineConf_GetFullDataPathAddToRequierd(filename).c_str(), "rb");
+	auto fp = fopen(filename.c_str(), "rb");
 
 	if (!fp)
 	{
