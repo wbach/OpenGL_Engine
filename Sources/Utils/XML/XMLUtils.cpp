@@ -5,14 +5,37 @@
 
 namespace Utils
 {
-	rapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node)
+	RapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node)
 	{
 		return{node->name(), node->value()};
 	}
 
-	rapidNodeData GetRapidAttributeData(rapidxml::xml_attribute<char>* node)
+	RapidNodeData GetRapidAttributeData(rapidxml::xml_node<char>* node, const std::string & atttributeName)
+	{
+		auto att = node->first_attribute(atttributeName.c_str());
+		if(att == 0)
+			return RapidNodeData();
+
+		return GetRapidAttributeData(att);
+	}
+
+	RapidNodeData GetRapidAttributeData(rapidxml::xml_attribute<char>* node)
 	{
 		return{ node->name(), node->value() };
+	}
+
+	void ForEachSubNode(rapidxml::xml_node<char>* parent, std::function<void(const RapidNodeData&, rapidxml::xml_node<char>*)> func)
+	{
+		for (auto snode = parent->first_node(); snode; snode = snode->next_sibling())
+		{
+			auto node_data = Utils::GetRapidNodeData(snode);
+			func(node_data, snode);
+		}
+	}
+
+	void ForEachAttribute(rapidxml::xml_attribute<char>* att, std::function<void(const RapidNodeData&, rapidxml::xml_attribute<char>*)> func)
+	{
+	
 	}
 
 	void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec3 vector)

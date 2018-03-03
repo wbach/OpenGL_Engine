@@ -30,6 +30,10 @@ public:
 	{
 		id = i;
 	}
+	bool IsInitialized() const
+	{
+		return isInit;
+	}
 
 protected:
     std::string filename;

@@ -214,7 +214,7 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 
 	shader.LoadMeshMaterial(material);
 
-	if (material.diffuseTexture != nullptr)
+	if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
 	{
 		ActiveTexture(0, material.diffuseTexture);
 		shader.LoadUseTexture(1.f);
@@ -222,12 +222,12 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 	else
 		shader.LoadUseTexture(0.f);
 
-	if (material.ambientTexture != nullptr)
+	if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
 	{
 		ActiveTexture(1, material.ambientTexture);
 	}
 
-	if (material.normalTexture != nullptr)
+	if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
 	{
 		ActiveTexture(2, material.normalTexture);
 		shader.LoadUseNormalMap(1.f);
@@ -235,7 +235,7 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 	else
 		shader.LoadUseNormalMap(0.f);
 
-	if (material.specularTexture != nullptr)
+	if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
 		ActiveTexture(3, material.specularTexture);
 }
 

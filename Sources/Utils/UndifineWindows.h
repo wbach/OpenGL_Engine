@@ -6,3 +6,4 @@
 #undef SentStatus
 #undef ERROR
 #undef GetCurrentTime
+#undef XMLDocument

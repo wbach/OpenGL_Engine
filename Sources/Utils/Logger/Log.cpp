@@ -91,8 +91,8 @@ void CLogger::ProccesLog()
 			auto log = GetLog();
 			if (log.empty())
 				break;
-			std::cout << log << std::endl;			
-			file << log << '\n';		
+			std::cout << log << std::endl;
+			file << log << '\n';
 		}
 		file.close();
 		timer_.CalculateAndLock();

@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <glm/glm.hpp>
+#include <functional>
 
 namespace rapidxml
 {
@@ -11,14 +12,17 @@ namespace rapidxml
 
 namespace Utils
 {
-	struct rapidNodeData
+	struct RapidNodeData
 	{
 		std::string name;
 		std::string value;
 	};
 
-	rapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node);
-	rapidNodeData GetRapidAttributeData(rapidxml::xml_attribute<char>* node);
+	RapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node);
+	RapidNodeData GetRapidAttributeData(rapidxml::xml_node<char>* node, const std::string& atttributeName);
+	RapidNodeData GetRapidAttributeData(rapidxml::xml_attribute<char>* node);
+	void ForEachSubNode(rapidxml::xml_node<char>* parent, std::function<void(const RapidNodeData&, rapidxml::xml_node<char>*)> func);
+	void ForEachAttribute(rapidxml::xml_attribute<char>* att, std::function<void(const RapidNodeData&, rapidxml::xml_attribute<char>*)> func);
 	void AddVectorToNode(rapidxml::xml_document <char>& document, rapidxml::xml_node<char>* node, const glm::vec3 vector);
 	void AddVectorToNode(rapidxml::xml_document <char>& document, rapidxml::xml_node<char>* node, const glm::vec2 vector);
 	std::string MessageBuilder(std::multimap<std::string, std::string>& messeges);

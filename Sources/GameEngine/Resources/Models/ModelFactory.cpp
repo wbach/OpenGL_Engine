@@ -6,6 +6,5 @@ CModel* GameEngine::LoadModel(CResourceManager* manager, const std::string& file
 	// manager ownership
 	ModelRawPtr m = manager->LoadModel(filename);
 	manager->GetOpenGlLoader().AddObjectToOpenGLLoadingPass(m);
-	m->CalculateBoudnigBox();
 	return m;
 }

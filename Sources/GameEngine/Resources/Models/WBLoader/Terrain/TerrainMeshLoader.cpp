@@ -14,7 +14,7 @@ namespace WBLoader
 		auto texture = textureLoader_.LoadHeightMap(filename);
 
 		auto hm = static_cast<HeightMap*>(texture);
-		heightMapResolution_ = hm->GetImage()->width;
+		heightMapResolution_ = static_cast<uint16>(hm->GetImage()->width);
 		heights_ = &hm->GetImage()->floatData;
 
 		vertices_.reserve(heightMapResolution_ * heightMapResolution_ * 3);
@@ -45,12 +45,11 @@ namespace WBLoader
 
 		return output;
 	}
-	void TerrainMeshLoader::CreateTerrainVertexes(int x_start, int y_start, int width, int height)
+	void TerrainMeshLoader::CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height)
 	{
-		int i = 0;
-		for (i = y_start; i < height; i++)
+		for (uint16 i = y_start; i < height; i++)
 		{
-			for (int j = x_start; j < width; j++)
+			for (uint16 j = x_start; j < width; j++)
 			{
 				float height = GetHeight(j, i);
 				vertices_.push_back(static_cast<float>(j) / (static_cast<float>(heightMapResolution_ - 1)) * Terrain::SIZE * Terrain::VSCALE * Terrain::PART_SIZE);
@@ -68,7 +67,7 @@ namespace WBLoader
 			}
 		}
 	}
-	vec3 TerrainMeshLoader::CalculateNormalMap(int x, int z)
+	vec3 TerrainMeshLoader::CalculateNormalMap(uint16 x, uint16 z)
 	{
 		int lx = x - 1; if (lx < 0) lx = 0;
 		int rx = x + 1; if (rx > heightMapResolution_ - 1) rx = heightMapResolution_ - 1;
@@ -82,19 +81,19 @@ namespace WBLoader
 		glm::normalize(normal);
 		return normal;
 	}
-	float TerrainMeshLoader::GetHeight(int x, int y) const
+	float TerrainMeshLoader::GetHeight(uint16 x, uint16 y) const
 	{
 		return (*heights_)[x + y * heightMapResolution_];
 	}
 	void TerrainMeshLoader::CreateMesh()
 	{
-		int pointer = 0;
+		uint16 pointer = 0;
 		//Triaagnle strip
-		for (unsigned short gz = 0; gz < heightMapResolution_ - 1; gz++)
+		for (uint16 gz = 0; gz < heightMapResolution_ - 1; gz++)
 		{
 			if ((gz & 1) == 0)
 			{ // even rows
-				for (unsigned short gx = 0; gx < heightMapResolution_; gx++)
+				for (uint16 gx = 0; gx < heightMapResolution_; gx++)
 				{
 					indices_.push_back(gx + gz * heightMapResolution_);
 					indices_.push_back(gx + (gz + 1) * heightMapResolution_);
@@ -102,7 +101,7 @@ namespace WBLoader
 			}
 			else
 			{ // odd rows
-				for (unsigned short gx = heightMapResolution_ - 1; gx > 0; gx--)
+				for (uint16 gx = heightMapResolution_ - 1; gx > 0; gx--)
 				{
 					indices_.push_back(gx + (gz + 1) * heightMapResolution_);
 					indices_.push_back(gx - 1 + +gz * heightMapResolution_);

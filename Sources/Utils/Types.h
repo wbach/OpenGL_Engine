@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <string>
 #include <chrono>
 
@@ -70,7 +71,7 @@ typedef glm::vec4 vec4;
 
 typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
-
+typedef glm::fquat Quaternion;
 
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
 

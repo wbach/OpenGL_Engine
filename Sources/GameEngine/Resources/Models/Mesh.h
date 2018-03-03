@@ -32,9 +32,20 @@ public:
     CMesh(CMesh&&)              = default;
 
     virtual ~CMesh();
+
     virtual void OpenGLLoadingPass() override;
     virtual void OpenGLPostLoadingPass() override;
 
+    bool IsInit() const;
+    const BoundingBox& GetBoundingBox() const;
+
+    const uint32& GetVao() const;
+    const uint32& GetVertexCount() const;
+    const SMaterial& GetMaterial() const;
+	inline const mat4& GetMeshTransform() const;
+	inline const std::vector<uint32>& GetUsedAttributes() const;
+
+private:
     void CreateVaoMesh();
     void CreateTransformsVbo(std::vector<mat4>& m);
     void UpdateTransformVbo(std::vector<mat4>& m);
@@ -43,29 +54,8 @@ public:
     void UpdateVertexPosition(const std::vector<float>& vertices) const;
     void SetInstancedMatrixes(const std::vector<mat4>& m);
 
-    bool IsInit() const;
-
-    const vec3& GetBoundingSize();
-    const vec3& GetBoundingMin();
-    const vec3& GetBoundingMax();
-    const vec3& GetBoundingCenter();
-
-    const uint32& GetVao() const;
     const uint32& GetVbo(VertexBufferObjects::Type type) const;
-    const uint32& GetVertexCount() const;
-    const SMaterial& GetMaterial() const;
-    const std::vector<uint32>& GetUsedAttributes() const
-    {
-        return attributes;
-    }
-
-    const mat4& GetMeshTransform() const
-    {
-        return transform;
-    }
-
     void SetMaterial(const SMaterial& material);
-
     void ClearData();
 
 private:
@@ -96,3 +86,13 @@ private:
 
     BoundingBox boundingBox;
 };
+
+const std::vector<uint32>& CMesh::GetUsedAttributes() const
+{
+	return attributes;
+}
+
+const mat4& CMesh::GetMeshTransform() const
+{
+	return transform;
+}

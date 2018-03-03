@@ -1,5 +1,5 @@
 #include "MyModel.h"
-#include "Collada/ColladaDae.h"
+#include "Collada/Collada.h"
 #include "WaveFront/WaveFrontObj.h"
 #include "Terrain/TerrainMeshLoader.h"
 

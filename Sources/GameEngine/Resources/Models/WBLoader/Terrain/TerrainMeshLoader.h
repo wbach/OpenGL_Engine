@@ -15,14 +15,14 @@ namespace WBLoader
 		virtual std::list<CMesh> CreateFinalMesh() override;
 	
 	private:
-		void CreateTerrainVertexes(int x_start, int y_start, int width, int height);
-		vec3 CalculateNormalMap(int x, int z);
-		float GetHeight(int x, int y) const;
+		void CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height);
+		vec3 CalculateNormalMap(uint16 x, uint16 z);
+		float GetHeight(uint16 x, uint16 y) const;
 		void CreateMesh();
 
 	private:
 		CTextureLoader& textureLoader_;
-		float heightMapResolution_;
+		uint16 heightMapResolution_;
 		std::vector<uint16> indices_;
 		std::vector<float> vertices_;
 		std::vector<float> normals_;

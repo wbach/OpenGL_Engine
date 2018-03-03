@@ -27,10 +27,10 @@ CMesh::CMesh(
 	transform	 = mtransform;
     vertexCount  = indices.size() > 0 ? indices.size() : positions.size() / 3;
 
-    if (!positions.empty())	attributes.push_back(0);
+    if (!positions.empty())		attributes.push_back(0);
     if (!textCoords.empty())	attributes.push_back(1);
     if (!normals.empty())		attributes.push_back(2);
-    if (!tangents.empty())	attributes.push_back(3);
+    if (!tangents.empty())		attributes.push_back(3);
 
     CalculateBoudnigBox(positions);
 }
@@ -204,25 +204,11 @@ void CMesh::ClearData()
     instancedMatrixes.clear();
 }
 
-const vec3 & CMesh::GetBoundingSize()
+const BoundingBox& CMesh::GetBoundingBox() const
 {
-    return boundingBox.size;
+    return boundingBox;
 }
 
-const vec3 & CMesh::GetBoundingMin()
-{
-    return boundingBox.min;
-}
-
-const vec3 & CMesh::GetBoundingMax()
-{
-    return boundingBox.max;
-}
-
-const vec3 & CMesh::GetBoundingCenter()
-{
-    return boundingBox.center;
-}
 const GLuint& CMesh::GetVertexCount() const
 {
     return vertexCount;
