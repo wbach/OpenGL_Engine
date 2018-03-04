@@ -57,7 +57,7 @@ namespace WBLoader
 			uint32 i = 0;
 			for (auto vc : polyList.vcount_)
 			{
-				for (int x = 0; x < vc; ++x)
+				for (uint32 x = 0; x < vc; ++x)
 				{
 					WBLoader::VertexBuffer vb;
 					uint32 sumOffsets = 0;

@@ -2,6 +2,9 @@
 #include "GeometryReader.h"
 #include "libraryEffectsReader.h"
 #include "LibraryImagesReader.h"
+#include "LibraryAnimationsReader.h"
+#include "LibraryControllersReader.h"
+#include "LibraryVisualScenesReader.h"
 #include "MaterialReader.h"
 #include "XML/XMLUtils.h"
 #include <rapidxml.hpp>
@@ -48,6 +51,18 @@ namespace GameEngine
 				else if (data.name == "library_images")
 				{
 					LibraryImagesReader(colladaData.libraryImages_).read(node);
+				}
+				else if (data.name == "library_animations")
+				{
+					LibraryAnimationsReader(colladaData.libraryAnimations_).read(node);
+				}
+				else if (data.name == "library_controllers")
+				{
+					LibraryControllersReader(colladaData.libraryControllers_).read(node);
+				}
+				else if (data.name == "library_visual_scenes")
+				{
+					LibraryVisualSceneReader(colladaData.libraryVisualScenes_).read(node);
 				}
 			});
 		}

@@ -64,8 +64,11 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/ColladaCommon.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/GeometryReader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryAnimationsReader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryControllersReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/libraryEffectsReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryImagesReader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryVisualScenesReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MainReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MaterialReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/IMeshLoader.cpp
