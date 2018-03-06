@@ -1,5 +1,6 @@
 #pragma once
 #include "../Material.h"
+#include "../Animation/Joint.h"
 #include "Types.h"
 #include <vector>
 #include <list>
@@ -14,6 +15,8 @@ namespace WBLoader
 		vec3 normal;
 		vec3 tangents;
 		vec3 bitangents;
+		vec3 weights;
+		wb::vec3i jointIds;
 		vec2 uvs;
 		uint32 material_id;
 	};
@@ -23,16 +26,6 @@ namespace WBLoader
 		vec4 color;
 		std::string textureName;
 	};
-
-	//struct Material
-	//{
-	//	MaterialLayer emmision;
-	//	MaterialLayer ambient;
-	//	MaterialLayer diffuse;
-	//	MaterialLayer specular;
-	//	float shininess;
-	//	float indexOfRefraction;
-	//};
 
 	struct Mesh
 	{
@@ -46,11 +39,13 @@ namespace WBLoader
 		std::vector<VertexBuffer> vertexBuffer;
 
 		std::vector<uint16> indices;
+		std::vector<uint16> jointIds;
 		std::vector<float> fpostions;
 		std::vector<float> fuvs;
 		std::vector<float> fnormal;
 		std::vector<float> ftangents;
 		std::vector<float> fbitangents;
+		std::vector<float> bonesWeights;
 		SMaterial material;
 
 		void Normalize(float factor);
@@ -58,6 +53,7 @@ namespace WBLoader
 		void computeTangentBasis();
 
 		float GetScaleFactor() const;
+		GameEngine::Animation::Joint rootJoint_;
 	};
 
 	struct Object

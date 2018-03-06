@@ -10,6 +10,7 @@ namespace GameEngine
 		{
 			uint32 id;
 			mat4 transform;
+			mat4 invTransform;
 			std::string name;
 			std::vector<Joint> children;
 		};

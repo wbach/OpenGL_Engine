@@ -33,6 +33,19 @@ namespace GameEngine
 			FLOAT4x4
 		};
 
+		enum ObjectType
+		{
+			UNKONOWN,
+			LIBRARY_CAMERAS,
+			LIBRARY_IMAGES,
+			LIBRARY_EFFECTS,
+			LIBRARY_MATERIALS,
+			LIBRARY_GOMETRIES,
+			LIBRARY_ANIMATIONS,
+			LIBRARY_CONTROLLERS,
+			LIBRARY_VISUAL_SCENES
+		};
+		
 		void ProcessTechnique(XMLNode* root, TechniqueCommon& technique);
 		void ProcessAccessor(XMLNode* root, Accessor& accessor);
 		void ProcessParam(XMLNode* root, Param& param);

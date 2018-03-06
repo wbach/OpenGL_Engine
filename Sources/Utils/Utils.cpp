@@ -25,6 +25,28 @@ std::vector<std::string> Utils::SplitString(const std::string & s, char split_ch
 	return tokens;
 }
 
+std::unordered_map<std::string, uint32> Utils::SplitStringWithId(const std::string & s, char split_char)
+{
+	std::unordered_map<std::string, uint32> out;
+	std::string token;
+
+	uint32 id = 0;
+	for (const auto& c : s)
+	{
+		if (c == split_char)
+		{
+			out[token] = id++;
+			token.clear();
+			continue;
+		}
+		token += c;
+	}
+	if (!token.empty())
+		out[token] = id++;
+
+	return out;
+}
+
 std::string Utils::ReadFileBinary(const std::string & file_name)
 {
 	std::ifstream t(file_name, std::ios::binary);

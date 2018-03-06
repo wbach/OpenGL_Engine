@@ -1,11 +1,12 @@
 #pragma once
+#include "Types.h"
+#include "math.hpp"
 #include <glm/glm.hpp>
+#include <vector>
 #include <list>
 #include <sstream>
 #include <string>
-#include <vector>
-#include "Types.h"
-#include "math.hpp"
+#include <unordered_map>
 
 namespace Utils
 {
@@ -46,6 +47,7 @@ private:
 };
 
 std::vector<std::string> SplitString(const std::string& s, char split_char);
+std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char);
 std::string ReadFileBinary(const std::string& file_name);
 std::string ReadFile(const std::string& file_name);
 std::list<std::string> ReadFileLines(const std::string& file_name);

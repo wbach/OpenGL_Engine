@@ -65,7 +65,16 @@ GLuint Utils::StoreDataInAttributesList(const int & attributeNumber, const int &
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	return vbo_id;
 }
-
+GLuint Utils::StoreDataInAttributesList(const int & attributeNumber, const int & coordinateSize, const std::vector<uint16>& data)
+{
+	GLuint vbo_id;
+	glGenBuffers(1, &vbo_id);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(uint16), &data[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(attributeNumber, coordinateSize, GL_UNSIGNED_SHORT, false, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	return vbo_id;
+}
 //void Utils::EnableVao(uint32 vao, const std::vector<uint32>& attributes)
 //{
 //	glBindVertexArray(vao);

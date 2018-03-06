@@ -105,6 +105,7 @@ namespace GameEngine
 		mat4 GetMatrixFromString(const std::string& str)
 		{
 			auto mdata = GetFloatsFromString(str);
+
 			mat4 transform_matrix(1.f);
 			if (mdata.size() != 16)
 			{
@@ -123,7 +124,7 @@ namespace GameEngine
 		{
 			Mat4Vector output;
 			auto mdata = GetFloatsFromString(str);
-
+			output.reserve(mdata.size() / 16);
 			mat4 transform_matrix(1.f);
 			int y = 0, x = 0;
 			for (const auto& f : mdata)
@@ -159,7 +160,7 @@ namespace GameEngine
 		void GetVectors2dFromString(const std::string & str, Vec2Vector & vv)
 		{
 			auto strs = Utils::SplitString(str, ' ');
-
+			vv.reserve(strs.size());
 			FloatVector tmp;
 
 			for (const auto& str : strs)
@@ -184,7 +185,7 @@ namespace GameEngine
 		void GetVectors3dFromString(const std::string & str, Vec3Vector& vert)
 		{
 			auto strs = Utils::SplitString(str, ' ');
-
+			vert.reserve(strs.size());
 			FloatVector tmp;
 
 			for (const auto& str : strs)
@@ -211,6 +212,7 @@ namespace GameEngine
 		void GetFloatsFromString(const std::string & str, FloatVector& v)
 		{
 			auto strs = Utils::SplitString(str, ' ');
+			v.reserve(str.size());
 
 			for (const auto& str : strs)
 			{
@@ -221,9 +223,8 @@ namespace GameEngine
 		Uint32Vector GetIntsFromString(const std::string& str)
 		{
 			Uint32Vector out;
-
 			auto strs = Utils::SplitString(str, ' ');
-
+			out.reserve(strs.size());
 			for (const auto& str : strs)
 			{
 				auto a = Utils::StringToInt(str);

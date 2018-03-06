@@ -16,6 +16,7 @@ namespace GameEngine
 		struct Node
 		{
 			std::string id_;
+			std::string sid_;
 			std::string name_;
 			std::string type_;
 			wb::optional<Scale> scale_;

@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <iostream>
 
-Utils::EnableVao::EnableVao(uint32 vao, const std::vector<uint32> &vertexArrays)
+Utils::EnableVao::EnableVao(const uint32 vao, const std::vector<uint8> &vertexArrays)
     : v(vertexArrays)
 {
     glBindVertexArray(vao);

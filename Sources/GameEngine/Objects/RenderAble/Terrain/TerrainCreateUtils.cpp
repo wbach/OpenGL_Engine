@@ -52,7 +52,8 @@ SMaterial TerrainUtils::CreateGrassMaterial(CResourceManager & manager, const st
 
 void TerrainUtils::CreateGrassMesh(CResourceManager & manager, SGrass * grass, const std::vector<float>& positions, const SMaterial & material)
 {
-	grass->model->AddMesh(material, positions);
+	CMesh m(material, positions);
+	grass->model->AddMesh( m );
 	manager.AddModel(grass->model);
 }
 

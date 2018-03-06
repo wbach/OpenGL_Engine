@@ -3,6 +3,7 @@
 #include "../Flora/Grass/Grass.h"
 #include "../../../Resources/Textures/Image.h"
 #include "../../../Resources/ResourceManager.h"
+#include <map>
 
 typedef std::map<Terrain::TexturesTypes, std::string> TerrainTexturesMap;
 

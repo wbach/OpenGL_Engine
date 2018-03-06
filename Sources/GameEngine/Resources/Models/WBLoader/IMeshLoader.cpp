@@ -8,14 +8,13 @@ namespace WBLoader
 
 		float maxFactor = FindMaxFactor();
 
-		SBonesInfo m_BonesInfo;
 		for (auto& obj : objects)
 		{
 			for (auto& mesh : obj.meshes)
 			{
 				mesh.Normalize(maxFactor);
 				mesh.IndexinVBO();
-				output.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, m_BonesInfo.bones, obj.transformMatrix);
+				output.emplace_back(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, mesh.jointIds, mesh.bonesWeights, obj.transformMatrix);
 			}
 		}
 

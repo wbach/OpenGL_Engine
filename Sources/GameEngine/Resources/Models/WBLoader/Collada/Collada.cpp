@@ -4,6 +4,8 @@
 #include "Utils/GLM/GLMUtils.h"
 #include "GameEngine/Resources/TextureLoader.h"
 
+static GameEngine::Collada::Node staticNode;
+
 namespace WBLoader
 {
 	ColladaDae::ColladaDae(CTextureLoader& textureLodaer)
@@ -15,6 +17,7 @@ namespace WBLoader
 	{
 		GameEngine::Collada::ReadCollada(filename, data_);
 		ConstructModel();
+		FillAnimationData();
 	}
 	bool ColladaDae::CheckExtension(const std::string & filename)
 	{
@@ -28,16 +31,119 @@ namespace WBLoader
 			NewGeometry(geometry.second);
 		}
 	}
+	void ColladaDae::FillAnimationData()
+	{
+		for (const auto& vs : data_.libraryVisualScenes_.visualScenes_)
+		{
+			for (const auto& node : vs.second.nodes_)
+			{
+				if (GetType(node.second.name_) != GameEngine::Collada::ObjectType::LIBRARY_GOMETRIES && node.second.instanceController_)
+				{
+					if (idToMeshMap_.count(node.second.name_) == 0)
+						continue;
+
+					auto mesh = idToMeshMap_[node.second.name_];
+					uint32 i = 0;
+
+					const auto& ic = node.second.instanceController_.constValue();
+					auto skinSource = GameEngine::Collada::GetSource(ic.url_);
+					auto& skin = data_.libraryControllers_.controllers_[skinSource].skins_.begin()->second;
+
+					for (const auto& in : skin.vertexWeights_.inputs_)
+					{
+						if (in.semantic == "WEIGHT")
+						{
+							auto source = GameEngine::Collada::GetSource(in.sourceId);
+							GameEngine::Collada::GetFloatsFromString(skin.sources_[source].dataArray.data, mesh->bonesWeights);
+						}
+					}
+
+					uint32 vbId = 0;
+					for (auto vc : skin.vertexWeights_.vcount_)
+					{
+						for (uint32 x = 0; x < vc; ++x)
+						{
+							uint32 sumOffsets = 0;
+							for (const auto& in : skin.vertexWeights_.inputs_)
+							{
+								auto offset = in.offset;
+								sumOffsets += offset;
+								auto value = skin.vertexWeights_.v_[i + offset];
+
+								if (in.semantic == "JOINT")
+								{
+									switch (x)
+									{
+									case 0:
+										mesh->vertexBuffer[vbId].jointIds.x = value;
+										mesh->vertexBuffer[vbId].jointIds.y = -1;
+										mesh->vertexBuffer[vbId].jointIds.z = -1;
+										break;
+									case 1:
+										mesh->vertexBuffer[vbId].jointIds.y = value;
+										break;
+									case 2:
+										mesh->vertexBuffer[vbId].jointIds.z = value;
+										break;
+									}
+
+								}
+								if (in.semantic == "WEIGHT")
+								{
+									auto weightValue = mesh->bonesWeights[value];
+									switch (x)
+									{
+									case 0:
+										mesh->vertexBuffer[vbId].weights.x = weightValue;
+										mesh->vertexBuffer[vbId].weights.y = 0;
+										mesh->vertexBuffer[vbId].weights.z = 0;
+										break;
+									case 1:
+										mesh->vertexBuffer[vbId].weights.y = weightValue;
+										mesh->vertexBuffer[vbId].weights.z = 0;
+										break;
+									case 2:
+										mesh->vertexBuffer[vbId].weights.z = weightValue;
+										break;
+									}
+								}
+							}
+							i += skin.vertexWeights_.inputs_.size();
+						}
+						++vbId;
+					}
+					const auto& skeleton = node.second.instanceController_.constValue().skeleton_;
+					const auto& node = GetNode(GameEngine::Collada::GetSource(skeleton));
+
+					std::unordered_map<std::string, uint32> joints;
+					for (const auto& input : skin.joitns_.inputs_)
+					{
+						if (input.semantic == "JOINT")
+						{
+							const auto& data = skin.sources_[GameEngine::Collada::GetSource(input.sourceId)].dataArray;
+							if (data.type == "Name_array")
+							{
+								joints = Utils::SplitStringWithId(data.data, ' ');
+							}
+							break;
+						}
+					}
+					CreateSkeleton(node, mesh->rootJoint_, joints);
+				}
+
+			}
+		}
+	}
 	void ColladaDae::NewGeometry(const GameEngine::Collada::Geometry& geomtery)
 	{
 		objects.emplace_back();
-		objects.back().transformMatrix = Utils::CreateTransformationMatrix(vec3(0), vec3(-90, 0,0), vec3(1));
+		objects.back().transformMatrix = Utils::CreateTransformationMatrix(vec3(0), vec3(-90, 0, 0), vec3(1));
 		for (const auto& mesh : geomtery.meshes_)
 		{
-			NewMesh(mesh);
+			NewMesh(mesh, geomtery.name_);
 		}
 	}
-	void ColladaDae::NewMesh(const GameEngine::Collada::Mesh& mesh)
+	void ColladaDae::NewMesh(const GameEngine::Collada::Mesh& mesh, const std::string& geometryName)
 	{
 		for (const auto& pair : mesh.polylist_)
 		{
@@ -45,14 +151,14 @@ namespace WBLoader
 
 			objects.back().meshes.emplace_back();
 			auto& newMesh = objects.back().meshes.back();
-
-			ApplyMaterials(newMesh.material, GameEngine::Collada::GetSource(polyList.materialId_));
+			auto meshSource = GameEngine::Collada::GetSource(polyList.materialId_);
+			ApplyMaterials(newMesh.material, meshSource);
+			idToMeshMap_[geometryName] = &newMesh;
 
 			for (const auto& input : polyList.inputs_)
 			{
 				PrepareMeshData(mesh, newMesh, input);
 			}
-
 
 			uint32 i = 0;
 			for (auto vc : polyList.vcount_)
@@ -180,6 +286,38 @@ namespace WBLoader
 
 		return GameEngine::Collada::DataTypes();
 	}
+
+	void ConvertJoint(const GameEngine::Collada::Node & node, GameEngine::Animation::Joint& joint)
+	{
+		joint.name = node.name_;
+		if (node.matrix_)
+		{
+			joint.transform = node.matrix_.constValue().matrix_;
+			joint.invTransform = glm::inverse(joint.transform);
+		}
+	}
+	void ColladaDae::CreateSkeleton(const GameEngine::Collada::Node & node, GameEngine::Animation::Joint & joint, const std::unordered_map<std::string, uint32>& joints)
+	{
+		if (joints.count(node.sid_) != 0)
+			joint.id = joints.at(node.sid_);
+
+		joint.name = node.name_;
+		if (node.matrix_)
+		{
+			joint.transform = node.matrix_.constValue().matrix_;
+			joint.invTransform = glm::inverse(joint.transform);
+		}
+
+		for (const auto& pair : node.children_)
+		{
+			if (pair.second == nullptr)
+				continue;
+
+			auto& child = *pair.second;
+			joint.children.emplace_back();
+			CreateSkeleton(child, joint.children.back(), joints);
+		}
+	}
 	void ColladaDae::ApplyMaterials(SMaterial& material, const std::string& materialId)
 	{
 		if (materialId.empty())
@@ -214,5 +352,53 @@ namespace WBLoader
 
 		//material.diffuseTexture 
 	}
+	GameEngine::Collada::ObjectType ColladaDae::GetType(const std::string& name)
+	{
+		if (data_.libraryGeometries_.geometries_.count(name) != 0)
+			return GameEngine::Collada::ObjectType::LIBRARY_GOMETRIES;
 
+		if (data_.libraryControllers_.controllers_.count(name) != 0)
+			return GameEngine::Collada::ObjectType::LIBRARY_CONTROLLERS;
+
+		return {};
+	}
+	const GameEngine::Collada::Node& ColladaDae::GetNode(const std::string& node_id)
+	{
+		for (const auto& vs : data_.libraryVisualScenes_.visualScenes_)
+		{
+			for (const auto& node : vs.second.nodes_)
+			{
+				if (node.second.id_ == node_id)
+				{
+					return node.second;
+				}
+				else
+				{
+					for (const auto& child : node.second.children_)
+					{
+						if (child.second->id_ == node_id)
+							return *child.second;
+
+						return GetNode( *(child.second), node_id);
+					}
+				}
+			}
+		}
+
+		return staticNode;
+	}
+	const GameEngine::Collada::Node & ColladaDae::GetNode(const GameEngine::Collada::Node & node, const std::string & node_id)
+	{
+		if (node.children_.count(node_id) != 0)
+		{
+			return *node.children_.at(node_id);
+		}
+
+		for (const auto& p : node.children_)
+		{
+			return GetNode(*p.second, node_id);
+		}
+
+		return staticNode;
+	}
 }

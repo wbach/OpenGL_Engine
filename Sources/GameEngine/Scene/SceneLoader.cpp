@@ -79,7 +79,7 @@ namespace GameEngine
 		obj->OpenGLLoadingPass();
 		++objectLoaded;
 
-		std::cout << "Loading... " + std::to_string((int)((float)objectLoaded / (float)objectCount) *100.f) + "%" << std::endl;
+		//std::cout << "Loading... " + std::to_string((int)((float)objectLoaded / (float)objectCount) *100.f) + "%" << std::endl;
 		return true;
 	}
 

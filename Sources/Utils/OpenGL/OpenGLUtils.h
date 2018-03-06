@@ -1,8 +1,8 @@
 #pragma once
-#include <GL/glew.h>
-#include <vector>
 #include "../Types.h"
 #include "VaoEnableController.hpp"
+#include <vector>
+#include <GL/glew.h>
 
 namespace Utils
 {
@@ -19,6 +19,7 @@ int CreateVao();
 GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 
 GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<float>& data);
+GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<uint16>& data);
 //void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
 //void DisableVao(const std::vector<uint32>& attributes);
 void UnbindVao();

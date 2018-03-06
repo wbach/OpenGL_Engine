@@ -7,13 +7,13 @@ namespace Utils
 class EnableVao
 {
 public:
-    EnableVao(uint32 vao, const std::vector<uint32>& vertexArrays);
+    EnableVao(const uint32 vao, const std::vector<uint8>& vertexArrays);
     ~EnableVao();
 
 private:
     void Enable();
     void Disable();
 
-    std::vector<uint32> v;
+    std::vector<uint8> v;
 };
 }

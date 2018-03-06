@@ -7,30 +7,34 @@ CMesh::CMesh()
 }
 
 CMesh::CMesh(
-    const SMaterial & mat,
-    const std::vector<float>& pos,
-	const std::vector<float>& text_coords,
-    const std::vector<float>& norm,
-    const std::vector<float>& tang,
-    const std::vector<uint16>& ind,
-    const std::vector<SVertexBoneData>& bon,
-	const mat4& mtransform
+	const SMaterial& material,
+	const FloatVec& positions,
+	const FloatVec& text_coords,
+	const FloatVec& normals,
+	const FloatVec& tangents,
+	const UintVec& indices,
+	const UintVec& joinIds,
+	const FloatVec& bonesWeights,
+	const mat4& transform
 )
 {
-    positions    = std::move(pos);
-    textCoords   = std::move(text_coords);
-    normals      = std::move(norm);
-    tangents	 = std::move(tang);
-    indices	     = std::move(ind);
-    bones		 = std::move(bon);
-    material	 = mat;
-	transform	 = mtransform;
-    vertexCount  = indices.size() > 0 ? indices.size() : positions.size() / 3;
+    positions_    = std::move(positions);
+    textCoords_   = std::move(text_coords);
+    normals_      = std::move(normals);
+    tangents_	  = std::move(tangents);
+    indices_	  = std::move(indices);
+	joinIds_	  = std::move(joinIds);
+	bonesWeights_ = std::move(bonesWeights);
+    material_	  = material;
+	transform_	  = transform;
+    vertexCount_  = indices_.size() > 0 ? indices_.size() : positions_.size() / 3;
 
-    if (!positions.empty())		attributes.push_back(0);
-    if (!textCoords.empty())	attributes.push_back(1);
-    if (!normals.empty())		attributes.push_back(2);
-    if (!tangents.empty())		attributes.push_back(3);
+    if (!positions_.empty())		attributes_.push_back(0);
+    if (!textCoords_.empty())	attributes_.push_back(1);
+    if (!normals_.empty())		attributes_.push_back(2);
+    if (!tangents_.empty())		attributes_.push_back(3);
+	if (!joinIds_.empty())		attributes_.push_back(4);
+	if (!bonesWeights_.empty())	attributes_.push_back(5);
 
     CalculateBoudnigBox(positions);
 }
@@ -39,12 +43,12 @@ CMesh::~CMesh()
 {
     if (!isInit) return;
 
-    for(auto& vbo : vbos)
+    for(auto& vbo : vbos_)
     {
         if(vbo != 0)
         glDeleteBuffers(1, &vbo);
     }
-    glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &vao_);
     isInit = false;
 }
 void CMesh::CalculateBoudnigBox(const std::vector<float>& positions)
@@ -54,39 +58,49 @@ void CMesh::CalculateBoudnigBox(const std::vector<float>& positions)
 
 void CMesh::UpdateVertexPosition(const std::vector<float>& vertices) const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::POSITION]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos_[VertexBufferObjects::POSITION]);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), &vertices[0]);
 }
 
 void CMesh::CreateVaoMesh()
 {
-    vao = Utils::CreateVao();
+    vao_ = Utils::CreateVao();
 
-    if (indices.size() > 0)
+    if (indices_.size() > 0)
     {
-        GLuint vboId = Utils::BindIndicesBuffer(indices);
-        vbos[VertexBufferObjects::INDICES] = vboId;
+        GLuint vboId = Utils::BindIndicesBuffer(indices_);
+        vbos_[VertexBufferObjects::INDICES] = vboId;
     }
 
-    if (positions.size() > 0)
+    if (positions_.size() > 0)
 	{
-        GLuint vboId = Utils::StoreDataInAttributesList(0, 3, positions);
-        vbos[VertexBufferObjects::POSITION] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(0, 3, positions_);
+		vbos_[VertexBufferObjects::POSITION] = vboId;
 	}
-    if (textCoords.size() > 0)
+    if (textCoords_.size() > 0)
 	{
-        GLuint vboId = Utils::StoreDataInAttributesList(1, 2, textCoords);
-        vbos[VertexBufferObjects::TEXT_COORD] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(1, 2, textCoords_);
+		vbos_[VertexBufferObjects::TEXT_COORD] = vboId;
 	}
-    if (normals.size() > 0)
+    if (normals_.size() > 0)
 	{
-        GLuint vboId = Utils::StoreDataInAttributesList(2, 3, normals);
-        vbos[VertexBufferObjects::NORMAL] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(2, 3, normals_);
+		vbos_[VertexBufferObjects::NORMAL] = vboId;
 	}
-    if (tangents.size() > 0)
+    if (tangents_.size() > 0)
 	{
-        GLuint vboId = Utils::StoreDataInAttributesList(3, 3, tangents);
-        vbos[VertexBufferObjects::TANGENT] = vboId;
+        GLuint vboId = Utils::StoreDataInAttributesList(3, 3, tangents_);
+        vbos_[VertexBufferObjects::TANGENT] = vboId;
+	}
+	if (joinIds_.size() > 0)
+	{
+		GLuint vboId = Utils::StoreDataInAttributesList(4, 3, joinIds_);
+		vbos_[VertexBufferObjects::TANGENT] = vboId;
+	}
+	if (bonesWeights_.size() > 0)
+	{
+		GLuint vboId = Utils::StoreDataInAttributesList(5, 3, bonesWeights_);
+		vbos_[VertexBufferObjects::WEIGHTS] = vboId;
 	}
 	Utils::UnbindVao();
     isInit = true;
@@ -94,9 +108,9 @@ void CMesh::CreateVaoMesh()
 
 void CMesh::CreateTransformsVbo(std::vector<mat4>& m)
 {
-    glBindVertexArray(vao);
-    glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindVertexArray(vao_);
+    glGenBuffers(1, &vbos_[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos_[VertexBufferObjects::TRANSFORM_MATRIX]);
 
 	for (uint32 i = 0; i < 4; i++)
 	{
@@ -112,10 +126,10 @@ void CMesh::CreateTransformsVbo(std::vector<mat4>& m)
 
 void CMesh::UpdateTransformVbo(std::vector<mat4>& m)
 {
-    glDeleteBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-    glBindVertexArray(vao);
-    glGenBuffers(1, &vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glDeleteBuffers(1, &vbos_[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindVertexArray(vao_);
+    glGenBuffers(1, &vbos_[VertexBufferObjects::TRANSFORM_MATRIX]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbos_[VertexBufferObjects::TRANSFORM_MATRIX]);
 	for (uint32 i = 0; i < 4; i++)
 	{
 		glEnableVertexAttribArray(4 + i);
@@ -127,23 +141,9 @@ void CMesh::UpdateTransformVbo(std::vector<mat4>& m)
 	glBindVertexArray(0);
 }
 
-void CMesh::CreateBoneVbo(const std::vector<SVertexBoneData>& bones)
-{
-    glBindVertexArray(vao);
-    glGenBuffers(1, &vbos[VertexBufferObjects::BONES]);
-    glBindBuffer(GL_ARRAY_BUFFER, vbos[VertexBufferObjects::BONES]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(bones[0]) * bones.size(), &bones[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(8);
-	glVertexAttribIPointer(8, 4, GL_INT, sizeof(SVertexBoneData), (const GLvoid*)0);
-	glEnableVertexAttribArray(9);
-	glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(SVertexBoneData), (const GLvoid*)16);
-	glBindVertexArray(0);
-    bonesInShader = true;
-}
-
 void CMesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 {
-    instancedMatrixes = m;
+    instancedMatrixes_ = m;
 }
 
 bool CMesh::IsInit() const
@@ -157,12 +157,6 @@ void CMesh::OpenGLLoadingPass()
         return;
 
 	CreateVaoMesh();
-
-    if (!bones.empty())
-	{
-        CreateBoneVbo(bones);
-	}
-
 	ClearData();
 
     COpenGLObject::OpenGLLoadingPass();
@@ -170,38 +164,39 @@ void CMesh::OpenGLLoadingPass()
 
 void CMesh::OpenGLPostLoadingPass()
 {
-    CreateTransformsVbo(instancedMatrixes);
+    CreateTransformsVbo(instancedMatrixes_);
 }
 
 const GLuint& CMesh::GetVao() const
 {
-    return vao;
+    return vao_;
 }
 
 const GLuint & CMesh::GetVbo(VertexBufferObjects::Type type) const
 {
-    return vbos[type];
+    return vbos_[type];
 }
 
 const SMaterial & CMesh::GetMaterial() const
 {
-    return material;
+    return material_;
 }
 
 void CMesh::SetMaterial(const SMaterial& mat)
 {
-    material = mat;
+    material_ = mat;
 }
 
 void CMesh::ClearData()
 {
-    positions.clear();
-    textCoords.clear();
-    normals.clear();
-    tangents.clear();
-    indices.clear();
-    bones.clear();
-    instancedMatrixes.clear();
+    positions_.clear();
+    textCoords_.clear();
+    normals_.clear();
+    tangents_.clear();
+    indices_.clear();
+    joinIds_.clear();
+	bonesWeights_.clear();
+    instancedMatrixes_.clear();
 }
 
 const BoundingBox& CMesh::GetBoundingBox() const
@@ -211,5 +206,5 @@ const BoundingBox& CMesh::GetBoundingBox() const
 
 const GLuint& CMesh::GetVertexCount() const
 {
-    return vertexCount;
+    return vertexCount_;
 }

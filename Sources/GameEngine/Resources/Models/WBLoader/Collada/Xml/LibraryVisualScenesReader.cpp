@@ -95,6 +95,7 @@ namespace GameEngine
 					node.children_[nodeid] = std::make_shared<Node>();
 					auto& child = *node.children_[nodeid].get();
 					child.id_ = nodeid;
+					child.sid_ = Utils::GetRapidAttributeData(snode, "sid").value;
 					child.name_ = Utils::GetRapidAttributeData(snode, "name").value;
 					child.type_ = Utils::GetRapidAttributeData(snode, "type").value;
 

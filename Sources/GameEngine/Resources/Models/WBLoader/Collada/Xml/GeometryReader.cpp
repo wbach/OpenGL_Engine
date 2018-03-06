@@ -26,6 +26,8 @@ namespace GameEngine
 			if (aid.value.empty())
 				return;
 
+			geometyData_.geometries_[aid.value].id_ = aid.value;
+			geometyData_.geometries_[aid.value].name_ = Utils::GetRapidAttributeData(node, "name").value;
 			geometyData_.geometries_[aid.value].meshes_.emplace_back();
 
 			Utils::ForEachSubNode(node, [&](const Utils::RapidNodeData& data, XMLNode* snode)
