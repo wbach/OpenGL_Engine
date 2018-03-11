@@ -1,8 +1,8 @@
 #version 330 core
 const int MAX_BONES = 100;
 
-layout (location = 0) in vec3 Position;                                             
-layout (location = 1) in vec2 TexCoord;   
+layout (location = 0) in vec3 Position;
+layout (location = 1) in vec2 TexCoord;
 layout (location = 4) in mat4 TransformationMatrixes;
 layout (location = 8) in ivec4 BoneIDs;
 layout (location = 9) in vec4 Weights;
@@ -10,7 +10,7 @@ layout (location = 9) in vec4 Weights;
 uniform float UseBoneTransform;
 uniform mat4 Bones[MAX_BONES];
 
-out vec2 textureCoords ;
+out vec2 textureCoords;
 
 uniform mat4 TransformationMatrix ;
 uniform mat4 ProjectionMatrix ;

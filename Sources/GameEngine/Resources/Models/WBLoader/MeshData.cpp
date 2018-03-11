@@ -36,6 +36,13 @@ namespace WBLoader
 		buffer.push_back(v.y);
 	}
 
+	void AddVec3ToIntBuffer(std::vector<int32>& buffer, const vec3i & v)
+	{
+		buffer.push_back(v.x);
+		buffer.push_back(v.y);
+		buffer.push_back(v.z);
+	}
+
 	void minMax(float v , float& min, float& max)
 	{
 		if (v < min)
@@ -45,11 +52,13 @@ namespace WBLoader
 			max = v;
 	}
 
-	void Mesh::Normalize(float factor)
+	void ScaleJoint(GameEngine::Animation::Joint& j, float f)
 	{
-		for (auto& v : vertexBuffer)
+		j.transform *= glm::scale(vec3(1.f / f));
+
+		for (auto& child : j.children)
 		{
-			v.position /= factor;
+			ScaleJoint(child, f);
 		}
 	}
 
@@ -57,7 +66,7 @@ namespace WBLoader
 	{
 		computeTangentBasis();
 
-		std::map<wb::vec3i, uint16> out_indexes;		
+		std::map<wb::vec3i, uint16> out_indexes;
 
 		for (auto& v : vertexBuffer)
 		{
@@ -84,6 +93,9 @@ namespace WBLoader
 				AddVec2ToFloatBuffer(fuvs, v.uvs);
 				AddVec3ToFloatBuffer(ftangents, v.tangents);
 				AddVec3ToFloatBuffer(fbitangents, v.bitangents);
+
+				AddVec3ToIntBuffer(jointIds, v.jointIds);
+				AddVec3ToFloatBuffer(bonesWeights, v.weights);
 
 				auto newIndex = (uint16)out_indexes.size();
 				//out_indexes.push_back(v.indexes);

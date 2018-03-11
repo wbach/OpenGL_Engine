@@ -7,6 +7,7 @@ namespace GameEngine
 	{
 		struct Animation
 		{
+			float length = 0.8333333f;
 			std::vector<KeyFrame> frames;
 		};
 	} // Animation

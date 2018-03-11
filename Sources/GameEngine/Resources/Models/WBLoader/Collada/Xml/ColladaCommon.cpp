@@ -1,6 +1,7 @@
 #include "ColladaCommon.h"
 #include "Types.h"
 #include "Utils.h"
+#include "GLM/GLMUtils.h"
 #include "Utils/XML/XMLUtils.h"
 #include "Logger/Log.h"
 

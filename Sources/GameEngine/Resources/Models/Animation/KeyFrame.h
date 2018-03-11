@@ -1,6 +1,6 @@
 #pragma once
 #include "JointTransform.h"
-#include <vector>
+#include <unordered_map>
 
 namespace GameEngine
 {
@@ -9,7 +9,8 @@ namespace GameEngine
 		struct KeyFrame
 		{
 			float timeStamp;
-			std::vector<JointTransform> transforms;
+			std::unordered_map<std::string, JointTransform> transforms;
+			std::unordered_map<uint32, JointTransform> idTransforms_;
 		};
 	} // Animation
 } // GameEngine

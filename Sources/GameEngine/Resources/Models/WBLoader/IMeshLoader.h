@@ -17,6 +17,9 @@ namespace WBLoader
 		std::list<WBLoader::Object> objects;
 
 	private:
+		void NormalizeMatrix(mat4& mat, float factor) const;
+
+	private:
 		float FindMaxFactor() const;
     };
 } // WBLoader

@@ -19,6 +19,7 @@ public:
     virtual void Subscribe(CGameObject* gameObject) override;
 	virtual void UnSubscribe(CGameObject* gameObject) override;
 	virtual void UnSubscribeAll() override;
+	virtual void ReloadShaders() override;
 
 private:
     void RenderModel(CModel* model, const mat4& transform_matrix) const;

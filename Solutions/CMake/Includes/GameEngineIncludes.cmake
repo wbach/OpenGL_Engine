@@ -153,6 +153,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
 ../../Sources/GameEngine/Resources/Textures/Texture.h
 ../../Sources/GameEngine/Resources/Textures/TextureFlip.h
+../../Sources/GameEngine/Resources/VboTypes.h
 ../../Sources/GameEngine/Scene/SceneEvents.h
 ../../Sources/GameEngine/Scene/SceneFactoryBase.h
 ../../Sources/GameEngine/Scene/SceneLoader.h

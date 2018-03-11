@@ -4,25 +4,12 @@
 #include "Material.h"
 #include "Utils.h"
 #include "GameEngine/Resources/Models/Animation/Joint.h"
+#include "GameEngine/Resources/Models/Animation/Animator.h"
+#include "GameEngine/Resources/VboTypes.h"
 #include <vector>
 
-namespace VertexBufferObjects
-{
-enum Type
-{
-    INDICES = 0,
-    POSITION,
-    TEXT_COORD,
-    NORMAL,
-    TANGENT,
-    TRANSFORM_MATRIX,
-    JOINTS,
-	WEIGHTS,
-    COUNT,
-};
-}
-
 typedef std::vector<float> FloatVec;
+typedef std::vector<int32> Int32Vec;
 typedef std::vector<uint16> UintVec;
 typedef std::vector<uint8> Uint8Vec;
 
@@ -38,7 +25,7 @@ public:
 		const FloatVec& normals = {},
 		const FloatVec& tangents = {},
 		const UintVec& indices = {},
-		const UintVec& joinIds = {},
+		const Int32Vec& joinIds = {},
 		const FloatVec& bonesWeights = {},
 		const mat4& transform = mat4(1.f)
 	);
@@ -58,7 +45,8 @@ public:
     const uint32& GetVertexCount() const;
     const SMaterial& GetMaterial() const;
 	inline const mat4& GetMeshTransform() const;
-	inline const Uint8Vec& GetUsedAttributes() const;
+	inline const VboMap& GetUsedAttributes() const;
+	GameEngine::Animation::Animator animator_;
 
 private:
     void CreateVaoMesh();
@@ -68,7 +56,7 @@ private:
     void UpdateVertexPosition(const std::vector<float>& vertices) const;
     void SetInstancedMatrixes(const std::vector<mat4>& m);
 
-    const uint32& GetVbo(VertexBufferObjects::Type type) const;
+    uint32 GetVbo(VertexBufferObjects type) const;
     void SetMaterial(const SMaterial& material);
     void ClearData();
 
@@ -76,11 +64,11 @@ private:
     SMaterial material_;
 
     uint32 vao_;
-    uint32 vbos_[VertexBufferObjects::COUNT];
+	VboMap vbos_;
     uint32 vertexCount_;
 
     // used attributes
-	Uint8Vec attributes_;
+	VboMap attributes_;
 
 	FloatVec positions_;
 	FloatVec textCoords_;
@@ -89,7 +77,7 @@ private:
 	FloatVec bitangents_;
 	FloatVec bonesWeights_;
 	UintVec indices_;
-	UintVec joinIds_;
+	Int32Vec joinIds_;
     std::vector<mat4> instancedMatrixes_;
 
     bool isInit              = false;
@@ -99,11 +87,15 @@ private:
     // local transform in mesh
     mat4 transform_;
     BoundingBox boundingBox;
-
+public:
+	std::vector<mat4> GetJointTransforms() const;
 	GameEngine::Animation::Joint rootJoint_;
+
+private:
+	void AddJoints(GameEngine::Animation::Joint joint, std::vector<mat4>& m) const;
 };
 
-const Uint8Vec& CMesh::GetUsedAttributes() const
+const VboMap& CMesh::GetUsedAttributes() const
 {
 	return attributes_;
 }

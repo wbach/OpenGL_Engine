@@ -55,7 +55,7 @@ namespace GameEngine
 	}
 
 	void CEngine::Render()
-	{		
+	{
 		renderersManager_.RenderScene(sceneManager_.GetActiveScene());
 	}
 

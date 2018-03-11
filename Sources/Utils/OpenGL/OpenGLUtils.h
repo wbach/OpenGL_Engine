@@ -19,7 +19,7 @@ int CreateVao();
 GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 
 GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<float>& data);
-GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<uint16>& data);
+GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<int32>& data);
 //void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
 //void DisableVao(const std::vector<uint32>& attributes);
 void UnbindVao();

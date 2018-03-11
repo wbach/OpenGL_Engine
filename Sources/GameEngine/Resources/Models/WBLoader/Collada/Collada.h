@@ -25,6 +25,7 @@ namespace WBLoader
 		void PrepareMeshData(const GameEngine::Collada::Mesh& colladaMesh, Mesh& newMesh, const GameEngine::Collada::Input& input);
 		GameEngine::Collada::DataTypes GetSourceType(const GameEngine::Collada::Source& source) const;
 		void CreateSkeleton(const GameEngine::Collada::Node& node, GameEngine::Animation::Joint & joint, const std::unordered_map<std::string, uint32 >& joints);
+		void FillAnimator(GameEngine::Animation::Animator& animator, const std::unordered_map<std::string, uint32 >& joints);
 
 	private:
 		void ApplyMaterials(SMaterial& material, const std::string& materialId);

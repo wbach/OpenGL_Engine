@@ -22,9 +22,9 @@ public:
 	inline const std::string& GetFileName() const;
 	inline const std::list<CMesh>& GetMeshes() const;
 
+    std::list<CMesh> meshes;
 protected:
     std::string filename;
-    std::list<CMesh> meshes;
 };
 
 typedef CModel* ModelRawPtr;

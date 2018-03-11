@@ -38,25 +38,29 @@ struct vec2i
     }
 };
 
-struct vec3i
+template<class T>
+struct Tvec3
 {
-    int32 x;
-    int32 y;
-    int32 z;
+    T x;
+    T y;
+    T z;
 
-    vec3i(){}
-    vec3i(int32 a):x(a), y(a), z(a){}
+	Tvec3() : Tvec3(0){}
+	Tvec3(int32 a):x(a), y(a), z(a){}
 
-    bool operator==(const vec3i& v) const
+    bool operator==(const Tvec3& v) const
     {
         return x == v.x && y == v.y && z == v.z;
     }
     // To my model map find
-    bool operator<(const vec3i& v) const
+    bool operator<(const Tvec3& v) const
     {
         return x != v.x || y != v.y || z != v.z;
     }
 };
+
+typedef Tvec3<int32> vec3i;
+typedef Tvec3<uint32> vec3ui;
 
 std::string to_string(const vec2i& v);
 std::string to_string(const vec3i& v);

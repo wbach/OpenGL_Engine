@@ -95,7 +95,7 @@ void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_mat
     if(!mesh.IsInit())
         return;
 
-    Utils::EnableVao ev(mesh.GetVao(), {0, 1});
+	Utils::EnableVao ev(mesh.GetVao(), { {VertexBufferObjects::POSITION, 0}, {VertexBufferObjects::TEXT_COORD, 1}});
 
     BindMaterial(mesh.GetMaterial());
 

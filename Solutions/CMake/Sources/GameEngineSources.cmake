@@ -55,6 +55,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.cpp
+../../Sources/GameEngine/Resources/Models/Animation/Animator.cpp
+../../Sources/GameEngine/Resources/Models/Animation/JointTransform.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
 ../../Sources/GameEngine/Resources/Models/Bone.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp

@@ -23,16 +23,20 @@ void CEntityShader::GetAllUniformLocations()
 	location_UseBoneTransform = GetUniformLocation("UseBoneTransform");
 
 	for (int x = 0; x < MAX_BONES; x++)
-		location_Bones[x] = GetUniformLocation("Bones[" + std::to_string(x) + "]");
+		location_Bones[x] = GetUniformLocation("joinTransforms[" + std::to_string(x) + "]");
 }
 
 void CEntityShader::BindAttributes()
 {
 	BindAttribute(0, "Position");
 	BindAttribute(1, "TexCoord");
-	BindAttribute(4, "TransformationMatrixes");
+	BindAttribute(2, "Normal");
+	BindAttribute(3, "Tangent");
+	BindAttribute(4, "Weights");
+	BindAttribute(5, "joinIds");
+	//BindAttribute(4, "TransformationMatrixes");
 }
-void CEntityShader::LoadUseInstancedRendering(const float & use) const
+void CEntityShader::LoadUseInstancedRendering(const float& use) const
 {
 	LoadValue(location_IsInstancedRender, use);
 }
@@ -50,11 +54,11 @@ void CEntityShader::LoadViewMatrix(const mat4& matrix) const
 {
 	LoadValue(location_ViewMatrix, matrix);
 }
-void CEntityShader::LoadUseBonesTransformation(const float & is) const
+void CEntityShader::LoadUseBonesTransformation(const float& is) const
 {
 	LoadValue(location_UseBoneTransform, is);
 }
-void CEntityShader::LoadBoneTransform(const mat4 & transform, uint32 id) const
+void CEntityShader::LoadBoneTransform(const mat4& transform, uint32 id) const
 {
 	LoadValue(location_Bones[id], transform);
 }

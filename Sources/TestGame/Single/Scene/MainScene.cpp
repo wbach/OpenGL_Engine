@@ -47,7 +47,7 @@ int MainScene::Initialize()
 	AddEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
 	AddEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
 	
-	player = AddEntity("Meshes/DaeAnimationExample/CharacterRunningSmooth.dae", 1.8f, vec2(395, 560), true);
+	player = AddEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(395, 560), true);
 
 	for (const auto& terrain : terrains)
 	{

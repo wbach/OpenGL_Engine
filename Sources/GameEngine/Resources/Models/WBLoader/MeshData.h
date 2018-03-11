@@ -1,6 +1,7 @@
 #pragma once
 #include "../Material.h"
 #include "../Animation/Joint.h"
+#include "../Animation/Animator.h"
 #include "Types.h"
 #include <vector>
 #include <list>
@@ -37,9 +38,10 @@ namespace WBLoader
 		//Material ogrin_material;
 
 		std::vector<VertexBuffer> vertexBuffer;
+		std::unordered_map<uint32, std::vector<int>> vertexPlacesInVertexBuffer_;
 
 		std::vector<uint16> indices;
-		std::vector<uint16> jointIds;
+		std::vector<int32> jointIds;
 		std::vector<float> fpostions;
 		std::vector<float> fuvs;
 		std::vector<float> fnormal;
@@ -48,12 +50,12 @@ namespace WBLoader
 		std::vector<float> bonesWeights;
 		SMaterial material;
 
-		void Normalize(float factor);
 		void IndexinVBO();
 		void computeTangentBasis();
 
 		float GetScaleFactor() const;
 		GameEngine::Animation::Joint rootJoint_;
+		GameEngine::Animation::Animator animator_;
 	};
 
 	struct Object
@@ -66,5 +68,6 @@ namespace WBLoader
 	int FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v);
 	int FindIndexFast(std::map<wb::vec3i, uint16>& vertexes, const wb::vec3i& v);
 	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const vec3& v);
-	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2& v);	
+	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2& v);
+	void AddVec3ToIntBuffer(std::vector<int32>& buffer, const vec3i& v);
 }
