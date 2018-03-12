@@ -1,4 +1,5 @@
 #include "AbstractLoader.h"
+#include "GameEngine/Animations/AnimationUtils.h"
 
 namespace WBLoader
 {
@@ -18,7 +19,7 @@ namespace WBLoader
 				CMesh newMesh(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, mesh.jointIds, mesh.bonesWeights, obj.transformMatrix);
 				newMesh.animator_ = std::move(mesh.animator_);
 				newMesh.rootJoint_ = std::move(mesh.rootJoint_);
-				newMesh.rootJoint_.calcInverseBindTransform(mat4(1.f));
+				GameEngine::Animation::CalcInverseBindTransform(newMesh.rootJoint_, mat4(1.f));
 				newModel->AddMesh(newMesh);
 			}
 		}

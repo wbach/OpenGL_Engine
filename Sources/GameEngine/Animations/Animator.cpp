@@ -1,23 +1,29 @@
 #include "Animator.h"
 #include "GameEngine/Resources/Models/Mesh.h"
+#include "AnimationUtils.h"
 
 namespace GameEngine
 {
 	namespace Animation
 	{
-		void Animator::Update(CMesh * mesh, float deltaTime)
+		Animator::Animator()
+			: rootJoint_(nullptr)
 		{
-			if (mesh == nullptr || current_.empty() || animations_.count(current_) == 0)
+		}
+
+		void Animator::Update(float deltaTime)
+		{
+			if (rootJoint_ == nullptr || current_.empty() || animations_.count(current_) == 0)
 				return;
 
 			increaseAnimationTime(deltaTime);
 			auto currentPose = calculateCurrentAnimationPose();
-			applyPoseToJoints(currentPose, mesh->rootJoint_, mat4());
+			applyPoseToJoints(currentPose, *rootJoint_ , mat4());
 		}
 
 		void Animator::increaseAnimationTime(float deltaTime)
 		{
-			auto l = animations_[current_].length;
+			auto l = animations_[current_].GetLength();
 
 			time_ += deltaTime;
 			if (time_ > l)
@@ -41,15 +47,15 @@ namespace GameEngine
 
 				JointTransform previousTransform = previousFrame.transforms.at(jointName);
 				JointTransform nextTransform = nextFrame.transforms.at(jointName);
-				JointTransform currentTransform = JointTransform::Interpolate(previousTransform, nextTransform, progression);
-				currentPose[jointName] = currentTransform.GetLocalTransform();
+				JointTransform currentTransform = Interpolate(previousTransform, nextTransform, progression);
+				currentPose[jointName] = GetLocalTransform(currentTransform);
 			}
 			return currentPose;
 		}
 
 		std::pair<KeyFrame, KeyFrame> Animator::getPreviousAndNextFrames()
 		{
-			const auto& allFrames = animations_[current_].frames;
+			const auto& allFrames = animations_[current_].GetFrames();
 
 			KeyFrame previousFrame = allFrames[0];
 			KeyFrame nextFrame = allFrames[0];
@@ -71,7 +77,7 @@ namespace GameEngine
 
 			const auto& currentLocalTransform = currentPose.at(joint.name);
 			auto currentTransform = parentTransform * currentLocalTransform;
-			joint.animatedTransform = currentTransform * joint.inverseBindTransform;
+			joint.animatedTransform = currentTransform * joint.invtransform;
 
 			for (Joint& childJoint : joint.children)
 			{

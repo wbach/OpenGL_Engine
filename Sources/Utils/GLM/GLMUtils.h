@@ -43,7 +43,7 @@ mat4 CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center);
 glm::mat4 CreateTransformationMatrix(const glm::vec2& translation, const glm::vec2& scale, const float& rotation = 0.f);
 glm::mat4 CreateTransformationMatrix(const glm::vec3& translation = glm::vec3(.0f), const glm::vec3& rotation = glm::vec3(.0f),
                                      const glm::vec3& scale = glm::vec3(1.f));
-
+Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend);
 float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
 
 std::string ToString(const glm::vec3& v);

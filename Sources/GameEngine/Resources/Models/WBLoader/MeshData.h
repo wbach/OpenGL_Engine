@@ -1,7 +1,7 @@
 #pragma once
 #include "../Material.h"
-#include "../Animation/Joint.h"
-#include "../Animation/Animator.h"
+#include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Animations/Animator.h"
 #include "Types.h"
 #include "optional.hpp"
 #include <vector>

@@ -23,9 +23,9 @@ uniform vec3 ShadowVariables;
 uniform float IsUseNormalMap;
 uniform float IsUseFakeLighting;
 uniform float IsInstancedRender;
-            
+
 uniform vec4 ClipPlane;
- 
+
 out vec2 TexCoord0;
 out vec3 Normal0;
 out vec4 WorldPos0;

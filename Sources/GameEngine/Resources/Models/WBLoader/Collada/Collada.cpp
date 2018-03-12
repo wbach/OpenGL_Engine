@@ -362,11 +362,9 @@ namespace WBLoader
 		return false;
 	}
 
-	void ColladaDae::FillAnimator(GameEngine::Animation::Animator & animator, const std::unordered_map<std::string, uint32 >& joints)
+	void ColladaDae::FillAnimator(GameEngine::Animation::Animator& animator, const std::unordered_map<std::string, uint32 >& joints)
 	{
-		//uint32 animId = 0;
-		auto& frames = animator.animations_["Animiation_0"].frames;
-
+		std::vector<GameEngine::Animation::KeyFrame> frames;
 
 		bool isSetTimeStamp = false;
 
@@ -374,7 +372,6 @@ namespace WBLoader
 		{
 			auto& anim = anim_pair.second;
 			auto& animName = anim_pair.first;
-
 
 			for (const auto& joint : joints)
 			{
@@ -430,10 +427,11 @@ namespace WBLoader
 					}
 					break;
 				}
-
 			}
-
 		}
+
+		for (const auto& frame : frames)
+			animator.animations_["Animiation_0"].AddFrame(frame);
 	}
 	void ColladaDae::ApplyMaterials(SMaterial& material, const std::string& materialId)
 	{

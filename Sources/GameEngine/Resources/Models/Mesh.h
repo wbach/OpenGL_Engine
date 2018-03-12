@@ -3,8 +3,8 @@
 #include "BoundingBox.h"
 #include "Material.h"
 #include "Utils.h"
-#include "GameEngine/Resources/Models/Animation/Joint.h"
-#include "GameEngine/Resources/Models/Animation/Animator.h"
+#include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Animations/Animator.h"
 #include "GameEngine/Resources/VboTypes.h"
 #include <vector>
 

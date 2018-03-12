@@ -178,8 +178,8 @@ void CEntityRenderer::RenderDynamicsEntities()
 		}
 
 		RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
-		
-		mesh.animator_.Update(&mesh, 0.1f);
+		mesh.animator_.rootJoint_ = &mesh.rootJoint_;
+		mesh.animator_.Update(0.1f);
 		shader.LoadUseBonesTransformation(0.f);
 	}
 }
