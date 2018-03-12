@@ -3,6 +3,7 @@
 #include "../Animation/Joint.h"
 #include "../Animation/Animator.h"
 #include "Types.h"
+#include "optional.hpp"
 #include <vector>
 #include <list>
 #include <map>
@@ -12,14 +13,14 @@ namespace WBLoader
 	struct VertexBuffer
 	{
 		wb::vec3i indexes;
+		vec2 uvs;
 		vec3 position;
 		vec3 normal;
 		vec3 tangents;
 		vec3 bitangents;
-		vec3 weights;
-		wb::vec3i jointIds;
-		vec2 uvs;
 		uint32 material_id;
+		wb::optional<vec3>  weights;
+		wb::optional<wb::vec3i> jointIds;
 	};
 
 	struct MaterialLayer

@@ -74,7 +74,6 @@ void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
 	shadowBox.CalculateMatrixes(light_direction);
 	shadowBox2.CalculateMatrixes(light_direction);
 
-
 	rendererContext_->toShadowMapZeroMatrix_ = viewOffset * shadowBox2.GetProjectionViewMatrix();
 }
 
@@ -95,17 +94,28 @@ void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_mat
     if(!mesh.IsInit())
         return;
 
-	Utils::EnableVao ev(mesh.GetVao(), { {VertexBufferObjects::POSITION, 0}, {VertexBufferObjects::TEXT_COORD, 1}});
+	Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes(), {VertexBufferObjects::NORMAL, VertexBufferObjects::TANGENT});
 
     BindMaterial(mesh.GetMaterial());
 
-    shader.LoadUseBonesTransformation(0.f);
+	if (mesh.UseArmature())
+	{
+		shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
+		int x = 0;
+		for (auto& t : mesh.GetJointTransforms())
+		{
+			shader.LoadBoneTransform(t, x++);
+		}
+	}
+
     shader.LoadUseInstancedRendering(0.f);
 
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader.LoadTransformMatrix(transform_matrix_);
 
     glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+
+	shader.LoadUseBonesTransformation(0.f);
 }
 
 void CShadowMapRenderer::BindMaterial(const SMaterial& material) const

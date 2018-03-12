@@ -36,6 +36,8 @@ CMesh::CMesh(
 	if (!bonesWeights_.empty())	attributes_[VertexBufferObjects::WEIGHTS] = 4;
 	if (!joinIds_.empty())		attributes_[VertexBufferObjects::JOINTS] = 5;
 
+	useAramture = !bonesWeights_.empty() && !joinIds_.empty();
+
 	CalculateBoudnigBox(positions);
 }
 
@@ -151,6 +153,11 @@ void CMesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 bool CMesh::IsInit() const
 {
 	return isInit;
+}
+
+bool CMesh::UseArmature() const
+{
+	return useAramture;
 }
 
 void CMesh::OpenGLLoadingPass()

@@ -70,7 +70,6 @@ namespace WBLoader
 
 		for (auto& v : vertexBuffer)
 		{
-			//auto i = FindIndex(out_indexes, v.indexes);
 			auto i = FindIndexFast(out_indexes, v.indexes);
 			if (i >= 0)
 			{
@@ -94,11 +93,13 @@ namespace WBLoader
 				AddVec3ToFloatBuffer(ftangents, v.tangents);
 				AddVec3ToFloatBuffer(fbitangents, v.bitangents);
 
-				AddVec3ToIntBuffer(jointIds, v.jointIds);
-				AddVec3ToFloatBuffer(bonesWeights, v.weights);
+				if (v.jointIds)
+				AddVec3ToIntBuffer(jointIds, v.jointIds.constValue());
+
+				if (v.weights)
+				AddVec3ToFloatBuffer(bonesWeights, v.weights.constValue());
 
 				auto newIndex = (uint16)out_indexes.size();
-				//out_indexes.push_back(v.indexes);
 				out_indexes[v.indexes] = newIndex;
 				indices.push_back(newIndex);
 			}

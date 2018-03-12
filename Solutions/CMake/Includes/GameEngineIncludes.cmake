@@ -85,6 +85,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/Model.h
 ../../Sources/GameEngine/Resources/Models/ModelFactory.h
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.h
+../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Types/Animations/Animation.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Types/Animations/AnimationSampler.h
@@ -137,9 +138,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryVisualScenesReader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MainReader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MaterialReader.h
-../../Sources/GameEngine/Resources/Models/WBLoader/IMeshLoader.h
+../../Sources/GameEngine/Resources/Models/WBLoader/LoaderManager.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.h
-../../Sources/GameEngine/Resources/Models/WBLoader/MyModel.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.h
 ../../Sources/GameEngine/Resources/OpenGLLoader.h

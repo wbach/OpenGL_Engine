@@ -1,12 +1,12 @@
 #pragma once
-#include "../IMeshLoader.h"
+#include "../AbstractLoader.h"
 #include <list>
 
 class CTextureLoader;
 
 namespace WBLoader
 {
-	class WaveFrontObjLoader : public AbstractMeshLoader
+	class WaveFrontObjLoader : public AbstractLoader
 	{
 	public:
 		WaveFrontObjLoader(CTextureLoader& textureLodaer);
@@ -23,6 +23,7 @@ namespace WBLoader
 		void ProcesFace(WBLoader::Object* object, WBLoader::Mesh* mesh, const std::string& value);
 		void ProcesObject(WBLoader::Object*& object, const std::string& value);
 		void ProcesMaterial(WBLoader::Object* object, WBLoader::Mesh*& mesh, const std::string& value);
+
 	private:
 		std::list<std::string> fileData;
 		std::string path;

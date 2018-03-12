@@ -1,9 +1,8 @@
 #include "WaveFrontObj.h"
 #include "../MeshData.h"
-#include "../../Mesh.h"
-#include "../../../TextureLoader.h"
-#include "../../../../Engine/Configuration.h"
-
+#include "GameEngine/Resources/Models/Mesh.h"
+#include "GameEngine/Resources/TextureLoader.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "ParseUtils.h"
 
 #include <algorithm>
@@ -33,12 +32,13 @@ namespace WBLoader
 
 	void WaveFrontObjLoader::GetFileData(const std::string & file_name)
 	{
-		fileData = Utils::ReadFileLines(file_name);
+		auto filePath = EngineConf_GetFullDataPathAddToRequierd(file_name);
+		fileData = Utils::ReadFileLines(filePath);
 
 		if (fileData.empty())
 			return;
 
-		Utils::GetFileAndPath(file_name, filename, path);		
+		Utils::GetFileAndPath(filePath, filename, path);
 	}
 	void WaveFrontObjLoader::ProcessFileData()
 	{

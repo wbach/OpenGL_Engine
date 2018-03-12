@@ -2,6 +2,7 @@
 #include "GameEngine/Resources/TextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace WBLoader
 {
@@ -11,7 +12,8 @@ namespace WBLoader
 	}
 	void TerrainMeshLoader::ParseFile(const std::string& filename)
 	{
-		auto texture = textureLoader_.LoadHeightMap(filename);
+		auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
+		auto texture = textureLoader_.LoadHeightMap(fullFilePath);
 
 		auto hm = static_cast<HeightMap*>(texture);
 		heightMapResolution_ = static_cast<uint16>(hm->GetImage()->width);
@@ -30,12 +32,13 @@ namespace WBLoader
 		auto ext = Utils::GetFileExtension(filename);
 		return ext == "terrain";
 	}
-	std::list<CMesh> TerrainMeshLoader::CreateFinalMesh()
+	std::unique_ptr<CModel> TerrainMeshLoader::Create()
 	{
-		std::list<CMesh> output;
+		auto model = std::make_unique<CModel>();
 
 		SMaterial material;
-		output.emplace_back(material, vertices_, textureCoords_, normals_, tangens_, indices_);
+		CMesh newMesh(material, vertices_, textureCoords_, normals_, tangens_, indices_);
+		model->AddMesh(newMesh);
 
 		//Normals stay
 		indices_.clear();
@@ -43,7 +46,7 @@ namespace WBLoader
 		tangens_.clear();
 		textureCoords_.clear();
 
-		return output;
+		return model;
 	}
 	void TerrainMeshLoader::CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height)
 	{

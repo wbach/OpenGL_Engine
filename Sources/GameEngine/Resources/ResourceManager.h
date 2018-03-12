@@ -2,6 +2,7 @@
 #include "Models/Model.h"
 #include "TextureLoader.h"
 #include "OpenGLLoader.h"
+#include "Models/WBLoader/LoaderManager.h"
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -25,4 +26,6 @@ private:
 
     COpenGLLoader openGlLoader;
     CTextureLoader textureLoader;
+
+	LoaderManager loaderManager_;
 };

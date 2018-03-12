@@ -9,6 +9,7 @@ class EnableVao
 {
 public:
     EnableVao(const uint32 vao, const VboMap& vertexArrays);
+	EnableVao(const uint32 vao, const VboMap& vertexArrays, const std::vector<VertexBufferObjects>& ignored);
     ~EnableVao();
 
 private:

@@ -39,6 +39,7 @@ public:
     virtual void OpenGLPostLoadingPass() override;
 
     bool IsInit() const;
+	bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
 
     const uint32& GetVao() const;
@@ -82,7 +83,7 @@ private:
 
     bool isInit              = false;
     bool transformVboCreated = false;
-    bool bonesInShader       = false;
+    bool useAramture         = false;
 
     // local transform in mesh
     mat4 transform_;

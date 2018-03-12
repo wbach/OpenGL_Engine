@@ -168,25 +168,17 @@ void CEntityRenderer::RenderDynamicsEntities()
 		if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
 			continue;
 
-		shader.LoadUseBonesTransformation(1.f);
 		auto& mesh = entity->GetModel(GameEngine::LevelOfDetail::L1)->meshes.front();
-		//for(int x = 0; x < 5; ++x)
-		/*for (auto& transform : mesh.animator_.animations_.begin()->second.frames[0].idTransforms_)
-			{
-				mat4 t = transform.second.transform;
-				auto j = mesh.rootJoint_.GetJoint(transform.first);
-				if (j != nullptr)
-					t = t * j->invTransform;
-
-				shader.LoadBoneTransform(t, transform.first);
-			}*/
+		shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
 		
 		int x = 0;
 		for (auto& t : mesh.GetJointTransforms())
 		{
 			shader.LoadBoneTransform(t, x++);
 		}
+
 		RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
+		
 		mesh.animator_.Update(&mesh, 0.1f);
 		shader.LoadUseBonesTransformation(0.f);
 	}

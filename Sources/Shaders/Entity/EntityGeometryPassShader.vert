@@ -7,11 +7,11 @@ layout (location = 1) in vec2 TexCoord;
 layout (location = 2) in vec3 Normal;
 layout (location = 3) in vec3 Tangent;
 layout (location = 4) in vec3 Weights;
-layout (location = 5) in ivec3 joinIds;
+layout (location = 5) in ivec3 BoneIds;
 //layout (location = 4) in mat4 TransformationMatrixes;
 
 uniform float UseBoneTransform;
-uniform mat4 joinTransforms[MAX_BONES];
+uniform mat4 BonesTransforms[MAX_BONES];
 
 uniform mat4 TransformationMatrix ;
 uniform mat4 ProjectionMatrix ;
@@ -41,48 +41,55 @@ out float ShadowMapSize;
 //Fog
 out float Distance;
 
+struct VertexWorldData
+{
+	vec4 worldPosition;
+	vec4 worldNormal;
+};
+
+VertexWorldData caluclateWorldData()
+{
+	VertexWorldData result;
+	result.worldPosition = vec4(0.0);
+	result.worldNormal = vec4(0.0);
+
+	if(UseBoneTransform < .5f)
+	{
+		result.worldPosition = TransformationMatrix * vec4(Position, 1.f);
+		result.worldNormal = TransformationMatrix * vec4(Normal, 0.0);
+		return result;
+	}
+
+	for(int i=0; i < MAX_WEIGHTS; i++)
+	{
+		mat4 boneTransform = BonesTransforms[BoneIds[i]];
+		vec4 posePosition = boneTransform * vec4(Position, 1.0f);
+		result.worldPosition += posePosition * Weights[i];
+
+		vec4 worldNormal = boneTransform * vec4(Normal, 0.0f);
+		result.worldNormal += worldNormal * Weights[i];
+	}
+
+	result.worldPosition = TransformationMatrix * result.worldPosition;
+	result.worldNormal = TransformationMatrix * result.worldNormal;
+	return result;
+}
+
 void main()
 {     
-	vec4 world_position;
-	mat4 bone_transform = mat4(1.f);
+	VertexWorldData worldData = caluclateWorldData();
 
-	if(UseBoneTransform > .5f)
-	{
-		vec4 totalLocalPos = vec4(0.0);
-		vec4 totalNormal = vec4(0.0);
+	vec4 modelViewPosition  = ViewMatrix * worldData.worldPosition;
+	gl_ClipDistance[0] = dot(worldData.worldPosition, ClipPlane);
 
-		for(int i=0; i<1; i++)
-		{
-			mat4 jointTransform = joinTransforms[joinIds[i]];
-			vec4 posePosition = jointTransform * vec4(Position, 1.0f);
-			totalLocalPos += posePosition * Weights[i];
-			
-			vec4 worldNormal = jointTransform * vec4(Normal, 0.0f);
-			totalNormal += worldNormal * Weights[i];
-		}
-		world_position  = TransformationMatrix * totalLocalPos;
-		//bone_transform += joinTransforms[BoneIDs[3]] * Weights[3];
-	}
-	else
-	{
-		mat4 transform_matrix = TransformationMatrix ;//IsInstancedRender > 0.5f ? TransformationMatrixes : TransformationMatrix;
-		world_position = transform_matrix * bone_transform * vec4(Position, 1.f);
-	}
-
-	//gl_Position    = ProjectionMatrix * ViewMatrix * world_position;
-	//return;
-
-	vec4 model_view_position  = ViewMatrix * world_position;
-	gl_ClipDistance[0] = dot(world_position, ClipPlane) ;
-
-    gl_Position    = ProjectionMatrix * model_view_position; 
+    gl_Position    = ProjectionMatrix * modelViewPosition; 
     TexCoord0      = TexCoord;
-    Normal0        = (TransformationMatrix * bone_transform * vec4(Normal, 0.0)).xyz;
-    WorldPos0      = world_position;
+    Normal0        = worldData.worldNormal.xyz;
+    WorldPos0      = worldData.worldPosition;
 
 	if( IsUseNormalMap > .5f)
 	{
-		PassTangent = (TransformationMatrix * bone_transform * vec4(Tangent, 0.0)).xyz;
+		PassTangent = (TransformationMatrix * vec4(Tangent, 0.0)).xyz;
 		UseNormalMap = 1.f;
 	}
 	else
@@ -93,7 +100,7 @@ void main()
 
 	if (IsUseFakeLighting > .5f)
     {
-        Normal0 = vec3(.0f ,1.f, .0f) ;
+        Normal0 = vec3(.0f ,1.f, .0f);
 		FakeLight = 1.0f;
     }
 	else
@@ -101,7 +108,7 @@ void main()
 		FakeLight = 0.f;
 	}
 	
-	Distance = length(model_view_position.xyz);
+	Distance = length(modelViewPosition.xyz);
 
 	UseShadows = ShadowVariables.x;
 

@@ -13,6 +13,20 @@ Utils::EnableVao::EnableVao(const uint32 vao, const VboMap &vertexArrays)
     Enable();
 }
 
+Utils::EnableVao::EnableVao(const uint32 vao, const VboMap& vertexArrays, const std::vector<VertexBufferObjects>& ignored)
+{
+	v.reserve(vertexArrays.size() - ignored.size());
+	uint8 i = 0;
+	for (const auto& va : vertexArrays)
+	{
+		if (va.first != ignored[i++])
+			v.push_back(va.second);
+	}
+	std::sort(v.begin(), v.end());
+	glBindVertexArray(vao);
+	Enable();
+}
+
 Utils::EnableVao::~EnableVao()
 {
     Disable();

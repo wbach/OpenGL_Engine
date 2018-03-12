@@ -23,14 +23,15 @@ void CShadowShader::GetAllUniformLocations()
     location_UseBoneTransform = GetUniformLocation("UseBoneTransform");
 
     for (int x = 0; x < MAX_BONES; x++)
-        location_Bones[x] = GetUniformLocation("Bones[" + std::to_string(x) + "]");
+        location_Bones[x] = GetUniformLocation("BonesTransforms[" + std::to_string(x) + "]");
 }
 
 void CShadowShader::BindAttributes()
 {
     BindAttribute(0, "Position");
     BindAttribute(1, "TexCoord");
-    BindAttribute(4, "TransformationMatrixes");
+    BindAttribute(4, "Weights");
+	BindAttribute(5, "BoneIds");
 }
 void CShadowShader::LoadUseInstancedRendering(const float& use) const
 {

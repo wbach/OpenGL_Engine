@@ -1,18 +1,18 @@
 #pragma once
-#include "../IMeshLoader.h"
+#include "../AbstractLoader.h"
 #include "Types.h"
 
 class CTextureLoader;
 
 namespace WBLoader
 {
-	class  TerrainMeshLoader : public AbstractMeshLoader
+	class  TerrainMeshLoader : public AbstractLoader
 	{
 	public:
 		TerrainMeshLoader(CTextureLoader& textureLodaer);
 		virtual void ParseFile(const std::string& filename) override;
 		virtual bool CheckExtension(const std::string& filename) override;
-		virtual std::list<CMesh> CreateFinalMesh() override;
+		virtual std::unique_ptr<CModel> Create() override;
 	
 	private:
 		void CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height);

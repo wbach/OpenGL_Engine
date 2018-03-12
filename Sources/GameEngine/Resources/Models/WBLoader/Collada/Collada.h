@@ -1,6 +1,6 @@
 #pragma once
 #include "../MeshData.h"
-#include "../IMeshLoader.h"
+#include "../AbstractLoader.h"
 #include "Types/ColladaData.h"
 #include "Xml/ColladaCommon.h"
 
@@ -8,7 +8,7 @@ class CTextureLoader;
 
 namespace WBLoader
 {
-	class ColladaDae : public AbstractMeshLoader
+	class ColladaDae : public AbstractLoader
 	{
 	public:
 		ColladaDae(CTextureLoader& textureLodaer);

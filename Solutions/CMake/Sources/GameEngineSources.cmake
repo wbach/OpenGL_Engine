@@ -63,6 +63,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/Model.cpp
 ../../Sources/GameEngine/Resources/Models/ModelFactory.cpp
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/ColladaCommon.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/GeometryReader.cpp
@@ -73,9 +74,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryVisualScenesReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MainReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MaterialReader.cpp
-../../Sources/GameEngine/Resources/Models/WBLoader/IMeshLoader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/LoaderManager.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.cpp
-../../Sources/GameEngine/Resources/Models/WBLoader/MyModel.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
 ../../Sources/GameEngine/Resources/OpenGLLoader.cpp

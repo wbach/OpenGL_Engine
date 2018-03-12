@@ -23,6 +23,7 @@ public:
 	inline const std::list<CMesh>& GetMeshes() const;
 
     std::list<CMesh> meshes;
+
 protected:
     std::string filename;
 };

@@ -6,6 +6,7 @@
 #include "LibraryControllersReader.h"
 #include "LibraryVisualScenesReader.h"
 #include "MaterialReader.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "XML/XMLUtils.h"
 #include <rapidxml.hpp>
 #include "Logger/Log.h"
@@ -17,7 +18,8 @@ namespace GameEngine
 	{
 		void ReadCollada(const std::string & filename, ColladaData& colladaData)
 		{
-			auto fileData = Utils::ReadFile(filename);
+			auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
+			auto fileData = Utils::ReadFile(fullFilePath);
 
 			if (fileData.empty())
 				return;
