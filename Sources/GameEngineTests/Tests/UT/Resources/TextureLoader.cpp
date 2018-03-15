@@ -12,7 +12,7 @@ struct TextureLoaderTest : public CTextureLoader, public ::testing::Test
 
     virtual void SetUp() override
     {
-        CLogger::Instance().EnableLogs();
+        //CLogger::Instance().EnableLogs();
     }
 
     std::vector<std::unique_ptr<CTexture>> textures;
