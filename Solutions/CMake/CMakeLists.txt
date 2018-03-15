@@ -52,7 +52,7 @@ include_directories(
 if(BUILD_UTILS)
     include(./Sources/UtilsSources.cmake)
     add_library(UtilsLib ${UtilsSources})
-set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
 if(BUILD_UTILS_NETWORK)
@@ -79,14 +79,14 @@ if(BUILD_TEST_GAME)
 	)
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
-set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     target_link_libraries(TestGlGame GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs})
 endif()
 
 if(BUILD_RPG_GAME_SERVER)
     include(./Sources/RpgGameServerSources.cmake)
     add_executable(RpgGameServer ${RpgGameServerSources})
-set_target_properties(RpgGameServer PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    set_target_properties(RpgGameServer PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     target_link_libraries(RpgGameServer  UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs})
 endif()
 
@@ -114,6 +114,7 @@ if(BUILD_TESTS)
 	
     include(./Sources/GameEngineTests.cmake)
     add_executable(GAME_ENGINE_TESTS ${GameEngineTests})
+    set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     target_link_libraries(GAME_ENGINE_TESTS GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} gtest gtest_main gmock gmock_main)
 endif()
 
