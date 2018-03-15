@@ -143,7 +143,8 @@ const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 
 void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
-	for (const auto& mesh : model->GetMeshes())
+	const auto& meshes = model->GetMeshes();
+	for (const auto& mesh : meshes)
 		RenderMesh(mesh, transform_matrix);
 }
 
@@ -154,6 +155,7 @@ void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix
 
 	auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
 	shader.LoadTransformMatrix(transform_matrix_);
+	shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
 	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
 
 	UnBindMaterial(mesh.GetMaterial());
@@ -163,24 +165,18 @@ void CEntityRenderer::RenderDynamicsEntities()
 {
 	for (auto& entity : dynamicSubscribes)
 	{
+		auto model = entity->GetModel(GameEngine::LevelOfDetail::L1);
+
 		if (entity == nullptr)
 			Log("[Error] Null subsciber in EnityRenderer.");
-		if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
+		if (model == nullptr)
 			continue;
-
-		auto& mesh = entity->GetModel(GameEngine::LevelOfDetail::L1)->meshes.front();
-		shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
 		
-		int x = 0;
-		for (auto& t : mesh.GetJointTransforms())
-		{
+		uint32 x = 0;
+		for (auto& t : model->GetBoneTransforms())
 			shader.LoadBoneTransform(t, x++);
-		}
 
-		RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
-		mesh.animator_.rootJoint_ = &mesh.rootJoint_;
-		mesh.animator_.Update(0.1f);
-		shader.LoadUseBonesTransformation(0.f);
+		RenderModel(model, entity->worldTransform.GetMatrix());
 	}
 }
 

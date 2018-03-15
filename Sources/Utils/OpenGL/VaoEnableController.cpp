@@ -5,6 +5,9 @@
 
 Utils::EnableVao::EnableVao(const uint32 vao, const VboMap &vertexArrays)
 {
+	if (vertexArrays.empty())
+		return;
+
 	v.reserve(vertexArrays.size());
 	for (const auto& va : vertexArrays)
 		v.push_back(va.second);
@@ -15,6 +18,9 @@ Utils::EnableVao::EnableVao(const uint32 vao, const VboMap &vertexArrays)
 
 Utils::EnableVao::EnableVao(const uint32 vao, const VboMap& vertexArrays, const std::vector<VertexBufferObjects>& ignored)
 {
+	if (vertexArrays.empty())
+		return;
+
 	v.reserve(vertexArrays.size() - ignored.size());
 	uint8 i = 0;
 	for (const auto& va : vertexArrays)

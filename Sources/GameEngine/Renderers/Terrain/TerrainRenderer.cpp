@@ -85,7 +85,8 @@ namespace GameEngine
 	{
 		Utils::ActiveBindTexture(0, rendererContext_->shadowsFrameBuffer->GetShadowMap());
 
-		for (auto& t : terrain->Get()->textures)
+		const auto& textures = terrain->Get()->textures;
+		for (const auto& t : textures)
 			BindTexture(t.second, t.first);
 	}
 	void CTerrainRenderer::BindTexture(CTexture* texture, int id) const

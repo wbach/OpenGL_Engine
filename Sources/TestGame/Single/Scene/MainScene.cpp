@@ -12,6 +12,7 @@
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -47,7 +48,13 @@ int MainScene::Initialize()
 	AddEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
 	AddEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
 	
-	player = AddEntity("Meshes/DaeAnimationExample/CharacterRunning.dae", 1.8f, vec2(395, 560), true);
+	player = AddEntity("Meshes/DaeAnimationExample/CharacterRunningSmooth.dae", 1.8f, vec2(395, 560), true);
+	player->AddComponent(std::move(componentFactory_.Create(GameEngine::Components::ComponentsType::Animator)));
+	auto animator = player->GetComponent<GameEngine::Components::Animator>(GameEngine::Components::ComponentsType::Animator);
+	auto eplayer = static_cast<CEntity*>(player);
+	animator->animationClips_ = eplayer->GetModel()->animationClips_;
+	animator->SetSkeleton(&eplayer->GetModel()->skeleton_);
+	animator->animationSpeed_ = 0.5f;
 
 	for (const auto& terrain : terrains)
 	{

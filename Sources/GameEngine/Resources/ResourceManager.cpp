@@ -28,6 +28,7 @@ CModel* CResourceManager::LoadModel(const std::string & file)
 	model->InitModel(file);
 	modelsIds[model->GetFileName()] = models.size();
     models.push_back(std::move(model));
+	openGlLoader.AddObjectToOpenGLLoadingPass(models.back().get());
     return models.back().get();
 }
 

@@ -36,6 +36,8 @@ namespace WBLoader
 	}
 	void ColladaDae::FillAnimationData()
 	{
+		std::vector<float> boneWeightsTmp;
+
 		for (const auto& vs : data_.libraryVisualScenes_.visualScenes_)
 		{
 			for (const auto& node : vs.second.nodes_)
@@ -46,7 +48,6 @@ namespace WBLoader
 						continue;
 
 					auto mesh = idToMeshMap_[node.second.name_];
-					uint32 i = 0;
 
 					const auto& ic = node.second.instanceController_.constValue();
 					auto skinSource = GameEngine::Collada::GetSource(ic.url_);
@@ -57,10 +58,11 @@ namespace WBLoader
 						if (in.semantic == "WEIGHT")
 						{
 							auto source = GameEngine::Collada::GetSource(in.sourceId);
-							GameEngine::Collada::GetFloatsFromString(skin.sources_[source].dataArray.data, mesh->bonesWeights);
+							GameEngine::Collada::GetFloatsFromString(skin.sources_[source].dataArray.data, boneWeightsTmp);
 						}
 					}
 
+					uint32 i = 0;
 					uint32 vbId = 0;
 					for (auto vc : skin.vertexWeights_.vcount_)
 					{
@@ -83,7 +85,7 @@ namespace WBLoader
 								}
 								if (in.semantic == "WEIGHT")
 								{
-									auto weightValue = mesh->bonesWeights[value];
+									auto weightValue = boneWeightsTmp[value];
 									wjoints.back().second = weightValue;
 								}
 							}
@@ -130,7 +132,7 @@ namespace WBLoader
 					}
 					const auto& skeleton = node.second.instanceController_.constValue().skeleton_;
 					const auto& node = GetNode(GameEngine::Collada::GetSource(skeleton));
-					mesh->bonesWeights.clear();//!n
+
 					std::unordered_map<std::string, uint32> joints;
 					for (const auto& input : skin.joitns_.inputs_)
 					{
@@ -144,8 +146,8 @@ namespace WBLoader
 							break;
 						}
 					}
-					CreateSkeleton(node, mesh->rootJoint_, joints);
-					FillAnimator(mesh->animator_, joints);
+					CreateSkeleton(node, mesh->skeleton_, joints);
+					FillAnimator(mesh->animationClips_, joints);
 				}
 
 			}
@@ -325,8 +327,9 @@ namespace WBLoader
 		if (node.matrix_)
 		{
 			joint.transform = node.matrix_.constValue().matrix_;
-			//joint.invTransform = glm::inverse(joint.transform);
 		}
+
+		joint.size = 1;
 
 		for (const auto& pair : node.children_)
 		{
@@ -336,6 +339,7 @@ namespace WBLoader
 			auto& child = *pair.second;
 			joint.children.emplace_back();
 			CreateSkeleton(child, joint.children.back(), joints);
+			joint.size += joint.children.back().size;
 		}
 	}
 
@@ -362,7 +366,7 @@ namespace WBLoader
 		return false;
 	}
 
-	void ColladaDae::FillAnimator(GameEngine::Animation::Animator& animator, const std::unordered_map<std::string, uint32 >& joints)
+	void ColladaDae::FillAnimator(std::unordered_map<std::string, GameEngine::Animation::AnimationClip>& animationClips, const std::unordered_map<std::string, uint32 >& joints)
 	{
 		std::vector<GameEngine::Animation::KeyFrame> frames;
 
@@ -431,7 +435,7 @@ namespace WBLoader
 		}
 
 		for (const auto& frame : frames)
-			animator.animations_["Animiation_0"].AddFrame(frame);
+			animationClips["Animiation_0"].AddFrame(frame);
 	}
 	void ColladaDae::ApplyMaterials(SMaterial& material, const std::string& materialId)
 	{

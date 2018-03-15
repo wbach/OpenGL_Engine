@@ -1,6 +1,8 @@
 #pragma once
 #include "Mesh.h"
 #include "../OpenGLObject.h"
+#include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Animations/AnimationClip.h"
 #include <list>
 #include <memory>
 
@@ -15,23 +17,29 @@ public:
 	virtual void OpenGLLoadingPass() override;
 
 	CMesh* AddMesh(CMesh& mesh);
+	inline const std::string& GetFileName() const;
+	inline const std::vector<CMesh>& GetMeshes() const;
+	std::vector<mat4> GetBoneTransforms() const;
 
 	inline bool operator==(const CModel &q) const;
 	inline bool operator==(const std::string &file) const;
 
-	inline const std::string& GetFileName() const;
-	inline const std::list<CMesh>& GetMeshes() const;
+public:
+	GameEngine::Animation::Joint skeleton_;
+	std::unordered_map<std::string, GameEngine::Animation::AnimationClip> animationClips_;
 
-    std::list<CMesh> meshes;
+protected:
+	void AddJoints(GameEngine::Animation::Joint joint, std::vector<mat4>& m) const;
 
 protected:
     std::string filename;
+    std::vector<CMesh> meshes;
 };
 
 typedef CModel* ModelRawPtr;
 typedef std::shared_ptr<CModel> ModelPtr;
 
-const std::list<CMesh>& CModel::GetMeshes() const
+const std::vector<CMesh>& CModel::GetMeshes() const
 { 
 	return meshes;
 }

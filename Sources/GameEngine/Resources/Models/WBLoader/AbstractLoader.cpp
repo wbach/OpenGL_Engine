@@ -15,11 +15,11 @@ namespace WBLoader
 
 			for (auto& mesh : obj.meshes)
 			{
-				mesh.IndexinVBO();
-				CMesh newMesh(mesh.material, mesh.fpostions, mesh.fuvs, mesh.fnormal, mesh.ftangents, mesh.indices, mesh.jointIds, mesh.bonesWeights, obj.transformMatrix);
-				newMesh.animator_ = std::move(mesh.animator_);
-				newMesh.rootJoint_ = std::move(mesh.rootJoint_);
-				GameEngine::Animation::CalcInverseBindTransform(newMesh.rootJoint_, mat4(1.f));
+				CMesh newMesh(mesh.material, obj.transformMatrix);
+				IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
+				newModel->animationClips_ = mesh.animationClips_;
+				newModel->skeleton_ = mesh.skeleton_;
+				GameEngine::Animation::CalcInverseBindTransform(newModel->skeleton_, mat4(1.f));
 				newModel->AddMesh(newMesh);
 			}
 		}

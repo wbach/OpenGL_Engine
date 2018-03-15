@@ -5,30 +5,45 @@ namespace GameEngine
 {
 	namespace Animation
 	{
-		class Animation
+		class AnimationClip
 		{
 		public:
+			AnimationClip();
+			AnimationClip(const std::string& name);
 			inline float GetLength() const;
 			inline void AddFrame(const KeyFrame& frame);
 			inline const std::vector<KeyFrame>& GetFrames() const;
+			
+		public:
+			std::string name;
 
 		private:
 			float length;
 			std::vector<KeyFrame> frames;
 		};
 		
-		float Animation::GetLength() const
+		inline AnimationClip::AnimationClip()
+			: AnimationClip("No name")
+		{
+		}
+
+		inline AnimationClip::AnimationClip(const std::string& name)
+			: name(name)
+		{
+		}
+
+		float AnimationClip::GetLength() const
 		{
 			return length;
 		}
 
-		void Animation::AddFrame(const KeyFrame& frame)
+		void AnimationClip::AddFrame(const KeyFrame& frame)
 		{
 			frames.push_back(frame);
 			length = frame.timeStamp;
 		}
 
-		inline const std::vector<KeyFrame>& Animation::GetFrames() const
+		inline const std::vector<KeyFrame>& AnimationClip::GetFrames() const
 		{
 			return frames;
 		}

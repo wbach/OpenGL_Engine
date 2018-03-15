@@ -1,5 +1,6 @@
 #include "Scene.hpp"
 #include "../Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Display/DisplayManager.hpp"
 #include "../Input/InputManager.h"
 #include "Logger/Log.h"
 
@@ -10,6 +11,7 @@ namespace GameEngine
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new CCamera)
 		, inputManager_(nullptr)
+		, componentFactory_(componentController_, time_)
 	{
 	}
 
@@ -28,8 +30,14 @@ namespace GameEngine
 
 	void Scene::FullUpdate(float deltaTime)
 	{
+		if (displayManager_ != nullptr)
+		{
+			time_ = displayManager_->GetTime();
+		}
+
 		Update(deltaTime);
-		
+		componentController_.Update();
+
 		if (inputManager_ != nullptr)
 		{
 			inputManager_->ProcessKeysEvents();

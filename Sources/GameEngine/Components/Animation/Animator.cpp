@@ -1,33 +1,50 @@
 #include "Animator.h"
 #include "GameEngine/Resources/Models/Mesh.h"
-#include "AnimationUtils.h"
+#include "GameEngine/Animations/AnimationUtils.h"
 
 namespace GameEngine
 {
-	namespace Animation
+	using namespace Animation;
+
+	namespace Components
 	{
 		Animator::Animator()
-			: rootJoint_(nullptr)
+			: AbstractComponent(ComponentsType::Animator)
+			, rootJoint_(nullptr)
 		{
 		}
-
-		void Animator::Update(float deltaTime)
+		void Animator::SetSkeleton(Animation::Joint* skeleton)
 		{
-			if (rootJoint_ == nullptr || current_.empty() || animations_.count(current_) == 0)
+			rootJoint_ = skeleton;
+		}
+		void Animator::ReqisterFunctions()
+		{
+			RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
+		}
+		bool Animator::IsReady()
+		{
+			return (rootJoint_ != nullptr && !current_.empty() && animationClips_.count(current_) != 0);
+		}
+		void Animator::Update()
+		{
+			if (!IsReady())
 				return;
 
-			increaseAnimationTime(deltaTime);
+			increaseAnimationTime();
 			auto currentPose = calculateCurrentAnimationPose();
 			applyPoseToJoints(currentPose, *rootJoint_ , mat4());
 		}
 
-		void Animator::increaseAnimationTime(float deltaTime)
+		void Animator::increaseAnimationTime()
 		{
-			auto l = animations_[current_].GetLength();
+			if (time_ == nullptr)
+				return;
 
-			time_ += deltaTime;
-			if (time_ > l)
-				time_ = fmod(time_, l);
+			auto l = animationClips_[current_].GetLength();
+
+			currentTime_ += time_->deltaTime * animationSpeed_;
+			if (currentTime_ > l)
+				currentTime_ = fmod(currentTime_, l);
 		}
 
 		std::unordered_map<std::string, mat4> Animator::calculateCurrentAnimationPose() {
@@ -55,14 +72,14 @@ namespace GameEngine
 
 		std::pair<KeyFrame, KeyFrame> Animator::getPreviousAndNextFrames()
 		{
-			const auto& allFrames = animations_[current_].GetFrames();
+			const auto& allFrames = animationClips_[current_].GetFrames();
 
 			KeyFrame previousFrame = allFrames[0];
 			KeyFrame nextFrame = allFrames[0];
-			for (int i = 1; i < allFrames.size(); i++)
+			for (uint32 i = 1; i < allFrames.size(); i++)
 			{
 				nextFrame = allFrames[i];
-				if (nextFrame.timeStamp > time_)
+				if (nextFrame.timeStamp > currentTime_)
 					break;
 
 				previousFrame = allFrames[i];
@@ -88,7 +105,7 @@ namespace GameEngine
 		float Animator::calculateProgression(const KeyFrame& previousFrame, const KeyFrame& nextFrame)
 		{
 			float totalTime = nextFrame.timeStamp - previousFrame.timeStamp;
-			float currentTime = time_ - previousFrame.timeStamp;
+			float currentTime = currentTime_ - previousFrame.timeStamp;
 			return currentTime / totalTime;
 		}
 	} // Animation

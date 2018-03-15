@@ -1,4 +1,9 @@
 set(GameEngineIncludes
+../../Sources/GameEngine/Animations/AnimationClip.h
+../../Sources/GameEngine/Animations/AnimationUtils.h
+../../Sources/GameEngine/Animations/Joint.h
+../../Sources/GameEngine/Animations/JointTransform.h
+../../Sources/GameEngine/Animations/KeyFrame.h
 ../../Sources/GameEngine/Api/ApiMessages.h
 ../../Sources/GameEngine/Api/SDL2/InputSDL.h
 ../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.h
@@ -9,6 +14,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Camera/Frustrum.h
 ../../Sources/GameEngine/Camera/Plane.h
 ../../Sources/GameEngine/Camera/ThridPersonCamera.h
+../../Sources/GameEngine/Components/AbstractComponent.h
+../../Sources/GameEngine/Components/Animation/Animator.h
+../../Sources/GameEngine/Components/ComponentController.h
+../../Sources/GameEngine/Components/ComponentFactory.h
+../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Debuger.h
@@ -72,16 +82,12 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.h
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.h
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.h
-../../Sources/GameEngine/Resources/Models/Animation/Animation.h
-../../Sources/GameEngine/Resources/Models/Animation/Animator.h
-../../Sources/GameEngine/Resources/Models/Animation/Joint.h
-../../Sources/GameEngine/Resources/Models/Animation/JointTransform.h
-../../Sources/GameEngine/Resources/Models/Animation/KeyFrame.h
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.h
 ../../Sources/GameEngine/Resources/Models/Bone.h
 ../../Sources/GameEngine/Resources/Models/BoundingBox.h
 ../../Sources/GameEngine/Resources/Models/Material.h
 ../../Sources/GameEngine/Resources/Models/Mesh.h
+../../Sources/GameEngine/Resources/Models/MeshRawData.h
 ../../Sources/GameEngine/Resources/Models/Model.h
 ../../Sources/GameEngine/Resources/Models/ModelFactory.h
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.h
@@ -164,6 +170,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Shaders/ShaderProgram.h
 ../../Sources/GameEngine/Time/DayNightCycle.h
 ../../Sources/GameEngine/Time/GameTime.h
+../../Sources/GameEngine/Time/Time.h
 ../../Sources/GameEngine/Api/Api.hpp
 ../../Sources/GameEngine/Common/common.hpp
 ../../Sources/GameEngine/Display/DisplayManager.hpp

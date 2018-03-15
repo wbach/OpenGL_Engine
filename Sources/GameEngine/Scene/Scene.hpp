@@ -1,12 +1,14 @@
 #pragma once
-#include "SceneEvents.h"
-#include "../Camera/Camera.h"
-#include "../Lights/Light.h"
-#include "../Objects/GameObject.h"
-#include "../Resources/ResourceManager.h"
-#include "../Renderers/GUI/GuiContext.h"
-#include "../Time/DayNightCycle.h"
 #include "Types.h"
+#include "SceneEvents.h"
+#include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Lights/Light.h"
+#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Renderers/GUI/GuiContext.h"
+#include "GameEngine/Components/ComponentController.h"
+#include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Time/DayNightCycle.h"
 #include <list>
 #include <memory>
 #include <vector>
@@ -94,6 +96,10 @@ namespace GameEngine
 		CResourceManager resourceManager;
 
 		GameObjects gameObjects;
+
+		Time time_;
+		Components::ComponentController componentController_;
+		Components::ComponentFactory componentFactory_;
 	};
 
 	inline const GameObjects& Scene::GetGameObjects()

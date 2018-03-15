@@ -1,6 +1,7 @@
 #include "MeshData.h"
-#include <algorithm>
+#include "../MeshRawData.h"
 #include "Logger/Log.h"
+#include <algorithm>
 
 namespace WBLoader
 {
@@ -62,51 +63,49 @@ namespace WBLoader
 		}
 	}
 
-	void Mesh::IndexinVBO()
+	void IndexinVBO(std::vector<VertexBuffer>& buffer, GameEngine::MeshRawData& data)
 	{
-		computeTangentBasis();
-
+		computeTangentBasis(buffer);
 		std::map<wb::vec3i, uint16> out_indexes;
 
-		for (auto& v : vertexBuffer)
+		for (auto& v : buffer)
 		{
 			auto i = FindIndexFast(out_indexes, v.indexes);
 			if (i >= 0)
 			{
-				indices.push_back(static_cast<uint16>(i));
+				data.indices_.push_back(static_cast<uint16>(i));
 
-				ftangents[3 * i] = v.tangents.x;
-				ftangents[3 * i + 1] = v.tangents.y;
-				ftangents[3 * i + 2] = v.tangents.z;
+				data.tangents_[3 * i] = v.tangents.x;
+				data.tangents_[3 * i + 1] = v.tangents.y;
+				data.tangents_[3 * i + 2] = v.tangents.z;
 
 
-				fbitangents[3 * i] = v.bitangents.x;
-				fbitangents[3 * i + 1] = v.bitangents.y;
-				fbitangents[3 * i + 2] = v.bitangents.z;
-
+				data.bitangents_[3 * i] = v.bitangents.x;
+				data.bitangents_[3 * i + 1] = v.bitangents.y;
+				data.bitangents_[3 * i + 2] = v.bitangents.z;
 			}
 			else
 			{
-				AddVec3ToFloatBuffer(fpostions, v.position);
-				AddVec3ToFloatBuffer(fnormal, v.normal);
-				AddVec2ToFloatBuffer(fuvs, v.uvs);
-				AddVec3ToFloatBuffer(ftangents, v.tangents);
-				AddVec3ToFloatBuffer(fbitangents, v.bitangents);
+				AddVec3ToFloatBuffer(data.positions_, v.position);
+				AddVec3ToFloatBuffer(data.normals_, v.normal);
+				AddVec2ToFloatBuffer(data.textCoords_, v.uvs);
+				AddVec3ToFloatBuffer(data.tangents_, v.tangents);
+				AddVec3ToFloatBuffer(data.bitangents_, v.bitangents);
 
 				if (v.jointIds)
-				AddVec3ToIntBuffer(jointIds, v.jointIds.constValue());
+				AddVec3ToIntBuffer(data.joinIds_, v.jointIds.constValue());
 
 				if (v.weights)
-				AddVec3ToFloatBuffer(bonesWeights, v.weights.constValue());
+				AddVec3ToFloatBuffer(data.bonesWeights_, v.weights.constValue());
 
 				auto newIndex = (uint16)out_indexes.size();
 				out_indexes[v.indexes] = newIndex;
-				indices.push_back(newIndex);
+				data.indices_.push_back(newIndex);
 			}
 		}
 	}
 
-	void Mesh::computeTangentBasis()
+	void computeTangentBasis(std::vector<VertexBuffer>& vertexBuffer)
 	{
 		for (uint32 i = 0; i < vertexBuffer.size(); i += 3) 
 		{

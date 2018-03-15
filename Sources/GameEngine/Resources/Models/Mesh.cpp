@@ -6,39 +6,10 @@ CMesh::CMesh()
 {
 }
 
-CMesh::CMesh(
-	const SMaterial& material,
-	const FloatVec& positions,
-	const FloatVec& text_coords,
-	const FloatVec& normals,
-	const FloatVec& tangents,
-	const UintVec& indices,
-	const Int32Vec& joinIds,
-	const FloatVec& bonesWeights,
-	const mat4& transform
-)
+CMesh::CMesh(const SMaterial& material, const mat4& transformMatix)
+	: material_(material)
+	, transform_(transformMatix)
 {
-	positions_ = std::move(positions);
-	textCoords_ = std::move(text_coords);
-	normals_ = std::move(normals);
-	tangents_ = std::move(tangents);
-	indices_ = std::move(indices);
-	joinIds_ = std::move(joinIds);
-	bonesWeights_ = std::move(bonesWeights);
-	material_ = material;
-	transform_ = transform;
-	vertexCount_ = indices_.size() > 0 ? indices_.size() : positions_.size() / 3;
-
-	if (!positions_.empty())	attributes_[VertexBufferObjects::POSITION] = 0;
-	if (!textCoords_.empty())	attributes_[VertexBufferObjects::TEXT_COORD] = 1;
-	if (!normals_.empty())		attributes_[VertexBufferObjects::NORMAL] = 2;
-	if (!tangents_.empty())		attributes_[VertexBufferObjects::TANGENT] = 3;
-	if (!bonesWeights_.empty())	attributes_[VertexBufferObjects::WEIGHTS] = 4;
-	if (!joinIds_.empty())		attributes_[VertexBufferObjects::JOINTS] = 5;
-
-	useAramture = !bonesWeights_.empty() && !joinIds_.empty();
-
-	CalculateBoudnigBox(positions);
 }
 
 CMesh::~CMesh()
@@ -67,43 +38,52 @@ void CMesh::UpdateVertexPosition(const std::vector<float>& vertices) const
 
 void CMesh::CreateVaoMesh()
 {
+	useAramture = !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
+	vertexCount_ = meshRawData_.indices_.size() > 0 ? meshRawData_.indices_.size() : meshRawData_.positions_.size() / 3;
+
 	vao_ = Utils::CreateVao();
 
-	if (indices_.size() > 0)
+	if (meshRawData_.indices_.size() > 0)
 	{
-		GLuint vboId = Utils::BindIndicesBuffer(indices_);
+		GLuint vboId = Utils::BindIndicesBuffer(meshRawData_.indices_);
 		vbos_[VertexBufferObjects::INDICES] = vboId;
 	}
 
-	if (positions_.size() > 0)
+	if (meshRawData_.positions_.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(0, 3, positions_);
+		GLuint vboId = Utils::StoreDataInAttributesList(0, 3, meshRawData_.positions_);
 		vbos_[VertexBufferObjects::POSITION] = vboId;
+		attributes_[VertexBufferObjects::POSITION] = 0;
 	}
-	if (textCoords_.size() > 0)
+	if (meshRawData_.textCoords_.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(1, 2, textCoords_);
+		GLuint vboId = Utils::StoreDataInAttributesList(1, 2, meshRawData_.textCoords_);
 		vbos_[VertexBufferObjects::TEXT_COORD] = vboId;
+		attributes_[VertexBufferObjects::TEXT_COORD] = 1;
 	}
-	if (normals_.size() > 0)
+	if (meshRawData_.normals_.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(2, 3, normals_);
+		GLuint vboId = Utils::StoreDataInAttributesList(2, 3, meshRawData_.normals_);
 		vbos_[VertexBufferObjects::NORMAL] = vboId;
+		attributes_[VertexBufferObjects::NORMAL] = 2;
 	}
-	if (tangents_.size() > 0)
+	if (meshRawData_.tangents_.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(3, 3, tangents_);
+		GLuint vboId = Utils::StoreDataInAttributesList(3, 3, meshRawData_.tangents_);
 		vbos_[VertexBufferObjects::TANGENT] = vboId;
+		attributes_[VertexBufferObjects::TANGENT] = 3;
 	}
-	if (bonesWeights_.size() > 0)
+	if (meshRawData_.bonesWeights_.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(4, 3, bonesWeights_);
+		GLuint vboId = Utils::StoreDataInAttributesList(4, 3, meshRawData_.bonesWeights_);
 		vbos_[VertexBufferObjects::WEIGHTS] = vboId;
+		attributes_[VertexBufferObjects::WEIGHTS] = 4;
 	}
-	if (joinIds_.size() > 0)
+	if (meshRawData_.joinIds_.size() > 0)
 	{
-		GLuint vboId = Utils::StoreDataInAttributesList(5, 3, joinIds_);
+		GLuint vboId = Utils::StoreDataInAttributesList(5, 3, meshRawData_.joinIds_);
 		vbos_[VertexBufferObjects::JOINTS] = vboId;
+		attributes_[VertexBufferObjects::JOINTS] = 5;
 	}
 
 	Utils::UnbindVao();
@@ -147,7 +127,7 @@ void CMesh::UpdateTransformVbo(std::vector<mat4>& m)
 
 void CMesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 {
-	instancedMatrixes_ = m;
+	meshRawData_.instancedMatrixes_ = m;
 }
 
 bool CMesh::IsInit() const
@@ -173,7 +153,7 @@ void CMesh::OpenGLLoadingPass()
 
 void CMesh::OpenGLPostLoadingPass()
 {
-	CreateTransformsVbo(instancedMatrixes_);
+	CreateTransformsVbo(meshRawData_.instancedMatrixes_);
 }
 
 const GLuint& CMesh::GetVao() const
@@ -198,31 +178,7 @@ void CMesh::SetMaterial(const SMaterial& mat)
 
 void CMesh::ClearData()
 {
-	positions_.clear();
-	textCoords_.clear();
-	normals_.clear();
-	tangents_.clear();
-	indices_.clear();
-	joinIds_.clear();
-	bonesWeights_.clear();
-	instancedMatrixes_.clear();
-}
-
-std::vector<mat4> CMesh::GetJointTransforms() const
-{
-	std::vector<mat4>out;
-	out.resize(16);//!
-	AddJoints(rootJoint_, out);
-	return out;
-}
-
-void CMesh::AddJoints(GameEngine::Animation::Joint joint, std::vector<mat4>& m) const
-{
-	m[joint.id] = joint.animatedTransform;
-	for (auto& childJoint : joint.children)
-	{
-		AddJoints(childJoint, m);
-	}
+	meshRawData_ = GameEngine::MeshRawData();
 }
 
 const BoundingBox& CMesh::GetBoundingBox() const

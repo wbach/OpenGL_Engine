@@ -34,6 +34,8 @@ namespace GameEngine
 
 	ApiMessages::Type CDisplayManager::PeekApiMessage()
 	{
+		timeMeasurer.CalculateAndLock();
+
 		if (api != nullptr)
 			return	api->PeekMessages();
 		return ApiMessages::NONE;
@@ -53,7 +55,7 @@ namespace GameEngine
 		if (api != nullptr && sync)
 			api->LockFps((float)fpsCap);
 
-		timeMeasurer.CalculateAndLock();
+		timeMeasurer.EndFrame();
 	}
 
 	void CDisplayManager::SetRefreshRate(const int & rate)
@@ -72,14 +74,7 @@ namespace GameEngine
 		return static_cast<int>(timeMeasurer.GetFps());
 	}
 
-	float CDisplayManager::GetCurrentTime()
-	{
-		if (api != nullptr && time)
-			return static_cast<float>(api->GetTime());
-		return 0.f;
-	}
-
-	const wb::vec2i & CDisplayManager::GetWindowSize()
+	const wb::vec2i& CDisplayManager::GetWindowSize()
 	{
 		return windowsSize;
 	}

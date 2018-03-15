@@ -2,11 +2,11 @@ project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
 option(BUILD_UTILS "Build game engine utils" ON)
-option(BUILD_UTILS_NETWORK "Build game engine network utils" OFF)
+option(BUILD_UTILS_NETWORK "Build game engine network utils" ON)
 option(BUILD_COMMON "Build common" ON)
 option(BUILD_LIB_NOISE "Build libnoise" OFF)
 option(BUILD_GAME_ENGINE "Build game engine" ON)
-option(BUILD_TESTS "Build game engine" OFF)
+option(BUILD_TESTS "Build game engine tests" OFF)
 option(BUILD_TEST_GAME "Build test game" OFF)
 option(BUILD_RPG_GAME_SERVER "Build rpg game server" OFF)
 option(BUILD_TERRAIN_GENERATOR "Build terrain generator" OFF)
@@ -107,13 +107,13 @@ endif()
 
 if(BUILD_TESTS)
     include_directories(
-    ../GameEngine/
-    )
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Tools/common/googletest_repo/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
+	../../Sources/GameEngine/
+	)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
+	
     include(./Sources/GameEngineTests.cmake)
     add_executable(GAME_ENGINE_TESTS ${GameEngineTests})
-    target_link_libraries(GAME_ENGINE_TESTS GameEngineLib gtest UtilsNetworkLib CommonLib UtilsLib SDL2 GL GLU GLEW drm assimp pthread freeimage freetype)
+    target_link_libraries(GAME_ENGINE_TESTS GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} gtest gtest_main gmock gmock_main)
 endif()
 

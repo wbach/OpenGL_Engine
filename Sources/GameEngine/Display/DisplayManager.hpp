@@ -1,5 +1,6 @@
 #pragma once
 #include "../Api/SDL2/SDLOpenGL.h"
+#include "GameEngine/Time/Time.h"
 #include "Time/TimeMeasurer.h"
 #include "Utils.h"
 #include <memory>
@@ -22,11 +23,10 @@ namespace GameEngine
 		void SetRefreshRate(const int& rate);
 		void SetFullScreen(bool full_screen);
 
+		inline const Time& GetTime();
+
 		const int GetFps();
 		const int& GetFPSCap() { return fpsCap; }
-
-		float GetCurrentTime();
-		const double GetDeltaTime() const { return timeMeasurer.GetDeltaTime(); }
 
 		const wb::vec2i& GetWindowSize();
 
@@ -48,6 +48,8 @@ namespace GameEngine
 		std::unique_ptr<CApi> api;
 		Utils::Time::CTimeMeasurer timeMeasurer;
 
+		Time time_;
+
 		bool time = true;
 
 		int fpsCap;
@@ -56,4 +58,10 @@ namespace GameEngine
 
 		bool sync = true;
 	};
+
+	inline const Time& CDisplayManager::GetTime()
+	{
+		time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
+		return time_;
+	}
 } // GameEngine

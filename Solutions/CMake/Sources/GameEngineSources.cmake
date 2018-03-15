@@ -1,4 +1,5 @@
 set(GameEngineSources
+../../Sources/GameEngine/Animations/AnimationUtils.cpp
 ../../Sources/GameEngine/Api/SDL2/InputSDL.cpp
 ../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.cpp
 ../../Sources/GameEngine/Api/SDL2/SDLOpenGL.cpp
@@ -6,6 +7,10 @@ set(GameEngineSources
 ../../Sources/GameEngine/Camera/FirstPersonCamera.cpp
 ../../Sources/GameEngine/Camera/Frustrum.cpp
 ../../Sources/GameEngine/Camera/ThridPersonCamera.cpp
+../../Sources/GameEngine/Components/AbstractComponent.cpp
+../../Sources/GameEngine/Components/Animation/Animator.cpp
+../../Sources/GameEngine/Components/ComponentController.cpp
+../../Sources/GameEngine/Components/ComponentFactory.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
 ../../Sources/GameEngine/Engine/Debuger.cpp
@@ -55,8 +60,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.cpp
-../../Sources/GameEngine/Resources/Models/Animation/Animator.cpp
-../../Sources/GameEngine/Resources/Models/Animation/JointTransform.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
 ../../Sources/GameEngine/Resources/Models/Bone.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp

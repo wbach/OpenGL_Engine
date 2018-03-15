@@ -3,38 +3,20 @@
 #include "BoundingBox.h"
 #include "Material.h"
 #include "Utils.h"
-#include "GameEngine/Animations/Joint.h"
-#include "GameEngine/Animations/Animator.h"
+#include "MeshRawData.h"
 #include "GameEngine/Resources/VboTypes.h"
 #include <vector>
 
-typedef std::vector<float> FloatVec;
-typedef std::vector<int32> Int32Vec;
-typedef std::vector<uint16> UintVec;
-typedef std::vector<uint8> Uint8Vec;
+
 
 class CMesh : public COpenGLObject
 {
 public:
     CMesh();
-	CMesh
-	(
-		const SMaterial& material,
-		const FloatVec& positions,
-		const FloatVec& text_coords = {},
-		const FloatVec& normals = {},
-		const FloatVec& tangents = {},
-		const UintVec& indices = {},
-		const Int32Vec& joinIds = {},
-		const FloatVec& bonesWeights = {},
-		const mat4& transform = mat4(1.f)
-	);
-
+	CMesh(const SMaterial& material, const mat4& transformMatix = mat4(1.f));
     CMesh(const CMesh&)         = delete;
     CMesh(CMesh&&)              = default;
-
     virtual ~CMesh();
-
     virtual void OpenGLLoadingPass() override;
     virtual void OpenGLPostLoadingPass() override;
 
@@ -47,7 +29,8 @@ public:
     const SMaterial& GetMaterial() const;
 	inline const mat4& GetMeshTransform() const;
 	inline const VboMap& GetUsedAttributes() const;
-	GameEngine::Animation::Animator animator_;
+
+	inline GameEngine::MeshRawData& GetMeshDataRef();
 
 private:
     void CreateVaoMesh();
@@ -70,16 +53,7 @@ private:
 
     // used attributes
 	VboMap attributes_;
-
-	FloatVec positions_;
-	FloatVec textCoords_;
-	FloatVec normals_;
-	FloatVec tangents_;
-	FloatVec bitangents_;
-	FloatVec bonesWeights_;
-	UintVec indices_;
-	Int32Vec joinIds_;
-    std::vector<mat4> instancedMatrixes_;
+	GameEngine::MeshRawData meshRawData_;
 
     bool isInit              = false;
     bool transformVboCreated = false;
@@ -88,12 +62,6 @@ private:
     // local transform in mesh
     mat4 transform_;
     BoundingBox boundingBox;
-public:
-	std::vector<mat4> GetJointTransforms() const;
-	GameEngine::Animation::Joint rootJoint_;
-
-private:
-	void AddJoints(GameEngine::Animation::Joint joint, std::vector<mat4>& m) const;
 };
 
 const VboMap& CMesh::GetUsedAttributes() const
@@ -104,4 +72,9 @@ const VboMap& CMesh::GetUsedAttributes() const
 const mat4& CMesh::GetMeshTransform() const
 {
 	return transform_;
+}
+
+GameEngine::MeshRawData& CMesh::GetMeshDataRef()
+{
+	return meshRawData_;
 }

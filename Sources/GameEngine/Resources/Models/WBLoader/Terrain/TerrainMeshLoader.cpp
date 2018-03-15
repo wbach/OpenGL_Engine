@@ -37,7 +37,12 @@ namespace WBLoader
 		auto model = std::make_unique<CModel>();
 
 		SMaterial material;
-		CMesh newMesh(material, vertices_, textureCoords_, normals_, tangens_, indices_);
+		CMesh newMesh(material);
+		newMesh.GetMeshDataRef().positions_ = vertices_;
+		newMesh.GetMeshDataRef().textCoords_ = textureCoords_;
+		newMesh.GetMeshDataRef().normals_ = normals_;
+		newMesh.GetMeshDataRef().tangents_ = tangens_;
+		newMesh.GetMeshDataRef().indices_ = indices_;
 		model->AddMesh(newMesh);
 
 		//Normals stay

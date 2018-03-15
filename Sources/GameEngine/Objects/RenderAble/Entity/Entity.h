@@ -12,7 +12,7 @@ public:
     CEntity(const GameEngine::ModelWrapper& modelWrapper);
     void AddModel(const std::string& filename, GameEngine::LevelOfDetail i);
 	void SetResourceManager(CResourceManager* manager);
-	ModelRawPtr GetModel(GameEngine::LevelOfDetail i);
+	ModelRawPtr GetModel(GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
 
 private:
 	CResourceManager* manager_;

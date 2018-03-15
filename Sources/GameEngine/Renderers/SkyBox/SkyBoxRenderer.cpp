@@ -54,7 +54,7 @@ void CSkyBoxRenderer::PrepareFrame(GameEngine::Scene* scene)
 		return;
 
 	RenderSkyBoxModel();
-	EndRendering();	
+	EndRendering();
 }
 
 bool CSkyBoxRenderer::SetTarget()
@@ -80,7 +80,8 @@ void CSkyBoxRenderer::PrepareShaderBeforeFrameRender(GameEngine::Scene *scene)
 
 void CSkyBoxRenderer::RenderSkyBoxModel()
 {
-	for (const auto& mesh : model->GetMeshes())
+	const auto& meshes = model->GetMeshes();
+	for (const auto& mesh : meshes)
 		RenderSkyBoxMesh(mesh);
 }
 
@@ -175,6 +176,9 @@ void CSkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
 
 void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
 {
+	if (!mesh.IsInit())
+		return;
+
     Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
 	BindTextures(mesh.GetMaterial());
 	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);

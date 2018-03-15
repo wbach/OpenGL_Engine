@@ -1,12 +1,17 @@
 #pragma once
 #include "../Material.h"
 #include "GameEngine/Animations/Joint.h"
-#include "GameEngine/Animations/Animator.h"
+#include "GameEngine/Animations/AnimationClip.h"
 #include "Types.h"
 #include "optional.hpp"
 #include <vector>
 #include <list>
 #include <map>
+
+namespace GameEngine
+{
+	struct MeshRawData;
+}
 
 namespace WBLoader
 {
@@ -32,31 +37,15 @@ namespace WBLoader
 	struct Mesh
 	{
 		std::string name;
-
+		SMaterial material;
 		std::vector<vec3> vertex;
 		std::vector<vec2> text_coords;
 		std::vector<vec3> normals;
-		//Material ogrin_material;
-
 		std::vector<VertexBuffer> vertexBuffer;
 		std::unordered_map<uint32, std::vector<int>> vertexPlacesInVertexBuffer_;
-
-		std::vector<uint16> indices;
-		std::vector<int32> jointIds;
-		std::vector<float> fpostions;
-		std::vector<float> fuvs;
-		std::vector<float> fnormal;
-		std::vector<float> ftangents;
-		std::vector<float> fbitangents;
-		std::vector<float> bonesWeights;
-		SMaterial material;
-
-		void IndexinVBO();
-		void computeTangentBasis();
-
 		float GetScaleFactor() const;
-		GameEngine::Animation::Joint rootJoint_;
-		GameEngine::Animation::Animator animator_;
+		GameEngine::Animation::Joint skeleton_;
+		std::unordered_map<std::string, GameEngine::Animation::AnimationClip> animationClips_;
 	};
 
 	struct Object
@@ -71,4 +60,6 @@ namespace WBLoader
 	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const vec3& v);
 	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2& v);
 	void AddVec3ToIntBuffer(std::vector<int32>& buffer, const vec3i& v);
+	void IndexinVBO(std::vector<VertexBuffer>& buffer, GameEngine::MeshRawData& data);
+	void computeTangentBasis(std::vector<VertexBuffer>& vertexBuffer);
 }

@@ -9,6 +9,7 @@ namespace GameEngine
 		struct Joint
 		{
 			uint32 id;
+			uint32 size;
 			std::string name;
 
 			mat4 transform;
