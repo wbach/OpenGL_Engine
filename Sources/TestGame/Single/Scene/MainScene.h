@@ -33,6 +33,7 @@ private:
 	TerrainTexturesMap CreateTerrainTexturesMap();
 	std::vector<float> CreateGrassPositions(CGameObject*, vec2);
 	CGameObject* AddEntity(const std::string& modelName, float scale, const vec2& position, bool isDynamic = false);
+	CGameObject* AddGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
 
 private:
 	std::shared_ptr<common::Controllers::CharacterController> characterController_;

@@ -12,7 +12,7 @@ namespace GameEngine
 			return nullptr;
 		}
 
-		return scenesMap_[sceneName]();
+		return GetScene(sceneName);
 	}
 	ScenePtr SceneFactoryBase::Create(uint32 id)
 	{
@@ -22,7 +22,27 @@ namespace GameEngine
 			return nullptr;
 		}
 
-		return scenesMap_[GetSceneName(id)]();
+		return GetScene(GetSceneName(id));
+	}
+	void SceneFactoryBase::SetInputManager(InputManager* input)
+	{
+		input_ = input;
+	}
+	void SceneFactoryBase::SetDisplayManager(CDisplayManager* displayManager)
+	{
+		displayManager_ = displayManager;
+	}
+	void SceneFactoryBase::SetRenderersManager(Renderer::RenderersManager* manager)
+	{
+		rendererMandager_ = manager;
+	}
+	ScenePtr SceneFactoryBase::GetScene(const std::string& name)
+	{
+		auto scene = scenesMap_[name]();
+		scene->SetDisplayManager(displayManager_);
+		scene->SetInputManager(input_);
+		scene->SetRenderersManager(rendererMandager_);
+		return scene;
 	}
 	void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)
 	{

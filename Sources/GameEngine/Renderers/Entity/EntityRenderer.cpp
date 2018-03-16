@@ -3,6 +3,8 @@
 #include "../../Scene/Scene.hpp"
 #include "../../Objects/RenderAble/Entity/Entity.h"
 #include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
+#include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 
 #include "SingleTon.h"
 #include "GameEngine/Engine/AplicationContext.h"
@@ -11,14 +13,14 @@
 #include "Logger/Log.h"
 
 //Get Entity by reference
-static std::list<CEntity*> sEmptyEntityList;
+static SubscribersMap sEmptyEntityList;
 
 CEntityRenderer::CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer)
 	: CRenderer(framebuffer)
 	, projectionMatrix(projection_matrix)
 	, clipPlane(vec4(0, 1, 0, 100000))
 {
-	subscribes.resize(gridSize * gridSize);
+	subscribes_.resize(gridSize * gridSize);
 }
 
 void CEntityRenderer::Init()
@@ -67,57 +69,44 @@ void CEntityRenderer::EndFrame(GameEngine::Scene* scene)
 	shader.Stop();
 }
 
-void CEntityRenderer::Subscribe(CGameObject * gameObject)
+void CEntityRenderer::Subscribe(CGameObject* gameObject)
 {
-	auto entity = dynamic_cast<CEntity*>(gameObject);
+	auto rendererComponent = gameObject->GetComponent<GameEngine::Components::RendererComponent>();
 
-	if (entity == nullptr)
+	if (rendererComponent == nullptr)
 		return;
 
-	if (entity->worldTransform.isDynamic_)
+	if (gameObject->worldTransform.isDynamic_)
 	{
-		dynamicSubscribes.push_back(entity);
-		return;
+		dynamicSubscribes_[gameObject->GetId()] = { gameObject, &rendererComponent->GetModelWrapper() };
 	}
-	wb::vec2i index = CalcualteCoorditantes(entity->worldTransform.GetPosition());
 
-	//if (xi < gridSize && xi >0)
-	//	return;
-	//if (yi > 0 && yi < yi * gridSize)
-	//	return;
-
-	subscribes[index.x + index.y*gridSize].push_back(entity);
+	wb::vec2i index = CalcualteCoorditantes(gameObject->worldTransform.GetPosition());
+	subscribes_[index.x + index.y*gridSize][gameObject->GetId()] = { gameObject, &rendererComponent->GetModelWrapper() };
 }
 
 void CEntityRenderer::UnSubscribe(CGameObject * gameObject)
 {
-	for (auto iter = dynamicSubscribes.begin(); iter != dynamicSubscribes.end(); ++iter)
-	{
-		if ((*iter)->GetId() == gameObject->GetId())
-		{
-			dynamicSubscribes.erase(iter);
-			return;
-		}
-	}
+	//for (auto iter = dynamicSubscribes.begin(); iter != dynamicSubscribes.end(); ++iter)
+	//{
+	//	if ((*iter)->GetId() == gameObject->GetId())
+	//	{
+	//		dynamicSubscribes.erase(iter);
+	//		return;
+	//	}
+	//}
 
-	for (auto& list : subscribes)
+	for (auto& list : subscribes_)
 	{
-		for (auto iter = list.begin(); iter != list.end(); ++iter)
-		{
-			if ((*iter)->GetId() == gameObject->GetId())
-			{
-				list.erase(iter);
-				return;
-			}
-		}
+		list.erase(gameObject->GetId());
 	}
 }
 
 void CEntityRenderer::UnSubscribeAll()
 {
-	dynamicSubscribes.clear();
-	subscribes.clear();
-	subscribes.resize(gridSize * gridSize);
+	//dynamicSubscribes.clear();
+	subscribes_.clear();
+	subscribes_.resize(gridSize * gridSize);
 }
 
 void CEntityRenderer::ReloadShaders()
@@ -131,14 +120,14 @@ void CEntityRenderer::ReloadShaders()
 	shader.Stop();
 }
 
-const std::list<CEntity*>& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
+const SubscribersMap& CEntityRenderer::GetEntity(uint32 x, uint32 y) const
 {
-	if (subscribes.empty()) return sEmptyEntityList;
+	if (subscribes_.empty()) return sEmptyEntityList;
 
-	if ((x + y * gridSize) > subscribes.size())
+	if ((x + y * gridSize) > subscribes_.size())
 		return sEmptyEntityList;
 
-	return subscribes[x + y * gridSize];
+	return subscribes_[x + y * gridSize];
 }
 
 void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
@@ -163,20 +152,21 @@ void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix
 
 void CEntityRenderer::RenderDynamicsEntities()
 {
-	for (auto& entity : dynamicSubscribes)
+	for (auto& sub : dynamicSubscribes_)
 	{
-		auto model = entity->GetModel(GameEngine::LevelOfDetail::L1);
-
-		if (entity == nullptr)
+		if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
 			Log("[Error] Null subsciber in EnityRenderer.");
+
+		auto model = sub.second.model->Get(GameEngine::LevelOfDetail::L1);
+		
 		if (model == nullptr)
 			continue;
-		
+
 		uint32 x = 0;
 		for (auto& t : model->GetBoneTransforms())
 			shader.LoadBoneTransform(t, x++);
 
-		RenderModel(model, entity->worldTransform.GetMatrix());
+		RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
 	}
 }
 
@@ -197,14 +187,14 @@ void CEntityRenderer::RenderStaticEntities(const wb::vec2i &index)
 
 			for (auto& entity : sub)
 			{
-				if (entity == nullptr)
+				if (entity.second.model == nullptr)
 					Log("[Error] Null subsciber in EnityRenderer.");
 
-				auto model = entity->GetModel(level_of_detail);
+				auto model = entity.second.model->Get(level_of_detail);
 				if (model == nullptr)
 					continue;
 
-				RenderModel(model, entity->worldTransform.GetMatrix());
+				RenderModel(model, entity.second.gameObject->worldTransform.GetMatrix());
 			}
 		}
 	}

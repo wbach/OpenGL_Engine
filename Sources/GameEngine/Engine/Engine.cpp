@@ -16,7 +16,8 @@ namespace GameEngine
 		, introRenderer_(displayManager)
 	{
 		ReadConfigFile("./Conf.xml");
-		SetDisplay();		
+		SetDisplay();
+		sceneManager_.SetFactor();
 	}
 
 	CEngine::~CEngine()
@@ -37,7 +38,7 @@ namespace GameEngine
 		auto& conf = EngineConf;
 		displayManager = std::make_shared<CDisplayManager>(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
 		inputManager_ = displayManager->GetApi()->CreateInput();
-		introRenderer_.Render();		
+		introRenderer_.Render();
 	}
 
 	void CEngine::GameLoop()
@@ -119,6 +120,6 @@ namespace GameEngine
 	void CEngine::Init()
 	{
 		glEnable(GL_DEPTH_TEST);
-		renderersManager_.Init();	
+		renderersManager_.Init();
 	}	
 } // GameEngine

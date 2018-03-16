@@ -6,14 +6,25 @@
 #include "GameEngine/Renderers/RendererContext.h"
 
 class CMesh;
-class CEntity;
 class CCamera;
 class CProjection;
 class CShadowFrameBuffer;
 struct SMaterial;
 
+namespace GameEngine
+{
+	class ModelWrapper;
+}
+
 class CShadowMapRenderer : public CRenderer
 {
+	struct Subscriber
+	{
+		CGameObject* gameObject;
+		GameEngine::ModelWrapper* model;
+	};
+	typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
+
 public:
     CShadowMapRenderer(CProjection* projection, GameEngine::RendererContext* rendererContext);
     virtual void Init() override;
@@ -26,11 +37,12 @@ private:
     void PrepareRender(GameEngine::Scene*);
     void PrepareShader(CCamera*) const;
     void RenderSubscribes() const;
-    void RenderEntity(CEntity*) const;
+    void RenderSubscriber(const Subscriber&) const;
     void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
     void BindMaterial(const SMaterial&) const;
 
 private:
+
     CProjection* projection;
 	GameEngine::RendererContext* rendererContext_;
     CShadowShader shader;
@@ -38,5 +50,5 @@ private:
 	CShadowBox shadowBox2;
     mat4 projectionViewMatrix;
 	mat4 viewOffset;
-    std::vector<CEntity*> subscribes;
+	SubscribersMap subscribes_;
 };

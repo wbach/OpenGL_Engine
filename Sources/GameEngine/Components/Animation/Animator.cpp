@@ -1,6 +1,8 @@
 #include "Animator.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Animations/AnimationUtils.h"
+#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Components/Renderer/RendererComponent.hpp"
 
 namespace GameEngine
 {
@@ -8,6 +10,8 @@ namespace GameEngine
 
 	namespace Components
 	{
+		ComponentsType Animator::type = ComponentsType::Animator;
+
 		Animator::Animator()
 			: AbstractComponent(ComponentsType::Animator)
 			, rootJoint_(nullptr)
@@ -20,6 +24,19 @@ namespace GameEngine
 		void Animator::ReqisterFunctions()
 		{
 			RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
+			RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAniations, this));
+		}
+		void Animator::GetSkeletonAndAniations()
+		{
+			auto renderer = thisObject->GetComponent<RendererComponent>();
+
+			if (renderer == nullptr)
+				return;
+
+			auto model = renderer->GetModelWrapper().Get(GameEngine::L1);
+			rootJoint_ = &model->skeleton_;
+			animationClips_ = model->animationClips_;
+			animationSpeed_ = 0.5f;
 		}
 		bool Animator::IsReady()
 		{

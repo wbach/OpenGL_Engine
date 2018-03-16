@@ -28,5 +28,13 @@ namespace GameEngine
 		{
 			thisObject = ptr;
 		}
+		void AbstractComponent::SetResourceManager(CResourceManager* manager)
+		{
+			resourceManager_ = manager;
+		}
+		void AbstractComponent::SetRendererManager(Renderer::RenderersManager * manager)
+		{
+			renderersManager_ = manager;
+		}
 	} // Components
 } // GameEngine

@@ -37,9 +37,11 @@ namespace GameEngine
 		Scene(const std::string& name);
 
 		virtual ~Scene();
-		virtual int Initialize() { return 0; };
-		virtual void PostInitialize() {}	
+		
+		void Init();
+		void PostInit();
 		void FullUpdate(float deltaTime);
+		void PostUpdate();
 
 		const std::string& GetName() { return name; }
 
@@ -59,20 +61,29 @@ namespace GameEngine
 		const CLight& GetDirectionalLight() const;
 		const std::vector<CLight>& GetLights() const;
 		inline const CDayNightCycle& GetDayNightCycle() const;
-
-		// Resources
-		inline CResourceManager& GetResourceManager();
 		inline float GetGlobalTime();
 
-		// GUi
+		inline CResourceManager& GetResourceManager();
+
 		void SetInputManager(InputManager* input);
 		void SetRenderersManager(Renderer::RenderersManager* manager);
 		void SetDisplayManager(CDisplayManager* displayManager);
+
+		template<class T>
+		T* AddComponent(CGameObject* obj)
+		{
+			auto comp = componentFactory_.Create(T::type);
+			auto r = comp.get();
+			obj->AddComponent(std::move(comp));
+			return static_cast<T*>(r);
+		}
 
 	public:
 		uint32 objectCount;
 
 	protected:
+		virtual int Initialize() { return 0; };
+		virtual void PostInitialize() {}	
 		virtual int Update(float deltaTime) { return 0; };
 
 	protected:
@@ -131,6 +142,7 @@ namespace GameEngine
 	inline void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
 	{
 		renderersManager_ = manager;
+		componentFactory_.SetRendererManager(manager);
 	}
 
 	inline void Scene::SetDisplayManager(CDisplayManager* displayManager)

@@ -7,7 +7,12 @@
 namespace GameEngine
 {
 	class Scene;
-
+	class InputManager;
+	class CDisplayManager;
+	namespace Renderer
+	{
+		class RenderersManager;
+	}
 	typedef std::unique_ptr<Scene> ScenePtr;
 	typedef std::function<ScenePtr()> CreateFunction;
 	typedef std::unordered_map<std::string, CreateFunction> ScenesMap;
@@ -29,13 +34,21 @@ namespace GameEngine
 		bool IsExist(uint32 name) const;
 		bool IsExist(const std::string& name) const;
 	
+		void SetInputManager(InputManager* input);
+		void SetDisplayManager(CDisplayManager* displayManager);
+		void SetRenderersManager(Renderer::RenderersManager* manager);
+
 	protected:
+		ScenePtr GetScene(const std::string& name);
 		void AddScene(const std::string&, CreateFunction);
 
 	private:
 		ScenesMap scenesMap_;
 		OrderMap orderMap_;
 		IdMap idMap_;
+		InputManager* input_;
+		CDisplayManager* displayManager_;
+		Renderer::RenderersManager* rendererMandager_;
 	};	
 
 	typedef std::shared_ptr<SceneFactoryBase> SceneFactoryBasePtr;

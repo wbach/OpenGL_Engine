@@ -125,7 +125,7 @@ namespace GameEngine
 			return;
 
 		auto start = std::chrono::high_resolution_clock::now();
-		scene->Initialize();
+		scene->Init();
 		auto end = std::chrono::high_resolution_clock::now();
 		Log("Scene loading time: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.f) + "s.");
 		SetIsLoading(false);

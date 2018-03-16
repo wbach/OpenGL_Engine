@@ -5,6 +5,8 @@
 #include "../../Renderers/Projection.h"
 #include "../../Camera/Camera.h"
 #include "../../Objects/RenderAble/Entity/Entity.h"
+#include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 
 #include "GLM/GLMUtils.h"
 #include "OpenGL/OpenGLUtils.h"
@@ -49,12 +51,12 @@ void CShadowMapRenderer::EndFrame(GameEngine::Scene* scene)
 
 void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
 {
-	auto entity = dynamic_cast<CEntity*>(gameObject);
+	auto rendererComponent = gameObject->GetComponent<GameEngine::Components::RendererComponent>();
 
-	if (entity == nullptr)
+	if (rendererComponent == nullptr)
 		return;
 
-	subscribes.push_back((entity));
+	subscribes_[gameObject->GetId()] = { gameObject, &rendererComponent->GetModelWrapper() };
 }
 
 void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
@@ -79,13 +81,13 @@ void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
 
 void CShadowMapRenderer::RenderSubscribes() const
 {
-	for (auto& sub : subscribes)
-		RenderEntity(sub);
+	for (auto& sub : subscribes_)
+		RenderSubscriber(sub.second);
 }
 
-void CShadowMapRenderer::RenderEntity(CEntity* entity) const
+void CShadowMapRenderer::RenderSubscriber(const Subscriber& sub) const
 {
-	auto model = entity->GetModel(GameEngine::LevelOfDetail::L1);
+	auto model = sub.model->Get(GameEngine::LevelOfDetail::L1);
 
 	if (model == nullptr)
 		return;
@@ -99,7 +101,7 @@ void CShadowMapRenderer::RenderEntity(CEntity* entity) const
 	const auto& meshes = model->GetMeshes();
 
 	for (const CMesh& mesh : meshes)
-		RenderMesh(mesh, entity->worldTransform.GetMatrix());
+		RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix());
 }
 
 void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_matrix) const

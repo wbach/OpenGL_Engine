@@ -78,6 +78,13 @@ namespace GameEngine
 		sceneWrapper_.Reset();
 	}
 
+	void SceneManager::SetFactor()
+	{
+		sceneFactory_->SetDisplayManager(displayManager_.get());
+		sceneFactory_->SetInputManager(inputManager_.get());
+		sceneFactory_->SetRenderersManager(&renderersManager_);
+	}
+
 	void SceneManager::UpadteScene(float dt)
 	{
 		if (!sceneWrapper_.IsInitialized())
@@ -157,9 +164,6 @@ namespace GameEngine
 	void SceneManager::SetSceneContext(Scene* scene)
 	{
 		scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
-		scene->SetInputManager(inputManager_.get());
-		scene->SetRenderersManager(&renderersManager_);		
-		scene->SetDisplayManager(displayManager_.get());
 	}
 
 } // GameEngine

@@ -7,6 +7,19 @@ class CEntity;
 class CModel;
 class CMesh;
 
+namespace GameEngine
+{
+	class ModelWrapper;
+}
+
+struct Subscriber
+{
+	CGameObject* gameObject;
+	GameEngine::ModelWrapper* model;
+};
+
+typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
+
 class CEntityRenderer : public CRenderer
 {
 public:
@@ -27,7 +40,7 @@ private:
     void RenderDynamicsEntities();
     void RenderStaticEntities(const wb::vec2i& index);
     wb::vec2i CalcualteCoorditantes(const vec3& v) const;
-    const std::list<CEntity*>& GetEntity(uint32 x, uint32 y) const;
+    const SubscribersMap& GetEntity(uint32 x, uint32 y) const;
     void BindMaterial(const SMaterial& material) const;
     void UnBindMaterial(const SMaterial& material) const;
 
@@ -36,8 +49,9 @@ private:
     CProjection* projectionMatrix;
 
     vec4 clipPlane;
-    std::list<CEntity*> dynamicSubscribes;
-    std::vector<std::list<CEntity*>> subscribes;
+
+	SubscribersMap dynamicSubscribes_;
+	std::vector<SubscribersMap> subscribes_;
 
     const uint32 gridSize     = 1000;
     const uint32 gridCellSize = 250;

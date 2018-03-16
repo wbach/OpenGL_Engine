@@ -26,6 +26,7 @@ namespace GameEngine
 			float animationSpeed_ = 1.f;
 
 		private:
+			void GetSkeletonAndAniations();
 			bool IsReady();
 			void increaseAnimationTime();
 			std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames();
@@ -36,6 +37,9 @@ namespace GameEngine
 
 		private:
 			uint32 currentFrameId_ = 0;
+		
+		public:
+			static ComponentsType type;
 		};
 	} // Animation
 } // GameEngine

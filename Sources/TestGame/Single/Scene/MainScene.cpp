@@ -13,6 +13,7 @@
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -45,16 +46,15 @@ int MainScene::Initialize()
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
 
-	AddEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
-	AddEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
-	
-	player = AddEntity("Meshes/DaeAnimationExample/CharacterRunningSmooth.dae", 1.8f, vec2(395, 560), true);
-	player->AddComponent(std::move(componentFactory_.Create(GameEngine::Components::ComponentsType::Animator)));
-	auto animator = player->GetComponent<GameEngine::Components::Animator>(GameEngine::Components::ComponentsType::Animator);
-	auto eplayer = static_cast<CEntity*>(player);
-	animator->animationClips_ = eplayer->GetModel()->animationClips_;
-	animator->SetSkeleton(&eplayer->GetModel()->skeleton_);
-	animator->animationSpeed_ = 0.5f;
+	auto bialczyk  = AddGameObjectInstance(30.f, vec2(395, 570));
+	AddComponent<GameEngine::Components::RendererComponent>(bialczyk)->AddModel("Meshes/Bialczyk/Bialczyk.obj");
+
+	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
+	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
+
+	player = AddGameObjectInstance(1.8f, vec2(395, 560), true);
+	auto animator = AddComponent<GameEngine::Components::Animator>(player);
+	AddComponent<GameEngine::Components::RendererComponent>(player)->AddModel("Meshes/DaeAnimationExample/CharacterRunningSmooth.dae");
 
 	for (const auto& terrain : terrains)
 	{
@@ -282,6 +282,28 @@ CGameObject* MainScene::AddEntity(const std::string& modelName, float scale, con
 	}
 	AddGameObject(obj, obj_pos);
 	renderersManager_->Subscribe(obj);
+	obj->worldTransform.TakeSnapShoot();
+	return obj;
+}
+
+CGameObject* MainScene::AddGameObjectInstance(float scale, const vec2 & position, bool isDynamic)
+{
+	auto obj = new CGameObject();
+	obj->worldTransform.SetScale(scale);
+	obj->worldTransform.isDynamic_ = isDynamic;
+
+	vec3 obj_pos(position.x, 0, position.y);
+
+	for (const auto& t : terrains_)
+	{
+		auto pos = t->CollisionDetection(obj_pos);
+		if (pos)
+		{
+			obj_pos = pos.constValue();
+			break;
+		}
+	}
+	AddGameObject(obj, obj_pos);
 	obj->worldTransform.TakeSnapShoot();
 	return obj;
 }

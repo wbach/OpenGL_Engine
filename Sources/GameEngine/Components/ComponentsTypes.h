@@ -6,7 +6,8 @@ namespace GameEngine
 	{
 		enum class ComponentsType
 		{
-			Animator
+			Animator,
+			Renderer
 		};
 	} // Components
 } // GameEngine

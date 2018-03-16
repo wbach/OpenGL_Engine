@@ -11,7 +11,7 @@ namespace GameEngine
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new CCamera)
 		, inputManager_(nullptr)
-		, componentFactory_(componentController_, time_)
+		, componentFactory_(componentController_, time_, resourceManager)
 	{
 	}
 
@@ -28,6 +28,16 @@ namespace GameEngine
 		}
 	}
 
+	void Scene::Init()
+	{
+		Initialize();
+		componentController_.OnAwake();
+	}
+
+	void Scene::PostInit()
+	{
+	}
+
 	void Scene::FullUpdate(float deltaTime)
 	{
 		if (displayManager_ != nullptr)
@@ -42,6 +52,11 @@ namespace GameEngine
 		{
 			inputManager_->ProcessKeysEvents();
 		}
+	}
+
+	void Scene::PostUpdate()
+	{
+		componentController_.PostUpdate();
 	}
 
 	void Scene::AddGameObject(CGameObject* object, const vec3& position, const vec3& rotation)

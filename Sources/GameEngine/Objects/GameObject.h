@@ -18,11 +18,11 @@ public:
 	void AddComponent(GameEngine::Components::AbstractComponentPtr component);
 
 	template <class T>
-	T* GetComponent(GameEngine::Components::ComponentsType type)
+	T* GetComponent()
 	{
 		for (const auto& c : components_)
 		{
-			if (c.second->GetType() == type)
+			if (c.second->GetType() == T::type)
 				return static_cast<T*>(c.second.get());
 		}
 		return nullptr;

@@ -29,9 +29,10 @@ namespace GameEngine
 		Scene* GetActiveScene();
 		void InitActiveScene();
 		void RuntimeLoadObjectToGpu();
-		void Update();		
-		void SetActiveScene(const std::string& name);		
+		void Update();
+		void SetActiveScene(const std::string& name);
 		void Reset();
+		void SetFactor();
 
 	private:
 		void ProccessEvents();
