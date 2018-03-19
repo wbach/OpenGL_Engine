@@ -21,7 +21,15 @@ namespace GameEngine
 		virtual void EnableDepthTest() override {}
 		virtual void DisableDepthTest() override {}
 		virtual void PrepareFrame() override {}
-		virtual uint32 CreateShader(const ShadersFiles&, GraphicsApiFunctions) override { return ++id; }
+		virtual uint32 CreateShader(const ShadersFiles&, GraphicsApiFunctions functions) override
+		{ 
+			auto programId = ++id;
+
+			for(const auto& func : functions)
+				func.second(programId);
+
+			return programId;
+		}
 		virtual uint32 GetShaderVariableLocation(uint32, const std::string&) override { return ++id; }
 		virtual void UseShader(uint32) override {}
 		virtual void BindAttribute(uint32, uint32, const std::string&) override {}

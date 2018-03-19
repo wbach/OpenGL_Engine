@@ -52,7 +52,8 @@ namespace GameEngine
 
 	void TerrainShader::ConnectTextureUnits() const
 	{
-		LoadValue(uniformLocations.at(UniformLocation::shadowMap), 0);
+		if (uniformLocations.count(UniformLocation::shadowMap) > 0)
+			LoadValue(uniformLocations.at(UniformLocation::shadowMap), 0);
 
 		ConnectTerrainTexture(blendMap);
 		ConnectTerrainTexture(backgorundTexture);

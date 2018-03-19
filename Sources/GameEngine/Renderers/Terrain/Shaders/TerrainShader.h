@@ -45,7 +45,10 @@ namespace GameEngine
 		void Load(UniformLocation location, T value) const
 		{
 			if (uniformLocations.count(location) == 0)
+			{
 				Log("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));
+				return;
+			}
 			LoadValue(uniformLocations.at(location), value);
 		}
 
