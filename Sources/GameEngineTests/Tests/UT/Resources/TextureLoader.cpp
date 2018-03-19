@@ -2,11 +2,14 @@
 #include <Resources/TextureLoader.h>
 #include <Resources/Textures/Image.h>
 #include <Resources/Textures/Texture.h>
+#include "../../Mocks/Api/GraphicsApiMock.h"
 #include <gtest/gtest.h>
 #include "Logger/Log.h"
+
+
 struct TextureLoaderTest : public CTextureLoader, public ::testing::Test
 {
-    TextureLoaderTest() : CTextureLoader(textures, openGLLoader)
+    TextureLoaderTest() : CTextureLoader(std::make_shared<GameEngine::GraphicsApiMock>(), textures, openGLLoader)
     {
     }
 
