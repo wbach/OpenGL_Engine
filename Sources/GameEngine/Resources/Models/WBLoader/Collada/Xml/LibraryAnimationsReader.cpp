@@ -15,18 +15,29 @@ namespace GameEngine
 			{
 				if (data.name == "animation")
 				{
-					ProcessAnimation(snode);
+					ProcessAnimation(data_.animationsClips_["DefaultAnimationClip"], snode);
+				}
+				if (data.name == "animationClip")
+				{
+					auto animationClipName = Utils::GetRapidAttributeData(node, "name").value;
+					Utils::ForEachSubNode(snode, [&](const Utils::RapidNodeData& data, XMLNode* animClipnode)
+					{
+						if (data.name == "animation")
+						{
+							ProcessAnimation(data_.animationsClips_[animationClipName], animClipnode);
+						}
+					});
 				}
 			});
 		}
-		void LibraryAnimationsReader::ProcessAnimation(XMLNode* node)
+		void LibraryAnimationsReader::ProcessAnimation(AnimationClip& animationClip, XMLNode* node)
 		{
 			auto aid = Utils::GetRapidAttributeData(node, "id").value;
 
 			if (aid.empty())
 				return;
 
-			auto& animation = data_.animations_[aid];
+			auto& animation = animationClip.animations_[aid];
 			animation.id_ = aid;
 
 			Utils::ForEachSubNode(node, [&](const Utils::RapidNodeData& data, XMLNode* snode)

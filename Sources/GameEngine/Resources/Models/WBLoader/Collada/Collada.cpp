@@ -373,71 +373,73 @@ namespace WBLoader
 		std::vector<GameEngine::Animation::KeyFrame> frames;
 
 		bool isSetTimeStamp = false;
-
-		for (const auto& anim_pair : data_.libraryAnimations_.animations_)
+		for (const auto& animationClipPair : data_.libraryAnimations_.animationsClips_)
 		{
-			auto& anim = anim_pair.second;
-			auto& animName = anim_pair.first;
-
-			for (const auto& joint : joints)
+			for (const auto& anim_pair : animationClipPair.second.animations_)
 			{
-				if (ContainJoint(animName, joint.first))
+				auto& anim = anim_pair.second;
+				auto& animName = anim_pair.first;
+
+				for (const auto& joint : joints)
 				{
-					for (const auto& input : anim.sampler_.inputs_)
+					if (ContainJoint(animName, joint.first))
 					{
-						if (input.semantic == "INPUT" && !isSetTimeStamp)
+						for (const auto& input : anim.sampler_.inputs_)
 						{
-							auto sourceId = GameEngine::Collada::GetSource(input.sourceId);
-							if (anim.sources_.count(sourceId) != 0)
+							if (input.semantic == "INPUT" && !isSetTimeStamp)
 							{
-								auto& source = anim.sources_.at(sourceId);
-								auto floatData = GameEngine::Collada::GetFloatsFromString(source.dataArray.data);
-
-								uint16 frameId = 0;
-								for (auto frameTime : floatData)
+								auto sourceId = GameEngine::Collada::GetSource(input.sourceId);
+								if (anim.sources_.count(sourceId) != 0)
 								{
-									if (frames.size() <= frameId)
-										frames.emplace_back();
-									frames[frameId++].timeStamp = frameTime;
-								}
-								isSetTimeStamp = true;
-							}
-						}
-						else if (input.semantic == "OUTPUT")
-						{
-							auto sourceId = GameEngine::Collada::GetSource(input.sourceId);
-							if (anim.sources_.count(sourceId) != 0)
-							{
-								auto& source = anim.sources_.at(sourceId);
-								auto matrixes = GameEngine::Collada::GetMatrixesFromString(source.dataArray.data);
+									auto& source = anim.sources_.at(sourceId);
+									auto floatData = GameEngine::Collada::GetFloatsFromString(source.dataArray.data);
 
-
-								uint16 frameId = 0;
-								for (auto& mat : matrixes)
-								{
-									if (frames.size() <= frameId)
-										frames.emplace_back();
-
-									vec3 position(mat[3][0], mat[3][1], mat[3][2]);
-									auto rotation = glm::quat_cast(mat);
-
-									frames[frameId].transforms[joint.first].position = position;
-									frames[frameId].transforms[joint.first].rotation = rotation;
-
-									frames[frameId].idTransforms_[joint.second].position = position;
-									frames[frameId].idTransforms_[joint.second].rotation = rotation;
-									++frameId;
+									uint16 frameId = 0;
+									for (auto frameTime : floatData)
+									{
+										if (frames.size() <= frameId)
+											frames.emplace_back();
+										frames[frameId++].timeStamp = frameTime;
+									}
+									isSetTimeStamp = true;
 								}
 							}
+							else if (input.semantic == "OUTPUT")
+							{
+								auto sourceId = GameEngine::Collada::GetSource(input.sourceId);
+								if (anim.sources_.count(sourceId) != 0)
+								{
+									auto& source = anim.sources_.at(sourceId);
+									auto matrixes = GameEngine::Collada::GetMatrixesFromString(source.dataArray.data);
+
+
+									uint16 frameId = 0;
+									for (auto& mat : matrixes)
+									{
+										if (frames.size() <= frameId)
+											frames.emplace_back();
+
+										vec3 position(mat[3][0], mat[3][1], mat[3][2]);
+										auto rotation = glm::quat_cast(mat);
+
+										frames[frameId].transforms[joint.first].position = position;
+										frames[frameId].transforms[joint.first].rotation = rotation;
+
+										frames[frameId].idTransforms_[joint.second].position = position;
+										frames[frameId].idTransforms_[joint.second].rotation = rotation;
+										++frameId;
+									}
+								}
+							}
 						}
+						break;
 					}
-					break;
 				}
 			}
-		}
 
-		for (const auto& frame : frames)
-			animationClips["Animiation_0"].AddFrame(frame);
+			for (const auto& frame : frames)
+				animationClips[animationClipPair.first].AddFrame(frame);
+		}
 	}
 	void ColladaDae::ApplyMaterials(SMaterial& material, const std::string& materialId)
 	{

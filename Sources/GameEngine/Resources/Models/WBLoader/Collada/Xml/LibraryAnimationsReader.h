@@ -15,7 +15,7 @@ namespace GameEngine
 			void read(XMLNode* node);
 
 		private:
-			void ProcessAnimation(XMLNode* node);
+			void ProcessAnimation(AnimationClip& animation, XMLNode* node);
 
 		private:
 			LibraryAnimations & data_;

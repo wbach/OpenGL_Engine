@@ -20,7 +20,7 @@ namespace GameEngine
 
 		public:
 			std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-			std::string current_ = "Animiation_0";
+			std::string current_ = "DefaultAnimationClip";
 			Animation::Joint* rootJoint_;
 			float currentTime_ = 0.f;
 			float animationSpeed_ = 1.f;

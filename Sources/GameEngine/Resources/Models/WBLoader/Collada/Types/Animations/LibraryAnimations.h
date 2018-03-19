@@ -7,9 +7,14 @@ namespace GameEngine
 {
 	namespace Collada
 	{
-		struct LibraryAnimations
+		struct AnimationClip
 		{
 			std::unordered_map<std::string, Animation> animations_;
+		};
+
+		struct LibraryAnimations
+		{
+			std::unordered_map<std::string, AnimationClip> animationsClips_;
 		};
 	}
 }
