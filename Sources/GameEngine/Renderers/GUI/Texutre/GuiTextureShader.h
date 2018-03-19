@@ -11,6 +11,7 @@ namespace GameEngine
 			class GuiTextureShader : public CShaderProgram
 			{
 			public:
+				GuiTextureShader(IGraphicsApiPtr graphicsApi);
 				void Init();
 				void GetAllUniformLocations() override;
 				void BindAttributes() override;

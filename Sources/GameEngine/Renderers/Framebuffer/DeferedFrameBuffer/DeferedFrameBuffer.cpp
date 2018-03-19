@@ -1,34 +1,28 @@
 #include "DeferedFrameBuffer.h"
 
+using namespace GameEngine;
+
+CDefferedFrameBuffer::CDefferedFrameBuffer(GameEngine::IGraphicsApiPtr api)
+	: CFrameBuffer(api)
+{
+}
+
 void CDefferedFrameBuffer::Init(const wb::vec2i& size)
 {
 	CreateFrameBuffer();
 	BindToDraw();
 
-	for (uint32 i = 0; i < 4; i++)
+	std::vector<BufferAtachment> atachments = { BufferAtachment::COLOR_1, BufferAtachment::COLOR_2, BufferAtachment::COLOR_3, BufferAtachment::COLOR_4};
+
+	for (auto at : atachments)
 	{
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, size.x, size.y, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
+		auto texture = graphicsApi_->CreateTexture(TextureType::FLOAT_BUFFER_2D, TextureFilter::NEAREST, TextureMipmap::NONE, at, size, nullptr);
 		AddTexture(texture);
 	}
 
-	// depth
-    glGenTextures(1, &depthTexture);
-    glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+	depthTexture = graphicsApi_->CreateTexture(TextureType::DEPTH_BUFFER_2D, TextureFilter::LINEAR, TextureMipmap::NONE, BufferAtachment::DEPTH, size, nullptr);
 
-
-	GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-	glDrawBuffers(4, DrawBuffers);
+	graphicsApi_->SetBuffers({ BufferAtachment ::COLOR_1, BufferAtachment::COLOR_2, BufferAtachment::COLOR_3, BufferAtachment::COLOR_4});
 
 	CheckStatus();
 
@@ -39,10 +33,10 @@ void CDefferedFrameBuffer::Clean()
 {
 	BindToDraw();
 
-	glDepthMask(GL_TRUE);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+	graphicsApi_->EnableDepthMask();
+	graphicsApi_->ClearBuffers({ BufferType::COLOR, BufferType::DEPTH });
+	graphicsApi_->EnableDepthTest();
+	graphicsApi_->DisableBlend();
 
 	UnBind();
 }

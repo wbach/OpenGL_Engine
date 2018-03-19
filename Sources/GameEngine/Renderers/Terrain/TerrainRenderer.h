@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Renderers/Renderer.h"
 #include "Shaders/TerrainShader.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include <list>
 
 class CModel;
@@ -17,7 +18,7 @@ namespace GameEngine
 	class CTerrainRenderer : public CRenderer
 	{
 	public:
-		CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext);
+		CTerrainRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext);
 		// Loading lights itp to shader
 		virtual void Init() override;
 		virtual void PrepareFrame(GameEngine::Scene* scene) override;
@@ -35,6 +36,7 @@ namespace GameEngine
 		void InitShader();
 
 	private:
+		IGraphicsApiPtr graphicsApi_;
 		TerrainShader  shader;
 		CProjection*	projectionMatrix;
 		RendererContext* rendererContext_;
@@ -43,7 +45,7 @@ namespace GameEngine
 
 		TerrainPtrs subscribes;
 
-		GLuint vao;
+		uint32 objectId;
 	};
 
 }

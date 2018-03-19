@@ -7,7 +7,8 @@
 namespace WBLoader
 {
 	TerrainMeshLoader::TerrainMeshLoader(CTextureLoader & textureLoader)
-		: textureLoader_(textureLoader)
+		: AbstractLoader(textureLoader.GetGraphicsApi())
+		, textureLoader_(textureLoader)
 	{
 	}
 	void TerrainMeshLoader::ParseFile(const std::string& filename)
@@ -26,6 +27,7 @@ namespace WBLoader
 
 		CreateTerrainVertexes(0, 0, heightMapResolution_, heightMapResolution_);
 		CreateMesh();
+		Clear();
 	}
 	bool TerrainMeshLoader::CheckExtension(const std::string& filename)
 	{
@@ -37,7 +39,7 @@ namespace WBLoader
 		auto model = std::make_unique<CModel>();
 
 		SMaterial material;
-		CMesh newMesh(material);
+		CMesh newMesh(textureLoader_.GetGraphicsApi(), material);
 		newMesh.GetMeshDataRef().positions_ = vertices_;
 		newMesh.GetMeshDataRef().textCoords_ = textureCoords_;
 		newMesh.GetMeshDataRef().normals_ = normals_;
@@ -116,5 +118,15 @@ namespace WBLoader
 				}
 			}
 		}
+	}
+	void TerrainMeshLoader::Clear()
+	{
+		heightMapResolution_ = 0;
+		indices_.clear();
+		vertices_.clear();
+		normals_.clear();
+		tangens_.clear();
+		textureCoords_.clear();
+		heights_->clear();
 	}
 } // WBLoader

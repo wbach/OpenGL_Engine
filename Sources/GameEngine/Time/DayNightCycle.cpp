@@ -1,9 +1,7 @@
 #include "DayNightCycle.h"
-
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 
-#include <GL/glew.h>
 
 CDayNightCycle::CDayNightCycle()
     : CGameTime()

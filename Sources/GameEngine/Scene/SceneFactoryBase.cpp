@@ -24,6 +24,10 @@ namespace GameEngine
 
 		return GetScene(GetSceneName(id));
 	}
+	void SceneFactoryBase::SetGraphicsApi(IGraphicsApiPtr graphicsApi)
+	{
+		graphicsApi_ = graphicsApi;
+	}
 	void SceneFactoryBase::SetInputManager(InputManager* input)
 	{
 		input_ = input;
@@ -39,9 +43,10 @@ namespace GameEngine
 	ScenePtr SceneFactoryBase::GetScene(const std::string& name)
 	{
 		auto scene = scenesMap_[name]();
+		scene->CreateResourceManger(graphicsApi_);
 		scene->SetDisplayManager(displayManager_);
-		scene->SetInputManager(input_);
 		scene->SetRenderersManager(rendererMandager_);
+		scene->SetInputManager(input_);
 		return scene;
 	}
 	void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)

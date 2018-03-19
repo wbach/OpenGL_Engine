@@ -1,6 +1,7 @@
 #pragma once
 #include "../Renderer.h"
 #include "Shaders/GeometryEntityShader.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 
 class CProjection;
 class CEntity;
@@ -23,7 +24,7 @@ typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
 class CEntityRenderer : public CRenderer
 {
 public:
-    CEntityRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
+    CEntityRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
     // Loading lights itp to shader
     virtual void Init() override;
     virtual void PrepareFrame(GameEngine::Scene* scene) override;
@@ -37,22 +38,16 @@ public:
 private:
     void RenderModel(CModel* model, const mat4& transform_matrix) const;
     void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
-    void RenderDynamicsEntities();
-    void RenderStaticEntities(const wb::vec2i& index);
-    wb::vec2i CalcualteCoorditantes(const vec3& v) const;
-    const SubscribersMap& GetEntity(uint32 x, uint32 y) const;
+    void RenderEntities();
     void BindMaterial(const SMaterial& material) const;
     void UnBindMaterial(const SMaterial& material) const;
 
 private:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     CEntityGeometryPassShader shader;
     CProjection* projectionMatrix;
 
     vec4 clipPlane;
 
-	SubscribersMap dynamicSubscribes_;
-	std::vector<SubscribersMap> subscribes_;
-
-    const uint32 gridSize     = 1000;
-    const uint32 gridCellSize = 250;
+	SubscribersMap subscribes_;
 };

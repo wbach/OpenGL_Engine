@@ -8,6 +8,7 @@
 #include "GameEngine/Renderers/GUI/GuiContext.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Time/DayNightCycle.h"
 #include <list>
 #include <memory>
@@ -65,6 +66,7 @@ namespace GameEngine
 
 		inline CResourceManager& GetResourceManager();
 
+		void CreateResourceManger(IGraphicsApiPtr graphicsPtr);
 		void SetInputManager(InputManager* input);
 		void SetRenderersManager(Renderer::RenderersManager* manager);
 		void SetDisplayManager(CDisplayManager* displayManager);
@@ -104,11 +106,11 @@ namespace GameEngine
 		std::unique_ptr<CCamera> camera;
 	//	std::mutex cameraMutex;
 
-		CResourceManager resourceManager;
 
 		GameObjects gameObjects;
 
 		Time time_;
+		std::shared_ptr<CResourceManager> resourceManager_;
 		Components::ComponentController componentController_;
 		Components::ComponentFactory componentFactory_;
 	};
@@ -126,12 +128,17 @@ namespace GameEngine
 	// Resources
 	inline CResourceManager& Scene::GetResourceManager()
 	{
-		return resourceManager;
+		return *resourceManager_;
 	}
 
 	inline float Scene::GetGlobalTime()
 	{
 		return gloabalTime;
+	}
+
+	inline void Scene::CreateResourceManger(IGraphicsApiPtr graphicsPtr)
+	{
+		resourceManager_ = std::make_shared<CResourceManager>(graphicsPtr);
 	}
 
 	inline void Scene::SetInputManager(InputManager* input)

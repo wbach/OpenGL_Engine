@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include <memory>
 #include <functional>
 #include <unordered_map>
@@ -34,6 +35,7 @@ namespace GameEngine
 		bool IsExist(uint32 name) const;
 		bool IsExist(const std::string& name) const;
 	
+		void SetGraphicsApi(IGraphicsApiPtr graphicsApi);
 		void SetInputManager(InputManager* input);
 		void SetDisplayManager(CDisplayManager* displayManager);
 		void SetRenderersManager(Renderer::RenderersManager* manager);
@@ -43,6 +45,7 @@ namespace GameEngine
 		void AddScene(const std::string&, CreateFunction);
 
 	private:
+		IGraphicsApiPtr graphicsApi_;
 		ScenesMap scenesMap_;
 		OrderMap orderMap_;
 		IdMap idMap_;

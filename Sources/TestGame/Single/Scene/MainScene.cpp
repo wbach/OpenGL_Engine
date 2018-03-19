@@ -33,6 +33,7 @@ int MainScene::Initialize()
 	
 	renderersManager_->GuiText("playerPos").position = vec2(-0.9, -0.9);
 	renderersManager_->GuiText("playerPos").m_size = .5f;
+	renderersManager_->GuiText("playerPos").colour = vec3(.8f);
 	renderersManager_->GuiText("gameTime").position = vec2(0.75, 0.9);
 	renderersManager_->GuiText("gameTime").m_size = 0.5f;
 	renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
@@ -45,12 +46,12 @@ int MainScene::Initialize()
 
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
+	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
+	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
 
 	auto bialczyk  = AddGameObjectInstance(30.f, vec2(395, 570));
 	AddComponent<GameEngine::Components::RendererComponent>(bialczyk)->AddModel("Meshes/Bialczyk/Bialczyk.obj");
 
-	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
-	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
 
 	player = AddGameObjectInstance(1.8f, vec2(395, 560), true);
 	auto animator = AddComponent<GameEngine::Components::Animator>(player);
@@ -60,7 +61,7 @@ int MainScene::Initialize()
 	{
 		auto grass_position = CreateGrassPositions(terrain, vec2(375, 550));
 
-		auto grass_obj = ObjectBuilder::CreateGrass(resourceManager, grass_position, "Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+		auto grass_obj = ObjectBuilder::CreateGrass(*resourceManager_, grass_position, "Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
 		AddGameObject(grass_obj);
 		renderersManager_->Subscribe(grass_obj);
 	}
@@ -212,7 +213,7 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position)
 {
 	//, CreateGrassPositions(), "Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
-    auto terrain = ObjectBuilder::CreateTerrain(resourceManager, textures);
+    auto terrain = ObjectBuilder::CreateTerrain(*resourceManager_, textures);
 	if (terrain == nullptr)
 	{
 		Error("MainScene::AddTerrain : terrain is nullptr.");
@@ -226,7 +227,7 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
 	//for (int y = -10; y < 10; y++)
 	//	for (int x = -10; x < 10; x++)
 	//	{
-	//		auto obj = ObjectBuilder::CreateEntity(&resourceManager, glm::vec3(0, 1.f, 0), "Meshes/Cube.obj");
+	//		auto obj = ObjectBuilder::CreateEntity(&resourceManager_, glm::vec3(0, 1.f, 0), "Meshes/Cube.obj");
 	//		
 	//		auto pos = terrain->CollisionDetection(vec3(x, 0.f, y));
 
@@ -265,7 +266,7 @@ std::vector<float> MainScene::CreateGrassPositions(CGameObject* object, vec2 pos
 
 CGameObject* MainScene::AddEntity(const std::string& modelName, float scale, const vec2& position, bool isDynamic)
 {
-	auto obj = ObjectBuilder::CreateEntity(&resourceManager, modelName);
+	auto obj = ObjectBuilder::CreateEntity(resourceManager_.get(), modelName);
 	obj->worldTransform.SetScale(scale);
 	obj->worldTransform.isDynamic_ = isDynamic;
 

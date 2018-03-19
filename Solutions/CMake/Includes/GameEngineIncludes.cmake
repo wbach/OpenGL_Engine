@@ -5,9 +5,19 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Animations/JointTransform.h
 ../../Sources/GameEngine/Animations/KeyFrame.h
 ../../Sources/GameEngine/Api/ApiMessages.h
+../../Sources/GameEngine/Api/BufferParamters.h
+../../Sources/GameEngine/Api/FunctionsTypes.h
+../../Sources/GameEngine/Api/IGraphicsApi.h
+../../Sources/GameEngine/Api/OpenGL/Font.h
+../../Sources/GameEngine/Api/OpenGL/OpenGLApi.h
+../../Sources/GameEngine/Api/OpenGL/OpenGLMesh.h
+../../Sources/GameEngine/Api/OpenGL/OpenGLShaderProgram.h
 ../../Sources/GameEngine/Api/SDL2/InputSDL.h
 ../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.h
 ../../Sources/GameEngine/Api/SDL2/SDLOpenGL.h
+../../Sources/GameEngine/Api/ShaderTypes.h
+../../Sources/GameEngine/Api/TextureParamters.h
+../../Sources/GameEngine/Api/WindowType.h
 ../../Sources/GameEngine/Camera/Camera.h
 ../../Sources/GameEngine/Camera/Camera2D.h
 ../../Sources/GameEngine/Camera/FirstPersonCamera.h
@@ -21,7 +31,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
-../../Sources/GameEngine/Engine/Debuger.h
 ../../Sources/GameEngine/Engine/Engine.h
 ../../Sources/GameEngine/Engine/EngineEvent.h
 ../../Sources/GameEngine/Engine/IntroRenderer.h
@@ -58,7 +67,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/GuiContext.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.h
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.h
-../../Sources/GameEngine/Renderers/GUI/Text/Font.h
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiText.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
@@ -76,12 +84,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/SimpleRenderer.h
 ../../Sources/GameEngine/Renderers/SkyBox/Shaders/SkyBoxShader.h
 ../../Sources/GameEngine/Renderers/SkyBox/SkyBoxRenderer.h
-../../Sources/GameEngine/Renderers/Terrain/Classic/ClassicTerrainRenderer.h
-../../Sources/GameEngine/Renderers/Terrain/Classic/Shaders/ClassicTerrainShader.h
 ../../Sources/GameEngine/Renderers/Terrain/Shaders/TerrainShader.h
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.h
-../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.h
-../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.h
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.h
 ../../Sources/GameEngine/Resources/Models/Bone.h
 ../../Sources/GameEngine/Resources/Models/BoundingBox.h
@@ -171,7 +175,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Time/DayNightCycle.h
 ../../Sources/GameEngine/Time/GameTime.h
 ../../Sources/GameEngine/Time/Time.h
-../../Sources/GameEngine/Api/Api.hpp
+../../Sources/GameEngine/Api/WindowApi.hpp
 ../../Sources/GameEngine/Common/common.hpp
 ../../Sources/GameEngine/Components/Renderer/RendererComponent.hpp
 ../../Sources/GameEngine/Display/DisplayManager.hpp

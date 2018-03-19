@@ -1,11 +1,16 @@
 #include "LoadingShader.h"
 
+CLoadingShader::CLoadingShader(GameEngine::IGraphicsApiPtr ptr)
+	: CShaderProgram(ptr)
+{
+}
+
 void CLoadingShader::Init()
 {
 	SetFiles
 	({
-		{"Game/loadingShader.vert", GL_VERTEX_SHADER},
-		{"Game/loadingShader.frag", GL_FRAGMENT_SHADER},
+		{"Game/loadingShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+		{"Game/loadingShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER},
 	});
 
 	CShaderProgram::Init();

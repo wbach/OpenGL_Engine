@@ -1,18 +1,19 @@
 #pragma once
 #include "../Renderer.h"
 #include "Shaders/SkyBoxShader.h"
-#include "../../Resources/ResourceManager.h"
+#include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Api/IGraphicsApi.h"
+
 class CModel;
 class CMesh;
 class CTexture;
 class CProjection;
-//class CResourceManager;
 struct SMaterial;
 
 class CSkyBoxRenderer : public CRenderer
 {
 public:
-    CSkyBoxRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
+    CSkyBoxRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
     virtual void Init() override;
     virtual void PrepareFrame(GameEngine::Scene* scene) override;
     virtual void Render(GameEngine::Scene* scene) override;
@@ -21,7 +22,7 @@ public:
 
 private:
     void InitMembers(GameEngine::Scene* scene);
-    void BindTextures(const SMaterial& material) const;
+    void BindTextures() const;
     void RenderSkyBoxMesh(const CMesh& mesh) const;
     void RenderSkyBoxModel();
     bool CheckModelIsReadyToRender();
@@ -33,9 +34,9 @@ private:
     void CreateNightTextures(CResourceManager& resource_manager);
     void PrepareToRendering(GameEngine::Scene* scene);
     void EndRendering();
-    CTexture* LoadCubeMapTexture(CResourceManager& resource_manager, std::vector<std::string> textures_files);
 
 private:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     CSkyBoxShader shader;
     CModel* model;
     CTexture* dayTexture;

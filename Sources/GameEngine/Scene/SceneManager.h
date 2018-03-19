@@ -24,7 +24,7 @@ namespace GameEngine
 	class SceneManager
 	{
 	public:
-		SceneManager(SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
+		SceneManager(IGraphicsApiPtr grahpicsApi, SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
 		~SceneManager();
 		Scene* GetActiveScene();
 		void InitActiveScene();
@@ -50,6 +50,7 @@ namespace GameEngine
 		void JustLoadScene(T scene);
 
 	private:
+		IGraphicsApiPtr grahpicsApi_;
 		SceneFactoryBasePtr sceneFactory_;
 
 		uint32 currentSceneId_;

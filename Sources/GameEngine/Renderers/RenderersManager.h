@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Projection.h"
 #include "GUI/GuiContext.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include <atomic>
 #include <list>
 
@@ -21,7 +22,7 @@ namespace GameEngine
 		class RenderersManager
 		{
 		public:
-			RenderersManager();
+			RenderersManager(IGraphicsApiPtr graphicsApi);
 			void Init();
 			const CProjection& GetProjection() const;
 			void RenderScene(Scene* scene);
@@ -43,6 +44,7 @@ namespace GameEngine
 			void Render(Scene* scene, CRenderer* renderer);
 			
 		private:
+			IGraphicsApiPtr graphicsApi_;
 			std::atomic_bool renderAsLines;
 			std::atomic_bool markToReloadShaders_;
 			Renderer::Gui::GuiContext guiContext_;

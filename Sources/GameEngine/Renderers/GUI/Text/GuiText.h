@@ -1,17 +1,16 @@
 #pragma once
-#include <unordered_map>
-#include "../GuiElement.h"
-#include "Font.h"
 #include "FontShader.h"
 #include "GuiTextElement.h"
+#include "../GuiElement.h"
 #include "Logger/Log.h"
+#include <unordered_map>
 
 typedef std::unordered_map<std::string, SGuiTextElement> GuiTexts;
 
 class CGuiText : public CGuiElement
 {
 public:
-	CGuiText(const std::string& font_file, const wb::vec2i& window_size);
+	CGuiText(GameEngine::IGraphicsApiPtr graphicsApi, const std::string& font_file);
 	virtual ~CGuiText() override;
 	virtual void Init() override;
 	virtual void Render() override;
@@ -19,8 +18,7 @@ public:
 	GuiTexts texts;
 
 private:
-    CFont font;
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     FontShader shader;
     std::string fontFile;
-    wb::vec2i windowSize;
 };

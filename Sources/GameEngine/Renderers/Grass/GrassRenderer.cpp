@@ -1,15 +1,16 @@
 #include "GrassRenderer.h"
-
-#include "../../Engine/Configuration.h"
-#include "../../Renderers/Projection.h"
-#include "../../Objects/RenderAble/Flora/Grass/Grass.h"
-#include "../../Scene/Scene.hpp"
+#include "GameEngine/Scene/Scene.hpp"
 #include "../Framebuffer/FrameBuffer.h"
-
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
 #include "Logger/Log.h"
-#include "OpenGL/OpenGLUtils.h"
 
-CGrassRenderer::CGrassRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer) : CRenderer(framebuffer), projection(projection_matrix)
+CGrassRenderer::CGrassRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer)
+	: CRenderer(framebuffer)
+	, graphicsApi_(graphicsApi)
+	, shader(graphicsApi)
+	, projection(projection_matrix)
 {
 }
 
@@ -66,13 +67,12 @@ void CGrassRenderer::PrepareRender(GameEngine::Scene* scene)
 {
     target->BindToDraw();
     PrepareShader(scene);
-    Utils::DisableCulling();
-    glActiveTexture(GL_TEXTURE0);
+	graphicsApi_->DisableCulling();
 }
 
 void CGrassRenderer::EndRender() const
 {
-    Utils::EnableCulling();
+	graphicsApi_->EnableCulling();
     shader.Stop();
 }
 
@@ -100,9 +100,8 @@ void CGrassRenderer::RenderModel(CModel* model)
 
 void CGrassRenderer::RenderMesh(const CMesh& mesh)
 {
-    glBindTexture(GL_TEXTURE_2D, mesh.GetMaterial().diffuseTexture->GetId());
-	Utils::EnableVao ev(mesh.GetVao(), { {VertexBufferObjects::POSITION, 0} });
-    glDrawArrays(GL_POINTS, 0, mesh.GetVertexCount());
+	graphicsApi_->ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
+	graphicsApi_->RenderPoints(mesh.GetObjectId());
 }
 
 void CGrassRenderer::PrepareShader(GameEngine::Scene* scene)

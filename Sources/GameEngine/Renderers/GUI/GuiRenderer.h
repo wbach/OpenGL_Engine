@@ -3,7 +3,6 @@
 #include "../Renderer.h"
 #include <memory>
 #include <vector>
-#include <GL/glew.h>
 
 class CGUIRenderer : public CRenderer
 {

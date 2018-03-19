@@ -10,7 +10,8 @@
 namespace WBLoader
 {
 	WaveFrontObjLoader::WaveFrontObjLoader(CTextureLoader & textureLodaer)
-		: textureLodaer(textureLodaer)
+		: AbstractLoader(textureLodaer.GetGraphicsApi())
+		, textureLodaer(textureLodaer)
 	{
 
 	}
@@ -22,6 +23,7 @@ namespace WBLoader
 			return;
 
 		ProcessFileData();
+		Clear();
 	}
 
 	bool WaveFrontObjLoader::CheckExtension(const std::string & filename)
@@ -136,12 +138,12 @@ namespace WBLoader
 			if (!prefix.compare("map_Kd"))
 			{
 				if (current_material != nullptr)
-					current_material->diffuseTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, TextureType::MATERIAL);
+					current_material->diffuseTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
 			}
 			if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
 			{
 				if (current_material != nullptr)
-					current_material->normalTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, TextureType::MATERIAL);
+					current_material->normalTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
 			}
 		}
 
@@ -263,4 +265,12 @@ namespace WBLoader
 			mesh->material = *material;
 	}
 
+	void WaveFrontObjLoader::Clear()
+	{
+		fileData.clear();
+		materials.clear();
+		vertex.clear();
+		text_coords.clear();
+		normals.clear();
+	}
 }

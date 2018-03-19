@@ -3,6 +3,10 @@
 
 namespace WBLoader
 {
+	AbstractLoader::AbstractLoader(GameEngine::IGraphicsApiPtr graphicsApi)
+		: graphicsApi_(graphicsApi)
+	{
+	}
 	std::unique_ptr<CModel> AbstractLoader::Create()
 	{
 		auto newModel = std::make_unique<CModel>();
@@ -15,7 +19,7 @@ namespace WBLoader
 
 			for (auto& mesh : obj.meshes)
 			{
-				CMesh newMesh(mesh.material, obj.transformMatrix);
+				CMesh newMesh(graphicsApi_, mesh.material, obj.transformMatrix);
 				IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
 				newModel->animationClips_ = mesh.animationClips_;
 				newModel->skeleton_ = mesh.skeleton_;
@@ -24,6 +28,7 @@ namespace WBLoader
 			}
 		}
 
+		objects.clear();
 		return newModel;
 	}
 	void AbstractLoader::NormalizeMatrix(mat4 & mat, float factor) const

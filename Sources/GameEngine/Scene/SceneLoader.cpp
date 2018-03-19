@@ -6,8 +6,10 @@
 
 namespace GameEngine
 {
-	SceneLoader::SceneLoader(std::shared_ptr<CDisplayManager>& displayManager)
-		: displayManager(displayManager)
+	SceneLoader::SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<CDisplayManager>& displayManager)
+		: graphicsApi_(graphicsApi)
+		, resorceManager(graphicsApi)
+		, displayManager(displayManager)
 		, objectLoaded(0)
 		, objectCount(0)
 	{
@@ -40,9 +42,9 @@ namespace GameEngine
 
 	void SceneLoader::Init()
 	{
-		auto circleTexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false, TextureType::MATERIAL);
-		auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/black-knight-dark-souls.png", false, TextureType::MATERIAL, TextureFlip::Type::VERTICAL);
-		loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(bgtexture, circleTexture);
+		auto circleTexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false, ObjectTextureType::MATERIAL);
+		auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/black-knight-dark-souls.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+		loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture);
 		loadingScreenRenderer->Init();
 	}
 
@@ -61,7 +63,7 @@ namespace GameEngine
 	bool SceneLoader::ProccesLoadingLoop(COpenGLObject* obj)
 	{
 		if (displayManager != nullptr)
-			displayManager->PeekApiMessage();
+			displayManager->ProcessEvents();
 
 		auto load = GetIsLoading();
 		if (LoadObject(obj))

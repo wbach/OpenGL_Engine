@@ -1,6 +1,9 @@
 #include "GuiText.h"
 
-CGuiText::CGuiText(const std::string & font_file, const wb::vec2i & window_size) : fontFile(font_file), windowSize(window_size)
+CGuiText::CGuiText(GameEngine::IGraphicsApiPtr graphicsApi, const std::string & font_file)
+	: graphicsApi_(graphicsApi)
+	, shader(graphicsApi)
+	, fontFile(font_file)
 {
 }
 
@@ -12,29 +15,25 @@ void CGuiText::UnSubscribeAll()
 void CGuiText::Render()
 {
 	shader.Start();
-	glActiveTexture(GL_TEXTURE0);	
+	graphicsApi_->ActiveTexture(0);
+
 	for (const auto& p : texts)
 	{
-		glPushMatrix();
-		glLoadIdentity();
-
 		if (!p.second.isActive)
 			continue;
 
 		auto text = p.second;
-		GLfloat active_color[] = { text.colour.x, text.colour.y, text.colour.z, 1 };
-		glColor4fv(active_color);
-		shader.loadTranslation(text.position);
-		glScalef(text.m_size, text.m_size, text.m_size);
-		font.Print((int)text.position.x, (int)text.position.y, text.text.c_str());
-		glPopMatrix();
-	}	
+		shader.SetScale(text.m_size);
+		shader.LoadColour(text.colour);
+		shader.LoadTranslation(text.position);
+		graphicsApi_->PrintText(text.text, vec2i((int32) text.position.x, (int32) text.position.y));
+	}
 	shader.Stop();
 }
 
 void CGuiText::Init()
 {
-	font.Init(fontFile, windowSize);
+	graphicsApi_->CreateFont(fontFile);
 	shader.Init();
 	Log("CGuiText (GuiRenderer) is initialized.");
 }

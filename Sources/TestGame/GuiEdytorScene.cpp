@@ -3,6 +3,7 @@
 #include "../GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "Thread.hpp"
+#include <fstream>
 
 GuiEdytorScene::GuiEdytorScene()
 	: GameEngine::Scene("GuiEdytorScene")
@@ -17,7 +18,7 @@ GuiEdytorScene::~GuiEdytorScene()
 int GuiEdytorScene::Initialize()
 {
 	GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
-	guiTexture.texture = resourceManager.GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
+	guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
 	renderersManager_->GuiTexture("bg") = guiTexture;
 
 	vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);

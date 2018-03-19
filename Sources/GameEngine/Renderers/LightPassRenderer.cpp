@@ -4,8 +4,10 @@
 #include "../Scene/Scene.hpp"
 #include "Logger/Log.h"
 
-CLightPassRenderer::CLightPassRenderer(CProjection * projection, CFrameBuffer* frambuffer)
+CLightPassRenderer::CLightPassRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection, CFrameBuffer* frambuffer)
     : CRenderer(frambuffer)
+	, graphicsApi_(graphicsApi)
+	, shader(graphicsApi)
     , projection(projection)
 {
 }
@@ -19,27 +21,23 @@ void CLightPassRenderer::Init()
 	shader.LoadViewDistance(projection->GetViewDistance());
 	shader.Stop();
 
-	quad.Init();
-
 	Log("CLightPassRenderer initialized.");
 }
 
 void CLightPassRenderer::PrepareFrame(GameEngine::Scene* scene)
-{	
+{
 }
 
 void CLightPassRenderer::Render(GameEngine::Scene* scene)
-{	
-	
+{
 }
 
 void CLightPassRenderer::EndFrame(GameEngine::Scene* scene)
 {
-	glPolygonMode(GL_FRONT, GL_FILL);
-	glPolygonMode(GL_BACK, GL_FILL);
-	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
+	graphicsApi_->PolygonModeRender();
+	graphicsApi_->DisableDepthMask();
+	graphicsApi_->DisableDepthTest();
+	graphicsApi_->EnableBlend();
 
 	if (target == nullptr)
 		return;
@@ -58,6 +56,6 @@ void CLightPassRenderer::EndFrame(GameEngine::Scene* scene)
 	{
 		shader.LoadLight(light, i++);
 	}
-	quad.Render();
+	graphicsApi_->RenderQuad();
 	shader.Stop();
 }

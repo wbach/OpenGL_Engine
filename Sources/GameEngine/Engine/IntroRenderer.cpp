@@ -1,13 +1,15 @@
 #include "IntroRenderer.h"
 #include "../Display/DisplayManager.hpp"
-#include "../Resources/SimpleModels/Quad.h"
 #include "../Shaders/Loading/LoadingShader.h"
 #include "GLM/GLMUtils.h"
 
 namespace GameEngine
 {
-	IntroRenderer::IntroRenderer(std::shared_ptr<CDisplayManager>& displayManager)
-		: displayManager_(displayManager)
+	IntroRenderer::IntroRenderer(GameEngine::IGraphicsApiPtr graphicsApi, std::shared_ptr<CDisplayManager>& displayManager)
+		: graphicsApi_(graphicsApi)
+		, displayManager_(displayManager)
+		, resorceManager_(graphicsApi)
+		, shader_(graphicsApi)
 		, initialized_(false)
 	{
 	}
@@ -22,34 +24,31 @@ namespace GameEngine
 		if (!initialized_)
 			Init();
 
-		displayManager_->PeekApiMessage();
+		displayManager_->ProcessEvents();
 		RenderThis();
 		displayManager_->Update();
 	}
 	void IntroRenderer::Init()
 	{
-		quad_.Init();
-		shader_.Init();		
-		backgroundTexture_ = resorceManager_.GetTextureLaoder().LoadTextureImmediately("GUI/start1.png", false, TextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+		shader_.Init();
+		backgroundTexture_ = resorceManager_.GetTextureLaoder().LoadTextureImmediately("GUI/start1.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
 		initialized_ = true;
 	}
 
 	void IntroRenderer::RenderThis()
 	{
 		shader_.Start();
-		glEnable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.117f, 0.117f, .117f, 1.f);
+		graphicsApi_->EnableDepthTest();
+		graphicsApi_->PrepareFrame();
 		renderQuad(mat4(1.f), backgroundTexture_->GetId());
 		shader_.Stop();
 	}
 
 	void IntroRenderer::renderQuad(const glm::mat4 & transformMatrix, uint32 textureId) const
 	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		graphicsApi_->ActiveTexture(0, textureId);
 		shader_.LoadTransformMatrix(transformMatrix);
-		Utils::SimpleRenderVao(quad_.vao, quad_.indicesSize, 2);
+		graphicsApi_->RenderQuad();
 	}
 
 } // GameEngine

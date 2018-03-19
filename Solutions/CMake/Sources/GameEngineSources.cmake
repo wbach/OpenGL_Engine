@@ -1,5 +1,7 @@
 set(GameEngineSources
 ../../Sources/GameEngine/Animations/AnimationUtils.cpp
+../../Sources/GameEngine/Api/OpenGL/Font.cpp
+../../Sources/GameEngine/Api/OpenGL/OpenGLApi.cpp
 ../../Sources/GameEngine/Api/SDL2/InputSDL.cpp
 ../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.cpp
 ../../Sources/GameEngine/Api/SDL2/SDLOpenGL.cpp
@@ -14,7 +16,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/RendererComponent.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
-../../Sources/GameEngine/Engine/Debuger.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp
 ../../Sources/GameEngine/Engine/IntroRenderer.cpp
 ../../Sources/GameEngine/Input/InputManager.cpp
@@ -38,7 +39,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Grass/Shaders/GrassShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.cpp
-../../Sources/GameEngine/Renderers/GUI/Text/Font.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiText.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.cpp
@@ -55,12 +55,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/SimpleRenderer.cpp
 ../../Sources/GameEngine/Renderers/SkyBox/Shaders/SkyBoxShader.cpp
 ../../Sources/GameEngine/Renderers/SkyBox/SkyBoxRenderer.cpp
-../../Sources/GameEngine/Renderers/Terrain/Classic/ClassicTerrainRenderer.cpp
-../../Sources/GameEngine/Renderers/Terrain/Classic/Shaders/ClassicTerrainShader.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Shaders/TerrainShader.cpp
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.cpp
-../../Sources/GameEngine/Renderers/Terrain/Tesselation/Shaders/TesselationTerrainShader.cpp
-../../Sources/GameEngine/Renderers/Terrain/Tesselation/TessellationTerrainRenderer.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
 ../../Sources/GameEngine/Resources/Models/Bone.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp
@@ -84,6 +80,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
 ../../Sources/GameEngine/Resources/OpenGLLoader.cpp
 ../../Sources/GameEngine/Resources/ResourceManager.cpp
+../../Sources/GameEngine/Resources/SimpleModels/Quad.cpp
 ../../Sources/GameEngine/Resources/TextureLoader.cpp
 ../../Sources/GameEngine/Resources/textureloadertests.cpp
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.cpp

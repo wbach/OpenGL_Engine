@@ -7,6 +7,7 @@ static const int MAX_LIGHTS = 10;
 class CLightPassShader : public CShaderProgram
 {
 public:
+	CLightPassShader(GameEngine::IGraphicsApiPtr graphicsApi);
 	void GetAllUniformLocations() override;
 	void BindAttributes() override;
 

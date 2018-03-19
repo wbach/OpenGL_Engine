@@ -1,18 +1,19 @@
 #include "SkyBoxRenderer.h"
 #include "../Framebuffer/FrameBuffer.h"
-#include "../../Resources/Models/Model.h"
-
-#include "../../Resources/Textures/Texture.h"
-#include "../../Renderers/Projection.h"
-#include "../../Scene/Scene.hpp"
-#include "OpenGL/OpenGLUtils.h"
+#include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/Textures/Texture.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
 
-CSkyBoxRenderer::CSkyBoxRenderer(CProjection *projection_matrix, CFrameBuffer* framebuffer)
+CSkyBoxRenderer::CSkyBoxRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection *projection_matrix, CFrameBuffer* framebuffer)
 	: CRenderer(framebuffer)
+	, graphicsApi_(graphicsApi)
+	, shader(graphicsApi)
 	, model(nullptr)
 	, dayTexture(nullptr)
 	, nightTexture(nullptr)
+	, resourceManager(graphicsApi)
 	, projectionMatrix(projection_matrix)
 {
 }
@@ -30,14 +31,14 @@ void CSkyBoxRenderer::Init()
 
 void CSkyBoxRenderer::PrepareToRendering(GameEngine::Scene* scene)
 {
-	Utils::DisableCulling();
+	graphicsApi_->DisableCulling();
 	shader.Start();
-	PrepareShaderBeforeFrameRender(scene);	
+	PrepareShaderBeforeFrameRender(scene);
 }
 
 void CSkyBoxRenderer::EndRendering()
 {
-	Utils::EnableCulling();
+	graphicsApi_->EnableCulling();
 	shader.Stop();
 }
 
@@ -131,7 +132,7 @@ void CSkyBoxRenderer::CreateDayTextures(CResourceManager& resource_manager)
 		"Skybox/TropicalSunnyDay/front.png"
 	};
 
-	dayTexture = LoadCubeMapTexture(resource_manager, dayTextures);
+	dayTexture = resource_manager.GetTextureLaoder().LoadCubeMap(dayTextures, false);
 	dayTexture->OpenGLLoadingPass();
 }
 
@@ -150,16 +151,11 @@ void CSkyBoxRenderer::CreateNightTextures(CResourceManager& resource_manager)
 		"Skybox/Night/front.png"
 	};
 
-	nightTexture = LoadCubeMapTexture(resource_manager, nightTextures);
+	nightTexture = resource_manager.GetTextureLaoder().LoadCubeMap(nightTextures, false);
 	nightTexture->OpenGLLoadingPass();
 }
 
-CTexture* CSkyBoxRenderer::LoadCubeMapTexture(CResourceManager& resource_manager, std::vector<std::string> textures_files)
-{
-	return resource_manager.GetTextureLaoder().LoadCubeMap(textures_files, false);
-}
-
-void CSkyBoxRenderer::BindTextures(const SMaterial & material) const
+void CSkyBoxRenderer::BindTextures() const
 {
 	BindCubeMapTexture(dayTexture, 0);
 	BindCubeMapTexture(nightTexture, 1);
@@ -170,8 +166,7 @@ void CSkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
 	if (texture == nullptr)
 		return;
 
-	glActiveTexture(GL_TEXTURE0 + id);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture->GetId());
+	graphicsApi_->ActiveTexture(id, texture->GetId());
 }
 
 void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
@@ -179,7 +174,6 @@ void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
 	if (!mesh.IsInit())
 		return;
 
-    Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
-	BindTextures(mesh.GetMaterial());
-	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+	BindTextures();
+	graphicsApi_->RenderMesh(mesh.GetObjectId());
 }

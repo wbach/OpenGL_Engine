@@ -19,6 +19,7 @@ namespace WBLoader
 		vec3 CalculateNormalMap(uint16 x, uint16 z);
 		float GetHeight(uint16 x, uint16 y) const;
 		void CreateMesh();
+		void Clear();
 
 	private:
 		CTextureLoader& textureLoader_;

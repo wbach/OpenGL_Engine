@@ -2,8 +2,7 @@
 #include "../GuiElement.h"
 #include "GuiTextureElement.h"
 #include "GuiTextureShader.h"
-#include "../../../Resources/Textures/Texture.h"
-#include "../../../Resources/SimpleModels/Quad.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 #include <unordered_map>
 
 namespace GameEngine
@@ -17,6 +16,7 @@ namespace GameEngine
 			class CGuiTexture : public CGuiElement
 			{
 			public:
+				CGuiTexture(IGraphicsApiPtr graphicsApi);
 				virtual ~CGuiTexture() override;
 				virtual void Init() override;
 				virtual void Render() override;
@@ -27,7 +27,7 @@ namespace GameEngine
 				void RenderTextureElement(const GuiTextureElement& te);
 
 			private:
-				SSimpleQuad quad_;
+				IGraphicsApiPtr graphicsApi_;
 				GuiTextureShader shader_;
 			};
 		} // Gui

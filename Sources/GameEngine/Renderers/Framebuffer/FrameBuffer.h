@@ -1,22 +1,21 @@
 #pragma once
-#include <GL/glew.h>
-#include <vector>
 #include "Types.h"
+#include "GameEngine/Api/IGraphicsApi.h"
+#include <vector>
 
 class CFrameBuffer
 {
 public:
+	CFrameBuffer(GameEngine::IGraphicsApiPtr api);
     virtual void Init(const wb::vec2i& size) = 0;
-    virtual void Clean()
-    {
-    }
+    virtual void Clean(){}
     void CreateFrameBuffer();
-    void AddTexture(GLuint& texture);
-    void SetDepthTexture(const GLuint& texture);
+    void AddTexture(uint32 texture);
+    void SetDepthTexture(uint32 texture);
     int CheckStatus();
-    const GLuint& GetFbo();
-    const GLuint& GetDepthTexture();
-    const GLuint& GetTexture(const uint32& id);
+    uint32 GetFbo();
+    uint32 GetDepthTexture();
+    uint32 GetTexture(const uint32& id);
     void BindTextures(int offset = 0);
     void BindToDraw();
     void Bind();
@@ -28,9 +27,10 @@ protected:
     void CleanTexures();
 
 protected:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     bool isInitialized = false;
-    GLuint fbo;
-    GLuint depthTexture;
-    std::vector<GLuint> textures;
+	uint32 fbo;
+	uint32 depthTexture;
+    std::vector<uint32> textures;
     bool depthStorage = false;
 };

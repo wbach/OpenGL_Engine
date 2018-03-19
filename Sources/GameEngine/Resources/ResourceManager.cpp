@@ -2,8 +2,9 @@
 #include "Models/Assimp/AssimpModel.h"
 #include "Logger/Log.h"
 
-CResourceManager::CResourceManager()
-    : textureLoader(textures, openGlLoader)
+CResourceManager::CResourceManager(GameEngine::IGraphicsApiPtr graphicsApi)
+    : graphicsApi_(graphicsApi)
+	, textureLoader(graphicsApi, textures, openGlLoader)
 	, loaderManager_(textureLoader)
 {
 }

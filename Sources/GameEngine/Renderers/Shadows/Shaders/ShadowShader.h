@@ -4,6 +4,7 @@
 class CShadowShader : public CShaderProgram
 {
 public:
+	CShadowShader(GameEngine::IGraphicsApiPtr graphicsApi);
     void Init();
     void GetAllUniformLocations();
     void BindAttributes() override;

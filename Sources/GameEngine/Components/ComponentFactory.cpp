@@ -7,10 +7,10 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, CResourceManager& resourcesManager)
+		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager)
 			: componentController_(componentController)
 			, time_(time)
-			, resourcesManager_(resourcesManager)
+			, resourceManager_(resourceManager)
 		{
 		}
 		std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type)
@@ -38,7 +38,7 @@ namespace GameEngine
 			auto comp = std::make_unique<T>();
 			comp->SetComponentController(&componentController_);
 			comp->SetTime(&time_);
-			comp->SetResourceManager(&resourcesManager_);
+			comp->SetResourceManager(resourceManager_.get());
 			comp->SetRendererManager(rendererManager_);
 			comp->ReqisterFunctions();
 			return comp;

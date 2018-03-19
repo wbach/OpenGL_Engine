@@ -10,7 +10,7 @@ class CProjection;
 class SimpleRenderer : public CRenderer
 {
 public:
-    SimpleRenderer(CProjection* projection_matrix);
+    SimpleRenderer(GameEngine::IGraphicsApiPtr, CProjection* projection_matrix);
 
 	virtual void Init() override;
 	virtual void PrepareFrame(GameEngine::Scene* scene) override;
@@ -24,6 +24,7 @@ private:
 	void BindTextures(const SMaterial& material) const;
 
 private:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     CSimpleEntityShader shader;
     CProjection* projectionMatrix;
 

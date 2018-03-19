@@ -1,19 +1,17 @@
 #pragma once
-#include "Types.h"
-#include "BoundingBox.h"
-#include "Material.h"
 #include "Utils.h"
+#include "Types.h"
+#include "Material.h"
 #include "MeshRawData.h"
-#include "GameEngine/Resources/VboTypes.h"
+#include "BoundingBox.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include <vector>
-
-
 
 class CMesh : public COpenGLObject
 {
 public:
     CMesh();
-	CMesh(const SMaterial& material, const mat4& transformMatix = mat4(1.f));
+	CMesh(GameEngine::IGraphicsApiPtr graphicsApi, const SMaterial& material, const mat4& transformMatix = mat4(1.f));
     CMesh(const CMesh&)         = delete;
     CMesh(CMesh&&)              = default;
     virtual ~CMesh();
@@ -24,36 +22,24 @@ public:
 	bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
 
-    const uint32& GetVao() const;
-    const uint32& GetVertexCount() const;
+    uint32 GetObjectId() const;
     const SMaterial& GetMaterial() const;
 	inline const mat4& GetMeshTransform() const;
-	inline const VboMap& GetUsedAttributes() const;
-
 	inline GameEngine::MeshRawData& GetMeshDataRef();
 
 private:
-    void CreateVaoMesh();
-    void CreateTransformsVbo(std::vector<mat4>& m);
-    void UpdateTransformVbo(std::vector<mat4>& m);
+    void CreateMesh();
     void CalculateBoudnigBox(const std::vector<float>& positions);
-    void UpdateVertexPosition(const std::vector<float>& vertices) const;
     void SetInstancedMatrixes(const std::vector<mat4>& m);
 
-    uint32 GetVbo(VertexBufferObjects type) const;
     void SetMaterial(const SMaterial& material);
     void ClearData();
 
 private:
-    SMaterial material_;
-
-    uint32 vao_;
-	VboMap vbos_;
-    uint32 vertexCount_;
-
-    // used attributes
-	VboMap attributes_;
+	GameEngine::IGraphicsApiPtr graphicsApi_;
 	GameEngine::MeshRawData meshRawData_;
+    SMaterial material_;
+	uint32 objectId_;
 
     bool isInit              = false;
     bool transformVboCreated = false;
@@ -63,11 +49,6 @@ private:
     mat4 transform_;
     BoundingBox boundingBox;
 };
-
-const VboMap& CMesh::GetUsedAttributes() const
-{
-	return attributes_;
-}
 
 const mat4& CMesh::GetMeshTransform() const
 {

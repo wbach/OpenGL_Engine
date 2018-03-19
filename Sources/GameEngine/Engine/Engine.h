@@ -3,6 +3,7 @@
 #include "../Input/InputManager.h"
 #include "../Display/DisplayManager.hpp"
 #include "../Renderers/RenderersManager.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "IntroRenderer.h"
 #include "ThreadSync.h"
 #include "EngineEvent.h"
@@ -19,31 +20,32 @@ namespace GameEngine
 		std::shared_ptr<CDisplayManager> displayManager;
 
 	public:
-		CEngine(SceneFactoryBasePtr sceneFactory);
+		CEngine(IGraphicsApiPtr graphicsApi, SceneFactoryBasePtr sceneFactory);
 		~CEngine();
 		void Init();
 		void GameLoop();
 		void AddEngineEvent(EngineEvent event);
 		void Render();
-		CDisplayManager & GetDisplayManager();
+		CDisplayManager& GetDisplayManager();
 
 	public:
 		Renderer::Gui::GuiContext guiContext_;
-		SceneManager sceneManager_;
 		InputManagerPtr inputManager_;
 		Renderer::RenderersManager renderersManager_;
+		SceneManager sceneManager_;
 
 	private:
 		void ReadConfigFile(const std::string& file_name);
 		void SetDisplay();
-		ApiMessages::Type MainLoop();
+		void MainLoop();
 		void ProcessEngineEvents();
-
-		ApiMessages::Type PrepareFrame();
+		void PrepareFrame();
 
 	private:
+		IGraphicsApiPtr graphicsApi_;
 		IntroRenderer introRenderer_;
 		std::mutex engineEventsMutex;
-		std::list<EngineEvent> engineEvents;		
+		std::list<EngineEvent> engineEvents;
+		std::atomic_bool isRunning;
 	};
 } // GameEngine

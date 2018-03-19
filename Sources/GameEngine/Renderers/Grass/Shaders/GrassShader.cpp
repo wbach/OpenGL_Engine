@@ -1,12 +1,17 @@
 #include "GrassShader.h"
 
+CGrassShader::CGrassShader(GameEngine::IGraphicsApiPtr graphicsApi)
+	: CShaderProgram(graphicsApi)
+{
+}
+
 void CGrassShader::Init()
 {
 	SetFiles
 	({
-		{ "Grass/GrassShader.vert", GL_VERTEX_SHADER },
-		{ "Grass/GrassShader.frag", GL_FRAGMENT_SHADER },
-		{ "Grass/GrassShader.geom", GL_GEOMETRY_SHADER }
+		{ "Grass/GrassShader.vert", GameEngine::ShaderType::VERTEX_SHADER },
+		{ "Grass/GrassShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER },
+		{ "Grass/GrassShader.geom", GameEngine::ShaderType::GEOMETRY_SHADER }
 	});
 
 	CShaderProgram::Init();

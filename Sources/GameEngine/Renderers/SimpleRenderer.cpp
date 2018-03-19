@@ -3,10 +3,10 @@
 #include "../Renderers/Projection.h"
 #include "../Scene/Scene.hpp"
 
-#include "OpenGL/OpenGLUtils.h"
-
-SimpleRenderer::SimpleRenderer(CProjection* projection_matrix)
-    : projectionMatrix(projection_matrix)
+SimpleRenderer::SimpleRenderer(GameEngine::IGraphicsApiPtr api, CProjection* projection_matrix)
+    : graphicsApi_(api)
+	, projectionMatrix(projection_matrix)
+	, shader(api)
 {
 }
 
@@ -14,7 +14,6 @@ void SimpleRenderer::Init()
 {
     shader.Init();
     shader.Start();
-    assert(projectionMatrix != nullptr);
     shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
     shader.Stop();
 }
@@ -66,9 +65,8 @@ void SimpleRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) 
 
 	for (const auto& mesh : model->GetMeshes())
 	{
-        Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes());
 		BindTextures(mesh.GetMaterial());
-		glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
+		graphicsApi_->RenderMesh(mesh.GetObjectId());
 	}
 }
 
@@ -76,9 +74,6 @@ void SimpleRenderer::BindTextures(const SMaterial & material) const
 {
     if (material.diffuseTexture != nullptr)
 	{
-		glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, material.diffuseTexture->GetId());
-			//TODO : load using texture to shader
-			//m_SimpleShader.LOad
+		graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 	}
 }

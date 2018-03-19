@@ -1,5 +1,4 @@
 #include "Model.h"
-
 #include "Logger/Log.h"
 #include "GLM/GLMUtils.h"
 

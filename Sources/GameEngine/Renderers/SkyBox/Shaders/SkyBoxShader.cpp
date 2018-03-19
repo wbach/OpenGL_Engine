@@ -1,6 +1,11 @@
 #include "SkyBoxShader.h"
 #include "glm/gtx/transform.hpp"
 
+CSkyBoxShader::CSkyBoxShader(GameEngine::IGraphicsApiPtr graphicsApi)
+	: CShaderProgram(graphicsApi)
+{
+}
+
 void CSkyBoxShader::Init()
 {
     m_Rotation = 0.f;
@@ -8,8 +13,8 @@ void CSkyBoxShader::Init()
 
 	SetFiles
 	({
-		{"SkyBox/SkyboxVertexShader.vert", GL_VERTEX_SHADER},
-		{"SkyBox/SkyboxFragmentShader.frag", GL_FRAGMENT_SHADER}
+		{"SkyBox/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+		{"SkyBox/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}
 	});
 
 	CShaderProgram::Init();

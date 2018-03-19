@@ -30,10 +30,10 @@ namespace MmmoRpg
 	int LoginScene::Initialize()
 	{	
 		GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
-		guiTexture.texture = resourceManager.GetTextureLaoder().LoadTexture("GUI/LoginBg_1.jpg", false);
+		guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/LoginBg_1.jpg", false);
 
 		GameEngine::Renderer::Gui::GuiTextureElement loginBox;
-		loginBox.texture = resourceManager.GetTextureLaoder().LoadTexture("GUI/login_password.jpg", false);
+		loginBox.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/login_password.jpg", false);
 		loginBox.SetScale(vec2(.3f, .3f));
 
 		login_ = "baszek";

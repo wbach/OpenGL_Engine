@@ -1,30 +1,12 @@
 #pragma once
-#include "OpenGL/OpenGLUtils.h"
+#include "Types.h"
 
 struct SSimpleQuad
 {
     bool isInit     = false;
     int indicesSize = 0;
-    GLuint vao, i_vbo, vbo_id, vbo_text_id;
-
-    void Init()
-    {
-        if (isInit)
-            return;
-
-        Utils::CreateQuad(vao, i_vbo, vbo_id, vbo_text_id, indicesSize);
-        isInit = true;
-    }
-
-    void Render(GLenum mode = GL_TRIANGLES, int att = 1)
-    {
-        if (isInit)
-            Utils::SimpleRenderVao(vao, indicesSize, att, mode);
-    }
-
-    ~SSimpleQuad()
-    {
-        if (isInit)
-            Utils::DeleteQuad(vao, i_vbo, vbo_id, vbo_text_id);
-    }
+    uint32 vao, i_vbo, vbo_id, vbo_text_id;
+	void Init();
+	void Render(uint32 mode = 0x0004, int att = 1);
+	~SSimpleQuad();
 };

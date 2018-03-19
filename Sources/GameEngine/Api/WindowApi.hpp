@@ -1,19 +1,22 @@
 #pragma once
-#include <memory>
-#include <string>
+#include "Types.h"
+#include "WindowType.h"
 #include "ApiMessages.h"
+#include <memory>
 
 namespace GameEngine
 {
 	class InputManager;
 
-	class CApi
+	class IWindowApi
 	{
 	public:
-		virtual ~CApi() = default;
+		virtual ~IWindowApi() = default;
 
-		virtual void CreateOpenGLWindow(const std::string& window_name, const int& width, const int& height, bool full_screen) = 0;
-		virtual ApiMessages::Type PeekMessages() = 0;
+		virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height, WindowType type) = 0;
+		virtual void CreateContext() = 0;
+		virtual void DeleteContext() = 0;
+		virtual void ProcessEvents() = 0;
 		virtual void UpdateWindow() = 0;
 		virtual void SetFullScreen(bool full_screen) = 0;
 		virtual bool CheckActiveWindow() = 0;
@@ -23,6 +26,6 @@ namespace GameEngine
 		virtual void SetCursorPosition(int x, int y) = 0;
 		// Take time function to lock fps, shuld be on begin main loop
 		virtual void BeginFrame() = 0;
-		virtual void LockFps(float fps) = 0;
 	};
+	typedef std::shared_ptr<IWindowApi> IWindowApiPtr;
 }

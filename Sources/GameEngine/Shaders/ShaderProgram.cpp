@@ -5,217 +5,115 @@
 #include <string>
 #include <fstream>
 
+CShaderProgram::CShaderProgram(GameEngine::IGraphicsApiPtr graphicsApi)
+	: graphicsApi_(graphicsApi)
+	, programID_(0)
+{
+}
+
 CShaderProgram::~CShaderProgram()
 {
 	Clear();
 }
 bool CShaderProgram::Init()
 {
-	if (!IsReadyToLoad())
-	{
-		Error("[Error] Shader is not ready to load.");
-		return false;
-	}
-
-	if (!CreateProgram())
-		return false;
-
-	for (const auto& p : shaderFiles)
-	{
-		if (!AddShader(p.first, p.second))
-			return false;
-	}	
-	
-	if (!FinalizeShader())
-		return false;
-
+	GameEngine::GraphicsApiFunctions f;
+	f[GameEngine::GraphicFunctionType::SHADER_SET_ID]				= std::bind(&CShaderProgram::SetProgramId, this, std::placeholders::_1);
+	f[GameEngine::GraphicFunctionType::SHADER_BIND_ATTRIBUTES]		= std::bind(&CShaderProgram::BindAttributesFunction, this, std::placeholders::_1);
+	f[GameEngine::GraphicFunctionType::SHADER_VARIABLES_LOCATION]	= std::bind(&CShaderProgram::GetAllUniformLocationsFunction, this, std::placeholders::_1);
+	f[GameEngine::GraphicFunctionType::SHADER_CONNECT_TEXTURES]		= std::bind(&CShaderProgram::ConnectTextureUnitsFunction, this, std::placeholders::_1);
+	programID_ = graphicsApi_->CreateShader(shaderFiles_, f);
 	return true;
 }
-void CShaderProgram::SetFiles(const ShadersFiles & files)
+void CShaderProgram::SetFiles(const GameEngine::ShadersFiles & files)
 {
-	shaderFiles = files;
+	shaderFiles_ = files;
 }
 void CShaderProgram::Reload()
 {
 	if (!IsReadyToLoad())
 		return;
 
-	Log("Reload shader: " + name);
+	Log("Reload shader: " + name_);
 
 	Clear();
 	Init();
 }
 bool CShaderProgram::IsReady() const
 {
-	return programID != 0;
+	return programID_ != 0;
 }
 bool CShaderProgram::IsReadyToLoad() const
 {
-	return !shaderFiles.empty();
-}
-bool CShaderProgram::CreateProgram()
-{
-	programID = glCreateProgram();
-	if (programID == 0)
-	{
-		Error("[Error] Error creating shader program.");
-		return false;
-	}
-	return true;
-}
-
-bool CShaderProgram::AddShader(const std::string& filename, GLenum mode)
-{
-	name = filename.substr(0, filename.find_last_of('.'));
-
-	auto full_path = EngineConf_GetFullShaderPath(filename);
-	EngineConf_AddRequiredFile(full_path);
-
-	std::string source = Utils::ReadFile(full_path);
-
-	uint32 id;
-	id = glCreateShader(mode);
-
-	if (id == 0)
-	{
-		Error("[Error] Error creating shader type " + mode);
-		return false;
-	}
-
-	shaderObjectsList.push_back(id);
-
-	const char* csource = source.c_str();
-
-	glShaderSource(id, 1, &csource, NULL);
-
-	glCompileShader(id);
-
-	GLint compiled = GL_FALSE;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &compiled);
-
-	if (!compiled)
-	{
-		char err[1000];
-		int length = 0;
-		glGetShaderInfoLog(id, 1000, &length, err);
-		Log("[Error] ERRORS in Shader! \nFile name:\t" + filename + "\nCompile status: \n\n" + err);
-		return false;
-	}
-	if (id == GL_FALSE)
-	{
-	}
-	glAttachShader(programID, id);
-
-	return true;
-}
-
-bool CShaderProgram::FinalizeShader()
-{
-	BindAttributes();
-
-	glLinkProgram(programID);
-
-	GLint Success = 0;
-	GLchar ErrorLog[1024] = {0};
-
-	glGetProgramiv(programID, GL_LINK_STATUS, &Success);
-	if (Success == 0)
-	{
-		glGetProgramInfoLog(programID, sizeof(ErrorLog), NULL, ErrorLog);
-		Error("[Error] Error linking shader program: " + name + " : " + std::string(ErrorLog));
-		return false;
-	}
-
-	glUseProgram(programID);
-
-	GetAllUniformLocations();
-	ConnectTextureUnits();
-
-	glValidateProgram(programID);
-	glGetProgramiv(programID, GL_VALIDATE_STATUS, &Success);
-
-	if (!Success)
-	{
-		glGetProgramInfoLog(programID, sizeof(ErrorLog), NULL, ErrorLog);
-		Error("[Error] Invalid shader program : " + name + " : " + std::string(ErrorLog));
-		return false;
-	}
-
-	for (auto& id : shaderObjectsList)
-		glDeleteShader(id);
-
-	shaderObjectsList.clear();
-
-	if (glGetError() != GL_NO_ERROR)
-	{
-		Error("[Error] Invalid shader program. " + name);
-		return false;
-	}
-
-	glUseProgram(0);
-
-	return true;
+	return !shaderFiles_.empty();
 }
 
 void CShaderProgram::Start() const
 {
-	glUseProgram(programID);
+	graphicsApi_->UseShader(programID_);
 }
 void CShaderProgram::Stop() const
 {
-	glUseProgram(0);
+	graphicsApi_->UseShader(0);
 }
 int CShaderProgram::GetUniformLocation(const std::string& uniformName) const
 {
-	return glGetUniformLocation(programID, uniformName.c_str());
+	return graphicsApi_->GetShaderVariableLocation(programID_, uniformName.c_str());
+}
+void CShaderProgram::SetProgramId(uint32 id)
+{
+	programID_ = id;
+}
+void CShaderProgram::GetAllUniformLocationsFunction(uint32)
+{
+	GetAllUniformLocations();
+}
+void CShaderProgram::BindAttributesFunction(uint32)
+{
+	BindAttributes();
+}
+void CShaderProgram::ConnectTextureUnitsFunction(uint32)
+{
+	ConnectTextureUnits();
 }
 void CShaderProgram::Clear()
 {
-	Stop();
-
-	for (auto& id : shaderObjectsList)
-	{
-		glDetachShader(programID, id);
-		glDeleteShader(id);
-	}
-
-	if (programID != 0)
-		glDeleteProgram(programID);
+	graphicsApi_->DeleteObject(programID_);
 }
 void CShaderProgram::BindAttribute(int attribute, const std::string& variableName) const
 {
-	glBindAttribLocation(programID, attribute, variableName.c_str());
+	graphicsApi_->BindAttribute(programID_, attribute, variableName);
 }
 void CShaderProgram::LoadValue(uint32 loacation, const mat4& value) const
 {
-	glUniformMatrix4fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
+	graphicsApi_->LoadValueToShader(loacation, value);
 }
 void CShaderProgram::LoadValue(uint32 loacation, const mat3& value) const
 {
-	glUniformMatrix3fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
+	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
 void CShaderProgram::LoadValue(uint32 loacation, const float& value) const
 {
-	glUniform1f(loacation, value);
+	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
 void CShaderProgram::LoadValue(uint32 loacation, const int& value) const
 {
-	glUniform1i(loacation, value);
+	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
 void CShaderProgram::LoadValue(uint32 loacation, const vec2& value) const
 {
-	glUniform2fv(loacation, 1, glm::value_ptr(value));
+	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
 void CShaderProgram::LoadValue(uint32 loacation, const vec3& value) const
 {
-	glUniform3fv(loacation, 1, glm::value_ptr(value));
+	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
 void CShaderProgram::LoadValue(uint32 loacation, const vec4& value) const
 {
-	glUniform4fv(loacation, 1, glm::value_ptr(value));
+	graphicsApi_->LoadValueToShader(loacation, value);
 }

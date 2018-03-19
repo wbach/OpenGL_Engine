@@ -23,6 +23,7 @@ namespace WBLoader
 		void ProcesFace(WBLoader::Object* object, WBLoader::Mesh* mesh, const std::string& value);
 		void ProcesObject(WBLoader::Object*& object, const std::string& value);
 		void ProcesMaterial(WBLoader::Object* object, WBLoader::Mesh*& mesh, const std::string& value);
+		void Clear();
 
 	private:
 		std::list<std::string> fileData;
@@ -31,7 +32,6 @@ namespace WBLoader
 		CTextureLoader&	textureLodaer;
 		
 		std::list<SMaterial> materials;
-
 		std::vector<vec3> vertex;
 		std::vector<vec2> text_coords;
 		std::vector<vec3> normals;

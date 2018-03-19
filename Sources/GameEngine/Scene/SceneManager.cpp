@@ -6,13 +6,14 @@
 
 namespace GameEngine
 {
-	SceneManager::SceneManager(SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
-		: sceneFactory_(sceneFactory)
+	SceneManager::SceneManager(IGraphicsApiPtr grahpicsApi, SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
+		: grahpicsApi_(grahpicsApi)
+		, sceneFactory_(sceneFactory)
 		, displayManager_(displayManager)
 		, inputManager_(inputManager)
 		, renderersManager_(renderersManager)
 		, guiContext_(guiContext)
-		, sceneWrapper_(displayManager)
+		, sceneWrapper_(grahpicsApi, displayManager)
 		, currentSceneId_(0)
 	{
 		threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
@@ -80,6 +81,7 @@ namespace GameEngine
 
 	void SceneManager::SetFactor()
 	{
+		sceneFactory_->SetGraphicsApi(grahpicsApi_);
 		sceneFactory_->SetDisplayManager(displayManager_.get());
 		sceneFactory_->SetInputManager(inputManager_.get());
 		sceneFactory_->SetRenderersManager(&renderersManager_);

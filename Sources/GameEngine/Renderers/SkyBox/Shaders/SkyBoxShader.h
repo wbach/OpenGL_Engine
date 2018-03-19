@@ -4,6 +4,7 @@
 class CSkyBoxShader : public CShaderProgram
 {
 public:
+	CSkyBoxShader(GameEngine::IGraphicsApiPtr graphicsApi);
     void Init();
     void LoadProjectionMatrix(const mat4& matrix) const;
     void LoadViewMatrix(mat4 matrix, const float& deltaTime, const float& distance_view);

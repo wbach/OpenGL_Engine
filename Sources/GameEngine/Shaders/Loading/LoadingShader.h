@@ -5,9 +5,9 @@
 class CLoadingShader : public CShaderProgram 
 {
 public:
-	CLoadingShader() {}
+	CLoadingShader(GameEngine::IGraphicsApiPtr);
 	void Init();
-	void LoadIsTextured(const float&) const;	
+	void LoadIsTextured(const float&) const;
 	void LoadTransformMatrix(const mat4&) const;
 	void LoadProjectionMatrix(const mat4&) const;
 	void LoadViewMatrix(const mat4&) const;

@@ -1,20 +1,19 @@
 #include "Engine.h"
-#include "SingleTon.h"
 #include "Configuration.h"
-#include "../Api/ApiMessages.h"
-#include "AplicationContext.h"
-#include <GL/glew.h>
 #include "Logger/Log.h"
-#include <fstream>
 
 namespace GameEngine
 {
-	CEngine::CEngine(SceneFactoryBasePtr sceneFactory)
+	CEngine::CEngine(IGraphicsApiPtr graphicsApi, SceneFactoryBasePtr sceneFactory)
 		: displayManager(nullptr)
-		, sceneManager_(sceneFactory, displayManager, inputManager_, renderersManager_, guiContext_)
 		, inputManager_(nullptr)
-		, introRenderer_(displayManager)
+		, renderersManager_(graphicsApi)
+		, sceneManager_(graphicsApi, sceneFactory, displayManager, inputManager_, renderersManager_, guiContext_)
+		, introRenderer_(graphicsApi, displayManager)
+		, graphicsApi_(graphicsApi)
+		, isRunning(true)
 	{
+		graphicsApi_->SetBackgroundColor(vec3(.8f));
 		ReadConfigFile("./Conf.xml");
 		SetDisplay();
 		sceneManager_.SetFactor();
@@ -36,17 +35,20 @@ namespace GameEngine
 	void CEngine::SetDisplay()
 	{
 		auto& conf = EngineConf;
-		displayManager = std::make_shared<CDisplayManager>(conf.windowName, conf.resolution.x, conf.resolution.y, conf.fullScreen);
-		inputManager_ = displayManager->GetApi()->CreateInput();
+		
+		WindowType type = WindowType::WINDOW;
+		if (conf.fullScreen)
+			type = WindowType::FULL_SCREEN;
+
+		displayManager = std::make_shared<CDisplayManager>(graphicsApi_, conf.windowName, conf.resolution.x, conf.resolution.y, type);
+		inputManager_ = displayManager->CreateInput();
 		introRenderer_.Render();
 	}
 
 	void CEngine::GameLoop()
 	{
-		ApiMessages::Type apiMessage = ApiMessages::NONE;
-
-		while (apiMessage != ApiMessages::QUIT)
-			apiMessage = MainLoop();
+		while (isRunning.load())
+			MainLoop();
 	}
 
 	void CEngine::AddEngineEvent(EngineEvent event)
@@ -65,16 +67,14 @@ namespace GameEngine
 		return *displayManager;
 	}
 
-	ApiMessages::Type CEngine::MainLoop()
+	void CEngine::MainLoop()
 	{
-		ApiMessages::Type apiMessage = ApiMessages::NONE;
-
 		inputManager_->GetPressedKeys();
 		sceneManager_.RuntimeLoadObjectToGpu();
-		apiMessage = PrepareFrame();
+		PrepareFrame();
 
 		if (inputManager_->GetKey(KeyCodes::ESCAPE))
-			apiMessage = ApiMessages::QUIT;
+			isRunning.store(false);
 
 		Render();
 		sceneManager_.Update();
@@ -82,8 +82,6 @@ namespace GameEngine
 		ProcessEngineEvents();
 
 		displayManager->Update();
-
-		return apiMessage;
 	}
 
 	void CEngine::ProcessEngineEvents()
@@ -109,17 +107,15 @@ namespace GameEngine
 		}
 	}
 
-	ApiMessages::Type CEngine::PrepareFrame()
+	void CEngine::PrepareFrame()
 	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(.8f, .8f, .8f, 1.f);
-		return displayManager->PeekApiMessage();
+		graphicsApi_->PrepareFrame();
+		displayManager->ProcessEvents();
 	}
 
 	void CEngine::Init()
 	{
-		glEnable(GL_DEPTH_TEST);
+		graphicsApi_->EnableDepthTest();
 		renderersManager_.Init();
 	}	
 } // GameEngine

@@ -1,5 +1,6 @@
 #pragma once
 #include "RendererContext.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "Renderer.h"
 #include <memory>
 #include <vector>
@@ -11,7 +12,7 @@ class CProjection;
 class FullRenderer : public CRenderer
 {
 public:
-    FullRenderer(CProjection* projection_matrix);
+    FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix);
 	~FullRenderer();
     // Loading lights itp to shader
     virtual void Init() override;
@@ -24,6 +25,7 @@ public:
     virtual void ReloadShaders() override;
 
 private:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     CProjection* projectionMatrix;
 
     // ShadowMap renderes, etc...

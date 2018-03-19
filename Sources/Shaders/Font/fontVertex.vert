@@ -1,13 +1,16 @@
 #version 120
-uniform mat4 transformationMatrix ;
-uniform vec2 translation ;
-varying vec4 colour ;
+uniform mat4 transformationMatrix;
+uniform vec2 translation;
+uniform vec3 color;
+varying vec4 colour;
+
 void main()
 {
-// gl_Position = vec4(position + translation * vec2(2.0 , -2.0),0.0,1.0) ;
-  //  gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(gl_Vertex.xy,1,1);
+	mat4 mvp = transformationMatrix * gl_ModelViewMatrix;
+	vec4 position = vec4(gl_Vertex.xy, 0.0, 1.0);	
+	vec2 posxy = (mvp * position).xy;
 	
-	gl_Position = vec4((transformationMatrix*gl_ModelViewMatrix * vec4(gl_Vertex.xy, 0.0,1.0)).xy  + translation ,0.0,1.0)  ;
-	colour = gl_Color;   
+	gl_Position = vec4( posxy + translation, 0.0, 1.0);
+	colour = vec4(color, 1.f);   
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 }

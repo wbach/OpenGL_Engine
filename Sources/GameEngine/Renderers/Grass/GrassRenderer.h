@@ -1,6 +1,7 @@
 #pragma once
 #include "../Renderer.h"
 #include "Shaders/GrassShader.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 
 struct SGrass;
 class CMesh;
@@ -10,7 +11,7 @@ class CProjection;
 class CGrassRenderer : public CRenderer
 {
 public:
-    CGrassRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer);
+    CGrassRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
     virtual void Init() override;
     virtual void PrepareFrame(GameEngine::Scene* scene) override;
     virtual void Render(GameEngine::Scene* scene) override;
@@ -28,6 +29,7 @@ private:
     void PrepareShader(GameEngine::Scene* scene);
 
 private:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     CGrassShader shader;
     CProjection* projection;
 

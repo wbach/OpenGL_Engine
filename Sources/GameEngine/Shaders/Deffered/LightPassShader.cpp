@@ -4,11 +4,15 @@ void CLightPassShader::Init()
 {
 	SetFiles
 	({
-		{"Light/LightPassShader.vert", GL_VERTEX_SHADER},
-		{"Light/LightPassShader.frag", GL_FRAGMENT_SHADER},
+		{"Light/LightPassShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+		{"Light/LightPassShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER},
 	});
 	
 	CShaderProgram::Init();
+}
+CLightPassShader::CLightPassShader(GameEngine::IGraphicsApiPtr graphicsApi)
+	: CShaderProgram(graphicsApi)
+{
 }
 void CLightPassShader::GetAllUniformLocations()
 {

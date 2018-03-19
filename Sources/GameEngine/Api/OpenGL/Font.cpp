@@ -1,6 +1,16 @@
 #include "Font.h"
-#include "../../../Engine/Configuration.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "OpenGL/OpenGLUtils.h"
+#include "Logger/Log.h"
+#include <ft2build.h>
+#include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
+#include <freetype/ftoutln.h>
+#include <freetype/fttrigon.h>
+#include <fstream>
+#include <vector>
+
+void CreateList(uint32 listBase, SCharacter* characters, FT_Face face, char ch);
 
 CFont::~CFont()
 {
@@ -13,13 +23,14 @@ CFont::~CFont()
 	glDeleteLists(listBase, m_MaxCharacters);
 }
 
-void CFont::Init(const std::string& file_name_relative, const wb::vec2i& window_size)
+void CFont::Init(const std::string& file_name_relative)
 {	
 	auto file_name = EngineConf_GetFullDataPathAddToRequierd(file_name_relative);
 
 	std::ifstream tryfile(file_name);
-	if (!tryfile.is_open()) {
-		std::cout << "[Error] The file " << file_name << " wasnt successfuly opened \n";
+	if (!tryfile.is_open()) 
+	{
+		Log("[Error] The file " + file_name + " wasnt successfuly opened \n");
 		throw std::runtime_error("The file wasnt successfuly opened");
 	}
 	tryfile.close();
@@ -59,7 +70,7 @@ void CFont::Init(const std::string& file_name_relative, const wb::vec2i& window_
 	
 	//This is where we actually create each of the fonts display lists.
 	for (unsigned char i = 0; i<128; i++)
-		CreateList(face, i);
+		CreateList(listBase, characters, face, i);
 
 	//We don't need the face information now that the display
 	//lists have been created, so we free the assosiated resources.
@@ -133,7 +144,7 @@ void CFont::Print(const int& x, const int& y, const std::string& fmt) const
 
 }
 
-void CFont::CreateList(FT_Face face, char ch)
+void CreateList(uint32 listBase, SCharacter* characters, FT_Face face, char ch)
 {
 	//The first thing we do is get FreeType to geometryPass our character
 	//into a bitmap.  This actually requires a couple of FreeType commands:
@@ -161,7 +172,7 @@ void CFont::CreateList(FT_Face face, char ch)
     uint32 height = Utils::NextP2(bitmap.rows);
 
 	//Allocate memory for the texture data.
-	GLubyte* expanded_data = new GLubyte[2 * width * height];
+	uint8* expanded_data = new uint8[2 * width * height];
 
 	//Here we fill in the data for the expanded bitmap.
 	//Notice that we are using two channel bitmap (one for

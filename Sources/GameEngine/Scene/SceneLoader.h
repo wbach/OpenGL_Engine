@@ -1,5 +1,6 @@
 #pragma once
-#include "../Resources/ResourceManager.h"
+#include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "Thread.hpp"
 #include "Mutex.hpp"
 #include <memory>
@@ -16,7 +17,7 @@ namespace GameEngine
 	class SceneLoader
 	{
 	public:
-		SceneLoader(std::shared_ptr<CDisplayManager>& displayManager);
+		SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<CDisplayManager>& displayManager);
 		~SceneLoader();
 		bool Load(Scene* scene);
 
@@ -34,6 +35,7 @@ namespace GameEngine
 		void OpenGLLoadingPass(Scene* scene, std::thread& loading_thread);
 
 	private:
+		IGraphicsApiPtr graphicsApi_;
 		int objectCount;
 		int objectLoaded;
 		std::unique_ptr<CLoadingScreenRenderer> loadingScreenRenderer;

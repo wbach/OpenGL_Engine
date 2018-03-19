@@ -20,7 +20,7 @@ CGameObject * ObjectBuilder::CreateEntity(CResourceManager* manager, const std::
 	return e;
 }
 
-CGameObject * ObjectBuilder::CreateGrass(CResourceManager & manager, const std::vector<float>& grass_position, const std::string & grass_texture)
+CGameObject * ObjectBuilder::CreateGrass(CResourceManager& manager, const std::vector<float>& grass_position, const std::string & grass_texture)
 {
 	return TerrainUtils::CreateGrass(manager, grass_position, grass_texture);
 }

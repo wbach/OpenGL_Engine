@@ -4,6 +4,7 @@
 class CGrassShader : public CShaderProgram
 {
 public:
+	CGrassShader(GameEngine::IGraphicsApiPtr graphicsApi);
 	void Init();
 	void LoadTransformMatrix(const mat4&) const;
 	void LoadProjectionMatrix(const mat4&) const;

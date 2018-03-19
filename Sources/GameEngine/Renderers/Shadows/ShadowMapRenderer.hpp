@@ -4,6 +4,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Renderers/Renderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 
 class CMesh;
 class CCamera;
@@ -26,7 +27,7 @@ class CShadowMapRenderer : public CRenderer
 	typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
 
 public:
-    CShadowMapRenderer(CProjection* projection, GameEngine::RendererContext* rendererContext);
+    CShadowMapRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection, GameEngine::RendererContext* rendererContext);
     virtual void Init() override;
     virtual void PrepareFrame(GameEngine::Scene* scene) override;
     virtual void Render(GameEngine::Scene* scene) override;
@@ -42,7 +43,7 @@ private:
     void BindMaterial(const SMaterial&) const;
 
 private:
-
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     CProjection* projection;
 	GameEngine::RendererContext* rendererContext_;
     CShadowShader shader;

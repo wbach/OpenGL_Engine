@@ -1,11 +1,16 @@
 #include "ShadowShader.h"
 
+CShadowShader::CShadowShader(GameEngine::IGraphicsApiPtr graphicsApi)
+	: CShaderProgram(graphicsApi)
+{
+}
+
 void CShadowShader::Init()
 {
     SetFiles
     ({
-        {"Shadows/ShadowVertexShader.vert", GL_VERTEX_SHADER},
-        {"Shadows/ShadowFragmentShader.frag", GL_FRAGMENT_SHADER}
+        {"Shadows/ShadowVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+        {"Shadows/ShadowFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}
     });
 
     CShaderProgram::Init();

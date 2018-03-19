@@ -1,13 +1,14 @@
 #include "MaterialTexture.h"
 #include "Logger/Log.h"
 
-CMaterialTexture::CMaterialTexture(bool keepData, const std::string & file, const std::string & filepath, SImagePtr image)
-	: CTexture(file, filepath)
+using namespace GameEngine;
+
+CMaterialTexture::CMaterialTexture(GameEngine::IGraphicsApiPtr graphicsApi, bool keepData, const std::string & file, const std::string & filepath, SImagePtr image)
+	: CTexture(graphicsApi, file, filepath)
     , image(image)
     , keepData(keepData)
 {
 }
-
 
 void CMaterialTexture::OpenGLLoadingPass()
 {
@@ -17,34 +18,19 @@ void CMaterialTexture::OpenGLLoadingPass()
 		return;
 	}
 
-    glGenTextures(1, &id);
-	GLenum hubo_error = glGetError();
+	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
+	id = graphicsApi_->CreateTexture(TextureType::U8_RGBA, TextureFilter::NEAREST, TextureMipmap::LINEAR, BufferAtachment::NONE, vec2i(image->width, image->height), &image->data[0]);
 
-	if (hubo_error)
+	if (id == 0)
 	{
 		image->data.clear();
 		Log("[Error] OGL There was an error loading the texture : " + filename + " cannot create texture.");
 		return;
 	}
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-
-    glBindTexture(GL_TEXTURE_2D, id);
-	// Give the image to OpenGL
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width, image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*) &image->data[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
     if (!keepData)
 	{
         image->data.clear();
 	}		
     isInit = true;
-
 	Log("File " + filename + " is in GPU. OpenGL pass succes");
 }

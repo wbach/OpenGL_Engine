@@ -1,24 +1,25 @@
 #pragma once
-#include <GL/glew.h>
-#include "../Utils/Utils.h"
+#include "Utils/Utils.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 
 class CShadowFrameBuffer
 {
 public:
-    CShadowFrameBuffer();
+    CShadowFrameBuffer(GameEngine::IGraphicsApiPtr graphicsApi);
     virtual ~CShadowFrameBuffer();
 
     void BindFBO();
     void UnbindFrameBuffer() const;
     void InitialiseFrameBuffer();
-    const GLuint& GetShadowMap() const;
+    uint32 GetShadowMap() const;
 
 private:
-    GLuint m_Fbo;
-    GLuint m_ShadowMap;
+	GameEngine::IGraphicsApiPtr graphicsApi_;
+    uint32 fbo;
+	uint32 shadowMap;
 
-    vec2i m_Size;
-    vec2i m_WindowSize;
+    vec2i size;
+    vec2i windowSize;
 
-    bool m_IsInit = false;
+    bool isInit = false;
 };

@@ -1,8 +1,10 @@
 #include "HeightMap.h"
 #include "Logger/Log.h"
 
-HeightMap::HeightMap(bool keepData, const std::string & file, const std::string & filepath, SImagePtr image)
-	: CTexture(file, filepath)
+using namespace GameEngine;
+
+HeightMap::HeightMap(GameEngine::IGraphicsApiPtr graphicsApi, bool keepData, const std::string & file, const std::string & filepath, SImagePtr image)
+	: CTexture(graphicsApi, file, filepath)
 	, image(std::move(image))
 	, keepData(keepData)
 {
@@ -16,35 +18,21 @@ void HeightMap::OpenGLLoadingPass()
 		return;
 	}
 
-	//for(auto& d : image.shortData)
+	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
+	id = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_1C, TextureFilter::LINEAR, TextureMipmap::NONE, BufferAtachment::NONE, vec2i(image->width, image->height), &image->floatData[0]);
 
-
-	glGenTextures(1, &id);
-	GLenum hubo_error = glGetError();
-
-	if (hubo_error)
+	if (id == 0)
 	{
 		image->data.clear();
 		Log("[Error] OGL There was an error loading the texture : " + filename + " cannot create texture.");
 		return;
 	}
 
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-
-	glBindTexture(GL_TEXTURE_2D, id);
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, image->width, image->height, 0, GL_RED, GL_FLOAT, (GLvoid*) &image->floatData[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	if (!keepData)
 	{
 		image->floatData.clear();
 	}
 	isInit = true;
-
 	Log("File " + filename + " is in GPU. OpenGL pass succes");
 }
 

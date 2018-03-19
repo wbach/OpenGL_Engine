@@ -1,20 +1,23 @@
 #pragma once
-#include <GL/glew.h>
-#include <string>
-#include "../OpenGLObject.h"
+#include "Types.h"
 #include "TextureFlip.h"
+#include "GameEngine/Api/IGraphicsApi.h"
+#include "../OpenGLObject.h"
+#include <string>
 
 class CTexture : public COpenGLObject
 {
 public:
-    CTexture()
+	CTexture() {}
+    CTexture(GameEngine::IGraphicsApiPtr graphicsApi)
+		: graphicsApi_(graphicsApi)
     {
     }
-    CTexture(const std::string& file, const std::string& filepath, bool applySizeLimit = true);
+    CTexture(GameEngine::IGraphicsApiPtr graphicsApi, const std::string& file, const std::string& filepath, bool applySizeLimit = true);
     virtual ~CTexture();
 
 	virtual void OpenGLLoadingPass() {}
-    const GLuint& GetId() const
+	uint32 GetId() const
     {
         return id;
     }
@@ -26,7 +29,7 @@ public:
     {
         return fullpath;
     }
-	void SetExistId(GLuint i)
+	void SetExistId(uint32 i)
 	{
 		id = i;
 	}
@@ -36,11 +39,12 @@ public:
 	}
 
 protected:
+	GameEngine::IGraphicsApiPtr graphicsApi_;
     std::string filename;
     std::string fullpath;
 
     bool applySizeLimit = true;
 
-    GLuint id   = 0;
+	uint32 id   = 0;
     bool isInit = false;
 };

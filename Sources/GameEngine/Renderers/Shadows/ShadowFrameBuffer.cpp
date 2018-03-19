@@ -1,11 +1,11 @@
 #include "ShadowFrameBuffer.h"
-#include "OpenGL/OpenGLUtils.h"
-#include "../../Engine/Configuration.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 
-CShadowFrameBuffer::CShadowFrameBuffer()
-    : m_WindowSize(EngineConf.resolution)
-    , m_Size(EngineConf.shadowMapSize)
+CShadowFrameBuffer::CShadowFrameBuffer(GameEngine::IGraphicsApiPtr graphicsApi)
+    : graphicsApi_(graphicsApi)
+	, windowSize(EngineConf.resolution)
+    , size(EngineConf.shadowMapSize)
 {
     InitialiseFrameBuffer();
 }
@@ -14,29 +14,31 @@ CShadowFrameBuffer::~CShadowFrameBuffer()
 {
 	Log(__FUNCTION__);
 
-	glDeleteTextures(1, &m_ShadowMap);
-	glDeleteFramebuffers(1, &m_Fbo);
+	graphicsApi_->DeleteObject(shadowMap);
+	graphicsApi_->DeleteObject(fbo);
 }
 
 void CShadowFrameBuffer::BindFBO()
 {
-    Utils::BindFrameBuffer(m_Fbo, m_Size.x, m_Size.y);
+	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, fbo);
+	graphicsApi_->SetViewPort(0, 0, size.x, size.y);
 }
 
 void CShadowFrameBuffer::UnbindFrameBuffer() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, m_WindowSize.x, m_WindowSize.y);
+	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, 0);
+	graphicsApi_->SetViewPort(0, 0, windowSize.x, windowSize.y);
 }
 
 void CShadowFrameBuffer::InitialiseFrameBuffer()
 {
-	m_Fbo = Utils::CreateFrameBuffer();
-    m_ShadowMap = Utils::CreateDepthBufferAttachment(m_Size.x, m_Size.y);
+	fbo = graphicsApi_->CreateBuffer();
+	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, fbo);
+    shadowMap = graphicsApi_->CreateShadowMap(size.x, size.y);
 	UnbindFrameBuffer();
 }
 
-const GLuint & CShadowFrameBuffer::GetShadowMap() const
+uint32 CShadowFrameBuffer::GetShadowMap() const
 {
-	return m_ShadowMap;
+	return shadowMap;
 }

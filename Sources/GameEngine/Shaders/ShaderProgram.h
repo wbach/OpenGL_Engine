@@ -2,23 +2,21 @@
 //#define _CRT_SECURE_NO_WARNINGS
 #include "Utils.h"
 #include "Types.h"
-#include <GL/glew.h>
+#include "GameEngine/Api/IGraphicsApi.h"
 #include <list>
 #include <unordered_map>
 
 const int MAX_BONES = 100;
 
-typedef std::unordered_map<std::string, GLenum> ShadersFiles;
-
 class CShaderProgram
 {
 public:
-
+	CShaderProgram(GameEngine::IGraphicsApiPtr graphicsApi);
 	virtual ~CShaderProgram();
 	
 	bool Init();
 	void Reload();
-	void SetFiles(const ShadersFiles&);
+	void SetFiles(const GameEngine::ShadersFiles&);
 	
 	bool IsReady() const;
 	bool IsReadyToLoad() const;
@@ -29,14 +27,16 @@ public:
 	int GetUniformLocation(const std::string& uniformName) const;
 
 protected:
-	void Clear();
-	void BindAttribute(int attribute, const std::string& variableName) const;
-	bool CreateProgram();
-	bool AddShader(const std::string& filename, GLenum mode);
-	bool FinalizeShader();
 	virtual void GetAllUniformLocations() {}
 	virtual void BindAttributes() {}
 	virtual void ConnectTextureUnits() const {}
+	void SetProgramId(uint32);
+	void GetAllUniformLocationsFunction(uint32);
+	void BindAttributesFunction(uint32);
+	void ConnectTextureUnitsFunction(uint32);
+
+	void Clear();
+	void BindAttribute(int attribute, const std::string& variableName) const;
 	void LoadValue(uint32 loacation, const int& value) const;
 	void LoadValue(uint32 loacation, const float& value) const;
 	void LoadValue(uint32 loacation, const vec2& value) const;
@@ -46,8 +46,9 @@ protected:
 	void LoadValue(uint32 loacation, const mat4& value) const;
 
 private:
-    int programID = 0;
-	ShadersFiles shaderFiles;
-    std::list<GLuint> shaderObjectsList;
-	std::string name;
+	GameEngine::IGraphicsApiPtr graphicsApi_;
+    uint32 programID_;
+	std::string name_;
+	GameEngine::ShadersFiles shaderFiles_;
+    std::list<uint32> shaderObjectsList_;
 };

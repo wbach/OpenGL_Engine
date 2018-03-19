@@ -20,7 +20,7 @@ namespace GameEngine
 		class ComponentFactory
 		{
 		public:
-			ComponentFactory(ComponentController& componentController, Time& time, CResourceManager& resourcesManager);
+			ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager);
 			std::unique_ptr<AbstractComponent> Create(ComponentsType type);
 			void SetRendererManager(Renderer::RenderersManager* rendererManager);
 
@@ -30,7 +30,7 @@ namespace GameEngine
 
 		private:
 			ComponentController& componentController_;
-			CResourceManager&	resourcesManager_;
+			std::shared_ptr<CResourceManager>& resourceManager_;
 			Renderer::RenderersManager* rendererManager_;
 			Time& time_;
 		};

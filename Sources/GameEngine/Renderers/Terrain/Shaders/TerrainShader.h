@@ -36,7 +36,7 @@ namespace GameEngine
 			displacementMap
 		};
 
-		TerrainShader();
+		TerrainShader(IGraphicsApiPtr graphicsApi);
 		void GetAllUniformLocations();
 		void BindAttributes() override;
 		void ConnectTextureUnits() const override;

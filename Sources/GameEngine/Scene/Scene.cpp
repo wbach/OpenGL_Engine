@@ -11,7 +11,7 @@ namespace GameEngine
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new CCamera)
 		, inputManager_(nullptr)
-		, componentFactory_(componentController_, time_, resourceManager)
+		, componentFactory_(componentController_, time_, resourceManager_)
 	{
 	}
 

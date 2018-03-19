@@ -3,70 +3,48 @@
 
 namespace GameEngine
 {
-	CDisplayManager::CDisplayManager()
-	{
-	}
-
-	CDisplayManager::CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen)
-		: CDisplayManager(std::make_unique<CSdlOpenGlApi>(), window_name, w, h, full_screen)
-	{
-	}
-
-	CDisplayManager::CDisplayManager(std::unique_ptr<CApi> capi, const std::string& window_name, const int& w, const int& h, bool full_screen)
-		: api(std::move(capi))
-		, fpsCap(60)
+	CDisplayManager::CDisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h, WindowType type)
+		: api(api)
 		, windowsSize({ w, h })
 	{
-		if (api == nullptr)
+		if (api == nullptr || api->GetWindowApi() == nullptr)
 		{
 			Log("[Error] API not set!.Press any key.");
 			return;
 		}
 
-		api->CreateOpenGLWindow(window_name, w, h, full_screen);
-		timeMeasurer.AddOnTickCallback(std::bind(&CDisplayManager::PrintFps, this));
+		api->GetWindowApi()->CreateWindow(window_name, w, h, type);
+		api->CreateContext();
+		api->Init();
+		api->PrintVersion();
 	}
 
 	CDisplayManager::~CDisplayManager()
 	{
+		api->DeleteContext();
 		Log(__func__);
 	}
 
-	ApiMessages::Type CDisplayManager::PeekApiMessage()
+	void CDisplayManager::ProcessEvents()
 	{
 		timeMeasurer.CalculateAndLock();
-
-		if (api != nullptr)
-			return	api->PeekMessages();
-		return ApiMessages::NONE;
-	}
-
-	void CDisplayManager::PrintFps()
-	{
-		std::string msg = "Thread id : renderer, fps : " + std::to_string(timeMeasurer.GetFps());
-		Log(msg);
+		api->GetWindowApi()->ProcessEvents();
 	}
 
 	void CDisplayManager::Update()
 	{
-		if (api != nullptr)
-			api->UpdateWindow();
-
-		if (api != nullptr && sync)
-			api->LockFps((float)fpsCap);
-
+		api->GetWindowApi()->UpdateWindow();
 		timeMeasurer.EndFrame();
 	}
 
 	void CDisplayManager::SetRefreshRate(const int & rate)
 	{
-		fpsCap = rate;
+
 	}
 
 	void CDisplayManager::SetFullScreen(bool full_screen)
 	{
-		if (api != nullptr)
-			api->SetFullScreen(isFullScreen);
+		api->GetWindowApi()->SetFullScreen(isFullScreen);
 	}
 
 	const int CDisplayManager::GetFps()
@@ -81,19 +59,16 @@ namespace GameEngine
 
 	void CDisplayManager::ShowCoursor(bool show)
 	{
-		if (api != nullptr)
-			api->ShowCursor(show);
+		api->GetWindowApi()->ShowCursor(show);
 	}
 
 	bool CDisplayManager::CheckActiveWindow()
 	{
-		if (api != nullptr)
-			return api->CheckActiveWindow();
-		return false;
+		return api->GetWindowApi()->CheckActiveWindow();
 	}
 
-	void CDisplayManager::SetApi(std::unique_ptr<CApi>& api)
+	std::shared_ptr<InputManager> CDisplayManager::CreateInput()
 	{
-		api = std::move(api);
+		return api->GetWindowApi()->CreateInput();
 	}
 } // GameEngine

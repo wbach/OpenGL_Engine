@@ -7,7 +7,7 @@
 class CCubeMapTexture : public CTexture
 {
 public:
-	CCubeMapTexture(const std::string& name, const std::vector<SImagePtr>&  image);
+	CCubeMapTexture(GameEngine::IGraphicsApiPtr graphicsApi, const std::string& name, const std::vector<SImagePtr>&  image);
 	virtual void OpenGLLoadingPass() override;
 
 private:

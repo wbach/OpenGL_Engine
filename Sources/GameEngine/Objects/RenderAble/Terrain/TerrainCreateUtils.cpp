@@ -50,15 +50,15 @@ SMaterial TerrainUtils::CreateGrassMaterial(CResourceManager & manager, const st
 	return grass_material;
 }
 
-void TerrainUtils::CreateGrassMesh(CResourceManager & manager, SGrass * grass, const std::vector<float>& positions, const SMaterial & material)
+void TerrainUtils::CreateGrassMesh(CResourceManager& manager, SGrass * grass, const std::vector<float>& positions, const SMaterial & material)
 {
-	CMesh m(material);
+ 	CMesh m(manager.GetGraphicsApi(), material);
 	m.GetMeshDataRef().positions_ = positions;
 	grass->model->AddMesh( m );
 	manager.AddModel(grass->model);
 }
 
-CGameObject * TerrainUtils::CreateGrass(CResourceManager & manager, const std::vector<float>& grass_position, const std::string & grass_texture)
+CGameObject * TerrainUtils::CreateGrass(CResourceManager& manager, const std::vector<float>& grass_position, const std::string & grass_texture)
 {
 	if (grass_position.empty())	return nullptr;
 

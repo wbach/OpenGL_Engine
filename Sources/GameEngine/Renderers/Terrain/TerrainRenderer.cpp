@@ -8,12 +8,13 @@
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "GLM/GLMUtils.h"
-#include "OpenGL/OpenGLUtils.h"
 
 namespace GameEngine
 {
-	CTerrainRenderer::CTerrainRenderer(CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext)
+	CTerrainRenderer::CTerrainRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext)
 		: CRenderer(framebuffer)
+		, graphicsApi_(graphicsApi)
+		, shader(graphicsApi)
 		, projectionMatrix(projection_matrix)
 		, clipPlane(vec4(0, 1, 0, 100000))
 		, rendererContext_(shadowRendererContext)
@@ -22,12 +23,7 @@ namespace GameEngine
 	void CTerrainRenderer::Init()
 	{
 		InitShader();
-
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
-		glBindVertexArray(0);
-
+		objectId = graphicsApi_->CreatePurePatchMeshInstanced(4, static_cast<uint32>(Terrain::SIZE * Terrain::SIZE));
 		Log("CTerrainRenderer initialized.");
 	}
 	void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
@@ -68,9 +64,7 @@ namespace GameEngine
 			return;
 
 		BindTextures(sub);
-
-		Utils::EnableVao ev(vao, {});
-		glDrawArraysInstanced(GL_PATCHES, 0, 4, static_cast<int>(Terrain::SIZE * Terrain::SIZE));
+		graphicsApi_->RenderPurePatchedMeshInstances(objectId);
 	}
 	void CTerrainRenderer::InitShader()
 	{
@@ -83,7 +77,7 @@ namespace GameEngine
 	}
 	void CTerrainRenderer::BindTextures(TerrainPtr terrain) const
 	{
-		Utils::ActiveBindTexture(0, rendererContext_->shadowsFrameBuffer->GetShadowMap());
+		graphicsApi_->ActiveTexture(0, rendererContext_->shadowsFrameBuffer->GetShadowMap());
 
 		const auto& textures = terrain->Get()->textures;
 		for (const auto& t : textures)
@@ -94,7 +88,7 @@ namespace GameEngine
 		if (texture == nullptr)
 			return;
 
-		Utils::ActiveBindTexture(id, texture->GetId());
+		graphicsApi_->ActiveTexture(id, texture->GetId());
 	}
 	void CTerrainRenderer::EndFrame(GameEngine::Scene * scene)
 	{

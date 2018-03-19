@@ -28,6 +28,7 @@ namespace WBLoader
 		void FillAnimator(std::unordered_map<std::string, GameEngine::Animation::AnimationClip>& animator, const std::unordered_map<std::string, uint32 >& joints);
 
 	private:
+		void Clear();
 		void ApplyMaterials(SMaterial& material, const std::string& materialId);
 		GameEngine::Collada::ObjectType GetType(const std::string&);
 		const GameEngine::Collada::Node& GetNode(const std::string& node_id);

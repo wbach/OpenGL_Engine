@@ -5,6 +5,7 @@
 class CEntityGeometryPassShader : public CEntityShader
 {
 public:
+	CEntityGeometryPassShader(GameEngine::IGraphicsApiPtr graphicsApi);
 	void GetAllUniformLocations() override;
 	void ConnectTextureUnits() const override;
 	void BindAttributes() override;

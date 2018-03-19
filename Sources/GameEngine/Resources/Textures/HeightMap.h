@@ -6,7 +6,7 @@
 class HeightMap : public CTexture
 {
 public:
-	HeightMap(bool keepData, const std::string& file, const std::string& filepath, SImagePtr image);
+	HeightMap(GameEngine::IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file, const std::string& filepath, SImagePtr image);
 	virtual void OpenGLLoadingPass() override;
 	SImagePtr GetImage();
 

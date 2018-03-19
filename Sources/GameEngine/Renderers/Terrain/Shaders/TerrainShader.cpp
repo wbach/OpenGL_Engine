@@ -5,14 +5,15 @@
 
 namespace GameEngine
 {
-	TerrainShader::TerrainShader()
+	TerrainShader::TerrainShader(IGraphicsApiPtr graphicsApi)
+		: CShaderProgram(graphicsApi)
 	{
 		SetFiles
 		({
-			{ "Terrain/TerrainShader.vert", GL_VERTEX_SHADER },
-			{ "Terrain/TerrainShader.frag", GL_FRAGMENT_SHADER },
-			{ "Terrain/TerrainShader.cs", GL_TESS_CONTROL_SHADER },
-			{ "Terrain/TerrainShader.es", GL_TESS_EVALUATION_SHADER }
+			{ "Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER },
+			{ "Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER },
+			{ "Terrain/TerrainShader.cs",	ShaderType::TESS_CONTROL_SHADER },
+			{ "Terrain/TerrainShader.es",	ShaderType::TESS_EVALUATION_SHADER }
 		});
 	}
 

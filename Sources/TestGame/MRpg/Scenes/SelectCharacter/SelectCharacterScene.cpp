@@ -22,7 +22,7 @@ namespace MmmoRpg
 	int SelectCharacterScene::Initialize()
 	{
 		GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
-		guiTexture.texture = resourceManager.GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
+		guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
 		renderersManager_->GuiTexture("bg") = guiTexture;
 
 		renderersManager_->GuiText("SelectCharacter").text = "SelectCharacter";

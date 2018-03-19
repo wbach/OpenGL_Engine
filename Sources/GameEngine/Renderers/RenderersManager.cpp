@@ -16,24 +16,27 @@ namespace GameEngine
 {
 	struct RenderAsLine
 	{
-		RenderAsLine(bool use)
-			: use(use)
+		RenderAsLine(const IGraphicsApiPtr& graphicsApi, bool use)
+			: graphicsApi_(graphicsApi)
+			, use(use)
 		{
 			if (use)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				graphicsApi_->LineModeRender();
 		}
 		~RenderAsLine()
 		{
 			if (use)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				graphicsApi_->PolygonModeRender();
 		}
+		const IGraphicsApiPtr& graphicsApi_;
 		bool use;
 	};
 
 	namespace Renderer
 	{
-		RenderersManager::RenderersManager()
-			: markToReloadShaders_(false)
+		RenderersManager::RenderersManager(IGraphicsApiPtr graphicsApi)
+			: graphicsApi_(graphicsApi)
+			, markToReloadShaders_(false)
 		{
 
 		}
@@ -79,16 +82,16 @@ namespace GameEngine
 			auto rendererType = EngineConf.rendererType;
 
 			if (rendererType == SEngineConfiguration::RendererType::FULL_RENDERER)
-				renderers_.emplace_back(new FullRenderer(&projection_));
+				renderers_.emplace_back(new FullRenderer(graphicsApi_, &projection_));
 			else
-				renderers_.emplace_back(new SimpleRenderer(&projection_));
+				renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_));
 
 		}
 		void RenderersManager::InitGuiRenderer()
 		{
 			guiContext_.renderer = new CGUIRenderer();
-			guiContext_.texts = new CGuiText("GUI/consola.ttf", projection_.GetWindowSize());
-			guiContext_.texures = new Renderer::Gui::CGuiTexture();
+			guiContext_.texts = new CGuiText(graphicsApi_, "GUI/consola.ttf");
+			guiContext_.texures = new Renderer::Gui::CGuiTexture(graphicsApi_);
 			guiContext_.renderer->AddElement(guiContext_.texures);
 			guiContext_.renderer->AddElement(guiContext_.texts);
 			renderers_.emplace_back(guiContext_.renderer);
@@ -102,7 +105,7 @@ namespace GameEngine
 			UpdateCamera(scene);
 			ReloadShadersExecution();
 
-			RenderAsLine lineMode(renderAsLines.load());
+			RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
 
 			for (auto& renderer : renderers_)
 				Render(scene, renderer.get());

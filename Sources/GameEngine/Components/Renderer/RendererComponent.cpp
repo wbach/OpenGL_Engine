@@ -24,7 +24,7 @@ namespace GameEngine
 				return;
 
 			auto model = GameEngine::LoadModel(resourceManager_, filename);
-			model_.Add(model, i);;
+			model_.Add(model, i);
 		}
 		void RendererComponent::Subscribe()
 		{

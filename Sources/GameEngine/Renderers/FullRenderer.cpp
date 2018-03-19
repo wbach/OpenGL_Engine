@@ -7,30 +7,30 @@
 #include "Shadows/ShadowMapRenderer.hpp"
 #include "Shadows/ShadowFrameBuffer.h"
 #include "Terrain/TerrainRenderer.h"
-#include "Terrain/Classic/ClassicTerrainRenderer.h"
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
 #include "../Engine/Configuration.h"
 #include "../Renderers/Projection.h"
 #include "Logger/Log.h"
 
-FullRenderer::FullRenderer(CProjection* projection_matrix)
-	: projectionMatrix(projection_matrix)
-	, defferedFrameBuffer(new CDefferedFrameBuffer())
+FullRenderer::FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix)
+	: graphicsApi_(graphicsApi)
+	, projectionMatrix(projection_matrix)
+	, defferedFrameBuffer(new CDefferedFrameBuffer(graphicsApi))
 {	
-	rendererContext_.shadowsFrameBuffer = std::make_shared<CShadowFrameBuffer>();
+	rendererContext_.shadowsFrameBuffer = std::make_shared<CShadowFrameBuffer>(graphicsApi_);
 
     if(EngineConf.isShadows)
-        renderers.emplace_back(new CShadowMapRenderer(projection_matrix, &rendererContext_));
+        renderers.emplace_back(new CShadowMapRenderer(graphicsApi_, projection_matrix, &rendererContext_));
 
     if(EngineConf.advancedGrass)
-		renderers.emplace_back(new CGrassRenderer(projection_matrix, defferedFrameBuffer.get()));
+		renderers.emplace_back(new CGrassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
 
-	renderers.emplace_back(new CSkyBoxRenderer(projection_matrix, defferedFrameBuffer.get()));
-    renderers.emplace_back(new GameEngine::CTerrainRenderer(projection_matrix, defferedFrameBuffer.get(), &rendererContext_));
-	//renderers.emplace_back(new ClassicTerrainRenderer(projection_matrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new CEntityRenderer(projection_matrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new CLightPassRenderer(projection_matrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new CSkyBoxRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
+    renderers.emplace_back(new GameEngine::CTerrainRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get(), &rendererContext_));
+
+	renderers.emplace_back(new CEntityRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new CLightPassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
 }
 
 FullRenderer::~FullRenderer()

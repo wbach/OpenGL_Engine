@@ -1,5 +1,5 @@
 #pragma once
-#include "../Api/SDL2/SDLOpenGL.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Time/Time.h"
 #include "Time/TimeMeasurer.h"
 #include "Utils.h"
@@ -13,12 +13,15 @@ namespace GameEngine
 	class CDisplayManager
 	{
 	public:
-		CDisplayManager();
-		CDisplayManager(const std::string& window_name, const int& w, const int& h, bool full_screen);
-		CDisplayManager(std::unique_ptr<CApi> api, const std::string& window_name, const int& w, const int& h, bool full_screen);
+		CDisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h, WindowType type);
 		~CDisplayManager();
-		ApiMessages::Type PeekApiMessage();
+		void ProcessEvents();
 		void Update();
+		void ShowCoursor(bool show);
+		bool CheckActiveWindow();
+		std::shared_ptr<InputManager> CreateInput();
+		void EnableTime() { time = true; }
+		void DisableTime() { time = false; }
 
 		void SetRefreshRate(const int& rate);
 		void SetFullScreen(bool full_screen);
@@ -26,36 +29,16 @@ namespace GameEngine
 		inline const Time& GetTime();
 
 		const int GetFps();
-		const int& GetFPSCap() { return fpsCap; }
-
 		const wb::vec2i& GetWindowSize();
 
-		void ShowCoursor(bool show);
-		bool CheckActiveWindow();
-
-		void SetApi(std::unique_ptr<CApi>& api);
-		CApi* GetApi() { return api.get(); }
-
-		void EnableTime() { time = true; }
-		void DisableTime() { time = false; }
-
-		bool& GetSync() { return sync; }
-
 	private:
-		void PrintFps();
-
-	private:
-		std::unique_ptr<CApi> api;
+		IGraphicsApiPtr api;
 		Utils::Time::CTimeMeasurer timeMeasurer;
 
 		Time time_;
-
 		bool time = true;
-
-		int fpsCap;
 		bool isFullScreen;
 		wb::vec2i windowsSize;
-
 		bool sync = true;
 	};
 

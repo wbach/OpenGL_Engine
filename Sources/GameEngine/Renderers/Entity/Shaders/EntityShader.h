@@ -4,6 +4,7 @@
 class CEntityShader : public CShaderProgram
 {
 public:
+	CEntityShader(GameEngine::IGraphicsApiPtr graphicsApi);
 	virtual void Init() = 0;
 	void GetAllUniformLocations();
 	void BindAttributes() override;

@@ -1,82 +1,83 @@
 #include "FrameBuffer.h"
 #include "Logger/Log.h"
-#include "OpenGL/OpenGLUtils.h"
+
+CFrameBuffer::CFrameBuffer(GameEngine::IGraphicsApiPtr api)
+	: graphicsApi_(api)
+{
+}
 
 void CFrameBuffer::CreateFrameBuffer()
 {
-    glGenFramebuffers(1, &fbo);
+	fbo = graphicsApi_->CreateBuffer();
     isInitialized = true;
 }
 
-void CFrameBuffer::AddTexture(GLuint& texture)
+void CFrameBuffer::AddTexture(uint32 texture)
 {
     textures.push_back(texture);
 }
 
-void CFrameBuffer::SetDepthTexture(const GLuint& texture)
+void CFrameBuffer::SetDepthTexture(uint32 texture)
 {
     depthTexture = texture;
 }
 
 int CFrameBuffer::CheckStatus()
 {
-    GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	auto status = graphicsApi_->GetBufferStatus();
 
-    if (Status != GL_FRAMEBUFFER_COMPLETE)
+    if (!status.empty())
     {
-        Log("[Error] FB error, status: " + std::to_string(Status));
+        Log("[Error] FB error, status: " + status);
         return -1;
     }
     return 0;
 }
 
-const GLuint& CFrameBuffer::GetFbo()
+uint32 CFrameBuffer::GetFbo()
 {
     return fbo;
 }
 
-const GLuint& CFrameBuffer::GetDepthTexture()
+uint32 CFrameBuffer::GetDepthTexture()
 {
     return depthTexture;
 }
 
-const GLuint& CFrameBuffer::GetTexture(const uint32& id)
+uint32 CFrameBuffer::GetTexture(const uint32& id)
 {
     if (id > textures.size())
-        return Utils::s_GLuint_zero;
+        return 0;
     return textures[id];
 }
 
 void CFrameBuffer::BindTextures(int offset)
 {
-    int nr = 0;
-    for (GLuint& i : textures)
-    {
-        glActiveTexture(GL_TEXTURE0 + offset + nr++);
-        glBindTexture(GL_TEXTURE_2D, i);
-    }
-    glActiveTexture(GL_TEXTURE0 + offset + nr);
-    glBindTexture(GL_TEXTURE_2D, depthTexture);
+    uint32 nr = 0;
+    for (auto i : textures)
+		graphicsApi_->ActiveTexture(offset + nr++, i);
+
+	graphicsApi_->ActiveTexture(offset + nr, depthTexture);
 }
 
 void CFrameBuffer::BindToDraw()
 {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+	graphicsApi_->BindBuffer(GameEngine::BindType::DRAW, fbo);
 }
 
 void CFrameBuffer::Bind()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, fbo);
 }
 
 void CFrameBuffer::UnBind()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, 0);
 }
 
 void CFrameBuffer::UnBindDraw()
 {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	graphicsApi_->SetDefaultTarget();
 }
 
 CFrameBuffer::~CFrameBuffer()
@@ -88,19 +89,12 @@ CFrameBuffer::~CFrameBuffer()
 
     CleanTexures();
 
-    glDeleteTextures(1, &depthTexture);
-    if (depthStorage)
-        glDeleteRenderbuffers(1, &depthTexture);
-    else
-        glDeleteTextures(1, &depthTexture);
-
-    if (fbo != 0)
-        glDeleteFramebuffers(1, &fbo);
-
+	graphicsApi_->DeleteObject(depthTexture);
+	graphicsApi_->DeleteObject(fbo);
 }
 
 void CFrameBuffer::CleanTexures()
 {
-    for (GLuint& tex : textures)
-        glDeleteTextures(1, &tex);
+    for (auto tex : textures)
+		graphicsApi_->DeleteObject(tex);
 }

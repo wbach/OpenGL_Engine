@@ -1,12 +1,11 @@
 #pragma once
-#include <GL/glew.h>
 #include "Types.h"
 #include <vector>
 #include <memory>
 
 struct SImage
 {
-	std::vector<GLubyte> data;
+	std::vector<uint8> data;
 	std::vector<float> floatData;
 	
 	uint32 width = 0;

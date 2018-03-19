@@ -1,24 +1,24 @@
 #include "ShadowMapRenderer.hpp"
 #include "ShadowFrameBuffer.h"
 
-#include "../../Engine/Configuration.h"
-#include "../../Renderers/Projection.h"
-#include "../../Camera/Camera.h"
-#include "../../Objects/RenderAble/Entity/Entity.h"
-#include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-
+#include "GameEngine/Objects/RenderAble/Entity/Entity.h"
+#include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "GLM/GLMUtils.h"
-#include "OpenGL/OpenGLUtils.h"
-#include "math.hpp"
 #include "Logger/Log.h"
+#include "math.hpp"
 
 
-CShadowMapRenderer::CShadowMapRenderer(CProjection* projection, GameEngine::RendererContext* rendererContext)
-	: shadowBox(projection)
+CShadowMapRenderer::CShadowMapRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection, GameEngine::RendererContext* rendererContext)
+	: graphicsApi_(graphicsApi)
+	, shadowBox(projection)
 	, shadowBox2(projection)
 	, projection(projection)
 	, rendererContext_(rendererContext)
+	, shader(graphicsApi)
 	, projectionViewMatrix(1.f)
 	, viewOffset(Utils::CreateOffset())
 {
@@ -32,7 +32,6 @@ void CShadowMapRenderer::Init()
 
 void CShadowMapRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
-
 }
 
 void CShadowMapRenderer::Render(GameEngine::Scene* scene)
@@ -46,7 +45,6 @@ void CShadowMapRenderer::Render(GameEngine::Scene* scene)
 
 void CShadowMapRenderer::EndFrame(GameEngine::Scene* scene)
 {
-
 }
 
 void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
@@ -62,8 +60,8 @@ void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
 void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
 {
 	rendererContext_->shadowsFrameBuffer->BindFBO();
-	glEnable(GL_DEPTH_TEST);
-	glClear(GL_DEPTH_BUFFER_BIT);
+	graphicsApi_->EnableDepthTest();
+	graphicsApi_->ClearBuffer(GameEngine::BufferType::DEPTH);
 	shadowBox.Update(scene->GetCamera());
 
 	auto cameraPos = scene->GetCamera()->GetPosition();
@@ -109,17 +107,12 @@ void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_mat
 	if (!mesh.IsInit())
 		return;
 
-	Utils::EnableVao ev(mesh.GetVao(), mesh.GetUsedAttributes(), { VertexBufferObjects::NORMAL, VertexBufferObjects::TANGENT });
-
-	BindMaterial(mesh.GetMaterial());
-
-	shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
-
 	auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
+	BindMaterial(mesh.GetMaterial());
+	shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
 	shader.LoadTransformMatrix(transform_matrix_);
 
-	glDrawElements(GL_TRIANGLES, mesh.GetVertexCount(), GL_UNSIGNED_SHORT, 0);
-
+	graphicsApi_->RenderMesh(mesh.GetObjectId());
 	shader.LoadUseBonesTransformation(0.f);
 }
 
@@ -127,9 +120,8 @@ void CShadowMapRenderer::BindMaterial(const SMaterial& material) const
 {
 	if (material.diffuseTexture == nullptr)
 		return;
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, material.diffuseTexture->GetId());
 
+	graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
 void CShadowMapRenderer::PrepareShader(CCamera* camera) const

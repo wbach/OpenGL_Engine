@@ -4,6 +4,7 @@
 #include "MrpgGameContext.h"
 #include "Engine/Engine.h"
 #include "Engine/Configuration.h"
+#include "Api/OpenGL/OpenGLApi.h"
 #include "Common/Hero/HeroClassesTypes.h"
 #include "Scenes/ScenesFactory.h"
 #include "Logger/Log.h"
@@ -17,7 +18,7 @@ namespace MmmoRpg
 	public:
 		Game()
 			: serverAdress(Utils::ReadFile("./server.conf"))
-			, engine(std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+			, engine(std::make_shared<GameEngine::OpenGLApi>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
 		{
 			Log("Server : " + serverAdress);
 

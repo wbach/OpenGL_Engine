@@ -1,4 +1,5 @@
 #pragma once
+#include "GameEngine/Api/IGraphicsApi.h"
 #include <memory>
 #include <vector>
 #include "Mutex.hpp"
@@ -20,7 +21,7 @@ namespace GameEngine
 	class SceneWrapper
 	{
 	public:
-		SceneWrapper(std::shared_ptr<CDisplayManager>&);
+		SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<CDisplayManager>&);
 
 		Scene* Get();
 		SceneWrapperState GetState();
@@ -34,6 +35,7 @@ namespace GameEngine
 		void SaveSetState(SceneWrapperState state);
 
 	private:
+		IGraphicsApiPtr graphicsApi_;
 		std::mutex initMutex_;
 		std::mutex stateMutex_;
 

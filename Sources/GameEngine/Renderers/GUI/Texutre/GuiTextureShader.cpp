@@ -6,12 +6,16 @@ namespace GameEngine
 	{
 		namespace Gui
 		{
+			GuiTextureShader::GuiTextureShader(IGraphicsApiPtr graphicsApi)
+				: CShaderProgram(graphicsApi)
+			{
+			}
 			void GuiTextureShader::Init()
 			{
 				SetFiles
 				({
-					{ "Gui/guiVertexShader.vert", GL_VERTEX_SHADER },
-					{ "Gui/guiFragmentShader.frag", GL_FRAGMENT_SHADER }
+					{ "Gui/guiVertexShader.vert", ShaderType::VERTEX_SHADER },
+					{ "Gui/guiFragmentShader.frag", ShaderType::FRAGMENT_SHADER }
 				});
 
 				CShaderProgram::Init();

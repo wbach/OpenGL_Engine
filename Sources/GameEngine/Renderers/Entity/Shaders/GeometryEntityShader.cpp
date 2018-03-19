@@ -1,5 +1,10 @@
 #include "GeometryEntityShader.h"
 
+CEntityGeometryPassShader::CEntityGeometryPassShader(GameEngine::IGraphicsApiPtr graphicsApi)
+	: CEntityShader(graphicsApi)
+{
+}
+
 void CEntityGeometryPassShader::GetAllUniformLocations()
 {
 	CEntityShader::GetAllUniformLocations();
@@ -45,10 +50,13 @@ void CEntityGeometryPassShader::BindAttributes()
 
 void CEntityGeometryPassShader::Init()
 {
-	CreateProgram();
-    AddShader("Entity/EntityGeometryPassShader.vert", GL_VERTEX_SHADER);
-    AddShader("Entity/EntityGeometryPassShader.frag", GL_FRAGMENT_SHADER);
-	FinalizeShader();
+	SetFiles
+	({
+		{ "Entity/EntityGeometryPassShader.vert", GameEngine::ShaderType::VERTEX_SHADER },
+		{ "Entity/EntityGeometryPassShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER }
+	});
+
+	CShaderProgram::Init();
 }
 
 void CEntityGeometryPassShader::LoadViewDistance(const float & distance) const

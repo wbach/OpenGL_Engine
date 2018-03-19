@@ -29,7 +29,7 @@ namespace MmmoRpg
 	{
 		Log("MainRpgScene::Initialize()");
 
-		modelsCreator_ = std::make_unique<ModelsCreator>(&resourceManager);
+		modelsCreator_ = std::make_unique<ModelsCreator>(resourceManager_.get());
 		networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 		networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
 
@@ -39,7 +39,7 @@ namespace MmmoRpg
 
 		ReqNetworkSceneCharacters();
 		
-		auto bialczyk_obj = ObjectBuilder::CreateEntity(&resourceManager, "Meshes/Bialczyk/Bialczyk.obj");
+		auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager_.get(), "Meshes/Bialczyk/Bialczyk.obj");
 		AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
 		renderersManager_->Subscribe(bialczyk_obj);
 

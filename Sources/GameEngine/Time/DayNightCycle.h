@@ -1,7 +1,7 @@
 #pragma once
-#include "../Lights/Light.h"
-#include "GameTime.h"
 #include "Types.h"
+#include "GameTime.h"
+#include "../Lights/Light.h"
 
 class CDayNightCycle : public CGameTime
 {
