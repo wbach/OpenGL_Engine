@@ -2,7 +2,8 @@
 #include "MRpg/mrpg_main.h"
 #include "../GameEngine/Engine/Engine.h"
 #include "Logger/Log.h"
-
+#include "GameEngine/Api/OpenGL/OpenGLApi.h"
+#include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
 
 void StartMessage()
 {
@@ -16,14 +17,14 @@ void StartMessage()
 }
 
 
-
-
 int main(int argc, char* argv[])
 {	
 	//int i = 0;
 	//for (i = 0; i < LAST; i++) {
 	//	printf("%d %s\n", i, strings[i]);
 	//}
+
+	GameEngine::IGraphicsApiPtr api = std::make_shared<GameEngine::OpenGLApi>();
 
 	#ifdef BACHU_HAHAH
 	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
@@ -47,22 +48,24 @@ int main(int argc, char* argv[])
 
 				if (gameName == "MMO")
 				{
-					MmmoRpg::StartGame();
+					MmmoRpg::StartGame(api);
 					choosedApp = true;
 				}
 				if (gameName == "TEST")
 				{
-					TestGame::TestGameStart();
+					TestGame::TestGameStart(api);
 					choosedApp = true;
 				}
 			}
 		}
-
-
+		else if (arg == "-D")
+		{
+			api = std::make_shared<GameEngine::DummyGraphicsApi>();
+		}
 	}
 
 	if(!choosedApp)
-		TestGame::TestGameStart();
+		TestGame::TestGameStart(api);
 
 	return 0;
 }

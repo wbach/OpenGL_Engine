@@ -3,8 +3,6 @@
 #include "Common/MessageHandling/Dispatcher.h"
 #include "MrpgGameContext.h"
 #include "Engine/Engine.h"
-#include "Engine/Configuration.h"
-#include "Api/OpenGL/OpenGLApi.h"
 #include "Common/Hero/HeroClassesTypes.h"
 #include "Scenes/ScenesFactory.h"
 #include "Logger/Log.h"
@@ -16,9 +14,9 @@ namespace MmmoRpg
 	class Game
 	{
 	public:
-		Game()
+		Game(GameEngine::IGraphicsApiPtr gptr)
 			: serverAdress(Utils::ReadFile("./server.conf"))
-			, engine(std::make_shared<GameEngine::OpenGLApi>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+			, engine(gptr, std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
 		{
 			Log("Server : " + serverAdress);
 
@@ -36,9 +34,9 @@ namespace MmmoRpg
 		MrpgGameContext gameContext_;
 	};
 
-	void StartGame()
+	void StartGame(GameEngine::IGraphicsApiPtr gptr)
 	{
-		Game game;
+		Game game(gptr);
 		//Mock::StartMock();
 	}
 }
