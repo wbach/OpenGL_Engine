@@ -370,11 +370,10 @@ namespace WBLoader
 
 	void ColladaDae::FillAnimator(std::unordered_map<std::string, GameEngine::Animation::AnimationClip>& animationClips, const std::unordered_map<std::string, uint32 >& joints)
 	{
-		std::vector<GameEngine::Animation::KeyFrame> frames;
-
-		bool isSetTimeStamp = false;
 		for (const auto& animationClipPair : data_.libraryAnimations_.animationsClips_)
 		{
+			bool isSetTimeStamp = false;
+			std::vector<GameEngine::Animation::KeyFrame> frames;
 			for (const auto& anim_pair : animationClipPair.second.animations_)
 			{
 				auto& anim = anim_pair.second;

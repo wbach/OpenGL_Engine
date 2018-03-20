@@ -16,7 +16,7 @@ namespace GameEngine
 
 		private:
 			void ProcessAnimation(AnimationClip& animation, XMLNode* node);
-
+			void ProcessAnimationClip(AnimationClip& animation, XMLNode* node);
 		private:
 			LibraryAnimations & data_;
 		};

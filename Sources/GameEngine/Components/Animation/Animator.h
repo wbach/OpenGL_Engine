@@ -10,6 +10,8 @@ namespace GameEngine
 {
 	namespace Components
 	{
+		typedef std::unordered_map<std::string, mat4> Pose;
+
 		class Animator : public AbstractComponent
 		{
 		public:
@@ -17,29 +19,39 @@ namespace GameEngine
 			void Update();
 			void SetSkeleton(Animation::Joint* skeleton);
 			virtual void ReqisterFunctions() override;
+			void SetAnimation(const std::string& name);
+			void ChangeAnimation(const std::string& name);
 
 		public:
 			std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-			std::string current_ = "DefaultAnimationClip";
 			Animation::Joint* rootJoint_;
-			float currentTime_ = 0.f;
-			float animationSpeed_ = 1.f;
+			float  currentTime_;
+			float animationSpeed_;
+			float changeAnimTime_;
 
 		private:
-			void GetSkeletonAndAniations();
+			void ChangeAnimState();
 			bool IsReady();
 			void increaseAnimationTime();
+			void GetSkeletonAndAnimations();
 			std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames();
 			float calculateProgression(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame);
-			std::unordered_map<std::string, mat4> calculateCurrentAnimationPose();
-			std::unordered_map<std::string, mat4> interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float progression);
-			void applyPoseToJoints(const std::unordered_map<std::string, mat4>& currentPose, Animation::Joint& joint, const mat4& parentTransform);
+			Pose calculateCurrentAnimationPose();
+			Pose interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float progression);
+			void applyPoseToJoints(const Pose& currentPose, Animation::Joint& joint, const mat4& parentTransform);
 
 		private:
 			uint32 currentFrameId_ = 0;
-		
+			std::string current_;
+
+			std::string nextClip_;
+			bool changeAnim = false;
+			float currentChangeAnimTime_ = 0;
+			Animation::KeyFrame startChaneAnimPose;
+			Animation::KeyFrame endChangeAnimPose;
+
 		public:
 			static ComponentsType type;
 		};
-	} // Animation
+	} // Components
 } // GameEngine

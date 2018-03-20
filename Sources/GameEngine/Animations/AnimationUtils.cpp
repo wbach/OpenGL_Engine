@@ -11,6 +11,13 @@ namespace GameEngine
 			m *= glm::translate(jt.position);
 			return m * glm::mat4_cast(jt.rotation);
 		}
+		JointTransform GetJointTransform(const glm::mat4 & mat)
+		{
+			JointTransform out;
+			out.position =  vec3(mat[3][0], mat[3][1], mat[3][2]);
+			out.rotation = glm::quat_cast(mat);
+			return out;
+		}
 		const Joint* GetJoint(const Joint& from, uint32 fid)
 		{
 			if (from.id == fid)

@@ -6,6 +6,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Animations/KeyFrame.h
 ../../Sources/GameEngine/Api/ApiMessages.h
 ../../Sources/GameEngine/Api/BufferParamters.h
+../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.h
+../../Sources/GameEngine/Api/Dummy/DummyInputManager.h
+../../Sources/GameEngine/Api/Dummy/DummyWindowApi.h
 ../../Sources/GameEngine/Api/FunctionsTypes.h
 ../../Sources/GameEngine/Api/IGraphicsApi.h
 ../../Sources/GameEngine/Api/OpenGL/Font.h

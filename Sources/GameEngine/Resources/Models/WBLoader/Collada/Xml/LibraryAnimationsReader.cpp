@@ -19,14 +19,18 @@ namespace GameEngine
 				}
 				if (data.name == "animationClip")
 				{
-					auto animationClipName = Utils::GetRapidAttributeData(node, "name").value;
-					Utils::ForEachSubNode(snode, [&](const Utils::RapidNodeData& data, XMLNode* animClipnode)
-					{
-						if (data.name == "animation")
-						{
-							ProcessAnimation(data_.animationsClips_[animationClipName], animClipnode);
-						}
-					});
+					auto animationClipName = Utils::GetRapidAttributeData(snode, "name").value;
+					ProcessAnimationClip(data_.animationsClips_[animationClipName], snode);
+				}
+			});
+		}
+		void LibraryAnimationsReader::ProcessAnimationClip(AnimationClip& animation, XMLNode * node)
+		{
+			Utils::ForEachSubNode(node, [&](const Utils::RapidNodeData& data, XMLNode* animClipnode)
+			{
+				if (data.name == "animation")
+				{
+					ProcessAnimation(animation, animClipnode);
 				}
 			});
 		}

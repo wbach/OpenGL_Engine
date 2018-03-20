@@ -55,7 +55,9 @@ int MainScene::Initialize()
 
 	player = AddGameObjectInstance(1.8f, vec2(395, 560), true);
 	auto animator = AddComponent<GameEngine::Components::Animator>(player);
-	AddComponent<GameEngine::Components::RendererComponent>(player)->AddModel("Meshes/DaeAnimationExample/CharacterRunningSmooth.dae");
+	AddComponent<GameEngine::Components::RendererComponent>(player)->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
+	//player->GetComponent<GameEngine::Components::Animator>()->SetAnimation("Run");
+
 
 	for (const auto& terrain : terrains)
 	{
@@ -119,6 +121,23 @@ void MainScene::UpdatePlayerandCamera(float time)
 
 void MainScene::KeyOperations()
 {
+
+	
+	bool run = true;
+	inputManager_->SubscribeOnKeyDown(KeyCodes::M, [&, run]() mutable
+	{
+		if (run)
+		{
+			player->GetComponent<GameEngine::Components::Animator>()->ChangeAnimation("Idle");
+			run = false;
+		}
+		else
+		{
+			player->GetComponent<GameEngine::Components::Animator>()->ChangeAnimation("Run");
+			run = true;
+		}
+	});
+
 	inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [&]()
 	{
 		auto d = camera->GetDistance() - 0.5f;
