@@ -56,7 +56,7 @@ int MainScene::Initialize()
 	player = AddGameObjectInstance(1.8f, vec2(395, 560), true);
 	auto animator = AddComponent<GameEngine::Components::Animator>(player);
 	AddComponent<GameEngine::Components::RendererComponent>(player)->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
-	//player->GetComponent<GameEngine::Components::Animator>()->SetAnimation("Run");
+	animator->SetAnimation("Idle");
 
 
 	for (const auto& terrain : terrains)
@@ -69,7 +69,7 @@ int MainScene::Initialize()
 	}
 
 	characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
-	playerInputController_ = std::make_shared<PlayerInputController>(inputManager_, characterController_.get());
+	playerInputController_ = std::make_shared<PlayerInputController>(animator, inputManager_, characterController_.get());
   
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);

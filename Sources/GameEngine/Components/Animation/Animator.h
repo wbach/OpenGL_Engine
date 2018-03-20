@@ -21,6 +21,7 @@ namespace GameEngine
 			virtual void ReqisterFunctions() override;
 			void SetAnimation(const std::string& name);
 			void ChangeAnimation(const std::string& name);
+			const std::string& GetCurrentAnimationName();
 
 		public:
 			std::unordered_map<std::string, Animation::AnimationClip> animationClips_;

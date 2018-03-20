@@ -2,15 +2,17 @@
 #include "Input/InputManager.h"
 #include "UtilsNetwork/Gateway.h"
 #include "Messages/TransformMessages/TransformMsgReq.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "TestGame/MRpg/MrpgGameContext.h"
 #include <algorithm>
 #include <ctime>
 
 using namespace common::Controllers::CharacterActions;
 
-PlayerInputController::PlayerInputController(GameEngine::InputManager* manager, common::Controllers::CharacterController* characterController)
+PlayerInputController::PlayerInputController(GameEngine::Components::Animator* animator, GameEngine::InputManager* manager, common::Controllers::CharacterController* characterController)
 	: inputManager_(manager)
 	, characterController_(characterController)
+	, animator_(animator)
 {
 	SubscribeForPushActions();
 	SubscribeForPopActions();
@@ -21,10 +23,12 @@ void PlayerInputController::SubscribeForPushActions()
 	inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]()
 	{
 		AddState(MOVE_FORWARD);
+		SetRunAnim();
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::S, [&]()
 	{
 		AddState(MOVE_BACKWARD);
+		SetRunAnim();
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::A, [&]()
 	{
@@ -40,10 +44,12 @@ void PlayerInputController::SubscribeForPopActions()
 	inputManager_->SubscribeOnKeyUp(KeyCodes::W, [&]()
 	{
 		RemoveState(MOVE_FORWARD);
+		SetIdleAnim();
 	});
 	inputManager_->SubscribeOnKeyUp(KeyCodes::S, [&]()
 	{
 		RemoveState(MOVE_BACKWARD);
+		SetIdleAnim();
 	});
 	inputManager_->SubscribeOnKeyUp(KeyCodes::A, [&]()
 	{
@@ -76,4 +82,19 @@ void PlayerInputController::RemoveState(common::Controllers::CharacterActions::T
 
 	characterController_->RemoveState(state);
 	states_.remove(state);
+}
+
+void PlayerInputController::SetRunAnim()
+{
+	auto anim = animator_->GetCurrentAnimationName();
+
+	if (anim != "Run")
+		animator_->ChangeAnimation("Run");
+}
+
+void PlayerInputController::SetIdleAnim()
+{
+	auto anim = animator_->GetCurrentAnimationName();
+	if (anim != "Idle")
+		animator_->ChangeAnimation("Idle");
 }

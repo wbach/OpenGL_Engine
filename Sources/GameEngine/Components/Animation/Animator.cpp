@@ -34,6 +34,11 @@ namespace GameEngine
 		void Animator::SetAnimation(const std::string& name)
 		{
 			current_ = name;
+			currentTime_ = 0.f;
+		}
+		const std::string& Animator::GetCurrentAnimationName()
+		{
+			return current_;
 		}
 		void Animator::ChangeAnimation(const std::string & name)
 		{

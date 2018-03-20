@@ -1,7 +1,10 @@
 #pragma once
 #include "Common/Hero/Stats.h"
 #include "Common/Controllers/CharacterController/Character.h"
+#include "Components/Animation/Animator.h"
 #include <memory>
+
+class CGameObject;
 
 namespace GameEngine
 {
@@ -11,7 +14,7 @@ namespace GameEngine
 class PlayerInputController
 {
 public:
-	PlayerInputController(GameEngine::InputManager* manager, common::Controllers::CharacterController* characterController);
+	PlayerInputController(GameEngine::Components::Animator* animator, GameEngine::InputManager* manager, common::Controllers::CharacterController* characterController);
 
 private:
 	void SubscribeForPushActions();
@@ -19,7 +22,11 @@ private:
 	bool FindState(common::Controllers::CharacterActions::Type type);
 	void AddState(common::Controllers::CharacterActions::Type state);
 	void RemoveState(common::Controllers::CharacterActions::Type state);
+	void SetRunAnim();
+	void SetIdleAnim();
+
 private:
+	GameEngine::Components::Animator* animator_;
 	GameEngine::InputManager* inputManager_;
 	common::Controllers::CharacterController* characterController_;
 	std::list<common::Controllers::CharacterActions::Type> states_;
