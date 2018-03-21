@@ -118,6 +118,8 @@ namespace GameEngine
 			currentTime_ += time_->deltaTime * animationSpeed_;
 			if (currentTime_ > l)
 				currentTime_ = fmod(currentTime_, l);
+			if (currentTime_ < 0)
+				currentTime_ = l + currentTime_;
 		}
 
 		Pose Animator::calculateCurrentAnimationPose()
@@ -127,7 +129,7 @@ namespace GameEngine
 			return interpolatePoses(frames.first, frames.second, progression);
 		}
 
-		Pose Animator::interpolatePoses(const KeyFrame & previousFrame, const KeyFrame & nextFrame, float progression)
+		Pose Animator::interpolatePoses(const KeyFrame& previousFrame, const KeyFrame& nextFrame, float progression)
 		{
 			Pose currentPose;
 			for (const auto& pair : previousFrame.transforms)

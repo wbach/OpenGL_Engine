@@ -2,11 +2,6 @@
 #include "Engine/Configuration.h"
 #include <gtest/gtest.h>
 
-TEST_F(ColladaLoaderMock, GetTypeFromStringTest)
-{
-
-}
-
 TEST_F(ColladaLoaderMock, GetFloatsFromString)
 {
 	std::vector<float> ref( { 1.f, 1.f, -1.f, 1.f, -1.f, -1.f, -1.f, -0.9999998f, -1.f, -0.9999997f, 1.f, -1.f, 1.f, 0.9999995f, 1.f, 0.9999994f, -1.000001f, 1.f, -1.f, -0.9999997f

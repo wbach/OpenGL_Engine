@@ -1,6 +1,10 @@
 #include "FullRenderer.h"
 #include "LightPassRenderer.h"
 
+#include "Tree/TreeRenderer.h"
+#include "Particles/ParticlesRenderer.h"
+#include "Plants/PlantsRenderer.h"
+#include "Water/WaterRenderer.h"
 #include "Grass/GrassRenderer.h"
 #include "Entity/EntityRenderer.h"
 #include "SkyBox/SkyBoxRenderer.h"
@@ -13,6 +17,8 @@
 #include "../Renderers/Projection.h"
 #include "Logger/Log.h"
 
+using namespace GameEngine;
+
 FullRenderer::FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix)
 	: graphicsApi_(graphicsApi)
 	, projectionMatrix(projection_matrix)
@@ -20,16 +26,15 @@ FullRenderer::FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection*
 {	
 	rendererContext_.shadowsFrameBuffer = std::make_shared<CShadowFrameBuffer>(graphicsApi_);
 
-    if(EngineConf.isShadows)
-        renderers.emplace_back(new CShadowMapRenderer(graphicsApi_, projection_matrix, &rendererContext_));
-
-    if(EngineConf.advancedGrass)
-		renderers.emplace_back(new CGrassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
-
 	renderers.emplace_back(new CSkyBoxRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
-    renderers.emplace_back(new GameEngine::CTerrainRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get(), &rendererContext_));
-
+    if(EngineConf.isShadows) renderers.emplace_back(new CShadowMapRenderer(graphicsApi_, projection_matrix, &rendererContext_));
+    if(EngineConf.advancedGrass) renderers.emplace_back(new CGrassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
+    renderers.emplace_back(new CTerrainRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get(), &rendererContext_));
+	renderers.emplace_back(new TreeRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new PlantsRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CEntityRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new WaterRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
+	renderers.emplace_back(new ParticlesRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CLightPassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
 }
 

@@ -32,6 +32,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/ComponentController.h
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
+../../Sources/GameEngine/Components/Input/CharacterControllerInput.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Engine.h
@@ -77,6 +78,10 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
 ../../Sources/GameEngine/Renderers/LightPassRenderer.h
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
+../../Sources/GameEngine/Renderers/Particles/ParticlesRenderer.h
+../../Sources/GameEngine/Renderers/Particles/Shaders/ParticlesShader.h
+../../Sources/GameEngine/Renderers/Plants/PlantsRenderer.h
+../../Sources/GameEngine/Renderers/Plants/Shaders/PlantsShader.h
 ../../Sources/GameEngine/Renderers/Projection.h
 ../../Sources/GameEngine/Renderers/Renderer.h
 ../../Sources/GameEngine/Renderers/RendererContext.h
@@ -89,6 +94,10 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/SkyBox/SkyBoxRenderer.h
 ../../Sources/GameEngine/Renderers/Terrain/Shaders/TerrainShader.h
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.h
+../../Sources/GameEngine/Renderers/Tree/Shaders/TreeShader.h
+../../Sources/GameEngine/Renderers/Tree/TreeRenderer.h
+../../Sources/GameEngine/Renderers/Water/Shaders/WaterShader.h
+../../Sources/GameEngine/Renderers/Water/WaterRenderer.h
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.h
 ../../Sources/GameEngine/Resources/Models/Bone.h
 ../../Sources/GameEngine/Resources/Models/BoundingBox.h
@@ -100,6 +109,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.h
+../../Sources/GameEngine/Resources/Models/WBLoader/Collada/MergeTool/MergeTool.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Types/Animations/Animation.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Types/Animations/AnimationSampler.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Types/Animations/Channel.h

@@ -46,6 +46,10 @@ int MainScene::Initialize()
 
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
+
+	auto tree1 = AddGameObjectInstance(5.f, vec2(395, 580));
+	AddComponent<GameEngine::Components::RendererComponent>(tree1)->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_pinetree1/obj__pinet1.obj");
+
 	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
 	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
 

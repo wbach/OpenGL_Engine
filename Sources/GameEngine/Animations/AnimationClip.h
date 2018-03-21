@@ -40,7 +40,8 @@ namespace GameEngine
 		void AnimationClip::AddFrame(const KeyFrame& frame)
 		{
 			frames.push_back(frame);
-			length = frame.timeStamp;
+			if (frame.timeStamp > length)
+				length = frame.timeStamp;
 		}
 
 		inline const std::vector<KeyFrame>& AnimationClip::GetFrames() const

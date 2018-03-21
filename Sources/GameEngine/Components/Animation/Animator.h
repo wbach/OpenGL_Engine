@@ -30,7 +30,7 @@ namespace GameEngine
 			float animationSpeed_;
 			float changeAnimTime_;
 
-		private:
+		protected:
 			void ChangeAnimState();
 			bool IsReady();
 			void increaseAnimationTime();
@@ -41,7 +41,7 @@ namespace GameEngine
 			Pose interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float progression);
 			void applyPoseToJoints(const Pose& currentPose, Animation::Joint& joint, const mat4& parentTransform);
 
-		private:
+		protected:
 			uint32 currentFrameId_ = 0;
 			std::string current_;
 

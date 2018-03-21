@@ -24,11 +24,13 @@ void PlayerInputController::SubscribeForPushActions()
 	{
 		AddState(MOVE_FORWARD);
 		SetRunAnim();
+		animator_->animationSpeed_ = fabs(animator_->animationSpeed_);
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::S, [&]()
 	{
 		AddState(MOVE_BACKWARD);
 		SetRunAnim();
+		animator_->animationSpeed_ = -1.f * fabs(animator_->animationSpeed_);
 	});
 	inputManager_->SubscribeOnKeyDown(KeyCodes::A, [&]()
 	{

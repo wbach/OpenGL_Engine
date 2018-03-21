@@ -45,6 +45,10 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
 ../../Sources/GameEngine/Renderers/LightPassRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp
+../../Sources/GameEngine/Renderers/Particles/ParticlesRenderer.cpp
+../../Sources/GameEngine/Renderers/Particles/Shaders/ParticlesShader.cpp
+../../Sources/GameEngine/Renderers/Plants/PlantsRenderer.cpp
+../../Sources/GameEngine/Renderers/Plants/Shaders/PlantsShader.cpp
 ../../Sources/GameEngine/Renderers/Projection.cpp
 ../../Sources/GameEngine/Renderers/Renderer.cpp
 ../../Sources/GameEngine/Renderers/RenderersManager.cpp
@@ -57,6 +61,10 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/SkyBox/SkyBoxRenderer.cpp
 ../../Sources/GameEngine/Renderers/Terrain/Shaders/TerrainShader.cpp
 ../../Sources/GameEngine/Renderers/Terrain/TerrainRenderer.cpp
+../../Sources/GameEngine/Renderers/Tree/Shaders/TreeShader.cpp
+../../Sources/GameEngine/Renderers/Tree/TreeRenderer.cpp
+../../Sources/GameEngine/Renderers/Water/Shaders/WaterShader.cpp
+../../Sources/GameEngine/Renderers/Water/WaterRenderer.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
 ../../Sources/GameEngine/Resources/Models/Bone.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp
@@ -65,6 +73,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Collada/MergeTool/MergeTool.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/ColladaCommon.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/GeometryReader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryAnimationsReader.cpp
