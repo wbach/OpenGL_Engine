@@ -10,6 +10,7 @@ class CModel : public COpenGLObject
 {
 public:
 	CModel();
+	CModel(float scaleFactor);
     CModel(const CModel& ) = delete;
 
 	virtual ~CModel();
@@ -17,6 +18,7 @@ public:
 	virtual void OpenGLLoadingPass() override;
 
 	CMesh* AddMesh(CMesh& mesh);
+	inline float GetScaleFactor();
 	inline const std::string& GetFileName() const;
 	inline const std::vector<CMesh>& GetMeshes() const;
 	std::vector<mat4> GetBoneTransforms() const;
@@ -34,6 +36,7 @@ protected:
 protected:
     std::string filename;
     std::vector<CMesh> meshes;
+	float scaleFactor_;
 };
 
 typedef CModel* ModelRawPtr;
@@ -54,4 +57,8 @@ bool CModel::operator==(const std::string &file) const
 const std::string& CModel::GetFileName() const
 { 
 	return filename;
+}
+float CModel::GetScaleFactor()
+{
+	return scaleFactor_;
 }

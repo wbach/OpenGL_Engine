@@ -14,6 +14,7 @@
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/TreeRendererComponent.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -47,8 +48,35 @@ int MainScene::Initialize()
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
 
-	auto tree1 = AddGameObjectInstance(5.f, vec2(395, 580));
-	AddComponent<GameEngine::Components::RendererComponent>(tree1)->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_pinetree1/obj__pinet1.obj");
+	auto tree1 = AddGameObjectInstance(20.f, vec2(0, 0));
+	auto treeComp = AddComponent<GameEngine::Components::TreeRendererComponent>(tree1);
+
+	std::vector<vec3> treePositions;
+	treePositions.resize(100);
+	
+	for(int y = 0; y < 10; y++)
+		for (int x = 0; x < 10; x++)
+		{
+			vec3 treePos(350 + 10 * x, 0.f, 500 + 10 * y);
+			treePos.x += static_cast<float>(rand() % 100) / 10.f;
+			treePos.z += static_cast<float>(rand() % 100) / 10.f;
+
+			for (auto& terrain : terrains)
+			{
+				auto new_position = terrain->CollisionDetection(treePos);
+				if (!new_position)
+					continue;
+
+				treePos.y = new_position.constValue().y - .5f;
+			}
+			treePositions[x + 10 * y] = treePos;
+		}
+	treeComp->SetPositions(treePositions);
+	treeComp->SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj");
+	treeComp->SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
+
+	auto treeGo1 = AddGameObjectInstance(10.f, vec2(400, 570));
+	AddComponent<GameEngine::Components::RendererComponent>(treeGo1)->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
 
 	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
 	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");

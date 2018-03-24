@@ -1,16 +1,29 @@
 #pragma once
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "GameEngine/Resources/Models/Material.h"
 #include "Logger/Log.h"
 #include <unordered_map>
 
 namespace GameEngine
 {
+	const uint32 MAX_TRANSFORMS = 100;
 	class TreeShader : public CShaderProgram
 	{
 	public:
 		enum UniformLocation
 		{
-
+			ViewMatrix,
+			NormalizationMatrix,
+			ProjectionMatrix,
+			UseShading,
+			ModelMaterial_Ambient,
+			ModelMaterial_Diffuse,
+			ModelMaterial_Specular,
+			ModelMaterial_ShineDumper,
+			DiffuseTexture,
+			CameraPosition,
+			PositionMap,
+			PositionMapSize
 		};
 
 		TreeShader(IGraphicsApiPtr graphicsApi);
@@ -24,12 +37,13 @@ namespace GameEngine
 			}
 			LoadValue(uniformLocations.at(location), value);
 		}
+		void LoadTransforms(const std::vector<mat4> transforms) const;
 
 	private:
 		void GetAllUniformLocations();
 		void BindAttributes() override;
 		void ConnectTextureUnits() const override;
-
+		uint32 transformsLocations[MAX_TRANSFORMS];
 
 	protected:
 		std::unordered_map<UniformLocation, uint32> uniformLocations;

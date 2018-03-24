@@ -1,6 +1,6 @@
 #pragma once
 #include "EntityShader.h"
-#include "../../../Resources/Models/Material.h"
+#include "GameEngine/Resources/Models/Material.h"
 
 class CEntityGeometryPassShader : public CEntityShader
 {

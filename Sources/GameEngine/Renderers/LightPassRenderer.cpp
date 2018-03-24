@@ -59,3 +59,10 @@ void CLightPassRenderer::EndFrame(GameEngine::Scene* scene)
 	graphicsApi_->RenderQuad();
 	shader.Stop();
 }
+
+void CLightPassRenderer::ReloadShaders()
+{
+	shader.Stop();
+	shader.Reload();
+	Init();
+}

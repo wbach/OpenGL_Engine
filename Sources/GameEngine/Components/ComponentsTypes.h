@@ -7,7 +7,8 @@ namespace GameEngine
 		enum class ComponentsType
 		{
 			Animator,
-			Renderer
+			Renderer,
+			TreeRenderer
 		};
 	} // Components
 } // GameEngine

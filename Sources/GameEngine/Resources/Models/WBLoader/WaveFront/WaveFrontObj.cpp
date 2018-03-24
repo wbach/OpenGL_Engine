@@ -49,6 +49,8 @@ namespace WBLoader
 
 		for(const auto& line : fileData)
 		{
+			if (line.empty())
+				continue;
 			auto substr = line.substr(line.find_first_not_of(' '));
 			auto prefix = substr.substr(0, substr.find_first_of(' '));
 			auto value = substr.substr(substr.find_first_of(' ') + 1);

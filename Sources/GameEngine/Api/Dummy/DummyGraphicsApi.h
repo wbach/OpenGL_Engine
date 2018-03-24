@@ -34,6 +34,7 @@ namespace GameEngine
 		virtual void UseShader(uint32) override {}
 		virtual void BindAttribute(uint32, uint32, const std::string&) override {}
 		virtual void LoadValueToShader(uint32, int) override {}
+		virtual void LoadValueToShader(uint32, uint32) override {}
 		virtual void LoadValueToShader(uint32, float) override {}
 		virtual void LoadValueToShader(uint32, const vec2&) override {}
 		virtual void LoadValueToShader(uint32, const vec3&) override {}
@@ -59,6 +60,7 @@ namespace GameEngine
 		virtual uint32 CreateMesh(const MeshRawData&) override { return ++id; }
 		virtual void RenderPurePatchedMeshInstances(uint32) override {}
 		virtual void RenderMesh(uint32) override {}
+		virtual void RenderMeshInstanced(uint32, uint32) override {}
 		virtual void RenderPoints(uint32) override {}
 		virtual void RenderQuad() override {}
 		virtual void EnableCulling() override {}

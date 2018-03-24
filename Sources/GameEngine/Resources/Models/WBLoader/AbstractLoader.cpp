@@ -9,9 +9,9 @@ namespace WBLoader
 	}
 	std::unique_ptr<CModel> AbstractLoader::Create()
 	{
-		auto newModel = std::make_unique<CModel>();
-
 		float maxFactor = FindMaxFactor();
+		
+		auto newModel = std::make_unique<CModel>(maxFactor);
 
 		for (auto& obj : objects)
 		{

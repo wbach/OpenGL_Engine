@@ -100,7 +100,7 @@ void main()
 
 	if (IsUseFakeLighting > .5f)
     {
-        Normal0 = vec3(.0f ,1.f, .0f);
+        Normal0 = vec3(.0f , 1.f, .0f);
 		FakeLight = 1.0f;
     }
 	else

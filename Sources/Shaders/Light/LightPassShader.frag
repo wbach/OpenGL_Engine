@@ -175,7 +175,7 @@ void main()
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
 	SMaterial material;
-	material.m_Ambient = color * 0.2f;
+	material.m_Ambient = color * 0.3f;
 	material.m_Diffuse = color;
 	material.m_Specular = specular.xyz;
 	material.m_ShineDamper = specular.a;
@@ -195,7 +195,7 @@ void main()
 	}
 	else
 	{
-		final_color = material.m_Diffuse ;//* SkyColour; 
+		final_color = material.m_Diffuse;//* SkyColour; 
 	}
 	//vec3 mapped = vec3(1.0) - exp(-final_color * exposure);
 	final_color = pow(final_color, vec3(1.f / gamma));

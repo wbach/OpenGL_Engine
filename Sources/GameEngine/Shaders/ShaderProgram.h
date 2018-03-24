@@ -37,8 +37,9 @@ protected:
 
 	void Clear();
 	void BindAttribute(int attribute, const std::string& variableName) const;
-	void LoadValue(uint32 loacation, const int& value) const;
-	void LoadValue(uint32 loacation, const float& value) const;
+	void LoadValue(uint32 loacation, int value) const;
+	void LoadValue(uint32 loacation, uint32 value) const;
+	void LoadValue(uint32 loacation, float value) const;
 	void LoadValue(uint32 loacation, const vec2& value) const;
 	void LoadValue(uint32 loacation, const vec3& value) const;
 	void LoadValue(uint32 loacation, const vec4& value) const;

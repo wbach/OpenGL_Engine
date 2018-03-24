@@ -13,6 +13,7 @@ public:
 	virtual void PrepareFrame(GameEngine::Scene* scene) override;
 	virtual void Render(GameEngine::Scene* scene) override;
 	virtual void EndFrame(GameEngine::Scene* scene) override;
+	virtual void ReloadShaders() override;
 
 private:
 	GameEngine::IGraphicsApiPtr graphicsApi_;

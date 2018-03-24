@@ -313,6 +313,10 @@ namespace GameEngine
 	{
 		glUniform1f(loacation, value);
 	}
+	void OpenGLApi::LoadValueToShader(uint32 loacation, uint32 value)
+	{
+		glUniform1ui(loacation, value);
+	}
 	void OpenGLApi::LoadValueToShader(uint32 loacation, const vec2 & value)
 	{
 		glUniform2fv(loacation, 1, glm::value_ptr(value));
@@ -366,7 +370,12 @@ namespace GameEngine
 			dataType = GL_UNSIGNED_BYTE;
 			internalFormat = GL_RGBA;
 		}
-
+		else if (type == TextureType::FLOAT_TEXTURE_4C)
+		{
+			format = GL_RGBA;
+			dataType = GL_FLOAT;
+			internalFormat = GL_RGBA32F;
+		}
 		GLuint texture;
 		glGenTextures(1, &texture);
 
@@ -654,6 +663,17 @@ namespace GameEngine
 
 		Utils::EnableVao ev(mesh.vao, mesh.attributes);
 		glDrawElements(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0);
+	}
+
+	void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
+	{
+		if (openGlMeshes_.count(id) == 0)
+			return;
+
+		auto& mesh = openGlMeshes_[id];
+
+		Utils::EnableVao ev(mesh.vao, mesh.attributes);
+		glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0, istanced);
 	}
 
 	void OpenGLApi::RenderPoints(uint32 id)

@@ -15,13 +15,18 @@ namespace GameEngine
 
 	struct Subscriber
 	{
-		CGameObject* gameObject;
-		GameEngine::ModelWrapper* model;
+		std::vector<vec3>* positions;
+		GameEngine::ModelWrapper* top;
+		GameEngine::ModelWrapper* bottom;
+		mat4 transform;
+		uint32 textureSize;
+		bool textureInGpu = false;
+		uint32 positionTexture;
 	};
-	typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
 
 	class TreeRenderer : public CRenderer
 	{
+	typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
 	public:
 		TreeRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
 		// Loading lights itp to shader
@@ -35,8 +40,8 @@ namespace GameEngine
 		virtual void ReloadShaders() override;
 
 	private:
-		void RenderModel(CModel* model, const mat4& transform_matrix) const;
-		void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
+		void RenderModel(CModel* model, const mat4&) const;
+		void RenderMesh(const CMesh& mesh, const mat4&) const;
 		void RenderTrees();
 		void BindMaterial(const SMaterial& material) const;
 		void UnBindMaterial(const SMaterial& material) const;

@@ -3,6 +3,12 @@
 #include "GLM/GLMUtils.h"
 
 CModel::CModel()
+	: CModel(1.f)
+{
+}
+
+CModel::CModel(float scaleFactor)
+	: scaleFactor_(scaleFactor)
 {
 }
 

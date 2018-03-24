@@ -38,6 +38,7 @@ namespace GameEngine
 		virtual void UseShader(uint32) = 0;
 		virtual void BindAttribute(uint32, uint32, const std::string& ) = 0;
 		virtual void LoadValueToShader(uint32, int) = 0;
+		virtual void LoadValueToShader(uint32, uint32) = 0;
 		virtual void LoadValueToShader(uint32, float) = 0;
 		virtual void LoadValueToShader(uint32, const vec2&) = 0;
 		virtual void LoadValueToShader(uint32, const vec3&) = 0;
@@ -63,6 +64,7 @@ namespace GameEngine
 		virtual uint32 CreateMesh(const MeshRawData&) = 0;
 		virtual void RenderPurePatchedMeshInstances(uint32) = 0;
 		virtual void RenderMesh(uint32) = 0;
+		virtual void RenderMeshInstanced(uint32, uint32) = 0;
 		virtual void RenderPoints(uint32) = 0;
 		virtual void RenderQuad() = 0;
 		virtual void EnableCulling() = 0;

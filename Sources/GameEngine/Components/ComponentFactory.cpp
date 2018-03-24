@@ -2,6 +2,7 @@
 #include "AbstractComponent.h"
 #include "Animation/Animator.h"
 #include "Renderer/RendererComponent.hpp"
+#include "Renderer/TreeRendererComponent.h"
 
 namespace GameEngine
 {
@@ -24,6 +25,10 @@ namespace GameEngine
 			case ComponentsType::Renderer:
 			{
 				return CreateAndBasicInitialize<RendererComponent>();
+			}
+			case ComponentsType::TreeRenderer:
+			{
+				return CreateAndBasicInitialize<TreeRendererComponent>();
 			}
 			}
 			return nullptr;

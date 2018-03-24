@@ -84,6 +84,10 @@ void CShaderProgram::BindAttribute(int attribute, const std::string& variableNam
 {
 	graphicsApi_->BindAttribute(programID_, attribute, variableName);
 }
+void CShaderProgram::LoadValue(uint32 loacation, uint32 value) const
+{
+	graphicsApi_->LoadValueToShader(loacation, value);
+}
 void CShaderProgram::LoadValue(uint32 loacation, const mat4& value) const
 {
 	graphicsApi_->LoadValueToShader(loacation, value);
@@ -93,12 +97,12 @@ void CShaderProgram::LoadValue(uint32 loacation, const mat3& value) const
 	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
-void CShaderProgram::LoadValue(uint32 loacation, const float& value) const
+void CShaderProgram::LoadValue(uint32 loacation, float value) const
 {
 	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
-void CShaderProgram::LoadValue(uint32 loacation, const int& value) const
+void CShaderProgram::LoadValue(uint32 loacation, int value) const
 {
 	graphicsApi_->LoadValueToShader(loacation, value);
 }

@@ -22,6 +22,7 @@ namespace GameEngine
 		MOCK_METHOD1(UseShader, void(uint32));
 		MOCK_METHOD3(BindAttribute, void(uint32, uint32, const std::string&));
 		MOCK_METHOD2(LoadValueToShader, void(uint32, int));
+		MOCK_METHOD2(LoadValueToShader, void(uint32, uint32));
 		MOCK_METHOD2(LoadValueToShader, void(uint32, float));
 		MOCK_METHOD2(LoadValueToShader, void(uint32, const vec2&));
 		MOCK_METHOD2(LoadValueToShader, void(uint32, const vec3&));
@@ -47,6 +48,7 @@ namespace GameEngine
 		MOCK_METHOD1(CreateMesh, uint32(const MeshRawData&));
 		MOCK_METHOD1(RenderPurePatchedMeshInstances, void(uint32));
 		MOCK_METHOD1(RenderMesh, void(uint32));
+		MOCK_METHOD2(RenderMeshInstanced, void(uint32, uint32));
 		MOCK_METHOD1(RenderPoints, void(uint32));
 		MOCK_METHOD0(RenderQuad, void());
 		MOCK_METHOD0(EnableCulling, void());
