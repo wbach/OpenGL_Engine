@@ -370,6 +370,12 @@ namespace GameEngine
 			dataType = GL_UNSIGNED_BYTE;
 			internalFormat = GL_RGBA;
 		}
+		else if (type == TextureType::FLOAT_TEXTURE_3C)
+		{
+			format = GL_RGB;
+			dataType = GL_FLOAT;
+			internalFormat = GL_RGB32F;
+		}
 		else if (type == TextureType::FLOAT_TEXTURE_4C)
 		{
 			format = GL_RGBA;

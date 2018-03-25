@@ -15,13 +15,14 @@ namespace GameEngine
 
 	struct Subscriber
 	{
+		mat4 transform;
 		std::vector<vec3>* positions;
 		GameEngine::ModelWrapper* top;
 		GameEngine::ModelWrapper* bottom;
-		mat4 transform;
-		vec2ui textureSize;
-		bool textureInGpu = false;
 		uint32 positionTexture;
+		vec2ui range;
+		vec2 spotCenterPosition;
+		bool textureInGpu = false;
 	};
 
 	class TreeRenderer : public CRenderer
@@ -41,8 +42,8 @@ namespace GameEngine
 
 	private:
 		void PreparePositionMap(Subscriber& sub);
-		void RenderModel(CModel* model, const mat4&) const;
-		void RenderMesh(const CMesh& mesh, const mat4&) const;
+		void RenderModel(CModel* model, const mat4&, uint32) const;
+		void RenderMesh(const CMesh& mesh, const mat4&, uint32) const;
 		void RenderTrees();
 		void BindMaterial(const SMaterial& material) const;
 		void UnBindMaterial(const SMaterial& material) const;

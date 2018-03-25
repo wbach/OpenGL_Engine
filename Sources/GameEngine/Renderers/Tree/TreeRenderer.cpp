@@ -40,14 +40,16 @@ namespace GameEngine
 			float factor = model->GetScaleFactor() > bmodel->GetScaleFactor() ? model->GetScaleFactor() : bmodel->GetScaleFactor();
 			mat4 normalizeMatrix = glm::scale(vec3(1.f / factor)) * sub.second.transform;
 
+			auto count = sub.second.positions->size();
+
 			graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
-			shader.Load(TreeShader::UniformLocation::PositionMapSize, sub.second.textureSize.x);
+			shader.Load(TreeShader::UniformLocation::PositionMapSize, count);
 			graphicsApi_->DisableCulling();
 			shader.Load(TreeShader::UniformLocation::UseShading, 0.f);
-			RenderModel(model, normalizeMatrix);
+			RenderModel(model, normalizeMatrix, count);
 			graphicsApi_->EnableCulling();
 			shader.Load(TreeShader::UniformLocation::UseShading, 1.f);
-			RenderModel(bmodel, normalizeMatrix);
+			RenderModel(bmodel, normalizeMatrix, count);
 		}
 		shader.Stop();
 	}
@@ -68,7 +70,6 @@ namespace GameEngine
 		sub.top = &component->GetTopModelWrapper();
 		sub.bottom = &component->GetBottomModelWrapper();
 		sub.positions = &component->GetPositions();
-		sub.textureSize = component->GetPositionSize2d();
 		sub.transform = gameObject->worldTransform.GetMatrix();
 	}
 	void TreeRenderer::UnSubscribe(CGameObject * gameObject)
@@ -88,40 +89,19 @@ namespace GameEngine
 		if (sub.textureInGpu)
 			return;
 
-		auto size = sub.textureSize.x * sub.textureSize.y;
-		auto size4c = 4 * size;
-		float* data = new float[size4c];
-		memset(data, 0, size4c);
-
-		for (uint32 j = 0; j< size; j++)
-		{
-			if (j > sub.positions->size())
-				break;
-
-			auto p = (*sub.positions)[j];
-
-			data[j * 4 + 0] = p.x;
-			data[j * 4 + 1] = p.y;
-			data[j * 4 + 2] = p.z;
-			data[j * 4 + 3] = 1.0f;
-		}
-
-		//sub.textureSize = 1024;
-		sub.positionTexture = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_4C, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::NONE, sub.textureSize, data);
+		sub.positionTexture = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_3C, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::NONE, vec2ui(sub.positions->size(), 1), &(*sub.positions)[0]);
 		sub.textureInGpu = true;
-
-		delete[] data;
 	}
-	void TreeRenderer::RenderModel(CModel * model, const mat4& transorm) const
+	void TreeRenderer::RenderModel(CModel * model, const mat4& transorm, uint32 size) const
 	{
 		for (const auto& mesh : model->GetMeshes())
-			RenderMesh(mesh, transorm);
+			RenderMesh(mesh, transorm, size);
 	}
-	void TreeRenderer::RenderMesh(const CMesh & mesh, const mat4& transform) const
+	void TreeRenderer::RenderMesh(const CMesh & mesh, const mat4& transform, uint32 size) const
 	{
 		shader.Load(TreeShader::UniformLocation::NormalizationMatrix, transform);
 		BindMaterial(mesh.GetMaterial());
-		graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), 400);
+		graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), size);
 	}
 	void TreeRenderer::RenderTrees()
 	{
