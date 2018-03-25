@@ -125,7 +125,7 @@ void CEntityRenderer::RenderEntities()
 
 		uint32 x = 0;
 		for (auto& t : model->GetBoneTransforms())
-			shader.LoadBoneTransform(t, x++);
+			shader.LoadBoneTransform(*t, x++);
 
 		RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
 	}

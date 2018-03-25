@@ -52,7 +52,7 @@ int MainScene::Initialize()
 	auto treeComp = AddComponent<GameEngine::Components::TreeRendererComponent>(tree1);
 
 	std::vector<vec3> treePositions;
-	vec2ui size(64);
+	vec2ui size(10, 10);
 	treePositions.resize(size.x * size.y);
 	
 	for(int y = 0; y < size.y; y++)
@@ -61,6 +61,7 @@ int MainScene::Initialize()
 			vec3 treePos( 10.f * x, 0.f,10.f *  y);
 			treePos.x += static_cast<float>(rand() % 100) / 10.f;
 			treePos.z += static_cast<float>(rand() % 100) / 10.f;
+			treePos = treePos + vec3(350, 0, 450);
 
 			for (auto& terrain : terrains)
 			{

@@ -93,7 +93,7 @@ void CShadowMapRenderer::RenderSubscriber(const Subscriber& sub) const
 	int x = 0;
 	for (auto& t : model->GetBoneTransforms())
 	{
-		shader.LoadBoneTransform(t, x++);
+		shader.LoadBoneTransform(*t, x++);
 	}
 
 	const auto& meshes = model->GetMeshes();

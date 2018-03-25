@@ -21,7 +21,7 @@ public:
 	inline float GetScaleFactor();
 	inline const std::string& GetFileName() const;
 	inline const std::vector<CMesh>& GetMeshes() const;
-	std::vector<mat4> GetBoneTransforms() const;
+	const std::vector<mat4*>& GetBoneTransforms();
 
 	inline bool operator==(const CModel &q) const;
 	inline bool operator==(const std::string &file) const;
@@ -31,11 +31,12 @@ public:
 	std::unordered_map<std::string, GameEngine::Animation::AnimationClip> animationClips_;
 
 protected:
-	void AddJoints(GameEngine::Animation::Joint joint, std::vector<mat4>& m) const;
+	void AddJoints(GameEngine::Animation::Joint& joint);
 
 protected:
     std::string filename;
     std::vector<CMesh> meshes;
+	std::vector<mat4*> boneTransforms;
 	float scaleFactor_;
 };
 
