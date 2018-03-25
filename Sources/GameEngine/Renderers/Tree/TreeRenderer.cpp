@@ -19,14 +19,6 @@ namespace GameEngine
 		shader.Init();
 		shader.Start();
 		shader.Load(TreeShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
-		std::vector<mat4> transforms;
-		transforms.resize(100);
-
-		for (uint32 j = 0; j < 10; j++)
-		for (uint32 i = 0; i < 10; i++)
-			transforms[i + i*j] = Utils::CreateTransformationMatrix(vec3(350 + 10 * j, -0.5, 500 + 10 * i), vec3(0), vec3(1));
-
-		shader.LoadTransforms(transforms);
 		shader.Stop();
 	}
 	void TreeRenderer::PrepareFrame(GameEngine::Scene* scene)
@@ -40,33 +32,8 @@ namespace GameEngine
 
 		for (auto& sub : subscribes_)
 		{
-			if (!sub.second.textureInGpu)
-			{
-				vec2i size(1024, 1024);
+			PreparePositionMap(sub.second);
 
-				float* data = new float[4 * size.x * size.y];
-				memset(data, 0, 4 * size.x * size.y);
-
-				for (uint32 j = 0; j< size.x * size.y; j++)
-				{
-					if (j > sub.second.positions->size())
-						break;
-
-					auto p = (*sub.second.positions)[j];
-
-					data[j * 4 + 0] = p.x / 1000.f;
-					data[j * 4 + 1] = p.y / 1000.f;
-					data[j * 4 + 2] = p.z / 1000.f;
-					data[j * 4 + 3] = 1.0f;
-				}
-
-				sub.second.textureSize = 1024;
-
-				sub.second.positionTexture = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_4C, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::NONE, size, data);
-
-				delete[] data;
-				sub.second.textureInGpu = true;
-			}
 			const auto& model = sub.second.top->Get(L1);
 			const auto& bmodel = sub.second.bottom->Get(L1);
 
@@ -74,7 +41,7 @@ namespace GameEngine
 			mat4 normalizeMatrix = glm::scale(vec3(1.f / factor)) * sub.second.transform;
 
 			graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
-			shader.Load(TreeShader::UniformLocation::PositionMapSize, sub.second.textureSize);
+			shader.Load(TreeShader::UniformLocation::PositionMapSize, sub.second.textureSize.x);
 			graphicsApi_->DisableCulling();
 			shader.Load(TreeShader::UniformLocation::UseShading, 0.f);
 			RenderModel(model, normalizeMatrix);
@@ -101,6 +68,7 @@ namespace GameEngine
 		sub.top = &component->GetTopModelWrapper();
 		sub.bottom = &component->GetBottomModelWrapper();
 		sub.positions = &component->GetPositions();
+		sub.textureSize = component->GetPositionSize2d();
 		sub.transform = gameObject->worldTransform.GetMatrix();
 	}
 	void TreeRenderer::UnSubscribe(CGameObject * gameObject)
@@ -115,6 +83,35 @@ namespace GameEngine
 		shader.Reload();
 		Init();
 	}
+	void TreeRenderer::PreparePositionMap(Subscriber & sub)
+	{
+		if (sub.textureInGpu)
+			return;
+
+		auto size = sub.textureSize.x * sub.textureSize.y;
+		auto size4c = 4 * size;
+		float* data = new float[size4c];
+		memset(data, 0, size4c);
+
+		for (uint32 j = 0; j< size; j++)
+		{
+			if (j > sub.positions->size())
+				break;
+
+			auto p = (*sub.positions)[j];
+
+			data[j * 4 + 0] = p.x;
+			data[j * 4 + 1] = p.y;
+			data[j * 4 + 2] = p.z;
+			data[j * 4 + 3] = 1.0f;
+		}
+
+		//sub.textureSize = 1024;
+		sub.positionTexture = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_4C, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::NONE, sub.textureSize, data);
+		sub.textureInGpu = true;
+
+		delete[] data;
+	}
 	void TreeRenderer::RenderModel(CModel * model, const mat4& transorm) const
 	{
 		for (const auto& mesh : model->GetMeshes())
@@ -124,7 +121,7 @@ namespace GameEngine
 	{
 		shader.Load(TreeShader::UniformLocation::NormalizationMatrix, transform);
 		BindMaterial(mesh.GetMaterial());
-		graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), 100);
+		graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), 400);
 	}
 	void TreeRenderer::RenderTrees()
 	{

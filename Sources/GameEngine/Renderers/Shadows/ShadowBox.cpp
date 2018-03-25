@@ -1,9 +1,9 @@
 #include "ShadowBox.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Projection.h"
 #include "Utils.h"
-#include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
-#include "../../Engine/Configuration.h"
-#include "../../Renderers/Projection.h"
+#include "GLM/GLMUtils.h"
 
 CShadowBox::CShadowBox(CProjection* projection)
 	: m_LightViewMatrix(1.f)

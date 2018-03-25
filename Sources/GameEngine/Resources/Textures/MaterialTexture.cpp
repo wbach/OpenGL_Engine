@@ -19,7 +19,7 @@ void CMaterialTexture::OpenGLLoadingPass()
 	}
 
 	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-	id = graphicsApi_->CreateTexture(TextureType::U8_RGBA, TextureFilter::NEAREST, TextureMipmap::LINEAR, BufferAtachment::NONE, vec2i(image->width, image->height), &image->data[0]);
+	id = graphicsApi_->CreateTexture(TextureType::U8_RGBA, TextureFilter::NEAREST, TextureMipmap::LINEAR, BufferAtachment::NONE, vec2ui(image->width, image->height), &image->data[0]);
 
 	if (id == 0)
 	{

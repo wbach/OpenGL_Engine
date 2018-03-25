@@ -12,11 +12,12 @@ namespace GameEngine
 			TreeRendererComponent();
 			void SetTopModel(const std::string& filename, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
 			void SetBottomModel(const std::string& filename, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
-			void SetPositions(const std::vector<vec3>& positions);
+			void SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d = vec2ui(0,0));
 			virtual void ReqisterFunctions() override;
 			inline ModelWrapper& GetTopModelWrapper();
 			inline ModelWrapper& GetBottomModelWrapper();
 			inline std::vector<vec3>& GetPositions();
+			inline const vec2ui GetPositionSize2d();
 
 		private:
 			void Subscribe();
@@ -25,6 +26,7 @@ namespace GameEngine
 		private:
 			ModelWrapper top_;
 			ModelWrapper bottom_;
+			vec2ui size2d_;
 			std::vector<vec3> positions_;
 
 		public:
@@ -42,6 +44,10 @@ namespace GameEngine
 		std::vector<vec3>& TreeRendererComponent::GetPositions()
 		{
 			return positions_;
+		}
+		const vec2ui TreeRendererComponent::GetPositionSize2d()
+		{
+			return size2d_;
 		}
 	} // Components
 } // GameEngine

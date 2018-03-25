@@ -20,7 +20,7 @@ public:
 	void LoadSkyColour(const vec3& color) const;
 	void LoadViewDistance(const float& distance) const;
 
-	void LoadScreenSize(const wb::vec2i& screen_size);
+	void LoadScreenSize(const wb::vec2ui& screen_size);
 	void ConnectTextureUnits() const override;
 
 private:

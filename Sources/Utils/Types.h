@@ -22,18 +22,19 @@ typedef int   int32;
 
 namespace wb
 {
-struct vec2i
+template<class T>
+struct Tvec2
 {
-    int32 x;
-    int32 y;
+    T x;
+    T y;
 
-    vec2i()
+	Tvec2() : Tvec2(0, 0)
     {
     }
-    vec2i(int32 x) : x(x), y(x)
+	Tvec2(T x) : Tvec2(x, x)
     {
     }
-    vec2i(int32 x, int32 y) : x(x), y(y)
+	Tvec2(T x, T y) : x(x), y(y)
     {
     }
 };
@@ -46,7 +47,7 @@ struct Tvec3
     T z;
 
 	Tvec3() : Tvec3(0){}
-	Tvec3(int32 a):x(a), y(a), z(a){}
+	Tvec3(T a):x(a), y(a), z(a){}
 
     bool operator==(const Tvec3& v) const
     {
@@ -59,6 +60,8 @@ struct Tvec3
     }
 };
 
+typedef Tvec2<int32> vec2i;
+typedef Tvec2<uint32> vec2ui;
 typedef Tvec3<int32> vec3i;
 typedef Tvec3<uint32> vec3ui;
 
@@ -67,6 +70,7 @@ std::string to_string(const vec3i& v);
 }
 
 typedef wb::vec2i vec2i;
+typedef wb::vec2ui vec2ui;
 typedef wb::vec3i vec3i;
 
 typedef glm::vec3 vec3;

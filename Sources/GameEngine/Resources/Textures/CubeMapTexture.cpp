@@ -31,7 +31,7 @@ void CCubeMapTexture::OpenGLLoadingPass()
 		data[x] = &images[x]->data[0];
 	}
 
-	id = graphicsApi_->CreateCubMapTexture( vec2i(images[0]->width, images[0]->height), data);
+	id = graphicsApi_->CreateCubMapTexture( vec2ui(images[0]->width, images[0]->height), data);
 
 	for (auto& i : images)
 		i->data.clear();

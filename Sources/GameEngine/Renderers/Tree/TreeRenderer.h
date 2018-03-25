@@ -19,7 +19,7 @@ namespace GameEngine
 		GameEngine::ModelWrapper* top;
 		GameEngine::ModelWrapper* bottom;
 		mat4 transform;
-		uint32 textureSize;
+		vec2ui textureSize;
 		bool textureInGpu = false;
 		uint32 positionTexture;
 	};
@@ -40,6 +40,7 @@ namespace GameEngine
 		virtual void ReloadShaders() override;
 
 	private:
+		void PreparePositionMap(Subscriber& sub);
 		void RenderModel(CModel* model, const mat4&) const;
 		void RenderMesh(const CMesh& mesh, const mat4&) const;
 		void RenderTrees();

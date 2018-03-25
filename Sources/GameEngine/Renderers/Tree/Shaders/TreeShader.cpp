@@ -15,13 +15,6 @@ namespace GameEngine
 		});
 	}
 
-	void TreeShader::LoadTransforms(const std::vector<mat4> transforms) const
-	{
-		uint32 i = 0;
-		for (const auto& mat : transforms)
-			LoadValue(transformsLocations[i++], mat);
-	}
-
 	void TreeShader::GetAllUniformLocations()
 	{
 		GetLocation(ViewMatrix);
@@ -37,9 +30,6 @@ namespace GameEngine
 		uniformLocations[UniformLocation::ModelMaterial_Diffuse] = GetUniformLocation("ModelMaterial.diffuse");
 		uniformLocations[UniformLocation::ModelMaterial_Specular] = GetUniformLocation("ModelMaterial.specular");
 		uniformLocations[UniformLocation::ModelMaterial_ShineDumper] = GetUniformLocation("ModelMaterial.shineDamper");
-
-		for (int x = 0; x < MAX_TRANSFORMS; x++)
-			transformsLocations[x] = GetUniformLocation("Transforms[" + std::to_string(x) + "]");
 	}
 	void TreeShader::BindAttributes()
 	{

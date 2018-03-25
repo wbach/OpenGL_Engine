@@ -14,9 +14,18 @@ namespace GameEngine
 		{
 		}
 
-		void TreeRendererComponent::SetPositions(const std::vector<vec3>& positions)
+		void TreeRendererComponent::SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d)
 		{
 			positions_ = positions;
+			if (size2d.x == 0 || size2d.y == 0)
+			{
+				auto s = sqrt(positions.size());
+				size2d_ = vec2ui(static_cast<uint32>(std::floor(s)));
+			}
+			else
+			{
+				size2d_ = size2d;
+			}
 		}
 
 		void TreeRendererComponent::ReqisterFunctions()

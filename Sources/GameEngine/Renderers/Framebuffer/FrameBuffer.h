@@ -7,7 +7,7 @@ class CFrameBuffer
 {
 public:
 	CFrameBuffer(GameEngine::IGraphicsApiPtr api);
-    virtual void Init(const wb::vec2i& size) = 0;
+    virtual void Init(const wb::vec2ui& size) = 0;
     virtual void Clean(){}
     void CreateFrameBuffer();
     void AddTexture(uint32 texture);

@@ -41,8 +41,8 @@ namespace GameEngine
 		virtual void LoadValueToShader(uint32, const vec4&) override {}
 		virtual void LoadValueToShader(uint32, const mat3&) override {}
 		virtual void LoadValueToShader(uint32, const mat4&) override {}
-		virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2i, void* data) override { return ++id; }
-		virtual uint32 CreateCubMapTexture(vec2i, std::vector<void*>) override { return ++id; }
+		virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui, void* data) override { return ++id; }
+		virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override { return ++id; }
 		virtual void SetBuffers(const std::vector<BufferAtachment>&) override {}
 		virtual void ClearBuffer(BufferType) override {}
 		virtual void ClearBuffers(const std::vector<BufferType>&) override {}

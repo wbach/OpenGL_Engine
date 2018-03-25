@@ -19,7 +19,7 @@ void HeightMap::OpenGLLoadingPass()
 	}
 
 	Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-	id = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_1C, TextureFilter::LINEAR, TextureMipmap::NONE, BufferAtachment::NONE, vec2i(image->width, image->height), &image->floatData[0]);
+	id = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_1C, TextureFilter::LINEAR, TextureMipmap::NONE, BufferAtachment::NONE, vec2ui(image->width, image->height), &image->floatData[0]);
 
 	if (id == 0)
 	{

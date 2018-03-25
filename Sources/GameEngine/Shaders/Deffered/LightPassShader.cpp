@@ -66,7 +66,7 @@ void CLightPassShader::LoadCameraPosition(const vec3& camera_position) const
 	LoadValue(location_CameraPosition, camera_position);
 }
 
-void CLightPassShader::LoadScreenSize(const wb::vec2i& screen_size)
+void CLightPassShader::LoadScreenSize(const wb::vec2ui& screen_size)
 {
 	LoadValue(location_ScreenSize, vec2((float)screen_size.x , (float) screen_size.y));
 }

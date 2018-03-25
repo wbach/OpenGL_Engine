@@ -52,12 +52,13 @@ int MainScene::Initialize()
 	auto treeComp = AddComponent<GameEngine::Components::TreeRendererComponent>(tree1);
 
 	std::vector<vec3> treePositions;
-	treePositions.resize(100);
+	vec2ui size(64);
+	treePositions.resize(size.x * size.y);
 	
-	for(int y = 0; y < 10; y++)
-		for (int x = 0; x < 10; x++)
+	for(int y = 0; y < size.y; y++)
+		for (int x = 0; x < size.x; x++)
 		{
-			vec3 treePos(350 + 10 * x, 0.f, 500 + 10 * y);
+			vec3 treePos( 10.f * x, 0.f,10.f *  y);
 			treePos.x += static_cast<float>(rand() % 100) / 10.f;
 			treePos.z += static_cast<float>(rand() % 100) / 10.f;
 
@@ -69,9 +70,9 @@ int MainScene::Initialize()
 
 				treePos.y = new_position.constValue().y - .5f;
 			}
-			treePositions[x + 10 * y] = treePos;
+			treePositions[x + size.x * y] = treePos;
 		}
-	treeComp->SetPositions(treePositions);
+	treeComp->SetPositions(treePositions, size);
 	treeComp->SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj");
 	treeComp->SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
 

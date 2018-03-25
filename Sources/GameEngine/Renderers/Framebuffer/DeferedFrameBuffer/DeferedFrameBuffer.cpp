@@ -7,7 +7,7 @@ CDefferedFrameBuffer::CDefferedFrameBuffer(GameEngine::IGraphicsApiPtr api)
 {
 }
 
-void CDefferedFrameBuffer::Init(const wb::vec2i& size)
+void CDefferedFrameBuffer::Init(const wb::vec2ui& size)
 {
 	CreateFrameBuffer();
 	BindToDraw();

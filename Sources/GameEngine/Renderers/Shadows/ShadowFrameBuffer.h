@@ -18,8 +18,8 @@ private:
     uint32 fbo;
 	uint32 shadowMap;
 
-    vec2i size;
-    vec2i windowSize;
+    vec2ui size;
+    vec2ui windowSize;
 
     bool isInit = false;
 };

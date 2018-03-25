@@ -6,7 +6,6 @@
 
 namespace GameEngine
 {
-	const uint32 MAX_TRANSFORMS = 100;
 	class TreeShader : public CShaderProgram
 	{
 	public:
@@ -37,13 +36,11 @@ namespace GameEngine
 			}
 			LoadValue(uniformLocations.at(location), value);
 		}
-		void LoadTransforms(const std::vector<mat4> transforms) const;
 
 	private:
 		void GetAllUniformLocations();
 		void BindAttributes() override;
 		void ConnectTextureUnits() const override;
-		uint32 transformsLocations[MAX_TRANSFORMS];
 
 	protected:
 		std::unordered_map<UniformLocation, uint32> uniformLocations;

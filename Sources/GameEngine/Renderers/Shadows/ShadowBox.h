@@ -29,7 +29,7 @@ private:
     vec4 CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction, const float& width) const;
 
 private:
-    vec2i m_WindowSize;
+    vec2ui m_WindowSize;
     vec3 m_Min;
     vec3 m_Max;
 

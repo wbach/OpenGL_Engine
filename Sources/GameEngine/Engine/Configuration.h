@@ -26,8 +26,8 @@ struct SEngineConfiguration
 
     // Window
     std::string windowName = "Default Window Name";
-    vec2i resolution   = {1000, 600};
-    vec2i windowSize   = {1000, 600};
+    vec2ui resolution   = {1000, 600};
+    vec2ui windowSize   = {1000, 600};
 
     bool fullScreen	 = false;
     float refresRate = 60;

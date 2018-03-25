@@ -338,7 +338,7 @@ namespace GameEngine
 		glUniformMatrix4fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
 	}
 
-	uint32 OpenGLApi::CreateTexture(TextureType type, TextureFilter filter, TextureMipmap mimpamp, BufferAtachment atachment, vec2i size, void* data)
+	uint32 OpenGLApi::CreateTexture(TextureType type, TextureFilter filter, TextureMipmap mimpamp, BufferAtachment atachment, vec2ui size, void* data)
 	{
 		uint32 textureType = GL_TEXTURE_2D;
 		GLint dataType = GL_FLOAT;
@@ -408,7 +408,7 @@ namespace GameEngine
 		return rid;
 	}
 
-	uint32 OpenGLApi::CreateCubMapTexture(vec2i size, std::vector<void*> data)
+	uint32 OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
 	{
 		if (data.size() != 6)
 			return 0;
