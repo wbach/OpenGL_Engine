@@ -10,25 +10,23 @@ namespace GameEngine
 	{
 		SetFiles
 		({
-			{ "Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER },
-			{ "Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER },
-			{ "Terrain/TerrainShader.cs",	ShaderType::TESS_CONTROL_SHADER },
-			{ "Terrain/TerrainShader.es",	ShaderType::TESS_EVALUATION_SHADER }
-			});
+			{ "Particles/ParticlesShader.vert", ShaderType::VERTEX_SHADER },
+			{ "Particles/ParticlesShader.frag", ShaderType::FRAGMENT_SHADER },
+		});
 	}
-
 	void ParticlesShader::GetAllUniformLocations()
 	{
-		//GetLocation(playerPosition);
+		GetLocation(ProjectionMatrix);
+		GetLocation(ModelViewMatrix);
+		GetLocation(ParticleTexture);
 	}
 	void ParticlesShader::BindAttributes()
 	{
+		BindAttribute(0, "Position");
+		BindAttribute(1, "TexCoord");
 	}
-
-#define ConnectTerrainTexture(X) LoadValue(uniformLocations.at(UniformLocation::X), Terrain::TexturesTypes::X);
-
 	void ParticlesShader::ConnectTextureUnits() const
 	{
-		//ConnectTerrainTexture(blendMap);
+		LoadValue(uniformLocations.at(UniformLocation::ParticleTexture), 0);
 	}
 }

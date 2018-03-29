@@ -13,7 +13,9 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
 ../../Sources/GameEngine/Components/ComponentController.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
+../../Sources/GameEngine/Components/Renderer/ParticleEffectComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/RendererComponent.cpp
+../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp

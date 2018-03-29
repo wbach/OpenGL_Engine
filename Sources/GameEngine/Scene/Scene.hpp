@@ -106,7 +106,6 @@ namespace GameEngine
 		std::unique_ptr<CCamera> camera;
 	//	std::mutex cameraMutex;
 
-
 		GameObjects gameObjects;
 
 		Time time_;

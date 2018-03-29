@@ -34,7 +34,7 @@ FullRenderer::FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection*
 	renderers.emplace_back(new PlantsRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CEntityRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new WaterRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new ParticlesRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
+	if(EngineConf.useParticles) renderers.emplace_back(new ParticlesRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
 	renderers.emplace_back(new CLightPassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
 }
 

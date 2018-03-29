@@ -51,6 +51,7 @@ namespace GameEngine
 		MOCK_METHOD2(RenderMeshInstanced, void(uint32, uint32));
 		MOCK_METHOD1(RenderPoints, void(uint32));
 		MOCK_METHOD0(RenderQuad, void());
+		MOCK_METHOD0(RenderQuadTs, void());
 		MOCK_METHOD0(EnableCulling, void());
 		MOCK_METHOD0(DisableCulling, void());
 		MOCK_METHOD4(SetViewPort, void(uint32, uint32, uint32, uint32));
@@ -58,6 +59,7 @@ namespace GameEngine
 		MOCK_METHOD2(CreateShadowMap, uint32(uint32, uint32));
 		MOCK_METHOD0(PolygonModeRender, void());
 		MOCK_METHOD0(LineModeRender, void());
+		MOCK_METHOD1(SetBlendFunction, void(BlendFunctionType);
 
 		//temp
 		MOCK_METHOD1(CreateFont, void(const std::string&));

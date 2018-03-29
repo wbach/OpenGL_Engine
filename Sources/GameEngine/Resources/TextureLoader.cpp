@@ -48,7 +48,7 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
         FreeImage_FlipHorizontal(imagen);
 
 	int w = FreeImage_GetWidth(imagen);
-	int h = FreeImage_GetHeight(imagen);	
+	int h = FreeImage_GetHeight(imagen);
 	
 	if (applySizeLimit)
 	{

@@ -8,7 +8,8 @@ namespace GameEngine
 		{
 			Animator,
 			Renderer,
-			TreeRenderer
+			TreeRenderer,
+			ParticleEffect
 		};
 	} // Components
 } // GameEngine

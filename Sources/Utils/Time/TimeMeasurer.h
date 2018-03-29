@@ -32,6 +32,10 @@ namespace Utils
 			uint32 lockFps;
 			uint32 frequency_;
 			Callbacks callbacks;
+
+			float previousTime_ = 0.f;
+			float currentTime_ = 0.f;
+
 			bool vsync;
 
 			Delta deltaTime, deltaTime2;
@@ -46,7 +50,7 @@ namespace Utils
 
 		const double inline CTimeMeasurer::GetDeltaTime() const
 		{
-			return static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime2).count()) / 1000000000.0;
+			return currentTime_ - previousTime_; //static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime2).count()) / 1000000000.0;
 		}
 	} // TimeMeasurer
 } // Utils

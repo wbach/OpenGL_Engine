@@ -63,6 +63,7 @@ namespace GameEngine
 		virtual void RenderMeshInstanced(uint32, uint32) override {}
 		virtual void RenderPoints(uint32) override {}
 		virtual void RenderQuad() override {}
+		virtual void RenderQuadTs() {}
 		virtual void EnableCulling() override {}
 		virtual void DisableCulling() override {}
 		virtual void SetViewPort(uint32, uint32, uint32, uint32) override {}
@@ -70,6 +71,7 @@ namespace GameEngine
 		virtual uint32 CreateShadowMap(uint32, uint32) override { return ++id; }
 		virtual void PolygonModeRender() override {}
 		virtual void LineModeRender() override {}
+		virtual void SetBlendFunction(BlendFunctionType) override {}
 
 		//temp
 		virtual void CreateFont(const std::string&) override {}

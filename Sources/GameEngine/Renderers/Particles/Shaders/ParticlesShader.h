@@ -10,7 +10,9 @@ namespace GameEngine
 	public:
 		enum UniformLocation
 		{
-
+			ProjectionMatrix,
+			ModelViewMatrix,
+			ParticleTexture
 		};
 		ParticlesShader(IGraphicsApiPtr graphicsApi);
 		template <class T>

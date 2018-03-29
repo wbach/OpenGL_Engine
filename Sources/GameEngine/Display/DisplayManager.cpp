@@ -1,4 +1,5 @@
 #include "DisplayManager.hpp"
+#include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -6,6 +7,7 @@ namespace GameEngine
 	CDisplayManager::CDisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h, WindowType type)
 		: api(api)
 		, windowsSize({ w, h })
+		, timeMeasurer(static_cast<uint32>(EngineConf.refresRate), EngineConf.vsync)
 	{
 		if (api == nullptr || api->GetWindowApi() == nullptr)
 		{
@@ -35,6 +37,7 @@ namespace GameEngine
 	{
 		api->GetWindowApi()->UpdateWindow();
 		timeMeasurer.EndFrame();
+		time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
 	}
 
 	void CDisplayManager::SetRefreshRate(const int & rate)

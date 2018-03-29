@@ -78,6 +78,18 @@ void ParseFloraConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
+void ParseParticlesConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+{
+	for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
+	{
+		std::string att_name = att_node->name();
+		std::string att_value = att_node->value();
+
+		if (att_name == "enabled")
+			config.useParticles = Utils::StringToBool(att_value);
+	}
+}
+
 void ParseShadowsConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
 {
     for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
@@ -147,6 +159,8 @@ void ParseEngineConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
             ParseTextureMaxResolution(snode, config);
         if (name == "Flora")
             ParseFloraConfig(snode, config);
+		if (name == "Particles")
+			ParseParticlesConfig(snode, config);
         if (name == "Shadows")
             ParseShadowsConfig(snode, config);
         if (name == "Water")
@@ -273,4 +287,5 @@ void SEngineConfiguration::SaveRequiredFiles()
 void SEngineConfiguration::ReadFromFile(const std::string& filename)
 {
     XMLParser::ReadConfigFile(filename);
+	AddRequiredFile(filename);
 }

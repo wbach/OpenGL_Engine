@@ -4,6 +4,12 @@
 #include "Thread.hpp"
 #include <chrono>
 #include <thread>
+#include <iostream>
+
+float GetCTime()
+{
+	return static_cast<float>(clock()) / static_cast<float>(CLOCKS_PER_SEC);
+}
 
 namespace Utils
 {
@@ -39,6 +45,10 @@ namespace Utils
 
 		void CTimeMeasurer::CalculateAndLock()
 		{
+			previousTime_ = currentTime_;
+			currentTime_ = GetCTime();
+			//std::cout << GetDeltaTime() << std::endl;
+
 			currentTime = std::chrono::high_resolution_clock::now();
 			frameCount++;
 

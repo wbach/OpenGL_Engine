@@ -3,6 +3,7 @@
 #include "Animation/Animator.h"
 #include "Renderer/RendererComponent.hpp"
 #include "Renderer/TreeRendererComponent.h"
+#include "Renderer/ParticleEffectComponent.h"
 
 namespace GameEngine
 {
@@ -29,6 +30,10 @@ namespace GameEngine
 			case ComponentsType::TreeRenderer:
 			{
 				return CreateAndBasicInitialize<TreeRendererComponent>();
+			}
+			case ComponentsType::ParticleEffect:
+			{
+				return CreateAndBasicInitialize<ParticleEffectComponent>();
 			}
 			}
 			return nullptr;

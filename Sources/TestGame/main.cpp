@@ -4,6 +4,7 @@
 #include "Logger/Log.h"
 #include "GameEngine/Api/OpenGL/OpenGLApi.h"
 #include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
+#include "GameEngine/Engine/Configuration.h"
 
 void StartMessage()
 {
@@ -19,6 +20,7 @@ void StartMessage()
 
 int main(int argc, char* argv[])
 {	
+	EngineConf.ReadFromFile("./Conf.xml");
 	//int i = 0;
 	//for (i = 0; i < LAST; i++) {
 	//	printf("%d %s\n", i, strings[i]);

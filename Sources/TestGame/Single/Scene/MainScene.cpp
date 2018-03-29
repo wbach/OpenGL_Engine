@@ -15,6 +15,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
+#include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -77,6 +78,33 @@ int MainScene::Initialize()
 	treeComp->SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj");
 	treeComp->SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
 
+	auto particle1 = AddGameObjectInstance(1.f, vec2(395, 560));
+	auto effect1 = AddComponent<GameEngine::Components::ParticleEffectComponent>(particle1);
+	effect1->SetTexture("Textures/Particles/snow-flake-2.png");
+	effect1->SetParticlesCount(1000);
+
+	GameEngine::Particle particle;
+	particle.position = particle1->worldTransform.GetPosition();
+	particle.velocity = vec3(0, 0.1, 0);
+	particle.rotation = 0;
+	particle.scale = 1;
+	particle.gravityEffect = 1.f;
+	particle.lifeTime = 2.f;
+	effect1->SetParticle(particle);
+
+
+	inputManager_->SubscribeOnKeyDown(KeyCodes::P, [effect1, particle1]() mutable
+	{
+		GameEngine::Particle particle;
+		particle.position = particle1->worldTransform.GetPosition();
+		particle.rotation = 0;
+		particle.scale = 1;
+		particle.gravityEffect = 1.f;
+		particle.lifeTime = 4.f;
+		effect1->AddParticle(particle);
+	});
+	
+
 	auto treeGo1 = AddGameObjectInstance(10.f, vec2(400, 570));
 	AddComponent<GameEngine::Components::RendererComponent>(treeGo1)->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
 
@@ -85,8 +113,6 @@ int MainScene::Initialize()
 
 	auto bialczyk  = AddGameObjectInstance(30.f, vec2(395, 570));
 	AddComponent<GameEngine::Components::RendererComponent>(bialczyk)->AddModel("Meshes/Bialczyk/Bialczyk.obj");
-
-
 	player = AddGameObjectInstance(1.8f, vec2(395, 560), true);
 	auto animator = AddComponent<GameEngine::Components::Animator>(player);
 	AddComponent<GameEngine::Components::RendererComponent>(player)->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");

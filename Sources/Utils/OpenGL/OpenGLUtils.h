@@ -30,7 +30,9 @@ void DisableCulling();
 
 void SimpleRenderVao(const GLuint& vao, int indices, int attributes = 1, GLenum mode = GL_TRIANGLES);
 
+
 void CreateQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size);
+void CreateQuadTS05(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size);
 
 void DeleteQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord);
 

@@ -14,7 +14,7 @@ namespace GameEngine
 		, isRunning(true)
 	{
 		graphicsApi_->SetBackgroundColor(vec3(.8f));
-		ReadConfigFile("./Conf.xml");
+
 		SetDisplay();
 		sceneManager_.SetFactor();
 	}
@@ -24,12 +24,6 @@ namespace GameEngine
 		sceneManager_.Reset();
 		Log("");
 		EngineConf_SaveRequiredFiles();
-	}
-
-	void CEngine::ReadConfigFile(const std::string & file_name)
-	{
-		EngineConf.ReadFromFile(file_name);
-		EngineConf_AddRequiredFile(file_name);
 	}
 
 	void CEngine::SetDisplay()

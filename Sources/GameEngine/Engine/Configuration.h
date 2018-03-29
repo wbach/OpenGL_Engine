@@ -57,6 +57,9 @@ struct SEngineConfiguration
     float floraViewDistance = 100.f;
     bool advancedGrass      = true;
 
+	//Effects
+	bool useParticles = true;
+
     // Renderer
     RendererType rendererType = RendererType::FULL_RENDERER;  // simple renderer/full renderer
     LoD startLod;

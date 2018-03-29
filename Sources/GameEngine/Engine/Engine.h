@@ -35,7 +35,6 @@ namespace GameEngine
 		SceneManager sceneManager_;
 
 	private:
-		void ReadConfigFile(const std::string& file_name);
 		void SetDisplay();
 		void MainLoop();
 		void ProcessEngineEvents();

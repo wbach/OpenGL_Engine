@@ -5,6 +5,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Animations/JointTransform.h
 ../../Sources/GameEngine/Animations/KeyFrame.h
 ../../Sources/GameEngine/Api/ApiMessages.h
+../../Sources/GameEngine/Api/BlendFunctionsTypes.h
 ../../Sources/GameEngine/Api/BufferParamters.h
 ../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.h
 ../../Sources/GameEngine/Api/Dummy/DummyInputManager.h
@@ -33,6 +34,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Components/Input/CharacterControllerInput.h
+../../Sources/GameEngine/Components/Renderer/ParticleEffectComponent.h
+../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Engine.h
@@ -50,6 +53,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Objects/RenderAble/Entity/Entity.h
 ../../Sources/GameEngine/Objects/RenderAble/Entity/EntityWrapper.h
 ../../Sources/GameEngine/Objects/RenderAble/Flora/Grass/Grass.h
+../../Sources/GameEngine/Objects/RenderAble/Paricle/Particle.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/Terrain.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainBuilder.h
 ../../Sources/GameEngine/Objects/RenderAble/Terrain/TerrainCreateUtils.h

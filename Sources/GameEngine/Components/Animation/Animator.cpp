@@ -67,7 +67,6 @@ namespace GameEngine
 			auto model = renderer->GetModelWrapper().Get(GameEngine::L1);
 			rootJoint_ = &model->skeleton_;
 			animationClips_ = model->animationClips_;
-			animationSpeed_ = 0.5f;
 
 			if (!animationClips_.empty())
 			{

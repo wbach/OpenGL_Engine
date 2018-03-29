@@ -66,6 +66,7 @@ namespace GameEngine
 		virtual void RenderMeshInstanced(uint32, uint32) override;
 		virtual void RenderPoints(uint32) override;
 		virtual void RenderQuad() override;
+		virtual void RenderQuadTs() override;
 		virtual void EnableCulling() override;
 		virtual void DisableCulling() override;
 		virtual void SetViewPort(uint32, uint32, uint32, uint32) override;
@@ -74,6 +75,7 @@ namespace GameEngine
 
 		virtual void PolygonModeRender() override;
 		virtual void LineModeRender() override;
+		virtual void SetBlendFunction(BlendFunctionType) override;
 
 		//temp
 		virtual void CreateFont(const std::string&) override;
@@ -89,7 +91,8 @@ namespace GameEngine
 		bool FinalizeShader(uint32 programId, GraphicsApiFunctions);
 
 	private:
-		uint32 objectId;
+		uint32 activeBuffer_;
+		uint32 objectId_;
 		IWindowApiPtr windowApi_;
 		uint32 usedShader;
 		vec3 bgColor_;
@@ -100,6 +103,7 @@ namespace GameEngine
 		std::unordered_map<uint32, OpenGLShaderProgram> shaderPrograms_;
 		std::unordered_map<uint32, OpenGLMesh> openGlMeshes_;
 		std::unordered_map<uint32, uint32> idToGlId_;
-		SSimpleQuad quad;
+		SSimpleQuad quad_;
+		SSimpleQuad quadTs_;
 	};
 } // GameEngine

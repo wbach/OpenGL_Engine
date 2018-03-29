@@ -42,7 +42,7 @@ namespace GameEngine
 	{
 		if (displayManager_ != nullptr)
 		{
-			time_ = displayManager_->GetTime();
+			time_.deltaTime = deltaTime;
 		}
 
 		Update(deltaTime);

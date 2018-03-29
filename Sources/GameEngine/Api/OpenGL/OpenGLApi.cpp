@@ -31,8 +31,13 @@ namespace GameEngine
 	OpenGLApi::OpenGLApi(IWindowApiPtr windowApi)
 		: windowApi_(windowApi)
 		, usedShader(0)
-		, objectId(1)
+		, objectId_(1)
+		, activeBuffer_(0)
+		, quadTs_(true)
 	{
+
+		idToGlId_[0] = 0;
+
 		shaderTypeMap_ = 
 		{
 			{ ShaderType::VERTEX_SHADER, GL_VERTEX_SHADER },
@@ -67,7 +72,8 @@ namespace GameEngine
 		GLint glew_init_result = glewInit();
 		if (glew_init_result == GLEW_OK)
 		{
-			quad.Init();
+			quad_.Init();
+			quadTs_.Init();
 			return;
 		}
 
@@ -166,8 +172,8 @@ namespace GameEngine
 	}
 	uint32 OpenGLApi::ConvertAndRememberId(uint32 id)
 	{
-		auto oid = objectId;
-		++objectId;
+		auto oid = objectId_;
+		++objectId_;
 
 		idToGlId_[oid] = id;
 		return oid;
@@ -535,6 +541,11 @@ namespace GameEngine
 
 	void OpenGLApi::BindBuffer(BindType type, uint32 id)
 	{
+		if (activeBuffer_ == id)
+			return;
+
+		activeBuffer_ = id;
+
 		auto openGLId = idToGlId_[id];
 
 		switch (type)
@@ -587,19 +598,19 @@ namespace GameEngine
 		glPatchParameteri(GL_PATCH_VERTICES, patch);
 		glBindVertexArray(0);
 
-		auto rid = objectId;
+		auto rid = objectId_;
 		createdObjectIds[rid] = ObjectType::MESH;
 		openGlMeshes_[rid].instancesCount = count;
 		openGlMeshes_[rid].patches = patch;
-		objectId++;
+		objectId_++;
 		return rid;
 	}
 
 	uint32 OpenGLApi::CreateMesh(const MeshRawData& meshRawData)
 	{
-		auto rid = objectId;
+		auto rid = objectId_;
 		createdObjectIds[rid] = ObjectType::MESH;
-		objectId++;
+		objectId_++;
 
 		auto& mesh = openGlMeshes_[rid];
 		mesh.vao = Utils::CreateVao();
@@ -694,7 +705,12 @@ namespace GameEngine
 
 	void OpenGLApi::RenderQuad()
 	{
-		Utils::SimpleRenderVao(quad.vao, quad.indicesSize, 2);
+		quad_.Render(2);
+	}
+
+	void OpenGLApi::RenderQuadTs()
+	{
+		quadTs_.Render(2);
 	}
 
 	void OpenGLApi::EnableCulling()
@@ -734,6 +750,16 @@ namespace GameEngine
 	void OpenGLApi::LineModeRender()
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	void OpenGLApi::SetBlendFunction(BlendFunctionType type)
+	{
+		switch (type)
+		{
+		case BlendFunctionType::ALPHA_ONE_MINUS_ALPHA :
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		}
 	}
 
 	void OpenGLApi::CreateFont(const std::string& filename)

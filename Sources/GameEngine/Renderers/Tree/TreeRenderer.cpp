@@ -3,6 +3,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "../Framebuffer/FrameBuffer.h"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
 
 namespace GameEngine
@@ -26,6 +27,7 @@ namespace GameEngine
 	}
 	void TreeRenderer::Render(GameEngine::Scene* scene)
 	{
+		target->BindToDraw();
 		shader.Start();
 		shader.Load(TreeShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 		shader.Load(TreeShader::UniformLocation::CameraPosition, scene->GetCamera()->GetPosition());

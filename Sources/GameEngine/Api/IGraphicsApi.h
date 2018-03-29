@@ -3,8 +3,9 @@
 #include "WindowType.h"
 #include "ShaderTypes.h"
 #include "FunctionsTypes.h"
-#include "TextureParamters.h"
 #include "BufferParamters.h"
+#include "TextureParamters.h"
+#include "BlendFunctionsTypes.h"
 #include "GameEngine/Api/WindowApi.hpp"
 #include <string>
 #include <memory>
@@ -67,6 +68,7 @@ namespace GameEngine
 		virtual void RenderMeshInstanced(uint32, uint32) = 0;
 		virtual void RenderPoints(uint32) = 0;
 		virtual void RenderQuad() = 0;
+		virtual void RenderQuadTs() = 0;
 		virtual void EnableCulling() = 0;
 		virtual void DisableCulling() = 0;
 		virtual void SetViewPort(uint32, uint32, uint32, uint32) = 0;
@@ -74,6 +76,7 @@ namespace GameEngine
 		virtual uint32 CreateShadowMap(uint32, uint32) = 0;
 		virtual void PolygonModeRender() = 0;
 		virtual void LineModeRender() = 0;
+		virtual void SetBlendFunction(BlendFunctionType) = 0;
 
 		//temp
 		virtual void CreateFont(const std::string&) = 0;

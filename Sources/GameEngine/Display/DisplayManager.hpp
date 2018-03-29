@@ -44,7 +44,6 @@ namespace GameEngine
 
 	inline const Time& CDisplayManager::GetTime()
 	{
-		time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
 		return time_;
 	}
 } // GameEngine

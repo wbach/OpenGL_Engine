@@ -140,6 +140,29 @@ void Utils::CreateQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, 
 	UnbindVao();
 }
 
+void Utils::CreateQuadTS05(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, GLuint & vbo_text_coord, int & indices_size)
+{
+	std::vector<float> vertex =
+	{
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f
+	};
+
+	std::vector<float> text_coords = {
+		0, 0,
+		0, 1,
+		1, 1,
+		1, 0 };
+	std::vector<uint16> indices = { 0, 1, 3, 3, 1, 2 };
+	indices_size = indices.size();
+	vao = CreateVao();
+	vbo_indices = BindIndicesBuffer(indices);
+	vbo_vertex = StoreDataInAttributesList(0, 3, vertex);
+	vbo_text_coord = StoreDataInAttributesList(1, 2, text_coords);
+	UnbindVao();
+}
+
 void Utils::DeleteQuad(GLuint & vao, GLuint & vbo_indices, GLuint & vbo_vertex, GLuint & vbo_text_coord)
 {
 	glDeleteBuffers(1, &vbo_indices);
