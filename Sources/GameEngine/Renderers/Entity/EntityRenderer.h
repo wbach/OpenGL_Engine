@@ -15,6 +15,7 @@ namespace GameEngine
 
 struct Subscriber
 {
+	uint32 textureIndex;
 	CGameObject* gameObject;
 	GameEngine::ModelWrapper* model;
 };
@@ -49,5 +50,6 @@ private:
 
     vec4 clipPlane;
 
+	uint32 currentTextureIndex_ = 0;
 	SubscribersMap subscribes_;
 };

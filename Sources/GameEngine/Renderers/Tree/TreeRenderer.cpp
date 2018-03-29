@@ -27,6 +27,12 @@ namespace GameEngine
 	}
 	void TreeRenderer::Render(GameEngine::Scene* scene)
 	{
+		for (auto iter = subscribersToInit_.begin(); iter != subscribersToInit_.end();)
+		{
+			PreparePositionMap(**iter);
+			iter = subscribersToInit_.erase(iter);
+		}
+
 		target->BindToDraw();
 		shader.Start();
 		shader.Load(TreeShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
@@ -34,7 +40,7 @@ namespace GameEngine
 
 		for (auto& sub : subscribes_)
 		{
-			PreparePositionMap(sub.second);
+			//PreparePositionMap(sub.second);
 
 			const auto& model = sub.second.top->Get(L1);
 			const auto& bmodel = sub.second.bottom->Get(L1);
@@ -73,6 +79,7 @@ namespace GameEngine
 		sub.bottom = &component->GetBottomModelWrapper();
 		sub.positions = &component->GetPositions();
 		sub.transform = gameObject->worldTransform.GetMatrix();
+		subscribersToInit_.push_back(&sub);
 	}
 	void TreeRenderer::UnSubscribe(CGameObject * gameObject)
 	{

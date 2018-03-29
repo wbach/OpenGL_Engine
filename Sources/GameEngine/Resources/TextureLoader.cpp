@@ -104,7 +104,23 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLi
 	switch (type)
 	{
 	case ObjectTextureType::MATERIAL:
+	{
          textures.emplace_back(new CMaterialTexture(graphicsApi_, false, file, file, texture));
+
+		 auto cfile = file;
+		 std::replace(cfile.begin(), cfile.end(), '\\', '/');
+		 auto v = Utils::SplitString(cfile, '/');
+		 auto filename = v.back().substr(0, v.back().find_last_of('.'));
+
+		 auto rowsPos = filename.find("_rows_");
+
+		 if (rowsPos != std::string::npos)
+		 {
+			 auto rows = filename.substr(rowsPos + 6);
+			 if (!rows.empty())
+				textures.back()->numberOfRows = std::stoi(rows);
+		 }
+	}
 		break;
 	}
 	if(opengl_pass)

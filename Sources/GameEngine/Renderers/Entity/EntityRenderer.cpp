@@ -39,7 +39,6 @@ void CEntityRenderer::PrepareFrame(GameEngine::Scene * scene)
 	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
 	shader.LoadClipPlane(clipPlane);
 	shader.LoadShadowValues(0.f, 10.f, 10.f);
-	shader.LoadUseInstancedRendering(0.f);
 	shader.LoadUseFakeLight(0.f);
 	shader.LoadUseBonesTransformation(0.f);
 	rendererObjectPerFrame = 0;
@@ -70,7 +69,7 @@ void CEntityRenderer::Subscribe(CGameObject* gameObject)
 	if (rendererComponent == nullptr)
 		return;
 
-	subscribes_[gameObject->GetId()] = { gameObject, &rendererComponent->GetModelWrapper() };
+	subscribes_[gameObject->GetId()] = { rendererComponent->textureIndex , gameObject, &rendererComponent->GetModelWrapper() };
 }
 
 void CEntityRenderer::UnSubscribe(CGameObject * gameObject)
@@ -127,6 +126,8 @@ void CEntityRenderer::RenderEntities()
 		for (auto& t : model->GetBoneTransforms())
 			shader.LoadBoneTransform(*t, x++);
 
+		currentTextureIndex_ = sub.second.textureIndex;
+
 		RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
 	}
 }
@@ -140,11 +141,17 @@ void CEntityRenderer::BindMaterial(const SMaterial & material) const
 
 	if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
 	{
-		graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 		shader.LoadUseTexture(1.f);
+		graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
+		shader.LoadNumberOfRows(material.diffuseTexture->numberOfRows);
+		shader.LoadTextureOffset(material.diffuseTexture->GetTextureOffset(currentTextureIndex_));
 	}
 	else
+	{
 		shader.LoadUseTexture(0.f);
+		shader.LoadNumberOfRows(1);
+		shader.LoadTextureOffset(vec2(0));
+	}
 
 	if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
 	{

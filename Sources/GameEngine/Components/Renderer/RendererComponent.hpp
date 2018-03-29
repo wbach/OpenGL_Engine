@@ -14,6 +14,9 @@ namespace GameEngine
 			virtual void ReqisterFunctions() override;
 			inline ModelWrapper& GetModelWrapper();
 
+		public:
+			uint32 textureIndex = 0;
+
 		private:
 			void Subscribe();
 			void UnSubscribe();

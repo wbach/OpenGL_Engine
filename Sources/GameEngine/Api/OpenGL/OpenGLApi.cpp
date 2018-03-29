@@ -395,6 +395,7 @@ namespace GameEngine
 
 		if (hubo_error)
 		{
+			auto errInfo = gluErrorString(hubo_error);
 			return 0;
 		}
 

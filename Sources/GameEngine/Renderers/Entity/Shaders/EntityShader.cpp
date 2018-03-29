@@ -22,7 +22,8 @@ void CEntityShader::GetAllUniformLocations()
 	location_ProjectionMatrix = GetUniformLocation("ProjectionMatrix");
 	location_ViewMatrix = GetUniformLocation("ViewMatrix");
 
-	location_IsInstancedRender = GetUniformLocation("IsInstancedRender");
+	location_TextureOffset = GetUniformLocation("TextureOffset");
+	location_NumberOfRows  = GetUniformLocation("NumberOfRows");
 
 	//Animations
 	location_UseBoneTransform = GetUniformLocation("UseBoneTransform");
@@ -41,9 +42,13 @@ void CEntityShader::BindAttributes()
 	BindAttribute(5, "BoneIds");
 	//BindAttribute(4, "TransformationMatrixes");
 }
-void CEntityShader::LoadUseInstancedRendering(const float& use) const
+void CEntityShader::LoadTextureOffset(const vec2& offset) const
 {
-	LoadValue(location_IsInstancedRender, use);
+	LoadValue(location_TextureOffset, offset);
+}
+void CEntityShader::LoadNumberOfRows(uint32 rows) const
+{
+	LoadValue(location_NumberOfRows, static_cast<float>(rows));
 }
 void CEntityShader::LoadTransformMatrix(const mat4& matrix) const
 {

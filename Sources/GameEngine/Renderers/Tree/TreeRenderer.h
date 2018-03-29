@@ -56,5 +56,6 @@ namespace GameEngine
 		vec4 clipPlane;
 
 		SubscribersMap subscribes_;
+		std::list<Subscriber*> subscribersToInit_;
 	};
 } // GameEngine

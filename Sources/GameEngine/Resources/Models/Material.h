@@ -23,18 +23,4 @@ struct SMaterial
     CTexture* ambientTexture  = nullptr;
     CTexture* specularTexture = nullptr;
     CTexture* normalTexture   = nullptr;
-
-    int numberOfRows = 1;
-    int textureIndex = 0;
-
-    float getTextureXOffset()
-    {
-        int column = textureIndex % numberOfRows;
-        return (float)column / (float)numberOfRows;
-    }
-    float getTextureYOffset()
-    {
-        int row = textureIndex / numberOfRows;
-        return (float)row / (float)numberOfRows;
-    }
 };

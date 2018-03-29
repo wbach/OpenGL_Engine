@@ -22,9 +22,10 @@ uniform vec3 ShadowVariables;
 
 uniform float IsUseNormalMap;
 uniform float IsUseFakeLighting;
-uniform float IsInstancedRender;
 
 uniform vec4 ClipPlane;
+uniform float NumberOfRows;
+uniform vec2 TextureOffset;
 
 out vec2 TexCoord0;
 out vec3 Normal0;
@@ -75,44 +76,10 @@ VertexWorldData caluclateWorldData()
 	return result;
 }
 
-void main()
-{     
-	VertexWorldData worldData = caluclateWorldData();
-
-	vec4 modelViewPosition  = ViewMatrix * worldData.worldPosition;
-	gl_ClipDistance[0] = dot(worldData.worldPosition, ClipPlane);
-
-    gl_Position    = ProjectionMatrix * modelViewPosition; 
-    TexCoord0      = TexCoord;
-    Normal0        = worldData.worldNormal.xyz;
-    WorldPos0      = worldData.worldPosition;
-
-	if( IsUseNormalMap > .5f)
-	{
-		PassTangent = (TransformationMatrix * vec4(Tangent, 0.0)).xyz;
-		UseNormalMap = 1.f;
-	}
-	else
-	{
-		UseNormalMap = 0.f;
-		PassTangent = vec3(.0f) ;
-	}
-
-	if (IsUseFakeLighting > .5f)
-    {
-        Normal0 = vec3(.0f , 1.f, .0f);
-		FakeLight = 1.0f;
-    }
-	else
-	{
-		FakeLight = 0.f;
-	}
-	
-	Distance = length(modelViewPosition.xyz);
-
+void CalculateShadowVariables()
+{
 	UseShadows = ShadowVariables.x;
-
-	if (ShadowVariables.x > 0.5f)
+	if (UseShadows > 0.5f)
 	{
 		ShadowMapSize = ShadowVariables.z;
 
@@ -125,4 +92,46 @@ void main()
 		distance_to_cam			= distance_to_cam / shadow_distance;
 		ShadowCoords.w			= clamp(1.f - distance_to_cam, 0.f, 1.f);
 	}
+}
+
+void CalculateTangents()
+{
+	if( IsUseNormalMap > .5f)
+	{
+		PassTangent = (TransformationMatrix * vec4(Tangent, 0.0)).xyz;
+		UseNormalMap = 1.f;
+	}
+	else
+	{
+		UseNormalMap = 0.f;
+		PassTangent = vec3(.0f) ;
+	}
+}
+
+void main()
+{
+	VertexWorldData worldData = caluclateWorldData();
+
+	vec4 modelViewPosition  = ViewMatrix * worldData.worldPosition;
+	gl_ClipDistance[0] = dot(worldData.worldPosition, ClipPlane);
+
+    gl_Position    = ProjectionMatrix * modelViewPosition; 
+    TexCoord0      = (TexCoord / NumberOfRows) + TextureOffset;
+    WorldPos0      = worldData.worldPosition;
+
+    CalculateTangents();
+
+	if (IsUseFakeLighting > .5f)
+    {
+        Normal0 = vec3(.0f , 1.f, .0f);
+		FakeLight = 1.0f;
+    }
+	else
+	{
+		Normal0   = worldData.worldNormal.xyz;
+		FakeLight = 0.f;
+	}
+
+	Distance = length(modelViewPosition.xyz);
+	CalculateShadowVariables();
 }

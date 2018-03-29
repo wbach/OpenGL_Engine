@@ -103,13 +103,21 @@ int MainScene::Initialize()
 		particle.lifeTime = 4.f;
 		effect1->AddParticle(particle);
 	});
-	
 
 	auto treeGo1 = AddGameObjectInstance(10.f, vec2(400, 570));
 	AddComponent<GameEngine::Components::RendererComponent>(treeGo1)->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
 
 	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
 	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
+
+	for (int x = 0; x < 4; x++)
+	{
+		auto fern = AddGameObjectInstance(3.f, vec2(395, 560 - 5 * x));
+		auto fernRComp = AddComponent<GameEngine::Components::RendererComponent>(fern);
+		fernRComp->AddModel("Meshes/Fern/fern.obj");
+		fernRComp->textureIndex = x;
+	}
+
 
 	auto bialczyk  = AddGameObjectInstance(30.f, vec2(395, 570));
 	AddComponent<GameEngine::Components::RendererComponent>(bialczyk)->AddModel("Meshes/Bialczyk/Bialczyk.obj");
