@@ -89,7 +89,7 @@ namespace common
 		float runSpeed_;
 		float turnSpeed_;
 		float jumpPower_;
-		bool isGrounded = false;
+		bool isGrounded;
 		float upwardsSpeed = 0.f;
 
 		std::list<CharacterActions::Type> states;

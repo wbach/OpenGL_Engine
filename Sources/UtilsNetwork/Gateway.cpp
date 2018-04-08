@@ -15,14 +15,14 @@ namespace Network
 	}
 
 	CGateway::CGateway(Utils::Time::CTimeMeasurer timeMeasurer)
-		: iSDLNetWrapperPtr_(new SDLNetWrapper)
-		, timeMeasurer_(timeMeasurer)
+		: timeMeasurer_(timeMeasurer)
+		, iSDLNetWrapperPtr_(new SDLNetWrapper)
 		, sender_(timeMeasurer_, iSDLNetWrapperPtr_)
 		, receiver_(timeMeasurer_, iSDLNetWrapperPtr_)
 		, connectionManager_(sender_, receiver_, iSDLNetWrapperPtr_, context_)
 		, clientCreator_(sender_, receiver_, iSDLNetWrapperPtr_)
-		, running(false)
 		, isServer(false)
+		, running(false)
 	{
 	}
 	

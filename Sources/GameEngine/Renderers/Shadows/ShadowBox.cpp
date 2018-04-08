@@ -6,14 +6,16 @@
 #include "GLM/GLMUtils.h"
 
 CShadowBox::CShadowBox(CProjection* projection)
-	: m_LightViewMatrix(1.f)
+	: m_WindowSize(projection->GetWindowSize())
+	, m_Min()
+	, m_Max()
+	, m_LightViewMatrix(1.f)
+	, m_Fov(projection->GetFoV())
+	, m_NearPlane(projection->GetNear())
 	, m_Offset(1.f)
 	, m_Up(0, 1, 0, 0)
 	, m_Forward(0, 0, -1, 0)
 	, m_ShadowDistance(EngineConf.shadowsDistance)
-	, m_NearPlane(projection->GetNear())
-	, m_Fov(projection->GetFoV())
-	, m_WindowSize(projection->GetWindowSize())
 {
 	CalculateWidthsAndHeights();
 }

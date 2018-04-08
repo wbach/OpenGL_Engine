@@ -34,7 +34,8 @@ namespace GameEngine
 
 	void SdlOpenGlApi::CreateContext()
 	{
-		if (glContext = SDL_GL_CreateContext(window))
+		glContext = SDL_GL_CreateContext(window);
+		if (glContext)
 			return;
 
 		Log("[Error] SDL_GL_CreateContext error.");
@@ -96,14 +97,16 @@ namespace GameEngine
 		case WindowType::FULL_SCREEN:
 			flags |= SDL_WINDOW_FULLSCREEN;
 			break;
+		case WindowType::WINDOW: break;
 		}
 		return flags;
 	}
 
 	void SdlOpenGlApi::CreateSDLWindow(const std::string & window_name, const int & width, const int & height, uint32 flags)
 	{
-		if (window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags))
-			return;
+		window = SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+
+		if (window)	return;
 
 		Log("[Error] SDL_CreateWindow error.");
 		exit(-1);

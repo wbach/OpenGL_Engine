@@ -14,11 +14,11 @@ namespace GameEngine
 
 		Animator::Animator()
 			: AbstractComponent(ComponentsType::Animator)
-			, current_("DefaultAnimationClip")
 			, rootJoint_(nullptr)
 			, currentTime_(0.f)
 			, animationSpeed_(1.f)
 			, changeAnimTime_(0.25f)
+			, current_("DefaultAnimationClip")
 			, changeAnim(false)
 		{
 		}

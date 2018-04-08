@@ -54,9 +54,9 @@ namespace GameEngine
 
 			private:
 				mat4 transformMatrix_ = mat4(1.f);
-				vec2 position_;
-				vec2 scale_;
-				float rotation_;
+				vec2 position_ 	= vec2(0);
+				vec2 scale_ 	= vec2(1);
+				float rotation_ = 0.f;
 			};
 		} // Gui
 	} // Renderers

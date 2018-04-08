@@ -23,17 +23,20 @@ namespace Utils
 
 		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, bool vsync, uint32 frequency)
 			: lockFps(lockFps)
+			, frequency_(frequency)
+			, previousTime_(0.f)
+			, currentTime_(0.f)
 			, vsync(vsync)
-			, frameCount(0)
-			, fps(0)
 			, deltaTime(0)
 			, deltaTime2(0)
-			, frameTime(0)
-			, lastFrameTime2(std::chrono::high_resolution_clock::now())
 			, lastFrameTime(std::chrono::high_resolution_clock::now())
+			, lastFrameTime2(std::chrono::high_resolution_clock::now())
+			, currentTime(std::chrono::high_resolution_clock::now())
 			, previousTime(std::chrono::high_resolution_clock::now())
+			, frameCount(0)
+			, fps(0)
+			, frameTime(0)
 			, lockframeTime(frequency / lockFps)
-			, frequency_(frequency)
 		{
 
 		}

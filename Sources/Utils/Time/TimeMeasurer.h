@@ -33,8 +33,8 @@ namespace Utils
 			uint32 frequency_;
 			Callbacks callbacks;
 
-			float previousTime_ = 0.f;
-			float currentTime_ = 0.f;
+			float previousTime_;
+			float currentTime_;
 
 			bool vsync;
 

@@ -9,8 +9,8 @@ namespace GameEngine
 		, inputManager_(nullptr)
 		, renderersManager_(graphicsApi)
 		, sceneManager_(graphicsApi, sceneFactory, displayManager, inputManager_, renderersManager_, guiContext_)
-		, introRenderer_(graphicsApi, displayManager)
 		, graphicsApi_(graphicsApi)
+		, introRenderer_(graphicsApi, displayManager)
 		, isRunning(true)
 	{
 		graphicsApi_->SetBackgroundColor(vec3(.8f));

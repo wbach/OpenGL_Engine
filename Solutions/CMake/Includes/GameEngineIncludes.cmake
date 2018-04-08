@@ -83,6 +83,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/LightPassRenderer.h
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Particles/ParticlesRenderer.h
+../../Sources/GameEngine/Renderers/Particles/Shaders/AnimatedParticlesShader.h
 ../../Sources/GameEngine/Renderers/Particles/Shaders/ParticlesShader.h
 ../../Sources/GameEngine/Renderers/Plants/PlantsRenderer.h
 ../../Sources/GameEngine/Renderers/Plants/Shaders/PlantsShader.h

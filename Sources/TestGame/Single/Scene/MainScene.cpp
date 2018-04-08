@@ -16,6 +16,7 @@
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
+#include "GameEngine/Api/BlendFunctionsTypes.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
@@ -27,6 +28,11 @@ MainScene::MainScene()
 MainScene::~MainScene()
 {
 	Log(__FUNCTION__);
+}
+
+float Random()
+{
+	return static_cast<float>(rand() % 100000) / 100000.f;
 }
 
 int MainScene::Initialize()
@@ -78,31 +84,64 @@ int MainScene::Initialize()
 	treeComp->SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj");
 	treeComp->SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
 
-	auto particle1 = AddGameObjectInstance(1.f, vec2(395, 560));
-	auto effect1 = AddComponent<GameEngine::Components::ParticleEffectComponent>(particle1);
-	effect1->SetTexture("Textures/Particles/snow-flake-2.png");
-	effect1->SetParticlesCount(1000);
-
-	GameEngine::Particle particle;
-	particle.position = particle1->worldTransform.GetPosition();
-	particle.velocity = vec3(0, 0.1, 0);
-	particle.rotation = 0;
-	particle.scale = 1;
-	particle.gravityEffect = 1.f;
-	particle.lifeTime = 2.f;
-	effect1->SetParticle(particle);
-
-
-	inputManager_->SubscribeOnKeyDown(KeyCodes::P, [effect1, particle1]() mutable
 	{
+		auto particle1 = AddGameObjectInstance(1.f, vec2(400, 560));
+		auto effect1 = AddComponent<GameEngine::Components::ParticleEffectComponent>(particle1);
+		effect1->SetTexture("Textures/Particles/snow-flake-2-white.png");
+		effect1->SetParticlesCount(100);
+
 		GameEngine::Particle particle;
 		particle.position = particle1->worldTransform.GetPosition();
+		particle.velocity = vec3(0, 0.1, 0);
 		particle.rotation = 0;
 		particle.scale = 1;
 		particle.gravityEffect = 1.f;
-		particle.lifeTime = 4.f;
-		effect1->AddParticle(particle);
-	});
+		particle.lifeTime = 2.f;
+		effect1->SetParticle(particle);
+	}
+
+	{
+		auto particle2 = AddGameObjectInstance(1.f, vec2(400, 555));
+		auto effect2 = AddComponent<GameEngine::Components::ParticleEffectComponent>(particle2);
+		effect2->SetTexture("Textures/Particles/fire1_rows_8.png");
+		effect2->SetParticlesCount(1000);
+		effect2->UseAnimation();
+		effect2->SetSpeed(1.f);
+		effect2->SetBlendFunction(GameEngine::BlendFunctionType::SRC_ALPHA);
+		effect2->SetEmitFunction([](const GameEngine::Particle& referenceParticle) -> GameEngine::Particle
+		{
+			GameEngine::Particle particle = referenceParticle;
+
+
+			float dirX = Random() - 0.5f;
+			float dirZ = Random() - 0.5f;
+			particle.velocity = vec3(dirX, 1, dirZ);
+
+			float r = 2.f;
+			particle.position += vec3(dirX, 0.f, dirZ) * r;
+
+
+			float l = Random() / 2.f * particle.lifeTime + particle.lifeTime * 0.75f;
+
+			particle.lifeTime = l;
+
+			return particle;
+		});
+
+		GameEngine::Particle particle_2;
+		particle_2.position = particle2->worldTransform.GetPosition();
+		particle_2.velocity = vec3(0, 0.01, 0);
+		particle_2.rotation = 0;
+		particle_2.scale = 4;
+		particle_2.gravityEffect = 0.0f;
+		particle_2.lifeTime = 2.6f;
+		effect2->SetParticle(particle_2);
+
+	}
+
+
+
+
 
 	auto treeGo1 = AddGameObjectInstance(10.f, vec2(400, 570));
 	AddComponent<GameEngine::Components::RendererComponent>(treeGo1)->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");

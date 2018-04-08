@@ -14,11 +14,11 @@
 
 CShadowMapRenderer::CShadowMapRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection, GameEngine::RendererContext* rendererContext)
 	: graphicsApi_(graphicsApi)
-	, shadowBox(projection)
-	, shadowBox2(projection)
 	, projection(projection)
 	, rendererContext_(rendererContext)
 	, shader(graphicsApi)
+	, shadowBox(projection)
+	, shadowBox2(projection)
 	, projectionViewMatrix(1.f)
 	, viewOffset(Utils::CreateOffset())
 {

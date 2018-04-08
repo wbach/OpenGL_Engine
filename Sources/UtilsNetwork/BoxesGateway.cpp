@@ -11,8 +11,8 @@ namespace Network
 {
 	BoxesGateway::BoxesGateway()
 		: CGateway(Utils::Time::CTimeMeasurer(120, true))
-		, running(false)
 		, threadCreated(false)
+		, running(false)
 	{
 		SubscribeOnMessageArrived("AddToInbox", std::bind(&BoxesGateway::AddToInbox, this, std::placeholders::_1));
 	}

@@ -29,10 +29,12 @@ namespace GameEngine
 	{
 	}
 	OpenGLApi::OpenGLApi(IWindowApiPtr windowApi)
-		: windowApi_(windowApi)
-		, usedShader(0)
+		: activeBuffer_(0)
 		, objectId_(1)
-		, activeBuffer_(0)
+		, windowApi_(windowApi)
+		, usedShader(0)
+		, bgColor_(0)
+		, quad_()
 		, quadTs_(true)
 	{
 
@@ -396,6 +398,7 @@ namespace GameEngine
 		if (hubo_error)
 		{
 			auto errInfo = gluErrorString(hubo_error);
+			Log("" + (char*)errInfo);
 			return 0;
 		}
 
@@ -760,7 +763,26 @@ namespace GameEngine
 		case BlendFunctionType::ALPHA_ONE_MINUS_ALPHA :
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			break;
+		case BlendFunctionType::ONE:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			break;
+		case BlendFunctionType::ZERO:
+			glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
+			break;
+		case BlendFunctionType::SRC_COLOR:
+			glBlendFunc(GL_SRC_ALPHA, GL_SRC_COLOR);
+			break;
+		case BlendFunctionType::ONE_MINUS_SRC_COLOR:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
+			break;
+		case BlendFunctionType::DST_COLOR:
+			glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
+			break;
+		case BlendFunctionType::SRC_ALPHA:
+			glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
+			break;
 		}
+
 	}
 
 	void OpenGLApi::CreateFont(const std::string& filename)

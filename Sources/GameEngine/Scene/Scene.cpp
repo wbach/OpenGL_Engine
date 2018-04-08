@@ -8,10 +8,14 @@ namespace GameEngine
 {
 	Scene::Scene(const std::string& name)
 		: name(name)
+		, inputManager_(nullptr)
+		, displayManager_(nullptr)
+		, renderersManager_(nullptr)
+		, gloabalTime(0.f)
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new CCamera)
-		, inputManager_(nullptr)
-		, componentFactory_(componentController_, time_, resourceManager_)
+		, objectCount(0)
+		, componentFactory_(componentController_, time_, resourceManager_, camera)
 	{
 	}
 
@@ -85,7 +89,7 @@ namespace GameEngine
 		return camera.get();
 	}
 
-	void Scene::SetCamera(std::unique_ptr<CCamera> cam)
+	void Scene::SetCamera(std::shared_ptr<CCamera> cam)
 	{
 		//std::lock_guard<std::mutex> lk(cameraMutex);
 		camera = std::move(cam);

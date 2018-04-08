@@ -8,13 +8,13 @@ namespace GameEngine
 	{
 		struct Joint
 		{
-			uint32 id;
-			uint32 size;
-			std::string name;
+			uint32 id = 0;
+			uint32 size = 0;
+			std::string name = "";
 
-			mat4 transform;
-			mat4 invtransform;
-			mat4 animatedTransform;
+			mat4 transform = glm::mat4(1.f);
+			mat4 invtransform = glm::mat4(1.f);
+			mat4 animatedTransform = glm::mat4(1.f);
 
 			std::vector<Joint> children;
 		};

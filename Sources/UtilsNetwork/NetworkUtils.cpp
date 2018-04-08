@@ -78,7 +78,6 @@ void SendMessage(TCPsocket socket, const std::string & message)
 		std::list<std::string> parts;
 		while (1)
 		{
-			auto delta = msize - max_frame_size;
 			if (c_message.size() > max_frame_size)
 			{
 				std::string part = c_message.substr(0, max_frame_size);

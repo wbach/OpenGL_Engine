@@ -29,13 +29,14 @@ namespace GameEngine
 				graphicsApi_->PolygonModeRender();
 		}
 		const IGraphicsApiPtr& graphicsApi_;
-		bool use;
+		bool use = false;
 	};
 
 	namespace Renderer
 	{
 		RenderersManager::RenderersManager(IGraphicsApiPtr graphicsApi)
 			: graphicsApi_(graphicsApi)
+			, renderAsLines(false)
 			, markToReloadShaders_(false)
 		{
 

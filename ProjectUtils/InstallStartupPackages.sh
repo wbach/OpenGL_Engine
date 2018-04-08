@@ -13,6 +13,7 @@ sudo apt-get install -y mc
 sudo apt-get install -y vim
 sudo apt-get install -y dos2unix
 sudo apt-get install -y gcc-multilib g++-multilib
+sudo apt-get install libc6-dbg:i386
 
 #game dev 
 sudo apt-get install -y libxkbcommon-dev:i386

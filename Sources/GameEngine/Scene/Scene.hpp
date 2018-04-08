@@ -56,7 +56,7 @@ namespace GameEngine
 
 		// Cameras
 		CCamera* GetCamera();
-		void SetCamera(std::unique_ptr<CCamera> camera);
+		void SetCamera(std::shared_ptr<CCamera> camera);
 
 		// Lights
 		const CLight& GetDirectionalLight() const;
@@ -103,7 +103,7 @@ namespace GameEngine
 		std::vector<CLight> lights;
 		CDayNightCycle dayNightCycle;
 
-		std::unique_ptr<CCamera> camera;
+		std::shared_ptr<CCamera> camera;
 	//	std::mutex cameraMutex;
 
 		GameObjects gameObjects;

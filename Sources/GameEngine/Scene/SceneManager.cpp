@@ -9,12 +9,12 @@ namespace GameEngine
 	SceneManager::SceneManager(IGraphicsApiPtr grahpicsApi, SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
 		: grahpicsApi_(grahpicsApi)
 		, sceneFactory_(sceneFactory)
+		, currentSceneId_(0)
+		, sceneWrapper_(grahpicsApi, displayManager)
 		, displayManager_(displayManager)
 		, inputManager_(inputManager)
 		, renderersManager_(renderersManager)
 		, guiContext_(guiContext)
-		, sceneWrapper_(grahpicsApi, displayManager)
-		, currentSceneId_(0)
 	{
 		threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
 		threadSync_.Start();

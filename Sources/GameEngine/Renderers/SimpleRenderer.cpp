@@ -5,8 +5,8 @@
 
 SimpleRenderer::SimpleRenderer(GameEngine::IGraphicsApiPtr api, CProjection* projection_matrix)
     : graphicsApi_(api)
-	, projectionMatrix(projection_matrix)
 	, shader(api)
+	, projectionMatrix(projection_matrix)
 {
 }
 

@@ -52,8 +52,8 @@ namespace Network
 		}
 
 	private:
-		uint32 recvBytes_;
 		ISDLNetWrapperPtr sdlNetWrapper_;
 		Utils::Time::CTimeMeasurer& timer_;
+		uint32 recvBytes_;
 	};
 }

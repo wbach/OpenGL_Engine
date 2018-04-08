@@ -7,8 +7,8 @@
 CLightPassRenderer::CLightPassRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection, CFrameBuffer* frambuffer)
     : CRenderer(frambuffer)
 	, graphicsApi_(graphicsApi)
-	, shader(graphicsApi)
     , projection(projection)
+	, shader(graphicsApi)
 {
 }
 

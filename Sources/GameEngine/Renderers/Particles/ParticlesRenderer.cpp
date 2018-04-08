@@ -8,10 +8,24 @@
 
 namespace GameEngine
 {
+	float kwadrat(float blend)
+	{
+		return -1.f * blend * blend + 2 * blend;
+	}
+	float wielomian(float blend)
+	{
+		auto r = -3.2f * blend * blend *blend *blend + 8.8f *blend *blend *blend - 9.2f * blend * blend + 4.6f * blend - 4e-12;
+		if (r < 0.f)
+			return 0.f;
+		if (r > 1.f)
+			return 1.f;
+		return r;
+	}
 	ParticlesRenderer::ParticlesRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection_matrix, CFrameBuffer* framebuffer)
 		: CRenderer(framebuffer)
-		, shader(graphicsApi)
 		, graphicsApi_(graphicsApi)
+		, shader(graphicsApi)
+		, animatedShader_(graphicsApi)
 		, projectionMatrix(projection_matrix)
 	{
 	}
@@ -21,39 +35,27 @@ namespace GameEngine
 		shader.Start();
 		shader.Load(ParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
 		shader.Stop();
+
+		animatedShader_.Init();
+		animatedShader_.Start();
+		animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+		animatedShader_.Stop();
 	}
 	void ParticlesRenderer::PrepareFrame(GameEngine::Scene * scene)
 	{
 	}
 	void ParticlesRenderer::Render(GameEngine::Scene * scene)
 	{
-		target->BindToDraw();
+		PrepareFrame();
+		
 		shader.Start();
-		graphicsApi_->EnableBlend();
-		graphicsApi_->SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
-		graphicsApi_->DisableDepthMask();
-		graphicsApi_->DisableCulling();
-
-		for (const auto& sub : subscribers_)
-		{
-			auto& effect = sub.second;
-			if (effect.particles == nullptr)
-				continue;
-
-			if (effect.texture != nullptr)
-				graphicsApi_->ActiveTexture(0, effect.texture->GetId());
-
-			for (const auto& particle : *effect.particles)
-			{
-				UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, scene->GetCamera()->GetViewMatrix());
-				graphicsApi_->RenderQuad();
-			}
-		}
-
-		graphicsApi_->EnableCulling();
-		graphicsApi_->EnableDepthMask();
-		graphicsApi_->DisableBlend();
+		RenderSubscribes(scene->GetCamera()->GetViewMatrix());
 		shader.Stop();
+
+		animatedShader_.Start();
+		RenderAnimatedSubscribes(scene->GetCamera()->GetViewMatrix());
+		animatedShader_.Stop();
+		ClearFrame();
 	}
 	void ParticlesRenderer::EndFrame(GameEngine::Scene * scene)
 	{
@@ -68,11 +70,17 @@ namespace GameEngine
 		if (effect == nullptr)
 			return;
 
-		subscribers_[gameObject->GetId()].particles = &effect->GetParticles();
+		auto map = &subscribers_;
+
+		if (effect->IsAnimated())
+			map = &animatedSubscribers_;
+
+		(*map)[gameObject->GetId()].particles = &effect->GetParticles();
+		(*map)[gameObject->GetId()].blendFunction = effect->GetBlendType();
 
 		if (effect->GetTexture() != nullptr)
 		{
-			subscribers_[gameObject->GetId()].texture = effect->GetTexture();
+			(*map)[gameObject->GetId()].texture = effect->GetTexture();
 		}
 	}
 	void ParticlesRenderer::UnSubscribe(CGameObject * gameObject)
@@ -90,9 +98,79 @@ namespace GameEngine
 	{
 		shader.Stop();
 		shader.Reload();
+		animatedShader_.Reload();
 		Init();
 	}
-	void ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix)
+	void ParticlesRenderer::PrepareFrame()
+	{
+		target->BindToDraw();
+		graphicsApi_->DisableBlend();
+		graphicsApi_->EnableBlend();		
+		graphicsApi_->DisableDepthMask();
+		graphicsApi_->DisableCulling();
+	}
+	void ParticlesRenderer::ClearFrame()
+	{
+		graphicsApi_->EnableCulling();
+		graphicsApi_->EnableDepthMask();
+		graphicsApi_->SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+		graphicsApi_->DisableBlend();
+	}
+	void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)
+	{
+		for (const auto& sub : subscribers_)
+		{
+			auto& effect = sub.second;
+			if (effect.particles == nullptr)
+				continue;
+
+			if (effect.texture != nullptr)
+				graphicsApi_->ActiveTexture(0, effect.texture->GetId());
+
+			RenderParticles(*effect.particles, viewMatrix);
+		}
+	}
+	void ParticlesRenderer::RenderAnimatedSubscribes(const mat4 & viewMatrix)
+	{
+		for (const auto& sub : animatedSubscribers_)
+		{
+			auto& effect = sub.second;
+			graphicsApi_->SetBlendFunction(effect.blendFunction);
+			if (effect.particles == nullptr)
+				continue;
+
+			if (effect.texture != nullptr)
+			{
+				animatedShader_.Load(AnimatedParticlesShader::UniformLocation::NumberOfRows, static_cast<float>(effect.texture->numberOfRows));
+				graphicsApi_->ActiveTexture(0, effect.texture->GetId());
+			}
+
+			for (const auto& particle : *effect.particles)
+			{
+				auto blendFactor = (particle.elapsedTime / particle.lifeTime);
+				if (blendFactor > 1.f)
+				{
+					continue;
+				}
+				auto count = (effect.texture->numberOfRows * effect.texture->numberOfRows );
+				auto textureIndex = static_cast<uint32>(std::floor(blendFactor * static_cast<float>(count)));
+				auto offset1 = effect.texture->GetTextureOffset(textureIndex);
+				auto nextIndex = textureIndex < count - 1 ? textureIndex + 1 : textureIndex;
+				auto offset2 = effect.texture->GetTextureOffset(nextIndex);
+
+				if (effect.texture != nullptr)
+				{
+					animatedShader_.Load(AnimatedParticlesShader::UniformLocation::TextureOffset, vec4(offset1.x, offset1.y, offset2.x, offset2.y));
+				}
+
+				animatedShader_.Load(AnimatedParticlesShader::UniformLocation::BlendFactor, wielomian(blendFactor) );
+				auto modelViewMatrix = UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix);
+				animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ModelViewMatrix, modelViewMatrix);
+				graphicsApi_->RenderQuad();
+			}
+		}
+	}
+	mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix)
 	{
 		mat4 modelMatrix(1.f);
 		modelMatrix = glm::translate(position);
@@ -111,7 +189,17 @@ namespace GameEngine
 		scale *= 0.125f;
 		modelMatrix *= glm::scale(scale, scale, scale);
 		auto modelViewMatrix = viewMatrix * modelMatrix;
-		shader.Load(ParticlesShader::UniformLocation::ModelViewMatrix, modelViewMatrix);
+		return modelViewMatrix;
+	}
+
+	void ParticlesRenderer::RenderParticles(const std::vector<Particle>& particles, const mat4& viewMatrix)
+	{
+		for (const auto& particle : particles)
+		{
+			auto modelViewMatrix = UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix);
+			shader.Load(ParticlesShader::UniformLocation::ModelViewMatrix, modelViewMatrix);
+			graphicsApi_->RenderQuad();
+		}
 	}
 
 } // GameEngine

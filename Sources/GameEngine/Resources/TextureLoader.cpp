@@ -44,6 +44,7 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 
     if (flip_mode == TextureFlip::Type::VERTICAL || flip_mode == TextureFlip::Type::BOTH)
         FreeImage_FlipVertical(imagen);
+
     if (flip_mode == TextureFlip::Type::HORIZONTAL || flip_mode == TextureFlip::Type::BOTH)
         FreeImage_FlipHorizontal(imagen);
 
@@ -94,9 +95,11 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 
 CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLimit, bool opengl_pass, ObjectTextureType type, TextureFlip::Type flip_mode)
 {
-    for (auto& t : textures)
+	for (auto& t : textures)
+	{
         if (t->GetFileName() == file)
             return t.get();
+	}
 
 	SImagePtr texture(new SImage);
 	ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), *texture, applySizeLimit, flip_mode);
@@ -122,6 +125,7 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLi
 		 }
 	}
 		break;
+	case ObjectTextureType::HEIGHT_MAP: break;
 	}
 	if(opengl_pass)
         openGLLoader.AddObjectToOpenGLLoadingPass(textures.back().get());

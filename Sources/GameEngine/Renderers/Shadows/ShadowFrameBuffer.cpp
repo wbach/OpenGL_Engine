@@ -4,8 +4,8 @@
 
 CShadowFrameBuffer::CShadowFrameBuffer(GameEngine::IGraphicsApiPtr graphicsApi)
     : graphicsApi_(graphicsApi)
-	, windowSize(EngineConf.resolution)
     , size(EngineConf.shadowMapSize)
+	, windowSize(EngineConf.resolution)
 {
     InitialiseFrameBuffer();
 }

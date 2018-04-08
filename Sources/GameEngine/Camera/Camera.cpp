@@ -9,10 +9,10 @@ CCamera::CCamera()
 }
 
 CCamera::CCamera(float pitch, float yaw)
-	: pitch(pitch)
-	, yaw(yaw)
-    , distanceFromPlayer(99)
+    : distanceFromPlayer(99)
     , angleAroundPlayer(0)
+	, pitch(pitch)
+	, yaw(yaw)
     , roll(0)
     , position(0)
 {

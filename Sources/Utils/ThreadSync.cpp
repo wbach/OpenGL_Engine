@@ -5,20 +5,20 @@ namespace Utils
 	namespace Thread
 	{
 		Subscriber::Subscriber(uint32 id, frameFunc func)
-			: threadId(id)
-			, func(func)
-			, isRunning(true)
-			, isFree(false)
+			: isFree(false)
 			, isStarted(false)
+			, func(func)
+			, threadId(id)
+			, isRunning(true)
 		{
 		}
 
 		Subscriber::Subscriber(const Subscriber & s)
-			: threadId(s.threadId)
-			, func(s.func)
-			, isRunning(s.isRunning.load())
-			, isFree(s.isFree)
+			: isFree(s.isFree)
 			, isStarted(false)
+			, func(s.func)
+			, threadId(s.threadId)
+			, isRunning(s.isRunning.load())
 		{
 		}
 

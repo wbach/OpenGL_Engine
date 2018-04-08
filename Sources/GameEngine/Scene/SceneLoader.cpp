@@ -8,10 +8,10 @@ namespace GameEngine
 {
 	SceneLoader::SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<CDisplayManager>& displayManager)
 		: graphicsApi_(graphicsApi)
-		, resorceManager(graphicsApi)
-		, displayManager(displayManager)
-		, objectLoaded(0)
 		, objectCount(0)
+		, objectLoaded(0)
+		, displayManager(displayManager)
+		, resorceManager(graphicsApi)
 	{
 	}
 

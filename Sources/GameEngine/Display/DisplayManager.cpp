@@ -6,8 +6,11 @@ namespace GameEngine
 {
 	CDisplayManager::CDisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h, WindowType type)
 		: api(api)
-		, windowsSize({ w, h })
 		, timeMeasurer(static_cast<uint32>(EngineConf.refresRate), EngineConf.vsync)
+		, sync(true)
+		, time(true)
+		, isFullScreen(false)
+		, windowsSize({ w, h })
 	{
 		if (api == nullptr || api->GetWindowApi() == nullptr)
 		{

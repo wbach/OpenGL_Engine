@@ -1,7 +1,10 @@
 #include "ParticleEffectComponent.h"
+#include "InsertionSort.h"
+#include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include <algorithm>
 
 namespace GameEngine
 {
@@ -11,7 +14,14 @@ namespace GameEngine
 
 		ParticleEffectComponent::ParticleEffectComponent()
 			: AbstractComponent(ComponentsType::ParticleEffect)
+			, texture_(nullptr)
+			, particlesSpeed_(10.f)
+			, particlesPerSecond_(10)
+			, particlesCount_(100)
+			, isAnimated_(false)
+			, blendFunction_(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA)
 		{
+			emitFunction_ = std::bind(&ParticleEffectComponent::DefaultEmitFunction, this, std::placeholders::_1);
 			particles_.reserve(10000);
 		}
 		void ParticleEffectComponent::ReqisterFunctions()
@@ -32,13 +42,20 @@ namespace GameEngine
 		}
 		void ParticleEffectComponent::EmitParticle(const vec3&)
 		{
-			Particle particle = referenceParticle_;
+			if (emitFunction_ == nullptr)
+				return;
 
+			Particle particle = emitFunction_(referenceParticle_);
+			particle.velocity = glm::normalize(particle.velocity) * particlesSpeed_;
+			AddParticle(particle);
+		}
+		Particle ParticleEffectComponent::DefaultEmitFunction(const Particle & referenceParticle)
+		{
+			Particle particle = referenceParticle;
 			float dirX = static_cast<float>(rand() % 100) / 100.f * 2.f - 1.f;
 			float dirZ = static_cast<float>(rand() % 100) / 100.f * 2.f - 1.f;
-			vec3 velocity(dirX, 1, dirZ);
-			particle.velocity = glm::normalize(velocity) * particlesSpeed_;
-			AddParticle(particle);
+			particle.velocity = vec3(dirX, 1, dirZ);
+			return particle;
 		}
 		void ParticleEffectComponent::SetParticle(const Particle& particle)
 		{
@@ -60,17 +77,18 @@ namespace GameEngine
 					++iter;
 			}
 
-			
-			auto particlesToCreate = static_cast<float>(particlesPerSecond_) * time_->deltaTime; 
-			int count  = static_cast<uint32>(particlesToCreate);
-			auto partialParticle = fmod(particlesToCreate, 1);
-
 			if (particlesCount_ - particles_.size()  > 0)
 				EmitParticle(vec3());
 
-			/*float r = static_cast<float>(rand() % 1000) / 1000.f;
-			if ( r < partialParticle)
-				EmitParticle(vec3());*/
+
+			auto& camPosition = GetCamera().GetPosition();
+
+			std::sort(particles_.begin(), particles_.end(), [&camPosition](const Particle& l, const Particle& r)
+			{
+				auto distance = glm::distance(l.position, camPosition);
+				auto distance2 = glm::distance(r.position, camPosition);
+				return distance > distance2;
+			});
 		}
 	} // Components
 } // GameEngine

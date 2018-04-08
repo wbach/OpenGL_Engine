@@ -4,9 +4,10 @@
 
 CLoadingScreenRenderer::CLoadingScreenRenderer(GameEngine::IGraphicsApiPtr api, CTexture * bgTexture, CTexture * circleTexture)
 	: graphicsApi_(api)
+	, loadingShader(api)
 	, circleTexture(circleTexture)
 	, backgroundTexture(bgTexture)
-	, loadingShader(api)
+	, transformationMatrix(1.f)
 {
 }
 

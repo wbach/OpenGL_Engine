@@ -11,16 +11,16 @@
 
 CThirdPersonCamera::CThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform* look_at)
 	: inputManager(input_manager)
+	, lookAt_(look_at)
 	, isShowCursor(false)
 	, offset(0.f, 1.8f, 0.f)
 	, mousevel(0.5f)
-	, moveTime(.125f)
 	, captureMouse(true)
-	, clock(std::chrono::milliseconds(5))
-	, destinationPosition(0)
 	, destinationYaw(0)
 	, destinationPitch(0)
-	, lookAt_(look_at)
+	, moveTime(.125f)
+	, destinationPosition(0)
+	, clock(std::chrono::milliseconds(5))
 {	
 	distanceFromPlayer = 2.0f;
 	referenceTime = std::chrono::high_resolution_clock::now();
@@ -170,6 +170,9 @@ void CThirdPersonCamera::SmoothCameraMove()
 			SetPosition(newPos);
 			break;
 		}
+		case CameraState::ROTATE_PITCH:break;
+		case CameraState::ROTATE_YAW:break;
+		case CameraState::SHAKING:break;
 		}
 
 		if (remove)
@@ -239,8 +242,6 @@ vec2 CThirdPersonCamera::CalcualteMouseMove()
 
 void CThirdPersonCamera::CalculatePitch(vec2 d_move)
 {
-	float p = pitch.load();
-
 	destinationPitch = destinationPitch - d_move.y;
 }
 

@@ -9,10 +9,11 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager)
+		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<CCamera>& camera)
 			: componentController_(componentController)
-			, time_(time)
 			, resourceManager_(resourceManager)
+			, camera_(camera)
+			, time_(time)
 		{
 		}
 		std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type)
@@ -48,6 +49,7 @@ namespace GameEngine
 			auto comp = std::make_unique<T>();
 			comp->SetComponentController(&componentController_);
 			comp->SetTime(&time_);
+			comp->SetCamera(&camera_);
 			comp->SetResourceManager(resourceManager_.get());
 			comp->SetRendererManager(rendererManager_);
 			comp->ReqisterFunctions();

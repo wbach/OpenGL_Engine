@@ -7,6 +7,11 @@
 #include "Logger/Log.h"
 
 CTerrain::CTerrain()
+: model(nullptr)
+, heightMapResolution(0)
+, dispFactor(1.f)
+, gridSquereSize(1)
+
 {
 }
 

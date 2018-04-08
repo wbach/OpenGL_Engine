@@ -10,10 +10,12 @@ namespace common
 		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower)
 			: IController(CharacterControllerType)
 			, transform_(transform)
+			, moveTime_(1000.0f)
+			, runSpeed_(runSpeed)
 			, turnSpeed_(turnSpeed)
 			, jumpPower_(jumpPower)
-			, runSpeed_(runSpeed)
-			, moveTime_(1000.0f)
+			, isGrounded(false)
+			, upwardsSpeed(0.f)
 		{
 			referenceTime = std::chrono::high_resolution_clock::now();
 		}
@@ -40,7 +42,8 @@ namespace common
 
 			case CharacterActions::ROTATE_LEFT:	 RotateState(state, time); break;
 			case CharacterActions::ROTATE_RIGHT: RotateState(state, time); break;
-			}			
+			default: break;
+			}
 		}
 
 		void CharacterController::Jump()

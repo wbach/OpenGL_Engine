@@ -1,4 +1,7 @@
 #pragma once
+#include "Thread.hpp"
+#include "Mutex.hpp"
+#include <atomic>
 #include "GameEngine/Input/InputManager.h"
 
 namespace GameEngine
@@ -6,17 +9,30 @@ namespace GameEngine
 	class DummyInputManager : public InputManager
 	{
 	public:
-		virtual bool GetKey(KeyCodes::Type) override { return false; }
-		virtual bool GetMouseKey(KeyCodes::Type) override { return false; }
-		virtual vec2 CalcualteMouseMove() override { return vec2(); }
-		virtual vec2 GetMousePosition() override { return vec2(); }
+		DummyInputManager();
+		~DummyInputManager();
+		virtual bool GetKey(KeyCodes::Type) override;
+		virtual bool GetMouseKey(KeyCodes::Type) override;
+		virtual vec2 CalcualteMouseMove() override;
+		virtual vec2 GetMousePosition() override;
 
-		virtual void SetCursorPosition(int, int) override {}
-		virtual void SetKeyToBuffer(int, bool) override {}
-		virtual void ClearKeyBuffer() override {}
-		virtual void GetPressedKeys() override {}
-		virtual void ProcessKeysEvents() override {}
-		virtual void ShowCursor(bool) {};
+		virtual void SetCursorPosition(int, int) override;
+		virtual void SetKeyToBuffer(int, bool) override;
+		virtual void ClearKeyBuffer() override;
+		virtual void GetPressedKeys() override;
+		virtual void ProcessKeysEvents() override;
+		virtual void ShowCursor(bool);
+
+	private:
+		void Update();
+		void AddKey(int i);
+		bool IsKey(KeyCodes::Type key);
+	
+	private:
+		std::unordered_map<KeyCodes::Type, int> keys;
+		std::thread upThread;
+		std::mutex kmutex;
+		std::atomic_bool run;
 	};
 
 	typedef std::shared_ptr<DummyInputManager> DummyInputManagerPtr;

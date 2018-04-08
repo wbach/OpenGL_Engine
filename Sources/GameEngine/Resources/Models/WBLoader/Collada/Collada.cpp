@@ -301,7 +301,6 @@ namespace WBLoader
 			return GameEngine::Collada::DataTypes();
 
 		//expect all as floats param
-		uint8 type = 0;
 		if (params.front().type == "float" && params.size() == 3)
 			return GameEngine::Collada::DataTypes::VEC3;
 

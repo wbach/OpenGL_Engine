@@ -56,8 +56,8 @@ namespace Network
 		}
 
 	private:
-		uint32 sentBytes_;
-		Utils::Time::CTimeMeasurer& timer_;
 		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
+		Utils::Time::CTimeMeasurer& timer_;
+		uint32 sentBytes_;
 	};
 }

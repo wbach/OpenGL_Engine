@@ -28,6 +28,11 @@ void CCubeMapTexture::OpenGLLoadingPass()
 
 	for (int x = 0; x < 6; x++)
 	{
+		if (images == nullptr && images[x]->data.empty())
+		{
+			Log("[Error] OGL There was an error loading the texture : " + filename + ". data is null or is initialized. Wrong image : " + std::to_string(x));
+			return;
+		}
 		data[x] = &images[x]->data[0];
 	}
 

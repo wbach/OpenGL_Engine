@@ -97,7 +97,6 @@ namespace WBLoader
 	}
 	void TerrainMeshLoader::CreateMesh()
 	{
-		uint16 pointer = 0;
 		//Triaagnle strip
 		for (uint16 gz = 0; gz < heightMapResolution_ - 1; gz++)
 		{

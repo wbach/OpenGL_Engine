@@ -1,5 +1,6 @@
 set(GameEngineSources
 ../../Sources/GameEngine/Animations/AnimationUtils.cpp
+../../Sources/GameEngine/Api/Dummy/DummyInputManager.cpp
 ../../Sources/GameEngine/Api/OpenGL/Font.cpp
 ../../Sources/GameEngine/Api/OpenGL/OpenGLApi.cpp
 ../../Sources/GameEngine/Api/SDL2/InputSDL.cpp
@@ -48,6 +49,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/LightPassRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp
 ../../Sources/GameEngine/Renderers/Particles/ParticlesRenderer.cpp
+../../Sources/GameEngine/Renderers/Particles/Shaders/AnimatedParticlesShader.cpp
 ../../Sources/GameEngine/Renderers/Particles/Shaders/ParticlesShader.cpp
 ../../Sources/GameEngine/Renderers/Plants/PlantsRenderer.cpp
 ../../Sources/GameEngine/Renderers/Plants/Shaders/PlantsShader.cpp

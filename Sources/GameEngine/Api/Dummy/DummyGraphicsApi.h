@@ -25,8 +25,14 @@ namespace GameEngine
 		{ 
 			auto programId = ++id;
 
-			for(const auto& func : functions)
-				func.second(programId);
+			if (functions.count(GraphicFunctionType::SHADER_SET_ID) != 0)
+				functions[GraphicFunctionType::SHADER_SET_ID](programId);
+			if (functions.count(GraphicFunctionType::SHADER_BIND_ATTRIBUTES) != 0)
+				functions[GraphicFunctionType::SHADER_BIND_ATTRIBUTES](0);
+			if (functions.count(GraphicFunctionType::SHADER_VARIABLES_LOCATION) != 0)
+				functions[GraphicFunctionType::SHADER_VARIABLES_LOCATION](0);
+			if (functions.count(GraphicFunctionType::SHADER_CONNECT_TEXTURES) != 0)
+				functions[GraphicFunctionType::SHADER_CONNECT_TEXTURES](0);
 
 			return programId;
 		}

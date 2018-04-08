@@ -16,8 +16,9 @@ namespace GameEngine
 		, graphicsApi_(graphicsApi)
 		, shader(graphicsApi)
 		, projectionMatrix(projection_matrix)
-		, clipPlane(vec4(0, 1, 0, 100000))
 		, rendererContext_(shadowRendererContext)
+		, clipPlane(vec4(0, 1, 0, 100000))
+		, objectId(0)
 	{
 	}
 	void CTerrainRenderer::Init()

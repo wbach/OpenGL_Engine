@@ -63,8 +63,8 @@ CLogger::~CLogger()
 }
 
 CLogger::CLogger()
-	: timer_(5)
-	, running_(true)
+	: running_(true)
+	, timer_(5)
 {	
 }
 

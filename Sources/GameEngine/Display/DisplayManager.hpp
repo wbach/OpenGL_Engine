@@ -36,10 +36,10 @@ namespace GameEngine
 		Utils::Time::CTimeMeasurer timeMeasurer;
 
 		Time time_;
-		bool time = true;
+		bool sync;
+		bool time;
 		bool isFullScreen;
 		wb::vec2i windowsSize;
-		bool sync = true;
 	};
 
 	inline const Time& CDisplayManager::GetTime()

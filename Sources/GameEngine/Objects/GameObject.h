@@ -38,6 +38,6 @@ protected:
 
 private:
     static uint32 s_id;
-	uint32_t s_componentID;
     uint32 id;
+	uint32_t s_componentID;
 };
