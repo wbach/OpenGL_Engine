@@ -23,8 +23,8 @@ namespace GameEngine
 	{
 		Log("");
 		
-		camera.reset();
 		gameObjects.clear();
+		camera.reset();
 
 		if (inputManager_ != nullptr)
 		{
