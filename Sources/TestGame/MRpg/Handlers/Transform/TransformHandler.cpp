@@ -1,3 +1,4 @@
+
 #include "TransformHandler.h"
 #include "TestGame/MRpg/Characters/NetworkCharacterManger.h"
 #include "Messages/TransformMessages/TransformMsgResp.h"
@@ -22,7 +23,6 @@ namespace MmmoRpg
 
 	void TransformHandler::HandleTransformMsg(const Network::TransformMsgResp& msg)
 	{
-		auto characterId = msg.id;
 		auto networkCharacter = networkCharacterManager_.GetCharacter(msg.id);
 
 		if (networkCharacter == nullptr)

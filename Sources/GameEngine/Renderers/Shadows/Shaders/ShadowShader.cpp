@@ -1,5 +1,7 @@
 #include "ShadowShader.h"
 
+#define GetLocation(X) uniformLocations[UniformLocation::X].push_back(GetUniformLocation(#X))
+
 CShadowShader::CShadowShader(GameEngine::IGraphicsApiPtr graphicsApi)
 	: CShaderProgram(graphicsApi)
 {
@@ -18,17 +20,16 @@ void CShadowShader::Init()
 
 void CShadowShader::GetAllUniformLocations()
 {
-    location_TransformationMatrix = GetUniformLocation("TransformationMatrix");
-    location_ProjectionMatrix     = GetUniformLocation("ProjectionMatrix");
-    location_ViewMatrix           = GetUniformLocation("ViewMatrix");
+	GetLocation(TransformationMatrix);
+	GetLocation(ProjectionViewMatrix);
+	GetLocation(UseBoneTransform);
 
-    location_IsInstancedRender = GetUniformLocation("IsInstancedRender");
+	for (int x = 0; x < MAX_BONES; x++)
+		uniformLocations[UniformLocation::BonesTransforms].push_back(GetUniformLocation("BonesTransforms[" + std::to_string(x) + "]"));
 
-    // Animations
-    location_UseBoneTransform = GetUniformLocation("UseBoneTransform");
-
-    for (int x = 0; x < MAX_BONES; x++)
-        location_Bones[x] = GetUniformLocation("BonesTransforms[" + std::to_string(x) + "]");
+	GetLocation(NumberOfRows);
+	GetLocation(TextureOffset);
+	GetLocation(ModelTexture);
 }
 
 void CShadowShader::BindAttributes()
@@ -38,29 +39,11 @@ void CShadowShader::BindAttributes()
     BindAttribute(4, "Weights");
 	BindAttribute(5, "BoneIds");
 }
-void CShadowShader::LoadUseInstancedRendering(const float& use) const
+void CShadowShader::ConnectTextureUnits() const
 {
-    LoadValue(location_IsInstancedRender, use);
-}
-void CShadowShader::LoadTransformMatrix(const glm::mat4& matrix) const
-{
-    LoadValue(location_TransformationMatrix, matrix);
-}
-
-void CShadowShader::LoadProjectionMatrix(const glm::mat4& matrix) const
-{
-    LoadValue(location_ProjectionMatrix, matrix);
-}
-
-void CShadowShader::LoadViewMatrix(const glm::mat4& matrix) const
-{
-    LoadValue(location_ViewMatrix, matrix);
-}
-void CShadowShader::LoadUseBonesTransformation(const float& is) const
-{
-    LoadValue(location_UseBoneTransform, is);
-}
-void CShadowShader::LoadBoneTransform(const glm::mat4& transform, unsigned int id) const
-{
-    LoadValue(location_Bones[id], transform);
+	if (uniformLocations.count(ModelTexture) == 0 ||  uniformLocations.at(ModelTexture).empty())
+	{
+		return;
+	}
+	LoadValue(uniformLocations.at(UniformLocation::ModelTexture)[0], 0);
 }

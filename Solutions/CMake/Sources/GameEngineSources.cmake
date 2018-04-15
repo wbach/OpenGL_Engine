@@ -1,5 +1,6 @@
 set(GameEngineSources
 ../../Sources/GameEngine/Animations/AnimationUtils.cpp
+../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.cpp
 ../../Sources/GameEngine/Api/Dummy/DummyInputManager.cpp
 ../../Sources/GameEngine/Api/OpenGL/Font.cpp
 ../../Sources/GameEngine/Api/OpenGL/OpenGLApi.cpp
@@ -14,6 +15,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
 ../../Sources/GameEngine/Components/ComponentController.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
+../../Sources/GameEngine/Components/Renderer/InsertionSort.cpp
 ../../Sources/GameEngine/Components/Renderer/ParticleEffectComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/RendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.cpp

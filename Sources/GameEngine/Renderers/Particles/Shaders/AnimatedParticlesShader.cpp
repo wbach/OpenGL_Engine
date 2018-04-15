@@ -17,16 +17,19 @@ namespace GameEngine
 	void AnimatedParticlesShader::GetAllUniformLocations()
 	{
 		GetLocation(ProjectionMatrix);
-		GetLocation(ModelViewMatrix);
-		GetLocation(TextureOffset);
+		//GetLocation(ModelViewMatrix);
+		//GetLocation(TextureOffset);
 		GetLocation(NumberOfRows);
-		GetLocation(BlendFactor);
+		//GetLocation(BlendFactor);
 		GetLocation(ParticleTexture);
 	}
 	void AnimatedParticlesShader::BindAttributes()
 	{
 		BindAttribute(0, "Position");
 		BindAttribute(1, "TexCoord");
+		BindAttribute(2, "ModelViewMatrix");
+		BindAttribute(6, "TextureOffset");
+		BindAttribute(7, "BlendFactor");
 	}
 	void AnimatedParticlesShader::ConnectTextureUnits() const
 	{

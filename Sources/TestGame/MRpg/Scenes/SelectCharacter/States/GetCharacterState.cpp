@@ -1,3 +1,4 @@
+
 #include "GetCharacterState.h"
 #include "Common/MessageHandling/Dispatcher.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -10,8 +11,8 @@ namespace MmmoRpg
 {
 	GetCharacterState::GetCharacterState(common::Dispacher& dispatcher, GameEngine::Renderer::RenderersManager& rendererManager, Network::CGateway& gateway, std::vector<CharacterSlot>& charactersData)
 		: dispatcher_(dispatcher)
-		, rendererManager_(rendererManager)
 		, gateway_(gateway)
+		, rendererManager_(rendererManager)
 		, charactersData_(charactersData)
 		, itemsTextColour_(0, 162.f / 255.f, 232.f / 255.f)
 	{

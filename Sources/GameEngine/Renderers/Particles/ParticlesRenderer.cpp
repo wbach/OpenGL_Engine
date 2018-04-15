@@ -8,13 +8,13 @@
 
 namespace GameEngine
 {
-	float kwadrat(float blend)
+	float quadraticFunction(float blend)
 	{
 		return -1.f * blend * blend + 2 * blend;
 	}
-	float wielomian(float blend)
+	float polynomialFunction(float blend)
 	{
-		auto r = -3.2f * blend * blend *blend *blend + 8.8f *blend *blend *blend - 9.2f * blend * blend + 4.6f * blend - 4e-12;
+		auto r = -3.2f * blend * blend *blend *blend + 8.8f *blend *blend *blend - 9.2f * blend * blend + 4.6f * blend - 4e-12f;
 		if (r < 0.f)
 			return 0.f;
 		if (r > 1.f)
@@ -27,19 +27,16 @@ namespace GameEngine
 		, shader(graphicsApi)
 		, animatedShader_(graphicsApi)
 		, projectionMatrix(projection_matrix)
+		, particleObjecId(0)
+		, currentUseAnimation(false)
+		, textureNumberOfrows(1)
 	{
 	}
 	void ParticlesRenderer::Init()
 	{
-		shader.Init();
-		shader.Start();
-		shader.Load(ParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
-		shader.Stop();
-
-		animatedShader_.Init();
-		animatedShader_.Start();
-		animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
-		animatedShader_.Stop();
+		InitShaders();
+		aniamtedParticleObjecId = graphicsApi_->CreateAnimatedParticle();
+		staticParticleObjecId = graphicsApi_->CreateParticle();
 	}
 	void ParticlesRenderer::PrepareFrame(GameEngine::Scene * scene)
 	{
@@ -47,14 +44,7 @@ namespace GameEngine
 	void ParticlesRenderer::Render(GameEngine::Scene * scene)
 	{
 		PrepareFrame();
-		
-		shader.Start();
 		RenderSubscribes(scene->GetCamera()->GetViewMatrix());
-		shader.Stop();
-
-		animatedShader_.Start();
-		RenderAnimatedSubscribes(scene->GetCamera()->GetViewMatrix());
-		animatedShader_.Stop();
 		ClearFrame();
 	}
 	void ParticlesRenderer::EndFrame(GameEngine::Scene * scene)
@@ -70,17 +60,13 @@ namespace GameEngine
 		if (effect == nullptr)
 			return;
 
-		auto map = &subscribers_;
-
-		if (effect->IsAnimated())
-			map = &animatedSubscribers_;
-
-		(*map)[gameObject->GetId()].particles = &effect->GetParticles();
-		(*map)[gameObject->GetId()].blendFunction = effect->GetBlendType();
+		subscribers_[gameObject->GetId()].particles = &effect->GetParticles();
+		subscribers_[gameObject->GetId()].blendFunction = effect->GetBlendType();
+		subscribers_[gameObject->GetId()].isAnimated = effect->IsAnimated();
 
 		if (effect->GetTexture() != nullptr)
 		{
-			(*map)[gameObject->GetId()].texture = effect->GetTexture();
+			subscribers_[gameObject->GetId()].texture = effect->GetTexture();
 		}
 	}
 	void ParticlesRenderer::UnSubscribe(CGameObject * gameObject)
@@ -99,13 +85,13 @@ namespace GameEngine
 		shader.Stop();
 		shader.Reload();
 		animatedShader_.Reload();
-		Init();
+		InitShaders();
 	}
 	void ParticlesRenderer::PrepareFrame()
 	{
 		target->BindToDraw();
 		graphicsApi_->DisableBlend();
-		graphicsApi_->EnableBlend();		
+		graphicsApi_->EnableBlend();
 		graphicsApi_->DisableDepthMask();
 		graphicsApi_->DisableCulling();
 	}
@@ -124,51 +110,44 @@ namespace GameEngine
 			if (effect.particles == nullptr)
 				continue;
 
-			if (effect.texture != nullptr)
-				graphicsApi_->ActiveTexture(0, effect.texture->GetId());
-
-			RenderParticles(*effect.particles, viewMatrix);
+			currentUseAnimation = effect.isAnimated;
+			particleObjecId = currentUseAnimation ? aniamtedParticleObjecId : staticParticleObjecId;
+			StartShader();
+			UpdateTexture(effect.texture);
+			RenderParticles(effect, viewMatrix);
+			StopShader();
 		}
 	}
-	void ParticlesRenderer::RenderAnimatedSubscribes(const mat4 & viewMatrix)
+
+	void ParticlesRenderer::RenderParticles(const ParticleSubscriber& effect, const mat4& viewMatrix)
 	{
-		for (const auto& sub : animatedSubscribers_)
+		graphicsApi_->SetBlendFunction(effect.blendFunction);
+		UpdateTexture(effect.texture);
+
+		auto particlesSize = effect.particles->size();
+		ReallocationParticlesData(particlesSize);
+		GetParticleData(*effect.particles, viewMatrix);
+		RenderInstances(particlesSize);
+	}
+
+	void ParticlesRenderer::RenderInstances(uint32 size)
+	{
+		graphicsApi_->UpdateMatrixes(particleObjecId, transformsParticles_);
+
+		if (currentUseAnimation)
 		{
-			auto& effect = sub.second;
-			graphicsApi_->SetBlendFunction(effect.blendFunction);
-			if (effect.particles == nullptr)
-				continue;
-
-			if (effect.texture != nullptr)
-			{
-				animatedShader_.Load(AnimatedParticlesShader::UniformLocation::NumberOfRows, static_cast<float>(effect.texture->numberOfRows));
-				graphicsApi_->ActiveTexture(0, effect.texture->GetId());
-			}
-
-			for (const auto& particle : *effect.particles)
-			{
-				auto blendFactor = (particle.elapsedTime / particle.lifeTime);
-				if (blendFactor > 1.f)
-				{
-					continue;
-				}
-				auto count = (effect.texture->numberOfRows * effect.texture->numberOfRows );
-				auto textureIndex = static_cast<uint32>(std::floor(blendFactor * static_cast<float>(count)));
-				auto offset1 = effect.texture->GetTextureOffset(textureIndex);
-				auto nextIndex = textureIndex < count - 1 ? textureIndex + 1 : textureIndex;
-				auto offset2 = effect.texture->GetTextureOffset(nextIndex);
-
-				if (effect.texture != nullptr)
-				{
-					animatedShader_.Load(AnimatedParticlesShader::UniformLocation::TextureOffset, vec4(offset1.x, offset1.y, offset2.x, offset2.y));
-				}
-
-				animatedShader_.Load(AnimatedParticlesShader::UniformLocation::BlendFactor, wielomian(blendFactor) );
-				auto modelViewMatrix = UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix);
-				animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ModelViewMatrix, modelViewMatrix);
-				graphicsApi_->RenderQuad();
-			}
+			graphicsApi_->UpdateOffset(particleObjecId, offsets_);
+			graphicsApi_->UpdateBlend(particleObjecId, blendFactors_);
 		}
+		graphicsApi_->RenderMeshInstanced(particleObjecId, size);
+	}
+	void ParticlesRenderer::StartShader()
+	{
+		currentUseAnimation ? animatedShader_.Start() : shader.Start();
+	}
+	void ParticlesRenderer::StopShader()
+	{
+		currentUseAnimation ? animatedShader_.Stop() : shader.Stop();
 	}
 	mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix)
 	{
@@ -192,14 +171,80 @@ namespace GameEngine
 		return modelViewMatrix;
 	}
 
-	void ParticlesRenderer::RenderParticles(const std::vector<Particle>& particles, const mat4& viewMatrix)
+	void ParticlesRenderer::InitShaders()
+	{
+		shader.Init();
+		shader.Start();
+		shader.Load(ParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+		shader.Stop();
+
+		animatedShader_.Init();
+		animatedShader_.Start();
+		animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+		animatedShader_.Stop();
+	}
+
+	void ParticlesRenderer::UpdateTexture(CTexture* texture)
+	{
+		if (texture == nullptr)
+		{
+			return;
+		}
+
+		if (currentUseAnimation)
+		{
+			textureNumberOfrows = texture->numberOfRows;
+			animatedShader_.Load(AnimatedParticlesShader::UniformLocation::NumberOfRows, static_cast<float>(textureNumberOfrows));
+		}
+
+		graphicsApi_->ActiveTexture(0, texture->GetId());
+	}
+
+	void ParticlesRenderer::GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix)
 	{
 		for (const auto& particle : particles)
 		{
+			auto blendFactor = (particle.elapsedTime / particle.lifeTime);
+			if (blendFactor > 1.f)
+			{
+				continue;
+			}
+
 			auto modelViewMatrix = UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix);
-			shader.Load(ParticlesShader::UniformLocation::ModelViewMatrix, modelViewMatrix);
-			graphicsApi_->RenderQuad();
+			transformsParticles_.push_back(modelViewMatrix);
+
+			if (currentUseAnimation)
+			{
+				offsets_.push_back(GetTextureOffsets(blendFactor));
+				blendFactors_.push_back(blendFactor);
+			}
 		}
+	}
+
+	void ParticlesRenderer::ReallocationParticlesData(uint32 size)
+	{
+		transformsParticles_.clear();
+		transformsParticles_.reserve(size);
+
+		if (currentUseAnimation)
+		{
+			offsets_.clear();
+			blendFactors_.clear();
+
+			offsets_.reserve(size);
+			blendFactors_.reserve(size);
+		}
+	}
+
+	vec4 ParticlesRenderer::GetTextureOffsets(float blendFactor)
+	{
+		auto count = (textureNumberOfrows * textureNumberOfrows);
+		auto textureIndex = static_cast<uint32>(std::floor(blendFactor * static_cast<float>(count)));
+		auto offset1 = GetTextureOffset(textureIndex, textureNumberOfrows);
+		auto nextIndex = textureIndex < count - 1 ? textureIndex + 1 : textureIndex;
+		auto offset2 = GetTextureOffset(nextIndex, textureNumberOfrows);
+
+		return vec4(offset1.x, offset1.y, offset2.x, offset2.y);
 	}
 
 } // GameEngine

@@ -15,6 +15,8 @@
 
 namespace GameEngine
 {
+	const uint32 MAX_PARTICLE_INSTANCES = 10000;
+	const uint32 PARTICLE_INSTANCE_DATA_LENGTH = 21;
 	struct MeshRawData;
 
 	typedef std::unordered_map<std::string, ShaderType> ShadersFiles;
@@ -63,6 +65,8 @@ namespace GameEngine
 		virtual std::string GetBufferStatus() = 0;
 		virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) = 0;
 		virtual uint32 CreateMesh(const MeshRawData&) = 0;
+		virtual uint32 CreateParticle() = 0;
+		virtual uint32 CreateAnimatedParticle() = 0;
 		virtual void RenderPurePatchedMeshInstances(uint32) = 0;
 		virtual void RenderMesh(uint32) = 0;
 		virtual void RenderMeshInstanced(uint32, uint32) = 0;
@@ -77,6 +81,9 @@ namespace GameEngine
 		virtual void PolygonModeRender() = 0;
 		virtual void LineModeRender() = 0;
 		virtual void SetBlendFunction(BlendFunctionType) = 0;
+		virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) = 0;
+		virtual void UpdateOffset(uint32, const std::vector<vec4>&) = 0;
+		virtual void UpdateBlend(uint32, const std::vector<float>&) = 0;
 
 		//temp
 		virtual void CreateFont(const std::string&) = 0;

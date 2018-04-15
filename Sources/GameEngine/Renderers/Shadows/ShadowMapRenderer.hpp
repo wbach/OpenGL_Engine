@@ -21,8 +21,9 @@ class CShadowMapRenderer : public CRenderer
 {
 	struct Subscriber
 	{
-		CGameObject* gameObject;
-		GameEngine::ModelWrapper* model;
+		uint32 textureIndex = 0;
+		CGameObject* gameObject = nullptr;
+		GameEngine::ModelWrapper* model = nullptr;
 	};
 	typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
 
@@ -33,14 +34,15 @@ public:
     virtual void Render(GameEngine::Scene* scene) override;
     virtual void EndFrame(GameEngine::Scene* scene) override;
     virtual void Subscribe(CGameObject* gameObject) override;
+	virtual void ReloadShaders() override;
 
 private:
     void PrepareRender(GameEngine::Scene*);
     void PrepareShader(CCamera*) const;
     void RenderSubscribes() const;
     void RenderSubscriber(const Subscriber&) const;
-    void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
-    void BindMaterial(const SMaterial&) const;
+    void RenderMesh(const CMesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const;
+    void BindMaterial(const SMaterial&, uint32 textureIndex) const;
 
 private:
 	GameEngine::IGraphicsApiPtr graphicsApi_;

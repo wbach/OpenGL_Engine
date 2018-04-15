@@ -12,6 +12,7 @@ namespace GameEngine
 {
 	struct ParticleSubscriber
 	{
+		bool isAnimated = false;
 		CTexture* texture = nullptr;
 		BlendFunctionType blendFunction;
 		std::vector<Particle>* particles = nullptr;
@@ -33,12 +34,19 @@ namespace GameEngine
 		virtual void ReloadShaders() override;
 	
 	private:
+		void InitShaders();
+		void StartShader();
+		void StopShader();
 		void PrepareFrame();
 		void ClearFrame();
 		void RenderSubscribes(const mat4& viewMatrix);
-		void RenderAnimatedSubscribes(const mat4& viewMatrix);
+		void RenderParticles(const ParticleSubscriber& effect, const mat4& viewMatrix);
+		void RenderInstances(uint32 size);
 		mat4 UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix);
-		void RenderParticles(const std::vector<Particle>& particles, const mat4& viewMatrix);
+		void UpdateTexture(CTexture* texture);
+		void ReallocationParticlesData(uint32 size);
+		void GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix);
+		vec4 GetTextureOffsets(float blendFactor);
 
 	private:
 		GameEngine::IGraphicsApiPtr graphicsApi_;
@@ -46,6 +54,15 @@ namespace GameEngine
 		AnimatedParticlesShader animatedShader_;
 		CProjection* projectionMatrix;
 		SubscribesMap subscribers_;
-		SubscribesMap animatedSubscribers_;
+		uint32 particleObjecId;
+		uint32 aniamtedParticleObjecId;
+		uint32 staticParticleObjecId;
+
+	private:
+		bool currentUseAnimation;
+		uint32 textureNumberOfrows;
+		std::vector<vec4> offsets_;
+		std::vector<float> blendFactors_;
+		std::vector<mat4> transformsParticles_;
 	};
 } // GameEngine

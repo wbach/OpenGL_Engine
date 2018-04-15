@@ -6,6 +6,34 @@
 
 namespace Utils
 {
+	struct Vao
+	{
+		uint32 vao  = 0;
+		uint32 size = 0;
+		VboMap vbos;
+		VboMap attributes;
+	};
+
+	class VaoCreator
+	{
+	public:
+		VaoCreator();
+		~VaoCreator();
+		void AddIndicesBuffer(const std::vector<uint16>& indices);
+		void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
+		void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<int32>& data);
+		void AllocateDynamicAttribute(VertexBufferObjects type, uint32 coordinateSize, uint32 dataLength);
+		const Vao& Get();
+
+	private:
+		void CreateVao();
+		void AllocateDynamicArray(uint32 attributeNumber, uint32 dataSize, uint32 dataLength, uint32 offset);
+
+	private:
+		Vao vao_;
+		uint32 attributeNumber_;
+	};
+
 static const GLuint s_GLuint_zero = 0;
 
 void BindFrameBuffer(const int& frameBuffer, const int& width, const int& height);
@@ -20,6 +48,7 @@ GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 
 GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<float>& data);
 GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<int32>& data);
+GLuint StoreDataInAttributesListInstanced(uint32 attributeNumber, uint32 dataSize, uint32 dataLength, uint32 offset);
 //void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
 //void DisableVao(const std::vector<uint32>& attributes);
 void UnbindVao();

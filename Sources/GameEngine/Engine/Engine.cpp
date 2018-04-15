@@ -98,6 +98,7 @@ namespace GameEngine
 			break;
 		case EngineEvent::QUIT:
 			break;
+		default: break;
 		}
 	}
 

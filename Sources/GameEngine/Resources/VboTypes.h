@@ -10,8 +10,10 @@ enum class VertexBufferObjects
 	NORMAL,
 	TANGENT,
 	WEIGHTS,
-	JOINTS
-	//TRANSFORM_MATRIX,
+	JOINTS,
+	TRANSFORM_MATRIX,
+	TEXTURE_OFFSET,
+	BLEND_FACTOR
 };
 
 typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;

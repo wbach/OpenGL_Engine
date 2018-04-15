@@ -64,6 +64,8 @@ namespace GameEngine
 		virtual std::string GetBufferStatus() override { return {}; }
 		virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override { return ++id; }
 		virtual uint32 CreateMesh(const MeshRawData&) override { return ++id; }
+		virtual uint32 CreateParticle() override;
+		virtual uint32 CreateAnimatedParticle() override { return ++id; }
 		virtual void RenderPurePatchedMeshInstances(uint32) override {}
 		virtual void RenderMesh(uint32) override {}
 		virtual void RenderMeshInstanced(uint32, uint32) override {}
@@ -78,6 +80,9 @@ namespace GameEngine
 		virtual void PolygonModeRender() override {}
 		virtual void LineModeRender() override {}
 		virtual void SetBlendFunction(BlendFunctionType) override {}
+		virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) override{}
+		virtual void UpdateOffset(uint32, const std::vector<vec4>&) override{}
+		virtual void UpdateBlend(uint32, const std::vector<float>&) override{}
 
 		//temp
 		virtual void CreateFont(const std::string&) override {}

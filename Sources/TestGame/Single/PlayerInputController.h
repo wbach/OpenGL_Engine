@@ -26,8 +26,8 @@ private:
 	void SetIdleAnim();
 
 private:
-	GameEngine::Components::Animator* animator_;
 	GameEngine::InputManager* inputManager_;
+	GameEngine::Components::Animator* animator_;
 	common::Controllers::CharacterController* characterController_;
 	std::list<common::Controllers::CharacterActions::Type> states_;
 };

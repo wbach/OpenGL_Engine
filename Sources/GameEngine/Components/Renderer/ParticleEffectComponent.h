@@ -20,7 +20,8 @@ namespace GameEngine
 			inline void SetTexture(const std::string& filename);
 			inline void AddParticle(const Particle& particle);
 			void SetParticle(const Particle& particle);
-			void SetParticlesCount(uint32 c) { particlesCount_ = c; }
+			void SetParticlesPerSec(uint32 c) { particlesPerSecond_ = c; }
+			void SetParticlesLimit(uint32 limit) { particlesLimit_ = limit; }
 			void SetSpeed(float s) { particlesSpeed_ = s; }
 			bool IsAnimated() { return isAnimated_; }
 			void UseAnimation() { isAnimated_ = true; }
@@ -41,12 +42,12 @@ namespace GameEngine
 			Particle referenceParticle_;
 			float particlesSpeed_;
 			uint32 particlesPerSecond_;
-			uint32 particlesCount_;
+			uint32 particlesLimit_;
 			std::vector<Particle> particles_;
 			bool isAnimated_;
 			EmitFunction emitFunction_;
 			BlendFunctionType blendFunction_;
-
+			float rest;
 		public:
 			static ComponentsType type;
 		};

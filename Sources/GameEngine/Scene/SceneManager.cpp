@@ -66,6 +66,7 @@ namespace GameEngine
 		case SceneEventType::LOAD_PREVIOUS_SCENE:	LoadPreviousScene(); break;
 		case SceneEventType::LOAD_SCENE_BY_ID:		LoadScene(e.id);	 break;
 		case SceneEventType::LOAD_SCENE_BY_NAME:	LoadScene(e.name);	 break;
+		default: break;
 		}
 
 	}

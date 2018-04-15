@@ -22,8 +22,18 @@ enum class ObjectType
 CFont font;
 std::unordered_map<uint32, ObjectType> createdObjectIds;
 
+
 namespace GameEngine
 {
+	OpenGLMesh Convert(const Utils::Vao& v)
+	{
+		OpenGLMesh mesh;
+		mesh.vao = v.vao;
+		mesh.vbos = v.vbos;
+		mesh.attributes = v.attributes;
+		mesh.vertexCount = v.size;
+		return mesh;
+	}
 	OpenGLApi::OpenGLApi()
 		: OpenGLApi(std::make_shared<SdlOpenGlApi>())
 	{
@@ -112,6 +122,15 @@ namespace GameEngine
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(bgColor_.x, bgColor_.y, bgColor_.z, 1.f);
+
+		//auto code = glGetError();
+		//if (code != GL_NO_ERROR)
+		//{
+		//	auto errString = gluErrorString(code);
+		//	std::string error((char*)errString);
+		//	Error("[Error] : " + error);
+		//}
+
 	}
 	void OpenGLApi::SetDefaultTarget()
 	{
@@ -141,6 +160,7 @@ namespace GameEngine
 			functions[GraphicFunctionType::SHADER_SET_ID](programId);
 
 		shaderPrograms_[programId].id = programId;
+		shaderPrograms_[programId].name = files.begin()->first;
 
 		for (const auto& p : files)
 		{
@@ -225,7 +245,7 @@ namespace GameEngine
 			return false;
 		}
 
-		shaderPrograms_[programId].shaderObjectsList.push_back(id);
+		shaderPrograms_[programId].shaderObjectsList.push_back(id);		
 
 		const char* csource = source.c_str();
 
@@ -307,7 +327,14 @@ namespace GameEngine
 	}
 	uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string & varname)
 	{
-		return glGetUniformLocation(id, varname.c_str());;
+		auto i = glGetUniformLocation(id, varname.c_str());
+
+		if (i < 0)
+		{
+			Log("Variable not found " + varname + " in : "+  shaderPrograms_[usedShader].name);
+		}
+
+		return static_cast<uint32>(i);
 	}
 	void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::string & variableName)
 	{
@@ -617,56 +644,137 @@ namespace GameEngine
 		objectId_++;
 
 		auto& mesh = openGlMeshes_[rid];
-		mesh.vao = Utils::CreateVao();
-
-		mesh.vertexCount = meshRawData.indices_.size() > 0 ? meshRawData.indices_.size() : meshRawData.positions_.size() / 3;
-
-		if (meshRawData.indices_.size() > 0)
-		{
-			GLuint vboId = Utils::BindIndicesBuffer(meshRawData.indices_);
-			mesh.vbos[VertexBufferObjects::INDICES] = vboId;
-		}
-
-		if (meshRawData.positions_.size() > 0)
-		{
-			GLuint vboId = Utils::StoreDataInAttributesList(0, 3, meshRawData.positions_);
-			mesh.vbos[VertexBufferObjects::POSITION] = vboId;
-			mesh.attributes[VertexBufferObjects::POSITION] = 0;
-		}
-		if (meshRawData.textCoords_.size() > 0)
-		{
-			GLuint vboId = Utils::StoreDataInAttributesList(1, 2, meshRawData.textCoords_);
-			mesh.vbos[VertexBufferObjects::TEXT_COORD] = vboId;
-			mesh.attributes[VertexBufferObjects::TEXT_COORD] = 1;
-		}
-		if (meshRawData.normals_.size() > 0)
-		{
-			GLuint vboId = Utils::StoreDataInAttributesList(2, 3, meshRawData.normals_);
-			mesh.vbos[VertexBufferObjects::NORMAL] = vboId;
-			mesh.attributes[VertexBufferObjects::NORMAL] = 2;
-		}
-		if (meshRawData.tangents_.size() > 0)
-		{
-			GLuint vboId = Utils::StoreDataInAttributesList(3, 3, meshRawData.tangents_);
-			mesh.vbos[VertexBufferObjects::TANGENT] = vboId;
-			mesh.attributes[VertexBufferObjects::TANGENT] = 3;
-		}
-		if (meshRawData.bonesWeights_.size() > 0)
-		{
-			GLuint vboId = Utils::StoreDataInAttributesList(4, 3, meshRawData.bonesWeights_);
-			mesh.vbos[VertexBufferObjects::WEIGHTS] = vboId;
-			mesh.attributes[VertexBufferObjects::WEIGHTS] = 4;
-		}
-		if (meshRawData.joinIds_.size() > 0)
-		{
-			GLuint vboId = Utils::StoreDataInAttributesList(5, 3, meshRawData.joinIds_);
-			mesh.vbos[VertexBufferObjects::JOINTS] = vboId;
-			mesh.attributes[VertexBufferObjects::JOINTS] = 5;
-		}
-		Utils::UnbindVao();
+		
+		Utils::VaoCreator vaoCreator;
+		vaoCreator.AddIndicesBuffer(meshRawData.indices_);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::POSITION, 3, meshRawData.positions_);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, meshRawData.textCoords_);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::NORMAL, 3, meshRawData.normals_);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::TANGENT, 3, meshRawData.tangents_);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, 3, meshRawData.bonesWeights_);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, 3, meshRawData.joinIds_);
+		mesh = Convert(vaoCreator.Get());
 		return rid;
 	}
 
+	uint32 OpenGLApi::CreateParticle()
+	{
+		auto rid = objectId_;
+		createdObjectIds[rid] = ObjectType::MESH;
+		objectId_++;
+
+		auto& mesh = openGlMeshes_[rid];
+
+		std::vector<float> vertex =
+		{
+			-1,  1, 0,
+			-1, -1, 0,
+			1, -1, 0,
+			1,  1, 0 
+		};
+		std::vector<float> text_coords =
+		{
+			0, 0,
+			0, 1,
+			1, 1,
+			1, 0
+		};
+		std::vector<uint16> indices = { 0, 1, 3, 3, 1, 2 };
+
+		Utils::VaoCreator vaoCreator;
+		vaoCreator.AddIndicesBuffer(indices);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::POSITION, 3, vertex);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, text_coords);
+		vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TRANSFORM_MATRIX, 4, sizeof(mat4));
+		mesh = Convert(vaoCreator.Get());
+		return rid;
+	}
+	uint32 OpenGLApi::CreateAnimatedParticle()
+	{
+		auto rid = objectId_;
+		createdObjectIds[rid] = ObjectType::MESH;
+		objectId_++;
+
+		auto& mesh = openGlMeshes_[rid];
+
+		std::vector<float> vertex =
+		{
+			-1,  1, 0,
+			-1, -1, 0,
+			1, -1, 0,
+			1,  1, 0
+		};
+		std::vector<float> text_coords =
+		{
+			0, 0,
+			0, 1,
+			1, 1,
+			1, 0
+		};
+		std::vector<uint16> indices = { 0, 1, 3, 3, 1, 2 };
+
+		Utils::VaoCreator vaoCreator;
+		vaoCreator.AddIndicesBuffer(indices);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::POSITION, 3, vertex);
+		vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, text_coords);
+		vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TRANSFORM_MATRIX, 4, sizeof(mat4));
+		vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TEXTURE_OFFSET, 4, sizeof(vec4));
+		vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::BLEND_FACTOR, 1, sizeof(float));
+		mesh = Convert(vaoCreator.Get());
+		return rid;
+	}
+	struct FloatBufferMatrix
+	{
+		std::vector<float> rows[4];
+	};
+
+	void pushRow(const mat4& matrix, uint32 row, std::vector<float>& dest)
+	{
+		dest.push_back(matrix[row][0]);
+		dest.push_back(matrix[row][1]);
+		dest.push_back(matrix[row][2]);
+		dest.push_back(matrix[row][3]);
+	}
+
+	FloatBufferMatrix GetFloatBufferMatrix(const std::vector<mat4>& matrixes)
+	{
+		FloatBufferMatrix result;
+		result.rows[0].reserve(matrixes.size() * 4);
+		result.rows[1].reserve(matrixes.size() * 4);
+		result.rows[2].reserve(matrixes.size() * 4);
+		result.rows[3].reserve(matrixes.size() * 4);
+		for(const auto& mat : matrixes)
+		{
+			for(uint8 i = 0; i < 4; ++i)
+			{
+				pushRow(mat, i, result.rows[i]);
+			}
+		}
+		return result;
+	}
+
+	void OpenGLApi::UpdateMatrixes(uint32 objectId, const std::vector<mat4>& mat)
+	{
+		auto& obj = openGlMeshes_[objectId];
+
+		glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * mat.size(), &mat[0], GL_STREAM_DRAW);
+
+	}
+	void OpenGLApi::UpdateOffset(uint32 objectId, const std::vector<vec4>& offset)
+	{
+		auto& obj = openGlMeshes_[objectId];
+
+		glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TEXTURE_OFFSET]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * offset.size(), &offset[0], GL_STREAM_DRAW);
+	}
+	void OpenGLApi::UpdateBlend(uint32 objectId, const std::vector<float>& blendFactor)
+	{
+		auto& obj = openGlMeshes_[objectId];
+
+		glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::BLEND_FACTOR]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * blendFactor.size(), &blendFactor[0], GL_STREAM_DRAW);
+	}
 	void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
 	{
 		const auto& obj = openGlMeshes_[id];
@@ -781,8 +889,10 @@ namespace GameEngine
 		case BlendFunctionType::SRC_ALPHA:
 			glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
 			break;
+		case BlendFunctionType::ONE_MINUS_DST_COLOR:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_DST_COLOR);
+			break;
 		}
-
 	}
 
 	void OpenGLApi::CreateFont(const std::string& filename)

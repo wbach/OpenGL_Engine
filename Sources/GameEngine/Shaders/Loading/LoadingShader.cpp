@@ -19,7 +19,6 @@ void CLoadingShader::GetAllUniformLocations()
 {
 	location_transformationMatrix = GetUniformLocation("transformationMatrix");
 	location_modelTexture = GetUniformLocation("modelTexture");
-	location_alpha = GetUniformLocation("alphaBlend");
 }
 void CLoadingShader::LoadIsTextured(const float& is_tex) const 
 {
@@ -45,10 +44,6 @@ void CLoadingShader::LoadProjectionMatrix(const mat4& matrix) const
 void CLoadingShader::LoadViewMatrix(const mat4& matrix) const
 {
 	LoadValue(location_viewMatrix, matrix);
-}
-void CLoadingShader::LoadAlphaValue(const float& alpha) const
-{
-	LoadValue(location_alpha, alpha);
 }
 CLoadingShader::~CLoadingShader() 
 {

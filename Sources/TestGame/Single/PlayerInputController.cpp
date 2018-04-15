@@ -11,8 +11,8 @@ using namespace common::Controllers::CharacterActions;
 
 PlayerInputController::PlayerInputController(GameEngine::Components::Animator* animator, GameEngine::InputManager* manager, common::Controllers::CharacterController* characterController)
 	: inputManager_(manager)
-	, characterController_(characterController)
 	, animator_(animator)
+	, characterController_(characterController)
 {
 	SubscribeForPushActions();
 	SubscribeForPopActions();

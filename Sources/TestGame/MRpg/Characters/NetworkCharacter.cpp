@@ -6,9 +6,9 @@
 namespace MmmoRpg
 {
 	NetworkCharacter::NetworkCharacter(uint32 id, const common::Hero::CommonStats& stats, GameEngine::ModelWrapper modelWrapper)
-		: enitityWrapper_(modelWrapper)
-		, id_(id)
+		: id_(id)
 		, stats_(stats)
+		, enitityWrapper_(modelWrapper)
 	{
 		auto characterController = common::Controllers::CreateCharacterController(enitityWrapper_.Get()->worldTransform, stats_);
 		controllers_[common::Controllers::Types::CharacterControllerType] = characterController;

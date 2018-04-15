@@ -43,10 +43,14 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 	}
 
     if (flip_mode == TextureFlip::Type::VERTICAL || flip_mode == TextureFlip::Type::BOTH)
-        FreeImage_FlipVertical(imagen);
+    {
+    	FreeImage_FlipVertical(imagen);
+    }
 
     if (flip_mode == TextureFlip::Type::HORIZONTAL || flip_mode == TextureFlip::Type::BOTH)
+    {
         FreeImage_FlipHorizontal(imagen);
+    }
 
 	int w = FreeImage_GetWidth(imagen);
 	int h = FreeImage_GetHeight(imagen);

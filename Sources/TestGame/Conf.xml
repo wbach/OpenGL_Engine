@@ -2,8 +2,8 @@
 	<Window name="Gota - OpenGL" width="1000" height="600" fullscreen="false" refreshRate="60" vsync="false"/>
 	<Sound enabled="true" volume="1.0"/>
 	<Engine>
-		<DataLocation>C:/Data/Projects/Private/OpenGL_Bin/Data/</DataLocation>
-		<ShadersLocation>C:/Data/Projects/Private/OpenGL_Bin/Shaders/</ShadersLocation>
+		<DataLocation>D:/Private/OpenGL_Bin/Data/</DataLocation>
+		<ShadersLocation>D:/Private/OpenGL_Bin/Shaders/</ShadersLocation>
 		<ViewDistance>250</ViewDistance>
 		<Renderer>			
 		 	<start_lod_lvl>2</start_lod_lvl>

@@ -13,10 +13,10 @@ namespace GameServer
 			switch (message.second->GetTarget())
 			{
 			case Network::MessageTarget::All:
-				for (auto& user : context_.GetUsers())
+				for (uint32 x =0; x < context_.GetUsers().size(); ++x)
 					context_.sendMessage_(message.first, message.second.get());
 				break;
-			}		
+			}
 		}
 
 	} // Handler

@@ -56,7 +56,7 @@ void CShaderProgram::Stop() const
 {
 	graphicsApi_->UseShader(0);
 }
-int CShaderProgram::GetUniformLocation(const std::string& uniformName) const
+uint32 CShaderProgram::GetUniformLocation(const std::string& uniformName) const
 {
 	return graphicsApi_->GetShaderVariableLocation(programID_, uniformName.c_str());
 }

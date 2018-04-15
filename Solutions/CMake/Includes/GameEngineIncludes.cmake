@@ -34,6 +34,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Components/Input/CharacterControllerInput.h
+../../Sources/GameEngine/Components/Renderer/InsertionSort.h
 ../../Sources/GameEngine/Components/Renderer/ParticleEffectComponent.h
 ../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.h
 ../../Sources/GameEngine/Engine/AplicationContext.h

@@ -136,9 +136,6 @@ void GuiEdytorScene::PreviousType()
 	auto i = static_cast<uint32>(currentEditElement_.first);
 	--i;
 
-	if (i < 0)
-		i = 1;
-
 	currentEditElement_.first = static_cast<GuiEditingType>(i);
 	currentEditElement_.second = 0;
 }

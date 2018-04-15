@@ -6,7 +6,7 @@
 #include <list>
 #include <unordered_map>
 
-const int MAX_BONES = 100;
+const int MAX_BONES = 50;
 
 class CShaderProgram
 {
@@ -24,7 +24,7 @@ public:
 	void Start() const;
 	void Stop() const;
 	
-	int GetUniformLocation(const std::string& uniformName) const;
+	uint32 GetUniformLocation(const std::string& uniformName) const;
 
 protected:
 	virtual void GetAllUniformLocations() {}

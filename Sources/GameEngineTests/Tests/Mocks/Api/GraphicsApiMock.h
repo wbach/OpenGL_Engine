@@ -46,6 +46,8 @@ namespace GameEngine
 		MOCK_METHOD0(GetBufferStatus, std::string());
 		MOCK_METHOD2(CreatePurePatchMeshInstanced, uint32(uint32, uint32));
 		MOCK_METHOD1(CreateMesh, uint32(const MeshRawData&));
+		MOCK_METHOD0(CreateParticle, uint32());
+		MOCK_METHOD0(CreateAnimatedParticle, uint32());
 		MOCK_METHOD1(RenderPurePatchedMeshInstances, void(uint32));
 		MOCK_METHOD1(RenderMesh, void(uint32));
 		MOCK_METHOD2(RenderMeshInstanced, void(uint32, uint32));
@@ -59,8 +61,10 @@ namespace GameEngine
 		MOCK_METHOD2(CreateShadowMap, uint32(uint32, uint32));
 		MOCK_METHOD0(PolygonModeRender, void());
 		MOCK_METHOD0(LineModeRender, void());
-		MOCK_METHOD1(SetBlendFunction, void(BlendFunctionType);
-
+		MOCK_METHOD1(SetBlendFunction, void(BlendFunctionType));
+		MOCK_METHOD2(UpdateMatrixes, void(uint32, const std::vector<mat4>&));
+		MOCK_METHOD2(UpdateOffset, void(uint32, const std::vector<vec4>&));
+		MOCK_METHOD2(UpdateBlend, void(uint32, const std::vector<float>&));
 		//temp
 		MOCK_METHOD1(CreateFont, void(const std::string&));
 		MOCK_METHOD2(PrintText, void(const std::string&, const vec2i&));

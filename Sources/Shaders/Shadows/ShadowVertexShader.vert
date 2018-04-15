@@ -1,5 +1,5 @@
-#version 330 core
-const int MAX_BONES = 100;
+#version 400 core
+const int MAX_BONES = 50;
 const int MAX_WEIGHTS = 3;
 
 layout (location = 0) in vec3 Position;
@@ -7,15 +7,16 @@ layout (location = 1) in vec2 TexCoord;
 layout (location = 4) in vec3 Weights;
 layout (location = 5) in ivec3 BoneIds;
 
+uniform mat4 ProjectionViewMatrix;
+uniform mat4 TransformationMatrix;
+
 uniform float UseBoneTransform;
 uniform mat4 BonesTransforms[MAX_BONES];
 
-out vec2 textureCoords;
+uniform float NumberOfRows;
+uniform vec2 TextureOffset;
 
-uniform mat4 TransformationMatrix ;
-uniform mat4 ProjectionMatrix ;
-uniform mat4 ViewMatrix ;
-uniform float IsInstancedRender ;
+out vec2 textureCoords;
 
 vec4 caluclateWorldPosition()
 {
@@ -35,6 +36,6 @@ vec4 caluclateWorldPosition()
 
 void main(void)
 {
-	gl_Position =  ProjectionMatrix * caluclateWorldPosition();
-    textureCoords = TexCoord;
+	gl_Position =  ProjectionViewMatrix * caluclateWorldPosition();
+    textureCoords = TexCoord / NumberOfRows + TextureOffset;
 }

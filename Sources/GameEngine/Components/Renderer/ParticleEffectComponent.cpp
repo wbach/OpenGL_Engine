@@ -17,9 +17,10 @@ namespace GameEngine
 			, texture_(nullptr)
 			, particlesSpeed_(10.f)
 			, particlesPerSecond_(10)
-			, particlesCount_(100)
+			, particlesLimit_(10000)
 			, isAnimated_(false)
 			, blendFunction_(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA)
+			, rest(0)
 		{
 			emitFunction_ = std::bind(&ParticleEffectComponent::DefaultEmitFunction, this, std::placeholders::_1);
 			particles_.reserve(10000);
@@ -77,9 +78,25 @@ namespace GameEngine
 					++iter;
 			}
 
-			if (particlesCount_ - particles_.size()  > 0)
-				EmitParticle(vec3());
+			auto countF = static_cast<float>(particlesPerSecond_);
+			auto toEmitF = countF * time_->deltaTime;
+			auto toEmit = static_cast<uint32>(toEmitF);
 
+			if (toEmit > std::numeric_limits<float>::min())
+			{
+				rest += fmod(toEmitF, toEmit);
+				if (rest > 1.f)
+				{
+					++toEmit;
+					rest -= 1.f;
+				}
+			}
+
+			for (uint32 x = 0; x < toEmit; ++x)
+			{
+				if (particlesLimit_ > particles_.size())
+					EmitParticle(vec3());
+			}
 
 			auto& camPosition = GetCamera().GetPosition();
 

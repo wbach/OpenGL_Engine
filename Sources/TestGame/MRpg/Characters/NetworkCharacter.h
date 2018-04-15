@@ -34,8 +34,8 @@ namespace MmmoRpg
 
 	private:
 		uint32 id_;
+		common::Hero::CommonStats stats_;
 		CEntityWrapper enitityWrapper_;
 		ControllersMap controllers_;
-		common::Hero::CommonStats stats_;
 	};
 } // MmmoRpg

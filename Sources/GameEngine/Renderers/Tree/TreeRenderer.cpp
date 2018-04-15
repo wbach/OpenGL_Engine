@@ -10,8 +10,8 @@ namespace GameEngine
 {
 	TreeRenderer::TreeRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection_matrix, CFrameBuffer* framebuffer)
 		: CRenderer(framebuffer)
-		, shader(graphicsApi)
 		, graphicsApi_(graphicsApi)
+		, shader(graphicsApi)
 		, projectionMatrix(projection_matrix)
 	{
 	}

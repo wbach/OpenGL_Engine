@@ -24,6 +24,9 @@ namespace GameEngine
 	{
 		BindAttribute(0, "Position");
 		BindAttribute(1, "TexCoord");
+		BindAttribute(2, "ModelViewMatrix");
+		BindAttribute(6, "TextureOffset");
+		BindAttribute(7, "NumberOfRows");
 	}
 	void ParticlesShader::ConnectTextureUnits() const
 	{

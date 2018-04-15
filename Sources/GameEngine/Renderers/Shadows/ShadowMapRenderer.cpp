@@ -11,7 +11,6 @@
 #include "Logger/Log.h"
 #include "math.hpp"
 
-
 CShadowMapRenderer::CShadowMapRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection, GameEngine::RendererContext* rendererContext)
 	: graphicsApi_(graphicsApi)
 	, projection(projection)
@@ -54,7 +53,14 @@ void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
 	if (rendererComponent == nullptr)
 		return;
 
-	subscribes_[gameObject->GetId()] = { gameObject, &rendererComponent->GetModelWrapper() };
+	subscribes_[gameObject->GetId()] = { rendererComponent->textureIndex, gameObject, &rendererComponent->GetModelWrapper() };
+}
+
+void CShadowMapRenderer::ReloadShaders()
+{
+	shader.Stop();
+	shader.Reload();
+	shader.Init();
 }
 
 void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
@@ -93,41 +99,41 @@ void CShadowMapRenderer::RenderSubscriber(const Subscriber& sub) const
 	int x = 0;
 	for (auto& t : model->GetBoneTransforms())
 	{
-		shader.LoadBoneTransform(*t, x++);
+		shader.Load(CShadowShader::UniformLocation::BonesTransforms, *t, x++);
 	}
 
 	const auto& meshes = model->GetMeshes();
 
 	for (const CMesh& mesh : meshes)
-		RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix());
+		RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix(), sub.textureIndex);
 }
 
-void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_matrix) const
+void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_matrix, uint32 textureIndex) const
 {
 	if (!mesh.IsInit())
 		return;
 
 	auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
-	BindMaterial(mesh.GetMaterial());
-	shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
-	shader.LoadTransformMatrix(transform_matrix_);
+	BindMaterial(mesh.GetMaterial(), textureIndex);
+	shader.Load(CShadowShader::UniformLocation::UseBoneTransform, (static_cast<float>(mesh.UseArmature())));
+	shader.Load(CShadowShader::UniformLocation::TransformationMatrix, transform_matrix_);
 
 	graphicsApi_->RenderMesh(mesh.GetObjectId());
-	shader.LoadUseBonesTransformation(0.f);
 }
 
-void CShadowMapRenderer::BindMaterial(const SMaterial& material) const
+void CShadowMapRenderer::BindMaterial(const SMaterial& material, uint32 textureIndex) const
 {
 	if (material.diffuseTexture == nullptr)
 		return;
 
+	shader.Load(CShadowShader::UniformLocation::NumberOfRows, static_cast<float>(material.diffuseTexture->numberOfRows));
+	shader.Load(CShadowShader::UniformLocation::TextureOffset, material.diffuseTexture->GetTextureOffset(textureIndex));
 	graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
 void CShadowMapRenderer::PrepareShader(CCamera* camera) const
 {
 	shader.Start();
-	shader.LoadProjectionMatrix(shadowBox.GetProjectionViewMatrix());
-	shader.LoadViewMatrix(camera->GetViewMatrix());
+	shader.Load(CShadowShader::UniformLocation::ProjectionViewMatrix, shadowBox.GetProjectionViewMatrix());
 }
 

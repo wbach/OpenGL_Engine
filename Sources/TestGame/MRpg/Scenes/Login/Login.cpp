@@ -115,7 +115,7 @@ namespace MmmoRpg
 	std::string LoginScene::PasswordToStars()
 	{
 		std::string passwordToShow;
-		for (auto c : password_)
+		for (uint32 x = 0; x < password_.size(); ++x)
 			passwordToShow += '*';
 		return passwordToShow;
 	}

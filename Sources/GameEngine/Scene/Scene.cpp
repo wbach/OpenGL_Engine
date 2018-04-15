@@ -7,14 +7,14 @@
 namespace GameEngine
 {
 	Scene::Scene(const std::string& name)
-		: name(name)
+		: objectCount(0)
+		, name(name)
 		, inputManager_(nullptr)
 		, displayManager_(nullptr)
 		, renderersManager_(nullptr)
 		, gloabalTime(0.f)
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new CCamera)
-		, objectCount(0)
 		, componentFactory_(componentController_, time_, resourceManager_, camera)
 	{
 	}

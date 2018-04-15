@@ -5,6 +5,22 @@
 #include "../OpenGLObject.h"
 #include <string>
 
+static float GetTextureXOffset(uint32 textureIndex, uint32 numberOfRows)
+{
+	int column = textureIndex % numberOfRows;
+	return static_cast<float>(column) / static_cast<float>(numberOfRows);
+}
+static float GetTextureYOffset(uint32 textureIndex, uint32 numberOfRows)
+{
+	int row = textureIndex / numberOfRows;
+	return static_cast<float>(row) / static_cast<float>(numberOfRows);
+
+}
+static vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
+{
+	return vec2(GetTextureXOffset(textureIndex, numberOfRows), GetTextureYOffset(textureIndex, numberOfRows));
+}
+
 class CTexture : public COpenGLObject
 {
 public:
@@ -61,16 +77,13 @@ bool CTexture::IsInitialized() const
 }
 float CTexture::GetTextureXOffset(uint32 textureIndex)
 {
-	int column = textureIndex % numberOfRows;
-	return static_cast<float>(column) / static_cast<float>(numberOfRows);
+	return ::GetTextureXOffset(textureIndex, numberOfRows);
 }
 float CTexture::GetTextureYOffset(uint32 textureIndex)
 {
-	int row = textureIndex / numberOfRows;
-	return static_cast<float>(row) / static_cast<float>(numberOfRows);
-
+	return ::GetTextureYOffset(textureIndex, numberOfRows);
 }
 vec2 CTexture::GetTextureOffset(uint32 textureIndex)
 {
-	return vec2(GetTextureXOffset(textureIndex), GetTextureYOffset(textureIndex));
+	return ::GetTextureOffset(textureIndex, numberOfRows);
 }

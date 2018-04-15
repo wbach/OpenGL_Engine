@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 	Log("RPG GameServer v 0.1");
 
 	SDL_Init(SDL_INIT_EVERYTHING);
-	auto w = SDL_CreateWindow("My Game Window",
+	SDL_CreateWindow("My Game Window",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		640, 480,
