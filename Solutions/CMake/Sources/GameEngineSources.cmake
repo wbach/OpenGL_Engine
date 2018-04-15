@@ -39,6 +39,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Entity/Shaders/SimpleEnityShader.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.cpp
+../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/FullRenderer.cpp
 ../../Sources/GameEngine/Renderers/Grass/GrassRenderer.cpp
 ../../Sources/GameEngine/Renderers/Grass/Shaders/GrassShader.cpp
@@ -55,6 +56,9 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Particles/Shaders/ParticlesShader.cpp
 ../../Sources/GameEngine/Renderers/Plants/PlantsRenderer.cpp
 ../../Sources/GameEngine/Renderers/Plants/Shaders/PlantsShader.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderer.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/SSAO/Shaders/SSAOShader.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.cpp
 ../../Sources/GameEngine/Renderers/Projection.cpp
 ../../Sources/GameEngine/Renderers/Renderer.cpp
 ../../Sources/GameEngine/Renderers/RenderersManager.cpp

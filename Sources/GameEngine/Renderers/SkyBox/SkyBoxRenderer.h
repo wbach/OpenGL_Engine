@@ -10,10 +10,15 @@ class CTexture;
 class CProjection;
 struct SMaterial;
 
+namespace GameEngine
+{
+	struct RendererContext;
+}
+
 class CSkyBoxRenderer : public CRenderer
 {
 public:
-    CSkyBoxRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
+    CSkyBoxRenderer(GameEngine::RendererContext& context);
     virtual void Init() override;
     virtual void PrepareFrame(GameEngine::Scene* scene) override;
     virtual void Render(GameEngine::Scene* scene) override;
@@ -36,12 +41,11 @@ private:
     void EndRendering();
 
 private:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
+	GameEngine::RendererContext& context_;
     CSkyBoxShader shader;
     CModel* model;
     CTexture* dayTexture;
     CTexture* nightTexture;
 	CResourceManager resourceManager; // TO DO: remove when creat texutres will be outsiede
-    CProjection* projectionMatrix;
     vec4 clipPlane;
 };

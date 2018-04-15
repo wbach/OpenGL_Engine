@@ -1,20 +1,20 @@
 #include "SkyBoxRenderer.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "../Framebuffer/FrameBuffer.h"
+#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Renderers/Projection.h"
-#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "Logger/Log.h"
 
-CSkyBoxRenderer::CSkyBoxRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection *projection_matrix, CFrameBuffer* framebuffer)
-	: CRenderer(framebuffer)
-	, graphicsApi_(graphicsApi)
-	, shader(graphicsApi)
+CSkyBoxRenderer::CSkyBoxRenderer(GameEngine::RendererContext& context)
+	: CRenderer(context.defferedFrameBuffer_.get())
+	, context_(context)
+	, shader(context.graphicsApi_)
 	, model(nullptr)
 	, dayTexture(nullptr)
 	, nightTexture(nullptr)
-	, resourceManager(graphicsApi)
-	, projectionMatrix(projection_matrix)
+	, resourceManager(context.graphicsApi_)
 {
 }
 
@@ -22,7 +22,7 @@ void CSkyBoxRenderer::Init()
 {
 	shader.Init();
 	shader.Start();
-	shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
+	shader.LoadProjectionMatrix(context_.projectionMatrix_->GetProjectionMatrix());
 	shader.LoadFogColour(.8f, .8f, .8f);
 	shader.LoadBlendFactor(1.f);
 	shader.Stop();
@@ -31,14 +31,14 @@ void CSkyBoxRenderer::Init()
 
 void CSkyBoxRenderer::PrepareToRendering(GameEngine::Scene* scene)
 {
-	graphicsApi_->DisableCulling();
+	context_.graphicsApi_->DisableCulling();
 	shader.Start();
 	PrepareShaderBeforeFrameRender(scene);
 }
 
 void CSkyBoxRenderer::EndRendering()
 {
-	graphicsApi_->EnableCulling();
+	context_.graphicsApi_->EnableCulling();
 	shader.Stop();
 }
 
@@ -166,7 +166,7 @@ void CSkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
 	if (texture == nullptr)
 		return;
 
-	graphicsApi_->ActiveTexture(id, texture->GetId());
+	context_.graphicsApi_->ActiveTexture(id, texture->GetId());
 }
 
 void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
@@ -175,5 +175,5 @@ void CSkyBoxRenderer::RenderSkyBoxMesh(const CMesh & mesh) const
 		return;
 
 	BindTextures();
-	graphicsApi_->RenderMesh(mesh.GetObjectId());
+	context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
 }

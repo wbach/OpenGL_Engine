@@ -1,12 +1,11 @@
 #pragma once
+#include "Renderer.h"
 #include "RendererContext.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include "Renderer.h"
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
-
-class CDefferedFrameBuffer;
 class CProjection;
 
 class FullRenderer : public CRenderer
@@ -25,12 +24,13 @@ public:
     virtual void ReloadShaders() override;
 
 private:
+	void CreateRenderers();
+
+private:
 	GameEngine::IGraphicsApiPtr graphicsApi_;
-    CProjection* projectionMatrix;
 
     // ShadowMap renderes, etc...
     std::vector<std::unique_ptr<CRenderer>> renderers;
-    std::shared_ptr<CDefferedFrameBuffer> defferedFrameBuffer;
    
 	GameEngine::RendererContext rendererContext_;
 };
