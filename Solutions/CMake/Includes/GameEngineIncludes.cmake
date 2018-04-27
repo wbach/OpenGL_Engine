@@ -71,6 +71,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Entity/Shaders/SimpleEnityShader.h
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.h
+../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.h
 ../../Sources/GameEngine/Renderers/FullRenderer.h
 ../../Sources/GameEngine/Renderers/Grass/GrassRenderer.h
 ../../Sources/GameEngine/Renderers/Grass/Shaders/GrassShader.h
@@ -89,9 +90,13 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Particles/Shaders/ParticlesShader.h
 ../../Sources/GameEngine/Renderers/Plants/PlantsRenderer.h
 ../../Sources/GameEngine/Renderers/Plants/Shaders/PlantsShader.h
+../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h
+../../Sources/GameEngine/Renderers/Postproccesing/SSAO/Shaders/SSAOShader.h
+../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.h
 ../../Sources/GameEngine/Renderers/Projection.h
 ../../Sources/GameEngine/Renderers/Renderer.h
 ../../Sources/GameEngine/Renderers/RendererContext.h
+../../Sources/GameEngine/Renderers/RendererFunctionType.h
 ../../Sources/GameEngine/Renderers/RenderersManager.h
 ../../Sources/GameEngine/Renderers/Shadows/Shaders/ShadowShader.h
 ../../Sources/GameEngine/Renderers/Shadows/ShadowBox.h

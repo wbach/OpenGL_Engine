@@ -21,21 +21,12 @@ using namespace GameEngine;
 
 FullRenderer::FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix)
 	: graphicsApi_(graphicsApi)
-	, projectionMatrix(projection_matrix)
-	, defferedFrameBuffer(new CDefferedFrameBuffer(graphicsApi))
 {	
-	rendererContext_.shadowsFrameBuffer = std::make_shared<CShadowFrameBuffer>(graphicsApi_);
+	rendererContext_.projectionMatrix_ = projection_matrix;
+	rendererContext_.shadowsFrameBuffer_ = std::make_shared<CShadowFrameBuffer>(graphicsApi);
+	rendererContext_.defferedFrameBuffer_ = std::make_shared<CDefferedFrameBuffer>(graphicsApi);
 
-	renderers.emplace_back(new CSkyBoxRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
-    if(EngineConf.isShadows) renderers.emplace_back(new CShadowMapRenderer(graphicsApi_, projection_matrix, &rendererContext_));
-    if(EngineConf.advancedGrass) renderers.emplace_back(new CGrassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
-    renderers.emplace_back(new CTerrainRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get(), &rendererContext_));
-	renderers.emplace_back(new TreeRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new PlantsRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new CEntityRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new WaterRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
-	if(EngineConf.useParticles) renderers.emplace_back(new ParticlesRenderer(graphicsApi_, projectionMatrix, defferedFrameBuffer.get()));
-	renderers.emplace_back(new CLightPassRenderer(graphicsApi_, projection_matrix, defferedFrameBuffer.get()));
+	CreateRenderers();
 }
 
 FullRenderer::~FullRenderer()
@@ -45,8 +36,8 @@ FullRenderer::~FullRenderer()
 
 void FullRenderer::Init()
 {
-	defferedFrameBuffer->Init(projectionMatrix->GetWindowSize());
-	rendererContext_.shadowsFrameBuffer->InitialiseFrameBuffer();
+	rendererContext_.defferedFrameBuffer_->Init(rendererContext_.projectionMatrix_->GetWindowSize());
+	rendererContext_.shadowsFrameBuffer_->InitialiseFrameBuffer();
 
     for(auto& renderer : renderers)
     {
@@ -56,7 +47,7 @@ void FullRenderer::Init()
 }
 void FullRenderer::PrepareFrame(GameEngine::Scene* scene)
 {
-	defferedFrameBuffer->Clean();
+	rendererContext_.defferedFrameBuffer_->Clean();
 
     for(auto& renderer : renderers)
     {
@@ -100,4 +91,18 @@ void FullRenderer::ReloadShaders()
 {
 	for (auto& renderer : renderers)
 		renderer->ReloadShaders();
+}
+
+void FullRenderer::CreateRenderers()
+{
+	renderers.emplace_back(new CSkyBoxRenderer(rendererContext_));
+	if (EngineConf.isShadows) renderers.emplace_back(new CShadowMapRenderer(graphicsApi_, rendererContext_.projectionMatrix_, &rendererContext_));
+	if (EngineConf.advancedGrass) renderers.emplace_back(new CGrassRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+	renderers.emplace_back(new CTerrainRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get(), &rendererContext_));
+	renderers.emplace_back(new TreeRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+	renderers.emplace_back(new PlantsRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+	renderers.emplace_back(new CEntityRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+	renderers.emplace_back(new WaterRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+	if (EngineConf.useParticles) renderers.emplace_back(new ParticlesRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+	renderers.emplace_back(new CLightPassRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
 }

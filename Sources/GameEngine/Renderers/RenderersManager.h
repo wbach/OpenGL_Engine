@@ -6,8 +6,8 @@
 #include <atomic>
 #include <list>
 
-struct SGuiTextElement;
 class CGameObject;
+struct SGuiTextElement;
 
 namespace GameEngine
 {

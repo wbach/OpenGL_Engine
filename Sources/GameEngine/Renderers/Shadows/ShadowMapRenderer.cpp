@@ -26,7 +26,7 @@ CShadowMapRenderer::CShadowMapRenderer(GameEngine::IGraphicsApiPtr graphicsApi, 
 void CShadowMapRenderer::Init()
 {
 	shader.Init();
-	EngineConf.texturesIds["shadowMap"] = rendererContext_->shadowsFrameBuffer->GetShadowMap();
+	EngineConf.texturesIds["shadowMap"] = rendererContext_->shadowsFrameBuffer_->GetShadowMap();
 }
 
 void CShadowMapRenderer::PrepareFrame(GameEngine::Scene* scene)
@@ -39,7 +39,7 @@ void CShadowMapRenderer::Render(GameEngine::Scene* scene)
 	PrepareShader(scene->GetCamera());
 	RenderSubscribes();
 	shader.Stop();
-	rendererContext_->shadowsFrameBuffer->UnbindFrameBuffer();
+	rendererContext_->shadowsFrameBuffer_->UnbindFrameBuffer();
 }
 
 void CShadowMapRenderer::EndFrame(GameEngine::Scene* scene)
@@ -65,7 +65,7 @@ void CShadowMapRenderer::ReloadShaders()
 
 void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
 {
-	rendererContext_->shadowsFrameBuffer->BindFBO();
+	rendererContext_->shadowsFrameBuffer_->BindFBO();
 	graphicsApi_->EnableDepthTest();
 	graphicsApi_->ClearBuffer(GameEngine::BufferType::DEPTH);
 	shadowBox.Update(scene->GetCamera());

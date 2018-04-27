@@ -78,7 +78,7 @@ namespace GameEngine
 	}
 	void CTerrainRenderer::BindTextures(TerrainPtr terrain) const
 	{
-		graphicsApi_->ActiveTexture(0, rendererContext_->shadowsFrameBuffer->GetShadowMap());
+		graphicsApi_->ActiveTexture(0, rendererContext_->shadowsFrameBuffer_->GetShadowMap());
 
 		const auto& textures = terrain->Get()->textures;
 		for (const auto& t : textures)
