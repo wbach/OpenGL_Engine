@@ -28,7 +28,7 @@ void CShadowBox::CalculateWidthsAndHeights()
 	m_NearHeight = m_NearWidth / GetAspectRatio();
 }
 
-std::vector<vec4> CShadowBox::CalculateFrustumPoints(CCamera* camera)
+std::vector<vec4> CShadowBox::CalculateFrustumPoints(GameEngine::ICamera* camera)
 {
 	mat4 rotation = CalculateCameraRotationMatrix(camera);
 	vec3 forward_vector(rotation * m_Forward);
@@ -79,7 +79,7 @@ void CShadowBox::CheckMinMax(float &min, float &max, float point)
 	}
 }
 
-mat4 CShadowBox::CalculateCameraRotationMatrix(CCamera* camera) const
+mat4 CShadowBox::CalculateCameraRotationMatrix(GameEngine::ICamera* camera) const
 {
 	if (camera == nullptr)
 	{
@@ -92,7 +92,7 @@ mat4 CShadowBox::CalculateCameraRotationMatrix(CCamera* camera) const
 	return rotation;
 }
 
-void CShadowBox::Update(CCamera* camera)
+void CShadowBox::Update(GameEngine::ICamera* camera)
 {
 	bool first = true;
 	for (const vec4& point : CalculateFrustumPoints(camera))

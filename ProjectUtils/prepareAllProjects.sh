@@ -46,4 +46,4 @@ echo "Generate VisualStudio TerrainGeneration project"
 ./prepareProject.sh TerrainGeneration ../Solutions/CMake/Sources/TerrainGenerationSources.cmake ../Solutions/CMake/Includes/TerrainGenerationIncludes.cmake $TerrainGenerationId Application > ../Sources/TerrainGeneration/TerrainGeneration.vcxproj
 
 echo "Generate VisualStudio GameEngineTests project"
-./prepareProject.sh GameEngineTests ../Solutions/CMake/Sources/GameEngineTestsSources.cmake ../Solutions/CMake/Includes/GameEngineTestsIncludes.cmake $GameEngineTestsId Application GameEngine Utils  UtilsNetwork > ../Sources/GameEngineTests/GameEngineTests.vcxproj
+./prepareProject.sh GameEngineTests ../Solutions/CMake/Sources/GameEngineTestsSources.cmake ../Solutions/CMake/Includes/GameEngineTestsIncludes.cmake $GameEngineTestsId Application GameEngine Utils  UtilsNetwork Common > ../Sources/GameEngineTests/GameEngineTests.vcxproj

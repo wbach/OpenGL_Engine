@@ -8,7 +8,7 @@ namespace GameEngine
 		{
 			componentController_ = componentController;
 		}
-		void AbstractComponent::SetCamera(std::shared_ptr<CCamera>* camera)
+		void AbstractComponent::SetCamera(std::shared_ptr<ICamera>* camera)
 		{
 			camera_ = camera;
 		}

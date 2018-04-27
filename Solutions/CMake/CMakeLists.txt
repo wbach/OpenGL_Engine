@@ -115,6 +115,6 @@ if(BUILD_TESTS)
     include(./Sources/GameEngineTestsSources.cmake)
     add_executable(GAME_ENGINE_TESTS ${GameEngineTestsSources})
     set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    target_link_libraries(GAME_ENGINE_TESTS GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} gtest gtest_main gmock gmock_main)
+    target_link_libraries(GAME_ENGINE_TESTS GameEngineLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs})
 endif()
 

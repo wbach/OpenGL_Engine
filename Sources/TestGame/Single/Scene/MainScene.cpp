@@ -189,7 +189,7 @@ int MainScene::Initialize()
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
-    camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
+    camera = std::make_unique<GameEngine::FirstPersonCamera>(inputManager_, displayManager_);
    // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
 	camType = CameraType::FirstPerson;
 
@@ -255,14 +255,14 @@ void MainScene::KeyOperations()
 
 	inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [&]()
 	{
-		auto d = camera->GetDistance() - 0.5f;
-		camera->SetDistance(d);
+		//auto d = camera->GetDistance() - 0.5f;
+		//camera->SetDistance(d);
 	});
 
 	inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [&]()
 	{
-		auto d = camera->GetDistance() + 0.5f;
-		camera->SetDistance(d);
+		//auto d = camera->GetDistance() + 0.5f;
+		//camera->SetDistance(d);
 	});
 
 	inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]()
@@ -288,12 +288,12 @@ void MainScene::KeyOperations()
 		if (camType == CameraType::FirstPerson)
 		{
 			camType = CameraType::ThridPerson;
-			SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
+			SetCamera(std::make_unique<GameEngine::ThirdPersonCamera>(inputManager_, &player->worldTransform));
 		}
 		else if (camType == CameraType::ThridPerson)
 		{
 			camType = CameraType::FirstPerson;
-			SetCamera(std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_));
+			SetCamera(std::make_unique<GameEngine::FirstPersonCamera>(inputManager_, displayManager_));
 		}
 		camera->SetPosition(pos);
 		camera->SetPitch(rotation.x);

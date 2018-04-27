@@ -9,7 +9,7 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<CCamera>& camera)
+		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera)
 			: componentController_(componentController)
 			, resourceManager_(resourceManager)
 			, camera_(camera)

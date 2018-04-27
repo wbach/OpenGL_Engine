@@ -4,6 +4,8 @@
 using namespace GameEngine;
 using namespace GameEngine::Components;
 
+using namespace testing;
+
 struct ParicleComponentTestSchould : public BaseComponentTestSchould
 {
 	ParicleComponentTestSchould()
@@ -21,7 +23,10 @@ struct ParicleComponentTestSchould : public BaseComponentTestSchould
 
 TEST_F(ParicleComponentTestSchould, GetLastNextFrame)
 {
+	time_.deltaTime = 0.1f;
 	sut_.ReqisterFunctions();
+	vec3 camPosition(0);
+	EXPECT_CALL(*camera_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
 	componentController_.Update();
 	EXPECT_TRUE(true);
 }

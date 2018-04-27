@@ -1,5 +1,6 @@
 set(GameEngineTestsIncludes
 ../../Sources/GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h
+../../Sources/GameEngineTests/Tests/Mocks/Camera/CameraMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Network/SDLNetWrapperMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/ColladaLoaderMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/OpenGLLoaderMock.h

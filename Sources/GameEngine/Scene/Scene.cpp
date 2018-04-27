@@ -1,7 +1,8 @@
 #include "Scene.hpp"
-#include "../Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Input/InputManager.h"
 #include "GameEngine/Display/DisplayManager.hpp"
-#include "../Input/InputManager.h"
+#include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -14,7 +15,7 @@ namespace GameEngine
 		, renderersManager_(nullptr)
 		, gloabalTime(0.f)
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
-		, camera(new CCamera)
+		, camera(new BaseCamera)
 		, componentFactory_(componentController_, time_, resourceManager_, camera)
 	{
 	}
@@ -83,13 +84,13 @@ namespace GameEngine
 		return std::list<CGameObject*>();// m_ObjectInGrid[x + y*OBJECT_GRID_COUNT];
 	}
 
-	CCamera* Scene::GetCamera()
+	ICamera* Scene::GetCamera()
 	{
 		//std::lock_guard<std::mutex> lk(cameraMutex);
 		return camera.get();
 	}
 
-	void Scene::SetCamera(std::shared_ptr<CCamera> cam)
+	void Scene::SetCamera(std::shared_ptr<ICamera> cam)
 	{
 		//std::lock_guard<std::mutex> lk(cameraMutex);
 		camera = std::move(cam);

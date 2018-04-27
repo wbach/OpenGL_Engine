@@ -7,13 +7,13 @@
 #include "GameEngine/Api/IGraphicsApi.h"
 
 class CMesh;
-class CCamera;
 class CProjection;
 class CShadowFrameBuffer;
 struct SMaterial;
 
 namespace GameEngine
 {
+	struct ICamera;
 	class ModelWrapper;
 }
 
@@ -38,7 +38,7 @@ public:
 
 private:
     void PrepareRender(GameEngine::Scene*);
-    void PrepareShader(CCamera*) const;
+    void PrepareShader(GameEngine::ICamera*) const;
     void RenderSubscribes() const;
     void RenderSubscriber(const Subscriber&) const;
     void RenderMesh(const CMesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const;

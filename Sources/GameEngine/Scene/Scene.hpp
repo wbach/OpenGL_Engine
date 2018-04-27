@@ -1,7 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "SceneEvents.h"
-#include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -55,8 +55,8 @@ namespace GameEngine
 		inline const GameObjects& GetGameObjects();
 
 		// Cameras
-		CCamera* GetCamera();
-		void SetCamera(std::shared_ptr<CCamera> camera);
+		ICamera* GetCamera();
+		void SetCamera(std::shared_ptr<ICamera> camera);
 
 		// Lights
 		const CLight& GetDirectionalLight() const;
@@ -103,7 +103,7 @@ namespace GameEngine
 		std::vector<CLight> lights;
 		CDayNightCycle dayNightCycle;
 
-		std::shared_ptr<CCamera> camera;
+		std::shared_ptr<ICamera> camera;
 	//	std::mutex cameraMutex;
 
 		GameObjects gameObjects;

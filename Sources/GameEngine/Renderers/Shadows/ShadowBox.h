@@ -10,7 +10,7 @@ class CShadowBox
 {
 public:
     CShadowBox(CProjection*);
-    void Update(CCamera*);
+    void Update(GameEngine::ICamera*);
     vec3 GetCenter() const;
     float GetWidth() const;
     float GetHeight() const;
@@ -23,8 +23,8 @@ private:
     void FindMinMax(const vec4& point);
     void CheckMinMax(float& min, float& max, float point);
     void CalculateWidthsAndHeights();
-    std::vector<vec4> CalculateFrustumPoints(CCamera*);
-    mat4 CalculateCameraRotationMatrix(CCamera* camera) const;
+    std::vector<vec4> CalculateFrustumPoints(GameEngine::ICamera*);
+    mat4 CalculateCameraRotationMatrix(GameEngine::ICamera* camera) const;
     std::vector<vec4> CalculateFrustumVertices(mat4 rotation, vec3 forward_vector, vec3 center_near, vec3 center_far) const;
     vec4 CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction, const float& width) const;
 

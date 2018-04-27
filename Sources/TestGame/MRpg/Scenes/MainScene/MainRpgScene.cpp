@@ -78,7 +78,7 @@ namespace MmmoRpg
 
 	void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 	{
-		camera = std::make_unique<CThirdPersonCamera>(inputManager_, &character->GetEntity()->worldTransform);
+		camera = std::make_unique<GameEngine::ThirdPersonCamera>(inputManager_, &character->GetEntity()->worldTransform);
 	}
 
 	/*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)

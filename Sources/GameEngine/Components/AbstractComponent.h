@@ -6,10 +6,11 @@
 
 class CGameObject;
 class CResourceManager;
-class CCamera;
 
 namespace GameEngine
 {
+	struct ICamera;
+
 	namespace Renderer
 	{
 		class RenderersManager;
@@ -28,12 +29,12 @@ namespace GameEngine
 			void SetResourceManager(CResourceManager* manager);
 			void SetRendererManager(Renderer::RenderersManager* manager);
 			void SetComponentController(ComponentController* componentController);
-			void SetCamera(std::shared_ptr<CCamera>* camera);
+			void SetCamera(std::shared_ptr<ICamera>* camera);
 			inline ComponentsType GetType();
 
 		protected:
 			inline void RegisterFunction(FunctionType, std::function<void()> func);
-			inline CCamera& GetCamera();
+			inline ICamera* GetCamera();
 
 		protected:
 			Time* time_ = nullptr;
@@ -42,7 +43,7 @@ namespace GameEngine
 			Renderer::RenderersManager* renderersManager_ = nullptr;
 
 		private:
-			std::shared_ptr<CCamera>* camera_ = nullptr;
+			std::shared_ptr<ICamera>* camera_ = nullptr;
 			ComponentController* componentController_ = nullptr;
 			std::unordered_map<uint32, FunctionType> ids_;
 			ComponentsType type_;
@@ -57,9 +58,9 @@ namespace GameEngine
 
 			ids_[componentController_->RegisterFunction(type, func)] = type;
 		}
-		inline CCamera& AbstractComponent::GetCamera()
+		inline ICamera* AbstractComponent::GetCamera()
 		{
-			return **camera_;
+			return camera_ ? camera_->get() : nullptr;
 		}
 		ComponentsType AbstractComponent::GetType()
 		{

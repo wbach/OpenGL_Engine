@@ -98,7 +98,7 @@ namespace GameEngine
 					EmitParticle(vec3());
 			}
 
-			auto& camPosition = GetCamera().GetPosition();
+			auto& camPosition = GetCamera()->GetPosition();
 
 			std::sort(particles_.begin(), particles_.end(), [&camPosition](const Particle& l, const Particle& r)
 			{

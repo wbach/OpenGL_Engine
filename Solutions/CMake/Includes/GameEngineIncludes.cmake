@@ -26,6 +26,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Camera/Camera2D.h
 ../../Sources/GameEngine/Camera/FirstPersonCamera.h
 ../../Sources/GameEngine/Camera/Frustrum.h
+../../Sources/GameEngine/Camera/ICamera.h
 ../../Sources/GameEngine/Camera/Plane.h
 ../../Sources/GameEngine/Camera/ThridPersonCamera.h
 ../../Sources/GameEngine/Components/AbstractComponent.h

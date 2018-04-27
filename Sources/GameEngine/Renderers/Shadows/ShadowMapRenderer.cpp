@@ -131,7 +131,7 @@ void CShadowMapRenderer::BindMaterial(const SMaterial& material, uint32 textureI
 	graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
-void CShadowMapRenderer::PrepareShader(CCamera* camera) const
+void CShadowMapRenderer::PrepareShader(GameEngine::ICamera* camera) const
 {
 	shader.Start();
 	shader.Load(CShadowShader::UniformLocation::ProjectionViewMatrix, shadowBox.GetProjectionViewMatrix());
