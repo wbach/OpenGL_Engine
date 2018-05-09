@@ -10,7 +10,7 @@ struct SLight
 	vec3  m_Position;
 	vec3  m_Colour;
 	vec3  m_Attenuation;
-	float m_CutOff;	
+	float m_CutOff;
 };
 struct SMaterial
 {
@@ -29,13 +29,13 @@ uniform vec3	  CameraPosition;
 uniform vec2	  ScreenSize;
 
 uniform int		NumberOfLights;
-uniform SLight  lights[MAX_LIGHTS];
+uniform SLight  Lights[MAX_LIGHTS];
 
 //Fog
 uniform vec3 SkyColour;
 uniform	float ViewDistance;
-const	float density = 0.0025 ;
-const	float gradient = 2.5 ;
+const	float density = 0.0025;
+const	float gradient = 2.5;
 
 
 out vec4 FragColor;
@@ -102,24 +102,24 @@ vec4 CalculatePointLight(SMaterial material, SLight light, vec3 world_pos, vec3 
 	//return vec4(light_direction, 1.f);
 }
 // not end 
-vec4 CalcSpotLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)                                                
+vec4 CalcSpotLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
 { 
 	vec3 to_light_vector = light.m_Position - world_pos;
 	vec3 light_direction = normalize(to_light_vector); 
-                                                                                         
-  //  vec3 light_to_pixel = normalize(WorldPos0 - l.Base.Position);                             
-    float spot_factor = dot(light_direction, light_direction);                                      
-                                                                                            
+
+  //  vec3 light_to_pixel = normalize(WorldPos0 - l.Base.Position);
+    float spot_factor = dot(light_direction, light_direction);
+
     if (spot_factor > light.m_CutOff) 
-	{                                                            
-        vec4 color = CalculatePointLight(material, light, world_pos, unit_normal);                                        
-        return color * (1.f - (1.f - spot_factor) * 1.f/(1.f - light.m_CutOff));                   
-    }                                                                                       
+	{
+        vec4 color = CalculatePointLight(material, light, world_pos, unit_normal);
+        return color * (1.f - (1.f - spot_factor) * 1.f/(1.f - light.m_CutOff));
+    }
     else 
-	{                                                                                  
-        return vec4(0.f, 0.f, 0.f, 1.f);                                                               
-    }                                                                                       
-} 
+	{
+        return vec4(0.f, 0.f, 0.f, 1.f);
+    }
+}
 
 vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
 {
@@ -127,16 +127,16 @@ vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
 
 	for (int i = 0; i < NumberOfLights; i++)
 	{	
-		switch(lights[i].m_Type)
+		switch(Lights[i].m_Type)
 		{
 			case LIGHT_TYPE_DIRECTIONAL:
-				total_color += CalcDirectionalLight(material, lights[i], world_pos, unit_normal);
+				total_color += CalcDirectionalLight(material, Lights[i], world_pos, unit_normal);
 				break;
 			case LIGHT_TYPE_POINT:
-				total_color += CalculatePointLight(material, lights[i], world_pos, unit_normal);
+				total_color += CalculatePointLight(material, Lights[i], world_pos, unit_normal);
 				break;
 			case LIGHT_TYPE_SPOT:
-				total_color += CalcSpotLight(material, lights[i], world_pos, unit_normal);
+				total_color += CalcSpotLight(material, Lights[i], world_pos, unit_normal);
 				break;
 		}
 	}
@@ -152,8 +152,8 @@ float ToZBuffer(sampler2D texture, vec2 coord)
     float z_n = 2.0 * z_b - 1.0;
     float z_e = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
 	return z_e;
-}			
-void main()									
+}
+void main()
 {	
 	//FragColor = vec4(1.f, 0.f, 0.f, 1.f);return;
 

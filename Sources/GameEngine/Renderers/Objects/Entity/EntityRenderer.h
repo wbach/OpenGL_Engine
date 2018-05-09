@@ -13,14 +13,14 @@ namespace GameEngine
 	class ModelWrapper;
 }
 
-struct Subscriber
+struct EntitySubscriber
 {
 	uint32 textureIndex;
 	CGameObject* gameObject;
 	GameEngine::ModelWrapper* model;
 };
 
-typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
+typedef std::unordered_map<uint32_t, EntitySubscriber> SubscribersMap;
 
 class CEntityRenderer : public CRenderer
 {
