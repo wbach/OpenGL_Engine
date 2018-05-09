@@ -1,10 +1,10 @@
 #include "SkyBoxRenderer.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "../Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/Model.h"
-#include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/Textures/Texture.h"
+#include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "Logger/Log.h"
 
 CSkyBoxRenderer::CSkyBoxRenderer(GameEngine::RendererContext& context)

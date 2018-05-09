@@ -1,6 +1,6 @@
 #pragma once
 #include "Renderer.h"
-#include "Entity/Shaders/SimpleEnityShader.h"
+#include "Objects/Entity/Shaders/SimpleEnityShader.h"
 
 class CModel;
 class CEntity;

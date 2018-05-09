@@ -33,8 +33,12 @@ namespace GameEngine
 			void Subscribe();
 			void UnSubscribe();
 			void Update();
+			void UpdateParticlesState();
 			void Start();
 			void EmitParticle(const vec3&);
+			void EmitParticles();
+			void SortParticlesByCameraDistance();
+			uint32 CalculateToEmitParticles();
 			Particle DefaultEmitFunction(const Particle&);
 
 		private:

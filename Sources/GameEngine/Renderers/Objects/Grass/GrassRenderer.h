@@ -1,7 +1,7 @@
 #pragma once
-#include "../Renderer.h"
 #include "Shaders/GrassShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Renderers/Renderer.h"
 
 struct SGrass;
 class CMesh;

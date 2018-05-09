@@ -4,7 +4,7 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
-#include "GameEngine/Renderers/Shadows/ShadowFrameBuffer.h"
+#include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "GLM/GLMUtils.h"

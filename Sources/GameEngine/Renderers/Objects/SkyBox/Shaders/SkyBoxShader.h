@@ -1,5 +1,5 @@
 #pragma once
-#include "../../../Shaders/ShaderProgram.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 class CSkyBoxShader : public CShaderProgram
 {

@@ -1,8 +1,8 @@
 #pragma once
-#include "../Renderer.h"
 #include "Shaders/SkyBoxShader.h"
-#include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Renderers/Renderer.h"
+#include "GameEngine/Resources/ResourceManager.h"
 
 class CModel;
 class CMesh;

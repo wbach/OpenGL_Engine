@@ -1,7 +1,7 @@
 #pragma once
-#include "../Renderer.h"
-#include "Shaders/GeometryEntityShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "Shaders/GeometryEntityShader.h"
+#include "GameEngine/Renderers/Renderer.h"
 
 class CProjection;
 class CEntity;

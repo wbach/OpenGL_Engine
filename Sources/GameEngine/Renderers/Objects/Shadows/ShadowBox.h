@@ -1,8 +1,8 @@
 #pragma once
+#include "GameEngine/Camera/Camera.h"
+#include "glm/glm.hpp"
 #include <memory>
 #include <vector>
-#include "../../Camera/Camera.h"
-#include "glm/glm.hpp"
 
 class CProjection;
 

@@ -3,7 +3,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "../Framebuffer/FrameBuffer.h"
+#include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
 
 namespace GameEngine

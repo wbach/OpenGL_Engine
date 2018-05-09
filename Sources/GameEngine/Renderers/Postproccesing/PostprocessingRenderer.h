@@ -7,27 +7,20 @@
 
 namespace GameEngine
 {
-	class PostprocessingRenderer : public CRenderer
+	class PostprocessingRenderer
 	{
 	public:
-		PostprocessingRenderer(RendererContext& context);
-		~PostprocessingRenderer();
+		virtual ~PostprocessingRenderer();
 
-		virtual void Init() override;
-		virtual void PrepareFrame(GameEngine::Scene* scene) override;
-		virtual void Render(GameEngine::Scene* scene) override;
-		virtual void EndFrame(GameEngine::Scene* scene) override;
-		virtual void Subscribe(CGameObject* gameObject) override;
-		virtual void UnSubscribe(CGameObject* gameObject) override;
-		virtual void UnSubscribeAll() override;
-		virtual void ReloadShaders() override;
+		virtual void Init() = 0;
+		virtual void Prepare() = 0;
+		virtual void Render() = 0;
+		virtual void ReloadShaders() = 0;
+		void SetRendererContext(RendererContext* rendererContext);
 
-	private:
-		void CreateRenderers();
-
-	private:
-		RendererContext& rendererContext_;
-		std::vector<std::unique_ptr<CRenderer>> renderers_;
+	protected:
+		RendererContext* rendererContext_;
 	};
-}
 
+	typedef std::unique_ptr<PostprocessingRenderer> PostprocessingRendererPtr;
+} // GameEngine

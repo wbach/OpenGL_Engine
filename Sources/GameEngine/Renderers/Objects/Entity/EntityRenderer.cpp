@@ -3,7 +3,7 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
-#include "../Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
+#include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "Logger/Log.h"
 

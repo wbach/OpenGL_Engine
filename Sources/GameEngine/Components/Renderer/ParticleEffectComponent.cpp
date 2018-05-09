@@ -69,6 +69,12 @@ namespace GameEngine
 		}
 		void ParticleEffectComponent::Update()
 		{
+			UpdateParticlesState();
+			EmitParticles();
+			SortParticlesByCameraDistance();
+		}
+		void ParticleEffectComponent::UpdateParticlesState()
+		{
 			for (auto iter = particles_.begin(); iter != particles_.end();)
 			{
 				auto isAlive = iter->update(time_->deltaTime, -9.81f);
@@ -77,7 +83,9 @@ namespace GameEngine
 				else
 					++iter;
 			}
-
+		}
+		uint32 ParticleEffectComponent::CalculateToEmitParticles()
+		{
 			auto countF = static_cast<float>(particlesPerSecond_);
 			auto toEmitF = countF * time_->deltaTime;
 			auto toEmit = static_cast<uint32>(toEmitF);
@@ -91,13 +99,20 @@ namespace GameEngine
 					rest -= 1.f;
 				}
 			}
+			return toEmit;
+		}
+		void ParticleEffectComponent::EmitParticles()
+		{
+			auto toEmit = CalculateToEmitParticles();
 
 			for (uint32 x = 0; x < toEmit; ++x)
 			{
 				if (particlesLimit_ > particles_.size())
 					EmitParticle(vec3());
 			}
-
+		}
+		void ParticleEffectComponent::SortParticlesByCameraDistance()
+		{
 			auto& camPosition = GetCamera()->GetPosition();
 
 			std::sort(particles_.begin(), particles_.end(), [&camPosition](const Particle& l, const Particle& r)

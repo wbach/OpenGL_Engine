@@ -8,6 +8,9 @@
 
 class CProjection;
 
+typedef std::unique_ptr<CRenderer> RendererPtr;
+typedef std::vector<RendererPtr> RendererVecPtr;
+
 class FullRenderer : public CRenderer
 {
 public:
@@ -29,8 +32,7 @@ private:
 private:
 	GameEngine::IGraphicsApiPtr graphicsApi_;
 
-    // ShadowMap renderes, etc...
-    std::vector<std::unique_ptr<CRenderer>> renderers;
-   
+    RendererVecPtr renderers;
+
 	GameEngine::RendererContext rendererContext_;
 };

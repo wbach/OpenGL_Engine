@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../../../Shaders/ShaderProgram.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {

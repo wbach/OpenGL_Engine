@@ -1,9 +1,9 @@
 #pragma once
-#include "../Renderer.h"
-#include "GameEngine/Objects/RenderAble/Paricle/Particle.h"
 #include "Shaders/ParticlesShader.h"
-#include "Shaders/AnimatedParticlesShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Renderers/Renderer.h"
+#include "Shaders/AnimatedParticlesShader.h"
+#include "GameEngine/Objects/RenderAble/Paricle/Particle.h"
 
 class CProjection;
 class CTexture;
