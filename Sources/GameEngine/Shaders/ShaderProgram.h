@@ -40,6 +40,7 @@ protected:
 	void LoadValue(uint32 loacation, int value) const;
 	void LoadValue(uint32 loacation, uint32 value) const;
 	void LoadValue(uint32 loacation, float value) const;
+	void LoadValue(uint32 loacation, const vec2ui& value) const;
 	void LoadValue(uint32 loacation, const vec2& value) const;
 	void LoadValue(uint32 loacation, const vec3& value) const;
 	void LoadValue(uint32 loacation, const vec4& value) const;

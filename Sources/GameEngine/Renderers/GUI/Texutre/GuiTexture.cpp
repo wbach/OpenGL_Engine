@@ -6,34 +6,40 @@ namespace GameEngine
 	{
 		namespace Gui
 		{
-			CGuiTexture::CGuiTexture(IGraphicsApiPtr graphicsApi)
+			GuiTexture::GuiTexture(IGraphicsApiPtr graphicsApi)
 				: graphicsApi_(graphicsApi)
 				, shader_(graphicsApi)
 			{
 			}
-			CGuiTexture::~CGuiTexture()
+			GuiTexture::~GuiTexture()
 			{
 			}
-			void CGuiTexture::Init()
+			void GuiTexture::Init()
 			{
 				shader_.Init();
 			}
-			void CGuiTexture::Render()
+			void GuiTexture::Render()
 			{
 				shader_.Start();
 				for (const auto& gte : guiTextures_)
 					RenderTextureElement(gte.second);
 				shader_.Stop();
 			}
-			void CGuiTexture::UnSubscribeAll()
+			void GuiTexture::UnSubscribeAll()
 			{
 				guiTextures_.clear();
 			}
-			void CGuiTexture::RenderTextureElement(const GuiTextureElement& te)
+			void GuiTexture::RenderTextureElement(const GuiTextureElement& te)
 			{
 				shader_.LoadTransformMatrix(te.GetMatrix());
 				graphicsApi_->ActiveTexture(0, te.texture->GetId());
 				graphicsApi_->RenderQuad();
+			}
+			void GuiTexture::ReloadShaders()
+			{
+				shader_.Stop();
+				shader_.Reload();
+				shader_.Init();
 			}
 		} // Gui
 	} // Renderer

@@ -4,6 +4,7 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
@@ -11,35 +12,29 @@
 
 namespace GameEngine
 {
-	CTerrainRenderer::CTerrainRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext)
-		: CRenderer(framebuffer)
-		, graphicsApi_(graphicsApi)
-		, shader(graphicsApi)
-		, projectionMatrix(projection_matrix)
-		, rendererContext_(shadowRendererContext)
+	TerrainRenderer::TerrainRenderer(RendererContext& context)
+		: context_(context)
+		, shader(context.graphicsApi_)
 		, clipPlane(vec4(0, 1, 0, 100000))
 		, objectId(0)
 	{
+		__RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
 	}
-	void CTerrainRenderer::Init()
+	void TerrainRenderer::Init()
 	{
 		InitShader();
-		objectId = graphicsApi_->CreatePurePatchMeshInstanced(4, static_cast<uint32>(Terrain::SIZE * Terrain::SIZE));
-		Log("CTerrainRenderer initialized.");
+		objectId = context_.graphicsApi_->CreatePurePatchMeshInstanced(4, static_cast<uint32>(Terrain::SIZE * Terrain::SIZE));
+		Log("TerrainRenderer initialized.");
 	}
-	void CTerrainRenderer::PrepareFrame(GameEngine::Scene* scene)
-	{
-	}
-	void CTerrainRenderer::Render(GameEngine::Scene* scene)
-	{
-		if (target == nullptr)
-			return;
 
-		target->BindToDraw();
+	void TerrainRenderer::Render(Scene* scene)
+	{
+		context_.defferedFrameBuffer_->BindToDraw();
+
 		shader.Start();
 		shader.Load(TerrainShader::lightDirection, scene->GetDirectionalLight().GetDirection());
 		shader.Load(TerrainShader::playerPosition, scene->GetCamera()->GetPosition());
-		shader.Load(TerrainShader::toShadowMapSpace, rendererContext_->toShadowMapZeroMatrix_);
+		shader.Load(TerrainShader::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
 
 		auto modelViewMatrix = scene->GetCamera()->GetViewMatrix();
 		modelViewMatrix[3][0] = 0;
@@ -50,51 +45,48 @@ namespace GameEngine
 		shader.Stop();
 
 	}
-	void CTerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
+	void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
 	{
 		for (auto& sub : subscribes)
 		{			
 			shader.Load(TerrainShader::modelViewMatrix, viewMatrix);
-			shader.Load(TerrainShader::modelViewProjectionMatrix, projectionMatrix->GetProjectionMatrix() * viewMatrix);
+			shader.Load(TerrainShader::modelViewProjectionMatrix, context_.projection_->GetProjectionMatrix() * viewMatrix);
 			RenderSubscriber(sub);
 		}
 	}
-	void CTerrainRenderer::RenderSubscriber(TerrainPtr sub) const
+	void TerrainRenderer::RenderSubscriber(TerrainPtr sub) const
 	{
 		if (sub == nullptr)
 			return;
 
 		BindTextures(sub);
-		graphicsApi_->RenderPurePatchedMeshInstances(objectId);
+		context_.graphicsApi_->RenderPurePatchedMeshInstances(objectId);
 	}
-	void CTerrainRenderer::InitShader()
+	void TerrainRenderer::InitShader()
 	{
 		shader.Init();
 		shader.Start();
 		shader.Load(TerrainShader::heightFactor, Terrain::HEIGHT_FACTOR);
 		shader.Load(TerrainShader::shadowVariables, vec3(1.f, 35.f, 2048.f));
-		shader.Load(TerrainShader::projectionMatrix, projectionMatrix->GetProjectionMatrix());
+		shader.Load(TerrainShader::projectionMatrix, context_.projection_->GetProjectionMatrix());
 		shader.Stop();
 	}
-	void CTerrainRenderer::BindTextures(TerrainPtr terrain) const
+	void TerrainRenderer::BindTextures(TerrainPtr terrain) const
 	{
-		graphicsApi_->ActiveTexture(0, rendererContext_->shadowsFrameBuffer_->GetShadowMap());
+		context_.graphicsApi_->ActiveTexture(0, context_.shadowsFrameBuffer_->GetShadowMap());
 
 		const auto& textures = terrain->Get()->textures;
 		for (const auto& t : textures)
 			BindTexture(t.second, t.first);
 	}
-	void CTerrainRenderer::BindTexture(CTexture* texture, int id) const
+	void TerrainRenderer::BindTexture(CTexture* texture, int id) const
 	{
 		if (texture == nullptr)
 			return;
 
-		graphicsApi_->ActiveTexture(id, texture->GetId());
+		context_.graphicsApi_->ActiveTexture(id, texture->GetId());
 	}
-	void CTerrainRenderer::EndFrame(GameEngine::Scene * scene)
-	{
-	}
-	void CTerrainRenderer::Subscribe(CGameObject* gameObject)
+	void TerrainRenderer::Subscribe(CGameObject* gameObject)
 	{
 		auto terrain = dynamic_cast<TerrainPtr>(gameObject);
 		if (terrain == nullptr)
@@ -102,7 +94,7 @@ namespace GameEngine
 
 		subscribes.push_back(terrain);
 	}
-	void CTerrainRenderer::UnSubscribe(CGameObject * gameObject)
+	void TerrainRenderer::UnSubscribe(CGameObject * gameObject)
 	{
 		for (auto iter = subscribes.begin(); iter != subscribes.end(); ++iter)
 		{
@@ -113,7 +105,7 @@ namespace GameEngine
 			}
 		}
 	}
-	void CTerrainRenderer::ReloadShaders()
+	void TerrainRenderer::ReloadShaders()
 	{
 		shader.Reload();
 		InitShader();

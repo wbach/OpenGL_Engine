@@ -1,7 +1,8 @@
 #pragma once
-#include "Renderer.h"
+#include "IRenderer.h"
 #include "Projection.h"
 #include "GUI/GuiContext.h"
+#include "RendererFunctionType.h"
 #include "GameEngine/Api/IGraphicsApi.h"
 #include <atomic>
 #include <list>
@@ -41,16 +42,18 @@ namespace GameEngine
 			void InitProjection();
 			void InitMainRenderer();
 			void InitGuiRenderer();
-			void Render(Scene* scene, CRenderer* renderer);
+			void RegisterRenderFunction(RendererFunctionType, RendererFunction);
+			void Render(RendererFunctionType type, Scene* scene);
 			
 		private:
 			IGraphicsApiPtr graphicsApi_;
 			std::atomic_bool renderAsLines;
 			std::atomic_bool markToReloadShaders_;
 			Renderer::Gui::GuiContext guiContext_;
-			RenderersPtrVec renderers_;
+			IRenderersPtrVec renderers_;
 			CProjection projection_;
 			std::list<CGameObject*> dynamincObjects_;
+			RendererFunctions rendererFunctions_;
 		};
 	} // Renderer
 } // GameEngine

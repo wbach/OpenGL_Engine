@@ -96,12 +96,12 @@ namespace GameEngine
 		camera = std::move(cam);
 	}
 
-	const CLight & Scene::GetDirectionalLight() const
+	const Light& Scene::GetDirectionalLight() const
 	{
 		return directionalLight;
 	}
 
-	const std::vector<CLight>& Scene::GetLights() const
+	const std::vector<Light>& Scene::GetLights() const
 	{
 		return lights;
 	}

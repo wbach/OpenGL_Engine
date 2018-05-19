@@ -1,38 +1,39 @@
 #pragma once
 #include "Shaders/GrassShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include "GameEngine/Renderers/Renderer.h"
+#include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Renderers/RendererContext.h"
 
 struct SGrass;
 class CMesh;
 class CModel;
 class CProjection;
 
-class CGrassRenderer : public CRenderer
+namespace GameEngine
 {
-public:
-    CGrassRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
-    virtual void Init() override;
-    virtual void PrepareFrame(GameEngine::Scene* scene) override;
-    virtual void Render(GameEngine::Scene* scene) override;
-    virtual void EndFrame(GameEngine::Scene* scene) override;
-    virtual void Subscribe(CGameObject* gameObject) override;
-	virtual void ReloadShaders() override;
+	class GrassRenderer : public IRenderer
+	{
+	public:
+		GrassRenderer(RendererContext& context);
+		virtual void Init() override;
+		virtual void Subscribe(CGameObject* gameObject) override;
+		virtual void ReloadShaders() override;
+		void Render(Scene* scene);
 
-private:
-	void InitShader();
-    void PrepareRender(GameEngine::Scene* scene);
-    void EndRender() const;
-    void RenderSubscribes();
-    void RenderModel(CModel* model);
-    void RenderMesh(const CMesh& mesh);
-    void PrepareShader(GameEngine::Scene* scene);
+	private:
+		void InitShader();
+		void PrepareRender(Scene* scene);
+		void EndRender() const;
+		void RenderSubscribes();
+		void RenderModel(CModel* model);
+		void RenderMesh(const CMesh& mesh);
+		void PrepareShader(Scene* scene);
 
-private:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
-    CGrassShader shader;
-    CProjection* projection;
+	private:
+		RendererContext& context_;
+		CGrassShader shader;
 
-    std::list<SGrass*> subscribes;
-    float viewDistance = 30.f;
-};
+		std::list<SGrass*> subscribes;
+		float viewDistance = 30.f;
+	};
+} // GameEngine

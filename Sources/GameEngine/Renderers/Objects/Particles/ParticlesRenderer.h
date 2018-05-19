@@ -1,7 +1,7 @@
 #pragma once
 #include "Shaders/ParticlesShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include "GameEngine/Renderers/Renderer.h"
+#include "GameEngine/Renderers/IRenderer.h"
 #include "Shaders/AnimatedParticlesShader.h"
 #include "GameEngine/Objects/RenderAble/Paricle/Particle.h"
 
@@ -18,20 +18,20 @@ namespace GameEngine
 		std::vector<Particle>* particles = nullptr;
 	};
 
-	class ParticlesRenderer : public CRenderer
+	struct RendererContext;
+
+	class ParticlesRenderer : public IRenderer
 	{
 	typedef std::unordered_map<uint32, ParticleSubscriber> SubscribesMap;
 	public:
-		ParticlesRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
+		ParticlesRenderer(RendererContext& context);
 		// Loading lights itp to shader
 		virtual void Init() override;
-		virtual void PrepareFrame(GameEngine::Scene* scene) override;
-		virtual void Render(GameEngine::Scene* scene) override;
-		virtual void EndFrame(GameEngine::Scene* scene) override;
 		virtual void Subscribe(CGameObject* gameObject) override;
 		virtual void UnSubscribe(CGameObject* gameObject) override;
 		virtual void UnSubscribeAll() override;
 		virtual void ReloadShaders() override;
+		void Render(Scene* scene);
 	
 	private:
 		void InitShaders();
@@ -49,10 +49,9 @@ namespace GameEngine
 		vec4 GetTextureOffsets(float blendFactor);
 
 	private:
-		GameEngine::IGraphicsApiPtr graphicsApi_;
+		RendererContext& context_;
 		ParticlesShader shader;
 		AnimatedParticlesShader animatedShader_;
-		CProjection* projectionMatrix;
 		SubscribesMap subscribers_;
 		uint32 particleObjecId;
 		uint32 aniamtedParticleObjecId;

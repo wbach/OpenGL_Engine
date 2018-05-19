@@ -2,6 +2,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
 #include "GLM/GLMUtils.h"
@@ -21,34 +22,27 @@ namespace GameEngine
 			return 1.f;
 		return r;
 	}
-	ParticlesRenderer::ParticlesRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection_matrix, CFrameBuffer* framebuffer)
-		: CRenderer(framebuffer)
-		, graphicsApi_(graphicsApi)
-		, shader(graphicsApi)
-		, animatedShader_(graphicsApi)
-		, projectionMatrix(projection_matrix)
+	ParticlesRenderer::ParticlesRenderer(RendererContext& context)
+		: context_(context)
+		, shader(context.graphicsApi_)
+		, animatedShader_(context.graphicsApi_)
 		, particleObjecId(0)
 		, currentUseAnimation(false)
 		, textureNumberOfrows(1)
 	{
+		__RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, ParticlesRenderer::Render);
 	}
 	void ParticlesRenderer::Init()
 	{
 		InitShaders();
-		aniamtedParticleObjecId = graphicsApi_->CreateAnimatedParticle();
-		staticParticleObjecId = graphicsApi_->CreateParticle();
+		aniamtedParticleObjecId = context_.graphicsApi_->CreateAnimatedParticle();
+		staticParticleObjecId = context_.graphicsApi_->CreateParticle();
 	}
-	void ParticlesRenderer::PrepareFrame(GameEngine::Scene * scene)
-	{
-	}
-	void ParticlesRenderer::Render(GameEngine::Scene * scene)
+	void ParticlesRenderer::Render(Scene* scene)
 	{
 		PrepareFrame();
 		RenderSubscribes(scene->GetCamera()->GetViewMatrix());
 		ClearFrame();
-	}
-	void ParticlesRenderer::EndFrame(GameEngine::Scene * scene)
-	{
 	}
 	void ParticlesRenderer::Subscribe(CGameObject* gameObject)
 	{
@@ -89,18 +83,18 @@ namespace GameEngine
 	}
 	void ParticlesRenderer::PrepareFrame()
 	{
-		target->BindToDraw();
-		graphicsApi_->DisableBlend();
-		graphicsApi_->EnableBlend();
-		graphicsApi_->DisableDepthMask();
-		graphicsApi_->DisableCulling();
+		context_.defferedFrameBuffer_->BindToDraw();
+		context_.graphicsApi_->DisableBlend();
+		context_.graphicsApi_->EnableBlend();
+		context_.graphicsApi_->DisableDepthMask();
+		context_.graphicsApi_->DisableCulling();
 	}
 	void ParticlesRenderer::ClearFrame()
 	{
-		graphicsApi_->EnableCulling();
-		graphicsApi_->EnableDepthMask();
-		graphicsApi_->SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
-		graphicsApi_->DisableBlend();
+		context_.graphicsApi_->EnableCulling();
+		context_.graphicsApi_->EnableDepthMask();
+		context_.graphicsApi_->SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+		context_.graphicsApi_->DisableBlend();
 	}
 	void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)
 	{
@@ -121,7 +115,7 @@ namespace GameEngine
 
 	void ParticlesRenderer::RenderParticles(const ParticleSubscriber& effect, const mat4& viewMatrix)
 	{
-		graphicsApi_->SetBlendFunction(effect.blendFunction);
+		//context_.graphicsApi_->SetBlendFunction(effect.blendFunction);
 		UpdateTexture(effect.texture);
 
 		auto particlesSize = effect.particles->size();
@@ -132,14 +126,14 @@ namespace GameEngine
 
 	void ParticlesRenderer::RenderInstances(uint32 size)
 	{
-		graphicsApi_->UpdateMatrixes(particleObjecId, transformsParticles_);
+		context_.graphicsApi_->UpdateMatrixes(particleObjecId, transformsParticles_);
 
 		if (currentUseAnimation)
 		{
-			graphicsApi_->UpdateOffset(particleObjecId, offsets_);
-			graphicsApi_->UpdateBlend(particleObjecId, blendFactors_);
+			context_.graphicsApi_->UpdateOffset(particleObjecId, offsets_);
+			context_.graphicsApi_->UpdateBlend(particleObjecId, blendFactors_);
 		}
-		graphicsApi_->RenderMeshInstanced(particleObjecId, size);
+		context_.graphicsApi_->RenderMeshInstanced(particleObjecId, size);
 	}
 	void ParticlesRenderer::StartShader()
 	{
@@ -175,12 +169,12 @@ namespace GameEngine
 	{
 		shader.Init();
 		shader.Start();
-		shader.Load(ParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+		shader.Load(ParticlesShader::UniformLocation::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
 		shader.Stop();
 
 		animatedShader_.Init();
 		animatedShader_.Start();
-		animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+		animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
 		animatedShader_.Stop();
 	}
 
@@ -197,7 +191,7 @@ namespace GameEngine
 			animatedShader_.Load(AnimatedParticlesShader::UniformLocation::NumberOfRows, static_cast<float>(textureNumberOfrows));
 		}
 
-		graphicsApi_->ActiveTexture(0, texture->GetId());
+		context_.graphicsApi_->ActiveTexture(0, texture->GetId());
 	}
 
 	void ParticlesRenderer::GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix)

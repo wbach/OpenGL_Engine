@@ -1,27 +1,28 @@
 #pragma once
-
 #include "../Shaders/Loading/LoadingShader.h"
-#include "Renderer.h"
+#include "IRenderer.h"
 
 class CTexture;
 
-class CLoadingScreenRenderer : public CRenderer
+namespace GameEngine
 {
-public:
-    CLoadingScreenRenderer(GameEngine::IGraphicsApiPtr, CTexture* bgTexture, CTexture* circleTexture);
-    virtual void Init() override;
-    virtual void PrepareFrame(GameEngine::Scene*) override{}
-    virtual void Render(GameEngine::Scene*) override;
-    virtual void EndFrame(GameEngine::Scene*) override{}
+	class LoadingScreenRenderer : public IRenderer
+	{
+	public:
+		LoadingScreenRenderer(IGraphicsApiPtr, CTexture* bgTexture, CTexture* circleTexture);
+		virtual void Init() override;
+		void Render(Scene*);
+		virtual void ReloadShaders() override {}
 
-private:
-    void prepareRender();
-    void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
+	private:
+		void prepareRender();
+		void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
 
-private:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
-    CLoadingShader loadingShader;
-    CTexture* circleTexture;
-    CTexture* backgroundTexture;
-    mat4 transformationMatrix;
-};
+	private:
+		IGraphicsApiPtr graphicsApi_;
+		CLoadingShader loadingShader;
+		CTexture* circleTexture;
+		CTexture* backgroundTexture;
+		mat4 transformationMatrix;
+	};
+} // GameEngine

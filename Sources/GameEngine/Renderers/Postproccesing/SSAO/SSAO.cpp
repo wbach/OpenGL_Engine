@@ -4,25 +4,19 @@
 namespace GameEngine
 {
 	SSAORenderer::SSAORenderer(IGraphicsApiPtr graphicsApi, CProjection* projection, CFrameBuffer* frambuffer)
-		: CRenderer(frambuffer)
-		, graphicsApi_(graphicsApi)
-		, projection_(projection)
-		, shader_(graphicsApi)
+		: shader_(graphicsApi)
 	{
 	}
 	void SSAORenderer::Init()
 	{
 		shader_.Init();
 	}
-	void SSAORenderer::PrepareFrame(GameEngine::Scene * scene)
+	void SSAORenderer::Prepare(Scene * scene)
 	{
 	}
-	void SSAORenderer::Render(GameEngine::Scene * scene)
+	void SSAORenderer::Render(Scene * scene)
 	{
-	}
-	void SSAORenderer::EndFrame(GameEngine::Scene * scene)
-	{
-		auto positionTexture = target->GetTexture(0);
+		auto positionTexture = rendererContext_->defferedFrameBuffer_->GetTexture(0);
 
 		shader_.Start();
 		graphicsApi_->ActiveTexture(0, positionTexture);

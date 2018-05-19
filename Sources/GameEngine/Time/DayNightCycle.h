@@ -3,44 +3,48 @@
 #include "GameTime.h"
 #include "../Lights/Light.h"
 
-class CDayNightCycle : public CGameTime
+namespace GameEngine
 {
-public:
-	CDayNightCycle();
-	void Update(const float& delta_time) override;
-	void UpdateSunColor();
-	void UpdateSunPosition();
-	void CalculateBlendFactor();
-	void SetDirectionalLight(CLight* light);
+	class DayNightCycle : public GameTime
+	{
+	public:
+		DayNightCycle();
+		void Update(const float& delta_time) override;
+		void UpdateSunColor();
+		void UpdateSunPosition();
+		void CalculateBlendFactor();
+		void SetDirectionalLight(Light* light);
 
-	const wb::vec2i GetCurrentHour() const;
-	const bool IsDay() const;
-	const bool IsNight() const;
-	const bool IsMorning() const;
-	const bool IsEvening() const;
-	const bool IsFirstHalfMorning() const;
-	const bool IsFirstHalfEvening() const;
-	float GetDayNightBlendFactor() const;
+		const wb::vec2i GetCurrentHour() const;
+		const bool IsDay() const;
+		const bool IsNight() const;
+		const bool IsMorning() const;
+		const bool IsEvening() const;
+		const bool IsFirstHalfMorning() const;
+		const bool IsFirstHalfEvening() const;
+		float GetDayNightBlendFactor() const;
 
-private:
-    CLight*   directionalLight;
-    vec3 sunRiseColor;
-    vec3 midDayColor;
-    vec3 sunSetColor;
-    vec3 nightColor;
+	private:
+		Light* directionalLight;
+		vec3 sunRiseColor;
+		vec3 midDayColor;
+		vec3 sunSetColor;
+		vec3 nightColor;
 
-    float dayNightBlendFactor;
-    float dayStart;
-    float dayEnd;
-    float nightStart;
-    float nightEnd;
-    float morningDuration;
-    float eveningDuration;
+		float dayNightBlendFactor;
+		float dayStart;
+		float dayEnd;
+		float nightStart;
+		float nightEnd;
+		float morningDuration;
+		float eveningDuration;
 
-    vec3 defaultSunPos;
-};
+		vec3 defaultSunPos;
+	};
 
-inline float CDayNightCycle::GetDayNightBlendFactor() const
-{
-    return dayNightBlendFactor;
-}
+	inline float DayNightCycle::GetDayNightBlendFactor() const
+	{
+		return dayNightBlendFactor;
+	}
+
+} //GameEngine

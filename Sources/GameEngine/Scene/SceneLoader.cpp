@@ -44,7 +44,7 @@ namespace GameEngine
 	{
 		auto circleTexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false, ObjectTextureType::MATERIAL);
 		auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/black-knight-dark-souls.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
-		loadingScreenRenderer = std::make_unique<CLoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture);
+		loadingScreenRenderer = std::make_unique<LoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture);
 		loadingScreenRenderer->Init();
 	}
 

@@ -10,45 +10,37 @@
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 #include "math.hpp"
-
-CShadowMapRenderer::CShadowMapRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection, GameEngine::RendererContext* rendererContext)
-	: graphicsApi_(graphicsApi)
-	, projection(projection)
-	, rendererContext_(rendererContext)
-	, shader(graphicsApi)
-	, shadowBox(projection)
-	, shadowBox2(projection)
-	, projectionViewMatrix(1.f)
-	, viewOffset(Utils::CreateOffset())
+namespace GameEngine
 {
+ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
+	: context_(context)
+	, shader_(context.graphicsApi_)
+	, shadowBox_(context.projection_)
+	, shadowBox2_(context.projection_)
+	, projectionViewMatrix_(1.f)
+	, viewOffset_(Utils::CreateOffset())
+{
+	__RegisterRenderFunction__(RendererFunctionType::CONFIGURE, ShadowMapRenderer::Render);
 }
 
-void CShadowMapRenderer::Init()
+void ShadowMapRenderer::Init()
 {
-	shader.Init();
-	EngineConf.texturesIds["shadowMap"] = rendererContext_->shadowsFrameBuffer_->GetShadowMap();
+	shader_.Init();
+	EngineConf.texturesIds["shadowMap"] = context_.shadowsFrameBuffer_->GetShadowMap();
 }
 
-void CShadowMapRenderer::PrepareFrame(GameEngine::Scene* scene)
-{
-}
-
-void CShadowMapRenderer::Render(GameEngine::Scene* scene)
+void ShadowMapRenderer::Render(Scene* scene)
 {
 	PrepareRender(scene);
 	PrepareShader(scene->GetCamera());
 	RenderSubscribes();
-	shader.Stop();
-	rendererContext_->shadowsFrameBuffer_->UnbindFrameBuffer();
+	shader_.Stop();
+	context_.shadowsFrameBuffer_->UnbindFrameBuffer();
 }
 
-void CShadowMapRenderer::EndFrame(GameEngine::Scene* scene)
+void ShadowMapRenderer::Subscribe(CGameObject* gameObject)
 {
-}
-
-void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
-{
-	auto rendererComponent = gameObject->GetComponent<GameEngine::Components::RendererComponent>();
+	auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
 
 	if (rendererComponent == nullptr)
 		return;
@@ -56,42 +48,42 @@ void CShadowMapRenderer::Subscribe(CGameObject* gameObject)
 	subscribes_[gameObject->GetId()] = { rendererComponent->textureIndex, gameObject, &rendererComponent->GetModelWrapper() };
 }
 
-void CShadowMapRenderer::ReloadShaders()
+void ShadowMapRenderer::ReloadShaders()
 {
-	shader.Stop();
-	shader.Reload();
-	shader.Init();
+	shader_.Stop();
+	shader_.Reload();
+	shader_.Init();
 }
 
-void CShadowMapRenderer::PrepareRender(GameEngine::Scene* scene)
+void ShadowMapRenderer::PrepareRender(Scene* scene)
 {
-	rendererContext_->shadowsFrameBuffer_->BindFBO();
-	graphicsApi_->EnableDepthTest();
-	graphicsApi_->ClearBuffer(GameEngine::BufferType::DEPTH);
-	shadowBox.Update(scene->GetCamera());
+	context_.shadowsFrameBuffer_->BindFBO();
+	context_.graphicsApi_->EnableDepthTest();
+	context_.graphicsApi_->ClearBuffer(BufferType::DEPTH);
+	shadowBox_.Update(scene->GetCamera());
 
 	auto cameraPos = scene->GetCamera()->GetPosition();
 	scene->GetCamera()->SetPosition(vec3(0, 0, 0));
-	shadowBox2.Update(scene->GetCamera());
+	shadowBox2_.Update(scene->GetCamera());
 	scene->GetCamera()->SetPosition(cameraPos);
 
 
 	auto light_direction = scene->GetDirectionalLight().GetDirection();
-	shadowBox.CalculateMatrixes(light_direction);
-	shadowBox2.CalculateMatrixes(light_direction);
+	shadowBox_.CalculateMatrixes(light_direction);
+	shadowBox2_.CalculateMatrixes(light_direction);
 
-	rendererContext_->toShadowMapZeroMatrix_ = viewOffset * shadowBox2.GetProjectionViewMatrix();
+	context_.toShadowMapZeroMatrix_ = viewOffset_ * shadowBox2_.GetProjectionViewMatrix();
 }
 
-void CShadowMapRenderer::RenderSubscribes() const
+void ShadowMapRenderer::RenderSubscribes() const
 {
 	for (auto& sub : subscribes_)
 		RenderSubscriber(sub.second);
 }
 
-void CShadowMapRenderer::RenderSubscriber(const Subscriber& sub) const
+void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
 {
-	auto model = sub.model->Get(GameEngine::LevelOfDetail::L1);
+	auto model = sub.model->Get(LevelOfDetail::L1);
 
 	if (model == nullptr)
 		return;
@@ -99,7 +91,7 @@ void CShadowMapRenderer::RenderSubscriber(const Subscriber& sub) const
 	int x = 0;
 	for (auto& t : model->GetBoneTransforms())
 	{
-		shader.Load(CShadowShader::UniformLocation::BonesTransforms, *t, x++);
+		shader_.Load(CShadowShader::UniformLocation::BonesTransforms, *t, x++);
 	}
 
 	const auto& meshes = model->GetMeshes();
@@ -108,32 +100,32 @@ void CShadowMapRenderer::RenderSubscriber(const Subscriber& sub) const
 		RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix(), sub.textureIndex);
 }
 
-void CShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_matrix, uint32 textureIndex) const
+void ShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4 &transform_matrix, uint32 textureIndex) const
 {
 	if (!mesh.IsInit())
 		return;
 
 	auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
 	BindMaterial(mesh.GetMaterial(), textureIndex);
-	shader.Load(CShadowShader::UniformLocation::UseBoneTransform, (static_cast<float>(mesh.UseArmature())));
-	shader.Load(CShadowShader::UniformLocation::TransformationMatrix, transform_matrix_);
+	shader_.Load(CShadowShader::UniformLocation::UseBoneTransform, (static_cast<float>(mesh.UseArmature())));
+	shader_.Load(CShadowShader::UniformLocation::TransformationMatrix, transform_matrix_);
 
-	graphicsApi_->RenderMesh(mesh.GetObjectId());
+	context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
 }
 
-void CShadowMapRenderer::BindMaterial(const SMaterial& material, uint32 textureIndex) const
+void ShadowMapRenderer::BindMaterial(const SMaterial& material, uint32 textureIndex) const
 {
 	if (material.diffuseTexture == nullptr)
 		return;
 
-	shader.Load(CShadowShader::UniformLocation::NumberOfRows, static_cast<float>(material.diffuseTexture->numberOfRows));
-	shader.Load(CShadowShader::UniformLocation::TextureOffset, material.diffuseTexture->GetTextureOffset(textureIndex));
-	graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
+	shader_.Load(CShadowShader::UniformLocation::NumberOfRows, static_cast<float>(material.diffuseTexture->numberOfRows));
+	shader_.Load(CShadowShader::UniformLocation::TextureOffset, material.diffuseTexture->GetTextureOffset(textureIndex));
+	context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
-void CShadowMapRenderer::PrepareShader(GameEngine::ICamera* camera) const
+void ShadowMapRenderer::PrepareShader(ICamera* camera) const
 {
-	shader.Start();
-	shader.Load(CShadowShader::UniformLocation::ProjectionViewMatrix, shadowBox.GetProjectionViewMatrix());
+	shader_.Start();
+	shader_.Load(CShadowShader::UniformLocation::ProjectionViewMatrix, shadowBox_.GetProjectionViewMatrix());
 }
-
+} // GameEngine

@@ -1,13 +1,18 @@
 #pragma once
+#include <functional>
+#include <unordered_map>
 
 namespace GameEngine
 {
 	enum class RendererFunctionType
 	{
-		FIRST,
-		BEFORE,
+		PRECONFIGURE,
+		CONFIGURE,
 		UPDATE,
-		POST,
-		END
+		POSTUPDATE,
+		ONENDFRAME
 	};
+	class Scene;
+	typedef std::function<void(Scene*)> RendererFunction;
+	typedef std::unordered_map<RendererFunctionType, std::vector<RendererFunction>> RendererFunctions;
 } // GameEngine

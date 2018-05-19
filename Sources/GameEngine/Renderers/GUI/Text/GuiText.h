@@ -5,20 +5,25 @@
 #include "Logger/Log.h"
 #include <unordered_map>
 
-typedef std::unordered_map<std::string, SGuiTextElement> GuiTexts;
-
-class CGuiText : public CGuiElement
+namespace GameEngine
 {
-public:
-	CGuiText(GameEngine::IGraphicsApiPtr graphicsApi, const std::string& font_file);
-	virtual ~CGuiText() override;
-	virtual void Init() override;
-	virtual void Render() override;
-	virtual void UnSubscribeAll() override;
-	GuiTexts texts;
+	typedef std::unordered_map<std::string, SGuiTextElement> GuiTexts;
 
-private:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
-    FontShader shader;
-    std::string fontFile;
-};
+	class GuiText : public GuiElement
+	{
+	public:
+		GuiText(IGraphicsApiPtr graphicsApi, const std::string& font_file);
+		virtual ~GuiText() override;
+		virtual void Init() override;
+		virtual void Render() override;
+		virtual void UnSubscribeAll() override;
+		virtual void ReloadShaders() override;
+		GuiTexts texts;
+
+	private:
+		IGraphicsApiPtr graphicsApi_;
+		FontShader shader;
+		std::string fontFile;
+	};
+
+} // GameEngine

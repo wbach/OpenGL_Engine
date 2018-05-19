@@ -3,8 +3,12 @@
 #include "Logger/Log.h"
 #include <unordered_map>
 
+static const uint32 MAX_LIGHTS = 10;
+
 namespace GameEngine
 {
+class Light;
+
 class DefferedShader : public CShaderProgram
 {
 private:
@@ -14,6 +18,7 @@ private:
 		int position;
 		int colour;
 		int attenuation;
+		int direction;
 		int cutOff;
 	};
 public:
@@ -29,9 +34,9 @@ public:
 		NumberOfLights,
 		SkyColour,
 		ViewDistance,
-		Light
 	};
 	DefferedShader(IGraphicsApiPtr graphicsApi);
+
 	template <class T>
 	void Load(UniformLocation location, T value) const
 	{
@@ -42,6 +47,7 @@ public:
 		}
 		LoadValue(uniformLocations.at(location), value);
 	}
+	void LoadLight(uint32 index, const Light& light);
 
 private:
 	virtual void BindAttributes() override;
@@ -50,6 +56,6 @@ private:
 
 protected:
 	std::unordered_map<UniformLocation, uint32> uniformLocations;
-	std::vector<LightParamsLocations> lightParamsLocations_;
+	LightParamsLocations lightParamsLocations_[MAX_LIGHTS];
 };
 } // GameEngine

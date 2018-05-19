@@ -1,21 +1,22 @@
 #pragma once
 
-class CGuiText;
-class CGUIRenderer;
 
 namespace GameEngine
 {
+	class GuiText;
+	class GUIRenderer;
+
 	namespace Renderer
 	{
 		namespace Gui
 		{
-			class CGuiTexture;
+			class GuiTexture;
 
 			struct GuiContext
 			{
-				CGuiText* texts = nullptr;
-				CGuiTexture* texures = nullptr;
-				CGUIRenderer* renderer = nullptr;
+				GuiText* texts = nullptr;
+				GuiTexture* texures = nullptr;
+				GUIRenderer* renderer = nullptr;
 			};
 		}
 	}

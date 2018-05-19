@@ -1,9 +1,11 @@
 #include "SimpleRenderer.h"
-#include "../Objects/RenderAble/Entity/Entity.h"
-#include "../Renderers/Projection.h"
-#include "../Scene/Scene.hpp"
+#include "GameEngine/Objects/RenderAble/Entity/Entity.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Scene/Scene.hpp"
 
-SimpleRenderer::SimpleRenderer(GameEngine::IGraphicsApiPtr api, CProjection* projection_matrix)
+namespace GameEngine
+{
+SimpleRenderer::SimpleRenderer(IGraphicsApiPtr api, CProjection* projection_matrix, std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : graphicsApi_(api)
 	, shader(api)
 	, projectionMatrix(projection_matrix)
@@ -18,24 +20,24 @@ void SimpleRenderer::Init()
     shader.Stop();
 }
 
-void SimpleRenderer::PrepareFrame(GameEngine::Scene* scene)
+void SimpleRenderer::PrepareFrame(Scene* scene)
 {
     shader.Start();
     shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
 }
 
-void SimpleRenderer::Render(GameEngine::Scene* scene)
+void SimpleRenderer::Render(Scene* scene)
 {
     for (auto& entity : subscribes)
 	{
-		if (entity->GetModel(GameEngine::LevelOfDetail::L1) == nullptr)
+		if (entity->GetModel(LevelOfDetail::L1) == nullptr)
 			continue;
 
-        RenderModel(entity->GetModel(GameEngine::LevelOfDetail::L1), entity->worldTransform.GetMatrix());
+        RenderModel(entity->GetModel(LevelOfDetail::L1), entity->worldTransform.GetMatrix());
 	}
 }
 
-void SimpleRenderer::EndFrame(GameEngine::Scene* scene)
+void SimpleRenderer::EndFrame(Scene* scene)
 {
     shader.Stop();
 }
@@ -59,6 +61,13 @@ void SimpleRenderer::UnSubscribe(CGameObject* gameObject)
 	}
 }
 
+void SimpleRenderer::ReloadShaders()
+{
+	shader.Stop();
+	shader.Reload();
+	Init();
+}
+
 void SimpleRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
 {
     shader.LoadTransformMatrix(transform_matrix);
@@ -77,3 +86,4 @@ void SimpleRenderer::BindTextures(const SMaterial & material) const
 		graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 	}
 }
+} // GameEngine

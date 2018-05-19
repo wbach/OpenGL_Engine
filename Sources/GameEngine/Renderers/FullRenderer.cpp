@@ -1,5 +1,5 @@
 #include "FullRenderer.h"
-#include "LightPassRenderer.h"
+
 
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
@@ -15,18 +15,20 @@
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
+
 #include "Logger/Log.h"
 
 using namespace GameEngine;
 
-FullRenderer::FullRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix)
-	: graphicsApi_(graphicsApi)
+namespace GameEngine
+{
+FullRenderer::FullRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection, std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
+	: context_(projection, graphicsApi, std::make_shared<CDefferedFrameBuffer>(graphicsApi), std::make_shared<CShadowFrameBuffer>(graphicsApi), rendererFunction)
+	, postprocessingRenderersManager_(context_)
 {	
-	rendererContext_.projectionMatrix_ = projection_matrix;
-	rendererContext_.shadowsFrameBuffer_ = std::make_shared<CShadowFrameBuffer>(graphicsApi);
-	rendererContext_.defferedFrameBuffer_ = std::make_shared<CDefferedFrameBuffer>(graphicsApi);
-
 	CreateRenderers();
+	__RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, FullRenderer::Prepare);
+	__RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, FullRenderer::PostProcess);
 }
 
 FullRenderer::~FullRenderer()
@@ -36,37 +38,15 @@ FullRenderer::~FullRenderer()
 
 void FullRenderer::Init()
 {
-	rendererContext_.defferedFrameBuffer_->Init(rendererContext_.projectionMatrix_->GetWindowSize());
-	rendererContext_.shadowsFrameBuffer_->InitialiseFrameBuffer();
+	context_.defferedFrameBuffer_->Init(context_.projection_->GetWindowSize());
+	context_.shadowsFrameBuffer_->InitialiseFrameBuffer();
 
     for(auto& renderer : renderers)
     {
         renderer->Init();
     }
+	postprocessingRenderersManager_.Init();
 	Log("FullRenderer initialized.");
-}
-void FullRenderer::PrepareFrame(GameEngine::Scene* scene)
-{
-	rendererContext_.defferedFrameBuffer_->Clean();
-
-    for(auto& renderer : renderers)
-    {
-        renderer->PrepareFrame(scene);
-    }
-}
-void FullRenderer::Render(GameEngine::Scene* scene)
-{
-    for(auto& renderer : renderers)
-    {
-        renderer->Render(scene);
-    }
-}
-void FullRenderer::EndFrame(GameEngine::Scene* scene)
-{
-    for(auto& renderer : renderers)
-    {
-        renderer->EndFrame(scene);
-    }
 }
 
 void FullRenderer::Subscribe(CGameObject* gameObject)
@@ -91,18 +71,33 @@ void FullRenderer::ReloadShaders()
 {
 	for (auto& renderer : renderers)
 		renderer->ReloadShaders();
+	postprocessingRenderersManager_.ReloadShaders();
+}
+
+template<class T>
+void FullRenderer::AddRenderer()
+{
+	renderers.emplace_back(new T(context_));
 }
 
 void FullRenderer::CreateRenderers()
 {
-	renderers.emplace_back(new CSkyBoxRenderer(rendererContext_));
-	if (EngineConf.isShadows) renderers.emplace_back(new CShadowMapRenderer(graphicsApi_, rendererContext_.projectionMatrix_, &rendererContext_));
-	if (EngineConf.advancedGrass) renderers.emplace_back(new CGrassRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
-	renderers.emplace_back(new CTerrainRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get(), &rendererContext_));
-	renderers.emplace_back(new TreeRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
-	renderers.emplace_back(new PlantsRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
-	renderers.emplace_back(new CEntityRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
-	renderers.emplace_back(new WaterRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
-	if (EngineConf.useParticles) renderers.emplace_back(new ParticlesRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
-	renderers.emplace_back(new CLightPassRenderer(graphicsApi_, rendererContext_.projectionMatrix_, rendererContext_.defferedFrameBuffer_.get()));
+									AddRenderer<SkyBoxRenderer>();
+	if (EngineConf.isShadows)		AddRenderer<ShadowMapRenderer>();
+	if (EngineConf.advancedGrass)	AddRenderer<GrassRenderer>();
+									AddRenderer<TerrainRenderer>();
+									AddRenderer<TreeRenderer>();
+									AddRenderer<PlantsRenderer>();
+									AddRenderer<EntityRenderer>();
+	if (EngineConf.useParticles)	AddRenderer<ParticlesRenderer>();
+									AddRenderer<WaterRenderer>();
 }
+void FullRenderer::PostProcess(Scene * scene)
+{
+	postprocessingRenderersManager_.Render(scene);
+}
+void FullRenderer::Prepare(Scene *)
+{
+	context_.defferedFrameBuffer_->Clean();
+}
+} // GameEngine

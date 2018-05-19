@@ -3,29 +3,26 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
 
 namespace GameEngine
 {
-	TreeRenderer::TreeRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection_matrix, CFrameBuffer* framebuffer)
-		: CRenderer(framebuffer)
-		, graphicsApi_(graphicsApi)
-		, shader(graphicsApi)
-		, projectionMatrix(projection_matrix)
+	TreeRenderer::TreeRenderer(RendererContext& context)
+		: context_(context)
+		, shader(context.graphicsApi_)
 	{
+		__RegisterRenderFunction__(RendererFunctionType::UPDATE, TreeRenderer::Render);
 	}
 	void TreeRenderer::Init()
 	{
 		shader.Init();
 		shader.Start();
-		shader.Load(TreeShader::UniformLocation::ProjectionMatrix, projectionMatrix->GetProjectionMatrix());
+		shader.Load(TreeShader::UniformLocation::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
 		shader.Stop();
 	}
-	void TreeRenderer::PrepareFrame(GameEngine::Scene* scene)
-	{
-	}
-	void TreeRenderer::Render(GameEngine::Scene* scene)
+	void TreeRenderer::Render(Scene* scene)
 	{
 		for (auto iter = subscribersToInit_.begin(); iter != subscribersToInit_.end();)
 		{
@@ -33,7 +30,7 @@ namespace GameEngine
 			iter = subscribersToInit_.erase(iter);
 		}
 
-		target->BindToDraw();
+		context_.defferedFrameBuffer_->BindToDraw();
 		shader.Start();
 		shader.Load(TreeShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 		shader.Load(TreeShader::UniformLocation::CameraPosition, scene->GetCamera()->GetPosition());
@@ -50,19 +47,16 @@ namespace GameEngine
 
 			auto count = sub.second.positions->size();
 
-			graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
+			context_.graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
 			shader.Load(TreeShader::UniformLocation::PositionMapSize, count);
-			graphicsApi_->DisableCulling();
+			context_.graphicsApi_->DisableCulling();
 			shader.Load(TreeShader::UniformLocation::UseShading, 0.f);
 			RenderModel(model, normalizeMatrix, count);
-			graphicsApi_->EnableCulling();
+			context_.graphicsApi_->EnableCulling();
 			shader.Load(TreeShader::UniformLocation::UseShading, 1.f);
 			RenderModel(bmodel, normalizeMatrix, count);
 		}
 		shader.Stop();
-	}
-	void TreeRenderer::EndFrame(GameEngine::Scene * scene)
-	{
 	}
 	void TreeRenderer::Subscribe(CGameObject * gameObject)
 	{
@@ -93,12 +87,12 @@ namespace GameEngine
 		shader.Reload();
 		Init();
 	}
-	void TreeRenderer::PreparePositionMap(Subscriber & sub)
+	void TreeRenderer::PreparePositionMap(TreeSubscriber & sub)
 	{
 		if (sub.textureInGpu)
 			return;
 
-		sub.positionTexture = graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_3C, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::NONE, vec2ui(sub.positions->size(), 1), &(*sub.positions)[0]);
+		sub.positionTexture = context_.graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_3C, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::NONE, vec2ui(sub.positions->size(), 1), &(*sub.positions)[0]);
 		sub.textureInGpu = true;
 	}
 	void TreeRenderer::RenderModel(CModel * model, const mat4& transorm, uint32 size) const
@@ -110,7 +104,7 @@ namespace GameEngine
 	{
 		shader.Load(TreeShader::UniformLocation::NormalizationMatrix, transform);
 		BindMaterial(mesh.GetMaterial());
-		graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), size);
+		context_.graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), size);
 	}
 	void TreeRenderer::RenderTrees()
 	{
@@ -118,7 +112,7 @@ namespace GameEngine
 	void TreeRenderer::BindMaterial(const SMaterial & material) const
 	{
 		if (material.isTransparency)
-			graphicsApi_->DisableCulling();
+			context_.graphicsApi_->DisableCulling();
 
 		shader.Load(TreeShader::UniformLocation::ModelMaterial_Ambient, material.ambient);
 		shader.Load(TreeShader::UniformLocation::ModelMaterial_Diffuse, material.diffuse);
@@ -127,21 +121,21 @@ namespace GameEngine
 
 		if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
 		{
-			graphicsApi_->ActiveTexture(1, material.diffuseTexture->GetId());
+			context_.graphicsApi_->ActiveTexture(1, material.diffuseTexture->GetId());
 		}
 
 		if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
 		{
-			graphicsApi_->ActiveTexture(2, material.ambientTexture->GetId());
+			context_.graphicsApi_->ActiveTexture(2, material.ambientTexture->GetId());
 		}
 
 		if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
 		{
-			graphicsApi_->ActiveTexture(3, material.normalTexture->GetId());
+			context_.graphicsApi_->ActiveTexture(3, material.normalTexture->GetId());
 		}
 
 		if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
-			graphicsApi_->ActiveTexture(4, material.specularTexture->GetId());
+			context_.graphicsApi_->ActiveTexture(4, material.specularTexture->GetId());
 	}
 	void TreeRenderer::UnBindMaterial(const SMaterial & material) const
 	{

@@ -1,11 +1,11 @@
 #pragma once
 
-namespace LightType
+namespace GameEngine
 {
-	enum Type
+	enum class LightType
 	{
 		DIRECTIONAL_LIGHT = 0,
 		POINT_LIGHT,
 		SPOT_LIGHT
 	};
-}
+} // GameEngine

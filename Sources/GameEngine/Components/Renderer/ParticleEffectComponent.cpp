@@ -90,9 +90,9 @@ namespace GameEngine
 			auto toEmitF = countF * time_->deltaTime;
 			auto toEmit = static_cast<uint32>(toEmitF);
 
-			if (toEmit > std::numeric_limits<float>::min())
+			if (toEmitF > std::numeric_limits<float>::min())
 			{
-				rest += fmod(toEmitF, toEmit);
+				rest += static_cast<float>(fmod(toEmitF, 1.f));
 				if (rest > 1.f)
 				{
 					++toEmit;

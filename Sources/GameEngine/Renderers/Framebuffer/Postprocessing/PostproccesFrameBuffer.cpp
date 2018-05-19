@@ -2,7 +2,7 @@
 
 namespace GameEngine
 {
-PostprocessFrameBuffer::PostprocessFrameBuffer(GameEngine::IGraphicsApiPtr api)
+PostprocessFrameBuffer::PostprocessFrameBuffer(IGraphicsApiPtr api)
 	: CFrameBuffer(api)
 {
 }

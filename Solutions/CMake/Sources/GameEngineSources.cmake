@@ -43,7 +43,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiText.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
-../../Sources/GameEngine/Renderers/LightPassRenderer.cpp
+../../Sources/GameEngine/Renderers/IRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Entity/Shaders/EntityShader.cpp
@@ -68,12 +68,14 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Water/Shaders/WaterShader.cpp
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/Shaders/DefferedShader.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderer.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersFactory.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersManager.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/Shaders/SSAOShader.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.cpp
 ../../Sources/GameEngine/Renderers/Projection.cpp
-../../Sources/GameEngine/Renderers/Renderer.cpp
 ../../Sources/GameEngine/Renderers/RenderersManager.cpp
 ../../Sources/GameEngine/Renderers/SimpleRenderer.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
@@ -112,7 +114,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Scene/SceneLoader.cpp
 ../../Sources/GameEngine/Scene/SceneManager.cpp
 ../../Sources/GameEngine/Scene/SceneWrapper.cpp
-../../Sources/GameEngine/Shaders/Deffered/LightPassShader.cpp
 ../../Sources/GameEngine/Shaders/Loading/LoadingShader.cpp
 ../../Sources/GameEngine/Shaders/ShaderProgram.cpp
 ../../Sources/GameEngine/Time/DayNightCycle.cpp

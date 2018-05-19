@@ -7,12 +7,12 @@
 
 class COpenGLObject;
 class CResourceManager;
-class CLoadingScreenRenderer;
 
 namespace GameEngine
 {
 	class Scene;
 	class CDisplayManager;
+	class LoadingScreenRenderer;
 
 	class SceneLoader
 	{
@@ -38,7 +38,7 @@ namespace GameEngine
 		IGraphicsApiPtr graphicsApi_;
 		int objectCount;
 		int objectLoaded;
-		std::unique_ptr<CLoadingScreenRenderer> loadingScreenRenderer;
+		std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
 
 		bool isLoading;
 		std::mutex loadingMutex;

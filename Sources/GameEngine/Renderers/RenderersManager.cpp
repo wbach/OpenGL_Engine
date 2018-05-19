@@ -67,8 +67,8 @@ namespace GameEngine
 			InitMainRenderer();
 			InitGuiRenderer();
 
-			for (auto& renderer : renderers_)
-				renderer->Init();
+			for (auto& r : renderers_)
+				r->Init();
 		}
 		void RenderersManager::InitProjection()
 		{
@@ -82,20 +82,27 @@ namespace GameEngine
 
 			auto rendererType = EngineConf.rendererType;
 
+			auto registerFunc = std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
+
 			if (rendererType == SEngineConfiguration::RendererType::FULL_RENDERER)
-				renderers_.emplace_back(new FullRenderer(graphicsApi_, &projection_));
+				renderers_.emplace_back(new FullRenderer(graphicsApi_, &projection_, registerFunc));
 			else
-				renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_));
+				renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_, registerFunc));
 
 		}
 		void RenderersManager::InitGuiRenderer()
 		{
-			guiContext_.renderer = new CGUIRenderer();
-			guiContext_.texts = new CGuiText(graphicsApi_, "GUI/consola.ttf");
-			guiContext_.texures = new Renderer::Gui::CGuiTexture(graphicsApi_);
+			auto registerFunc = std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
+			guiContext_.renderer = new GUIRenderer(registerFunc);
+			guiContext_.texts = new GameEngine::GuiText(graphicsApi_, "GUI/consola.ttf");
+			guiContext_.texures = new Renderer::Gui::GuiTexture(graphicsApi_);
 			guiContext_.renderer->AddElement(guiContext_.texures);
 			guiContext_.renderer->AddElement(guiContext_.texts);
 			renderers_.emplace_back(guiContext_.renderer);
+		}
+		void RenderersManager::RegisterRenderFunction(RendererFunctionType type, RendererFunction function)
+		{
+				rendererFunctions_[type].push_back(function);
 		}
 		void RenderersManager::RenderScene(Scene* scene)
 		{
@@ -108,8 +115,11 @@ namespace GameEngine
 
 			RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
 
-			for (auto& renderer : renderers_)
-				Render(scene, renderer.get());
+			Render(RendererFunctionType::PRECONFIGURE, scene);
+			Render(RendererFunctionType::CONFIGURE, scene);
+			Render(RendererFunctionType::UPDATE, scene);
+			Render(RendererFunctionType::POSTUPDATE, scene);
+			Render(RendererFunctionType::ONENDFRAME, scene);
 		}
 		void RenderersManager::ReloadShaders()
 		{
@@ -173,11 +183,10 @@ namespace GameEngine
 		{
 			return guiContext_.texures->guiTextures_[label];
 		}
-		void RenderersManager::Render(Scene* scene, CRenderer* renderer)
+		void RenderersManager::Render(RendererFunctionType type, Scene* scene)
 		{
-			renderer->PrepareFrame(scene);
-			renderer->Render(scene);
-			renderer->EndFrame(scene);
+			for (auto f : rendererFunctions_[type])
+				f(scene);
 		}
 
 	} // Renderer

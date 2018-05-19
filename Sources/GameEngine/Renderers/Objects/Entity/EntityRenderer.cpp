@@ -3,175 +3,163 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "Logger/Log.h"
 
-//Get Entity by reference
-static SubscribersMap sEmptyEntityList;
-
-CEntityRenderer::CEntityRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer)
-	: CRenderer(framebuffer)
-	, graphicsApi_(graphicsApi)
-	, shader(graphicsApi)
-	, projectionMatrix(projection_matrix)
-	, clipPlane(vec4(0, 1, 0, 100000))
+namespace GameEngine
 {
-
-}
-
-void CEntityRenderer::Init()
-{
-	Log("Start initialize entity renderer...");
-	shader.Init();
-	shader.Start();
-	assert(projectionMatrix != nullptr);
-	shader.LoadViewDistance(500.f);
-	shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
-	shader.Stop();
-
-	Log("CEntityRenderer initialized.");
-}
-
-void CEntityRenderer::PrepareFrame(GameEngine::Scene * scene)
-{
-	shader.Start();
-	shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-	shader.LoadClipPlane(clipPlane);
-	shader.LoadShadowValues(0.f, 10.f, 10.f);
-	shader.LoadUseFakeLight(0.f);
-	shader.LoadUseBonesTransformation(0.f);
-	rendererObjectPerFrame = 0;
-	rendererVertixesPerFrame = 0;
-	shader.Stop();
-}
-
-void CEntityRenderer::Render(GameEngine::Scene * scene)
-{
-	if (target == nullptr)
-		return;
-	
-	target->BindToDraw();
-	shader.Start();
-	RenderEntities();
-	shader.Stop();
-}
-
-void CEntityRenderer::EndFrame(GameEngine::Scene* scene)
-{
-	shader.Stop();
-}
-
-void CEntityRenderer::Subscribe(CGameObject* gameObject)
-{
-	auto rendererComponent = gameObject->GetComponent<GameEngine::Components::RendererComponent>();
-
-	if (rendererComponent == nullptr)
-		return;
-
-	subscribes_[gameObject->GetId()] = { rendererComponent->textureIndex , gameObject, &rendererComponent->GetModelWrapper() };
-}
-
-void CEntityRenderer::UnSubscribe(CGameObject * gameObject)
-{
-	subscribes_.erase(gameObject->GetId());
-}
-
-void CEntityRenderer::UnSubscribeAll()
-{
-	subscribes_.clear();
-}
-
-void CEntityRenderer::ReloadShaders()
-{
-	shader.Reload();
-	shader.Init();
-	shader.Start();
-	assert(projectionMatrix != nullptr);
-	shader.LoadViewDistance(500.f);
-	shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
-	shader.Stop();
-}
-
-void CEntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
-{
-	const auto& meshes = model->GetMeshes();
-	for (const auto& mesh : meshes)
-		RenderMesh(mesh, transform_matrix);
-}
-
-void CEntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix) const
-{
-	BindMaterial(mesh.GetMaterial());
-	auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
-	shader.LoadTransformMatrix(transform_matrix_);
-	shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
-	graphicsApi_->RenderMesh(mesh.GetObjectId());
-	UnBindMaterial(mesh.GetMaterial());
-}
-
-void CEntityRenderer::RenderEntities()
-{
-	for (auto& sub : subscribes_)
+	EntityRenderer::EntityRenderer(RendererContext& context)
+		: context_(context)
+		, shader(context.graphicsApi_)
+		, clipPlane(vec4(0, 1, 0, 100000))
 	{
-		if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
-			Log("[Error] Null subsciber in EnityRenderer.");
-
-		auto model = sub.second.model->Get(GameEngine::LevelOfDetail::L1);
-		
-		if (model == nullptr)
-			continue;
-
-		uint32 x = 0;
-		for (auto& t : model->GetBoneTransforms())
-			shader.LoadBoneTransform(*t, x++);
-
-		currentTextureIndex_ = sub.second.textureIndex;
-
-		RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
-	}
-}
-
-void CEntityRenderer::BindMaterial(const SMaterial & material) const
-{
-	if (material.isTransparency)
-		graphicsApi_->DisableCulling();
-
-	shader.LoadMeshMaterial(material);
-
-	if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
-	{
-		shader.LoadUseTexture(1.f);
-		graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
-		shader.LoadNumberOfRows(material.diffuseTexture->numberOfRows);
-		shader.LoadTextureOffset(material.diffuseTexture->GetTextureOffset(currentTextureIndex_));
-	}
-	else
-	{
-		shader.LoadUseTexture(0.f);
-		shader.LoadNumberOfRows(1);
-		shader.LoadTextureOffset(vec2(0));
+		__RegisterRenderFunction__(RendererFunctionType::UPDATE, EntityRenderer::Render);
 	}
 
-	if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
+	void EntityRenderer::Init()
 	{
-		graphicsApi_->ActiveTexture(1, material.ambientTexture->GetId());
+		Log("Start initialize entity renderer...");
+		InitShader();
+		Log("EntityRenderer initialized.");
 	}
 
-	if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
+	void EntityRenderer::InitShader()
 	{
-		graphicsApi_->ActiveTexture(2, material.normalTexture->GetId());
-		shader.LoadUseNormalMap(1.f);
+		shader.Init();
+		shader.Start();
+		shader.LoadViewDistance(500.f);
+		shader.LoadClipPlane(clipPlane);
+		shader.LoadShadowValues(0.f, 10.f, 10.f);
+		shader.LoadUseFakeLight(0.f);
+		shader.LoadProjectionMatrix(context_.projection_->GetProjectionMatrix());
+		shader.Stop();
 	}
-	else
-		shader.LoadUseNormalMap(0.f);
 
-	if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
-		graphicsApi_->ActiveTexture(3, material.specularTexture->GetId());
-}
+	void EntityRenderer::PrepareFrame(Scene* scene)
+	{
+		shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+		shader.LoadUseBonesTransformation(0.f);
+	}
 
-void CEntityRenderer::UnBindMaterial(const SMaterial & material) const
-{
-	if (material.isTransparency)
-		graphicsApi_->EnableCulling();
-}
+	void EntityRenderer::Render(Scene * scene)
+	{
+		context_.defferedFrameBuffer_->BindToDraw();
+		shader.Start();
+		PrepareFrame(scene);
+		RenderEntities();
+		shader.Stop();
+		context_.defferedFrameBuffer_->UnBind();
+	}
+
+	void EntityRenderer::Subscribe(CGameObject* gameObject)
+	{
+		auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
+
+		if (rendererComponent == nullptr)
+			return;
+
+		subscribes_[gameObject->GetId()] = { rendererComponent->textureIndex , gameObject, &rendererComponent->GetModelWrapper() };
+	}
+
+	void EntityRenderer::UnSubscribe(CGameObject * gameObject)
+	{
+		subscribes_.erase(gameObject->GetId());
+	}
+
+	void EntityRenderer::UnSubscribeAll()
+	{
+		subscribes_.clear();
+	}
+
+	void EntityRenderer::ReloadShaders()
+	{
+		shader.Stop();
+		shader.Reload();
+		InitShader();
+	}
+
+	void EntityRenderer::RenderModel(CModel * model, const mat4 & transform_matrix) const
+	{
+		const auto& meshes = model->GetMeshes();
+		for (const auto& mesh : meshes)
+			RenderMesh(mesh, transform_matrix);
+	}
+
+	void EntityRenderer::RenderMesh(const CMesh &mesh, const mat4 &transform_matrix) const
+	{
+		BindMaterial(mesh.GetMaterial());
+		auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
+		shader.LoadTransformMatrix(transform_matrix_);
+		shader.LoadUseBonesTransformation(static_cast<float>(mesh.UseArmature()));
+		context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
+		UnBindMaterial(mesh.GetMaterial());
+	}
+
+	void EntityRenderer::RenderEntities()
+	{
+		for (auto& sub : subscribes_)
+		{
+			if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
+				Log("[Error] Null subsciber in EnityRenderer.");
+
+			auto model = sub.second.model->Get(LevelOfDetail::L1);
+
+			if (model == nullptr)
+				continue;
+
+			uint32 x = 0;
+			for (auto& t : model->GetBoneTransforms())
+				shader.LoadBoneTransform(*t, x++);
+
+			currentTextureIndex_ = sub.second.textureIndex;
+
+			RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
+		}
+	}
+
+	void EntityRenderer::BindMaterial(const SMaterial & material) const
+	{
+		if (material.isTransparency)
+			context_.graphicsApi_->DisableCulling();
+
+		shader.LoadMeshMaterial(material);
+
+		if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
+		{
+			shader.LoadUseTexture(1.f);
+			context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
+			shader.LoadNumberOfRows(material.diffuseTexture->numberOfRows);
+			shader.LoadTextureOffset(material.diffuseTexture->GetTextureOffset(currentTextureIndex_));
+		}
+		else
+		{
+			shader.LoadUseTexture(0.f);
+			shader.LoadNumberOfRows(1);
+			shader.LoadTextureOffset(vec2(0));
+		}
+
+		if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
+		{
+			context_.graphicsApi_->ActiveTexture(1, material.ambientTexture->GetId());
+		}
+
+		if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
+		{
+			context_.graphicsApi_->ActiveTexture(2, material.normalTexture->GetId());
+			shader.LoadUseNormalMap(1.f);
+		}
+		else
+			shader.LoadUseNormalMap(0.f);
+
+		if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
+			context_.graphicsApi_->ActiveTexture(3, material.specularTexture->GetId());
+	}
+
+	void EntityRenderer::UnBindMaterial(const SMaterial & material) const
+	{
+		if (material.isTransparency)
+			context_.graphicsApi_->EnableCulling();
+	}
+} // GameEngine

@@ -1,7 +1,7 @@
 #pragma once
 #include "Shaders/TreeShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include "GameEngine/Renderers/Renderer.h"
+#include "GameEngine/Renderers/IRenderer.h"
 
 class CProjection;
 struct SMaterial;
@@ -11,37 +11,36 @@ class CMesh;
 
 namespace GameEngine
 {
+	struct RendererContext;
 	class ModelWrapper;
 
-	struct Subscriber
+	struct TreeSubscriber
 	{
 		mat4 transform;
 		std::vector<vec3>* positions;
-		GameEngine::ModelWrapper* top;
-		GameEngine::ModelWrapper* bottom;
+		ModelWrapper* top;
+		ModelWrapper* bottom;
 		uint32 positionTexture;
 		vec2ui range;
 		vec2 spotCenterPosition;
 		bool textureInGpu = false;
 	};
 
-	class TreeRenderer : public CRenderer
+	class TreeRenderer : public IRenderer
 	{
-	typedef std::unordered_map<uint32_t, Subscriber> SubscribersMap;
+	typedef std::unordered_map<uint32_t, TreeSubscriber> SubscribersMap;
 	public:
-		TreeRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer);
+		TreeRenderer(RendererContext& context);
 		// Loading lights itp to shader
 		virtual void Init() override;
-		virtual void PrepareFrame(GameEngine::Scene* scene) override;
-		virtual void Render(GameEngine::Scene* scene) override;
-		virtual void EndFrame(GameEngine::Scene* scene) override;
 		virtual void Subscribe(CGameObject* gameObject) override;
 		virtual void UnSubscribe(CGameObject* gameObject) override;
 		virtual void UnSubscribeAll() override;
 		virtual void ReloadShaders() override;
+		void Render(Scene* scene);
 
 	private:
-		void PreparePositionMap(Subscriber& sub);
+		void PreparePositionMap(TreeSubscriber& sub);
 		void RenderModel(CModel* model, const mat4&, uint32) const;
 		void RenderMesh(const CMesh& mesh, const mat4&, uint32) const;
 		void RenderTrees();
@@ -49,13 +48,12 @@ namespace GameEngine
 		void UnBindMaterial(const SMaterial& material) const;
 
 	private:
-		GameEngine::IGraphicsApiPtr graphicsApi_;
+		RendererContext& context_;
 		TreeShader shader;
-		CProjection* projectionMatrix;
 
 		vec4 clipPlane;
 
 		SubscribersMap subscribes_;
-		std::list<Subscriber*> subscribersToInit_;
+		std::list<TreeSubscriber*> subscribersToInit_;
 	};
 } // GameEngine

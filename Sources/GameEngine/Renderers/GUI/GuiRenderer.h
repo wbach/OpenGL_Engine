@@ -1,23 +1,28 @@
 #pragma once
 #include "GuiElement.h"
-#include "../Renderer.h"
+#include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Renderers/RendererFunctionType.h"
 #include <memory>
 #include <vector>
 
-class CGUIRenderer : public CRenderer
+namespace GameEngine
 {
-public:
-	CGUIRenderer() {}
-	virtual ~CGUIRenderer() {}
-	virtual void Init() override;
-	virtual void PrepareFrame(GameEngine::Scene* scene) override;
-	virtual void Render(GameEngine::Scene* scene) override;
-	virtual void EndFrame(GameEngine::Scene* scene) override;
-	virtual void Subscribe(CGameObject* gameObject) {}
-	virtual void UnSubscribeAll() override;
-	// create unique_ptr from ptr
-	void AddElement(CGuiElement* element);
+	class GUIRenderer : public IRenderer
+	{
+	public:
+		GUIRenderer(std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
+		virtual ~GUIRenderer() {}
+		virtual void Init() override;
+		virtual void Subscribe(CGameObject* gameObject) {}
+		virtual void UnSubscribeAll() override;
+		virtual void ReloadShaders() override;
+		// create unique_ptr from ptr
+		void AddElement(GuiElement* element);
 
-private: 
-    std::vector<CGuiElementPtr> guiElements;
-};
+	private:
+		void Render(Scene* scene);
+
+	private:
+		std::vector<GuiElementPtr> guiElements;
+	};
+} // GameEngine

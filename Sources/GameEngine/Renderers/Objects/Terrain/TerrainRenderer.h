@@ -1,8 +1,7 @@
 #pragma once
-#include "GameEngine/Renderers/Renderer.h"
 #include "Shaders/TerrainShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include <list>
+#include "GameEngine/Renderers/IRenderer.h"
 
 class CModel;
 class CTexture;
@@ -15,18 +14,16 @@ namespace GameEngine
 {
 	struct RendererContext;
 
-	class CTerrainRenderer : public CRenderer
+	class TerrainRenderer : public IRenderer
 	{
 	public:
-		CTerrainRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer, RendererContext* shadowRendererContext);
+		TerrainRenderer(RendererContext& context);
 		// Loading lights itp to shader
 		virtual void Init() override;
-		virtual void PrepareFrame(GameEngine::Scene* scene) override;
-		virtual void Render(GameEngine::Scene* scene) override;
-		virtual void EndFrame(GameEngine::Scene* scene) override;
 		virtual void Subscribe(CGameObject* gameObject) override;
 		virtual void UnSubscribe(CGameObject* gameObject) override;
 		virtual void ReloadShaders() override;
+		void Render(Scene* scene);
 
 	private:
 		void BindTexture(CTexture* texture, int id) const;
@@ -36,11 +33,8 @@ namespace GameEngine
 		void InitShader();
 
 	private:
-		IGraphicsApiPtr graphicsApi_;
+		RendererContext& context_;
 		TerrainShader  shader;
-		CProjection*	projectionMatrix;
-		RendererContext* rendererContext_;
-
 		vec4	clipPlane;
 
 		TerrainPtrs subscribes;

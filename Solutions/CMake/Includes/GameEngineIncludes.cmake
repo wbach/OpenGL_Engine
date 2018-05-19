@@ -77,7 +77,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
-../../Sources/GameEngine/Renderers/LightPassRenderer.h
+../../Sources/GameEngine/Renderers/IRenderer.h
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/Shaders/EntityShader.h
@@ -101,14 +101,16 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Water/Shaders/WaterShader.h
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.h
+../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.h
+../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/Shaders/DefferedShader.h
 ../../Sources/GameEngine/Renderers/Postproccesing/IPostprocessingRenderersFactory.h
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h
+../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersFactory.h
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersManager.h
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRendererTypes.h
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/Shaders/SSAOShader.h
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.h
 ../../Sources/GameEngine/Renderers/Projection.h
-../../Sources/GameEngine/Renderers/Renderer.h
 ../../Sources/GameEngine/Renderers/RendererContext.h
 ../../Sources/GameEngine/Renderers/RendererFunctionType.h
 ../../Sources/GameEngine/Renderers/RenderersManager.h
@@ -197,7 +199,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Scene/SceneLoader.h
 ../../Sources/GameEngine/Scene/SceneManager.h
 ../../Sources/GameEngine/Scene/SceneWrapper.h
-../../Sources/GameEngine/Shaders/Deffered/LightPassShader.h
 ../../Sources/GameEngine/Shaders/Loading/LoadingShader.h
 ../../Sources/GameEngine/Shaders/ShaderProgram.h
 ../../Sources/GameEngine/Time/DayNightCycle.h

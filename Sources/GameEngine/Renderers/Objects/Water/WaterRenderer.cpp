@@ -2,23 +2,15 @@
 
 namespace GameEngine
 {
-	WaterRenderer::WaterRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection * projection_matrix, CFrameBuffer* framebuffer)
-		: CRenderer(framebuffer)
-		, graphicsApi_(graphicsApi)
-		, shader(graphicsApi)
-		, projectionMatrix(projection_matrix)
+	WaterRenderer::WaterRenderer(RendererContext& context)
+		: context_(context)
+		, shader(context.graphicsApi_)
 	{
 	}
 	void WaterRenderer::Init()
 	{
 	}
-	void WaterRenderer::PrepareFrame(GameEngine::Scene * scene)
-	{
-	}
-	void WaterRenderer::Render(GameEngine::Scene * scene)
-	{
-	}
-	void WaterRenderer::EndFrame(GameEngine::Scene * scene)
+	void WaterRenderer::Render(Scene * scene)
 	{
 	}
 	void WaterRenderer::Subscribe(CGameObject * gameObject)

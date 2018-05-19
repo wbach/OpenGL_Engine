@@ -6,18 +6,18 @@
 #define LIGHT_TYPE_SPOT			2
 struct SLight
 {
-    int	  m_Type;
-	vec3  m_Position;
-	vec3  m_Colour;
-	vec3  m_Attenuation;
-	float m_CutOff;
+    int	  type_;
+	vec3  position_;
+	vec3  colour_;
+	vec3  attenuation_;
+	float cutOff_;
 };
 struct SMaterial
 {
-	vec3 m_Ambient;
-	vec3 m_Diffuse;
-	vec3 m_Specular;
-	float m_ShineDamper;
+	vec3 ambient_;
+	vec3 diffuse_;
+	vec3 specular_;
+	float shineDamper_;
 };
 uniform sampler2D PositionMap;
 uniform sampler2D ColorMap;
@@ -58,17 +58,17 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
 		diffuse_color = light_color * diffuse_factor;
 	}
 	//ambient color
-	diffuse_color = diffuse_color * material.m_Diffuse;
-	ambient_color =  material.m_Ambient;
-	if (material.m_ShineDamper > .0f)
+	diffuse_color = diffuse_color * material.diffuse_;
+	ambient_color =  material.ambient_;
+	if (material.shineDamper_ > .0f)
 	{
 		vec3	vertex_to_camera	= normalize(CameraPosition - world_pos);
 		vec3	light_reflect		= normalize(reflect(light_direction, unit_normal));
 		float	specular_factor		= dot(vertex_to_camera, light_reflect);
-				specular_factor		= pow(specular_factor, material.m_ShineDamper);
+				specular_factor		= pow(specular_factor, material.shineDamper_);
 		if (specular_factor > .0f && specular_factor < 90.f*M_PI/180.f) 
 		{
-            specular_color = light_color * material.m_Specular * specular_factor;
+            specular_color = light_color * material.specular_ * specular_factor;
         }
     }
 
@@ -78,25 +78,25 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
 
 vec4 CalcDirectionalLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
 {
-	vec3 to_light_vector = light.m_Position - world_pos;
+	vec3 to_light_vector = light.position_ - world_pos;
 	vec3 light_direction = normalize(to_light_vector);
 
-	return CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.m_Colour);
+	return CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.colour_);
 }
 
 vec4 CalculatePointLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
 {
 	
-	vec3 to_light_vector    = light.m_Position - world_pos;
+	vec3 to_light_vector    = light.position_ - world_pos;
 	float distance_to_light = length(to_light_vector);
 	vec3 light_direction	= normalize(to_light_vector);
 
-	vec4 color = CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.m_Colour);
+	vec4 color = CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.colour_);
 
 
-	float att_factor =	light.m_Attenuation.x + 
-						light.m_Attenuation.y * distance_to_light + 
-						light.m_Attenuation.z * distance_to_light * distance_to_light;
+	float att_factor =	light.attenuation_.x + 
+						light.attenuation_.y * distance_to_light + 
+						light.attenuation_.z * distance_to_light * distance_to_light;
 
 	return color / att_factor; 
 	//return vec4(light_direction, 1.f);
@@ -104,16 +104,16 @@ vec4 CalculatePointLight(SMaterial material, SLight light, vec3 world_pos, vec3 
 // not end 
 vec4 CalcSpotLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
 { 
-	vec3 to_light_vector = light.m_Position - world_pos;
+	vec3 to_light_vector = light.position_ - world_pos;
 	vec3 light_direction = normalize(to_light_vector); 
 
   //  vec3 light_to_pixel = normalize(WorldPos0 - l.Base.Position);
     float spot_factor = dot(light_direction, light_direction);
 
-    if (spot_factor > light.m_CutOff) 
+    if (spot_factor > light.cutOff_) 
 	{
         vec4 color = CalculatePointLight(material, light, world_pos, unit_normal);
-        return color * (1.f - (1.f - spot_factor) * 1.f/(1.f - light.m_CutOff));
+        return color * (1.f - (1.f - spot_factor) * 1.f/(1.f - light.cutOff_));
     }
     else 
 	{
@@ -127,7 +127,7 @@ vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
 
 	for (int i = 0; i < NumberOfLights; i++)
 	{	
-		switch(Lights[i].m_Type)
+		switch(Lights[i].type_)
 		{
 			case LIGHT_TYPE_DIRECTIONAL:
 				total_color += CalcDirectionalLight(material, Lights[i], world_pos, unit_normal);
@@ -167,7 +167,7 @@ void main()
 	vec4 specular	= texture(SpecularMap, tex_coord);
 	vec3 world_pos	= texture(PositionMap, tex_coord).xyz;
 	vec3 color		= texture(ColorMap, tex_coord).xyz;
-	vec3 normal		= normal4.xyz;
+	vec3 normal		= normalize(normal4.xyz);
 
 	float visibility;
 	float distance = z ;
@@ -175,10 +175,10 @@ void main()
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
 	SMaterial material;
-	material.m_Ambient = color * 0.3f;
-	material.m_Diffuse = color;
-	material.m_Specular = specular.xyz;
-	material.m_ShineDamper = specular.a;
+	material.ambient_ = color * 0.3f;
+	material.diffuse_ = color;
+	material.specular_ = specular.xyz;
+	material.shineDamper_ = specular.a;
 	
 	vec3 final_color;
 
@@ -195,7 +195,7 @@ void main()
 	}
 	else
 	{
-		final_color = material.m_Diffuse;//* SkyColour; 
+		final_color = material.diffuse_;//* SkyColour; 
 	}
 	//vec3 mapped = vec3(1.0) - exp(-final_color * exposure);
 	final_color = pow(final_color, vec3(1.f / gamma));

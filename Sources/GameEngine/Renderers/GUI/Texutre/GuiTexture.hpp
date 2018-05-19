@@ -13,14 +13,15 @@ namespace GameEngine
 		{
 			typedef std::unordered_map<std::string, GuiTextureElement> GuiTextures;
 
-			class CGuiTexture : public CGuiElement
+			class GuiTexture : public GuiElement
 			{
 			public:
-				CGuiTexture(IGraphicsApiPtr graphicsApi);
-				virtual ~CGuiTexture() override;
+				GuiTexture(IGraphicsApiPtr graphicsApi);
+				virtual ~GuiTexture() override;
 				virtual void Init() override;
 				virtual void Render() override;
 				virtual void UnSubscribeAll() override;
+				virtual void ReloadShaders() override;
 				GuiTextures guiTextures_;
 
 			private:

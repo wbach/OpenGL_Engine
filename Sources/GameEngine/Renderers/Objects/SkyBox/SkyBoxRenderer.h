@@ -1,7 +1,7 @@
 #pragma once
 #include "Shaders/SkyBoxShader.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include "GameEngine/Renderers/Renderer.h"
+#include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
 
 class CModel;
@@ -13,39 +13,39 @@ struct SMaterial;
 namespace GameEngine
 {
 	struct RendererContext;
-}
 
-class CSkyBoxRenderer : public CRenderer
-{
-public:
-    CSkyBoxRenderer(GameEngine::RendererContext& context);
-    virtual void Init() override;
-    virtual void PrepareFrame(GameEngine::Scene* scene) override;
-    virtual void Render(GameEngine::Scene* scene) override;
-    virtual void EndFrame(GameEngine::Scene* scene) override;
-    virtual void Subscribe(CGameObject* gameObject) override;
+	class SkyBoxRenderer : public IRenderer
+	{
+	public:
+		SkyBoxRenderer(RendererContext& context);
+		virtual void Init() override;
+		void Render(Scene* scene);
+		virtual void Subscribe(CGameObject* gameObject) override;
+		virtual void ReloadShaders() override;
 
-private:
-    void InitMembers(GameEngine::Scene* scene);
-    void BindTextures() const;
-    void RenderSkyBoxMesh(const CMesh& mesh) const;
-    void RenderSkyBoxModel();
-    bool CheckModelIsReadyToRender();
-    void PrepareShaderBeforeFrameRender(GameEngine::Scene* scene);
-    void BindCubeMapTexture(CTexture* texture, int id) const;
-    bool SetTarget();
-    void LoadModel(CResourceManager& resource_manager);
-    void CreateDayTextures(CResourceManager& resource_manager);
-    void CreateNightTextures(CResourceManager& resource_manager);
-    void PrepareToRendering(GameEngine::Scene* scene);
-    void EndRendering();
+	private:
+		void InitMembers(Scene* scene);
+		void BindTextures() const;
+		void RenderSkyBoxMesh(const CMesh& mesh) const;
+		void RenderSkyBoxModel();
+		bool CheckModelIsReadyToRender();
+		void PrepareShaderBeforeFrameRender(Scene* scene);
+		void BindCubeMapTexture(CTexture* texture, int id) const;
+		void LoadModel(CResourceManager& resource_manager);
+		void CreateDayTextures(CResourceManager& resource_manager);
+		void CreateNightTextures(CResourceManager& resource_manager);
+		void PrepareToRendering(Scene* scene);
+		void EndRendering();
+		void InitShader();
 
-private:
-	GameEngine::RendererContext& context_;
-    CSkyBoxShader shader;
-    CModel* model;
-    CTexture* dayTexture;
-    CTexture* nightTexture;
-	CResourceManager resourceManager; // TO DO: remove when creat texutres will be outsiede
-    vec4 clipPlane;
-};
+	private:
+		RendererContext& context_;
+		CSkyBoxShader shader;
+		CModel* model;
+		CTexture* dayTexture;
+		CTexture* nightTexture;
+		CResourceManager resourceManager; // TO DO: remove when creat texutres will be outsiede
+		vec4 clipPlane;
+	};
+} // GameEngine
+

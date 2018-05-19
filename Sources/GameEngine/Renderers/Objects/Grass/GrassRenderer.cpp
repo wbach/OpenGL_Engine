@@ -6,107 +6,98 @@
 #include "GameEngine/Objects/RenderAble/Flora/Grass/Grass.h"
 #include "Logger/Log.h"
 
-CGrassRenderer::CGrassRenderer(GameEngine::IGraphicsApiPtr graphicsApi, CProjection* projection_matrix, CFrameBuffer* framebuffer)
-	: CRenderer(framebuffer)
-	, graphicsApi_(graphicsApi)
-	, shader(graphicsApi)
-	, projection(projection_matrix)
+namespace GameEngine
 {
-}
+	GrassRenderer::GrassRenderer(RendererContext& context)
+		: context_(context)
+		, shader(context.graphicsApi_)
+	{
+		__RegisterRenderFunction__(RendererFunctionType::UPDATE, GrassRenderer::Render);
+	}
 
-void CGrassRenderer::Init()
-{
-	InitShader();
+	void GrassRenderer::Init()
+	{
+		InitShader();
 
-    viewDistance = EngineConf.floraViewDistance;
-    Log("Grass renderer initialized.");
-}
+		viewDistance = EngineConf.floraViewDistance;
+		Log("Grass renderer initialized.");
+	}
 
-void CGrassRenderer::PrepareFrame(GameEngine::Scene* scene)
-{
-}
+	void GrassRenderer::Render(Scene* scene)
+	{
+		PrepareRender(scene);
+		RenderSubscribes();
+		EndRender();
+	}
 
-void CGrassRenderer::Render(GameEngine::Scene* scene)
-{
-    if (target == nullptr)
-        return;
+	void GrassRenderer::Subscribe(CGameObject* gameObject)
+	{
+		auto grass = dynamic_cast<SGrass*>(gameObject);
+		if (grass != nullptr)
+			subscribes.push_back(grass);
+	}
 
-    PrepareRender(scene);
-    RenderSubscribes();
-    EndRender();
-}
+	void GrassRenderer::ReloadShaders()
+	{
+		shader.Reload();
+		InitShader();
+	}
 
-void CGrassRenderer::EndFrame(GameEngine::Scene* scene)
-{
-}
+	void GrassRenderer::InitShader()
+	{
+		shader.Init();
+		shader.Start();
+		shader.LoadProjectionMatrix(context_.projection_->GetProjectionMatrix());
+		shader.LoadShadowValues(0.f, 0.f, 512.f);
+		shader.LoadViewDistance(viewDistance);
+		shader.Stop();
+	}
 
-void CGrassRenderer::Subscribe(CGameObject* gameObject)
-{
-    auto grass = dynamic_cast<SGrass*>(gameObject);
-    if (grass != nullptr)
-        subscribes.push_back(grass);
-}
+	void GrassRenderer::PrepareRender(Scene* scene)
+	{
+		context_.defferedFrameBuffer_->BindToDraw();
+		PrepareShader(scene);
+		context_.graphicsApi_->DisableCulling();
+	}
 
-void CGrassRenderer::ReloadShaders()
-{
-	shader.Reload();
-	InitShader();
-}
+	void GrassRenderer::EndRender() const
+	{
+		context_.graphicsApi_->EnableCulling();
+		shader.Stop();
+	}
 
-void CGrassRenderer::InitShader()
-{
-	shader.Init();
-	shader.Start();
-	shader.LoadProjectionMatrix(projection->GetProjectionMatrix());
-	shader.LoadShadowValues(0.f, 0.f, 512.f);
-	shader.LoadViewDistance(viewDistance);
-	shader.Stop();
-}
+	void GrassRenderer::RenderSubscribes()
+	{
+		for (const auto& s : subscribes)
+		{
+			if (s->model == nullptr)
+				continue;
 
-void CGrassRenderer::PrepareRender(GameEngine::Scene* scene)
-{
-    target->BindToDraw();
-    PrepareShader(scene);
-	graphicsApi_->DisableCulling();
-}
+			RenderModel(s->model);
+		}
+	}
 
-void CGrassRenderer::EndRender() const
-{
-	graphicsApi_->EnableCulling();
-    shader.Stop();
-}
+	void GrassRenderer::RenderModel(CModel* model)
+	{
+		for (const auto& mesh : model->GetMeshes())
+		{
+			if (mesh.GetMaterial().diffuseTexture == nullptr)
+				continue;
 
-void CGrassRenderer::RenderSubscribes()
-{
-    for (const auto& s : subscribes)
-    {
-        if (s->model == nullptr)
-            continue;
+			RenderMesh(mesh);
+		}
+	}
 
-        RenderModel(s->model);
-    }
-}
+	void GrassRenderer::RenderMesh(const CMesh& mesh)
+	{
+		context_.graphicsApi_->ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
+		context_.graphicsApi_->RenderPoints(mesh.GetObjectId());
+	}
 
-void CGrassRenderer::RenderModel(CModel* model)
-{
-    for (const auto& mesh : model->GetMeshes())
-    {
-        if (mesh.GetMaterial().diffuseTexture == nullptr)
-            continue;
-
-        RenderMesh(mesh);
-    }
-}
-
-void CGrassRenderer::RenderMesh(const CMesh& mesh)
-{
-	graphicsApi_->ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
-	graphicsApi_->RenderPoints(mesh.GetObjectId());
-}
-
-void CGrassRenderer::PrepareShader(GameEngine::Scene* scene)
-{
-    shader.Start();
-    shader.LoadGlobalTime(scene->GetGlobalTime());
-    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
-}
+	void GrassRenderer::PrepareShader(Scene* scene)
+	{
+		shader.Start();
+		shader.LoadGlobalTime(scene->GetGlobalTime());
+		shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+	}
+} // GameEngine

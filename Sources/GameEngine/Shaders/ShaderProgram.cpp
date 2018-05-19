@@ -102,6 +102,11 @@ void CShaderProgram::LoadValue(uint32 loacation, float value) const
 	graphicsApi_->LoadValueToShader(loacation, value);
 }
 
+void CShaderProgram::LoadValue(uint32 loacation, const vec2ui & value) const
+{
+	graphicsApi_->LoadValueToShader(loacation, vec2(value.x, value.y));
+}
+
 void CShaderProgram::LoadValue(uint32 loacation, int value) const
 {
 	graphicsApi_->LoadValueToShader(loacation, value);

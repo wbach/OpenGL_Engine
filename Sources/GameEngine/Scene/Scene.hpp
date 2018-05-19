@@ -59,9 +59,9 @@ namespace GameEngine
 		void SetCamera(std::shared_ptr<ICamera> camera);
 
 		// Lights
-		const CLight& GetDirectionalLight() const;
-		const std::vector<CLight>& GetLights() const;
-		inline const CDayNightCycle& GetDayNightCycle() const;
+		const Light& GetDirectionalLight() const;
+		const std::vector<Light>& GetLights() const;
+		inline const DayNightCycle& GetDayNightCycle() const;
 		inline float GetGlobalTime();
 
 		inline CResourceManager& GetResourceManager();
@@ -99,9 +99,9 @@ namespace GameEngine
 
 		// Minimum one light on scene only (night - decrease strength)
 		float gloabalTime = 0.f;
-		CLight directionalLight;
-		std::vector<CLight> lights;
-		CDayNightCycle dayNightCycle;
+		Light directionalLight;
+		std::vector<Light> lights;
+		DayNightCycle dayNightCycle;
 
 		std::shared_ptr<ICamera> camera;
 	//	std::mutex cameraMutex;
@@ -119,7 +119,7 @@ namespace GameEngine
 		return gameObjects;
 	}
 
-	inline const CDayNightCycle& Scene::GetDayNightCycle() const
+	inline const DayNightCycle& Scene::GetDayNightCycle() const
 	{
 		return dayNightCycle;
 	}
