@@ -52,6 +52,7 @@ namespace GameEngine
 	void DefferedShader::BindAttributes()
 	{
 		BindAttribute(0, "Position");
+		BindAttribute(1, "TexCoord");
 	}
 	void DefferedShader::ConnectTextureUnits() const
 	{

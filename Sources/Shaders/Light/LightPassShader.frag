@@ -38,6 +38,7 @@ const	float density = 0.0025;
 const	float gradient = 2.5;
 
 
+in vec2 textureCoords;
 out vec4 FragColor;
 
 
@@ -157,8 +158,8 @@ void main()
 {	
 	//FragColor = vec4(1.f, 0.f, 0.f, 1.f);return;
 
-	vec2 tex_coord	= CalcTexCoord();
-	//tex_coord.y*=-1;
+	vec2 tex_coord	= textureCoords; //CalcTexCoord();
+	tex_coord.y*=-1;
 	float z = ToZBuffer(DepthTexture, tex_coord) ;/// 1000;
 	
 	//FragColor = texture(ColorMap, tex_coord);	return;

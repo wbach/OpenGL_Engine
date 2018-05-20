@@ -1,4 +1,5 @@
 #include "PostprocessingRenderersManager.h"
+#include "PostprocessingRenderer.h"
 #include "PostprocessingRenderersFactory.h"
 #include "GameEngine/Renderers/Projection.h"
 
@@ -8,8 +9,10 @@ PostProcessingManager::PostProcessingManager(RendererContext& context)
 	: context_(context)
 	, postproccesFrameBuffer_(context.graphicsApi_)
 {
-	factory_ = std::make_unique<PostprocessingRenderersFactory>(context_);
-	postProcessingRenderers_.push_back(std::move(factory_->Create(PostprocessingRendererType::DEFFERED_LIGHT)));
+	factory_ = std::make_unique<PostprocessingRenderersFactory>(context_, postproccesFrameBuffer_);
+	
+	AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
+	AddEffect(PostprocessingRendererType::COLOR_FLIPER);
 }
 PostProcessingManager::~PostProcessingManager()
 {
@@ -34,6 +37,7 @@ void PostProcessingManager::Render(Scene* scene)
 		else
 		{
 			postproccesFrameBuffer_.BindToDraw();
+			
 		}
 		renderer->Render(scene);
 		++i;
@@ -43,5 +47,9 @@ void PostProcessingManager::ReloadShaders()
 {
 	for (auto& r : postProcessingRenderers_)
 		r->ReloadShaders();
+}
+void PostProcessingManager::AddEffect(PostprocessingRendererType type)
+{
+	postProcessingRenderers_.push_back(std::move(factory_->Create(type)));
 }
 } // GameEngine

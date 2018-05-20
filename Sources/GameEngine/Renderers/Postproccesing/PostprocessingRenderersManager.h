@@ -21,6 +21,9 @@ namespace GameEngine
 		void Init();
 		void Render(Scene*);
 		void ReloadShaders();
+	
+	private:
+		void AddEffect(PostprocessingRendererType);
 
 	private:
 		RendererContext& context_;

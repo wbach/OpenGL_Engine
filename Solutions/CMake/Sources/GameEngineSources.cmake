@@ -68,6 +68,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Water/Shaders/WaterShader.cpp
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/Shaders/ColorFliperShader.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/Shaders/DefferedShader.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderer.cpp
