@@ -16,11 +16,11 @@ namespace GameEngine
 		virtual void Render(Scene*) = 0;
 		virtual void ReloadShaders() = 0;
 		void SetRendererContext(RendererContext* rendererContext);
-		void SetPostProcessFrameBuffer(PostprocessFrameBuffer* postprocessFrameBuffer);
+		void SetPostProcessFrameBuffer(PostprocessFrameBuffer** postprocessFrameBuffer);
 
 	protected:
 		RendererContext* rendererContext_;
-		PostprocessFrameBuffer* postprocessFrameBuffer_;
+		PostprocessFrameBuffer** postprocessFrameBuffer_;
 	};
 
 	typedef std::unique_ptr<PostprocessingRenderer> PostprocessingRendererPtr;

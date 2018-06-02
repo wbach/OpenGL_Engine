@@ -83,6 +83,8 @@ namespace GameEngine
 		virtual void UpdateOffset(uint32, const std::vector<vec4>&) override;
 		virtual void UpdateBlend(uint32, const std::vector<float>&) override;
 
+		virtual uint32 CloneImage(uint32) override;
+
 		//temp
 		virtual void CreateFont(const std::string&) override;
 		virtual void PrintText(const std::string&, const vec2i&) override;

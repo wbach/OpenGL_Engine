@@ -101,6 +101,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Water/Shaders/WaterShader.h
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.h
+../../Sources/GameEngine/Renderers/Postproccesing/Blur/Blur.h
+../../Sources/GameEngine/Renderers/Postproccesing/Blur/Shaders/BlurShader.h
 ../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.h
 ../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/Shaders/ColorFliperShader.h
 ../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.h

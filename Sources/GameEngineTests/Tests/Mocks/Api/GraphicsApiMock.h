@@ -65,6 +65,8 @@ namespace GameEngine
 		MOCK_METHOD2(UpdateMatrixes, void(uint32, const std::vector<mat4>&));
 		MOCK_METHOD2(UpdateOffset, void(uint32, const std::vector<vec4>&));
 		MOCK_METHOD2(UpdateBlend, void(uint32, const std::vector<float>&));
+		MOCK_METHOD1(CloneImage, uint32(uint32));
+
 		//temp
 		MOCK_METHOD1(CreateFont, void(const std::string&));
 		MOCK_METHOD2(PrintText, void(const std::string&, const vec2i&));

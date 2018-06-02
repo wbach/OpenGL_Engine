@@ -13,7 +13,7 @@ namespace GameEngine
 	void ColorFliper::Render(Scene*)
 	{
 		shader_->Start();
-		postprocessFrameBuffer_->BindTextures();
+		(*postprocessFrameBuffer_)->BindTextures();
 		rendererContext_->graphicsApi_->RenderQuad();
 		shader_->Stop();
 	}

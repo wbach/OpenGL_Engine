@@ -27,7 +27,11 @@ namespace GameEngine
 
 	private:
 		RendererContext& context_;
-		PostprocessFrameBuffer postproccesFrameBuffer_;
+		bool first;
+		PostprocessFrameBuffer* activePostProcessFrameBuffer_;
+		PostprocessFrameBuffer* passivePostProcessFrameBuffer_;
+		PostprocessFrameBuffer postproccesFrameBuffer1_;
+		PostprocessFrameBuffer postproccesFrameBuffer2_;
 		PostprocessingRenderers postProcessingRenderers_;
 		std::unique_ptr<IPostprocessingRenderersFactory> factory_;
 	};

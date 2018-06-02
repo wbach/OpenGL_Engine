@@ -84,6 +84,7 @@ namespace GameEngine
 		virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) = 0;
 		virtual void UpdateOffset(uint32, const std::vector<vec4>&) = 0;
 		virtual void UpdateBlend(uint32, const std::vector<float>&) = 0;
+		virtual uint32 CloneImage(uint32) = 0;
 
 		//temp
 		virtual void CreateFont(const std::string&) = 0;

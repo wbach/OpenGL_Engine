@@ -1,10 +1,11 @@
 #include "PostprocessingRenderersFactory.h"
-#include "DefferedLighting/DefferedLighting.h"
 #include "ColorFliper/ColorFliper.h"
+#include "DefferedLighting/DefferedLighting.h"
+#include "Blur/Blur.h"
 
 namespace GameEngine
 {
-	PostprocessingRenderersFactory::PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer& postprocessFrameBuffer)
+	PostprocessingRenderersFactory::PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
 		: context_(context)
 		, postprocessFrameBuffer_(postprocessFrameBuffer)
 	{
@@ -15,6 +16,7 @@ namespace GameEngine
 		{
 		case PostprocessingRendererType::DEFFERED_LIGHT: return CreateAndBasicInitialize<DefferedLighting>();
 		case PostprocessingRendererType::COLOR_FLIPER: return CreateAndBasicInitialize<ColorFliper>();
+		case PostprocessingRendererType::BLUR: return CreateAndBasicInitialize<Blur>();
 		}
 		return nullptr;
 	}
@@ -23,7 +25,7 @@ namespace GameEngine
 	{
 		auto comp = std::make_unique<T>();
 		comp->SetRendererContext(&context_);
-		comp->SetPostProcessFrameBuffer(&postprocessFrameBuffer_);
+		comp->SetPostProcessFrameBuffer(postprocessFrameBuffer_);
 		return comp;
 	}
 } // GameEngine

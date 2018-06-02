@@ -9,7 +9,7 @@ namespace GameEngine
 	{
 		rendererContext_ = rendererContext;
 	}
-	void PostprocessingRenderer::SetPostProcessFrameBuffer(PostprocessFrameBuffer * postprocessFrameBuffer)
+	void PostprocessingRenderer::SetPostProcessFrameBuffer(PostprocessFrameBuffer** postprocessFrameBuffer)
 	{
 		postprocessFrameBuffer_ = postprocessFrameBuffer;
 	}

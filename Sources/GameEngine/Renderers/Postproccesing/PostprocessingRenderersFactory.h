@@ -9,7 +9,7 @@ namespace GameEngine
 	class PostprocessingRenderersFactory : public IPostprocessingRenderersFactory
 	{
 	public:
-		PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer& postprocessFrameBuffer);
+		PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
 		virtual std::unique_ptr<PostprocessingRenderer> Create(PostprocessingRendererType type) override;
 
 	private:
@@ -18,6 +18,6 @@ namespace GameEngine
 
 	private:
 		RendererContext& context_;
-		PostprocessFrameBuffer& postprocessFrameBuffer_;
+		PostprocessFrameBuffer** postprocessFrameBuffer_;
 	};
 } // GameEngine

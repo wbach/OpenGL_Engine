@@ -5,8 +5,9 @@ enum class PostprocessingRendererType
 {
 	SSAO,
 	FXAA,
-	DEFFERED_LIGHT,
-	CONTRAST_CHANGER,
+	BLUR,
 	COLOR_FLIPER,
+	DEFFERED_LIGHT,
+	CONTRAST_CHANGER
 };
 }

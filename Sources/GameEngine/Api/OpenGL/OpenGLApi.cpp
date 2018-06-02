@@ -775,6 +775,14 @@ namespace GameEngine
 		glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::BLEND_FACTOR]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * blendFactor.size(), &blendFactor[0], GL_STREAM_DRAW);
 	}
+	uint32 OpenGLApi::CloneImage(uint32 objectId)
+	{
+		auto& obj = idToGlId_[objectId];
+
+		Log("Not implementet");
+		//glCopyTexImage2D();
+		return uint32();
+	}
 	void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
 	{
 		const auto& obj = openGlMeshes_[id];

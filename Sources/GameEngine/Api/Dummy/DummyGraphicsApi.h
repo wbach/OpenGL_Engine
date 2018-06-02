@@ -83,6 +83,7 @@ namespace GameEngine
 		virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) override{}
 		virtual void UpdateOffset(uint32, const std::vector<vec4>&) override{}
 		virtual void UpdateBlend(uint32, const std::vector<float>&) override{}
+		virtual uint32 CloneImage(uint32) override { return ++id; }
 
 		//temp
 		virtual void CreateFont(const std::string&) override {}
