@@ -51,7 +51,7 @@ namespace GameEngine
 		dir = glm::normalize(dir) *-1.f;
 		return dir;
 	}
-	const vec3& BaseCamera::GetPosition()
+	vec3 BaseCamera::GetPosition()
 	{
 		std::lock_guard<std::mutex> l(pmutex);
 		return position;

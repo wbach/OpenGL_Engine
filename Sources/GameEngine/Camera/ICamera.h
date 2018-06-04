@@ -25,7 +25,7 @@ namespace GameEngine
 		virtual const vec2	GetPositionXZ() const = 0;
 		virtual const vec3	GetRotation()	const = 0;
 		virtual const vec3	GetDirection()	const = 0;
-		virtual const vec3& GetPosition() = 0;
+		virtual vec3 GetPosition() = 0;
 		virtual const mat4& GetViewMatrix() const = 0;
 		virtual void SetPosition(const vec3&) = 0;
 

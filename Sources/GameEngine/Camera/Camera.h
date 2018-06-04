@@ -13,7 +13,7 @@ namespace GameEngine
 		BaseCamera(float pitch, float yaw);
 		virtual ~BaseCamera() {}
 		virtual void UpdateMatrix() override;
-		virtual const vec3& GetPosition()	override;
+		virtual vec3 GetPosition()	override;
 		virtual void SetPosition(const vec3&) override;
 		virtual const vec3	GetDirection()	const override;
 		virtual const vec3	GetRotation()	const override;

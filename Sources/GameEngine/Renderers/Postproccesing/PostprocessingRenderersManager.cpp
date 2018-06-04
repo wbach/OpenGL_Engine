@@ -7,18 +7,13 @@ namespace GameEngine
 {
 PostProcessingManager::PostProcessingManager(RendererContext& context)
 	: context_(context)
-	, first(false)
+	, first_(false)
 	, postproccesFrameBuffer1_(context.graphicsApi_)
 	, postproccesFrameBuffer2_(context.graphicsApi_)
 {
-	activePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
-	passivePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
-
+	ResetBufferSet();
 	factory_ = std::make_unique<PostprocessingRenderersFactory>(context_, &passivePostProcessFrameBuffer_);
-	
-	AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
-	AddEffect(PostprocessingRendererType::COLOR_FLIPER);
-	AddEffect(PostprocessingRendererType::BLUR);
+	AddEffects();
 }
 PostProcessingManager::~PostProcessingManager()
 {
@@ -36,32 +31,14 @@ void PostProcessingManager::Init()
 void PostProcessingManager::Render(Scene* scene)
 {
 	uint32 i = 0;
-	first = true;
+	first_ = true;
+	ResetBufferSet();
+
 	for (auto& renderer : postProcessingRenderers_)
 	{
-		if (i == postProcessingRenderers_.size() - 1)
-		{
-			activePostProcessFrameBuffer_->UnBind();
-		}
-		else
-		{
-			activePostProcessFrameBuffer_->BindToDraw();
-		}
-		renderer->Render(scene);
-
-		if (first)
-		{
-			activePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
-			passivePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
-		}
-		else
-		{
-			activePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
-			passivePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
-		}
-
-		first = !first;
-		++i;
+		BindBuffer(i++);
+		renderer->Render(scene);	
+		SwapBuffers();
 	}
 }
 void PostProcessingManager::ReloadShaders()
@@ -72,5 +49,46 @@ void PostProcessingManager::ReloadShaders()
 void PostProcessingManager::AddEffect(PostprocessingRendererType type)
 {
 	postProcessingRenderers_.push_back(std::move(factory_->Create(type)));
+}
+void PostProcessingManager::ResetBufferSet()
+{
+	activePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
+	passivePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
+}
+void PostProcessingManager::SwapBuffers()
+{
+	if (first_)
+	{
+		activePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
+		passivePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
+	}
+	else
+	{
+		activePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
+		passivePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
+	}
+
+	first_ = !first_;
+}
+void PostProcessingManager::BindBuffer(uint32 i)
+{
+	if (IsLastRenderer(i))
+	{
+		activePostProcessFrameBuffer_->UnBind();
+	}
+	else
+	{
+		activePostProcessFrameBuffer_->BindToDraw();
+	}
+}
+bool PostProcessingManager::IsLastRenderer(uint32 i)
+{
+	return i == postProcessingRenderers_.size() - 1;
+}
+void PostProcessingManager::AddEffects()
+{
+	AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
+	AddEffect(PostprocessingRendererType::COLOR_FLIPER);
+	AddEffect(PostprocessingRendererType::BLUR);
 }
 } // GameEngine

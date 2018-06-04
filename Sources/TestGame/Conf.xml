@@ -2,7 +2,7 @@
 	<Window name="Gota - OpenGL" width="1000" height="600" fullscreen="false" refreshRate="60" vsync="false"/>
 	<Sound enabled="true" volume="1.0"/>
 	<Engine>
-		<DataLocation>D:/Projects/OpenGL_Engine/Build/bin/TestGame/Data/</DataLocation>
+		<DataLocation>D:/Projects/Data/</DataLocation>
 		<ShadersLocation>D:/Projects/OpenGL_Engine/Sources/Shaders/</ShadersLocation>
 		<ViewDistance>250</ViewDistance>
 		<Renderer>			

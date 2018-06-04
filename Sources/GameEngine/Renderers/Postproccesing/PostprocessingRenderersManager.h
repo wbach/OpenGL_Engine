@@ -24,10 +24,15 @@ namespace GameEngine
 	
 	private:
 		void AddEffect(PostprocessingRendererType);
+		void ResetBufferSet();
+		void SwapBuffers();
+		void BindBuffer(uint32 i);
+		bool IsLastRenderer(uint32 i);
+		void AddEffects();
 
 	private:
 		RendererContext& context_;
-		bool first;
+		bool first_;
 		PostprocessFrameBuffer* activePostProcessFrameBuffer_;
 		PostprocessFrameBuffer* passivePostProcessFrameBuffer_;
 		PostprocessFrameBuffer postproccesFrameBuffer1_;
