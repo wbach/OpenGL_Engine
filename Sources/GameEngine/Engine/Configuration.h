@@ -4,6 +4,9 @@
 #include "SingleTon.h"
 #include <unordered_map>
 
+const std::string DEFAULT_DATA_PATH = "../Data/";
+const std::string DEFAULT_SHADERS_PATH = "../Shaders/";
+
 struct SEngineConfiguration
 {
     enum class RendererType
@@ -19,8 +22,8 @@ struct SEngineConfiguration
     void SaveRequiredFiles();
     void ReadFromFile(const std::string& filename);
 
-    std::string dataFilesLocation    = "../Data/";
-    std::string shadersFilesLocation = "../Shaders/";
+    std::string dataFilesLocation    = DEFAULT_DATA_PATH;
+    std::string shadersFilesLocation = DEFAULT_SHADERS_PATH;
 
     std::vector<std::string> requiredFiles;
 
@@ -64,6 +67,9 @@ struct SEngineConfiguration
     RendererType rendererType = RendererType::FULL_RENDERER;  // simple renderer/full renderer
     LoD startLod;
     // float       m_RenderingResolution = 1.f;
+
+	// Resources
+	bool enableBinaryLoading = true;
 
     std::string requiredFilesOutputFile = "required_files.inf";
 

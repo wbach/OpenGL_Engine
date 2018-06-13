@@ -30,7 +30,7 @@ std::unique_ptr<CModel> LoaderManager::Load(const std::string& file_name)
 		return nullptr;
 	}
 
-	loaderPtr->ParseFile(file_name);
+	loaderPtr->Parse(file_name);
 	return loaderPtr->Create();
 }
 

@@ -7,8 +7,7 @@
 namespace WBLoader
 {
 	TerrainMeshLoader::TerrainMeshLoader(CTextureLoader & textureLoader)
-		: AbstractLoader(textureLoader.GetGraphicsApi())
-		, textureLoader_(textureLoader)
+		: AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 	{
 	}
 	void TerrainMeshLoader::ParseFile(const std::string& filename)

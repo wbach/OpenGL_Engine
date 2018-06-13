@@ -136,7 +136,7 @@ int Utils::NextP2(int a)
 }
 bool Utils::CheckFileExist(const std::string & file)
 {
-	std::ofstream f(file);
+	std::ifstream f(file);
 	bool exist = f.is_open();
 	f.close();
 	return exist;

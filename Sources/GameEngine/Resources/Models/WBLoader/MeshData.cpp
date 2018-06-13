@@ -16,11 +16,11 @@ namespace WBLoader
 			return -1;
 	}
 
-	int FindIndexFast(std::map<wb::vec3i, uint16>& vertexes, const wb::vec3i & v)
+	wb::optional<uint16> FindIndexFast(std::unordered_map<wb::vec3i, uint16>& vertexes, const wb::vec3i & v)
 	{
 		auto it = vertexes.find(v);
 		if (it == vertexes.end())
-			return -1;
+			return wb::optional<uint16>();
 		return it->second;
 	}
 
@@ -66,23 +66,28 @@ namespace WBLoader
 	void IndexinVBO(std::vector<VertexBuffer>& buffer, GameEngine::MeshRawData& data)
 	{
 		computeTangentBasis(buffer);
-		std::map<wb::vec3i, uint16> out_indexes;
+		std::unordered_map<wb::vec3i, uint16> out_indexes;
+		data.indices_.reserve(buffer.size());
 
 		for (auto& v : buffer)
 		{
-			auto i = FindIndexFast(out_indexes, v.indexes);
-			if (i >= 0)
+			auto optI = FindIndexFast(out_indexes, v.indexes);
+			if (optI)
 			{
+				const auto& i = optI.constValue();
 				data.indices_.push_back(static_cast<uint16>(i));
 
-				data.tangents_[3 * i] = v.tangents.x;
-				data.tangents_[3 * i + 1] = v.tangents.y;
-				data.tangents_[3 * i + 2] = v.tangents.z;
+				auto index = 3 * i;
+				auto index2 = index + 1;
+				auto index3 = index + 2;
 
+				data.tangents_[index] = v.tangents.x;
+				data.tangents_[index2] = v.tangents.y;
+				data.tangents_[index3] = v.tangents.z;
 
-				data.bitangents_[3 * i] = v.bitangents.x;
-				data.bitangents_[3 * i + 1] = v.bitangents.y;
-				data.bitangents_[3 * i + 2] = v.bitangents.z;
+				data.bitangents_[index] = v.bitangents.x;
+				data.bitangents_[index2] = v.bitangents.y;
+				data.bitangents_[index3] = v.bitangents.z;
 			}
 			else
 			{

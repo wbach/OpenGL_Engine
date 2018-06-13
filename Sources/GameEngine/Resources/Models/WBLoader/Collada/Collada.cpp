@@ -12,8 +12,7 @@ static mat4 correction_matrix = Utils::CreateTransformationMatrix(vec3(0), vec3(
 namespace WBLoader
 {
 	ColladaDae::ColladaDae(CTextureLoader& textureLodaer)
-		: AbstractLoader(textureLodaer.GetGraphicsApi())
-		, textureLodaer_(textureLodaer)
+		: AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 	{
 
 	}
@@ -461,7 +460,7 @@ namespace WBLoader
 				if (surface)
 				{
 					const auto& textureFileName = data_.libraryImages_.images_[surface.constValue().initfrom_].initFrom_;
-					material.diffuseTexture = textureLodaer_.LoadTexture("Textures/" + textureFileName, true, true, ObjectTextureType::MATERIAL);
+					material.diffuseTexture = textureLoader_.LoadTexture("Textures/" + textureFileName, true, true, ObjectTextureType::MATERIAL);
 				}
 
 			}

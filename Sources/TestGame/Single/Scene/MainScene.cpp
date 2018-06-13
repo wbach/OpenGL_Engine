@@ -22,7 +22,7 @@
 
 MainScene::MainScene()
     : GameEngine::Scene("MainScene")
-{	
+{
 }
 
 MainScene::~MainScene()
@@ -156,6 +156,9 @@ int MainScene::Initialize()
 
 	auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
 	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
+
+	auto sponza = AddGameObjectInstance(60.f, vec2(395, 665));
+	AddComponent<GameEngine::Components::RendererComponent>(sponza)->AddModel("Meshes/sponza/sponza_mod.obj");
 
 	for (int x = 0; x < 4; x++)
 	{

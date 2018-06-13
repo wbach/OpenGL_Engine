@@ -13,6 +13,7 @@ namespace GameEngine
 			inline float GetLength() const;
 			inline void AddFrame(const KeyFrame& frame);
 			inline const std::vector<KeyFrame>& GetFrames() const;
+			inline void SetLength(float l);
 			
 		public:
 			std::string name;
@@ -47,6 +48,11 @@ namespace GameEngine
 		inline const std::vector<KeyFrame>& AnimationClip::GetFrames() const
 		{
 			return frames;
+		}
+
+		inline void AnimationClip::SetLength(float l)
+		{
+			length = l;
 		}
 
 	} // Animation

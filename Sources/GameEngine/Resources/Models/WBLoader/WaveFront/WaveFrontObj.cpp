@@ -10,8 +10,7 @@
 namespace WBLoader
 {
 	WaveFrontObjLoader::WaveFrontObjLoader(CTextureLoader & textureLodaer)
-		: AbstractLoader(textureLodaer.GetGraphicsApi())
-		, textureLodaer(textureLodaer)
+		: AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 	{
 
 	}
@@ -140,12 +139,12 @@ namespace WBLoader
 			if (!prefix.compare("map_Kd"))
 			{
 				if (current_material != nullptr)
-					current_material->diffuseTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
+					current_material->diffuseTexture = textureLoader_.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
 			}
 			if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
 			{
 				if (current_material != nullptr)
-					current_material->normalTexture = textureLodaer.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
+					current_material->normalTexture = textureLoader_.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
 			}
 		}
 

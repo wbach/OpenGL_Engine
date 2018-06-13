@@ -99,6 +99,9 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 
 CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLimit, bool opengl_pass, ObjectTextureType type, TextureFlip::Type flip_mode)
 {
+	if (file.empty())
+		return nullptr;
+
 	for (auto& t : textures)
 	{
         if (t->GetFileName() == file)
@@ -138,6 +141,9 @@ CTexture* CTextureLoader::LoadTexture(const std::string & file, bool applySizeLi
 
 CTexture * CTextureLoader::LoadTextureImmediately(const std::string & file, bool applySizeLimit, ObjectTextureType type, TextureFlip::Type flip_mode)
 {
+	if (file.empty())
+		return nullptr;
+
 	auto texture = LoadTexture(file, applySizeLimit, false, type, flip_mode);
 	texture->OpenGLLoadingPass();
 	return texture;

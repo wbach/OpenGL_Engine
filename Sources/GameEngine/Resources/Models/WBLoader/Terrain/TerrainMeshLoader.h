@@ -22,7 +22,6 @@ namespace WBLoader
 		void Clear();
 
 	private:
-		CTextureLoader& textureLoader_;
 		uint16 heightMapResolution_;
 		std::vector<uint16> indices_;
 		std::vector<float> vertices_;

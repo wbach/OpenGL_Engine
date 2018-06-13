@@ -22,51 +22,51 @@ typedef int   int32;
 
 namespace wb
 {
-template<class T>
-struct Tvec2
-{
-    T x;
-    T y;
+	template<class T>
+	struct Tvec2
+	{
+		T x;
+		T y;
 
-	Tvec2() : Tvec2(0, 0)
-    {
-    }
-	Tvec2(T x) : Tvec2(x, x)
-    {
-    }
-	Tvec2(T x, T y) : x(x), y(y)
-    {
-    }
-};
+		Tvec2() : Tvec2(0, 0)
+		{
+		}
+		Tvec2(T x) : Tvec2(x, x)
+		{
+		}
+		Tvec2(T x, T y) : x(x), y(y)
+		{
+		}
+	};
 
-template<class T>
-struct Tvec3
-{
-    T x;
-    T y;
-    T z;
+	template<class T>
+	struct Tvec3
+	{
+		T x;
+		T y;
+		T z;
 
-	Tvec3() : Tvec3(0){}
-	Tvec3(T a):x(a), y(a), z(a){}
+		Tvec3() : Tvec3(0) {}
+		Tvec3(T a) :x(a), y(a), z(a) {}
 
-    bool operator==(const Tvec3& v) const
-    {
-        return x == v.x && y == v.y && z == v.z;
-    }
-    // To my model map find
-    bool operator<(const Tvec3& v) const
-    {
-        return x != v.x || y != v.y || z != v.z;
-    }
-};
+		bool operator==(const Tvec3& v) const
+		{
+			return x == v.x && y == v.y && z == v.z;
+		}
+		// To my model map find
+		bool operator<(const Tvec3& v) const
+		{
+			return x != v.x || y != v.y || z != v.z;
+		}
+	};
 
-typedef Tvec2<int32> vec2i;
-typedef Tvec2<uint32> vec2ui;
-typedef Tvec3<int32> vec3i;
-typedef Tvec3<uint32> vec3ui;
+	typedef Tvec2<int32> vec2i;
+	typedef Tvec2<uint32> vec2ui;
+	typedef Tvec3<int32> vec3i;
+	typedef Tvec3<uint32> vec3ui;
 
-std::string to_string(const vec2i& v);
-std::string to_string(const vec3i& v);
+	std::string to_string(const vec2i& v);
+	std::string to_string(const vec3i& v);
 }
 
 typedef wb::vec2i vec2i;
@@ -86,8 +86,22 @@ typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::ste
 // Specyfic types for different os
 
 #ifdef USE_GNU
-    typedef std::chrono::_V2::system_clock::time_point Timepoint;
+typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
-    typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
+typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 #endif
 
+namespace std
+{
+	template<>
+	struct hash<vec3i> 
+	{
+		size_t operator()(const vec3i &k) const
+		{
+			size_t h1 = std::hash<double>()(k.x);
+			size_t h2 = std::hash<double>()(k.y);
+			size_t h3 = std::hash<double>()(k.z);
+			return (h1 ^ (h2 << 1)) ^ h3;
+		}
+	};
+} // std

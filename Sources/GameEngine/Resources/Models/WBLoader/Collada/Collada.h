@@ -37,6 +37,5 @@ namespace WBLoader
 	private:
 		GameEngine::Collada::ColladaData data_;
 		std::unordered_map<std::string, Mesh*> idToMeshMap_;
-		CTextureLoader& textureLodaer_;
 	};
 }

@@ -36,6 +36,12 @@ CMesh* CModel::AddMesh(CMesh& mesh)
 	return &meshes.back();
 }
 
+CMesh* CModel::AddMesh()
+{
+	meshes.emplace_back();
+	return &meshes.back();
+}
+
 const std::vector<mat4*>& CModel::GetBoneTransforms()
 {
 	if (!boneTransforms.empty() || skeleton_.size == 0)

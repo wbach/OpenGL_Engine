@@ -88,7 +88,7 @@ bool PostProcessingManager::IsLastRenderer(uint32 i)
 void PostProcessingManager::AddEffects()
 {
 	AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
-	AddEffect(PostprocessingRendererType::COLOR_FLIPER);
-	AddEffect(PostprocessingRendererType::BLUR);
+	//AddEffect(PostprocessingRendererType::COLOR_FLIPER);
+	//AddEffect(PostprocessingRendererType::BLUR);
 }
 } // GameEngine

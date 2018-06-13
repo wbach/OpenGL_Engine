@@ -60,6 +60,11 @@ void CMesh::OpenGLPostLoadingPass()
 {
 }
 
+void CMesh::SetTransformMatrix(const glm::mat4 & m)
+{
+	transform_ = m;
+}
+
 uint32 CMesh::GetObjectId() const
 {
 	return objectId_;

@@ -6,6 +6,8 @@
 #include <list>
 #include <memory>
 
+typedef std::unordered_map<std::string, GameEngine::Animation::AnimationClip> AnimationClipsMap;
+
 class CModel : public COpenGLObject
 {
 public:
@@ -18,6 +20,7 @@ public:
 	virtual void OpenGLLoadingPass() override;
 
 	CMesh* AddMesh(CMesh& mesh);
+	CMesh* AddMesh();
 	inline float GetScaleFactor();
 	inline const std::string& GetFileName() const;
 	inline const std::vector<CMesh>& GetMeshes() const;
@@ -28,7 +31,7 @@ public:
 
 public:
 	GameEngine::Animation::Joint skeleton_;
-	std::unordered_map<std::string, GameEngine::Animation::AnimationClip> animationClips_;
+	AnimationClipsMap animationClips_;
 
 protected:
 	void AddJoints(GameEngine::Animation::Joint& joint);

@@ -56,7 +56,6 @@ namespace WBLoader
 	};
 
 	int FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v);
-	int FindIndexFast(std::map<wb::vec3i, uint16>& vertexes, const wb::vec3i& v);
 	void AddVec3ToFloatBuffer(std::vector<float>& buffer, const vec3& v);
 	void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2& v);
 	void AddVec3ToIntBuffer(std::vector<int32>& buffer, const vec3i& v);

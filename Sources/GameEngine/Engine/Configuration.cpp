@@ -144,6 +144,32 @@ void ParseRenderer(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
+std::string GetDataLocationFromString(const std::string& str)
+{
+	if (str.empty())
+		return DEFAULT_DATA_PATH;
+
+	if (str[str.size() - 1] != '/')
+	{
+		return str + '/';
+	}
+
+	return str;
+}
+
+std::string GetShaderLocationFromString(const std::string& str)
+{
+	if (str.empty())
+		return DEFAULT_SHADERS_PATH;
+
+	if (str[str.size() - 1] != '/')
+	{
+		return str + '/';
+	}
+
+	return str;
+}
+
 void ParseEngineConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
 {
     for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
@@ -166,9 +192,9 @@ void ParseEngineConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
         if (name == "Water")
             ParseWaterConfig(snode, config);
         if (name == "DataLocation")
-            config.dataFilesLocation = value;
+            config.dataFilesLocation = GetDataLocationFromString(value);
         if (name == "ShadersLocation")
-            config.shadersFilesLocation = value;
+            config.shadersFilesLocation = GetShaderLocationFromString(value);
     }
 }
 

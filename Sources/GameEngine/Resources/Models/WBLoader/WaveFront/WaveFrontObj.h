@@ -29,7 +29,6 @@ namespace WBLoader
 		std::list<std::string> fileData;
 		std::string path;
 		std::string filename;
-		CTextureLoader&	textureLodaer;
 		
 		std::list<SMaterial> materials;
 		std::vector<vec3> vertex;

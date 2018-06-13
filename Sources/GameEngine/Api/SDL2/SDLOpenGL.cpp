@@ -30,6 +30,8 @@ namespace GameEngine
 
 		auto flags = CreateWindowFlags(windowType);
 		CreateSDLWindow(window_name, width, height, flags);
+
+		SDL_GL_SetSwapInterval(0);
 	}
 
 	void SdlOpenGlApi::CreateContext()

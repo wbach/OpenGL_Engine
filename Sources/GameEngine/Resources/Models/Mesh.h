@@ -17,7 +17,7 @@ public:
     virtual ~CMesh();
     virtual void OpenGLLoadingPass() override;
     virtual void OpenGLPostLoadingPass() override;
-
+	void SetTransformMatrix(const glm::mat4& m);
     bool IsInit() const;
 	bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
@@ -26,6 +26,7 @@ public:
     const SMaterial& GetMaterial() const;
 	inline const mat4& GetMeshTransform() const;
 	inline GameEngine::MeshRawData& GetMeshDataRef();
+	inline const GameEngine::MeshRawData& GetCMeshDataRef() const;
 
 private:
     void CreateMesh();
@@ -56,6 +57,11 @@ const mat4& CMesh::GetMeshTransform() const
 }
 
 GameEngine::MeshRawData& CMesh::GetMeshDataRef()
+{
+	return meshRawData_;
+}
+
+inline const GameEngine::MeshRawData & CMesh::GetCMeshDataRef() const
 {
 	return meshRawData_;
 }
