@@ -7,7 +7,7 @@
 const std::string DEFAULT_DATA_PATH = "../Data/";
 const std::string DEFAULT_SHADERS_PATH = "../Shaders/";
 
-struct SEngineConfiguration
+struct EngineConfiguration
 {
     enum class RendererType
     {
@@ -76,7 +76,7 @@ struct SEngineConfiguration
     std::unordered_map<std::string,int> texturesIds;// dirty hack, debug
 };
 
-#define EngineConf SingleTon<SEngineConfiguration>::Get()
+#define EngineConf SingleTon<EngineConfiguration>::Get()
 #define EngineConf_SaveRequiredFiles() EngineConf.SaveRequiredFiles()
 #define EngineConf_GetFullDataPath(x) EngineConf.GetFullDataPath(x, false)
 #define EngineConf_GetFullDataPathAddToRequierd(x) EngineConf.GetFullDataPath(x)

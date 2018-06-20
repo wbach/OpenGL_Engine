@@ -1,8 +1,9 @@
 #include "Configuration.h"
-#include <fstream>
+#include "EngineDef.h"
 #include "Logger/Log.h"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
+#include <fstream>
 
 namespace XMLParser
 {
@@ -23,7 +24,7 @@ wb::vec2i ParseWithHeight(rapidxml::xml_node<>* node)
     return v;
 }
 
-void ParseWindow(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseWindow(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
     {
@@ -45,7 +46,7 @@ void ParseWindow(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
-void ParseSound(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseSound(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
     {
@@ -59,12 +60,12 @@ void ParseSound(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
-void ParseTextureMaxResolution(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseTextureMaxResolution(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     config.maxTextureResolutuion = ParseWithHeight(node);
 }
 
-void ParseFloraConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseFloraConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
     {
@@ -78,7 +79,7 @@ void ParseFloraConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
-void ParseParticlesConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseParticlesConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
 	for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
 	{
@@ -90,7 +91,7 @@ void ParseParticlesConfig(rapidxml::xml_node<>* node, SEngineConfiguration& conf
 	}
 }
 
-void ParseShadowsConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseShadowsConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
     {
@@ -106,7 +107,7 @@ void ParseShadowsConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config
     }
 }
 
-void ParseWaterConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseWaterConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
     {
@@ -129,7 +130,7 @@ void ParseWaterConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
     }
 }
 
-void ParseRenderer(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseRenderer(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
     {
@@ -137,7 +138,7 @@ void ParseRenderer(rapidxml::xml_node<>* node, SEngineConfiguration& config)
         std::string value = snode->value();
 
         if (name == "type")
-            config.rendererType = static_cast<SEngineConfiguration::RendererType>(Utils::StringToInt(value));
+            config.rendererType = static_cast<EngineConfiguration::RendererType>(Utils::StringToInt(value));
 
         if (name == "start_lod_lvl")
             config.startLod = static_cast<LoD>(Utils::StringToInt(value));
@@ -170,7 +171,7 @@ std::string GetShaderLocationFromString(const std::string& str)
 	return str;
 }
 
-void ParseEngineConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
+void ParseEngineConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
 {
     for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
     {
@@ -195,6 +196,8 @@ void ParseEngineConfig(rapidxml::xml_node<>* node, SEngineConfiguration& config)
             config.dataFilesLocation = GetDataLocationFromString(value);
         if (name == "ShadersLocation")
             config.shadersFilesLocation = GetShaderLocationFromString(value);
+		if (name == "EnableBinaryLoading")
+			config.enableBinaryLoading = Utils::StringToBool(value);
     }
 }
 
@@ -203,7 +206,7 @@ void CreateConfigFile(const std::string& filename)
 
 }
 
-SEngineConfiguration& ReadConfigFile(const std::string& file)
+EngineConfiguration& ReadConfigFile(const std::string& file)
 {
     auto& config = EngineConf;
 
@@ -244,7 +247,7 @@ SEngineConfiguration& ReadConfigFile(const std::string& file)
 }
 }
 
-std::string SEngineConfiguration::GetFullDataPath(const std::string& file_name, bool addToRequierd)
+std::string EngineConfiguration::GetFullDataPath(const std::string& file_name, bool addToRequierd)
 {
     auto path = dataFilesLocation + file_name;
     if (addToRequierd)
@@ -252,7 +255,7 @@ std::string SEngineConfiguration::GetFullDataPath(const std::string& file_name, 
     return path;
 }
 
-std::string SEngineConfiguration::GetFullShaderPath(const std::string& file_name, bool addToRequierd)
+std::string EngineConfiguration::GetFullShaderPath(const std::string& file_name, bool addToRequierd)
 {
     auto path = shadersFilesLocation + file_name;
     if (addToRequierd)
@@ -260,7 +263,7 @@ std::string SEngineConfiguration::GetFullShaderPath(const std::string& file_name
     return path;
 }
 
-std::string SEngineConfiguration::GetFilePatch(const std::string& file_full_path) const
+std::string EngineConfiguration::GetFilePatch(const std::string& file_full_path) const
 {
     if (file_full_path.empty())
         return {};
@@ -279,12 +282,12 @@ std::string SEngineConfiguration::GetFilePatch(const std::string& file_full_path
     return str;
 }
 
-void SEngineConfiguration::AddRequiredFile(const std::string& file)
+void EngineConfiguration::AddRequiredFile(const std::string& file)
 {
     requiredFiles.push_back(file);
 }
 
-void SEngineConfiguration::SaveRequiredFiles()
+void EngineConfiguration::SaveRequiredFiles()
 {
     std::ofstream output(GetFullDataPath(requiredFilesOutputFile));
 
@@ -310,8 +313,52 @@ void SEngineConfiguration::SaveRequiredFiles()
     output.close();
 }
 
-void SEngineConfiguration::ReadFromFile(const std::string& filename)
+#include "Utils/XML/XmlReader.h"
+
+
+void EngineConfiguration::ReadFromFile(const std::string& filename)
 {
-    XMLParser::ReadConfigFile(filename);
+   // XMLParser::ReadConfigFile(filename);
+	Utils::XmlReader xmlReader;
+	xmlReader.Read(filename);
+	using namespace GameEngine;
+
+	auto window = xmlReader.Get(NODE_WINDOW);
+
+	windowName = window->attributes_[PAR_WINDOW_NAME];
+	vsync = Utils::StringToBool(window->attributes_[PAR_WINDOW_VSYNC]);
+	refresRate = Utils::StringToFloat(window->attributes_[PAR_WINDOW_REFRESH_RATE]);
+	windowSize.x = Utils::StringToInt(window->attributes_[PAR_WINDOW_WIDTH]);
+	windowSize.x = Utils::StringToInt(window->attributes_[PAR_WINDOW_HEIGHT]);
+
+	auto sound_node = xmlReader.Get(NODE_SOUND);
+
+	sound = Utils::StringToBool(sound_node->attributes_[PAR_SOUND_ENABLED]);
+	soundVolume = Utils::StringToFloat(sound_node->attributes_[PAR_SOUND_VOLUME]);
+
+	auto engine_node = xmlReader.Get(NODE_ENGINE);
+
+	auto shadows_node = engine_node->children_[NODE_SHADOWS];
+
+	isShadows = Utils::StringToBool(shadows_node.attributes_[PAR_SHADOWS_ENABLED]);
+	shadowsDistance = Utils::StringToBool(shadows_node.attributes_[PAR_SHADOWS_DISTANCE]);
+	shadowMapSize = Utils::StringToInt(shadows_node.attributes_[PAR_SHADOWS_MAP_SIZE]);
+
+	startLod = static_cast<LoD>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_START_LOD_LVL].value_));
+	rendererType = static_cast<RendererType>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_TYPE].value_));
+
+	dataFilesLocation = engine_node->children_[NODE_DATA_LOCATION].value_;
+	shadersFilesLocation = engine_node->children_[NODE_SHADER_LOCATION].value_;
+
+	auto& particles_node = engine_node->children_[NODE_PARTICLES];
+	useParticles = Utils::StringToBool(particles_node.value_);
+
+	auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
+
+	maxTextureResolutuion.x = Utils::StringToInt(textures_max_resolution_node.children_[NODE_RENDERER_START_LOD_LVL].value_);
+	maxTextureResolutuion.y = Utils::StringToInt(textures_max_resolution_node.children_[NODE_RENDERER_TYPE].value_);
+
+	auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
+
 	AddRequiredFile(filename);
 }
