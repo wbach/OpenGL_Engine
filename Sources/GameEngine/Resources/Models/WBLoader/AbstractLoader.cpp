@@ -12,7 +12,7 @@ namespace WBLoader
 
 	std::string CreateBinPath(const std::string& filename)
 	{
-		return EngineConf.dataFilesLocation + "/Binary/" + filename + ".bin";
+		return EngineConf.files.data + "/Binary/" + filename + ".bin";
 	}
 	void WriteToFile(std::fstream& file, const std::string& str)
 	{
@@ -341,7 +341,7 @@ namespace WBLoader
 		Utils::GetFileAndPath(filename, fileName_, filePath_);
 
 		auto binFile = CreateBinPath(fileName_);
-		if (EngineConf.enableBinaryLoading && Utils::CheckFileExist(binFile))
+		if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))
 		{
 			ReadBinFile(binFile);
 			loadedFromBin_ = true;
@@ -397,7 +397,7 @@ namespace WBLoader
 	}
 	void AbstractLoader::CreateBinFile(const std::unique_ptr<CModel>& model)
 	{
-		if (!EngineConf.enableBinaryLoading)
+		if (!EngineConf.useBinaryLoading)
 			return;
 
 		std::fstream binaryFile(CreateBinPath(fileName_), std::ios::binary | std::ios::out);

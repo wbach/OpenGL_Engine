@@ -50,7 +50,7 @@ int MainScene::Initialize()
 	guiTexture.texture = new CTexture();
 	guiTexture.SetScale(vec2(0.25, 0.25));
 	guiTexture.SetPosition(vec2(0.5, 0.5));
-	renderersManager_->GuiTexture("shadowMap") = guiTexture;
+	//renderersManager_->GuiTexture("shadowMap") = guiTexture;
 
 	auto terrain_textures = CreateTerrainTexturesMap();
 	AddTerrain(terrain_textures, glm::vec3(1));
@@ -210,7 +210,7 @@ int MainScene::Update(float dt)
 	   return -1;
 	}
 
-	renderersManager_->GuiTexture("shadowMap").texture->SetExistId(EngineConf.texturesIds["shadowMap"]);
+//	renderersManager_->GuiTexture("shadowMap").texture->SetExistId(EngineConf.texturesIds["shadowMap"]);
 
  //   gloabalTime += deltaTime;
  //   timeClock += deltaTime;

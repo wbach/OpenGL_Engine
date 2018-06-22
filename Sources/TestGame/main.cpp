@@ -6,9 +6,6 @@
 #include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
 #include "GameEngine/Engine/Configuration.h"
 
-#include "Utils/XML/XmlFacade.h"
-#include "Utils/XML/XmlWriter.h"
-
 void StartMessage()
 {
 	std::string stars = "********************************************\n";
@@ -20,31 +17,11 @@ void StartMessage()
 	<< stars;
 }
 
-
 int main(int argc, char* argv[])
 {
-	Utils::XmlFacade facade;
-	facade.Read("./Conf.xml");
-	auto Renderer = facade.Get("Reflection")->attributes_["width"];
-	EngineConf.ReadFromFile("./Conf.xml");
-
-	auto root = facade.Get("config");
-
-	Utils::XmlWriter writer;
-	Utils::XmlNode node;
-	writer.Write("testConf.xml", *root);
-	return 0;
-
-	//int i = 0;
-	//for (i = 0; i < LAST; i++) {
-	//	printf("%d %s\n", i, strings[i]);
-	//}
+	GameEngine::ReadFromFile("./Conf.xml");
 
 	GameEngine::IGraphicsApiPtr api = std::make_shared<GameEngine::OpenGLApi>();
-
-	#ifdef BACHU_HAHAH
-	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
-	#endif
 
  	StartMessage();
 

@@ -3,147 +3,8 @@
 #include "Logger/Log.h"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
+#include "Utils/XML/XmlReader.h"
 #include <fstream>
-
-namespace XMLParser
-{
-wb::vec2i ParseWithHeight(rapidxml::xml_node<>* node)
-{
-    wb::vec2i v;
-
-    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-    {
-        std::string att_name  = att_node->name();
-        std::string att_value = att_node->value();
-
-        if (att_name == "width")
-            v.x = Utils::StringToInt(att_value);
-        if (att_name == "height")
-            v.y = Utils::StringToInt(att_value);
-    }
-    return v;
-}
-
-void ParseWindow(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-    {
-        std::string name  = att_node->name();
-        std::string value = att_node->value();
-
-        if (name == "name")
-            config.windowName = value;
-        else if (name == "width")
-            config.resolution.x = Utils::StringToInt(value);
-        else if (name == "height")
-            config.resolution.y = Utils::StringToInt(value);
-        else if (name == "fullscreen")
-            config.fullScreen = Utils::StringToBool(value);
-        else if (name == "refreshRate")
-            config.refresRate = Utils::StringToFloat(value);
-		else if (name == "vsync")
-			config.vsync = Utils::StringToBool(value);
-    }
-}
-
-void ParseSound(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-    {
-        std::string name  = att_node->name();
-        std::string value = att_node->value();
-
-        if (name == "enabled")
-            config.sound = Utils::StringToBool(value);
-        else if (name == "volume")
-            config.soundVolume = Utils::StringToFloat(value);
-    }
-}
-
-void ParseTextureMaxResolution(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    config.maxTextureResolutuion = ParseWithHeight(node);
-}
-
-void ParseFloraConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-    {
-        std::string att_name  = att_node->name();
-        std::string att_value = att_node->value();
-
-        if (att_name == "viewDistance")
-            config.floraViewDistance = Utils::StringToFloat(att_value);
-        if (att_name == "grass")
-            config.advancedGrass = Utils::StringToBool(att_value);
-    }
-}
-
-void ParseParticlesConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-	for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-	{
-		std::string att_name = att_node->name();
-		std::string att_value = att_node->value();
-
-		if (att_name == "enabled")
-			config.useParticles = Utils::StringToBool(att_value);
-	}
-}
-
-void ParseShadowsConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-    {
-        std::string att_name  = att_node->name();
-        std::string att_value = att_node->value();
-
-        if (att_name == "enabled")
-            config.isShadows = Utils::StringToBool(att_value);
-        if (att_name == "distance")
-            config.shadowsDistance = Utils::StringToFloat(att_value);
-        if (att_name == "shadowMapSize")
-            config.shadowMapSize = Utils::StringToInt(att_value);
-    }
-}
-
-void ParseWaterConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
-    {
-        std::string name  = snode->name();
-        std::string value = snode->value();
-
-        if (name == "Reflection")
-            config.waterReflectionResolution = ParseWithHeight(snode);
-        if (name == "Refraction")
-            config.waterRefractionResolution = ParseWithHeight(snode);
-    }
-
-    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-    {
-        std::string att_name  = att_node->name();
-        std::string att_value = att_node->value();
-
-        if (att_name == "quality")
-            config.isHighWaterQuality = Utils::StringToBool(att_value);
-    }
-}
-
-void ParseRenderer(rapidxml::xml_node<>* node, EngineConfiguration& config)
-{
-    for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
-    {
-        std::string name  = snode->name();
-        std::string value = snode->value();
-
-        if (name == "type")
-            config.rendererType = static_cast<EngineConfiguration::RendererType>(Utils::StringToInt(value));
-
-        if (name == "start_lod_lvl")
-            config.startLod = static_cast<LoD>(Utils::StringToInt(value));
-    }
-}
 
 std::string GetDataLocationFromString(const std::string& str)
 {
@@ -171,194 +32,155 @@ std::string GetShaderLocationFromString(const std::string& str)
 	return str;
 }
 
-void ParseEngineConfig(rapidxml::xml_node<>* node, EngineConfiguration& config)
+namespace GameEngine
 {
-    for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
-    {
-        std::string name  = snode->name();
-        std::string value = snode->value();
+	std::vector<std::string> requiredFiles;
 
-        if (name == "ViewDistance")
-            config.viewDistance = Utils::StringToFloat(value);
-        if (name == "Renderer")
-            ParseRenderer(snode, config);
-        if (name == "TextureMaxResolution")
-            ParseTextureMaxResolution(snode, config);
-        if (name == "Flora")
-            ParseFloraConfig(snode, config);
-		if (name == "Particles")
-			ParseParticlesConfig(snode, config);
-        if (name == "Shadows")
-            ParseShadowsConfig(snode, config);
-        if (name == "Water")
-            ParseWaterConfig(snode, config);
-        if (name == "DataLocation")
-            config.dataFilesLocation = GetDataLocationFromString(value);
-        if (name == "ShadersLocation")
-            config.shadersFilesLocation = GetShaderLocationFromString(value);
-		if (name == "EnableBinaryLoading")
-			config.enableBinaryLoading = Utils::StringToBool(value);
-    }
-}
-
-void CreateConfigFile(const std::string& filename)
-{
-
-}
-
-EngineConfiguration& ReadConfigFile(const std::string& file)
-{
-    auto& config = EngineConf;
-
-    auto str = Utils::ReadFile(file);
-
-	if (str.empty())
+	std::string GetFullDataPath(const std::string& file_name, bool addToRequierd)
 	{
-		CreateConfigFile(file);
-		return config;
+		auto path = EngineConf.files.data + file_name;
+		if (addToRequierd)
+			requiredFiles.push_back(path);
+		return path;
 	}
 
-    rapidxml::xml_document<> document;
-    try
-    {
-        document.parse<0>(const_cast<char*>(str.c_str()));
-    }
-    catch (rapidxml::parse_error p)
-    {
-        p.what();
-        return config;
-    }
+	std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd)
+	{
+		auto path = EngineConf.files.shaders + file_name;
+		if (addToRequierd)
+			requiredFiles.push_back(path);
+		return path;
+	}
 
-    auto root = document.first_node();
-    for (auto snode = root->first_node(); snode; snode = snode->next_sibling())
-    {
-        std::string name = snode->name();
-        if (name == "Window")
-            ParseWindow(snode, config);
-        else if (name == "Sound")
-            ParseSound(snode, config);
-        else if (name == "Engine")
-            ParseEngineConfig(snode, config);
-    }
+	std::string GetFilePatch(const std::string& file_full_path)
+	{
+		if (file_full_path.empty())
+			return {};
 
-    document.clear();
+		auto data_index = file_full_path.find(EngineConf.files.data);
+		uint32 size = EngineConf.files.data.size();
 
-    return config;
-}
-}
+		if (data_index == std::string::npos)
+		{
+			data_index = file_full_path.find(EngineConf.files.shaders);
+			size = EngineConf.files.shaders.size();
+		}
 
-std::string EngineConfiguration::GetFullDataPath(const std::string& file_name, bool addToRequierd)
-{
-    auto path = dataFilesLocation + file_name;
-    if (addToRequierd)
-        requiredFiles.push_back(path);
-    return path;
-}
+		auto str = file_full_path.substr(data_index + size);
 
-std::string EngineConfiguration::GetFullShaderPath(const std::string& file_name, bool addToRequierd)
-{
-    auto path = shadersFilesLocation + file_name;
-    if (addToRequierd)
-        requiredFiles.push_back(path);
-    return path;
-}
+		return str;
+	}
 
-std::string EngineConfiguration::GetFilePatch(const std::string& file_full_path) const
-{
-    if (file_full_path.empty())
-        return {};
+	void AddRequiredFile(const std::string& file)
+	{
+		requiredFiles.push_back(file);
+	}
 
-    auto data_index = file_full_path.find(dataFilesLocation);
-    uint32 size     = dataFilesLocation.size();
+	void SaveRequiredFiles()
+	{
+		std::ofstream output(GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
 
-    if (data_index == std::string::npos)
-    {
-        data_index = file_full_path.find(shadersFilesLocation);
-        size       = shadersFilesLocation.size();
-    }
+		if (!output.is_open())
+		{
+			Log("Cant open file : " + GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
+			return;
+		}
 
-    auto str = file_full_path.substr(data_index + size);
-
-    return str;
-}
-
-void EngineConfiguration::AddRequiredFile(const std::string& file)
-{
-    requiredFiles.push_back(file);
-}
-
-void EngineConfiguration::SaveRequiredFiles()
-{
-    std::ofstream output(GetFullDataPath(requiredFilesOutputFile));
-
-    if (!output.is_open())
-    {
-        Log("Cant open file : " + GetFullDataPath(requiredFilesOutputFile));		
-        return;
-    }
-
-    for (const auto& str : requiredFiles)
-    {
-        /*while (1)
-        {
-                auto i = str.find("../");
-                if (i == std::string::npos)
-                        break;
-
-                str = str.substr(i+3);
-        }*/
-
-        output << str << std::endl;
-    }
-    output.close();
-}
-
-#include "Utils/XML/XmlReader.h"
+		for (const auto& str : requiredFiles)
+		{
+			output << str << std::endl;
+		}
+		output.close();
+	}
 
 
-void EngineConfiguration::ReadFromFile(const std::string& filename)
-{
-   // XMLParser::ReadConfigFile(filename);
-	Utils::XmlReader xmlReader;
-	xmlReader.Read(filename);
-	using namespace GameEngine;
+	void Read(Utils::XmlNode& node, Params::Window& window)
+	{
+		window.name			= node.attributes_[CSTR_WINDOW];
+		window.size.x		= Utils::StringToInt(node.attributes_[CSTR_WINDOW_WIDTH]);
+		window.size.y		= Utils::StringToInt(node.attributes_[CSTR_WINDOW_HEIGHT]);
+		window.fullScreen	= Utils::StringToBool(node.attributes_[CSTR_WINDOW_FULLSCREEN]);
+	}
 
-	auto window = xmlReader.Get(NODE_WINDOW);
+	void Read(Utils::XmlNode& node, Params::Sound& sound)
+	{
+		sound.isEnabled = Utils::StringToBool(node.attributes_[CSTR_SOUND_ENABLED]);
+		sound.volume	= Utils::StringToFloat(node.attributes_[CSTR_SOUND_VOLUME]);
+	}
 
-	windowName = window->attributes_[PAR_WINDOW_NAME];
-	vsync = Utils::StringToBool(window->attributes_[PAR_WINDOW_VSYNC]);
-	refresRate = Utils::StringToFloat(window->attributes_[PAR_WINDOW_REFRESH_RATE]);
-	windowSize.x = Utils::StringToInt(window->attributes_[PAR_WINDOW_WIDTH]);
-	windowSize.x = Utils::StringToInt(window->attributes_[PAR_WINDOW_HEIGHT]);
+	void Read(Utils::XmlNode& node, Params::Shadows& shadows)
+	{
+		shadows.isEnabled	= Utils::StringToBool(node.attributes_[CSTR_SHADOWS_ENABLED]);
+		shadows.distance	= Utils::StringToFloat(node.attributes_[CSTR_SHADOWS_VIEW_DISTANCE]);
+		shadows.mapSize		= Utils::StringToInt(node.attributes_[CSTR_SHADOWS_MAP_SIZE]);
+	}
 
-	auto sound_node = xmlReader.Get(NODE_SOUND);
+	void Read(Utils::XmlNode& node, Params::Particles& particles)
+	{
+		particles.useParticles = Utils::StringToBool(node.attributes_[CSTR_PARTICLES_ENABLED]);
+	}
 
-	sound = Utils::StringToBool(sound_node->attributes_[PAR_SOUND_ENABLED]);
-	soundVolume = Utils::StringToFloat(sound_node->attributes_[PAR_SOUND_VOLUME]);
+	void Read(Utils::XmlNode& node, Params::Flora& flora)
+	{
+		flora.isEnabled		= Utils::StringToBool(node.attributes_[CSTR_FLORA_ENABLED]);
+		flora.isGrass		= Utils::StringToBool(node.attributes_[CSTR_FLORA_GRASS]);
+		flora.viewDistance	= Utils::StringToFloat(node.attributes_[CSTR_FLORA_VIEW_DISTANCE]);
+	}
 
-	auto engine_node = xmlReader.Get(NODE_ENGINE);
+	void Read(Utils::XmlNode& node, Params::Water& water)
+	{
+		water.type = static_cast<Params::WaterType>(Utils::StringToInt(node.attributes_[CSTR_WATER_TYPE]));
 
-	auto shadows_node = engine_node->children_[NODE_SHADOWS];
+		water.waterReflectionResolution.x = Utils::StringToInt(node.children_[CSTR_WATER_REFLECTION].attributes_[CSTR_WATER_REFLECTION_WIDTH]);
+		water.waterReflectionResolution.y = Utils::StringToInt(node.children_[CSTR_WATER_REFLECTION].attributes_[CSTR_WATER_REFLECTION_HEIGHT]);
 
-	isShadows = Utils::StringToBool(shadows_node.attributes_[PAR_SHADOWS_ENABLED]);
-	shadowsDistance = Utils::StringToBool(shadows_node.attributes_[PAR_SHADOWS_DISTANCE]);
-	shadowMapSize = Utils::StringToInt(shadows_node.attributes_[PAR_SHADOWS_MAP_SIZE]);
+		water.waterRefractionResolution.x = Utils::StringToInt(node.children_[CSTR_WATER_REFRACTION].attributes_[CSTR_WATER_REFLECTION_WIDTH]);
+		water.waterRefractionResolution.y = Utils::StringToInt(node.children_[CSTR_WATER_REFRACTION].attributes_[CSTR_WATER_REFLECTION_HEIGHT]);
+	}
 
-	startLod = static_cast<LoD>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_START_LOD_LVL].value_));
-	rendererType = static_cast<RendererType>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_TYPE].value_));
+	void Read(Utils::XmlNode& node, Params::Textures& textures)
+	{
+		textures.maxSize.x		= Utils::StringToInt(node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]);
+		textures.maxSize.y		= Utils::StringToInt(node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT]);
+		textures.useAmbient		= Utils::StringToBool(node.attributes_[CSTR_TEXTURE_AMBIENT]);
+		textures.useDiffuse		= Utils::StringToBool(node.attributes_[CSTR_TEXTURE_DIFFUSE]);
+		textures.useNormal		= Utils::StringToBool(node.attributes_[CSTR_TEXTURE_NORMAL]);
+		textures.useSpecular	= Utils::StringToBool(node.attributes_[CSTR_TEXTURE_SPECULAR]);
+	}
 
-	dataFilesLocation = engine_node->children_[NODE_DATA_LOCATION].value_;
-	shadersFilesLocation = engine_node->children_[NODE_SHADER_LOCATION].value_;
+	void Read(Utils::XmlNode& node, Params::Renderer& renderer)
+	{
+		renderer.type = static_cast<Params::RendererType>(Utils::StringToInt(node.attributes_[CSTR_RENDERER_TYPE]));
+		renderer.viewDistance = Utils::StringToFloat(node.attributes_[CSTR_RENDERER_VIEW_DISTANCE]);
+		renderer.fpsLimt = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_LIMIT]);
+		renderer.resolution.x = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X]);
+		renderer.resolution.y = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y]);
 
-	auto& particles_node = engine_node->children_[NODE_PARTICLES];
-	useParticles = Utils::StringToBool(particles_node.value_);
+		Read(node.children_[CSTR_WATER], renderer.water);
+		Read(node.children_[CSTR_FLORA], renderer.flora);
+		Read(node.children_[CSTR_SHADOWS], renderer.shadows);
+		Read(node.children_[CSTR_TEXTURES], renderer.textures);
+		Read(node.children_[CSTR_PARTICLES], renderer.particles);
+	}
 
-	auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
+	void Read(Utils::XmlNode& node, Params::Files& files)
+	{
+		files.data		= GetDataLocationFromString(node.children_[CSTR_DATA_LOCATION].value_);
+		files.shaders	= GetShaderLocationFromString(node.children_[CSTR_SHADER_LOCATION].value_);
+		files.requiredFilesOutputFile = node.children_[CSTR_REQUIRED_FILE_OUTPUT].value_;
+	}
 
-	maxTextureResolutuion.x = Utils::StringToInt(textures_max_resolution_node.children_[NODE_RENDERER_START_LOD_LVL].value_);
-	maxTextureResolutuion.y = Utils::StringToInt(textures_max_resolution_node.children_[NODE_RENDERER_TYPE].value_);
+	void ReadFromFile(const std::string& filename)
+	{
+		Utils::XmlReader xmlReader;
+		if (!xmlReader.Read(filename))
+			return;
 
-	auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
-
-	AddRequiredFile(filename);
-}
+		Read(*xmlReader.Get(CSTR_WINDOW),	EngineConf.window);
+		Read(*xmlReader.Get(CSTR_SOUND),	EngineConf.sound);
+		Read(*xmlReader.Get(CSTR_FILES),	EngineConf.files);
+		Read(*xmlReader.Get(CSTR_RENDERER), EngineConf.renderer);
+		EngineConf.useBinaryLoading = Utils::StringToBool(xmlReader.Get(CSTR_ENABLE_BINARY_LOADING)->value_);
+		AddRequiredFile(filename);
+	}
+} // GameEngine

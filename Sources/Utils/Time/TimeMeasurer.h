@@ -15,7 +15,7 @@ namespace Utils
 		{
 		public:
 			CTimeMeasurer();
-			CTimeMeasurer(uint32 lockFps, bool vsync = true, uint32 frequency = 1000);
+			CTimeMeasurer(uint32 lockFps, uint32 frequency = 1000);
 			void AddOnTickCallback(Callback);
 			void CalculateAndLock();
 			void EndFrame();
