@@ -1,16 +1,18 @@
 #include "XmlWriter.h"
-#include "rapidxml.hpp"
-#include "rapidxml_print.hpp"
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
 #include <fstream>
+
+using namespace rapidxml;
 
 namespace Utils
 {
 	class XmlNodeWrapper
 	{
 	public:
-		XmlNodeWrapper(rapidxml::xml_document<>* doc, rapidxml::xml_node<>* node = nullptr, rapidxml::xml_node<>*root = nullptr)
+		XmlNodeWrapper(xml_document<>* doc, xml_node<>* node = nullptr, xml_node<>*root = nullptr)
 		: node_(node)
 		, root_(root)
 		, document_(doc)
@@ -45,21 +47,21 @@ namespace Utils
 			return children_.back();
 		}
 	private:
-		rapidxml::xml_node<>* CreateNode(const std::string& name, const std::string& value = std::string())
+		xml_node<>* CreateNode(const std::string& name, const std::string& value = std::string())
 		{
-			rapidxml::xml_node<>* out = nullptr;
+			xml_node<>* out = nullptr;
 
 			if (value.empty())
-				out = document_->allocate_node(rapidxml::node_element, document_->allocate_string(name.c_str()));
+				out = document_->allocate_node(node_element, document_->allocate_string(name.c_str()));
 			else
-				out = document_->allocate_node(rapidxml::node_element, document_->allocate_string(name.c_str()), document_->allocate_string(value.c_str()));
+				out = document_->allocate_node(node_element, document_->allocate_string(name.c_str()), document_->allocate_string(value.c_str()));
 
 			return out;
 		}
 	private:
-		rapidxml::xml_node<>* node_;
-		rapidxml::xml_node<>* root_;
-		rapidxml::xml_document<>* document_;
+		xml_node<>* node_;
+		xml_node<>* root_;
+		xml_document<>* document_;
 		std::list<XmlNodeWrapper> children_;
 	};
 
@@ -89,7 +91,7 @@ namespace Utils
 		}
 
 	private:
-		rapidxml::xml_document<> document_;
+		xml_document<> document_;
 		std::unique_ptr<XmlNodeWrapper> root_;
 	};
 
@@ -104,7 +106,7 @@ namespace Utils
 
 		for (auto& c : parent.children_)
 		{
-			WriteNode(c.second, node);
+			WriteNode(*c.second, node);
 		}
 	}
 

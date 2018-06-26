@@ -31,7 +31,7 @@ TEST_F(ParicleComponentTestSchould, EmitParticlesCountTest)
 	sut_.SetParticlesPerSec(100);
 	sut_.ReqisterFunctions();
 	vec3 camPosition(0);
-	EXPECT_CALL(*camera_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
+	EXPECT_CALL(*camera_, GetPosition()).WillRepeatedly(Return(camPosition));
 	EXPECT_CALL(*this, EmitParticle(_)).Times(10);
 	componentController_.Update();
 }

@@ -12,5 +12,7 @@ set(UtilsSources
 ../../Sources/Utils/XML/ParseMethods.cpp
 ../../Sources/Utils/XML/SceneReader.cpp
 ../../Sources/Utils/XML/SerializedMethods.cpp
+../../Sources/Utils/XML/XmlReader.cpp
 ../../Sources/Utils/XML/XMLUtils.cpp
+../../Sources/Utils/XML/XmlWriter.cpp
 )

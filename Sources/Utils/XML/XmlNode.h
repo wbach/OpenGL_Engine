@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <memory>
 #include <unordered_map>
 
 namespace Utils
@@ -11,7 +12,7 @@ namespace Utils
 		std::string name_;
 		std::string value_;
 		Attributes attributes_;
-		std::unordered_map<std::string, XmlNode> children_;
+		std::unordered_map<std::string, std::shared_ptr<XmlNode>> children_;
 		XmlNode* parent = nullptr;
 	};
 } // Utils

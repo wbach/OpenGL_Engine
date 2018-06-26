@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
 
-namespace GameEngine
-{
+
 	extern const std::string NODE_MAIN;
 	extern const std::string NODE_WINDOW;
 	extern const std::string PAR_WINDOW_NAME;
@@ -41,4 +40,4 @@ namespace GameEngine
 	extern const std::string NODE_WATER_REFRACTION;
 	extern const std::string NODE_WATER_REFRACTION_WIDTH;
 	extern const std::string NODE_WATER_REFRACTION_HEIGHT;
-} // GameEngine
+

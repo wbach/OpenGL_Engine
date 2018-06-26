@@ -13,7 +13,10 @@ set(UtilsIncludes
 ../../Sources/Utils/UndifineWindows.h
 ../../Sources/Utils/Utils.h
 ../../Sources/Utils/XML/SceneReader.h
+../../Sources/Utils/XML/XmlNode.h
+../../Sources/Utils/XML/XmlReader.h
 ../../Sources/Utils/XML/XMLUtils.h
+../../Sources/Utils/XML/XmlWriter.h
 ../../Sources/Utils/Clock.hpp
 ../../Sources/Utils/math.hpp
 ../../Sources/Utils/Mutex.hpp

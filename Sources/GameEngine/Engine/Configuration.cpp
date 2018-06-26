@@ -321,7 +321,6 @@ void EngineConfiguration::ReadFromFile(const std::string& filename)
    // XMLParser::ReadConfigFile(filename);
 	Utils::XmlReader xmlReader;
 	xmlReader.Read(filename);
-	using namespace GameEngine;
 
 	auto window = xmlReader.Get(NODE_WINDOW);
 
@@ -340,25 +339,25 @@ void EngineConfiguration::ReadFromFile(const std::string& filename)
 
 	auto shadows_node = engine_node->children_[NODE_SHADOWS];
 
-	isShadows = Utils::StringToBool(shadows_node.attributes_[PAR_SHADOWS_ENABLED]);
-	shadowsDistance = Utils::StringToBool(shadows_node.attributes_[PAR_SHADOWS_DISTANCE]);
-	shadowMapSize = Utils::StringToInt(shadows_node.attributes_[PAR_SHADOWS_MAP_SIZE]);
+	isShadows = Utils::StringToBool(shadows_node->attributes_[PAR_SHADOWS_ENABLED]);
+	shadowsDistance = Utils::StringToBool(shadows_node->attributes_[PAR_SHADOWS_DISTANCE]);
+	shadowMapSize = Utils::StringToInt(shadows_node->attributes_[PAR_SHADOWS_MAP_SIZE]);
 
-	startLod = static_cast<LoD>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_START_LOD_LVL].value_));
-	rendererType = static_cast<RendererType>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_TYPE].value_));
+	startLod = static_cast<LoD>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_START_LOD_LVL]->value_));
+	rendererType = static_cast<RendererType>(Utils::StringToInt(engine_node->children_[NODE_RENDERER_TYPE]->value_));
 
-	dataFilesLocation = engine_node->children_[NODE_DATA_LOCATION].value_;
-	shadersFilesLocation = engine_node->children_[NODE_SHADER_LOCATION].value_;
+	dataFilesLocation = engine_node->children_[NODE_DATA_LOCATION]->value_;
+	shadersFilesLocation = engine_node->children_[NODE_SHADER_LOCATION]->value_;
 
 	auto& particles_node = engine_node->children_[NODE_PARTICLES];
-	useParticles = Utils::StringToBool(particles_node.value_);
+	useParticles = Utils::StringToBool(particles_node->value_);
 
 	auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
 
-	maxTextureResolutuion.x = Utils::StringToInt(textures_max_resolution_node.children_[NODE_RENDERER_START_LOD_LVL].value_);
-	maxTextureResolutuion.y = Utils::StringToInt(textures_max_resolution_node.children_[NODE_RENDERER_TYPE].value_);
+	maxTextureResolutuion.x = Utils::StringToInt(textures_max_resolution_node->children_[NODE_RENDERER_START_LOD_LVL]->value_);
+	maxTextureResolutuion.y = Utils::StringToInt(textures_max_resolution_node->children_[NODE_RENDERER_TYPE]->value_);
 
-	auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
+	//auto& textures_max_resolution_node = engine_node->children_[NODE_TEXTURE_MAX_RESOLUTION];
 
 	AddRequiredFile(filename);
 }

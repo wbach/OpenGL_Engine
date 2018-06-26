@@ -84,7 +84,7 @@ namespace GameEngine
 
 			auto registerFunc = std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-			if (rendererType == SEngineConfiguration::RendererType::FULL_RENDERER)
+			if (rendererType == EngineConfiguration::RendererType::FULL_RENDERER)
 				renderers_.emplace_back(new FullRenderer(graphicsApi_, &projection_, registerFunc));
 			else
 				renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_, registerFunc));

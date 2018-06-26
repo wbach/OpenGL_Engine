@@ -41,6 +41,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/Engine.h
+../../Sources/GameEngine/Engine/EngineDef.h
 ../../Sources/GameEngine/Engine/EngineEvent.h
 ../../Sources/GameEngine/Engine/IntroRenderer.h
 ../../Sources/GameEngine/Engine/LoD.h

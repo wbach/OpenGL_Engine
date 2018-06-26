@@ -32,8 +32,9 @@ namespace Utils
 			std::string name = snode->name();
 			if (name.empty())
 				return;
-			ParseNode(snode, n.children_[name]);
-			n.children_[name].parent = &n;
+			n.children_[name] = std::make_shared<XmlNode>();
+			ParseNode(snode, *n.children_[name].get());
+			n.children_[name]->parent = &n;
 		}
 	}
 
@@ -68,12 +69,12 @@ namespace Utils
 
 		if (node->children_.count(name) != 0)
 		{
-			return &node->children_.at(name);
+			return node->children_.at(name).get();
 		}
 
 		for (auto& ch : node->children_)
 		{
-			auto n = Get(name, &ch.second);
+			auto n = Get(name, ch.second.get());
 			if (n != nullptr)
 				return n;
 		}

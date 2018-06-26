@@ -22,6 +22,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp
+../../Sources/GameEngine/Engine/EngineDef.cpp
 ../../Sources/GameEngine/Engine/IntroRenderer.cpp
 ../../Sources/GameEngine/Input/InputManager.cpp
 ../../Sources/GameEngine/Input/KeyCodeToCharConverter.cpp

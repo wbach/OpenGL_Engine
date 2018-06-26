@@ -25,7 +25,7 @@ namespace GameEngine
 		MOCK_CONST_METHOD0(GetPositionXZ, const vec2());
 		MOCK_CONST_METHOD0(GetRotation, const vec3());
 		MOCK_CONST_METHOD0(GetDirection, const vec3());
-		MOCK_METHOD0(GetPosition, vec3&());
+		MOCK_METHOD0(GetPosition, vec3());
 		MOCK_CONST_METHOD0(GetViewMatrix, mat4&());
 		MOCK_METHOD1(SetPosition, void(const vec3&));
 

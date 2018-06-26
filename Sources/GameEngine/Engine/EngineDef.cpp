@@ -1,7 +1,6 @@
 #include "EngineDef.h"
 
-namespace GameEgnie
-{
+
 	const std::string NODE_MAIN = "config";
 	const std::string NODE_WINDOW = "Window";
 	const std::string PAR_WINDOW_NAME = "Window";
@@ -40,5 +39,5 @@ namespace GameEgnie
 	const std::string NODE_WATER_REFRACTION = "Refraction";
 	const std::string NODE_WATER_REFRACTION_WIDTH = "width";
 	const std::string NODE_WATER_REFRACTION_HEIGHT = "height";
-} // GameEgnie
+
 
