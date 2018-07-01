@@ -6,81 +6,120 @@
 
 const std::string DEFAULT_DATA_PATH = "../Data/";
 const std::string DEFAULT_SHADERS_PATH = "../Shaders/";
+const std::string DEFAULT_REQUIRED_FILE_NAME  = "required_files.inf";
 
-struct EngineConfiguration
+const vec2ui DEFAULT_WINDOW_SIZE = { 1000, 600 };
+
+namespace GameEngine
 {
-    enum class RendererType
-    {
-        SIMPLE_RENDERER = 0,
-        FULL_RENDERER
-    };
+	namespace Params
+	{
+		struct Window
+		{
+			vec2ui size		 = DEFAULT_WINDOW_SIZE;
+			bool fullScreen  = false;
+			std::string name = "Default Window Name";
+		};
+		struct Sound
+		{
+			bool isEnabled = true;
+			float volume = 1.f;
+		};
+		struct Files
+		{
+			std::string data	= DEFAULT_DATA_PATH;
+			std::string shaders = DEFAULT_SHADERS_PATH;
+			std::string requiredFilesOutputFile = DEFAULT_REQUIRED_FILE_NAME;
+		};
 
-    std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
-    std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
-    std::string GetFilePatch(const std::string& file_full_path) const;
-    void AddRequiredFile(const std::string& file);
-    void SaveRequiredFiles();
-    void ReadFromFile(const std::string& filename);
+		enum class RendererType
+		{
+			SIMPLE_RENDERER = 0,
+			FULL
+		};
 
-    std::string dataFilesLocation    = DEFAULT_DATA_PATH;
-    std::string shadersFilesLocation = DEFAULT_SHADERS_PATH;
+		struct Shadows
+		{
+			bool isEnabled = true;
+			float distance = 35.f;
+			uint32 mapSize = 4096;
+		};
 
-    std::vector<std::string> requiredFiles;
+		struct Flora
+		{
+			bool isEnabled = true;
+			bool isGrass = true;
+			float viewDistance = 10.f;
+		};
+		
+		struct Particles
+		{
+			bool useParticles = true;
+		};
 
-    // Window
-    std::string windowName = "Default Window Name";
-    vec2ui resolution   = {1000, 600};
-    vec2ui windowSize   = {1000, 600};
+		enum class WaterType
+		{
+			SIMPLE = 0,
+			REFLECTED_REFRACTED,
+			FULL
+		};
 
-    bool fullScreen	 = false;
-    float refresRate = 60;
-	bool vsync		 = true;
+		struct Water
+		{
+			WaterType type = WaterType::FULL;
+			vec2ui waterReflectionResolution = { 640, 480 };
+			vec2ui waterRefractionResolution = { 320, 240 };
+		};
 
-    // Sound
-    bool sound        = true;
-    float soundVolume = 1.f;
+		struct Textures
+		{
+			vec2ui maxSize = { 1024, 1024 };
+			bool useAmbient  = true;
+			bool useDiffuse  = true;
+			bool useNormal	 = true;
+			bool useSpecular = true;
+		};
 
-    // Water
-    bool isHighWaterQuality             = true;
-    vec2i waterReflectionResolution = {640, 480};
-    vec2i waterRefractionResolution = {320, 240};
+		struct Renderer
+		{
+			RendererType type	= RendererType::FULL;
+			float viewDistance	= 250.f;
+			uint32 fpsLimt		= 60;
+			vec2ui resolution   = DEFAULT_WINDOW_SIZE;
 
-    // Models
-    vec2i maxTextureResolutuion = {128, 128};
+			Water water;
+			Flora flora;
+			Shadows shadows;
+			Textures textures;
+			Particles particles;
+		};
 
-    // Shadows
-    bool isShadows        = true;
-    float shadowsDistance = 200.f;
-    int shadowMapSize     = 1024;
+	} // Params
 
-    // ViewDistance
-    float viewDistance = 200.f;
+	struct Configuration
+	{
+		Params::Files files;
+		Params::Sound sound;
+		Params::Window window;
+		Params::Renderer renderer;
+		bool useBinaryLoading	= true;
+	};
 
-    // flora
-    float floraViewDistance = 100.f;
-    bool advancedGrass      = true;
+	void SaveRequiredFiles();
+	void AddRequiredFile(const std::string& file);
+	void ReadFromFile(const std::string& filename);
+	std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
+	std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
+	std::string GetFilePatch(const std::string& file_full_path);
+	std::string GetDataLocationFromString(const std::string& str);
+	std::string GetShaderLocationFromString(const std::string& str);
+} // GameEngine
 
-	//Effects
-	bool useParticles = true;
-
-    // Renderer
-    RendererType rendererType = RendererType::FULL_RENDERER;  // simple renderer/full renderer
-    LoD startLod;
-    // float       m_RenderingResolution = 1.f;
-
-	// Resources
-	bool enableBinaryLoading = true;
-
-    std::string requiredFilesOutputFile = "required_files.inf";
-
-    std::unordered_map<std::string,int> texturesIds;// dirty hack, debug
-};
-
-#define EngineConf SingleTon<EngineConfiguration>::Get()
-#define EngineConf_SaveRequiredFiles() EngineConf.SaveRequiredFiles()
-#define EngineConf_GetFullDataPath(x) EngineConf.GetFullDataPath(x, false)
-#define EngineConf_GetFullDataPathAddToRequierd(x) EngineConf.GetFullDataPath(x)
-#define EngineConf_GetFullShaderPath(x) EngineConf.GetFullShaderPath(x, false)
-#define EngineConf_GetFullShaderPathAddToRequierd(x) EngineConf.GetFullShaderPath(x)
-#define EngineConf_GetOrginFilePath(x) EngineConf.GetFilePatch(x)
-#define EngineConf_AddRequiredFile(x) EngineConf.AddRequiredFile(x)
+#define EngineConf SingleTon<GameEngine::Configuration>::Get()
+#define EngineConf_SaveRequiredFiles() GameEngine::SaveRequiredFiles()
+#define EngineConf_GetFullDataPath(x) GameEngine::GetFullDataPath(x, false)
+#define EngineConf_GetFullDataPathAddToRequierd(x) GameEngine::GetFullDataPath(x)
+#define EngineConf_GetFullShaderPath(x) GameEngine::GetFullShaderPath(x, false)
+#define EngineConf_GetFullShaderPathAddToRequierd(x) GameEngine::GetFullShaderPath(x)
+#define EngineConf_GetOrginFilePath(x) GameEngine::GetFilePatch(x)
+#define EngineConf_AddRequiredFile(x) GameEngine::AddRequiredFile(x)

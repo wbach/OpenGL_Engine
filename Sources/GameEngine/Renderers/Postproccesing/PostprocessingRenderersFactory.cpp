@@ -17,6 +17,9 @@ namespace GameEngine
 		case PostprocessingRendererType::DEFFERED_LIGHT: return CreateAndBasicInitialize<DefferedLighting>();
 		case PostprocessingRendererType::COLOR_FLIPER: return CreateAndBasicInitialize<ColorFliper>();
 		case PostprocessingRendererType::BLUR: return CreateAndBasicInitialize<Blur>();
+		case PostprocessingRendererType::CONTRAST_CHANGER: return nullptr;
+		case PostprocessingRendererType::SSAO: return nullptr;
+		case PostprocessingRendererType::FXAA: return nullptr;
 		}
 		return nullptr;
 	}

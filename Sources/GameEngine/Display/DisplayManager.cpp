@@ -6,7 +6,7 @@ namespace GameEngine
 {
 	CDisplayManager::CDisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h, WindowType type)
 		: api(api)
-		, timeMeasurer(static_cast<uint32>(EngineConf.refresRate), EngineConf.vsync)
+		, timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
 		, sync(true)
 		, time(true)
 		, isFullScreen(false)

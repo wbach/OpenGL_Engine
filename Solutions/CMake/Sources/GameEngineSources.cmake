@@ -21,6 +21,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
+../../Sources/GameEngine/Engine/ConfigurationReader.cpp
+../../Sources/GameEngine/Engine/ConfigurationWriter.cpp
 ../../Sources/GameEngine/Engine/Engine.cpp
 ../../Sources/GameEngine/Engine/EngineDef.cpp
 ../../Sources/GameEngine/Engine/IntroRenderer.cpp
@@ -90,6 +92,9 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/ModelFactory.cpp
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryLoader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryReader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryWriter.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/MergeTool/MergeTool.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/ColladaCommon.cpp

@@ -19,7 +19,7 @@ private:
 	uint32 shadowMap;
 
     vec2ui size;
-    vec2ui windowSize;
+    vec2ui renderResolution;
 
     bool isInit = false;
 };

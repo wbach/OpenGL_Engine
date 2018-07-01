@@ -31,10 +31,10 @@ namespace GameEngine
 		auto& conf = EngineConf;
 		
 		WindowType type = WindowType::WINDOW;
-		if (conf.fullScreen)
+		if (conf.window.fullScreen)
 			type = WindowType::FULL_SCREEN;
 
-		displayManager = std::make_shared<CDisplayManager>(graphicsApi_, conf.windowName, conf.resolution.x, conf.resolution.y, type);
+		displayManager = std::make_shared<CDisplayManager>(graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y, type);
 		inputManager_ = displayManager->CreateInput();
 		introRenderer_.Render();
 	}

@@ -40,6 +40,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
+../../Sources/GameEngine/Engine/ConfigurationReader.h
+../../Sources/GameEngine/Engine/ConfigurationWriter.h
 ../../Sources/GameEngine/Engine/Engine.h
 ../../Sources/GameEngine/Engine/EngineDef.h
 ../../Sources/GameEngine/Engine/EngineEvent.h
@@ -130,6 +132,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/ModelFactory.h
 ../../Sources/GameEngine/Resources/Models/ModelWrapper.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.h
+../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryLoader.h
+../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryReader.h
+../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryWriter.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/MergeTool/MergeTool.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Types/Animations/Animation.h

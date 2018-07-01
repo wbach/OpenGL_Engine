@@ -82,15 +82,23 @@ void FullRenderer::AddRenderer()
 
 void FullRenderer::CreateRenderers()
 {
-									AddRenderer<SkyBoxRenderer>();
-	if (EngineConf.isShadows)		AddRenderer<ShadowMapRenderer>();
-	if (EngineConf.advancedGrass)	AddRenderer<GrassRenderer>();
-									AddRenderer<TerrainRenderer>();
-									AddRenderer<TreeRenderer>();
-									AddRenderer<PlantsRenderer>();
-									AddRenderer<EntityRenderer>();
-	if (EngineConf.useParticles)	AddRenderer<ParticlesRenderer>();
-									AddRenderer<WaterRenderer>();
+	AddRenderer<SkyBoxRenderer>();
+
+	if (EngineConf.renderer.shadows.isEnabled)
+		AddRenderer<ShadowMapRenderer>();
+
+	if (EngineConf.renderer.flora.isGrass)
+		AddRenderer<GrassRenderer>();
+
+	AddRenderer<TerrainRenderer>();
+	AddRenderer<TreeRenderer>();
+	AddRenderer<PlantsRenderer>();
+	AddRenderer<EntityRenderer>();
+
+	if (EngineConf.renderer.particles.useParticles)
+		AddRenderer<ParticlesRenderer>();
+
+	AddRenderer<WaterRenderer>();
 }
 void FullRenderer::PostProcess(Scene * scene)
 {

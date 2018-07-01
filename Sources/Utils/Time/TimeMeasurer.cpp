@@ -16,17 +16,17 @@ namespace Utils
 	namespace Time
 	{
 		CTimeMeasurer::CTimeMeasurer()
-			: CTimeMeasurer(static_cast<uint32>(EngineConf.refresRate), EngineConf.vsync)
+			: CTimeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
 		{
 			Log("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
 		}
 
-		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, bool vsync, uint32 frequency)
+		CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)
 			: lockFps(lockFps)
 			, frequency_(frequency)
 			, previousTime_(0.f)
 			, currentTime_(0.f)
-			, vsync(vsync)
+			, vsync(lockFps > 0)
 			, deltaTime(0)
 			, deltaTime2(0)
 			, lastFrameTime(std::chrono::high_resolution_clock::now())

@@ -15,7 +15,7 @@ CShadowBox::CShadowBox(CProjection* projection)
 	, m_Offset(1.f)
 	, m_Up(0, 1, 0, 0)
 	, m_Forward(0, 0, -1, 0)
-	, m_ShadowDistance(EngineConf.shadowsDistance)
+	, m_ShadowDistance(EngineConf.renderer.shadows.distance)
 {
 	CalculateWidthsAndHeights();
 }

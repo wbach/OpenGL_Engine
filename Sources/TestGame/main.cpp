@@ -6,7 +6,6 @@
 #include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
 #include "GameEngine/Engine/Configuration.h"
 
-
 void StartMessage()
 {
 	std::string stars = "********************************************\n";
@@ -18,21 +17,11 @@ void StartMessage()
 	<< stars;
 }
 
-
 int main(int argc, char* argv[])
 {
-	EngineConf.ReadFromFile("./Conf.xml");
-
-	//int i = 0;
-	//for (i = 0; i < LAST; i++) {
-	//	printf("%d %s\n", i, strings[i]);
-	//}
+	GameEngine::ReadFromFile("./Conf.xml");
 
 	GameEngine::IGraphicsApiPtr api = std::make_shared<GameEngine::OpenGLApi>();
-
-	#ifdef BACHU_HAHAH
-	std::cout << "DBACHU_HAHAH MINGW32 build." << std::endl;
-	#endif
 
  	StartMessage();
 

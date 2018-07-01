@@ -10,6 +10,7 @@ struct TextureLoaderMock : public CTextureLoader
 	{
 	}
 
+	GameEngine::IGraphicsApiPtr graphicsMock_;
 	OpenGLLoaderMock openGlmock;
 	std::vector<std::unique_ptr<CTexture>> textures;
 };

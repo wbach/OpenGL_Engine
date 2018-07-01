@@ -6,7 +6,7 @@ namespace Utils
 	class XmlReader
 	{
 	public:
-		XmlNode Read(const std::string& filename);
+		bool Read(const std::string& filename);
 		XmlNode* Get(const std::string& name, XmlNode* node = nullptr);
 
 	private:

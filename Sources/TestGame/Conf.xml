@@ -1,22 +1,21 @@
-<config>
-	<Window name="Gota - OpenGL" width="1000" height="600" fullscreen="false" refreshRate="60" vsync="false"/>
-	<Sound enabled="true" volume="1.0"/>
-	<Engine>
+<Config>
+	<Window name="Default Window Name" width="1000" height="600" fullscreen="false"/>
+	<Files>
 		<DataLocation>C:/Users/basze/OneDrive/GameData/Data</DataLocation>
-		<ShadersLocation>D:/Projects/OpenGL_Engine/Sources/Shaders/</ShadersLocation>
-		<ViewDistance>250</ViewDistance>
-		<EnableBinaryLoading>true</EnableBinaryLoading>
-		<Renderer>			
-		 	<start_lod_lvl>2</start_lod_lvl>
-		 	<type>1</type>
-		 </Renderer>
-		<Particles enabled="true"/>
-		<TextureMaxResolution width="4096" height="4096"/>
-		<Flora viewDistance="10" grass="true"/>
-		<Shadows enabled="true" distance="35" shadowMapSize="4096"/>
-		<Water quality="1">
-			<Reflection width="320" height="240"/>
-			<Refraction width="640" height="480"/>
+		<ShadersLocation>../Shaders/</ShadersLocation>
+		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
+	</Files>
+	<Sound enabled="1" volume="1.000000"/>
+	<Renderer resolutionX="1000" type="1" resolutionY="600" fpsLimit="60">
+		<Water type="2">
+			<Reflection width="640" height="480"/>
+			<Refraction width="320" height="240"/>
 		</Water>
-	</Engine>
-</config>
+		<Textures ambient="true" maxWidth="1024" maxHeight="1024" diffuse="true" normal="true" specular="true"/>
+		<Flora enabled="true" grass="1" viewDistance="10.000000"/>
+		<Shadows enabled="true" viewDistance="35.000000" shadowMapSize="4096"/>
+		<Particles enabled="true"/>
+	</Renderer>
+	<EnableBinaryLoading>true</EnableBinaryLoading>
+</Config>
+

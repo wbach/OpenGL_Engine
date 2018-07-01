@@ -116,7 +116,7 @@ namespace Utils
 		WroteNodeMembers(node, child);
 	}
 
-	void XmlWriter::Write(const std::string & filename, XmlNode& root)
+	void Xml::Write(const std::string & filename, XmlNode& root)
 	{
 		XmlCreator creator;
 		auto& builderRoot = creator.CreateRoot(root.name_, root.value_);

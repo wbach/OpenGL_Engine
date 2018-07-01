@@ -4,8 +4,8 @@
 
 CShadowFrameBuffer::CShadowFrameBuffer(GameEngine::IGraphicsApiPtr graphicsApi)
     : graphicsApi_(graphicsApi)
-    , size(EngineConf.shadowMapSize)
-	, windowSize(EngineConf.resolution)
+    , size(EngineConf.renderer.shadows.mapSize)
+	, renderResolution(EngineConf.renderer.resolution)
 {
     InitialiseFrameBuffer();
 }
@@ -27,7 +27,7 @@ void CShadowFrameBuffer::BindFBO()
 void CShadowFrameBuffer::UnbindFrameBuffer() const
 {
 	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, 0);
-	graphicsApi_->SetViewPort(0, 0, windowSize.x, windowSize.y);
+	graphicsApi_->SetViewPort(0, 0, renderResolution.x, renderResolution.y);
 }
 
 void CShadowFrameBuffer::InitialiseFrameBuffer()

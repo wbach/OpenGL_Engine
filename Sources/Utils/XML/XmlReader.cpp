@@ -38,7 +38,7 @@ namespace Utils
 		}
 	}
 
-	XmlNode XmlReader::Read(const std::string & filename)
+	bool XmlReader::Read(const std::string & filename)
 	{
 		rapidxml::xml_document<> document;
 
@@ -51,12 +51,10 @@ namespace Utils
 		{
 			std::string out = p.what();
 			Error(out);
-			return {};
+			return false;
 		}
-		XmlNode out;
-		ParseNode(document.first_node(), out);
-
-		return out;
+		ParseNode(document.first_node(), root_);
+		return true;
 	}
 
 	XmlNode* XmlReader::Get(const std::string& name, XmlNode* node)

@@ -11,7 +11,7 @@ namespace MmmoRpg
 	//TO DO: remove pause when fix getdown key in input manager
 	LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
 		: MRpgScene("LoginScene", gateway, serverAddress, gameContext)
-		, cursorTimer_(60, false, 250)
+		, cursorTimer_(60, 250)
 		, loginOrPasswordInput(false)
 		, showCursor_(false)
 	{

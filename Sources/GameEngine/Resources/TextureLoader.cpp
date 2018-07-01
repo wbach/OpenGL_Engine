@@ -52,12 +52,12 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
         FreeImage_FlipHorizontal(imagen);
     }
 
-	int w = FreeImage_GetWidth(imagen);
-	int h = FreeImage_GetHeight(imagen);
+	uint32 w = FreeImage_GetWidth(imagen);
+	uint32 h = FreeImage_GetHeight(imagen);
 	
 	if (applySizeLimit)
 	{
-        auto& texture_size = EngineConf.maxTextureResolutuion;
+        auto& texture_size = EngineConf.renderer.textures.maxSize;
 		bool resize_texture = false;
 
 		if (w > texture_size.x)
@@ -80,9 +80,9 @@ void CTextureLoader::ReadFile(const std::string & file, SImage& image, bool appl
 	char* pixeles = (char*)FreeImage_GetBits(imagen);
 	Log("File convert bgr2rgb" + file_location + ".");
 	//image.data.resize(4*w*h);
-	auto data = new uint8[4 * w*h];
+	auto data = new uint8[4*w*h];
 	//bgr2rgb
-	for (int j = 0; j<w*h; j++)
+	for (uint32 j = 0; j < w*h; j++)
 	{
         data[j * 4 + 0] = pixeles[j * 4 + 2];
         data[j * 4 + 1] = pixeles[j * 4 + 1];

@@ -61,4 +61,5 @@ bool CheckExtension(const std::string& file, const std::string& ext);
 float StringToFloat(const std::string& str);
 int StringToInt(const std::string& str);
 bool StringToBool(const std::string& str);
+std::string BoolToString(bool);
 }

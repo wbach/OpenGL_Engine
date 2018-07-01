@@ -777,7 +777,7 @@ namespace GameEngine
 	}
 	uint32 OpenGLApi::CloneImage(uint32 objectId)
 	{
-		auto& obj = idToGlId_[objectId];
+		//auto& obj = idToGlId_[objectId];
 
 		Log("Not implementet");
 		//glCopyTexImage2D();

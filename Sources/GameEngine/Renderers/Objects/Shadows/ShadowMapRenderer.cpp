@@ -26,7 +26,6 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
 void ShadowMapRenderer::Init()
 {
 	shader_.Init();
-	EngineConf.texturesIds["shadowMap"] = context_.shadowsFrameBuffer_->GetShadowMap();
 }
 
 void ShadowMapRenderer::Render(Scene* scene)

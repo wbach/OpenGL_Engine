@@ -3,9 +3,8 @@
 
 namespace Utils
 {
-	class XmlWriter
+	namespace Xml
 	{
-	public:
 		void Write(const std::string& filename, XmlNode& root);
-	};
+	}
 } // Utils

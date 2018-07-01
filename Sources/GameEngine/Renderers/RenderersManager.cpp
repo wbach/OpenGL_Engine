@@ -73,18 +73,18 @@ namespace GameEngine
 		void RenderersManager::InitProjection()
 		{
 			auto& conf = EngineConf;
-			projection_ = conf.resolution;
+			projection_ = conf.renderer.resolution;
 		}
 		void RenderersManager::InitMainRenderer()
 		{
 			if (!renderers_.empty())
 				return;
 
-			auto rendererType = EngineConf.rendererType;
+			auto rendererType = EngineConf.renderer.type;
 
 			auto registerFunc = std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-			if (rendererType == EngineConfiguration::RendererType::FULL_RENDERER)
+			if (rendererType == Params::RendererType::FULL)
 				renderers_.emplace_back(new FullRenderer(graphicsApi_, &projection_, registerFunc));
 			else
 				renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_, registerFunc));

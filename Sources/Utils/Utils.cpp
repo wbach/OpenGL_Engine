@@ -203,3 +203,8 @@ bool Utils::StringToBool(const std::string & str)
 	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 	return (s == "true" ? true : false);
 }
+
+std::string Utils::BoolToString(bool b)
+{
+	return  b ? "true" : "false";
+}

@@ -19,7 +19,7 @@ namespace GameEngine
 	{
 		InitShader();
 
-		viewDistance = EngineConf.floraViewDistance;
+		viewDistance = EngineConf.renderer.flora.viewDistance;
 		Log("Grass renderer initialized.");
 	}
 

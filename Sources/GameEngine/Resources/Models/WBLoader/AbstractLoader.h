@@ -20,7 +20,6 @@ namespace WBLoader
 	protected:
         virtual void ParseFile(const std::string& filename)      = 0;
 		std::list<WBLoader::Object> objects;
-		void CreateBinFile(const std::unique_ptr<CModel>& model);
 		std::unique_ptr<CModel> CreateModel();
 		std::unique_ptr<CModel> CreateModelFromBin();
 
@@ -30,7 +29,6 @@ namespace WBLoader
 	private:
 		void NormalizeMatrix(mat4& mat, float factor) const;
 		float FindMaxFactor() const;
-		std::unique_ptr<CModel> ReadBinFile(const std::string& filename);
 
 	private:
 		GameEngine::IGraphicsApiPtr graphicsApi_;
