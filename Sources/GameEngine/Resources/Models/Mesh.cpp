@@ -1,7 +1,8 @@
 #include "Mesh.h"
 #include "GLM/GLMUtils.h"
 
-CMesh::CMesh()
+CMesh::CMesh(GameEngine::IGraphicsApiPtr graphicsApi)
+	: graphicsApi_(graphicsApi)
 {
 }
 

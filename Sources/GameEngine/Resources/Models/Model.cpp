@@ -36,9 +36,9 @@ CMesh* CModel::AddMesh(CMesh& mesh)
 	return &meshes.back();
 }
 
-CMesh* CModel::AddMesh()
+CMesh* CModel::AddMesh(GameEngine::IGraphicsApiPtr api)
 {
-	meshes.emplace_back();
+	meshes.emplace_back(api);
 	return &meshes.back();
 }
 

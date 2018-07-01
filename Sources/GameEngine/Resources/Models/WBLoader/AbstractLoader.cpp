@@ -23,8 +23,9 @@ namespace WBLoader
 		auto binFile = CreateBinPath(fileName_);
 		if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))
 		{
-			ReadBinFile(binFile, textureLoader_);
+			//ReadBinFile(binFile, textureLoader_);
 			loadedFromBin_ = true;
+			fileName_ = binFile;
 			Log("Load from bin file :" + filename);
 		}
 		else

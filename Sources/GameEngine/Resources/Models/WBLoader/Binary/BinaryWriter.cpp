@@ -136,12 +136,12 @@ void CreateBinFile(const std::unique_ptr<CModel>& model, const std::string& file
 	std::fstream binaryFile(CreateBinPath(filename), std::ios::binary | std::ios::out);
 
 	WriteToFile(binaryFile, model->GetFileName());
+	WriteToFile(binaryFile, model->GetScaleFactor());
 	WriteToFile(binaryFile, model->GetMeshes().size());
 	for (auto& mesh : model->GetMeshes())
 	{
 		WriteToFile(binaryFile, mesh.GetCMeshDataRef(), mesh.GetMaterial(), mesh.GetMeshTransform());
 	}
-	WriteToFile(binaryFile, model->GetMeshes().size());
 	WriteToFile(binaryFile, model->animationClips_);
 	WriteToFile(binaryFile, model->skeleton_);
 

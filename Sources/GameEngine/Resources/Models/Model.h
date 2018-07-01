@@ -20,7 +20,7 @@ public:
 	virtual void OpenGLLoadingPass() override;
 
 	CMesh* AddMesh(CMesh& mesh);
-	CMesh* AddMesh();
+	CMesh* AddMesh(GameEngine::IGraphicsApiPtr api);
 	inline float GetScaleFactor();
 	inline const std::string& GetFileName() const;
 	inline const std::vector<CMesh>& GetMeshes() const;

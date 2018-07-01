@@ -10,13 +10,14 @@
 class CMesh : public COpenGLObject
 {
 public:
-    CMesh();
+    CMesh(GameEngine::IGraphicsApiPtr graphicsApi);
 	CMesh(GameEngine::IGraphicsApiPtr graphicsApi, const SMaterial& material, const mat4& transformMatix = mat4(1.f));
     CMesh(const CMesh&)         = delete;
     CMesh(CMesh&&)              = default;
     virtual ~CMesh();
     virtual void OpenGLLoadingPass() override;
     virtual void OpenGLPostLoadingPass() override;
+    void SetMaterial(const SMaterial& material);
 	void SetTransformMatrix(const glm::mat4& m);
     bool IsInit() const;
 	bool UseArmature() const;
@@ -33,7 +34,6 @@ private:
     void CalculateBoudnigBox(const std::vector<float>& positions);
     void SetInstancedMatrixes(const std::vector<mat4>& m);
 
-    void SetMaterial(const SMaterial& material);
     void ClearData();
 
 private:

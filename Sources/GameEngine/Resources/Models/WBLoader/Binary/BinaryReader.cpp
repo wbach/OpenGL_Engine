@@ -28,6 +28,20 @@ namespace WBLoader
 		file.read(reinterpret_cast<char*>(&v[0]), sizeof(T) * size);
 	}
 
+	void ReadFile(std::ifstream & file, std::string & str)
+	{
+		uint32 size = 0;
+		file.read(reinterpret_cast<char*>(&size), sizeof(uint32));
+
+		if (size == 0)
+			return;
+
+		char buff[512];
+		memset(buff, 0, 512);
+		file.read(buff, sizeof(char) * size);
+		str = std::string(buff);
+	}
+
 	void ReadFile(std::ifstream& file, GameEngine::Animation::KeyFrame& keyFrame)
 	{
 		ReadFile(file, keyFrame.timeStamp);
@@ -84,7 +98,6 @@ namespace WBLoader
 		{
 			Error("Animation length is diffrent.");
 		}
-
 	}
 
 	void ReadFile(std::ifstream& file, AnimationClipsMap& animations)
@@ -101,19 +114,6 @@ namespace WBLoader
 			ReadFile(file, name);
 			ReadFile(file, animations[name]);
 		}
-	}
-	void ReadFile(std::ifstream & file, std::string & str)
-	{
-		uint32 size = 0;
-		file.read(reinterpret_cast<char*>(&size), sizeof(uint32));
-
-		if (size == 0)
-			return;
-
-		char buff[512];
-		memset(buff, 0, 512);
-		file.read(buff, sizeof(char) * size);
-		str = std::string(buff);
 	}
 	void ReadFile(std::ifstream & file, GameEngine::Animation::JointTransform & transform)
 	{
@@ -148,18 +148,23 @@ namespace WBLoader
 		if (!file.is_open())
 			return nullptr;
 
-		auto out = std::make_unique<CModel>();
 
-		uint32 meshesSize = 0;
 		std::string file_name;
 		ReadFile(file, file_name);
 		Log("file : " + file_name);
+
+		float scaleFactor = 1.f;
+		ReadFile(file, scaleFactor);
+
+		uint32 meshesSize = 0;
 		ReadFile(file, meshesSize);
+
+		auto out = std::make_unique<CModel>(scaleFactor);
 
 		for (uint32 m = 0; m < meshesSize; ++m)
 		{
-			std::string name;
-			ReadFile(file, name);
+			//std::string name;
+			//ReadFile(file, name);
 
 			SMaterial material;
 			ReadFile(file, material.name);
@@ -183,8 +188,9 @@ namespace WBLoader
 			material.ambientTexture = textureLoader.LoadTexture(textures[2], true, true, ObjectTextureType::MATERIAL);
 			material.specularTexture = textureLoader.LoadTexture(textures[3], true, true, ObjectTextureType::MATERIAL);
 
-			auto& mesh = *(out->AddMesh());
+			auto& mesh = *(out->AddMesh(textureLoader.GetGraphicsApi()));
 			auto& data = mesh.GetMeshDataRef();
+			mesh.SetMaterial(material);
 
 			ReadFile(file, data.bitangents_);
 			ReadFile(file, data.bonesWeights_);
@@ -199,6 +205,9 @@ namespace WBLoader
 			ReadFile(file, transform);
 			mesh.SetTransformMatrix(transform);
 		}
+
+		ReadFile(file, out->animationClips_);
+		ReadFile(file, out->skeleton_);
 
 		file.close();
 
