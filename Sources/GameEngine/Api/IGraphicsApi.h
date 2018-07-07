@@ -48,6 +48,8 @@ namespace GameEngine
 		virtual void LoadValueToShader(uint32, const vec4&) = 0;
 		virtual void LoadValueToShader(uint32, const mat3&) = 0;
 		virtual void LoadValueToShader(uint32, const mat4&) = 0;
+		virtual void LoadValueToShader(uint32, const std::vector<float>&) = 0;
+		virtual void LoadValueToShader(uint32, const std::vector<vec3>&) = 0;
 		virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui, void* data) = 0;
 		virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) = 0;
 		virtual void SetBuffers(const std::vector<BufferAtachment>&) = 0;

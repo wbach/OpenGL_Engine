@@ -12,7 +12,9 @@ namespace GameEngine
 		{
 			ProjectionMatrix,
 			ViewMatrix,
-			PositionTexture
+			PositionTexture,
+			Kernel,
+			SampleRadius
 		};
 		SSAOShader(IGraphicsApiPtr graphicsApi);
 		template <class T>

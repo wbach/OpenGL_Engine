@@ -1,5 +1,6 @@
 #include "EntityRenderer.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
@@ -126,7 +127,7 @@ namespace GameEngine
 
 		shader.LoadMeshMaterial(material);
 
-		if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
+		if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized() && EngineConf.renderer.textures.useDiffuse)
 		{
 			shader.LoadUseTexture(1.f);
 			context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
@@ -140,12 +141,12 @@ namespace GameEngine
 			shader.LoadTextureOffset(vec2(0));
 		}
 
-		if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
+		if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized() && EngineConf.renderer.textures.useAmbient)
 		{
 			context_.graphicsApi_->ActiveTexture(1, material.ambientTexture->GetId());
 		}
 
-		if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
+		if (material.normalTexture != nullptr && material.normalTexture->IsInitialized() && EngineConf.renderer.textures.useNormal)
 		{
 			context_.graphicsApi_->ActiveTexture(2, material.normalTexture->GetId());
 			shader.LoadUseNormalMap(1.f);
@@ -153,7 +154,7 @@ namespace GameEngine
 		else
 			shader.LoadUseNormalMap(0.f);
 
-		if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
+		if (material.specularTexture != nullptr && material.specularTexture->IsInitialized() && EngineConf.renderer.textures.useSpecular)
 			context_.graphicsApi_->ActiveTexture(3, material.specularTexture->GetId());
 	}
 

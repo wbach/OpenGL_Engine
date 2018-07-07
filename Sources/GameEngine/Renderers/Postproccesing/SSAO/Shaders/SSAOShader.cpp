@@ -17,7 +17,9 @@ namespace GameEngine
 	{
 		GetLocation(ProjectionMatrix);
 		GetLocation(ViewMatrix);
+		GetLocation(Kernel);
 		GetLocation(PositionTexture);
+		GetLocation(SampleRadius);
 	}
 
 	void SSAOShader::BindAttributes()

@@ -92,6 +92,14 @@ void CShaderProgram::LoadValue(uint32 loacation, const mat4& value) const
 {
 	graphicsApi_->LoadValueToShader(loacation, value);
 }
+void CShaderProgram::LoadValue(uint32 loacation, const std::vector<float>& value) const
+{
+	graphicsApi_->LoadValueToShader(loacation, value);
+}
+void CShaderProgram::LoadValue(uint32 loacation, const std::vector<vec3>& value) const
+{
+	graphicsApi_->LoadValueToShader(loacation, value);
+}
 void CShaderProgram::LoadValue(uint32 loacation, const mat3& value) const
 {
 	graphicsApi_->LoadValueToShader(loacation, value);

@@ -1,7 +1,8 @@
 #include "PostprocessingRenderersFactory.h"
+#include "SSAO/SSAO.h"
+#include "Blur/Blur.h"
 #include "ColorFliper/ColorFliper.h"
 #include "DefferedLighting/DefferedLighting.h"
-#include "Blur/Blur.h"
 
 namespace GameEngine
 {
@@ -14,12 +15,12 @@ namespace GameEngine
 	{
 		switch (type)
 		{
-		case PostprocessingRendererType::DEFFERED_LIGHT: return CreateAndBasicInitialize<DefferedLighting>();
-		case PostprocessingRendererType::COLOR_FLIPER: return CreateAndBasicInitialize<ColorFliper>();
-		case PostprocessingRendererType::BLUR: return CreateAndBasicInitialize<Blur>();
-		case PostprocessingRendererType::CONTRAST_CHANGER: return nullptr;
-		case PostprocessingRendererType::SSAO: return nullptr;
-		case PostprocessingRendererType::FXAA: return nullptr;
+		case PostprocessingRendererType::SSAO:				return CreateAndBasicInitialize<SSAORenderer>();
+		case PostprocessingRendererType::BLUR:				return CreateAndBasicInitialize<Blur>();
+		case PostprocessingRendererType::COLOR_FLIPER:		return CreateAndBasicInitialize<ColorFliper>();
+		case PostprocessingRendererType::DEFFERED_LIGHT:	return CreateAndBasicInitialize<DefferedLighting>();
+		case PostprocessingRendererType::CONTRAST_CHANGER:	return nullptr;
+		case PostprocessingRendererType::FXAA:				return nullptr;
 		}
 		return nullptr;
 	}

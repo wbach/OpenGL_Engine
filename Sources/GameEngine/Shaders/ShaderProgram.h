@@ -46,6 +46,8 @@ protected:
 	void LoadValue(uint32 loacation, const vec4& value) const;
 	void LoadValue(uint32 loacation, const mat3& value) const;
 	void LoadValue(uint32 loacation, const mat4& value) const;
+	void LoadValue(uint32 loacation, const std::vector<float>& value) const;
+	void LoadValue(uint32 loacation, const std::vector<vec3>& value) const;
 
 private:
 	GameEngine::IGraphicsApiPtr graphicsApi_;

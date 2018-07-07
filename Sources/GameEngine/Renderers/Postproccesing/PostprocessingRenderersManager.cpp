@@ -13,6 +13,7 @@ PostProcessingManager::PostProcessingManager(RendererContext& context)
 {
 	ResetBufferSet();
 	factory_ = std::make_unique<PostprocessingRenderersFactory>(context_, &passivePostProcessFrameBuffer_);
+	ssaoRenderer_ = factory_->Create(PostprocessingRendererType::SSAO);
 	AddEffects();
 }
 PostProcessingManager::~PostProcessingManager()
@@ -22,17 +23,23 @@ void PostProcessingManager::Init()
 {
 	postproccesFrameBuffer1_.Init(context_.projection_->GetWindowSize());
 	postproccesFrameBuffer2_.Init(context_.projection_->GetWindowSize());
+	ambientOclusionFrameBuffer_.Init(context_.projection_->GetWindowSize());
 
 	for (auto& renderer : postProcessingRenderers_)
 	{
 		renderer->Init();
 	}
+	ssaoRenderer_->Init();
 }
 void PostProcessingManager::Render(Scene* scene)
 {
 	uint32 i = 0;
 	first_ = true;
 	ResetBufferSet();
+
+	ambientOclusionFrameBuffer_.BindToDraw();
+	ssaoRenderer_->Render(scene);
+	ambientOclusionFrameBuffer_.UnBind();
 
 	for (auto& renderer : postProcessingRenderers_)
 	{

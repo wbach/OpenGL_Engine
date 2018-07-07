@@ -373,6 +373,16 @@ namespace GameEngine
 		glUniformMatrix4fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
 	}
 
+	void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<float>& v)
+	{
+		glUniform3fv(loacation, v.size(), (const GLfloat*)&v[0]);
+	}
+
+	void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<vec3>& v)
+	{
+		glUniform3fv(loacation, v.size(), (const GLfloat*)&v[0]);
+	}
+
 	uint32 OpenGLApi::CreateTexture(TextureType type, TextureFilter filter, TextureMipmap mimpamp, BufferAtachment atachment, vec2ui size, void* data)
 	{
 		uint32 textureType = GL_TEXTURE_2D;
