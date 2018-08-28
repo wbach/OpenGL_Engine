@@ -10,6 +10,7 @@ PostProcessingManager::PostProcessingManager(RendererContext& context)
 	, first_(false)
 	, postproccesFrameBuffer1_(context.graphicsApi_)
 	, postproccesFrameBuffer2_(context.graphicsApi_)
+	, ambientOclusionFrameBuffer_(context.graphicsApi_)
 {
 	ResetBufferSet();
 	factory_ = std::make_unique<PostprocessingRenderersFactory>(context_, &passivePostProcessFrameBuffer_);

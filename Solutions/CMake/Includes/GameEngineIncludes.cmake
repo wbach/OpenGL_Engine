@@ -21,6 +21,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Api/SDL2/SDLOpenGL.h
 ../../Sources/GameEngine/Api/ShaderTypes.h
 ../../Sources/GameEngine/Api/TextureParamters.h
+../../Sources/GameEngine/Api/TextureTarget.h
 ../../Sources/GameEngine/Api/WindowType.h
 ../../Sources/GameEngine/Camera/Camera.h
 ../../Sources/GameEngine/Camera/Camera2D.h

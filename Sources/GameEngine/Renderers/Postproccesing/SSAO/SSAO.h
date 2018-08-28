@@ -22,7 +22,7 @@ namespace GameEngine
 		void BlurPass();
 
 	private:
-		SSAOShader ssaoShader_;
+		std::unique_ptr<SSAOShader> ssaoShader_;
 		Blur blurRenderer_;
 	};
 }

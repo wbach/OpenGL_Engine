@@ -10,12 +10,13 @@ namespace GameEngine
 		blurRenderer_.SetPostProcessFrameBuffer(postprocessFrameBuffer_);
 		blurRenderer_.Init();
 
-		ssaoShader_.Init();
-		ssaoShader_.Start();
+		ssaoShader_.reset(new SSAOShader(rendererContext_->graphicsApi_));
+		ssaoShader_->Init();
+		ssaoShader_->Start();
 		GenKernel();
-		ssaoShader_.Load(SSAOShader::UniformLocation::SampleRadius, 1.5f);
-		ssaoShader_.Load(SSAOShader::UniformLocation::ProjectionMatrix, rendererContext_->projection_->GetProjectionMatrix());
-		ssaoShader_.Stop();
+		ssaoShader_->Load(SSAOShader::UniformLocation::SampleRadius, 1.5f);
+		ssaoShader_->Load(SSAOShader::UniformLocation::ProjectionMatrix, rendererContext_->projection_->GetProjectionMatrix());
+		ssaoShader_->Stop();
 	}
 	void SSAORenderer::Prepare(Scene * scene)
 	{
@@ -27,18 +28,18 @@ namespace GameEngine
 	}
 	void SSAORenderer::ReloadShaders()
 	{
-		ssaoShader_.Stop();
-		ssaoShader_.Reload();
-		ssaoShader_.Init();
+		ssaoShader_->Stop();
+		ssaoShader_->Reload();
+		ssaoShader_->Init();
 	}
 	void SSAORenderer::SSAOPass()
 	{
 		auto positionTexture = rendererContext_->defferedFrameBuffer_->GetTexture(0);
 
-		ssaoShader_.Start();
+		ssaoShader_->Start();
 		rendererContext_->graphicsApi_->ActiveTexture(0, positionTexture);
 		rendererContext_->graphicsApi_->RenderQuad();
-		ssaoShader_.Stop();
+		ssaoShader_->Stop();
 	}
 	void SSAORenderer::BlurPass()
 	{
@@ -61,6 +62,6 @@ namespace GameEngine
 
 			kernel[i] = v;
 		}
-		ssaoShader_.Load(SSAOShader::UniformLocation::Kernel, kernel);
+		ssaoShader_->Load(SSAOShader::UniformLocation::Kernel, kernel);
 	}
 }
