@@ -74,6 +74,7 @@ additionalIncludesDir='
 ..\..\Tools\Windows\GLFW3\include;
 ..\..\Tools\Windows\gtest\include;
 ..\..\Tools\Windows\gmock\include;
+..\..\Tools\common\bullet\src\;
 '
 for d in "${depend[@]}"
 do
@@ -96,7 +97,32 @@ libfreetype.lib;
 glfw3.lib;
 glfw3dll.lib;
 gtest.lib;
-gmock.lib;'
+gmock.lib;
+Bullet2FileLoader.lib;
+Bullet3Collision.lib;
+Bullet3Common.lib;
+Bullet3Dynamics.lib;
+Bullet3Geometry.lib;
+Bullet3OpenCL_clew.lib;
+BulletCollision.lib;
+BulletDynamics.lib;
+BulletExampleBrowserLib.lib;
+BulletFileLoader.lib;
+BulletInverseDynamics.lib;
+BulletInverseDynamicsUtils.lib;
+BulletRobotics.lib;
+BulletSoftBody.lib;
+BulletWorldImporter.lib;
+BulletXmlWorldImporter.lib;
+BussIK.lib;
+clsocket.lib;
+ConvexDecomposition.lib;
+GIMPACTUtils.lib;
+gtest.lib;
+gwen.lib;
+HACD.lib;
+LinearMath.lib;
+OpenGLWindow.lib;'
 for d in "${depend[@]}"
 do
 	additionalLibs=$additionalLibs$d'.lib;'
@@ -113,6 +139,7 @@ additionalLibsDir='
 '$toolsDir'\GLFW3\lib-vc2015;
 '$toolsDir'\gtest\lib\x86\Release;
 '$toolsDir'\gmock\lib\x86\Release;
+..\..\Tools\common\bullet\lib\Release;
 '
 for d in "${depend[@]}"
 do

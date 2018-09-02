@@ -20,6 +20,9 @@ set(TestGameSources
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/GetCharacterState.cpp
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/SelectingCharacterState.cpp
 ../../Sources/TestGame/MRpg/Scenes/SelectCharacter/States/WaitForConfirmationState.cpp
+../../Sources/TestGame/Physics/PhyscisTestScene.cpp
+../../Sources/TestGame/Physics/Scenes/PhysicsScene.cpp
+../../Sources/TestGame/Physics/Scenes/PhysicsSceneFactory.cpp
 ../../Sources/TestGame/Single/PlayerInputController.cpp
 ../../Sources/TestGame/Single/Scene/MainScene.cpp
 ../../Sources/TestGame/Single/Scene/TestSceneFactory.cpp

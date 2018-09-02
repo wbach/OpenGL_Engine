@@ -1,5 +1,6 @@
 #include "Single/SingleStart.h"
 #include "MRpg/mrpg_main.h"
+#include "Physics/PhyscisTestScene.h"
 #include "../GameEngine/Engine/Engine.h"
 #include "Logger/Log.h"
 #include "GameEngine/Api/OpenGL/OpenGLApi.h"
@@ -47,6 +48,11 @@ int main(int argc, char* argv[])
 				if (gameName == "TEST")
 				{
 					TestGame::TestGameStart(api);
+					choosedApp = true;
+				}
+				if (gameName == "PHYSICS")
+				{
+					PhysicsTestGame::Start(api);
 					choosedApp = true;
 				}
 			}

@@ -56,6 +56,7 @@ wb::optional<float> CTerrain::GetHeightofTerrain(float worldX, float worldZ)
 
 void CTerrain::InitHeights(int x, int y)
 {
+	size = vec2ui(x, y);
 	heights.resize(x*y);
 }
 void CTerrain::LoadHeight(const SImage &height_map)

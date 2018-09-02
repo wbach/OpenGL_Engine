@@ -349,7 +349,6 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
 
 void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position)
 {
-	//, CreateGrassPositions(), "Data/Textures/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     auto terrain = ObjectBuilder::CreateTerrain(*resourceManager_, textures);
 	if (terrain == nullptr)
 	{
@@ -360,20 +359,6 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
     terrains.push_back(terrain);
     renderersManager_->Subscribe(terrain);
 	terrains_.push_back(terrain);
-
-	//for (int y = -10; y < 10; y++)
-	//	for (int x = -10; x < 10; x++)
-	//	{
-	//		auto obj = ObjectBuilder::CreateEntity(&resourceManager_, glm::vec3(0, 1.f, 0), "Meshes/Cube.obj");
-	//		
-	//		auto pos = terrain->CollisionDetection(vec3(x, 0.f, y));
-
-	//		if (!pos)
-	//			continue;
-
-	//		AddGameObject(obj, pos.constValue());
-	//		renderersManager_->Subscribe(obj);
-	//	}
 }
 
 std::vector<float> MainScene::CreateGrassPositions(CGameObject* object, vec2 pos)

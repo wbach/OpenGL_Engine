@@ -18,10 +18,12 @@ public:
 	glm::mat4 GetTransformMatrix();
 
 	void SetHeight(int x, int y, float value);
+	const vec2ui& GetSize() { return size; }
 	//Height Map
 	wb::optional<float>	GetHeightofTerrain(vec2 posXZ);
 	wb::optional<float>	GetHeightofTerrain(float worldX, float worldZ);
 
+	const std::vector<float>& GetHeightData() { return heights; }
 	float	GetHeight(int x, int y) const;
 	void	InitHeights(int x, int y);
 	void	LoadHeight(const SImage& height_map);
@@ -45,4 +47,5 @@ private:
 	float dispFactor;
 	float gridSquereSize;
 	std::vector<float> heights;
+	vec2ui size;
 };
