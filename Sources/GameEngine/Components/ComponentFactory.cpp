@@ -16,25 +16,25 @@ namespace GameEngine
 			, time_(time)
 		{
 		}
-		std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type)
+		std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type, CGameObject* ptr)
 		{
 			switch (type)
 			{
 			case ComponentsType::Animator:
 			{
-				return CreateAndBasicInitialize<Animator>();
+				return CreateAndBasicInitialize<Animator>(ptr);
 			}
 			case ComponentsType::Renderer:
 			{
-				return CreateAndBasicInitialize<RendererComponent>();
+				return CreateAndBasicInitialize<RendererComponent>(ptr);
 			}
 			case ComponentsType::TreeRenderer:
 			{
-				return CreateAndBasicInitialize<TreeRendererComponent>();
+				return CreateAndBasicInitialize<TreeRendererComponent>(ptr);
 			}
 			case ComponentsType::ParticleEffect:
 			{
-				return CreateAndBasicInitialize<ParticleEffectComponent>();
+				return CreateAndBasicInitialize<ParticleEffectComponent>(ptr);
 			}
 			}
 			return nullptr;
@@ -44,7 +44,7 @@ namespace GameEngine
 			rendererManager_ = rendererManager;
 		}
 		template<class T>
-		std::unique_ptr<T> ComponentFactory::CreateAndBasicInitialize()
+		std::unique_ptr<T> ComponentFactory::CreateAndBasicInitialize(CGameObject* ptr)
 		{
 			auto comp = std::make_unique<T>();
 			comp->SetComponentController(&componentController_);
@@ -52,7 +52,7 @@ namespace GameEngine
 			comp->SetCamera(&camera_);
 			comp->SetResourceManager(resourceManager_.get());
 			comp->SetRendererManager(rendererManager_);
-			comp->ReqisterFunctions();
+			comp->SetObjectPtr(ptr);
 			return comp;
 		}
 	} // Components

@@ -5,6 +5,7 @@
 #include <memory>
 
 class CResourceManager;
+class CGameObject;
 
 namespace GameEngine
 {
@@ -23,12 +24,12 @@ namespace GameEngine
 		{
 		public:
 			ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera);
-			std::unique_ptr<AbstractComponent> Create(ComponentsType type);
+			std::unique_ptr<AbstractComponent> Create(ComponentsType type, CGameObject* ptr);
 			void SetRendererManager(Renderer::RenderersManager* rendererManager);
 
 		private:
 			template<class T>
-			std::unique_ptr<T> CreateAndBasicInitialize();
+			std::unique_ptr<T> CreateAndBasicInitialize(CGameObject* ptr);
 
 		private:
 			ComponentController& componentController_;

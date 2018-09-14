@@ -17,6 +17,5 @@ uint32 CGameObject::GetId() const
 
 void CGameObject::AddComponent(GameEngine::Components::AbstractComponentPtr component)
 {
-	component->SetObjectPtr(this);
 	components_[s_componentID++] = std::move(component);
 }

@@ -74,9 +74,10 @@ namespace GameEngine
 		template<class T>
 		T* AddComponent(CGameObject* obj)
 		{
-			auto comp = componentFactory_.Create(T::type);
+			auto comp = componentFactory_.Create(T::type, obj);
 			auto r = comp.get();
 			obj->AddComponent(std::move(comp));
+			r->ReqisterFunctions();
 			return static_cast<T*>(r);
 		}
 
