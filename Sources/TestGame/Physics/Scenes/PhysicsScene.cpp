@@ -108,12 +108,12 @@ struct Bt
 		}
 	}
 
-	btRigidBody* CreateBox(const vec3& pos, int scale)
+	btRigidBody* CreateBox(const vec3& pos, float scale)
 	{
 			//create a few dynamic rigidbodies
 			// Re-using the same collision is better for memory usage and performance
 
-			btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+			btBoxShape* colShape = createBoxShape(btVector3(scale /2.f, scale / 2.f, scale / 2.f));
 
 
 			//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -241,15 +241,15 @@ namespace PhysicsTestGame
 		return static_cast<float>(rand() % 100000) / 100000.f;
 	}
 
-	void PhysicsScene::AddBox(const vec3& pos, const vec3& dir, int scale)
+	void PhysicsScene::AddBox(const vec3& pos, const vec3& dir, float scale)
 	{
 		auto barrel = AddGameObjectInstance(scale, pos);
 
 		btScalar p, y, r;
-		//auto box = bt.CreateBox(pos, scale);
-		//box->getWorldTransform().getRotation().getEulerZYX(y, p, r);
-		//box->setLinearVelocity(Convert(dir));
-		//barrel->worldTransform.SetRotation(vec3(y, p, r));
+		auto box = bt.CreateBox(pos, scale);
+		box->getWorldTransform().getRotation().getEulerZYX(y, p, r);
+		box->setLinearVelocity(Convert(dir));
+		barrel->worldTransform.SetRotation(vec3(y, p, r));
 		barrel->worldTransform.TakeSnapShoot();
 
 		AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Cube.obj");
@@ -261,20 +261,20 @@ namespace PhysicsTestGame
 		camera = std::make_unique<GameEngine::FirstPersonCamera>(inputManager_, displayManager_);
 		camera->SetPosition(vec3(-10, 5, 0));
 
-		//for (auto& box : bt.boxes_)
-		//{
-		//	auto pos = box->getWorldTransform().getOrigin();
+		for (auto& box : bt.boxes_)
+		{
+			auto pos = box->getWorldTransform().getOrigin();
 
-		//	auto barrel = AddGameObjectInstance(1.f, Convert(pos));
+			auto barrel = AddGameObjectInstance(1.f, Convert(pos));
 
-		//	btScalar p, y, r;
-		//	box->getWorldTransform().getRotation().getEulerZYX(y, p, r);
-		//	barrel->worldTransform.SetRotation(vec3(y, p, r));
-		//	barrel->worldTransform.SetScale(0.2);
-		//	barrel->worldTransform.TakeSnapShoot();
+			btScalar p, y, r;
+			box->getWorldTransform().getRotation().getEulerZYX(y, p, r);
+			barrel->worldTransform.SetRotation(vec3(y, p, r));
+			barrel->worldTransform.SetScale(0.2);
+			barrel->worldTransform.TakeSnapShoot();
 
-		//	AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Cube.obj");
-		//}
+			AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Cube.obj");
+		}
 
 		auto terrain_textures = CreateTerrainTexturesMap();
 		auto terrain = AddTerrain(terrain_textures, glm::vec3(1));
@@ -296,7 +296,7 @@ namespace PhysicsTestGame
 			auto dir = GetCamera()->GetDirection();
 			dir = glm::normalize(dir);
 			auto pos = GetCamera()->GetPosition();
-			AddBox(vec3(0), dir * -100.f, 0.2f);
+			AddBox(pos, dir * 100.f, 0.2f);
 			Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) + ", Objecsts : " + std::to_string(objects_.size()));
 		});
 
@@ -345,21 +345,21 @@ namespace PhysicsTestGame
 		if (simulatePhysics)
 			bt.btDynamicWorld->stepSimulation(1.0f / 60.f);
 
-		//uint32 x = 0;
-		//for (auto& box : bt.boxes_)
-		//{
-		//	auto pos = box->getWorldTransform().getOrigin();
+		uint32 x = 0;
+		for (auto& box : bt.boxes_)
+		{
+			auto pos = box->getWorldTransform().getOrigin();
 
-		//	vec3 rot;
-		//	box->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
-		//	rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
-		//	objects_[x]->worldTransform.SetRotation(rot);
+			vec3 rot;
+			box->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
+			rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
+			objects_[x]->worldTransform.SetRotation(rot);
 
-		//	objects_[x]->worldTransform.SetPosition(Convert(pos));
-		//	objects_[x]->worldTransform.TakeSnapShoot();
-		//	++x;
-		//	vec3(pos.getX(), pos.getY(), pos.getZ());
-		//}
+			objects_[x]->worldTransform.SetPosition(Convert(pos));
+			objects_[x]->worldTransform.TakeSnapShoot();
+			++x;
+			vec3(pos.getX(), pos.getY(), pos.getZ());
+		}
 
 
 		//auto dir = GetCamera()->GetDirection();

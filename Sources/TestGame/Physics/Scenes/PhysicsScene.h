@@ -32,7 +32,7 @@ namespace PhysicsTestGame
 	private:
 		CTerrain* AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 		CGameObject* AddGameObjectInstance(float scale, const vec3& position, bool isDynamic = false);
-		void AddBox(const vec3& pos, const vec3& dir, int scale);
+		void AddBox(const vec3& pos, const vec3& dir, float scale);
 
 	private:
 		std::vector<CGameObject*> objects_;
