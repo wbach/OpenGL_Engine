@@ -30,6 +30,11 @@ namespace GameEngine
 		class RenderersManager;
 	} // Renderer
 
+	namespace Physics
+	{
+		struct IPhysicsApi;
+	} // Physics
+
 	typedef  std::list<std::unique_ptr<CGameObject>> GameObjects;
 
 	class Scene
@@ -97,6 +102,7 @@ namespace GameEngine
 		InputManager* inputManager_;
 		CDisplayManager* displayManager_;
 		Renderer::RenderersManager* renderersManager_;
+		std::shared_ptr<Physics::IPhysicsApi> physicsApi_;
 
 		// Minimum one light on scene only (night - decrease strength)
 		float gloabalTime = 0.f;

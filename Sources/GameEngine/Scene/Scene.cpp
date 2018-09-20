@@ -4,6 +4,7 @@
 #include "GameEngine/Input/InputManager.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Physics/Bullet/BulletPhysics.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -14,10 +15,11 @@ namespace GameEngine
 		, inputManager_(nullptr)
 		, displayManager_(nullptr)
 		, renderersManager_(nullptr)
+		, physicsApi_(new Physics::BulletPhysics())
 		, gloabalTime(0.f)
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new BaseCamera)
-		, componentFactory_(componentController_, time_, resourceManager_, camera)
+		, componentFactory_(componentController_, time_, resourceManager_, camera, physicsApi_)
 	{
 	}
 
@@ -46,6 +48,8 @@ namespace GameEngine
 
 	void Scene::FullUpdate(float deltaTime)
 	{
+		physicsApi_->Simulate();
+
 		if (displayManager_ != nullptr)
 		{
 			time_.deltaTime = deltaTime;
@@ -58,6 +62,7 @@ namespace GameEngine
 		{
 			inputManager_->ProcessKeysEvents();
 		}
+
 	}
 
 	void Scene::PostUpdate()

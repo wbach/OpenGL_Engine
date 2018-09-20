@@ -7,6 +7,8 @@ namespace GameEngine
 		enum class ComponentsType
 		{
 			Animator,
+			BoxCollider,
+			Rigidbody,
 			Renderer,
 			TreeRenderer,
 			ParticleEffect

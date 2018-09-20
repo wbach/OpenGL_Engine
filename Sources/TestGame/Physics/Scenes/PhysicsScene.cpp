@@ -225,9 +225,10 @@ namespace PhysicsTestGame
 	PhysicsScene::PhysicsScene()
 		: GameEngine::Scene("PhysicsScene")
 	{
-		data = new float[640 * 640];
-		for (unsigned int x = 0; x < 640 * 640; x++)
-			data[x] = 10.f;
+		const unsigned int dataSize = 4096;
+		data = new float[dataSize * dataSize];
+		for (unsigned int x = 0; x < dataSize * dataSize; x++)
+			data[x] = 0.f;
 	}
 
 	PhysicsScene::~PhysicsScene()
@@ -283,11 +284,17 @@ namespace PhysicsTestGame
 
 		const int MIN_HEIGHT = 0.f, MAX_HEIGHT = 100.f;
 
+		const auto& tdata = terrain->GetHeightData();
 
+		//unsigned int i = 0;
+		//for (auto y = 0u; y < terrain->GetSize().y * terrain->GetSize().x;; y++)
+		//{
+		//	data[i];
+		//}
 		
 
 		//	const void* heightfieldData, btScalar heightScale,btScalar minHeight, btScalar maxHeight,	int upAxis, PHY_ScalarType heightDataType,bool flipQuadEdges);
-		bt.terrainShape = std::make_unique<btHeightfieldTerrainShape>(640, 640, &data[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
+		bt.terrainShape = std::make_unique<btHeightfieldTerrainShape>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
 		bt.CreateTerrain(bt.terrainShape.get());
 
 

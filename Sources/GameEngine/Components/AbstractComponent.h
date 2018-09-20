@@ -11,6 +11,11 @@ namespace GameEngine
 {
 	struct ICamera;
 
+	namespace Physics
+	{
+		struct IPhysicsApi;
+	} // Physics
+
 	namespace Renderer
 	{
 		class RenderersManager;
@@ -30,6 +35,7 @@ namespace GameEngine
 			void SetRendererManager(Renderer::RenderersManager* manager);
 			void SetComponentController(ComponentController* componentController);
 			void SetCamera(std::shared_ptr<ICamera>* camera);
+			void SetPhysicsApi(Physics::IPhysicsApi* api);
 			inline ComponentsType GetType();
 
 		protected:
@@ -40,6 +46,7 @@ namespace GameEngine
 			Time* time_ = nullptr;
 			CGameObject* thisObject = nullptr;
 			CResourceManager* resourceManager_ = nullptr;
+			Physics::IPhysicsApi* physicsApi_ = nullptr;
 			Renderer::RenderersManager* renderersManager_ = nullptr;
 
 		private:

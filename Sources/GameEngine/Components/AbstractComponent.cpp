@@ -12,6 +12,10 @@ namespace GameEngine
 		{
 			camera_ = camera;
 		}
+		void AbstractComponent::SetPhysicsApi(Physics::IPhysicsApi * api)
+		{
+			physicsApi_ = api;
+		}
 		AbstractComponent::AbstractComponent(ComponentsType type)
 			: type_(type)
 		{
