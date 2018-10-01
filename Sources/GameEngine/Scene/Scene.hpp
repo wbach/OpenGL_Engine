@@ -13,6 +13,7 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include <atomic>
 //#include "Mutex.hpp"
 
 // Object in scene are in grid (one grid size)
@@ -35,7 +36,7 @@ namespace GameEngine
 		struct IPhysicsApi;
 	} // Physics
 
-	typedef  std::list<std::unique_ptr<CGameObject>> GameObjects;
+	typedef  std::unordered_map< uint32, std::unique_ptr<CGameObject>> GameObjects;
 
 	class Scene
 	{
@@ -53,6 +54,7 @@ namespace GameEngine
 
 		// Add Entities
 		void AddGameObject(CGameObject* object, const vec3& position = vec3(0.f), const vec3& rotation = vec3(0.0f));
+		void RemoveGameObject(CGameObject* object);
 		void SetAddSceneEventCallback(AddEvent func);
 
 		// GetObjects
@@ -82,7 +84,6 @@ namespace GameEngine
 			auto comp = componentFactory_.Create(T::type, obj);
 			auto r = comp.get();
 			obj->AddComponent(std::move(comp));
-			r->ReqisterFunctions();
 			return static_cast<T*>(r);
 		}
 
@@ -119,6 +120,8 @@ namespace GameEngine
 		std::shared_ptr<CResourceManager> resourceManager_;
 		Components::ComponentController componentController_;
 		Components::ComponentFactory componentFactory_;
+
+		std::atomic_bool simulatePhysics_;
 	};
 
 	inline const GameObjects& Scene::GetGameObjects()

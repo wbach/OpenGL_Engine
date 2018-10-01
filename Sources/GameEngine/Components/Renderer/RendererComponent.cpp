@@ -14,6 +14,14 @@ namespace GameEngine
 		{
 		}
 
+		RendererComponent::~RendererComponent()
+		{
+			if (renderersManager_ == nullptr)
+				return;
+
+			renderersManager_->UnSubscribe(thisObject);
+		}
+
 		void RendererComponent::ReqisterFunctions()
 		{
 			RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::Subscribe, this));
@@ -37,6 +45,8 @@ namespace GameEngine
 		{
 			if (renderersManager_ == nullptr)
 				return;
+
+			renderersManager_->UnSubscribe(thisObject);
 		}
 	} // Components
 } // GameEngine

@@ -1,16 +1,24 @@
 #pragma once
-#include "GameEngine/Components/AbstractComponent.h"
+#include "CollisionShape.h"
 
 namespace GameEngine
 {
 	namespace Components
 	{
-		class BoxCollider : public AbstractComponent
+		class BoxShape : public CollisionShape
 		{
 		public:
-			BoxCollider();
+			BoxShape();
 			void Update();
 			virtual void ReqisterFunctions() override;
+			void OnAwake();
+
+		public:
+			void SetSize(const vec3& size);
+			void SetSize(float size);
+		
+		private:
+			vec3 size_;
 
 		public:
 			static ComponentsType type;

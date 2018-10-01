@@ -47,6 +47,16 @@ void ShadowMapRenderer::Subscribe(CGameObject* gameObject)
 	subscribes_[gameObject->GetId()] = { rendererComponent->textureIndex, gameObject, &rendererComponent->GetModelWrapper() };
 }
 
+void ShadowMapRenderer::UnSubscribe(CGameObject* gameObject)
+{
+	subscribes_.erase(gameObject->GetId());
+}
+
+void ShadowMapRenderer::UnSubscribeAll()
+{
+	subscribes_.clear();
+}
+
 void ShadowMapRenderer::ReloadShaders()
 {
 	shader_.Stop();

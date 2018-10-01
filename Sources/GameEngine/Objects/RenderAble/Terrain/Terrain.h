@@ -23,7 +23,7 @@ public:
 	wb::optional<float>	GetHeightofTerrain(vec2 posXZ);
 	wb::optional<float>	GetHeightofTerrain(float worldX, float worldZ);
 
-	const std::vector<float>& GetHeightData() { return heights; }
+	std::vector<float>& GetHeightData() { return heights; }
 	float	GetHeight(int x, int y) const;
 	void	InitHeights(int x, int y);
 	void	LoadHeight(const SImage& height_map);

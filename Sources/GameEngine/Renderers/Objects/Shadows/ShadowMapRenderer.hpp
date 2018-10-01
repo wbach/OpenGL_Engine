@@ -31,6 +31,8 @@ public:
     ShadowMapRenderer(RendererContext& context);
 	virtual void Init() override;
     virtual void Subscribe(CGameObject* gameObject) override;
+	virtual void UnSubscribe(CGameObject* gameObject) override;
+	virtual void UnSubscribeAll() override;
 	virtual void ReloadShaders() override;
     void Render(Scene* scene);
 

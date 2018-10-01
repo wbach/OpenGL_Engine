@@ -20,6 +20,7 @@ namespace GameEngine
 		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
 		, camera(new BaseCamera)
 		, componentFactory_(componentController_, time_, resourceManager_, camera, physicsApi_)
+		, simulatePhysics_(true)
 	{
 	}
 
@@ -40,6 +41,7 @@ namespace GameEngine
 	{
 		Initialize();
 		componentController_.OnAwake();
+		componentController_.OnStart();
 	}
 
 	void Scene::PostInit()
@@ -48,7 +50,10 @@ namespace GameEngine
 
 	void Scene::FullUpdate(float deltaTime)
 	{
-		physicsApi_->Simulate();
+		if (simulatePhysics_.load())
+		{
+			physicsApi_->Simulate();
+		}
 
 		if (displayManager_ != nullptr)
 		{
@@ -72,9 +77,13 @@ namespace GameEngine
 
 	void Scene::AddGameObject(CGameObject* object, const vec3& position, const vec3& rotation)
 	{
-		object->worldTransform.SetPosition(position);
-		object->worldTransform.SetRotation(rotation);
-		gameObjects.emplace_back(object);
+		object->RegisterComponentFunctions();
+		gameObjects[object->GetId()] = std::unique_ptr<CGameObject>(object);
+	}
+
+	void Scene::RemoveGameObject(CGameObject * object)
+	{
+		gameObjects.erase(object->GetId());
 	}
 
 	void Scene::SetAddSceneEventCallback(AddEvent func)

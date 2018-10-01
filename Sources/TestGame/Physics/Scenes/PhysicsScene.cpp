@@ -16,193 +16,21 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
+
+#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
+#include "GameEngine/Components/Physics/TerrainShape.h"
+
 #include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
 #include "GameEngine/Api/BlendFunctionsTypes.h"
 #include "GLM/GLMUtils.h"
 #include "Thread.hpp"
 
 
-
-#include "btBulletDynamicsCommon.h"
-#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
-
-
 #define ARRAY_SIZE_Y 5
 #define ARRAY_SIZE_X 5
 #define ARRAY_SIZE_Z 5
-
-struct Bt
-{
-	std::unique_ptr<btDynamicsWorld> btDynamicWorld;
-	std::unique_ptr<btBroadphaseInterface> btBroadPhase;
-	std::unique_ptr<btConstraintSolver> btSolver;
-	std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
-	std::unique_ptr<btDispatcher> btDispacher;
-
-	void CreateTerrain(btCollisionShape* shape)
-	{
-		btTransform groundTransform;
-		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(160, -10, 160));
-		
-		btScalar mass(0.);
-		ground_ = createRigidBody(mass, groundTransform, shape, btVector4(0, 0, 1, 1));
-
-		collisionShapes_.push_back(shape);
-	}
-
-	Bt()
-	{
-		collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
-		btDispacher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
-		btBroadPhase = std::make_unique<btDbvtBroadphase>();
-		btSolver = std::make_unique<btSequentialImpulseConstraintSolver>();
-		btDynamicWorld = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(), collisionConfiguration.get());
-		btDynamicWorld->setGravity(btVector3(0, -10, 0));
-
-
-		//btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
-		//CreateTerrain(groundShape);
-
-
-		{
-			//create a few dynamic rigidbodies
-			// Re-using the same collision is better for memory usage and performance
-
-			btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
-
-
-			//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-			collisionShapes_.push_back(colShape);
-
-			/// Create Dynamic Objects
-			btTransform startTransform;
-			startTransform.setIdentity();
-
-			btScalar	mass(1.f);
-
-			//rigidbody is dynamic if and only if mass is non zero, otherwise static
-			bool isDynamic = (mass != 0.f);
-
-			btVector3 localInertia(0, 0, 0);
-			if (isDynamic)
-				colShape->calculateLocalInertia(mass, localInertia);
-
-			const float scale = 0.2;
-			for (int k = 0; k < ARRAY_SIZE_Y; k++)
-			{
-				for (int i = 0; i < ARRAY_SIZE_X; i++)
-				{
-					for (int j = 0; j < ARRAY_SIZE_Z; j++)
-					{
-						startTransform.setOrigin(btVector3(
-							btScalar(scale*i),
-							btScalar(2 + scale * k + 100),
-							btScalar(scale*j)));
-
-						auto body = createRigidBody(mass, startTransform, colShape);
-						boxes_.push_back(body);
-					}
-				}
-			}
-		}
-	}
-
-	btRigidBody* CreateBox(const vec3& pos, float scale)
-	{
-			//create a few dynamic rigidbodies
-			// Re-using the same collision is better for memory usage and performance
-
-			btBoxShape* colShape = createBoxShape(btVector3(scale /2.f, scale / 2.f, scale / 2.f));
-
-
-			//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-			collisionShapes_.push_back(colShape);
-
-			/// Create Dynamic Objects
-			btTransform startTransform;
-			startTransform.setIdentity();
-
-			btScalar	mass(1.f);
-
-			//rigidbody is dynamic if and only if mass is non zero, otherwise static
-			bool isDynamic = (mass != 0.f);
-
-			btVector3 localInertia(0, 0, 0);
-			if (isDynamic)
-				colShape->calculateLocalInertia(mass, localInertia);
-
-			startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
-
-			auto body = createRigidBody(mass, startTransform, colShape);
-			boxes_.push_back(body);
-
-			return body;
-	}
-
-	btBoxShape* createBoxShape(const btVector3& halfExtents)
-	{
-		btBoxShape* box = new btBoxShape(halfExtents);
-		return box;
-	}
-
-	btRigidBody* createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, const btVector4& color = btVector4(1, 0, 0, 1))
-	{
-		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
-
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			shape->calculateLocalInertia(mass, localInertia);
-
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-
-		btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-
-		btRigidBody* body = new btRigidBody(cInfo);
-
-		body->setUserIndex(-1);
-		btDynamicWorld->addRigidBody(body);
-		return body;
-	}
-	void deleteRigidBody(btRigidBody* body)
-	{
-		int graphicsUid = body->getUserIndex();
-
-		btDynamicWorld->removeRigidBody(body);
-		btMotionState* ms = body->getMotionState();
-		delete body;
-		delete ms;
-
-	}
-	btAlignedObjectArray<btCollisionShape*>	collisionShapes_;
-	std::list<btRigidBody*> boxes_;
-	btRigidBody* ground_;
-	std::unique_ptr<btHeightfieldTerrainShape> terrainShape;
-
-	~Bt()
-	{
-		for (auto& r : boxes_)
-			delete r;
-
-		delete ground_;
-	}
-};
-
-
-Bt bt;
-
-
-vec3 Convert(const btVector3& v)
-{
-	return vec3(v.getX(), v.getY(), v.getZ());
-}
-
-btVector3 Convert(const vec3& v)
-{
-	return btVector3(v.x, v.y, v.z);
-}
 
 namespace PhysicsTestGame
 {
@@ -222,8 +50,11 @@ namespace PhysicsTestGame
 		};
 	}
 
+	const float SEARCH_DEBUG = 1000;
+
 	PhysicsScene::PhysicsScene()
 		: GameEngine::Scene("PhysicsScene")
+		, offsetDebugBoxesPlane(-SEARCH_DEBUG)
 	{
 		const unsigned int dataSize = 4096;
 		data = new float[dataSize * dataSize];
@@ -242,44 +73,106 @@ namespace PhysicsTestGame
 		return static_cast<float>(rand() % 100000) / 100000.f;
 	}
 
-	void PhysicsScene::AddBox(const vec3& pos, const vec3& dir, float scale)
+	void PhysicsScene::AddBox(const vec3& pos, const vec3& dir, float scale, bool isStatic)
 	{
-		auto barrel = AddGameObjectInstance(scale, pos);
+		auto object = CreateGameObject(scale, pos);
 
-		btScalar p, y, r;
-		auto box = bt.CreateBox(pos, scale);
-		box->getWorldTransform().getRotation().getEulerZYX(y, p, r);
-		box->setLinearVelocity(Convert(dir));
-		barrel->worldTransform.SetRotation(vec3(y, p, r));
-		barrel->worldTransform.TakeSnapShoot();
+		AddComponent<GameEngine::Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");
 
-		AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Cube.obj");
-		
+		auto boxShape = AddComponent<GameEngine::Components::BoxShape>(object);
+		boxShape->SetSize(scale / 2.f);
+
+		auto rigidbody = AddComponent<GameEngine::Components::Rigidbody>(object);
+
+		rigidbody->SetIsStatic(isStatic);
+		rigidbody->SetCollisionShape(boxShape);
+
+		if (isStatic)
+		{
+			rigidbody->SetMass(0.f);
+		}
+
+		AddGameObject(object);
+		rigidbody->SetVelocity(dir);
+	}
+
+	void PhysicsScene::AddSphere(const vec3 & pos, const vec3 & dir, float scale, bool isStatic)
+	{
+		auto object = CreateGameObject(scale, pos);
+
+		AddComponent<GameEngine::Components::RendererComponent>(object)->AddModel("Meshes/sphere.obj");
+
+		auto boxShape = AddComponent<GameEngine::Components::SphereShape>(object);
+		boxShape->SetSize(scale / 2.f);
+
+		auto rigidbody = AddComponent<GameEngine::Components::Rigidbody>(object);
+
+		rigidbody->SetIsStatic(isStatic);
+		rigidbody->SetCollisionShape(boxShape);
+
+		if (isStatic)
+		{
+			rigidbody->SetMass(0.f);
+		}
+
+		AddGameObject(object);
+		rigidbody->SetVelocity(dir);
+	}
+
+	const std::string OBJECT_COUNT_GUI_TEXT = "objectsCount";
+
+	void PhysicsScene::UpdateObjectsCountText()
+	{
+		renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT).text = "Objects count : " + std::to_string(gameObjects.size());
+	}
+
+	void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
+	{
+
+		for (int y = offset.y; y < offset.y + 50; y += 2)
+		{
+			for (int x = offset.x; x < offset.x + 50; x += 2)
+			{
+				AddBox(vec3(x, 200, y), vec3(0), 1.f, false);
+			}
+		}
 	}
 
 	int PhysicsScene::Initialize()
 	{
+		auto& octext = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
+		octext.position = vec2(0.5, 0.9);
+		octext.m_size = 0.5f;
+		octext.colour = vec3(1,0,0);
+		UpdateObjectsCountText();
+
 		camera = std::make_unique<GameEngine::FirstPersonCamera>(inputManager_, displayManager_);
-		camera->SetPosition(vec3(-10, 5, 0));
+		camera->SetPosition(vec3(-0, 10, 0));
 
-		for (auto& box : bt.boxes_)
-		{
-			auto pos = box->getWorldTransform().getOrigin();
+		//AddBoxes();
 
-			auto barrel = AddGameObjectInstance(1.f, Convert(pos));
+		//float dSize = 100;
+		//AddBox(vec3(0, 0, 0), vec3(0), dSize, true);
 
-			btScalar p, y, r;
-			box->getWorldTransform().getRotation().getEulerZYX(y, p, r);
-			barrel->worldTransform.SetRotation(vec3(y, p, r));
-			barrel->worldTransform.SetScale(0.2);
-			barrel->worldTransform.TakeSnapShoot();
-
-			AddComponent<GameEngine::Components::RendererComponent>(barrel)->AddModel("Meshes/Cube.obj");
-		}
 
 		auto terrain_textures = CreateTerrainTexturesMap();
 		auto terrain = AddTerrain(terrain_textures, glm::vec3(1));
 		terrain->GetHeight(0, 0);
+
+		{
+			auto terrainShapeComponent = AddComponent<GameEngine::Components::TerrainShape>(terrain);
+			terrainShapeComponent->SetSize(terrain->GetSize());
+			terrainShapeComponent->SetData(&terrain->GetHeightData());
+
+			auto rigidbody = AddComponent<GameEngine::Components::Rigidbody>(terrain);
+			rigidbody->SetCollisionShape(terrainShapeComponent);
+			rigidbody->SetIsStatic(true);
+			rigidbody->SetMass(0.f);
+		}
+
+
+
+
 		//auto data = terrain->GetHeightData();
 
 		const int MIN_HEIGHT = 0.f, MAX_HEIGHT = 100.f;
@@ -294,8 +187,8 @@ namespace PhysicsTestGame
 		
 
 		//	const void* heightfieldData, btScalar heightScale,btScalar minHeight, btScalar maxHeight,	int upAxis, PHY_ScalarType heightDataType,bool flipQuadEdges);
-		bt.terrainShape = std::make_unique<btHeightfieldTerrainShape>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
-		bt.CreateTerrain(bt.terrainShape.get());
+		//bt.terrainShape = std::make_unique<btHeightfieldTerrainShape>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
+		//bt.CreateTerrain(bt.terrainShape.get());
 
 
 		inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]()
@@ -303,15 +196,21 @@ namespace PhysicsTestGame
 			auto dir = GetCamera()->GetDirection();
 			dir = glm::normalize(dir);
 			auto pos = GetCamera()->GetPosition();
-			AddBox(pos, dir * 100.f, 0.2f);
+			AddSphere(pos, dir * 100.f, 1.0f);
 			Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) + ", Objecsts : " + std::to_string(objects_.size()));
 		});
 
 		inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]()
 		{
-			simulatePhysics.store(!simulatePhysics.load());
+			simulatePhysics_.store(!simulatePhysics_.load());
 		});
 
+		inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]()
+		{
+			AddBoxes();
+		});
+
+		
 		return 0;
 	}
 
@@ -330,15 +229,30 @@ namespace PhysicsTestGame
 		return static_cast<CTerrainWrapper*>(terrain)->Get();
 	}
 
-	CGameObject* PhysicsScene::AddGameObjectInstance(float scale, const vec3& position, bool isDynamic)
+	CGameObject* PhysicsScene::CreateGameObject(float scale, const vec3& position, bool isDynamic)
 	{
 		auto obj = new CGameObject();
+		obj->worldTransform.SetPosition(position);
+		obj->worldTransform.SetRotation(vec3(0.0f));
 		obj->worldTransform.SetScale(scale);
 		obj->worldTransform.isDynamic_ = isDynamic;
-		AddGameObject(obj, position);
 		obj->worldTransform.TakeSnapShoot();
 		objects_.push_back(obj);
 		return obj;
+	}
+
+	void PhysicsScene::AddBoxes()
+	{
+		for (int k = 0; k < ARRAY_SIZE_Y; k++)
+		{
+			for (int i = 0; i < ARRAY_SIZE_X; i++)
+			{
+				for (int j = 0; j < ARRAY_SIZE_Z; j++)
+				{
+					AddBox(vec3(i, 2 + k + 200, j), vec3(0), 1.f, false);
+				}
+			}
+		}
 	}
 
 	int PhysicsScene::Update(float dt)
@@ -349,30 +263,32 @@ namespace PhysicsTestGame
 			return -1;
 		}
 
-		if (simulatePhysics)
-			bt.btDynamicWorld->stepSimulation(1.0f / 60.f);
+		UpdateObjectsCountText();
 
-		uint32 x = 0;
-		for (auto& box : bt.boxes_)
+		for (auto iter = objects_.begin() ; iter != objects_.end();)
 		{
-			auto pos = box->getWorldTransform().getOrigin();
-
-			vec3 rot;
-			box->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
-			rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
-			objects_[x]->worldTransform.SetRotation(rot);
-
-			objects_[x]->worldTransform.SetPosition(Convert(pos));
-			objects_[x]->worldTransform.TakeSnapShoot();
-			++x;
-			vec3(pos.getX(), pos.getY(), pos.getZ());
+			if ((*iter)->worldTransform.GetPosition().y < -100)
+			{
+				RemoveGameObject(*iter);
+				iter = objects_.erase(iter);
+			}
+			else
+			{
+				++iter;
+			}
 		}
 
 
-		//auto dir = GetCamera()->GetDirection();
-		//dir = glm::normalize(dir);
-		//auto pos = GetCamera()->GetPosition();
-		//AddBox(pos, dir * -100.f, 2.2f);
+		//if (objects_.size() < 5)
+		//{
+		//	if (offsetDebugBoxesPlane.x > SEARCH_DEBUG)
+		//	{
+		//		offsetDebugBoxesPlane.x = -SEARCH_DEBUG;
+		//		offsetDebugBoxesPlane.y + 50;
+		//	}
+		//	offsetDebugBoxesPlane += vec2(50, 0);
+		//	AddDebuxBoxesPlane(offsetDebugBoxesPlane);
+		//}
 
 		return 0;
 	}

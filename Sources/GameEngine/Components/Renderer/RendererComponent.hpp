@@ -10,6 +10,7 @@ namespace GameEngine
 		{
 		public:
 			RendererComponent();
+			~RendererComponent();
 			void AddModel(const std::string& filename, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
 			virtual void ReqisterFunctions() override;
 			inline ModelWrapper& GetModelWrapper();

@@ -8,6 +8,10 @@ namespace GameEngine
 		{
 			Animator,
 			BoxCollider,
+			BoxShape,
+			SphereShape,
+			TerrainShape,
+			CollisionShape,
 			Rigidbody,
 			Renderer,
 			TreeRenderer,

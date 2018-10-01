@@ -1,5 +1,6 @@
 #include "BulletPhysics.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "Utils.h"
 #include <unordered_map>
 
@@ -31,6 +32,12 @@ namespace GameEngine
 			return result;
 		}
 
+		struct Shape
+		{
+			std::unique_ptr<btCollisionShape> shape_;
+			btVector3 positionOffset_;
+		};
+
 		struct BulletPhysics::Pimpl
 		{
 			Pimpl()
@@ -41,11 +48,7 @@ namespace GameEngine
 				btSolver = std::make_unique<btSequentialImpulseConstraintSolver>();
 				btDynamicWorld = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(), collisionConfiguration.get());
 				btDynamicWorld->setGravity(btVector3(0, -10, 0));
-
-				collisonShape.reset(new btBoxShape(btVector3(.1, .1, .1)));
 			}
-			std::unique_ptr<btCollisionShape> collisonShape;
-
 			std::unique_ptr<btDynamicsWorld> btDynamicWorld;
 			std::unique_ptr<btBroadphaseInterface> btBroadPhase;
 			std::unique_ptr<btConstraintSolver> btSolver;
@@ -53,11 +56,12 @@ namespace GameEngine
 			std::unique_ptr<btDispatcher> btDispacher;
 			std::unordered_map<uint32, std::unique_ptr<btRigidBody>> rigidBodies;
 			std::unordered_map<uint32, common::Transform*> transforms;
+			std::unordered_map<uint32, Shape> shapes_;
 		};
 		BulletPhysics::BulletPhysics()
 			: simulationStep_(1.f / 60.f)
-			, simualtePhysics_(false)
-			, id_(0)
+			, simualtePhysics_(true)
+			, id_(1)
 		{
 			impl_.reset(new Pimpl());
 		}
@@ -97,20 +101,36 @@ namespace GameEngine
 		{
 			simualtePhysics_ = false;
 		}
-		uint32 BulletPhysics::CreateBoxColider(const vec3 & positionOffset, float size)
+		uint32 BulletPhysics::CreateBoxColider(const vec3 & positionOffset, const vec3& size)
 		{
+			impl_->shapes_[id_].shape_.reset(new btBoxShape(Convert(size)));
+			impl_->shapes_[id_].positionOffset_ = Convert(positionOffset);
 			return id_++;
 		}
 		uint32 BulletPhysics::CreateSphereColider(const vec3 & positionOffset, float radius)
 		{
+			impl_->shapes_[id_].shape_.reset(new btSphereShape(radius));
+			impl_->shapes_[id_].positionOffset_ = Convert(positionOffset);
 			return id_++;
 		}
-		uint32 BulletPhysics::CreateTerrainColider(const vec3 & positionOffset, std::vector<float>& data)
+		uint32 BulletPhysics::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, std::vector<float>& data, float hightFactor)
 		{
+			//impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0],100, 1.f, true, false ));
+			impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f,  -100.f, 100.f, 1.f, PHY_FLOAT, false));
+			impl_->shapes_[id_].positionOffset_ = Convert(positionOffset);
+
+			//>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
 			return id_++;
 		}
-		uint32  BulletPhysics::CreateRigidbody(common::Transform& transform, float mass, bool isStatic)
+		uint32  BulletPhysics::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)
 		{
+			if (impl_->shapes_.count(shapeId) == 0)
+			{
+				return 0;
+			}
+
+			btCollisionShape* shape = impl_->shapes_.at(shapeId).shape_.get();
+
 			btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
 			bool isDynamic = (mass != 0.f);
@@ -118,11 +138,11 @@ namespace GameEngine
 			btVector3 localInertia(0, 0, 0);
 
 			if (!isStatic)
-				impl_->collisonShape->calculateLocalInertia(mass, localInertia);
+				shape->calculateLocalInertia(mass, localInertia);
 
 			btDefaultMotionState* myMotionState = new btDefaultMotionState(Convert(transform));
 
-			btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, impl_->collisonShape.get(), localInertia);
+			btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 
 			impl_->rigidBodies[id_] = std::make_unique<btRigidBody>(cInfo);
 			impl_->transforms[id_] = &transform;
@@ -131,6 +151,26 @@ namespace GameEngine
 			body->setUserIndex(-1);
 			impl_->btDynamicWorld->addRigidBody(body.get());
 			return id_++;
+		}
+		void BulletPhysics::SetVelocityRigidbody(uint32 rigidBodyId,  const vec3& velocity)
+		{
+			if (!impl_->rigidBodies.count(rigidBodyId))
+			{
+				return;
+			}
+
+			impl_->rigidBodies.at(rigidBodyId)->setLinearVelocity(Convert(velocity));
+		}
+		void BulletPhysics::RemoveRigidBody(uint32 id)
+		{
+			if (!impl_->rigidBodies.count(id))
+			{
+				return;
+			}
+
+			auto& rigidbody = impl_->rigidBodies.at(id);
+			impl_->btDynamicWorld->removeRigidBody(rigidbody.get());
+			impl_->rigidBodies.erase(id);
 		}
 	}
 

@@ -19,3 +19,11 @@ void CGameObject::AddComponent(GameEngine::Components::AbstractComponentPtr comp
 {
 	components_[s_componentID++] = std::move(component);
 }
+
+void CGameObject::RegisterComponentFunctions()
+{
+	for (const auto& c : components_)
+	{
+		c.second->ReqisterFunctions();
+	}
+}

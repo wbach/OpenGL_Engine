@@ -16,6 +16,7 @@ public:
 	uint32 GetId() const;
 	virtual wb::optional<vec3> CollisionDetection(const vec3&) { return wb::optional<vec3>(); }
 	void AddComponent(GameEngine::Components::AbstractComponentPtr component);
+	void RegisterComponentFunctions();
 
 	template <class T>
 	T* GetComponent()

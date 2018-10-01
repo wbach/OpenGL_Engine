@@ -4,6 +4,10 @@
 #include "Renderer/RendererComponent.hpp"
 #include "Renderer/TreeRendererComponent.h"
 #include "Renderer/ParticleEffectComponent.h"
+#include "Physics/BoxShape.h"
+#include "Physics/SphereShape.h"
+#include "Physics/TerrainShape.h"
+#include "Physics/Rigidbody.h"
 
 namespace GameEngine
 {
@@ -37,6 +41,23 @@ namespace GameEngine
 			{
 				return CreateAndBasicInitialize<ParticleEffectComponent>(ptr);
 			}
+			case ComponentsType::BoxShape:
+			{
+				return CreateAndBasicInitialize<BoxShape>(ptr);
+			}
+			case ComponentsType::SphereShape:
+			{
+				return CreateAndBasicInitialize<SphereShape>(ptr);
+			}
+			case ComponentsType::TerrainShape:
+			{
+				return CreateAndBasicInitialize<TerrainShape>(ptr);
+			}
+			case ComponentsType::Rigidbody:
+			{
+				return CreateAndBasicInitialize<Rigidbody>(ptr);
+			}
+
 			}
 			return nullptr;
 		}

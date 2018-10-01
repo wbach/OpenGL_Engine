@@ -28,15 +28,20 @@ namespace PhysicsTestGame
 		virtual void	PostInitialize() override {};
 		virtual int		Update(float deltaTime) override;
 
-		std::atomic_bool simulatePhysics = false;
+		
 	private:
 		CTerrain* AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
-		CGameObject* AddGameObjectInstance(float scale, const vec3& position, bool isDynamic = false);
-		void AddBox(const vec3& pos, const vec3& dir, float scale);
+		CGameObject* CreateGameObject(float scale, const vec3& position, bool isDynamic = false);
+		void AddBoxes();
+		void AddBox(const vec3& pos, const vec3& dir, float scale, bool isStatic = false);
+		void AddSphere(const vec3& pos, const vec3& dir, float scale, bool isStatic = false);
+		void UpdateObjectsCountText();
+		void AddDebuxBoxesPlane(const vec2& offset);
 
 	private:
 		std::vector<CGameObject*> objects_;
 		std::vector<CGameObject*> terrains_;
 		float* data;
+		vec2 offsetDebugBoxesPlane;
 	};
 } // PhysicsTestGame

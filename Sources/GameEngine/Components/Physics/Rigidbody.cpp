@@ -1,5 +1,7 @@
 #include "Rigidbody.h"
+#include "CollisionShape.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -8,17 +10,51 @@ namespace GameEngine
 		ComponentsType Rigidbody::type = ComponentsType::Rigidbody;
 
 		Rigidbody::Rigidbody()
-			:AbstractComponent(ComponentsType::Rigidbody)
+			: AbstractComponent(ComponentsType::Rigidbody)
+			, mass_(1.0f)
+			, isStatic_(false)
+			, collisionShape_(nullptr)
+			, rigidBodyId(0)
 		{
 		}
-		void Rigidbody::OnAwake()
+		Rigidbody::~Rigidbody()
 		{
-			common::Transform transform;
-			physicsApi_->CreateRigidbody(transform, 0, false);
+			if (rigidBodyId == 0)
+			{
+				return;
+			}
+
+			physicsApi_->RemoveRigidBody(rigidBodyId);
+			rigidBodyId = 0;
+		}
+		void Rigidbody::OnStart()
+		{
+			if (collisionShape_ == nullptr)
+			{
+				return;
+			}
+
+			rigidBodyId = physicsApi_->CreateRigidbody(collisionShape_->GetCollisionShapeId(), thisObject->worldTransform, mass_, isStatic_);
 		}
 		void Rigidbody::ReqisterFunctions()
 		{
-			RegisterFunction(FunctionType::Awake, std::bind(&Rigidbody::OnAwake, this));
+			RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
+		}
+		void Rigidbody::SetMass(float mass)
+		{
+			mass_ = mass;
+		}
+		void Rigidbody::SetIsStatic(bool is)
+		{
+			isStatic_ = is;
+		}
+		void Rigidbody::SetCollisionShape(CollisionShape * collisionShape)
+		{
+			collisionShape_ = collisionShape;
+		}
+		void Rigidbody::SetVelocity(const vec3& velocity)
+		{
+			physicsApi_->SetVelocityRigidbody(rigidBodyId, velocity);
 		}
 	} // Components
 } // GameEngine
