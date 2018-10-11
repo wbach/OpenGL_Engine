@@ -28,6 +28,8 @@ glm::vec3 Vec4ToVec3(const glm::vec4& v);
 glm::vec3 ColorLerpRGB(const glm::vec3& c1, const glm::vec3& c2, const float& blend);
 glm::vec3 TransformPoint(const glm::vec3& point, const glm::mat4& matrix);
 glm::vec3 RGBtoFloat(const glm::vec3& color);
+float RGBtoFloat(float rgb);
+float RGBtoFloat(uint8 rgb);
 glm::vec3 RGBtoFloat(const float& r, const float& g, const float& b);
 glm::vec3 CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b);
 glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);

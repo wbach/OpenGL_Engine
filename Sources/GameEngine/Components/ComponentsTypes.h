@@ -9,6 +9,7 @@ namespace GameEngine
 			Animator,
 			BoxCollider,
 			BoxShape,
+			MeshShape,
 			SphereShape,
 			TerrainShape,
 			CollisionShape,

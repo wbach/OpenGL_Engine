@@ -82,7 +82,7 @@ void FullRenderer::AddRenderer()
 
 void FullRenderer::CreateRenderers()
 {
-	AddRenderer<SkyBoxRenderer>();
+	//AddRenderer<SkyBoxRenderer>();
 
 	if (EngineConf.renderer.shadows.isEnabled)
 		AddRenderer<ShadowMapRenderer>();

@@ -1,0 +1,3 @@
+TerrainRenderer: 0ms (0ms)
+EntityRenderer: 3ms (2ms)
+Physics: 4ms (3ms)

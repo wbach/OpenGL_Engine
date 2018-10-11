@@ -5,7 +5,9 @@
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Physics/Bullet/BulletPhysics.h"
+#include "GameEngine/Engine/EngineMeasurement.h"
 #include "Logger/Log.h"
+#include "Utils/Time/Timer.h"
 
 namespace GameEngine
 {
@@ -52,7 +54,10 @@ namespace GameEngine
 	{
 		if (simulatePhysics_.load())
 		{
+			Utils::Timer t;
+			physicsApi_->SetSimulationStep(deltaTime);
 			physicsApi_->Simulate();
+			MakeMeasurement("Physics", t.GetTimeMiliseconds());
 		}
 
 		if (displayManager_ != nullptr)

@@ -8,6 +8,8 @@
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "Logger/Log.h"
+#include "Utils/Time/Timer.h"
+#include "GameEngine/Engine/EngineMeasurement.h"
 
 namespace GameEngine
 {
@@ -46,12 +48,14 @@ namespace GameEngine
 
 	void EntityRenderer::Render(Scene * scene)
 	{
+		Utils::Timer timer;
 		context_.defferedFrameBuffer_->BindToDraw();
 		shader.Start();
 		PrepareFrame(scene);
 		RenderEntities();
 		shader.Stop();
 		context_.defferedFrameBuffer_->UnBind();
+		MakeMeasurement("EntityRenderer", timer.GetTimeMiliseconds());
 	}
 
 	void EntityRenderer::Subscribe(CGameObject* gameObject)

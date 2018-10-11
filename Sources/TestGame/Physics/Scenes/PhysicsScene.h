@@ -32,7 +32,8 @@ namespace PhysicsTestGame
 	private:
 		CTerrain* AddTerrain(TerrainTexturesMap& textures, const glm::vec3& position);
 		CGameObject* CreateGameObject(float scale, const vec3& position, bool isDynamic = false);
-		void AddBoxes();
+		void AddBoxes(const vec3& pos);
+		void AddBarrel(const vec3& pos);
 		void AddBox(const vec3& pos, const vec3& dir, float scale, bool isStatic = false);
 		void AddSphere(const vec3& pos, const vec3& dir, float scale, bool isStatic = false);
 		void UpdateObjectsCountText();

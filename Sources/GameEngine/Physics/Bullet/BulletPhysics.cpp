@@ -1,8 +1,10 @@
 #include "BulletPhysics.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "Utils.h"
 #include <unordered_map>
+#include <algorithm>
 
 namespace GameEngine
 {
@@ -42,9 +44,16 @@ namespace GameEngine
 		{
 			Pimpl()
 			{
+				auto trimesh = new btTriangleMesh();
+				btVector3 worldAabbMin(-1000, -1000, -1000);
+				btVector3 worldAabbMax(1000, 1000, 1000);
+				const int maxProxies = 32766;
+
+				//m_broadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
 				collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
 				btDispacher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
 				btBroadPhase = std::make_unique<btDbvtBroadphase>();
+				//btBroadPhase = std::make_unique<btAxisSweep3>(worldAabbMin, worldAabbMax, maxProxies);
 				btSolver = std::make_unique<btSequentialImpulseConstraintSolver>();
 				btDynamicWorld = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(), collisionConfiguration.get());
 				btDynamicWorld->setGravity(btVector3(0, -10, 0));
@@ -116,10 +125,42 @@ namespace GameEngine
 		uint32 BulletPhysics::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, std::vector<float>& data, float hightFactor)
 		{
 			//impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0],100, 1.f, true, false ));
-			impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f,  -100.f, 100.f, 1.f, PHY_FLOAT, false));
+			auto minElementIter = std::min_element(data.begin(), data.end());
+			auto maxElementIter = std::max_element(data.begin(), data.end());
+
+			auto minElement = minElementIter != data.end() ? *minElementIter : 0.f;
+			auto maxElement = maxElementIter != data.end() ? *maxElementIter : 0.f;
+
+			impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f, minElement, maxElement, 1.f, PHY_FLOAT, false));
 			impl_->shapes_[id_].positionOffset_ = Convert(positionOffset);
 
 			//>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
+			return id_++;
+		}
+		uint32 BulletPhysics::CreateMeshCollider(const vec3 & positionOffset, const std::vector<float>& data, const std::vector<uint16> indicies)
+		{
+			auto& shape = impl_->shapes_[id_];
+
+			auto trimesh = new btTriangleMesh();
+
+			for (int i = 0; i < indicies.size(); i+=9)
+			{
+				btVector3 v0(data[i], data[i+1], data[i+2]);
+				btVector3 v1(data[i+3], data[i + 4], data[i + 5]);
+				btVector3 v2(data[i+6], data[i + 7], data[i + 8]);
+
+				trimesh->addTriangle(v0, v1, v2);
+			}
+			btConvexShape* tmpshape = new btConvexTriangleMeshShape(trimesh);
+
+			shape.shape_= std::unique_ptr<btCollisionShape>(tmpshape);
+			shape.positionOffset_ = Convert(positionOffset);
+
+			btShapeHull* hull = new btShapeHull(tmpshape);
+			btScalar margin = tmpshape->getMargin();
+			hull->buildHull(margin);
+			tmpshape->setUserPointer(hull);
+
 			return id_++;
 		}
 		uint32  BulletPhysics::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)

@@ -52,7 +52,7 @@ void CMesh::OpenGLLoadingPass()
 		return;
 
 	CreateMesh();
-	ClearData();
+	//ClearData();
 
 	COpenGLObject::OpenGLLoadingPass();
 }

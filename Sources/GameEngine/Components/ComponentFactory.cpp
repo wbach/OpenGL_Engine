@@ -7,6 +7,7 @@
 #include "Physics/BoxShape.h"
 #include "Physics/SphereShape.h"
 #include "Physics/TerrainShape.h"
+#include "Physics/MeshShape.h"
 #include "Physics/Rigidbody.h"
 
 namespace GameEngine
@@ -52,6 +53,10 @@ namespace GameEngine
 			case ComponentsType::TerrainShape:
 			{
 				return CreateAndBasicInitialize<TerrainShape>(ptr);
+			}
+			case ComponentsType::MeshShape:
+			{
+				return CreateAndBasicInitialize<MeshShape>(ptr);
 			}
 			case ComponentsType::Rigidbody:
 			{

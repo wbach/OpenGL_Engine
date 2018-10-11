@@ -28,6 +28,7 @@ public:
                                      TextureFlip::Type flip_mode = TextureFlip::Type::NONE);
     CTexture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool opengl_pass = true);
 	CTexture* LoadHeightMap(const std::string& filename, bool opengl_pass = true);
+	void CreateHeightMap(const std::string& input, const std::string& output);
 	GameEngine::IGraphicsApiPtr GetGraphicsApi();
 
 private:

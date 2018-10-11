@@ -9,6 +9,8 @@
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "GLM/GLMUtils.h"
+#include "Utils/Time/Timer.h"
+#include "GameEngine/Engine/EngineMeasurement.h"
 
 namespace GameEngine
 {
@@ -29,6 +31,7 @@ namespace GameEngine
 
 	void TerrainRenderer::Render(Scene* scene)
 	{
+		Utils::Timer timer;
 		context_.defferedFrameBuffer_->BindToDraw();
 
 		shader.Start();
@@ -44,6 +47,7 @@ namespace GameEngine
 		RenderSubscribers(modelViewMatrix, 2);
 		shader.Stop();
 
+		MakeMeasurement("TerrainRenderer", timer.GetTimeMiliseconds());
 	}
 	void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
 	{

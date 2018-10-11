@@ -9,6 +9,7 @@
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "GameEngine/Resources/Textures/Image.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
@@ -19,6 +20,7 @@
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Physics/TerrainShape.h"
 
@@ -46,7 +48,7 @@ namespace PhysicsTestGame
 			{ Terrain::snowTexture, "Textures/Terrain/Ground/snow512.png", },
 			{ Terrain::greenTexture,"Textures/Terrain/Ground/grassFlowers.png"},
 			{ Terrain::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png" },
-			{ Terrain::displacementMap, "Textures/Terrain/HeightMaps/Terrain.terrain" }
+			{ Terrain::displacementMap, "Textures/Terrain/HeightMaps/TerrainFlat.terrain" }
 		};
 	}
 
@@ -140,6 +142,7 @@ namespace PhysicsTestGame
 
 	int PhysicsScene::Initialize()
 	{
+		resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/flat_height_map.png", "Textures/Terrain/HeightMaps/TerrainFlat.terrain");
 		auto& octext = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
 		octext.position = vec2(0.5, 0.9);
 		octext.m_size = 0.5f;
@@ -147,8 +150,31 @@ namespace PhysicsTestGame
 		UpdateObjectsCountText();
 
 		camera = std::make_unique<GameEngine::FirstPersonCamera>(inputManager_, displayManager_);
-		camera->SetPosition(vec3(-0, 10, 0));
+		camera->SetPosition(vec3(-0, 42, 0));
 
+		//{
+		//	auto object = CreateGameObject(1, vec3(512, 0, 0));
+		//	AddComponent<GameEngine::Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");
+		//	AddGameObject(object);
+		//}
+
+		//{
+		//	auto object = CreateGameObject(1, vec3(512, 0, 512));
+		//	AddComponent<GameEngine::Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");
+		//	AddGameObject(object);
+		//}
+
+		//{
+		//	auto object = CreateGameObject(1, vec3(0, 0, 0));
+		//	AddComponent<GameEngine::Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");
+		//	AddGameObject(object);
+		//}
+
+		//{
+		//	auto object = CreateGameObject(1, vec3(0, 0, 512));
+		//	AddComponent<GameEngine::Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");
+		//	AddGameObject(object);
+		//}
 		//AddBoxes();
 
 		//float dSize = 100;
@@ -163,15 +189,17 @@ namespace PhysicsTestGame
 			auto terrainShapeComponent = AddComponent<GameEngine::Components::TerrainShape>(terrain);
 			terrainShapeComponent->SetSize(terrain->GetSize());
 			terrainShapeComponent->SetData(&terrain->GetHeightData());
+			terrainShapeComponent->SetHeightFactor(1.f);
+			terrainShapeComponent->SetPostionOffset(vec3(0, 10, 0));
 
 			auto rigidbody = AddComponent<GameEngine::Components::Rigidbody>(terrain);
 			rigidbody->SetCollisionShape(terrainShapeComponent);
 			rigidbody->SetIsStatic(true);
 			rigidbody->SetMass(0.f);
 		}
+		AddGameObject(terrain, glm::vec3(1));
 
-
-
+		AddBarrel(vec3(0,42,0));
 
 		//auto data = terrain->GetHeightData();
 
@@ -196,20 +224,38 @@ namespace PhysicsTestGame
 			auto dir = GetCamera()->GetDirection();
 			dir = glm::normalize(dir);
 			auto pos = GetCamera()->GetPosition();
-			AddSphere(pos, dir * 100.f, 1.0f);
+			AddSphere(pos, dir * 20.f, 1.0f);
 			Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) + ", Objecsts : " + std::to_string(objects_.size()));
 		});
 
-		inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]()
+		inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]()
 		{
 			simulatePhysics_.store(!simulatePhysics_.load());
 		});
 
-		inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]()
+		inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]()
 		{
-			AddBoxes();
+			for (auto iter = objects_.begin(); iter != objects_.end();)
+			{
+					RemoveGameObject(*iter);
+					iter = objects_.erase(iter);
+			}
 		});
 
+		inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]()
+		{
+			AddBoxes(GetCamera()->GetPosition());
+		});
+
+		inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]()
+		{
+			AddBarrel(GetCamera()->GetPosition());
+		});
+
+		inputManager_->SubscribeOnKeyDown(KeyCodes::P, [&]()
+		{
+			Log("Camera position : " + Utils::ToString(GetCamera()->GetPosition()));
+		});
 		
 		return 0;
 	}
@@ -222,7 +268,7 @@ namespace PhysicsTestGame
 			Error("MainScene::AddTerrain : terrain is nullptr.");
 			return nullptr;
 		}
-		AddGameObject(terrain, position);
+		/*AddGameObject(terrain, position);*/
 		renderersManager_->Subscribe(terrain);
 		terrains_.push_back(terrain);
 
@@ -241,7 +287,7 @@ namespace PhysicsTestGame
 		return obj;
 	}
 
-	void PhysicsScene::AddBoxes()
+	void PhysicsScene::AddBoxes(const vec3& pos)
 	{
 		for (int k = 0; k < ARRAY_SIZE_Y; k++)
 		{
@@ -249,10 +295,28 @@ namespace PhysicsTestGame
 			{
 				for (int j = 0; j < ARRAY_SIZE_Z; j++)
 				{
-					AddBox(vec3(i, 2 + k + 200, j), vec3(0), 1.f, false);
+					AddBox(pos + vec3(i, 2 + k + 50, j), vec3(0), 1.f, false);
 				}
 			}
 		}
+	}
+
+	void PhysicsScene::AddBarrel(const vec3 & pos)
+	{
+		auto object = CreateGameObject(10.f, pos);
+
+		auto renderComponent = AddComponent<GameEngine::Components::RendererComponent>(object);
+		renderComponent->AddModel("Meshes/Rampa.obj");
+
+		auto meshShape = AddComponent<GameEngine::Components::MeshShape>(object);
+		meshShape->SetModel(renderComponent->GetModelWrapper().Get(GameEngine::LevelOfDetail::L1));
+
+		auto rigidbody = AddComponent<GameEngine::Components::Rigidbody>(object);
+
+		rigidbody->SetIsStatic(false);
+		rigidbody->SetCollisionShape(meshShape);
+
+		AddGameObject(object);
 	}
 
 	int PhysicsScene::Update(float dt)

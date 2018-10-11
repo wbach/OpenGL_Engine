@@ -5,10 +5,17 @@
 #include "Textures/CubeMapTexture.h"
 #include "../Engine/Configuration.h"
 #include "Textures/HeightMap.h"
+#include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 #include <FreeImage.h>
 #include <algorithm>
 #include <fstream>
+
+struct Header
+{
+	uint32 width;
+	uint32 height;
+};
 
 CTextureLoader::CTextureLoader(GameEngine::IGraphicsApiPtr graphicsApi, std::vector<std::unique_ptr<CTexture>>& textures_vector, COpenGLLoader & openGLLoader)
     : graphicsApi_(graphicsApi)
@@ -187,12 +194,6 @@ CTexture* CTextureLoader::LoadHeightMap(const std::string& filename, bool opengl
 		return nullptr;
 	}
 
-	struct Header
-	{
-		uint32 width;
-		uint32 height;
-	};
-
 	Header header;
 	fread(&header, sizeof(Header), 1, fp);
 
@@ -217,6 +218,44 @@ CTexture* CTextureLoader::LoadHeightMap(const std::string& filename, bool opengl
 		openGLLoader.AddObjectToOpenGLLoadingPass(heightmap_texture);
 
 	return heightmap_texture;
+}
+
+void CTextureLoader::CreateHeightMap(const std::string & in, const std::string & out)
+{
+	auto input = EngineConf_GetFullDataPath(in);
+	auto output = EngineConf_GetFullDataPath(out);
+	auto fp = fopen(output.c_str(), "wb+");
+
+	if (!fp)
+	{
+		Log("[Error] cannot open file : " + output);
+		return;
+
+	}
+	SImage image;
+	ReadFile(input, image, false);
+	Header header;
+	header.height = image.height;
+	header.width = image.width;
+	auto size = header.width * header.height;
+	fwrite(&header, sizeof(Header), 1, fp);
+
+	if (!image.floatData.empty())
+	{
+		fwrite(&image.floatData[0], sizeof(float), size, fp);
+	}
+	else
+	{
+		std::vector<float> data;
+		data.reserve(size);
+		for (auto i = 0u; i < image.data.size(); i+=4)
+		{
+			auto color = (Utils::RGBtoFloat(image.data[i]) + Utils::RGBtoFloat(image.data[i + 1]) + Utils::RGBtoFloat(image.data[i + 2])) / 3.f;
+			data.push_back(color);
+		}
+		fwrite(&data[0], sizeof(float), size, fp);
+	}
+	fclose(fp);
 }
 
 GameEngine::IGraphicsApiPtr CTextureLoader::GetGraphicsApi()

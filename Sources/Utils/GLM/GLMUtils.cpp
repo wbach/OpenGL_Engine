@@ -26,6 +26,16 @@ glm::vec3 Utils::RGBtoFloat(const glm::vec3 & color)
 	return color / 255.f;
 }
 
+float Utils::RGBtoFloat(float rgb)
+{
+	return rgb / 255.f;
+}
+
+float Utils::RGBtoFloat(uint8 rgb)
+{
+	return RGBtoFloat(static_cast<float>(rgb));
+}
+
 glm::vec3 Utils::RGBtoFloat(const float & r, const float & g, const float & b)
 {
 	return RGBtoFloat(glm::vec3(r, g, b));
