@@ -171,6 +171,7 @@ namespace GameEngine
 			}
 
 			btCollisionShape* shape = impl_->shapes_.at(shapeId).shape_.get();
+			shape->setLocalScaling(Convert(transform.GetScale()));
 
 			btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -191,6 +192,7 @@ namespace GameEngine
 			auto& body = impl_->rigidBodies[id_];
 			body->setUserIndex(-1);
 			impl_->btDynamicWorld->addRigidBody(body.get());
+			impl_->btDynamicWorld->updateSingleAabb(body.get());
 			return id_++;
 		}
 		void BulletPhysics::SetVelocityRigidbody(uint32 rigidBodyId,  const vec3& velocity)
