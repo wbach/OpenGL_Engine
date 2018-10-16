@@ -1,4 +1,4 @@
-#include "BulletPhysics.h"
+#include "BulletAdapter.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
@@ -40,14 +40,14 @@ namespace GameEngine
 			btVector3 positionOffset_;
 		};
 
-		struct BulletPhysics::Pimpl
+		struct BulletAdapter::Pimpl
 		{
 			Pimpl()
 			{
-				auto trimesh = new btTriangleMesh();
-				btVector3 worldAabbMin(-1000, -1000, -1000);
-				btVector3 worldAabbMax(1000, 1000, 1000);
-				const int maxProxies = 32766;
+				// auto trimesh = new btTriangleMesh();
+				// btVector3 worldAabbMin(-1000, -1000, -1000);
+				// btVector3 worldAabbMax(1000, 1000, 1000);
+				// const int maxProxies = 32766;
 
 				//m_broadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
 				collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
@@ -67,22 +67,26 @@ namespace GameEngine
 			std::unordered_map<uint32, common::Transform*> transforms;
 			std::unordered_map<uint32, Shape> shapes_;
 		};
-		BulletPhysics::BulletPhysics()
+		BulletAdapter::BulletAdapter()
 			: simulationStep_(1.f / 60.f)
 			, simualtePhysics_(true)
 			, id_(1)
 		{
 			impl_.reset(new Pimpl());
 		}
-		void BulletPhysics::SetSimulationStep(float step)
+		BulletAdapter::~BulletAdapter()
+		{
+
+		}
+		void BulletAdapter::SetSimulationStep(float step)
 		{
 			simulationStep_ = step;
 		}
-		void BulletPhysics::EnableSimulation()
+		void BulletAdapter::EnableSimulation()
 		{
 			simualtePhysics_ = true;
 		}
-		void BulletPhysics::Simulate()
+		void BulletAdapter::Simulate()
 		{
 			if (!simualtePhysics_)
 			{
@@ -106,23 +110,23 @@ namespace GameEngine
 			}
 
 		}
-		void BulletPhysics::DisableSimulation()
+		void BulletAdapter::DisableSimulation()
 		{
 			simualtePhysics_ = false;
 		}
-		uint32 BulletPhysics::CreateBoxColider(const vec3 & positionOffset, const vec3& size)
+		uint32 BulletAdapter::CreateBoxColider(const vec3 & positionOffset, const vec3& size)
 		{
 			impl_->shapes_[id_].shape_.reset(new btBoxShape(Convert(size)));
 			impl_->shapes_[id_].positionOffset_ = Convert(positionOffset);
 			return id_++;
 		}
-		uint32 BulletPhysics::CreateSphereColider(const vec3 & positionOffset, float radius)
+		uint32 BulletAdapter::CreateSphereColider(const vec3 & positionOffset, float radius)
 		{
 			impl_->shapes_[id_].shape_.reset(new btSphereShape(radius));
 			impl_->shapes_[id_].positionOffset_ = Convert(positionOffset);
 			return id_++;
 		}
-		uint32 BulletPhysics::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, std::vector<float>& data, float hightFactor)
+		uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, std::vector<float>& data, float hightFactor)
 		{
 			//impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0],100, 1.f, true, false ));
 			auto minElementIter = std::min_element(data.begin(), data.end());
@@ -137,13 +141,13 @@ namespace GameEngine
 			//>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
 			return id_++;
 		}
-		uint32 BulletPhysics::CreateMeshCollider(const vec3 & positionOffset, const std::vector<float>& data, const std::vector<uint16> indicies)
+		uint32 BulletAdapter::CreateMeshCollider(const vec3 & positionOffset, const std::vector<float>& data, const std::vector<uint16> indicies)
 		{
 			auto& shape = impl_->shapes_[id_];
 
 			auto trimesh = new btTriangleMesh();
 
-			for (int i = 0; i < indicies.size(); i+=9)
+			for (uint32 i = 0; i < indicies.size(); i+=9)
 			{
 				btVector3 v0(data[i], data[i+1], data[i+2]);
 				btVector3 v1(data[i+3], data[i + 4], data[i + 5]);
@@ -163,7 +167,7 @@ namespace GameEngine
 
 			return id_++;
 		}
-		uint32  BulletPhysics::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)
+		uint32  BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)
 		{
 			if (impl_->shapes_.count(shapeId) == 0)
 			{
@@ -174,8 +178,6 @@ namespace GameEngine
 			shape->setLocalScaling(Convert(transform.GetScale()));
 
 			btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
-
-			bool isDynamic = (mass != 0.f);
 
 			btVector3 localInertia(0, 0, 0);
 
@@ -195,7 +197,7 @@ namespace GameEngine
 			impl_->btDynamicWorld->updateSingleAabb(body.get());
 			return id_++;
 		}
-		void BulletPhysics::SetVelocityRigidbody(uint32 rigidBodyId,  const vec3& velocity)
+		void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId,  const vec3& velocity)
 		{
 			if (!impl_->rigidBodies.count(rigidBodyId))
 			{
@@ -204,7 +206,7 @@ namespace GameEngine
 
 			impl_->rigidBodies.at(rigidBodyId)->setLinearVelocity(Convert(velocity));
 		}
-		void BulletPhysics::RemoveRigidBody(uint32 id)
+		void BulletAdapter::RemoveRigidBody(uint32 id)
 		{
 			if (!impl_->rigidBodies.count(id))
 			{

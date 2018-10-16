@@ -9,6 +9,7 @@
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Time/DayNightCycle.h"
 #include <list>
 #include <memory>
@@ -30,11 +31,6 @@ namespace GameEngine
 	{
 		class RenderersManager;
 	} // Renderer
-
-	namespace Physics
-	{
-		struct IPhysicsApi;
-	} // Physics
 
 	typedef  std::unordered_map< uint32, std::unique_ptr<CGameObject>> GameObjects;
 
@@ -77,6 +73,7 @@ namespace GameEngine
 		void SetInputManager(InputManager* input);
 		void SetRenderersManager(Renderer::RenderersManager* manager);
 		void SetDisplayManager(CDisplayManager* displayManager);
+		void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
 
 		template<class T>
 		T* AddComponent(CGameObject* obj)
@@ -103,7 +100,7 @@ namespace GameEngine
 		InputManager* inputManager_;
 		CDisplayManager* displayManager_;
 		Renderer::RenderersManager* renderersManager_;
-		std::shared_ptr<Physics::IPhysicsApi> physicsApi_;
+		Physics::IPhysicsApiPtr physicsApi_;
 
 		// Minimum one light on scene only (night - decrease strength)
 		float gloabalTime = 0.f;
@@ -164,5 +161,9 @@ namespace GameEngine
 	inline void Scene::SetDisplayManager(CDisplayManager* displayManager)
 	{
 		displayManager_ = displayManager;
+	}
+	inline void Scene::SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi)
+	{
+		physicsApi_ = physicsApi;
 	}
 } // GameEngine

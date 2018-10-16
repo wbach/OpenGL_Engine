@@ -14,7 +14,7 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera, std::shared_ptr<Physics::IPhysicsApi>& physicsApi)
+		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera, std::shared_ptr<Physics::IPhysicsApi>* physicsApi)
 			: componentController_(componentController)
 			, resourceManager_(resourceManager)
 			, physicsApi_(physicsApi)
@@ -62,6 +62,14 @@ namespace GameEngine
 			{
 				return CreateAndBasicInitialize<Rigidbody>(ptr);
 			}
+			case ComponentsType::BoxCollider:
+			{
+				break;
+			}
+			case ComponentsType::CollisionShape:
+			{
+				break;
+			}
 
 			}
 			return nullptr;
@@ -79,7 +87,7 @@ namespace GameEngine
 			comp->SetCamera(&camera_);
 			comp->SetResourceManager(resourceManager_.get());
 			comp->SetRendererManager(rendererManager_);
-			comp->SetPhysicsApi(physicsApi_.get());
+			comp->SetPhysicsApi(physicsApi_->get());
 			comp->SetObjectPtr(ptr);
 			return comp;
 		}

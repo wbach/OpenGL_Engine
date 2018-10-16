@@ -3,6 +3,7 @@
 #include "ShapeType.h"
 #include "Common/Transform.h"
 #include <vector>
+#include <memory>
 
 namespace GameEngine
 {
@@ -25,6 +26,8 @@ namespace GameEngine
 			
 			virtual void RemoveRigidBody(uint32 id) = 0;
 		};
+
+		using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;
 	}
 
 } // GameEngine

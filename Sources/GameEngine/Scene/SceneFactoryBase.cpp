@@ -40,14 +40,23 @@ namespace GameEngine
 	{
 		rendererMandager_ = manager;
 	}
+	void SceneFactoryBase::SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi)
+	{
+		physicsApi_ = physicsApi;
+	}
 	ScenePtr SceneFactoryBase::GetScene(const std::string& name)
 	{
 		auto scene = scenesMap_[name]();
+		SetMenagersAndApi(scene.get());
+		return scene;
+	}
+	void SceneFactoryBase::SetMenagersAndApi(Scene* scene)
+	{
 		scene->CreateResourceManger(graphicsApi_);
 		scene->SetDisplayManager(displayManager_);
 		scene->SetRenderersManager(rendererMandager_);
 		scene->SetInputManager(input_);
-		return scene;
+		scene->SetPhysicsApi(physicsApi_);
 	}
 	void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)
 	{

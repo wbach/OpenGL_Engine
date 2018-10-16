@@ -1,5 +1,6 @@
 #pragma once
 #include "SceneFactoryBase.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "ThreadSync.h"
 #include "SceneWrapper.h"
 #include "SceneEvents.h"
@@ -24,7 +25,7 @@ namespace GameEngine
 	class SceneManager
 	{
 	public:
-		SceneManager(IGraphicsApiPtr grahpicsApi, SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
+		SceneManager(IGraphicsApiPtr grahpicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr, std::shared_ptr<CDisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
 		~SceneManager();
 		Scene* GetActiveScene();
 		void InitActiveScene();
@@ -51,6 +52,7 @@ namespace GameEngine
 
 	private:
 		IGraphicsApiPtr grahpicsApi_;
+		Physics::IPhysicsApiPtr physicsApi_;
 		SceneFactoryBasePtr sceneFactory_;
 
 		uint32 currentSceneId_;

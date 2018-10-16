@@ -6,17 +6,20 @@
 #include "Common/Hero/HeroClassesTypes.h"
 #include "Scenes/ScenesFactory.h"
 #include "Logger/Log.h"
-
 #include "PlayerMock.h"
+#include "GameEngine/Physics/Bullet/BulletAdapter.h"
+
+using namespace GameEngine;
+using namespace GameEngine::Physics;
 
 namespace MmmoRpg
 {
 	class Game
 	{
 	public:
-		Game(GameEngine::IGraphicsApiPtr gptr)
+		Game(IGraphicsApiPtr gptr)
 			: serverAdress(Utils::ReadFile("./server.conf"))
-			, engine(gptr, std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+			, engine(gptr, makeBulletAdapter(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
 		{
 			Log("Server : " + serverAdress);
 
@@ -30,7 +33,7 @@ namespace MmmoRpg
 	private:
 		std::string serverAdress;
 		Network::CGateway gateway;
-		GameEngine::CEngine engine;
+		CEngine engine;
 		MrpgGameContext gameContext_;
 	};
 

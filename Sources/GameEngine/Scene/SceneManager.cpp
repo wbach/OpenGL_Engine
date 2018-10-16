@@ -6,8 +6,9 @@
 
 namespace GameEngine
 {
-	SceneManager::SceneManager(IGraphicsApiPtr grahpicsApi, SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
+	SceneManager::SceneManager(IGraphicsApiPtr grahpicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager, std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
 		: grahpicsApi_(grahpicsApi)
+		, physicsApi_(physicsApi)
 		, sceneFactory_(sceneFactory)
 		, currentSceneId_(0)
 		, sceneWrapper_(grahpicsApi, displayManager)
@@ -86,6 +87,7 @@ namespace GameEngine
 		sceneFactory_->SetDisplayManager(displayManager_.get());
 		sceneFactory_->SetInputManager(inputManager_.get());
 		sceneFactory_->SetRenderersManager(&renderersManager_);
+		sceneFactory_->SetPhysicsApi(physicsApi_);
 	}
 
 	void SceneManager::UpadteScene(float dt)

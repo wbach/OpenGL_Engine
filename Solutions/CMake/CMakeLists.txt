@@ -46,6 +46,7 @@ include_directories(
 ../../Sources/UtilsNetwork/
 ../../Tools/common/
 ../../Tools/common/glm
+../../Tools/common/bullet/src/
 ../../Tools/common/rapidxml-1.13/
 )
 

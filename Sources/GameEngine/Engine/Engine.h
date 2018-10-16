@@ -4,6 +4,7 @@
 #include "../Display/DisplayManager.hpp"
 #include "../Renderers/RenderersManager.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "IntroRenderer.h"
 #include "ThreadSync.h"
 #include "EngineEvent.h"
@@ -20,7 +21,7 @@ namespace GameEngine
 		std::shared_ptr<CDisplayManager> displayManager;
 
 	public:
-		CEngine(IGraphicsApiPtr graphicsApi, SceneFactoryBasePtr sceneFactory);
+		CEngine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory);
 		~CEngine();
 		void Init();
 		void GameLoop();

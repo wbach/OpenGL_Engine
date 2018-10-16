@@ -5,11 +5,11 @@
 
 namespace GameEngine
 {
-CEngine::CEngine(IGraphicsApiPtr graphicsApi, SceneFactoryBasePtr sceneFactory)
+CEngine::CEngine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory)
     : displayManager(nullptr)
     , inputManager_(nullptr)
     , renderersManager_(graphicsApi)
-    , sceneManager_(graphicsApi, sceneFactory, displayManager, inputManager_, renderersManager_,
+    , sceneManager_(graphicsApi, physicsApi, sceneFactory, displayManager, inputManager_, renderersManager_,
                     guiContext_)
     , graphicsApi_(graphicsApi)
     , introRenderer_(graphicsApi, displayManager)

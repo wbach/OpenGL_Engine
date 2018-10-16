@@ -1,14 +1,16 @@
 #pragma once
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include <memory>
 
 namespace GameEngine
 {
 	namespace Physics
 	{
-		class BulletPhysics : public IPhysicsApi
+		class BulletAdapter : public IPhysicsApi
 		{
 		public:
-			BulletPhysics();
+			BulletAdapter();
+			~BulletAdapter();
 			virtual void Simulate() override;
 			virtual void SetSimulationStep(float step) override;
 			virtual void EnableSimulation() override;
@@ -29,6 +31,9 @@ namespace GameEngine
 			bool simualtePhysics_;
 			uint32 id_;
 		};
+		static IPhysicsApiPtr makeBulletAdapter()
+		{
+			return std::make_shared<BulletAdapter>();
+		}
 	}
-
 } // GameEngine

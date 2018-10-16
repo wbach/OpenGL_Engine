@@ -1,6 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include <memory>
 #include <functional>
 #include <unordered_map>
@@ -13,7 +14,7 @@ namespace GameEngine
 	namespace Renderer
 	{
 		class RenderersManager;
-	}
+	} // Renderer
 	typedef std::unique_ptr<Scene> ScenePtr;
 	typedef std::function<ScenePtr()> CreateFunction;
 	typedef std::unordered_map<std::string, CreateFunction> ScenesMap;
@@ -39,13 +40,16 @@ namespace GameEngine
 		void SetInputManager(InputManager* input);
 		void SetDisplayManager(CDisplayManager* displayManager);
 		void SetRenderersManager(Renderer::RenderersManager* manager);
+		void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
 
 	protected:
 		ScenePtr GetScene(const std::string& name);
+		void SetMenagersAndApi(Scene* scene);
 		void AddScene(const std::string&, CreateFunction);
 
 	private:
 		IGraphicsApiPtr graphicsApi_;
+		Physics::IPhysicsApiPtr physicsApi_;
 		ScenesMap scenesMap_;
 		OrderMap orderMap_;
 		IdMap idMap_;
@@ -55,4 +59,4 @@ namespace GameEngine
 	};	
 
 	typedef std::shared_ptr<SceneFactoryBase> SceneFactoryBasePtr;
-}
+} // GameEngine

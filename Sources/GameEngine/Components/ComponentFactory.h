@@ -28,7 +28,7 @@ namespace GameEngine
 		class ComponentFactory
 		{
 		public:
-			ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera, std::shared_ptr<Physics::IPhysicsApi>& physicsApi);
+			ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera, std::shared_ptr<Physics::IPhysicsApi>* physicsApi);
 			std::unique_ptr<AbstractComponent> Create(ComponentsType type, CGameObject* ptr);
 			void SetRendererManager(Renderer::RenderersManager* rendererManager);
 
@@ -40,7 +40,7 @@ namespace GameEngine
 			ComponentController& componentController_;
 			std::shared_ptr<CResourceManager>& resourceManager_;
 			Renderer::RenderersManager* rendererManager_;
-			std::shared_ptr<Physics::IPhysicsApi> physicsApi_;
+			std::shared_ptr<Physics::IPhysicsApi>* physicsApi_;
 			std::shared_ptr<ICamera>& camera_;
 			Time& time_;
 		};

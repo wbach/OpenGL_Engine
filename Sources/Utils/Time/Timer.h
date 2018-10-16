@@ -11,6 +11,6 @@ namespace Utils
 		uint64 GetTimeMiliseconds();
 
 	private:
-		std::chrono::time_point<std::chrono::steady_clock> start_;
+		Timepoint start_;
 	};
 } // Utils
