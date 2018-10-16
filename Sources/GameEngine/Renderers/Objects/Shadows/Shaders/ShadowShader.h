@@ -23,7 +23,7 @@ public:
 	void ConnectTextureUnits() const override;
 
 	template <class T>
-	void Load(UniformLocation location, T value) const
+	void Load(UniformLocation location, const T& value) const
 	{
 		if (uniformLocations.count(location) == 0 || uniformLocations.at(location).empty())
 		{
@@ -34,7 +34,7 @@ public:
 	}
 
 	template <class T>
-	void Load(UniformLocation location, T value, int id) const
+	void Load(UniformLocation location, const T& value, int id) const
 	{
 		if (uniformLocations.count(location) == 0 || uniformLocations.at(location).size() <= static_cast<uint32>(id))
 		{

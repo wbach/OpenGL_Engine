@@ -16,7 +16,7 @@ namespace GameEngine
 		};
 
 		template <class T>
-		void Load(UniformLocation location, T value) const
+		void Load(UniformLocation location, const T& value) const
 		{
 			if (uniformLocations.count(location) == 0)
 			{
