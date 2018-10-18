@@ -20,6 +20,8 @@ int main(int argc, char** argv)
 	::testing::InitGoogleTest(&argc, argv);
 	::testing::InitGoogleMock(&argc, argv);
 	auto result = RUN_ALL_TESTS();
+	int i = 0;
+	std::cin >> i;
 	return result;
 	
 }

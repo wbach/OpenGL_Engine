@@ -28,6 +28,7 @@ namespace GameEngine
 			void SetEmitFunction(EmitFunction f) { emitFunction_ = f; }
 			void SetBlendFunction(BlendFunctionType type) { blendFunction_ = type; }
 			BlendFunctionType GetBlendType() { return blendFunction_; }
+			uint32 GetParticlesCount() const { return particles_.size(); }
 
 		private:
 			void Subscribe();

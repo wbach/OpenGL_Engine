@@ -6,6 +6,9 @@ using namespace GameEngine::Components;
 
 using namespace testing;
 
+const uint32 PARTICLES_PER_SEC = 100;
+const float DELTA_TIME = 0.1f;
+
 struct ParicleComponentTestSchould : public BaseComponentTestSchould
 {
 	ParicleComponentTestSchould()
@@ -31,7 +34,9 @@ TEST_F(ParicleComponentTestSchould, EmitParticlesCountTest)
 	sut_.SetParticlesPerSec(100);
 	sut_.ReqisterFunctions();
 	vec3 camPosition(0);
+	GameEngine::Particle particle;
 	EXPECT_CALL(*camera_, GetPosition()).WillRepeatedly(Return(camPosition));
-	EXPECT_CALL(*this, EmitParticle(_)).Times(10);
+	EXPECT_CALL(*this, EmitParticle(_)).WillRepeatedly(Return(particle));
 	componentController_.Update();
+	EXPECT_EQ(sut_.GetParticlesCount(), 10);
 }

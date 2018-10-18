@@ -1,10 +1,10 @@
 #pragma once
-#include "ShadowBox.h"
-#include "Shaders/ShadowShader.h"
-#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "Shaders/ShadowShader.h"
+#include "ShadowBox.h"
 
 class CMesh;
 class CProjection;
@@ -13,27 +13,26 @@ struct SMaterial;
 
 namespace GameEngine
 {
-	struct ICamera;
-	class ModelWrapper;
+struct ICamera;
+class ModelWrapper;
 
 class ShadowMapRenderer : public IRenderer
 {
-	struct ShadowMapSubscriber
-	{
-		uint32 textureIndex = 0;
-		CGameObject* gameObject = nullptr;
-		ModelWrapper* model = nullptr;
-	};
-	typedef std::unordered_map<uint32_t, ShadowMapSubscriber> SubscribersMap;
+    struct ShadowMapSubscriber
+    {
+        uint32 textureIndex     = 0;
+        CGameObject* gameObject = nullptr;
+        ModelWrapper* model     = nullptr;
+    };
+    typedef std::unordered_map<uint32_t, ShadowMapSubscriber> SubscribersMap;
 
 public:
-
     ShadowMapRenderer(RendererContext& context);
-	virtual void Init() override;
+    virtual void Init() override;
     virtual void Subscribe(CGameObject* gameObject) override;
-	virtual void UnSubscribe(CGameObject* gameObject) override;
-	virtual void UnSubscribeAll() override;
-	virtual void ReloadShaders() override;
+    virtual void UnSubscribe(CGameObject* gameObject) override;
+    virtual void UnSubscribeAll() override;
+    virtual void ReloadShaders() override;
     void Render(Scene* scene);
 
 private:
@@ -45,12 +44,12 @@ private:
     void BindMaterial(const SMaterial&, uint32 textureIndex) const;
 
 private:
-	RendererContext& context_;
+    RendererContext& context_;
     CShadowShader shader_;
     CShadowBox shadowBox_;
-	CShadowBox shadowBox2_;
+    CShadowBox shadowBox2_;
     mat4 projectionViewMatrix_;
-	mat4 viewOffset_;
-	SubscribersMap subscribes_;
+    mat4 viewOffset_;
+    SubscribersMap subscribes_;
 };
-} // GameEngine
+}  // GameEngine
