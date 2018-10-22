@@ -1,10 +1,15 @@
 #include "ModelFactory.h"
-#include "../../Resources/ResourceManager.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/OpenGLLoader.h"
 
-CModel* GameEngine::LoadModel(CResourceManager* manager, const std::string& filename)
+namespace GameEngine
 {
-	// manager ownership
-	ModelRawPtr m = manager->LoadModel(filename);
-	manager->GetOpenGlLoader().AddObjectToOpenGLLoadingPass(m);
-	return m;
+CModel* LoadModel(IResourceManager* manager, const std::string& filename)
+{
+    // manager ownership
+    ModelRawPtr m = manager->LoadModel(filename);
+    manager->GetOpenGlLoader().AddObjectToOpenGLLoadingPass(m);
+    return m;
 }
+} // namespace GamEngine

@@ -3,18 +3,22 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 
-class CResourceManager;
+namespace GameEngine
+{
+class IResourceManager;
 
-class CEntity : public CGameObject
+class Entity : public GameObject
 {
 public:
-	CEntity(CResourceManager* manager);
-    CEntity(const GameEngine::ModelWrapper& modelWrapper);
-    void AddModel(const std::string& filename, GameEngine::LevelOfDetail i);
-	void SetResourceManager(CResourceManager* manager);
-	ModelRawPtr GetModel(GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    Entity(IResourceManager* manager);
+    Entity(const ModelWrapper& modelWrapper);
+    void AddModel(const std::string& filename, LevelOfDetail i);
+    void SetResourceManager(IResourceManager* manager);
+    ModelRawPtr GetModel(GameEngine::LevelOfDetail i = LevelOfDetail::L1);
 
 private:
-	CResourceManager* manager_;
-	GameEngine::ModelWrapper modelWrapper_;
+    IResourceManager* manager_;
+    GameEngine::ModelWrapper modelWrapper_;
 };
+
+}  // GameEngine

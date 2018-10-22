@@ -38,7 +38,7 @@ void ShadowMapRenderer::Render(Scene* scene)
     context_.shadowsFrameBuffer_->UnbindFrameBuffer();
 }
 
-void ShadowMapRenderer::Subscribe(CGameObject* gameObject)
+void ShadowMapRenderer::Subscribe(GameObject* gameObject)
 {
     auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
 
@@ -49,7 +49,7 @@ void ShadowMapRenderer::Subscribe(CGameObject* gameObject)
                                         &rendererComponent->GetModelWrapper()};
 }
 
-void ShadowMapRenderer::UnSubscribe(CGameObject* gameObject)
+void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
 {
     subscribes_.erase(gameObject->GetId());
 }

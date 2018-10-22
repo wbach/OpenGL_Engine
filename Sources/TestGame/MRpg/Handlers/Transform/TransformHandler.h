@@ -3,26 +3,26 @@
 
 namespace Network
 {
-	struct TransformMsgResp;
+struct TransformMsgResp;
 }
 
 namespace MmmoRpg
 {
-	class NetworkCharacterManager;
+class NetworkCharacterManager;
 
-	class TransformHandler : public common::AbstractHandler
-	{
-	public:
-		TransformHandler(NetworkCharacterManager& networkCharacterManager)
-			: common::AbstractHandler({ Network::MessageTypes::TransformResp })
-			, networkCharacterManager_(networkCharacterManager)
-		{
-		}
+class TransformHandler : public common::AbstractHandler
+{
+public:
+    TransformHandler(NetworkCharacterManager& networkCharacterManager)
+        : common::AbstractHandler({Network::MessageTypes::TransformResp})
+        , networkCharacterManager_(networkCharacterManager)
+    {
+    }
 
-	protected:
-		virtual void ProcessMessage(const Network::BoxMessage& message) override;
-		void HandleTransformMsg(const Network::TransformMsgResp& msg);
-		NetworkCharacterManager&  networkCharacterManager_;
-	};
+protected:
+    virtual void ProcessMessage(const Network::BoxMessage& message) override;
+    void HandleTransformMsg(const Network::TransformMsgResp& msg);
+    NetworkCharacterManager& networkCharacterManager_;
+};
 
-} // MmmoRpg
+}  // MmmoRpg

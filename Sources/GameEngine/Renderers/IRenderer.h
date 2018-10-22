@@ -1,24 +1,23 @@
 #pragma once
-#include "Types.h"
 #include <memory>
 #include <vector>
-
-class CGameObject;
+#include "Types.h"
 
 namespace GameEngine
 {
-	class Scene;
+class GameObject;
+class Scene;
 
-	struct IRenderer
-	{
-		virtual ~IRenderer();
-		virtual void Init() = 0;
-		virtual void ReloadShaders() = 0;
-		virtual void Subscribe(CGameObject* gameObject);
-		virtual void UnSubscribe(CGameObject* gameObject);
-		virtual void UnSubscribeAll();
-	};
+struct IRenderer
+{
+    virtual ~IRenderer();
+    virtual void Init()          = 0;
+    virtual void ReloadShaders() = 0;
+    virtual void Subscribe(GameObject* gameObject);
+    virtual void UnSubscribe(GameObject* gameObject);
+    virtual void UnSubscribeAll();
+};
 
-	typedef std::unique_ptr<IRenderer> IRendererPtr;
-	typedef std::vector<IRendererPtr>   IRenderersPtrVec;
-} // GameEngine
+typedef std::unique_ptr<IRenderer> IRendererPtr;
+typedef std::vector<IRendererPtr> IRenderersPtrVec;
+}  // GameEngine

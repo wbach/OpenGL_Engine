@@ -1,16 +1,14 @@
 #pragma once
-#include "../../../GameObject.h"
 #include <vector>
+#include "GameEngine/Objects/GameObject.h"
 
 class CModel;
 
-struct SGrass : public CGameObject
+namespace GameEngine
 {
-	virtual ~SGrass() {}
-	SGrass()
-    {
-	}
-
-	CModel *model;
-	std::vector<float> grassvertex;
+struct Grass : public GameObject
+{
+    CModel *model;
+    std::vector<float> grassvertex;
 };
+} // GameEngine

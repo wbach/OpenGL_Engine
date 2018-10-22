@@ -1,18 +1,21 @@
 #pragma once
-#include "Entity.h"
 #include <memory>
+#include "Entity.h"
 
-class CEntityWrapper
+namespace GameEngine
+{
+class EntityWrapper
 {
 public:
-	CEntityWrapper(CResourceManager* manager);
-	CEntityWrapper(GameEngine::ModelWrapper modelWrapper);
-	CEntity* Get();
+    EntityWrapper(IResourceManager* manager);
+    EntityWrapper(ModelWrapper modelWrapper);
+    Entity* Get();
 
 private:
-	vec3 normalizeScale_;
-	CResourceManager* manager_;
-	std::unique_ptr<CEntity> entity_;
+    vec3 normalizeScale_;
+    IResourceManager* manager_;
+    std::unique_ptr<Entity> entity_;
 
-	GameEngine::ModelWrapper modelWrapper_;
+    ModelWrapper modelWrapper_;
 };
+}  // namespace GameEngine

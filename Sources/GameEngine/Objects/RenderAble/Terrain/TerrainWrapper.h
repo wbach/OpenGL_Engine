@@ -1,19 +1,23 @@
 #pragma once
-#include "../../GameObject.h"
-#include "../../ObjectBuilder.h"
 #include <memory>
+#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Objects/ObjectBuilder.h"
 
-class CTerrain ;
+namespace GameEngine
+{
+class Terrain;
 
-class CTerrainWrapper : public CGameObject
+class TerrainWrapper : public GameObject
 {
 public:
-	CTerrainWrapper(CResourceManager& manager, TerrainTexturesMap texture);
-	~CTerrainWrapper();
-	virtual wb::optional<vec3> CollisionDetection(const vec3&) override;
-	CTerrain* Get();
+    TerrainWrapper(IResourceManager* manager, TerrainTexturesMap texture);
+    ~TerrainWrapper();
+    virtual wb::optional<vec3> CollisionDetection(const vec3&) override;
+    Terrain* Get();
+
 private:
-	std::unique_ptr<CTerrain> terrain;
-	TerrainTexturesMap texturesMap;
-	CResourceManager& manager;
+    std::unique_ptr<Terrain> terrain;
+    TerrainTexturesMap texturesMap;
+    IResourceManager* manager;
 };
+}  // GameEngine

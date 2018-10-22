@@ -1,29 +1,32 @@
 #include "GameObject.h"
-#include "Types.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "Types.h"
 
-uint32 CGameObject::s_id = 0;
+namespace GameEngine
+{
+uint32 GameObject::s_id = 0;
 
-CGameObject::CGameObject()
-	: id(s_id++)
-	, s_componentID(0)
+GameObject::GameObject()
+    : id(s_id++)
+    , s_componentID(0)
 {
 }
 
-uint32 CGameObject::GetId() const
+uint32 GameObject::GetId() const
 {
-	return id;
+    return id;
 }
 
-void CGameObject::AddComponent(GameEngine::Components::AbstractComponentPtr component)
+void GameObject::AddComponent(Components::AbstractComponentPtr component)
 {
-	components_[s_componentID++] = std::move(component);
+    components_[s_componentID++] = std::move(component);
 }
 
-void CGameObject::RegisterComponentFunctions()
+void GameObject::RegisterComponentFunctions()
 {
-	for (const auto& c : components_)
-	{
-		c.second->ReqisterFunctions();
-	}
+    for (const auto& c : components_)
+    {
+        c.second->ReqisterFunctions();
+    }
 }
+}  // namespace GameEngine

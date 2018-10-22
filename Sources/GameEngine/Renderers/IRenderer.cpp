@@ -8,10 +8,10 @@ IRenderer::~IRenderer()
 void IRenderer::ReloadShaders()
 {
 }
-void IRenderer::Subscribe(CGameObject*)
+void IRenderer::Subscribe(GameObject*)
 {
 }
-void IRenderer::UnSubscribe(CGameObject*)
+void IRenderer::UnSubscribe(GameObject*)
 {
 }
 void IRenderer::UnSubscribeAll()

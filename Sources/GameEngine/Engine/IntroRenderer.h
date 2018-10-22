@@ -23,7 +23,7 @@ namespace GameEngine
 	private:
 		GameEngine::IGraphicsApiPtr graphicsApi_;
 		std::shared_ptr<CDisplayManager>& displayManager_;
-		CResourceManager resorceManager_;
+		ResourceManager resorceManager_;
 
 		CLoadingShader shader_;
 		CTexture* backgroundTexture_;

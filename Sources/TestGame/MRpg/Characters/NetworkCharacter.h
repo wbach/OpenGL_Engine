@@ -30,12 +30,12 @@ namespace MmmoRpg
 		std::shared_ptr<common::Controllers::IController> GetControllerByType(common::Controllers::Types type);
 		void UpdateControllers(float dt);
 		uint32 GetId();
-		CEntity* GetEntity();
+		GameEngine::Entity* GetEntity();
 
 	private:
 		uint32 id_;
 		common::Hero::CommonStats stats_;
-		CEntityWrapper enitityWrapper_;
+		GameEngine::EntityWrapper enitityWrapper_;
 		ControllersMap controllers_;
 	};
 } // MmmoRpg

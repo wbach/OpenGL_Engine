@@ -1,17 +1,16 @@
 #include "FullRenderer.h"
 
-
-#include "Objects/Tree/TreeRenderer.h"
+#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
+#include "Objects/Entity/EntityRenderer.h"
+#include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Plants/PlantsRenderer.h"
-#include "Objects/Water/WaterRenderer.h"
-#include "Objects/Grass/GrassRenderer.h"
-#include "Objects/Entity/EntityRenderer.h"
-#include "Objects/SkyBox/SkyBoxRenderer.h"
-#include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/Shadows/ShadowFrameBuffer.h"
+#include "Objects/Shadows/ShadowMapRenderer.hpp"
+#include "Objects/SkyBox/SkyBoxRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
-#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
+#include "Objects/Tree/TreeRenderer.h"
+#include "Objects/Water/WaterRenderer.h"
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -22,90 +21,92 @@ using namespace GameEngine;
 
 namespace GameEngine
 {
-FullRenderer::FullRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection, std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
-	: context_(projection, graphicsApi, std::make_shared<CDefferedFrameBuffer>(graphicsApi), std::make_shared<CShadowFrameBuffer>(graphicsApi), rendererFunction)
-	, postprocessingRenderersManager_(context_)
-{	
-	CreateRenderers();
-	__RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, FullRenderer::Prepare);
-	__RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, FullRenderer::PostProcess);
+FullRenderer::FullRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection,
+                           std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
+    : context_(projection, graphicsApi, std::make_shared<CDefferedFrameBuffer>(graphicsApi),
+               std::make_shared<CShadowFrameBuffer>(graphicsApi), rendererFunction)
+    , postprocessingRenderersManager_(context_)
+{
+    CreateRenderers();
+    __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, FullRenderer::Prepare);
+    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, FullRenderer::PostProcess);
 }
 
 FullRenderer::~FullRenderer()
 {
-	Log(__FUNCTION__);
+    Log(__FUNCTION__);
 }
 
 void FullRenderer::Init()
 {
-	context_.defferedFrameBuffer_->Init(context_.projection_->GetWindowSize());
-	context_.shadowsFrameBuffer_->InitialiseFrameBuffer();
+    context_.defferedFrameBuffer_->Init(context_.projection_->GetWindowSize());
+    context_.shadowsFrameBuffer_->InitialiseFrameBuffer();
 
-    for(auto& renderer : renderers)
+    for (auto& renderer : renderers)
     {
         renderer->Init();
     }
-	postprocessingRenderersManager_.Init();
-	Log("FullRenderer initialized.");
+    postprocessingRenderersManager_.Init();
+    Log("FullRenderer initialized.");
 }
 
-void FullRenderer::Subscribe(CGameObject* gameObject)
+void FullRenderer::Subscribe(GameObject* gameObject)
 {
-	for (auto& renderer : renderers)
-		renderer->Subscribe(gameObject);
+    for (auto& renderer : renderers)
+        renderer->Subscribe(gameObject);
 }
 
-void FullRenderer::UnSubscribe(CGameObject* gameObject)
+void FullRenderer::UnSubscribe(GameObject* gameObject)
 {
-	for (auto& r : renderers)
-		r->UnSubscribe(gameObject);
+    for (auto& r : renderers)
+        r->UnSubscribe(gameObject);
 }
 
 void FullRenderer::UnSubscribeAll()
 {
-	for (auto& r : renderers)
-		r->UnSubscribeAll();
+    for (auto& r : renderers)
+        r->UnSubscribeAll();
 }
 
 void FullRenderer::ReloadShaders()
 {
-	for (auto& renderer : renderers)
-		renderer->ReloadShaders();
-	postprocessingRenderersManager_.ReloadShaders();
+    for (auto& renderer : renderers)
+        renderer->ReloadShaders();
+    postprocessingRenderersManager_.ReloadShaders();
 }
 
-template<class T>
+template <class T>
 void FullRenderer::AddRenderer()
 {
-	renderers.emplace_back(new T(context_));
+    renderers.emplace_back(new T(context_));
 }
 
 void FullRenderer::CreateRenderers()
 {
-	//AddRenderer<SkyBoxRenderer>();
+    // AddRenderer<SkyBoxRenderer>();
 
-	if (EngineConf.renderer.shadows.isEnabled)
-		AddRenderer<ShadowMapRenderer>();
+    if (EngineConf.renderer.shadows.isEnabled)
+        AddRenderer<ShadowMapRenderer>();
 
-	if (EngineConf.renderer.flora.isGrass)
-		AddRenderer<GrassRenderer>();
+    if (EngineConf.renderer.flora.isGrass)
+        AddRenderer<GrassRenderer>();
 
-	AddRenderer<TerrainRenderer>();
-	AddRenderer<TreeRenderer>();
-	AddRenderer<PlantsRenderer>();
-	AddRenderer<EntityRenderer>();
+    AddRenderer<TerrainRenderer>();
+    AddRenderer<TreeRenderer>();
+    AddRenderer<PlantsRenderer>();
+    AddRenderer<EntityRenderer>();
 
-	if (EngineConf.renderer.particles.useParticles)
-		AddRenderer<ParticlesRenderer>();
+    if (EngineConf.renderer.particles.useParticles)
+        AddRenderer<ParticlesRenderer>();
 
-	AddRenderer<WaterRenderer>();
+    AddRenderer<WaterRenderer>();
 }
-void FullRenderer::PostProcess(Scene * scene)
+void FullRenderer::PostProcess(Scene* scene)
 {
-	postprocessingRenderersManager_.Render(scene);
+    postprocessingRenderersManager_.Render(scene);
 }
-void FullRenderer::Prepare(Scene *)
+void FullRenderer::Prepare(Scene*)
 {
-	context_.defferedFrameBuffer_->Clean();
+    context_.defferedFrameBuffer_->Clean();
 }
-} // GameEngine
+}  // GameEngine

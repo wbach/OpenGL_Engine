@@ -1,127 +1,127 @@
 
 #include "Scene.hpp"
 #include "GameEngine/Camera/Camera.h"
-#include "GameEngine/Input/InputManager.h"
 #include "GameEngine/Display/DisplayManager.hpp"
-#include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Engine/EngineMeasurement.h"
+#include "GameEngine/Input/InputManager.h"
+#include "GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Resources/ResourceManager.h"
 #include "Logger/Log.h"
 #include "Utils/Time/Timer.h"
 
 namespace GameEngine
 {
-	Scene::Scene(const std::string& name)
-		: objectCount(0)
-		, name(name)
-		, inputManager_(nullptr)
-		, displayManager_(nullptr)
-		, renderersManager_(nullptr)
-		, physicsApi_(nullptr)
-		, gloabalTime(0.f)
-		, directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
-		, camera(new BaseCamera)
-		, componentFactory_(componentController_, time_, resourceManager_, camera, &physicsApi_)
-		, simulatePhysics_(true)
-	{
-	}
+Scene::Scene(const std::string& name)
+    : objectCount(0)
+    , name(name)
+    , inputManager_(nullptr)
+    , displayManager_(nullptr)
+    , renderersManager_(nullptr)
+    , physicsApi_(nullptr)
+    , gloabalTime(0.f)
+    , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
+    , camera(new BaseCamera)
+    , componentFactory_(componentController_, time_, resourceManager_, camera, &physicsApi_)
+    , simulatePhysics_(true)
+{
+}
 
-	Scene::~Scene()
-	{
-		Log("");
-		
-		gameObjects.clear();
-		camera.reset();
+Scene::~Scene()
+{
+    Log("");
 
-		if (inputManager_ != nullptr)
-		{
-			inputManager_->UnsubscribeAll();
-		}
-	}
+    gameObjects.clear();
+    camera.reset();
 
-	void Scene::Init()
-	{
-		Initialize();
-		componentController_.OnAwake();
-		componentController_.OnStart();
-	}
+    if (inputManager_ != nullptr)
+    {
+        inputManager_->UnsubscribeAll();
+    }
+}
 
-	void Scene::PostInit()
-	{
-	}
+void Scene::Init()
+{
+    Initialize();
+    componentController_.OnAwake();
+    componentController_.OnStart();
+}
 
-	void Scene::FullUpdate(float deltaTime)
-	{
-		if (physicsApi_ && simulatePhysics_.load())
-		{
-			Utils::Timer t;
-			physicsApi_->SetSimulationStep(deltaTime);
-			physicsApi_->Simulate();
-			MakeMeasurement("Physics", t.GetTimeMiliseconds());
-		}
+void Scene::PostInit()
+{
+}
 
-		if (displayManager_ != nullptr)
-		{
-			time_.deltaTime = deltaTime;
-		}
+void Scene::FullUpdate(float deltaTime)
+{
+    if (physicsApi_ && simulatePhysics_.load())
+    {
+        Utils::Timer t;
+        physicsApi_->SetSimulationStep(deltaTime);
+        physicsApi_->Simulate();
+        MakeMeasurement("Physics", t.GetTimeMiliseconds());
+    }
 
-		Update(deltaTime);
-		componentController_.Update();
+    if (displayManager_ != nullptr)
+    {
+        time_.deltaTime = deltaTime;
+    }
 
-		if (inputManager_ != nullptr)
-		{
-			inputManager_->ProcessKeysEvents();
-		}
+    Update(deltaTime);
+    componentController_.Update();
 
-	}
+    if (inputManager_ != nullptr)
+    {
+        inputManager_->ProcessKeysEvents();
+    }
+}
 
-	void Scene::PostUpdate()
-	{
-		componentController_.PostUpdate();
-	}
+void Scene::PostUpdate()
+{
+    componentController_.PostUpdate();
+}
 
-	void Scene::AddGameObject(CGameObject* object, const vec3& position, const vec3& rotation)
-	{
-		object->RegisterComponentFunctions();
-		gameObjects[object->GetId()] = std::unique_ptr<CGameObject>(object);
-	}
+void Scene::AddGameObject(GameObject* object, const vec3& position, const vec3& rotation)
+{
+    object->RegisterComponentFunctions();
+    gameObjects[object->GetId()] = std::unique_ptr<GameObject>(object);
+}
 
-	void Scene::RemoveGameObject(CGameObject * object)
-	{
-		gameObjects.erase(object->GetId());
-	}
+void Scene::RemoveGameObject(GameObject* object)
+{
+    gameObjects.erase(object->GetId());
+}
 
-	void Scene::SetAddSceneEventCallback(AddEvent func)
-	{
-		addSceneEvent = func;
-	}
+void Scene::SetAddSceneEventCallback(AddEvent func)
+{
+    addSceneEvent = func;
+}
 
-	std::list<CGameObject*> Scene::GetObjectInRange(const vec3 & position, float range)
-	{
-		//int x = static_cast<uint>(position.x / OBJECT_GRID_SIZE);
-		//int y = static_cast<uint>(position.z / OBJECT_GRID_SIZE);
+std::list<GameObject*> Scene::GetObjectInRange(const vec3& position, float range)
+{
+    // int x = static_cast<uint>(position.x / OBJECT_GRID_SIZE);
+    // int y = static_cast<uint>(position.z / OBJECT_GRID_SIZE);
 
-		return std::list<CGameObject*>();// m_ObjectInGrid[x + y*OBJECT_GRID_COUNT];
-	}
+    return std::list<GameObject*>();  // m_ObjectInGrid[x + y*OBJECT_GRID_COUNT];
+}
 
-	ICamera* Scene::GetCamera()
-	{
-		//std::lock_guard<std::mutex> lk(cameraMutex);
-		return camera.get();
-	}
+ICamera* Scene::GetCamera()
+{
+    // std::lock_guard<std::mutex> lk(cameraMutex);
+    return camera.get();
+}
 
-	void Scene::SetCamera(std::shared_ptr<ICamera> cam)
-	{
-		//std::lock_guard<std::mutex> lk(cameraMutex);
-		camera = std::move(cam);
-	}
+void Scene::SetCamera(std::shared_ptr<ICamera> cam)
+{
+    // std::lock_guard<std::mutex> lk(cameraMutex);
+    camera = std::move(cam);
+}
 
-	const Light& Scene::GetDirectionalLight() const
-	{
-		return directionalLight;
-	}
+const Light& Scene::GetDirectionalLight() const
+{
+    return directionalLight;
+}
 
-	const std::vector<Light>& Scene::GetLights() const
-	{
-		return lights;
-	}
-} // GameEngine
+const std::vector<Light>& Scene::GetLights() const
+{
+    return lights;
+}
+}  // GameEngine

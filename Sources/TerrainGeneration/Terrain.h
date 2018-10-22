@@ -2,7 +2,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include "noise/module/perlin.h"
+#include "src/module/perlin.h"
 
 class Terrain
 {

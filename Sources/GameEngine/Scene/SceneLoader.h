@@ -44,6 +44,6 @@ namespace GameEngine
 		std::mutex loadingMutex;
 
 		std::shared_ptr<CDisplayManager>& displayManager;
-		CResourceManager resorceManager;
+		ResourceManager resorceManager;
 	};
 } // GameEngine

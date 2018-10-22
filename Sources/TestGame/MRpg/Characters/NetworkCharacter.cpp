@@ -30,7 +30,7 @@ namespace MmmoRpg
 	{
 		return id_;
 	}
-	CEntity* NetworkCharacter::GetEntity()
+	GameEngine::Entity* NetworkCharacter::GetEntity()
 	{
 		return enitityWrapper_.Get();
 	}

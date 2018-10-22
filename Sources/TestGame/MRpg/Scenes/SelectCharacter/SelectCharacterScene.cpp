@@ -6,6 +6,7 @@
 #include "States/GetCharacterState.h"
 #include "States/SelectingCharacterState.h"
 #include "States/WaitForConfirmationState.h"
+#include "GameEngine/Resources/TextureLoader.h"
 #include "GLM/GLMUtils.h"
 
 namespace MmmoRpg

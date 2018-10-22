@@ -1,6 +1,7 @@
 Data/
 bin/
 build/
+buildAll/
 Build/
 Tools/
 Intermediate/

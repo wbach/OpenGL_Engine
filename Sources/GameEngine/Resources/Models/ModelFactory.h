@@ -2,9 +2,9 @@
 #include "Types.h"
 
 class CModel;
-class CResourceManager;
 
 namespace GameEngine
 {
-	CModel* LoadModel(CResourceManager* manager, const std::string& filename);
-}
+class IResourceManager;
+CModel* LoadModel(IResourceManager* manager, const std::string& filename);
+} // namespace GamEngine

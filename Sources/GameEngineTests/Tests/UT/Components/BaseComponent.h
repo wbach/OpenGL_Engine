@@ -20,8 +20,8 @@ public:
 	std::shared_ptr<GraphicsApiMock> graphicsApiMock_;
 	Time time_;
 	CameraMock* camera_;
-	CGameObject obj_;
-	CResourceManager resourcesManager_;
+	GameObject obj_;
+	ResourceManager resourcesManager_;
 	ComponentController componentController_;
 	Renderer::RenderersManager renderersManager_;
 

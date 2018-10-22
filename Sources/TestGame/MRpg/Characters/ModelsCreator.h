@@ -1,19 +1,22 @@
 #pragma once
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include <memory>
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 
-class CResourceManager;
+namespace GameEngine
+{
+class IResourceManager;
+}  //  namespace GameEngine
 
 namespace MmmoRpg
 {
-	class ModelsCreator
-	{
-	public:
-		ModelsCreator(CResourceManager* resourceManager);
-		GameEngine::ModelWrapper CreateHero(uint32 classId);
+class ModelsCreator
+{
+public:
+    ModelsCreator(GameEngine::IResourceManager* resourceManager);
+    GameEngine::ModelWrapper CreateHero(uint32 classId);
 
-	private:
-		CResourceManager* resourceManager_;
-	};
-	typedef std::unique_ptr<ModelsCreator> ModelsCreatorPtr;
-}
+private:
+    GameEngine::IResourceManager* resourceManager_;
+};
+typedef std::unique_ptr<ModelsCreator> ModelsCreatorPtr;
+} // namespace MmmoRpg

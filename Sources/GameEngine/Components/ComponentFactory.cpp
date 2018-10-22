@@ -14,7 +14,7 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<CResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera, std::shared_ptr<Physics::IPhysicsApi>* physicsApi)
+        ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, std::shared_ptr<IResourceManager> &resourceManager, std::shared_ptr<ICamera>& camera, std::shared_ptr<Physics::IPhysicsApi>* physicsApi)
 			: componentController_(componentController)
 			, resourceManager_(resourceManager)
 			, physicsApi_(physicsApi)
@@ -22,7 +22,7 @@ namespace GameEngine
 			, time_(time)
 		{
 		}
-		std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type, CGameObject* ptr)
+        std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type, GameObject* ptr)
 		{
 			switch (type)
 			{
@@ -79,7 +79,7 @@ namespace GameEngine
 			rendererManager_ = rendererManager;
 		}
 		template<class T>
-		std::unique_ptr<T> ComponentFactory::CreateAndBasicInitialize(CGameObject* ptr)
+        std::unique_ptr<T> ComponentFactory::CreateAndBasicInitialize(GameObject* ptr)
 		{
 			auto comp = std::make_unique<T>();
 			comp->SetComponentController(&componentController_);

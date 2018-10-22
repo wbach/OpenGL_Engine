@@ -7,12 +7,13 @@
 #include "Projection.h"
 #include "RendererFunctionType.h"
 
-class CGameObject;
 struct SGuiTextElement;
 
 namespace GameEngine
 {
 class Scene;
+class GameObject;
+
 namespace Renderer
 {
 namespace Gui
@@ -28,8 +29,8 @@ public:
     const CProjection& GetProjection() const;
     void RenderScene(Scene* scene);
     void ReloadShaders();
-    void Subscribe(CGameObject* gameObject);
-    void UnSubscribe(CGameObject* gameObject);
+    void Subscribe(GameObject* gameObject);
+    void UnSubscribe(GameObject* gameObject);
     void UnSubscribeAll();
     void SwapLineFaceRender();
     SGuiTextElement& GuiText(const std::string& label);
@@ -52,7 +53,7 @@ private:
     Renderer::Gui::GuiContext guiContext_;
     IRenderersPtrVec renderers_;
     CProjection projection_;
-    std::list<CGameObject*> dynamincObjects_;
+    std::list<GameObject*> dynamincObjects_;
     RendererFunctions rendererFunctions_;
 };
 }  // Renderer

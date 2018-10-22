@@ -20,17 +20,17 @@ class ShadowMapRenderer : public IRenderer
 {
     struct ShadowMapSubscriber
     {
-        uint32 textureIndex     = 0;
-        CGameObject* gameObject = nullptr;
-        ModelWrapper* model     = nullptr;
+        uint32 textureIndex    = 0;
+        GameObject* gameObject = nullptr;
+        ModelWrapper* model    = nullptr;
     };
     typedef std::unordered_map<uint32_t, ShadowMapSubscriber> SubscribersMap;
 
 public:
     ShadowMapRenderer(RendererContext& context);
     virtual void Init() override;
-    virtual void Subscribe(CGameObject* gameObject) override;
-    virtual void UnSubscribe(CGameObject* gameObject) override;
+    virtual void Subscribe(GameObject* gameObject) override;
+    virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
     void Render(Scene* scene);

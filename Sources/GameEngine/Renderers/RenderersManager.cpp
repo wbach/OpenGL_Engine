@@ -135,7 +135,7 @@ void RenderersManager::ReloadShadersExecution()
 
     markToReloadShaders_.store(false);
 }
-void RenderersManager::Subscribe(CGameObject* gameObject)
+void RenderersManager::Subscribe(GameObject* gameObject)
 {
     if (gameObject == nullptr)
         return;
@@ -146,7 +146,7 @@ void RenderersManager::Subscribe(CGameObject* gameObject)
     for (auto& renderer : renderers_)
         renderer->Subscribe(gameObject);
 }
-void RenderersManager::UnSubscribe(CGameObject* gameObject)
+void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
     for (auto iter = dynamincObjects_.begin(); iter != dynamincObjects_.end();)
     {

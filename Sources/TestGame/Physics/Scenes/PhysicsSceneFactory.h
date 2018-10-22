@@ -3,17 +3,17 @@
 
 namespace Network
 {
-	class CGateway;
-} // Network
+class CGateway;
+}  // Network
 
 namespace PhysicsTestGame
 {
-	class PhysicsSceneFactory : public GameEngine::SceneFactoryBase
-	{
-	public:
-		PhysicsSceneFactory();
+class PhysicsSceneFactory : public GameEngine::SceneFactoryBase
+{
+public:
+    PhysicsSceneFactory();
 
-	private:
-		GameEngine::ScenePtr CreateMainScene();
-	};
-} // PhysicsTestGame
+private:
+    GameEngine::ScenePtr CreateMainScene();
+};
+}  // PhysicsTestGame

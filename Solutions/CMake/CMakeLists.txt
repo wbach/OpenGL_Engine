@@ -1,6 +1,7 @@
 project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
+option(BUILD_ALL "Build all" ON)
 option(BUILD_UTILS "Build game engine utils" ON)
 option(BUILD_UTILS_NETWORK "Build game engine network utils" ON)
 option(BUILD_COMMON "Build common" ON)
@@ -11,6 +12,19 @@ option(BUILD_TEST_GAME "Build test game" OFF)
 option(BUILD_RPG_GAME_SERVER "Build rpg game server" OFF)
 option(BUILD_TERRAIN_GENERATOR "Build terrain generator" OFF)
 option(BUILD_I386 "32bit build" ON)
+
+if(BUILD_ALL)
+    SET(BUILD_UTILS ON)
+    SET(BUILD_UTILS_NETWORK ON)
+    SET(BUILD_COMMON ON)
+   # SET(BUILD_LIB_NOISE ON)
+    SET(BUILD_GAME_ENGINE ON)
+    SET(BUILD_TESTS ON)
+    SET(BUILD_TEST_GAME ON)
+    SET(BUILD_RPG_GAME_SERVER ON)
+   # SET(BUILD_TERRAIN_GENERATOR ON)
+    SET(BUILD_I386 ON)
+endif()
 
 message(STATUS "32bit build: ${BUILD_I386}")
 message(STATUS "Build game engine utils: ${BUILD_UTILS}")
@@ -31,10 +45,10 @@ add_compile_options(
 )
 
 if(BUILD_I386)
-	add_compile_options( -m32	)
+    add_compile_options( -m32   )
         set_property(GLOBAL PROPERTY COMPILE_FLAGS "-m32")
-	 set_property(GLOBAL PROPERTY  LINK_FLAGS "-m32")
-	#set_target_properties(GLOBAL PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+        set_property(GLOBAL PROPERTY  LINK_FLAGS "-m32")
+    #set_target_properties(GLOBAL PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
 include(./Sources/WindowsSources.cmake)
@@ -75,9 +89,10 @@ set_target_properties(GameEngineLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "
 endif()
 
 if(BUILD_TEST_GAME)
-	include_directories(
-	../../Sources/GameEngine/
-	)
+    #add_subdirectory(../../Tools/common/bullet/src)
+    include_directories(
+    ../../Sources/GameEngine/
+    )
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
     set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
@@ -93,14 +108,14 @@ endif()
 
 if(BUILD_LIB_NOISE OR BUILD_TERRAIN_GENERATOR)
     include_directories(
-        ../Tools/common/libnoise/
+        ../../Tools/common/libnoise/
+        ../../Tools/common/libnoise/src/
         )
     include(./Sources/LibNoiseSources.cmake)
     add_library(LibNoise ${LibNoiseSources})
 endif()
 
 if(BUILD_TERRAIN_GENERATOR)
-    
     include(./Sources/TerrainGeneratorSources.cmake)
     add_executable(TerrainGeneratorExe ${TerrainGeneratorSources})
     target_link_libraries(TerrainGeneratorExe LibNoise pthread)
@@ -108,11 +123,11 @@ endif()
 
 if(BUILD_TESTS)
     include_directories(
-	../../Sources/GameEngine/
-	)
+    ../../Sources/GameEngine/
+    )
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-	
+    
     include(./Sources/GameEngineTestsSources.cmake)
     add_executable(GAME_ENGINE_TESTS ${GameEngineTestsSources})
     set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
