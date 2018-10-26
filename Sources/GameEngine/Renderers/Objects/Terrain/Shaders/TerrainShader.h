@@ -5,7 +5,7 @@
 
 namespace GameEngine
 {
-class TerrainShader : public CShaderProgram
+class TerrainShader : public ShaderProgram
 {
 public:
     enum UniformLocation
@@ -46,7 +46,7 @@ public:
     {
         if (uniformLocations.count(location) == 0)
         {
-            Log("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));
+            Log("TerrainShader : Try load to shader not set variable : " + std::to_string(location));
             return;
         }
         LoadValue(uniformLocations.at(location), value);

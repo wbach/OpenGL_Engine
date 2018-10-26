@@ -1,102 +1,103 @@
 #include "GeometryEntityShader.h"
 
-CEntityGeometryPassShader::CEntityGeometryPassShader(GameEngine::IGraphicsApiPtr graphicsApi)
-	: CEntityShader(graphicsApi)
+namespace GameEngine
+{
+EntityGeometryPassShader::EntityGeometryPassShader(IGraphicsApiPtr graphicsApi)
+    : EntityShader(graphicsApi)
 {
 }
 
-void CEntityGeometryPassShader::GetAllUniformLocations()
+void EntityGeometryPassShader::GetAllUniformLocations()
 {
-	CEntityShader::GetAllUniformLocations();
+    EntityShader::GetAllUniformLocations();
 
-	location_ClipPlane = GetUniformLocation("ClipPlane");
+    location_ClipPlane = GetUniformLocation("ClipPlane");
 
-	location_UseFakeLighting = GetUniformLocation("IsUseFakeLighting");
-	location_UseNormalMap = GetUniformLocation("IsUseNormalMap");
-	//Textures
-	location_UseTexture = GetUniformLocation("UseTexture");
-	location_ModelTexture = GetUniformLocation("gColorMap");
-	location_NormalMap = GetUniformLocation("NormalMap");
+    location_UseFakeLighting = GetUniformLocation("IsUseFakeLighting");
+    location_UseNormalMap    = GetUniformLocation("IsUseNormalMap");
+    // Textures
+    location_UseTexture   = GetUniformLocation("UseTexture");
+    location_ModelTexture = GetUniformLocation("gColorMap");
+    location_NormalMap    = GetUniformLocation("NormalMap");
 
-	//Shadows
-	location_ShadowVariables = GetUniformLocation("ShadowVariables");
-	location_ShadowMap = GetUniformLocation("ShadowMap");
-	location_ToShadowMapSpace = GetUniformLocation("ToShadowMapSpace");
+    // Shadows
+    location_ShadowVariables  = GetUniformLocation("ShadowVariables");
+    location_ShadowMap        = GetUniformLocation("ShadowMap");
+    location_ToShadowMapSpace = GetUniformLocation("ToShadowMapSpace");
 
-	//Mesh Material
-	location_MaterialAmbient = GetUniformLocation("ModelMaterial.m_Ambient");
-	location_MaterialDiffuse = GetUniformLocation("ModelMaterial.m_Diffuse");
-	location_MaterialSpecular = GetUniformLocation("ModelMaterial.m_Specular");
+    // Mesh Material
+    location_MaterialAmbient  = GetUniformLocation("ModelMaterial.m_Ambient");
+    location_MaterialDiffuse  = GetUniformLocation("ModelMaterial.m_Diffuse");
+    location_MaterialSpecular = GetUniformLocation("ModelMaterial.m_Specular");
 
-	//Skip render
-	location_ViewDistance = GetUniformLocation("ViewDistance");
+    // Skip render
+    location_ViewDistance = GetUniformLocation("ViewDistance");
 }
 
-void CEntityGeometryPassShader::ConnectTextureUnits() const
+void EntityGeometryPassShader::ConnectTextureUnits() const
 {
-	LoadValue(location_ModelTexture, 0);
-	LoadValue(location_NormalMap, 2);
-	LoadValue(location_ShadowMap, 3);
+    LoadValue(location_ModelTexture, 0);
+    LoadValue(location_NormalMap, 2);
+    LoadValue(location_ShadowMap, 3);
 }
 
-void CEntityGeometryPassShader::BindAttributes()
+void EntityGeometryPassShader::BindAttributes()
 {
-	BindAttribute(0, "Position");
-	BindAttribute(1, "TexCoord");
-	BindAttribute(2, "Normal");
-	BindAttribute(3, "Tangent");
-	BindAttribute(4, "TransformationMatrixes");
+    BindAttribute(0, "Position");
+    BindAttribute(1, "TexCoord");
+    BindAttribute(2, "Normal");
+    BindAttribute(3, "Tangent");
+    BindAttribute(4, "TransformationMatrixes");
 }
 
-void CEntityGeometryPassShader::Init()
+void EntityGeometryPassShader::Init()
 {
-	SetFiles
-	({
-		{ "Entity/EntityGeometryPassShader.vert", GameEngine::ShaderType::VERTEX_SHADER },
-		{ "Entity/EntityGeometryPassShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER }
-	});
+    SetFiles({{"Entity/EntityGeometryPassShader.vert", ShaderType::VERTEX_SHADER},
+              {"Entity/EntityGeometryPassShader.frag", ShaderType::FRAGMENT_SHADER}});
 
-	CShaderProgram::Init();
+    ShaderProgram::Init();
 }
 
-void CEntityGeometryPassShader::LoadViewDistance(const float & distance) const
+void EntityGeometryPassShader::LoadViewDistance(const float& distance) const
 {
-	LoadValue(location_ViewDistance, distance);
+    LoadValue(location_ViewDistance, distance);
 }
 
-void CEntityGeometryPassShader::LoadUseFakeLight(const float & use) const
+void EntityGeometryPassShader::LoadUseFakeLight(const float& use) const
 {
-	LoadValue(location_UseFakeLighting, use);
+    LoadValue(location_UseFakeLighting, use);
 }
 
-void CEntityGeometryPassShader::LoadUseNormalMap(const float & use) const
+void EntityGeometryPassShader::LoadUseNormalMap(const float& use) const
 {
-	LoadValue(location_UseNormalMap, use);
+    LoadValue(location_UseNormalMap, use);
 }
 
-void CEntityGeometryPassShader::LoadMeshMaterial(const SMaterial & material) const
+void EntityGeometryPassShader::LoadMeshMaterial(const Material &material) const
 {
-	LoadValue(location_MaterialAmbient, material.ambient);
-	LoadValue(location_MaterialDiffuse, material.diffuse);
-	LoadValue(location_MaterialSpecular, material.specular);
+    LoadValue(location_MaterialAmbient, material.ambient);
+    LoadValue(location_MaterialDiffuse, material.diffuse);
+    LoadValue(location_MaterialSpecular, material.specular);
 }
 
-void CEntityGeometryPassShader::LoadToShadowSpaceMatrix(const mat4 & matrix) const
+void EntityGeometryPassShader::LoadToShadowSpaceMatrix(const mat4& matrix) const
 {
-	LoadValue(location_ToShadowMapSpace, matrix);
+    LoadValue(location_ToShadowMapSpace, matrix);
 }
 
-void CEntityGeometryPassShader::LoadShadowValues(const float & is, const float & distance, const float & shadow_map_size) const
+void EntityGeometryPassShader::LoadShadowValues(const float& is, const float& distance,
+                                                const float& shadow_map_size) const
 {
-	LoadValue(location_ShadowVariables, vec3(is, distance - 5, shadow_map_size));
+    LoadValue(location_ShadowVariables, vec3(is, distance - 5, shadow_map_size));
 }
 
-void CEntityGeometryPassShader::LoadClipPlane(const vec4 clip_plane) const
+void EntityGeometryPassShader::LoadClipPlane(const vec4 clip_plane) const
 {
-	LoadValue(location_ClipPlane, clip_plane);
+    LoadValue(location_ClipPlane, clip_plane);
 }
 
-void CEntityGeometryPassShader::LoadUseTexture(const float & is) const
+void EntityGeometryPassShader::LoadUseTexture(const float& is) const
 {
-	LoadValue(location_UseTexture, is);
+    LoadValue(location_UseTexture, is);
 }
+}  // namespace GameEngine

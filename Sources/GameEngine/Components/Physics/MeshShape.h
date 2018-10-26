@@ -1,29 +1,29 @@
 #pragma once
 #include "CollisionShape.h"
 
-class CModel;
-
 namespace GameEngine
 {
-	namespace Components
-	{
-		class MeshShape : public CollisionShape
-		{
-		public:
-			MeshShape();
-			void Update();
-			virtual void ReqisterFunctions() override;
-			void OnAwake();
+class Model;
 
-		public:
-			void SetModel(CModel* model);
+namespace Components
+{
+class MeshShape : public CollisionShape
+{
+public:
+    MeshShape();
+    void Update();
+    virtual void ReqisterFunctions() override;
+    void OnAwake();
 
-		private:
-			vec3 size_;
-			CModel* model_;
+public:
+    void SetModel(Model* model);
 
-		public:
-			static ComponentsType type;
-		};
-	} // Components
-} // GameEngine
+private:
+    vec3 size_;
+    Model* model_;
+
+public:
+    static ComponentsType type;
+};
+}  // Components
+}  // GameEngine

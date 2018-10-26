@@ -1,10 +1,12 @@
 #pragma once
 #include "GameEngine/Shaders/ShaderProgram.h"
 
-class CSkyBoxShader : public CShaderProgram
+namespace GameEngine
+{
+class SkyBoxShader : public ShaderProgram
 {
 public:
-	CSkyBoxShader(GameEngine::IGraphicsApiPtr graphicsApi);
+    SkyBoxShader(GameEngine::IGraphicsApiPtr graphicsApi);
     void Init();
     void LoadProjectionMatrix(const mat4& matrix) const;
     void LoadViewMatrix(mat4 matrix, const float& deltaTime, const float& distance_view);
@@ -24,6 +26,7 @@ private:
     int location_BlendFactor;
     int location_FogColour;
 
-    float m_RotationSpeed;
-    float m_Rotation;
+    float rotationSpeed_;
+    float rotation_;
 };
+} // namespace GameEngine

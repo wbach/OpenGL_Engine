@@ -1,33 +1,32 @@
 #pragma once
 #include "Types.h"
-#include <string.h>
-#include <iostream>
-#include <cfloat> 
-#include <math.h>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
-const int NUM_BONES_PER_VEREX = 4;
-
-struct SVertexBoneData
+namespace GameEngine
 {
-	uint32 ids[NUM_BONES_PER_VEREX];
-	float weights[NUM_BONES_PER_VEREX];
+const uint32 NUM_BONES_PER_VEREX = 4;
 
-	SVertexBoneData();
+struct VertexBoneData
+{
+    uint32 ids[NUM_BONES_PER_VEREX];
+    float weights[NUM_BONES_PER_VEREX];
 
-	void AddBoneData(uint32 bone_id, float weight);
+    VertexBoneData();
+
+    void AddBoneData(uint32 bone_id, float weight);
 };
-struct SBoneInfo
+struct BoneInfo
 {
-    mat4 boneOffset = mat4(0.f);
+    mat4 boneOffset          = mat4(0.f);
     mat4 finalTransformation = mat4(0.f);
 };
 
-struct SBonesInfo
+struct BonesInfo
 {
-    std::vector<SBoneInfo>		 boneInfo;
-	std::vector<SVertexBoneData> bones;
-    std::map<std::string, uint32>  boneMapping; // maps a bone name to its index
+    std::vector<BoneInfo> boneInfo;
+    std::vector<VertexBoneData> bones;
+    std::unordered_map<std::string, uint32> boneMapping;  // maps a bone name to its index
     uint32 numBones = 0;
 };
+}  // namespace GameEngine

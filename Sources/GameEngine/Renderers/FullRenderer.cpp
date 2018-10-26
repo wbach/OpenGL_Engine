@@ -17,14 +17,12 @@
 
 #include "Logger/Log.h"
 
-using namespace GameEngine;
-
 namespace GameEngine
 {
-FullRenderer::FullRenderer(IGraphicsApiPtr graphicsApi, CProjection* projection,
+FullRenderer::FullRenderer(IGraphicsApiPtr graphicsApi, Projection* projection,
                            std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
-    : context_(projection, graphicsApi, std::make_shared<CDefferedFrameBuffer>(graphicsApi),
-               std::make_shared<CShadowFrameBuffer>(graphicsApi), rendererFunction)
+    : context_(projection, graphicsApi, std::make_shared<DefferedFrameBuffer>(graphicsApi),
+               std::make_shared<ShadowFrameBuffer>(graphicsApi), rendererFunction)
     , postprocessingRenderersManager_(context_)
 {
     CreateRenderers();

@@ -3,6 +3,8 @@
 #include "Resources/Models/WBLoader/Collada/Collada.h"
 #include "TextureLoaderMock.h"
 
+namespace GameEngine
+{
 struct ColladaLoaderMock : public WBLoader::ColladaDae
 {
     ColladaLoaderMock(TextureLoaderMock& textureLoaderMock) : WBLoader::ColladaDae(textureLoaderMock)
@@ -10,4 +12,5 @@ struct ColladaLoaderMock : public WBLoader::ColladaDae
     }
    
 };
+} // namespace GameEngine
 #endif // COLLADALOADERMOCK_H

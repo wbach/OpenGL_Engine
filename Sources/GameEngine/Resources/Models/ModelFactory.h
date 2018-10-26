@@ -1,10 +1,10 @@
 #pragma once
 #include "Types.h"
 
-class CModel;
 
 namespace GameEngine
 {
+class Model;
 class IResourceManager;
-CModel* LoadModel(IResourceManager* manager, const std::string& filename);
-} // namespace GamEngine
+Model* LoadModel(IResourceManager* manager, const std::string& filename);
+}  // namespace GamEngine

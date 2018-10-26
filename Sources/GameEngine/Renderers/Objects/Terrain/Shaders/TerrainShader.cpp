@@ -6,7 +6,7 @@
 namespace GameEngine
 {
 TerrainShader::TerrainShader(IGraphicsApiPtr graphicsApi)
-    : CShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi)
 {
     SetFiles({{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
               {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},

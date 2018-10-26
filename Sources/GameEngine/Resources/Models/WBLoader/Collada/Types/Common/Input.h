@@ -3,13 +3,13 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Input
-		{
-			std::string semantic;
-			std::string sourceId;
-			uint32 offset;
-		};
-	}
+namespace Collada
+{
+struct Input
+{
+    std::string semantic;
+    std::string sourceId;
+    uint32 offset;
+};
+}
 }

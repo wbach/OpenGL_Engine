@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		void ReadCollada(const std::string& filename, ColladaData& data);
-	} // Collada
-} // GameEngine
+namespace Collada
+{
+void ReadCollada(const std::string& filename, ColladaData& data);
+}  // Collada
+}  // GameEngine

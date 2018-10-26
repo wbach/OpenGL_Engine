@@ -1,10 +1,13 @@
 #pragma once
 #include "../FrameBuffer.h"
 
-class CDefferedFrameBuffer : public CFrameBuffer
+namespace GameEngine
+{
+class DefferedFrameBuffer : public FrameBuffer
 {
 public:
-	CDefferedFrameBuffer(GameEngine::IGraphicsApiPtr api);
-	void Init(const wb::vec2ui& size) override;
-	void Clean() override;
+    DefferedFrameBuffer(IGraphicsApiPtr api);
+    void Init(const vec2ui& size) override;
+    void Clean() override;
 };
+}  // namespace GameEngine

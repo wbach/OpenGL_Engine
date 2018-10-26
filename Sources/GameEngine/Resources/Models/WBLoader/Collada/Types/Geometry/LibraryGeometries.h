@@ -1,15 +1,15 @@
 #pragma once
-#include "Types.h"
-#include "Geometry.h"
 #include <unordered_map>
+#include "Geometry.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct LibraryGeometries
-		{
-			std::unordered_map<std::string, Geometry> geometries_;
-		};
-	}
+namespace Collada
+{
+struct LibraryGeometries
+{
+    std::unordered_map<std::string, Geometry> geometries_;
+};
+}
 }

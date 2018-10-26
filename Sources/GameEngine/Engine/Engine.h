@@ -1,51 +1,50 @@
 #pragma once
-#include "../Scene/SceneManager.h"
-#include "../Input/InputManager.h"
 #include "../Display/DisplayManager.hpp"
+#include "../Input/InputManager.h"
 #include "../Renderers/RenderersManager.h"
+#include "../Scene/SceneManager.h"
+#include "EngineEvent.h"
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "IntroRenderer.h"
 #include "ThreadSync.h"
-#include "EngineEvent.h"
-
-class CLoadingScreenRenderer;
 
 namespace GameEngine
 {
-	class CDisplayManager;
+class DisplayManager;
+class LoadingScreenRenderer;
 
-	class CEngine
-	{
-	private:
-		std::shared_ptr<CDisplayManager> displayManager;
+class Engine
+{
+private:
+    std::shared_ptr<DisplayManager> displayManager;
 
-	public:
-		CEngine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory);
-		~CEngine();
-		void Init();
-		void GameLoop();
-		void AddEngineEvent(EngineEvent event);
-		void Render();
-		CDisplayManager& GetDisplayManager();
+public:
+    Engine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory);
+    ~Engine();
+    void Init();
+    void GameLoop();
+    void AddEngineEvent(EngineEvent event);
+    void Render();
+    DisplayManager& GetDisplayManager();
 
-	public:
-		Renderer::Gui::GuiContext guiContext_;
-		InputManagerPtr inputManager_;
-		Renderer::RenderersManager renderersManager_;
-		SceneManager sceneManager_;
+public:
+    Renderer::Gui::GuiContext guiContext_;
+    InputManagerPtr inputManager_;
+    Renderer::RenderersManager renderersManager_;
+    SceneManager sceneManager_;
 
-	private:
-		void SetDisplay();
-		void MainLoop();
-		void ProcessEngineEvents();
-		void PrepareFrame();
+private:
+    void SetDisplay();
+    void MainLoop();
+    void ProcessEngineEvents();
+    void PrepareFrame();
 
-	private:
-		IGraphicsApiPtr graphicsApi_;
-		IntroRenderer introRenderer_;
-		std::mutex engineEventsMutex;
-		std::list<EngineEvent> engineEvents;
-		std::atomic_bool isRunning;
-	};
-} // GameEngine
+private:
+    IGraphicsApiPtr graphicsApi_;
+    IntroRenderer introRenderer_;
+    std::mutex engineEventsMutex;
+    std::list<EngineEvent> engineEvents;
+    std::atomic_bool isRunning;
+};
+}  // GameEngine

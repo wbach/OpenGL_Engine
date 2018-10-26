@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Scale
-		{
-			vec3 scale_;
-			std::string sid_;
-		};
-	}
+namespace Collada
+{
+struct Scale
+{
+    vec3 scale_;
+    std::string sid_;
+};
+}
 }

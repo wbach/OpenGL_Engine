@@ -4,8 +4,6 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "Shaders/WaterShader.h"
 
-class CProjection;
-
 namespace GameEngine
 {
 class WaterRenderer : public IRenderer

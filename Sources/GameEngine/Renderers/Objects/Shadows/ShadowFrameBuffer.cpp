@@ -2,43 +2,46 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 
-CShadowFrameBuffer::CShadowFrameBuffer(GameEngine::IGraphicsApiPtr graphicsApi)
+namespace GameEngine
+{
+ShadowFrameBuffer::ShadowFrameBuffer(IGraphicsApiPtr graphicsApi)
     : graphicsApi_(graphicsApi)
     , size(EngineConf.renderer.shadows.mapSize)
-	, renderResolution(EngineConf.renderer.resolution)
+    , renderResolution(EngineConf.renderer.resolution)
 {
     InitialiseFrameBuffer();
 }
 
-CShadowFrameBuffer::~CShadowFrameBuffer()
+ShadowFrameBuffer::~ShadowFrameBuffer()
 {
-	Log(__FUNCTION__);
+    Log(__FUNCTION__);
 
-	graphicsApi_->DeleteObject(shadowMap);
-	graphicsApi_->DeleteObject(fbo);
+    graphicsApi_->DeleteObject(shadowMap);
+    graphicsApi_->DeleteObject(fbo);
 }
 
-void CShadowFrameBuffer::BindFBO()
+void ShadowFrameBuffer::BindFBO()
 {
-	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, fbo);
-	graphicsApi_->SetViewPort(0, 0, size.x, size.y);
+    graphicsApi_->BindBuffer(BindType::DEFAULT, fbo);
+    graphicsApi_->SetViewPort(0, 0, size.x, size.y);
 }
 
-void CShadowFrameBuffer::UnbindFrameBuffer() const
+void ShadowFrameBuffer::UnbindFrameBuffer() const
 {
-	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, 0);
-	graphicsApi_->SetViewPort(0, 0, renderResolution.x, renderResolution.y);
+    graphicsApi_->BindBuffer(BindType::DEFAULT, 0);
+    graphicsApi_->SetViewPort(0, 0, renderResolution.x, renderResolution.y);
 }
 
-void CShadowFrameBuffer::InitialiseFrameBuffer()
+void ShadowFrameBuffer::InitialiseFrameBuffer()
 {
-	fbo = graphicsApi_->CreateBuffer();
-	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, fbo);
+    fbo = graphicsApi_->CreateBuffer();
+    graphicsApi_->BindBuffer(BindType::DEFAULT, fbo);
     shadowMap = graphicsApi_->CreateShadowMap(size.x, size.y);
-	UnbindFrameBuffer();
+    UnbindFrameBuffer();
 }
 
-uint32 CShadowFrameBuffer::GetShadowMap() const
+uint32 ShadowFrameBuffer::GetShadowMap() const
 {
-	return shadowMap;
+    return shadowMap;
 }
+}  // namespace GameEngine

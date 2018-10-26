@@ -4,7 +4,9 @@
 #include "../Textures/Texture.h"
 #include "Types.h"
 
-struct SMaterial
+namespace GameEngine
+{
+struct Material
 {
     std::string name;
 
@@ -19,8 +21,9 @@ struct SMaterial
     bool isTransparency  = false;
     bool useFakeLighting = false;
 
-    CTexture* diffuseTexture  = nullptr;
-    CTexture* ambientTexture  = nullptr;
-    CTexture* specularTexture = nullptr;
-    CTexture* normalTexture   = nullptr;
+    Texture* diffuseTexture  = nullptr;
+    Texture* ambientTexture  = nullptr;
+    Texture* specularTexture = nullptr;
+    Texture* normalTexture   = nullptr;
 };
+}  // namespace GameEngine

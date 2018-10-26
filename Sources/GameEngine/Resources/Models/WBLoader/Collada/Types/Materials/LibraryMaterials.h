@@ -1,15 +1,15 @@
 #pragma once
-#include "Types.h"
-#include "Material.h"
 #include <unordered_map>
+#include "Material.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct LibraryMaterials
-		{
-			std::unordered_map<std::string, Material> materials_;
-		};
-	}
+namespace Collada
+{
+struct LibraryMaterials
+{
+    std::unordered_map<std::string, Material> materials_;
+};
+}
 }

@@ -3,13 +3,13 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Material
-		{
-			std::string id;
-			std::string name;
-			std::string instanceEffect;
-		};
-	}
+namespace Collada
+{
+struct Material
+{
+    std::string id;
+    std::string name;
+    std::string instanceEffect;
+};
+}
 }

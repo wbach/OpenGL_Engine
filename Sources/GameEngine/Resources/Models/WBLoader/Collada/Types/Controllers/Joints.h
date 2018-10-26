@@ -1,15 +1,15 @@
 #pragma once
-#include "Types.h"
-#include "GameEngine/Resources/Models/WBLoader/Collada/Types/Common/Input.h"
 #include <vector>
+#include "GameEngine/Resources/Models/WBLoader/Collada/Types/Common/Input.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Joitns
-		{
-			std::vector<Input> inputs_;
-		};
-	}
+namespace Collada
+{
+struct Joitns
+{
+    std::vector<Input> inputs_;
+};
+}
 }

@@ -2,9 +2,9 @@
 
 namespace ApiMessages
 {
-	enum Type
-	{
-		NONE = 0,
-		QUIT
-	};
+enum Type
+{
+    NONE = 0,
+    QUIT
+};
 }

@@ -1,41 +1,44 @@
 #pragma once
+#include <list>
+#include <string>
 #include "../Model.h"
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "MeshData.h"
-#include <list>
-#include <string>
 
-class CTextureLoader;
+namespace GameEngine
+{
+class ITextureLoader;
 
 namespace WBLoader
 {
-    class AbstractLoader
-    {
-    public:
-		AbstractLoader(GameEngine::IGraphicsApiPtr graphicsApi, CTextureLoader& textureLoader);
-		void Parse(const std::string& filename);
-        virtual bool CheckExtension(const std::string& filename) = 0;
-		virtual std::unique_ptr<CModel> Create();
-	
-	protected:
-        virtual void ParseFile(const std::string& filename)      = 0;
-		std::list<WBLoader::Object> objects;
-		std::unique_ptr<CModel> CreateModel();
-		std::unique_ptr<CModel> CreateModelFromBin();
+class AbstractLoader
+{
+public:
+    AbstractLoader(IGraphicsApiPtr graphicsApi, ITextureLoader& textureLoader);
+    void Parse(const std::string& filename);
+    virtual bool CheckExtension(const std::string& filename) = 0;
+    virtual std::unique_ptr<Model> Create();
 
-	protected:
-		CTextureLoader& textureLoader_;
+protected:
+    virtual void ParseFile(const std::string& filename) = 0;
+    std::list<WBLoader::Object> objects;
+    std::unique_ptr<Model> CreateModel();
+    std::unique_ptr<Model> CreateModelFromBin();
 
-	private:
-		void NormalizeMatrix(mat4& mat, float factor) const;
-		float FindMaxFactor() const;
+protected:
+    ITextureLoader& textureLoader_;
 
-	private:
-		GameEngine::IGraphicsApiPtr graphicsApi_;
-		std::string fileName_;
-		std::string filePath_;
-		bool loadedFromBin_;
-    };
+private:
+    void NormalizeMatrix(mat4& mat, float factor) const;
+    float FindMaxFactor() const;
 
-	typedef std::unique_ptr<WBLoader::AbstractLoader> AbstractLoaderPtr;
-} // WBLoader
+private:
+    IGraphicsApiPtr graphicsApi_;
+    std::string fileName_;
+    std::string filePath_;
+    bool loadedFromBin_;
+};
+
+typedef std::unique_ptr<WBLoader::AbstractLoader> AbstractLoaderPtr;
+}  // WBLoader
+}  // namespace GameEngine

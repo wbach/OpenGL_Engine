@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Translate
-		{
-			vec3 translate_;
-			std::string sid_;
-		};
-	}
+namespace Collada
+{
+struct Translate
+{
+    vec3 translate_;
+    std::string sid_;
+};
+}
 }

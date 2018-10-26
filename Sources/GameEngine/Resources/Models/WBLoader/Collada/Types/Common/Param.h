@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Param
-		{
-			std::string type;
-			std::string name;
-		};
-	}
+namespace Collada
+{
+struct Param
+{
+    std::string type;
+    std::string name;
+};
+}
 }

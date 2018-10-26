@@ -2,48 +2,49 @@
 
 #define GetLocation(X) uniformLocations[UniformLocation::X].push_back(GetUniformLocation(#X))
 
-CShadowShader::CShadowShader(GameEngine::IGraphicsApiPtr graphicsApi)
-	: CShaderProgram(graphicsApi)
+namespace GameEngine
+{
+ShadowShader::ShadowShader(IGraphicsApiPtr graphicsApi)
+    : ShaderProgram(graphicsApi)
 {
 }
 
-void CShadowShader::Init()
+void ShadowShader::Init()
 {
-    SetFiles
-    ({
-        {"Shadows/ShadowVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
-        {"Shadows/ShadowFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}
-    });
+    SetFiles({{"Shadows/ShadowVertexShader.vert", ShaderType::VERTEX_SHADER},
+              {"Shadows/ShadowFragmentShader.frag", ShaderType::FRAGMENT_SHADER}});
 
-    CShaderProgram::Init();
+    ShaderProgram::Init();
 }
 
-void CShadowShader::GetAllUniformLocations()
+void ShadowShader::GetAllUniformLocations()
 {
-	GetLocation(TransformationMatrix);
-	GetLocation(ProjectionViewMatrix);
-	GetLocation(UseBoneTransform);
+    GetLocation(TransformationMatrix);
+    GetLocation(ProjectionViewMatrix);
+    GetLocation(UseBoneTransform);
 
-	for (int x = 0; x < MAX_BONES; x++)
-		uniformLocations[UniformLocation::BonesTransforms].push_back(GetUniformLocation("BonesTransforms[" + std::to_string(x) + "]"));
+    for (int x = 0; x < MAX_BONES; x++)
+        uniformLocations[UniformLocation::BonesTransforms].push_back(
+            GetUniformLocation("BonesTransforms[" + std::to_string(x) + "]"));
 
-	GetLocation(NumberOfRows);
-	GetLocation(TextureOffset);
-	GetLocation(ModelTexture);
+    GetLocation(NumberOfRows);
+    GetLocation(TextureOffset);
+    GetLocation(ModelTexture);
 }
 
-void CShadowShader::BindAttributes()
+void ShadowShader::BindAttributes()
 {
     BindAttribute(0, "Position");
     BindAttribute(1, "TexCoord");
     BindAttribute(4, "Weights");
-	BindAttribute(5, "BoneIds");
+    BindAttribute(5, "BoneIds");
 }
-void CShadowShader::ConnectTextureUnits() const
+void ShadowShader::ConnectTextureUnits() const
 {
-	if (uniformLocations.count(ModelTexture) == 0 ||  uniformLocations.at(ModelTexture).empty())
-	{
-		return;
-	}
-	LoadValue(uniformLocations.at(UniformLocation::ModelTexture)[0], 0);
+    if (uniformLocations.count(ModelTexture) == 0 || uniformLocations.at(ModelTexture).empty())
+    {
+        return;
+    }
+    LoadValue(uniformLocations.at(UniformLocation::ModelTexture)[0], 0);
 }
+}  // namespace GameEngine

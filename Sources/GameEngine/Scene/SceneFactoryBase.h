@@ -10,7 +10,7 @@ namespace GameEngine
 {
 class Scene;
 class InputManager;
-class CDisplayManager;
+class DisplayManager;
 
 namespace Renderer
 {
@@ -45,7 +45,7 @@ public:
 
     void SetGraphicsApi(IGraphicsApiPtr graphicsApi);
     void SetInputManager(InputManager* input);
-    void SetDisplayManager(CDisplayManager* displayManager);
+    void SetDisplayManager(DisplayManager* displayManager);
     void SetRenderersManager(Renderer::RenderersManager* manager);
     void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
 
@@ -61,7 +61,7 @@ private:
     OrderMap orderMap_;
     IdMap idMap_;
     InputManager* input_;
-    CDisplayManager* displayManager_;
+    DisplayManager* displayManager_;
     Renderer::RenderersManager* rendererMandager_;
 };
 

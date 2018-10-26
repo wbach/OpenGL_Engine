@@ -1,68 +1,68 @@
 #include "SkyBoxShader.h"
 #include "glm/gtx/transform.hpp"
 
-CSkyBoxShader::CSkyBoxShader(GameEngine::IGraphicsApiPtr graphicsApi)
-	: CShaderProgram(graphicsApi)
+namespace GameEngine
+{
+SkyBoxShader::SkyBoxShader(IGraphicsApiPtr graphicsApi)
+    : ShaderProgram(graphicsApi)
 {
 }
 
-void CSkyBoxShader::Init()
+void SkyBoxShader::Init()
 {
-    m_Rotation = 0.f;
-    m_RotationSpeed = 0.1f;
+    rotation_      = 0.f;
+    rotationSpeed_ = 0.1f;
 
-	SetFiles
-	({
-		{"SkyBox/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
-		{"SkyBox/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}
-	});
+    SetFiles({{"SkyBox/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+              {"SkyBox/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}});
 
-	CShaderProgram::Init();
+    ShaderProgram::Init();
 }
 
-void CSkyBoxShader::LoadProjectionMatrix(const mat4& matrix) const
+void SkyBoxShader::LoadProjectionMatrix(const mat4& matrix) const
 {
-	LoadValue(location_ProjectionMatrix, matrix);
+    LoadValue(location_ProjectionMatrix, matrix);
 }
 
-void CSkyBoxShader::LoadViewMatrix(mat4 matrix, const float& deltaTime, const float& distance_view)
+void SkyBoxShader::LoadViewMatrix(mat4 matrix, const float& deltaTime, const float& distance_view)
 {
-	matrix[3][0] = 0;
-	matrix[3][1] = 0;
-	matrix[3][2] = 0;
-	m_Rotation += m_RotationSpeed * deltaTime;
-	matrix *= glm::scale(vec3(distance_view *0.5f));
-	matrix *= glm::rotate((float) m_Rotation, .0f, 1.f, .0f);
-	LoadValue(location_ViewMatrix, matrix);
+    matrix[3][0] = 0;
+    matrix[3][1] = 0;
+    matrix[3][2] = 0;
+    rotation_ += rotationSpeed_ * deltaTime;
+    matrix *= glm::scale(vec3(distance_view * 0.5f));
+    matrix *= glm::rotate((float)rotation_, .0f, 1.f, .0f);
+    LoadValue(location_ViewMatrix, matrix);
 }
 
-void CSkyBoxShader::GetAllUniformLocations()
+void SkyBoxShader::GetAllUniformLocations()
 {
-	location_ProjectionMatrix = GetUniformLocation("ProjectionMatrix");
-	location_ViewMatrix = GetUniformLocation("ViewMatrix");
-	location_DayCubeMap = GetUniformLocation("DayCubeMap");
-	location_NightCubeMap = GetUniformLocation("NightCubeMap");
-	location_FogColour = GetUniformLocation("FogColour");
-	location_BlendFactor = GetUniformLocation("BlendFactor");
+    location_ProjectionMatrix = GetUniformLocation("ProjectionMatrix");
+    location_ViewMatrix       = GetUniformLocation("ViewMatrix");
+    location_DayCubeMap       = GetUniformLocation("DayCubeMap");
+    location_NightCubeMap     = GetUniformLocation("NightCubeMap");
+    location_FogColour        = GetUniformLocation("FogColour");
+    location_BlendFactor      = GetUniformLocation("BlendFactor");
 }
 
-void CSkyBoxShader::LoadFogColour(const float& r, const float& g, const float& b) const
+void SkyBoxShader::LoadFogColour(const float& r, const float& g, const float& b) const
 {
-	LoadValue(location_FogColour, vec3(r, g, b));
+    LoadValue(location_FogColour, vec3(r, g, b));
 }
 
-void CSkyBoxShader::LoadBlendFactor(const float& factor)const
+void SkyBoxShader::LoadBlendFactor(const float& factor) const
 {
-	LoadValue(location_BlendFactor, factor);
+    LoadValue(location_BlendFactor, factor);
 }
 
-void CSkyBoxShader::ConnectTextureUnits() const
+void SkyBoxShader::ConnectTextureUnits() const
 {
-	LoadValue(location_DayCubeMap, 0);
-	LoadValue(location_NightCubeMap, 1);
+    LoadValue(location_DayCubeMap, 0);
+    LoadValue(location_NightCubeMap, 1);
 }
 
-void CSkyBoxShader::BindAttributes() const
+void SkyBoxShader::BindAttributes() const
 {
-	BindAttribute(0, "position");
+    BindAttribute(0, "position");
 }
+}  // namespace GameEngine

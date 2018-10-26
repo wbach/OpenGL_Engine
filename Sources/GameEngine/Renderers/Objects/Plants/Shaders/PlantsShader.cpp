@@ -5,30 +5,27 @@
 
 namespace GameEngine
 {
-	PlantsShader::PlantsShader(IGraphicsApiPtr graphicsApi)
-		: CShaderProgram(graphicsApi)
-	{
-		SetFiles
-		({
-			{ "Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER },
-			{ "Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER },
-			{ "Terrain/TerrainShader.cs",	ShaderType::TESS_CONTROL_SHADER },
-			{ "Terrain/TerrainShader.es",	ShaderType::TESS_EVALUATION_SHADER }
-		});
-	}
+PlantsShader::PlantsShader(IGraphicsApiPtr graphicsApi)
+    : ShaderProgram(graphicsApi)
+{
+    SetFiles({{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+              {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+              {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+              {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}});
+}
 
-	void PlantsShader::GetAllUniformLocations()
-	{
-		//GetLocation(playerPosition);
-	}
-	void PlantsShader::BindAttributes()
-	{
-	}
+void PlantsShader::GetAllUniformLocations()
+{
+    // GetLocation(playerPosition);
+}
+void PlantsShader::BindAttributes()
+{
+}
 
 #define ConnectTerrainTexture(X) LoadValue(uniformLocations.at(UniformLocation::X), Terrain::TexturesTypes::X);
 
-	void PlantsShader::ConnectTextureUnits() const
-	{
-		//ConnectTerrainTexture(blendMap);
-	}
+void PlantsShader::ConnectTextureUnits() const
+{
+    // ConnectTerrainTexture(blendMap);
+}
 }

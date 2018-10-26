@@ -1,11 +1,14 @@
 #pragma once
-#include <string>
 #include <memory>
+#include <string>
 
-class CModel;
-class CTextureLoader;
+namespace GameEngine
+{
+class Model;
+class ITextureLoader;
 
 namespace WBLoader
 {
-	std::unique_ptr<CModel> ReadBinFile(const std::string& filename, CTextureLoader& textureLoader);
-} // WBLoader
+std::unique_ptr<Model> ReadBinFile(const std::string& filename, GameEngine::ITextureLoader &textureLoader);
+}  // WBLoader
+}  // namespace GameEngine

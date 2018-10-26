@@ -4,14 +4,13 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Shaders/SkyBoxShader.h"
 
-class CModel;
-class CMesh;
-class CTexture;
-class CProjection;
-struct SMaterial;
-
 namespace GameEngine
 {
+class Model;
+class Mesh;
+class Texture;
+struct Material;
+class Projection;
 struct RendererContext;
 
 class SkyBoxRenderer : public IRenderer
@@ -26,11 +25,11 @@ public:
 private:
     void InitMembers(Scene* scene);
     void BindTextures() const;
-    void RenderSkyBoxMesh(const CMesh& mesh) const;
+    void RenderSkyBoxMesh(const Mesh& mesh) const;
     void RenderSkyBoxModel();
     bool CheckModelIsReadyToRender();
     void PrepareShaderBeforeFrameRender(Scene* scene);
-    void BindCubeMapTexture(CTexture* texture, int id) const;
+    void BindCubeMapTexture(Texture* texture, int id) const;
     void LoadModel(ResourceManager& resource_manager);
     void CreateDayTextures(ResourceManager& resource_manager);
     void CreateNightTextures(ResourceManager& resource_manager);
@@ -40,10 +39,10 @@ private:
 
 private:
     RendererContext& context_;
-    CSkyBoxShader shader;
-    CModel* model;
-    CTexture* dayTexture;
-    CTexture* nightTexture;
+    SkyBoxShader shader;
+    Model* model;
+    Texture* dayTexture;
+    Texture* nightTexture;
     ResourceManager resourceManager;  // TO DO: remove when creat texutres will be outsiede
     vec4 clipPlane;
 };

@@ -1,33 +1,35 @@
 #pragma once
-#include "Utils.h"
-#include "Types.h"
-#include "Material.h"
-#include "MeshRawData.h"
+#include <vector>
 #include "BoundingBox.h"
 #include "GameEngine/Api/IGraphicsApi.h"
-#include <vector>
+#include "Material.h"
+#include "MeshRawData.h"
+#include "Types.h"
+#include "Utils.h"
 
-class CMesh : public COpenGLObject
+namespace GameEngine
+{
+class Mesh : public GpuObject
 {
 public:
-    CMesh(GameEngine::IGraphicsApiPtr graphicsApi);
-	CMesh(GameEngine::IGraphicsApiPtr graphicsApi, const SMaterial& material, const mat4& transformMatix = mat4(1.f));
-    CMesh(const CMesh&)         = delete;
-    CMesh(CMesh&&)              = default;
-    virtual ~CMesh();
-    virtual void OpenGLLoadingPass() override;
-    virtual void OpenGLPostLoadingPass() override;
-    void SetMaterial(const SMaterial& material);
-	void SetTransformMatrix(const glm::mat4& m);
+    Mesh(IGraphicsApiPtr graphicsApi);
+    Mesh(IGraphicsApiPtr graphicsApi, const Material& material, const mat4& transformMatix = mat4(1.f));
+    Mesh(const Mesh&) = delete;
+    Mesh(Mesh&&)      = default;
+    virtual ~Mesh();
+    virtual void GpuLoadingPass() override;
+    virtual void GpuPostLoadingPass() override;
+    void SetMaterial(const Material &material);
+    void SetTransformMatrix(const glm::mat4& m);
     bool IsInit() const;
-	bool UseArmature() const;
+    bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
 
     uint32 GetObjectId() const;
-    const SMaterial& GetMaterial() const;
-	inline const mat4& GetMeshTransform() const;
-	inline GameEngine::MeshRawData& GetMeshDataRef();
-	inline const GameEngine::MeshRawData& GetCMeshDataRef() const;
+    const Material& GetMaterial() const;
+    inline const mat4& GetMeshTransform() const;
+    inline MeshRawData& GetMeshDataRef();
+    inline const MeshRawData& GetCMeshDataRef() const;
 
 private:
     void CreateMesh();
@@ -37,10 +39,10 @@ private:
     void ClearData();
 
 private:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
-	GameEngine::MeshRawData meshRawData_;
-    SMaterial material_;
-	uint32 objectId_;
+    IGraphicsApiPtr graphicsApi_;
+    MeshRawData meshRawData_;
+    Material material_;
+    uint32 objectId_;
 
     bool isInit              = false;
     bool transformVboCreated = false;
@@ -51,17 +53,18 @@ private:
     BoundingBox boundingBox;
 };
 
-const mat4& CMesh::GetMeshTransform() const
+const mat4& Mesh::GetMeshTransform() const
 {
-	return transform_;
+    return transform_;
 }
 
-GameEngine::MeshRawData& CMesh::GetMeshDataRef()
+MeshRawData& Mesh::GetMeshDataRef()
 {
-	return meshRawData_;
+    return meshRawData_;
 }
 
-inline const GameEngine::MeshRawData & CMesh::GetCMeshDataRef() const
+inline const MeshRawData& Mesh::GetCMeshDataRef() const
 {
-	return meshRawData_;
+    return meshRawData_;
 }
+}  // namespace GameEngine

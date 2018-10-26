@@ -40,7 +40,7 @@ RenderersManager::RenderersManager(IGraphicsApiPtr graphicsApi)
     , markToReloadShaders_(false)
 {
 }
-const CProjection& RenderersManager::GetProjection() const
+const Projection& RenderersManager::GetProjection() const
 {
     return projection_;
 }
@@ -175,7 +175,7 @@ void RenderersManager::SwapLineFaceRender()
 {
     renderAsLines.store(!renderAsLines.load());
 }
-SGuiTextElement& RenderersManager::GuiText(const std::string& label)
+GuiTextElement& RenderersManager::GuiText(const std::string& label)
 {
     return guiContext_.texts->texts[label];
 }

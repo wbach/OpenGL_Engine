@@ -2,17 +2,19 @@
 #include "../AbstractLoader.h"
 #include "Types.h"
 
-class CTextureLoader;
+namespace GameEngine
+{
+class ITextureLoader;
 
 namespace WBLoader
 {
 class TerrainMeshLoader : public AbstractLoader
 {
 public:
-    TerrainMeshLoader(CTextureLoader& textureLodaer);
+    TerrainMeshLoader(ITextureLoader& textureLodaer);
     virtual void ParseFile(const std::string& filename) override;
     virtual bool CheckExtension(const std::string& filename) override;
-    virtual std::unique_ptr<CModel> Create() override;
+    virtual std::unique_ptr<Model> Create() override;
 
 private:
     void CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height);
@@ -31,3 +33,4 @@ private:
     std::vector<float>* heights_;
 };
 }  // WBLoader
+} // namespace GameEngine

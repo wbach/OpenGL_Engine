@@ -180,7 +180,7 @@ void ParticlesRenderer::InitShaders()
     animatedShader_.Stop();
 }
 
-void ParticlesRenderer::UpdateTexture(CTexture* texture)
+void ParticlesRenderer::UpdateTexture(Texture* texture)
 {
     if (texture == nullptr)
     {
@@ -237,9 +237,9 @@ vec4 ParticlesRenderer::GetTextureOffsets(float blendFactor)
 {
     auto count        = (textureNumberOfrows * textureNumberOfrows);
     auto textureIndex = static_cast<uint32>(std::floor(blendFactor * static_cast<float>(count)));
-    auto offset1      = GetTextureOffset(textureIndex, textureNumberOfrows);
+    auto offset1      = GameEngine::GetTextureOffset(textureIndex, textureNumberOfrows);
     auto nextIndex    = textureIndex < count - 1 ? textureIndex + 1 : textureIndex;
-    auto offset2      = GetTextureOffset(nextIndex, textureNumberOfrows);
+    auto offset2      = GameEngine::GetTextureOffset(nextIndex, textureNumberOfrows);
 
     return vec4(offset1.x, offset1.y, offset2.x, offset2.y);
 }

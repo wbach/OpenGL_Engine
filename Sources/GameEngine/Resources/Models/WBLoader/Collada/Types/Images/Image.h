@@ -3,13 +3,13 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Image
-		{
-			std::string id_;
-			std::string name_;
-			std::string initFrom_;
-		};
-	}
+namespace Collada
+{
+struct Image
+{
+    std::string id_;
+    std::string name_;
+    std::string initFrom_;
+};
+}
 }

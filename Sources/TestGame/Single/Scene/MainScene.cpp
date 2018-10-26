@@ -50,7 +50,7 @@ int MainScene::Initialize()
                                                   std::to_string(dayNightCycle.GetCurrentHour().y);
 
     Renderer::Gui::GuiTextureElement guiTexture;
-    guiTexture.texture = new CTexture();
+    guiTexture.texture = new Texture();
     guiTexture.SetScale(vec2(0.25, 0.25));
     guiTexture.SetPosition(vec2(0.5, 0.5));
     // renderersManager_->GuiTexture("shadowMap") = guiTexture;

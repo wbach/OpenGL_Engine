@@ -7,8 +7,10 @@
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
 #include "GameEngineTests/Tests/Mocks/Renderers/FrameBuffer/FrameBufferMock.h"
+#include "GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "GameEngineTests/Tests/Mocks/Renderers/Objects/Shadows/ShadowFrameBufferMock.hpp"
 #include "GameEngine/Objects/RenderAble/Entity/Entity.h"
+#include "GameEngine/Components/Renderer/RendererComponent.hpp"
 
 using namespace testing;
 
@@ -34,6 +36,8 @@ struct EntityRendererShould : public ::testing::Test
     void SetUp()
     {
         scene_.SetCamera(cameraMock_);
+        resourceManagerMock_ = new ResourceManagerMock();
+        scene_.CreateResourceManger(resourceManagerMock_);
         context_.projection_->CreateProjectionMatrix();
         sut_.reset(new EntityRenderer(context_));
     }
@@ -71,11 +75,14 @@ struct EntityRendererShould : public ::testing::Test
     }
     void AddGameObject()
     {
-        //auto entity =  new Entity();
-        //scene_.AddGameObject(entity, vec3(0), vec3(0));
+        auto entity =  new Entity(resourceManagerMock_);
+        scene_.AddComponent<Components::RendererComponent>(entity)->AddModel("Meshes/sphere.obj");
+        sut_->Subscribe(entity);
+        scene_.AddGameObject(entity, vec3(0), vec3(0));
     }
     std::shared_ptr<GraphicsApiMock> graphicsMock_;
-    CProjection projection_;
+    ResourceManagerMock* resourceManagerMock_;
+    Projection projection_;
     std::shared_ptr<FrameBufferMock> frameBufferMock_;
     std::shared_ptr<ShadowFrameBufferMock> shadowFrameBufferMock_;
     RendererContext context_;
@@ -89,7 +96,7 @@ TEST_F(EntityRendererShould, deleteShaderProgramOnEnd)
     EXPECT_CALL(*graphicsMock_, DeleteObject(0)).Times(1);
 }
 
-TEST_F(EntityRendererShould, t)
+TEST_F(EntityRendererShould, RenderWithoutObjectsTest)
 {
     ExpectShaderInit();
     sut_->Init();

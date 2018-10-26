@@ -53,6 +53,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.cpp
 ../../Sources/GameEngine/Animations/AnimationUtils.cpp
+../../Sources/GameEngine/Resources/GpuResourceLoader.cpp
 ../../Sources/GameEngine/Resources/Models/Model.cpp
 ../../Sources/GameEngine/Resources/Models/ModelFactory.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp
@@ -86,7 +87,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/ResourceManager.cpp
 ../../Sources/GameEngine/Resources/textureloadertests.cpp
 ../../Sources/GameEngine/Resources/SimpleModels/Quad.cpp
-../../Sources/GameEngine/Resources/OpenGLLoader.cpp
 ../../Sources/GameEngine/Input/KeyCodeToCharConverter.cpp
 ../../Sources/GameEngine/Input/InputManager.cpp
 ../../Sources/GameEngine/Time/DayNightCycle.cpp

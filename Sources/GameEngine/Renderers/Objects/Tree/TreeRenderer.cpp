@@ -98,12 +98,12 @@ void TreeRenderer::PreparePositionMap(TreeSubscriber& sub)
                                                                vec2ui(sub.positions->size(), 1), &(*sub.positions)[0]);
     sub.textureInGpu = true;
 }
-void TreeRenderer::RenderModel(CModel* model, const mat4& transorm, uint32 size) const
+void TreeRenderer::RenderModel(Model* model, const mat4& transorm, uint32 size) const
 {
     for (const auto& mesh : model->GetMeshes())
         RenderMesh(mesh, transorm, size);
 }
-void TreeRenderer::RenderMesh(const CMesh& mesh, const mat4& transform, uint32 size) const
+void TreeRenderer::RenderMesh(const Mesh& mesh, const mat4& transform, uint32 size) const
 {
     shader.Load(TreeShader::UniformLocation::NormalizationMatrix, transform);
     BindMaterial(mesh.GetMaterial());
@@ -112,7 +112,7 @@ void TreeRenderer::RenderMesh(const CMesh& mesh, const mat4& transform, uint32 s
 void TreeRenderer::RenderTrees()
 {
 }
-void TreeRenderer::BindMaterial(const SMaterial& material) const
+void TreeRenderer::BindMaterial(const Material &material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_->DisableCulling();
@@ -140,7 +140,7 @@ void TreeRenderer::BindMaterial(const SMaterial& material) const
     if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
         context_.graphicsApi_->ActiveTexture(4, material.specularTexture->GetId());
 }
-void TreeRenderer::UnBindMaterial(const SMaterial& material) const
+void TreeRenderer::UnBindMaterial(const Material &material) const
 {
 }
 }  // GameEngine

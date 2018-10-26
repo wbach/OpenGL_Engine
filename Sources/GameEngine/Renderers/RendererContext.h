@@ -4,21 +4,20 @@
 #include "RendererFunctionType.h"
 #include "Types.h"
 
-class CProjection;
-class PostprocessFrameBuffer;
-
 namespace GameEngine
 {
+class Projection;
 class IGraphicsApi;
 class IFrameBuffer;
 class IShadowFrameBuffer;
+class PostprocessFrameBuffer;
 
 struct RendererContext
 {
     RendererContext()
     {
     }
-    RendererContext(CProjection* projection, const std::shared_ptr<IGraphicsApi>& api,
+    RendererContext(Projection* projection, const std::shared_ptr<IGraphicsApi>& api,
                     const std::shared_ptr<IFrameBuffer>& defferedBuffer,
                     const std::shared_ptr<IShadowFrameBuffer>& shadowBuffer,
                     std::function<void(RendererFunctionType, RendererFunction)> registerFunction)
@@ -29,7 +28,7 @@ struct RendererContext
         , registerFunction_(registerFunction)
     {
     }
-    CProjection* projection_;
+    Projection* projection_;
     mat4 toShadowMapZeroMatrix_;
     std::shared_ptr<IGraphicsApi> graphicsApi_;
     std::shared_ptr<IFrameBuffer> defferedFrameBuffer_;

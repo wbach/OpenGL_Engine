@@ -1,11 +1,11 @@
 #include "Engine.h"
 #include "Configuration.h"
-#include "Logger/Log.h"
 #include "GameEngine/Engine/EngineMeasurement.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
-CEngine::CEngine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory)
+Engine::Engine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory)
     : displayManager(nullptr)
     , inputManager_(nullptr)
     , renderersManager_(graphicsApi)
@@ -21,47 +21,47 @@ CEngine::CEngine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi
     sceneManager_.SetFactor();
 }
 
-CEngine::~CEngine()
+Engine::~Engine()
 {
     sceneManager_.Reset();
     Log("");
     EngineConf_SaveRequiredFiles();
 }
 
-void CEngine::SetDisplay()
+void Engine::SetDisplay()
 {
     auto& conf = EngineConf;
 
-    displayManager = std::make_shared<CDisplayManager>(
-        graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
-        conf.window.fullScreen ? WindowType::FULL_SCREEN : WindowType::WINDOW);
+    displayManager =
+        std::make_shared<DisplayManager>(graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
+                                         conf.window.fullScreen ? WindowType::FULL_SCREEN : WindowType::WINDOW);
     inputManager_ = displayManager->CreateInput();
     introRenderer_.Render();
 }
 
-void CEngine::GameLoop()
+void Engine::GameLoop()
 {
     while (isRunning.load())
         MainLoop();
 }
 
-void CEngine::AddEngineEvent(EngineEvent event)
+void Engine::AddEngineEvent(EngineEvent event)
 {
     std::lock_guard<std::mutex> lk(engineEventsMutex);
     engineEvents.push_back(event);
 }
 
-void CEngine::Render()
+void Engine::Render()
 {
     renderersManager_.RenderScene(sceneManager_.GetActiveScene());
 }
 
-CDisplayManager& CEngine::GetDisplayManager()
+DisplayManager& Engine::GetDisplayManager()
 {
     return *displayManager;
 }
 
-void CEngine::MainLoop()
+void Engine::MainLoop()
 {
     inputManager_->GetPressedKeys();
     sceneManager_.RuntimeLoadObjectToGpu();
@@ -77,10 +77,10 @@ void CEngine::MainLoop()
 
     displayManager->Update();
 
-	WriteMeasurement("measurements.txt");
+    WriteMeasurement("measurements.txt");
 }
 
-void CEngine::ProcessEngineEvents()
+void Engine::ProcessEngineEvents()
 {
     EngineEvent event;
     {
@@ -105,13 +105,13 @@ void CEngine::ProcessEngineEvents()
     }
 }
 
-void CEngine::PrepareFrame()
+void Engine::PrepareFrame()
 {
     graphicsApi_->PrepareFrame();
     displayManager->ProcessEvents();
 }
 
-void CEngine::Init()
+void Engine::Init()
 {
     graphicsApi_->EnableDepthTest();
     renderersManager_.Init();

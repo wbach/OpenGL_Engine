@@ -2,7 +2,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/TextureLoader.h"
-#include "GameEngine/Resources/OpenGLLoader.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "Logger/Log.h"
@@ -39,27 +39,27 @@ void TerrainUtils::LoadTextures(IResourceManager* manager, Terrain* terrain, Ter
 void TerrainUtils::LoadSimpleMesh(IResourceManager* manager, Terrain*& terrain)
 {
     terrain->model = manager->LoadModel("Example/quad.obj");
-    manager->GetOpenGlLoader().AddObjectToOpenGLLoadingPass(terrain->model);
+    manager->GetGpuResourceLoader().AddObjectToGpuLoadingPass(terrain->model);
 }
 
 Grass* TerrainUtils::CreateGrassModel()
 {
     auto grass   = new Grass();
-    grass->model = new CModel();
+    grass->model = new Model();
     return grass;
 }
 
-SMaterial TerrainUtils::CreateGrassMaterial(IResourceManager* manager, const std::string& texture)
+Material TerrainUtils::CreateGrassMaterial(IResourceManager* manager, const std::string& texture)
 {
-    SMaterial grass_material;
+    Material grass_material;
     grass_material.diffuseTexture = manager->GetTextureLaoder().LoadTexture(texture);
     return grass_material;
 }
 
 void TerrainUtils::CreateGrassMesh(IResourceManager* manager, Grass* grass, const std::vector<float>& positions,
-                                   const SMaterial& material)
+                                   const Material &material)
 {
-    CMesh m(manager->GetGraphicsApi(), material);
+    Mesh m(manager->GetGraphicsApi(), material);
     m.GetMeshDataRef().positions_ = positions;
     grass->model->AddMesh(m);
     manager->AddModel(grass->model);

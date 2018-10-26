@@ -1,89 +1,82 @@
 #pragma once
-#include "Types.h"
-#include "TextureFlip.h"
-#include "GameEngine/Api/IGraphicsApi.h"
-#include "../OpenGLObject.h"
 #include <string>
+#include "../GpuObject.h"
+#include "GameEngine/Api/IGraphicsApi.h"
+#include "TextureFlip.h"
+#include "Types.h"
 
-static float GetTextureXOffset(uint32 textureIndex, uint32 numberOfRows)
+namespace GameEngine
 {
-	int column = textureIndex % numberOfRows;
-	return static_cast<float>(column) / static_cast<float>(numberOfRows);
-}
-static float GetTextureYOffset(uint32 textureIndex, uint32 numberOfRows)
-{
-	int row = textureIndex / numberOfRows;
-	return static_cast<float>(row) / static_cast<float>(numberOfRows);
+float GetTextureXOffset(uint32 textureIndex, uint32 numberOfRows);
+float GetTextureYOffset(uint32 textureIndex, uint32 numberOfRows);
+vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows);
 
-}
-static vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
-{
-	return vec2(GetTextureXOffset(textureIndex, numberOfRows), GetTextureYOffset(textureIndex, numberOfRows));
-}
-
-class CTexture : public COpenGLObject
+class Texture : public GpuObject
 {
 public:
-	CTexture() {}
-    CTexture(GameEngine::IGraphicsApiPtr graphicsApi)
-		: graphicsApi_(graphicsApi)
+    Texture()
     {
     }
-    CTexture(GameEngine::IGraphicsApiPtr graphicsApi, const std::string& file, const std::string& filepath, bool applySizeLimit = true);
-    virtual ~CTexture();
-	virtual void OpenGLLoadingPass() {}
-	inline uint32 GetId() const;
-	inline const std::string GetFileName();
-	inline const std::string GetFilPath();
-	inline void SetExistId(uint32 i);
-	inline bool IsInitialized() const;
-	inline float GetTextureXOffset(uint32 textureIndex);
-	inline float GetTextureYOffset(uint32 textureIndex);
-	inline vec2 GetTextureOffset(uint32 textureIndex);
+    Texture(IGraphicsApiPtr graphicsApi)
+        : graphicsApi_(graphicsApi)
+    {
+    }
+    Texture(IGraphicsApiPtr graphicsApi, const std::string& file, const std::string& filepath,
+             bool applySizeLimit = true);
+    virtual ~Texture();
+    inline uint32 GetId() const;
+    inline const std::string GetFileName();
+    inline const std::string GetFilPath();
+    inline void SetExistId(uint32 i);
+    inline bool IsInitialized() const;
+    inline float GetTextureXOffset(uint32 textureIndex);
+    inline float GetTextureYOffset(uint32 textureIndex);
+    inline vec2 GetTextureOffset(uint32 textureIndex);
 
 public:
-	uint32 numberOfRows = 1;
+    uint32 numberOfRows = 1;
 
 protected:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
+    IGraphicsApiPtr graphicsApi_;
     std::string filename;
     std::string fullpath;
 
     bool applySizeLimit = true;
 
-	uint32 id   = 0;
+    uint32 id   = 0;
     bool isInit = false;
 };
 
-uint32 CTexture::GetId() const
+uint32 Texture::GetId() const
 {
-	return id;
+    return id;
 }
-const std::string CTexture::GetFileName()
+const std::string Texture::GetFileName()
 {
-	return filename;
+    return filename;
 }
-const std::string CTexture::GetFilPath()
+const std::string Texture::GetFilPath()
 {
-	return fullpath;
+    return fullpath;
 }
-void CTexture::SetExistId(uint32 i)
+void Texture::SetExistId(uint32 i)
 {
-	id = i;
+    id = i;
 }
-bool CTexture::IsInitialized() const
+bool Texture::IsInitialized() const
 {
-	return isInit;
+    return isInit;
 }
-float CTexture::GetTextureXOffset(uint32 textureIndex)
+float Texture::GetTextureXOffset(uint32 textureIndex)
 {
-	return ::GetTextureXOffset(textureIndex, numberOfRows);
+    return GameEngine::GetTextureXOffset(textureIndex, numberOfRows);
 }
-float CTexture::GetTextureYOffset(uint32 textureIndex)
+float Texture::GetTextureYOffset(uint32 textureIndex)
 {
-	return ::GetTextureYOffset(textureIndex, numberOfRows);
+    return GameEngine::GetTextureYOffset(textureIndex, numberOfRows);
 }
-vec2 CTexture::GetTextureOffset(uint32 textureIndex)
+vec2 Texture::GetTextureOffset(uint32 textureIndex)
 {
-	return ::GetTextureOffset(textureIndex, numberOfRows);
+    return GameEngine::GetTextureOffset(textureIndex, numberOfRows);
 }
+}  // namespace GameEngine

@@ -101,43 +101,43 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
     int x = 0;
     for (auto& t : model->GetBoneTransforms())
     {
-        shader_.Load(CShadowShader::UniformLocation::BonesTransforms, *t, x++);
+        shader_.Load(ShadowShader::UniformLocation::BonesTransforms, *t, x++);
     }
 
     const auto& meshes = model->GetMeshes();
 
-    for (const CMesh& mesh : meshes)
+    for (const Mesh& mesh : meshes)
         RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix(), sub.textureIndex);
 }
 
-void ShadowMapRenderer::RenderMesh(const CMesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const
+void ShadowMapRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const
 {
     if (!mesh.IsInit())
         return;
 
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     BindMaterial(mesh.GetMaterial(), textureIndex);
-    shader_.Load(CShadowShader::UniformLocation::UseBoneTransform, (static_cast<float>(mesh.UseArmature())));
-    shader_.Load(CShadowShader::UniformLocation::TransformationMatrix, transform_matrix_);
+    shader_.Load(ShadowShader::UniformLocation::UseBoneTransform, (static_cast<float>(mesh.UseArmature())));
+    shader_.Load(ShadowShader::UniformLocation::TransformationMatrix, transform_matrix_);
 
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
 }
 
-void ShadowMapRenderer::BindMaterial(const SMaterial& material, uint32 textureIndex) const
+void ShadowMapRenderer::BindMaterial(const Material &material, uint32 textureIndex) const
 {
     if (material.diffuseTexture == nullptr)
         return;
 
-    shader_.Load(CShadowShader::UniformLocation::NumberOfRows,
+    shader_.Load(ShadowShader::UniformLocation::NumberOfRows,
                  static_cast<float>(material.diffuseTexture->numberOfRows));
-    shader_.Load(CShadowShader::UniformLocation::TextureOffset,
+    shader_.Load(ShadowShader::UniformLocation::TextureOffset,
                  material.diffuseTexture->GetTextureOffset(textureIndex));
     context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
-void ShadowMapRenderer::PrepareShader(ICamera* camera) const
+void ShadowMapRenderer::PrepareShader(ICamera*) const
 {
     shader_.Start();
-    shader_.Load(CShadowShader::UniformLocation::ProjectionViewMatrix, shadowBox_.GetProjectionViewMatrix());
+    shader_.Load(ShadowShader::UniformLocation::ProjectionViewMatrix, shadowBox_.GetProjectionViewMatrix());
 }
 }  // GameEngine

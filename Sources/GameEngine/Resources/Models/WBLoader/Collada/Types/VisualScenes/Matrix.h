@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Matrix
-		{
-			mat4 matrix_;
-			std::string sid_;
-		};
-	}
+namespace Collada
+{
+struct Matrix
+{
+    mat4 matrix_;
+    std::string sid_;
+};
+}
 }

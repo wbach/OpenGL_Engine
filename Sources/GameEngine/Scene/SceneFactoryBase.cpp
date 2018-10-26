@@ -33,7 +33,7 @@ void SceneFactoryBase::SetInputManager(InputManager* input)
 {
     input_ = input;
 }
-void SceneFactoryBase::SetDisplayManager(CDisplayManager* displayManager)
+void SceneFactoryBase::SetDisplayManager(DisplayManager* displayManager)
 {
     displayManager_ = displayManager;
 }
@@ -53,7 +53,7 @@ ScenePtr SceneFactoryBase::GetScene(const std::string& name)
 }
 void SceneFactoryBase::SetMenagersAndApi(Scene* scene)
 {
-    scene->SetResourceManger(new ResourceManager(graphicsApi_));
+    scene->CreateResourceManger(new ResourceManager(graphicsApi_));
     scene->SetDisplayManager(displayManager_);
     scene->SetRenderersManager(rendererMandager_);
     scene->SetInputManager(input_);

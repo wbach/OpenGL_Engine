@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Surface
-		{
-			std::string type_;
-			std::string initfrom_;
-		};
-	}
+namespace Collada
+{
+struct Surface
+{
+    std::string type_;
+    std::string initfrom_;
+};
+}
 }

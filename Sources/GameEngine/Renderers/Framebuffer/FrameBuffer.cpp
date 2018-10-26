@@ -1,30 +1,28 @@
 #include "FrameBuffer.h"
 #include "Logger/Log.h"
 
-CFrameBuffer::CFrameBuffer(GameEngine::IGraphicsApiPtr api)
-	: graphicsApi_(api)
+namespace GameEngine
+{
+FrameBuffer::FrameBuffer(IGraphicsApiPtr api)
+    : graphicsApi_(api)
 {
 }
-
-void CFrameBuffer::CreateFrameBuffer()
+void FrameBuffer::CreateFrameBuffer()
 {
-	fbo = graphicsApi_->CreateBuffer();
+    fbo           = graphicsApi_->CreateBuffer();
     isInitialized = true;
 }
-
-void CFrameBuffer::AddTexture(uint32 texture)
+void FrameBuffer::AddTexture(uint32 texture)
 {
     textures.push_back(texture);
 }
-
-void CFrameBuffer::SetDepthTexture(uint32 texture)
+void FrameBuffer::SetDepthTexture(uint32 texture)
 {
     depthTexture = texture;
 }
-
-int CFrameBuffer::CheckStatus()
+int FrameBuffer::CheckStatus()
 {
-	auto status = graphicsApi_->GetBufferStatus();
+    auto status = graphicsApi_->GetBufferStatus();
 
     if (!status.empty())
     {
@@ -33,68 +31,59 @@ int CFrameBuffer::CheckStatus()
     }
     return 0;
 }
-
-uint32 CFrameBuffer::GetFbo()
+uint32 FrameBuffer::GetFbo()
 {
     return fbo;
 }
-
-uint32 CFrameBuffer::GetDepthTexture()
+uint32 FrameBuffer::GetDepthTexture()
 {
     return depthTexture;
 }
-
-uint32 CFrameBuffer::GetTexture(const uint32& id)
+uint32 FrameBuffer::GetTexture(const uint32& id)
 {
     if (id > textures.size())
         return 0;
     return textures[id];
 }
-
-void CFrameBuffer::BindTextures(int offset)
+void FrameBuffer::BindTextures(int offset)
 {
     uint32 nr = 0;
     for (auto i : textures)
-		graphicsApi_->ActiveTexture(offset + nr++, i);
+        graphicsApi_->ActiveTexture(offset + nr++, i);
 
-	graphicsApi_->ActiveTexture(offset + nr, depthTexture);
+    graphicsApi_->ActiveTexture(offset + nr, depthTexture);
 }
-
-void CFrameBuffer::BindToDraw()
+void FrameBuffer::BindToDraw()
 {
-	graphicsApi_->BindBuffer(GameEngine::BindType::DRAW, fbo);
+    graphicsApi_->BindBuffer(BindType::DRAW, fbo);
 }
-
-void CFrameBuffer::Bind()
+void FrameBuffer::Bind()
 {
-	graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, fbo);
+    graphicsApi_->BindBuffer(BindType::DEFAULT, fbo);
 }
-
-void CFrameBuffer::UnBind()
+void FrameBuffer::UnBind()
 {
-    graphicsApi_->BindBuffer(GameEngine::BindType::DEFAULT, 0);
+    graphicsApi_->BindBuffer(BindType::DEFAULT, 0);
 }
-
-void CFrameBuffer::UnBindDraw()
+void FrameBuffer::UnBindDraw()
 {
-	graphicsApi_->SetDefaultTarget();
+    graphicsApi_->SetDefaultTarget();
 }
-
-CFrameBuffer::~CFrameBuffer()
+FrameBuffer::~FrameBuffer()
 {
-	Log(__FUNCTION__);
+    Log(__FUNCTION__);
 
     if (!isInitialized)
         return;
 
     CleanTexures();
 
-	graphicsApi_->DeleteObject(depthTexture);
-	graphicsApi_->DeleteObject(fbo);
+    graphicsApi_->DeleteObject(depthTexture);
+    graphicsApi_->DeleteObject(fbo);
 }
-
-void CFrameBuffer::CleanTexures()
+void FrameBuffer::CleanTexures()
 {
     for (auto tex : textures)
-		graphicsApi_->DeleteObject(tex);
+        graphicsApi_->DeleteObject(tex);
 }
+}  // namespace GameEngine

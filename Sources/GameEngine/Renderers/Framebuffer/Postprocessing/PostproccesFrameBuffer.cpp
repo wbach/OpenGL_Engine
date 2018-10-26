@@ -3,27 +3,28 @@
 namespace GameEngine
 {
 PostprocessFrameBuffer::PostprocessFrameBuffer(IGraphicsApiPtr api)
-	: CFrameBuffer(api)
+    : FrameBuffer(api)
 {
 }
-void PostprocessFrameBuffer::Init(const wb::vec2ui & size)
+void PostprocessFrameBuffer::Init(const wb::vec2ui& size)
 {
-	CreateFrameBuffer();
-	BindToDraw();
+    CreateFrameBuffer();
+    BindToDraw();
 
-	auto texture = graphicsApi_->CreateTexture(TextureType::FLOAT_BUFFER_2D, TextureFilter::NEAREST, TextureMipmap::NONE, BufferAtachment::COLOR_1, size, nullptr);
-	AddTexture(texture);
+    auto texture = graphicsApi_->CreateTexture(TextureType::FLOAT_BUFFER_2D, TextureFilter::NEAREST,
+                                               TextureMipmap::NONE, BufferAtachment::COLOR_1, size, nullptr);
+    AddTexture(texture);
 
-	graphicsApi_->SetBuffers({ BufferAtachment::COLOR_1 });
+    graphicsApi_->SetBuffers({BufferAtachment::COLOR_1});
 
-	CheckStatus();
+    CheckStatus();
 
-	UnBindDraw();
+    UnBindDraw();
 }
 void PostprocessFrameBuffer::Clean()
 {
-	BindToDraw();
-	graphicsApi_->ClearBuffers({ BufferType::COLOR });
-	UnBind();
+    BindToDraw();
+    graphicsApi_->ClearBuffers({BufferType::COLOR});
+    UnBind();
 }
-} // GameEngine
+}  // GameEngine

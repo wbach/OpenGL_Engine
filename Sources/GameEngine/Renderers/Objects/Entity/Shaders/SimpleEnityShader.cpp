@@ -1,17 +1,17 @@
 #include "SimpleEnityShader.h"
 
-CSimpleEntityShader::CSimpleEntityShader(GameEngine::IGraphicsApiPtr graphicsApi)
-	: CEntityShader(graphicsApi)
+namespace GameEngine
+{
+SimpleEntityShader::SimpleEntityShader(IGraphicsApiPtr graphicsApi)
+    : EntityShader(graphicsApi)
 {
 }
 
-void CSimpleEntityShader::Init()
+void SimpleEntityShader::Init()
 {
-	SetFiles
-	({
-		{"Simple/SimpleEntityShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
-		{"Simple/SimpleEntityShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}
-	});
+    SetFiles({{"Simple/SimpleEntityShader.vert", ShaderType::VERTEX_SHADER},
+              {"Simple/SimpleEntityShader.frag", ShaderType::FRAGMENT_SHADER}});
 
-	CShaderProgram::Init();
+    ShaderProgram::Init();
 }
+}  // namespace GameEngine

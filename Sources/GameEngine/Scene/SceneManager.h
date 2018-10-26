@@ -26,7 +26,7 @@ class SceneManager
 {
 public:
     SceneManager(IGraphicsApiPtr grahpicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr,
-                 std::shared_ptr<CDisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&,
+                 std::shared_ptr<DisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&,
                  Renderer::Gui::GuiContext& guiContext);
     ~SceneManager();
     Scene* GetActiveScene();
@@ -63,7 +63,7 @@ private:
     std::mutex eventMutex_;
     std::queue<GameEngine::SceneEvent> events_;
 
-    std::shared_ptr<CDisplayManager>& displayManager_;
+    std::shared_ptr<DisplayManager>& displayManager_;
     std::shared_ptr<InputManager>& inputManager_;
     Renderer::RenderersManager& renderersManager_;
     Renderer::Gui::GuiContext& guiContext_;

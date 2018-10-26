@@ -1,16 +1,21 @@
 #pragma once
-#include "Texture.h"
-#include "Image.h"
 #include <stdexcept>
 #include <vector>
+#include "Image.h"
+#include "Texture.h"
 
-class CCubeMapTexture : public CTexture
+namespace GameEngine
+{
+class CubeMapTexture : public Texture
 {
 public:
-	CCubeMapTexture(GameEngine::IGraphicsApiPtr graphicsApi, const std::string& name, const std::vector<SImagePtr>&  image);
-	virtual void OpenGLLoadingPass() override;
+    CubeMapTexture(IGraphicsApiPtr graphicsApi, const std::string& name,
+                    const std::vector<ImagePtr>& image);
+    virtual void GpuLoadingPass() override;
+    virtual void GpuPostLoadingPass() override;
 
 private:
-	SImagePtr images[6];
+    ImagePtr images[6];
     bool keepData = false;
 };
+}  // namespace GameEngine

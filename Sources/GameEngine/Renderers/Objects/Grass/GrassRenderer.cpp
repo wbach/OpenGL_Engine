@@ -79,7 +79,7 @@ void GrassRenderer::RenderSubscribes()
     }
 }
 
-void GrassRenderer::RenderModel(CModel* model)
+void GrassRenderer::RenderModel(Model *model)
 {
     for (const auto& mesh : model->GetMeshes())
     {
@@ -90,7 +90,7 @@ void GrassRenderer::RenderModel(CModel* model)
     }
 }
 
-void GrassRenderer::RenderMesh(const CMesh& mesh)
+void GrassRenderer::RenderMesh(const Mesh& mesh)
 {
     context_.graphicsApi_->ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
     context_.graphicsApi_->RenderPoints(mesh.GetObjectId());

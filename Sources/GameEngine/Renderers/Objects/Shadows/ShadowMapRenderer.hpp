@@ -6,14 +6,13 @@
 #include "Shaders/ShadowShader.h"
 #include "ShadowBox.h"
 
-class CMesh;
-class CProjection;
-class CShadowFrameBuffer;
-struct SMaterial;
-
 namespace GameEngine
 {
+class Mesh;
 struct ICamera;
+struct Material;
+class Projection;
+class ShadowFrameBuffer;
 class ModelWrapper;
 
 class ShadowMapRenderer : public IRenderer
@@ -40,14 +39,14 @@ private:
     void PrepareShader(ICamera*) const;
     void RenderSubscribes() const;
     void RenderSubscriber(const ShadowMapSubscriber&) const;
-    void RenderMesh(const CMesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const;
-    void BindMaterial(const SMaterial&, uint32 textureIndex) const;
+    void RenderMesh(const Mesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const;
+    void BindMaterial(const Material&, uint32 textureIndex) const;
 
 private:
     RendererContext& context_;
-    CShadowShader shader_;
-    CShadowBox shadowBox_;
-    CShadowBox shadowBox2_;
+    ShadowShader shader_;
+    ShadowBox shadowBox_;
+    ShadowBox shadowBox2_;
     mat4 projectionViewMatrix_;
     mat4 viewOffset_;
     SubscribersMap subscribes_;

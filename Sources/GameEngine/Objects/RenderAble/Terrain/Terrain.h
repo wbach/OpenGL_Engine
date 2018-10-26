@@ -5,12 +5,12 @@
 #include "TerrainDef.h"
 #include "TerrainTexturesTypes.h"
 
-class CTexture;
-class CModel;
-struct SImage;
-
 namespace GameEngine
 {
+class Model;
+struct Image;
+class Texture;
+
 class Terrain : public GameObject
 {
 public:
@@ -34,12 +34,12 @@ public:
     }
     float GetHeight(int x, int y) const;
     void InitHeights(int x, int y);
-    void LoadHeight(const SImage& height_map);
+    void LoadHeight(const Image& height_map);
 
-    void SetTexture(CTexture* texture, TerrainTextureType type);
+    void SetTexture(Texture* texture, TerrainTextureType type);
 
-    std::unordered_map<TerrainTextureType, CTexture*> textures;
-    CModel* model = nullptr;
+    std::unordered_map<TerrainTextureType, Texture*> textures;
+    Model* model = nullptr;
 
 private:
     vec2 GetLocalPositionOnTerrain(float worldX, float worldZ);

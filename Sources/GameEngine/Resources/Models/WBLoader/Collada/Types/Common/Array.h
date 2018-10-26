@@ -3,14 +3,14 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Array
-		{
-			std::string data;
-			std::string id;
-			std::string type;
-			uint32 count;
-		};
-	}
+namespace Collada
+{
+struct Array
+{
+    std::string data;
+    std::string id;
+    std::string type;
+    uint32 count;
+};
+}
 }

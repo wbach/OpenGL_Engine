@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
-Utils::EnableVao::EnableVao(const uint32 vao, const VboMap &vertexArrays)
+Utils::EnableVao::EnableVao(const uint32 vao, const GameEngine::VboMap &vertexArrays)
 {
 	if (vertexArrays.empty())
 		return;
@@ -16,7 +16,7 @@ Utils::EnableVao::EnableVao(const uint32 vao, const VboMap &vertexArrays)
     Enable();
 }
 
-Utils::EnableVao::EnableVao(const uint32 vao, const VboMap& vertexArrays, const std::vector<VertexBufferObjects>& ignored)
+Utils::EnableVao::EnableVao(const uint32 vao, const GameEngine::VboMap& vertexArrays, const std::vector<GameEngine::VertexBufferObjects>& ignored)
 {
 	if (vertexArrays.empty())
 		return;

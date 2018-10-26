@@ -1,17 +1,19 @@
 #pragma once
-#include "../AbstractLoader.h"
 #include <list>
+#include "../AbstractLoader.h"
 
-class CTextureLoader;
+namespace GameEngine
+{
+class TextureLoader;
 
 namespace WBLoader
 {
-	class BinaryLoader : public AbstractLoader
-	{
-	public:
-		BinaryLoader(CTextureLoader& textureLodaer);
-		virtual void ParseFile(const std::string& filename) override;
-		virtual bool CheckExtension(const std::string& filename) override;
-		
-	};
+class BinaryLoader : public AbstractLoader
+{
+public:
+    BinaryLoader(TextureLoader& textureLodaer);
+    virtual void ParseFile(const std::string& filename) override;
+    virtual bool CheckExtension(const std::string& filename) override;
+};
 }
+}  // namespace GameEngine

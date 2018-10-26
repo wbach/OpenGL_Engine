@@ -5,46 +5,55 @@
 #include "IResourceManager.hpp"
 #include "Models/Model.h"
 #include "Models/WBLoader/LoaderManager.h"
-#include "OpenGLLoader.h"
-#include "TextureLoader.h"
+#include "GameEngine/Resources/ITextureLoader.h"
 
 namespace GameEngine
 {
+class IGpuResourceLoader;
+
 class ResourceManager : public IResourceManager
 {
 public:
     ResourceManager(IGraphicsApiPtr graphicsApi);
     ~ResourceManager() override;
-    CModel* LoadModel(const std::string& file) override;
-    void AddModel(CModel* model) override;
-    CModel* GetModel(uint32 id) override
-    {
-        return models[id].get();
-    }
-    COpenGLLoader& GetOpenGlLoader() override
-    {
-        return openGlLoader;
-    }
-    CTextureLoader& GetTextureLaoder() override
-    {
-        return textureLoader;
-    }
-    GameEngine::IGraphicsApiPtr GetGraphicsApi() override
-    {
-        return graphicsApi_;
-    }
+    Model* LoadModel(const std::string& file) override;
+    void AddModel(Model* model) override;
+    inline Model* GetModel(uint32 id) override;
+    inline IGpuResourceLoader& GetGpuResourceLoader() override;
+    inline ITextureLoader& GetTextureLaoder() override;
+    inline IGraphicsApiPtr GetGraphicsApi() override;
 
 private:
-    GameEngine::IGraphicsApiPtr graphicsApi_;
+    IGraphicsApiPtr graphicsApi_;
 
-    std::vector<std::unique_ptr<CModel>> models;
-    std::vector<std::unique_ptr<CTexture>> textures;
+    std::vector<std::unique_ptr<Model>> models_;
+    std::vector<std::unique_ptr<Texture>> textures_;
 
-    std::unordered_map<std::string, uint32> modelsIds;
+    std::unordered_map<std::string, uint32> modelsIds_;
 
-    COpenGLLoader openGlLoader;
-    CTextureLoader textureLoader;
+    std::shared_ptr<IGpuResourceLoader> gpuLoader_;
+    std::shared_ptr<ITextureLoader> textureLoader_;
 
     LoaderManager loaderManager_;
 };
+
+Model *ResourceManager::GetModel(uint32 id)
+{
+    return models_[id].get();
+}
+
+IGpuResourceLoader &ResourceManager::GetGpuResourceLoader()
+{
+    return *gpuLoader_;
+}
+
+ITextureLoader &ResourceManager::GetTextureLaoder()
+{
+    return *textureLoader_;
+}
+
+IGraphicsApiPtr ResourceManager::GetGraphicsApi()
+{
+    return graphicsApi_;
+}
 } // GameEngine

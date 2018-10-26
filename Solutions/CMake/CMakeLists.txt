@@ -1,7 +1,7 @@
 project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
-option(BUILD_ALL "Build all" ON)
+option(BUILD_ALL "Build all" OFF)
 option(BUILD_UTILS "Build game engine utils" ON)
 option(BUILD_UTILS_NETWORK "Build game engine network utils" ON)
 option(BUILD_COMMON "Build common" ON)

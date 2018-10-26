@@ -2,7 +2,7 @@
 
 enum class LoD
 {
-	LOW = 0,
-	MEDIUM,
-	HIGH
+    LOW = 0,
+    MEDIUM,
+    HIGH
 };

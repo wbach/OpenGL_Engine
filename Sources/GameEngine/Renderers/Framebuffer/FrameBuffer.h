@@ -4,10 +4,12 @@
 #include "IFrameBuffer.h"
 #include "Types.h"
 
-class CFrameBuffer : public GameEngine::IFrameBuffer
+namespace GameEngine
+{
+class FrameBuffer : public IFrameBuffer
 {
 public:
-    CFrameBuffer(GameEngine::IGraphicsApiPtr api);
+    FrameBuffer(IGraphicsApiPtr api);
     virtual void Init(const wb::vec2ui& size) = 0;
     virtual void Clean() override
     {
@@ -24,16 +26,17 @@ public:
     void Bind() final;
     void UnBind() final;
     void UnBindDraw() final;
-    virtual ~CFrameBuffer() override;
+    virtual ~FrameBuffer() override;
 
 protected:
     void CleanTexures();
 
 protected:
-    GameEngine::IGraphicsApiPtr graphicsApi_;
+    IGraphicsApiPtr graphicsApi_;
     bool isInitialized = false;
     uint32 fbo;
     uint32 depthTexture;
     std::vector<uint32> textures;
     bool depthStorage = false;
 };
+} //namespace GameEngine

@@ -1,27 +1,30 @@
 #pragma once
-#include "../Model.h"
-#include <vector>
 #include <memory>
+#include <vector>
+#include "../Model.h"
 
-class CTextureLoader;
+namespace GameEngine
+{
+class ITextureLoader;
 
 namespace WBLoader
 {
-	class AbstractLoader;
+class AbstractLoader;
 }
 
 class LoaderManager
 {
 public:
-	LoaderManager(CTextureLoader& textureloader);
-	std::unique_ptr<CModel> Load(const std::string& file_name);
-	~LoaderManager();
+    LoaderManager(ITextureLoader& textureloader);
+    std::unique_ptr<Model> Load(const std::string& file_name);
+    ~LoaderManager();
 
 private:
-	WBLoader::AbstractLoader* GetLoader(const std::string& extension);
+    WBLoader::AbstractLoader* GetLoader(const std::string& extension);
 
 private:
-	typedef std::vector<std::unique_ptr<WBLoader::AbstractLoader>> LoadersVector;
-	LoadersVector loaders_;
-	CTextureLoader& textureloader;
+    typedef std::vector<std::unique_ptr<WBLoader::AbstractLoader>> LoadersVector;
+    LoadersVector loaders_;
+    ITextureLoader& textureloader;
 };
+}  // namespace GameEngine

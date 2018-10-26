@@ -8,8 +8,8 @@ namespace Utils
 class EnableVao
 {
 public:
-    EnableVao(const uint32 vao, const VboMap& vertexArrays);
-	EnableVao(const uint32 vao, const VboMap& vertexArrays, const std::vector<VertexBufferObjects>& ignored);
+    EnableVao(const uint32 vao, const GameEngine::VboMap& vertexArrays);
+        EnableVao(const uint32 vao, const GameEngine::VboMap& vertexArrays, const std::vector<GameEngine::VertexBufferObjects>& ignored);
     ~EnableVao();
 
 private:

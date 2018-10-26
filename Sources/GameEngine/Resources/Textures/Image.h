@@ -1,15 +1,18 @@
 #pragma once
-#include "Types.h"
-#include <vector>
 #include <memory>
+#include <vector>
+#include "Types.h"
 
-struct SImage
+namespace GameEngine
 {
-	std::vector<uint8> data;
-	std::vector<float> floatData;
-	
-	uint32 width = 0;
-	uint32 height = 0;
+struct Image
+{
+    std::vector<uint8> data;
+    std::vector<float> floatData;
+
+    uint32 width  = 0;
+    uint32 height = 0;
 };
 
-typedef std::shared_ptr<SImage> SImagePtr;
+typedef std::shared_ptr<Image> ImagePtr;
+}  // namespace GameEngine

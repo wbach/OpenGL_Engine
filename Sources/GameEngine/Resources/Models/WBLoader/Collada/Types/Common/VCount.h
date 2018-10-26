@@ -1,14 +1,14 @@
 #pragma once
-#include "Types.h"
 #include <vector>
+#include "Types.h"
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct VCount
-		{
-			std::vector<uint32> values_;
-		};
-	}
+namespace Collada
+{
+struct VCount
+{
+    std::vector<uint32> values_;
+};
+}
 }

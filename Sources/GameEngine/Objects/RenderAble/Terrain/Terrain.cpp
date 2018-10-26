@@ -61,7 +61,7 @@ void Terrain::InitHeights(int x, int y)
     size = vec2ui(x, y);
     heights.resize(x * y);
 }
-void Terrain::LoadHeight(const SImage& height_map)
+void Terrain::LoadHeight(const Image &height_map)
 {
     if (height_map.floatData.empty())
     {
@@ -83,7 +83,7 @@ void Terrain::LoadHeight(const SImage& height_map)
         heights[i++] = (hight * TerrainDef::HEIGHT_FACTOR);
 }
 
-void Terrain::SetTexture(CTexture* texture, TerrainTextureType type)
+void Terrain::SetTexture(Texture* texture, TerrainTextureType type)
 {
     textures[type] = texture;
 }

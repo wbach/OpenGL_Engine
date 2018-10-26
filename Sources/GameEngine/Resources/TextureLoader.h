@@ -1,38 +1,30 @@
 #pragma once
-#include "Textures/TextureFlip.h"
-#include "GameEngine/Api/IGraphicsApi.h"
 #include <memory>
 #include <string>
 #include <vector>
+#include "GameEngine/Api/IGraphicsApi.h"
+#include "ITextureLoader.h"
+#include "Textures/TextureFlip.h"
 
-class CTexture;
-class COpenGLLoader;
-struct SImage;
-
-
-enum class ObjectTextureType
+namespace GameEngine
 {
-    MATERIAL = 0,
-	HEIGHT_MAP
-};
-
-class CTextureLoader
+class TextureLoader : public ITextureLoader
 {
 public:
-    CTextureLoader(GameEngine::IGraphicsApiPtr graphicsApi, std::vector<std::unique_ptr<CTexture>>& textures_vector, COpenGLLoader& openGLLoader);
-    void ReadFile(const std::string& file, SImage& image, bool applySizeLimit = true, TextureFlip::Type flip_mode = TextureFlip::Type::NONE);
+    TextureLoader(IGraphicsApiPtr graphicsApi, std::vector<std::unique_ptr<Texture>>& textures_vector, std::shared_ptr<IGpuResourceLoader> gpuLoader);
+    ~TextureLoader() override;
+    void ReadFile(const std::string& file, Image& image, bool applySizeLimit = true, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override;
     // Return place in texture loader not in OpenGL
-    CTexture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool opengl_pass = true,
-		ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE);
-    CTexture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, ObjectTextureType type = ObjectTextureType::MATERIAL,
-                                     TextureFlip::Type flip_mode = TextureFlip::Type::NONE);
-    CTexture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool opengl_pass = true);
-	CTexture* LoadHeightMap(const std::string& filename, bool opengl_pass = true);
-	void CreateHeightMap(const std::string& input, const std::string& output);
-	GameEngine::IGraphicsApiPtr GetGraphicsApi();
+    Texture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool gpu_pass = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override;
+    Texture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override;
+    Texture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool gpu_pass = true) override;
+    Texture* LoadHeightMap(const std::string& filename, bool gpu_pass = true) override;
+    void CreateHeightMap(const std::string& input, const std::string& output) override;
+    IGraphicsApiPtr GetGraphicsApi() override;
 
 private:
-	GameEngine::IGraphicsApiPtr graphicsApi_;
-    std::vector<std::unique_ptr<CTexture>>& textures;
-    COpenGLLoader& openGLLoader;
+    IGraphicsApiPtr graphicsApi_;
+    std::vector<std::unique_ptr<Texture>>& textures_;
+    std::shared_ptr<IGpuResourceLoader> gpuResourceLoader_;
 };
+}  // namespace GameEngine

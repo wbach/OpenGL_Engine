@@ -2,27 +2,30 @@
 #include "../Shaders/Loading/LoadingShader.h"
 #include "IRenderer.h"
 
-class CTexture;
 
 namespace GameEngine
 {
-	class LoadingScreenRenderer : public IRenderer
-	{
-	public:
-		LoadingScreenRenderer(IGraphicsApiPtr, CTexture* bgTexture, CTexture* circleTexture);
-		virtual void Init() override;
-		void Render(Scene*);
-		virtual void ReloadShaders() override {}
+class Texture;
 
-	private:
-		void prepareRender();
-		void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
+class LoadingScreenRenderer : public IRenderer
+{
+public:
+    LoadingScreenRenderer(IGraphicsApiPtr, Texture* bgTexture, Texture* circleTexture);
+    virtual void Init() override;
+    void Render(Scene*);
+    virtual void ReloadShaders() override
+    {
+    }
 
-	private:
-		IGraphicsApiPtr graphicsApi_;
-		CLoadingShader loadingShader;
-		CTexture* circleTexture;
-		CTexture* backgroundTexture;
-		mat4 transformationMatrix;
-	};
-} // GameEngine
+private:
+    void prepareRender();
+    void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
+
+private:
+    IGraphicsApiPtr graphicsApi_;
+    LoadingShader loadingShader;
+    Texture* circleTexture;
+    Texture* backgroundTexture;
+    mat4 transformationMatrix;
+};
+}  // GameEngine

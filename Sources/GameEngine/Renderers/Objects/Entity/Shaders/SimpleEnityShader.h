@@ -1,9 +1,12 @@
 #pragma once
 #include "EntityShader.h"
 
-class CSimpleEntityShader : public CEntityShader
+namespace GameEngine
+{
+class SimpleEntityShader : public EntityShader
 {
 public:
-	CSimpleEntityShader(GameEngine::IGraphicsApiPtr graphicsApi);
-	virtual void Init() override;
+    SimpleEntityShader(IGraphicsApiPtr graphicsApi);
+    virtual void Init() override;
 };
+}  // namespace GameEngine

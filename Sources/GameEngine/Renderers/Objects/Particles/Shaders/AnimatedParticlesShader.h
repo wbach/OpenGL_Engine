@@ -1,40 +1,40 @@
 #pragma once
+#include <unordered_map>
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "Logger/Log.h"
-#include <unordered_map>
 
 namespace GameEngine
 {
-	class AnimatedParticlesShader : public CShaderProgram
-	{
-	public:
-		enum UniformLocation
-		{
-			ProjectionMatrix,
-			ModelViewMatrix,
-			TextureOffset,
-			NumberOfRows,
-			BlendFactor,
-			ParticleTexture
-		};
-		AnimatedParticlesShader(IGraphicsApiPtr graphicsApi);
-		template <class T>
-		void Load(UniformLocation location, const T& value) const
-		{
-			if (uniformLocations.count(location) == 0)
-			{
-				Log("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));
-				return;
-			}
-			LoadValue(uniformLocations.at(location), value);
-		}
+class AnimatedParticlesShader : public ShaderProgram
+{
+public:
+    enum UniformLocation
+    {
+        ProjectionMatrix,
+        ModelViewMatrix,
+        TextureOffset,
+        NumberOfRows,
+        BlendFactor,
+        ParticleTexture
+    };
+    AnimatedParticlesShader(IGraphicsApiPtr graphicsApi);
+    template <class T>
+    void Load(UniformLocation location, const T& value) const
+    {
+        if (uniformLocations.count(location) == 0)
+        {
+            Log("AnimatedParicleShader : Try load to shader not set variable : " + std::to_string(location));
+            return;
+        }
+        LoadValue(uniformLocations.at(location), value);
+    }
 
-	private:
-		void GetAllUniformLocations();
-		void BindAttributes() override;
-		void ConnectTextureUnits() const override;
+private:
+    void GetAllUniformLocations();
+    void BindAttributes() override;
+    void ConnectTextureUnits() const override;
 
-	protected:
-		std::unordered_map<UniformLocation, uint32> uniformLocations;
-	};
-} // GameEngine
+protected:
+    std::unordered_map<UniformLocation, uint32> uniformLocations;
+};
+}  // GameEngine

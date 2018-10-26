@@ -1,16 +1,21 @@
 #pragma once
-#include "Texture.h"
-#include "Image.h"
 #include <stdexcept>
+#include "Image.h"
+#include "Texture.h"
 
-class HeightMap : public CTexture
+namespace GameEngine
+{
+class HeightMap : public Texture
 {
 public:
-	HeightMap(GameEngine::IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file, const std::string& filepath, SImagePtr image);
-	virtual void OpenGLLoadingPass() override;
-	SImagePtr GetImage();
+    HeightMap(GameEngine::IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file,
+              const std::string& filepath, ImagePtr image);
+    virtual void GpuLoadingPass() override;
+    virtual void GpuPostLoadingPass() override;
+    ImagePtr GetImage();
 
 private:
-	SImagePtr image;
-	bool keepData = false;
+    ImagePtr image;
+    bool keepData = false;
 };
+}  // namespace GameEngine

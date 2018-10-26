@@ -2,13 +2,13 @@
 #include <vector>
 #include "GameEngine/Objects/GameObject.h"
 
-class CModel;
-
 namespace GameEngine
 {
+class Model;
+
 struct Grass : public GameObject
 {
-    CModel *model;
+    Model *model;
     std::vector<float> grassvertex;
 };
-} // GameEngine
+}  // GameEngine

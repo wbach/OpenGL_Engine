@@ -1,62 +1,73 @@
 #include "Model.h"
-#include "Logger/Log.h"
 #include "GLM/GLMUtils.h"
+#include "Logger/Log.h"
 
-CModel::CModel()
-	: CModel(1.f)
+namespace GameEngine
+{
+Model::Model()
+    : Model(1.f)
 {
 }
 
-CModel::CModel(float scaleFactor)
-	: scaleFactor_(scaleFactor)
+Model::Model(float scaleFactor)
+    : scaleFactor_(scaleFactor)
 {
 }
 
-void CModel::InitModel(const std::string& file_name)
+void Model::InitModel(const std::string& file_name)
 {
-	filename = file_name;
+    filename = file_name;
 }
 
-CModel::~CModel()
+Model::~Model()
 {
-    Log(filename + " ::~CModel()");
+    Log(filename + " ::~Model()");
 }
 
-void CModel::OpenGLLoadingPass()
+void Model::GpuLoadingPass()
 {
-	for (auto& mesh : meshes)
-		mesh.OpenGLLoadingPass();
+    for (auto& mesh : meshes)
+        mesh.GpuLoadingPass();
 
-	COpenGLObject::OpenGLLoadingPass();
+    GpuObject::GpuLoadingPass();
 }
 
-CMesh* CModel::AddMesh(CMesh& mesh)
+void Model::GpuPostLoadingPass()
 {
-	meshes.push_back(std::move(mesh));
-	return &meshes.back();
+    for (auto& mesh : meshes)
+        mesh.GpuPostLoadingPass();
+
+    GpuObject::GpuPostLoadingPass();
 }
 
-CMesh* CModel::AddMesh(GameEngine::IGraphicsApiPtr api)
+Mesh* Model::AddMesh(Mesh& mesh)
 {
-	meshes.emplace_back(api);
-	return &meshes.back();
+    meshes.push_back(std::move(mesh));
+    return &meshes.back();
 }
 
-const std::vector<mat4*>& CModel::GetBoneTransforms()
+Mesh* Model::AddMesh(IGraphicsApiPtr api)
 {
-	if (!boneTransforms.empty() || skeleton_.size == 0)
-		return boneTransforms;
-
-	boneTransforms.resize(skeleton_.size);
-	AddJoints(skeleton_);
-	return boneTransforms;
+    meshes.emplace_back(api);
+    return &meshes.back();
 }
 
-void CModel::AddJoints(GameEngine::Animation::Joint& joint)
+const std::vector<mat4*>& Model::GetBoneTransforms()
 {
-	boneTransforms[joint.id] = &joint.animatedTransform;
-	for (auto& childJoint : joint.children)
-	{
-		AddJoints(childJoint);
-	}
+    if (!boneTransforms.empty() || skeleton_.size == 0)
+        return boneTransforms;
+
+    boneTransforms.resize(skeleton_.size);
+    AddJoints(skeleton_);
+    return boneTransforms;
 }
+
+void Model::AddJoints(Animation::Joint& joint)
+{
+    boneTransforms[joint.id] = &joint.animatedTransform;
+    for (auto& childJoint : joint.children)
+    {
+        AddJoints(childJoint);
+    }
+}
+}  // namespace GameEngine

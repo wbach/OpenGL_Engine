@@ -1,93 +1,97 @@
 #include "Mesh.h"
 #include "GLM/GLMUtils.h"
 
-CMesh::CMesh(GameEngine::IGraphicsApiPtr graphicsApi)
-	: graphicsApi_(graphicsApi)
+namespace GameEngine
+{
+Mesh::Mesh(GameEngine::IGraphicsApiPtr graphicsApi)
+    : graphicsApi_(graphicsApi)
 {
 }
 
-CMesh::CMesh(GameEngine::IGraphicsApiPtr graphicsApi, const SMaterial& material, const mat4& transformMatix)
-	: graphicsApi_(graphicsApi)
-	, material_(material)
-	, transform_(transformMatix)
+Mesh::Mesh(GameEngine::IGraphicsApiPtr graphicsApi, const Material &material, const mat4& transformMatix)
+    : graphicsApi_(graphicsApi)
+    , material_(material)
+    , transform_(transformMatix)
 {
 }
 
-CMesh::~CMesh()
+Mesh::~Mesh()
 {
-	if (!isInit) return;
+    if (!isInit)
+        return;
 
-	graphicsApi_->DeleteObject(objectId_);
+    graphicsApi_->DeleteObject(objectId_);
 }
-void CMesh::CalculateBoudnigBox(const std::vector<float>& positions)
+void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 {
-	Utils::CalculateBoudnigBox(positions, boundingBox.min, boundingBox.max, boundingBox.size, boundingBox.center);
-}
-
-void CMesh::CreateMesh()
-{
-	useAramture = !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();	
-	objectId_ = graphicsApi_->CreateMesh(meshRawData_);
-	isInit = true;
+    Utils::CalculateBoudnigBox(positions, boundingBox.min, boundingBox.max, boundingBox.size, boundingBox.center);
 }
 
-void CMesh::SetInstancedMatrixes(const std::vector<mat4>& m)
+void Mesh::CreateMesh()
 {
-	meshRawData_.instancedMatrixes_ = m;
+    useAramture = !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
+    objectId_   = graphicsApi_->CreateMesh(meshRawData_);
+    isInit      = true;
 }
 
-bool CMesh::IsInit() const
+void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 {
-	return isInit;
+    meshRawData_.instancedMatrixes_ = m;
 }
 
-bool CMesh::UseArmature() const
+bool Mesh::IsInit() const
 {
-	return useAramture;
+    return isInit;
 }
 
-void CMesh::OpenGLLoadingPass()
+bool Mesh::UseArmature() const
 {
-	if (isInOpenGL())
-		return;
-
-	CreateMesh();
-	//ClearData();
-
-	COpenGLObject::OpenGLLoadingPass();
+    return useAramture;
 }
 
-void CMesh::OpenGLPostLoadingPass()
+void Mesh::GpuLoadingPass()
 {
+    if (isLoadedToGpu())
+        return;
+
+    CreateMesh();
+    // ClearData();
+
+    GpuObject::GpuLoadingPass();
 }
 
-void CMesh::SetTransformMatrix(const glm::mat4 & m)
+void Mesh::GpuPostLoadingPass()
 {
-	transform_ = m;
+    GpuObject::GpuPostLoadingPass();
 }
 
-uint32 CMesh::GetObjectId() const
+void Mesh::SetTransformMatrix(const glm::mat4& m)
 {
-	return objectId_;
+    transform_ = m;
 }
 
-const SMaterial & CMesh::GetMaterial() const
+uint32 Mesh::GetObjectId() const
 {
-	return material_;
+    return objectId_;
 }
 
-void CMesh::SetMaterial(const SMaterial& mat)
+const Material &Mesh::GetMaterial() const
 {
-	material_ = mat;
+    return material_;
 }
 
-void CMesh::ClearData()
+void Mesh::SetMaterial(const Material& mat)
 {
-	meshRawData_ = GameEngine::MeshRawData();
+    material_ = mat;
 }
 
-const BoundingBox& CMesh::GetBoundingBox() const
+void Mesh::ClearData()
 {
-	return boundingBox;
+    meshRawData_ = GameEngine::MeshRawData();
 }
 
+const BoundingBox& Mesh::GetBoundingBox() const
+{
+    return boundingBox;
+}
+}  // namespace GameEngine

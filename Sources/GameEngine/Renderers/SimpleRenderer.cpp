@@ -5,7 +5,7 @@
 
 namespace GameEngine
 {
-SimpleRenderer::SimpleRenderer(IGraphicsApiPtr api, CProjection* projection_matrix,
+SimpleRenderer::SimpleRenderer(IGraphicsApiPtr api, Projection* projection_matrix,
                                std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : graphicsApi_(api)
     , shader(api)
@@ -69,7 +69,7 @@ void SimpleRenderer::ReloadShaders()
     Init();
 }
 
-void SimpleRenderer::RenderModel(CModel* model, const mat4& transform_matrix) const
+void SimpleRenderer::RenderModel(Model* model, const mat4& transform_matrix) const
 {
     shader.LoadTransformMatrix(transform_matrix);
 
@@ -80,7 +80,7 @@ void SimpleRenderer::RenderModel(CModel* model, const mat4& transform_matrix) co
     }
 }
 
-void SimpleRenderer::BindTextures(const SMaterial& material) const
+void SimpleRenderer::BindTextures(const Material &material) const
 {
     if (material.diffuseTexture != nullptr)
     {

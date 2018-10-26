@@ -1,14 +1,14 @@
 #include "TerrainMeshLoader.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
-#include "GameEngine/Resources/TextureLoader.h"
+#include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
-using namespace GameEngine;
-
+namespace GameEngine
+{
 namespace WBLoader
 {
-TerrainMeshLoader::TerrainMeshLoader(CTextureLoader& textureLoader)
+TerrainMeshLoader::TerrainMeshLoader(ITextureLoader &textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
 }
@@ -35,12 +35,12 @@ bool TerrainMeshLoader::CheckExtension(const std::string& filename)
     auto ext = Utils::GetFileExtension(filename);
     return ext == "terrain";
 }
-std::unique_ptr<CModel> TerrainMeshLoader::Create()
+std::unique_ptr<Model> TerrainMeshLoader::Create()
 {
-    auto model = std::make_unique<CModel>();
+    auto model = std::make_unique<Model>();
 
-    SMaterial material;
-    CMesh newMesh(textureLoader_.GetGraphicsApi(), material);
+    Material material;
+    GameEngine::Mesh newMesh(textureLoader_.GetGraphicsApi(), material);
     newMesh.GetMeshDataRef().positions_  = vertices_;
     newMesh.GetMeshDataRef().textCoords_ = textureCoords_;
     newMesh.GetMeshDataRef().normals_    = normals_;
@@ -140,3 +140,4 @@ void TerrainMeshLoader::Clear()
     heights_->clear();
 }
 }  // WBLoader
+} // namespace GameEngine

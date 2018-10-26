@@ -1,18 +1,18 @@
 #pragma once
-#include "Types.h"
-#include "Surface.h"
 #include "Sampler.h"
+#include "Surface.h"
+#include "Types.h"
 #include "optional.hpp"
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct NewParam
-		{
-			std::string id_;
-			wb::optional<Surface> surface_;
-			wb::optional<Sampler> sampler_;
-		};
-	}
+namespace Collada
+{
+struct NewParam
+{
+    std::string id_;
+    wb::optional<Surface> surface_;
+    wb::optional<Sampler> sampler_;
+};
+}
 }

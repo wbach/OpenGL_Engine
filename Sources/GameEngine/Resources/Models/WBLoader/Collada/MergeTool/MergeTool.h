@@ -4,5 +4,5 @@
 
 namespace GameEngine
 {
-	void ColladaMergeAnimationClips(const std::vector<std::string>& files);
+void ColladaMergeAnimationClips(const std::vector<std::string>& files);
 }

@@ -24,7 +24,7 @@ const uint32 OBJECT_GRID_COUNT = 100;
 
 namespace GameEngine
 {
-class CDisplayManager;
+class DisplayManager;
 class InputManager;
 
 namespace Renderer
@@ -72,10 +72,10 @@ public:
 
     inline IResourceManager& GetResourceManager();
 
-    void SetResourceManger(IResourceManager* resourceManager);
+    void CreateResourceManger(IResourceManager* resourceManager);
     void SetInputManager(InputManager* input);
     void SetRenderersManager(Renderer::RenderersManager* manager);
-    void SetDisplayManager(CDisplayManager* displayManager);
+    void SetDisplayManager(DisplayManager* displayManager);
     void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
 
     template <class T>
@@ -109,7 +109,7 @@ protected:
 
     // Renderer::Gui::GuiContext* gui_;
     InputManager* inputManager_;
-    CDisplayManager* displayManager_;
+    DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
     Physics::IPhysicsApiPtr physicsApi_;
 
@@ -153,7 +153,7 @@ inline float Scene::GetGlobalTime()
     return gloabalTime;
 }
 
-inline void Scene::SetResourceManger(IResourceManager* resourceManager)
+inline void Scene::CreateResourceManger(IResourceManager* resourceManager)
 {
     resourceManager_.reset(resourceManager);
 }
@@ -169,7 +169,7 @@ inline void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
     componentFactory_.SetRendererManager(manager);
 }
 
-inline void Scene::SetDisplayManager(CDisplayManager* displayManager)
+inline void Scene::SetDisplayManager(DisplayManager* displayManager)
 {
     displayManager_ = displayManager;
 }

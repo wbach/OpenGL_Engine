@@ -1,50 +1,51 @@
 #include "LoadingShader.h"
 
-CLoadingShader::CLoadingShader(GameEngine::IGraphicsApiPtr ptr)
-	: CShaderProgram(ptr)
+namespace GameEngine
+{
+LoadingShader::LoadingShader(IGraphicsApiPtr ptr)
+    : ShaderProgram(ptr)
 {
 }
+void LoadingShader::Init()
+{
+    SetFiles({
+        {"Game/loadingShader.vert", ShaderType::VERTEX_SHADER},
+        {"Game/loadingShader.frag", ShaderType::FRAGMENT_SHADER},
+    });
 
-void CLoadingShader::Init()
-{
-	SetFiles
-	({
-		{"Game/loadingShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
-		{"Game/loadingShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER},
-	});
-
-	CShaderProgram::Init();
+    ShaderProgram::Init();
 }
-void CLoadingShader::GetAllUniformLocations() 
+void LoadingShader::GetAllUniformLocations()
 {
-	location_transformationMatrix = GetUniformLocation("transformationMatrix");
-	location_modelTexture = GetUniformLocation("modelTexture");
+    location_transformationMatrix = GetUniformLocation("transformationMatrix");
+    location_modelTexture         = GetUniformLocation("modelTexture");
 }
-void CLoadingShader::LoadIsTextured(const float& is_tex) const 
+void LoadingShader::LoadIsTextured(const float& is_tex) const
 {
-	LoadValue(location_isTextured, is_tex);
+    LoadValue(location_isTextured, is_tex);
 }
-void CLoadingShader::ConnectTextureUnits() const
+void LoadingShader::ConnectTextureUnits() const
 {
-	LoadValue(location_modelTexture, 0);
+    LoadValue(location_modelTexture, 0);
 }
-void CLoadingShader::BindAttributes()
+void LoadingShader::BindAttributes()
 {
-	BindAttribute(0, "position");
-	BindAttribute(1, "textureCoords");
+    BindAttribute(0, "position");
+    BindAttribute(1, "textureCoords");
 }
-void CLoadingShader::LoadTransformMatrix(const mat4& matrix) const 
+void LoadingShader::LoadTransformMatrix(const mat4& matrix) const
 {
-	LoadValue(location_transformationMatrix, matrix);
+    LoadValue(location_transformationMatrix, matrix);
 }
-void CLoadingShader::LoadProjectionMatrix(const mat4& matrix) const
+void LoadingShader::LoadProjectionMatrix(const mat4& matrix) const
 {
-	LoadValue(location_projectionMatrix, matrix);
+    LoadValue(location_projectionMatrix, matrix);
 }
-void CLoadingShader::LoadViewMatrix(const mat4& matrix) const
+void LoadingShader::LoadViewMatrix(const mat4& matrix) const
 {
-	LoadValue(location_viewMatrix, matrix);
+    LoadValue(location_viewMatrix, matrix);
 }
-CLoadingShader::~CLoadingShader() 
+LoadingShader::~LoadingShader()
 {
 }
+}  // namespace GameEngine

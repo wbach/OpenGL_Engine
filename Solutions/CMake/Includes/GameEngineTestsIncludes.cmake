@@ -1,7 +1,9 @@
 set(GameEngineTestsIncludes
 ../../Sources/GameEngineTests/Tests/Mocks/Renderers/FrameBuffer/FrameBufferMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/TextureLoaderMock.h
+../../Sources/GameEngineTests/Tests/Mocks/Resources/GpuResourceLoaderMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/OpenGLLoaderMock.h
+../../Sources/GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/ColladaLoaderMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Network/SDLNetWrapperMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Camera/CameraMock.h

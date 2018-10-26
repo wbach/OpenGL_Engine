@@ -3,14 +3,11 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "Shaders/TreeShader.h"
 
-class CProjection;
-struct SMaterial;
-class CEntity;
-class CModel;
-class CMesh;
-
 namespace GameEngine
 {
+class Mesh;
+class Model;
+struct Material;
 struct RendererContext;
 class ModelWrapper;
 
@@ -42,11 +39,11 @@ public:
 
 private:
     void PreparePositionMap(TreeSubscriber& sub);
-    void RenderModel(CModel* model, const mat4&, uint32) const;
-    void RenderMesh(const CMesh& mesh, const mat4&, uint32) const;
+    void RenderModel(Model* model, const mat4&, uint32) const;
+    void RenderMesh(const Mesh& mesh, const mat4&, uint32) const;
     void RenderTrees();
-    void BindMaterial(const SMaterial& material) const;
-    void UnBindMaterial(const SMaterial& material) const;
+    void BindMaterial(const Material& material) const;
+    void UnBindMaterial(const Material& material) const;
 
 private:
     RendererContext& context_;

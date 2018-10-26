@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Rotate
-		{
-			vec3 rotate_;
-			std::string sid_;
-		};
-	}
+namespace Collada
+{
+struct Rotate
+{
+    vec3 rotate_;
+    std::string sid_;
+};
+}
 }

@@ -63,7 +63,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Animations/Joint.h
 ../../Sources/GameEngine/Animations/AnimationUtils.h
 ../../Sources/GameEngine/Animations/JointTransform.h
-../../Sources/GameEngine/Resources/OpenGLObject.h
+../../Sources/GameEngine/Resources/GpuResourceLoader.h
+../../Sources/GameEngine/Resources/GpuObject.h
 ../../Sources/GameEngine/Resources/Models/BoundingBox.h
 ../../Sources/GameEngine/Resources/Models/ModelFactory.h
 ../../Sources/GameEngine/Resources/Models/Bone.h
@@ -134,6 +135,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.h
 ../../Sources/GameEngine/Resources/Models/MeshRawData.h
+../../Sources/GameEngine/Resources/IGpuObject.h
 ../../Sources/GameEngine/Resources/Textures/TextureFlip.h
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.h
 ../../Sources/GameEngine/Resources/Textures/Texture.h
@@ -141,10 +143,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
 ../../Sources/GameEngine/Resources/Textures/HeightMap.h
 ../../Sources/GameEngine/Resources/TextureLoader.h
+../../Sources/GameEngine/Resources/IGpuResourceLoader.h
 ../../Sources/GameEngine/Resources/VboTypes.h
 ../../Sources/GameEngine/Resources/ResourceManager.h
-../../Sources/GameEngine/Resources/OpenGLLoader.h
 ../../Sources/GameEngine/Resources/SimpleModels/Quad.h
+../../Sources/GameEngine/Resources/ITextureLoader.h
 ../../Sources/GameEngine/Input/InputManager.h
 ../../Sources/GameEngine/Input/GameActions.h
 ../../Sources/GameEngine/Input/KeyCodeToCharConverter.h

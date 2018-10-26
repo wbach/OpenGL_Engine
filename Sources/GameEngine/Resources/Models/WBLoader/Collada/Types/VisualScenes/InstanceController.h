@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct InstanceController
-		{
-			std::string url_;
-			std::string skeleton_;
-		};
-	}
+namespace Collada
+{
+struct InstanceController
+{
+    std::string url_;
+    std::string skeleton_;
+};
+}
 }

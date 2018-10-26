@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Float
-		{
-			std::string sid;
-			float value;
-		};
-	}
+namespace Collada
+{
+struct Float
+{
+    std::string sid;
+    float value;
+};
+}
 }

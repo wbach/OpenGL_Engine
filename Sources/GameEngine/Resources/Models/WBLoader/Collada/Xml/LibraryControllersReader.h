@@ -4,23 +4,24 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		class LibraryControllersReader
-		{
-		public:
-			LibraryControllersReader(LibraryControllers& lib)
-				: data_(lib)
-			{}
-			void read(XMLNode* node);
+namespace Collada
+{
+class LibraryControllersReader
+{
+public:
+    LibraryControllersReader(LibraryControllers& lib)
+        : data_(lib)
+    {
+    }
+    void read(XMLNode* node);
 
-		private:
-			void Process(XMLNode* node);
-			void Process(XMLNode* node, Skin& skin);
-			void Process(XMLNode* node, VertexWeights& vw);
+private:
+    void Process(XMLNode* node);
+    void Process(XMLNode* node, Skin& skin);
+    void Process(XMLNode* node, VertexWeights& vw);
 
-		private:
-			LibraryControllers & data_;
-		};
-	} // Collada
-} // GameEngine
+private:
+    LibraryControllers& data_;
+};
+}  // Collada
+}  // GameEngine

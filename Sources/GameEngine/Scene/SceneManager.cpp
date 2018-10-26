@@ -1,14 +1,14 @@
 #include "SceneManager.h"
 #include "GameEngine/Renderers/GUI/GuiContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/OpenGLLoader.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "Logger/Log.h"
 #include "Scene.hpp"
 
 namespace GameEngine
 {
 SceneManager::SceneManager(IGraphicsApiPtr grahpicsApi, Physics::IPhysicsApiPtr physicsApi,
-                           SceneFactoryBasePtr sceneFactory, std::shared_ptr<CDisplayManager>& displayManager,
+                           SceneFactoryBasePtr sceneFactory, std::shared_ptr<DisplayManager>& displayManager,
                            std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager,
                            Renderer::Gui::GuiContext& guiContext)
     : grahpicsApi_(grahpicsApi)
@@ -45,9 +45,9 @@ void SceneManager::RuntimeLoadObjectToGpu()
     if (!sceneWrapper_.IsInitialized())
         return;
 
-    auto obj = sceneWrapper_.Get()->GetResourceManager().GetOpenGlLoader().GetObjectToOpenGLLoadingPass();
-    if (obj != nullptr && !obj->isInOpenGL())
-        obj->OpenGLLoadingPass();
+    auto obj = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader().GetObjectToGpuLoadingPass();
+    if (obj != nullptr && !obj->isLoadedToGpu())
+        obj->GpuLoadingPass();
 }
 void SceneManager::Update()
 {

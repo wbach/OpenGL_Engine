@@ -1,46 +1,46 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
 #include <memory>
 #include <vector>
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "Mutex.hpp"
 
 namespace GameEngine
 {
-	class Scene;
-	class CDisplayManager;
-	typedef std::unique_ptr<Scene> ScenePtr;
-	
-	enum SceneWrapperState
-	{
-		SceneNotSet,
-		ReadyToInitialized,
-		Initializing,
-		Initilaized
-	};
+class Scene;
+class DisplayManager;
+typedef std::unique_ptr<Scene> ScenePtr;
 
-	class SceneWrapper
-	{
-	public:
-		SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<CDisplayManager>&);
+enum SceneWrapperState
+{
+    SceneNotSet,
+    ReadyToInitialized,
+    Initializing,
+    Initilaized
+};
 
-		Scene* Get();
-		SceneWrapperState GetState();
-		void Reset();
-		void Set(ScenePtr scene);
-		void Init();
-		bool IsInitialized();
+class SceneWrapper
+{
+public:
+    SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>&);
 
-	private:
-		SceneWrapperState SaveGetState();
-		void SaveSetState(SceneWrapperState state);
+    Scene* Get();
+    SceneWrapperState GetState();
+    void Reset();
+    void Set(ScenePtr scene);
+    void Init();
+    bool IsInitialized();
 
-	private:
-		IGraphicsApiPtr graphicsApi_;
-		std::mutex initMutex_;
-		std::mutex stateMutex_;
+private:
+    SceneWrapperState SaveGetState();
+    void SaveSetState(SceneWrapperState state);
 
-		ScenePtr activeScene;
-		std::shared_ptr<CDisplayManager>& displayManager_;
-		SceneWrapperState state_;
-	};
-} // GameEngine
+private:
+    IGraphicsApiPtr graphicsApi_;
+    std::mutex initMutex_;
+    std::mutex stateMutex_;
+
+    ScenePtr activeScene;
+    std::shared_ptr<DisplayManager>& displayManager_;
+    SceneWrapperState state_;
+};
+}  // GameEngine

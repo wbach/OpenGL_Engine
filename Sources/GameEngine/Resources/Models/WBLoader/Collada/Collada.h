@@ -1,41 +1,49 @@
 #pragma once
-#include "../MeshData.h"
 #include "../AbstractLoader.h"
+#include "../MeshData.h"
 #include "Types/ColladaData.h"
 #include "Xml/ColladaCommon.h"
 
-class CTextureLoader;
+namespace GameEngine
+{
+class ITextureLoader;
 
 namespace WBLoader
 {
-	class ColladaDae : public AbstractLoader
-	{
-	public:
-		ColladaDae(CTextureLoader& textureLodaer);
-		virtual void ParseFile(const std::string& filename) override;
-		virtual bool CheckExtension(const std::string& filename) override;
+class ColladaDae : public AbstractLoader
+{
+public:
+    ColladaDae(ITextureLoader& textureLodaer);
+    virtual void ParseFile(const std::string& filename) override;
+    virtual bool CheckExtension(const std::string& filename) override;
 
-	private:
-		void ConstructModel();
-		void FillAnimationData();
-		void NewGeometry(const GameEngine::Collada::Geometry&);
-		void NewMesh(const GameEngine::Collada::Mesh&, const std::string& geometryName);
-		void GetVec2ArrayFromDataSource(const GameEngine::Collada::Mesh& mesh, const std::string& sourceId, std::vector<vec2>& v);
-		void GetVec3ArrayFromDataSource(const GameEngine::Collada::Mesh& mesh, const std::string& sourceId, std::vector<vec3>& v);
-		void PrepareMeshData(const GameEngine::Collada::Mesh& colladaMesh, Mesh& newMesh, const GameEngine::Collada::Input& input);
-		GameEngine::Collada::DataTypes GetSourceType(const GameEngine::Collada::Source& source) const;
-		void CreateSkeleton(const GameEngine::Collada::Node& node, GameEngine::Animation::Joint & joint, const std::unordered_map<std::string, uint32 >& joints);
-		void FillAnimator(std::unordered_map<std::string, GameEngine::Animation::AnimationClip>& animator, const std::unordered_map<std::string, uint32 >& joints);
+private:
+    void ConstructModel();
+    void FillAnimationData();
+    void NewGeometry(const Collada::Geometry&);
+    void NewMesh(const Collada::Mesh&, const std::string& geometryName);
+    void GetVec2ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId,
+                                    std::vector<vec2>& v);
+    void GetVec3ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId,
+                                    std::vector<vec3>& v);
+    void PrepareMeshData(const Collada::Mesh& colladaMesh, Mesh& newMesh,
+                         const Collada::Input& input);
+    Collada::DataTypes GetSourceType(const Collada::Source& source) const;
+    void CreateSkeleton(const Collada::Node& node, Animation::Joint& joint,
+                        const std::unordered_map<std::string, uint32>& joints);
+    void FillAnimator(std::unordered_map<std::string, Animation::AnimationClip>& animator,
+                      const std::unordered_map<std::string, uint32>& joints);
 
-	private:
-		void Clear();
-		void ApplyMaterials(SMaterial& material, const std::string& materialId);
-		GameEngine::Collada::ObjectType GetType(const std::string&);
-		const GameEngine::Collada::Node& GetNode(const std::string& node_id);
-		const GameEngine::Collada::Node& GetNode(const GameEngine::Collada::Node& node, const std::string& node_id);
+private:
+    void Clear();
+    void ApplyMaterials(Material& material, const std::string& materialId);
+    Collada::ObjectType GetType(const std::string&);
+    const Collada::Node& GetNode(const std::string& node_id);
+    const Collada::Node& GetNode(const Collada::Node& node, const std::string& node_id);
 
-	private:
-		GameEngine::Collada::ColladaData data_;
-		std::unordered_map<std::string, Mesh*> idToMeshMap_;
-	};
+private:
+    Collada::ColladaData data_;
+    std::unordered_map<std::string, Mesh*> idToMeshMap_;
+};
 }
+}  // namespace GameEngine

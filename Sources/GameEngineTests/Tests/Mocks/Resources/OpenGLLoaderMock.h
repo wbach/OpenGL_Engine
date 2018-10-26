@@ -1,7 +1,10 @@
 #pragma once
-#include "Resources/OpenGLLoader.h"
+#include "Resources/GpuResourceLoader.h"
 
-struct OpenGLLoaderMock : public COpenGLLoader
+namespace GameEngine
+{
+struct OpenGLLoaderMock : public GpuResourceLoader
 {
 
 };
+}

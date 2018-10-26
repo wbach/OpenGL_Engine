@@ -66,7 +66,7 @@ void SkyBoxRenderer::Render(Scene* scene)
 
 bool SkyBoxRenderer::CheckModelIsReadyToRender()
 {
-    return model != nullptr && model->isInOpenGL();
+    return model != nullptr && model->isLoadedToGpu();
 }
 
 void SkyBoxRenderer::PrepareShaderBeforeFrameRender(Scene* scene)
@@ -107,7 +107,7 @@ void SkyBoxRenderer::LoadModel(ResourceManager& resource_manager)
         return;
 
     model = resource_manager.LoadModel("Meshes/SkyBox/cube.obj");
-    model->OpenGLLoadingPass();
+    model->GpuLoadingPass();
 }
 
 void SkyBoxRenderer::CreateDayTextures(ResourceManager& resource_manager)
@@ -120,7 +120,7 @@ void SkyBoxRenderer::CreateDayTextures(ResourceManager& resource_manager)
                                          "Skybox/TropicalSunnyDay/back.png",  "Skybox/TropicalSunnyDay/front.png"};
 
     dayTexture = resource_manager.GetTextureLaoder().LoadCubeMap(dayTextures, false);
-    dayTexture->OpenGLLoadingPass();
+    dayTexture->GpuLoadingPass();
 }
 
 void SkyBoxRenderer::CreateNightTextures(ResourceManager& resource_manager)
@@ -133,7 +133,7 @@ void SkyBoxRenderer::CreateNightTextures(ResourceManager& resource_manager)
                                            "Skybox/Night/back.png",  "Skybox/Night/front.png"};
 
     nightTexture = resource_manager.GetTextureLaoder().LoadCubeMap(nightTextures, false);
-    nightTexture->OpenGLLoadingPass();
+    nightTexture->GpuLoadingPass();
 }
 
 void SkyBoxRenderer::BindTextures() const
@@ -142,7 +142,7 @@ void SkyBoxRenderer::BindTextures() const
     BindCubeMapTexture(nightTexture, 1);
 }
 
-void SkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
+void SkyBoxRenderer::BindCubeMapTexture(Texture* texture, int id) const
 {
     if (texture == nullptr)
         return;
@@ -150,7 +150,7 @@ void SkyBoxRenderer::BindCubeMapTexture(CTexture* texture, int id) const
     context_.graphicsApi_->ActiveTexture(id, texture->GetId());
 }
 
-void SkyBoxRenderer::RenderSkyBoxMesh(const CMesh& mesh) const
+void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh &mesh) const
 {
     if (!mesh.IsInit())
         return;

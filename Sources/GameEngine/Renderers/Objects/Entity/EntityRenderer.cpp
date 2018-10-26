@@ -86,14 +86,14 @@ void EntityRenderer::ReloadShaders()
     InitShader();
 }
 
-void EntityRenderer::RenderModel(CModel* model, const mat4& transform_matrix) const
+void EntityRenderer::RenderModel(Model *model, const mat4& transform_matrix) const
 {
     const auto& meshes = model->GetMeshes();
     for (const auto& mesh : meshes)
         RenderMesh(mesh, transform_matrix);
 }
 
-void EntityRenderer::RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const
+void EntityRenderer::RenderMesh(const Mesh &mesh, const mat4& transform_matrix) const
 {
     BindMaterial(mesh.GetMaterial());
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
@@ -125,7 +125,7 @@ void EntityRenderer::RenderEntities()
     }
 }
 
-void EntityRenderer::BindMaterial(const SMaterial& material) const
+void EntityRenderer::BindMaterial(const Material &material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_->DisableCulling();
@@ -167,7 +167,7 @@ void EntityRenderer::BindMaterial(const SMaterial& material) const
         context_.graphicsApi_->ActiveTexture(3, material.specularTexture->GetId());
 }
 
-void EntityRenderer::UnBindMaterial(const SMaterial& material) const
+void EntityRenderer::UnBindMaterial(const Material &material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_->EnableCulling();

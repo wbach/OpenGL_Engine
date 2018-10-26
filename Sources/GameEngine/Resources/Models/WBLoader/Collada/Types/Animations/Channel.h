@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Channel
-		{
-			std::string source_;
-			std::string target_;
-		};
-	}
+namespace Collada
+{
+struct Channel
+{
+    std::string source_;
+    std::string target_;
+};
+}
 }

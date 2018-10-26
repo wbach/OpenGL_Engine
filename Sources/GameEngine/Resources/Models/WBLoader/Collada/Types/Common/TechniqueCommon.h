@@ -1,14 +1,14 @@
 #pragma once
-#include "Types.h"
 #include "Accessor.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct TechniqueCommon
-		{
-			Accessor accessor;
-		};
-	}
+namespace Collada
+{
+struct TechniqueCommon
+{
+    Accessor accessor;
+};
+}
 }

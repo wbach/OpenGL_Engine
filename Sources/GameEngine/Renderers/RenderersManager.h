@@ -7,12 +7,11 @@
 #include "Projection.h"
 #include "RendererFunctionType.h"
 
-struct SGuiTextElement;
-
 namespace GameEngine
 {
 class Scene;
 class GameObject;
+struct GuiTextElement;
 
 namespace Renderer
 {
@@ -26,14 +25,14 @@ class RenderersManager
 public:
     RenderersManager(IGraphicsApiPtr graphicsApi);
     void Init();
-    const CProjection& GetProjection() const;
+    const Projection& GetProjection() const;
     void RenderScene(Scene* scene);
     void ReloadShaders();
     void Subscribe(GameObject* gameObject);
     void UnSubscribe(GameObject* gameObject);
     void UnSubscribeAll();
     void SwapLineFaceRender();
-    SGuiTextElement& GuiText(const std::string& label);
+    GuiTextElement& GuiText(const std::string& label);
     Gui::GuiTextureElement& GuiTexture(const std::string& label);
 
 private:
@@ -52,7 +51,7 @@ private:
     std::atomic_bool markToReloadShaders_;
     Renderer::Gui::GuiContext guiContext_;
     IRenderersPtrVec renderers_;
-    CProjection projection_;
+    Projection projection_;
     std::list<GameObject*> dynamincObjects_;
     RendererFunctions rendererFunctions_;
 };

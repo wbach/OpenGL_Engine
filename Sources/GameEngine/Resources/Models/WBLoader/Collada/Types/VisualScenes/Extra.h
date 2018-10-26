@@ -3,11 +3,10 @@
 
 namespace GameEngine
 {
-	namespace Collada
-	{
-		struct Extra
-		{
-		
-		};
-	}
+namespace Collada
+{
+struct Extra
+{
+};
+}
 }

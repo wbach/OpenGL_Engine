@@ -3,14 +3,14 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "Shaders/TerrainShader.h"
 
-class CModel;
-class CTexture;
-class CProjection;
-
 namespace GameEngine
 {
+class Model;
+class Texture;
+class Projection;
 class TerrainWrapper;
 struct RendererContext;
+
 typedef TerrainWrapper* TerrainPtr;
 typedef std::vector<TerrainPtr> TerrainPtrs;
 
@@ -26,7 +26,7 @@ public:
     void Render(Scene* scene);
 
 private:
-    void BindTexture(CTexture* texture, int id) const;
+    void BindTexture(Texture* texture, int id) const;
     void BindTextures(TerrainPtr terrain) const;
     void RenderSubscribers(const mat4& viewMatrix, int range) const;
     void RenderSubscriber(TerrainPtr) const;

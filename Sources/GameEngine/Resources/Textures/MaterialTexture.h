@@ -1,15 +1,20 @@
 #pragma once
-#include "Texture.h"
-#include "Image.h"
 #include <stdexcept>
+#include "Image.h"
+#include "Texture.h"
 
-class CMaterialTexture : public CTexture
+namespace GameEngine
+{
+class MaterialTexture : public Texture
 {
 public:
-	CMaterialTexture(GameEngine::IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file , const std::string& filepath, SImagePtr image );
-	virtual void OpenGLLoadingPass() override;
+    MaterialTexture(IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file, const std::string& filepath,
+                    ImagePtr image);
+    virtual void GpuLoadingPass() override;
+    virtual void GpuPostLoadingPass() override;
 
 private:
-	SImagePtr image;
+    ImagePtr image;
     bool keepData = false;
 };
+}  // namespace GameEngine

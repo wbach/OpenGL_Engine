@@ -4,12 +4,11 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "Shaders/GrassShader.h"
 
-class CMesh;
-class CModel;
-class CProjection;
-
 namespace GameEngine
 {
+class Mesh;
+class Model;
+class Projection;
 struct Grass;
 
 class GrassRenderer : public IRenderer
@@ -26,13 +25,13 @@ private:
     void PrepareRender(Scene* scene);
     void EndRender() const;
     void RenderSubscribes();
-    void RenderModel(CModel* model);
-    void RenderMesh(const CMesh& mesh);
+    void RenderModel(Model* model);
+    void RenderMesh(const Mesh &mesh);
     void PrepareShader(Scene* scene);
 
 private:
     RendererContext& context_;
-    CGrassShader shader;
+    GrassShader shader;
 
     std::list<Grass*> subscribes;
     float viewDistance = 30.f;

@@ -2,7 +2,9 @@
 #include <string>
 #include "Types.h"
 
-struct SGuiTextElement
+namespace GameEngine
+{
+struct GuiTextElement
 {
     std::string text = "default text";
     vec2 position;
@@ -10,3 +12,4 @@ struct SGuiTextElement
     float m_size  = 1;
     bool isActive = true;
 };
+} // namespace GameEngine

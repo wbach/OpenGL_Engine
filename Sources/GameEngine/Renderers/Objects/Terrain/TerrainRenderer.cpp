@@ -84,7 +84,7 @@ void TerrainRenderer::BindTextures(TerrainPtr terrain) const
     for (const auto& t : textures)
         BindTexture(t.second, static_cast<int>(t.first));
 }
-void TerrainRenderer::BindTexture(CTexture* texture, int id) const
+void TerrainRenderer::BindTexture(Texture *texture, int id) const
 {
     if (texture == nullptr)
         return;

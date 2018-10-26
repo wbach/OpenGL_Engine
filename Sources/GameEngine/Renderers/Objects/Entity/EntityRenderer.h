@@ -3,13 +3,13 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "Shaders/GeometryEntityShader.h"
 
-class CProjection;
-class CModel;
-class CMesh;
 
 namespace GameEngine
 {
+class Mesh;
+class Model;
 class Entity;
+class Projection;
 class ModelWrapper;
 struct RendererContext;
 
@@ -37,15 +37,15 @@ public:
 private:
     void InitShader();
     void PrepareFrame(Scene* scene);
-    void RenderModel(CModel* model, const mat4& transform_matrix) const;
-    void RenderMesh(const CMesh& mesh, const mat4& transform_matrix) const;
+    void RenderModel(Model* model, const mat4& transform_matrix) const;
+    void RenderMesh(const Mesh& mesh, const mat4& transform_matrix) const;
     void RenderEntities();
-    void BindMaterial(const SMaterial& material) const;
-    void UnBindMaterial(const SMaterial& material) const;
+    void BindMaterial(const Material& material) const;
+    void UnBindMaterial(const Material& material) const;
 
 private:
     RendererContext& context_;
-    CEntityGeometryPassShader shader;
+    EntityGeometryPassShader shader;
     vec4 clipPlane;
 
     uint32 currentTextureIndex_ = 0;
