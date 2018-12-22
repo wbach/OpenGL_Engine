@@ -8,11 +8,13 @@ namespace GameEngine
 Engine::Engine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory)
     : displayManager(nullptr)
     , inputManager_(nullptr)
-    , renderersManager_(graphicsApi)
-    , sceneManager_(graphicsApi, physicsApi, sceneFactory, displayManager, inputManager_, renderersManager_,
+    , shaderFactory_(graphicsApi)
+    , renderersManager_(graphicsApi, shaderFactory_)
+    , sceneManager_(graphicsApi, physicsApi, sceneFactory, displayManager, shaderFactory_, inputManager_,
+                    renderersManager_,
                     guiContext_)
     , graphicsApi_(graphicsApi)
-    , introRenderer_(graphicsApi, displayManager)
+    , introRenderer_(graphicsApi, displayManager, shaderFactory_)
     , isRunning(true)
 {
     graphicsApi_->SetBackgroundColor(vec3(.8f));

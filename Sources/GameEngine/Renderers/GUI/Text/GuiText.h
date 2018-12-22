@@ -1,18 +1,20 @@
 #pragma once
 #include <unordered_map>
 #include "../GuiElement.h"
-#include "FontShader.h"
 #include "GuiTextElement.h"
 #include "Logger/Log.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 
 namespace GameEngine
 {
 typedef std::unordered_map<std::string, GuiTextElement> GuiTexts;
+class IShaderProgram;
+class IShaderFactory;
 
 class GuiText : public GuiElement
 {
 public:
-    GuiText(IGraphicsApiPtr graphicsApi, const std::string& font_file);
+    GuiText(IGraphicsApiPtr graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory);
     virtual ~GuiText() override;
     virtual void Init() override;
     virtual void Render() override;
@@ -22,7 +24,7 @@ public:
 
 private:
     IGraphicsApiPtr graphicsApi_;
-    FontShader shader;
+    std::unique_ptr<IShaderProgram> shader_;
     std::string fontFile;
 };
 

@@ -2,7 +2,6 @@
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "Shaders/SkyBoxShader.h"
 
 namespace GameEngine
 {
@@ -12,6 +11,7 @@ class Texture;
 struct Material;
 class Projection;
 struct RendererContext;
+class IShaderProgram;
 
 class SkyBoxRenderer : public IRenderer
 {
@@ -39,7 +39,7 @@ private:
 
 private:
     RendererContext& context_;
-    SkyBoxShader shader;
+    std::unique_ptr<IShaderProgram> shader_;
     Model* model;
     Texture* dayTexture;
     Texture* nightTexture;

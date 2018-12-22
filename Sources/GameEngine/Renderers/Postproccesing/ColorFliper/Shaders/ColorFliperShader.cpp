@@ -1,17 +1,13 @@
 #include "ColorFliperShader.h"
+#include "ColorFliperUniformLocation.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[ColorFilperUniformLocation::X] = GetUniformLocation(#X)
 
 namespace GameEngine
 {
 ColorFliperShader::ColorFliperShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::ColorFilper))
 {
-    SetFiles({
-        {"PostProcess/ColorFliper/ColorFliper.vert", GameEngine::ShaderType::VERTEX_SHADER},
-        {"PostProcess/ColorFliper/ColorFliper.frag", GameEngine::ShaderType::FRAGMENT_SHADER},
-    });
-
     ShaderProgram::Init();
 }
 void ColorFliperShader::BindAttributes()
@@ -25,6 +21,6 @@ void ColorFliperShader::GetAllUniformLocations()
 }
 void ColorFliperShader::ConnectTextureUnits() const
 {
-    LoadValue(uniformLocations.at(ColorMap), 0);
+    Load(ColorFilperUniformLocation::ColorMap, 0);
 }
 }  // GameEngine

@@ -2,6 +2,7 @@
 #include "GameEngine/Renderers/Framebuffer/IFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Shaders/DefferedShaderUniforms.h"
 
 namespace GameEngine
 {
@@ -10,9 +11,9 @@ void DefferedLighting::Init()
     shader_.reset(new DefferedShader(rendererContext_->graphicsApi_));
     shader_->Init();
     shader_->Start();
-    shader_->Load(DefferedShader::SkyColour, vec3(0.8));
-    shader_->Load(DefferedShader::ScreenSize, rendererContext_->projection_->GetWindowSize());
-    shader_->Load(DefferedShader::ViewDistance, rendererContext_->projection_->GetViewDistance());
+    shader_->Load(DefferedShaderUniforms::SkyColour, vec3(0.8));
+    shader_->Load(DefferedShaderUniforms::ScreenSize, rendererContext_->projection_->GetWindowSize());
+    shader_->Load(DefferedShaderUniforms::ViewDistance, rendererContext_->projection_->GetViewDistance());
     shader_->Stop();
 }
 
@@ -34,10 +35,10 @@ void DefferedLighting::Render(Scene* scene)
     // rendererContext_->defferedFrameBuffer_->UnBind();
 
     shader_->Start();
-    shader_->Load(DefferedShader::CameraPosition, scene->GetCamera()->GetPosition());
+    shader_->Load(DefferedShaderUniforms::CameraPosition, scene->GetCamera()->GetPosition());
     shader_->LoadLight(0, scene->GetDirectionalLight());
     int lights = scene->GetLights().size() + 1;
-    shader_->Load(DefferedShader::NumberOfLights, lights);
+    shader_->Load(DefferedShaderUniforms::NumberOfLights, lights);
     int i = 1;
     for (const auto& light : scene->GetLights())
     {

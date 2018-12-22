@@ -1,7 +1,6 @@
 #pragma once
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "Shaders/TreeShader.h"
 
 namespace GameEngine
 {
@@ -10,6 +9,8 @@ class Model;
 struct Material;
 struct RendererContext;
 class ModelWrapper;
+class IShaderFactory;
+class IShaderProgram;
 
 struct TreeSubscriber
 {
@@ -47,7 +48,7 @@ private:
 
 private:
     RendererContext& context_;
-    TreeShader shader;
+    std::unique_ptr<IShaderProgram> shader_;
 
     vec4 clipPlane;
 

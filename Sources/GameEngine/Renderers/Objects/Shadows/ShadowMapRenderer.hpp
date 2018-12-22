@@ -3,7 +3,7 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Shaders/ShadowShader.h"
+
 #include "ShadowBox.h"
 
 namespace GameEngine
@@ -14,6 +14,7 @@ struct Material;
 class Projection;
 class ShadowFrameBuffer;
 class ModelWrapper;
+class IShaderProgram;
 
 class ShadowMapRenderer : public IRenderer
 {
@@ -44,7 +45,7 @@ private:
 
 private:
     RendererContext& context_;
-    ShadowShader shader_;
+    std::unique_ptr<IShaderProgram> shader_;
     ShadowBox shadowBox_;
     ShadowBox shadowBox2_;
     mat4 projectionViewMatrix_;

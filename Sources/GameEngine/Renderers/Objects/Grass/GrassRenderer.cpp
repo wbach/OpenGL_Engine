@@ -7,14 +7,22 @@
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "Logger/Log.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "Shaders/GrassShaderUniforms.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Api/ShadersTypes.h"
 
 namespace GameEngine
 {
 GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
-    , shader(context.graphicsApi_)
 {
+    shader_ = context.shaderFactory_.create(Shaders::Grass);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, GrassRenderer::Render);
+}
+
+GrassRenderer::~GrassRenderer()
+{
 }
 
 void GrassRenderer::Init()
@@ -41,18 +49,18 @@ void GrassRenderer::Subscribe(GameObject* gameObject)
 
 void GrassRenderer::ReloadShaders()
 {
-    shader.Reload();
+    shader_->Reload();
     InitShader();
 }
 
 void GrassRenderer::InitShader()
 {
-    shader.Init();
-    shader.Start();
-    shader.LoadProjectionMatrix(context_.projection_->GetProjectionMatrix());
-    shader.LoadShadowValues(0.f, 0.f, 512.f);
-    shader.LoadViewDistance(viewDistance);
-    shader.Stop();
+    shader_->Init();
+    shader_->Start();
+    shader_->Load(GrassShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(GrassShaderUniforms::ShadowVariables, vec3(0.f, 0.f, 512.f));
+    shader_->Load(GrassShaderUniforms::ViewDistance, viewDistance);
+    shader_->Stop();
 }
 
 void GrassRenderer::PrepareRender(Scene* scene)
@@ -65,7 +73,7 @@ void GrassRenderer::PrepareRender(Scene* scene)
 void GrassRenderer::EndRender() const
 {
     context_.graphicsApi_->EnableCulling();
-    shader.Stop();
+    shader_->Stop();
 }
 
 void GrassRenderer::RenderSubscribes()
@@ -98,8 +106,8 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
 
 void GrassRenderer::PrepareShader(Scene* scene)
 {
-    shader.Start();
-    shader.LoadGlobalTime(scene->GetGlobalTime());
-    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+    shader_->Start();
+    shader_->Load(GrassShaderUniforms::GlobalTime, scene->GetGlobalTime());
+    shader_->Load(GrassShaderUniforms::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 }
 }  // GameEngine

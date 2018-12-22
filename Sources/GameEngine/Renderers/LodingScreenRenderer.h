@@ -1,21 +1,21 @@
 #pragma once
-#include "../Shaders/Loading/LoadingShader.h"
 #include "IRenderer.h"
-
+#include "GameEngine/Api/IGraphicsApi.h"
 
 namespace GameEngine
 {
 class Texture;
+class IShaderProgram;
+class IShaderFactory;
 
 class LoadingScreenRenderer : public IRenderer
 {
 public:
-    LoadingScreenRenderer(IGraphicsApiPtr, Texture* bgTexture, Texture* circleTexture);
+    LoadingScreenRenderer(IGraphicsApiPtr, Texture* bgTexture, Texture* circleTexture, IShaderFactory& shaderFactory);
+    ~LoadingScreenRenderer();
     virtual void Init() override;
     void Render(Scene*);
-    virtual void ReloadShaders() override
-    {
-    }
+    virtual void ReloadShaders() override;
 
 private:
     void prepareRender();
@@ -23,7 +23,7 @@ private:
 
 private:
     IGraphicsApiPtr graphicsApi_;
-    LoadingShader loadingShader;
+    std::unique_ptr<IShaderProgram> shader_;
     Texture* circleTexture;
     Texture* backgroundTexture;
     mat4 transformationMatrix;

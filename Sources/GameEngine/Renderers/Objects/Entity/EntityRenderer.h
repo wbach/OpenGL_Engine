@@ -1,8 +1,6 @@
 #pragma once
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "Shaders/GeometryEntityShader.h"
-
 
 namespace GameEngine
 {
@@ -12,6 +10,9 @@ class Entity;
 class Projection;
 class ModelWrapper;
 struct RendererContext;
+struct Material;
+class IShaderFactory;
+class IShaderProgram;
 
 struct EntitySubscriber
 {
@@ -45,8 +46,7 @@ private:
 
 private:
     RendererContext& context_;
-    EntityGeometryPassShader shader;
-    vec4 clipPlane;
+    std::unique_ptr<IShaderProgram> shader_;
 
     uint32 currentTextureIndex_ = 0;
     SubscribersMap subscribes_;

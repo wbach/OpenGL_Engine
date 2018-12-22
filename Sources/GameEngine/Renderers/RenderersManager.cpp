@@ -1,6 +1,6 @@
 #include "RenderersManager.h"
 
-#include "FullRenderer.h"
+#include "DefferedRenderer.h"
 #include "GUI/GuiRenderer.h"
 #include "GUI/Text/GuiText.h"
 #include "GUI/Texutre/GuiTexture.hpp"
@@ -34,10 +34,11 @@ struct RenderAsLine
 
 namespace Renderer
 {
-RenderersManager::RenderersManager(IGraphicsApiPtr graphicsApi)
+RenderersManager::RenderersManager(IGraphicsApiPtr graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , renderAsLines(false)
     , markToReloadShaders_(false)
+    , shaderFactory_(shaderFactory)
 {
 }
 const Projection& RenderersManager::GetProjection() const
@@ -85,17 +86,17 @@ void RenderersManager::InitMainRenderer()
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
     if (rendererType == Params::RendererType::FULL)
-        renderers_.emplace_back(new FullRenderer(graphicsApi_, &projection_, registerFunc));
+        renderers_.emplace_back(new DefferedRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
     else
-        renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_, registerFunc));
+        renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
 }
 void RenderersManager::InitGuiRenderer()
 {
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
     guiContext_.renderer = new GUIRenderer(registerFunc);
-    guiContext_.texts    = new GameEngine::GuiText(graphicsApi_, "GUI/consola.ttf");
-    guiContext_.texures  = new Renderer::Gui::GuiTexture(graphicsApi_);
+    guiContext_.texts    = new GameEngine::GuiText(graphicsApi_, "GUI/consola.ttf", shaderFactory_);
+    guiContext_.texures  = new Renderer::Gui::GuiTexture(graphicsApi_, shaderFactory_);
     guiContext_.renderer->AddElement(guiContext_.texures);
     guiContext_.renderer->AddElement(guiContext_.texts);
     renderers_.emplace_back(guiContext_.renderer);

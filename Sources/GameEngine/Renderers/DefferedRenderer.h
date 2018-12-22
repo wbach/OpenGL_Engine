@@ -14,12 +14,12 @@ class Projection;
 typedef std::unique_ptr<IRenderer> RendererPtr;
 typedef std::vector<RendererPtr> RendererVecPtr;
 
-class FullRenderer : public IRenderer
+class DefferedRenderer : public IRenderer
 {
 public:
-    FullRenderer(IGraphicsApiPtr graphicsApi, Projection* projection_matrix,
+    DefferedRenderer(IGraphicsApiPtr graphicsApi, Projection* projection_matrix, IShaderFactory& shaderFactory,
                  std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
-    ~FullRenderer();
+    ~DefferedRenderer();
     // Loading lights itp to shader
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;

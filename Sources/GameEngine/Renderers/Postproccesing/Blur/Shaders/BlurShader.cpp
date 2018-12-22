@@ -1,18 +1,14 @@
 #include "BlurShader.h"
+#include "BlurShaderUniforms.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[BlurUniformLocation::X] = GetUniformLocation(#X)
 
 namespace GameEngine
 {
 BlurShader::BlurShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Blur))
 {
-    SetFiles({
-        {"PostProcess/Blur/Blur.vert", GameEngine::ShaderType::VERTEX_SHADER},
-        {"PostProcess/Blur/Blur.frag", GameEngine::ShaderType::FRAGMENT_SHADER},
-    });
 
-    ShaderProgram::Init();
 }
 void BlurShader::BindAttributes()
 {
@@ -21,10 +17,11 @@ void BlurShader::BindAttributes()
 }
 void BlurShader::GetAllUniformLocations()
 {
+    uniforms_.resize(BlurUniformLocation::SIZE);
     GetLocation(ColorMap);
 }
 void BlurShader::ConnectTextureUnits() const
 {
-    LoadValue(uniformLocations.at(ColorMap), 0);
+    Load(BlurUniformLocation::ColorMap, 0);
 }
 }  // GameEngine

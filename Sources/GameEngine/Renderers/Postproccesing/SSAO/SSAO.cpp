@@ -1,6 +1,7 @@
 #include "SSAO.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
+#include "Shaders/SSAOShaderUniforms.h"
 
 namespace GameEngine
 {
@@ -14,8 +15,8 @@ namespace GameEngine
 		ssaoShader_->Init();
 		ssaoShader_->Start();
 		GenKernel();
-		ssaoShader_->Load(SSAOShader::UniformLocation::SampleRadius, 1.5f);
-		ssaoShader_->Load(SSAOShader::UniformLocation::ProjectionMatrix, rendererContext_->projection_->GetProjectionMatrix());
+		ssaoShader_->Load(SSAOShaderUniforms::SampleRadius, 1.5f);
+		ssaoShader_->Load(SSAOShaderUniforms::ProjectionMatrix, rendererContext_->projection_->GetProjectionMatrix());
 		ssaoShader_->Stop();
 	}
 	void SSAORenderer::Prepare(Scene * scene)
@@ -62,6 +63,6 @@ namespace GameEngine
 
 			kernel[i] = v;
 		}
-		ssaoShader_->Load(SSAOShader::UniformLocation::Kernel, kernel);
+		ssaoShader_->Load(SSAOShaderUniforms::Kernel, kernel);
 	}
 }

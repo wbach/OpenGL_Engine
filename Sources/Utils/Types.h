@@ -90,6 +90,9 @@ typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::ste
 #ifdef USE_GNU
 typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
+#define not !
+#define and &&
+#define or ||
 typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 #endif
 

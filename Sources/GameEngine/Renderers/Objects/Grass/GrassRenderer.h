@@ -2,7 +2,6 @@
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "Shaders/GrassShader.h"
 
 namespace GameEngine
 {
@@ -10,11 +9,14 @@ class Mesh;
 class Model;
 class Projection;
 struct Grass;
+class IShaderFactory;
+class IShaderProgram;
 
 class GrassRenderer : public IRenderer
 {
 public:
     GrassRenderer(RendererContext& context);
+    ~GrassRenderer();
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void ReloadShaders() override;
@@ -31,7 +33,7 @@ private:
 
 private:
     RendererContext& context_;
-    GrassShader shader;
+    std::unique_ptr<IShaderProgram> shader_;
 
     std::list<Grass*> subscribes;
     float viewDistance = 30.f;

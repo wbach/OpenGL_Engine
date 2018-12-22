@@ -1,7 +1,7 @@
 #include "EngineMeasurement.h"
 #include <fstream>
 
-void GameEngine::EngineMeasurement::Add(const std::string& name, uint64 value)
+void GameEngine::EngineMeasurement::Add(const std::string& name, uint64_t value)
 {
     measurements_[name].Add(value);
 }
@@ -21,7 +21,7 @@ void GameEngine::EngineMeasurement::WriteToFile(const std::string& fileName)
     }
 }
 
-void GameEngine::Measurement::Add(uint64 value)
+void GameEngine::Measurement::Add(uint64_t value)
 {
     ++count_;
     lastValue_ = value;

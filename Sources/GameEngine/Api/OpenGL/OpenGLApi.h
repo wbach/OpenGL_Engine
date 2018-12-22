@@ -39,6 +39,7 @@ public:
     virtual void LoadValueToShader(uint32, const mat4&) override;
     virtual void LoadValueToShader(uint32, const std::vector<float>&) override;
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&) override;
+    virtual void LoadValueToShader(uint32, const std::vector<mat4>&) override;
 
     virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui,
                                  void* data) override;
@@ -91,13 +92,13 @@ public:
     // temp
     virtual void CreateFont(const std::string&) override;
     virtual void PrintText(const std::string&, const vec2i&) override;
+    virtual ShadersFiles GetShaderFiles(Shaders shaderType) override;
 
 private:
     void DeleteMesh(uint32);
     uint32 ConvertAndRememberId(uint32 id);
     void DeleteShader(uint32);
 
-    wb::optional<uint32> CreateShaderProgram();
     bool AddShader(uint32 id, const std::string& filename, GameEngine::ShaderType mode);
     bool FinalizeShader(uint32 programId, GraphicsApiFunctions);
 

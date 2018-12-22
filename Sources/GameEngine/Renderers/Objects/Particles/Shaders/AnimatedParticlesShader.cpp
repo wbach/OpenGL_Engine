@@ -1,25 +1,20 @@
 #include "AnimatedParticlesShader.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
+#include "ParticlesShadersUniforms.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[ParticlesShadersUniforms::X] = GetUniformLocation(#X);
 
 namespace GameEngine
 {
 AnimatedParticlesShader::AnimatedParticlesShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::AnimatedParticles))
 {
-    SetFiles({
-        {"Particles/AnimatedParticlesShader.vert", ShaderType::VERTEX_SHADER},
-        {"Particles/AnimatedParticlesShader.frag", ShaderType::FRAGMENT_SHADER},
-    });
 }
 void AnimatedParticlesShader::GetAllUniformLocations()
 {
+    uniforms_.resize(ParticlesShadersUniforms::SIZE);
     GetLocation(ProjectionMatrix);
-    // GetLocation(ModelViewMatrix);
-    // GetLocation(TextureOffset);
     GetLocation(NumberOfRows);
-    // GetLocation(BlendFactor);
     GetLocation(ParticleTexture);
 }
 void AnimatedParticlesShader::BindAttributes()
@@ -32,6 +27,6 @@ void AnimatedParticlesShader::BindAttributes()
 }
 void AnimatedParticlesShader::ConnectTextureUnits() const
 {
-    LoadValue(uniformLocations.at(UniformLocation::ParticleTexture), 0);
+    Load(ParticlesShadersUniforms::ParticleTexture, 0);
 }
 }

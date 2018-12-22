@@ -38,9 +38,9 @@ void PostProcessingManager::Render(Scene* scene)
 	first_ = true;
 	ResetBufferSet();
 
-	ambientOclusionFrameBuffer_.BindToDraw();
-	ssaoRenderer_->Render(scene);
-	ambientOclusionFrameBuffer_.UnBind();
+//	ambientOclusionFrameBuffer_.BindToDraw();
+//	ssaoRenderer_->Render(scene);
+//	ambientOclusionFrameBuffer_.UnBind();
 
 	for (auto& renderer : postProcessingRenderers_)
 	{

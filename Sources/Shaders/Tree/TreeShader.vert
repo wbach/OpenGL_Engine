@@ -20,20 +20,20 @@ uniform mat4 ViewMatrix;
 
 void main(void)
 {
-	float d = 1.f / PositionMapSize;
-	vec2 posCoord = vec2(gl_InstanceID * d, 0);
-	vec4 treePosition = texture(PositionMap, posCoord);
+    float d = 1.f / PositionMapSize;
+    vec2 posCoord = vec2(gl_InstanceID * d, 0);
+    vec4 treePosition = texture(PositionMap, posCoord);
 
-	float distance = length(CameraPosition - treePosition.rgb);
-	//if (distance > 125.f) return;
+    float distance = length(CameraPosition - treePosition.rgb);
+    //if (distance > 125.f) return;
 
-	mat4 translationMat = mat4(1.f);
-	translationMat[3].xyz = treePosition.rgb;
+    mat4 translationMat = mat4(1.f);
+    translationMat[3].xyz = treePosition.rgb;
 
-	mat4 transform = translationMat * NormalizationMatrix;
+    mat4 transform = translationMat * NormalizationMatrix;
     position =  ProjectionMatrix * ViewMatrix * transform  * vec4(Position, 1.0);
     textureCoords = TexCoord;
     normal = (transform * vec4(Normal, 0.f)).xyz;
 
-	gl_Position = position;
+    gl_Position = position;
 }

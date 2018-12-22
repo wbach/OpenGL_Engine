@@ -195,7 +195,7 @@ int PhysicsScene::Initialize()
     camera->SetPosition(vec3(-0, 42, 0));
 
     AddBarrel(vec3(0, 42, 0));
-
+    AddSphere(vec3(0), vec3(1.f)* 20.f, 1.0f);
     //{
     //	auto object = CreateGameObject(1, vec3(512, 0, 0));
     //	AddComponent<Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");

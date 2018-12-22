@@ -1,7 +1,7 @@
 #pragma once
 #include "GameEngine/Renderers/RendererFunctionType.h"
 #include "IRenderer.h"
-#include "Objects/Entity/Shaders/SimpleEnityShader.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -9,11 +9,13 @@ class Model;
 struct Material;
 class Projection;
 class Entity;
+class IShaderFactory;
+class IShaderProgram;
 
 class SimpleRenderer : public IRenderer
 {
 public:
-    SimpleRenderer(IGraphicsApiPtr, Projection* projection_matrix,
+    SimpleRenderer(IGraphicsApiPtr, Projection* projection_matrix, IShaderFactory& shaderFactory,
                    std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
 
     virtual void Init() override;
@@ -30,7 +32,7 @@ private:
 
 private:
     IGraphicsApiPtr graphicsApi_;
-    SimpleEntityShader shader;
+    //SimpleEntityShader shader;
     Projection* projectionMatrix;
 
     std::list<Entity*> subscribes;

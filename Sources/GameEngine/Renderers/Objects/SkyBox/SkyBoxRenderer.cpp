@@ -5,48 +5,52 @@
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Api/ShadersTypes.h"
+#include "Shaders/SkyBoxShaderUniforms.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
 SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     : context_(context)
-    , shader(context.graphicsApi_)
     , model(nullptr)
     , dayTexture(nullptr)
     , nightTexture(nullptr)
     , resourceManager(context.graphicsApi_)
 {
+    shader_ = context.shaderFactory_.create(Shaders::SkyBox);
     __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkyBoxRenderer::Render);
 }
 
 void SkyBoxRenderer::Init()
 {
     InitShader();
-    Log("Skybox renderer initialized.");
+//    Log("Skybox renderer initialized.");
 }
 
 void SkyBoxRenderer::PrepareToRendering(Scene* scene)
 {
     context_.graphicsApi_->DisableCulling();
-    shader.Start();
+    shader_->Start();
     PrepareShaderBeforeFrameRender(scene);
 }
 
 void SkyBoxRenderer::EndRendering()
 {
     context_.graphicsApi_->EnableCulling();
-    shader.Stop();
+    shader_->Stop();
 }
 
 void SkyBoxRenderer::InitShader()
 {
-    shader.Init();
-    shader.Start();
-    shader.LoadProjectionMatrix(context_.projection_->GetProjectionMatrix());
-    shader.LoadFogColour(.8f, .8f, .8f);
-    shader.LoadBlendFactor(1.f);
-    shader.Stop();
+    shader_->Init();
+    shader_->Start();
+    shader_->Load(SkyBoxShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(SkyBoxShaderUniforms::FogColour, vec3(.8f, .8f, .8f));
+    shader_->Load(SkyBoxShaderUniforms::BlendFactor, 1.f);
+    shader_->Stop();
 }
 
 void SkyBoxRenderer::Render(Scene* scene)
@@ -71,9 +75,12 @@ bool SkyBoxRenderer::CheckModelIsReadyToRender()
 
 void SkyBoxRenderer::PrepareShaderBeforeFrameRender(Scene* scene)
 {
+    mat4 viewMatrix = scene->GetCamera()->GetViewMatrix();
     // TO DO - delta time
-    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), 0.1f, 1500.f);
-    shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
+    viewMatrix *= glm::scale(vec3(100.f));
+   // viewMatrix *= glm::rotate((float)rotation_, .0f, 1.f, .0f);
+    shader_->Load(SkyBoxShaderUniforms::ViewMatrix, viewMatrix);
+    shader_->Load(SkyBoxShaderUniforms::BlendFactor, scene->GetDayNightCycle().GetDayNightBlendFactor());
 }
 
 void SkyBoxRenderer::RenderSkyBoxModel()
@@ -89,8 +96,8 @@ void SkyBoxRenderer::Subscribe(GameObject* gameObject)
 
 void SkyBoxRenderer::ReloadShaders()
 {
-    shader.Stop();
-    shader.Reload();
+    shader_->Stop();
+    shader_->Reload();
     InitShader();
 }
 

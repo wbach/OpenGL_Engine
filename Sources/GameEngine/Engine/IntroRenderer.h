@@ -1,17 +1,19 @@
 #pragma once
 #include <memory>
 #include "../Resources/ResourceManager.h"
-#include "../Shaders/Loading/LoadingShader.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 class DisplayManager;
+class IShaderProgram;
+class IShaderFactory;
 
 class IntroRenderer
 {
 public:
-    IntroRenderer(GameEngine::IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager);
+    IntroRenderer(GameEngine::IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+                  IShaderFactory& shaderFactory);
     ~IntroRenderer();
     void Render();
 
@@ -23,9 +25,10 @@ private:
 private:
     GameEngine::IGraphicsApiPtr graphicsApi_;
     std::shared_ptr<DisplayManager>& displayManager_;
+    IShaderFactory& shaderFactory_;
     ResourceManager resorceManager_;
 
-    LoadingShader shader_;
+    std::unique_ptr<IShaderProgram> shader_;
     Texture* backgroundTexture_;
 
     bool initialized_;

@@ -4,7 +4,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     : graphicsApiMock_(std::make_shared<GraphicsApiMock>())
     , camera_(new CameraMock())
     , resourcesManager_(graphicsApiMock_)
-    , renderersManager_(graphicsApiMock_)
+    , renderersManager_(graphicsApiMock_, shaderFactoryMock_)
     , cameraPtr_(camera_)
 {
 }

@@ -2,10 +2,10 @@
 #define EPSILON 0.0002
 struct SMaterial
 {
-	vec3  m_Ambient;
-	vec3  m_Diffuse;
-	vec3  m_Specular;
-	float m_ShineDamper;
+    vec3  m_Ambient;
+    vec3  m_Diffuse;
+    vec3  m_Specular;
+    float m_ShineDamper;
 };
 in vec2 TexCoord0;
 in vec3 Normal0;
@@ -24,7 +24,7 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
-uniform float 	  UseTexture;
+uniform float     UseTexture;
 uniform sampler2D gColorMap;
 uniform sampler2D NormalMap;
 uniform sampler2DShadow ShadowMap;
@@ -41,22 +41,22 @@ float CalculateShadowFactor()
 
     float Factor = 0.0;
 
-	float a = 0;
+    float a = 0;
     for (int y = -1 ; y <= 1 ; y++)
-	 {
+     {
         for (int x = -1 ; x <= 1 ; x++)
-		 {
+         {
             vec2 Offsets = vec2(float(x) * xOffset, float(y) * yOffset);
             vec3 UVC = vec3(ShadowCoords.xy + Offsets, ShadowCoords.z - EPSILON);
-			
-			//if (texture(ShadowMap, UVC) >  0.f)
-				Factor += texture(ShadowMap, UVC);
-		   a++;
+            
+            //if (texture(ShadowMap, UVC) >  0.f)
+                Factor += texture(ShadowMap, UVC);
+           a++;
         }
     }
-	float value = (0.5 + (Factor / a)) ;
-	if( value > 1 )
-	value =1 ;
+    float value = (0.5 + (Factor / a)) ;
+    if( value > 1 )
+    value =1 ;
     return value ;
 }
 vec3 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, sampler2D normal_map,vec2 text_coords)
@@ -75,30 +75,30 @@ vec3 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, sampler2D normal_m
 }  
 
 void main()
-{		
-	if (Distance > ViewDistance)
-	discard;
+{       
+    if (Distance > ViewDistance)
+        discard;
 
-	vec4 texture_color = vec4(1.f, 1.f, 1.f, 1.f);
-	if (UseTexture > .5f)
-	{
-		texture_color = texture(gColorMap, TexCoord0);
-		if(texture_color.a < 0.5)
-		{   
-			discard ;
-		}
-	}	
-	float shadow_factor = UseShadows > 0.5f ? CalculateShadowFactor() : 1.f;
-	WorldPosOut      = WorldPos0;
-	DiffuseOut       = texture_color * vec4(ModelMaterial.m_Diffuse, 1.0f) * shadow_factor; //vec4(vec3(0.8), 1.f); //
+    vec4 texture_color = vec4(1.f, 1.f, 1.f, 1.f);
+    if (UseTexture > .5f)
+    {
+        texture_color = texture(gColorMap, TexCoord0);
+        if(texture_color.a < 0.5)
+        {
+            discard;
+        }
+    }   
+    float shadow_factor = UseShadows > 0.5f ? CalculateShadowFactor() : 1.f;
+    WorldPosOut      = WorldPos0;
+    DiffuseOut       = texture_color * vec4(ModelMaterial.m_Diffuse, 1.0f) * shadow_factor; //vec4(vec3(0.8), 1.f); //
 
-	vec3 normal;
+    vec3 normal;
 
-	if (FakeLight < .5f)
-		normal    = UseNormalMap > .5f ?  CalcBumpedNormal(Normal0, PassTangent, NormalMap, TexCoord0) :  normalize(Normal0);
-	else
-		normal    = normalize(Normal0);
+    if (FakeLight < .5f)
+        normal    = UseNormalMap > .5f ?  CalcBumpedNormal(Normal0, PassTangent, NormalMap, TexCoord0) :  normalize(Normal0);
+    else
+        normal    = normalize(Normal0);
 
-	NormalOut = vec4(normal, 1.f); // w use fog
-	MaterialSpecular = vec4(ModelMaterial.m_Specular, ModelMaterial.m_ShineDamper);
+    NormalOut = vec4(normal, 1.f); // w use fog
+    MaterialSpecular = vec4(ModelMaterial.m_Specular, ModelMaterial.m_ShineDamper);
 }

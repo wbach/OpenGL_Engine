@@ -8,6 +8,7 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "IntroRenderer.h"
 #include "ThreadSync.h"
+#include "GameEngine/Shaders/ShaderFactory.h"
 
 namespace GameEngine
 {
@@ -42,6 +43,7 @@ private:
 
 private:
     IGraphicsApiPtr graphicsApi_;
+    ShaderFactory shaderFactory_;
     IntroRenderer introRenderer_;
     std::mutex engineEventsMutex;
     std::list<EngineEvent> engineEvents;

@@ -2,14 +2,13 @@
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Objects/RenderAble/Paricle/Particle.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "Shaders/AnimatedParticlesShader.h"
-#include "Shaders/ParticlesShader.h"
 
 namespace GameEngine
 {
 class Texture;
 class Projection;
 struct RendererContext;
+class IShaderProgram;
 
 struct ParticleSubscriber
 {
@@ -50,8 +49,8 @@ private:
 
 private:
     RendererContext& context_;
-    ParticlesShader shader;
-    AnimatedParticlesShader animatedShader_;
+    std::unique_ptr<IShaderProgram> shader_;
+    std::unique_ptr<IShaderProgram> animatedShader_;
     SubscribesMap subscribers_;
     uint32 particleObjecId;
     uint32 aniamtedParticleObjecId;

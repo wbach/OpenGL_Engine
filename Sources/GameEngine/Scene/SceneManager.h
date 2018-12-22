@@ -26,7 +26,8 @@ class SceneManager
 {
 public:
     SceneManager(IGraphicsApiPtr grahpicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr,
-                 std::shared_ptr<DisplayManager>&, std::shared_ptr<InputManager>&, Renderer::RenderersManager&,
+                 std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory, std::shared_ptr<InputManager>&,
+                 Renderer::RenderersManager&,
                  Renderer::Gui::GuiContext& guiContext);
     ~SceneManager();
     Scene* GetActiveScene();

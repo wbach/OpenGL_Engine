@@ -7,6 +7,7 @@
 #include "GameEngine/Time/Time.h"
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
+#include "GameEngineTests/Tests/Mocks/Shaders/ShaderFactoryMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -24,6 +25,7 @@ public:
     ResourceManager resourcesManager_;
     ComponentController componentController_;
     Renderer::RenderersManager renderersManager_;
+    ShaderFactoryMock shaderFactoryMock_;
 
 private:
     std::shared_ptr<ICamera> cameraPtr_;
