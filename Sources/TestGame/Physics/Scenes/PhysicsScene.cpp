@@ -127,9 +127,9 @@ void PhysicsScene::UpdateObjectsCountText()
 
 void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
 {
-    for (int y = offset.y; y < offset.y + 50; y += 2)
+    for (int y = static_cast<int>(offset.y); y < static_cast<int>(offset.y) + 50; y += 2)
     {
-        for (int x = offset.x; x < offset.x + 50; x += 2)
+        for (int x = static_cast<int>(offset.x); x < static_cast<int>(offset.x) + 50; x += 2)
         {
             AddBox(vec3(x, 200, y), vec3(0), 1.f, false);
         }

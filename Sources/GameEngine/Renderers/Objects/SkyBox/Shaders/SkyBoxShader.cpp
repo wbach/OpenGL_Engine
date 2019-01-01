@@ -30,6 +30,6 @@ void SkyBoxShader::ConnectTextureUnits() const
 
 void SkyBoxShader::BindAttributes() const
 {
-    BindAttribute(0, "position");
+    BindAttribute(0, "Position");
 }
 }  // namespace GameEngine

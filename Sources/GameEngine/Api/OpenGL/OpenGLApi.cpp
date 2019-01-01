@@ -8,6 +8,7 @@
 #include "OpenGL/OpenGLUtils.h"
 #include "OpenGL/VaoEnableController.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <optional>
 
 enum class ObjectType
 {
@@ -57,7 +58,7 @@ OpenGLApi::OpenGLApi(IWindowApiPtr windowApi)
     , quad_()
     , quadTs_(true)
 {
-    idToGlId_[0] = 0;
+    idToGlId_.insert({0, 0});
 
     shaderTypeMap_    = {{ShaderType::VERTEX_SHADER, GL_VERTEX_SHADER},
                       {ShaderType::FRAGMENT_SHADER, GL_FRAGMENT_SHADER},
@@ -169,7 +170,7 @@ uint32 OpenGLApi::CreateShader(const ShadersFiles& files, GraphicsApiFunctions f
         return false;
 
     auto rid              = ConvertAndRememberId(programId);
-    createdObjectIds[rid] = ObjectType::SHADER_PROGRAM;
+    createdObjectIds.insert({ rid, ObjectType::SHADER_PROGRAM });
     return rid;
 }
 void OpenGLApi::DeleteMesh(uint32 id)
@@ -194,7 +195,7 @@ uint32 OpenGLApi::ConvertAndRememberId(uint32 id)
     auto oid = objectId_;
     ++objectId_;
 
-    idToGlId_[oid] = id;
+    idToGlId_.insert({ oid, id });
     return oid;
 }
 void OpenGLApi::DeleteShader(uint32 programId)
@@ -213,7 +214,7 @@ void OpenGLApi::DeleteShader(uint32 programId)
 }
 void OpenGLApi::UseShader(uint32 id)
 {
-    usedShader = idToGlId_[id];
+    usedShader = idToGlId_.at(id);
     glUseProgram(usedShader);
 }
 
@@ -517,7 +518,7 @@ uint32 OpenGLApi::CreateTexture(TextureType type, TextureFilter filter, TextureM
     glBindTexture(textureType, 0);
 
     auto rid              = ConvertAndRememberId(texture);
-    createdObjectIds[rid] = ObjectType::TEXTURE_2D;
+    createdObjectIds.insert({ rid, ObjectType::TEXTURE_2D });
     return rid;
 }
 
@@ -621,7 +622,7 @@ void OpenGLApi::ActiveTexture(uint32 nr)
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    auto openGLId = idToGlId_[id];
+    auto openGLId = idToGlId_.at(id);
 
     glActiveTexture(GL_TEXTURE0 + nr);
 
@@ -647,7 +648,7 @@ void OpenGLApi::BindBuffer(BindType type, uint32 id)
 
     activeBuffer_ = id;
 
-    auto openGLId = idToGlId_[id];
+    auto openGLId = idToGlId_.at(id);
 
     switch (type)
     {
@@ -665,7 +666,7 @@ void OpenGLApi::DeleteObject(uint32 id)
     if (id == 0)
         return;
 
-    auto openGLId = idToGlId_[id];
+    auto openGLId = idToGlId_.at(id);
 
     switch (createdObjectIds[id])
     {
@@ -834,7 +835,7 @@ void OpenGLApi::UpdateBlend(uint32 objectId, const std::vector<float>& blendFact
 }
 uint32 OpenGLApi::CloneImage(uint32 objectId)
 {
-    // auto& obj = idToGlId_[objectId];
+    // auto& obj = idToGlId_.at(objectId];
 
     Log("Not implementet");
     // glCopyTexImage2D();
@@ -908,7 +909,7 @@ void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
 
 void OpenGLApi::BindTexture(uint32 id)
 {
-    glBindTexture(GL_TEXTURE_2D, idToGlId_[id]);
+    glBindTexture(GL_TEXTURE_2D, idToGlId_.at(id));
 }
 
 uint32 OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)

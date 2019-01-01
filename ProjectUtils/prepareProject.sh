@@ -3,32 +3,32 @@
 #$1 - Project name
 # ./prepareProject.sh GameEngine ../CMake/Sources/GameEngineSources.cmake ../CMake/Includes/GameEngineIncludes.cmake ProjectGuid outputType depProject... > gameEngine.xml
 # outputType : 
-# 	StaticLibrary
-# 	Application
+#   StaticLibrary
+#   Application
 
 sources=()
 while IFS='' read -r line || [[ -n "$line" ]]; do
-	if [[ $line == *"set"* ]]; then
-	  continue
-	fi
-	if [[ $line == *\)* ]]; then
-	  continue
-	fi
-	#v=${line::-1}
-	sources+=($line)
-	#($v)
+  if [[ $line == *"set"* ]]; then
+    continue
+  fi
+  if [[ $line == *\)* ]]; then
+    continue
+  fi
+  #v=${line::-1}
+  sources+=($line)
+  #($v)
 done < "$2"
 
 headers=()
 while IFS='' read -r line || [[ -n "$line" ]]; do
-	if [[ $line == *"set"* ]]; then
-	  continue
-	fi
-	if [[ $line == *\)* ]]; then
-	  continue
-	fi
-	#v=#${line::-1}
-	headers+=($line)
+  if [[ $line == *"set"* ]]; then
+    continue
+  fi
+  if [[ $line == *\)* ]]; then
+    continue
+  fi
+  #v=#${line::-1}
+  headers+=($line)
 done < "$3"
 
 sdkVersion="10.0.16299.0"
@@ -48,12 +48,12 @@ inputArg=0
 depend=()
 for dep in "$@"
 do
-	inputArg=$((inputArg+1))
-	if [[ $inputArg < 6 ]]; then
-	  continue
-	fi
-	
-	depend+=($dep)
+  inputArg=$((inputArg+1))
+  if [[ $inputArg < 6 ]]; then
+    continue
+  fi
+  
+  depend+=($dep)
 done
 
 #"{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}"
@@ -78,7 +78,7 @@ additionalIncludesDir='
 '
 for d in "${depend[@]}"
 do
-	additionalIncludesDir=$additionalIncludesDir'..\..\Sources\'$d'\;'
+  additionalIncludesDir=$additionalIncludesDir'..\..\Sources\'$d'\;'
 done
 
 additionalLibs='
@@ -125,7 +125,7 @@ LinearMath.lib;
 OpenGLWindow.lib;'
 for d in "${depend[@]}"
 do
-	additionalLibs=$additionalLibs$d'.lib;'
+  additionalLibs=$additionalLibs$d'.lib;'
 done
 
 additionalLibsDir='
@@ -143,7 +143,7 @@ additionalLibsDir='
 '
 for d in "${depend[@]}"
 do
-	additionalLibsDir=$additionalLibsDir'..\..\Build\bin\'$d'\$(Configuration)\;'
+  additionalLibsDir=$additionalLibsDir'..\..\Build\bin\'$d'\$(Configuration)\;'
 done
 
 outDir='$(SolutionDir)..\..\Build\bin\'$projectName'\$(Configuration)\'
@@ -207,9 +207,10 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-	  <MultiProcessorCompilation>true</MultiProcessorCompilation>
-	  <MinimalRebuild>false</MinimalRebuild>
-          <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -224,11 +225,12 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-	  <MultiProcessorCompilation>true</MultiProcessorCompilation>
-	  <MinimalRebuild>false</MinimalRebuild>
-          <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -240,21 +242,21 @@ echo '<?xml version="1.0" encoding="utf-8"?>
     </Link>
   </ItemDefinitionGroup><ItemGroup>
   '
-	for cpp in "${sources[@]}"
-	do
-		echo $'<ClCompile Include="'" $vs_s"$cpp'" />'
-	done
-	echo '</ItemGroup>'
+  for cpp in "${sources[@]}"
+  do
+    echo $'<ClCompile Include="'" $vs_s"$cpp'" />'
+  done
+  echo '</ItemGroup>'
   echo '<ItemGroup>'
-	
-	for inc in "${headers[@]}"
-	do
-		echo $'<ClInclude Include="'" $vs_s"$inc'" />'
-	done
-	
+  
+  for inc in "${headers[@]}"
+  do
+    echo $'<ClInclude Include="'" $vs_s"$inc'" />'
+  done
+  
   echo '</ItemGroup>'
   echo '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
-	
+  
   #\"\'\$\(Configuration\)\|\$\(Platform\)\'==\'Debug\|Win32\'\"
   
 

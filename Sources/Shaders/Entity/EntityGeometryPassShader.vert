@@ -24,7 +24,7 @@ uniform float IsUseNormalMap;
 uniform float IsUseFakeLighting;
 
 uniform vec4 ClipPlane;
-uniform float NumberOfRows;
+uniform uint NumberOfRows;
 uniform vec2 TextureOffset;
 
 out vec2 TexCoord0;

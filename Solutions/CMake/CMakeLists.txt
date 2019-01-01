@@ -41,7 +41,7 @@ SET( CMAKE_CXX_FLAGS  "-std=c++14 -Wuninitialized -Wtype-limits -Wdelete-incompl
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
 add_compile_options(
-    -std=c++14
+    -std=c++17
 )
 
 if(BUILD_I386)
