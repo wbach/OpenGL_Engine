@@ -53,6 +53,6 @@ private:
     vec4 clipPlane;
 
     SubscribersMap subscribes_;
-    std::list<TreeSubscriber*> subscribersToInit_;
+    std::vector<TreeSubscriber*> subscribersToInit_;
 };
 }  // GameEngine

@@ -47,7 +47,7 @@ namespace Utils
 		{
 			document.parse<0>(const_cast<char*>(str.c_str()));
 		}
-		catch (rapidxml::parse_error p)
+		catch (const rapidxml::parse_error& p)
 		{
 			std::string out = p.what();
 			Error(out);

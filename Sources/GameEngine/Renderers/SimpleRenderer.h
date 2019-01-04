@@ -35,6 +35,6 @@ private:
     //SimpleEntityShader shader;
     Projection* projectionMatrix;
 
-    std::list<Entity*> subscribes;
+    std::vector<Entity*> subscribes;
 };
 }  // GameEngine

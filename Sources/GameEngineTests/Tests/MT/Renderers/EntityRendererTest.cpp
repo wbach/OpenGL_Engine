@@ -39,8 +39,8 @@ struct EntityRendererShould : public ::testing::Test
         , context_(&projection_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, *shaderFactoryMock_,
                    std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
         , scene_("testScene")
-        , cameraMock_(std::make_shared<CameraMock>())
         , mesh_(graphicsMock_)
+        , cameraMock_(std::make_shared<CameraMock>())
     {
     }
     void SetUp()

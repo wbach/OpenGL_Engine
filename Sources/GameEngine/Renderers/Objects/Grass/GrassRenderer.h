@@ -35,7 +35,7 @@ private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
 
-    std::list<Grass*> subscribes;
+    std::vector<Grass*> subscribes;
     float viewDistance = 30.f;
 };
 }  // GameEngine

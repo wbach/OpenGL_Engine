@@ -118,7 +118,7 @@ void EntityRenderer::RenderEntities()
         if (model == nullptr)
             continue;
 
-        uint32 x = 0;
+        //uint32 x = 0;
         /* for (auto& t : model->GetBoneTransforms())
              shader.LoadBoneTransform(*t, x++);
 

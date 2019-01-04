@@ -49,7 +49,7 @@ void TreeRenderer::Render(Scene* scene)
             model->GetScaleFactor() > bmodel->GetScaleFactor() ? model->GetScaleFactor() : bmodel->GetScaleFactor();
         mat4 normalizeMatrix = glm::scale(vec3(1.f / factor)) * sub.second.transform;
 
-        auto count = sub.second.positions->size();
+        uint32 count = sub.second.positions->size();
 
         context_.graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
         shader_->Load(TreeShaderUniforms::PositionMapSize, count);

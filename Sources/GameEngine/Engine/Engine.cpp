@@ -8,12 +8,12 @@ namespace GameEngine
 Engine::Engine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory)
     : displayManager(nullptr)
     , inputManager_(nullptr)
-    , shaderFactory_(graphicsApi)
     , renderersManager_(graphicsApi, shaderFactory_)
     , sceneManager_(graphicsApi, physicsApi, sceneFactory, displayManager, shaderFactory_, inputManager_,
                     renderersManager_,
                     guiContext_)
     , graphicsApi_(graphicsApi)
+    , shaderFactory_(graphicsApi)
     , introRenderer_(graphicsApi, displayManager, shaderFactory_)
     , isRunning(true)
 {

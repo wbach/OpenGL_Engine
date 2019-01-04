@@ -8,67 +8,67 @@
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
 #endif
 
-typedef unsigned char      uchar;
-typedef unsigned char      uint8;
-typedef unsigned short     uint16;
-typedef unsigned int       uint32;
-typedef unsigned long long uint64;
+typedef unsigned char uchar;
+typedef uint8_t       uint8;
+typedef uint16_t      uint16;
+typedef uint32_t      uint32;
+typedef uint64_t      uint64;
 
-typedef char      int8;
-typedef short     int16;
-typedef int       int32;
-typedef long long int64;
+typedef int8_t  int8;
+typedef int16_t int16;
+typedef int32_t int32;
+typedef int64_t int64;
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
 namespace wb
 {
-	template<class T>
-	struct Tvec2
-	{
-		T x;
-		T y;
+    template<class T>
+    struct Tvec2
+    {
+        T x;
+        T y;
 
-		Tvec2() : Tvec2(0, 0)
-		{
-		}
-		Tvec2(T x) : Tvec2(x, x)
-		{
-		}
-		Tvec2(T x, T y) : x(x), y(y)
-		{
-		}
-	};
+        Tvec2() : Tvec2(0, 0)
+        {
+        }
+        Tvec2(T x) : Tvec2(x, x)
+        {
+        }
+        Tvec2(T x, T y) : x(x), y(y)
+        {
+        }
+    };
 
-	template<class T>
-	struct Tvec3
-	{
-		T x;
-		T y;
-		T z;
+    template<class T>
+    struct Tvec3
+    {
+        T x;
+        T y;
+        T z;
 
-		Tvec3() : Tvec3(0) {}
-		Tvec3(T a) :x(a), y(a), z(a) {}
+        Tvec3() : Tvec3(0) {}
+        Tvec3(T a) :x(a), y(a), z(a) {}
 
-		bool operator==(const Tvec3& v) const
-		{
-			return x == v.x && y == v.y && z == v.z;
-		}
-		// To my model map find
-		bool operator<(const Tvec3& v) const
-		{
-			return x != v.x || y != v.y || z != v.z;
-		}
-	};
+        bool operator==(const Tvec3& v) const
+        {
+            return x == v.x && y == v.y && z == v.z;
+        }
+        // To my model map find
+        bool operator<(const Tvec3& v) const
+        {
+            return x != v.x || y != v.y || z != v.z;
+        }
+    };
 
-	typedef Tvec2<int32> vec2i;
-	typedef Tvec2<uint32> vec2ui;
-	typedef Tvec3<int32> vec3i;
-	typedef Tvec3<uint32> vec3ui;
+    typedef Tvec2<int32> vec2i;
+    typedef Tvec2<uint32> vec2ui;
+    typedef Tvec3<int32> vec3i;
+    typedef Tvec3<uint32> vec3ui;
 
-	std::string to_string(const vec2i& v);
-	std::string to_string(const vec3i& v);
+    std::string to_string(const vec2i& v);
+    std::string to_string(const vec3i& v);
 }
 
 typedef wb::vec2i vec2i;
@@ -98,15 +98,15 @@ typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 
 namespace std
 {
-	template<>
-	struct hash<vec3i> 
-	{
-		size_t operator()(const vec3i &k) const
-		{
-			size_t h1 = std::hash<double>()(k.x);
-			size_t h2 = std::hash<double>()(k.y);
-			size_t h3 = std::hash<double>()(k.z);
-			return (h1 ^ (h2 << 1)) ^ h3;
-		}
-	};
+    template<>
+    struct hash<vec3i> 
+    {
+        size_t operator()(const vec3i &k) const
+        {
+            size_t h1 = std::hash<double>()(k.x);
+            size_t h2 = std::hash<double>()(k.y);
+            size_t h3 = std::hash<double>()(k.z);
+            return (h1 ^ (h2 << 1)) ^ h3;
+        }
+    };
 } // std
