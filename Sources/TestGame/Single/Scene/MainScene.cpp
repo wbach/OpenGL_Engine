@@ -48,7 +48,7 @@ int MainScene::Initialize()
     renderersManager_->GuiText("gameTime").m_size    = 0.5f;
     renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" +
                                                   std::to_string(dayNightCycle.GetCurrentHour().y);
-    renderersManager_->GuiText("cameraPos").position = vec2(-0.9, -0.5);
+    renderersManager_->GuiText("cameraPos").position = vec2(-0.9, -0.8);
     renderersManager_->GuiText("cameraPos").m_size   = .5f;
     renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
 

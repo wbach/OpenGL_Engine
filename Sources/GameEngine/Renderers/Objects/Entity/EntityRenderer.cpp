@@ -93,7 +93,14 @@ void EntityRenderer::RenderModel(Model* model, const mat4& transform_matrix) con
 {
     const auto& meshes = model->GetMeshes();
     for (const auto& mesh : meshes)
+    {
+        if (mesh.UseArmature())
+        {
+            shader_->Load(EntityShaderUniforms::BonesTransforms, model->GetBoneTransforms());
+        }
+        shader_->Load(EntityShaderUniforms::UseBoneTransform, mesh.UseArmature());
         RenderMesh(mesh, transform_matrix);
+    }
 }
 
 void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) const
@@ -101,7 +108,6 @@ void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) 
     BindMaterial(mesh.GetMaterial());
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader_->Load(EntityShaderUniforms::TransformationMatrix, transform_matrix_);
-    shader_->Load(EntityShaderUniforms::UseBoneTransform, mesh.UseArmature());
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
     UnBindMaterial(mesh.GetMaterial());
 }
@@ -118,11 +124,11 @@ void EntityRenderer::RenderEntities()
         if (model == nullptr)
             continue;
 
-        //uint32 x = 0;
+        uint32 x = 0;
         /* for (auto& t : model->GetBoneTransforms())
              shader.LoadBoneTransform(*t, x++);
+             */
 
-         shader_->Load(EntityShaderUniforms::BonesTransforms, model->GetBoneTransforms());*/
 
         currentTextureIndex_ = sub.second.textureIndex;
 

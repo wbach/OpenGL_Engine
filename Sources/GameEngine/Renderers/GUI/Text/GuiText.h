@@ -23,9 +23,13 @@ public:
     GuiTexts texts;
 
 private:
+    void InitShader();
+
+private:
     IGraphicsApiPtr graphicsApi_;
     std::unique_ptr<IShaderProgram> shader_;
     std::string fontFile;
+    vec2 defaultScale_;
 };
 
 }  // GameEngine

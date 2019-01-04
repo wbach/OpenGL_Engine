@@ -27,7 +27,7 @@ public:
     inline float GetScaleFactor();
     inline const std::string& GetFileName() const;
     inline const std::vector<Mesh>& GetMeshes() const;
-    const std::vector<mat4*>& GetBoneTransforms();
+    const std::vector<mat4>& GetBoneTransforms();
 
     inline bool operator==(const Model& q) const;
     inline bool operator==(const std::string& file) const;
@@ -40,9 +40,9 @@ protected:
     void AddJoints(Animation::Joint& joint);
 
 protected:
-    std::string filename;
-    std::vector<Mesh> meshes;
-    std::vector<mat4*> boneTransforms;
+    std::string filename_;
+    std::vector<Mesh> meshes_;
+    std::vector<mat4> boneTransforms_;
     float scaleFactor_;
 };
 
@@ -51,19 +51,19 @@ typedef std::shared_ptr<Model> ModelPtr;
 
 const std::vector<Mesh>& Model::GetMeshes() const
 {
-    return meshes;
+    return meshes_;
 }
 bool Model::operator==(const Model& q) const
 {
-    return filename.compare(q.filename) == 0;
+    return filename_.compare(q.filename_) == 0;
 }
 bool Model::operator==(const std::string& file) const
 {
-    return filename.compare(file) == 0;
+    return filename_.compare(file) == 0;
 }
 const std::string& Model::GetFileName() const
 {
-    return filename;
+    return filename_;
 }
 float Model::GetScaleFactor()
 {

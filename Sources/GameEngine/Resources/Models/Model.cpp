@@ -16,17 +16,17 @@ Model::Model(float scaleFactor)
 
 void Model::InitModel(const std::string& file_name)
 {
-    filename = file_name;
+    filename_ = file_name;
 }
 
 Model::~Model()
 {
-    Log(filename + " ::~Model()");
+    Log(filename_ + " ::~Model()");
 }
 
 void Model::GpuLoadingPass()
 {
-    for (auto& mesh : meshes)
+    for (auto& mesh : meshes_)
         mesh.GpuLoadingPass();
 
     GpuObject::GpuLoadingPass();
@@ -34,7 +34,7 @@ void Model::GpuLoadingPass()
 
 void Model::GpuPostLoadingPass()
 {
-    for (auto& mesh : meshes)
+    for (auto& mesh : meshes_)
         mesh.GpuPostLoadingPass();
 
     GpuObject::GpuPostLoadingPass();
@@ -42,29 +42,31 @@ void Model::GpuPostLoadingPass()
 
 Mesh* Model::AddMesh(Mesh& mesh)
 {
-    meshes.push_back(std::move(mesh));
-    return &meshes.back();
+    meshes_.push_back(std::move(mesh));
+    return &meshes_.back();
 }
 
 Mesh* Model::AddMesh(IGraphicsApiPtr api)
 {
-    meshes.emplace_back(api);
-    return &meshes.back();
+    meshes_.emplace_back(api);
+    return &meshes_.back();
 }
 
-const std::vector<mat4*>& Model::GetBoneTransforms()
+const std::vector<mat4>& Model::GetBoneTransforms()
 {
-    if (!boneTransforms.empty() || skeleton_.size == 0)
-        return boneTransforms;
+    if ( skeleton_.size == 0)
+        return boneTransforms_;
 
-    boneTransforms.resize(skeleton_.size);
+    if (boneTransforms_.empty())
+        boneTransforms_.resize(skeleton_.size);
+
     AddJoints(skeleton_);
-    return boneTransforms;
+    return boneTransforms_;
 }
 
 void Model::AddJoints(Animation::Joint& joint)
 {
-    boneTransforms[joint.id] = &joint.animatedTransform;
+    boneTransforms_[joint.id] = joint.animatedTransform;
     for (auto& childJoint : joint.children)
     {
         AddJoints(childJoint);

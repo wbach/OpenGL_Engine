@@ -30,6 +30,7 @@ public:
     MOCK_CONST_METHOD2(Load, void(uint32, const mat4&));
     MOCK_CONST_METHOD2(Load, void(uint32, const std::vector<float>&));
     MOCK_CONST_METHOD2(Load, void(uint32, const std::vector<vec3>&));
+    MOCK_CONST_METHOD2(Load, void(uint32, const std::vector<mat4>&));
 
     MOCK_CONST_METHOD1(GetUniformLocation, uint32(const std::string&));
 };

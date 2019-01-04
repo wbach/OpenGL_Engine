@@ -38,6 +38,7 @@ public:
     virtual void Load(uint32 varIndex, const mat4& value) const;
     virtual void Load(uint32 varIndex, const std::vector<float>& value) const;
     virtual void Load(uint32 varIndex, const std::vector<vec3>& value) const;
+    virtual void Load(uint32 varIndex, const std::vector<mat4>& value) const;
 
     uint32 GetUniformLocation(const std::string& uniformName) const;
 

@@ -110,6 +110,10 @@ void ShaderProgram::Load(uint32 loacation, const std::vector<vec3>& value) const
 {
      graphicsApi_->LoadValueToShader(uniforms_[loacation], value);
 }
+void ShaderProgram::Load(uint32 loacation, const std::vector<mat4>& value) const
+{
+    graphicsApi_->LoadValueToShader(uniforms_[loacation], value);
+}
 void ShaderProgram::Load(uint32 loacation, const mat3& value) const
 {
      graphicsApi_->LoadValueToShader(uniforms_[loacation], value);
