@@ -24,8 +24,12 @@ void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3
     auto modelWrapper                 = modelCreator_->CreateHero(classId);
     networkCharacters_[id]            = std::make_shared<NetworkCharacter>(id, stats, modelWrapper);
     auto entity                       = networkCharacters_[id]->GetEntity();
+    entity->worldTransform.SetPosition(position);
+    entity->worldTransform.SetRotation(rotation);
     entity->worldTransform.isDynamic_ = true;
-    addObject_(entity, position, rotation);
+    entity->worldTransform.TakeSnapShoot();
+    rendererManager_.Subscribe(entity);
+    addObject_(std::unique_ptr<GameEngine::GameObject>(entity));
 
     if (id == gameContext_.selectedCharacterId.first)
     {
@@ -35,7 +39,6 @@ void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3
             s(networkCharacters_[id].get());
     }
 
-    rendererManager_.Subscribe(entity);
 }
 void NetworkCharacterManager::Update(float deltaTime)
 {

@@ -91,8 +91,8 @@ void PhysicsScene::AddBox(const vec3& pos, const vec3& dir, float scale, bool is
         rigidbody->SetMass(0.f);
     }
 
-    AddGameObject(object);
     rigidbody->SetVelocity(dir);
+    AddGameObject(std::unique_ptr<GameObject>(object));
 }
 
 void PhysicsScene::AddSphere(const vec3& pos, const vec3& dir, float scale, bool isStatic)
@@ -114,8 +114,8 @@ void PhysicsScene::AddSphere(const vec3& pos, const vec3& dir, float scale, bool
         rigidbody->SetMass(0.f);
     }
 
-    AddGameObject(object);
     rigidbody->SetVelocity(dir);
+    AddGameObject(std::unique_ptr<GameObject>(object));
 }
 
 const std::string OBJECT_COUNT_GUI_TEXT = "objectsCount";
@@ -227,6 +227,8 @@ int PhysicsScene::Initialize()
     auto terrain_textures = CreateTerrainTexturesMap();
     auto terrain          = AddTerrain(terrain_textures, glm::vec3(1));
     terrain->GetHeight(0, 0);
+    terrain->worldTransform.SetPosition(vec3(1));
+    terrain->worldTransform.TakeSnapShoot();
 
     {
         auto terrainShapeComponent = AddComponent<Components::TerrainShape>(terrain);
@@ -240,7 +242,8 @@ int PhysicsScene::Initialize()
         rigidbody->SetIsStatic(true);
         rigidbody->SetMass(0.f);
     }
-    AddGameObject(terrain, glm::vec3(1));
+
+    AddGameObject(std::unique_ptr<GameObject>(terrain));
 
     KeyOperations();
 
@@ -303,7 +306,7 @@ void PhysicsScene::AddBarrel(const vec3& pos)
     rigidbody->SetIsStatic(false);
     rigidbody->SetCollisionShape(meshShape);
 
-    AddGameObject(object);
+    AddGameObject(std::unique_ptr<GameObject>(object));
 }
 
 int PhysicsScene::Update(float dt)

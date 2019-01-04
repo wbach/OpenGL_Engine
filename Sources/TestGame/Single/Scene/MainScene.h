@@ -35,8 +35,7 @@ private:
     void AddTerrain(GameEngine::TerrainTexturesMap& textures, const glm::vec3& position);
     GameEngine::TerrainTexturesMap CreateTerrainTexturesMap();
     std::vector<float> CreateGrassPositions(GameEngine::GameObject*, vec2);
-    GameEngine::GameObject* AddEntity(const std::string& modelName, float scale, const vec2& position, bool isDynamic = false);
-    GameEngine::GameObject* AddGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
+    std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
 
 private:
     std::shared_ptr<common::Controllers::CharacterController> characterController_;
@@ -45,7 +44,6 @@ private:
 
     common::Transform lookAtCameraTransform_;
 
-    std::vector<GameEngine::GameObject*> terrains;
     double timeClock = 0;
     float deltaTime;
 

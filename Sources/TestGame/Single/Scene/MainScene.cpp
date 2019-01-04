@@ -43,11 +43,14 @@ int MainScene::Initialize()
 
     renderersManager_->GuiText("playerPos").position = vec2(-0.9, -0.9);
     renderersManager_->GuiText("playerPos").m_size   = .5f;
-    renderersManager_->GuiText("playerPos").colour   = vec3(.8f);
+    renderersManager_->GuiText("playerPos").colour   = vec3(.8f, 0.f, 0.f);
     renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
     renderersManager_->GuiText("gameTime").m_size    = 0.5f;
     renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" +
                                                   std::to_string(dayNightCycle.GetCurrentHour().y);
+    renderersManager_->GuiText("cameraPos").position = vec2(-0.9, -0.5);
+    renderersManager_->GuiText("cameraPos").m_size   = .5f;
+    renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
 
     Renderer::Gui::GuiTextureElement guiTexture;
     guiTexture.texture = new Texture();
@@ -58,38 +61,41 @@ int MainScene::Initialize()
     auto terrain_textures = CreateTerrainTexturesMap();
     AddTerrain(terrain_textures, glm::vec3(1));
 
-    auto tree1    = AddGameObjectInstance(20.f, vec2(0, 0));
-    auto treeComp = AddComponent<Components::TreeRendererComponent>(tree1);
+    {
+        auto tree1    = CreateGameObjectInstance(20.f, vec2(0, 0));
+        auto treeComp = AddComponent<Components::TreeRendererComponent>(tree1.get());
 
-    std::vector<vec3> treePositions;
-    vec2ui size(10, 10);
-    treePositions.resize(size.x * size.y);
+        std::vector<vec3> treePositions;
+        vec2ui size(10, 10);
+        treePositions.resize(size.x * size.y);
 
-    for (uint32 y = 0; y < size.y; y++)
-        for (uint32 x = 0; x < size.x; x++)
-        {
-            vec3 treePos(10.f * x, 0.f, 10.f * y);
-            treePos.x += static_cast<float>(rand() % 100) / 10.f;
-            treePos.z += static_cast<float>(rand() % 100) / 10.f;
-            treePos = treePos + vec3(350, 0, 450);
-
-            for (auto& terrain : terrains)
+        for (uint32 y = 0; y < size.y; y++)
+            for (uint32 x = 0; x < size.x; x++)
             {
-                auto new_position = terrain->CollisionDetection(treePos);
-                if (!new_position)
-                    continue;
+                vec3 treePos(10.f * x, 0.f, 10.f * y);
+                treePos.x += static_cast<float>(rand() % 100) / 10.f;
+                treePos.z += static_cast<float>(rand() % 100) / 10.f;
+                treePos = treePos + vec3(350, 0, 450);
 
-                treePos.y = new_position.constValue().y - .5f;
+                for (auto& terrain : terrains_)
+                {
+                    auto new_position = terrain->CollisionDetection(treePos);
+                    if (!new_position)
+                        continue;
+
+                    treePos.y = new_position.constValue().y - .5f;
+                }
+                treePositions[x + size.x * y] = treePos;
             }
-            treePositions[x + size.x * y] = treePos;
-        }
-    treeComp->SetPositions(treePositions, size);
-    treeComp->SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj");
-    treeComp->SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
+        treeComp->SetPositions(treePositions, size);
+        treeComp->SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj");
+        treeComp->SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
+        AddGameObject(tree1);
+    }
 
     {
-        auto particle1 = AddGameObjectInstance(1.f, vec2(400, 560));
-        auto effect1   = AddComponent<Components::ParticleEffectComponent>(particle1);
+        auto particle1 = CreateGameObjectInstance(1.f, vec2(400, 560));
+        auto effect1   = AddComponent<Components::ParticleEffectComponent>(particle1.get());
         effect1->SetTexture("Textures/Particles/water.png");
         effect1->SetParticlesPerSec(10);
         effect1->SetBlendFunction(BlendFunctionType::ONE);
@@ -111,11 +117,12 @@ int MainScene::Initialize()
         particle.gravityEffect = 1.f;
         particle.lifeTime      = 2.f;
         effect1->SetParticle(particle);
+        AddGameObject(particle1);
     }
 
     {
-        auto particle2 = AddGameObjectInstance(1.f, vec2(400, 555));
-        auto effect2   = AddComponent<Components::ParticleEffectComponent>(particle2);
+        auto particle2 = CreateGameObjectInstance(1.f, vec2(400, 555));
+        auto effect2   = AddComponent<Components::ParticleEffectComponent>(particle2.get());
         effect2->SetTexture("Textures/Particles/fire1_rows_8.png");
         effect2->SetParticlesPerSec(100);
         effect2->UseAnimation();
@@ -146,52 +153,71 @@ int MainScene::Initialize()
         particle_2.gravityEffect = 0.0f;
         particle_2.lifeTime      = 2.6f;
         effect2->SetParticle(particle_2);
+        AddGameObject(particle2);
     }
 
-    auto treeGo1 = AddGameObjectInstance(10.f, vec2(400, 570));
-    AddComponent<Components::RendererComponent>(treeGo1)->AddModel(
-        "Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
+    {
+        auto treeGo1 = CreateGameObjectInstance(10.f, vec2(400, 570));
+        AddComponent<Components::RendererComponent>(treeGo1.get())->AddModel(
+            "Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
+        AddGameObject(treeGo1);
+    }
 
-    auto barrel = AddGameObjectInstance(1.f, vec2(395, 565));
-    AddComponent<Components::RendererComponent>(barrel)->AddModel("Meshes/Barrel/barrel.obj");
+    {
+        auto barrel = CreateGameObjectInstance(1.f, vec2(395, 565));
+        AddComponent<Components::RendererComponent>(barrel.get())->AddModel("Meshes/Barrel/barrel.obj");
+        AddGameObject(barrel);
+    }
 
-    auto sponza = AddGameObjectInstance(60.f, vec2(395, 665));
-    AddComponent<Components::RendererComponent>(sponza)->AddModel("Meshes/sponza/sponza_mod.obj");
+    {
+        auto sponza = CreateGameObjectInstance(60.f, vec2(395, 665));
+        AddComponent<Components::RendererComponent>(sponza.get())->AddModel("Meshes/sponza/sponza_mod.obj");
+        AddGameObject(sponza);
+    }
 
     for (int x = 0; x < 4; x++)
     {
-        auto fern      = AddGameObjectInstance(3.f, vec2(395, 560 - 5 * x));
-        auto fernRComp = AddComponent<Components::RendererComponent>(fern);
+        auto fern      = CreateGameObjectInstance(3.f, vec2(395, 560 - 5 * x));
+        auto fernRComp = AddComponent<Components::RendererComponent>(fern.get());
         fernRComp->AddModel("Meshes/Fern/fern.obj");
         fernRComp->textureIndex = x;
+        AddGameObject(fern);
     }
 
-    auto bialczyk = AddGameObjectInstance(30.f, vec2(395, 570));
-    AddComponent<Components::RendererComponent>(bialczyk)->AddModel("Meshes/Bialczyk/Bialczyk.obj");
-    player        = AddGameObjectInstance(1.8f, vec2(395, 560), true);
-    auto animator = AddComponent<Components::Animator>(player);
-    AddComponent<Components::RendererComponent>(player)->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
-    animator->SetAnimation("Idle");
+    {
+        auto bialczyk = CreateGameObjectInstance(30.f, vec2(395, 570));
+        AddComponent<Components::RendererComponent>(bialczyk.get())->AddModel("Meshes/Bialczyk/Bialczyk.obj");
+        AddGameObject(bialczyk);
+    }
 
-    for (const auto& terrain : terrains)
+    {
+        auto uplayer = CreateGameObjectInstance(1.8f, vec2(395, 560), true);
+        auto animator = AddComponent<Components::Animator>(uplayer.get());
+        AddComponent<Components::RendererComponent>(uplayer.get())->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
+        animator->SetAnimation("Idle");
+        player = uplayer.get();
+        characterController_ = std::make_shared<common::Controllers::CharacterController>(
+            player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
+        playerInputController_ =
+            std::make_shared<PlayerInputController>(animator, inputManager_, characterController_.get());
+        AddGameObject(uplayer);
+    }
+
+    for (const auto& terrain : terrains_)
     {
         auto grass_position = CreateGrassPositions(terrain, vec2(375, 550));
 
         auto grass_obj = ObjectBuilder::CreateGrass(resourceManager_.get(), grass_position,
                                                     "Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
-        AddGameObject(grass_obj);
         renderersManager_->Subscribe(grass_obj);
+        AddGameObject(std::unique_ptr<GameObject>(grass_obj));
     }
-
-    characterController_ = std::make_shared<common::Controllers::CharacterController>(
-        player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
-    playerInputController_ =
-        std::make_shared<PlayerInputController>(animator, inputManager_, characterController_.get());
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+    camera->SetPosition(player->worldTransform.GetPosition() + vec3(0, 1, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
 
@@ -227,6 +253,7 @@ int MainScene::Update(float dt)
     UpdatePlayerandCamera(deltaTime);
 
     renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
+    renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
     return 0;
 }
 
@@ -282,11 +309,11 @@ void MainScene::KeyOperations()
         {
             camType = CameraType::FirstPerson;
             SetCamera(std::make_unique<FirstPersonCamera>(inputManager_, displayManager_));
+            camera->SetPosition(pos);
+            camera->SetPitch(rotation.x);
+            camera->SetYaw(rotation.y);
+            camera->SetRoll(rotation.z);
         }
-        camera->SetPosition(pos);
-        camera->SetPitch(rotation.x);
-        camera->SetYaw(rotation.y);
-        camera->SetRoll(rotation.z);
     });
 }
 
@@ -299,7 +326,7 @@ void MainScene::CheckCollisions(float dt)
 
     bool wasCollision = false;
 
-    for (auto& terrain : terrains)
+    for (auto& terrain : terrains_)
     {
         auto new_position = terrain->CollisionDetection(playerPos);
 
@@ -323,13 +350,16 @@ TerrainTexturesMap MainScene::CreateTerrainTexturesMap()
     return {{TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
             {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png"},
             {
-                TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png",
+                TerrainTextureType::redTexture,
+                "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png",
             },
             {
-                TerrainTextureType::rockTexture, "Textures/Terrain/Ground/G3_Nature_Wall_Stone_12_Diffuse_01.png",
+                TerrainTextureType::rockTexture,
+                "Textures/Terrain/Ground/G3_Nature_Wall_Stone_12_Diffuse_01.png",
             },
             {
-                TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png",
+                TerrainTextureType::snowTexture,
+                "Textures/Terrain/Ground/snow512.png",
             },
             {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
             {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
@@ -344,10 +374,11 @@ void MainScene::AddTerrain(TerrainTexturesMap& textures, const glm::vec3& positi
         Error("MainScene::AddTerrain : terrain is nullptr.");
         return;
     }
-    AddGameObject(terrain, position);
-    terrains.push_back(terrain);
-    renderersManager_->Subscribe(terrain);
+    terrain->worldTransform.SetPosition(position);
+    terrain->worldTransform.TakeSnapShoot();
     terrains_.push_back(terrain);
+    renderersManager_->Subscribe(terrain);
+    AddGameObject(std::unique_ptr<GameEngine::GameObject>(terrain));
 }
 
 std::vector<float> MainScene::CreateGrassPositions(GameObject* object, vec2 pos)
@@ -375,30 +406,8 @@ std::vector<float> MainScene::CreateGrassPositions(GameObject* object, vec2 pos)
     return grass_positions;
 }
 
-GameObject* MainScene::AddEntity(const std::string& modelName, float scale, const vec2& position, bool isDynamic)
-{
-    auto obj = ObjectBuilder::CreateEntity(resourceManager_.get(), modelName);
-    obj->worldTransform.SetScale(scale);
-    obj->worldTransform.isDynamic_ = isDynamic;
-
-    vec3 obj_pos(position.x, 0, position.y);
-
-    for (const auto& t : terrains_)
-    {
-        auto pos = t->CollisionDetection(obj_pos);
-        if (pos)
-        {
-            obj_pos = pos.constValue();
-            break;
-        }
-    }
-    AddGameObject(obj, obj_pos);
-    renderersManager_->Subscribe(obj);
-    obj->worldTransform.TakeSnapShoot();
-    return obj;
-}
-
-GameObject* MainScene::AddGameObjectInstance(float scale, const vec2& position, bool isDynamic)
+std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(float scale, const vec2& position,
+                                                                            bool isDynamic)
 {
     auto obj = new GameObject();
     obj->worldTransform.SetScale(scale);
@@ -415,9 +424,10 @@ GameObject* MainScene::AddGameObjectInstance(float scale, const vec2& position, 
             break;
         }
     }
-    AddGameObject(obj, obj_pos);
+    obj->worldTransform.SetPosition(obj_pos);
     obj->worldTransform.TakeSnapShoot();
-    return obj;
+
+    return std::unique_ptr<GameEngine::GameObject>(obj);
 }
 
 void MainScene::InitGui()

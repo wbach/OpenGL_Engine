@@ -10,7 +10,7 @@ namespace PhysicsTestGame
 {
 void Start(GameEngine::IGraphicsApiPtr gptr)
 {
-    Engine engine(gptr, makeBulletAdapter(), std::make_shared<PhysicsSceneFactory>());
+    Engine engine(gptr, std::make_shared<BulletAdapter>(), std::make_shared<PhysicsSceneFactory>());
     engine.Init();
     engine.sceneManager_.SetActiveScene("PhysicsScene");
     engine.GameLoop();

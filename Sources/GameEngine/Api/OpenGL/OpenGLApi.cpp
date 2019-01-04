@@ -120,13 +120,13 @@ void OpenGLApi::PrepareFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(bgColor_.x, bgColor_.y, bgColor_.z, 1.f);
 
-    // auto code = glGetError();
-    // if (code != GL_NO_ERROR)
-    //{
-    //	auto errString = gluErrorString(code);
-    //	std::string error((char*)errString);
-    //	Error("[Error] : " + error);
-    //}
+     auto code = glGetError();
+     if (code != GL_NO_ERROR)
+    {
+    	auto errString = gluErrorString(code);
+    	std::string error((char*)errString);
+    	Error(error);
+    }
 }
 void OpenGLApi::SetDefaultTarget()
 {
@@ -643,7 +643,7 @@ uint32 OpenGLApi::CreateBuffer()
 
 void OpenGLApi::BindBuffer(BindType type, uint32 id)
 {
-    if (activeBuffer_ == id)
+    if (activeBuffer_ == id or idToGlId_.count(id) == 0)
         return;
 
     activeBuffer_ = id;
@@ -663,7 +663,7 @@ void OpenGLApi::BindBuffer(BindType type, uint32 id)
 
 void OpenGLApi::DeleteObject(uint32 id)
 {
-    if (id == 0)
+    if (id == 0 or idToGlId_.count(id) == 0)
         return;
 
     auto openGLId = idToGlId_.at(id);
