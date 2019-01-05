@@ -110,7 +110,7 @@ struct EntityRendererShould : public ::testing::Test
         auto entity = new Entity(resourceManagerMock_);
         scene_.AddComponent<Components::RendererComponent>(entity)->AddModel("Meshes/sphere.obj");
         sut_->Subscribe(entity);
-        scene_.AddGameObject(entity, vec3(0), vec3(0));
+        scene_.AddGameObject(std::unique_ptr<GameObject>(entity));
 
         transformToShader_ = entity->worldTransform.GetMatrix() * mesh_.GetMeshTransform();
     }

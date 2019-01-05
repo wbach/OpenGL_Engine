@@ -111,13 +111,13 @@ void Animator::increaseAnimationTime()
     if (time_ == nullptr)
         return;
 
-    auto l = animationClips_[current_].GetLength();
+    auto animationLength = animationClips_[current_].GetLength();
 
     currentTime_ += time_->deltaTime * animationSpeed_;
-    if (currentTime_ > l)
-        currentTime_ = fmod(currentTime_, l);
+    if (currentTime_ > animationLength)
+        currentTime_ = fmod(currentTime_, animationLength);
     if (currentTime_ < 0)
-        currentTime_ = l + currentTime_;
+        currentTime_ = animationLength + currentTime_;
 }
 
 Pose Animator::calculateCurrentAnimationPose()

@@ -62,7 +62,7 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
     {
        shader_->Load(TerrainShaderUniforms::modelViewMatrix, viewMatrix);
        shader_->Load(TerrainShaderUniforms::modelViewProjectionMatrix, context_.projection_->GetProjectionMatrix() * viewMatrix);
-        RenderSubscriber(sub);
+       RenderSubscriber(sub);
     }
 }
 void TerrainRenderer::RenderSubscriber(TerrainPtr sub) const

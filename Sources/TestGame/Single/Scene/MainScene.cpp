@@ -6,6 +6,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/SkyBoxComponent.h"
 #include "GameEngine/Components/Renderer/TreeRendererComponent.h"
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -56,7 +57,26 @@ int MainScene::Initialize()
     guiTexture.texture = new Texture();
     guiTexture.SetScale(vec2(0.25, 0.25));
     guiTexture.SetPosition(vec2(0.5, 0.5));
+
     // renderersManager_->GuiTexture("shadowMap") = guiTexture;
+    // clang-format off
+    {
+        std::vector<std::string> nightTextures{ "Skybox/Night/right.png", "Skybox/Night/left.png",
+                                                "Skybox/Night/top.png",   "Skybox/Night/bottom.png",
+                                                "Skybox/Night/back.png",  "Skybox/Night/front.png" };
+
+        std::vector<std::string> dayTextures{   "Skybox/TropicalSunnyDay/right.png", "Skybox/TropicalSunnyDay/left.png",
+                                                "Skybox/TropicalSunnyDay/top.png",   "Skybox/TropicalSunnyDay/bottom.png",
+                                                "Skybox/TropicalSunnyDay/back.png",  "Skybox/TropicalSunnyDay/front.png" };
+
+        auto skybox = CreateGameObjectInstance(1.f, vec2(0));
+        auto skyboxComponent = AddComponent<Components::SkyBoxComponent>(skybox.get());
+        skyboxComponent->SetModel("Meshes/SkyBox/cube.obj");
+        skyboxComponent->SetNightTexture(nightTextures);
+        skyboxComponent->SetDayTexture(dayTextures);
+        AddGameObject(skybox);
+    }
+    // clang-format on
 
     auto terrain_textures = CreateTerrainTexturesMap();
     AddTerrain(terrain_textures, glm::vec3(1));
@@ -158,8 +178,8 @@ int MainScene::Initialize()
 
     {
         auto treeGo1 = CreateGameObjectInstance(10.f, vec2(400, 570));
-        AddComponent<Components::RendererComponent>(treeGo1.get())->AddModel(
-            "Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
+        AddComponent<Components::RendererComponent>(treeGo1.get())
+            ->AddModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj");
         AddGameObject(treeGo1);
     }
 
@@ -191,11 +211,12 @@ int MainScene::Initialize()
     }
 
     {
-        auto uplayer = CreateGameObjectInstance(1.8f, vec2(395, 560), true);
+        auto uplayer  = CreateGameObjectInstance(1.8f, vec2(395, 560), true);
         auto animator = AddComponent<Components::Animator>(uplayer.get());
-        AddComponent<Components::RendererComponent>(uplayer.get())->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
+        AddComponent<Components::RendererComponent>(uplayer.get())
+            ->AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
         animator->SetAnimation("Idle");
-        player = uplayer.get();
+        player               = uplayer.get();
         characterController_ = std::make_shared<common::Controllers::CharacterController>(
             player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
         playerInputController_ =

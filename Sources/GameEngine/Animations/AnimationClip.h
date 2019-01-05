@@ -3,57 +3,58 @@
 
 namespace GameEngine
 {
-	namespace Animation
-	{
-		class AnimationClip
-		{
-		public:
-			AnimationClip();
-			AnimationClip(const std::string& name);
-			inline float GetLength() const;
-			inline void AddFrame(const KeyFrame& frame);
-			inline const std::vector<KeyFrame>& GetFrames() const;
-			inline void SetLength(float l);
-			
-		public:
-			std::string name;
+namespace Animation
+{
+class AnimationClip
+{
+public:
+    AnimationClip();
+    AnimationClip(const std::string& name);
+    inline float GetLength() const;
+    inline void AddFrame(const KeyFrame& frame);
+    inline const std::vector<KeyFrame>& GetFrames() const;
+    inline void SetLength(float l);
 
-		private:
-			float length;
-			std::vector<KeyFrame> frames;
-		};
-		
-		inline AnimationClip::AnimationClip()
-			: AnimationClip("No name")
-		{
-		}
+public:
+    std::string name;
 
-		inline AnimationClip::AnimationClip(const std::string& name)
-			: name(name)
-		{
-		}
+private:
+    float length;
+    std::vector<KeyFrame> frames;
+};
 
-		float AnimationClip::GetLength() const
-		{
-			return length;
-		}
+inline AnimationClip::AnimationClip()
+    : AnimationClip("No name")
+{
+}
 
-		void AnimationClip::AddFrame(const KeyFrame& frame)
-		{
-			frames.push_back(frame);
-			if (frame.timeStamp > length)
-				length = frame.timeStamp;
-		}
+inline AnimationClip::AnimationClip(const std::string& name)
+    : name(name)
+    , length(-std::numeric_limits<float>::max())
+{
+}
 
-		inline const std::vector<KeyFrame>& AnimationClip::GetFrames() const
-		{
-			return frames;
-		}
+float AnimationClip::GetLength() const
+{
+    return length;
+}
 
-		inline void AnimationClip::SetLength(float l)
-		{
-			length = l;
-		}
+void AnimationClip::AddFrame(const KeyFrame& frame)
+{
+    frames.push_back(frame);
+    if (frame.timeStamp > length)
+        length = frame.timeStamp;
+}
 
-	} // Animation
-} // GameEngine
+inline const std::vector<KeyFrame>& AnimationClip::GetFrames() const
+{
+    return frames;
+}
+
+inline void AnimationClip::SetLength(float l)
+{
+    length = l;
+}
+
+}  // namespace Animation
+}  // namespace GameEngine

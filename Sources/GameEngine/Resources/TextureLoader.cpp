@@ -167,7 +167,7 @@ Texture* TextureLoader::LoadTextureImmediately(const std::string& file, bool app
     return texture;
 }
 
-Texture* TextureLoader::LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit, bool gpu_pass)
+Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool applySizeLimit, bool gpu_pass)
 {
     if (files.size() != 6)
     {

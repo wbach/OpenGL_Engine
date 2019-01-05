@@ -81,7 +81,7 @@ void DefferedRenderer::AddRenderer()
 
 void DefferedRenderer::CreateRenderers()
 {
-  //   AddRenderer<SkyBoxRenderer>();
+     AddRenderer<SkyBoxRenderer>();
 
     if (EngineConf.renderer.shadows.isEnabled)
         AddRenderer<ShadowMapRenderer>();

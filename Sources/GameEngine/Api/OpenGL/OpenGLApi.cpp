@@ -178,7 +178,7 @@ void OpenGLApi::DeleteMesh(uint32 id)
     if (openGlMeshes_.count(id) == 0)
         return;
 
-    auto& mesh = openGlMeshes_[id];
+    auto& mesh = openGlMeshes_.at(id);
 
     for (auto& vbo : mesh.vbos)
     {
@@ -716,7 +716,7 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     createdObjectIds[rid]             = ObjectType::MESH;
     openGlMeshes_[rid].instancesCount = count;
     openGlMeshes_[rid].patches        = patch;
-    objectId_++;
+    ++objectId_;
     return rid;
 }
 
@@ -724,7 +724,7 @@ uint32 OpenGLApi::CreateMesh(const MeshRawData& meshRawData)
 {
     auto rid              = objectId_;
     createdObjectIds[rid] = ObjectType::MESH;
-    objectId_++;
+    ++objectId_;
 
     auto& mesh = openGlMeshes_[rid];
 
@@ -814,21 +814,21 @@ FloatBufferMatrix GetFloatBufferMatrix(const std::vector<mat4>& matrixes)
 
 void OpenGLApi::UpdateMatrixes(uint32 objectId, const std::vector<mat4>& mat)
 {
-    auto& obj = openGlMeshes_[objectId];
+    auto& obj = openGlMeshes_.at(objectId);
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * mat.size(), &mat[0], GL_STREAM_DRAW);
 }
 void OpenGLApi::UpdateOffset(uint32 objectId, const std::vector<vec4>& offset)
 {
-    auto& obj = openGlMeshes_[objectId];
+    auto& obj = openGlMeshes_.at(objectId);
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TEXTURE_OFFSET]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * offset.size(), &offset[0], GL_STREAM_DRAW);
 }
 void OpenGLApi::UpdateBlend(uint32 objectId, const std::vector<float>& blendFactor)
 {
-    auto& obj = openGlMeshes_[objectId];
+    auto& obj = openGlMeshes_.at(objectId);
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::BLEND_FACTOR]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * blendFactor.size(), &blendFactor[0], GL_STREAM_DRAW);
@@ -843,7 +843,10 @@ uint32 OpenGLApi::CloneImage(uint32 objectId)
 }
 void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
 {
-    const auto& obj = openGlMeshes_[id];
+    if (openGlMeshes_.count(id) == 0)
+        return;
+
+    const auto& obj = openGlMeshes_.at(id);
     glBindVertexArray(obj.vao);
     glDrawArraysInstanced(GL_PATCHES, 0, obj.patches, obj.instancesCount);
     glBindVertexArray(0);
@@ -854,7 +857,7 @@ void OpenGLApi::RenderMesh(uint32 id)
     if (openGlMeshes_.count(id) == 0)
         return;
 
-    auto& mesh = openGlMeshes_[id];
+    auto& mesh = openGlMeshes_.at(id);
 
     Utils::EnableVao ev(mesh.vao, mesh.attributes);
     glDrawElements(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0);
@@ -865,7 +868,7 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
     if (openGlMeshes_.count(id) == 0)
         return;
 
-    auto& mesh = openGlMeshes_[id];
+    auto& mesh = openGlMeshes_.at(id);
 
     Utils::EnableVao ev(mesh.vao, mesh.attributes);
     glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0, istanced);
@@ -876,7 +879,7 @@ void OpenGLApi::RenderPoints(uint32 id)
     if (openGlMeshes_.count(id) == 0)
         return;
 
-    auto& mesh = openGlMeshes_[id];
+    auto& mesh = openGlMeshes_.at(id);
     Utils::EnableVao ev(mesh.vao, {{VertexBufferObjects::POSITION, 0}});
     glDrawArrays(GL_POINTS, 0, mesh.vertexCount);
 }

@@ -13,6 +13,15 @@ class Projection;
 struct RendererContext;
 class IShaderProgram;
 
+struct SkyBoxSubscriber
+{
+    Model* model_;
+    Texture* dayTexture_;
+    Texture* nightTexture_;
+};
+
+typedef std::unordered_map<uint32_t, SkyBoxSubscriber> SkyBoxSubscriberMap;
+
 class SkyBoxRenderer : public IRenderer
 {
 public:
@@ -23,27 +32,21 @@ public:
     virtual void ReloadShaders() override;
 
 private:
-    void InitMembers(Scene* scene);
-    void BindTextures() const;
+    void BindTextures(const SkyBoxSubscriber& sub) const;
     void RenderSkyBoxMesh(const Mesh& mesh) const;
-    void RenderSkyBoxModel();
-    bool CheckModelIsReadyToRender();
+    void RenderSkyBoxModel(const SkyBoxSubscriber& sub);
     void PrepareShaderBeforeFrameRender(Scene* scene);
     void BindCubeMapTexture(Texture* texture, int id) const;
-    void LoadModel(ResourceManager& resource_manager);
-    void CreateDayTextures(ResourceManager& resource_manager);
-    void CreateNightTextures(ResourceManager& resource_manager);
     void PrepareToRendering(Scene* scene);
     void EndRendering();
     void InitShader();
+    mat4 ModifiedViewMatrix(const mat4& viewMatrix) const;
 
 private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
-    Model* model;
-    Texture* dayTexture;
-    Texture* nightTexture;
-    ResourceManager resourceManager;  // TO DO: remove when creat texutres will be outsiede
     vec4 clipPlane;
+    SkyBoxSubscriberMap subscribes_;
+    float rotation_;
 };
 }  // GameEngine

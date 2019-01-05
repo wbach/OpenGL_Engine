@@ -14,8 +14,8 @@ void SkyBoxShader::GetAllUniformLocations()
 {
     uniforms_.resize(SkyBoxShaderUniforms::SIZE);
 
-    uniforms_[SkyBoxShaderUniforms::ViewMatrix]       = GetUniformLocation("ProjectionMatrix");
-    uniforms_[SkyBoxShaderUniforms::ProjectionMatrix] = GetUniformLocation("ViewMatrix");
+    uniforms_[SkyBoxShaderUniforms::ProjectionMatrix] = GetUniformLocation("ProjectionMatrix");
+    uniforms_[SkyBoxShaderUniforms::ViewMatrix]       = GetUniformLocation("ViewMatrix"); 
     uniforms_[SkyBoxShaderUniforms::DayCubeMap]       = GetUniformLocation("DayCubeMap");
     uniforms_[SkyBoxShaderUniforms::NightCubeMap]     = GetUniformLocation("NightCubeMap");
     uniforms_[SkyBoxShaderUniforms::FogColour]        = GetUniformLocation("FogColour");

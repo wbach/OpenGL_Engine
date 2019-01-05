@@ -1,4 +1,6 @@
 #include "EntityRenderer.h"
+#include "EntityRendererDef.h"
+#include "GameEngine/Api/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineMeasurement.h"
@@ -8,13 +10,11 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
 #include "Utils/Time/Timer.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Api/ShadersTypes.h"
-#include "EntityRendererDef.h"
 
 namespace GameEngine
 {
@@ -68,8 +68,8 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
-    subscribes_[gameObject->GetId()] = {rendererComponent->textureIndex, gameObject,
-                                        &rendererComponent->GetModelWrapper()};
+    subscribes_.insert(
+        {gameObject->GetId(), {rendererComponent->textureIndex, gameObject, &rendererComponent->GetModelWrapper()}});
 }
 
 void EntityRenderer::UnSubscribe(GameObject* gameObject)
@@ -124,12 +124,6 @@ void EntityRenderer::RenderEntities()
         if (model == nullptr)
             continue;
 
-        uint32 x = 0;
-        /* for (auto& t : model->GetBoneTransforms())
-             shader.LoadBoneTransform(*t, x++);
-             */
-
-
         currentTextureIndex_ = sub.second.textureIndex;
 
         RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
@@ -181,7 +175,6 @@ void EntityRenderer::BindMaterial(const Material& material) const
     {
         context_.graphicsApi_->ActiveTexture(3, material.specularTexture->GetId());
     }
-
 }
 
 void EntityRenderer::UnBindMaterial(const Material& material) const
