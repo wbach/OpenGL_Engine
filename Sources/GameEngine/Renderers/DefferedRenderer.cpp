@@ -1,4 +1,4 @@
-#include "FullRenderer.h"
+#include "DefferedRenderer.h"
 
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "Objects/Entity/EntityRenderer.h"
@@ -19,23 +19,23 @@
 
 namespace GameEngine
 {
-FullRenderer::FullRenderer(IGraphicsApiPtr graphicsApi, Projection* projection,
+DefferedRenderer::DefferedRenderer(IGraphicsApiPtr graphicsApi, Projection* projection, IShaderFactory& shaderFactory,
                            std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : context_(projection, graphicsApi, std::make_shared<DefferedFrameBuffer>(graphicsApi),
-               std::make_shared<ShadowFrameBuffer>(graphicsApi), rendererFunction)
+               std::make_shared<ShadowFrameBuffer>(graphicsApi), shaderFactory, rendererFunction)
     , postprocessingRenderersManager_(context_)
 {
     CreateRenderers();
-    __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, FullRenderer::Prepare);
-    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, FullRenderer::PostProcess);
+    __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
+    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::PostProcess);
 }
 
-FullRenderer::~FullRenderer()
+DefferedRenderer::~DefferedRenderer()
 {
     Log(__FUNCTION__);
 }
 
-void FullRenderer::Init()
+void DefferedRenderer::Init()
 {
     context_.defferedFrameBuffer_->Init(context_.projection_->GetWindowSize());
     context_.shadowsFrameBuffer_->InitialiseFrameBuffer();
@@ -45,28 +45,28 @@ void FullRenderer::Init()
         renderer->Init();
     }
     postprocessingRenderersManager_.Init();
-    Log("FullRenderer initialized.");
+    Log("DefferedRenderer initialized.");
 }
 
-void FullRenderer::Subscribe(GameObject* gameObject)
+void DefferedRenderer::Subscribe(GameObject* gameObject)
 {
     for (auto& renderer : renderers)
         renderer->Subscribe(gameObject);
 }
 
-void FullRenderer::UnSubscribe(GameObject* gameObject)
+void DefferedRenderer::UnSubscribe(GameObject* gameObject)
 {
     for (auto& r : renderers)
         r->UnSubscribe(gameObject);
 }
 
-void FullRenderer::UnSubscribeAll()
+void DefferedRenderer::UnSubscribeAll()
 {
     for (auto& r : renderers)
         r->UnSubscribeAll();
 }
 
-void FullRenderer::ReloadShaders()
+void DefferedRenderer::ReloadShaders()
 {
     for (auto& renderer : renderers)
         renderer->ReloadShaders();
@@ -74,14 +74,14 @@ void FullRenderer::ReloadShaders()
 }
 
 template <class T>
-void FullRenderer::AddRenderer()
+void DefferedRenderer::AddRenderer()
 {
     renderers.emplace_back(new T(context_));
 }
 
-void FullRenderer::CreateRenderers()
+void DefferedRenderer::CreateRenderers()
 {
-    // AddRenderer<SkyBoxRenderer>();
+     AddRenderer<SkyBoxRenderer>();
 
     if (EngineConf.renderer.shadows.isEnabled)
         AddRenderer<ShadowMapRenderer>();
@@ -99,11 +99,11 @@ void FullRenderer::CreateRenderers()
 
     AddRenderer<WaterRenderer>();
 }
-void FullRenderer::PostProcess(Scene* scene)
+void DefferedRenderer::PostProcess(Scene* scene)
 {
     postprocessingRenderersManager_.Render(scene);
 }
-void FullRenderer::Prepare(Scene*)
+void DefferedRenderer::Prepare(Scene*)
 {
     context_.defferedFrameBuffer_->Clean();
 }

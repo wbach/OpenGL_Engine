@@ -6,21 +6,24 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "Shaders/TreeShaderUniforms.h"
 
 namespace GameEngine
 {
 TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
-    , shader(context.graphicsApi_)
 {
+    shader_ = context.shaderFactory_.create(Shaders::Tree);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TreeRenderer::Render);
 }
 void TreeRenderer::Init()
 {
-    shader.Init();
-    shader.Start();
-    shader.Load(TreeShader::UniformLocation::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
-    shader.Stop();
+    shader_->Init();
+    shader_->Start();
+    shader_->Load(TreeShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Stop();
 }
 void TreeRenderer::Render(Scene* scene)
 {
@@ -31,9 +34,9 @@ void TreeRenderer::Render(Scene* scene)
     }
 
     context_.defferedFrameBuffer_->BindToDraw();
-    shader.Start();
-    shader.Load(TreeShader::UniformLocation::ViewMatrix, scene->GetCamera()->GetViewMatrix());
-    shader.Load(TreeShader::UniformLocation::CameraPosition, scene->GetCamera()->GetPosition());
+    shader_->Start();
+    shader_->Load(TreeShaderUniforms::ViewMatrix, scene->GetCamera()->GetViewMatrix());
+    shader_->Load(TreeShaderUniforms::CameraPosition, scene->GetCamera()->GetPosition());
 
     for (auto& sub : subscribes_)
     {
@@ -46,18 +49,18 @@ void TreeRenderer::Render(Scene* scene)
             model->GetScaleFactor() > bmodel->GetScaleFactor() ? model->GetScaleFactor() : bmodel->GetScaleFactor();
         mat4 normalizeMatrix = glm::scale(vec3(1.f / factor)) * sub.second.transform;
 
-        auto count = sub.second.positions->size();
+        uint32 count = sub.second.positions->size();
 
         context_.graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
-        shader.Load(TreeShader::UniformLocation::PositionMapSize, count);
+        shader_->Load(TreeShaderUniforms::PositionMapSize, count);
         context_.graphicsApi_->DisableCulling();
-        shader.Load(TreeShader::UniformLocation::UseShading, 0.f);
+        shader_->Load(TreeShaderUniforms::UseShading, 0.f);
         RenderModel(model, normalizeMatrix, count);
         context_.graphicsApi_->EnableCulling();
-        shader.Load(TreeShader::UniformLocation::UseShading, 1.f);
+        shader_->Load(TreeShaderUniforms::UseShading, 1.f);
         RenderModel(bmodel, normalizeMatrix, count);
     }
-    shader.Stop();
+    shader_->Stop();
 }
 void TreeRenderer::Subscribe(GameObject* gameObject)
 {
@@ -84,8 +87,8 @@ void TreeRenderer::UnSubscribeAll()
 }
 void TreeRenderer::ReloadShaders()
 {
-    shader.Stop();
-    shader.Reload();
+    shader_->Stop();
+    shader_->Reload();
     Init();
 }
 void TreeRenderer::PreparePositionMap(TreeSubscriber& sub)
@@ -105,7 +108,7 @@ void TreeRenderer::RenderModel(Model* model, const mat4& transorm, uint32 size) 
 }
 void TreeRenderer::RenderMesh(const Mesh& mesh, const mat4& transform, uint32 size) const
 {
-    shader.Load(TreeShader::UniformLocation::NormalizationMatrix, transform);
+    shader_->Load(TreeShaderUniforms::NormalizationMatrix, transform);
     BindMaterial(mesh.GetMaterial());
     context_.graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), size);
 }
@@ -117,10 +120,10 @@ void TreeRenderer::BindMaterial(const Material &material) const
     if (material.isTransparency)
         context_.graphicsApi_->DisableCulling();
 
-    shader.Load(TreeShader::UniformLocation::ModelMaterial_Ambient, material.ambient);
-    shader.Load(TreeShader::UniformLocation::ModelMaterial_Diffuse, material.diffuse);
-    shader.Load(TreeShader::UniformLocation::ModelMaterial_Specular, material.specular);
-    shader.Load(TreeShader::UniformLocation::ModelMaterial_ShineDumper, material.shineDamper);
+    shader_->Load(TreeShaderUniforms::ModelMaterial_Ambient, material.ambient);
+    shader_->Load(TreeShaderUniforms::ModelMaterial_Diffuse, material.diffuse);
+    shader_->Load(TreeShaderUniforms::ModelMaterial_Specular, material.specular);
+    shader_->Load(TreeShaderUniforms::ModelMaterial_ShineDumper, material.shineDamper);
 
     if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
     {

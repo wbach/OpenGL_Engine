@@ -1,36 +1,51 @@
 #pragma once
-//#define _CRT_SECURE_NO_WARNINGS
-#include <list>
-#include <unordered_map>
-#include "GameEngine/Api/IGraphicsApi.h"
 #include "Types.h"
+#include "IShaderProgram.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "Utils.h"
+#include <unordered_map>
+#include <list>
 
 const int MAX_BONES = 50;
 
 namespace GameEngine
 {
-class ShaderProgram
+class ShaderProgram : public IShaderProgram
 {
 public:
-    ShaderProgram(GameEngine::IGraphicsApiPtr graphicsApi);
+    ShaderProgram(IGraphicsApiPtr graphicsApi, const ShadersFiles& files);
     virtual ~ShaderProgram();
 
-    bool Init();
-    void Reload();
-    void SetFiles(const GameEngine::ShadersFiles&);
+    void Init() override;
+    void Reload() override;
+    void SetFiles(const ShadersFiles&) override;
 
-    bool IsReady() const;
-    bool IsReadyToLoad() const;
+    bool IsReady() const override;
+    bool IsReadyToLoad() const override;
 
-    void Start() const;
-    void Stop() const;
+    void Start() const override;
+    void Stop() const override;
+
+	virtual void Load(uint32 varIndex, bool value) const;
+	virtual void Load(uint32 varIndex, int value) const;
+    virtual void Load(uint32 varIndex, uint32 value) const;
+    virtual void Load(uint32 varIndex, float value) const;
+    virtual void Load(uint32 varIndex, const vec2ui& value) const;
+    virtual void Load(uint32 varIndex, const vec2& value) const;
+    virtual void Load(uint32 varIndex, const vec3& value) const;
+    virtual void Load(uint32 varIndex, const vec4& value) const;
+    virtual void Load(uint32 varIndex, const mat3& value) const;
+    virtual void Load(uint32 varIndex, const mat4& value) const;
+    virtual void Load(uint32 varIndex, const std::vector<float>& value) const;
+    virtual void Load(uint32 varIndex, const std::vector<vec3>& value) const;
+    virtual void Load(uint32 varIndex, const std::vector<mat4>& value) const;
 
     uint32 GetUniformLocation(const std::string& uniformName) const;
 
 protected:
     virtual void GetAllUniformLocations()
     {
+
     }
     virtual void BindAttributes()
     {
@@ -45,23 +60,14 @@ protected:
 
     void Clear();
     void BindAttribute(int attribute, const std::string& variableName) const;
-    void LoadValue(uint32 loacation, int value) const;
-    void LoadValue(uint32 loacation, uint32 value) const;
-    void LoadValue(uint32 loacation, float value) const;
-    void LoadValue(uint32 loacation, const vec2ui& value) const;
-    void LoadValue(uint32 loacation, const vec2& value) const;
-    void LoadValue(uint32 loacation, const vec3& value) const;
-    void LoadValue(uint32 loacation, const vec4& value) const;
-    void LoadValue(uint32 loacation, const mat3& value) const;
-    void LoadValue(uint32 loacation, const mat4& value) const;
-    void LoadValue(uint32 loacation, const std::vector<float>& value) const;
-    void LoadValue(uint32 loacation, const std::vector<vec3>& value) const;
+
+protected:
+    std::vector<uint32> uniforms_;
+    IGraphicsApiPtr graphicsApi_;
 
 private:
-    GameEngine::IGraphicsApiPtr graphicsApi_;
-    uint32 programID_;
     std::string name_;
-    GameEngine::ShadersFiles shaderFiles_;
-    std::list<uint32> shaderObjectsList_;
+    uint32 programID_;
+    ShadersFiles shaderFiles_;
 };
 }  // namespace GameEngine

@@ -52,7 +52,7 @@ public:
     }
 
     // Add Entities
-    void AddGameObject(GameObject* object, const vec3& position = vec3(0.f), const vec3& rotation = vec3(0.0f));
+    void AddGameObject(std::unique_ptr<GameObject>& object);
     void RemoveGameObject(GameObject* object);
     void SetAddSceneEventCallback(AddEvent func);
 

@@ -79,10 +79,10 @@ void Scene::PostUpdate()
     componentController_.PostUpdate();
 }
 
-void Scene::AddGameObject(GameObject* object, const vec3& position, const vec3& rotation)
+void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
 {
     object->RegisterComponentFunctions();
-    gameObjects[object->GetId()] = std::unique_ptr<GameObject>(object);
+    gameObjects[object->GetId()] = std::move(object);
 }
 
 void Scene::RemoveGameObject(GameObject* object)

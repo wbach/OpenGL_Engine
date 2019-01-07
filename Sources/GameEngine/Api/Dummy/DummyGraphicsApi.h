@@ -216,7 +216,10 @@ public:
     {
         return ++id;
     }
-
+    virtual ShadersFiles GetShaderFiles(Shaders shaderType) override
+    {
+        return {};
+    }
     // temp
     virtual void CreateFont(const std::string&) override
     {
@@ -230,4 +233,4 @@ private:
     DummyWindowApiPtr dummyWindowApiPtr_;
 };
 typedef std::shared_ptr<DummyGraphicsApi> DummyGraphicsApiPtr;
-}
+}  // namespace GameEngine

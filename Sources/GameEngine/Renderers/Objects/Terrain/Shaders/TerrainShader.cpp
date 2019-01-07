@@ -1,21 +1,20 @@
 #include "TerrainShader.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
+#include "TerrainShaderUniforms.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[TerrainShaderUniforms::X] = GetUniformLocation(#X);
 
 namespace GameEngine
 {
 TerrainShader::TerrainShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Terrain))
 {
-    SetFiles({{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
-              {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
-              {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
-              {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}});
 }
 
 void TerrainShader::GetAllUniformLocations()
 {
+    uniforms_.resize(TerrainShaderUniforms::SIZE);
+
     GetLocation(playerPosition);
     GetLocation(lightDirection);
     GetLocation(modelViewProjectionMatrix);
@@ -45,13 +44,10 @@ void TerrainShader::BindAttributes()
 {
 }
 
-#define ConnectTerrainTexture(X) LoadValue(uniformLocations.at(UniformLocation::X), static_cast<int>(TerrainTextureType::X));
+#define ConnectTerrainTexture(X) Load(TerrainShaderUniforms::X, static_cast<int>(TerrainTextureType::X));
 
 void TerrainShader::ConnectTextureUnits() const
 {
-    if (uniformLocations.count(UniformLocation::shadowMap) > 0)
-        LoadValue(uniformLocations.at(UniformLocation::shadowMap), 0);
-
     ConnectTerrainTexture(blendMap);
     ConnectTerrainTexture(backgorundTexture);
     ConnectTerrainTexture(backgorundTextureNormal);
@@ -67,4 +63,5 @@ void TerrainShader::ConnectTextureUnits() const
     ConnectTerrainTexture(snowNormalTexture);
     ConnectTerrainTexture(displacementMap);
 }
-}
+
+}  // namespace GameEngine

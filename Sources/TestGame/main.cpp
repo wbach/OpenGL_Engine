@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
         }
         else if (arg == "-D")
         {
-            api = std::make_shared<GameEngine::DummyGraphicsApi>();
+            //api = std::make_shared<GameEngine::DummyGraphicsApi>();
         }
     }
 

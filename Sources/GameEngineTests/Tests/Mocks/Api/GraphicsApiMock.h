@@ -31,6 +31,7 @@ struct GraphicsApiMock : public IGraphicsApi
     MOCK_METHOD2(LoadValueToShader, void(uint32, const mat4&));
     MOCK_METHOD2(LoadValueToShader, void(uint32, const std::vector<float>&));
     MOCK_METHOD2(LoadValueToShader, void(uint32, const std::vector<vec3>&));
+    MOCK_METHOD2(LoadValueToShader, void(uint32, const std::vector<mat4>&));
     MOCK_METHOD6(CreateTexture, uint32(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui, void* data));
     MOCK_METHOD2(CreateCubMapTexture, uint32(vec2ui, std::vector<void*>));
     MOCK_METHOD1(SetBuffers, void(const std::vector<BufferAtachment>&));
@@ -68,6 +69,7 @@ struct GraphicsApiMock : public IGraphicsApi
     MOCK_METHOD2(UpdateOffset, void(uint32, const std::vector<vec4>&));
     MOCK_METHOD2(UpdateBlend, void(uint32, const std::vector<float>&));
     MOCK_METHOD1(CloneImage, uint32(uint32));
+    MOCK_METHOD1(GetShaderFiles, ShadersFiles(Shaders));
 
     // temp
     MOCK_METHOD1(CreateFont, void(const std::string&));

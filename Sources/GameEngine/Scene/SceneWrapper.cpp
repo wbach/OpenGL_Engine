@@ -5,8 +5,10 @@
 
 namespace GameEngine
 {
-SceneWrapper::SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager)
+SceneWrapper::SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+                           IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
+    , shaderFactory_(shaderFactory)
     , displayManager_(displayManager)
     , state_(SceneWrapperState::SceneNotSet)
 {
@@ -30,7 +32,7 @@ void SceneWrapper::Init()
     }
     SaveSetState(SceneWrapperState::Initializing);
 
-    SceneLoader sceneloader(graphicsApi_, displayManager_);
+    SceneLoader sceneloader(graphicsApi_, displayManager_, shaderFactory_);
     if (!sceneloader.Load(activeScene.get()))
         return;
 

@@ -7,8 +7,9 @@
 
 namespace GameEngine
 {
-SceneLoader::SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager)
+SceneLoader::SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
+    , shaderFactory_(shaderFactory)
     , objectCount(0)
     , objectLoaded(0)
     , displayManager(displayManager)
@@ -47,7 +48,8 @@ void SceneLoader::Init()
         resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false, ObjectTextureType::MATERIAL);
     auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately(
         "GUI/black-knight-dark-souls.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
-    loadingScreenRenderer = std::make_unique<LoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture);
+    loadingScreenRenderer =
+        std::make_unique<LoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture, shaderFactory_);
     loadingScreenRenderer->Init();
 }
 

@@ -5,7 +5,6 @@
 #include "Mutex.hpp"
 #include "Thread.hpp"
 
-
 namespace GameEngine
 {
 class Scene;
@@ -13,11 +12,13 @@ class GpuObject;
 class DisplayManager;
 class ResourceManager;
 class LoadingScreenRenderer;
+class IShaderFactory;
 
 class SceneLoader
 {
 public:
-    SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager);
+    SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+                IShaderFactory& shaderFactory);
     ~SceneLoader();
     bool Load(Scene* scene);
 
@@ -36,6 +37,8 @@ private:
 
 private:
     IGraphicsApiPtr graphicsApi_;
+    IShaderFactory& shaderFactory_;
+
     int objectCount;
     int objectLoaded;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
@@ -46,4 +49,4 @@ private:
     std::shared_ptr<DisplayManager>& displayManager;
     ResourceManager resorceManager;
 };
-}  // GameEngine
+}  // namespace GameEngine

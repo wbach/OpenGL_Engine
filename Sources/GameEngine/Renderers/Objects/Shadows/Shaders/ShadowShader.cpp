@@ -1,35 +1,26 @@
 #include "ShadowShader.h"
+#include "ShadowShaderUniforms.h"
 
 #define GetLocation(X) uniformLocations[UniformLocation::X].push_back(GetUniformLocation(#X))
 
 namespace GameEngine
 {
 ShadowShader::ShadowShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Shadows))
 {
-}
-
-void ShadowShader::Init()
-{
-    SetFiles({{"Shadows/ShadowVertexShader.vert", ShaderType::VERTEX_SHADER},
-              {"Shadows/ShadowFragmentShader.frag", ShaderType::FRAGMENT_SHADER}});
-
-    ShaderProgram::Init();
 }
 
 void ShadowShader::GetAllUniformLocations()
 {
-    GetLocation(TransformationMatrix);
-    GetLocation(ProjectionViewMatrix);
-    GetLocation(UseBoneTransform);
+    uniforms_.resize(ShadowShaderUniforms::SIZE);
 
-    for (int x = 0; x < MAX_BONES; x++)
-        uniformLocations[UniformLocation::BonesTransforms].push_back(
-            GetUniformLocation("BonesTransforms[" + std::to_string(x) + "]"));
-
-    GetLocation(NumberOfRows);
-    GetLocation(TextureOffset);
-    GetLocation(ModelTexture);
+    uniforms_[ShadowShaderUniforms::TransformationMatrix] = GetUniformLocation("TransformationMatrix");
+    uniforms_[ShadowShaderUniforms::ProjectionViewMatrix] = GetUniformLocation("ProjectionViewMatrix");
+    uniforms_[ShadowShaderUniforms::UseBoneTransform]     = GetUniformLocation("UseBoneTransform");
+    uniforms_[ShadowShaderUniforms::NumberOfRows]         = GetUniformLocation("NumberOfRows");
+    uniforms_[ShadowShaderUniforms::TextureOffset]        = GetUniformLocation("TextureOffset");
+    uniforms_[ShadowShaderUniforms::ModelTexture]         = GetUniformLocation("ModelTexture");
+    uniforms_[ShadowShaderUniforms::BonesTransforms]      = GetUniformLocation("BonesTransforms");
 }
 
 void ShadowShader::BindAttributes()
@@ -41,10 +32,7 @@ void ShadowShader::BindAttributes()
 }
 void ShadowShader::ConnectTextureUnits() const
 {
-    if (uniformLocations.count(ModelTexture) == 0 || uniformLocations.at(ModelTexture).empty())
-    {
-        return;
-    }
-    LoadValue(uniformLocations.at(UniformLocation::ModelTexture)[0], 0);
+    Load(ShadowShaderUniforms::ModelTexture, 1);
 }
-}  // namespace GameEngine
+
+}// namespace GameEngine

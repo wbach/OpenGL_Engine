@@ -5,26 +5,26 @@
 
 namespace GameEngine
 {
-SimpleRenderer::SimpleRenderer(IGraphicsApiPtr api, Projection* projection_matrix,
+SimpleRenderer::SimpleRenderer(IGraphicsApiPtr api, Projection* projection_matrix, IShaderFactory& shaderFactory,
                                std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : graphicsApi_(api)
-    , shader(api)
+   // , shader(api)
     , projectionMatrix(projection_matrix)
 {
 }
 
 void SimpleRenderer::Init()
 {
-    shader.Init();
-    shader.Start();
-    shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
-    shader.Stop();
+    //shader.Init();
+    //shader.Start();
+    //shader.LoadProjectionMatrix(projectionMatrix->GetProjectionMatrix());
+    //shader.Stop();
 }
 
 void SimpleRenderer::PrepareFrame(Scene* scene)
 {
-    shader.Start();
-    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());
+   /* shader.Start();
+    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix());*/
 }
 
 void SimpleRenderer::Render(Scene* scene)
@@ -40,7 +40,7 @@ void SimpleRenderer::Render(Scene* scene)
 
 void SimpleRenderer::EndFrame(Scene* scene)
 {
-    shader.Stop();
+   // shader.Stop();
 }
 
 void SimpleRenderer::Subscribe(GameObject* gameObject)
@@ -64,14 +64,14 @@ void SimpleRenderer::UnSubscribe(GameObject* gameObject)
 
 void SimpleRenderer::ReloadShaders()
 {
-    shader.Stop();
+   /* shader.Stop();
     shader.Reload();
-    Init();
+    Init();*/
 }
 
 void SimpleRenderer::RenderModel(Model* model, const mat4& transform_matrix) const
 {
-    shader.LoadTransformMatrix(transform_matrix);
+  //  shader.LoadTransformMatrix(transform_matrix);
 
     for (const auto& mesh : model->GetMeshes())
     {

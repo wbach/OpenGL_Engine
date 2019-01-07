@@ -1,4 +1,5 @@
 #include "GuiTextureShader.h"
+#include "GuiTextureShaderUniforms.h"
 
 namespace GameEngine
 {
@@ -7,28 +8,19 @@ namespace Renderer
 namespace Gui
 {
 GuiTextureShader::GuiTextureShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Texture))
 {
 }
-void GuiTextureShader::Init()
-{
-    SetFiles({{"Gui/guiVertexShader.vert", ShaderType::VERTEX_SHADER},
-              {"Gui/guiFragmentShader.frag", ShaderType::FRAGMENT_SHADER}});
 
-    ShaderProgram::Init();
-}
 void GuiTextureShader::GetAllUniformLocations()
 {
-    location_transformationMatrix = GetUniformLocation("transformationMatrix");
+    uniforms_.resize(GuiTextureShaderUniforms::SIZE);
+    uniforms_[GuiTextureShaderUniforms::TransformationMatrix] = GetUniformLocation("transformationMatrix");
 }
 void GuiTextureShader::BindAttributes()
 {
     BindAttribute(0, "position");
 }
-void GuiTextureShader::LoadTransformMatrix(const glm::mat4& matrix) const
-{
-    LoadValue(location_transformationMatrix, matrix);
-}
-}  // Gui
-}  // Renderer
-}  // GameEngine
+}  // namespace Gui
+}  // namespace Renderer
+}  // namespace GameEngine

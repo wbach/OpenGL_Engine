@@ -1,20 +1,20 @@
 #include "TreeShader.h"
 #include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
+#include "TreeShaderUniforms.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[TreeShaderUniforms::X] = GetUniformLocation(#X)
 
 namespace GameEngine
 {
 TreeShader::TreeShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Tree))
 {
-    SetFiles({
-        {"Tree/TreeShader.vert", ShaderType::VERTEX_SHADER}, {"Tree/TreeShader.frag", ShaderType::FRAGMENT_SHADER},
-    });
 }
 
 void TreeShader::GetAllUniformLocations()
 {
+    uniforms_.resize(TreeShaderUniforms::SIZE);
+
     GetLocation(ViewMatrix);
     GetLocation(ProjectionMatrix);
     GetLocation(DiffuseTexture);
@@ -24,10 +24,10 @@ void TreeShader::GetAllUniformLocations()
     GetLocation(PositionMapSize);
     GetLocation(CameraPosition);
 
-    uniformLocations[UniformLocation::ModelMaterial_Ambient]     = GetUniformLocation("ModelMaterial.ambient");
-    uniformLocations[UniformLocation::ModelMaterial_Diffuse]     = GetUniformLocation("ModelMaterial.diffuse");
-    uniformLocations[UniformLocation::ModelMaterial_Specular]    = GetUniformLocation("ModelMaterial.specular");
-    uniformLocations[UniformLocation::ModelMaterial_ShineDumper] = GetUniformLocation("ModelMaterial.shineDamper");
+    uniforms_[TreeShaderUniforms::ModelMaterial_Ambient]     = GetUniformLocation("ModelMaterial.ambient");
+    uniforms_[TreeShaderUniforms::ModelMaterial_Diffuse]     = GetUniformLocation("ModelMaterial.diffuse");
+    uniforms_[TreeShaderUniforms::ModelMaterial_Specular]    = GetUniformLocation("ModelMaterial.specular");
+    uniforms_[TreeShaderUniforms::ModelMaterial_ShineDumper] = GetUniformLocation("ModelMaterial.shineDamper");
 }
 void TreeShader::BindAttributes()
 {
@@ -36,11 +36,9 @@ void TreeShader::BindAttributes()
     BindAttribute(2, "Normal");
 }
 
-#define ConnectTerrainTexture(X, Y) LoadValue(uniformLocations.at(UniformLocation::X), Y);
-
 void TreeShader::ConnectTextureUnits() const
 {
-    ConnectTerrainTexture(PositionMap, 0);
-    ConnectTerrainTexture(DiffuseTexture, 1);
+    Load(TreeShaderUniforms::PositionMap, 0);
+    Load(TreeShaderUniforms::DiffuseTexture, 1);
 }
-}
+}  // namespace GameEngine

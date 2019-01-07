@@ -91,8 +91,8 @@ void PhysicsScene::AddBox(const vec3& pos, const vec3& dir, float scale, bool is
         rigidbody->SetMass(0.f);
     }
 
-    AddGameObject(object);
     rigidbody->SetVelocity(dir);
+    AddGameObject(std::unique_ptr<GameObject>(object));
 }
 
 void PhysicsScene::AddSphere(const vec3& pos, const vec3& dir, float scale, bool isStatic)
@@ -114,8 +114,8 @@ void PhysicsScene::AddSphere(const vec3& pos, const vec3& dir, float scale, bool
         rigidbody->SetMass(0.f);
     }
 
-    AddGameObject(object);
     rigidbody->SetVelocity(dir);
+    AddGameObject(std::unique_ptr<GameObject>(object));
 }
 
 const std::string OBJECT_COUNT_GUI_TEXT = "objectsCount";
@@ -127,9 +127,9 @@ void PhysicsScene::UpdateObjectsCountText()
 
 void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
 {
-    for (int y = offset.y; y < offset.y + 50; y += 2)
+    for (int y = static_cast<int>(offset.y); y < static_cast<int>(offset.y) + 50; y += 2)
     {
-        for (int x = offset.x; x < offset.x + 50; x += 2)
+        for (int x = static_cast<int>(offset.x); x < static_cast<int>(offset.x) + 50; x += 2)
         {
             AddBox(vec3(x, 200, y), vec3(0), 1.f, false);
         }
@@ -195,7 +195,7 @@ int PhysicsScene::Initialize()
     camera->SetPosition(vec3(-0, 42, 0));
 
     AddBarrel(vec3(0, 42, 0));
-
+    AddSphere(vec3(0), vec3(1.f)* 20.f, 1.0f);
     //{
     //	auto object = CreateGameObject(1, vec3(512, 0, 0));
     //	AddComponent<Components::RendererComponent>(object)->AddModel("Meshes/SimpleCube.obj");
@@ -227,6 +227,8 @@ int PhysicsScene::Initialize()
     auto terrain_textures = CreateTerrainTexturesMap();
     auto terrain          = AddTerrain(terrain_textures, glm::vec3(1));
     terrain->GetHeight(0, 0);
+    terrain->worldTransform.SetPosition(vec3(1));
+    terrain->worldTransform.TakeSnapShoot();
 
     {
         auto terrainShapeComponent = AddComponent<Components::TerrainShape>(terrain);
@@ -240,7 +242,8 @@ int PhysicsScene::Initialize()
         rigidbody->SetIsStatic(true);
         rigidbody->SetMass(0.f);
     }
-    AddGameObject(terrain, glm::vec3(1));
+
+    AddGameObject(std::unique_ptr<GameObject>(terrain));
 
     KeyOperations();
 
@@ -303,7 +306,7 @@ void PhysicsScene::AddBarrel(const vec3& pos)
     rigidbody->SetIsStatic(false);
     rigidbody->SetCollisionShape(meshShape);
 
-    AddGameObject(object);
+    AddGameObject(std::unique_ptr<GameObject>(object));
 }
 
 int PhysicsScene::Update(float dt)

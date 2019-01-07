@@ -34,8 +34,8 @@ int MainRpgScene::Initialize()
     modelsCreator_ = std::make_unique<ModelsCreator>(resourceManager_.get());
     networkCharacterManager_ =
         std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_,
-                                                  std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1,
-                                                            std::placeholders::_2, std::placeholders::_3));
+                                                  std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1));
+
     networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
 
     dispatcher_.AddHandler("GetCharacterDataHandler", new GetCharacterDataHandler(*networkCharacterManager_));
@@ -45,8 +45,10 @@ int MainRpgScene::Initialize()
     ReqNetworkSceneCharacters();
 
     auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager_.get(), "Meshes/Bialczyk/Bialczyk.obj");
-    AddGameObject(bialczyk_obj, glm::vec3(100, 17, -7));
     renderersManager_->Subscribe(bialczyk_obj);
+    bialczyk_obj->worldTransform.SetPosition(vec3(100, 17, -7));
+    bialczyk_obj->worldTransform.TakeSnapShoot();
+    AddGameObject(std::unique_ptr<GameObject>(bialczyk_obj));
 
     // camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
     playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_, gateway_);

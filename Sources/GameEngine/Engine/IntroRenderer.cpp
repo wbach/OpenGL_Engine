@@ -1,15 +1,18 @@
 #include "IntroRenderer.h"
 #include "../Display/DisplayManager.hpp"
-#include "../Shaders/Loading/LoadingShader.h"
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GameEngine/Shaders/Loading/LoadingShaderUnfiorms.h"
 
 namespace GameEngine
 {
-IntroRenderer::IntroRenderer(GameEngine::IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager)
+IntroRenderer::IntroRenderer(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+                             IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
+    , shaderFactory_(shaderFactory)
     , resorceManager_(graphicsApi)
-    , shader_(graphicsApi)
     , initialized_(false)
 {
 }
@@ -30,7 +33,8 @@ void IntroRenderer::Render()
 }
 void IntroRenderer::Init()
 {
-    shader_.Init();
+    shader_ = shaderFactory_.create(Shaders::Loading);
+    shader_->Init();
     backgroundTexture_ = resorceManager_.GetTextureLaoder().LoadTextureImmediately(
         "GUI/start1.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
     initialized_ = true;
@@ -38,18 +42,18 @@ void IntroRenderer::Init()
 
 void IntroRenderer::RenderThis()
 {
-    shader_.Start();
+    shader_->Start();
     graphicsApi_->EnableDepthTest();
     graphicsApi_->PrepareFrame();
     renderQuad(mat4(1.f), backgroundTexture_->GetId());
-    shader_.Stop();
+    shader_->Stop();
 }
 
 void IntroRenderer::renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const
 {
     graphicsApi_->ActiveTexture(0, textureId);
-    shader_.LoadTransformMatrix(transformMatrix);
+    shader_->Load(LoadingShaderUniforms::TransformMatrix, transformMatrix);
     graphicsApi_->RenderQuad();
 }
 
-}  // GameEngine
+}  // namespace GameEngine

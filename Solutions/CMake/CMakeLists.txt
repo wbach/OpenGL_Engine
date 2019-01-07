@@ -41,13 +41,13 @@ SET( CMAKE_CXX_FLAGS  "-std=c++14 -Wuninitialized -Wtype-limits -Wdelete-incompl
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
 add_compile_options(
-    -std=c++14
+    -std=c++17
 )
 
 if(BUILD_I386)
-    add_compile_options( -m32   )
-        set_property(GLOBAL PROPERTY COMPILE_FLAGS "-m32")
-        set_property(GLOBAL PROPERTY  LINK_FLAGS "-m32")
+    add_compile_options(-m32)
+    set_property(GLOBAL PROPERTY COMPILE_FLAGS "-m32")
+    set_property(GLOBAL PROPERTY  LINK_FLAGS "-m32")
     #set_target_properties(GLOBAL PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
@@ -55,37 +55,45 @@ include(./Sources/WindowsSources.cmake)
 include(./Sources/Unix.cmake)
 
 include_directories(
-../../Sources/
-../../Sources/Utils/
-../../Sources/UtilsNetwork/
-../../Tools/common/
-../../Tools/common/glm
-../../Tools/common/bullet/src/
-../../Tools/common/rapidxml-1.13/
+    ../../Sources/
+    ../../Sources/Utils/
+    ../../Sources/UtilsNetwork/
+    ../../Tools/common/
+    ../../Tools/common/glm
+    ../../Tools/common/bullet/src/
+    ../../Tools/common/rapidxml-1.13/
 )
 
 if(BUILD_UTILS)
     include(./Sources/UtilsSources.cmake)
     add_library(UtilsLib ${UtilsSources})
-    set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
 endif()
 
 if(BUILD_UTILS_NETWORK)
     include(./Sources/UtilsNetworkSources.cmake)
     add_library(UtilsNetworkLib ${UtilsNetworkSources})
-set_target_properties(UtilsNetworkLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(UtilsNetworkLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
 endif()
 
 if(BUILD_COMMON)
     include(./Sources/CommonSources.cmake)
     add_library(CommonLib ${CommonSources})
-    set_target_properties(CommonLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(CommonLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
 endif()
 
 if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
     include(./Sources/GameEngineSources.cmake)
     add_library(GameEngineLib ${GameEngineSources})
-set_target_properties(GameEngineLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(GameEngineLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
 endif()
 
 if(BUILD_TEST_GAME)
@@ -95,14 +103,18 @@ if(BUILD_TEST_GAME)
     )
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
-    set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
     target_link_libraries(TestGlGame GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs})
 endif()
 
 if(BUILD_RPG_GAME_SERVER)
     include(./Sources/RpgGameServerSources.cmake)
     add_executable(RpgGameServer ${RpgGameServerSources})
-    set_target_properties(RpgGameServer PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(RpgGameServer PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
     target_link_libraries(RpgGameServer  UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs})
 endif()
 
@@ -123,14 +135,16 @@ endif()
 
 if(BUILD_TESTS)
     include_directories(
-    ../../Sources/GameEngine/
+        ../../Sources/GameEngine/
     )
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
     
     include(./Sources/GameEngineTestsSources.cmake)
     add_executable(GAME_ENGINE_TESTS ${GameEngineTestsSources})
-    set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    if(BUILD_I386)
+        set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
     target_link_libraries(GAME_ENGINE_TESTS GameEngineLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs})
 endif()
 

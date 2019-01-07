@@ -19,7 +19,7 @@ class Game
 public:
     Game(IGraphicsApiPtr gptr)
         : serverAdress(Utils::ReadFile("./server.conf"))
-        , engine(gptr, makeBulletAdapter(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+        , engine(gptr, std::make_shared<BulletAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
     {
         Log("Server : " + serverAdress);
 

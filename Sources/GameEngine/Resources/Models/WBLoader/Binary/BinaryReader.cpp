@@ -96,9 +96,10 @@ void ReadFile(std::ifstream& file, Animation::AnimationClip& clip)
         clip.AddFrame(keyFrame);
     }
 
-    if (fabs(correctLength - clip.GetLength()) < std::numeric_limits<float>::epsilon())
+    auto diff = fabs(correctLength - clip.GetLength());
+    if (diff < std::numeric_limits<float>::epsilon())
     {
-        Error("Animation length is diffrent.");
+        Error("Animation length is diffrent : " + std::to_string(diff));
     }
 }
 

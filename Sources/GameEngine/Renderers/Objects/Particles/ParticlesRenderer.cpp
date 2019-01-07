@@ -6,6 +6,10 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Shaders/ParticlesShadersUniforms.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Api/ShadersTypes.h"
 
 namespace GameEngine
 {
@@ -25,12 +29,12 @@ float polynomialFunction(float blend)
 }
 ParticlesRenderer::ParticlesRenderer(RendererContext& context)
     : context_(context)
-    , shader(context.graphicsApi_)
-    , animatedShader_(context.graphicsApi_)
     , particleObjecId(0)
     , currentUseAnimation(false)
     , textureNumberOfrows(1)
 {
+    shader_ = context.shaderFactory_.create(Shaders::Particles);
+    animatedShader_ = context.shaderFactory_.create(Shaders::AnimatedParticles);
     __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, ParticlesRenderer::Render);
 }
 void ParticlesRenderer::Init()
@@ -77,9 +81,9 @@ void ParticlesRenderer::UnSubscribeAll()
 }
 void ParticlesRenderer::ReloadShaders()
 {
-    shader.Stop();
-    shader.Reload();
-    animatedShader_.Reload();
+    shader_->Stop();
+    shader_->Reload();
+    animatedShader_->Reload();
     InitShaders();
 }
 void ParticlesRenderer::PrepareFrame()
@@ -138,11 +142,11 @@ void ParticlesRenderer::RenderInstances(uint32 size)
 }
 void ParticlesRenderer::StartShader()
 {
-    currentUseAnimation ? animatedShader_.Start() : shader.Start();
+    currentUseAnimation ? animatedShader_->Start() : shader_->Start();
 }
 void ParticlesRenderer::StopShader()
 {
-    currentUseAnimation ? animatedShader_.Stop() : shader.Stop();
+    currentUseAnimation ? animatedShader_->Stop() : shader_->Stop();
 }
 mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix)
 {
@@ -168,16 +172,16 @@ mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotati
 
 void ParticlesRenderer::InitShaders()
 {
-    shader.Init();
-    shader.Start();
-    shader.Load(ParticlesShader::UniformLocation::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
-    shader.Stop();
+    shader_->Init();
+    shader_->Start();
+    shader_->Load(ParticlesShadersUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Stop();
 
-    animatedShader_.Init();
-    animatedShader_.Start();
-    animatedShader_.Load(AnimatedParticlesShader::UniformLocation::ProjectionMatrix,
+    animatedShader_->Init();
+    animatedShader_->Start();
+    animatedShader_->Load(ParticlesShadersUniforms::ProjectionMatrix,
                          context_.projection_->GetProjectionMatrix());
-    animatedShader_.Stop();
+    animatedShader_->Stop();
 }
 
 void ParticlesRenderer::UpdateTexture(Texture* texture)
@@ -190,7 +194,7 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
     if (currentUseAnimation)
     {
         textureNumberOfrows = texture->numberOfRows;
-        animatedShader_.Load(AnimatedParticlesShader::UniformLocation::NumberOfRows,
+        animatedShader_->Load(ParticlesShadersUniforms::NumberOfRows,
                              static_cast<float>(textureNumberOfrows));
     }
 

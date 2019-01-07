@@ -12,6 +12,7 @@ namespace GameEngine
 class Scene;
 class GameObject;
 struct GuiTextElement;
+class IShaderFactory;
 
 namespace Renderer
 {
@@ -23,7 +24,7 @@ class GuiTextureElement;
 class RenderersManager
 {
 public:
-    RenderersManager(IGraphicsApiPtr graphicsApi);
+    RenderersManager(IGraphicsApiPtr graphicsApi, IShaderFactory& shaderFactory);
     void Init();
     const Projection& GetProjection() const;
     void RenderScene(Scene* scene);
@@ -54,6 +55,7 @@ private:
     Projection projection_;
     std::list<GameObject*> dynamincObjects_;
     RendererFunctions rendererFunctions_;
+    IShaderFactory& shaderFactory_;
 };
 }  // Renderer
 }  // GameEngine

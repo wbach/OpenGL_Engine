@@ -10,26 +10,26 @@ namespace GameEngine
 class Measurement
 {
 public:
-    void Add(uint64 value);
-    uint64 GetLastValue() const
+    void Add(uint64_t value);
+	uint64_t GetLastValue() const
     {
         return lastValue_;
     }
-    uint64 GetMeanValue() const
+	uint64_t GetMeanValue() const
     {
-        return meanValue_;
+        return static_cast<uint64_t>(meanValue_);
     }
 
 private:
-    uint64 lastValue_;
+	uint64_t lastValue_;
     float meanValue_;
-    uint64 count_;
+	uint64_t count_;
 };
 
 class EngineMeasurement
 {
 public:
-    void Add(const std::string& name, uint64 value);
+    void Add(const std::string& name, uint64_t value);
     void WriteToFile(const std::string& fileName);
 
 private:

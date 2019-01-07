@@ -2,12 +2,13 @@
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "Shaders/PlantsShader.h"
 
 class CProjection;
 
 namespace GameEngine
 {
+class IShaderProgram;
+
 class PlantsRenderer : public IRenderer
 {
 public:
@@ -21,6 +22,6 @@ public:
 
 private:
     RendererContext& context_;
-    PlantsShader shader;
+    std::unique_ptr<IShaderProgram> shader_;
 };
 }  // GameEngine

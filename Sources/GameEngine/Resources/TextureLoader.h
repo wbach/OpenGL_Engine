@@ -17,7 +17,7 @@ public:
     // Return place in texture loader not in OpenGL
     Texture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool gpu_pass = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override;
     Texture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override;
-    Texture* LoadCubeMap(std::vector<std::string>& files, bool applySizeLimit = true, bool gpu_pass = true) override;
+    Texture* LoadCubeMap(const std::vector<std::string>& files, bool applySizeLimit = true, bool gpu_pass = true) override;
     Texture* LoadHeightMap(const std::string& filename, bool gpu_pass = true) override;
     void CreateHeightMap(const std::string& input, const std::string& output) override;
     IGraphicsApiPtr GetGraphicsApi() override;

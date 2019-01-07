@@ -23,31 +23,8 @@ private:
     };
 
 public:
-    enum UniformLocation
-    {
-        PositionMap,
-        ColorMap,
-        NormalMap,
-        SpecularMap,
-        DepthTexture,
-        CameraPosition,
-        ScreenSize,
-        NumberOfLights,
-        SkyColour,
-        ViewDistance,
-    };
     DefferedShader(IGraphicsApiPtr graphicsApi);
 
-    template <class T>
-    void Load(UniformLocation location, const T& value) const
-    {
-        if (uniformLocations.count(location) == 0)
-        {
-            Log("CTerrainShader : Try load to shader not set variable : " + std::to_string(location));
-            return;
-        }
-        LoadValue(uniformLocations.at(location), value);
-    }
     void LoadLight(uint32 index, const Light& light);
 
 private:
@@ -56,7 +33,6 @@ private:
     virtual void ConnectTextureUnits() const override;
 
 protected:
-    std::unordered_map<UniformLocation, uint32> uniformLocations;
     LightParamsLocations lightParamsLocations_[MAX_LIGHTS];
 };
 }  // GameEngine

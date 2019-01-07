@@ -1,23 +1,21 @@
 #include "DefferedShader.h"
 #include "GameEngine/Lights/Light.h"
+#include "DefferedShaderUniforms.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[DefferedShaderUniforms::X] = GetUniformLocation(#X)
 
 namespace GameEngine
 {
 DefferedShader::DefferedShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Deffered))
 {
-    SetFiles({
-        {"Light/LightPassShader.vert", ShaderType::VERTEX_SHADER},
-        {"Light/LightPassShader.frag", ShaderType::FRAGMENT_SHADER},
-    });
 
-    ShaderProgram::Init();
 }
 
 void DefferedShader::GetAllUniformLocations()
 {
+    uniforms_.resize(DefferedShaderUniforms::SIZE + MAX_LIGHTS);
+
     GetLocation(PositionMap);
     GetLocation(ColorMap);
     GetLocation(NormalMap);
@@ -41,12 +39,12 @@ void DefferedShader::GetAllUniformLocations()
 void DefferedShader::LoadLight(uint32 index, const Light& light)
 {
     const auto& l = lightParamsLocations_[index];
-    LoadValue(l.type, static_cast<int>(light.GetType()));
-    LoadValue(l.attenuation, light.GetAttenuation());
-    LoadValue(l.colour, light.GetColour());
-    LoadValue(l.cutOff, light.GetCutoff());
-    LoadValue(l.position, light.GetPosition());
-    LoadValue(l.direction, light.GetDirection());
+    graphicsApi_->LoadValueToShader(l.type, static_cast<int>(light.GetType()));
+    graphicsApi_->LoadValueToShader(l.attenuation, light.GetAttenuation());
+    graphicsApi_->LoadValueToShader(l.colour, light.GetColour());
+    graphicsApi_->LoadValueToShader(l.cutOff, light.GetCutoff());
+    graphicsApi_->LoadValueToShader(l.position, light.GetPosition());
+    graphicsApi_->LoadValueToShader(l.direction, light.GetDirection());
 }
 void DefferedShader::BindAttributes()
 {
@@ -55,10 +53,10 @@ void DefferedShader::BindAttributes()
 }
 void DefferedShader::ConnectTextureUnits() const
 {
-    LoadValue(uniformLocations.at(PositionMap), 0);
-    LoadValue(uniformLocations.at(ColorMap), 1);
-    LoadValue(uniformLocations.at(NormalMap), 2);
-    LoadValue(uniformLocations.at(SpecularMap), 3);
-    LoadValue(uniformLocations.at(DepthTexture), 4);
+    Load(DefferedShaderUniforms::PositionMap, 0);
+    Load(DefferedShaderUniforms::ColorMap, 1);
+    Load(DefferedShaderUniforms::NormalMap, 2);
+    Load(DefferedShaderUniforms::SpecularMap, 3);
+    Load(DefferedShaderUniforms::DepthTexture, 4);
 }
 }  // GameEngine

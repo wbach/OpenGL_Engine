@@ -1,145 +1,123 @@
 #include "SkyBoxRenderer.h"
+#include "GameEngine/Api/ShadersTypes.h"
+#include "GameEngine/Components/Renderer/SkyBoxComponent.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
+#include "Shaders/SkyBoxShaderUniforms.h"
 
 namespace GameEngine
 {
 SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     : context_(context)
-    , shader(context.graphicsApi_)
-    , model(nullptr)
-    , dayTexture(nullptr)
-    , nightTexture(nullptr)
-    , resourceManager(context.graphicsApi_)
+    , rotation_(0.f)
 {
+    shader_ = context.shaderFactory_.create(Shaders::SkyBox);
     __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkyBoxRenderer::Render);
 }
 
 void SkyBoxRenderer::Init()
 {
     InitShader();
-    Log("Skybox renderer initialized.");
 }
 
 void SkyBoxRenderer::PrepareToRendering(Scene* scene)
 {
     context_.graphicsApi_->DisableCulling();
-    shader.Start();
+    shader_->Start();
     PrepareShaderBeforeFrameRender(scene);
 }
 
 void SkyBoxRenderer::EndRendering()
 {
     context_.graphicsApi_->EnableCulling();
-    shader.Stop();
+    shader_->Stop();
 }
 
 void SkyBoxRenderer::InitShader()
 {
-    shader.Init();
-    shader.Start();
-    shader.LoadProjectionMatrix(context_.projection_->GetProjectionMatrix());
-    shader.LoadFogColour(.8f, .8f, .8f);
-    shader.LoadBlendFactor(1.f);
-    shader.Stop();
+    shader_->Init();
+    shader_->Start();
+    shader_->Load(SkyBoxShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(SkyBoxShaderUniforms::FogColour, vec3(.8f, .8f, .8f));
+    shader_->Load(SkyBoxShaderUniforms::BlendFactor, 1.f);
+    shader_->Stop();
+}
+
+mat4 SkyBoxRenderer::ModifiedViewMatrix(const mat4& viewMatrix) const
+{
+    mat4 newViewMatrix = viewMatrix;
+
+    newViewMatrix[3][0] = 0;
+    newViewMatrix[3][1] = 0;
+    newViewMatrix[3][2] = 0;
+
+    newViewMatrix *= glm::scale(vec3(150.f));
+    newViewMatrix *= glm::rotate(rotation_, .0f, 1.f, .0f);
+
+    return newViewMatrix;
 }
 
 void SkyBoxRenderer::Render(Scene* scene)
 {
-    InitMembers(scene);
-
-    if (!CheckModelIsReadyToRender())
-        return;
-
+    rotation_ += 0.01f;
     PrepareToRendering(scene);
 
     context_.defferedFrameBuffer_->BindToDraw();
 
-    RenderSkyBoxModel();
+    for (const auto& subscriber : subscribes_)
+    {
+        RenderSkyBoxModel(subscriber.second);
+    }
     EndRendering();
-}
-
-bool SkyBoxRenderer::CheckModelIsReadyToRender()
-{
-    return model != nullptr && model->isLoadedToGpu();
 }
 
 void SkyBoxRenderer::PrepareShaderBeforeFrameRender(Scene* scene)
 {
-    // TO DO - delta time
-    shader.LoadViewMatrix(scene->GetCamera()->GetViewMatrix(), 0.1f, 1500.f);
-    shader.LoadBlendFactor(scene->GetDayNightCycle().GetDayNightBlendFactor());
+    shader_->Load(SkyBoxShaderUniforms::ViewMatrix, ModifiedViewMatrix(scene->GetCamera()->GetViewMatrix()));
+    shader_->Load(SkyBoxShaderUniforms::BlendFactor, scene->GetDayNightCycle().GetDayNightBlendFactor());
 }
 
-void SkyBoxRenderer::RenderSkyBoxModel()
+void SkyBoxRenderer::RenderSkyBoxModel(const SkyBoxSubscriber& sub)
 {
-    const auto& meshes = model->GetMeshes();
+    const auto& meshes = sub.model_->GetMeshes();
+
+    BindTextures(sub);
+
     for (const auto& mesh : meshes)
+    {
         RenderSkyBoxMesh(mesh);
+    }
 }
 
 void SkyBoxRenderer::Subscribe(GameObject* gameObject)
 {
+    auto component = gameObject->GetComponent<Components::SkyBoxComponent>();
+
+    if (component == nullptr)
+        return;
+
+    subscribes_.insert(
+        {gameObject->GetId(), {component->GetModel(), component->GetDayTexture(), component->GetNightTexture()}});
 }
 
 void SkyBoxRenderer::ReloadShaders()
 {
-    shader.Stop();
-    shader.Reload();
+    shader_->Stop();
+    shader_->Reload();
     InitShader();
 }
 
-void SkyBoxRenderer::InitMembers(Scene* scene)
+void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const
 {
-    LoadModel(resourceManager);
-    CreateDayTextures(resourceManager);
-    CreateNightTextures(resourceManager);
-}
-
-void SkyBoxRenderer::LoadModel(ResourceManager& resource_manager)
-{
-    if (model != nullptr)
-        return;
-
-    model = resource_manager.LoadModel("Meshes/SkyBox/cube.obj");
-    model->GpuLoadingPass();
-}
-
-void SkyBoxRenderer::CreateDayTextures(ResourceManager& resource_manager)
-{
-    if (dayTexture != nullptr)
-        return;
-
-    std::vector<std::string> dayTextures{"Skybox/TropicalSunnyDay/right.png", "Skybox/TropicalSunnyDay/left.png",
-                                         "Skybox/TropicalSunnyDay/top.png",   "Skybox/TropicalSunnyDay/bottom.png",
-                                         "Skybox/TropicalSunnyDay/back.png",  "Skybox/TropicalSunnyDay/front.png"};
-
-    dayTexture = resource_manager.GetTextureLaoder().LoadCubeMap(dayTextures, false);
-    dayTexture->GpuLoadingPass();
-}
-
-void SkyBoxRenderer::CreateNightTextures(ResourceManager& resource_manager)
-{
-    if (nightTexture != nullptr)
-        return;
-
-    std::vector<std::string> nightTextures{"Skybox/Night/right.png", "Skybox/Night/left.png",
-                                           "Skybox/Night/top.png",   "Skybox/Night/bottom.png",
-                                           "Skybox/Night/back.png",  "Skybox/Night/front.png"};
-
-    nightTexture = resource_manager.GetTextureLaoder().LoadCubeMap(nightTextures, false);
-    nightTexture->GpuLoadingPass();
-}
-
-void SkyBoxRenderer::BindTextures() const
-{
-    BindCubeMapTexture(dayTexture, 0);
-    BindCubeMapTexture(nightTexture, 1);
+    BindCubeMapTexture(sub.dayTexture_, 0);
+    BindCubeMapTexture(sub.nightTexture_, 1);
 }
 
 void SkyBoxRenderer::BindCubeMapTexture(Texture* texture, int id) const
@@ -150,12 +128,11 @@ void SkyBoxRenderer::BindCubeMapTexture(Texture* texture, int id) const
     context_.graphicsApi_->ActiveTexture(id, texture->GetId());
 }
 
-void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh &mesh) const
+void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
 {
     if (!mesh.IsInit())
         return;
 
-    BindTextures();
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
 }
-}  // GameEngine
+}  // namespace GameEngine

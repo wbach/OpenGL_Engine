@@ -1,10 +1,11 @@
 #version 330 core
+
 struct SMaterial
 {
-	vec3  ambient;
-	vec3  diffuse;
-	vec3  specular;
-	float shineDamper;
+    vec3  ambient;
+    vec3  diffuse;
+    vec3  specular;
+    float shineDamper;
 };
 
 in vec4 position;
@@ -22,8 +23,8 @@ layout (location = 3) out vec4 MaterialSpecular;
 
 void main(void)
 {
-	vec4 color = texture(DiffuseTexture, textureCoords);
-	color.xyz = color.xyz * 0.8f;
+    vec4 color = texture(DiffuseTexture, textureCoords);
+    color.xyz = color.xyz * 0.8f;
     if ( color.a < 0.5f)
     {
         discard;

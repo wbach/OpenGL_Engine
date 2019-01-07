@@ -1,19 +1,17 @@
 #include "SSAOShader.h"
+#include "SSAOShaderUniforms.h"
 
-#define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
+#define GetLocation(X) uniforms_[SSAOShaderUniforms::X] = GetUniformLocation(#X)
 
 namespace GameEngine
 {
 SSAOShader::SSAOShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi)
+    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::SSAO))
 {
-    SetFiles({
-        {"PostProcess/SSAO/SSAOShader.vert", ShaderType::VERTEX_SHADER},
-        {"PostProcess/SSAO/SSAOShader.frag", ShaderType::FRAGMENT_SHADER},
-    });
 }
 void SSAOShader::GetAllUniformLocations()
 {
+    uniforms_.resize(SSAOShaderUniforms::SIZE);
     GetLocation(ProjectionMatrix);
     GetLocation(ViewMatrix);
     GetLocation(Kernel);
@@ -28,6 +26,6 @@ void SSAOShader::BindAttributes()
 
 void SSAOShader::ConnectTextureUnits() const
 {
-    LoadValue(uniformLocations.at(UniformLocation::PositionTexture), 0);
+    Load(SSAOShaderUniforms::PositionTexture, 0);
 }
 }
