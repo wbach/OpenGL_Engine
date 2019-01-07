@@ -51,6 +51,8 @@ public:
         return name;
     }
 
+    std::unique_ptr<GameObject> CreateGameObject();
+
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject>& object);
     void RemoveGameObject(GameObject* object);

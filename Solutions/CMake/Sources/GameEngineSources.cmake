@@ -11,8 +11,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Camera/FirstPersonCamera.cpp
 ../../Sources/GameEngine/Camera/Frustrum.cpp
 ../../Sources/GameEngine/Camera/ThridPersonCamera.cpp
-../../Sources/GameEngine/Components/AbstractComponent.cpp
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
+../../Sources/GameEngine/Components/BaseComponent.cpp
 ../../Sources/GameEngine/Components/ComponentController.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
 ../../Sources/GameEngine/Components/Physics/BoxShape.cpp
@@ -25,6 +25,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/InsertionSort.cpp
 ../../Sources/GameEngine/Components/Renderer/ParticleEffectComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/RendererComponent.cpp
+../../Sources/GameEngine/Components/Renderer/SkyBoxComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp

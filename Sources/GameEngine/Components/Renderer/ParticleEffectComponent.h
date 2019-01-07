@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/AbstractComponent.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Objects/RenderAble/Paricle/Particle.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/Texture.h"

@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include "Common/Transform.h"
-#include "GameEngine/Components/AbstractComponent.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "optional.hpp"
 
 namespace GameEngine

@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
-#include "GameEngine/Components/AbstractComponent.h"
+#include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
 {

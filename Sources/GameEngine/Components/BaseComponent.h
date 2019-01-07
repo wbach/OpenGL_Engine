@@ -1,8 +1,8 @@
 #pragma once
-#include <memory>
+#include "IComponent.h"
 #include "ComponentController.h"
-#include "ComponentsTypes.h"
 #include "GameEngine/Time/Time.h"
+#include <memory>
 
 namespace GameEngine
 {
@@ -22,7 +22,7 @@ class RenderersManager;
 
 namespace Components
 {
-class AbstractComponent
+class AbstractComponent : public IComponent
 {
 public:
     AbstractComponent(ComponentsType type);

@@ -79,6 +79,11 @@ void Scene::PostUpdate()
     componentController_.PostUpdate();
 }
 
+std::unique_ptr<GameObject> Scene::CreateGameObject()
+{
+    return std::unique_ptr<GameObject>();
+}
+
 void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
 {
     object->RegisterComponentFunctions();

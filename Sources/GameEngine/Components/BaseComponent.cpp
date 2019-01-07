@@ -1,4 +1,4 @@
-#include "AbstractComponent.h"
+#include "BaseComponent.h"
 
 namespace GameEngine
 {

@@ -31,8 +31,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Camera/ICamera.h
 ../../Sources/GameEngine/Camera/Plane.h
 ../../Sources/GameEngine/Camera/ThridPersonCamera.h
-../../Sources/GameEngine/Components/AbstractComponent.h
 ../../Sources/GameEngine/Components/Animation/Animator.h
+../../Sources/GameEngine/Components/BaseComponent.h
 ../../Sources/GameEngine/Components/ComponentController.h
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
@@ -46,6 +46,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Physics/TerrainShape.h
 ../../Sources/GameEngine/Components/Renderer/InsertionSort.h
 ../../Sources/GameEngine/Components/Renderer/ParticleEffectComponent.h
+../../Sources/GameEngine/Components/Renderer/SkyBoxComponent.h
 ../../Sources/GameEngine/Components/Renderer/TreeRendererComponent.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h

@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Components/AbstractComponent.h"
+#include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
 {

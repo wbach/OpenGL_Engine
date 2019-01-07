@@ -1,5 +1,5 @@
 #include "ComponentFactory.h"
-#include "AbstractComponent.h"
+#include "BaseComponent.h"
 #include "Animation/Animator.h"
 #include "Physics/BoxShape.h"
 #include "Physics/MeshShape.h"
