@@ -4,11 +4,10 @@
 
 namespace GameEngine
 {
-uint32 GameObject::s_id = 0;
+uint32 GameObject::s_id = 1;
 
 GameObject::GameObject()
     : id(s_id++)
-    , s_componentID(0)
 {
 }
 
@@ -19,14 +18,14 @@ uint32 GameObject::GetId() const
 
 void GameObject::AddComponent(std::unique_ptr<Components::IComponent> component)
 {
-    components_[s_componentID++] = std::move(component);
+    components_.push_back(std::move(component));
 }
 
 void GameObject::RegisterComponentFunctions()
 {
     for (const auto& c : components_)
     {
-        c.second->ReqisterFunctions();
+        c->ReqisterFunctions();
     }
 }
 }  // namespace GameEngine

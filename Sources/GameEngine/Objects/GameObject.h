@@ -15,7 +15,7 @@ public:
     virtual ~GameObject()
     {
     }
-    const std::list<std::unique_ptr<GameObject>>& GetChildrens()
+    const std::vector<std::unique_ptr<GameObject>>& GetChildrens()
     {
         return childrens;
     }
@@ -33,8 +33,8 @@ public:
     {
         for (const auto& c : components_)
         {
-            if (c.second->GetType() == T::type)
-                return static_cast<T*>(c.second.get());
+            if (c->GetType() == T::type)
+                return static_cast<T*>(c.get());
         }
         return nullptr;
     }
@@ -45,12 +45,11 @@ public:
 
 protected:
     std::string name;
-    std::list<std::unique_ptr<GameObject>> childrens;
-    std::unordered_map<uint32_t, std::unique_ptr<Components::IComponent>> components_;
+    std::vector<std::unique_ptr<GameObject>> childrens;
+    std::vector<std::unique_ptr<Components::IComponent>> components_;
 
 private:
     static uint32 s_id;
     uint32 id;
-    uint32_t s_componentID;
 };
 }  // GameEngine
