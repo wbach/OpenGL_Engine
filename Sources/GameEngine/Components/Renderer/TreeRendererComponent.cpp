@@ -10,7 +10,7 @@ namespace GameEngine
 		ComponentsType TreeRendererComponent::type = ComponentsType::TreeRenderer;
 
 		TreeRendererComponent::TreeRendererComponent()
-			: AbstractComponent(ComponentsType::TreeRenderer)
+			: BaseComponent(ComponentsType::TreeRenderer)
 		{
 		}
 

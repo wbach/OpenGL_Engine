@@ -13,7 +13,7 @@ namespace Components
 ComponentsType ParticleEffectComponent::type = ComponentsType::ParticleEffect;
 
 ParticleEffectComponent::ParticleEffectComponent()
-    : AbstractComponent(ComponentsType::ParticleEffect)
+    : BaseComponent(ComponentsType::ParticleEffect)
     , texture_(nullptr)
     , particlesSpeed_(10.f)
     , particlesPerSecond_(10)

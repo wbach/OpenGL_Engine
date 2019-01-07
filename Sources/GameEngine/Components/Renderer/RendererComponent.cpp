@@ -10,7 +10,7 @@ namespace Components
 ComponentsType RendererComponent::type = ComponentsType::Renderer;
 
 RendererComponent::RendererComponent()
-    : AbstractComponent(ComponentsType::Renderer)
+    : BaseComponent(ComponentsType::Renderer)
 {
 }
 

@@ -6,7 +6,7 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		class RendererComponent : public AbstractComponent
+		class RendererComponent : public BaseComponent
 		{
 		public:
 			RendererComponent();

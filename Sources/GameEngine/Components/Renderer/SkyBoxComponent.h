@@ -9,7 +9,7 @@ class Model;
 
 namespace Components
 {
-class SkyBoxComponent : public AbstractComponent
+class SkyBoxComponent : public BaseComponent
 {
 public:
     SkyBoxComponent();

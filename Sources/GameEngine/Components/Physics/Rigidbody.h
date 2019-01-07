@@ -8,7 +8,7 @@ namespace Components
 {
 class CollisionShape;
 
-class Rigidbody : public AbstractComponent
+class Rigidbody : public BaseComponent
 {
 public:
     Rigidbody();

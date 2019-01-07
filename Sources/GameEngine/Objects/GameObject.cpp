@@ -17,7 +17,7 @@ uint32 GameObject::GetId() const
     return id;
 }
 
-void GameObject::AddComponent(Components::AbstractComponentPtr component)
+void GameObject::AddComponent(std::unique_ptr<Components::IComponent> component)
 {
     components_[s_componentID++] = std::move(component);
 }

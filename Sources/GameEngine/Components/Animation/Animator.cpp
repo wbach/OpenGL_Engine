@@ -13,7 +13,7 @@ namespace Components
 ComponentsType Animator::type = ComponentsType::Animator;
 
 Animator::Animator()
-    : AbstractComponent(ComponentsType::Animator)
+    : BaseComponent(ComponentsType::Animator)
     , rootJoint_(nullptr)
     , currentTime_(0.f)
     , animationSpeed_(1.f)

@@ -9,7 +9,7 @@ namespace Components
 ComponentsType SkyBoxComponent::type = ComponentsType::SkyBox;
 
 SkyBoxComponent::SkyBoxComponent()
-    : AbstractComponent(ComponentsType::SkyBox)
+    : BaseComponent(ComponentsType::SkyBox)
 {
 }
 SkyBoxComponent::~SkyBoxComponent()

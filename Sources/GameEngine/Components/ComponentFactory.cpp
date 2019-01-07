@@ -25,7 +25,7 @@ ComponentFactory::ComponentFactory(ComponentController& componentController, Tim
     , time_(time)
 {
 }
-std::unique_ptr<AbstractComponent> ComponentFactory::Create(ComponentsType type, GameObject* ptr)
+std::unique_ptr<BaseComponent> ComponentFactory::Create(ComponentsType type, GameObject* ptr)
 {
     switch (type)
     {

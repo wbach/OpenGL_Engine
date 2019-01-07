@@ -12,7 +12,7 @@ namespace Components
 {
 typedef std::unordered_map<std::string, mat4> Pose;
 
-class Animator : public AbstractComponent
+class Animator : public BaseComponent
 {
 public:
     Animator();

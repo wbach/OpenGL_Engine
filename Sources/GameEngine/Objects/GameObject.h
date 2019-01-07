@@ -25,7 +25,7 @@ public:
     {
         return wb::optional<vec3>();
     }
-    void AddComponent(Components::AbstractComponentPtr component);
+    void AddComponent(std::unique_ptr<Components::IComponent> component);
     void RegisterComponentFunctions();
 
     template <class T>
@@ -46,7 +46,7 @@ public:
 protected:
     std::string name;
     std::list<std::unique_ptr<GameObject>> childrens;
-    std::unordered_map<uint32_t, Components::AbstractComponentPtr> components_;
+    std::unordered_map<uint32_t, std::unique_ptr<Components::IComponent>> components_;
 
 private:
     static uint32 s_id;

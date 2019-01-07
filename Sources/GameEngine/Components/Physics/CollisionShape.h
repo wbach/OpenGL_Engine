@@ -3,20 +3,20 @@
 
 namespace GameEngine
 {
-	namespace Components
-	{
-		class CollisionShape : public AbstractComponent
-		{
-		public:
-			CollisionShape(ComponentsType type);
-			uint32 GetCollisionShapeId() const;
+namespace Components
+{
+class CollisionShape : public BaseComponent
+{
+public:
+    CollisionShape(ComponentsType type);
+    uint32 GetCollisionShapeId() const;
 
-		public:
-			void SetPostionOffset(const vec3& position);
+public:
+    void SetPostionOffset(const vec3& position);
 
-		protected:
-			uint32 collisionShapeId_;
-			vec3 positionOffset_;
-		};
-	} // Components
-} // GameEngine
+protected:
+    uint32 collisionShapeId_;
+    vec3 positionOffset_;
+};
+}  // namespace Components
+}  // namespace GameEngine

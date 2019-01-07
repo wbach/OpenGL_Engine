@@ -22,7 +22,7 @@ struct IPhysicsApi;
 
 namespace Components
 {
-class AbstractComponent;
+class BaseComponent;
 
 class ComponentFactory
 {
@@ -30,7 +30,7 @@ public:
     ComponentFactory(ComponentController& componentController, Time& time,
                      std::shared_ptr<IResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera,
                      std::shared_ptr<Physics::IPhysicsApi>* physicsApi);
-    std::unique_ptr<AbstractComponent> Create(ComponentsType type, GameObject* ptr);
+    std::unique_ptr<BaseComponent> Create(ComponentsType type, GameObject* ptr);
     void SetRendererManager(Renderer::RenderersManager* rendererManager);
 
 private:

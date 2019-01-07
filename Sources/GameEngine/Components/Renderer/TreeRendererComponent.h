@@ -6,7 +6,7 @@ namespace GameEngine
 {
 	namespace Components
 	{
-		class TreeRendererComponent : public AbstractComponent
+		class TreeRendererComponent : public BaseComponent
 		{
 		public:
 			TreeRendererComponent();

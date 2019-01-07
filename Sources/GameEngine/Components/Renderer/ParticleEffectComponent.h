@@ -10,7 +10,7 @@ namespace Components
 {
 typedef std::function<Particle(const Particle&)> EmitFunction;
 
-class ParticleEffectComponent : public AbstractComponent
+class ParticleEffectComponent : public BaseComponent
 {
 public:
     ParticleEffectComponent();

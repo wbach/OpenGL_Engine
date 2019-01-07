@@ -22,11 +22,11 @@ class RenderersManager;
 
 namespace Components
 {
-class AbstractComponent : public IComponent
+class BaseComponent : public IComponent
 {
 public:
-    AbstractComponent(ComponentsType type);
-    virtual ~AbstractComponent();
+    BaseComponent(ComponentsType type);
+    virtual ~BaseComponent();
     virtual void ReqisterFunctions(){}
     void SetTime(Time* time);
     void SetObjectPtr(GameObject* ptr);
@@ -55,20 +55,18 @@ private:
     ComponentsType type_;
 };
 
-typedef std::unique_ptr<AbstractComponent> AbstractComponentPtr;
-
-void AbstractComponent::RegisterFunction(FunctionType type, std::function<void()> func)
+void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
 {
     if (componentController_ == nullptr)
         return;
 
     ids_[componentController_->RegisterFunction(type, func)] = type;
 }
-inline ICamera* AbstractComponent::GetCamera()
+inline ICamera* BaseComponent::GetCamera()
 {
     return camera_ ? camera_->get() : nullptr;
 }
-ComponentsType AbstractComponent::GetType()
+ComponentsType BaseComponent::GetType()
 {
     return type_;
 }
