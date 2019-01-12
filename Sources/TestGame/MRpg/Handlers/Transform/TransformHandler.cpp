@@ -1,4 +1,3 @@
-
 #include "TransformHandler.h"
 #include "Common/Controllers/CharacterController/Character.h"
 #include "Common/Controllers/CharacterController/NetworkActionsConverter.h"
@@ -28,13 +27,10 @@ void TransformHandler::HandleTransformMsg(const Network::TransformMsgResp& msg)
     if (networkCharacter == nullptr)
         return;
 
-    auto entity = networkCharacterManager_.GetCharacter(msg.id)->GetEntity();
+    auto &gameObject = networkCharacter->GetGameObject();
 
-    if (entity == nullptr)
-        return;
-
-    entity->worldTransform.SetPosition(msg.position);
-    entity->worldTransform.SetRotation(msg.rotation);
+    gameObject.worldTransform.SetPosition(msg.position);
+    gameObject.worldTransform.SetRotation(msg.rotation);
 
     auto icontroller = networkCharacter->GetControllerByType(CharacterControllerType);
     auto controller  = castControllerAs<CharacterController>(icontroller);

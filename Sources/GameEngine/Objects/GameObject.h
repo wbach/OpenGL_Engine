@@ -4,6 +4,8 @@
 #include <string>
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Components/IComponentFactory.h"
 #include "optional.hpp"
 
 namespace GameEngine
@@ -11,10 +13,10 @@ namespace GameEngine
 class GameObject
 {
 public:
-    GameObject();
-    virtual ~GameObject()
-    {
-    }
+    GameObject(Components::IComponentFactory& componentFactory);
+    virtual ~GameObject();
+    GameObject(const GameObject&&) = delete;
+
     const std::vector<std::unique_ptr<GameObject>>& GetChildrens()
     {
         return childrens;
@@ -25,7 +27,7 @@ public:
     {
         return wb::optional<vec3>();
     }
-    void AddComponent(std::unique_ptr<Components::IComponent> component);
+
     void RegisterComponentFunctions();
 
     template <class T>
@@ -37,6 +39,14 @@ public:
                 return static_cast<T*>(c.get());
         }
         return nullptr;
+    }
+
+    template <class T>
+    T& AddComponent()
+    {
+        auto component = componentFactory_.Create(T::type, *this);
+        components_.push_back(std::move(component));
+        return *static_cast<T*>(components_.back().get());
     }
 
 public:
@@ -51,5 +61,6 @@ protected:
 private:
     static uint32 s_id;
     uint32 id;
+    Components::IComponentFactory& componentFactory_;
 };
-}  // GameEngine
+}  // namespace GameEngine

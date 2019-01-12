@@ -9,8 +9,8 @@ namespace Components
 {
 ComponentsType Rigidbody::type = ComponentsType::Rigidbody;
 
-Rigidbody::Rigidbody()
-    : BaseComponent(ComponentsType::Rigidbody)
+Rigidbody::Rigidbody(const ComponentContext& componentContext, GameObject& gameObject)
+    : BaseComponent(ComponentsType::Rigidbody, componentContext, gameObject)
     , mass_(1.0f)
     , isStatic_(false)
     , collisionShape_(nullptr)
@@ -24,7 +24,7 @@ Rigidbody::~Rigidbody()
         return;
     }
 
-    physicsApi_->RemoveRigidBody(rigidBodyId);
+    componentContext_.physicsApi_.RemoveRigidBody(rigidBodyId);
     rigidBodyId = 0;
 }
 void Rigidbody::OnStart()
@@ -34,28 +34,36 @@ void Rigidbody::OnStart()
         return;
     }
 
-    rigidBodyId = physicsApi_->CreateRigidbody(collisionShape_->GetCollisionShapeId(), thisObject->worldTransform,
+    rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(), thisObject_.worldTransform,
                                                mass_, isStatic_);
 }
 void Rigidbody::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
 }
-void Rigidbody::SetMass(float mass)
+Rigidbody& Rigidbody::SetMass(float mass)
 {
     mass_ = mass;
+    return *this;
 }
-void Rigidbody::SetIsStatic(bool is)
+Rigidbody& Rigidbody::SetIsStatic(bool is)
 {
     isStatic_ = is;
+    if (is)
+    {
+        SetMass(0.f);
+    }
+    return *this;
 }
-void Rigidbody::SetCollisionShape(CollisionShape* collisionShape)
+Rigidbody& Rigidbody::SetCollisionShape(CollisionShape* collisionShape)
 {
     collisionShape_ = collisionShape;
+    return *this;
 }
-void Rigidbody::SetVelocity(const vec3& velocity)
+Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
-    physicsApi_->SetVelocityRigidbody(rigidBodyId, velocity);
+    componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId, velocity);
+    return *this;
 }
 }  // namespace Components
 }  // namespace GameEngine

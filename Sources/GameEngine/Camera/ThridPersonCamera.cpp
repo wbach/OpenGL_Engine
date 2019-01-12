@@ -225,7 +225,7 @@ namespace GameEngine
 	void ThirdPersonCamera::CalculateAngleAroundPlayer(const vec2& d_move)
 	{
 		float angle_change = d_move.x;
-		angleAroundPlayer -= angle_change;
+		angleAroundPlayer += angle_change;
 	}
 
 	bool ThirdPersonCamera::IsOnDestinationPos()

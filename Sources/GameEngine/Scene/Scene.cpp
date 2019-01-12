@@ -1,4 +1,3 @@
-
 #include "Scene.hpp"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Display/DisplayManager.hpp"
@@ -6,6 +5,7 @@
 #include "GameEngine/Input/InputManager.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Components/ComponentFactory.h"
 #include "Logger/Log.h"
 #include "Utils/Time/Timer.h"
 
@@ -21,7 +21,7 @@ Scene::Scene(const std::string& name)
     , gloabalTime(0.f)
     , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
     , camera(new BaseCamera)
-    , componentFactory_(componentController_, time_, resourceManager_, camera, &physicsApi_)
+    , componentFactory_(nullptr)
     , simulatePhysics_(true)
 {
 }
@@ -41,6 +41,7 @@ Scene::~Scene()
 
 void Scene::Init()
 {
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -57,7 +58,7 @@ void Scene::FullUpdate(float deltaTime)
         Utils::Timer t;
         physicsApi_->SetSimulationStep(deltaTime);
         physicsApi_->Simulate();
-        MakeMeasurement("Physics", t.GetTimeMiliseconds());
+        MakeMeasurement("Physics", t.GetTimeNanoseconds());
     }
 
     if (displayManager_ != nullptr)
@@ -81,7 +82,7 @@ void Scene::PostUpdate()
 
 std::unique_ptr<GameObject> Scene::CreateGameObject()
 {
-    return std::unique_ptr<GameObject>();
+    return std::make_unique<GameObject>(*componentFactory_);
 }
 
 void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
@@ -114,7 +115,7 @@ ICamera* Scene::GetCamera()
     return camera.get();
 }
 
-void Scene::SetCamera(std::shared_ptr<ICamera> cam)
+void Scene::SetCamera(std::unique_ptr<ICamera> cam)
 {
     // std::lock_guard<std::mutex> lk(cameraMutex);
     camera = std::move(cam);

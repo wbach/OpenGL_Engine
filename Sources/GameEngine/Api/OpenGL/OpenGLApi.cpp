@@ -6,7 +6,6 @@
 #include "GameEngine/Resources/Models/MeshRawData.h"
 #include "Logger/Log.h"
 #include "OpenGL/OpenGLUtils.h"
-#include "OpenGL/VaoEnableController.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <optional>
 
@@ -859,7 +858,7 @@ void OpenGLApi::RenderMesh(uint32 id)
 
     auto& mesh = openGlMeshes_.at(id);
 
-    Utils::EnableVao ev(mesh.vao, mesh.attributes);
+    glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0);
 }
 
@@ -870,7 +869,7 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
 
     auto& mesh = openGlMeshes_.at(id);
 
-    Utils::EnableVao ev(mesh.vao, mesh.attributes);
+    glBindVertexArray(mesh.vao);
     glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0, istanced);
 }
 
@@ -880,7 +879,7 @@ void OpenGLApi::RenderPoints(uint32 id)
         return;
 
     auto& mesh = openGlMeshes_.at(id);
-    Utils::EnableVao ev(mesh.vao, {{VertexBufferObjects::POSITION, 0}});
+    glBindVertexArray(mesh.vao);
     glDrawArrays(GL_POINTS, 0, mesh.vertexCount);
 }
 

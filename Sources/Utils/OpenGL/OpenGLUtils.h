@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <vector>
 #include "../Types.h"
-#include "VaoEnableController.hpp"
+#include "GameEngine/Resources/VboTypes.h"
 
 namespace Utils
 {

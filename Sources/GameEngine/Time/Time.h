@@ -2,9 +2,9 @@
 
 namespace GameEngine
 {
-	struct Time
-	{
-		float deltaTime;
-		float startTime;
-	};
-} // GameEngine
+struct Time
+{
+    float deltaTime;
+    float startTime;
+};
+}  // namespace GameEngine

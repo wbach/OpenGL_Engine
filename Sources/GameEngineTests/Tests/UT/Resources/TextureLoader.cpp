@@ -29,11 +29,8 @@ struct TextureLoaderTest : public ::testing::Test
 
 TEST_F(TextureLoaderTest, LoadTexture)
 {
-    //const std::string& file, SImage& image, bool applySizeLimit = true, TextureFlip::Type flip_mode = TextureFlip::Type::NONE
-    Image image;
-    sut_->ReadFile("", image);
+    auto image = sut_->ReadFile("");
 
     EXPECT_TRUE(true);
-    // Re
 }
 }

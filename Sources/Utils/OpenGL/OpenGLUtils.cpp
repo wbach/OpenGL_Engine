@@ -39,6 +39,7 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(int32), &data[0], GL_STATIC_DRAW);
     glVertexAttribIPointer(attributeNumber_, coordinateSize, GL_INT, 0, 0);
+    glEnableVertexAttribArray(attributeNumber_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     vao_.attributes[type] = attributeNumber_++;
 }
@@ -55,6 +56,7 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
     glVertexAttribPointer(attributeNumber_, coordinateSize, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(attributeNumber_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     vao_.attributes[type] = attributeNumber_++;
 
@@ -69,6 +71,7 @@ void VaoCreator::AllocateDynamicAttribute(VertexBufferObjects type, uint32 coord
     auto& vboId = vao_.vbos[type];
     glGenBuffers(1, &vboId);
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glEnableVertexAttribArray(attributeNumber_);
     vao_.attributes[type] = attributeNumber_;
 
     if (type == VertexBufferObjects::TRANSFORM_MATRIX)

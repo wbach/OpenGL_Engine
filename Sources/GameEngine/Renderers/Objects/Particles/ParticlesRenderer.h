@@ -1,6 +1,6 @@
 #pragma once
 #include "GameEngine/Api/IGraphicsApi.h"
-#include "GameEngine/Objects/RenderAble/Paricle/Particle.h"
+#include "GameEngine/Components/Renderer/Particles/Particle.h"
 #include "GameEngine/Renderers/IRenderer.h"
 
 namespace GameEngine

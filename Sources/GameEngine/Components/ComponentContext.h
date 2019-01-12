@@ -6,7 +6,6 @@
 namespace GameEngine
 {
 struct ICamera;
-class GameObject;
 class IResourceManager;
 
 namespace Physics
@@ -25,23 +24,20 @@ typedef std::unordered_map<uint32, FunctionType> ComponentIdsMap;
 
 struct ComponentContext
 {
-    ComponentContext(Time& time, ICamera& camera, GameObject& gameObject, Physics::IPhysicsApi& physicsApi,
+    ComponentContext(Time& time, std::unique_ptr<ICamera>& camera, Physics::IPhysicsApi& physicsApi,
                      IResourceManager& resourceManager, Renderer::RenderersManager& renderersManager,
-                     ComponentController& componentController, ComponentIdsMap idsMap)
+                     ComponentController& componentController)
         : time_(time)
         , camera_(camera)
-        , thisObject_(gameObject)
         , physicsApi_(physicsApi)
         , resourceManager_(resourceManager)
         , renderersManager_(renderersManager)
         , componentController_(componentController)
-        , ids_(idsMap)
     {
     }
 
     Time& time_;
-    ICamera& camera_;
-    GameObject& thisObject_;
+    std::unique_ptr<ICamera>& camera_;
     Physics::IPhysicsApi& physicsApi_;
     IResourceManager& resourceManager_;
     ComponentController& componentController_;

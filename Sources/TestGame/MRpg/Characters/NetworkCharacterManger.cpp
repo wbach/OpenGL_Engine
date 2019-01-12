@@ -2,16 +2,18 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "ModelsCreator.h"
 #include "TestGame/MRpg/MrpgGameContext.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 
 namespace MmmoRpg
 {
 NetworkCharacterManager::NetworkCharacterManager(ModelsCreator* modelCreator,
                                                  GameEngine::Renderer::RenderersManager& rendererManager,
-                                                 MrpgGameContext& gameContext, AddObject addObject)
+                                                 MrpgGameContext& gameContext, AddObject addObject, CreateObject createObject)
     : modelCreator_(modelCreator)
     , rendererManager_(rendererManager)
     , gameContext_(gameContext)
     , addObject_(addObject)
+    , createObject_(createObject)
 {
 }
 
@@ -22,21 +24,23 @@ void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3
         return;
 
     auto modelWrapper                 = modelCreator_->CreateHero(classId);
-    networkCharacters_[id]            = std::make_shared<NetworkCharacter>(id, stats, modelWrapper);
-    auto entity                       = networkCharacters_[id]->GetEntity();
-    entity->worldTransform.SetPosition(position);
-    entity->worldTransform.SetRotation(rotation);
-    entity->worldTransform.isDynamic_ = true;
-    entity->worldTransform.TakeSnapShoot();
-    rendererManager_.Subscribe(entity);
-    addObject_(std::unique_ptr<GameEngine::GameObject>(entity));
+
+    auto object = createObject_();
+    object->AddComponent<GameEngine::Components::RendererComponent>().SetModel(modelWrapper);
+    object->worldTransform.SetPosition(position);
+    object->worldTransform.SetRotation(rotation);
+    object->worldTransform.isDynamic_ = true;
+    object->worldTransform.TakeSnapShoot();
+
+    networkCharacters_.insert({ id, std::make_shared<NetworkCharacter>(id, stats, *object) });
+    addObject_(object);
 
     if (id == gameContext_.selectedCharacterId.first)
     {
         gameContext_.selectedCharacterId.second = SelectedCharacterState::READY_TO_USE;
 
         for (auto& s : onPlayerSubscribers_)
-            s(networkCharacters_[id].get());
+            s(networkCharacters_.at(id).get());
     }
 
 }
@@ -51,7 +55,7 @@ void NetworkCharacterManager::RemoveCharacter(uint32 id)
 {
     if (networkCharacters_.count(id) == 0)
         return;
-    rendererManager_.UnSubscribe(networkCharacters_[id]->GetEntity());
+    rendererManager_.UnSubscribe(&networkCharacters_.at(id)->GetGameObject());
     networkCharacters_.erase(id);
 }
 NetworkCharacter* NetworkCharacterManager::GetCharacter(uint32 id)
@@ -59,7 +63,7 @@ NetworkCharacter* NetworkCharacterManager::GetCharacter(uint32 id)
     if (networkCharacters_.count(id) == 0)
         return nullptr;
 
-    return networkCharacters_[id].get();
+    return networkCharacters_.at(id).get();
 }
 void NetworkCharacterManager::SubscribeOnGetPlayer(OnGetPlayer f)
 {

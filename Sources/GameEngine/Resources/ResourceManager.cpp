@@ -24,14 +24,14 @@ Model* ResourceManager::LoadModel(const std::string& file)
 
     if (count > 0)
     {
-        auto i = modelsIds_[file];
-        Log("Model already loaded, id : " + std::to_string(modelsIds_[file]));
+        auto i = modelsIds_.at(file);
+        Log("Model already loaded, id : " + std::to_string(modelsIds_.at(file)));
         return models_[i].get();
     }
 
     auto model = loaderManager_.Load(file);
     model->InitModel(file);
-    modelsIds_[model->GetFileName()] = models_.size();
+    modelsIds_.insert({ model->GetFileName(), models_.size() });
     models_.push_back(std::move(model));
     gpuLoader_->AddObjectToGpuLoadingPass(models_.back().get());
     return models_.back().get();
@@ -40,7 +40,7 @@ Model* ResourceManager::LoadModel(const std::string& file)
 void ResourceManager::AddModel(Model* model)
 {
     models_.emplace_back(model);
-    modelsIds_[model->GetFileName()] = models_.size() - 1;
+    modelsIds_.insert({ model->GetFileName() ,models_.size() - 1 });
     gpuLoader_->AddObjectToGpuLoadingPass(model);
 }
 }  // namespace GameEngine

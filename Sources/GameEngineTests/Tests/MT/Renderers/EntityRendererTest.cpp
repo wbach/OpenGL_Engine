@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <functional>
-#include "GameEngine/Components/Renderer/RendererComponent.hpp"
-#include "GameEngine/Objects/RenderAble/Entity/Entity.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -16,6 +15,7 @@
 #include "GameEngineTests/Tests/Mocks/Shaders/ShaderProgramMock.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRendererDef.h"
 #include "GameEngine/Renderers/Objects/Entity/Shaders/EntityShaderUniforms.h"
+#include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 
 using namespace testing;
 
@@ -29,7 +29,7 @@ const vec3 MATERIAL_AMBIENT{0.f, 0.f, 1.f};
 const vec3 MATERIAL_DIFFUSE{1.f, 0.f, 1.f };
 const vec3 MATERIAL_SPECULAR{1.f, 1.f, 1.f };
 
-struct EntityRendererShould : public ::testing::Test
+struct EntityRendererShould : public BaseComponentTestSchould
 {
     EntityRendererShould()
         : graphicsMock_(std::make_shared<GraphicsApiMock>())
@@ -40,12 +40,11 @@ struct EntityRendererShould : public ::testing::Test
                    std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
         , scene_("testScene")
         , mesh_(graphicsMock_)
-        , cameraMock_(std::make_shared<CameraMock>())
     {
     }
     void SetUp()
     {
-        scene_.SetCamera(cameraMock_);
+        scene_.SetCamera(std::move(camera_));
         resourceManagerMock_ = new ResourceManagerMock();
         scene_.CreateResourceManger(resourceManagerMock_);
         context_.projection_->CreateProjectionMatrix();
@@ -107,10 +106,10 @@ struct EntityRendererShould : public ::testing::Test
         EXPECT_CALL(gpuResourceLoaderMock_, AddObjectToGpuLoadingPass(_)).Times(1);
         EXPECT_CALL(*resourceManagerMock_, LoadModel(_)).WillOnce(Return(&model_));
 
-        auto entity = new Entity(resourceManagerMock_);
-        scene_.AddComponent<Components::RendererComponent>(entity)->AddModel("Meshes/sphere.obj");
-        sut_->Subscribe(entity);
-        scene_.AddGameObject(std::unique_ptr<GameObject>(entity));
+        auto entity = scene_.CreateGameObject();
+        entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
+        sut_->Subscribe(entity.get());
+        scene_.AddGameObject(entity);
 
         transformToShader_ = entity->worldTransform.GetMatrix() * mesh_.GetMeshTransform();
     }
@@ -137,7 +136,6 @@ struct EntityRendererShould : public ::testing::Test
     Model model_;
     Mesh mesh_;
     mat4 transformToShader_;
-    std::shared_ptr<CameraMock> cameraMock_;
 
     std::unique_ptr<EntityRenderer> sut_;
 };

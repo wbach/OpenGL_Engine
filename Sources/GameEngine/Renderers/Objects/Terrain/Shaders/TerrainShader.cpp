@@ -1,5 +1,5 @@
 #include "TerrainShader.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "TerrainShaderUniforms.h"
 
 #define GetLocation(X) uniforms_[TerrainShaderUniforms::X] = GetUniformLocation(#X);

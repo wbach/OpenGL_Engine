@@ -3,24 +3,24 @@
 
 namespace GameEngine
 {
-	namespace Components
-	{
-		class SphereShape : public CollisionShape
-		{
-		public:
-			SphereShape();
-			void Update();
-			virtual void ReqisterFunctions() override;
-			void OnAwake();
+namespace Components
+{
+class SphereShape : public CollisionShape
+{
+public:
+    SphereShape(const ComponentContext& componentContext, GameObject& gameObject);
+    void Update();
+    virtual void ReqisterFunctions() override;
+    void OnAwake();
 
-		public:
-			void SetSize(float size);
+public:
+    SphereShape& SetSize(float size);
 
-		private:
-			float size_;
+private:
+    float size_;
 
-		public:
-			static ComponentsType type;
-		};
-	} // Components
-} // GameEngine
+public:
+    static ComponentsType type;
+};
+}  // namespace Components
+}  // namespace GameEngine

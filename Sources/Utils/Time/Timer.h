@@ -1,16 +1,16 @@
 #pragma once
-#include "Types.h"
 #include <chrono>
+#include "Types.h"
 
 namespace Utils
 {
-	class Timer
-	{
-	public:
-		Timer();
-		uint64 GetTimeMiliseconds();
+class Timer
+{
+public:
+    Timer();
+    uint64 GetTimeNanoseconds();
 
-	private:
-		Timepoint start_;
-	};
-} // Utils
+private:
+    Timepoint start_;
+};
+}  // namespace Utils

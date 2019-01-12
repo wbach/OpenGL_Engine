@@ -23,7 +23,7 @@ uint32 ComponentController::RegisterFunction(FunctionType type, std::function<vo
 }
 void ComponentController::UnRegisterFunction(FunctionType type, uint32 id)
 {
-    functions_[type].erase(id);
+    functions_.at(type).erase(id);
 }
 void ComponentController::OnAwake()
 {

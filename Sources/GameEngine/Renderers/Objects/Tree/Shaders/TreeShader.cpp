@@ -1,5 +1,4 @@
 #include "TreeShader.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
 #include "TreeShaderUniforms.h"
 
 #define GetLocation(X) uniforms_[TreeShaderUniforms::X] = GetUniformLocation(#X)

@@ -1,19 +1,17 @@
 #include "ShadowMapRenderer.hpp"
-#include "ShadowFrameBuffer.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Api/ShadersTypes.h"
-#include "Shaders/ShadowShaderUniforms.h"
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Api/ShadersTypes.h"
 #include "GameEngine/Camera/Camera.h"
-#include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
+#include "Shaders/ShadowShaderUniforms.h"
+#include "ShadowFrameBuffer.h"
 #include "math.hpp"
-
 
 namespace GameEngine
 {
@@ -49,8 +47,8 @@ void ShadowMapRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
-    subscribes_[gameObject->GetId()] = {rendererComponent->textureIndex, gameObject,
-                                        &rendererComponent->GetModelWrapper()};
+    subscribes_.insert({gameObject->GetId(),
+                        {rendererComponent->GetTextureIndex(), gameObject, &rendererComponent->GetModelWrapper()}});
 }
 
 void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
@@ -102,7 +100,7 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
     if (model == nullptr)
         return;
 
-    //shader_->Load(ShadowShaderUniforms::BonesTransforms, model->GetBoneTransforms());
+    // shader_->Load(ShadowShaderUniforms::BonesTransforms, model->GetBoneTransforms());
 
     const auto& meshes = model->GetMeshes();
 
@@ -123,15 +121,13 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matri
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
 }
 
-void ShadowMapRenderer::BindMaterial(const Material &material, uint32 textureIndex) const
+void ShadowMapRenderer::BindMaterial(const Material& material, uint32 textureIndex) const
 {
     if (material.diffuseTexture == nullptr)
         return;
 
-    shader_->Load(ShadowShaderUniforms::NumberOfRows,
-                 static_cast<float>(material.diffuseTexture->numberOfRows));
-    shader_->Load(ShadowShaderUniforms::TextureOffset,
-                 material.diffuseTexture->GetTextureOffset(textureIndex));
+    shader_->Load(ShadowShaderUniforms::NumberOfRows, static_cast<float>(material.diffuseTexture->numberOfRows));
+    shader_->Load(ShadowShaderUniforms::TextureOffset, material.diffuseTexture->GetTextureOffset(textureIndex));
     context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
@@ -140,4 +136,4 @@ void ShadowMapRenderer::PrepareShader(ICamera*) const
     shader_->Start();
     shader_->Load(ShadowShaderUniforms::ProjectionViewMatrix, shadowBox_.GetProjectionViewMatrix());
 }
-}  // GameEngine
+}  // namespace GameEngine

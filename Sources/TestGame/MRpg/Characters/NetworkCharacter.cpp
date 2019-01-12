@@ -5,33 +5,34 @@
 
 namespace MmmoRpg
 {
-	NetworkCharacter::NetworkCharacter(uint32 id, const common::Hero::CommonStats& stats, GameEngine::ModelWrapper modelWrapper)
-		: id_(id)
-		, stats_(stats)
-		, enitityWrapper_(modelWrapper)
-	{
-		auto characterController = common::Controllers::CreateCharacterController(enitityWrapper_.Get()->worldTransform, stats_);
-		controllers_[common::Controllers::Types::CharacterControllerType] = characterController;
-	}
+NetworkCharacter::NetworkCharacter(uint32 id, const common::Hero::CommonStats& stats,
+                                   GameEngine::GameObject& gameObject)
+    : id_(id)
+    , stats_(stats)
+    , gameObject_(gameObject)
+{
+    auto characterController = common::Controllers::CreateCharacterController(gameObject_.worldTransform, stats_);
+    controllers_.insert({ common::Controllers::Types::CharacterControllerType, characterController });
+}
 
-	std::shared_ptr<common::Controllers::IController> NetworkCharacter::GetControllerByType(common::Controllers::Types type)
-	{
-		if (controllers_.count(type) == 0)
-			return nullptr;
+std::shared_ptr<common::Controllers::IController> NetworkCharacter::GetControllerByType(common::Controllers::Types type)
+{
+    if (controllers_.count(type) == 0)
+        return nullptr;
 
-		return controllers_[type];
-	}
-	void NetworkCharacter::UpdateControllers(float dt)
-	{
-		for (auto& controller : controllers_)
-			controller.second->Update(dt);
-	}
-	uint32 NetworkCharacter::GetId()
-	{
-		return id_;
-	}
-	GameEngine::Entity* NetworkCharacter::GetEntity()
-	{
-		return enitityWrapper_.Get();
-	}
-} // MmmoRpg
+    return controllers_.at(type);
+}
+void NetworkCharacter::UpdateControllers(float dt)
+{
+    for (auto& controller : controllers_)
+        controller.second->Update(dt);
+}
+uint32 NetworkCharacter::GetId()
+{
+    return id_;
+}
+GameEngine::GameObject& NetworkCharacter::GetGameObject()
+{
+    return gameObject_;
+}
+}  // namespace MmmoRpg

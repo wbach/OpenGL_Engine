@@ -4,6 +4,7 @@
 #include <vector>
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "Textures/TextureFlip.h"
+#include <optional>
 
 namespace GameEngine
 {
@@ -23,7 +24,7 @@ public:
     virtual ~ITextureLoader()
     {
     }
-    virtual void ReadFile(const std::string& file, Image& image, bool applySizeLimit = true, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) = 0;
+    virtual std::optional<Image> ReadFile(const std::string& file, bool applySizeLimit = true, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) = 0;
     // Return place in texture loader not in OpenGL
     virtual Texture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool gpu_pass = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) = 0;
     virtual Texture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) = 0;

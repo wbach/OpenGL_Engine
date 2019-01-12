@@ -6,12 +6,12 @@ namespace GameEngine
 {
 void ModelWrapper::Add(ModelRawPtr model, LevelOfDetail lvl)
 {
-    models_[lvl] = model;
+    models_.insert({ lvl, model });
 }
 ModelRawPtr ModelWrapper::Get(LevelOfDetail lvl)
 {
     if (models_.count(lvl) > 0)
-        return models_[lvl];
+        return models_.at(lvl);
 
     if (!models_.empty())
     {

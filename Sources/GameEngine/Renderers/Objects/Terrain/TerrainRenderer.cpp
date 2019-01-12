@@ -1,22 +1,18 @@
 #include "TerrainRenderer.h"
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Engine/EngineMeasurement.h"
-#include "GameEngine/Objects/RenderAble/Terrain/Terrain.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainWrapper.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Utils/Time/Timer.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "Shaders/TerrainShaderUniforms.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
-#include "Shaders/TerrainShaderUniforms.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
+#include "Shaders/TerrainShaderUniforms.h"
+#include "Utils/Time/Timer.h"
 
 namespace GameEngine
 {
@@ -33,7 +29,6 @@ void TerrainRenderer::Init()
     InitShader();
     objectId = context_.graphicsApi_->CreatePurePatchMeshInstanced(
         4, static_cast<uint32>(TerrainDef::SIZE * TerrainDef::SIZE));
-    Log("TerrainRenderer initialized.");
 }
 
 void TerrainRenderer::Render(Scene* scene)
@@ -41,10 +36,10 @@ void TerrainRenderer::Render(Scene* scene)
     Utils::Timer timer;
     context_.defferedFrameBuffer_->BindToDraw();
 
-   shader_->Start();
-   shader_->Load(TerrainShaderUniforms::lightDirection, scene->GetDirectionalLight().GetDirection());
-   shader_->Load(TerrainShaderUniforms::playerPosition, scene->GetCamera()->GetPosition());
-   shader_->Load(TerrainShaderUniforms::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
+    shader_->Start();
+    shader_->Load(TerrainShaderUniforms::lightDirection, scene->GetDirectionalLight().GetDirection());
+    shader_->Load(TerrainShaderUniforms::playerPosition, scene->GetCamera()->GetPosition());
+    shader_->Load(TerrainShaderUniforms::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
 
     auto modelViewMatrix  = scene->GetCamera()->GetViewMatrix();
     modelViewMatrix[3][0] = 0;
@@ -52,45 +47,42 @@ void TerrainRenderer::Render(Scene* scene)
     modelViewMatrix[3][2] = 0;
 
     RenderSubscribers(modelViewMatrix, 2);
-   shader_->Stop();
+    shader_->Stop();
 
-    MakeMeasurement("TerrainRenderer", timer.GetTimeMiliseconds());
+    MakeMeasurement("TerrainRenderer", timer.GetTimeNanoseconds());
 }
 void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
 {
-    for (auto& sub : subscribes)
+    for (auto& sub : subscribes_)
     {
-       shader_->Load(TerrainShaderUniforms::modelViewMatrix, viewMatrix);
-       shader_->Load(TerrainShaderUniforms::modelViewProjectionMatrix, context_.projection_->GetProjectionMatrix() * viewMatrix);
-       RenderSubscriber(sub);
+        shader_->Load(TerrainShaderUniforms::modelViewMatrix, viewMatrix);
+        shader_->Load(TerrainShaderUniforms::modelViewProjectionMatrix,
+                      context_.projection_->GetProjectionMatrix() * viewMatrix);
+        RenderSubscriber(sub.second->GetTextures());
     }
 }
-void TerrainRenderer::RenderSubscriber(TerrainPtr sub) const
+void TerrainRenderer::RenderSubscriber(const TerrainTexturesMap& textures) const
 {
-    if (sub == nullptr)
-        return;
-
-    BindTextures(sub);
+    BindTextures(textures);
     context_.graphicsApi_->RenderPurePatchedMeshInstances(objectId);
 }
 void TerrainRenderer::InitShader()
 {
-   shader_->Init();
-   shader_->Start();
-   shader_->Load(TerrainShaderUniforms::heightFactor, TerrainDef::HEIGHT_FACTOR);
-   shader_->Load(TerrainShaderUniforms::shadowVariables, vec3(1.f, 35.f, 2048.f));
-   shader_->Load(TerrainShaderUniforms::projectionMatrix, context_.projection_->GetProjectionMatrix());
-   shader_->Stop();
+    shader_->Init();
+    shader_->Start();
+    shader_->Load(TerrainShaderUniforms::heightFactor, TerrainDef::HEIGHT_FACTOR);
+    shader_->Load(TerrainShaderUniforms::shadowVariables, vec3(1.f, 35.f, 2048.f));
+    shader_->Load(TerrainShaderUniforms::projectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Stop();
 }
-void TerrainRenderer::BindTextures(TerrainPtr terrain) const
+void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
     context_.graphicsApi_->ActiveTexture(0, context_.shadowsFrameBuffer_->GetShadowMap());
 
-    const auto& textures = terrain->Get()->textures;
     for (const auto& t : textures)
         BindTexture(t.second, static_cast<int>(t.first));
 }
-void TerrainRenderer::BindTexture(Texture *texture, int id) const
+void TerrainRenderer::BindTexture(Texture* texture, int id) const
 {
     if (texture == nullptr)
         return;
@@ -99,26 +91,27 @@ void TerrainRenderer::BindTexture(Texture *texture, int id) const
 }
 void TerrainRenderer::Subscribe(GameObject* gameObject)
 {
-    auto terrain = dynamic_cast<TerrainPtr>(gameObject);
+    auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
+
     if (terrain == nullptr)
         return;
 
-    subscribes.push_back(terrain);
+    subscribes_.push_back({gameObject->GetId(), terrain});
 }
 void TerrainRenderer::UnSubscribe(GameObject* gameObject)
 {
-    for (auto iter = subscribes.begin(); iter != subscribes.end(); ++iter)
+    for (auto iter = subscribes_.begin(); iter != subscribes_.end(); ++iter)
     {
-        if ((*iter)->GetId() == gameObject->GetId())
+        if (iter->first == gameObject->GetId())
         {
-            subscribes.erase(iter);
+            subscribes_.erase(iter);
             return;
         }
     }
 }
 void TerrainRenderer::ReloadShaders()
 {
-   shader_->Reload();
+    shader_->Reload();
     InitShader();
 }
-}
+}  // namespace GameEngine

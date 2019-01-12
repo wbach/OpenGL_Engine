@@ -1,6 +1,6 @@
 #include "Animator.h"
 #include "GameEngine/Animations/AnimationUtils.h"
-#include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 
@@ -12,8 +12,8 @@ namespace Components
 {
 ComponentsType Animator::type = ComponentsType::Animator;
 
-Animator::Animator()
-    : BaseComponent(ComponentsType::Animator)
+Animator::Animator(const ComponentContext& componentContext, GameObject& gameObject)
+    : BaseComponent(ComponentsType::Animator, componentContext, gameObject)
     , rootJoint_(nullptr)
     , currentTime_(0.f)
     , animationSpeed_(1.f)
@@ -22,19 +22,21 @@ Animator::Animator()
     , changeAnim(false)
 {
 }
-void Animator::SetSkeleton(Animation::Joint* skeleton)
-{
-    rootJoint_ = skeleton;
-}
 void Animator::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
     RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this));
 }
-void Animator::SetAnimation(const std::string& name)
+Animator& Animator::SetSkeleton(Animation::Joint* skeleton)
+{
+    rootJoint_ = skeleton;
+    return *this;
+}
+Animator& Animator::SetAnimation(const std::string& name)
 {
     current_     = name;
     currentTime_ = 0.f;
+    return *this;
 }
 const std::string& Animator::GetCurrentAnimationName()
 {
@@ -58,7 +60,7 @@ void Animator::ChangeAnimation(const std::string& name)
 }
 void Animator::GetSkeletonAndAnimations()
 {
-    auto renderer = thisObject->GetComponent<RendererComponent>();
+    auto renderer = thisObject_.GetComponent<RendererComponent>();
 
     if (renderer == nullptr)
         return;
@@ -74,7 +76,7 @@ void Animator::GetSkeletonAndAnimations()
 }
 void Animator::ChangeAnimState()
 {
-    currentChangeAnimTime_ += (1.f / changeAnimTime_) * time_->deltaTime * animationSpeed_;
+    currentChangeAnimTime_ += (1.f / changeAnimTime_) * componentContext_.time_.deltaTime * animationSpeed_;
 
     if (currentChangeAnimTime_ > 1.f)
     {
@@ -108,12 +110,9 @@ void Animator::Update()
 
 void Animator::increaseAnimationTime()
 {
-    if (time_ == nullptr)
-        return;
-
     auto animationLength = animationClips_[current_].GetLength();
 
-    currentTime_ += time_->deltaTime * animationSpeed_;
+    currentTime_ += componentContext_.time_.deltaTime * animationSpeed_;
     if (currentTime_ > animationLength)
         currentTime_ = fmod(currentTime_, animationLength);
     if (currentTime_ < 0)

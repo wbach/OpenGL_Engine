@@ -6,7 +6,7 @@
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/ComponentController.h"
-#include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Components/IComponentFactory.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -64,7 +64,7 @@ public:
 
     // Cameras
     ICamera* GetCamera();
-    void SetCamera(std::shared_ptr<ICamera> camera);
+    void SetCamera(std::unique_ptr<ICamera> camera);
 
     // Lights
     const Light& GetDirectionalLight() const;
@@ -79,15 +79,6 @@ public:
     void SetRenderersManager(Renderer::RenderersManager* manager);
     void SetDisplayManager(DisplayManager* displayManager);
     void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
-
-    template <class T>
-    T* AddComponent(GameObject* obj)
-    {
-        auto comp = componentFactory_.Create(T::type, obj);
-        auto r    = comp.get();
-        obj->AddComponent(std::move(comp));
-        return static_cast<T*>(r);
-    }
 
 public:
     uint32 objectCount;
@@ -121,7 +112,7 @@ protected:
     std::vector<Light> lights;
     DayNightCycle dayNightCycle;
 
-    std::shared_ptr<ICamera> camera;
+    std::unique_ptr<ICamera> camera;
     //	std::mutex cameraMutex;
 
     GameObjects gameObjects;
@@ -129,7 +120,7 @@ protected:
     Time time_;
     std::shared_ptr<IResourceManager> resourceManager_;
     Components::ComponentController componentController_;
-    Components::ComponentFactory componentFactory_;
+    std::unique_ptr<Components::IComponentFactory> componentFactory_;
 
     std::atomic_bool simulatePhysics_;
 };
@@ -168,7 +159,6 @@ inline void Scene::SetInputManager(InputManager* input)
 inline void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
 {
     renderersManager_ = manager;
-    componentFactory_.SetRendererManager(manager);
 }
 
 inline void Scene::SetDisplayManager(DisplayManager* displayManager)

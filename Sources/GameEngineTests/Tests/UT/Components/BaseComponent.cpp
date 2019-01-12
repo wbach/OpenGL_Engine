@@ -2,19 +2,17 @@
 
 BaseComponentTestSchould::BaseComponentTestSchould()
     : graphicsApiMock_(std::make_shared<GraphicsApiMock>())
-    , camera_(new CameraMock())
+    , cameraMock_(new CameraMock())
     , resourcesManager_(graphicsApiMock_)
     , renderersManager_(graphicsApiMock_, shaderFactoryMock_)
-    , cameraPtr_(camera_)
+    , context_(time_, camera_, physicsApiMock_, resourcesManager_, renderersManager_, componentController_)
+    , obj_(componentFactoryMock_)
+    , camera_(cameraMock_)
 {
+
 }
 
-void BaseComponentTestSchould::Init(AbstractComponent* component)
+void BaseComponentTestSchould::Init(BaseComponent* component)
 {
-    component->SetTime(&time_);
-    component->SetObjectPtr(&obj_);
-    component->SetResourceManager(&resourcesManager_);
-    component->SetRendererManager(&renderersManager_);
-    component->SetComponentController(&componentController_);
-    component->SetCamera(&cameraPtr_);
+
 }

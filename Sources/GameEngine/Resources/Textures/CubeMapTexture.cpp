@@ -4,23 +4,19 @@
 namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(IGraphicsApiPtr graphicsApi, const std::string& name,
-                                 const std::vector<ImagePtr>& image)
+                                 std::vector<Image>& image)
     : Texture(graphicsApi, name, name)
+    , images_(std::move(image))
 {
-    if (image.size() != 6)
+    if (images_.size() != 6)
     {
         Log("Cube map texture need 6 texutres : " + name);
-    }
-    else
-    {
-        for (int x    = 0; x < 6; x++)
-            images[x] = image[x];
     }
 }
 
 void CubeMapTexture::GpuLoadingPass()
 {
-    if (isInit)
+    if (isInit or images_.size() != 6)
     {
         Log("[Error] OGL There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
@@ -31,19 +27,19 @@ void CubeMapTexture::GpuLoadingPass()
 
     for (int x = 0; x < 6; x++)
     {
-        if (images == nullptr && images[x]->data.empty())
+        if (images_[x].data.empty())
         {
             Log("[Error] OGL There was an error loading the texture : " + filename +
                 ". data is null or is initialized. Wrong image : " + std::to_string(x));
             return;
         }
-        data[x] = &images[x]->data[0];
+        data[x] = &images_[x].data[0];
     }
 
-    id = graphicsApi_->CreateCubMapTexture(vec2ui(images[0]->width, images[0]->height), data);
+    id = graphicsApi_->CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
 
-    for (auto& i : images)
-        i->data.clear();
+    for (auto& i : images_)
+        i.data.clear();
 
     if (id == 0)
     {

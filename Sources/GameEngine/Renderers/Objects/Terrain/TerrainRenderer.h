@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 
 namespace GameEngine
 {
@@ -12,7 +13,6 @@ struct RendererContext;
 class IShaderProgram;
 
 typedef TerrainWrapper* TerrainPtr;
-typedef std::vector<TerrainPtr> TerrainPtrs;
 
 class TerrainRenderer : public IRenderer
 {
@@ -27,18 +27,16 @@ public:
 
 private:
     void BindTexture(Texture* texture, int id) const;
-    void BindTextures(TerrainPtr terrain) const;
+    void BindTextures(const TerrainTexturesMap& textures) const;
     void RenderSubscribers(const mat4& viewMatrix, int range) const;
-    void RenderSubscriber(TerrainPtr) const;
+    void RenderSubscriber(const TerrainTexturesMap& textures) const;
     void InitShader();
 
 private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
     vec4 clipPlane;
-
-    TerrainPtrs subscribes;
-
+    std::vector<std::pair<uint32_t, Components::TerrainRendererComponent*>> subscribes_;
     uint32 objectId;
 };
 }

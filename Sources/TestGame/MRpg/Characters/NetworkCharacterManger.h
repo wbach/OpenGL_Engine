@@ -28,10 +28,11 @@ typedef std::function<void(NetworkCharacter*)> OnGetPlayer;
 class NetworkCharacterManager
 {
     typedef std::function<void(std::unique_ptr<GameEngine::GameObject>&)> AddObject;
+    typedef std::function<std::unique_ptr<GameEngine::GameObject>()> CreateObject;
 
 public:
     NetworkCharacterManager(ModelsCreator* modelCreator, GameEngine::Renderer::RenderersManager& rendererManager,
-                            MrpgGameContext& gameContext, AddObject addObject);
+                            MrpgGameContext& gameContext, AddObject addObject, CreateObject createObject);
     void AddCharacter(uint32 id, uint32 classId, const vec3& position, const vec3& rotation,
                       const common::Hero::CommonStats& stats);
     void Update(float deltaTime);
@@ -46,6 +47,7 @@ private:
     GameEngine::Renderer::RenderersManager& rendererManager_;
     MrpgGameContext& gameContext_;
     AddObject addObject_;
+    CreateObject createObject_;
 };
 
 typedef std::unique_ptr<NetworkCharacterManager> NetworkCharacterManagerPtr;

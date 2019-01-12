@@ -1,8 +1,8 @@
 #include "MainRpgScene.h"
 #include "Camera/FirstPersonCamera.h"
 #include "Camera/ThridPersonCamera.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/AplicationContext.h"
-#include "GameEngine/Objects/ObjectBuilder.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "SingleTon.h"
 #include "TestGame/MRpg/Characters/PlayerController.h"
@@ -34,7 +34,8 @@ int MainRpgScene::Initialize()
     modelsCreator_ = std::make_unique<ModelsCreator>(resourceManager_.get());
     networkCharacterManager_ =
         std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_,
-                                                  std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1));
+                                                  std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1),
+                                                  std::bind(&MainRpgScene::CreateGameObject, this));
 
     networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
 
@@ -44,11 +45,11 @@ int MainRpgScene::Initialize()
 
     ReqNetworkSceneCharacters();
 
-    auto bialczyk_obj = ObjectBuilder::CreateEntity(resourceManager_.get(), "Meshes/Bialczyk/Bialczyk.obj");
-    renderersManager_->Subscribe(bialczyk_obj);
-    bialczyk_obj->worldTransform.SetPosition(vec3(100, 17, -7));
-    bialczyk_obj->worldTransform.TakeSnapShoot();
-    AddGameObject(std::unique_ptr<GameObject>(bialczyk_obj));
+    auto obj = CreateGameObject();
+    obj->worldTransform.SetPosition(vec3(100, 17, -7));
+    obj->worldTransform.TakeSnapShoot();
+    obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Bialczyk/Bialczyk.obj");
+    AddGameObject(obj);
 
     // camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
     playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_, gateway_);
@@ -83,7 +84,7 @@ void MainRpgScene::ReqNetworkSceneCharacters()
 
 void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 {
-    camera = std::make_unique<GameEngine::ThirdPersonCamera>(inputManager_, &character->GetEntity()->worldTransform);
+    camera = std::make_unique<GameEngine::ThirdPersonCamera>(inputManager_, &character->GetGameObject().worldTransform);
 }
 
 /*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
@@ -111,4 +112,4 @@ networkCharacters_[msg->id]->GetControllerByType(common::Controllers::Types::Cha
         break;
     }
 }*/
-}  // MmmoRpg
+}  // namespace MmmoRpg

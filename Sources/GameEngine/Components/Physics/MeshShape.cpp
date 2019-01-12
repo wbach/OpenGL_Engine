@@ -12,8 +12,8 @@ namespace Components
 {
 ComponentsType MeshShape::type = ComponentsType::MeshShape;
 
-MeshShape::MeshShape()
-    : CollisionShape(ComponentsType::MeshShape)
+MeshShape::MeshShape(const ComponentContext& componentContext, GameObject& gameObject)
+    : CollisionShape(ComponentsType::MeshShape, componentContext, gameObject)
     , size_(1.f)
     , model_(nullptr)
 {
@@ -37,7 +37,7 @@ void MeshShape::OnAwake()
     for (const auto& mesh : meshes)
     {
         auto data         = mesh.GetCMeshDataRef();
-        collisionShapeId_ = physicsApi_->CreateMeshCollider(positionOffset_, data.positions_, data.indices_);
+        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data.positions_, data.indices_);
     }
 }
 void MeshShape::SetModel(Model* model)

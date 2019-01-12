@@ -19,7 +19,7 @@ namespace Physics
         virtual uint32 CreateSphereColider(const vec3& positionOffset, float radius) override;
         //virtual void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
         virtual uint32 CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, std::vector<float>& data, float hightFactor) override;
-        virtual uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const std::vector<uint16> indicies) override;
+        virtual uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const std::vector<uint16>& indicies) override;
         virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) override;
         virtual void SetVelocityRigidbody(uint32 rigidBodyId,  const vec3& velocity) override;
         virtual void RemoveRigidBody(uint32 id) override;

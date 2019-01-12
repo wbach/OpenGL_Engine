@@ -1,6 +1,6 @@
 #include "TerrainMeshLoader.h"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainDef.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 

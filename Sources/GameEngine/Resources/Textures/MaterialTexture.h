@@ -9,12 +9,12 @@ class MaterialTexture : public Texture
 {
 public:
     MaterialTexture(IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file, const std::string& filepath,
-                    ImagePtr image);
+        Image& image);
     virtual void GpuLoadingPass() override;
     virtual void GpuPostLoadingPass() override;
 
 private:
-    ImagePtr image;
+    Image image;
     bool keepData = false;
 };
 }  // namespace GameEngine

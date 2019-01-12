@@ -1,5 +1,4 @@
 #include "AnimatedParticlesShader.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
 #include "ParticlesShadersUniforms.h"
 
 #define GetLocation(X) uniforms_[ParticlesShadersUniforms::X] = GetUniformLocation(#X);

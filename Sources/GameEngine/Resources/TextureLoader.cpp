@@ -32,21 +32,21 @@ TextureLoader::~TextureLoader()
 {
 }
 
-void TextureLoader::ReadFile(const std::string& file, Image& image, bool applySizeLimit, TextureFlip::Type flip_mode)
+std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool applySizeLimit, TextureFlip::Type flip_mode)
 {
     auto file_location        = file;
     FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file_location.c_str(), 0);
     if (formato == FIF_UNKNOWN)
     {
         Log("[Error] GetFileType: wrong image format or file does not exist : " + file_location);
-        return;
+        return {};
     }
 
     FIBITMAP* imagen2 = FreeImage_Load(formato, file_location.c_str());
     if (!imagen2)
     {
         Log("[Error] FreeImageLoad: wrong image format or file does not exist : " + file_location);
-        return;
+        return {};
     }
 
     FIBITMAP* imagen = FreeImage_ConvertTo32Bits(imagen2);
@@ -54,8 +54,9 @@ void TextureLoader::ReadFile(const std::string& file, Image& image, bool applySi
     {
         FreeImage_Unload(imagen2);
         Log("[Error] Cant convert to 32 bits : " + file_location);
-        return;
+        return {};
     }
+    FreeImage_Unload(imagen2);
 
     if (flip_mode == TextureFlip::Type::VERTICAL || flip_mode == TextureFlip::Type::BOTH)
     {
@@ -89,62 +90,60 @@ void TextureLoader::ReadFile(const std::string& file, Image& image, bool applySi
             imagen = FreeImage_Rescale(imagen, w, h, FILTER_BSPLINE);
     }
 
-    image.width  = w;
-    image.height = h;
+    Image resultImage;
+    resultImage.width  = w;
+    resultImage.height = h;
 
     char* pixeles = (char*)FreeImage_GetBits(imagen);
     Log("File convert bgr2rgb" + file_location + ".");
-    // image.data.resize(4*w*h);
-    auto data = new uint8[4 * w * h];
+
+    resultImage.data.resize(4 * w * h);
+
     // bgr2rgb
     for (uint32 j = 0; j < w * h; j++)
     {
-        data[j * 4 + 0] = pixeles[j * 4 + 2];
-        data[j * 4 + 1] = pixeles[j * 4 + 1];
-        data[j * 4 + 2] = pixeles[j * 4 + 0];
-        data[j * 4 + 3] = pixeles[j * 4 + 3];
+        resultImage.data[j * 4 + 0] = pixeles[j * 4 + 2];
+        resultImage.data[j * 4 + 1] = pixeles[j * 4 + 1];
+        resultImage.data[j * 4 + 2] = pixeles[j * 4 + 0];
+        resultImage.data[j * 4 + 3] = pixeles[j * 4 + 3];
     }
 
-    image.data = std::vector<uint8>(data, data + 4 * w * h);
-
     FreeImage_Unload(imagen);
-    FreeImage_Unload(imagen2);
+
     Log("File: " + file_location + " is loaded.");
+
+    return resultImage;
 }
 
-Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit, bool gpu_pass,
-                                    ObjectTextureType type, TextureFlip::Type flip_mode)
+Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit, bool gpu_pass, ObjectTextureType type,
+                                    TextureFlip::Type flip_mode)
 {
     if (file.empty())
         return nullptr;
 
-    for (auto& t : textures_)
+    if (auto texture = GetTextureIfLoaded(file))
     {
-        if (t->GetFileName() == file)
-            return t.get();
+        return texture;
     }
 
-    ImagePtr texture(new Image);
-    ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), *texture, applySizeLimit, flip_mode);
+    auto texture = ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), applySizeLimit, flip_mode);
+
+    if (not texture)
+    {
+        return nullptr;
+    }
 
     switch (type)
     {
         case ObjectTextureType::MATERIAL:
         {
-            textures_.emplace_back(new MaterialTexture(graphicsApi_, false, file, file, texture));
+            textures_.emplace_back(new MaterialTexture(graphicsApi_, false, file, file, *texture));
 
-            auto cfile = file;
-            std::replace(cfile.begin(), cfile.end(), '\\', '/');
-            auto v        = Utils::SplitString(cfile, '/');
-            auto filename = v.back().substr(0, v.back().find_last_of('.'));
+            auto numberOfRows = GetNumberOfRowsBasedOnTextureFileName(file);
 
-            auto rowsPos = filename.find("_rows_");
-
-            if (rowsPos != std::string::npos)
+            if (numberOfRows)
             {
-                auto rows = filename.substr(rowsPos + 6);
-                if (!rows.empty())
-                    textures_.back()->numberOfRows = std::stoi(rows);
+                textures_.back()->numberOfRows = *numberOfRows;
             }
         }
         break;
@@ -152,7 +151,10 @@ Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit
             break;
     }
     if (gpu_pass)
+    {
         gpuResourceLoader_->AddObjectToGpuLoadingPass(textures_.back().get());
+    }
+
     return textures_.back().get();
 }
 
@@ -175,15 +177,21 @@ Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool 
         return nullptr;
     }
 
-    std::vector<ImagePtr> images;
+    std::vector<Image> images;
     images.resize(6);
 
     int x = 0;
     for (const auto& file : files)
     {
-        images[x] = std::make_shared<Image>();
-        ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), *images[x++], applySizeLimit,
-                 TextureFlip::Type::VERTICAL);
+        auto image =
+            ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), applySizeLimit, TextureFlip::Type::VERTICAL);
+
+        if (not image)
+        {
+            return nullptr;
+        }
+
+        images[x++] = std::move(*image);
     }
 
     textures_.emplace_back(new CubeMapTexture(graphicsApi_, files[0], images));
@@ -198,6 +206,11 @@ Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool 
 
 Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass)
 {
+    if (auto texture = GetTextureIfLoaded(filename))
+    {
+        return texture;
+    }
+
     auto fp = fopen(filename.c_str(), "rb");
 
     if (!fp)
@@ -243,8 +256,15 @@ void TextureLoader::CreateHeightMap(const std::string& in, const std::string& ou
         Log("[Error] cannot open file : " + output);
         return;
     }
-    Image image;
-    ReadFile(input, image, false);
+
+    auto optImage = ReadFile(input, false);
+
+    if (not optImage)
+    {
+        return;
+    }
+    const auto& image = *optImage;
+
     Header header;
     header.height = image.height;
     header.width  = image.width;
@@ -275,4 +295,32 @@ IGraphicsApiPtr TextureLoader::GetGraphicsApi()
 {
     return graphicsApi_;
 }
+Texture* TextureLoader::GetTextureIfLoaded(const std::string& filename) const
+{
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [&filename](const std::unique_ptr<Texture>& texture) {
+        return texture->GetFileName() == filename;
+    });
+    return iter != textures_.end() ? iter->get() : nullptr;
+}
+std::optional<uint32> TextureLoader::GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const
+{
+    auto cfile = file;
+    std::replace(cfile.begin(), cfile.end(), '\\', '/');
+    auto v        = Utils::SplitString(cfile, '/');
+    auto filename = v.back().substr(0, v.back().find_last_of('.'));
+
+    auto rowsPos = filename.find("_rows_");
+
+    if (rowsPos != std::string::npos)
+    {
+        auto rows = filename.substr(rowsPos + 6);
+        if (!rows.empty())
+        {
+            return std::stoi(rows);
+        }
+    }
+
+    return std::optional<uint32>();
+}
+
 }  // namespace GameEngine

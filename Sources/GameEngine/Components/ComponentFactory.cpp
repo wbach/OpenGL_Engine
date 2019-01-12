@@ -1,73 +1,79 @@
 #include "ComponentFactory.h"
-#include "BaseComponent.h"
 #include "Animation/Animator.h"
+#include "BaseComponent.h"
 #include "Physics/BoxShape.h"
 #include "Physics/MeshShape.h"
 #include "Physics/Rigidbody.h"
 #include "Physics/SphereShape.h"
-#include "Physics/TerrainShape.h"
-#include "Renderer/ParticleEffectComponent.h"
-#include "Renderer/RendererComponent.hpp"
-#include "Renderer/TreeRendererComponent.h"
-#include "Renderer/SkyBoxComponent.h"
+#include "Physics/Terrain/TerrainShape.h"
+#include "Renderer/Entity/RendererComponent.hpp"
+#include "Renderer/Grass/GrassComponent.h"
+#include "Renderer/Particles/ParticleEffectComponent.h"
+#include "Renderer/SkyBox/SkyBoxComponent.h"
+#include "Renderer/Terrain/TerrainRendererComponent.h"
+#include "Renderer/Trees/TreeRendererComponent.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time,
-                                   std::shared_ptr<IResourceManager>& resourceManager, std::shared_ptr<ICamera>& camera,
-                                   std::shared_ptr<Physics::IPhysicsApi>* physicsApi)
-    : componentController_(componentController)
-    , resourceManager_(resourceManager)
-    , physicsApi_(physicsApi)
-    , camera_(camera)
-    , time_(time)
+                                   IResourceManager& resourceManager, Renderer::RenderersManager& rendererManager,
+                                   std::unique_ptr<ICamera>& camera, Physics::IPhysicsApi& physicsApi)
+    : context_(time, camera, physicsApi, resourceManager, rendererManager, componentController)
 {
 }
-std::unique_ptr<BaseComponent> ComponentFactory::Create(ComponentsType type, GameObject* ptr)
+std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameObject& ptr)
 {
     switch (type)
     {
         case ComponentsType::Animator:
         {
-            return CreateAndBasicInitialize<Animator>(ptr);
+            return std::make_unique<Animator>(context_, ptr);
         }
         case ComponentsType::Renderer:
         {
-            return CreateAndBasicInitialize<RendererComponent>(ptr);
+            return std::make_unique<RendererComponent>(context_, ptr);
         }
         case ComponentsType::TreeRenderer:
         {
-            return CreateAndBasicInitialize<TreeRendererComponent>(ptr);
+            return std::make_unique<TreeRendererComponent>(context_, ptr);
         }
         case ComponentsType::ParticleEffect:
         {
-            return CreateAndBasicInitialize<ParticleEffectComponent>(ptr);
+            return std::make_unique<ParticleEffectComponent>(context_, ptr);
         }
         case ComponentsType::BoxShape:
         {
-            return CreateAndBasicInitialize<BoxShape>(ptr);
+            return std::make_unique<BoxShape>(context_, ptr);
         }
         case ComponentsType::SphereShape:
         {
-            return CreateAndBasicInitialize<SphereShape>(ptr);
+            return std::make_unique<SphereShape>(context_, ptr);
         }
         case ComponentsType::TerrainShape:
         {
-            return CreateAndBasicInitialize<TerrainShape>(ptr);
+            return std::make_unique<TerrainShape>(context_, ptr);
         }
         case ComponentsType::MeshShape:
         {
-            return CreateAndBasicInitialize<MeshShape>(ptr);
+            return std::make_unique<MeshShape>(context_, ptr);
         }
         case ComponentsType::Rigidbody:
         {
-            return CreateAndBasicInitialize<Rigidbody>(ptr);
+            return std::make_unique<Rigidbody>(context_, ptr);
         }
         case ComponentsType::SkyBox:
         {
-            return CreateAndBasicInitialize<SkyBoxComponent>(ptr);
+            return std::make_unique<SkyBoxComponent>(context_, ptr);
+        }
+        case ComponentsType::TerrainRenderer:
+        {
+            return std::make_unique<TerrainRendererComponent>(context_, ptr);
+        }
+        case ComponentsType::Grass:
+        {
+            return std::make_unique<GrassRendererComponent>(context_, ptr);
         }
         case ComponentsType::BoxCollider:
         {
@@ -79,23 +85,6 @@ std::unique_ptr<BaseComponent> ComponentFactory::Create(ComponentsType type, Gam
         }
     }
     return nullptr;
-}
-void ComponentFactory::SetRendererManager(Renderer::RenderersManager* rendererManager)
-{
-    rendererManager_ = rendererManager;
-}
-template <class T>
-std::unique_ptr<T> ComponentFactory::CreateAndBasicInitialize(GameObject* ptr)
-{
-    auto comp = std::make_unique<T>();
-    comp->SetComponentController(&componentController_);
-    comp->SetTime(&time_);
-    comp->SetCamera(&camera_);
-    comp->SetResourceManager(resourceManager_.get());
-    comp->SetRendererManager(rendererManager_);
-    comp->SetPhysicsApi(physicsApi_->get());
-    comp->SetObjectPtr(ptr);
-    return comp;
 }
 }  // namespace Components
 }  // namespace GameEngine

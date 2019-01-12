@@ -8,7 +8,7 @@ namespace GameEngine
 		class BoxShape : public CollisionShape
 		{
 		public:
-			BoxShape();
+			BoxShape(const ComponentContext& componentContext, GameObject& gameObject);
 			void Update();
 			virtual void ReqisterFunctions() override;
 			void OnAwake();

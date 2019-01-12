@@ -1,10 +1,9 @@
 #include "EntityRenderer.h"
 #include "EntityRendererDef.h"
 #include "GameEngine/Api/ShadersTypes.h"
-#include "GameEngine/Components/Renderer/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineMeasurement.h"
-#include "GameEngine/Objects/RenderAble/Entity/Entity.h"
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -58,7 +57,7 @@ void EntityRenderer::Render(Scene* scene)
     RenderEntities();
     shader_->Stop();
     context_.defferedFrameBuffer_->UnBind();
-    MakeMeasurement("EntityRenderer", timer.GetTimeMiliseconds());
+    MakeMeasurement("EntityRenderer", timer.GetTimeNanoseconds());
 }
 
 void EntityRenderer::Subscribe(GameObject* gameObject)
@@ -69,7 +68,7 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
         return;
 
     subscribes_.insert(
-        {gameObject->GetId(), {rendererComponent->textureIndex, gameObject, &rendererComponent->GetModelWrapper()}});
+        {gameObject->GetId(), {rendererComponent->GetTextureIndex(), gameObject, &rendererComponent->GetModelWrapper()}});
 }
 
 void EntityRenderer::UnSubscribe(GameObject* gameObject)
@@ -105,11 +104,13 @@ void EntityRenderer::RenderModel(Model* model, const mat4& transform_matrix) con
 
 void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) const
 {
+    Utils::Timer timer;
     BindMaterial(mesh.GetMaterial());
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader_->Load(EntityShaderUniforms::TransformationMatrix, transform_matrix_);
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
     UnBindMaterial(mesh.GetMaterial());
+    MakeMeasurement("RenderMesh", timer.GetTimeNanoseconds());
 }
 
 void EntityRenderer::RenderEntities()

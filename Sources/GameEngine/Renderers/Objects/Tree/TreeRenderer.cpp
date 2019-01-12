@@ -1,6 +1,6 @@
 #include "TreeRenderer.h"
 #include "Common/Transform.h"
-#include "GameEngine/Components/Renderer/TreeRendererComponent.h"
+#include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"

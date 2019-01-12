@@ -1,12 +1,18 @@
 #include <gtest/gtest.h>
 #include "GameEngine/Components/Animation/Animator.h"
 
+#include "BaseComponent.h"
+
 using namespace GameEngine;
 using namespace GameEngine::Animation;
 using namespace GameEngine::Components;
 
 struct AnimatorTestWrapper : public Animator
 {
+    AnimatorTestWrapper(ComponentContext& context, GameObject& go)
+        : Animator(context, go)
+    {
+    }
     std::pair<KeyFrame, KeyFrame> _getPreviousAndNextFrames()
     {
         return getPreviousAndNextFrames();
@@ -17,8 +23,13 @@ struct AnimatorTestWrapper : public Animator
     }
 };
 
-struct AnimatorTestSchould : public ::testing::Test
+struct AnimatorTestSchould : public BaseComponentTestSchould
 {
+    AnimatorTestSchould()
+        : BaseComponentTestSchould()
+        , sut_(context_, obj_)
+    {
+    }
     virtual void SetUp() override
     {
         auto& anim = sut_.animationClips_["DefaultAnimationClip"];

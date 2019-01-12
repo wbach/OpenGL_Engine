@@ -10,7 +10,6 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
-#include "SimpleRenderer.h"
 
 namespace GameEngine
 {
@@ -85,10 +84,7 @@ void RenderersManager::InitMainRenderer()
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-    if (rendererType == Params::RendererType::FULL)
-        renderers_.emplace_back(new DefferedRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
-    else
-        renderers_.emplace_back(new SimpleRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
+     renderers_.emplace_back(new DefferedRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
 }
 void RenderersManager::InitGuiRenderer()
 {

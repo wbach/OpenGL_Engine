@@ -8,7 +8,7 @@ namespace Components
 class CollisionShape : public BaseComponent
 {
 public:
-    CollisionShape(ComponentsType type);
+    CollisionShape(ComponentsType type, const ComponentContext& componentContext, GameObject& gameObject);
     uint32 GetCollisionShapeId() const;
 
 public:

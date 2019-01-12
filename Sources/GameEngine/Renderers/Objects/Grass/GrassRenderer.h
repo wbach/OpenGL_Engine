@@ -8,9 +8,13 @@ namespace GameEngine
 class Mesh;
 class Model;
 class Projection;
-struct Grass;
 class IShaderFactory;
 class IShaderProgram;
+
+namespace Components
+{
+class GrassRendererComponent;
+}  // namespace Components
 
 class GrassRenderer : public IRenderer
 {
@@ -28,14 +32,14 @@ private:
     void EndRender() const;
     void RenderSubscribes();
     void RenderModel(Model* model);
-    void RenderMesh(const Mesh &mesh);
+    void RenderMesh(const Mesh& mesh);
     void PrepareShader(Scene* scene);
 
 private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
 
-    std::vector<Grass*> subscribes;
+    std::vector<std::pair<uint32_t, Components::GrassRendererComponent*>> subscribes_;
     float viewDistance = 30.f;
 };
-}  // GameEngine
+}  // namespace GameEngine

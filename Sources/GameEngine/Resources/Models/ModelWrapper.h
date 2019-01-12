@@ -18,7 +18,7 @@ public:
     {
     }
     void Add(ModelRawPtr model, LevelOfDetail lvl);
-    ModelRawPtr Get(LevelOfDetail lvl);
+    ModelRawPtr Get(LevelOfDetail lvl = LevelOfDetail::L1);
 
 private:
     std::unordered_map<LevelOfDetail, ModelRawPtr> models_;

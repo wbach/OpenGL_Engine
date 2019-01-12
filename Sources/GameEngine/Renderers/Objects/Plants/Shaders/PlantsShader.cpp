@@ -1,5 +1,4 @@
 #include "PlantsShader.h"
-#include "GameEngine/Objects/RenderAble/Terrain/TerrainTexturesTypes.h"
 
 #define GetLocation(X) uniformLocations[UniformLocation::X] = GetUniformLocation(#X)
 

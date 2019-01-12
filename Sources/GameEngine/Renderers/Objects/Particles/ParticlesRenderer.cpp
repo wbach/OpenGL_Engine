@@ -1,6 +1,6 @@
 #include "ParticlesRenderer.h"
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
+#include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"

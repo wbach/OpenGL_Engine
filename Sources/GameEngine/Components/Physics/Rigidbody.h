@@ -11,16 +11,16 @@ class CollisionShape;
 class Rigidbody : public BaseComponent
 {
 public:
-    Rigidbody();
+    Rigidbody(const ComponentContext& componentContext, GameObject& gameObject);
     ~Rigidbody();
     void OnStart();
     virtual void ReqisterFunctions() override;
 
 public:
-    void SetMass(float mass);
-    void SetIsStatic(bool is);
-    void SetCollisionShape(CollisionShape* collisionShape);
-    void SetVelocity(const vec3& velocity);
+    Rigidbody& SetMass(float mass);
+    Rigidbody& SetIsStatic(bool is);
+    Rigidbody& SetCollisionShape(CollisionShape* collisionShape);
+    Rigidbody& SetVelocity(const vec3& velocity);
 
 private:
     float mass_;

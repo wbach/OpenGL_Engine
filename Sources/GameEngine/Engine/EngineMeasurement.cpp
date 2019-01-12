@@ -8,12 +8,12 @@ void GameEngine::EngineMeasurement::Add(const std::string& name, uint64_t value)
 
 void GameEngine::EngineMeasurement::WriteToFile(const std::string& fileName)
 {
-    if (timer_.GetTimeMiliseconds() > 10000)
+    if (timer_.GetTimeNanoseconds() > 10000000000)
     {
         std::ofstream file(fileName, std::ios_base::out);
         for (const auto& m : measurements_)
         {
-            file << m.first << ": " << m.second.GetLastValue() << "ms (" << m.second.GetMeanValue() << "ms)\n";
+            file << m.first << ": " << m.second.GetLastValue() << "ns (" << m.second.GetMeanValue() << "ns)\n";
         }
         file.close();
         measurements_.clear();

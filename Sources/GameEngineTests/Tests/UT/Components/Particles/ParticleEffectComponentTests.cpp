@@ -1,4 +1,4 @@
-#include "GameEngine/Components/Renderer/ParticleEffectComponent.h"
+#include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 
 using namespace GameEngine;
@@ -12,6 +12,7 @@ const float DELTA_TIME         = 0.1f;
 struct ParicleComponentTestSchould : public BaseComponentTestSchould
 {
     ParicleComponentTestSchould()
+        : sut_(context_, obj_)
     {
         Init(&sut_);
     }
@@ -35,7 +36,7 @@ TEST_F(ParicleComponentTestSchould, EmitParticlesCountTest)
     sut_.ReqisterFunctions();
     vec3 camPosition(0);
     GameEngine::Particle particle;
-    EXPECT_CALL(*camera_, GetPosition()).WillRepeatedly(Return(camPosition));
+    EXPECT_CALL(*cameraMock_, GetPosition()).WillRepeatedly(Return(camPosition));
     EXPECT_CALL(*this, EmitParticle(_)).WillRepeatedly(Return(particle));
     componentController_.Update();
     EXPECT_EQ(sut_.GetParticlesCount(), 10);
