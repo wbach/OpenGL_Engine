@@ -3,7 +3,6 @@
 #include "GameEngine/Api/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Engine/EngineMeasurement.h"
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -13,7 +12,6 @@
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
-#include "Utils/Time/Timer.h"
 
 namespace GameEngine
 {
@@ -50,14 +48,12 @@ void EntityRenderer::PrepareFrame(Scene* scene)
 
 void EntityRenderer::Render(Scene* scene)
 {
-    Utils::Timer timer;
     context_.defferedFrameBuffer_->BindToDraw();
     shader_->Start();
     PrepareFrame(scene);
     RenderEntities();
     shader_->Stop();
     context_.defferedFrameBuffer_->UnBind();
-    MakeMeasurement("EntityRenderer", timer.GetTimeNanoseconds());
 }
 
 void EntityRenderer::Subscribe(GameObject* gameObject)
@@ -104,13 +100,11 @@ void EntityRenderer::RenderModel(Model* model, const mat4& transform_matrix) con
 
 void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) const
 {
-    Utils::Timer timer;
     BindMaterial(mesh.GetMaterial());
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader_->Load(EntityShaderUniforms::TransformationMatrix, transform_matrix_);
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
     UnBindMaterial(mesh.GetMaterial());
-    MakeMeasurement("RenderMesh", timer.GetTimeNanoseconds());
 }
 
 void EntityRenderer::RenderEntities()
@@ -118,7 +112,9 @@ void EntityRenderer::RenderEntities()
     for (auto& sub : subscribes_)
     {
         if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
-            Log("[Error] Null subsciber in EnityRenderer.");
+        {
+            Error("Null subsciber in EnityRenderer.");
+        }
 
         auto model = sub.second.model->Get(LevelOfDetail::L1);
 

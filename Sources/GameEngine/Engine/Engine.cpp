@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Configuration.h"
-#include "GameEngine/Engine/EngineMeasurement.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -78,8 +77,6 @@ void Engine::MainLoop()
     ProcessEngineEvents();
 
     displayManager->Update();
-
-    WriteMeasurement("measurements.txt");
 }
 
 void Engine::ProcessEngineEvents()

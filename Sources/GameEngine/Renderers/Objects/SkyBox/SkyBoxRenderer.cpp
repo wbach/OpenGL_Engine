@@ -11,8 +11,6 @@
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
 #include "Shaders/SkyBoxShaderUniforms.h"
-#include "Utils/Time/Timer.h"
-#include "GameEngine/Engine/EngineMeasurement.h"
 
 namespace GameEngine
 {
@@ -68,8 +66,6 @@ mat4 SkyBoxRenderer::ModifiedViewMatrix(const mat4& viewMatrix) const
 
 void SkyBoxRenderer::Render(Scene* scene)
 {
-    Utils::Timer timer;
-
     rotation_ += 0.01f;
     PrepareToRendering(scene);
 
@@ -80,8 +76,6 @@ void SkyBoxRenderer::Render(Scene* scene)
         RenderSkyBoxModel(subscriber.second);
     }
     EndRendering();
-
-    MakeMeasurement("SkyBoxRenderer", timer.GetTimeNanoseconds());
 }
 
 void SkyBoxRenderer::PrepareShaderBeforeFrameRender(Scene* scene)

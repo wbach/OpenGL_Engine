@@ -182,7 +182,7 @@ Gui::GuiTextureElement& RenderersManager::GuiTexture(const std::string& label)
 }
 void RenderersManager::Render(RendererFunctionType type, Scene* scene)
 {
-    for (auto& f : rendererFunctions_[type])
+    for (auto& f : rendererFunctions_.at(type))
         f(scene);
 }
 

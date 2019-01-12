@@ -55,10 +55,8 @@ void Scene::FullUpdate(float deltaTime)
 {
     if (physicsApi_ && simulatePhysics_.load())
     {
-        Utils::Timer t;
         physicsApi_->SetSimulationStep(deltaTime);
         physicsApi_->Simulate();
-        MakeMeasurement("Physics", t.GetTimeNanoseconds());
     }
 
     if (displayManager_ != nullptr)

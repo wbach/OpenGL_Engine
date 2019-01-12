@@ -62,7 +62,9 @@ Scene* SceneWrapper::Get()
         return activeScene.get();
 
     if (SaveGetState() == SceneWrapperState::SceneNotSet)
-        Log("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+    {
+        Error("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+    }
 
     return nullptr;
 }

@@ -38,13 +38,13 @@ private:
 };
 }  // GameEngine
 
-#define MakeMeasurement(x, y)                                      \
-    do                                                             \
-    {                                                              \
-        SingleTon<GameEngine::EngineMeasurement>::Get().Add(x, y); \
-    } while (0)
-#define WriteMeasurement(x)                                             \
-    do                                                                  \
-    {                                                                   \
-        SingleTon<GameEngine::EngineMeasurement>::Get().WriteToFile(x); \
-    } while (0)
+//#define MakeMeasurement(x, y)                                      \
+//    do                                                             \
+//    {                                                              \
+//        SingleTon<GameEngine::EngineMeasurement>::Get().Add(x, y); \
+//    } while (0)
+//#define WriteMeasurement(x)                                             \
+//    do                                                                  \
+//    {                                                                   \
+//        SingleTon<GameEngine::EngineMeasurement>::Get().WriteToFile(x); \
+//    } while (0)
