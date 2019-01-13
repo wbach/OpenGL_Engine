@@ -1,4 +1,5 @@
 #include "TerrainRenderer.h"
+#include <algorithm>
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
@@ -31,8 +32,6 @@ void TerrainRenderer::Init()
 
 void TerrainRenderer::Render(Scene* scene)
 {
-    context_.defferedFrameBuffer_->BindToDraw();
-
     shader_->Start();
     shader_->Load(TerrainShaderUniforms::lightDirection, scene->GetDirectionalLight().GetDirection());
     shader_->Load(TerrainShaderUniforms::playerPosition, scene->GetCamera()->GetPosition());
@@ -44,7 +43,6 @@ void TerrainRenderer::Render(Scene* scene)
     modelViewMatrix[3][2] = 0;
 
     RenderSubscribers(modelViewMatrix, 2);
-    shader_->Stop();
 }
 void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
 {
@@ -95,13 +93,12 @@ void TerrainRenderer::Subscribe(GameObject* gameObject)
 }
 void TerrainRenderer::UnSubscribe(GameObject* gameObject)
 {
-    for (auto iter = subscribes_.begin(); iter != subscribes_.end(); ++iter)
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                             [gameObject](const auto& obj) { return obj.first == gameObject->GetId(); });
+
+    if (iter != subscribes_.end())
     {
-        if (iter->first == gameObject->GetId())
-        {
-            subscribes_.erase(iter);
-            return;
-        }
+        subscribes_.erase(iter);
     }
 }
 void TerrainRenderer::ReloadShaders()

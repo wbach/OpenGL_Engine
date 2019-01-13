@@ -31,17 +31,16 @@ void SimpleQuad::Init()
 SimpleQuad::~SimpleQuad()
 {
     if (isInit)
+    {
         Utils::DeleteQuad(vao, i_vbo, vbo_id, vbo_text_id);
+    }
 }
 
 void SimpleQuad::Render(int att)
 {
-    if (!isInit)
+    if (not isInit)
         return;
 
-    if (ts05)
-        Utils::SimpleRenderVao(vao, indicesSize, att, mode);
-    else
-        Utils::SimpleRenderVao(vao, indicesSize, att, mode);
+    Utils::SimpleRenderVao(vao, indicesSize, att, mode);
 }
 }  // namespace GameEngine

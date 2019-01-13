@@ -7,6 +7,7 @@ namespace GameEngine
 {
 enum class RendererFunctionType
 {
+    PRERENDER,
     PRECONFIGURE,
     CONFIGURE,
     UPDATE,

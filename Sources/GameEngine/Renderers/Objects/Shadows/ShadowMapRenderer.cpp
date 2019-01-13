@@ -4,6 +4,7 @@
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
@@ -12,7 +13,6 @@
 #include "Shaders/ShadowShaderUniforms.h"
 #include "ShadowFrameBuffer.h"
 #include "math.hpp"
-
 namespace GameEngine
 {
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
@@ -23,7 +23,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , viewOffset_(Utils::CreateOffset())
 {
     shader_ = context.shaderFactory_.create(Shaders::Shadows);
-    __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, ShadowMapRenderer::Render);
+    __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
 }
 
 void ShadowMapRenderer::Init()
@@ -36,7 +36,6 @@ void ShadowMapRenderer::Render(Scene* scene)
     PrepareRender(scene);
     PrepareShader(scene->GetCamera());
     RenderSubscribes();
-    shader_->Stop();
     context_.shadowsFrameBuffer_->UnbindFrameBuffer();
 }
 
@@ -100,12 +99,18 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
     if (model == nullptr)
         return;
 
-    // shader_->Load(ShadowShaderUniforms::BonesTransforms, model->GetBoneTransforms());
-
     const auto& meshes = model->GetMeshes();
 
     for (const Mesh& mesh : meshes)
+    {
+        if (mesh.UseArmature())
+        {
+            shader_->Load(ShadowShaderUniforms::BonesTransforms, model->GetBoneTransforms());
+        }
+        shader_->Load(ShadowShaderUniforms::UseBoneTransform, mesh.UseArmature());
+
         RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix(), sub.textureIndex);
+    }
 }
 
 void ShadowMapRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const
@@ -115,7 +120,7 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matri
 
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     BindMaterial(mesh.GetMaterial(), textureIndex);
-    shader_->Load(ShadowShaderUniforms::UseBoneTransform, (static_cast<float>(mesh.UseArmature())));
+
     shader_->Load(ShadowShaderUniforms::TransformationMatrix, transform_matrix_);
 
     context_.graphicsApi_->RenderMesh(mesh.GetObjectId());

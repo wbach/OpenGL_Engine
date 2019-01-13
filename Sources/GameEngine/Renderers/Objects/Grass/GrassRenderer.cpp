@@ -68,7 +68,6 @@ void GrassRenderer::InitShader()
 
 void GrassRenderer::PrepareRender(Scene* scene)
 {
-    context_.defferedFrameBuffer_->BindToDraw();
     PrepareShader(scene);
     context_.graphicsApi_->DisableCulling();
 }
@@ -76,7 +75,6 @@ void GrassRenderer::PrepareRender(Scene* scene)
 void GrassRenderer::EndRender() const
 {
     context_.graphicsApi_->EnableCulling();
-    shader_->Stop();
 }
 
 void GrassRenderer::RenderSubscribes()

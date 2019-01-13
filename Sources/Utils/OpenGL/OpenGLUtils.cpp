@@ -107,7 +107,7 @@ void VaoCreator::AllocateDynamicArray(uint32 attributeNumber, uint32 dataSize, u
     glVertexAttribDivisor(attributeNumber, 1);
 }
 
-void BindFrameBuffer(const int& frameBuffer, const int& width, const int& height)
+void BindFrameBuffer(int frameBuffer, int width, int height)
 {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBuffer);
@@ -123,7 +123,7 @@ int CreateFrameBuffer()
     return frame_buffer;
 }
 
-int CreateDepthBufferAttachment(const int& width, const int& height)
+int CreateDepthBufferAttachment(int width, int height)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -163,23 +163,25 @@ GLuint BindIndicesBuffer(const std::vector<uint16>& indices)
     return vbo_id;
 }
 
-GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<float>& data)
+GLuint StoreDataInAttributesList(int attributeNumber, int coordinateSize, const std::vector<float>& data)
 {
     GLuint vbo_id;
     glGenBuffers(1, &vbo_id);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
     glVertexAttribPointer(attributeNumber, coordinateSize, GL_FLOAT, false, 0, 0);
+    glEnableVertexAttribArray(attributeNumber);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     return vbo_id;
 }
-GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<int32>& data)
+GLuint StoreDataInAttributesList(int attributeNumber, int coordinateSize, const std::vector<int32>& data)
 {
     GLuint vbo_id;
     glGenBuffers(1, &vbo_id);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(int32), &data[0], GL_STATIC_DRAW);
     glVertexAttribIPointer(attributeNumber, coordinateSize, GL_INT, 0, 0);
+    glEnableVertexAttribArray(attributeNumber);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     return vbo_id;
 }
@@ -189,6 +191,7 @@ GLuint StoreDataInAttributesListInstanced(uint32 attributeNumber, uint32 dataSiz
     glVertexAttribPointer(attributeNumber, dataSize, GL_FLOAT, GL_FALSE, dataLength,
                           (const GLvoid*)(offset * sizeof(GLfloat)));
     glVertexAttribDivisor(attributeNumber, 1);
+    glEnableVertexAttribArray(attributeNumber);
     return 0;
 }
 
@@ -225,14 +228,7 @@ void DisableCulling()
 void SimpleRenderVao(const GLuint& vao, int indices, int attributes, GLenum mode)
 {
     glBindVertexArray(vao);
-    for (int x = 0; x < attributes; x++)
-        glEnableVertexAttribArray(x);
-
     glDrawElements(mode, indices, GL_UNSIGNED_SHORT, 0);
-
-    for (int x = attributes; x > 0; x--)
-        glDisableVertexAttribArray(x);
-    glBindVertexArray(0);
 }
 
 void CreateQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size)

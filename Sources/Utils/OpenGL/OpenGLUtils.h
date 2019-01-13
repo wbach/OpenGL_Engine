@@ -36,18 +36,18 @@ private:
 
 static const GLuint s_GLuint_zero = 0;
 
-void BindFrameBuffer(const int& frameBuffer, const int& width, const int& height);
+void BindFrameBuffer(int frameBuffer, int width, int height);
 
 int CreateFrameBuffer();
 
-int CreateDepthBufferAttachment(const int& width, const int& height);
+int CreateDepthBufferAttachment(int width, int height);
 
 int CreateVao();
 
 GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 
-GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<float>& data);
-GLuint StoreDataInAttributesList(const int& attributeNumber, const int& coordinateSize, const std::vector<int32>& data);
+GLuint StoreDataInAttributesList(int attributeNumber, int coordinateSize, const std::vector<float>& data);
+GLuint StoreDataInAttributesList(int attributeNumber, int coordinateSize, const std::vector<int32>& data);
 GLuint StoreDataInAttributesListInstanced(uint32 attributeNumber, uint32 dataSize, uint32 dataLength, uint32 offset);
 // void EnableVao(uint32 vao, const std::vector<uint32>& attributes);
 // void DisableVao(const std::vector<uint32>& attributes);

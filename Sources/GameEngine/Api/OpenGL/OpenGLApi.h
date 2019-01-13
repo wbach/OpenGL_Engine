@@ -13,6 +13,7 @@ public:
     OpenGLApi();
     OpenGLApi(IWindowApiPtr windowApi);
     virtual void Init() override;
+    virtual void SetShaderQuaility(ShaderQuaility) override;
     virtual void CreateContext() override;
     virtual void DeleteContext() override;
     virtual void PrintVersion() override;
@@ -103,6 +104,7 @@ private:
     bool FinalizeShader(uint32 programId, GraphicsApiFunctions);
 
 private:
+    ShaderQuaility shaderQuality_;
     uint32 activeBuffer_;
     uint32 objectId_;
     IWindowApiPtr windowApi_;
@@ -117,5 +119,6 @@ private:
     std::unordered_map<uint32, uint32> idToGlId_;
     SimpleQuad quad_;
     SimpleQuad quadTs_;
+    bool polygonMode;
 };
 }  // GameEngine

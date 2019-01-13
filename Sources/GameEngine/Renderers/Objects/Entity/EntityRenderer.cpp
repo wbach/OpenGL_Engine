@@ -48,12 +48,9 @@ void EntityRenderer::PrepareFrame(Scene* scene)
 
 void EntityRenderer::Render(Scene* scene)
 {
-    context_.defferedFrameBuffer_->BindToDraw();
     shader_->Start();
     PrepareFrame(scene);
     RenderEntities();
-    shader_->Stop();
-    context_.defferedFrameBuffer_->UnBind();
 }
 
 void EntityRenderer::Subscribe(GameObject* gameObject)
@@ -63,8 +60,8 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
-    subscribes_.insert(
-        {gameObject->GetId(), {rendererComponent->GetTextureIndex(), gameObject, &rendererComponent->GetModelWrapper()}});
+    subscribes_.insert({gameObject->GetId(),
+                        {rendererComponent->GetTextureIndex(), gameObject, &rendererComponent->GetModelWrapper()}});
 }
 
 void EntityRenderer::UnSubscribe(GameObject* gameObject)

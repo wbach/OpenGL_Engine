@@ -88,7 +88,6 @@ void ParticlesRenderer::ReloadShaders()
 }
 void ParticlesRenderer::PrepareFrame()
 {
-    context_.defferedFrameBuffer_->BindToDraw();
     context_.graphicsApi_->DisableBlend();
     context_.graphicsApi_->EnableBlend();
     context_.graphicsApi_->DisableDepthMask();
@@ -146,7 +145,7 @@ void ParticlesRenderer::StartShader()
 }
 void ParticlesRenderer::StopShader()
 {
-    currentUseAnimation ? animatedShader_->Stop() : shader_->Stop();
+   // currentUseAnimation ? animatedShader_->Stop() : shader_->Stop();
 }
 mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix)
 {

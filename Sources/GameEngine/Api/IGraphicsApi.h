@@ -9,13 +9,18 @@
 #include "FunctionsTypes.h"
 #include "GameEngine/Api/WindowApi.hpp"
 #include "ShaderTypes.h"
+#include "ShadersTypes.h"
 #include "TextureParamters.h"
 #include "Types.h"
 #include "WindowType.h"
-#include "ShadersTypes.h"
 
 namespace GameEngine
 {
+enum class ShaderQuaility
+{
+    SimpleForwardRendering,
+    FullDefferedRendering
+};
 const uint32 MAX_PARTICLE_INSTANCES        = 10000;
 const uint32 PARTICLE_INSTANCE_DATA_LENGTH = 21;
 struct MeshRawData;
@@ -31,6 +36,7 @@ public:
     }
     virtual IWindowApiPtr GetWindowApi()                                                                         = 0;
     virtual void Init()                                                                                          = 0;
+    virtual void SetShaderQuaility(ShaderQuaility)                                                               = 0;
     virtual void CreateContext()                                                                                 = 0;
     virtual void DeleteContext()                                                                                 = 0;
     virtual void PrintVersion()                                                                                  = 0;
@@ -91,10 +97,10 @@ public:
     virtual void UpdateOffset(uint32, const std::vector<vec4>&)                                                  = 0;
     virtual void UpdateBlend(uint32, const std::vector<float>&)                                                  = 0;
     virtual uint32 CloneImage(uint32)                                                                            = 0;
-    virtual ShadersFiles GetShaderFiles(Shaders shaderType)                                               = 0;
+    virtual ShadersFiles GetShaderFiles(Shaders shaderType)                                                      = 0;
 
     // temp
-    virtual void CreateFont(const std::string&)          = 0;
+    virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;
 };
 typedef std::shared_ptr<IGraphicsApi> IGraphicsApiPtr;

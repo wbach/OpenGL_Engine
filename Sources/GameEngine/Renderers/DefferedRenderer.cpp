@@ -20,14 +20,15 @@
 namespace GameEngine
 {
 DefferedRenderer::DefferedRenderer(IGraphicsApiPtr graphicsApi, Projection* projection, IShaderFactory& shaderFactory,
-                           std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
+                                   std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : context_(projection, graphicsApi, std::make_shared<DefferedFrameBuffer>(graphicsApi),
                std::make_shared<ShadowFrameBuffer>(graphicsApi), shaderFactory, rendererFunction)
     , postprocessingRenderersManager_(context_)
 {
+    graphicsApi->SetShaderQuaility(ShaderQuaility::FullDefferedRendering);
     CreateRenderers();
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
-    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::PostProcess);
+    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::OnEndFrame);
 }
 
 DefferedRenderer::~DefferedRenderer()
@@ -78,10 +79,9 @@ void DefferedRenderer::AddRenderer()
 {
     renderers.emplace_back(new T(context_));
 }
-
 void DefferedRenderer::CreateRenderers()
 {
-     AddRenderer<SkyBoxRenderer>();
+    AddRenderer<SkyBoxRenderer>();
 
     if (EngineConf.renderer.shadows.isEnabled)
         AddRenderer<ShadowMapRenderer>();
@@ -99,12 +99,14 @@ void DefferedRenderer::CreateRenderers()
 
     AddRenderer<WaterRenderer>();
 }
-void DefferedRenderer::PostProcess(Scene* scene)
-{
-    postprocessingRenderersManager_.Render(scene);
-}
 void DefferedRenderer::Prepare(Scene*)
 {
     context_.defferedFrameBuffer_->Clean();
+    context_.defferedFrameBuffer_->BindToDraw();
 }
-}  // GameEngine
+void DefferedRenderer::OnEndFrame(Scene* scene)
+{
+    context_.defferedFrameBuffer_->UnBindDraw();
+    postprocessingRenderersManager_.Render(scene);
+}
+}  // namespace GameEngine

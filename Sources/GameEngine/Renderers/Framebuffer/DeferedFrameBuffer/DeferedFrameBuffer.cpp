@@ -36,12 +36,6 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
 void DefferedFrameBuffer::Clean()
 {
     BindToDraw();
-
-    graphicsApi_->EnableDepthMask();
     graphicsApi_->ClearBuffers({BufferType::COLOR, BufferType::DEPTH});
-    graphicsApi_->EnableDepthTest();
-    graphicsApi_->DisableBlend();
-
-    UnBind();
 }
 }  // namespace GameEngine

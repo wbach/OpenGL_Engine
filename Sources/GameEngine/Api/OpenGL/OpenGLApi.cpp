@@ -1,5 +1,6 @@
 #include "OpenGLApi.h"
 #include <GL/glew.h>
+#include <optional>
 #include "Font.h"
 #include "GameEngine/Api/SDL2/SDLOpenGL.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -7,7 +8,6 @@
 #include "Logger/Log.h"
 #include "OpenGL/OpenGLUtils.h"
 #include "glm/gtc/type_ptr.hpp"
-#include <optional>
 
 enum class ObjectType
 {
@@ -56,6 +56,7 @@ OpenGLApi::OpenGLApi(IWindowApiPtr windowApi)
     , bgColor_(0)
     , quad_()
     , quadTs_(true)
+    , polygonMode(true)
 {
     idToGlId_.insert({0, 0});
 
@@ -88,6 +89,10 @@ void OpenGLApi::Init()
     std::string err(reinterpret_cast<char const*>(glewGetErrorString(glew_init_result)));
     Log("[Error] Glew init error : " + err);
 }
+void OpenGLApi::SetShaderQuaility(ShaderQuaility q)
+{
+    shaderQuality_ = q;
+}
 void OpenGLApi::CreateContext()
 {
     windowApi_->CreateContext();
@@ -119,12 +124,12 @@ void OpenGLApi::PrepareFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(bgColor_.x, bgColor_.y, bgColor_.z, 1.f);
 
-     auto code = glGetError();
-     if (code != GL_NO_ERROR)
+    auto code = glGetError();
+    if (code != GL_NO_ERROR)
     {
-    	auto errString = gluErrorString(code);
-    	std::string error((char*)errString);
-    	Error(error);
+        auto errString = gluErrorString(code);
+        std::string error((char*)errString);
+        Error(error);
     }
 }
 void OpenGLApi::SetDefaultTarget()
@@ -153,9 +158,9 @@ uint32 OpenGLApi::CreateShader(const ShadersFiles& files, GraphicsApiFunctions f
     auto programId = program.constValue();
 
     if (functions.count(GraphicFunctionType::SHADER_SET_ID) != 0)
-        functions[GraphicFunctionType::SHADER_SET_ID](programId);
+        functions.at(GraphicFunctionType::SHADER_SET_ID)(programId);
 
-    shaderPrograms_.insert({ programId, OpenGLShaderProgram() });
+    shaderPrograms_.insert({programId, OpenGLShaderProgram()});
     shaderPrograms_.at(programId).id   = programId;
     shaderPrograms_.at(programId).name = files.begin()->first;
 
@@ -168,8 +173,8 @@ uint32 OpenGLApi::CreateShader(const ShadersFiles& files, GraphicsApiFunctions f
     if (!FinalizeShader(programId, functions))
         return false;
 
-    auto rid              = ConvertAndRememberId(programId);
-    createdObjectIds.insert({ rid, ObjectType::SHADER_PROGRAM });
+    auto rid = ConvertAndRememberId(programId);
+    createdObjectIds.insert({rid, ObjectType::SHADER_PROGRAM});
     return rid;
 }
 void OpenGLApi::DeleteMesh(uint32 id)
@@ -194,7 +199,7 @@ uint32 OpenGLApi::ConvertAndRememberId(uint32 id)
     auto oid = objectId_;
     ++objectId_;
 
-    idToGlId_.insert({ oid, id });
+    idToGlId_.insert({oid, id});
     return oid;
 }
 void OpenGLApi::DeleteShader(uint32 programId)
@@ -229,7 +234,7 @@ bool OpenGLApi::AddShader(uint32 programId, const std::string& filename, GameEng
 
     if (id == 0)
     {
-        Error("[Error] Error creating shader type " + shaderTypeMap_[mode]);
+        Error("[Error] Error creating shader type " + shaderTypeMap_.at(mode));
         return false;
     }
 
@@ -263,7 +268,7 @@ bool OpenGLApi::AddShader(uint32 programId, const std::string& filename, GameEng
 bool OpenGLApi::FinalizeShader(uint32 programId, GraphicsApiFunctions functions)
 {
     if (functions.count(GraphicFunctionType::SHADER_BIND_ATTRIBUTES) != 0)
-        functions[GraphicFunctionType::SHADER_BIND_ATTRIBUTES](0);
+        functions.at(GraphicFunctionType::SHADER_BIND_ATTRIBUTES)(0);
 
     glLinkProgram(programId);
 
@@ -281,10 +286,10 @@ bool OpenGLApi::FinalizeShader(uint32 programId, GraphicsApiFunctions functions)
     glUseProgram(programId);
 
     if (functions.count(GraphicFunctionType::SHADER_VARIABLES_LOCATION) != 0)
-        functions[GraphicFunctionType::SHADER_VARIABLES_LOCATION](0);
+        functions.at(GraphicFunctionType::SHADER_VARIABLES_LOCATION)(0);
 
     if (functions.count(GraphicFunctionType::SHADER_CONNECT_TEXTURES) != 0)
-        functions[GraphicFunctionType::SHADER_CONNECT_TEXTURES](0);
+        functions.at(GraphicFunctionType::SHADER_CONNECT_TEXTURES)(0);
 
     glValidateProgram(programId);
     glGetProgramiv(programId, GL_VALIDATE_STATUS, &Success);
@@ -306,7 +311,8 @@ bool OpenGLApi::FinalizeShader(uint32 programId, GraphicsApiFunctions functions)
     {
         glGetProgramInfoLog(programId, sizeof(ErrorLog), NULL, ErrorLog);
         std::string error(ErrorLog);
-        Error("GlError ShaderprogramID: : " + shaderPrograms_.at(programId).name + " error code : " + std::to_string(glError) + " : ");
+        Error("GlError ShaderprogramID: : " + shaderPrograms_.at(programId).name +
+              " error code : " + std::to_string(glError) + " : ");
     }
 
     glUseProgram(0);
@@ -516,8 +522,8 @@ uint32 OpenGLApi::CreateTexture(TextureType type, TextureFilter filter, TextureM
 
     glBindTexture(textureType, 0);
 
-    auto rid              = ConvertAndRememberId(texture);
-    createdObjectIds.insert({ rid, ObjectType::TEXTURE_2D });
+    auto rid = ConvertAndRememberId(texture);
+    createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
     return rid;
 }
 
@@ -709,12 +715,12 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glPatchParameteri(GL_PATCH_VERTICES, patch);
-    glBindVertexArray(0);
 
     auto rid                          = objectId_;
-    createdObjectIds[rid]             = ObjectType::MESH;
-    openGlMeshes_[rid].instancesCount = count;
-    openGlMeshes_[rid].patches        = patch;
+    createdObjectIds.insert({ rid, ObjectType::MESH });
+    openGlMeshes_.insert({ rid, {} });
+    openGlMeshes_.at(rid).instancesCount = count;
+    openGlMeshes_.at(rid).patches        = patch;
     ++objectId_;
     return rid;
 }
@@ -722,10 +728,11 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
 uint32 OpenGLApi::CreateMesh(const MeshRawData& meshRawData)
 {
     auto rid              = objectId_;
-    createdObjectIds[rid] = ObjectType::MESH;
+    createdObjectIds.insert({ rid, ObjectType::MESH });
     ++objectId_;
 
-    auto& mesh = openGlMeshes_[rid];
+    openGlMeshes_.insert({ rid, {} });
+    auto& mesh = openGlMeshes_.at(rid);
 
     Utils::VaoCreator vaoCreator;
     vaoCreator.AddIndicesBuffer(meshRawData.indices_);
@@ -742,10 +749,11 @@ uint32 OpenGLApi::CreateMesh(const MeshRawData& meshRawData)
 uint32 OpenGLApi::CreateParticle()
 {
     auto rid              = objectId_;
-    createdObjectIds[rid] = ObjectType::MESH;
+    createdObjectIds.insert({ rid, ObjectType::MESH });
     objectId_++;
 
-    auto& mesh = openGlMeshes_[rid];
+    openGlMeshes_.insert({ rid, {} });
+    auto& mesh = openGlMeshes_.at(rid);
 
     std::vector<float> vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
     std::vector<float> text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
@@ -762,10 +770,11 @@ uint32 OpenGLApi::CreateParticle()
 uint32 OpenGLApi::CreateAnimatedParticle()
 {
     auto rid              = objectId_;
-    createdObjectIds[rid] = ObjectType::MESH;
+    createdObjectIds.insert({ rid, ObjectType::MESH });
     objectId_++;
 
-    auto& mesh = openGlMeshes_[rid];
+    openGlMeshes_.insert({ rid, {} });
+    auto& mesh = openGlMeshes_.at(rid);
 
     std::vector<float> vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
     std::vector<float> text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
@@ -848,7 +857,6 @@ void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
     const auto& obj = openGlMeshes_.at(id);
     glBindVertexArray(obj.vao);
     glDrawArraysInstanced(GL_PATCHES, 0, obj.patches, obj.instancesCount);
-    glBindVertexArray(0);
 }
 
 void OpenGLApi::RenderMesh(uint32 id)
@@ -916,20 +924,29 @@ void OpenGLApi::BindTexture(uint32 id)
 
 uint32 OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
 {
-    auto shadowMapId      = Utils::CreateDepthBufferAttachment(sizex, sizey);
-    auto rid              = ConvertAndRememberId(shadowMapId);
-    createdObjectIds[rid] = ObjectType::TEXTURE_2D;
+    auto shadowMapId = Utils::CreateDepthBufferAttachment(sizex, sizey);
+    auto rid         = ConvertAndRememberId(shadowMapId);
+    createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
     return rid;
 }
 
 void OpenGLApi::PolygonModeRender()
 {
+    if (polygonMode)
+        return;
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    polygonMode = true;
 }
 
 void OpenGLApi::LineModeRender()
 {
+    if (not polygonMode)
+        return;
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    polygonMode = false;
 }
 
 void OpenGLApi::SetBlendFunction(BlendFunctionType type)

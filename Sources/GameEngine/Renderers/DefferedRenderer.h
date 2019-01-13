@@ -29,8 +29,8 @@ public:
 
 private:
     void CreateRenderers();
-    void PostProcess(Scene*);
     void Prepare(Scene*);
+    void OnEndFrame(Scene*);
     template <class T>
     void AddRenderer();
 

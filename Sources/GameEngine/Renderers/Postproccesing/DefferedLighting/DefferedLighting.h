@@ -13,6 +13,11 @@ public:
     virtual void ReloadShaders() override;
 
 private:
+    void LoadLights(Scene* scene);
+    void PrepareApiStateToRender();
+    void RetriveChanges();
+
+private:
     std::unique_ptr<DefferedShader> shader_;
 };
 }  // GameEngine

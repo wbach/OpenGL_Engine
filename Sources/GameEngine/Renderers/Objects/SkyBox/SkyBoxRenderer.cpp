@@ -37,7 +37,6 @@ void SkyBoxRenderer::PrepareToRendering(Scene* scene)
 void SkyBoxRenderer::EndRendering()
 {
     context_.graphicsApi_->EnableCulling();
-    shader_->Stop();
 }
 
 void SkyBoxRenderer::InitShader()
@@ -68,8 +67,6 @@ void SkyBoxRenderer::Render(Scene* scene)
 {
     rotation_ += 0.01f;
     PrepareToRendering(scene);
-
-    context_.defferedFrameBuffer_->BindToDraw();
 
     for (const auto& subscriber : subscribes_)
     {

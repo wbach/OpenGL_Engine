@@ -33,7 +33,6 @@ void TreeRenderer::Render(Scene* scene)
         iter = subscribersToInit_.erase(iter);
     }
 
-    context_.defferedFrameBuffer_->BindToDraw();
     shader_->Start();
     shader_->Load(TreeShaderUniforms::ViewMatrix, scene->GetCamera()->GetViewMatrix());
     shader_->Load(TreeShaderUniforms::CameraPosition, scene->GetCamera()->GetPosition());
@@ -60,7 +59,6 @@ void TreeRenderer::Render(Scene* scene)
         shader_->Load(TreeShaderUniforms::UseShading, 1.f);
         RenderModel(bmodel, normalizeMatrix, count);
     }
-    shader_->Stop();
 }
 void TreeRenderer::Subscribe(GameObject* gameObject)
 {

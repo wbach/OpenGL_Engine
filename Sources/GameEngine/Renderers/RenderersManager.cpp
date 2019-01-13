@@ -84,7 +84,7 @@ void RenderersManager::InitMainRenderer()
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-     renderers_.emplace_back(new DefferedRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
+    renderers_.emplace_back(new DefferedRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
 }
 void RenderersManager::InitGuiRenderer()
 {
@@ -112,6 +112,7 @@ void RenderersManager::RenderScene(Scene* scene)
 
     RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
 
+    Render(RendererFunctionType::PRERENDER, scene);
     Render(RendererFunctionType::PRECONFIGURE, scene);
     Render(RendererFunctionType::CONFIGURE, scene);
     Render(RendererFunctionType::UPDATE, scene);
@@ -182,9 +183,12 @@ Gui::GuiTextureElement& RenderersManager::GuiTexture(const std::string& label)
 }
 void RenderersManager::Render(RendererFunctionType type, Scene* scene)
 {
-    for (auto& f : rendererFunctions_.at(type))
-        f(scene);
+    if (rendererFunctions_.count(type))
+    {
+        for (auto& f : rendererFunctions_.at(type))
+            f(scene);
+    }
 }
 
-}  // Renderer
-}  // GameEngine
+}  // namespace Renderer
+}  // namespace GameEngine
