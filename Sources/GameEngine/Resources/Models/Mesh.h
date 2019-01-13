@@ -12,8 +12,8 @@ namespace GameEngine
 class Mesh : public GpuObject
 {
 public:
-    Mesh(IGraphicsApiPtr graphicsApi);
-    Mesh(IGraphicsApiPtr graphicsApi, const Material& material, const mat4& transformMatix = mat4(1.f));
+    Mesh(IGraphicsApi& graphicsApi);
+    Mesh(IGraphicsApi& graphicsApi, const Material& material, const mat4& transformMatix = mat4(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&)      = default;
     virtual ~Mesh();
@@ -39,7 +39,7 @@ private:
     void ClearData();
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     MeshRawData meshRawData_;
     Material material_;
     uint32 objectId_;

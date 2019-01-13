@@ -6,8 +6,8 @@
 
 namespace GameEngine
 {
-DefferedShader::DefferedShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Deffered))
+DefferedShader::DefferedShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Deffered)
 {
 
 }
@@ -39,12 +39,12 @@ void DefferedShader::GetAllUniformLocations()
 void DefferedShader::LoadLight(uint32 index, const Light& light)
 {
     const auto& l = lightParamsLocations_[index];
-    graphicsApi_->LoadValueToShader(l.type, static_cast<int>(light.GetType()));
-    graphicsApi_->LoadValueToShader(l.attenuation, light.GetAttenuation());
-    graphicsApi_->LoadValueToShader(l.colour, light.GetColour());
-    graphicsApi_->LoadValueToShader(l.cutOff, light.GetCutoff());
-    graphicsApi_->LoadValueToShader(l.position, light.GetPosition());
-    graphicsApi_->LoadValueToShader(l.direction, light.GetDirection());
+    graphicsApi_.LoadValueToShader(l.type, static_cast<int>(light.GetType()));
+    graphicsApi_.LoadValueToShader(l.attenuation, light.GetAttenuation());
+    graphicsApi_.LoadValueToShader(l.colour, light.GetColour());
+    graphicsApi_.LoadValueToShader(l.cutOff, light.GetCutoff());
+    graphicsApi_.LoadValueToShader(l.position, light.GetPosition());
+    graphicsApi_.LoadValueToShader(l.direction, light.GetDirection());
 }
 void DefferedShader::BindAttributes()
 {

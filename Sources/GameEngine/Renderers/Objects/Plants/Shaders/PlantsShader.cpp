@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-PlantsShader::PlantsShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Plants))
+PlantsShader::PlantsShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Plants)
 {
     SetFiles({{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
               {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},

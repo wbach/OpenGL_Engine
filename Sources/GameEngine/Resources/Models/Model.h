@@ -23,7 +23,7 @@ public:
     virtual void GpuPostLoadingPass() override;
 
     Mesh* AddMesh(Mesh& mesh);
-    Mesh* AddMesh(IGraphicsApiPtr api);
+    Mesh* AddMesh(IGraphicsApi& api);
     inline float GetScaleFactor();
     inline const std::string& GetFileName() const;
     inline const std::vector<Mesh>& GetMeshes() const;

@@ -26,7 +26,7 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
 void TerrainRenderer::Init()
 {
     InitShader();
-    objectId = context_.graphicsApi_->CreatePurePatchMeshInstanced(
+    objectId = context_.graphicsApi_.CreatePurePatchMeshInstanced(
         4, static_cast<uint32>(TerrainDef::SIZE * TerrainDef::SIZE));
 }
 
@@ -50,14 +50,14 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
     {
         shader_->Load(TerrainShaderUniforms::modelViewMatrix, viewMatrix);
         shader_->Load(TerrainShaderUniforms::modelViewProjectionMatrix,
-                      context_.projection_->GetProjectionMatrix() * viewMatrix);
+                      context_.projection_.GetProjectionMatrix() * viewMatrix);
         RenderSubscriber(sub.second->GetTextures());
     }
 }
 void TerrainRenderer::RenderSubscriber(const TerrainTexturesMap& textures) const
 {
     BindTextures(textures);
-    context_.graphicsApi_->RenderPurePatchedMeshInstances(objectId);
+    context_.graphicsApi_.RenderPurePatchedMeshInstances(objectId);
 }
 void TerrainRenderer::InitShader()
 {
@@ -65,12 +65,12 @@ void TerrainRenderer::InitShader()
     shader_->Start();
     shader_->Load(TerrainShaderUniforms::heightFactor, TerrainDef::HEIGHT_FACTOR);
     shader_->Load(TerrainShaderUniforms::shadowVariables, vec3(1.f, 35.f, 2048.f));
-    shader_->Load(TerrainShaderUniforms::projectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(TerrainShaderUniforms::projectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Stop();
 }
 void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
-    context_.graphicsApi_->ActiveTexture(0, context_.shadowsFrameBuffer_->GetShadowMap());
+    context_.graphicsApi_.ActiveTexture(0, context_.shadowsFrameBuffer_.GetShadowMap());
 
     for (const auto& t : textures)
         BindTexture(t.second, static_cast<int>(t.first));
@@ -80,7 +80,7 @@ void TerrainRenderer::BindTexture(Texture* texture, int id) const
     if (texture == nullptr)
         return;
 
-    context_.graphicsApi_->ActiveTexture(id, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(id, texture->GetId());
 }
 void TerrainRenderer::Subscribe(GameObject* gameObject)
 {

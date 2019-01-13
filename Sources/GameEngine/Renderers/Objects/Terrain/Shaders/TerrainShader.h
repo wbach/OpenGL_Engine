@@ -8,7 +8,7 @@ namespace GameEngine
 class TerrainShader : public ShaderProgram
 {
 public:
-    TerrainShader(IGraphicsApiPtr graphicsApi);
+    TerrainShader(IGraphicsApi& graphicsApi);
     void GetAllUniformLocations();
     void BindAttributes() override;
     void ConnectTextureUnits() const override;

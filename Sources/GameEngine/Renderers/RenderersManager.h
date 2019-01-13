@@ -24,7 +24,7 @@ class GuiTextureElement;
 class RenderersManager
 {
 public:
-    RenderersManager(IGraphicsApiPtr graphicsApi, IShaderFactory& shaderFactory);
+    RenderersManager(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
     void Init();
     const Projection& GetProjection() const;
     void RenderScene(Scene* scene);
@@ -47,7 +47,7 @@ private:
     void Render(RendererFunctionType type, Scene* scene);
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     Renderer::Gui::GuiContext guiContext_;

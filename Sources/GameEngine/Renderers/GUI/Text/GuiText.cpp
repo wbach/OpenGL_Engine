@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-GuiText::GuiText(IGraphicsApiPtr graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory)
+GuiText::GuiText(IGraphicsApi& graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , fontFile(font_file)
     , defaultScale_(0.0005f, 0.001f)
@@ -37,7 +37,7 @@ void GuiText::InitShader()
 void GuiText::Render()
 {
     shader_->Start();
-    graphicsApi_->ActiveTexture(0);
+    graphicsApi_.ActiveTexture(0);
 
     for (const auto& p : texts)
     {
@@ -48,14 +48,14 @@ void GuiText::Render()
         shader_->Load(FontShaderUniforms::TextSize, text.m_size);
         shader_->Load(FontShaderUniforms::Color, text.colour);
         shader_->Load(FontShaderUniforms::Translation, text.position);
-        graphicsApi_->PrintText(text.text, vec2i((int32)text.position.x, (int32)text.position.y));
+        graphicsApi_.PrintText(text.text, vec2i((int32)text.position.x, (int32)text.position.y));
     }
     shader_->Stop();
 }
 
 void GuiText::Init()
 {
-    graphicsApi_->CreateFont(fontFile);
+    graphicsApi_.CreateFont(fontFile);
     InitShader();
     Log("GuiText (GuiRenderer) is initialized.");
 }

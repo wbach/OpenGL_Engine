@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-LoadingShader::LoadingShader(IGraphicsApiPtr ptr)
-    : ShaderProgram(ptr, ptr->GetShaderFiles(Shaders::Loading))
+LoadingShader::LoadingShader(IGraphicsApi& ptr)
+    : ShaderProgram(ptr, Shaders::Loading)
 {
 }
 

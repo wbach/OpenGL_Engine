@@ -7,11 +7,11 @@
 using namespace GameEngine;
 using namespace GameEngine::Physics;
 
-void TestGame::TestGameStart(GameEngine::IGraphicsApiPtr gptr)
+void TestGame::TestGameStart(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
 {
-    Engine engine(gptr, std::make_shared<BachPhysicsAdapter>(), std::make_shared<TestSceneFactory>());
+    Engine engine(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<TestSceneFactory>());
     engine.Init();
     // engine.sceneManager_.AddScene(new MainScene(engine));
-    engine.sceneManager_.SetActiveScene("MainScene");
+    engine.GetSceneManager().SetActiveScene("MainScene");
     engine.GameLoop();
 }

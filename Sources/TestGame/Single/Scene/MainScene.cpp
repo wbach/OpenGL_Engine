@@ -71,12 +71,6 @@ int MainScene::Initialize()
     renderersManager_->GuiText("cameraPos").m_size   = .5f;
     renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
 
-    Renderer::Gui::GuiTextureElement guiTexture;
-    guiTexture.texture = new Texture();
-    guiTexture.SetScale(vec2(0.25, 0.25));
-    guiTexture.SetPosition(vec2(0.5, 0.5));
-
-    // renderersManager_->GuiTexture("shadowMap") = guiTexture;
     // clang-format off
     {
         std::vector<std::string> nightTextures{ "Skybox/Night/right.png", "Skybox/Night/left.png",

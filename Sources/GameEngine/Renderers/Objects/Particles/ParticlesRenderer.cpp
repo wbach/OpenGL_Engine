@@ -40,8 +40,8 @@ ParticlesRenderer::ParticlesRenderer(RendererContext& context)
 void ParticlesRenderer::Init()
 {
     InitShaders();
-    aniamtedParticleObjecId = context_.graphicsApi_->CreateAnimatedParticle();
-    staticParticleObjecId   = context_.graphicsApi_->CreateParticle();
+    aniamtedParticleObjecId = context_.graphicsApi_.CreateAnimatedParticle();
+    staticParticleObjecId   = context_.graphicsApi_.CreateParticle();
 }
 void ParticlesRenderer::Render(Scene* scene)
 {
@@ -88,17 +88,17 @@ void ParticlesRenderer::ReloadShaders()
 }
 void ParticlesRenderer::PrepareFrame()
 {
-    context_.graphicsApi_->DisableBlend();
-    context_.graphicsApi_->EnableBlend();
-    context_.graphicsApi_->DisableDepthMask();
-    context_.graphicsApi_->DisableCulling();
+    context_.graphicsApi_.DisableBlend();
+    context_.graphicsApi_.EnableBlend();
+    context_.graphicsApi_.DisableDepthMask();
+    context_.graphicsApi_.DisableCulling();
 }
 void ParticlesRenderer::ClearFrame()
 {
-    context_.graphicsApi_->EnableCulling();
-    context_.graphicsApi_->EnableDepthMask();
-    context_.graphicsApi_->SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
-    context_.graphicsApi_->DisableBlend();
+    context_.graphicsApi_.EnableCulling();
+    context_.graphicsApi_.EnableDepthMask();
+    context_.graphicsApi_.SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+    context_.graphicsApi_.DisableBlend();
 }
 void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)
 {
@@ -119,7 +119,7 @@ void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)
 
 void ParticlesRenderer::RenderParticles(const ParticleSubscriber& effect, const mat4& viewMatrix)
 {
-    // context_.graphicsApi_->SetBlendFunction(effect.blendFunction);
+    // context_.graphicsApi_.SetBlendFunction(effect.blendFunction);
     UpdateTexture(effect.texture);
 
     auto particlesSize = effect.particles->size();
@@ -130,14 +130,14 @@ void ParticlesRenderer::RenderParticles(const ParticleSubscriber& effect, const 
 
 void ParticlesRenderer::RenderInstances(uint32 size)
 {
-    context_.graphicsApi_->UpdateMatrixes(particleObjecId, transformsParticles_);
+    context_.graphicsApi_.UpdateMatrixes(particleObjecId, transformsParticles_);
 
     if (currentUseAnimation)
     {
-        context_.graphicsApi_->UpdateOffset(particleObjecId, offsets_);
-        context_.graphicsApi_->UpdateBlend(particleObjecId, blendFactors_);
+        context_.graphicsApi_.UpdateOffset(particleObjecId, offsets_);
+        context_.graphicsApi_.UpdateBlend(particleObjecId, blendFactors_);
     }
-    context_.graphicsApi_->RenderMeshInstanced(particleObjecId, size);
+    context_.graphicsApi_.RenderMeshInstanced(particleObjecId, size);
 }
 void ParticlesRenderer::StartShader()
 {
@@ -173,13 +173,13 @@ void ParticlesRenderer::InitShaders()
 {
     shader_->Init();
     shader_->Start();
-    shader_->Load(ParticlesShadersUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(ParticlesShadersUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Stop();
 
     animatedShader_->Init();
     animatedShader_->Start();
     animatedShader_->Load(ParticlesShadersUniforms::ProjectionMatrix,
-                         context_.projection_->GetProjectionMatrix());
+                         context_.projection_.GetProjectionMatrix());
     animatedShader_->Stop();
 }
 
@@ -197,7 +197,7 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
                              static_cast<float>(textureNumberOfrows));
     }
 
-    context_.graphicsApi_->ActiveTexture(0, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(0, texture->GetId());
 }
 
 void ParticlesRenderer::GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix)

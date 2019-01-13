@@ -1,4 +1,6 @@
 #include "ShaderFactory.h"
+#include "GameEngine/Renderers/GUI/Text/FontShader.h"
+#include "GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h"
 #include "GameEngine/Renderers/Objects/Entity/Shaders/DefferedEntityShader.h"
 #include "GameEngine/Renderers/Objects/Entity/Shaders/EntityShader.h"
 #include "GameEngine/Renderers/Objects/Grass/Shaders/GrassShader.h"
@@ -14,12 +16,14 @@
 #include "GameEngine/Renderers/Postproccesing/ColorFliper/Shaders/ColorFliperShader.h"
 #include "GameEngine/Renderers/Postproccesing/DefferedLighting/Shaders/DefferedShader.h"
 #include "GameEngine/Renderers/Postproccesing/SSAO/Shaders/SSAOShader.h"
-#include "GameEngine/Renderers/GUI/Text/FontShader.h"
-#include "GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h"
 #include "GameEngine/Shaders/Loading/LoadingShader.h"
 
 namespace GameEngine
 {
+ShaderFactory::ShaderFactory(IGraphicsApi& graphicsApi)
+    : graphicsApi_(graphicsApi)
+{
+}
 std::unique_ptr<IShaderProgram> ShaderFactory::create(Shaders type)
 {
     switch (type)
@@ -62,9 +66,5 @@ std::unique_ptr<IShaderProgram> ShaderFactory::create(Shaders type)
             return std::make_unique<Renderer::Gui::GuiTextureShader>(graphicsApi_);
     }
     return std::unique_ptr<IShaderProgram>();
-}
-ShaderFactory::ShaderFactory(IGraphicsApiPtr graphicsApi)
-    : graphicsApi_(graphicsApi)
-{
 }
 }  // namespace GameEngine

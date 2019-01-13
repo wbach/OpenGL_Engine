@@ -49,7 +49,6 @@ void CTimeMeasurer::CalculateAndLock()
 {
     previousTime_ = currentTime_;
     currentTime_  = GetCTime();
-    // std::cout << GetDeltaTime() << std::endl;
 
     currentTime = std::chrono::high_resolution_clock::now();
     frameCount++;

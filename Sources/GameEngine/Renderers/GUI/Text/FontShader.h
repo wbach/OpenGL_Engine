@@ -6,7 +6,7 @@ namespace GameEngine
 class FontShader : public ShaderProgram
 {
 public:
-    FontShader(IGraphicsApiPtr graphicsApi);
+    FontShader(IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations() override;

@@ -15,10 +15,10 @@ class IShaderFactory;
 
 struct RendererContext
 {
-    RendererContext(Projection* projection,
-                    const std::shared_ptr<IGraphicsApi>& api,
-                    const std::shared_ptr<IFrameBuffer>& defferedBuffer,
-                    const std::shared_ptr<IShadowFrameBuffer>& shadowBuffer,
+    RendererContext(Projection& projection,
+                    IGraphicsApi& api,
+                    IFrameBuffer& defferedBuffer,
+                    IShadowFrameBuffer& shadowBuffer,
                     IShaderFactory& shaderFactory,
                     std::function<void(RendererFunctionType, RendererFunction)> registerFunction)
         : projection_(projection)
@@ -29,12 +29,12 @@ struct RendererContext
         , registerFunction_(registerFunction)
     {
     }
-    Projection* projection_;
+    Projection& projection_;
+    IGraphicsApi& graphicsApi_;
     mat4 toShadowMapZeroMatrix_;
-    std::shared_ptr<IGraphicsApi> graphicsApi_;
     IShaderFactory& shaderFactory_;
-    std::shared_ptr<IFrameBuffer> defferedFrameBuffer_;
-    std::shared_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
+    IFrameBuffer& defferedFrameBuffer_;
+    IShadowFrameBuffer& shadowsFrameBuffer_;
     std::function<void(RendererFunctionType, RendererFunction)> registerFunction_;
 };
 }  // namespace GameEngine

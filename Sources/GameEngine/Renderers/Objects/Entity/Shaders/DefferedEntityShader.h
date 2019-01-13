@@ -7,7 +7,7 @@ namespace GameEngine
 class DefferedEntityShader : public EntityShader
 {
 public:
-    DefferedEntityShader(IGraphicsApiPtr graphicsApi);
+    DefferedEntityShader(IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations() override;

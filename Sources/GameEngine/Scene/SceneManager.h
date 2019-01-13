@@ -25,7 +25,7 @@ class InputManager;
 class SceneManager
 {
 public:
-    SceneManager(IGraphicsApiPtr grahpicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr,
+    SceneManager(IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi, SceneFactoryBasePtr,
                  std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory, std::shared_ptr<InputManager>&,
                  Renderer::RenderersManager&,
                  Renderer::Gui::GuiContext& guiContext);
@@ -54,8 +54,8 @@ private:
     void JustLoadScene(T scene);
 
 private:
-    IGraphicsApiPtr grahpicsApi_;
-    Physics::IPhysicsApiPtr physicsApi_;
+    IGraphicsApi& grahpicsApi_;
+    Physics::IPhysicsApi& physicsApi_;
     SceneFactoryBasePtr sceneFactory_;
 
     uint32 currentSceneId_;

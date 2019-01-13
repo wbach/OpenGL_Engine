@@ -5,7 +5,7 @@
 
 namespace GameEngine
 {
-SceneWrapper::SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+SceneWrapper::SceneWrapper(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
                            IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , shaderFactory_(shaderFactory)

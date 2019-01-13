@@ -8,7 +8,7 @@ namespace GameEngine
 class AnimatedParticlesShader : public ShaderProgram
 {
 public:
-    AnimatedParticlesShader(IGraphicsApiPtr graphicsApi);
+    AnimatedParticlesShader(IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations();

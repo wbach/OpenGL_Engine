@@ -15,25 +15,25 @@ namespace GameEngine
 {
 struct RenderAsLine
 {
-    RenderAsLine(const IGraphicsApiPtr& graphicsApi, bool use)
+    RenderAsLine(IGraphicsApi& graphicsApi, bool use)
         : graphicsApi_(graphicsApi)
         , use(use)
     {
         if (use)
-            graphicsApi_->LineModeRender();
+            graphicsApi_.LineModeRender();
     }
     ~RenderAsLine()
     {
         if (use)
-            graphicsApi_->PolygonModeRender();
+            graphicsApi_.PolygonModeRender();
     }
-    const IGraphicsApiPtr& graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     bool use = false;
 };
 
 namespace Renderer
 {
-RenderersManager::RenderersManager(IGraphicsApiPtr graphicsApi, IShaderFactory& shaderFactory)
+RenderersManager::RenderersManager(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , renderAsLines(false)
     , markToReloadShaders_(false)
@@ -84,7 +84,7 @@ void RenderersManager::InitMainRenderer()
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-    renderers_.emplace_back(new DefferedRenderer(graphicsApi_, &projection_, shaderFactory_, registerFunc));
+    renderers_.emplace_back(new DefferedRenderer(graphicsApi_, projection_, shaderFactory_, registerFunc));
 }
 void RenderersManager::InitGuiRenderer()
 {

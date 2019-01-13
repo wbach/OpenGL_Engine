@@ -1,15 +1,16 @@
 #include "FrameBuffer.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-FrameBuffer::FrameBuffer(IGraphicsApiPtr api)
+FrameBuffer::FrameBuffer(IGraphicsApi& api)
     : graphicsApi_(api)
 {
 }
 void FrameBuffer::CreateFrameBuffer()
 {
-    fbo           = graphicsApi_->CreateBuffer();
+    fbo           = graphicsApi_.CreateBuffer();
     isInitialized = true;
 }
 void FrameBuffer::AddTexture(uint32 texture)
@@ -22,7 +23,7 @@ void FrameBuffer::SetDepthTexture(uint32 texture)
 }
 int FrameBuffer::CheckStatus()
 {
-    auto status = graphicsApi_->GetBufferStatus();
+    auto status = graphicsApi_.GetBufferStatus();
 
     if (!status.empty())
     {
@@ -49,25 +50,25 @@ void FrameBuffer::BindTextures(int offset)
 {
     uint32 nr = 0;
     for (auto i : textures)
-        graphicsApi_->ActiveTexture(offset + nr++, i);
+        graphicsApi_.ActiveTexture(offset + nr++, i);
 
-    graphicsApi_->ActiveTexture(offset + nr, depthTexture);
+    graphicsApi_.ActiveTexture(offset + nr, depthTexture);
 }
 void FrameBuffer::BindToDraw()
 {
-    graphicsApi_->BindBuffer(BindType::DRAW, fbo);
+    graphicsApi_.BindBuffer(BindType::DRAW, fbo);
 }
 void FrameBuffer::Bind()
 {
-    graphicsApi_->BindBuffer(BindType::DEFAULT, fbo);
+    graphicsApi_.BindBuffer(BindType::DEFAULT, fbo);
 }
 void FrameBuffer::UnBind()
 {
-    graphicsApi_->BindBuffer(BindType::DEFAULT, 0);
+    graphicsApi_.BindBuffer(BindType::DEFAULT, 0);
 }
 void FrameBuffer::UnBindDraw()
 {
-    graphicsApi_->SetDefaultTarget();
+    graphicsApi_.SetDefaultTarget();
 }
 FrameBuffer::~FrameBuffer()
 {
@@ -78,12 +79,12 @@ FrameBuffer::~FrameBuffer()
 
     CleanTexures();
 
-    graphicsApi_->DeleteObject(depthTexture);
-    graphicsApi_->DeleteObject(fbo);
+    graphicsApi_.DeleteObject(depthTexture);
+    graphicsApi_.DeleteObject(fbo);
 }
 void FrameBuffer::CleanTexures()
 {
     for (auto tex : textures)
-        graphicsApi_->DeleteObject(tex);
+        graphicsApi_.DeleteObject(tex);
 }
 }  // namespace GameEngine

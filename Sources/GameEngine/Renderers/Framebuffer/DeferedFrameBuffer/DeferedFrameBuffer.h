@@ -6,7 +6,7 @@ namespace GameEngine
 class DefferedFrameBuffer : public FrameBuffer
 {
 public:
-    DefferedFrameBuffer(IGraphicsApiPtr api);
+    DefferedFrameBuffer(IGraphicsApi& api);
     void Init(const vec2ui& size) override;
     void Clean() override;
 };

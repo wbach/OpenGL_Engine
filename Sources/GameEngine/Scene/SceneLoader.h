@@ -17,7 +17,7 @@ class IShaderFactory;
 class SceneLoader
 {
 public:
-    SceneLoader(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+    SceneLoader(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
                 IShaderFactory& shaderFactory);
     ~SceneLoader();
     bool Load(Scene* scene);
@@ -36,7 +36,7 @@ private:
     void OpenGLLoadingPass(Scene* scene, std::thread& loading_thread);
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     IShaderFactory& shaderFactory_;
 
     int objectCount;

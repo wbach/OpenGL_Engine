@@ -22,7 +22,7 @@ void TreeRenderer::Init()
 {
     shader_->Init();
     shader_->Start();
-    shader_->Load(TreeShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(TreeShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Stop();
 }
 void TreeRenderer::Render(Scene* scene)
@@ -50,12 +50,12 @@ void TreeRenderer::Render(Scene* scene)
 
         uint32 count = sub.second.positions->size();
 
-        context_.graphicsApi_->ActiveTexture(0, sub.second.positionTexture);
+        context_.graphicsApi_.ActiveTexture(0, sub.second.positionTexture);
         shader_->Load(TreeShaderUniforms::PositionMapSize, count);
-        context_.graphicsApi_->DisableCulling();
+        context_.graphicsApi_.DisableCulling();
         shader_->Load(TreeShaderUniforms::UseShading, 0.f);
         RenderModel(model, normalizeMatrix, count);
-        context_.graphicsApi_->EnableCulling();
+        context_.graphicsApi_.EnableCulling();
         shader_->Load(TreeShaderUniforms::UseShading, 1.f);
         RenderModel(bmodel, normalizeMatrix, count);
     }
@@ -94,7 +94,7 @@ void TreeRenderer::PreparePositionMap(TreeSubscriber& sub)
     if (sub.textureInGpu)
         return;
 
-    sub.positionTexture = context_.graphicsApi_->CreateTexture(TextureType::FLOAT_TEXTURE_3C, TextureFilter::NEAREST,
+    sub.positionTexture = context_.graphicsApi_.CreateTexture(TextureType::FLOAT_TEXTURE_3C, TextureFilter::NEAREST,
                                                                TextureMipmap::NONE, BufferAtachment::NONE,
                                                                vec2ui(sub.positions->size(), 1), &(*sub.positions)[0]);
     sub.textureInGpu = true;
@@ -108,7 +108,7 @@ void TreeRenderer::RenderMesh(const Mesh& mesh, const mat4& transform, uint32 si
 {
     shader_->Load(TreeShaderUniforms::NormalizationMatrix, transform);
     BindMaterial(mesh.GetMaterial());
-    context_.graphicsApi_->RenderMeshInstanced(mesh.GetObjectId(), size);
+    context_.graphicsApi_.RenderMeshInstanced(mesh.GetObjectId(), size);
 }
 void TreeRenderer::RenderTrees()
 {
@@ -116,7 +116,7 @@ void TreeRenderer::RenderTrees()
 void TreeRenderer::BindMaterial(const Material &material) const
 {
     if (material.isTransparency)
-        context_.graphicsApi_->DisableCulling();
+        context_.graphicsApi_.DisableCulling();
 
     shader_->Load(TreeShaderUniforms::ModelMaterial_Ambient, material.ambient);
     shader_->Load(TreeShaderUniforms::ModelMaterial_Diffuse, material.diffuse);
@@ -125,21 +125,21 @@ void TreeRenderer::BindMaterial(const Material &material) const
 
     if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
     {
-        context_.graphicsApi_->ActiveTexture(1, material.diffuseTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(1, material.diffuseTexture->GetId());
     }
 
     if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
     {
-        context_.graphicsApi_->ActiveTexture(2, material.ambientTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(2, material.ambientTexture->GetId());
     }
 
     if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
     {
-        context_.graphicsApi_->ActiveTexture(3, material.normalTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(3, material.normalTexture->GetId());
     }
 
     if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
-        context_.graphicsApi_->ActiveTexture(4, material.specularTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(4, material.specularTexture->GetId());
 }
 void TreeRenderer::UnBindMaterial(const Material &material) const
 {

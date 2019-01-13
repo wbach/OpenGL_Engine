@@ -5,8 +5,8 @@
 
 namespace GameEngine
 {
-ParticlesShader::ParticlesShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Particles))
+ParticlesShader::ParticlesShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Particles)
 {
 }
 void ParticlesShader::GetAllUniformLocations()

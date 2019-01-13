@@ -1,13 +1,12 @@
 #include "SkyBoxShader.h"
-#include "glm/gtx/transform.hpp"
 #include "SkyBoxShaderUniforms.h"
+#include "glm/gtx/transform.hpp"
 
 namespace GameEngine
 {
-SkyBoxShader::SkyBoxShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::SkyBox))
+SkyBoxShader::SkyBoxShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::SkyBox)
 {
-
 }
 
 void SkyBoxShader::GetAllUniformLocations()
@@ -15,7 +14,7 @@ void SkyBoxShader::GetAllUniformLocations()
     uniforms_.resize(SkyBoxShaderUniforms::SIZE);
 
     uniforms_[SkyBoxShaderUniforms::ProjectionMatrix] = GetUniformLocation("ProjectionMatrix");
-    uniforms_[SkyBoxShaderUniforms::ViewMatrix]       = GetUniformLocation("ViewMatrix"); 
+    uniforms_[SkyBoxShaderUniforms::ViewMatrix]       = GetUniformLocation("ViewMatrix");
     uniforms_[SkyBoxShaderUniforms::DayCubeMap]       = GetUniformLocation("DayCubeMap");
     uniforms_[SkyBoxShaderUniforms::NightCubeMap]     = GetUniformLocation("NightCubeMap");
     uniforms_[SkyBoxShaderUniforms::FogColour]        = GetUniformLocation("FogColour");

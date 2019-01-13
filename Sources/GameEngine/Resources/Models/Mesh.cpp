@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-Mesh::Mesh(GameEngine::IGraphicsApiPtr graphicsApi)
+Mesh::Mesh(IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
 {
 }
 
-Mesh::Mesh(GameEngine::IGraphicsApiPtr graphicsApi, const Material &material, const mat4& transformMatix)
+Mesh::Mesh(IGraphicsApi& graphicsApi, const Material &material, const mat4& transformMatix)
     : graphicsApi_(graphicsApi)
     , material_(material)
     , transform_(transformMatix)
@@ -20,7 +20,7 @@ Mesh::~Mesh()
     if (!isInit)
         return;
 
-    graphicsApi_->DeleteObject(objectId_);
+    graphicsApi_.DeleteObject(objectId_);
 }
 void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 {
@@ -30,7 +30,7 @@ void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 void Mesh::CreateMesh()
 {
     useAramture = !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
-    objectId_   = graphicsApi_->CreateMesh(meshRawData_);
+    objectId_   = graphicsApi_.CreateMesh(meshRawData_);
     isInit      = true;
 }
 

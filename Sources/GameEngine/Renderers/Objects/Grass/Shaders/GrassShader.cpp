@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-GrassShader::GrassShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Grass))
+GrassShader::GrassShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi,Shaders::Grass)
 {
 }
 

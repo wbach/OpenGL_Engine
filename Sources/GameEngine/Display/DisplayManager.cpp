@@ -4,42 +4,42 @@
 
 namespace GameEngine
 {
-DisplayManager::DisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h,
+DisplayManager::DisplayManager(IGraphicsApi& api, const std::string& window_name, const int& w, const int& h,
                                WindowType type)
-    : api(api)
+    : graphicsApi_(api)
     , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
     , sync(true)
     , time(true)
     , isFullScreen(false)
     , windowsSize({w, h})
 {
-    if (api == nullptr || api->GetWindowApi() == nullptr)
+    if (graphicsApi_.GetWindowApi() == nullptr)
     {
         Log("[Error] API not set!.Press any key.");
         return;
     }
 
-    api->GetWindowApi()->CreateWindow(window_name, w, h, type);
-    api->CreateContext();
-    api->Init();
-    api->PrintVersion();
+    graphicsApi_.GetWindowApi()->CreateWindow(window_name, w, h, type);
+    graphicsApi_.CreateContext();
+    graphicsApi_.Init();
+    graphicsApi_.PrintVersion();
 }
 
 DisplayManager::~DisplayManager()
 {
-    api->DeleteContext();
+    graphicsApi_.DeleteContext();
     Log(__func__);
 }
 
 void DisplayManager::ProcessEvents()
 {
     timeMeasurer.CalculateAndLock();
-    api->GetWindowApi()->ProcessEvents();
+    graphicsApi_.GetWindowApi()->ProcessEvents();
 }
 
 void DisplayManager::Update()
 {
-    api->GetWindowApi()->UpdateWindow();
+    graphicsApi_.GetWindowApi()->UpdateWindow();
     timeMeasurer.EndFrame();
     time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
 }
@@ -50,7 +50,7 @@ void DisplayManager::SetRefreshRate(const int& rate)
 
 void DisplayManager::SetFullScreen(bool full_screen)
 {
-    api->GetWindowApi()->SetFullScreen(isFullScreen);
+    graphicsApi_.GetWindowApi()->SetFullScreen(isFullScreen);
 }
 
 const int DisplayManager::GetFps()
@@ -65,16 +65,16 @@ const wb::vec2i& DisplayManager::GetWindowSize()
 
 void DisplayManager::ShowCoursor(bool show)
 {
-    api->GetWindowApi()->ShowCursor(show);
+    graphicsApi_.GetWindowApi()->ShowCursor(show);
 }
 
 bool DisplayManager::CheckActiveWindow()
 {
-    return api->GetWindowApi()->CheckActiveWindow();
+    return graphicsApi_.GetWindowApi()->CheckActiveWindow();
 }
 
 std::shared_ptr<InputManager> DisplayManager::CreateInput()
 {
-    return api->GetWindowApi()->CreateInput();
+    return graphicsApi_.GetWindowApi()->CreateInput();
 }
 }  // GameEngine

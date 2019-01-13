@@ -11,7 +11,7 @@ class Projection;
 class ShadowBox
 {
 public:
-    ShadowBox(Projection*);
+    ShadowBox(Projection&);
     void Update(ICamera*);
     vec3 GetCenter() const;
     float GetWidth() const;

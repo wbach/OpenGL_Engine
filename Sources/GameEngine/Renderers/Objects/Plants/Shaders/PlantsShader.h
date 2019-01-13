@@ -8,7 +8,7 @@ namespace GameEngine
 class PlantsShader : public ShaderProgram
 {
 public:
-    PlantsShader(IGraphicsApiPtr graphicsApi);
+    PlantsShader(IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations();

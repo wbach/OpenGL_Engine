@@ -13,7 +13,7 @@ class Api;
 class DisplayManager
 {
 public:
-    DisplayManager(IGraphicsApiPtr api, const std::string& window_name, const int& w, const int& h, WindowType type);
+    DisplayManager(IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, WindowType type);
     ~DisplayManager();
     void ProcessEvents();
     void Update();
@@ -38,7 +38,7 @@ public:
     const wb::vec2i& GetWindowSize();
 
 private:
-    IGraphicsApiPtr api;
+    IGraphicsApi& graphicsApi_;
     Utils::Time::CTimeMeasurer timeMeasurer;
 
     Time time_;

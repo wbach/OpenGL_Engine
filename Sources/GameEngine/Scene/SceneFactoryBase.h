@@ -43,11 +43,11 @@ public:
     bool IsExist(uint32 name) const;
     bool IsExist(const std::string& name) const;
 
-    void SetGraphicsApi(IGraphicsApiPtr graphicsApi);
+    void SetGraphicsApi(IGraphicsApi& graphicsApi);
     void SetInputManager(InputManager* input);
     void SetDisplayManager(DisplayManager* displayManager);
     void SetRenderersManager(Renderer::RenderersManager* manager);
-    void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
+    void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
 
 protected:
     ScenePtr GetScene(const std::string& name);
@@ -55,8 +55,8 @@ protected:
     void AddScene(const std::string&, CreateFunction);
 
 private:
-    IGraphicsApiPtr graphicsApi_;
-    Physics::IPhysicsApiPtr physicsApi_;
+    IGraphicsApi* graphicsApi_;
+    Physics::IPhysicsApi* physicsApi_;
     ScenesMap scenesMap_;
     OrderMap orderMap_;
     IdMap idMap_;

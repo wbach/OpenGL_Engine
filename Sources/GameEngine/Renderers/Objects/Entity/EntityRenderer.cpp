@@ -37,7 +37,7 @@ void EntityRenderer::InitShader()
     shader_->Load(EntityShaderUniforms::ShadowVariables, EntityRendererDef::DEFAULT_SHADOW_VARIABLES);
     shader_->Load(EntityShaderUniforms::ClipPlane, EntityRendererDef::DEFAULT_CLIP_PLANE);
     shader_->Load(EntityShaderUniforms::IsUseFakeLighting, false);
-    shader_->Load(EntityShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(EntityShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Stop();
 }
 
@@ -100,7 +100,7 @@ void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) 
     BindMaterial(mesh.GetMaterial());
     auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
     shader_->Load(EntityShaderUniforms::TransformationMatrix, transform_matrix_);
-    context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
+    context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
     UnBindMaterial(mesh.GetMaterial());
 }
 
@@ -127,7 +127,7 @@ void EntityRenderer::RenderEntities()
 void EntityRenderer::BindMaterial(const Material& material) const
 {
     if (material.isTransparency)
-        context_.graphicsApi_->DisableCulling();
+        context_.graphicsApi_.DisableCulling();
 
     shader_->Load(EntityShaderUniforms::ModelMaterialAmbient, material.ambient);
     shader_->Load(EntityShaderUniforms::ModelMaterialDiffuse, material.diffuse);
@@ -140,7 +140,7 @@ void EntityRenderer::BindMaterial(const Material& material) const
         shader_->Load(EntityShaderUniforms::NumberOfRows, material.diffuseTexture->numberOfRows);
         shader_->Load(EntityShaderUniforms::TextureOffset,
                       material.diffuseTexture->GetTextureOffset(currentTextureIndex_));
-        context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetId());
     }
     else
     {
@@ -150,13 +150,13 @@ void EntityRenderer::BindMaterial(const Material& material) const
     if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized() &&
         EngineConf.renderer.textures.useAmbient)
     {
-        context_.graphicsApi_->ActiveTexture(1, material.ambientTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(1, material.ambientTexture->GetId());
     }
 
     if (material.normalTexture != nullptr && material.normalTexture->IsInitialized() &&
         EngineConf.renderer.textures.useNormal)
     {
-        context_.graphicsApi_->ActiveTexture(2, material.normalTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(2, material.normalTexture->GetId());
         shader_->Load(EntityShaderUniforms::IsUseNormalMap, true);
     }
     else
@@ -167,13 +167,13 @@ void EntityRenderer::BindMaterial(const Material& material) const
     if (material.specularTexture != nullptr && material.specularTexture->IsInitialized() &&
         EngineConf.renderer.textures.useSpecular)
     {
-        context_.graphicsApi_->ActiveTexture(3, material.specularTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(3, material.specularTexture->GetId());
     }
 }
 
 void EntityRenderer::UnBindMaterial(const Material& material) const
 {
     if (material.isTransparency)
-        context_.graphicsApi_->EnableCulling();
+        context_.graphicsApi_.EnableCulling();
 }
 }  // namespace GameEngine

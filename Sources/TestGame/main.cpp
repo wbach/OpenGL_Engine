@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
     GameEngine::ReadFromFile("./Conf.xml");
 
-    GameEngine::IGraphicsApiPtr api = std::make_shared<GameEngine::OpenGLApi>();
+    auto api = std::make_unique<GameEngine::OpenGLApi>();
 
     StartMessage();
 
@@ -41,17 +41,17 @@ int main(int argc, char* argv[])
 
                 if (gameName == "MMO")
                 {
-                    MmmoRpg::StartGame(api);
+                    MmmoRpg::StartGame(std::move(api));
                     choosedApp = true;
                 }
                 if (gameName == "TEST")
                 {
-                    TestGame::TestGameStart(api);
+                    TestGame::TestGameStart(std::move(api));
                     choosedApp = true;
                 }
                 if (gameName == "PHYSICS")
                 {
-                    PhysicsTestGame::Start(api);
+                    PhysicsTestGame::Start(std::move(api));
                     choosedApp = true;
                 }
             }
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     }
 
     if (!choosedApp)
-        TestGame::TestGameStart(api);
+        TestGame::TestGameStart(std::move(api));
 
     return 0;
 }

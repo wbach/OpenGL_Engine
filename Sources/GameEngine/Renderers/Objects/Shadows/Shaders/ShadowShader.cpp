@@ -5,8 +5,8 @@
 
 namespace GameEngine
 {
-ShadowShader::ShadowShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Shadows))
+ShadowShader::ShadowShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Shadows)
 {
 }
 

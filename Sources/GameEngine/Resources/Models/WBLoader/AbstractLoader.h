@@ -14,7 +14,7 @@ namespace WBLoader
 class AbstractLoader
 {
 public:
-    AbstractLoader(IGraphicsApiPtr graphicsApi, ITextureLoader& textureLoader);
+    AbstractLoader(IGraphicsApi& graphicsApi, ITextureLoader& textureLoader);
     void Parse(const std::string& filename);
     virtual bool CheckExtension(const std::string& filename) = 0;
     virtual std::unique_ptr<Model> Create();
@@ -33,7 +33,7 @@ private:
     float FindMaxFactor() const;
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     std::string fileName_;
     std::string filePath_;
     bool loadedFromBin_;

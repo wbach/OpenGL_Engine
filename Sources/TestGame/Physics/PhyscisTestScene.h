@@ -3,5 +3,5 @@
 
 namespace PhysicsTestGame
 {
-	void Start(GameEngine::IGraphicsApiPtr gptr);
+	void Start(std::unique_ptr<GameEngine::IGraphicsApi> gptr);
 }

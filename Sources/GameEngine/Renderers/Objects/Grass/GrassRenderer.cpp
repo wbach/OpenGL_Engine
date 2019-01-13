@@ -60,7 +60,7 @@ void GrassRenderer::InitShader()
 {
     shader_->Init();
     shader_->Start();
-    shader_->Load(GrassShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(GrassShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Load(GrassShaderUniforms::ShadowVariables, vec3(0.f, 0.f, 512.f));
     shader_->Load(GrassShaderUniforms::ViewDistance, viewDistance);
     shader_->Stop();
@@ -69,12 +69,12 @@ void GrassRenderer::InitShader()
 void GrassRenderer::PrepareRender(Scene* scene)
 {
     PrepareShader(scene);
-    context_.graphicsApi_->DisableCulling();
+    context_.graphicsApi_.DisableCulling();
 }
 
 void GrassRenderer::EndRender() const
 {
-    context_.graphicsApi_->EnableCulling();
+    context_.graphicsApi_.EnableCulling();
 }
 
 void GrassRenderer::RenderSubscribes()
@@ -103,8 +103,8 @@ void GrassRenderer::RenderModel(Model* model)
 
 void GrassRenderer::RenderMesh(const Mesh& mesh)
 {
-    context_.graphicsApi_->ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
-    context_.graphicsApi_->RenderPoints(mesh.GetObjectId());
+    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
+    context_.graphicsApi_.RenderPoints(mesh.GetObjectId());
 }
 
 void GrassRenderer::PrepareShader(Scene* scene)

@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-DefferedEntityShader::DefferedEntityShader(IGraphicsApiPtr graphicsApi)
+DefferedEntityShader::DefferedEntityShader(IGraphicsApi& graphicsApi)
     : EntityShader(graphicsApi)
 {
 }

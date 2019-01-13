@@ -1,10 +1,10 @@
 #pragma once
-#include "Types.h"
-#include "IShaderProgram.h"
-#include "GameEngine/Api/IGraphicsApi.h"
-#include "Utils.h"
-#include <unordered_map>
 #include <list>
+#include <unordered_map>
+#include "GameEngine/Api/IGraphicsApi.h"
+#include "IShaderProgram.h"
+#include "Types.h"
+#include "Utils.h"
 
 const int MAX_BONES = 50;
 
@@ -13,7 +13,7 @@ namespace GameEngine
 class ShaderProgram : public IShaderProgram
 {
 public:
-    ShaderProgram(IGraphicsApiPtr graphicsApi, const ShadersFiles& files);
+    ShaderProgram(IGraphicsApi& graphicsApi, Shaders shaderType);
     virtual ~ShaderProgram();
 
     void Init() override;
@@ -26,8 +26,8 @@ public:
     void Start() const override;
     void Stop() const override;
 
-	virtual void Load(uint32 varIndex, bool value) const;
-	virtual void Load(uint32 varIndex, int value) const;
+    virtual void Load(uint32 varIndex, bool value) const;
+    virtual void Load(uint32 varIndex, int value) const;
     virtual void Load(uint32 varIndex, uint32 value) const;
     virtual void Load(uint32 varIndex, float value) const;
     virtual void Load(uint32 varIndex, const vec2ui& value) const;
@@ -45,7 +45,6 @@ public:
 protected:
     virtual void GetAllUniformLocations()
     {
-
     }
     virtual void BindAttributes()
     {
@@ -63,7 +62,7 @@ protected:
 
 protected:
     std::vector<uint32> uniforms_;
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
 
 private:
     std::string name_;

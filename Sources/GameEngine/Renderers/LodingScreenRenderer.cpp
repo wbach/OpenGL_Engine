@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-LoadingScreenRenderer::LoadingScreenRenderer(IGraphicsApiPtr api, Texture *bgTexture, Texture *circleTexture,
+LoadingScreenRenderer::LoadingScreenRenderer(IGraphicsApi& api, Texture *bgTexture, Texture *circleTexture,
                                              IShaderFactory &shaderFactory)
     : graphicsApi_(api)
     , circleTexture(circleTexture)
@@ -42,14 +42,14 @@ void LoadingScreenRenderer::ReloadShaders()
 
 void LoadingScreenRenderer::prepareRender()
 {
-    graphicsApi_->PrepareFrame();
+    graphicsApi_.PrepareFrame();
     transformationMatrix *= glm::rotate(-1.f, 0.0f, 0.0f, 1.0f);
 }
 
 void LoadingScreenRenderer::renderQuad(const glm::mat4 &transformMatrix, uint32 textureId) const
 {
-    graphicsApi_->ActiveTexture(0, textureId);
+    graphicsApi_.ActiveTexture(0, textureId);
     shader_->Load(LoadingShaderUniforms::TransformMatrix, transformMatrix);
-    graphicsApi_->RenderQuad();
+    graphicsApi_.RenderQuad();
 }
 }  // GameEngine

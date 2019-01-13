@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-CubeMapTexture::CubeMapTexture(IGraphicsApiPtr graphicsApi, const std::string& name,
+CubeMapTexture::CubeMapTexture(IGraphicsApi& graphicsApi, const std::string& name,
                                  std::vector<Image>& image)
     : Texture(graphicsApi, name, name)
     , images_(std::move(image))
@@ -36,7 +36,7 @@ void CubeMapTexture::GpuLoadingPass()
         data[x] = &images_[x].data[0];
     }
 
-    id = graphicsApi_->CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
+    id = graphicsApi_.CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
 
     for (auto& i : images_)
         i.data.clear();

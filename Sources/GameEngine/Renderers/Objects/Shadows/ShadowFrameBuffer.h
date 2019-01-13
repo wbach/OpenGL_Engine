@@ -1,14 +1,15 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
 #include "IShadowFrameBuffer.hpp"
 #include "Utils/Utils.h"
 
 namespace GameEngine
 {
+class IGraphicsApi;
+
 class ShadowFrameBuffer : public IShadowFrameBuffer
 {
 public:
-    ShadowFrameBuffer(IGraphicsApiPtr graphicsApi);
+    ShadowFrameBuffer(IGraphicsApi& graphicsApi);
     virtual ~ShadowFrameBuffer();
 
     void BindFBO();
@@ -17,7 +18,7 @@ public:
     uint32 GetShadowMap() const;
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     uint32 fbo;
     uint32 shadowMap;
 

@@ -5,8 +5,8 @@
 
 namespace GameEngine
 {
-ColorFliperShader::ColorFliperShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::ColorFilper))
+ColorFliperShader::ColorFliperShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::ColorFilper)
 {
     ShaderProgram::Init();
 }

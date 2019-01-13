@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -103,5 +102,4 @@ public:
     virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;
 };
-typedef std::shared_ptr<IGraphicsApi> IGraphicsApiPtr;
 }  // namespace GameEngine

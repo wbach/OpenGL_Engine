@@ -10,10 +10,10 @@ class IShaderProgram;
 class ShaderFactory : public IShaderFactory
 {
 public:
-    ShaderFactory(IGraphicsApiPtr graphicsApi);
+    ShaderFactory(IGraphicsApi& graphicsApi);
     virtual std::unique_ptr<IShaderProgram> create(Shaders) override;
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
 };
 }  // namespace GameEngine

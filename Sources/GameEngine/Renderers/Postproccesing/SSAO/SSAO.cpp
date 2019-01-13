@@ -16,7 +16,7 @@ namespace GameEngine
 		ssaoShader_->Start();
 		GenKernel();
 		ssaoShader_->Load(SSAOShaderUniforms::SampleRadius, 1.5f);
-		ssaoShader_->Load(SSAOShaderUniforms::ProjectionMatrix, rendererContext_->projection_->GetProjectionMatrix());
+		ssaoShader_->Load(SSAOShaderUniforms::ProjectionMatrix, rendererContext_->projection_.GetProjectionMatrix());
 		ssaoShader_->Stop();
 	}
 	void SSAORenderer::Prepare(Scene * scene)
@@ -35,11 +35,11 @@ namespace GameEngine
 	}
 	void SSAORenderer::SSAOPass()
 	{
-		auto positionTexture = rendererContext_->defferedFrameBuffer_->GetTexture(0);
+		auto positionTexture = rendererContext_->defferedFrameBuffer_.GetTexture(0);
 
 		ssaoShader_->Start();
-		rendererContext_->graphicsApi_->ActiveTexture(0, positionTexture);
-		rendererContext_->graphicsApi_->RenderQuad();
+		rendererContext_->graphicsApi_.ActiveTexture(0, positionTexture);
+		rendererContext_->graphicsApi_.RenderQuad();
 		ssaoShader_->Stop();
 	}
 	void SSAORenderer::BlurPass()

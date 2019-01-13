@@ -8,11 +8,11 @@ using namespace GameEngine::Physics;
 
 namespace PhysicsTestGame
 {
-void Start(GameEngine::IGraphicsApiPtr gptr)
+void Start(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
 {
-    Engine engine(gptr, std::make_shared<BulletAdapter>(), std::make_shared<PhysicsSceneFactory>());
+    Engine engine(std::move(gptr), std::make_unique<BulletAdapter>(), std::make_shared<PhysicsSceneFactory>());
     engine.Init();
-    engine.sceneManager_.SetActiveScene("PhysicsScene");
+    engine.GetSceneManager().SetActiveScene("PhysicsScene");
     engine.GameLoop();
 }
 }  // PhysicsTestGame

@@ -18,7 +18,7 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
     return vec2(GetTextureXOffset(textureIndex, numberOfRows), GetTextureYOffset(textureIndex, numberOfRows));
 }
 
-Texture::Texture(IGraphicsApiPtr graphicsApi, const std::string& file, const std::string& filepath, bool applySizeLimit)
+Texture::Texture(IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath, bool applySizeLimit)
     : graphicsApi_(graphicsApi)
     , filename(file)
     , fullpath(filepath)
@@ -31,6 +31,6 @@ Texture::~Texture()
         return;
     Log("Delete " + fullpath + ", texture id: " + std::to_string(id));
 
-    graphicsApi_->DeleteObject(id);
+    graphicsApi_.DeleteObject(id);
 }
 }  // namespace GameEngine

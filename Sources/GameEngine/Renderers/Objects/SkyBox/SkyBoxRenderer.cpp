@@ -29,21 +29,21 @@ void SkyBoxRenderer::Init()
 
 void SkyBoxRenderer::PrepareToRendering(Scene* scene)
 {
-    context_.graphicsApi_->DisableCulling();
+    context_.graphicsApi_.DisableCulling();
     shader_->Start();
     PrepareShaderBeforeFrameRender(scene);
 }
 
 void SkyBoxRenderer::EndRendering()
 {
-    context_.graphicsApi_->EnableCulling();
+    context_.graphicsApi_.EnableCulling();
 }
 
 void SkyBoxRenderer::InitShader()
 {
     shader_->Init();
     shader_->Start();
-    shader_->Load(SkyBoxShaderUniforms::ProjectionMatrix, context_.projection_->GetProjectionMatrix());
+    shader_->Load(SkyBoxShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Load(SkyBoxShaderUniforms::FogColour, vec3(.8f, .8f, .8f));
     shader_->Load(SkyBoxShaderUniforms::BlendFactor, 1.f);
     shader_->Stop();
@@ -122,7 +122,7 @@ void SkyBoxRenderer::BindCubeMapTexture(Texture* texture, int id) const
     if (texture == nullptr)
         return;
 
-    context_.graphicsApi_->ActiveTexture(id, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(id, texture->GetId());
 }
 
 void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
@@ -130,6 +130,6 @@ void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
     if (!mesh.IsInit())
         return;
 
-    context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
+    context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
 }
 }  // namespace GameEngine

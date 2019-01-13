@@ -12,7 +12,7 @@ namespace GameEngine
 {
 namespace WBLoader
 {
-AbstractLoader::AbstractLoader(IGraphicsApiPtr graphicsApi, ITextureLoader &textureLoader)
+AbstractLoader::AbstractLoader(IGraphicsApi& graphicsApi, ITextureLoader &textureLoader)
     : textureLoader_(textureLoader)
     , graphicsApi_(graphicsApi)
     , loadedFromBin_(false)

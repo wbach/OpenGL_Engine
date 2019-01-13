@@ -36,7 +36,7 @@ void ShadowMapRenderer::Render(Scene* scene)
     PrepareRender(scene);
     PrepareShader(scene->GetCamera());
     RenderSubscribes();
-    context_.shadowsFrameBuffer_->UnbindFrameBuffer();
+    context_.shadowsFrameBuffer_.UnbindFrameBuffer();
 }
 
 void ShadowMapRenderer::Subscribe(GameObject* gameObject)
@@ -69,9 +69,9 @@ void ShadowMapRenderer::ReloadShaders()
 
 void ShadowMapRenderer::PrepareRender(Scene* scene)
 {
-    context_.shadowsFrameBuffer_->BindFBO();
-    context_.graphicsApi_->EnableDepthTest();
-    context_.graphicsApi_->ClearBuffer(BufferType::DEPTH);
+    context_.shadowsFrameBuffer_.BindFBO();
+    context_.graphicsApi_.EnableDepthTest();
+    context_.graphicsApi_.ClearBuffer(BufferType::DEPTH);
     shadowBox_.Update(scene->GetCamera());
 
     auto cameraPos = scene->GetCamera()->GetPosition();
@@ -123,7 +123,7 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matri
 
     shader_->Load(ShadowShaderUniforms::TransformationMatrix, transform_matrix_);
 
-    context_.graphicsApi_->RenderMesh(mesh.GetObjectId());
+    context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
 }
 
 void ShadowMapRenderer::BindMaterial(const Material& material, uint32 textureIndex) const
@@ -133,7 +133,7 @@ void ShadowMapRenderer::BindMaterial(const Material& material, uint32 textureInd
 
     shader_->Load(ShadowShaderUniforms::NumberOfRows, static_cast<float>(material.diffuseTexture->numberOfRows));
     shader_->Load(ShadowShaderUniforms::TextureOffset, material.diffuseTexture->GetTextureOffset(textureIndex));
-    context_.graphicsApi_->ActiveTexture(0, material.diffuseTexture->GetId());
+    context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
 void ShadowMapRenderer::PrepareShader(ICamera*) const

@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-MaterialTexture::MaterialTexture(IGraphicsApiPtr graphicsApi, bool keepData, const std::string& file,
+MaterialTexture::MaterialTexture(IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                                  const std::string& filepath, Image& image)
     : Texture(graphicsApi, file, filepath)
     , image(std::move(image))
@@ -20,7 +20,7 @@ void MaterialTexture::GpuLoadingPass()
     }
 
     Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-    id = graphicsApi_->CreateTexture(TextureType::U8_RGBA, TextureFilter::NEAREST, TextureMipmap::LINEAR,
+    id = graphicsApi_.CreateTexture(TextureType::U8_RGBA, TextureFilter::NEAREST, TextureMipmap::LINEAR,
                                      BufferAtachment::NONE, vec2ui(image.width, image.height), &image.data[0]);
 
     if (id == 0)

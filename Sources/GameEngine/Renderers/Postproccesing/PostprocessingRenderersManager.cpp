@@ -22,9 +22,9 @@ PostProcessingManager::~PostProcessingManager()
 }
 void PostProcessingManager::Init()
 {
-    postproccesFrameBuffer1_.Init(context_.projection_->GetWindowSize());
-    postproccesFrameBuffer2_.Init(context_.projection_->GetWindowSize());
-    ambientOclusionFrameBuffer_.Init(context_.projection_->GetWindowSize());
+    postproccesFrameBuffer1_.Init(context_.projection_.GetWindowSize());
+    postproccesFrameBuffer2_.Init(context_.projection_.GetWindowSize());
+    ambientOclusionFrameBuffer_.Init(context_.projection_.GetWindowSize());
 
     for (auto& renderer : postProcessingRenderers_)
     {

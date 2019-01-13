@@ -12,7 +12,7 @@ class IShaderFactory;
 class IntroRenderer
 {
 public:
-    IntroRenderer(GameEngine::IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+    IntroRenderer(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
                   IShaderFactory& shaderFactory);
     ~IntroRenderer();
     void Render();
@@ -23,7 +23,7 @@ private:
     void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
 
 private:
-    GameEngine::IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     std::shared_ptr<DisplayManager>& displayManager_;
     IShaderFactory& shaderFactory_;
     ResourceManager resorceManager_;

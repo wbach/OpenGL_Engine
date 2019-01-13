@@ -19,7 +19,7 @@ typedef std::unordered_map<std::string, GuiTextureElement> GuiTextures;
 class GuiTexture : public GuiElement
 {
 public:
-    GuiTexture(IGraphicsApiPtr graphicsApi, IShaderFactory& shaderFactory);
+    GuiTexture(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
     virtual ~GuiTexture() override;
     virtual void Init() override;
     virtual void Render() override;
@@ -31,7 +31,7 @@ private:
     void RenderTextureElement(const GuiTextureElement& te);
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     std::unique_ptr<IShaderProgram> shader_;
 };
 }  // namespace Gui

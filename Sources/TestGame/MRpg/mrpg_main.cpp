@@ -17,16 +17,16 @@ namespace MmmoRpg
 class Game
 {
 public:
-    Game(IGraphicsApiPtr gptr)
+    Game(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
         : serverAdress(Utils::ReadFile("./server.conf"))
-        , engine(gptr, std::make_shared<BulletAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+        , engine(std::move(gptr), std::make_unique<BulletAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
     {
         Log("Server : " + serverAdress);
 
         engine.Init();
         // LoginScene
         // engine.sceneManager_.SetActiveScene("GuiEdytorScene");
-        engine.sceneManager_.SetActiveScene("LoginScene");
+        engine.GetSceneManager().SetActiveScene("LoginScene");
         // engine.sceneManager_.SetActiveScene("SelectCharacterScene");
         engine.GameLoop();
     }
@@ -38,9 +38,9 @@ private:
     MrpgGameContext gameContext_;
 };
 
-void StartGame(GameEngine::IGraphicsApiPtr gptr)
+void StartGame(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
 {
-    Game game(gptr);
+    Game game(std::move(gptr));
     // Mock::StartMock();
 }
 }

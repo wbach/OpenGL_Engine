@@ -19,6 +19,6 @@ public:
     virtual Model* GetModel(uint32 id)                 = 0;
     virtual IGpuResourceLoader& GetGpuResourceLoader() = 0;
     virtual ITextureLoader& GetTextureLaoder()         = 0;
-    virtual IGraphicsApiPtr GetGraphicsApi()           = 0;
+    virtual IGraphicsApi& GetGraphicsApi()           = 0;
 };
 }  // GameEngine

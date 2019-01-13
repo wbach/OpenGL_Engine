@@ -1,15 +1,16 @@
 #pragma once
 #include <vector>
-#include "GameEngine/Api/IGraphicsApi.h"
 #include "IFrameBuffer.h"
 #include "Types.h"
 
 namespace GameEngine
 {
+class IGraphicsApi;
+
 class FrameBuffer : public IFrameBuffer
 {
 public:
-    FrameBuffer(IGraphicsApiPtr api);
+    FrameBuffer(IGraphicsApi& api);
     virtual void Init(const wb::vec2ui& size) = 0;
     virtual void Clean() override
     {
@@ -32,11 +33,11 @@ protected:
     void CleanTexures();
 
 protected:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     bool isInitialized = false;
     uint32 fbo;
     uint32 depthTexture;
     std::vector<uint32> textures;
     bool depthStorage = false;
 };
-} //namespace GameEngine
+}  // namespace GameEngine

@@ -9,7 +9,7 @@ namespace Renderer
 {
 namespace Gui
 {
-GuiTexture::GuiTexture(IGraphicsApiPtr graphicsApi, IShaderFactory& shaderFactory)
+GuiTexture::GuiTexture(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
 {
     shader_ = shaderFactory.create(Shaders::Texture);
@@ -35,8 +35,8 @@ void GuiTexture::UnSubscribeAll()
 void GuiTexture::RenderTextureElement(const GuiTextureElement& te)
 {
     shader_->Load(GuiTextureShaderUniforms::TransformationMatrix, te.GetMatrix());
-    graphicsApi_->ActiveTexture(0, te.texture->GetId());
-    graphicsApi_->RenderQuad();
+    graphicsApi_.ActiveTexture(0, te.texture->GetId());
+    graphicsApi_.RenderQuad();
 }
 void GuiTexture::ReloadShaders()
 {

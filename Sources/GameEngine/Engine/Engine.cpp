@@ -1,19 +1,21 @@
 #include "Engine.h"
 #include "Configuration.h"
+#include "GameEngine/Api/IGraphicsApi.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-Engine::Engine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, SceneFactoryBasePtr sceneFactory)
-    : displayManager(nullptr)
+Engine::Engine(std::unique_ptr<IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
+               SceneFactoryBasePtr sceneFactory)
+    : graphicsApi_(std::move(graphicsApi))
+    , physicsApi_(std::move(physicsApi))
+    , displayManager(nullptr)
     , inputManager_(nullptr)
-    , renderersManager_(graphicsApi, shaderFactory_)
-    , sceneManager_(graphicsApi, physicsApi, sceneFactory, displayManager, shaderFactory_, inputManager_,
-                    renderersManager_,
-                    guiContext_)
-    , graphicsApi_(graphicsApi)
-    , shaderFactory_(graphicsApi)
-    , introRenderer_(graphicsApi, displayManager, shaderFactory_)
+    , renderersManager_(*graphicsApi_, shaderFactory_)
+    , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager, shaderFactory_, inputManager_,
+                    renderersManager_, guiContext_)
+    , shaderFactory_(*graphicsApi_)
+    , introRenderer_(*graphicsApi_, displayManager, shaderFactory_)
     , isRunning(true)
 {
     graphicsApi_->SetBackgroundColor(vec3(.8f));
@@ -24,8 +26,8 @@ Engine::Engine(IGraphicsApiPtr graphicsApi, Physics::IPhysicsApiPtr physicsApi, 
 
 Engine::~Engine()
 {
+    Log(__FUNCTION__);
     sceneManager_.Reset();
-    Log("");
     EngineConf_SaveRequiredFiles();
 }
 
@@ -34,7 +36,7 @@ void Engine::SetDisplay()
     auto& conf = EngineConf;
 
     displayManager =
-        std::make_shared<DisplayManager>(graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
+        std::make_shared<DisplayManager>(*graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
                                          conf.window.fullScreen ? WindowType::FULL_SCREEN : WindowType::WINDOW);
     inputManager_ = displayManager->CreateInput();
     introRenderer_.Render();
@@ -60,6 +62,11 @@ void Engine::Render()
 DisplayManager& Engine::GetDisplayManager()
 {
     return *displayManager;
+}
+
+SceneManager& Engine::GetSceneManager()
+{
+    return sceneManager_;
 }
 
 void Engine::MainLoop()
@@ -115,4 +122,4 @@ void Engine::Init()
     graphicsApi_->EnableDepthTest();
     renderersManager_.Init();
 }
-}  // GameEngine
+}  // namespace GameEngine

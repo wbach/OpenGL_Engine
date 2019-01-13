@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-IntroRenderer::IntroRenderer(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+IntroRenderer::IntroRenderer(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
                              IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
@@ -43,17 +43,17 @@ void IntroRenderer::Init()
 void IntroRenderer::RenderThis()
 {
     shader_->Start();
-    graphicsApi_->EnableDepthTest();
-    graphicsApi_->PrepareFrame();
+    graphicsApi_.EnableDepthTest();
+    graphicsApi_.PrepareFrame();
     renderQuad(mat4(1.f), backgroundTexture_->GetId());
     shader_->Stop();
 }
 
 void IntroRenderer::renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const
 {
-    graphicsApi_->ActiveTexture(0, textureId);
+    graphicsApi_.ActiveTexture(0, textureId);
     shader_->Load(LoadingShaderUniforms::TransformMatrix, transformMatrix);
-    graphicsApi_->RenderQuad();
+    graphicsApi_.RenderQuad();
 }
 
 }  // namespace GameEngine

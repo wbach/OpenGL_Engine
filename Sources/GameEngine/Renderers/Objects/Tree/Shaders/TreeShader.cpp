@@ -5,8 +5,8 @@
 
 namespace GameEngine
 {
-TreeShader::TreeShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Tree))
+TreeShader::TreeShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Tree)
 {
 }
 

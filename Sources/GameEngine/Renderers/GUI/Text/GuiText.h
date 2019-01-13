@@ -14,7 +14,7 @@ class IShaderFactory;
 class GuiText : public GuiElement
 {
 public:
-    GuiText(IGraphicsApiPtr graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory);
+    GuiText(IGraphicsApi& graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory);
     virtual ~GuiText() override;
     virtual void Init() override;
     virtual void Render() override;
@@ -26,7 +26,7 @@ private:
     void InitShader();
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     std::unique_ptr<IShaderProgram> shader_;
     std::string fontFile;
     vec2 defaultScale_;

@@ -22,7 +22,7 @@ enum SceneWrapperState
 class SceneWrapper
 {
 public:
-    SceneWrapper(IGraphicsApiPtr graphicsApi, std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory);
+    SceneWrapper(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory);
 
     Scene* Get();
     SceneWrapperState GetState();
@@ -36,7 +36,7 @@ private:
     void SaveSetState(SceneWrapperState state);
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
     IShaderFactory& shaderFactory_;
     std::mutex initMutex_;
     std::mutex stateMutex_;

@@ -14,7 +14,7 @@ void ColorFliper::Render(Scene*)
 {
     shader_->Start();
     (*postprocessFrameBuffer_)->BindTextures();
-    rendererContext_->graphicsApi_->RenderQuad();
+    rendererContext_->graphicsApi_.RenderQuad();
     shader_->Stop();
 }
 void ColorFliper::ReloadShaders()

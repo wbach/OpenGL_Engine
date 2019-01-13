@@ -6,7 +6,7 @@ namespace GameEngine
 class SkyBoxShader : public ShaderProgram
 {
 public:
-    SkyBoxShader(GameEngine::IGraphicsApiPtr graphicsApi);
+    SkyBoxShader(IGraphicsApi& graphicsApi);
     void GetAllUniformLocations();
     void ConnectTextureUnits() const override;
     void BindAttributes() const;

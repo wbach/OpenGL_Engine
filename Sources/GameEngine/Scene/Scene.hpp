@@ -78,7 +78,7 @@ public:
     void SetInputManager(InputManager* input);
     void SetRenderersManager(Renderer::RenderersManager* manager);
     void SetDisplayManager(DisplayManager* displayManager);
-    void SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi);
+    void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
 
 public:
     uint32 objectCount;
@@ -104,7 +104,7 @@ protected:
     InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
-    Physics::IPhysicsApiPtr physicsApi_;
+    Physics::IPhysicsApi* physicsApi_;
 
     // Minimum one light on scene only (night - decrease strength)
     float gloabalTime = 0.f;
@@ -165,8 +165,8 @@ inline void Scene::SetDisplayManager(DisplayManager* displayManager)
 {
     displayManager_ = displayManager;
 }
-inline void Scene::SetPhysicsApi(Physics::IPhysicsApiPtr physicsApi)
+inline void Scene::SetPhysicsApi(Physics::IPhysicsApi& physicsApi)
 {
-    physicsApi_ = physicsApi;
+    physicsApi_ = &physicsApi;
 }
 }  // GameEngine

@@ -3,5 +3,5 @@
 
 namespace MmmoRpg
 {
-	void StartGame(GameEngine::IGraphicsApiPtr gptr);
+	void StartGame(std::unique_ptr<GameEngine::IGraphicsApi> gptr);
 }

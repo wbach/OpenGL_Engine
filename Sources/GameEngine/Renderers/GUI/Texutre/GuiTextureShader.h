@@ -11,7 +11,7 @@ namespace Gui
 class GuiTextureShader : public ShaderProgram
 {
 public:
-    GuiTextureShader(IGraphicsApiPtr graphicsApi);
+    GuiTextureShader(IGraphicsApi& graphicsApi);
     void GetAllUniformLocations() override;
     void BindAttributes() override;
 };

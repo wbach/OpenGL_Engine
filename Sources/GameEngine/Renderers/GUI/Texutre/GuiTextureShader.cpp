@@ -7,8 +7,8 @@ namespace Renderer
 {
 namespace Gui
 {
-GuiTextureShader::GuiTextureShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Texture))
+GuiTextureShader::GuiTextureShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Texture)
 {
 }
 

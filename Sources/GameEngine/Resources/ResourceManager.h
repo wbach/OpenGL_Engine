@@ -14,17 +14,17 @@ class IGpuResourceLoader;
 class ResourceManager : public IResourceManager
 {
 public:
-    ResourceManager(IGraphicsApiPtr graphicsApi);
+    ResourceManager(IGraphicsApi& graphicsApi);
     ~ResourceManager() override;
     Model* LoadModel(const std::string& file) override;
     void AddModel(Model* model) override;
     inline Model* GetModel(uint32 id) override;
     inline IGpuResourceLoader& GetGpuResourceLoader() override;
     inline ITextureLoader& GetTextureLaoder() override;
-    inline IGraphicsApiPtr GetGraphicsApi() override;
+    inline IGraphicsApi& GetGraphicsApi() override;
 
 private:
-    IGraphicsApiPtr graphicsApi_;
+    IGraphicsApi& graphicsApi_;
 
     std::vector<std::unique_ptr<Model>> models_;
     std::vector<std::unique_ptr<Texture>> textures_;
@@ -52,7 +52,7 @@ ITextureLoader &ResourceManager::GetTextureLaoder()
     return *textureLoader_;
 }
 
-IGraphicsApiPtr ResourceManager::GetGraphicsApi()
+IGraphicsApi& ResourceManager::GetGraphicsApi()
 {
     return graphicsApi_;
 }

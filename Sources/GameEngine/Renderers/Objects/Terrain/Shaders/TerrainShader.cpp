@@ -6,8 +6,8 @@
 
 namespace GameEngine
 {
-TerrainShader::TerrainShader(IGraphicsApiPtr graphicsApi)
-    : ShaderProgram(graphicsApi, graphicsApi->GetShaderFiles(Shaders::Terrain))
+TerrainShader::TerrainShader(IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, Shaders::Terrain)
 {
 }
 

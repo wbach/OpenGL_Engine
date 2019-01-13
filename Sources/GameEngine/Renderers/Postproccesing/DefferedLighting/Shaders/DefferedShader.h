@@ -23,7 +23,7 @@ private:
     };
 
 public:
-    DefferedShader(IGraphicsApiPtr graphicsApi);
+    DefferedShader(IGraphicsApi& graphicsApi);
 
     void LoadLight(uint32 index, const Light& light);
 
