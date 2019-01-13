@@ -36,5 +36,5 @@ private:
 };
 
 #define LogToFile(x)// do {CLogger::Instance().LoggToFileOnly(x);} while(0)
-#define Log(x)// do {CLogger::Instance().Logg(__FUNCTION__ + std::string(": ") + x);} while(0)
+#define Log(x) do {CLogger::Instance().Logg(__FUNCTION__ + std::string(": ") + x);} while(0)
 #define Error(x) do {CLogger::Instance().ErrorLog(x);} while(0)

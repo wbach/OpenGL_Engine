@@ -177,6 +177,136 @@ uint32 OpenGLApi::CreateShader(const ShadersFiles& files, GraphicsApiFunctions f
     createdObjectIds.insert({rid, ObjectType::SHADER_PROGRAM});
     return rid;
 }
+ShadersFiles OpenGLApi::GetFullDefferedShaderFiles(Shaders shaderType)
+{
+    switch (shaderType)
+    {
+        case Shaders::Loading:
+            return {{"Game/loadingShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Game/loadingShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Entity:
+            return {{"Entity/EntityGeometryPassShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Entity/EntityGeometryPassShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Grass:
+            return {{"Grass/GrassShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Grass/GrassShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Grass/GrassShader.geom", ShaderType::GEOMETRY_SHADER}};
+        case Shaders::Particles:
+            return {{"Particles/ParticlesShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Particles/ParticlesShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::AnimatedParticles:
+            return {{"Particles/AnimatedParticlesShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Particles/AnimatedParticlesShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Plants:
+            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::Shadows:
+            return {{"Shadows/ShadowVertexShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Shadows/ShadowFragmentShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::SkyBox:
+            return {{"SkyBox/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"SkyBox/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Terrain:
+            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::Tree:
+            return {{"Tree/TreeShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Tree/TreeShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Water:
+            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::Blur:
+            return {{"PostProcess/Blur/Blur.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"PostProcess/Blur/Blur.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::ColorFilper:
+            return {{"PostProcess/ColorFliper/ColorFliper.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"PostProcess/ColorFliper/ColorFliper.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Deffered:
+            return {{"Light/LightPassShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Light/LightPassShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::SSAO:
+            return {{"PostProcess/SSAO/SSAOShader.vert", ShaderType::VERTEX_SHADER},
+                    {"PostProcess/SSAO/SSAOShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Font:
+            return {{"Font/fontVertex.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"Font/fontFragment.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Texture:
+            return {{"Gui/guiVertexShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Gui/guiFragmentShader.frag", ShaderType::FRAGMENT_SHADER}};
+    }
+    return ShadersFiles();
+}
+ShadersFiles OpenGLApi::GetSimpleForwardShaderFiles(Shaders shaderType)
+{
+    switch (shaderType)
+    {
+        case Shaders::Loading:
+            return {{"Game/loadingShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Game/loadingShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Entity:
+            return {{"Entity/Forward/SimpleEntityShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Entity/Forward/SimpleEntityShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Grass:
+            return {{"Grass/Forward/GrassShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Grass/Forward/GrassShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Grass/Forward/GrassShader.geom", ShaderType::GEOMETRY_SHADER}};
+        case Shaders::Particles:
+            return {{"Particles/Forward/ParticlesShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Particles/Forward/ParticlesShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::AnimatedParticles:
+            return {{"Particles/Forward/AnimatedParticlesShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Particles/Forward/AnimatedParticlesShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Plants:
+            return {{"Terrain/Forward/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Forward/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/Forward/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/Forward/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::Shadows:
+            return {{"Shadows/ShadowVertexShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Shadows/ShadowFragmentShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::SkyBox:
+            return {{"SkyBox/Forward/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"SkyBox/Forward/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Terrain:
+            return {{"Terrain/Forward/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Forward/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/Forward/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/Forward/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::Tree:
+            return {{"Tree/Forward/TreeShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Tree/Forward/TreeShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Water:
+            return {{"Terrain/Forward/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Forward/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/Forward/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/Forward/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::Blur:
+            return {{"PostProcess/Blur/Blur.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"PostProcess/Blur/Blur.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::ColorFilper:
+            return {{"PostProcess/ColorFliper/ColorFliper.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"PostProcess/ColorFliper/ColorFliper.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Deffered:
+            return {{"Light/LightPassShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Light/LightPassShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::SSAO:
+            return {{"PostProcess/SSAO/SSAOShader.vert", ShaderType::VERTEX_SHADER},
+                    {"PostProcess/SSAO/SSAOShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Font:
+            return {{"Font/fontVertex.vert", GameEngine::ShaderType::VERTEX_SHADER},
+                    {"Font/fontFragment.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
+        case Shaders::Texture:
+            return {{"Gui/guiVertexShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Gui/guiFragmentShader.frag", ShaderType::FRAGMENT_SHADER}};
+    }
+    return ShadersFiles();
+}
 void OpenGLApi::DeleteMesh(uint32 id)
 {
     if (openGlMeshes_.count(id) == 0)
@@ -321,67 +451,14 @@ bool OpenGLApi::FinalizeShader(uint32 programId, GraphicsApiFunctions functions)
 }
 ShadersFiles OpenGLApi::GetShaderFiles(Shaders shaderType)
 {
-    switch (shaderType)
+    switch (shaderQuality_)
     {
-        case Shaders::Loading:
-            return {{"Game/loadingShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Game/loadingShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Entity:
-            return {{"Entity/EntityGeometryPassShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Entity/EntityGeometryPassShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Grass:
-            return {{"Grass/GrassShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Grass/GrassShader.frag", ShaderType::FRAGMENT_SHADER},
-                    {"Grass/GrassShader.geom", ShaderType::GEOMETRY_SHADER}};
-        case Shaders::Particles:
-            return {{"Particles/ParticlesShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Particles/ParticlesShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::AnimatedParticles:
-            return {{"Particles/AnimatedParticlesShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Particles/AnimatedParticlesShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Plants:
-            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
-                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
-                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
-        case Shaders::Shadows:
-            return {{"Shadows/ShadowVertexShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Shadows/ShadowFragmentShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::SkyBox:
-            return {{"SkyBox/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
-                    {"SkyBox/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Terrain:
-            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
-                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
-                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
-        case Shaders::Tree:
-            return {{"Tree/TreeShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Tree/TreeShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Water:
-            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
-                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
-                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
-        case Shaders::Blur:
-            return {{"PostProcess/Blur/Blur.vert", GameEngine::ShaderType::VERTEX_SHADER},
-                    {"PostProcess/Blur/Blur.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
-        case Shaders::ColorFilper:
-            return {{"PostProcess/ColorFliper/ColorFliper.vert", GameEngine::ShaderType::VERTEX_SHADER},
-                    {"PostProcess/ColorFliper/ColorFliper.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Deffered:
-            return {{"Light/LightPassShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Light/LightPassShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::SSAO:
-            return {{"PostProcess/SSAO/SSAOShader.vert", ShaderType::VERTEX_SHADER},
-                    {"PostProcess/SSAO/SSAOShader.frag", ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Font:
-            return {{"Font/fontVertex.vert", GameEngine::ShaderType::VERTEX_SHADER},
-                    {"Font/fontFragment.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
-        case Shaders::Texture:
-            return {{"Gui/guiVertexShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Gui/guiFragmentShader.frag", ShaderType::FRAGMENT_SHADER}};
+        case ShaderQuaility::FullDefferedRendering:
+            return GetFullDefferedShaderFiles(shaderType);
+        case ShaderQuaility::SimpleForwardRendering:
+            return GetSimpleForwardShaderFiles(shaderType);
     }
+
     return {};
 }
 uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string& varname)
@@ -391,9 +468,10 @@ uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string& varnam
     if (i < 0)
     {
         Log("Variable \"" + varname + "\" not found " + " in : " + shaderPrograms_.at(id).name);
+        return 0;
     }
 
-    return static_cast<uint32>(i);
+    return static_cast<uint32>(i) + 1;
 }
 void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
 {
@@ -401,50 +479,83 @@ void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::str
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, int value)
 {
-    glUniform1i(loacation, value);
+    if (loacation)
+    {
+        glUniform1i(loacation - 1, value);
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, float value)
 {
-    glUniform1f(loacation, value);
+    if (loacation)
+    {
+        glUniform1f(loacation - 1, value);
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, uint32 value)
 {
-    glUniform1ui(loacation, value);
+    if (loacation)
+    {
+        glUniform1ui(loacation - 1, value);
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, const vec2& value)
 {
-    glUniform2fv(loacation, 1, glm::value_ptr(value));
+    if (loacation)
+    {
+        glUniform2fv(loacation - 1, 1, glm::value_ptr(value));
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, const vec3& value)
 {
-    glUniform3fv(loacation, 1, glm::value_ptr(value));
+    if (loacation)
+    {
+        glUniform3fv(loacation - 1, 1, glm::value_ptr(value));
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, const vec4& value)
 {
-    glUniform4fv(loacation, 1, glm::value_ptr(value));
+    if (loacation)
+    {
+        glUniform4fv(loacation - 1, 1, glm::value_ptr(value));
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, const mat3& value)
 {
-    glUniformMatrix3fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
+    if (loacation)
+    {
+        glUniformMatrix3fv(loacation - 1, 1, GL_FALSE, glm::value_ptr(value));
+    }
 }
 void OpenGLApi::LoadValueToShader(uint32 loacation, const mat4& value)
 {
-    glUniformMatrix4fv(loacation, 1, GL_FALSE, glm::value_ptr(value));
+    if (loacation)
+    {
+        glUniformMatrix4fv(loacation - 1, 1, GL_FALSE, glm::value_ptr(value));
+    }
 }
 
 void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<float>& v)
 {
-    glUniform3fv(loacation, v.size(), (const GLfloat*)&v[0]);
+    if (loacation)
+    {
+        glUniform3fv(loacation - 1, v.size(), (const GLfloat*)&v[0]);
+    }
 }
 
 void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<vec3>& v)
 {
-    glUniform3fv(loacation, v.size(), (const GLfloat*)&v[0]);
+    if (loacation)
+    {
+        glUniform3fv(loacation - 1, v.size(), (const GLfloat*)&v[0]);
+    }
 }
 
 void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<mat4>& v)
 {
-    glUniformMatrix4fv(loacation, v.size(), GL_FALSE, (const GLfloat*)&v[0]);
+    if (loacation)
+    {
+        glUniformMatrix4fv(loacation - 1, v.size(), GL_FALSE, (const GLfloat*)&v[0]);
+    }
 }
 
 uint32 OpenGLApi::CreateTexture(TextureType type, TextureFilter filter, TextureMipmap mimpamp,
@@ -716,9 +827,9 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     glBindVertexArray(vao);
     glPatchParameteri(GL_PATCH_VERTICES, patch);
 
-    auto rid                          = objectId_;
-    createdObjectIds.insert({ rid, ObjectType::MESH });
-    openGlMeshes_.insert({ rid, {} });
+    auto rid = objectId_;
+    createdObjectIds.insert({rid, ObjectType::MESH});
+    openGlMeshes_.insert({rid, {}});
     openGlMeshes_.at(rid).instancesCount = count;
     openGlMeshes_.at(rid).patches        = patch;
     ++objectId_;
@@ -727,11 +838,11 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
 
 uint32 OpenGLApi::CreateMesh(const MeshRawData& meshRawData)
 {
-    auto rid              = objectId_;
-    createdObjectIds.insert({ rid, ObjectType::MESH });
+    auto rid = objectId_;
+    createdObjectIds.insert({rid, ObjectType::MESH});
     ++objectId_;
 
-    openGlMeshes_.insert({ rid, {} });
+    openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
 
     Utils::VaoCreator vaoCreator;
@@ -748,11 +859,11 @@ uint32 OpenGLApi::CreateMesh(const MeshRawData& meshRawData)
 
 uint32 OpenGLApi::CreateParticle()
 {
-    auto rid              = objectId_;
-    createdObjectIds.insert({ rid, ObjectType::MESH });
+    auto rid = objectId_;
+    createdObjectIds.insert({rid, ObjectType::MESH});
     objectId_++;
 
-    openGlMeshes_.insert({ rid, {} });
+    openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
 
     std::vector<float> vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
@@ -769,11 +880,11 @@ uint32 OpenGLApi::CreateParticle()
 }
 uint32 OpenGLApi::CreateAnimatedParticle()
 {
-    auto rid              = objectId_;
-    createdObjectIds.insert({ rid, ObjectType::MESH });
+    auto rid = objectId_;
+    createdObjectIds.insert({rid, ObjectType::MESH});
     objectId_++;
 
-    openGlMeshes_.insert({ rid, {} });
+    openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
 
     std::vector<float> vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};

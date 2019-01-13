@@ -33,6 +33,7 @@ void BaseRenderer::Init()
 {
     context_.graphicsApi_.SetShaderQuaility(ShaderQuaility::SimpleForwardRendering);
     CreateRenderers();
+    InitRenderers();
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, BaseRenderer::PreConfigure);
 }
 void BaseRenderer::Subscribe(GameObject* gameObject)
@@ -71,15 +72,16 @@ void BaseRenderer::CreateRenderers()
 
     AddRenderer<TerrainRenderer>();
     AddRenderer<TreeRenderer>();
-    AddRenderer<PlantsRenderer>();
+    //AddRenderer<PlantsRenderer>();
     AddRenderer<EntityRenderer>();
 
     if (EngineConf.renderer.particles.useParticles)
         AddRenderer<ParticlesRenderer>();
 
-    AddRenderer<WaterRenderer>();
+    //AddRenderer<WaterRenderer>();
 }
 void BaseRenderer::PreConfigure(Scene*)
 {
+    context_.graphicsApi_.ClearBuffers({ BufferType::COLOR, BufferType::DEPTH });
 }
 }  // namespace GameEngine

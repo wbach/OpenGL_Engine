@@ -20,7 +20,7 @@ void CLogger::EnableLogs()
 void CLogger::ErrorLog(const std::string& log)
 {
     MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
-	Log("[Error] " + log);
+    Logg(log);
 }
 void CLogger::Logg(const std::string& log)
 {

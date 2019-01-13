@@ -84,7 +84,14 @@ void RenderersManager::InitMainRenderer()
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-    renderers_.emplace_back(new DefferedRenderer(graphicsApi_, projection_, shaderFactory_, registerFunc));
+    if (rendererType == Params::RendererType::SIMPLE_RENDERER)
+    {
+        renderers_.emplace_back(new BaseRenderer(graphicsApi_, projection_, shaderFactory_, registerFunc));
+    }
+    else
+    {
+        renderers_.emplace_back(new DefferedRenderer(graphicsApi_, projection_, shaderFactory_, registerFunc));
+    }
 }
 void RenderersManager::InitGuiRenderer()
 {

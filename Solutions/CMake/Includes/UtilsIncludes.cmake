@@ -21,7 +21,6 @@ set(UtilsIncludes
 ../../Sources/Utils/Clock.hpp
 ../../Sources/Utils/math.hpp
 ../../Sources/Utils/Mutex.hpp
-../../Sources/Utils/OpenGL/VaoEnableController.hpp
 ../../Sources/Utils/optional.hpp
 ../../Sources/Utils/Thread.hpp
 ../../Sources/Utils/XML/ParseMethods.hpp

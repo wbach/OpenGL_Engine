@@ -96,6 +96,9 @@ public:
     virtual ShadersFiles GetShaderFiles(Shaders shaderType) override;
 
 private:
+    ShadersFiles GetFullDefferedShaderFiles(Shaders shaderType);
+    ShadersFiles GetSimpleForwardShaderFiles(Shaders shaderType);
+
     void DeleteMesh(uint32);
     uint32 ConvertAndRememberId(uint32 id);
     void DeleteShader(uint32);
