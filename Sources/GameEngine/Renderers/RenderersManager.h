@@ -35,6 +35,7 @@ public:
     void SwapLineFaceRender();
     GuiTextElement& GuiText(const std::string& label);
     Gui::GuiTextureElement& GuiTexture(const std::string& label);
+    void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_);
 
 private:
     void ReloadShadersExecution();
@@ -48,6 +49,7 @@ private:
 
 private:
     IGraphicsApi& graphicsApi_;
+    std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     Renderer::Gui::GuiContext guiContext_;

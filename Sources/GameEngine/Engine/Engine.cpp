@@ -19,7 +19,10 @@ Engine::Engine(std::unique_ptr<IGraphicsApi> graphicsApi, std::unique_ptr<Physic
     , isRunning(true)
 {
     graphicsApi_->SetBackgroundColor(vec3(.8f));
-
+    renderersManager_.SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix)
+    {
+        physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
+    });
     SetDisplay();
     sceneManager_.SetFactor();
 }
@@ -82,7 +85,6 @@ void Engine::MainLoop()
     sceneManager_.Update();
 
     ProcessEngineEvents();
-
     displayManager->Update();
 }
 

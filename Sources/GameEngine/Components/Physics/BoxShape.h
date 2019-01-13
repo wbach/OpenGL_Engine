@@ -3,25 +3,25 @@
 
 namespace GameEngine
 {
-	namespace Components
-	{
-		class BoxShape : public CollisionShape
-		{
-		public:
-			BoxShape(const ComponentContext& componentContext, GameObject& gameObject);
-			void Update();
-			virtual void ReqisterFunctions() override;
-			void OnAwake();
+namespace Components
+{
+class BoxShape : public CollisionShape
+{
+public:
+    BoxShape(const ComponentContext& componentContext, GameObject& gameObject);
+    void Update();
+    virtual void ReqisterFunctions() override;
+    void OnAwake();
 
-		public:
-			void SetSize(const vec3& size);
-			void SetSize(float size);
-		
-		private:
-			vec3 size_;
+public:
+    BoxShape& SetSize(const vec3& size);
+    BoxShape& SetSize(float size);
 
-		public:
-			static ComponentsType type;
-		};
-	} // Components
-} // GameEngine
+private:
+    vec3 size_;
+
+public:
+    static ComponentsType type;
+};
+}  // namespace Components
+}  // namespace GameEngine

@@ -188,6 +188,10 @@ Gui::GuiTextureElement& RenderersManager::GuiTexture(const std::string& label)
 {
     return guiContext_.texures->guiTextures_[label];
 }
+void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_)
+{
+    physicsDebugDraw_ = func_;
+}
 void RenderersManager::Render(RendererFunctionType type, Scene* scene)
 {
     if (rendererFunctions_.count(type))
@@ -195,6 +199,9 @@ void RenderersManager::Render(RendererFunctionType type, Scene* scene)
         for (auto& f : rendererFunctions_.at(type))
             f(scene);
     }
+
+    if (physicsDebugDraw_)
+        physicsDebugDraw_(scene->GetCamera()->GetViewMatrix(), projection_.GetProjectionMatrix());
 }
 
 }  // namespace Renderer

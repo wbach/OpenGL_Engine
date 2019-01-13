@@ -3,6 +3,7 @@
 #include "Common/MessageHandling/Dispatcher.h"
 #include "Engine/Engine.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
+#include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "Gateway.h"
 #include "Logger/Log.h"
 #include "MrpgGameContext.h"
@@ -19,7 +20,7 @@ class Game
 public:
     Game(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
         : serverAdress(Utils::ReadFile("./server.conf"))
-        , engine(std::move(gptr), std::make_unique<BulletAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+        , engine(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
     {
         Log("Server : " + serverAdress);
 

@@ -37,12 +37,19 @@ void MeshShape::OnAwake()
     for (const auto& mesh : meshes)
     {
         auto data         = mesh.GetCMeshDataRef();
-        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data.positions_, data.indices_);
+        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(
+            positionOffset_, data.positions_, data.indices_, size_ / model_->GetScaleFactor());
     }
 }
-void MeshShape::SetModel(Model* model)
+MeshShape& MeshShape::SetModel(Model* model)
 {
     model_ = model;
+    return *this;
 }
-}  // Components
-}  // GameEngine
+MeshShape& MeshShape::SetSize(float size)
+{
+    size_ = size;
+    return *this;
+}
+}  // namespace Components
+}  // namespace GameEngine

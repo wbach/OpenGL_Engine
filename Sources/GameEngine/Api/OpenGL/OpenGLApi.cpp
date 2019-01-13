@@ -177,6 +177,24 @@ uint32 OpenGLApi::CreateShader(const ShadersFiles& files, GraphicsApiFunctions f
     createdObjectIds.insert({rid, ObjectType::SHADER_PROGRAM});
     return rid;
 }
+void OpenGLApi::LoadViewMatrix(const mat4& viewMatrix)
+{
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(&viewMatrix[0][0]);
+}
+void OpenGLApi::LoadProjectionMatrix(const mat4& projectionMatrix)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(&projectionMatrix[0][0]);
+}
+void OpenGLApi::DrawLine(const vec3& color, const vec3& from, const vec3& to)
+{
+    glColor3f(color.x, color.y, color.z);
+    glBegin(GL_LINES);
+    glVertex3f(from.x, from.y, from.z);
+    glVertex3f(to.x, to.y, to.z);
+    glEnd();
+}
 ShadersFiles OpenGLApi::GetFullDefferedShaderFiles(Shaders shaderType)
 {
     switch (shaderType)

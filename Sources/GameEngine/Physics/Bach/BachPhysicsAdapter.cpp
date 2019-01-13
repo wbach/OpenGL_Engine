@@ -178,6 +178,9 @@ void BachPhysicsAdapter::Simulate()
         }
     }
 }
+void BachPhysicsAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)
+{
+}
 void BachPhysicsAdapter::SetSimulationStep(float step)
 {
     impl_->enableSimulation_ = 1.f;
@@ -206,7 +209,7 @@ uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3& positionOffset, cons
     return impl_->id_++;
 }
 uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                                              const std::vector<uint16>& indicies)
+                                              const std::vector<uint16>& indicies, float scaleFactor)
 {
     return impl_->id_++;
 }

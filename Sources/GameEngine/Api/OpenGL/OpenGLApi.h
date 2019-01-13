@@ -95,6 +95,10 @@ public:
     virtual void PrintText(const std::string&, const vec2i&) override;
     virtual ShadersFiles GetShaderFiles(Shaders shaderType) override;
 
+    virtual void LoadViewMatrix(const mat4&) override;
+    virtual void LoadProjectionMatrix(const mat4&) override;
+    virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
+
 private:
     ShadersFiles GetFullDefferedShaderFiles(Shaders shaderType);
     ShadersFiles GetSimpleForwardShaderFiles(Shaders shaderType);

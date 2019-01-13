@@ -39,13 +39,13 @@ private:
     std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
     void CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position, uint32_t textureIndex = 0, bool isDynamic = false);
     void AddBoxes(const vec3& pos);
-    void AddBarrel(const vec3& pos);
+    void AddExampleMesh(const vec3& pos, float scale);
     void UpdateObjectsCountText();
     void AddDebuxBoxesPlane(const vec2& offset);
     void RemoveObjectsUnderYValue(float y);
     void KeyOperations();
     template <typename Shape>
-    void AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& dir, float scale, bool isStatic);
+    void AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale, bool isStatic);
 
 private:
     std::vector<GameEngine::GameObject*> objects_;

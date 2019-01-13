@@ -23,15 +23,17 @@ void BoxShape::ReqisterFunctions()
 }
 void BoxShape::OnAwake()
 {
-    collisionShapeId_ = componentContext_.physicsApi_.CreateBoxColider(positionOffset_, size_);
+    collisionShapeId_ = componentContext_.physicsApi_.CreateBoxColider(positionOffset_, size_ / 2.f);
 }
-void BoxShape::SetSize(const vec3& size)
+BoxShape& BoxShape::SetSize(const vec3& size)
 {
     size_ = size;
+    return *this;
 }
-void BoxShape::SetSize(float size)
+BoxShape& BoxShape::SetSize(float size)
 {
     size_ = vec3(size);
+    return *this;
 }
 }  // namespace Components
 }  // namespace GameEngine

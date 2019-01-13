@@ -97,7 +97,9 @@ public:
     virtual void UpdateBlend(uint32, const std::vector<float>&)                                                  = 0;
     virtual uint32 CloneImage(uint32)                                                                            = 0;
     virtual ShadersFiles GetShaderFiles(Shaders shaderType)                                                      = 0;
-
+    virtual void LoadViewMatrix(const mat4&)                                                                     = 0;
+    virtual void LoadProjectionMatrix(const mat4&)                                                               = 0;
+    virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to)                                   = 0;
     // temp
     virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;

@@ -23,7 +23,7 @@ void SphereShape::ReqisterFunctions()
 }
 void SphereShape::OnAwake()
 {
-    collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(positionOffset_, size_);
+    collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(positionOffset_, size_ / 2.f);
 }
 SphereShape& SphereShape::SetSize(float size)
 {

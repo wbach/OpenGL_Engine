@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
+#include "Converter.h"
+#include "DebugDrawer.h"
 #include "Utils.h"
 #include "btBulletDynamicsCommon.h"
 
@@ -10,39 +12,22 @@ namespace GameEngine
 {
 namespace Physics
 {
-vec3 Convert(const btVector3& v)
-{
-    return vec3(v.getX(), v.getY(), v.getZ());
-}
-
-btVector3 Convert(const vec3& v)
-{
-    return btVector3(v.x, v.y, v.z);
-}
-
-btQuaternion Convert(const Quaternion& quat)
-{
-    return btQuaternion(quat.x, quat.y, quat.z, quat.w);
-}
-
-btTransform Convert(common::Transform& transform)
-{
-    btTransform result;
-    result.setOrigin(Convert(transform.GetPosition()));
-    Quaternion rotaton(transform.GetRotation());
-    result.setRotation(Convert(rotaton));
-    return result;
-}
-
 struct Shape
 {
     std::unique_ptr<btCollisionShape> shape_;
     btVector3 positionOffset_;
 };
 
+struct Rigidbody
+{
+    std::unique_ptr<btRigidBody> btRigidbody_;
+    btVector3* positionOffset_;
+};
+
 struct BulletAdapter::Pimpl
 {
-    Pimpl()
+    Pimpl(IGraphicsApi& graphicsApi)
+        : graphicsApi_(graphicsApi)
     {
         // auto trimesh = new btTriangleMesh();
         // btVector3 worldAabbMin(-1000, -1000, -1000);
@@ -58,22 +43,28 @@ struct BulletAdapter::Pimpl
         btDynamicWorld = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(),
                                                                    btSolver.get(), collisionConfiguration.get());
         btDynamicWorld->setGravity(btVector3(0, -10, 0));
+
+        bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>(graphicsApi_);
+        bulletDebugDrawer_->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+        btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
     }
+    std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;
     std::unique_ptr<btDynamicsWorld> btDynamicWorld;
     std::unique_ptr<btBroadphaseInterface> btBroadPhase;
     std::unique_ptr<btConstraintSolver> btSolver;
     std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
     std::unique_ptr<btDispatcher> btDispacher;
-    std::unordered_map<uint32, std::unique_ptr<btRigidBody>> rigidBodies;
+    std::unordered_map<uint32, Rigidbody> rigidBodies;
     std::unordered_map<uint32, common::Transform*> transforms;
     std::unordered_map<uint32, Shape> shapes_;
+    IGraphicsApi& graphicsApi_;
 };
-BulletAdapter::BulletAdapter()
+BulletAdapter::BulletAdapter(IGraphicsApi& graphicsApi)
     : simulationStep_(1.f / 60.f)
     , simualtePhysics_(true)
     , id_(1)
 {
-    impl_.reset(new Pimpl());
+    impl_.reset(new Pimpl(graphicsApi));
 }
 BulletAdapter::~BulletAdapter()
 {
@@ -100,14 +91,20 @@ void BulletAdapter::Simulate()
         auto& transform = impl_->transforms.at(pair.first);
         auto& rigidbody = pair.second;
         vec3 rot;
-        rigidbody->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
+        rigidbody.btRigidbody_->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
 
         rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
         transform->SetRotation(rot);
-
-        transform->SetPosition(Convert(rigidbody->getWorldTransform().getOrigin()));
+        auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
+        transform->SetPosition(Convert(newPosition));
         transform->TakeSnapShoot();
     }
+}
+void BulletAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)
+{
+    impl_->bulletDebugDrawer_->SetMatrices(viewMatrix, projectionMatrix);
+    impl_->btDynamicWorld->debugDrawWorld();
+    impl_->bulletDebugDrawer_->SetMatrices(mat4(), projectionMatrix);
 }
 void BulletAdapter::DisableSimulation()
 {
@@ -115,14 +112,14 @@ void BulletAdapter::DisableSimulation()
 }
 uint32 BulletAdapter::CreateBoxColider(const vec3& positionOffset, const vec3& size)
 {
-    impl_->shapes_.insert({ id_, Shape() });
+    impl_->shapes_.insert({id_, Shape()});
     impl_->shapes_.at(id_).shape_.reset(new btBoxShape(Convert(size)));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
     return id_++;
 }
 uint32 BulletAdapter::CreateSphereColider(const vec3& positionOffset, float radius)
 {
-    impl_->shapes_.insert({ id_, Shape() });
+    impl_->shapes_.insert({id_, Shape()});
     impl_->shapes_.at(id_).shape_.reset(new btSphereShape(radius));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
     return id_++;
@@ -137,7 +134,7 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec
     auto minElement = minElementIter != data.end() ? *minElementIter : 0.f;
     auto maxElement = maxElementIter != data.end() ? *maxElementIter : 0.f;
 
-    impl_->shapes_.insert({ id_, Shape() });
+    impl_->shapes_.insert({id_, Shape()});
     impl_->shapes_.at(id_).shape_.reset(
         new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f, minElement, maxElement, 1, PHY_FLOAT, false));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
@@ -146,9 +143,9 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec
     return id_++;
 }
 uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                                         const std::vector<uint16>& indicies)
+                                         const std::vector<uint16>& indicies, float scaleFactor)
 {
-    impl_->shapes_.insert({ id_, Shape() });
+    impl_->shapes_.insert({id_, Shape()});
     auto& shape = impl_->shapes_.at(id_);
 
     auto trimesh = new btTriangleMesh();
@@ -162,6 +159,7 @@ uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::
         trimesh->addTriangle(v0, v1, v2);
     }
     btConvexShape* tmpshape = new btConvexTriangleMeshShape(trimesh);
+    tmpshape->setLocalScaling(btVector3(scaleFactor, scaleFactor, scaleFactor));
 
     shape.shape_          = std::unique_ptr<btCollisionShape>(tmpshape);
     shape.positionOffset_ = Convert(positionOffset);
@@ -181,8 +179,7 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
     }
 
     btCollisionShape* shape = impl_->shapes_.at(shapeId).shape_.get();
-    shape->setLocalScaling(Convert(transform.GetScale()));
-
+   // shape->setLocalScaling(Convert(transform.GetScale()));
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     btVector3 localInertia(0, 0, 0);
@@ -194,10 +191,12 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
 
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 
-    impl_->rigidBodies.insert({id_, std::make_unique<btRigidBody>(cInfo) });
-    impl_->transforms.at(id_)  = &transform;
+    impl_->rigidBodies.insert({id_, Rigidbody()});
+    impl_->rigidBodies.at(id_).btRigidbody_ = std::make_unique<btRigidBody>(cInfo);
+    impl_->rigidBodies.at(id_).positionOffset_ = &impl_->shapes_.at(shapeId).positionOffset_;
+    impl_->transforms[id_] = &transform;
 
-    auto& body = impl_->rigidBodies.at(id_);
+    auto& body = impl_->rigidBodies.at(id_).btRigidbody_;
     body->setUserIndex(-1);
     impl_->btDynamicWorld->addRigidBody(body.get());
     impl_->btDynamicWorld->updateSingleAabb(body.get());
@@ -210,7 +209,7 @@ void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocit
         return;
     }
 
-    impl_->rigidBodies.at(rigidBodyId)->setLinearVelocity(Convert(velocity));
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setLinearVelocity(Convert(velocity));
 }
 void BulletAdapter::RemoveRigidBody(uint32 id)
 {
@@ -220,7 +219,7 @@ void BulletAdapter::RemoveRigidBody(uint32 id)
     }
 
     auto& rigidbody = impl_->rigidBodies.at(id);
-    impl_->btDynamicWorld->removeRigidBody(rigidbody.get());
+    impl_->btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
     impl_->rigidBodies.erase(id);
 }
 }  // namespace Physics

@@ -16,10 +16,11 @@ public:
     void OnAwake();
 
 public:
-    void SetModel(Model* model);
+    MeshShape& SetModel(Model* model);
+    MeshShape& SetSize(float size);
 
 private:
-    vec3 size_;
+    float size_;
     Model* model_;
 
 public:

@@ -5,8 +5,8 @@
 
 static vec3 zero(0);
 
-const float defaultCamSpeed         = Utils::KmToMs<float>(1);
-const float defaultCamRotationSpeed = 0.2f;
+const float defaultCamSpeed         = Utils::KmToMs<float>(25);
+const float defaultCamRotationSpeed = 100.2f;
 
 namespace GameEngine
 {
@@ -89,15 +89,14 @@ void FirstPersonCamera::ApllyMove()
     if (!inputManager->GetMouseKey(KeyCodes::LMOUSE))
         return;
 
-    vec2 dmove = CalcualteMouseMove();
-    yaw.store(yaw.load() - dmove.x);      // *deltaTime;
-    pitch.store(pitch.load() - dmove.y);  // *deltaTime;
-    LockCamera();
+    vec2 dmove = CalcualteMouseMove() * displayManager->GetTime().deltaTime;
+    yaw.store(yaw.load() - dmove.x);
+    pitch.store(pitch.load() - dmove.y);
 }
 
 void FirstPersonCamera::CalculateMoveVelocity()
 {
-    currentMoveVelocity = movevel;  // *static_cast<float>(displayManager->GetDeltaTime());
+    currentMoveVelocity = movevel * displayManager->GetTime().deltaTime;
 }
 
 void FirstPersonCamera::CheckAndProccesDirections()
@@ -163,4 +162,4 @@ void FirstPersonCamera::MoveCameraUp(float dist, float dir)
     float rad = (pitch.load() + dir) * static_cast<float>(M_PI) / 180.f;
     position.y += sin(-rad) * dist;
 }
-}  // GameEngine
+}  // namespace GameEngine
