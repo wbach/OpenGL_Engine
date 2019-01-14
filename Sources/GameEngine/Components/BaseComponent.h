@@ -22,9 +22,9 @@ protected:
     inline void RegisterFunction(FunctionType, std::function<void()> func);
 
 protected:
+    ComponentsType type_;
     GameObject& thisObject_;
     ComponentContext componentContext_;
-    ComponentsType type_;
 
 private:
     std::unordered_map<uint32, FunctionType> ids_;

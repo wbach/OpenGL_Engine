@@ -244,7 +244,7 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
     auto& meshShape = object->AddComponent<Components::MeshShape>().SetSize(scale);
     meshShape.SetModel(renderComponent.GetModelWrapper().Get(LevelOfDetail::L1));
 
-    auto& rigidbody = object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(&meshShape);
+    object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(&meshShape);
 
     AddGameObject(object);
 }

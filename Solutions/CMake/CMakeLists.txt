@@ -96,8 +96,49 @@ if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
     endif()
 endif()
 
+
+#DBUILD_PYBULLET=ON -DBUILD_PYBULLET_NUMPY=ON -DUSE_DOUBLE_PRECISION=ON -DBT_USE_EGL=ON -DCMAKE_BUILD_TYPE=Release
+#option(BUILD_PYBULLET "" ON)
+#option(BUILD_PYBULLET_NUMPY "" ON)
+#option(USE_DOUBLE_PRECISION "" ON)
+#option(BT_USE_EGL "" OFF)
+option(BUILD_UNIT_TESTS "" OFF)
+// option(BUILD_EXTRAS "" OFF)
+// option(BUILD_BULLET2_DEMOS "" OFF)
+// option(BUILD_OPENGL3_DEMOS "" OFF)
+
+
+
+ set(BulletLinkingLibs
+            Bullet3Common
+            Bullet2FileLoader
+            Bullet3Collision
+            Bullet3Dynamics
+            Bullet3Geometry
+            Bullet3OpenCL_clew
+            BulletCollision
+            BulletDynamics
+            BulletFileLoader
+            BulletInverseDynamics
+            BulletInverseDynamicsUtils
+            BulletRobotics
+            BulletSoftBody
+            BulletWorldImporter
+            BulletXmlWorldImporter
+            BussIK
+            clsocket
+            ConvexDecomposition
+            GIMPACTUtils
+            HACD
+            OpenGLWindow
+            BulletExampleBrowserLib
+            gwen
+            LinearMath
+      )
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/bullet)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
+
 if(BUILD_TEST_GAME)
-    #add_subdirectory(../../Tools/common/bullet/src)
     include_directories(
     ../../Sources/GameEngine/
     )
@@ -106,7 +147,7 @@ if(BUILD_TEST_GAME)
     if(BUILD_I386)
         set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
-    target_link_libraries(TestGlGame GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs})
+    target_link_libraries(TestGlGame GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs})
 endif()
 
 if(BUILD_RPG_GAME_SERVER)

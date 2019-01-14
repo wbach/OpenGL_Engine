@@ -6,6 +6,7 @@
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "Types.h"
+#include <unordered_map>
 
 namespace GameEngine
 {

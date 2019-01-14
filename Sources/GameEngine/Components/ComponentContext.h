@@ -31,8 +31,8 @@ struct ComponentContext
         , camera_(camera)
         , physicsApi_(physicsApi)
         , resourceManager_(resourceManager)
-        , renderersManager_(renderersManager)
         , componentController_(componentController)
+        , renderersManager_(renderersManager)
     {
     }
 
