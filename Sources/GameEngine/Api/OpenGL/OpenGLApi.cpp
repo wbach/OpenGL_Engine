@@ -109,10 +109,17 @@ void OpenGLApi::PrintVersion()
     std::string glslver(reinterpret_cast<char const*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
     Log("GLSL version: " + glslver);
 
-    GLint MaxPatchVertices = 0;
-    glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
-    Log("Max supported patch vertices :" + std::to_string(MaxPatchVertices));
-    glPatchParameteri(GL_PATCH_VERTICES, 3);
+    int major = 0,  minor = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+    if (major > 4 and minor > 0)
+    {
+        GLint MaxPatchVertices = 0;
+        glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
+        Log("Max supported patch vertices :" + std::to_string(MaxPatchVertices));
+        glPatchParameteri(GL_PATCH_VERTICES, 3);
+    }
 }
 IWindowApiPtr OpenGLApi::GetWindowApi()
 {

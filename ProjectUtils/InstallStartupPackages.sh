@@ -31,6 +31,23 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --key-bindings --completion --update-rc
 
 exit 1
+
+#onde drive
+sudo apt-get install -y libcurl4-openssl-dev curl git
+sudo apt-get install -y libsqlite3-dev
+curl -fsS https://dlang.org/install.sh | bash -s dmd
+source ~/dlang/dmd-2.076.0/activate
+
+git clone https://github.com/skilion/onedrive.git ~/onedrive
+cd ~/onedrive
+make
+sudo -s
+source ~/dlang/dmd-2.076.0/activate
+make install
+#exit
+onedrive -m &
+
+exit 1
 #set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 #add_compile_options( -std=c++14   -m32 )
 sudo apt-get install -y libsdl2-dev
