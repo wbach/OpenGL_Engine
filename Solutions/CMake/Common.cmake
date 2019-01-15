@@ -1,0 +1,7 @@
+if(BUILD_COMMON)
+    include(./Sources/CommonSources.cmake)
+    add_library(CommonLib ${CommonSources})
+    if(BUILD_I386)
+        set_target_properties(CommonLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
+endif()

@@ -1,0 +1,7 @@
+if(BUILD_UTILS_NETWORK)
+    include(./Sources/UtilsNetworkSources.cmake)
+    add_library(UtilsNetworkLib ${UtilsNetworkSources})
+    if(BUILD_I386)
+        set_target_properties(UtilsNetworkLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
+endif()

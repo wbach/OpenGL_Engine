@@ -17,13 +17,12 @@ if(BUILD_ALL)
     SET(BUILD_UTILS ON)
     SET(BUILD_UTILS_NETWORK ON)
     SET(BUILD_COMMON ON)
-   # SET(BUILD_LIB_NOISE ON)
+    SET(BUILD_LIB_NOISE ON)
     SET(BUILD_GAME_ENGINE ON)
     SET(BUILD_TESTS ON)
     SET(BUILD_TEST_GAME ON)
     SET(BUILD_RPG_GAME_SERVER ON)
-   # SET(BUILD_TERRAIN_GENERATOR ON)
-    SET(BUILD_I386 ON)
+    SET(BUILD_TERRAIN_GENERATOR ON)
 endif()
 
 message(STATUS "32bit build: ${BUILD_I386}")
@@ -37,11 +36,12 @@ message(STATUS "Build rpg game server: ${BUILD_RPG_GAME_SERVER}")
 message(STATUS "Build terrain generator: ${BUILD_TERRAIN_GENERATOR}")
 
 SET(GCC_COVERAGE_LINK_FLAGS    "-static-libgcc")
-SET( CMAKE_CXX_FLAGS  "-std=c++14 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined" )
-SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
+SET(CMAKE_CXX_FLAGS  "-std=c++17 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined")
+SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
 add_compile_options(
     -std=c++17
+    -O3
 )
 
 if(BUILD_I386)
@@ -51,141 +51,26 @@ if(BUILD_I386)
     #set_target_properties(GLOBAL PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 endif()
 
-include(./Sources/WindowsSources.cmake)
-include(./Sources/Unix.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/WindowsSources.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/Unix.cmake)
 
 include_directories(
-    ../../Sources/
-    ../../Sources/Utils/
-    ../../Sources/UtilsNetwork/
-    ../../Tools/common/
-    ../../Tools/common/glm
-    ../../Tools/common/bullet/src/
-    ../../Tools/common/rapidxml-1.13/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
 )
 
-if(BUILD_UTILS)
-    include(./Sources/UtilsSources.cmake)
-    add_library(UtilsLib ${UtilsSources})
-    if(BUILD_I386)
-        set_target_properties(UtilsLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-endif()
-
-if(BUILD_UTILS_NETWORK)
-    include(./Sources/UtilsNetworkSources.cmake)
-    add_library(UtilsNetworkLib ${UtilsNetworkSources})
-    if(BUILD_I386)
-        set_target_properties(UtilsNetworkLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-endif()
-
-if(BUILD_COMMON)
-    include(./Sources/CommonSources.cmake)
-    add_library(CommonLib ${CommonSources})
-    if(BUILD_I386)
-        set_target_properties(CommonLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-endif()
-
-if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
-    include(./Sources/GameEngineSources.cmake)
-    add_library(GameEngineLib ${GameEngineSources})
-    if(BUILD_I386)
-        set_target_properties(GameEngineLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-endif()
-
-
-#DBUILD_PYBULLET=ON -DBUILD_PYBULLET_NUMPY=ON -DUSE_DOUBLE_PRECISION=ON -DBT_USE_EGL=ON -DCMAKE_BUILD_TYPE=Release
-#option(BUILD_PYBULLET "" ON)
-#option(BUILD_PYBULLET_NUMPY "" ON)
-#option(USE_DOUBLE_PRECISION "" ON)
-#option(BT_USE_EGL "" OFF)
-option(BUILD_UNIT_TESTS "" OFF)
-// option(BUILD_EXTRAS "" OFF)
-// option(BUILD_BULLET2_DEMOS "" OFF)
-// option(BUILD_OPENGL3_DEMOS "" OFF)
-
-
-
- set(BulletLinkingLibs
-            Bullet3Common
-            Bullet2FileLoader
-            Bullet3Collision
-            Bullet3Dynamics
-            Bullet3Geometry
-            Bullet3OpenCL_clew
-            BulletCollision
-            BulletDynamics
-            BulletFileLoader
-            BulletInverseDynamics
-            BulletInverseDynamicsUtils
-            BulletRobotics
-            BulletSoftBody
-            BulletWorldImporter
-            BulletXmlWorldImporter
-            BussIK
-            clsocket
-            ConvexDecomposition
-            GIMPACTUtils
-            HACD
-            OpenGLWindow
-            BulletExampleBrowserLib
-            gwen
-            LinearMath
-      )
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/bullet)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
-
-if(BUILD_TEST_GAME)
-    include_directories(
-    ../../Sources/GameEngine/
-    )
-    include(./Sources/TestGameSources.cmake)
-    add_executable(TestGlGame ${TestGameSources})
-    if(BUILD_I386)
-        set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-    target_link_libraries(TestGlGame GameEngineLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs})
-endif()
-
-if(BUILD_RPG_GAME_SERVER)
-    include(./Sources/RpgGameServerSources.cmake)
-    add_executable(RpgGameServer ${RpgGameServerSources})
-    if(BUILD_I386)
-        set_target_properties(RpgGameServer PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-    target_link_libraries(RpgGameServer  UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs})
-endif()
-
-if(BUILD_LIB_NOISE OR BUILD_TERRAIN_GENERATOR)
-    include_directories(
-        ../../Tools/common/libnoise/
-        ../../Tools/common/libnoise/src/
-        )
-    include(./Sources/LibNoiseSources.cmake)
-    add_library(LibNoise ${LibNoiseSources})
-endif()
-
-if(BUILD_TERRAIN_GENERATOR)
-    include(./Sources/TerrainGeneratorSources.cmake)
-    add_executable(TerrainGeneratorExe ${TerrainGeneratorSources})
-    target_link_libraries(TerrainGeneratorExe LibNoise pthread)
-endif()
-
-if(BUILD_TESTS)
-    include_directories(
-        ../../Sources/GameEngine/
-    )
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
-    include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-    
-    include(./Sources/GameEngineTestsSources.cmake)
-    add_executable(GAME_ENGINE_TESTS ${GameEngineTestsSources})
-    if(BUILD_I386)
-        set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
-    target_link_libraries(GAME_ENGINE_TESTS GameEngineLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs})
-endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngine.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/TestGame.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/GameServer.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/LibNoise.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/TerrainGenerator.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngineTest.cmake)
 
