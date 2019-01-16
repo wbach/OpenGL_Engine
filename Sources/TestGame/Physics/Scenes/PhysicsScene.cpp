@@ -3,6 +3,7 @@
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Engine/AplicationContext.h"
@@ -69,8 +70,8 @@ float Random()
 }
 
 template <typename Shape>
-void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale,
-                                   bool isStatic)
+void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset,
+                                   const vec3& dir, float scale, bool isStatic)
 {
     auto object = CreateGameObject();
     object->worldTransform.SetPosition(pos);
@@ -98,19 +99,19 @@ void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
     {
         for (int x = static_cast<int>(offset.x); x < static_cast<int>(offset.x) + 50; x += 2)
         {
-            AddPhysicObject<Components::SphereShape>("Meshes/SimpleCube.obj", vec3(x, 200, y), vec3(0), vec3(0), 1.f, false);
+            AddPhysicObject<Components::SphereShape>("Meshes/SimpleCube.obj", vec3(x, 200, y), vec3(0), vec3(0), 1.f,
+                                                     false);
         }
     }
 }
 
 void PhysicsScene::RemoveObjectsUnderYValue(float y)
 {
-    for (auto iter = objects_.begin(); iter != objects_.end();)
+    for (auto iter = gameObjects.begin(); iter != gameObjects.end();)
     {
-        if ((*iter)->worldTransform.GetPosition().y < -100)
+        if ((*iter).second->worldTransform.GetPosition().y < -100)
         {
-            RemoveGameObject(*iter);
-            iter = objects_.erase(iter);
+            iter = gameObjects.erase(iter);
         }
         else
         {
@@ -127,25 +128,46 @@ void PhysicsScene::KeyOperations()
         auto pos = GetCamera()->GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos, vec3(0), dir * 20.f, 1.f, false);
         Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
-            ", Objecsts : " + std::to_string(objects_.size()));
+            ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { simulatePhysics_.store(!simulatePhysics_.load()); });
 
+    auto rm = renderersManager_;
     inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]() {
-        for (auto iter = objects_.begin(); iter != objects_.end();)
-        {
-            RemoveGameObject(*iter);
-            iter = objects_.erase(iter);
-        }
+        gameObjects.clear();
+        AddStartupObjects();
     });
-
     inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]() { AddBoxes(GetCamera()->GetPosition()); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::L, [&]() { renderersManager_->SwapLineFaceRender(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [rm]() { rm->DisableDrawPhysicsDebyg(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [rm]() { rm->EnableDrawPhysicsDebyg(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]() { AddExampleMesh(GetCamera()->GetPosition(), 10.f); });
 
     inputManager_->SubscribeOnKeyDown(
         KeyCodes::P, [&]() { Log("Camera position : " + Utils::ToString(GetCamera()->GetPosition())); });
+}
+void PhysicsScene::AddStartupObjects()
+{
+    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(0, 2, 10), vec3(0), vec3(0), 1.f, true);
+    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(10, 2, 10), vec3(0), vec3(0), 2.f, true);
+    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(20, 2, 10), vec3(0), vec3(0), 3.f, true);
+    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(30, 2, 10), vec3(0), vec3(0), 4.f, true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(0, 2, 0), vec3(0, -.5f, 0), vec3(0), 1.f,
+                                          true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(10, 2, 0), vec3(0, -1.f, 0), vec3(0), 2.f,
+                                          true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(20, 2, 0), vec3(0, -1.5f, 0), vec3(0), 3.f,
+                                          true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(30, 2, 0), vec3(0, -2.f, 0), vec3(0), 4.f,
+                                          true);
+    AddExampleMesh(vec3(0, 2, 20), 1.f);
+    AddExampleMesh(vec3(10, 2, 20), 2.f);
+    AddExampleMesh(vec3(20, 2, 20), 3.f);
+    AddExampleMesh(vec3(30, 2, 20), 4.f);
+
+    AddTerrain();
 }
 void PhysicsScene::CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position,
                                           uint32_t textureIndex, bool isDynamic)
@@ -165,39 +187,23 @@ int PhysicsScene::Initialize()
     UpdateObjectsCountText();
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-    camera->SetPosition(vec3(0, 0, -10));
-
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(0, 0, 10), vec3(0), vec3(0), 1.f, true);
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(10, 0, 10), vec3(0), vec3(0), 2.f, true);
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(20, 0, 10), vec3(0), vec3(0), 3.f, true);
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(30, 0, 10), vec3(0), vec3(0), 4.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(0, 0, 0), vec3(0, -.5f, 0), vec3(0), 1.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(10, 0, 0), vec3(0, -1.f, 0), vec3(0), 2.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(20, 0, 0), vec3(0, -1.5f, 0), vec3(0), 3.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(30, 0, 0), vec3(0, -2.f, 0), vec3(0), 4.f, true);
-    AddExampleMesh(vec3(0, -0, 20), 1.f);
-    AddExampleMesh(vec3(10, -0, 20), 2.f);
-    AddExampleMesh(vec3(20, -0, 20), 3.f);
-    AddExampleMesh(vec3(30, -0, 20), 4.f);
-    auto terrain_textures = CreateTerrainTexturesMap();
-    AddTerrain(terrain_textures);
+    camera->SetPosition(vec3(0, 5, -10));
+    AddStartupObjects();
 
     KeyOperations();
 
     return 0;
 }
 
-void PhysicsScene::AddTerrain(const TerrainTexturesFilesMap& textures)
+void PhysicsScene::AddTerrain()
 {
-    return;
-    auto object                   = CreateGameObjectInstance(1.f, vec2(0));
-    object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
+    auto textures = CreateTerrainTexturesMap();
+    auto object   = CreateGameObjectInstance(1.f, vec2(0));
+    resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
+    object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
 
-    auto& terrainShapeComponent = object->AddComponent<Components::TerrainShape>();
-    // terrainShapeComponent->SetSize(terrain->GetSize());
-    // terrainShapeComponent->SetData(&terrain->GetHeightData());
-    // terrainShapeComponent->SetHeightFactor(1.f);
-    // terrainShapeComponent->SetPostionOffset(vec3(0, 10, 0));
+    auto& terrainShapeComponent =
+        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::displacementMap));
 
     auto rigidbody =
         object->AddComponent<Components::Rigidbody>().SetCollisionShape(&terrainShapeComponent).SetIsStatic(true);
@@ -225,8 +231,8 @@ void PhysicsScene::AddBoxes(const vec3& pos)
         {
             for (int j = 0; j < ARRAY_SIZE_Z; j++)
             {
-                AddPhysicObject<Components::SphereShape>("Meshes/SimpleCube.obj", pos + vec3(i, 2 + k + 50, j), vec3(0), vec3(0),
-                                                         1.f, false);
+                AddPhysicObject<Components::SphereShape>("Meshes/SimpleCube.obj", pos + vec3(i, 2 + k + 50, j), vec3(0),
+                                                         vec3(0), 1.f, false);
             }
         }
     }

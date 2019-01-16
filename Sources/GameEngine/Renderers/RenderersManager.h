@@ -36,6 +36,8 @@ public:
     GuiTextElement& GuiText(const std::string& label);
     Gui::GuiTextureElement& GuiTexture(const std::string& label);
     void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_);
+    void EnableDrawPhysicsDebyg();
+    void DisableDrawPhysicsDebyg();
 
 private:
     void ReloadShadersExecution();
@@ -58,6 +60,7 @@ private:
     std::list<GameObject*> dynamincObjects_;
     RendererFunctions rendererFunctions_;
     IShaderFactory& shaderFactory_;
+    bool renderPhysicsDebug_;
 };
 }  // Renderer
 }  // GameEngine

@@ -3,6 +3,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <string>
 #include <chrono>
+#include <vector>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
@@ -18,6 +19,12 @@ typedef int8_t  int8;
 typedef int16_t int16;
 typedef int32_t int32;
 typedef int64_t int64;
+
+typedef int32 IndicesDataType;
+typedef std::vector<IndicesDataType> IndicesVector;
+typedef std::vector<float> FloatAttributeVec;
+typedef std::vector<int32> JointsVector;
+typedef std::vector<uint8> Uint8Vec;
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))

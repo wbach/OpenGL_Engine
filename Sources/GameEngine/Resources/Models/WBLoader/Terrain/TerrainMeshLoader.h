@@ -17,20 +17,22 @@ public:
     virtual std::unique_ptr<Model> Create() override;
 
 private:
-    void CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height);
-    vec3 CalculateNormalMap(uint16 x, uint16 z);
-    float GetHeight(uint16 x, uint16 y) const;
+    void CreateTerrainVertexes(uint32 x_start, uint32 y_start, uint32 width, uint32 height);
+    vec3 CalculateNormalMap(uint32 x, uint32 z);
+    float GetHeight(uint32 x, uint32 y) const;
     void CreateMesh();
     void Clear();
+    float FindMaxY(const FloatAttributeVec& v) const;
+    void TranslateY(FloatAttributeVec&v, float y);
 
 private:
-    uint16 heightMapResolution_;
-    std::vector<uint16> indices_;
-    std::vector<float> vertices_;
-    std::vector<float> normals_;
-    std::vector<float> tangens_;
-    std::vector<float> textureCoords_;
-    std::vector<float>* heights_;
+    uint32 heightMapResolution_;
+    IndicesVector indices_;
+    FloatAttributeVec vertices_;
+    FloatAttributeVec normals_;
+    FloatAttributeVec tangens_;
+    FloatAttributeVec textureCoords_;
+    FloatAttributeVec* heights_;
 };
 }  // WBLoader
 } // namespace GameEngine

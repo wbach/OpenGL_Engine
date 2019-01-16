@@ -347,17 +347,6 @@ void MainScene::CheckCollisions(float dt)
 
     bool wasCollision = false;
 
-    if (getTerrainHeight_)
-    {
-        auto height = getTerrainHeight_(playerPos.x, playerPos.z);
-
-        if (playerPos.y < (*height))
-        {
-            wasCollision = true;
-            playerPos.y  = *height;
-            player->worldTransform.SetPosition(playerPos);
-        }
-    }
 
     if (!wasCollision)
         player->worldTransform.IncrasePosition(0.f, -g, 0.f);
@@ -369,11 +358,8 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
     object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent = object->AddComponent<Components::TerrainShape>()
-                                      .SetHeightFactor(TerrainDef::HEIGHT_FACTOR)
                                       .SetHeightMap(textures.at(TerrainTextureType::displacementMap));
 
-    getTerrainHeight_ = std::bind(&Components::TerrainShape::GetHeightofTerrain, &terrainShapeComponent,
-                                  std::placeholders::_1, std::placeholders::_2);
     AddGameObject(object);
 }
 
@@ -409,16 +395,6 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(floa
     obj->worldTransform.SetScale(scale);
     obj->worldTransform.isDynamic_ = isDynamic;
     vec3 obj_pos(position.x, 0, position.y);
-
-    if (getTerrainHeight_)
-    {
-        auto height = getTerrainHeight_(position.x, position.y);
-
-        if (height)
-        {
-            obj_pos.y = *height;
-        }
-    }
 
     obj->worldTransform.SetPosition(obj_pos);
     obj->worldTransform.TakeSnapShoot();

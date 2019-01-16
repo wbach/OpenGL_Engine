@@ -35,6 +35,8 @@ void GrassRenderer::Init()
 
 void GrassRenderer::Render(Scene* scene)
 {
+    if (subscribes_.empty())
+        return;
     PrepareRender(scene);
     RenderSubscribes();
     EndRender();

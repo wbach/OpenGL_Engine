@@ -70,6 +70,7 @@ public:
     virtual uint32 CreateAnimatedParticle() override;
     virtual void RenderPurePatchedMeshInstances(uint32) override;
     virtual void RenderMesh(uint32) override;
+    virtual void RenderTriangleStripMesh(uint32) override;
     virtual void RenderMeshInstanced(uint32, uint32) override;
     virtual void RenderPoints(uint32) override;
     virtual void RenderQuad() override;

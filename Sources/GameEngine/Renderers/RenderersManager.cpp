@@ -38,6 +38,7 @@ RenderersManager::RenderersManager(IGraphicsApi& graphicsApi, IShaderFactory& sh
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , shaderFactory_(shaderFactory)
+    , renderPhysicsDebug_(false)
 {
 }
 const Projection& RenderersManager::GetProjection() const
@@ -192,6 +193,14 @@ void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const
 {
     physicsDebugDraw_ = func_;
 }
+void RenderersManager::EnableDrawPhysicsDebyg()
+{
+    renderPhysicsDebug_ = true;
+}
+void RenderersManager::DisableDrawPhysicsDebyg()
+{
+    renderPhysicsDebug_ = false;
+}
 void RenderersManager::Render(RendererFunctionType type, Scene* scene)
 {
     if (rendererFunctions_.count(type))
@@ -200,7 +209,7 @@ void RenderersManager::Render(RendererFunctionType type, Scene* scene)
             f(scene);
     }
 
-    if (physicsDebugDraw_)
+    if (renderPhysicsDebug_ and physicsDebugDraw_)
         physicsDebugDraw_(scene->GetCamera()->GetViewMatrix(), projection_.GetProjectionMatrix());
 }
 

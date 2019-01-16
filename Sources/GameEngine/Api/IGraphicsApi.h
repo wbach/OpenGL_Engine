@@ -80,6 +80,7 @@ public:
     virtual uint32 CreateAnimatedParticle()                                                                      = 0;
     virtual void RenderPurePatchedMeshInstances(uint32)                                                          = 0;
     virtual void RenderMesh(uint32)                                                                              = 0;
+    virtual void RenderTriangleStripMesh(uint32)                                                                 = 0;
     virtual void RenderMeshInstanced(uint32, uint32)                                                             = 0;
     virtual void RenderPoints(uint32)                                                                            = 0;
     virtual void RenderQuad()                                                                                    = 0;

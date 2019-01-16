@@ -37,14 +37,14 @@ vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float no
 vec4 CalculateTerrainColor()
 {
     vec4 blend_map_colour = texture(blendMap, fs_in.textCoord) ;
-        
+
     float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;
     vec2 tiled_coords = fs_in.textCoord * 200.0f ;
 
     float normalFactor = dot(fs_in.normal, vec3(0.f, 4.f, 0.f));
 
     if (normalFactor > 1 )
-     normalFactor = 1;
+       normalFactor = 1;
 
     vec4 backgorund_texture_colour;
     backgorund_texture_colour = CalculateColor(backgorundTexture, back_texture_amount, tiled_coords, normalFactor);

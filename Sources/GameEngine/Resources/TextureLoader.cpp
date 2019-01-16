@@ -25,6 +25,7 @@ TextureLoader::TextureLoader(IGraphicsApi& graphicsApi, std::vector<std::unique_
     : graphicsApi_(graphicsApi)
     , textures_(textures_vector)
     , gpuResourceLoader_(gpuLoader)
+    , heightMapFactor_(1.f)
 {
 }
 
@@ -236,6 +237,11 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
     fread(&text.floatData[0], sizeof(float), size, fp);
     fclose(fp);
 
+    for (auto& height : text.floatData)
+    {
+        height *= heightMapFactor_;
+    }
+
     auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, texture);
     textures_.emplace_back(heightmap_texture);
 
@@ -289,6 +295,11 @@ void TextureLoader::CreateHeightMap(const std::string& in, const std::string& ou
         fwrite(&data[0], sizeof(float), size, fp);
     }
     fclose(fp);
+}
+
+void TextureLoader::SetHeightMapFactor(float factor)
+{
+    heightMapFactor_ = factor;
 }
 
 IGraphicsApi& TextureLoader::GetGraphicsApi()

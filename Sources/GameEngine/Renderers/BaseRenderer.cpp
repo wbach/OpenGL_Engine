@@ -8,6 +8,7 @@
 #include "Objects/Shadows/ShadowFrameBuffer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
+#include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
@@ -71,17 +72,18 @@ void BaseRenderer::CreateRenderers()
         AddRenderer<GrassRenderer>();
 
     AddRenderer<TerrainRenderer>();
+    AddRenderer<TerrainMeshRenderer>();
     AddRenderer<TreeRenderer>();
-    //AddRenderer<PlantsRenderer>();
+    // AddRenderer<PlantsRenderer>();
     AddRenderer<EntityRenderer>();
 
     if (EngineConf.renderer.particles.useParticles)
         AddRenderer<ParticlesRenderer>();
 
-    //AddRenderer<WaterRenderer>();
+    // AddRenderer<WaterRenderer>();
 }
 void BaseRenderer::PreConfigure(Scene*)
 {
-    context_.graphicsApi_.ClearBuffers({ BufferType::COLOR, BufferType::DEPTH });
+    context_.graphicsApi_.ClearBuffers({BufferType::COLOR, BufferType::DEPTH});
 }
 }  // namespace GameEngine

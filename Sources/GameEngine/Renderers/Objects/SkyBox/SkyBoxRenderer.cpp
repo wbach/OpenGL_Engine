@@ -65,6 +65,9 @@ mat4 SkyBoxRenderer::ModifiedViewMatrix(const mat4& viewMatrix) const
 
 void SkyBoxRenderer::Render(Scene* scene)
 {
+    if (subscribes_.empty())
+        return;
+
     rotation_ += 0.01f;
     PrepareToRendering(scene);
 

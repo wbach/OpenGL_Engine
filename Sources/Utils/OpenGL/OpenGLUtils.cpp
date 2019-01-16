@@ -1,4 +1,5 @@
 #include "OpenGLUtils.h"
+#include "Logger/Log.h"
 
 using namespace GameEngine;
 
@@ -13,7 +14,21 @@ VaoCreator::~VaoCreator()
 {
     glBindVertexArray(0);
 }
-void VaoCreator::AddIndicesBuffer(const std::vector<uint16>& indices)
+//void VaoCreator::AddIndicesBuffer(const std::vector<uint16>& indices)
+//{
+//    if (indices.empty())
+//    {
+//        return;
+//    }
+//
+//    auto& vbo_id = vao_.vbos[VertexBufferObjects::INDICES];
+//    glGenBuffers(1, &vbo_id);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_id);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), &indices[0], GL_STATIC_DRAW);
+//    vao_.size = indices.size();
+//}
+
+void VaoCreator::AddIndicesBuffer(const IndicesVector& indices)
 {
     if (indices.empty())
     {
@@ -23,7 +38,7 @@ void VaoCreator::AddIndicesBuffer(const std::vector<uint16>& indices)
     auto& vbo_id = vao_.vbos[VertexBufferObjects::INDICES];
     glGenBuffers(1, &vbo_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(IndicesDataType), &indices[0], GL_STATIC_DRAW);
     vao_.size = indices.size();
 }
 
@@ -63,6 +78,13 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
     if (type == VertexBufferObjects::POSITION && vao_.size == 0)
     {
         vao_.size = data.size() / 3;
+    }
+
+    auto maxNumber = std::numeric_limits<IndicesDataType>::max();
+    auto vsize     = data.size() / 3;
+    if (type == VertexBufferObjects::POSITION and vsize > maxNumber)
+    {
+        Error("To many vertices in model.");
     }
 }
 
@@ -160,6 +182,15 @@ GLuint BindIndicesBuffer(const std::vector<uint16>& indices)
     glGenBuffers(1, &vbo_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), &indices[0], GL_STATIC_DRAW);
+    return vbo_id;
+}
+
+GLuint BindIndicesBuffer(const std::vector<uint32>& indices)
+{
+    GLuint vbo_id;
+    glGenBuffers(1, &vbo_id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_id);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32), &indices[0], GL_STATIC_DRAW);
     return vbo_id;
 }
 
@@ -272,4 +303,4 @@ void ActiveBindTexture(int i, int id)
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, id);
 }
-}  // Utils
+}  // namespace Utils

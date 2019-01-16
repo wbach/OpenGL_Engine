@@ -7,23 +7,25 @@ namespace GameEngine
 {
 namespace Components
 {
-class TerrainRendererComponent : public BaseComponent
+class TerrainMeshRendererComponent : public BaseComponent
 {
 public:
-    TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    TerrainMeshRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    ~TerrainMeshRendererComponent() override;
     virtual void ReqisterFunctions() override;
-    TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
+    TerrainMeshRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const TerrainTexturesMap& GetTextures() const;
     Texture* GetTexture(TerrainTextureType type);
-   
+    ModelWrapper& GetModel();
 
 private:
     void SetTexture(TerrainTextureType, Texture*);
-    void LoadHeightMap(const std::string& hightMapFile);
+    void LoadHeightMap(const std::string& terrainFile);
     void Subscribe();
     void UnSubscribe();
 
 private:
+    ModelWrapper modelWrapper_;
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
 

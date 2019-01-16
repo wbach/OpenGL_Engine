@@ -25,8 +25,10 @@ public:
 private:
     float mass_;
     bool isStatic_;
+    bool isInitilized_;
     CollisionShape* collisionShape_;
-    uint32 rigidBodyId;
+    uint32 rigidBodyId_;
+    vec3 velocity_;
 
 public:
     static ComponentsType type;

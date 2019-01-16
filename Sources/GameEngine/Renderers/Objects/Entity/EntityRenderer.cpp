@@ -48,6 +48,8 @@ void EntityRenderer::PrepareFrame(Scene* scene)
 
 void EntityRenderer::Render(Scene* scene)
 {
+    if (subscribes_.empty())
+        return;
     shader_->Start();
     PrepareFrame(scene);
     RenderEntities();
@@ -81,6 +83,26 @@ void EntityRenderer::ReloadShaders()
     InitShader();
 }
 
+void EntityRenderer::RenderEntities()
+{
+    for (auto& sub : subscribes_)
+    {
+        if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
+        {
+            Error("Null subsciber in EnityRenderer.");
+        }
+
+        auto model = sub.second.model->Get(LevelOfDetail::L1);
+
+        if (model == nullptr)
+            continue;
+
+        currentTextureIndex_ = sub.second.textureIndex;
+
+        RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
+    }
+}
+
 void EntityRenderer::RenderModel(Model* model, const mat4& transform_matrix) const
 {
     const auto& meshes = model->GetMeshes();
@@ -102,26 +124,6 @@ void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) 
     shader_->Load(EntityShaderUniforms::TransformationMatrix, transform_matrix_);
     context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
     UnBindMaterial(mesh.GetMaterial());
-}
-
-void EntityRenderer::RenderEntities()
-{
-    for (auto& sub : subscribes_)
-    {
-        if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
-        {
-            Error("Null subsciber in EnityRenderer.");
-        }
-
-        auto model = sub.second.model->Get(LevelOfDetail::L1);
-
-        if (model == nullptr)
-            continue;
-
-        currentTextureIndex_ = sub.second.textureIndex;
-
-        RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
-    }
 }
 
 void EntityRenderer::BindMaterial(const Material& material) const

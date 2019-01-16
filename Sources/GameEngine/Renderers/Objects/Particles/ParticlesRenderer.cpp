@@ -45,6 +45,9 @@ void ParticlesRenderer::Init()
 }
 void ParticlesRenderer::Render(Scene* scene)
 {
+    if (subscribers_.empty())
+        return;
+
     PrepareFrame();
     RenderSubscribes(scene->GetCamera()->GetViewMatrix());
     ClearFrame();

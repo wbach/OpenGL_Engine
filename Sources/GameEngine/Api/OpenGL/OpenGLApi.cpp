@@ -234,10 +234,13 @@ ShadersFiles OpenGLApi::GetFullDefferedShaderFiles(Shaders shaderType)
             return {{"SkyBox/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
                     {"SkyBox/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
         case Shaders::Terrain:
-            return {{"Terrain/TerrainShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Terrain/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
-                    {"Terrain/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
-                    {"Terrain/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+            return {{"Terrain/Tessllation/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Tessllation/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/Tessllation/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/Tessllation/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::TerrainMesh:
+            return { {"Terrain/Mesh/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Mesh/TerrainShader.frag", ShaderType::FRAGMENT_SHADER} };
         case Shaders::Tree:
             return {{"Tree/TreeShader.vert", ShaderType::VERTEX_SHADER},
                     {"Tree/TreeShader.frag", ShaderType::FRAGMENT_SHADER}};
@@ -299,10 +302,13 @@ ShadersFiles OpenGLApi::GetSimpleForwardShaderFiles(Shaders shaderType)
             return {{"SkyBox/Forward/SkyboxVertexShader.vert", GameEngine::ShaderType::VERTEX_SHADER},
                     {"SkyBox/Forward/SkyboxFragmentShader.frag", GameEngine::ShaderType::FRAGMENT_SHADER}};
         case Shaders::Terrain:
-            return {{"Terrain/Forward/TerrainShader.vert", ShaderType::VERTEX_SHADER},
-                    {"Terrain/Forward/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
-                    {"Terrain/Forward/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
-                    {"Terrain/Forward/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+            return {{"Terrain/Tessllation/Forward/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Tessllation/Forward/TerrainShader.frag", ShaderType::FRAGMENT_SHADER},
+                    {"Terrain/Tessllation/Forward/TerrainShader.cs", ShaderType::TESS_CONTROL_SHADER},
+                    {"Terrain/Tessllation/Forward/TerrainShader.es", ShaderType::TESS_EVALUATION_SHADER}};
+        case Shaders::TerrainMesh:
+            return { {"Terrain/Mesh/Forward/TerrainShader.vert", ShaderType::VERTEX_SHADER},
+                    {"Terrain/Mesh/Forward/TerrainShader.frag", ShaderType::FRAGMENT_SHADER} };
         case Shaders::Tree:
             return {{"Tree/Forward/TreeShader.vert", ShaderType::VERTEX_SHADER},
                     {"Tree/Forward/TreeShader.frag", ShaderType::FRAGMENT_SHADER}};
@@ -891,9 +897,9 @@ uint32 OpenGLApi::CreateParticle()
     openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
 
-    std::vector<float> vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
-    std::vector<float> text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
-    std::vector<uint16> indices    = {0, 1, 3, 3, 1, 2};
+    FloatAttributeVec vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
+    FloatAttributeVec text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
+    IndicesVector indices    = {0, 1, 3, 3, 1, 2};
 
     Utils::VaoCreator vaoCreator;
     vaoCreator.AddIndicesBuffer(indices);
@@ -912,9 +918,9 @@ uint32 OpenGLApi::CreateAnimatedParticle()
     openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
 
-    std::vector<float> vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
-    std::vector<float> text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
-    std::vector<uint16> indices    = {0, 1, 3, 3, 1, 2};
+    FloatAttributeVec vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
+    FloatAttributeVec text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
+    IndicesVector indices    = {0, 1, 3, 3, 1, 2};
 
     Utils::VaoCreator vaoCreator;
     vaoCreator.AddIndicesBuffer(indices);
@@ -1003,7 +1009,18 @@ void OpenGLApi::RenderMesh(uint32 id)
     auto& mesh = openGlMeshes_.at(id);
 
     glBindVertexArray(mesh.vao);
-    glDrawElements(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, 0);
+}
+
+void OpenGLApi::RenderTriangleStripMesh(uint32 id)
+{
+    if (openGlMeshes_.count(id) == 0)
+        return;
+
+    auto& mesh = openGlMeshes_.at(id);
+
+    glBindVertexArray(mesh.vao);
+    glDrawElements(GL_TRIANGLE_STRIP, mesh.vertexCount, GL_UNSIGNED_INT, 0);
 }
 
 void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
@@ -1014,7 +1031,7 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
     auto& mesh = openGlMeshes_.at(id);
 
     glBindVertexArray(mesh.vao);
-    glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_SHORT, 0, istanced);
+    glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, 0, istanced);
 }
 
 void OpenGLApi::RenderPoints(uint32 id)

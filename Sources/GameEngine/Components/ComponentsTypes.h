@@ -19,7 +19,8 @@ enum class ComponentsType
     ParticleEffect,
     SkyBox,
     Grass,
-    TerrainRenderer
+    TerrainRenderer,
+    TerrainMeshRenderer
 };
 }  // namespace Components
 }  // namespace GameEngine

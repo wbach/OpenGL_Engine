@@ -10,6 +10,7 @@
 #include "GameEngine/Renderers/Objects/Shadows/Shaders/ShadowShader.h"
 #include "GameEngine/Renderers/Objects/SkyBox/Shaders/SkyBoxShader.h"
 #include "GameEngine/Renderers/Objects/Terrain/Shaders/TerrainShader.h"
+#include "GameEngine/Renderers/Objects/Terrain/Mesh/Shaders/TerrainMeshShader.h"
 #include "GameEngine/Renderers/Objects/Tree/Shaders/TreeShader.h"
 #include "GameEngine/Renderers/Objects/Water/Shaders/WaterShader.h"
 #include "GameEngine/Renderers/Postproccesing/Blur/Shaders/BlurShader.h"
@@ -32,8 +33,6 @@ std::unique_ptr<IShaderProgram> ShaderFactory::create(Shaders type)
             return std::make_unique<LoadingShader>(graphicsApi_);
         case Shaders::Entity:
             return std::make_unique<DefferedEntityShader>(graphicsApi_);
-        // case Shaders::DefferedEntity:
-        //    return std::make_unique<DefferedEntityShader>(graphicsApi_);
         case Shaders::Grass:
             return std::make_unique<GrassShader>(graphicsApi_);
         case Shaders::Particles:
@@ -48,6 +47,8 @@ std::unique_ptr<IShaderProgram> ShaderFactory::create(Shaders type)
             return std::make_unique<SkyBoxShader>(graphicsApi_);
         case Shaders::Terrain:
             return std::make_unique<TerrainShader>(graphicsApi_);
+        case Shaders::TerrainMesh:
+            return std::make_unique<TerrainMeshShader>(graphicsApi_);
         case Shaders::Tree:
             return std::make_unique<TreeShader>(graphicsApi_);
         case Shaders::Water:

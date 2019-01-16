@@ -124,7 +124,7 @@ namespace common
 		return vec2(context_.position.x, context_.position.z);
 	}
 
-	const mat4& Transform::GetMatrix()
+	const mat4& Transform::GetMatrix() const
 	{
 		return matrix;
 	}

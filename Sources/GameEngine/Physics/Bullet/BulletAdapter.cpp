@@ -22,6 +22,8 @@ struct Rigidbody
 {
     std::unique_ptr<btRigidBody> btRigidbody_;
     btVector3* positionOffset_;
+    uint32 shapeId = 0;
+    bool isStatic  = false;
 };
 
 struct BulletAdapter::Pimpl
@@ -48,6 +50,10 @@ struct BulletAdapter::Pimpl
         bulletDebugDrawer_->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
         btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
     }
+
+    void AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody);
+    void RemoveRigidBody(std::unordered_map<uint32, Rigidbody>& target, uint32 id);
+
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;
     std::unique_ptr<btDynamicsWorld> btDynamicWorld;
     std::unique_ptr<btBroadphaseInterface> btBroadPhase;
@@ -55,10 +61,32 @@ struct BulletAdapter::Pimpl
     std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
     std::unique_ptr<btDispatcher> btDispacher;
     std::unordered_map<uint32, Rigidbody> rigidBodies;
+    std::unordered_map<uint32, Rigidbody> staticRigidBodies;
     std::unordered_map<uint32, common::Transform*> transforms;
     std::unordered_map<uint32, Shape> shapes_;
     IGraphicsApi& graphicsApi_;
 };
+void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody)
+{
+    target.insert({id, std::move(newBody)});
+    auto& body = target.at(id).btRigidbody_;
+    body->setUserIndex(-1);
+    btDynamicWorld->addRigidBody(body.get());
+    btDynamicWorld->updateSingleAabb(body.get());
+}
+void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>& target, uint32 id)
+{
+    if (!target.count(id))
+    {
+        return;
+    }
+
+    auto& rigidbody = target.at(id);
+    shapes_.erase(rigidbody.shapeId);
+    btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
+    rigidBodies.erase(id);
+    transforms.erase(id);
+}
 BulletAdapter::BulletAdapter(IGraphicsApi& graphicsApi)
     : simulationStep_(1.f / 60.f)
     , simualtePhysics_(true)
@@ -124,26 +152,28 @@ uint32 BulletAdapter::CreateSphereColider(const vec3& positionOffset, float radi
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
     return id_++;
 }
-uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, std::vector<float>& data,
-                                           float hightFactor)
-{
-    // impl_->shapes_[id_].shape_.reset(new btHeightfieldTerrainShape(size.x, size.y, &data[0],100, 1.f, true, false ));
-    auto minElementIter = std::min_element(data.begin(), data.end());
-    auto maxElementIter = std::max_element(data.begin(), data.end());
 
-    auto minElement = minElementIter != data.end() ? *minElementIter : 0.f;
-    auto maxElement = maxElementIter != data.end() ? *maxElementIter : 0.f;
+static const int s_gridSize      = 64 + 1;  // must be (2^N) + 1
+static const float s_gridSpacing = 5.0f;
+
+static const float s_gridHeightScale = 0.2f;
+
+uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
+                                           const std::vector<float>& data, float hightFactor)
+{
+    auto maxElementIter = std::max_element(data.begin(), data.end());
+    auto maxElement     = maxElementIter != data.end() ? *maxElementIter : 0.f;
 
     impl_->shapes_.insert({id_, Shape()});
     impl_->shapes_.at(id_).shape_.reset(
-        new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f, minElement, maxElement, 1, PHY_FLOAT, false));
+        new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f, 0.f, maxElement, 1, PHY_FLOAT, false));
+
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
 
-    //>(terrain->GetSize().x, terrain->GetSize().y, &tdata[0], 1.f, -100, 100.f, 1, PHY_FLOAT, false);
     return id_++;
 }
 uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                                         const std::vector<uint16>& indicies, float scaleFactor)
+                                         const IndicesVector& indicies, float scaleFactor)
 {
     impl_->shapes_.insert({id_, Shape()});
     auto& shape = impl_->shapes_.at(id_);
@@ -179,7 +209,7 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
     }
 
     btCollisionShape* shape = impl_->shapes_.at(shapeId).shape_.get();
-   // shape->setLocalScaling(Convert(transform.GetScale()));
+    // shape->setLocalScaling(Convert(transform.GetScale()));
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     btVector3 localInertia(0, 0, 0);
@@ -191,15 +221,25 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
 
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 
-    impl_->rigidBodies.insert({id_, Rigidbody()});
-    impl_->rigidBodies.at(id_).btRigidbody_ = std::make_unique<btRigidBody>(cInfo);
-    impl_->rigidBodies.at(id_).positionOffset_ = &impl_->shapes_.at(shapeId).positionOffset_;
+    Rigidbody body{std::make_unique<btRigidBody>(cInfo), &impl_->shapes_.at(shapeId).positionOffset_, shapeId, true};
+
+   /* if (isStatic)
+    {
+        impl_->AddRigidbody(impl_->staticRigidBodies, id_, std::move(body));
+    }
+    else
+    {
+        impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
+    }*/
+
+
+    impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
     impl_->transforms[id_] = &transform;
 
-    auto& body = impl_->rigidBodies.at(id_).btRigidbody_;
-    body->setUserIndex(-1);
-    impl_->btDynamicWorld->addRigidBody(body.get());
-    impl_->btDynamicWorld->updateSingleAabb(body.get());
+    if (not isStatic)
+    {
+    }
+
     return id_++;
 }
 void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
@@ -213,14 +253,8 @@ void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocit
 }
 void BulletAdapter::RemoveRigidBody(uint32 id)
 {
-    if (!impl_->rigidBodies.count(id))
-    {
-        return;
-    }
-
-    auto& rigidbody = impl_->rigidBodies.at(id);
-    impl_->btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
-    impl_->rigidBodies.erase(id);
+    impl_->RemoveRigidBody(impl_->rigidBodies, id);
+    impl_->RemoveRigidBody(impl_->staticRigidBodies, id);
 }
 }  // namespace Physics
 

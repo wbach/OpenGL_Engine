@@ -11,6 +11,7 @@
 #include "Renderer/Particles/ParticleEffectComponent.h"
 #include "Renderer/SkyBox/SkyBoxComponent.h"
 #include "Renderer/Terrain/TerrainRendererComponent.h"
+#include "Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "Renderer/Trees/TreeRendererComponent.h"
 
 namespace GameEngine
@@ -38,6 +39,10 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::TreeRenderer:
         {
             return std::make_unique<TreeRendererComponent>(context_, ptr);
+        }
+        case ComponentsType::TerrainMeshRenderer:
+        {
+            return std::make_unique<TerrainMeshRendererComponent>(context_, ptr);
         }
         case ComponentsType::ParticleEffect:
         {

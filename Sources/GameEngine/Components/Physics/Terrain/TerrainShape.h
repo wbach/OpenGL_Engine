@@ -5,6 +5,8 @@
 
 namespace GameEngine
 {
+class HeightMap;
+
 namespace Components
 {
 class TerrainShape : public CollisionShape
@@ -14,10 +16,6 @@ public:
     void Update();
     virtual void ReqisterFunctions() override;
     TerrainShape& SetHeightMap(const std::string& filename);
-    TerrainShape& SetHeightFactor(float factor);
-    TerrainShape& SetData(std::vector<float>* data);
-
-    std::optional<float> GetHeightofTerrain(float worldX, float worldZ);
 
 private:
     void OnAwake();
@@ -25,10 +23,7 @@ private:
 
 private:
     vec2ui size_;
-    float heightFactor_;
-    std::vector<float>* data_;
-    std::string heightMapFilename_;
-    std::unique_ptr<TerrainHeightGetter> terrainHeightGetter_;
+    HeightMap* heightMap_;
 
 public:
     static ComponentsType type;

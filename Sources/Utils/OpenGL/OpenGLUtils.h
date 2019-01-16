@@ -19,7 +19,8 @@ class VaoCreator
 public:
     VaoCreator();
     ~VaoCreator();
-    void AddIndicesBuffer(const std::vector<uint16>& indices);
+   // void AddIndicesBuffer(const std::vector<uint16>& indices);
+    void AddIndicesBuffer(const IndicesVector& indices);
     void AddStaticAttribute(GameEngine::VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
     void AddStaticAttribute(GameEngine::VertexBufferObjects type, uint32 coordinateSize, const std::vector<int32>& data);
     void AllocateDynamicAttribute(GameEngine::VertexBufferObjects type, uint32 coordinateSize, uint32 dataLength);

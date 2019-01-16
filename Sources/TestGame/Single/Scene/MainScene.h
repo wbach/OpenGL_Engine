@@ -52,5 +52,4 @@ private:
 
     CameraType camType;
     GameEngine::GameObject* player;
-    std::function<std::optional<float>(float, float)> getTerrainHeight_;
 };

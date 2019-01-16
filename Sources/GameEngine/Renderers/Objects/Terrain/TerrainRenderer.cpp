@@ -32,6 +32,9 @@ void TerrainRenderer::Init()
 
 void TerrainRenderer::Render(Scene* scene)
 {
+    if (subscribes_.empty())
+        return;
+
     shader_->Start();
     shader_->Load(TerrainShaderUniforms::lightDirection, scene->GetDirectionalLight().GetDirection());
     shader_->Load(TerrainShaderUniforms::playerPosition, scene->GetCamera()->GetPosition());

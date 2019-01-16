@@ -20,6 +20,7 @@ public:
     Texture* LoadCubeMap(const std::vector<std::string>& files, bool applySizeLimit = true, bool gpu_pass = true) override;
     Texture* LoadHeightMap(const std::string& filename, bool gpu_pass = true) override;
     void CreateHeightMap(const std::string& input, const std::string& output) override;
+    virtual void SetHeightMapFactor(float) override;
     IGraphicsApi& GetGraphicsApi() override;
     
 private:
@@ -30,5 +31,6 @@ private:
     IGraphicsApi& graphicsApi_;
     std::vector<std::unique_ptr<Texture>>& textures_;
     std::shared_ptr<IGpuResourceLoader> gpuResourceLoader_;
+    float heightMapFactor_;
 };
 }  // namespace GameEngine

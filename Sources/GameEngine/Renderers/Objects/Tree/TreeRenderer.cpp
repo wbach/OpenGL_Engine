@@ -27,6 +27,9 @@ void TreeRenderer::Init()
 }
 void TreeRenderer::Render(Scene* scene)
 {
+    if (subscribes_.empty())
+        return;
+
     for (auto iter = subscribersToInit_.begin(); iter != subscribersToInit_.end();)
     {
         PreparePositionMap(**iter);

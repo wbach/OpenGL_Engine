@@ -12,6 +12,7 @@ enum class Shaders
     Shadows,
     SkyBox,
     Terrain,
+    TerrainMesh,
     Tree,
     Water,
     SSAO,

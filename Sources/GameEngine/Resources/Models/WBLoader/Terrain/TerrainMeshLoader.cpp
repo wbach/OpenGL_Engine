@@ -1,6 +1,7 @@
 #include "TerrainMeshLoader.h"
-#include "GameEngine/Engine/Configuration.h"
+#include <algorithm>
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
@@ -8,7 +9,7 @@ namespace GameEngine
 {
 namespace WBLoader
 {
-TerrainMeshLoader::TerrainMeshLoader(ITextureLoader &textureLoader)
+TerrainMeshLoader::TerrainMeshLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
 }
@@ -18,7 +19,7 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
     auto texture      = textureLoader_.LoadHeightMap(fullFilePath);
 
     auto hm              = static_cast<HeightMap*>(texture);
-    heightMapResolution_ = static_cast<uint16>(hm->GetImage()->width);
+    heightMapResolution_ = hm->GetImage()->width;
     heights_             = &hm->GetImage()->floatData;
 
     vertices_.reserve(heightMapResolution_ * heightMapResolution_ * 3);
@@ -28,7 +29,6 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
 
     CreateTerrainVertexes(0, 0, heightMapResolution_, heightMapResolution_);
     CreateMesh();
-    Clear();
 }
 bool TerrainMeshLoader::CheckExtension(const std::string& filename)
 {
@@ -41,6 +41,10 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
 
     Material material;
     GameEngine::Mesh newMesh(textureLoader_.GetGraphicsApi(), material);
+
+    auto maxElement = FindMaxY(vertices_);
+    TranslateY(vertices_, maxElement / 2.f);
+
     newMesh.GetMeshDataRef().positions_  = vertices_;
     newMesh.GetMeshDataRef().textCoords_ = textureCoords_;
     newMesh.GetMeshDataRef().normals_    = normals_;
@@ -56,18 +60,20 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
 
     return model;
 }
-void TerrainMeshLoader::CreateTerrainVertexes(uint16 x_start, uint16 y_start, uint16 width, uint16 height)
+void TerrainMeshLoader::CreateTerrainVertexes(uint32 x_start, uint32 y_start, uint32 width, uint32 height)
 {
-    for (uint16 i = y_start; i < height; i++)
+    const auto terrainSize      = heightMapResolution_ - 1;
+    const auto& halfTerrainSize = terrainSize / 2.f;
+    for (uint32 i = y_start; i < height; i++)
     {
-        for (uint16 j = x_start; j < width; j++)
+        for (uint32 j = x_start; j < width; j++)
         {
             float height = GetHeight(j, i);
-            vertices_.push_back(static_cast<float>(j) / (static_cast<float>(heightMapResolution_ - 1)) * TerrainDef::SIZE *
-                                TerrainDef::VSCALE * TerrainDef::PART_SIZE);
+            vertices_.push_back(static_cast<float>(j - halfTerrainSize) /
+                                (static_cast<float>(heightMapResolution_ - 1)) * terrainSize);
             vertices_.push_back(height);
-            vertices_.push_back(static_cast<float>(i) / (static_cast<float>(heightMapResolution_) - 1) * TerrainDef::SIZE *
-                                TerrainDef::VSCALE * TerrainDef::PART_SIZE);
+            vertices_.push_back(static_cast<float>(i - halfTerrainSize) /
+                                (static_cast<float>(heightMapResolution_) - 1) * terrainSize);
 
             glm::vec3 normal = CalculateNormalMap(j, i);
 
@@ -80,7 +86,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(uint16 x_start, uint16 y_start, ui
         }
     }
 }
-vec3 TerrainMeshLoader::CalculateNormalMap(uint16 x, uint16 z)
+vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
 {
     int lx = x - 1;
     if (lx < 0)
@@ -93,7 +99,7 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint16 x, uint16 z)
         dz = 0;
     int uz = z + 1;
     if (uz > heightMapResolution_ - 1)
-        uz        = heightMapResolution_ - 1;
+        uz = heightMapResolution_ - 1;
     float heightL = GetHeight(lx, z);
     float heightR = GetHeight(rx, z);
     float heightD = GetHeight(x, dz);
@@ -102,18 +108,18 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint16 x, uint16 z)
     glm::normalize(normal);
     return normal;
 }
-float TerrainMeshLoader::GetHeight(uint16 x, uint16 y) const
+float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
     return (*heights_)[x + y * heightMapResolution_];
 }
 void TerrainMeshLoader::CreateMesh()
 {
     // Triaagnle strip
-    for (uint16 gz = 0; gz < heightMapResolution_ - 1; gz++)
+    for (uint32 gz = 0; gz < heightMapResolution_ - 1; gz++)
     {
         if ((gz & 1) == 0)
         {  // even rows
-            for (uint16 gx = 0; gx < heightMapResolution_; gx++)
+            for (uint32 gx = 0; gx < heightMapResolution_; gx++)
             {
                 indices_.push_back(gx + gz * heightMapResolution_);
                 indices_.push_back(gx + (gz + 1) * heightMapResolution_);
@@ -121,7 +127,7 @@ void TerrainMeshLoader::CreateMesh()
         }
         else
         {  // odd rows
-            for (uint16 gx = heightMapResolution_ - 1; gx > 0; gx--)
+            for (uint32 gx = heightMapResolution_ - 1; gx > 0; gx--)
             {
                 indices_.push_back(gx + (gz + 1) * heightMapResolution_);
                 indices_.push_back(gx - 1 + +gz * heightMapResolution_);
@@ -139,5 +145,39 @@ void TerrainMeshLoader::Clear()
     textureCoords_.clear();
     heights_->clear();
 }
-}  // WBLoader
-} // namespace GameEngine
+void TerrainMeshLoader::TranslateY(FloatAttributeVec& v, float y)
+{
+    int x = 0;
+    for (auto& v : vertices_)
+    {
+        if (x == 1)
+            v -= y;
+
+        if (x == 2)
+            x = 0;
+        else
+            ++x;
+    }
+}
+float TerrainMeshLoader::FindMaxY(const FloatAttributeVec& v) const
+{
+    auto maxElement = -std::numeric_limits<float>::max();
+
+    int x = 0;
+    for (auto& v : vertices_)
+    {
+        if (x == 1)
+        {
+            if (v > maxElement)
+                maxElement = v;
+        }
+
+        if (x == 2)
+            x = 0;
+        else
+            ++x;
+    }
+    return maxElement;
+}
+}  // namespace WBLoader
+}  // namespace GameEngine

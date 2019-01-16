@@ -38,7 +38,7 @@ public:
     vec3 GetRotation();
     vec3 GetScale();
     vec2 GetPositionXZ();
-    const mat4& GetMatrix();
+    const mat4& GetMatrix() const;
 
     void SetScale(float s);
     void SetScale(const vec3& s);
