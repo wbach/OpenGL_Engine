@@ -36,8 +36,8 @@ void Rigidbody::OnStart()
         return;
     }
 
-    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(), thisObject_.worldTransform,
-                                               mass_, isStatic_);
+    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
+                                                                 thisObject_.worldTransform, mass_, isStatic_);
     componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, velocity_);
     isInitilized_ = true;
 }
@@ -76,6 +76,22 @@ Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
     }
 
     return *this;
+}
+float Rigidbody::GetMass() const
+{
+    return mass_;
+}
+bool Rigidbody::IsStatic() const
+{
+    return isStatic_;
+}
+ComponentsType Rigidbody::GetCollisionShapeType() const
+{
+    return collisionShape_->GetType();
+}
+const vec3& Rigidbody::GetVelocity() const
+{
+    return velocity_;
 }
 }  // namespace Components
 }  // namespace GameEngine

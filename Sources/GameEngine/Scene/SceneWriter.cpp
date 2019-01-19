@@ -1,0 +1,307 @@
+#include "SceneWriter.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "SceneDef.h"
+#include "Utils.h"
+#include "Utils/GLM/GLMUtils.h"
+#include "Utils/XML/XmlWriter.h"
+
+#include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
+#include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
+#include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
+#include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
+
+using namespace Utils;
+
+namespace GameEngine
+{
+void Create(XmlNode& node, float v)
+{
+    node.value_ = std::to_string(v);
+}
+void Create(XmlNode& node, int v)
+{
+    node.value_ = std::to_string(v);
+}
+void Create(XmlNode& node, uint32 v)
+{
+    node.value_ = std::to_string(v);
+}
+void Create(XmlNode& node, bool b)
+{
+    node.value_ = Utils::BoolToString(b);
+}
+void Create(XmlNode& node, const std::string& str)
+{
+    node.value_ = str;
+}
+void Create(XmlNode& node, const vec2ui& v)
+{
+    node.attributes_[CSTR_X] = std::to_string(v.x);
+    node.attributes_[CSTR_Y] = std::to_string(v.y);
+}
+void Create(XmlNode& node, const vec3& v)
+{
+    node.attributes_[CSTR_X] = std::to_string(v.x);
+    node.attributes_[CSTR_Y] = std::to_string(v.y);
+    node.attributes_[CSTR_Z] = std::to_string(v.z);
+}
+
+void Create(XmlNode& node, const std::vector<vec3>& v)
+{
+    for (const auto& value : v)
+    {
+        Create(node.AddChild(CSTR_VEC3), value);
+    }
+}
+
+void Create(XmlNode& node, const std::vector<std::string>& str)
+{
+    for (const auto& value : str)
+    {
+        Create(node.AddChild(CSTR_MODEL_FILE_NAME), value);
+    }
+}
+
+void Create(XmlNode& node, const std::vector<float>& str)
+{
+    for (const auto& value : str)
+    {
+        Create(node.AddChild(CSTR_V), value);
+    }
+}
+
+void Create(XmlNode& node, TerrainTextureType type, const std::string& filename)
+{
+    Create(node.AddChild(CSTR_TEXTURE_TYPE), static_cast<int>(type));
+    Create(node.AddChild(CSTR_TEXTURE_FILENAME), filename);
+}
+
+void Create(XmlNode& node, const std::unordered_map<TerrainTextureType, std::string>& str)
+{
+    for (const auto& value : str)
+    {
+        Create(node.AddChild(CSTR_TEXTURE), value.first, value.second);
+    }
+}
+
+void Create(XmlNode& node, common::Transform transform)
+{
+    Create(node.AddChild(CSTR_POSITION), transform.GetPosition());
+    Create(node.AddChild(CSTR_ROTATION), transform.GetRotation());
+    Create(node.AddChild(CSTR_SCALE), transform.GetScale());
+    Create(node.AddChild(CSTR_ISDYNAMIC), transform.isDynamic_);
+}
+
+void Create(XmlNode& node, const std::string& filename, LevelOfDetail lvl)
+{
+    node.AddChild(CSTR_FILE_NAME).value_           = filename;
+    node.AddChild(CSTR_MODEL_LVL_OF_DETAIL).value_ = std::to_string(static_cast<int>(lvl));
+}
+
+void Create(XmlNode& node, const Components::Animator& component)
+{
+    Create(node.AddChild(CSTR_CURRENT_ANIMATION), component.GetCurrentAnimationName());
+}
+
+void Create(XmlNode& node, const Components::BoxShape& component)
+{
+    Create(node.AddChild(CSTR_SIZE), component.GetSize());
+    Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
+}
+
+void Create(XmlNode& node, const Components::MeshShape& component)
+{
+    Create(node.AddChild(CSTR_SIZE), component.GetSize());
+    Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
+    Create(node.AddChild(CSTR_MODEL_FILE_NAME), component.GetModelFileName());
+}
+
+void Create(XmlNode& node, const Components::SphereShape& component)
+{
+    Create(node.AddChild(CSTR_SIZE), component.GetSize());
+    Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
+}
+
+void Create(XmlNode& node, const Components::TerrainShape& component)
+{
+    Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
+    Create(node.AddChild(CSTR_HEIGHTMAP_FILENAME), component.GetHeightMapFileName());
+}
+
+void Create(XmlNode& node, const Components::Rigidbody& component)
+{
+    Create(node.AddChild(CSTR_MASS), component.GetMass());
+    Create(node.AddChild(CSTR_IS_STATIC), component.IsStatic());
+    Create(node.AddChild(CSTR_VELOCITY), component.GetVelocity());
+    Create(node.AddChild(CSTR_COLLISION_SHAPE), static_cast<int>(component.GetCollisionShapeType()));
+}
+
+void Create(XmlNode& node, const std::unordered_map<std::string, LevelOfDetail>& files)
+{
+    for (const auto& files : files)
+    {
+        Create(node.AddChild(CSTR_MODEL_FILE_NAME), files.first, files.second);
+    }
+}
+
+void Create(XmlNode& node, const Components::RendererComponent& component)
+{
+    Create(node.AddChild(CSTR_MODEL_FILE_NAMES), component.GetFileNames());
+    node.AddChild(CSTR_MODEL_FILE_NAME).value_ = std::to_string(component.GetTextureIndex());
+}
+
+void Create(XmlNode& node, const Components::TreeRendererComponent& component)
+{
+    Create(node.AddChild(CSTR_TOP_FILENAMES), component.GetTopFileNames());
+    Create(node.AddChild(CSTR_BOTTOM_FILENAMES), component.GetBottomFileNames());
+    Create(node.AddChild(CSTR_SIZE_2D), component.GetPositionSize2d());
+    Create(node.AddChild(CSTR_POSITIONS), component.GetCPositions());
+}
+
+void Create(XmlNode& node, const Particle& particle)
+{
+    Create(node.AddChild(CSTR_POSITION), particle.position);
+    Create(node.AddChild(CSTR_ROTATION), particle.rotation);
+    Create(node.AddChild(CSTR_SCALE), particle.scale);
+    Create(node.AddChild(CSTR_VELOCITY), particle.velocity);
+    Create(node.AddChild(CSTR_GRAVITY_EFFECT), particle.gravityEffect);
+    Create(node.AddChild(CSTR_LIFE_TIME), particle.lifeTime);
+}
+
+void Create(XmlNode& node, const Components::ParticleEffectComponent& component)
+{
+    Create(node.AddChild(CSTR_PARTICLE), component.GetReferenceParticle());
+    Create(node.AddChild(CSTR_TEXTURE), component.GetTextureFile());
+    Create(node.AddChild(CSTR_PARTICLE_PER_SER), component.GetParticlePerSec());
+    Create(node.AddChild(CSTR_BLEND_TYPE), static_cast<int>(component.GetBlendType()));
+    Create(node.AddChild(CSTR_EMIT_FUNCTION), component.GetEmitFunction());
+    Create(node.AddChild(CSTR_SPEED), component.GetParticleSpeed());
+    Create(node.AddChild(CSTR_IS_ANIMATED), component.IsAnimated());
+    Create(node.AddChild(CSTR_PARTICLE_LIMT), component.GetTextureFile());
+}
+
+void Create(XmlNode& node, const Components::SkyBoxComponent& component)
+{
+    Create(node.AddChild(CSTR_DAY_TEXTURES), component.GetDayTextureFiles());
+    Create(node.AddChild(CSTR_NIGHT_TEXTURES), component.GetNightTextureFiles());
+    Create(node.AddChild(CSTR_MODEL_FILE_NAME), component.GetModelFileName());
+}
+
+void Create(XmlNode& node, const Components::GrassRendererComponent& component)
+{
+    Create(node.AddChild(CSTR_POSITIONS), component.GetPositions());
+    Create(node.AddChild(CSTR_TEXTURE_FILENAME), component.GetTextureFileName());
+}
+
+void Create(XmlNode& node, const Components::TerrainRendererComponent& component)
+{
+    Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
+}
+
+void Create(XmlNode& node, const Components::TerrainMeshRendererComponent& component)
+{
+    Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
+}
+
+template <typename T>
+void CreateComponent(XmlNode& node, const Components::IComponent& component, const std::string& str)
+{
+    auto comp = static_cast<const T*>(&component);
+    Create(node.AddChild(str), *comp);
+}
+
+void Create(XmlNode& node, const Components::IComponent& component)
+{
+    node.attributes_[CSTR_TYPE] = std::to_string(static_cast<int>(component.GetType()));
+
+    switch (component.GetType())
+    {
+        case Components::ComponentsType::Animator:
+            CreateComponent<Components::Animator>(node, component, CSTR_COMPONENT_ANIMATOR);
+            break;
+        case Components::ComponentsType::BoxShape:
+            CreateComponent<Components::BoxShape>(node, component, CSTR_COMPONENT_BOXSHAPE);
+            break;
+        case Components::ComponentsType::MeshShape:
+            CreateComponent<Components::MeshShape>(node, component, CSTR_COMPONENT_MESHSHAPE);
+            break;
+        case Components::ComponentsType::SphereShape:
+            CreateComponent<Components::SphereShape>(node, component, CSTR_COMPONENT_SPHERESHAPE);
+            break;
+        case Components::ComponentsType::TerrainShape:
+            CreateComponent<Components::TerrainShape>(node, component, CSTR_COMPONENT_TERRAINSHAPE);
+            break;
+        case Components::ComponentsType::CollisionShape:
+            break;
+        case Components::ComponentsType::Rigidbody:
+            CreateComponent<Components::Rigidbody>(node, component, CSTR_COMPONENT_RIGIDBODY);
+            break;
+        case Components::ComponentsType::Renderer:
+            CreateComponent<Components::RendererComponent>(node, component, CSTR_COMPONENT_RENDERER);
+            break;
+        case Components::ComponentsType::TreeRenderer:
+            CreateComponent<Components::TreeRendererComponent>(node, component, CSTR_COMPONENT_TREERENDERER);
+            break;
+        case Components::ComponentsType::ParticleEffect:
+            CreateComponent<Components::ParticleEffectComponent>(node, component, CSTR_COMPONENT_PARTICLEEFFECT);
+            break;
+        case Components::ComponentsType::SkyBox:
+            CreateComponent<Components::SkyBoxComponent>(node, component, CSTR_COMPONENT_SKYBOX);
+            break;
+        case Components::ComponentsType::Grass:
+            CreateComponent<Components::GrassRendererComponent>(node, component, CSTR_COMPONENT_GRASS);
+            break;
+        case Components::ComponentsType::TerrainRenderer:
+            CreateComponent<Components::TerrainRendererComponent>(node, component, CSTR_COMPONENT_TERRAINRENDERER);
+            break;
+        case Components::ComponentsType::TerrainMeshRenderer:
+            CreateComponent<Components::TerrainMeshRendererComponent>(node, component,
+                                                                      CSTR_COMPONENT_TERRAINMESHRENDERER);
+            break;
+    }
+}
+
+void Create(XmlNode& node, const std::vector<std::unique_ptr<Components::IComponent>>& components)
+{
+    node.attributes_[CSTR_COUNT] = std::to_string(components.size());
+    for (const auto& component : components)
+    {
+        Create(node.AddChild(CSTR_COMPONENT), *component);
+    }
+}
+
+void Create(XmlNode& node, const GameObject& gameObject)
+{
+    node.attributes_[CSTR_NAME] = gameObject.GetName();
+    Create(node.AddChild(CSTR_TRANSFORM), gameObject.worldTransform);
+    Create(node.AddChild(CSTR_COMPONENTS), gameObject.GetComponents());
+}
+
+void Create(XmlNode& node, const GameObjects& gameObjects)
+{
+    node.attributes_[CSTR_COUNT] = std::to_string(gameObjects.size());
+
+    for (const auto& gameObject : gameObjects)
+    {
+        Create(node.AddChild(CSTR_GAMEOBJECT), *gameObject.second);
+    }
+}
+void GameEngine::SaveSceneState(const Scene& input, const std::string& filename)
+{
+    XmlNode scene(CSTR_SCENE);
+    scene.attributes_[CSTR_NAME] = input.GetName();
+    Create(scene.AddChild(CSTR_GAMEOBJECTS), input.GetGameObjects());
+
+    Xml::Write(filename, scene);
+}
+}  // namespace GameEngine

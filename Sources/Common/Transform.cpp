@@ -59,6 +59,12 @@ namespace common
 		context_.position = pos;
 	}
 
+    void Transform::SetYPosition(float pos)
+    {
+        std::lock_guard<std::mutex> l(contextMutex_);
+        context_.position.y = pos;
+    }
+
 	void Transform::SetPositionXZ(const vec2 & pos)
 	{
 		std::lock_guard<std::mutex> l(contextMutex_);

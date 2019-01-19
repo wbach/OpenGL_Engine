@@ -4,12 +4,17 @@
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Engine/AplicationContext.h"
@@ -17,6 +22,7 @@
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/GuiText.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
@@ -36,7 +42,7 @@ TerrainTexturesFilesMap CreateTerrainTexturesMap()
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::displacementMap, "Textures/Terrain/HeightMaps/Terrain.terrain"}
+        {TerrainTextureType::displacementMap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
     };
     // clang-format on
 }
@@ -60,6 +66,9 @@ int MainScene::Initialize()
 {
     Log("MainScene::Initialize()");
 
+    resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/HelionHightMap256.png",
+                                                         "Textures/Terrain/HeightMaps/HelionHightMap256.terrain");
+
     renderersManager_->GuiText("playerPos").position = vec2(-0.9, -0.9);
     renderersManager_->GuiText("playerPos").m_size   = .5f;
     renderersManager_->GuiText("playerPos").colour   = vec3(.8f, 0.f, 0.f);
@@ -81,7 +90,7 @@ int MainScene::Initialize()
                                                 "Skybox/TropicalSunnyDay/top.png",   "Skybox/TropicalSunnyDay/bottom.png",
                                                 "Skybox/TropicalSunnyDay/back.png",  "Skybox/TropicalSunnyDay/front.png" };
 
-        auto skybox = CreateGameObjectInstance(1.f, vec2(0));
+        auto skybox = CreateGameObjectInstance("skybox", 1.f, vec2(0));
         skybox->AddComponent<Components::SkyBoxComponent>()
             .SetModel("Meshes/SkyBox/cube.obj")
             .SetNightTexture(nightTextures)
@@ -106,7 +115,7 @@ int MainScene::Initialize()
                 vec3 treePos(10.f * x, 0.f, 10.f * y);
                 treePos.x += static_cast<float>(rand() % 100) / 10.f;
                 treePos.z += static_cast<float>(rand() % 100) / 10.f;
-                treePos = treePos + vec3(350, 0, 450);
+                treePos = treePos + vec3(-45, 0, -100);
 
                 // for (auto& terrain : terrains_)
                 //{
@@ -119,7 +128,7 @@ int MainScene::Initialize()
                 treePositions[x + size.x * y] = treePos;
             }
         }
-        auto tree1 = CreateGameObjectInstance(20.f, vec2(0, 0));
+        auto tree1 = CreateGameObjectInstance("trees", 20.f, vec2(0, 0));
         tree1->AddComponent<Components::TreeRendererComponent>()
             .SetPositions(treePositions, size)
             .SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj")
@@ -128,14 +137,14 @@ int MainScene::Initialize()
     }
 
     {
-        auto particle1 = CreateGameObjectInstance(1.f, vec2(400, 560));
+        auto particle1 = CreateGameObjectInstance("particle1", 1.f, vec2(5, 10));
 
         Particle particle;
         particle.position      = particle1->worldTransform.GetPosition();
         particle.velocity      = vec3(0, 0.1, 0);
         particle.rotation      = 0;
         particle.scale         = 8;
-        particle.gravityEffect = 1.f;
+        particle.gravityEffect = true;
         particle.lifeTime      = 2.f;
 
         particle1->AddComponent<Components::ParticleEffectComponent>()
@@ -143,7 +152,7 @@ int MainScene::Initialize()
             .SetTexture("Textures/Particles/water.png")
             .SetParticlesPerSec(10)
             .SetBlendFunction(BlendFunctionType::ONE)
-            .SetEmitFunction([](const Particle& referenceParticle) -> Particle {
+            .SetEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
                 Particle particle = referenceParticle;
 
                 float dirX        = Random() - 0.5f;
@@ -157,14 +166,14 @@ int MainScene::Initialize()
     }
 
     {
-        auto particle2 = CreateGameObjectInstance(1.f, vec2(400, 555));
+        auto particle2 = CreateGameObjectInstance("particle2", 1.f, vec2(5, 5));
 
         Particle particle_2;
         particle_2.position      = particle2->worldTransform.GetPosition();
         particle_2.velocity      = vec3(0, 0.01, 0);
         particle_2.rotation      = 0;
         particle_2.scale         = 4;
-        particle_2.gravityEffect = 0.0f;
+        particle_2.gravityEffect = false;
         particle_2.lifeTime      = 2.6f;
 
         particle2->AddComponent<Components::ParticleEffectComponent>()
@@ -174,7 +183,7 @@ int MainScene::Initialize()
             .EnableAnimation()
             .SetSpeed(1.f)
             .SetBlendFunction(BlendFunctionType::SRC_ALPHA)
-            .SetEmitFunction([](const Particle& referenceParticle) -> Particle {
+            .SetEmitFunction("fire", [](const Particle& referenceParticle) -> Particle {
                 Particle particle = referenceParticle;
 
                 float dirX        = Random() - 0.5f;
@@ -196,17 +205,25 @@ int MainScene::Initialize()
 
     CreateAndAddGameEntity("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj", 10.f,
                            vec2(400, 570));
-    CreateAndAddGameEntity("Meshes/Barrel/barrel.obj", 1.f, vec2(395, 565));
-    CreateAndAddGameEntity("Meshes/sponza/sponza_mod.obj", 60.f, vec2(395, 665));
-    CreateAndAddGameEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(395, 570));
+    AddPhysicObject<Components::BoxShape>("Meshes/Barrel/barrel.obj", vec3(0, 0, 15), vec3(0, -.5f, 0), vec3(0), 1.f,
+                                          true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_dom.obj", vec3(-15, 0, 10), vec3(0, -1.f, 0), vec3(0),
+                                          20.f, true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_stajnia.obj", vec3(15, 0, 15), vec3(0, -1.f, 0),
+                                          vec3(0), 20.f, true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/well.obj", vec3(2, 0, 15), vec3(0, -.5f, 0), vec3(0), 2.f,
+                                          true);
+
+    //  CreateAndAddGameEntity("Meshes/sponza/sponza_mod.obj", 60.f, vec2(0, 115));
+    //   CreateAndAddGameEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(0, 20));
 
     for (uint32_t x = 0; x < 4; x++)
     {
-        CreateAndAddGameEntity("Meshes/Fern/fern.obj", 3.f, vec2(395, 560 - 5 * x), x);
+        CreateAndAddGameEntity("Meshes/Fern/fern.obj", 3.f, vec2(0, 10 - 5 * x), x);
     }
 
     {
-        auto uplayer   = CreateGameObjectInstance(1.8f, vec2(395, 560), true);
+        auto uplayer   = CreateGameObjectInstance("Player", 1.8f, vec2(0, 10), true);
         auto& animator = uplayer->AddComponent<Components::Animator>().SetAnimation("Idle");
 
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
@@ -221,9 +238,9 @@ int MainScene::Initialize()
 
     // for (const auto& terrain : terrains_)
     {
-        auto grass = CreateGameObjectInstance(1.8f, vec2(395, 560), true);
+        auto grass = CreateGameObjectInstance("Grass", 1.8f, vec2(0, 10), true);
 
-        auto grass_position = CreateGrassPositions(nullptr, vec2(375, 550));
+        auto grass_position = CreateGrassPositions(nullptr, vec2(0, 0));
 
         grass->AddComponent<Components::GrassRendererComponent>()
             .SetPositions(grass_position)
@@ -243,6 +260,23 @@ int MainScene::Initialize()
     KeyOperations();
 
     return 0;
+}
+
+template <typename Shape>
+void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset,
+                                const vec3& dir, float scale, bool isStatic)
+{
+    auto object = CreateGameObject(Utils::GetFilename(modelFilename));
+    object->worldTransform.SetPosition(pos);
+    object->worldTransform.SetScale(scale);
+    object->worldTransform.TakeSnapShoot();
+    object->AddComponent<Components::RendererComponent>().AddModel(modelFilename);
+
+    auto& shape = object->AddComponent<Shape>().SetSize(scale);
+    shape.SetPostionOffset(shapePositionOffset);
+    object->AddComponent<Components::Rigidbody>().SetIsStatic(isStatic).SetCollisionShape(&shape).SetVelocity(dir);
+
+    AddGameObject(object);
 }
 
 int MainScene::Update(float dt)
@@ -280,11 +314,27 @@ void MainScene::UpdatePlayerandCamera(float time)
 {
     // camera->CalculateInput();
     characterController_->Update(deltaTime);
+    auto height = terrainHeightGetter_->GetHeightofTerrain(characterController_->GetTransform().GetPositionXZ());
+    if (height)
+    {
+        characterController_->GetTransform().SetYPosition(*height);
+        characterController_->GetTransform().TakeSnapShoot();
+    }
+
     // camera->Move();
 }
 
 void MainScene::KeyOperations()
 {
+    inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]() {
+        auto dir = GetCamera()->GetDirection();
+        dir      = glm::normalize(dir);
+        auto pos = GetCamera()->GetPosition();
+        AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
+        Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
+            ", Objecsts : " + std::to_string(gameObjects.size()));
+    });
+
     bool run = true;
     inputManager_->SubscribeOnKeyDown(KeyCodes::M, [&, run]() mutable {
         if (run)
@@ -308,6 +358,10 @@ void MainScene::KeyOperations()
         // auto d = camera->GetDistance() + 0.5f;
         // camera->SetDistance(d);
     });
+    auto rm = renderersManager_;
+    inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { SaveToFile("mainScene.xml"); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [rm]() { rm->DisableDrawPhysicsDebyg(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [rm]() { rm->EnableDrawPhysicsDebyg(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]() { renderersManager_->ReloadShaders(); });
 
@@ -340,6 +394,8 @@ void MainScene::KeyOperations()
 
 void MainScene::CheckCollisions(float dt)
 {
+    return;
+
     float g        = 9.8f * deltaTime;
     auto playerPos = player->worldTransform.GetPosition();
 
@@ -347,18 +403,25 @@ void MainScene::CheckCollisions(float dt)
 
     bool wasCollision = false;
 
-
     if (!wasCollision)
         player->worldTransform.IncrasePosition(0.f, -g, 0.f);
 }
 
 void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position)
 {
-    auto object = CreateGameObjectInstance(1.f, vec2(0));
-    object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
+    auto object = CreateGameObjectInstance("Terrain", 1.f, vec2(0));
+    resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
+    object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
 
-    auto& terrainShapeComponent = object->AddComponent<Components::TerrainShape>()
-                                      .SetHeightMap(textures.at(TerrainTextureType::displacementMap));
+    auto& terrainShapeComponent =
+        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::displacementMap));
+
+    auto rigidbody =
+        object->AddComponent<Components::Rigidbody>().SetCollisionShape(&terrainShapeComponent).SetIsStatic(true);
+
+    auto& image = terrainShapeComponent.GetHeightMap()->GetImage();
+    terrainHeightGetter_.reset(new GameEngine::Components::TerrainHeightGetter(
+        vec2ui(image->width, image->height), &image->floatData, vec2(position.x, position.y)));
 
     AddGameObject(object);
 }
@@ -374,12 +437,12 @@ std::vector<float> MainScene::CreateGrassPositions(GameObject* object, vec2 pos)
             float zpos = y + ((rand() % 400 - 200) / 10.f);
             float ypos = 0.f;
 
-            if (object != nullptr)
+            auto height = terrainHeightGetter_->GetHeightofTerrain(xpos, zpos);
+            if (height)
             {
-                auto height = object->CollisionDetection(glm::vec3(xpos, 0, zpos));
-                if (height)
-                    ypos = height.value().y;
+                ypos = *height;
             }
+
             grass_positions.push_back(xpos);
             grass_positions.push_back(ypos);
             grass_positions.push_back(zpos);
@@ -401,10 +464,31 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(floa
     return obj;
 }
 
+std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(const std::string& name, float scale,
+                                                                            const vec2& position, bool isDynamic)
+{
+    auto obj = CreateGameObject(name);
+    obj->worldTransform.SetScale(scale);
+    obj->worldTransform.isDynamic_ = isDynamic;
+    vec3 obj_pos(position.x, 0, position.y);
+
+    obj->worldTransform.SetPosition(obj_pos);
+    obj->worldTransform.TakeSnapShoot();
+    return obj;
+}
+
 void MainScene::CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position,
                                        uint32_t textureIndex, bool isDynamic)
 {
-    auto object = CreateGameObjectInstance(scale, position, isDynamic);
+    auto object = CreateGameObjectInstance(Utils::GetFilename(filename), scale, position, isDynamic);
+
+    auto height = terrainHeightGetter_->GetHeightofTerrain(position);
+    if (height)
+    {
+        object->worldTransform.SetYPosition(*height);
+        object->worldTransform.TakeSnapShoot();
+    }
+
     object->AddComponent<Components::RendererComponent>().AddModel(filename).SetTextureIndex(textureIndex);
     AddGameObject(object);
 }

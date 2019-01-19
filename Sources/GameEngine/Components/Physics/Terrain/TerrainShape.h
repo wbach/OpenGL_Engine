@@ -16,6 +16,8 @@ public:
     void Update();
     virtual void ReqisterFunctions() override;
     TerrainShape& SetHeightMap(const std::string& filename);
+    HeightMap* GetHeightMap();
+    const std::string GetHeightMapFileName() const;
 
 private:
     void OnAwake();
@@ -24,6 +26,7 @@ private:
 private:
     vec2ui size_;
     HeightMap* heightMap_;
+    std::string heightMapFile_;
 
 public:
     static ComponentsType type;

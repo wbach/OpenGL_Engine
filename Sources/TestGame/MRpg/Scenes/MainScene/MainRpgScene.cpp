@@ -35,7 +35,7 @@ int MainRpgScene::Initialize()
     networkCharacterManager_ =
         std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_,
                                                   std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1),
-                                                  std::bind(&MainRpgScene::CreateGameObject, this));
+                                                  std::bind(&MainRpgScene::CreateGameObjectWithDefaultName, this));
 
     networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
 
@@ -72,6 +72,11 @@ void MainRpgScene::UpdatePlayerandCamera(float time)
 {
     camera->CalculateInput();
     camera->Move();
+}
+
+std::unique_ptr<GameEngine::GameObject> MainRpgScene::CreateGameObjectWithDefaultName()
+{
+    return CreateGameObject();
 }
 
 void MainRpgScene::ReqNetworkSceneCharacters()

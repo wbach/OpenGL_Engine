@@ -1,8 +1,8 @@
 #pragma once
-#include "Particle.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "Particle.h"
 
 namespace GameEngine
 {
@@ -14,41 +14,36 @@ class ParticleEffectComponent : public BaseComponent
 {
 public:
     ParticleEffectComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    virtual void ReqisterFunctions() override;
-    inline std::vector<Particle>& GetParticles();
-    inline Texture* GetTexture();
-    inline void AddParticle(const Particle& particle);
+
     ParticleEffectComponent& SetTexture(const std::string& filename);
     ParticleEffectComponent& SetParticle(const Particle& particle);
     ParticleEffectComponent& SetParticlesPerSec(uint32 c);
     ParticleEffectComponent& SetParticlesLimit(uint32 limit);
     ParticleEffectComponent& SetSpeed(float s);
+    ParticleEffectComponent& SetEmitFunction(const std::string& emitFunctionName, EmitFunction f);
     ParticleEffectComponent& SetEmitFunction(EmitFunction f);
     ParticleEffectComponent& SetBlendFunction(BlendFunctionType type);
-    bool IsAnimated()
-    {
-        return isAnimated_;
-    }
-    ParticleEffectComponent& EnableAnimation()
-    {
-        isAnimated_ = true;
-        return *this;
-    }
-    BlendFunctionType GetBlendType()
-    {
-        return blendFunction_;
-    }
-    uint32 GetParticlesCount() const
-    {
-        return particles_.size();
-    }
+
+    inline Texture* GetTexture();
+    inline ParticleEffectComponent& EnableAnimation();
+    inline bool IsAnimated() const;
+    inline float GetParticleSpeed() const;
+    inline uint32 GetParticlesCount() const;
+    inline uint32 GetParticleLimit() const;
+    inline uint32 GetParticlePerSec() const;
+    inline BlendFunctionType GetBlendType() const;
+    inline std::vector<Particle>& GetParticles();
+    inline const Particle& GetReferenceParticle() const;
+    inline const std::string& GetTextureFile() const;
+    inline const std::string& GetEmitFunction() const;
 
 private:
+    virtual void ReqisterFunctions() override;
+    inline void AddParticle(const Particle& particle);
     void Subscribe();
     void UnSubscribe();
     void Update();
     void UpdateParticlesState();
-    void Start();
     void EmitParticle(const vec3&);
     void EmitParticles();
     void SortParticlesByCameraDistance();
@@ -66,6 +61,8 @@ private:
     EmitFunction emitFunction_;
     BlendFunctionType blendFunction_;
     float rest;
+    std::string textureFile_;
+    std::string emitFunctionName_;
 
 public:
     static ComponentsType type;
@@ -83,5 +80,46 @@ void ParticleEffectComponent::AddParticle(const Particle& particle)
 {
     particles_.push_back(particle);
 }
-}  // Components
-}  // GameEngine
+bool ParticleEffectComponent::IsAnimated() const
+{
+    return isAnimated_;
+}
+ParticleEffectComponent& ParticleEffectComponent::EnableAnimation()
+{
+    isAnimated_ = true;
+    return *this;
+}
+float ParticleEffectComponent::GetParticleSpeed() const
+{
+    return particlesSpeed_;
+}
+BlendFunctionType ParticleEffectComponent::GetBlendType() const
+{
+    return blendFunction_;
+}
+uint32 ParticleEffectComponent::GetParticlesCount() const
+{
+    return particles_.size();
+}
+const Particle& ParticleEffectComponent::GetReferenceParticle() const
+{
+    return referenceParticle_;
+}
+const std::string& ParticleEffectComponent::GetTextureFile() const
+{
+    return textureFile_;
+}
+uint32 ParticleEffectComponent::GetParticlePerSec() const
+{
+    return particlesPerSecond_;
+}
+const std::string& ParticleEffectComponent::GetEmitFunction() const
+{
+    return emitFunctionName_;
+}
+uint32 ParticleEffectComponent::GetParticleLimit() const
+{
+    return particlesLimit_;
+}
+}  // namespace Components
+}  // namespace GameEngine

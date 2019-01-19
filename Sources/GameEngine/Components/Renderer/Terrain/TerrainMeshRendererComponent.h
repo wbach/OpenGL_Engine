@@ -12,13 +12,16 @@ class TerrainMeshRendererComponent : public BaseComponent
 public:
     TerrainMeshRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
     ~TerrainMeshRendererComponent() override;
-    virtual void ReqisterFunctions() override;
+
     TerrainMeshRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
-    const TerrainTexturesMap& GetTextures() const;
-    Texture* GetTexture(TerrainTextureType type);
+
     ModelWrapper& GetModel();
+    Texture* GetTexture(TerrainTextureType type);
+    const TerrainTexturesMap& GetTextures() const;
+    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
 
 private:
+    virtual void ReqisterFunctions() override;
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);
     void Subscribe();

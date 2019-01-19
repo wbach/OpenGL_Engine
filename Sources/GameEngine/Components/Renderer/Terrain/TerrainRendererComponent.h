@@ -15,7 +15,7 @@ public:
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const TerrainTexturesMap& GetTextures() const;
     Texture* GetTexture(TerrainTextureType type);
-   
+    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
 
 private:
     void SetTexture(TerrainTextureType, Texture*);

@@ -33,9 +33,6 @@ void ParticleEffectComponent::Subscribe()
 {
     componentContext_.renderersManager_.Subscribe(&thisObject_);
 }
-void ParticleEffectComponent::Start()
-{
-}
 void ParticleEffectComponent::EmitParticle(const vec3&)
 {
     if (emitFunction_ == nullptr)
@@ -58,35 +55,42 @@ ParticleEffectComponent& ParticleEffectComponent::SetParticle(const Particle& pa
     referenceParticle_ = particle;
     return *this;
 }
-ParticleEffectComponent & ParticleEffectComponent::SetParticlesPerSec(uint32 c)
+ParticleEffectComponent& ParticleEffectComponent::SetParticlesPerSec(uint32 c)
 {
     particlesPerSecond_ = c;
     return *this;
 }
-ParticleEffectComponent & ParticleEffectComponent::SetParticlesLimit(uint32 limit)
+ParticleEffectComponent& ParticleEffectComponent::SetParticlesLimit(uint32 limit)
 {
     particlesLimit_ = limit;
     return *this;
 }
-ParticleEffectComponent & ParticleEffectComponent::SetSpeed(float s)
+ParticleEffectComponent& ParticleEffectComponent::SetSpeed(float s)
 {
     particlesSpeed_ = s;
     return *this;
 }
-ParticleEffectComponent & ParticleEffectComponent::SetEmitFunction(EmitFunction f)
+ParticleEffectComponent& ParticleEffectComponent::SetEmitFunction(const std::string& emitFunctionName, EmitFunction f)
+{
+    emitFunctionName_ = emitFunctionName;
+    SetEmitFunction(f);
+    return *this;
+}
+ParticleEffectComponent& ParticleEffectComponent::SetEmitFunction(EmitFunction f)
 {
     emitFunction_ = f;
     return *this;
 }
-ParticleEffectComponent & ParticleEffectComponent::SetBlendFunction(BlendFunctionType type)
+ParticleEffectComponent& ParticleEffectComponent::SetBlendFunction(BlendFunctionType type)
 {
     blendFunction_ = type;
     return *this;
 }
-ParticleEffectComponent& ParticleEffectComponent::SetTexture(const std::string & filename)
+ParticleEffectComponent& ParticleEffectComponent::SetTexture(const std::string& filename)
 {
-    texture_ = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, true, true, ObjectTextureType::MATERIAL,
-        TextureFlip::Type::VERTICAL);
+    textureFile_ = filename;
+    texture_     = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(
+        filename, true, true, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
     return *this;
 }
 void ParticleEffectComponent::UnSubscribe()
@@ -152,5 +156,5 @@ void ParticleEffectComponent::SortParticlesByCameraDistance()
         return distance > distance2;
     });
 }
-}  // Components
-}  // GameEngine
+}  // namespace Components
+}  // namespace GameEngine

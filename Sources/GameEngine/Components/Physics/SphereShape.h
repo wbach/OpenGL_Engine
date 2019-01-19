@@ -15,6 +15,7 @@ public:
 
 public:
     SphereShape& SetSize(float size);
+    inline float GetSize() const;
 
 private:
     float size_;
@@ -22,5 +23,9 @@ private:
 public:
     static ComponentsType type;
 };
+float SphereShape::GetSize() const
+{
+    return size_;
+}
 }  // namespace Components
 }  // namespace GameEngine

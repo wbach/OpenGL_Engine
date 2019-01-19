@@ -1,3 +1,4 @@
+
 #include "TerrainShape.h"
 
 #include <algorithm>
@@ -39,32 +40,17 @@ void TerrainShape::OnAwake()
     }
 
     auto& data = heightMap_->GetImage()->floatData;
-
-    //for (auto& heigth : data)
-    //{
-    //    heigth *= 16.f;
-    //}
-
-    collisionShapeId_ =
-        componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, 1.f);
-
-    //auto minElementIter = std::min_element(data.begin(), data.end());
-    //auto maxElementIter = std::max_element(data.begin(), data.end());
-
-    //auto minElement = minElementIter != data.end() ? *minElementIter : 0.f;
-    //auto maxElement = maxElementIter != data.end() ? *maxElementIter : 0.f;
-
-    //auto distance = fabs(maxElement - minElement);
-    //auto h        = maxElement - (distance / 2.f);
-    //thisObject_.worldTransform.IncrasePosition(vec3(0, h, 0));
+    collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, 1.f);
 }
 TerrainShape& TerrainShape::SetHeightMap(const std::string& filename)
 {
+    heightMapFile_ = filename;
     LoadHeightMap(filename);
     return *this;
 }
 void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
 {
+    heightMapFile_ = hightMapFile;
     auto heightMapTexture = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(
         EngineConf_GetFullDataPathAddToRequierd(hightMapFile), true);
 
@@ -77,6 +63,14 @@ void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
 
     size_.x = heightMap_->GetImage()->width;
     size_.y = heightMap_->GetImage()->height;
+}
+const std::string TerrainShape::GetHeightMapFileName() const
+{
+    return heightMapFile_;
+}
+HeightMap* TerrainShape::GetHeightMap()
+{
+    return heightMap_;
 }
 }  // namespace Components
 }  // namespace GameEngine

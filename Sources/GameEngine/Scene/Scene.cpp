@@ -1,12 +1,13 @@
 #include "Scene.hpp"
 #include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/EngineMeasurement.h"
 #include "GameEngine/Input/InputManager.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "GameEngine/Components/ComponentFactory.h"
 #include "Logger/Log.h"
+#include "SceneWriter.h"
 #include "Utils/Time/Timer.h"
 
 namespace GameEngine
@@ -41,7 +42,8 @@ Scene::~Scene()
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_,
+                                                                       *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -80,7 +82,12 @@ void Scene::PostUpdate()
 
 std::unique_ptr<GameObject> Scene::CreateGameObject()
 {
-    return std::make_unique<GameObject>(*componentFactory_);
+    return std::make_unique<GameObject>("gameObject", *componentFactory_);
+}
+
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name)
+{
+    return std::make_unique<GameObject>(name, *componentFactory_);
 }
 
 void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
@@ -128,4 +135,8 @@ const std::vector<Light>& Scene::GetLights() const
 {
     return lights;
 }
-}  // GameEngine
+void Scene::SaveToFile(const std::string& filename)
+{
+    SaveSceneState(*this, filename);
+}
+}  // namespace GameEngine

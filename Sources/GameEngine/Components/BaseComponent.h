@@ -16,7 +16,7 @@ class BaseComponent : public IComponent
 public:
     BaseComponent(ComponentsType type, const ComponentContext& ComponentContext, GameObject& gameObject);
     virtual ~BaseComponent();
-    inline ComponentsType GetType();
+    inline ComponentsType GetType() const;
 
 protected:
     inline void RegisterFunction(FunctionType, std::function<void()> func);
@@ -34,7 +34,7 @@ void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> fu
 {
     ids_.insert({componentContext_.componentController_.RegisterFunction(type, func), type});
 }
-ComponentsType BaseComponent::GetType()
+ComponentsType BaseComponent::GetType() const
 {
     return type_;
 }

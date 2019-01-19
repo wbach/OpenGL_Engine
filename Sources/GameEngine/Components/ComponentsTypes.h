@@ -7,7 +7,6 @@ namespace Components
 enum class ComponentsType
 {
     Animator,
-    BoxCollider,
     BoxShape,
     MeshShape,
     SphereShape,

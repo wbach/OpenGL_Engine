@@ -17,17 +17,20 @@ SkyBoxComponent::~SkyBoxComponent()
 }
 SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::vector<std::string>& filenames)
 {
-    dayTexture_ = componentContext_.resourceManager_.GetTextureLaoder().LoadCubeMap(filenames);
+    dayTextureFiles_ = filenames;
+    dayTexture_      = componentContext_.resourceManager_.GetTextureLaoder().LoadCubeMap(filenames);
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::vector<std::string>& filenames)
 {
-    nightTexture_ = componentContext_.resourceManager_.GetTextureLaoder().LoadCubeMap(filenames);
+    nightTextureFiles_ = filenames;
+    nightTexture_      = componentContext_.resourceManager_.GetTextureLaoder().LoadCubeMap(filenames);
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetModel(const std::string& filename)
 {
-    model_ = componentContext_.resourceManager_.LoadModel(filename);
+    modelFileName_ = filename;
+    model_         = componentContext_.resourceManager_.LoadModel(filename);
     return *this;
 }
 void SkyBoxComponent::ReqisterFunctions()
@@ -45,6 +48,18 @@ Texture* SkyBoxComponent::GetNightTexture()
 Model* SkyBoxComponent::GetModel()
 {
     return model_;
+}
+const std::vector<std::string>& SkyBoxComponent::GetDayTextureFiles() const
+{
+    return dayTextureFiles_;
+}
+const std::vector<std::string>& SkyBoxComponent::GetNightTextureFiles() const
+{
+    return nightTextureFiles_;
+}
+const std::string& SkyBoxComponent::GetModelFileName() const
+{
+    return modelFileName_;
 }
 void SkyBoxComponent::Subscribe()
 {

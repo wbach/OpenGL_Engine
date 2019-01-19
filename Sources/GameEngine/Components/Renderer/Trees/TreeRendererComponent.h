@@ -17,13 +17,18 @@ public:
     inline ModelWrapper& GetTopModelWrapper();
     inline ModelWrapper& GetBottomModelWrapper();
     inline std::vector<vec3>& GetPositions();
-    inline const vec2ui GetPositionSize2d();
+    inline const vec2ui& GetPositionSize2d() const;
+    inline const std::unordered_map<std::string, LevelOfDetail>& GetTopFileNames() const;
+    inline const std::unordered_map<std::string, LevelOfDetail>& GetBottomFileNames() const;
+    inline const std::vector<vec3>& GetCPositions() const;
 
 private:
     void Subscribe();
     void UnSubscribe();
 
 private:
+    std::unordered_map<std::string, LevelOfDetail> topFilenames_;
+    std::unordered_map<std::string, LevelOfDetail> bottomFilenames_;
     ModelWrapper top_;
     ModelWrapper bottom_;
     vec2ui size2d_;
@@ -45,9 +50,21 @@ std::vector<vec3>& TreeRendererComponent::GetPositions()
 {
     return positions_;
 }
-const vec2ui TreeRendererComponent::GetPositionSize2d()
+const vec2ui& TreeRendererComponent::GetPositionSize2d() const
 {
     return size2d_;
+}
+inline const std::unordered_map<std::string, LevelOfDetail>& TreeRendererComponent::GetTopFileNames() const
+{
+    return topFilenames_;
+}
+inline const std::unordered_map<std::string, LevelOfDetail>& TreeRendererComponent::GetBottomFileNames() const
+{
+    return bottomFilenames_;
+}
+const std::vector<vec3>& TreeRendererComponent::GetCPositions() const
+{
+    return positions_;
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -1,82 +1,86 @@
 #include "XmlReader.h"
-#include "rapidxml.hpp"
-#include "rapidxml_print.hpp"
+#include <algorithm>
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
 
 namespace Utils
 {
-	XmlNode empty;
+void ParseNode(rapidxml::xml_node<>* node, XmlNode& n)
+{
+    if (node == nullptr)
+        return;
 
-	void ParseNode(rapidxml::xml_node<>* node, XmlNode& n)
-	{
-		if (node == nullptr)
-			return;
+    n.value_ = node->value();
 
-		n.name_ = node->name();
-		n.value_ = node->value();
+    for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
+    {
+        std::string att_name  = att_node->name();
+        std::string att_value = att_node->value();
 
-		for (auto att_node = node->first_attribute(); att_node; att_node = att_node->next_attribute())
-		{
-			std::string att_name = att_node->name();
-			std::string att_value = att_node->value();
+        n.attributes_[att_name] = att_value;
+    }
 
-			n.attributes_[att_name] = att_value;
-		}
+    for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
+    {
+        if (snode == nullptr)
+            return;
 
-		for (auto snode = node->first_node(); snode; snode = snode->next_sibling())
-		{
-			if (snode == nullptr)
-				return;
+        std::string name = snode->name();
+        if (name.empty())
+            return;
+        auto& child = n.AddChild(name);
+        ParseNode(snode, child);
+        child.parent = &n;
+    }
+}
 
-			std::string name = snode->name();
-			if (name.empty())
-				return;
-			n.children_[name] = std::make_shared<XmlNode>();
-			ParseNode(snode, *n.children_[name].get());
-			n.children_[name]->parent = &n;
-		}
-	}
+bool XmlReader::Read(const std::string& filename)
+{
+    rapidxml::xml_document<> document;
 
-	bool XmlReader::Read(const std::string & filename)
-	{
-		rapidxml::xml_document<> document;
+    auto str = Utils::ReadFile(filename);
+    try
+    {
+        document.parse<0>(const_cast<char*>(str.c_str()));
+    }
+    catch (const rapidxml::parse_error& p)
+    {
+        std::string out = p.what();
+        Error(out);
+        return false;
+    }
+    root_ = std::make_unique<XmlNode>(document.first_node()->name());
+    ParseNode(document.first_node(), *root_);
+    return true;
+}
 
-		auto str = Utils::ReadFile(filename);
-		try
-		{
-			document.parse<0>(const_cast<char*>(str.c_str()));
-		}
-		catch (const rapidxml::parse_error& p)
-		{
-			std::string out = p.what();
-			Error(out);
-			return false;
-		}
-		ParseNode(document.first_node(), root_);
-		return true;
-	}
+XmlNode* XmlReader::Get(const std::string& name, XmlNode* node)
+{
+    if (node == nullptr)
+        node = root_.get();
 
-	XmlNode* XmlReader::Get(const std::string& name, XmlNode* node)
-	{
-		if (node == nullptr)
-			node = &root_;
+    if (node->GetName() == name)
+        return node;
 
-		if (node->name_ == name)
-			return node;
+    auto childIter = std::find_if(node->GetChildren().begin(), node->GetChildren().end(),
+                                  [&name](const auto& child) { return (child->GetName() == name); });
 
-		if (node->children_.count(name) != 0)
-		{
-			return node->children_.at(name).get();
-		}
+    if (childIter != node->GetChildren().end())
+    {
+        return childIter->get();
+    }
 
-		for (auto& ch : node->children_)
-		{
-			auto n = Get(name, ch.second.get());
-			if (n != nullptr)
-				return n;
-		}
+    std::for_each(node->GetChildren().begin(), node->GetChildren().end(), [this, &name](const auto& child) 
+    {
+        auto n =  Get(name, child.get());
+        if (n)
+        {
+            return n;
+        }
+    });
 
-		return &empty;
-	}
-} // Utils
+    return nullptr;
+}
+}  // namespace Utils

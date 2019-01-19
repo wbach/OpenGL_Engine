@@ -5,6 +5,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "TestGame/Single/PlayerInputController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
+#include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include <optional>
 #include <functional>
 
@@ -38,8 +39,12 @@ private:
     void CheckCollisions(float dt);
     void AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position);
     std::vector<float> CreateGrassPositions(GameEngine::GameObject*, vec2);
+
     std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
+    std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(const std::string& name, float scale, const vec2& position, bool isDynamic = false);
     void CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position, uint32_t textureIndex = 0, bool isDynamic = false);
+    template <typename Shape>
+    void AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale, bool isStatic);
 
 private:
     std::shared_ptr<common::Controllers::CharacterController> characterController_;
@@ -52,4 +57,5 @@ private:
 
     CameraType camType;
     GameEngine::GameObject* player;
+    std::unique_ptr<GameEngine::Components::TerrainHeightGetter> terrainHeightGetter_;
 };

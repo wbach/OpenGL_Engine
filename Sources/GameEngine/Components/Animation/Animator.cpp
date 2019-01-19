@@ -38,7 +38,7 @@ Animator& Animator::SetAnimation(const std::string& name)
     currentTime_ = 0.f;
     return *this;
 }
-const std::string& Animator::GetCurrentAnimationName()
+const std::string& Animator::GetCurrentAnimationName() const
 {
     return current_;
 }

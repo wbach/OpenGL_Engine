@@ -20,6 +20,7 @@ public:
 
 private:
     void UpdatePlayerandCamera(float time);
+    std::unique_ptr<GameEngine::GameObject> CreateGameObjectWithDefaultName();
 
 private:
     void ReqNetworkSceneCharacters();

@@ -20,7 +20,8 @@ AbstractLoader::AbstractLoader(IGraphicsApi& graphicsApi, ITextureLoader &textur
 }
 void AbstractLoader::Parse(const std::string& filename)
 {
-    Utils::GetFileAndPath(filename, fileName_, filePath_);
+    fileName_ = Utils::GetFilenameWithExtension(filename);
+    filePath_ = Utils::GetFilePath(filename);
 
     auto binFile = CreateBinPath(fileName_);
     if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))

@@ -46,12 +46,13 @@ public:
     void FullUpdate(float deltaTime);
     void PostUpdate();
 
-    const std::string& GetName()
+    const std::string& GetName() const
     {
         return name;
     }
 
     std::unique_ptr<GameObject> CreateGameObject();
+    std::unique_ptr<GameObject> CreateGameObject(const std::string& name);
 
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject>& object);
@@ -60,7 +61,7 @@ public:
 
     // GetObjects
     std::list<GameObject*> GetObjectInRange(const vec3& position, float range);
-    inline const GameObjects& GetGameObjects();
+    inline const GameObjects& GetGameObjects() const;
 
     // Cameras
     ICamera* GetCamera();
@@ -79,6 +80,7 @@ public:
     void SetRenderersManager(Renderer::RenderersManager* manager);
     void SetDisplayManager(DisplayManager* displayManager);
     void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
+    void SaveToFile(const std::string& filename);
 
 public:
     uint32 objectCount;
@@ -125,7 +127,7 @@ protected:
     std::atomic_bool simulatePhysics_;
 };
 
-inline const GameObjects& Scene::GetGameObjects()
+inline const GameObjects& Scene::GetGameObjects() const
 {
     return gameObjects;
 }

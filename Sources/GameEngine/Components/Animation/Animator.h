@@ -21,7 +21,7 @@ public:
     Animator& SetSkeleton(Animation::Joint* skeleton);
     Animator& SetAnimation(const std::string& name);
     void ChangeAnimation(const std::string& name);
-    const std::string& GetCurrentAnimationName();
+    const std::string& GetCurrentAnimationName() const;
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;

@@ -37,6 +37,8 @@ TreeRendererComponent& TreeRendererComponent::SetBottomModel(const std::string& 
     if (filename.empty())
         return *this;
 
+    bottomFilenames_.insert({ filename, i });
+
     auto model = GameEngine::LoadModel(&componentContext_.resourceManager_, filename);
     bottom_.Add(model, i);
 
@@ -46,6 +48,8 @@ TreeRendererComponent& TreeRendererComponent::SetTopModel(const std::string& fil
 {
     if (filename.empty())
         return *this;
+
+    topFilenames_.insert({ filename, i });
 
     auto model = GameEngine::LoadModel(&componentContext_.resourceManager_, filename);
     top_.Add(model, i);

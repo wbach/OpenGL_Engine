@@ -248,8 +248,6 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
     auto& renderComponent = object->AddComponent<Components::RendererComponent>().AddModel("Meshes/Rampa.obj");
 
     auto& meshShape = object->AddComponent<Components::MeshShape>().SetSize(scale);
-    meshShape.SetModel(renderComponent.GetModelWrapper().Get(LevelOfDetail::L1));
-
     object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(&meshShape);
 
     AddGameObject(object);

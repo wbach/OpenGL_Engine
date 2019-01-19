@@ -43,6 +43,7 @@ public:
     void SetScale(float s);
     void SetScale(const vec3& s);
     void SetPosition(const vec3& pos);
+    void SetYPosition(float);
     void SetPositionXZ(const vec2& pos);
     void SetRotation(const vec3& r);
     void SetRotate(Axis axis, float v);

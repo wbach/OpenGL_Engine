@@ -18,12 +18,14 @@ public:
     virtual void ReqisterFunctions() override;
     inline ModelWrapper& GetModelWrapper();
     inline uint32_t GetTextureIndex() const;
+    inline const std::unordered_map<std::string, LevelOfDetail>& GetFileNames() const;
 
 private:
     void Subscribe();
     void UnSubscribe();
 
 private:
+    std::unordered_map<std::string, LevelOfDetail> filenames_;
     ModelWrapper model_;
     uint32_t textureIndex_;
 
@@ -38,6 +40,10 @@ ModelWrapper& RendererComponent::GetModelWrapper()
 uint32_t RendererComponent::GetTextureIndex() const
 {
     return textureIndex_;
+}
+const std::unordered_map<std::string, LevelOfDetail>& RendererComponent::GetFileNames() const
+{
+    return filenames_;
 }
 }  // namespace Components
 }  // namespace GameEngine

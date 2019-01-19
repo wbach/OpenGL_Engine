@@ -19,7 +19,7 @@ private:
     vec2i GetGridCoord(const vec2& position) const;
     vec2 GetPositionInQuad(const vec2& position) const;
     bool IsInLeftTriangle(const vec2& position) const;
-    bool IsNotValidGridCoordinate(const vec2i& position) const;
+    bool IsValidGridCoordinate(const vec2i& position) const;
     vec2 GetLocalPositionOnTerrain(float worldX, float worldZ);
     float GetHeightInTerrainQuad(const vec2i& gridCoord, const vec2& localPosition) const;
 
@@ -29,6 +29,7 @@ private:
     vec2 terrainPosition_;
     int heightMapResolution_;
     std::vector<float>* data_;
+    float yOffset_;
 
 };
 }  // namespace Components

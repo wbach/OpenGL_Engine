@@ -16,15 +16,23 @@ public:
     void OnAwake();
 
 public:
-    MeshShape& SetModel(Model* model);
     MeshShape& SetSize(float size);
+    MeshShape& SetModel(Model* model);
+    MeshShape& SetModel(const std::string& filename);
+    inline float GetSize() const;
+    const std::string& GetModelFileName() const;
 
 private:
     float size_;
     Model* model_;
+    std::string modelFileName_;
 
 public:
     static ComponentsType type;
 };
+float MeshShape::GetSize() const
+{
+    return size_;
+}
 }  // Components
 }  // GameEngine

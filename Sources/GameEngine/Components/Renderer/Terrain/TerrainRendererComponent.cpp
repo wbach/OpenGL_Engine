@@ -18,7 +18,8 @@ void TerrainRendererComponent::SetTexture(TerrainTextureType type, Texture* text
 {
     textures_.insert({type, texture});
 }
-TerrainRendererComponent& TerrainRendererComponent::LoadTextures(const std::unordered_map<TerrainTextureType, std::string>& textures)
+TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
+    const std::unordered_map<TerrainTextureType, std::string>& textures)
 {
     for (const auto& texturePair : textures)
     {
@@ -57,6 +58,11 @@ Texture* TerrainRendererComponent::GetTexture(TerrainTextureType type)
         return nullptr;
 
     return textures_.at(type);
+}
+
+const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererComponent::GetTextureFileNames() const
+{
+    return texturedFileNames_;
 }
 
 void TerrainRendererComponent::ReqisterFunctions()

@@ -21,6 +21,10 @@ public:
     Rigidbody& SetIsStatic(bool is);
     Rigidbody& SetCollisionShape(CollisionShape* collisionShape);
     Rigidbody& SetVelocity(const vec3& velocity);
+    float GetMass() const;
+    bool IsStatic() const;
+    ComponentsType GetCollisionShapeType() const;
+    const vec3& GetVelocity() const;
 
 private:
     float mass_;

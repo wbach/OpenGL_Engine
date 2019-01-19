@@ -21,6 +21,9 @@ public:
     Texture* GetDayTexture();
     Texture* GetNightTexture();
     Model* GetModel();
+    const std::vector<std::string>& GetDayTextureFiles() const;
+    const std::vector<std::string>& GetNightTextureFiles() const;
+    const std::string& GetModelFileName() const;
 
 private:
     void Subscribe();
@@ -30,6 +33,9 @@ private:
     Texture* dayTexture_;
     Texture* nightTexture_;
     Model* model_;
+    std::vector<std::string> dayTextureFiles_;
+    std::vector<std::string> nightTextureFiles_;
+    std::string modelFileName_;
 
 public:
     static ComponentsType type;

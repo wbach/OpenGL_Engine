@@ -10,17 +10,18 @@ class GrassRendererComponent : public BaseComponent
 {
 public:
     GrassRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    virtual void ReqisterFunctions() override;
     inline ModelWrapper& GetModel();
     inline const std::vector<float>& GetPositions() const;
+    inline const std::string& GetTextureFileName() const;
     GrassRendererComponent& SetPositions(const std::vector<float>& positions);
     GrassRendererComponent& SetTexture(const std::string& filename);
 
 private:
+    virtual void ReqisterFunctions() override;
     void CreateModelAndSubscribe();
     void UnSubscribe();
     Material CreateGrassMaterial() const;
-    Mesh CreateGrassMesh( const Material &material) const;
+    Mesh CreateGrassMesh(const Material& material) const;
     void CreateGrassModel();
 
 private:
@@ -40,6 +41,11 @@ ModelWrapper& GrassRendererComponent::GetModel()
 const std::vector<float>& GrassRendererComponent::GetPositions() const
 {
     return positions_;
+}
+
+const std::string& GrassRendererComponent::GetTextureFileName() const
+{
+    return textureFile_;
 }
 
 }  // namespace Components

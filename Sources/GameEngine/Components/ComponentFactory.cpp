@@ -80,10 +80,6 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         {
             return std::make_unique<GrassRendererComponent>(context_, ptr);
         }
-        case ComponentsType::BoxCollider:
-        {
-            break;
-        }
         case ComponentsType::CollisionShape:
         {
             break;

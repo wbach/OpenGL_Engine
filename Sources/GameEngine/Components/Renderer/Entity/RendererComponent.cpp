@@ -24,13 +24,15 @@ void RendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::Subscribe, this));
 }
-RendererComponent& RendererComponent::AddModel(const std::string& filename, GameEngine::LevelOfDetail i)
+RendererComponent& RendererComponent::AddModel(const std::string& filename, GameEngine::LevelOfDetail lvl)
 {
     if (filename.empty())
         return *this;
 
+    filenames_.insert({filename, lvl});
+
     auto model = GameEngine::LoadModel(&componentContext_.resourceManager_, filename);
-    model_.Add(model, i);
+    model_.Add(model, lvl);
 
     return *this;
 }
@@ -39,7 +41,7 @@ RendererComponent& RendererComponent::SetModel(const ModelWrapper& model)
     model_ = model;
     return *this;
 }
-RendererComponent & RendererComponent::SetTextureIndex(uint32_t index)
+RendererComponent& RendererComponent::SetTextureIndex(uint32_t index)
 {
     textureIndex_ = index;
     return *this;

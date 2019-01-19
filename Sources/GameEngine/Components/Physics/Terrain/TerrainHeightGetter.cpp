@@ -1,6 +1,7 @@
 #include "TerrainHeightGetter.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
+//#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GLM/GLMUtils.h"
+#include  <algorithm>
 
 namespace GameEngine
 {
@@ -8,12 +9,16 @@ namespace Components
 {
 TerrainHeightGetter::TerrainHeightGetter(const vec2ui& size, std::vector<float>* heights, const vec2& terrainPosition)
     : size_(size)
-    , gridSquereSize_(TerrainDef::TOTAL_SIZE * TerrainDef::PART_SIZE / ((float)size.y - 1))
+    , gridSquereSize_(1.f)
     , terrainPosition_(terrainPosition)
-    , heightMapResolution_(0)
+    , heightMapResolution_(size.x)
     , data_(heights)
+    , yOffset_(0)
 {
+    auto maxElementIter = std::max_element(heights->begin(), heights->end());
+    auto maxElement = maxElementIter != heights->end() ? *maxElementIter : 0.f;
 
+    yOffset_ = -1.75f;// -maxElement / .2f;
 }
 
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& posXZ)
@@ -25,12 +30,12 @@ std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float
 {
     auto localPosition = GetLocalPositionOnTerrain(worldX, worldZ);
 
-    auto gridCoord = GetGridCoord(localPosition + vec2(TerrainDef::HALF_TOTAL_SIZE));
+    auto gridCoord = GetGridCoord(localPosition + vec2(size_.x / 2.f));
 
-    if (IsNotValidGridCoordinate(gridCoord))
+    if (not IsValidGridCoordinate(gridCoord))
         return {};
 
-    return GetHeightInTerrainQuad(gridCoord, localPosition);
+    return GetHeightInTerrainQuad(gridCoord, localPosition) + yOffset_ ;
 }
 
 vec2 TerrainHeightGetter::GetLocalPositionOnTerrain(float worldX, float worldZ)
@@ -62,9 +67,9 @@ bool TerrainHeightGetter::IsInLeftTriangle(const vec2& position) const
     return position.x <= (1 - position.y);
 }
 
-bool TerrainHeightGetter::IsNotValidGridCoordinate(const vec2i& position) const
+bool TerrainHeightGetter::IsValidGridCoordinate(const vec2i& position) const
 {
-    return (position.x >= heightMapResolution_ - 1 || position.y >= heightMapResolution_ - 1 || position.x < 0 ||
+    return not (position.x >= heightMapResolution_ - 1 || position.y >= heightMapResolution_ - 1 || position.x < 0 ||
             position.y < 0);
 }
 

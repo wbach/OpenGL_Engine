@@ -40,7 +40,8 @@ void WaveFrontObjLoader::GetFileData(const std::string& file_name)
     if (fileData.empty())
         return;
 
-    Utils::GetFileAndPath(filePath, filename, path);
+    filename = Utils::GetFilenameWithExtension(filePath);
+    path = Utils::GetFilePath(filePath);
 }
 void WaveFrontObjLoader::ProcessFileData()
 {

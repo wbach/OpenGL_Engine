@@ -13,6 +13,7 @@ public:
 
 public:
     void SetPostionOffset(const vec3& position);
+    const vec3& GetPositionOffset() const;
 
 protected:
     uint32 collisionShapeId_;

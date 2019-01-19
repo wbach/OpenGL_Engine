@@ -21,5 +21,9 @@ void CollisionShape::SetPostionOffset(const vec3& position)
 {
     positionOffset_ = position;
 }
+const vec3 & CollisionShape::GetPositionOffset() const
+{
+    return positionOffset_;
+}
 }  // namespace Components
 }  // namespace GameEngine

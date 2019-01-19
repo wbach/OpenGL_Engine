@@ -56,6 +56,10 @@ ModelWrapper &TerrainMeshRendererComponent::GetModel()
 {
     return modelWrapper_;
 }
+const std::unordered_map<TerrainTextureType, std::string>& TerrainMeshRendererComponent::GetTextureFileNames() const
+{
+    return texturedFileNames_;
+}
 void TerrainMeshRendererComponent::SetTexture(TerrainTextureType type, Texture *texture)
 {
     textures_.insert({type, texture});

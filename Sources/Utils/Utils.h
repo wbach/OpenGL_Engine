@@ -46,13 +46,24 @@ private:
     vec2i offset;
 };
 
+struct FileInfo
+{
+    std::string filename;
+    std::string path;
+    std::string extension;
+};
+
 std::vector<std::string> SplitString(const std::string& s, char split_char);
 std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char);
 std::string ReadFileBinary(const std::string& file_name);
 std::string ReadFile(const std::string& file_name);
 std::list<std::string> ReadFileLines(const std::string& file_name);
-void GetFileAndPath(const std::string& full, std::string& filename, std::string& path);
+std::string ReplaceSlash(const std::string& str);
+FileInfo GetFileInfo(const std::string& fullpath);
+std::string GetFilename(const std::string& fullpath);
+std::string GetFilePath(const std::string& fullpath);
 std::string GetFileExtension(const std::string& file_name);
+std::string GetFilenameWithExtension(const std::string& fullpath);
 std::string ConvertToRelativePath(std::string path);
 int NextP2(int a);
 bool CheckFileExist(const std::string& file);
@@ -62,4 +73,4 @@ float StringToFloat(const std::string& str);
 int StringToInt(const std::string& str);
 bool StringToBool(const std::string& str);
 std::string BoolToString(bool);
-}
+} // namespace Utils
