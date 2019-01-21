@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include <functional>
 
 namespace GameEngine
 {
@@ -27,4 +28,6 @@ struct Particle
         return elapsedTime < lifeTime;
     }
 };
+
+typedef std::function<Particle(const Particle&)> EmitFunction;
 }  // namespace GameEngine

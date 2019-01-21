@@ -1,7 +1,12 @@
 #include "Rigidbody.h"
+#include "BoxShape.h"
 #include "CollisionShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "Logger/Log.h"
+#include "MeshShape.h"
+#include "SphereShape.h"
+#include "Terrain/TerrainShape.h"
 
 namespace GameEngine
 {
@@ -17,6 +22,7 @@ Rigidbody::Rigidbody(const ComponentContext& componentContext, GameObject& gameO
     , collisionShape_(nullptr)
     , rigidBodyId_(0)
     , velocity_(0)
+    , shapeType_(ComponentsType::Rigidbody)
 {
 }
 Rigidbody::~Rigidbody()
@@ -31,6 +37,8 @@ Rigidbody::~Rigidbody()
 }
 void Rigidbody::OnStart()
 {
+    GetCollisionShape();
+
     if (collisionShape_ == nullptr)
     {
         return;
@@ -59,10 +67,21 @@ Rigidbody& Rigidbody::SetIsStatic(bool is)
     }
     return *this;
 }
-Rigidbody& Rigidbody::SetCollisionShape(CollisionShape* collisionShape)
+Rigidbody& Rigidbody::SetCollisionShape(ComponentsType shapeType)
 {
-    collisionShape_ = collisionShape;
+    if (not isShapeTypeValid(shapeType))
+    {
+        Error("Shape type (" + std::to_string(static_cast<int>(shapeType)) + ") is not valid.");
+        return *this;
+    }
+
+    shapeType_ = shapeType;
     return *this;
+}
+bool Rigidbody::isShapeTypeValid(ComponentsType shapeType)
+{
+    return shapeType == ComponentsType::BoxShape or shapeType == ComponentsType::TerrainShape or
+           shapeType == ComponentsType::MeshShape or shapeType == ComponentsType::SphereShape;
 }
 Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
@@ -92,6 +111,27 @@ ComponentsType Rigidbody::GetCollisionShapeType() const
 const vec3& Rigidbody::GetVelocity() const
 {
     return velocity_;
+}
+void Rigidbody::GetCollisionShape()
+{
+    switch (shapeType_)
+    {
+        case ComponentsType::BoxShape:
+            collisionShape_ = thisObject_.GetComponent<BoxShape>();
+            break;
+        case ComponentsType::TerrainShape:
+            collisionShape_ = thisObject_.GetComponent<TerrainShape>();
+            break;
+        case ComponentsType::MeshShape:
+            collisionShape_ = thisObject_.GetComponent<MeshShape>();
+            break;
+        case ComponentsType::SphereShape:
+            collisionShape_ = thisObject_.GetComponent<SphereShape>();
+            break;
+        default:
+            Error("Shape type (" + std::to_string(static_cast<int>(shapeType_)) + ") is not found.");
+            break;
+    };
 }
 }  // namespace Components
 }  // namespace GameEngine

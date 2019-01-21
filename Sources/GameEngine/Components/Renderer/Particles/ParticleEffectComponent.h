@@ -2,14 +2,12 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "Particle.h"
+#include "GameEngine/Objects/Particle.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-typedef std::function<Particle(const Particle&)> EmitFunction;
-
 class ParticleEffectComponent : public BaseComponent
 {
 public:

@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Logger/Log.h"
 #include "SceneWriter.h"
+#include "SceneReader.h"
 #include "Utils/Time/Timer.h"
 
 namespace GameEngine
@@ -80,12 +81,12 @@ void Scene::PostUpdate()
     componentController_.PostUpdate();
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject()
+std::unique_ptr<GameObject> Scene::CreateGameObject() const
 {
     return std::make_unique<GameObject>("gameObject", *componentFactory_);
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name)
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name) const
 {
     return std::make_unique<GameObject>(name, *componentFactory_);
 }
@@ -138,5 +139,20 @@ const std::vector<Light>& Scene::GetLights() const
 void Scene::SaveToFile(const std::string& filename)
 {
     SaveSceneState(*this, filename);
+}
+void Scene::LoadFromFile(const std::string& filename)
+{
+    LoadScene(*this, filename);
+}
+int Scene::Initialize()
+{
+    return 0;
+}
+void Scene::PostInitialize()
+{
+}
+int Scene::Update(float)
+{
+    return 0;
 }
 }  // namespace GameEngine

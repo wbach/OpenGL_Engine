@@ -157,7 +157,7 @@ void Create(XmlNode& node, const std::unordered_map<std::string, LevelOfDetail>&
 void Create(XmlNode& node, const Components::RendererComponent& component)
 {
     Create(node.AddChild(CSTR_MODEL_FILE_NAMES), component.GetFileNames());
-    node.AddChild(CSTR_MODEL_FILE_NAME).value_ = std::to_string(component.GetTextureIndex());
+    node.AddChild(CSTR_TEXTURE_INDEX).value_ = std::to_string(component.GetTextureIndex());
 }
 
 void Create(XmlNode& node, const Components::TreeRendererComponent& component)
@@ -187,7 +187,7 @@ void Create(XmlNode& node, const Components::ParticleEffectComponent& component)
     Create(node.AddChild(CSTR_EMIT_FUNCTION), component.GetEmitFunction());
     Create(node.AddChild(CSTR_SPEED), component.GetParticleSpeed());
     Create(node.AddChild(CSTR_IS_ANIMATED), component.IsAnimated());
-    Create(node.AddChild(CSTR_PARTICLE_LIMT), component.GetTextureFile());
+    Create(node.AddChild(CSTR_PARTICLE_LIMT), component.GetParticleLimit());
 }
 
 void Create(XmlNode& node, const Components::SkyBoxComponent& component)
@@ -296,7 +296,7 @@ void Create(XmlNode& node, const GameObjects& gameObjects)
         Create(node.AddChild(CSTR_GAMEOBJECT), *gameObject.second);
     }
 }
-void GameEngine::SaveSceneState(const Scene& input, const std::string& filename)
+void SaveSceneState(const Scene& input, const std::string& filename)
 {
     XmlNode scene(CSTR_SCENE);
     scene.attributes_[CSTR_NAME] = input.GetName();

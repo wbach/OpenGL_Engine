@@ -58,7 +58,10 @@ TreeRendererComponent& TreeRendererComponent::SetTopModel(const std::string& fil
 }
 void TreeRendererComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not positions_.empty())
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+    }
 }
 void TreeRendererComponent::UnSubscribe()
 {

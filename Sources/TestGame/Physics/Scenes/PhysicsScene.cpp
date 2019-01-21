@@ -81,7 +81,7 @@ void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3&
 
     auto& shape = object->AddComponent<Shape>().SetSize(scale);
     shape.SetPostionOffset(shapePositionOffset);
-    object->AddComponent<Components::Rigidbody>().SetIsStatic(isStatic).SetCollisionShape(&shape).SetVelocity(dir);
+    object->AddComponent<Components::Rigidbody>().SetIsStatic(isStatic).SetCollisionShape(shape.GetType()).SetVelocity(dir);
 
     AddGameObject(object);
 }
@@ -206,7 +206,7 @@ void PhysicsScene::AddTerrain()
         object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::displacementMap));
 
     auto rigidbody =
-        object->AddComponent<Components::Rigidbody>().SetCollisionShape(&terrainShapeComponent).SetIsStatic(true);
+        object->AddComponent<Components::Rigidbody>().SetCollisionShape(terrainShapeComponent.GetType()).SetIsStatic(true);
 
     AddGameObject(object);
 }
@@ -248,7 +248,7 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
     auto& renderComponent = object->AddComponent<Components::RendererComponent>().AddModel("Meshes/Rampa.obj");
 
     auto& meshShape = object->AddComponent<Components::MeshShape>().SetSize(scale);
-    object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(&meshShape);
+    object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(meshShape.GetType());
 
     AddGameObject(object);
 }

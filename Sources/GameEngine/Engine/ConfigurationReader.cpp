@@ -2,6 +2,7 @@
 #include "Configuration.h"
 #include "EngineDef.h"
 #include "Utils/XML/XmlReader.h"
+#include "Utils.h"
 
 namespace GameEngine
 {

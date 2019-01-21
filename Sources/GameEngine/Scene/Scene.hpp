@@ -9,12 +9,14 @@
 #include "GameEngine/Components/IComponentFactory.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/GUI/GuiContext.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
 #include "SceneEvents.h"
 #include "Types.h"
+#include <optional>
 //#include "Mutex.hpp"
 
 // Object in scene are in grid (one grid size)
@@ -30,7 +32,7 @@ class InputManager;
 namespace Renderer
 {
 class RenderersManager;
-}  // Renderer
+}  // namespace Renderer
 
 typedef std::unordered_map<uint32, std::unique_ptr<GameObject>> GameObjects;
 
@@ -38,7 +40,6 @@ class Scene
 {
 public:
     Scene(const std::string& name);
-
     virtual ~Scene();
 
     void Init();
@@ -46,13 +47,12 @@ public:
     void FullUpdate(float deltaTime);
     void PostUpdate();
 
-    const std::string& GetName() const
-    {
-        return name;
-    }
+    inline const std::string& GetName() const;
+    inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
+    inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
 
-    std::unique_ptr<GameObject> CreateGameObject();
-    std::unique_ptr<GameObject> CreateGameObject(const std::string& name);
+    std::unique_ptr<GameObject> CreateGameObject() const;
+    std::unique_ptr<GameObject> CreateGameObject(const std::string& name) const;
 
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject>& object);
@@ -81,22 +81,15 @@ public:
     void SetDisplayManager(DisplayManager* displayManager);
     void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
     void SaveToFile(const std::string& filename);
+    void LoadFromFile(const std::string& filename);
 
 public:
     uint32 objectCount;
 
 protected:
-    virtual int Initialize()
-    {
-        return 0;
-    }
-    virtual void PostInitialize()
-    {
-    }
-    virtual int Update(float /*deltaTime*/)
-    {
-        return 0;
-    }
+    virtual int Initialize();
+    virtual void PostInitialize();
+    virtual int Update(float /*deltaTime*/);
 
 protected:
     std::string name;
@@ -125,7 +118,23 @@ protected:
     std::unique_ptr<Components::IComponentFactory> componentFactory_;
 
     std::atomic_bool simulatePhysics_;
+    std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
 };
+
+const std::string& Scene::GetName() const
+{
+    return name;
+}
+
+void Scene::RegisterParticleEmitFunction(const std::string& name, EmitFunction f)
+{
+    emitPatticlesFunctions_.insert({name, f});
+}
+
+std::optional<EmitFunction> Scene::GetParticleEmitFunction(const std::string& name) const
+{
+    return emitPatticlesFunctions_.count(name) ? emitPatticlesFunctions_.at(name) : std::optional<EmitFunction>();
+}
 
 inline const GameObjects& Scene::GetGameObjects() const
 {
@@ -138,7 +147,7 @@ inline const DayNightCycle& Scene::GetDayNightCycle() const
 }
 
 // Resources
-inline IResourceManager &Scene::GetResourceManager()
+inline IResourceManager& Scene::GetResourceManager()
 {
     return *resourceManager_;
 }
@@ -171,4 +180,4 @@ inline void Scene::SetPhysicsApi(Physics::IPhysicsApi& physicsApi)
 {
     physicsApi_ = &physicsApi;
 }
-}  // GameEngine
+}  // namespace GameEngine

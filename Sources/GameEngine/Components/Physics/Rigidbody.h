@@ -19,12 +19,16 @@ public:
 public:
     Rigidbody& SetMass(float mass);
     Rigidbody& SetIsStatic(bool is);
-    Rigidbody& SetCollisionShape(CollisionShape* collisionShape);
+    Rigidbody& SetCollisionShape(ComponentsType shapeType);
     Rigidbody& SetVelocity(const vec3& velocity);
     float GetMass() const;
     bool IsStatic() const;
     ComponentsType GetCollisionShapeType() const;
     const vec3& GetVelocity() const;
+
+private:
+    void GetCollisionShape();
+    bool isShapeTypeValid(ComponentsType shapeType);
 
 private:
     float mass_;
@@ -33,10 +37,10 @@ private:
     CollisionShape* collisionShape_;
     uint32 rigidBodyId_;
     vec3 velocity_;
+    ComponentsType shapeType_;
 
 public:
     static ComponentsType type;
-    ShapeType shapeType_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -4,5 +4,5 @@
 namespace GameEngine
 {
 class Scene;
-void SaveSceneState(const Scene& scene, const std::string& filename);
+void LoadScene(Scene& scene, const std::string& filename);
 }  // namespace GameEngine

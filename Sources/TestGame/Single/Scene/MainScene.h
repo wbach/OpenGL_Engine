@@ -45,6 +45,7 @@ private:
     void CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position, uint32_t textureIndex = 0, bool isDynamic = false);
     template <typename Shape>
     void AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale, bool isStatic);
+    void CreateExmapleStrtupObject();
 
 private:
     std::shared_ptr<common::Controllers::CharacterController> characterController_;
