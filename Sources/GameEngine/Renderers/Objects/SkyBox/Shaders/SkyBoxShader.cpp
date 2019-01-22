@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-SkyBoxShader::SkyBoxShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::SkyBox)
+SkyBoxShader::SkyBoxShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::SkyBox)
 {
 }
 

@@ -1,5 +1,5 @@
 #include "GrassRenderer.h"
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
@@ -17,7 +17,7 @@ namespace GameEngine
 GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
 {
-    shader_ = context.shaderFactory_.create(Shaders::Grass);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Grass);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, GrassRenderer::Render);
 }
 

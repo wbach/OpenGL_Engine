@@ -8,7 +8,7 @@ namespace GameEngine
 class BlurShader : public ShaderProgram
 {
 public:
-    BlurShader(IGraphicsApi& graphicsApi);
+    BlurShader(GraphicsApi::IGraphicsApi& graphicsApi);
 
 private:
     virtual void BindAttributes() override;

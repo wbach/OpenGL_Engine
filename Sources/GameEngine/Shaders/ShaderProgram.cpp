@@ -7,10 +7,10 @@
 
 namespace GameEngine
 {
-ShaderProgram::ShaderProgram(IGraphicsApi& graphicsApi, Shaders shaderType)
+ShaderProgram::ShaderProgram(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::Shaders shaderType)
     : graphicsApi_(graphicsApi)
     , programID_(0)
-    , shaderFiles_(graphicsApi.GetShaderFiles(shaderType))
+    , shaderType_(shaderType)
 {
 }
 
@@ -20,24 +20,20 @@ ShaderProgram::~ShaderProgram()
 }
 void ShaderProgram::Init()
 {
-    GameEngine::GraphicsApiFunctions f;
-    f[GameEngine::GraphicFunctionType::SHADER_SET_ID] =
+    GraphicsApi::GraphicsApiFunctions f;
+    f[GraphicsApi::GraphicFunctionType::SHADER_SET_ID] =
         std::bind(&ShaderProgram::SetProgramId, this, std::placeholders::_1);
 
-    f[GameEngine::GraphicFunctionType::SHADER_BIND_ATTRIBUTES] =
+    f[GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES] =
         std::bind(&ShaderProgram::BindAttributesFunction, this, std::placeholders::_1);
 
-    f[GameEngine::GraphicFunctionType::SHADER_VARIABLES_LOCATION] =
+    f[GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION] =
         std::bind(&ShaderProgram::GetAllUniformLocationsFunction, this, std::placeholders::_1);
 
-    f[GameEngine::GraphicFunctionType::SHADER_CONNECT_TEXTURES] =
+    f[GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES] =
         std::bind(&ShaderProgram::ConnectTextureUnitsFunction, this, std::placeholders::_1);
 
-    programID_ = graphicsApi_.CreateShader(shaderFiles_, f);
-}
-void ShaderProgram::SetFiles(const GameEngine::ShadersFiles& files)
-{
-    shaderFiles_ = files;
+    programID_ = graphicsApi_.CreateShader(shaderType_, f);
 }
 void ShaderProgram::Reload()
 {
@@ -55,7 +51,7 @@ bool ShaderProgram::IsReady() const
 }
 bool ShaderProgram::IsReadyToLoad() const
 {
-    return !shaderFiles_.empty();
+    return true;
 }
 
 void ShaderProgram::Start() const

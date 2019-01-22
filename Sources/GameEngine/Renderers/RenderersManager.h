@@ -2,7 +2,7 @@
 #include <atomic>
 #include <list>
 #include "GUI/GuiContext.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "Projection.h"
 #include "RendererFunctionType.h"
@@ -24,7 +24,7 @@ class GuiTextureElement;
 class RenderersManager
 {
 public:
-    RenderersManager(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
+    RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
     void Init();
     const Projection& GetProjection() const;
     void RenderScene(Scene* scene);
@@ -50,7 +50,7 @@ private:
     void Render(RendererFunctionType type, Scene* scene);
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;

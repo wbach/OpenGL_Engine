@@ -8,7 +8,7 @@ namespace GameEngine
 class SSAOShader : public ShaderProgram
 {
 public:
-    SSAOShader(IGraphicsApi& graphicsApi);
+    SSAOShader(GraphicsApi::IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations();

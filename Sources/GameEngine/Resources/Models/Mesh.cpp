@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-Mesh::Mesh(IGraphicsApi& graphicsApi)
+Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
 {
 }
 
-Mesh::Mesh(IGraphicsApi& graphicsApi, const Material &material, const mat4& transformMatix)
+Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi, const Material &material, const mat4& transformMatix)
     : graphicsApi_(graphicsApi)
     , material_(material)
     , transform_(transformMatix)
@@ -87,7 +87,7 @@ void Mesh::SetMaterial(const Material& mat)
 
 void Mesh::ClearData()
 {
-    meshRawData_ = GameEngine::MeshRawData();
+    meshRawData_ = GraphicsApi::MeshRawData();
 }
 
 const BoundingBox& Mesh::GetBoundingBox() const

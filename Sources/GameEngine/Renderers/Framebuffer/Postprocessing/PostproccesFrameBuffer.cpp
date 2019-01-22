@@ -1,9 +1,9 @@
 #include "PostproccesFrameBuffer.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
-PostprocessFrameBuffer::PostprocessFrameBuffer(IGraphicsApi& api)
+PostprocessFrameBuffer::PostprocessFrameBuffer(GraphicsApi::IGraphicsApi& api)
     : FrameBuffer(api)
 {
 }
@@ -12,11 +12,12 @@ void PostprocessFrameBuffer::Init(const wb::vec2ui& size)
     CreateFrameBuffer();
     BindToDraw();
 
-    auto texture = graphicsApi_.CreateTexture(TextureType::FLOAT_BUFFER_2D, TextureFilter::NEAREST,
-                                               TextureMipmap::NONE, BufferAtachment::COLOR_1, size, nullptr);
+    auto texture = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_BUFFER_2D,
+                                              GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE,
+                                              GraphicsApi::BufferAtachment::COLOR_1, size, nullptr);
     AddTexture(texture);
 
-    graphicsApi_.SetBuffers({BufferAtachment::COLOR_1});
+    graphicsApi_.SetBuffers({GraphicsApi::BufferAtachment::COLOR_1});
 
     CheckStatus();
 
@@ -25,7 +26,7 @@ void PostprocessFrameBuffer::Init(const wb::vec2ui& size)
 void PostprocessFrameBuffer::Clean()
 {
     BindToDraw();
-    graphicsApi_.ClearBuffers({BufferType::COLOR});
+    graphicsApi_.ClearBuffers({GraphicsApi::BufferType::COLOR});
     UnBind();
 }
-}  // GameEngine
+}  // namespace GameEngine

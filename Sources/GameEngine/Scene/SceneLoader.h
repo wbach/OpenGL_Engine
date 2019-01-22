@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Mutex.hpp"
 #include "Thread.hpp"
@@ -17,7 +17,7 @@ class IShaderFactory;
 class SceneLoader
 {
 public:
-    SceneLoader(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+    SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
                 IShaderFactory& shaderFactory);
     ~SceneLoader();
     bool Load(Scene* scene);
@@ -36,7 +36,7 @@ private:
     void OpenGLLoadingPass(Scene* scene, std::thread& loading_thread);
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     IShaderFactory& shaderFactory_;
 
     int objectCount;

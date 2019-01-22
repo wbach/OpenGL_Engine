@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 
 namespace GameEngine
 {
@@ -12,6 +12,6 @@ public:
     virtual ~IShaderFactory()
     {
     }
-    virtual std::unique_ptr<IShaderProgram> create(Shaders) = 0;
+    virtual std::unique_ptr<IShaderProgram> create(GraphicsApi::Shaders) = 0;
 };
 }  // namespace GameEngine

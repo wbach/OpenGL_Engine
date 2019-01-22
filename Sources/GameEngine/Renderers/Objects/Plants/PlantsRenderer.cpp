@@ -1,6 +1,6 @@
 #include "PlantsRenderer.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
 
 namespace GameEngine
@@ -8,7 +8,7 @@ namespace GameEngine
 PlantsRenderer::PlantsRenderer(RendererContext& context)
     : context_(context)
 {
-    shader_ = context.shaderFactory_.create(Shaders::Plants);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Plants);
 }
 void PlantsRenderer::Init()
 {

@@ -9,16 +9,20 @@
 #include "IntroRenderer.h"
 #include "ThreadSync.h"
 
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}  // namespace GraphicsApi
+
 namespace GameEngine
 {
 class DisplayManager;
 class LoadingScreenRenderer;
-class IGraphicsApi;
 
 class Engine
 {
 public:
-    Engine(std::unique_ptr<IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
+    Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
            SceneFactoryBasePtr sceneFactory);
     ~Engine();
     void Init();
@@ -35,11 +39,11 @@ private:
     void PrepareFrame();
 
 private:
-    std::unique_ptr<IGraphicsApi> graphicsApi_;
+    std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
     std::unique_ptr<Physics::IPhysicsApi> physicsApi_;
     std::shared_ptr<DisplayManager> displayManager;
     Renderer::Gui::GuiContext guiContext_;
-    InputManagerPtr inputManager_;
+    Input::InputManagerPtr inputManager_;
     Renderer::RenderersManager renderersManager_;
     SceneManager sceneManager_;
     ShaderFactory shaderFactory_;

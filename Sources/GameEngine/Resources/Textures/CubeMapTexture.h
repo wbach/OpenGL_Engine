@@ -9,7 +9,7 @@ namespace GameEngine
 class CubeMapTexture : public Texture
 {
 public:
-    CubeMapTexture(IGraphicsApi& graphicsApi, const std::string& name,
+    CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
                     std::vector<Image>& image);
 
     virtual void GpuLoadingPass() override;

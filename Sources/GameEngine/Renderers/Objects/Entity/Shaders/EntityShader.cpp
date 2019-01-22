@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-EntityShader::EntityShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::Entity)
+EntityShader::EntityShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::Entity)
 {
 }
 

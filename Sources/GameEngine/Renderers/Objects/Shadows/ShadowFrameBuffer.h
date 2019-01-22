@@ -2,14 +2,16 @@
 #include "IShadowFrameBuffer.hpp"
 #include "Utils/Utils.h"
 
-namespace GameEngine
+namespace GraphicsApi
 {
 class IGraphicsApi;
-
+}  // namespace GraphicsApi
+namespace GameEngine
+{
 class ShadowFrameBuffer : public IShadowFrameBuffer
 {
 public:
-    ShadowFrameBuffer(IGraphicsApi& graphicsApi);
+    ShadowFrameBuffer(GraphicsApi::IGraphicsApi& graphicsApi);
     virtual ~ShadowFrameBuffer();
 
     void BindFBO();
@@ -18,7 +20,7 @@ public:
     uint32 GetShadowMap() const;
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     uint32 fbo;
     uint32 shadowMap;
 

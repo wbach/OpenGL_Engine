@@ -3,14 +3,16 @@
 #include "IFrameBuffer.h"
 #include "Types.h"
 
-namespace GameEngine
+namespace GraphicsApi
 {
 class IGraphicsApi;
-
+} // GraphicsApi
+namespace GameEngine
+{
 class FrameBuffer : public IFrameBuffer
 {
 public:
-    FrameBuffer(IGraphicsApi& api);
+    FrameBuffer(GraphicsApi::IGraphicsApi& api);
     virtual void Init(const wb::vec2ui& size) = 0;
     virtual void Clean() override
     {
@@ -33,7 +35,7 @@ protected:
     void CleanTexures();
 
 protected:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     bool isInitialized = false;
     uint32 fbo;
     uint32 depthTexture;

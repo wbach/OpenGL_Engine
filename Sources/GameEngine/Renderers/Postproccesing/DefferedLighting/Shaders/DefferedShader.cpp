@@ -6,8 +6,8 @@
 
 namespace GameEngine
 {
-DefferedShader::DefferedShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::Deffered)
+DefferedShader::DefferedShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::Deffered)
 {
 
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "BoundingBox.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Material.h"
 #include "MeshRawData.h"
 #include "Types.h"
@@ -12,8 +12,8 @@ namespace GameEngine
 class Mesh : public GpuObject
 {
 public:
-    Mesh(IGraphicsApi& graphicsApi);
-    Mesh(IGraphicsApi& graphicsApi, const Material& material, const mat4& transformMatix = mat4(1.f));
+    Mesh(GraphicsApi::IGraphicsApi& graphicsApi);
+    Mesh(GraphicsApi::IGraphicsApi& graphicsApi, const Material& material, const mat4& transformMatix = mat4(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&)      = default;
     virtual ~Mesh();
@@ -28,8 +28,8 @@ public:
     uint32 GetObjectId() const;
     const Material& GetMaterial() const;
     inline const mat4& GetMeshTransform() const;
-    inline MeshRawData& GetMeshDataRef();
-    inline const MeshRawData& GetCMeshDataRef() const;
+    inline GraphicsApi::MeshRawData& GetMeshDataRef();
+    inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
 private:
     void CreateMesh();
@@ -39,8 +39,8 @@ private:
     void ClearData();
 
 private:
-    IGraphicsApi& graphicsApi_;
-    MeshRawData meshRawData_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
+    GraphicsApi::MeshRawData meshRawData_;
     Material material_;
     uint32 objectId_;
 
@@ -58,12 +58,12 @@ const mat4& Mesh::GetMeshTransform() const
     return transform_;
 }
 
-MeshRawData& Mesh::GetMeshDataRef()
+GraphicsApi::MeshRawData& Mesh::GetMeshDataRef()
 {
     return meshRawData_;
 }
 
-inline const MeshRawData& Mesh::GetCMeshDataRef() const
+inline const GraphicsApi::MeshRawData& Mesh::GetCMeshDataRef() const
 {
     return meshRawData_;
 }

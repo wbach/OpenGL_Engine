@@ -9,7 +9,7 @@ namespace GameEngine
 class TreeShader : public ShaderProgram
 {
 public:
-    TreeShader(IGraphicsApi& graphicsApi);
+    TreeShader(GraphicsApi::IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations();

@@ -2,8 +2,8 @@
 #include <atomic>
 #include <list>
 #include <memory>
+#include <optional>
 #include <vector>
-#include "GameEngine/Api/IGraphicsApi.h"
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/IComponentFactory.h"
@@ -16,7 +16,6 @@
 #include "GameEngine/Time/DayNightCycle.h"
 #include "SceneEvents.h"
 #include "Types.h"
-#include <optional>
 //#include "Mutex.hpp"
 
 // Object in scene are in grid (one grid size)
@@ -24,10 +23,14 @@ const uint32 OBJECT_GRID_SIZE = 500;
 // const int grid count y in worlds
 const uint32 OBJECT_GRID_COUNT = 100;
 
+namespace Input
+{
+class InputManager;
+}
+
 namespace GameEngine
 {
 class DisplayManager;
-class InputManager;
 
 namespace Renderer
 {
@@ -76,7 +79,7 @@ public:
     inline IResourceManager& GetResourceManager();
 
     void CreateResourceManger(IResourceManager* resourceManager);
-    void SetInputManager(InputManager* input);
+    void SetInputManager(Input::InputManager* input);
     void SetRenderersManager(Renderer::RenderersManager* manager);
     void SetDisplayManager(DisplayManager* displayManager);
     void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
@@ -96,7 +99,7 @@ protected:
     AddEvent addSceneEvent;
 
     // Renderer::Gui::GuiContext* gui_;
-    InputManager* inputManager_;
+    Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
     Physics::IPhysicsApi* physicsApi_;
@@ -162,7 +165,7 @@ inline void Scene::CreateResourceManger(IResourceManager* resourceManager)
     resourceManager_.reset(resourceManager);
 }
 
-inline void Scene::SetInputManager(InputManager* input)
+inline void Scene::SetInputManager(Input::InputManager* input)
 {
     inputManager_ = input;
 }

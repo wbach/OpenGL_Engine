@@ -1,7 +1,7 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace MmmoRpg
 {
-	void StartGame(std::unique_ptr<GameEngine::IGraphicsApi> gptr);
+	void StartGame(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr);
 }

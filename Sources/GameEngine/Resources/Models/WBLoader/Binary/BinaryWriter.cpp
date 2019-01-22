@@ -104,7 +104,7 @@ void WriteToFile(std::fstream& file, const AnimationClipsMap& animations)
         WriteToFile(file, clip.second);
     }
 }
-void WriteToFile(std::fstream& file, const MeshRawData& data, const Material& material,
+void WriteToFile(std::fstream& file, const GraphicsApi::MeshRawData& data, const Material& material,
                  const mat4& objTransform)
 {
     WriteToFile(file, material.name);

@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 
 namespace GameEngine

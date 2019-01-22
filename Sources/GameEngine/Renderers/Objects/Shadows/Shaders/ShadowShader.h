@@ -7,7 +7,7 @@ namespace GameEngine
 class ShadowShader : public ShaderProgram
 {
 public:
-    ShadowShader(IGraphicsApi& graphicsApi);
+    ShadowShader(GraphicsApi::IGraphicsApi& graphicsApi);
     void GetAllUniformLocations();
     void BindAttributes() override;
     void ConnectTextureUnits() const override;

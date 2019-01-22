@@ -15,7 +15,7 @@ namespace GameEngine
 {
 struct RenderAsLine
 {
-    RenderAsLine(IGraphicsApi& graphicsApi, bool use)
+    RenderAsLine(GraphicsApi::IGraphicsApi& graphicsApi, bool use)
         : graphicsApi_(graphicsApi)
         , use(use)
     {
@@ -27,13 +27,13 @@ struct RenderAsLine
         if (use)
             graphicsApi_.PolygonModeRender();
     }
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     bool use = false;
 };
 
 namespace Renderer
 {
-RenderersManager::RenderersManager(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
+RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , renderAsLines(false)
     , markToReloadShaders_(false)

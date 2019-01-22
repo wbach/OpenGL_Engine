@@ -5,8 +5,8 @@
 
 namespace GameEngine
 {
-BlurShader::BlurShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::Blur)
+BlurShader::BlurShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::Blur)
 {
 
 }

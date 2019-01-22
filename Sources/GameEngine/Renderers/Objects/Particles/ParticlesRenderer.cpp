@@ -9,7 +9,7 @@
 #include "Shaders/ParticlesShadersUniforms.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 
 namespace GameEngine
 {
@@ -33,8 +33,8 @@ ParticlesRenderer::ParticlesRenderer(RendererContext& context)
     , currentUseAnimation(false)
     , textureNumberOfrows(1)
 {
-    shader_ = context.shaderFactory_.create(Shaders::Particles);
-    animatedShader_ = context.shaderFactory_.create(Shaders::AnimatedParticles);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Particles);
+    animatedShader_ = context.shaderFactory_.create(GraphicsApi::Shaders::AnimatedParticles);
     __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, ParticlesRenderer::Render);
 }
 void ParticlesRenderer::Init()
@@ -100,7 +100,7 @@ void ParticlesRenderer::ClearFrame()
 {
     context_.graphicsApi_.EnableCulling();
     context_.graphicsApi_.EnableDepthMask();
-    context_.graphicsApi_.SetBlendFunction(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+    context_.graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
     context_.graphicsApi_.DisableBlend();
 }
 void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)

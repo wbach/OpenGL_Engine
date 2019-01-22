@@ -2,6 +2,9 @@
 ./getAllSourcesAndIncludes.sh
 
 #GUID (or UUID) genreator: https://www.guidgenerator.com/online-guid-generator.aspx
+GraphicsApiId='{c84bf5e8-9a00-48fa-8465-4f55bbeaa7d6}'
+InputId='{d9d08fe8-54bb-421a-a4a3-278046c6d26d}'
+openGlApiId='{930099c9-a434-463e-b8f5-3cdabe4866ec}'
 utilsId='{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}'
 utilsNetworkId='{9D8201EF-3E5A-44CB-95DB-97D5935EF93B}'
 gameEngineId='{E17E8D53-C66F-494E-B495-00EE34A0B66D}'
@@ -16,7 +19,16 @@ CommonId='{5ADAA6FD-1BB7-4369-825D-7777126B7817}'
 #ge='GameEngine:'$gameEngineId':'$utilsId
 #./prepareSolution.sh name:id:dependID...:dependId...:..
 echo "Generate VisualStudio solution"
-./prepareSolution.sh 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId:$utilsId:$utilsNetworkId:$CommonId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
+./prepareSolution.sh 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId:$InputId:$utilsId:$utilsNetworkId:$CommonId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
+
+echo "Generate VisualStudio OpenGLApi project"
+./prepareProject.sh OpenGLApi ../Solutions/CMake/Sources/OpenGLApiSources.cmake ../Solutions/CMake/Includes/OpenGLApiIncludes.cmake $openGlApiId StaticLibrary > ../Sources/OpenGLApi/OpenGLApi.vcxproj
+
+echo "Generate VisualStudio GraphicsApi project"
+./prepareProject.sh GraphicsApi ../Solutions/CMake/Sources/GraphicsApiSources.cmake ../Solutions/CMake/Includes/GraphicsApiIncludes.cmake $GraphicsApiId StaticLibrary > ../Sources/GraphicsApi/GraphicsApi.vcxproj
+
+echo "Generate VisualStudio Input project"
+./prepareProject.sh Input ../Solutions/CMake/Sources/InputSources.cmake ../Solutions/CMake/Includes/InputIncludes.cmake $InputId StaticLibrary > ../Sources/Input/Input.vcxproj
 
 echo "Generate VisualStudio GameEngine project"
 ./prepareProject.sh GameEngine ../Solutions/CMake/Sources/GameEngineSources.cmake ../Solutions/CMake/Includes/GameEngineIncludes.cmake $gameEngineId StaticLibrary  > ../Sources/GameEngine/GameEngine.vcxproj
@@ -25,7 +37,7 @@ echo "Generate VisualStudio Common project"
 ./prepareProject.sh Common ../Solutions/CMake/Sources/CommonSources.cmake ../Solutions/CMake/Includes/CommonIncludes.cmake $CommonId StaticLibrary Utils > ../Sources/Common/Common.vcxproj
 
 echo "Generate VisualStudio TestGame project"
-./prepareProject.sh TestGame ../Solutions/CMake/Sources/TestGameSources.cmake ../Solutions/CMake/Includes/TestGameIncludes.cmake $testGameId Application GameEngine Utils  UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
+./prepareProject.sh TestGame ../Solutions/CMake/Sources/TestGameSources.cmake ../Solutions/CMake/Includes/TestGameIncludes.cmake $testGameId Application GameEngine Input OpenGLApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
 
 echo "Generate VisualStudio RpgGameServer project"
 ./prepareProject.sh RpgGameServer ../Solutions/CMake/Sources/RpgGameServerSources.cmake ../Solutions/CMake/Includes/RpgGameServerIncludes.cmake $testGameId Application Utils UtilsNetwork Common > ../Sources/RpgGameServer/RpgGameServer.vcxproj

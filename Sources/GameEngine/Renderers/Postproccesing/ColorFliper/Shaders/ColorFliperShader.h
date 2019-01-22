@@ -8,7 +8,7 @@ namespace GameEngine
 class ColorFliperShader : public ShaderProgram
 {
 public:
-    ColorFliperShader(IGraphicsApi& graphicsApi);
+    ColorFliperShader(GraphicsApi::IGraphicsApi& graphicsApi);
 
 private:
     virtual void BindAttributes() override;

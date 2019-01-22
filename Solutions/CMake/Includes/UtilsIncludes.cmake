@@ -3,7 +3,6 @@ set(UtilsIncludes
 ../../Sources/Utils/EngineUitls.h
 ../../Sources/Utils/GLM/GLMUtils.h
 ../../Sources/Utils/Logger/Log.h
-../../Sources/Utils/OpenGL/OpenGLUtils.h
 ../../Sources/Utils/ParseUtils.h
 ../../Sources/Utils/Pathes.h
 ../../Sources/Utils/SingleTon.h

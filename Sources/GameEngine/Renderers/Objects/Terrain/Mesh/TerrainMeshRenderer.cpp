@@ -21,7 +21,7 @@ TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     : context_(context)
     , clipPlane(vec4(0, 1, 0, 100000))
 {
-    shader_ = context.shaderFactory_.create(Shaders::TerrainMesh);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::TerrainMesh);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainMeshRenderer::Render);
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()

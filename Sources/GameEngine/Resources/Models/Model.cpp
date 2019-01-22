@@ -46,7 +46,7 @@ Mesh* Model::AddMesh(Mesh& mesh)
     return &meshes_.back();
 }
 
-Mesh* Model::AddMesh(IGraphicsApi& api)
+Mesh* Model::AddMesh(GraphicsApi::IGraphicsApi& api)
 {
     meshes_.emplace_back(api);
     return &meshes_.back();

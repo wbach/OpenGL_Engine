@@ -28,7 +28,7 @@ struct Rigidbody
 
 struct BulletAdapter::Pimpl
 {
-    Pimpl(IGraphicsApi& graphicsApi)
+    Pimpl(GraphicsApi::IGraphicsApi& graphicsApi)
         : graphicsApi_(graphicsApi)
     {
         // auto trimesh = new btTriangleMesh();
@@ -64,7 +64,7 @@ struct BulletAdapter::Pimpl
     std::unordered_map<uint32, Rigidbody> staticRigidBodies;
     std::unordered_map<uint32, common::Transform*> transforms;
     std::unordered_map<uint32, Shape> shapes_;
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
 };
 void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody)
 {
@@ -87,7 +87,7 @@ void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>
     rigidBodies.erase(id);
     transforms.erase(id);
 }
-BulletAdapter::BulletAdapter(IGraphicsApi& graphicsApi)
+BulletAdapter::BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi)
     : simulationStep_(1.f / 60.f)
     , simualtePhysics_(true)
     , id_(1)

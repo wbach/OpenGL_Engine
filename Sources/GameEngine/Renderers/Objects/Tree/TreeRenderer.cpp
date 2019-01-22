@@ -15,7 +15,7 @@ namespace GameEngine
 TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
 {
-    shader_ = context.shaderFactory_.create(Shaders::Tree);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Tree);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TreeRenderer::Render);
 }
 void TreeRenderer::Init()
@@ -97,8 +97,8 @@ void TreeRenderer::PreparePositionMap(TreeSubscriber& sub)
     if (sub.textureInGpu)
         return;
 
-    sub.positionTexture = context_.graphicsApi_.CreateTexture(TextureType::FLOAT_TEXTURE_3C, TextureFilter::NEAREST,
-                                                               TextureMipmap::NONE, BufferAtachment::NONE,
+    sub.positionTexture = context_.graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::NEAREST,
+        GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
                                                                vec2ui(sub.positions->size(), 1), &(*sub.positions)[0]);
     sub.textureInGpu = true;
 }

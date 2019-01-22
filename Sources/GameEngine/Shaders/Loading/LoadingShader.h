@@ -7,7 +7,7 @@ namespace GameEngine
 class LoadingShader : public ShaderProgram
 {
 public:
-    LoadingShader(IGraphicsApi&);
+    LoadingShader(GraphicsApi::IGraphicsApi&);
     void ConnectTextureUnits() const override;
 
     void GetAllUniformLocations() override;

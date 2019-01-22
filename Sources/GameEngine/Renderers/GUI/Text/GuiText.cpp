@@ -6,12 +6,12 @@
 
 namespace GameEngine
 {
-GuiText::GuiText(IGraphicsApi& graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory)
+GuiText::GuiText(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& font_file, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , fontFile(font_file)
     , defaultScale_(0.0005f, 0.001f)
 {
-    shader_ = shaderFactory.create(Shaders::Font);
+    shader_ = shaderFactory.create(GraphicsApi::Shaders::Font);
 }
 
 void GuiText::UnSubscribeAll()

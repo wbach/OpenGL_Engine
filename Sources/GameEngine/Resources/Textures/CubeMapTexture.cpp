@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-CubeMapTexture::CubeMapTexture(IGraphicsApi& graphicsApi, const std::string& name,
+CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
                                  std::vector<Image>& image)
     : Texture(graphicsApi, name, name)
     , images_(std::move(image))

@@ -1,12 +1,12 @@
 #pragma once
 #include <atomic>
-#include "GameEngine/Input/InputManager.h"
+#include "Input/InputManager.h"
 #include "Mutex.hpp"
 #include "Thread.hpp"
 
 namespace GameEngine
 {
-class DummyInputManager : public InputManager
+class DummyInputManager : public Input::InputManager
 {
 public:
     DummyInputManager();

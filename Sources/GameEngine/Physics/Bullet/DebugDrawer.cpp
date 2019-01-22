@@ -1,12 +1,12 @@
 #include "DebugDrawer.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Converter.h"
 
 namespace GameEngine
 {
 namespace Physics
 {
-BulletDebugDrawer::BulletDebugDrawer(IGraphicsApi& graphicsApi)
+BulletDebugDrawer::BulletDebugDrawer(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
 {
 }

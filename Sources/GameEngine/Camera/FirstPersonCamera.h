@@ -1,20 +1,24 @@
 #pragma once
 #include "Camera.h"
 
+namespace Input
+{
+    class InputManager;
+} // input
+
 namespace GameEngine
 {
-class InputManager;
 class DisplayManager;
 
 class FirstPersonCamera : public BaseCamera
 {
 public:
-    FirstPersonCamera(InputManager* input_manager, DisplayManager* display_manager);
-    FirstPersonCamera(InputManager* input_manager, DisplayManager* display_manager, float mouse_velocity,
+    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager);
+    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager, float mouse_velocity,
                       float move_velocity);
-    FirstPersonCamera(InputManager* input_manager, DisplayManager* display_manager, vec3& position_entity,
+    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager, vec3& position_entity,
                       vec3& rotation_entity);
-    FirstPersonCamera(InputManager* input_manager, DisplayManager* display_manager, float mouse_velocity,
+    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager, float mouse_velocity,
                       float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
 
     void Move() override;
@@ -37,7 +41,7 @@ private:
     void LockYaw();
 
 private:
-    InputManager* inputManager;
+    Input::InputManager* inputManager;
     DisplayManager* displayManager;
 
     vec3& lookPosition;

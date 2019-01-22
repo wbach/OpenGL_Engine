@@ -20,7 +20,7 @@ struct Header
     uint32 height;
 };
 
-TextureLoader::TextureLoader(IGraphicsApi& graphicsApi, std::vector<std::unique_ptr<Texture>>& textures_vector,
+TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, std::vector<std::unique_ptr<Texture>>& textures_vector,
                              std::shared_ptr<IGpuResourceLoader> gpuLoader)
     : graphicsApi_(graphicsApi)
     , textures_(textures_vector)
@@ -302,7 +302,7 @@ void TextureLoader::SetHeightMapFactor(float factor)
     heightMapFactor_ = factor;
 }
 
-IGraphicsApi& TextureLoader::GetGraphicsApi()
+GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()
 {
     return graphicsApi_;
 }

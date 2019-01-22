@@ -7,10 +7,10 @@
 
 namespace GameEngine
 {
-SceneManager::SceneManager(IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi,
+SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi,
                            SceneFactoryBasePtr sceneFactory, std::shared_ptr<DisplayManager>& displayManager,
                            IShaderFactory& shaderFactory,
-                           std::shared_ptr<InputManager>& inputManager, Renderer::RenderersManager& renderersManager,
+                           std::shared_ptr<Input::InputManager>& inputManager, Renderer::RenderersManager& renderersManager,
                            Renderer::Gui::GuiContext& guiContext)
     : grahpicsApi_(grahpicsApi)
     , physicsApi_(physicsApi)

@@ -9,10 +9,10 @@ namespace Renderer
 {
 namespace Gui
 {
-GuiTexture::GuiTexture(IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
+GuiTexture::GuiTexture(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
 {
-    shader_ = shaderFactory.create(Shaders::Texture);
+    shader_ = shaderFactory.create(GraphicsApi::Shaders::Texture);
 }
 GuiTexture::~GuiTexture()
 {

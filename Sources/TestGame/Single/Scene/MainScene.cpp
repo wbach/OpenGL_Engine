@@ -1,6 +1,6 @@
 #include "MainScene.h"
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Api/BlendFunctionsTypes.h"
+#include "GraphicsApi/BlendFunctionsTypes.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
@@ -452,7 +452,7 @@ void MainScene::CreateExmapleStrtupObject()
             .SetParticle(particle)
             .SetTexture("Textures/Particles/water.png")
             .SetParticlesPerSec(10)
-            .SetBlendFunction(BlendFunctionType::ONE)
+            .SetBlendFunction(GraphicsApi::BlendFunctionType::ONE)
             .SetEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
             Particle particle = referenceParticle;
 
@@ -483,7 +483,7 @@ void MainScene::CreateExmapleStrtupObject()
             .SetParticlesPerSec(100)
             .EnableAnimation()
             .SetSpeed(1.f)
-            .SetBlendFunction(BlendFunctionType::SRC_ALPHA)
+            .SetBlendFunction(GraphicsApi::BlendFunctionType::SRC_ALPHA)
             .SetEmitFunction("fire", [](const Particle& referenceParticle) -> Particle {
             Particle particle = referenceParticle;
 

@@ -6,7 +6,7 @@ namespace GameEngine
 class EntityShader : public ShaderProgram
 {
 public:
-    EntityShader(IGraphicsApi& graphicsApi);
+    EntityShader(GraphicsApi::IGraphicsApi& graphicsApi);
     void GetAllUniformLocations();
     void BindAttributes() override;
     void ConnectTextureUnits() const override;

@@ -7,7 +7,7 @@ namespace GameEngine
 class DefferedRenderer : public BaseRenderer
 {
 public:
-    DefferedRenderer(IGraphicsApi& graphicsApi, Projection& projection_matrix, IShaderFactory& shaderFactory,
+    DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix, IShaderFactory& shaderFactory,
                  std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
     ~DefferedRenderer();
     // Loading lights itp to shader

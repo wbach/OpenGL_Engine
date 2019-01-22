@@ -18,7 +18,7 @@ namespace MmmoRpg
 class Game
 {
 public:
-    Game(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
+    Game(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
         : serverAdress(Utils::ReadFile("./server.conf"))
         , engine(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
     {
@@ -39,7 +39,7 @@ private:
     MrpgGameContext gameContext_;
 };
 
-void StartGame(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
+void StartGame(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
 {
     Game game(std::move(gptr));
     // Mock::StartMock();

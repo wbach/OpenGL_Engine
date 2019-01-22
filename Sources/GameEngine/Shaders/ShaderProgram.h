@@ -1,7 +1,7 @@
 #pragma once
 #include <list>
 #include <unordered_map>
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "IShaderProgram.h"
 #include "Types.h"
 #include "Utils.h"
@@ -13,12 +13,11 @@ namespace GameEngine
 class ShaderProgram : public IShaderProgram
 {
 public:
-    ShaderProgram(IGraphicsApi& graphicsApi, Shaders shaderType);
+    ShaderProgram(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::Shaders shaderType);
     virtual ~ShaderProgram();
 
     void Init() override;
     void Reload() override;
-    void SetFiles(const ShadersFiles&) override;
 
     bool IsReady() const override;
     bool IsReadyToLoad() const override;
@@ -62,11 +61,11 @@ protected:
 
 protected:
     std::vector<uint32> uniforms_;
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
 
 private:
     std::string name_;
     uint32 programID_;
-    ShadersFiles shaderFiles_;
+    GraphicsApi::Shaders shaderType_;
 };
 }  // namespace GameEngine

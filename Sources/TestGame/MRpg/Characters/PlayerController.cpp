@@ -8,7 +8,7 @@
 
 namespace MmmoRpg
 {
-	PlayerController::PlayerController(GameEngine::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway)
+	PlayerController::PlayerController(Input::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway)
 		: gameContext_(gameContext)
 		, inputManager_(manager)
 		, gateway_(gateway)

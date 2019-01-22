@@ -23,7 +23,7 @@
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Api/BlendFunctionsTypes.h"
+#include "GraphicsApi/BlendFunctionsTypes.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "Thread.hpp"
 

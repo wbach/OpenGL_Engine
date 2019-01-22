@@ -20,7 +20,7 @@ public:
     ParticleEffectComponent& SetSpeed(float s);
     ParticleEffectComponent& SetEmitFunction(const std::string& emitFunctionName, EmitFunction f);
     ParticleEffectComponent& SetEmitFunction(EmitFunction f);
-    ParticleEffectComponent& SetBlendFunction(BlendFunctionType type);
+    ParticleEffectComponent& SetBlendFunction(GraphicsApi::BlendFunctionType type);
 
     inline Texture* GetTexture();
     inline ParticleEffectComponent& EnableAnimation();
@@ -29,7 +29,7 @@ public:
     inline uint32 GetParticlesCount() const;
     inline uint32 GetParticleLimit() const;
     inline uint32 GetParticlePerSec() const;
-    inline BlendFunctionType GetBlendType() const;
+    inline GraphicsApi::BlendFunctionType GetBlendType() const;
     inline std::vector<Particle>& GetParticles();
     inline const Particle& GetReferenceParticle() const;
     inline const std::string& GetTextureFile() const;
@@ -57,7 +57,7 @@ private:
     std::vector<Particle> particles_;
     bool isAnimated_;
     EmitFunction emitFunction_;
-    BlendFunctionType blendFunction_;
+    GraphicsApi::BlendFunctionType blendFunction_;
     float rest;
     std::string textureFile_;
     std::string emitFunctionName_;
@@ -91,7 +91,7 @@ float ParticleEffectComponent::GetParticleSpeed() const
 {
     return particlesSpeed_;
 }
-BlendFunctionType ParticleEffectComponent::GetBlendType() const
+GraphicsApi::BlendFunctionType ParticleEffectComponent::GetBlendType() const
 {
     return blendFunction_;
 }

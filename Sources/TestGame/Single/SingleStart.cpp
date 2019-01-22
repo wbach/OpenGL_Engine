@@ -7,9 +7,9 @@
 using namespace GameEngine;
 using namespace GameEngine::Physics;
 
-void TestGame::TestGameStart(std::unique_ptr<GameEngine::IGraphicsApi> gptr)
+void TestGame::TestGameStart(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
 {
-    IGraphicsApi& ptr = *gptr;
+    GraphicsApi::IGraphicsApi& ptr = *gptr;
     Engine engine(std::move(gptr), std::make_unique<BulletAdapter>(ptr), std::make_shared<TestSceneFactory>());
     engine.Init();
     // engine.sceneManager_.AddScene(new MainScene(engine));

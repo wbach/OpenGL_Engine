@@ -60,7 +60,7 @@ int LoginScene::Initialize()
 
     inputManager_->SubscribeOnAnyKeyPress([&](KeyCodes::Type key) {
         std::string* tmp = loginOrPasswordInput ? &password_ : &login_;
-        auto c           = GameEngine::KeyCodeToCharConverter::Convert(key);
+        auto c           = Input::KeyCodeToCharConverter::Convert(key);
 
         if (c != 0)
             (*tmp) += c;

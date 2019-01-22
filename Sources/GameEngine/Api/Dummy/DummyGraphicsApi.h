@@ -1,24 +1,25 @@
 #pragma once
-#include "../IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "GraphicsApi/ShaderFiles.h"
 #include "DummyWindowApi.h"
 
 namespace GameEngine
 {
-class DummyGraphicsApi : public IGraphicsApi
+class DummyGraphicsApi : public GraphicsApi::IGraphicsApi
 {
 public:
     DummyGraphicsApi()
     {
         dummyWindowApiPtr_ = std::make_shared<DummyWindowApi>();
     }
-    virtual IWindowApiPtr GetWindowApi() override
+    virtual GraphicsApi::IWindowApiPtr GetWindowApi() override
     {
         return dummyWindowApiPtr_;
     }
     virtual void Init() override
     {
     }
-    virtual void SetShaderQuaility(ShaderQuaility) override
+    virtual void SetShaderQuaility(GraphicsApi::ShaderQuaility) override
     {
     }
     virtual void CreateContext() override
@@ -45,18 +46,18 @@ public:
     virtual void PrepareFrame() override
     {
     }
-    virtual uint32 CreateShader(const ShadersFiles&, GraphicsApiFunctions functions) override
+    virtual uint32 CreateShader(GraphicsApi::Shaders, GraphicsApi::GraphicsApiFunctions functions) override
     {
         auto programId = ++id;
 
-        if (functions.count(GraphicFunctionType::SHADER_SET_ID) != 0)
-            functions.at(GraphicFunctionType::SHADER_SET_ID)(programId);
-        if (functions.count(GraphicFunctionType::SHADER_BIND_ATTRIBUTES) != 0)
-            functions.at(GraphicFunctionType::SHADER_BIND_ATTRIBUTES)(0);
-        if (functions.count(GraphicFunctionType::SHADER_VARIABLES_LOCATION) != 0)
-            functions.at(GraphicFunctionType::SHADER_VARIABLES_LOCATION)(0);
-        if (functions.count(GraphicFunctionType::SHADER_CONNECT_TEXTURES) != 0)
-            functions.at(GraphicFunctionType::SHADER_CONNECT_TEXTURES)(0);
+        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_SET_ID) != 0)
+            functions.at(GraphicsApi::GraphicFunctionType::SHADER_SET_ID)(programId);
+        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES) != 0)
+            functions.at(GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES)(0);
+        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION) != 0)
+            functions.at(GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION)(0);
+        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES) != 0)
+            functions.at(GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES)(0);
 
         return programId;
     }
@@ -100,7 +101,7 @@ public:
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&)
     {
     }
-    virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui,
+    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui,
                                  void* data) override
     {
         return ++id;
@@ -109,13 +110,13 @@ public:
     {
         return ++id;
     }
-    virtual void SetBuffers(const std::vector<BufferAtachment>&) override
+    virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override
     {
     }
-    virtual void ClearBuffer(BufferType) override
+    virtual void ClearBuffer(GraphicsApi::BufferType) override
     {
     }
-    virtual void ClearBuffers(const std::vector<BufferType>&) override
+    virtual void ClearBuffers(const std::vector<GraphicsApi::BufferType>&) override
     {
     }
     virtual void EnableBlend() override
@@ -140,7 +141,7 @@ public:
     {
         return ++id;
     }
-    virtual void BindBuffer(BindType, uint32) override
+    virtual void BindBuffer(GraphicsApi::BindType, uint32) override
     {
     }
     virtual void DeleteObject(uint32) override
@@ -154,7 +155,7 @@ public:
     {
         return ++id;
     }
-    virtual uint32 CreateMesh(const MeshRawData&) override
+    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&) override
     {
         return ++id;
     }
@@ -205,7 +206,7 @@ public:
     virtual void LineModeRender() override
     {
     }
-    virtual void SetBlendFunction(BlendFunctionType) override
+    virtual void SetBlendFunction(GraphicsApi::BlendFunctionType) override
     {
     }
     virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) override
@@ -220,10 +221,6 @@ public:
     virtual uint32 CloneImage(uint32) override
     {
         return ++id;
-    }
-    virtual ShadersFiles GetShaderFiles(Shaders shaderType) override
-    {
-        return {};
     }
     // temp
     virtual void CreateFont(const std::string&) override

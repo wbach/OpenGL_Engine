@@ -2,11 +2,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Animations/AnimationUtils.cpp
 ../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.cpp
 ../../Sources/GameEngine/Api/Dummy/DummyInputManager.cpp
-../../Sources/GameEngine/Api/OpenGL/Font.cpp
-../../Sources/GameEngine/Api/OpenGL/OpenGLApi.cpp
-../../Sources/GameEngine/Api/SDL2/InputSDL.cpp
-../../Sources/GameEngine/Api/SDL2/SdlKeyConverter.cpp
-../../Sources/GameEngine/Api/SDL2/SDLOpenGL.cpp
 ../../Sources/GameEngine/Camera/Camera.cpp
 ../../Sources/GameEngine/Camera/FirstPersonCamera.cpp
 ../../Sources/GameEngine/Camera/Frustrum.cpp
@@ -38,8 +33,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Engine/EngineDef.cpp
 ../../Sources/GameEngine/Engine/EngineMeasurement.cpp
 ../../Sources/GameEngine/Engine/IntroRenderer.cpp
-../../Sources/GameEngine/Input/InputManager.cpp
-../../Sources/GameEngine/Input/KeyCodeToCharConverter.cpp
 ../../Sources/GameEngine/Lights/Light.cpp
 ../../Sources/GameEngine/Objects/GameObject.cpp
 ../../Sources/GameEngine/Physics/Bach/BachPhysicsAdapter.cpp
@@ -122,7 +115,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
 ../../Sources/GameEngine/Resources/ResourceManager.cpp
-../../Sources/GameEngine/Resources/SimpleModels/Quad.cpp
 ../../Sources/GameEngine/Resources/TextureLoader.cpp
 ../../Sources/GameEngine/Resources/textureloadertests.cpp
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.cpp

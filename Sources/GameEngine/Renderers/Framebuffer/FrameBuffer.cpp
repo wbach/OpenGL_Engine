@@ -1,10 +1,10 @@
 #include "FrameBuffer.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-FrameBuffer::FrameBuffer(IGraphicsApi& api)
+FrameBuffer::FrameBuffer(GraphicsApi::IGraphicsApi& api)
     : graphicsApi_(api)
 {
 }
@@ -56,15 +56,15 @@ void FrameBuffer::BindTextures(int offset)
 }
 void FrameBuffer::BindToDraw()
 {
-    graphicsApi_.BindBuffer(BindType::DRAW, fbo);
+    graphicsApi_.BindBuffer(GraphicsApi::BindType::DRAW, fbo);
 }
 void FrameBuffer::Bind()
 {
-    graphicsApi_.BindBuffer(BindType::DEFAULT, fbo);
+    graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, fbo);
 }
 void FrameBuffer::UnBind()
 {
-    graphicsApi_.BindBuffer(BindType::DEFAULT, 0);
+    graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, 0);
 }
 void FrameBuffer::UnBindDraw()
 {

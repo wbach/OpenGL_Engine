@@ -8,7 +8,7 @@ namespace GameEngine
 class WaterShader : public ShaderProgram
 {
 public:
-    WaterShader(IGraphicsApi& graphicsApi);
+    WaterShader(GraphicsApi::IGraphicsApi& graphicsApi);
 
 private:
     void GetAllUniformLocations();

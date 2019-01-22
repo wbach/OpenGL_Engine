@@ -1,102 +1,105 @@
 #pragma once
+#include <list>
 #include "Camera.h"
 #include "Clock.hpp"
 #include "Mutex.hpp"
-#include <list>
 
 namespace common
 {
-	class Transform;
-} // common
+class Transform;
+}  // namespace common
+
+namespace Input
+{
+class InputManager;
+}  // namespace Input
 
 namespace GameEngine
 {
-	class InputManager;
+enum CameraState
+{
+    MOVING,
+    ROTATE_PITCH,
+    ROTATE_YAW,
+    SHAKING
+};
 
+template <class T>
+struct CameraEvent
+{
+    T startValue;
+    T moveValue;
+    float startTime;
+    float endTime;
+};
 
-	enum CameraState
-	{
-		MOVING,
-		ROTATE_PITCH,
-		ROTATE_YAW,
-		SHAKING
-	};
+class ThirdPersonCamera : public BaseCamera
+{
+public:
+    ThirdPersonCamera(Input::InputManager* input_manager, common::Transform* lookAt);
+    virtual ~ThirdPersonCamera() override;
+    void Move() override;
+    void CalculateInput() override;
+    void CalculateZoom(float zoom_lvl) override;
+    void SetLookAtTransform(common::Transform* lookAt);
 
-	template<class T>
-	struct CameraEvent
-	{
-		T startValue;
-		T moveValue;
-		float startTime;
-		float endTime;
-	};
+private:
+    void StaticCameraMove();
+    void SmoothCameraMove();
+    void LockCamera();
+    void SetCaptureMouse(bool capture);
+    void LockPitch();
+    void LockYaw();
+    void CalculateCameraPosition(float horizontal_distance, float vertical_distance);
+    float CalculateHorizontalDistance();
+    float CalculateVerticalDistance();
+    void CalculateYaw();
+    vec2 CalcualteMouseMove();
+    void CalculatePitch(const vec2& d_move);
+    void CalculateAngleAroundPlayer(const vec2& d_move);
+    bool IsOnDestinationPos();
+    bool IsOnDestinationPitch();
+    bool IsOnDestinationYaw();
 
-	class ThirdPersonCamera : public BaseCamera
-	{
-	public:
-		ThirdPersonCamera(InputManager* input_manager, common::Transform* lookAt);
-		virtual ~ThirdPersonCamera() override;
-		void Move() override;
-		void CalculateInput() override;
-		void CalculateZoom(float zoom_lvl) override;
-		void SetLookAtTransform(common::Transform* lookAt);
+    float GetTime() const;
+    bool FindState(CameraState state);
 
-	private:
-		void StaticCameraMove();
-		void SmoothCameraMove();
-		void LockCamera();
-		void SetCaptureMouse(bool capture);
-		void LockPitch();
-		void LockYaw();
-		void CalculateCameraPosition(float horizontal_distance, float vertical_distance);
-		float CalculateHorizontalDistance();
-		float CalculateVerticalDistance();
-		void CalculateYaw();
-		vec2 CalcualteMouseMove();
-		void CalculatePitch(const vec2& d_move);
-		void CalculateAngleAroundPlayer(const vec2& d_move);
-		bool IsOnDestinationPos();
-		bool IsOnDestinationPitch();
-		bool IsOnDestinationYaw();
+    template <class T>
+    T CalculateNewValueInTimeInterval(const CameraEvent<T>& t, float time) const;
 
-		float GetTime() const;
-		bool FindState(CameraState state);
+    template <class T>
+    T ProcessState(CameraEvent<T>& stateInfo, const T& destination, float time, bool& remove);
 
-		template<class T>
-		T CalculateNewValueInTimeInterval(const CameraEvent<T>& t, float time) const;
+    template <class T>
+    void ControlState(CameraEvent<T>& stateInfo, CameraState state, const T& startValue, const T& destination,
+                      float time, bool use);
 
-		template<class T>
-		T ProcessState(CameraEvent<T>& stateInfo, const T& destination, float time, bool& remove);
+private:
+    Input::InputManager* inputManager;
+    common::Transform* lookAt_;
 
-		template<class T>
-		void ControlState(CameraEvent<T>& stateInfo, CameraState state, const T& startValue, const T& destination, float time, bool use);
+    vec3 lookAtPosition_;
+    vec3 lookAtRotataion_;
 
-	private:
-		InputManager* inputManager;
-		common::Transform* lookAt_;
+    bool isShowCursor;
+    vec3 offset;
+    float mousevel;
+    bool captureMouse;
 
-		vec3 lookAtPosition_;
-		vec3 lookAtRotataion_;
+    float destinationYaw;
+    float destinationPitch;
 
-		bool	isShowCursor;
-		vec3	offset;
-		float	mousevel;
-		bool	captureMouse;
+    float moveTime;
+    vec3 destinationPosition;
 
-		float destinationYaw;
-		float destinationPitch;
+    CameraEvent<vec3> moveStateInfo_;
 
-		float moveTime;
-		vec3 destinationPosition;
+    Timepoint referenceTime;
+    std::list<CameraState> states_;
 
-		CameraEvent<vec3> moveStateInfo_;
+    float distanceFromPlayer;
+    float angleAroundPlayer;
 
-		Timepoint referenceTime;
-		std::list<CameraState> states_;
-
-		float distanceFromPlayer;
-		float angleAroundPlayer;
-
-		Utils::CClock clock;
-	};
-} // GameEngine
+    Utils::CClock clock;
+};
+}  // namespace GameEngine

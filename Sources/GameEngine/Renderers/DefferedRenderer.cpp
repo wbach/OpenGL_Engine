@@ -19,7 +19,7 @@
 
 namespace GameEngine
 {
-DefferedRenderer::DefferedRenderer(IGraphicsApi& graphicsApi, Projection& projection, IShaderFactory& shaderFactory,
+DefferedRenderer::DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection, IShaderFactory& shaderFactory,
                                    std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : BaseRenderer(graphicsApi, projection, shaderFactory, rendererFunction)
     , postprocessingRenderersManager_(context_)
@@ -34,7 +34,7 @@ DefferedRenderer::~DefferedRenderer()
 
 void DefferedRenderer::Init()
 {
-    context_.graphicsApi_.SetShaderQuaility(ShaderQuaility::FullDefferedRendering);
+    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
     CreateRenderers();
     context_.defferedFrameBuffer_.Init(context_.projection_.GetWindowSize());
     context_.shadowsFrameBuffer_.InitialiseFrameBuffer();

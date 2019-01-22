@@ -2,7 +2,7 @@
 #include <list>
 #include <string>
 #include "../Model.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "MeshData.h"
 
 namespace GameEngine
@@ -14,7 +14,7 @@ namespace WBLoader
 class AbstractLoader
 {
 public:
-    AbstractLoader(IGraphicsApi& graphicsApi, ITextureLoader& textureLoader);
+    AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader& textureLoader);
     void Parse(const std::string& filename);
     virtual bool CheckExtension(const std::string& filename) = 0;
     virtual std::unique_ptr<Model> Create();
@@ -33,7 +33,7 @@ private:
     float FindMaxFactor() const;
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     std::string fileName_;
     std::string filePath_;
     bool loadedFromBin_;

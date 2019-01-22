@@ -1,11 +1,12 @@
 #include "Engine.h"
 #include "Configuration.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "Input/InputManager.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-Engine::Engine(std::unique_ptr<IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
+Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
                SceneFactoryBasePtr sceneFactory)
     : graphicsApi_(std::move(graphicsApi))
     , physicsApi_(std::move(physicsApi))
@@ -40,7 +41,7 @@ void Engine::SetDisplay()
 
     displayManager =
         std::make_shared<DisplayManager>(*graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
-                                         conf.window.fullScreen ? WindowType::FULL_SCREEN : WindowType::WINDOW);
+                                         conf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW);
     inputManager_ = displayManager->CreateInput();
     introRenderer_.Render();
 }

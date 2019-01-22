@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-FontShader::FontShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::Font)
+FontShader::FontShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::Font)
 {
 }
 

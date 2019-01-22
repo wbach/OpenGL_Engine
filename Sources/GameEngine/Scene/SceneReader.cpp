@@ -166,7 +166,7 @@ void Read(Utils::XmlNode& node, Components::ParticleEffectComponent& component)
     component.SetParticle(particle);
     component.SetTexture(node.GetChild(CSTR_TEXTURE)->value_);
     component.SetParticlesPerSec(std::stoul(node.GetChild(CSTR_PARTICLE_PER_SER)->value_));
-    component.SetBlendFunction(static_cast<BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
+    component.SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
 
     auto emitFunctionName = node.GetChild(CSTR_EMIT_FUNCTION)->value_;
     auto emitFunction     = currentReadingScene->GetParticleEmitFunction(emitFunctionName);

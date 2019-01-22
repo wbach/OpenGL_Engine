@@ -5,8 +5,8 @@
 
 namespace GameEngine
 {
-SSAOShader::SSAOShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::SSAO)
+SSAOShader::SSAOShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::SSAO)
 {
 }
 void SSAOShader::GetAllUniformLocations()

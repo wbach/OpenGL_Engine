@@ -1,0 +1,7 @@
+if(BUILD_GAME_ENGINE OR BUILD_TEST_GAME)
+    include(./Sources/OpenGLApiSources.cmake)
+    add_library(OpenGLApiLib ${OpenGLApiSources})
+    if(BUILD_I386)
+        set_target_properties(OpenGLApiLib PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+    endif()
+endif()

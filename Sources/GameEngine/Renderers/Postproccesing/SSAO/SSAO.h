@@ -1,7 +1,6 @@
 #pragma once
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
 #include "GameEngine/Renderers/Postproccesing/Blur/Blur.h"
-#include "GameEngine/Api/IGraphicsApi.h"
 #include "Shaders/SSAOShader.h"
 
 namespace GameEngine

@@ -10,7 +10,7 @@
 using namespace common::Controllers::CharacterActions;
 
 PlayerInputController::PlayerInputController(GameEngine::Components::Animator* animator,
-                                             GameEngine::InputManager* manager,
+                                             Input::InputManager* manager,
                                              common::Controllers::CharacterController* characterController)
     : inputManager_(manager)
     , animator_(animator)

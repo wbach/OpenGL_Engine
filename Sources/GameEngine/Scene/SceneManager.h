@@ -8,6 +8,11 @@
 #include "ThreadSync.h"
 #include "optional.hpp"
 
+namespace Input
+{
+class InputManager;
+}  // namespace Input
+
 namespace GameEngine
 {
 namespace Renderer
@@ -18,17 +23,14 @@ struct GuiContext;
 }
 
 class RenderersManager;
-}  // Renderer
-
-class InputManager;
+}  // namespace Renderer
 
 class SceneManager
 {
 public:
-    SceneManager(IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi, SceneFactoryBasePtr,
-                 std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory, std::shared_ptr<InputManager>&,
-                 Renderer::RenderersManager&,
-                 Renderer::Gui::GuiContext& guiContext);
+    SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi, SceneFactoryBasePtr,
+                 std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory, std::shared_ptr<Input::InputManager>&,
+                 Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext);
     ~SceneManager();
     Scene* GetActiveScene();
     void InitActiveScene();
@@ -54,7 +56,7 @@ private:
     void JustLoadScene(T scene);
 
 private:
-    IGraphicsApi& grahpicsApi_;
+    GraphicsApi::IGraphicsApi& grahpicsApi_;
     Physics::IPhysicsApi& physicsApi_;
     SceneFactoryBasePtr sceneFactory_;
 
@@ -65,10 +67,10 @@ private:
     std::queue<GameEngine::SceneEvent> events_;
 
     std::shared_ptr<DisplayManager>& displayManager_;
-    std::shared_ptr<InputManager>& inputManager_;
+    std::shared_ptr<Input::InputManager>& inputManager_;
     Renderer::RenderersManager& renderersManager_;
     Renderer::Gui::GuiContext& guiContext_;
 
     Utils::Thread::ThreadSync threadSync_;
 };
-}  // GameEngine
+}  // namespace GameEngine

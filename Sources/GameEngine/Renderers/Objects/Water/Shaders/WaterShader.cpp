@@ -2,8 +2,8 @@
 
 namespace GameEngine
 {
-WaterShader::WaterShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::Water)
+WaterShader::WaterShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::Water)
 {
 }
 

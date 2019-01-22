@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-DisplayManager::DisplayManager(IGraphicsApi& api, const std::string& window_name, const int& w, const int& h,
-                               WindowType type)
+DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h,
+    GraphicsApi::WindowType type)
     : graphicsApi_(api)
     , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
     , sync(true)
@@ -73,7 +73,7 @@ bool DisplayManager::CheckActiveWindow()
     return graphicsApi_.GetWindowApi()->CheckActiveWindow();
 }
 
-std::shared_ptr<InputManager> DisplayManager::CreateInput()
+std::shared_ptr<Input::InputManager> DisplayManager::CreateInput()
 {
     return graphicsApi_.GetWindowApi()->CreateInput();
 }

@@ -3,7 +3,7 @@
 #include "UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
 #include <memory>
 
-namespace GameEngine
+namespace Input
 {
 	class InputManager;
 }
@@ -20,7 +20,7 @@ namespace MmmoRpg
 	class PlayerController
 	{
 	public:
-		PlayerController(GameEngine::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway);
+		PlayerController(Input::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway);
 
 	private:
 		void SendTransformMessage(Network::TransformMessageTypes type, Network::TransformAction action);
@@ -29,7 +29,7 @@ namespace MmmoRpg
 		void SubscribeForPopActions();
 	private:
 		MrpgGameContext& gameContext_;
-		GameEngine::InputManager* inputManager_;
+		Input::InputManager* inputManager_;
 		Network::CGateway& gateway_;
 		std::list<Network::TransformMessageTypes> states_;
 	};

@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Textures/TextureFlip.h"
 #include <optional>
 
@@ -32,6 +32,6 @@ public:
     virtual Texture* LoadHeightMap(const std::string& filename, bool gpu_pass = true) = 0;
     virtual void CreateHeightMap(const std::string& input, const std::string& output) = 0;
     virtual void SetHeightMapFactor(float) = 0;
-    virtual IGraphicsApi& GetGraphicsApi() = 0;
+    virtual GraphicsApi::IGraphicsApi& GetGraphicsApi() = 0;
 };
 }  // namespace GameEngine

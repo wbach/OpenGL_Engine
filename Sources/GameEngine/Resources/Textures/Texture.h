@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "../GpuObject.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "TextureFlip.h"
 #include "Types.h"
 
@@ -14,11 +14,11 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows);
 class Texture : public GpuObject
 {
 public:
-    Texture(IGraphicsApi& graphicsApi)
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi)
         : graphicsApi_(graphicsApi)
     {
     }
-    Texture(IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
              bool applySizeLimit = true);
     virtual ~Texture();
     inline uint32 GetId() const;
@@ -34,7 +34,7 @@ public:
     uint32 numberOfRows = 1;
 
 protected:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     std::string filename;
     std::string fullpath;
 

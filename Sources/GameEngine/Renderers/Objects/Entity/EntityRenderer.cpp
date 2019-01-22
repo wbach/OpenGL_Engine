@@ -1,6 +1,6 @@
 #include "EntityRenderer.h"
 #include "EntityRendererDef.h"
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
@@ -18,7 +18,7 @@ namespace GameEngine
 EntityRenderer::EntityRenderer(RendererContext& context)
     : context_(context)
 {
-    shader_ = context.shaderFactory_.create(Shaders::Entity);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Entity);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, EntityRenderer::Render);
 }
 

@@ -2,14 +2,18 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "Types.h"
+
+namespace Input
+{
+class InputManager;
+} //input
 
 namespace GameEngine
 {
 class Scene;
-class InputManager;
 class DisplayManager;
 
 namespace Renderer
@@ -43,8 +47,8 @@ public:
     bool IsExist(uint32 name) const;
     bool IsExist(const std::string& name) const;
 
-    void SetGraphicsApi(IGraphicsApi& graphicsApi);
-    void SetInputManager(InputManager* input);
+    void SetGraphicsApi(GraphicsApi::IGraphicsApi& graphicsApi);
+    void SetInputManager(Input::InputManager* input);
     void SetDisplayManager(DisplayManager* displayManager);
     void SetRenderersManager(Renderer::RenderersManager* manager);
     void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
@@ -55,12 +59,12 @@ protected:
     void AddScene(const std::string&, CreateFunction);
 
 private:
-    IGraphicsApi* graphicsApi_;
+    GraphicsApi::IGraphicsApi* graphicsApi_;
     Physics::IPhysicsApi* physicsApi_;
     ScenesMap scenesMap_;
     OrderMap orderMap_;
     IdMap idMap_;
-    InputManager* input_;
+    Input::InputManager* input_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* rendererMandager_;
 };

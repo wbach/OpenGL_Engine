@@ -2,16 +2,20 @@
 #include <memory>
 #include "GameEngine/Physics/IPhysicsApi.h"
 
+namespace GraphicsApi
+{
+    class IGraphicsApi;
+} // GraphicsApi
+
 namespace GameEngine
 {
-class IGraphicsApi;
 
 namespace Physics
 {
 class BulletAdapter : public IPhysicsApi
 {
 public:
-    BulletAdapter(IGraphicsApi& graphicsApi);
+    BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi);
     ~BulletAdapter();
     virtual void Simulate() override;
     virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix) override;

@@ -2,7 +2,6 @@ set(UtilsSources
 ../../Sources/Utils/EngineUitls.cpp
 ../../Sources/Utils/GLM/GLMUtils.cpp
 ../../Sources/Utils/Logger/Log.cpp
-../../Sources/Utils/OpenGL/OpenGLUtils.cpp
 ../../Sources/Utils/ParseUtils.cpp
 ../../Sources/Utils/ThreadSync.cpp
 ../../Sources/Utils/Time/TimeMeasurer.cpp

@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-SceneLoader::SceneLoader(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager, IShaderFactory& shaderFactory)
+SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , shaderFactory_(shaderFactory)
     , objectCount(0)

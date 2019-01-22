@@ -10,20 +10,20 @@ const float defaultCamRotationSpeed = 0.2f;
 
 namespace GameEngine
 {
-FirstPersonCamera::FirstPersonCamera(GameEngine::InputManager* input_manager,
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
                                      GameEngine::DisplayManager* display_manager)
     : FirstPersonCamera(input_manager, display_manager, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
 {
 }
 
-FirstPersonCamera::FirstPersonCamera(GameEngine::InputManager* input_manager,
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
                                      GameEngine::DisplayManager* display_manager, float mouse_velocity,
                                      float move_velocity)
     : FirstPersonCamera(input_manager, display_manager, mouse_velocity, move_velocity, zero, zero, false)
 {
 }
 
-FirstPersonCamera::FirstPersonCamera(GameEngine::InputManager* input_manager,
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
                                      GameEngine::DisplayManager* display_manager, vec3& position_entity,
                                      vec3& rotation_entity)
     : FirstPersonCamera(input_manager, display_manager, defaultCamRotationSpeed, defaultCamSpeed, position_entity,
@@ -31,7 +31,7 @@ FirstPersonCamera::FirstPersonCamera(GameEngine::InputManager* input_manager,
 {
 }
 
-FirstPersonCamera::FirstPersonCamera(GameEngine::InputManager* input_manager,
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
                                      GameEngine::DisplayManager* display_manager, float mouse_velocity,
                                      float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera)
     : BaseCamera(9.f, 100.f)

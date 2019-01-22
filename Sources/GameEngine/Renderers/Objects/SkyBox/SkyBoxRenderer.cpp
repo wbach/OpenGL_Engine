@@ -1,5 +1,5 @@
 #include "SkyBoxRenderer.h"
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -18,7 +18,7 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     : context_(context)
     , rotation_(0.f)
 {
-    shader_ = context.shaderFactory_.create(Shaders::SkyBox);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::SkyBox);
     __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkyBoxRenderer::Render);
 }
 

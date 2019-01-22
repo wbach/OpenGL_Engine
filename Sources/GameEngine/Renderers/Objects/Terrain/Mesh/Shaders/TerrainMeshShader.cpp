@@ -7,8 +7,8 @@
 
 namespace GameEngine
 {
-TerrainMeshShader::TerrainMeshShader(IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, Shaders::TerrainMesh)
+TerrainMeshShader::TerrainMeshShader(GraphicsApi::IGraphicsApi& graphicsApi)
+    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::TerrainMesh)
 {
 }
 void TerrainMeshShader::GetAllUniformLocations()

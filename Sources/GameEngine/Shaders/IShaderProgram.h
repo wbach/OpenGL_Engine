@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -11,9 +11,8 @@ public:
     {
     }
 
-    virtual void Init()                        = 0;
-    virtual void Reload()                      = 0;
-    virtual void SetFiles(const ShadersFiles&) = 0;
+    virtual void Init()   = 0;
+    virtual void Reload() = 0;
 
     virtual bool IsReady() const       = 0;
     virtual bool IsReadyToLoad() const = 0;
@@ -34,7 +33,6 @@ public:
     virtual void Load(uint32 varIndex, const std::vector<float>& value) const = 0;
     virtual void Load(uint32 varIndex, const std::vector<vec3>& value) const  = 0;
     virtual void Load(uint32 varIndex, const std::vector<mat4>& value) const  = 0;
-
-    virtual uint32 GetUniformLocation(const std::string& uniformName) const = 0;
+    virtual uint32 GetUniformLocation(const std::string& uniformName) const   = 0;
 };
 }  // namespace GameEngine

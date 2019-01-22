@@ -65,6 +65,7 @@ include_directories(
 )
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/OpenGLApi.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngine.cmake)

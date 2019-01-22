@@ -1,7 +1,7 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace TestGame
 {
-	void TestGameStart(std::unique_ptr<GameEngine::IGraphicsApi> gptr);
+	void TestGameStart(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr);
 }

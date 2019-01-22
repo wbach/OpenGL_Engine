@@ -18,7 +18,7 @@ ParticleEffectComponent::ParticleEffectComponent(const ComponentContext& compone
     , particlesPerSecond_(10)
     , particlesLimit_(10000)
     , isAnimated_(false)
-    , blendFunction_(BlendFunctionType::ALPHA_ONE_MINUS_ALPHA)
+    , blendFunction_(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA)
     , rest(0)
 {
     emitFunction_ = std::bind(&ParticleEffectComponent::DefaultEmitFunction, this, std::placeholders::_1);
@@ -81,7 +81,7 @@ ParticleEffectComponent& ParticleEffectComponent::SetEmitFunction(EmitFunction f
     emitFunction_ = f;
     return *this;
 }
-ParticleEffectComponent& ParticleEffectComponent::SetBlendFunction(BlendFunctionType type)
+ParticleEffectComponent& ParticleEffectComponent::SetBlendFunction(GraphicsApi::BlendFunctionType type)
 {
     blendFunction_ = type;
     return *this;

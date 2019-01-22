@@ -20,7 +20,7 @@
 
 namespace GameEngine
 {
-BaseRenderer::BaseRenderer(IGraphicsApi& graphicsApi, Projection& projection, IShaderFactory& shaderFactory,
+BaseRenderer::BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection, IShaderFactory& shaderFactory,
                            std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : defferedFrameBuffer_(std::make_unique<DefferedFrameBuffer>(graphicsApi))
     , shadowsFrameBuffer_(std::make_unique<ShadowFrameBuffer>(graphicsApi))
@@ -32,7 +32,7 @@ BaseRenderer::~BaseRenderer()
 }
 void BaseRenderer::Init()
 {
-    context_.graphicsApi_.SetShaderQuaility(ShaderQuaility::SimpleForwardRendering);
+    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
     CreateRenderers();
     InitRenderers();
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, BaseRenderer::PreConfigure);
@@ -84,6 +84,6 @@ void BaseRenderer::CreateRenderers()
 }
 void BaseRenderer::PreConfigure(Scene*)
 {
-    context_.graphicsApi_.ClearBuffers({BufferType::COLOR, BufferType::DEPTH});
+    context_.graphicsApi_.ClearBuffers({ GraphicsApi::BufferType::COLOR, GraphicsApi::BufferType::DEPTH});
 }
 }  // namespace GameEngine

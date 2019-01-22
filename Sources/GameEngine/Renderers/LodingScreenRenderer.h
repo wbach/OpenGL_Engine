@@ -1,6 +1,6 @@
 #pragma once
 #include "IRenderer.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -11,7 +11,7 @@ class IShaderFactory;
 class LoadingScreenRenderer : public IRenderer
 {
 public:
-    LoadingScreenRenderer(IGraphicsApi&, Texture* bgTexture, Texture* circleTexture, IShaderFactory& shaderFactory);
+    LoadingScreenRenderer(GraphicsApi::IGraphicsApi&, Texture* bgTexture, Texture* circleTexture, IShaderFactory& shaderFactory);
     ~LoadingScreenRenderer();
     virtual void Init() override;
     void Render(Scene*);
@@ -22,7 +22,7 @@ private:
     void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     std::unique_ptr<IShaderProgram> shader_;
     Texture* circleTexture;
     Texture* backgroundTexture;

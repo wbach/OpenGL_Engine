@@ -25,11 +25,11 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 
     return GetScene(GetSceneName(id));
 }
-void SceneFactoryBase::SetGraphicsApi(IGraphicsApi& graphicsApi)
+void SceneFactoryBase::SetGraphicsApi(GraphicsApi::IGraphicsApi& graphicsApi)
 {
     graphicsApi_ = &graphicsApi;
 }
-void SceneFactoryBase::SetInputManager(InputManager* input)
+void SceneFactoryBase::SetInputManager(Input::InputManager* input)
 {
     input_ = input;
 }

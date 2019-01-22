@@ -46,13 +46,9 @@ OutputType=$5
 
 inputArg=0
 depend=()
-for dep in "$@"
+
+for dep in "${@:6}"
 do
-  inputArg=$((inputArg+1))
-  if [[ $inputArg < 6 ]]; then
-    continue
-  fi
-  
   depend+=($dep)
 done
 
@@ -60,6 +56,8 @@ done
 toolsDir='..\..\Tools\Windows'
 
 additionalIncludesDir='
+..\..\Sources\OpenGLApi;
+..\..\Sources\GraphicsApi;
 ..\..\Sources\Utils;
 ..\..\Sources;
 ..\..\Tools\common\rapidxml-1.13;

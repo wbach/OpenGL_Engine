@@ -6,7 +6,7 @@ namespace GameEngine
 class GrassShader : public ShaderProgram
 {
 public:
-    GrassShader(IGraphicsApi& graphicsApi);
+    GrassShader(GraphicsApi::IGraphicsApi& graphicsApi);
     void ConnectTextureUnits() const override;
     void GetAllUniformLocations() override;
     void BindAttributes() override;

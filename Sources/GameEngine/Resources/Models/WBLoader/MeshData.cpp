@@ -1,6 +1,6 @@
 #include "MeshData.h"
 #include <algorithm>
-#include "../MeshRawData.h"
+#include "GraphicsApi/MeshRawData.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -65,7 +65,7 @@ void ScaleJoint(Animation::Joint& j, float f)
     }
 }
 
-void IndexinVBO(std::vector<VertexBuffer>& buffer, MeshRawData& data)
+void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& data)
 {
     computeTangentBasis(buffer);
     std::unordered_map<wb::vec3i, uint16> out_indexes;

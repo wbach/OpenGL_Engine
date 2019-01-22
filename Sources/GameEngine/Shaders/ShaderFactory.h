@@ -1,19 +1,19 @@
 #pragma once
+#include "GraphicsApi/IGraphicsApi.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "IShaderFactory.h"
-#include "GameEngine/Api/IGraphicsApi.h"
 
 namespace GameEngine
 {
 class IShaderProgram;
 
-
 class ShaderFactory : public IShaderFactory
 {
 public:
-    ShaderFactory(IGraphicsApi& graphicsApi);
-    virtual std::unique_ptr<IShaderProgram> create(Shaders) override;
+    ShaderFactory(GraphicsApi::IGraphicsApi& graphicsApi);
+    virtual std::unique_ptr<IShaderProgram> create(GraphicsApi::Shaders) override;
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
 };
 }  // namespace GameEngine

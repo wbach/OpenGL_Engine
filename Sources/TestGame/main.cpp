@@ -1,6 +1,6 @@
 #include "../GameEngine/Engine/Engine.h"
 #include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
-#include "GameEngine/Api/OpenGL/OpenGLApi.h"
+#include "OpenGLApi/OpenGLApi.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 #include "MRpg/mrpg_main.h"
@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
     GameEngine::ReadFromFile("./Conf.xml");
 
-    auto api = std::make_unique<GameEngine::OpenGLApi>();
+    auto api = std::make_unique<OpenGLApi::OpenGLApi>();
 
     StartMessage();
 

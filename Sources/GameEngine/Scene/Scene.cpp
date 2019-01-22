@@ -3,7 +3,7 @@
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/EngineMeasurement.h"
-#include "GameEngine/Input/InputManager.h"
+#include "Input/InputManager.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Logger/Log.h"

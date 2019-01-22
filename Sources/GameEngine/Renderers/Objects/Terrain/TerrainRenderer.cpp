@@ -20,7 +20,7 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
     , clipPlane(vec4(0, 1, 0, 100000))
     , objectId(0)
 {
-    shader_ = context.shaderFactory_.create(Shaders::Terrain);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Terrain);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
 }
 void TerrainRenderer::Init()

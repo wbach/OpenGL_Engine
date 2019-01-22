@@ -18,7 +18,7 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
     return vec2(GetTextureXOffset(textureIndex, numberOfRows), GetTextureYOffset(textureIndex, numberOfRows));
 }
 
-Texture::Texture(IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath, bool applySizeLimit)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath, bool applySizeLimit)
     : graphicsApi_(graphicsApi)
     , filename(file)
     , fullpath(filepath)

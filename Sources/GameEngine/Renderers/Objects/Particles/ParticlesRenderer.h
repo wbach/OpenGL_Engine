@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Renderers/IRenderer.h"
 
@@ -14,7 +14,7 @@ struct ParticleSubscriber
 {
     bool isAnimated   = false;
     Texture* texture = nullptr;
-    BlendFunctionType blendFunction;
+    GraphicsApi::BlendFunctionType blendFunction;
     std::vector<Particle>* particles = nullptr;
 };
 

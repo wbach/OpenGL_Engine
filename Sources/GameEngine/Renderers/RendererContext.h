@@ -4,10 +4,13 @@
 #include "RendererFunctionType.h"
 #include "Types.h"
 
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}  // namespace GraphicsApi
 namespace GameEngine
 {
 class Projection;
-class IGraphicsApi;
 class IFrameBuffer;
 class IShadowFrameBuffer;
 class PostprocessFrameBuffer;
@@ -15,11 +18,8 @@ class IShaderFactory;
 
 struct RendererContext
 {
-    RendererContext(Projection& projection,
-                    IGraphicsApi& api,
-                    IFrameBuffer& defferedBuffer,
-                    IShadowFrameBuffer& shadowBuffer,
-                    IShaderFactory& shaderFactory,
+    RendererContext(Projection& projection, GraphicsApi::IGraphicsApi& api, IFrameBuffer& defferedBuffer,
+                    IShadowFrameBuffer& shadowBuffer, IShaderFactory& shaderFactory,
                     std::function<void(RendererFunctionType, RendererFunction)> registerFunction)
         : projection_(projection)
         , graphicsApi_(api)
@@ -30,7 +30,7 @@ struct RendererContext
     {
     }
     Projection& projection_;
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     mat4 toShadowMapZeroMatrix_;
     IShaderFactory& shaderFactory_;
     IFrameBuffer& defferedFrameBuffer_;

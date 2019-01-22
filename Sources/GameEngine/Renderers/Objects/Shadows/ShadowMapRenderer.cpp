@@ -1,6 +1,6 @@
 #include "ShadowMapRenderer.hpp"
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Api/ShadersTypes.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
@@ -22,7 +22,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , projectionViewMatrix_(1.f)
     , viewOffset_(Utils::CreateOffset())
 {
-    shader_ = context.shaderFactory_.create(Shaders::Shadows);
+    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Shadows);
     __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
 }
 
@@ -71,7 +71,7 @@ void ShadowMapRenderer::PrepareRender(Scene* scene)
 {
     context_.shadowsFrameBuffer_.BindFBO();
     context_.graphicsApi_.EnableDepthTest();
-    context_.graphicsApi_.ClearBuffer(BufferType::DEPTH);
+    context_.graphicsApi_.ClearBuffer(GraphicsApi::BufferType::DEPTH);
     shadowBox_.Update(scene->GetCamera());
 
     auto cameraPos = scene->GetCamera()->GetPosition();

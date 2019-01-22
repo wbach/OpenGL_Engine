@@ -7,14 +7,14 @@
 
 namespace GameEngine
 {
-LoadingScreenRenderer::LoadingScreenRenderer(IGraphicsApi& api, Texture *bgTexture, Texture *circleTexture,
+LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi& api, Texture *bgTexture, Texture *circleTexture,
                                              IShaderFactory &shaderFactory)
     : graphicsApi_(api)
     , circleTexture(circleTexture)
     , backgroundTexture(bgTexture)
     , transformationMatrix(1.f)
 {
-    shader_ = shaderFactory.create(Shaders::Loading);
+    shader_ = shaderFactory.create(GraphicsApi::Shaders::Loading);
 }
 
 LoadingScreenRenderer::~LoadingScreenRenderer()

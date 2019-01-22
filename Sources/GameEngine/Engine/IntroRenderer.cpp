@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-IntroRenderer::IntroRenderer(IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
+IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
                              IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
@@ -33,7 +33,7 @@ void IntroRenderer::Render()
 }
 void IntroRenderer::Init()
 {
-    shader_ = shaderFactory_.create(Shaders::Loading);
+    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Loading);
     shader_->Init();
     backgroundTexture_ = resorceManager_.GetTextureLaoder().LoadTextureImmediately(
         "GUI/start1.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);

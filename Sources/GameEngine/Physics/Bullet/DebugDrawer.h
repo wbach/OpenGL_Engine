@@ -2,16 +2,18 @@
 #include <LinearMath/btIDebugDraw.h>
 #include "Types.h"
 
-namespace GameEngine
+namespace GraphicsApi
 {
 class IGraphicsApi;
-
+}  // namespace GraphicsApi
+namespace GameEngine
+{
 namespace Physics
 {
 class BulletDebugDrawer : public btIDebugDraw
 {
 public:
-    BulletDebugDrawer(IGraphicsApi& graphicsApi);
+    BulletDebugDrawer(GraphicsApi::IGraphicsApi &graphicsApi);
     void SetMatrices(const mat4 &viewMatrix, const mat4 &projectionMatrix);
     virtual void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color);
     virtual void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &);
@@ -22,7 +24,7 @@ public:
     int m;
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi &graphicsApi_;
 };
 }  // namespace Physics
 }  // namespace GameEngine

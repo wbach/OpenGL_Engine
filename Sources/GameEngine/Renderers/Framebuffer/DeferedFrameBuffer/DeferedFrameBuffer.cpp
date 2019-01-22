@@ -1,9 +1,9 @@
 #include "DeferedFrameBuffer.h"
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
-DefferedFrameBuffer::DefferedFrameBuffer(IGraphicsApi& api)
+DefferedFrameBuffer::DefferedFrameBuffer(GraphicsApi::IGraphicsApi& api)
     : FrameBuffer(api)
 {
 }
@@ -13,21 +13,24 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
     CreateFrameBuffer();
     BindToDraw();
 
-    std::vector<BufferAtachment> atachments = {BufferAtachment::COLOR_1, BufferAtachment::COLOR_2,
-                                               BufferAtachment::COLOR_3, BufferAtachment::COLOR_4};
+    std::vector<GraphicsApi::BufferAtachment> atachments = {
+        GraphicsApi::BufferAtachment::COLOR_1, GraphicsApi::BufferAtachment::COLOR_2,
+        GraphicsApi::BufferAtachment::COLOR_3, GraphicsApi::BufferAtachment::COLOR_4};
 
     for (auto at : atachments)
     {
-        auto texture = graphicsApi_.CreateTexture(TextureType::FLOAT_BUFFER_2D, TextureFilter::NEAREST,
-                                                  TextureMipmap::NONE, at, size, nullptr);
+        auto texture =
+            graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_BUFFER_2D, GraphicsApi::TextureFilter::NEAREST,
+                                       GraphicsApi::TextureMipmap::NONE, at, size, nullptr);
         AddTexture(texture);
     }
 
-    depthTexture = graphicsApi_.CreateTexture(TextureType::DEPTH_BUFFER_2D, TextureFilter::LINEAR, TextureMipmap::NONE,
-                                              BufferAtachment::DEPTH, size, nullptr);
+    depthTexture = graphicsApi_.CreateTexture(GraphicsApi::TextureType::DEPTH_BUFFER_2D,
+                                              GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE,
+                                              GraphicsApi::BufferAtachment::DEPTH, size, nullptr);
 
-    graphicsApi_.SetBuffers(
-        {BufferAtachment::COLOR_1, BufferAtachment::COLOR_2, BufferAtachment::COLOR_3, BufferAtachment::COLOR_4});
+    graphicsApi_.SetBuffers({GraphicsApi::BufferAtachment::COLOR_1, GraphicsApi::BufferAtachment::COLOR_2,
+                             GraphicsApi::BufferAtachment::COLOR_3, GraphicsApi::BufferAtachment::COLOR_4});
 
     CheckStatus();
 
@@ -37,6 +40,6 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
 void DefferedFrameBuffer::Clean()
 {
     BindToDraw();
-    graphicsApi_.ClearBuffers({BufferType::COLOR, BufferType::DEPTH});
+    graphicsApi_.ClearBuffers({GraphicsApi::BufferType::COLOR, GraphicsApi::BufferType::DEPTH});
 }
 }  // namespace GameEngine

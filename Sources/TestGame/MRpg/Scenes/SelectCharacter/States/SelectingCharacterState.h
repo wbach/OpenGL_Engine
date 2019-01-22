@@ -3,9 +3,13 @@
 #include "TestGame/MRpg/Scenes/SelectCharacter/CharacterSlot.h"
 #include "optional.hpp"
 
+namespace Input
+{
+    class InputManager;
+} // Input
+
 namespace GameEngine
 {
-class InputManager;
 namespace Renderer
 {
 class RenderersManager;
@@ -24,7 +28,7 @@ struct MrpgGameContext;
 class SelectingCharacterState : public ISelectState
 {
 public:
-    SelectingCharacterState(GameEngine::InputManager& inputManager, GameEngine::Renderer::RenderersManager& rendererManager, MrpgGameContext& gameContext, std::vector<CharacterSlot>& charactersData);
+    SelectingCharacterState(Input::InputManager& inputManager, GameEngine::Renderer::RenderersManager& rendererManager, MrpgGameContext& gameContext, std::vector<CharacterSlot>& charactersData);
     virtual ~SelectingCharacterState() override;
     virtual void Update() override;
 
@@ -35,7 +39,7 @@ private:
     void SetCurrentChoiceText();
 
 private:
-    GameEngine::InputManager& inputManager_;
+    Input::InputManager& inputManager_;
     GameEngine::Renderer::RenderersManager& rendererManager_;
     MrpgGameContext& gameContext_;
     std::vector<CharacterSlot>& charactersData_;

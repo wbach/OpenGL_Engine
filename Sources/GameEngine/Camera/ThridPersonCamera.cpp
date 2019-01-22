@@ -1,6 +1,6 @@
 #include "ThridPersonCamera.h"
 #include "Common/Transform.h"
-#include "GameEngine/Input/InputManager.h"
+#include "Input/InputManager.h"
 #include "Utils.h"
 #include "Logger/Log.h"
 #include "GLM/GLMUtils.h"
@@ -11,7 +11,7 @@
 
 namespace GameEngine
 {
-	ThirdPersonCamera::ThirdPersonCamera(GameEngine::InputManager* input_manager, common::Transform* look_at)
+	ThirdPersonCamera::ThirdPersonCamera(Input::InputManager* input_manager, common::Transform* look_at)
 		: inputManager(input_manager)
 		, lookAt_(look_at)
 		, isShowCursor(false)

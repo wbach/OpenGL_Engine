@@ -1,0 +1,10 @@
+set(Input
+../../Sources/Input/GameActions.h
+../../Sources/Input/InputManager.h
+../../Sources/Input/KeyCodes.h
+../../Sources/Input/KeyCodeToCharConverter.h
+)
+set(Input
+../../Sources/Input/InputManager.cpp
+../../Sources/Input/KeyCodeToCharConverter.cpp
+)

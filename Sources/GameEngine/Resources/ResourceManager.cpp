@@ -5,7 +5,7 @@
 #include "TextureLoader.h"
 namespace GameEngine
 {
-ResourceManager::ResourceManager(IGraphicsApi& graphicsApi)
+ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
     , gpuLoader_(std::make_shared<GpuResourceLoader>())
     , textureLoader_(std::make_shared<TextureLoader>(graphicsApi, textures_, gpuLoader_))

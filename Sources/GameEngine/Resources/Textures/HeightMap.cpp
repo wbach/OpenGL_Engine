@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-HeightMap::HeightMap(IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                      const std::string& filepath, ImagePtr image)
     : Texture(graphicsApi, file, filepath)
     , image(std::move(image))
@@ -21,8 +21,8 @@ void HeightMap::GpuLoadingPass()
     }
 
     Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-    id = graphicsApi_.CreateTexture(TextureType::FLOAT_TEXTURE_1C, TextureFilter::LINEAR, TextureMipmap::NONE,
-                                     BufferAtachment::NONE, vec2ui(image->width, image->height), &image->floatData[0]);
+    id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE,
+        GraphicsApi::BufferAtachment::NONE, vec2ui(image->width, image->height), &image->floatData[0]);
 
     if (id == 0)
     {

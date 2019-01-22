@@ -1,11 +1,11 @@
 #include "SelectingCharacterState.h"
-#include "GameEngine/Input/InputManager.h"
+#include "Input/InputManager.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "TestGame/MRpg/MrpgGameContext.h"
 
 namespace MmmoRpg
 {
-SelectingCharacterState::SelectingCharacterState(GameEngine::InputManager& inputManager, GameEngine::Renderer::RenderersManager& rendererManager, MrpgGameContext& gameContext, std::vector<CharacterSlot>& charactersData)
+SelectingCharacterState::SelectingCharacterState(Input::InputManager& inputManager, GameEngine::Renderer::RenderersManager& rendererManager, MrpgGameContext& gameContext, std::vector<CharacterSlot>& charactersData)
     : inputManager_(inputManager)
     , rendererManager_(rendererManager)
     , gameContext_(gameContext)

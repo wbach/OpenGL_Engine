@@ -4,7 +4,7 @@
 #include "Common/Hero/Stats.h"
 #include "Components/Animation/Animator.h"
 
-namespace GameEngine
+namespace Input
 {
 class InputManager;
 }
@@ -12,7 +12,7 @@ class InputManager;
 class PlayerInputController
 {
 public:
-    PlayerInputController(GameEngine::Components::Animator* animator, GameEngine::InputManager* manager,
+    PlayerInputController(GameEngine::Components::Animator* animator, Input::InputManager* manager,
                           common::Controllers::CharacterController* characterController);
 
 private:
@@ -25,7 +25,7 @@ private:
     void SetIdleAnim();
 
 private:
-    GameEngine::InputManager* inputManager_;
+    Input::InputManager* inputManager_;
     GameEngine::Components::Animator* animator_;
     common::Controllers::CharacterController* characterController_;
     std::list<common::Controllers::CharacterActions::Type> states_;

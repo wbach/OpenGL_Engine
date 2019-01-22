@@ -1,25 +1,24 @@
 #pragma once
 #include <memory>
 #include <string>
-#include "GameEngine/Api/IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "GraphicsApi/WindowType.h"
 #include "GameEngine/Time/Time.h"
 #include "Time/TimeMeasurer.h"
 #include "Utils.h"
 
 namespace GameEngine
 {
-class Api;
-
 class DisplayManager
 {
 public:
-    DisplayManager(IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, WindowType type);
+    DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, GraphicsApi::WindowType type);
     ~DisplayManager();
     void ProcessEvents();
     void Update();
     void ShowCoursor(bool show);
     bool CheckActiveWindow();
-    std::shared_ptr<InputManager> CreateInput();
+    std::shared_ptr<Input::InputManager> CreateInput();
     void EnableTime()
     {
         time = true;
@@ -38,7 +37,7 @@ public:
     const wb::vec2i& GetWindowSize();
 
 private:
-    IGraphicsApi& graphicsApi_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
     Utils::Time::CTimeMeasurer timeMeasurer;
 
     Time time_;
