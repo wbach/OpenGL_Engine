@@ -27,7 +27,7 @@ if(BUILD_TEST_GAME)
                 LinearMath
           )
     link_directories(${CMAKE_CURRENT_BINARY_DIR}/bullet)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
+    add_subdirectory(${PROJECT_BINARY_DIR}/../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
 
     include_directories(
     ../../Sources/GameEngine/

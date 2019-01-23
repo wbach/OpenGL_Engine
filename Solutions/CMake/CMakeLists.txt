@@ -54,14 +54,19 @@ endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/WindowsSources.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/Unix.cmake)
 
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
+message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
+
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
+    ${PROJECT_BINARY_DIR}/../Tools/common/
+    ${PROJECT_BINARY_DIR}/../Tools/common/glm
+    ${PROJECT_BINARY_DIR}/../Tools/common/bullet/src/
+    ${PROJECT_BINARY_DIR}/../Tools/common/rapidxml-1.13/
 )
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)

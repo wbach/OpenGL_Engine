@@ -193,7 +193,7 @@ void ShaderManager::DeleteShader(uint32 programId)
 {
     auto glId = idPool_.ToGL(programId);
 
-    for (auto& id : shaderPrograms_.at(glId).shaderObjectsList)
+    for (auto& id : shaderPrograms_.at(programId).shaderObjectsList)
     {
         glDetachShader(glId, id);
         glDeleteShader(id);
