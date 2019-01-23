@@ -6,7 +6,7 @@
 #include "GraphicsApi/ShaderTypes.h"
 #include "GraphicsApi/ShadersTypes.h"
 #include "GraphicsApi/FunctionsTypes.h"
-#include "ShaderFiles.h"
+#include "GraphicsApi/ShaderFiles.h"
 #include <GL/glew.h>
 
 namespace OpenGLApi

@@ -1,9 +1,9 @@
 #include "Font.h"
+#include <ft2build.h>
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
-#include <ft2build.h>
 #include <fstream>
 #include <vector>
 #include "GameEngine/Engine/Configuration.h"

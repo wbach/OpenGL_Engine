@@ -2,8 +2,8 @@
 #include <vector>
 #include "BoundingBox.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GraphicsApi/MeshRawData.h"
 #include "Material.h"
-#include "MeshRawData.h"
 #include "Types.h"
 #include "Utils.h"
 

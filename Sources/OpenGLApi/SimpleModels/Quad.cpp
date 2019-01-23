@@ -1,5 +1,5 @@
 #include "Quad.h"
-#include "OpenGLUtils.h"
+#include "OpenGLApi/OpenGLUtils.h"
 
 namespace OpenGLApi
 {

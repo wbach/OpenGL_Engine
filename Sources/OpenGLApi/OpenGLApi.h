@@ -12,6 +12,7 @@ class OpenGLApi : public GraphicsApi::IGraphicsApi
 public:
     OpenGLApi();
     OpenGLApi(GraphicsApi::IWindowApiPtr windowApi);
+    ~OpenGLApi();
     virtual void Init() override;
     virtual void SetShadersFilesLocations(const std::string& path) override;
     virtual void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;

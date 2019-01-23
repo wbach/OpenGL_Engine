@@ -74,6 +74,10 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
     bufferTypeMap_ = {{GraphicsApi::BufferType::COLOR, GL_COLOR_BUFFER_BIT}, {GraphicsApi::BufferType::DEPTH, GL_DEPTH_BUFFER_BIT}};
 }
 
+OpenGLApi::~OpenGLApi()
+{
+}
+
 void OpenGLApi::Init()
 {
     GLint glew_init_result = glewInit();
