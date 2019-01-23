@@ -9,6 +9,11 @@ uint32 IdPool::ToUint(GLuint glId)
 }
 GLuint IdPool::ToGL(uint32 id)
 {
+    if (id <= 0)
+    {
+        return 0;
+    }
+
     return glIds_[id - 1];
 }
 } // namespace GameEngine

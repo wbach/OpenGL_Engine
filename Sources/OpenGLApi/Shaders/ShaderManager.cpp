@@ -6,7 +6,8 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "SimpleForwardShaderFiles.h"
 #include "FullDefferedShaderFiles.h"
-
+#include "SimpleDeprecetedShaders.h"
+#include <iostream>
 namespace OpenGLApi
 {
 namespace
@@ -24,12 +25,22 @@ const std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap =
 }  // namespace
 
 ShaderManager::ShaderManager(IdPool& idPool)
-    : idPool_(idPool)
+    : useDeprectedShaders_(false)
+    , idPool_(idPool)
+    , shaderQuality_(GraphicsApi::ShaderQuaility::FullDefferedRendering)
 {
 }
 
-void ShaderManager::UseShader(uint32)
+void ShaderManager::UseDeprectedShaders()
 {
+    useDeprectedShaders_ = true;
+}
+
+void ShaderManager::UseShader(uint32 id)
+{
+    std::cout << __FUNCTION__ << " " << id << std::endl; 
+    auto usedShader = idPool_.ToGL(id);
+    glUseProgram(usedShader);
 }
 
 void ShaderManager::SetShadersFilesLocations(const std::string& path)
@@ -73,7 +84,7 @@ uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::Graph
     if (!FinalizeShader(programId, functions))
         return false;
 
-    return idPool_.ToGL(programId);
+    return idPool_.ToUint(programId);
 }
 
 bool ShaderManager::AddShader(uint32 programId, const std::string& filename, GraphicsApi::ShaderType mode)
@@ -306,6 +317,14 @@ void ShaderManager::SetShaderQuaility(GraphicsApi::ShaderQuaility q)
 
 GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::Shaders shaderType)
 {
+    std::cout << __FUNCTION__ << (int)shaderQuality_ << std::endl;
+
+    if (useDeprectedShaders_)
+    {
+        std::cout << __FUNCTION__ <<  "D " <<(int)shaderQuality_ << std::endl;
+        return GetSimpleDeprecetedShaders(shaderType);
+    }
+
     switch (shaderQuality_)
     {
         case GraphicsApi::ShaderQuaility::FullDefferedRendering:
@@ -313,6 +332,7 @@ GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::Shaders sha
         case GraphicsApi::ShaderQuaility::SimpleForwardRendering:
             return GetSimpleForwardShaderFiles(shaderType);
     }
+    std::cout << __FUNCTION__ << std::endl;
     return {};
 }
 }  // namespace OpenGLApi

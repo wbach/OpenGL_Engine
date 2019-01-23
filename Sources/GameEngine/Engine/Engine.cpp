@@ -24,6 +24,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
     {
         physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
     });
+    graphicsApi_->SetShadersFilesLocations(EngineConf.files.shaders);
     SetDisplay();
     sceneManager_.SetFactor();
 }

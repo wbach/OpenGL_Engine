@@ -7,6 +7,7 @@ set(OpenGLApiIncludes
 ../../Sources/OpenGLApi/Shaders/OpenGLShaderProgram.h
 ../../Sources/OpenGLApi/Shaders/FullDefferedShaderFiles.h
 ../../Sources/OpenGLApi/Shaders/ShaderManager.h
+../../Sources/OpenGLApi/Shaders/SimpleDeprecetedShaders.h
 ../../Sources/OpenGLApi/Shaders/SimpleForwardShaderFiles.h
 ../../Sources/OpenGLApi/SDL2/SdlKeyConverter.h
 ../../Sources/OpenGLApi/SDL2/SDLOpenGL.h

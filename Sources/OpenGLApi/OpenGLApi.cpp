@@ -98,6 +98,7 @@ void OpenGLApi::Init()
     if (openGLVersion_.x < 4)
     {
         useLowGLversion_ = true;
+        impl_->shaderManager_.UseDeprectedShaders();
     }
 }
 void OpenGLApi::SetShadersFilesLocations(const std::string & path)
@@ -215,8 +216,7 @@ void OpenGLApi::DeleteMesh(uint32 id)
 
 void OpenGLApi::UseShader(uint32 id)
 {
-    usedShader = impl_->idPool_.ToGL(id);
-    glUseProgram(usedShader);
+    impl_->shaderManager_.UseShader(id);
 }
 
 uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string& varname)
