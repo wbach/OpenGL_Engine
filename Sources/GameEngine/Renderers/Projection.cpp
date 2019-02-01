@@ -1,9 +1,15 @@
 #include "Projection.h"
 #include "Utils.h"
 #include "math.hpp"
+#include "Mutex.hpp"
 
 namespace GameEngine
 {
+namespace
+{
+    std::mutex mmutex;
+    std::mutex wmutex;
+}
 Projection::Projection()
     : Projection({640, 480})
 {
@@ -26,7 +32,6 @@ Projection::Projection(const Projection &p)
     , farPlane(p.farPlane)
     , fov(p.fov)
     , projectionMatrix(p.projectionMatrix)
-    , mmutex()
 {
 }
 Projection &Projection::operator=(const Projection &p)
@@ -38,12 +43,12 @@ Projection &Projection::operator=(const Projection &p)
     projectionMatrix = p.projectionMatrix;
     return *this;
 }
-const mat4 &Projection::GetProjectionMatrix()
+const mat4 &Projection::GetProjectionMatrix() const
 {
     std::lock_guard<std::mutex> l(mmutex);
     return projectionMatrix;
 }
-const vec2ui &Projection::GetWindowSize()
+const vec2ui &Projection::GetWindowSize() const
 {
     std::lock_guard<std::mutex> l(wmutex);
     return windowSize;

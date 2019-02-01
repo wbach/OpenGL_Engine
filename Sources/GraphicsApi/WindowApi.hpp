@@ -3,14 +3,17 @@
 #include "ApiMessages.h"
 #include "Types.h"
 #include "WindowType.h"
+#include "Surface.h"
 
 namespace Input
 {
 class InputManager;
-} // namespace Input
+}  // namespace Input
 
 namespace GraphicsApi
 {
+
+
 class IWindowApi
 {
 public:
@@ -27,6 +30,8 @@ public:
     virtual std::shared_ptr<Input::InputManager> CreateInput()                                              = 0;
     virtual double GetTime()                                                                                = 0;
     virtual void SetCursorPosition(int x, int y)                                                            = 0;
+    virtual uint32 OpenFont(const std::string& filename, uint32 size)                                       = 0;
+    virtual Surface RenderFont(uint32 id, const std::string& text, const vec4& color)                       = 0;
     // Take time function to lock fps, shuld be on begin main loop
     virtual void BeginFrame() = 0;
 };

@@ -1,5 +1,4 @@
 #pragma once
-#include "Mutex.hpp"
 #include "Types.h"
 
 namespace GameEngine
@@ -20,8 +19,8 @@ public:
     inline float GetFoV() const;
     inline float GetFar() const;
     inline float GetNear() const;
-    const vec2ui& GetWindowSize();
-    const mat4& GetProjectionMatrix();
+    const vec2ui& GetWindowSize() const;
+    const mat4& GetProjectionMatrix() const;
 
 private:
     vec2ui windowSize;
@@ -29,8 +28,6 @@ private:
     float farPlane;
     float fov;
     mat4 projectionMatrix;
-    std::mutex mmutex;
-    std::mutex wmutex;
 };
 
 float Projection::GetViewDistance() const

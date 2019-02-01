@@ -9,6 +9,7 @@
 #include "IGpuResourceLoader.h"
 #include "Logger/Log.h"
 #include "Textures/CubeMapTexture.h"
+#include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
 #include "Textures/MaterialTexture.h"
 
@@ -20,7 +21,8 @@ struct Header
     uint32 height;
 };
 
-TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, std::vector<std::unique_ptr<Texture>>& textures_vector,
+TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi,
+                             std::vector<std::unique_ptr<Texture>>& textures_vector,
                              std::shared_ptr<IGpuResourceLoader> gpuLoader)
     : graphicsApi_(graphicsApi)
     , textures_(textures_vector)
@@ -114,6 +116,15 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     Log("File: " + file_location + " is loaded.");
 
     return resultImage;
+}
+
+Texture* TextureLoader::CreateTexture(const std::string& name, GraphicsApi::TextureType type,
+                                      GraphicsApi::TextureFilter filter, GraphicsApi::TextureMipmap mimpamp,
+                                      GraphicsApi::BufferAtachment atachment, vec2ui size, void* data)
+{
+    textures_.emplace_back(new GeneralTexture(graphicsApi_, name, size, data));
+    gpuResourceLoader_->AddObjectToGpuLoadingPass(textures_.back().get());
+    return textures_.back().get();
 }
 
 Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit, bool gpu_pass, ObjectTextureType type,

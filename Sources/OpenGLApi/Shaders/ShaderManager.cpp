@@ -1,13 +1,13 @@
 #include "ShaderManager.h"
+#include <iostream>
 #include <unordered_map>
-#include "OpenGLApi/IdPool.h"
+#include "FullDefferedShaderFiles.h"
 #include "Logger/Log.h"
+#include "OpenGLApi/IdPool.h"
+#include "SimpleDeprecetedShaders.h"
+#include "SimpleForwardShaderFiles.h"
 #include "Utils.h"
 #include "glm/gtc/type_ptr.hpp"
-#include "SimpleForwardShaderFiles.h"
-#include "FullDefferedShaderFiles.h"
-#include "SimpleDeprecetedShaders.h"
-#include <iostream>
 namespace OpenGLApi
 {
 namespace
@@ -38,7 +38,6 @@ void ShaderManager::UseDeprectedShaders()
 
 void ShaderManager::UseShader(uint32 id)
 {
-    std::cout << __FUNCTION__ << " " << id << std::endl; 
     auto usedShader = idPool_.ToGL(id);
     glUseProgram(usedShader);
 }
@@ -201,7 +200,7 @@ void ShaderManager::DeleteShader(uint32 programId)
 
     glDeleteProgram(glId);
 
-    shaderPrograms_.erase(glId);
+    shaderPrograms_.erase(programId);
 }
 
 void ShaderManager::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
@@ -321,7 +320,7 @@ GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::Shaders sha
 
     if (useDeprectedShaders_)
     {
-        std::cout << __FUNCTION__ <<  "D " <<(int)shaderQuality_ << std::endl;
+        std::cout << __FUNCTION__ << "D " << (int)shaderQuality_ << std::endl;
         return GetSimpleDeprecetedShaders(shaderType);
     }
 

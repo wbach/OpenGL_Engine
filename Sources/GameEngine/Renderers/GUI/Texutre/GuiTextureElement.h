@@ -26,6 +26,13 @@ public:
         rotation_ = r;
         UpdateTransformMatrix();
     }
+
+    void Flip()
+    {
+        scale_.y *= -1;
+        transformMatrix_ = Utils::CreateTransformationMatrix(position_, scale_, rotation_);
+    }
+
     void SetScale(const vec2& scale)
     {
         scale_ = scale;

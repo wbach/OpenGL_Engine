@@ -11,9 +11,7 @@ class GUIRenderer : public IRenderer
 {
 public:
     GUIRenderer(std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
-    virtual ~GUIRenderer()
-    {
-    }
+    virtual ~GUIRenderer() override;
     virtual void Init() override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
@@ -24,6 +22,6 @@ private:
     void Render(Scene* scene);
 
 private:
-    std::vector<GuiElementPtr> guiElements;
+    std::vector<std::unique_ptr<IGuiElement>> guiElements;
 };
 }  // GameEngine

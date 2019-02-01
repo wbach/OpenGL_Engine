@@ -1,6 +1,5 @@
 #include "MainScene.h"
 #include "GLM/GLMUtils.h"
-#include "GraphicsApi/BlendFunctionsTypes.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
@@ -24,6 +23,7 @@
 #include "GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Image.h"
+#include "GraphicsApi/BlendFunctionsTypes.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
@@ -82,11 +82,27 @@ int MainScene::Initialize()
     renderersManager_->GuiText("cameraPos").m_size   = .5f;
     renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
 
+    auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
+    auto fontSize = windowsSize.y / 10;
+    auto fontId    = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont("E:\\Oswald-Light.ttf", fontSize);
+    auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(
+        fontId, "Oswald-Light.ttf font text.", vec4(0.5, 0.5, 0.5, 1.f));
+
+    auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
+        "FontImage_" + std::to_string(fontImage.id), GraphicsApi::TextureType::U8_RGBA,
+        GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
+        fontImage.size, fontImage.pixels);
+    renderersManager_->GuiTexture("fontTexture").texture = fontTexture;
+    renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
+    float scale = 0.2f;
+    auto s = static_cast<float>(fontImage.size.x) / static_cast<float>(fontImage.size.y);
+    renderersManager_->GuiTexture("fontTexture").SetScale(vec2(scale, scale / s));
+
     RegisterParticleEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
         Particle particle = referenceParticle;
 
-        float dirX = Random() - 0.5f;
-        float dirZ = Random() - 0.5f;
+        float dirX        = Random() - 0.5f;
+        float dirZ        = Random() - 0.5f;
         particle.velocity = vec3(dirX, 1, dirZ);
 
         return particle;
@@ -95,8 +111,8 @@ int MainScene::Initialize()
     RegisterParticleEmitFunction("fire", [](const Particle& referenceParticle) -> Particle {
         Particle particle = referenceParticle;
 
-        float dirX = Random() - 0.5f;
-        float dirZ = Random() - 0.5f;
+        float dirX        = Random() - 0.5f;
+        float dirZ        = Random() - 0.5f;
         particle.velocity = vec3(dirX, 1, dirZ);
 
         float r = 2.f;
@@ -109,19 +125,19 @@ int MainScene::Initialize()
         return particle;
     });
 
-   // CreateExmapleStrtupObject();
+    // CreateExmapleStrtupObject();
     LoadFromFile(sceneFile);
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
     {
-        auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(0, 10), true);
+        auto uplayer   = CreateGameObjectInstance("Player", 1.8f, vec2(0, 10), true);
         auto& animator = uplayer->AddComponent<Components::Animator>().SetAnimation("Idle");
 
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
             "Meshes/DaeAnimationExample/CharacterMultiple.dae");
-        player = uplayer.get();
+        player               = uplayer.get();
         characterController_ = std::make_shared<common::Controllers::CharacterController>(
             player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
         playerInputController_ =
@@ -151,7 +167,10 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
 
     auto& shape = object->AddComponent<Shape>().SetSize(scale);
     shape.SetPostionOffset(shapePositionOffset);
-    object->AddComponent<Components::Rigidbody>().SetIsStatic(isStatic).SetCollisionShape(shape.GetType()).SetVelocity(dir);
+    object->AddComponent<Components::Rigidbody>()
+        .SetIsStatic(isStatic)
+        .SetCollisionShape(shape.GetType())
+        .SetVelocity(dir);
 
     AddGameObject(object);
 }
@@ -296,8 +315,9 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
     auto& terrainShapeComponent =
         object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::displacementMap));
 
-    auto rigidbody =
-        object->AddComponent<Components::Rigidbody>().SetCollisionShape(terrainShapeComponent.GetType()).SetIsStatic(true);
+    auto rigidbody = object->AddComponent<Components::Rigidbody>()
+                         .SetCollisionShape(terrainShapeComponent.GetType())
+                         .SetIsStatic(true);
 
     auto image = terrainShapeComponent.GetHeightMap()->GetImage();
     terrainHeightGetter_.reset(new GameEngine::Components::TerrainHeightGetter(
@@ -441,12 +461,12 @@ void MainScene::CreateExmapleStrtupObject()
         auto particle1 = CreateGameObjectInstance("particle1", 1.f, vec2(5, 10));
 
         Particle particle;
-        particle.position = particle1->worldTransform.GetPosition();
-        particle.velocity = vec3(0, 0.1, 0);
-        particle.rotation = 0;
-        particle.scale = 8;
+        particle.position      = particle1->worldTransform.GetPosition();
+        particle.velocity      = vec3(0, 0.1, 0);
+        particle.rotation      = 0;
+        particle.scale         = 8;
         particle.gravityEffect = true;
-        particle.lifeTime = 2.f;
+        particle.lifeTime      = 2.f;
 
         particle1->AddComponent<Components::ParticleEffectComponent>()
             .SetParticle(particle)
@@ -454,14 +474,14 @@ void MainScene::CreateExmapleStrtupObject()
             .SetParticlesPerSec(10)
             .SetBlendFunction(GraphicsApi::BlendFunctionType::ONE)
             .SetEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
-            Particle particle = referenceParticle;
+                Particle particle = referenceParticle;
 
-            float dirX = Random() - 0.5f;
-            float dirZ = Random() - 0.5f;
-            particle.velocity = vec3(dirX, 1, dirZ);
+                float dirX        = Random() - 0.5f;
+                float dirZ        = Random() - 0.5f;
+                particle.velocity = vec3(dirX, 1, dirZ);
 
-            return particle;
-        });
+                return particle;
+            });
 
         AddGameObject(particle1);
     }
@@ -470,12 +490,12 @@ void MainScene::CreateExmapleStrtupObject()
         auto particle2 = CreateGameObjectInstance("particle2", 1.f, vec2(5, 5));
 
         Particle particle_2;
-        particle_2.position = particle2->worldTransform.GetPosition();
-        particle_2.velocity = vec3(0, 0.01, 0);
-        particle_2.rotation = 0;
-        particle_2.scale = 4;
+        particle_2.position      = particle2->worldTransform.GetPosition();
+        particle_2.velocity      = vec3(0, 0.01, 0);
+        particle_2.rotation      = 0;
+        particle_2.scale         = 4;
         particle_2.gravityEffect = false;
-        particle_2.lifeTime = 2.6f;
+        particle_2.lifeTime      = 2.6f;
 
         particle2->AddComponent<Components::ParticleEffectComponent>()
             .SetParticle(particle_2)
@@ -485,35 +505,35 @@ void MainScene::CreateExmapleStrtupObject()
             .SetSpeed(1.f)
             .SetBlendFunction(GraphicsApi::BlendFunctionType::SRC_ALPHA)
             .SetEmitFunction("fire", [](const Particle& referenceParticle) -> Particle {
-            Particle particle = referenceParticle;
+                Particle particle = referenceParticle;
 
-            float dirX = Random() - 0.5f;
-            float dirZ = Random() - 0.5f;
-            particle.velocity = vec3(dirX, 1, dirZ);
+                float dirX        = Random() - 0.5f;
+                float dirZ        = Random() - 0.5f;
+                particle.velocity = vec3(dirX, 1, dirZ);
 
-            float r = 2.f;
-            particle.position += vec3(dirX, 0.f, dirZ) * r;
+                float r = 2.f;
+                particle.position += vec3(dirX, 0.f, dirZ) * r;
 
-            float l = Random() / 2.f * particle.lifeTime + particle.lifeTime * 0.75f;
+                float l = Random() / 2.f * particle.lifeTime + particle.lifeTime * 0.75f;
 
-            particle.lifeTime = l;
+                particle.lifeTime = l;
 
-            return particle;
-        });
+                return particle;
+            });
 
         AddGameObject(particle2);
     }
 
     CreateAndAddGameEntity("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj", 10.f,
-        vec2(400, 570));
+                           vec2(400, 570));
     AddPhysicObject<Components::BoxShape>("Meshes/Barrel/barrel.obj", vec3(0, 0, 15), vec3(0, -.5f, 0), vec3(0), 1.f,
-        true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_dom.obj", vec3(-15, 0, 10), vec3(0, -1.f, 0), vec3(0),
-        20.f, true);
+                                          true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_dom.obj", vec3(-15, 0, 10), vec3(0, -1.f, 0),
+                                          vec3(0), 20.f, true);
     AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_stajnia.obj", vec3(15, 0, 15), vec3(0, -1.f, 0),
-        vec3(0), 20.f, true);
+                                          vec3(0), 20.f, true);
     AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/well.obj", vec3(2, 0, 15), vec3(0, -.5f, 0), vec3(0), 2.f,
-        true);
+                                          true);
 
     //  CreateAndAddGameEntity("Meshes/sponza/sponza_mod.obj", 60.f, vec2(0, 115));
     //   CreateAndAddGameEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(0, 20));

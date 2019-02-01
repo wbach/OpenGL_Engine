@@ -1,6 +1,8 @@
 #include "SDLOpenGL.h"
 #include <SDL2/SDL.h>
-
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_video.h>
+#include <SDL_ttf.h>
 #include "InputSDL.h"
 #include "Logger/Log.h"
 
@@ -18,15 +20,35 @@ SDL_INIT_EVENTTHREAD
 
 namespace OpenGLApi
 {
+struct SdlOpenGlApi::Pimpl
+{
+    SDL_GLContext glContext;
+    SDL_Window* window;
+    SDL_Event event;
+    std::vector<TTF_Font*> fonts_;
+    std::vector<SDL_Surface*> surfaces_;
+};
+
+SdlOpenGlApi::SdlOpenGlApi()
+{
+    impl_ = std::make_unique<Pimpl>();
+}
+
 SdlOpenGlApi::~SdlOpenGlApi()
 {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
 }
 
-void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height, GraphicsApi::WindowType windowType)
+void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+                                GraphicsApi::WindowType windowType)
 {
     SDL_Init(SDL_INIT_VIDEO);
+
+    if (TTF_Init() == 1)
+    {
+        Error("Failed to init TTF");
+    }
 
     auto flags = CreateWindowFlags(windowType);
     CreateSDLWindow(window_name, width, height, flags);
@@ -36,8 +58,8 @@ void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, ui
 
 void SdlOpenGlApi::CreateContext()
 {
-    glContext = SDL_GL_CreateContext(window);
-    if (glContext)
+    impl_->glContext = SDL_GL_CreateContext(impl_->window);
+    if (impl_->glContext)
         return;
 
     Log("[Error] SDL_GL_CreateContext error.");
@@ -46,24 +68,24 @@ void SdlOpenGlApi::CreateContext()
 void SdlOpenGlApi::DeleteContext()
 {
     Log("CSdlOpenGlApi::~CSdlOpenGlApi() DeleteContext");
-    SDL_GL_DeleteContext(glContext);
+    SDL_GL_DeleteContext(impl_->glContext);
 }
 
 void SdlOpenGlApi::UpdateWindow()
 {
-    SDL_GL_SwapWindow(window);
+    SDL_GL_SwapWindow(impl_->window);
 }
 void SdlOpenGlApi::SetFullScreen(bool full_screen)
 {
     if (full_screen)
-        SDL_SetWindowFullscreen(window, SDL_TRUE);
+        SDL_SetWindowFullscreen(impl_->window, SDL_TRUE);
     else
-        SDL_SetWindowFullscreen(window, SDL_FALSE);
+        SDL_SetWindowFullscreen(impl_->window, SDL_FALSE);
 }
 
 bool SdlOpenGlApi::CheckActiveWindow()
 {
-    return (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+    return (SDL_GetWindowFlags(impl_->window) & SDL_WINDOW_INPUT_FOCUS) != 0;
 }
 
 void SdlOpenGlApi::ShowCursor(bool show)
@@ -73,7 +95,7 @@ void SdlOpenGlApi::ShowCursor(bool show)
 
 std::shared_ptr<Input::InputManager> SdlOpenGlApi::CreateInput()
 {
-    auto input   = std::make_unique<InputSDL>(window);
+    auto input   = std::make_unique<InputSDL>(impl_->window);
     addKeyEvent_ = std::bind(&InputSDL::AddKeyEvent, input.get(), std::placeholders::_1, std::placeholders::_2);
     return input;
 }
@@ -85,7 +107,59 @@ double SdlOpenGlApi::GetTime()
 
 void SdlOpenGlApi::SetCursorPosition(int x, int y)
 {
-    SDL_WarpMouseInWindow(window, x, y);
+    SDL_WarpMouseInWindow(impl_->window, x, y);
+}
+
+uint32 SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
+{
+    auto font = TTF_OpenFont(filename.c_str(), size);
+
+    if (font)
+    {
+        impl_->fonts_.push_back(font);
+        return impl_->fonts_.size();
+    }
+
+    return 0;
+}
+
+GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color)
+{
+    auto index = id - 1;
+    if (index < 0 or index >= impl_->fonts_.size())
+    {
+        return {};
+    }
+    const auto& font = impl_->fonts_[id - 1];
+
+    SDL_Color _color;
+    _color.r = static_cast<uint8>(color.x * 255.f);
+    _color.g = static_cast<uint8>(color.y * 255.f);
+    _color.b = static_cast<uint8>(color.z * 255.f);
+    _color.a = static_cast<uint8>(color.w * 255.f);
+    //_color.r = 255;
+    //_color.g = 255;
+    //_color.b = 255;
+    //_color.a = 255;
+
+    SDL_Color bg;
+    bg.r = 10;
+    bg.g = 10;
+    bg.b = 10;
+    bg.a = 10;
+
+    auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), _color);
+
+    if (not sdlSurface)
+    {
+        Error("Cannot make a text texture" + std::string(SDL_GetError()));
+        return GraphicsApi::Surface();
+    }
+
+    impl_->surfaces_.push_back(sdlSurface);
+
+    return {impl_->surfaces_.size(), vec2ui(sdlSurface->w, sdlSurface->h), sdlSurface->format->BytesPerPixel,
+            sdlSurface->pixels};
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const
@@ -107,10 +181,10 @@ uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const
 
 void SdlOpenGlApi::CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags)
 {
-    window =
+    impl_->window =
         SDL_CreateWindow(window_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 
-    if (window)
+    if (impl_->window)
         return;
 
     Error("SDL_CreateWindow error.");
@@ -125,7 +199,7 @@ void SdlOpenGlApi::BeginFrame()
 void SdlOpenGlApi::ProcessEvents()
 {
     BeginFrame();
-    while (SDL_PollEvent(&event))
+    while (SDL_PollEvent(&impl_->event))
     {
         ProcessSdlEvent();
     }
@@ -133,18 +207,18 @@ void SdlOpenGlApi::ProcessEvents()
 
 void SdlOpenGlApi::ProcessSdlEvent() const
 {
-    switch (event.type)
+    switch (impl_->event.type)
     {
         case SDL_QUIT:
             break;
         case SDL_MOUSEBUTTONDOWN:
             break;
         case SDL_MOUSEWHEEL:
-            if (event.wheel.y == -1)
+            if (impl_->event.wheel.y == -1)
             {
                 addKeyEvent_(SDL_KEYUP, SDL_BUTTON_MIDDLE);
             }
-            else if (event.wheel.y == 1)
+            else if (impl_->event.wheel.y == 1)
             {
                 addKeyEvent_(SDL_KEYDOWN, SDL_BUTTON_MIDDLE);
             }
@@ -166,12 +240,12 @@ void SdlOpenGlApi::ProccesSdlKeyDown(uint32 type) const
     if (addKeyEvent_ == nullptr)
         return;
 
-    if (event.key.repeat != 0)
+    if (impl_->event.key.repeat != 0)
         return;
 
-    auto key      = event.key.keysym.sym;
+    auto key      = impl_->event.key.keysym.sym;
     auto scanCode = SDL_GetScancodeFromKey(key);
 
     addKeyEvent_(type, scanCode);
 }
-}  // GameEngine
+}  // namespace OpenGLApi

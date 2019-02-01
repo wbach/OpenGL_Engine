@@ -356,7 +356,8 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
         glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameterf(textureType, GL_TEXTURE_LOD_BIAS, 0);
     }
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glBindTexture(textureType, 0);
 
     auto rid = impl_->idPool_.ToUint(texture);

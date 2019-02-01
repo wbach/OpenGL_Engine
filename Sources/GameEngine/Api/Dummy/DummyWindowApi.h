@@ -1,6 +1,6 @@
 #pragma once
-#include "GraphicsApi/WindowApi.hpp"
 #include "DummyInputManager.h"
+#include "GraphicsApi/WindowApi.hpp"
 
 namespace GameEngine
 {
@@ -12,7 +12,8 @@ public:
         time                  = 0;
         dummyInputManagerPtr_ = std::make_shared<DummyInputManager>();
     }
-    virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height, GraphicsApi::WindowType type) override
+    virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+                              GraphicsApi::WindowType type) override
     {
     }
     virtual void CreateContext() override
@@ -53,10 +54,16 @@ public:
     virtual void BeginFrame() override
     {
     }
+    virtual uint32 OpenFont(const std::string& filename, uint32 size) override
+    {
+    }
+    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color) override
+    {
+    }
 
 private:
     DummyInputManagerPtr dummyInputManagerPtr_;
     float time;
 };
 typedef std::shared_ptr<DummyWindowApi> DummyWindowApiPtr;
-}
+}  // namespace GameEngine

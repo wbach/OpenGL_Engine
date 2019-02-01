@@ -6,6 +6,9 @@ GUIRenderer::GUIRenderer(std::function<void(RendererFunctionType, RendererFuncti
 {
     rendererFunction(RendererFunctionType::POSTUPDATE, std::bind(&GUIRenderer::Render, this, std::placeholders::_1));
 }
+GUIRenderer::~GUIRenderer()
+{
+}
 void GUIRenderer::Init()
 {
     for (const auto& element : guiElements)

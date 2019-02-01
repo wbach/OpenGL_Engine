@@ -9,6 +9,7 @@ set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/ShaderQuaility.h
 ../../Sources/GraphicsApi/ShadersTypes.h
 ../../Sources/GraphicsApi/ShaderTypes.h
+../../Sources/GraphicsApi/Surface.h
 ../../Sources/GraphicsApi/TextureParamters.h
 ../../Sources/GraphicsApi/TextureTarget.h
 ../../Sources/GraphicsApi/WindowType.h

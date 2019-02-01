@@ -1,19 +1,14 @@
 #pragma once
-#include "Utils.h"
-#include <memory>
+#include "IGuiElement.h"
+#include "Rect.h"
 
 namespace GameEngine
 {
-	class GuiElement
-	{
-	public:
-		virtual ~GuiElement() {}
-		virtual void Init() = 0;
-		virtual void Render() = 0;
-		virtual void UnSubscribeAll() = 0;
-		virtual void ReloadShaders() = 0;
-		vec2 position;
-	};
-
-	typedef std::shared_ptr<GuiElement> GuiElementPtr;
-} // GameEngine
+class GuiElement : public IGuiElement
+{
+protected:
+    Rect rect_;
+    bool show_ = true;
+    std::vector<std::unique_ptr<IGuiElement>> children_;
+};
+}  // namespace GameEngine

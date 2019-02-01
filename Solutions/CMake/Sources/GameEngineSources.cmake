@@ -43,7 +43,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.cpp
-../../Sources/GameEngine/Renderers/GUI/GuiElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiText.cpp

@@ -1,6 +1,4 @@
 #pragma once
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_video.h>
 #include <functional>
 #include <memory>
 #include "GraphicsApi/WindowApi.hpp"
@@ -11,9 +9,10 @@ namespace OpenGLApi
 class SdlOpenGlApi : public GraphicsApi::IWindowApi
 {
 public:
+    SdlOpenGlApi();
     virtual ~SdlOpenGlApi() override;
     virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height,
-        GraphicsApi::WindowType full_screen) override;
+                              GraphicsApi::WindowType full_screen) override;
     virtual void CreateContext() override;
     virtual void DeleteContext() override;
 
@@ -28,6 +27,9 @@ public:
     virtual double GetTime() override;
     virtual void SetCursorPosition(int x, int y) override;
 
+    virtual uint32 OpenFont(const std::string& filename, uint32 size) override;
+    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color) override;
+
 private:
     uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;
     void CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
@@ -37,12 +39,11 @@ private:
     void ProccesSdlKeyDown(uint32 type) const;
 
 private:
-    SDL_GLContext glContext;
-    SDL_Window* window;
-    SDL_Event event;
-    Uint32 startTime;
+    struct Pimpl;
+    std::unique_ptr<Pimpl> impl_;
+    uint32 startTime;
     bool fullScreenActive;
 
     std::function<void(uint32, uint32)> addKeyEvent_;
 };
-}  // GameEngine
+}  // namespace OpenGLApi
