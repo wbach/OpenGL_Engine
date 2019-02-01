@@ -2,6 +2,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXApi", "..\..\Sources\DirectXApi\DirectXApi.vcxproj", "{E2CC3475-9000-4C81-873F-FD93D925E34A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C84BF5E8-9A00-48FA-8465-4F55BBEAA7D6} = {C84BF5E8-9A00-48FA-8465-4F55BBEAA7D6}
+		{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2} = {1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsApi", "..\..\Sources\GraphicsApi\GraphicsApi.vcxproj", "{C84BF5E8-9A00-48FA-8465-4F55BBEAA7D6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D9D08FE8-54BB-421A-A4A3-278046C6D26D} = {D9D08FE8-54BB-421A-A4A3-278046C6D26D}
@@ -71,6 +77,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E2CC3475-9000-4C81-873F-FD93D925E34A}.Debug|x86.ActiveCfg = Debug|Win32
+		{E2CC3475-9000-4C81-873F-FD93D925E34A}.Debug|x86.Build.0 = Debug|Win32
+		{E2CC3475-9000-4C81-873F-FD93D925E34A}.Release|x86.ActiveCfg = Release|Win32
+		{E2CC3475-9000-4C81-873F-FD93D925E34A}.Release|x86.Build.0 = Release|Win32
 		{C84BF5E8-9A00-48FA-8465-4F55BBEAA7D6}.Debug|x86.ActiveCfg = Debug|Win32
 		{C84BF5E8-9A00-48FA-8465-4F55BBEAA7D6}.Debug|x86.Build.0 = Debug|Win32
 		{C84BF5E8-9A00-48FA-8465-4F55BBEAA7D6}.Release|x86.ActiveCfg = Release|Win32

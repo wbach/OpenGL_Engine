@@ -213,6 +213,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/ResourceManager.h
 ../../Sources/GameEngine/Resources/TextureLoader.h
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.h
+../../Sources/GameEngine/Resources/Textures/GeneralTexture.h
 ../../Sources/GameEngine/Resources/Textures/HeightMap.h
 ../../Sources/GameEngine/Resources/Textures/Image.h
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h

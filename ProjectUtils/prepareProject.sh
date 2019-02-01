@@ -1,10 +1,13 @@
 #!/bin/bash
 
 #$1 - Project name
-# ./prepareProject.sh GameEngine ../CMake/Sources/GameEngineSources.cmake ../CMake/Includes/GameEngineIncludes.cmake ProjectGuid outputType depProject... > gameEngine.xml
+# ./prepareProject.sh GameEngine ProjectGuid outputType depProject... > gameEngine.xml
 # outputType : 
 #   StaticLibrary
 #   Application
+
+includeFilePath="../Solutions/CMake/Includes/"$1"Includes.cmake"
+sourceFilePath="../Solutions/CMake/Sources/"$1"Sources.cmake"
 
 sources=()
 while IFS='' read -r line || [[ -n "$line" ]]; do
@@ -17,7 +20,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   #v=${line::-1}
   sources+=($line)
   #($v)
-done < "$2"
+done < "$sourceFilePath"
 
 headers=()
 while IFS='' read -r line || [[ -n "$line" ]]; do
@@ -29,7 +32,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   fi
   #v=#${line::-1}
   headers+=($line)
-done < "$3"
+done < "$includeFilePath"
 
 sdkVersion="10.0.16299.0"
 projectName=$1
@@ -41,13 +44,13 @@ configuration_2=$'== \'Release|Win32\'"'
 configuration_1=$configurationPlatformString$configuration_1
 configuration_2=$configurationPlatformString$configuration_2
 rootConditions=$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'
-ProjectGuid=$4
-OutputType=$5
+ProjectGuid=$2
+OutputType=$3
 
 inputArg=0
 depend=()
 
-for dep in "${@:6}"
+for dep in "${@:4}"
 do
   depend+=($dep)
 done
@@ -76,6 +79,7 @@ additionalIncludesDir='
 ..\..\Tools\Windows\gtest\include;
 ..\..\Tools\Windows\gmock\include;
 ..\..\Tools\common\bullet\src\;
+..\..\Tools\Windows\Directx\Include;
 '
 for d in "${depend[@]}"
 do
@@ -124,7 +128,35 @@ gtest.lib;
 gwen.lib;
 HACD.lib;
 LinearMath.lib;
-OpenGLWindow.lib;'
+OpenGLWindow.lib;
+d2d1.lib;
+d3d10.lib;
+d3d10_1.lib;
+d3d11.lib;
+d3d9.lib;
+d3dcompiler.lib;
+D3DCSX.lib;
+D3DCSXd.lib;
+d3dx10.lib;
+d3dx10d.lib;
+d3dx11.lib;
+d3dx11d.lib;
+d3dx9.lib;
+d3dx9d.lib;
+d3dxof.lib;
+dinput8.lib;
+dsetup.lib;
+dsound.lib;
+dwrite.lib;
+DxErr.lib;
+dxgi.lib;
+dxguid.lib;
+X3DAudio.lib;
+xapobase.lib;
+xapobased.lib;
+XAPOFX.lib;
+XInput.lib;
+'
 for d in "${depend[@]}"
 do
   additionalLibs=$additionalLibs$d'.lib;'
@@ -143,6 +175,7 @@ additionalLibsDir='
 '$toolsDir'\GLFW3\lib-vc2015;
 '$toolsDir'\gtest\lib\x86\Release;
 '$toolsDir'\gmock\lib\x86\Release;
+'$toolsDir'\Directx\Lib\x86;
 ..\..\Tools\common\bullet\lib\Release;
 '
 for d in "${depend[@]}"

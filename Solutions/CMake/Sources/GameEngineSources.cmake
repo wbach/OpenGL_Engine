@@ -117,6 +117,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/TextureLoader.cpp
 ../../Sources/GameEngine/Resources/textureloadertests.cpp
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.cpp
+../../Sources/GameEngine/Resources/Textures/GeneralTexture.cpp
 ../../Sources/GameEngine/Resources/Textures/HeightMap.cpp
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.cpp
 ../../Sources/GameEngine/Resources/Textures/Texture.cpp

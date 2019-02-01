@@ -10,6 +10,7 @@ function createSrc()
     mv $1'Sources.cmake' ./Sources/
 }
 
+createSrc DirectXApi
 createSrc GraphicsApi
 createSrc Input
 createSrc OpenGLApi
