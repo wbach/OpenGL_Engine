@@ -316,11 +316,8 @@ void ShaderManager::SetShaderQuaility(GraphicsApi::ShaderQuaility q)
 
 GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::Shaders shaderType)
 {
-    std::cout << __FUNCTION__ << (int)shaderQuality_ << std::endl;
-
     if (useDeprectedShaders_)
     {
-        std::cout << __FUNCTION__ << "D " << (int)shaderQuality_ << std::endl;
         return GetSimpleDeprecetedShaders(shaderType);
     }
 
@@ -331,7 +328,7 @@ GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::Shaders sha
         case GraphicsApi::ShaderQuaility::SimpleForwardRendering:
             return GetSimpleForwardShaderFiles(shaderType);
     }
-    std::cout << __FUNCTION__ << std::endl;
+
     return {};
 }
 }  // namespace OpenGLApi
