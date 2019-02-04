@@ -1,12 +1,15 @@
 #include "DirectXApi.h"
+#include "WinApi/WinApi.h"
 
+#include <d3d11.h>
+#include <d3dx10.h>
+#include <d3dx11.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dx10.h>
-#include <string>
+#include <D3D11Shader.h>
 #include <xnamath.h>
+#include <string>
+#include "DirectXContext.h"
 
 #undef CreateFont
 
@@ -14,20 +17,72 @@ namespace DirectX
 {
 struct DirectXApi::Pimpl
 {
-
+    DirectXContext dxCondext_;
 };
+
 DirectXApi::DirectXApi()
 {
-}
-DirectXApi::DirectXApi(GraphicsApi::IWindowApiPtr windowApi)
-{
+    impl_      = std::make_unique<Pimpl>();
+    windowApi_ = std::make_shared<WinApi>(impl_->dxCondext_);
+
+    bgColor_[0] = 0.f;
+    bgColor_[1] = .2f;
+    bgColor_[2] = .4f;
+    bgColor_[3] = 1.f;
 }
 DirectXApi::~DirectXApi()
 {
 }
 void DirectXApi::Init()
 {
+    InitRenderTarget();
+    InitDepthSetncilView();
 }
+void DirectXApi::InitRenderTarget()
+{
+    // get the address of the back buffer
+    ID3D11Texture2D *pBackBuffer;
+    impl_->dxCondext_.swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&pBackBuffer);
+
+    // use the back buffer address to create the render target
+    impl_->dxCondext_.dev->CreateRenderTargetView(pBackBuffer, NULL, &impl_->dxCondext_.backbuffer);
+    pBackBuffer->Release();
+
+    // set the render target as the back buffer
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.backbuffer, impl_->dxCondext_.depthStencilView);
+}
+void DirectXApi::InitDepthSetncilView()
+{
+    D3D11_TEXTURE2D_DESC descDepth;
+    ZeroMemory(&descDepth, sizeof(descDepth));
+    descDepth.Width              = impl_->dxCondext_.viewPort.size.x;
+    descDepth.Height             = impl_->dxCondext_.viewPort.size.y;
+    descDepth.MipLevels          = 1;
+    descDepth.ArraySize          = 1;
+    descDepth.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count   = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage              = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags          = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags     = 0;
+    descDepth.MiscFlags          = 0;
+    auto hr = impl_->dxCondext_.dev->CreateTexture2D(&descDepth, NULL, &impl_->dxCondext_.depthStencil);
+    if (FAILED(hr))
+        return;
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+    ZeroMemory(&descDSV, sizeof(descDSV));
+    descDSV.Format             = descDepth.Format;
+    descDSV.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+    hr                         = impl_->dxCondext_.dev->CreateDepthStencilView(impl_->dxCondext_.depthStencil, &descDSV,
+                                                       &impl_->dxCondext_.depthStencilView);
+    if (FAILED(hr))
+        return;
+
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.backbuffer, impl_->dxCondext_.depthStencilView);
+}
+
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
 {
 }
@@ -45,16 +100,22 @@ void DirectXApi::PrintVersion()
 }
 GraphicsApi::IWindowApiPtr DirectXApi::GetWindowApi()
 {
-    return GraphicsApi::IWindowApiPtr();
+    return windowApi_;
 }
 void DirectXApi::PrepareFrame()
 {
+    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.backbuffer, bgColor_);
+    impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 void DirectXApi::SetDefaultTarget()
 {
 }
-void DirectXApi::SetBackgroundColor(const vec3 &)
+void DirectXApi::SetBackgroundColor(const vec3 & bgColor)
 {
+    bgColor_[0] = bgColor.x;
+    bgColor_[1] = bgColor.y;
+    bgColor_[2] = bgColor.z;
+    bgColor_[3] = 1.f;
 }
 void DirectXApi::EnableDepthTest()
 {
@@ -100,6 +161,12 @@ void DirectXApi::LoadValueToShader(uint32, const mat3 &)
 void DirectXApi::LoadValueToShader(uint32, const mat4 &)
 {
 }
+void DirectXApi::LoadValueToShader(uint32, const std::vector<float> &)
+{
+}
+void DirectXApi::LoadValueToShader(uint32, const std::vector<vec3> &)
+{
+}
 void DirectXApi::LoadValueToShader(uint32, const std::vector<mat4> &)
 {
 }
@@ -115,8 +182,13 @@ uint32 DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 void DirectXApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment> &)
 {
 }
-void DirectXApi::ClearBuffer(GraphicsApi::BufferType)
+void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
 {
+    FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
+    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.backbuffer, color);
+
+    if (type == GraphicsApi::BufferType::DEPTH)
+        impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 void DirectXApi::ClearBuffers(const std::vector<GraphicsApi::BufferType> &)
 {

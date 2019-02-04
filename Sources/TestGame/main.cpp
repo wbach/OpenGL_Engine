@@ -1,5 +1,6 @@
 #include "../GameEngine/Engine/Engine.h"
 #include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
+#include "DirectXApi/DirectXApi.h"
 #include "OpenGLApi/OpenGLApi.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
@@ -22,6 +23,7 @@ int main(int argc, char* argv[])
     GameEngine::ReadFromFile("./Conf.xml");
 
     auto api = std::make_unique<OpenGLApi::OpenGLApi>();
+    //auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();
 

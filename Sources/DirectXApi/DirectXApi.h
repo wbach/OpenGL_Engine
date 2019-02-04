@@ -7,7 +7,6 @@ class DirectXApi : public GraphicsApi::IGraphicsApi
 {
 public:
     DirectXApi();
-    DirectXApi(GraphicsApi::IWindowApiPtr windowApi);
     ~DirectXApi();
     virtual void Init() override;
     virtual void SetShadersFilesLocations(const std::string& path) override;
@@ -40,8 +39,8 @@ public:
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&) override;
     virtual void LoadValueToShader(uint32, const std::vector<mat4>&) override;
 
-    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui,
-                                 void* data) override;
+    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+                                 GraphicsApi::BufferAtachment, vec2ui, void* data) override;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override;
 
     virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
@@ -93,13 +92,20 @@ public:
     virtual void CreateFont(const std::string&) override;
     virtual void PrintText(const std::string&, const vec2i&) override;
 
-
     virtual void LoadViewMatrix(const mat4&) override;
     virtual void LoadProjectionMatrix(const mat4&) override;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
 
 private:
+    void InitRenderTarget();
+    void InitDepthSetncilView();
+
+private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
+    GraphicsApi::IWindowApiPtr windowApi_;
+
+private:
+    float bgColor_[4];
 };
-}  // DirectX
+}  // namespace DirectX

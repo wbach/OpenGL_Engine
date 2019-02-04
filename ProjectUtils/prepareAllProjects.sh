@@ -20,7 +20,7 @@ CommonId='{5ADAA6FD-1BB7-4369-825D-7777126B7817}'
 #ge='GameEngine:'$gameEngineId':'$utilsId
 #./prepareSolution.sh name:id:dependID...:dependId...:..
 echo "Generate VisualStudio solution"
-./prepareSolution.sh 'DirectXApi':$DirectXApiId:$GraphicsApiId:$utilsId 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
+./prepareSolution.sh 'DirectXApi':$DirectXApiId:$GraphicsApiId:$utilsId 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
 
 echo "Generate VisualStudio OpenGLApi project"
 ./prepareProject.sh DirectXApi $DirectXApiId StaticLibrary > ../Sources/DirectXApi/DirectXApi.vcxproj
@@ -41,7 +41,7 @@ echo "Generate VisualStudio Common project"
 ./prepareProject.sh Common $CommonId StaticLibrary Utils > ../Sources/Common/Common.vcxproj
 
 echo "Generate VisualStudio TestGame project"
-./prepareProject.sh TestGame $testGameId Application GameEngine Input OpenGLApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
+./prepareProject.sh TestGame $testGameId Application GameEngine Input DirectXApi OpenGLApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
 
 echo "Generate VisualStudio RpgGameServer project"
 ./prepareProject.sh RpgGameServer $testGameId Application Utils UtilsNetwork Common > ../Sources/RpgGameServer/RpgGameServer.vcxproj

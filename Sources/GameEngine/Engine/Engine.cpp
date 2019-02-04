@@ -86,7 +86,7 @@ void Engine::MainLoop()
     Render();
     sceneManager_.Update();
 
-    ProcessEngineEvents();
+    //ProcessEngineEvents();
     displayManager->Update();
 }
 

@@ -42,6 +42,7 @@ public:
     uint32 GetUniformLocation(const std::string& uniformName) const;
 
 protected:
+    bool validUniformLocation(uint32 lcoation) const;
     virtual void GetAllUniformLocations()
     {
     }

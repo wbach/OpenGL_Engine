@@ -66,6 +66,10 @@ uint32 ShaderProgram::GetUniformLocation(const std::string& uniformName) const
 {
     return graphicsApi_.GetShaderVariableLocation(programID_, uniformName.c_str());
 }
+bool ShaderProgram::validUniformLocation(uint32 lcoation) const
+{
+    return lcoation >= 0 and lcoation < uniforms_.size();
+}
 void ShaderProgram::SetProgramId(uint32 id)
 {
     programID_ = id;
@@ -92,61 +96,74 @@ void ShaderProgram::BindAttribute(int attribute, const std::string& variableName
 }
 void ShaderProgram::Load(uint32 loacation, uint32 value) const
 {
-    graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 void ShaderProgram::Load(uint32 loacation, const mat4& value) const
 {
-    graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 void ShaderProgram::Load(uint32 loacation, const std::vector<float>& value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 void ShaderProgram::Load(uint32 loacation, const std::vector<vec3>& value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 void ShaderProgram::Load(uint32 loacation, const std::vector<mat4>& value) const
 {
-    graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 void ShaderProgram::Load(uint32 loacation, const mat3& value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 
 void ShaderProgram::Load(uint32 loacation, float value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 
 void ShaderProgram::Load(uint32 loacation, const vec2ui& value) const
 {
-    graphicsApi_.LoadValueToShader(uniforms_[loacation], vec2(value.x, value.y));
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], vec2(value.x, value.y));
 }
 
-void ShaderProgram::Load(uint32 varIndex, bool value) const
+void ShaderProgram::Load(uint32 loacation, bool value) const
 {
-    graphicsApi_.LoadValueToShader(uniforms_[varIndex], value ? 1.f : 0.f);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value ? 1.f : 0.f);
 }
 
 void ShaderProgram::Load(uint32 loacation, int value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 
 void ShaderProgram::Load(uint32 loacation, const vec2& value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 
 void ShaderProgram::Load(uint32 loacation, const vec3& value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 
 void ShaderProgram::Load(uint32 loacation, const vec4& value) const
 {
-     graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
+    if (validUniformLocation(loacation))
+        graphicsApi_.LoadValueToShader(uniforms_[loacation], value);
 }
 }  // namespace GameEngine
