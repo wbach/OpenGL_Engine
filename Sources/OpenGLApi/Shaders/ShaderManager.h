@@ -36,6 +36,7 @@ public:
     void LoadValueToShader(uint32, const std::vector<float>&);
     void LoadValueToShader(uint32, const std::vector<vec3>&);
     void LoadValueToShader(uint32, const std::vector<mat4>&);
+    uint32 GetBindedShader() const;
 
 private:
     std::optional<GLuint> CreateShaderProgram();
@@ -45,6 +46,7 @@ private:
 
 private:
     bool useDeprectedShaders_;
+    uint32 currentShader_;
     IdPool& idPool_;
     std::string shadersFileLocation_;
     GraphicsApi::ShaderQuaility shaderQuality_;

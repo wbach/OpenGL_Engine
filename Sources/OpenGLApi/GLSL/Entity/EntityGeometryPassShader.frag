@@ -1,4 +1,4 @@
-#version 400
+#version 330
 #define EPSILON 0.0002
 struct SMaterial
 {

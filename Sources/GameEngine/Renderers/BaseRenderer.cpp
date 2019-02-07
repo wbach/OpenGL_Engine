@@ -16,6 +16,8 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 
+
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -35,6 +37,7 @@ void BaseRenderer::Init()
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
     CreateRenderers();
     InitRenderers();
+
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, BaseRenderer::PreConfigure);
 }
 void BaseRenderer::Subscribe(GameObject* gameObject)

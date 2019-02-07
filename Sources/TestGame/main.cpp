@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 
     StartMessage();
 
-    CLogger::Instance().EnableLogs();
+    //CLogger::Instance().EnableLogs();
 
     bool choosedApp = false;
 

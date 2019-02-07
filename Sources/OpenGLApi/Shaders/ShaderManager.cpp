@@ -26,6 +26,7 @@ const std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap =
 
 ShaderManager::ShaderManager(IdPool& idPool)
     : useDeprectedShaders_(false)
+    , currentShader_(0)
     , idPool_(idPool)
     , shaderQuality_(GraphicsApi::ShaderQuaility::FullDefferedRendering)
 {
@@ -38,6 +39,7 @@ void ShaderManager::UseDeprectedShaders()
 
 void ShaderManager::UseShader(uint32 id)
 {
+    currentShader_ = id;
     auto usedShader = idPool_.ToGL(id);
     glUseProgram(usedShader);
 }
@@ -307,6 +309,11 @@ void ShaderManager::LoadValueToShader(uint32 loacation, const std::vector<mat4>&
     {
         glUniformMatrix4fv(loacation - 1, v.size(), GL_FALSE, (const GLfloat*)&v[0]);
     }
+}
+
+uint32 ShaderManager::GetBindedShader() const
+{
+    return currentShader_;
 }
 
 void ShaderManager::SetShaderQuaility(GraphicsApi::ShaderQuaility q)

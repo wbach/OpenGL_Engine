@@ -1,7 +1,7 @@
 #pragma once
+#include "DummyWindowApi.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/ShaderFiles.h"
-#include "DummyWindowApi.h"
 
 namespace GameEngine
 {
@@ -65,6 +65,20 @@ public:
     {
         return ++id;
     }
+
+    virtual GraphicsApi::ID CreateShaderBuffer(uint32, uint32, const std::vector<GraphicsApi::ShaderBufferVariable>&) override
+    {
+        return ++id;
+    }
+
+    virtual void UpdateShaderBuffer(uint32 id, void* buffer) override
+    {
+    }
+
+    virtual void BindShaderBuffer(uint32) override
+    {
+    }
+
     virtual void UseShader(uint32) override
     {
     }
@@ -101,8 +115,8 @@ public:
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&)
     {
     }
-    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui,
-                                 void* data) override
+    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+                                 GraphicsApi::BufferAtachment, vec2ui, void* data) override
     {
         return ++id;
     }
@@ -171,7 +185,8 @@ public:
     {
     }
     virtual void RenderTriangleStripMesh(uint32) override
-    {}
+    {
+    }
     virtual void RenderMeshInstanced(uint32, uint32) override
     {
     }

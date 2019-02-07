@@ -1,12 +1,13 @@
 #include "DirectXApi.h"
 #include "WinApi/WinApi.h"
+#include "Utils.h"
 
+#include <D3D11Shader.h>
 #include <d3d11.h>
 #include <d3dx10.h>
 #include <d3dx11.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <D3D11Shader.h>
 #include <xnamath.h>
 #include <string>
 #include "DirectXContext.h"
@@ -15,9 +16,16 @@
 
 namespace DirectX
 {
+struct Buffer
+{
+    uint32 bindLocation;
+    ID3D11Buffer *ptr;
+};
+
 struct DirectXApi::Pimpl
 {
     DirectXContext dxCondext_;
+    std::vector<Buffer> buffers_;
 };
 
 DirectXApi::DirectXApi()
@@ -110,7 +118,7 @@ void DirectXApi::PrepareFrame()
 void DirectXApi::SetDefaultTarget()
 {
 }
-void DirectXApi::SetBackgroundColor(const vec3 & bgColor)
+void DirectXApi::SetBackgroundColor(const vec3 &bgColor)
 {
     bgColor_[0] = bgColor.x;
     bgColor_[1] = bgColor.y;
@@ -133,6 +141,50 @@ void DirectXApi::UseShader(uint32)
 uint32 DirectXApi::GetShaderVariableLocation(uint32, const std::string &)
 {
     return uint32();
+}
+GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, const std::vector<GraphicsApi::ShaderBufferVariable> &)
+{
+    D3D11_BUFFER_DESC bd;
+    ZeroMemory(&bd, sizeof(bd));
+    bd.Usage          = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth      = size;
+    bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    bd.BindFlags      = 0;
+    bd.MiscFlags      = 0;
+
+    ID3D11Buffer *buffer;
+    auto result = impl_->dxCondext_.dev->CreateBuffer(&bd, NULL, &buffer);
+
+    if (FAILED(result))
+    {
+        MessageBox(NULL, "ID3D11Buffer create error.", "Error", MB_OK);
+        return {};
+    }
+
+    impl_->buffers_.push_back({bindLocation, buffer});
+
+    return impl_->buffers_.size() - 1;
+}
+void DirectXApi::UpdateShaderBuffer(uint32 id, void *data)
+{
+    if (not Utils::ValidateRange(impl_->buffers_, id))
+    {
+        MessageBox(NULL, "ID3D11Buffer update error. Size exceeded", "Error", MB_OK);
+        return;
+    }
+    const auto &buffer = impl_->buffers_[id];
+    impl_->dxCondext_.devcon->UpdateSubresource(buffer.ptr, 0, NULL, &data, 0, 0);
+}
+void DirectXApi::BindShaderBuffer(uint32 id)
+{
+    if (not Utils::ValidateRange(impl_->buffers_, id))
+    {
+        MessageBox(NULL, "BindShaderBuffer ID3D11Buffer. Size exceeded", "Error", MB_OK);
+        return;
+    }
+    const auto &buffer = impl_->buffers_[id];
+    impl_->dxCondext_.devcon->VSSetConstantBuffers(buffer.bindLocation, 1, &buffer.ptr);
 }
 void DirectXApi::BindAttribute(uint32, uint32, const std::string &)
 {

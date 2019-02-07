@@ -2,12 +2,14 @@
 #include <GL/glew.h>
 #include <optional>
 #include "Font.h"
-#include "SDL2/SDLOpenGL.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GraphicsApi/MeshRawData.h"
+#include "IdPool.h"
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
-#include "IdPool.h"
+#include "SDL2/SDLOpenGL.h"
+
+#include <iostream>
 
 enum class ObjectType
 {
@@ -25,15 +27,30 @@ namespace OpenGLApi
 {
 CFont font;
 
+struct VariablesOffsets
+{
+    GraphicsApi::VariableType varType;
+    GLint uniformOffset;
+    GLint arrayStride;
+    GLint matrixStride;
+};
+
+struct ShaderBuffer
+{
+    uint32 glId;
+    uint32 bindLocation;
+    std::vector<VariablesOffsets> offsets;
+};
+
 struct OpenGLApi::Pimpl
 {
     Pimpl()
-    : shaderManager_(idPool_)
+        : shaderManager_(idPool_)
     {
-
     }
     IdPool idPool_;
     ShaderManager shaderManager_;
+    std::vector<ShaderBuffer> shaderBuffers_;
 };
 
 OpenGLMesh Convert(const Vao& v)
@@ -60,10 +77,10 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
     , polygonMode_(true)
     , useLowGLversion_(false)
 {
-
     impl_ = std::make_unique<Pimpl>();
 
-    textureFilterMap_ = {{GraphicsApi::TextureFilter::LINEAR, GL_LINEAR}, {GraphicsApi::TextureFilter::NEAREST, GL_NEAREST}};
+    textureFilterMap_ = {{GraphicsApi::TextureFilter::LINEAR, GL_LINEAR},
+                         {GraphicsApi::TextureFilter::NEAREST, GL_NEAREST}};
 
     bufferAtachmentMap_ = {{GraphicsApi::BufferAtachment::COLOR_1, GL_COLOR_ATTACHMENT0},
                            {GraphicsApi::BufferAtachment::COLOR_2, GL_COLOR_ATTACHMENT1},
@@ -71,7 +88,8 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
                            {GraphicsApi::BufferAtachment::COLOR_4, GL_COLOR_ATTACHMENT3},
                            {GraphicsApi::BufferAtachment::DEPTH, GL_DEPTH_ATTACHMENT}};
 
-    bufferTypeMap_ = {{GraphicsApi::BufferType::COLOR, GL_COLOR_BUFFER_BIT}, {GraphicsApi::BufferType::DEPTH, GL_DEPTH_BUFFER_BIT}};
+    bufferTypeMap_ = {{GraphicsApi::BufferType::COLOR, GL_COLOR_BUFFER_BIT},
+                      {GraphicsApi::BufferType::DEPTH, GL_DEPTH_BUFFER_BIT}};
 }
 
 OpenGLApi::~OpenGLApi()
@@ -101,7 +119,7 @@ void OpenGLApi::Init()
         impl_->shaderManager_.UseDeprectedShaders();
     }
 }
-void OpenGLApi::SetShadersFilesLocations(const std::string & path)
+void OpenGLApi::SetShadersFilesLocations(const std::string& path)
 {
     impl_->shaderManager_.SetShadersFilesLocations(path);
 }
@@ -224,6 +242,166 @@ uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string& varnam
     return impl_->shaderManager_.GetShaderVariableLocation(id, varname);
 }
 
+std::vector<VariablesOffsets> CreateVariablesOffsets(GLint program,
+                                                     const std::vector<GraphicsApi::ShaderBufferVariable>& variables)
+{
+    auto size = variables.size();
+
+    std::vector<VariablesOffsets> result;
+    result.resize(size);
+
+    std::vector<GLuint> uniformIndices;
+    uniformIndices.resize(size);
+
+    std::vector<const GLchar*> uniformNames;
+    uniformNames.reserve(size);
+
+    for (const auto& c : variables)
+    {
+        uniformNames.push_back(c.name.c_str());
+    }
+
+    glGetUniformIndices(program, size, &uniformNames[0], &uniformIndices[0]);
+
+    std::vector<GLint> uniformOffsets;
+    uniformOffsets.resize(size);
+
+    std::vector<GLint> arrayStrides;
+    arrayStrides.resize(size);
+
+    std::vector<GLint> matrixStrides;
+    matrixStrides.resize(size);
+
+    glGetActiveUniformsiv(program, size, &uniformIndices[0], GL_UNIFORM_OFFSET, &uniformOffsets[0]);
+    glGetActiveUniformsiv(program, size, &uniformIndices[0], GL_UNIFORM_ARRAY_STRIDE, &arrayStrides[0]);
+    glGetActiveUniformsiv(program, size, &uniformIndices[0], GL_UNIFORM_MATRIX_STRIDE, &matrixStrides[0]);
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        result[i].varType       = variables[i].type;
+        result[i].uniformOffset = uniformOffsets[i];
+        result[i].arrayStride   = arrayStrides[i];
+        result[i].matrixStride  = matrixStrides[i];
+    }
+
+    return result;
+}
+
+GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size,
+                                              const std::vector<GraphicsApi::ShaderBufferVariable>& variables)
+{
+    uint32 buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, buffer);
+    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);  // allocate 150 bytes of memory
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    auto programId = impl_->shaderManager_.GetBindedShader();
+    auto program   = impl_->idPool_.ToGL(programId);
+    impl_->shaderBuffers_.push_back({buffer, bindLocation, CreateVariablesOffsets(program, variables)});
+
+    return impl_->shaderBuffers_.size() - 1;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, bool v)
+{
+    *((bool*)(buffer + offset.uniformOffset)) = v;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, int v)
+{
+    *((int*)(buffer + offset.uniformOffset)) = v;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, float v)
+{
+    *((float*)(buffer + offset.uniformOffset)) = v;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, const vec2& v)
+{
+    ((float*)(buffer + offset.uniformOffset))[0] = v.x;
+    ((float*)(buffer + offset.uniformOffset))[1] = v.y;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, const vec3& v)
+{
+    ((float*)(buffer + offset.uniformOffset))[0] = v.x;
+    ((float*)(buffer + offset.uniformOffset))[1] = v.y;
+    ((float*)(buffer + offset.uniformOffset))[2] = v.z;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, const vec4& v)
+{
+    ((float*)(buffer + offset.uniformOffset))[0] = v.x;
+    ((float*)(buffer + offset.uniformOffset))[1] = v.y;
+    ((float*)(buffer + offset.uniformOffset))[2] = v.z;
+    ((float*)(buffer + offset.uniformOffset))[3] = v.w;
+}
+
+void UpdateBufferVariable(const VariablesOffsets& inOffset, unsigned char* buffer, const mat4& matrix)
+{
+    for (uint8 i = 0; i < 4; ++i)
+    {
+        GLuint offset = inOffset.uniformOffset + inOffset.matrixStride * i;
+
+        for (uint8 j = 0; j < 4; ++j)
+        {
+            *((float*)(buffer + offset)) = matrix[i][j];
+        }
+    }
+}
+
+void UpdateBufferVariable(const VariablesOffsets& inOffset, unsigned char* buffer, const std::vector<mat4>& matrixes)
+{
+    VariablesOffsets varOffset = inOffset;
+
+    for (const auto& matrix : matrixes)
+    {
+        varOffset.uniformOffset += inOffset.arrayStride;
+        UpdateBufferVariable(varOffset, buffer, matrix);
+    }
+}
+
+template <class T>
+void UpdateBuffer(int& inputBufferOffset, char* inputData, const VariablesOffsets& variableOffsets,
+                  unsigned char* data)
+{
+    std::cout << (int*)(inputData + inputBufferOffset) << std::endl;
+    char* ptr = inputData + inputBufferOffset;
+    auto v = reinterpret_cast<T*>(ptr);
+    inputBufferOffset += sizeof(T);
+    UpdateBufferVariable(variableOffsets, data, *v);
+}
+
+#define UPDATE_VARIABLE(x, y) if (offset.varType == x){ UpdateBuffer<y>(inputBufferOffset, inputData, offset, data); continue;}
+
+void OpenGLApi::UpdateShaderBuffer(uint32 id, void* buffer)
+{
+    unsigned char* data = (unsigned char*)malloc(4096);
+    auto inputData      = (char*)buffer;
+
+    std::cout << std::endl;
+    int inputBufferOffset = 0;
+    for (auto& offset : impl_->shaderBuffers_[id].offsets)
+    {
+        UPDATE_VARIABLE(GraphicsApi::VariableType::BOOL, bool);
+        UPDATE_VARIABLE(GraphicsApi::VariableType::INT, int);
+        UPDATE_VARIABLE(GraphicsApi::VariableType::FLOAT, float);
+        UPDATE_VARIABLE(GraphicsApi::VariableType::VEC2, vec2);
+        UPDATE_VARIABLE(GraphicsApi::VariableType::VEC3, vec3);
+        UPDATE_VARIABLE(GraphicsApi::VariableType::VEC4, vec4);
+        UPDATE_VARIABLE(GraphicsApi::VariableType::MAT4, mat4);
+        //UPDATE_VARIABLE(GraphicsApi::VariableType::MAT4_100, vec4);
+    }
+
+    free(data);
+}
+
+void OpenGLApi::BindShaderBuffer(uint32)
+{
+}
+
 void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
 {
     impl_->shaderManager_.BindAttribute(programId, attribute, variableName);
@@ -284,8 +462,9 @@ void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<mat4>& v)
     impl_->shaderManager_.LoadValueToShader(loacation, v);
 }
 
-uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter, GraphicsApi::TextureMipmap mimpamp,
-    GraphicsApi::BufferAtachment atachment, vec2ui size, void* data)
+uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
+                                GraphicsApi::TextureMipmap mimpamp, GraphicsApi::BufferAtachment atachment, vec2ui size,
+                                void* data)
 {
     uint32 textureType   = GL_TEXTURE_2D;
     GLint dataType       = GL_FLOAT;
@@ -591,7 +770,7 @@ uint32 OpenGLApi::CreateParticle()
 
     FloatAttributeVec vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
     FloatAttributeVec text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
-    IndicesVector indices    = {0, 1, 3, 3, 1, 2};
+    IndicesVector indices         = {0, 1, 3, 3, 1, 2};
 
     VaoCreator vaoCreator;
     vaoCreator.AddIndicesBuffer(indices);
@@ -612,7 +791,7 @@ uint32 OpenGLApi::CreateAnimatedParticle()
 
     FloatAttributeVec vertex      = {-1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0};
     FloatAttributeVec text_coords = {0, 0, 0, 1, 1, 1, 1, 0};
-    IndicesVector indices    = {0, 1, 3, 3, 1, 2};
+    IndicesVector indices         = {0, 1, 3, 3, 1, 2};
 
     VaoCreator vaoCreator;
     vaoCreator.AddIndicesBuffer(indices);

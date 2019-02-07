@@ -73,4 +73,10 @@ float StringToFloat(const std::string& str);
 int StringToInt(const std::string& str);
 bool StringToBool(const std::string& str);
 std::string BoolToString(bool);
+
+template<class T>
+bool ValidateRange(const T& c, uint32 id)
+{
+    return (id >= 0 and id < c.size());
+}
 } // namespace Utils

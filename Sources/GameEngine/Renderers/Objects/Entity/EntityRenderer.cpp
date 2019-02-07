@@ -1,6 +1,5 @@
 #include "EntityRenderer.h"
 #include "EntityRendererDef.h"
-#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
@@ -10,8 +9,14 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
+
+#include "GameEngine/Renderers/ShaderBuffers/PerAppBuffer.h"
+#include "GameEngine/Renderers/ShaderBuffers/PerFrameBuffer.h"
+#include "GameEngine/Renderers/ShaderBuffers/PerResizeBuffer.h"
+#include "GameEngine/Renderers/ShaderBuffers/PerObjectBuffer.h"
 
 namespace GameEngine
 {
@@ -29,15 +34,64 @@ void EntityRenderer::Init()
     Log("EntityRenderer initialized.");
 }
 
+
 void EntityRenderer::InitShader()
 {
     shader_->Init();
     shader_->Start();
-    shader_->Load(EntityShaderUniforms::ViewDistance, EntityRendererDef::DEFAULT_VIEW_DISTANCE);
-    shader_->Load(EntityShaderUniforms::ShadowVariables, EntityRendererDef::DEFAULT_SHADOW_VARIABLES);
-    shader_->Load(EntityShaderUniforms::ClipPlane, EntityRendererDef::DEFAULT_CLIP_PLANE);
-    shader_->Load(EntityShaderUniforms::IsUseFakeLighting, false);
-    shader_->Load(EntityShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
+    auto perAppId = context_.graphicsApi_.CreateShaderBuffer(0, sizeof(PerAppBuffer), PER_APP_NAMES);
+   
+    if (perAppId)
+    {
+        PerAppBuffer perApp;
+        perApp.ClipPlane = EntityRendererDef::DEFAULT_CLIP_PLANE;
+        perApp.ShadowVariables = EntityRendererDef::DEFAULT_SHADOW_VARIABLES;
+        perApp.UseFakeLighting = false;
+        std::cout << (int*)&perApp.UseFakeLighting << std::endl;
+        std::cout << (int*)&perApp.ShadowVariables << std::endl;
+        std::cout << (int*)&perApp.ClipPlane << std::endl;
+        context_.graphicsApi_.UpdateShaderBuffer(*perAppId, &perApp);
+    }
+
+    auto perResizeId = context_.graphicsApi_.CreateShaderBuffer(1, sizeof(PerResizeBuffer), PER_RESIZE_NAMES);
+    if (perResizeId)
+    {
+        PerResizeBuffer buffer;
+        buffer.ProjectionMatrix = context_.projection_.GetProjectionMatrix();
+        context_.graphicsApi_.UpdateShaderBuffer(*perResizeId, &buffer);
+    }
+
+    GraphicsApi::ID perFrameId;
+    GraphicsApi::ID perObjectId;
+
+    perFrameId = context_.graphicsApi_.CreateShaderBuffer(2, sizeof(PerFrameBuffer), PER_FRAME_NAMES);
+
+    if (perFrameId)
+    {
+        PerFrameBuffer buffer;
+        buffer.ViewMatrix = mat4();
+        context_.graphicsApi_.UpdateShaderBuffer(*perFrameId, &buffer);
+    }
+
+    perFrameId = context_.graphicsApi_.CreateShaderBuffer(3, sizeof(PerObjectBuffer), PER_OBJECT_NAMES);
+
+    if (perFrameId)
+    {
+        PerObjectBuffer buffer;
+        buffer.TransformationMatrix = mat4();
+        buffer.UseBoneTransform = false;
+        buffer.NumberOfRows = 1;
+        buffer.TextureOffset = vec2(0);
+        buffer.UseNormalMap = false;
+        context_.graphicsApi_.UpdateShaderBuffer(*perFrameId, &buffer);
+    }
+
+
+    //shader_->Load(EntityShaderUniforms::ViewDistance, EntityRendererDef::DEFAULT_VIEW_DISTANCE);
+    //shader_->Load(EntityShaderUniforms::ShadowVariables, EntityRendererDef::DEFAULT_SHADOW_VARIABLES);
+    //shader_->Load(EntityShaderUniforms::ClipPlane, EntityRendererDef::DEFAULT_CLIP_PLANE);
+    //shader_->Load(EntityShaderUniforms::IsUseFakeLighting, false);
+    //shader_->Load(EntityShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
     shader_->Stop();
 }
 

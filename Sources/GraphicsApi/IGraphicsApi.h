@@ -1,24 +1,28 @@
 #pragma once
 #include <functional>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "BlendFunctionsTypes.h"
 #include "BufferParamters.h"
 #include "FunctionsTypes.h"
-#include "WindowApi.hpp"
+#include "ShaderQuaility.h"
 #include "ShaderTypes.h"
 #include "ShadersTypes.h"
 #include "TextureParamters.h"
 #include "Types.h"
+#include "WindowApi.hpp"
 #include "WindowType.h"
-#include "ShaderQuaility.h"
+#include "ShaderBufferVariable.h"
 
 namespace GraphicsApi
 {
 const uint32 MAX_PARTICLE_INSTANCES        = 10000;
 const uint32 PARTICLE_INSTANCE_DATA_LENGTH = 21;
 struct MeshRawData;
+
+typedef std::optional<uint32> ID;
 
 class IGraphicsApi
 {
@@ -40,6 +44,9 @@ public:
     virtual void PrepareFrame()                                                                                  = 0;
     virtual uint32 CreateShader(Shaders shaderType, GraphicsApiFunctions)                                        = 0;
     virtual uint32 GetShaderVariableLocation(uint32, const std::string&)                                         = 0;
+    virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size, const std::vector<ShaderBufferVariable>&)    = 0;
+    virtual void UpdateShaderBuffer(uint32 id, void* buffer)                                                     = 0;
+    virtual void BindShaderBuffer(uint32)                                                                        = 0;
     virtual void UseShader(uint32)                                                                               = 0;
     virtual void BindAttribute(uint32, uint32, const std::string&)                                               = 0;
     virtual void LoadValueToShader(uint32, int)                                                                  = 0;
@@ -98,4 +105,4 @@ public:
     virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;
 };
-}  // namespace GameEngine
+}  // namespace GraphicsApi

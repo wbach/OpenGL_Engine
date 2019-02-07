@@ -50,6 +50,9 @@ private:
 
     uint32 currentTextureIndex_ = 0;
     SubscribersMap subscribes_;
+
+    GraphicsApi::ID perFrameId;
+    GraphicsApi::ID perObjectId;
 };
 
 }  // GameEngine
