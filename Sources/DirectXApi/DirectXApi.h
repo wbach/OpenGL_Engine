@@ -26,7 +26,7 @@ public:
     virtual void UseShader(uint32) override;
     virtual uint32 GetShaderVariableLocation(uint32, const std::string&) override;
 
-    virtual GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size, const std::vector<GraphicsApi::ShaderBufferVariable>&) override;
+    virtual GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size) override;
     virtual void UpdateShaderBuffer(uint32 id, void* buffer) override;
     virtual void BindShaderBuffer(uint32) override;
 
@@ -63,6 +63,7 @@ public:
     virtual void BindBuffer(GraphicsApi::BindType, uint32) override;
 
     virtual void DeleteObject(uint32) override;
+    virtual void DeleteShaderBuffer(uint32) override;
 
     virtual std::string GetBufferStatus() override;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override;

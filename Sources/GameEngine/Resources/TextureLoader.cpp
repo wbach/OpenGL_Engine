@@ -150,13 +150,6 @@ Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit
         case ObjectTextureType::MATERIAL:
         {
             textures_.emplace_back(new MaterialTexture(graphicsApi_, false, file, file, *texture));
-
-            auto numberOfRows = GetNumberOfRowsBasedOnTextureFileName(file);
-
-            if (numberOfRows)
-            {
-                textures_.back()->numberOfRows = *numberOfRows;
-            }
         }
         break;
         case ObjectTextureType::HEIGHT_MAP:
@@ -324,25 +317,4 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& filename) const
     });
     return iter != textures_.end() ? iter->get() : nullptr;
 }
-std::optional<uint32> TextureLoader::GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const
-{
-    auto cfile = file;
-    std::replace(cfile.begin(), cfile.end(), '\\', '/');
-    auto v        = Utils::SplitString(cfile, '/');
-    auto filename = v.back().substr(0, v.back().find_last_of('.'));
-
-    auto rowsPos = filename.find("_rows_");
-
-    if (rowsPos != std::string::npos)
-    {
-        auto rows = filename.substr(rowsPos + 6);
-        if (!rows.empty())
-        {
-            return std::stoi(rows);
-        }
-    }
-
-    return std::optional<uint32>();
-}
-
 }  // namespace GameEngine

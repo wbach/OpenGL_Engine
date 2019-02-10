@@ -1,5 +1,8 @@
 #include "Mesh.h"
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
+#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
@@ -8,7 +11,7 @@ Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi)
 {
 }
 
-Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi, const Material &material, const mat4& transformMatix)
+Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi, const Material& material, const mat4& transformMatix)
     : graphicsApi_(graphicsApi)
     , material_(material)
     , transform_(transformMatix)
@@ -29,9 +32,13 @@ void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 
 void Mesh::CreateMesh()
 {
+    objectId_ = graphicsApi_.CreateMesh(meshRawData_);
+    isInit    = true;
+}
+
+void Mesh::SetUseArmatorIfHaveBones()
+{
     useAramture = !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
-    objectId_   = graphicsApi_.CreateMesh(meshRawData_);
-    isInit      = true;
 }
 
 void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
@@ -46,7 +53,7 @@ bool Mesh::IsInit() const
 
 bool Mesh::UseArmature() const
 {
-    return useAramture;
+    return !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
 }
 
 void Mesh::GpuLoadingPass()
@@ -56,7 +63,7 @@ void Mesh::GpuLoadingPass()
 
     CreateMesh();
     // ClearData();
-
+    CreateBufferObject();
     GpuObject::GpuLoadingPass();
 }
 
@@ -75,7 +82,7 @@ uint32 Mesh::GetObjectId() const
     return objectId_;
 }
 
-const Material &Mesh::GetMaterial() const
+const Material& Mesh::GetMaterial() const
 {
     return material_;
 }
@@ -83,6 +90,67 @@ const Material &Mesh::GetMaterial() const
 void Mesh::SetMaterial(const Material& mat)
 {
     material_ = mat;
+}
+
+void Mesh::CreateBufferObject()
+{
+    meshBuffers_.perPoseUpdateBuffer_ =
+        graphicsApi_.CreateShaderBuffer(PER_POSE_UPDATE_BIND_LOCATION, sizeof(PerPoseUpdate));
+    if (meshBuffers_.perPoseUpdateBuffer_)
+    {
+        PerPoseUpdate perPoseUpdate;
+        for (uint32 i = 0; i < MAX_BONES; ++i)
+        {
+            perPoseUpdate.bonesTransforms[i] = mat4();
+        }
+        graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_, &perPoseUpdate);
+    }
+
+    meshBuffers_.perMeshObjectBuffer_ =
+        graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
+    if (meshBuffers_.perMeshObjectBuffer_)
+    {
+        PerMeshObject perMeshObject;
+        perMeshObject.ambient         = ToVec4(material_.ambient);
+        perMeshObject.diffuse         = ToVec4(material_.diffuse);
+        perMeshObject.specular        = ToVec4(material_.specular);
+        perMeshObject.shineDamper     = material_.shineDamper;
+        perMeshObject.useFakeLighting = material_.useFakeLighting;
+
+        if (material_.diffuseTexture != nullptr)
+        {
+            perMeshObject.numberOfRows = material_.diffuseTexture->numberOfRows;
+            perMeshObject.useTexture   = 1.f;
+        }
+        else
+        {
+            perMeshObject.numberOfRows = 1;
+            perMeshObject.useTexture   = 0.f;
+        }
+
+        if (material_.normalTexture != nullptr)
+        {
+            perMeshObject.useNormalMap = 1.f;
+        }
+        else
+        {
+            perMeshObject.useNormalMap = 0.f;
+        }
+        graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perMeshObjectBuffer_, &perMeshObject);
+    }
+}
+
+const MeshBufferes& Mesh::GetBuffers() const
+{
+    return meshBuffers_;
+}
+
+void Mesh::UpdatePoseBuffer(void* pose) const
+{
+    if (meshBuffers_.perPoseUpdateBuffer_)
+    {
+        graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_, pose);
+    }
 }
 
 void Mesh::ClearData()

@@ -6,6 +6,7 @@
 #include "IRenderer.h"
 #include "Projection.h"
 #include "RendererFunctionType.h"
+#include "BufferDataUpdater.h"
 
 namespace GameEngine
 {
@@ -42,12 +43,15 @@ public:
 private:
     void ReloadShadersExecution();
     void UpdateCamera(Scene* scene);
-    void TakeSnapShoots();
     void InitProjection();
     void InitMainRenderer();
     void InitGuiRenderer();
     void RegisterRenderFunction(RendererFunctionType, RendererFunction);
     void Render(RendererFunctionType type, Scene* scene);
+    void CreateBuffers();
+    void CreatePerAppBuffer();
+    void CreatePerResizeBuffer();
+    void CreatePerFrameBuffer();
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
@@ -57,10 +61,11 @@ private:
     Renderer::Gui::GuiContext guiContext_;
     IRenderersPtrVec renderers_;
     Projection projection_;
-    std::list<GameObject*> dynamincObjects_;
     RendererFunctions rendererFunctions_;
     IShaderFactory& shaderFactory_;
     bool renderPhysicsDebug_;
+    GraphicsApi::ID perFrameId_;
+    BufferDataUpdater bufferDataUpdater_;
 };
 }  // Renderer
 }  // GameEngine

@@ -1,6 +1,6 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -14,19 +14,25 @@ struct Material;
 class IShaderFactory;
 class IShaderProgram;
 
+namespace Components
+{
+class RendererComponent;
+}  // namespace Components
+
 struct EntitySubscriber
 {
-    uint32 textureIndex;
     GameObject* gameObject;
-    ModelWrapper* model;
+    Components::RendererComponent* renderComponent;
 };
 
-typedef std::unordered_map<uint32_t, EntitySubscriber> SubscribersMap;
+typedef std::vector<EntitySubscriber> EnitySubscribers;
 
 class EntityRenderer : public IRenderer
 {
 public:
     EntityRenderer(RendererContext& context);
+    ~EntityRenderer();
+
     // Loading lights itp to shader
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
@@ -38,8 +44,8 @@ public:
 private:
     void InitShader();
     void PrepareFrame(Scene* scene);
-    void RenderModel(Model* model, const mat4& transform_matrix) const;
-    void RenderMesh(const Mesh& mesh, const mat4& transform_matrix) const;
+    void RenderModel(const EntitySubscriber& subsriber, const Model& model) const;
+    void RenderMesh(const Mesh& mesh) const;
     void RenderEntities();
     void BindMaterial(const Material& material) const;
     void UnBindMaterial(const Material& material) const;
@@ -48,11 +54,10 @@ private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
 
-    uint32 currentTextureIndex_ = 0;
-    SubscribersMap subscribes_;
+    EnitySubscribers subscribes_;
 
-    GraphicsApi::ID perFrameId;
+    GraphicsApi::ID perObjectUpdateId;
     GraphicsApi::ID perObjectId;
 };
 
-}  // GameEngine
+}  // namespace GameEngine

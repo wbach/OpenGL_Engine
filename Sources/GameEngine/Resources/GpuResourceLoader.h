@@ -9,14 +9,15 @@ namespace GameEngine
 class GpuResourceLoader : public IGpuResourceLoader
 {
 public:
+    GpuResourceLoader();
     void AddObjectToGpuLoadingPass(GpuObject* obj) override;
     GpuObject* GetObjectToGpuLoadingPass() override;
     void AddObjectToGpuPostLoadingPass(GpuObject* obj) override;
     GpuObject* GetObjectToGpuPostLoadingPass() override;
 
 private:
-    std::list<GpuObject*> gpuPassLoad;
-    std::list<GpuObject*> gpuPostPassLoad;
+    std::vector<GpuObject*> gpuPassLoad;
+    std::vector<GpuObject*> gpuPostPassLoad;
     std::mutex mutex;
     std::mutex mutex2;
 };

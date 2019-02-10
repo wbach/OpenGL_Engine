@@ -118,14 +118,15 @@ void Read(Utils::XmlNode& node, Components::Rigidbody& component)
 
 void Read(Utils::XmlNode& node, Components::RendererComponent& component)
 {
+    auto textureIndex = std::stoul(node.GetChild(CSTR_TEXTURE_INDEX)->value_);
+    component.SetTextureIndex(textureIndex);
+
     for (const auto& fileNode : node.GetChild(CSTR_MODEL_FILE_NAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
         auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.AddModel(filename, lod);
     }
-    auto textureIndex = std::stoul(node.GetChild(CSTR_TEXTURE_INDEX)->value_);
-    component.SetTextureIndex(textureIndex);
 }
 
 void Read(Utils::XmlNode& node, Components::TreeRendererComponent& component)

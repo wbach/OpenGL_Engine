@@ -72,6 +72,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
         {
             GameEngine::Mesh newMesh(graphicsApi_, mesh.material, obj.transformMatrix);
             IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
+            newMesh.SetUseArmatorIfHaveBones();
             newModel->animationClips_ = mesh.animationClips_;
             newModel->skeleton_       = mesh.skeleton_;
             Animation::CalcInverseBindTransform(newModel->skeleton_, mat4(1.f));

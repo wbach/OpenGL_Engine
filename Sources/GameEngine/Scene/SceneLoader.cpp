@@ -55,27 +55,12 @@ void SceneLoader::Init()
 
 void SceneLoader::SetIsLoading(bool is)
 {
-    std::lock_guard<std::mutex> lock(loadingMutex);
-    isLoading = is;
+    isLoading.store(is);
 }
 
 bool SceneLoader::GetIsLoading()
 {
-    std::lock_guard<std::mutex> lock(loadingMutex);
-    return isLoading;
-}
-
-bool SceneLoader::ProccesLoadingLoop(GpuObject *obj)
-{
-    if (displayManager != nullptr)
-        displayManager->ProcessEvents();
-
-    auto load = GetIsLoading();
-    if (LoadObject(obj))
-        load = true;
-    UpdateScreen();
-
-    return load;
+    return isLoading.load();
 }
 
 bool SceneLoader::LoadObject(GpuObject *obj)
@@ -109,6 +94,19 @@ void SceneLoader::LoadingLoop(Scene* scene)
 
     while (load)
         load = ProccesLoadingLoop(objLoader.GetObjectToGpuLoadingPass());
+}
+
+bool SceneLoader::ProccesLoadingLoop(GpuObject *obj)
+{
+    if (displayManager != nullptr)
+        displayManager->ProcessEvents();
+
+    auto load = GetIsLoading();
+    if (LoadObject(obj))
+        load = true;
+    UpdateScreen();
+
+    return load;
 }
 
 void SceneLoader::CheckObjectCount(Scene* scene)

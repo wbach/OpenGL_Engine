@@ -13,11 +13,6 @@
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
 
-#include "GameEngine/Renderers/ShaderBuffers/PerAppBuffer.h"
-#include "GameEngine/Renderers/ShaderBuffers/PerFrameBuffer.h"
-#include "GameEngine/Renderers/ShaderBuffers/PerResizeBuffer.h"
-#include "GameEngine/Renderers/ShaderBuffers/PerObjectBuffer.h"
-
 namespace GameEngine
 {
 EntityRenderer::EntityRenderer(RendererContext& context)
@@ -27,6 +22,11 @@ EntityRenderer::EntityRenderer(RendererContext& context)
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, EntityRenderer::Render);
 }
 
+EntityRenderer::~EntityRenderer()
+{
+    UnSubscribeAll();
+}
+
 void EntityRenderer::Init()
 {
     Log("Start initialize entity renderer...");
@@ -34,70 +34,13 @@ void EntityRenderer::Init()
     Log("EntityRenderer initialized.");
 }
 
-
 void EntityRenderer::InitShader()
 {
     shader_->Init();
-    shader_->Start();
-    auto perAppId = context_.graphicsApi_.CreateShaderBuffer(0, sizeof(PerAppBuffer), PER_APP_NAMES);
-   
-    if (perAppId)
-    {
-        PerAppBuffer perApp;
-        perApp.ClipPlane = EntityRendererDef::DEFAULT_CLIP_PLANE;
-        perApp.ShadowVariables = EntityRendererDef::DEFAULT_SHADOW_VARIABLES;
-        perApp.UseFakeLighting = false;
-        std::cout << (int*)&perApp.UseFakeLighting << std::endl;
-        std::cout << (int*)&perApp.ShadowVariables << std::endl;
-        std::cout << (int*)&perApp.ClipPlane << std::endl;
-        context_.graphicsApi_.UpdateShaderBuffer(*perAppId, &perApp);
-    }
-
-    auto perResizeId = context_.graphicsApi_.CreateShaderBuffer(1, sizeof(PerResizeBuffer), PER_RESIZE_NAMES);
-    if (perResizeId)
-    {
-        PerResizeBuffer buffer;
-        buffer.ProjectionMatrix = context_.projection_.GetProjectionMatrix();
-        context_.graphicsApi_.UpdateShaderBuffer(*perResizeId, &buffer);
-    }
-
-    GraphicsApi::ID perFrameId;
-    GraphicsApi::ID perObjectId;
-
-    perFrameId = context_.graphicsApi_.CreateShaderBuffer(2, sizeof(PerFrameBuffer), PER_FRAME_NAMES);
-
-    if (perFrameId)
-    {
-        PerFrameBuffer buffer;
-        buffer.ViewMatrix = mat4();
-        context_.graphicsApi_.UpdateShaderBuffer(*perFrameId, &buffer);
-    }
-
-    perFrameId = context_.graphicsApi_.CreateShaderBuffer(3, sizeof(PerObjectBuffer), PER_OBJECT_NAMES);
-
-    if (perFrameId)
-    {
-        PerObjectBuffer buffer;
-        buffer.TransformationMatrix = mat4();
-        buffer.UseBoneTransform = false;
-        buffer.NumberOfRows = 1;
-        buffer.TextureOffset = vec2(0);
-        buffer.UseNormalMap = false;
-        context_.graphicsApi_.UpdateShaderBuffer(*perFrameId, &buffer);
-    }
-
-
-    //shader_->Load(EntityShaderUniforms::ViewDistance, EntityRendererDef::DEFAULT_VIEW_DISTANCE);
-    //shader_->Load(EntityShaderUniforms::ShadowVariables, EntityRendererDef::DEFAULT_SHADOW_VARIABLES);
-    //shader_->Load(EntityShaderUniforms::ClipPlane, EntityRendererDef::DEFAULT_CLIP_PLANE);
-    //shader_->Load(EntityShaderUniforms::IsUseFakeLighting, false);
-    //shader_->Load(EntityShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
-    shader_->Stop();
 }
 
 void EntityRenderer::PrepareFrame(Scene* scene)
 {
-    shader_->Load(EntityShaderUniforms::ViewMatrix, scene->GetCamera()->GetViewMatrix());
 }
 
 void EntityRenderer::Render(Scene* scene)
@@ -116,13 +59,22 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
-    subscribes_.insert({gameObject->GetId(),
-                        {rendererComponent->GetTextureIndex(), gameObject, &rendererComponent->GetModelWrapper()}});
+    subscribes_.push_back({gameObject, rendererComponent});
 }
 
 void EntityRenderer::UnSubscribe(GameObject* gameObject)
 {
-    subscribes_.erase(gameObject->GetId());
+    for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
+    {
+        if ((*iter).gameObject->GetId() == gameObject->GetId())
+        {
+            iter = subscribes_.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }
 
 void EntityRenderer::UnSubscribeAll()
@@ -139,43 +91,55 @@ void EntityRenderer::ReloadShaders()
 
 void EntityRenderer::RenderEntities()
 {
-    for (auto& sub : subscribes_)
+    for (const auto& sub : subscribes_)
     {
-        if (sub.second.gameObject == nullptr || sub.second.model == nullptr)
-        {
-            Error("Null subsciber in EnityRenderer.");
-        }
-
-        auto model = sub.second.model->Get(LevelOfDetail::L1);
+        const auto& rcomp = sub.renderComponent;
+        auto model        = rcomp->GetModelWrapper().Get(LevelOfDetail::L1);
 
         if (model == nullptr)
             continue;
 
-        currentTextureIndex_ = sub.second.textureIndex;
-
-        RenderModel(model, sub.second.gameObject->worldTransform.GetMatrix());
+        RenderModel(sub, *model);
     }
 }
 
-void EntityRenderer::RenderModel(Model* model, const mat4& transform_matrix) const
+void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model& model) const
 {
-    const auto& meshes = model->GetMeshes();
+    const auto& meshes                    = model.GetMeshes();
+    const auto& perObjectUpdateBuffers    = subsriber.renderComponent->GetPerObjectUpdateBuffers();
+    const auto& perObjectConstantsBuffers = subsriber.renderComponent->GetPerObjectConstantsBuffers();
+
+    int meshId = 0;
     for (const auto& mesh : meshes)
     {
+        const auto& buffers = mesh.GetBuffers();
+
+        context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
+
         if (mesh.UseArmature())
         {
-            shader_->Load(EntityShaderUniforms::BonesTransforms, model->GetBoneTransforms());
+            context_.graphicsApi_.BindShaderBuffer(*buffers.perPoseUpdateBuffer_);
         }
-        shader_->Load(EntityShaderUniforms::UseBoneTransform, mesh.UseArmature());
-        RenderMesh(mesh, transform_matrix);
+
+        const auto& perMeshUpdateBuffer = perObjectUpdateBuffers[meshId].GetId();
+        if (perMeshUpdateBuffer)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
+        }
+        
+        const auto& perMeshConstantBuffer = perObjectConstantsBuffers[meshId].GetId();
+        if (perMeshConstantBuffer)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
+        }
+        ++meshId;
+        RenderMesh(mesh);
     }
 }
 
-void EntityRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix) const
+void EntityRenderer::RenderMesh(const Mesh& mesh) const
 {
     BindMaterial(mesh.GetMaterial());
-    auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
-    shader_->Load(EntityShaderUniforms::TransformationMatrix, transform_matrix_);
     context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
     UnBindMaterial(mesh.GetMaterial());
 }
@@ -185,22 +149,10 @@ void EntityRenderer::BindMaterial(const Material& material) const
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
 
-    shader_->Load(EntityShaderUniforms::ModelMaterialAmbient, material.ambient);
-    shader_->Load(EntityShaderUniforms::ModelMaterialDiffuse, material.diffuse);
-    shader_->Load(EntityShaderUniforms::ModelMaterialSpecular, material.specular);
-
     if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized() &&
         EngineConf.renderer.textures.useDiffuse)
     {
-        shader_->Load(EntityShaderUniforms::UseTexture, true);
-        shader_->Load(EntityShaderUniforms::NumberOfRows, material.diffuseTexture->numberOfRows);
-        shader_->Load(EntityShaderUniforms::TextureOffset,
-                      material.diffuseTexture->GetTextureOffset(currentTextureIndex_));
         context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetId());
-    }
-    else
-    {
-        shader_->Load(EntityShaderUniforms::UseTexture, false);
     }
 
     if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized() &&
@@ -213,11 +165,6 @@ void EntityRenderer::BindMaterial(const Material& material) const
         EngineConf.renderer.textures.useNormal)
     {
         context_.graphicsApi_.ActiveTexture(2, material.normalTexture->GetId());
-        shader_->Load(EntityShaderUniforms::IsUseNormalMap, true);
-    }
-    else
-    {
-        shader_->Load(EntityShaderUniforms::IsUseNormalMap, false);
     }
 
     if (material.specularTexture != nullptr && material.specularTexture->IsInitialized() &&

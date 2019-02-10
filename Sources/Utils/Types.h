@@ -1,9 +1,9 @@
 #pragma once
+#include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <unordered_map>
 #include <string>
-#include <chrono>
+#include <unordered_map>
 #include <vector>
 
 #ifndef M_PI
@@ -11,12 +11,12 @@
 #endif
 
 typedef unsigned char uchar;
-typedef uint8_t       uint8;
-typedef uint16_t      uint16;
-typedef uint32_t      uint32;
-typedef uint64_t      uint64;
+typedef uint8_t uint8;
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
 
-typedef int8_t  int8;
+typedef int8_t int8;
 typedef int16_t int16;
 typedef int32_t int32;
 typedef int64_t int64;
@@ -30,54 +30,78 @@ typedef std::vector<uint8> Uint8Vec;
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
+template <class T>
+struct alignas(16) AlignWrapper
+{
+    T value;
+
+    AlignWrapper operator=(const T& v)
+    {
+        this->value = v;
+        return *this;
+    }
+};
+
 namespace wb
 {
-    template<class T>
-    struct Tvec2
+template <class T>
+struct Tvec2
+{
+    T x;
+    T y;
+
+    Tvec2()
+        : Tvec2(0, 0)
     {
-        T x;
-        T y;
-
-        Tvec2() : Tvec2(0, 0)
-        {
-        }
-        Tvec2(T x) : Tvec2(x, x)
-        {
-        }
-        Tvec2(T x, T y) : x(x), y(y)
-        {
-        }
-    };
-
-    template<class T>
-    struct Tvec3
+    }
+    Tvec2(T x)
+        : Tvec2(x, x)
     {
-        T x;
-        T y;
-        T z;
+    }
+    Tvec2(T x, T y)
+        : x(x)
+        , y(y)
+    {
+    }
+};
 
-        Tvec3() : Tvec3(0) {}
-        Tvec3(T a) :x(a), y(a), z(a) {}
+template <class T>
+struct Tvec3
+{
+    T x;
+    T y;
+    T z;
 
-        bool operator==(const Tvec3& v) const
-        {
-            return x == v.x && y == v.y && z == v.z;
-        }
-        // To my model map find
-        bool operator<(const Tvec3& v) const
-        {
-            return x != v.x || y != v.y || z != v.z;
-        }
-    };
+    Tvec3()
+        : Tvec3(0)
+    {
+    }
+    Tvec3(T a)
+        : x(a)
+        , y(a)
+        , z(a)
+    {
+    }
 
-    typedef Tvec2<int32> vec2i;
-    typedef Tvec2<uint32> vec2ui;
-    typedef Tvec3<int32> vec3i;
-    typedef Tvec3<uint32> vec3ui;
+    bool operator==(const Tvec3& v) const
+    {
+        return x == v.x && y == v.y && z == v.z;
+    }
+    // To my model map find
+    bool operator<(const Tvec3& v) const
+    {
+        return x != v.x || y != v.y || z != v.z;
+    }
+};
 
-    std::string to_string(const vec2i& v);
-    std::string to_string(const vec3i& v);
-}
+typedef Tvec2<int32> vec2i;
+typedef Tvec2<uint32> vec2ui;
+typedef Tvec3<int32> vec3i;
+typedef Tvec3<uint32> vec3ui;
+
+std::string to_string(const vec2i& v);
+std::string to_string(const vec3i& v);
+}  // namespace wb
 
 typedef wb::vec2i vec2i;
 typedef wb::vec2ui vec2ui;
@@ -90,6 +114,21 @@ typedef glm::vec4 vec4;
 typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::fquat Quaternion;
+
+static vec4 ToVec4(const vec3& v3)
+{
+    return vec4(v3.x, v3.y, v3.z, 1.0f);
+}
+
+static vec4 ToVec4(const vec3& v3, float w)
+{
+    return vec4(v3.x, v3.y, v3.z, w);
+}
+
+static vec4 ToVec4(const vec2& v2, float z, float w)
+{
+    return vec4(v2.x, v2.y, z, w);
+}
 
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
 
@@ -111,6 +150,7 @@ typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;
 
 // Specyfic types for different os
 
+// clang-format off
 #ifdef USE_GNU
 typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
@@ -119,18 +159,19 @@ typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #define or ||
 typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 #endif
+// clang-format on
 
 namespace std
 {
-    template<>
-    struct hash<vec3i> 
+template <>
+struct hash<vec3i>
+{
+    size_t operator()(const vec3i& k) const
     {
-        size_t operator()(const vec3i &k) const
-        {
-            size_t h1 = std::hash<double>()(k.x);
-            size_t h2 = std::hash<double>()(k.y);
-            size_t h3 = std::hash<double>()(k.z);
-            return (h1 ^ (h2 << 1)) ^ h3;
-        }
-    };
-} // std
+        size_t h1 = std::hash<double>()(k.x);
+        size_t h2 = std::hash<double>()(k.y);
+        size_t h3 = std::hash<double>()(k.z);
+        return (h1 ^ (h2 << 1)) ^ h3;
+    }
+};
+}  // namespace std

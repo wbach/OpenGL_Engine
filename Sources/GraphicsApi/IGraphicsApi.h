@@ -14,7 +14,6 @@
 #include "Types.h"
 #include "WindowApi.hpp"
 #include "WindowType.h"
-#include "ShaderBufferVariable.h"
 
 namespace GraphicsApi
 {
@@ -44,7 +43,7 @@ public:
     virtual void PrepareFrame()                                                                                  = 0;
     virtual uint32 CreateShader(Shaders shaderType, GraphicsApiFunctions)                                        = 0;
     virtual uint32 GetShaderVariableLocation(uint32, const std::string&)                                         = 0;
-    virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size, const std::vector<ShaderBufferVariable>&)    = 0;
+    virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size)                                              = 0;
     virtual void UpdateShaderBuffer(uint32 id, void* buffer)                                                     = 0;
     virtual void BindShaderBuffer(uint32)                                                                        = 0;
     virtual void UseShader(uint32)                                                                               = 0;
@@ -74,6 +73,7 @@ public:
     virtual uint32 CreateBuffer()                                                                                = 0;
     virtual void BindBuffer(BindType, uint32)                                                                    = 0;
     virtual void DeleteObject(uint32)                                                                            = 0;
+    virtual void DeleteShaderBuffer(uint32)                                                                      = 0;
     virtual std::string GetBufferStatus()                                                                        = 0;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32)                                                  = 0;
     virtual uint32 CreateMesh(const MeshRawData&)                                                                = 0;

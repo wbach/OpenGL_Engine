@@ -40,8 +40,8 @@ public:
 
 private:
     std::optional<GLuint> CreateShaderProgram();
-    bool AddShader(uint32 id, const std::string& filename, GraphicsApi::ShaderType mode);
-    bool FinalizeShader(uint32 programId, GraphicsApi::GraphicsApiFunctions);
+    bool AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode);
+    bool FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsApi::GraphicsApiFunctions);
     GraphicsApi::ShadersFiles GetShaderFiles(GraphicsApi::Shaders shaderType);
 
 private:

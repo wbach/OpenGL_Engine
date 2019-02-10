@@ -52,9 +52,19 @@ Mesh* Model::AddMesh(GraphicsApi::IGraphicsApi& api)
     return &meshes_.back();
 }
 
+bool Model::IsAnyMeshUseTransform() const
+{
+    for (const auto& mesh : meshes_)
+    {
+        if (mesh.UseArmature())
+            return true;
+    }
+    return false;
+}
+
 const std::vector<mat4>& Model::GetBoneTransforms()
 {
-    if ( skeleton_.size == 0)
+    if (skeleton_.size == 0)
         return boneTransforms_;
 
     if (boneTransforms_.empty())

@@ -142,7 +142,7 @@ uint32 DirectXApi::GetShaderVariableLocation(uint32, const std::string &)
 {
     return uint32();
 }
-GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, const std::vector<GraphicsApi::ShaderBufferVariable> &)
+GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
 {
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
@@ -271,6 +271,9 @@ void DirectXApi::BindBuffer(GraphicsApi::BindType, uint32)
 {
 }
 void DirectXApi::DeleteObject(uint32)
+{
+}
+void DirectXApi::DeleteShaderBuffer(uint32)
 {
 }
 std::string DirectXApi::GetBufferStatus()

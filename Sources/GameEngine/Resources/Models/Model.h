@@ -24,6 +24,9 @@ public:
 
     Mesh* AddMesh(Mesh& mesh);
     Mesh* AddMesh(GraphicsApi::IGraphicsApi& api);
+
+    bool IsAnyMeshUseTransform() const;
+
     inline float GetScaleFactor();
     inline const std::string& GetFileName() const;
     inline const std::vector<Mesh>& GetMeshes() const;

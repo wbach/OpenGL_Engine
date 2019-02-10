@@ -506,7 +506,7 @@
 		</gameObject>
 		<gameObject name="fern">
 			<worldTransform>
-				<position x="0.000000" y="0.000000" z="4294967296.000000"/>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
 				<rotation x="0.000000" y="0.000000" z="0.000000"/>
 				<scale x="3.000000" y="3.000000" z="3.000000"/>
 				<isDynamic>false</isDynamic>
@@ -30542,32 +30542,7 @@
 				</component>
 			</components>
 		</gameObject>
-		<gameObject name="Player">
-			<worldTransform>
-				<position x="0.000000" y="-1.148693" z="10.000000"/>
-				<rotation x="0.000000" y="0.000000" z="0.000000"/>
-				<scale x="1.800000" y="1.800000" z="1.800000"/>
-				<isDynamic>true</isDynamic>
-			</worldTransform>
-			<components count="2">
-				<component type="0">
-					<animator>
-						<currentAnimationClip>Run</currentAnimationClip>
-					</animator>
-				</component>
-				<component type="7">
-					<renderer>
-						<modelFileNames>
-							<modelFileName>
-								<fileName>Meshes/DaeAnimationExample/CharacterMultiple.dae</fileName>
-								<lvlOfDetail>0</lvlOfDetail>
-							</modelFileName>
-						</modelFileNames>
-						<textureIndex>0</textureIndex>
-					</renderer>
-				</component>
-			</components>
-		</gameObject>
+
 	</gameObjects>
 </scene>
 

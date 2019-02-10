@@ -2,8 +2,8 @@
 #include <memory>
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "Mutex.hpp"
 #include "Thread.hpp"
+#include <atomic>
 
 namespace GameEngine
 {
@@ -43,8 +43,7 @@ private:
     int objectLoaded;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
 
-    bool isLoading;
-    std::mutex loadingMutex;
+    std::atomic_bool isLoading;
 
     std::shared_ptr<DisplayManager>& displayManager;
     ResourceManager resorceManager;

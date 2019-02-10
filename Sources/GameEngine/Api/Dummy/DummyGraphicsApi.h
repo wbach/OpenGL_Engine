@@ -66,7 +66,7 @@ public:
         return ++id;
     }
 
-    virtual GraphicsApi::ID CreateShaderBuffer(uint32, uint32, const std::vector<GraphicsApi::ShaderBufferVariable>&) override
+    virtual GraphicsApi::ID CreateShaderBuffer(uint32, uint32) override
     {
         return ++id;
     }
@@ -159,6 +159,9 @@ public:
     {
     }
     virtual void DeleteObject(uint32) override
+    {
+    }
+    virtual void DeleteShaderBuffer(uint32) override
     {
     }
     virtual std::string GetBufferStatus() override

@@ -1,3 +1,4 @@
+
 #include "RenderersManager.h"
 
 #include "DefferedRenderer.h"
@@ -8,8 +9,14 @@
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
+#include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
+#include "GameEngine/Resources/ShaderBuffers/PerResizeBuffer.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
+
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 
 namespace GameEngine
 {
@@ -56,16 +63,13 @@ void RenderersManager::UpdateCamera(Scene* scene)
     camera->Move();
     camera->UpdateMatrix();
 }
-void RenderersManager::TakeSnapShoots()
-{
-    for (auto& obj : dynamincObjects_)
-        obj->worldTransform.TakeSnapShoot();
-}
+
 void RenderersManager::Init()
 {
     InitProjection();
     InitMainRenderer();
     InitGuiRenderer();
+    CreateBuffers();
 
     for (auto& r : renderers_)
         r->Init();
@@ -114,9 +118,17 @@ void RenderersManager::RenderScene(Scene* scene)
     if (scene == nullptr)
         return;
 
-    TakeSnapShoots();
+    bufferDataUpdater_.Update();
+
     UpdateCamera(scene);
     ReloadShadersExecution();
+
+    if (perFrameId_)
+    {
+        PerFrameBuffer buffer;
+        buffer.ViewMatrix = scene->GetCamera()->GetViewMatrix();
+        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
+    }
 
     RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
 
@@ -146,26 +158,14 @@ void RenderersManager::Subscribe(GameObject* gameObject)
     if (gameObject == nullptr)
         return;
 
-    if (gameObject->worldTransform.isDynamic_)
-        dynamincObjects_.push_back(gameObject);
+    bufferDataUpdater_.Subscribe(gameObject);
 
     for (auto& renderer : renderers_)
         renderer->Subscribe(gameObject);
 }
 void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
-    for (auto iter = dynamincObjects_.begin(); iter != dynamincObjects_.end();)
-    {
-        if (gameObject->GetId())
-        {
-            iter = dynamincObjects_.erase(iter);
-            break;
-        }
-        else
-        {
-            ++iter;
-        }
-    }
+    bufferDataUpdater_.UnSubscribe(gameObject);
 
     for (auto& r : renderers_)
         r->UnSubscribe(gameObject);
@@ -175,7 +175,7 @@ void RenderersManager::UnSubscribeAll()
     for (auto& r : renderers_)
         r->UnSubscribeAll();
 
-    dynamincObjects_.clear();
+    bufferDataUpdater_.UnSubscribeAll();
 }
 void RenderersManager::SwapLineFaceRender()
 {
@@ -211,6 +211,50 @@ void RenderersManager::Render(RendererFunctionType type, Scene* scene)
 
     if (renderPhysicsDebug_ and physicsDebugDraw_)
         physicsDebugDraw_(scene->GetCamera()->GetViewMatrix(), projection_.GetProjectionMatrix());
+}
+void RenderersManager::CreateBuffers()
+{
+    CreatePerAppBuffer();
+    CreatePerResizeBuffer();
+    CreatePerFrameBuffer();
+}
+void RenderersManager::CreatePerAppBuffer()
+{
+    auto perAppId = graphicsApi_.CreateShaderBuffer(PER_APP_BIND_LOCATION, sizeof(PerAppBuffer));
+
+    if (perAppId)
+    {
+        PerAppBuffer perApp;
+        perApp.clipPlane       = vec4{0.f, 1.f, 0.f, 100000.f};
+        perApp.shadowVariables = vec3(0.f, 10.f, 10.f);
+        perApp.useTextures     = 1.f;
+        perApp.viewDistance    = 500.f;
+        graphicsApi_.UpdateShaderBuffer(*perAppId, &perApp);
+    }
+}
+void RenderersManager::CreatePerResizeBuffer()
+{
+    auto perResizeId = graphicsApi_.CreateShaderBuffer(PER_RESIZE_BIND_LOCATION, sizeof(PerResizeBuffer));
+    if (perResizeId)
+    {
+        PerResizeBuffer buffer;
+        buffer.ProjectionMatrix = projection_.GetProjectionMatrix();
+        graphicsApi_.UpdateShaderBuffer(*perResizeId, &buffer);
+    }
+}
+void RenderersManager::CreatePerFrameBuffer()
+{
+    if (not perFrameId_)
+    {
+        perFrameId_ = graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+    }
+    if (perFrameId_)
+    {
+        PerFrameBuffer buffer;
+        buffer.ViewMatrix       = glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
+        buffer.ToShadowMapSpace = mat4();
+        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
+    }
 }
 
 }  // namespace Renderer

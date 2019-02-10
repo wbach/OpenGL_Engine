@@ -8,7 +8,7 @@
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
-
+#include <GLM/gtc/type_ptr.hpp>
 #include <iostream>
 
 enum class ObjectType
@@ -27,19 +27,11 @@ namespace OpenGLApi
 {
 CFont font;
 
-struct VariablesOffsets
-{
-    GraphicsApi::VariableType varType;
-    GLint uniformOffset;
-    GLint arrayStride;
-    GLint matrixStride;
-};
-
 struct ShaderBuffer
 {
     uint32 glId;
+    uint32 bufferSize;
     uint32 bindLocation;
-    std::vector<VariablesOffsets> offsets;
 };
 
 struct OpenGLApi::Pimpl
@@ -68,7 +60,6 @@ OpenGLApi::OpenGLApi()
 }
 OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
     : activeBuffer_(0)
-    , objectId_(1)
     , windowApi_(windowApi)
     , usedShader(0)
     , bgColor_(0)
@@ -242,164 +233,32 @@ uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string& varnam
     return impl_->shaderManager_.GetShaderVariableLocation(id, varname);
 }
 
-std::vector<VariablesOffsets> CreateVariablesOffsets(GLint program,
-                                                     const std::vector<GraphicsApi::ShaderBufferVariable>& variables)
-{
-    auto size = variables.size();
-
-    std::vector<VariablesOffsets> result;
-    result.resize(size);
-
-    std::vector<GLuint> uniformIndices;
-    uniformIndices.resize(size);
-
-    std::vector<const GLchar*> uniformNames;
-    uniformNames.reserve(size);
-
-    for (const auto& c : variables)
-    {
-        uniformNames.push_back(c.name.c_str());
-    }
-
-    glGetUniformIndices(program, size, &uniformNames[0], &uniformIndices[0]);
-
-    std::vector<GLint> uniformOffsets;
-    uniformOffsets.resize(size);
-
-    std::vector<GLint> arrayStrides;
-    arrayStrides.resize(size);
-
-    std::vector<GLint> matrixStrides;
-    matrixStrides.resize(size);
-
-    glGetActiveUniformsiv(program, size, &uniformIndices[0], GL_UNIFORM_OFFSET, &uniformOffsets[0]);
-    glGetActiveUniformsiv(program, size, &uniformIndices[0], GL_UNIFORM_ARRAY_STRIDE, &arrayStrides[0]);
-    glGetActiveUniformsiv(program, size, &uniformIndices[0], GL_UNIFORM_MATRIX_STRIDE, &matrixStrides[0]);
-
-    for (size_t i = 0; i < size; ++i)
-    {
-        result[i].varType       = variables[i].type;
-        result[i].uniformOffset = uniformOffsets[i];
-        result[i].arrayStride   = arrayStrides[i];
-        result[i].matrixStride  = matrixStrides[i];
-    }
-
-    return result;
-}
-
-GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size,
-                                              const std::vector<GraphicsApi::ShaderBufferVariable>& variables)
+GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
 {
     uint32 buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
-    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);  // allocate 150 bytes of memory
+    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindLocation, buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    auto programId = impl_->shaderManager_.GetBindedShader();
-    auto program   = impl_->idPool_.ToGL(programId);
-    impl_->shaderBuffers_.push_back({buffer, bindLocation, CreateVariablesOffsets(program, variables)});
+    impl_->shaderBuffers_.push_back({ buffer, size, bindLocation });
 
     return impl_->shaderBuffers_.size() - 1;
 }
 
-void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, bool v)
-{
-    *((bool*)(buffer + offset.uniformOffset)) = v;
-}
-
-void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, int v)
-{
-    *((int*)(buffer + offset.uniformOffset)) = v;
-}
-
-void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, float v)
-{
-    *((float*)(buffer + offset.uniformOffset)) = v;
-}
-
-void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, const vec2& v)
-{
-    ((float*)(buffer + offset.uniformOffset))[0] = v.x;
-    ((float*)(buffer + offset.uniformOffset))[1] = v.y;
-}
-
-void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, const vec3& v)
-{
-    ((float*)(buffer + offset.uniformOffset))[0] = v.x;
-    ((float*)(buffer + offset.uniformOffset))[1] = v.y;
-    ((float*)(buffer + offset.uniformOffset))[2] = v.z;
-}
-
-void UpdateBufferVariable(const VariablesOffsets& offset, unsigned char* buffer, const vec4& v)
-{
-    ((float*)(buffer + offset.uniformOffset))[0] = v.x;
-    ((float*)(buffer + offset.uniformOffset))[1] = v.y;
-    ((float*)(buffer + offset.uniformOffset))[2] = v.z;
-    ((float*)(buffer + offset.uniformOffset))[3] = v.w;
-}
-
-void UpdateBufferVariable(const VariablesOffsets& inOffset, unsigned char* buffer, const mat4& matrix)
-{
-    for (uint8 i = 0; i < 4; ++i)
-    {
-        GLuint offset = inOffset.uniformOffset + inOffset.matrixStride * i;
-
-        for (uint8 j = 0; j < 4; ++j)
-        {
-            *((float*)(buffer + offset)) = matrix[i][j];
-        }
-    }
-}
-
-void UpdateBufferVariable(const VariablesOffsets& inOffset, unsigned char* buffer, const std::vector<mat4>& matrixes)
-{
-    VariablesOffsets varOffset = inOffset;
-
-    for (const auto& matrix : matrixes)
-    {
-        varOffset.uniformOffset += inOffset.arrayStride;
-        UpdateBufferVariable(varOffset, buffer, matrix);
-    }
-}
-
-template <class T>
-void UpdateBuffer(int& inputBufferOffset, char* inputData, const VariablesOffsets& variableOffsets,
-                  unsigned char* data)
-{
-    std::cout << (int*)(inputData + inputBufferOffset) << std::endl;
-    char* ptr = inputData + inputBufferOffset;
-    auto v = reinterpret_cast<T*>(ptr);
-    inputBufferOffset += sizeof(T);
-    UpdateBufferVariable(variableOffsets, data, *v);
-}
-
-#define UPDATE_VARIABLE(x, y) if (offset.varType == x){ UpdateBuffer<y>(inputBufferOffset, inputData, offset, data); continue;}
-
 void OpenGLApi::UpdateShaderBuffer(uint32 id, void* buffer)
 {
-    unsigned char* data = (unsigned char*)malloc(4096);
-    auto inputData      = (char*)buffer;
+    const auto& b = impl_->shaderBuffers_[id];
 
-    std::cout << std::endl;
-    int inputBufferOffset = 0;
-    for (auto& offset : impl_->shaderBuffers_[id].offsets)
-    {
-        UPDATE_VARIABLE(GraphicsApi::VariableType::BOOL, bool);
-        UPDATE_VARIABLE(GraphicsApi::VariableType::INT, int);
-        UPDATE_VARIABLE(GraphicsApi::VariableType::FLOAT, float);
-        UPDATE_VARIABLE(GraphicsApi::VariableType::VEC2, vec2);
-        UPDATE_VARIABLE(GraphicsApi::VariableType::VEC3, vec3);
-        UPDATE_VARIABLE(GraphicsApi::VariableType::VEC4, vec4);
-        UPDATE_VARIABLE(GraphicsApi::VariableType::MAT4, mat4);
-        //UPDATE_VARIABLE(GraphicsApi::VariableType::MAT4_100, vec4);
-    }
-
-    free(data);
+    glBindBuffer(GL_UNIFORM_BUFFER, b.glId);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, b.bufferSize, buffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void OpenGLApi::BindShaderBuffer(uint32)
+void OpenGLApi::BindShaderBuffer(uint32 id)
 {
+    const auto& b = impl_->shaderBuffers_[id];
+    glBindBufferBase(GL_UNIFORM_BUFFER, b.bindLocation, b.glId);
 }
 
 void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
@@ -648,7 +507,7 @@ void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 
     glActiveTexture(GL_TEXTURE0 + nr);
 
-    if (createdObjectIds[id] == ObjectType::TEXTURE_CUBE_MAP)
+    if (createdObjectIds.at(id) == ObjectType::TEXTURE_CUBE_MAP)
         glBindTexture(GL_TEXTURE_CUBE_MAP, openGLId);
     else
         glBindTexture(GL_TEXTURE_2D, openGLId);
@@ -684,12 +543,23 @@ void OpenGLApi::BindBuffer(GraphicsApi::BindType type, uint32 id)
 
 void OpenGLApi::DeleteObject(uint32 id)
 {
+    if (id == 0)
+    {
+        return;
+    }
+
+    if (createdObjectIds.count(id) == 0)
+    {
+        Error("Delete object error. Object with id : " + std::to_string(id) + " not created?");
+        return;
+    }
+
     auto openGLId = impl_->idPool_.ToGL(id);
 
-    switch (createdObjectIds[id])
+    switch (createdObjectIds.at(id))
     {
         case ObjectType::SHADER_PROGRAM:
-            DeleteShader(openGLId);
+            DeleteShader(id);
             break;
         case ObjectType::TEXTURE_2D:
             glDeleteTextures(1, &openGLId);
@@ -707,6 +577,12 @@ void OpenGLApi::DeleteObject(uint32 id)
             DeleteMesh(id);
             break;
     }
+}
+
+void OpenGLApi::DeleteShaderBuffer(uint32 id)
+{
+    auto& bufferId = impl_->shaderBuffers_[id];
+    glDeleteBuffers(1, &bufferId.glId);
 }
 
 std::string OpenGLApi::GetBufferStatus()
@@ -729,20 +605,18 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     glBindVertexArray(vao);
     glPatchParameteri(GL_PATCH_VERTICES, patch);
 
-    auto rid = objectId_;
+    auto rid = impl_->idPool_.ToUint(vao);
     createdObjectIds.insert({rid, ObjectType::MESH});
     openGlMeshes_.insert({rid, {}});
     openGlMeshes_.at(rid).instancesCount = count;
     openGlMeshes_.at(rid).patches        = patch;
-    ++objectId_;
     return rid;
 }
 
 uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData)
 {
-    auto rid = objectId_;
+    auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
-    ++objectId_;
 
     openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
@@ -761,9 +635,8 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData)
 
 uint32 OpenGLApi::CreateParticle()
 {
-    auto rid = objectId_;
+    auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
-    objectId_++;
 
     openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
@@ -782,9 +655,8 @@ uint32 OpenGLApi::CreateParticle()
 }
 uint32 OpenGLApi::CreateAnimatedParticle()
 {
-    auto rid = objectId_;
+    auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
-    objectId_++;
 
     openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
@@ -948,8 +820,8 @@ void OpenGLApi::BindTexture(uint32 id)
 
 uint32 OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
 {
-    auto shadowMapId = CreateDepthBufferAttachment(sizex, sizey);
-    auto rid         = impl_->idPool_.ToUint(shadowMapId);
+    auto glId = CreateDepthBufferAttachment(sizex, sizey);
+    auto rid         = impl_->idPool_.ToUint(glId);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
     return rid;
 }

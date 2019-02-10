@@ -2,7 +2,12 @@
 
 namespace GameEngine
 {
-void GpuResourceLoader::AddObjectToGpuLoadingPass(GpuObject* obj)
+    GpuResourceLoader::GpuResourceLoader()
+    {
+        gpuPassLoad.reserve(10000);
+        gpuPostPassLoad.reserve(100000);
+    }
+    void GpuResourceLoader::AddObjectToGpuLoadingPass(GpuObject* obj)
 {
     std::lock_guard<std::mutex> lock(mutex);
     gpuPassLoad.push_back(obj);

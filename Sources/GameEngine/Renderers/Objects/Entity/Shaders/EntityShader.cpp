@@ -12,13 +12,13 @@ void EntityShader::GetAllUniformLocations()
 {
     uniforms_.resize(EntityShaderUniforms::SIZE);
 
-    uniforms_[EntityShaderUniforms::ViewMatrix]           = GetUniformLocation("ViewMatrix");
-    uniforms_[EntityShaderUniforms::ProjectionMatrix]     = GetUniformLocation("ProjectionMatrix");
-    uniforms_[EntityShaderUniforms::TransformationMatrix] = GetUniformLocation("TransformationMatrix");
-    uniforms_[EntityShaderUniforms::TextureOffset]        = GetUniformLocation("TextureOffset");
-    uniforms_[EntityShaderUniforms::NumberOfRows]         = GetUniformLocation("NumberOfRows");
-    uniforms_[EntityShaderUniforms::UseBoneTransform]     = GetUniformLocation("UseBoneTransform");
-    uniforms_[EntityShaderUniforms::BonesTransforms]      = GetUniformLocation("BonesTransforms");
+    //uniforms_[EntityShaderUniforms::ViewMatrix]           = GetUniformLocation("ViewMatrix");
+    //uniforms_[EntityShaderUniforms::ProjectionMatrix]     = GetUniformLocation("ProjectionMatrix");
+    //uniforms_[EntityShaderUniforms::TransformationMatrix] = GetUniformLocation("TransformationMatrix");
+    //uniforms_[EntityShaderUniforms::TextureOffset]        = GetUniformLocation("TextureOffset");
+    //uniforms_[EntityShaderUniforms::NumberOfRows]         = GetUniformLocation("NumberOfRows");
+    //uniforms_[EntityShaderUniforms::UseBoneTransform]     = GetUniformLocation("UseBoneTransform");
+    //uniforms_[EntityShaderUniforms::BonesTransforms]      = GetUniformLocation("BonesTransforms");
     uniforms_[EntityShaderUniforms::ColorMap]             = GetUniformLocation("gColorMap");
 }
 void EntityShader::BindAttributes()

@@ -26,7 +26,6 @@ public:
     
 private:
     Texture* GetTextureIfLoaded(const std::string& filename) const;
-    std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string&) const;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;

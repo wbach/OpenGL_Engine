@@ -1,5 +1,7 @@
 #include "Texture.h"
 #include "Logger/Log.h"
+#include <algorithm>
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -24,6 +26,16 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file
     , fullpath(filepath)
     , applySizeLimit(applySizeLimit)
 {
+
+    auto rows = GetNumberOfRowsBasedOnTextureFileName(file);
+    if (rows)
+    {
+        numberOfRows = *rows;
+    }
+    else
+    {
+        numberOfRows = 1;
+    }
 }
 Texture::~Texture()
 {
@@ -32,5 +44,25 @@ Texture::~Texture()
     Log("Delete " + fullpath + ", texture id: " + std::to_string(id));
 
     graphicsApi_.DeleteObject(id);
+}
+std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::string & file) const
+{
+    auto cfile = file;
+    std::replace(cfile.begin(), cfile.end(), '\\', '/');
+    auto v = Utils::SplitString(cfile, '/');
+    auto filename = v.back().substr(0, v.back().find_last_of('.'));
+
+    auto rowsPos = filename.find("_rows_");
+
+    if (rowsPos != std::string::npos)
+    {
+        auto rows = filename.substr(rowsPos + 6);
+        if (!rows.empty())
+        {
+            return std::stoi(rows);
+        }
+    }
+
+    return std::optional<uint32>();
 }
 }  // namespace GameEngine

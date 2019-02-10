@@ -9,6 +9,11 @@
 
 namespace GameEngine
 {
+struct MeshBufferes
+{
+    GraphicsApi::ID perPoseUpdateBuffer_;
+    GraphicsApi::ID perMeshObjectBuffer_;
+};
 class Mesh : public GpuObject
 {
 public:
@@ -19,8 +24,11 @@ public:
     virtual ~Mesh();
     virtual void GpuLoadingPass() override;
     virtual void GpuPostLoadingPass() override;
-    void SetMaterial(const Material &material);
-    void SetTransformMatrix(const glm::mat4& m);
+    void SetMaterial(const Material& material);
+    const MeshBufferes& Mesh::GetBuffers() const;
+    void UpdatePoseBuffer(void* pose) const;
+
+    void SetTransformMatrix(const mat4& m);
     bool IsInit() const;
     bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
@@ -31,7 +39,10 @@ public:
     inline GraphicsApi::MeshRawData& GetMeshDataRef();
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
+    void SetUseArmatorIfHaveBones();
+
 private:
+    void CreateBufferObject();
     void CreateMesh();
     void CalculateBoudnigBox(const std::vector<float>& positions);
     void SetInstancedMatrixes(const std::vector<mat4>& m);
@@ -51,6 +62,7 @@ private:
     // local transform in mesh
     mat4 transform_;
     BoundingBox boundingBox;
+    MeshBufferes meshBuffers_;
 };
 
 const mat4& Mesh::GetMeshTransform() const

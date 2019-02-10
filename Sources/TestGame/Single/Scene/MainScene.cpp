@@ -137,6 +137,7 @@ int MainScene::Initialize()
 
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
             "Meshes/DaeAnimationExample/CharacterMultiple.dae");
+
         player               = uplayer.get();
         characterController_ = std::make_shared<common::Controllers::CharacterController>(
             player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);

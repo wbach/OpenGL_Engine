@@ -29,6 +29,7 @@ public:
     inline float GetTextureXOffset(uint32 textureIndex);
     inline float GetTextureYOffset(uint32 textureIndex);
     inline vec2 GetTextureOffset(uint32 textureIndex);
+    std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const;
 
 public:
     uint32 numberOfRows = 1;

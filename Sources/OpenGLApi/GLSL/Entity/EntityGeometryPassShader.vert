@@ -1,5 +1,5 @@
-#version 420
-const int MAX_BONES = 100;
+#version 440
+const int MAX_BONES = 25;
 const int MAX_WEIGHTS = 3;
 
 layout (location = 0) in vec3 Position;
@@ -8,50 +8,51 @@ layout (location = 2) in vec3 Normal;
 layout (location = 3) in vec3 Tangent;
 layout (location = 4) in vec3 Weights;
 layout (location = 5) in ivec3 BoneIds;
-//layout (location = 4) in mat4 TransformationMatrixes;
 
-layout (std140, binding = 0) uniform PerApp
+layout (std140, align=16, binding=0) uniform PerApp
 {
-    bool UseFakeLighting;
-    vec3 ShadowVariables;
-    vec4 ClipPlane;
+    float useTextures;
+    float viewDistance;
+    vec3 shadowVariables;
+    vec4 clipPlane;
 } perApp;
 
-layout (std140, binding = 1) uniform PerResize
+layout (std140, binding=1) uniform PerResize
 {
-    mat4 ProjectionMatrix;
+    mat4 projectionMatrix;
 } perResize;
 
-layout (std140, binding = 2) uniform PerFrame
+layout (std140,binding=2) uniform PerFrame
 {
-    mat4 ViewMatrix;
-    mat4 ToShadowMapSpace;
+    mat4 viewMatrix;
+    mat4 toShadowMapSpace;
 } perFrame;
 
-layout (std140, binding = 3) uniform PerObject
+layout (std140, align=16, binding=3) uniform PerObjectConstants
 {
-    bool UseBoneTransform;
-    bool UseNormalMap;
-    mat4 TransformationMatrix;
-    uint NumberOfRows;
-    vec2 TextureOffset;
-    mat4 BonesTransforms[MAX_BONES];
-} perObject;
+    float useBoneTransform;
+    vec2 textureOffset;
+} perObjectConstants;
 
-out vec2 TexCoord0;
-out vec3 Normal0;
-out vec4 WorldPos0;
+layout (std140, binding=4) uniform PerObjectUpdate
+{
+    mat4 transformationMatrix;
+} perObjectUpdate;
 
-out vec3 PassTangent;
-out float UseNormalMap;
-out float FakeLight;
+layout (std140, binding=5) uniform PerPoseUpdate
+{
+    mat4 bonesTransforms[MAX_BONES];
+} perPoseUpdate;
 
-out vec4 ShadowCoords;
-out float UseShadows;
-out float ShadowMapSize;
-
-//Fog
-out float Distance;
+out VS_OUT
+{
+    vec2 texCoord;
+    vec3 normal;
+    vec4 worldPos;
+    vec3 passTangent;
+    vec2 textureOffset;
+    float outOfViewRange;
+} vs_out;
 
 struct VertexWorldData
 {
@@ -59,22 +60,27 @@ struct VertexWorldData
     vec4 worldNormal;
 };
 
+bool Is(float v)
+{
+    return v > 0.5f;
+}
+
 VertexWorldData caluclateWorldData()
 {
     VertexWorldData result;
     result.worldPosition = vec4(0.0);
-    result.worldNormal = vec4(0.0);
+    result.worldNormal   = vec4(0.0);
 
-    if(!perObject.UseBoneTransform)
+    if(!Is(perObjectConstants.useBoneTransform))
     {
-        result.worldPosition = perObject.TransformationMatrix * vec4(Position, 1.f);
-        result.worldNormal = perObject.TransformationMatrix * vec4(Normal, 0.0);
+        result.worldPosition = perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
+        result.worldNormal = perObjectUpdate.transformationMatrix * vec4(Normal, 0.0);
         return result;
     }
 
     for(int i=0; i < MAX_WEIGHTS; i++)
     {
-        mat4 boneTransform = perObject.BonesTransforms[BoneIds[i]];
+        mat4 boneTransform = perPoseUpdate.bonesTransforms[BoneIds[i]];
         vec4 posePosition = boneTransform * vec4(Position, 1.0f);
         result.worldPosition += posePosition * Weights[i];
 
@@ -82,67 +88,22 @@ VertexWorldData caluclateWorldData()
         result.worldNormal += worldNormal * Weights[i];
     }
 
-    result.worldPosition = perObject.TransformationMatrix * result.worldPosition;
-    result.worldNormal = perObject.TransformationMatrix * result.worldNormal;
+    result.worldPosition = perObjectUpdate.transformationMatrix * result.worldPosition;
+    result.worldNormal = perObjectUpdate.transformationMatrix * result.worldNormal;
     return result;
-}
-
-void CalculateShadowVariables()
-{
-    UseShadows = perApp.ShadowVariables.x;
-    if (UseShadows > 0.5f)
-    {
-        ShadowMapSize = perApp.ShadowVariables.z;
-
-        float shadow_distance           = perApp.ShadowVariables.y;
-        const float transition_distance = 10.f;
-
-        float distance_to_cam   = Distance;
-        ShadowCoords            = perFrame.ToShadowMapSpace * WorldPos0;
-        distance_to_cam         = distance_to_cam - (shadow_distance - transition_distance);
-        distance_to_cam         = distance_to_cam / shadow_distance;
-        ShadowCoords.w          = clamp(1.f - distance_to_cam, 0.f, 1.f);
-    }
-}
-
-void CalculateTangents()
-{
-    if(perObject.UseNormalMap)
-    {
-        PassTangent = (perObject.TransformationMatrix * vec4(Tangent, 0.0)).xyz;
-        UseNormalMap = 1.f;
-    }
-    else
-    {
-        UseNormalMap = 0.f;
-        PassTangent = vec3(.0f) ;
-    }
 }
 
 void main()
 {
     VertexWorldData worldData = caluclateWorldData();
+    vec4 modelViewPosition = perFrame.viewMatrix * worldData.worldPosition;
+    vs_out.outOfViewRange = length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
 
-    vec4 modelViewPosition  = perFrame.ViewMatrix * worldData.worldPosition;
-    gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.ClipPlane);
-
-    gl_Position    = perResize.ProjectionMatrix * modelViewPosition;
-    TexCoord0      = (TexCoord / perObject.NumberOfRows) + perObject.TextureOffset;
-    WorldPos0      = worldData.worldPosition;
-
-    CalculateTangents();
-
-    if (perApp.UseFakeLighting)
-    {
-        Normal0 = vec3(.0f , 1.f, .0f);
-        FakeLight = 1.0f;
-    }
-    else
-    {
-        Normal0   = worldData.worldNormal.xyz;
-        FakeLight = 0.f;
-    }
-
-    Distance = length(modelViewPosition.xyz);
-    CalculateShadowVariables();
+    vs_out.texCoord      = TexCoord;
+    vs_out.worldPos      = worldData.worldPosition;
+    vs_out.normal        = worldData.worldNormal.xyz;
+    vs_out.textureOffset = perObjectConstants.textureOffset;
+    vs_out.passTangent   = (perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz;
+    gl_Position = perResize.projectionMatrix * modelViewPosition;
+    gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }
