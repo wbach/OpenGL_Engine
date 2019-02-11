@@ -39,6 +39,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Physics/Bullet/BulletAdapter.cpp
 ../../Sources/GameEngine/Physics/Bullet/DebugDrawer.cpp
 ../../Sources/GameEngine/Renderers/BaseRenderer.cpp
+../../Sources/GameEngine/Renderers/BufferDataUpdater.cpp
 ../../Sources/GameEngine/Renderers/DefferedRenderer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.cpp
@@ -87,6 +88,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.cpp
 ../../Sources/GameEngine/Renderers/Projection.cpp
 ../../Sources/GameEngine/Renderers/RenderersManager.cpp
+../../Sources/GameEngine/Resources/BufferObject.cpp
 ../../Sources/GameEngine/Resources/GpuResourceLoader.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp
 ../../Sources/GameEngine/Resources/Models/Bone.cpp

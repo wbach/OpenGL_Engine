@@ -1,38 +1,50 @@
-#version 320
+#version 440
 #define EPSILON 0.0002
 
-struct SMaterial
+layout (std140, align=16, binding=6) uniform PerMeshObject
 {
-    vec3  m_Ambient;
-    vec3  m_Diffuse;
-    vec3  m_Specular;
-    float m_ShineDamper;
-};
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    uint numberOfRows;
+    float useTexture;
+    float useNormalMap;
+    float shineDamper;
+    float useFakeLighting;
+} perMeshObject;
 
-in vec2 TexCoord0;
-in float Distance;
+in VS_OUT
+{
+    vec2 texCoord;
+    vec2 textureOffset;
+    float outOfViewRange;
+} vs_in;
 
-uniform float     UseTexture;
-uniform sampler2D gColorMap;
-uniform float ViewDistance;
-uniform SMaterial ModelMaterial;
+uniform sampler2D DiffuseTexture;
 
 out vec4 outputColor;
 
+bool Is(float v)
+{
+    return v > 0.5f;
+}
+
 void main()
 {       
-    if (Distance > ViewDistance)
+    if (Is(vs_in.outOfViewRange))
         discard;
 
-    vec4 texture_color = vec4(1.f, 1.f, 1.f, 1.f);
-    if (UseTexture > .5f)
+    vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
+    vec2 textCoord = (vs_in.texCoord / perMeshObject.numberOfRows) + vs_in.textureOffset;
+
+    if (Is(perMeshObject.useTexture))
     {
-        texture_color = texture(gColorMap, TexCoord0);
-        if(texture_color.a < 0.5)
+        colorFromTexture = texture(DiffuseTexture, textCoord);
+        if(!Is(colorFromTexture.a))
         {
             discard;
         }
     }
 
-    outputColor = texture_color * vec4(ModelMaterial.m_Diffuse, 1.0f);
+    outputColor = colorFromTexture * perMeshObject.diffuse;
 }

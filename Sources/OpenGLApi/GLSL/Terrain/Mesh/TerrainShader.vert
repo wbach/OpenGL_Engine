@@ -1,4 +1,4 @@
-#version 330
+#version 440
 
 layout (location = 0) in vec3 POSITION;
 layout (location = 1) in vec2 TEXTCOORD;
@@ -23,13 +23,13 @@ out VS_OUT
     vec3 normal;
     vec4 worldPos;
     vec4 shadowCoords;
-    bool useShadows;
+    float useShadows;
     float shadowMapSize;
     vec3 passTangent;
-    bool useNormalMap;
+    float useNormalMap;
 } vs_out;
 
-bool convert(float f)
+bool Is(float f)
 {
     return f > .5f;
 }
@@ -42,21 +42,21 @@ void main()
     vs_out.normal           = (transformMatrix * vec4(NORMAL, 0.0)).xyz;
     vs_out.worldPos         = worldPos;
 
-    if( useNormalMap > .5f) 
+    if(Is(useNormalMap)) 
     {
         vs_out.passTangent  = (transformMatrix * vec4(TANGENT, 0.0)).xyz; 
-        vs_out.useNormalMap = true;
+        vs_out.useNormalMap = 1.f;
     }
     else
     {
-        vs_out.useNormalMap = false;
+        vs_out.useNormalMap = 0.f;
         vs_out.passTangent  = vec3(.0f) ;
     }
 
     float distanceToCam = length(modelViewPosition.xyz);
-    vs_out.useShadows    = convert(useShadows);
+    vs_out.useShadows    = useShadows;
 
-    if (vs_out.useShadows)
+    if (Is(vs_out.useShadows))
     {
         vs_out.shadowMapSize  = shadowMapSize;
         vs_out.shadowCoords   = toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f); 

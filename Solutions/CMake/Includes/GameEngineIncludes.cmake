@@ -63,6 +63,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Physics/Rigidbody.h
 ../../Sources/GameEngine/Physics/ShapeType.h
 ../../Sources/GameEngine/Renderers/BaseRenderer.h
+../../Sources/GameEngine/Renderers/BufferDataUpdater.h
 ../../Sources/GameEngine/Renderers/DebugRenderer.h
 ../../Sources/GameEngine/Renderers/DefferedRenderer.h
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h
@@ -136,6 +137,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/RendererContext.h
 ../../Sources/GameEngine/Renderers/RendererFunctionType.h
 ../../Sources/GameEngine/Renderers/RenderersManager.h
+../../Sources/GameEngine/Resources/BufferObject.h
 ../../Sources/GameEngine/Resources/GpuObject.h
 ../../Sources/GameEngine/Resources/GpuResourceLoader.h
 ../../Sources/GameEngine/Resources/IGpuObject.h
@@ -211,6 +213,14 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.h
 ../../Sources/GameEngine/Resources/ResourceManager.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerAppBuffer.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerMeshObject.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerObjectConstants.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerResizeBuffer.h
+../../Sources/GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h
 ../../Sources/GameEngine/Resources/TextureLoader.h
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.h
 ../../Sources/GameEngine/Resources/Textures/GeneralTexture.h

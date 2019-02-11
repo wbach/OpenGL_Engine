@@ -1,12 +1,12 @@
 <Config>
-	<Window name="Game" width="2000" height="960" fullscreen="false"/>
+	<Window name="Game" width="1366" height="768" fullscreen="false"/>
 	<Files>
-		<DataLocation>C:/Users/basze/OneDrive/GameData/Data</DataLocation>
+		<DataLocation>../../Data</DataLocation>
 		<ShadersLocation>../OpenGLApi/GLSL/</ShadersLocation>
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer resolutionX="2000" type="1" resolutionY="960" fpsLimit="60">
+	<Renderer resolutionX="1366" type="1" resolutionY="768" fpsLimit="60">
 		<Water type="2">
 			<Reflection width="640" height="480"/>
 			<Refraction width="320" height="240"/>

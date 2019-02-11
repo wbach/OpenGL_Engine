@@ -5,6 +5,7 @@ set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/FunctionsTypes.h
 ../../Sources/GraphicsApi/IGraphicsApi.h
 ../../Sources/GraphicsApi/MeshRawData.h
+../../Sources/GraphicsApi/ShaderBufferVariable.h
 ../../Sources/GraphicsApi/ShaderFiles.h
 ../../Sources/GraphicsApi/ShaderQuaility.h
 ../../Sources/GraphicsApi/ShadersTypes.h
@@ -12,6 +13,7 @@ set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/Surface.h
 ../../Sources/GraphicsApi/TextureParamters.h
 ../../Sources/GraphicsApi/TextureTarget.h
+../../Sources/GraphicsApi/VariableType.h
 ../../Sources/GraphicsApi/WindowType.h
 ../../Sources/GraphicsApi/WindowApi.hpp
 )

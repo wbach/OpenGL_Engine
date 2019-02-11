@@ -27,6 +27,7 @@
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
+#include "GameEngine/Engine/Configuration.h"
 
 using namespace GameEngine;
 
@@ -84,7 +85,8 @@ int MainScene::Initialize()
 
     auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
     auto fontSize = windowsSize.y / 10;
-    auto fontId    = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont("E:\\Oswald-Light.ttf", fontSize);
+    auto fontPath    = EngineConf_GetFullDataPath("GUI/consola.ttf");
+    auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
     auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(
         fontId, "Oswald-Light.ttf font text.", vec4(0.5, 0.5, 0.5, 1.f));
 

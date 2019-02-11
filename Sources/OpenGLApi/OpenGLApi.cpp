@@ -503,6 +503,11 @@ void OpenGLApi::ActiveTexture(uint32 nr)
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
+    if (id == 0)
+    {
+        return;
+    }
+
     auto openGLId = impl_->idPool_.ToGL(id);
 
     glActiveTexture(GL_TEXTURE0 + nr);

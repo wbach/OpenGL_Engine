@@ -1,4 +1,4 @@
-#version 330
+#version 440
 
 struct TerrainNormalColor
 {
@@ -12,10 +12,10 @@ in VS_OUT
     vec3 normal;
     vec4 worldPos;
     vec4 shadowCoords;
-    bool useShadows;
+    float useShadows;
     float shadowMapSize;
     vec3 passTangent;
-    bool useNormalMap;
+    float useNormalMap;
 } vs_in;
 
 uniform sampler2D blendMap;
@@ -37,6 +37,11 @@ layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 SpecularOut;
+
+bool Is(float f)
+{
+    return f > .5f;
+}
 
 float GetScaledYNormal()
 {
@@ -106,7 +111,7 @@ TerrainNormalColor CalculateTerrainColor()
     vec4 greenTextureColour = texture(greenTexture, tiledCoords) * blendMapColour.g;
     vec4 blueTextureColour  = texture(blueTexture, tiledCoords) * blendMapColour.b;
     
-    if (vs_in.useNormalMap)
+    if (Is(vs_in.useNormalMap))
     {
         vec4 backgorund_n_texture_colour = texture(backgorundTextureNormal, tiledCoords) * backTextureAmount * normalY + ( texture(rockNormalTexture, tiledCoords * 0.25f) * backTextureAmount * (1.f - normalY)) ;
         vec4 redNormalTextureColour      = texture(redTextureNormal, tiledCoords) * blendMapColour.r;
@@ -125,7 +130,7 @@ TerrainNormalColor CalculateTerrainColor()
 void main()
 {
     TerrainNormalColor terrainNormalColor = CalculateTerrainColor();
-    float shadowFactor = vs_in.useShadows ? CalculateShadowFactor() : 1.f;
+    float shadowFactor = Is(vs_in.useShadows) ? CalculateShadowFactor() : 1.f;
     WorldPosOut     = vs_in.worldPos;
     DiffuseOut      = terrainNormalColor.color * shadowFactor;
     SpecularOut     = vec4(0.f);

@@ -1,4 +1,4 @@
-#version 420
+#version 440
 const int MAX_BONES = 100;
 const int MAX_WEIGHTS = 3;
 
@@ -9,19 +9,47 @@ layout (location = 3) in vec3 Tangent;
 layout (location = 4) in vec3 Weights;
 layout (location = 5) in ivec3 BoneIds;
 
-uniform float UseBoneTransform;
-uniform mat4 BonesTransforms[MAX_BONES];
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    float useTextures;
+    float viewDistance;
+    vec3 shadowVariables;
+    vec4 clipPlane;
+} perApp;
 
-uniform mat4 TransformationMatrix ;
-uniform mat4 ProjectionMatrix ;
-uniform mat4 ViewMatrix ;
+layout (std140, binding=1) uniform PerResize
+{
+    mat4 projectionMatrix;
+} perResize;
 
-uniform vec4 ClipPlane;
-uniform uint NumberOfRows;
-uniform vec2 TextureOffset;
+layout (std140,binding=2) uniform PerFrame
+{
+    mat4 viewMatrix;
+    mat4 toShadowMapSpace;
+} perFrame;
 
-out vec2 TexCoord0;
-out float Distance;
+layout (std140, align=16, binding=3) uniform PerObjectConstants
+{
+    float useBoneTransform;
+    vec2 textureOffset;
+} perObjectConstants;
+
+layout (std140, binding=4) uniform PerObjectUpdate
+{
+    mat4 transformationMatrix;
+} perObjectUpdate;
+
+layout (std140, binding=5) uniform PerPoseUpdate
+{
+    mat4 bonesTransforms[MAX_BONES];
+} perPoseUpdate;
+
+out VS_OUT
+{
+    vec2 texCoord;
+    vec2 textureOffset;
+    float outOfViewRange;
+} vs_out;
 
 struct VertexWorldData
 {
@@ -29,22 +57,27 @@ struct VertexWorldData
     vec4 worldNormal;
 };
 
+bool Is(float v)
+{
+    return v > 0.5f;
+}
+
 VertexWorldData caluclateWorldData()
 {
     VertexWorldData result;
     result.worldPosition = vec4(0.0);
-    result.worldNormal = vec4(0.0);
+    result.worldNormal   = vec4(0.0);
 
-    if(UseBoneTransform < .5f)
+    if(!Is(perObjectConstants.useBoneTransform))
     {
-        result.worldPosition = TransformationMatrix * vec4(Position, 1.f);
-        result.worldNormal = TransformationMatrix * vec4(Normal, 0.0);
+        result.worldPosition = perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
+        result.worldNormal = perObjectUpdate.transformationMatrix * vec4(Normal, 0.0);
         return result;
     }
 
     for(int i=0; i < MAX_WEIGHTS; i++)
     {
-        mat4 boneTransform = BonesTransforms[BoneIds[i]];
+        mat4 boneTransform = perPoseUpdate.bonesTransforms[BoneIds[i]];
         vec4 posePosition = boneTransform * vec4(Position, 1.0f);
         result.worldPosition += posePosition * Weights[i];
 
@@ -52,8 +85,8 @@ VertexWorldData caluclateWorldData()
         result.worldNormal += worldNormal * Weights[i];
     }
 
-    result.worldPosition = TransformationMatrix * result.worldPosition;
-    result.worldNormal = TransformationMatrix * result.worldNormal;
+    result.worldPosition = perObjectUpdate.transformationMatrix * result.worldPosition;
+    result.worldNormal = perObjectUpdate.transformationMatrix * result.worldNormal;
     return result;
 }
 
@@ -61,11 +94,10 @@ void main()
 {
     VertexWorldData worldData = caluclateWorldData();
 
-    vec4 modelViewPosition  = ViewMatrix * worldData.worldPosition;
-    gl_ClipDistance[0] = dot(worldData.worldPosition, ClipPlane);
-
-    gl_Position    = ProjectionMatrix * modelViewPosition; 
-    TexCoord0      = (TexCoord / NumberOfRows) + TextureOffset;
-
-    Distance = length(modelViewPosition.xyz);
+    vec4 modelViewPosition = perFrame.viewMatrix * worldData.worldPosition;
+    vs_out.texCoord      = TexCoord;
+    vs_out.textureOffset = perObjectConstants.textureOffset;
+    vs_out.outOfViewRange = length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
+    gl_Position = perResize.projectionMatrix * modelViewPosition;
+    gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }
