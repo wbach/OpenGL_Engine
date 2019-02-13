@@ -176,15 +176,17 @@ void DirectXApi::UpdateShaderBuffer(uint32 id, void *data)
     const auto &buffer = impl_->buffers_[id];
     impl_->dxCondext_.devcon->UpdateSubresource(buffer.ptr, 0, NULL, &data, 0, 0);
 }
-void DirectXApi::BindShaderBuffer(uint32 id)
+uint32 DirectXApi::BindShaderBuffer(uint32 id)
 {
     if (not Utils::ValidateRange(impl_->buffers_, id))
     {
         MessageBox(NULL, "BindShaderBuffer ID3D11Buffer. Size exceeded", "Error", MB_OK);
-        return;
+        return 0;
     }
     const auto &buffer = impl_->buffers_[id];
     impl_->dxCondext_.devcon->VSSetConstantBuffers(buffer.bindLocation, 1, &buffer.ptr);
+
+    return 0;//to do return last binded buffer
 }
 void DirectXApi::BindAttribute(uint32, uint32, const std::string &)
 {

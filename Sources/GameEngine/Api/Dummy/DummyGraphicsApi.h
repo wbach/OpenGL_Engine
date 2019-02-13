@@ -75,8 +75,9 @@ public:
     {
     }
 
-    virtual void BindShaderBuffer(uint32) override
+    virtual uint32 BindShaderBuffer(uint32) override
     {
+        return 0;
     }
 
     virtual void UseShader(uint32) override

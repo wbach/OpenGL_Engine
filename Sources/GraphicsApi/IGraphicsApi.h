@@ -45,7 +45,7 @@ public:
     virtual uint32 GetShaderVariableLocation(uint32, const std::string&)                                         = 0;
     virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size)                                              = 0;
     virtual void UpdateShaderBuffer(uint32 id, void* buffer)                                                     = 0;
-    virtual void BindShaderBuffer(uint32)                                                                        = 0;
+    virtual uint32 BindShaderBuffer(uint32)                                                                      = 0;
     virtual void UseShader(uint32)                                                                               = 0;
     virtual void BindAttribute(uint32, uint32, const std::string&)                                               = 0;
     virtual void LoadValueToShader(uint32, int)                                                                  = 0;

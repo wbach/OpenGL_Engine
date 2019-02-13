@@ -230,6 +230,7 @@ void RenderersManager::CreatePerAppBuffer()
         perApp.useTextures     = 1.f;
         perApp.viewDistance    = 500.f;
         graphicsApi_.UpdateShaderBuffer(*perAppId, &perApp);
+        graphicsApi_.BindShaderBuffer(*perAppId);
     }
 }
 void RenderersManager::CreatePerResizeBuffer()
@@ -240,6 +241,7 @@ void RenderersManager::CreatePerResizeBuffer()
         PerResizeBuffer buffer;
         buffer.ProjectionMatrix = projection_.GetProjectionMatrix();
         graphicsApi_.UpdateShaderBuffer(*perResizeId, &buffer);
+        graphicsApi_.BindShaderBuffer(*perResizeId);
     }
 }
 void RenderersManager::CreatePerFrameBuffer()
@@ -254,6 +256,7 @@ void RenderersManager::CreatePerFrameBuffer()
         buffer.ViewMatrix       = glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
         buffer.ToShadowMapSpace = mat4();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
+        graphicsApi_.BindShaderBuffer(*perFrameId_);
     }
 }
 

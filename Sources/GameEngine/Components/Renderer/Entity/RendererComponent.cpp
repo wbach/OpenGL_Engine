@@ -41,7 +41,6 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
     ReserveBufferVectors(model->GetMeshes().size());
     CreateBuffers(model);
 
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(model);
     model_.Add(model, lvl);
 
     return *this;

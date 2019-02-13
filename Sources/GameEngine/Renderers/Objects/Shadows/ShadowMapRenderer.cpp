@@ -1,18 +1,22 @@
 #include "ShadowMapRenderer.hpp"
 #include "GLM/GLMUtils.h"
-#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
+#include "GameEngine/Resources/ShaderBuffers/PerResizeBuffer.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/ShadowShaderUniforms.h"
 #include "ShadowFrameBuffer.h"
 #include "math.hpp"
+
 namespace GameEngine
 {
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
@@ -26,17 +30,41 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
 }
 
+ShadowMapRenderer::~ShadowMapRenderer()
+{
+    if (perFrameBuffer_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perFrameBuffer_);
+    }
+
+    if (perResizeBuffer_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perResizeBuffer_);
+    }
+}
+
 void ShadowMapRenderer::Init()
 {
     shader_->Init();
+    perResizeBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_RESIZE_BIND_LOCATION, sizeof(PerResizeBuffer));
+    perFrameBuffer_  = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
 }
 
 void ShadowMapRenderer::Render(Scene* scene)
 {
+    if (not perResizeBuffer_ or not perFrameBuffer_)
+        return;
+
+    uint32 lastBindedPerResizeBuffer = context_.graphicsApi_.BindShaderBuffer(*perResizeBuffer_);
+    uint32 lastBindedPerFrameBuffer  = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
+
     PrepareRender(scene);
     PrepareShader(scene->GetCamera());
     RenderSubscribes();
     context_.shadowsFrameBuffer_.UnbindFrameBuffer();
+
+    context_.graphicsApi_.BindShaderBuffer(lastBindedPerResizeBuffer);
+    context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
 }
 
 void ShadowMapRenderer::Subscribe(GameObject* gameObject)
@@ -46,13 +74,22 @@ void ShadowMapRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
-    subscribes_.insert({gameObject->GetId(),
-                        {rendererComponent->GetTextureIndex(), gameObject, &rendererComponent->GetModelWrapper()}});
+    subscribes_.push_back({gameObject, rendererComponent});
 }
 
 void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
 {
-    subscribes_.erase(gameObject->GetId());
+    for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
+    {
+        if ((*iter).gameObject->GetId() == gameObject->GetId())
+        {
+            iter = subscribes_.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }
 
 void ShadowMapRenderer::UnSubscribeAll()
@@ -83,62 +120,75 @@ void ShadowMapRenderer::PrepareRender(Scene* scene)
     shadowBox_.CalculateMatrixes(light_direction);
     shadowBox2_.CalculateMatrixes(light_direction);
 
-    context_.toShadowMapZeroMatrix_ = viewOffset_ * shadowBox2_.GetProjectionViewMatrix();
+    context_.toShadowMapZeroMatrix_ = viewOffset_ * shadowBox_.GetProjectionViewMatrix();
+
+    PerResizeBuffer perResize;
+    perResize.ProjectionMatrix = shadowBox_.GetProjectionMatrix();
+
+    context_.graphicsApi_.UpdateShaderBuffer(*perResizeBuffer_, &perResize);
+
+    PerFrameBuffer perFrame;
+    perFrame.ViewMatrix = shadowBox_.GetViewMatrix();
+
+    context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
 }
 
 void ShadowMapRenderer::RenderSubscribes() const
 {
     for (auto& sub : subscribes_)
-        RenderSubscriber(sub.second);
+        RenderSubscriber(sub);
 }
 
 void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
 {
-    auto model = sub.model->Get(LevelOfDetail::L1);
+    auto model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
 
     if (model == nullptr)
         return;
 
-    const auto& meshes = model->GetMeshes();
+    const auto& meshes                    = model->GetMeshes();
+    const auto& perObjectUpdateBuffers    = sub.renderComponent->GetPerObjectUpdateBuffers();
+    const auto& perObjectConstantsBuffers = sub.renderComponent->GetPerObjectConstantsBuffers();
 
-    for (const Mesh& mesh : meshes)
+    int meshId = 0;
+    for (const auto& mesh : meshes)
     {
+        const auto& buffers = mesh.GetBuffers();
+
+        context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
+
         if (mesh.UseArmature())
         {
-            shader_->Load(ShadowShaderUniforms::BonesTransforms, model->GetBoneTransforms());
+            context_.graphicsApi_.BindShaderBuffer(*buffers.perPoseUpdateBuffer_);
         }
-        shader_->Load(ShadowShaderUniforms::UseBoneTransform, mesh.UseArmature());
 
-        RenderMesh(mesh, sub.gameObject->worldTransform.GetMatrix(), sub.textureIndex);
+        const auto& perMeshUpdateBuffer = perObjectUpdateBuffers[meshId].GetId();
+        if (perMeshUpdateBuffer)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
+        }
+
+        const auto& perMeshConstantBuffer = perObjectConstantsBuffers[meshId].GetId();
+        if (perMeshConstantBuffer)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
+        }
+        ++meshId;
+        RenderMesh(mesh);
     }
 }
 
-void ShadowMapRenderer::RenderMesh(const Mesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const
+void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
 {
     if (!mesh.IsInit())
         return;
 
-    auto transform_matrix_ = transform_matrix * mesh.GetMeshTransform();
-    BindMaterial(mesh.GetMaterial(), textureIndex);
-
-    shader_->Load(ShadowShaderUniforms::TransformationMatrix, transform_matrix_);
-
+    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
     context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
-}
-
-void ShadowMapRenderer::BindMaterial(const Material& material, uint32 textureIndex) const
-{
-    if (material.diffuseTexture == nullptr)
-        return;
-
-    shader_->Load(ShadowShaderUniforms::NumberOfRows, static_cast<float>(material.diffuseTexture->numberOfRows));
-    shader_->Load(ShadowShaderUniforms::TextureOffset, material.diffuseTexture->GetTextureOffset(textureIndex));
-    context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetId());
 }
 
 void ShadowMapRenderer::PrepareShader(ICamera*) const
 {
     shader_->Start();
-    shader_->Load(ShadowShaderUniforms::ProjectionViewMatrix, shadowBox_.GetProjectionViewMatrix());
 }
 }  // namespace GameEngine

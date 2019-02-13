@@ -1,7 +1,10 @@
 #include "TerrainMeshRendererComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
@@ -56,10 +59,11 @@ ModelWrapper &TerrainMeshRendererComponent::GetModel()
 {
     return modelWrapper_;
 }
-const std::unordered_map<TerrainTextureType, std::string>& TerrainMeshRendererComponent::GetTextureFileNames() const
+const std::unordered_map<TerrainTextureType, std::string> &TerrainMeshRendererComponent::GetTextureFileNames() const
 {
     return texturedFileNames_;
 }
+
 void TerrainMeshRendererComponent::SetTexture(TerrainTextureType type, Texture *texture)
 {
     textures_.insert({type, texture});
@@ -68,6 +72,23 @@ void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
 {
     auto model = componentContext_.resourceManager_.LoadModel(terrainFile);
     modelWrapper_.Add(model, LevelOfDetail::L1);
+
+    perObjectUpdate_.reserve(model->GetMeshes().size());
+    perObjectUpdateBuffer_.reserve(model->GetMeshes().size());
+
+    for (auto &mesh : model->GetMeshes())
+    {
+        perObjectUpdate_.emplace_back();
+        auto &pu                = perObjectUpdate_.back();
+        pu.TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+
+        BufferObject obj(componentContext_.resourceManager_.GetGraphicsApi(), PER_OBJECT_UPDATE_BIND_LOCATION, &pu,
+                         sizeof(PerObjectUpdate));
+        perObjectUpdateBuffer_.push_back(obj);
+
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(
+            &perObjectUpdateBuffer_.back());
+    }
 }
 void TerrainMeshRendererComponent::Subscribe()
 {

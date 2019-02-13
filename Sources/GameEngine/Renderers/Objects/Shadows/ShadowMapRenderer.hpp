@@ -15,18 +15,23 @@ class ShadowFrameBuffer;
 class ModelWrapper;
 class IShaderProgram;
 
+namespace Components
+{
+class RendererComponent;
+}  // namespace Components
+
 class ShadowMapRenderer : public IRenderer
 {
     struct ShadowMapSubscriber
     {
-        uint32 textureIndex    = 0;
         GameObject* gameObject = nullptr;
-        ModelWrapper* model    = nullptr;
+        Components::RendererComponent* renderComponent = nullptr;
     };
-    typedef std::unordered_map<uint32_t, ShadowMapSubscriber> SubscribersMap;
+    typedef std::vector<ShadowMapSubscriber> Subscribers;
 
 public:
     ShadowMapRenderer(RendererContext& context);
+    ~ShadowMapRenderer();
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void UnSubscribe(GameObject* gameObject) override;
@@ -39,8 +44,7 @@ private:
     void PrepareShader(ICamera*) const;
     void RenderSubscribes() const;
     void RenderSubscriber(const ShadowMapSubscriber&) const;
-    void RenderMesh(const Mesh& mesh, const mat4& transform_matrix, uint32 textureIndex) const;
-    void BindMaterial(const Material&, uint32 textureIndex) const;
+    void RenderMesh(const Mesh& mesh) const;
 
 private:
     RendererContext& context_;
@@ -49,6 +53,8 @@ private:
     ShadowBox shadowBox2_;
     mat4 projectionViewMatrix_;
     mat4 viewOffset_;
-    SubscribersMap subscribes_;
+    Subscribers subscribes_;
+    GraphicsApi::ID perResizeBuffer_;
+    GraphicsApi::ID perFrameBuffer_;
 };
 }  // GameEngine

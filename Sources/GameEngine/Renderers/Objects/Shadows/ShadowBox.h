@@ -20,6 +20,8 @@ public:
     const float GetAspectRatio() const;
     void CalculateMatrixes(const vec3& lightDirection);
     const mat4& GetProjectionViewMatrix() const;
+    const mat4& GetViewMatrix() const;
+    const mat4& GetProjectionMatrix() const;
 
 private:
     void FindMinMax(const vec4& point);
@@ -32,11 +34,12 @@ private:
     vec4 CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction, const float& width) const;
 
 private:
+    mat4 projectionMatrix_;
+    mat4 viewMatrix_;
     vec2ui m_WindowSize;
     vec3 m_Min;
     vec3 m_Max;
 
-    mat4 m_LightViewMatrix;
     mat4 projectionViewMatrix;
 
     float m_FarHeight, m_FarWidth, m_NearHeight, m_NearWidth;

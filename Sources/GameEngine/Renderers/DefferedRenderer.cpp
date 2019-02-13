@@ -65,7 +65,8 @@ void DefferedRenderer::Prepare(Scene*)
 }
 void DefferedRenderer::OnEndFrame(Scene* scene)
 {
-    context_.defferedFrameBuffer_.UnBindDraw();
+   // context_.defferedFrameBuffer_.UnBindDraw();
+    context_.defferedFrameBuffer_.UnBind();
     postprocessingRenderersManager_.Render(scene);
 }
 }  // namespace GameEngine

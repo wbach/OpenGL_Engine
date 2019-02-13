@@ -3,17 +3,19 @@
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
 #include "Shaders/TerrainMeshShaderUniforms.h"
-#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -26,7 +28,6 @@ TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
 {
-
 }
 void TerrainMeshRenderer::Init()
 {
@@ -36,12 +37,12 @@ void TerrainMeshRenderer::InitShader()
 {
     shader_->Init();
     shader_->Start();
-    shader_->Load(TerrainMeshShaderUniforms::projectionMatrix, context_.projection_.GetProjectionMatrix());
-    shader_->Load(TerrainMeshShaderUniforms::useShadows, EngineConf.renderer.shadows.isEnabled);
-    shader_->Load(TerrainMeshShaderUniforms::shadowDistance, EngineConf.renderer.shadows.distance);
-    shader_->Load(TerrainMeshShaderUniforms::shadowMapSize, EngineConf.renderer.shadows.mapSize);
-    shader_->Load(TerrainMeshShaderUniforms::useNormalMap, true);
- 
+    // shader_->Load(TerrainMeshShaderUniforms::projectionMatrix, context_.projection_.GetProjectionMatrix());
+    // shader_->Load(TerrainMeshShaderUniforms::useShadows, EngineConf.renderer.shadows.isEnabled);
+    // shader_->Load(TerrainMeshShaderUniforms::shadowDistance, EngineConf.renderer.shadows.distance);
+    // shader_->Load(TerrainMeshShaderUniforms::shadowMapSize, EngineConf.renderer.shadows.mapSize);
+    // shader_->Load(TerrainMeshShaderUniforms::useNormalMap, true);
+
     shader_->Stop();
 }
 void TerrainMeshRenderer::Render(Scene* scene)
@@ -50,8 +51,8 @@ void TerrainMeshRenderer::Render(Scene* scene)
         return;
     context_.graphicsApi_.EnableCulling();
     shader_->Start();
-    shader_->Load(TerrainMeshShaderUniforms::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
-    shader_->Load(TerrainMeshShaderUniforms::viewMatrix, scene->GetCamera()->GetViewMatrix());
+    // shader_->Load(TerrainMeshShaderUniforms::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
+    // shader_->Load(TerrainMeshShaderUniforms::viewMatrix, scene->GetCamera()->GetViewMatrix());
     RenderSubscribers();
 }
 void TerrainMeshRenderer::RenderSubscribers() const
@@ -63,15 +64,19 @@ void TerrainMeshRenderer::RenderSubscribers() const
 }
 void TerrainMeshRenderer::RenderSubscriber(const Subscriber& subscriber) const
 {
-    BindTextures(subscriber.textures_);
+    BindTextures(subscriber.component_->GetTextures());
 
-    const auto& model = subscriber.model_->Get(LevelOfDetail::L1);
-
+    const auto& model = subscriber.component_->GetModel().Get(LevelOfDetail::L1);
+    const auto& perUpdate = subscriber.component_->GetPerObjectUpdateBuffers();
     if (not model)
         return;
 
-    shader_->Load(TerrainMeshShaderUniforms::transformMatrix, subscriber.gameObject_->worldTransform.GetMatrix());
-    RenderModel(*model);
+    int index = 0;
+    for (const auto& mesh : model->GetMeshes())
+    {
+        context_.graphicsApi_.BindShaderBuffer(*perUpdate[index++].GetId());
+        RenderMesh(mesh);
+    }
 }
 void TerrainMeshRenderer::RenderModel(const Model& model) const
 {
@@ -105,7 +110,7 @@ void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
     if (terrain == nullptr)
         return;
 
-    subscribes_.push_back({ gameObject->GetId(), {gameObject, &terrain->GetModel(), terrain->GetTextures()}});
+    subscribes_.push_back({gameObject->GetId(), {gameObject, terrain}});
 }
 void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
 {

@@ -1,7 +1,7 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -14,13 +14,17 @@ class IShaderProgram;
 
 typedef TerrainWrapper* TerrainPtr;
 
+namespace Components
+{
+class TerrainMeshRendererComponent;
+}
+
 class TerrainMeshRenderer : public IRenderer
 {
     struct Subscriber
     {
         GameObject* gameObject_;
-        ModelWrapper* model_;
-        TerrainTexturesMap textures_;
+        Components::TerrainMeshRendererComponent* component_;
     };
 
 public:

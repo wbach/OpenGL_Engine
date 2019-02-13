@@ -11,7 +11,7 @@ ShadowBox::ShadowBox(Projection& projection)
     : m_WindowSize(projection.GetWindowSize())
     , m_Min()
     , m_Max()
-    , m_LightViewMatrix(1.f)
+    , viewMatrix_(1.f)
     , m_Fov(projection.GetFoV())
     , m_NearPlane(projection.GetNear())
     , m_Offset(1.f)
@@ -53,13 +53,24 @@ const float ShadowBox::GetAspectRatio() const
 
 void ShadowBox::CalculateMatrixes(const vec3& lightDirection)
 {
-    m_LightViewMatrix    = Utils::CreateLightViewMatrix(lightDirection, GetCenter());
-    projectionViewMatrix = Utils::CreateOrthoProjectionMatrix(GetWidth(), GetHeight(), GetLength()) * m_LightViewMatrix;
+    viewMatrix_          = Utils::CreateLightViewMatrix(lightDirection, GetCenter());
+    projectionMatrix_    = Utils::CreateOrthoProjectionMatrix(GetWidth(), GetHeight(), GetLength());
+    projectionViewMatrix = projectionMatrix_ * viewMatrix_;
 }
 
 const mat4& ShadowBox::GetProjectionViewMatrix() const
 {
     return projectionViewMatrix;
+}
+
+const mat4& ShadowBox::GetViewMatrix() const
+{
+    return viewMatrix_;
+}
+
+const mat4& ShadowBox::GetProjectionMatrix() const
+{
+    return projectionMatrix_;
 }
 
 void ShadowBox::FindMinMax(const vec4& point)
@@ -83,11 +94,6 @@ void ShadowBox::CheckMinMax(float& min, float& max, float point)
 
 mat4 ShadowBox::CalculateCameraRotationMatrix(ICamera* camera) const
 {
-    if (camera == nullptr)
-    {
-        Log("[Error] Camera not attach to ShadowBox.");
-        return mat4();
-    }
     mat4 rotation(1.f);
     rotation *= glm::rotate((float)(-camera->GetYaw()), vec3(0.f, 1.f, 0.f));
     rotation *= glm::rotate((float)(-camera->GetPitch()), vec3(1.f, 0.f, 0.f));
@@ -96,6 +102,11 @@ mat4 ShadowBox::CalculateCameraRotationMatrix(ICamera* camera) const
 
 void ShadowBox::Update(ICamera* camera)
 {
+    if (camera == nullptr)
+    {
+        return;
+    }
+
     bool first = true;
     for (const vec4& point : CalculateFrustumPoints(camera))
     {
@@ -121,7 +132,7 @@ vec3 ShadowBox::GetCenter() const
     float y = (m_Min.y + m_Max.y) / 2.f;
     float z = (m_Min.z + m_Max.z) / 2.f;
     vec4 cen(x, y, z, 1);
-    mat4 inverted_light = glm::inverse(m_LightViewMatrix);
+    mat4 inverted_light = glm::inverse(viewMatrix_);
     return vec3(inverted_light * cen);
 }
 
@@ -141,7 +152,7 @@ float ShadowBox::GetLength() const
 }
 
 std::vector<vec4> ShadowBox::CalculateFrustumVertices(mat4 rotation, vec3 forward_vector, vec3 center_near,
-                                                       vec3 center_far) const
+                                                      vec3 center_far) const
 {
     vec3 up_vector(rotation * m_Up);
     vec3 right_vector = glm::cross(forward_vector, up_vector);
@@ -164,11 +175,11 @@ std::vector<vec4> ShadowBox::CalculateFrustumVertices(mat4 rotation, vec3 forwar
 }
 
 vec4 ShadowBox::CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction,
-                                                  const float& width) const
+                                                 const float& width) const
 {
     vec3 point = startPoint + vec3(direction.x * width, direction.y * width, direction.z * width);
     vec4 point4f(point.x, point.y, point.z, 1.0f);
-    point4f = m_LightViewMatrix * point4f;
+    point4f = viewMatrix_ * point4f;
     return point4f;
 }
 }  // namespace GameEngine

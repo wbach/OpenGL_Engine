@@ -1,12 +1,15 @@
 #pragma once
+#include <stack>
 #include "GraphicsApi/IGraphicsApi.h"
-#include "SimpleModels/Quad.h"
 #include "OpenGLMesh.h"
 #include "Shaders/ShaderManager.h"
+#include "SimpleModels/Quad.h"
 #include "optional.hpp"
 
 namespace OpenGLApi
 {
+const uint32 MAX_SHADER_BUFFER_SIZE = 20;
+
 class OpenGLApi : public GraphicsApi::IGraphicsApi
 {
 public:
@@ -33,7 +36,7 @@ public:
 
     virtual GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size) override;
     virtual void UpdateShaderBuffer(uint32 id, void* buffer) override;
-    virtual void BindShaderBuffer(uint32) override;
+    virtual uint32 BindShaderBuffer(uint32) override;
 
     virtual void BindAttribute(uint32, uint32, const std::string&) override;
     virtual void LoadValueToShader(uint32, int) override;
@@ -48,8 +51,8 @@ public:
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&) override;
     virtual void LoadValueToShader(uint32, const std::vector<mat4>&) override;
 
-    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui,
-                                 void* data) override;
+    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+                                 GraphicsApi::BufferAtachment, vec2ui, void* data) override;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override;
 
     virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
@@ -102,7 +105,6 @@ public:
     virtual void CreateFont(const std::string&) override;
     virtual void PrintText(const std::string&, const vec2i&) override;
 
-
     virtual void LoadViewMatrix(const mat4&) override;
     virtual void LoadProjectionMatrix(const mat4&) override;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
@@ -124,6 +126,8 @@ private:
     std::unordered_map<GraphicsApi::BufferAtachment, uint32> bufferAtachmentMap_;
     std::unordered_map<GraphicsApi::BufferType, uint32> bufferTypeMap_;
 
+    uint32 bindedShaderBuffers_[MAX_SHADER_BUFFER_SIZE];
+
     std::unordered_map<uint32, OpenGLMesh> openGlMeshes_;
     SimpleQuad quad_;
     SimpleQuad quadTs_;
@@ -131,4 +135,4 @@ private:
     bool useLowGLversion_;
     vec2i openGLVersion_;
 };
-}  // OpenGLApi
+}  // namespace OpenGLApi

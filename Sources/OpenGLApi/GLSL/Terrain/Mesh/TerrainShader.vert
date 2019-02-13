@@ -5,15 +5,29 @@ layout (location = 1) in vec2 TEXTCOORD;
 layout (location = 2) in vec3 NORMAL;
 layout (location = 3) in vec3 TANGENT;
 
-uniform mat4 transformMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 viewMatrix;
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    float useTextures;
+    float viewDistance;
+    vec3 shadowVariables;
+    vec4 clipPlane;
+} perApp;
 
-uniform float useShadows;
-uniform float shadowDistance;
-uniform float shadowMapSize;
-uniform mat4 toShadowMapSpace;
-uniform float useNormalMap;
+layout (std140, binding=1) uniform PerResize
+{
+    mat4 projectionMatrix;
+} perResize;
+
+layout (std140,binding=2) uniform PerFrame
+{
+    mat4 viewMatrix;
+    mat4 toShadowMapSpace;
+} perFrame;
+
+layout (std140, binding=4) uniform PerObjectUpdate
+{
+    mat4 transformationMatrix;
+} perObjectUpdate;
 
 const float TRANSITION_DISTANCE = 2.f;
 
@@ -36,33 +50,25 @@ bool Is(float f)
 
 void main()
 {
-    vec4 worldPos           = transformMatrix* vec4(POSITION, 1.0);
-    vec4 modelViewPosition  = viewMatrix * worldPos;
+    vec4 worldPos           = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
+    vec4 modelViewPosition  = perFrame.viewMatrix * worldPos;
     vs_out.texCoord         = TEXTCOORD;
-    vs_out.normal           = (transformMatrix * vec4(NORMAL, 0.0)).xyz;
+    vs_out.normal           = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
     vs_out.worldPos         = worldPos;
 
-    if(Is(useNormalMap)) 
-    {
-        vs_out.passTangent  = (transformMatrix * vec4(TANGENT, 0.0)).xyz; 
-        vs_out.useNormalMap = 1.f;
-    }
-    else
-    {
-        vs_out.useNormalMap = 0.f;
-        vs_out.passTangent  = vec3(.0f) ;
-    }
+    vs_out.passTangent  = (perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz; 
+    vs_out.useNormalMap = 0.f;
 
     float distanceToCam = length(modelViewPosition.xyz);
-    vs_out.useShadows    = useShadows;
+    vs_out.useShadows    = perApp.shadowVariables.x;
 
     if (Is(vs_out.useShadows))
     {
-        vs_out.shadowMapSize  = shadowMapSize;
-        vs_out.shadowCoords   = toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f); 
-        vs_out.shadowCoords.w = (distanceToCam - (shadowDistance - TRANSITION_DISTANCE)) / shadowDistance;
+        vs_out.shadowMapSize  = perApp.shadowVariables.z;
+        vs_out.shadowCoords   = perFrame.toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f); 
+        vs_out.shadowCoords.w = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
         vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
     }
 
-    gl_Position = projectionMatrix * modelViewPosition;
+    gl_Position = perResize.projectionMatrix * modelViewPosition;
 }

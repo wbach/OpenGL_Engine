@@ -1,5 +1,7 @@
 #include "OpenGLApi.h"
 #include <GL/glew.h>
+#include <GLM/gtc/type_ptr.hpp>
+#include <iostream>
 #include <optional>
 #include "Font.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -8,8 +10,6 @@
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
-#include <GLM/gtc/type_ptr.hpp>
-#include <iostream>
 
 enum class ObjectType
 {
@@ -81,6 +81,11 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
 
     bufferTypeMap_ = {{GraphicsApi::BufferType::COLOR, GL_COLOR_BUFFER_BIT},
                       {GraphicsApi::BufferType::DEPTH, GL_DEPTH_BUFFER_BIT}};
+
+    for (auto& b : bindedShaderBuffers_)
+    {
+        b = 0;
+    }
 }
 
 OpenGLApi::~OpenGLApi()
@@ -239,11 +244,10 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
     glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, bindLocation, buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    impl_->shaderBuffers_.push_back({ buffer, size, bindLocation });
-
-    return impl_->shaderBuffers_.size() - 1;
+    impl_->shaderBuffers_.push_back({buffer, size, bindLocation});
+    auto id = impl_->shaderBuffers_.size() - 1;
+    return id;
 }
 
 void OpenGLApi::UpdateShaderBuffer(uint32 id, void* buffer)
@@ -255,10 +259,15 @@ void OpenGLApi::UpdateShaderBuffer(uint32 id, void* buffer)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void OpenGLApi::BindShaderBuffer(uint32 id)
+uint32 OpenGLApi::BindShaderBuffer(uint32 id)
 {
     const auto& b = impl_->shaderBuffers_[id];
+    uint32 result = bindedShaderBuffers_[b.bindLocation];
+
+    bindedShaderBuffers_[b.bindLocation] = id;
     glBindBufferBase(GL_UNIFORM_BUFFER, b.bindLocation, b.glId);
+
+    return result;
 }
 
 void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
@@ -826,7 +835,7 @@ void OpenGLApi::BindTexture(uint32 id)
 uint32 OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
 {
     auto glId = CreateDepthBufferAttachment(sizex, sizey);
-    auto rid         = impl_->idPool_.ToUint(glId);
+    auto rid  = impl_->idPool_.ToUint(glId);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
     return rid;
 }

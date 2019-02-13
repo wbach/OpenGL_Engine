@@ -45,6 +45,7 @@ void EntityRenderer::PrepareFrame(Scene* scene)
 
 void EntityRenderer::Render(Scene* scene)
 {
+    // viewPRojectionMAtrixToLoad
     if (subscribes_.empty())
         return;
     shader_->Start();
