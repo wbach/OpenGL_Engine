@@ -63,7 +63,8 @@ struct WinApi::Pimpl
         scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
         scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
         scd.OutputWindow = hwnd;                                // the window to be used
-        scd.SampleDesc.Count = 4;                               // how many multisamples
+        scd.SampleDesc.Count = 1;                               // how many multisamples
+        scd.SampleDesc.Quality = 0;
         scd.Windowed = TRUE;                                    // windowed/full-screen mode
 
         // create a device, device context and swap chain using the information in the scd struct
@@ -181,7 +182,7 @@ bool WinApi::RegiesterWindowClass()
 
     WNDCLASSEX wc;
     wc.cbSize        = sizeof(WNDCLASSEX);
-    wc.style         = 0;
+    wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = WindowProc;
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;

@@ -1,7 +1,4 @@
 #include "DirectXApi.h"
-#include "WinApi/WinApi.h"
-#include "Utils.h"
-
 #include <D3D11Shader.h>
 #include <d3d11.h>
 #include <d3dx10.h>
@@ -11,21 +8,29 @@
 #include <xnamath.h>
 #include <string>
 #include "DirectXContext.h"
+#include "DirectXTools.h"
+#include "DxShader.h"
+#include "GraphicsApi/MeshRawData.h"
+#include "Utils.h"
+#include "Vao.h"
+#include "WinApi/WinApi.h"
 
 #undef CreateFont
 
 namespace DirectX
 {
-struct Buffer
+struct Vertex
 {
-    uint32 bindLocation;
-    ID3D11Buffer *ptr;
+    vec3 position;
+    vec2 textCoord;
 };
 
 struct DirectXApi::Pimpl
 {
     DirectXContext dxCondext_;
     std::vector<Buffer> buffers_;
+    std::vector<DxShader> shaders_;
+    std::vector<Object> objects_;
 };
 
 DirectXApi::DirectXApi()
@@ -45,6 +50,7 @@ void DirectXApi::Init()
 {
     InitRenderTarget();
     InitDepthSetncilView();
+    impl_->dxCondext_.devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 void DirectXApi::InitRenderTarget()
 {
@@ -93,6 +99,7 @@ void DirectXApi::InitDepthSetncilView()
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
 {
+    shadersFileLocation_ = path;
 }
 void DirectXApi::SetShaderQuaility(GraphicsApi::ShaderQuaility)
 {
@@ -133,10 +140,84 @@ void DirectXApi::DisableDepthTest()
 }
 uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions)
 {
-    return uint32();
+    if (shaderType != GraphicsApi::Shaders::Entity)
+    {
+        return 0;
+    }
+
+    DxShader shader;
+
+    auto hr = CompileShaderFromFile(shadersFileLocation_ + "SimpleShaders.fx", "VS", "vs_4_0", &shader.blob_.vertex_);
+    if (FAILED(hr))
+    {
+        MessageBox(NULL,
+                   "The FX file cannot be compiled.  Please run this executable from the directory that contains the "
+                   "FX file.",
+                   "Error", MB_OK);
+        return 0;
+    }
+    hr = impl_->dxCondext_.dev->CreateVertexShader(shader.blob_.vertex_->GetBufferPointer(),
+                                                   shader.blob_.vertex_->GetBufferSize(), NULL, &shader.vertex_);
+    if (FAILED(hr))
+    {
+        shader.blob_.vertex_->Release();
+        shader.blob_.vertex_ = nullptr;
+        return 0;
+    }
+
+    D3D11_INPUT_ELEMENT_DESC layout[] = {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    };
+    UINT numElements = ARRAYSIZE(layout);
+
+    // Create the input layout
+    hr = impl_->dxCondext_.dev->CreateInputLayout(layout, numElements, shader.blob_.vertex_->GetBufferPointer(),
+                                                  shader.blob_.vertex_->GetBufferSize(), &shader.vertexLayout_);
+
+    if (FAILED(hr))
+    {
+        MessageBox(NULL,
+                   "Can not create input layout."
+                   "FX file.",
+                   "Error", MB_OK);
+        return 0;
+    }
+
+    hr = CompileShaderFromFile(shadersFileLocation_ + "SimpleShaders.fx", "PS", "ps_4_0", &shader.blob_.pixel_);
+
+    if (FAILED(hr))
+    {
+        MessageBox(NULL,
+                   "The FX file cannot be compiled.  Please run this executable from the directory that contains the "
+                   "FX file.",
+                   "Error", MB_OK);
+        return 0;
+    }
+
+    // Create the pixel shader
+    hr = impl_->dxCondext_.dev->CreatePixelShader(shader.blob_.pixel_->GetBufferPointer(),
+                                                  shader.blob_.pixel_->GetBufferSize(), NULL, &shader.pixel_);
+
+    if (FAILED(hr))
+    {
+        shader.blob_.pixel_->Release();
+        shader.blob_.pixel_ = nullptr;
+        return 0;
+    }
+
+    impl_->shaders_.push_back(shader);
+    return impl_->shaders_.size();
 }
-void DirectXApi::UseShader(uint32)
+void DirectXApi::UseShader(uint32 id)
 {
+    if (id == 0)
+    {
+        return;
+    }
+    const auto &shader = impl_->shaders_[id - 1];
+    impl_->dxCondext_.devcon->VSSetShader(shader.vertex_, NULL, 0);
+    impl_->dxCondext_.devcon->PSSetShader(shader.pixel_, NULL, 0);
 }
 uint32 DirectXApi::GetShaderVariableLocation(uint32, const std::string &)
 {
@@ -186,7 +267,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     const auto &buffer = impl_->buffers_[id];
     impl_->dxCondext_.devcon->VSSetConstantBuffers(buffer.bindLocation, 1, &buffer.ptr);
 
-    return 0;//to do return last binded buffer
+    return 0;  // to do return last binded buffer
 }
 void DirectXApi::BindAttribute(uint32, uint32, const std::string &)
 {
@@ -286,9 +367,67 @@ uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
     return uint32();
 }
-uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &)
+uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
 {
-    return uint32();
+    Object obj;
+
+    std::vector<Vertex> vertexes;
+    vertexes.reserve(meshData.positions_.size() / 3.f);
+
+    for (size_t x = 0; x < meshData.positions_.size(); x += 3)
+    {
+        Vertex v;
+        v.position.x = meshData.positions_[x];
+        v.position.y = meshData.positions_[x + 1];
+        v.position.z = meshData.positions_[x + 2];
+        vertexes.push_back(v);
+    }
+
+    int i = 0;
+    for (size_t x = 0; x < meshData.textCoords_.size(); x += 2)
+    {
+        vertexes[i++].textCoord = vec2(meshData.textCoords_[x], meshData.textCoords_[x + 1]);
+    }
+
+    D3D11_BUFFER_DESC bd;
+    ZeroMemory(&bd, sizeof(bd));
+    bd.Usage          = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth      = sizeof(Vertex) * vertexes.size();
+    bd.BindFlags      = D3D11_BIND_VERTEX_BUFFER;
+    bd.CPUAccessFlags = 0;
+    D3D11_SUBRESOURCE_DATA InitData;
+    ZeroMemory(&InitData, sizeof(InitData));
+    InitData.pSysMem = &vertexes[0];
+
+    Buffer vertexBuffer;
+    vertexBuffer.bindLocation = 0;
+    auto hr                   = impl_->dxCondext_.dev->CreateBuffer(&bd, &InitData, &vertexBuffer.ptr);
+
+    obj.buffers_[(int)VertexBufferObjects::POSITION] = vertexBuffer;
+
+    // Set vertex buffer
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+    impl_->dxCondext_.devcon->IASetVertexBuffers(vertexBuffer.bindLocation, 1, &vertexBuffer.ptr, &stride, &offset);
+
+    bd.Usage          = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth      = sizeof(uint32) * meshData.indices_.size();
+    bd.BindFlags      = D3D11_BIND_INDEX_BUFFER;
+    bd.CPUAccessFlags = 0;
+    InitData.pSysMem  = &meshData.indices_[0];
+
+    obj.indiciesSize = meshData.indices_.size();
+
+    Buffer indiecies;
+    hr = impl_->dxCondext_.dev->CreateBuffer(&bd, &InitData, &indiecies.ptr);
+    if (FAILED(hr))
+        return hr;
+    obj.buffers_[(int)VertexBufferObjects::INDICES] = indiecies;
+    // Set index buffer
+    impl_->dxCondext_.devcon->IASetIndexBuffer(indiecies.ptr, DXGI_FORMAT_R16_UINT, 0);
+    impl_->dxCondext_.devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    impl_->objects_.push_back(obj);
+    return impl_->objects_.size();
 }
 uint32 DirectXApi::CreateParticle()
 {
@@ -301,8 +440,15 @@ uint32 DirectXApi::CreateAnimatedParticle()
 void DirectXApi::RenderPurePatchedMeshInstances(uint32)
 {
 }
-void DirectXApi::RenderMesh(uint32)
+void DirectXApi::RenderMesh(uint32 id)
 {
+    if (id == 0)
+        return;
+
+    const auto &mesh = impl_->objects_[id - 1];
+    mesh.Bind(impl_->dxCondext_.devcon);
+
+    impl_->dxCondext_.devcon->DrawIndexed(mesh.indiciesSize, 0, 0);
 }
 void DirectXApi::RenderTriangleStripMesh(uint32)
 {

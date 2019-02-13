@@ -4,6 +4,8 @@
 #include "GraphicsApi/WindowApi.hpp"
 #include "Types.h"
 
+#undef CreateWindow
+
 namespace DirectX
 {
 struct DirectXContext;

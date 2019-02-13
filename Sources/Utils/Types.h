@@ -135,15 +135,15 @@ typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::ste
 enum class VertexBufferObjects
 {
     INDICES = 0,
-    POSITION,
-    TEXT_COORD,
-    NORMAL,
-    TANGENT,
-    WEIGHTS,
-    JOINTS,
-    TRANSFORM_MATRIX,
-    TEXTURE_OFFSET,
-    BLEND_FACTOR
+    POSITION = 1,
+    TEXT_COORD = 2,
+    NORMAL = 3,
+    TANGENT = 4,
+    WEIGHTS = 5,
+    JOINTS = 6,
+    TRANSFORM_MATRIX = 7,
+    TEXTURE_OFFSET = 8,
+    BLEND_FACTOR = 9
 };
 
 typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;

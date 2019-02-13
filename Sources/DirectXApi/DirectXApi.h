@@ -112,5 +112,6 @@ private:
 
 private:
     float bgColor_[4];
+    std::string shadersFileLocation_;
 };
 }  // namespace DirectX
