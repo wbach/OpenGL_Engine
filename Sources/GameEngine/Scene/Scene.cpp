@@ -22,7 +22,7 @@ Scene::Scene(const std::string& name)
     , physicsApi_(nullptr)
     , gloabalTime(0.f)
     , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
-    , camera(new BaseCamera)
+    , camera(new BaseCamera(vec3(0, 5, 5), vec3(0, 0, 0)))
     , componentFactory_(nullptr)
     , simulatePhysics_(true)
 {

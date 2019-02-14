@@ -22,8 +22,8 @@ int main(int argc, char* argv[])
 {
     GameEngine::ReadFromFile("./Conf.xml");
 
-    //auto api = std::make_unique<OpenGLApi::OpenGLApi>();
-    auto api = std::make_unique<DirectX::DirectXApi>();
+    auto api = std::make_unique<OpenGLApi::OpenGLApi>();
+    //auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();
 

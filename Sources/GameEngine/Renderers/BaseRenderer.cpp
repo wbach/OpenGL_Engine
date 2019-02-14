@@ -69,19 +69,19 @@ void BaseRenderer::InitRenderers()
 }
 void BaseRenderer::CreateRenderers()
 {
-    AddRenderer<SkyBoxRenderer>();
+   // AddRenderer<SkyBoxRenderer>();
 
-    if (EngineConf.renderer.flora.isGrass)
-        AddRenderer<GrassRenderer>();
+    // if (EngineConf.renderer.flora.isGrass)
+       // AddRenderer<GrassRenderer>();
 
     AddRenderer<TerrainRenderer>();
-    AddRenderer<TerrainMeshRenderer>();
-    AddRenderer<TreeRenderer>();
+    //AddRenderer<TerrainMeshRenderer>();
+    //AddRenderer<TreeRenderer>();
     // AddRenderer<PlantsRenderer>();
     AddRenderer<EntityRenderer>();
 
-    if (EngineConf.renderer.particles.useParticles)
-        AddRenderer<ParticlesRenderer>();
+    //if (EngineConf.renderer.particles.useParticles)
+      //  AddRenderer<ParticlesRenderer>();
 
     // AddRenderer<WaterRenderer>();
 }

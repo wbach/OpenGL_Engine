@@ -10,30 +10,27 @@ const float defaultCamRotationSpeed = 0.2f;
 
 namespace GameEngine
 {
-FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
-                                     GameEngine::DisplayManager* display_manager)
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager, GameEngine::DisplayManager* display_manager)
     : FirstPersonCamera(input_manager, display_manager, defaultCamRotationSpeed, defaultCamSpeed, zero, zero, true)
 {
 }
 
-FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
-                                     GameEngine::DisplayManager* display_manager, float mouse_velocity,
-                                     float move_velocity)
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager, GameEngine::DisplayManager* display_manager,
+                                     float mouse_velocity, float move_velocity)
     : FirstPersonCamera(input_manager, display_manager, mouse_velocity, move_velocity, zero, zero, false)
 {
 }
 
-FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
-                                     GameEngine::DisplayManager* display_manager, vec3& position_entity,
-                                     vec3& rotation_entity)
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager, GameEngine::DisplayManager* display_manager,
+                                     vec3& position_entity, vec3& rotation_entity)
     : FirstPersonCamera(input_manager, display_manager, defaultCamRotationSpeed, defaultCamSpeed, position_entity,
                         rotation_entity, false)
 {
 }
 
-FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager,
-                                     GameEngine::DisplayManager* display_manager, float mouse_velocity,
-                                     float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera)
+FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager, GameEngine::DisplayManager* display_manager,
+                                     float mouse_velocity, float move_velocity, vec3& position_entity,
+                                     vec3& rotation_entity, bool freeCamera)
     : BaseCamera(9.f, 100.f)
     , inputManager(input_manager)
     , displayManager(display_manager)
@@ -53,22 +50,18 @@ void FirstPersonCamera::LockCamera()
 
 void FirstPersonCamera::LockPitch()
 {
-    float p = pitch.load();
-
-    if (p > 90.f)
-        pitch.store(90.f);
-    if (p < -90.f)
-        pitch.store(-90.f);
+    if (rotation_.x > 90.f)
+        rotation_.x = 90.f;
+    if (rotation_.x < -90.f)
+        rotation_.x = -90.f;
 }
 
 void FirstPersonCamera::LockYaw()
 {
-    float y = yaw.load();
-
-    if (y < 0.f)
-        yaw.store(y + 360.f);
-    if (y > 360.f)
-        yaw.store(y - 360.f);
+    if (rotation_.y < 0.f)
+        rotation_.y += 360.f;
+    if (rotation_.y > 360.f)
+        rotation_.y -= 360.f;
 }
 
 void FirstPersonCamera::Move()
@@ -80,8 +73,7 @@ void FirstPersonCamera::Move()
 
 vec2 FirstPersonCamera::CalcualteMouseMove()
 {
-    vec2 d_move = inputManager->CalcualteMouseMove() * mousevel;
-    return d_move;
+    return inputManager->CalcualteMouseMove() * mousevel;
 }
 
 void FirstPersonCamera::ApllyMove()
@@ -89,9 +81,10 @@ void FirstPersonCamera::ApllyMove()
     if (!inputManager->GetMouseKey(KeyCodes::LMOUSE))
         return;
 
-    vec2 dmove = CalcualteMouseMove();// *displayManager->GetTime().deltaTime;
-    yaw.store(yaw.load() - dmove.x);
-    pitch.store(pitch.load() - dmove.y);
+    vec2 dmove = CalcualteMouseMove();
+    rotation_.y -= dmove.x;
+    rotation_.x -= dmove.y;
+    LockCamera();
 }
 
 void FirstPersonCamera::CalculateMoveVelocity()
@@ -113,7 +106,7 @@ bool FirstPersonCamera::CheckAndProccesUpDirection()
     if (!inputManager->GetKey(KeyCodes::UARROW))
         return false;
 
-    if (pitch.load() != 90.f && pitch.load() != -90.f)
+    if (rotation_.x != 90.f && rotation_.x != -90.f)
         MoveCamera(currentMoveVelocity, 0.f);
 
     MoveCameraUp(currentMoveVelocity, 0.f);
@@ -125,7 +118,7 @@ bool FirstPersonCamera::CheckAndProccesDownDirection()
     if (!inputManager->GetKey(KeyCodes::DARROW))
         return false;
 
-    if (pitch.load() != 90.f && pitch.load() != -90.f)
+    if (rotation_.x != 90.f && rotation_.x != -90.f)
         MoveCamera(currentMoveVelocity, 180.f);
 
     MoveCameraUp(currentMoveVelocity, 180.f);
@@ -152,14 +145,14 @@ bool FirstPersonCamera::CheckAndProccesRightDirection()
 
 void FirstPersonCamera::MoveCamera(float dist, float dir)
 {
-    float rad = (yaw.load() + dir) * static_cast<float>(M_PI) / 180.f;
-    position.x -= sin(-rad) * dist;
-    position.z -= cos(-rad) * dist;
+    float rad = Utils::ToRadians(rotation_.y + dir);
+    position_.x -= sin(-rad) * dist;
+    position_.z -= cos(-rad) * dist;
 }
 
 void FirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
-    float rad = (pitch.load() + dir) * static_cast<float>(M_PI) / 180.f;
-    position.y += sin(-rad) * dist;
+    float rad = Utils::ToRadians(rotation_.x + dir);
+    position_.y += sin(-rad) * dist;
 }
 }  // namespace GameEngine

@@ -128,13 +128,13 @@ int MainScene::Initialize()
     });
 
     // CreateExmapleStrtupObject();
-    LoadFromFile(sceneFile);
+    // LoadFromFile(sceneFile);
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
 
     {
-        auto uplayer   = CreateGameObjectInstance("Player", 1.8f, vec2(0, 10), true);
+        auto uplayer   = CreateGameObjectInstance("Player", 1.8f, vec2(0, 0), true);
         auto& animator = uplayer->AddComponent<Components::Animator>().SetAnimation("Idle");
 
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
@@ -143,13 +143,15 @@ int MainScene::Initialize()
         player               = uplayer.get();
         characterController_ = std::make_shared<common::Controllers::CharacterController>(
             player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
+
         playerInputController_ =
             std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
         AddGameObject(uplayer);
     }
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-    camera->SetPosition(player->worldTransform.GetPosition() + vec3(0, 1, 0));
+    camera->SetPosition(vec3 (5, 5, 5));
+    camera->LookAt(vec3(0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
 

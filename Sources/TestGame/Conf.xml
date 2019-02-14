@@ -2,7 +2,7 @@
 	<Window name="Game" width="1366" height="768" fullscreen="false"/>
 	<Files>
 		<DataLocation>../../Data</DataLocation>
-		<ShadersLocation>../DirectXApi/HLSL</ShadersLocation>
+		<ShadersLocation>../OpenGLApi/GLSL/</ShadersLocation>
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
