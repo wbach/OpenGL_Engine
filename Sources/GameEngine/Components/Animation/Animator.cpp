@@ -36,6 +36,7 @@ Animator& Animator::SetAnimation(const std::string& name)
 {
     current_     = name;
     currentTime_ = 0.f;
+
     return *this;
 }
 const std::string& Animator::GetCurrentAnimationName() const
@@ -69,9 +70,12 @@ void Animator::GetSkeletonAndAnimations()
     rootJoint_      = &model->skeleton_;
     animationClips_ = model->animationClips_;
 
-    if (!animationClips_.empty())
+    if (not animationClips_.empty())
     {
-        current_ = animationClips_.begin()->first;
+        if (animationClips_.count(current_) == 0)
+        {
+            current_ = animationClips_.begin()->first;
+        }
     }
 }
 void Animator::ChangeAnimState()
@@ -181,5 +185,5 @@ float Animator::calculateProgression(const KeyFrame& previousFrame, const KeyFra
     float currentTime = currentTime_ - previousFrame.timeStamp;
     return currentTime / totalTime;
 }
-}  // Animation
-}  // GameEngine
+}  // namespace Components
+}  // namespace GameEngine

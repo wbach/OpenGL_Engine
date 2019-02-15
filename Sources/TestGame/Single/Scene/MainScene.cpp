@@ -27,7 +27,6 @@
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
-#include "GameEngine/Engine/Configuration.h"
 
 using namespace GameEngine;
 
@@ -84,10 +83,10 @@ int MainScene::Initialize()
     renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
 
     auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
-    auto fontSize = windowsSize.y / 10;
+    auto fontSize    = windowsSize.y / 10;
     auto fontPath    = EngineConf_GetFullDataPath("GUI/consola.ttf");
     auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
-    auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(
+    auto fontImage   = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(
         fontId, "Oswald-Light.ttf font text.", vec4(0.5, 0.5, 0.5, 1.f));
 
     auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
@@ -97,7 +96,7 @@ int MainScene::Initialize()
     renderersManager_->GuiTexture("fontTexture").texture = fontTexture;
     renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
     float scale = 0.2f;
-    auto s = static_cast<float>(fontImage.size.x) / static_cast<float>(fontImage.size.y);
+    auto s      = static_cast<float>(fontImage.size.x) / static_cast<float>(fontImage.size.y);
     renderersManager_->GuiTexture("fontTexture").SetScale(vec2(scale, scale / s));
 
     RegisterParticleEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
@@ -134,13 +133,14 @@ int MainScene::Initialize()
     dayNightCycle.SetTime(.5f);
 
     {
-        auto uplayer   = CreateGameObjectInstance("Player", 1.8f, vec2(0, 0), true);
-        auto& animator = uplayer->AddComponent<Components::Animator>().SetAnimation("Idle");
-
+        auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(0, 0), true);
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
             "Meshes/DaeAnimationExample/CharacterMultiple.dae");
 
-        player               = uplayer.get();
+        auto& animator = uplayer->AddComponent<Components::Animator>().SetAnimation("Idle");
+
+        player = uplayer.get();
+
         characterController_ = std::make_shared<common::Controllers::CharacterController>(
             player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 
@@ -150,7 +150,7 @@ int MainScene::Initialize()
     }
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-    camera->SetPosition(vec3 (5, 5, 5));
+    camera->SetPosition(vec3(5, 5, 5));
     camera->LookAt(vec3(0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
