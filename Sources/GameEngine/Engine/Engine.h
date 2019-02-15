@@ -50,6 +50,6 @@ private:
     IntroRenderer introRenderer_;
     std::mutex engineEventsMutex;
     std::list<EngineEvent> engineEvents;
-    std::atomic_bool isRunning;
+    bool isRunning_;
 };
 }  // namespace GameEngine

@@ -17,11 +17,10 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                     renderersManager_, guiContext_)
     , shaderFactory_(*graphicsApi_)
     , introRenderer_(*graphicsApi_, displayManager, shaderFactory_)
-    , isRunning(true)
+    , isRunning_(true)
 {
     graphicsApi_->SetBackgroundColor(vec3(.8f));
-    renderersManager_.SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix)
-    {
+    renderersManager_.SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix) {
         physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
     });
     graphicsApi_->SetShadersFilesLocations(EngineConf.files.shaders);
@@ -40,16 +39,16 @@ void Engine::SetDisplay()
 {
     auto& conf = EngineConf;
 
-    displayManager =
-        std::make_shared<DisplayManager>(*graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
-                                         conf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW);
+    displayManager = std::make_shared<DisplayManager>(
+        *graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
+        conf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW);
     inputManager_ = displayManager->CreateInput();
     introRenderer_.Render();
 }
 
 void Engine::GameLoop()
 {
-    while (isRunning.load())
+    while (isRunning_)
         MainLoop();
 }
 
@@ -77,16 +76,17 @@ SceneManager& Engine::GetSceneManager()
 void Engine::MainLoop()
 {
     inputManager_->GetPressedKeys();
+    if (inputManager_->GetKey(KeyCodes::ESCAPE))
+    {
+        sceneManager_.Stop();
+        isRunning_ = false;
+        return;
+    }
+
     sceneManager_.RuntimeLoadObjectToGpu();
     PrepareFrame();
-
-    if (inputManager_->GetKey(KeyCodes::ESCAPE))
-        isRunning.store(false);
-
     Render();
     sceneManager_.Update();
-
-    //ProcessEngineEvents();
     displayManager->Update();
 }
 

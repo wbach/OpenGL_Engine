@@ -39,6 +39,8 @@ public:
     void SetActiveScene(const std::string& name);
     void Reset();
     void SetFactor();
+    void Stop();
+    bool IsRunning() const;
 
 private:
     void ProccessEvents();
@@ -72,5 +74,6 @@ private:
     Renderer::Gui::GuiContext& guiContext_;
 
     Utils::Thread::ThreadSync threadSync_;
+    bool isRunning_;
 };
 }  // namespace GameEngine

@@ -178,9 +178,7 @@ void ThirdPersonCamera::SmoothCameraMove()
         }
     }
 
-    auto xyz     = GetPosition() - lookAtPosition_;
-    rotation_.y  = Utils::ToDegrees(atan2(xyz.z, xyz.x) - static_cast<float>(M_PI) / 2.f);
-    rotation_.x  = Utils::ToDegrees(atan2(xyz.y, sqrt(xyz.x * xyz.x + xyz.z * xyz.z)));
+    LookAt(lookAtPosition_);
 
     ControlState<vec3>(moveStateInfo_, CameraState::MOVING, GetPosition(), destinationPosition, time,
                        IsOnDestinationPos());

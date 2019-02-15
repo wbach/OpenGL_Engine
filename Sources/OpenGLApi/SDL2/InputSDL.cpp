@@ -89,9 +89,6 @@ void InputSDL::AddKeyEvent(uint32 eventType, uint32 sdlKey)
         return;
 
     std::lock_guard<std::mutex> lk(keyEventMutex_);
-    Log("" + std::to_string(eventType) + ", " + std::to_string(sdlKey) +
-        ", size : " + std::to_string(keyEvents_.size()));
-
     keyEvents_.push_back({eventType, sdlKey});
 }
 

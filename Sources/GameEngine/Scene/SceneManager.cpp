@@ -9,9 +9,8 @@ namespace GameEngine
 {
 SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi,
                            SceneFactoryBasePtr sceneFactory, std::shared_ptr<DisplayManager>& displayManager,
-                           IShaderFactory& shaderFactory,
-                           std::shared_ptr<Input::InputManager>& inputManager, Renderer::RenderersManager& renderersManager,
-                           Renderer::Gui::GuiContext& guiContext)
+                           IShaderFactory& shaderFactory, std::shared_ptr<Input::InputManager>& inputManager,
+                           Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
     : grahpicsApi_(grahpicsApi)
     , physicsApi_(physicsApi)
     , sceneFactory_(sceneFactory)
@@ -24,10 +23,11 @@ SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhy
 {
     threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
     threadSync_.Start();
+    isRunning_ = true;
 }
 SceneManager::~SceneManager()
 {
-    threadSync_.Stop();
+    Stop();
 }
 Scene* SceneManager::GetActiveScene()
 {
@@ -101,6 +101,20 @@ void SceneManager::SetFactor()
     sceneFactory_->SetInputManager(inputManager_.get());
     sceneFactory_->SetRenderersManager(&renderersManager_);
     sceneFactory_->SetPhysicsApi(physicsApi_);
+}
+
+void SceneManager::Stop()
+{
+    if (not isRunning_)
+        return;
+
+    threadSync_.Stop();
+    isRunning_ = false;
+}
+
+bool SceneManager::IsRunning() const
+{
+    return isRunning_;
 }
 
 void SceneManager::UpadteScene(float dt)
@@ -184,4 +198,4 @@ void SceneManager::SetSceneContext(Scene* scene)
     scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
 }
 
-}  // GameEngine
+}  // namespace GameEngine

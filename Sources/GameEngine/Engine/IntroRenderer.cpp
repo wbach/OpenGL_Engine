@@ -36,7 +36,7 @@ void IntroRenderer::Init()
     shader_ = shaderFactory_.create(GraphicsApi::Shaders::Loading);
     shader_->Init();
     backgroundTexture_ = resorceManager_.GetTextureLaoder().LoadTextureImmediately(
-        "GUI/start1.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+        "GUI/BENGINE.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
     initialized_ = true;
 }
 

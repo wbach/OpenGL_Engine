@@ -25,7 +25,7 @@ Subscriber::Subscriber(const Subscriber& s)
 void Subscriber::Start()
 {
     thread = std::thread(std::bind(&Subscriber::Update, this));
-    timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
+    //timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
     isStarted = true;
 }
 
