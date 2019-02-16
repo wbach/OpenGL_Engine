@@ -12,6 +12,7 @@
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
+#include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -30,7 +31,7 @@
 
 using namespace GameEngine;
 
-const std::string sceneFile = "mainScene.xml";
+const std::string sceneFile = "partScene.xml";
 
 TerrainTexturesFilesMap CreateTerrainTexturesMap()
 {
@@ -131,6 +132,10 @@ int MainScene::Initialize()
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
+
+    auto skydome = CreateGameObject();
+    skydome->AddComponent<Components::SkydomeComponent>();
+    AddGameObject(skydome);
 
     {
         auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(0, 0), true);

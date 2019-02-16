@@ -9,6 +9,7 @@
 #include "GameEngine/Renderers/Objects/Plants/Shaders/PlantsShader.h"
 #include "GameEngine/Renderers/Objects/Shadows/Shaders/ShadowShader.h"
 #include "GameEngine/Renderers/Objects/SkyBox/Shaders/SkyBoxShader.h"
+#include "GameEngine/Renderers/Objects/Skydome/Shaders/SkydomeShader.h";
 #include "GameEngine/Renderers/Objects/Terrain/Mesh/Shaders/TerrainMeshShader.h"
 #include "GameEngine/Renderers/Objects/Terrain/Shaders/TerrainShader.h"
 #include "GameEngine/Renderers/Objects/Tree/Shaders/TreeShader.h"
@@ -45,6 +46,8 @@ std::unique_ptr<IShaderProgram> ShaderFactory::create(GraphicsApi::Shaders type)
             return std::make_unique<ShadowShader>(graphicsApi_);
         case GraphicsApi::Shaders::SkyBox:
             return std::make_unique<SkyBoxShader>(graphicsApi_);
+        case GraphicsApi::Shaders::Skydome:
+            return std::make_unique<SkydomeShader>(graphicsApi_);
         case GraphicsApi::Shaders::Terrain:
             return std::make_unique<TerrainShader>(graphicsApi_);
         case GraphicsApi::Shaders::TerrainMesh:

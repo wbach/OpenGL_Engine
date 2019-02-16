@@ -40,7 +40,7 @@ void ShaderManager::UseDeprectedShaders()
 void ShaderManager::UseShader(uint32 id)
 {
     currentShader_ = id;
-    auto glId = idPool_.ToGL(id);
+    auto glId      = idPool_.ToGL(id);
     glUseProgram(glId);
 }
 
@@ -62,7 +62,14 @@ std::optional<GLuint> ShaderManager::CreateShaderProgram()
 
 uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions functions)
 {
+    Log("Create shader, type : " + std::to_string((int)shaderType));
     auto files = GetShaderFiles(shaderType);
+    std::string logFilesString;
+    for (const auto& f : files)
+    {
+        logFilesString += " " + f.first;
+    }
+    Log("Shader files :" + logFilesString);
 
     auto program = CreateShaderProgram();
 
@@ -70,12 +77,12 @@ uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::Graph
         return 0;
 
     auto programId = *program;
-    auto uId = idPool_.ToUint(programId);
+    auto uId       = idPool_.ToUint(programId);
 
     if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_SET_ID) != 0)
         functions.at(GraphicsApi::GraphicFunctionType::SHADER_SET_ID)(uId);
 
-    shaderPrograms_.insert({ uId, OpenGLShaderProgram(programId, files.begin()->first)});
+    shaderPrograms_.insert({uId, OpenGLShaderProgram(programId, files.begin()->first)});
 
     for (const auto& p : files)
     {
@@ -86,10 +93,13 @@ uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::Graph
     if (!FinalizeShader(shaderPrograms_.at(uId), functions))
         return false;
 
+    Log("Shader succesful created. Id : " + std::to_string(uId));
+
     return uId;
 }
 
-bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode)
+bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename,
+                              GraphicsApi::ShaderType mode)
 {
     if (not shadersFileLocation_.empty() and shadersFileLocation_.back() != '/')
     {
@@ -182,8 +192,7 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsA
     {
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), NULL, ErrorLog);
         std::string error(ErrorLog);
-        Error("GlError ShaderprogramID: : " + shaderProgram.name +
-              " error code : " + std::to_string(glError) + " : ");
+        Error("GlError ShaderprogramID: : " + shaderProgram.name + " error code : " + std::to_string(glError) + " : ");
     }
 
     glUseProgram(0);
@@ -215,7 +224,7 @@ void ShaderManager::BindAttribute(uint32 programId, uint32 attribute, const std:
 uint32 ShaderManager::GetShaderVariableLocation(uint32 id, const std::string& varname)
 {
     auto glId = shaderPrograms_.at(id).id;
-    auto i = glGetUniformLocation(glId, varname.c_str());
+    auto i    = glGetUniformLocation(glId, varname.c_str());
 
     if (i < 0)
     {

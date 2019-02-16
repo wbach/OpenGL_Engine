@@ -8,6 +8,7 @@
 #include "Objects/Shadows/ShadowFrameBuffer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
+#include "Objects/Skydome/SkydomeRenderer.h"
 #include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
@@ -69,6 +70,7 @@ void BaseRenderer::InitRenderers()
 void BaseRenderer::CreateRenderers()
 {
     AddRenderer<SkyBoxRenderer>();
+    AddRenderer<SkydomRenderer>();
 
     if (EngineConf.renderer.flora.isGrass)
         AddRenderer<GrassRenderer>();

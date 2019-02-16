@@ -1,10 +1,13 @@
 #include "SkydomeRenderer.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Objects/GameObject.h"
-
+#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
 namespace GameEngine
 {
 SkydomRenderer::SkydomRenderer(RendererContext& context)
@@ -16,6 +19,13 @@ SkydomRenderer::SkydomRenderer(RendererContext& context)
 void SkydomRenderer::Init()
 {
     shader_->Init();
+
+    if (not perObjectUpdateId_)
+    {
+        perObjectUpdateId_ =
+            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        UpdateBuffer(vec3(0));
+    }
 }
 void SkydomRenderer::Subscribe(GameObject* gameObject)
 {
@@ -24,7 +34,7 @@ void SkydomRenderer::Subscribe(GameObject* gameObject)
     if (component == nullptr)
         return;
 
-    subscribes_.push_back({component->GetModel()});
+    subscriber_.model_ = component->GetModel();
 }
 void SkydomRenderer::ReloadShaders()
 {
@@ -34,9 +44,24 @@ void SkydomRenderer::ReloadShaders()
 }
 void SkydomRenderer::Render(const Scene& scene, const Time&)
 {
-    if (subscribes_.empty())
+    if (not subscriber_.model_)
         return;
 
     shader_->Start();
+    UpdateBuffer(scene.GetCamera().GetPosition());
+    context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
+
+    for (const auto& mesh : subscriber_.model_->GetMeshes())
+    {
+        context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
+    }
+
+    shader_->Stop();
+}
+void SkydomRenderer::UpdateBuffer(const vec3& cameraPos)
+{
+    perObjectUpdate_.TransformationMatrix =
+        Utils::CreateTransformationMatrix(vec3(0), vec3(0), vec3(context_.projection_.GetViewDistance()));
+    context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdate_);
 }
 }  // namespace GameEngine
