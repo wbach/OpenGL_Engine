@@ -21,7 +21,7 @@ public:
     Texture* GetTexture(TerrainTextureType type);
     const TerrainTexturesMap& GetTextures() const;
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
-    inline const std::vector<BufferObject>& GetPerObjectUpdateBuffers() const;
+    inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
 
 private:
     virtual void ReqisterFunctions() override;
@@ -35,16 +35,15 @@ private:
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
 
-    std::vector<PerObjectUpdate> perObjectUpdate_;  // for each mesh
-    std::vector<BufferObject> perObjectUpdateBuffer_;
+    std::vector<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
 
 public:
     static ComponentsType type;
 };
 
-const std::vector<BufferObject>& TerrainMeshRendererComponent::GetPerObjectUpdateBuffers() const
+inline const GraphicsApi::ID& TerrainMeshRendererComponent::GetPerObjectUpdateBuffer(uint32 id) const
 {
-    return perObjectUpdateBuffer_;
+    return perObjectUpdateBuffer_[id].GetId();
 }
 
 }  // namespace Components

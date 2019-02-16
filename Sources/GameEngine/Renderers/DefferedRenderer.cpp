@@ -19,12 +19,12 @@
 
 namespace GameEngine
 {
-DefferedRenderer::DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection, IShaderFactory& shaderFactory,
+DefferedRenderer::DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection,
+                                   IShaderFactory& shaderFactory,
                                    std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : BaseRenderer(graphicsApi, projection, shaderFactory, rendererFunction)
     , postprocessingRenderersManager_(context_)
 {
-
 }
 
 DefferedRenderer::~DefferedRenderer()
@@ -58,14 +58,14 @@ void DefferedRenderer::CreateRenderers()
     if (EngineConf.renderer.shadows.isEnabled)
         AddRenderer<ShadowMapRenderer>();
 }
-void DefferedRenderer::Prepare(Scene*)
+void DefferedRenderer::Prepare(const Scene&, const Time&)
 {
     context_.defferedFrameBuffer_.Clean();
     context_.defferedFrameBuffer_.BindToDraw();
 }
-void DefferedRenderer::OnEndFrame(Scene* scene)
+void DefferedRenderer::OnEndFrame(const Scene& scene, const Time&)
 {
-   // context_.defferedFrameBuffer_.UnBindDraw();
+    // context_.defferedFrameBuffer_.UnBindDraw();
     context_.defferedFrameBuffer_.UnBind();
     postprocessingRenderersManager_.Render(scene);
 }

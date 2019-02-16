@@ -1,7 +1,7 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
-#include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Renderers/IRenderer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -23,12 +23,14 @@ public:
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
+
+private:
+    void Render(const Scene& scene, const Time& threadTime);
 
 private:
     void BindTexture(Texture* texture, int id) const;
     void BindTextures(const TerrainTexturesMap& textures) const;
-    void RenderSubscribers(const mat4& viewMatrix, int range) const;
+    void RenderSubscribers(const mat4& viewMatrix) const;
     void RenderSubscriber(const TerrainTexturesMap& textures) const;
     void InitShader();
 
@@ -39,4 +41,4 @@ private:
     std::vector<std::pair<uint32_t, Components::TerrainRendererComponent*>> subscribes_;
     uint32 objectId;
 };
-}
+}  // namespace GameEngine

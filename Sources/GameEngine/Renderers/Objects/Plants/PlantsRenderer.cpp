@@ -13,7 +13,7 @@ PlantsRenderer::PlantsRenderer(RendererContext& context)
 void PlantsRenderer::Init()
 {
 }
-void PlantsRenderer::Render(Scene* scene)
+void PlantsRenderer::Render(const Scene&, const Time&)
 {
 }
 void PlantsRenderer::Subscribe(GameObject* gameObject)

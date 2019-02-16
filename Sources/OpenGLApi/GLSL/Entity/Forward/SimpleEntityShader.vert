@@ -22,10 +22,11 @@ layout (std140, binding=1) uniform PerResize
     mat4 projectionMatrix;
 } perResize;
 
-layout (std140,binding=2) uniform PerFrame
+layout (std140,binding=1) uniform PerFrame
 {
-    mat4 viewMatrix;
+    mat4 projectionViewMatrix;
     mat4 toShadowMapSpace;
+    vec3 cameraPosition;
 } perFrame;
 
 layout (std140, align=16, binding=3) uniform PerObjectConstants

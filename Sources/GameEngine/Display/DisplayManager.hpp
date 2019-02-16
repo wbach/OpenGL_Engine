@@ -31,7 +31,7 @@ public:
     void SetRefreshRate(const int& rate);
     void SetFullScreen(bool full_screen);
 
-    inline const Time& GetTime();
+    inline const Time& GetTime() const;
 
     const int GetFps();
     const wb::vec2i& GetWindowSize();
@@ -47,7 +47,7 @@ private:
     wb::vec2i windowsSize;
 };
 
-inline const Time& DisplayManager::GetTime()
+inline const Time& DisplayManager::GetTime() const
 {
     return time_;
 }

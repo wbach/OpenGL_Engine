@@ -7,6 +7,7 @@
 
 namespace GameEngine
 {
+struct Time;
 class GUIRenderer : public IRenderer
 {
 public:
@@ -19,7 +20,7 @@ public:
     void AddElement(GuiElement* element);
 
 private:
-    void Render(Scene* scene);
+    void Render(const Scene& scene, const Time&);
 
 private:
     std::vector<std::unique_ptr<IGuiElement>> guiElements;

@@ -1,18 +1,12 @@
-#version 330
+#version 440
 #define MAX_LIGHTS              100
 #define M_PI    3.14159265358979323846264338327950288   /* pi */
 #define LIGHT_TYPE_DIRECTIONAL  0
 #define LIGHT_TYPE_POINT        1
 #define LIGHT_TYPE_SPOT         2
 
-struct SLight
-{
-    int   type_;
-    vec3  position_;
-    vec3  colour_;
-    vec3  attenuation_;
-    float cutOff_;
-};
+const float density = 0.0025;
+const float gradient = 2.5;
 
 struct SMaterial
 {
@@ -22,32 +16,45 @@ struct SMaterial
     float shineDamper_;
 };
 
+struct Light
+{
+    vec3  position_;
+    vec3  color_;
+    vec3  attenuation_;
+    float cutOff_; 
+    int   type_;
+};
+
+layout (std140, align=16, binding=6) uniform LightPass
+{
+    vec4 skyColor;
+    vec2 screenSize;
+    float viewDistance;
+    int numberOfLights;
+    vec3  position_[MAX_LIGHTS];
+    vec3  color_[MAX_LIGHTS];
+    vec3  attenuation_[MAX_LIGHTS];
+    float cutOff_[MAX_LIGHTS]; 
+    int   type_[MAX_LIGHTS];
+} lightsPass;
+
 uniform sampler2D PositionMap;
 uniform sampler2D ColorMap;
 uniform sampler2D NormalMap;
 uniform sampler2D SpecularMap;
 uniform sampler2D DepthTexture;
 
-uniform vec3      CameraPosition;
-uniform vec2      ScreenSize;
+in VS_OUT
+{
+    vec2 textureCoords;
+    vec3 cameraPosition;
+} vs_in;
 
-uniform int     NumberOfLights;
-uniform SLight  Lights[MAX_LIGHTS];
-
-//Fog
-uniform vec3 SkyColour;
-uniform float ViewDistance;
-const   float density = 0.0025;
-const   float gradient = 2.5;
-
-
-in vec2 textureCoords;
 out vec4 FragColor;
-
 
 vec2 CalcTexCoord()
 {
-    return gl_FragCoord.xy / ScreenSize;
+    return gl_FragCoord.xy / lightsPass.screenSize;
 }
 vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos, vec3 unit_normal, vec3 light_color)
 {
@@ -66,7 +73,7 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     ambient_color =  material.ambient_;
     if (material.shineDamper_ > .0f)
     {
-        vec3    vertex_to_camera    = normalize(CameraPosition - world_pos);
+        vec3    vertex_to_camera    = normalize(vs_in.cameraPosition - world_pos);
         vec3    light_reflect       = normalize(reflect(light_direction, unit_normal));
         float   specular_factor     = dot(vertex_to_camera, light_reflect);
                 specular_factor     = pow(specular_factor, material.shineDamper_);
@@ -80,22 +87,22 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
 
 }
 
-vec4 CalcDirectionalLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
+vec4 CalcDirectionalLight(SMaterial material, Light light, vec3 world_pos, vec3 unit_normal)
 {
     vec3 to_light_vector = light.position_ - world_pos;
     vec3 light_direction = normalize(to_light_vector);
 
-    return CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.colour_);
+    return CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.color_);
 }
 
-vec4 CalculatePointLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
+vec4 CalculatePointLight(SMaterial material, Light light, vec3 world_pos, vec3 unit_normal)
 {
     
     vec3 to_light_vector    = light.position_ - world_pos;
     float distance_to_light = length(to_light_vector);
     vec3 light_direction    = normalize(to_light_vector);
 
-    vec4 color = CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.colour_);
+    vec4 color = CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.color_);
 
 
     float att_factor =  light.attenuation_.x + 
@@ -103,10 +110,9 @@ vec4 CalculatePointLight(SMaterial material, SLight light, vec3 world_pos, vec3 
                         light.attenuation_.z * distance_to_light * distance_to_light;
 
     return color / att_factor; 
-    //return vec4(light_direction, 1.f);
 }
-// not end 
-vec4 CalcSpotLight(SMaterial material, SLight light, vec3 world_pos, vec3 unit_normal)
+
+vec4 CalcSpotLight(SMaterial material, Light light, vec3 world_pos, vec3 unit_normal)
 { 
     vec3 to_light_vector = light.position_ - world_pos;
     vec3 light_direction = normalize(to_light_vector); 
@@ -129,18 +135,25 @@ vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
 {
     vec4 total_color = vec4(0.f, 0.f, 0.f, 1.f);
 
-    for (int i = 0; i < NumberOfLights; i++)
+    for (int i = 0; i < lightsPass.numberOfLights; i++)
     {   
-        switch(Lights[i].type_)
+        Light light;
+        light.attenuation_ = lightsPass.attenuation_[i];
+        light.position_ = lightsPass.position_[i];
+        light.color_ = lightsPass.color_[i];
+        light.type_ = lightsPass.type_[i];
+        light.cutOff_ = lightsPass.cutOff_[i];
+
+        switch(light.type_)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                total_color += CalcDirectionalLight(material, Lights[i], world_pos, unit_normal);
+                total_color += CalcDirectionalLight(material, light, world_pos, unit_normal);
                 break;
             case LIGHT_TYPE_POINT:
-                total_color += CalculatePointLight(material, Lights[i], world_pos, unit_normal);
+                total_color += CalculatePointLight(material, light, world_pos, unit_normal);
                 break;
             case LIGHT_TYPE_SPOT:
-                total_color += CalcSpotLight(material, Lights[i], world_pos, unit_normal);
+                total_color += CalcSpotLight(material, light, world_pos, unit_normal);
                 break;
         }
     }
@@ -148,24 +161,21 @@ vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
     return total_color;
 }
 
-float ToZBuffer(sampler2D texture, vec2 coord)
+float ToZBuffer(sampler2D tex, vec2 coord)
 {
     float zNear = 0.1f;
     float zFar = 1000.f;
-    float z_b = texture2D(texture, coord).x;
+    float z_b = texture(tex, coord).x;
     float z_n = 2.0 * z_b - 1.0;
     float z_e = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
     return z_e;
 }
-void main()
-{   
-    //FragColor = vec4(1.f, 0.f, 0.f, 1.f);return;
 
-    vec2 tex_coord  = textureCoords; //CalcTexCoord();
+void main()
+{
+    vec2 tex_coord  = vs_in.textureCoords;
     tex_coord.y*=-1;
-    float z = ToZBuffer(DepthTexture, tex_coord) ;/// 1000;
-    
-    //FragColor = texture(ColorMap, tex_coord); return;
+    float z = ToZBuffer(DepthTexture, tex_coord);
 
     vec4 normal4    = texture(NormalMap, tex_coord);
     vec4 specular   = texture(SpecularMap, tex_coord);
@@ -175,7 +185,7 @@ void main()
 
     float visibility;
     float distance = z ;
-    visibility = exp(-pow((distance*((1.5 / ViewDistance))), gradient));
+    visibility = exp(-pow((distance*((1.5 / lightsPass.viewDistance))), gradient));
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
     SMaterial material;
@@ -192,20 +202,21 @@ void main()
     }
 
     const float gamma = 1.75f;
-    //const float exposure = 0.0f; 
     if (normal4.a > .5f)
     {
         final_color = CalculateColor(material, world_pos, normal).rgb;
     }
     else
     {
-        final_color = material.diffuse_;//* SkyColour; 
+        final_color = material.diffuse_;
     }
-    //vec3 mapped = vec3(1.0) - exp(-final_color * exposure);
+
     final_color = pow(final_color, vec3(1.f / gamma));
     FragColor = vec4(final_color, 1.f);
 
     const float contrast = 0.5f;
     FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
-    FragColor     = mix(vec4(SkyColour, 1.f), FragColor, visibility);
+    FragColor     = mix(lightsPass.skyColor, FragColor, visibility);
+    //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);
+    //FragColor = vec4(lightsPass.lights[0].color_, 1.f);
 }

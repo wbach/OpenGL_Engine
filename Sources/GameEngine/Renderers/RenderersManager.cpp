@@ -11,7 +11,6 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
-#include "GameEngine/Resources/ShaderBuffers/PerResizeBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
@@ -54,14 +53,7 @@ const Projection& RenderersManager::GetProjection() const
 }
 void RenderersManager::UpdateCamera(Scene* scene)
 {
-    auto camera = scene->GetCamera();
-
-    if (camera == nullptr)
-        return;
-
-    camera->CalculateInput();
-    camera->Move();
-    camera->UpdateMatrix();
+    scene->UpdateCamera();
 }
 
 void RenderersManager::Init()
@@ -83,6 +75,8 @@ void RenderersManager::InitMainRenderer()
 {
     if (!renderers_.empty())
         return;
+
+    graphicsApi_.EnableCulling();
 
     auto rendererType = EngineConf.renderer.type;
 
@@ -113,31 +107,24 @@ void RenderersManager::RegisterRenderFunction(RendererFunctionType type, Rendere
 {
     rendererFunctions_[type].push_back(function);
 }
-void RenderersManager::RenderScene(Scene* scene)
+void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
 {
     if (scene == nullptr)
         return;
 
-    bufferDataUpdater_.Update();
-
-    UpdateCamera(scene);
     ReloadShadersExecution();
-
-    if (perFrameId_)
-    {
-        PerFrameBuffer buffer;
-        buffer.ViewMatrix = scene->GetCamera()->GetViewMatrix();
-        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
-    }
+    bufferDataUpdater_.Update();
+    UpdateCamera(scene);
+    UpdatePerFrameBuffer(scene);
 
     RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
 
-    Render(RendererFunctionType::PRERENDER, scene);
-    Render(RendererFunctionType::PRECONFIGURE, scene);
-    Render(RendererFunctionType::CONFIGURE, scene);
-    Render(RendererFunctionType::UPDATE, scene);
-    Render(RendererFunctionType::POSTUPDATE, scene);
-    Render(RendererFunctionType::ONENDFRAME, scene);
+    Render(RendererFunctionType::PRERENDER, scene, threadTime);
+    Render(RendererFunctionType::PRECONFIGURE, scene, threadTime);
+    Render(RendererFunctionType::CONFIGURE, scene, threadTime);
+    Render(RendererFunctionType::UPDATE, scene, threadTime);
+    Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
+    Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
 }
 void RenderersManager::ReloadShaders()
 {
@@ -201,21 +188,23 @@ void RenderersManager::DisableDrawPhysicsDebyg()
 {
     renderPhysicsDebug_ = false;
 }
-void RenderersManager::Render(RendererFunctionType type, Scene* scene)
+void RenderersManager::Render(RendererFunctionType type, Scene* scene, const Time& threadTime)
 {
+    if (scene == nullptr)
+        return;
+
     if (rendererFunctions_.count(type))
     {
         for (auto& f : rendererFunctions_.at(type))
-            f(scene);
+            f(*scene, threadTime);
     }
 
     if (renderPhysicsDebug_ and physicsDebugDraw_)
-        physicsDebugDraw_(scene->GetCamera()->GetViewMatrix(), projection_.GetProjectionMatrix());
+        physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
 }
 void RenderersManager::CreateBuffers()
 {
     CreatePerAppBuffer();
-    CreatePerResizeBuffer();
     CreatePerFrameBuffer();
 }
 void RenderersManager::CreatePerAppBuffer()
@@ -233,17 +222,7 @@ void RenderersManager::CreatePerAppBuffer()
         graphicsApi_.BindShaderBuffer(*perAppId);
     }
 }
-void RenderersManager::CreatePerResizeBuffer()
-{
-    auto perResizeId = graphicsApi_.CreateShaderBuffer(PER_RESIZE_BIND_LOCATION, sizeof(PerResizeBuffer));
-    if (perResizeId)
-    {
-        PerResizeBuffer buffer;
-        buffer.ProjectionMatrix = projection_.GetProjectionMatrix();
-        graphicsApi_.UpdateShaderBuffer(*perResizeId, &buffer);
-        graphicsApi_.BindShaderBuffer(*perResizeId);
-    }
-}
+
 void RenderersManager::CreatePerFrameBuffer()
 {
     if (not perFrameId_)
@@ -253,10 +232,23 @@ void RenderersManager::CreatePerFrameBuffer()
     if (perFrameId_)
     {
         PerFrameBuffer buffer;
-        buffer.ViewMatrix       = glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
+        buffer.ProjectionViewMatrix =
+            projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
         buffer.ToShadowMapSpace = mat4();
+        buffer.cameraPosition   = vec3(0);
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
+    }
+}
+
+void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
+{
+    if (perFrameId_)
+    {
+        PerFrameBuffer buffer;
+        buffer.ProjectionViewMatrix = projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix();
+        buffer.cameraPosition       = scene->GetCamera().GetPosition();
+        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }
 

@@ -30,7 +30,7 @@ public:
 protected:
     void InitRenderers();
     void CreateRenderers();
-    void PreConfigure(Scene*);
+    void PreConfigure(const Scene&, const Time&);
 
     template <class T>
     void AddRenderer()

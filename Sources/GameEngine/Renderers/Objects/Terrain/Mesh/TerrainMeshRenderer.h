@@ -35,7 +35,9 @@ public:
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
+
+private:
+    void Render(const Scene& scene, const Time&);
 
 private:
     void BindTexture(Texture* texture, int id) const;
@@ -49,7 +51,6 @@ private:
 private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
-    vec4 clipPlane;
     std::vector<std::pair<uint32_t, Subscriber>> subscribes_;
 };
 }  // namespace GameEngine

@@ -30,24 +30,24 @@ void TerrainRenderer::Init()
         4, static_cast<uint32>(TerrainDef::SIZE * TerrainDef::SIZE));
 }
 
-void TerrainRenderer::Render(Scene* scene)
+void TerrainRenderer::Render(const Scene& scene, const Time&)
 {
     if (subscribes_.empty())
         return;
 
     shader_->Start();
-    shader_->Load(TerrainShaderUniforms::lightDirection, scene->GetDirectionalLight().GetDirection());
-    shader_->Load(TerrainShaderUniforms::playerPosition, scene->GetCamera()->GetPosition());
+    shader_->Load(TerrainShaderUniforms::lightDirection, scene.GetDirectionalLight().GetDirection());
+    shader_->Load(TerrainShaderUniforms::playerPosition, scene.GetCamera().GetPosition());
     shader_->Load(TerrainShaderUniforms::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
 
-    auto modelViewMatrix  = scene->GetCamera()->GetViewMatrix();
+    auto modelViewMatrix  = scene.GetCamera().GetViewMatrix();
     modelViewMatrix[3][0] = 0;
     modelViewMatrix[3][1] = 0;
     modelViewMatrix[3][2] = 0;
 
-    RenderSubscribers(modelViewMatrix, 2);
+    RenderSubscribers(modelViewMatrix);
 }
-void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix, int range) const
+void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
 {
     for (auto& sub : subscribes_)
     {

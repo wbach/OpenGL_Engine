@@ -3,22 +3,21 @@
 
 namespace GameEngine
 {
-
+struct Time;
 class DefferedRenderer : public BaseRenderer
 {
 public:
     DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix, IShaderFactory& shaderFactory,
                  std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
     ~DefferedRenderer();
-    // Loading lights itp to shader
-    virtual void Init() override;
 
+    virtual void Init() override;
     virtual void ReloadShaders() override;
 
 private:
     void CreateRenderers();
-    void Prepare(Scene*);
-    void OnEndFrame(Scene*);
+    void Prepare(const Scene&, const Time&);
+    void OnEndFrame(const Scene&, const Time&);
 
 private:
     PostProcessingManager postprocessingRenderersManager_;

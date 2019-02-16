@@ -5,7 +5,8 @@ namespace GameEngine
 {
 struct PerFrameBuffer
 {
-    mat4 ViewMatrix;
+    mat4 ProjectionViewMatrix;
     mat4 ToShadowMapSpace;
+    AlignWrapper<vec3> cameraPosition;
 };
 }  // namespace GameEngine

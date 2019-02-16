@@ -127,7 +127,7 @@ int MainScene::Initialize()
     });
 
     // CreateExmapleStrtupObject();
-    // LoadFromFile(sceneFile);
+     LoadFromFile(sceneFile);
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
@@ -231,9 +231,9 @@ void MainScene::UpdatePlayerandCamera(float time)
 void MainScene::KeyOperations()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]() {
-        auto dir = GetCamera()->GetDirection();
+        auto dir = GetCamera().GetDirection();
         dir      = glm::normalize(dir);
-        auto pos = GetCamera()->GetPosition();
+        auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
         Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
             ", Objecsts : " + std::to_string(gameObjects.size()));

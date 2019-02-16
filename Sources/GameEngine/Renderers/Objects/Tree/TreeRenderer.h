@@ -1,6 +1,6 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -11,22 +11,22 @@ struct RendererContext;
 class ModelWrapper;
 class IShaderFactory;
 class IShaderProgram;
+struct Time;
+
+namespace Components
+{
+class TreeRendererComponent;
+}  // namespace Components
 
 struct TreeSubscriber
 {
-    mat4 transform;
-    std::vector<vec3>* positions;
-    ModelWrapper* top;
-    ModelWrapper* bottom;
-    uint32 positionTexture;
-    vec2ui range;
-    vec2 spotCenterPosition;
-    bool textureInGpu = false;
+    GameObject* gameObject_;
+    Components::TreeRendererComponent* treeRendererComponent_;
 };
 
 class TreeRenderer : public IRenderer
 {
-    typedef std::unordered_map<uint32_t, TreeSubscriber> SubscribersMap;
+    typedef std::vector<TreeSubscriber> Subscribers;
 
 public:
     TreeRenderer(RendererContext& context);
@@ -36,12 +36,13 @@ public:
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
 
 private:
-    void PreparePositionMap(TreeSubscriber& sub);
-    void RenderModel(Model* model, const mat4&, uint32) const;
-    void RenderMesh(const Mesh& mesh, const mat4&, uint32) const;
+    void Render(const Scene& scene, const Time& threadTime);
+
+private:
+    void RenderModel(const Model& model, const TreeSubscriber&) const;
+    void RenderMesh(const Mesh& mesh, uint32) const;
     void RenderTrees();
     void BindMaterial(const Material& material) const;
     void UnBindMaterial(const Material& material) const;
@@ -52,7 +53,6 @@ private:
 
     vec4 clipPlane;
 
-    SubscribersMap subscribes_;
-    std::vector<TreeSubscriber*> subscribersToInit_;
+    Subscribers subscribes_;
 };
-}  // GameEngine
+}  // namespace GameEngine

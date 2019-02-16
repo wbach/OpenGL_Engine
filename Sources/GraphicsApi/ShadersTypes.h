@@ -11,6 +11,7 @@ enum class Shaders
     Plants,
     Shadows,
     SkyBox,
+    Skydome,
     Terrain,
     TerrainMesh,
     Tree,

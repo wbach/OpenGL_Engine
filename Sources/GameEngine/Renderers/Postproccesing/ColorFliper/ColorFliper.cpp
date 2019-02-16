@@ -7,10 +7,10 @@ void ColorFliper::Init()
     shader_.reset(new ColorFliperShader(rendererContext_->graphicsApi_));
     shader_->Init();
 }
-void ColorFliper::Prepare(Scene*)
+void ColorFliper::Prepare()
 {
 }
-void ColorFliper::Render(Scene*)
+void ColorFliper::Render(const Scene&)
 {
     shader_->Start();
     (*postprocessFrameBuffer_)->BindTextures();

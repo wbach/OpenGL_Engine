@@ -3,16 +3,21 @@
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/EngineMeasurement.h"
-#include "Input/InputManager.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "Input/InputManager.h"
 #include "Logger/Log.h"
-#include "SceneWriter.h"
 #include "SceneReader.h"
+#include "SceneWriter.h"
 #include "Utils/Time/Timer.h"
 
 namespace GameEngine
 {
+namespace
+{
+std::mutex cameraSwitchMutex;
+} // namespace
+
 Scene::Scene(const std::string& name)
     : objectCount(0)
     , name(name)
@@ -107,23 +112,23 @@ void Scene::SetAddSceneEventCallback(AddEvent func)
     addSceneEvent = func;
 }
 
-std::list<GameObject*> Scene::GetObjectInRange(const vec3& position, float range)
+void Scene::UpdateCamera()
 {
-    // int x = static_cast<uint>(position.x / OBJECT_GRID_SIZE);
-    // int y = static_cast<uint>(position.z / OBJECT_GRID_SIZE);
-
-    return std::list<GameObject*>();  // m_ObjectInGrid[x + y*OBJECT_GRID_COUNT];
+    std::lock_guard<std::mutex> lg(cameraSwitchMutex);
+    camera->CalculateInput();
+    camera->Move();
+    camera->UpdateMatrix();
 }
 
-ICamera* Scene::GetCamera()
+const ICamera& Scene::GetCamera() const
 {
-    // std::lock_guard<std::mutex> lk(cameraMutex);
-    return camera.get();
+    std::lock_guard<std::mutex> lg(cameraSwitchMutex);
+    return *camera;
 }
 
 void Scene::SetCamera(std::unique_ptr<ICamera> cam)
 {
-    // std::lock_guard<std::mutex> lk(cameraMutex);
+    std::lock_guard<std::mutex> lg(cameraSwitchMutex);
     camera = std::move(cam);
 }
 

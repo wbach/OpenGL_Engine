@@ -4,7 +4,7 @@ namespace GameEngine
 {
 GUIRenderer::GUIRenderer(std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
 {
-    rendererFunction(RendererFunctionType::POSTUPDATE, std::bind(&GUIRenderer::Render, this, std::placeholders::_1));
+    rendererFunction(RendererFunctionType::POSTUPDATE, std::bind(&GUIRenderer::Render, this, std::placeholders::_1, std::placeholders::_2));
 }
 GUIRenderer::~GUIRenderer()
 {
@@ -17,7 +17,7 @@ void GUIRenderer::Init()
     }
 }
 
-void GUIRenderer::Render(Scene* scene)
+void GUIRenderer::Render(const Scene&, const Time&)
 {
     for (const auto& element : guiElements)
     {

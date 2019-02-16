@@ -1,20 +1,25 @@
-#version 330 core
+#version 440
 
-struct SMaterial
+layout (std140, align=16, binding=6) uniform PerMeshObject
 {
-    vec3  ambient;
-    vec3  diffuse;
-    vec3  specular;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    uint numberOfRows;
+    float useTexture;
+    float useNormalMap;
     float shineDamper;
-};
+    float useFakeLighting;
+} perMeshObject;
 
-in vec4 position;
-in vec2 textureCoords;
-in vec3 normal;
+in VS_OUT
+{
+    vec4 position;
+    vec2 textureCoords;
+    vec3 normal;
+} vs_in;
 
-uniform SMaterial ModelMaterial;
 uniform sampler2D DiffuseTexture;
-uniform float UseShading;
 
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
@@ -23,14 +28,15 @@ layout (location = 3) out vec4 MaterialSpecular;
 
 void main(void)
 {
-    vec4 color = texture(DiffuseTexture, textureCoords);
+    vec4 color = texture(DiffuseTexture, vs_in.textureCoords);
     color.xyz = color.xyz * 0.8f;
     if ( color.a < 0.5f)
     {
         discard;
     }
-    WorldPosOut = position;
-    DiffuseOut = color * vec4(ModelMaterial.diffuse, 1.0f);//vec4(vec3(0.8), 1.f);
-    NormalOut = UseShading > 0.5f ? vec4( normalize(normal), 1.f) : vec4(0.f, 1.f, 0.f, 0.f);
+
+    WorldPosOut = vs_in.position;
+    DiffuseOut = color * perMeshObject.diffuse;
+    NormalOut = perMeshObject.useFakeLighting > 0.5f ? vec4( normalize(vs_in.normal), 1.f) : vec4(0.f, 1.f, 0.f, 0.f);
     MaterialSpecular = vec4(0.f, 0.f, 0.f, 1.f);
 }

@@ -65,9 +65,7 @@ void RendererComponent::UnSubscribe()
 }
 void RendererComponent::ReserveBufferVectors(uint32 size)
 {
-    perObjectUpdate_.reserve(size);
     perObjectUpdateBuffer_.reserve(size);
-    perObjectConstants_.reserve(size);
     perObjectConstantsBuffer_.reserve(size);
 }
 void RendererComponent::CreateBuffers(ModelRawPtr model)
@@ -80,34 +78,31 @@ void RendererComponent::CreateBuffers(ModelRawPtr model)
 }
 void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 {
-    perObjectUpdate_.emplace_back();
-    auto& pu                = perObjectUpdate_.back();
-    pu.TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+    BufferObject<PerObjectUpdate> buffer(componentContext_.resourceManager_.GetGraphicsApi(),
+                                         PER_OBJECT_UPDATE_BIND_LOCATION);
 
-    BufferObject obj(componentContext_.resourceManager_.GetGraphicsApi(), PER_OBJECT_UPDATE_BIND_LOCATION, &pu,
-                     sizeof(PerObjectUpdate));
-    perObjectUpdateBuffer_.push_back(obj);
+    buffer.GetData().TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+    perObjectUpdateBuffer_.push_back(buffer);
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(&perObjectUpdateBuffer_.back());
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
-    perObjectConstants_.emplace_back();
-    auto& poc            = perObjectConstants_.back();
-    poc.UseBoneTransform = mesh.UseArmature();
+    BufferObject<PerObjectConstants> buffer(componentContext_.resourceManager_.GetGraphicsApi(),
+                                     PER_OBJECT_CONSTANTS_BIND_LOCATION);
+
+    buffer.GetData().UseBoneTransform = mesh.UseArmature();
 
     if (mesh.GetMaterial().diffuseTexture)
     {
-        poc.textureOffset = mesh.GetMaterial().diffuseTexture->GetTextureOffset(textureIndex_);
+        buffer.GetData().textureOffset = mesh.GetMaterial().diffuseTexture->GetTextureOffset(textureIndex_);
     }
     else
     {
-        poc.textureOffset = vec2(0);
+        buffer.GetData().textureOffset = vec2(0);
     }
 
-    BufferObject obj(componentContext_.resourceManager_.GetGraphicsApi(), PER_OBJECT_CONSTANTS_BIND_LOCATION, &poc,
-                     sizeof(PerObjectConstants));
-    perObjectConstantsBuffer_.push_back(obj);
+    perObjectConstantsBuffer_.push_back(buffer);
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(
         &perObjectConstantsBuffer_.back());
@@ -118,12 +113,9 @@ void RendererComponent::UpdateBuffers()
 
     for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
     {
-        auto& poc = perObjectUpdate_[index];
-        auto& pocb = perObjectUpdateBuffer_[index];
-
-        poc.TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
-        pocb.UpdateBuffer();
-        ++index;
+        auto& poc = perObjectUpdateBuffer_[index++];
+        poc.GetData().TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+        poc.UpdateBuffer();
     }
 }
 }  // namespace Components

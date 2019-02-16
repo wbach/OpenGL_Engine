@@ -7,10 +7,10 @@ void Blur::Init()
     shader_.reset(new BlurShader(rendererContext_->graphicsApi_));
     shader_->Init();
 }
-void Blur::Prepare(Scene *)
+void Blur::Prepare()
 {
 }
-void Blur::Render(Scene *)
+void Blur::Render(const Scene&)
 {
     shader_->Start();
     (*postprocessFrameBuffer_)->BindTextures();

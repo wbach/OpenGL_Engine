@@ -32,7 +32,7 @@ void PostProcessingManager::Init()
     }
     ssaoRenderer_->Init();
 }
-void PostProcessingManager::Render(Scene* scene)
+void PostProcessingManager::Render(const Scene& scene)
 {
     uint32 i = 0;
     first_   = true;

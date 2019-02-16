@@ -1,14 +1,16 @@
 #include "SkyBoxRenderer.h"
-#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/SkyBoxShaderUniforms.h"
 
@@ -16,7 +18,9 @@ namespace GameEngine
 {
 SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     : context_(context)
+    , rotationSpeed_(1.f)
     , rotation_(0.f)
+    , scale_(150.f)
 {
     shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::SkyBox);
     __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkyBoxRenderer::Render);
@@ -25,63 +29,62 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
 void SkyBoxRenderer::Init()
 {
     InitShader();
+    if (not perObjectUpdateId_)
+    {
+        perObjectUpdateId_ =
+            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    }
+    if (not perMeshObjectId_)
+    {
+        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
+                                                                    sizeof(SkyBoxRenderer::PerMeshObject));
+
+        perMeshObject_.blendFactor_ = 1.f;
+        perMeshObject_.fogColor_    = vec4(.8f, .8f, .8f, 1.f);
+    }
 }
 
-void SkyBoxRenderer::PrepareToRendering(Scene* scene)
+void SkyBoxRenderer::PrepareToRendering(const Scene& scene)
 {
-    context_.graphicsApi_.DisableCulling();
     shader_->Start();
     PrepareShaderBeforeFrameRender(scene);
-}
-
-void SkyBoxRenderer::EndRendering()
-{
-    context_.graphicsApi_.EnableCulling();
 }
 
 void SkyBoxRenderer::InitShader()
 {
     shader_->Init();
-    shader_->Start();
-    shader_->Load(SkyBoxShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
-    shader_->Load(SkyBoxShaderUniforms::FogColour, vec3(.8f, .8f, .8f));
-    shader_->Load(SkyBoxShaderUniforms::BlendFactor, 1.f);
-    shader_->Stop();
 }
 
-mat4 SkyBoxRenderer::ModifiedViewMatrix(const mat4& viewMatrix) const
+void SkyBoxRenderer::UpdateBuffer(const Scene& scene, const Time& threadTime)
 {
-    mat4 newViewMatrix = viewMatrix;
+    rotation_.y += threadTime.deltaTime * rotationSpeed_;
 
-    newViewMatrix[3][0] = 0;
-    newViewMatrix[3][1] = 0;
-    newViewMatrix[3][2] = 0;
+    perObjectUpdateBuffer_.TransformationMatrix =
+        Utils::CreateTransformationMatrix(scene.GetCamera().GetPosition(), rotation_, scale_);
 
-    newViewMatrix *= glm::scale(vec3(150.f));
-    newViewMatrix *= glm::rotate(rotation_, .0f, 1.f, .0f);
-
-    return newViewMatrix;
+    context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdateBuffer_);
+    context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
 }
 
-void SkyBoxRenderer::Render(Scene* scene)
+void SkyBoxRenderer::Render(const Scene& scene, const Time& threadTime)
 {
     if (subscribes_.empty())
         return;
 
-    rotation_ += 0.01f;
+    UpdateBuffer(scene, threadTime);
     PrepareToRendering(scene);
 
     for (const auto& subscriber : subscribes_)
     {
         RenderSkyBoxModel(subscriber.second);
     }
-    EndRendering();
 }
 
-void SkyBoxRenderer::PrepareShaderBeforeFrameRender(Scene* scene)
+void SkyBoxRenderer::PrepareShaderBeforeFrameRender(const Scene& scene)
 {
-    shader_->Load(SkyBoxShaderUniforms::ViewMatrix, ModifiedViewMatrix(scene->GetCamera()->GetViewMatrix()));
-    shader_->Load(SkyBoxShaderUniforms::BlendFactor, scene->GetDayNightCycle().GetDayNightBlendFactor());
+    perMeshObject_.blendFactor_ = scene.GetDayNightCycle().GetDayNightBlendFactor();
+    context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &perMeshObject_);
+    context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 }
 
 void SkyBoxRenderer::RenderSkyBoxModel(const SkyBoxSubscriber& sub)
@@ -116,16 +119,13 @@ void SkyBoxRenderer::ReloadShaders()
 
 void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const
 {
-    BindCubeMapTexture(sub.dayTexture_, 0);
-    BindCubeMapTexture(sub.nightTexture_, 1);
+    BindCubeMapTexture(*sub.dayTexture_, 0);
+    BindCubeMapTexture(*sub.nightTexture_, 1);
 }
 
-void SkyBoxRenderer::BindCubeMapTexture(Texture* texture, int id) const
+void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, int id) const
 {
-    if (texture == nullptr)
-        return;
-
-    context_.graphicsApi_.ActiveTexture(id, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(id, texture.GetId());
 }
 
 void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const

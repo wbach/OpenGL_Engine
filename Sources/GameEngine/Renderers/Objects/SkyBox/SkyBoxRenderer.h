@@ -1,10 +1,12 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
+struct Time;
 class Model;
 class Mesh;
 class Texture;
@@ -27,26 +29,37 @@ class SkyBoxRenderer : public IRenderer
 public:
     SkyBoxRenderer(RendererContext& context);
     virtual void Init() override;
-    void Render(Scene* scene);
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void ReloadShaders() override;
 
 private:
+    void Render(const Scene& scene, const Time&);
     void BindTextures(const SkyBoxSubscriber& sub) const;
     void RenderSkyBoxMesh(const Mesh& mesh) const;
     void RenderSkyBoxModel(const SkyBoxSubscriber& sub);
-    void PrepareShaderBeforeFrameRender(Scene* scene);
-    void BindCubeMapTexture(Texture* texture, int id) const;
-    void PrepareToRendering(Scene* scene);
-    void EndRendering();
+    void PrepareShaderBeforeFrameRender(const Scene& scene);
+    void BindCubeMapTexture(const Texture& texture, int id) const;
+    void PrepareToRendering(const Scene& scene);
     void InitShader();
-    mat4 ModifiedViewMatrix(const mat4& viewMatrix) const;
+    void UpdateBuffer(const Scene& scene, const Time&);
+
+private:
+    struct PerMeshObject
+    {
+        AlignWrapper<vec4> fogColor_;
+        AlignWrapper<float> blendFactor_;
+    };
 
 private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
-    vec4 clipPlane;
     SkyBoxSubscriberMap subscribes_;
-    float rotation_;
+    GraphicsApi::ID perMeshObjectId_;
+    GraphicsApi::ID perObjectUpdateId_;
+    PerMeshObject perMeshObject_;
+    PerObjectUpdate perObjectUpdateBuffer_;
+    float rotationSpeed_;
+    vec3 rotation_;
+    vec3 scale_;
 };
-}  // GameEngine
+}  // namespace GameEngine

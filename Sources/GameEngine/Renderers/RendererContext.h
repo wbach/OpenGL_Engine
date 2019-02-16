@@ -10,6 +10,8 @@ class IGraphicsApi;
 }  // namespace GraphicsApi
 namespace GameEngine
 {
+struct Time;
+class Scene;
 class Projection;
 class IFrameBuffer;
 class IShadowFrameBuffer;
@@ -18,7 +20,8 @@ class IShaderFactory;
 
 struct RendererContext
 {
-    RendererContext(Projection& projection, GraphicsApi::IGraphicsApi& api, IFrameBuffer& defferedBuffer,
+    RendererContext(Projection& projection, GraphicsApi::IGraphicsApi& api,
+                    IFrameBuffer& defferedBuffer,
                     IShadowFrameBuffer& shadowBuffer, IShaderFactory& shaderFactory,
                     std::function<void(RendererFunctionType, RendererFunction)> registerFunction)
         : projection_(projection)
@@ -38,4 +41,5 @@ struct RendererContext
     std::function<void(RendererFunctionType, RendererFunction)> registerFunction_;
 };
 }  // namespace GameEngine
-#define __RegisterRenderFunction__(x, y) context_.registerFunction_(x, std::bind(&y, this, std::placeholders::_1))
+#define __RegisterRenderFunction__(x, y) \
+    context_.registerFunction_(x, std::bind(&y, this, std::placeholders::_1, std::placeholders::_2))

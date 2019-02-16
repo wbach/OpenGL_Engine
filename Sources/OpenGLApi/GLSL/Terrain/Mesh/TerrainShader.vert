@@ -13,18 +13,14 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 clipPlane;
 } perApp;
 
-layout (std140, binding=1) uniform PerResize
+layout (std140,binding=1) uniform PerFrame
 {
-    mat4 projectionMatrix;
-} perResize;
-
-layout (std140,binding=2) uniform PerFrame
-{
-    mat4 viewMatrix;
+    mat4 projectionViewMatrix;
     mat4 toShadowMapSpace;
+    vec3 cameraPosition;
 } perFrame;
 
-layout (std140, binding=4) uniform PerObjectUpdate
+layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
 } perObjectUpdate;
@@ -51,7 +47,6 @@ bool Is(float f)
 void main()
 {
     vec4 worldPos           = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
-    vec4 modelViewPosition  = perFrame.viewMatrix * worldPos;
     vs_out.texCoord         = TEXTCOORD;
     vs_out.normal           = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
     vs_out.worldPos         = worldPos;
@@ -59,7 +54,7 @@ void main()
     vs_out.passTangent  = (perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz; 
     vs_out.useNormalMap = 0.f;
 
-    float distanceToCam = length(modelViewPosition.xyz);
+    float distanceToCam = length(perFrame.cameraPosition - worldPos.xyz);
     vs_out.useShadows    = perApp.shadowVariables.x;
 
     if (Is(vs_out.useShadows))
@@ -70,5 +65,5 @@ void main()
         vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
     }
 
-    gl_Position = perResize.projectionMatrix * modelViewPosition;
+    gl_Position = perFrame.projectionViewMatrix * worldPos;
 }

@@ -67,6 +67,13 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> fullDe
         }
     },
     {
+        GraphicsApi::Shaders::Skydome,
+        {
+            {"Skydome/Skydome.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
+            {"Skydome/Skydome.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+        }
+    },
+    {
         GraphicsApi::Shaders::Terrain,
         {
             {"Terrain/Tessllation/TerrainShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},

@@ -25,8 +25,8 @@ public:
     inline ModelWrapper& GetModelWrapper();
     inline uint32_t GetTextureIndex() const;
     inline const std::unordered_map<std::string, LevelOfDetail>& GetFileNames() const;
-    inline const std::vector<BufferObject>& GetPerObjectUpdateBuffers() const;
-    inline const std::vector<BufferObject>& GetPerObjectConstantsBuffers() const;
+    inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 meshId) const;
+    inline const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint32 meshId) const;
 
 public:
     void UpdateBuffers(); // Call on rendering thread
@@ -44,11 +44,8 @@ private:
     ModelWrapper model_;
     uint32_t textureIndex_;
 
-    std::vector<PerObjectUpdate> perObjectUpdate_;  // for each mesh
-    std::vector<BufferObject> perObjectUpdateBuffer_;
-
-    std::vector<PerObjectConstants> perObjectConstants_;
-    std::vector<BufferObject> perObjectConstantsBuffer_;
+    std::vector<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
+    std::vector<BufferObject<PerObjectConstants>> perObjectConstantsBuffer_;
 
 public:
     static ComponentsType type;
@@ -66,13 +63,13 @@ const std::unordered_map<std::string, LevelOfDetail>& RendererComponent::GetFile
 {
     return filenames_;
 }
-const std::vector<BufferObject>& RendererComponent::GetPerObjectUpdateBuffers() const
+const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint32 meshId) const
 {
-    return perObjectUpdateBuffer_;
+    return perObjectUpdateBuffer_[meshId].GetId();
 }
-const std::vector<BufferObject>& RendererComponent::GetPerObjectConstantsBuffers() const
+const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(uint32 meshId) const
 {
-    return perObjectConstantsBuffer_;
+    return perObjectConstantsBuffer_[meshId].GetId();
 }
 }  // namespace Components
 }  // namespace GameEngine

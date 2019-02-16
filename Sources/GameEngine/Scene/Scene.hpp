@@ -63,19 +63,19 @@ public:
     void SetAddSceneEventCallback(AddEvent func);
 
     // GetObjects
-    std::list<GameObject*> GetObjectInRange(const vec3& position, float range);
     inline const GameObjects& GetGameObjects() const;
 
     // Cameras
-    ICamera* GetCamera();
+    void UpdateCamera();
+    const ICamera& GetCamera() const;
     void SetCamera(std::unique_ptr<ICamera> camera);
 
     // Lights
     const Light& GetDirectionalLight() const;
     const std::vector<Light>& GetLights() const;
     inline const DayNightCycle& GetDayNightCycle() const;
-    inline float GetGlobalTime();
-
+    inline float GetGlobalTime() const;
+    inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
 
     void CreateResourceManger(IResourceManager* resourceManager);
@@ -155,9 +155,14 @@ inline IResourceManager& Scene::GetResourceManager()
     return *resourceManager_;
 }
 
-inline float Scene::GetGlobalTime()
+inline float Scene::GetGlobalTime() const
 {
     return gloabalTime;
+}
+
+inline const Time& Scene::GetTime() const
+{
+    return time_;
 }
 
 inline void Scene::CreateResourceManger(IResourceManager* resourceManager)

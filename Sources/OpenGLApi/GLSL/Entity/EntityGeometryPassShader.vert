@@ -17,29 +17,25 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 clipPlane;
 } perApp;
 
-layout (std140, binding=1) uniform PerResize
+layout (std140,binding=1) uniform PerFrame
 {
-    mat4 projectionMatrix;
-} perResize;
-
-layout (std140,binding=2) uniform PerFrame
-{
-    mat4 viewMatrix;
+    mat4 projectionViewMatrix;
     mat4 toShadowMapSpace;
+    vec3 cameraPosition;
 } perFrame;
 
-layout (std140, align=16, binding=3) uniform PerObjectConstants
+layout (std140, align=16, binding=2) uniform PerObjectConstants
 {
     float useBoneTransform;
     vec2 textureOffset;
 } perObjectConstants;
 
-layout (std140, binding=4) uniform PerObjectUpdate
+layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-layout (std140, binding=5) uniform PerPoseUpdate
+layout (std140, binding=4) uniform PerPoseUpdate
 {
     mat4 bonesTransforms[MAX_BONES];
 } perPoseUpdate;
@@ -51,7 +47,6 @@ out VS_OUT
     vec4 worldPos;
     vec3 passTangent;
     vec2 textureOffset;
-    float outOfViewRange;
 } vs_out;
 
 struct VertexWorldData
@@ -96,14 +91,12 @@ VertexWorldData caluclateWorldData()
 void main()
 {
     VertexWorldData worldData = caluclateWorldData();
-    vec4 modelViewPosition = perFrame.viewMatrix * worldData.worldPosition;
-    vs_out.outOfViewRange = length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
 
     vs_out.texCoord      = TexCoord;
     vs_out.worldPos      = worldData.worldPosition;
     vs_out.normal        = worldData.worldNormal.xyz;
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.passTangent   = (perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz;
-    gl_Position = perResize.projectionMatrix * modelViewPosition;
+    gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }

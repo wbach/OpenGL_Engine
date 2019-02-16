@@ -33,7 +33,7 @@ void GrassRenderer::Init()
     Log("Grass renderer initialized.");
 }
 
-void GrassRenderer::Render(Scene* scene)
+void GrassRenderer::Render(const Scene& scene, const Time&)
 {
     if (subscribes_.empty())
         return;
@@ -68,7 +68,7 @@ void GrassRenderer::InitShader()
     shader_->Stop();
 }
 
-void GrassRenderer::PrepareRender(Scene* scene)
+void GrassRenderer::PrepareRender(const Scene& scene)
 {
     PrepareShader(scene);
     context_.graphicsApi_.DisableCulling();
@@ -88,13 +88,13 @@ void GrassRenderer::RenderSubscribes()
         if (model == nullptr)
             continue;
 
-        RenderModel(model);
+        RenderModel(*model);
     }
 }
 
-void GrassRenderer::RenderModel(Model* model)
+void GrassRenderer::RenderModel(const Model& model)
 {
-    for (const auto& mesh : model->GetMeshes())
+    for (const auto& mesh : model.GetMeshes())
     {
         if (mesh.GetMaterial().diffuseTexture == nullptr)
             continue;
@@ -109,10 +109,10 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
     context_.graphicsApi_.RenderPoints(mesh.GetObjectId());
 }
 
-void GrassRenderer::PrepareShader(Scene* scene)
+void GrassRenderer::PrepareShader(const Scene& scene)
 {
     shader_->Start();
-    shader_->Load(GrassShaderUniforms::GlobalTime, scene->GetGlobalTime());
-    shader_->Load(GrassShaderUniforms::ViewMatrix, scene->GetCamera()->GetViewMatrix());
+    shader_->Load(GrassShaderUniforms::GlobalTime, scene.GetGlobalTime());
+    shader_->Load(GrassShaderUniforms::ViewMatrix, scene.GetCamera().GetViewMatrix());
 }
 }  // namespace GameEngine

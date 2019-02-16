@@ -1,7 +1,7 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Shaders/WaterShader.h"
 
 namespace GameEngine
@@ -15,10 +15,12 @@ public:
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
+
+private:
+    void Render(Scene* scene, const Time&);
 
 private:
     RendererContext& context_;
     WaterShader shader;
 };
-}  // GameEngine
+}  // namespace GameEngine

@@ -1,8 +1,8 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "ShadowBox.h"
 
 namespace GameEngine
@@ -14,6 +14,7 @@ class Projection;
 class ShadowFrameBuffer;
 class ModelWrapper;
 class IShaderProgram;
+struct Time;
 
 namespace Components
 {
@@ -24,7 +25,7 @@ class ShadowMapRenderer : public IRenderer
 {
     struct ShadowMapSubscriber
     {
-        GameObject* gameObject = nullptr;
+        GameObject* gameObject                         = nullptr;
         Components::RendererComponent* renderComponent = nullptr;
     };
     typedef std::vector<ShadowMapSubscriber> Subscribers;
@@ -37,11 +38,10 @@ public:
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
 
 private:
-    void PrepareRender(Scene*);
-    void PrepareShader(ICamera*) const;
+    void Render(const Scene&, const Time&);
+    void PrepareRender(const Scene&);
     void RenderSubscribes() const;
     void RenderSubscriber(const ShadowMapSubscriber&) const;
     void RenderMesh(const Mesh& mesh) const;
@@ -50,11 +50,9 @@ private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
     ShadowBox shadowBox_;
-    ShadowBox shadowBox2_;
     mat4 projectionViewMatrix_;
     mat4 viewOffset_;
     Subscribers subscribes_;
-    GraphicsApi::ID perResizeBuffer_;
     GraphicsApi::ID perFrameBuffer_;
 };
-}  // GameEngine
+}  // namespace GameEngine

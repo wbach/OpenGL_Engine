@@ -1,7 +1,7 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 class CProjection;
 
@@ -18,10 +18,12 @@ public:
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
+
+private:
+    void Render(const Scene& scene, const Time& threadTime);
 
 private:
     RendererContext& context_;
     std::unique_ptr<IShaderProgram> shader_;
 };
-}  // GameEngine
+}  // namespace GameEngine

@@ -10,7 +10,7 @@ WaterRenderer::WaterRenderer(RendererContext& context)
 void WaterRenderer::Init()
 {
 }
-void WaterRenderer::Render(Scene* scene)
+void WaterRenderer::Render(Scene* scene, const Time&)
 {
 }
 void WaterRenderer::Subscribe(GameObject* gameObject)

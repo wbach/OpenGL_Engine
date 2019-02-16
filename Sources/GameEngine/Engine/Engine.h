@@ -28,7 +28,6 @@ public:
     void Init();
     void GameLoop();
     void AddEngineEvent(EngineEvent event);
-    void Render();
     DisplayManager& GetDisplayManager();
     SceneManager& GetSceneManager();
 

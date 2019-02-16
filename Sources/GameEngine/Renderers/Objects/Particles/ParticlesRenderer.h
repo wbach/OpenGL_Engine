@@ -1,10 +1,11 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
+struct Time;
 class Texture;
 class Projection;
 struct RendererContext;
@@ -12,7 +13,7 @@ class IShaderProgram;
 
 struct ParticleSubscriber
 {
-    bool isAnimated   = false;
+    bool isAnimated  = false;
     Texture* texture = nullptr;
     GraphicsApi::BlendFunctionType blendFunction;
     std::vector<Particle>* particles = nullptr;
@@ -30,7 +31,9 @@ public:
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
+
+private:
+    void Render(const Scene& scene, const Time&);
 
 private:
     void InitShaders();
@@ -63,4 +66,4 @@ private:
     std::vector<float> blendFactors_;
     std::vector<mat4> transformsParticles_;
 };
-}  // GameEngine
+}  // namespace GameEngine

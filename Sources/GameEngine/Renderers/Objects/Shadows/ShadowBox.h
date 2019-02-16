@@ -12,7 +12,7 @@ class ShadowBox
 {
 public:
     ShadowBox(Projection&);
-    void Update(ICamera*);
+    void Update(const ICamera&);
     vec3 GetCenter() const;
     float GetWidth() const;
     float GetHeight() const;
@@ -27,8 +27,8 @@ private:
     void FindMinMax(const vec4& point);
     void CheckMinMax(float& min, float& max, float point);
     void CalculateWidthsAndHeights();
-    std::vector<vec4> CalculateFrustumPoints(ICamera*);
-    mat4 CalculateCameraRotationMatrix(ICamera* camera) const;
+    std::vector<vec4> CalculateFrustumPoints(const ICamera&);
+    mat4 CalculateCameraRotationMatrix(const ICamera& camera) const;
     std::vector<vec4> CalculateFrustumVertices(mat4 rotation, vec3 forward_vector, vec3 center_near,
                                                vec3 center_far) const;
     vec4 CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction, const float& width) const;

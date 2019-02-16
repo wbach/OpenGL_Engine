@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "Configuration.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Display/DisplayManager.hpp"
 #include "Input/InputManager.h"
 #include "Logger/Log.h"
 
@@ -58,11 +59,6 @@ void Engine::AddEngineEvent(EngineEvent event)
     engineEvents.push_back(event);
 }
 
-void Engine::Render()
-{
-    renderersManager_.RenderScene(sceneManager_.GetActiveScene());
-}
-
 DisplayManager& Engine::GetDisplayManager()
 {
     return *displayManager;
@@ -85,7 +81,7 @@ void Engine::MainLoop()
 
     sceneManager_.RuntimeLoadObjectToGpu();
     PrepareFrame();
-    Render();
+    renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());
     sceneManager_.Update();
     displayManager->Update();
 }

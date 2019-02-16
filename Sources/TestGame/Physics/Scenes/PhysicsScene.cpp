@@ -123,9 +123,9 @@ void PhysicsScene::RemoveObjectsUnderYValue(float y)
 void PhysicsScene::KeyOperations()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]() {
-        auto dir = GetCamera()->GetDirection();
+        auto dir = GetCamera().GetDirection();
         dir      = glm::normalize(dir);
-        auto pos = GetCamera()->GetPosition();
+        auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos, vec3(0), dir * 20.f, 1.f, false);
         Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
             ", Objecsts : " + std::to_string(gameObjects.size()));
@@ -138,15 +138,15 @@ void PhysicsScene::KeyOperations()
         gameObjects.clear();
         AddStartupObjects();
     });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]() { AddBoxes(GetCamera()->GetPosition()); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]() { AddBoxes(GetCamera().GetPosition()); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::L, [&]() { renderersManager_->SwapLineFaceRender(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [rm]() { rm->DisableDrawPhysicsDebyg(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [rm]() { rm->EnableDrawPhysicsDebyg(); });
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]() { AddExampleMesh(GetCamera()->GetPosition(), 10.f); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]() { AddExampleMesh(GetCamera().GetPosition(), 10.f); });
 
     inputManager_->SubscribeOnKeyDown(
-        KeyCodes::P, [&]() { Log("Camera position : " + Utils::ToString(GetCamera()->GetPosition())); });
+        KeyCodes::P, [&]() { Log("Camera position : " + Utils::ToString(GetCamera().GetPosition())); });
 }
 void PhysicsScene::AddStartupObjects()
 {

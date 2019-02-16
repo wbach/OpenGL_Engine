@@ -19,7 +19,7 @@ public:
     PostProcessingManager(RendererContext& context);
     ~PostProcessingManager();
     void Init();
-    void Render(Scene*);
+    void Render(const Scene&);
     void ReloadShaders();
 
 private:

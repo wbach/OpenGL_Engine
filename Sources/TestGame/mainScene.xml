@@ -74,7 +74,7 @@
 				<isDynamic>false</isDynamic>
 			</worldTransform>
 			<components count="3">
-				<component type="13">
+				<component type="14">
 					<terrainMeshRenderer>
 						<textureFileNames>
 							<texture>
@@ -533,7 +533,7 @@
 				<isDynamic>true</isDynamic>
 			</worldTransform>
 			<components count="1">
-				<component type="11">
+				<component type="12">
 					<grassComponent>
 						<positions>
 							<v>10.900000</v>

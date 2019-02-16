@@ -17,6 +17,7 @@ enum class ComponentsType
     TreeRenderer,
     ParticleEffect,
     SkyBox,
+    Skydome,
     Grass,
     TerrainRenderer,
     TerrainMeshRenderer

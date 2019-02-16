@@ -12,8 +12,8 @@ public:
     virtual ~PostprocessingRenderer();
 
     virtual void Init()          = 0;
-    virtual void Prepare(Scene*) = 0;
-    virtual void Render(Scene*)  = 0;
+    virtual void Prepare() = 0;
+    virtual void Render(const Scene&) = 0;
     virtual void ReloadShaders() = 0;
     void SetRendererContext(RendererContext* rendererContext);
     void SetPostProcessFrameBuffer(PostprocessFrameBuffer** postprocessFrameBuffer);

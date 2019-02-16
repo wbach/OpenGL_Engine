@@ -12,6 +12,5 @@ public:
 private:
     void GetAllUniformLocations() override;
     void ConnectTextureUnits() const override;
-    void BindAttributes();
 };
 }  // namespace GameEngine

@@ -20,7 +20,6 @@ in VS_OUT
     vec4 worldPos;
     vec3 passTangent;
     vec2 textureOffset;
-    float outOfViewRange;
 } vs_in;
 
 uniform sampler2D DiffuseTexture;
@@ -68,9 +67,6 @@ vec4 GetNormal(vec2 textCoord)
 
 void main()
 {
-    if (Is(vs_in.outOfViewRange))
-        discard;
-
     vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
     vec2 textCoord = (vs_in.texCoord / perMeshObject.numberOfRows) + vs_in.textureOffset;
 

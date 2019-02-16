@@ -8,8 +8,8 @@ class ColorFliper : public PostprocessingRenderer
 {
 public:
     virtual void Init() override;
-    virtual void Prepare(Scene*) override;
-    virtual void Render(Scene*) override;
+    virtual void Prepare() override;
+    virtual void Render(const Scene&) override;
     virtual void ReloadShaders() override;
 
 private:

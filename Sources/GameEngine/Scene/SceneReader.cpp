@@ -296,6 +296,9 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
             case Components::ComponentsType::SkyBox:
                 AddComponent<Components::SkyBoxComponent>(*component, gameObject, CSTR_COMPONENT_SKYBOX);
                 break;
+            case Components::ComponentsType::Skydome:
+                //AddComponent<Components::SkydomeComponent>(*component, gameObject, CSTR_COMPONENT_SKYBOX);
+                break;
             case Components::ComponentsType::Grass:
                 AddComponent<Components::GrassRendererComponent>(*component, gameObject, CSTR_COMPONENT_GRASS);
                 break;

@@ -1,10 +1,11 @@
 #pragma once
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
+struct Time;
 class Mesh;
 class Model;
 class Projection;
@@ -24,16 +25,18 @@ public:
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
+
+private:
+    void Render(const Scene& scene, const Time& threadTime);
 
 private:
     void InitShader();
-    void PrepareRender(Scene* scene);
+    void PrepareRender(const Scene& scene);
     void EndRender() const;
     void RenderSubscribes();
-    void RenderModel(Model* model);
+    void RenderModel(const Model& model);
     void RenderMesh(const Mesh& mesh);
-    void PrepareShader(Scene* scene);
+    void PrepareShader(const Scene& scene);
 
 private:
     RendererContext& context_;

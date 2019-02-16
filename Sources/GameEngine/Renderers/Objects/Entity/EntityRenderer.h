@@ -4,6 +4,7 @@
 
 namespace GameEngine
 {
+struct Time;
 class Mesh;
 class Model;
 class Entity;
@@ -39,11 +40,10 @@ public:
     virtual void UnSubscribe(GameObject* gameObject) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(Scene* scene);
 
 private:
+    void Render(const Scene& scene, const Time& threadTime);
     void InitShader();
-    void PrepareFrame(Scene* scene);
     void RenderModel(const EntitySubscriber& subsriber, const Model& model) const;
     void RenderMesh(const Mesh& mesh) const;
     void RenderEntities();

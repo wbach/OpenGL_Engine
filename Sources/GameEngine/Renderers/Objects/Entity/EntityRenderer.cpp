@@ -39,17 +39,11 @@ void EntityRenderer::InitShader()
     shader_->Init();
 }
 
-void EntityRenderer::PrepareFrame(Scene* scene)
+void EntityRenderer::Render(const Scene&, const Time&)
 {
-}
-
-void EntityRenderer::Render(Scene* scene)
-{
-    // viewPRojectionMAtrixToLoad
     if (subscribes_.empty())
         return;
     shader_->Start();
-    PrepareFrame(scene);
     RenderEntities();
 }
 
@@ -107,8 +101,6 @@ void EntityRenderer::RenderEntities()
 void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model& model) const
 {
     const auto& meshes                    = model.GetMeshes();
-    const auto& perObjectUpdateBuffers    = subsriber.renderComponent->GetPerObjectUpdateBuffers();
-    const auto& perObjectConstantsBuffers = subsriber.renderComponent->GetPerObjectConstantsBuffers();
 
     int meshId = 0;
     for (const auto& mesh : meshes)
@@ -122,13 +114,13 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
             context_.graphicsApi_.BindShaderBuffer(*buffers.perPoseUpdateBuffer_);
         }
 
-        const auto& perMeshUpdateBuffer = perObjectUpdateBuffers[meshId].GetId();
+        const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(meshId);
         if (perMeshUpdateBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
         }
         
-        const auto& perMeshConstantBuffer = perObjectConstantsBuffers[meshId].GetId();
+        const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(meshId);
         if (perMeshConstantBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);

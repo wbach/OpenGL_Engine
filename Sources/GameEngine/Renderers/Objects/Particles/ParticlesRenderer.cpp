@@ -43,13 +43,13 @@ void ParticlesRenderer::Init()
     aniamtedParticleObjecId = context_.graphicsApi_.CreateAnimatedParticle();
     staticParticleObjecId   = context_.graphicsApi_.CreateParticle();
 }
-void ParticlesRenderer::Render(Scene* scene)
+void ParticlesRenderer::Render(const Scene& scene, const Time&)
 {
     if (subscribers_.empty())
         return;
 
     PrepareFrame();
-    RenderSubscribes(scene->GetCamera()->GetViewMatrix());
+    RenderSubscribes(scene.GetCamera().GetViewMatrix());
     ClearFrame();
 }
 void ParticlesRenderer::Subscribe(GameObject* gameObject)

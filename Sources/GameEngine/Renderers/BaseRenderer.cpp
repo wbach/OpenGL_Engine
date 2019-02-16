@@ -16,13 +16,12 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 
-
-
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-BaseRenderer::BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection, IShaderFactory& shaderFactory,
+BaseRenderer::BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection,
+                           IShaderFactory& shaderFactory,
                            std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : defferedFrameBuffer_(std::make_unique<DefferedFrameBuffer>(graphicsApi))
     , shadowsFrameBuffer_(std::make_unique<ShadowFrameBuffer>(graphicsApi))
@@ -69,24 +68,24 @@ void BaseRenderer::InitRenderers()
 }
 void BaseRenderer::CreateRenderers()
 {
-   // AddRenderer<SkyBoxRenderer>();
+    AddRenderer<SkyBoxRenderer>();
 
-    // if (EngineConf.renderer.flora.isGrass)
-       // AddRenderer<GrassRenderer>();
+    if (EngineConf.renderer.flora.isGrass)
+        AddRenderer<GrassRenderer>();
 
     AddRenderer<TerrainRenderer>();
-    //AddRenderer<TerrainMeshRenderer>();
-    //AddRenderer<TreeRenderer>();
-    // AddRenderer<PlantsRenderer>();
+    AddRenderer<TerrainMeshRenderer>();
+    AddRenderer<TreeRenderer>();
+    AddRenderer<PlantsRenderer>();
     AddRenderer<EntityRenderer>();
 
-    //if (EngineConf.renderer.particles.useParticles)
-      //  AddRenderer<ParticlesRenderer>();
+    if (EngineConf.renderer.particles.useParticles)
+        AddRenderer<ParticlesRenderer>();
 
-    // AddRenderer<WaterRenderer>();
+    AddRenderer<WaterRenderer>();
 }
-void BaseRenderer::PreConfigure(Scene*)
+void BaseRenderer::PreConfigure(const Scene&, const Time&)
 {
-    context_.graphicsApi_.ClearBuffers({ GraphicsApi::BufferType::COLOR, GraphicsApi::BufferType::DEPTH});
+    context_.graphicsApi_.ClearBuffers({GraphicsApi::BufferType::COLOR, GraphicsApi::BufferType::DEPTH});
 }
 }  // namespace GameEngine

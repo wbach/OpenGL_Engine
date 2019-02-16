@@ -1,0 +1,36 @@
+<scene name="MainScene">
+	<gameObjects count="1">
+		<gameObject name="skybox">
+			<worldTransform>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
+				<rotation x="0.000000" y="0.000000" z="0.000000"/>
+				<scale x="1.000000" y="1.000000" z="1.000000"/>
+				<isDynamic>false</isDynamic>
+			</worldTransform>
+			<components count="1">
+				<component type="10">
+					<skyBox>
+						<dayTextures>
+							<modelFileName>Skybox/TropicalSunnyDay/right.png</modelFileName>
+							<modelFileName>Skybox/TropicalSunnyDay/left.png</modelFileName>
+							<modelFileName>Skybox/TropicalSunnyDay/top.png</modelFileName>
+							<modelFileName>Skybox/TropicalSunnyDay/bottom.png</modelFileName>
+							<modelFileName>Skybox/TropicalSunnyDay/back.png</modelFileName>
+							<modelFileName>Skybox/TropicalSunnyDay/front.png</modelFileName>
+						</dayTextures>
+						<nightTextures>
+							<modelFileName>Skybox/Night/right.png</modelFileName>
+							<modelFileName>Skybox/Night/left.png</modelFileName>
+							<modelFileName>Skybox/Night/top.png</modelFileName>
+							<modelFileName>Skybox/Night/bottom.png</modelFileName>
+							<modelFileName>Skybox/Night/back.png</modelFileName>
+							<modelFileName>Skybox/Night/front.png</modelFileName>
+						</nightTextures>
+						<modelFileName>Meshes/SkyBox/cube.obj</modelFileName>
+					</skyBox>
+				</component>
+			</components>
+		</gameObject>
+	</gameObjects>
+</scene>
+

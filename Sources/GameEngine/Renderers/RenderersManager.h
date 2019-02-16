@@ -28,7 +28,7 @@ public:
     RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
     void Init();
     const Projection& GetProjection() const;
-    void RenderScene(Scene* scene);
+    void RenderScene(Scene* scene, const Time& threadTime);
     void ReloadShaders();
     void Subscribe(GameObject* gameObject);
     void UnSubscribe(GameObject* gameObject);
@@ -47,11 +47,11 @@ private:
     void InitMainRenderer();
     void InitGuiRenderer();
     void RegisterRenderFunction(RendererFunctionType, RendererFunction);
-    void Render(RendererFunctionType type, Scene* scene);
+    void Render(RendererFunctionType type, Scene* scene, const Time& threadTime);
     void CreateBuffers();
     void CreatePerAppBuffer();
-    void CreatePerResizeBuffer();
     void CreatePerFrameBuffer();
+    void UpdatePerFrameBuffer(Scene* scene);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
