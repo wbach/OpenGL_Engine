@@ -136,6 +136,15 @@ void Mesh::CreateBufferObject()
         {
             perMeshObject.useNormalMap = 0.f;
         }
+
+        if (material_.specularTexture != nullptr)
+        {
+            perMeshObject.useSpecularMap = 1.f;
+        }
+        else
+        {
+            perMeshObject.useSpecularMap = 0.f;
+        }
         graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perMeshObjectBuffer_, &perMeshObject);
     }
 }

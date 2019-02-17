@@ -11,6 +11,7 @@ struct PerMeshObject
     AlignWrapper<uint32> numberOfRows;
     AlignWrapper<float> useTexture;
     AlignWrapper<float> useNormalMap;
+    AlignWrapper<float> useSpecularMap;
     AlignWrapper<float> shineDamper;
     AlignWrapper<float> useFakeLighting;
 };

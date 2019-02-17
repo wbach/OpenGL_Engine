@@ -34,6 +34,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Grass/GrassComponent.h
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h
+../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainDef.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h
@@ -105,6 +106,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/Shaders/SkyBoxShader.h
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/Shaders/SkyBoxShaderUniforms.h
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h
+../../Sources/GameEngine/Renderers/Objects/Skydome/Shaders/SkydomeShader.h
+../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/Shaders/TerrainMeshShader.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/Shaders/TerrainMeshShaderUniforms.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h
@@ -215,11 +218,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/ResourceManager.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerAppBuffer.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h
+../../Sources/GameEngine/Resources/ShaderBuffers/PerInstances.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerMeshObject.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerObjectConstants.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h
-../../Sources/GameEngine/Resources/ShaderBuffers/PerResizeBuffer.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h
 ../../Sources/GameEngine/Resources/TextureLoader.h
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.h

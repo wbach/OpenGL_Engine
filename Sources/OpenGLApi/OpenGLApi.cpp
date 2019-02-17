@@ -21,11 +21,13 @@ enum class ObjectType
     MESH
 };
 
-std::unordered_map<uint32, ObjectType> createdObjectIds;
-
 namespace OpenGLApi
 {
+namespace
+{
+std::unordered_map<uint32, ObjectType> createdObjectIds;
 CFont font;
+}
 
 struct ShaderBuffer
 {
@@ -91,11 +93,6 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
 
 OpenGLApi::~OpenGLApi()
 {
-    for (auto& buffer : impl_->shaderBuffers_)
-    {
-        if (buffer.isInGpu)
-            glDeleteBuffers(1, &buffer.glId);
-    }
 }
 
 void GetInfoAndPrint(const std::string& str, int i)
@@ -143,6 +140,7 @@ void OpenGLApi::CreateContext()
 }
 void OpenGLApi::DeleteContext()
 {
+    ClearRest();
     windowApi_->DeleteContext();
 }
 void OpenGLApi::PrintVersion()
@@ -210,6 +208,23 @@ uint32 OpenGLApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gra
 void OpenGLApi::DeleteShader(uint32 id)
 {
     impl_->shaderManager_.DeleteShader(id);
+}
+void OpenGLApi::ClearRest()
+{
+    for (auto& buffer : impl_->shaderBuffers_)
+    {
+        if (buffer.isInGpu)
+            glDeleteBuffers(1, &buffer.glId);
+    }
+
+    impl_->shaderBuffers_.clear();
+
+    for (auto iter = createdObjectIds.begin(); iter != createdObjectIds.end(); iter++)
+    {
+        DeleteObject(iter->first);
+    }
+
+    createdObjectIds.clear();
 }
 void OpenGLApi::LoadViewMatrix(const mat4& viewMatrix)
 {
@@ -611,6 +626,8 @@ void OpenGLApi::DeleteObject(uint32 id)
             DeleteMesh(id);
             break;
     }
+
+    createdObjectIds.erase(id);
 }
 
 void OpenGLApi::DeleteShaderBuffer(uint32 id)

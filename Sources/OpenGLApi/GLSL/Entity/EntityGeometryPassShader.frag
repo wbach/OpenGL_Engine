@@ -9,6 +9,7 @@ layout (std140, align=16, binding=6) uniform PerMeshObject
     uint numberOfRows;
     float useTexture;
     float useNormalMap;
+    float useSpecularMap;
     float shineDamper;
     float useFakeLighting;
 } perMeshObject;
@@ -22,9 +23,10 @@ in VS_OUT
     vec2 textureOffset;
 } vs_in;
 
+uniform sampler2DShadow ShadowMap;
 uniform sampler2D DiffuseTexture;
 uniform sampler2D NormalMap;
-uniform sampler2DShadow ShadowMap;
+uniform sampler2D SpecularMap;
 
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
@@ -65,6 +67,19 @@ vec4 GetNormal(vec2 textCoord)
     }
 }
 
+vec4 GetSpecular(vec2 textCoord)
+{
+    if (Is(perMeshObject.useSpecularMap))
+    {
+        return vec4((texture(SpecularMap, textCoord) * perMeshObject.specular).xyz, perMeshObject.shineDamper);
+
+    }
+    else
+    {
+       return vec4(perMeshObject.specular.xyz, perMeshObject.shineDamper);
+    }
+}
+
 void main()
 {
     vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
@@ -82,5 +97,5 @@ void main()
     WorldPosOut      = vs_in.worldPos;
     NormalOut        = GetNormal(textCoord);
     DiffuseOut       = colorFromTexture * perMeshObject.diffuse;
-    MaterialSpecular = vec4(perMeshObject.specular.xyz, perMeshObject.shineDamper);
+    MaterialSpecular = GetSpecular(textCoord);
 }
