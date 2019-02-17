@@ -16,11 +16,11 @@ layout (std140, align=16, binding=6) uniform PerMeshObject
 
 in VS_OUT
 {
+    vec2 textureOffset;
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    vec3 passTangent;
-    vec2 textureOffset;
+    mat3 tbn;
 } vs_in;
 
 uniform sampler2DShadow ShadowMap;
@@ -33,21 +33,11 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
-vec4 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, sampler2D normal_map, vec2 text_coords)
+vec4 CalcBumpedNormal(vec2 text_coords)
 {
-    vec3 normal  = normalize(surface_normal);
-    vec3 tangent = normalize(pass_tangent);
-
-    tangent = normalize(tangent - dot(tangent, normal) * normal);
-
-    vec3 bitangent = cross(tangent, normal);
-    vec3 bumpMapNormal = texture(normal_map, text_coords).xyz;
+    vec3 bumpMapNormal = texture(NormalMap, text_coords).xyz;
     bumpMapNormal = 2.0 * bumpMapNormal - vec3(1.0, 1.0, 1.0);
-    vec3 new_normal;
-    mat3 tbn = mat3(tangent, bitangent, normal);
-    new_normal = tbn * bumpMapNormal;
-    new_normal = normalize(new_normal);
-    return vec4(new_normal, 1.f);
+    return vec4(normalize(vs_in.tbn * bumpMapNormal) , 1.f);
 }
 
 bool Is(float v)
@@ -63,7 +53,7 @@ vec4 GetNormal(vec2 textCoord)
     }
     else
     {
-        return Is(perMeshObject.useNormalMap) ?  CalcBumpedNormal(vs_in.normal, vs_in.passTangent, NormalMap, textCoord) :  vec4(normalize(vs_in.normal), 1.f);
+        return Is(perMeshObject.useNormalMap) ? CalcBumpedNormal(textCoord) : vec4(normalize(vs_in.normal), 1.f);
     }
 }
 
@@ -71,7 +61,7 @@ vec4 GetSpecular(vec2 textCoord)
 {
     if (Is(perMeshObject.useSpecularMap))
     {
-        return vec4((texture(SpecularMap, textCoord) * perMeshObject.specular).xyz, perMeshObject.shineDamper);
+        return vec4((texture(SpecularMap, textCoord) * perMeshObject.specular).xyz , perMeshObject.shineDamper);
 
     }
     else

@@ -42,11 +42,11 @@ layout (std140, binding=4) uniform PerPoseUpdate
 
 out VS_OUT
 {
+    vec2 textureOffset;
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    vec3 passTangent;
-    vec2 textureOffset;
+    mat3 tbn;
 } vs_out;
 
 struct VertexWorldData
@@ -88,15 +88,23 @@ VertexWorldData caluclateWorldData()
     return result;
 }
 
+mat3 CreateTBNMatrix(vec3 normal)
+{
+    vec3 tangent = normalize((perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz);
+    tangent = normalize(tangent - dot(tangent, normal) * normal);
+    vec3 binormal = cross(tangent, normal);
+    return  mat3(tangent, binormal, normal);
+}
+
 void main()
 {
     VertexWorldData worldData = caluclateWorldData();
 
     vs_out.texCoord      = TexCoord;
     vs_out.worldPos      = worldData.worldPosition;
-    vs_out.normal        = worldData.worldNormal.xyz;
     vs_out.textureOffset = perObjectConstants.textureOffset;
-    vs_out.passTangent   = (perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz;
+    vs_out.normal        = worldData.worldNormal.xyz;
+    vs_out.tbn           = CreateTBNMatrix(worldData.worldNormal.xyz);
     gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }
