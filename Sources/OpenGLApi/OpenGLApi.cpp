@@ -30,6 +30,7 @@ CFont font;
 struct ShaderBuffer
 {
     uint32 glId;
+    bool isInGpu;
     uint32 bufferSize;
     uint32 bindLocation;
 };
@@ -90,6 +91,19 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
 
 OpenGLApi::~OpenGLApi()
 {
+    for (auto& buffer : impl_->shaderBuffers_)
+    {
+        if (buffer.isInGpu)
+            glDeleteBuffers(1, &buffer.glId);
+    }
+}
+
+void GetInfoAndPrint(const std::string& str, int i)
+{
+    int info;
+    glGetIntegerv(i, &info);
+
+    Log(str + " : " + std::to_string(info));
 }
 
 void OpenGLApi::Init()
@@ -146,6 +160,12 @@ void OpenGLApi::PrintVersion()
         Log("Max supported patch vertices :" + std::to_string(MaxPatchVertices));
         glPatchParameteri(GL_PATCH_VERTICES, 3);
     }
+
+    GetInfoAndPrint("GL_MAX_GEOMETRY_UNIFORM_BLOCKS", GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
+    GetInfoAndPrint("GL_MAX_GEOMETRY_SHADER_INVOCATIONS", GL_MAX_GEOMETRY_SHADER_INVOCATIONS);
+    GetInfoAndPrint("GL_MAX_UNIFORM_BUFFER_BINDINGS", GL_MAX_UNIFORM_BUFFER_BINDINGS);
+    GetInfoAndPrint("GL_MAX_UNIFORM_BLOCK_SIZE", GL_MAX_UNIFORM_BLOCK_SIZE);
+    GetInfoAndPrint("GL_MAX_SHADER_STORAGE_BLOCK_SIZE", GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
 }
 GraphicsApi::IWindowApiPtr OpenGLApi::GetWindowApi()
 {
@@ -245,7 +265,7 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
     glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    impl_->shaderBuffers_.push_back({buffer, size, bindLocation});
+    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
     auto id = impl_->shaderBuffers_.size() - 1;
     return id;
 }
@@ -595,7 +615,8 @@ void OpenGLApi::DeleteObject(uint32 id)
 
 void OpenGLApi::DeleteShaderBuffer(uint32 id)
 {
-    auto& bufferId = impl_->shaderBuffers_[id];
+    auto& bufferId   = impl_->shaderBuffers_[id];
+    bufferId.isInGpu = false;
     glDeleteBuffers(1, &bufferId.glId);
 }
 

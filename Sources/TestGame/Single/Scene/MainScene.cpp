@@ -128,7 +128,7 @@ int MainScene::Initialize()
     });
 
     // CreateExmapleStrtupObject();
-     LoadFromFile(sceneFile);
+    LoadFromFile(sceneFile);
 
     dayNightCycle.SetDirectionalLight(&directionalLight);
     dayNightCycle.SetTime(.5f);
@@ -137,8 +137,12 @@ int MainScene::Initialize()
     skydome->AddComponent<Components::SkydomeComponent>();
     AddGameObject(skydome);
 
+    auto geralt = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), true);
+    geralt->AddComponent<Components::RendererComponent>().AddModel("Meshes/Geralt/geralt.obj");
+    AddGameObject(geralt);
+
     {
-        auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(0, 0), true);
+        auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(2, 0), true);
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
             "Meshes/DaeAnimationExample/CharacterMultiple.dae");
 
@@ -156,7 +160,7 @@ int MainScene::Initialize()
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
     camera->SetPosition(vec3(5, 5, 5));
-    camera->LookAt(vec3(0));
+    camera->LookAt(vec3(2, 0, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
 
