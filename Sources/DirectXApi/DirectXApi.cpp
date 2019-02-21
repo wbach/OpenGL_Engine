@@ -7,30 +7,185 @@
 #include <windowsx.h>
 #include <xnamath.h>
 #include <string>
+#include "Buffer.h"
 #include "DirectXContext.h"
 #include "DirectXTools.h"
 #include "DxShader.h"
 #include "GraphicsApi/MeshRawData.h"
+#include "Logger/Log.h"
+#include "Object.h"
 #include "Utils.h"
 #include "Vao.h"
+#include "Vertex.h"
 #include "WinApi/WinApi.h"
 
 #undef CreateFont
 
 namespace DirectX
 {
-struct Vertex
+
+struct Quad : public Vao
 {
-    vec3 position;
-    vec2 textCoord;
+    Quad()
+    {
+        vertexes_ = {
+            {vec3(-1, 1, 0), vec2(0, 0)},
+            {vec3(-1, -1, 0), vec2(0, 1)},
+            {vec3(1, -1, 0), vec2(1, 1)},
+            {vec3(1, 1, 0), vec2(1, 0)},
+        };
+
+        indices_ = {3, 1, 0, 2, 1, 3};
+    }
 };
 
-struct DirectXApi::Pimpl
+struct Triangle : public Vao
 {
+    Triangle()
+    {
+        vertexes_ = {
+            {vec3(0.0, 0.5, 0.5), vec2(0, 0)}, {vec3(0.5, -0.5, 0.5), vec2(0, 1)}, {vec3(-0.5, -0.5, 0.5), vec2(1, 1)}};
+    }
+};
+
+struct Texture
+{
+    ID3D11ShaderResourceView *resourceView_;
+    ID3D11SamplerState *samplerState_;
+};
+
+HRESULT InitDevice(DirectXContext &directXContext)
+{
+    HRESULT hr = S_OK;
+
+    RECT rc;
+    GetClientRect(directXContext.mainWindow, &rc);
+    UINT width                   = rc.right - rc.left;
+    UINT height                  = rc.bottom - rc.top;
+    directXContext.viewPort.size = vec2ui(width, height);
+
+    UINT createDeviceFlags = 0;
+#ifdef _DEBUG
+    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+    D3D_DRIVER_TYPE driverTypes[] = {
+        D3D_DRIVER_TYPE_HARDWARE,
+        D3D_DRIVER_TYPE_WARP,
+        D3D_DRIVER_TYPE_REFERENCE,
+    };
+
+    std::string driverTypesStr[] = {
+        "D3D_DRIVER_TYPE_HARDWARE",
+        "D3D_DRIVER_TYPE_WARP",
+        "D3D_DRIVER_TYPE_REFERENCE",
+    };
+
+    UINT numDriverTypes = ARRAYSIZE(driverTypes);
+
+    D3D_FEATURE_LEVEL featureLevels[] = {
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1,
+        D3D_FEATURE_LEVEL_10_0,
+    };
+    UINT numFeatureLevels = ARRAYSIZE(featureLevels);
+
+    DXGI_SWAP_CHAIN_DESC sd;
+    ZeroMemory(&sd, sizeof(sd));
+    sd.BufferCount                        = 1;
+    sd.BufferDesc.Width                   = width;
+    sd.BufferDesc.Height                  = height;
+    sd.BufferDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferDesc.RefreshRate.Numerator   = 60;
+    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.BufferUsage                        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.OutputWindow                       = directXContext.mainWindow;
+    sd.SampleDesc.Count                   = 1;
+    sd.SampleDesc.Quality                 = 0;
+    sd.Windowed                           = TRUE;
+
+    for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
+    {
+        directXContext.driverType = driverTypes[driverTypeIndex];
+        hr = D3D11CreateDeviceAndSwapChain(NULL, directXContext.driverType, NULL, createDeviceFlags, featureLevels,
+                                           numFeatureLevels, D3D11_SDK_VERSION, &sd, &directXContext.swapchain,
+                                           &directXContext.dev, &directXContext.featureLevel, &directXContext.devcon);
+
+        if (SUCCEEDED(hr))
+        {
+            Log("Use driver : " + driverTypesStr[driverTypeIndex]);
+            break;
+        }
+        else
+        {
+            Log("Can not use driver : " + driverTypesStr[driverTypeIndex]);
+        }
+    }
+    if (FAILED(hr))
+    {
+        Error("Init device error.");
+        return hr;
+    }
+
+    return hr;
+}
+
+void InitViewPort(DirectXContext &directXContext)
+{
+    D3D11_VIEWPORT viewport;
+
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width    = (FLOAT)directXContext.viewPort.size.x;
+    viewport.Height   = (FLOAT)directXContext.viewPort.size.y;
+
+    directXContext.devcon->RSSetViewports(1, &viewport);
+}
+
+class DirectXApi::Pimpl
+{
+public:
+    uint32 quadId;
     DirectXContext dxCondext_;
     std::vector<Buffer> buffers_;
     std::vector<DxShader> shaders_;
+
+    const Object &GetDxObject(uint32 id)
+    {
+        return objects_[id - 1];
+    }
+
+    const Texture &GetTexture(uint32 id)
+    {
+        return textures_[id - 1];
+    }
+
+    uint32 CreateAndAddDxObject(const Vao &vao)
+    {
+        objects_.emplace_back(dxCondext_, vao);
+        return objects_.size();
+    }
+
+    uint32 CreateTexture(const D3D11_SAMPLER_DESC &samplerDesc, ID3D11ShaderResourceView *rv)
+    {
+        Texture texture;
+        texture.resourceView_ = rv;
+        auto hr               = dxCondext_.dev->CreateSamplerState(&samplerDesc, &texture.samplerState_);
+
+        if (FAILED(hr))
+        {
+            MessageBox(NULL, "Create texture error.", "Error", MB_OK);
+        }
+
+        textures_.push_back(texture);
+        return textures_.size();
+    }
+
+private:
     std::vector<Object> objects_;
+    std::vector<Texture> textures_;
 };
 
 DirectXApi::DirectXApi()
@@ -46,24 +201,33 @@ DirectXApi::DirectXApi()
 DirectXApi::~DirectXApi()
 {
 }
+
 void DirectXApi::Init()
 {
+    if (FAILED(InitDevice(impl_->dxCondext_)))
+    {
+        return;
+    }
+
     InitRenderTarget();
-    InitDepthSetncilView();
-    impl_->dxCondext_.devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    InitViewPort(impl_->dxCondext_);
+    // InitDepthSetncilView();
+
+    impl_->quadId = impl_->CreateAndAddDxObject(Quad());
 }
 void DirectXApi::InitRenderTarget()
 {
     // get the address of the back buffer
-    ID3D11Texture2D *pBackBuffer;
+    ID3D11Texture2D *pBackBuffer = nullptr;
     impl_->dxCondext_.swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&pBackBuffer);
 
     // use the back buffer address to create the render target
-    impl_->dxCondext_.dev->CreateRenderTargetView(pBackBuffer, NULL, &impl_->dxCondext_.backbuffer);
+    impl_->dxCondext_.dev->CreateRenderTargetView(pBackBuffer, NULL, &impl_->dxCondext_.renderTargetView);
     pBackBuffer->Release();
 
     // set the render target as the back buffer
-    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.backbuffer, impl_->dxCondext_.depthStencilView);
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
+                                                 impl_->dxCondext_.depthStencilView);
 }
 void DirectXApi::InitDepthSetncilView()
 {
@@ -94,7 +258,29 @@ void DirectXApi::InitDepthSetncilView()
     if (FAILED(hr))
         return;
 
-    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.backbuffer, impl_->dxCondext_.depthStencilView);
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
+                                                 impl_->dxCondext_.depthStencilView);
+}
+
+void DirectXApi::SetRasterState()
+{
+     D3D11_RASTERIZER_DESC rasterDesc;
+     rasterDesc.AntialiasedLineEnable = false;
+     rasterDesc.CullMode              = D3D11_CULL_BACK;
+     rasterDesc.DepthBias             = 0;
+     rasterDesc.DepthBiasClamp        = 0.0f;
+     rasterDesc.DepthClipEnable       = true;
+     rasterDesc.FillMode              = D3D11_FILL_SOLID;
+     rasterDesc.FrontCounterClockwise = true;
+     rasterDesc.MultisampleEnable     = false;
+     rasterDesc.ScissorEnable         = false;
+     rasterDesc.SlopeScaledDepthBias  = 0.0f;
+
+     ID3D11RasterizerState* rasterState;
+     auto result = impl_->dxCondext_.dev->CreateRasterizerState(&rasterDesc, &rasterState);
+     if (FAILED(result))
+        return;
+     impl_->dxCondext_.devcon->RSSetState(rasterState);
 }
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
@@ -119,8 +305,8 @@ GraphicsApi::IWindowApiPtr DirectXApi::GetWindowApi()
 }
 void DirectXApi::PrepareFrame()
 {
-    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.backbuffer, bgColor_);
-    impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, bgColor_);
+    // impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 void DirectXApi::SetDefaultTarget()
 {
@@ -140,14 +326,24 @@ void DirectXApi::DisableDepthTest()
 }
 uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions)
 {
-    if (shaderType != GraphicsApi::Shaders::Entity)
+    std::string filename;
+    if (shaderType == GraphicsApi::Shaders::Entity)
+    {
+        filename = "SimpleShaders.fx";
+        return 0;
+    }
+    else if (shaderType == GraphicsApi::Shaders::Loading)
+    {
+        filename = "LoadingShader.fx";
+    }
+    else
     {
         return 0;
     }
 
     DxShader shader;
 
-    auto hr = CompileShaderFromFile(shadersFileLocation_ + "SimpleShaders.fx", "VS", "vs_4_0", &shader.blob_.vertex_);
+    auto hr = CompileShaderFromFile(shadersFileLocation_ + filename, "VS", "vs_4_0", &shader.blob_.vertex_);
     if (FAILED(hr))
     {
         MessageBox(NULL,
@@ -174,7 +370,8 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     // Create the input layout
     hr = impl_->dxCondext_.dev->CreateInputLayout(layout, numElements, shader.blob_.vertex_->GetBufferPointer(),
                                                   shader.blob_.vertex_->GetBufferSize(), &shader.vertexLayout_);
-
+    shader.blob_.vertex_->Release();
+    //?shader.blob_.vertex_->Release();
     if (FAILED(hr))
     {
         MessageBox(NULL,
@@ -184,7 +381,9 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
         return 0;
     }
 
-    hr = CompileShaderFromFile(shadersFileLocation_ + "SimpleShaders.fx", "PS", "ps_4_0", &shader.blob_.pixel_);
+    impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
+
+    hr = CompileShaderFromFile(shadersFileLocation_ + filename, "PS", "ps_4_0", &shader.blob_.pixel_);
 
     if (FAILED(hr))
     {
@@ -198,10 +397,11 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     // Create the pixel shader
     hr = impl_->dxCondext_.dev->CreatePixelShader(shader.blob_.pixel_->GetBufferPointer(),
                                                   shader.blob_.pixel_->GetBufferSize(), NULL, &shader.pixel_);
+    shader.blob_.pixel_->Release();
 
     if (FAILED(hr))
     {
-        shader.blob_.pixel_->Release();
+        // shader.blob_.pixel_->Release();
         shader.blob_.pixel_ = nullptr;
         return 0;
     }
@@ -216,6 +416,8 @@ void DirectXApi::UseShader(uint32 id)
         return;
     }
     const auto &shader = impl_->shaders_[id - 1];
+
+    // impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
     impl_->dxCondext_.devcon->VSSetShader(shader.vertex_, NULL, 0);
     impl_->dxCondext_.devcon->PSSetShader(shader.pixel_, NULL, 0);
 }
@@ -306,9 +508,28 @@ void DirectXApi::LoadValueToShader(uint32, const std::vector<mat4> &)
 {
 }
 uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
-                                 GraphicsApi::BufferAtachment, vec2ui, void *data)
+                                 GraphicsApi::BufferAtachment, vec2ui size, void *data)
 {
-    return uint32();
+    return 0;
+
+    ID3D11ShaderResourceView *rv;
+    D3DX11CreateShaderResourceViewFromFile(impl_->dxCondext_.dev, "seafloor.dds", NULL, NULL, &rv, NULL);
+
+    // D3DX11CreateShaderResourceViewFromMemory(impl_->dxCondext_.dev, data, size.x * size.y * 4, NULL, NULL, &rv,
+    // NULL);
+
+    // Create the sample state
+    D3D11_SAMPLER_DESC sampDesc;
+    ZeroMemory(&sampDesc, sizeof(sampDesc));
+    sampDesc.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU       = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV       = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW       = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD         = 0;
+    sampDesc.MaxLOD         = D3D11_FLOAT32_MAX;
+
+    return impl_->CreateTexture(sampDesc, rv);
 }
 uint32 DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 {
@@ -320,7 +541,7 @@ void DirectXApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment> &)
 void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
 {
     FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
-    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.backbuffer, color);
+    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, color);
 
     if (type == GraphicsApi::BufferType::DEPTH)
         impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -340,8 +561,14 @@ void DirectXApi::EnableDepthMask()
 void DirectXApi::DisableDepthMask()
 {
 }
-void DirectXApi::ActiveTexture(uint32)
+void DirectXApi::ActiveTexture(uint32 id)
 {
+    // if (id == 0)
+    return;
+
+    const auto &texture = impl_->GetTexture(id);
+    impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
+    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
 }
 void DirectXApi::ActiveTexture(uint32, uint32)
 {
@@ -369,10 +596,9 @@ uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 }
 uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
 {
-    Object obj;
-
-    std::vector<Vertex> vertexes;
-    vertexes.reserve(meshData.positions_.size() / 3.f);
+    return 0;
+    Vao vao;
+    vao.vertexes_.reserve(meshData.positions_.size() / 3.f);
 
     for (size_t x = 0; x < meshData.positions_.size(); x += 3)
     {
@@ -380,54 +606,16 @@ uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
         v.position.x = meshData.positions_[x];
         v.position.y = meshData.positions_[x + 1];
         v.position.z = meshData.positions_[x + 2];
-        vertexes.push_back(v);
+        vao.vertexes_.push_back(v);
     }
 
     int i = 0;
     for (size_t x = 0; x < meshData.textCoords_.size(); x += 2)
     {
-        vertexes[i++].textCoord = vec2(meshData.textCoords_[x], meshData.textCoords_[x + 1]);
+        vao.vertexes_[i++].textCoord = vec2(meshData.textCoords_[x], meshData.textCoords_[x + 1]);
     }
 
-    D3D11_BUFFER_DESC bd;
-    ZeroMemory(&bd, sizeof(bd));
-    bd.Usage          = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth      = sizeof(Vertex) * vertexes.size();
-    bd.BindFlags      = D3D11_BIND_VERTEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-    D3D11_SUBRESOURCE_DATA InitData;
-    ZeroMemory(&InitData, sizeof(InitData));
-    InitData.pSysMem = &vertexes[0];
-
-    Buffer vertexBuffer;
-    vertexBuffer.bindLocation = 0;
-    auto hr                   = impl_->dxCondext_.dev->CreateBuffer(&bd, &InitData, &vertexBuffer.ptr);
-
-    obj.buffers_[(int)VertexBufferObjects::POSITION] = vertexBuffer;
-
-    // Set vertex buffer
-    UINT stride = sizeof(Vertex);
-    UINT offset = 0;
-    impl_->dxCondext_.devcon->IASetVertexBuffers(vertexBuffer.bindLocation, 1, &vertexBuffer.ptr, &stride, &offset);
-
-    bd.Usage          = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth      = sizeof(uint32) * meshData.indices_.size();
-    bd.BindFlags      = D3D11_BIND_INDEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-    InitData.pSysMem  = &meshData.indices_[0];
-
-    obj.indiciesSize = meshData.indices_.size();
-
-    Buffer indiecies;
-    hr = impl_->dxCondext_.dev->CreateBuffer(&bd, &InitData, &indiecies.ptr);
-    if (FAILED(hr))
-        return hr;
-    obj.buffers_[(int)VertexBufferObjects::INDICES] = indiecies;
-    // Set index buffer
-    impl_->dxCondext_.devcon->IASetIndexBuffer(indiecies.ptr, DXGI_FORMAT_R16_UINT, 0);
-    impl_->dxCondext_.devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    impl_->objects_.push_back(obj);
-    return impl_->objects_.size();
+    return impl_->CreateAndAddDxObject(vao);
 }
 uint32 DirectXApi::CreateParticle()
 {
@@ -442,13 +630,12 @@ void DirectXApi::RenderPurePatchedMeshInstances(uint32)
 }
 void DirectXApi::RenderMesh(uint32 id)
 {
+    impl_->GetDxObject(impl_->quadId).Draw();
+    return;
     if (id == 0)
         return;
 
-    const auto &mesh = impl_->objects_[id - 1];
-    mesh.Bind(impl_->dxCondext_.devcon);
-
-    impl_->dxCondext_.devcon->DrawIndexed(mesh.indiciesSize, 0, 0);
+    impl_->GetDxObject(id).Draw();
 }
 void DirectXApi::RenderTriangleStripMesh(uint32)
 {
@@ -461,9 +648,11 @@ void DirectXApi::RenderPoints(uint32)
 }
 void DirectXApi::RenderQuad()
 {
+    impl_->GetDxObject(impl_->quadId).Draw();
 }
 void DirectXApi::RenderQuadTs()
 {
+    impl_->GetDxObject(impl_->quadId).Draw();
 }
 void DirectXApi::EnableCulling()
 {

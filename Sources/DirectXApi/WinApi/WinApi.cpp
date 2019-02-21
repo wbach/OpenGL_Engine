@@ -49,52 +49,6 @@ struct WinApi::Pimpl
     HINSTANCE hInstance_;
     LPSTR mainWindowClassName_ = (LPSTR) "Klasa Okienka";
     DirectXContext& directXContext_;
-
-    void InitDirectx(HWND hwnd)
-    {
-        // create a struct to hold information about the swap chain
-        DXGI_SWAP_CHAIN_DESC scd;
-
-        // clear out the struct for use
-        ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-        // fill the swap chain description struct
-        scd.BufferCount = 1;                                    // one back buffer
-        scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
-        scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
-        scd.OutputWindow = hwnd;                                // the window to be used
-        scd.SampleDesc.Count = 1;                               // how many multisamples
-        scd.SampleDesc.Quality = 0;
-        scd.Windowed = TRUE;                                    // windowed/full-screen mode
-
-        // create a device, device context and swap chain using the information in the scd struct
-        D3D11CreateDeviceAndSwapChain(NULL,
-            D3D_DRIVER_TYPE_HARDWARE,
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-            D3D11_SDK_VERSION,
-            &scd,
-            &directXContext_.swapchain,
-            &directXContext_.dev,
-            NULL,
-            &directXContext_.devcon);
-    }
-
-    void InitViewPort(uint32 width, uint32 height)
-    {
-        D3D11_VIEWPORT viewport;
-        ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-
-        viewport.TopLeftX = 0;
-        viewport.TopLeftY = 0;
-        viewport.Width = width;
-        viewport.Height = height;
-
-        directXContext_.devcon->RSSetViewports(1, &viewport);
-        directXContext_.viewPort.size = vec2ui(width, height);
-    }
 };
 
 WinApi::WinApi(DirectXContext& directXContext)
@@ -109,19 +63,18 @@ void WinApi::CreateWindow(const std::string& window_name, uint32 width, uint32 h
 {
     RegiesterWindowClass();
 
-    auto hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW,
-                               CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, impl_->hInstance_, NULL);
+    RECT rc = {0, 0, width, height};
+    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+    impl_->directXContext_.mainWindow = CreateWindowEx(WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
+        CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, impl_->hInstance_, NULL);
 
-    if (hwnd == NULL)
+    if (impl_->directXContext_.mainWindow == NULL)
     {
         MessageBox(NULL, "Can not create a window.", "Error", MB_ICONEXCLAMATION);
         return;
     }
 
-    impl_->InitDirectx(hwnd);
-    impl_->InitViewPort(width, height);
-    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(hwnd);
+    ::ShowWindow(impl_->directXContext_.mainWindow, SW_SHOWDEFAULT);
 }
 void WinApi::CreateContext()
 {

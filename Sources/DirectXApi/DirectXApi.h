@@ -104,9 +104,10 @@ public:
 private:
     void InitRenderTarget();
     void InitDepthSetncilView();
+    void SetRasterState();
 
 private:
-    struct Pimpl;
+    class Pimpl;
     std::unique_ptr<Pimpl> impl_;
     GraphicsApi::IWindowApiPtr windowApi_;
 
