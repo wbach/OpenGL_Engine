@@ -142,6 +142,12 @@ int MainScene::Initialize()
     AddGameObject(geralt);
 
     {
+        auto obj = CreateGameObjectInstance("Barrel", 1.8f, vec2(-2, 0), true);
+        obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Barrel/barrel.obj");
+        AddGameObject(obj);
+    }
+
+    {
         auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(2, 0), true);
         uplayer->AddComponent<Components::RendererComponent>().AddModel(
             "Meshes/DaeAnimationExample/CharacterMultiple.dae");

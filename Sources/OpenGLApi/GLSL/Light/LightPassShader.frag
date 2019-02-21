@@ -21,7 +21,7 @@ struct Light
     vec3  position_;
     vec3  color_;
     vec3  attenuation_;
-    float cutOff_; 
+    float cutOff_;
     int   type_;
 };
 
@@ -34,7 +34,7 @@ layout (std140, align=16, binding=6) uniform LightPass
     vec3  position_[MAX_LIGHTS];
     vec3  color_[MAX_LIGHTS];
     vec3  attenuation_[MAX_LIGHTS];
-    float cutOff_[MAX_LIGHTS]; 
+    float cutOff_[MAX_LIGHTS];
     int   type_[MAX_LIGHTS];
 } lightsPass;
 
@@ -64,20 +64,21 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     vec3 diffuse_color   = vec3(0.f);
     vec3 specular_color  = vec3(0.f);
 
-    if (diffuse_factor > 0.f) 
+    if (diffuse_factor > 0.f)
     {
         diffuse_color = light_color * diffuse_factor;
     }
     //ambient color
     diffuse_color = diffuse_color * material.diffuse_;
     ambient_color =  material.ambient_;
+
     if (material.shineDamper_ > .0f)
     {
         vec3    vertex_to_camera    = normalize(vs_in.cameraPosition - world_pos);
         vec3    light_reflect       = normalize(reflect(light_direction, unit_normal));
         float   specular_factor     = dot(vertex_to_camera, light_reflect);
                 specular_factor     = pow(specular_factor, material.shineDamper_);
-        if (specular_factor > .0f && specular_factor < 90.f*M_PI/180.f) 
+        if (specular_factor > .0f && specular_factor < 90.f*M_PI/180.f)
         {
             specular_color = light_color * material.specular_ * specular_factor;
         }
@@ -97,7 +98,7 @@ vec4 CalcDirectionalLight(SMaterial material, Light light, vec3 world_pos, vec3 
 
 vec4 CalculatePointLight(SMaterial material, Light light, vec3 world_pos, vec3 unit_normal)
 {
-    
+
     vec3 to_light_vector    = light.position_ - world_pos;
     float distance_to_light = length(to_light_vector);
     vec3 light_direction    = normalize(to_light_vector);
@@ -105,27 +106,27 @@ vec4 CalculatePointLight(SMaterial material, Light light, vec3 world_pos, vec3 u
     vec4 color = CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.color_);
 
 
-    float att_factor =  light.attenuation_.x + 
-                        light.attenuation_.y * distance_to_light + 
+    float att_factor =  light.attenuation_.x +
+                        light.attenuation_.y * distance_to_light +
                         light.attenuation_.z * distance_to_light * distance_to_light;
 
-    return color / att_factor; 
+    return color / att_factor;
 }
 
 vec4 CalcSpotLight(SMaterial material, Light light, vec3 world_pos, vec3 unit_normal)
-{ 
+{
     vec3 to_light_vector = light.position_ - world_pos;
-    vec3 light_direction = normalize(to_light_vector); 
+    vec3 light_direction = normalize(to_light_vector);
 
   //  vec3 light_to_pixel = normalize(WorldPos0 - l.Base.Position);
     float spot_factor = dot(light_direction, light_direction);
 
-    if (spot_factor > light.cutOff_) 
+    if (spot_factor > light.cutOff_)
     {
         vec4 color = CalculatePointLight(material, light, world_pos, unit_normal);
         return color * (1.f - (1.f - spot_factor) * 1.f/(1.f - light.cutOff_));
     }
-    else 
+    else
     {
         return vec4(0.f, 0.f, 0.f, 1.f);
     }
@@ -136,7 +137,7 @@ vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
     vec4 total_color = vec4(0.f, 0.f, 0.f, 1.f);
 
     for (int i = 0; i < lightsPass.numberOfLights; i++)
-    {   
+    {
         Light light;
         light.attenuation_ = lightsPass.attenuation_[i];
         light.position_ = lightsPass.position_[i];
@@ -193,7 +194,7 @@ void main()
     material.diffuse_ = color;
     material.specular_ = specular.xyz;
     material.shineDamper_ = specular.a;
-    
+
     vec3 final_color;
 
     if (normal4.a < .5f)

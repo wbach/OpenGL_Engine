@@ -150,6 +150,18 @@ void WaveFrontObjLoader::ReadMaterialFile(const std::string& file_name)
                 current_material->normalTexture =
                     textureLoader_.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
         }
+        if (!prefix.compare("map_Ks"))
+        {
+            if (current_material != nullptr)
+                current_material->specularTexture =
+                textureLoader_.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
+        }
+        if (!prefix.compare("map_Ka"))
+        {
+            if (current_material != nullptr)
+                current_material->ambientTexture =
+                textureLoader_.LoadTexture("Textures/" + value, true, true, ObjectTextureType::MATERIAL);
+        }
     }
 }
 

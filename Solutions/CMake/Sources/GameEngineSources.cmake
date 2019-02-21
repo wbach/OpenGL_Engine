@@ -22,6 +22,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/Grass/GrassComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.cpp
+../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.cpp
@@ -67,6 +68,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/Shaders/SkyBoxShader.cpp
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.cpp
+../../Sources/GameEngine/Renderers/Objects/Skydome/Shaders/SkydomeShader.cpp
+../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/Shaders/TerrainMeshShader.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Shaders/TerrainShader.cpp

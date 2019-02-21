@@ -1,6 +1,10 @@
 set(DirectXApiIncludes
 ../../Sources/DirectXApi/DirectXApi.h
 ../../Sources/DirectXApi/DirectXContext.h
+../../Sources/DirectXApi/DirectXTools.h
+../../Sources/DirectXApi/DxShader.h
+../../Sources/DirectXApi/ShaderManager.h
+../../Sources/DirectXApi/Vao.h
 ../../Sources/DirectXApi/ViewPort.h
 ../../Sources/DirectXApi/WinApi/WinApi.h
 ../../Sources/DirectXApi/WinApi/XInput/XInputManager.h

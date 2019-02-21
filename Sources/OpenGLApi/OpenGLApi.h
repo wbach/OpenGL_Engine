@@ -112,7 +112,8 @@ public:
 private:
     void DeleteMesh(uint32);
     void DeleteShader(uint32);
- 
+    void ClearRest();
+
 private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;

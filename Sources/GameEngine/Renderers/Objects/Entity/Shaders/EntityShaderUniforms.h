@@ -24,6 +24,7 @@ enum EntityShaderUniforms
     ModelMaterialDiffuse,
     ModelMaterialSpecular,
     ViewDistance,
+    SpecularMap,
     SIZE
 };
 }  // namespace GameEngine
