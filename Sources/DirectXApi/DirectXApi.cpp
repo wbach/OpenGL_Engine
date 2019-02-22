@@ -23,7 +23,6 @@
 
 namespace DirectX
 {
-
 struct Quad : public Vao
 {
     Quad()
@@ -264,23 +263,23 @@ void DirectXApi::InitDepthSetncilView()
 
 void DirectXApi::SetRasterState()
 {
-     D3D11_RASTERIZER_DESC rasterDesc;
-     rasterDesc.AntialiasedLineEnable = false;
-     rasterDesc.CullMode              = D3D11_CULL_BACK;
-     rasterDesc.DepthBias             = 0;
-     rasterDesc.DepthBiasClamp        = 0.0f;
-     rasterDesc.DepthClipEnable       = true;
-     rasterDesc.FillMode              = D3D11_FILL_SOLID;
-     rasterDesc.FrontCounterClockwise = true;
-     rasterDesc.MultisampleEnable     = false;
-     rasterDesc.ScissorEnable         = false;
-     rasterDesc.SlopeScaledDepthBias  = 0.0f;
+    D3D11_RASTERIZER_DESC rasterDesc;
+    rasterDesc.AntialiasedLineEnable = false;
+    rasterDesc.CullMode              = D3D11_CULL_BACK;
+    rasterDesc.DepthBias             = 0;
+    rasterDesc.DepthBiasClamp        = 0.0f;
+    rasterDesc.DepthClipEnable       = true;
+    rasterDesc.FillMode              = D3D11_FILL_SOLID;
+    rasterDesc.FrontCounterClockwise = true;
+    rasterDesc.MultisampleEnable     = false;
+    rasterDesc.ScissorEnable         = false;
+    rasterDesc.SlopeScaledDepthBias  = 0.0f;
 
-     ID3D11RasterizerState* rasterState;
-     auto result = impl_->dxCondext_.dev->CreateRasterizerState(&rasterDesc, &rasterState);
-     if (FAILED(result))
+    ID3D11RasterizerState *rasterState;
+    auto result = impl_->dxCondext_.dev->CreateRasterizerState(&rasterDesc, &rasterState);
+    if (FAILED(result))
         return;
-     impl_->dxCondext_.devcon->RSSetState(rasterState);
+    impl_->dxCondext_.devcon->RSSetState(rasterState);
 }
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
@@ -507,16 +506,54 @@ void DirectXApi::LoadValueToShader(uint32, const std::vector<vec3> &)
 void DirectXApi::LoadValueToShader(uint32, const std::vector<mat4> &)
 {
 }
-uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui size, void *data)
 {
-    return 0;
+    if (type != GraphicsApi::TextureType::U8_RGBA)
+        return 0;
 
     ID3D11ShaderResourceView *rv;
-    D3DX11CreateShaderResourceViewFromFile(impl_->dxCondext_.dev, "seafloor.dds", NULL, NULL, &rv, NULL);
+    ID3D11Texture2D *texture2d;
+    // D3DX11CreateShaderResourceViewFromFile(impl_->dxCondext_.dev, "seafloor.dds", NULL, NULL, &rv, NULL);
 
-    // D3DX11CreateShaderResourceViewFromMemory(impl_->dxCondext_.dev, data, size.x * size.y * 4, NULL, NULL, &rv,
-    // NULL);
+    D3D11_TEXTURE2D_DESC desc;
+    ZeroMemory(&desc, sizeof(desc));
+    desc.Width            = size.x;
+    desc.Height           = size.y;
+    desc.MipLevels        = 1;
+    desc.ArraySize        = 1;
+    desc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.Usage            = D3D11_USAGE_DEFAULT;
+    desc.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags   = 0;
+
+    D3D11_SUBRESOURCE_DATA subResource;
+    subResource.pSysMem          = data;
+    subResource.SysMemPitch      = desc.Width * 4;
+    subResource.SysMemSlicePitch = 0;
+    auto result                  = impl_->dxCondext_.dev->CreateTexture2D(&desc, &subResource, &texture2d);
+
+    if (FAILED(result))
+    {
+        Error("Create CreateTexture2D failed.");
+        return 0;
+    }
+
+    // Create texture view
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    ZeroMemory(&srvDesc, sizeof(srvDesc));
+    srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels       = desc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    result                            = impl_->dxCondext_.dev->CreateShaderResourceView(texture2d, &srvDesc, &rv);
+
+    if (FAILED(result))
+    {
+        Error("Create shaderResourceView failed.");
+        return 0;
+    }
 
     // Create the sample state
     D3D11_SAMPLER_DESC sampDesc;
@@ -563,15 +600,21 @@ void DirectXApi::DisableDepthMask()
 }
 void DirectXApi::ActiveTexture(uint32 id)
 {
-    // if (id == 0)
-    return;
+    if (id == 0)
+        return;
 
     const auto &texture = impl_->GetTexture(id);
     impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
     impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
 }
-void DirectXApi::ActiveTexture(uint32, uint32)
+void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
 {
+    if (id == 0)
+        return;
+
+    const auto &texture = impl_->GetTexture(id);
+    impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
+    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
 }
 uint32 DirectXApi::CreateBuffer()
 {
@@ -663,8 +706,14 @@ void DirectXApi::DisableCulling()
 void DirectXApi::SetViewPort(uint32, uint32, uint32, uint32)
 {
 }
-void DirectXApi::BindTexture(uint32)
+void DirectXApi::BindTexture(uint32 id)
 {
+    if (id == 0)
+        return;
+
+    const auto &texture = impl_->GetTexture(id);
+    impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
+    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
 }
 uint32 DirectXApi::CreateShadowMap(uint32, uint32)
 {
