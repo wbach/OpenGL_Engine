@@ -24,6 +24,8 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    GraphicsApi::ID perUpdateObjectBuffer_;
+
     std::shared_ptr<DisplayManager>& displayManager_;
     IShaderFactory& shaderFactory_;
     ResourceManager resorceManager_;
@@ -33,4 +35,4 @@ private:
 
     bool initialized_;
 };
-}  // GameEngine
+}  // namespace GameEngine

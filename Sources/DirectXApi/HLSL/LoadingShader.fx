@@ -10,6 +10,11 @@
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
+cbuffer PerObjectUpdate : register(b3)
+{
+    matrix transformMatrix;
+};
+
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
@@ -30,6 +35,7 @@ PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT)0;
     output.Pos      = input.Pos;
+    //output.Pos      = mul(input.Pos, transformMatrix);
     output.Tex      = input.Tex;
     return output;
 }
