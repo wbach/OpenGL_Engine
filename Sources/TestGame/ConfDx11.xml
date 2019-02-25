@@ -1,0 +1,21 @@
+<Config>
+	<Window name="Game" width="1366" height="768" fullscreen="false"/>
+	<Files>
+		<DataLocation>../../Data</DataLocation>
+		<ShadersLocation>../DirectXApi/HLSL/</ShadersLocation>
+		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
+	</Files>
+	<Sound enabled="1" volume="1.000000"/>
+	<Renderer resolutionX="1366" type="1" resolutionY="768" fpsLimit="60">
+		<Water type="2">
+			<Reflection width="640" height="480"/>
+			<Refraction width="320" height="240"/>
+		</Water>
+		<Textures ambient="true" maxWidth="1024" maxHeight="1024" diffuse="true" normal="true" specular="true"/>
+		<Flora enabled="true" grass="1" viewDistance="10.000000"/>
+		<Shadows enabled="false" viewDistance="35.000000" shadowMapSize="2048"/>
+		<Particles enabled="true"/>
+	</Renderer>
+	<EnableBinaryLoading>true</EnableBinaryLoading>
+</Config>
+

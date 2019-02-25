@@ -1,4 +1,5 @@
 #include "DirectXTools.h"
+#include "Logger/Log.h"
 
 namespace DirectX
 {
@@ -22,7 +23,7 @@ HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, 
     if (FAILED(hr))
     {
         if (pErrorBlob != NULL)
-            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
+            Error((char*)pErrorBlob->GetBufferPointer());
         if (pErrorBlob)
             pErrorBlob->Release();
         return hr;

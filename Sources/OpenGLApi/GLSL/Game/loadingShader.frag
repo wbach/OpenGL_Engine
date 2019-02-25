@@ -1,4 +1,4 @@
-#version 400 core
+#version 420
 
 in vec2 TexCoordOut;
 
