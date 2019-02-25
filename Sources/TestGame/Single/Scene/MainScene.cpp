@@ -28,6 +28,7 @@
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
+#include "GameEngine/Lights/Light.h"
 
 using namespace GameEngine;
 
@@ -40,6 +41,24 @@ TerrainTexturesFilesMap CreateTerrainTexturesMap()
     {
         {TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
         {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png"},
+        {TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
+        {TerrainTextureType::rockTexture, "Textures/Terrain/Ground/G3_Nature_Wall_Stone_12_Diffuse_01.png"},
+        {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
+        {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
+        {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
+        {TerrainTextureType::displacementMap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
+    };
+    // clang-format on
+}
+
+TerrainTexturesFilesMap CreateOreonTerrainTexturesMap()
+{
+    // clang-format off
+    return
+    {
+        {TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
+        {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/oreon/grass0_DIF.jpg"},
+        {TerrainTextureType::backgorundTextureNormal, "Textures/Terrain/Ground/oreon/grass0_NRM.jpg"},
         {TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
         {TerrainTextureType::rockTexture, "Textures/Terrain/Ground/G3_Nature_Wall_Stone_12_Diffuse_01.png"},
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
@@ -137,9 +156,22 @@ int MainScene::Initialize()
     skydome->AddComponent<Components::SkydomeComponent>();
     AddGameObject(skydome);
 
-    auto geralt = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), true);
+    centerObjectPosition_ = vec3(0);
+    auto geralt = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), false);
+    geralt->worldTransform.SetPosition(centerObjectPosition_);
+    geralt->worldTransform.TakeSnapShoot();
     geralt->AddComponent<Components::RendererComponent>().AddModel("Meshes/Geralt/geralt.obj");
     AddGameObject(geralt);
+
+    SetDirectionalLightColor(vec3(0.4));
+    pointLight_ = &AddLight(Light(vec3(2, 4, 2), vec3(1), vec3(0, 0, 0.1)));
+
+    {
+        auto obj   = CreateGameObjectInstance("LightBulb", 0.5f, vec2(0, 0), true);
+        lightBulb_ = obj.get();
+        obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/BulbPack/Bulb.obj");
+        AddGameObject(obj);
+    }
 
     {
         auto obj = CreateGameObjectInstance("Barrel", 1.8f, vec2(-2, 0), true);
@@ -165,8 +197,8 @@ int MainScene::Initialize()
     }
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-    camera->SetPosition(vec3(5, 5, 5));
-    camera->LookAt(vec3(2, 0, 0));
+    camera->SetPosition(vec3(.5, 3.5, 2.1));
+    camera->LookAt(vec3(0, 2, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
 
@@ -203,6 +235,13 @@ int MainScene::Update(float dt)
         Log("MainScene::Update camera is nullptr.");
         return -1;
     }
+
+    vec3 lightPos = pointLight_->GetPosition();
+    lightPos = Utils::RotateObject(centerObjectPosition_, lightPos, Utils::ToRadians(10.f * dt));
+    pointLight_->SetPosition(lightPos);
+
+    lightBulb_->worldTransform.SetPosition(pointLight_->GetPosition());
+    lightBulb_->worldTransform.TakeSnapShoot();
 
     //	renderersManager_->GuiTexture("shadowMap").texture->SetExistId(EngineConf.texturesIds["shadowMap"]);
 

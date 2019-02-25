@@ -26,8 +26,35 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
 void TerrainRenderer::Init()
 {
     InitShader();
-    objectId = context_.graphicsApi_.CreatePurePatchMeshInstanced(
-        4, static_cast<uint32>(TerrainDef::SIZE * TerrainDef::SIZE));
+    // objectId = context_.graphicsApi_.CreatePurePatchMeshInstanced(
+    //    4, static_cast<uint32>(TerrainDef::SIZE * TerrainDef::SIZE));
+
+    // clang-format off
+    const std::vector<float> patches =
+    {
+        0, 0,
+        0.333f, 0,
+        0.666f, 0,
+        1, 0,
+
+        0, 0.333f,
+        0.333f, 0.333f,
+        0.666f, 0.333f,
+        1, 0.333f,
+
+        0, 0.666f,
+        0.333f, 0.666f,
+        0.666f, 0.666f,
+        1, 0.666f,
+
+        0, 1,
+        0.333f, 1,
+        0.666f, 1,
+        1, 1
+    };
+    // clang-format on
+
+    objectId = context_.graphicsApi_.CreatePatchMesh(patches);
 }
 
 void TerrainRenderer::Render(const Scene& scene, const Time&)
@@ -36,25 +63,34 @@ void TerrainRenderer::Render(const Scene& scene, const Time&)
         return;
 
     shader_->Start();
-    shader_->Load(TerrainShaderUniforms::lightDirection, scene.GetDirectionalLight().GetDirection());
-    shader_->Load(TerrainShaderUniforms::playerPosition, scene.GetCamera().GetPosition());
-    shader_->Load(TerrainShaderUniforms::toShadowMapSpace, context_.toShadowMapZeroMatrix_);
+    shader_->Load(TerrainShaderUniforms::cameraPosition, scene.GetCamera().GetPosition());
 
     auto modelViewMatrix  = scene.GetCamera().GetViewMatrix();
-    modelViewMatrix[3][0] = 0;
-    modelViewMatrix[3][1] = 0;
-    modelViewMatrix[3][2] = 0;
-
     RenderSubscribers(modelViewMatrix);
 }
 void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
 {
     for (auto& sub : subscribes_)
     {
-        shader_->Load(TerrainShaderUniforms::modelViewMatrix, viewMatrix);
-        shader_->Load(TerrainShaderUniforms::modelViewProjectionMatrix,
-                      context_.projection_.GetProjectionMatrix() * viewMatrix);
-        RenderSubscriber(sub.second->GetTextures());
+        const auto& tree = sub.second->GetTree();
+        const auto& config = sub.second->GetConfig();
+        shader_->Load(TerrainShaderUniforms::m_ViewProjection, context_.projection_.GetProjectionMatrix() * viewMatrix);
+        shader_->Load(TerrainShaderUniforms::scaleY, config.scale.y);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_1, config.loadMorphingAreas_[0]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_2, config.loadMorphingAreas_[1]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_3, config.loadMorphingAreas_[2]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_4, config.loadMorphingAreas_[3]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_5, config.loadMorphingAreas_[4]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_6, config.loadMorphingAreas_[5]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_7, config.loadMorphingAreas_[6]);
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_8, config.loadMorphingAreas_[7]);
+
+        for (const auto& node : tree.GetNodes())
+        {
+            auto gap = node.GetGap();
+            shader_->Load(TerrainShaderUniforms::gap, gap);
+            RenderNode(node);
+        }
     }
 }
 void TerrainRenderer::RenderSubscriber(const TerrainTexturesMap& textures) const
@@ -65,11 +101,26 @@ void TerrainRenderer::RenderSubscriber(const TerrainTexturesMap& textures) const
 void TerrainRenderer::InitShader()
 {
     shader_->Init();
-    shader_->Start();
-    shader_->Load(TerrainShaderUniforms::heightFactor, TerrainDef::HEIGHT_FACTOR);
-    shader_->Load(TerrainShaderUniforms::shadowVariables, vec3(1.f, 35.f, 2048.f));
-    shader_->Load(TerrainShaderUniforms::projectionMatrix, context_.projection_.GetProjectionMatrix());
-    shader_->Stop();
+}
+void TerrainRenderer::RenderNode(const TerrainNode& node) const
+{
+    if (node.IsLeaf())
+    {
+        shader_->Load(TerrainShaderUniforms::lod, node.GetLod());
+        shader_->Load(TerrainShaderUniforms::index, node.GetIndex());
+        shader_->Load(TerrainShaderUniforms::location, node.GetLocation());
+        shader_->Load(TerrainShaderUniforms::worldMatrix, node.GetWorldMatrix());
+        shader_->Load(TerrainShaderUniforms::localMatrix, node.GetLocalMatrix());
+        context_.graphicsApi_.RenderMesh(objectId);
+    }
+
+    for (const auto& node : node.GetChildren())
+    {
+        if (node)
+        {
+            RenderNode(*node);
+        }
+    }
 }
 void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {

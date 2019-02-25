@@ -11,6 +11,7 @@ class Projection;
 class TerrainWrapper;
 struct RendererContext;
 class IShaderProgram;
+class TerrainNode;
 
 typedef TerrainWrapper* TerrainPtr;
 
@@ -33,6 +34,7 @@ private:
     void RenderSubscribers(const mat4& viewMatrix) const;
     void RenderSubscriber(const TerrainTexturesMap& textures) const;
     void InitShader();
+    void RenderNode(const TerrainNode& node) const;
 
 private:
     RendererContext& context_;

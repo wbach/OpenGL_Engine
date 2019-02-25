@@ -93,7 +93,7 @@ mat3 CreateTBNMatrix(vec3 normal)
     vec3 tangent = normalize((perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz);
     tangent = normalize(tangent - dot(tangent, normal) * normal);
     vec3 binormal = cross(tangent, normal);
-    return  mat3(tangent, binormal, normal);
+    return mat3(tangent, binormal, normal);
 }
 
 void main()

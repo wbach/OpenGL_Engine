@@ -46,8 +46,8 @@ void DefferedLighting::ReloadShaders()
 }
 void DefferedLighting::LoadLights(const Scene& scene)
 {
-    if (lightsInGpu_)
-        return;
+   // if (lightsInGpu_)
+     //   return;
 
     lightPass_.numberOfLights = scene.GetLights().size() + 1;
     convert(scene.GetDirectionalLight(), 0);

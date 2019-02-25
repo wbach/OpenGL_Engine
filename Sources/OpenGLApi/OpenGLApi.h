@@ -74,6 +74,7 @@ public:
     virtual void DeleteShaderBuffer(uint32) override;
 
     virtual std::string GetBufferStatus() override;
+    virtual uint32 CreatePatchMesh(const std::vector<float>&) override;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override;
     virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&) override;
     virtual uint32 CreateParticle() override;

@@ -15,30 +15,23 @@ void TerrainShader::GetAllUniformLocations()
 {
     uniforms_.resize(TerrainShaderUniforms::SIZE);
 
-    GetLocation(playerPosition);
-    GetLocation(lightDirection);
-    GetLocation(modelViewProjectionMatrix);
-    GetLocation(displacementTexture);
-    GetLocation(modelViewMatrix);
-    GetLocation(projectionMatrix);
-    GetLocation(heightFactor);
-    GetLocation(toShadowMapSpace);
-    GetLocation(shadowVariables);
-    GetLocation(shadowMap);
-    GetLocation(blendMap);
-    GetLocation(backgorundTexture);
-    GetLocation(backgorundTextureNormal);
-    GetLocation(redTexture);
-    GetLocation(redTextureNormal);
-    GetLocation(greenTexture);
-    GetLocation(greenTextureNormal);
-    GetLocation(blueTexture);
-    GetLocation(blueTextureNormal);
-    GetLocation(rockTexture);
-    GetLocation(rockNormalTexture);
-    GetLocation(snowTexture);
-    GetLocation(snowNormalTexture);
-    GetLocation(displacementMap);
+    GetLocation(localMatrix);
+    GetLocation(worldMatrix);
+    GetLocation(m_ViewProjection);
+    GetLocation(index);
+    GetLocation(gap);
+    GetLocation(lod);
+    GetLocation(scaleY);
+    GetLocation(location);
+    GetLocation(cameraPosition);
+    GetLocation(lod_morph_area_1);
+    GetLocation(lod_morph_area_2);
+    GetLocation(lod_morph_area_3);
+    GetLocation(lod_morph_area_4);
+    GetLocation(lod_morph_area_5);
+    GetLocation(lod_morph_area_6);
+    GetLocation(lod_morph_area_7);
+    GetLocation(lod_morph_area_8);
 }
 void TerrainShader::BindAttributes()
 {
@@ -48,20 +41,6 @@ void TerrainShader::BindAttributes()
 
 void TerrainShader::ConnectTextureUnits() const
 {
-    ConnectTerrainTexture(blendMap);
-    ConnectTerrainTexture(backgorundTexture);
-    ConnectTerrainTexture(backgorundTextureNormal);
-    ConnectTerrainTexture(redTexture);
-    ConnectTerrainTexture(redTextureNormal);
-    ConnectTerrainTexture(greenTexture);
-    ConnectTerrainTexture(greenTextureNormal);
-    ConnectTerrainTexture(blueTexture);
-    ConnectTerrainTexture(blueTextureNormal);
-    ConnectTerrainTexture(rockTexture);
-    ConnectTerrainTexture(rockNormalTexture);
-    ConnectTerrainTexture(snowTexture);
-    ConnectTerrainTexture(snowNormalTexture);
-    ConnectTerrainTexture(displacementMap);
 }
 
 }  // namespace GameEngine

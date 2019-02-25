@@ -2,6 +2,8 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "TerrainTexturesTypes.h"
+#include "TerrainConfiguration.h"
+#include "TerrainQuadTree.h"
 
 namespace GameEngine
 {
@@ -16,6 +18,8 @@ public:
     const TerrainTexturesMap& GetTextures() const;
     Texture* GetTexture(TerrainTextureType type);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
+    const TerrainQuadTree& GetTree() const;
+    const TerrainConfiguration& GetConfig() const;
 
 private:
     void SetTexture(TerrainTextureType, Texture*);
@@ -24,6 +28,9 @@ private:
     void UnSubscribe();
 
 private:
+    TerrainQuadTree terrainQuadTree_;
+    TerrainConfiguration terrainConfiguration_;
+
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
 

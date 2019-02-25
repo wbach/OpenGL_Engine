@@ -169,6 +169,9 @@ public:
     {
         return {};
     }
+    virtual uint32 CreatePatchMesh(const std::vector<float>&) override
+    {
+    }
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override
     {
         return ++id;

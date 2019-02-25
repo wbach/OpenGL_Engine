@@ -20,6 +20,7 @@ public:
     ~VaoCreator();
    // void AddIndicesBuffer(const std::vector<uint16>& indices);
     void AddIndicesBuffer(const IndicesVector& indices);
+    void AddStaticAttributePatch(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
     void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
     void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<int32>& data);
     void AllocateDynamicAttribute(VertexBufferObjects type, uint32 coordinateSize, uint32 dataLength);

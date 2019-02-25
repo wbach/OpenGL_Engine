@@ -57,13 +57,13 @@ vec3 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, vec4 normal_map)
     vec3 normal  = normalize(surface_normal);
     vec3 tangent = normalize(pass_tangent);
     tangent = normalize(tangent - dot(tangent, normal) * normal);
-    vec3 bitangent = cross(tangent, normal);  
+    vec3 bitangent = cross(tangent, normal);
     vec3 bumpMapNormal = normal_map.xyz ;
     bumpMapNormal = 2.f * bumpMapNormal - vec3(1.f, 1.f, 1.f);
     vec3 new_normal;
     mat3 tbn = mat3(tangent, bitangent, normal);
     new_normal = tbn * bumpMapNormal;
-    new_normal.y *= 0.25f;
+   // new_normal.y *= 1.25f;
     new_normal = normalize(new_normal);
     return new_normal;
 }
@@ -82,7 +82,7 @@ float CalculateShadowFactor()
         {
             vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
             vec3 uvc = vec3(vs_in.shadowCoords.xy + offsets, vs_in.shadowCoords.z);
-            
+
             if (texture(shadowMap, uvc) >  0.f)
                 factor += (vs_in.shadowCoords.w * 0.4f);
            a++;
@@ -106,11 +106,11 @@ TerrainNormalColor CalculateTerrainColor()
     float normalY = GetScaledYNormal();
 
     vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount * normalY + ( texture(rockTexture, tiledCoords * 0.25f) * backTextureAmount * (1.f - normalY)) ;
-    
+
     vec4 redTextureColour   = texture(redTexture, tiledCoords) * blendMapColour.r;
     vec4 greenTextureColour = texture(greenTexture, tiledCoords) * blendMapColour.g;
     vec4 blueTextureColour  = texture(blueTexture, tiledCoords) * blendMapColour.b;
-    
+
     if (Is(vs_in.useNormalMap))
     {
         vec4 backgorund_n_texture_colour = texture(backgorundTextureNormal, tiledCoords) * backTextureAmount * normalY + ( texture(rockNormalTexture, tiledCoords * 0.25f) * backTextureAmount * (1.f - normalY)) ;
@@ -122,7 +122,7 @@ TerrainNormalColor CalculateTerrainColor()
     else
     {
        result.normal = vec4(normalize(vs_in.normal), 1.f);
-    }   
+    }
     result.color = backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
     return result;
 }

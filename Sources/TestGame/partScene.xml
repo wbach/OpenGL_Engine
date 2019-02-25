@@ -8,7 +8,7 @@
                 <isDynamic>false</isDynamic>
             </worldTransform>
             <components count="3">
-                <component type="14">
+                <component type="13">
                     <terrainMeshRenderer>
                         <textureFileNames>
                             <texture>
@@ -17,7 +17,11 @@
                             </texture>
                             <texture>
                                 <textureType>2</textureType>
-                                <textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png</textureFileName>
+                                <textureFileName>Textures/Terrain/Ground/oreon/grass0_DIF.jpg</textureFileName>
+                            </texture>
+                            <texture>
+                                <textureType>3</textureType>
+                                <textureFileName>Textures/Terrain/Ground/oreon/grass0_NRM.jpg</textureFileName>
                             </texture>
                             <texture>
                                 <textureType>10</textureType>
@@ -25,7 +29,11 @@
                             </texture>
                             <texture>
                                 <textureType>4</textureType>
-                                <textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png</textureFileName>
+                                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+                            </texture>
+                            <texture>
+                                <textureType>5</textureType>
+                                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
                             </texture>
                             <texture>
                                 <textureType>12</textureType>
@@ -33,7 +41,11 @@
                             </texture>
                             <texture>
                                 <textureType>6</textureType>
-                                <textureFileName>Textures/Terrain/Ground/grassFlowers.png</textureFileName>
+                                <textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg</textureFileName>
+                            </texture>
+                            <texture>
+                                <textureType>7</textureType>
+                                <textureFileName>Textures/Terrain/Ground/oreon/Ground_17_NRM.jpg</textureFileName>
                             </texture>
                             <texture>
                                 <textureType>14</textureType>
@@ -41,7 +53,11 @@
                             </texture>
                             <texture>
                                 <textureType>8</textureType>
-                                <textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png</textureFileName>
+                                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+                            </texture>
+                            <texture>
+                                <textureType>9</textureType>
+                                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
                             </texture>
                         </textureFileNames>
                     </terrainMeshRenderer>

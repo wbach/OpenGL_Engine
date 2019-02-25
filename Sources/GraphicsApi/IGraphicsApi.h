@@ -75,6 +75,7 @@ public:
     virtual void DeleteObject(uint32)                                                                            = 0;
     virtual void DeleteShaderBuffer(uint32)                                                                      = 0;
     virtual std::string GetBufferStatus()                                                                        = 0;
+    virtual uint32 CreatePatchMesh(const std::vector<float>&)                                                    = 0;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32)                                                  = 0;
     virtual uint32 CreateMesh(const MeshRawData&)                                                                = 0;
     virtual uint32 CreateParticle()                                                                              = 0;

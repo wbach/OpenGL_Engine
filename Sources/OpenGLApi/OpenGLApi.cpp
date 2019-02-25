@@ -650,6 +650,20 @@ std::string OpenGLApi::GetBufferStatus()
     return std::string();
 }
 
+uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
+{
+    auto rid = impl_->idPool_.ToUint(0);
+    createdObjectIds.insert({ rid, ObjectType::MESH });
+    openGlMeshes_.insert({ rid, {} });
+
+    auto& mesh = openGlMeshes_.at(rid);
+    VaoCreator vaoCreator;
+    vaoCreator.AddStaticAttributePatch(VertexBufferObjects::POSITION, 2, patches);
+    mesh = Convert(vaoCreator.Get());
+
+    return rid;
+}
+
 uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
 {
     uint32 vao;

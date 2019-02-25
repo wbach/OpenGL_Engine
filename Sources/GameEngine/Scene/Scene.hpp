@@ -57,6 +57,9 @@ public:
     std::unique_ptr<GameObject> CreateGameObject() const;
     std::unique_ptr<GameObject> CreateGameObject(const std::string& name) const;
 
+    void SetDirectionalLightColor(const vec3& color);
+    Light& AddLight(const Light& light);
+
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject>& object);
     void RemoveGameObject(GameObject* object);

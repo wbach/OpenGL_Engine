@@ -12,6 +12,7 @@ ComponentsType TerrainRendererComponent::type = ComponentsType::TerrainRenderer;
 
 TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::TerrainRenderer, componentContext, gameObject)
+    , terrainQuadTree_(terrainConfiguration_)
 {
 }
 void TerrainRendererComponent::SetTexture(TerrainTextureType type, Texture* texture)
@@ -63,6 +64,16 @@ Texture* TerrainRendererComponent::GetTexture(TerrainTextureType type)
 const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererComponent::GetTextureFileNames() const
 {
     return texturedFileNames_;
+}
+
+const TerrainQuadTree& TerrainRendererComponent::GetTree() const
+{
+    return terrainQuadTree_;
+}
+
+const TerrainConfiguration& TerrainRendererComponent::GetConfig() const
+{
+    return terrainConfiguration_;
 }
 
 void TerrainRendererComponent::ReqisterFunctions()

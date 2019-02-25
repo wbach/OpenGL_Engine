@@ -33,6 +33,7 @@ float RGBtoFloat(uint8 rgb);
 glm::vec3 RGBtoFloat(const float& r, const float& g, const float& b);
 glm::vec3 CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b);
 glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
+glm::vec3 RotateObject(const vec3& center, const vec3& point, float angle);
 
 void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max, glm::vec3& bounding_size,
                          glm::vec3& bounding_center);

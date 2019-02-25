@@ -51,8 +51,8 @@ void main()
     vs_out.normal           = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
     vs_out.worldPos         = worldPos;
 
-    vs_out.passTangent  = (perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz; 
-    vs_out.useNormalMap = 0.f;
+    vs_out.passTangent  = (perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz;
+    vs_out.useNormalMap = 1.f;
 
     float distanceToCam = length(perFrame.cameraPosition - worldPos.xyz);
     vs_out.useShadows    = perApp.shadowVariables.x;
@@ -60,7 +60,7 @@ void main()
     if (Is(vs_out.useShadows))
     {
         vs_out.shadowMapSize  = perApp.shadowVariables.z;
-        vs_out.shadowCoords   = perFrame.toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f); 
+        vs_out.shadowCoords   = perFrame.toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f);
         vs_out.shadowCoords.w = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
         vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
     }

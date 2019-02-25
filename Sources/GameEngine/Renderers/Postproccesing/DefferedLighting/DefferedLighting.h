@@ -4,7 +4,7 @@
 
 namespace GameEngine
 {
-const int MAX_LIGHTS = 100;
+const int MAX_LIGHTS = 10;
 
 class DefferedLighting : public PostprocessingRenderer
 {

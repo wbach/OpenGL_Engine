@@ -363,6 +363,10 @@ std::string DirectXApi::GetBufferStatus()
 {
     return std::string();
 }
+uint32 DirectXApi::CreatePatchMesh(const std::vector<float>&)
+{
+    return uint32();
+}
 uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
     return uint32();

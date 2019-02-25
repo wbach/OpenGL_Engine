@@ -16,7 +16,7 @@ namespace GameEngine
 namespace
 {
 std::mutex cameraSwitchMutex;
-} // namespace
+}  // namespace
 
 Scene::Scene(const std::string& name)
     : objectCount(0)
@@ -94,6 +94,17 @@ std::unique_ptr<GameObject> Scene::CreateGameObject() const
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name) const
 {
     return std::make_unique<GameObject>(name, *componentFactory_);
+}
+
+void Scene::SetDirectionalLightColor(const vec3& color)
+{
+    directionalLight.SetColor(color);
+}
+
+Light& Scene::AddLight(const Light& light)
+{
+    lights.push_back(light);
+    return lights.back();
 }
 
 void Scene::AddGameObject(std::unique_ptr<GameObject>& object)

@@ -1,5 +1,5 @@
 #version 440
-#define MAX_LIGHTS              100
+#define MAX_LIGHTS              10
 #define M_PI    3.14159265358979323846264338327950288   /* pi */
 #define LIGHT_TYPE_DIRECTIONAL  0
 #define LIGHT_TYPE_POINT        1
@@ -31,11 +31,11 @@ layout (std140, align=16, binding=6) uniform LightPass
     vec2 screenSize;
     float viewDistance;
     int numberOfLights;
-    vec3  position_[MAX_LIGHTS];
-    vec3  color_[MAX_LIGHTS];
-    vec3  attenuation_[MAX_LIGHTS];
+    vec3 position_[MAX_LIGHTS];
+    vec3 color_[MAX_LIGHTS];
+    vec3 attenuation_[MAX_LIGHTS];
     float cutOff_[MAX_LIGHTS];
-    int   type_[MAX_LIGHTS];
+    int type_[MAX_LIGHTS];
 } lightsPass;
 
 uniform sampler2D PositionMap;
@@ -74,7 +74,7 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
 
     if (material.shineDamper_ > .0f)
     {
-        vec3    vertex_to_camera    = normalize(vs_in.cameraPosition - world_pos);
+        vec3    vertex_to_camera    = normalize(world_pos - vs_in.cameraPosition);
         vec3    light_reflect       = normalize(reflect(light_direction, unit_normal));
         float   specular_factor     = dot(vertex_to_camera, light_reflect);
                 specular_factor     = pow(specular_factor, material.shineDamper_);
@@ -104,7 +104,6 @@ vec4 CalculatePointLight(SMaterial material, Light light, vec3 world_pos, vec3 u
     vec3 light_direction    = normalize(to_light_vector);
 
     vec4 color = CalculateBaseLight(material, light_direction, world_pos, unit_normal, light.color_);
-
 
     float att_factor =  light.attenuation_.x +
                         light.attenuation_.y * distance_to_light +
@@ -190,7 +189,7 @@ void main()
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
     SMaterial material;
-    material.ambient_ = color * 0.3f;
+    material.ambient_ = color * 0.1f;
     material.diffuse_ = color;
     material.specular_ = specular.xyz;
     material.shineDamper_ = specular.a;
@@ -214,7 +213,7 @@ void main()
 
     final_color = pow(final_color, vec3(1.f / gamma));
     FragColor = vec4(final_color, 1.f);
-
+//return;
     const float contrast = 0.5f;
     FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
     FragColor     = mix(lightsPass.skyColor, FragColor, visibility);

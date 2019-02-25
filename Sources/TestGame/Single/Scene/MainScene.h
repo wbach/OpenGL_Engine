@@ -59,4 +59,9 @@ private:
     CameraType camType;
     GameEngine::GameObject* player;
     std::unique_ptr<GameEngine::Components::TerrainHeightGetter> terrainHeightGetter_;
+
+private:
+    vec3 centerObjectPosition_;
+    GameEngine::Light* pointLight_;
+    GameEngine::GameObject* lightBulb_;
 };
