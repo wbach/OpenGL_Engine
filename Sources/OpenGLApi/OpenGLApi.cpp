@@ -245,6 +245,11 @@ void OpenGLApi::DrawLine(const vec3& color, const vec3& from, const vec3& to)
     glEnd();
 }
 
+mat4 OpenGLApi::PrepareMatrixToLoad(const mat4& m)
+{
+    return m;
+}
+
 void OpenGLApi::DeleteMesh(uint32 id)
 {
     if (openGlMeshes_.count(id) == 0)

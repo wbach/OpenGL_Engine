@@ -87,9 +87,9 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
 
         for (const auto& node : tree.GetNodes())
         {
-            auto gap = node.GetGap();
+            auto gap = node->GetGap();
             shader_->Load(TerrainShaderUniforms::gap, gap);
-            RenderNode(node);
+            RenderNode(*node);
         }
     }
 }

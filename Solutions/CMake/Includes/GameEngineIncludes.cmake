@@ -35,8 +35,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.h
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainDef.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainNode.h
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainQuadTree.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.h

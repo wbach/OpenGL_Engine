@@ -24,6 +24,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.cpp
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainNode.cpp
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainQuadTree.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp

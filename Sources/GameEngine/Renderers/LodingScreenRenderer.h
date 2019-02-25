@@ -1,7 +1,7 @@
 #pragma once
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "Utils/Time/Timer.h"
 
 namespace GameEngine
 {
@@ -32,6 +32,7 @@ private:
     std::unique_ptr<IShaderProgram> shader_;
     Texture* circleTexture;
     Texture* backgroundTexture;
-    PerObjectUpdate circleBuffer_;
+    mat4 circleMatrix_;
+    Utils::Timer timer_;
 };
 }  // namespace GameEngine

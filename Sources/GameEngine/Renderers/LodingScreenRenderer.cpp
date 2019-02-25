@@ -1,5 +1,6 @@
 #include "LodingScreenRenderer.h"
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
@@ -29,11 +30,12 @@ void LoadingScreenRenderer::Init()
 
 void LoadingScreenRenderer::Render(Scene *)
 {
-    shader_->Start();
     prepareRender();
-    renderQuad(circleBufferId_, circleTexture->GetId());
+    shader_->Start();
     renderQuad(backgroundBufferId_, backgroundTexture->GetId());
+    renderQuad(circleBufferId_, circleTexture->GetId());
     shader_->Stop();
+    timer_ = Utils::Timer();
 }
 
 void LoadingScreenRenderer::ReloadShaders()
@@ -43,11 +45,14 @@ void LoadingScreenRenderer::ReloadShaders()
 void LoadingScreenRenderer::prepareRender()
 {
     graphicsApi_.PrepareFrame();
-
     if (circleBufferId_)
     {
-        circleBuffer_.TransformationMatrix *= glm::rotate(-1.f, 0.0f, 0.0f, 1.0f);
-        graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &circleBuffer_);
+        float deltaTime = timer_.GetTimeMiliSeconds() / 10.f;
+        circleMatrix_ *= glm::rotate(-deltaTime, 0.0f, 0.0f, 1.0f);
+
+        PerObjectUpdate perObjectUpdate_;
+        perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
+        graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &perObjectUpdate_);
     }
 }
 
@@ -66,18 +71,19 @@ void LoadingScreenRenderer::CreateBuffers()
     {
         backgroundBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
-        PerObjectUpdate perObjectUpdate;
-        perObjectUpdate.TransformationMatrix = mat4(1.f);
-        graphicsApi_.UpdateShaderBuffer(*backgroundBufferId_, &perObjectUpdate);
+        PerObjectUpdate perObjectUpdate_;
+        perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
+        graphicsApi_.UpdateShaderBuffer(*backgroundBufferId_, &perObjectUpdate_);
     }
 
     if (not circleBufferId_)
     {
         circleBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-
-        circleBuffer_.TransformationMatrix =
-            Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.01), vec3(0), vec3(0.1));
-        graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &circleBuffer_);
+        circleMatrix_ = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), vec3(0), vec3(0.1));
+       
+        PerObjectUpdate perObjectUpdate_;
+        perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
+        graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &perObjectUpdate_);
     }
 }
 }  // namespace GameEngine

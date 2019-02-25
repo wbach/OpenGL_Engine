@@ -47,7 +47,7 @@ void IntroRenderer::Init()
             graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
         PerObjectUpdate perObjectUpdate;
-        perObjectUpdate.TransformationMatrix = glm::transpose(glm::inverse(mat4(1.f)));
+        perObjectUpdate.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
         graphicsApi_.UpdateShaderBuffer(*perUpdateObjectBuffer_, &perObjectUpdate);
     }
 
@@ -60,14 +60,8 @@ void IntroRenderer::RenderThis()
     graphicsApi_.PrepareFrame();
     shader_->Start();
     graphicsApi_.BindShaderBuffer(*perUpdateObjectBuffer_);
-    renderQuad(mat4(1.f), backgroundTexture_->GetId());
+    graphicsApi_.ActiveTexture(0, backgroundTexture_->GetId());
+    graphicsApi_.RenderQuad();
     shader_->Stop();
 }
-
-void IntroRenderer::renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const
-{
-    graphicsApi_.ActiveTexture(0, textureId);
-    graphicsApi_.RenderQuad();
-}
-
 }  // namespace GameEngine

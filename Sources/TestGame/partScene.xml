@@ -8,7 +8,7 @@
                 <isDynamic>false</isDynamic>
             </worldTransform>
             <components count="3">
-                <component type="13">
+                <component type="14">
                     <terrainMeshRenderer>
                         <textureFileNames>
                             <texture>

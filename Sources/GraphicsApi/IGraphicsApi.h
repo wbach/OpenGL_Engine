@@ -102,6 +102,7 @@ public:
     virtual void LoadViewMatrix(const mat4&)                                                                     = 0;
     virtual void LoadProjectionMatrix(const mat4&)                                                               = 0;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to)                                   = 0;
+    virtual mat4 PrepareMatrixToLoad(const mat4&)                                                                = 0;
     // temp
     virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;

@@ -260,6 +260,10 @@ public:
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override
     {
     }
+    virtual mat4 PrepareMatrixToLoad(const mat4& m) override
+    {
+        return m;
+    }
 
 private:
     uint32 id;

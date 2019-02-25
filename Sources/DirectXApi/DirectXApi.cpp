@@ -28,14 +28,15 @@ struct Quad : public Vao
     Quad()
     {
         vertexes_ = {
-            {vec3(-1, 1, 0), vec2(0, 0)},
-            {vec3(-1, -1, 0), vec2(0, 1)},
-            {vec3(1, -1, 0), vec2(1, 1)},
-            {vec3(1, 1, 0), vec2(1, 0)},
+            {vec3(-1, 1, z), vec2(0, 0)},
+            {vec3(-1, -1, z), vec2(0, 1)},
+            {vec3(1, -1, z), vec2(1, 1)},
+            {vec3(1, 1, z), vec2(1, 0)},
         };
 
-        indices_ = {3, 1, 0, 2, 1, 3};
+        indices_ = {0, 1, 3, 3, 1, 2};
     }
+    float z = 0;
 };
 
 struct Triangle : public Vao
@@ -49,8 +50,14 @@ struct Triangle : public Vao
 
 struct Texture
 {
-    ID3D11ShaderResourceView *resourceView_;
-    ID3D11SamplerState *samplerState_;
+    ID3D11ShaderResourceView *resourceView_ = nullptr;
+    ID3D11SamplerState *samplerState_       = nullptr;
+
+    void Release()
+    {
+        ReleasePtr(resourceView_);
+        ReleasePtr(samplerState_);
+    }
 };
 
 HRESULT InitDevice(DirectXContext &directXContext)
@@ -143,6 +150,15 @@ void InitViewPort(DirectXContext &directXContext)
     directXContext.devcon->RSSetViewports(1, &viewport);
 }
 
+template <typename T>
+void Release(T &t)
+{
+    for (auto &v : t)
+    {
+        v.Release();
+    }
+}
+
 class DirectXApi::Pimpl
 {
 public:
@@ -182,6 +198,15 @@ public:
         return textures_.size();
     }
 
+    ~Pimpl()
+    {
+        Release(shaders_);
+        Release(buffers_);
+        Release(textures_);
+        Release(objects_);
+        dxCondext_.Release();
+    }
+
 private:
     std::vector<Object> objects_;
     std::vector<Texture> textures_;
@@ -208,9 +233,11 @@ void DirectXApi::Init()
         return;
     }
 
+    SetRasterState();
     InitRenderTarget();
     InitViewPort(impl_->dxCondext_);
-    // InitDepthSetncilView();
+    InitDepthSetncilView();
+    SetRenderTargets();
 
     impl_->quadId = impl_->CreateAndAddDxObject(Quad());
 }
@@ -223,10 +250,6 @@ void DirectXApi::InitRenderTarget()
     // use the back buffer address to create the render target
     impl_->dxCondext_.dev->CreateRenderTargetView(pBackBuffer, NULL, &impl_->dxCondext_.renderTargetView);
     pBackBuffer->Release();
-
-    // set the render target as the back buffer
-    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
-                                                 impl_->dxCondext_.depthStencilView);
 }
 void DirectXApi::InitDepthSetncilView()
 {
@@ -244,8 +267,12 @@ void DirectXApi::InitDepthSetncilView()
     descDepth.CPUAccessFlags     = 0;
     descDepth.MiscFlags          = 0;
     auto hr = impl_->dxCondext_.dev->CreateTexture2D(&descDepth, NULL, &impl_->dxCondext_.depthStencil);
+
     if (FAILED(hr))
+    {
+        MessageBox(NULL, "CreateTexture2D error.", __FUNCTION__, MB_OK);
         return;
+    }
 
     D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
     ZeroMemory(&descDSV, sizeof(descDSV));
@@ -255,31 +282,71 @@ void DirectXApi::InitDepthSetncilView()
     hr                         = impl_->dxCondext_.dev->CreateDepthStencilView(impl_->dxCondext_.depthStencil, &descDSV,
                                                        &impl_->dxCondext_.depthStencilView);
     if (FAILED(hr))
-        return;
+    {
+        MessageBox(NULL, "CreateDepthStencilView error.", __FUNCTION__, MB_OK);
+    }
 
-    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
-                                                 impl_->dxCondext_.depthStencilView);
+    return;
+
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+    ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+    // Set up the description of the stencil state.
+    depthStencilDesc.DepthEnable    = true;
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthStencilDesc.DepthFunc      = D3D11_COMPARISON_LESS;
+
+    depthStencilDesc.StencilEnable    = true;
+    depthStencilDesc.StencilReadMask  = 0xFF;
+    depthStencilDesc.StencilWriteMask = 0xFF;
+
+    // Stencil operations if pixel is front-facing.
+    depthStencilDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+    depthStencilDesc.FrontFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.FrontFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
+
+    // Stencil operations if pixel is back-facing.
+    depthStencilDesc.BackFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+    depthStencilDesc.BackFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
+    depthStencilDesc.BackFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
+
+    // Create the depth stencil state.
+    auto result =
+        impl_->dxCondext_.dev->CreateDepthStencilState(&depthStencilDesc, &impl_->dxCondext_.depthStencilState);
+    if (FAILED(result))
+    {
+        return;
+    }
+    impl_->dxCondext_.devcon->OMSetDepthStencilState(impl_->dxCondext_.depthStencilState, 1);
 }
 
 void DirectXApi::SetRasterState()
 {
+
     D3D11_RASTERIZER_DESC rasterDesc;
     rasterDesc.AntialiasedLineEnable = false;
     rasterDesc.CullMode              = D3D11_CULL_BACK;
-    rasterDesc.DepthBias             = 0;
-    rasterDesc.DepthBiasClamp        = 0.0f;
-    rasterDesc.DepthClipEnable       = true;
+    rasterDesc.DepthBias             = 1;
+    rasterDesc.DepthBiasClamp        = 0;
+    rasterDesc.DepthClipEnable       = false;
     rasterDesc.FillMode              = D3D11_FILL_SOLID;
     rasterDesc.FrontCounterClockwise = true;
     rasterDesc.MultisampleEnable     = false;
     rasterDesc.ScissorEnable         = false;
     rasterDesc.SlopeScaledDepthBias  = 0.0f;
 
-    ID3D11RasterizerState *rasterState;
-    auto result = impl_->dxCondext_.dev->CreateRasterizerState(&rasterDesc, &rasterState);
+    auto result = impl_->dxCondext_.dev->CreateRasterizerState(&rasterDesc, &impl_->dxCondext_.rasterState);
     if (FAILED(result))
         return;
-    impl_->dxCondext_.devcon->RSSetState(rasterState);
+    impl_->dxCondext_.devcon->RSSetState(impl_->dxCondext_.rasterState);
+}
+
+void DirectXApi::SetRenderTargets()
+{
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
+                                                 impl_->dxCondext_.depthStencilView);
 }
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
@@ -294,6 +361,7 @@ void DirectXApi::CreateContext()
 }
 void DirectXApi::DeleteContext()
 {
+    impl_.release();
 }
 void DirectXApi::PrintVersion()
 {
@@ -305,7 +373,8 @@ GraphicsApi::IWindowApiPtr DirectXApi::GetWindowApi()
 void DirectXApi::PrepareFrame()
 {
     impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, bgColor_);
-    // impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView,
+                                                    D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 void DirectXApi::SetDefaultTarget()
 {
@@ -355,8 +424,8 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
                                                    shader.blob_.vertex_->GetBufferSize(), NULL, &shader.vertex_);
     if (FAILED(hr))
     {
-        shader.blob_.vertex_->Release();
-        shader.blob_.vertex_ = nullptr;
+        MessageBox(NULL, "Can vertex shader error.", __FUNCTION__, MB_OK);
+        shader.blob_.Release();
         return 0;
     }
 
@@ -369,8 +438,6 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     // Create the input layout
     hr = impl_->dxCondext_.dev->CreateInputLayout(layout, numElements, shader.blob_.vertex_->GetBufferPointer(),
                                                   shader.blob_.vertex_->GetBufferSize(), &shader.vertexLayout_);
-    shader.blob_.vertex_->Release();
-    //?shader.blob_.vertex_->Release();
     if (FAILED(hr))
     {
         MessageBox(NULL,
@@ -396,12 +463,11 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     // Create the pixel shader
     hr = impl_->dxCondext_.dev->CreatePixelShader(shader.blob_.pixel_->GetBufferPointer(),
                                                   shader.blob_.pixel_->GetBufferSize(), NULL, &shader.pixel_);
-    shader.blob_.pixel_->Release();
+    shader.blob_.Release();
 
     if (FAILED(hr))
     {
-        // shader.blob_.pixel_->Release();
-        shader.blob_.pixel_ = nullptr;
+        MessageBox(NULL, "Can pixel shader error.", __FUNCTION__, MB_OK);
         return 0;
     }
 
@@ -416,7 +482,6 @@ void DirectXApi::UseShader(uint32 id)
     }
     const auto &shader = impl_->shaders_[id - 1];
 
-    // impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
     impl_->dxCondext_.devcon->VSSetShader(shader.vertex_, NULL, 0);
     impl_->dxCondext_.devcon->PSSetShader(shader.pixel_, NULL, 0);
 }
@@ -432,8 +497,6 @@ GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
     bd.ByteWidth      = size;
     bd.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = 0;
-    bd.BindFlags      = 0;
-    bd.MiscFlags      = 0;
 
     ID3D11Buffer *buffer;
     auto result = impl_->dxCondext_.dev->CreateBuffer(&bd, NULL, &buffer);
@@ -456,7 +519,7 @@ void DirectXApi::UpdateShaderBuffer(uint32 id, void *data)
         return;
     }
     const auto &buffer = impl_->buffers_[id];
-    impl_->dxCondext_.devcon->UpdateSubresource(buffer.ptr, 0, NULL, &data, 0, 0);
+    impl_->dxCondext_.devcon->UpdateSubresource(buffer.ptr, 0, NULL, data, 0, 0);
 }
 uint32 DirectXApi::BindShaderBuffer(uint32 id)
 {
@@ -467,6 +530,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     }
     const auto &buffer = impl_->buffers_[id];
     impl_->dxCondext_.devcon->VSSetConstantBuffers(buffer.bindLocation, 1, &buffer.ptr);
+    // impl_->dxCondext_.devcon->PSSetConstantBuffers(buffer.bindLocation, 1, &buffer.ptr);
 
     return 0;  // to do return last binded buffer
 }
@@ -578,7 +642,8 @@ void DirectXApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment> &)
 void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
 {
     FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
-    impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, color);
+    if (type == GraphicsApi::BufferType::COLOR)
+        impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, color);
 
     if (type == GraphicsApi::BufferType::DEPTH)
         impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -633,7 +698,7 @@ std::string DirectXApi::GetBufferStatus()
 {
     return std::string();
 }
-uint32 DirectXApi::CreatePatchMesh(const std::vector<float>&)
+uint32 DirectXApi::CreatePatchMesh(const std::vector<float> &)
 {
     return uint32();
 }
@@ -759,5 +824,9 @@ void DirectXApi::LoadProjectionMatrix(const mat4 &)
 }
 void DirectXApi::DrawLine(const vec3 &color, const vec3 &from, const vec3 &to)
 {
+}
+mat4 DirectXApi::PrepareMatrixToLoad(const mat4 &m)
+{
+    return glm::transpose(m);
 }
 }  // namespace DirectX

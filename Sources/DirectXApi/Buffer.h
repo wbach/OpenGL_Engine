@@ -1,13 +1,18 @@
 #pragma once
+#include <D3D11.h>
 #include "Types.h"
-
-class ID3D11Buffer;
+#include "DirectXTools.h"
 
 namespace DirectX
 {
 struct Buffer
 {
     uint32 bindLocation;
-    ID3D11Buffer* ptr;
+    ID3D11Buffer* ptr = nullptr;
+
+    void Release()
+    {
+        ReleasePtr(ptr);
+    }
 };
-} // namespace DirectX
+}  // namespace DirectX

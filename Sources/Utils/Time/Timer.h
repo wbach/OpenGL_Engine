@@ -9,6 +9,7 @@ class Timer
 public:
     Timer();
     uint64 GetTimeNanoseconds();
+    uint64 GetTimeMiliSeconds();
 
 private:
     Timepoint start_;

@@ -35,6 +35,11 @@ void Object::Draw() const
         dxCondext_.devcon->Draw(vao_.vertexes_.size(), 0);
     }
 }
+void Object::Release()
+{
+    indiciesBuffer_.Release();
+    vertexBuffer_.Release();
+}
 void Object::CreateVertexBuffer(const std::vector<Vertex>& vertexes)
 {
     D3D11_BUFFER_DESC bd;

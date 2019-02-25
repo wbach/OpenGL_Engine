@@ -14,6 +14,7 @@ class Object
 public:
     Object(const DirectXContext& dxCondext, const Vao& vao);
     void Draw() const;
+    void Release();
 
 public:
     Buffer indiciesBuffer_;

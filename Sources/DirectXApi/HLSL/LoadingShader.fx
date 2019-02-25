@@ -18,7 +18,7 @@ cbuffer PerObjectUpdate : register(b3)
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float4 Pos : POSITION;
+    float3 Pos : POSITION;
     float2 Tex : TEXCOORD0;
 };
 
@@ -34,8 +34,8 @@ struct PS_INPUT
 PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT)0;
-    output.Pos      = input.Pos;
-    //output.Pos      = mul(input.Pos, transformMatrix);
+    output.Pos      = float4(input.Pos, 1);
+    output.Pos      = mul(output.Pos, transformMatrix);
     output.Tex      = input.Tex;
     return output;
 }
@@ -46,6 +46,10 @@ PS_INPUT VS(VS_INPUT input)
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-    //return float4(0, 1, 0 , 1);
-    return txDiffuse.Sample(samLinear, input.Tex);
+    float4 color = txDiffuse.Sample(samLinear, input.Tex);
+    if (color.w < 0.5)
+    {
+        discard;
+    }
+    return color;
 }

@@ -109,6 +109,7 @@ public:
     virtual void LoadViewMatrix(const mat4&) override;
     virtual void LoadProjectionMatrix(const mat4&) override;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
+    virtual mat4 PrepareMatrixToLoad(const mat4& m) override;
 
 private:
     void DeleteMesh(uint32);

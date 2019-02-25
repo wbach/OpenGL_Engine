@@ -74,6 +74,7 @@ void TerrainNode::ComputeWorldPosition()
 }
 void TerrainNode::UpdateQuadTree(const vec3& cameraPosition)
 {
+    return;
     float distance = glm::length(cameraPosition - worldPos_);
 
     const auto& lodRange = terrainConfiguration_.lodRanges_[lod_];

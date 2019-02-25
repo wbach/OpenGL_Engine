@@ -4,20 +4,23 @@
 
 namespace GameEngine
 {
+typedef std::unique_ptr<TerrainNode> TerrainNodePtr;
+typedef std::vector<TerrainNodePtr> TerrainNodes;
+
 class TerrainQuadTree
 {
-public: 
+public:
     TerrainQuadTree(const TerrainConfiguration& terrainConfiguration);
-    TerrainQuadTree(const TerrainQuadTree&) = delete;
+    TerrainQuadTree(const TerrainQuadTree&)  = delete;
     TerrainQuadTree(const TerrainQuadTree&&) = delete;
-    const std::vector<TerrainNode>& GetNodes() const;
+    const TerrainNodes& GetNodes() const;
     void Update(const vec3& cameraPosition);
 
 private:
     std::vector<vec2> GeneratePatch();
 
 private:
-    std::vector<TerrainNode> nodes_;
+    TerrainNodes nodes_;
 
 private:
     const TerrainConfiguration& terrainConfiguration_;

@@ -19,11 +19,11 @@ TerrainQuadTree::TerrainQuadTree(const TerrainConfiguration& terrainConfiguratio
             const vec2 location(_if / rootNodesCount, _jf / rootNodesCount);
             const vec2 index(_if, _jf);
 
-            nodes_.emplace_back(terrainConfiguration_, location, lod, index);
+            nodes_.emplace_back(new TerrainNode(terrainConfiguration_, location, lod, index));
         }
     }
 }
-const std::vector<TerrainNode>& TerrainQuadTree::GetNodes() const
+const TerrainNodes& TerrainQuadTree::GetNodes() const
 {
     return nodes_;
 }
@@ -31,7 +31,7 @@ void TerrainQuadTree::Update(const vec3& cameraPosition)
 {
     for (auto& node : nodes_)
     {
-        node.Update(cameraPosition);
+        node->Update(cameraPosition);
     }
 }
 std::vector<vec2> TerrainQuadTree::GeneratePatch()

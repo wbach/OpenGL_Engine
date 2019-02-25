@@ -20,7 +20,6 @@ public:
 private:
     void Init();
     void RenderThis();
-    void renderQuad(const glm::mat4& transformMatrix, uint32 textureId) const;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
