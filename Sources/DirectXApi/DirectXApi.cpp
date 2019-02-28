@@ -324,7 +324,6 @@ void DirectXApi::InitDepthSetncilView()
 
 void DirectXApi::SetRasterState()
 {
-
     D3D11_RASTERIZER_DESC rasterDesc;
     rasterDesc.AntialiasedLineEnable = false;
     rasterDesc.CullMode              = D3D11_CULL_BACK;
@@ -395,10 +394,9 @@ void DirectXApi::DisableDepthTest()
 uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions)
 {
     std::string filename;
-    if (shaderType == GraphicsApi::Shaders::Entity)
+    if (shaderType == GraphicsApi::Shaders::Entity or shaderType == GraphicsApi::Shaders::TerrainMesh)
     {
         filename = "SimpleShaders.fx";
-        return 0;
     }
     else if (shaderType == GraphicsApi::Shaders::Loading)
     {
@@ -432,6 +430,10 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     D3D11_INPUT_ELEMENT_DESC layout[] = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        //{"Weights", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        //{"bonesIds", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
     UINT numElements = ARRAYSIZE(layout);
 
@@ -669,17 +671,18 @@ void DirectXApi::ActiveTexture(uint32 id)
         return;
 
     const auto &texture = impl_->GetTexture(id);
+
     impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
     impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
 }
 void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    if (id == 0)
+    if (id == 0 or nr > 0) // only diffuse supported now.
         return;
 
     const auto &texture = impl_->GetTexture(id);
-    impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
-    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
+    impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
+    impl_->dxCondext_.devcon->PSSetSamplers(nr, 1, &texture.samplerState_);
 }
 uint32 DirectXApi::CreateBuffer()
 {
@@ -708,7 +711,6 @@ uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 }
 uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
 {
-    return 0;
     Vao vao;
     vao.vertexes_.reserve(meshData.positions_.size() / 3.f);
 
@@ -718,6 +720,20 @@ uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
         v.position.x = meshData.positions_[x];
         v.position.y = meshData.positions_[x + 1];
         v.position.z = meshData.positions_[x + 2];
+
+        if (not meshData.normals_.empty())
+        {
+            v.normal.x = meshData.normals_[x];
+            v.normal.y = meshData.normals_[x + 1];
+            v.normal.z = meshData.normals_[x + 2];
+        }
+
+        if (not meshData.tangents_.empty())
+        {
+            v.tangent.x = meshData.tangents_[x];
+            v.tangent.y = meshData.tangents_[x + 1];
+            v.tangent.z = meshData.tangents_[x + 2];
+        }
         vao.vertexes_.push_back(v);
     }
 
@@ -725,6 +741,13 @@ uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
     for (size_t x = 0; x < meshData.textCoords_.size(); x += 2)
     {
         vao.vertexes_[i++].textCoord = vec2(meshData.textCoords_[x], meshData.textCoords_[x + 1]);
+    }
+
+    vao.indices_.reserve(meshData.indices_.size());
+
+    for (auto i : meshData.indices_)
+    {
+        vao.indices_.push_back(i);
     }
 
     return impl_->CreateAndAddDxObject(vao);
@@ -742,8 +765,6 @@ void DirectXApi::RenderPurePatchedMeshInstances(uint32)
 }
 void DirectXApi::RenderMesh(uint32 id)
 {
-    impl_->GetDxObject(impl_->quadId).Draw();
-    return;
     if (id == 0)
         return;
 

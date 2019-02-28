@@ -246,7 +246,7 @@ void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
     if (perFrameId_)
     {
         PerFrameBuffer buffer;
-        buffer.ProjectionViewMatrix = projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix();
+        buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad( projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix() );
         buffer.cameraPosition       = scene->GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }

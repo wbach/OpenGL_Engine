@@ -81,7 +81,11 @@ void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
                                           PER_OBJECT_UPDATE_BIND_LOCATION);
 
         auto &pu = obj.GetData();
+
+        auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
+
         pu.TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+        pu.TransformationMatrix = graphicsApi.PrepareMatrixToLoad(pu.TransformationMatrix);
 
         perObjectUpdateBuffer_.push_back(obj);
 

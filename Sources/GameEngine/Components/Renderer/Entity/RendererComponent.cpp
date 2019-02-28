@@ -81,7 +81,11 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     BufferObject<PerObjectUpdate> buffer(componentContext_.resourceManager_.GetGraphicsApi(),
                                          PER_OBJECT_UPDATE_BIND_LOCATION);
 
-    buffer.GetData().TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+    auto& graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
+
+    const mat4 viewProjectionMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+
+    buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(viewProjectionMatrix);
     perObjectUpdateBuffer_.push_back(buffer);
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(&perObjectUpdateBuffer_.back());
@@ -89,7 +93,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
     BufferObject<PerObjectConstants> buffer(componentContext_.resourceManager_.GetGraphicsApi(),
-                                     PER_OBJECT_CONSTANTS_BIND_LOCATION);
+                                            PER_OBJECT_CONSTANTS_BIND_LOCATION);
 
     buffer.GetData().UseBoneTransform = mesh.UseArmature();
 
@@ -114,7 +118,11 @@ void RendererComponent::UpdateBuffers()
     for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
     {
         auto& poc = perObjectUpdateBuffer_[index++];
-        poc.GetData().TransformationMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+
+        auto& graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
+        const mat4 vpm    = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+
+        poc.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(vpm);
         poc.UpdateBuffer();
     }
 }
