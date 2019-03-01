@@ -21,8 +21,6 @@ void Object::BindVertexBuffer() const
 }
 void Object::Draw() const
 {
-    dxCondext_.devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
     if (indieciesSize_ > 0)
     {
         BindVertexBuffer();

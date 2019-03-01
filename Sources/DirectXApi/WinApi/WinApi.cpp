@@ -1,8 +1,8 @@
 #include "WinApi.h"
-#include "XInput/XInputManager.h"
-#include <Windows.h>
 #include <D3D11.h>
+#include <Windows.h>
 #include "DirectXApi/DirectXContext.h"
+#include "XInput/XInputManager.h"
 
 #undef CreateWindow
 
@@ -10,6 +10,8 @@ namespace DirectX
 {
 namespace
 {
+std::function<void(uint32, uint32)> addKeyEventFunc;
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
@@ -17,6 +19,30 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+        case WM_KEYDOWN:
+            if (addKeyEventFunc)
+                addKeyEventFunc(WM_KEYDOWN, wParam);
+            break;
+        case WM_KEYUP:
+            if (addKeyEventFunc)
+                addKeyEventFunc(WM_KEYUP, wParam);
+            break;
+        case WM_LBUTTONDOWN:
+            if (addKeyEventFunc)
+                addKeyEventFunc(WM_KEYDOWN, VK_LBUTTON);
+            break;
+        case WM_LBUTTONUP:
+            if (addKeyEventFunc)
+                addKeyEventFunc(WM_KEYUP, VK_LBUTTON);
+            break;
+        case WM_RBUTTONDOWN:
+            if (addKeyEventFunc)
+                addKeyEventFunc(WM_KEYDOWN, VK_RBUTTON);
+            break;
+        case WM_RBUTTONUP:
+            if (addKeyEventFunc)
+                addKeyEventFunc(WM_KEYUP, VK_RBUTTON);
+            break;
         case WM_PAINT:
             hdc = BeginPaint(hwnd, &ps);
             EndPaint(hwnd, &ps);
@@ -45,6 +71,7 @@ struct WinApi::Pimpl
     {
     }
 
+    RECT rect_;
     MSG message_;
     HINSTANCE hInstance_;
     LPSTR mainWindowClassName_ = (LPSTR) "Klasa Okienka";
@@ -62,11 +89,13 @@ void WinApi::CreateWindow(const std::string& window_name, uint32 width, uint32 h
                           GraphicsApi::WindowType full_screen)
 {
     RegiesterWindowClass();
-
-    RECT rc = {0, 0, width, height};
-    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-    impl_->directXContext_.mainWindow = CreateWindowEx(WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
-        CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, impl_->hInstance_, NULL);
+    RECT r{0, 0, width, height};
+    impl_->rect_ = r;
+    AdjustWindowRect(&impl_->rect_, WS_OVERLAPPEDWINDOW, FALSE);
+    impl_->directXContext_.mainWindow =
+        CreateWindowEx(WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW,
+                       CW_USEDEFAULT, CW_USEDEFAULT, impl_->rect_.right - impl_->rect_.left,
+                       impl_->rect_.bottom - impl_->rect_.top, NULL, NULL, impl_->hInstance_, NULL);
 
     if (impl_->directXContext_.mainWindow == NULL)
     {
@@ -105,7 +134,10 @@ void WinApi::ShowCursor(bool show)
 }
 std::shared_ptr<Input::InputManager> WinApi::CreateInput()
 {
-    return std::make_shared<XInputManager>();
+    auto input      = std::make_shared<XInputManager>(impl_->directXContext_.mainWindow,
+                                                 vec2ui(impl_->rect_.right, impl_->rect_.bottom));
+    addKeyEventFunc = std::bind(&XInputManager::AddKeyEvent, input.get(), std::placeholders::_1, std::placeholders::_2);
+    return input;
 }
 double WinApi::GetTime()
 {

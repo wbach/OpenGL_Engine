@@ -1,8 +1,8 @@
 #pragma once
 #include "Input/InputManager.h"
-#include "Mutex.hpp"
 #include "Types.h"
 #include <optional>
+#include <Windows.h>
 
 namespace DirectX
 {
@@ -11,7 +11,7 @@ typedef std::pair<uint32, uint32> KeyEvent;
 class XInputManager : public Input::InputManager
 {
 public:
-    XInputManager();
+    XInputManager(HWND windowHwnd, const vec2ui& windowSize);
     ~XInputManager() override;
     // Keyboard
     virtual bool GetKey(KeyCodes::Type i) override;
@@ -34,10 +34,13 @@ public:
 private:
     bool FindEvent(uint32 eventType, uint32 sdlKey);
     std::optional<KeyEvent> GetEvent();
+    void UpdateMouseState(uint32 code, bool state);
+    bool GetMouseState(uint32 code);
 
 private:
-    std::mutex keyEventMutex_;
     std::list<KeyEvent> keyEvents_;
+    HWND windowHwnd_;
+    vec2ui halfWindowsSize_;
 };
 
 }  // namespace DirectX

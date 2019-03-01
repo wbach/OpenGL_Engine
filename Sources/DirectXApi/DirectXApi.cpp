@@ -198,6 +198,14 @@ public:
         return textures_.size();
     }
 
+    void SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY topology)
+    {
+        if (lastUsePrimitiveTopology_ != topology)
+        {
+            dxCondext_.devcon->IASetPrimitiveTopology(topology);
+        }
+    }
+
     ~Pimpl()
     {
         Release(shaders_);
@@ -210,6 +218,7 @@ public:
 private:
     std::vector<Object> objects_;
     std::vector<Texture> textures_;
+    D3D_PRIMITIVE_TOPOLOGY lastUsePrimitiveTopology_;
 };
 
 DirectXApi::DirectXApi()
@@ -238,7 +247,7 @@ void DirectXApi::Init()
     InitViewPort(impl_->dxCondext_);
     InitDepthSetncilView();
     SetRenderTargets();
-
+    impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->quadId = impl_->CreateAndAddDxObject(Quad());
 }
 void DirectXApi::InitRenderTarget()
@@ -677,7 +686,7 @@ void DirectXApi::ActiveTexture(uint32 id)
 }
 void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    if (id == 0 or nr > 0) // only diffuse supported now.
+    if (id == 0 or nr > 0)  // only diffuse supported now.
         return;
 
     const auto &texture = impl_->GetTexture(id);
@@ -768,16 +777,27 @@ void DirectXApi::RenderMesh(uint32 id)
     if (id == 0)
         return;
 
+    impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->GetDxObject(id).Draw();
 }
-void DirectXApi::RenderTriangleStripMesh(uint32)
+void DirectXApi::RenderTriangleStripMesh(uint32 id)
 {
+    if (id == 0)
+        return;
+
+    impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    impl_->GetDxObject(id).Draw();
 }
 void DirectXApi::RenderMeshInstanced(uint32, uint32)
 {
 }
-void DirectXApi::RenderPoints(uint32)
+void DirectXApi::RenderPoints(uint32 id)
 {
+    if (id == 0)
+        return;
+
+    impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
+    impl_->GetDxObject(id).Draw();
 }
 void DirectXApi::RenderQuad()
 {
