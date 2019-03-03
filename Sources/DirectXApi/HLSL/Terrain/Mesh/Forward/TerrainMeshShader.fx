@@ -1,30 +1,47 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-Texture2D blendMap : register(t0);
-SamplerState blendMapState : register(s0);
+Texture2D shadowMap : register(t0);
+SamplerState shadowMapState : register(s0);
 
-Texture2D backgorundTexture : register(t1);
-SamplerState backgorundTextureState : register(s1);
+Texture2D blendMap : register(t1);
+SamplerState blendMapState : register(s1);
 
-Texture2D redTexture : register(t2);
-SamplerState redTextureState : register(s2);
+Texture2D backgorundTexture : register(t2);
+SamplerState backgorundTextureState : register(s2);
 
-Texture2D greenTexture : register(t3);
-SamplerState greenTextureState : register(s3);
+Texture2D backgorundTextureNormal : register(t3);
+SamplerState backgorundTextureNormalState : register(s3);
 
-Texture2D blueTexture : register(t4);
-SamplerState blueTextureState : register(s4);
+Texture2D redTexture : register(t4);
+SamplerState redTextureState : register(s4);
 
-Texture2D rockTexture : register(t5);
-SamplerState rockTextureState : register(s5);
+Texture2D redTextureNormal : register(t5);
+SamplerState redTextureNormalState : register(s5);
 
-Texture2D snowTexture : register(t6);
-SamplerState snowTextureState : register(s6);
+Texture2D greenTexture : register(t6);
+SamplerState greenTextureState : register(s6);
 
-Texture2D shadowMap : register(t7);
-SamplerState shadowMapState : register(s7);
+Texture2D greenTextureNormal : register(t7);
+SamplerState greenTextureNormalState : register(s7);
 
+Texture2D blueTexture : register(t8);
+SamplerState blueTextureState : register(s8);
+
+Texture2D blueTextureNormal : register(t9);
+SamplerState blueTextureNormalState : register(s9);
+
+Texture2D rockTexture : register(t10);
+SamplerState rockTextureState : register(s10);
+
+Texture2D rockTextureNormal : register(t11);
+SamplerState rockTextureNormalState : register(s11);
+
+Texture2D snowTexture : register(t12);
+SamplerState snowTextureState : register(s12);
+
+Texture2D snowTextureNormal : register(t13);
+SamplerState snowTextureStateNormal : register(s13);
 
 cbuffer PerApp : register(b0)
 {
@@ -211,12 +228,35 @@ float4 CalculateColor(LightPass lightsPass, Material material, float3 world_pos,
     return total_color;
 }
 
+float GetScaledYNormal(float3 normal)
+{
+    float normalY = abs(normalize(normal).y);
+    normalY = normalY * 2;
+    if (normalY > 1)
+        normalY = 1;
+    return normalY;
+}
+
+float4 CalculateTerrainColor(float3 normal, float2 textCoord)
+{
+    float normalY = GetScaledYNormal(normal);
+    float4 blendMapColour = blendMap.Sample(blendMapState, textCoord);
+    float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
+    float2 tiledCoords = textCoord * 40.0f;
+    float4 backgorundTextureColour = backgorundTexture.Sample(backgorundTextureState, tiledCoords) * backTextureAmount * normalY + (rockTexture.Sample(rockTextureState, tiledCoords) * backTextureAmount * (1.f - normalY));
+    float4 redTextureColour = redTexture.Sample(redTextureState, tiledCoords) * blendMapColour.r;
+    float4 greenTextureColour = greenTexture.Sample(greenTextureState, tiledCoords) * blendMapColour.g;
+    float4 blueTextureColour = blueTexture.Sample(blueTextureState, tiledCoords) * blendMapColour.b;
+
+    return backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
+}
+
 float4 PS(PS_INPUT input)
     : SV_Target
 {
     float4 samplerColor = float4(1, 1, 1, 1);
-    samplerColor        = blendMap.Sample(blendMapState, input.Tex);
-
+    samplerColor = CalculateTerrainColor(input.N, input.Tex);//backgorundTexture.Sample(backgorundTextureState, input.Tex);
+    //samplerColor = backgorundTexture.Sample(backgorundTextureState, input.Tex);
     if (samplerColor.w < 0.5)
     {
         discard;

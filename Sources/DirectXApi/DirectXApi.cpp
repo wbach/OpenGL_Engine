@@ -682,7 +682,7 @@ void DirectXApi::ActiveTexture(uint32 id)
 }
 void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    if (id == 0 or nr > 0)  // only diffuse supported now.
+    if (id == 0)  // only diffuse supported now.
         return;
 
     const auto &texture = impl_->GetTexture(id);
