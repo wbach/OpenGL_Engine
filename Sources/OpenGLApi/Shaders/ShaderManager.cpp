@@ -67,7 +67,7 @@ uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::Graph
     std::string logFilesString;
     for (const auto& f : files)
     {
-        logFilesString += " " + f.first;
+        logFilesString += " " + f.second;
     }
     Log("Shader files :" + logFilesString);
 
@@ -82,11 +82,11 @@ uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::Graph
     if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_SET_ID) != 0)
         functions.at(GraphicsApi::GraphicFunctionType::SHADER_SET_ID)(uId);
 
-    shaderPrograms_.insert({uId, OpenGLShaderProgram(programId, files.begin()->first)});
+    shaderPrograms_.insert({uId, OpenGLShaderProgram(programId, files.begin()->second)});
 
     for (const auto& p : files)
     {
-        if (!AddShader(shaderPrograms_.at(uId), p.first, p.second))
+        if (!AddShader(shaderPrograms_.at(uId), p.second, p.first))
             return false;
     }
 

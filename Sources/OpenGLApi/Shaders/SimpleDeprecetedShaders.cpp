@@ -10,134 +10,138 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simple
     {
         GraphicsApi::Shaders::Loading,
         {
-            {"Game/glsl_1.0p/loadingShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Game/glsl_1.0p/loadingShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Game/glsl_1.0p/loadingShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Game/glsl_1.0p/loadingShader.frag"}
         }
     },
-    {
+     {
         GraphicsApi::Shaders::Entity,
         {
-            {"Entity/Forward/SimpleEntityShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Entity/Forward/SimpleEntityShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/EntityGeometryPassShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/EntityGeometryPassShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::Grass,
         {
-            {"Grass/Forward/GrassShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Grass/Forward/GrassShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER},
-            {"Grass/Forward/GrassShader.geom", GraphicsApi::ShaderType::GEOMETRY_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Grass/GrassShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Grass/GrassShader.frag"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Grass/GrassShader.geom",}
         }
     },
     {
         GraphicsApi::Shaders::Particles,
         {
-            {"Particles/Forward/ParticlesShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Particles/Forward/ParticlesShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Particles/ParticlesShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Particles/ParticlesShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::AnimatedParticles,
         {
-            {"Particles/Forward/AnimatedParticlesShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Particles/Forward/AnimatedParticlesShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Particles/AnimatedParticlesShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Particles/AnimatedParticlesShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::Plants,
         {
-            {"Terrain/Forward/TerrainShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Terrain/Forward/TerrainShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER},
-            {"Terrain/Forward/TerrainShader.cs", GraphicsApi::ShaderType::TESS_CONTROL_SHADER},
-            {"Terrain/Forward/TerrainShader.es", GraphicsApi::ShaderType::TESS_EVALUATION_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Shadows/ShadowVertexShader.vert", },
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Shadows/ShadowFragmentShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::Shadows,
         {
-            {"Shadows/ShadowVertexShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Shadows/ShadowFragmentShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Shadows/ShadowVertexShader.vert", },
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Shadows/ShadowFragmentShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::SkyBox,
         {
-            {"SkyBox/Forward/SkyboxVertexShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"SkyBox/Forward/SkyboxFragmentShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "SkyBox/SkyboxVertexShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "SkyBox/SkyboxFragmentShader.frag"}
         }
     },
-    { 
+    {
+        GraphicsApi::Shaders::Skydome,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Skydome/Skydome.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Skydome/Skydome.frag"}
+        }
+    },
+    {
         GraphicsApi::Shaders::Terrain,
         {
-            {"Terrain/Tessllation/Forward/TerrainShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Terrain/Tessllation/Forward/TerrainShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER},
-            {"Terrain/Tessllation/Forward/TerrainShader.cs", GraphicsApi::ShaderType::TESS_CONTROL_SHADER},
-            {"Terrain/Tessllation/Forward/TerrainShader.es", GraphicsApi::ShaderType::TESS_EVALUATION_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/terrain_VS.glsl"},
+            {GraphicsApi::ShaderType::TESS_CONTROL_SHADER, "Terrain/terrain_TC.glsl"},
+            {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER,"Terrain/terrain_TE.glsl"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Terrain/terrain_GS.glsl"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Terrain/terrain_FS.glsl"}
         }
     },
-    { 
+    {
         GraphicsApi::Shaders::TerrainMesh,
         {
-            {"Terrain/Mesh/Forward/TerrainShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Terrain/Mesh/Forward/TerrainShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/TerrainShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Terrain/Mesh/TerrainShader.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::Shaders::Tree,
         {
-            {"Tree/Forward/TreeShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Tree/Forward/TreeShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/TreeShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/TreeShader.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::Shaders::Water,
         {
-            {"Terrain/Forward/TerrainShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Terrain/Forward/TerrainShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER},
-            {"Terrain/Forward/TerrainShader.cs", GraphicsApi::ShaderType::TESS_CONTROL_SHADER},
-            {"Terrain/Forward/TerrainShader.es", GraphicsApi::ShaderType::TESS_EVALUATION_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/TreeShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/TreeShader.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::Shaders::Blur,
         {
-            {"PostProcess/Blur/Blur.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"PostProcess/Blur/Blur.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Blur/Blur.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Blur/Blur.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::Shaders::ColorFilper,
         {
-            {"PostProcess/ColorFliper/ColorFliper.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"PostProcess/ColorFliper/ColorFliper.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/ColorFliper/ColorFliper.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"PostProcess/ColorFliper/ColorFliper.frag"}
         }
     },
     {
         GraphicsApi::Shaders::Deffered,
         {
-            {"Light/LightPassShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Light/LightPassShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Light/LightPassShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Light/LightPassShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::SSAO,
         {
-            {"PostProcess/SSAO/SSAOShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"PostProcess/SSAO/SSAOShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/SSAO/SSAOShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/SSAO/SSAOShader.frag"}
         }
     },
     {
         GraphicsApi::Shaders::Font,
         {
-            {"Font/fontVertex.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Font/fontFragment.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Font/fontVertex.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Font/fontFragment.frag"}
         }
     },
     {
         GraphicsApi::Shaders::Texture,
         {
-            {"Gui/guiVertexShader.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-            {"Gui/guiFragmentShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiVertexShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}
         }
     }
 };

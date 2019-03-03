@@ -14,6 +14,7 @@
 #include "GraphicsApi/MeshRawData.h"
 #include "Logger/Log.h"
 #include "Object.h"
+#include "Shaders/DxForwardShaderFiles.h"
 #include "Utils.h"
 #include "Vao.h"
 #include "Vertex.h"
@@ -402,23 +403,17 @@ void DirectXApi::DisableDepthTest()
 }
 uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions)
 {
-    std::string filename;
-    if (shaderType == GraphicsApi::Shaders::Entity or shaderType == GraphicsApi::Shaders::TerrainMesh)
-    {
-        filename = "SimpleShaders.fx";
-    }
-    else if (shaderType == GraphicsApi::Shaders::Loading)
-    {
-        filename = "LoadingShader.fx";
-    }
-    else
+    if (not FileNameExist(shaderType))
     {
         return 0;
     }
 
+    auto filenames = GetDxForwardShaderFiles(shaderType);
+
     DxShader shader;
 
-    auto hr = CompileShaderFromFile(shadersFileLocation_ + filename, "VS", "vs_4_0", &shader.blob_.vertex_);
+    auto hr = CompileShaderFromFile(shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER), "VS",
+                                    "vs_4_0", &shader.blob_.vertex_);
     if (FAILED(hr))
     {
         MessageBox(NULL,
@@ -460,7 +455,8 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
 
     impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
 
-    hr = CompileShaderFromFile(shadersFileLocation_ + filename, "PS", "ps_4_0", &shader.blob_.pixel_);
+    hr = CompileShaderFromFile(shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER), "PS",
+                               "ps_4_0", &shader.blob_.pixel_);
 
     if (FAILED(hr))
     {

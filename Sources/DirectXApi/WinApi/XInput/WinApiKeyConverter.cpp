@@ -54,11 +54,17 @@ KeysMap keys = KeysMap({{KeyCodes::LMOUSE, VK_LBUTTON},
 
 KeyCodes::Type Convert(uint32 type)
 {
+    if (keys.Count(type) == 0)
+        return KeyCodes::None;
+
     return keys[type];
 }
 
 uint32 Convert(KeyCodes::Type type)
 {
+    if (keys.Count(type) == 0)
+        return 0;
+
     return keys[type];
 }
 const KeysMap& GetKeysMap()

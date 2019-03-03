@@ -20,8 +20,8 @@ void StartMessage()
 
 int main(int argc, char* argv[])
 {
-    GameEngine::ReadFromFile("./Conf.xml");  auto api = std::make_unique<OpenGLApi::OpenGLApi>();
-    //GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
+    //GameEngine::ReadFromFile("./Conf.xml");  auto api = std::make_unique<OpenGLApi::OpenGLApi>();
+    GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();
 

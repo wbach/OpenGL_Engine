@@ -10,5 +10,6 @@ set(DirectXApiIncludes
 ../../Sources/DirectXApi/Vertex.h
 ../../Sources/DirectXApi/ViewPort.h
 ../../Sources/DirectXApi/WinApi/WinApi.h
+../../Sources/DirectXApi/WinApi/XInput/WinApiKeyConverter.h
 ../../Sources/DirectXApi/WinApi/XInput/XInputManager.h
 )

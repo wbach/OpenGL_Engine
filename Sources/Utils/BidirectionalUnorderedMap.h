@@ -31,6 +31,15 @@ public:
         return map1.at(x);
     }
 
+    const X& At(const Y& y) const
+    {
+        return map2.at(y);
+    }
+    const Y& At(const X& x) const
+    {
+        return map1.at(x);
+    }
+
     const std::unordered_map<X, Y>& GetXY() const
     {
         return map1;
@@ -38,6 +47,21 @@ public:
     const std::unordered_map<Y, X>& GetYX() const
     {
         return map2;
+    }
+
+    size_t Count(X x) const
+    {
+        return map1.count(x);
+    }
+
+    size_t Count(Y y) const
+    {
+        return map2.count(y);
+    }
+
+    size_t Size() const
+    {
+        return map1.size();
     }
 
 private:
