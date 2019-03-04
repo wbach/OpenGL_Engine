@@ -1,12 +1,17 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-Texture2D txDiffuse : register(t0);
-SamplerState samLinear : register(s0);
+
+cbuffer PerFrame : register(b1)
+{
+    matrix projectionViewMatrix;
+    matrix toShadowMapSpace;
+    float3 cameraPosition;
+};
 
 cbuffer PerObjectUpdate : register(b3)
 {
-    matrix transformMatrix;
+    matrix transformationMatrix;
 };
 
 //--------------------------------------------------------------------------------------
@@ -21,7 +26,7 @@ struct VS_INPUT
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-    float2 Tex : TEXCOORD0;
+    float4 WorldPos : POSITION1;
 };
 
 //--------------------------------------------------------------------------------------
@@ -30,11 +35,13 @@ struct PS_INPUT
 PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT)0;
-    output.Pos      = float4(input.Pos, 1);
-    output.Pos      = mul(output.Pos, transformMatrix);
-    output.Tex      = input.Tex;
+    output.Pos = float4(input.Pos, 1);
+    output.WorldPos = mul(output.Pos, transformationMatrix);
+    output.Pos = mul(output.WorldPos, projectionViewMatrix);
     return output;
 }
+
+static const float3 baseColor = float3(0.18, 0.27, 0.47);
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
@@ -42,10 +49,9 @@ PS_INPUT VS(VS_INPUT input)
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-    float4 color = txDiffuse.Sample(samLinear, input.Tex);
-    if (color.w < 0.5)
-    {
-        discard;
-    }
-    return color;
+    float red = -0.00022f * (abs(input.WorldPos.y) - 2800) + baseColor.x;
+    float green = -0.00025f * (abs(input.WorldPos.y) - 2800) + baseColor.y;
+    float blue = -0.00019f * (abs(input.WorldPos.y) - 2800) + baseColor.z;
+
+    return float4(red, green, blue, 1.f);
 }
