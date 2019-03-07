@@ -17,10 +17,13 @@ TerrainNode::TerrainNode(const TerrainConfiguration& terrainConfiguration, const
     localTransform_.SetPosition(vec3(location_.x, 0, location_.y));
     localTransform_.TakeSnapShoot();
 
-    vec3 worldPosition = terrainConfiguration.scale / -2.f;
+    vec3 scale(terrainConfiguration.GetScaleXZ(), terrainConfiguration.GetScaleY(),
+                   terrainConfiguration.GetScaleXZ());
+
+    vec3 worldPosition = scale / -2.f;
     worldPosition.y    = 0;
 
-    worldTransform_.SetScale(terrainConfiguration.scale);
+    worldTransform_.SetScale(scale);
     worldTransform_.SetPosition(worldPosition);
     worldTransform_.TakeSnapShoot();
 
@@ -68,16 +71,15 @@ const mat4& TerrainNode::GetLocalMatrix() const
 }
 void TerrainNode::ComputeWorldPosition()
 {
-    vec2 loc    = (location_ + halfGap_) * terrainConfiguration_.scale.x - terrainConfiguration_.scale.x / 2.f;
+    vec2 loc    = (location_ + halfGap_) * terrainConfiguration_.GetScaleXZ() - terrainConfiguration_.GetScaleXZ() / 2.f;
     worldPos_.x = loc.x;
     worldPos_.z = loc.y;
 }
 void TerrainNode::UpdateQuadTree(const vec3& cameraPosition)
 {
-    return;
     float distance = glm::length(cameraPosition - worldPos_);
 
-    const auto& lodRange = terrainConfiguration_.lodRanges_[lod_];
+    const auto& lodRange = terrainConfiguration_.GetLodRange(lod_);
 
     if (distance < lodRange)
     {
@@ -94,6 +96,11 @@ void TerrainNode::Divide()
     {
         isleaf_ = false;
     }
+    else
+    {
+        return;
+    }
+
     if (children_.empty())
     {
         for (int i = 0; i < 2; i++)
@@ -120,9 +127,9 @@ void TerrainNode::RemoveChildren()
 
 void TerrainNode::UpdateYPosition(const vec3& cameraPosition)
 {
-    if (cameraPosition.y > terrainConfiguration_.scale.y)
+    if (cameraPosition.y > terrainConfiguration_.GetScaleY())
     {
-        worldPos_.y = terrainConfiguration_.scale.y;
+        worldPos_.y = terrainConfiguration_.GetScaleY();
     }
     else
     {
@@ -134,7 +141,7 @@ void TerrainNode::UpdateChildren(const vec3& cameraPosition)
 {
     for (auto& child : children_)
     {
-        Update(cameraPosition);
+        child->Update(cameraPosition);
     }
 }
 }  // namespace GameEngine

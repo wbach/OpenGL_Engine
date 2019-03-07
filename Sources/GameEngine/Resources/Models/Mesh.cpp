@@ -6,13 +6,16 @@
 
 namespace GameEngine
 {
-Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi)
+Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
+    , renderType_(type)
 {
 }
 
-Mesh::Mesh(GraphicsApi::IGraphicsApi& graphicsApi, const Material& material, const mat4& transformMatix)
+Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, const Material& material,
+           const mat4& transformMatix)
     : graphicsApi_(graphicsApi)
+    , renderType_(type)
     , material_(material)
     , transform_(transformMatix)
 {
@@ -32,7 +35,7 @@ void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 
 void Mesh::CreateMesh()
 {
-    objectId_ = graphicsApi_.CreateMesh(meshRawData_);
+    objectId_ = graphicsApi_.CreateMesh(meshRawData_, renderType_);
     isInit    = true;
 }
 

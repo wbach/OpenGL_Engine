@@ -1,4 +1,5 @@
 #include "SceneReader.h"
+#include "Logger/Log.h"
 #include "Scene.hpp"
 #include "SceneDef.h"
 #include "Utils.h"
@@ -14,6 +15,7 @@
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
+#include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -167,7 +169,8 @@ void Read(Utils::XmlNode& node, Components::ParticleEffectComponent& component)
     component.SetParticle(particle);
     component.SetTexture(node.GetChild(CSTR_TEXTURE)->value_);
     component.SetParticlesPerSec(std::stoul(node.GetChild(CSTR_PARTICLE_PER_SER)->value_));
-    component.SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
+    component.SetBlendFunction(
+        static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
 
     auto emitFunctionName = node.GetChild(CSTR_EMIT_FUNCTION)->value_;
     auto emitFunction     = currentReadingScene->GetParticleEmitFunction(emitFunctionName);
@@ -212,6 +215,10 @@ void Read(Utils::XmlNode& node, Components::SkyBoxComponent& component)
     component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
 }
 
+void Read(Utils::XmlNode& node, Components::SkydomeComponent& component)
+{
+}
+
 std::unordered_map<TerrainTextureType, std::string> ReadTerrainTextures(Utils::XmlNode& node)
 {
     std::unordered_map<TerrainTextureType, std::string> result;
@@ -247,8 +254,16 @@ void Read(Utils::XmlNode& node, Components::TerrainMeshRendererComponent& compon
 template <typename T>
 void AddComponent(Utils::XmlNode& node, GameObject& gameObject, const std::string& cstr)
 {
+    auto child = node.GetChild(cstr);
+
+    if (not child)
+    {
+        Error("Component type number miss match with comonent name.");
+        return;
+    }
+
     auto& comp = gameObject.AddComponent<T>();
-    Read(*node.GetChild(cstr), comp);
+    Read(*child, comp);
 }
 
 void Read(Utils::XmlNode& node, GameObject& gameObject)
@@ -297,7 +312,7 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 AddComponent<Components::SkyBoxComponent>(*component, gameObject, CSTR_COMPONENT_SKYBOX);
                 break;
             case Components::ComponentsType::Skydome:
-                //AddComponent<Components::SkydomeComponent>(*component, gameObject, CSTR_COMPONENT_SKYBOX);
+                AddComponent<Components::SkydomeComponent>(*component, gameObject, CSTR_COMPONENT_SKYDOME);
                 break;
             case Components::ComponentsType::Grass:
                 AddComponent<Components::GrassRendererComponent>(*component, gameObject, CSTR_COMPONENT_GRASS);

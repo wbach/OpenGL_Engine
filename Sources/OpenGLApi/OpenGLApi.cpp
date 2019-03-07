@@ -27,7 +27,7 @@ namespace
 {
 std::unordered_map<uint32, ObjectType> createdObjectIds;
 CFont font;
-}
+}  // namespace
 
 struct ShaderBuffer
 {
@@ -84,6 +84,11 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
 
     bufferTypeMap_ = {{GraphicsApi::BufferType::COLOR, GL_COLOR_BUFFER_BIT},
                       {GraphicsApi::BufferType::DEPTH, GL_DEPTH_BUFFER_BIT}};
+
+    renderTypeMap_ = {{GraphicsApi::RenderType::PATCHES, GL_PATCHES},
+                      {GraphicsApi::RenderType::POINTS, GL_POINTS},
+                      {GraphicsApi::RenderType::TRIAGNLE_STRIP, GL_TRIANGLE_STRIP},
+                      {GraphicsApi::RenderType::TRIANGLES, GL_TRIANGLES}};
 
     for (auto& b : bindedShaderBuffers_)
     {
@@ -658,8 +663,8 @@ std::string OpenGLApi::GetBufferStatus()
 uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
 {
     auto rid = impl_->idPool_.ToUint(0);
-    createdObjectIds.insert({ rid, ObjectType::MESH });
-    openGlMeshes_.insert({ rid, {} });
+    createdObjectIds.insert({rid, ObjectType::MESH});
+    openGlMeshes_.insert({rid, {}});
 
     auto& mesh = openGlMeshes_.at(rid);
     VaoCreator vaoCreator;
@@ -684,13 +689,13 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     return rid;
 }
 
-uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData)
+uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, GraphicsApi::RenderType type)
 {
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
 
     openGlMeshes_.insert({rid, {}});
-    auto& mesh = openGlMeshes_.at(rid);
+    auto& mesh      = openGlMeshes_.at(rid);
 
     VaoCreator vaoCreator;
     vaoCreator.AddIndicesBuffer(meshRawData.indices_);
@@ -701,6 +706,7 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData)
     vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, 3, meshRawData.bonesWeights_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, 3, meshRawData.joinIds_);
     mesh = Convert(vaoCreator.Get());
+    mesh.renderType = type;
     return rid;
 }
 
@@ -823,7 +829,7 @@ void OpenGLApi::RenderMesh(uint32 id)
     auto& mesh = openGlMeshes_.at(id);
 
     glBindVertexArray(mesh.vao);
-    glDrawElements(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(renderTypeMap_[mesh.renderType], mesh.vertexCount, GL_UNSIGNED_INT, 0);
 }
 
 void OpenGLApi::RenderTriangleStripMesh(uint32 id)

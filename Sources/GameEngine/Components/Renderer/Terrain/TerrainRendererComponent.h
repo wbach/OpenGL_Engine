@@ -28,8 +28,8 @@ private:
     void UnSubscribe();
 
 private:
-    TerrainQuadTree terrainQuadTree_;
     TerrainConfiguration terrainConfiguration_;
+    TerrainQuadTree terrainQuadTree_;
 
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;

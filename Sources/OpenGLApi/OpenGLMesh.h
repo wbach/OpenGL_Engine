@@ -12,5 +12,6 @@ struct OpenGLMesh
     VboMap attributes;
     uint32 vertexCount;
     uint32 instancesCount;
+    GraphicsApi::RenderType renderType;
 };
 }  // namespace OpenGLApi

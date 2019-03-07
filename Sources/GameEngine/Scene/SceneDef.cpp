@@ -27,6 +27,7 @@ const std::string CSTR_COMPONENT_RENDERER            = "renderer";
 const std::string CSTR_COMPONENT_TREERENDERER        = "treeRenderer";
 const std::string CSTR_COMPONENT_PARTICLEEFFECT      = "particleEffect";
 const std::string CSTR_COMPONENT_SKYBOX              = "skyBox";
+const std::string CSTR_COMPONENT_SKYDOME             = "skydome";
 const std::string CSTR_COMPONENT_GRASS               = "grassComponent";
 const std::string CSTR_COMPONENT_TERRAINRENDERER     = "terrainRenderer";
 const std::string CSTR_COMPONENT_TERRAINMESHRENDERER = "terrainMeshRenderer";

@@ -70,7 +70,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
         for (auto& mesh : obj.meshes)
         {
-            GameEngine::Mesh newMesh(graphicsApi_, mesh.material, obj.transformMatrix);
+            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material, obj.transformMatrix);
             IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
             newMesh.SetUseArmatorIfHaveBones();
             newModel->animationClips_ = mesh.animationClips_;

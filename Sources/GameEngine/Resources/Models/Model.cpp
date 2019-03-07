@@ -46,9 +46,9 @@ Mesh* Model::AddMesh(Mesh& mesh)
     return &meshes_.back();
 }
 
-Mesh* Model::AddMesh(GraphicsApi::IGraphicsApi& api)
+Mesh* Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api)
 {
-    meshes_.emplace_back(api);
+    meshes_.emplace_back(type, api);
     return &meshes_.back();
 }
 

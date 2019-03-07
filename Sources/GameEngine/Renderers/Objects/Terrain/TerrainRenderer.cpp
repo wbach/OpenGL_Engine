@@ -75,15 +75,15 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
         const auto& tree = sub.second->GetTree();
         const auto& config = sub.second->GetConfig();
         shader_->Load(TerrainShaderUniforms::m_ViewProjection, context_.projection_.GetProjectionMatrix() * viewMatrix);
-        shader_->Load(TerrainShaderUniforms::scaleY, config.scale.y);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_1, config.loadMorphingAreas_[0]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_2, config.loadMorphingAreas_[1]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_3, config.loadMorphingAreas_[2]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_4, config.loadMorphingAreas_[3]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_5, config.loadMorphingAreas_[4]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_6, config.loadMorphingAreas_[5]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_7, config.loadMorphingAreas_[6]);
-        shader_->Load(TerrainShaderUniforms::lod_morph_area_8, config.loadMorphingAreas_[7]);
+        shader_->Load(TerrainShaderUniforms::scaleY, config.GetScaleY());
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_1, config.GetMorphingArea(0));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_2, config.GetMorphingArea(1));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_3, config.GetMorphingArea(2));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_4, config.GetMorphingArea(3));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_5, config.GetMorphingArea(4));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_6, config.GetMorphingArea(5));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_7, config.GetMorphingArea(6));
+        shader_->Load(TerrainShaderUniforms::lod_morph_area_8, config.GetMorphingArea(7));
 
         for (const auto& node : tree.GetNodes())
         {

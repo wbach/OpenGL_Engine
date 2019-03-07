@@ -176,7 +176,7 @@ public:
     {
         return ++id;
     }
-    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&) override
+    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType) override
     {
         return ++id;
     }

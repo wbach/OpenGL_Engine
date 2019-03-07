@@ -23,7 +23,7 @@ public:
     virtual void GpuPostLoadingPass() override;
 
     Mesh* AddMesh(Mesh& mesh);
-    Mesh* AddMesh(GraphicsApi::IGraphicsApi& api);
+    Mesh* AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi& api);
 
     bool IsAnyMeshUseTransform() const;
 

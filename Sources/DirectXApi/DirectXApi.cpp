@@ -714,7 +714,7 @@ uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
     return uint32();
 }
-uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData)
+uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData, GraphicsApi::RenderType rendertype)
 {
     Vao vao;
     vao.vertexes_.reserve(meshData.positions_.size() / 3.f);

@@ -28,6 +28,7 @@ extern const std::string CSTR_COMPONENT_RENDERER;
 extern const std::string CSTR_COMPONENT_TREERENDERER;
 extern const std::string CSTR_COMPONENT_PARTICLEEFFECT;
 extern const std::string CSTR_COMPONENT_SKYBOX;
+extern const std::string CSTR_COMPONENT_SKYDOME;
 extern const std::string CSTR_COMPONENT_GRASS;
 extern const std::string CSTR_COMPONENT_TERRAINRENDERER;
 extern const std::string CSTR_COMPONENT_TERRAINMESHRENDERER;

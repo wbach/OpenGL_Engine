@@ -76,7 +76,7 @@ public:
     virtual std::string GetBufferStatus() override;
     virtual uint32 CreatePatchMesh(const std::vector<float>&) override;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override;
-    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&) override;
+    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType type) override;
     virtual uint32 CreateParticle() override;
     virtual uint32 CreateAnimatedParticle() override;
     virtual void RenderPurePatchedMeshInstances(uint32) override;
@@ -128,6 +128,7 @@ private:
     std::unordered_map<GraphicsApi::TextureFilter, uint32> textureFilterMap_;
     std::unordered_map<GraphicsApi::BufferAtachment, uint32> bufferAtachmentMap_;
     std::unordered_map<GraphicsApi::BufferType, uint32> bufferTypeMap_;
+    std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
 
     uint32 bindedShaderBuffers_[MAX_SHADER_BUFFER_SIZE];
 

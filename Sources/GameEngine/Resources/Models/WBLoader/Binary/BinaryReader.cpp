@@ -190,7 +190,7 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
         material.ambientTexture  = textureLoader.LoadTexture(textures[2], true, true, ObjectTextureType::MATERIAL);
         material.specularTexture = textureLoader.LoadTexture(textures[3], true, true, ObjectTextureType::MATERIAL);
 
-        auto& mesh = *(out->AddMesh(textureLoader.GetGraphicsApi()));
+        auto& mesh = *(out->AddMesh(GraphicsApi::RenderType::TRIANGLES, textureLoader.GetGraphicsApi()));
         auto& data = mesh.GetMeshDataRef();
         mesh.SetMaterial(material);
 

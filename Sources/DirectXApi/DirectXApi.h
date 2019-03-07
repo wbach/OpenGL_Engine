@@ -68,7 +68,7 @@ public:
     virtual std::string GetBufferStatus() override;
     virtual uint32 CreatePatchMesh(const std::vector<float>&) override;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override;
-    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&) override;
+    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType rendertype) override;
     virtual uint32 CreateParticle() override;
     virtual uint32 CreateAnimatedParticle() override;
     virtual void RenderPurePatchedMeshInstances(uint32) override;

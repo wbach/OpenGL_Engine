@@ -7,6 +7,7 @@
 #include "BlendFunctionsTypes.h"
 #include "BufferParamters.h"
 #include "FunctionsTypes.h"
+#include "RenderType.h"
 #include "ShaderQuaility.h"
 #include "ShaderTypes.h"
 #include "ShadersTypes.h"
@@ -77,7 +78,7 @@ public:
     virtual std::string GetBufferStatus()                                                                        = 0;
     virtual uint32 CreatePatchMesh(const std::vector<float>&)                                                    = 0;
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32)                                                  = 0;
-    virtual uint32 CreateMesh(const MeshRawData&)                                                                = 0;
+    virtual uint32 CreateMesh(const MeshRawData&, RenderType type)                                               = 0;
     virtual uint32 CreateParticle()                                                                              = 0;
     virtual uint32 CreateAnimatedParticle()                                                                      = 0;
     virtual void RenderPurePatchedMeshInstances(uint32)                                                          = 0;

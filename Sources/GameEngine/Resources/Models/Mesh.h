@@ -17,8 +17,9 @@ struct MeshBufferes
 class Mesh : public GpuObject
 {
 public:
-    Mesh(GraphicsApi::IGraphicsApi& graphicsApi);
-    Mesh(GraphicsApi::IGraphicsApi& graphicsApi, const Material& material, const mat4& transformMatix = mat4(1.f));
+    Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi);
+    Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, const Material& material,
+         const mat4& transformMatix = mat4(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&)      = default;
     virtual ~Mesh();
@@ -52,6 +53,7 @@ private:
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     GraphicsApi::MeshRawData meshRawData_;
+    GraphicsApi::RenderType renderType_;
     Material material_;
     uint32 objectId_;
 

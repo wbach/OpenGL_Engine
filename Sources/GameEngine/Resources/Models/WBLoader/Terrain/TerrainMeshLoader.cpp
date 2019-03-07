@@ -40,7 +40,7 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
     auto model = std::make_unique<Model>();
 
     Material material;
-    GameEngine::Mesh newMesh(textureLoader_.GetGraphicsApi(), material);
+    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), material);
 
     auto maxElement = FindMaxY(vertices_);
     TranslateY(vertices_, maxElement / 2.f);

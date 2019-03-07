@@ -4,6 +4,7 @@ layout(triangles) in;
 layout(line_strip, max_vertices = 4) out;
 
 uniform mat4 m_ViewProjection;
+out vec4 worldPos;
 
 void main() {
 	
@@ -15,7 +16,8 @@ void main() {
 	}
 	
 	vec4 position = gl_in[0].gl_Position;
-	gl_Position = m_ViewProjection * position;
+	worldPos = m_ViewProjection * position;
+	gl_Position = worldPos;
     EmitVertex();
 	
 	EndPrimitive();

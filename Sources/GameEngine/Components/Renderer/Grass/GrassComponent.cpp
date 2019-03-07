@@ -42,7 +42,7 @@ void GrassRendererComponent::UnSubscribe()
 }
 Mesh GrassRendererComponent::CreateGrassMesh(const Material &material) const
 {
-    Mesh mesh(componentContext_.resourceManager_.GetGraphicsApi(), material);
+    Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.resourceManager_.GetGraphicsApi(), material);
     mesh.GetMeshDataRef().positions_ = positions_;
     return mesh;
 }

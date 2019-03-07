@@ -6,6 +6,7 @@ set(DirectXApiIncludes
 ../../Sources/DirectXApi/DxShader.h
 ../../Sources/DirectXApi/Object.h
 ../../Sources/DirectXApi/ShaderManager.h
+../../Sources/DirectXApi/Shaders/DxForwardShaderFiles.h
 ../../Sources/DirectXApi/Vao.h
 ../../Sources/DirectXApi/Vertex.h
 ../../Sources/DirectXApi/ViewPort.h
