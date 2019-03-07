@@ -66,13 +66,13 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> shader
     //        {"SkyBox/Forward/SkyboxFragmentShader.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
     //    }
     //},
-    //{
-    //    GraphicsApi::Shaders::Skydome,
-    //    {
-    //        {"Skydome/Forward/Skydome.vert", GraphicsApi::ShaderType::VERTEX_SHADER},
-    //        {"Skydome/Forward/Skydome.frag", GraphicsApi::ShaderType::FRAGMENT_SHADER}
-    //    }
-    //},
+    {
+        GraphicsApi::Shaders::Skydome,
+        {
+            { GraphicsApi::ShaderType::VERTEX_SHADER, "Skydome/Forward/SkydomeShader.fx"},
+            { GraphicsApi::ShaderType::FRAGMENT_SHADER, "Skydome/Forward/SkydomeShader.fx"}
+        }
+    },
     //{ 
     //    GraphicsApi::Shaders::Terrain,
     //    {

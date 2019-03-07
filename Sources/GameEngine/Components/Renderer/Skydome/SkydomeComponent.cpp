@@ -26,7 +26,7 @@ Model* SkydomeComponent::GetModel()
 }
 void SkydomeComponent::LoadAndSubscribe()
 {
-    model_ = componentContext_.resourceManager_.LoadModel("Meshes/dome/dome.obj");
+    model_ = componentContext_.resourceManager_.LoadModel("Meshes/dome/dome_long.obj");
     componentContext_.renderersManager_.Subscribe(&thisObject_);
 }
 void SkydomeComponent::UnSubscribe()
