@@ -51,10 +51,12 @@ struct OpenGLApi::Pimpl
 OpenGLMesh Convert(const Vao& v)
 {
     OpenGLMesh mesh;
-    mesh.vao         = v.vao;
-    mesh.vbos        = v.vbos;
-    mesh.attributes  = v.attributes;
-    mesh.vertexCount = v.size;
+    mesh.vao          = v.vao;
+    mesh.vbos         = v.vbos;
+    mesh.attributes   = v.attributes;
+    mesh.vertexCount  = v.size;
+    mesh.useIndiecies = v.useIndicies;
+
     return mesh;
 }
 OpenGLApi::OpenGLApi()
@@ -669,8 +671,9 @@ uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
     auto& mesh = openGlMeshes_.at(rid);
     VaoCreator vaoCreator;
     vaoCreator.AddStaticAttributePatch(VertexBufferObjects::POSITION, 2, patches);
-    mesh = Convert(vaoCreator.Get());
-
+    mesh             = Convert(vaoCreator.Get());
+    mesh.renderType  = GraphicsApi::RenderType::PATCHES;
+    mesh.vertexCount = patches.size();
     return rid;
 }
 
@@ -686,6 +689,7 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     openGlMeshes_.insert({rid, {}});
     openGlMeshes_.at(rid).instancesCount = count;
     openGlMeshes_.at(rid).patches        = patch;
+    openGlMeshes_.at(rid).renderType     = GraphicsApi::RenderType::PATCHES;
     return rid;
 }
 
@@ -695,9 +699,10 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, Graphi
     createdObjectIds.insert({rid, ObjectType::MESH});
 
     openGlMeshes_.insert({rid, {}});
-    auto& mesh      = openGlMeshes_.at(rid);
+    auto& mesh = openGlMeshes_.at(rid);
 
     VaoCreator vaoCreator;
+    vaoCreator.SetSize(meshRawData.size_);
     vaoCreator.AddIndicesBuffer(meshRawData.indices_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::POSITION, 3, meshRawData.positions_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, meshRawData.textCoords_);
@@ -705,7 +710,7 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, Graphi
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TANGENT, 3, meshRawData.tangents_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, 3, meshRawData.bonesWeights_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, 3, meshRawData.joinIds_);
-    mesh = Convert(vaoCreator.Get());
+    mesh            = Convert(vaoCreator.Get());
     mesh.renderType = type;
     return rid;
 }
@@ -829,7 +834,15 @@ void OpenGLApi::RenderMesh(uint32 id)
     auto& mesh = openGlMeshes_.at(id);
 
     glBindVertexArray(mesh.vao);
-    glDrawElements(renderTypeMap_[mesh.renderType], mesh.vertexCount, GL_UNSIGNED_INT, 0);
+
+    if (mesh.useIndiecies)
+    {
+        glDrawElements(renderTypeMap_[mesh.renderType], mesh.vertexCount, GL_UNSIGNED_INT, 0);
+    }
+    else
+    {
+        glDrawArrays(renderTypeMap_[mesh.renderType], 0, mesh.vertexCount);
+    }
 }
 
 void OpenGLApi::RenderTriangleStripMesh(uint32 id)

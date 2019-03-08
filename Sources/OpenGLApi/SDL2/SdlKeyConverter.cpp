@@ -49,11 +49,17 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({{KeyCodes::LMOUSE, SDL_BUTTON_LEF
 
 KeyCodes::Type SdlKeyConverter::Convert(uint32 type)
 {
+    if (keys.Count(type) <= 0)
+        return KeyCodes::Type::None;
+
     return keys[type];
 }
 
 uint32 SdlKeyConverter::Convert(KeyCodes::Type type)
 {
+    if (keys.Count(type) <= 0)
+        return 0;
+
     return keys[type];
 }
 }  // OpenGLApi

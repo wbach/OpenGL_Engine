@@ -6,6 +6,7 @@ namespace OpenGLApi
 {
 struct OpenGLMesh
 {
+    bool useIndiecies = false;
     uint32 vao;
     VboMap vbos;
     uint32 patches;

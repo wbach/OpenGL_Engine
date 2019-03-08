@@ -7,6 +7,7 @@ namespace OpenGLApi
 {
 struct Vao
 {
+    bool useIndicies = false;
     uint32 vao  = 0;
     uint32 size = 0;
     VboMap vbos;
@@ -18,7 +19,8 @@ class VaoCreator
 public:
     VaoCreator();
     ~VaoCreator();
-   // void AddIndicesBuffer(const std::vector<uint16>& indices);
+    void SetSize(uint32 size);
+    // void AddIndicesBuffer(const std::vector<uint16>& indices);
     void AddIndicesBuffer(const IndicesVector& indices);
     void AddStaticAttributePatch(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
     void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
@@ -53,4 +55,4 @@ void CreateQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vb
 void CreateQuadTS05(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size);
 void DeleteQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord);
 void ActiveBindTexture(int i, int id);
-} // namespace OpenGLApi
+}  // namespace OpenGLApi

@@ -109,7 +109,7 @@ void InputSDL::ProcessKeysEvents()
         auto type  = e.value().first;
         auto value = e.value().second;
 
-        auto keyCode = SdlKeyConverter::keys[value];
+        auto keyCode = SdlKeyConverter::Convert(value);
 
         if (type == SDL_KEYDOWN)
         {
