@@ -22,6 +22,7 @@ public:
     const TerrainConfiguration& GetConfig() const;
 
 private:
+    void Update();
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& hightMapFile);
     void Subscribe();

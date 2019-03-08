@@ -2,7 +2,7 @@
 
 namespace GameEngine
 {
-TerrainNode::TerrainNode(const TerrainConfiguration& terrainConfiguration, const vec2& location, uint32 lod,
+TerrainNode::TerrainNode(const TerrainConfiguration& terrainConfiguration, const vec2& location, int32 lod,
                          const vec2& index)
     : terrainConfiguration_(terrainConfiguration)
     , location_(location)
@@ -45,7 +45,7 @@ float TerrainNode::GetGap() const
 {
     return gap_;
 }
-uint32 TerrainNode::GetLod() const
+int32 TerrainNode::GetLod() const
 {
     return lod_;
 }

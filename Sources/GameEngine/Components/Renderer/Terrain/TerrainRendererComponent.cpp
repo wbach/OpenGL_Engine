@@ -3,6 +3,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Camera/ICamera.h"
 
 namespace GameEngine
 {
@@ -79,6 +80,7 @@ const TerrainConfiguration& TerrainRendererComponent::GetConfig() const
 void TerrainRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&TerrainRendererComponent::Subscribe, this));
+    RegisterFunction(FunctionType::Update, std::bind(&TerrainRendererComponent::Update, this));
 }
 void TerrainRendererComponent::Subscribe()
 {
@@ -87,6 +89,11 @@ void TerrainRendererComponent::Subscribe()
 void TerrainRendererComponent::UnSubscribe()
 {
     componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+}
+void TerrainRendererComponent::Update()
+{
+    const auto& campos = componentContext_.camera_->GetPosition();
+    terrainQuadTree_.Update(campos);
 }
 }  // namespace Components
 }  // namespace GameEngine

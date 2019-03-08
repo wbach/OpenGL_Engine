@@ -15,11 +15,8 @@ TerrainConfiguration::TerrainConfiguration()
     SetLod(6, 0);
     SetLod(7, 0);
 }
-inline uint32 TerrainConfiguration::updateMorphingArea(uint32 lod)
+int32 TerrainConfiguration::updateMorphingArea(uint32 lod)
 {
-    if (lod == 0)
-        return 0;
-
     return static_cast<uint32>((scaleXZ_ / static_cast<float>(TerrainDef::TERRAIN_ROOT_NODES_COUNT)) /
                                static_cast<float>(pow(2, lod)));
 }

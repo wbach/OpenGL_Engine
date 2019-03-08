@@ -133,7 +133,7 @@ void main()
     vec2 localPosition = (localMatrix * vec4(position0.x,0,position0.y,1)).xz;
 
     if (lod > 0)
-        localPosition += morph(localPosition,lod_morph_area[lod-1]);
+        localPosition += morph(localPosition, lod_morph_area[lod-1]);
 
     gl_Position = worldMatrix * vec4(localPosition.x,0,localPosition.y,1);
 }

@@ -12,13 +12,13 @@ namespace GameEngine
 class TerrainNode
 {
 public:
-    TerrainNode(const TerrainConfiguration& terrainConfiguration, const vec2& location, uint32 lod, const vec2& index);
+    TerrainNode(const TerrainConfiguration& terrainConfiguration, const vec2& location, int32 lod, const vec2& index);
     TerrainNode(const TerrainNode&&) = delete;
     TerrainNode(const TerrainNode&) = delete;
     void Update(const vec3& cameraPosition);
     const std::vector<std::unique_ptr<TerrainNode>>& GetChildren() const;
     float GetGap() const;
-    uint32 GetLod() const;
+    int32 GetLod() const;
     const vec2& GetLocation() const;
     const vec2& GetIndex() const;
     bool IsLeaf() const;
@@ -38,7 +38,7 @@ private:
     vec2 location_;
     vec3 worldPos_;
     vec2 index_;
-    uint32 lod_;
+    int32 lod_;
     bool isleaf_;
     float gap_;
     float halfGap_;
