@@ -15,7 +15,7 @@ void MaterialTexture::GpuLoadingPass()
 {
     if (image.data.empty() || isInit)
     {
-        Log("[Error] OGL There was an error loading the texture : " + filename + ". data is null or is initialized.");
+        Error("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
     }
 
@@ -27,7 +27,7 @@ void MaterialTexture::GpuLoadingPass()
     if (id == 0)
     {
         image.data.clear();
-        Log("[Error] OGL There was an error loading the texture : " + filename + " cannot create texture.");
+        Error("Filename : " + filename + " cannot create texture.");
         return;
     }
     if (!keepData)
@@ -36,7 +36,7 @@ void MaterialTexture::GpuLoadingPass()
     }
     isInit = true;
 
-    Log("File " + filename + " is in GPU. OpenGL pass succes");
+    Log("File " + filename + " is in GPU.");
 }
 
 void MaterialTexture::GpuPostLoadingPass()

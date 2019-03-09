@@ -35,8 +35,9 @@ private:
 class BonesDataSubcriber : public IBufferDataUpdaterSubcriber
 {
 public:
-    BonesDataSubcriber(uint32 goId, Components::RendererComponent& renderComponent)
+    BonesDataSubcriber(GraphicsApi::IGraphicsApi& graphicsApi, uint32 goId, Components::RendererComponent& renderComponent)
         : goId_(goId)
+        , graphicsApi_(graphicsApi)
     {
         model_ = renderComponent.GetModelWrapper().Get(LevelOfDetail::L1);
     }
@@ -48,7 +49,7 @@ public:
         PerPoseUpdate pose;
         for (auto& boneTransform : model_->GetBoneTransforms())
         {
-            pose.bonesTransforms[index++] = boneTransform;
+            pose.bonesTransforms[index++] = graphicsApi_.PrepareMatrixToLoad(boneTransform);
         }
 
         for (auto& mesh : model_->GetMeshes())
@@ -65,9 +66,11 @@ public:
 private:
     uint32 goId_;
     ModelRawPtr model_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
 };
 
-BufferDataUpdater::BufferDataUpdater()
+BufferDataUpdater::BufferDataUpdater(GraphicsApi::IGraphicsApi& graphicsApi)
+    : graphicsApi_(graphicsApi)
 {
 }
 BufferDataUpdater::~BufferDataUpdater()
@@ -85,7 +88,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
 
             if (rendererComponent->GetModelWrapper().Get()->IsAnyMeshUseTransform())
             {
-                subscribers_.emplace_back(new BonesDataSubcriber(gameObject->GetId(), *rendererComponent));
+                subscribers_.emplace_back(new BonesDataSubcriber(graphicsApi_, gameObject->GetId(), *rendererComponent));
             }
         }
     }

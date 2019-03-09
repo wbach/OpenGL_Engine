@@ -431,13 +431,14 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
         return 0;
     }
 
-    D3D11_INPUT_ELEMENT_DESC layout[] = {
+    D3D11_INPUT_ELEMENT_DESC layout[] = 
+    {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        //{"Weights", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        //{"bonesIds", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BONEWEIGHTS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BONEIDS", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
     UINT numElements = ARRAYSIZE(layout);
 
@@ -593,6 +594,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     desc.Height           = size.y;
     desc.MipLevels        = 1;
     desc.ArraySize        = 1;
+   // desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
     desc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.SampleDesc.Count = 1;
     desc.Usage            = D3D11_USAGE_DEFAULT;
@@ -616,7 +618,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     ZeroMemory(&srvDesc, sizeof(srvDesc));
     srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
     srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels       = desc.MipLevels;
+    srvDesc.Texture2D.MipLevels = desc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
     result                            = impl_->dxCondext_.dev->CreateShaderResourceView(texture2d, &srvDesc, &rv);
 
@@ -636,6 +638,8 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD         = 0;
     sampDesc.MaxLOD         = D3D11_FLOAT32_MAX;
+    sampDesc.MipLODBias = 0;
+
 
     return impl_->CreateTexture(sampDesc, rv);
 }

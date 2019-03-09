@@ -18,7 +18,7 @@ void CubeMapTexture::GpuLoadingPass()
 {
     if (isInit or images_.size() != 6)
     {
-        Log("[Error] OGL There was an error loading the texture : " + filename + ". data is null or is initialized.");
+        Error("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
     }
 
@@ -29,7 +29,7 @@ void CubeMapTexture::GpuLoadingPass()
     {
         if (images_[x].data.empty())
         {
-            Log("[Error] OGL There was an error loading the texture : " + filename +
+            Error("There was an error loading the texture : " + filename +
                 ". data is null or is initialized. Wrong image : " + std::to_string(x));
             return;
         }
@@ -43,7 +43,7 @@ void CubeMapTexture::GpuLoadingPass()
 
     if (id == 0)
     {
-        Log("[Error] OGL There was an error loading the texture : " + filename);
+        Error("There was an error loading the texture : " + filename);
         return;
     }
 

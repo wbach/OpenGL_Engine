@@ -45,6 +45,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShad
     , markToReloadShaders_(false)
     , shaderFactory_(shaderFactory)
     , renderPhysicsDebug_(false)
+    , bufferDataUpdater_(graphicsApi)
 {
 }
 const Projection& RenderersManager::GetProjection() const

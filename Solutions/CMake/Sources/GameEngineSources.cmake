@@ -23,6 +23,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.cpp
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainConfiguration.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainNode.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainQuadTree.cpp

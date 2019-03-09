@@ -4,6 +4,9 @@
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
+static const int MAX_BONES   = 25;
+static const int MAX_WEIGHTS = 3;
+
 cbuffer PerApp : register(b0)
 {
     float useTextures;
@@ -32,7 +35,7 @@ cbuffer PerObjectUpdate : register(b3)
 
 cbuffer PerPoseUpdate : register(b4)
 {
-    matrix bonesTransforms[25];
+    matrix bonesTransforms[MAX_BONES];
 };
 
 cbuffer PerMeshObject : register(b6)
@@ -55,6 +58,8 @@ struct VS_INPUT
     float2 Tex : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
+    float3 boneWeights : BONEWEIGHTS;
+    int3 boneIds : BONEIDS;
 };
 
 struct PS_INPUT
@@ -68,15 +73,57 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
+
+struct VertexWorldData
+{
+    float4 worldPosition;
+    float4 worldNormal;
+};
+
+bool Is(float v)
+{
+    return v > 0.5f;
+}
+
+VertexWorldData caluclateWorldData(VS_INPUT input)
+{
+    VertexWorldData result;
+    result.worldPosition = float4(0.0, 0.0, 0.0, 0.0);
+    result.worldNormal   = float4(0.0, 0.0, 0.0, 0.0);
+
+    if (!Is(useBoneTransform))
+    {
+        result.worldPosition = mul(float4(input.Pos, 1.0), transformationMatrix);
+        result.worldNormal   = mul(float4(input.normal, 1.0), transformationMatrix);
+        return result;
+    }
+
+    for (int i = 0; i < MAX_WEIGHTS; i++)
+    {
+        matrix boneTransform = bonesTransforms[input.boneIds[i]];
+        float4 posePosition  = mul(float4(input.Pos, 1.0), boneTransform);
+        result.worldPosition += posePosition * input.boneWeights[i];
+
+        float4 worldNormal = mul(float4(input.normal, 1.0), boneTransform);
+        result.worldNormal += worldNormal * input.boneWeights[i];
+    }
+
+    result.worldPosition = mul(result.worldPosition, transformationMatrix);
+    result.worldNormal   = mul(result.worldNormal, transformationMatrix);
+    return result;
+}
+
 PS_INPUT VS(VS_INPUT input)
 {
-    PS_INPUT output = (PS_INPUT)0;
-    output.Pos      = float4(input.Pos, 1);
+    PS_INPUT output                 = (PS_INPUT)0;
+    //VertexWorldData vertexWorldData = caluclateWorldData(input);
+
+    //output.Pos      = vertexWorldData.worldPosition;  // mul(output.Pos, transformationMatrix);
     output.Pos      = mul(output.Pos, transformationMatrix);
     output.WorldPos = output.Pos.xyz;
     output.Pos      = mul(output.Pos, projectionViewMatrix);
     output.Tex      = input.Tex;
-    output.N        = normalize(mul(float4(input.normal, 0.f), transformationMatrix).xyz);
+    output.N        = normalize(vertexWorldData.worldNormal.xyz);
     return output;
 }
 

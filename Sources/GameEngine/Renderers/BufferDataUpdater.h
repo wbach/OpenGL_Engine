@@ -24,7 +24,7 @@ typedef std::vector<std::unique_ptr<IBufferDataUpdaterSubcriber>> BufferDataUpda
 class BufferDataUpdater
 {
 public:
-    BufferDataUpdater();
+    BufferDataUpdater(GraphicsApi::IGraphicsApi& graphicsApi);
     ~BufferDataUpdater();
 
     void Subscribe(GameObject* gameObject);
@@ -34,6 +34,7 @@ public:
 
 private:
     BufferDataUpdaterSubcribers subscribers_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
 };
 
 }  // namespace GameEngine

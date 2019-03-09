@@ -41,14 +41,14 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file_location.c_str(), 0);
     if (formato == FIF_UNKNOWN)
     {
-        Log("[Error] GetFileType: wrong image format or file does not exist : " + file_location);
+        Error("GetFileType: wrong image format or file does not exist : " + file_location);
         return {};
     }
 
     FIBITMAP* imagen2 = FreeImage_Load(formato, file_location.c_str());
     if (!imagen2)
     {
-        Log("[Error] FreeImageLoad: wrong image format or file does not exist : " + file_location);
+        Error("FreeImageLoad: wrong image format or file does not exist : " + file_location);
         return {};
     }
 
@@ -56,7 +56,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     if (!imagen)
     {
         FreeImage_Unload(imagen2);
-        Log("[Error] Cant convert to 32 bits : " + file_location);
+        Error("Cant convert to 32 bits : " + file_location);
         return {};
     }
     FreeImage_Unload(imagen2);
@@ -220,7 +220,7 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     if (!fp)
     {
-        Log("[Error] GetFileType: wrong image format or file does not exist : " + filename);
+        Error("GetFileType: wrong image format or file does not exist : " + filename);
         return nullptr;
     }
 
@@ -263,7 +263,7 @@ void TextureLoader::CreateHeightMap(const std::string& in, const std::string& ou
 
     if (!fp)
     {
-        Log("[Error] cannot open file : " + output);
+        Error("cannot open file : " + output);
         return;
     }
 

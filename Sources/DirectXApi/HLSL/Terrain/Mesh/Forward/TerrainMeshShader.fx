@@ -94,6 +94,8 @@ struct VS_INPUT
     float2 Tex : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
+    float3 boneWeights : BONEWEIGHTS;
+    int3 boneIds : BONEIDS;
 };
 
 struct PS_INPUT

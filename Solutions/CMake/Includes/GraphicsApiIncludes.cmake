@@ -5,6 +5,7 @@ set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/FunctionsTypes.h
 ../../Sources/GraphicsApi/IGraphicsApi.h
 ../../Sources/GraphicsApi/MeshRawData.h
+../../Sources/GraphicsApi/RenderType.h
 ../../Sources/GraphicsApi/ShaderBufferVariable.h
 ../../Sources/GraphicsApi/ShaderFiles.h
 ../../Sources/GraphicsApi/ShaderQuaility.h
