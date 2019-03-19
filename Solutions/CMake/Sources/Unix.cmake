@@ -17,7 +17,8 @@ if(UNIX)
           set(LinkingLibs
                 SDL2main
                 SDL2
-            SDL2_net
+                SDL2_net
+	        SDL2_ttf
                 GL
                 GLU
                 GLEW
@@ -35,6 +36,7 @@ if(UNIX)
                 SDL2main
                 SDL2
             SDL2_net
+	    SDL2_ttf
                 GL
                 GLU
                 GLEW

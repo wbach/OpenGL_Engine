@@ -1,6 +1,7 @@
 #pragma once
 #include "IGuiElement.h"
 #include "Rect.h"
+#include <memory>
 
 namespace GameEngine
 {

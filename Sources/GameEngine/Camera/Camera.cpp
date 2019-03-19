@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include <GLM/gtx/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "GLM/GLMUtils.h"
 #include "Utils.h"
 

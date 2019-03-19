@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_video.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include "InputSDL.h"
 #include "Logger/Log.h"
 

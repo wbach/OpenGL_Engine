@@ -26,7 +26,7 @@ public:
     virtual void GpuLoadingPass() override;
     virtual void GpuPostLoadingPass() override;
     void SetMaterial(const Material& material);
-    const MeshBufferes& Mesh::GetBuffers() const;
+    const MeshBufferes& GetBuffers() const;
     void UpdatePoseBuffer(void* pose) const;
 
     void SetTransformMatrix(const mat4& m);

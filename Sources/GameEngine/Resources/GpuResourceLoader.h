@@ -1,5 +1,5 @@
 #pragma once
-#include <list>
+#include <vector>
 #include "GpuObject.h"
 #include "IGpuResourceLoader.h"
 #include "Mutex.hpp"

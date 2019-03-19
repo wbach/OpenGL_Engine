@@ -1,6 +1,6 @@
 #include "OpenGLApi.h"
 #include <GL/glew.h>
-#include <GLM/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <optional>
 #include "Font.h"
