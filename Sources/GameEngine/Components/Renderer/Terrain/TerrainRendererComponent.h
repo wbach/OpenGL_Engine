@@ -20,6 +20,9 @@ public:
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     const TerrainQuadTree& GetTree() const;
     const TerrainConfiguration& GetConfig() const;
+    void SetNormalMap(Texture* normalMap);
+    std::optional<uint32> GetNormalMapId() const;
+    Texture* GetHeightMap() const;
 
 private:
     void Update();
@@ -34,6 +37,8 @@ private:
 
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
+    Texture* normalMap_;
+    Texture* heightMap_;
 
 public:
     static ComponentsType type;

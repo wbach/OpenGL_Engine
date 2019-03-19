@@ -643,6 +643,10 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
 
     return impl_->CreateTexture(sampDesc, rv);
 }
+std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32)
+{
+    return std::optional<uint32>();
+}
 uint32 DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 {
     return uint32();
@@ -769,6 +773,9 @@ uint32 DirectXApi::CreateAnimatedParticle()
 {
     return uint32();
 }
+void DirectXApi::Compute(uint32, uint32, uint32)
+{
+}
 void DirectXApi::RenderPurePatchedMeshInstances(uint32)
 {
 }
@@ -824,6 +831,9 @@ void DirectXApi::BindTexture(uint32 id)
     const auto &texture = impl_->GetTexture(id);
     impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
     impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
+}
+void DirectXApi::BindImageTexture(uint32, GraphicsApi::TextureAccess)
+{
 }
 uint32 DirectXApi::CreateShadowMap(uint32, uint32)
 {

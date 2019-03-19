@@ -61,6 +61,7 @@ public:
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&)                                             = 0;
     virtual void LoadValueToShader(uint32, const std::vector<mat4>&)                                             = 0;
     virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui, void* data) = 0;
+    virtual std::optional<uint32> CreateTextureStorage(TextureType, TextureFilter, int32 N)                      = 0;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>)                                               = 0;
     virtual void SetBuffers(const std::vector<BufferAtachment>&)                                                 = 0;
     virtual void ClearBuffer(BufferType)                                                                         = 0;
@@ -81,6 +82,7 @@ public:
     virtual uint32 CreateMesh(const MeshRawData&, RenderType type)                                               = 0;
     virtual uint32 CreateParticle()                                                                              = 0;
     virtual uint32 CreateAnimatedParticle()                                                                      = 0;
+    virtual void Compute(uint32, uint32, uint32)                                                                 = 0;
     virtual void RenderPurePatchedMeshInstances(uint32)                                                          = 0;
     virtual void RenderMesh(uint32)                                                                              = 0;
     virtual void RenderTriangleStripMesh(uint32)                                                                 = 0;
@@ -92,6 +94,7 @@ public:
     virtual void DisableCulling()                                                                                = 0;
     virtual void SetViewPort(uint32, uint32, uint32, uint32)                                                     = 0;
     virtual void BindTexture(uint32)                                                                             = 0;
+    virtual void BindImageTexture(uint32, TextureAccess)                                                         = 0;
     virtual uint32 CreateShadowMap(uint32, uint32)                                                               = 0;
     virtual void PolygonModeRender()                                                                             = 0;
     virtual void LineModeRender()                                                                                = 0;

@@ -46,7 +46,7 @@ TerrainTexturesFilesMap CreateTerrainTexturesMap()
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::displacementMap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
+        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
     };
     // clang-format on
 }
@@ -64,7 +64,7 @@ TerrainTexturesFilesMap CreateOreonTerrainTexturesMap()
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::displacementMap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
+        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
     };
     // clang-format on
 }
@@ -372,7 +372,7 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
     object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =
-        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::displacementMap));
+        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
 
     auto rigidbody = object->AddComponent<Components::Rigidbody>()
                          .SetCollisionShape(terrainShapeComponent.GetType())

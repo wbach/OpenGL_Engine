@@ -1,4 +1,5 @@
 #include "HeightMap.h"
+#include "GameEngine/Renderers/Objects/Terrain/TerrainNormalMapRenderer.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -9,6 +10,8 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, cons
     , image(std::move(image))
     , keepData(keepData)
 {
+    if (image)
+        size_ = vec2(image->width, image->height);
 }
 
 void HeightMap::GpuLoadingPass()
@@ -21,8 +24,9 @@ void HeightMap::GpuLoadingPass()
     }
 
     Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-    id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE,
-        GraphicsApi::BufferAtachment::NONE, vec2ui(image->width, image->height), &image->floatData[0]);
+    id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
+                                    GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
+                                    vec2ui(image->width, image->height), &image->floatData[0]);
 
     if (id == 0)
     {
@@ -35,13 +39,13 @@ void HeightMap::GpuLoadingPass()
     {
         image->floatData.clear();
     }
+
     isInit = true;
     Log("File " + filename + " is in GPU. OpenGL pass succes");
 }
 
 void HeightMap::GpuPostLoadingPass()
 {
-
 }
 
 ImagePtr HeightMap::GetImage()

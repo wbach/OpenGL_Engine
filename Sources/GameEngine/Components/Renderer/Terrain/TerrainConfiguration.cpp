@@ -4,7 +4,7 @@ namespace GameEngine
 {
 TerrainConfiguration::TerrainConfiguration()
     : scaleXZ_(6000)
-    , scaleY_(0)
+    , scaleY_(40)
 {
     SetLod(0, 1750);
     SetLod(1, 874);

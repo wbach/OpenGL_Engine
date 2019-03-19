@@ -80,6 +80,12 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simple
             {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER, "Terrain/Tessllation/Forward/TerrainShader.es"}
         }
     },
+    {
+        GraphicsApi::Shaders::TerrainNormal,
+        {
+            {GraphicsApi::ShaderType::COMPUTE_SHADER, "Terrain/NormalMap.glsl"}
+        }
+    },
     { 
         GraphicsApi::Shaders::TerrainMesh,
         {

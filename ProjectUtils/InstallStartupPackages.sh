@@ -13,19 +13,20 @@ sudo apt-get install -y mc
 sudo apt-get install -y vim
 sudo apt-get install -y dos2unix
 sudo apt-get install -y gcc-multilib g++-multilib
-sudo apt-get install libc6-dbg:i386
+sudo apt-get install -y libc6-dbg
 
-#game dev 
-sudo apt-get install -y libxkbcommon-dev:i386
-sudo apt-get install -y libmirclient-dev:i386
-sudo apt-get install -y libgles2-mesa-dev:i386
-sudo apt-get install -y libegl1-mesa-dev:i386
-sudo apt-get install -y libsdl2-dev:i386
-sudo apt-get install -y libsdl2-net-dev:i386
-sudo apt-get install -y libglew-dev:i386
-sudo apt-get install -y libassimp-dev:i386
-sudo apt-get install -y libfreeimage3:i386 libfreeimage-dev:i386
-sudo apt-get install -y libfreetype6-dev:i386
+#game dev
+sudo apt-get install -y libxkbcommon-dev
+sudo apt-get install -y libmirclient-dev
+sudo apt-get install -y libgles2-mesa-dev
+sudo apt-get install -y libegl1-mesa-dev
+sudo apt-get install -y libsdl2-dev
+sudo apt-get install -y libsdl2-net-dev
+sudo apt-get install -y libglew-dev
+sudo apt-get install -y libassimp-dev
+sudo apt-get install -y libfreeimage3 libfreeimage-dev
+sudo apt-get install -y libfreetype6-dev
+sudo apt-get install -y libsdl2-ttf-dev
 
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --key-bindings --completion --update-rc
@@ -56,3 +57,21 @@ sudo apt-get install -y libglew-dev
 sudo apt-get install -y libassimp-dev
 sudo apt-get install -y libfreeimage3 libfreeimage-dev
 sudo apt-get install -y libfreetype6-dev
+sudo apt-get install -y libsdl2-ttf-dev
+
+
+#x86
+
+sudo apt-get install -y libc6-dbg:i386
+
+#game dev
+sudo apt-get install -y libxkbcommon-dev:i386
+sudo apt-get install -y libmirclient-dev:i386
+sudo apt-get install -y libgles2-mesa-dev:i386
+sudo apt-get install -y libegl1-mesa-dev:i386
+sudo apt-get install -y libsdl2-dev:i386
+sudo apt-get install -y libsdl2-net-dev:i386
+sudo apt-get install -y libglew-dev:i386
+sudo apt-get install -y libassimp-dev:i386
+sudo apt-get install -y libfreeimage3:i386 libfreeimage-dev:i386
+sudo apt-get install -y libfreetype6-dev:i386

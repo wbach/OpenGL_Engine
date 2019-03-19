@@ -82,6 +82,12 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> fullDe
         }
     },
     {
+        GraphicsApi::Shaders::TerrainNormal,
+        {
+            {GraphicsApi::ShaderType::COMPUTE_SHADER, "Terrain/NormalMap.glsl"}
+        }
+    },
+    {
         GraphicsApi::Shaders::TerrainMesh,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/TerrainShader.vert"},

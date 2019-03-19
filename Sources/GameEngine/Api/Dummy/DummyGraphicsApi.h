@@ -116,6 +116,10 @@ public:
     virtual void LoadValueToShader(uint32, const std::vector<vec3>&)
     {
     }
+    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                                       int32) override
+    {
+    }
     virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override
     {
@@ -188,6 +192,9 @@ public:
     virtual void RenderPurePatchedMeshInstances(uint32) override
     {
     }
+    virtual void Compute(uint32, uint32, uint32) override
+    {
+    }
     virtual void RenderMesh(uint32) override
     {
     }
@@ -216,6 +223,9 @@ public:
     {
     }
     virtual void BindTexture(uint32) override
+    {
+    }
+    virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override
     {
     }
     virtual uint32 CreateShadowMap(uint32, uint32) override

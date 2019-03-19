@@ -45,6 +45,7 @@ public:
 
     virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override;
+    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override;
 
     virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
@@ -71,6 +72,7 @@ public:
     virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType rendertype) override;
     virtual uint32 CreateParticle() override;
     virtual uint32 CreateAnimatedParticle() override;
+    virtual void Compute(uint32, uint32, uint32) override;
     virtual void RenderPurePatchedMeshInstances(uint32) override;
     virtual void RenderMesh(uint32) override;
     virtual void RenderTriangleStripMesh(uint32) override;
@@ -82,6 +84,7 @@ public:
     virtual void DisableCulling() override;
     virtual void SetViewPort(uint32, uint32, uint32, uint32) override;
     virtual void BindTexture(uint32) override;
+    virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override;
     virtual uint32 CreateShadowMap(uint32, uint32) override;
 
     virtual void PolygonModeRender() override;

@@ -9,6 +9,7 @@ MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool ke
     , image(std::move(image))
     , keepData(keepData)
 {
+    size_ = vec2(image.width, image.height);
 }
 
 void MaterialTexture::GpuLoadingPass()

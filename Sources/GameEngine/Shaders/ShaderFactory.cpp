@@ -14,6 +14,7 @@
 #include "GameEngine/Renderers/Objects/Terrain/Shaders/TerrainShader.h"
 #include "GameEngine/Renderers/Objects/Tree/Shaders/TreeShader.h"
 #include "GameEngine/Renderers/Objects/Water/Shaders/WaterShader.h"
+#include "GameEngine/Renderers/Objects/Terrain/Shaders/TerrainNormalMapShader.h"
 #include "GameEngine/Renderers/Postproccesing/Blur/Shaders/BlurShader.h"
 #include "GameEngine/Renderers/Postproccesing/ColorFliper/Shaders/ColorFliperShader.h"
 #include "GameEngine/Renderers/Postproccesing/DefferedLighting/Shaders/DefferedShader.h"
@@ -50,6 +51,8 @@ std::unique_ptr<IShaderProgram> ShaderFactory::create(GraphicsApi::Shaders type)
             return std::make_unique<SkydomeShader>(graphicsApi_);
         case GraphicsApi::Shaders::Terrain:
             return std::make_unique<TerrainShader>(graphicsApi_);
+        case GraphicsApi::Shaders::TerrainNormal:
+            return std::make_unique<TerrainNormalMapShader>(graphicsApi_);
         case GraphicsApi::Shaders::TerrainMesh:
             return std::make_unique<TerrainMeshShader>(graphicsApi_);
         case GraphicsApi::Shaders::Tree:

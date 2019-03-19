@@ -32,7 +32,7 @@ TerrainMeshRendererComponent &TerrainMeshRendererComponent::LoadTextures(
 
     for (const auto &texturePair : textures)
     {
-        if (texturePair.first == TerrainTextureType::displacementMap)
+        if (texturePair.first == TerrainTextureType::heightmap)
         {
             LoadHeightMap(texturePair.second);
             continue;

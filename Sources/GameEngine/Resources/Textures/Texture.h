@@ -14,13 +14,12 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows);
 class Texture : public GpuObject
 {
 public:
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi)
-        : graphicsApi_(graphicsApi)
-    {
-    }
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi);
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 id);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
              bool applySizeLimit = true);
     virtual ~Texture();
+    virtual const vec2& GetSize() const;
     inline uint32 GetId() const;
     inline const std::string GetFileName();
     inline const std::string GetFilPath();
@@ -38,6 +37,7 @@ protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::string filename;
     std::string fullpath;
+    vec2 size_;
 
     bool applySizeLimit = true;
 

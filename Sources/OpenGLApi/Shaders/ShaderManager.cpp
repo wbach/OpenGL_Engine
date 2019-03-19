@@ -19,7 +19,8 @@ const std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap =
     {GraphicsApi::ShaderType::FRAGMENT_SHADER, GL_FRAGMENT_SHADER},
     {GraphicsApi::ShaderType::GEOMETRY_SHADER, GL_GEOMETRY_SHADER},
     {GraphicsApi::ShaderType::TESS_CONTROL_SHADER, GL_TESS_CONTROL_SHADER},
-    {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER, GL_TESS_EVALUATION_SHADER}
+    {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER, GL_TESS_EVALUATION_SHADER},
+    {GraphicsApi::ShaderType::COMPUTE_SHADER, GL_COMPUTE_SHADER}
 };
 // clang-format on
 }  // namespace

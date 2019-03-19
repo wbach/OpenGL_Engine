@@ -13,6 +13,7 @@ enum class Shaders
     SkyBox,
     Skydome,
     Terrain,
+    TerrainNormal,
     TerrainMesh,
     Tree,
     Water,

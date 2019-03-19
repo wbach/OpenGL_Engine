@@ -25,4 +25,9 @@ enum class TextureMipmap
     NONE,
     LINEAR
 };
+
+enum class TextureAccess
+{
+    WRITE_ONLY
+};
 }

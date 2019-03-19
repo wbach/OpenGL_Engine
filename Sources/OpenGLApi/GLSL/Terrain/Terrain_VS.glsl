@@ -18,6 +18,9 @@ uniform int lod_morph_area_5;
 uniform int lod_morph_area_6;
 uniform int lod_morph_area_7;
 uniform int lod_morph_area_8;
+uniform sampler2D heightmap;
+
+out vec2 mapCoord_TC;
 
 float morphLatitude(vec2 position) {
 
@@ -135,5 +138,6 @@ void main()
     if (lod > 0)
         localPosition += morph(localPosition, lod_morph_area[lod-1]);
 
-    gl_Position = worldMatrix * vec4(localPosition.x,0,localPosition.y,1);
+    mapCoord_TC = localPosition;
+    gl_Position = worldMatrix * vec4(localPosition.x, texture(heightmap, localPosition).r, localPosition.y, 1);
 }

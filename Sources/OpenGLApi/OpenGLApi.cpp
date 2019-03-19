@@ -92,6 +92,8 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
                       {GraphicsApi::RenderType::TRIAGNLE_STRIP, GL_TRIANGLE_STRIP},
                       {GraphicsApi::RenderType::TRIANGLES, GL_TRIANGLES}};
 
+    textureAccessMap_ = { {GraphicsApi::TextureAccess::WRITE_ONLY, GL_WRITE_ONLY} };
+
     for (auto& b : bindedShaderBuffers_)
     {
         b = 0;
@@ -459,6 +461,34 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
     return rid;
 }
 
+std::optional<uint32> OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter filter,
+                                                      int32 N)
+{
+    GLuint texture;
+    glGenTextures(1, &texture);
+
+    GLenum hubo_error = glGetError();
+
+    if (hubo_error)
+    {
+        auto errInfo = gluErrorString(hubo_error);
+        Log("" + (char*)errInfo);
+        return std::optional<uint32>();
+    }
+
+    uint32 textureType = GL_TEXTURE_2D;
+
+    glBindTexture(textureType, texture);
+    glTexStorage2D(textureType, (int)(log(N) / log(2)), GL_RGBA32F, N, N);
+    glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
+    glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
+
+    auto rid = impl_->idPool_.ToUint(texture);
+    createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
+
+    return rid;
+}
+
 uint32 OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
 {
     if (data.size() != 6)
@@ -757,6 +787,11 @@ uint32 OpenGLApi::CreateAnimatedParticle()
     mesh = Convert(vaoCreator.Get());
     return rid;
 }
+void OpenGLApi::Compute(uint32 x, uint32 y, uint32 z)
+{
+    glDispatchCompute(x, y, z);
+    glFinish();
+}
 struct FloatBufferMatrix
 {
     std::vector<float> rows[4];
@@ -906,6 +941,11 @@ void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
 void OpenGLApi::BindTexture(uint32 id)
 {
     glBindTexture(GL_TEXTURE_2D, impl_->idPool_.ToGL(id));
+}
+
+void OpenGLApi::BindImageTexture(uint32 id, GraphicsApi::TextureAccess acces)
+{
+    glBindImageTexture(0, impl_->idPool_.ToGL(id), 0, false, 0, textureAccessMap_.at(acces), GL_RGBA32F);
 }
 
 uint32 OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)

@@ -19,6 +19,7 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
     : context_(context)
     , clipPlane(vec4(0, 1, 0, 100000))
     , objectId(0)
+    , normalMapRenderer_(context_)
 {
     shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Terrain);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
@@ -55,6 +56,7 @@ void TerrainRenderer::Init()
     // clang-format on
 
     objectId = context_.graphicsApi_.CreatePatchMesh(patches);
+    normalMapRenderer_.Init();
 }
 
 void TerrainRenderer::Render(const Scene& scene, const Time&)
@@ -72,6 +74,12 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
 {
     for (auto& sub : subscribes_)
     {
+        auto normalMapId = sub.second->GetNormalMapId();
+        if (not normalMapId)
+        {
+            normalMapId = normalMapRenderer_.Render(*sub.second->GetHeightMap())->GetId(); // TO DO :  remmber texture in resource manager
+        }
+
         const auto& tree = sub.second->GetTree();
         const auto& config = sub.second->GetConfig();
         shader_->Load(TerrainShaderUniforms::m_ViewProjection, context_.projection_.GetProjectionMatrix() * viewMatrix);
@@ -84,7 +92,7 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
         shader_->Load(TerrainShaderUniforms::lod_morph_area_6, config.GetMorphingArea(5));
         shader_->Load(TerrainShaderUniforms::lod_morph_area_7, config.GetMorphingArea(6));
         shader_->Load(TerrainShaderUniforms::lod_morph_area_8, config.GetMorphingArea(7));
-
+        BindTextures(sub.second->GetTextures());
         for (const auto& node : tree.GetNodes())
         {
             RenderNode(*node);

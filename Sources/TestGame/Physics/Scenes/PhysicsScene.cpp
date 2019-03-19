@@ -47,7 +47,7 @@ TerrainTexturesFilesMap CreateTerrainTexturesMap()
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::displacementMap, "Textures/Terrain/HeightMaps/TerrainFlat.terrain"}
+        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/TerrainFlat.terrain"}
     };
     // clang-format on
 }
@@ -203,7 +203,7 @@ void PhysicsScene::AddTerrain()
     object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =
-        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::displacementMap));
+        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
 
     auto rigidbody =
         object->AddComponent<Components::Rigidbody>().SetCollisionShape(terrainShapeComponent.GetType()).SetIsStatic(true);
