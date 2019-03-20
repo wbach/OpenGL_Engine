@@ -24,4 +24,5 @@ set(UtilsIncludes
 ../../Sources/Utils/Thread.hpp
 ../../Sources/Utils/Mutex.hpp
 ../../Sources/Utils/Clock.hpp
+../../Sources/Utils/Beizer.hpp
 )

@@ -11,6 +11,7 @@ set(UtilsSources
 ../../Sources/Utils/XML/SerializedMethods.cpp
 ../../Sources/Utils/Logger/Log.cpp
 ../../Sources/Utils/ParseUtils.cpp
+../../Sources/Utils/Beizer.cpp
 ../../Sources/Utils/GLM/GLMUtils.cpp
 ../../Sources/Utils/Types.cpp
 ../../Sources/Utils/Utils.cpp
