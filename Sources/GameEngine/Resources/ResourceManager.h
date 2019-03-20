@@ -2,10 +2,10 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include "GameEngine/Resources/ITextureLoader.h"
 #include "IResourceManager.hpp"
 #include "Models/Model.h"
 #include "Models/WBLoader/LoaderManager.h"
-#include "GameEngine/Resources/ITextureLoader.h"
 
 namespace GameEngine
 {
@@ -22,6 +22,7 @@ public:
     inline IGpuResourceLoader& GetGpuResourceLoader() override;
     inline ITextureLoader& GetTextureLaoder() override;
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
+    Texture* AddTexture(std::unique_ptr<Texture>) override;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
@@ -37,17 +38,17 @@ private:
     LoaderManager loaderManager_;
 };
 
-Model *ResourceManager::GetModel(uint32 id)
+Model* ResourceManager::GetModel(uint32 id)
 {
     return models_[id].get();
 }
 
-IGpuResourceLoader &ResourceManager::GetGpuResourceLoader()
+IGpuResourceLoader& ResourceManager::GetGpuResourceLoader()
 {
     return *gpuLoader_;
 }
 
-ITextureLoader &ResourceManager::GetTextureLaoder()
+ITextureLoader& ResourceManager::GetTextureLaoder()
 {
     return *textureLoader_;
 }
@@ -56,4 +57,4 @@ GraphicsApi::IGraphicsApi& ResourceManager::GetGraphicsApi()
 {
     return graphicsApi_;
 }
-} // GameEngine
+}  // namespace GameEngine

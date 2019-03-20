@@ -17,7 +17,7 @@ TerrainNormalMapRenderer::TerrainNormalMapRenderer(RendererContext& context)
 }
 std::unique_ptr<Texture> TerrainNormalMapRenderer::Render(const Texture& heightMap) const
 {
-    int32 N      = heightMap.GetSize().y;
+    int32 N = 256.f;// heightMap.GetSize().y;
     auto storage = context_.graphicsApi_.CreateTextureStorage(GraphicsApi::TextureType::FLOAT_TEXTURE_2D,
                                                               GraphicsApi::TextureFilter::LINEAR, N);
 

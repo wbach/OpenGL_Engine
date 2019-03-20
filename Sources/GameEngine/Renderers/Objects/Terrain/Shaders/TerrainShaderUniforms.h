@@ -22,6 +22,7 @@ enum TerrainShaderUniforms
     lod_morph_area_7,
     lod_morph_area_8,
     heightmap,
+    normalmap,
     SIZE
 };
 }  // namespace GameEngine

@@ -43,4 +43,9 @@ void ResourceManager::AddModel(Model* model)
     modelsIds_.insert({ model->GetFileName() ,models_.size() - 1 });
     gpuLoader_->AddObjectToGpuLoadingPass(model);
 }
+Texture* ResourceManager::AddTexture(std::unique_ptr<Texture> texture)
+{
+    textures_.push_back(std::move(texture));
+    return textures_.back().get();
+}
 }  // namespace GameEngine

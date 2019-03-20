@@ -13,6 +13,7 @@ class TerrainRendererComponent : public BaseComponent
 {
 public:
     TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    ~TerrainRendererComponent();
     virtual void ReqisterFunctions() override;
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const TerrainTexturesMap& GetTextures() const;
@@ -20,7 +21,7 @@ public:
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     const TerrainQuadTree& GetTree() const;
     const TerrainConfiguration& GetConfig() const;
-    void SetNormalMap(Texture* normalMap);
+    void SetNormalMap(std::unique_ptr<Texture> normalMap);
     std::optional<uint32> GetNormalMapId() const;
     Texture* GetHeightMap() const;
 

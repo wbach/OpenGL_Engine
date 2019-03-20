@@ -20,6 +20,7 @@ enum class TerrainTextureType
     snowTexture,
     snowNormalTexture,
     heightmap,
+    normalmap
 };
 typedef std::unordered_map<TerrainTextureType, Texture*> TerrainTexturesMap;
 }  // namespace GameEngine

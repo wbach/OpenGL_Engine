@@ -33,6 +33,7 @@ void TerrainShader::GetAllUniformLocations()
     GetLocation(lod_morph_area_7);
     GetLocation(lod_morph_area_8);
     GetLocation(heightmap);
+    GetLocation(normalmap);
 }
 void TerrainShader::BindAttributes()
 {
@@ -43,6 +44,7 @@ void TerrainShader::BindAttributes()
 void TerrainShader::ConnectTextureUnits() const
 {
     Load(TerrainShaderUniforms::heightmap, (int)TerrainTextureType::heightmap);
+    Load(TerrainShaderUniforms::normalmap, (int)TerrainTextureType::normalmap);
 }
 
 }  // namespace GameEngine

@@ -17,6 +17,10 @@ TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& compo
     , normalMap_(nullptr)
 {
 }
+TerrainRendererComponent::~TerrainRendererComponent()
+{
+
+}
 void TerrainRendererComponent::SetTexture(TerrainTextureType type, Texture* texture)
 {
     textures_.insert({type, texture});
@@ -78,9 +82,10 @@ const TerrainConfiguration& TerrainRendererComponent::GetConfig() const
     return terrainConfiguration_;
 }
 
-void TerrainRendererComponent::SetNormalMap(Texture* normalMap)
+void TerrainRendererComponent::SetNormalMap(std::unique_ptr<Texture> normalMap)
 {
-    normalMap_ = normalMap;
+    normalMap_ = componentContext_.resourceManager_.AddTexture(std::move(normalMap));
+    textures_.insert({TerrainTextureType::normalmap, normalMap_});
 }
 
 std::optional<uint32> TerrainRendererComponent::GetNormalMapId() const

@@ -75,10 +75,10 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
     for (auto& sub : subscribes_)
     {
         auto normalMapId = sub.second->GetNormalMapId();
-        if (not normalMapId)
+        if (not normalMapId and sub.second->GetHeightMap()->IsInitialized())
         {
-            normalMapId = normalMapRenderer_.Render(*sub.second->GetHeightMap())
-                              ->GetId();  // TO DO :  remmber texture in resource manager
+            auto normals = normalMapRenderer_.Render(*sub.second->GetHeightMap());
+            sub.second->SetNormalMap(std::move(normals));
         }
 
         const auto& tree   = sub.second->GetTree();
