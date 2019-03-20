@@ -115,35 +115,24 @@ typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::fquat Quaternion;
 
-static vec4 ToVec4(const vec3& v3)
-{
-    return vec4(v3.x, v3.y, v3.z, 1.0f);
-}
-
-static vec4 ToVec4(const vec3& v3, float w)
-{
-    return vec4(v3.x, v3.y, v3.z, w);
-}
-
-static vec4 ToVec4(const vec2& v2, float z, float w)
-{
-    return vec4(v2.x, v2.y, z, w);
-}
+vec4 ToVec4(const vec3& v3);
+vec4 ToVec4(const vec3& v3, float w);
+vec4 ToVec4(const vec2& v2, float z, float w);
 
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
 
 enum class VertexBufferObjects
 {
-    INDICES = 0,
-    POSITION = 1,
-    TEXT_COORD = 2,
-    NORMAL = 3,
-    TANGENT = 4,
-    WEIGHTS = 5,
-    JOINTS = 6,
+    INDICES          = 0,
+    POSITION         = 1,
+    TEXT_COORD       = 2,
+    NORMAL           = 3,
+    TANGENT          = 4,
+    WEIGHTS          = 5,
+    JOINTS           = 6,
     TRANSFORM_MATRIX = 7,
-    TEXTURE_OFFSET = 8,
-    BLEND_FACTOR = 9
+    TEXTURE_OFFSET   = 8,
+    BLEND_FACTOR     = 9
 };
 
 typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;

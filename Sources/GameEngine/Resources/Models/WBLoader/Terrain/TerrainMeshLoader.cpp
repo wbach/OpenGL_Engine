@@ -88,16 +88,16 @@ void TerrainMeshLoader::CreateTerrainVertexes(uint32 x_start, uint32 y_start, ui
 }
 vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
 {
-    int lx = x - 1;
-    if (lx < 0)
+    auto lx = x - 1;
+    if (x == 0)
         lx = 0;
-    int rx = x + 1;
+    auto rx = x + 1;
     if (rx > heightMapResolution_ - 1)
         rx = heightMapResolution_ - 1;
-    int dz = z - 1;
-    if (dz < 0)
+    auto dz = z - 1;
+    if (z == 0)
         dz = 0;
-    int uz = z + 1;
+    auto uz = z + 1;
     if (uz > heightMapResolution_ - 1)
         uz = heightMapResolution_ - 1;
     float heightL = GetHeight(lx, z);

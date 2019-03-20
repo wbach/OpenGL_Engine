@@ -225,7 +225,12 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
     }
 
     Header header;
-    fread(&header, sizeof(Header), 1, fp);
+    auto bytes = fread(&header, sizeof(Header), 1, fp);
+
+    if (bytes == 0)
+    {
+        Error("Read file error." + filename);
+    }
 
     Log(" Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
 
@@ -235,10 +240,15 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
     text.height = header.height;
 
     auto size = header.width * header.height;
-
     text.floatData.resize(size);
-    // memset(&text.floatData[0], 0, size);
-    fread(&text.floatData[0], sizeof(float), size, fp);
+
+    bytes = fread(&text.floatData[0], sizeof(float), size, fp);
+
+    if (bytes < sizeof(float) * size)
+    {
+        Error("Read file error." + filename + " " + ", bytes : " + std::to_string(bytes));
+    }
+
     fclose(fp);
 
     for (auto& height : text.floatData)

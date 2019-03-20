@@ -17,7 +17,7 @@ public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 id);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
-             bool applySizeLimit = true);
+            bool applySizeLimit = true);
     virtual ~Texture();
     virtual const vec2& GetSize() const;
     inline uint32 GetId() const;
@@ -37,7 +37,7 @@ protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::string filename;
     std::string fullpath;
-    vec2 size_;
+    vec2 size_ = vec2(0);
 
     bool applySizeLimit = true;
 

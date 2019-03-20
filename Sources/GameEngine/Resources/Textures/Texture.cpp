@@ -20,13 +20,15 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
     return vec2(GetTextureXOffset(textureIndex, numberOfRows), GetTextureYOffset(textureIndex, numberOfRows));
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi & graphicsApi)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
+    , size_(0)
 {
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi & graphicsApi, uint32 id)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 id)
     : graphicsApi_(graphicsApi)
+    , size_(0)
     , id(id)
 {
 }
@@ -36,6 +38,7 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file
     : graphicsApi_(graphicsApi)
     , filename(file)
     , fullpath(filepath)
+    , size_(0)
     , applySizeLimit(applySizeLimit)
 {
     auto rows = GetNumberOfRowsBasedOnTextureFileName(file);
@@ -72,7 +75,7 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
     if (rowsPos != std::string::npos)
     {
         auto rows = filename.substr(rowsPos + 6);
-        if (!rows.empty())
+        if (not rows.empty())
         {
             return std::stoi(rows);
         }

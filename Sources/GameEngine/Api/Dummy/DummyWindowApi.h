@@ -56,9 +56,11 @@ public:
     }
     virtual uint32 OpenFont(const std::string& filename, uint32 size) override
     {
+        return 0;
     }
     virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color) override
     {
+        return GraphicsApi::Surface();
     }
 
 private:

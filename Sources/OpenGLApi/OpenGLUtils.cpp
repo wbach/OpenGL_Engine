@@ -36,7 +36,8 @@ void VaoCreator::AddIndicesBuffer(const IndicesVector& indices)
         vao_.size = indices.size();
 }
 
-void VaoCreator::AddStaticAttributePatch(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data)
+void VaoCreator::AddStaticAttributePatch(VertexBufferObjects type, uint32 coordinateSize,
+                                         const std::vector<float>& data)
 {
     if (data.empty())
     {
@@ -92,8 +93,8 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
         vao_.size = data.size() / 3;
     }
 
-    auto maxNumber = std::numeric_limits<IndicesDataType>::max();
-    auto vsize     = data.size() / 3;
+    int maxNumber = std::numeric_limits<IndicesDataType>::max();
+    int vsize     = data.size() / 3;
     if (type == VertexBufferObjects::POSITION and vsize > maxNumber)
     {
         Error("To many vertices in model.");
@@ -301,4 +302,4 @@ void ActiveBindTexture(int i, int id)
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, id);
 }
-}  // namespace Utils
+}  // namespace OpenGLApi

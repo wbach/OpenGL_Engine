@@ -18,8 +18,7 @@ void HeightMap::GpuLoadingPass()
 {
     if (image->floatData.empty() || isInit)
     {
-        Log("[Error] OGL There was an error loading the texture : " + filename +
-            ". floatData is null or is initialized.");
+        Log("[Error] There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
         return;
     }
 
@@ -31,7 +30,7 @@ void HeightMap::GpuLoadingPass()
     if (id == 0)
     {
         image->data.clear();
-        Log("[Error] OGL There was an error loading the texture : " + filename + " cannot create texture.");
+        Log("[Error] There was an error loading the texture : " + filename + " cannot create texture.");
         return;
     }
 
@@ -41,7 +40,7 @@ void HeightMap::GpuLoadingPass()
     }
 
     isInit = true;
-    Log("File " + filename + " is in GPU. OpenGL pass succes");
+    Log("File " + filename + " is in GPU.");
 }
 
 void HeightMap::GpuPostLoadingPass()

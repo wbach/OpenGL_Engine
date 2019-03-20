@@ -18,8 +18,8 @@ namespace GameEngine
 TerrainRenderer::TerrainRenderer(RendererContext& context)
     : context_(context)
     , clipPlane(vec4(0, 1, 0, 100000))
-    , objectId(0)
     , normalMapRenderer_(context_)
+    , objectId(0)
 {
     shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Terrain);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
@@ -67,7 +67,7 @@ void TerrainRenderer::Render(const Scene& scene, const Time&)
     shader_->Start();
     shader_->Load(TerrainShaderUniforms::cameraPosition, scene.GetCamera().GetPosition());
 
-    auto modelViewMatrix  = scene.GetCamera().GetViewMatrix();
+    auto modelViewMatrix = scene.GetCamera().GetViewMatrix();
     RenderSubscribers(modelViewMatrix);
 }
 void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
@@ -77,10 +77,11 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
         auto normalMapId = sub.second->GetNormalMapId();
         if (not normalMapId)
         {
-            normalMapId = normalMapRenderer_.Render(*sub.second->GetHeightMap())->GetId(); // TO DO :  remmber texture in resource manager
+            normalMapId = normalMapRenderer_.Render(*sub.second->GetHeightMap())
+                              ->GetId();  // TO DO :  remmber texture in resource manager
         }
 
-        const auto& tree = sub.second->GetTree();
+        const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfig();
         shader_->Load(TerrainShaderUniforms::m_ViewProjection, context_.projection_.GetProjectionMatrix() * viewMatrix);
         shader_->Load(TerrainShaderUniforms::scaleY, config.GetScaleY());

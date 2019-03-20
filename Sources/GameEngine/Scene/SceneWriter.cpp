@@ -15,6 +15,7 @@
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
+#include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -197,6 +198,10 @@ void Create(XmlNode& node, const Components::SkyBoxComponent& component)
     Create(node.AddChild(CSTR_MODEL_FILE_NAME), component.GetModelFileName());
 }
 
+void Create(XmlNode& node, const Components::SkydomeComponent& component)
+{
+}
+
 void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 {
     Create(node.AddChild(CSTR_POSITIONS), component.GetPositions());
@@ -257,6 +262,9 @@ void Create(XmlNode& node, const Components::IComponent& component)
             break;
         case Components::ComponentsType::SkyBox:
             CreateComponent<Components::SkyBoxComponent>(node, component, CSTR_COMPONENT_SKYBOX);
+            break;
+        case Components::ComponentsType::Skydome:
+            CreateComponent<Components::SkydomeComponent>(node, component, CSTR_COMPONENT_SKYDOME);
             break;
         case Components::ComponentsType::Grass:
             CreateComponent<Components::GrassRendererComponent>(node, component, CSTR_COMPONENT_GRASS);

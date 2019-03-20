@@ -1,8 +1,8 @@
 #include "SDLOpenGL.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
-#include <SDL2/SDL_video.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_video.h>
 #include "InputSDL.h"
 #include "Logger/Log.h"
 
@@ -126,27 +126,17 @@ uint32 SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
 GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color)
 {
     auto index = id - 1;
-    if (index < 0 or index >= impl_->fonts_.size())
+    if (index >= impl_->fonts_.size())
     {
         return {};
     }
-    const auto& font = impl_->fonts_[id - 1];
+    const auto& font = impl_->fonts_[index];
 
     SDL_Color _color;
     _color.r = static_cast<uint8>(color.x * 255.f);
     _color.g = static_cast<uint8>(color.y * 255.f);
     _color.b = static_cast<uint8>(color.z * 255.f);
     _color.a = static_cast<uint8>(color.w * 255.f);
-    //_color.r = 255;
-    //_color.g = 255;
-    //_color.b = 255;
-    //_color.a = 255;
-
-    SDL_Color bg;
-    bg.r = 10;
-    bg.g = 10;
-    bg.b = 10;
-    bg.a = 10;
 
     auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), _color);
 

@@ -3,7 +3,7 @@
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
-#include "IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Shaders/TerrainNormalMapShaderUniforms.h"
 
 namespace GameEngine

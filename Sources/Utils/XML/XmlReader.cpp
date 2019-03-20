@@ -72,14 +72,14 @@ XmlNode* XmlReader::Get(const std::string& name, XmlNode* node)
         return childIter->get();
     }
 
-    std::for_each(node->GetChildren().begin(), node->GetChildren().end(), [this, &name](const auto& child) 
+    for (const auto& child : node->GetChildren())
     {
-        auto n =  Get(name, child.get());
+        auto n = Get(name, child.get());
         if (n)
         {
             return n;
         }
-    });
+    }
 
     return nullptr;
 }

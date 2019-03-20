@@ -119,6 +119,7 @@ public:
     virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
                                                        int32) override
     {
+        return {};
     }
     virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override
@@ -175,6 +176,7 @@ public:
     }
     virtual uint32 CreatePatchMesh(const std::vector<float>&) override
     {
+        return ++id;
     }
     virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override
     {

@@ -66,9 +66,9 @@ uint32 ShaderProgram::GetUniformLocation(const std::string& uniformName) const
 {
     return graphicsApi_.GetShaderVariableLocation(programID_, uniformName.c_str());
 }
-bool ShaderProgram::validUniformLocation(uint32 lcoation) const
+bool ShaderProgram::validUniformLocation(uint32 location) const
 {
-    return lcoation >= 0 and lcoation < uniforms_.size();
+    return location < uniforms_.size();
 }
 void ShaderProgram::SetProgramId(uint32 id)
 {

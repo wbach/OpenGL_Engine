@@ -23,8 +23,8 @@
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 
 #include "GLM/GLMUtils.h"
-#include "GraphicsApi/BlendFunctionsTypes.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
+#include "GraphicsApi/BlendFunctionsTypes.h"
 #include "Thread.hpp"
 
 #define ARRAY_SIZE_Y 5
@@ -81,7 +81,10 @@ void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3&
 
     auto& shape = object->AddComponent<Shape>().SetSize(scale);
     shape.SetPostionOffset(shapePositionOffset);
-    object->AddComponent<Components::Rigidbody>().SetIsStatic(isStatic).SetCollisionShape(shape.GetType()).SetVelocity(dir);
+    object->AddComponent<Components::Rigidbody>()
+        .SetIsStatic(isStatic)
+        .SetCollisionShape(shape.GetType())
+        .SetVelocity(dir);
 
     AddGameObject(object);
 }
@@ -205,8 +208,9 @@ void PhysicsScene::AddTerrain()
     auto& terrainShapeComponent =
         object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
 
-    auto rigidbody =
-        object->AddComponent<Components::Rigidbody>().SetCollisionShape(terrainShapeComponent.GetType()).SetIsStatic(true);
+    auto rigidbody = object->AddComponent<Components::Rigidbody>()
+                         .SetCollisionShape(terrainShapeComponent.GetType())
+                         .SetIsStatic(true);
 
     AddGameObject(object);
 }
@@ -245,7 +249,7 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
     object->worldTransform.SetPosition(pos);
     object->worldTransform.TakeSnapShoot();
 
-    auto& renderComponent = object->AddComponent<Components::RendererComponent>().AddModel("Meshes/Rampa.obj");
+    object->AddComponent<Components::RendererComponent>().AddModel("Meshes/Rampa.obj");
 
     auto& meshShape = object->AddComponent<Components::MeshShape>().SetSize(scale);
     object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(meshShape.GetType());

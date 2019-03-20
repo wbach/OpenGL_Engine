@@ -23,11 +23,11 @@ public:
     void SetType(LightType type);
 
 private:
-    vec3 direction;
+    LightType type;
     vec3 position;
     vec3 colour;
     vec3 attenuation;
     float cutOff;
-    LightType type;
+    vec3 direction;
 };
 }  // namespace GameEngine

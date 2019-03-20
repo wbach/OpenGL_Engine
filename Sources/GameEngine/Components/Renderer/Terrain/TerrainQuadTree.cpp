@@ -9,9 +9,9 @@ TerrainQuadTree::TerrainQuadTree(const TerrainConfiguration& terrainConfiguratio
     constexpr uint32 lod           = 0;
     constexpr float rootNodesCount = static_cast<float>(TerrainDef::TERRAIN_ROOT_NODES_COUNT);
 
-    for (int i = 0; i < TerrainDef::TERRAIN_ROOT_NODES_COUNT; ++i)
+    for (uint32 i = 0; i < TerrainDef::TERRAIN_ROOT_NODES_COUNT; ++i)
     {
-        for (int j = 0; j < TerrainDef::TERRAIN_ROOT_NODES_COUNT; ++j)
+        for (uint32 j = 0; j < TerrainDef::TERRAIN_ROOT_NODES_COUNT; ++j)
         {
             const auto _if = static_cast<float>(i);
             const auto _jf = static_cast<float>(j);

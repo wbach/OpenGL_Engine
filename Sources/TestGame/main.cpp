@@ -1,10 +1,12 @@
 #include "../GameEngine/Engine/Engine.h"
 #include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
+#ifndef USE_GNU
 #include "DirectXApi/DirectXApi.h"
-#include "OpenGLApi/OpenGLApi.h"
+#endif
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 #include "MRpg/mrpg_main.h"
+#include "OpenGLApi/OpenGLApi.h"
 #include "Physics/PhyscisTestScene.h"
 #include "Single/SingleStart.h"
 
@@ -12,16 +14,18 @@ void StartMessage()
 {
     std::string stars = "********************************************\n";
 
-    std::cout << stars << "Example usage Wojciech Bach game engine.\n"
-                          "Run params :\n"
-                          "-G  : load game(MMO, TEST)\n"
+    std::cout << stars
+              << "Example usage Wojciech Bach game engine.\n"
+                 "Run params :\n"
+                 "-G  : load game(MMO, TEST)\n"
               << stars;
 }
 
 int main(int argc, char* argv[])
 {
-    GameEngine::ReadFromFile("./Conf.xml");  auto api = std::make_unique<OpenGLApi::OpenGLApi>();
-    //GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
+    GameEngine::ReadFromFile("./Conf.xml");
+    auto api = std::make_unique<OpenGLApi::OpenGLApi>();
+    // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();
 
@@ -58,7 +62,7 @@ int main(int argc, char* argv[])
         }
         else if (arg == "-D")
         {
-            //api = std::make_shared<GameEngine::DummyGraphicsApi>();
+            // api = std::make_shared<GameEngine::DummyGraphicsApi>();
         }
     }
 
