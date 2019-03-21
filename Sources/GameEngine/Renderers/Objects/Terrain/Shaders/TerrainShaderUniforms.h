@@ -23,6 +23,19 @@ enum TerrainShaderUniforms
     lod_morph_area_8,
     heightmap,
     normalmap,
+    blendMap,
+    backgorundTexture,
+    backgorundTextureNormal,
+    redTexture,
+    redTextureNormal,
+    greenTexture,
+    greenTextureNormal,
+    blueTexture,
+    blueTextureNormal,
+    rockTexture,
+    rockNormalTexture,
+    snowTexture,
+    snowNormalTexture,
     SIZE
 };
 }  // namespace GameEngine

@@ -276,6 +276,12 @@ public:
     {
         return m;
     }
+    virtual std::vector<uint8> GetTextureData(uint32) override
+    {
+    }
+    virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) override
+    {
+    }
 
 private:
     uint32 id;

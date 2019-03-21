@@ -2,9 +2,47 @@
 #define HEIGHT_FACTOR 40
 layout(quads, fractional_odd_spacing, cw) in;
 
+uniform sampler2D heightmap;
+uniform vec3 cameraPosition;
+
 in vec2 mapCoord_TE[];
 out vec2 mapCoord_GS;
-uniform sampler2D heightmap;
+out vec3 normal_GS;
+
+
+vec3 calculateNormal(vec3 position, vec2 texCoord)
+{
+    if (distance(position, cameraPosition) > 500)
+    {
+        return vec3(0, 1, 0);
+    }
+    // z0 -- z1 -- z2
+    // |     |     |
+    // z3 -- h  -- z4
+    // |     |     |
+    // z5 -- z6 -- z7
+
+    float texelSize = 1.0/256.0;
+
+    float z0 = texture(heightmap, texCoord + vec2(-texelSize,-texelSize)).r;
+    float z1 = texture(heightmap, texCoord + vec2(0,-texelSize)).r;
+    float z2 = texture(heightmap, texCoord + vec2(texelSize,-texelSize)).r;
+    float z3 = texture(heightmap, texCoord + vec2(-texelSize,0)).r;
+    float z4 = texture(heightmap, texCoord + vec2(texelSize,0)).r;
+    float z5 = texture(heightmap, texCoord + vec2(-texelSize,texelSize)).r;
+    float z6 = texture(heightmap, texCoord + vec2(0,texelSize)).r;
+    float z7 = texture(heightmap, texCoord + vec2(texelSize,texelSize)).r;
+
+    vec3 normal;
+    float normalStrength = 1.0;
+    float yoffset = 0.5f;
+    // Sobel Filter
+    normal.z = 1.0/normalStrength;
+    normal.x = z0 + 2*z3 + z5 - z2 - 2*z4 - z7;
+    normal.y = z0 + 2*z1 + z2 -z5 - 2*z6 - z7 + yoffset;
+    
+    return normalize(normal);
+}
 
 void main(){
 
@@ -29,6 +67,6 @@ void main(){
     height -= HEIGHT_FACTOR /2.f;
     position.y = height;
     mapCoord_GS = mapCoord;
-
+    normal_GS = calculateNormal(position.xyz, mapCoord);
     gl_Position = position;
 }

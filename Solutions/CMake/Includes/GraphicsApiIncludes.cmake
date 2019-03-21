@@ -12,6 +12,7 @@ set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/ShadersTypes.h
 ../../Sources/GraphicsApi/ShaderTypes.h
 ../../Sources/GraphicsApi/Surface.h
+../../Sources/GraphicsApi/TextureInfo.h
 ../../Sources/GraphicsApi/TextureParamters.h
 ../../Sources/GraphicsApi/TextureTarget.h
 ../../Sources/GraphicsApi/VariableType.h

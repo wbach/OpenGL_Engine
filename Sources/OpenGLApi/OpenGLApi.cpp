@@ -6,10 +6,12 @@
 #include "Font.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GraphicsApi/MeshRawData.h"
+#include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
+#include <algorithm>
 
 enum class ObjectType
 {
@@ -46,6 +48,7 @@ struct OpenGLApi::Pimpl
     IdPool idPool_;
     ShaderManager shaderManager_;
     std::vector<ShaderBuffer> shaderBuffers_;
+    std::unordered_map<uint32, GraphicsApi::TextureInfo> textureInfos_;
 };
 
 OpenGLMesh Convert(const Vao& v)
@@ -92,7 +95,7 @@ OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
                       {GraphicsApi::RenderType::TRIAGNLE_STRIP, GL_TRIANGLE_STRIP},
                       {GraphicsApi::RenderType::TRIANGLES, GL_TRIANGLES}};
 
-    textureAccessMap_ = { {GraphicsApi::TextureAccess::WRITE_ONLY, GL_WRITE_ONLY} };
+    textureAccessMap_ = {{GraphicsApi::TextureAccess::WRITE_ONLY, GL_WRITE_ONLY}};
 
     for (auto& b : bindedShaderBuffers_)
     {
@@ -257,6 +260,30 @@ void OpenGLApi::DrawLine(const vec3& color, const vec3& from, const vec3& to)
 mat4 OpenGLApi::PrepareMatrixToLoad(const mat4& m)
 {
     return m;
+}
+
+std::vector<uint8> OpenGLApi::GetTextureData(uint32 id)
+{
+    const auto& textureInfo = impl_->textureInfos_.at(id);
+    auto glId               = impl_->idPool_.ToGL(id);
+
+    std::vector<float> data;
+    data.resize(4 * textureInfo.size.x * textureInfo.size.y);
+    glReadPixels(0, 0, textureInfo.size.x, textureInfo.size.y, GL_RGBA, GL_FLOAT, &data[0]);
+
+    auto max = std::max_element(data.begin(), data.end());
+
+    std::vector<uint8> result;
+    for (auto f : data)
+    {
+        result.push_back(static_cast<uint8>((f / (*max)) * 255.f));
+    }
+    return result;
+}
+
+const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id)
+{
+    return impl_->textureInfos_.at(id);
 }
 
 void OpenGLApi::DeleteMesh(uint32 id)
@@ -458,6 +485,16 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
 
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
+
+    GraphicsApi::TextureInfo texutreInfo;
+    texutreInfo.id            = rid;
+    texutreInfo.size          = size;
+    texutreInfo.textureFilter = filter;
+    texutreInfo.textureMipmap = mimpamp;
+    texutreInfo.textureType   = type;
+
+    impl_->textureInfos_.insert({rid, texutreInfo});
+
     return rid;
 }
 
@@ -476,15 +513,21 @@ std::optional<uint32> OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, 
         return std::optional<uint32>();
     }
 
-    uint32 textureType = GL_TEXTURE_2D;
-
-    glBindTexture(textureType, texture);
-    glTexStorage2D(textureType, (int)(log(N) / log(2)), GL_RGBA32F, N, N);
-    glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
-    glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexStorage2D(GL_TEXTURE_2D, (int)(log(N) / log(2)), GL_RGBA32F, N, N);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
 
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
+
+    GraphicsApi::TextureInfo texutreInfo;
+    texutreInfo.id            = rid;
+    texutreInfo.size          = vec2ui(N);
+    texutreInfo.textureFilter = filter;
+    texutreInfo.textureMipmap = GraphicsApi::TextureMipmap::NONE;
+    texutreInfo.textureType   = GraphicsApi::TextureType::FLOAT_TEXTURE_4C;
+    impl_->textureInfos_.insert({rid, texutreInfo});
 
     return rid;
 }

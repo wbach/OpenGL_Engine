@@ -34,6 +34,19 @@ void TerrainShader::GetAllUniformLocations()
     GetLocation(lod_morph_area_8);
     GetLocation(heightmap);
     GetLocation(normalmap);
+    GetLocation(blendMap);
+    GetLocation(backgorundTexture);
+    GetLocation(backgorundTextureNormal);
+    GetLocation(redTexture);
+    GetLocation(redTextureNormal);
+    GetLocation(greenTexture);
+    GetLocation(greenTextureNormal);
+    GetLocation(blueTexture);
+    GetLocation(blueTextureNormal);
+    GetLocation(rockTexture);
+    GetLocation(rockNormalTexture);
+    GetLocation(snowTexture);
+    GetLocation(snowNormalTexture);
 }
 void TerrainShader::BindAttributes()
 {
@@ -45,6 +58,14 @@ void TerrainShader::ConnectTextureUnits() const
 {
     Load(TerrainShaderUniforms::heightmap, (int)TerrainTextureType::heightmap);
     Load(TerrainShaderUniforms::normalmap, (int)TerrainTextureType::normalmap);
+
+    Load(TerrainShaderUniforms::blendMap, (int)TerrainTextureType::blendMap);
+    Load(TerrainShaderUniforms::backgorundTexture, (int)TerrainTextureType::backgorundTexture);
+    Load(TerrainShaderUniforms::redTexture, (int)TerrainTextureType::redTexture);
+    Load(TerrainShaderUniforms::greenTexture, (int)TerrainTextureType::greenTexture);
+    Load(TerrainShaderUniforms::blueTexture, (int)TerrainTextureType::blueTexture);
+    Load(TerrainShaderUniforms::rockTexture, (int)TerrainTextureType::rockTexture);
+    Load(TerrainShaderUniforms::snowTexture, (int)TerrainTextureType::snowTexture);
 }
 
 }  // namespace GameEngine

@@ -15,6 +15,7 @@
 #include "Types.h"
 #include "WindowApi.hpp"
 #include "WindowType.h"
+#include "TextureInfo.h"
 
 namespace GraphicsApi
 {
@@ -107,6 +108,8 @@ public:
     virtual void LoadProjectionMatrix(const mat4&)                                                               = 0;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to)                                   = 0;
     virtual mat4 PrepareMatrixToLoad(const mat4&)                                                                = 0;
+    virtual std::vector<uint8> GetTextureData(uint32)                                                            = 0;
+    virtual const TextureInfo& GetTextureInfo(uint32)                                                            = 0;
     // temp
     virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;

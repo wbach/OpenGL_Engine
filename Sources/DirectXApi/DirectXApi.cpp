@@ -24,6 +24,10 @@
 
 namespace DirectX
 {
+namespace
+{
+GraphicsApi::TextureInfo defaultTextureInfo;
+}
 struct Quad : public Vao
 {
     Quad()
@@ -431,8 +435,7 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
         return 0;
     }
 
-    D3D11_INPUT_ELEMENT_DESC layout[] = 
-    {
+    D3D11_INPUT_ELEMENT_DESC layout[] = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -590,11 +593,11 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
 
     D3D11_TEXTURE2D_DESC desc;
     ZeroMemory(&desc, sizeof(desc));
-    desc.Width            = size.x;
-    desc.Height           = size.y;
-    desc.MipLevels        = 1;
-    desc.ArraySize        = 1;
-   // desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+    desc.Width     = size.x;
+    desc.Height    = size.y;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    // desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
     desc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.SampleDesc.Count = 1;
     desc.Usage            = D3D11_USAGE_DEFAULT;
@@ -618,7 +621,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     ZeroMemory(&srvDesc, sizeof(srvDesc));
     srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
     srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    srvDesc.Texture2D.MipLevels       = desc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
     result                            = impl_->dxCondext_.dev->CreateShaderResourceView(texture2d, &srvDesc, &rv);
 
@@ -638,8 +641,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD         = 0;
     sampDesc.MaxLOD         = D3D11_FLOAT32_MAX;
-    sampDesc.MipLODBias = 0;
-
+    sampDesc.MipLODBias     = 0;
 
     return impl_->CreateTexture(sampDesc, rv);
 }
@@ -879,5 +881,13 @@ void DirectXApi::DrawLine(const vec3 &color, const vec3 &from, const vec3 &to)
 mat4 DirectXApi::PrepareMatrixToLoad(const mat4 &m)
 {
     return glm::transpose(m);
+}
+std::vector<uint8> DirectXApi::GetTextureData(uint32)
+{
+    return std::vector<uint8>();
+}
+const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32)
+{
+    return defaultTextureInfo;
 }
 }  // namespace DirectX
