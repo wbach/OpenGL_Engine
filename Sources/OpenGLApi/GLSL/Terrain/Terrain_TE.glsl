@@ -12,7 +12,7 @@ out vec3 normal_GS;
 
 vec3 calculateNormal(vec3 position, vec2 texCoord)
 {
-    if (distance(position, cameraPosition) > 500)
+    if (distance(position, cameraPosition) > 50000)
     {
         return vec3(0, 1, 0);
     }
@@ -35,13 +35,13 @@ vec3 calculateNormal(vec3 position, vec2 texCoord)
 
     vec3 normal;
     float normalStrength = 1.0;
-    float yoffset = 0.5f;
+    float yoffset = 0.0f;
     // Sobel Filter
     normal.z = 1.0/normalStrength;
     normal.x = z0 + 2*z3 + z5 - z2 - 2*z4 - z7;
     normal.y = z0 + 2*z1 + z2 -z5 - 2*z6 - z7 + yoffset;
-    
-    return normalize(normal);
+
+    return (normalize(normal)+1.0)/2.0;
 }
 
 void main(){

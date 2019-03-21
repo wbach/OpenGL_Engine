@@ -15,12 +15,12 @@ void main(void)
 	// z3 -- h  -- z4
 	// |     |     |
 	// z5 -- z6 -- z7
-	
+
 	ivec2 x = ivec2(gl_GlobalInvocationID.xy);
 	vec2 texCoord = gl_GlobalInvocationID.xy/float(N);
-	
+
 	float texelSize = 1.0/N;
-	
+
 	float z0 = texture(heightmap, texCoord + vec2(-texelSize,-texelSize)).r;
 	float z1 = texture(heightmap, texCoord + vec2(0,-texelSize)).r;
 	float z2 = texture(heightmap, texCoord + vec2(texelSize,-texelSize)).r;
@@ -29,14 +29,13 @@ void main(void)
 	float z5 = texture(heightmap, texCoord + vec2(-texelSize,texelSize)).r;
 	float z6 = texture(heightmap, texCoord + vec2(0,texelSize)).r;
 	float z7 = texture(heightmap, texCoord + vec2(texelSize,texelSize)).r;
-	 
+
 	vec3 normal;
-	
+
 	// Sobel Filter
 	normal.z = 1.0/normalStrength;
 	normal.x = z0 + 2*z3 + z5 - z2 - 2*z4 - z7;
 	normal.y = z0 + 2*z1 + z2 -z5 - 2*z6 - z7;
-	
-	//imageStore(normalmap, x, vec4((normalize(normal)+1.0)/2.0,1));
-	imageStore(normalmap, x, vec4(0.0, 0.1,0.2,0.3));
+
+	imageStore(normalmap, x, vec4((normalize(normal)+1.0)/2.0,1));
 }

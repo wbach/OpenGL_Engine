@@ -18,7 +18,6 @@ namespace GameEngine
 TerrainRenderer::TerrainRenderer(RendererContext& context)
     : context_(context)
     , clipPlane(vec4(0, 1, 0, 100000))
-    , normalMapRenderer_(context_)
     , objectId(0)
 {
     shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Terrain);
@@ -27,8 +26,6 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
 void TerrainRenderer::Init()
 {
     InitShader();
-    // objectId = context_.graphicsApi_.CreatePurePatchMeshInstanced(
-    //    4, static_cast<uint32>(TerrainDef::SIZE * TerrainDef::SIZE));
 
     // clang-format off
     const std::vector<float> patches =
@@ -56,7 +53,6 @@ void TerrainRenderer::Init()
     // clang-format on
 
     objectId = context_.graphicsApi_.CreatePatchMesh(patches);
-    normalMapRenderer_.Init();
 }
 
 void TerrainRenderer::Render(const Scene& scene, const Time&)
@@ -74,13 +70,6 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
 {
     for (auto& sub : subscribes_)
     {
-        auto normalMapId = sub.second->GetNormalMapId();
-        if (not normalMapId and sub.second->GetHeightMap()->IsInitialized())
-        {
-            auto normals = normalMapRenderer_.Render(*sub.second->GetHeightMap());
-            sub.second->SetNormalMap(std::move(normals));
-        }
-
         const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfig();
         shader_->Load(TerrainShaderUniforms::m_ViewProjection, context_.projection_.GetProjectionMatrix() * viewMatrix);

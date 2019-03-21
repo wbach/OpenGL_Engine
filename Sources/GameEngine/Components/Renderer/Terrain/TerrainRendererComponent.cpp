@@ -4,6 +4,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
@@ -15,6 +16,7 @@ TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& compo
     : BaseComponent(ComponentsType::TerrainRenderer, componentContext, gameObject)
     , terrainQuadTree_(terrainConfiguration_)
     , normalMap_(nullptr)
+    , normalStrength_(12.f)
 {
 }
 TerrainRendererComponent::~TerrainRendererComponent()
@@ -33,6 +35,7 @@ TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
         if (texturePair.first == TerrainTextureType::heightmap)
         {
             LoadHeightMap(texturePair.second);
+            CalcualteNormalMap(texturePair.second);
             continue;
         }
 
@@ -53,6 +56,30 @@ void TerrainRendererComponent::LoadHeightMap(const std::string& hightMapFile)
     }
 
     SetTexture(TerrainTextureType::heightmap, heightMap_);
+}
+void TerrainRendererComponent::CalcualteNormalMap(const std::string & hightMapFile)
+{
+    if (not heightMap_)
+    {
+        return;
+    }
+
+    auto heightMap = dynamic_cast<HeightMap*>(heightMap_);
+
+    if (not heightMap)
+    {
+        return;
+    }
+
+    normalMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadNormalMap(
+        heightMap->GetImage()->floatData, heightMap_->GetSize(), normalStrength_);
+
+    if (not normalMap_)
+    {
+        return;
+    }
+
+    SetTexture(TerrainTextureType::normalmap, normalMap_);
 }
 const TerrainTexturesMap& TerrainRendererComponent::GetTextures() const
 {
@@ -82,15 +109,9 @@ const TerrainConfiguration& TerrainRendererComponent::GetConfig() const
     return terrainConfiguration_;
 }
 
-void TerrainRendererComponent::SetNormalMap(std::unique_ptr<Texture> normalMap)
+Texture* TerrainRendererComponent::GetNormalMap() const
 {
-    normalMap_ = componentContext_.resourceManager_.AddTexture(std::move(normalMap));
-    textures_.insert({TerrainTextureType::normalmap, normalMap_});
-}
-
-std::optional<uint32> TerrainRendererComponent::GetNormalMapId() const
-{
-    return normalMap_ ? normalMap_->GetId() : std::optional<uint32>();
+    return normalMap_;
 }
 
 Texture* TerrainRendererComponent::GetHeightMap() const

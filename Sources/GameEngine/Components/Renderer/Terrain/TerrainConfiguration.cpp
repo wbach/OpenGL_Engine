@@ -14,6 +14,16 @@ TerrainConfiguration::TerrainConfiguration()
     SetLod(5, 50);
     SetLod(6, 0);
     SetLod(7, 0);
+
+
+    //SetLod(0, 400);
+    //SetLod(1, 200);
+    //SetLod(2, 100);
+    //SetLod(3, 50);
+    //SetLod(4, 20);
+    //SetLod(5, 10);
+    //SetLod(6, 0);
+    //SetLod(7, 0);
 }
 int32 TerrainConfiguration::updateMorphingArea(uint32 lod)
 {

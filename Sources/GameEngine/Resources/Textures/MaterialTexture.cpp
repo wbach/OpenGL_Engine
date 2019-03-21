@@ -9,7 +9,7 @@ MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool ke
     , image(std::move(image))
     , keepData(keepData)
 {
-    size_ = vec2(image.width, image.height);
+    size_ = vec2ui(image.width, image.height);
 }
 
 void MaterialTexture::GpuLoadingPass()
@@ -22,8 +22,8 @@ void MaterialTexture::GpuLoadingPass()
 
     Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
     id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
-                                    GraphicsApi::TextureMipmap::LINEAR, GraphicsApi::BufferAtachment::NONE,
-                                    vec2ui(image.width, image.height), &image.data[0]);
+                                    GraphicsApi::TextureMipmap::LINEAR, GraphicsApi::BufferAtachment::NONE, size_,
+                                    &image.data[0]);
 
     if (id == 0)
     {

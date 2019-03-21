@@ -131,6 +131,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Textures/GeneralTexture.cpp
 ../../Sources/GameEngine/Resources/Textures/HeightMap.cpp
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.cpp
+../../Sources/GameEngine/Resources/Textures/NormalTexture.cpp
 ../../Sources/GameEngine/Resources/Textures/Texture.cpp
 ../../Sources/GameEngine/Scene/Scene.cpp
 ../../Sources/GameEngine/Scene/SceneDef.cpp

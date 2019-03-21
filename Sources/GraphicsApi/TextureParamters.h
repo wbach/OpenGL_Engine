@@ -30,4 +30,10 @@ enum class TextureAccess
 {
     WRITE_ONLY
 };
+enum class TextureFormat
+{
+    BMP,
+    JPG,
+    PNG
+};
 }

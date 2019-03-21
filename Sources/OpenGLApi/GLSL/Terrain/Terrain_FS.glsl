@@ -58,8 +58,9 @@ vec4 CalculateTerrainColor()
 void main()
 {
     WorldPosOut = worldPos;
-    DiffuseOut  = vec4(CalculateTerrainColor().xyz,1.0);
-   // vec3 normal = normalize(texture(normalmap, mapCoord_FS).rgb);
-    NormalOut   = vec4(normal_FS, 1);
+    //DiffuseOut  = texture(normalmap, mapCoord_FS);
+    DiffuseOut =  vec4(CalculateTerrainColor().xyz,1.0);
+    NormalOut = vec4(normalize(texture(normalmap, mapCoord_FS).xyz), 1.f);
+    //NormalOut   = vec4(0,1,0, 1);
     SpecularOut = vec4(0);
 }

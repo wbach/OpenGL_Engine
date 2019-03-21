@@ -15,7 +15,7 @@ Projection::Projection()
 {
 }
 Projection::Projection(const vec2ui &window_size)
-    : Projection(window_size, 0.001f, 10000.f, 50.f)
+    : Projection(window_size, 0.1f, 20000.f, 50.f)
 {
 }
 Projection::Projection(const vec2ui &window_size, float near_, float far_, float fov_)

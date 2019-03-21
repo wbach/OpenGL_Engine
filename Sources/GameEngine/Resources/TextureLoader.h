@@ -20,10 +20,12 @@ public:
     Texture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true, ObjectTextureType type = ObjectTextureType::MATERIAL, TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override;
     Texture* LoadCubeMap(const std::vector<std::string>& files, bool applySizeLimit = true, bool gpu_pass = true) override;
     Texture* LoadHeightMap(const std::string& filename, bool gpu_pass = true) override;
+    virtual Texture* LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength) override;
     void CreateHeightMap(const std::string& input, const std::string& output) override;
     virtual void SetHeightMapFactor(float) override;
     GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
-    
+    virtual void SaveTextureToFile(const std::string& name, const std::vector<uint8>&, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat) const override;
+
 private:
     Texture* GetTextureIfLoaded(const std::string& filename) const;
 

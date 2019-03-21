@@ -236,6 +236,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Textures/HeightMap.h
 ../../Sources/GameEngine/Resources/Textures/Image.h
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
+../../Sources/GameEngine/Resources/Textures/NormalTexture.h
 ../../Sources/GameEngine/Resources/Textures/Texture.h
 ../../Sources/GameEngine/Resources/Textures/TextureFlip.h
 ../../Sources/GameEngine/Scene/SceneDef.h

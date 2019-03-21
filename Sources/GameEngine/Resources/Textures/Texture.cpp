@@ -59,10 +59,6 @@ Texture::~Texture()
 
     graphicsApi_.DeleteObject(id);
 }
-const vec2& Texture::GetSize() const
-{
-    return size_;
-}
 std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const
 {
     auto cfile = file;

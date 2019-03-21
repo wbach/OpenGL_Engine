@@ -137,6 +137,8 @@ void OpenGLApi::Init()
         useLowGLversion_ = true;
         impl_->shaderManager_.UseDeprectedShaders();
     }
+
+    glPolygonOffset(1, 1);
 }
 void OpenGLApi::SetShadersFilesLocations(const std::string& path)
 {
@@ -276,7 +278,7 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id)
     std::vector<uint8> result;
     for (auto f : data)
     {
-        result.push_back(static_cast<uint8>((f / (*max)) * 255.f));
+        result.push_back(static_cast<uint8>(f* 255.f));
     }
     return result;
 }

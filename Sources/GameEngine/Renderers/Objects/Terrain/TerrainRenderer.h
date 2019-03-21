@@ -2,7 +2,6 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include "TerrainNormalMapRenderer.h"
 
 namespace GameEngine
 {
@@ -42,7 +41,6 @@ private:
     std::unique_ptr<IShaderProgram> shader_;
     vec4 clipPlane;
     std::vector<std::pair<uint32_t, Components::TerrainRendererComponent*>> subscribes_;
-    TerrainNormalMapRenderer normalMapRenderer_;
     uint32 objectId;
 };
 }  // namespace GameEngine

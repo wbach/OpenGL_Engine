@@ -11,6 +11,7 @@
 #include "Textures/CubeMapTexture.h"
 #include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
+#include "Textures/NormalTexture.h"
 #include "Textures/MaterialTexture.h"
 
 namespace GameEngine
@@ -209,6 +210,69 @@ Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool 
     return texture;
 }
 
+float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui& position)
+{
+    return data[position.x + position.y * size.x];
+}
+
+std::vector<float> createNromalMapData(const vec2ui& size, const std::vector<float>& heightMapData,
+                                       float normalStrength)
+{
+    // z0 -- z1 -- z2
+    // |	 |     |
+    // z3 -- h  -- z4
+    // |     |     |
+    // z5 -- z6 -- z7
+
+    std::vector<float> result;
+
+    for (uint32 j = 0; j < size.y; ++j)
+    {
+        for (uint32 i = 0; i < size.x; ++i)
+        {
+            uint32 x = i;
+            uint32 y = j;
+
+            if (i == 0)
+                x = i + 1;
+
+            if (i >= size.x - 1)
+                x = i - 1;
+
+            if (j == 0)
+                y = j + 1;
+
+            if (j >= size.y - 1)
+                y = j - 1;
+
+            float z0 = getPixel(heightMapData, size, vec2ui(x - 1, y - 1));
+            float z1 = getPixel(heightMapData, size, vec2ui(x, y - 1));
+            float z2 = getPixel(heightMapData, size, vec2ui(x + 1, y - 1));
+            float z3 = getPixel(heightMapData, size, vec2ui(x - 1, y));
+            float z4 = getPixel(heightMapData, size, vec2ui(x + 1, y));
+            float z5 = getPixel(heightMapData, size, vec2ui(x - 1, y + 1));
+            float z6 = getPixel(heightMapData, size, vec2ui(x, y + 1));
+            float z7 = getPixel(heightMapData, size, vec2ui(x + 1, y + 1));
+
+            vec3 normal;
+
+            // Sobel Filter
+            normal.z = 1.0f / normalStrength;
+            normal.x = z0 + 2.f * z3 + z5 - z2 - 2.f * z4 - z7;
+            normal.y = z0 + 2.f * z1 + z2 - z5 - 2.f * z6 - z7;
+
+            normal = (glm::normalize(normal) + 1.0f) / 2.0f;
+
+            // bgr
+            result.push_back(normal.z);
+            result.push_back(normal.y);
+            result.push_back(normal.x);
+        }
+    }
+
+    return result;
+}
+
 Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass)
 {
     if (auto texture = GetTextureIfLoaded(filename))
@@ -265,6 +329,22 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
     return heightmap_texture;
 }
 
+Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength)
+{
+    ImagePtr texture(new Image);
+    auto& text = *texture;
+    text.width = size.x;
+    text.height = size.y;
+    text.floatData = std::move(createNromalMapData(size, baseData, strength));
+
+    auto normaltexture = new NormalTexture(graphicsApi_, true, "noname_NormalTexutre", "nopath", texture);
+    textures_.emplace_back(normaltexture);
+
+    gpuResourceLoader_->AddObjectToGpuLoadingPass(normaltexture);
+
+    return normaltexture;
+}
+
 void TextureLoader::CreateHeightMap(const std::string& in, const std::string& out)
 {
     auto input  = EngineConf_GetFullDataPath(in);
@@ -319,6 +399,29 @@ void TextureLoader::SetHeightMapFactor(float factor)
 GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()
 {
     return graphicsApi_;
+}
+void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector<uint8>& data, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat format) const
+{
+    auto bytesData = const_cast<uint8*>(&data[0]);
+    auto im = FreeImage_ConvertFromRawBits(bytesData, size.x, size.y, bytes * size.x, 8 * bytes, 0, 0, 0);
+
+
+    FREE_IMAGE_FORMAT fformat = FREE_IMAGE_FORMAT::FIF_PNG;
+    std::string ext = ".png";
+
+    if (format == GraphicsApi::TextureFormat::BMP)
+    {
+        fformat = FREE_IMAGE_FORMAT::FIF_BMP;
+        ext = ".bmp";
+    }
+
+    if (format == GraphicsApi::TextureFormat::JPG)
+    {
+        fformat = FREE_IMAGE_FORMAT::FIF_JPEG;
+        ext = ".jpeg";
+    }
+
+    FreeImage_Save(fformat, im, (name + ext).c_str(), 0);
 }
 Texture* TextureLoader::GetTextureIfLoaded(const std::string& filename) const
 {
