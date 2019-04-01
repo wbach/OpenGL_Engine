@@ -16,6 +16,7 @@ vec3 calculateNormal(vec3 position, vec2 texCoord)
     {
         return vec3(0, 1, 0);
     }
+    
     // z0 -- z1 -- z2
     // |     |     |
     // z3 -- h  -- z4

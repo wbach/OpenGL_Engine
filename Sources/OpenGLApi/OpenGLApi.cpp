@@ -45,6 +45,7 @@ struct OpenGLApi::Pimpl
         : shaderManager_(idPool_)
     {
     }
+    GLint maxPatchVertices_ = 0;
     IdPool idPool_;
     ShaderManager shaderManager_;
     std::vector<ShaderBuffer> shaderBuffers_;
@@ -167,10 +168,13 @@ void OpenGLApi::PrintVersion()
 
     if (not useLowGLversion_)
     {
-        GLint MaxPatchVertices = 0;
-        glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
-        Log("Max supported patch vertices :" + std::to_string(MaxPatchVertices));
-        glPatchParameteri(GL_PATCH_VERTICES, 3);
+        glGetIntegerv(GL_MAX_PATCH_VERTICES, &impl_->maxPatchVertices_);
+        Log("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
+
+        if (impl_->maxPatchVertices_)
+        {
+            glPatchParameteri(GL_PATCH_VERTICES, 3);
+        }            
     }
 
     GetInfoAndPrint("GL_MAX_GEOMETRY_UNIFORM_BLOCKS", GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
@@ -739,6 +743,11 @@ std::string OpenGLApi::GetBufferStatus()
 
 uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
 {
+    if (not impl_->maxPatchVertices_)
+    {
+        return 0;
+    }
+
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
     openGlMeshes_.insert({rid, {}});
@@ -754,6 +763,11 @@ uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
 
 uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
 {
+    if (not impl_->maxPatchVertices_)
+    {
+        return 0;
+    }
+
     uint32 vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);

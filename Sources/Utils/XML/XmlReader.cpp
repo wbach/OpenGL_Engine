@@ -41,6 +41,12 @@ bool XmlReader::Read(const std::string& filename)
     rapidxml::xml_document<> document;
 
     auto str = Utils::ReadFile(filename);
+
+    if (str.empty())
+    {
+        return false;
+    }
+
     try
     {
         document.parse<0>(const_cast<char*>(str.c_str()));

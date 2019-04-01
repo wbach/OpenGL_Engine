@@ -1,7 +1,7 @@
 #version 430
 
 layout(triangles) in;
-layout(triangle_strip, max_vertices = 4) out; //line_strip
+layout(triangle_strip, max_vertices = 4) out; // line_strip
 
 uniform mat4 m_ViewProjection;
 

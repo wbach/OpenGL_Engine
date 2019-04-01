@@ -22,8 +22,8 @@ uniform sampler2D heightmap;
 
 out vec2 mapCoord_TC;
 
-float morphLatitude(vec2 position) {
-
+float morphLatitude(vec2 position)
+{
     vec2 frac = position - location;
 
     if (index == vec2(0,0)){
