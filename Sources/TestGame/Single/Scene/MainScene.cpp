@@ -20,6 +20,7 @@
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
+#include "GameEngine/Lights/Light.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/GuiText.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -28,7 +29,6 @@
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
-#include "GameEngine/Lights/Light.h"
 
 using namespace GameEngine;
 
@@ -46,7 +46,7 @@ TerrainTexturesFilesMap CreateTerrainTexturesMap()
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
+        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/ExportedTerrain.terrain"}
     };
     // clang-format on
 }
@@ -64,7 +64,7 @@ TerrainTexturesFilesMap CreateOreonTerrainTexturesMap()
         {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/HelionHightMap256.terrain"}
+        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/ExportedTerrain.terrain"}
     };
     // clang-format on
 }
@@ -88,8 +88,8 @@ int MainScene::Initialize()
 {
     Log("MainScene::Initialize()");
     resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
-    resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/HelionHightMap256.png",
-                                                         "Textures/Terrain/HeightMaps/HelionHightMap256.terrain");
+    // resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/HelionHightMap256.png",
+    //                        "Textures/Terrain/HeightMaps/HelionHightMap256.terrain");
 
     renderersManager_->GuiText("playerPos").position = vec2(-0.9, -0.9);
     renderersManager_->GuiText("playerPos").m_size   = .5f;
@@ -102,22 +102,58 @@ int MainScene::Initialize()
     renderersManager_->GuiText("cameraPos").m_size   = .5f;
     renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
 
-    auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
-    auto fontSize    = windowsSize.y / 10;
-    auto fontPath    = EngineConf_GetFullDataPath("GUI/consola.ttf");
-    auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
-    auto fontImage   = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(
-        fontId, "Oswald-Light.ttf font text.", vec4(0.5, 0.5, 0.5, 1.f));
+    GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+    guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/Package1/Some-Box.png", false);
+    guiTexture.SetPosition(vec2(0.5, 0.5));
+    guiTexture.SetScale(vec2(0.3));
 
-    auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
-        "FontImage_" + std::to_string(fontImage.id), GraphicsApi::TextureType::U8_RGBA,
-        GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
-        fontImage.size, fontImage.pixels);
-    renderersManager_->GuiTexture("fontTexture").texture = fontTexture;
-    renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
-    float scale = 0.2f;
-    auto s      = static_cast<float>(fontImage.size.x) / static_cast<float>(fontImage.size.y);
-    renderersManager_->GuiTexture("fontTexture").SetScale(vec2(scale, scale / s));
+    auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
+    auto fontSize    = 28;
+    auto fontPath    = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
+    auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
+
+
+    {
+        auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(fontId, "example font text.",
+                                                                                       vec4(0.5, 0.5, 0.5, 1.f), 0);
+
+        auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
+            "FontImage_" + std::to_string(fontImage.id), GraphicsApi::TextureType::U8_RGBA,
+            GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
+            fontImage.size, fontImage.pixels);
+
+        auto scale = vec2(fontImage.size.x, fontImage.size.y);
+        scale.x    = scale.x * 1.f / windowsSize.x;
+        scale.y    = scale.y * 1.f / windowsSize.y;
+
+        renderersManager_->GuiTexture("fontTexture").texture = fontTexture;
+        renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
+        renderersManager_->GuiTexture("fontTexture").SetColor(vec3(1, 1, 1));
+        renderersManager_->GuiTexture("fontTexture").SetScale(scale);
+    }
+
+
+    //{
+    //    auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(fontId, "example font text.",
+    //        vec4(0.5, 0.5, 0.5, 1.f), 0);
+
+    //    auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
+    //        "FontImage_" + std::to_string(fontImage.id), GraphicsApi::TextureType::U8_RGBA,
+    //        GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
+    //        fontImage.size, fontImage.pixels);
+
+    //    auto scale = vec2(fontImage.size.x, fontImage.size.y);
+    //    scale.x = scale.x * 1.f / windowsSize.x;
+    //    scale.y = scale.y * 1.f / windowsSize.y;
+
+    //    renderersManager_->GuiTexture("fontTexture_shadow").texture = fontTexture;
+    //    renderersManager_->GuiTexture("fontTexture_shadow").SetPosition(vec2(0.50, 0.5));
+    //    renderersManager_->GuiTexture("fontTexture_shadow").SetColor(vec3(0.0));
+    //    renderersManager_->GuiTexture("fontTexture_shadow").SetScale(scale);
+    //}
+
+
+    renderersManager_->GuiTexture("fontBackground") = guiTexture;
 
     RegisterParticleEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
         Particle particle = referenceParticle;
@@ -157,7 +193,7 @@ int MainScene::Initialize()
     AddGameObject(skydome);
 
     centerObjectPosition_ = vec3(0);
-    auto geralt = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), false);
+    auto geralt           = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), false);
     geralt->worldTransform.SetPosition(centerObjectPosition_);
     geralt->worldTransform.TakeSnapShoot();
     geralt->AddComponent<Components::RendererComponent>().AddModel("Meshes/Geralt/geralt.obj");
@@ -198,6 +234,7 @@ int MainScene::Initialize()
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
     camera->SetPosition(vec3(.5, 3.5, 2.1));
+    camera->SetPosition(vec3(-5107.217, 3324.774, 5352.738));
     camera->LookAt(vec3(0, 2, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
@@ -237,7 +274,7 @@ int MainScene::Update(float dt)
     }
 
     vec3 lightPos = pointLight_->GetPosition();
-    lightPos = Utils::RotateObject(centerObjectPosition_, lightPos, Utils::ToRadians(10.f * dt));
+    lightPos      = Utils::RotateObject(centerObjectPosition_, lightPos, Utils::ToRadians(10.f * dt));
     pointLight_->SetPosition(lightPos);
 
     lightBulb_->worldTransform.SetPosition(pointLight_->GetPosition());

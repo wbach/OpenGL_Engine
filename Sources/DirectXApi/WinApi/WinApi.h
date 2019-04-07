@@ -32,7 +32,7 @@ public:
     virtual void SetCursorPosition(int x, int y) override;
 
     virtual uint32 OpenFont(const std::string& filename, uint32 size) override;
-    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color) override;
+    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline) override;
 
 private:
     uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;

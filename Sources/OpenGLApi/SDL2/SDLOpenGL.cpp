@@ -119,11 +119,11 @@ uint32 SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
         impl_->fonts_.push_back(font);
         return impl_->fonts_.size();
     }
-
+    
     return 0;
 }
 
-GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color)
+GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline)
 {
     auto index = id - 1;
     if (index >= impl_->fonts_.size())
@@ -136,10 +136,10 @@ GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text
     _color.r = static_cast<uint8>(color.x * 255.f);
     _color.g = static_cast<uint8>(color.y * 255.f);
     _color.b = static_cast<uint8>(color.z * 255.f);
-    _color.a = static_cast<uint8>(color.w * 255.f);
-
+    _color.a = 255.f;// static_cast<uint8>(color.w * 255.f);
+    TTF_SetFontOutline(font, outline);
     auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), _color);
-
+    TTF_SetFontOutline(font, outline);
     if (not sdlSurface)
     {
         Error("Cannot make a text texture" + std::string(SDL_GetError()));

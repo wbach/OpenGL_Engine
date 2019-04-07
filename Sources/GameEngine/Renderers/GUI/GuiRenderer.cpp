@@ -4,7 +4,7 @@ namespace GameEngine
 {
 GUIRenderer::GUIRenderer(std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
 {
-    rendererFunction(RendererFunctionType::POSTUPDATE, std::bind(&GUIRenderer::Render, this, std::placeholders::_1, std::placeholders::_2));
+    //rendererFunction(RendererFunctionType::ONENDFRAME, std::bind(&GUIRenderer::Render, this, std::placeholders::_1, std::placeholders::_2));
 }
 GUIRenderer::~GUIRenderer()
 {

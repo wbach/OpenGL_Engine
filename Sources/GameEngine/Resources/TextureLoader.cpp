@@ -315,10 +315,16 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     fclose(fp);
 
-    for (auto& height : text.floatData)
-    {
-        height *= heightMapFactor_;
-    }
+    //fp = fopen((filename + ".raw").c_str(), "wb+");
+
+    //for (auto& height : text.floatData)
+    //{
+    //    height *= heightMapFactor_;
+    //    auto s = static_cast<short>(height);
+    //    fwrite(&s, sizeof(short), 1, fp);
+    //}
+
+    //fclose(fp);
 
     auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, texture);
     textures_.emplace_back(heightmap_texture);

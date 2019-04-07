@@ -129,7 +129,7 @@
               </texture>
               <texture>
                 <textureType>14</textureType>
-                <textureFileName>Textures/Terrain/HeightMaps/HelionHightMap256.terrain</textureFileName>
+                <textureFileName>Textures/Terrain/HeightMaps/ExportedTerrain.terrain</textureFileName>
               </texture>
               <texture>
                 <textureType>8</textureType>

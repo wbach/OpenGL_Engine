@@ -60,6 +60,7 @@ void TerrainRenderer::Render(const Scene& scene, const Time&)
     if (subscribes_.empty())
         return;
 
+    context_.graphicsApi_.DisableCulling();
     shader_->Start();
     shader_->Load(TerrainShaderUniforms::cameraPosition, scene.GetCamera().GetPosition());
 

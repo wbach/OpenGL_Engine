@@ -1,5 +1,5 @@
 #version 430
-#define HEIGHT_FACTOR 40
+#define HEIGHT_FACTOR 1600
 layout(quads, fractional_odd_spacing, cw) in;
 
 uniform sampler2D heightmap;

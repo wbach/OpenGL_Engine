@@ -16,6 +16,7 @@ void GuiTextureShader::GetAllUniformLocations()
 {
     uniforms_.resize(GuiTextureShaderUniforms::SIZE);
     uniforms_[GuiTextureShaderUniforms::TransformationMatrix] = GetUniformLocation("transformationMatrix");
+    uniforms_[GuiTextureShaderUniforms::color]                = GetUniformLocation("color");
 }
 void GuiTextureShader::BindAttributes()
 {

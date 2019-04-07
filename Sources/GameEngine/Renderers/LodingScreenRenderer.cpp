@@ -32,8 +32,11 @@ void LoadingScreenRenderer::Render(Scene *)
 {
     prepareRender();
     shader_->Start();
+    graphicsApi_.EnableBlend();
+    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
     renderQuad(backgroundBufferId_, backgroundTexture->GetId());
     renderQuad(circleBufferId_, circleTexture->GetId());
+    graphicsApi_.DisableBlend();
     shader_->Stop();
     timer_ = Utils::Timer();
 }

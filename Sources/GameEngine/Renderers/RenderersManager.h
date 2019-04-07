@@ -7,6 +7,7 @@
 #include "Projection.h"
 #include "RendererFunctionType.h"
 #include "BufferDataUpdater.h"
+#include "GUI/GuiRenderer.h"
 
 namespace GameEngine
 {
@@ -60,6 +61,7 @@ private:
     std::atomic_bool markToReloadShaders_;
     Renderer::Gui::GuiContext guiContext_;
     IRenderersPtrVec renderers_;
+    IRendererPtr guiRenderer_;
     Projection projection_;
     RendererFunctions rendererFunctions_;
     IShaderFactory& shaderFactory_;

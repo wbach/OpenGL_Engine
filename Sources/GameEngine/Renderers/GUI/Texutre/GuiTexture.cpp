@@ -24,11 +24,10 @@ void GuiTexture::Init()
 void GuiTexture::Render()
 {
     shader_->Start();
-    graphicsApi_.EnableBlend();
-    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+
     for (const auto& gte : guiTextures_)
         RenderTextureElement(gte.second);
-    graphicsApi_.DisableBlend();
+
     shader_->Stop();
 }
 void GuiTexture::UnSubscribeAll()
@@ -37,9 +36,13 @@ void GuiTexture::UnSubscribeAll()
 }
 void GuiTexture::RenderTextureElement(const GuiTextureElement& te)
 {
+    graphicsApi_.EnableBlend();
+    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+    shader_->Load(GuiTextureShaderUniforms::color, te.GetColor());
     shader_->Load(GuiTextureShaderUniforms::TransformationMatrix, te.GetMatrix());
     graphicsApi_.ActiveTexture(0, te.texture->GetId());
     graphicsApi_.RenderQuad();
+    graphicsApi_.DisableBlend();
 }
 void GuiTexture::ReloadShaders()
 {

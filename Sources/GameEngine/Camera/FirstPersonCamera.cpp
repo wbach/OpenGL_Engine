@@ -5,7 +5,7 @@
 
 static vec3 zero(0);
 
-const float defaultCamSpeed         = Utils::KmToMs<float>(25);
+const float defaultCamSpeed         = Utils::KmToMs<float>(2500);
 const float defaultCamRotationSpeed = 0.2f;
 
 namespace GameEngine

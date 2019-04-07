@@ -150,7 +150,7 @@ uint32 WinApi::OpenFont(const std::string& filename, uint32 size)
 {
     return uint32();
 }
-GraphicsApi::Surface WinApi::RenderFont(uint32 id, const std::string& text, const vec4& color)
+GraphicsApi::Surface WinApi::RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline)
 {
     return GraphicsApi::Surface();
 }

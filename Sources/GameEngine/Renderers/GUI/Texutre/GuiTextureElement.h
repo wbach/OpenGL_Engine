@@ -27,6 +27,11 @@ public:
         UpdateTransformMatrix();
     }
 
+    void SetColor(const vec3& c)
+    {
+        color_ = c;
+    }
+
     void Flip()
     {
         scale_.y *= -1;
@@ -54,6 +59,10 @@ public:
     {
         return rotation_;
     }
+    const vec3 GetColor() const
+    {
+        return color_;
+    }
 
 private:
     void UpdateTransformMatrix()
@@ -65,8 +74,9 @@ private:
     mat4 transformMatrix_ = mat4(1.f);
     vec2 position_        = vec2(0);
     vec2 scale_           = vec2(1);
+    vec3 color_           = vec3(1, 1, 1);
     float rotation_       = 0.f;
 };
-}  // Gui
-}  // Renderers
-}  // GameEngine
+}  // namespace Gui
+}  // namespace Renderer
+}  // namespace GameEngine

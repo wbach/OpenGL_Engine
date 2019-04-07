@@ -58,7 +58,7 @@ public:
     {
         return 0;
     }
-    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color) override
+    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline) override
     {
         return GraphicsApi::Surface();
     }

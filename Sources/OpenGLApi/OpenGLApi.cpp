@@ -1036,6 +1036,7 @@ void OpenGLApi::LineModeRender()
 
 void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
 {
+    glBlendEquation(GL_FUNC_ADD);
     switch (type)
     {
         case GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA:

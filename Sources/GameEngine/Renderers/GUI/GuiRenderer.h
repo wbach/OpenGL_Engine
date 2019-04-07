@@ -18,9 +18,9 @@ public:
     virtual void ReloadShaders() override;
     // create unique_ptr from ptr
     void AddElement(GuiElement* element);
+    void Render(const Scene& scene, const Time&);
 
 private:
-    void Render(const Scene& scene, const Time&);
 
 private:
     std::vector<std::unique_ptr<IGuiElement>> guiElements;

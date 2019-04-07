@@ -36,6 +36,7 @@ void GuiText::InitShader()
 
 void GuiText::Render()
 {
+    return;
     shader_->Start();
     graphicsApi_.ActiveTexture(0);
 

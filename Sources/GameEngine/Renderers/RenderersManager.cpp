@@ -97,12 +97,13 @@ void RenderersManager::InitGuiRenderer()
 {
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
+
     guiContext_.renderer = new GUIRenderer(registerFunc);
     guiContext_.texts    = new GameEngine::GuiText(graphicsApi_, "GUI/consola.ttf", shaderFactory_);
     guiContext_.texures  = new Renderer::Gui::GuiTexture(graphicsApi_, shaderFactory_);
     guiContext_.renderer->AddElement(guiContext_.texures);
     guiContext_.renderer->AddElement(guiContext_.texts);
-    renderers_.emplace_back(guiContext_.renderer);
+    guiRenderer_ = std::unique_ptr<IRenderer>(guiContext_.renderer);
 }
 void RenderersManager::RegisterRenderFunction(RendererFunctionType type, RendererFunction function)
 {
@@ -126,6 +127,8 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     Render(RendererFunctionType::UPDATE, scene, threadTime);
     Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
     Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
+
+    static_cast<GUIRenderer*>(guiRenderer_.get())->Render(*scene, threadTime);
 }
 void RenderersManager::ReloadShaders()
 {
@@ -247,8 +250,9 @@ void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
     if (perFrameId_)
     {
         PerFrameBuffer buffer;
-        buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad( projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix() );
-        buffer.cameraPosition       = scene->GetCamera().GetPosition();
+        buffer.ProjectionViewMatrix =
+            graphicsApi_.PrepareMatrixToLoad(projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix());
+        buffer.cameraPosition = scene->GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }
