@@ -29,13 +29,13 @@ private:
     void Save();
 
 private:
-    GameEngine::GuiTextElement currentType_;
-    GameEngine::GuiTextElement currentElement_;
+    //GameEngine::GuiTextElement currentType_;
+    //GameEngine::GuiTextElement currentElement_;
 
     std::pair<GuiEditingType, uint32> currentEditElement_;
 
     std::vector<GameEngine::GuiTextElement> guiTexts_;
-    std::vector<GameEngine::Renderer::Gui::GuiTextureElement> guiTextures_;
+    std::vector<GameEngine::GuiTextureElement> guiTextures_;
 
     bool attached;
 };

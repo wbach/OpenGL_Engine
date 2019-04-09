@@ -18,7 +18,7 @@ ShaderProgram::~ShaderProgram()
 {
     Clear();
 }
-void ShaderProgram::Init()
+bool ShaderProgram::Init()
 {
     GraphicsApi::GraphicsApiFunctions f;
     f[GraphicsApi::GraphicFunctionType::SHADER_SET_ID] =
@@ -34,6 +34,8 @@ void ShaderProgram::Init()
         std::bind(&ShaderProgram::ConnectTextureUnitsFunction, this, std::placeholders::_1);
 
     programID_ = graphicsApi_.CreateShader(shaderType_, f);
+
+    return programID_ != 0;
 }
 void ShaderProgram::Reload()
 {

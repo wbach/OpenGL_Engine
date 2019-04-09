@@ -44,7 +44,7 @@ private:
     MrpgGameContext& gameContext_;
     std::vector<CharacterSlot>& charactersData_;
 
-    GameEngine::GuiTextElement characterSelectText_;
+    //GameEngine::GuiTextElement characterSelectText_;
     wb::optional<int8> currentSelectCharacterId_;
 };
 }

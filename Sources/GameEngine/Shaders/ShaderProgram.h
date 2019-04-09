@@ -16,7 +16,7 @@ public:
     ShaderProgram(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::Shaders shaderType);
     virtual ~ShaderProgram();
 
-    void Init() override;
+    bool Init() override;
     void Reload() override;
 
     bool IsReady() const override;

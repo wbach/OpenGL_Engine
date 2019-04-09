@@ -76,13 +76,15 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.h
 ../../Sources/GameEngine/Renderers/GUI/GuiContext.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.h
+../../Sources/GameEngine/Renderers/GUI/GuiElementTypes.h
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.h
-../../Sources/GameEngine/Renderers/GUI/IGuiElement.h
+../../Sources/GameEngine/Renderers/GUI/IGuiRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Rect.h
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.h
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShaderUniforms.h
-../../Sources/GameEngine/Renderers/GUI/Text/GuiText.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
+../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.h
+../../Sources/GameEngine/Renderers/GUI/Text/GuiTextRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShaderUniforms.h
@@ -259,7 +261,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Common/common.hpp
 ../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.hpp
 ../../Sources/GameEngine/Display/DisplayManager.hpp
-../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.hpp
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureRenderer.hpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/IShadowFrameBuffer.hpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.hpp
 ../../Sources/GameEngine/Resources/IResourceManager.hpp

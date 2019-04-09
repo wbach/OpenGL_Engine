@@ -13,7 +13,7 @@ namespace Components
 ComponentsType RendererComponent::type = ComponentsType::Renderer;
 
 RendererComponent::RendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(ComponentsType::Renderer, componentContext, gameObject)
+    : BaseComponent(RendererComponent::type, componentContext, gameObject)
     , textureIndex_(0)
 {
 }

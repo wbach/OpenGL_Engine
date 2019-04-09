@@ -10,7 +10,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "GameEngine/Renderers/GUI/Text/GuiText.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
@@ -93,7 +93,7 @@ const std::string OBJECT_COUNT_GUI_TEXT = "objectsCount";
 
 void PhysicsScene::UpdateObjectsCountText()
 {
-    renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT).text = "Objects count : " + std::to_string(gameObjects.size());
+   // renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT).text = "Objects count : " + std::to_string(gameObjects.size());
 }
 
 void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
@@ -183,10 +183,10 @@ int PhysicsScene::Initialize()
 {
     resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/flat_height_map.png",
                                                          "Textures/Terrain/HeightMaps/TerrainFlat.terrain");
-    auto& octext    = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
-    octext.position = vec2(0.5, 0.9);
-    octext.m_size   = 0.5f;
-    octext.colour   = vec3(1, 0, 0);
+    //auto& octext    = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
+    //octext.position = vec2(0.5, 0.9);
+    //octext.m_size   = 0.5f;
+    //octext.colour   = vec3(1, 0, 0);
     UpdateObjectsCountText();
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);

@@ -49,10 +49,14 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.cpp
+../../Sources/GameEngine/Renderers/GUI/GuiElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
-../../Sources/GameEngine/Renderers/GUI/Text/GuiText.cpp
-../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTexture.cpp
+../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.cpp
+../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.cpp
+../../Sources/GameEngine/Renderers/GUI/Text/GuiTextRenderer.cpp
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.cpp
+../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
 ../../Sources/GameEngine/Renderers/IRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp

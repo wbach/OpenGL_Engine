@@ -57,18 +57,18 @@ namespace MmmoRpg
 		vec2 finalPos = startPosition + offsetX * static_cast<float>(slotId);
 
 		CharacterSlot newSlot;
-		newSlot.texts[CharacterSlot::TextType::NICK].text = info.GetName();
-		newSlot.texts[CharacterSlot::TextType::NICK].m_size = size;
-		newSlot.texts[CharacterSlot::TextType::NICK].colour = itemsTextColour_;
-		newSlot.texts[CharacterSlot::TextType::NICK].position = finalPos + offsetY;
-		newSlot.texts[CharacterSlot::TextType::LVL].m_size = size;
-		newSlot.texts[CharacterSlot::TextType::LVL].text = "Lvl : " + std::to_string(info.lvl_);
-		newSlot.texts[CharacterSlot::TextType::LVL].colour = itemsTextColour_;
-		newSlot.texts[CharacterSlot::TextType::LVL].position = finalPos + 2.f*offsetY;
-		newSlot.texts[CharacterSlot::TextType::CLASSNAME].m_size = size;
-		newSlot.texts[CharacterSlot::TextType::CLASSNAME].text = "Class id : " + std::to_string(info.classId_);
-		newSlot.texts[CharacterSlot::TextType::CLASSNAME].colour = itemsTextColour_;
-		newSlot.texts[CharacterSlot::TextType::CLASSNAME].position = finalPos + 3.f*offsetY;;
+		//newSlot.texts[CharacterSlot::TextType::NICK].text = info.GetName();
+		//newSlot.texts[CharacterSlot::TextType::NICK].m_size = size;
+		//newSlot.texts[CharacterSlot::TextType::NICK].colour = itemsTextColour_;
+		//newSlot.texts[CharacterSlot::TextType::NICK].position = finalPos + offsetY;
+		//newSlot.texts[CharacterSlot::TextType::LVL].m_size = size;
+		//newSlot.texts[CharacterSlot::TextType::LVL].text = "Lvl : " + std::to_string(info.lvl_);
+		//newSlot.texts[CharacterSlot::TextType::LVL].colour = itemsTextColour_;
+		//newSlot.texts[CharacterSlot::TextType::LVL].position = finalPos + 2.f*offsetY;
+		//newSlot.texts[CharacterSlot::TextType::CLASSNAME].m_size = size;
+		//newSlot.texts[CharacterSlot::TextType::CLASSNAME].text = "Class id : " + std::to_string(info.classId_);
+		//newSlot.texts[CharacterSlot::TextType::CLASSNAME].colour = itemsTextColour_;
+		//newSlot.texts[CharacterSlot::TextType::CLASSNAME].position = finalPos + 3.f*offsetY;;
 		newSlot.characterInfo = info;
 		SlotToRenderer(newSlot, slotId);
 		charactersData_.push_back(newSlot);
@@ -79,7 +79,7 @@ namespace MmmoRpg
 		for (const auto& text : slot.texts)
 		{
 			auto name = "Slot_" + std::to_string(id) + "_" + std::to_string(i++);
-			rendererManager_.GuiText(name) = text.second;
+			//rendererManager_.GuiText(name) = text.second;
 		}
 	}
 }

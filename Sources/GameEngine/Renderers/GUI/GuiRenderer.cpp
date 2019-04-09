@@ -1,43 +1,56 @@
 #include "GuiRenderer.h"
+#include "Text/GuiTextRenderer.h"
+#include "Texutre/GuiTextureRenderer.hpp"
 
 namespace GameEngine
 {
-GUIRenderer::GUIRenderer(std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
+GUIRenderer::GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
+    : graphicsApi_(graphicsApi)
 {
-    //rendererFunction(RendererFunctionType::ONENDFRAME, std::bind(&GUIRenderer::Render, this, std::placeholders::_1, std::placeholders::_2));
+    renderers_.emplace_back(new GuiTextRenderer(graphicsApi_, shaderFactory));
+    renderers_.emplace_back(new Renderer::Gui::GuiTextureRenderer(graphicsApi_, shaderFactory));
 }
 GUIRenderer::~GUIRenderer()
 {
 }
 void GUIRenderer::Init()
 {
-    for (const auto& element : guiElements)
+    for (const auto& renderer : renderers_)
     {
-        element->Init();
+        renderer->Init();
     }
 }
 
 void GUIRenderer::Render(const Scene&, const Time&)
 {
-    for (const auto& element : guiElements)
+    for (const auto& renderer : renderers_)
     {
-        element->Render();
+        renderer->Render();
     }
+}
+
+void GUIRenderer::Add(const std::string& name, std::unique_ptr<GuiElement> element)
+{
+    for (const auto& renderer : renderers_)
+    {
+        renderer->Subscribe(element.get());
+    }
+
+    elementsMap_.insert({ name , element.get()});
+    elements_.push_back(std::move(element));
 }
 
 void GUIRenderer::UnSubscribeAll()
 {
-    for (auto& el : guiElements)
-        el->UnSubscribeAll();
+    for (auto& renderer : renderers_)
+        renderer->UnSubscribeAll();
+
+    elements_.clear();
+    elementsMap_.clear();
 }
 void GUIRenderer::ReloadShaders()
 {
-    for (auto& el : guiElements)
-        el->ReloadShaders();
+    for (auto& renderer : renderers_)
+        renderer->ReloadShaders();
 }
-void GUIRenderer::AddElement(GuiElement* element)
-{
-    guiElements.emplace_back(element);
-    element->Init();
-}
-}  // GameEngine
+}  // namespace GameEngine

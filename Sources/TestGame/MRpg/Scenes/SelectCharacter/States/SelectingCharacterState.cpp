@@ -52,9 +52,9 @@ void SelectingCharacterState::SetCurrentChoiceText()
     if (charactersData_.empty() || !currentSelectCharacterId_)
         return;
 
-    rendererManager_.GuiText("CurrentChoice")          = characterSelectText_;
-    rendererManager_.GuiText("CurrentChoice").position = vec2(-0.2, 0);
-    rendererManager_.GuiText("CurrentChoice").text     = charactersData_[currentSelectCharacterId_.value()].characterInfo.GetName();
+//    rendererManager_.GuiText("CurrentChoice")          = characterSelectText_;
+ //   rendererManager_.GuiText("CurrentChoice").position = vec2(-0.2, 0);
+ //   rendererManager_.GuiText("CurrentChoice").text     = charactersData_[currentSelectCharacterId_.value()].characterInfo.GetName();
 }
 
 void SelectingCharacterState::SubscribesForKeysInput()

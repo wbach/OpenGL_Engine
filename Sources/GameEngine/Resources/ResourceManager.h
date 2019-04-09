@@ -23,6 +23,7 @@ public:
     inline ITextureLoader& GetTextureLaoder() override;
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
     Texture* AddTexture(std::unique_ptr<Texture>) override;
+    void DeleteTexture(uint32 id);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;

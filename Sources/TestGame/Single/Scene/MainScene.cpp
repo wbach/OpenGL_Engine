@@ -22,7 +22,7 @@
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "GameEngine/Renderers/GUI/Text/GuiText.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextRenderer.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "GraphicsApi/BlendFunctionsTypes.h"
@@ -91,10 +91,14 @@ int MainScene::Initialize()
     // resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/HelionHightMap256.png",
     //                        "Textures/Terrain/HeightMaps/HelionHightMap256.terrain");
 
-    renderersManager_->GuiText("playerPos").position = vec2(-0.9, -0.9);
-    renderersManager_->GuiText("playerPos").m_size   = .5f;
-    renderersManager_->GuiText("playerPos").colour   = vec3(.8f, 0.f, 0.f);
-    renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
+    auto fontSize = 28;
+    auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
+
+    renderersManager_->CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
+    renderersManager_->GuiText("playerPos")->SetPostion(vec2(-0.9, -0.9));
+    renderersManager_->GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
+
+   /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
     renderersManager_->GuiText("gameTime").m_size    = 0.5f;
     renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" +
                                                   std::to_string(dayNightCycle.GetCurrentHour().y);
@@ -108,8 +112,8 @@ int MainScene::Initialize()
     guiTexture.SetScale(vec2(0.3));
 
     auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
-    auto fontSize    = 28;
-    auto fontPath    = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
+    
+    
     auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
 
 
@@ -130,7 +134,7 @@ int MainScene::Initialize()
         renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
         renderersManager_->GuiTexture("fontTexture").SetColor(vec3(1, 1, 1));
         renderersManager_->GuiTexture("fontTexture").SetScale(scale);
-    }
+    }*/
 
 
     //{
@@ -153,7 +157,7 @@ int MainScene::Initialize()
     //}
 
 
-    renderersManager_->GuiTexture("fontBackground") = guiTexture;
+    //renderersManager_->GuiTexture("fontBackground") = guiTexture;
 
     RegisterParticleEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
         Particle particle = referenceParticle;
@@ -287,8 +291,8 @@ int MainScene::Update(float dt)
 
     if (timeClock > 1.f)
     {
-        timeClock                                   = 0;
-        renderersManager_->GuiText("gameTime").text = "Game Time: " + std::to_string(dayNightCycle.GetCurrentHour().x) +
+       // timeClock                                   = 0;
+        //renderersManager_->GuiText("gameTime").text = "Game Time: " + std::to_string(dayNightCycle.GetCurrentHour().x) +
                                                       ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
     }
 
@@ -297,8 +301,8 @@ int MainScene::Update(float dt)
     CheckCollisions(deltaTime);
     UpdatePlayerandCamera(deltaTime);
 
-    renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
-    renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
+    //renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
+    //renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
     return 0;
 }
 

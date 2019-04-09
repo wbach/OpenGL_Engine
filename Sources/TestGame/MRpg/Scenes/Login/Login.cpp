@@ -2,7 +2,7 @@
 #include "Engine/Engine.h"
 #include "Gateway.h"
 #include "Input/KeyCodeToCharConverter.h"
-#include "Renderers/GUI/Text/GuiText.h"
+#include "Renderers/GUI/Text/GuiTextRenderer.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
 
@@ -19,17 +19,17 @@ LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddr
 
     vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);
 
-    guiLogin_.text     = "Login :";
-    guiLogin_.colour   = textColor;
-    guiLogin_.position = glm::vec2(-0.249091, 0.051429);
+    //guiLogin_.text     = "Login :";
+    //guiLogin_.colour   = textColor;
+    //guiLogin_.position = glm::vec2(-0.249091, 0.051429);
 
-    guiPass_.text     = "Password :";
-    guiPass_.colour   = textColor;
-    guiPass_.position = glm::vec2(-0.249091, -0.262857);
+    //guiPass_.text     = "Password :";
+    //guiPass_.colour   = textColor;
+    //guiPass_.position = glm::vec2(-0.249091, -0.262857);
 }
 int LoginScene::Initialize()
 {
-    GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+    /*GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
     guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/LoginBg_1.jpg", false);
 
     GameEngine::Renderer::Gui::GuiTextureElement loginBox;
@@ -45,7 +45,7 @@ int LoginScene::Initialize()
 
     renderersManager_->GuiText("Error") = guiLogin_;
     renderersManager_->GuiText("Error").position.y -= 0.5f;
-    renderersManager_->GuiText("Error").text = "";
+    renderersManager_->GuiText("Error").text = "";*/
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() { ConnectToServer(); });
 
@@ -82,8 +82,8 @@ int LoginScene::Update(float deltaTime)
 
 void LoginScene::PrintLoginAndPassword()
 {
-    renderersManager_->GuiText("login").text = login_ + ((!loginOrPasswordInput && showCursor_) ? "_" : "");
-    renderersManager_->GuiText("pass").text  = PasswordToStars() + ((loginOrPasswordInput && showCursor_) ? "_" : "");
+    //renderersManager_->GuiText("login").text = login_ + ((!loginOrPasswordInput && showCursor_) ? "_" : "");
+    //renderersManager_->GuiText("pass").text  = PasswordToStars() + ((loginOrPasswordInput && showCursor_) ? "_" : "");
 }
 
 void LoginScene::ConnectToServer()
@@ -95,11 +95,11 @@ void LoginScene::ConnectToServer()
 
     if (!isConnected)
     {
-        renderersManager_->GuiText("Error").text = "Connection Error.";
+        //renderersManager_->GuiText("Error").text = "Connection Error.";
         return;
     }
 
-    renderersManager_->GuiText("Error").text = "Connected.";
+   // renderersManager_->GuiText("Error").text = "Connected.";
     GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE);
     addSceneEvent(e);
 }

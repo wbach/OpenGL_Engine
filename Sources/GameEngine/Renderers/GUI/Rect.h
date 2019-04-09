@@ -3,9 +3,9 @@
 
 namespace GameEngine
 {
-    struct Rect
-    {
-        vec2 position;
-        vec2 size;
-    };
-} // GameEngine
+struct Rect
+{
+    vec2ui position;
+    vec2ui size;
+};
+}  // namespace GameEngine

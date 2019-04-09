@@ -3,19 +3,19 @@
 
 namespace GameEngine
 {
-	class GuiText;
+	class GuiTextRenderer;
 	class GUIRenderer;
 
 	namespace Renderer
 	{
 		namespace Gui
 		{
-			class GuiTexture;
+			class GuiTextureRenderer;
 
 			struct GuiContext
 			{
-				GuiText* texts = nullptr;
-				GuiTexture* texures = nullptr;
+				GuiTextRenderer* texts = nullptr;
+				GuiTextureRenderer* texures = nullptr;
 				GUIRenderer* renderer = nullptr;
 			};
 		}

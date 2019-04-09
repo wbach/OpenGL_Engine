@@ -21,12 +21,12 @@ SelectCharacterScene::~SelectCharacterScene()
 }
 int SelectCharacterScene::Initialize()
 {
-    GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
-    guiTexture.texture                  = resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
-    renderersManager_->GuiTexture("bg") = guiTexture;
+    //GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+    //guiTexture.texture                  = resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
+    //renderersManager_->GuiTexture("bg") = guiTexture;
 
-    renderersManager_->GuiText("SelectCharacter").text   = "SelectCharacter";
-    renderersManager_->GuiText("SelectCharacter").colour = Utils::RGBtoFloat(20.f, 50.f, 150.f);
+    //renderersManager_->GuiText("SelectCharacter").text   = "SelectCharacter";
+    //renderersManager_->GuiText("SelectCharacter").colour = Utils::RGBtoFloat(20.f, 50.f, 150.f);
 
     CreateState();
     return 0;

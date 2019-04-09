@@ -1,6 +1,6 @@
 #pragma once
 #include <unordered_map>
-#include "../GuiElement.h"
+#include "../IGuiRenderer.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GuiTextureElement.h"
 #include "GuiTextureShader.h"
@@ -14,18 +14,16 @@ namespace Renderer
 {
 namespace Gui
 {
-typedef std::unordered_map<std::string, GuiTextureElement> GuiTextures;
-
-class GuiTexture : public GuiElement
+class GuiTextureRenderer : public IGuiRenderer
 {
 public:
-    GuiTexture(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
-    virtual ~GuiTexture() override;
+    GuiTextureRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
+    virtual ~GuiTextureRenderer() override;
     virtual void Init() override;
     virtual void Render() override;
+    virtual void Subscribe(GuiElement*) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    GuiTextures guiTextures_;
 
 private:
     void RenderTextureElement(const GuiTextureElement& te);
@@ -33,6 +31,10 @@ private:
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::unique_ptr<IShaderProgram> shader_;
+    std::vector<GuiTextureElement*> textures_;
+    uint32 transformBuffer_;
+    uint32 textBuffer_;
+    bool isInit_;
 };
 }  // namespace Gui
 }  // namespace Renderer

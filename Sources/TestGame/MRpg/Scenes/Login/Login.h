@@ -28,8 +28,8 @@ private:
 private:
     Utils::Time::CTimeMeasurer cursorTimer_;
 
-    GameEngine::GuiTextElement guiLogin_;
-    GameEngine::GuiTextElement guiPass_;
+    //GameEngine::GuiTextElement guiLogin_;
+    //GameEngine::GuiTextElement guiPass_;
 
     std::string login_;
     std::string password_;

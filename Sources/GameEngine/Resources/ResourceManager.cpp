@@ -3,6 +3,8 @@
 #include "Logger/Log.h"
 #include "Models/Assimp/AssimpModel.h"
 #include "TextureLoader.h"
+#include <algorithm>
+
 namespace GameEngine
 {
 ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi)
@@ -47,5 +49,15 @@ Texture* ResourceManager::AddTexture(std::unique_ptr<Texture> texture)
 {
     textures_.push_back(std::move(texture));
     return textures_.back().get();
+}
+void ResourceManager::DeleteTexture(uint32 id)
+{
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [id](const auto& texture) {return (texture->GetId() == id); });
+
+    if (iter != textures_.end())
+    {
+        graphicsApi_.DeleteObject(id);
+    }
+    textures_.erase(iter);
 }
 }  // namespace GameEngine

@@ -3,8 +3,8 @@
 
 #include "DefferedRenderer.h"
 #include "GUI/GuiRenderer.h"
-#include "GUI/Text/GuiText.h"
-#include "GUI/Texutre/GuiTexture.hpp"
+#include "GUI/Text/GuiTextRenderer.h"
+#include "GUI/Texutre/GuiTextureRenderer.hpp"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -43,9 +43,11 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShad
     : graphicsApi_(graphicsApi)
     , renderAsLines(false)
     , markToReloadShaders_(false)
+    , guiRenderer_(graphicsApi, shaderFactory)
     , shaderFactory_(shaderFactory)
     , renderPhysicsDebug_(false)
     , bufferDataUpdater_(graphicsApi)
+    , guiTextFactory_(graphicsApi_, EngineConf.renderer.resolution)
 {
 }
 const Projection& RenderersManager::GetProjection() const
@@ -95,15 +97,7 @@ void RenderersManager::InitMainRenderer()
 }
 void RenderersManager::InitGuiRenderer()
 {
-    auto registerFunc =
-        std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
-
-    guiContext_.renderer = new GUIRenderer(registerFunc);
-    guiContext_.texts    = new GameEngine::GuiText(graphicsApi_, "GUI/consola.ttf", shaderFactory_);
-    guiContext_.texures  = new Renderer::Gui::GuiTexture(graphicsApi_, shaderFactory_);
-    guiContext_.renderer->AddElement(guiContext_.texures);
-    guiContext_.renderer->AddElement(guiContext_.texts);
-    guiRenderer_ = std::unique_ptr<IRenderer>(guiContext_.renderer);
+    guiRenderer_.Init();
 }
 void RenderersManager::RegisterRenderFunction(RendererFunctionType type, RendererFunction function)
 {
@@ -128,7 +122,7 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
     Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
 
-    static_cast<GUIRenderer*>(guiRenderer_.get())->Render(*scene, threadTime);
+    guiRenderer_.Render(*scene, threadTime);
 }
 void RenderersManager::ReloadShaders()
 {
@@ -172,13 +166,21 @@ void RenderersManager::SwapLineFaceRender()
 {
     renderAsLines.store(!renderAsLines.load());
 }
-GuiTextElement& RenderersManager::GuiText(const std::string& label)
+GuiTextElement* RenderersManager::CreateGuiText(const std::string& label, const std::string& font,
+                                                const std::string& str, uint32 size, uint32 outline)
 {
-    return guiContext_.texts->texts[label];
+    auto text   = guiTextFactory_.Create(font, str, size, outline);
+    auto result = text.get();
+    guiRenderer_.Add(label, std::move(text));
+    return result;
 }
-Gui::GuiTextureElement& RenderersManager::GuiTexture(const std::string& label)
+GuiTextElement* RenderersManager::GuiText(const std::string& label)
 {
-    return guiContext_.texures->guiTextures_[label];
+    return guiRenderer_.Get<GuiTextElement>(label);
+}
+GuiTextureElement* RenderersManager::GuiTexture(const std::string& label)
+{
+    return guiRenderer_.Get<GuiTextureElement>(label);
 }
 void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_)
 {
