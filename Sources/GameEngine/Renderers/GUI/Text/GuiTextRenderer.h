@@ -3,7 +3,6 @@
 #include "../IGuiRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GuiTextElement.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -24,6 +23,7 @@ public:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    IShaderFactory& shaderFactory_;
     std::unique_ptr<IShaderProgram> shader_;
     GuiTexts texts_;
 

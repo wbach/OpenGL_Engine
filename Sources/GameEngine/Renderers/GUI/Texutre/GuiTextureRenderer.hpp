@@ -30,6 +30,7 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    IShaderFactory& shaderFactory_;
     std::unique_ptr<IShaderProgram> shader_;
     std::vector<GuiTextureElement*> textures_;
     uint32 transformBuffer_;

@@ -5,7 +5,7 @@
 #include "GameEngine/Renderers/RendererFunctionType.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GuiElement.h"
-#include "IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "IGuiRenderer.h"
 #include "Logger/Log.h"
 

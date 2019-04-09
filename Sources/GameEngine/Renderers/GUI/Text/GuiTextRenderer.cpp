@@ -5,6 +5,7 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -17,9 +18,9 @@ struct TextBuffer
 }  // namespace
 GuiTextRenderer::GuiTextRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
+    , shaderFactory_(shaderFactory)
     , isInit_(false)
 {
-    shader_ = shaderFactory.create(GraphicsApi::Shaders::Texture);
 }
 
 void GuiTextRenderer::UnSubscribeAll()
@@ -28,6 +29,7 @@ void GuiTextRenderer::UnSubscribeAll()
 
 void GuiTextRenderer::ReloadShaders()
 {
+    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
     shader_->Stop();
     shader_->Reload();
     shader_->Init();

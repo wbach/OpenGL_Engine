@@ -1,6 +1,6 @@
 #include "GuiTextFactory.h"
 #include "GuiTextElement.h"
-#include "IGraphicsApi.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -28,7 +28,7 @@ void GuiTextFactory::UpdateTexture(GuiTextElement& textElement)
 {
     if (textElement.GetTextureId())
     {
-        resourceManager_.DeleteTexture(*textElement.GetTextureId());
+       //resourceManager_.DeleteTexture(*textElement.GetTextureId());
         textElement.UnsetTexture();
     }
 

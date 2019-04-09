@@ -20,9 +20,9 @@ struct TextBuffer
 }  // namespace
 GuiTextureRenderer::GuiTextureRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
+    , shaderFactory_(shaderFactory)
     , isInit_(false)
 {
-    shader_ = shaderFactory.create(GraphicsApi::Shaders::Texture);
 }
 GuiTextureRenderer::~GuiTextureRenderer()
 {
@@ -44,7 +44,7 @@ void GuiTextureRenderer::Init()
         isInit_     = false;
         return;
     }
-
+    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
     isInit_ = shader_->Init();
 }
 void GuiTextureRenderer::Render()
