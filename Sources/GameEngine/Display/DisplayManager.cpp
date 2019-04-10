@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h,
-    GraphicsApi::WindowType type)
+DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w,
+                               const int& h, GraphicsApi::WindowType type)
     : graphicsApi_(api)
     , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
     , sync(true)
@@ -15,7 +15,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
 {
     if (graphicsApi_.GetWindowApi() == nullptr)
     {
-        Log("[Error] API not set!.Press any key.");
+        Error("API not set!.Press any key.");
         return;
     }
 
@@ -23,6 +23,10 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.CreateContext();
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
+    timeMeasurer.AddOnTickCallback([this]() {
+        auto fps = timeMeasurer.GetFps();
+        Log("FPS : " + std::to_string(fps));
+    });
 }
 
 DisplayManager::~DisplayManager()
@@ -77,4 +81,4 @@ std::shared_ptr<Input::InputManager> DisplayManager::CreateInput()
 {
     return graphicsApi_.GetWindowApi()->CreateInput();
 }
-}  // GameEngine
+}  // namespace GameEngine
