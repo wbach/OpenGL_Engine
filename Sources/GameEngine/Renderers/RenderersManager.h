@@ -8,7 +8,6 @@
 #include "IRenderer.h"
 #include "Projection.h"
 #include "RendererFunctionType.h"
-#include "GUI/Text/GuiTextFactory.h"
 
 namespace GameEngine
 {
@@ -32,12 +31,11 @@ public:
     void UnSubscribe(GameObject* gameObject);
     void UnSubscribeAll();
     void SwapLineFaceRender();
-    GuiTextElement* CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline);
-    GuiTextElement* GuiText(const std::string& label);
-    GuiTextureElement* GuiTexture(const std::string& label);
+
     void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_);
     void EnableDrawPhysicsDebyg();
     void DisableDrawPhysicsDebyg();
+    GUIRenderer& GetGuiRenderer();
 
 private:
     void ReloadShadersExecution();
@@ -66,7 +64,6 @@ private:
     bool renderPhysicsDebug_;
     GraphicsApi::ID perFrameId_;
     BufferDataUpdater bufferDataUpdater_;
-    GuiTextFactory guiTextFactory_;
 };
 }  // namespace Renderer
 }  // namespace GameEngine

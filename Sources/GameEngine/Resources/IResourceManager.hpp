@@ -13,9 +13,7 @@ class Texture;
 class IResourceManager
 {
 public:
-    virtual ~IResourceManager()
-    {
-    }
+    virtual ~IResourceManager() = default;
     virtual Model* LoadModel(const std::string& file)     = 0;
     virtual void AddModel(Model* model)                   = 0;
     virtual Model* GetModel(uint32 id)                    = 0;

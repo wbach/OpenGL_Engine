@@ -29,28 +29,19 @@ void GUIRenderer::Render(const Scene&, const Time&)
     }
 }
 
-void GUIRenderer::Add(const std::string& name, std::unique_ptr<GuiElement> element)
-{
-    for (const auto& renderer : renderers_)
-    {
-        renderer->Subscribe(element.get());
-    }
-
-    elementsMap_.insert({ name , element.get()});
-    elements_.push_back(std::move(element));
-}
-
 void GUIRenderer::UnSubscribeAll()
 {
     for (auto& renderer : renderers_)
         renderer->UnSubscribeAll();
-
-    elements_.clear();
-    elementsMap_.clear();
 }
 void GUIRenderer::ReloadShaders()
 {
     for (auto& renderer : renderers_)
         renderer->ReloadShaders();
+}
+void GUIRenderer::Subscribe(GuiElement& elemnt)
+{
+    for (auto& renderer : renderers_)
+        renderer->Subscribe(&elemnt);
 }
 }  // namespace GameEngine

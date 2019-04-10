@@ -47,7 +47,6 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShad
     , shaderFactory_(shaderFactory)
     , renderPhysicsDebug_(false)
     , bufferDataUpdater_(graphicsApi)
-    , guiTextFactory_(graphicsApi_, EngineConf.renderer.resolution)
 {
 }
 const Projection& RenderersManager::GetProjection() const
@@ -166,22 +165,7 @@ void RenderersManager::SwapLineFaceRender()
 {
     renderAsLines.store(!renderAsLines.load());
 }
-GuiTextElement* RenderersManager::CreateGuiText(const std::string& label, const std::string& font,
-                                                const std::string& str, uint32 size, uint32 outline)
-{
-    auto text   = guiTextFactory_.Create(font, str, size, outline);
-    auto result = text.get();
-    guiRenderer_.Add(label, std::move(text));
-    return result;
-}
-GuiTextElement* RenderersManager::GuiText(const std::string& label)
-{
-    return guiRenderer_.Get<GuiTextElement>(label);
-}
-GuiTextureElement* RenderersManager::GuiTexture(const std::string& label)
-{
-    return guiRenderer_.Get<GuiTextureElement>(label);
-}
+
 void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_)
 {
     physicsDebugDraw_ = func_;
@@ -193,6 +177,10 @@ void RenderersManager::EnableDrawPhysicsDebyg()
 void RenderersManager::DisableDrawPhysicsDebyg()
 {
     renderPhysicsDebug_ = false;
+}
+GUIRenderer& RenderersManager::GetGuiRenderer()
+{
+    return guiRenderer_;
 }
 void RenderersManager::Render(RendererFunctionType type, Scene* scene, const Time& threadTime)
 {

@@ -77,6 +77,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/GuiContext.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElementTypes.h
+../../Sources/GameEngine/Renderers/GUI/GuiManager.h
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/IGuiRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Rect.h

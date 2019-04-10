@@ -3,6 +3,7 @@
 #include <string>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "GraphicsApi/WindowApi.hpp"
+#include "GameEngine/Resources/Textures/Texture.h"
 #include "Types.h"
 #include <optional>
 
@@ -27,7 +28,7 @@ public:
     const GraphicsApi::Surface& GetSurface() const;
     std::optional<uint32> GetTextureId() const;
     const std::string& GetText() const;
-    void SetTextureId(uint32 id);
+    void SetTexture(Texture*);
     void UnsetTexture();
 
 private:
@@ -39,7 +40,7 @@ private:
     std::string text_;
     uint32 outline_;
     uint32 fontSize_;
-    std::optional<uint32> textureId_;
+    Texture* texture_;
     uint32 fontId_;
     std::string font_;
     GraphicsApi::Surface surface_;

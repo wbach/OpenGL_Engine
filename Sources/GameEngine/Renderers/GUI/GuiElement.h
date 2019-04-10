@@ -13,7 +13,8 @@ public:
 
 public:
     void SetRect(const Rect& rect);
-    void SetScale(const vec2& size);
+    void SetSize(const vec2ui& size);
+    void SetScale(const vec2& scale);
     void SetPostion(const vec2& position);
     void SetPostion(const vec2ui& position);
     void Rotate(float r);
@@ -38,10 +39,10 @@ private:
     void CalculatePosition();
 
 private:
-    vec2ui windowSize_;
     GuiElementTypes type_;
 
 protected:
+    vec2ui windowSize_;
     Rect rect_;
     vec2 position_;
     vec2 scale_;

@@ -10,6 +10,9 @@
 #include "SceneReader.h"
 #include "SceneWriter.h"
 #include "Utils/Time/Timer.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 
 namespace GameEngine
 {
@@ -84,6 +87,39 @@ void Scene::FullUpdate(float deltaTime)
 void Scene::PostUpdate()
 {
     componentController_.PostUpdate();
+}
+
+void Scene::CreateResourceManger(IResourceManager* resourceManager)
+{
+    resourceManager_.reset(resourceManager);
+    guiTextFactory_ = std::make_unique<GuiTextFactory>(*resourceManager, EngineConf.renderer.resolution);
+}
+
+void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
+{
+    guiManager_ = std::make_unique<GuiManager>([manager](auto& element)
+    {
+        manager->GetGuiRenderer().Subscribe(element);
+    });
+
+    renderersManager_ = manager;
+}
+
+GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font,
+    const std::string& str, uint32 size, uint32 outline)
+{
+    auto text = guiTextFactory_->Create(font, str, size, outline);
+    auto result = text.get();
+    guiManager_->Add(label, std::move(text));
+    return result;
+}
+GuiTextElement* Scene::GuiText(const std::string& label)
+{
+    return guiManager_->Get<GuiTextElement>(label);
+}
+GuiTextureElement* Scene::GuiTexture(const std::string& label)
+{
+    return guiManager_->Get<GuiTextureElement>(label);
 }
 
 std::unique_ptr<GameObject> Scene::CreateGameObject() const

@@ -31,7 +31,7 @@ GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi:
     , text_(str)
     , fontSize_(size)
     , outline_(outline)
-    , textureId_(0)
+    , texture_(nullptr)
     , font_(font)
 {
     RenderText();
@@ -44,7 +44,7 @@ const GraphicsApi::Surface& GuiTextElement::GetSurface() const
 
 std::optional<uint32> GuiTextElement::GetTextureId() const
 {
-    return textureId_;
+    return texture_ ? texture_->GetId() : std::optional<uint32>();
 }
 
 const std::string& GuiTextElement::GetText() const
@@ -52,14 +52,14 @@ const std::string& GuiTextElement::GetText() const
     return text_;
 }
 
-void GuiTextElement::SetTextureId(uint32 id)
+void GuiTextElement::SetTexture(Texture* texture)
 {
-    textureId_ = id;
+    texture_ = texture;
 }
 
 void GuiTextElement::UnsetTexture()
 {
-    textureId_ = std::optional<uint32>();
+    texture_ = nullptr;
 }
 
 void GuiTextElement::RenderText()
@@ -68,6 +68,7 @@ void GuiTextElement::RenderText()
     {
         fontId_  = windowApi_.OpenFont(font_, fontSize_);
         surface_ = windowApi_.RenderFont(fontId_, text_, ToVec4(color_), outline_);
+        SetSize(surface_.size);
         updateTexture_(*this);
     }
 }

@@ -91,12 +91,12 @@ int MainScene::Initialize()
     // resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/HelionHightMap256.png",
     //                        "Textures/Terrain/HeightMaps/HelionHightMap256.terrain");
 
-    auto fontSize = 28;
+    auto fontSize = 20;
     auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
 
-    renderersManager_->CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
-    renderersManager_->GuiText("playerPos")->SetPostion(vec2(-0.9, -0.9));
-    renderersManager_->GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
+    CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
+    GuiText("playerPos")->SetPostion(vec2(-0.8, -0.9));
+    GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
    /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
     renderersManager_->GuiText("gameTime").m_size    = 0.5f;
@@ -238,7 +238,7 @@ int MainScene::Initialize()
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
     camera->SetPosition(vec3(.5, 3.5, 2.1));
-    camera->SetPosition(vec3(-5107.217, 3324.774, 5352.738));
+    //camera->SetPosition(vec3(-5107.217, 3324.774, 5352.738));
     camera->LookAt(vec3(0, 2, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;

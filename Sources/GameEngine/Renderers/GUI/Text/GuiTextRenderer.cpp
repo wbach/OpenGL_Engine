@@ -54,10 +54,12 @@ void GuiTextRenderer::Render()
         PerObjectUpdate buffer;
         buffer.TransformationMatrix = text->GetMatrix();
         graphicsApi_.UpdateShaderBuffer(transformBuffer_, &buffer);
+        graphicsApi_.BindShaderBuffer(transformBuffer_);
 
         TextBuffer textBuffer;
         textBuffer.color = text->GetColor();
         graphicsApi_.UpdateShaderBuffer(textBuffer_, &textBuffer);
+        graphicsApi_.BindShaderBuffer(textBuffer_);
 
         graphicsApi_.BindTexture(*text->GetTextureId());
         graphicsApi_.RenderQuad();
@@ -82,18 +84,18 @@ void GuiTextRenderer::Init()
     auto id = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
     if (not id)
     {
-        transformBuffer_ = *id;
         isInit_          = false;
         return;
     }
+    transformBuffer_ = *id;
 
     id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(TextBuffer));
     if (not id)
     {
-        textBuffer_ = *id;
         isInit_     = false;
         return;
     }
+    textBuffer_ = *id;
 
     shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
     isInit_ = shader_->Init();

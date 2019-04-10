@@ -1,4 +1,4 @@
-#version 420
+#version 440
 
 in vec2 position;
 out vec2 textureCoords;

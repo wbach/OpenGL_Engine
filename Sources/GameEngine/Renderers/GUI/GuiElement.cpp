@@ -27,6 +27,13 @@ GuiElement::GuiElement(GuiElementTypes& type, const vec2ui& windowSize)
 void GuiElement::SetRect(const Rect& rect)
 {
     rect_ = rect;
+    CalculatePosition();
+    CaclulateScaleBasedOnRect();
+    CalculateMatrix();
+}
+void GuiElement::SetSize(const vec2ui& size)
+{
+    rect_.size = size;
     CaclulateScaleBasedOnRect();
     CalculateMatrix();
 }

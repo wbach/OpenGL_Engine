@@ -12,16 +12,12 @@
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/GUI/GuiContext.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextFactory.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
+#include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "SceneEvents.h"
 #include "Types.h"
-//#include "Mutex.hpp"
-
-// Object in scene are in grid (one grid size)
-const uint32 OBJECT_GRID_SIZE = 500;
-// const int grid count y in worlds
-const uint32 OBJECT_GRID_COUNT = 100;
 
 namespace Input
 {
@@ -36,6 +32,9 @@ namespace Renderer
 {
 class RenderersManager;
 }  // namespace Renderer
+
+class GuiTextElement;
+class GuiTextureElement;
 
 typedef std::unordered_map<uint32, std::unique_ptr<GameObject>> GameObjects;
 
@@ -93,6 +92,10 @@ public:
     uint32 objectCount;
 
 protected:
+    GuiTextElement* CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement* GuiText(const std::string& label);
+    GuiTextureElement* GuiTexture(const std::string& label);
+
     virtual int Initialize();
     virtual void PostInitialize();
     virtual int Update(float /*deltaTime*/);
@@ -101,7 +104,7 @@ protected:
     std::string name;
     AddEvent addSceneEvent;
 
-    // Renderer::Gui::GuiContext* gui_;
+    std::unique_ptr<GuiManager> guiManager_;
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
@@ -114,11 +117,11 @@ protected:
     DayNightCycle dayNightCycle;
 
     std::unique_ptr<ICamera> camera;
-    //	std::mutex cameraMutex;
 
     GameObjects gameObjects;
 
     Time time_;
+    std::unique_ptr<GuiTextFactory> guiTextFactory_;
     std::shared_ptr<IResourceManager> resourceManager_;
     Components::ComponentController componentController_;
     std::unique_ptr<Components::IComponentFactory> componentFactory_;
@@ -168,20 +171,10 @@ inline const Time& Scene::GetTime() const
     return time_;
 }
 
-inline void Scene::CreateResourceManger(IResourceManager* resourceManager)
-{
-    resourceManager_.reset(resourceManager);
-}
-
 inline void Scene::SetInputManager(Input::InputManager* input)
 {
     inputManager_ = input;
-}
-
-inline void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
-{
-    renderersManager_ = manager;
-}
+} 
 
 inline void Scene::SetDisplayManager(DisplayManager* displayManager)
 {
