@@ -30,7 +30,7 @@ GuiTextureRenderer::~GuiTextureRenderer()
 void GuiTextureRenderer::Init()
 {
     auto id = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-    if (id)
+    if (not id)
     {
         transformBuffer_ = *id;
         isInit_          = false;
@@ -38,7 +38,7 @@ void GuiTextureRenderer::Init()
     }
 
     id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(TextBuffer));
-    if (id)
+    if (not id)
     {
         textBuffer_ = *id;
         isInit_     = false;

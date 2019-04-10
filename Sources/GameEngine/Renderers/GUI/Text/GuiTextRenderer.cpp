@@ -29,7 +29,6 @@ void GuiTextRenderer::UnSubscribeAll()
 
 void GuiTextRenderer::ReloadShaders()
 {
-    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
     shader_->Stop();
     shader_->Reload();
     shader_->Init();
@@ -81,7 +80,7 @@ void GuiTextRenderer::Subscribe(GuiElement* element)
 void GuiTextRenderer::Init()
 {
     auto id = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-    if (id)
+    if (not id)
     {
         transformBuffer_ = *id;
         isInit_          = false;
@@ -89,13 +88,14 @@ void GuiTextRenderer::Init()
     }
 
     id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(TextBuffer));
-    if (id)
+    if (not id)
     {
         textBuffer_ = *id;
         isInit_     = false;
         return;
     }
 
+    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
     isInit_ = shader_->Init();
     Log("GuiText (GuiRenderer) is initialized.");
 }
