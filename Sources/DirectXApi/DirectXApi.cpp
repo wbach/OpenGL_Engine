@@ -1,4 +1,3 @@
-#include "DirectXApi.h"
 #include <D3D11Shader.h>
 #include <d3d11.h>
 #include <d3dx10.h>
@@ -8,6 +7,7 @@
 #include <xnamath.h>
 #include <string>
 #include "Buffer.h"
+#include "DirectXApi.h"
 #include "DirectXContext.h"
 #include "DirectXTools.h"
 #include "DxShader.h"
@@ -652,6 +652,12 @@ std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType,
 uint32 DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 {
     return uint32();
+}
+void DirectXApi::UpdateTexture(uint32, const vec2ui &, const vec2ui &, void *data)
+{
+}
+void DirectXApi::UpdateTexture(uint32, const vec2ui &, void *data)
+{
 }
 void DirectXApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment> &)
 {

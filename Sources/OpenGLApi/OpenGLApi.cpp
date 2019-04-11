@@ -1,5 +1,5 @@
-#include "OpenGLApi.h"
 #include <GL/glew.h>
+#include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <optional>
@@ -9,9 +9,9 @@
 #include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
 #include "Logger/Log.h"
+#include "OpenGLApi.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
-#include <algorithm>
 
 enum class ObjectType
 {
@@ -28,7 +28,21 @@ namespace OpenGLApi
 namespace
 {
 std::unordered_map<uint32, ObjectType> createdObjectIds;
+std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap_;
+std::unordered_map<GraphicsApi::TextureFilter, uint32> textureFilterMap_;
+std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
+std::unordered_map<GraphicsApi::BufferAtachment, uint32> bufferAtachmentMap_;
+std::unordered_map<GraphicsApi::BufferType, uint32> bufferTypeMap_;
+std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
 CFont font;
+
+struct TextTypeParams
+{
+    GLenum target        = GL_TEXTURE_2D;
+    GLint dataType       = GL_FLOAT;
+    GLint internalFormat = GL_RGBA;
+    GLint format         = GL_RGBA;
+};
 }  // namespace
 
 struct ShaderBuffer
@@ -174,7 +188,7 @@ void OpenGLApi::PrintVersion()
         if (impl_->maxPatchVertices_)
         {
             glPatchParameteri(GL_PATCH_VERTICES, 3);
-        }            
+        }
     }
 
     GetInfoAndPrint("GL_MAX_GEOMETRY_UNIFORM_BLOCKS", GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
@@ -271,18 +285,17 @@ mat4 OpenGLApi::PrepareMatrixToLoad(const mat4& m)
 std::vector<uint8> OpenGLApi::GetTextureData(uint32 id)
 {
     const auto& textureInfo = impl_->textureInfos_.at(id);
-    auto glId               = impl_->idPool_.ToGL(id);
+
+    BindTexture(id);
 
     std::vector<float> data;
     data.resize(4 * textureInfo.size.x * textureInfo.size.y);
     glReadPixels(0, 0, textureInfo.size.x, textureInfo.size.y, GL_RGBA, GL_FLOAT, &data[0]);
 
-    auto max = std::max_element(data.begin(), data.end());
-
     std::vector<uint8> result;
     for (auto f : data)
     {
-        result.push_back(static_cast<uint8>(f* 255.f));
+        result.push_back(static_cast<uint8>(f * 255.f));
     }
     return result;
 }
@@ -412,53 +425,80 @@ void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<mat4>& v)
     impl_->shaderManager_.LoadValueToShader(loacation, v);
 }
 
-uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                                GraphicsApi::TextureMipmap mimpamp, GraphicsApi::BufferAtachment atachment, vec2ui size,
-                                void* data)
+TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
 {
-    uint32 textureType   = GL_TEXTURE_2D;
-    GLint dataType       = GL_FLOAT;
-    GLint internalFormat = GL_RGBA;
-    GLint format         = GL_RGBA;
+    TextTypeParams params;
 
     if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::FLOAT_TEXTURE_2D ||
         type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
     {
-        dataType = GL_FLOAT;
+        params.dataType = GL_FLOAT;
         if (type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
         {
-            internalFormat = GL_DEPTH_COMPONENT32;
-            format         = GL_DEPTH_COMPONENT;
+            params.internalFormat = GL_DEPTH_COMPONENT32;
+            params.format         = GL_DEPTH_COMPONENT;
         }
         else
         {
-            internalFormat = GL_RGBA16F;
+            params.internalFormat = GL_RGBA16F;
         }
     }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1C)
     {
-        format         = GL_RED;
-        dataType       = GL_FLOAT;
-        internalFormat = GL_R32F;
+        params.format         = GL_RED;
+        params.dataType       = GL_FLOAT;
+        params.internalFormat = GL_R32F;
     }
     else if (type == GraphicsApi::TextureType::U8_RGBA)
     {
-        format         = GL_RGBA;
-        dataType       = GL_UNSIGNED_BYTE;
-        internalFormat = GL_RGBA;
+        params.format         = GL_RGBA;
+        params.dataType       = GL_UNSIGNED_BYTE;
+        params.internalFormat = GL_RGBA;
     }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3C)
     {
-        format         = GL_RGB;
-        dataType       = GL_FLOAT;
-        internalFormat = GL_RGB32F;
+        params.format         = GL_RGB;
+        params.dataType       = GL_FLOAT;
+        params.internalFormat = GL_RGB32F;
     }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_4C)
     {
-        format         = GL_RGBA;
-        dataType       = GL_FLOAT;
-        internalFormat = GL_RGBA32F;
+        params.format         = GL_RGBA;
+        params.dataType       = GL_FLOAT;
+        params.internalFormat = GL_RGBA32F;
     }
+    return params;
+}
+
+void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
+                     GraphicsApi::TextureMipmap mimpamp, GraphicsApi::BufferAtachment atachment, vec2ui size,
+                     void* data)
+{
+    auto params = GetTextureTypeParams(type);
+
+    glBindTexture(params.target, texture);
+    glTexImage2D(params.target, 0, params.internalFormat, size.x, size.y, 0, params.format, params.dataType, data);
+    glTexParameterf(params.target, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
+    glTexParameterf(params.target, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
+
+    if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, bufferAtachmentMap_[atachment], params.target, texture, 0);
+
+    if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
+    {
+        glGenerateMipmap(params.target);
+        glTexParameteri(params.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(params.target, GL_TEXTURE_LOD_BIAS, 0);
+    }
+    glTexParameteri(params.target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(params.target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glBindTexture(params.target, 0);
+}
+
+uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
+                                GraphicsApi::TextureMipmap mipmap, GraphicsApi::BufferAtachment atachment, vec2ui size,
+                                void* data)
+{
     GLuint texture;
     glGenTextures(1, &texture);
 
@@ -471,23 +511,7 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
         return 0;
     }
 
-    glBindTexture(textureType, texture);
-    glTexImage2D(textureType, 0, internalFormat, size.x, size.y, 0, format, dataType, data);
-    glTexParameterf(textureType, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
-    glTexParameterf(textureType, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
-
-    if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, bufferAtachmentMap_[atachment], textureType, texture, 0);
-
-    if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
-    {
-        glGenerateMipmap(textureType);
-        glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameterf(textureType, GL_TEXTURE_LOD_BIAS, 0);
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glBindTexture(textureType, 0);
+    CreateGlTexture(texture, type, filter, mipmap, atachment, size, data);
 
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
@@ -496,8 +520,9 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
     texutreInfo.id            = rid;
     texutreInfo.size          = size;
     texutreInfo.textureFilter = filter;
-    texutreInfo.textureMipmap = mimpamp;
+    texutreInfo.textureMipmap = mipmap;
     texutreInfo.textureType   = type;
+    texutreInfo.atachment     = atachment;
 
     impl_->textureInfos_.insert({rid, texutreInfo});
 
@@ -567,6 +592,35 @@ uint32 OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
     auto rid              = impl_->idPool_.ToUint(id);
     createdObjectIds[rid] = ObjectType::TEXTURE_CUBE_MAP;
     return rid;
+}
+
+void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& size, void* data)
+{
+    if (impl_->textureInfos_.count(id) == 0)
+    {
+        return;
+    }
+
+    auto& textureInfo = impl_->textureInfos_.at(id);
+    auto params       = GetTextureTypeParams(textureInfo.textureType);
+
+    BindTexture(id);
+    glTexSubImage2D(params.target, 0, offset.x, offset.y, size.x, size.y, params.format, params.dataType, data);
+}
+void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, void* data)
+{
+    if (impl_->textureInfos_.count(id) == 0)
+    {
+        return;
+    }
+
+    auto& textureInfo = impl_->textureInfos_.at(id);
+    auto glId         = impl_->idPool_.ToGL(id);
+
+    BindTexture(id);
+    CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap,
+                    textureInfo.atachment, size, data);
+    textureInfo.size = size;
 }
 
 void OpenGLApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment>& attachemnts)

@@ -53,8 +53,12 @@ public:
 
     virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override;
-    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32 N) override;
+    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                                       int32 N) override;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override;
+
+    virtual void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override;
+    virtual void UpdateTexture(uint32, const vec2ui&, void* data) override;
 
     virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
     virtual void ClearBuffer(GraphicsApi::BufferType) override;
@@ -129,13 +133,6 @@ private:
     GraphicsApi::IWindowApiPtr windowApi_;
     uint32 usedShader;
     vec3 bgColor_;
-    std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap_;
-    std::unordered_map<GraphicsApi::TextureFilter, uint32> textureFilterMap_;
-    std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
-    std::unordered_map<GraphicsApi::BufferAtachment, uint32> bufferAtachmentMap_;
-    std::unordered_map<GraphicsApi::BufferType, uint32> bufferTypeMap_;
-    std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
-
     uint32 bindedShaderBuffers_[MAX_SHADER_BUFFER_SIZE];
 
     std::unordered_map<uint32, OpenGLMesh> openGlMeshes_;

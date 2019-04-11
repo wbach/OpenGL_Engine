@@ -10,6 +10,7 @@ GameEngineCM/output/
 #dynamic links
 Data
 Tools
+.vscode/
 
 *.zip
 

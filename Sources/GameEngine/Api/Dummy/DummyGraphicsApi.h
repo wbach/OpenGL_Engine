@@ -130,6 +130,12 @@ public:
     {
         return ++id;
     }
+    virtual void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override
+    {
+    }
+    virtual void UpdateTexture(uint32, const vec2ui&, void* data) override
+    {
+    }
     virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override
     {
     }
@@ -278,14 +284,17 @@ public:
     }
     virtual std::vector<uint8> GetTextureData(uint32) override
     {
+        return {};
     }
     virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) override
     {
+        return textureInfo_;
     }
 
 private:
     uint32 id;
     DummyWindowApiPtr dummyWindowApiPtr_;
+    GraphicsApi::TextureInfo textureInfo_;
 };
 typedef std::shared_ptr<DummyGraphicsApi> DummyGraphicsApiPtr;
 }  // namespace GameEngine

@@ -45,8 +45,12 @@ public:
 
     virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override;
-    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override;
+    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                                       int32) override;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override;
+
+    virtual void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override;
+    virtual void UpdateTexture(uint32, const vec2ui&, void* data) override;
 
     virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
     virtual void ClearBuffer(GraphicsApi::BufferType) override;

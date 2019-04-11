@@ -11,11 +11,11 @@
 #include "ShaderQuaility.h"
 #include "ShaderTypes.h"
 #include "ShadersTypes.h"
+#include "TextureInfo.h"
 #include "TextureParamters.h"
 #include "Types.h"
 #include "WindowApi.hpp"
 #include "WindowType.h"
-#include "TextureInfo.h"
 
 namespace GraphicsApi
 {
@@ -64,6 +64,8 @@ public:
     virtual uint32 CreateTexture(TextureType, TextureFilter, TextureMipmap, BufferAtachment, vec2ui, void* data) = 0;
     virtual std::optional<uint32> CreateTextureStorage(TextureType, TextureFilter, int32 N)                      = 0;
     virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>)                                               = 0;
+    virtual void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data)                                 = 0;
+    virtual void UpdateTexture(uint32, const vec2ui&, void* data)                                                = 0;
     virtual void SetBuffers(const std::vector<BufferAtachment>&)                                                 = 0;
     virtual void ClearBuffer(BufferType)                                                                         = 0;
     virtual void ClearBuffers(const std::vector<BufferType>&)                                                    = 0;

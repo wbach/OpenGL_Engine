@@ -1,6 +1,7 @@
 #pragma once
-#include "Types.h"
+#include "BufferParamters.h"
 #include "TextureParamters.h"
+#include "Types.h"
 
 namespace GraphicsApi
 {
@@ -11,5 +12,6 @@ struct TextureInfo
     TextureType textureType;
     TextureFilter textureFilter;
     TextureMipmap textureMipmap;
+    BufferAtachment atachment;
 };
 }  // namespace GraphicsApi
