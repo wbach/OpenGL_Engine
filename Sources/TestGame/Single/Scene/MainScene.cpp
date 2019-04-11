@@ -1,4 +1,3 @@
-#include "MainScene.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
@@ -26,6 +25,7 @@
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "GraphicsApi/BlendFunctionsTypes.h"
+#include "MainScene.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
@@ -98,44 +98,42 @@ int MainScene::Initialize()
     GuiText("playerPos")->SetPostion(vec2(-0.8, -0.9));
     GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
-   /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
-    renderersManager_->GuiText("gameTime").m_size    = 0.5f;
-    renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":" +
-                                                  std::to_string(dayNightCycle.GetCurrentHour().y);
-    renderersManager_->GuiText("cameraPos").position = vec2(-0.9, -0.8);
-    renderersManager_->GuiText("cameraPos").m_size   = .5f;
-    renderersManager_->GuiText("cameraPos").colour   = vec3(.8f, 0.f, 0.f);
+    /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
+     renderersManager_->GuiText("gameTime").m_size    = 0.5f;
+     renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":"
+     + std::to_string(dayNightCycle.GetCurrentHour().y); renderersManager_->GuiText("cameraPos").position = vec2(-0.9,
+     -0.8); renderersManager_->GuiText("cameraPos").m_size   = .5f; renderersManager_->GuiText("cameraPos").colour   =
+     vec3(.8f, 0.f, 0.f);
 
-    GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
-    guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/Package1/Some-Box.png", false);
-    guiTexture.SetPosition(vec2(0.5, 0.5));
-    guiTexture.SetScale(vec2(0.3));
+     GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+     guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/Package1/Some-Box.png", false);
+     guiTexture.SetPosition(vec2(0.5, 0.5));
+     guiTexture.SetScale(vec2(0.3));
 
-    auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
-    
-    
-    auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
+     auto windowsSize = renderersManager_->GetProjection().GetWindowSize();
 
 
-    {
-        auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(fontId, "example font text.",
-                                                                                       vec4(0.5, 0.5, 0.5, 1.f), 0);
+     auto fontId      = resourceManager_->GetGraphicsApi().GetWindowApi()->OpenFont(fontPath, fontSize);
 
-        auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
-            "FontImage_" + std::to_string(fontImage.id), GraphicsApi::TextureType::U8_RGBA,
-            GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
-            fontImage.size, fontImage.pixels);
 
-        auto scale = vec2(fontImage.size.x, fontImage.size.y);
-        scale.x    = scale.x * 1.f / windowsSize.x;
-        scale.y    = scale.y * 1.f / windowsSize.y;
+     {
+         auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(fontId, "example font text.",
+                                                                                        vec4(0.5, 0.5, 0.5, 1.f), 0);
 
-        renderersManager_->GuiTexture("fontTexture").texture = fontTexture;
-        renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
-        renderersManager_->GuiTexture("fontTexture").SetColor(vec3(1, 1, 1));
-        renderersManager_->GuiTexture("fontTexture").SetScale(scale);
-    }*/
+         auto fontTexture = resourceManager_->GetTextureLaoder().CreateTexture(
+             "FontImage_" + std::to_string(fontImage.id), GraphicsApi::TextureType::U8_RGBA,
+             GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE,
+             fontImage.size, fontImage.pixels);
 
+         auto scale = vec2(fontImage.size.x, fontImage.size.y);
+         scale.x    = scale.x * 1.f / windowsSize.x;
+         scale.y    = scale.y * 1.f / windowsSize.y;
+
+         renderersManager_->GuiTexture("fontTexture").texture = fontTexture;
+         renderersManager_->GuiTexture("fontTexture").SetPosition(vec2(0.5, 0.5));
+         renderersManager_->GuiTexture("fontTexture").SetColor(vec3(1, 1, 1));
+         renderersManager_->GuiTexture("fontTexture").SetScale(scale);
+     }*/
 
     //{
     //    auto fontImage = resourceManager_->GetGraphicsApi().GetWindowApi()->RenderFont(fontId, "example font text.",
@@ -156,8 +154,7 @@ int MainScene::Initialize()
     //    renderersManager_->GuiTexture("fontTexture_shadow").SetScale(scale);
     //}
 
-
-    //renderersManager_->GuiTexture("fontBackground") = guiTexture;
+    // renderersManager_->GuiTexture("fontBackground") = guiTexture;
 
     RegisterParticleEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
         Particle particle = referenceParticle;
@@ -238,7 +235,7 @@ int MainScene::Initialize()
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
     camera->SetPosition(vec3(.5, 3.5, 2.1));
-    //camera->SetPosition(vec3(-5107.217, 3324.774, 5352.738));
+    // camera->SetPosition(vec3(-5107.217, 3324.774, 5352.738));
     camera->LookAt(vec3(0, 2, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
@@ -291,9 +288,10 @@ int MainScene::Update(float dt)
 
     if (timeClock > 1.f)
     {
-       // timeClock                                   = 0;
-        //renderersManager_->GuiText("gameTime").text = "Game Time: " + std::to_string(dayNightCycle.GetCurrentHour().x) +
-                                                      ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
+        // timeClock                                   = 0;
+        // renderersManager_->GuiText("gameTime").text = "Game Time: " +
+        // std::to_string(dayNightCycle.GetCurrentHour().x) +
+        ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
     }
 
     // dayNightCycle.Update(deltaTime);
@@ -301,8 +299,8 @@ int MainScene::Update(float dt)
     CheckCollisions(deltaTime);
     UpdatePlayerandCamera(deltaTime);
 
-    //renderersManager_->GuiText("playerPos").text = Utils::ToString(player->worldTransform.GetPosition());
-    //renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
+    // GuiText("playerPos")->SetText("Player position : " + Utils::ToString(player->worldTransform.GetPosition()));
+    // renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
     return 0;
 }
 

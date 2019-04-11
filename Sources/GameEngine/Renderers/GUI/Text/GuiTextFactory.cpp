@@ -1,14 +1,13 @@
-#include "GuiTextFactory.h"
-#include "GuiTextElement.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "GuiTextElement.h"
+#include "GuiTextFactory.h"
 
 namespace GameEngine
 {
-GuiTextFactory::GuiTextFactory(IResourceManager& resourceManager,
-                               const vec2ui& windowSize)
+GuiTextFactory::GuiTextFactory(IResourceManager& resourceManager, const vec2ui& windowSize)
     : resourceManager_(resourceManager)
     , windowApi_(*resourceManager.GetGraphicsApi().GetWindowApi())
     , windowSize_(windowSize)
@@ -31,8 +30,9 @@ void GuiTextFactory::UpdateTexture(GuiTextElement& textElement)
 {
     if (textElement.GetTextureId())
     {
-       //resourceManager_.DeleteTexture(*textElement.GetTextureId());
-        textElement.UnsetTexture();
+        resourceManager_.GetGraphicsApi().UpdateTexture(textElement.GetSurface().id, textElement.GetSurface().size,
+                                                        textElement.GetSurface().pixels);
+        return;
     }
 
     auto fontTexture = resourceManager_.GetTextureLaoder().CreateTexture(

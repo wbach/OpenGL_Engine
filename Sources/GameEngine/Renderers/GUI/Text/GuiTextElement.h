@@ -1,11 +1,11 @@
 #pragma once
 #include <functional>
+#include <optional>
 #include <string>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
-#include "GraphicsApi/WindowApi.hpp"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "GraphicsApi/WindowApi.hpp"
 #include "Types.h"
-#include <optional>
 
 namespace GameEngine
 {
@@ -30,6 +30,7 @@ public:
     const std::string& GetText() const;
     void SetTexture(Texture*);
     void UnsetTexture();
+    void SetText(const std::string&);
 
 private:
     void RenderText();

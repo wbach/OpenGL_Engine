@@ -29,8 +29,8 @@ GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi:
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
     , text_(str)
-    , fontSize_(size)
     , outline_(outline)
+    , fontSize_(size)
     , texture_(nullptr)
     , font_(font)
 {
@@ -55,6 +55,12 @@ const std::string& GuiTextElement::GetText() const
 void GuiTextElement::SetTexture(Texture* texture)
 {
     texture_ = texture;
+}
+
+void GuiTextElement::SetText(const std::string& text)
+{
+    text_ = text;
+    RenderText();
 }
 
 void GuiTextElement::UnsetTexture()
