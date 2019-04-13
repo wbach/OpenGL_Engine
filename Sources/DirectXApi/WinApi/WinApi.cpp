@@ -154,6 +154,9 @@ GraphicsApi::Surface WinApi::RenderFont(uint32 id, const std::string& text, cons
 {
     return GraphicsApi::Surface();
 }
+void WinApi::DeleteSurface(uint32 surfaceId)
+{
+}
 uint32 WinApi::CreateWindowFlags(GraphicsApi::WindowType type) const
 {
     return uint32();

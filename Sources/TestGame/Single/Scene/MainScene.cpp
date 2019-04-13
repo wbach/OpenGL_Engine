@@ -95,7 +95,7 @@ int MainScene::Initialize()
     auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
 
     CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
-    GuiText("playerPos")->SetPostion(vec2(-0.8, -0.9));
+    GuiText("playerPos")->SetPostion(vec2(-0.65, -0.9));
     GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
     /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
@@ -299,7 +299,7 @@ int MainScene::Update(float dt)
     CheckCollisions(deltaTime);
     UpdatePlayerandCamera(deltaTime);
 
-    // GuiText("playerPos")->SetText("Player position : " + Utils::ToString(player->worldTransform.GetPosition()));
+    GuiText("playerPos")->SetText("Player position : " + Utils::ToString(player->worldTransform.GetPosition()));
     // renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
     return 0;
 }

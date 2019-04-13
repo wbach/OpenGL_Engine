@@ -59,6 +59,9 @@ void GuiTextElement::SetTexture(Texture* texture)
 
 void GuiTextElement::SetText(const std::string& text)
 {
+    if (text == text_)
+        return;
+
     text_ = text;
     RenderText();
 }
@@ -72,8 +75,14 @@ void GuiTextElement::RenderText()
 {
     if (not text_.empty())
     {
-        fontId_  = windowApi_.OpenFont(font_, fontSize_);
-        surface_ = windowApi_.RenderFont(fontId_, text_, ToVec4(color_), outline_);
+        // memory leak, to do, remove old if exist or not create new one
+        if (not fontId_)
+        {
+            fontId_  = windowApi_.OpenFont(font_, fontSize_);
+        }
+        auto oldSurface = surface_.id;
+        surface_ = windowApi_.RenderFont(*fontId_, text_, ToVec4(color_), outline_);
+        windowApi_.DeleteSurface(oldSurface);
         SetSize(surface_.size);
         updateTexture_(*this);
     }

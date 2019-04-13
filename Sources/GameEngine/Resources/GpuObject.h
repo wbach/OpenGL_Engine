@@ -6,9 +6,7 @@ namespace GameEngine
 class GpuObject : public IGpuObject
 {
 public:
-    virtual ~GpuObject()
-    {
-    }
+    virtual ~GpuObject() = default;
     inline virtual void GpuLoadingPass() override;
     inline virtual void GpuPostLoadingPass() override;
 

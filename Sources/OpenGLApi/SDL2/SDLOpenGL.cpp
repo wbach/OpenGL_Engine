@@ -3,9 +3,9 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_video.h>
+#include <optional>
 #include "InputSDL.h"
 #include "Logger/Log.h"
-
 /*
 SDL_INIT_TIMER	Initializes the timer subsystem.
 SDL_INIT_AUDIO	Initializes the audio subsystem.
@@ -27,6 +27,7 @@ struct SdlOpenGlApi::Pimpl
     SDL_Event event;
     std::vector<TTF_Font*> fonts_;
     std::vector<SDL_Surface*> surfaces_;
+    std::unordered_map<std::string, uint32> fontNameToIdMap_;
 };
 
 SdlOpenGlApi::SdlOpenGlApi()
@@ -36,6 +37,10 @@ SdlOpenGlApi::SdlOpenGlApi()
 
 SdlOpenGlApi::~SdlOpenGlApi()
 {
+    for (auto& font : impl_->fonts_)
+    {
+        TTF_CloseFont(font);
+    }
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
 }
@@ -112,14 +117,22 @@ void SdlOpenGlApi::SetCursorPosition(int x, int y)
 
 uint32 SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
 {
+    auto fname = filename + std::to_string(size);
+    if (impl_->fontNameToIdMap_.count(fname) > 0)
+    {
+        return impl_->fontNameToIdMap_.at(fname);
+    }
+
     auto font = TTF_OpenFont(filename.c_str(), size);
 
     if (font)
     {
         impl_->fonts_.push_back(font);
-        return impl_->fonts_.size();
+        auto id = impl_->fonts_.size();
+        impl_->fontNameToIdMap_.insert({fname, id});
+        return id;
     }
-    
+
     return 0;
 }
 
@@ -136,7 +149,7 @@ GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text
     _color.r = static_cast<uint8>(color.x * 255.f);
     _color.g = static_cast<uint8>(color.y * 255.f);
     _color.b = static_cast<uint8>(color.z * 255.f);
-    _color.a = 255.f;// static_cast<uint8>(color.w * 255.f);
+    _color.a = 255;
     TTF_SetFontOutline(font, outline);
     auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), _color);
     TTF_SetFontOutline(font, outline);
@@ -146,10 +159,35 @@ GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text
         return GraphicsApi::Surface();
     }
 
-    impl_->surfaces_.push_back(sdlSurface);
+    std::optional<uint32> surfaceId;
+
+    for (int i = 0; i < impl_->surfaces_.size(); ++i)
+    {
+        if (impl_->surfaces_[i] == nullptr)
+        {
+            surfaceId = i + 1;
+        }
+    }
+
+    if (not surfaceId)
+    {
+        impl_->surfaces_.push_back(sdlSurface);
+        surfaceId = impl_->surfaces_.size();
+    }
 
     return {impl_->surfaces_.size(), vec2ui(sdlSurface->w, sdlSurface->h), sdlSurface->format->BytesPerPixel,
             sdlSurface->pixels};
+}
+
+void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
+{
+    auto index = surfaceId - 1;
+    if (index >= impl_->surfaces_.size())
+    {
+        return;
+    }
+    SDL_FreeSurface(impl_->surfaces_[index]);
+    impl_->surfaces_[index] = nullptr;
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const

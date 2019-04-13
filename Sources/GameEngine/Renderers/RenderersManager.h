@@ -13,7 +13,7 @@ namespace GameEngine
 {
 class Scene;
 class GameObject;
-struct GuiTextElement;
+class GuiTextElement;
 class IShaderFactory;
 class GuiTextureElement;
 

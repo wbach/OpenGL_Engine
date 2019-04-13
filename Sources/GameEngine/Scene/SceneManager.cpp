@@ -46,9 +46,12 @@ void SceneManager::RuntimeLoadObjectToGpu()
     if (!sceneWrapper_.IsInitialized())
         return;
 
-    auto obj = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader().GetObjectToGpuLoadingPass();
+    auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
+    auto obj = gpuLoader.GetObjectToGpuLoadingPass();
     if (obj != nullptr && !obj->isLoadedToGpu())
         obj->GpuLoadingPass();
+
+    gpuLoader.CallFunctions();
 }
 void SceneManager::Update()
 {

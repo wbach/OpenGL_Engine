@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <xnamath.h>
+#undef CreateFont
+#undef CreateWindow
 #include <string>
 #include "Buffer.h"
 #include "DirectXApi.h"
@@ -19,8 +21,6 @@
 #include "Vao.h"
 #include "Vertex.h"
 #include "WinApi/WinApi.h"
-
-#undef CreateFont
 
 namespace DirectX
 {

@@ -42,7 +42,7 @@ private:
     uint32 outline_;
     uint32 fontSize_;
     Texture* texture_;
-    uint32 fontId_;
+    std::optional<uint32> fontId_;
     std::string font_;
     GraphicsApi::Surface surface_;
 

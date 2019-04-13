@@ -4,6 +4,8 @@
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GuiTextElement.h"
 #include "GuiTextFactory.h"
+#include "GameEngine/Resources/GpuObjectCommon.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 
 namespace GameEngine
 {
@@ -30,8 +32,11 @@ void GuiTextFactory::UpdateTexture(GuiTextElement& textElement)
 {
     if (textElement.GetTextureId())
     {
-        resourceManager_.GetGraphicsApi().UpdateTexture(textElement.GetSurface().id, textElement.GetSurface().size,
-                                                        textElement.GetSurface().pixels);
+        resourceManager_.GetGpuResourceLoader().AddFunctionToCall([this, &textElement]()
+        {
+            resourceManager_.GetGraphicsApi().UpdateTexture(*textElement.GetTextureId(), textElement.GetSurface().size,
+                textElement.GetSurface().pixels);
+        });
         return;
     }
 

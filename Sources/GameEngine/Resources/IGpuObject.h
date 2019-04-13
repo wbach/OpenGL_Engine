@@ -5,9 +5,7 @@ namespace GameEngine
 class IGpuObject
 {
 public:
-    virtual ~IGpuObject()
-    {
-    }
+    virtual ~IGpuObject() = default;
     virtual void GpuLoadingPass() = 0;
     virtual void GpuPostLoadingPass() = 0;
     virtual bool isLoadedToGpu() = 0;

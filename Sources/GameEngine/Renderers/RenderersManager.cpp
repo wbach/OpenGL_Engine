@@ -135,6 +135,8 @@ void RenderersManager::ReloadShadersExecution()
     for (auto& renderer : renderers_)
         renderer->ReloadShaders();
 
+    guiRenderer_.ReloadShaders();
+
     markToReloadShaders_.store(false);
 }
 void RenderersManager::Subscribe(GameObject* gameObject)
