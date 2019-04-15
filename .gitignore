@@ -1,6 +1,7 @@
 Data/
 bin/
 build/
+build_tests/
 buildAll/
 Build/
 Tools/

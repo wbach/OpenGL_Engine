@@ -21,7 +21,7 @@ public:
     BaseComponentTestSchould();
     void Init(BaseComponent* component);
 
-    std::shared_ptr<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
+    GraphicsApi::GraphicsApiMock graphicsApiMock_;
     ComponentFactoryMock componentFactoryMock_;
     Time time_;
     CameraMock* cameraMock_;
@@ -31,6 +31,6 @@ public:
     Renderer::RenderersManager renderersManager_;
     ShaderFactoryMock shaderFactoryMock_;
     PhysicsApiMock physicsApiMock_;
-    ComponentContext context_;
     std::unique_ptr<ICamera> camera_;
+    ComponentContext context_;
 };

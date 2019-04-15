@@ -34,9 +34,9 @@ public:
     inline const Particle& GetReferenceParticle() const;
     inline const std::string& GetTextureFile() const;
     inline const std::string& GetEmitFunction() const;
+    virtual void ReqisterFunctions() override;
 
 private:
-    virtual void ReqisterFunctions() override;
     inline void AddParticle(const Particle& particle);
     void Subscribe();
     void UnSubscribe();

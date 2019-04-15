@@ -41,6 +41,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
   "/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles/GameEngineLib.dir/DependInfo.cmake"
+  "/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles/InputLib.dir/DependInfo.cmake"
   "/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles/UtilsNetworkLib.dir/DependInfo.cmake"
   "/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles/CommonLib.dir/DependInfo.cmake"
   "/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles/UtilsLib.dir/DependInfo.cmake"

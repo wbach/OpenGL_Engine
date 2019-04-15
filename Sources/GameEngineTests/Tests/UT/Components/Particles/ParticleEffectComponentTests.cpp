@@ -36,7 +36,7 @@ TEST_F(ParicleComponentTestSchould, EmitParticlesCountTest)
     sut_.ReqisterFunctions();
     vec3 camPosition(0);
     GameEngine::Particle particle;
-    EXPECT_CALL(*cameraMock_, GetPosition()).WillRepeatedly(Return(camPosition));
+    EXPECT_CALL(*cameraMock_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
     EXPECT_CALL(*this, EmitParticle(_)).WillRepeatedly(Return(particle));
     componentController_.Update();
     EXPECT_EQ(sut_.GetParticlesCount(), 10);

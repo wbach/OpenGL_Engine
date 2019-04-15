@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "GameEngine/Resources/Models/WBLoader/Collada/Collada.h"
-#include "GameEngineTests/Tests/Mocks/Resources/TextureLoaderMock.h"
-#include "GameEngine/Resources/Textures/Image.h"
 #include "Engine/Configuration.h"
+#include "GameEngine/Resources/Models/WBLoader/Collada/Collada.h"
+#include "GameEngine/Resources/Textures/Image.h"
+#include "GameEngineTests/Tests/Mocks/Resources/TextureLoaderMock.h"
 
 using namespace ::testing;
 
@@ -15,13 +15,12 @@ struct ColladaLoaderShould : public ::testing::Test
     ColladaLoaderShould()
     {
         textureLoaderMock_.reset(new TextureLoaderMock());
-        apiMock_.reset(new GraphicsApiMock());
 
-        EXPECT_CALL(*textureLoaderMock_, GetGraphicsApi()).WillOnce(Return(apiMock_));
+        EXPECT_CALL(*textureLoaderMock_, GetGraphicsApi()).WillOnce(ReturnRef(apiMock_));
         sut_.reset(new ColladaDae(*textureLoaderMock_));
     }
     std::shared_ptr<TextureLoaderMock> textureLoaderMock_;
-    std::shared_ptr<GraphicsApiMock> apiMock_;
+    GraphicsApi::GraphicsApiMock apiMock_;
     std::unique_ptr<ColladaDae> sut_;
 };
 
@@ -43,5 +42,5 @@ TEST_F(ColladaLoaderShould, GetFloatsFromString)
         EXPECT_EQ(ref[x], result[x]);
     }
 }
-} // namespace WBLoader
-} // namespace GameEngine
+}  // namespace WBLoader
+}  // namespace GameEngine

@@ -419,10 +419,10 @@ vector
 /home/bach/Projects/OpenGL_Engine/Sources/Input/GameActions.h
 
 /home/bach/Projects/OpenGL_Engine/Sources/Input/InputManager.cpp
-InputManager.h
-/home/bach/Projects/OpenGL_Engine/Sources/Input/InputManager.h
 algorithm
 -
+InputManager.h
+/home/bach/Projects/OpenGL_Engine/Sources/Input/InputManager.h
 
 /home/bach/Projects/OpenGL_Engine/Sources/Input/InputManager.h
 functional
@@ -441,16 +441,6 @@ KeyCodes.h
 /home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodes.h
 Types.h
 /home/bach/Projects/OpenGL_Engine/Sources/Input/Types.h
-
-/home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodeToCharConverter.cpp
-KeyCodeToCharConverter.h
-/home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodeToCharConverter.h
-
-/home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodeToCharConverter.h
-unordered_map
--
-KeyCodes.h
-/home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodes.h
 
 /home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodes.h
 

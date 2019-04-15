@@ -16,14 +16,13 @@ public:
     MOCK_METHOD3(LoadCubeMapImpl, Texture*(const std::vector<std::string>&, bool, bool));
     MOCK_METHOD2(LoadHeightMapImpl, Texture*(const std::string&, bool));
     MOCK_METHOD2(CreateHeightMap, void(const std::string&, const std::string&));
-    MOCK_METHOD0(GetGraphicsApi, IGraphicsApiPtr());
-    MOCK_METHOD7(CreateTextureImpl, Texture*(const std::string& name, GraphicsApi::TextureType type,
-                                             GraphicsApi::TextureFilter filter, GraphicsApi::TextureMipmap mimpamp,
-                                             GraphicsApi::BufferAtachment atachment, vec2ui size, void* data));
-    MOCK_METHOD3(LoadNormalMapImpl, Texture*(const std::vector<float>& baseData, const vec2ui& size, float strength));
+    MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
+    MOCK_METHOD7(CreateTextureImpl, Texture*(const std::string&, GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                             GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui, void*));
+    MOCK_METHOD3(LoadNormalMapImpl, Texture*(const std::vector<float>&, const vec2ui&, float));
     MOCK_METHOD1(SetHeightMapFactorImpl, void(float));
-    MOCK_CONST_METHOD5(SaveTextureToFileImpl, void(const std::string& name, const std::vector<uint8>&,
-                                                   const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat));
+    MOCK_CONST_METHOD5(SetTextureToFileImpl, void(const std::string&, const std::vector<uint8>&, const vec2ui&, uint8,
+                                                  GraphicsApi::TextureFormat));
 
 private:
     std::optional<Image> ReadFile(const std::string& file, bool applySizeLimit = true,
@@ -70,7 +69,7 @@ private:
     {
         SetHeightMapFactorImpl(f);
     }
-    void SaveTextureToFile(const std::string& name, const std::vector<uint8>& data const vec2ui& size, uint8 bytes,
+    void SaveTextureToFile(const std::string& name, const std::vector<uint8>& data, const vec2ui& size, uint8 bytes,
                            GraphicsApi::TextureFormat foramt) const override
     {
         SetTextureToFileImpl(name, data, size, bytes, foramt);

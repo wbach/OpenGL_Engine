@@ -68,14 +68,15 @@ CMAKE_BINARY_DIR = /home/bach/Projects/OpenGL_Engine/build_tests
 # Target rules for target CMakeFiles/GAME_ENGINE_TESTS.dir
 
 # All Build rule for target.
-CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/CommonLib.dir/all
-CMakeFiles/GAME_ENGINE_TESTS.dir/all: googletest/googlemock/gtest/CMakeFiles/gtest.dir/all
-CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/GameEngineLib.dir/all
-CMakeFiles/GAME_ENGINE_TESTS.dir/all: googletest/googlemock/gtest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/InputLib.dir/all
 CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/UtilsLib.dir/all
+CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/GameEngineLib.dir/all
 CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/UtilsNetworkLib.dir/all
+CMakeFiles/GAME_ENGINE_TESTS.dir/all: CMakeFiles/CommonLib.dir/all
 CMakeFiles/GAME_ENGINE_TESTS.dir/all: googletest/googlemock/CMakeFiles/gmock_main.dir/all
 CMakeFiles/GAME_ENGINE_TESTS.dir/all: googletest/googlemock/CMakeFiles/gmock.dir/all
+CMakeFiles/GAME_ENGINE_TESTS.dir/all: googletest/googlemock/gtest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/GAME_ENGINE_TESTS.dir/all: googletest/googlemock/gtest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/GAME_ENGINE_TESTS.dir/build.make CMakeFiles/GAME_ENGINE_TESTS.dir/depend
 	$(MAKE) -f CMakeFiles/GAME_ENGINE_TESTS.dir/build.make CMakeFiles/GAME_ENGINE_TESTS.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles --progress-num=3,4,5,6,7 "Built target GAME_ENGINE_TESTS"
@@ -88,7 +89,7 @@ all: CMakeFiles/GAME_ENGINE_TESTS.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/GAME_ENGINE_TESTS.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles 92
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles 94
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/GAME_ENGINE_TESTS.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles 0
 .PHONY : CMakeFiles/GAME_ENGINE_TESTS.dir/rule
@@ -374,8 +375,8 @@ googletest/googlemock/preinstall: googletest/googlemock/gtest/preinstall
 # Target rules for target googletest/googlemock/CMakeFiles/gmock_main.dir
 
 # All Build rule for target.
-googletest/googlemock/CMakeFiles/gmock_main.dir/all: googletest/googlemock/gtest/CMakeFiles/gtest.dir/all
 googletest/googlemock/CMakeFiles/gmock_main.dir/all: googletest/googlemock/CMakeFiles/gmock.dir/all
+googletest/googlemock/CMakeFiles/gmock_main.dir/all: googletest/googlemock/gtest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f googletest/googlemock/CMakeFiles/gmock_main.dir/build.make googletest/googlemock/CMakeFiles/gmock_main.dir/depend
 	$(MAKE) -f googletest/googlemock/CMakeFiles/gmock_main.dir/build.make googletest/googlemock/CMakeFiles/gmock_main.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bach/Projects/OpenGL_Engine/build_tests/CMakeFiles --progress-num=98 "Built target gmock_main"

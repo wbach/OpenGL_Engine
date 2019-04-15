@@ -1,18 +1,18 @@
-#include "Scene.hpp"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineMeasurement.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Input/InputManager.h"
 #include "Logger/Log.h"
+#include "Scene.hpp"
 #include "SceneReader.h"
 #include "SceneWriter.h"
 #include "Utils/Time/Timer.h"
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 
 namespace GameEngine
 {
@@ -97,18 +97,16 @@ void Scene::CreateResourceManger(IResourceManager* resourceManager)
 
 void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
 {
-    guiManager_ = std::make_unique<GuiManager>([manager](auto& element)
-    {
-        manager->GetGuiRenderer().Subscribe(element);
-    });
+    guiManager_ =
+        std::make_unique<GuiManager>([manager](auto& element) { manager->GetGuiRenderer().Subscribe(element); });
 
     renderersManager_ = manager;
 }
 
-GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font,
-    const std::string& str, uint32 size, uint32 outline)
+GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str,
+                                     uint32 size, uint32 outline)
 {
-    auto text = guiTextFactory_->Create(font, str, size, outline);
+    auto text   = guiTextFactory_->Create(font, str, size, outline);
     auto result = text.get();
     guiManager_->Add(label, std::move(text));
     return result;

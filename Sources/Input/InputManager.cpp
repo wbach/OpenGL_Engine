@@ -1,5 +1,5 @@
-#include "InputManager.h"
 #include <algorithm>
+#include "InputManager.h"
 
 namespace Input
 {
@@ -73,4 +73,4 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
         return;
     keyUpSubscribers_.erase(key);
 }
-}  // namespace GameEngine
+}  // namespace Input

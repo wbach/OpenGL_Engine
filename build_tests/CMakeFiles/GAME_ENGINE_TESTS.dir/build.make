@@ -215,6 +215,7 @@ GAME_ENGINE_TESTS: CMakeFiles/GAME_ENGINE_TESTS.dir/home/bach/Projects/OpenGL_En
 GAME_ENGINE_TESTS: CMakeFiles/GAME_ENGINE_TESTS.dir/home/bach/Projects/OpenGL_Engine/Sources/GameEngineTests/Tests/UT/Scene/Scene.cpp.o
 GAME_ENGINE_TESTS: CMakeFiles/GAME_ENGINE_TESTS.dir/build.make
 GAME_ENGINE_TESTS: libGameEngineLib.a
+GAME_ENGINE_TESTS: libInputLib.a
 GAME_ENGINE_TESTS: libUtilsNetworkLib.a
 GAME_ENGINE_TESTS: libCommonLib.a
 GAME_ENGINE_TESTS: libUtilsLib.a
