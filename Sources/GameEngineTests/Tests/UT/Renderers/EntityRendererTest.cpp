@@ -70,32 +70,14 @@ struct EntityRendererShould : public BaseComponentTestSchould
     void ExpectShaderInit()
     {
         EXPECT_CALL(shaderProgramMock_, Init());
-        EXPECT_CALL(shaderProgramMock_, Start()).Times(1);
-        EXPECT_CALL(shaderProgramMock_,
-                    Load(EntityShaderUniforms::ViewDistance, Matcher<float>(EntityRendererDef::DEFAULT_VIEW_DISTANCE)))
-            .Times(1);
-        EXPECT_CALL(shaderProgramMock_,
-                    Load(EntityShaderUniforms::ShadowVariables, EntityRendererDef::DEFAULT_SHADOW_VARIABLES))
-            .Times(1);
-        EXPECT_CALL(shaderProgramMock_, Load(EntityShaderUniforms::ClipPlane, EntityRendererDef::DEFAULT_CLIP_PLANE))
-            .Times(1);
-        EXPECT_CALL(shaderProgramMock_, Load(EntityShaderUniforms::IsUseFakeLighting, Matcher<bool>(false))).Times(1);
-        EXPECT_CALL(shaderProgramMock_,
-                    Load(EntityShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix()))
-            .Times(1);
-        EXPECT_CALL(shaderProgramMock_, Stop()).Times(1);
     }
 
     void ExpectRender()
     {
         EXPECT_CALL(frameBufferMock_, BindToDraw()).Times(1);
         EXPECT_CALL(shaderProgramMock_, Start()).Times(1);
-
-        // EXPECT_CALL(*cameraMock_, GetViewMatrix()).WillOnce(ReturnRef(VIEW_MATRIX));
-
+        EXPECT_CALL(graphicsMock_, BindShaderBuffer(_)).Times(1);
         EXPECT_CALL(graphicsMock_, RenderMesh(_)).Times(1);
-
-        EXPECT_CALL(shaderProgramMock_, Stop()).Times(1);
         EXPECT_CALL(frameBufferMock_, UnBind()).Times(1);
     }
 
@@ -103,18 +85,15 @@ struct EntityRendererShould : public BaseComponentTestSchould
     {
         EXPECT_CALL(graphicsMock_, PrepareMatrixToLoad(_)).WillRepeatedly(Return(INDENITY_MATRIX));
         EXPECT_CALL(*resourceManagerMock_, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock_));
-
         CreateModel();
-
         EXPECT_CALL(gpuResourceLoaderMock_, AddObjectToGpuLoadingPass(_)).Times(2);
         EXPECT_CALL(*resourceManagerMock_, LoadModel(_)).WillOnce(Return(&model_));
 
         auto entity = scene_.CreateGameObject();
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
         sut_->Subscribe(entity.get());
-        scene_.AddGameObject(entity);
-
         transformToShader_ = entity->worldTransform.GetMatrix() * mesh_.GetMeshTransform();
+        scene_.AddGameObject(entity);
     }
 
     void CreateModel()

@@ -24,7 +24,9 @@ EntityRenderer::EntityRenderer(RendererContext& context)
 
 EntityRenderer::~EntityRenderer()
 {
+    DEBUG_LOG("");
     UnSubscribeAll();
+    DEBUG_LOG("");
 }
 
 void EntityRenderer::Init()

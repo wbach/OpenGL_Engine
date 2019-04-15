@@ -27,7 +27,7 @@ namespace GameServer
 
 			if (!hasChar)
 			{
-				Log("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
+				DEBUG_LOG("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
 				return;
 			}
 
