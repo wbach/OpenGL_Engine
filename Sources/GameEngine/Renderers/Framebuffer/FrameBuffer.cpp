@@ -27,7 +27,7 @@ int FrameBuffer::CheckStatus()
 
     if (!status.empty())
     {
-        Log("[Error] FB error, status: " + status);
+        ERROR_LOG("FB error, status: " + status);
         return -1;
     }
     return 0;
@@ -72,7 +72,7 @@ void FrameBuffer::UnBindDraw()
 }
 FrameBuffer::~FrameBuffer()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
 
     if (!isInitialized)
         return;

@@ -45,14 +45,14 @@ namespace Network
 
 		if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
 		{
-			Log("Joining server now...");
+			DEBUG_LOG("Joining server now...");
 			return ClientCreator::CONNECTED;
 		}
 		
 		if (connectingMsg->connectionStatus != ConnectionStatus::WAIT_FOR_AUTHENTICATION)
 			return ClientCreator::NOT_CONNECTED;
 
-		Log("Wait for authentication...");
+		DEBUG_LOG("Wait for authentication...");
 		return ClientCreator::WAIT_FOR_AUTHENTICATION;
 	}
 
@@ -75,11 +75,11 @@ namespace Network
 
 		if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
 		{
-			Log("Joining server now...");
+			DEBUG_LOG("Joining server now...");
 			return true;
 		}
 
-		Log("Authentication failed. Wrong username or password.");
+		DEBUG_LOG("Authentication failed. Wrong username or password.");
 		return false;
 	}
 
@@ -87,13 +87,13 @@ namespace Network
 	{
 		if (msg == nullptr)
 		{
-			Log("[Error][ClientCreator::GetAndValidateConnectionMessage] Recv nullptr msg.");
+			ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Recv nullptr msg.");
 			return nullptr;
 		}
 
 		if (msg->GetType() != MessageTypes::ConnectionMsg)
 		{
-			Log("[Error][ClientCreator::GetAndValidateConnectionMessage] Unsupported msg recv.");
+			ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Unsupported msg recv.");
 			return nullptr;
 		}
 
@@ -101,13 +101,13 @@ namespace Network
 
 		if (connectingMsg == nullptr)
 		{
-			Log("[Error][ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to ConnectionMessage*.");
+			ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to ConnectionMessage*.");
 			return nullptr;
 		}
 
 		if (connectingMsg->connectionStatus == ConnectionStatus::ERROR_FULL)
 		{
-			Log("Not connected. Server is full.");
+			ERROR_LOG("Not connected. Server is full.");
 			return nullptr;
 		}
 

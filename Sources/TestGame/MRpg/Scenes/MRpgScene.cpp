@@ -17,6 +17,6 @@ MRpgScene::MRpgScene(const std::string& name, Network::CGateway& gateway, const 
 MRpgScene::~MRpgScene()
 {
     gateway_.UnsubscribeAllOnMessageArrived();
-    Log("MRpgScene::~MRpgScene UnsubscribeAllOnMessageArrived.");
+    DEBUG_LOG("UnsubscribeAllOnMessageArrived.");
 }
 }  // MmmoRpg

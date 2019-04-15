@@ -28,7 +28,7 @@ namespace common
 			auto msg = std::static_pointer_cast<T>(ptr);
 			if (msg == nullptr)
 			{
-				Log("Cant cast type : " + std::to_string(ptr->GetType()));
+				ERROR_LOG("Cant cast type : " + std::to_string(ptr->GetType()));
 				return nullptr;
 			}
 			return msg;
@@ -39,7 +39,7 @@ namespace common
 			auto msg = static_cast<T*>(ptr);
 			if (msg == nullptr)
 			{
-				Log("Cant cast type : " + std::to_string(ptr->GetType()));
+				ERROR_LOG("Cant cast type : " + std::to_string(ptr->GetType()));
 				return nullptr;
 			}
 			return msg;

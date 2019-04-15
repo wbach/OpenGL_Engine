@@ -19,7 +19,7 @@ ModelWrapper ModelsCreator::CreateHero(uint32 classId)
 
     if (resourceManager_ == nullptr)
     {
-        Log("ModelsCreator::CreateHero resourceManager is nullptr.");
+        ERROR_LOG("ModelsCreator::CreateHero resourceManager is nullptr.");
         return modelWrapper;
     }
 

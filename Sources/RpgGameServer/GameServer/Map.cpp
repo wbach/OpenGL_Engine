@@ -15,11 +15,11 @@ namespace GameServer
 	}
 	void Map::RemoveCharacter(uint32 id)
 	{
-		Log("");
+		DEBUG_LOG("");
 		if (characters_.count(id) == 0)
 			return;
 
-		Log("Removing...");
+		DEBUG_LOG("Removing...");
 		characters_.erase(id);
 	}
 	void Map::UpdateAllControllers(float dt)

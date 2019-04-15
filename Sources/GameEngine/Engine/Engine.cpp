@@ -31,7 +31,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
 
 Engine::~Engine()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
     sceneManager_.Reset();
     EngineConf_SaveRequiredFiles();
 }

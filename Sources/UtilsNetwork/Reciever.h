@@ -41,12 +41,12 @@ namespace Network
 
 			if (recvBytes <= 0)
 			{
-				Log("Recv header bytes : -1, Disconnect.");
+				DEBUG_LOG("Recv header bytes : -1, Disconnect.");
 				error = RecvError::Disconnect;
 				return nullptr;
 			}
 
-			//Log("Recv bytes: " + std::to_string(recvBytes) + "Message:\n" + msg.ToString());
+			//DEBUG_LOG("Recv bytes: " + std::to_string(recvBytes) + "Message:\n" + msg.ToString());
 			recvBytes_ += recvBytes;
 			return std::make_shared<T>(msg);
 		}

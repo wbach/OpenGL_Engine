@@ -28,11 +28,11 @@ namespace Network
 
 	SentStatus Sender::SendTcp(TCPsocket socket, IMessage* msg)
 	{
-		Log("Times test : Sent time: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
+		DEBUG_LOG("Times test : Sent time: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
 
 		if (msg == nullptr)
 		{
-			Log("Sender::SendTcp: Try send nullptr msg.");
+			DEBUG_LOG("Sender::SendTcp: Try send nullptr msg.");
 			return SentStatus::EMPTY;
 		}
 
@@ -41,12 +41,12 @@ namespace Network
 
 		int length = sizeof(header);
 		auto sentBytes = sdlNetWrapper_->SendTcp(socket, &header, length);
-		//Log("Sent header bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(header)));
+		//DEBUG_LOG("Sent header bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(header)));
 
 		if (sentBytes < length)
 			return SentStatus::ERROR;		
 		
-		Log("Sent : " + Network::to_string(msg->GetType()));
+		DEBUG_LOG("Sent : " + Network::to_string(msg->GetType()));
 
 		sentBytes_ += sentBytes;
 
@@ -71,7 +71,7 @@ namespace Network
 	void Sender::PrintSentBytesPerSec()
 	{
 		auto recvPerSec = sentBytes_;// / 1000;
-		Log("Send : " + std::to_string(recvPerSec) + " B/s");
+		DEBUG_LOG("Send : " + std::to_string(recvPerSec) + " B/s");
 		std::cout << " Send : " << std::to_string(recvPerSec) << " B/s" << std::endl;
 		sentBytes_ = 0;
 	}

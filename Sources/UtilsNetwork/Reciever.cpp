@@ -29,25 +29,25 @@ namespace Network
 
 	std::shared_ptr<IMessage> Receiver::Receive(TCPsocket socket, RecvError& error)
 	{
-		Log("Times test : " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
+		DEBUG_LOG("Times test : " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
 
 		error = RecvError::None;
 
 		if (sdlNetWrapper_->SocketReady((SDLNet_GenericSocket) socket) == 0)
 			return nullptr;
 
-		//Log("Receiver::Receive");
+		//DEBUG_LOG("Receiver::Receive");
 		std::shared_ptr<IMessage> result;
 
 		//char buffer[512];
 		MessageHeader header;
 		int recvBytes = sdlNetWrapper_->RecvTcp(socket, &header, sizeof(header));
-		Log(Network::to_string(header.msgType));
-		//Log(std::string("Receive header, msg type : ") + std::to_string(header.msgType));
+		DEBUG_LOG(Network::to_string(header.msgType));
+		//DEBUG_LOG(std::string("Receive header, msg type : ") + std::to_string(header.msgType));
 
 		if (recvBytes <= 0)
 		{
-			Log("Recv header bytes : -1, Disconnect.");
+			DEBUG_LOG("Recv header bytes : -1, Disconnect.");
 			error = RecvError::Disconnect;
 			return nullptr;
 		}		
@@ -75,7 +75,7 @@ namespace Network
 	void Receiver::PrintRecvBytesPerSec()
 	{
 		auto recvPerSec = recvBytes_;// / 1000;
-		Log("Recv : " + std::to_string(recvPerSec) + " B/s");
+		DEBUG_LOG("Recv : " + std::to_string(recvPerSec) + " B/s");
 		std::cout << " Recv : " << std::to_string(recvPerSec) << " B / s" << std::endl;
 		recvBytes_ = 0;
 	}

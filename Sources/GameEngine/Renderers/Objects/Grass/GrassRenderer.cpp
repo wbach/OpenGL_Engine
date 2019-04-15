@@ -30,7 +30,7 @@ void GrassRenderer::Init()
     InitShader();
 
     viewDistance = EngineConf.renderer.flora.viewDistance;
-    Log("Grass renderer initialized.");
+    DEBUG_LOG("Grass renderer initialized.");
 }
 
 void GrassRenderer::Render(const Scene& scene, const Time&)

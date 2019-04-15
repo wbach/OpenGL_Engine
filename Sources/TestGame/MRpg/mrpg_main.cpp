@@ -22,7 +22,7 @@ public:
         : serverAdress(Utils::ReadFile("./server.conf"))
         , engine(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
     {
-        Log("Server : " + serverAdress);
+        DEBUG_LOG("Server : " + serverAdress);
 
         engine.Init();
         // LoginScene

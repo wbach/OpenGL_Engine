@@ -30,7 +30,7 @@ namespace Network
 		if (sdlNetWrapper_->Init() != -1)
 			return true;
 
-		Error("Failed to intialise SDL_net: " + std::string(sdlNetWrapper_->GetError()));
+		ERROR_LOG("Failed to intialise SDL_net: " + std::string(sdlNetWrapper_->GetError()));
 		return false;
 	}
 
@@ -40,12 +40,12 @@ namespace Network
 
 		if (context_.socketSet == nullptr)
 		{
-			Error("Failed to allocate the socket set:: " + std::string(sdlNetWrapper_->GetError()));
+			ERROR_LOG("Failed to allocate the socket set:: " + std::string(sdlNetWrapper_->GetError()));
 			return false;
 		}
 		
 		std::string str = "Allocated socket set with size:  " + std::to_string(context_.maxClients + 1) + ", of which " + std::to_string(context_.maxClients) + " are availble for use by clients.";
-		Log(str);
+		DEBUG_LOG(str);
 		return true;
 	}
 
@@ -55,11 +55,11 @@ namespace Network
 
 		if (hostResolved == -1)
 		{
-			Error("Failed to resolve the server host: " + std::string(sdlNetWrapper_->GetError()));
+			ERROR_LOG("Failed to resolve the server host: " + std::string(sdlNetWrapper_->GetError()));
 			return false;
 		}
 
-		Log("Successfully resolved server host to IP: " + UtilsNetwork::IpAddressToString(context_.serverIP));
+		DEBUG_LOG("Successfully resolved server host to IP: " + UtilsNetwork::IpAddressToString(context_.serverIP));
 		return true;
 	}
 
@@ -69,11 +69,11 @@ namespace Network
 
 		if (ipResolved == nullptr)
 		{
-			Error("Failed to resolve ip: " + std::string(sdlNetWrapper_->GetError()));
+			ERROR_LOG("Failed to resolve ip: " + std::string(sdlNetWrapper_->GetError()));
 			return false;
 		}
 
-		Log("Ip resolved : " + std::string(ipResolved));
+		DEBUG_LOG("Ip resolved : " + std::string(ipResolved));
 		return true;
 	}
 
@@ -84,11 +84,11 @@ namespace Network
 
 		if (!context_.socket)
 		{
-			Error("Failed to open the server socket: " + std::string(sdlNetWrapper_->GetError()));
+			ERROR_LOG("Failed to open the server socket: " + std::string(sdlNetWrapper_->GetError()));
 			return false;
 		}
 
-		Log("Sucessfully created server socket.");
+		DEBUG_LOG("Sucessfully created server socket.");
 		return true;
 	}
 

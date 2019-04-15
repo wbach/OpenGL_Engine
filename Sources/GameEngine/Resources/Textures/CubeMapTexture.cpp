@@ -10,7 +10,7 @@ CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
 {
     if (images_.size() != 6)
     {
-        Log("Cube map texture need 6 texutres : " + name);
+        DEBUG_LOG("Cube map texture need 6 texutres : " + name);
     }
 }
 
@@ -18,7 +18,7 @@ void CubeMapTexture::GpuLoadingPass()
 {
     if (isInit or images_.size() != 6)
     {
-        Error("There was an error loading the texture : " + filename + ". data is null or is initialized.");
+        ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
     }
 
@@ -29,7 +29,7 @@ void CubeMapTexture::GpuLoadingPass()
     {
         if (images_[x].data.empty())
         {
-            Error("There was an error loading the texture : " + filename +
+            ERROR_LOG("There was an error loading the texture : " + filename +
                 ". data is null or is initialized. Wrong image : " + std::to_string(x));
             return;
         }
@@ -43,7 +43,7 @@ void CubeMapTexture::GpuLoadingPass()
 
     if (id == 0)
     {
-        Error("There was an error loading the texture : " + filename);
+        ERROR_LOG("There was an error loading the texture : " + filename);
         return;
     }
 

@@ -32,7 +32,7 @@ void ReadCollada(const std::string& filename, ColladaData& colladaData)
     }
     catch (...)
     {
-        Error("Can not parse file " + filename);
+       ERROR_LOG("Can not parse file " + filename);
         return;
     }
     auto root = document.first_node();

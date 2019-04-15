@@ -61,7 +61,7 @@ PhysicsScene::PhysicsScene()
 
 PhysicsScene::~PhysicsScene()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
 }
 
 float Random()
@@ -130,7 +130,7 @@ void PhysicsScene::KeyOperations()
         dir      = glm::normalize(dir);
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos, vec3(0), dir * 20.f, 1.f, false);
-        Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
+        DEBUG_LOG("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
             ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 
@@ -149,7 +149,7 @@ void PhysicsScene::KeyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]() { AddExampleMesh(GetCamera().GetPosition(), 10.f); });
 
     inputManager_->SubscribeOnKeyDown(
-        KeyCodes::P, [&]() { Log("Camera position : " + Utils::ToString(GetCamera().GetPosition())); });
+        KeyCodes::P, [&]() { DEBUG_LOG("Camera position : " + Utils::ToString(GetCamera().GetPosition())); });
 }
 void PhysicsScene::AddStartupObjects()
 {
@@ -261,7 +261,7 @@ int PhysicsScene::Update(float dt)
 {
     if (camera == nullptr)
     {
-        Log("PhysicsScene::Update camera is nullptr.");
+        DEBUG_LOG("PhysicsScene::Update camera is nullptr.");
         return -1;
     }
 

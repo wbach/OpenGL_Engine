@@ -26,7 +26,7 @@ namespace common
 		}
 
 		if (!result)
-			Log("Dispacher::Dispatch message missed.");
+			DEBUG_LOG("Dispacher::Dispatch message missed.");
 	}
 	void Dispacher::RemoveHandler(const std::string& label)
 	{

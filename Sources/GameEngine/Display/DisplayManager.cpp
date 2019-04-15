@@ -15,7 +15,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
 {
     if (graphicsApi_.GetWindowApi() == nullptr)
     {
-        Error("API not set!.Press any key.");
+        ERROR_LOG("API not set!.Press any key.");
         return;
     }
 
@@ -25,14 +25,14 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.PrintVersion();
     timeMeasurer.AddOnTickCallback([this]() {
         auto fps = timeMeasurer.GetFps();
-        Log("FPS : " + std::to_string(fps));
+        DEBUG_LOG("FPS : " + std::to_string(fps));
     });
 }
 
 DisplayManager::~DisplayManager()
 {
     graphicsApi_.DeleteContext();
-    Log(__func__);
+    DEBUG_LOG("");
 }
 
 void DisplayManager::ProcessEvents()

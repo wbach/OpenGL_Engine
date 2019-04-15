@@ -84,7 +84,7 @@ void SaveRequiredFiles()
 
     if (!output.is_open())
     {
-        Log("Cant open file : " + GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
+        ERROR_LOG("Cant open file : " + GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
         return;
     }
 

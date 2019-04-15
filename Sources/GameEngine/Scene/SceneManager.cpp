@@ -37,7 +37,7 @@ void SceneManager::InitActiveScene()
 {
     if (!sceneWrapper_.IsInitialized())
     {
-        Log("SceneManager::InitActiveScene() active scene isn't initialized.");
+        DEBUG_LOG("SceneManager::InitActiveScene() active scene isn't initialized.");
         return;
     }
 }
@@ -149,7 +149,7 @@ void SceneManager::LoadNextScene()
 {
     if (currentSceneId_ >= sceneFactory_->ScenesSize() - 1)
     {
-        Log("SceneManager::LoadNextScene() no more scenes found.");
+        DEBUG_LOG("SceneManager::LoadNextScene() no more scenes found.");
         return;
     }
     LoadScene(++currentSceneId_);
@@ -158,7 +158,7 @@ void SceneManager::LoadPreviousScene()
 {
     if (currentSceneId_ == 0)
     {
-        Log("SceneManager::LoadPreviousScene() no more scenes found.");
+        DEBUG_LOG("SceneManager::LoadPreviousScene() no more scenes found.");
         return;
     }
     LoadScene(--currentSceneId_);
@@ -178,7 +178,7 @@ void SceneManager::LoadScene(uint32 id)
 {
     if (!sceneFactory_->IsExist(id))
     {
-        Log("SceneManager::LoadScene() no more scenes found.");
+        DEBUG_LOG("SceneManager::LoadScene() no more scenes found.");
         return;
     }
     currentSceneId_ = id;
@@ -189,7 +189,7 @@ void SceneManager::LoadScene(const std::string& name)
 {
     if (!sceneFactory_->IsExist(name))
     {
-        Log("SceneManager::LoadScene() " + name + " not found.");
+        DEBUG_LOG("SceneManager::LoadScene() " + name + " not found.");
         return;
     }
 

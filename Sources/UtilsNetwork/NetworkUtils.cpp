@@ -42,10 +42,10 @@ bool CheckComplexMessage(std::list<std::string>& incoming_messages)
 
 	if (!tmp_msg.empty())
 	{
-		Log("###################################################");
-		Log("Add complex messaeg  : " + tmp_msg);
+		DEBUG_LOG("###################################################");
+		DEBUG_LOG("Add complex messaeg  : " + tmp_msg);
 		incoming_messages.push_back(tmp_msg);
-		Log("###################################################");
+		DEBUG_LOG("###################################################");
 	}
 	return true;
 }
@@ -54,7 +54,7 @@ void SendSingleMessage(TCPsocket socket, const std::string & message)
 {
 	if (message.empty())
 	{
-		Log("Try sent empty message");
+		DEBUG_LOG("Try sent empty message");
 		return;
 	}
 	char buffer[BUFFER_SIZE];
@@ -64,8 +64,8 @@ void SendSingleMessage(TCPsocket socket, const std::string & message)
 		buffer[x] = message[x];
 
 	auto sended_bytes = SDLNet_TCP_Send(socket, buffer, BUFFER_SIZE);
-	Log("Sended message, size : " + std::to_string(message.size()) + " " + std::to_string(sended_bytes) + "/" + std::to_string(BUFFER_SIZE) + " (" + std::to_string((int)(((float)sended_bytes / (float)(BUFFER_SIZE))*100.f)) + "%)");
-	Log("Sended : \n" + message);
+	DEBUG_LOG("Sended message, size : " + std::to_string(message.size()) + " " + std::to_string(sended_bytes) + "/" + std::to_string(BUFFER_SIZE) + " (" + std::to_string((int)(((float)sended_bytes / (float)(BUFFER_SIZE))*100.f)) + "%)");
+	DEBUG_LOG("Sended : \n" + message);
 }
 
 void SendMessage(TCPsocket socket, const std::string & message)

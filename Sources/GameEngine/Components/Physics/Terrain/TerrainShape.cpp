@@ -35,7 +35,7 @@ void TerrainShape::OnAwake()
 {
     if (heightMap_ == nullptr)
     {
-        Error("Height data is nullptr, SetHeightMap need to be called.");
+        ERROR_LOG("Height data is nullptr, SetHeightMap need to be called.");
         return;
     }
 

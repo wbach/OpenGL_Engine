@@ -47,14 +47,14 @@ void Subscriber::Update()
         func(deltaTime);
         timeMeasurer.EndFrame();
     }
-    Log("Subscriber::Update, End thread.");
+    DEBUG_LOG("Subscriber::Update, End thread.");
 }
 
 void Subscriber::PrintFps()
 {
     std::string msg = "Thread id : " + std::to_string(threadId) + ", fps : " + std::to_string(timeMeasurer.GetFps()) +
                       ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
-    Log(msg);
+    DEBUG_LOG(msg);
 }
 
 uint32 ThreadSync::Subscribe(frameFunc func)

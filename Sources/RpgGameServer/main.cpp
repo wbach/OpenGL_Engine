@@ -4,7 +4,7 @@ int main(int argc, char** argv)
 {
 	//CLogger::Instance().EnableLogs();	
 
-	Log("RPG GameServer v 0.1");
+	DEBUG_LOG("RPG GameServer v 0.1");
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_CreateWindow("My Game Window",

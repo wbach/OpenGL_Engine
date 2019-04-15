@@ -26,7 +26,7 @@ namespace GameServer
 
 			if (!characterId)
 			{
-				Log("CharacterControllerHandler::ProcessMessage receive message for not user who didnt select character yet.");
+				ERROR_LOG("CharacterControllerHandler::ProcessMessage receive message for not user who didnt select character yet.");
 				return;
 			}
 
@@ -34,7 +34,7 @@ namespace GameServer
 
 			if (hero == nullptr)
 			{
-				Log("CharacterControllerHandler::ProcessMessage cant get character by id.");
+				ERROR_LOG("CharacterControllerHandler::ProcessMessage cant get character by id.");
 				return;
 			}
 
@@ -42,7 +42,7 @@ namespace GameServer
 
 			if (controller == nullptr)
 			{
-				Log("CharacterControllerHandler::ProcessMessage character controller not found in character.");
+				ERROR_LOG("CharacterControllerHandler::ProcessMessage character controller not found in character.");
 				return;
 			}
 

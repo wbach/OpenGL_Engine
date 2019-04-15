@@ -29,9 +29,9 @@ EntityRenderer::~EntityRenderer()
 
 void EntityRenderer::Init()
 {
-    Log("Start initialize entity renderer...");
+    DEBUG_LOG("Start initialize entity renderer...");
     InitShader();
-    Log("EntityRenderer initialized.");
+    DEBUG_LOG("EntityRenderer initialized.");
 }
 
 void EntityRenderer::InitShader()

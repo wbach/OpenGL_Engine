@@ -24,7 +24,7 @@ void GetCharactersHandler::ProcessMessage(const Network::BoxMessage& message)
 
         if (!c)
         {
-            Log("GetCharactersHandler::ProcessMessage character not found " + std::to_string(characterId));
+            DEBUG_LOG("GetCharactersHandler::ProcessMessage character not found " + std::to_string(characterId));
             continue;
         }
 

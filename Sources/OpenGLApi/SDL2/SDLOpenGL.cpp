@@ -6,6 +6,7 @@
 #include <optional>
 #include "InputSDL.h"
 #include "Logger/Log.h"
+
 /*
 SDL_INIT_TIMER	Initializes the timer subsystem.
 SDL_INIT_AUDIO	Initializes the audio subsystem.
@@ -15,7 +16,6 @@ SDL_INIT_JOYSTICK	Initializes the joystick subsystem.
 SDL_INIT_EVERYTHING	Initialize all of the above.
 SDL_INIT_NOPARACHUTE	Prevents SDL from catching fatal signals.
 SDL_INIT_EVENTTHREAD
-
 */
 
 namespace OpenGLApi
@@ -52,7 +52,7 @@ void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, ui
 
     if (TTF_Init() == 1)
     {
-        Error("Failed to init TTF");
+        ERROR_LOG("Failed to init TTF");
     }
 
     auto flags = CreateWindowFlags(windowType);
@@ -67,12 +67,12 @@ void SdlOpenGlApi::CreateContext()
     if (impl_->glContext)
         return;
 
-    Log("[Error] SDL_GL_CreateContext error.");
+    ERROR_LOG("SDL_GL_CreateContext error.");
 }
 
 void SdlOpenGlApi::DeleteContext()
 {
-    Log("CSdlOpenGlApi::~CSdlOpenGlApi() DeleteContext");
+    DEBUG_LOG("DeleteContext");
     SDL_GL_DeleteContext(impl_->glContext);
 }
 
@@ -155,7 +155,7 @@ GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text
     TTF_SetFontOutline(font, outline);
     if (not sdlSurface)
     {
-        Error("Cannot make a text texture" + std::string(SDL_GetError()));
+       ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));
         return GraphicsApi::Surface();
     }
 
@@ -215,7 +215,7 @@ void SdlOpenGlApi::CreateSDLWindow(const std::string& window_name, const int& wi
     if (impl_->window)
         return;
 
-    Error("SDL_CreateWindow error.");
+   ERROR_LOG("SDL_CreateWindow error.");
     exit(-1);
 }
 

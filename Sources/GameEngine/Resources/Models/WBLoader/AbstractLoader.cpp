@@ -29,7 +29,7 @@ void AbstractLoader::Parse(const std::string& filename)
         // ReadBinFile(binFile, textureLoader_);
         loadedFromBin_ = true;
         fileName_      = binFile;
-        Log("Load from bin file :" + filename);
+        DEBUG_LOG("Load from bin file :" + filename);
     }
     else
     {
@@ -55,7 +55,7 @@ std::unique_ptr<Model> AbstractLoader::Create()
 
     auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    Log("Time : " + std::to_string(duration) + "ms.");
+    DEBUG_LOG("Time : " + std::to_string(duration) + "ms.");
     return newModel;
 }
 std::unique_ptr<Model> AbstractLoader::CreateModel()

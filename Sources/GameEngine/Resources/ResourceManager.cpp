@@ -17,7 +17,7 @@ ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi)
 
 ResourceManager::~ResourceManager()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
 }
 
 Model* ResourceManager::LoadModel(const std::string& file)
@@ -27,7 +27,7 @@ Model* ResourceManager::LoadModel(const std::string& file)
     if (count > 0)
     {
         auto i = modelsIds_.at(file);
-        Log("Model already loaded, id : " + std::to_string(modelsIds_.at(file)));
+        DEBUG_LOG("Model already loaded, id : " + std::to_string(modelsIds_.at(file)));
         return models_[i].get();
     }
 

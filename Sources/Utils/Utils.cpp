@@ -54,7 +54,7 @@ std::string ReadFileBinary(const std::string& file_name)
     std::ifstream t(file_name, std::ios::binary);
     if (!t.is_open())
     {
-        Error("Cannot open file : " + file_name);
+        ERROR_LOG("Cannot open file : " + file_name);
         return std::string();
     }
     std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -67,7 +67,7 @@ std::string ReadFile(const std::string& file_name)
     std::ifstream t(file_name);
     if (!t.is_open())
     {
-        Error("Cannot open file : " + file_name);
+        ERROR_LOG("Cannot open file : " + file_name);
         return std::string();
     }
     std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -81,7 +81,7 @@ std::list<std::string> ReadFileLines(const std::string& file_name)
     std::ifstream f(file_name);
     if (!f.is_open())
     {
-        Error("Cannot open file : " + file_name);
+        ERROR_LOG("Cannot open file : " + file_name);
         return output;
     }
 
@@ -200,12 +200,12 @@ float StringToFloat(const std::string& str)
     catch (const std::invalid_argument& e)
     {
         std::string s = e.what();
-        Log("StringToFloat invalid_argument. : " + s);
+        ERROR_LOG("StringToFloat invalid_argument. : " + s);
     }
     catch (const std::out_of_range& e)
     {
         std::string s = e.what();
-        Log("StringToFloat out_of_range. : " + s);
+        ERROR_LOG("StringToFloat out_of_range. : " + s);
     }
     return f;
 }
@@ -220,12 +220,12 @@ int StringToInt(const std::string& str)
     catch (const std::invalid_argument& e)
     {
         std::string s = e.what();
-        Log("StringToInt invalid_argument. : " + s);
+        ERROR_LOG("StringToInt invalid_argument. : " + s);
     }
     catch (const std::out_of_range& e)
     {
         std::string s = e.what();
-        Log("StringToInt out_of_range. : " + s);
+        ERROR_LOG("StringToInt out_of_range. : " + s);
     }
     return i;
 }

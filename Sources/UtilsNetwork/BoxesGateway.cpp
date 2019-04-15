@@ -55,7 +55,7 @@ namespace Network
 			if (msg == nullptr)
 				break;
 
-			//Log("BoxesGateway::SendAllMessages() " + Network::to_string(msg->second->GetType()) + ".");
+			//DEBUG_LOG("BoxesGateway::SendAllMessages() " + Network::to_string(msg->second->GetType()) + ".");
 
 			auto& user = context_.users[msg->first];
 			auto socket = user->socket;
@@ -76,7 +76,7 @@ namespace Network
 						connectionManager_.DisconectUser(user->id);
 					}
 				}
-				Log("Sent " + Network::to_string(msg->second->GetType()) + " failed.");
+				DEBUG_LOG("Sent " + Network::to_string(msg->second->GetType()) + " failed.");
 			}
 			else
 			{
@@ -129,7 +129,7 @@ namespace Network
 	void BoxesGateway::PrintFps()
 	{
 		std::string msg = "Network thread fps : " + std::to_string(timeMeasurer_.GetFps());
-		Log(msg);
+		DEBUG_LOG(msg);
 	}
 
 	void BoxesGateway::AddToOutbox(uint32 userId, IMessagePtr message)

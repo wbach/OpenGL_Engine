@@ -29,7 +29,7 @@ DefferedRenderer::DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Proje
 
 DefferedRenderer::~DefferedRenderer()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
 }
 
 void DefferedRenderer::Init()
@@ -42,7 +42,7 @@ void DefferedRenderer::Init()
     postprocessingRenderersManager_.Init();
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
     __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::OnEndFrame);
-    Log("DefferedRenderer initialized.");
+    DEBUG_LOG("DefferedRenderer initialized.");
 }
 
 void DefferedRenderer::ReloadShaders()

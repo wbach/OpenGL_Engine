@@ -21,7 +21,7 @@ public:
     BaseComponentTestSchould();
     void Init(BaseComponent* component);
 
-    std::shared_ptr<GraphicsApiMock> graphicsApiMock_;
+    std::shared_ptr<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
     ComponentFactoryMock componentFactoryMock_;
     Time time_;
     CameraMock* cameraMock_;

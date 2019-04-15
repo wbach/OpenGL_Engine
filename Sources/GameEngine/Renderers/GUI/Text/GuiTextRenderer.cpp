@@ -99,11 +99,11 @@ void GuiTextRenderer::Init()
 
     shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
     isInit_ = shader_->Init();
-    Log("GuiText (GuiRenderer) is initialized.");
+    DEBUG_LOG("GuiText (GuiRenderer) is initialized.");
 }
 
 GuiTextRenderer::~GuiTextRenderer()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
 }
 }  // namespace GameEngine

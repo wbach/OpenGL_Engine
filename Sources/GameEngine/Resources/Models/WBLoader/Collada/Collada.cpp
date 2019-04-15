@@ -278,7 +278,7 @@ void ColladaDae::PrepareMeshData(const Collada::Mesh& colladaMesh, Mesh& newMesh
                     }
                     else
                     {
-                        Log("POSITION : Undefined reference to : " + vertInput.sourceId);
+                        ERROR_LOG("POSITION : Undefined reference to : " + vertInput.sourceId);
                     }
                 }
             }

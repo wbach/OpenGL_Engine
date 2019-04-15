@@ -33,7 +33,7 @@ void CFont::Init(const std::string& file_name_relative)
     std::ifstream tryfile(file_name);
     if (!tryfile.is_open())
     {
-        Log("[Error] The file " + file_name + " wasnt successfuly opened \n");
+        DEBUG_LOG("[Error] The file " + file_name + " wasnt successfuly opened \n");
         return;
         // throw std::runtime_error("The file wasnt successfuly opened");
     }

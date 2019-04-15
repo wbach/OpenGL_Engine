@@ -55,7 +55,7 @@ Texture::~Texture()
 {
     if (!isInit)
         return;
-    Log("Delete " + fullpath + ", texture id: " + std::to_string(id));
+    DEBUG_LOG("Delete " + fullpath + ", texture id: " + std::to_string(id));
 
     graphicsApi_.DeleteObject(id);
 }

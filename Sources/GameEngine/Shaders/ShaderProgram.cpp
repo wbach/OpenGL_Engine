@@ -42,7 +42,7 @@ void ShaderProgram::Reload()
     if (!IsReadyToLoad())
         return;
 
-    Log("Reload shader: " + name_);
+    DEBUG_LOG("Reload shader: " + name_);
 
     Clear();
     Init();

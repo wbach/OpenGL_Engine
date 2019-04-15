@@ -9,7 +9,7 @@ ScenePtr SceneFactoryBase::Create(const std::string& sceneName)
 {
     if (!IsExist(sceneName))
     {
-        Log("SceneFactory::Create scene : " + sceneName + " not found.");
+        DEBUG_LOG("SceneFactory::Create scene : " + sceneName + " not found.");
         return nullptr;
     }
 
@@ -19,7 +19,7 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 {
     if (!IsExist(id))
     {
-        Log("SceneFactory::Create scene id: " + std::to_string(id) + " not found.");
+        DEBUG_LOG("SceneFactory::Create scene id: " + std::to_string(id) + " not found.");
         return nullptr;
     }
 
@@ -55,7 +55,7 @@ void SceneFactoryBase::SetMenagersAndApi(Scene* scene)
 {
     if (not graphicsApi_)
     {
-        Error("graphicsApi not set!.");
+        ERROR_LOG("graphicsApi not set!.");
         return;
     }
 

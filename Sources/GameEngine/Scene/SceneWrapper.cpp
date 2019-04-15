@@ -27,7 +27,7 @@ void SceneWrapper::Init()
 
     if (SaveGetState() != SceneWrapperState::ReadyToInitialized)
     {
-        Error("SceneWrapper::Init() Wrong state.");
+       ERROR_LOG("SceneWrapper::Init() Wrong state.");
         return;
     }
     SaveSetState(SceneWrapperState::Initializing);
@@ -63,7 +63,7 @@ Scene* SceneWrapper::Get()
 
     if (SaveGetState() == SceneWrapperState::SceneNotSet)
     {
-        Error("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+       ERROR_LOG("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
     }
 
     return nullptr;

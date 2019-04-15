@@ -258,7 +258,7 @@ void AddComponent(Utils::XmlNode& node, GameObject& gameObject, const std::strin
 
     if (not child)
     {
-        Error("Component type number miss match with comonent name.");
+       ERROR_LOG("Component type number miss match with comonent name.");
         return;
     }
 

@@ -21,7 +21,7 @@ void Model::InitModel(const std::string& file_name)
 
 Model::~Model()
 {
-    Log(filename_ + " ::~Model()");
+    DEBUG_LOG("");
 }
 
 void Model::GpuLoadingPass()

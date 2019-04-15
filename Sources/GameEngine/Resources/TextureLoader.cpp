@@ -42,14 +42,14 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file_location.c_str(), 0);
     if (formato == FIF_UNKNOWN)
     {
-        Error("GetFileType: wrong image format or file does not exist : " + file_location);
+        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + file_location);
         return {};
     }
 
     FIBITMAP* imagen2 = FreeImage_Load(formato, file_location.c_str());
     if (!imagen2)
     {
-        Error("FreeImageLoad: wrong image format or file does not exist : " + file_location);
+        ERROR_LOG("FreeImageLoad: wrong image format or file does not exist : " + file_location);
         return {};
     }
 
@@ -57,7 +57,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     if (!imagen)
     {
         FreeImage_Unload(imagen2);
-        Error("Cant convert to 32 bits : " + file_location);
+        ERROR_LOG("Cant convert to 32 bits : " + file_location);
         return {};
     }
     FreeImage_Unload(imagen2);
@@ -99,7 +99,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     resultImage.height = h;
 
     char* pixeles = (char*)FreeImage_GetBits(imagen);
-    Log("File convert bgr2rgb" + file_location + ".");
+    DEBUG_LOG("File convert bgr2rgb" + file_location + ".");
 
     resultImage.data.resize(4 * w * h);
 
@@ -114,7 +114,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
 
     FreeImage_Unload(imagen);
 
-    Log("File: " + file_location + " is loaded.");
+    DEBUG_LOG("File: " + file_location + " is loaded.");
 
     return resultImage;
 }
@@ -179,7 +179,7 @@ Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool 
 {
     if (files.size() != 6)
     {
-        Log("Cube map texture need 6 texutres.");
+        ERROR_LOG("Cube map texture need 6 texutres.");
         return nullptr;
     }
 
@@ -284,7 +284,7 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     if (!fp)
     {
-        Error("GetFileType: wrong image format or file does not exist : " + filename);
+        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + filename);
         return nullptr;
     }
 
@@ -293,10 +293,10 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     if (bytes == 0)
     {
-        Error("Read file error." + filename);
+       ERROR_LOG("Read file error." + filename);
     }
 
-    Log(" Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
+    DEBUG_LOG(" Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
 
     ImagePtr texture(new Image);
     auto& text  = *texture;
@@ -310,7 +310,7 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     if (bytes < sizeof(float) * size)
     {
-        Error("Read file error." + filename + " " + ", bytes : " + std::to_string(bytes));
+        ERROR_LOG("Read file error." + filename + " " + ", bytes : " + std::to_string(bytes));
     }
 
     fclose(fp);
@@ -359,7 +359,7 @@ void TextureLoader::CreateHeightMap(const std::string& in, const std::string& ou
 
     if (!fp)
     {
-        Error("cannot open file : " + output);
+        ERROR_LOG("cannot open file : " + output);
         return;
     }
 

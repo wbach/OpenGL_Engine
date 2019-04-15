@@ -38,13 +38,13 @@ T* GuiManager::Get(const std::string& name)
         }
         else
         {
-            Error("Can not get " + std::to_string(static_cast<int>(T::type)) +
+            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) +
                   ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
         }
     }
     else
     {
-        Log("Element with name : " + name + " not found.");
+        DEBUG_LOG("Element with name : " + name + " not found.");
     }
     return nullptr;
 }

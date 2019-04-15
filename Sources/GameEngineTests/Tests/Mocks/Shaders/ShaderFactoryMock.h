@@ -9,10 +9,10 @@ namespace GameEngine
 class ShaderFactoryMock : public IShaderFactory
 {
 public:
-    virtual std::unique_ptr<IShaderProgram> create(Shaders s) override
+    virtual std::unique_ptr<IShaderProgram> create(GraphicsApi::Shaders s) override
     {
         return std::unique_ptr<IShaderProgram>(createImpl(s));
     }
-    MOCK_METHOD1(createImpl, IShaderProgram*(Shaders));
+    MOCK_METHOD1(createImpl, IShaderProgram*(GraphicsApi::Shaders));
 };
 }  // namespace GameEngine

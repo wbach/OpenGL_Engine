@@ -33,7 +33,7 @@ namespace GameEngine
 	{
 		if (directionalLight == nullptr)
 		{
-			Log("Directional light not set in DayNightCycle but is used.");
+			DEBUG_LOG("Directional light not set in DayNightCycle but is used.");
 			return;
 		}
 		if (IsNight())
@@ -83,7 +83,7 @@ namespace GameEngine
 	{
 		if (directionalLight == nullptr)
 		{
-			Log("Directional light not set in DayNightCycle but is used.");
+			DEBUG_LOG("Directional light not set in DayNightCycle but is used.");
 			return;
 		}
 		vec3 current_pos = directionalLight->GetPosition();

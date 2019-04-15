@@ -20,7 +20,7 @@
 //	if (!Utils::CheckFileExist(file_name))
 //	{
 //        std::string error = "[Error] The file " + filename + " wasnt successfuly opened";
-//		Log(error);
+//		DEBUG_LOG(error);
 //		throw std::runtime_error(error.c_str());
 //	}
 //
@@ -47,7 +47,7 @@
 //	else
 //	{
 //		std::string error = "Error parsing " + file_name +importer.GetErrorString();
-//		Log(error);
+//		DEBUG_LOG(error);
 //		throw std::runtime_error(error.c_str());
 //	}
 //	CModel::InitModel(file_name);
@@ -58,7 +58,7 @@
 //	if (!Utils::CheckFileExist(file_name))
 //	{
 //		std::string error = "[Error] The file " + file_name + " wasnt successfuly opened";
-//		Log(error);
+//		DEBUG_LOG(error);
 //		throw std::runtime_error(error.c_str());
 //	}
 //
@@ -78,7 +78,7 @@
 //	else
 //	{
 //		std::string error = "Error parsing " + file_name;
-//		Log(error);
+//		DEBUG_LOG(error);
 //		throw std::runtime_error(error.c_str());
 //	}
 //	aiReleaseImport(scene);
@@ -93,7 +93,7 @@
 //	{
 //		///aiReleaseImport(m_Scene);
 //	}
-//    Log("Destructor assimp model : " + filename);
+//    DEBUG_LOG("Destructor assimp model : " + filename);
 //}
 //void CAssimModel::RecursiveProcess(const aiScene *scene, aiNode * node, std::vector<float>& postions, std::vector<float>& normals, std::vector<uint32>& indices)
 //{

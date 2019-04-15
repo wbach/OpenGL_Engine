@@ -18,7 +18,7 @@ namespace Time
 CTimeMeasurer::CTimeMeasurer()
     : CTimeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
 {
-    Log("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
+    DEBUG_LOG("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
 }
 
 CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)

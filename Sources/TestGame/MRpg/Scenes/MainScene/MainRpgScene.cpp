@@ -24,12 +24,12 @@ MainRpgScene::MainRpgScene(Network::CGateway& gateway, const std::string& server
 
 MainRpgScene::~MainRpgScene()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
 }
 
 int MainRpgScene::Initialize()
 {
-    Log("MainRpgScene::Initialize()");
+    DEBUG_LOG("MainRpgScene::Initialize()");
 
     modelsCreator_ = std::make_unique<ModelsCreator>(resourceManager_.get());
     networkCharacterManager_ =
@@ -81,7 +81,7 @@ std::unique_ptr<GameEngine::GameObject> MainRpgScene::CreateGameObjectWithDefaul
 
 void MainRpgScene::ReqNetworkSceneCharacters()
 {
-    Log("Send request");
+    DEBUG_LOG("Send request");
     auto characterMsgReq   = std::make_unique<Network::GetCharactersDataMsgReq>();
     characterMsgReq->mapId = 1;  // hack id : 1
     gateway_.Send(characterMsgReq.get());
@@ -94,17 +94,17 @@ void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 
 /*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
 {
-    Log("Times test : Resp: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC) + " Action: " +
+    DEBUG_LOG("Times test : Resp: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC) + " Action: " +
 std::to_string(msg->action));
 
     auto characterId = msg->id;
-    Log("msg->position : " + Utils::ToString(msg->position) + " msg->rotation : " + Utils::ToString(msg->rotation));
+    DEBUG_LOG("msg->position : " + Utils::ToString(msg->position) + " msg->rotation : " + Utils::ToString(msg->rotation));
     networkCharacters_[msg->id]->GetEntity()->worldTransform.SetPosition(msg->position);
     networkCharacters_[msg->id]->GetEntity()->worldTransform.SetRotation(msg->rotation);
     auto icontroller =
 networkCharacters_[msg->id]->GetControllerByType(common::Controllers::Types::CharacterControllerType);
     auto controller = common::Controllers::castControllerAs<common::Controllers::CharacterController>(icontroller);
-    Log("Controller->position : " + Utils::ToString(controller->GetTransform().GetPosition()) + " Controller->rotation :
+    DEBUG_LOG("Controller->position : " + Utils::ToString(controller->GetTransform().GetPosition()) + " Controller->rotation :
 " + Utils::ToString(controller->GetTransform().GetRotation()));
 
     switch (msg->action)

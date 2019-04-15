@@ -54,7 +54,7 @@ bool XmlReader::Read(const std::string& filename)
     catch (const rapidxml::parse_error& p)
     {
         std::string out = p.what();
-        Error(out);
+        ERROR_LOG(out);
         return false;
     }
     root_ = std::make_unique<XmlNode>(document.first_node()->name());

@@ -23,7 +23,7 @@ HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, 
     if (FAILED(hr))
     {
         if (pErrorBlob != NULL)
-            Error((char*)pErrorBlob->GetBufferPointer());
+            ERROR_LOG((char*)pErrorBlob->GetBufferPointer());
         if (pErrorBlob)
             pErrorBlob->Release();
         return hr;

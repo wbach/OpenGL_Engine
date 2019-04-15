@@ -76,7 +76,7 @@ MainScene::MainScene()
 
 MainScene::~MainScene()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG(__FUNCTION__);
 }
 
 float Random()
@@ -86,7 +86,7 @@ float Random()
 
 int MainScene::Initialize()
 {
-    Log("MainScene::Initialize()");
+    DEBUG_LOG("MainScene::Initialize()");
     resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
     // resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/HelionHightMap256.png",
     //                        "Textures/Terrain/HeightMaps/HelionHightMap256.terrain");
@@ -270,7 +270,7 @@ int MainScene::Update(float dt)
     deltaTime = dt;
     if (camera == nullptr)
     {
-        Log("MainScene::Update camera is nullptr.");
+        DEBUG_LOG("MainScene::Update camera is nullptr.");
         return -1;
     }
 
@@ -328,7 +328,7 @@ void MainScene::KeyOperations()
         dir      = glm::normalize(dir);
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
-        Log("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
+        DEBUG_LOG("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
             ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 

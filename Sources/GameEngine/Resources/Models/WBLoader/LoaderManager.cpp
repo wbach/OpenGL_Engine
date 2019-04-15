@@ -28,7 +28,7 @@ std::unique_ptr<Model> LoaderManager::Load(const std::string& file_name)
 
     if (loaderPtr == nullptr)
     {
-        Error("Try parse unkonwn file extension : " + extension);
+       ERROR_LOG("Try parse unkonwn file extension : " + extension);
         return nullptr;
     }
 

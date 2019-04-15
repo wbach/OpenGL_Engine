@@ -71,7 +71,7 @@ Rigidbody& Rigidbody::SetCollisionShape(ComponentsType shapeType)
 {
     if (not isShapeTypeValid(shapeType))
     {
-        Error("Shape type (" + std::to_string(static_cast<int>(shapeType)) + ") is not valid.");
+       ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType)) + ") is not valid.");
         return *this;
     }
 
@@ -129,7 +129,7 @@ void Rigidbody::GetCollisionShape()
             collisionShape_ = thisObject_.GetComponent<SphereShape>();
             break;
         default:
-            Error("Shape type (" + std::to_string(static_cast<int>(shapeType_)) + ") is not found.");
+           ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType_)) + ") is not found.");
             break;
     };
 }

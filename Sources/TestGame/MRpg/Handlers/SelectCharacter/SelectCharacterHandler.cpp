@@ -9,7 +9,7 @@ namespace MmmoRpg
 
 		if (msg == nullptr)
 		{
-			Log("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " + std::to_string(msg->GetType()));
+			ERROR_LOG("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " + std::to_string(msg->GetType()));
 			return;
 		}
 

@@ -14,7 +14,7 @@ void TransformHandler::ProcessMessage(const Network::BoxMessage& message)
 
     if (msg == nullptr)
     {
-        Log("Got msg but wrong type : " + std::to_string(msg->GetType()));
+        ERROR_LOG("Got msg but wrong type : " + std::to_string(msg->GetType()));
         return;
     }
     HandleTransformMsg(*msg);

@@ -16,11 +16,11 @@ void MaterialTexture::GpuLoadingPass()
 {
     if (image.data.empty() || isInit)
     {
-        Error("There was an error loading the texture : " + filename + ". data is null or is initialized.");
+        ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
     }
 
-    Log("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
+    DEBUG_LOG("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
     id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
                                     GraphicsApi::TextureMipmap::LINEAR, GraphicsApi::BufferAtachment::NONE, size_,
                                     &image.data[0]);
@@ -28,7 +28,7 @@ void MaterialTexture::GpuLoadingPass()
     if (id == 0)
     {
         image.data.clear();
-        Error("Filename : " + filename + " cannot create texture.");
+        ERROR_LOG("Filename : " + filename + " cannot create texture.");
         return;
     }
     if (!keepData)
@@ -37,7 +37,7 @@ void MaterialTexture::GpuLoadingPass()
     }
     isInit = true;
 
-    Log("File " + filename + " is in GPU.");
+    DEBUG_LOG("File " + filename + " is in GPU.");
 }
 
 void MaterialTexture::GpuPostLoadingPass()

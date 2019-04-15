@@ -133,7 +133,7 @@ void SceneLoader::LoadScene(Scene* scene)
     auto start = std::chrono::high_resolution_clock::now();
     scene->Init();
     auto end = std::chrono::high_resolution_clock::now();
-    Log("Scene loading time: " +
+    DEBUG_LOG("Scene loading time: " +
         std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.f) + "s.");
     SetIsLoading(false);
 }

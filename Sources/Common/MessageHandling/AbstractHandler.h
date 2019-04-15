@@ -31,7 +31,7 @@ public:
 
         ProcessMessage(message);
 
-        Log(Network::to_string(message.second->GetType()));
+        DEBUG_LOG(Network::to_string(message.second->GetType()));
 
         return true;
     }
@@ -43,7 +43,7 @@ public:
 
         if (msg == nullptr)
         {
-            Log("[Error] CastToMsgType: cannot cast " + std::to_string(message->GetType()) + ".");
+            DEBUG_LOG("[Error] CastToMsgType: cannot cast " + std::to_string(message->GetType()) + ".");
             return nullptr;
         }
 

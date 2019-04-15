@@ -15,7 +15,7 @@ ShadowFrameBuffer::ShadowFrameBuffer(GraphicsApi::IGraphicsApi& graphicsApi)
 
 ShadowFrameBuffer::~ShadowFrameBuffer()
 {
-    Log(__FUNCTION__);
+    DEBUG_LOG("");
     graphicsApi_.DeleteObject(shadowMap);
     graphicsApi_.DeleteObject(fbo);
 }

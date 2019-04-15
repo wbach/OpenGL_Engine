@@ -38,7 +38,7 @@ namespace Network
 			auto final_msg = castMessageAs<T>(msg);
 			if (final_msg == nullptr)
 			{
-				Log("[Error] Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
+				ERROR_LOG("Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
 				return SentStatus::CAST_ERROR;
 			}
 
@@ -50,8 +50,8 @@ namespace Network
 
 			sentBytes_ += sentBytes;
 
-			//Log("Sent message bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(T)));
-			//Log(final_msg->ToString());
+			//DEBUG_LOG("Sent message bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(T)));
+			//DEBUG_LOG(final_msg->ToString());
 			return SentStatus::OK;
 		}
 

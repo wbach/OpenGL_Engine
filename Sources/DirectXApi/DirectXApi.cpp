@@ -124,17 +124,17 @@ HRESULT InitDevice(DirectXContext &directXContext)
 
         if (SUCCEEDED(hr))
         {
-            Log("Use driver : " + driverTypesStr[driverTypeIndex]);
+            DEBUG_LOG("Use driver : " + driverTypesStr[driverTypeIndex]);
             break;
         }
         else
         {
-            Log("Can not use driver : " + driverTypesStr[driverTypeIndex]);
+            ERROR_LOG("Can not use driver : " + driverTypesStr[driverTypeIndex]);
         }
     }
     if (FAILED(hr))
     {
-        Error("Init device error.");
+        ERROR_LOG("Init device error.");
         return hr;
     }
 
@@ -612,7 +612,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
 
     if (FAILED(result))
     {
-        Error("Create CreateTexture2D failed.");
+        ERROR_LOG("Create CreateTexture2D failed.");
         return 0;
     }
 
@@ -627,7 +627,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
 
     if (FAILED(result))
     {
-        Error("Create shaderResourceView failed.");
+        ERROR_LOG("Create shaderResourceView failed.");
         return 0;
     }
 

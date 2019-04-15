@@ -24,7 +24,7 @@ namespace Network
 		if (!ResolveHost()) return context_;
 		if (!OpenTcp()) return context_;
 		if (!AddSocketTcp()) return context_;
-		Log("Connection is open.");
+		DEBUG_LOG("Connection is open.");
 		isCreated = true;
 
 		return context_;

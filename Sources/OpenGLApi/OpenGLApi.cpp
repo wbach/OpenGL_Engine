@@ -127,7 +127,7 @@ void GetInfoAndPrint(const std::string& str, int i)
     int info;
     glGetIntegerv(i, &info);
 
-    Log(str + " : " + std::to_string(info));
+    DEBUG_LOG(str + " : " + std::to_string(info));
 }
 
 void OpenGLApi::Init()
@@ -137,7 +137,7 @@ void OpenGLApi::Init()
     if (glew_init_result != GLEW_OK)
     {
         std::string err(reinterpret_cast<char const*>(glewGetErrorString(glew_init_result)));
-        Log("[Error] Glew init error : " + err);
+        ERROR_LOG("Glew init error : " + err);
         return;
     }
 
@@ -175,15 +175,15 @@ void OpenGLApi::DeleteContext()
 void OpenGLApi::PrintVersion()
 {
     std::string ver(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
-    Log("GL version: " + ver);
+    DEBUG_LOG("GL version: " + ver);
 
     std::string glslver(reinterpret_cast<char const*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
-    Log("GLSL version: " + glslver);
+    DEBUG_LOG("GLSL version: " + glslver);
 
     if (not useLowGLversion_)
     {
         glGetIntegerv(GL_MAX_PATCH_VERTICES, &impl_->maxPatchVertices_);
-        Log("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
+        DEBUG_LOG("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
 
         if (impl_->maxPatchVertices_)
         {
@@ -212,7 +212,7 @@ void OpenGLApi::PrepareFrame()
     {
         auto errString = gluErrorString(code);
         std::string error((char*)errString);
-        Error(error);
+        ERROR_LOG(error);
     }
 }
 void OpenGLApi::SetDefaultTarget()
@@ -507,7 +507,7 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
     if (hubo_error)
     {
         auto errInfo = gluErrorString(hubo_error);
-        Log("" + (char*)errInfo);
+        DEBUG_LOG("" + (char*)errInfo);
         return 0;
     }
 
@@ -540,7 +540,7 @@ std::optional<uint32> OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, 
     if (hubo_error)
     {
         auto errInfo = gluErrorString(hubo_error);
-        Log("" + (char*)errInfo);
+        DEBUG_LOG("" + (char*)errInfo);
         return std::optional<uint32>();
     }
 
@@ -744,7 +744,7 @@ void OpenGLApi::DeleteObject(uint32 id)
 
     if (createdObjectIds.count(id) == 0)
     {
-        Error("Delete object error. Object with id : " + std::to_string(id) + " not created?");
+        ERROR_LOG("Delete object error. Object with id : " + std::to_string(id) + " not created?");
         return;
     }
 
@@ -788,7 +788,7 @@ std::string OpenGLApi::GetBufferStatus()
 
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
-        Log("[Error] FB error, status: " + std::to_string(status));
+        ERROR_LOG("FB error, status: " + std::to_string(status));
         return std::to_string(status);
     }
 
@@ -960,7 +960,7 @@ uint32 OpenGLApi::CloneImage(uint32 objectId)
 {
     // auto& obj = idToGlId_.at(objectId];
 
-    Log("Not implementet");
+    DEBUG_LOG("Not implementet");
     // glCopyTexImage2D();
     return uint32();
 }

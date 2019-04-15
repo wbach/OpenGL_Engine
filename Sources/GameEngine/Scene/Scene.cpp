@@ -38,7 +38,7 @@ Scene::Scene(const std::string& name)
 
 Scene::~Scene()
 {
-    Log("");
+    DEBUG_LOG("");
 
     gameObjects.clear();
     camera.reset();

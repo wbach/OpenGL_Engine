@@ -40,7 +40,7 @@ namespace GameServer
 	}
 	void Manager::RemoveHero(uint32 id)
 	{
-		Log("");
+		DEBUG_LOG("");
 		for (auto& m : maps_)
 		{
 			auto character = m.GetCharacter(id);
@@ -60,7 +60,7 @@ namespace GameServer
 	{
 		if (mapId >= maps_.size())
 		{
-			Log("anager::GetAllCharactersInMap: map id : "+ std::to_string(mapId) + " not found.");
+			DEBUG_LOG("anager::GetAllCharactersInMap: map id : "+ std::to_string(mapId) + " not found.");
 			return emptyCharactersMap_;
 		}
 		return maps_[mapId].GetAllCharacters();

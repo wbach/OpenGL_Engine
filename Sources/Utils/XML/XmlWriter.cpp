@@ -82,7 +82,7 @@ public:
         std::ofstream file(filename.c_str());
         if (!file.is_open())
         {
-            Error("cannot open file " + filename);
+           ERROR_LOG("cannot open file " + filename);
             return;
         }
         file << document_;

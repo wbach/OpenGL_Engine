@@ -48,7 +48,7 @@ int GuiEdytorScene::Update(float deltaTime)
     if (attached)
     {
         auto mouseMove = inputManager_->GetMousePosition();
-        Log(Utils::ToString(mouseMove));
+        DEBUG_LOG(Utils::ToString(mouseMove));
 
         if (currentEditElement_.first == GuiEditingType::Texture)
         {
@@ -59,7 +59,7 @@ int GuiEdytorScene::Update(float deltaTime)
         if (currentEditElement_.first == GuiEditingType::Text)
         {
             std::string name = "GuiText" + std::to_string(currentEditElement_.second);
-            Log(name);
+            DEBUG_LOG(name);
 
            // if (!guiTexts_.empty())
              //   guiTexts_[currentEditElement_.second].position = mouseMove;
@@ -185,7 +185,7 @@ void GuiEdytorScene::AddElement()
         //std::string name                 = "GuiText" + std::to_string(currentEditElement_.second);
         //renderersManager_->GuiText(name) = text;
         //guiTexts_.push_back(text);
-        Log(name);
+        DEBUG_LOG(name);
     }
 }
 
