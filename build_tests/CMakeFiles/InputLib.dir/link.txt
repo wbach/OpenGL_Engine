@@ -1,2 +1,0 @@
-/usr/bin/ar qc libInputLib.a  CMakeFiles/InputLib.dir/home/bach/Projects/OpenGL_Engine/Sources/Input/InputManager.cpp.o CMakeFiles/InputLib.dir/home/bach/Projects/OpenGL_Engine/Sources/Input/KeyCodeToCharConverter.cpp.o
-/usr/bin/ranlib libInputLib.a
