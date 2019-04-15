@@ -23,6 +23,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
     , viewOffset_(Utils::CreateOffset())
+    , isInit_(false)
 {
     shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Shadows);
     __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
@@ -38,13 +39,19 @@ ShadowMapRenderer::~ShadowMapRenderer()
 
 void ShadowMapRenderer::Init()
 {
-    shader_->Init();
+    isInit_ = shader_->Init();
+
     perFrameBuffer_  = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+
+    if (not isInit_ or not perFrameBuffer_)
+    {
+        ERROR_LOG("ShadowMapRenderer inir error");
+    }
 }
 
 void ShadowMapRenderer::Render(const Scene& scene, const Time&)
 {
-    if (not perFrameBuffer_)
+    if (not isInit_ or not perFrameBuffer_)
         return;
 
     uint32 lastBindedPerFrameBuffer  = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);

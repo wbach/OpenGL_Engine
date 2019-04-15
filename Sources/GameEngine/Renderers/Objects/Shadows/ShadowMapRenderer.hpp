@@ -54,5 +54,6 @@ private:
     mat4 viewOffset_;
     Subscribers subscribes_;
     GraphicsApi::ID perFrameBuffer_;
+    bool isInit_;
 };
 }  // namespace GameEngine

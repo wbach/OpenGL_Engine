@@ -54,7 +54,8 @@ struct EntityRendererShould : public BaseComponentTestSchould
         scene_.CreateResourceManger(resourceManagerMock_);
         context_.projection_.CreateProjectionMatrix();
 
-        EXPECT_CALL(shaderFactoryMock_, createImpl(Shaders::Entity)).WillOnce(Return(&shaderProgramMock_));
+        shaderProgramMock_ = new ShaderProgramMock();
+        EXPECT_CALL(shaderFactoryMock_, createImpl(Shaders::Entity)).WillOnce(Return(shaderProgramMock_));
 
         scene_.SetRenderersManager(&renderersManager_);
         scene_.SetPhysicsApi(physicsApiMock_);
@@ -69,16 +70,14 @@ struct EntityRendererShould : public BaseComponentTestSchould
     }
     void ExpectShaderInit()
     {
-        EXPECT_CALL(shaderProgramMock_, Init());
+        EXPECT_CALL(*shaderProgramMock_, Init());
     }
 
     void ExpectRender()
     {
-        EXPECT_CALL(frameBufferMock_, BindToDraw()).Times(1);
-        EXPECT_CALL(shaderProgramMock_, Start()).Times(1);
+        EXPECT_CALL(*shaderProgramMock_, Start()).Times(1);
         EXPECT_CALL(graphicsMock_, BindShaderBuffer(_)).Times(1);
         EXPECT_CALL(graphicsMock_, RenderMesh(_)).Times(1);
-        EXPECT_CALL(frameBufferMock_, UnBind()).Times(1);
     }
 
     void AddGameObject()
@@ -107,7 +106,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
     }
     GpuResourceLoaderMock gpuResourceLoaderMock_;
     GraphicsApi::GraphicsApiMock graphicsMock_;
-    ShaderProgramMock shaderProgramMock_;
+    ShaderProgramMock* shaderProgramMock_;
     ShaderFactoryMock shaderFactoryMock_;
     ResourceManagerMock* resourceManagerMock_;
     Projection projection_;
