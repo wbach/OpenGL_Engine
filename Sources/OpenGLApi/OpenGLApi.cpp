@@ -78,12 +78,12 @@ OpenGLMesh Convert(const Vao& v)
     return mesh;
 }
 OpenGLApi::OpenGLApi()
-    : OpenGLApi(std::make_shared<SdlOpenGlApi>())
+    : OpenGLApi(std::make_unique<SdlOpenGlApi>())
 {
 }
-OpenGLApi::OpenGLApi(GraphicsApi::IWindowApiPtr windowApi)
+OpenGLApi::OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi)
     : activeBuffer_(0)
-    , windowApi_(windowApi)
+    , windowApi_(std::move(windowApi))
     , usedShader(0)
     , bgColor_(0)
     , quad_()
@@ -197,9 +197,9 @@ void OpenGLApi::PrintVersion()
     GetInfoAndPrint("GL_MAX_UNIFORM_BLOCK_SIZE", GL_MAX_UNIFORM_BLOCK_SIZE);
     GetInfoAndPrint("GL_MAX_SHADER_STORAGE_BLOCK_SIZE", GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
 }
-GraphicsApi::IWindowApiPtr OpenGLApi::GetWindowApi()
+GraphicsApi::IWindowApi& OpenGLApi::GetWindowApi()
 {
-    return windowApi_;
+    return *windowApi_;
 }
 void OpenGLApi::PrepareFrame()
 {

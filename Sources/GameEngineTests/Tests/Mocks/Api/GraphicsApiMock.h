@@ -8,7 +8,7 @@ namespace GraphicsApi
 class GraphicsApiMock : public IGraphicsApi
 {
 public:
-    MOCK_METHOD0(GetWindowApi, IWindowApiPtr());
+    MOCK_METHOD0(GetWindowApi, IWindowApi&());
     MOCK_METHOD0(Init, void());
     MOCK_METHOD1(SetShadersFilesLocations, void(const std::string& path));
     MOCK_METHOD1(SetShaderQuaility, void(ShaderQuaility));

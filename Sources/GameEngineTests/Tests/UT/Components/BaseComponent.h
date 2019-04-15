@@ -7,6 +7,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Time/Time.h"
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
+#include "GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
 #include "GameEngineTests/Tests/Mocks/Components/ComponentFactoryMock.h"
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
@@ -31,6 +32,7 @@ public:
     Renderer::RenderersManager renderersManager_;
     ShaderFactoryMock shaderFactoryMock_;
     PhysicsApiMock physicsApiMock_;
+    GraphicsApi::WindowApiMock windowApiMock_;
     std::unique_ptr<ICamera> camera_;
     ComponentContext context_;
 };

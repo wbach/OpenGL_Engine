@@ -29,7 +29,7 @@ class IGraphicsApi
 {
 public:
     virtual ~IGraphicsApi()                                               = default;
-    virtual IWindowApiPtr GetWindowApi()                                  = 0;
+    virtual IWindowApi& GetWindowApi()                                    = 0;
     virtual void Init()                                                   = 0;
     virtual void SetShadersFilesLocations(const std::string& path)        = 0;
     virtual void SetShaderQuaility(ShaderQuaility)                        = 0;

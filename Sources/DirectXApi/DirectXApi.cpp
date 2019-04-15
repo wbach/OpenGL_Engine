@@ -229,7 +229,7 @@ private:
 DirectXApi::DirectXApi()
 {
     impl_      = std::make_unique<Pimpl>();
-    windowApi_ = std::make_shared<WinApi>(impl_->dxCondext_);
+    windowApi_ = std::make_unique<WinApi>(impl_->dxCondext_);
 
     bgColor_[0] = 0.f;
     bgColor_[1] = .2f;
@@ -379,9 +379,9 @@ void DirectXApi::DeleteContext()
 void DirectXApi::PrintVersion()
 {
 }
-GraphicsApi::IWindowApiPtr DirectXApi::GetWindowApi()
+GraphicsApi::IWindowApi &DirectXApi::GetWindowApi()
 {
-    return windowApi_;
+    return *windowApi_;
 }
 void DirectXApi::PrepareFrame()
 {

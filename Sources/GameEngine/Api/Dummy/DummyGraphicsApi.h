@@ -10,11 +10,11 @@ class DummyGraphicsApi : public GraphicsApi::IGraphicsApi
 public:
     DummyGraphicsApi()
     {
-        dummyWindowApiPtr_ = std::make_shared<DummyWindowApi>();
+        dummyWindowApiPtr_ = std::make_unique<DummyWindowApi>();
     }
-    virtual GraphicsApi::IWindowApiPtr GetWindowApi() override
+    virtual GraphicsApi::IWindowApi& GetWindowApi() override
     {
-        return dummyWindowApiPtr_;
+        return *dummyWindowApiPtr_;
     }
     virtual void Init() override
     {
@@ -293,7 +293,7 @@ public:
 
 private:
     uint32 id;
-    DummyWindowApiPtr dummyWindowApiPtr_;
+    std::unique_ptr<GraphicsApi::IWindowApi> dummyWindowApiPtr_;
     GraphicsApi::TextureInfo textureInfo_;
 };
 typedef std::shared_ptr<DummyGraphicsApi> DummyGraphicsApiPtr;

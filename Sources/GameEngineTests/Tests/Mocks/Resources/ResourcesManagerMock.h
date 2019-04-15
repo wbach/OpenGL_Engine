@@ -16,6 +16,11 @@ public:
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());
     MOCK_METHOD0(GetTextureLaoder, ITextureLoader&());
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
-    MOCK_METHOD1(AddTexture, Texture*(std::unique_ptr<Texture>));
+    MOCK_METHOD1(AddTextureImpl, Texture*(Texture*));
+
+    Texture* AddTexture(std::unique_ptr<Texture> t)
+    {
+        return AddTextureImpl(t.get());
+    }
 };
 }  // namespace GameEngine

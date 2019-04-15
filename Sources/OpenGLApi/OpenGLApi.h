@@ -14,7 +14,7 @@ class OpenGLApi : public GraphicsApi::IGraphicsApi
 {
 public:
     OpenGLApi();
-    OpenGLApi(GraphicsApi::IWindowApiPtr windowApi);
+    OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi);
     ~OpenGLApi();
     virtual void Init() override;
     virtual void SetShadersFilesLocations(const std::string& path) override;
@@ -22,7 +22,7 @@ public:
     virtual void CreateContext() override;
     virtual void DeleteContext() override;
     virtual void PrintVersion() override;
-    virtual GraphicsApi::IWindowApiPtr GetWindowApi() override;
+    virtual GraphicsApi::IWindowApi& GetWindowApi() override;
 
     virtual void PrepareFrame() override;
     virtual void SetDefaultTarget() override;
@@ -130,7 +130,7 @@ private:
     std::unique_ptr<Pimpl> impl_;
 
     uint32 activeBuffer_;
-    GraphicsApi::IWindowApiPtr windowApi_;
+    std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
     uint32 usedShader;
     vec3 bgColor_;
     uint32 bindedShaderBuffers_[MAX_SHADER_BUFFER_SIZE];

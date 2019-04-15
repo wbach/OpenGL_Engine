@@ -14,7 +14,7 @@ public:
     virtual void CreateContext() override;
     virtual void DeleteContext() override;
     virtual void PrintVersion() override;
-    virtual GraphicsApi::IWindowApiPtr GetWindowApi() override;
+    virtual GraphicsApi::IWindowApi& GetWindowApi() override;
 
     virtual void PrepareFrame() override;
     virtual void SetDefaultTarget() override;
@@ -121,7 +121,7 @@ private:
 private:
     class Pimpl;
     std::unique_ptr<Pimpl> impl_;
-    GraphicsApi::IWindowApiPtr windowApi_;
+    std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
 
 private:
     float bgColor_[4];
