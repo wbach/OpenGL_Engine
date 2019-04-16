@@ -28,6 +28,28 @@ struct SdlOpenGlApi::Pimpl
     std::vector<TTF_Font*> fonts_;
     std::vector<SDL_Surface*> surfaces_;
     std::unordered_map<std::string, uint32> fontNameToIdMap_;
+
+    void Clear()
+    {
+        for (auto& surface : surfaces_)
+        {
+            DeleteSurface(surface);
+        }
+        for (auto& font : fonts_)
+        {
+            TTF_CloseFont(font);
+        }
+    }
+    void DeleteSurface(SDL_Surface*& surface)
+    {
+        // DEBUG_LOG("");
+        if (surface)
+        {
+            // DEBUG_LOG("Free sdl surface.");
+            SDL_FreeSurface(surface);
+            surface = nullptr;
+        }
+    }
 };
 
 SdlOpenGlApi::SdlOpenGlApi()
@@ -37,10 +59,7 @@ SdlOpenGlApi::SdlOpenGlApi()
 
 SdlOpenGlApi::~SdlOpenGlApi()
 {
-    for (auto& font : impl_->fonts_)
-    {
-        TTF_CloseFont(font);
-    }
+    impl_->Clear();
     TTF_Quit();
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
@@ -191,7 +210,8 @@ void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
     {
         return;
     }
-    SDL_FreeSurface(impl_->surfaces_[index]);
+
+    impl_->DeleteSurface(impl_->surfaces_[index]);
     impl_->surfaces_[index] = nullptr;
 }
 

@@ -31,7 +31,9 @@ struct GuiTextElementShould : public BaseComponentTestSchould
 };
 TEST_F(GuiTextElementShould, MCT_UpdateText)
 {
-    sut_->SetText("New text " + std::to_string(1));
+    for (int i = 0; i < 10; ++i)
+        sut_->SetText("New text " + std::to_string(i));
+
     ASSERT_TRUE(sut_->GetSurface());
     auto& surface = *sut_->GetSurface();
     DEBUG_LOG("Surface size : " + std::to_string(surface.size));
