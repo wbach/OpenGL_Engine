@@ -299,8 +299,8 @@ int MainScene::Update(float dt)
     CheckCollisions(deltaTime);
     UpdatePlayerandCamera(deltaTime);
 
-    GuiText("playerPos")->SetText("Player position : " + Utils::ToString(player->worldTransform.GetPosition()));
-    // renderersManager_->GuiText("cameraPos").text = Utils::ToString(camera->GetPosition());
+    GuiText("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
+    // renderersManager_->GuiText("cameraPos").text = std::to_string(camera->GetPosition());
     return 0;
 }
 
@@ -328,7 +328,7 @@ void MainScene::KeyOperations()
         dir      = glm::normalize(dir);
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
-        DEBUG_LOG("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
+        DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
             ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 

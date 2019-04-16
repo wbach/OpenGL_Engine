@@ -25,7 +25,7 @@ public:
                    const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
-    const GraphicsApi::Surface& GetSurface() const;
+    const std::optional<GraphicsApi::Surface>& GetSurface() const;
     std::optional<uint32> GetTextureId() const;
     const std::string& GetText() const;
     void SetTexture(Texture*);
@@ -44,7 +44,8 @@ private:
     Texture* texture_;
     std::optional<uint32> fontId_;
     std::string font_;
-    GraphicsApi::Surface surface_;
+    std::optional<GraphicsApi::Surface> surface_;
+    bool openFontFailed_;
 
 public:
     static GuiElementTypes type;

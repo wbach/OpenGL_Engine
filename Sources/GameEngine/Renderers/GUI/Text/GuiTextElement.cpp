@@ -33,11 +33,12 @@ GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi:
     , fontSize_(size)
     , texture_(nullptr)
     , font_(font)
+    , openFontFailed_(false)
 {
     RenderText();
 }
 
-const GraphicsApi::Surface& GuiTextElement::GetSurface() const
+const std::optional<GraphicsApi::Surface>& GuiTextElement::GetSurface() const
 {
     return surface_;
 }
@@ -73,18 +74,37 @@ void GuiTextElement::UnsetTexture()
 
 void GuiTextElement::RenderText()
 {
+    if (openFontFailed_)
+    {
+        return;
+    }
+
     if (not text_.empty())
     {
         // memory leak, to do, remove old if exist or not create new one
         if (not fontId_)
         {
-            fontId_  = windowApi_.OpenFont(font_, fontSize_);
+            fontId_ = windowApi_.OpenFont(font_, fontSize_);
+
+            if (not fontId_)
+            {
+                openFontFailed_ = true;
+                return;
+            }
         }
-        auto oldSurface = surface_.id;
+
+        if (surface_)
+        {
+            windowApi_.DeleteSurface(surface_->id);
+        }
+
         surface_ = windowApi_.RenderFont(*fontId_, text_, ToVec4(color_), outline_);
-        windowApi_.DeleteSurface(oldSurface);
-        SetSize(surface_.size);
-        updateTexture_(*this);
+
+        if (surface_)
+        {
+            SetSize(surface_->size);
+            updateTexture_(*this);
+        }
     }
 }
 }  // namespace GameEngine

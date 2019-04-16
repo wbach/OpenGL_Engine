@@ -1,4 +1,3 @@
-#include "SDLOpenGL.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_ttf.h>
@@ -6,6 +5,7 @@
 #include <optional>
 #include "InputSDL.h"
 #include "Logger/Log.h"
+#include "SDLOpenGL.h"
 
 /*
 SDL_INIT_TIMER	Initializes the timer subsystem.
@@ -41,12 +41,12 @@ SdlOpenGlApi::~SdlOpenGlApi()
     {
         TTF_CloseFont(font);
     }
+    TTF_Quit();
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
 }
 
-void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height,
-                                GraphicsApi::WindowType windowType)
+void SdlOpenGlApi::Init()
 {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -54,10 +54,13 @@ void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, ui
     {
         ERROR_LOG("Failed to init TTF");
     }
+}
 
+void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+                                GraphicsApi::WindowType windowType)
+{
     auto flags = CreateWindowFlags(windowType);
     CreateSDLWindow(window_name, width, height, flags);
-
     SDL_GL_SetSwapInterval(0);
 }
 
@@ -115,7 +118,7 @@ void SdlOpenGlApi::SetCursorPosition(int x, int y)
     SDL_WarpMouseInWindow(impl_->window, x, y);
 }
 
-uint32 SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
+std::optional<uint32> SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
 {
     auto fname = filename + std::to_string(size);
     if (impl_->fontNameToIdMap_.count(fname) > 0)
@@ -133,10 +136,12 @@ uint32 SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
         return id;
     }
 
-    return 0;
+    ERROR_LOG("Cannot open font : " + filename);
+    return {};
 }
 
-GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline)
+std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color,
+                                                             uint32 outline)
 {
     auto index = id - 1;
     if (index >= impl_->fonts_.size())
@@ -155,8 +160,8 @@ GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text
     TTF_SetFontOutline(font, outline);
     if (not sdlSurface)
     {
-       ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));
-        return GraphicsApi::Surface();
+        ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));
+        return {};
     }
 
     std::optional<uint32> surfaceId;
@@ -175,8 +180,8 @@ GraphicsApi::Surface SdlOpenGlApi::RenderFont(uint32 id, const std::string& text
         surfaceId = impl_->surfaces_.size();
     }
 
-    return {impl_->surfaces_.size(), vec2ui(sdlSurface->w, sdlSurface->h), sdlSurface->format->BytesPerPixel,
-            sdlSurface->pixels};
+    return GraphicsApi::Surface{impl_->surfaces_.size(), vec2ui(sdlSurface->w, sdlSurface->h),
+                                sdlSurface->format->BytesPerPixel, sdlSurface->pixels};
 }
 
 void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
@@ -215,7 +220,7 @@ void SdlOpenGlApi::CreateSDLWindow(const std::string& window_name, const int& wi
     if (impl_->window)
         return;
 
-   ERROR_LOG("SDL_CreateWindow error.");
+    ERROR_LOG("SDL_CreateWindow error.");
     exit(-1);
 }
 

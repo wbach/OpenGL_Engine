@@ -1,8 +1,8 @@
-#include "GuiEdytorScene.h"
 #include <fstream>
 #include "../GameEngine/Engine/Engine.h"
 #include "../GameEngine/Renderers/GUI/Text/GuiTextRenderer.h"
 #include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "GuiEdytorScene.h"
 #include "Thread.hpp"
 
 GuiEdytorScene::GuiEdytorScene()
@@ -17,22 +17,23 @@ GuiEdytorScene::~GuiEdytorScene()
 
 int GuiEdytorScene::Initialize()
 {
-    //GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
-    //guiTexture.texture                  = resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
-    //renderersManager_->GuiTexture("bg") = guiTexture;
+    // GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
+    // guiTexture.texture                  =
+    // resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
+    // renderersManager_->GuiTexture("bg") = guiTexture;
 
-    //vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);
+    // vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);
 
-    //currentType_.text     = "Current Type :" + GuiTypeToString(currentEditElement_.first);
-    //currentType_.colour   = textColor;
-    //currentType_.position = vec2(-0.8, 0.8);
+    // currentType_.text     = "Current Type :" + GuiTypeToString(currentEditElement_.first);
+    // currentType_.colour   = textColor;
+    // currentType_.position = vec2(-0.8, 0.8);
 
-    //currentElement_.text     = "Element :";
-    //currentElement_.colour   = textColor;
-    //currentElement_.position = vec2(-0.8, 0.7);
+    // currentElement_.text     = "Element :";
+    // currentElement_.colour   = textColor;
+    // currentElement_.position = vec2(-0.8, 0.7);
 
-    //renderersManager_->GuiText("Type")    = currentType_;
-    //renderersManager_->GuiText("Element") = currentElement_;
+    // renderersManager_->GuiText("Type")    = currentType_;
+    // renderersManager_->GuiText("Element") = currentElement_;
 
     return 0;
 }
@@ -48,12 +49,12 @@ int GuiEdytorScene::Update(float deltaTime)
     if (attached)
     {
         auto mouseMove = inputManager_->GetMousePosition();
-        DEBUG_LOG(Utils::ToString(mouseMove));
+        DEBUG_LOG(std::to_string(mouseMove));
 
         if (currentEditElement_.first == GuiEditingType::Texture)
         {
             std::string name = "GuiTexture" + std::to_string(currentEditElement_.second);
-            //renderersManager_->GuiTexture(name).SetPosition(mouseMove);
+            // renderersManager_->GuiTexture(name).SetPosition(mouseMove);
         }
 
         if (currentEditElement_.first == GuiEditingType::Text)
@@ -61,14 +62,14 @@ int GuiEdytorScene::Update(float deltaTime)
             std::string name = "GuiText" + std::to_string(currentEditElement_.second);
             DEBUG_LOG(name);
 
-           // if (!guiTexts_.empty())
-             //   guiTexts_[currentEditElement_.second].position = mouseMove;
-            //renderersManager_->GuiText(name).position          = mouseMove;
+            // if (!guiTexts_.empty())
+            //   guiTexts_[currentEditElement_.second].position = mouseMove;
+            // renderersManager_->GuiText(name).position          = mouseMove;
         }
     }
 
-   // renderersManager_->GuiText("Type").text    = "Current Type :" + GuiTypeToString(currentEditElement_.first);
-   // renderersManager_->GuiText("Element").text = "Current Element :" + std::to_string(currentEditElement_.second);
+    // renderersManager_->GuiText("Type").text    = "Current Type :" + GuiTypeToString(currentEditElement_.first);
+    // renderersManager_->GuiText("Element").text = "Current Element :" + std::to_string(currentEditElement_.second);
 
     // if (inputManager_->GetKeyDown(KeyCodes::TAB))
     //{
@@ -175,25 +176,25 @@ void GuiEdytorScene::AddElement()
     if (currentEditElement_.first == GuiEditingType::Texture)
     {
         currentEditElement_.second = guiTextures_.size();
-        //guiTextures_.push_back({});
+        // guiTextures_.push_back({});
     }
     else if (currentEditElement_.first == GuiEditingType::Text)
     {
         currentEditElement_.second = guiTexts_.size();
-        //GameEngine::GuiTextElement text;
-        //text.text                        = "Sample text " + std::to_string(currentEditElement_.second);
-        //std::string name                 = "GuiText" + std::to_string(currentEditElement_.second);
-        //renderersManager_->GuiText(name) = text;
-        //guiTexts_.push_back(text);
+        // GameEngine::GuiTextElement text;
+        // text.text                        = "Sample text " + std::to_string(currentEditElement_.second);
+        // std::string name                 = "GuiText" + std::to_string(currentEditElement_.second);
+        // renderersManager_->GuiText(name) = text;
+        // guiTexts_.push_back(text);
         DEBUG_LOG(name);
     }
 }
 
 void GuiEdytorScene::Save()
 {
-    //std::ofstream f("./guiEditorOut.txt");
-    //f << "Texts:\n";
-    //for (const auto& t : guiTexts_)
+    // std::ofstream f("./guiEditorOut.txt");
+    // f << "Texts:\n";
+    // for (const auto& t : guiTexts_)
     //{
     //    // f << "**************************\n";
     //    f << "\n";
@@ -204,14 +205,14 @@ void GuiEdytorScene::Save()
     //    f << "\n";
     //    // f << "**************************\n";
     //}
-    //f << "Textures:\n";
-    //int i = 0;
-    //for (const auto& t : guiTextures_)
+    // f << "Textures:\n";
+    // int i = 0;
+    // for (const auto& t : guiTextures_)
     //{
     //    f << "**********\n";
     //    f << std::to_string(i++) << "\n";
     //    f << "Position:" << Utils::ToString(t.GetPosition()) << "\n";
     //    f << "\n";
     //}
-    //f.close();
+    // f.close();
 }

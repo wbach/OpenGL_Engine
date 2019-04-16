@@ -1,7 +1,7 @@
-#include "WinApi.h"
 #include <D3D11.h>
 #include <Windows.h>
 #include "DirectXApi/DirectXContext.h"
+#include "WinApi.h"
 #include "XInput/XInputManager.h"
 
 #undef CreateWindow
@@ -85,10 +85,13 @@ WinApi::WinApi(DirectXContext& directXContext)
 WinApi::~WinApi()
 {
 }
+void WinApi::Init()
+{
+    RegiesterWindowClass();
+}
 void WinApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height,
                           GraphicsApi::WindowType full_screen)
 {
-    RegiesterWindowClass();
     RECT r{0, 0, width, height};
     impl_->rect_ = r;
     AdjustWindowRect(&impl_->rect_, WS_OVERLAPPEDWINDOW, FALSE);
@@ -146,13 +149,14 @@ double WinApi::GetTime()
 void WinApi::SetCursorPosition(int x, int y)
 {
 }
-uint32 WinApi::OpenFont(const std::string& filename, uint32 size)
+std::optional<uint32> WinApi::OpenFont(const std::string& filename, uint32 size)
 {
-    return uint32();
+    return {};
 }
-GraphicsApi::Surface WinApi::RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline)
+std::optional<GraphicsApi::Surface> WinApi::RenderFont(uint32 id, const std::string& text, const vec4& color,
+                                                       uint32 outline)
 {
-    return GraphicsApi::Surface();
+    return {};
 }
 void WinApi::DeleteSurface(uint32 surfaceId)
 {

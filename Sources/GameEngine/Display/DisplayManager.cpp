@@ -13,6 +13,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     , isFullScreen(false)
     , windowsSize({w, h})
 {
+    graphicsApi_.GetWindowApi().Init();
     graphicsApi_.GetWindowApi().CreateWindow(window_name, w, h, type);
     graphicsApi_.CreateContext();
     graphicsApi_.Init();

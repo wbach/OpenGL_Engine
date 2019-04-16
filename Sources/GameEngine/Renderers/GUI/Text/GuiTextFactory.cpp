@@ -30,19 +30,24 @@ std::unique_ptr<GuiTextElement> GuiTextFactory::Create(const std::string& font, 
 }
 void GuiTextFactory::UpdateTexture(GuiTextElement& textElement)
 {
+    if (not textElement.GetSurface())
+    {
+        return;
+    }
+
     if (textElement.GetTextureId())
     {
         resourceManager_.GetGpuResourceLoader().AddFunctionToCall([this, &textElement]() {
-            resourceManager_.GetGraphicsApi().UpdateTexture(*textElement.GetTextureId(), textElement.GetSurface().size,
-                                                            textElement.GetSurface().pixels);
+            resourceManager_.GetGraphicsApi().UpdateTexture(*textElement.GetTextureId(), textElement.GetSurface()->size,
+                                                            textElement.GetSurface()->pixels);
         });
         return;
     }
 
     auto fontTexture = resourceManager_.GetTextureLaoder().CreateTexture(
-        "FontImage_" + std::to_string(textElement.GetSurface().id) + "_" + textElement.GetText(),
+        "FontImage_" + std::to_string(textElement.GetSurface()->id) + "_" + textElement.GetText(),
         GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE,
-        GraphicsApi::BufferAtachment::NONE, textElement.GetSurface().size, textElement.GetSurface().pixels);
+        GraphicsApi::BufferAtachment::NONE, textElement.GetSurface()->size, textElement.GetSurface()->pixels);
 
     if (fontTexture)
     {

@@ -35,8 +35,8 @@ glm::vec3 CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b);
 glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
 glm::vec3 RotateObject(const vec3& center, const vec3& point, float angle);
 
-void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max, glm::vec3& bounding_size,
-                         glm::vec3& bounding_center);
+void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max,
+                         glm::vec3& bounding_size, glm::vec3& bounding_center);
 
 float GetMaxFromVector(const glm::vec3& vector);
 
@@ -44,21 +44,20 @@ glm::mat4 CreateOffset();
 mat4 CreateOrthoProjectionMatrix(float width, float height, float length);
 mat4 CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center);
 glm::mat4 CreateTransformationMatrix(const glm::vec2& translation, const glm::vec2& scale, const float& rotation = 0.f);
-glm::mat4 CreateTransformationMatrix(const glm::vec3& translation = glm::vec3(.0f), const glm::vec3& rotation = glm::vec3(.0f),
-                                     const glm::vec3& scale = glm::vec3(1.f));
+glm::mat4 CreateTransformationMatrix(const glm::vec3& translation = glm::vec3(.0f),
+                                     const glm::vec3& rotation    = glm::vec3(.0f),
+                                     const glm::vec3& scale       = glm::vec3(1.f));
 Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend);
 float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
 
-std::string ToString(const glm::vec3& v);
-std::string ToString(const glm::vec2& v);
-std::string ToString(const glm::mat4& m);
-
-// float IntersectTriangle(const glm::vec3 & normal, const glm::vec3 & rayPos, const glm::vec3 & rayDirection, const SFaceVertex & vertexes)
+// float IntersectTriangle(const glm::vec3 & normal, const glm::vec3 & rayPos, const glm::vec3 & rayDirection, const
+// SFaceVertex & vertexes)
 //{
 //	glm::vec3 v0 = vertexes.v3 - vertexes.v1;
 //	glm::vec3 v1 = vertexes.v2 - vertexes.v1;
 //	float d = -1 * (glm::dot(normal, vertexes.v1));
-//	float t = -(normal.x*rayPos.x + normal.y*rayPos.y + normal.z*rayPos.z + d) / (normal.x*rayDirection.x + normal.y*rayDirection.y +
+//	float t = -(normal.x*rayPos.x + normal.y*rayPos.y + normal.z*rayPos.z + d) / (normal.x*rayDirection.x +
+//normal.y*rayDirection.y +
 // normal.z*rayDirection.z);
 //	glm::vec3 point = rayPos + t*rayDirection;
 //	glm::vec3 v2 = point - vertexes.v1;
@@ -77,8 +76,8 @@ std::string ToString(const glm::mat4& m);
 //	else return -1;
 //}
 
-// bool DetectSphereTriangleCollision(const glm::vec3 & sp, const float & r, const SFaceVertex & vertexes, const glm::vec3 & normal, SCollisionInfo &
-// colision_info)
+// bool DetectSphereTriangleCollision(const glm::vec3 & sp, const float & r, const SFaceVertex & vertexes, const
+// glm::vec3 & normal, SCollisionInfo & colision_info)
 //{
 //	glm::vec3 n = glm::normalize(normal);
 
@@ -104,4 +103,10 @@ std::string ToString(const glm::mat4& m);
 //	}
 //	return colision_info.collision;
 //}
-}
+}  // namespace Utils
+namespace std
+{
+std::string to_string(const glm::vec3& v);
+std::string to_string(const glm::vec2& v);
+std::string to_string(const glm::mat4& m);
+}  // namespace std

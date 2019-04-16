@@ -1,4 +1,3 @@
-#include "PhysicsScene.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
@@ -13,6 +12,7 @@
 #include "GameEngine/Renderers/GUI/Text/GuiTextRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Textures/Image.h"
+#include "PhysicsScene.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 
@@ -93,7 +93,7 @@ const std::string OBJECT_COUNT_GUI_TEXT = "objectsCount";
 
 void PhysicsScene::UpdateObjectsCountText()
 {
-   // renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT).text = "Objects count : " + std::to_string(gameObjects.size());
+    // renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT).text = "Objects count : " + std::to_string(gameObjects.size());
 }
 
 void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
@@ -130,8 +130,8 @@ void PhysicsScene::KeyOperations()
         dir      = glm::normalize(dir);
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos, vec3(0), dir * 20.f, 1.f, false);
-        DEBUG_LOG("Dir : " + Utils::ToString(dir) + ", Pos : " + Utils::ToString(pos) +
-            ", Objecsts : " + std::to_string(gameObjects.size()));
+        DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
+                  ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { simulatePhysics_.store(!simulatePhysics_.load()); });
@@ -149,7 +149,7 @@ void PhysicsScene::KeyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]() { AddExampleMesh(GetCamera().GetPosition(), 10.f); });
 
     inputManager_->SubscribeOnKeyDown(
-        KeyCodes::P, [&]() { DEBUG_LOG("Camera position : " + Utils::ToString(GetCamera().GetPosition())); });
+        KeyCodes::P, [&]() { DEBUG_LOG("Camera position : " + std::to_string(GetCamera().GetPosition())); });
 }
 void PhysicsScene::AddStartupObjects()
 {
@@ -183,10 +183,10 @@ int PhysicsScene::Initialize()
 {
     resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/flat_height_map.png",
                                                          "Textures/Terrain/HeightMaps/TerrainFlat.terrain");
-    //auto& octext    = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
-    //octext.position = vec2(0.5, 0.9);
-    //octext.m_size   = 0.5f;
-    //octext.colour   = vec3(1, 0, 0);
+    // auto& octext    = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
+    // octext.position = vec2(0.5, 0.9);
+    // octext.m_size   = 0.5f;
+    // octext.colour   = vec3(1, 0, 0);
     UpdateObjectsCountText();
 
     camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);

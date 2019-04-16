@@ -11,6 +11,7 @@ class SdlOpenGlApi : public GraphicsApi::IWindowApi
 public:
     SdlOpenGlApi();
     virtual ~SdlOpenGlApi() override;
+    virtual void Init() override;
     virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height,
                               GraphicsApi::WindowType full_screen) override;
     virtual void CreateContext() override;
@@ -27,8 +28,9 @@ public:
     virtual double GetTime() override;
     virtual void SetCursorPosition(int x, int y) override;
 
-    virtual uint32 OpenFont(const std::string& filename, uint32 size) override;
-    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline) override;
+    virtual std::optional<uint32> OpenFont(const std::string& filename, uint32 size) override;
+    virtual std::optional<GraphicsApi::Surface> RenderFont(uint32 id, const std::string& text, const vec4& color,
+                                                           uint32 outline) override;
     virtual void DeleteSurface(uint32 surfaceId) override;
 
 private:

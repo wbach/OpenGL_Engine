@@ -1,5 +1,5 @@
-#include "GLMUtils.h"
 #include "../math.hpp"
+#include "GLMUtils.h"
 
 glm::vec3 Utils::Vec4ToVec3(const glm::vec4& v)
 {
@@ -163,17 +163,17 @@ glm::vec3 Utils::BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, cons
 glm::vec3 Utils::RotateObject(const vec3& center, const vec3& point, float angle)
 {
     vec3 result;
-    float x = point.x - center.x;
-    float z = point.z - center.z;
+    float x  = point.x - center.x;
+    float z  = point.z - center.z;
     result.x = x * cos(angle) - z * sin(angle) + center.x;
     result.z = x * sin(angle) + z * cos(angle) + center.z;
     result.y = point.y;
 
-    //auto x   = point.x - center.x;
-    //auto z = -point.z - center.z;
-    //result.x = cos(angle) * (x) - sin(angle) * (z) + center.x;
+    // auto x   = point.x - center.x;
+    // auto z = -point.z - center.z;
+    // result.x = cos(angle) * (x) - sin(angle) * (z) + center.x;
 
-    //result.z = sin(angle) * (x) + cos(angle) * (z) + center.z;
+    // result.z = sin(angle) * (x) + cos(angle) * (z) + center.z;
 
     // auto distance = glm::length(center - point);
     ////auto horizontal_distance = distance * cos(Utils::ToRadians(destinationPitch)));
@@ -198,25 +198,6 @@ glm::mat4 Utils::CreateOffset()
 glm::vec2 Utils::toScreenSpace(glm::vec2& position, glm::vec2& window_size)
 {
     return glm::vec2((position.x / window_size.x) * 2 - 1, (1 - (position.y / window_size.y)) * 2 - 1);
-}
-
-std::string Utils::ToString(const glm::vec3& v)
-{
-    return std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-}
-
-std::string Utils::ToString(const glm::vec2& v)
-{
-    return std::to_string(v.x) + " " + std::to_string(v.y);
-}
-
-std::string Utils::ToString(const glm::mat4& m)
-{
-    std::string s;
-    for (int y = 0; y < 4; y++)
-        s += std::to_string(m[y][0]) + " " + std::to_string(m[y][1]) + " " + std::to_string(m[y][2]) + " " +
-             std::to_string(m[y][3]) + "\n";
-    return s;
 }
 
 mat4 Utils::CreateOrthoProjectionMatrix(float width, float height, float length)
@@ -272,3 +253,24 @@ Quaternion Utils::Interpolate(const Quaternion& a, const Quaternion& b, float bl
     result = glm::normalize(result);
     return result;
 }
+namespace std
+{
+std::string to_string(const glm::vec3& v)
+{
+    return std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
+}
+
+std::string to_string(const glm::vec2& v)
+{
+    return std::to_string(v.x) + " " + std::to_string(v.y);
+}
+
+std::string to_string(const glm::mat4& m)
+{
+    std::string s;
+    for (int y = 0; y < 4; y++)
+        s += std::to_string(m[y][0]) + " " + std::to_string(m[y][1]) + " " + std::to_string(m[y][2]) + " " +
+             std::to_string(m[y][3]) + "\n";
+    return s;
+}
+}  // namespace std

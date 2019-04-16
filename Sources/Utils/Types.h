@@ -119,6 +119,13 @@ vec4 ToVec4(const vec3& v3);
 vec4 ToVec4(const vec3& v3, float w);
 vec4 ToVec4(const vec2& v2, float z, float w);
 
+namespace std
+{
+std::string to_string(const vec2i&);
+std::string to_string(const vec2ui&);
+std::string to_string(const vec3i&);
+}  // namespace std
+
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
 
 enum class VertexBufferObjects

@@ -12,6 +12,9 @@ public:
         time                  = 0;
         dummyInputManagerPtr_ = std::make_shared<DummyInputManager>();
     }
+    virtual void Init() override
+    {
+    }
     virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height,
                               GraphicsApi::WindowType type) override
     {
@@ -54,12 +57,12 @@ public:
     virtual void BeginFrame() override
     {
     }
-    virtual uint32 OpenFont(const std::string& filename, uint32 size) override
+    virtual std::optional<uint32> OpenFont(const std::string& filename, uint32 size) override
     {
         return 0;
     }
-    virtual GraphicsApi::Surface RenderFont(uint32 id, const std::string& text, const vec4& color,
-                                            uint32 outline) override
+    virtual std::optional<GraphicsApi::Surface> RenderFont(uint32 id, const std::string& text, const vec4& color,
+                                                           uint32 outline) override
     {
         return GraphicsApi::Surface();
     }
