@@ -8,7 +8,7 @@ class WindowApiMock : public IWindowApi
 {
 public:
     MOCK_METHOD0(Init, void());
-    MOCK_METHOD4(CreateWindow, void(const std::string&, uint32, uint32, WindowType));
+    MOCK_METHOD4(CreateGameWindow, void(const std::string&, uint32, uint32, WindowType));
     MOCK_METHOD0(CreateContext, void());
     MOCK_METHOD0(DeleteContext, void());
     MOCK_METHOD0(ProcessEvents, void());

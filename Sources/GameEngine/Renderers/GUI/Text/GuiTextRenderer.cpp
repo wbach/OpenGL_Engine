@@ -97,7 +97,7 @@ void GuiTextRenderer::Init()
     }
     textBuffer_ = *id;
 
-    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
+    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Font);
     isInit_ = shader_->Init();
     DEBUG_LOG("GuiText (GuiRenderer) is initialized.");
 }

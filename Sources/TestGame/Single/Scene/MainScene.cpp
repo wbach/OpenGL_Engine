@@ -102,6 +102,9 @@ int MainScene::Initialize()
     GuiText("playerPos")->SetPostion(vec2(-0.5, -0.9));
     GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
+    CreateGuiTexture("testTexture", "GUI/BENGINE.png");
+    GuiTexture("testTexture")->SetPostion(vec2(0.5, -0.65));
+
     /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
      renderersManager_->GuiText("gameTime").m_size    = 0.5f;
      renderersManager_->GuiText("gameTime").text = "Game Time" + std::to_string(dayNightCycle.GetCurrentHour().x) + ":"
@@ -288,14 +291,17 @@ int MainScene::Update(float dt)
     //	renderersManager_->GuiTexture("shadowMap").texture->SetExistId(EngineConf.texturesIds["shadowMap"]);
 
     //   gloabalTime += deltaTime;
-    //   timeClock += deltaTime;
+       timeClock += deltaTime;
 
-    if (timeClock > 1.f)
+    if (timeClock > 0.25f)
     {
-        // timeClock                                   = 0;
+         timeClock                                   = 0;
         // renderersManager_->GuiText("gameTime").text = "Game Time: " +
         // std::to_string(dayNightCycle.GetCurrentHour().x) +
-        ":" + std::to_string(dayNightCycle.GetCurrentHour().y);
+        //":" + std::to_string(dayNightCycle.GetCurrentHour().y);
+
+        GuiText("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
+        GuiText("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
     }
 
     // dayNightCycle.Update(deltaTime);
@@ -303,8 +309,7 @@ int MainScene::Update(float dt)
     CheckCollisions(deltaTime);
     UpdatePlayerandCamera(deltaTime);
 
-    GuiText("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
-    GuiText("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
+
     // renderersManager_->GuiText("cameraPos").text = std::to_string(camera->GetPosition());
     return 0;
 }

@@ -78,7 +78,7 @@ void SdlOpenGlApi::Init()
     }
 }
 
-void SdlOpenGlApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+void SdlOpenGlApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                                 GraphicsApi::WindowType windowType)
 {
     auto flags = CreateWindowFlags(windowType);

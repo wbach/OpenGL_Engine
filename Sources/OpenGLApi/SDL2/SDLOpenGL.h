@@ -12,7 +12,7 @@ public:
     SdlOpenGlApi();
     virtual ~SdlOpenGlApi() override;
     virtual void Init() override;
-    virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+    virtual void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                               GraphicsApi::WindowType full_screen) override;
     virtual void CreateContext() override;
     virtual void DeleteContext() override;

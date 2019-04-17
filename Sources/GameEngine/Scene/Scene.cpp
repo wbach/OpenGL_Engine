@@ -1,3 +1,4 @@
+#include "Scene.hpp"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
@@ -9,7 +10,6 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Input/InputManager.h"
 #include "Logger/Log.h"
-#include "Scene.hpp"
 #include "SceneReader.h"
 #include "SceneWriter.h"
 #include "Utils/Time/Timer.h"
@@ -109,6 +109,14 @@ GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string
     auto text   = guiTextFactory_->Create(font, str, size, outline);
     auto result = text.get();
     guiManager_->Add(label, std::move(text));
+    return result;
+}
+GuiTextureElement* Scene::CreateGuiTexture(const std::string& label, const std::string& filename)
+{
+    auto texture    = resourceManager_->GetTextureLaoder().LoadTexture(filename);
+    auto guiTexture = std::make_unique<GuiTextureElement>(renderersManager_->GetProjection().GetWindowSize(), *texture);
+    auto result     = guiTexture.get();
+    guiManager_->Add(label, std::move(guiTexture));
     return result;
 }
 GuiTextElement* Scene::GuiText(const std::string& label)

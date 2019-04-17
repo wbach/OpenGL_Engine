@@ -15,7 +15,7 @@ public:
     virtual void Init() override
     {
     }
-    virtual void CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+    virtual void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                               GraphicsApi::WindowType type) override
     {
     }

@@ -89,7 +89,7 @@ void WinApi::Init()
 {
     RegiesterWindowClass();
 }
-void WinApi::CreateWindow(const std::string& window_name, uint32 width, uint32 height,
+void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                           GraphicsApi::WindowType full_screen)
 {
     RECT r{0, 0, width, height};

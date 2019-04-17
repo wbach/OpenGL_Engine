@@ -93,6 +93,7 @@ public:
 
 protected:
     GuiTextElement* CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextureElement* CreateGuiTexture(const std::string& label, const std::string& filename);
     GuiTextElement* GuiText(const std::string& label);
     GuiTextureElement* GuiTexture(const std::string& label);
 
