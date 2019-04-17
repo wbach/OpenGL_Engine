@@ -42,10 +42,8 @@ struct SdlOpenGlApi::Pimpl
     }
     void DeleteSurface(SDL_Surface*& surface)
     {
-        // DEBUG_LOG("");
         if (surface)
         {
-            // DEBUG_LOG("Free sdl surface.");
             SDL_FreeSurface(surface);
             surface = nullptr;
         }
@@ -185,34 +183,33 @@ std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const st
 
     std::optional<uint32> surfaceId;
 
-    for (int i = 0; i < impl_->surfaces_.size(); ++i)
+    for (size_t i = 0; i < impl_->surfaces_.size(); ++i)
     {
         if (impl_->surfaces_[i] == nullptr)
         {
-            surfaceId = i + 1;
+            surfaceId           = i;
+            impl_->surfaces_[i] = sdlSurface;
         }
     }
 
     if (not surfaceId)
     {
         impl_->surfaces_.push_back(sdlSurface);
-        surfaceId = impl_->surfaces_.size();
+        surfaceId = impl_->surfaces_.size() - 1;
     }
-
-    return GraphicsApi::Surface{impl_->surfaces_.size(), vec2ui(sdlSurface->w, sdlSurface->h),
-                                sdlSurface->format->BytesPerPixel, sdlSurface->pixels};
+    return GraphicsApi::Surface{*surfaceId, vec2ui(sdlSurface->w, sdlSurface->h), sdlSurface->format->BytesPerPixel,
+                                sdlSurface->pixels};
 }
 
 void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
 {
-    auto index = surfaceId - 1;
-    if (index >= impl_->surfaces_.size())
+    if (surfaceId >= impl_->surfaces_.size())
     {
         return;
     }
 
-    impl_->DeleteSurface(impl_->surfaces_[index]);
-    impl_->surfaces_[index] = nullptr;
+    impl_->DeleteSurface(impl_->surfaces_[surfaceId]);
+    impl_->surfaces_[surfaceId] = nullptr;
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const

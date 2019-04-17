@@ -15,7 +15,7 @@
     -DBUILD_LIB_NOISE           : "Build libnoise"
     -DBUILD_GAME_ENGINE         : "Build game engine"
     -BUILD_RPG_GAME_SERVER      : "Build rpg game server"
-    -DBUILD_TESTS               : "Build game engine"
+    -DBUILD_TESTS               : "Build game engine tests"
     -DBUILD_TEST_GAME           : "Build test game"
     -DBUILD_TERRAIN_GENERATOR   : "Build terrain generator"
 
@@ -23,6 +23,8 @@
         Examples:
             - cmake ../Solutions/CMake/ -DBUILD_TEST_GAME=ON
             - cmake ../../Solutions/CMake/ -DBUILD_TEST_GAME=ON -DBUILD_UTILS_NETWORK=ON -DBUILD_COMMON=ON -DBUILD_RPG_GAME_SERVER=ON
+
+        MESA_GLSL_VERSION_OVERRIDE=450 MESA_GL_VERSION_OVERRIDE=4.5 ./TestGlGame
 
     Windows:
         - MinGW

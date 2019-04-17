@@ -11,7 +11,7 @@ option(BUILD_TESTS "Build game engine tests" OFF)
 option(BUILD_TEST_GAME "Build test game" OFF)
 option(BUILD_RPG_GAME_SERVER "Build rpg game server" OFF)
 option(BUILD_TERRAIN_GENERATOR "Build terrain generator" OFF)
-option(BUILD_I386 "32bit build" ON)
+option(BUILD_I386 "32bit build" OFF)
 
 if(BUILD_ALL)
     SET(BUILD_UTILS ON)

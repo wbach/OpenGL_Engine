@@ -29,9 +29,9 @@ struct GuiTextElementShould : public BaseComponentTestSchould
     OpenGLApi::SdlOpenGlApi sdlApi_;
     std::unique_ptr<GuiTextElement> sut_;
 };
-TEST_F(GuiTextElementShould, MCT_UpdateText)
+TEST_F(GuiTextElementShould, MCT_SDL_UpdateText)
 {
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 1000; ++i)
         sut_->SetText("New text " + std::to_string(i));
 
     ASSERT_TRUE(sut_->GetSurface());
