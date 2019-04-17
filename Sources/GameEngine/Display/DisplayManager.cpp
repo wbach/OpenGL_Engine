@@ -19,8 +19,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
     timeMeasurer.AddOnTickCallback([this]() {
-        auto fps = timeMeasurer.GetFps();
-        DEBUG_LOG("FPS : " + std::to_string(fps));
+        time_.fps = timeMeasurer.GetFps();
+        DEBUG_LOG("FPS : " + std::to_string(time_.fps));
     });
 }
 

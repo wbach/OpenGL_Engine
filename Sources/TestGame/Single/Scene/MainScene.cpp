@@ -94,8 +94,12 @@ int MainScene::Initialize()
     auto fontSize = 20;
     auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
 
+    CreateGuiText("rendererFps", fontPath, "rendererFps", fontSize, 0);
+    GuiText("rendererFps")->SetPostion(vec2(-0.75, 0.9));
+    GuiText("rendererFps")->SetColor(vec3(.8f));
+
     CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
-    GuiText("playerPos")->SetPostion(vec2(-0.65, -0.9));
+    GuiText("playerPos")->SetPostion(vec2(-0.5, -0.9));
     GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
     /* renderersManager_->GuiText("gameTime").position  = vec2(0.75, 0.9);
@@ -300,6 +304,7 @@ int MainScene::Update(float dt)
     UpdatePlayerandCamera(deltaTime);
 
     GuiText("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
+    GuiText("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
     // renderersManager_->GuiText("cameraPos").text = std::to_string(camera->GetPosition());
     return 0;
 }
@@ -329,7 +334,7 @@ void MainScene::KeyOperations()
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
         DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
-            ", Objecsts : " + std::to_string(gameObjects.size()));
+                  ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 
     bool run = true;
