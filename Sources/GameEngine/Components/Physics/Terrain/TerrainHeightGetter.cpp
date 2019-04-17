@@ -15,8 +15,8 @@ TerrainHeightGetter::TerrainHeightGetter(const vec2ui& size, std::vector<float>*
     , data_(heights)
     , yOffset_(0)
 {
-    auto maxElementIter = std::max_element(heights->begin(), heights->end());
-    auto maxElement = maxElementIter != heights->end() ? *maxElementIter : 0.f;
+    //auto maxElementIter = std::max_element(heights->begin(), heights->end());
+    //auto maxElement = maxElementIter != heights->end() ? *maxElementIter : 0.f;
 
     yOffset_ = -1.75f;// -maxElement / .2f;
 }

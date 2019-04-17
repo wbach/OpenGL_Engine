@@ -59,6 +59,11 @@ SdlOpenGlApi::~SdlOpenGlApi()
 {
     impl_->Clear();
     TTF_Quit();
+
+    if (impl_->window)
+    {
+        SDL_DestroyWindow(impl_->window);
+    }
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
 }
@@ -120,9 +125,9 @@ void SdlOpenGlApi::ShowCursor(bool show)
 
 std::shared_ptr<Input::InputManager> SdlOpenGlApi::CreateInput()
 {
-    auto input   = std::make_unique<InputSDL>(impl_->window);
+    auto input   = std::make_shared<InputSDL>(impl_->window);
     addKeyEvent_ = std::bind(&InputSDL::AddKeyEvent, input.get(), std::placeholders::_1, std::placeholders::_2);
-    return input;
+    return std::move(input);
 }
 
 double SdlOpenGlApi::GetTime()
@@ -143,7 +148,7 @@ std::optional<uint32> SdlOpenGlApi::OpenFont(const std::string& filename, uint32
         return impl_->fontNameToIdMap_.at(fname);
     }
 
-    auto font = TTF_OpenFont(filename.c_str(), size);
+    auto font = TTF_OpenFont(filename.c_str(), static_cast<int>(size));
 
     if (font)
     {
@@ -172,9 +177,9 @@ std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const st
     _color.g = static_cast<uint8>(color.y * 255.f);
     _color.b = static_cast<uint8>(color.z * 255.f);
     _color.a = 255;
-    TTF_SetFontOutline(font, outline);
+    TTF_SetFontOutline(font, static_cast<int>(outline));
     auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), _color);
-    TTF_SetFontOutline(font, outline);
+    TTF_SetFontOutline(font, static_cast<int>(outline));
     if (not sdlSurface)
     {
         ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));
@@ -197,7 +202,7 @@ std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const st
         impl_->surfaces_.push_back(sdlSurface);
         surfaceId = impl_->surfaces_.size() - 1;
     }
-    return GraphicsApi::Surface{*surfaceId, vec2ui(sdlSurface->w, sdlSurface->h), sdlSurface->format->BytesPerPixel,
+    return GraphicsApi::Surface{*surfaceId, vec2ui(static_cast<uint32>(sdlSurface->w), static_cast<uint32>(sdlSurface->h)), sdlSurface->format->BytesPerPixel,
                                 sdlSurface->pixels};
 }
 

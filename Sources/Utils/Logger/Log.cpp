@@ -75,10 +75,13 @@ void CLogger::CreateLogFile()
 
 	std::stringstream ss;
 	ss << in_time_t;
-	system("mkdir Logs");
-    fileName = "Logs/Logs.txt";
-    std::ofstream file(fileName);
-	file.close();
+
+    if (system("mkdir -p Logs"))
+    {
+        fileName = "Logs/Logs.txt";
+        std::ofstream file(fileName);
+        file.close();
+    }
 }
 
 void CLogger::ProccesLog()

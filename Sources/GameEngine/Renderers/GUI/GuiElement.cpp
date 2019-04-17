@@ -13,8 +13,8 @@ float ConvertSpaceInv(float v)
 }
 
 GuiElement::GuiElement(GuiElementTypes& type, const vec2ui& windowSize)
-    : windowSize_{windowSize}
-    , type_(type)
+    : type_(type)
+    , windowSize_{windowSize}
     , rect_{{0, 0}, {100, 100}}
     , position_{0, 0}
     , scale_{0.25, 0.25}
@@ -104,8 +104,8 @@ void GuiElement::CaclulateScaleBasedOnRect()
 }
 void GuiElement::CalculateRectBasedOnScale()
 {
-    rect_.size.x = static_cast<uint32>(scale_.x * (float)windowSize_.x);
-    rect_.size.y = static_cast<uint32>(scale_.y * (float)windowSize_.y);
+    rect_.size.x = static_cast<uint32>(scale_.x * static_cast<float>(windowSize_.x));
+    rect_.size.y = static_cast<uint32>(scale_.y * static_cast<float>(windowSize_.y));
 }
 void GuiElement::CalcualteRectPosition()
 {

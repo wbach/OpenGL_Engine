@@ -8,10 +8,10 @@
 namespace GameEngine
 {
 ShadowBox::ShadowBox(Projection& projection)
-    : m_WindowSize(projection.GetWindowSize())
+    : viewMatrix_(1.f)
+    , m_WindowSize(projection.GetWindowSize())
     , m_Min()
     , m_Max()
-    , viewMatrix_(1.f)
     , m_Fov(projection.GetFoV())
     , m_NearPlane(projection.GetNear())
     , m_Offset(1.f)
@@ -24,8 +24,8 @@ ShadowBox::ShadowBox(Projection& projection)
 
 void ShadowBox::CalculateWidthsAndHeights()
 {
-    m_FarWidth   = (float)(m_ShadowDistance * tan(Utils::ToRadians(m_Fov)));
-    m_NearWidth  = (float)(m_NearPlane * tan(Utils::ToRadians(m_Fov)));
+    m_FarWidth   = static_cast<float>(m_ShadowDistance * tanf(Utils::ToRadians(m_Fov)));
+    m_NearWidth  = static_cast<float>(m_NearPlane * tanf(Utils::ToRadians(m_Fov)));
     m_FarHeight  = m_FarWidth / GetAspectRatio();
     m_NearHeight = m_NearWidth / GetAspectRatio();
 }
@@ -46,7 +46,7 @@ std::vector<vec4> ShadowBox::CalculateFrustumPoints(const ICamera& camera)
     return CalculateFrustumVertices(rotation, forward_vector, center_near, center_far);
 }
 
-const float ShadowBox::GetAspectRatio() const
+float ShadowBox::GetAspectRatio() const
 {
     return static_cast<float>(m_WindowSize.x) / static_cast<float>(m_WindowSize.y);
 }
@@ -95,8 +95,8 @@ void ShadowBox::CheckMinMax(float& min, float& max, float point)
 mat4 ShadowBox::CalculateCameraRotationMatrix(const ICamera& camera) const
 {
     mat4 rotation(1.f);
-    rotation *= glm::rotate((float)(-camera.GetYaw()), vec3(0.f, 1.f, 0.f));
-    rotation *= glm::rotate((float)(-camera.GetPitch()), vec3(1.f, 0.f, 0.f));
+    rotation *= glm::rotate(static_cast<float>(-camera.GetYaw()), vec3(0.f, 1.f, 0.f));
+    rotation *= glm::rotate(static_cast<float>(-camera.GetPitch()), vec3(1.f, 0.f, 0.f));
     return rotation;
 }
 

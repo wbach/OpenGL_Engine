@@ -17,7 +17,7 @@ public:
     float GetWidth() const;
     float GetHeight() const;
     float GetLength() const;
-    const float GetAspectRatio() const;
+    float GetAspectRatio() const;
     void CalculateMatrixes(const vec3& lightDirection);
     const mat4& GetProjectionViewMatrix() const;
     const mat4& GetViewMatrix() const;
