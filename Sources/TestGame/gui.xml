@@ -1,0 +1,19 @@
+<gui>
+    <text>
+        <label>rendererFps</label>
+        <value>FPS:</value>
+        <font>GUI/Ubuntu-M.ttf</font>
+        <fontSize>20</fontSize>
+        <outline>0</outline>
+        <color x="0.000000" y="0.000000" z="0.000000"></color>
+        <position x="0.000000" y="0.000000"></position>
+        <scale x="0.000000" y="0.000000"></scale>
+    </text>
+    <texture>
+        <label>testTexture</label>
+        <file>GUI/BENGINE.png</file>
+        <position x="0.000000" y="0.000000"></position>
+        <scale x="0.000000" y="0.000000"></scale>
+        <color x="0.000000" y="0.000000" z="0.000000"></color>
+    </texture>
+</gui>

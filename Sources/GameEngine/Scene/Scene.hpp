@@ -92,10 +92,12 @@ public:
     uint32 objectCount;
 
 protected:
+    void ReadGuiFile(const std::string& filename);
     GuiTextElement* CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline);
     GuiTextureElement* CreateGuiTexture(const std::string& label, const std::string& filename);
     GuiTextElement* GuiText(const std::string& label);
     GuiTextureElement* GuiTexture(const std::string& label);
+    void MakeGuiManager(std::function<void(GuiElement&)>);
 
     virtual int Initialize();
     virtual void PostInitialize();
@@ -122,7 +124,7 @@ protected:
     GameObjects gameObjects;
 
     Time time_;
-    std::unique_ptr<GuiTextFactory> guiTextFactory_;
+    std::unique_ptr<IGuiTextFactory> guiTextFactory_;
     std::shared_ptr<IResourceManager> resourceManager_;
     Components::ComponentController componentController_;
     std::unique_ptr<Components::IComponentFactory> componentFactory_;

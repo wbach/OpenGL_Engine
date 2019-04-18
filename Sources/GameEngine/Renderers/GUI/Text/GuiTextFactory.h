@@ -4,6 +4,7 @@
 #include <string>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "GraphicsApi/WindowApi.hpp"
+#include "IGuiTextFactory.h"
 
 #include "Types.h"
 
@@ -12,7 +13,7 @@ namespace GameEngine
 class GuiTextElement;
 class IResourceManager;
 
-class GuiTextFactory
+class GuiTextFactory : public IGuiTextFactory
 {
 public:
     GuiTextFactory(IResourceManager&, const vec2ui& windowSize);

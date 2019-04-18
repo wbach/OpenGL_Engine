@@ -13,6 +13,7 @@
 #include "SceneReader.h"
 #include "SceneWriter.h"
 #include "Utils/Time/Timer.h"
+#include "Utils/XML/XmlReader.h"
 
 namespace GameEngine
 {
@@ -51,8 +52,7 @@ Scene::~Scene()
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_,
-                                                                       *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -97,14 +97,11 @@ void Scene::CreateResourceManger(IResourceManager* resourceManager)
 
 void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
 {
-    guiManager_ =
-        std::make_unique<GuiManager>([manager](auto& element) { manager->GetGuiRenderer().Subscribe(element); });
-
+    MakeGuiManager([manager](auto& element) { manager->GetGuiRenderer().Subscribe(element); });
     renderersManager_ = manager;
 }
 
-GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str,
-                                     uint32 size, uint32 outline)
+GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline)
 {
     auto text   = guiTextFactory_->Create(font, str, size, outline);
     auto result = text.get();
@@ -126,6 +123,11 @@ GuiTextElement* Scene::GuiText(const std::string& label)
 GuiTextureElement* Scene::GuiTexture(const std::string& label)
 {
     return guiManager_->Get<GuiTextureElement>(label);
+}
+
+void Scene::MakeGuiManager(std::function<void (GuiElement &)> subscribe)
+{
+    guiManager_ = std::make_unique<GuiManager>(subscribe);
 }
 
 std::unique_ptr<GameObject> Scene::CreateGameObject() const
@@ -201,6 +203,47 @@ void Scene::SaveToFile(const std::string& filename)
 void Scene::LoadFromFile(const std::string& filename)
 {
     LoadScene(*this, filename);
+}
+
+void ReadGuiText(Utils::XmlNode& node, Scene& scene)
+{
+}
+
+void Scene::ReadGuiFile(const std::string& filename)
+{
+    Utils::XmlReader reader;
+
+    if (not reader.Read(filename))
+    {
+        return;
+    }
+
+    auto guiNode = reader.Get("gui");
+
+    for (auto& node : guiNode->GetChildren())
+    {
+        DEBUG_LOG("Node : " + node->GetName());
+
+        if (node->GetName() == "text")
+        {
+            auto text = GuiText(node->GetName());
+            if (not text)
+            {
+//                auto text = CreateGuiText(node->GetChild("label")->value_,
+//                              node->GetChild("font")->value_,
+//                              node->GetChild("value")->value_,
+//                              std::stoi(node->GetChild("fontSize")->value_),
+//                              std::stoi(node->GetChild("outline")->value_));
+            }
+            else {
+               // DEBUG_LOG("value : " + node->GetChild("value")->value_);
+                //text->SetText(node->GetChild("value")->value_);
+            }
+        }
+        else if (node->GetName() == "texture")
+        {
+        }
+    }
 }
 int Scene::Initialize()
 {

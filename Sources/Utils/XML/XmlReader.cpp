@@ -55,6 +55,7 @@ bool XmlReader::Read(const std::string& filename)
     {
         std::string out = p.what();
         ERROR_LOG(out);
+        ERROR_LOG(str);
         return false;
     }
     root_ = std::make_unique<XmlNode>(document.first_node()->name());

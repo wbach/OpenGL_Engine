@@ -1,21 +1,21 @@
 #include "Log.h"
-#include "SDL2/SDL_messagebox.h"
 #include <chrono>
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include "SDL2/SDL_messagebox.h"
 
 CLogger& CLogger::Instance()
 {
-	static CLogger logger;
-	return logger;
+    static CLogger logger;
+    return logger;
 }
 
 void CLogger::EnableLogs()
 {
-	enabled = true;
-	CreateLogFile();
-	loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
+    enabled = true;
+    CreateLogFile();
+    loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
 }
 void CLogger::ErrorLog(const std::string& log)
 {
@@ -24,57 +24,54 @@ void CLogger::ErrorLog(const std::string& log)
 }
 void CLogger::Logg(const std::string& log)
 {
-	if (!enabled)
-		return;
+    if (!enabled)
+        return;
 
-	std::lock_guard<std::mutex> lk(printMutex_);
-	logs.push_back(log);
+    std::lock_guard<std::mutex> lk(printMutex_);
+    logs.push_back(log);
 }
-void CLogger::LoggToFileOnly(const std::string & log)
+void CLogger::LoggToFileOnly(const std::string& log)
 {
-	std::lock_guard<std::mutex> lk(printMutex_);
+    std::lock_guard<std::mutex> lk(printMutex_);
 
-	std::ofstream file(fileName, std::ios_base::app);
-	file << log << '\n';
-	file.close();
+    std::ofstream file(fileName, std::ios_base::app);
+    file << log << '\n';
+    file.close();
 }
 void CLogger::MessageBox(uint32 flags, const std::string& title, const std::string& message)
 {
-    return;
-	SDL_ShowSimpleMessageBox(flags,
-        title.c_str(),
-        message.c_str(),
-		NULL);
+    // SDL_ShowSimpleMessageBox(flags, title.c_str(), message.c_str(), NULL);
 }
 void CLogger::SaveToFile() const
 {
     std::ofstream file(fileName, std::ios_base::app);
     for (const auto& log : logs)
-		file << log.c_str() << '\n';
-	file.close();
+        file << log.c_str() << '\n';
+    file.close();
 }
 CLogger::~CLogger()
 {
-	if (enabled)
-	{
-		running_.store(false);
-		loggerThread_.join();
-	}
+    if (enabled)
+    {
+        running_.store(false);
+        loggerThread_.join();
+        PrintLogs();
+    }
 }
 
 CLogger::CLogger()
-	: running_(true)
-	, timer_(5)
-{	
+    : running_(true)
+    , timer_(5)
+{
 }
 
 void CLogger::CreateLogFile()
 {
-	auto now = std::chrono::system_clock::now();
-	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    auto now       = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-	std::stringstream ss;
-	ss << in_time_t;
+    std::stringstream ss;
+    ss << in_time_t;
 
     if (system("mkdir -p Logs"))
     {
@@ -86,30 +83,35 @@ void CLogger::CreateLogFile()
 
 void CLogger::ProccesLog()
 {
-	while (running_.load())
-	{
-		std::ofstream file(fileName, std::ios_base::app);
-		while (true)
-		{
-			auto log = GetLog();
-			if (log.empty())
-				break;
-			std::cout << log << std::endl;
-			file << log << '\n';
-		}
-		file.close();
-		timer_.CalculateAndLock();
-	}
+    while (running_.load())
+    {
+        PrintLogs();
+        timer_.CalculateAndLock();
+    }
+}
+
+void CLogger::PrintLogs()
+{
+    std::ofstream file(fileName, std::ios_base::app);
+    while (true)
+    {
+        auto log = GetLog();
+        if (log.empty())
+            break;
+        std::cout << log << std::endl;
+        file << log << '\n';
+    }
+    file.close();
 }
 
 std::string CLogger::GetLog()
 {
-	std::lock_guard<std::mutex> lk(printMutex_);
+    std::lock_guard<std::mutex> lk(printMutex_);
 
-	if (logs.empty())
-		return "";
+    if (logs.empty())
+        return "";
 
-	auto l = logs.front();
-	logs.pop_front();
-	return l;
+    auto l = logs.front();
+    logs.pop_front();
+    return l;
 }
