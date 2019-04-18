@@ -31,9 +31,12 @@ public:
     void SetTexture(Texture*);
     void UnsetTexture();
     void SetText(const std::string&);
+    void SetFontSize(uint32 size);
+    void SetOutline(uint32 outline);
+    void SetFont(const std::string& font);
 
 private:
-    void RenderText();
+    void RenderText(bool fontOverride = false);
 
 private:
     UpdateTextureFunction updateTexture_;

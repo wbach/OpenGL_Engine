@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
+#include "Utils/XML/XMLUtils.h"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
 
@@ -38,8 +39,6 @@ void ParseNode(rapidxml::xml_node<>* node, XmlNode& n)
 
 bool XmlReader::Read(const std::string& filename)
 {
-    rapidxml::xml_document<> document;
-
     auto str = Utils::ReadFile(filename);
 
     if (str.empty())
@@ -47,15 +46,22 @@ bool XmlReader::Read(const std::string& filename)
         return false;
     }
 
+    return ReadXml(str);
+}
+
+bool XmlReader::ReadXml(std::string& fileContent)
+{
+    rapidxml::xml_document<> document;
+
     try
     {
-        document.parse<0>(const_cast<char*>(str.c_str()));
+        document.parse<0>(const_cast<char*>(fileContent.c_str()));
     }
     catch (const rapidxml::parse_error& p)
     {
         std::string out = p.what();
         ERROR_LOG(out);
-        ERROR_LOG(str);
+        ERROR_LOG(fileContent);
         return false;
     }
     root_ = std::make_unique<XmlNode>(document.first_node()->name());

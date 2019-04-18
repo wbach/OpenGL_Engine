@@ -67,14 +67,45 @@ void GuiTextElement::SetText(const std::string& text)
     RenderText();
 }
 
+void GuiTextElement::SetFontSize(uint32 size)
+{
+    if (fontSize_ == size)
+        return;
+
+    fontSize_ = size;
+    RenderText(true);
+}
+
+void GuiTextElement::SetOutline(uint32 outline)
+{
+    if (outline_ == outline)
+        return;
+
+    outline_ = outline;
+    RenderText();
+}
+
+void GuiTextElement::SetFont(const std::string& font)
+{
+    if (font_ == font)
+        return;
+
+    font_ = font;
+    RenderText(true);
+}
+
 void GuiTextElement::UnsetTexture()
 {
     texture_ = nullptr;
 }
 
-void GuiTextElement::RenderText()
+void GuiTextElement::RenderText(bool fontOverride)
 {
-    if (openFontFailed_)
+    if (fontOverride)
+    {
+        openFontFailed_ = false;
+    }
+    else if (openFontFailed_)
     {
         return;
     }
@@ -82,7 +113,7 @@ void GuiTextElement::RenderText()
     if (not text_.empty())
     {
         // memory leak, to do, remove old if exist or not create new one
-        if (not fontId_)
+        if (not fontId_ or fontOverride)
         {
             fontId_ = windowApi_.OpenFont(font_, fontSize_);
 

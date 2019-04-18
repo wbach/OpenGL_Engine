@@ -33,6 +33,7 @@
 using namespace GameEngine;
 
 const std::string sceneFile = "partScene.xml";
+const std::string GUI_FILE="gui.xml";
 
 TerrainTexturesFilesMap CreateTerrainTexturesMap()
 {
@@ -283,6 +284,8 @@ int MainScene::Update(float dt)
 
         GuiText("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
         GuiText("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
+
+        ReadGuiFile(GUI_FILE);
     }
 
     // dayNightCycle.Update(deltaTime);
@@ -344,6 +347,11 @@ void MainScene::KeyOperations()
         // auto d = camera->GetDistance() + 0.5f;
         // camera->SetDistance(d);
     });
+
+    inputManager_->SubscribeOnKeyUp(KeyCodes::G, [&]() {
+        ReadGuiFile(GUI_FILE);
+    });
+
     auto rm = renderersManager_;
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { SaveToFile(sceneFile); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [rm]() { rm->DisableDrawPhysicsDebyg(); });
@@ -631,5 +639,5 @@ void MainScene::InitGui()
     CreateGuiTexture("testTexture", "GUI/BENGINE.png");
     GuiTexture("testTexture")->SetPostion(vec2(0.5, -0.65));
 
-    ReadGuiFile("gui.xml");
+    ReadGuiFile(GUI_FILE);
 }

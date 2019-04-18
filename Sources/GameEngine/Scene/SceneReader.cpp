@@ -4,6 +4,7 @@
 #include "SceneDef.h"
 #include "Utils.h"
 #include "Utils/XML/XmlReader.h"
+#include "Utils/XML/XMLUtils.h"
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
@@ -21,37 +22,15 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 
+using namespace Utils;
+
 namespace GameEngine
 {
 namespace
 {
 Scene* currentReadingScene = nullptr;
 }
-float ReadFloat(Utils::XmlNode& node)
-{
-    return std::stof(node.value_);
-}
-bool ReadBool(Utils::XmlNode& node)
-{
-    return Utils::StringToBool(node.value_);
-}
 
-vec3 ReadVec3(Utils::XmlNode& node)
-{
-    vec3 v;
-    v.x = std::stof(node.attributes_[CSTR_X]);
-    v.y = std::stof(node.attributes_[CSTR_Y]);
-    v.z = std::stof(node.attributes_[CSTR_Z]);
-    return v;
-}
-
-vec2ui ReadVec2ui(Utils::XmlNode& node)
-{
-    vec2ui v;
-    v.x = std::stol(node.attributes_[CSTR_X]);
-    v.y = std::stol(node.attributes_[CSTR_Y]);
-    return v;
-}
 
 std::vector<vec3> ReadVectorVec3(Utils::XmlNode& node)
 {

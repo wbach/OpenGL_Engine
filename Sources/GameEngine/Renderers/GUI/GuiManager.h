@@ -44,7 +44,7 @@ T* GuiManager::Get(const std::string& name)
     }
     else
     {
-        DEBUG_LOG("Element with name : " + name + " not found.");
+        DEBUG_LOG("Element with name : \"" + name + "\" not found.");
     }
     return nullptr;
 }

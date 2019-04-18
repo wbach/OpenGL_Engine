@@ -2,6 +2,7 @@
 #include <map>
 #include <glm/glm.hpp>
 #include <functional>
+#include "Types.h"
 
 namespace rapidxml
 {
@@ -12,12 +13,19 @@ namespace rapidxml
 
 namespace Utils
 {
+        struct XmlNode;
+
 	struct RapidNodeData
 	{
 		std::string name;
 		std::string value;
 	};
 
+        float ReadFloat(XmlNode& node);
+        bool ReadBool(XmlNode& node);
+        vec3 ReadVec3(XmlNode& node);
+        vec2ui ReadVec2ui(XmlNode& node);
+        vec2 ReadVec2(XmlNode& node);
 	RapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node);
 	RapidNodeData GetRapidAttributeData(rapidxml::xml_node<char>* node, const std::string& atttributeName);
 	RapidNodeData GetRapidAttributeData(rapidxml::xml_attribute<char>* node);

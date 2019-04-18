@@ -131,6 +131,8 @@ protected:
 
     std::atomic_bool simulatePhysics_;
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
+
+    std::string lastGuiFileMd5Value_;
 };
 
 const std::string& Scene::GetName() const
