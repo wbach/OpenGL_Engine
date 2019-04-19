@@ -13,5 +13,5 @@ layout (std140, binding=6) uniform PerMeshObject
 
 void main(void)
 {
-    out_Color = texture(guiTexture, textureCoords);
+    out_Color = texture(guiTexture, textureCoords) * vec4(perMeshObject.color, 1.f);
 }

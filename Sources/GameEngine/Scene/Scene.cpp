@@ -56,8 +56,7 @@ Scene::~Scene()
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_,
-                                                                       *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -106,8 +105,7 @@ void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
     renderersManager_ = manager;
 }
 
-GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str,
-                                     uint32 size, uint32 outline)
+GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline)
 {
     auto text   = guiTextFactory_->Create(font, str, size, outline);
     auto result = text.get();
@@ -211,10 +209,150 @@ void Scene::LoadFromFile(const std::string& filename)
     LoadScene(*this, filename);
 }
 
-void ReadGuiText(Utils::XmlNode& node, Scene& scene)
+void ReadGuiText(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
 {
+    if (node.GetName() != "text")
+    {
+        return;
+    }
+    std::string label, font = "GUI/Ubuntu-M.ttf", value = "empty string";
+    uint32 fontSize = 10, outline = 0;
+
+    auto paramNode = node.GetChild("label");
+    if (paramNode)
+    {
+        label = paramNode->value_;
+    }
+    else
+    {
+        label = "Unnamed_text_" + std::to_string(unnamedTextId++);
+    }
+
+    paramNode = node.GetChild("font");
+    if (paramNode)
+    {
+        font = EngineConf_GetFullDataPathAddToRequierd(paramNode->value_);
+    }
+
+    paramNode = node.GetChild("value");
+    if (paramNode)
+    {
+        value = paramNode->value_;
+    }
+
+    paramNode = node.GetChild("fontSize");
+    if (paramNode)
+    {
+        try
+        {
+            fontSize = std::stoi(paramNode->value_);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Read gui file, parse font size error.");
+        }
+    }
+
+    paramNode = node.GetChild("outline");
+    if (paramNode)
+    {
+        try
+        {
+            outline = std::stoi(paramNode->value_);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Read gui file, parse outline error.");
+        }
+    }
+
+    auto text = scene.GuiText(node.GetChild("label")->value_);
+
+    if (not text)
+    {
+        text = scene.CreateGuiText(label, font, value, fontSize, outline);
+    }
+    else
+    {
+        text->SetText(value);
+        text->SetFont(font);
+        text->SetFontSize(fontSize);
+        text->SetOutline(outline);
+    }
+
+    DEBUG_LOG("Update text.");
+    paramNode = node.GetChild("color");
+    if (paramNode)
+    {
+        auto color = Utils::ReadVec3(*paramNode);
+        text->SetColor(color);
+    }
+
+    paramNode = node.GetChild("position");
+    if (paramNode)
+    {
+        auto position = Utils::ReadVec2(*paramNode);
+        DEBUG_LOG("Update position : \"" + std::to_string(position) + "\"");
+        text->SetPostion(position);
+    }
 }
 
+void ReadGuiTexture(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
+{
+    if (node.GetName() != "texture")
+    {
+        return;
+    }
+
+    std::string label, filename;
+
+    auto paramNode = node.GetChild("file");
+
+    if (paramNode)
+    {
+        filename = paramNode->value_;
+    }
+
+    paramNode = node.GetChild("label");
+    if (paramNode)
+    {
+        label = paramNode->value_;
+    }
+    else
+    {
+        label = "Unnamed_text_" + std::to_string(unnamedTextId++);
+    }
+
+    auto texture = scene.GuiTexture(label);
+
+    if (not texture)
+    {
+        texture = scene.CreateGuiTexture(label, filename);
+    }
+    else
+    {
+
+    }
+
+    paramNode = node.GetChild("color");
+
+    if (paramNode)
+    {
+        texture->SetColor(Utils::ReadVec3(*paramNode));
+    }
+
+    paramNode = node.GetChild("scale");
+    if (paramNode)
+    {
+        texture->SetScale(Utils::ReadVec2(*paramNode));
+    }
+
+    paramNode = node.GetChild("position");
+    if (paramNode)
+    {
+        texture->SetPostion(Utils::ReadVec2(*paramNode));
+    }
+}
 void Scene::ReadGuiFile(const std::string& filename)
 {
     Utils::XmlReader reader;
@@ -230,7 +368,7 @@ void Scene::ReadGuiFile(const std::string& filename)
 
     if (md5Value == lastGuiFileMd5Value_)
     {
-        //DEBUG_LOG("Gui file not changed. Skip.");
+        // DEBUG_LOG("Gui file not changed. Skip.");
         return;
     }
 
@@ -242,7 +380,7 @@ void Scene::ReadGuiFile(const std::string& filename)
         return;
     }
 
-    uint32 unnamedTextId = 0;
+    uint32 unnameElementId = 0;
 
     auto guiNode = reader.Get("gui");
 
@@ -250,92 +388,8 @@ void Scene::ReadGuiFile(const std::string& filename)
     {
         DEBUG_LOG("Node : " + node->GetName());
 
-        if (node->GetName() == "text")
-        {
-            std::string label, font = "GUI/Ubuntu-M.ttf", value = "empty string";
-            uint32 fontSize = 10, outline = 0;
-
-            auto paramNode = node->GetChild("label");
-            if (paramNode)
-            {
-                label = paramNode->value_;
-            }
-            else
-            {
-                label = "Unnamed_text_" + std::to_string(unnamedTextId++);
-            }
-
-            paramNode = node->GetChild("font");
-            if (paramNode)
-            {
-                font = EngineConf_GetFullDataPathAddToRequierd(paramNode->value_);
-            }
-
-            paramNode = node->GetChild("value");
-            if (paramNode)
-            {
-                value = paramNode->value_;
-            }
-
-            paramNode = node->GetChild("fontSize");
-            if (paramNode)
-            {
-                try
-                {
-                    fontSize = std::stoi(paramNode->value_);
-                }
-                catch (...)
-                {
-                    ERROR_LOG("Read gui file, parse font size error.");
-                }
-            }
-
-            paramNode = node->GetChild("outline");
-            if (paramNode)
-            {
-                try
-                {
-                    outline = std::stoi(paramNode->value_);
-                }
-                catch (...)
-                {
-                    ERROR_LOG("Read gui file, parse outline error.");
-                }
-            }
-
-            auto text = GuiText(node->GetChild("label")->value_);
-
-            if (not text)
-            {
-                text = CreateGuiText(label, font, value, fontSize, outline);
-            }
-            else
-            {
-                text->SetText(value);
-                text->SetFont(font);
-                text->SetFontSize(fontSize);
-                text->SetOutline(outline);
-            }
-
-            DEBUG_LOG("Update text.");
-            paramNode = node->GetChild("color");
-            if (paramNode)
-            {
-                auto color = Utils::ReadVec3(*paramNode);
-                text->SetColor(color);
-            }
-
-            paramNode = node->GetChild("position");
-            if (paramNode)
-            {
-                auto position = Utils::ReadVec2(*paramNode);
-                DEBUG_LOG("Update position : \"" + std::to_string(position) + "\"");
-                text->SetPostion(position);
-            }
-        }
-        else if (node->GetName() == "texture")
-        {
-        }
+        ReadGuiText(*node, *this, unnameElementId);
+        ReadGuiTexture(*node, *this, unnameElementId);
     }
 }
 int Scene::Initialize()
