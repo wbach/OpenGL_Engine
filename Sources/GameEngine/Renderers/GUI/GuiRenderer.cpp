@@ -7,8 +7,8 @@ namespace GameEngine
 GUIRenderer::GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
 {
-    renderers_.emplace_back(new GuiTextRenderer(graphicsApi_, shaderFactory));
     renderers_.emplace_back(new Renderer::Gui::GuiTextureRenderer(graphicsApi_, shaderFactory));
+    renderers_.emplace_back(new GuiTextRenderer(graphicsApi_, shaderFactory));
 }
 GUIRenderer::~GUIRenderer()
 {
