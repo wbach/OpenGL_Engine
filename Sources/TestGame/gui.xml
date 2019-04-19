@@ -7,6 +7,7 @@
         <outline>0</outline>
         <color x="0.800000" y="0.800000" z="0.800000"></color>
         <position x="-0.78000" y="0.950000"></position>
+        <active>true</active>
     </text>
     <text>
         <label>playerPos</label>
@@ -16,6 +17,7 @@
         <outline>0</outline>
         <color x="0.800000" y="0.800000" z="0.800000"></color>
         <position x="-0.57000" y="-0.90000"></position>
+        <active>true</active>
     </text>
     <text>
         <label>newText2</label>
@@ -25,6 +27,7 @@
         <outline>0</outline>
         <color x="0.90000" y="0.800000" z="0.800000"></color>
         <position x="0.8000" y="0.950000"></position>
+        <active>true</active>
     </text>
     <texture>
         <label>testTexture</label>
@@ -32,5 +35,6 @@
         <position x="-0.74000" y="0.740000"></position>
         <scale x="0.250000" y="0.250000"></scale>
         <color x="1.000000" y="1.000000" z="1.000000"></color>
+        <active>true</active>
     </texture>
 </gui>

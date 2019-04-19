@@ -295,6 +295,11 @@ void ReadGuiText(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
         DEBUG_LOG("Update position : \"" + std::to_string(position) + "\"");
         text->SetPostion(position);
     }
+    paramNode = node.GetChild("active");
+    if (paramNode)
+    {
+        text->Show(Utils::ReadBool(*paramNode));
+    }
 }
 
 void ReadGuiTexture(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
@@ -352,6 +357,13 @@ void ReadGuiTexture(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
     {
         texture->SetPostion(Utils::ReadVec2(*paramNode));
     }
+
+    paramNode = node.GetChild("active");
+    if (paramNode)
+    {
+        texture->Show(Utils::ReadBool(*paramNode));
+    }
+
 }
 void Scene::ReadGuiFile(const std::string& filename)
 {
