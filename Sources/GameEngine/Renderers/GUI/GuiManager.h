@@ -4,6 +4,7 @@
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
 #include "Logger/Log.h"
+#include "Input/KeyCodes.h"
 
 namespace GameEngine
 {

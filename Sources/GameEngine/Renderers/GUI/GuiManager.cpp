@@ -16,4 +16,5 @@ const GuiElements& GuiManager::GetElements() const
 {
     return elements_;
 }
+
 }  // namespace GameEngine

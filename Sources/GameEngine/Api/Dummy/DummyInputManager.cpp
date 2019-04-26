@@ -23,14 +23,14 @@ bool GameEngine::DummyInputManager::GetMouseKey(KeyCodes::Type)
     return false;
 }
 
-vec2 GameEngine::DummyInputManager::CalcualteMouseMove()
+vec2i GameEngine::DummyInputManager::CalcualteMouseMove()
 {
-    return vec2();
+    return vec2i();
 }
 
-vec2 GameEngine::DummyInputManager::GetMousePosition()
+vec2i GameEngine::DummyInputManager::GetMousePosition()
 {
-    return vec2();
+    return vec2i();
 }
 
 void GameEngine::DummyInputManager::SetCursorPosition(int, int)

@@ -10,13 +10,11 @@ public:
     BaseCamera(float pitch, float yaw);
     BaseCamera(const vec3& position, const vec3& lookAt);
 
-    virtual ~BaseCamera()
-    {
-    }
+    virtual ~BaseCamera() override = default;
 
     virtual void Move() override;
     virtual void CalculateInput() override;
-    virtual void CalculateZoom(float zoom_lvl) override;
+    virtual void CalculateZoom(float) override;
 
     virtual void UpdateMatrix() override;
     virtual void InvertPitch() override;

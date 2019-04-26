@@ -73,7 +73,8 @@ void FirstPersonCamera::Move()
 
 vec2 FirstPersonCamera::CalcualteMouseMove()
 {
-    return inputManager->CalcualteMouseMove() * mousevel;
+    auto result = inputManager->CalcualteMouseMove();
+    return vec2(result.x, result.y) * mousevel;
 }
 
 void FirstPersonCamera::ApllyMove()
@@ -106,7 +107,7 @@ bool FirstPersonCamera::CheckAndProccesUpDirection()
     if (!inputManager->GetKey(KeyCodes::UARROW))
         return false;
 
-    if (rotation_.x != 90.f && rotation_.x != -90.f)
+    if (rotation_.x != 90.f and rotation_.x != -90.f)
         MoveCamera(currentMoveVelocity, 0.f);
 
     MoveCameraUp(currentMoveVelocity, 0.f);
@@ -118,7 +119,7 @@ bool FirstPersonCamera::CheckAndProccesDownDirection()
     if (!inputManager->GetKey(KeyCodes::DARROW))
         return false;
 
-    if (rotation_.x != 90.f && rotation_.x != -90.f)
+    if (rotation_.x != 90.f and rotation_.x != -90.f)
         MoveCamera(currentMoveVelocity, 180.f);
 
     MoveCameraUp(currentMoveVelocity, 180.f);
@@ -146,13 +147,13 @@ bool FirstPersonCamera::CheckAndProccesRightDirection()
 void FirstPersonCamera::MoveCamera(float dist, float dir)
 {
     float rad = Utils::ToRadians(rotation_.y + dir);
-    position_.x -= sin(-rad) * dist;
-    position_.z -= cos(-rad) * dist;
+    position_.x -= sinf(-rad) * dist;
+    position_.z -= cosf(-rad) * dist;
 }
 
 void FirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
     float rad = Utils::ToRadians(rotation_.x + dir);
-    position_.y += sin(-rad) * dist;
+    position_.y += sinf(-rad) * dist;
 }
 }  // namespace GameEngine

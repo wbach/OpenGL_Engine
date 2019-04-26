@@ -12,7 +12,7 @@ BaseCamera::BaseCamera()
 BaseCamera::BaseCamera(float pitch, float yaw)
     : up_(0, 1, 0)
     , position_(0)
-    , rotation_(0)
+    , rotation_(pitch, yaw, 0)
     , viewMatrix_(mat4())
 {
     UpdateMatrix();
@@ -28,7 +28,7 @@ void BaseCamera::Move()
 void BaseCamera::CalculateInput()
 {
 }
-void BaseCamera::CalculateZoom(float zoom_lvl)
+void BaseCamera::CalculateZoom(float)
 {
 }
 void BaseCamera::UpdateMatrix()
@@ -43,8 +43,8 @@ void BaseCamera::SetPosition(const vec3& position)
 void BaseCamera::LookAt(const vec3& lookAtPosition)
 {
     auto direction = position_ - lookAtPosition;
-    rotation_.y    = Utils::ToDegrees(atan2(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
-    rotation_.x    = Utils::ToDegrees(atan2(direction.y, sqrt(direction.x * direction.x + direction.z * direction.z)));
+    rotation_.y    = Utils::ToDegrees(atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
+    rotation_.x    = Utils::ToDegrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
 }
 
 void BaseCamera::InvertPitch()
@@ -95,11 +95,11 @@ void BaseCamera::CalculateDirection()
 {
     float pitch_ = Utils::ToRadians(rotation_.x);
     float yaw_   = Utils::ToRadians(rotation_.y);
-    float xzLen  = cos(pitch_);
+    float xzLen  = cosf(pitch_);
 
-    direction_.z = xzLen * cos(yaw_);
-    direction_.y = sin(pitch_);
-    direction_.x = xzLen * sin(-yaw_);
+    direction_.z = xzLen * cosf(yaw_);
+    direction_.y = sinf(pitch_);
+    direction_.x = xzLen * sinf(-yaw_);
     direction_   = glm::normalize(direction_) * -1.f;
 }
 void BaseCamera::UpdateViewMatrix()

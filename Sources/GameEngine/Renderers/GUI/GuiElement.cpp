@@ -24,6 +24,13 @@ GuiElement::GuiElement(GuiElementTypes& type, const vec2ui& windowSize)
     , show_{true}
 {
 }
+void GuiElement::Update()
+{
+}
+bool GuiElement::IsCollision(const vec2ui& pos)
+{
+    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
+}
 void GuiElement::SetRect(const Rect& rect)
 {
     rect_ = rect;
@@ -75,6 +82,10 @@ void GuiElement::Hide()
 void GuiElement::SetColor(const vec3& color)
 {
     color_ = color;
+}
+const Rect& GuiElement::GetRect() const
+{
+    return rect_;
 }
 GuiElementTypes GuiElement::GetType() const
 {

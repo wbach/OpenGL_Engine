@@ -1,8 +1,8 @@
 #pragma once
+#include <Windows.h>
+#include <optional>
 #include "Input/InputManager.h"
 #include "Types.h"
-#include <optional>
-#include <Windows.h>
 
 namespace DirectX
 {
@@ -18,8 +18,8 @@ public:
 
     // Mouse
     virtual bool GetMouseKey(KeyCodes::Type key) override;
-    virtual vec2 CalcualteMouseMove() override;
-    virtual vec2 GetMousePosition() override;
+    virtual vec2i CalcualteMouseMove() override;
+    virtual vec2i GetMousePosition() override;
 
     virtual void SetKeyToBuffer(int key, bool value) override;
     virtual void ClearKeyBuffer() override;

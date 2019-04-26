@@ -19,8 +19,8 @@ public:
 
     // Mouse
     virtual bool GetMouseKey(KeyCodes::Type key) override;
-    virtual vec2 CalcualteMouseMove() override;
-    virtual vec2 GetMousePosition() override;
+    virtual vec2i CalcualteMouseMove() override;
+    virtual vec2i GetMousePosition() override;
 
     // not use in SDL
     virtual void SetKeyToBuffer(int key, bool value) override;

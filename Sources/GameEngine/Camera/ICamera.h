@@ -5,9 +5,7 @@ namespace GameEngine
 {
 struct ICamera
 {
-    virtual ~ICamera()
-    {
-    }
+    virtual ~ICamera()  = default;
 
     virtual void Move()                        = 0;
     virtual void CalculateInput()              = 0;

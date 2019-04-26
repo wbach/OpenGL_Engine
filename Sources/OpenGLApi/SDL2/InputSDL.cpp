@@ -25,7 +25,7 @@ bool InputSDL::GetKey(KeyCodes::Type key)
     return false;
 }
 
-vec2 InputSDL::CalcualteMouseMove()
+vec2i InputSDL::CalcualteMouseMove()
 {
     int w = 320;
     int h = 240;
@@ -35,9 +35,9 @@ vec2 InputSDL::CalcualteMouseMove()
     int tmp_x, tmp_y;
     SDL_GetMouseState(&tmp_x, &tmp_y);
 
-    vec2 dmove(0);
-    dmove.x = ((float)w / 2.f - (float)tmp_x);
-    dmove.y = ((float)h / 2.f - (float)tmp_y);
+    vec2i dmove(0);
+    dmove.x = w / 2 - tmp_x;
+    dmove.y = h / 2 - tmp_y;
     SDL_WarpMouseInWindow(sdlWindow, w / 2, h / 2);
 
     return dmove;
@@ -45,10 +45,10 @@ vec2 InputSDL::CalcualteMouseMove()
 
 bool InputSDL::GetMouseKey(KeyCodes::Type key)
 {
-    return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SdlKeyConverter::Convert(key));
+    return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SdlKeyConverter::Convert(key));
 }
 
-vec2 InputSDL::GetMousePosition()
+vec2i InputSDL::GetMousePosition()
 {
     int tmp_x, tmp_y;
     int w = 320;
@@ -57,14 +57,14 @@ vec2 InputSDL::GetMousePosition()
 
     SDL_GetMouseState(&tmp_x, &tmp_y);
 
-    vec2 out;
-    out.x = 2.f * (static_cast<float>(tmp_x) / static_cast<float>(w)) - 1.f;
-    out.y = 2.f * (static_cast<float>(tmp_y) / static_cast<float>(h)) - 1.f;
+    vec2i out;
+    out.x = 2 * (tmp_x / w) - 1;
+    out.y = 2 * (tmp_y / h) - 1;
     out.y *= -1.f;
     return out;
 }
 
-void InputSDL::SetCursorPosition(int x, int y)
+void InputSDL::SetCursorPosition(int, int)
 {
 }
 
@@ -156,7 +156,7 @@ wb::optional<KeyEvent> InputSDL::GetEvent()
     return e;
 }
 
-void InputSDL::SetKeyToBuffer(int key, bool value)
+void InputSDL::SetKeyToBuffer(int, bool)
 {
 }
 

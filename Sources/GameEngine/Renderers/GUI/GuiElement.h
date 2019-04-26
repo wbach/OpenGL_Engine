@@ -12,6 +12,8 @@ public:
     virtual ~GuiElement() = default;
 
 public:
+    virtual void Update();
+    bool IsCollision(const vec2ui&);
     void SetRect(const Rect& rect);
     void SetSize(const vec2ui& size);
     void SetScale(const vec2& scale);
@@ -22,6 +24,7 @@ public:
     void Show();
     void Hide();
     void SetColor(const vec3& color);
+    const Rect& GetRect() const;
 
 public:
     GuiElementTypes GetType() const;

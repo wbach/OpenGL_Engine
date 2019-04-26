@@ -186,8 +186,8 @@ void ThirdPersonCamera::SmoothCameraMove()
 void ThirdPersonCamera::CalculateCameraPosition(float horizontal_distance, float vertical_distance)
 {
     float theata   = lookAtRotataion_.y + angleAroundPlayer;
-    float x_offset = (float)(horizontal_distance * sin(Utils::ToRadians(theata)));
-    float z_offset = (float)(horizontal_distance * cos(Utils::ToRadians(theata)));
+    float x_offset = horizontal_distance * sinf(Utils::ToRadians(theata));
+    float z_offset = horizontal_distance * cosf(Utils::ToRadians(theata));
 
     destinationPosition.x = lookAtPosition_.x - x_offset;
     destinationPosition.y = lookAtPosition_.y + vertical_distance;
@@ -196,11 +196,11 @@ void ThirdPersonCamera::CalculateCameraPosition(float horizontal_distance, float
 }
 float ThirdPersonCamera::CalculateHorizontalDistance()
 {
-    return (float)(distanceFromPlayer * cos(Utils::ToRadians(destinationPitch)));
+    return distanceFromPlayer * cosf(Utils::ToRadians(destinationPitch));
 }
 float ThirdPersonCamera::CalculateVerticalDistance()
 {
-    return (float)(distanceFromPlayer * sin(Utils::ToRadians(destinationPitch)));
+    return distanceFromPlayer * sinf(Utils::ToRadians(destinationPitch));
 }
 void ThirdPersonCamera::CalculateYaw()
 {
@@ -216,7 +216,8 @@ void ThirdPersonCamera::SetLookAtTransform(common::Transform* lookAt)
 }
 vec2 ThirdPersonCamera::CalcualteMouseMove()
 {
-    return inputManager->CalcualteMouseMove();
+    auto v = inputManager->CalcualteMouseMove();
+    return vec2(v.x, v.y);
 }
 void ThirdPersonCamera::CalculatePitch(const vec2& d_move)
 {
@@ -232,7 +233,6 @@ void ThirdPersonCamera::CalculateAngleAroundPlayer(const vec2& d_move)
 bool ThirdPersonCamera::IsOnDestinationPos()
 {
     auto l = glm::length(GetPosition() - destinationPosition);
-
     return l < 0.1f;
 }
 
@@ -240,14 +240,14 @@ bool ThirdPersonCamera::IsOnDestinationPitch()
 {
     auto l = rotation_.y - destinationYaw;
 
-    return fabs(l) < 0.1f;
+    return fabsf(l) < 0.1f;
 }
 
 bool ThirdPersonCamera::IsOnDestinationYaw()
 {
     auto l = rotation_.x - destinationPitch;
 
-    return fabs(l) < 0.1f;
+    return fabsf(l) < 0.1f;
 }
 
 template <class T>
@@ -255,7 +255,7 @@ T ThirdPersonCamera::CalculateNewValueInTimeInterval(const CameraEvent<T>& t, fl
 {
     float totalMoveTime = t.endTime - t.startTime;
 
-    if (fabs(totalMoveTime) < FLT_EPSILON)
+    if (fabsf(totalMoveTime) < FLT_EPSILON)
     {
         return t.startValue;
     }
