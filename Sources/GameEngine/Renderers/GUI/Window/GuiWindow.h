@@ -16,5 +16,9 @@ public:
 private:
     std::vector<std::unique_ptr<GuiElement>> children_;
     Input::InputManager& inputManager_;
+
+public:
+    static GuiElementTypes type;
+    std::optional<vec2> collisionPoint_;
 };
 }  // namespace GameEngine

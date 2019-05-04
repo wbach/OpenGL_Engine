@@ -57,17 +57,22 @@ vec2i XInputManager::CalcualteMouseMove()
     return dmove;
 }
 
-vec2i XInputManager::GetMousePosition()
+vec2i XInputManager::GetPixelMousePosition() 
+{
+    return vec2i();
+}
+
+vec2 XInputManager::GetMousePosition()
 {
     POINT p;
     if (GetCursorPos(&p))
     {
         if (ScreenToClient(windowHwnd_, &p))
         {
-            return vec2i(p.x, p.y);
+            return vec2(p.x, p.y);
         }
     }
-    return vec2i(0);
+    return vec2(0);
 }
 
 void XInputManager::SetKeyToBuffer(int key, bool value)

@@ -35,6 +35,7 @@ class RenderersManager;
 
 class GuiTextElement;
 class GuiTextureElement;
+class GuiWindowElement;
 
 typedef std::unordered_map<uint32, std::unique_ptr<GameObject>> GameObjects;
 
@@ -92,6 +93,7 @@ public:
     void ReadGuiFile(const std::string& filename);
     GuiTextElement* CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline);
     GuiTextureElement* CreateGuiTexture(const std::string& label, const std::string& filename);
+    GuiWindowElement* CreateGuiWindow(const std::string& label, const Rect&, const std::string& background);
     GuiTextElement* GuiText(const std::string& label);
     GuiTextureElement* GuiTexture(const std::string& label);
 
@@ -100,6 +102,7 @@ public:
 
 protected:
     void MakeGuiManager(std::function<void(GuiElement&)>);
+    std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string& filename);
 
     virtual int Initialize();
     virtual void PostInitialize();

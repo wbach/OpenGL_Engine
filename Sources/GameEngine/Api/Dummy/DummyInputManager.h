@@ -14,7 +14,8 @@ public:
     virtual bool GetKey(KeyCodes::Type) override;
     virtual bool GetMouseKey(KeyCodes::Type) override;
     virtual vec2i CalcualteMouseMove() override;
-    virtual vec2i GetMousePosition() override;
+    virtual vec2i GetPixelMousePosition() override;
+    virtual vec2 GetMousePosition() override;
 
     virtual void SetCursorPosition(int, int) override;
     virtual void SetKeyToBuffer(int, bool) override;

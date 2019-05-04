@@ -30,6 +30,10 @@ vec4 ToVec4(const vec2& v2, float z, float w)
 
 namespace std
 {
+std::string to_string(const vec2& v)
+{
+    return std::to_string(v.x) + ", " + std::to_string(v.y);
+}
 std::string to_string(const vec2i& v)
 {
     return std::to_string(v.x) + ", " + std::to_string(v.y);
@@ -41,5 +45,17 @@ std::string to_string(const vec2ui& v)
 std::string to_string(const vec3i& v)
 {
     return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z);
+}
+std::string to_string(const vec3& v)
+{
+    return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z);
+}
+std::string to_string(const glm::mat4& m)
+{
+    std::string s;
+    for (int y = 0; y < 4; y++)
+        s += std::to_string(m[y][0]) + " " + std::to_string(m[y][1]) + " " + std::to_string(m[y][2]) + " " +
+             std::to_string(m[y][3]) + "\n";
+    return s;
 }
 }  // namespace std

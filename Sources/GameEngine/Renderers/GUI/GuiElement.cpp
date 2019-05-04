@@ -1,4 +1,5 @@
 #include "GuiElement.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -27,9 +28,25 @@ GuiElement::GuiElement(GuiElementTypes& type, const vec2ui& windowSize)
 void GuiElement::Update()
 {
 }
-bool GuiElement::IsCollision(const vec2ui& pos)
+bool GuiElement::IsCollision(const vec2ui& pos) const
 {
-    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
+    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and
+           pos.y <= rect_.position.y + rect_.size.y;
+}
+
+bool GuiElement::IsCollision(const vec2& pos) const
+{
+    auto convertedPos = pos;
+    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and
+           convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
+}
+std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
+{
+    if (not IsCollision(pos))
+    {
+        return {};
+    }
+    return position_ - pos;
 }
 void GuiElement::SetRect(const Rect& rect)
 {
@@ -87,6 +104,11 @@ const Rect& GuiElement::GetRect() const
 {
     return rect_;
 }
+
+const vec2& GuiElement::GetScale() const
+{
+    return scale_;
+}
 GuiElementTypes GuiElement::GetType() const
 {
     return type_;
@@ -109,14 +131,14 @@ void GuiElement::CalculateMatrix()
 }
 void GuiElement::CaclulateScaleBasedOnRect()
 {
-    scale_ = vec2(rect_.size.x, rect_.size.y);
+    scale_ = vec2(rect_.size.x, rect_.size.y) / 2.f;
     scale_.x *= 1.f / windowSize_.x;
     scale_.y *= 1.f / windowSize_.y;
 }
 void GuiElement::CalculateRectBasedOnScale()
 {
-    rect_.size.x = static_cast<uint32>(scale_.x * static_cast<float>(windowSize_.x));
-    rect_.size.y = static_cast<uint32>(scale_.y * static_cast<float>(windowSize_.y));
+    rect_.size.x = static_cast<uint32>(scale_.x * static_cast<float>(windowSize_.x)) * 2;
+    rect_.size.y = static_cast<uint32>(scale_.y * static_cast<float>(windowSize_.y)) * 2;
 }
 void GuiElement::CalcualteRectPosition()
 {
@@ -126,7 +148,10 @@ void GuiElement::CalcualteRectPosition()
 void GuiElement::CalculatePosition()
 {
     position_ = vec2(rect_.position.x, rect_.position.y);
-    position_.x *= ConvertSpaceInv(1.f / windowSize_.x);
-    position_.y *= ConvertSpaceInv(1.f / windowSize_.y);
+    position_.x /= windowSize_.x;
+    position_.y /= windowSize_.y;
+
+    position_.x = ConvertSpaceInv(position_.x);
+    position_.y = ConvertSpaceInv(position_.y);
 }
 }  // namespace GameEngine

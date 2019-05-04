@@ -17,4 +17,12 @@ const GuiElements& GuiManager::GetElements() const
     return elements_;
 }
 
+void GuiManager::Update()
+{
+    for(auto& element : elements_)
+    {
+        element->Update();
+    }
+}
+
 }  // namespace GameEngine

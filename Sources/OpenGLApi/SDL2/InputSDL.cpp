@@ -48,18 +48,24 @@ bool InputSDL::GetMouseKey(KeyCodes::Type key)
     return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SdlKeyConverter::Convert(key));
 }
 
-vec2i InputSDL::GetMousePosition()
+vec2i InputSDL::GetPixelMousePosition()
+{
+    vec2i result;
+    SDL_GetMouseState(&result.x, &result.y);
+    return result;
+}
+
+vec2 InputSDL::GetMousePosition()
 {
     int tmp_x, tmp_y;
     int w = 320;
     int h = 240;
     SDL_GetWindowSize(sdlWindow, &w, &h);
-
     SDL_GetMouseState(&tmp_x, &tmp_y);
 
-    vec2i out;
-    out.x = 2 * (tmp_x / w) - 1;
-    out.y = 2 * (tmp_y / h) - 1;
+    vec2 out;
+    out.x = 2.f * (static_cast<float>(tmp_x) / static_cast<float>(w)) - 1.f;
+    out.y = 2.f * (static_cast<float>(tmp_y) / static_cast<float>(h)) - 1.f;
     out.y *= -1.f;
     return out;
 }

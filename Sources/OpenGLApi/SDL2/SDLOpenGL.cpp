@@ -1,3 +1,4 @@
+#include "SDLOpenGL.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_ttf.h>
@@ -5,7 +6,6 @@
 #include <optional>
 #include "InputSDL.h"
 #include "Logger/Log.h"
-#include "SDLOpenGL.h"
 
 /*
 SDL_INIT_TIMER	Initializes the timer subsystem.
@@ -79,7 +79,7 @@ void SdlOpenGlApi::Init()
 }
 
 void SdlOpenGlApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                                GraphicsApi::WindowType windowType)
+                                    GraphicsApi::WindowType windowType)
 {
     auto flags = CreateWindowFlags(windowType);
     CreateSDLWindow(window_name, width, height, flags);
@@ -202,8 +202,9 @@ std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const st
         impl_->surfaces_.push_back(sdlSurface);
         surfaceId = impl_->surfaces_.size() - 1;
     }
-    return GraphicsApi::Surface{*surfaceId, vec2ui(static_cast<uint32>(sdlSurface->w), static_cast<uint32>(sdlSurface->h)), sdlSurface->format->BytesPerPixel,
-                                sdlSurface->pixels};
+    return GraphicsApi::Surface{*surfaceId,
+                                vec2ui(static_cast<uint32>(sdlSurface->w), static_cast<uint32>(sdlSurface->h)),
+                                sdlSurface->format->BytesPerPixel, sdlSurface->pixels};
 }
 
 void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
@@ -267,6 +268,10 @@ void SdlOpenGlApi::ProcessSdlEvent() const
         case SDL_QUIT:
             break;
         case SDL_MOUSEBUTTONDOWN:
+            addKeyEvent_(SDL_KEYDOWN, impl_->event.button.button);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            addKeyEvent_(SDL_KEYUP, impl_->event.button.button);
             break;
         case SDL_MOUSEWHEEL:
             if (impl_->event.wheel.y == -1)

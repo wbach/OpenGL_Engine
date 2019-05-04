@@ -27,6 +27,7 @@
 #include "GameEngine/Resources/Textures/Image.h"
 #include "GraphicsApi/BlendFunctionsTypes.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "Renderers/GUI/Window/GuiWindow.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
 
@@ -635,6 +636,10 @@ void MainScene::InitGui()
     CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
     GuiText("playerPos")->SetPostion(vec2(-0.5, -0.9));
     GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
+
+    std::cout << __FUNCTION__ << "1" << std::endl;
+    CreateGuiWindow("testWindow", Rect(400, 300, 400, 250), "GUI/Package1/frame.png");
+    std::cout << __FUNCTION__ << "2" << std::endl;
 
     CreateGuiTexture("testTexture", "GUI/BENGINE.png");
     GuiTexture("testTexture")->SetPostion(vec2(0.5, -0.65));

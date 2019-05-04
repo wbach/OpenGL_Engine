@@ -19,6 +19,7 @@ public:
     T* Get(const std::string& name);
     void Add(const std::string& name, std::unique_ptr<GuiElement> element);
     const GuiElements& GetElements() const;
+    void Update();
 
 private:
     GuiElementsMap elementsMap_;

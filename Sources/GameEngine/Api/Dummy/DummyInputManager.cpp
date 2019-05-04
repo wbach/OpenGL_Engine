@@ -28,9 +28,14 @@ vec2i GameEngine::DummyInputManager::CalcualteMouseMove()
     return vec2i();
 }
 
-vec2i GameEngine::DummyInputManager::GetMousePosition()
+vec2i DummyInputManager::GetPixelMousePosition()
 {
     return vec2i();
+}
+
+vec2 GameEngine::DummyInputManager::GetMousePosition()
+{
+    return vec2();
 }
 
 void GameEngine::DummyInputManager::SetCursorPosition(int, int)

@@ -121,9 +121,12 @@ vec4 ToVec4(const vec2& v2, float z, float w);
 
 namespace std
 {
+std::string to_string(const vec2&);
 std::string to_string(const vec2i&);
 std::string to_string(const vec2ui&);
 std::string to_string(const vec3i&);
+std::string to_string(const vec3&);
+std::string to_string(const glm::mat4& m);
 }  // namespace std
 
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;

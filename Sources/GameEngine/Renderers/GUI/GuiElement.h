@@ -13,7 +13,9 @@ public:
 
 public:
     virtual void Update();
-    bool IsCollision(const vec2ui&);
+    bool IsCollision(const vec2ui&) const;
+    bool IsCollision(const vec2&) const;
+    std::optional<vec2> GetCollisionPoint(const vec2&) const;
     void SetRect(const Rect& rect);
     void SetSize(const vec2ui& size);
     void SetScale(const vec2& scale);
@@ -25,6 +27,7 @@ public:
     void Hide();
     void SetColor(const vec3& color);
     const Rect& GetRect() const;
+    const vec2& GetScale() const;
 
 public:
     GuiElementTypes GetType() const;

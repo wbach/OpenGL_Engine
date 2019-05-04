@@ -6,6 +6,7 @@
 #include "GameEngine/Engine/EngineMeasurement.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Input/InputManager.h"
@@ -56,7 +57,8 @@ Scene::~Scene()
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_,
+                                                                       *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -73,19 +75,21 @@ void Scene::FullUpdate(float deltaTime)
         physicsApi_->SetSimulationStep(deltaTime);
         physicsApi_->Simulate();
     }
-
-    if (displayManager_ != nullptr)
+    if (displayManager_)
     {
         time_.deltaTime = deltaTime;
+    }
+    if (inputManager_)
+    {
+        inputManager_->ProcessKeysEvents();
+    }
+    if (guiManager_)
+    {
+        guiManager_->Update();
     }
 
     Update(deltaTime);
     componentController_.Update();
-
-    if (inputManager_ != nullptr)
-    {
-        inputManager_->ProcessKeysEvents();
-    }
 }
 
 void Scene::PostUpdate()
@@ -105,7 +109,8 @@ void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
     renderersManager_ = manager;
 }
 
-GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline)
+GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str,
+                                     uint32 size, uint32 outline)
 {
     auto text   = guiTextFactory_->Create(font, str, size, outline);
     auto result = text.get();
@@ -114,10 +119,24 @@ GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string
 }
 GuiTextureElement* Scene::CreateGuiTexture(const std::string& label, const std::string& filename)
 {
-    auto texture    = resourceManager_->GetTextureLaoder().LoadTexture(filename);
-    auto guiTexture = std::make_unique<GuiTextureElement>(renderersManager_->GetProjection().GetWindowSize(), *texture);
+    auto guiTexture = MakeGuiTexture(filename);
     auto result     = guiTexture.get();
     guiManager_->Add(label, std::move(guiTexture));
+    return result;
+}
+
+GuiWindowElement* Scene::CreateGuiWindow(const std::string& label, const Rect& rect, const std::string& background)
+{
+    std::cout << __FUNCTION__ << std::endl;
+    auto guiWindow = std::make_unique<GuiWindowElement>(renderersManager_->GetProjection().GetWindowSize(), *inputManager_);
+    guiWindow->SetRect(rect);
+
+    auto result = guiWindow.get();
+    auto backgroundGuiTexture = MakeGuiTexture(background);
+    backgroundGuiTexture->SetScale(guiWindow->GetScale());
+    renderersManager_->GetGuiRenderer().Subscribe(*backgroundGuiTexture);
+    guiWindow->AddChild(std::move(backgroundGuiTexture));
+    guiManager_->Add(label, std::move(guiWindow));
     return result;
 }
 GuiTextElement* Scene::GuiText(const std::string& label)
@@ -132,6 +151,12 @@ GuiTextureElement* Scene::GuiTexture(const std::string& label)
 void Scene::MakeGuiManager(std::function<void(GuiElement&)> subscribe)
 {
     guiManager_ = std::make_unique<GuiManager>(subscribe);
+}
+
+std::unique_ptr<GuiTextureElement> Scene::MakeGuiTexture(const std::string &filename)
+{
+    auto texture    = resourceManager_->GetTextureLaoder().LoadTexture(filename);
+    return std::make_unique<GuiTextureElement>(renderersManager_->GetProjection().GetWindowSize(), *texture);
 }
 
 std::unique_ptr<GameObject> Scene::CreateGameObject() const
@@ -336,7 +361,6 @@ void ReadGuiTexture(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
     }
     else
     {
-
     }
 
     paramNode = node.GetChild("color");
@@ -363,7 +387,6 @@ void ReadGuiTexture(Utils::XmlNode& node, Scene& scene, uint32& unnamedTextId)
     {
         texture->Show(Utils::ReadBool(*paramNode));
     }
-
 }
 void Scene::ReadGuiFile(const std::string& filename)
 {

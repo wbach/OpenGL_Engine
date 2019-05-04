@@ -104,9 +104,3 @@ float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3
 //	return colision_info.collision;
 //}
 }  // namespace Utils
-namespace std
-{
-std::string to_string(const glm::vec3& v);
-std::string to_string(const glm::vec2& v);
-std::string to_string(const glm::mat4& m);
-}  // namespace std

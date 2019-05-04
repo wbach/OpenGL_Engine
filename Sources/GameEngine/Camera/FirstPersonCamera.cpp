@@ -79,7 +79,7 @@ vec2 FirstPersonCamera::CalcualteMouseMove()
 
 void FirstPersonCamera::ApllyMove()
 {
-    if (!inputManager->GetMouseKey(KeyCodes::LMOUSE))
+    if (not inputManager->GetMouseKey(KeyCodes::LMOUSE) or inputManager->GetKey(KeyCodes::LCTRL))
         return;
 
     vec2 dmove = CalcualteMouseMove();

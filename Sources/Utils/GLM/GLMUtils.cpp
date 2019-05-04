@@ -253,24 +253,3 @@ Quaternion Utils::Interpolate(const Quaternion& a, const Quaternion& b, float bl
     result = glm::normalize(result);
     return result;
 }
-namespace std
-{
-std::string to_string(const glm::vec3& v)
-{
-    return std::to_string(v.x) + " " + std::to_string(v.y) + " " + std::to_string(v.z);
-}
-
-std::string to_string(const glm::vec2& v)
-{
-    return std::to_string(v.x) + " " + std::to_string(v.y);
-}
-
-std::string to_string(const glm::mat4& m)
-{
-    std::string s;
-    for (int y = 0; y < 4; y++)
-        s += std::to_string(m[y][0]) + " " + std::to_string(m[y][1]) + " " + std::to_string(m[y][2]) + " " +
-             std::to_string(m[y][3]) + "\n";
-    return s;
-}
-}  // namespace std
