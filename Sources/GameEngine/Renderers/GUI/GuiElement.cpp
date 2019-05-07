@@ -131,9 +131,9 @@ void GuiElement::CalculateMatrix()
 }
 void GuiElement::CaclulateScaleBasedOnRect()
 {
-    scale_ = vec2(rect_.size.x, rect_.size.y) / 2.f;
-    scale_.x *= 1.f / windowSize_.x;
-    scale_.y *= 1.f / windowSize_.y;
+    scale_ = vec2(rect_.size.x, rect_.size.y);
+    scale_.x *= 1.f / (windowSize_.x * 2.f);
+    scale_.y *= 1.f / (windowSize_.y * 2.f);
 }
 void GuiElement::CalculateRectBasedOnScale()
 {

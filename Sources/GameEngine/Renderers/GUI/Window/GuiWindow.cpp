@@ -26,6 +26,7 @@ GuiElementTypes GuiWindowElement::type = GuiElementTypes::Window;
 GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
+    , titleBarSize_(0.5f)
 {
 }
 
@@ -49,11 +50,21 @@ void GuiWindowElement::Update()
 
     auto position = inputManager_.GetMousePosition();
 
-    auto newPosition = position + *collisionPoint_;
-    SetPostion(newPosition);
-    for (auto& child : children_)
+    if (collisionPoint_->y < (scale_.y * titleBarSize_) - scale_.y)
     {
-        child->SetPostion(newPosition);
+        DEBUG_LOG("Bar..., " + std::to_string(collisionPoint_->y));
+        DEBUG_LOG("Scale : " + std::to_string(scale_));
+
+        auto newPosition = position + *collisionPoint_;
+        SetPostion(newPosition);
+        for (auto& child : children_)
+        {
+            child->SetPostion(newPosition);
+        }
+    }
+    else
+    {
+        // Is on top
     }
 }
 

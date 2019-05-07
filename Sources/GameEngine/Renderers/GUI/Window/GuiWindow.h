@@ -16,6 +16,7 @@ public:
 private:
     std::vector<std::unique_ptr<GuiElement>> children_;
     Input::InputManager& inputManager_;
+    float titleBarSize_;
 
 public:
     static GuiElementTypes type;
