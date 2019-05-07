@@ -251,9 +251,15 @@ void OpenGLApi::ClearRest()
 
     impl_->shaderBuffers_.clear();
 
+    std::vector<uint32> objectsToRemove;
     for (auto iter = createdObjectIds.begin(); iter != createdObjectIds.end(); iter++)
     {
-        DeleteObject(iter->first);
+        objectsToRemove.push_back(iter->first);
+    }
+
+    for (auto& id : objectsToRemove)
+    {
+        DeleteObject(id);
     }
 
     createdObjectIds.clear();
