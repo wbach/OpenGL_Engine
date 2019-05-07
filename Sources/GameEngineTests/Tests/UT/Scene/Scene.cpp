@@ -4,6 +4,9 @@
 #include <gtest/gtest.h>
 #include "GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Renderers/GuiTextFactoryMock.h"
+#include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
+#include "GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp"
+#include "GameEngine/Resources/ResourceManager.h"
 
 using namespace testing;
 
@@ -19,6 +22,8 @@ struct SceneTest : public Scene
     SceneTest(const std::string& name)
         : Scene(name)
     {
+        EXPECT_CALL(graphicsApiMock_, GetWindowApi()).WillRepeatedly(ReturnRef(windowApiMock_));
+        CreateResourceManger(new ResourceManager(graphicsApiMock_));
         MakeGuiManager([](auto&) {});
         guiTextFactoryMock_ = new GuiTextFactoryMock();
         guiTextFactory_     = std::unique_ptr<GuiTextFactoryMock>(guiTextFactoryMock_);
@@ -45,6 +50,8 @@ struct SceneTest : public Scene
         return Scene::GuiText(label);
     }
 
+    GraphicsApi::WindowApiMock windowApiMock_;
+    GraphicsApi::GraphicsApiMock graphicsApiMock_;
     GuiTextFactoryMock* guiTextFactoryMock_;
 };
 struct SceneShould : public ::testing::Test
@@ -74,7 +81,6 @@ struct SceneShould : public ::testing::Test
 TEST_F(SceneShould, GuiFileReader)
 {
     CrateElements();
-    sut_.ReadGuiFile("../Sources/TestGame/gui.xml");
     auto renderText = sut_.GuiText("rendererFps");
     auto mat        = renderText->GetMatrix();
     DEBUG_LOG(std::to_string(mat));
