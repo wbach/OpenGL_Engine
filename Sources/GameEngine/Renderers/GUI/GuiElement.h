@@ -8,7 +8,7 @@ namespace GameEngine
 class GuiElement
 {
 public:
-    GuiElement(GuiElementTypes& type, const vec2ui& windowSize);
+    GuiElement(GuiElementTypes type, const vec2ui& windowSize);
     virtual ~GuiElement() = default;
 
 public:
@@ -28,6 +28,7 @@ public:
     void SetColor(const vec3& color);
     const Rect& GetRect() const;
     const vec2& GetScale() const;
+    const vec2& GetPosition() const;
 
 public:
     GuiElementTypes GetType() const;

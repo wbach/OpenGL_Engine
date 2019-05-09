@@ -13,7 +13,7 @@ float ConvertSpaceInv(float v)
     return v * 2.f - 1.f;
 }
 
-GuiElement::GuiElement(GuiElementTypes& type, const vec2ui& windowSize)
+GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     : type_(type)
     , windowSize_{windowSize}
     , rect_{{0, 0}, {100, 100}}
@@ -30,15 +30,13 @@ void GuiElement::Update()
 }
 bool GuiElement::IsCollision(const vec2ui& pos) const
 {
-    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and
-           pos.y <= rect_.position.y + rect_.size.y;
+    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
 }
 
 bool GuiElement::IsCollision(const vec2& pos) const
 {
     auto convertedPos = pos;
-    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and
-           convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
+    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
 }
 std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 {
@@ -108,6 +106,11 @@ const Rect& GuiElement::GetRect() const
 const vec2& GuiElement::GetScale() const
 {
     return scale_;
+}
+
+const vec2& GuiElement::GetPosition() const
+{
+    return position_;
 }
 GuiElementTypes GuiElement::GetType() const
 {
