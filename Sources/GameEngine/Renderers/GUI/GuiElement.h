@@ -2,6 +2,7 @@
 #include "GLM/GLMUtils.h"
 #include "GuiElementTypes.h"
 #include "Rect.h"
+#include <optional>
 
 namespace GameEngine
 {

@@ -3,6 +3,7 @@
 #include <vector>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "Input/InputManager.h"
+#include <optional>
 
 namespace GameEngine
 {

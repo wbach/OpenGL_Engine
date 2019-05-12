@@ -44,7 +44,7 @@ std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
     {
         return {};
     }
-    return position_ - pos;
+    return pos - position_;
 }
 void GuiElement::SetRect(const Rect& rect)
 {
