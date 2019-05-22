@@ -638,13 +638,13 @@ void MainScene::InitGui()
     GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
     std::cout << __FUNCTION__ << "1" << std::endl;
-    auto window = CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/Package1/frame.png");
+    auto window = CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/grayWindow.png");
 
     auto windowText1 = CreateGuiText("testWindow_text1", fontPath, "This is example text.", fontSize, 0);
-    GuiText("testWindow_text1")->SetPostion(vec2(-0.5, -0.9));
-    GuiText("testWindow_text1")->SetColor(vec3(.8f, 0.f, 0.f));
+    GuiText("testWindow_text1")->SetPostion(vec2(0, 0));
+    GuiText("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
 
-    //window->AddChild(std::move(windowText1));
+    window->AddChild(std::move(windowText1));
 
     std::cout << __FUNCTION__ << "2" << std::endl;
 

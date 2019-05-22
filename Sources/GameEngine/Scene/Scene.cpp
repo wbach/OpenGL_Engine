@@ -112,6 +112,7 @@ void Scene::SetRenderersManager(Renderer::RenderersManager* manager)
 GuiTextElement* Scene::CreateGuiText(const std::string& label, const std::string& font, const std::string& str,
                                      uint32 size, uint32 outline)
 {
+
     auto text   = guiTextFactory_->Create(font, str, size, outline);
     auto result = text.get();
     guiManager_->Add(label, std::move(text));
@@ -135,7 +136,8 @@ GuiWindowElement* Scene::CreateGuiWindow(const std::string& label, const Rect& r
     auto backgroundGuiTexture = MakeGuiTexture(background);
     backgroundGuiTexture->SetScale(guiWindow->GetScale());
     renderersManager_->GetGuiRenderer().Subscribe(*backgroundGuiTexture);
-    guiWindow->AddChild(std::move(backgroundGuiTexture));
+    guiWindow->AddChild(backgroundGuiTexture.get());
+    guiManager_->Add(label, std::move(backgroundGuiTexture));
     guiManager_->Add(label, std::move(guiWindow));
     return result;
 }

@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-template <class T>
-void UpdateChildPosition(GuiElement& element, const T& v)
+
+void UpdatePosition(GuiElement& element, const vec2ui& v)
 {
     auto rect = element.GetRect();
     rect.position.x += v.x;
@@ -12,8 +12,15 @@ void UpdateChildPosition(GuiElement& element, const T& v)
     element.SetRect(rect);
 }
 
-template <class T>
-void SetChildPosition(GuiElement& element, const T& v)
+void UpdatePosition(GuiElement& element, const vec2& v)
+{
+    auto position = element.GetPosition();
+    position = position + v;
+    element.SetPostion(position);
+}
+
+
+void SetPosition(GuiElement& element, const vec2ui& v)
 {
     auto rect       = element.GetRect();
     rect.position.x = v.x;
@@ -30,10 +37,10 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
 {
 }
 
-void GuiWindowElement::AddChild(std::unique_ptr<GuiElement> element)
+void GuiWindowElement::AddChild(GuiElement* element)
 {
-    UpdateChildPosition(*element, rect_.position);
-    children_.push_back(std::move(element));
+    UpdatePosition(*element, rect_.position);
+    children_.push_back(element);
 
     inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
         auto position   = inputManager_.GetMousePosition();
@@ -52,19 +59,15 @@ void GuiWindowElement::Update()
 
     auto barYStart = scale_.y - (scale_.y * titleBarSize_);
 
-    DEBUG_LOG("Collision point : " + std::to_string(*collisionPoint_));
-
     if (collisionPoint_->y > barYStart)
     {
-        DEBUG_LOG("BarStart..., " + std::to_string(barYStart));
-        DEBUG_LOG("Bar..., " + std::to_string(collisionPoint_->y));
-        DEBUG_LOG("Scale : " + std::to_string(scale_));
-
         auto newPosition = position  - *collisionPoint_;
+        auto moveVec =  newPosition - position_;
+
         SetPostion(newPosition);
         for (auto& child : children_)
         {
-            child->SetPostion(newPosition);
+            UpdatePosition(*child, moveVec);
         }
     }
     else

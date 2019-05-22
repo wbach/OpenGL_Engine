@@ -24,6 +24,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , rotation_{0}
     , show_{true}
 {
+    CalculateMatrix();
 }
 void GuiElement::Update()
 {

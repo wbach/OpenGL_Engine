@@ -11,11 +11,11 @@ class GuiWindowElement : public GuiElement
 {
 public:
     GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
-    void AddChild(std::unique_ptr<GuiElement>);
+    void AddChild(GuiElement*);
     virtual void Update() override;
 
 private:
-    std::vector<std::unique_ptr<GuiElement>> children_;
+    std::vector<GuiElement*> children_;
     Input::InputManager& inputManager_;
     float titleBarSize_;
 
