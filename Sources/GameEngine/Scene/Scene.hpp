@@ -18,6 +18,7 @@
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "SceneEvents.h"
 #include "Types.h"
+#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 
 namespace Input
 {
@@ -112,11 +113,13 @@ protected:
     std::string name;
     AddEvent addSceneEvent;
 
-    std::unique_ptr<GuiManager> guiManager_;
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
     Physics::IPhysicsApi* physicsApi_;
+
+    std::unique_ptr<GuiManager> guiManager_;
+    std::unique_ptr<GuiElementFactory> guiElementFactory_;
 
     // Minimum one light on scene only (night - decrease strength)
     float gloabalTime = 0.f;
