@@ -1,5 +1,4 @@
 #include "SceneFactoryBase.h"
-#include "GameEngine/Resources/ResourceManager.h"
 #include "Logger/Log.h"
 #include "Scene.hpp"
 
@@ -59,11 +58,16 @@ void SceneFactoryBase::SetMenagersAndApi(Scene* scene)
         return;
     }
 
-    scene->CreateResourceManger(new ResourceManager(*graphicsApi_));
-    scene->SetDisplayManager(displayManager_);
-    scene->SetRenderersManager(rendererMandager_);
-    scene->SetInputManager(input_);
-    scene->SetPhysicsApi(*physicsApi_);
+    SceneInitContext context
+    {
+        graphicsApi_,
+        input_,
+        displayManager_,
+        rendererMandager_,
+        physicsApi_
+    };
+
+    scene->InitResources(context);
 }
 void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)
 {

@@ -283,10 +283,10 @@ int MainScene::Update(float dt)
         // std::to_string(dayNightCycle.GetCurrentHour().x) +
         //":" + std::to_string(dayNightCycle.GetCurrentHour().y);
 
-        GuiText("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
-        GuiText("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
+        guiManager_->Get<GuiTextElement>("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
+        guiManager_->Get<GuiTextElement>("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
 
-        ReadGuiFile(GUI_FILE);
+        guiElementFactory_->ReadGuiFile(GUI_FILE);
     }
 
     // dayNightCycle.Update(deltaTime);
@@ -350,7 +350,7 @@ void MainScene::KeyOperations()
     });
 
     inputManager_->SubscribeOnKeyUp(KeyCodes::G, [&]() {
-        ReadGuiFile(GUI_FILE);
+        guiElementFactory_->ReadGuiFile(GUI_FILE);
     });
 
     auto rm = renderersManager_;
@@ -629,27 +629,27 @@ void MainScene::InitGui()
     auto fontSize = 20;
     auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
 
-    CreateGuiText("rendererFps", fontPath, "rendererFps", fontSize, 0);
-    GuiText("rendererFps")->SetPostion(vec2(-0.75, 0.9));
-    GuiText("rendererFps")->SetColor(vec3(.8f));
+    guiElementFactory_->CreateGuiText("rendererFps", fontPath, "rendererFps", fontSize, 0);
+    guiManager_->GetElement("rendererFps")->SetPostion(vec2(-0.75, 0.9));
+    guiManager_->Get<GuiTextElement>("rendererFps")->SetColor(vec3(.8f));
 
-    CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
-    GuiText("playerPos")->SetPostion(vec2(-0.5, -0.9));
-    GuiText("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
+    guiElementFactory_->CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
+    guiManager_->GetElement("playerPos")->SetPostion(vec2(-0.5, -0.9));
+    guiManager_->GetElement("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
     std::cout << __FUNCTION__ << "1" << std::endl;
-    auto window = CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/grayWindow.png");
+    auto window = guiElementFactory_->CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/grayWindow.png");
 
-    auto windowText1 = CreateGuiText("testWindow_text1", fontPath, "This is example text.", fontSize, 0);
-    GuiText("testWindow_text1")->SetPostion(vec2(0, 0));
-    GuiText("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
+    auto windowText1 = guiElementFactory_->CreateGuiText("testWindow_text1", fontPath, "This is example window.", fontSize, 0);
+    guiManager_->GetElement("testWindow_text1")->SetPostion(vec2(-0.0, 0.225));
+    guiManager_->GetElement("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
 
     window->AddChild(std::move(windowText1));
 
     std::cout << __FUNCTION__ << "2" << std::endl;
 
-    CreateGuiTexture("testTexture", "GUI/BENGINE.png");
-    GuiTexture("testTexture")->SetPostion(vec2(0.5, -0.65));
+    guiElementFactory_->CreateGuiTexture("testTexture", "GUI/BENGINE.png");
+    guiManager_->GetElement("testTexture")->SetPostion(vec2(0.5, -0.65));
 
-    ReadGuiFile(GUI_FILE);
+    guiElementFactory_->ReadGuiFile(GUI_FILE);
 }

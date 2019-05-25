@@ -11,19 +11,20 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "GameEngine/Renderers/GUI/GuiContext.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextFactory.h"
+//#include "GameEngine/Renderers/GUI/GuiContext.h"
+#include <GraphicsApi/IGraphicsApi.h>
+#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
+#include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
-#include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "SceneEvents.h"
+#include "SceneInitContext.h"
 #include "Types.h"
-#include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 
 namespace Input
 {
 class InputManager;
-}
+}  // namespace Input
 
 namespace GameEngine
 {
@@ -46,6 +47,7 @@ public:
     Scene(const std::string& name);
     virtual ~Scene();
 
+    void InitResources(SceneInitContext&);
     void Init();
     void PostInit();
     void FullUpdate(float deltaTime);
@@ -82,29 +84,13 @@ public:
     inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
 
-    void CreateResourceManger(IResourceManager* resourceManager);
-    void SetInputManager(Input::InputManager* input);
-    void SetRenderersManager(Renderer::RenderersManager* manager);
-    void SetDisplayManager(DisplayManager* displayManager);
-    void SetPhysicsApi(Physics::IPhysicsApi& physicsApi);
     void SaveToFile(const std::string& filename);
     void LoadFromFile(const std::string& filename);
-
-public:
-    void ReadGuiFile(const std::string& filename);
-    GuiTextElement* CreateGuiText(const std::string& label, const std::string& font, const std::string& str, uint32 size, uint32 outline);
-    GuiTextureElement* CreateGuiTexture(const std::string& label, const std::string& filename);
-    GuiWindowElement* CreateGuiWindow(const std::string& label, const Rect&, const std::string& background);
-    GuiTextElement* GuiText(const std::string& label);
-    GuiTextureElement* GuiTexture(const std::string& label);
 
 public:
     uint32 objectCount;
 
 protected:
-    void MakeGuiManager(std::function<void(GuiElement&)>);
-    std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string& filename);
-
     virtual int Initialize();
     virtual void PostInitialize();
     virtual int Update(float /*deltaTime*/);
@@ -132,7 +118,7 @@ protected:
     GameObjects gameObjects;
 
     Time time_;
-    std::unique_ptr<IGuiTextFactory> guiTextFactory_;
+
     std::shared_ptr<IResourceManager> resourceManager_;
     Components::ComponentController componentController_;
     std::unique_ptr<Components::IComponentFactory> componentFactory_;
@@ -140,7 +126,9 @@ protected:
     std::atomic_bool simulatePhysics_;
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
 
-    std::string lastGuiFileMd5Value_;
+private:
+    void MakeGuiManager(std::function<void(GuiElement&)>);
+    void CreateResourceManger(GraphicsApi::IGraphicsApi&);
 };
 
 const std::string& Scene::GetName() const
@@ -182,19 +170,5 @@ inline float Scene::GetGlobalTime() const
 inline const Time& Scene::GetTime() const
 {
     return time_;
-}
-
-inline void Scene::SetInputManager(Input::InputManager* input)
-{
-    inputManager_ = input;
-} 
-
-inline void Scene::SetDisplayManager(DisplayManager* displayManager)
-{
-    displayManager_ = displayManager;
-}
-inline void Scene::SetPhysicsApi(Physics::IPhysicsApi& physicsApi)
-{
-    physicsApi_ = &physicsApi;
 }
 }  // namespace GameEngine

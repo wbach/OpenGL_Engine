@@ -1,6 +1,6 @@
 #include "GuiButton.h"
-#include "Renderers/GUI/Text/GuiTextElement.h"
-#include "Renderers/GUI/Texutre/GuiTextureElement.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 
 namespace GameEngine
 {

@@ -39,7 +39,7 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
 
 void GuiWindowElement::AddChild(GuiElement* element)
 {
-    UpdatePosition(*element, rect_.position);
+    UpdatePosition(*element, position_);
     children_.push_back(element);
 
     inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
