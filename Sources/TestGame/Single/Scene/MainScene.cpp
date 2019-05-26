@@ -28,6 +28,7 @@
 #include "GraphicsApi/BlendFunctionsTypes.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "Renderers/GUI/Window/GuiWindow.h"
+#include "Renderers/GUI/Button/GuiButton.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
 
@@ -645,6 +646,23 @@ void MainScene::InitGui()
     guiManager_->GetElement("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
 
     window->AddChild(std::move(windowText1));
+
+    auto button = guiElementFactory_->CreateGuiButton("TEST_BUTTON_1", []() {std::cout << "BUTTON pressed." << std::endl; });
+    button->SetScale(vec2(0.1, 0.05));
+    button->SetPostion(vec2(0.25, 0.4));
+
+    auto buttonText = guiElementFactory_->CreateGuiText("button_test_text", fontPath, "Test button 1.", fontSize, 0);
+    guiManager_->GetElement("button_test_text")->SetColor(vec3(.1f, 0.1f, 0.1f));
+    button->SetText(buttonText);
+
+    auto buttonTexture = guiElementFactory_->CreateGuiTexture("buttonTexture", "GUI/button.png");
+    button->SetBackgroundTexture(buttonTexture);
+
+    auto hoverButtonTexture = guiElementFactory_->CreateGuiTexture("hoverButtonTexture", "GUI/button_yellow.png");
+    button->SetOnHoverTexture(hoverButtonTexture);
+
+    auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("activeButtonTexture", "GUI/button_green.png");
+    button->SetOnActiveTexture(activeButtonTexture);
 
     std::cout << __FUNCTION__ << "2" << std::endl;
 

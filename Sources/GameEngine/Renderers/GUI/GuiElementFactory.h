@@ -36,8 +36,7 @@ public:
     GuiTextElement* CreateGuiText(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiTextureElement* CreateGuiTexture(const std::string&, const std::string&);
     GuiWindowElement* CreateGuiWindow(const std::string&, const Rect&, const std::string&);
-    GuiButtonElement* CreateGuiButton(std::function<void()>, const std::string*, const std::string* = nullptr,
-                                      const std::string* = nullptr, const std::string* = nullptr);
+    GuiButtonElement* CreateGuiButton(const std::string &label, std::function<void()>);
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);

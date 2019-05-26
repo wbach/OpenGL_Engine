@@ -58,39 +58,12 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
     return result;
 }
 
-GuiButtonElement *GuiElementFactory::CreateGuiButton(std::function<void()> onClick, const std::string *text,
-                                                     const std::string *backgroundTexture,
-                                                     const std::string *hoverTexture, const std::string *activeTexture)
+GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &label, std::function<void()> onClick)
 {
-    GuiElement *bg{nullptr};
-    GuiElement *hv{nullptr};
-    GuiElement *ac{nullptr};
-
-    if (backgroundTexture)
-    {
-        auto texture = MakeGuiTexture(*backgroundTexture);
-        bg           = texture.get();
-        guiManager_.Add("bgTexture", std::move(texture));
-    }
-
-    if (hoverTexture)
-    {
-        auto texture = MakeGuiTexture(*hoverTexture);
-        hv           = texture.get();
-        guiManager_.Add("hvTexture", std::move(texture));
-    }
-
-    if (activeTexture)
-    {
-        auto texture = MakeGuiTexture(*activeTexture);
-        ac           = texture.get();
-        guiManager_.Add("acTexture", std::move(texture));
-    }
-
     auto button = std::make_unique<GuiButtonElement>(inputManager_, onClick, windowSize_);
-    // button->SetText(text);
-
-    return nullptr;
+    auto result = button.get();
+    guiManager_.Add(label, std::move(button));
+    return result;
 }
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)

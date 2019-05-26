@@ -30,7 +30,6 @@ public:
     const Rect& GetRect() const;
     const vec2& GetScale() const;
     const vec2& GetPosition() const;
-    void SetWindowSize(const vec2ui& size);
 
 public:
     GuiElementTypes GetType() const;

@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 #include <functional>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
+#include <Utils/Time/Timer.h>
 
 namespace GameEngine
 {
@@ -20,6 +21,9 @@ public:
     void SetOnHoverTexture(GuiTextureElement*);
     void SetOnActiveTexture(GuiTextureElement*);
 
+    void SetHoverTextColor(const vec3& color);
+    void SetActiveTextColor(const vec3& color);
+
 private:
     Input::InputManager& inputManager_;
     OnClick onClick_;
@@ -28,11 +32,11 @@ private:
     GuiTextureElement* onHoverTexture_;
     GuiTextureElement* onActiveTextue_;
 
-    vec3 onHoverTextColor;
-    vec3 onActiveTextColor;
+    vec3 backgroundTextColor_;
+    vec3 onHoverTextColor_;
+    vec3 onActiveTextColor_;
 
-    vec3 onHoverTextureColor;
-    vec3 onActiveTextureColor;
+    Utils::Timer activeTimer_;
 
 public:
     static GuiElementTypes type;

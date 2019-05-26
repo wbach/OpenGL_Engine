@@ -4,8 +4,14 @@ namespace Utils
 {
 Timer::Timer()
 {
+    Reset();
+}
+
+void Timer::Reset()
+{
     start_ = std::chrono::high_resolution_clock::now();
 }
+
 uint64 Timer::GetTimeNanoseconds()
 {
     auto now = std::chrono::high_resolution_clock::now();

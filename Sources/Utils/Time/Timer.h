@@ -10,6 +10,7 @@ public:
     Timer();
     uint64 GetTimeNanoseconds();
     uint64 GetTimeMiliSeconds();
+    void Reset();
 
 private:
     Timepoint start_;
