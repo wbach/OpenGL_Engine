@@ -105,6 +105,15 @@ glm::mat4 Utils::CreateTransformationMatrix(const glm::vec2& translation, const 
     return matrix;
 }
 
+glm::mat4 Utils::CreateTransformationMatrix(const glm::vec3& translation, const glm::vec2 & scale, const float & rotation)
+{
+    glm::mat4 matrix = glm::mat4(1.0);
+    matrix *= glm::translate(translation);
+    matrix *= glm::rotate(rotation, 0.0f, 0.0f, 1.0f);
+    matrix *= glm::scale(glm::vec3(scale, 1.0f));
+    return matrix;
+}
+
 void Utils::CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max,
                                 glm::vec3& bounding_size, glm::vec3& bounding_center)
 {

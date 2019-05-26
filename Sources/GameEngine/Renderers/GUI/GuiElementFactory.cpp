@@ -50,6 +50,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
 
     auto result               = guiWindow.get();
     auto backgroundGuiTexture = MakeGuiTexture(background);
+    backgroundGuiTexture->SetZPosition(0.1);
     backgroundGuiTexture->SetScale(guiWindow->GetScale());
     guiWindow->AddChild(backgroundGuiTexture.get());
     guiManager_.Add(label, std::move(backgroundGuiTexture));

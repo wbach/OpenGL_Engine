@@ -649,7 +649,7 @@ void MainScene::InitGui()
 
     auto button = guiElementFactory_->CreateGuiButton("TEST_BUTTON_1", []() {std::cout << "BUTTON pressed." << std::endl; });
     button->SetScale(vec2(0.1, 0.05));
-    button->SetPostion(vec2(0.25, 0.4));
+    button->SetPostion(vec2(-0.125, 0.15));
 
     auto buttonText = guiElementFactory_->CreateGuiText("button_test_text", fontPath, "Test button 1.", fontSize, 0);
     guiManager_->GetElement("button_test_text")->SetColor(vec3(.1f, 0.1f, 0.1f));
@@ -664,6 +664,7 @@ void MainScene::InitGui()
     auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("activeButtonTexture", "GUI/button_green.png");
     button->SetOnActiveTexture(activeButtonTexture);
 
+    window->AddChild(button);
     std::cout << __FUNCTION__ << "2" << std::endl;
 
     guiElementFactory_->CreateGuiTexture("testTexture", "GUI/BENGINE.png");

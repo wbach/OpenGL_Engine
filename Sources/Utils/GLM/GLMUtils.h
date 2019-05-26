@@ -44,6 +44,7 @@ glm::mat4 CreateOffset();
 mat4 CreateOrthoProjectionMatrix(float width, float height, float length);
 mat4 CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center);
 glm::mat4 CreateTransformationMatrix(const glm::vec2& translation, const glm::vec2& scale, const float& rotation = 0.f);
+glm::mat4 CreateTransformationMatrix(const glm::vec3& translation, const glm::vec2& scale, const float& rotation = 0.f);
 glm::mat4 CreateTransformationMatrix(const glm::vec3& translation = glm::vec3(.0f),
                                      const glm::vec3& rotation    = glm::vec3(.0f),
                                      const glm::vec3& scale       = glm::vec3(1.f));

@@ -14,22 +14,23 @@ public:
 
 public:
     virtual void Update();
-    bool IsCollision(const vec2ui&) const;
-    bool IsCollision(const vec2&) const;
-    std::optional<vec2> GetCollisionPoint(const vec2&) const;
-    void SetRect(const Rect& rect);
-    void SetSize(const vec2ui& size);
-    void SetScale(const vec2& scale);
-    void SetPostion(const vec2& position);
-    void SetPostion(const vec2ui& position);
-    void Rotate(float r);
-    void Show(bool);
-    void Show();
-    void Hide();
-    void SetColor(const vec3& color);
+    virtual bool IsCollision(const vec2ui&) const;
+    virtual bool IsCollision(const vec2&) const;
+    virtual std::optional<vec2> GetCollisionPoint(const vec2&) const;
+    virtual void SetRect(const Rect& rect);
+    virtual void SetSize(const vec2ui& size);
+    virtual void SetScale(const vec2& scale);
+    virtual void SetPostion(const vec2& position);
+    virtual void SetPostion(const vec2ui& position);
+    virtual void Rotate(float r);
+    virtual void Show(bool);
+    virtual void Show();
+    virtual void Hide();
+    virtual void SetColor(const vec3& color);
     const Rect& GetRect() const;
     const vec2& GetScale() const;
     const vec2& GetPosition() const;
+    void SetZPosition(float z);
 
 public:
     GuiElementTypes GetType() const;
@@ -53,6 +54,7 @@ protected:
     vec2ui windowSize_;
     Rect rect_;
     vec2 position_;
+    float zPosition_;
     vec2 scale_;
     vec3 color_;
     mat4 transformMatrix_;

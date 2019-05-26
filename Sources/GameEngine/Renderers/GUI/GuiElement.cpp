@@ -18,6 +18,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , windowSize_{windowSize}
     , rect_{{0, 0}, {100, 100}}
     , position_{0, 0}
+    , zPosition_{0}
     , scale_{0.25, 0.25}
     , color_{1, 1, 1}
     , transformMatrix_(1.f)
@@ -113,6 +114,11 @@ const vec2& GuiElement::GetPosition() const
 {
     return position_;
 }
+void GuiElement::SetZPosition(float z)
+{
+    zPosition_ = z;
+    CalculateMatrix();
+}
 GuiElementTypes GuiElement::GetType() const
 {
     return type_;
@@ -131,7 +137,7 @@ const vec3& GuiElement::GetColor() const
 }
 void GuiElement::CalculateMatrix()
 {
-    transformMatrix_ = Utils::CreateTransformationMatrix(position_, scale_, rotation_);
+    transformMatrix_ = Utils::CreateTransformationMatrix(vec3(position_, zPosition_), scale_, rotation_);
 }
 void GuiElement::CaclulateScaleBasedOnRect()
 {

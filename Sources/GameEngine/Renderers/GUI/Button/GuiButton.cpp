@@ -30,6 +30,11 @@ GuiButtonElement::GuiButtonElement(Input::InputManager &inputManager, OnClick on
 
 void GuiButtonElement::Update()
 {
+    if (not IsShow())
+    {
+        return;
+    }
+
     auto position = inputManager_.GetMousePosition();
 
     if (activeTimer_.GetTimeMiliSeconds() < SHOW_ACTIVE_TIME)
@@ -108,6 +113,132 @@ void GuiButtonElement::SetHoverTextColor(const vec3 &color)
 void GuiButtonElement::SetActiveTextColor(const vec3 &color)
 {
     onActiveTextColor_ = color;
+}
+
+void GuiButtonElement::SetRect(const Rect &rect)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetRect(rect);
+    if (onActiveTextue_)
+        onActiveTextue_->SetRect(rect);
+    if (backgroundTexture_)
+        backgroundTexture_->SetRect(rect);
+    if (text_)
+        text_->SetRect(rect);
+
+    GuiElement::SetRect(rect);
+}
+
+void GuiButtonElement::SetSize(const vec2ui &size)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetSize(size);
+    if (onActiveTextue_)
+        onActiveTextue_->SetSize(size);
+    if (backgroundTexture_)
+        backgroundTexture_->SetSize(size);
+    if (text_)
+        text_->SetSize(size);
+
+    GuiElement::SetSize(size);
+}
+
+void GuiButtonElement::SetScale(const vec2 &scale)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetScale(scale);
+    if (onActiveTextue_)
+        onActiveTextue_->SetScale(scale);
+    if (backgroundTexture_)
+        backgroundTexture_->SetScale(scale);
+    if (text_)
+        text_->SetScale(scale);
+
+    GuiElement::SetScale(scale);
+}
+
+void GuiButtonElement::SetPostion(const vec2 &position)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetPostion(position);
+    if (onActiveTextue_)
+        onActiveTextue_->SetPostion(position);
+    if (backgroundTexture_)
+        backgroundTexture_->SetPostion(position);
+    if (text_)
+        text_->SetPostion(position);
+
+    GuiElement::SetPostion(position);
+}
+
+void GuiButtonElement::SetPostion(const vec2ui &position)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetPostion(position);
+    if (onActiveTextue_)
+        onActiveTextue_->SetPostion(position);
+    if (backgroundTexture_)
+        backgroundTexture_->SetPostion(position);
+    if (text_)
+        text_->SetPostion(position);
+
+    GuiElement::SetPostion(position);
+}
+
+void GuiButtonElement::Rotate(float r)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->Rotate(r);
+    if (onActiveTextue_)
+        onActiveTextue_->Rotate(r);
+    if (backgroundTexture_)
+        backgroundTexture_->Rotate(r);
+    if (text_)
+        text_->Rotate(r);
+
+    GuiElement::Rotate(r);
+}
+
+void GuiButtonElement::Show(bool b)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->Show(b);
+    if (onActiveTextue_)
+        onActiveTextue_->Show(b);
+    if (backgroundTexture_)
+        backgroundTexture_->Show(b);
+    if (text_)
+        text_->Show(b);
+
+    GuiElement::Show(b);
+}
+
+void GuiButtonElement::Show()
+{
+    if (onHoverTexture_)
+        onHoverTexture_->Show();
+    if (onActiveTextue_)
+        onActiveTextue_->Show();
+    if (backgroundTexture_)
+        backgroundTexture_->Show();
+    if (text_)
+        text_->Show();
+
+    GuiElement::Show();
+}
+
+void GuiButtonElement::Hide()
+{
+    if (onHoverTexture_)
+        onHoverTexture_->Hide();
+    if (onActiveTextue_)
+        onActiveTextue_->Hide();
+    if (backgroundTexture_)
+        backgroundTexture_->Hide();
+    if (text_)
+        text_->Hide();
+
+    GuiElement::Hide();
 }
 
 }  // namespace GameEngine

@@ -24,6 +24,16 @@ public:
     void SetHoverTextColor(const vec3& color);
     void SetActiveTextColor(const vec3& color);
 
+    void SetRect(const Rect& rect) override;
+    void SetSize(const vec2ui& size) override;
+    void SetScale(const vec2& scale) override;
+    void SetPostion(const vec2& position) override;
+    void SetPostion(const vec2ui& position) override;
+    void Rotate(float r) override;
+    void Show(bool) override;
+    void Show() override;
+    void Hide() override;
+
 private:
     Input::InputManager& inputManager_;
     OnClick onClick_;
