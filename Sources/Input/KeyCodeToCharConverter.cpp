@@ -63,20 +63,20 @@ std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::bigCharKeys =
 { KeyCodes::M, 'M' }
 };
 // clang-format on
-char KeyCodeToCharConverter::Convert(KeyCodes::Type t, SingleCharType type)
+std::optional<char> KeyCodeToCharConverter::Convert(KeyCodes::Type t, SingleCharType type)
 {
     if (type == SingleCharType::SMALL)
     {
         if (smallCharKeys.count(t) == 0)
-            return 0;
+            return {};
 
-        return smallCharKeys[t];
+        return smallCharKeys.at(t);
     }
 
     if (bigCharKeys.count(t) == 0)
-        return 0;
+        return {};
 
-    return bigCharKeys[t];
+    return bigCharKeys.at(t);
 }
 KeyCodes::Type KeyCodeToCharConverter::Convert(char ch)
 {

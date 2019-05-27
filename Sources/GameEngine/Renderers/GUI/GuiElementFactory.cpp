@@ -19,8 +19,8 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
     , windowSize_(entryParameters.windowSize_)
-    , guiElementCounter_(0)
     , guiTextFactory_(entryParameters.resourceManager_, EngineConf.renderer.resolution)
+    , guiElementCounter_(0)
 {
 }
 

@@ -40,25 +40,23 @@ struct EntityRendererShould : public BaseComponentTestSchould
         , shadowFrameBufferMock_()
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, graphicsMock_)
-        , context_(projection_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, shaderFactoryMock_,
-                   std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
+        , context_(projection_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, shaderFactoryMock_, std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
     {
     }
     void SetUp()
     {
         scene_.SetCamera(std::move(camera_));
-        resourceManagerMock_ = new ResourceManagerMock();
-        EXPECT_CALL(*resourceManagerMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(graphicsMock_));
+        EXPECT_CALL(resourceManagerMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(graphicsMock_));
         EXPECT_CALL(graphicsMock_, GetWindowApi()).WillRepeatedly(ReturnRef(windowApiMock_));
 
-        scene_.CreateResourceManger(resourceManagerMock_);
+        SceneInitContext sceneInitContext{&graphicsMock_, nullptr, nullptr, &renderersManager_, &physicsApiMock_};
+
         context_.projection_.CreateProjectionMatrix();
 
         shaderProgramMock_ = new ShaderProgramMock();
         EXPECT_CALL(shaderFactoryMock_, createImpl(Shaders::Entity)).WillOnce(Return(shaderProgramMock_));
 
-        scene_.SetRenderersManager(&renderersManager_);
-        scene_.SetPhysicsApi(physicsApiMock_);
+        scene_.InitResources(sceneInitContext);
         scene_.Init();
         sut_.reset(new EntityRenderer(context_));
     }
@@ -83,10 +81,10 @@ struct EntityRendererShould : public BaseComponentTestSchould
     void AddGameObject()
     {
         EXPECT_CALL(graphicsMock_, PrepareMatrixToLoad(_)).WillRepeatedly(Return(INDENITY_MATRIX));
-        EXPECT_CALL(*resourceManagerMock_, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock_));
+        EXPECT_CALL(resourceManagerMock_, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock_));
         CreateModel();
         EXPECT_CALL(gpuResourceLoaderMock_, AddObjectToGpuLoadingPass(_)).Times(2);
-        EXPECT_CALL(*resourceManagerMock_, LoadModel(_)).WillOnce(Return(&model_));
+        EXPECT_CALL(resourceManagerMock_, LoadModel(_)).WillOnce(Return(&model_));
 
         auto entity = scene_.CreateGameObject();
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
@@ -108,7 +106,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
     GraphicsApi::GraphicsApiMock graphicsMock_;
     ShaderProgramMock* shaderProgramMock_;
     ShaderFactoryMock shaderFactoryMock_;
-    ResourceManagerMock* resourceManagerMock_;
+    ResourceManagerMock resourceManagerMock_;
     Projection projection_;
     FrameBufferMock frameBufferMock_;
     ShadowFrameBufferMock shadowFrameBufferMock_;

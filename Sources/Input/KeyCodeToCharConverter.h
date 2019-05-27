@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <optional>
 #include "KeyCodes.h"
 
 namespace Input
@@ -13,7 +14,7 @@ enum SingleCharType
 class KeyCodeToCharConverter
 {
 public:
-    static char Convert(KeyCodes::Type, SingleCharType = SingleCharType::SMALL);
+    static std::optional<char> Convert(KeyCodes::Type, SingleCharType = SingleCharType::SMALL);
     static KeyCodes::Type Convert(char);
 
 private:

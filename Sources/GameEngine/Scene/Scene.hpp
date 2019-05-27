@@ -119,7 +119,7 @@ protected:
 
     Time time_;
 
-    std::shared_ptr<IResourceManager> resourceManager_;
+    std::unique_ptr<IResourceManager> resourceManager_;
     Components::ComponentController componentController_;
     std::unique_ptr<Components::IComponentFactory> componentFactory_;
 

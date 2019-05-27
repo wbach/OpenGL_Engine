@@ -19,13 +19,13 @@ LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddr
 
     vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);
 
-    //guiLogin_.text     = "Login :";
-    //guiLogin_.colour   = textColor;
-    //guiLogin_.position = glm::vec2(-0.249091, 0.051429);
+    // guiLogin_.text     = "Login :";
+    // guiLogin_.colour   = textColor;
+    // guiLogin_.position = glm::vec2(-0.249091, 0.051429);
 
-    //guiPass_.text     = "Password :";
-    //guiPass_.colour   = textColor;
-    //guiPass_.position = glm::vec2(-0.249091, -0.262857);
+    // guiPass_.text     = "Password :";
+    // guiPass_.colour   = textColor;
+    // guiPass_.position = glm::vec2(-0.249091, -0.262857);
 }
 int LoginScene::Initialize()
 {
@@ -62,8 +62,8 @@ int LoginScene::Initialize()
         std::string* tmp = loginOrPasswordInput ? &password_ : &login_;
         auto c           = Input::KeyCodeToCharConverter::Convert(key);
 
-        if (c != 0)
-            (*tmp) += c;
+        if (c)
+            (*tmp) += *c;
     });
 
     return 0;
@@ -82,8 +82,8 @@ int LoginScene::Update(float deltaTime)
 
 void LoginScene::PrintLoginAndPassword()
 {
-    //renderersManager_->GuiText("login").text = login_ + ((!loginOrPasswordInput && showCursor_) ? "_" : "");
-    //renderersManager_->GuiText("pass").text  = PasswordToStars() + ((loginOrPasswordInput && showCursor_) ? "_" : "");
+    // renderersManager_->GuiText("login").text = login_ + ((!loginOrPasswordInput && showCursor_) ? "_" : "");
+    // renderersManager_->GuiText("pass").text  = PasswordToStars() + ((loginOrPasswordInput && showCursor_) ? "_" : "");
 }
 
 void LoginScene::ConnectToServer()
@@ -95,11 +95,11 @@ void LoginScene::ConnectToServer()
 
     if (!isConnected)
     {
-        //renderersManager_->GuiText("Error").text = "Connection Error.";
+        // renderersManager_->GuiText("Error").text = "Connection Error.";
         return;
     }
 
-   // renderersManager_->GuiText("Error").text = "Connected.";
+    // renderersManager_->GuiText("Error").text = "Connected.";
     GameEngine::SceneEvent e(GameEngine::SceneEventType::LOAD_NEXT_SCENE);
     addSceneEvent(e);
 }
@@ -121,4 +121,4 @@ void LoginScene::SwapCursor()
     showCursor_ = !showCursor_;
 }
 
-}  // MmmoRpg
+}  // namespace MmmoRpg

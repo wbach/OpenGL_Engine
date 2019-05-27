@@ -4,27 +4,22 @@ namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font)
     : GuiTextElement(updateTexture, windowApi, windowSize, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str)
     : GuiTextElement(updateTexture, windowApi, windowSize, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
     : GuiTextElement(updateTexture, windowApi, windowSize, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
-                               uint32 outline)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline)
     : GuiElement(type, windowSize)
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
@@ -64,6 +59,24 @@ void GuiTextElement::SetText(const std::string& text)
         return;
 
     text_ = text;
+    RenderText();
+}
+
+void GuiTextElement::Append(const std::string& text)
+{
+    text_ = text_ + text;
+    RenderText();
+}
+
+void GuiTextElement::Append(char c)
+{
+    text_ = text_ + c;
+    RenderText();
+}
+
+void GuiTextElement::Pop()
+{
+    text_.pop_back();
     RenderText();
 }
 

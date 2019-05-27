@@ -63,8 +63,9 @@ void Scene::InitResources(SceneInitContext& context)
 
     MakeGuiManager([context](auto& element) { context.renderersManager->GetGuiRenderer().Subscribe(element); });
 
-    guiElementFactory_ = std::make_unique<GuiElementFactory>(GuiElementFactory::EntryParameters{
-        *guiManager_, *inputManager_, *resourceManager_, renderersManager_->GetProjection().GetWindowSize()});
+    GuiElementFactory::EntryParameters guiFactoryParams{
+            *guiManager_, *inputManager_, *resourceManager_, renderersManager_->GetProjection().GetWindowSize()};
+    guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
 }
 
 void Scene::Init()

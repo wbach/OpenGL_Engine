@@ -31,6 +31,9 @@ public:
     void SetTexture(Texture*);
     void UnsetTexture();
     void SetText(const std::string&);
+    void Append(const std::string&);
+    void Append(char);
+    void Pop();
     void SetFontSize(uint32 size);
     void SetOutline(uint32 outline);
     void SetFont(const std::string& font);
