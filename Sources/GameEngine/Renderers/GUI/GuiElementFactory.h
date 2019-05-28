@@ -1,7 +1,7 @@
 #pragma once
+#include <Types.h>
 #include <functional>
 #include <memory>
-#include <Types.h>
 #include "GuiElement.h"
 #include "Text/GuiTextFactory.h"
 
@@ -19,6 +19,7 @@ class GuiButtonElement;
 class GuiTextureElement;
 class GuiWindowElement;
 class GuiTextElement;
+class GuiEditBoxElement;
 
 class GuiElementFactory
 {
@@ -36,7 +37,9 @@ public:
     GuiTextElement* CreateGuiText(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiTextureElement* CreateGuiTexture(const std::string&, const std::string&);
     GuiWindowElement* CreateGuiWindow(const std::string&, const Rect&, const std::string&);
-    GuiButtonElement* CreateGuiButton(const std::string &label, std::function<void()>);
+    GuiButtonElement* CreateGuiButton(const std::string& label, std::function<void()>);
+    GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, const std::string&, uint32, uint32);
+    GuiEditBoxElement* CreateEditBox(const std::string&, GuiTextElement*);
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);

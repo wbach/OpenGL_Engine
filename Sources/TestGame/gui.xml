@@ -37,4 +37,46 @@
         <color x="1.000000" y="1.000000" z="1.000000"></color>
         <active>true</active>
     </texture>
+    <window>
+    <label>testWindow</label>
+    <background>GUI/grayWindow.png</background>
+        <button>
+            <label>testButton</label>
+            <action>PrintSampleText()</action>
+            <text>
+                <label>text</label>
+                <value>Click me</value>
+                <font>GUI/Ubuntu-M.ttf</font>
+                <fontSize>20</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>backgroundTexture</label>
+                <file>GUI/button.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <editBox>
+            <text>
+                <label>edit_text</label>
+                <value>Enter text</value>
+                <font>GUI/Ubuntu-M.ttf</font>
+                <fontSize>20</fontSize>
+                <outline>0</outline>
+                <color x="0.90000" y="0.800000" z="0.800000"></color>
+                <position x="0.8000" y="0.950000"></position>
+                <active>true</active>
+            </text>
+        </editBox>
+    </window>
 </gui>
