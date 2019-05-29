@@ -39,15 +39,19 @@
     </texture>
     <window>
     <label>testWindow</label>
+    <position x="0.0000" y="0.5"></position>
+    <scale x="0.250000" y="0.250000"></scale>
     <background>GUI/grayWindow.png</background>
         <button>
             <label>testButton</label>
+            <position x="-0.1000" y="0.1000"></position>
+            <scale x="0.1000" y="0.05000"></scale>
             <action>PrintSampleText()</action>
             <text>
                 <label>text</label>
                 <value>Click me</value>
                 <font>GUI/Ubuntu-M.ttf</font>
-                <fontSize>20</fontSize>
+                <fontSize>25</fontSize>
                 <outline>0</outline>
             </text>
             <texture>
@@ -67,14 +71,14 @@
             </texture>
         </button>
         <editBox>
+            <position x="-0.18" y="-0.1"></position>
             <text>
                 <label>edit_text</label>
                 <value>Enter text</value>
                 <font>GUI/Ubuntu-M.ttf</font>
-                <fontSize>20</fontSize>
+                <fontSize>30</fontSize>
                 <outline>0</outline>
-                <color x="0.90000" y="0.800000" z="0.800000"></color>
-                <position x="0.8000" y="0.950000"></position>
+                <color x="0.20000" y="0.200000" z="0.200000"></color>
                 <active>true</active>
             </text>
         </editBox>

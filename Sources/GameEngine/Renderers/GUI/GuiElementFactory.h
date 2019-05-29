@@ -37,6 +37,7 @@ public:
     GuiTextElement* CreateGuiText(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiTextureElement* CreateGuiTexture(const std::string&, const std::string&);
     GuiWindowElement* CreateGuiWindow(const std::string&, const Rect&, const std::string&);
+    GuiWindowElement* CreateGuiWindow(const std::string&, const vec2&, const vec2&, const std::string&);
     GuiButtonElement* CreateGuiButton(const std::string& label, std::function<void()>);
     GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiEditBoxElement* CreateEditBox(const std::string&, GuiTextElement*);

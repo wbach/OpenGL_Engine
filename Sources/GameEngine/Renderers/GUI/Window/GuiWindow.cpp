@@ -77,4 +77,9 @@ void GuiWindowElement::Update()
     }
 }
 
+void GuiWindowElement::SetScale(const vec2& scale)
+{
+    GuiElement::SetScale(scale);
+}
+
 }  // namespace GameEngine
