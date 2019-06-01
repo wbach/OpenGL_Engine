@@ -1,5 +1,5 @@
 #version 430
-#define HEIGHT_FACTOR 1600
+#define HEIGHT_FACTOR 800
 layout(quads, fractional_odd_spacing, cw) in;
 
 uniform sampler2D heightmap;
@@ -16,7 +16,7 @@ vec3 calculateNormal(vec3 position, vec2 texCoord)
     {
         return vec3(0, 1, 0);
     }
-    
+
     // z0 -- z1 -- z2
     // |     |     |
     // z3 -- h  -- z4

@@ -20,7 +20,8 @@ enum class ComponentsType
     Skydome,
     Grass,
     TerrainRenderer,
-    TerrainMeshRenderer
+    TerrainMeshRenderer,
+    Water
 };
 }  // namespace Components
 }  // namespace GameEngine

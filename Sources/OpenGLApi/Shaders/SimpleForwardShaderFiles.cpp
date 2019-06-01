@@ -103,8 +103,8 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simple
     { 
         GraphicsApi::Shaders::Water,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/Forward/TreeShader.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/TreeShader.frag"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/simpleWater.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/simpleWater.frag"}
         }
     },
     { 

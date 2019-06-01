@@ -10,8 +10,8 @@ const int BC = 3;
 const int CD = 0;
 const int DA = 1;
 
-const int tessellationFactor = 600;
-const float tessellationSlope = 1.8f;
+const int tessellationFactor = 1600;
+const float tessellationSlope = 1.0f;
 const float tessellationShift = 0.1f;
 
 uniform vec3 cameraPosition;

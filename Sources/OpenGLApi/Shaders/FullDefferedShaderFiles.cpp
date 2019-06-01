@@ -104,8 +104,8 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> fullDe
     {
         GraphicsApi::Shaders::Water,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/TreeShader.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/TreeShader.frag"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/simpleWater.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/simpleWater.frag"}
         }
     },
     {

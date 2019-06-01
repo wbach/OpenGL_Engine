@@ -29,17 +29,9 @@
         <position x="0.8000" y="0.950000"></position>
         <active>true</active>
     </text>
-    <texture>
-        <label>testTexture</label>
-        <file>GUI/BENGINE.png</file>
-        <position x="-0.74000" y="0.740000"></position>
-        <scale x="0.250000" y="0.250000"></scale>
-        <color x="1.000000" y="1.000000" z="1.000000"></color>
-        <active>true</active>
-    </texture>
     <window>
     <label>testWindow</label>
-    <position x="0.0000" y="0.5"></position>
+    <position x="0.75000" y="0.75"></position>
     <scale x="0.250000" y="0.250000"></scale>
     <background>GUI/grayWindow.png</background>
         <button>
