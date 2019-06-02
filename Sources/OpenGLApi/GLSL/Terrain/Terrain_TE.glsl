@@ -1,5 +1,7 @@
 #version 430
 #define HEIGHT_FACTOR 800
+#define HEIGHT_MAP_SIZE 513.0
+
 layout(quads, fractional_odd_spacing, cw) in;
 
 uniform sampler2D heightmap;
@@ -23,7 +25,7 @@ vec3 calculateNormal(vec3 position, vec2 texCoord)
     // |     |     |
     // z5 -- z6 -- z7
 
-    float texelSize = 1.0/256.0;
+    float texelSize = 1.0/ HEIGHT_MAP_SIZE;
 
     float z0 = texture(heightmap, texCoord + vec2(-texelSize,-texelSize)).r;
     float z1 = texture(heightmap, texCoord + vec2(0,-texelSize)).r;

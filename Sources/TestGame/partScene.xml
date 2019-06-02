@@ -93,7 +93,7 @@
             <textureFileNames>
               <texture>
                 <textureType>1</textureType>
-                <textureFileName>Textures/Terrain/BlendMaps/testBlendMap.png</textureFileName>
+                <textureFileName>Textures/Terrain/BlendMaps/BlendMap.png</textureFileName>
               </texture>
               <texture>
                 <textureType>2</textureType>
@@ -109,11 +109,11 @@
               </texture>
               <texture>
                 <textureType>4</textureType>
-                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+                <textureFileName>Textures/Terrain/Ground/oreon/Ground_18_DIF.jpg</textureFileName>
               </texture>
               <texture>
                 <textureType>5</textureType>
-                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+                <textureFileName>Textures/Terrain/Ground/oreon/Ground_18_NRM.jpg</textureFileName>
               </texture>
               <texture>
                 <textureType>12</textureType>
@@ -121,11 +121,11 @@
               </texture>
               <texture>
                 <textureType>6</textureType>
-                <textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg</textureFileName>
+                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
               </texture>
               <texture>
                 <textureType>7</textureType>
-                <textureFileName>Textures/Terrain/Ground/oreon/Ground_17_NRM.jpg</textureFileName>
+                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
               </texture>
               <texture>
                 <textureType>14</textureType>
@@ -133,11 +133,11 @@
               </texture>
               <texture>
                 <textureType>8</textureType>
-                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+                <textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg</textureFileName>
               </texture>
               <texture>
                 <textureType>9</textureType>
-                <textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+                <textureFileName>Textures/Terrain/Ground/oreon/Ground_17_NRM.jpg</textureFileName>
               </texture>
             </textureFileNames>
           </terrainRenderer>
