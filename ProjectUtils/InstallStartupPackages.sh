@@ -15,6 +15,11 @@ sudo apt-get install -y dos2unix
 sudo apt-get install -y gcc-multilib g++-multilib
 sudo apt-get install -y libc6-dbg
 
+sudo apt-get install -y python-pip
+sudo apt-get install -y python-opencv
+pip install -U scikit-learn
+pip install tqdm
+
 #game dev
 sudo apt-get install -y libxkbcommon-dev
 sudo apt-get install -y libmirclient-dev

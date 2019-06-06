@@ -54,9 +54,16 @@ def calculateNormal(heightmap, texCoord):
     # normal[1]=z0 + 2*z1 + z2 -z5 - 2*z6 - z7 + yoffset
     # normal[2]=1.0/normalStrength
 
-    normal[0]=(2*(z4-z3))/4
-    normal[1]=(2*(z6-z1))/4
-    normal[2]=-4
+    # normal[0]=(2*(z4-z3))/4
+    # normal[1]=(2*(z6-z1))/4
+    # normal[2]=-4
+
+    #glm::vec3 normal(heightL - heightR, 2.0f, heightD - heightU);
+
+    normal[0]=z3-z4
+    normal[1]=2
+    normal[2]=z6-z1
+
     #return (normalize(normal)+1.0)/2.0
     X = np.asarray([normal], dtype=np.float)
     normalizedNormal=preprocessing.normalize(X, norm='l2')[0] #normalize(normal)

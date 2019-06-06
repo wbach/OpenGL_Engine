@@ -1,16 +1,20 @@
 import cv2
 import time
 import numpy as np
+import sys
 from Utils import calculateNormal
 
-input='/home/baszek/tmp/World_ref.png'
-output='/home/baszek/tmp/BlendMap.png'
+import time
+from tqdm import tqdm
+
+
+input=sys.argv[1] #'/home/baszek/tmp/World_ref.png'
+print( "Input arg: " + input)
+output=sys.argv[2]#'/home/baszek/tmp/BlendMap.png'
 
 img = cv2.imread(input)
 
 upVector=[0,1,0]
-product=np.dot([0, -1, 0], upVector)
-print product
 
 def heightBase(img):
     height, width, channels = img.shape
@@ -36,25 +40,55 @@ def heightBase(img):
     #resultImg=img
     resultImg = np.zeros((height,width,channels), np.uint8)
 
-    for y in range(height):
-        for x in range(width):
+    # x = 0
+    # y = 0
+    # total = height * width
+    # for i in tqdm(range(total - 1)):
+    # # for y in range(height):
+    # #     for x in range(width):
+    #         x = x + 1
+
+    #         if x > width - 1:
+    #             x = 0
+    #             y = y + 1
+            
+    #         if (y < height / 2):
+    #             resultImg[x, y] = 2*y
+    #         else:
+    #             resultImg[x, y] = height - (2*y)
+
+    # cv2.imwrite(output, resultImg)
+    # return 0
+
+    x = 0
+    y = 0
+    total = height * width
+    for i in tqdm(range(total - 1)):
+    # for y in range(height):
+    #     for x in range(width):
+            x = x + 1
+
+            if x > width - 1:
+                x = 0
+                y = y + 1
+            
             px = img[x, y]
             heightFactor=(int(px[0])+int(px[1])+int(px[2])) / 3
 
             normal = calculateNormal(img, [x, y])
-            product=np.dot(normal, upVector)
+            product= abs(np.dot(normal, upVector))
 
             #product2=np.dot(upVector, normal)
 #            print normal
             #print [product, product2]
 
-            colorNormal = [0,0,0]
-            colorNormal[0]=normal[0]*255
-            colorNormal[1]=normal[1]*255
-            colorNormal[2]=normal[2]*255
+            # colorNormal = [0,0,0]
+            # colorNormal[0]=normal[0]*255
+            # colorNormal[1]=normal[1]*255
+            # colorNormal[2]=normal[2]*255
 
             value=int(255.0 * (1.0 - product))
-            resultImg[x, y] = colorNormal#[0, value , 0]
+            resultImg[x, y] = [0, value , 0]
 
             # if product < 0.30:
             #     resultImg[x, y] = [255, 0, 0]

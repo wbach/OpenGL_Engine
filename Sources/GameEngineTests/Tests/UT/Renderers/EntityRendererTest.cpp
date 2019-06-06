@@ -118,14 +118,14 @@ struct EntityRendererShould : public BaseComponentTestSchould
     std::unique_ptr<EntityRenderer> sut_;
 };
 
-TEST_F(EntityRendererShould, RenderWithoutObjectsTest)
-{
-    ExpectShaderInit();
-    sut_->Init();
-    AddGameObject();
-    ExpectRender();
-    sut_->Render(scene_, time_);
-}
+//TEST_F(EntityRendererShould, RenderWithoutObjectsTest)
+//{
+//    ExpectShaderInit();
+//    sut_->Init();
+//    AddGameObject();
+//    ExpectRender();
+//    sut_->Render(scene_, time_);
+//}
 
 }  // namespace UT
 }  // namespace GameEngine

@@ -105,8 +105,7 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
     float heightD = GetHeight(x, dz);
     float heightU = GetHeight(x, uz);
     glm::vec3 normal(heightL - heightR, 2.0f, heightD - heightU);
-    glm::normalize(normal);
-    return normal;
+    return glm::normalize(normal);
 }
 float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
