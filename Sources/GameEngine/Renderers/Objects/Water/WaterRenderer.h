@@ -1,9 +1,9 @@
 #pragma once
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GraphicsApi/IGraphicsApi.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -12,7 +12,7 @@ class IShaderProgram;
 namespace Components
 {
 class WaterRendererComponent;
-}
+} // namespace Components
 
 class WaterRenderer : public IRenderer
 {
@@ -23,15 +23,15 @@ class WaterRenderer : public IRenderer
     };
 
 public:
-    WaterRenderer(RendererContext& context);
+    WaterRenderer(RendererContext&);
     virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
+    virtual void Subscribe(GameObject*) override;
+    virtual void UnSubscribe(GameObject*) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
 
 private:
-    void Render(const Scene& scene, const Time&);
+    void Render(const Scene&, const Time&);
     PerObjectUpdate CalculateTransformMatrix(const vec3&, const vec3&) const;
 
 private:
@@ -40,5 +40,6 @@ private:
     std::unordered_map<uint32, Subscriber> subscribers_;
 
     GraphicsApi::ID perObjectUpdateId_;
+    GraphicsApi::ID perMeshObjectId_;
 };
 }  // namespace GameEngine

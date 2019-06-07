@@ -28,7 +28,7 @@ private:
     void Update();
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& hightMapFile);
-    void CalcualteNormalMap(const std::string& hightMapFile);
+    void CalcualteNormalMap();
     void Subscribe();
     void UnSubscribe();
 

@@ -16,6 +16,13 @@ public:
 
     const vec3& GetPosition() const;
     const vec3& GetScale() const;
+    const vec4& GetWaterColor() const;
+    float moveFactor() const;
+    float increaseAndGetMoveFactor(float deltaTime);
+    Texture* GetDudvTexture();
+    Texture* GetNormalTexture();
+    WaterRendererComponent& LoadTextures(const std::string& dudv, const std::string& normal);
+    WaterRendererComponent& SetWaveSpeed(float);
 
 private:
     void ReqisterFunctions();
@@ -25,6 +32,12 @@ private:
 private:
     vec3 position_;
     vec3 scale_;
+    float moveFactor_;
+    vec4 waterColor_;
+    float waveSpeed_;
+
+    Texture* normalMap_;
+    Texture* dudvMap_;
 
 public:
     static ComponentsType type;

@@ -35,7 +35,7 @@ TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
         if (texturePair.first == TerrainTextureType::heightmap)
         {
             LoadHeightMap(texturePair.second);
-            CalcualteNormalMap(texturePair.second);
+            CalcualteNormalMap();
             continue;
         }
 
@@ -57,7 +57,7 @@ void TerrainRendererComponent::LoadHeightMap(const std::string& hightMapFile)
 
     SetTexture(TerrainTextureType::heightmap, heightMap_);
 }
-void TerrainRendererComponent::CalcualteNormalMap(const std::string & hightMapFile)
+void TerrainRendererComponent::CalcualteNormalMap()
 {
     if (not heightMap_)
     {

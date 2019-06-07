@@ -1,11 +1,18 @@
 #include "WaterRenderer.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
 
 namespace GameEngine
 {
+struct WaterTileMeshBuffer
+{
+    float isSimpleRender;
+    float moveFactor;
+    vec4 waterColor;
+};
+
 WaterRenderer::WaterRenderer(RendererContext& context)
     : context_(context)
 {
@@ -18,18 +25,40 @@ void WaterRenderer::Init()
 
     if (not perObjectUpdateId_)
     {
-        perObjectUpdateId_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        perObjectUpdateId_ = context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    }
+
+    if (not perMeshObjectId_)
+    {
+        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
 }
-void WaterRenderer::Render(const Scene& scene, const Time&)
+void WaterRenderer::Render(const Scene&, const Time& time)
 {
     shader_->Start();
+
+    WaterTileMeshBuffer waterTileMeshBuffer;
+    waterTileMeshBuffer.isSimpleRender = 1.f;
 
     for (auto& subscriber : subscribers_)
     {
         context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &subscriber.second.perObjectUpdate_);
         context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
+
+        auto& component = *subscriber.second.waterRendererComponent_;
+
+        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(time.deltaTime);
+        waterTileMeshBuffer.waterColor = component.GetWaterColor();
+
+        context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
+        context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
+
+        if (component.GetDudvTexture())
+            context_.graphicsApi_.ActiveTexture(2, component.GetDudvTexture()->GetId());
+
+        if (component.GetNormalTexture())
+            context_.graphicsApi_.ActiveTexture(3, component.GetNormalTexture()->GetId());
+
         context_.graphicsApi_.RenderQuad();
     }
 }
@@ -46,9 +75,7 @@ void WaterRenderer::Subscribe(GameObject* gameObject)
         return;
     }
 
-    subscribers_.insert(
-        {gameObject->GetId(),
-         {CalculateTransformMatrix(waterComponent->GetPosition(), waterComponent->GetScale()), waterComponent}});
+    subscribers_.insert({gameObject->GetId(), {CalculateTransformMatrix(waterComponent->GetPosition(), waterComponent->GetScale()), waterComponent}});
 }
 void WaterRenderer::UnSubscribe(GameObject* gameObject)
 {

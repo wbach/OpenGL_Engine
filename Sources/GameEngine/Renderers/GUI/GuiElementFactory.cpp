@@ -26,8 +26,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
 {
 }
 
-GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const std::string &font,
-                                                 const std::string &str, uint32 size, uint32 outline)
+GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const std::string &font, const std::string &str, uint32 size, uint32 outline)
 {
     auto text   = guiTextFactory_.Create(font, str, size, outline);
     auto result = text.get();
@@ -38,30 +37,37 @@ GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const
 GuiTextureElement *GuiElementFactory::CreateGuiTexture(const std::string &label, const std::string &filename)
 {
     auto guiTexture = MakeGuiTexture(filename);
-    auto result     = guiTexture.get();
+
+    if (not guiTexture)
+        return nullptr;
+
+    auto result = guiTexture.get();
     guiManager_.Add(label, std::move(guiTexture));
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const Rect &rect,
-                                                     const std::string &background)
+GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const Rect &rect, const std::string &background)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(windowSize_, inputManager_);
     guiWindow->SetRect(rect);
 
     auto result               = guiWindow.get();
     auto backgroundGuiTexture = MakeGuiTexture(background);
-    backgroundGuiTexture->SetZPosition(0.1f);
-    backgroundGuiTexture->SetScale(guiWindow->GetScale());
-    guiWindow->AddChild(backgroundGuiTexture.get());
-    guiManager_.Add(label, std::move(backgroundGuiTexture));
+
+    if (backgroundGuiTexture)
+    {
+        backgroundGuiTexture->SetZPosition(0.1f);
+        backgroundGuiTexture->SetScale(guiWindow->GetScale());
+        guiWindow->AddChild(backgroundGuiTexture.get());
+        guiManager_.Add(label, std::move(backgroundGuiTexture));
+    }
+
     guiManager_.Add(label, std::move(guiWindow));
 
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const vec2 &position, const vec2 &scale,
-                                                     const std::string &background)
+GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const vec2 &position, const vec2 &scale, const std::string &background)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(windowSize_, inputManager_);
     guiWindow->SetPostion(position);
@@ -69,10 +75,15 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
 
     auto result               = guiWindow.get();
     auto backgroundGuiTexture = MakeGuiTexture(background);
-    backgroundGuiTexture->SetZPosition(0.1f);
-    backgroundGuiTexture->SetScale(guiWindow->GetScale());
-    guiWindow->AddChild(backgroundGuiTexture.get());
-    guiManager_.Add(label, std::move(backgroundGuiTexture));
+
+    if (not backgroundGuiTexture)
+    {
+        backgroundGuiTexture->SetZPosition(0.1f);
+        backgroundGuiTexture->SetScale(guiWindow->GetScale());
+        guiWindow->AddChild(backgroundGuiTexture.get());
+        guiManager_.Add(label, std::move(backgroundGuiTexture));
+    }
+
     guiManager_.Add(label, std::move(guiWindow));
 
     return result;
@@ -86,8 +97,7 @@ GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &label, s
     return result;
 }
 
-GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, const std::string &font,
-                                                    const std::string &str, uint32 size, uint32 outline)
+GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, const std::string &font, const std::string &str, uint32 size, uint32 outline)
 {
     auto text    = CreateGuiText(label, font, str, size, outline);
     auto editBox = std::make_unique<GuiEditBoxElement>(*text, inputManager_, windowSize_);
@@ -107,6 +117,8 @@ GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, Gu
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
 {
     auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename);
+    if (not texture)
+        return nullptr;
     return std::make_unique<GuiTextureElement>(windowSize_, *texture);
 }
 
@@ -233,8 +245,7 @@ GuiTextElement *ReadGuiText(Utils::XmlNode &node, GuiElementFactory &factory, Gu
     return text;
 }
 
-GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
-                                  uint32 &unnamedTextId)
+GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
 {
     if (node.GetName() != "texture")
     {
@@ -273,8 +284,7 @@ GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &facto
     ReadGuiElementBasic(texture, node);
     return texture;
 }
-GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager,
-                                uint32 &unnamedTextId)
+GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager, uint32 &unnamedTextId)
 {
     if (node.GetName() != "button")
     {
@@ -347,8 +357,7 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
     ReadGuiElementBasic(button, node);
     return button;
 }
-GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager,
-                               uint32 &unnamedTextId)
+GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager, uint32 &unnamedTextId)
 {
     if (node.GetName() != "editBox")
     {
@@ -368,8 +377,7 @@ GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory,
 
     return nullptr;
 }
-GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
-                                uint32 &unnamedTextId)
+GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
 {
     if (node.GetName() != "window")
     {
