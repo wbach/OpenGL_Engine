@@ -28,8 +28,10 @@ TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi,
     : graphicsApi_(graphicsApi)
     , textures_(textures_vector)
     , gpuResourceLoader_(gpuLoader)
+    , textureNotFound_(nullptr)
     , heightMapFactor_(1.f)
 {
+
 }
 
 TextureLoader::~TextureLoader()
@@ -143,7 +145,7 @@ Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit
 
     if (not texture)
     {
-        return nullptr;
+        return GetTextureNotFound();
     }
 
     switch (type)
@@ -194,7 +196,7 @@ Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool 
 
         if (not image)
         {
-            return nullptr;
+            return GetTextureNotFound();
         }
 
         images[x++] = std::move(*image);
@@ -435,5 +437,15 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& filename) const
         return texture->GetFileName() == filename;
     });
     return iter != textures_.end() ? iter->get() : nullptr;
+}
+
+Texture* TextureLoader::GetTextureNotFound()
+{
+    if (not textureNotFound_)
+    {
+        textureNotFound_ = LoadTexture("Textures/textureNotFound.png", false);
+    }
+
+    return textureNotFound_;
 }
 }  // namespace GameEngine

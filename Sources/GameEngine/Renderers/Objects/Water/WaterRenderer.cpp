@@ -54,10 +54,10 @@ void WaterRenderer::Render(const Scene&, const Time& time)
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 
         if (component.GetDudvTexture())
-            context_.graphicsApi_.ActiveTexture(2, component.GetDudvTexture()->GetId());
+            context_.graphicsApi_.ActiveTexture(4, component.GetDudvTexture()->GetId());
 
         if (component.GetNormalTexture())
-            context_.graphicsApi_.ActiveTexture(3, component.GetNormalTexture()->GetId());
+            context_.graphicsApi_.ActiveTexture(2, component.GetNormalTexture()->GetId());
 
         context_.graphicsApi_.RenderQuad();
     }

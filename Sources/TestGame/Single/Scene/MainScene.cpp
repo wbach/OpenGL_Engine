@@ -199,7 +199,7 @@ int MainScene::Initialize()
     AddGameObject(geralt);
 
     auto water = CreateGameObject("Water");
-    water->AddComponent<Components::WaterRendererComponent>().LoadTextures("Textures/Water/waterDUDV.png", "Textures/Water/waternormal.png").SetWaveSpeed(0.1f);
+    water->AddComponent<Components::WaterRendererComponent>().LoadTextures("Textures/Water/waterDUDV.png", "Textures/Water/waternormal.png").SetWaveSpeed(10.f);
     AddGameObject(water);
 
     SetDirectionalLightColor(vec3(0.4));

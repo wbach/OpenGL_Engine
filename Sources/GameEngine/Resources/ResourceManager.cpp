@@ -13,6 +13,7 @@ ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi)
     , textureLoader_(std::make_shared<TextureLoader>(graphicsApi, textures_, gpuLoader_))
     , loaderManager_(*textureLoader_)
 {
+
 }
 
 ResourceManager::~ResourceManager()

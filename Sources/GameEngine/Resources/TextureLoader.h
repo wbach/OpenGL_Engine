@@ -28,11 +28,13 @@ public:
 
 private:
     Texture* GetTextureIfLoaded(const std::string& filename) const;
+    Texture* GetTextureNotFound();
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::vector<std::unique_ptr<Texture>>& textures_;
     std::shared_ptr<IGpuResourceLoader> gpuResourceLoader_;
+    Texture* textureNotFound_;
     float heightMapFactor_;
 };
 }  // namespace GameEngine
