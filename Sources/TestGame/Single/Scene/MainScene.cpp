@@ -219,6 +219,12 @@ int MainScene::Initialize()
     }
 
     {
+        auto obj = CreateGameObjectInstance("Garen", 1.8f, vec2(-4, 0), true);
+        obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Garen/garen_idle.fbx");
+        AddGameObject(obj);
+    }
+
+    {
         auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(2, 0), true);
         uplayer->AddComponent<Components::RendererComponent>().AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
 

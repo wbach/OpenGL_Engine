@@ -2,6 +2,7 @@
 #include "Collada/Collada.h"
 #include "Terrain/TerrainMeshLoader.h"
 #include "WaveFront/WaveFrontObj.h"
+#include "Fbx/FbxLoader.h"
 
 #include "GameEngine/Engine/Configuration.h"
 
@@ -18,6 +19,7 @@ LoaderManager::LoaderManager(ITextureLoader &textureloader)
     loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
     loaders_.emplace_back(new WBLoader::ColladaDae(textureloader));
     loaders_.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
+    loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
 }
 
 std::unique_ptr<Model> LoaderManager::Load(const std::string& file_name)
