@@ -52,6 +52,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.h
+../../Sources/GameEngine/Renderers/Objects/Water/Shaders/WaterShaderUniforms.h
 ../../Sources/GameEngine/Renderers/Objects/Water/Shaders/WaterShader.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRendererDef.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/Shaders/DefferedEntityShader.h
@@ -202,6 +203,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryReader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryWriter.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/LoaderManager.h
+../../Sources/GameEngine/Resources/Models/WBLoader/Fbx/FbxLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.h
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h

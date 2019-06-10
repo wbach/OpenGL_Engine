@@ -134,6 +134,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/LoaderManager.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.cpp
+../../Sources/GameEngine/Resources/Models/WBLoader/Fbx/FbxLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.cpp

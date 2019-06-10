@@ -63,6 +63,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
+    ${PROJECT_BINARY_DIR}/../Tools/linux/fbx/
     ${PROJECT_BINARY_DIR}/../Tools/common/
     ${PROJECT_BINARY_DIR}/../Tools/common/glm
     ${PROJECT_BINARY_DIR}/../Tools/common/bullet/src/
