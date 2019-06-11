@@ -31,12 +31,12 @@ if(UNIX)
     endif()    
 
     add_definitions(-DUSE_GNU)
-    
-     set(LinkingLibs
+    link_directories(${PROJECT_BINARY_DIR}/../Tools/linux/fbx/lib/gcc4/x64/release/)
+    set(LinkingLibs
                 SDL2main
                 SDL2
-            SDL2_net
-	    SDL2_ttf
+                SDL2_net
+	          SDL2_ttf
                 GL
                 GLU
                 GLEW
@@ -45,7 +45,7 @@ if(UNIX)
                 pthread
                 freeimage
                 freetype
-          )
-  
+                fbxsdk
+          )  
 
 endif()
