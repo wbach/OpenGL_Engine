@@ -92,7 +92,8 @@ int MainScene::Initialize()
 {
     DEBUG_LOG("MainScene::Initialize()");
     resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
-    resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png", "Textures/Terrain/HeightMaps/output.terrain");
+    resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
+                                                         "Textures/Terrain/HeightMaps/output.terrain");
 
     InitGui();
 
@@ -199,7 +200,9 @@ int MainScene::Initialize()
     AddGameObject(geralt);
 
     auto water = CreateGameObject("Water");
-    water->AddComponent<Components::WaterRendererComponent>().LoadTextures("Textures/Water/waterDUDV.png", "Textures/Water/waternormal.png").SetWaveSpeed(10.f);
+    water->AddComponent<Components::WaterRendererComponent>()
+        .LoadTextures("Textures/Water/waterDUDV.png", "Textures/Water/waternormal.png")
+        .SetWaveSpeed(10.f);
     AddGameObject(water);
 
     SetDirectionalLightColor(vec3(0.4));
@@ -226,15 +229,18 @@ int MainScene::Initialize()
 
     {
         auto uplayer = CreateGameObjectInstance("Player", 1.8f, vec2(2, 0), true);
-        uplayer->AddComponent<Components::RendererComponent>().AddModel("Meshes/DaeAnimationExample/CharacterMultiple.dae");
+        uplayer->AddComponent<Components::RendererComponent>().AddModel(
+            "Meshes/DaeAnimationExample/CharacterMultiple.dae");
 
         auto& animator = uplayer->AddComponent<Components::Animator>().SetAnimation("Idle");
 
         player = uplayer.get();
 
-        characterController_ = std::make_shared<common::Controllers::CharacterController>(player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
+        characterController_ = std::make_shared<common::Controllers::CharacterController>(
+            player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 
-        playerInputController_ = std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
+        playerInputController_ =
+            std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
         AddGameObject(uplayer);
     }
 
@@ -251,7 +257,8 @@ int MainScene::Initialize()
 }
 
 template <typename Shape>
-void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale, bool isStatic)
+void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset,
+                                const vec3& dir, float scale, bool isStatic)
 {
     auto object = CreateGameObject(Utils::GetFilename(modelFilename));
     object->worldTransform.SetPosition(pos);
@@ -261,7 +268,10 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
 
     auto& shape = object->AddComponent<Shape>().SetSize(scale);
     shape.SetPostionOffset(shapePositionOffset);
-    object->AddComponent<Components::Rigidbody>().SetIsStatic(isStatic).SetCollisionShape(shape.GetType()).SetVelocity(dir);
+    object->AddComponent<Components::Rigidbody>()
+        .SetIsStatic(isStatic)
+        .SetCollisionShape(shape.GetType())
+        .SetVelocity(dir);
 
     AddGameObject(object);
 }
@@ -294,8 +304,10 @@ int MainScene::Update(float dt)
         // std::to_string(dayNightCycle.GetCurrentHour().x) +
         //":" + std::to_string(dayNightCycle.GetCurrentHour().y);
 
-        guiManager_->Get<GuiTextElement>("playerPos")->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
-        guiManager_->Get<GuiTextElement>("rendererFps")->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
+        guiManager_->Get<GuiTextElement>("playerPos")
+            ->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
+        guiManager_->Get<GuiTextElement>("rendererFps")
+            ->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
 
         guiElementFactory_->ReadGuiFile(GUI_FILE);
     }
@@ -333,7 +345,8 @@ void MainScene::KeyOperations()
         dir      = glm::normalize(dir);
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
-        DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) + ", Objecsts : " + std::to_string(gameObjects.size()));
+        DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
+                  ", Objecsts : " + std::to_string(gameObjects.size()));
     });
 
     bool run = true;
@@ -423,12 +436,16 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
     resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
     object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
 
-    auto& terrainShapeComponent = object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
+    auto& terrainShapeComponent =
+        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
 
-    auto rigidbody = object->AddComponent<Components::Rigidbody>().SetCollisionShape(terrainShapeComponent.GetType()).SetIsStatic(true);
+    auto rigidbody = object->AddComponent<Components::Rigidbody>()
+                         .SetCollisionShape(terrainShapeComponent.GetType())
+                         .SetIsStatic(true);
 
     auto image = terrainShapeComponent.GetHeightMap()->GetImage();
-    terrainHeightGetter_.reset(new GameEngine::Components::TerrainHeightGetter(vec2ui(image->width, image->height), &image->floatData, vec2(position.x, position.y)));
+    terrainHeightGetter_.reset(new GameEngine::Components::TerrainHeightGetter(
+        vec2ui(image->width, image->height), &image->floatData, vec2(position.x, position.y)));
 
     AddGameObject(object);
 }
@@ -461,7 +478,8 @@ std::vector<float> MainScene::CreateGrassPositions(GameObject* object, vec2 pos)
     return grass_positions;
 }
 
-std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic)
+std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(float scale, const vec2& position,
+                                                                            bool isDynamic)
 {
     auto obj = CreateGameObject();
     obj->worldTransform.SetScale(scale);
@@ -473,7 +491,8 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(floa
     return obj;
 }
 
-std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(const std::string& name, float scale, const vec2& position, bool isDynamic)
+std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(const std::string& name, float scale,
+                                                                            const vec2& position, bool isDynamic)
 {
     auto obj = CreateGameObject(name);
     obj->worldTransform.SetScale(scale);
@@ -485,7 +504,8 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(cons
     return obj;
 }
 
-void MainScene::CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position, uint32_t textureIndex, bool isDynamic)
+void MainScene::CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position,
+                                       uint32_t textureIndex, bool isDynamic)
 {
     auto object = CreateGameObjectInstance(Utils::GetFilename(filename), scale, position, isDynamic);
 
@@ -554,7 +574,10 @@ void MainScene::CreateExmapleStrtupObject()
             }
         }
         auto tree1 = CreateGameObjectInstance("trees", 20.f, vec2(0, 0));
-        tree1->AddComponent<Components::TreeRendererComponent>().SetPositions(treePositions, size).SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj").SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
+        tree1->AddComponent<Components::TreeRendererComponent>()
+            .SetPositions(treePositions, size)
+            .SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj")
+            .SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
         AddGameObject(tree1);
     }
 
@@ -569,15 +592,20 @@ void MainScene::CreateExmapleStrtupObject()
         particle.gravityEffect = true;
         particle.lifeTime      = 2.f;
 
-        particle1->AddComponent<Components::ParticleEffectComponent>().SetParticle(particle).SetTexture("Textures/Particles/water.png").SetParticlesPerSec(10).SetBlendFunction(GraphicsApi::BlendFunctionType::ONE).SetEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
-            Particle particle = referenceParticle;
+        particle1->AddComponent<Components::ParticleEffectComponent>()
+            .SetParticle(particle)
+            .SetTexture("Textures/Particles/water.png")
+            .SetParticlesPerSec(10)
+            .SetBlendFunction(GraphicsApi::BlendFunctionType::ONE)
+            .SetEmitFunction("water", [](const Particle& referenceParticle) -> Particle {
+                Particle particle = referenceParticle;
 
-            float dirX        = Random() - 0.5f;
-            float dirZ        = Random() - 0.5f;
-            particle.velocity = vec3(dirX, 1, dirZ);
+                float dirX        = Random() - 0.5f;
+                float dirZ        = Random() - 0.5f;
+                particle.velocity = vec3(dirX, 1, dirZ);
 
-            return particle;
-        });
+                return particle;
+            });
 
         AddGameObject(particle1);
     }
@@ -593,31 +621,43 @@ void MainScene::CreateExmapleStrtupObject()
         particle_2.gravityEffect = false;
         particle_2.lifeTime      = 2.6f;
 
-        particle2->AddComponent<Components::ParticleEffectComponent>().SetParticle(particle_2).SetTexture("Textures/Particles/fire1_rows_8.png").SetParticlesPerSec(100).EnableAnimation().SetSpeed(1.f).SetBlendFunction(GraphicsApi::BlendFunctionType::SRC_ALPHA).SetEmitFunction("fire", [](const Particle& referenceParticle) -> Particle {
-            Particle particle = referenceParticle;
+        particle2->AddComponent<Components::ParticleEffectComponent>()
+            .SetParticle(particle_2)
+            .SetTexture("Textures/Particles/fire1_rows_8.png")
+            .SetParticlesPerSec(100)
+            .EnableAnimation()
+            .SetSpeed(1.f)
+            .SetBlendFunction(GraphicsApi::BlendFunctionType::SRC_ALPHA)
+            .SetEmitFunction("fire", [](const Particle& referenceParticle) -> Particle {
+                Particle particle = referenceParticle;
 
-            float dirX        = Random() - 0.5f;
-            float dirZ        = Random() - 0.5f;
-            particle.velocity = vec3(dirX, 1, dirZ);
+                float dirX        = Random() - 0.5f;
+                float dirZ        = Random() - 0.5f;
+                particle.velocity = vec3(dirX, 1, dirZ);
 
-            float r = 2.f;
-            particle.position += vec3(dirX, 0.f, dirZ) * r;
+                float r = 2.f;
+                particle.position += vec3(dirX, 0.f, dirZ) * r;
 
-            float l = Random() / 2.f * particle.lifeTime + particle.lifeTime * 0.75f;
+                float l = Random() / 2.f * particle.lifeTime + particle.lifeTime * 0.75f;
 
-            particle.lifeTime = l;
+                particle.lifeTime = l;
 
-            return particle;
-        });
+                return particle;
+            });
 
         AddGameObject(particle2);
     }
 
-    CreateAndAddGameEntity("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj", 10.f, vec2(400, 570));
-    AddPhysicObject<Components::BoxShape>("Meshes/Barrel/barrel.obj", vec3(0, 0, 15), vec3(0, -.5f, 0), vec3(0), 1.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_dom.obj", vec3(-15, 0, 10), vec3(0, -1.f, 0), vec3(0), 20.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_stajnia.obj", vec3(15, 0, 15), vec3(0, -1.f, 0), vec3(0), 20.f, true);
-    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/well.obj", vec3(2, 0, 15), vec3(0, -.5f, 0), vec3(0), 2.f, true);
+    CreateAndAddGameEntity("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj", 10.f,
+                           vec2(400, 570));
+    AddPhysicObject<Components::BoxShape>("Meshes/Barrel/barrel.obj", vec3(0, 0, 15), vec3(0, -.5f, 0), vec3(0), 1.f,
+                                          true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_dom.obj", vec3(-15, 0, 10), vec3(0, -1.f, 0),
+                                          vec3(0), 20.f, true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/bialczyk_stajnia.obj", vec3(15, 0, 15), vec3(0, -1.f, 0),
+                                          vec3(0), 20.f, true);
+    AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/well.obj", vec3(2, 0, 15), vec3(0, -.5f, 0), vec3(0), 2.f,
+                                          true);
 
     //  CreateAndAddGameEntity("Meshes/sponza/sponza_mod.obj", 60.f, vec2(0, 115));
     //   CreateAndAddGameEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(0, 20));
@@ -633,7 +673,9 @@ void MainScene::CreateExmapleStrtupObject()
 
         auto grass_position = CreateGrassPositions(nullptr, vec2(0, 0));
 
-        grass->AddComponent<Components::GrassRendererComponent>().SetPositions(grass_position).SetTexture("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
+        grass->AddComponent<Components::GrassRendererComponent>()
+            .SetPositions(grass_position)
+            .SetTexture("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
 
         AddGameObject(grass);
     }
@@ -653,35 +695,65 @@ void MainScene::InitGui()
     guiManager_->GetElement("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
     std::cout << __FUNCTION__ << "1" << std::endl;
-    auto window = guiElementFactory_->CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/grayWindow.png");
+    auto window = guiElementFactory_->CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/darkGrayButton.png");
 
-    auto windowText1 = guiElementFactory_->CreateGuiText("testWindow_text1", fontPath, "This is example window.", fontSize, 0);
-    guiManager_->GetElement("testWindow_text1")->SetPostion(vec2(-0.0, 0.225));
-    guiManager_->GetElement("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
+    // auto windowText1 = guiElementFactory_->CreateGuiText("testWindow_text1", fontPath, "This is example window.",
+    // fontSize, 0); guiManager_->GetElement("testWindow_text1")->SetPostion(vec2(-0.0, 0.225));
+    // guiManager_->GetElement("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
+    // window->AddChild(std::move(windowText1));
 
-    window->AddChild(std::move(windowText1));
 
-    auto button = guiElementFactory_->CreateGuiButton("TEST_BUTTON_1", []() { std::cout << "BUTTON pressed." << std::endl; });
-    button->SetScale(vec2(0.1, 0.05));
-    button->SetPostion(vec2(-0.125, 0.15));
 
-    auto buttonText = guiElementFactory_->CreateGuiText("button_test_text", fontPath, "Test button 1.", fontSize, 0);
-    guiManager_->GetElement("button_test_text")->SetColor(vec3(.1f, 0.1f, 0.1f));
-    button->SetText(buttonText);
+    {
+        auto button = guiElementFactory_->CreateGuiButton(
+            "TEST_BUTTON_1", []() { std::cout << "Start Game BUTTON pressed." << std::endl; });
+        button->SetScale(vec2(0.1, 0.05));
+        button->SetPostion(vec2(-0.125, 0.15));
 
-    auto buttonTexture = guiElementFactory_->CreateGuiTexture("buttonTexture", "GUI/button.png");
-    if (buttonTexture)
-        button->SetBackgroundTexture(buttonTexture);
+        auto buttonText = guiElementFactory_->CreateGuiText("button_test_text", fontPath, "Start Game", fontSize, 0);
+        guiManager_->GetElement("button_test_text")->SetColor(vec3(.7f, 0.7f, 0.7f));
+        button->SetText(buttonText);
 
-    auto hoverButtonTexture = guiElementFactory_->CreateGuiTexture("hoverButtonTexture", "GUI/button_yellow.png");
-    if (hoverButtonTexture)
-        button->SetOnHoverTexture(hoverButtonTexture);
 
-    auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("activeButtonTexture", "GUI/button_green.png");
-    if (activeButtonTexture)
-        button->SetOnActiveTexture(activeButtonTexture);
+        auto buttonTexture = guiElementFactory_->CreateGuiTexture("buttonTexture", "GUI/darkGrayButton.png");
+        auto hoverButtonTexture = guiElementFactory_->CreateGuiTexture("hoverButtonTexture", "GUI/darkGrayButtonHover.png");
+        auto activeButtonTexture =
+            guiElementFactory_->CreateGuiTexture("activeButtonTexture", "GUI/darkGrayButtonActive.png");
 
-    window->AddChild(button);
+
+        if (buttonTexture)
+            button->SetBackgroundTexture(buttonTexture);
+        if (hoverButtonTexture)
+            button->SetOnHoverTexture(hoverButtonTexture);
+        if (activeButtonTexture)
+            button->SetOnActiveTexture(activeButtonTexture);
+        window->AddChild(button);
+    }
+
+    {
+        auto button = guiElementFactory_->CreateGuiButton(
+            "TEST_BUTTON_2", []() { std::cout << "Load Game BUTTON  pressed." << std::endl; });
+        button->SetScale(vec2(0.1, 0.05));
+        button->SetPostion(vec2(-0.125, 0.05));
+
+        auto buttonText = guiElementFactory_->CreateGuiText("button_test_text_2", fontPath, "Load Game", fontSize, 0);
+        guiManager_->GetElement("button_test_text_2")->SetColor(vec3(.7f, 0.7f, 0.7f));
+        button->SetText(buttonText);
+
+        auto buttonTexture = guiElementFactory_->CreateGuiTexture("buttonTextur2e", "GUI/darkGrayButton.png");
+        auto hoverButtonTexture = guiElementFactory_->CreateGuiTexture("hoverButtonTexture2", "GUI/darkGrayButtonHover.png");
+        auto activeButtonTexture =
+            guiElementFactory_->CreateGuiTexture("activeButtonTexture2", "GUI/darkGrayButtonActive.png");
+
+        if (buttonTexture)
+            button->SetBackgroundTexture(buttonTexture);
+        if (hoverButtonTexture)
+            button->SetOnHoverTexture(hoverButtonTexture);
+        if (activeButtonTexture)
+            button->SetOnActiveTexture(activeButtonTexture);
+
+        window->AddChild(button);
+    }
 
     guiElementFactory_->ReadGuiFile(GUI_FILE);
 }
