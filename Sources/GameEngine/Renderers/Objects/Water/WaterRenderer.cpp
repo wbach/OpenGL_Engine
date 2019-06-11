@@ -6,10 +6,12 @@
 
 namespace GameEngine
 {
+const float WAVE_SPEED = 0.0025f;
+
 struct WaterTileMeshBuffer
 {
-    float isSimpleRender;
-    float moveFactor;
+    AlignWrapper<float> isSimpleRender;
+    AlignWrapper<float> moveFactor;
     vec4 waterColor;
 };
 
@@ -25,12 +27,14 @@ void WaterRenderer::Init()
 
     if (not perObjectUpdateId_)
     {
-        perObjectUpdateId_ = context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        perObjectUpdateId_ =
+            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
     }
 
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
+        perMeshObjectId_ =
+            context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
 }
 void WaterRenderer::Render(const Scene&, const Time& time)
@@ -47,7 +51,7 @@ void WaterRenderer::Render(const Scene&, const Time& time)
 
         auto& component = *subscriber.second.waterRendererComponent_;
 
-        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(time.deltaTime);
+        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(time.deltaTime * WAVE_SPEED);
         waterTileMeshBuffer.waterColor = component.GetWaterColor();
 
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
@@ -75,7 +79,9 @@ void WaterRenderer::Subscribe(GameObject* gameObject)
         return;
     }
 
-    subscribers_.insert({gameObject->GetId(), {CalculateTransformMatrix(waterComponent->GetPosition(), waterComponent->GetScale()), waterComponent}});
+    subscribers_.insert(
+        {gameObject->GetId(),
+         {CalculateTransformMatrix(waterComponent->GetPosition(), waterComponent->GetScale()), waterComponent}});
 }
 void WaterRenderer::UnSubscribe(GameObject* gameObject)
 {

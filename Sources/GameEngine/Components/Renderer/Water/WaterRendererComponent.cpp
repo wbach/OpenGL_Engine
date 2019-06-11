@@ -15,7 +15,7 @@ WaterRendererComponent::WaterRendererComponent(const ComponentContext& component
     , position_(0, -75, 0)
     , scale_(WATER_SCALE, WATER_SCALE, 1)
     , moveFactor_(0)
-    , waterColor_(.0f, .27f, .44f, 1.f)
+    , waterColor_(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
     , waveSpeed_(.1f)
 {
 }
