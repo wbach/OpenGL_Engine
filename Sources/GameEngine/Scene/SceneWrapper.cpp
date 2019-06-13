@@ -44,6 +44,14 @@ bool SceneWrapper::IsInitialized()
     return SaveGetState() == SceneWrapperState::Initilaized;
 }
 
+void SceneWrapper::UpdateScene(float dt)
+{
+    if (not activeScene)
+        return;
+
+    activeScene->FullUpdate(dt);
+}
+
 SceneWrapperState SceneWrapper::SaveGetState()
 {
     std::lock_guard<std::mutex> lk(stateMutex_);
@@ -71,7 +79,7 @@ Scene* SceneWrapper::Get()
 
 SceneWrapperState SceneWrapper::GetState()
 {
-    if (activeScene == nullptr)
+    if (not activeScene)
         return SceneWrapperState::SceneNotSet;
 
     return SaveGetState();

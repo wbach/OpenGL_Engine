@@ -8,6 +8,7 @@
 #include "IRenderer.h"
 #include "Projection.h"
 #include "RendererFunctionType.h"
+#include <functional>
 
 namespace GameEngine
 {
@@ -30,6 +31,7 @@ public:
     void Subscribe(GameObject* gameObject);
     void UnSubscribe(GameObject* gameObject);
     void UnSubscribeAll();
+    void UnSubscribeAll(std::function<void()>);
     void SwapLineFaceRender();
 
     void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_);
@@ -55,6 +57,7 @@ private:
     std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
+    std::function<void()> unsubscribeCallback_;
 
     IRenderersPtrVec renderers_;
     GUIRenderer guiRenderer_;

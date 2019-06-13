@@ -19,10 +19,24 @@ const GuiElements& GuiManager::GetElements() const
 
 void GuiManager::Update()
 {
-    for(auto& element : elements_)
+    for (auto& element : elements_)
     {
         element->Update();
     }
+}
+
+ActionFunction GuiManager::GetActionFunction(const std::string& name)
+{
+    if (registeredActions_.count(name))
+    {
+        return registeredActions_.at(name);
+    }
+    return []() { DEBUG_LOG("Button action not found."); };
+}
+
+void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
+{
+    registeredActions_.insert({name, action});
 }
 
 }  // namespace GameEngine

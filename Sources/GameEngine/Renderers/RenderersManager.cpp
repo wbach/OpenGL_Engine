@@ -122,6 +122,13 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
 
     guiRenderer_.Render(*scene, threadTime);
+
+    if (unsubscribeCallback_)
+    {
+        UnSubscribeAll();
+        unsubscribeCallback_();
+        unsubscribeCallback_ = {};
+    }
 }
 void RenderersManager::ReloadShaders()
 {
@@ -162,6 +169,11 @@ void RenderersManager::UnSubscribeAll()
         r->UnSubscribeAll();
 
     bufferDataUpdater_.UnSubscribeAll();
+    guiRenderer_.UnSubscribeAll();
+}
+void RenderersManager::UnSubscribeAll(std::function<void()> callback)
+{
+    unsubscribeCallback_ = callback;
 }
 void RenderersManager::SwapLineFaceRender()
 {

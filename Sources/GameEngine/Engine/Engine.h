@@ -36,6 +36,7 @@ private:
     void MainLoop();
     void ProcessEngineEvents();
     void PrepareFrame();
+    void Quit();
 
 private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;

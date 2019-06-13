@@ -20,6 +20,7 @@
 #include "SceneEvents.h"
 #include "SceneInitContext.h"
 #include "Types.h"
+#include "GameEngine/Engine/EngineEvent.h"
 
 namespace Input
 {
@@ -67,6 +68,7 @@ public:
     void AddGameObject(std::unique_ptr<GameObject>& object);
     void RemoveGameObject(GameObject* object);
     void SetAddSceneEventCallback(AddEvent func);
+    void SetAddEngineEventCallback(std::function<void(EngineEvent)>);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
@@ -98,6 +100,7 @@ protected:
 protected:
     std::string name;
     AddEvent addSceneEvent;
+    std::function<void(EngineEvent)> addEngineEvent;
 
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;

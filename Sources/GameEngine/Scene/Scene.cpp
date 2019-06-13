@@ -49,6 +49,11 @@ Scene::~Scene()
         inputManager_->UnsubscribeAll();
     }
 
+    if (renderersManager_)
+    {
+        renderersManager_->UnSubscribeAll();
+    }
+
     DEBUG_LOG("End");
 }
 
@@ -63,8 +68,8 @@ void Scene::InitResources(SceneInitContext& context)
 
     MakeGuiManager([context](auto& element) { context.renderersManager->GetGuiRenderer().Subscribe(element); });
 
-    GuiElementFactory::EntryParameters guiFactoryParams{
-            *guiManager_, *inputManager_, *resourceManager_, renderersManager_->GetProjection().GetWindowSize()};
+    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
+                                                        renderersManager_->GetProjection().GetWindowSize()};
     guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
 }
 
@@ -155,6 +160,11 @@ void Scene::RemoveGameObject(GameObject* object)
 void Scene::SetAddSceneEventCallback(AddEvent func)
 {
     addSceneEvent = func;
+}
+
+void Scene::SetAddEngineEventCallback(std::function<void(EngineEvent)> func)
+{
+    addEngineEvent = func;
 }
 
 void Scene::UpdateCamera()

@@ -25,6 +25,7 @@ GuiTextRenderer::GuiTextRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShader
 
 void GuiTextRenderer::UnSubscribeAll()
 {
+    texts_.clear();
 }
 
 void GuiTextRenderer::ReloadShaders()
@@ -36,7 +37,7 @@ void GuiTextRenderer::ReloadShaders()
 
 void GuiTextRenderer::Render()
 {
-    if (not isInit_)
+    if (not isInit_ or texts_.empty())
     {
         return;
     }

@@ -30,6 +30,7 @@ public:
     void Set(ScenePtr scene);
     void Init();
     bool IsInitialized();
+    void UpdateScene(float dt);
 
 private:
     SceneWrapperState SaveGetState();

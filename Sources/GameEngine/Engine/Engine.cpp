@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include "Configuration.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "Input/InputManager.h"
 #include "Logger/Log.h"
 
@@ -15,7 +15,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
     , inputManager_(nullptr)
     , renderersManager_(*graphicsApi_, shaderFactory_)
     , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager, shaderFactory_, inputManager_,
-                    renderersManager_, guiContext_)
+                    renderersManager_, guiContext_, [&](EngineEvent e) { AddEngineEvent(e); })
     , shaderFactory_(*graphicsApi_)
     , introRenderer_(*graphicsApi_, displayManager, shaderFactory_)
     , isRunning_(true)
@@ -74,8 +74,7 @@ void Engine::MainLoop()
     inputManager_->GetPressedKeys();
     if (inputManager_->GetKey(KeyCodes::ESCAPE))
     {
-        sceneManager_.Stop();
-        isRunning_ = false;
+        Quit();
         return;
     }
 
@@ -84,27 +83,23 @@ void Engine::MainLoop()
     renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());
     sceneManager_.Update();
     displayManager->Update();
+    ProcessEngineEvents();
 }
 
 void Engine::ProcessEngineEvents()
 {
-    EngineEvent event;
-    {
-        std::lock_guard<std::mutex> lk(engineEventsMutex);
+    std::lock_guard<std::mutex> lk(engineEventsMutex);
 
-        if (engineEvents.empty())
-            return;
+    if (engineEvents.empty())
+        return;
 
-        event = engineEvents.front();
-        engineEvents.pop_front();
-    }
+    auto event = engineEvents.front();
+    engineEvents.pop_front();
 
     switch (event)
     {
-        case EngineEvent::LOAD_NEXT_SCENE:
-
-            break;
         case EngineEvent::QUIT:
+            Quit();
             break;
         default:
             break;
@@ -115,6 +110,12 @@ void Engine::PrepareFrame()
 {
     graphicsApi_->PrepareFrame();
     displayManager->ProcessEvents();
+}
+
+void Engine::Quit()
+{
+    sceneManager_.Stop();
+    isRunning_ = false;
 }
 
 void Engine::Init()

@@ -137,8 +137,8 @@ void GuiButtonElement::SetSize(const vec2ui &size)
         onActiveTextue_->SetSize(size);
     if (backgroundTexture_)
         backgroundTexture_->SetSize(size);
-    if (text_)
-        text_->SetSize(size);
+    //if (text_)
+    //    text_->SetSize(size);
 
     GuiElement::SetSize(size);
 }
@@ -151,8 +151,8 @@ void GuiButtonElement::SetScale(const vec2 &scale)
         onActiveTextue_->SetScale(scale);
     if (backgroundTexture_)
         backgroundTexture_->SetScale(scale);
-    if (text_)
-        text_->SetScale(scale);
+    //if (text_)
+    //    text_->SetScale(scale);
 
     GuiElement::SetScale(scale);
 }

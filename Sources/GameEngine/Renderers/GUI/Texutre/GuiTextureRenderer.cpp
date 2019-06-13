@@ -48,7 +48,7 @@ void GuiTextureRenderer::Init()
 }
 void GuiTextureRenderer::Render()
 {
-    if (not isInit_)
+    if (not isInit_ or textures_.empty())
         return;
 
     shader_->Start();

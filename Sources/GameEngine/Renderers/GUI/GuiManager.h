@@ -5,11 +5,14 @@
 #include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
+#include <functional>
 
 namespace GameEngine
 {
 typedef std::vector<std::unique_ptr<GuiElement>> GuiElements;
 typedef std::unordered_map<std::string, GuiElement*> GuiElementsMap;
+
+using ActionFunction = std::function<void()>;
 
 class GuiManager
 {
@@ -21,11 +24,14 @@ public:
     void Add(const std::string& name, std::unique_ptr<GuiElement> element);
     const GuiElements& GetElements() const;
     void Update();
+    ActionFunction GetActionFunction(const std::string& name);
+    void RegisterAction(const std::string&, ActionFunction);
 
 private:
     GuiElementsMap elementsMap_;
     GuiElements elements_;
     std::function<void(GuiElement&)> subscribe_;
+    std::unordered_map<std::string, ActionFunction> registeredActions_;
 };
 
 template <class T>

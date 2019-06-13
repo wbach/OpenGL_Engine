@@ -133,6 +133,14 @@ void ReadGuiElementBasic(GuiElement *element, Utils::XmlNode &node)
         element->SetColor(color);
     }
 
+    paramNode = node.GetChild("inBackground");
+    if (paramNode)
+    {
+        auto inBackground = Utils::ReadBool(*paramNode);
+        if (inBackground)
+            element->SetZPosition(0.1f);
+    }
+
     paramNode = node.GetChild("position");
     if (paramNode)
     {
@@ -241,6 +249,9 @@ GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &facto
         return nullptr;
     }
 
+    std::string parent_label;
+    if (node.parent)
+        parent_label = GetLabel(*node.parent, unnamedTextId);
     std::string label = GetLabel(node, unnamedTextId), filename;
 
     auto paramNode = node.GetChild("file");
@@ -253,7 +264,7 @@ GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &facto
     paramNode = node.GetChild("label");
     if (paramNode)
     {
-        label = paramNode->value_;
+        label = parent_label + paramNode->value_;
     }
     else
     {
@@ -281,14 +292,14 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
         return nullptr;
     }
 
-    std::string label = GetLabel(node, unnamedTextId), background = "GUI/grayWindow.png";
+    std::string label = GetLabel(node, unnamedTextId);
 
     std::function<void()> onClick = []() {};
 
     auto paramNode = node.GetChild("action");
     if (paramNode)
     {
-        // onClick = manager.GetActionFunction(paramNode->value_);
+        onClick = manager.GetActionFunction(paramNode->value_);
     }
 
     auto button = factory.CreateGuiButton(label, onClick);

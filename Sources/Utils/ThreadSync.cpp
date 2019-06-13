@@ -31,9 +31,10 @@ void Subscriber::Start()
 
 void Subscriber::Stop()
 {
-    if (!isStarted)
+    if (not isStarted)
         return;
 
+    isStarted = false;
     isRunning.store(false);
     thread.join();
 }
@@ -78,6 +79,7 @@ uint32 ThreadSync::Subscribe(frameFunc func)
 
 void ThreadSync::Unsubscribe(uint32 id)
 {
+    subscribers[id].Stop();
     subscribers[id].isFree = true;
 }
 

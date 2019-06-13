@@ -10,7 +10,8 @@ namespace GameEngine
 SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi,
                            SceneFactoryBasePtr sceneFactory, std::shared_ptr<DisplayManager>& displayManager,
                            IShaderFactory& shaderFactory, std::shared_ptr<Input::InputManager>& inputManager,
-                           Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext)
+                           Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext,
+                           std::function<void(EngineEvent)> addEngineEvent)
     : grahpicsApi_(grahpicsApi)
     , physicsApi_(physicsApi)
     , sceneFactory_(sceneFactory)
@@ -20,10 +21,9 @@ SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhy
     , inputManager_(inputManager)
     , renderersManager_(renderersManager)
     , guiContext_(guiContext)
+    , addEngineEvent_(addEngineEvent)
 {
-    threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
-    threadSync_.Start();
-    isRunning_ = true;
+    UpdateSubscribe();
 }
 SceneManager::~SceneManager()
 {
@@ -47,7 +47,7 @@ void SceneManager::RuntimeLoadObjectToGpu()
         return;
 
     auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
-    auto obj = gpuLoader.GetObjectToGpuLoadingPass();
+    auto obj        = gpuLoader.GetObjectToGpuLoadingPass();
     if (obj != nullptr && !obj->isLoadedToGpu())
         obj->GpuLoadingPass();
 
@@ -58,16 +58,29 @@ void SceneManager::Update()
     if (sceneWrapper_.GetState() == SceneWrapperState::ReadyToInitialized)
         sceneWrapper_.Init();
 
+    TakeEvents();
     ProccessEvents();
 }
-void SceneManager::ProccessEvents()
+void SceneManager::TakeEvents()
 {
     auto optionalEvent = GetSceneEvent();
 
     if (!optionalEvent)
         return;
 
-    auto e = optionalEvent.value();
+    auto& e = optionalEvent.value();
+
+    StopUpdateSubscribe();
+    renderersManager_.UnSubscribeAll([&, e]() { AddEventToProcess(e); });
+}
+void SceneManager::ProccessEvents()
+{
+    auto optionalEvent = GetProcessingEvent();
+
+    if (not optionalEvent)
+        return;
+
+    auto& e = *optionalEvent;
 
     switch (e.type)
     {
@@ -86,7 +99,10 @@ void SceneManager::ProccessEvents()
         default:
             break;
     }
+
+    UpdateSubscribe();
 }
+
 void SceneManager::SetActiveScene(const std::string& name)
 {
     LoadScene(name);
@@ -122,15 +138,21 @@ bool SceneManager::IsRunning() const
 
 void SceneManager::UpadteScene(float dt)
 {
-    if (!sceneWrapper_.IsInitialized())
+    if (not sceneWrapper_.IsInitialized())
         return;
 
-    sceneWrapper_.Get()->FullUpdate(dt);
+    sceneWrapper_.UpdateScene(dt);
 }
 void SceneManager::AddSceneEvent(const SceneEvent& e)
 {
     std::lock_guard<std::mutex> lk(eventMutex_);
     events_.push(e);
+}
+
+void SceneManager::AddEventToProcess(const SceneEvent& e)
+{
+    std::lock_guard<std::mutex> lk(processingEventMutex_);
+    processingEvents_.push(e);
 }
 
 wb::optional<GameEngine::SceneEvent> SceneManager::GetSceneEvent()
@@ -145,6 +167,20 @@ wb::optional<GameEngine::SceneEvent> SceneManager::GetSceneEvent()
 
     return e;
 }
+
+std::optional<GameEngine::SceneEvent> SceneManager::GetProcessingEvent()
+{
+    std::lock_guard<std::mutex> lk(processingEventMutex_);
+
+    if (processingEvents_.empty())
+        return {};
+
+    auto e = processingEvents_.front();
+    processingEvents_.pop();
+
+    return e;
+}
+
 void SceneManager::LoadNextScene()
 {
     if (currentSceneId_ >= sceneFactory_->ScenesSize() - 1)
@@ -167,7 +203,6 @@ void SceneManager::LoadPreviousScene()
 template <class T>
 void SceneManager::JustLoadScene(T scene)
 {
-    renderersManager_.UnSubscribeAll();
     sceneWrapper_.Reset();
     auto s = sceneFactory_->Create(scene);
     SetSceneContext(s.get());
@@ -199,6 +234,21 @@ void SceneManager::LoadScene(const std::string& name)
 void SceneManager::SetSceneContext(Scene* scene)
 {
     scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
+    scene->SetAddEngineEventCallback(addEngineEvent_);
+}
+
+void SceneManager::UpdateSubscribe()
+{
+    updateSceneThreadId_ = threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
+    threadSync_.Start();
+    isRunning_ = true;
+}
+
+void SceneManager::StopUpdateSubscribe()
+{
+    threadSync_.Unsubscribe(updateSceneThreadId_);
+    threadSync_.Stop();
+    isRunning_ = false;
 }
 
 }  // namespace GameEngine
