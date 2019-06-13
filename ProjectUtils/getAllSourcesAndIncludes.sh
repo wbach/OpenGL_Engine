@@ -26,5 +26,6 @@ createSrc UtilsNetwork
 createSrc WindowAppCreator
 createSrc RpgGameServer
 createSrc Common
+createSrc Avatar
 
 cd ../../ProjectUtils/

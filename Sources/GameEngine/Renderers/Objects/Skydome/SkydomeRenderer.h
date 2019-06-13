@@ -14,7 +14,7 @@ struct RendererContext;
 
 struct SkydomeSubscriber
 {
-    Model* model_;
+    Model* model_{nullptr};
 };
 
 class SkydomRenderer : public IRenderer

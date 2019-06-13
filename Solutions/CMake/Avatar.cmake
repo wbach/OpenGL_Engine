@@ -1,4 +1,4 @@
-if(BUILD_TEST_GAME)
+if(BUILD_AVATAR_GAME)
     option(BUILD_UNIT_TESTS "" OFF)
     set(BulletLinkingLibs
                 BulletDynamics
@@ -31,10 +31,10 @@ if(BUILD_TEST_GAME)
     include_directories(
     ../../Sources/GameEngine/
     )
-    include(./Sources/TestGameSources.cmake)
-    add_executable(TestGlGame ${TestGameSources})
+    include(./Sources/AvatarSources.cmake)
+    add_executable(AvatarGame ${AvatarSources})
     if(BUILD_I386)
-        set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+        set_target_properties(AvatarGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
-    target_link_libraries(TestGlGame GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs})
+    target_link_libraries(AvatarGame GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs})
 endif()

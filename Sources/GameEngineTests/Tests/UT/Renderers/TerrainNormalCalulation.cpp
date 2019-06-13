@@ -48,23 +48,22 @@ struct HeightMapCalculatorShould : public ::testing::Test
 
 };
 
-TEST_F(HeightMapCalculatorShould, a)
-{
-    for (uint32 y = 0; y < heightMapResolution_; ++y)
-    {
-        for (uint32 x = 0; x < heightMapResolution_; ++x)
-        {
-            auto& height = GetHeight(x, y);
-            height = static_cast<float>(heightMapResolution_) - (static_cast<float>(x) * 0.25f);
-        }
-    }
+//TEST_F(HeightMapCalculatorShould, a)
+//{
+//    for (uint32 y = 0; y < heightMapResolution_; ++y)
+//    {
+//        for (uint32 x = 0; x < heightMapResolution_; ++x)
+//        {
+//            auto& height = GetHeight(x, y);
+//            height = static_cast<float>(heightMapResolution_) - (static_cast<float>(x) * 0.25f);
+//        }
+//    }
 
-    auto normal = CalculateNormalMap(128, 128);
-    std::cout << std::to_string(normal) << std::endl;
+//    auto normal = CalculateNormalMap(128, 128);
+//    std::cout << std::to_string(normal) << std::endl;
 
+//    auto dotProduct = glm::dot(normal, vec3(1, 0, 0));
+//    std::cout << "Dot : " << dotProduct  << std::endl;
 
-    auto dotProduct = glm::dot(normal, vec3(1, 0, 0));
-    std::cout << "Dot : " << dotProduct  << std::endl;
-
-}
+//}
 }  // namespace
