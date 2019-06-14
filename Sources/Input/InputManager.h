@@ -36,15 +36,15 @@ public:
 
     virtual void ShowCursor(bool){};
 
-    size_t SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
-    size_t SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
-    size_t SubscribeOnAnyKeyPress(KeysPressedFunc func);
+    std::size_t SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
+    std::size_t SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
+    std::size_t SubscribeOnAnyKeyPress(KeysPressedFunc func);
 
     void UnsubscribeOnKeyDown(KeyCodes::Type key);
     void UnsubscribeOnKeyUp(KeyCodes::Type key);
 
-    void UnsubscribeOnKeyDown(KeyCodes::Type key, size_t);
-    void UnsubscribeOnKeyUp(KeyCodes::Type key, size_t);
+    void UnsubscribeOnKeyDown(KeyCodes::Type key, std::size_t);
+    void UnsubscribeOnKeyUp(KeyCodes::Type key, std::size_t);
 
     void UnsubscribeAll();
 

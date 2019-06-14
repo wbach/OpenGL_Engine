@@ -28,7 +28,7 @@ MainMenu::~MainMenu()
 
 int MainMenu::Initialize()
 {
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(EngineEvent::QUIT);});
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     DEBUG_LOG("");
 
@@ -37,21 +37,11 @@ int MainMenu::Initialize()
         addSceneEvent(sceneEvent);
     });
 
-    guiManager_->RegisterAction("LoadGame()", []() { DEBUG_LOG("Load game button pressed"); });
+    guiManager_->RegisterAction("LoadGame()", [&]() { DEBUG_LOG("Load game button pressed"); stateToChange_ = State::LOAD_GAME; });
 
     guiManager_->RegisterAction("Settings()", [&]() {
         DEBUG_LOG("Settings button pressed");
-        auto startWindow = guiManager_->Get<GuiWindowElement>("StartWindow");
-        if (startWindow)
-        {
-            startWindow->Hide();
-        }
-
-        auto settingsWindow = guiManager_->Get<GuiWindowElement>("SettingsWindow");
-        if (settingsWindow)
-        {
-            settingsWindow->Show();
-        }
+        stateToChange_ = State::SETTINGS;
     });
 
     guiManager_->RegisterAction("Exit()", [&]() { /*DEBUG_LOG("Exit game button pressed"); */
@@ -59,17 +49,7 @@ int MainMenu::Initialize()
     });
 
     guiManager_->RegisterAction("BackToMainMenu()", [&]() {
-        auto settingsWindow = guiManager_->Get<GuiWindowElement>("SettingsWindow");
-        if (settingsWindow)
-        {
-            settingsWindow->Hide();
-        }
-
-        auto startWindow = guiManager_->Get<GuiWindowElement>("StartWindow");
-        if (startWindow)
-        {
-            startWindow->Show();
-        }
+        stateToChange_ = State::MAIN;
     });
 
     guiElementFactory_->ReadGuiFile("MainMenuGui.xml");
@@ -84,7 +64,66 @@ void MainMenu::PostInitialize()
 int MainMenu::Update(float)
 {
     guiElementFactory_->ReadGuiFile("MainMenuGui.xml");
+
+    if (stateToChange_)
+    {
+        ChangeState(*stateToChange_);
+        stateToChange_.reset();
+    }
     return 0;
+}
+
+void MainMenu::ChangeState(State state)
+{
+    auto startWindow    = guiManager_->Get<GuiWindowElement>("StartWindow");
+    auto settingsWindow = guiManager_->Get<GuiWindowElement>("SettingsWindow");
+    auto loadingWindow = guiManager_->Get<GuiWindowElement>("LoadGameWindow");
+
+    if (state == State::SETTINGS)
+    {
+        if (loadingWindow)
+        {
+            loadingWindow->Hide();
+        }
+        if (startWindow)
+        {
+            startWindow->Hide();
+        }
+        if (settingsWindow)
+        {
+            settingsWindow->Show();
+        }
+    }
+    else if (state == State::MAIN)
+    {
+        if (settingsWindow)
+        {
+            settingsWindow->Hide();
+        }
+        if (startWindow)
+        {
+            startWindow->Show();
+        }
+        if (loadingWindow)
+        {
+            loadingWindow->Hide();
+        }
+    }
+    else if (state == State::LOAD_GAME)
+    {
+        if (settingsWindow)
+        {
+            settingsWindow->Hide();
+        }
+        if (startWindow)
+        {
+            startWindow->Hide();
+        }
+        if (loadingWindow)
+        {
+            loadingWindow->Show();
+        }
+    }
 }
 
 }  // namespace AvatarGame

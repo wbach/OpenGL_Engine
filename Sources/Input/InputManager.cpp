@@ -42,19 +42,19 @@ void InputManager::SetDefaultKeys()
     keyGameActions[GameActions::WORLD_MAP]             = KeyCodes::M;
 }
 
-size_t InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
+std::size_t InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
     keyDownSubscribers_[key].push_back(func);
     return keyDownSubscribers_.at(key).size() - 1;
 }
 
-size_t InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
+std::size_t InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
     keyUpSubscribers_[key].push_back(func);
     return keyUpSubscribers_.at(key).size() - 1;
 }
 
-size_t InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
+std::size_t InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
     keysSubscribers_.push_back(func);
     return keysSubscribers_.size() - 1;
@@ -79,7 +79,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
     keyUpSubscribers_.erase(key);
 }
 
-void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, size_t i)
+void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, std::size_t i)
 {
     if (keyDownSubscribers_.count(key) == 0)
         return;
@@ -88,7 +88,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, size_t i)
     list.erase(list.begin() + i);
 }
 
-void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, size_t i)
+void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, std::size_t i)
 {
     if (keyUpSubscribers_.count(key) == 0)
         return;
