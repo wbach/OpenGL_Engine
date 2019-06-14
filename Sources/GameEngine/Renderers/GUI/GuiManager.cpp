@@ -8,6 +8,11 @@ GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe)
 }
 void GuiManager::Add(const std::string& name, std::unique_ptr<GuiElement> element)
 {
+    if (elementsMap_.count(name) > 0 )
+    {
+        DEBUG_LOG("REPLACE EXISTING Element name : " + name);
+    }
+    DEBUG_LOG(name);
     elementsMap_.insert({name, element.get()});
     elements_.push_back(std::move(element));
     subscribe_(*elements_.back());
@@ -15,6 +20,11 @@ void GuiManager::Add(const std::string& name, std::unique_ptr<GuiElement> elemen
 const GuiElements& GuiManager::GetElements() const
 {
     return elements_;
+}
+
+const GuiElementsMap& GuiManager::GetElementsMap() const
+{
+    return elementsMap_;
 }
 
 void GuiManager::Update()

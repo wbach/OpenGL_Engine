@@ -14,6 +14,9 @@ public:
     void AddChild(GuiElement*);
     virtual void Update() override;
     virtual void SetScale(const vec2& scale);
+    virtual void Show(bool);
+    virtual void Show() override;
+    virtual void Hide() override;
 
 private:
     std::vector<GuiElement*> children_;

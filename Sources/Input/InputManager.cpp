@@ -1,6 +1,6 @@
-#include <algorithm>
 #include "InputManager.h"
 #include <Logger/Log.h>
+#include <algorithm>
 
 namespace Input
 {
@@ -42,19 +42,22 @@ void InputManager::SetDefaultKeys()
     keyGameActions[GameActions::WORLD_MAP]             = KeyCodes::M;
 }
 
-void InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
+size_t InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
     keyDownSubscribers_[key].push_back(func);
+    return keyDownSubscribers_.at(key).size() - 1;
 }
 
-void InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
+size_t InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
     keyUpSubscribers_[key].push_back(func);
+    return keyUpSubscribers_.at(key).size() - 1;
 }
 
-void InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
+size_t InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
     keysSubscribers_.push_back(func);
+    return keysSubscribers_.size() - 1;
 }
 
 void InputManager::UnsubscribeAll()
@@ -74,5 +77,23 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
     if (keyUpSubscribers_.count(key) == 0)
         return;
     keyUpSubscribers_.erase(key);
+}
+
+void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, size_t i)
+{
+    if (keyDownSubscribers_.count(key) == 0)
+        return;
+
+    auto& list = keyDownSubscribers_.at(key);
+    list.erase(list.begin() + i);
+}
+
+void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, size_t i)
+{
+    if (keyUpSubscribers_.count(key) == 0)
+        return;
+
+    auto& list = keyUpSubscribers_.at(key);
+    list.erase(list.begin() + i);
 }
 }  // namespace Input

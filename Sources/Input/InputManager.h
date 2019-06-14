@@ -11,7 +11,7 @@
 namespace Input
 {
 typedef std::function<void()> KeyPressedFunc;
-typedef std::list<KeyPressedFunc> KeySubscribers;
+typedef std::vector<KeyPressedFunc> KeySubscribers;
 typedef std::unordered_map<KeyCodes::Type, KeySubscribers> KeyPressedSubscribers;
 typedef std::function<void(KeyCodes::Type key)> KeysPressedFunc;
 typedef std::list<KeysPressedFunc> KeysSubscribers;
@@ -36,12 +36,15 @@ public:
 
     virtual void ShowCursor(bool){};
 
-    void SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
-    void SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
-    void SubscribeOnAnyKeyPress(KeysPressedFunc func);
+    size_t SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
+    size_t SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
+    size_t SubscribeOnAnyKeyPress(KeysPressedFunc func);
 
     void UnsubscribeOnKeyDown(KeyCodes::Type key);
     void UnsubscribeOnKeyUp(KeyCodes::Type key);
+
+    void UnsubscribeOnKeyDown(KeyCodes::Type key, size_t);
+    void UnsubscribeOnKeyUp(KeyCodes::Type key, size_t);
 
     void UnsubscribeAll();
 

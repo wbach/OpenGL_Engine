@@ -3,7 +3,6 @@
 
 namespace GameEngine
 {
-
 void UpdatePosition(GuiElement& element, const vec2ui& v)
 {
     auto rect = element.GetRect();
@@ -15,10 +14,9 @@ void UpdatePosition(GuiElement& element, const vec2ui& v)
 void UpdatePosition(GuiElement& element, const vec2& v)
 {
     auto position = element.GetPosition();
-    position = position + v;
+    position      = position + v;
     element.SetPostion(position);
 }
-
 
 void SetPosition(GuiElement& element, const vec2ui& v)
 {
@@ -31,7 +29,7 @@ void SetPosition(GuiElement& element, const vec2ui& v)
 GuiElementTypes GuiWindowElement::type = GuiElementTypes::Window;
 
 GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager)
-    : GuiElement(type, windowSize)
+    : GuiElement(GuiWindowElement::type, windowSize)
     , inputManager_(inputManager)
     , titleBarSize_(0.43f)
 {
@@ -61,8 +59,8 @@ void GuiWindowElement::Update()
 
     if (collisionPoint_->y > barYStart)
     {
-        auto newPosition = position  - *collisionPoint_;
-        auto moveVec =  newPosition - position_;
+        auto newPosition = position - *collisionPoint_;
+        auto moveVec     = newPosition - position_;
 
         SetPostion(newPosition);
         for (auto& child : children_)
@@ -72,7 +70,6 @@ void GuiWindowElement::Update()
     }
     else
     {
-       
         // Is on top
     }
 }
@@ -80,6 +77,33 @@ void GuiWindowElement::Update()
 void GuiWindowElement::SetScale(const vec2& scale)
 {
     GuiElement::SetScale(scale);
+}
+
+void GuiWindowElement::Show(bool b)
+{
+    for(auto child : children_)
+    {
+        child->Show(b);
+    }
+    GuiElement::Show(b);
+}
+
+void GuiWindowElement::Show()
+{
+    for(auto child : children_)
+    {
+        child->Show();
+    }
+    GuiElement::Show();
+}
+
+void GuiWindowElement::Hide()
+{
+    for(auto child : children_)
+    {
+        child->Hide();
+    }
+    GuiElement::Hide();
 }
 
 }  // namespace GameEngine

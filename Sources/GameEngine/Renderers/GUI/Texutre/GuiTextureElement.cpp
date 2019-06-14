@@ -5,7 +5,7 @@ namespace GameEngine
 GuiElementTypes GuiTextureElement::type = GuiElementTypes::Texture;
 
 GuiTextureElement::GuiTextureElement(const vec2ui& windowSize, const Texture& texture)
-    : GuiElement(type, windowSize)
+    : GuiElement(GuiTextureElement::type, windowSize)
     , texture_(texture)
 {
 }

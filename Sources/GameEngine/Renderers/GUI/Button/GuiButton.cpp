@@ -17,15 +17,7 @@ GuiButtonElement::GuiButtonElement(Input::InputManager &inputManager, OnClick on
     , onHoverTexture_{nullptr}
     , onActiveTextue_{nullptr}
 {
-    auto &timer = activeTimer_;
-    inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-        auto position = inputManager_.GetMousePosition();
-        if (IsCollision(position))
-        {
-            onClick_();
-            timer.Reset();
-        }
-    });
+    SubscribeInputAction();
 }
 
 void GuiButtonElement::Update()
@@ -137,7 +129,7 @@ void GuiButtonElement::SetSize(const vec2ui &size)
         onActiveTextue_->SetSize(size);
     if (backgroundTexture_)
         backgroundTexture_->SetSize(size);
-    //if (text_)
+    // if (text_)
     //    text_->SetSize(size);
 
     GuiElement::SetSize(size);
@@ -151,7 +143,7 @@ void GuiButtonElement::SetScale(const vec2 &scale)
         onActiveTextue_->SetScale(scale);
     if (backgroundTexture_)
         backgroundTexture_->SetScale(scale);
-    //if (text_)
+    // if (text_)
     //    text_->SetScale(scale);
 
     GuiElement::SetScale(scale);
@@ -211,6 +203,8 @@ void GuiButtonElement::Show(bool b)
         text_->Show(b);
 
     GuiElement::Show(b);
+
+    //b ? SubscribeInputAction() : UnsubscribeInputAction();
 }
 
 void GuiButtonElement::Show()
@@ -225,6 +219,8 @@ void GuiButtonElement::Show()
         text_->Show();
 
     GuiElement::Show();
+
+    //SubscribeInputAction();
 }
 
 void GuiButtonElement::Hide()
@@ -239,6 +235,28 @@ void GuiButtonElement::Hide()
         text_->Hide();
 
     GuiElement::Hide();
+
+    //UnsubscribeInputAction();
+}
+
+void GuiButtonElement::SubscribeInputAction()
+{
+    subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        if (IsShow())
+        {
+            auto position = inputManager_.GetMousePosition();
+            if (IsCollision(position))
+            {
+                onClick_();
+                activeTimer_.Reset();
+            }
+        }
+    });
+}
+
+void GuiButtonElement::UnsubscribeInputAction()
+{
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, subscribtion_);
 }
 
 }  // namespace GameEngine

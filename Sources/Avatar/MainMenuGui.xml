@@ -14,96 +14,130 @@
         <fontSize>75</fontSize>
         <outline>0</outline>
     </text>
-    <button>
-        <label>StartGameButton</label>
-        <position x="-0.5000" y="0.1000"></position>
-        <scale x="0.12500  " y="0.05000"></scale>
-        <action>StartGame()</action>
-        <text>
-            <label>text</label>
-            <value>Start Game</value>
-            <font>GUI/herculanum.ttf</font>
-            <fontSize>50</fontSize>
-            <outline>0</outline>
-        </text>
-        <texture>
-            <label>hoverTexture</label>
-            <file>GUI/button_yellow.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-        <texture>
-            <label>activeTexture</label>
-            <file>GUI/button_green.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-    </button>
-    <button>
-        <label>LoadGameButton</label>
-        <position x="-0.5000" y="-0.025000"></position>
-        <scale x="0.12500  " y="0.05000"></scale>
-        <action>LoadGame()</action>
-        <text>
-            <label>LoadGameText</label>
-            <value>Load Game</value>
-            <font>GUI/herculanum.ttf</font>
-            <fontSize>50</fontSize>
-            <outline>0</outline>
-        </text>
-        <texture>
-            <label>hoverTexture</label>
-            <file>GUI/button_yellow.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-        <texture>
-            <label>activeTexture</label>
-            <file>GUI/button_green.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-    </button>
-    <button>
-        <label>SettingsButton</label>
-        <position x="-0.5000" y="-0.15000"></position>
-        <scale x="0.12500  " y="0.05000"></scale>
-        <action>Settings()</action>
-        <text>
-            <label>SettingsText</label>
-            <value>Settings</value>
-            <font>GUI/herculanum.ttf</font>
-            <fontSize>50</fontSize>
-            <outline>0</outline>
-        </text>
-        <texture>
-            <label>hoverTexture</label>
-            <file>GUI/button_yellow.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-        <texture>
-            <label>activeTexture</label>
-            <file>GUI/button_green.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-    </button>
+    <window>
+        <label>SettingsWindow</label>
+        <position x="0.0000" y="0.00000"></position>
+        <scale x="1.000000" y="1.000000"></scale>
+        <show>false</show>
         <button>
-        <label>ExitButton</label>
-        <position x="-0.5000" y="-0.27500"></position>
-        <scale x="0.12500  " y="0.05000"></scale>
-        <action>Exit()</action>
-        <text>
-            <label>ExitText</label>
-            <value>Exit</value>
-            <font>GUI/herculanum.ttf</font>
-            <fontSize>50</fontSize>
-            <outline>0</outline>
-        </text>
-        <texture>
-            <label>hoverTexture</label>
-            <file>GUI/button_yellow.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-        <texture>
-            <label>activeTexture</label>
-            <file>GUI/button_green.png</file>
-            <color x="1.000000" y="1.000000" z="1.000000"></color>
-        </texture>
-    </button>
+            <label>BackToMainMenu</label>
+            <position x="-0.5000" y="-0.27500"></position>
+            <scale x="0.12500  " y="0.05000"></scale>
+            <action>BackToMainMenu()</action>
+            <text>
+                <label>BackToMainMenuText</label>
+                <value>Back</value>
+                <font>GUI/herculanum.ttf</font>
+                <fontSize>50</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+    </window>
+    <window>
+        <label>StartWindow</label>
+        <position x="0.0000" y="0.00000"></position>
+        <scale x="1.000000" y="1.000000"></scale>
+        <button>
+            <label>StartGameButton</label>
+            <position x="-0.5000" y="0.1000"></position>
+            <scale x="0.12500  " y="0.05000"></scale>
+            <action>StartGame()</action>
+            <text>
+                <label>text</label>
+                <value>Start Game</value>
+                <font>GUI/herculanum.ttf</font>
+                <fontSize>50</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>LoadGameButton</label>
+            <position x="-0.5000" y="-0.025000"></position>
+            <scale x="0.12500  " y="0.05000"></scale>
+            <action>LoadGame()</action>
+            <text>
+                <label>LoadGameText</label>
+                <value>Load Game</value>
+                <font>GUI/herculanum.ttf</font>
+                <fontSize>50</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>SettingsButton</label>
+            <position x="-0.5000" y="-0.15000"></position>
+            <scale x="0.12500  " y="0.05000"></scale>
+            <action>Settings()</action>
+            <text>
+                <label>SettingsText</label>
+                <value>Settings</value>
+                <font>GUI/herculanum.ttf</font>
+                <fontSize>50</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+            <button>
+            <label>ExitButton</label>
+            <position x="-0.5000" y="-0.27500"></position>
+            <scale x="0.12500  " y="0.05000"></scale>
+            <action>Exit()</action>
+            <text>
+                <label>ExitText</label>
+                <value>Exit</value>
+                <font>GUI/herculanum.ttf</font>
+                <fontSize>50</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+    </window>
 </gui>

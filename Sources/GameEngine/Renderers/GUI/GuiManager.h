@@ -23,6 +23,7 @@ public:
     inline GuiElement* GetElement(const std::string& name);
     void Add(const std::string& name, std::unique_ptr<GuiElement> element);
     const GuiElements& GetElements() const;
+    const GuiElementsMap& GetElementsMap() const;
     void Update();
     ActionFunction GetActionFunction(const std::string& name);
     void RegisterAction(const std::string&, ActionFunction);

@@ -35,6 +35,10 @@ public:
     void Hide() override;
 
 private:
+    void SubscribeInputAction();
+    void UnsubscribeInputAction();
+
+private:
     Input::InputManager& inputManager_;
     OnClick onClick_;
     GuiTextElement* text_;
@@ -47,6 +51,7 @@ private:
     vec3 onActiveTextColor_;
 
     Utils::Timer activeTimer_;
+    size_t subscribtion_;
 
 public:
     static GuiElementTypes type;
