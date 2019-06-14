@@ -49,14 +49,24 @@ float WaterRendererComponent::increaseAndGetMoveFactor(float deltaTime)
     return moveFactor_;
 }
 
-Texture* WaterRendererComponent::GetDudvTexture()
+const Texture* WaterRendererComponent::GetDudvTexture() const
 {
     return dudvMap_;
 }
 
-Texture* WaterRendererComponent::GetNormalTexture()
+const Texture* WaterRendererComponent::GetNormalTexture() const
 {
     return normalMap_;
+}
+
+void WaterRendererComponent::SetPosition(const vec3& pos)
+{
+    position_ = pos;
+}
+
+void WaterRendererComponent::SetScale(const vec3& s)
+{
+    scale_ = s;
 }
 
 WaterRendererComponent& WaterRendererComponent::LoadTextures(const std::string& dudv, const std::string& normal)
@@ -71,6 +81,16 @@ WaterRendererComponent& WaterRendererComponent::SetWaveSpeed(float speed)
 {
     waveSpeed_ = speed;
     return *this;
+}
+
+float WaterRendererComponent::GetWaveSpeed() const
+{
+    return waveSpeed_;
+}
+
+void WaterRendererComponent::SetWaterColor(const vec4& color)
+{
+    waterColor_ = color;
 }
 void WaterRendererComponent::Subscribe()
 {

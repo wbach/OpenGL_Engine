@@ -27,6 +27,7 @@ struct RapidNodeData
 float ReadFloat(XmlNode& node);
 bool ReadBool(XmlNode& node);
 vec3 ReadVec3(XmlNode& node);
+vec4 ReadVec4(XmlNode& node);
 vec2ui ReadVec2ui(XmlNode& node);
 vec2 ReadVec2(XmlNode& node);
 RapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node);

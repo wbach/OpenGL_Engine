@@ -3,8 +3,8 @@
 #include "Scene.hpp"
 #include "SceneDef.h"
 #include "Utils.h"
-#include "Utils/XML/XmlReader.h"
 #include "Utils/XML/XMLUtils.h"
+#include "Utils/XML/XmlReader.h"
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
@@ -21,6 +21,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
+#include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 
 using namespace Utils;
 
@@ -31,14 +32,12 @@ namespace
 Scene* currentReadingScene = nullptr;
 }
 
-
 std::vector<vec3> ReadVectorVec3(Utils::XmlNode& node)
 {
     std::vector<vec3> result;
     for (const auto& v : node.GetChildren())
     {
-        result.emplace_back(std::stof(v->attributes_[CSTR_X]), std::stof(v->attributes_[CSTR_Y]),
-                            std::stof(v->attributes_[CSTR_Z]));
+        result.emplace_back(std::stof(v->attributes_[CSTR_X]), std::stof(v->attributes_[CSTR_Y]), std::stof(v->attributes_[CSTR_Z]));
     }
     return result;
 }
@@ -105,7 +104,7 @@ void Read(Utils::XmlNode& node, Components::RendererComponent& component)
     for (const auto& fileNode : node.GetChild(CSTR_MODEL_FILE_NAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+        auto lod             = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.AddModel(filename, lod);
     }
 }
@@ -115,13 +114,13 @@ void Read(Utils::XmlNode& node, Components::TreeRendererComponent& component)
     for (const auto& fileNode : node.GetChild(CSTR_BOTTOM_FILENAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+        auto lod             = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.SetBottomModel(filename, lod);
     }
     for (const auto& fileNode : node.GetChild(CSTR_TOP_FILENAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+        auto lod             = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.SetTopModel(filename, lod);
     }
 
@@ -148,8 +147,7 @@ void Read(Utils::XmlNode& node, Components::ParticleEffectComponent& component)
     component.SetParticle(particle);
     component.SetTexture(node.GetChild(CSTR_TEXTURE)->value_);
     component.SetParticlesPerSec(std::stoul(node.GetChild(CSTR_PARTICLE_PER_SER)->value_));
-    component.SetBlendFunction(
-        static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
+    component.SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
 
     auto emitFunctionName = node.GetChild(CSTR_EMIT_FUNCTION)->value_;
     auto emitFunction     = currentReadingScene->GetParticleEmitFunction(emitFunctionName);
@@ -194,8 +192,32 @@ void Read(Utils::XmlNode& node, Components::SkyBoxComponent& component)
     component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
 }
 
-void Read(Utils::XmlNode& node, Components::SkydomeComponent& component)
+void Read(Utils::XmlNode&, Components::SkydomeComponent&)
 {
+}
+
+void Read(Utils::XmlNode& node, Components::WaterRendererComponent& component)
+{
+    auto waveSpeedNode = node.GetChild(CSTR_WAVE_SPEED);
+    if (waveSpeedNode)
+        component.SetWaveSpeed(ReadFloat(*waveSpeedNode));
+
+    auto colorNode = node.GetChild(CSTR_COLOR);
+    if (colorNode)
+        component.SetWaterColor(ReadVec4(*colorNode));
+
+    auto positionNode = node.GetChild(CSTR_POSITION);
+    if (positionNode)
+        component.SetPosition(ReadVec3(*positionNode));
+
+    auto scaleNode = node.GetChild(CSTR_SCALE);
+    if (scaleNode)
+        component.SetScale(ReadVec3(*scaleNode));
+
+    auto dudvNode      = node.GetChild(CSTR_DUDV_MAP);
+    auto normalMapNode = node.GetChild(CSTR_NORMAL_MAP);
+    if (dudvNode and normalMapNode)
+        component.LoadTextures(dudvNode->value_, normalMapNode->value_);
 }
 
 std::unordered_map<TerrainTextureType, std::string> ReadTerrainTextures(Utils::XmlNode& node)
@@ -237,7 +259,7 @@ void AddComponent(Utils::XmlNode& node, GameObject& gameObject, const std::strin
 
     if (not child)
     {
-       ERROR_LOG("Component type number miss match with comonent name.");
+        ERROR_LOG("Component type number miss match with comonent name.");
         return;
     }
 
@@ -284,8 +306,7 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 AddComponent<Components::TreeRendererComponent>(*component, gameObject, CSTR_COMPONENT_TREERENDERER);
                 break;
             case Components::ComponentsType::ParticleEffect:
-                AddComponent<Components::ParticleEffectComponent>(*component, gameObject,
-                                                                  CSTR_COMPONENT_PARTICLEEFFECT);
+                AddComponent<Components::ParticleEffectComponent>(*component, gameObject, CSTR_COMPONENT_PARTICLEEFFECT);
                 break;
             case Components::ComponentsType::SkyBox:
                 AddComponent<Components::SkyBoxComponent>(*component, gameObject, CSTR_COMPONENT_SKYBOX);
@@ -297,12 +318,13 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 AddComponent<Components::GrassRendererComponent>(*component, gameObject, CSTR_COMPONENT_GRASS);
                 break;
             case Components::ComponentsType::TerrainRenderer:
-                AddComponent<Components::TerrainRendererComponent>(*component, gameObject,
-                                                                   CSTR_COMPONENT_TERRAINRENDERER);
+                AddComponent<Components::TerrainRendererComponent>(*component, gameObject, CSTR_COMPONENT_TERRAINRENDERER);
                 break;
             case Components::ComponentsType::TerrainMeshRenderer:
-                AddComponent<Components::TerrainMeshRendererComponent>(*component, gameObject,
-                                                                       CSTR_COMPONENT_TERRAINMESHRENDERER);
+                AddComponent<Components::TerrainMeshRendererComponent>(*component, gameObject, CSTR_COMPONENT_TERRAINMESHRENDERER);
+                break;
+            case Components::ComponentsType::Water:
+                AddComponent<Components::WaterRendererComponent>(*component, gameObject, CSTR_COMPONENT_WATER_RENDERER);
                 break;
         }
     }

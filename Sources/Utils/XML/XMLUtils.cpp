@@ -11,6 +11,7 @@ namespace Utils
 const std::string CSTR_X = "x";
 const std::string CSTR_Y = "y";
 const std::string CSTR_Z = "z";
+const std::string CSTR_W = "w";
 
 RapidNodeData GetRapidNodeData(rapidxml::xml_node<char>* node)
 {
@@ -110,6 +111,16 @@ vec3 ReadVec3(XmlNode& node)
     return v;
 }
 
+vec4 ReadVec4(XmlNode& node)
+{
+    vec4 v;
+    v.x = std::stof(node.attributes_[CSTR_X]);
+    v.y = std::stof(node.attributes_[CSTR_Y]);
+    v.z = std::stof(node.attributes_[CSTR_Z]);
+    v.w = std::stof(node.attributes_[CSTR_W]);
+    return v;
+}
+
 vec2ui ReadVec2ui(XmlNode& node)
 {
     vec2ui v;
@@ -127,3 +138,4 @@ vec2 ReadVec2(XmlNode& node)
 }
 
 }  // namespace Utils
+

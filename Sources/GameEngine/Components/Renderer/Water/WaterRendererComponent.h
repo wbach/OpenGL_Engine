@@ -14,15 +14,21 @@ class WaterRendererComponent : public BaseComponent
 public:
     WaterRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
 
+    float moveFactor() const;
+    float increaseAndGetMoveFactor(float deltaTime);
+
     const vec3& GetPosition() const;
     const vec3& GetScale() const;
     const vec4& GetWaterColor() const;
-    float moveFactor() const;
-    float increaseAndGetMoveFactor(float deltaTime);
-    Texture* GetDudvTexture();
-    Texture* GetNormalTexture();
-    WaterRendererComponent& LoadTextures(const std::string& dudv, const std::string& normal);
+    float GetWaveSpeed() const;
+    const Texture* GetDudvTexture() const;
+    const Texture* GetNormalTexture() const;
+
+    void SetPosition(const vec3&);
+    void SetScale(const vec3&);
+    void SetWaterColor(const vec4&);
     WaterRendererComponent& SetWaveSpeed(float);
+    WaterRendererComponent& LoadTextures(const std::string& dudv, const std::string& normal);
 
 private:
     void ReqisterFunctions();

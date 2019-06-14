@@ -20,6 +20,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
+#include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 
 using namespace Utils;
 
@@ -55,6 +56,13 @@ void Create(XmlNode& node, const vec3& v)
     node.attributes_[CSTR_X] = std::to_string(v.x);
     node.attributes_[CSTR_Y] = std::to_string(v.y);
     node.attributes_[CSTR_Z] = std::to_string(v.z);
+}
+void Create(XmlNode& node, const vec4& v)
+{
+    node.attributes_[CSTR_X] = std::to_string(v.x);
+    node.attributes_[CSTR_Y] = std::to_string(v.y);
+    node.attributes_[CSTR_Z] = std::to_string(v.z);
+    node.attributes_[CSTR_W] = std::to_string(v.w);
 }
 
 void Create(XmlNode& node, const std::vector<vec3>& v)
@@ -198,8 +206,22 @@ void Create(XmlNode& node, const Components::SkyBoxComponent& component)
     Create(node.AddChild(CSTR_MODEL_FILE_NAME), component.GetModelFileName());
 }
 
-void Create(XmlNode& node, const Components::SkydomeComponent& component)
+void Create(XmlNode&, const Components::SkydomeComponent&)
 {
+}
+
+void Create(XmlNode& node, const Components::WaterRendererComponent& component)
+{
+    Create(node.AddChild(CSTR_POSITION), component.GetPosition());
+    Create(node.AddChild(CSTR_SCALE), component.GetScale());
+    Create(node.AddChild(CSTR_COLOR), component.GetWaterColor());
+    Create(node.AddChild(CSTR_WAVE_SPEED), component.GetWaveSpeed());
+
+    if (component.GetDudvTexture())
+        Create(node.AddChild(CSTR_DUDV_MAP), component.GetDudvTexture());
+
+    if (component.GetNormalTexture())
+        Create(node.AddChild(CSTR_NORMAL_MAP), component.GetNormalTexture());
 }
 
 void Create(XmlNode& node, const Components::GrassRendererComponent& component)
@@ -273,8 +295,10 @@ void Create(XmlNode& node, const Components::IComponent& component)
             CreateComponent<Components::TerrainRendererComponent>(node, component, CSTR_COMPONENT_TERRAINRENDERER);
             break;
         case Components::ComponentsType::TerrainMeshRenderer:
-            CreateComponent<Components::TerrainMeshRendererComponent>(node, component,
-                                                                      CSTR_COMPONENT_TERRAINMESHRENDERER);
+            CreateComponent<Components::TerrainMeshRendererComponent>(node, component, CSTR_COMPONENT_TERRAINMESHRENDERER);
+            break;
+        case Components::ComponentsType::Water:
+            CreateComponent<Components::WaterRendererComponent>(node, component, CSTR_COMPONENT_WATER_RENDERER);
             break;
     }
 }
