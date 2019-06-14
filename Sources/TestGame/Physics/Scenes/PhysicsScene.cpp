@@ -125,6 +125,8 @@ void PhysicsScene::RemoveObjectsUnderYValue(float y)
 
 void PhysicsScene::KeyOperations()
 {
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(EngineEvent::QUIT);});
+
     inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]() {
         auto dir = GetCamera().GetDirection();
         dir      = glm::normalize(dir);

@@ -29,6 +29,8 @@ SouthPool::~SouthPool()
 int SouthPool::Initialize()
 {
     DEBUG_LOG("SouthPool::Initialize()");
+
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(EngineEvent::QUIT);});
     return 0;
 }
 

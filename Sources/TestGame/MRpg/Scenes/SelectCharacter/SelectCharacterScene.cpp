@@ -7,7 +7,9 @@
 #include "States/GetCharacterState.h"
 #include "States/SelectingCharacterState.h"
 #include "States/WaitForConfirmationState.h"
-#include "UtilsNetwork/Gateway.h"
+#include <UtilsNetwork/Gateway.h>
+#include <Input/InputManager.h>
+#include <GameEngine/Engine/EngineEvent.h>
 
 namespace MmmoRpg
 {
@@ -21,6 +23,7 @@ SelectCharacterScene::~SelectCharacterScene()
 }
 int SelectCharacterScene::Initialize()
 {
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(GameEngine::EngineEvent::QUIT);});
     //GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
     //guiTexture.texture                  = resourceManager_->GetTextureLaoder().LoadTexture("GUI/character_select.jpg", false);
     //renderersManager_->GuiTexture("bg") = guiTexture;

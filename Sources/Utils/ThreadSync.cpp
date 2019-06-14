@@ -24,8 +24,9 @@ Subscriber::Subscriber(const Subscriber& s)
 
 void Subscriber::Start()
 {
+    isRunning.store(true);
     thread = std::thread(std::bind(&Subscriber::Update, this));
-    //timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
+    // timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
     isStarted = true;
 }
 
@@ -53,8 +54,7 @@ void Subscriber::Update()
 
 void Subscriber::PrintFps()
 {
-    std::string msg = "Thread id : " + std::to_string(threadId) + ", fps : " + std::to_string(timeMeasurer.GetFps()) +
-                      ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
+    std::string msg = "Thread id : " + std::to_string(threadId) + ", fps : " + std::to_string(timeMeasurer.GetFps()) + ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
     DEBUG_LOG(msg);
 }
 
@@ -86,7 +86,10 @@ void ThreadSync::Unsubscribe(uint32 id)
 void ThreadSync::Start()
 {
     for (auto& s : subscribers)
-        s.Start();
+    {
+        if (not s.isFree)
+            s.Start();
+    }
 }
 
 void ThreadSync::Stop()

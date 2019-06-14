@@ -1,4 +1,6 @@
 #include "MainRpgScene.h"
+#include <GameEngine/Engine/EngineEvent.h>
+#include <Input/InputManager.h>
 #include "Camera/FirstPersonCamera.h"
 #include "Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -29,13 +31,12 @@ MainRpgScene::~MainRpgScene()
 
 int MainRpgScene::Initialize()
 {
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(GameEngine::EngineEvent::QUIT); });
+
     DEBUG_LOG("MainRpgScene::Initialize()");
 
-    modelsCreator_ = std::make_unique<ModelsCreator>(resourceManager_.get());
-    networkCharacterManager_ =
-        std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_,
-                                                  std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1),
-                                                  std::bind(&MainRpgScene::CreateGameObjectWithDefaultName, this));
+    modelsCreator_           = std::make_unique<ModelsCreator>(resourceManager_.get());
+    networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1), std::bind(&MainRpgScene::CreateGameObjectWithDefaultName, this));
 
     networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
 

@@ -29,6 +29,7 @@ LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddr
 }
 int LoginScene::Initialize()
 {
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(GameEngine::EngineEvent::QUIT);});
     /*GameEngine::Renderer::Gui::GuiTextureElement guiTexture;
     guiTexture.texture = resourceManager_->GetTextureLaoder().LoadTexture("GUI/LoginBg_1.jpg", false);
 

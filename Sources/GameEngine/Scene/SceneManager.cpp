@@ -239,6 +239,7 @@ void SceneManager::SetSceneContext(Scene* scene)
 
 void SceneManager::UpdateSubscribe()
 {
+    DEBUG_LOG("");
     updateSceneThreadId_ = threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
     threadSync_.Start();
     isRunning_ = true;
@@ -246,6 +247,7 @@ void SceneManager::UpdateSubscribe()
 
 void SceneManager::StopUpdateSubscribe()
 {
+    DEBUG_LOG("");
     threadSync_.Unsubscribe(updateSceneThreadId_);
     threadSync_.Stop();
     isRunning_ = false;

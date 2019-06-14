@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "InputManager.h"
+#include <Logger/Log.h>
 
 namespace Input
 {
@@ -10,6 +11,7 @@ InputManager::InputManager()
 
 InputManager::~InputManager()
 {
+    DEBUG_LOG("");
 }
 
 void InputManager::SetDefaultKeys()

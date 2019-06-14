@@ -71,13 +71,6 @@ SceneManager& Engine::GetSceneManager()
 
 void Engine::MainLoop()
 {
-    inputManager_->GetPressedKeys();
-    if (inputManager_->GetKey(KeyCodes::ESCAPE))
-    {
-        Quit();
-        return;
-    }
-
     sceneManager_.RuntimeLoadObjectToGpu();
     PrepareFrame();
     renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());
