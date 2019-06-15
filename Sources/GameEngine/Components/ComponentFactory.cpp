@@ -20,10 +20,10 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time,
+ComponentFactory::ComponentFactory(ComponentController& componentController, Time& time, Input::InputManager& input,
                                    IResourceManager& resourceManager, Renderer::RenderersManager& rendererManager,
-                                   std::unique_ptr<ICamera>& camera, Physics::IPhysicsApi& physicsApi)
-    : context_(time, camera, physicsApi, resourceManager, rendererManager, componentController)
+                                   CameraWrapper& camera, Physics::IPhysicsApi& physicsApi)
+    : context_(time, input, camera, physicsApi, resourceManager, rendererManager, componentController)
 {
 }
 std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameObject& ptr)

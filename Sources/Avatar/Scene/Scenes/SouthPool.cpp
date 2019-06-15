@@ -16,6 +16,8 @@ using namespace GameEngine;
 
 namespace AvatarGame
 {
+const std::string sceneFile = "SouthPool.xml";
+
 SouthPool::SouthPool()
     : Scene("SouthPool")
 {
@@ -30,7 +32,9 @@ int SouthPool::Initialize()
 {
     DEBUG_LOG("SouthPool::Initialize()");
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(EngineEvent::QUIT);});
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
+
+    LoadFromFile(sceneFile);
     return 0;
 }
 

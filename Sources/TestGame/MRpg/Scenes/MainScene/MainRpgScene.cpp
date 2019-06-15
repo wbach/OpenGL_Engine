@@ -71,8 +71,8 @@ int MainRpgScene::Update(float dt)
 
 void MainRpgScene::UpdatePlayerandCamera(float time)
 {
-    camera->CalculateInput();
-    camera->Move();
+    camera.CalculateInput();
+    camera.Move();
 }
 
 std::unique_ptr<GameEngine::GameObject> MainRpgScene::CreateGameObjectWithDefaultName()
@@ -90,7 +90,7 @@ void MainRpgScene::ReqNetworkSceneCharacters()
 
 void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 {
-    camera = std::make_unique<GameEngine::ThirdPersonCamera>(inputManager_, &character->GetGameObject().worldTransform);
+    camera.Set(std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().worldTransform));
 }
 
 /*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)

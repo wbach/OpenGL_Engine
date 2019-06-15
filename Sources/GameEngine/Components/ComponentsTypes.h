@@ -21,7 +21,8 @@ enum class ComponentsType
     Grass,
     TerrainRenderer,
     TerrainMeshRenderer,
-    Water
+    Water,
+    Camera
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -246,10 +246,10 @@ int MainScene::Initialize()
         AddGameObject(uplayer);
     }
 
-    camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-    camera->SetPosition(vec3(.5, 3.5, 2.1));
-    // camera->SetPosition(vec3(-5107.217, 3324.774, 5352.738));
-    camera->LookAt(vec3(0, 2, 0));
+    camera.Set(std::make_unique<FirstPersonCamera>(inputManager_, displayManager_));
+    camera.SetPosition(vec3(.5, 3.5, 2.1));
+    // camera.SetPosition(vec3(-5107.217, 3324.774, 5352.738));
+    camera.LookAt(vec3(0, 2, 0));
     // SetCamera(std::make_unique<CThirdPersonCamera>(inputManager_, &player->worldTransform));
     camType = CameraType::FirstPerson;
 
@@ -281,11 +281,6 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
 int MainScene::Update(float dt)
 {
     deltaTime = dt;
-    if (camera == nullptr)
-    {
-        DEBUG_LOG("MainScene::Update camera is nullptr.");
-        return -1;
-    }
 
     vec3 lightPos = pointLight_->GetPosition();
     lightPos      = Utils::RotateObject(centerObjectPosition_, lightPos, Utils::ToRadians(10.f * dt));
@@ -319,13 +314,13 @@ int MainScene::Update(float dt)
     CheckCollisions(deltaTime);
     UpdatePlayerandCamera(deltaTime);
 
-    // renderersManager_->GuiText("cameraPos").text = std::to_string(camera->GetPosition());
+    // renderersManager_->GuiText("cameraPos").text = std::to_string(camera.GetPosition());
     return 0;
 }
 
 void MainScene::UpdatePlayerandCamera(float time)
 {
-    // camera->CalculateInput();
+    // camera.CalculateInput();
     characterController_->Update(deltaTime);
     if (terrainHeightGetter_)
     {
@@ -337,7 +332,7 @@ void MainScene::UpdatePlayerandCamera(float time)
         }
     }
 
-    // camera->Move();
+    // camera.Move();
 }
 
 void MainScene::KeyOperations()
@@ -372,13 +367,13 @@ void MainScene::KeyOperations()
     }
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [&]() {
-        // auto d = camera->GetDistance() - 0.5f;
-        // camera->SetDistance(d);
+        // auto d = camera.GetDistance() - 0.5f;
+        // camera.SetDistance(d);
     });
 
     inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [&]() {
-        // auto d = camera->GetDistance() + 0.5f;
-        // camera->SetDistance(d);
+        // auto d = camera.GetDistance() + 0.5f;
+        // camera.SetDistance(d);
     });
 
     inputManager_->SubscribeOnKeyUp(KeyCodes::G, [&]() { guiElementFactory_->ReadGuiFile(GUI_FILE); });
@@ -395,24 +390,24 @@ void MainScene::KeyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { player->worldTransform.SetPosition(vec3(0, 0, 0)); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::C, [&]() {
-        auto pos      = camera->GetPosition();
-        auto rotation = camera->GetRotation();
+        auto pos      = camera.GetPosition();
+        auto rotation = camera.GetRotation();
 
         if (camType == CameraType::FirstPerson)
         {
             camType     = CameraType::ThridPerson;
-            auto camera = std::make_unique<ThirdPersonCamera>(inputManager_, &player->worldTransform);
-            SetCamera(std::move(camera));
+            auto cam = std::make_unique<ThirdPersonCamera>(*inputManager_, player->worldTransform);
+            camera.Set(std::move(cam));
         }
         else if (camType == CameraType::ThridPerson)
         {
             camType     = CameraType::FirstPerson;
-            auto camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-            camera->SetPosition(pos);
-            camera->SetPitch(rotation.x);
-            camera->SetYaw(rotation.y);
-            camera->SetRoll(rotation.z);
-            SetCamera(std::move(camera));
+            auto cam = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+            cam->SetPosition(pos);
+            cam->SetPitch(rotation.x);
+            cam->SetYaw(rotation.y);
+            cam->SetRoll(rotation.z);
+            camera.Set(std::move(cam));
         }
     });
 }

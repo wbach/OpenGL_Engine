@@ -8,7 +8,7 @@
 namespace GameEngine
 {
 class Mesh;
-struct ICamera;
+class CameraWrapper;
 struct Material;
 class Projection;
 class ShadowFrameBuffer;

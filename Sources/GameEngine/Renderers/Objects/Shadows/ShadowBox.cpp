@@ -30,7 +30,7 @@ void ShadowBox::CalculateWidthsAndHeights()
     m_NearHeight = m_NearWidth / GetAspectRatio();
 }
 
-std::vector<vec4> ShadowBox::CalculateFrustumPoints(const ICamera& camera)
+std::vector<vec4> ShadowBox::CalculateFrustumPoints(const CameraWrapper& camera)
 {
     mat4 rotation = CalculateCameraRotationMatrix(camera);
     vec3 forward_vector(rotation * m_Forward);
@@ -92,7 +92,7 @@ void ShadowBox::CheckMinMax(float& min, float& max, float point)
     }
 }
 
-mat4 ShadowBox::CalculateCameraRotationMatrix(const ICamera& camera) const
+mat4 ShadowBox::CalculateCameraRotationMatrix(const CameraWrapper& camera) const
 {
     mat4 rotation(1.f);
     rotation *= glm::rotate(static_cast<float>(-camera.GetYaw()), vec3(0.f, 1.f, 0.f));
@@ -100,7 +100,7 @@ mat4 ShadowBox::CalculateCameraRotationMatrix(const ICamera& camera) const
     return rotation;
 }
 
-void ShadowBox::Update(const ICamera& camera)
+void ShadowBox::Update(const CameraWrapper& camera)
 {
     bool first = true;
     for (const vec4& point : CalculateFrustumPoints(camera))

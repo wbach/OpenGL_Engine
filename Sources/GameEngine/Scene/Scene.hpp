@@ -4,7 +4,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/IComponentFactory.h"
 #include "GameEngine/Lights/Light.h"
@@ -75,8 +75,7 @@ public:
 
     // Cameras
     void UpdateCamera();
-    const ICamera& GetCamera() const;
-    void SetCamera(std::unique_ptr<ICamera> camera);
+    const CameraWrapper& GetCamera() const;
 
     // Lights
     const Light& GetDirectionalLight() const;
@@ -116,7 +115,7 @@ protected:
     std::vector<Light> lights;
     DayNightCycle dayNightCycle;
 
-    std::unique_ptr<ICamera> camera;
+    CameraWrapper camera;
 
     GameObjects gameObjects;
 

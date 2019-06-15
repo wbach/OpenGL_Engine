@@ -36,12 +36,11 @@ struct CameraEvent
 class ThirdPersonCamera : public BaseCamera
 {
 public:
-    ThirdPersonCamera(Input::InputManager* input_manager, common::Transform* lookAt);
+    ThirdPersonCamera(Input::InputManager& input_manager, common::Transform& lookAt);
     virtual ~ThirdPersonCamera() override;
     void Move() override;
     void CalculateInput() override;
     void CalculateZoom(float zoom_lvl) override;
-    void SetLookAtTransform(common::Transform* lookAt);
 
 private:
     void StaticCameraMove();
@@ -75,8 +74,8 @@ private:
                       float time, bool use);
 
 private:
-    Input::InputManager* inputManager;
-    common::Transform* lookAt_;
+    Input::InputManager& inputManager;
+    common::Transform& lookAt_;
 
     vec3 lookAtPosition_;
     vec3 lookAtRotataion_;

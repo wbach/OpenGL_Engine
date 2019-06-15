@@ -71,6 +71,7 @@ SceneManager& Engine::GetSceneManager()
 
 void Engine::MainLoop()
 {
+    inputManager_->GetPressedKeys();
     sceneManager_.RuntimeLoadObjectToGpu();
     PrepareFrame();
     renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());

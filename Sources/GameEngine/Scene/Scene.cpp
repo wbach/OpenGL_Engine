@@ -17,11 +17,6 @@
 
 namespace GameEngine
 {
-namespace
-{
-std::mutex cameraSwitchMutex;
-}  // namespace
-
 Scene::Scene(const std::string& name)
     : objectCount(0)
     , name(name)
@@ -31,7 +26,6 @@ Scene::Scene(const std::string& name)
     , physicsApi_(nullptr)
     , gloabalTime(0.f)
     , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
-    , camera(new BaseCamera(vec3(0, 5, 5), vec3(0, 0, 0)))
     , componentFactory_(nullptr)
     , simulatePhysics_(true)
 {
@@ -42,7 +36,6 @@ Scene::~Scene()
     DEBUG_LOG("");
 
     gameObjects.clear();
-    camera.reset();
 
     if (inputManager_ != nullptr)
     {
@@ -75,8 +68,8 @@ void Scene::InitResources(SceneInitContext& context)
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *resourceManager_,
-                                                                       *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(
+        componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -169,22 +162,12 @@ void Scene::SetAddEngineEventCallback(std::function<void(EngineEvent)> func)
 
 void Scene::UpdateCamera()
 {
-    std::lock_guard<std::mutex> lg(cameraSwitchMutex);
-    camera->CalculateInput();
-    camera->Move();
-    camera->UpdateMatrix();
+    camera.Update();
 }
 
-const ICamera& Scene::GetCamera() const
+const CameraWrapper& Scene::GetCamera() const
 {
-    std::lock_guard<std::mutex> lg(cameraSwitchMutex);
-    return *camera;
-}
-
-void Scene::SetCamera(std::unique_ptr<ICamera> cam)
-{
-    std::lock_guard<std::mutex> lg(cameraSwitchMutex);
-    camera = std::move(cam);
+    return camera;
 }
 
 const Light& Scene::GetDirectionalLight() const

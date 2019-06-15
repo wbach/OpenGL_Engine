@@ -143,12 +143,7 @@ void ParticleEffectComponent::EmitParticles()
 }
 void ParticleEffectComponent::SortParticlesByCameraDistance()
 {
-    if (componentContext_.camera_ == nullptr)
-    {
-        return;
-    }
-
-    auto camPosition = componentContext_.camera_->GetPosition();
+    auto camPosition = componentContext_.camera_.GetPosition();
 
     std::sort(particles_.begin(), particles_.end(), [&camPosition](const Particle& l, const Particle& r) {
         auto distance  = glm::distance(l.position, camPosition);

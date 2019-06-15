@@ -2,10 +2,15 @@
 #include <memory>
 #include "ComponentController.h"
 #include "GameEngine/Time/Time.h"
+#include "GameEngine/Camera/CameraWrapper.h"
+
+namespace Input
+{
+class InputManager;
+}
 
 namespace GameEngine
 {
-struct ICamera;
 class IResourceManager;
 
 namespace Physics
@@ -24,10 +29,11 @@ typedef std::unordered_map<uint32, FunctionType> ComponentIdsMap;
 
 struct ComponentContext
 {
-    ComponentContext(Time& time, std::unique_ptr<ICamera>& camera, Physics::IPhysicsApi& physicsApi,
+    ComponentContext(Time& time, Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
                      IResourceManager& resourceManager, Renderer::RenderersManager& renderersManager,
                      ComponentController& componentController)
         : time_(time)
+        , inputManager_(input)
         , camera_(camera)
         , physicsApi_(physicsApi)
         , resourceManager_(resourceManager)
@@ -37,7 +43,8 @@ struct ComponentContext
     }
 
     Time& time_;
-    std::unique_ptr<ICamera>& camera_;
+    Input::InputManager& inputManager_;
+    CameraWrapper& camera_;
     Physics::IPhysicsApi& physicsApi_;
     IResourceManager& resourceManager_;
     ComponentController& componentController_;

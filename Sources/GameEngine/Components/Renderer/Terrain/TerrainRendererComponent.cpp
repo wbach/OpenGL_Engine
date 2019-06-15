@@ -134,7 +134,7 @@ void TerrainRendererComponent::UnSubscribe()
 }
 void TerrainRendererComponent::Update()
 {
-    const auto& campos = componentContext_.camera_->GetPosition();
+    const auto& campos = componentContext_.camera_.GetPosition();
     terrainQuadTree_.Update(campos);
 }
 }  // namespace Components

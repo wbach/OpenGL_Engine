@@ -11,7 +11,7 @@
 
 namespace GameEngine
 {
-ThirdPersonCamera::ThirdPersonCamera(Input::InputManager* input_manager, common::Transform* look_at)
+ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& input_manager, common::Transform& look_at)
     : inputManager(input_manager)
     , lookAt_(look_at)
     , isShowCursor(false)
@@ -29,6 +29,7 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager* input_manager, common:
 }
 ThirdPersonCamera::~ThirdPersonCamera()
 {
+    inputManager.ShowCursor(true);
 }
 void ThirdPersonCamera::SetCaptureMouse(bool capture)
 {
@@ -61,13 +62,13 @@ void ThirdPersonCamera::LockCamera()
 }
 void ThirdPersonCamera::CalculateInput()
 {
-    if (inputManager->GetKey(KeyCodes::LCTRL))
+    if (inputManager.GetKey(KeyCodes::LCTRL))
     {
-        inputManager->ShowCursor(true);
+        inputManager.ShowCursor(true);
         return;
     }
 
-    inputManager->ShowCursor(false);
+    inputManager.ShowCursor(false);
 
     if (!clock.OnTick())
         return;
@@ -131,8 +132,8 @@ void ThirdPersonCamera::ControlState(CameraEvent<T>& stateInfo, CameraState stat
 }
 void ThirdPersonCamera::Move()
 {
-    lookAtPosition_  = lookAt_->GetSnapShoot().position;
-    lookAtRotataion_ = lookAt_->GetSnapShoot().rotation;
+    lookAtPosition_  = lookAt_.GetSnapShoot().position;
+    lookAtRotataion_ = lookAt_.GetSnapShoot().rotation;
 
     float horizontal_distance = CalculateHorizontalDistance();
     float vertical_distance   = CalculateVerticalDistance();
@@ -210,13 +211,9 @@ void ThirdPersonCamera::CalculateZoom(float zoom_lvl)
 {
     this->distanceFromPlayer += zoom_lvl;
 }
-void ThirdPersonCamera::SetLookAtTransform(common::Transform* lookAt)
-{
-    lookAt_ = lookAt;
-}
 vec2 ThirdPersonCamera::CalcualteMouseMove()
 {
-    auto v = inputManager->CalcualteMouseMove();
+    auto v = inputManager.CalcualteMouseMove();
     return vec2(v.x, v.y);
 }
 void ThirdPersonCamera::CalculatePitch(const vec2& d_move)

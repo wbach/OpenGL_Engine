@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Camera/CameraWrapper.h"
 #include "glm/glm.hpp"
 
 namespace GameEngine
@@ -12,7 +12,7 @@ class ShadowBox
 {
 public:
     ShadowBox(Projection&);
-    void Update(const ICamera&);
+    void Update(const CameraWrapper&);
     vec3 GetCenter() const;
     float GetWidth() const;
     float GetHeight() const;
@@ -27,8 +27,8 @@ private:
     void FindMinMax(const vec4& point);
     void CheckMinMax(float& min, float& max, float point);
     void CalculateWidthsAndHeights();
-    std::vector<vec4> CalculateFrustumPoints(const ICamera&);
-    mat4 CalculateCameraRotationMatrix(const ICamera& camera) const;
+    std::vector<vec4> CalculateFrustumPoints(const CameraWrapper&);
+    mat4 CalculateCameraRotationMatrix(const CameraWrapper& camera) const;
     std::vector<vec4> CalculateFrustumVertices(mat4 rotation, vec3 forward_vector, vec3 center_near,
                                                vec3 center_far) const;
     vec4 CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction, const float& width) const;

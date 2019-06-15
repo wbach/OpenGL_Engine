@@ -191,8 +191,8 @@ int PhysicsScene::Initialize()
     // octext.colour   = vec3(1, 0, 0);
     UpdateObjectsCountText();
 
-    camera = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-    camera->SetPosition(vec3(0, 5, -10));
+    camera.Set(std::make_unique<FirstPersonCamera>(inputManager_, displayManager_));
+    camera.SetPosition(vec3(0, 5, -10));
     AddStartupObjects();
 
     KeyOperations();
@@ -261,12 +261,6 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
 
 int PhysicsScene::Update(float dt)
 {
-    if (camera == nullptr)
-    {
-        DEBUG_LOG("PhysicsScene::Update camera is nullptr.");
-        return -1;
-    }
-
     UpdateObjectsCountText();
     RemoveObjectsUnderYValue(-100);
     return 0;
