@@ -11,6 +11,9 @@ public:
     ThridPersonCameraComponent(const ComponentContext& componentContext, GameObject& gameObject);
     virtual void ReqisterFunctions() override;
 
+private:
+    float zoomSpeed_;
+
 public:
     static ComponentsType type;
 };

@@ -1,6 +1,7 @@
 #include "WaterRendererComponent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {

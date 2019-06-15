@@ -4,10 +4,10 @@
         <worldTransform>
             <position x="0.000000" y="-5.000000" z="0.000000"/>
             <rotation x="0.000000" y="-0.000000" z="0.000000"/>
-            <scale x="1.000000" y="1.000000" z="1.000000"/>
+            <scale x="1.800000" y="1.800000" z="1.800000"/>
             <isDynamic>true</isDynamic>
         </worldTransform>
-        <components count="3">
+        <components count="5">
             <component type="16">
                 <thridPersonCamera></thridPersonCamera>
             </component>
@@ -34,6 +34,26 @@
                     </modelFileNames>
                     <textureIndex>0</textureIndex>
                 </renderer>
+            </component>
+        </components>
+    </gameObject>
+    <gameObject name="WaterTile">
+        <worldTransform>
+            <position x="0.000000" y="0.000000" z="0.000000"/>
+            <rotation x="0.000000" y="-0.000000" z="0.000000"/>
+            <scale x="1.000000" y="1.000000" z="1.000000"/>
+            <isDynamic>false</isDynamic>
+        </worldTransform>
+        <components count="1">
+            <component type="15">
+                <waterRendererComponent>
+                        <dudv>Textures/Water/waterDUDV.png</dudv>
+                        <normalMap>Textures/Water/waternormal.png</normalMap>
+                        <position x="0.000000" y="-75.00000" z="0.000000"/>
+                        <scale x="4000.000000" y="4000.000000" z="1.000000"/>
+                        <color x="0.000000" y="0.172500" z="0.3280000" w="1.000000"/>
+                        <waveSpeed>10</waveSpeed>
+                </waterRendererComponent>
             </component>
         </components>
     </gameObject>
@@ -114,6 +134,19 @@
       </rigidbody>
     </component>
     </components>
+    </gameObject>
+    <gameObject name="skydome">
+        <worldTransform>
+            <position x="0.000000" y="0.000000" z="0.000000"/>
+            <rotation x="0.000000" y="0.000000" z="0.000000"/>
+            <scale x="1.000000" y="1.000000" z="1.000000"/>
+            <isDynamic>false</isDynamic>
+        </worldTransform>
+        <components count="1">
+            <component type="11">
+                <skydome></skydome>
+            </component>
+        </components>
     </gameObject>
   </gameObjects>
 </scene>
