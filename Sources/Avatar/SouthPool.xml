@@ -1,5 +1,34 @@
 <scene name="SouthPool">
   <gameObjects count="1">
+    <gameObject name="Aang">
+        <worldTransform>
+            <position x="0.000000" y="-5.000000" z="0.000000"/>
+            <rotation x="0.000000" y="-0.000000" z="0.000000"/>
+            <scale x="1.000000" y="1.000000" z="1.000000"/>
+            <isDynamic>true</isDynamic>
+        </worldTransform>
+        <components count="3">
+            <component type="16">
+                <thridPersonCamera></thridPersonCamera>
+            </component>
+            <component type="0">
+                <animator>
+                    <currentAnimationClip>Idle</currentAnimationClip>
+                </animator>
+            </component>
+            <component type="7">
+                <renderer>
+                    <modelFileNames>
+                        <modelFileName>
+                            <fileName>"Meshes/DaeAnimationExample/CharacterMultiple.dae</fileName>
+                            <lvlOfDetail>0</lvlOfDetail>
+                        </modelFileName>
+                    </modelFileNames>
+                    <textureIndex>0</textureIndex>
+                </renderer>
+            </component>
+        </components>
+    </gameObject>
     <gameObject name="Terrain">
     <worldTransform>
         <position x="0.000000" y="0.000000" z="0.000000"/>

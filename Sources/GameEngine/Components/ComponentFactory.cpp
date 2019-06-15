@@ -1,6 +1,7 @@
 #include "ComponentFactory.h"
 #include "Animation/Animator.h"
 #include "BaseComponent.h"
+#include "Camera/ThridPersonCameraComponent.h"
 #include "Physics/BoxShape.h"
 #include "Physics/MeshShape.h"
 #include "Physics/Rigidbody.h"
@@ -93,6 +94,10 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::Water:
         {
             return std::make_unique<WaterRendererComponent>(context_, ptr);
+        }
+        case ComponentsType::ThridPersonCamera:
+        {
+            return std::make_unique<ThridPersonCameraComponent>(context_, ptr);
         }
     }
     return nullptr;

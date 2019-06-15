@@ -34,6 +34,7 @@ const std::string CSTR_COMPONENT_GRASS               = "grassComponent";
 const std::string CSTR_COMPONENT_TERRAINRENDERER     = "terrainRenderer";
 const std::string CSTR_COMPONENT_TERRAINMESHRENDERER = "terrainMeshRenderer";
 const std::string CSTR_COMPONENT_WATER_RENDERER      = "waterRendererComponent";
+const std::string CSTR_COMPONENT_THRID_PRESON_CAMERA = "thridPersonCamera";
 const std::string CSTR_FILE_NAME                     = "fileName";
 const std::string CSTR_MODEL_FILE_NAMES              = "modelFileNames";
 const std::string CSTR_MODEL_FILE_NAME               = "modelFileName";

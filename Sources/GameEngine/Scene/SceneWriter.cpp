@@ -6,6 +6,7 @@
 #include "Utils/XML/XmlWriter.h"
 
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -87,6 +88,10 @@ void Create(XmlNode& node, const std::vector<float>& str)
     {
         Create(node.AddChild(CSTR_V), value);
     }
+}
+
+void Create(XmlNode&, const Components::ThridPersonCameraComponent&)
+{
 }
 
 void Create(XmlNode& node, TerrainTextureType type, const std::string& filename)
@@ -295,10 +300,14 @@ void Create(XmlNode& node, const Components::IComponent& component)
             CreateComponent<Components::TerrainRendererComponent>(node, component, CSTR_COMPONENT_TERRAINRENDERER);
             break;
         case Components::ComponentsType::TerrainMeshRenderer:
-            CreateComponent<Components::TerrainMeshRendererComponent>(node, component, CSTR_COMPONENT_TERRAINMESHRENDERER);
+            CreateComponent<Components::TerrainMeshRendererComponent>(node, component,
+                                                                      CSTR_COMPONENT_TERRAINMESHRENDERER);
             break;
         case Components::ComponentsType::Water:
             CreateComponent<Components::WaterRendererComponent>(node, component, CSTR_COMPONENT_WATER_RENDERER);
+            break;
+        case Components::ComponentsType::ThridPersonCamera:
+            CreateComponent<Components::ThridPersonCameraComponent>(node, component, CSTR_COMPONENT_THRID_PRESON_CAMERA);
             break;
     }
 }

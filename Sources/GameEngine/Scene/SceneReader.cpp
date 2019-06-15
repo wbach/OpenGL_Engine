@@ -22,6 +22,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 
 using namespace Utils;
 
@@ -53,6 +54,10 @@ void Read(Utils::XmlNode& node, common::Transform& tranfsorm)
 
     tranfsorm.isDynamic_ = ReadBool(*node.GetChild(CSTR_ISDYNAMIC));
     tranfsorm.TakeSnapShoot();
+}
+
+void Read(Utils::XmlNode&, Components::ThridPersonCameraComponent&)
+{
 }
 
 void Read(Utils::XmlNode& node, Components::Animator& component)
@@ -325,6 +330,9 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 break;
             case Components::ComponentsType::Water:
                 AddComponent<Components::WaterRendererComponent>(*component, gameObject, CSTR_COMPONENT_WATER_RENDERER);
+                break;
+            case Components::ComponentsType::ThridPersonCamera:
+                AddComponent<Components::ThridPersonCameraComponent>(*component, gameObject, CSTR_COMPONENT_THRID_PRESON_CAMERA);
                 break;
         }
     }

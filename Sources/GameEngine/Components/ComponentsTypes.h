@@ -22,7 +22,7 @@ enum class ComponentsType
     TerrainRenderer,
     TerrainMeshRenderer,
     Water,
-    Camera
+    ThridPersonCamera
 };
 }  // namespace Components
 }  // namespace GameEngine

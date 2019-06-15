@@ -6,18 +6,17 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType ThridPersonCameraComponent::type = ComponentsType::Camera;
+ComponentsType ThridPersonCameraComponent::type = ComponentsType::ThridPersonCamera;
 
 ThridPersonCameraComponent::ThridPersonCameraComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
 {
-    camera_ = std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.worldTransform);
-    //componentContext_.camera_ = camera_;
+    componentContext_.camera_.Set(
+        std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.worldTransform));
 }
 
 void ThridPersonCameraComponent::ReqisterFunctions()
 {
-
 }
 
 }  // namespace Components

@@ -35,6 +35,7 @@ extern const std::string CSTR_COMPONENT_GRASS;
 extern const std::string CSTR_COMPONENT_TERRAINRENDERER;
 extern const std::string CSTR_COMPONENT_TERRAINMESHRENDERER;
 extern const std::string CSTR_COMPONENT_WATER_RENDERER;
+extern const std::string CSTR_COMPONENT_THRID_PRESON_CAMERA;
 extern const std::string CSTR_FILE_NAME;
 extern const std::string CSTR_MODEL_FILE_NAMES;
 extern const std::string CSTR_MODEL_FILE_NAME;
