@@ -16,6 +16,8 @@
 #include "Renderer/Terrain/TerrainRendererComponent.h"
 #include "Renderer/Trees/TreeRendererComponent.h"
 #include "Renderer/Water/WaterRendererComponent.h"
+#include "Controllers/CharacterController.h"
+#include "Input/PlayerInputController.h"
 
 namespace GameEngine
 {
@@ -98,6 +100,14 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::ThridPersonCamera:
         {
             return std::make_unique<ThridPersonCameraComponent>(context_, ptr);
+        }
+        case ComponentsType::CharacterController:
+        {
+            return std::make_unique<CharacterController>(context_, ptr);
+        }
+        case ComponentsType::PlayerInputController:
+        {
+            return std::make_unique<PlayerInputController>(context_, ptr);
         }
     }
     return nullptr;

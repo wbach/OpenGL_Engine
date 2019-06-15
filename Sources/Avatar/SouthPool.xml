@@ -16,6 +16,14 @@
                     <currentAnimationClip>Idle</currentAnimationClip>
                 </animator>
             </component>
+            <component type="18">
+                <characterController>
+                </characterController>
+            </component>
+            <component type="17">
+                <playerInputController>
+                </playerInputController>
+            </component>
             <component type="7">
                 <renderer>
                     <modelFileNames>

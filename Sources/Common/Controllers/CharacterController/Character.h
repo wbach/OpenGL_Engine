@@ -1,101 +1,108 @@
 #pragma once
-#include "Types.h"
-#include "CharacterActions.h"
-#include "../IController.h"
-#include "../../Transform.h"
 #include <list>
+#include "../../Transform.h"
+#include "../IController.h"
+#include "CharacterActions.h"
+#include "Types.h"
 
-//#define GetTime() 
+//#define GetTime()
 #define DurationToDoubleMs(x) std::chrono::duration<double, std::milli>(x).count()
 #define DurationToFloatMs(x) std::chrono::duration<float, std::milli>(x).count()
 
 namespace common
 {
-	namespace Controllers
-	{
-	enum class Direction
-	{
-		FORWARD,
-		BACKWARD
-	};
+namespace Controllers
+{
+enum class Direction
+{
+    FORWARD,
+    BACKWARD
+};
 
-	enum class RotationDirection
-	{
-		LEFT,
-		RIGHT
-	};
+enum class RotationDirection
+{
+    LEFT,
+    RIGHT
+};
 
-	template<class T, class D>
-	struct SEventInfo
-	{
-		T startValue;
-		T currentValue;
-		D direction;
-		float startTime;
-		float endTime;
-	};
+template <class T, class D>
+struct SEventInfo
+{
+    T startValue;
+    T currentValue;
+    D direction;
+    float startTime;
+    float endTime;
+};
 
-	class CharacterController : public IController
-	{
-		typedef std::function<void (const vec3&)> OnUpdate;
+class CharacterController : public IController
+{
+    typedef std::function<void(const vec3&)> OnUpdate;
 
-	public:
-		CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
-		virtual void Update(float dt) override;
-		void AddState(CharacterActions::Type action);
-		void RemoveState(CharacterActions::Type action);
-		common::Transform& GetTransform();
+public:
+    CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower);
+    virtual void Update(float dt) override;
+    void AddState(CharacterActions::Type action);
+    void RemoveState(CharacterActions::Type action);
+    common::Transform& GetTransform();
 
-	private:
-		CharacterActions::Type GetAction() { return action; }
-		void SetPosition(const glm::vec3& p);
+    void SetRunSpeed(float);
+    void SetTurnSpeed(float);
+    void SetJumpPower(float);
 
-		bool FindState(CharacterActions::Type state);
-		void ProcessState(std::list<CharacterActions::Type>::iterator& state, float time);
-		void Jump();
+private:
+    CharacterActions::Type GetAction()
+    {
+        return action;
+    }
+    void SetPosition(const glm::vec3& p);
 
-	private:
-		float GetTime() const;
-		void SetRotateStateInfo(RotationDirection direction);
-		void RotateLeft();
-		void RotateRight();
-		void RotateState(std::list<CharacterActions::Type>::iterator& state, float time);
-		void RemoveStateIfTimeElapsed(std::list<CharacterActions::Type>::iterator& state, float time, float endTime);
-		void LockRotate(float& rotate);
-		void MoveForward();
-		void MoveBackward();
-		void MoveState(std::list<CharacterActions::Type>::iterator& state, float time);
-		vec2 CalculateMoveVector(Direction direction);
+    bool FindState(CharacterActions::Type state);
+    void ProcessState(std::list<CharacterActions::Type>::iterator& state, float time);
+    void Jump();
 
-		template<class T, class D>
-		T CalculateNewValueInTimeInterval(SEventInfo<T, D>& t, float time)
-		{
-			float totalMoveTime = t.endTime - t.startTime;
+private:
+    float GetTime() const;
+    void SetRotateStateInfo(RotationDirection direction);
+    void RotateLeft();
+    void RotateRight();
+    void RotateState(std::list<CharacterActions::Type>::iterator& state, float time);
+    void RemoveStateIfTimeElapsed(std::list<CharacterActions::Type>::iterator& state, float time, float endTime);
+    void LockRotate(float& rotate);
+    void MoveForward();
+    void MoveBackward();
+    void MoveState(std::list<CharacterActions::Type>::iterator& state, float time);
+    vec2 CalculateMoveVector(Direction direction);
 
-			if (fabs(totalMoveTime) < FLT_EPSILON)
-			{
-				return t.startValue;
-			}
+    template <class T, class D>
+    T CalculateNewValueInTimeInterval(SEventInfo<T, D>& t, float time)
+    {
+        float totalMoveTime = t.endTime - t.startTime;
 
-			return t.startValue + t.currentValue * (time - t.startTime) / totalMoveTime;
-		}
+        if (fabs(totalMoveTime) < FLT_EPSILON)
+        {
+            return t.startValue;
+        }
 
-	private:
-		Timepoint referenceTime;
-		CharacterActions::Type action = CharacterActions::IDLE;
-		common::Transform& transform_;
+        return t.startValue + t.currentValue * (time - t.startTime) / totalMoveTime;
+    }
 
-		float moveTime_;
-		float runSpeed_;
-		float turnSpeed_;
-		float jumpPower_;
-		bool isGrounded;
-		float upwardsSpeed = 0.f;
+private:
+    Timepoint referenceTime;
+    CharacterActions::Type action = CharacterActions::IDLE;
+    common::Transform& transform_;
 
-		std::list<CharacterActions::Type> states;
+    float moveTime_;
+    float runSpeed_;
+    float turnSpeed_;
+    float jumpPower_;
+    bool isGrounded;
+    float upwardsSpeed = 0.f;
 
-		SEventInfo<vec2, Direction>  moveStateInfo;
-		SEventInfo<float, RotationDirection> rotateStateInfo;
-	};
-	} // Controllers
-} // common
+    std::list<CharacterActions::Type> states;
+
+    SEventInfo<vec2, Direction> moveStateInfo;
+    SEventInfo<float, RotationDirection> rotateStateInfo;
+};
+}  // namespace Controllers
+}  // namespace common

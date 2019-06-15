@@ -1,203 +1,227 @@
 #include "Character.h"
-#include "Logger/Log.h"
 #include <algorithm>
+#include "Logger/Log.h"
 #include "math.hpp"
-#include "GLM/GLMUtils.h" // to remove
+
 namespace common
 {
-	namespace Controllers
-	{
-		CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower)
-			: IController(CharacterControllerType)
-			, transform_(transform)
-			, moveTime_(1000.0f)
-			, runSpeed_(runSpeed)
-			, turnSpeed_(turnSpeed)
-			, jumpPower_(jumpPower)
-			, isGrounded(false)
-			, upwardsSpeed(0.f)
-		{
-			referenceTime = std::chrono::high_resolution_clock::now();
-		}
+namespace Controllers
+{
+CharacterController::CharacterController(common::Transform& transform, float runSpeed, float turnSpeed, float jumpPower)
+    : IController(CharacterControllerType)
+    , transform_(transform)
+    , moveTime_(1000.0f)
+    , runSpeed_(runSpeed)
+    , turnSpeed_(turnSpeed)
+    , jumpPower_(jumpPower)
+    , isGrounded(false)
+    , upwardsSpeed(0.f)
+{
+    referenceTime = std::chrono::high_resolution_clock::now();
+}
 
-		void CharacterController::SetPosition(const glm::vec3 & p)
-		{
-			transform_.SetPosition(p);
-		}
+void CharacterController::SetPosition(const glm::vec3& p)
+{
+    transform_.SetPosition(p);
+}
 
-		void CharacterController::Update(float deltaTime)
-		{
-			float time = GetTime();
+void CharacterController::SetJumpPower(float v)
+{
+    jumpPower_ = v;
+}
 
-			for (auto state = states.begin(); state != states.end(); ++state)
-				ProcessState(state, time);
-		}
+void CharacterController::SetTurnSpeed(float v)
+{
+    turnSpeed_ = v;
+}
 
-		void CharacterController::ProcessState(std::list<CharacterActions::Type>::iterator& state, float time)
-		{
-			switch (*state)
-			{
-			case CharacterActions::MOVE_FORWARD:  MoveState(state, time); break;
-			case CharacterActions::MOVE_BACKWARD: MoveState(state, time); break;
+void CharacterController::SetRunSpeed(float v)
+{
+    runSpeed_ = v;
+}
 
-			case CharacterActions::ROTATE_LEFT:	 RotateState(state, time); break;
-			case CharacterActions::ROTATE_RIGHT: RotateState(state, time); break;
-			default: break;
-			}
-		}
+void CharacterController::Update(float deltaTime)
+{
+    float time = GetTime();
 
-		void CharacterController::Jump()
-		{
-			if (!isGrounded)
-				return;
+    for (auto state = states.begin(); state != states.end(); ++state)
+        ProcessState(state, time);
+}
 
-			upwardsSpeed = jumpPower_;
-			isGrounded = false;
-		}
+void CharacterController::ProcessState(std::list<CharacterActions::Type>::iterator& state, float time)
+{
+    switch (*state)
+    {
+        case CharacterActions::MOVE_FORWARD:
+            MoveState(state, time);
+            break;
+        case CharacterActions::MOVE_BACKWARD:
+            MoveState(state, time);
+            break;
 
-		void CharacterController::AddState(CharacterActions::Type action)
-		{
-			if (action == CharacterActions::MOVE_FORWARD)
-				MoveForward();
+        case CharacterActions::ROTATE_LEFT:
+            RotateState(state, time);
+            break;
+        case CharacterActions::ROTATE_RIGHT:
+            RotateState(state, time);
+            break;
+        default:
+            break;
+    }
+}
 
-			if (action == CharacterActions::MOVE_BACKWARD)
-				MoveBackward();
+void CharacterController::Jump()
+{
+    if (!isGrounded)
+        return;
 
-			if (action == CharacterActions::ROTATE_LEFT)
-				RotateLeft();
+    upwardsSpeed = jumpPower_;
+    isGrounded   = false;
+}
 
-			if (action == CharacterActions::ROTATE_RIGHT)
-				RotateRight();
-		}
+void CharacterController::AddState(CharacterActions::Type action)
+{
+    if (action == CharacterActions::MOVE_FORWARD)
+        MoveForward();
 
-		void CharacterController::RemoveState(CharacterActions::Type action)
-		{
-			states.remove(action);
-		}
+    if (action == CharacterActions::MOVE_BACKWARD)
+        MoveBackward();
 
-		common::Transform & CharacterController::GetTransform()
-		{
-			return transform_;
-		}
+    if (action == CharacterActions::ROTATE_LEFT)
+        RotateLeft();
 
-		float CharacterController::GetTime() const
-		{
-			auto currnet = std::chrono::high_resolution_clock::now() - referenceTime;
-			return DurationToFloatMs(currnet) / 1000.0f;
-		}
+    if (action == CharacterActions::ROTATE_RIGHT)
+        RotateRight();
+}
 
-		void CharacterController::SetRotateStateInfo(RotationDirection dir)
-		{
-			rotateStateInfo.startValue = transform_.GetRotation().y;
-			rotateStateInfo.currentValue = turnSpeed_ * moveTime_ * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
-			rotateStateInfo.startTime = GetTime();
-			rotateStateInfo.direction = dir;
-			rotateStateInfo.endTime = rotateStateInfo.startTime + moveTime_;
-		}
+void CharacterController::RemoveState(CharacterActions::Type action)
+{
+    states.remove(action);
+}
 
-		void CharacterController::RotateLeft()
-		{
-			if (FindState(CharacterActions::ROTATE_LEFT))
-				return;
+common::Transform& CharacterController::GetTransform()
+{
+    return transform_;
+}
 
-			states.remove(CharacterActions::ROTATE_RIGHT);
-			states.push_front(CharacterActions::ROTATE_LEFT);
-			SetRotateStateInfo(RotationDirection::LEFT);
-		}
+float CharacterController::GetTime() const
+{
+    auto currnet = std::chrono::high_resolution_clock::now() - referenceTime;
+    return DurationToFloatMs(currnet) / 1000.0f;
+}
 
-		void CharacterController::RotateRight()
-		{
-			if (FindState(CharacterActions::ROTATE_RIGHT))
-				return;
+void CharacterController::SetRotateStateInfo(RotationDirection dir)
+{
+    rotateStateInfo.startValue   = transform_.GetRotation().y;
+    rotateStateInfo.currentValue = turnSpeed_ * moveTime_ * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
+    rotateStateInfo.startTime    = GetTime();
+    rotateStateInfo.direction    = dir;
+    rotateStateInfo.endTime      = rotateStateInfo.startTime + moveTime_;
+}
 
-			states.remove(CharacterActions::ROTATE_LEFT);
-			states.push_front(CharacterActions::ROTATE_RIGHT);
-			SetRotateStateInfo(RotationDirection::RIGHT);
-		}
+void CharacterController::RotateLeft()
+{
+    if (FindState(CharacterActions::ROTATE_LEFT))
+        return;
 
-		void CharacterController::RotateState(std::list<CharacterActions::Type>::iterator& state, float time)
-		{
-			float rotateValue = CalculateNewValueInTimeInterval<float, RotationDirection>(rotateStateInfo, time);
+    states.remove(CharacterActions::ROTATE_RIGHT);
+    states.push_front(CharacterActions::ROTATE_LEFT);
+    SetRotateStateInfo(RotationDirection::LEFT);
+}
 
-			LockRotate(rotateValue);
+void CharacterController::RotateRight()
+{
+    if (FindState(CharacterActions::ROTATE_RIGHT))
+        return;
 
-			transform_.SetRotate(common::Axis::Y, rotateValue);
-			RemoveStateIfTimeElapsed(state, time, rotateStateInfo.endTime);
-		}
+    states.remove(CharacterActions::ROTATE_LEFT);
+    states.push_front(CharacterActions::ROTATE_RIGHT);
+    SetRotateStateInfo(RotationDirection::RIGHT);
+}
 
-		void CharacterController::RemoveStateIfTimeElapsed(std::list<CharacterActions::Type>::iterator& state, float time, float endTime)
-		{
-			if (time > endTime)
-				state = states.erase(state);
-		}
+void CharacterController::RotateState(std::list<CharacterActions::Type>::iterator& state, float time)
+{
+    float rotateValue = CalculateNewValueInTimeInterval<float, RotationDirection>(rotateStateInfo, time);
 
-		void CharacterController::LockRotate(float& rotate)
-		{
-			if (rotate < 0.f)
-				rotate += 360.0f;
+    LockRotate(rotateValue);
 
-			if (rotate > 360.0f)
-				rotate -= 360.0f;
-		}
+    transform_.SetRotate(common::Axis::Y, rotateValue);
+    RemoveStateIfTimeElapsed(state, time, rotateStateInfo.endTime);
+}
 
-		void CharacterController::MoveForward()
-		{
-			if (FindState(CharacterActions::MOVE_FORWARD))
-				return;
+void CharacterController::RemoveStateIfTimeElapsed(std::list<CharacterActions::Type>::iterator& state, float time,
+                                                   float endTime)
+{
+    if (time > endTime)
+        state = states.erase(state);
+}
 
-			states.remove(CharacterActions::MOVE_BACKWARD);
-			states.push_front(CharacterActions::MOVE_FORWARD);
+void CharacterController::LockRotate(float& rotate)
+{
+    if (rotate < 0.f)
+        rotate += 360.0f;
 
-			moveStateInfo.startValue = transform_.GetPositionXZ();
-			moveStateInfo.currentValue = CalculateMoveVector(Direction::FORWARD) * moveTime_;
-			moveStateInfo.direction = Direction::FORWARD;
-			moveStateInfo.startTime = GetTime();
-			moveStateInfo.endTime = moveStateInfo.startTime + moveTime_;
-		}
+    if (rotate > 360.0f)
+        rotate -= 360.0f;
+}
 
-		void CharacterController::MoveBackward()
-		{
-			if (FindState(CharacterActions::MOVE_BACKWARD))
-				return;
+void CharacterController::MoveForward()
+{
+    if (FindState(CharacterActions::MOVE_FORWARD))
+        return;
 
-			states.remove(CharacterActions::MOVE_FORWARD);
-			states.push_front(CharacterActions::MOVE_BACKWARD);
+    states.remove(CharacterActions::MOVE_BACKWARD);
+    states.push_front(CharacterActions::MOVE_FORWARD);
 
-			moveStateInfo.startValue = transform_.GetPositionXZ();
-			moveStateInfo.currentValue = CalculateMoveVector(Direction::BACKWARD) * moveTime_;
-			moveStateInfo.direction = Direction::BACKWARD;
-			moveStateInfo.startTime = GetTime();
-			moveStateInfo.endTime = moveStateInfo.startTime + moveTime_;
-		}
+    moveStateInfo.startValue   = transform_.GetPositionXZ();
+    moveStateInfo.currentValue = CalculateMoveVector(Direction::FORWARD) * moveTime_;
+    moveStateInfo.direction    = Direction::FORWARD;
+    moveStateInfo.startTime    = GetTime();
+    moveStateInfo.endTime      = moveStateInfo.startTime + moveTime_;
+}
 
+void CharacterController::MoveBackward()
+{
+    if (FindState(CharacterActions::MOVE_BACKWARD))
+        return;
 
-		void CharacterController::MoveState(std::list<CharacterActions::Type>::iterator & state, float time)
-		{
-			vec2 posValue = CalculateNewValueInTimeInterval<vec2, Direction>(moveStateInfo, time);
+    states.remove(CharacterActions::MOVE_FORWARD);
+    states.push_front(CharacterActions::MOVE_BACKWARD);
 
-			transform_.SetPositionXZ(posValue);
-			RemoveStateIfTimeElapsed(state, time, moveStateInfo.endTime);
+    moveStateInfo.startValue   = transform_.GetPositionXZ();
+    moveStateInfo.currentValue = CalculateMoveVector(Direction::BACKWARD) * moveTime_;
+    moveStateInfo.direction    = Direction::BACKWARD;
+    moveStateInfo.startTime    = GetTime();
+    moveStateInfo.endTime      = moveStateInfo.startTime + moveTime_;
+}
 
-			float dt = (moveStateInfo.endTime - time) / moveTime_;
-			moveStateInfo.startValue = transform_.GetPositionXZ();
-			moveStateInfo.currentValue = CalculateMoveVector(moveStateInfo.direction) * moveTime_;
-			moveStateInfo.currentValue *= dt;
-			moveStateInfo.startTime = time;
-		}
+void CharacterController::MoveState(std::list<CharacterActions::Type>::iterator& state, float time)
+{
+    vec2 posValue = CalculateNewValueInTimeInterval<vec2, Direction>(moveStateInfo, time);
 
-		vec2 CharacterController::CalculateMoveVector(Direction direction)
-		{
-			float rad = Utils::ToRadians(transform_.GetRotation().y);
-			auto v = vec2(runSpeed_ * (direction == Direction::BACKWARD ? -1.f : 1.f));
-			v.x *= sin(rad);
-			v.y *= cos(rad);
+    transform_.SetPositionXZ(posValue);
+    RemoveStateIfTimeElapsed(state, time, moveStateInfo.endTime);
 
-			return v;
-		}
+    float dt                   = (moveStateInfo.endTime - time) / moveTime_;
+    moveStateInfo.startValue   = transform_.GetPositionXZ();
+    moveStateInfo.currentValue = CalculateMoveVector(moveStateInfo.direction) * moveTime_;
+    moveStateInfo.currentValue *= dt;
+    moveStateInfo.startTime = time;
+}
 
-		bool CharacterController::FindState(CharacterActions::Type state)
-		{
-			return std::find(states.begin(), states.end(), state) != states.end();
-		}
-	} // Controllers
-} // common
+vec2 CharacterController::CalculateMoveVector(Direction direction)
+{
+    float rad = Utils::ToRadians(transform_.GetRotation().y);
+    auto v    = vec2(runSpeed_ * (direction == Direction::BACKWARD ? -1.f : 1.f));
+    v.x *= sin(rad);
+    v.y *= cos(rad);
+
+    return v;
+}
+
+bool CharacterController::FindState(CharacterActions::Type state)
+{
+    return std::find(states.begin(), states.end(), state) != states.end();
+}
+}  // namespace Controllers
+}  // namespace common

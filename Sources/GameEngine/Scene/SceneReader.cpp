@@ -23,6 +23,8 @@
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Input/PlayerInputController.h"
 
 using namespace Utils;
 
@@ -201,6 +203,14 @@ void Read(Utils::XmlNode&, Components::SkydomeComponent&)
 {
 }
 
+void Read(Utils::XmlNode&, Components::CharacterController&)
+{
+}
+
+void Read(Utils::XmlNode&, Components::PlayerInputController&)
+{
+}
+
 void Read(Utils::XmlNode& node, Components::WaterRendererComponent& component)
 {
     auto waveSpeedNode = node.GetChild(CSTR_WAVE_SPEED);
@@ -333,6 +343,12 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 break;
             case Components::ComponentsType::ThridPersonCamera:
                 AddComponent<Components::ThridPersonCameraComponent>(*component, gameObject, CSTR_COMPONENT_THRID_PRESON_CAMERA);
+                break;
+            case Components::ComponentsType::CharacterController:
+                AddComponent<Components::CharacterController>(*component, gameObject, CSTR_COMPONENT_CHARACTER_CONTROLLER);
+                break;
+            case Components::ComponentsType::PlayerInputController:
+                AddComponent<Components::PlayerInputController>(*component, gameObject, CSTR_COMPONENT_PLAYER_INPUT_CONTROLLER);
                 break;
         }
     }

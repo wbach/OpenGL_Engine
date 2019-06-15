@@ -7,6 +7,8 @@
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Input/PlayerInputController.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -215,6 +217,14 @@ void Create(XmlNode&, const Components::SkydomeComponent&)
 {
 }
 
+void Create(XmlNode&, const Components::PlayerInputController&)
+{
+}
+
+void Create(XmlNode&, const Components::CharacterController&)
+{
+}
+
 void Create(XmlNode& node, const Components::WaterRendererComponent& component)
 {
     Create(node.AddChild(CSTR_POSITION), component.GetPosition());
@@ -307,7 +317,14 @@ void Create(XmlNode& node, const Components::IComponent& component)
             CreateComponent<Components::WaterRendererComponent>(node, component, CSTR_COMPONENT_WATER_RENDERER);
             break;
         case Components::ComponentsType::ThridPersonCamera:
-            CreateComponent<Components::ThridPersonCameraComponent>(node, component, CSTR_COMPONENT_THRID_PRESON_CAMERA);
+            CreateComponent<Components::ThridPersonCameraComponent>(node, component,
+                                                                    CSTR_COMPONENT_THRID_PRESON_CAMERA);
+            break;
+        case Components::ComponentsType::CharacterController:
+            CreateComponent<Components::CharacterController>(node, component, CSTR_COMPONENT_CHARACTER_CONTROLLER);
+            break;
+        case Components::ComponentsType::PlayerInputController:
+            CreateComponent<Components::PlayerInputController>(node, component, CSTR_COMPONENT_PLAYER_INPUT_CONTROLLER);
             break;
     }
 }
