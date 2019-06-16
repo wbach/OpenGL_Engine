@@ -9,6 +9,7 @@ class CollisionShape : public BaseComponent
 {
 public:
     CollisionShape(ComponentsType type, const ComponentContext& componentContext, GameObject& gameObject);
+    ~CollisionShape();
     uint32 GetCollisionShapeId() const;
 
 public:

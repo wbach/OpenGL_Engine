@@ -20,7 +20,7 @@ public:
     virtual uint32 CreateSphereColider(const vec3& positionOffset, float radius) override;
     // virtual void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     virtual uint32 CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, const std::vector<float>& data,
-                                        float hightFactor) override;
+        const vec3& scale) override;
     virtual uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
                                       const IndicesVector& indicies, float scaleFactor) override;
     virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) override;

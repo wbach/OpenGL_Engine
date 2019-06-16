@@ -159,7 +159,7 @@ static const float s_gridSpacing = 5.0f;
 static const float s_gridHeightScale = 0.2f;
 
 uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
-                                           const std::vector<float>& data, float hightFactor)
+                                           const std::vector<float>& data, const vec3& scale)
 {
     auto maxElementIter = std::max_element(data.begin(), data.end());
     auto maxElement     = maxElementIter != data.end() ? *maxElementIter : 0.f;
@@ -168,6 +168,10 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec
     impl_->shapes_.at(id_).shape_.reset(
         new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f, 0.f, maxElement, 1, PHY_FLOAT, false));
 
+    float scaleX = scale.x / static_cast<float>(size.x);
+    float scaleY = scale.z / static_cast<float>(size.y);
+
+    impl_->shapes_.at(id_).shape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
 
     return id_++;

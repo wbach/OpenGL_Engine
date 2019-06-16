@@ -204,7 +204,7 @@ uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, float
     return impl_->id_++;
 }
 uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
-                                                const std::vector<float>& data, float hightFactor)
+                                                const std::vector<float>& data, const vec3& scale)
 {
     //impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;

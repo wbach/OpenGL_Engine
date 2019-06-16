@@ -68,6 +68,7 @@ void main(){
     float height = texture(heightmap, mapCoord).r;
     height *= HEIGHT_FACTOR;
     height -= HEIGHT_FACTOR /2.f;
+    height += 19.f;
     position.y = height;
     mapCoord_GS = mapCoord;
     normal_GS = calculateNormal(position.xyz, mapCoord);

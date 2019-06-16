@@ -13,6 +13,9 @@ CollisionShape::CollisionShape(ComponentsType type, const ComponentContext& comp
     , collisionShapeId_(0)
 {
 }
+CollisionShape::~CollisionShape()
+{
+}
 uint32 CollisionShape::GetCollisionShapeId() const
 {
     return collisionShapeId_;
@@ -21,7 +24,7 @@ void CollisionShape::SetPostionOffset(const vec3& position)
 {
     positionOffset_ = position;
 }
-const vec3 & CollisionShape::GetPositionOffset() const
+const vec3& CollisionShape::GetPositionOffset() const
 {
     return positionOffset_;
 }

@@ -263,6 +263,7 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
                                 const vec3& dir, float scale, bool isStatic)
 {
     auto object = CreateGameObject(Utils::GetFilename(modelFilename));
+    object->worldTransform.isDynamic_ = not isStatic;
     object->worldTransform.SetPosition(pos);
     object->worldTransform.SetScale(scale);
     object->worldTransform.TakeSnapShoot();

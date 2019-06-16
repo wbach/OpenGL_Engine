@@ -112,7 +112,7 @@ void PhysicsScene::RemoveObjectsUnderYValue(float y)
 {
     for (auto iter = gameObjects.begin(); iter != gameObjects.end();)
     {
-        if ((*iter).second->worldTransform.GetPosition().y < -100)
+        if ((*iter).second->worldTransform.GetPosition().y < y)
         {
             iter = gameObjects.erase(iter);
         }
