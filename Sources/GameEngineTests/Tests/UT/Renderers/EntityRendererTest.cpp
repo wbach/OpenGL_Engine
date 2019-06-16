@@ -45,7 +45,6 @@ struct EntityRendererShould : public BaseComponentTestSchould
     }
     void SetUp()
     {
-        scene_.SetCamera(std::move(camera_));
         EXPECT_CALL(resourceManagerMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(graphicsMock_));
         EXPECT_CALL(graphicsMock_, GetWindowApi()).WillRepeatedly(ReturnRef(windowApiMock_));
 

@@ -6,8 +6,8 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , obj_("Test GameObject", componentFactoryMock_)
     , resourcesManager_(graphicsApiMock_)
     , renderersManager_(graphicsApiMock_, shaderFactoryMock_)
-    , camera_(cameraMock_)
-    , context_(time_, camera_, physicsApiMock_, resourcesManager_, renderersManager_, componentController_)
+    , cameraWrapper_(std::move(std::make_unique<CameraMock>()))
+    , context_(time_, inputManagerMock_, cameraWrapper_, physicsApiMock_, resourcesManager_, renderersManager_, componentController_)
 {
 }
 

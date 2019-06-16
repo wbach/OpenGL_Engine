@@ -12,6 +12,7 @@
 #include "GameEngineTests/Tests/Mocks/Components/ComponentFactoryMock.h"
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Shaders/ShaderFactoryMock.h"
+#include "GameEngineTests/Tests/Mocks/Api/InputManagerMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -22,6 +23,7 @@ public:
     BaseComponentTestSchould();
     void Init(BaseComponent* component);
 
+    Input::InputManagerMock inputManagerMock_;
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
     ComponentFactoryMock componentFactoryMock_;
     Time time_;
@@ -33,6 +35,6 @@ public:
     ShaderFactoryMock shaderFactoryMock_;
     PhysicsApiMock physicsApiMock_;
     GraphicsApi::WindowApiMock windowApiMock_;
-    std::unique_ptr<ICamera> camera_;
+    CameraWrapper cameraWrapper_;
     ComponentContext context_;
 };

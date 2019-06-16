@@ -165,6 +165,11 @@ void Scene::UpdateCamera()
     camera.Update();
 }
 
+void Scene::SetCamera(std::unique_ptr<ICamera> cam)
+{
+    camera.Set(std::move(cam));
+}
+
 const CameraWrapper& Scene::GetCamera() const
 {
     return camera;
