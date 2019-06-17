@@ -10,6 +10,7 @@
 #include "GameEngine/Components/Controllers/CharacterController.h"
 #include "GameEngine/Components/Input/PlayerInputController.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
@@ -154,6 +155,13 @@ void Create(XmlNode& node, const Components::TerrainShape& component)
     Create(node.AddChild(CSTR_HEIGHTMAP_FILENAME), component.GetHeightMapFileName());
 }
 
+void Create(XmlNode& node, const Components::CapsuleShape& component)
+{
+    Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
+    Create(node.AddChild(CSTR_HEIGHT), component.GetHeight());
+    Create(node.AddChild(CSTR_RADIUS), component.GetRadius());
+}
+
 void Create(XmlNode& node, const Components::Rigidbody& component)
 {
     Create(node.AddChild(CSTR_MASS), component.GetMass());
@@ -283,7 +291,8 @@ void Create(XmlNode& node, const Components::IComponent& component)
         case Components::ComponentsType::TerrainShape:
             CreateComponent<Components::TerrainShape>(node, component, CSTR_COMPONENT_TERRAINSHAPE);
             break;
-        case Components::ComponentsType::CollisionShape:
+        case Components::ComponentsType::CapsuleShape:
+            CreateComponent<Components::CapsuleShape>(node, component, CSTR_COMPONENT_CAPSULESHAPE);
             break;
         case Components::ComponentsType::Rigidbody:
             CreateComponent<Components::Rigidbody>(node, component, CSTR_COMPONENT_RIGIDBODY);

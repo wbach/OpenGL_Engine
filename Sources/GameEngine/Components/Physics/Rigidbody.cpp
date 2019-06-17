@@ -1,6 +1,7 @@
 
 #include "Rigidbody.h"
 #include "BoxShape.h"
+#include "CapsuleShape.h"
 #include "CollisionShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -72,7 +73,7 @@ Rigidbody& Rigidbody::SetCollisionShape(ComponentsType shapeType)
 {
     if (not isShapeTypeValid(shapeType))
     {
-       ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType)) + ") is not valid.");
+        ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType)) + ") is not valid.");
         return *this;
     }
 
@@ -82,7 +83,8 @@ Rigidbody& Rigidbody::SetCollisionShape(ComponentsType shapeType)
 bool Rigidbody::isShapeTypeValid(ComponentsType shapeType)
 {
     return shapeType == ComponentsType::BoxShape or shapeType == ComponentsType::TerrainShape or
-           shapeType == ComponentsType::MeshShape or shapeType == ComponentsType::SphereShape;
+           shapeType == ComponentsType::MeshShape or shapeType == ComponentsType::SphereShape or
+           shapeType == ComponentsType::CapsuleShape;
 }
 Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
@@ -129,8 +131,11 @@ void Rigidbody::GetCollisionShape()
         case ComponentsType::SphereShape:
             collisionShape_ = thisObject_.GetComponent<SphereShape>();
             break;
+        case ComponentsType::CapsuleShape:
+            collisionShape_ = thisObject_.GetComponent<CapsuleShape>();
+            break;
         default:
-           ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType_)) + ") is not found.");
+            ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType_)) + ") is not found.");
             break;
     };
 }

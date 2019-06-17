@@ -2,7 +2,10 @@
 #include "Animation/Animator.h"
 #include "BaseComponent.h"
 #include "Camera/ThridPersonCameraComponent.h"
+#include "Controllers/CharacterController.h"
+#include "Input/PlayerInputController.h"
 #include "Physics/BoxShape.h"
+#include "Physics/CapsuleShape.h"
 #include "Physics/MeshShape.h"
 #include "Physics/Rigidbody.h"
 #include "Physics/SphereShape.h"
@@ -16,8 +19,6 @@
 #include "Renderer/Terrain/TerrainRendererComponent.h"
 #include "Renderer/Trees/TreeRendererComponent.h"
 #include "Renderer/Water/WaterRendererComponent.h"
-#include "Controllers/CharacterController.h"
-#include "Input/PlayerInputController.h"
 
 namespace GameEngine
 {
@@ -61,6 +62,10 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         {
             return std::make_unique<SphereShape>(context_, ptr);
         }
+        case ComponentsType::CapsuleShape:
+        {
+            return std::make_unique<CapsuleShape>(context_, ptr);
+        }
         case ComponentsType::TerrainShape:
         {
             return std::make_unique<TerrainShape>(context_, ptr);
@@ -88,10 +93,6 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::Grass:
         {
             return std::make_unique<GrassRendererComponent>(context_, ptr);
-        }
-        case ComponentsType::CollisionShape:
-        {
-            break;
         }
         case ComponentsType::Water:
         {

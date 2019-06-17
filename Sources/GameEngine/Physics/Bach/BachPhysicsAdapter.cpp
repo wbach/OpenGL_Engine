@@ -203,6 +203,10 @@ uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, float
     impl_->shapes_.insert({impl_->id_, {positionOffset, radius}});
     return impl_->id_++;
 }
+uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3 & positionOffset, float radius, float height)
+{
+    return uint32();
+}
 uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
                                                 const std::vector<float>& data, const vec3& scale)
 {

@@ -153,6 +153,14 @@ uint32 BulletAdapter::CreateSphereColider(const vec3& positionOffset, float radi
     return id_++;
 }
 
+uint32 BulletAdapter::CreateCapsuleColider(const vec3& positionOffset, float radius, float height)
+{
+    impl_->shapes_.insert({id_, Shape()});
+    impl_->shapes_.at(id_).shape_.reset(new btCapsuleShape(radius, height));
+    impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
+    return id_++;
+}
+
 static const int s_gridSize      = 64 + 1;  // must be (2^N) + 1
 static const float s_gridSpacing = 5.0f;
 
@@ -226,16 +234,6 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), &impl_->shapes_.at(shapeId).positionOffset_, shapeId, true};
-
-   /* if (isStatic)
-    {
-        impl_->AddRigidbody(impl_->staticRigidBodies, id_, std::move(body));
-    }
-    else
-    {
-        impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
-    }*/
-
 
     impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
     impl_->transforms[id_] = &transform;

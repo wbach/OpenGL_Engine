@@ -11,6 +11,7 @@
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
@@ -84,6 +85,13 @@ void Read(Utils::XmlNode& node, Components::MeshShape& component)
 void Read(Utils::XmlNode& node, Components::SphereShape& component)
 {
     component.SetSize(ReadFloat(*node.GetChild(CSTR_SIZE)));
+    component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
+}
+
+void Read(Utils::XmlNode& node, Components::CapsuleShape& component)
+{
+    component.SetHeight(ReadFloat(*node.GetChild(CSTR_HEIGHT)));
+    component.SetRadius(ReadFloat(*node.GetChild(CSTR_RADIUS)));
     component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
 }
 
@@ -309,7 +317,8 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
             case Components::ComponentsType::TerrainShape:
                 AddComponent<Components::TerrainShape>(*component, gameObject, CSTR_COMPONENT_TERRAINSHAPE);
                 break;
-            case Components::ComponentsType::CollisionShape:
+            case Components::ComponentsType::CapsuleShape:
+                AddComponent<Components::CapsuleShape>(*component, gameObject, CSTR_COMPONENT_CAPSULESHAPE);
                 break;
             case Components::ComponentsType::Rigidbody:
                 AddComponent<Components::Rigidbody>(*component, gameObject, CSTR_COMPONENT_RIGIDBODY);

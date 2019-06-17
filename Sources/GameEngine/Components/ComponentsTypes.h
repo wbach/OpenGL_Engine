@@ -11,7 +11,7 @@ enum class ComponentsType
     MeshShape,
     SphereShape,
     TerrainShape,
-    CollisionShape,
+    CapsuleShape,
     Rigidbody,
     Renderer,
     TreeRenderer,
@@ -24,7 +24,8 @@ enum class ComponentsType
     Water,
     ThridPersonCamera,
     PlayerInputController,
-    CharacterController
+    CharacterController,
+    
 };
 }  // namespace Components
 }  // namespace GameEngine

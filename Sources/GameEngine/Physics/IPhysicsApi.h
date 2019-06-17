@@ -14,13 +14,14 @@ struct IPhysicsApi
     virtual ~IPhysicsApi()
     {
     }
-    virtual void Simulate()                                                       = 0;
-    virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)  = 0;
-    virtual void EnableSimulation()                                               = 0;
-    virtual void DisableSimulation()                                              = 0;
-    virtual void SetSimulationStep(float step)                                    = 0;
-    virtual uint32 CreateBoxColider(const vec3& positionOffset, const vec3& size) = 0;
-    virtual uint32 CreateSphereColider(const vec3& positionOffset, float radius)  = 0;
+    virtual void Simulate()                                                                     = 0;
+    virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)                = 0;
+    virtual void EnableSimulation()                                                             = 0;
+    virtual void DisableSimulation()                                                            = 0;
+    virtual void SetSimulationStep(float step)                                                  = 0;
+    virtual uint32 CreateBoxColider(const vec3& positionOffset, const vec3& size)               = 0;
+    virtual uint32 CreateSphereColider(const vec3& positionOffset, float radius)                = 0;
+    virtual uint32 CreateCapsuleColider(const vec3& positionOffset, float radius, float height) = 0;
     // virtual void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     virtual uint32 CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, const std::vector<float>& data,
                                         const vec3& scale)                                        = 0;

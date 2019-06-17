@@ -12,6 +12,8 @@
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 
+#include <GameEngine/Renderers/RenderersManager.h>
+
 using namespace GameEngine;
 
 namespace AvatarGame
@@ -35,6 +37,10 @@ int SouthPool::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     LoadFromFile(sceneFile);
+
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDrawPhysicsDebyg(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDrawPhysicsDebyg(); });
+
     return 0;
 }
 

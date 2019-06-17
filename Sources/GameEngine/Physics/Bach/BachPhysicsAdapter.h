@@ -18,6 +18,7 @@ public:
     virtual void DisableSimulation() override;
     virtual uint32 CreateBoxColider(const vec3& positionOffset, const vec3& size) override;
     virtual uint32 CreateSphereColider(const vec3& positionOffset, float radius) override;
+    virtual uint32 CreateCapsuleColider(const vec3& positionOffset, float radius, float height) override;
     // virtual void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     virtual uint32 CreateTerrainColider(const vec3& positionOffset, const vec2ui& size, const std::vector<float>& data,
         const vec3& scale) override;
