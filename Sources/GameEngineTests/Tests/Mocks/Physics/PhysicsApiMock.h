@@ -14,7 +14,7 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD1(SetSimulationStep, void(float));
     MOCK_METHOD2(CreateBoxColider, uint32(const vec3&, const vec3&));
     MOCK_METHOD2(CreateSphereColider, uint32(const vec3&, float));
-    MOCK_METHOD2(CreateCapsuleColider, uint32(const vec3&, float, float));
+    MOCK_METHOD3(CreateCapsuleColider, uint32(const vec3&, float, float));
     MOCK_METHOD4(CreateTerrainColider, uint32(const vec3&, const vec2ui&, const std::vector<float>&, const vec3&));
     MOCK_METHOD4(CreateMeshCollider, uint32(const vec3&, const std::vector<float>&, const IndicesVector&, float));
     MOCK_METHOD4(CreateRigidbody, uint32(uint32, common::Transform&, float, bool));
