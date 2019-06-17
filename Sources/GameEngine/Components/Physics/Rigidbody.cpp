@@ -49,6 +49,12 @@ void Rigidbody::OnStart()
     rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
                                                                  thisObject_.worldTransform, mass_, isStatic_);
     componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, velocity_);
+
+    if (angularFactor_)
+    {
+        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, *angularFactor_);
+    }
+
     isInitilized_ = true;
 }
 void Rigidbody::ReqisterFunctions()
@@ -99,6 +105,17 @@ Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 
     return *this;
 }
+Rigidbody& Rigidbody::SetAngularFactor(float v)
+{
+    angularFactor_ = v;
+
+    if (isInitilized_)
+    {
+        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, v);
+    }
+
+    return *this;
+}
 float Rigidbody::GetMass() const
 {
     return mass_;
@@ -114,6 +131,10 @@ ComponentsType Rigidbody::GetCollisionShapeType() const
 const vec3& Rigidbody::GetVelocity() const
 {
     return velocity_;
+}
+std::optional<float> Rigidbody::GetAngularFactor() const
+{
+    return angularFactor_;
 }
 void Rigidbody::GetCollisionShape()
 {

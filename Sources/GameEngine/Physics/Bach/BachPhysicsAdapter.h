@@ -26,6 +26,7 @@ public:
                                       const IndicesVector& indicies, float scaleFactor) override;
     virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) override;
     virtual void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
+    virtual void SetAngularFactor(uint32 rigidBodyId, float value) override;
     virtual void RemoveRigidBody(uint32 id) override;
 
 private:

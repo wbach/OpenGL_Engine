@@ -168,6 +168,12 @@ void Create(XmlNode& node, const Components::Rigidbody& component)
     Create(node.AddChild(CSTR_IS_STATIC), component.IsStatic());
     Create(node.AddChild(CSTR_VELOCITY), component.GetVelocity());
     Create(node.AddChild(CSTR_COLLISION_SHAPE), static_cast<int>(component.GetCollisionShapeType()));
+
+    auto angularFactor = component.GetAngularFactor();
+    if (angularFactor)
+    {
+        Create(node.AddChild(CSTR_ANGULAR_FACTOR), *angularFactor);
+    }
 }
 
 void Create(XmlNode& node, const std::unordered_map<std::string, LevelOfDetail>& files)

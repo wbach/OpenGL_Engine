@@ -78,3 +78,4 @@ extern const std::string CSTR_V;
 extern const std::string CSTR_WAVE_SPEED;
 extern const std::string CSTR_HEIGHT;
 extern const std::string CSTR_RADIUS;
+extern const std::string CSTR_ANGULAR_FACTOR;

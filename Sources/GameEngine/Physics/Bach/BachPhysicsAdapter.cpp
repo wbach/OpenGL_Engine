@@ -227,6 +227,9 @@ void BachPhysicsAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& ve
 {
     impl_->rigidbodies_.at(rigidBodyId).velocity_ = velocity;
 }
+void BachPhysicsAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
+{
+}
 void BachPhysicsAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->rigidbodies_.erase(id);

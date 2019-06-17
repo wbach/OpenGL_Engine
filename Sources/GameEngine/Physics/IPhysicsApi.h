@@ -29,6 +29,7 @@ struct IPhysicsApi
                                       const IndicesVector& indicies, float scaleFactor)           = 0;
     virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) = 0;
     virtual void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)                   = 0;
+    virtual void SetAngularFactor(uint32 rigidBodyId, float value)                                = 0;
     virtual void RemoveRigidBody(uint32 id)                                                       = 0;
 };
 

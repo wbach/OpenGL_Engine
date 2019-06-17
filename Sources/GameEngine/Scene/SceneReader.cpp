@@ -107,6 +107,11 @@ void Read(Utils::XmlNode& node, Components::Rigidbody& component)
     component.SetIsStatic(ReadBool(*node.GetChild(CSTR_IS_STATIC)));
     component.SetVelocity(ReadVec3(*node.GetChild(CSTR_VELOCITY)));
 
+    auto angularFactorNode = node.GetChild(CSTR_ANGULAR_FACTOR);
+
+    if (angularFactorNode)
+        component.SetAngularFactor(ReadFloat(*angularFactorNode));
+
     auto collShape = static_cast<Components::ComponentsType>(std::stoi(node.GetChild(CSTR_COLLISION_SHAPE)->value_));
     component.SetCollisionShape(collShape);
 }

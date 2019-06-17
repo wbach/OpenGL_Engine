@@ -253,6 +253,15 @@ void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocit
 
     impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setLinearVelocity(Convert(velocity));
 }
+void BulletAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
+{
+    if (!impl_->rigidBodies.count(rigidBodyId))
+    {
+        return;
+    }
+
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setAngularFactor(0.0f);
+}
 void BulletAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->RemoveRigidBody(impl_->rigidBodies, id);

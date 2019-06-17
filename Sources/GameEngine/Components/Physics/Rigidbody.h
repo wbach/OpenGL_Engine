@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Physics/ShapeType.h"
+#include <optional>
 
 namespace GameEngine
 {
@@ -21,10 +22,13 @@ public:
     Rigidbody& SetIsStatic(bool is);
     Rigidbody& SetCollisionShape(ComponentsType shapeType);
     Rigidbody& SetVelocity(const vec3& velocity);
+    Rigidbody& SetAngularFactor(float);
+
     float GetMass() const;
     bool IsStatic() const;
     ComponentsType GetCollisionShapeType() const;
     const vec3& GetVelocity() const;
+    std::optional<float> GetAngularFactor() const;
 
 private:
     void GetCollisionShape();
@@ -37,6 +41,7 @@ private:
     CollisionShape* collisionShape_;
     uint32 rigidBodyId_;
     vec3 velocity_;
+    std::optional<float> angularFactor_;
     ComponentsType shapeType_;
 
 public:
