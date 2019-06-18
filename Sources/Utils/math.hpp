@@ -10,9 +10,9 @@ T clamp(const T& n, const T& lower, const T& upper)
 }
 
 template <class type>
-float ToRadians(type a)
+type ToRadians(type a)
 {
-    return static_cast<float>(a) * static_cast<float>(M_PI) / 180.0f;
+    return a * static_cast<float>(M_PI) / 180.0f;
 }
 
 template <class type>

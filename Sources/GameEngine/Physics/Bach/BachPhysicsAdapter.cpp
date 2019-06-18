@@ -2,11 +2,11 @@
 #include <iomanip>
 #include <optional>
 #include <type_traits>
+#include <unordered_map>
 #include <variant>
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "Types.h"
-#include <unordered_map>
 
 namespace GameEngine
 {
@@ -203,14 +203,14 @@ uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, float
     impl_->shapes_.insert({impl_->id_, {positionOffset, radius}});
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3 & positionOffset, float radius, float height)
+uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3& positionOffset, float radius, float height)
 {
     return uint32();
 }
 uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
                                                 const std::vector<float>& data, const vec3& scale)
 {
-    //impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
+    // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
 uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
@@ -220,12 +220,19 @@ uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3& positionOffset, const 
 }
 uint32 BachPhysicsAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)
 {
-    impl_->rigidbodies_.insert({ impl_->id_, Rigidbody(transform, mass, isStatic, shapeId) });
+    impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, isStatic, shapeId)});
     return impl_->id_++;
 }
 void BachPhysicsAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
 {
     impl_->rigidbodies_.at(rigidBodyId).velocity_ = velocity;
+}
+void BachPhysicsAdapter::IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
+{
+}
+std::optional<vec3> BachPhysicsAdapter::GetVelocity(uint32 rigidBodyId)
+{
+    return {};
 }
 void BachPhysicsAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
 {
@@ -234,5 +241,14 @@ void BachPhysicsAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->rigidbodies_.erase(id);
 }
+void BachPhysicsAdapter::SetRotation(uint32 rigidBodyId, const vec3&)
+{
+}
+void BachPhysicsAdapter::SetRotation(uint32 rigidBodyId, const Quaternion&)
+{
+}
+void BachPhysicsAdapter::SetPosition(uint32 rigidBodyId, const vec3&)
+{
+}
 }  // namespace Physics
-}  // namespace Physics
+}  // namespace GameEngine

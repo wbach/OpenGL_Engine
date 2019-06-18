@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <optional>
 #include <vector>
 #include "Common/Transform.h"
 #include "ShapeType.h"
@@ -11,7 +12,7 @@ namespace Physics
 {
 struct IPhysicsApi
 {
-    virtual ~IPhysicsApi() = default;
+    virtual ~IPhysicsApi()                                                                      = default;
     virtual void Simulate()                                                                     = 0;
     virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)                = 0;
     virtual void EnableSimulation()                                                             = 0;
@@ -27,8 +28,13 @@ struct IPhysicsApi
                                       const IndicesVector& indicies, float scaleFactor)           = 0;
     virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) = 0;
     virtual void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)                   = 0;
+    virtual void IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)              = 0;
+    virtual std::optional<vec3> GetVelocity(uint32 rigidBodyId)                                   = 0;
     virtual void SetAngularFactor(uint32 rigidBodyId, float value)                                = 0;
     virtual void RemoveRigidBody(uint32 id)                                                       = 0;
+    virtual void SetRotation(uint32 rigidBodyId, const vec3&)                                     = 0;
+    virtual void SetRotation(uint32 rigidBodyId, const Quaternion&)                               = 0;
+    virtual void SetPosition(uint32 rigidBodyId, const vec3&)                                     = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

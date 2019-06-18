@@ -42,6 +42,7 @@ private:
     float jumpPower_;
     float turnSpeed_;
     float runSpeed_;
+    vec3 rotation_;
 
 public:
     static ComponentsType type;

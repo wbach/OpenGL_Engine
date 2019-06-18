@@ -8,8 +8,8 @@ namespace Components
 {
 ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
-const float DEFAULT_RUN_SPEED = Utils::KmToMs(5.f);
-// const float DEFAULT_RUN_TURN_SPEED = 160.f;
+const float DEFAULT_RUN_SPEED = Utils::KmToMs(15.f);
+const float DEFAULT_TURN_SPEED = 160.f;
 const float DEFAULT_JUMP_POWER = 25.f;
 
 CharacterController::CharacterController(const ComponentContext& componentContext, GameObject& gameObject)
@@ -35,18 +35,43 @@ void CharacterController::Update()
     {
         return;
     }
+    const auto& currentVelocvity = rigidbody_->GetVelocity();
+    float rad = Utils::ToRadians(rotation_.y);
+    auto v    = vec3(DEFAULT_RUN_SPEED);
+    v.x *= sinf(rad);
+    v.y = currentVelocvity.y;
+    v.z *= cosf(rad);
+
 
     for (const auto& action : actions_)
     {
         switch (action)
         {
-            case Action::RUN:
-            case Action::WALK:
-                rigidbody_->SetVelocity(vec3(DEFAULT_RUN_SPEED, 0, DEFAULT_RUN_SPEED));
+            case Action::MOVE_BACKWARD:
+                v.x *= -1.f;
+                v.z *= -1.f;
+                rigidbody_->SetVelocity(v);
+                break;
+            case Action::MOVE_FORWARD:
+                rigidbody_->SetVelocity(v);
                 break;
             case Action::JUMP:
                 rigidbody_->SetVelocity(vec3(0, DEFAULT_JUMP_POWER, 0));
                 break;
+            case Action::ROTATE_LEFT:
+            {
+                rotation_.y += DEFAULT_TURN_SPEED * componentContext_.time_.deltaTime;
+                auto v = Utils::ToRadians(rotation_);
+                rigidbody_->SetRotation(v);
+            }
+            break;
+            case Action::ROTATE_RIGHT:
+            {
+                rotation_.y -= DEFAULT_TURN_SPEED * componentContext_.time_.deltaTime;
+                auto v = Utils::ToRadians(rotation_);
+                rigidbody_->SetRotation(v);
+            }
+            break;
 
             default:
                 break;
@@ -56,7 +81,12 @@ void CharacterController::Update()
 
 void CharacterController::AddState(CharacterController::Action action)
 {
-    actions_.push_back(action);
+    auto iter = std::find(actions_.begin(), actions_.end(), action);
+
+    if (iter == actions_.end())
+    {
+        actions_.push_back(action);
+    }
 }
 
 void CharacterController::RemoveState(CharacterController::Action action)

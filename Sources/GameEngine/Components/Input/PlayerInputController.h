@@ -19,16 +19,16 @@ private:
     void Init();
     void SubscribeForPushActions();
     void SubscribeForPopActions();
-    bool FindState(common::Controllers::CharacterActions::Type type);
-    void AddState(common::Controllers::CharacterActions::Type state);
-    void RemoveState(common::Controllers::CharacterActions::Type state);
+    bool FindState(CharacterController::Action type);
+    void AddState(CharacterController::Action state);
+    void RemoveState(CharacterController::Action state);
     void SetRunAnim();
     void SetIdleAnim();
 
 private:
     Animator* animator_;
     CharacterController* characterController_;
-    std::list<common::Controllers::CharacterActions::Type> states_;
+    std::vector<CharacterController::Action> states_;
 
 public:
     static ComponentsType type;

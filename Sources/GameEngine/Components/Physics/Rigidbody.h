@@ -23,6 +23,11 @@ public:
     Rigidbody& SetCollisionShape(ComponentsType shapeType);
     Rigidbody& SetVelocity(const vec3& velocity);
     Rigidbody& SetAngularFactor(float);
+    Rigidbody& SetRotation(const vec3&);
+    Rigidbody& SetRotation(const Quaternion&);
+    Rigidbody& SetPosition(const vec3&);
+    void IncreaseVelocity(const vec3& v);
+
 
     float GetMass() const;
     bool IsStatic() const;

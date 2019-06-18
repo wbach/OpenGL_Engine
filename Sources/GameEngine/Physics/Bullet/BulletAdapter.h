@@ -32,8 +32,13 @@ public:
                                       const IndicesVector& indicies, float scaleFactor) override;
     virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) override;
     virtual void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
+    virtual void IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
+    virtual std::optional<vec3> GetVelocity(uint32 rigidBodyId) override;
     virtual void SetAngularFactor(uint32 rigidBodyId, float value) override;
     virtual void RemoveRigidBody(uint32 id) override;
+    virtual void SetRotation(uint32 rigidBodyId, const vec3&) override;
+    virtual void SetRotation(uint32 rigidBodyId, const Quaternion&) override;
+    virtual void SetPosition(uint32 rigidBodyId, const vec3&) override;
 
 private:
     struct Pimpl;

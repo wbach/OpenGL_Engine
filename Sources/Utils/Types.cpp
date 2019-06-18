@@ -28,6 +28,11 @@ vec4 ToVec4(const vec2& v2, float z, float w)
     return vec4(v2.x, v2.y, z, w);
 }
 
+bool compare(float x, float y)
+{
+    return std::fabsf(x - y) <= std::numeric_limits<float>::epsilon();
+}
+
 namespace std
 {
 std::string to_string(const vec2& v)

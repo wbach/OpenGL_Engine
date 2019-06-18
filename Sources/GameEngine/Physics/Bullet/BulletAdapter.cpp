@@ -1,4 +1,5 @@
 #include "BulletAdapter.h"
+#include <Logger/Log.h>
 #include <algorithm>
 #include <unordered_map>
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
@@ -121,8 +122,8 @@ void BulletAdapter::Simulate()
         vec3 rot;
         rigidbody.btRigidbody_->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
 
-        rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
-        transform->SetRotation(rot);
+        // rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
+        transform->SetRotation(Utils::ToDegrees(rot));
         auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
         transform->SetPosition(Convert(newPosition));
         transform->TakeSnapShoot();
@@ -248,11 +249,36 @@ void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocit
 
     impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setLinearVelocity(Convert(velocity));
 }
+void BulletAdapter::IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return;
+    }
+
+    const auto& v = impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getLinearVelocity();
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setLinearVelocity(v + Convert(velocity));
+}
+std::optional<vec3> BulletAdapter::GetVelocity(uint32 rigidBodyId)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return {};
+    }
+
+    return Convert(impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getLinearVelocity());
+}
 void BulletAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
 {
     if (!impl_->rigidBodies.count(rigidBodyId))
     {
         return;
+    }
+
+    if (compare(value, 0.f))
+    {
+        DEBUG_LOG("DISABLE_DEACTIVATION btRigidbody_");
+        impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
     }
 
     impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setAngularFactor(value);
@@ -261,6 +287,29 @@ void BulletAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->RemoveRigidBody(impl_->rigidBodies, id);
     impl_->RemoveRigidBody(impl_->staticRigidBodies, id);
+}
+void BulletAdapter::SetRotation(uint32 rigidBodyId, const vec3& rotation)
+{
+    btQuaternion qt;
+    qt.setEuler(rotation.y, rotation.x, rotation.z);
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().setRotation(qt);
+}
+void BulletAdapter::SetRotation(uint32 rigidBodyId, const Quaternion& rotation)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return;
+    }
+
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
+}
+void BulletAdapter::SetPosition(uint32 rigidBodyId, const vec3& position)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return;
+    }
+    // impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().
 }
 }  // namespace Physics
 

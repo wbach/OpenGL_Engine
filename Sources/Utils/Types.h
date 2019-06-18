@@ -174,3 +174,5 @@ struct hash<vec3i>
     }
 };
 }  // namespace std
+
+bool compare(float, float);

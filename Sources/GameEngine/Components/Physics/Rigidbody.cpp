@@ -116,6 +116,24 @@ Rigidbody& Rigidbody::SetAngularFactor(float v)
 
     return *this;
 }
+Rigidbody& Rigidbody::SetRotation(const vec3& rotation)
+{
+    componentContext_.physicsApi_.SetRotation(rigidBodyId_, rotation);
+    return *this;
+}
+Rigidbody& Rigidbody::SetRotation(const Quaternion& rotation)
+{
+    componentContext_.physicsApi_.SetRotation(rigidBodyId_, rotation);
+    return *this;
+}
+Rigidbody& Rigidbody::SetPosition(const vec3&)
+{
+    return *this;
+}
+void Rigidbody::IncreaseVelocity(const vec3& v)
+{
+    componentContext_.physicsApi_.IncreaseVelocityRigidbody(rigidBodyId_, v);
+}
 float Rigidbody::GetMass() const
 {
     return mass_;
