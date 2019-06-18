@@ -40,7 +40,7 @@ void CharacterController::SetRunSpeed(float v)
     runSpeed_ = v;
 }
 
-void CharacterController::Update(float deltaTime)
+void CharacterController::Update(float)
 {
     float time = GetTime();
 
@@ -213,8 +213,8 @@ vec2 CharacterController::CalculateMoveVector(Direction direction)
 {
     float rad = Utils::ToRadians(transform_.GetRotation().y);
     auto v    = vec2(runSpeed_ * (direction == Direction::BACKWARD ? -1.f : 1.f));
-    v.x *= sin(rad);
-    v.y *= cos(rad);
+    v.x *= sinf(rad);
+    v.y *= cosf(rad);
 
     return v;
 }

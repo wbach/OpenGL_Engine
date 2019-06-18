@@ -11,9 +11,7 @@ namespace Physics
 {
 struct IPhysicsApi
 {
-    virtual ~IPhysicsApi()
-    {
-    }
+    virtual ~IPhysicsApi() = default;
     virtual void Simulate()                                                                     = 0;
     virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)                = 0;
     virtual void EnableSimulation()                                                             = 0;

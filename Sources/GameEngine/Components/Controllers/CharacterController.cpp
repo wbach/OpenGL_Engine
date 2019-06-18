@@ -33,7 +33,7 @@ void CharacterController::SetJumpPower(float v)
     characterController_.SetJumpPower(v);
 }
 
-common::Controllers::CharacterController & CharacterController::Get()
+common::Controllers::CharacterController& CharacterController::Get()
 {
     return characterController_;
 }

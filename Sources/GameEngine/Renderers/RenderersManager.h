@@ -9,6 +9,7 @@
 #include "Projection.h"
 #include "RendererFunctionType.h"
 #include <functional>
+#include <condition_variable>
 
 namespace GameEngine
 {
@@ -22,6 +23,14 @@ namespace Renderer
 {
 class RenderersManager
 {
+    struct UnsubscribeContex
+    {
+        GameObject* gameObject;
+        std::mutex& mutex;
+        std::condition_variable& cv;
+        bool& done;
+    };
+
 public:
     RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
     void Init();
@@ -30,6 +39,8 @@ public:
     void ReloadShaders();
     void Subscribe(GameObject* gameObject);
     void UnSubscribe(GameObject* gameObject);
+    void UnSubscribe(GameObject* gameObject, std::mutex&, std::condition_variable&, bool& done);
+
     void UnSubscribeAll();
     void UnSubscribeAll(std::function<void()>);
     void SwapLineFaceRender();
@@ -57,7 +68,8 @@ private:
     std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
-    std::function<void()> unsubscribeCallback_;
+    std::function<void()> unsubscribeAllCallback_;
+    std::vector<UnsubscribeContex> tounsubscriber_;
 
     IRenderersPtrVec renderers_;
     GUIRenderer guiRenderer_;

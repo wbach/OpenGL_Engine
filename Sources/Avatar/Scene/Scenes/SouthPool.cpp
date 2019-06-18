@@ -13,13 +13,12 @@
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 
 #include <GameEngine/Renderers/RenderersManager.h>
+#include <GameEngine/Engine/Configuration.h>
 
 using namespace GameEngine;
 
 namespace AvatarGame
 {
-const std::string sceneFile = "SouthPool.xml";
-
 SouthPool::SouthPool()
     : Scene("SouthPool")
 {
@@ -36,6 +35,7 @@ int SouthPool::Initialize()
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
     LoadFromFile(sceneFile);
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDrawPhysicsDebyg(); });

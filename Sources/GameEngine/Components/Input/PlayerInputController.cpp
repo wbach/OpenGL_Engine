@@ -36,12 +36,12 @@ void PlayerInputController::SubscribeForPushActions()
     componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::W, [&]() {
         AddState(CharacterActions::MOVE_FORWARD);
         SetRunAnim();
-        animator_->animationSpeed_ = fabs(animator_->animationSpeed_);
+        animator_->animationSpeed_ = fabsf(animator_->animationSpeed_);
     });
     componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
         AddState(CharacterActions::MOVE_BACKWARD);
         SetRunAnim();
-        animator_->animationSpeed_ = -1.f * fabs(animator_->animationSpeed_);
+        animator_->animationSpeed_ = -1.f * fabsf(animator_->animationSpeed_);
     });
     componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() { AddState(CharacterActions::ROTATE_LEFT); });
     componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::D,

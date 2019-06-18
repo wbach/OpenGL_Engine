@@ -12,10 +12,14 @@
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 
+#include <GameEngine/Engine/Configuration.h>
+
 using namespace GameEngine;
 
 namespace AvatarGame
 {
+std::string mainMenuGuiFile;
+
 MainMenu::MainMenu()
     : Scene("MainMenu")
 {
@@ -28,6 +32,8 @@ MainMenu::~MainMenu()
 
 int MainMenu::Initialize()
 {
+    mainMenuGuiFile = EngineConf_GetFullDataPath("Scenes/MainMenu/MainMenuGui.xml");
+
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     DEBUG_LOG("");
@@ -52,7 +58,7 @@ int MainMenu::Initialize()
         stateToChange_ = State::MAIN;
     });
 
-    guiElementFactory_->ReadGuiFile("MainMenuGui.xml");
+    guiElementFactory_->ReadGuiFile(mainMenuGuiFile);
 
     return 0;
 }
@@ -63,7 +69,7 @@ void MainMenu::PostInitialize()
 
 int MainMenu::Update(float)
 {
-    guiElementFactory_->ReadGuiFile("MainMenuGui.xml");
+    guiElementFactory_->ReadGuiFile(mainMenuGuiFile);
 
     if (stateToChange_)
     {

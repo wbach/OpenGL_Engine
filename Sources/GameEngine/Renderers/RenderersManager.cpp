@@ -123,11 +123,19 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
 
     guiRenderer_.Render(*scene, threadTime);
 
-    if (unsubscribeCallback_)
+    if (unsubscribeAllCallback_)
     {
         UnSubscribeAll();
-        unsubscribeCallback_();
-        unsubscribeCallback_ = {};
+        unsubscribeAllCallback_();
+        unsubscribeAllCallback_ = {};
+    }
+
+    for (auto& sub : tounsubscriber_)
+    {
+        UnSubscribe(sub.gameObject);
+        sub.done = true;
+        sub.mutex.unlock();
+        sub.cv.notify_all();
     }
 }
 void RenderersManager::ReloadShaders()
@@ -163,6 +171,11 @@ void RenderersManager::UnSubscribe(GameObject* gameObject)
     for (auto& r : renderers_)
         r->UnSubscribe(gameObject);
 }
+
+void RenderersManager::UnSubscribe(GameObject *gameObject, std::mutex & m, std::condition_variable & cv, bool &done)
+{
+    tounsubscriber_.push_back({gameObject, m, cv, done});
+}
 void RenderersManager::UnSubscribeAll()
 {
     for (auto& r : renderers_)
@@ -173,7 +186,7 @@ void RenderersManager::UnSubscribeAll()
 }
 void RenderersManager::UnSubscribeAll(std::function<void()> callback)
 {
-    unsubscribeCallback_ = callback;
+    unsubscribeAllCallback_ = callback;
 }
 void RenderersManager::SwapLineFaceRender()
 {
