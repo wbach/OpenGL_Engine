@@ -8,44 +8,79 @@ namespace Components
 {
 ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
-const float DEFAULT_RUN_SPEED      = Utils::KmToMs(5.f);
-const float DEFAULT_RUN_TURN_SPEED = 160.f;
-const float DEFAULT_JUMP_POWER     = 25.f;
+const float DEFAULT_RUN_SPEED = Utils::KmToMs(5.f);
+// const float DEFAULT_RUN_TURN_SPEED = 160.f;
+const float DEFAULT_JUMP_POWER = 25.f;
 
 CharacterController::CharacterController(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
-    , characterController_(gameObject.worldTransform, DEFAULT_RUN_SPEED, DEFAULT_RUN_TURN_SPEED, DEFAULT_JUMP_POWER)
+    , rigidbody_{nullptr}
 {
 }
 
 void CharacterController::ReqisterFunctions()
 {
+    RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Init, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
+}
+
+void CharacterController::Init()
+{
+    rigidbody_ = thisObject_.GetComponent<Rigidbody>();
 }
 
 void CharacterController::Update()
 {
-    characterController_.Update(componentContext_.time_.deltaTime);
+    if (not rigidbody_)
+    {
+        return;
+    }
+
+    for (const auto& action : actions_)
+    {
+        switch (action)
+        {
+            case Action::RUN:
+            case Action::WALK:
+                rigidbody_->SetVelocity(vec3(DEFAULT_RUN_SPEED, 0, DEFAULT_RUN_SPEED));
+                break;
+            case Action::JUMP:
+                rigidbody_->SetVelocity(vec3(0, DEFAULT_JUMP_POWER, 0));
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
+void CharacterController::AddState(CharacterController::Action action)
+{
+    actions_.push_back(action);
+}
+
+void CharacterController::RemoveState(CharacterController::Action action)
+{
+    auto iter = std::find(actions_.begin(), actions_.end(), action);
+    if (iter != actions_.end())
+    {
+        actions_.erase(iter);
+    }
 }
 
 void CharacterController::SetJumpPower(float v)
 {
-    characterController_.SetJumpPower(v);
-}
-
-common::Controllers::CharacterController& CharacterController::Get()
-{
-    return characterController_;
+    jumpPower_ = v;
 }
 
 void CharacterController::SetTurnSpeed(float v)
 {
-    characterController_.SetTurnSpeed(v);
+    turnSpeed_ = v;
 }
 
 void CharacterController::SetRunSpeed(float v)
 {
-    characterController_.SetRunSpeed(v);
+    runSpeed_ = v;
 }
 }  // namespace Components
 }  // namespace GameEngine

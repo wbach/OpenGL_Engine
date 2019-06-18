@@ -34,7 +34,7 @@ public:
 private:
     void Subscribe();
     void UnSubscribe();
-    void ReserveBufferVectors(uint32 size);
+    void ReserveBufferVectors(size_t size);
     void CreateBuffers(ModelRawPtr model);
     void CreatePerObjectUpdateBuffer(const Mesh& mesh);
     void CreatePerObjectConstantsBuffer(const Mesh& mesh);

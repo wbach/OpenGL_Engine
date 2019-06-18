@@ -63,7 +63,7 @@ void RendererComponent::UnSubscribe()
 {
     componentContext_.renderersManager_.UnSubscribe(&thisObject_);
 }
-void RendererComponent::ReserveBufferVectors(uint32 size)
+void RendererComponent::ReserveBufferVectors(size_t size)
 {
     perObjectUpdateBuffer_.reserve(size);
     perObjectConstantsBuffer_.reserve(size);

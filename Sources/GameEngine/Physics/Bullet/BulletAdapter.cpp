@@ -161,11 +161,6 @@ uint32 BulletAdapter::CreateCapsuleColider(const vec3& positionOffset, float rad
     return id_++;
 }
 
-static const int s_gridSize      = 64 + 1;  // must be (2^N) + 1
-static const float s_gridSpacing = 5.0f;
-
-static const float s_gridHeightScale = 0.2f;
-
 uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
                                            const std::vector<float>& data, const vec3& scale)
 {
@@ -260,7 +255,7 @@ void BulletAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
         return;
     }
 
-    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setAngularFactor(0.0f);
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setAngularFactor(value);
 }
 void BulletAdapter::RemoveRigidBody(uint32 id)
 {

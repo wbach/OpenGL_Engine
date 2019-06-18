@@ -74,7 +74,7 @@ void PlayerInputController::AddState(common::Controllers::CharacterActions::Type
     if (FindState(state) or not characterController_)
         return;
 
-    characterController_->Get().AddState(state);
+    //characterController_->Get().AddState(state);
     states_.push_back(state);
 }
 
@@ -83,7 +83,7 @@ void PlayerInputController::RemoveState(common::Controllers::CharacterActions::T
     if (not FindState(state) or not characterController_)
         return;
 
-    characterController_->Get().RemoveState(state);
+    //characterController_->Get().RemoveState(state);
     states_.remove(state);
 }
 
