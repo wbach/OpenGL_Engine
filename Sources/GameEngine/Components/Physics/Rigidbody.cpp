@@ -148,7 +148,7 @@ ComponentsType Rigidbody::GetCollisionShapeType() const
 }
 const vec3& Rigidbody::GetVelocity() const
 {
-    return velocity_;
+    return *componentContext_.physicsApi_.GetVelocity(rigidBodyId_);
 }
 std::optional<float> Rigidbody::GetAngularFactor() const
 {

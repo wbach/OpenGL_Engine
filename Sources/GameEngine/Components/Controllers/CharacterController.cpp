@@ -42,7 +42,6 @@ void CharacterController::Update()
     v.y = currentVelocvity.y;
     v.z *= cosf(rad);
 
-
     for (const auto& action : actions_)
     {
         switch (action)
