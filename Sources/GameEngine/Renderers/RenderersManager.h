@@ -49,6 +49,7 @@ public:
     void EnableDrawPhysicsDebyg();
     void DisableDrawPhysicsDebyg();
     GUIRenderer& GetGuiRenderer();
+    bool IsTesselationSupported() const;
 
 private:
     void ReloadShadersExecution();

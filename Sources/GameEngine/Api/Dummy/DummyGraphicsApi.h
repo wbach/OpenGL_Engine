@@ -31,6 +31,10 @@ public:
     virtual void PrintVersion() override
     {
     }
+    virtual bool IsTesselationSupported() const override
+    {
+        return false;
+    }
     virtual void SetDefaultTarget() override
     {
     }

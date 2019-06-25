@@ -11,8 +11,8 @@
 #include "Textures/CubeMapTexture.h"
 #include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
-#include "Textures/NormalTexture.h"
 #include "Textures/MaterialTexture.h"
+#include "Textures/NormalTexture.h"
 
 namespace GameEngine
 {
@@ -20,6 +20,7 @@ struct Header
 {
     uint32 width;
     uint32 height;
+    vec3 scale;
 };
 
 TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi,
@@ -31,7 +32,6 @@ TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi,
     , textureNotFound_(nullptr)
     , heightMapFactor_(1.f)
 {
-
 }
 
 TextureLoader::~TextureLoader()
@@ -93,14 +93,14 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
             resize_texture = true;
         }
         if (resize_texture)
-            imagen = FreeImage_Rescale(imagen, w, h, FILTER_BSPLINE);
+            imagen = FreeImage_Rescale(imagen, static_cast<int>(w), static_cast<int>(h), FILTER_BSPLINE);
     }
 
     Image resultImage;
     resultImage.width  = w;
     resultImage.height = h;
 
-    char* pixeles = (char*)FreeImage_GetBits(imagen);
+    auto pixeles = FreeImage_GetBits(imagen);
     DEBUG_LOG("File convert bgr2rgb" + file_location + ".");
 
     resultImage.data.resize(4 * w * h);
@@ -118,12 +118,11 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
 
     DEBUG_LOG("File: " + file_location + " is loaded.");
 
-    return resultImage;
+    return std::move(resultImage);
 }
 
-Texture* TextureLoader::CreateTexture(const std::string& name, GraphicsApi::TextureType type,
-                                      GraphicsApi::TextureFilter filter, GraphicsApi::TextureMipmap mimpamp,
-                                      GraphicsApi::BufferAtachment atachment, vec2ui size, void* data)
+Texture* TextureLoader::CreateTexture(const std::string& name, GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                      GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui size, void* data)
 {
     textures_.emplace_back(new GeneralTexture(graphicsApi_, name, size, data));
     gpuResourceLoader_->AddObjectToGpuLoadingPass(textures_.back().get());
@@ -188,7 +187,7 @@ Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool 
     std::vector<Image> images;
     images.resize(6);
 
-    int x = 0;
+    size_t x = 0;
     for (const auto& file : files)
     {
         auto image =
@@ -295,15 +294,15 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     if (bytes == 0)
     {
-       ERROR_LOG("Read file error." + filename);
+        ERROR_LOG("Read file error." + filename);
     }
 
     DEBUG_LOG(" Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
 
-    ImagePtr texture(new Image);
-    auto& text  = *texture;
-    text.width  = header.width;
-    text.height = header.height;
+    auto texture = std::make_unique<Image>();
+    auto& text   = *texture;
+    text.width   = header.width;
+    text.height  = header.height;
 
     auto size = header.width * header.height;
     text.floatData.resize(size);
@@ -317,18 +316,8 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
     fclose(fp);
 
-    //fp = fopen((filename + ".raw").c_str(), "wb+");
-
-    //for (auto& height : text.floatData)
-    //{
-    //    height *= heightMapFactor_;
-    //    auto s = static_cast<short>(height);
-    //    fwrite(&s, sizeof(short), 1, fp);
-    //}
-
-    //fclose(fp);
-
-    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, texture);
+    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, std::move(texture));
+    heightmap_texture->SetScale(header.scale);
     textures_.emplace_back(heightmap_texture);
 
     if (gpu_pass)
@@ -339,13 +328,13 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
 
 Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength)
 {
-    ImagePtr texture(new Image);
-    auto& text = *texture;
-    text.width = size.x;
-    text.height = size.y;
-    text.floatData = std::move(createNromalMapData(size, baseData, strength));
+    auto texture   = std::make_unique<Image>();
+    auto& text     = *texture;
+    text.width     = size.x;
+    text.height    = size.y;
+    text.floatData = createNromalMapData(size, baseData, strength);
 
-    auto normaltexture = new NormalTexture(graphicsApi_, true, "noname_NormalTexutre", "nopath", texture);
+    auto normaltexture = new NormalTexture(graphicsApi_, true, "noname_NormalTexutre", "nopath", std::move(texture));
     textures_.emplace_back(normaltexture);
 
     gpuResourceLoader_->AddObjectToGpuLoadingPass(normaltexture);
@@ -353,7 +342,7 @@ Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const 
     return normaltexture;
 }
 
-void TextureLoader::CreateHeightMap(const std::string& in, const std::string& out)
+void TextureLoader::CreateHeightMap(const std::string& in, const std::string& out, const vec3& scale)
 {
     auto input  = EngineConf_GetFullDataPath(in);
     auto output = EngineConf_GetFullDataPath(out);
@@ -376,6 +365,7 @@ void TextureLoader::CreateHeightMap(const std::string& in, const std::string& ou
     Header header;
     header.height = image.height;
     header.width  = image.width;
+    header.scale  = scale;
     auto size     = header.width * header.height;
     fwrite(&header, sizeof(Header), 1, fp);
 
@@ -408,25 +398,26 @@ GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()
 {
     return graphicsApi_;
 }
-void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector<uint8>& data, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat format) const
+void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector<uint8>& data, const vec2ui& size,
+                                      uint8 bytes, GraphicsApi::TextureFormat format) const
 {
     auto bytesData = const_cast<uint8*>(&data[0]);
-    auto im = FreeImage_ConvertFromRawBits(bytesData, size.x, size.y, bytes * size.x, 8 * bytes, 0, 0, 0);
-
+    auto im        = FreeImage_ConvertFromRawBits(bytesData, static_cast<int>(size.x), static_cast<int>(size.y),
+                                           static_cast<int>(bytes * size.x), 8 * bytes, 0, 0, 0);
 
     FREE_IMAGE_FORMAT fformat = FREE_IMAGE_FORMAT::FIF_PNG;
-    std::string ext = ".png";
+    std::string ext           = ".png";
 
     if (format == GraphicsApi::TextureFormat::BMP)
     {
         fformat = FREE_IMAGE_FORMAT::FIF_BMP;
-        ext = ".bmp";
+        ext     = ".bmp";
     }
 
     if (format == GraphicsApi::TextureFormat::JPG)
     {
         fformat = FREE_IMAGE_FORMAT::FIF_JPEG;
-        ext = ".jpeg";
+        ext     = ".jpeg";
     }
 
     FreeImage_Save(fformat, im, (name + ext).c_str(), 0);

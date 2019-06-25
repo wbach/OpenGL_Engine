@@ -270,10 +270,10 @@ void Create(XmlNode& node, const Components::TerrainMeshRendererComponent& compo
 }
 
 template <typename T>
-void CreateComponent(XmlNode& node, const Components::IComponent& component, const std::string& str)
+void CreateComponent(XmlNode& node, const Components::IComponent& component)
 {
     auto comp = static_cast<const T*>(&component);
-    Create(node.AddChild(str), *comp);
+    Create(node, *comp);
 }
 
 void Create(XmlNode& node, const Components::IComponent& component)
@@ -283,63 +283,61 @@ void Create(XmlNode& node, const Components::IComponent& component)
     switch (component.GetType())
     {
         case Components::ComponentsType::Animator:
-            CreateComponent<Components::Animator>(node, component, CSTR_COMPONENT_ANIMATOR);
+            CreateComponent<Components::Animator>(node, component);
             break;
         case Components::ComponentsType::BoxShape:
-            CreateComponent<Components::BoxShape>(node, component, CSTR_COMPONENT_BOXSHAPE);
+            CreateComponent<Components::BoxShape>(node, component);
             break;
         case Components::ComponentsType::MeshShape:
-            CreateComponent<Components::MeshShape>(node, component, CSTR_COMPONENT_MESHSHAPE);
+            CreateComponent<Components::MeshShape>(node, component);
             break;
         case Components::ComponentsType::SphereShape:
-            CreateComponent<Components::SphereShape>(node, component, CSTR_COMPONENT_SPHERESHAPE);
+            CreateComponent<Components::SphereShape>(node, component);
             break;
         case Components::ComponentsType::TerrainShape:
-            CreateComponent<Components::TerrainShape>(node, component, CSTR_COMPONENT_TERRAINSHAPE);
+            CreateComponent<Components::TerrainShape>(node, component);
             break;
         case Components::ComponentsType::CapsuleShape:
-            CreateComponent<Components::CapsuleShape>(node, component, CSTR_COMPONENT_CAPSULESHAPE);
+            CreateComponent<Components::CapsuleShape>(node, component);
             break;
         case Components::ComponentsType::Rigidbody:
-            CreateComponent<Components::Rigidbody>(node, component, CSTR_COMPONENT_RIGIDBODY);
+            CreateComponent<Components::Rigidbody>(node, component);
             break;
         case Components::ComponentsType::Renderer:
-            CreateComponent<Components::RendererComponent>(node, component, CSTR_COMPONENT_RENDERER);
+            CreateComponent<Components::RendererComponent>(node, component);
             break;
         case Components::ComponentsType::TreeRenderer:
-            CreateComponent<Components::TreeRendererComponent>(node, component, CSTR_COMPONENT_TREERENDERER);
+            CreateComponent<Components::TreeRendererComponent>(node, component);
             break;
         case Components::ComponentsType::ParticleEffect:
-            CreateComponent<Components::ParticleEffectComponent>(node, component, CSTR_COMPONENT_PARTICLEEFFECT);
+            CreateComponent<Components::ParticleEffectComponent>(node, component);
             break;
         case Components::ComponentsType::SkyBox:
-            CreateComponent<Components::SkyBoxComponent>(node, component, CSTR_COMPONENT_SKYBOX);
+            CreateComponent<Components::SkyBoxComponent>(node, component);
             break;
         case Components::ComponentsType::Skydome:
-            CreateComponent<Components::SkydomeComponent>(node, component, CSTR_COMPONENT_SKYDOME);
+            CreateComponent<Components::SkydomeComponent>(node, component);
             break;
         case Components::ComponentsType::Grass:
-            CreateComponent<Components::GrassRendererComponent>(node, component, CSTR_COMPONENT_GRASS);
+            CreateComponent<Components::GrassRendererComponent>(node, component);
             break;
         case Components::ComponentsType::TerrainRenderer:
-            CreateComponent<Components::TerrainRendererComponent>(node, component, CSTR_COMPONENT_TERRAINRENDERER);
+            CreateComponent<Components::TerrainRendererComponent>(node, component);
             break;
         case Components::ComponentsType::TerrainMeshRenderer:
-            CreateComponent<Components::TerrainMeshRendererComponent>(node, component,
-                                                                      CSTR_COMPONENT_TERRAINMESHRENDERER);
+            CreateComponent<Components::TerrainMeshRendererComponent>(node, component);
             break;
         case Components::ComponentsType::Water:
-            CreateComponent<Components::WaterRendererComponent>(node, component, CSTR_COMPONENT_WATER_RENDERER);
+            CreateComponent<Components::WaterRendererComponent>(node, component);
             break;
         case Components::ComponentsType::ThridPersonCamera:
-            CreateComponent<Components::ThridPersonCameraComponent>(node, component,
-                                                                    CSTR_COMPONENT_THRID_PRESON_CAMERA);
+            CreateComponent<Components::ThridPersonCameraComponent>(node, component);
             break;
         case Components::ComponentsType::CharacterController:
-            CreateComponent<Components::CharacterController>(node, component, CSTR_COMPONENT_CHARACTER_CONTROLLER);
+            CreateComponent<Components::CharacterController>(node, component);
             break;
         case Components::ComponentsType::PlayerInputController:
-            CreateComponent<Components::PlayerInputController>(node, component, CSTR_COMPONENT_PLAYER_INPUT_CONTROLLER);
+            CreateComponent<Components::PlayerInputController>(node, component);
             break;
     }
 }

@@ -281,18 +281,10 @@ void Read(Utils::XmlNode& node, Components::TerrainMeshRendererComponent& compon
 }
 
 template <typename T>
-void AddComponent(Utils::XmlNode& node, GameObject& gameObject, const std::string& cstr)
+void AddComponent(Utils::XmlNode& node, GameObject& gameObject)
 {
-    auto child = node.GetChild(cstr);
-
-    if (not child)
-    {
-        ERROR_LOG("Component type number miss match with comonent name.");
-        return;
-    }
-
     auto& comp = gameObject.AddComponent<T>();
-    Read(*child, comp);
+    Read(node, comp);
 }
 
 void Read(Utils::XmlNode& node, GameObject& gameObject)
@@ -308,61 +300,61 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
         switch (type)
         {
             case Components::ComponentsType::Animator:
-                AddComponent<Components::Animator>(*component, gameObject, CSTR_COMPONENT_ANIMATOR);
+                AddComponent<Components::Animator>(*component, gameObject);
                 break;
             case Components::ComponentsType::BoxShape:
-                AddComponent<Components::BoxShape>(*component, gameObject, CSTR_COMPONENT_BOXSHAPE);
+                AddComponent<Components::BoxShape>(*component, gameObject);
                 break;
             case Components::ComponentsType::MeshShape:
-                AddComponent<Components::MeshShape>(*component, gameObject, CSTR_COMPONENT_MESHSHAPE);
+                AddComponent<Components::MeshShape>(*component, gameObject);
                 break;
             case Components::ComponentsType::SphereShape:
-                AddComponent<Components::SphereShape>(*component, gameObject, CSTR_COMPONENT_SPHERESHAPE);
+                AddComponent<Components::SphereShape>(*component, gameObject);
                 break;
             case Components::ComponentsType::TerrainShape:
-                AddComponent<Components::TerrainShape>(*component, gameObject, CSTR_COMPONENT_TERRAINSHAPE);
+                AddComponent<Components::TerrainShape>(*component, gameObject);
                 break;
             case Components::ComponentsType::CapsuleShape:
-                AddComponent<Components::CapsuleShape>(*component, gameObject, CSTR_COMPONENT_CAPSULESHAPE);
+                AddComponent<Components::CapsuleShape>(*component, gameObject);
                 break;
             case Components::ComponentsType::Rigidbody:
-                AddComponent<Components::Rigidbody>(*component, gameObject, CSTR_COMPONENT_RIGIDBODY);
+                AddComponent<Components::Rigidbody>(*component, gameObject);
                 break;
             case Components::ComponentsType::Renderer:
-                AddComponent<Components::RendererComponent>(*component, gameObject, CSTR_COMPONENT_RENDERER);
+                AddComponent<Components::RendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::TreeRenderer:
-                AddComponent<Components::TreeRendererComponent>(*component, gameObject, CSTR_COMPONENT_TREERENDERER);
+                AddComponent<Components::TreeRendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::ParticleEffect:
-                AddComponent<Components::ParticleEffectComponent>(*component, gameObject, CSTR_COMPONENT_PARTICLEEFFECT);
+                AddComponent<Components::ParticleEffectComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::SkyBox:
-                AddComponent<Components::SkyBoxComponent>(*component, gameObject, CSTR_COMPONENT_SKYBOX);
+                AddComponent<Components::SkyBoxComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::Skydome:
-                AddComponent<Components::SkydomeComponent>(*component, gameObject, CSTR_COMPONENT_SKYDOME);
+                AddComponent<Components::SkydomeComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::Grass:
-                AddComponent<Components::GrassRendererComponent>(*component, gameObject, CSTR_COMPONENT_GRASS);
+                AddComponent<Components::GrassRendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::TerrainRenderer:
-                AddComponent<Components::TerrainRendererComponent>(*component, gameObject, CSTR_COMPONENT_TERRAINRENDERER);
+                AddComponent<Components::TerrainRendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::TerrainMeshRenderer:
-                AddComponent<Components::TerrainMeshRendererComponent>(*component, gameObject, CSTR_COMPONENT_TERRAINMESHRENDERER);
+                AddComponent<Components::TerrainMeshRendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::Water:
-                AddComponent<Components::WaterRendererComponent>(*component, gameObject, CSTR_COMPONENT_WATER_RENDERER);
+                AddComponent<Components::WaterRendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::ThridPersonCamera:
-                AddComponent<Components::ThridPersonCameraComponent>(*component, gameObject, CSTR_COMPONENT_THRID_PRESON_CAMERA);
+                AddComponent<Components::ThridPersonCameraComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::CharacterController:
-                AddComponent<Components::CharacterController>(*component, gameObject, CSTR_COMPONENT_CHARACTER_CONTROLLER);
+                AddComponent<Components::CharacterController>(*component, gameObject);
                 break;
             case Components::ComponentsType::PlayerInputController:
-                AddComponent<Components::PlayerInputController>(*component, gameObject, CSTR_COMPONENT_PLAYER_INPUT_CONTROLLER);
+                AddComponent<Components::PlayerInputController>(*component, gameObject);
                 break;
         }
     }

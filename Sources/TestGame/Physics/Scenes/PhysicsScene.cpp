@@ -184,7 +184,7 @@ void PhysicsScene::CreateAndAddGameEntity(const std::string& filename, float sca
 int PhysicsScene::Initialize()
 {
     resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/flat_height_map.png",
-                                                         "Textures/Terrain/HeightMaps/TerrainFlat.terrain");
+                                                         "Textures/Terrain/HeightMaps/TerrainFlat.terrain", vec3(1.f));
     // auto& octext    = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
     // octext.position = vec2(0.5, 0.9);
     // octext.m_size   = 0.5f;

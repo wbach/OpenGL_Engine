@@ -379,6 +379,10 @@ void DirectXApi::DeleteContext()
 void DirectXApi::PrintVersion()
 {
 }
+bool DirectXApi::IsTesselationSupported() const
+{
+    return false;
+}
 GraphicsApi::IWindowApi &DirectXApi::GetWindowApi()
 {
     return *windowApi_;

@@ -95,7 +95,7 @@ int MainScene::Initialize()
     DEBUG_LOG("MainScene::Initialize()");
     resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
     resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
-                                                         "Textures/Terrain/HeightMaps/output.terrain");
+                                                         "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
 
     InitGui();
 

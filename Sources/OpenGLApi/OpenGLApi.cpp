@@ -1,3 +1,4 @@
+#include "OpenGLApi.h"
 #include <GL/glew.h>
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,7 +10,6 @@
 #include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
 #include "Logger/Log.h"
-#include "OpenGLApi.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
 
@@ -132,7 +132,7 @@ void GetInfoAndPrint(const std::string& str, int i)
 
 void OpenGLApi::Init()
 {
-    GLint glew_init_result = glewInit();
+    auto glew_init_result = glewInit();
 
     if (glew_init_result != GLEW_OK)
     {
@@ -196,6 +196,11 @@ void OpenGLApi::PrintVersion()
     GetInfoAndPrint("GL_MAX_UNIFORM_BUFFER_BINDINGS", GL_MAX_UNIFORM_BUFFER_BINDINGS);
     GetInfoAndPrint("GL_MAX_UNIFORM_BLOCK_SIZE", GL_MAX_UNIFORM_BLOCK_SIZE);
     GetInfoAndPrint("GL_MAX_SHADER_STORAGE_BLOCK_SIZE", GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
+}
+
+bool OpenGLApi::IsTesselationSupported() const
+{
+    return impl_->maxPatchVertices_ > 0;
 }
 GraphicsApi::IWindowApi& OpenGLApi::GetWindowApi()
 {

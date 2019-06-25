@@ -5,7 +5,7 @@
 namespace GameEngine
 {
 HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
-                     const std::string& filepath, ImagePtr image)
+                     const std::string& filepath, std::unique_ptr<Image> image)
     : Texture(graphicsApi, file, filepath)
     , image_(std::move(image))
     , keepData_(keepData)
@@ -46,8 +46,18 @@ void HeightMap::GpuPostLoadingPass()
 {
 }
 
-ImagePtr HeightMap::GetImage()
+Image* HeightMap::GetImage()
 {
-    return image_;
+    return image_.get();
+}
+
+void HeightMap::SetScale(const vec3& scale)
+{
+    scale_ = scale;
+}
+
+const vec3& HeightMap::GetScale() const
+{
+    return scale_;
 }
 }  // namespace GameEngine

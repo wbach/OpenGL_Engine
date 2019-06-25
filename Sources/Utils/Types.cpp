@@ -1,4 +1,5 @@
 #include "Types.h"
+#include <math.h>
 
 namespace wb
 {
@@ -30,7 +31,7 @@ vec4 ToVec4(const vec2& v2, float z, float w)
 
 bool compare(float x, float y)
 {
-    return std::fabsf(x - y) <= std::numeric_limits<float>::epsilon();
+    return fabsf(x - y) <= std::numeric_limits<float>::epsilon();
 }
 
 namespace std

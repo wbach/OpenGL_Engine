@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <vector>
 #include "Types.h"
 
@@ -13,6 +12,4 @@ struct Image
     uint32 width  = 0;
     uint32 height = 0;
 };
-
-typedef std::shared_ptr<Image> ImagePtr;
 }  // namespace GameEngine

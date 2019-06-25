@@ -4,50 +4,50 @@
 
 namespace GameEngine
 {
-    NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
-        const std::string& filepath, ImagePtr image)
-        : Texture(graphicsApi, file, filepath)
-        , image_(std::move(image))
-        , keepData_(keepData)
+NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
+                             const std::string& filepath, std::unique_ptr<Image> image)
+    : Texture(graphicsApi, file, filepath)
+    , image_(std::move(image))
+    , keepData_(keepData)
+{
+    size_ = vec2ui(image_->width, image_->height);
+}
+
+void NormalTexture::GpuLoadingPass()
+{
+    if (image_->floatData.empty() || isInit)
     {
-        size_ = vec2ui(image_->width, image_->height);
+        ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
+        return;
     }
 
-    void NormalTexture::GpuLoadingPass()
+    DEBUG_LOG("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
+    id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::LINEAR,
+                                    GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_,
+                                    &image_->floatData[0]);
+
+    if (id == 0)
     {
-        if (image_->floatData.empty() || isInit)
-        {
-            ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
-            return;
-        }
-
-        DEBUG_LOG("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-        id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::LINEAR,
-            GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_,
-            &image_->floatData[0]);
-
-        if (id == 0)
-        {
-            image_->data.clear();
-            ERROR_LOG("There was an error loading the texture : " + filename + " cannot create texture.");
-            return;
-        }
-
-        if (not keepData_)
-        {
-            image_->floatData.clear();
-        }
-
-        isInit = true;
-        DEBUG_LOG("File " + filename + " is in GPU.");
+        image_->data.clear();
+        ERROR_LOG("There was an error loading the texture : " + filename + " cannot create texture.");
+        return;
     }
 
-    void NormalTexture::GpuPostLoadingPass()
+    if (not keepData_)
     {
+        image_->floatData.clear();
     }
 
-    ImagePtr NormalTexture::GetImage()
-    {
-        return image_;
-    }
+    isInit = true;
+    DEBUG_LOG("File " + filename + " is in GPU.");
+}
+
+void NormalTexture::GpuPostLoadingPass()
+{
+}
+
+Image* NormalTexture::GetImage()
+{
+    return image_.get();
+}
 }  // namespace GameEngine

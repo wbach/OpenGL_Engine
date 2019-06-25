@@ -36,6 +36,7 @@ public:
     virtual void CreateContext()                                          = 0;
     virtual void DeleteContext()                                          = 0;
     virtual void PrintVersion()                                           = 0;
+    virtual bool IsTesselationSupported() const                           = 0;
     virtual void SetDefaultTarget()                                       = 0;
     virtual void SetBackgroundColor(const vec3&)                          = 0;
     virtual void EnableDepthTest()                                        = 0;

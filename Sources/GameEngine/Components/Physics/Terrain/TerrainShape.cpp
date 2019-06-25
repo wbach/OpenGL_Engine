@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -40,7 +41,7 @@ void TerrainShape::OnAwake()
         return;
     }
 
-    vec3 scale(1.f);
+    vec3 scale(6000.f, 800.f, 6000.f);
 
     auto& data           = heightMap_->GetImage()->floatData;
     auto renderComponent = thisObject_.GetComponent<TerrainRendererComponent>();

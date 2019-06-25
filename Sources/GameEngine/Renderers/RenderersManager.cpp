@@ -209,6 +209,11 @@ GUIRenderer& RenderersManager::GetGuiRenderer()
 {
     return guiRenderer_;
 }
+
+bool RenderersManager::IsTesselationSupported() const
+{
+    return graphicsApi_.IsTesselationSupported();
+}
 void RenderersManager::Render(RendererFunctionType type, Scene* scene, const Time& threadTime)
 {
     if (scene == nullptr)

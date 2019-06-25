@@ -46,10 +46,6 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         {
             return std::make_unique<TreeRendererComponent>(context_, ptr);
         }
-        case ComponentsType::TerrainMeshRenderer:
-        {
-            return std::make_unique<TerrainMeshRendererComponent>(context_, ptr);
-        }
         case ComponentsType::ParticleEffect:
         {
             return std::make_unique<ParticleEffectComponent>(context_, ptr);
@@ -89,6 +85,10 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::TerrainRenderer:
         {
             return std::make_unique<TerrainRendererComponent>(context_, ptr);
+        }
+        case ComponentsType::TerrainMeshRenderer:
+        {
+            return std::make_unique<TerrainMeshRendererComponent>(context_, ptr);
         }
         case ComponentsType::Grass:
         {

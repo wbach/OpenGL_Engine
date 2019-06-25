@@ -14,6 +14,7 @@ public:
     virtual void CreateContext() override;
     virtual void DeleteContext() override;
     virtual void PrintVersion() override;
+    virtual bool IsTesselationSupported() const override;
     virtual GraphicsApi::IWindowApi& GetWindowApi() override;
 
     virtual void PrepareFrame() override;

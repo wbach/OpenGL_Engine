@@ -9,13 +9,13 @@ class NormalTexture : public Texture
 {
 public:
     NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
-              const std::string& filepath, ImagePtr image);
+              const std::string& filepath, std::unique_ptr<Image> image);
     virtual void GpuLoadingPass() override;
     virtual void GpuPostLoadingPass() override;
-    ImagePtr GetImage();
+    Image* GetImage();
 
 private:
-    ImagePtr image_;
+    std::unique_ptr<Image> image_;
     bool keepData_ = false;
 };
 }  // namespace GameEngine
