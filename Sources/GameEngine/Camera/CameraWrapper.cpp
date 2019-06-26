@@ -51,6 +51,18 @@ void CameraWrapper::CalculateZoom(float lvl)
     camera_->CalculateZoom(lvl);
 }
 
+void CameraWrapper::Lock()
+{
+    std::lock_guard<std::mutex> m(cameraMutex);
+    camera_->Lock();
+}
+
+void CameraWrapper::Unlock()
+{
+    std::lock_guard<std::mutex> m(cameraMutex);
+    camera_->Unlock();
+}
+
 void CameraWrapper::UpdateMatrix()
 {
     std::lock_guard<std::mutex> m(cameraMutex);

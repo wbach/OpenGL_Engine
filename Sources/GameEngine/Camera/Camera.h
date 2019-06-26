@@ -15,6 +15,8 @@ public:
     virtual void Move() override;
     virtual void CalculateInput() override;
     virtual void CalculateZoom(float) override;
+    virtual void Lock() override;
+    virtual void Unlock() override;
 
     virtual void UpdateMatrix() override;
     virtual void InvertPitch() override;
@@ -40,6 +42,7 @@ protected:
     void UpdateViewMatrix();
 
 protected:
+    bool lock_{false};
     vec3 up_;
     vec3 position_;
     vec3 rotation_;

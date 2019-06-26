@@ -32,7 +32,7 @@ public:
     float GetMass() const;
     bool IsStatic() const;
     ComponentsType GetCollisionShapeType() const;
-    const vec3& GetVelocity() const;
+    vec3 GetVelocity() const;
     std::optional<float> GetAngularFactor() const;
 
 private:

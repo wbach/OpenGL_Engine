@@ -66,6 +66,9 @@ void FirstPersonCamera::LockYaw()
 
 void FirstPersonCamera::Move()
 {
+    if (lock_)
+        return;
+
     ApllyMove();
     CalculateMoveVelocity();
     CheckAndProccesDirections();

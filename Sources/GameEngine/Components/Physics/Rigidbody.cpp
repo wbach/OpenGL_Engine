@@ -146,7 +146,7 @@ ComponentsType Rigidbody::GetCollisionShapeType() const
 {
     return collisionShape_->GetType();
 }
-const vec3& Rigidbody::GetVelocity() const
+vec3 Rigidbody::GetVelocity() const
 {
     return *componentContext_.physicsApi_.GetVelocity(rigidBodyId_);
 }

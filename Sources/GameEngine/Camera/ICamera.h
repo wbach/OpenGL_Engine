@@ -5,20 +5,22 @@ namespace GameEngine
 {
 struct ICamera
 {
-    virtual ~ICamera()  = default;
+    virtual ~ICamera() = default;
 
     virtual void Move()                        = 0;
     virtual void CalculateInput()              = 0;
     virtual void CalculateZoom(float zoom_lvl) = 0;
+    virtual void Lock()                        = 0;
+    virtual void Unlock()                      = 0;
 
     virtual void UpdateMatrix() = 0;
     virtual void InvertPitch()  = 0;
 
-    virtual float GetPitch() const          = 0;
-    virtual float GetYaw() const            = 0;
-    virtual float GetRoll() const           = 0;
+    virtual float GetPitch() const = 0;
+    virtual float GetYaw() const   = 0;
+    virtual float GetRoll() const  = 0;
 
-    virtual const vec3& GetRotation() const = 0;
+    virtual const vec3& GetRotation() const   = 0;
     virtual const vec3& GetPosition() const   = 0;
     virtual const vec3& GetDirection() const  = 0;
     virtual const mat4& GetViewMatrix() const = 0;

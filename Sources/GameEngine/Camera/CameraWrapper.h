@@ -1,6 +1,6 @@
 #pragma once
-#include "ICamera.h"
 #include <memory>
+#include "ICamera.h"
 
 namespace GameEngine
 {
@@ -16,6 +16,8 @@ public:
     void Move();
     void CalculateInput();
     void CalculateZoom(float zoom_lvl);
+    void Lock();
+    void Unlock();
 
     void UpdateMatrix();
     void InvertPitch();

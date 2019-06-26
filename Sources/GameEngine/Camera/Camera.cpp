@@ -31,6 +31,16 @@ void BaseCamera::CalculateInput()
 void BaseCamera::CalculateZoom(float)
 {
 }
+
+void BaseCamera::Lock()
+{
+    lock_ = true;
+}
+
+void BaseCamera::Unlock()
+{
+    lock_ = false;
+}
 void BaseCamera::UpdateMatrix()
 {
     UpdateViewMatrix();
@@ -44,7 +54,7 @@ void BaseCamera::LookAt(const vec3& lookAtPosition)
 {
     auto direction = position_ - lookAtPosition;
     rotation_.y    = Utils::ToDegrees(atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
-    rotation_.x    = Utils::ToDegrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
+    rotation_.x = Utils::ToDegrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
 }
 
 void BaseCamera::InvertPitch()

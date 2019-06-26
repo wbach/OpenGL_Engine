@@ -15,7 +15,7 @@ public:
     MOCK_METHOD4(LoadTextureImmediatelyImpl, Texture*(const std::string&, bool, ObjectTextureType, TextureFlip::Type));
     MOCK_METHOD3(LoadCubeMapImpl, Texture*(const std::vector<std::string>&, bool, bool));
     MOCK_METHOD2(LoadHeightMapImpl, Texture*(const std::string&, bool));
-    MOCK_METHOD2(CreateHeightMap, void(const std::string&, const std::string&));
+    MOCK_METHOD3(CreateHeightMap, void(const std::string&, const std::string&, const vec3&));
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
     MOCK_METHOD7(CreateTextureImpl, Texture*(const std::string&, GraphicsApi::TextureType, GraphicsApi::TextureFilter,
                                              GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui, void*));

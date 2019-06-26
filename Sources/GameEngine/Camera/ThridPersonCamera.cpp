@@ -62,7 +62,7 @@ void ThirdPersonCamera::LockCamera()
 }
 void ThirdPersonCamera::CalculateInput()
 {
-    if (inputManager.GetKey(KeyCodes::LCTRL))
+    if (inputManager.GetKey(KeyCodes::LCTRL) or lock_)
     {
         inputManager.ShowCursor(true);
         return;
@@ -132,6 +132,8 @@ void ThirdPersonCamera::ControlState(CameraEvent<T>& stateInfo, CameraState stat
 }
 void ThirdPersonCamera::Move()
 {
+    if (lock_) return;
+
     lookAtPosition_  = lookAt_.GetSnapShoot().position;
     lookAtRotataion_ = lookAt_.GetSnapShoot().rotation;
 

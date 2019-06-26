@@ -12,13 +12,15 @@
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 
-#include <GameEngine/Renderers/RenderersManager.h>
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Renderers/RenderersManager.h>
 
 using namespace GameEngine;
 
 namespace AvatarGame
 {
+const std::string pauseMenuFile = "Scenes/PauseMenu/PauseMenu.xml";
+
 SouthPool::SouthPool()
     : Scene("SouthPool")
 {
@@ -33,13 +35,56 @@ int SouthPool::Initialize()
 {
     DEBUG_LOG("SouthPool::Initialize()");
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
     LoadFromFile(sceneFile);
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDrawPhysicsDebyg(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDrawPhysicsDebyg(); });
+
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() {
+        auto window = guiManager_->GetElement("PauseManuMainWindow");
+        if (window)
+        {
+            if (window->IsShow())
+            {
+                window->Hide();
+                camera.Unlock();
+            }
+            else
+            {
+                window->Show();
+                camera.Lock();
+            }
+        }
+    });
+
+    guiManager_->RegisterAction("BackToMainMenu()", [&]() {
+        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
+        addSceneEvent(sceneEvent);
+    });
+
+    guiManager_->RegisterAction("Resume()", [&]() {
+        auto window = guiManager_->GetElement("PauseManuMainWindow");
+        if (window)
+        {
+            if (window->IsShow())
+            {
+                window->Hide();
+                camera.Unlock();
+            }
+            else
+            {
+                window->Show();
+                camera.Lock();
+            }
+        }
+    });
+
+    guiManager_->RegisterAction("ExitGame()", [&]() { addEngineEvent(EngineEvent::QUIT); });
+
+    guiElementFactory_->ReadGuiFile(EngineConf_GetFullDataPath(pauseMenuFile));
 
     return 0;
 }

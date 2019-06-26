@@ -11,6 +11,8 @@ public:
     MOCK_METHOD0(Move, void());
     MOCK_METHOD0(CalculateInput, void());
     MOCK_METHOD1(CalculateZoom, void(float zoom_lvl));
+    MOCK_METHOD0(Lock, void());
+    MOCK_METHOD0(Unlock, void());
     MOCK_METHOD0(UpdateMatrix, void());
     MOCK_METHOD0(InvertPitch, void());
     MOCK_CONST_METHOD0(GetPitch, float());
