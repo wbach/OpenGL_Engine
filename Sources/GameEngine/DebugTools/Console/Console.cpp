@@ -27,20 +27,26 @@ Console::Console(Scene &scene)
         return;
 
     window_->Hide();
+    window_->SetZPosition(1.6f);
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F12, [&]() {
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [&]() {
         if (not window_)
             return;
 
         if (window_->IsShow())
         {
             window_->Hide();
-            currentCommand_ = nullptr;
+
+            if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
+            {
+                currentCommand_->Append(" (not executed)");
+            }
         }
         else
         {
             window_->Show();
-            currentCommand_ = AddOrUpdateGuiText(COMMAND_CURRSOR);
+            if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+                currentCommand_ = AddOrUpdateGuiText("");
         }
     });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
@@ -50,7 +56,7 @@ Console::Console(Scene &scene)
         }
 
         AddCommand(currentCommand_->GetText());
-        currentCommand_ = AddOrUpdateGuiText("> ");
+        currentCommand_ = AddOrUpdateGuiText("");
     });
 
     scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
@@ -85,7 +91,7 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
         MoveUpTexts();
         auto text = scene_.guiElementFactory_->CreateGuiText(
             "DebugConsoleText_" + std::to_string(guiTexts_.size()),
-            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), "> " + command, 25, 0);
+            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
         result = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
