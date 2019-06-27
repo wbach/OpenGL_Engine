@@ -15,6 +15,14 @@ typedef std::function<void(GuiTextElement&)> UpdateTextureFunction;
 class GuiTextElement : public GuiElement
 {
 public:
+    enum class Algin
+    {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
+
+public:
     GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize,
                    const std::string& font);
     GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize,
@@ -25,6 +33,9 @@ public:
                    const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
+    virtual const vec2& GetPosition() const;
+    virtual void SetPostion(const vec2& position) override;
+    virtual void SetPostion(const vec2ui& position) override;
     const std::optional<GraphicsApi::Surface>& GetSurface() const;
     std::optional<uint32> GetTextureId() const;
     const std::string& GetText() const;
@@ -37,9 +48,11 @@ public:
     void SetFontSize(uint32 size);
     void SetOutline(uint32 outline);
     void SetFont(const std::string& font);
+    void SetAlgin(Algin algin);
 
 private:
     void RenderText(bool fontOverride = false);
+    void CalculateAlginOffset();
 
 private:
     UpdateTextureFunction updateTexture_;
@@ -52,6 +65,9 @@ private:
     std::string font_;
     std::optional<GraphicsApi::Surface> surface_;
     bool openFontFailed_;
+    Algin algin_;
+    vec2 orignalPosition_;
+    vec2 offset_;
 
 public:
     static GuiElementTypes type;

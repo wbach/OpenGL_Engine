@@ -21,6 +21,7 @@
 #include "SceneInitContext.h"
 #include "Types.h"
 #include "GameEngine/Engine/EngineEvent.h"
+#include "GameEngine/DebugTools/Console/Console.h"
 
 namespace Input
 {
@@ -132,6 +133,9 @@ protected:
 private:
     void MakeGuiManager(std::function<void(GuiElement&)>);
     void CreateResourceManger(GraphicsApi::IGraphicsApi&);
+    std::unique_ptr<Debug::Console> console_;
+
+    friend class Debug::Console;
 };
 
 const std::string& Scene::GetName() const

@@ -64,6 +64,8 @@ void Scene::InitResources(SceneInitContext& context)
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
                                                         renderersManager_->GetProjection().GetWindowSize()};
     guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
+
+    console_ = std::make_unique<Debug::Console>(*this);
 }
 
 void Scene::Init()

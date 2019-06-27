@@ -14,6 +14,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Time/GameTime.cpp
 ../../Sources/GameEngine/Time/DayNightCycle.cpp
 ../../Sources/GameEngine/Objects/GameObject.cpp
+../../Sources/GameEngine/DebugTools/Console/Console.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
 ../../Sources/GameEngine/Components/BaseComponent.cpp

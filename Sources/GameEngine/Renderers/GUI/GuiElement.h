@@ -27,9 +27,9 @@ public:
     virtual void Show();
     virtual void Hide();
     virtual void SetColor(const vec3& color);
-    const Rect& GetRect() const;
-    const vec2& GetScale() const;
-    const vec2& GetPosition() const;
+    virtual const Rect& GetRect() const;
+    virtual const vec2& GetScale() const;
+    virtual const vec2& GetPosition() const;
     void SetZPosition(float z);
 
 public:

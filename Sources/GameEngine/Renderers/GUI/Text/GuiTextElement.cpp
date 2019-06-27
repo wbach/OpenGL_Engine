@@ -4,27 +4,22 @@ namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font)
     : GuiTextElement(updateTexture, windowApi, windowSize, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str)
     : GuiTextElement(updateTexture, windowApi, windowSize, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
     : GuiTextElement(updateTexture, windowApi, windowSize, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
-                               uint32 outline)
+GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline)
     : GuiElement(type, windowSize)
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
@@ -34,8 +29,27 @@ GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi:
     , texture_(nullptr)
     , font_(font)
     , openFontFailed_(false)
+    , algin_(Algin::CENTER)
+    , offset_(0)
+    , orignalPosition_(0)
 {
     RenderText();
+}
+
+const vec2 &GuiTextElement::GetPosition() const
+{
+    return position_;
+}
+
+void GuiTextElement::SetPostion(const vec2& position)
+{
+    orignalPosition_ = position_;
+    GuiElement::SetPostion(position + offset_);
+}
+
+void GuiTextElement::SetPostion(const vec2ui& position)
+{
+    GuiElement::SetPostion(position);
 }
 
 const std::optional<GraphicsApi::Surface>& GuiTextElement::GetSurface() const
@@ -71,12 +85,19 @@ void GuiTextElement::Append(const std::string& text)
 {
     text_ = text_ + text;
     RenderText();
+    //auto oldPos = position_ - offset_;
+    CalculateAlginOffset();
+    SetPostion(orignalPosition_);
 }
 
 void GuiTextElement::Append(char c)
 {
     text_ = text_ + c;
     RenderText();
+
+   // auto oldPos = position_ - offset_;
+    CalculateAlginOffset();
+    SetPostion(orignalPosition_);
 }
 
 void GuiTextElement::Pop()
@@ -85,6 +106,7 @@ void GuiTextElement::Pop()
     {
         text_.pop_back();
         RenderText();
+        SetPostion(orignalPosition_);
     }
 }
 
@@ -113,6 +135,12 @@ void GuiTextElement::SetFont(const std::string& font)
 
     font_ = font;
     RenderText(true);
+}
+
+void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
+{
+    algin_ = algin;
+    CalculateAlginOffset();
 }
 
 void GuiTextElement::UnsetTexture()
@@ -158,5 +186,13 @@ void GuiTextElement::RenderText(bool fontOverride)
             updateTexture_(*this);
         }
     }
+}
+
+void GuiTextElement::CalculateAlginOffset()
+{
+    if (algin_ == Algin::LEFT)
+        offset_.x = scale_.x;
+    else if(algin_ == Algin::RIGHT)
+        offset_.x = -scale_.x;
 }
 }  // namespace GameEngine

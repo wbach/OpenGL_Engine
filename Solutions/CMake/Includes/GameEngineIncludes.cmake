@@ -22,6 +22,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Time/GameTime.h
 ../../Sources/GameEngine/Objects/Particle.h
 ../../Sources/GameEngine/Objects/GameObject.h
+../../Sources/GameEngine/DebugTools/Console/Console.h
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.h
 ../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
