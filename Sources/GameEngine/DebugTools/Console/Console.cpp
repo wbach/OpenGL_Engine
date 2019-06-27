@@ -21,13 +21,17 @@ Console::Console(Scene &scene)
     , window_{nullptr}
     , currentCommand_{nullptr}
 {
-    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5), "GUI/darkGrayButton.png");
-    window_->Hide();
-
+    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5),
+                                                         "GUI/darkGrayButton.png");
     if (not window_)
         return;
 
+    window_->Hide();
+
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F12, [&]() {
+        if (not window_)
+            return;
+
         if (window_->IsShow())
         {
             window_->Hide();
@@ -79,8 +83,10 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText("DebugConsoleText_" + std::to_string(guiTexts_.size()), EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), "> " + command, 25, 0);
-        result    = text;
+        auto text = scene_.guiElementFactory_->CreateGuiText(
+            "DebugConsoleText_" + std::to_string(guiTexts_.size()),
+            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), "> " + command, 25, 0);
+        result = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
@@ -92,7 +98,7 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
         MoveUpTexts();
         result = guiTexts_.front();
         result->SetText(COMMAND_CURRSOR);
-        const auto& windowPosition = window_->GetPosition();
+        const auto &windowPosition = window_->GetPosition();
         result->SetPostion(windowPosition + DEFAULT_TEXT_POSITION);
         guiTexts_.pop_front();
         guiTexts_.push_back(result);

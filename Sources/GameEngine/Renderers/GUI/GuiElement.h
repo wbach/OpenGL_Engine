@@ -60,5 +60,6 @@ protected:
     mat4 transformMatrix_;
     float rotation_;
     bool show_;
+    vec2 offset_;
 };
 }  // namespace GameEngine

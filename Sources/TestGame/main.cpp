@@ -32,9 +32,7 @@ int main(int argc, char* argv[])
     CLogger::Instance().EnableLogs();
 
     bool choosedApp = false;
-    PhysicsTestGame::Start(std::move(api));
-    choosedApp = true;
-    return 0;
+
     for (int32 n = 1; n < argc; ++n)
     {
         std::string arg(argv[n]);

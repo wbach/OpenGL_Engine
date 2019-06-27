@@ -33,9 +33,6 @@ public:
                    const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
-    virtual const vec2& GetPosition() const;
-    virtual void SetPostion(const vec2& position) override;
-    virtual void SetPostion(const vec2ui& position) override;
     const std::optional<GraphicsApi::Surface>& GetSurface() const;
     std::optional<uint32> GetTextureId() const;
     const std::string& GetText() const;
@@ -66,8 +63,6 @@ private:
     std::optional<GraphicsApi::Surface> surface_;
     bool openFontFailed_;
     Algin algin_;
-    vec2 orignalPosition_;
-    vec2 offset_;
 
 public:
     static GuiElementTypes type;
