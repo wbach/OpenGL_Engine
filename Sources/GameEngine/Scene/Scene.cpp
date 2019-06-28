@@ -192,7 +192,12 @@ void Scene::SaveToFile(const std::string& filename)
 }
 void Scene::LoadFromFile(const std::string& filename)
 {
-    LoadScene(*this, filename);
+    SceneReader::LoadScene(*this, filename);
+}
+
+void Scene::LoadPrefab(const std::string &filename, const std::string &name)
+{
+    SceneReader::LoadPrefab(*this, filename, name);
 }
 
 int Scene::Initialize()

@@ -20,5 +20,6 @@ public:
 private:
     static std::unordered_map<KeyCodes::Type, char> smallCharKeys;
     static std::unordered_map<KeyCodes::Type, char> bigCharKeys;
+    static std::unordered_map<KeyCodes::Type, char> specialCharKeys;
 };
 }  // namespace Input

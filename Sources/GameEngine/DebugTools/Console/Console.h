@@ -1,7 +1,9 @@
 #pragma once
-#include <vector>
 #include <list>
 #include <string>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
 namespace GameEngine
 {
@@ -23,11 +25,17 @@ private:
     void MoveUpTexts();
 
 private:
+    void RegisterActions();
+    void LoadPrefab(const std::vector<std::string>&);
+    std::vector<std::string> GetParams(const std::string& comannd);
+
+private:
     Scene& scene_;
     GuiWindowElement* window_;
     std::list<GuiTextElement*> guiTexts_;
     std::vector<std::string> commands_;
     GuiTextElement* currentCommand_;
+    std::unordered_map<std::string, std::function<void (const std::vector<std::string>&)>> commandsActions_;
 };
 }  // namespace Debug
 }  // namespace GameEngine

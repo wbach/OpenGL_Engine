@@ -3,6 +3,21 @@
 namespace Input
 {
 // clang-format off
+std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::specialCharKeys =
+{
+    { KeyCodes::SLASH, '/' },
+    { KeyCodes::BACKSLASH, '\\' },
+    { KeyCodes::MINUS, '-' },
+    { KeyCodes::EQUALS, '=' },
+    { KeyCodes::LEFTBRACKET, '(' },
+    { KeyCodes::RIGHTBRACKET, ')' },
+    { KeyCodes::COMMA, ',' },
+    { KeyCodes::PERIOD, '.' },
+    { KeyCodes::SEMICOLON, ';' },
+    { KeyCodes::APOSTROPHE, '\'' },
+    { KeyCodes::GRAVE, '~' }
+};
+
 std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::smallCharKeys =
 {
 { KeyCodes::Q, 'q' },
@@ -30,7 +45,7 @@ std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::smallCharKeys =
 { KeyCodes::V, 'v' },
 { KeyCodes::B, 'b' },
 { KeyCodes::N, 'n' },
-{ KeyCodes::M, 'm' }
+{ KeyCodes::M, 'm' },
 };
 
 std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::bigCharKeys =
@@ -65,6 +80,11 @@ std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::bigCharKeys =
 // clang-format on
 std::optional<char> KeyCodeToCharConverter::Convert(KeyCodes::Type t, SingleCharType type)
 {
+    if (specialCharKeys.count(t) > 0)
+    {
+        return specialCharKeys.at(t);
+    }
+
     if (type == SingleCharType::SMALL)
     {
         if (smallCharKeys.count(t) == 0)
@@ -80,6 +100,11 @@ std::optional<char> KeyCodeToCharConverter::Convert(KeyCodes::Type t, SingleChar
 }
 KeyCodes::Type KeyCodeToCharConverter::Convert(char ch)
 {
+    for (const auto& c : specialCharKeys)
+    {
+        if (c.second == ch)
+            return c.first;
+    }
     for (const auto& c : smallCharKeys)
     {
         if (c.second == ch)

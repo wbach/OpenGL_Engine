@@ -56,6 +56,17 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({{KeyCodes::LMOUSE, SDL_BUTTON_LEF
                                                {KeyCodes::TAB, SDL_SCANCODE_TAB},
                                                {KeyCodes::LSHIFT, SDL_SCANCODE_LSHIFT},
                                                {KeyCodes::RSHIFT, SDL_SCANCODE_RSHIFT},
+                                               {KeyCodes::SLASH, SDL_SCANCODE_SLASH},
+                                               {KeyCodes::BACKSLASH, SDL_SCANCODE_BACKSLASH},
+                                               {KeyCodes::MINUS, SDL_SCANCODE_MINUS},
+                                               {KeyCodes::EQUALS, SDL_SCANCODE_EQUALS},
+                                               {KeyCodes::LEFTBRACKET, SDL_SCANCODE_LEFTBRACKET},
+                                               {KeyCodes::RIGHTBRACKET, SDL_SCANCODE_RIGHTBRACKET},
+                                               {KeyCodes::COMMA, SDL_SCANCODE_COMMA},
+                                               {KeyCodes::PERIOD, SDL_SCANCODE_PERIOD},
+                                               {KeyCodes::SEMICOLON, SDL_SCANCODE_SEMICOLON},
+                                               {KeyCodes::APOSTROPHE, SDL_SCANCODE_APOSTROPHE},
+                                               {KeyCodes::GRAVE, SDL_SCANCODE_GRAVE},
                                                {KeyCodes::BACKSPACE, SDL_SCANCODE_BACKSPACE}});
 
 KeyCodes::Type SdlKeyConverter::Convert(uint32 type)

@@ -7,11 +7,14 @@
 #include "Utils/XML/XmlReader.h"
 
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Input/PlayerInputController.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
-#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
@@ -23,13 +26,12 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
-#include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
-#include "GameEngine/Components/Controllers/CharacterController.h"
-#include "GameEngine/Components/Input/PlayerInputController.h"
 
 using namespace Utils;
 
 namespace GameEngine
+{
+namespace SceneReader
 {
 namespace
 {
@@ -379,4 +381,17 @@ void LoadScene(Scene& scene, const std::string& filename)
     currentReadingScene = &scene;
     Read(*xmlReader.Get(CSTR_SCENE), scene);
 }
+
+void LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
+{
+    Utils::XmlReader xmlReader;
+    if (!xmlReader.Read(filename))
+        return;
+    currentReadingScene = &scene;
+
+    auto gameObject = scene.CreateGameObject(name);
+    Read(*xmlReader.Get(CSTR_PREFAB), *gameObject);
+    scene.AddGameObject(gameObject);
+}
+}  // namespace SceneReader
 }  // namespace GameEngine

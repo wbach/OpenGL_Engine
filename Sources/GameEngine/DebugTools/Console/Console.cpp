@@ -21,8 +21,7 @@ Console::Console(Scene &scene)
     , window_{nullptr}
     , currentCommand_{nullptr}
 {
-    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5),
-                                                         "GUI/darkGrayButton.png");
+    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5), "GUI/darkGrayButton.png");
     if (not window_)
         return;
 
@@ -63,12 +62,29 @@ Console::Console(Scene &scene)
         if (not window_->IsShow())
             return;
 
-        auto character = Input::KeyCodeToCharConverter::Convert(key, Input::SingleCharType::SMALL);
-        if (character)
+        switch (key)
         {
-            currentCommand_->Append(*character);
+            case KeyCodes::SPACE:
+                currentCommand_->Append(' ');
+                break;
+
+            case KeyCodes::BACKSPACE:
+                currentCommand_->Pop();
+                break;
+
+            default:
+            {
+                auto character = Input::KeyCodeToCharConverter::Convert(key, Input::SingleCharType::SMALL);
+                if (character)
+                {
+                    currentCommand_->Append(*character);
+                }
+            }
+            break;
         }
     });
+
+    RegisterActions();
 }
 
 void Console::AddCommand(const std::string &command)
@@ -78,8 +94,17 @@ void Console::AddCommand(const std::string &command)
     ExecuteComand(command);
 }
 
-void Console::ExecuteComand(const std::string &)
+void Console::ExecuteComand(const std::string &command)
 {
+    if (commandsActions_.count(command) > 0)
+    {
+        auto params = GetParams(command);
+        commandsActions_.at(command)(params);
+    }
+    else
+    {
+        AddOrUpdateGuiText("command not found");
+    }
 }
 
 GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
@@ -89,10 +114,8 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText(
-            "DebugConsoleText_" + std::to_string(guiTexts_.size()),
-            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
-        result = text;
+        auto text = scene_.guiElementFactory_->CreateGuiText("DebugConsoleText_" + std::to_string(guiTexts_.size()), EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
+        result    = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
@@ -120,6 +143,40 @@ void Console::MoveUpTexts()
         auto scale    = guiText->GetScale();
         position.y += 2.f * scale.y;
         guiText->SetPostion(position);
+    }
+}
+
+void Console::RegisterActions()
+{
+    commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
+}
+
+void Console::LoadPrefab(const std::vector<std::string> &params)
+{
+    if (params.size() < 4)
+    {
+        DEBUG_LOG("Can not load prefab. Params : filename objectName");
+        return;
+    }
+
+    const auto &filename = params[0];
+    const auto &name     = params[1];
+
+    scene_.LoadPrefab(filename, name);
+}
+
+std::vector<std::string> Console::GetParams(const std::string &command)
+{
+    auto result = Utils::SplitString(command, ' ');
+    if (result.size() > 2)
+    {
+        result.erase(result.begin());
+        result.erase(result.begin());
+        return result;
+    }
+    else
+    {
+        return {};
     }
 }
 

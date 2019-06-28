@@ -1,6 +1,7 @@
 #include "SceneDef.h"
 
 const std::string CSTR_SCENE                             = "scene";
+const std::string CSTR_PREFAB                            = "prefab";
 const std::string CSTR_NAME                              = "name";
 const std::string CSTR_GAMEOBJECTS                       = "gameObjects";
 const std::string CSTR_COUNT                             = "count";

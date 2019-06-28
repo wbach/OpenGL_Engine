@@ -57,6 +57,17 @@ enum Type
     LSHIFT,
     RSHIFT,
     TAB,
-    BACKSPACE
+    BACKSPACE,
+    SLASH,
+    BACKSLASH,
+    MINUS,
+    EQUALS,
+    LEFTBRACKET,
+    RIGHTBRACKET,
+    COMMA,
+    PERIOD,
+    SEMICOLON,
+    APOSTROPHE,
+    GRAVE
 };
 }

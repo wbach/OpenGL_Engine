@@ -89,6 +89,7 @@ public:
 
     void SaveToFile(const std::string& filename);
     void LoadFromFile(const std::string& filename);
+    void LoadPrefab(const std::string& filename, const std::string& name);
 
 public:
     uint32 objectCount;
@@ -133,8 +134,8 @@ protected:
 private:
     void MakeGuiManager(std::function<void(GuiElement&)>);
     void CreateResourceManger(GraphicsApi::IGraphicsApi&);
-    std::unique_ptr<Debug::Console> console_;
 
+    std::unique_ptr<Debug::Console> console_;
     friend class Debug::Console;
 };
 
