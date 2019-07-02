@@ -3,6 +3,7 @@
 #ifndef USE_GNU
 #include "DirectXApi/DirectXApi.h"
 #endif
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 #include "MRpg/mrpg_main.h"
@@ -19,6 +20,11 @@ void StartMessage()
                  "Run params :\n"
                  "-G  : load game(MMO, TEST)\n"
               << stars;
+}
+
+void PrintFiles()
+{
+    Utils::PrintFilesInDirectory(".");
 }
 
 int main(int argc, char* argv[])

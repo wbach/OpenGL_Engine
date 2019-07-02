@@ -8,12 +8,15 @@
 #include "DirectXApi/DirectXApi.h"
 #endif
 
+const std::string configFile = "./Conf.xml";
+
 int main(int, char**)
 {
-    GameEngine::ReadFromFile("./Conf.xml");
+    CLogger::Instance().EnableLogs();
+
+    GameEngine::ReadFromFile(configFile);
     auto api = std::make_unique<OpenGLApi::OpenGLApi>();
     // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
-    CLogger::Instance().EnableLogs();
     AvatarGame::Start(std::move(api));
     return 0;
 }

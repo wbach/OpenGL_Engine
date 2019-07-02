@@ -28,6 +28,11 @@ if(BUILD_AVATAR_GAME)
                 fbxsdk
           )
 
+    set(BoostLinkingLibs
+        boost_system
+        boost_filesystem
+    )
+
     include_directories(
     ../../Sources/GameEngine/
     )
@@ -36,5 +41,5 @@ if(BUILD_AVATAR_GAME)
     if(BUILD_I386)
         set_target_properties(AvatarGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
-    target_link_libraries(AvatarGame GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs})
+    target_link_libraries(AvatarGame GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs} ${BoostLinkingLibs})
 endif()

@@ -28,6 +28,11 @@ if(BUILD_TEST_GAME)
                 fbxsdk
           )
 
+    set(BoostLinkingLibs
+        boost_system
+        boost_filesystem
+    )
+
     include_directories(
     ../../Sources/GameEngine/
     )
@@ -36,5 +41,5 @@ if(BUILD_TEST_GAME)
     if(BUILD_I386)
         set_target_properties(TestGlGame PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
-    target_link_libraries(TestGlGame GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs})
+    target_link_libraries(TestGlGame GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs} ${BoostLinkingLibs})
 endif()
