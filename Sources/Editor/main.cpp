@@ -1,61 +1,36 @@
-#include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Engine/Configuration.h"
-
-#include "WindowAppCreator.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/Engine.h"
 #include "Logger/Log.h"
-#include <fstream>
-#include "FreeImage.h"
-#include <thread>
-#include "Scene/Scene.h"
+#include "OpenGLApi/OpenGLApi.h"
 
+#ifndef USE_GNU
+#include "DirectXApi/DirectXApi.h"
+#endif
 
-WindowAppCreator app;
+#include "GameEngine/Engine/Engine.h"
+#include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
+#include "GameEngine/Physics/Bullet/BulletAdapter.h"
+#include "Scene/SceneFactory.h"
 
-void ExitFunction()
+const std::string configFile = "./Conf.xml";
+
+using namespace GameEngine;
+using namespace GameEngine::Physics;
+
+int main(int, char**)
 {
-	exit(0);
-}
+    CLogger::Instance().EnableLogs();
 
-void TestFunction()
-{
+    GameEngine::ReadFromFile(configFile);
+    auto api                       = std::make_unique<OpenGLApi::OpenGLApi>();
+    GraphicsApi::IGraphicsApi& ptr = *api;
 
-}
+    // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
-void Start()
-{
-	if (app.itemBuilder == nullptr)
-		return;
+    Engine engine(std::move(api), std::make_unique<BulletAdapter>(ptr), std::make_shared<Editor::SceneFactory>());
+    engine.Init();
+    engine.GetSceneManager().SetActiveScene("GuiEditScene");
+    engine.GameLoop();
 
-	app.items["MainWindow"] = app.itemBuilder->CreateWindowItem(640, 480, "Moj tytu³",
-	{
-		{ActionsType::ON_EXIT, std::bind(ExitFunction)}
-	});
-
-	app.items["MainWindow"]->Init();
-
-	app.items["testButton"] = app.itemBuilder->CreateButton(10, 10, 100, 30, "Przycisk haxd", TestFunction);
-	app.items["MainWindow"]->AddChild(app.items["testButton"]);
-	app.items["testButton"]->Init();
-
-	app.Init();
-	app.Run();
-}
-
-
-void SceneViewer()
-{
-    CEngine engine;
-	engine.Init();
-    engine.scene = std::make_unique<MainScene>(engine);
-	engine.PreperaScene();
-	engine.GameLoop();
-}
-
-int main(int argc, char* argv[])
-{	
-	std::thread t(Start);
-	t.detach();
-	CLogger::Instance().EnableLogs();
-	SceneViewer();
-	return 0;
+    return 0;
 }

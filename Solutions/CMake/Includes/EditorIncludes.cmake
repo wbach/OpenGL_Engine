@@ -1,3 +1,4 @@
 set(EditorIncludes
-../../Sources/Editor/Scene/Scene.h
+../../Sources/Editor/Scene/SceneFactory.h
+../../Sources/Editor/Scene/GuiEditScene.h
 )
