@@ -29,7 +29,7 @@ int main(int, char**)
 
     Engine engine(std::move(api), std::make_unique<BulletAdapter>(ptr), std::make_shared<Editor::SceneFactory>());
     engine.Init();
-    engine.GetSceneManager().SetActiveScene("GuiEditScene");
+    engine.GetSceneManager().SetActiveScene("ChooseEditor");
     engine.GameLoop();
 
     return 0;
