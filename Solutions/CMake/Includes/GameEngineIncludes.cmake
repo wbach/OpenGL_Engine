@@ -125,6 +125,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Framebuffer/IFrameBuffer.h
 ../../Sources/GameEngine/Renderers/GUI/GuiManager.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElementTypes.h
+../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.h
+../../Sources/GameEngine/Renderers/GUI/Layout/LayoutElementWrapper.h
+../../Sources/GameEngine/Renderers/GUI/Layout/Layout.h
 ../../Sources/GameEngine/Renderers/GUI/IGuiRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Button/GuiButton.h
 ../../Sources/GameEngine/Renderers/GUI/GuiContext.h

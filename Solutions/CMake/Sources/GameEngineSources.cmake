@@ -88,6 +88,9 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.cpp
+../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.cpp
+../../Sources/GameEngine/Renderers/GUI/Layout/LayoutElementWrapper.cpp
+../../Sources/GameEngine/Renderers/GUI/Layout/Layout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Button/GuiButton.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.cpp

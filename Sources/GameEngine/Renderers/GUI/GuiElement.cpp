@@ -13,6 +13,8 @@ float ConvertSpaceInv(float v)
     return v * 2.f - 1.f;
 }
 
+uint32 GuiElement::ID = 0;
+
 GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     : type_(type)
     , windowSize_{windowSize}
@@ -25,6 +27,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , rotation_{0}
     , show_{true}
     , offset_{0,0}
+    , id_{ID++}
 {
     CalculateMatrix();
 }
@@ -119,6 +122,11 @@ void GuiElement::SetZPosition(float z)
 {
     zPosition_ = z;
     CalculateMatrix();
+}
+
+uint32 GuiElement::GetId() const
+{
+    return id_;
 }
 GuiElementTypes GuiElement::GetType() const
 {

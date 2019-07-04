@@ -9,6 +9,7 @@ enum class GuiElementTypes
     Button,
     Window,
     Checkbox,
-    EditBox
+    EditBox,
+    VerticalLayout
 };
 }  // namespace GameEngine

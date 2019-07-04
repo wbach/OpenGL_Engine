@@ -31,6 +31,7 @@ public:
     virtual const vec2& GetScale() const;
     virtual const vec2& GetPosition() const;
     void SetZPosition(float z);
+    uint32 GetId() const;
 
 public:
     GuiElementTypes GetType() const;
@@ -61,5 +62,9 @@ protected:
     float rotation_;
     bool show_;
     vec2 offset_;
+    uint32 id_;
+
+public:
+    static uint32 ID;
 };
 }  // namespace GameEngine
