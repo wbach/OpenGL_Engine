@@ -6,6 +6,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GuiManager.h"
+#include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
 #include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
@@ -26,7 +27,8 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
 {
 }
 
-GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const std::string &font, const std::string &str, uint32 size, uint32 outline)
+GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const std::string &font,
+                                                 const std::string &str, uint32 size, uint32 outline)
 {
     auto text   = guiTextFactory_.Create(font, str, size, outline);
     auto result = text.get();
@@ -42,7 +44,8 @@ GuiTextureElement *GuiElementFactory::CreateGuiTexture(const std::string &label,
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const Rect &rect, const std::string &background)
+GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const Rect &rect,
+                                                     const std::string &background)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(windowSize_, inputManager_);
     guiWindow->SetRect(rect);
@@ -58,7 +61,8 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const vec2 &position, const vec2 &scale, const std::string &background)
+GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, const vec2 &position, const vec2 &scale,
+                                                     const std::string &background)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(windowSize_, inputManager_);
     guiWindow->SetPostion(position);
@@ -71,7 +75,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
         backgroundGuiTexture->SetZPosition(0.1f);
         backgroundGuiTexture->SetScale(guiWindow->GetScale());
         guiWindow->AddChild(backgroundGuiTexture.get());
-        guiManager_.Add(label+"backgroundTexture", std::move(backgroundGuiTexture));
+        guiManager_.Add(label + "backgroundTexture", std::move(backgroundGuiTexture));
     }
     guiManager_.Add(label, std::move(guiWindow));
 
@@ -86,7 +90,8 @@ GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &label, s
     return result;
 }
 
-GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, const std::string &font, const std::string &str, uint32 size, uint32 outline)
+GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, const std::string &font,
+                                                    const std::string &str, uint32 size, uint32 outline)
 {
     auto text    = CreateGuiText(label, font, str, size, outline);
     auto editBox = std::make_unique<GuiEditBoxElement>(*text, inputManager_, windowSize_);
@@ -100,6 +105,14 @@ GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, Gu
     auto editBox = std::make_unique<GuiEditBoxElement>(*text, inputManager_, windowSize_);
     auto result  = editBox.get();
     guiManager_.Add(label, std::move(editBox));
+    return result;
+}
+
+VerticalLayout *GuiElementFactory::CreateVerticalLayout(const std::string &label)
+{
+    auto layout = std::make_unique<VerticalLayout>(windowSize_, inputManager_);
+    auto result = layout.get();
+    guiManager_.Add(label, std::move(layout));
     return result;
 }
 
@@ -240,7 +253,8 @@ GuiTextElement *ReadGuiText(Utils::XmlNode &node, GuiElementFactory &factory, Gu
     return text;
 }
 
-GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
+GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
+                                  uint32 &unnamedTextId)
 {
     if (node.GetName() != "texture")
     {
@@ -252,7 +266,7 @@ GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &facto
     if (node.parent)
         parentLabel = GetLabel(*node.parent, unnamedTextId);
 
-    std::string label = parentLabel + "_"+ GetLabel(node, unnamedTextId), filename;
+    std::string label = parentLabel + "_" + GetLabel(node, unnamedTextId), filename;
 
     auto paramNode = node.GetChild("file");
 
@@ -274,7 +288,8 @@ GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &facto
     ReadGuiElementBasic(texture, node);
     return texture;
 }
-GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager, uint32 &unnamedTextId)
+GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager,
+                                uint32 &unnamedTextId)
 {
     if (node.GetName() != "button")
     {
@@ -347,7 +362,8 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
     ReadGuiElementBasic(button, node);
     return button;
 }
-GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager, uint32 &unnamedTextId)
+GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager,
+                               uint32 &unnamedTextId)
 {
     if (node.GetName() != "editBox")
     {
@@ -367,7 +383,59 @@ GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory,
 
     return nullptr;
 }
-GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
+VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
+                                   uint32 &unnamedTextId)
+{
+    if (node.GetName() != "verticalLayout")
+    {
+        return nullptr;
+    }
+
+    std::string label;
+
+    auto paramNode = node.GetChild("label");
+
+    if (paramNode)
+    {
+        label = paramNode->value_;
+    }
+    else
+    {
+        label = "Unnamed_layout_" + std::to_string(unnamedTextId++);
+    }
+
+    auto layout = factory.CreateVerticalLayout(label);
+    ReadGuiElementBasic(layout, node);
+
+    for (auto &child : node.GetChildren())
+    {
+        DEBUG_LOG("Node : " + child->GetName());
+
+        if (auto text = ReadGuiText(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(text);
+        }
+        else if (auto texture = ReadGuiTexture(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(texture);
+        }
+        else if (auto button = ReadGuiButton(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(button);
+        }
+        else if (auto editBox = ReadEditBox(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(editBox);
+        }
+        else if (auto verticalLayout = ReadVerticalLayout(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(verticalLayout);
+        }
+    }
+    return layout;
+}
+GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
+                                uint32 &unnamedTextId)
 {
     if (node.GetName() != "window")
     {
@@ -430,6 +498,10 @@ GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory
         {
             window->AddChild(editBox);
         }
+        else if (auto verticalLayout = ReadVerticalLayout(*child, factory, manger, unnamedTextId))
+        {
+            window->AddChild(verticalLayout);
+        }
     }
 
     ReadGuiElementBasic(window, node);
@@ -471,6 +543,7 @@ void GuiElementFactory::ReadGuiFile(const std::string &filename)
     {
         DEBUG_LOG("Node : " + node->GetName());
 
+        ReadVerticalLayout(*node, *this, guiManager_, unnameElementId);
         ReadGuiText(*node, *this, guiManager_, unnameElementId);
         ReadGuiTexture(*node, *this, guiManager_, unnameElementId);
         ReadGuiWindow(*node, *this, guiManager_, unnameElementId);

@@ -15,6 +15,8 @@ sudo apt-get install -y dos2unix
 sudo apt-get install -y gcc-multilib g++-multilib
 sudo apt-get install -y libc6-dbg
 sudo apt-get install -y linux-tools-common
+sudo apt-get install -y libboost-all-dev
+sudo apt-get install -y font-manager
 
 sudo apt-get install -y python-pip
 sudo apt-get install -y python-opencv

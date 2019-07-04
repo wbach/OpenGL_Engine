@@ -27,6 +27,9 @@ int GuiEditScene::Initialize()
         fileExplorer_->Start(".", [&](const std::string& str){guiManager_->SaveToFile(str);});
     });
 
+    const std::string GUI_FILE = EngineConf_GetFullDataPath("Scenes/Editor/CommonMenu.xml");
+    guiElementFactory_->ReadGuiFile(GUI_FILE);
+
     return 0;
 }
 int GuiEditScene::Update()

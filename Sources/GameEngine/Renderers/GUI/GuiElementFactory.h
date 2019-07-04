@@ -20,6 +20,7 @@ class GuiTextureElement;
 class GuiWindowElement;
 class GuiTextElement;
 class GuiEditBoxElement;
+class VerticalLayout;
 
 class GuiElementFactory
 {
@@ -41,6 +42,7 @@ public:
     GuiButtonElement* CreateGuiButton(const std::string& label, std::function<void()>);
     GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiEditBoxElement* CreateEditBox(const std::string&, GuiTextElement*);
+    VerticalLayout* CreateVerticalLayout(const std::string&);
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);
