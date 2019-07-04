@@ -1,5 +1,7 @@
 #pragma once
 #include "GameEngine/Scene/Scene.hpp"
+#include "FileExplorer.h"
+#include <memory>
 
 namespace Editor
 {
@@ -15,6 +17,6 @@ public:
     virtual int Update();
 
 private:
-    double timeClock = 0;
+    std::unique_ptr<FileExplorer> fileExplorer_;
 };
 }  // namespace Editor

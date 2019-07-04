@@ -1,6 +1,7 @@
 #include <GameEngine/Engine/Configuration.h>
 #include <Input/InputManager.h>
 #include "GuiEditScene.h"
+#include "FileExplorer.h"
 
 using namespace GameEngine;
 
@@ -16,6 +17,16 @@ GuiEditScene::~GuiEditScene()
 int GuiEditScene::Initialize()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
+    fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
+
+    guiManager_->RegisterAction("ReadFile()", [&]() {
+        fileExplorer_->Start(".", [&](const std::string& str){guiElementFactory_->ReadGuiFile(str);});
+    });
+
+    guiManager_->RegisterAction("SaveToFile()", [&]() {
+        fileExplorer_->Start(".", [&](const std::string& str){guiManager_->SaveToFile(str);});
+    });
+
     return 0;
 }
 int GuiEditScene::Update()

@@ -27,6 +27,7 @@ public:
     void Update();
     ActionFunction GetActionFunction(const std::string& name);
     void RegisterAction(const std::string&, ActionFunction);
+    void SaveToFile(const std::string&);
 
 private:
     GuiElementsMap elementsMap_;
