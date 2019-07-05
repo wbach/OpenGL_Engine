@@ -38,6 +38,15 @@ struct FbxLoader::Pimpl
         Init();
         CreateFbxScene();
     }
+
+    ~Pimpl()
+    {
+//        scene_->Destroy();
+//        currentAnimLayer_->Destroy();
+        FbxArrayDelete(animStackNameArray_);
+        importer_->Destroy();
+        manager_->Destroy();
+    }
     void Init()
     {
         manager_ = FbxManager::Create();
@@ -74,6 +83,7 @@ struct FbxLoader::Pimpl
     void ReadFile(const std::string& filename)
     {
         auto fullpath = EngineConf_GetFullDataPath(filename);
+        DEBUG_LOG("Read fullpath : " + fullpath);
 
         if (not manager_->GetIOPluginRegistry()->DetectReaderFileFormat(fullpath.c_str(), fileFormat))
         {
@@ -93,8 +103,9 @@ struct FbxLoader::Pimpl
 
     void ImportScene()
     {
-        if (importer_->Import(scene_))
+        if (not importer_->Import(scene_))
         {
+            ERROR_LOG("can not import scene.");
             return;
         }
 
@@ -128,8 +139,8 @@ struct FbxLoader::Pimpl
         LoadCacheRecursive(scene_->GetRootNode());
         frameTime_.SetTime(0, 0, 0, 1, 0, scene_->GetGlobalSettings().GetTimeMode());
 
-        importer_->Destroy();
-        importer_ = nullptr;
+//        importer_->Destroy();
+//        importer_ = nullptr;
     }
 
     void LoadTextures()
@@ -278,9 +289,9 @@ struct FbxLoader::Pimpl
         auto& newMesh = objects_.back().meshes.back();
 
         newMesh.vertexBuffer.reserve(3 * mesh.GetControlPointsCount());
-        for (int x = 0; x < mesh.GetControlPointsCount(); ++x)
+        for (int i = 0; i < mesh.GetControlPointsCount(); ++i)
         {
-            const auto& currentVertex = mesh.GetControlPoints()[x];
+            const auto& currentVertex = mesh.GetControlPoints()[i];
 
             newMesh.vertexBuffer.emplace_back();
             newMesh.vertexBuffer.back().position =
@@ -299,9 +310,9 @@ struct FbxLoader::Pimpl
             for (int verticeIndex = 0; verticeIndex < 3; ++verticeIndex)
             {
                 const int controlPointIndex = mesh.GetPolygonVertex(polygonIndex, verticeIndex);
-                const auto& currentVertex   = mesh.GetControlPoints()[controlPointIndex];
+                //const auto& currentVertex   = mesh.GetControlPoints()[controlPointIndex];
 
-                newMesh.vertexBuffer[vertexIndex].indexes = controlPointIndex;
+                newMesh.vertexBuffer[controlPointIndex].indexes = controlPointIndex;
 
                 FbxVector4 currentNormal;
                 mesh.GetPolygonVertexNormal(polygonIndex, verticeIndex, currentNormal);
@@ -326,6 +337,11 @@ struct FbxLoader::Pimpl
 FbxLoader::FbxLoader(GameEngine::ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
+}
+
+FbxLoader::~FbxLoader()
+{
+
 }
 
 void FbxLoader::ParseFile(const std::string& filename)

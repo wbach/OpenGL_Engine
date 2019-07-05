@@ -10,6 +10,8 @@ set(GameEngineTestsSources
 ../../Sources/GameEngineTests/Tests/UT/Renderers/GuiElementTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Renderers/TerrainNormalCalulation.cpp
 ../../Sources/GameEngineTests/Tests/UT/Scene/Scene.cpp
+../../Sources/GameEngineTests/Tests/UT/Resources/WaveFrontObjLoaderTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Resources/ColladaLoaderTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Resources/TextureLoader.cpp
+../../Sources/GameEngineTests/Tests/UT/Resources/FbxLoader.cpp
 )

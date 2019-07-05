@@ -42,5 +42,34 @@ TEST_F(ColladaLoaderShould, GetFloatsFromString)
         EXPECT_EQ(ref[x], result[x]);
     }
 }
+TEST_F(ColladaLoaderShould, ReadSimpleCube)
+{
+    std::string cubeFile{"Meshes/box.dae"};
+    ASSERT_TRUE(Utils::CheckFileExist("../Data/" + cubeFile));
+
+    sut_->Parse(cubeFile);
+    auto model = sut_->Create();
+    auto data  = model->GetMeshes().front().GetCMeshDataRef();
+
+    EXPECT_EQ(data.positions_.size(), 24);
+    EXPECT_EQ(data.indices_.size(), 8);
+
+    std::cout << "positions_ size : " << data.positions_.size() << std::endl;
+    std::cout << "indices_ size : " << data.indices_.size() << std::endl;
+
+    for (auto i : data.indices_)
+    {
+        std::cout << i << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (const auto& i : data.positions_)
+    {
+        std::cout << i << " ";
+    }
+
+    std::cout << std::endl;
+}
 }  // namespace WBLoader
 }  // namespace GameEngine

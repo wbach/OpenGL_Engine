@@ -17,6 +17,7 @@ sudo apt-get install -y libc6-dbg
 sudo apt-get install -y linux-tools-common
 sudo apt-get install -y libboost-all-dev
 sudo apt-get install -y font-manager
+sudo apt-get install -y lm-sensors
 
 sudo apt-get install -y python-pip
 sudo apt-get install -y python-opencv

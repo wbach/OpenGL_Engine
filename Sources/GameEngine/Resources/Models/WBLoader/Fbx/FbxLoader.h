@@ -11,6 +11,7 @@ class FbxLoader : public AbstractLoader
 {
 public:
     FbxLoader(ITextureLoader&);
+    ~FbxLoader();
     virtual void ParseFile(const std::string&) override;
     virtual bool CheckExtension(const std::string&) override;
 
