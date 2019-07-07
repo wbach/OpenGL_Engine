@@ -18,6 +18,13 @@ typedef std::list<KeysPressedFunc> KeysSubscribers;
 
 class InputManager
 {
+struct Subscribers
+{
+    KeyPressedSubscribers keyDownSubscribers_;
+    KeyPressedSubscribers keyUpSubscribers_;
+    KeysSubscribers keysSubscribers_;
+};
+
 public:
     InputManager();
     virtual ~InputManager();
@@ -35,6 +42,8 @@ public:
     virtual void ProcessKeysEvents()                 = 0;
 
     virtual void ShowCursor(bool){};
+    void StashSubscribers();
+    void StashPopSubscribers();
 
     std::size_t SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
     std::size_t SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
@@ -53,9 +62,8 @@ public:
 
 protected:
     std::set<KeyCodes::Type> keyBuffer;
-    KeyPressedSubscribers keyDownSubscribers_;
-    KeyPressedSubscribers keyUpSubscribers_;
-    KeysSubscribers keysSubscribers_;
+    Subscribers subscribers_;
+    Subscribers stash_;
 };
 
 typedef std::shared_ptr<InputManager> InputManagerPtr;

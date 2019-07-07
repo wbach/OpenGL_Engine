@@ -44,56 +44,65 @@ void InputManager::SetDefaultKeys()
 
 std::size_t InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
-    keyDownSubscribers_[key].push_back(func);
-    return keyDownSubscribers_.at(key).size() - 1;
+    subscribers_.keyDownSubscribers_[key].push_back(func);
+    return subscribers_.keyDownSubscribers_.at(key).size() - 1;
 }
 
 std::size_t InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
-    keyUpSubscribers_[key].push_back(func);
-    return keyUpSubscribers_.at(key).size() - 1;
+    subscribers_.keyUpSubscribers_[key].push_back(func);
+    return subscribers_.keyUpSubscribers_.at(key).size() - 1;
 }
 
 std::size_t InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
-    keysSubscribers_.push_back(func);
-    return keysSubscribers_.size() - 1;
+    subscribers_.keysSubscribers_.push_back(func);
+    return subscribers_.keysSubscribers_.size() - 1;
 }
 
 void InputManager::UnsubscribeAll()
 {
-    keysSubscribers_.clear();
-    keyUpSubscribers_.clear();
-    keyDownSubscribers_.clear();
+    subscribers_.keysSubscribers_.clear();
+    subscribers_.keyUpSubscribers_.clear();
+    subscribers_.keyDownSubscribers_.clear();
 }
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
 {
-    if (keyDownSubscribers_.count(key) == 0)
+    if (subscribers_.keyDownSubscribers_.count(key) == 0)
         return;
-    keyDownSubscribers_.erase(key);
+    subscribers_.keyDownSubscribers_.erase(key);
 }
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 {
-    if (keyUpSubscribers_.count(key) == 0)
+    if (subscribers_.keyUpSubscribers_.count(key) == 0)
         return;
-    keyUpSubscribers_.erase(key);
+    subscribers_.keyUpSubscribers_.erase(key);
 }
 
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, std::size_t i)
 {
-    if (keyDownSubscribers_.count(key) == 0)
+    if (subscribers_.keyDownSubscribers_.count(key) == 0)
         return;
 
-    auto& list = keyDownSubscribers_.at(key);
+    auto& list = subscribers_.keyDownSubscribers_.at(key);
     list.erase(list.begin() + i);
 }
 
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, std::size_t i)
 {
-    if (keyUpSubscribers_.count(key) == 0)
+    if (subscribers_.keyUpSubscribers_.count(key) == 0)
         return;
 
-    auto& list = keyUpSubscribers_.at(key);
+    auto& list = subscribers_.keyUpSubscribers_.at(key);
     list.erase(list.begin() + i);
+}
+void InputManager::StashSubscribers()
+{
+    stash_ = subscribers_;
+    subscribers_ = Subscribers();
+}
+void InputManager::StashPopSubscribers()
+{
+    subscribers_ = stash_;
 }
 }  // namespace Input

@@ -35,7 +35,7 @@ void CharacterController::Update()
     {
         return;
     }
-    return;
+
     const auto& currentVelocvity = rigidbody_->GetVelocity();
     float rad = Utils::ToRadians(rotation_.y);
     auto v    = vec3(DEFAULT_RUN_SPEED);

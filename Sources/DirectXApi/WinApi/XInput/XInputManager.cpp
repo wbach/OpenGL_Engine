@@ -133,11 +133,11 @@ void XInputManager::ProcessKeysEvents()
         if (type == WM_KEYDOWN)
         {
             UpdateMouseState(keyCode, true);
-            for (const auto& subscriber : keyDownSubscribers_[keyCode])
+            for (const auto& subscriber : subscribers_.keyDownSubscribers_[keyCode])
             {
                 subscriber();
             }
-            for (const auto& keysSubscriber : keysSubscribers_)
+            for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
             {
                 keysSubscriber(keyCode);
             }
@@ -146,7 +146,7 @@ void XInputManager::ProcessKeysEvents()
         {
             UpdateMouseState(keyCode, false);
 
-            for (const auto& subscriber : keyUpSubscribers_[keyCode])
+            for (const auto& subscriber : subscribers_.keyUpSubscribers_[keyCode])
             {
                 subscriber();
             }

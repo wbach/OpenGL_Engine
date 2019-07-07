@@ -27,7 +27,9 @@ private:
 private:
     void RegisterActions();
     void LoadPrefab(const std::vector<std::string>&);
+    void PrintPosition(const std::vector<std::string>&);
     std::vector<std::string> GetParams(const std::string& comannd);
+    void SubscribeKeys();
 
 private:
     Scene& scene_;

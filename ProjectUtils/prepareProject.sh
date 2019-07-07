@@ -2,7 +2,7 @@
 
 #$1 - Project name
 # ./prepareProject.sh GameEngine ProjectGuid outputType depProject... > gameEngine.xml
-# outputType : 
+# outputType :
 #   StaticLibrary
 #   Application
 
@@ -78,8 +78,9 @@ additionalIncludesDir='
 ..\..\Tools\Windows\GLFW3\include;
 ..\..\Tools\Windows\gtest\include;
 ..\..\Tools\Windows\gmock\include;
-..\..\Tools\common\bullet\src\;
-..\..\Tools\Windows\Directx\Include;
+../../Tools/common/bullet/src/;
+../../Tools/Windows/Directx/Include/;
+../../Tools/Windows/boost/include/;
 '
 for d in "${depend[@]}"
 do
@@ -156,6 +157,155 @@ xapobase.lib;
 xapobased.lib;
 XAPOFX.lib;
 XInput.lib;
+boost_atomic-vc141-mt-gd-x32-1_70.lib;
+boost_atomic-vc141-mt-gd-x64-1_70.lib;
+boost_atomic-vc141-mt-x32-1_70.lib;
+boost_atomic-vc141-mt-x64-1_70.lib;
+boost_chrono-vc141-mt-gd-x32-1_70.lib;
+boost_chrono-vc141-mt-gd-x64-1_70.lib;
+boost_chrono-vc141-mt-x32-1_70.lib;
+boost_chrono-vc141-mt-x64-1_70.lib;
+boost_container-vc141-mt-gd-x32-1_70.lib;
+boost_container-vc141-mt-gd-x64-1_70.lib;
+boost_container-vc141-mt-x32-1_70.lib;
+boost_container-vc141-mt-x64-1_70.lib;
+boost_context-vc141-mt-gd-x32-1_70.lib;
+boost_context-vc141-mt-gd-x64-1_70.lib;
+boost_context-vc141-mt-x32-1_70.lib;
+boost_context-vc141-mt-x64-1_70.lib;
+boost_contract-vc141-mt-gd-x32-1_70.lib;
+boost_contract-vc141-mt-gd-x64-1_70.lib;
+boost_contract-vc141-mt-x32-1_70.lib;
+boost_contract-vc141-mt-x64-1_70.lib;
+boost_coroutine-vc141-mt-gd-x32-1_70.lib;
+boost_coroutine-vc141-mt-gd-x64-1_70.lib;
+boost_coroutine-vc141-mt-x32-1_70.lib;
+boost_coroutine-vc141-mt-x64-1_70.lib;
+boost_date_time-vc141-mt-gd-x32-1_70.lib;
+boost_date_time-vc141-mt-gd-x64-1_70.lib;
+boost_date_time-vc141-mt-x32-1_70.lib;
+boost_date_time-vc141-mt-x64-1_70.lib;
+boost_fiber-vc141-mt-gd-x32-1_70.lib;
+boost_fiber-vc141-mt-gd-x64-1_70.lib;
+boost_fiber-vc141-mt-x32-1_70.lib;
+boost_fiber-vc141-mt-x64-1_70.lib;
+boost_filesystem-vc141-mt-gd-x32-1_70.lib;
+boost_filesystem-vc141-mt-gd-x64-1_70.lib;
+boost_filesystem-vc141-mt-x32-1_70.lib;
+boost_filesystem-vc141-mt-x64-1_70.lib;
+boost_graph-vc141-mt-gd-x32-1_70.lib;
+boost_graph-vc141-mt-gd-x64-1_70.lib;
+boost_graph-vc141-mt-x32-1_70.lib;
+boost_graph-vc141-mt-x64-1_70.lib;
+boost_iostreams-vc141-mt-gd-x32-1_70.lib;
+boost_iostreams-vc141-mt-gd-x64-1_70.lib;
+boost_iostreams-vc141-mt-x32-1_70.lib;
+boost_iostreams-vc141-mt-x64-1_70.lib;
+boost_locale-vc141-mt-gd-x32-1_70.lib;
+boost_locale-vc141-mt-gd-x64-1_70.lib;
+boost_locale-vc141-mt-x32-1_70.lib;
+boost_locale-vc141-mt-x64-1_70.lib;
+boost_log_setup-vc141-mt-gd-x32-1_70.lib;
+boost_log_setup-vc141-mt-gd-x64-1_70.lib;
+boost_log_setup-vc141-mt-x32-1_70.lib;
+boost_log_setup-vc141-mt-x64-1_70.lib;
+boost_log-vc141-mt-gd-x32-1_70.lib;
+boost_log-vc141-mt-gd-x64-1_70.lib;
+boost_log-vc141-mt-x32-1_70.lib;
+boost_log-vc141-mt-x64-1_70.lib;
+boost_math_c99f-vc141-mt-gd-x32-1_70.lib;
+boost_math_c99f-vc141-mt-gd-x64-1_70.lib;
+boost_math_c99f-vc141-mt-x32-1_70.lib;
+boost_math_c99f-vc141-mt-x64-1_70.lib;
+boost_math_c99l-vc141-mt-gd-x32-1_70.lib;
+boost_math_c99l-vc141-mt-gd-x64-1_70.lib;
+boost_math_c99l-vc141-mt-x32-1_70.lib;
+boost_math_c99l-vc141-mt-x64-1_70.lib;
+boost_math_c99-vc141-mt-gd-x32-1_70.lib;
+boost_math_c99-vc141-mt-gd-x64-1_70.lib;
+boost_math_c99-vc141-mt-x32-1_70.lib;
+boost_math_c99-vc141-mt-x64-1_70.lib;
+boost_math_tr1f-vc141-mt-gd-x32-1_70.lib;
+boost_math_tr1f-vc141-mt-gd-x64-1_70.lib;
+boost_math_tr1f-vc141-mt-x32-1_70.lib;
+boost_math_tr1f-vc141-mt-x64-1_70.lib;
+boost_math_tr1l-vc141-mt-gd-x32-1_70.lib;
+boost_math_tr1l-vc141-mt-gd-x64-1_70.lib;
+boost_math_tr1l-vc141-mt-x32-1_70.lib;
+boost_math_tr1l-vc141-mt-x64-1_70.lib;
+boost_math_tr1-vc141-mt-gd-x32-1_70.lib;
+boost_math_tr1-vc141-mt-gd-x64-1_70.lib;
+boost_math_tr1-vc141-mt-x32-1_70.lib;
+boost_math_tr1-vc141-mt-x64-1_70.lib;
+boost_prg_exec_monitor-vc141-mt-gd-x32-1_70.lib;
+boost_prg_exec_monitor-vc141-mt-gd-x64-1_70.lib;
+boost_prg_exec_monitor-vc141-mt-x32-1_70.lib;
+boost_prg_exec_monitor-vc141-mt-x64-1_70.lib;
+boost_program_options-vc141-mt-gd-x32-1_70.lib;
+boost_program_options-vc141-mt-gd-x64-1_70.lib;
+boost_program_options-vc141-mt-x32-1_70.lib;
+boost_program_options-vc141-mt-x64-1_70.lib;
+boost_random-vc141-mt-gd-x32-1_70.lib;
+boost_random-vc141-mt-gd-x64-1_70.lib;
+boost_random-vc141-mt-x32-1_70.lib;
+boost_random-vc141-mt-x64-1_70.lib;
+boost_regex-vc141-mt-gd-x32-1_70.lib;
+boost_regex-vc141-mt-gd-x64-1_70.lib;
+boost_regex-vc141-mt-x32-1_70.lib;
+boost_regex-vc141-mt-x64-1_70.lib;
+boost_serialization-vc141-mt-gd-x32-1_70.lib;
+boost_serialization-vc141-mt-gd-x64-1_70.lib;
+boost_serialization-vc141-mt-x32-1_70.lib;
+boost_serialization-vc141-mt-x64-1_70.lib;
+boost_stacktrace_noop-vc141-mt-gd-x32-1_70.lib;
+boost_stacktrace_noop-vc141-mt-gd-x64-1_70.lib;
+boost_stacktrace_noop-vc141-mt-x32-1_70.lib;
+boost_stacktrace_noop-vc141-mt-x64-1_70.lib;
+boost_stacktrace_windbg_cached-vc141-mt-gd-x32-1_70.lib;
+boost_stacktrace_windbg_cached-vc141-mt-gd-x64-1_70.lib;
+boost_stacktrace_windbg_cached-vc141-mt-x32-1_70.lib;
+boost_stacktrace_windbg_cached-vc141-mt-x64-1_70.lib;
+boost_stacktrace_windbg-vc141-mt-gd-x32-1_70.lib;
+boost_stacktrace_windbg-vc141-mt-gd-x64-1_70.lib;
+boost_stacktrace_windbg-vc141-mt-x32-1_70.lib;
+boost_stacktrace_windbg-vc141-mt-x64-1_70.lib;
+boost_system-vc141-mt-gd-x32-1_70.lib;
+boost_system-vc141-mt-gd-x64-1_70.lib;
+boost_system-vc141-mt-x32-1_70.lib;
+boost_system-vc141-mt-x64-1_70.lib;
+boost_thread-vc141-mt-gd-x32-1_70.lib;
+boost_thread-vc141-mt-gd-x64-1_70.lib;
+boost_thread-vc141-mt-x32-1_70.lib;
+boost_thread-vc141-mt-x64-1_70.lib;
+boost_timer-vc141-mt-gd-x32-1_70.lib;
+boost_timer-vc141-mt-gd-x64-1_70.lib;
+boost_timer-vc141-mt-x32-1_70.lib;
+boost_timer-vc141-mt-x64-1_70.lib;
+boost_type_erasure-vc141-mt-gd-x32-1_70.lib;
+boost_type_erasure-vc141-mt-gd-x64-1_70.lib;
+boost_type_erasure-vc141-mt-x32-1_70.lib;
+boost_type_erasure-vc141-mt-x64-1_70.lib;
+boost_unit_test_framework-vc141-mt-gd-x32-1_70.lib;
+boost_unit_test_framework-vc141-mt-gd-x64-1_70.lib;
+boost_unit_test_framework-vc141-mt-x32-1_70.lib;
+boost_unit_test_framework-vc141-mt-x64-1_70.lib;
+boost_wave-vc141-mt-gd-x32-1_70.lib;
+boost_wave-vc141-mt-gd-x64-1_70.lib;
+boost_wave-vc141-mt-x32-1_70.lib;
+boost_wave-vc141-mt-x64-1_70.lib;
+boost_wserialization-vc141-mt-gd-x32-1_70.lib;
+boost_wserialization-vc141-mt-gd-x64-1_70.lib;
+boost_wserialization-vc141-mt-x32-1_70.lib;
+boost_wserialization-vc141-mt-x64-1_70.lib;
+libboost_exception-vc141-mt-gd-x32-1_70.lib;
+libboost_exception-vc141-mt-gd-x64-1_70.lib;
+libboost_exception-vc141-mt-x32-1_70.lib;
+libboost_exception-vc141-mt-x64-1_70.lib;
+libboost_test_exec_monitor-vc141-mt-gd-x32-1_70.lib;
+libboost_test_exec_monitor-vc141-mt-gd-x64-1_70.lib;
+libboost_test_exec_monitor-vc141-mt-x32-1_70.lib;
+libboost_test_exec_monitor-vc141-mt-x64-1_70.lib;
+
 '
 for d in "${depend[@]}"
 do
@@ -176,6 +326,7 @@ additionalLibsDir='
 '$toolsDir'\gtest\lib\x86\Release;
 '$toolsDir'\gmock\lib\x86\Release;
 '$toolsDir'\Directx\Lib\x86;
+'$toolsDir'\boost\lib;
 ..\..\Tools\common\bullet\lib\Release;
 '
 for d in "${depend[@]}"
@@ -246,8 +397,9 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -268,6 +420,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <MinimalRebuild>false</MinimalRebuild>
       <PreprocessorDefinitions>_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -285,15 +438,15 @@ echo '<?xml version="1.0" encoding="utf-8"?>
   done
   echo '</ItemGroup>'
   echo '<ItemGroup>'
-  
+
   for inc in "${headers[@]}"
   do
     echo $'<ClInclude Include="'" $vs_s"$inc'" />'
   done
-  
+
   echo '</ItemGroup>'
   echo '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
-  
+
   #\"\'\$\(Configuration\)\|\$\(Platform\)\'==\'Debug\|Win32\'\"
-  
+
 

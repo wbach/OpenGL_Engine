@@ -119,18 +119,18 @@ void InputSDL::ProcessKeysEvents()
 
         if (type == SDL_KEYDOWN)
         {
-            for (const auto& subscriber : keyDownSubscribers_[keyCode])
+            for (const auto& subscriber : subscribers_.keyDownSubscribers_[keyCode])
             {
                 subscriber();
             }
-            for (const auto& keysSubscriber : keysSubscribers_)
+            for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
             {
                 keysSubscriber(keyCode);
             }
         }
         else if (type == SDL_KEYUP)
         {
-            for (const auto& subscriber : keyUpSubscribers_[keyCode])
+            for (const auto& subscriber : subscribers_.keyUpSubscribers_[keyCode])
             {
                 subscriber();
             }
