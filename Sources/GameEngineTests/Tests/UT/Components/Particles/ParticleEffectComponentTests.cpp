@@ -31,13 +31,14 @@ struct ParicleComponentTestSchould : public BaseComponentTestSchould
 
 TEST_F(ParicleComponentTestSchould, EmitParticlesCountTest)
 {
+    vec3 camPosition(0);
+    EXPECT_CALL(*cameraMock_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
+    GameEngine::Particle particle;
+    EXPECT_CALL(*this, EmitParticle(_)).WillRepeatedly(Return(particle));
+
     time_.deltaTime = 0.1f;
     sut_.SetParticlesPerSec(100);
     sut_.ReqisterFunctions();
-    vec3 camPosition(0);
-    GameEngine::Particle particle;
-    EXPECT_CALL(*cameraMock_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
-    EXPECT_CALL(*this, EmitParticle(_)).WillRepeatedly(Return(particle));
     componentController_.Update();
     EXPECT_EQ(sut_.GetParticlesCount(), 10);
 }

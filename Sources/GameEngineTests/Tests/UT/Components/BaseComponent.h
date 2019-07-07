@@ -21,7 +21,7 @@ class BaseComponentTestSchould : public ::testing::Test
 {
 public:
     BaseComponentTestSchould();
-    void Init(BaseComponent* component);
+    void Init(BaseComponent*);
 
     Input::InputManagerMock inputManagerMock_;
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
