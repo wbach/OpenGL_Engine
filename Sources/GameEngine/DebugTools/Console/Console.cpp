@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <algorithm>
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -72,6 +73,8 @@ void Console::ExecuteComand(const std::string &commandWithParams)
 
 GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
 {
+    DEBUG_LOG(command);
+
     GuiTextElement *result{nullptr};
 
     if (guiTexts_.size() < MAX_GUI_TEXTS)
@@ -115,13 +118,14 @@ void Console::RegisterActions()
 {
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
+    commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
 {
-    if (params.size() < 4)
+    if (params.size() < 2)
     {
-        DEBUG_LOG("Can not load prefab. Params : filename objectName");
+        AddOrUpdateGuiText("Can not load prefab. Params : filename objectName.");
         return;
     }
 
@@ -131,21 +135,126 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
     scene_.LoadPrefab(filename, name);
 }
 
+void Console::SetPosition(const std::vector<std::string> &args)
+{
+    if (args.size() < 3)
+    {
+        AddOrUpdateGuiText("Not enough arguments");
+        return;
+    }
+
+    auto gameObject = GetGameObject(args[0]);
+    if (gameObject)
+    {
+        auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
+
+        if (args[1] == "x")
+        {
+            try
+            {
+                auto position = gameObject->worldTransform.GetPosition();
+                position.x    = std::stof(args[2]);
+
+                if (rigidbody)
+                {
+                    rigidbody->SetPosition(position);
+                }
+                else
+                {
+                    gameObject->worldTransform.SetPosition(position);
+                    gameObject->worldTransform.TakeSnapShoot();
+                }
+            }
+            catch (...)
+            {
+                AddOrUpdateGuiText("exception stof");
+            }
+        }
+        else if (args[1] == "y")
+        {
+            try
+            {
+                auto position = gameObject->worldTransform.GetPosition();
+                position.y    = std::stof(args[2]);
+                if (rigidbody)
+                {
+                    rigidbody->SetPosition(position);
+                }
+                else
+                {
+                    gameObject->worldTransform.SetPosition(position);
+                    gameObject->worldTransform.TakeSnapShoot();
+                }
+            }
+            catch (...)
+            {
+                AddOrUpdateGuiText("exception stof");
+            }
+        }
+        else if (args[1] == "z")
+        {
+            try
+            {
+                auto position = gameObject->worldTransform.GetPosition();
+                position.z    = std::stof(args[2]);
+
+                if (rigidbody)
+                {
+                    rigidbody->SetPosition(position);
+                }
+                else
+                {
+                    gameObject->worldTransform.SetPosition(position);
+                    gameObject->worldTransform.TakeSnapShoot();
+                }
+            }
+            catch (...)
+            {
+                AddOrUpdateGuiText("exception stof");
+            }
+        }
+        else
+        {
+            try
+            {
+                vec3 position;
+                position.x = std::stof(args[2]);
+                position.y = std::stof(args[3]);
+                position.z = std::stof(args[4]);
+
+                if (rigidbody)
+                {
+                    rigidbody->SetPosition(position);
+                }
+                else
+                {
+                    gameObject->worldTransform.SetPosition(position);
+                    gameObject->worldTransform.TakeSnapShoot();
+                }
+            }
+            catch (...)
+            {
+                AddOrUpdateGuiText("exception stof");
+            }
+        }
+    }
+    else
+    {
+        AddOrUpdateGuiText("GameObject with name not found.");
+    }
+}
+
 void Console::PrintPosition(const std::vector<std::string> &args)
 {
     if (args.empty())
     {
-        DEBUG_LOG("GameObject with name not found.");
         AddOrUpdateGuiText("GameObject with name not found.");
         return;
     }
-    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
-                             [&args](const auto &p) { return p.second->GetName() == args[0]; });
 
-    if (iter != scene_.gameObjects.end())
+    if (auto gameObject = GetGameObject(args[0]))
     {
-        AddOrUpdateGuiText("Position of " + args[0] + " : " +
-                           std::to_string(iter->second->worldTransform.GetPosition()));
+        AddOrUpdateGuiText("Position of " + args[0] + " : " + std::to_string(gameObject->worldTransform.GetPosition()));
     }
     else
     {
@@ -232,6 +341,17 @@ void Console::SubscribeKeys()
             currentCommand_->Append(" (not executed)");
         }
     });
+}
+
+GameObject *Console::GetGameObject(const std::string &name)
+{
+    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
+                             [&name](const auto &p) { return p.second->GetName() == name; });
+
+    if (iter != scene_.gameObjects.end())
+        return iter->second.get();
+
+    return nullptr;
 }
 
 }  // namespace Debug

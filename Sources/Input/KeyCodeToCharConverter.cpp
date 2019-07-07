@@ -15,7 +15,17 @@ std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::specialCharKeys
     { KeyCodes::PERIOD, '.' },
     { KeyCodes::SEMICOLON, ';' },
     { KeyCodes::APOSTROPHE, '\'' },
-    { KeyCodes::GRAVE, '~' }
+    { KeyCodes::GRAVE, '~' },
+    { KeyCodes::NUM1, '1' },
+    { KeyCodes::NUM2, '2' },
+    { KeyCodes::NUM3, '3' },
+    { KeyCodes::NUM4, '4' },
+    { KeyCodes::NUM5, '5' },
+    { KeyCodes::NUM6, '6' },
+    { KeyCodes::NUM7, '7' },
+    { KeyCodes::NUM8, '8' },
+    { KeyCodes::NUM9, '9' },
+    { KeyCodes::NUM0, '0' }
 };
 
 std::unordered_map<KeyCodes::Type, char> KeyCodeToCharConverter::smallCharKeys =
