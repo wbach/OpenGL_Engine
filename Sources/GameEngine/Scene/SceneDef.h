@@ -5,6 +5,7 @@ extern const std::string CSTR_SCENE;
 extern const std::string CSTR_PREFAB;
 extern const std::string CSTR_NAME;
 extern const std::string CSTR_GAMEOBJECTS;
+extern const std::string CSTR_PREFABS;
 extern const std::string CSTR_COUNT;
 extern const std::string CSTR_GAMEOBJECT;
 extern const std::string CSTR_TRANSFORM;

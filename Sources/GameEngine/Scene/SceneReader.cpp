@@ -6,6 +6,7 @@
 #include "Utils/XML/XMLUtils.h"
 #include "Utils/XML/XmlReader.h"
 
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
@@ -43,7 +44,8 @@ std::vector<vec3> ReadVectorVec3(Utils::XmlNode& node)
     std::vector<vec3> result;
     for (const auto& v : node.GetChildren())
     {
-        result.emplace_back(std::stof(v->attributes_[CSTR_X]), std::stof(v->attributes_[CSTR_Y]), std::stof(v->attributes_[CSTR_Z]));
+        result.emplace_back(std::stof(v->attributes_[CSTR_X]), std::stof(v->attributes_[CSTR_Y]),
+                            std::stof(v->attributes_[CSTR_Z]));
     }
     return result;
 }
@@ -126,7 +128,7 @@ void Read(Utils::XmlNode& node, Components::RendererComponent& component)
     for (const auto& fileNode : node.GetChild(CSTR_MODEL_FILE_NAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod             = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.AddModel(filename, lod);
     }
 }
@@ -136,13 +138,13 @@ void Read(Utils::XmlNode& node, Components::TreeRendererComponent& component)
     for (const auto& fileNode : node.GetChild(CSTR_BOTTOM_FILENAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod             = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.SetBottomModel(filename, lod);
     }
     for (const auto& fileNode : node.GetChild(CSTR_TOP_FILENAMES)->GetChildren())
     {
         const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod             = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
         component.SetTopModel(filename, lod);
     }
 
@@ -169,7 +171,8 @@ void Read(Utils::XmlNode& node, Components::ParticleEffectComponent& component)
     component.SetParticle(particle);
     component.SetTexture(node.GetChild(CSTR_TEXTURE)->value_);
     component.SetParticlesPerSec(std::stoul(node.GetChild(CSTR_PARTICLE_PER_SER)->value_));
-    component.SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
+    component.SetBlendFunction(
+        static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
 
     auto emitFunctionName = node.GetChild(CSTR_EMIT_FUNCTION)->value_;
     auto emitFunction     = currentReadingScene->GetParticleEmitFunction(emitFunctionName);
@@ -362,6 +365,25 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
     }
 }
 
+void LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
+{
+    Utils::XmlReader xmlReader;
+
+    if (not xmlReader.Read(EngineConf_GetFullDataPathAddToRequierd(filename)))
+    {
+        ERROR_LOG("Prefab read error");
+        return;
+    }
+
+    currentReadingScene = &scene;
+    DEBUG_LOG("filename : " + EngineConf_GetFullDataPathAddToRequierd(filename));
+    DEBUG_LOG("Name : " + name);
+
+    auto gameObject = scene.CreateGameObject(name);
+    Read(*xmlReader.Get(CSTR_PREFAB), *gameObject);
+    scene.AddGameObject(gameObject);
+}
+
 void Read(Utils::XmlNode& node, Scene& scene)
 {
     for (const auto& child : node.GetChild(CSTR_GAMEOBJECTS)->GetChildren())
@@ -369,6 +391,11 @@ void Read(Utils::XmlNode& node, Scene& scene)
         auto gameObject = scene.CreateGameObject(child->attributes_.at(CSTR_NAME));
         Read(*child, *gameObject);
         scene.AddGameObject(gameObject);
+    }
+
+    for (const auto& child : node.GetChild(CSTR_PREFABS)->GetChildren())
+    {
+        LoadPrefab(scene, child->value_, child->attributes_.at(CSTR_NAME));
     }
 }
 
@@ -380,18 +407,6 @@ void LoadScene(Scene& scene, const std::string& filename)
 
     currentReadingScene = &scene;
     Read(*xmlReader.Get(CSTR_SCENE), scene);
-}
-
-void LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
-{
-    Utils::XmlReader xmlReader;
-    if (!xmlReader.Read(filename))
-        return;
-    currentReadingScene = &scene;
-
-    auto gameObject = scene.CreateGameObject(name);
-    Read(*xmlReader.Get(CSTR_PREFAB), *gameObject);
-    scene.AddGameObject(gameObject);
 }
 }  // namespace SceneReader
 }  // namespace GameEngine
