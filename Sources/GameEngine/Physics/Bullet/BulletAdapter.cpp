@@ -309,7 +309,7 @@ void BulletAdapter::SetPosition(uint32 rigidBodyId, const vec3& position)
     {
         return;
     }
-    // impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().setOrigin(Convert(position));
 }
 }  // namespace Physics
 

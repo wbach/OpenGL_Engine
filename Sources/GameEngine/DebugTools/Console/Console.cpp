@@ -158,11 +158,13 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 if (rigidbody)
                 {
                     rigidbody->SetPosition(position);
+                    DEBUG_LOG("Set rigidbody position");
                 }
                 else
                 {
                     gameObject->worldTransform.SetPosition(position);
                     gameObject->worldTransform.TakeSnapShoot();
+                    DEBUG_LOG("Set transform position");
                 }
             }
             catch (...)
@@ -179,11 +181,13 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 if (rigidbody)
                 {
                     rigidbody->SetPosition(position);
+                    DEBUG_LOG("Set rigidbody position");
                 }
                 else
                 {
                     gameObject->worldTransform.SetPosition(position);
                     gameObject->worldTransform.TakeSnapShoot();
+                    DEBUG_LOG("Set transform position");
                 }
             }
             catch (...)
