@@ -4,8 +4,8 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Animations/KeyFrame.h"
-#include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Models/Model.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -185,10 +185,14 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
         ReadFile(file, textures[2]);
         ReadFile(file, textures[3]);
 
-        material.diffuseTexture  = textureLoader.LoadTexture(textures[0], true, true, ObjectTextureType::MATERIAL);
-        material.normalTexture   = textureLoader.LoadTexture(textures[1], true, true, ObjectTextureType::MATERIAL);
-        material.ambientTexture  = textureLoader.LoadTexture(textures[2], true, true, ObjectTextureType::MATERIAL);
-        material.specularTexture = textureLoader.LoadTexture(textures[3], true, true, ObjectTextureType::MATERIAL);
+        if (not textures[0].empty())
+            material.diffuseTexture = textureLoader.LoadTexture(textures[0], true, true, ObjectTextureType::MATERIAL);
+        if (not textures[1].empty())
+            material.normalTexture = textureLoader.LoadTexture(textures[1], true, true, ObjectTextureType::MATERIAL);
+        if (not textures[2].empty())
+            material.ambientTexture = textureLoader.LoadTexture(textures[2], true, true, ObjectTextureType::MATERIAL);
+        if (not textures[3].empty())
+            material.specularTexture = textureLoader.LoadTexture(textures[3], true, true, ObjectTextureType::MATERIAL);
 
         auto& mesh = *(out->AddMesh(GraphicsApi::RenderType::TRIANGLES, textureLoader.GetGraphicsApi()));
         auto& data = mesh.GetMeshDataRef();
@@ -215,5 +219,5 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
 
     return out;
 }
-}  // WBLoader
+}  // namespace WBLoader
 }  // namespace GameEngine

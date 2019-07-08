@@ -14,12 +14,14 @@ struct ColladaLoaderShould : public ::testing::Test
 {
     ColladaLoaderShould()
     {
-        textureLoaderMock_.reset(new TextureLoaderMock());
-
-        EXPECT_CALL(*textureLoaderMock_, GetGraphicsApi()).WillOnce(ReturnRef(apiMock_));
-        sut_.reset(new ColladaDae(*textureLoaderMock_));
+        EngineConf.useBinaryLoading = false;
     }
-    std::shared_ptr<TextureLoaderMock> textureLoaderMock_;
+    void SetUp()
+    {
+        EXPECT_CALL(textureLoaderMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(apiMock_));
+        sut_.reset(new ColladaDae(textureLoaderMock_));
+    }
+    TextureLoaderMock textureLoaderMock_;
     GraphicsApi::GraphicsApiMock apiMock_;
     std::unique_ptr<ColladaDae> sut_;
 };
