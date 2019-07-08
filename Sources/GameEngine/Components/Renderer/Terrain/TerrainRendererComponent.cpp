@@ -21,7 +21,7 @@ TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& compo
 }
 TerrainRendererComponent::~TerrainRendererComponent()
 {
-
+    UnSubscribe();
 }
 void TerrainRendererComponent::SetTexture(TerrainTextureType type, Texture* texture)
 {

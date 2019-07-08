@@ -14,6 +14,7 @@ SkydomeComponent::SkydomeComponent(const ComponentContext& componentContext, Gam
 }
 SkydomeComponent::~SkydomeComponent()
 {
+    UnSubscribe();
 }
 
 void SkydomeComponent::ReqisterFunctions()

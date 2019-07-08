@@ -24,6 +24,7 @@ public:
     virtual ~ComponentController();
     uint32 RegisterFunction(FunctionType type, std::function<void()> func);
     void UnRegisterFunction(FunctionType type, uint32 id);
+    void UnRegisterAll();
 
 public:
     void OnAwake();

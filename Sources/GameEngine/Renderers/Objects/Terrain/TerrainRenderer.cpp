@@ -153,6 +153,10 @@ void TerrainRenderer::UnSubscribe(GameObject* gameObject)
         subscribes_.erase(iter);
     }
 }
+void TerrainRenderer::UnSubscribeAll()
+{
+    subscribes_.clear();
+}
 void TerrainRenderer::ReloadShaders()
 {
     shader_->Reload();

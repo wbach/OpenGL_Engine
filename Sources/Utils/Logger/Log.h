@@ -12,6 +12,8 @@ class CLogger
 public:
     static CLogger& Instance();
     void EnableLogs();
+    void ImmeditalyLog();
+    void LazyLog();
     void ErrorLog(const std::string& log);
     void Logg(const std::string& log);
     void LoggToFileOnly(const std::string& log);
@@ -31,6 +33,7 @@ private:
     std::string fileName;
     std::list<std::string> logs;
     bool enabled = false;
+    bool logImmeditaly = false;
 
     std::atomic_bool running_;
     std::thread loggerThread_;

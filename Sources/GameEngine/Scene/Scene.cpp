@@ -33,21 +33,15 @@ Scene::Scene(const std::string& name)
 
 Scene::~Scene()
 {
-    DEBUG_LOG("");
-
     gameObjects.clear();
-
     if (inputManager_ != nullptr)
     {
         inputManager_->UnsubscribeAll();
     }
-
     if (renderersManager_)
     {
         renderersManager_->UnSubscribeAll();
     }
-
-    DEBUG_LOG("End");
 }
 
 void Scene::InitResources(SceneInitContext& context)

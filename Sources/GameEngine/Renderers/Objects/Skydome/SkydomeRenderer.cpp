@@ -42,6 +42,14 @@ void SkydomRenderer::ReloadShaders()
     shader_->Reload();
     shader_->Init();
 }
+void SkydomRenderer::UnSubscribe(GameObject * gameObject)
+{
+    subscriber_.model_ = nullptr;
+}
+void SkydomRenderer::UnSubscribeAll()
+{
+    subscriber_.model_ = nullptr;
+}
 void SkydomRenderer::Render(const Scene& scene, const Time&)
 {
     if (not subscriber_.model_)

@@ -1,4 +1,5 @@
 #include "ComponentController.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -12,6 +13,7 @@ ComponentController::ComponentController()
 }
 ComponentController::~ComponentController()
 {
+    DEBUG_LOG("");
 }
 uint32 ComponentController::RegisterFunction(FunctionType type, std::function<void()> func)
 {
@@ -23,7 +25,12 @@ uint32 ComponentController::RegisterFunction(FunctionType type, std::function<vo
 }
 void ComponentController::UnRegisterFunction(FunctionType type, uint32 id)
 {
-    functions_.at(type).erase(id);
+    if (functions_.count(type) > 0)
+        functions_.at(type).erase(id);
+}
+void ComponentController::UnRegisterAll()
+{
+    functions_.clear();
 }
 void ComponentController::OnAwake()
 {

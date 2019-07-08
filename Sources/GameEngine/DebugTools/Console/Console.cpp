@@ -119,6 +119,9 @@ void Console::RegisterActions()
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
     commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
+    commandsActions_.insert({"loadscene", [this](const auto &params) { LoadScene(params); }});
+    commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
+    commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
@@ -264,6 +267,59 @@ void Console::PrintPosition(const std::vector<std::string> &args)
     {
         AddOrUpdateGuiText(args[0] + " not found");
     }
+}
+
+void Console::LoadScene(const std::vector<std::string> &params)
+{
+    if (params.empty())
+        return;
+
+    bool useSceneNumber{true};
+    for (const auto &c : params[0])
+    {
+        if (not isdigit(c))
+        {
+            useSceneNumber = false;
+            break;
+        }
+    }
+
+    if (useSceneNumber)
+    {
+        try
+        {
+            SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, std::stoi(params[0]));
+            scene_.addSceneEvent(sceneEvent);
+        }
+        catch (...)
+        {
+            AddOrUpdateGuiText("LOAD_SCENE_BY_ID stoi exception");
+        }
+    }
+    else
+    {
+        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_NAME, params[0]);
+        scene_.addSceneEvent(sceneEvent);
+    }
+}
+
+void Console::ReloadScene(const std::vector<std::string> & params)
+{
+    SceneEvent sceneEvent(SceneEventType::RELOAD_SCENE, 0);
+    scene_.addSceneEvent(sceneEvent);
+}
+
+void Console::SetImmeditalyLogs(const std::vector<std::string> &params)
+{
+    if (params.empty())
+        return;
+
+    auto use = Utils::StringToBool(params[0]);
+
+    if (use)
+        CLogger::Instance().ImmeditalyLog();
+    else
+        CLogger::Instance().LazyLog();
 }
 
 std::vector<std::string> Console::GetParams(const std::string &command)

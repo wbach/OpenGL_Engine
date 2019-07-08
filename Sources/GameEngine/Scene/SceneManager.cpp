@@ -96,6 +96,9 @@ void SceneManager::ProccessEvents()
         case SceneEventType::LOAD_SCENE_BY_NAME:
             LoadScene(e.name);
             break;
+        case SceneEventType::RELOAD_SCENE:
+            LoadScene(currentSceneId_);
+            break;
         default:
             break;
     }

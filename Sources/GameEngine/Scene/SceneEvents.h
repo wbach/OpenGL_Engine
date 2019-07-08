@@ -11,6 +11,7 @@ enum SceneEventType
     LOAD_PREVIOUS_SCENE,
     LOAD_SCENE_BY_NAME,
     LOAD_SCENE_BY_ID,
+    RELOAD_SCENE,
     EXIT_GAME
 };
 

@@ -24,6 +24,8 @@ public:
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void ReloadShaders() override;
+    virtual void UnSubscribe(GameObject* gameObject);
+    virtual void UnSubscribeAll();
 
 private:
     void Render(const Scene& scene, const Time&);

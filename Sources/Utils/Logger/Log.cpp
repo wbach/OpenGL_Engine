@@ -5,6 +5,10 @@
 #include <sstream>
 #include "SDL2/SDL_messagebox.h"
 
+namespace
+{
+std::ofstream mainfile;
+}
 CLogger& CLogger::Instance()
 {
     static CLogger logger;
@@ -17,6 +21,19 @@ void CLogger::EnableLogs()
     CreateLogFile();
     loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
 }
+void CLogger::ImmeditalyLog()
+{
+    std::lock_guard<std::mutex> lk(printMutex_);
+    logImmeditaly = true;
+    mainfile = std::ofstream(fileName, std::ios_base::app);
+}
+void CLogger::LazyLog()
+{
+    std::lock_guard<std::mutex> lk(printMutex_);
+    logImmeditaly = false;
+    if (mainfile.is_open())
+        mainfile.close();
+}
 void CLogger::ErrorLog(const std::string& log)
 {
     MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
@@ -28,7 +45,16 @@ void CLogger::Logg(const std::string& log)
         return;
 
     std::lock_guard<std::mutex> lk(printMutex_);
-    logs.push_back(log);
+
+    if (logImmeditaly)
+    {
+        std::cout << log << std::endl;
+        mainfile << log << '\n';
+    }
+    else
+    {
+        logs.push_back(log);
+    }
 }
 void CLogger::LoggToFileOnly(const std::string& log)
 {
@@ -56,6 +82,11 @@ CLogger::~CLogger()
         running_.store(false);
         loggerThread_.join();
         PrintLogs();
+
+        if (mainfile.is_open())
+        {
+            mainfile.close();
+        }
     }
 }
 
