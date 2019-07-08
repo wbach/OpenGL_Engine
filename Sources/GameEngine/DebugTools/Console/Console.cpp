@@ -383,23 +383,24 @@ void Console::SubscribeKeys()
     });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        scene_.inputManager_->StashPopSubscribers();
         window_->Hide();
-
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
         {
             currentCommand_->Append(" (not executed)");
         }
+
+        scene_.inputManager_->StashPopSubscribers();
     });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
-        scene_.inputManager_->StashPopSubscribers();
         window_->Hide();
 
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
         {
             currentCommand_->Append(" (not executed)");
         }
+
+        scene_.inputManager_->StashPopSubscribers();
     });
 }
 
