@@ -21,8 +21,11 @@ sudo apt-get install -y lm-sensors
 
 sudo apt-get install -y python-pip
 sudo apt-get install -y python-opencv
+python -m pip install -U matplotlib
 pip install -U scikit-learn
 pip install tqdm
+sudo apt-get install -y python-backports.functools-lru-cache
+sudo apt-get install -y python-tk
 
 #game dev
 sudo apt-get install -y libxkbcommon-dev
