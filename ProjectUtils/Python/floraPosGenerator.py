@@ -54,7 +54,6 @@ f.write('   </worldTransform>\n')
 f.write('   <components count="1">\n')
 f.write('	    <component type="12">\n')
 f.write('	        <positions>\n')
-f.write('	            <v>')
 for y in range(len(coords)):
     for x in range(len(coords)):
         f.write(str(coords[x, 0]))
@@ -66,7 +65,6 @@ for y in range(len(coords)):
         # f.write('               <v>' + str(coords[x, 0]) + '</v>\n')
         # f.write('               <v>' + str(0) + '</v>\n')
         # f.write('               <v>' + str(coords[y, 1]) + '</v>\n')
-f.write('	            </v>\n')
 f.write('	        </positions>\n')
 f.write('	    </components>\n')
 f.write('   </component>\n')
