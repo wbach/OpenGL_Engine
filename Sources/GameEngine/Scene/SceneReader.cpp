@@ -202,10 +202,13 @@ std::vector<std::string> ReadStringVector(Utils::XmlNode& node, const std::strin
 
 std::vector<float> ReadFloatVector(Utils::XmlNode& node)
 {
+    auto strings = Utils::SplitString(node.value_, ' ');
+
     std::vector<float> v;
-    for (const auto& modelFileName : node.GetChildren())
+    v.reserve(strings.size());
+    for (const auto& value : strings)
     {
-        v.push_back(std::stof(modelFileName->value_));
+        v.push_back(std::stof(value));
     }
     return v;
 }

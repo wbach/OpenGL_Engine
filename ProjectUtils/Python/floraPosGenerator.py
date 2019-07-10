@@ -42,19 +42,33 @@ plt.figure(figsize=(10*width_ratio,10))
 plt.scatter(coords[:,0], coords[:,1], s=3)
 plt.show()
 
+f = open(sys.argv[1], "w")
 
-
-# f = open(sys.argv[1], "a")
-# sizeX=sys.argv[2]
-# sizeY=sys.argv[3]
-
-# f.write("Now the file has more content!")
-
-
-# for y in range(506):
-#     for x in range(506):
-#         f.write('x : ' + str(x) + ' y : ' + str(y) + ' v : ' + str(coords[x, y])  + '\n')
-
-
-# f.close()
-# print("Random float number is ", random.random())
+f.write('<prefab>\n')
+f.write('	<worldTransform>\n')
+f.write('	<position x="0.000000" y="0.000000" z="10.000000"/>\n')
+f.write('   <rotation x="0.000000" y="0.000000" z="0.000000"/>\n')
+f.write('	<scale x="1.800000" y="1.800000" z="1.800000"/>\n')
+f.write('	<isDynamic>false</isDynamic>\n')
+f.write('   </worldTransform>\n')
+f.write('   <components count="1">\n')
+f.write('	    <component type="12">\n')
+f.write('	        <positions>\n')
+f.write('	            <v>')
+for y in range(len(coords)):
+    for x in range(len(coords)):
+        f.write(str(coords[x, 0]))
+        f.write(' ')
+        f.write('0')
+        f.write(' ')
+        f.write(str(coords[y, 1]))
+        f.write(' ')
+        # f.write('               <v>' + str(coords[x, 0]) + '</v>\n')
+        # f.write('               <v>' + str(0) + '</v>\n')
+        # f.write('               <v>' + str(coords[y, 1]) + '</v>\n')
+f.write('	            </v>\n')
+f.write('	        </positions>\n')
+f.write('	    </components>\n')
+f.write('   </component>\n')
+f.write('</prefab>')
+f.close()
