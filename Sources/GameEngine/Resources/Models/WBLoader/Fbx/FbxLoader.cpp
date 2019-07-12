@@ -10,6 +10,23 @@ namespace GameEngine
 {
 namespace WBLoader
 {
+vec3 convert(const FbxVector4& v)
+{
+    vec3 result;
+    result.x = static_cast<float>(v[0]);
+    result.y = static_cast<float>(v[1]);
+    result.z = static_cast<float>(v[2]);
+    return result;
+}
+
+vec2 convert(const FbxVector2& v)
+{
+    vec2 result;
+    result.x = static_cast<float>(v[0]);
+    result.y = static_cast<float>(v[1]);
+    return result;
+}
+
 struct MaterialProperty
 {
     vec3 color_;
@@ -41,8 +58,8 @@ struct FbxLoader::Pimpl
 
     ~Pimpl()
     {
-//        scene_->Destroy();
-//        currentAnimLayer_->Destroy();
+        //        scene_->Destroy();
+        //        currentAnimLayer_->Destroy();
         FbxArrayDelete(animStackNameArray_);
         importer_->Destroy();
         manager_->Destroy();
@@ -139,8 +156,8 @@ struct FbxLoader::Pimpl
         LoadCacheRecursive(scene_->GetRootNode());
         frameTime_.SetTime(0, 0, 0, 1, 0, scene_->GetGlobalSettings().GetTimeMode());
 
-//        importer_->Destroy();
-//        importer_ = nullptr;
+        //        importer_->Destroy();
+        //        importer_ = nullptr;
     }
 
     void LoadTextures()
@@ -150,7 +167,7 @@ struct FbxLoader::Pimpl
         {
             FbxTexture* texture         = scene_->GetTexture(texture_index);
             FbxFileTexture* textureFile = FbxCast<FbxFileTexture>(texture);
-            if (textureFile && not textureFile->GetUserDataPtr())
+            if (textureFile and not textureFile->GetUserDataPtr())
             {
                 try
                 {
@@ -173,7 +190,7 @@ struct FbxLoader::Pimpl
         for (int i = 0; i < node->GetMaterialCount(); ++i)
         {
             FbxSurfaceMaterial* material = node->GetMaterial(i);
-            if (material && not material->GetUserDataPtr())
+            if (material and not material->GetUserDataPtr())
             {
                 materials_.push_back(InitializeMaterial(*material));
             }
@@ -185,7 +202,7 @@ struct FbxLoader::Pimpl
             if (nodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
             {
                 FbxMesh* mesh = node->GetMesh();
-                if (mesh && not mesh->GetUserDataPtr())
+                if (mesh and not mesh->GetUserDataPtr())
                 {
                     InitializeMesh(*mesh);
                 }
@@ -198,8 +215,7 @@ struct FbxLoader::Pimpl
         }
     }
 
-    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName,
-                                         const char* factorPropertyName)
+    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName, const char* factorPropertyName)
     {
         MaterialProperty result;
 
@@ -236,16 +252,15 @@ struct FbxLoader::Pimpl
     {
         Material result;
 
-        auto ambient = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
+        auto ambient          = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
         result.ambient        = ambient.color_;
         result.ambientTexture = ambient.texture_;
 
-        auto diffuse = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
+        auto diffuse          = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
         result.diffuse        = diffuse.color_;
         result.diffuseTexture = diffuse.texture_;
 
-        auto specular =
-            GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
+        auto specular          = GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
         result.specular        = specular.color_;
         result.specularTexture = specular.texture_;
 
@@ -259,9 +274,9 @@ struct FbxLoader::Pimpl
         return result;
     }
 
-    void InitializeMesh(const FbxMesh& mesh)
+    void InitializeMesh(const FbxMesh& fbxMesh)
     {
-        if (not mesh.GetNode())
+        if (not fbxMesh.GetNode())
             return;
 
         /* m_BonesInfo.push_back(SBonesInfo());
@@ -270,14 +285,14 @@ struct FbxLoader::Pimpl
         // Count the polygon count of each material
         FbxLayerElementArrayTemplate<int>* materialIndice{nullptr};
         FbxGeometryElement::EMappingMode materialMappingMode{FbxGeometryElement::eNone};
-        if (mesh.GetElementMaterial())
+        if (fbxMesh.GetElementMaterial())
         {
-            materialIndice      = &mesh.GetElementMaterial()->GetIndexArray();
-            materialMappingMode = mesh.GetElementMaterial()->GetMappingMode();
+            materialIndice      = &fbxMesh.GetElementMaterial()->GetIndexArray();
+            materialMappingMode = fbxMesh.GetElementMaterial()->GetMappingMode();
         }
 
         FbxStringList uvNames;
-        mesh.GetUVSetNames(uvNames);
+        fbxMesh.GetUVSetNames(uvNames);
         const char* uvName{nullptr};
 
         if (uvNames.GetCount())
@@ -288,47 +303,33 @@ struct FbxLoader::Pimpl
         objects_.back().meshes.emplace_back();
         auto& newMesh = objects_.back().meshes.back();
 
-        newMesh.vertexBuffer.reserve(3 * mesh.GetControlPointsCount());
-        for (int i = 0; i < mesh.GetControlPointsCount(); ++i)
-        {
-            const auto& currentVertex = mesh.GetControlPoints()[i];
+        newMesh.vertexBuffer.reserve(static_cast<size_t>(fbxMesh.GetControlPointsCount()));
 
-            newMesh.vertexBuffer.emplace_back();
-            newMesh.vertexBuffer.back().position =
-                vec3{static_cast<float>(currentVertex[0]), static_cast<float>(currentVertex[1]),
-                     static_cast<float>(currentVertex[2])};
-        }
-
-        int vertexIndex = 0;
-        for (int polygonIndex = 0; polygonIndex < mesh.GetPolygonCount(); ++polygonIndex)
+        for (int polygonIndex = 0; polygonIndex < fbxMesh.GetPolygonCount(); ++polygonIndex)
         {
-            if (materialIndice)  // && lMaterialMappingMode == FbxGeometryElement::eByPolygon)
+            if (materialIndice)
             {
-                newMesh.material = materials_[materialIndice->GetAt(polygonIndex)];
+                newMesh.material = materials_[static_cast<size_t>(materialIndice->GetAt(polygonIndex))];
             }
 
             for (int verticeIndex = 0; verticeIndex < 3; ++verticeIndex)
             {
-                const int controlPointIndex = mesh.GetPolygonVertex(polygonIndex, verticeIndex);
-                //const auto& currentVertex   = mesh.GetControlPoints()[controlPointIndex];
-
-                newMesh.vertexBuffer[controlPointIndex].indexes = controlPointIndex;
+                const int controlPointIndex       = fbxMesh.GetPolygonVertex(polygonIndex, verticeIndex);
+                const auto& currentVertexPosition = fbxMesh.GetControlPoints()[controlPointIndex];
 
                 FbxVector4 currentNormal;
-                mesh.GetPolygonVertexNormal(polygonIndex, verticeIndex, currentNormal);
-                auto& normal = newMesh.vertexBuffer[3 * controlPointIndex].normal;
-                normal.x     = static_cast<float>(currentNormal[0]);
-                normal.y     = static_cast<float>(currentNormal[1]);
-                normal.z     = static_cast<float>(currentNormal[2]);
+                fbxMesh.GetPolygonVertexNormal(polygonIndex, verticeIndex, currentNormal);
 
                 bool unmappedUV{false};
                 FbxVector2 currentUV;
-                mesh.GetPolygonVertexUV(polygonIndex, verticeIndex, uvName, currentUV, unmappedUV);
+                fbxMesh.GetPolygonVertexUV(polygonIndex, verticeIndex, uvName, currentUV, unmappedUV);
 
-                newMesh.vertexBuffer[2 * controlPointIndex].uvs.x = static_cast<float>(currentUV[0]);
-                newMesh.vertexBuffer[2 * controlPointIndex].uvs.y = static_cast<float>(currentUV[1]);
-
-                ++vertexIndex;
+                newMesh.vertexBuffer.emplace_back();
+                auto& vertexBuffer    = newMesh.vertexBuffer.back();
+                vertexBuffer.indexes  = controlPointIndex;
+                vertexBuffer.position = convert(currentVertexPosition);
+                vertexBuffer.normal   = convert(currentNormal);
+                vertexBuffer.uvs      = convert(currentUV);
             }
         }
     }
@@ -341,7 +342,6 @@ FbxLoader::FbxLoader(GameEngine::ITextureLoader& textureLoader)
 
 FbxLoader::~FbxLoader()
 {
-
 }
 
 void FbxLoader::ParseFile(const std::string& filename)

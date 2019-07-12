@@ -37,7 +37,7 @@ TEST_F(FbxLoaderShould, ReadSimpleCube)
     auto data  = model->GetMeshes().front().GetCMeshDataRef();
 
     EXPECT_EQ(data.positions_.size(), 24);
-    EXPECT_EQ(data.indices_.size(), 8);
+    EXPECT_EQ(data.indices_.size(), 36);
 
     std::cout << "positions_ size : " << data.positions_.size() << std::endl;
     std::cout << "indices_ size : " << data.indices_.size() << std::endl;
