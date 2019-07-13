@@ -24,6 +24,8 @@ public:
     ~GrassRenderer();
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
+    virtual void UnSubscribe(GameObject* gameObject);
+    virtual void UnSubscribeAll();
     virtual void ReloadShaders() override;
 
 private:

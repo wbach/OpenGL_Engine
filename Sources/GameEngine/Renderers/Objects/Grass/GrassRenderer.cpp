@@ -1,5 +1,4 @@
 #include "GrassRenderer.h"
-#include "GraphicsApi/ShadersTypes.h"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
@@ -9,8 +8,10 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
+#include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/GrassShaderUniforms.h"
+#include <algorithm>
 
 namespace GameEngine
 {
@@ -50,6 +51,17 @@ void GrassRenderer::Subscribe(GameObject* gameObject)
     {
         subscribes_.push_back({gameObject->GetId(), grass});
     }
+}
+
+void GrassRenderer::UnSubscribe(GameObject* gameObject)
+{
+    auto id = gameObject->GetId();
+    std::remove_if(subscribes_.begin(), subscribes_.end(), [id](const auto& pair) { return pair.first == id; });
+}
+
+void GrassRenderer::UnSubscribeAll()
+{
+    subscribes_.clear();
 }
 
 void GrassRenderer::ReloadShaders()

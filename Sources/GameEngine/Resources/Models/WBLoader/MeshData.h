@@ -1,20 +1,19 @@
 #pragma once
+#include <list>
+#include <vector>
 #include "../Material.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
 #include "Types.h"
 #include "optional.hpp"
-#include <vector>
-#include <list>
 
 namespace GraphicsApi
 {
-    struct MeshRawData;
-} // GraphicsApi
+struct MeshRawData;
+}  // namespace GraphicsApi
 
 namespace GameEngine
 {
-
 namespace WBLoader
 {
 struct VertexBuffer
@@ -38,6 +37,7 @@ struct MaterialLayer
 
 struct Mesh
 {
+    bool needIndexing{true};
     std::string name;
     Material material;
     std::vector<vec3> vertex;
@@ -57,11 +57,6 @@ struct Object
     mat4 transformMatrix;
 };
 
-int FindIndex(const std::list<vec3i>& vertexes, const vec3i& v);
-void AddVec3ToFloatBuffer(std::vector<float>& buffer, const vec3& v);
-void AddVec2ToFloatBuffer(std::vector<float>& buffer, const vec2& v);
-void AddVec3ToIntBuffer(std::vector<int32>& buffer, const vec3i& v);
 void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& data);
-void computeTangentBasis(std::vector<VertexBuffer>& vertexBuffer);
-}
-} // namespace GameEngine
+}  // namespace WBLoader
+}  // namespace GameEngine

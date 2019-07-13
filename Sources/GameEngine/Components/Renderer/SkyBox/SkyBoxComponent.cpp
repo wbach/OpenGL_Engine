@@ -14,6 +14,7 @@ SkyBoxComponent::SkyBoxComponent(const ComponentContext& componentContext, GameO
 }
 SkyBoxComponent::~SkyBoxComponent()
 {
+    UnSubscribe();
 }
 SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::vector<std::string>& filenames)
 {

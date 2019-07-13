@@ -172,6 +172,18 @@ struct FbxLoader::Pimpl
                 try
                 {
                     std::string fileName(textureFile->GetFileName());
+
+                    DEBUG_LOG("Convert file name path : " + fileName);
+
+
+                    auto found = fileName.find("Textures");
+
+                    if (found != std::string::npos)
+                    {
+                        fileName = fileName.substr(found);
+                    }
+                    DEBUG_LOG("New file name path : " + fileName);
+
                     auto texture = textureLoader_.LoadTexture(fileName);
                     if (texture)
                         textureFile->SetUserDataPtr(texture);

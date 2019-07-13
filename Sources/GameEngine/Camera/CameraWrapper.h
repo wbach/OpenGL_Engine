@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "ICamera.h"
+#include "Camera.h"
 
 namespace GameEngine
 {
@@ -8,8 +8,8 @@ class CameraWrapper
 {
 public:
     CameraWrapper();
-    CameraWrapper(std::unique_ptr<ICamera>);
-    void Set(std::unique_ptr<ICamera>);
+    CameraWrapper(ICamera& camera);
+    void Set(ICamera& camera);
 
     void Update();
 
@@ -39,6 +39,7 @@ public:
     void SetPosition(const vec3&);
 
 private:
-    std::unique_ptr<ICamera> camera_;
+    BaseCamera baseCamera_;
+    ICamera* camera_;
 };
 }  // namespace GameEngine

@@ -3,6 +3,8 @@
 
 namespace GameEngine
 {
+struct ICamera;
+
 namespace Components
 {
 class ThridPersonCameraComponent : public BaseComponent
@@ -13,6 +15,7 @@ public:
 
 private:
     float zoomSpeed_;
+    std::unique_ptr<ICamera> camera_;
 
 public:
     static ComponentsType type;

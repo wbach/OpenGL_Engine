@@ -15,6 +15,11 @@ GrassRendererComponent::GrassRendererComponent(const ComponentContext& component
 
 }
 
+GrassRendererComponent::~GrassRendererComponent()
+{
+    UnSubscribe();
+}
+
 GrassRendererComponent& GrassRendererComponent::SetPositions(const std::vector<float>& positions)
 {
     positions_ = positions;

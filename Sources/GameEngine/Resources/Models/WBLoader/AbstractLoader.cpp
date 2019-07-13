@@ -12,7 +12,7 @@ namespace GameEngine
 {
 namespace WBLoader
 {
-AbstractLoader::AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader &textureLoader)
+AbstractLoader::AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader& textureLoader)
     : textureLoader_(textureLoader)
     , graphicsApi_(graphicsApi)
     , loadedFromBin_(false)
@@ -70,7 +70,8 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
         for (auto& mesh : obj.meshes)
         {
-            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material, obj.transformMatrix);
+            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material,
+                                     obj.transformMatrix);
             IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
             newMesh.SetUseArmatorIfHaveBones();
             newModel->animationClips_ = mesh.animationClips_;
@@ -106,5 +107,5 @@ float AbstractLoader::FindMaxFactor() const
     }
     return maxFactor;
 }
-}  // WBLoader
+}  // namespace WBLoader
 }  // namespace GameEngine

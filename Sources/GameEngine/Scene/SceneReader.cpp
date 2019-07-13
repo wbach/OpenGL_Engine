@@ -203,12 +203,19 @@ std::vector<std::string> ReadStringVector(Utils::XmlNode& node, const std::strin
 std::vector<float> ReadFloatVector(Utils::XmlNode& node)
 {
     auto strings = Utils::SplitString(node.value_, ' ');
-
+    DEBUG_LOG("string size : " + std::to_string(strings.size()));
     std::vector<float> v;
     v.reserve(strings.size());
     for (const auto& value : strings)
     {
-        v.push_back(std::stof(value));
+        try
+        {
+            v.push_back(std::stof(value));
+        }
+        catch (...)
+        {
+            DEBUG_LOG("stof exceptrion : " + value);
+        }
     }
     return v;
 }

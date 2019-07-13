@@ -13,12 +13,14 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(const ComponentContext& c
     : BaseComponent(type, componentContext, gameObject)
     , zoomSpeed_(0.1f)
 {
-    auto thridCamera = std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.worldTransform);
-    auto ptrCam      = thridCamera.get();
+    camera_     = std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.worldTransform);
+    auto ptrCam = camera_.get();
 
-    componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [ptrCam, this]() {ptrCam->CalculateZoom(zoomSpeed_); });
-    componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [ptrCam, this]() {ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
-    componentContext_.camera_.Set(std::move(thridCamera));
+    componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL,
+                                                     [ptrCam, this]() { ptrCam->CalculateZoom(zoomSpeed_); });
+    componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL,
+                                                       [ptrCam, this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
+    componentContext_.camera_.Set(*camera_);
 }
 
 void ThridPersonCameraComponent::ReqisterFunctions()

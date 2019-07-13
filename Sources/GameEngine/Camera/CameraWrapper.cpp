@@ -1,6 +1,5 @@
 #include "CameraWrapper.h"
 #include <Utils/Mutex.hpp>
-#include "Camera.h"
 
 namespace GameEngine
 {
@@ -9,20 +8,19 @@ namespace
 std::mutex cameraMutex;
 }
 CameraWrapper::CameraWrapper()
-    : camera_(new BaseCamera(vec3(0, 5, 5), vec3(0, 0, 0)))
+    : camera_(&baseCamera_)
 {
 }
 
-CameraWrapper::CameraWrapper(std::unique_ptr<ICamera> camera)
-    : camera_(std::move(camera))
+CameraWrapper::CameraWrapper(ICamera& camera)
+    : camera_(&camera)
 {
 }
 
-void CameraWrapper::Set(std::unique_ptr<ICamera> camera)
+void CameraWrapper::Set(ICamera& camera)
 {
     std::lock_guard<std::mutex> m(cameraMutex);
-    camera_.reset();
-    camera_ = std::move(camera);
+    camera_ = &camera;
 }
 
 void CameraWrapper::Update()

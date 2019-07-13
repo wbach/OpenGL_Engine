@@ -76,7 +76,7 @@ public:
 
     // Cameras
     void UpdateCamera();
-    void SetCamera(std::unique_ptr<ICamera>);
+    void SetCamera(ICamera& camera);
     const CameraWrapper& GetCamera() const;
 
     // Lights
