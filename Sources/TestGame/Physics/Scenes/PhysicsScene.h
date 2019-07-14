@@ -47,5 +47,8 @@ private:
     template <typename Shape>
     void AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale, bool isStatic);
     void AddStartupObjects();
+
+private:
+    std::unique_ptr<GameEngine::ICamera> camera_;
 };
 }  // namespace PhysicsTestGame

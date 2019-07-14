@@ -191,7 +191,8 @@ int PhysicsScene::Initialize()
     // octext.colour   = vec3(1, 0, 0);
     UpdateObjectsCountText();
 
-    camera.Set(std::make_unique<FirstPersonCamera>(inputManager_, displayManager_));
+    camera_ = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+    camera.Set(*camera_);
     camera.SetPosition(vec3(0, 5, -10));
     AddStartupObjects();
 

@@ -48,6 +48,7 @@ private:
     void CreateExmapleStrtupObject();
 
 private:
+    std::unique_ptr<GameEngine::ICamera> camera_;
     std::shared_ptr<common::Controllers::CharacterController> characterController_;
     std::shared_ptr<PlayerInputController> playerInputController_;
     common::Hero::CommonStats playerStats_;

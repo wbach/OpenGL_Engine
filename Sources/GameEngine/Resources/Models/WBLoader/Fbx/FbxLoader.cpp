@@ -385,7 +385,7 @@ struct FbxLoader::Pimpl
                         continue;
 
                     auto weight = cluster->GetControlPointWeights()[k];
-                    DEBUG_LOG("Weight : " + std::to_string(weight));
+                    //DEBUG_LOG("Weight : " + std::to_string(weight));
 
                     // for (auto& v : newMesh.vertexBuffer)
                     //                   {

@@ -90,7 +90,8 @@ void MainRpgScene::ReqNetworkSceneCharacters()
 
 void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 {
-    camera.Set(std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().worldTransform));
+    camera_ = std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().worldTransform);
+    camera.Set(*camera_);
 }
 
 /*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)

@@ -245,8 +245,8 @@ int MainScene::Initialize()
             std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
         AddGameObject(uplayer);
     }
-
-    camera.Set(std::make_unique<FirstPersonCamera>(inputManager_, displayManager_));
+    camera_ = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+    camera.Set(*camera_);
     camera.SetPosition(vec3(.5, 3.5, 2.1));
     // camera.SetPosition(vec3(-5107.217, 3324.774, 5352.738));
     camera.LookAt(vec3(0, 2, 0));
@@ -397,18 +397,18 @@ void MainScene::KeyOperations()
         if (camType == CameraType::FirstPerson)
         {
             camType     = CameraType::ThridPerson;
-            auto cam = std::make_unique<ThirdPersonCamera>(*inputManager_, player->worldTransform);
-            camera.Set(std::move(cam));
+            camera_ = std::make_unique<ThirdPersonCamera>(*inputManager_, player->worldTransform);
+            camera.Set(*camera_);
         }
         else if (camType == CameraType::ThridPerson)
         {
             camType     = CameraType::FirstPerson;
-            auto cam = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
-            cam->SetPosition(pos);
-            cam->SetPitch(rotation.x);
-            cam->SetYaw(rotation.y);
-            cam->SetRoll(rotation.z);
-            camera.Set(std::move(cam));
+            camera_ = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+            camera_->SetPosition(pos);
+            camera_->SetPitch(rotation.x);
+            camera_->SetYaw(rotation.y);
+            camera_->SetRoll(rotation.z);
+            camera.Set(*camera_);
         }
     });
 }
