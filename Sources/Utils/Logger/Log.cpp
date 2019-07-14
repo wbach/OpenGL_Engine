@@ -1,4 +1,5 @@
 #include "Log.h"
+#include <boost/filesystem.hpp>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -25,7 +26,7 @@ void CLogger::ImmeditalyLog()
 {
     std::lock_guard<std::mutex> lk(printMutex_);
     logImmeditaly = true;
-    mainfile = std::ofstream(fileName, std::ios_base::app);
+    mainfile      = std::ofstream(fileName, std::ios_base::app);
 }
 void CLogger::LazyLog()
 {
@@ -104,12 +105,10 @@ void CLogger::CreateLogFile()
     std::stringstream ss;
     ss << in_time_t;
 
-    if (system("mkdir -p Logs"))
-    {
-        fileName = "Logs/Logs.txt";
-        std::ofstream file(fileName);
-        file.close();
-    }
+    boost::filesystem::create_directories("./Logs");
+    fileName = "Logs/Logs.txt";
+    std::ofstream file(fileName);
+    file.close();
 }
 
 void CLogger::ProccesLog()

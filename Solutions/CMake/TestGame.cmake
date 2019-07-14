@@ -28,14 +28,15 @@ if(BUILD_TEST_GAME)
                 fbxsdk
           )
 
+    include_directories(
+    ../../Sources/GameEngine/
+    )
+
     set(BoostLinkingLibs
         boost_system
         boost_filesystem
     )
 
-    include_directories(
-    ../../Sources/GameEngine/
-    )
     include(./Sources/TestGameSources.cmake)
     add_executable(TestGlGame ${TestGameSources})
     if(BUILD_I386)

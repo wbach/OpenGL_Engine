@@ -27,6 +27,24 @@ vec2 convert(const FbxVector2& v)
     return result;
 }
 
+void createSkeleton(Animation::Joint& joint, FbxNode* node)
+{
+    if (not node)
+        return;
+
+    joint.name = node->GetName();
+
+    joint.size = 1;
+
+    for (auto childIndex = 0; childIndex < node->GetChildCount(); ++childIndex)
+    {
+        Animation::Joint child;
+        createSkeleton(child, node->GetChild(childIndex));
+        joint.children.push_back(child);
+        joint.size += child.size;
+    }
+}
+
 struct MaterialProperty
 {
     vec3 color_;
@@ -352,14 +370,25 @@ struct FbxLoader::Pimpl
         int skinCount = fbxMesh.GetDeformerCount(FbxDeformer::eSkin);
 
         // bones_info.bones.resize(lPolygonCount * 3);
-        int count              = 0;
-        unsigned int boneIndex = 0;
+        // int count              = 0;
+        // unsigned int boneIndex = 0;
+        DEBUG_LOG("Skin count " + std::to_string(skinCount));
 
         for (int skinIndex = 0; skinIndex < skinCount; ++skinIndex)
         {
             auto skinDeformer = static_cast<FbxSkin*>(fbxMesh.GetDeformer(skinIndex, FbxDeformer::eSkin));
 
-            std::cout << "Cluster count " << skinDeformer->GetClusterCount() << std::endl;
+            DEBUG_LOG("Cluster count " + std::to_string(skinDeformer->GetClusterCount()));
+
+            auto cluster = skinDeformer->GetCluster(0);
+            if (not cluster->GetLink())
+                continue;
+
+            auto link = cluster->GetLink();
+
+            createSkeleton(newMesh.skeleton_, link);
+
+            continue;
 
             for (int clusterIndex = 0; clusterIndex < skinDeformer->GetClusterCount(); ++clusterIndex)
             {
@@ -368,11 +397,13 @@ struct FbxLoader::Pimpl
                     continue;
 
                 auto link = cluster->GetLink();
-                DEBUG_LOG("Name : " + link->GetName() );
 
+                createSkeleton(newMesh.skeleton_, link);
+
+                DEBUG_LOG("Name : " + link->GetName());
                 for (int childIndex = 0; childIndex < link->GetChildCount(); ++childIndex)
                 {
-                    DEBUG_LOG("Child name : " + link->GetChild(childIndex)->GetName() );
+                    DEBUG_LOG("Child name : " + link->GetChild(childIndex)->GetName());
                 }
 
                 DEBUG_LOG("GetControlPointIndicesCount : " + std::to_string(cluster->GetControlPointIndicesCount()));
@@ -385,7 +416,7 @@ struct FbxLoader::Pimpl
                         continue;
 
                     auto weight = cluster->GetControlPointWeights()[k];
-                    //DEBUG_LOG("Weight : " + std::to_string(weight));
+                    // DEBUG_LOG("Weight : " + std::to_string(weight));
 
                     // for (auto& v : newMesh.vertexBuffer)
                     //                   {

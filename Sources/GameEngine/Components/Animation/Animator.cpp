@@ -118,7 +118,7 @@ void Animator::increaseAnimationTime()
 
     currentTime_ += componentContext_.time_.deltaTime * animationSpeed_;
     if (currentTime_ > animationLength)
-        currentTime_ = fmod(currentTime_, animationLength);
+        currentTime_ = fmodf(currentTime_, animationLength);
     if (currentTime_ < 0)
         currentTime_ = animationLength + currentTime_;
 }
