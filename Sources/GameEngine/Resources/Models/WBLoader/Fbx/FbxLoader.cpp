@@ -175,7 +175,6 @@ struct FbxLoader::Pimpl
 
                     DEBUG_LOG("Convert file name path : " + fileName);
 
-
                     auto found = fileName.find("Textures");
 
                     if (found != std::string::npos)
@@ -227,7 +226,8 @@ struct FbxLoader::Pimpl
         }
     }
 
-    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName, const char* factorPropertyName)
+    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName,
+                                         const char* factorPropertyName)
     {
         MaterialProperty result;
 
@@ -264,15 +264,16 @@ struct FbxLoader::Pimpl
     {
         Material result;
 
-        auto ambient          = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
+        auto ambient = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
         result.ambient        = ambient.color_;
         result.ambientTexture = ambient.texture_;
 
-        auto diffuse          = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
+        auto diffuse = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
         result.diffuse        = diffuse.color_;
         result.diffuseTexture = diffuse.texture_;
 
-        auto specular          = GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
+        auto specular =
+            GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
         result.specular        = specular.color_;
         result.specularTexture = specular.texture_;
 
@@ -342,6 +343,64 @@ struct FbxLoader::Pimpl
                 vertexBuffer.position = convert(currentVertexPosition);
                 vertexBuffer.normal   = convert(currentNormal);
                 vertexBuffer.uvs      = convert(currentUV);
+            }
+        }
+
+        // FbxCluster::ELinkMode clusterMode =
+        //    ((FbxSkin*)fbxMesh.GetDeformer(0, FbxDeformer::eSkin))->GetCluster(0)->GetLinkMode();
+
+        int skinCount = fbxMesh.GetDeformerCount(FbxDeformer::eSkin);
+
+        // bones_info.bones.resize(lPolygonCount * 3);
+        int count              = 0;
+        unsigned int boneIndex = 0;
+
+        for (int skinIndex = 0; skinIndex < skinCount; ++skinIndex)
+        {
+            auto skinDeformer = static_cast<FbxSkin*>(fbxMesh.GetDeformer(skinIndex, FbxDeformer::eSkin));
+
+            std::cout << "Cluster count " << skinDeformer->GetClusterCount() << std::endl;
+
+            for (int clusterIndex = 0; clusterIndex < skinDeformer->GetClusterCount(); ++clusterIndex)
+            {
+                auto cluster = skinDeformer->GetCluster(clusterIndex);
+                if (not cluster->GetLink())
+                    continue;
+
+                auto link = cluster->GetLink();
+                DEBUG_LOG("Name : " + link->GetName() );
+
+                for (int childIndex = 0; childIndex < link->GetChildCount(); ++childIndex)
+                {
+                    DEBUG_LOG("Child name : " + link->GetChild(childIndex)->GetName() );
+                }
+
+                DEBUG_LOG("GetControlPointIndicesCount : " + std::to_string(cluster->GetControlPointIndicesCount()));
+
+                for (int k = 0; k < cluster->GetControlPointIndicesCount(); ++k)
+                {
+                    int index         = cluster->GetControlPointIndices()[k];
+                    auto vertextCount = fbxMesh.GetPolygonCount() * 3;
+                    if (index >= vertextCount)
+                        continue;
+
+                    auto weight = cluster->GetControlPointWeights()[k];
+                    DEBUG_LOG("Weight : " + std::to_string(weight));
+
+                    // for (auto& v : newMesh.vertexBuffer)
+                    //                   {
+                    //                       if (v.indexes.x == index)
+                    //                       {
+                    //
+                    //                       }
+                    //                   }
+                    //                   for (int x = 0; x < 100; ++x)
+                    //                   {
+                    //                       cluster->GetControlPointWeights()[x];
+                    // std::cout << "x : " << x << " " << cluster->GetControlPointIndicesCount() << std::endl;
+                    //}
+                    // newMesh.vertexBuffer[index].weights
+                }
             }
         }
     }

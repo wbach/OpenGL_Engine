@@ -16,6 +16,6 @@
 		<Shadows enabled="false" viewDistance="35.000000" shadowMapSize="2048"/>
 		<Particles enabled="true"/>
 	</Renderer>
-	<EnableBinaryLoading>true</EnableBinaryLoading>
+	<EnableBinaryLoading>false</EnableBinaryLoading>
 </Config>
 
