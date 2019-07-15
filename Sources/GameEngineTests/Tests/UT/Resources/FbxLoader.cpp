@@ -56,5 +56,39 @@ TEST_F(FbxLoaderShould, ReadSimpleCube)
 
     std::cout << std::endl;
 }
+
+void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
+{
+    std::cout << of << joint.name << std::endl;
+
+    for (const auto& child : joint.children)
+    {
+       PrintJoints(child, of + "--");
+    }
+}
+
+void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std::string& of = "")
+{
+    std::cout << of << joint.name << std::endl;
+    std::cout << of << std::to_string(joint.transform) << std::endl;
+
+    for (const auto& child : joint.children)
+    {
+       PrintJointsWithMatrix(child, of + "--");
+    }
+}
+
+TEST_F(FbxLoaderShould, ReadGarenAnimations)
+{
+    EXPECT_CALL(textureLoaderMock_, LoadTextureImpl(_, _, _, _, _)).WillOnce(Return(nullptr));
+    std::string file{"Meshes/Garen/garen_idle_b.fbx"};
+    ASSERT_TRUE(Utils::CheckFileExist("../Data/" + file));
+    sut_->Parse(file);
+    auto model = sut_->Create();
+    auto data  = model->GetMeshes().front().GetCMeshDataRef();
+    //EXPECT_EQ( model->skeleton_.children.size(), 1);
+
+    PrintJoints(model->skeleton_);
+}
 }  // namespace UT
 }  // namespace GameEngine

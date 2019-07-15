@@ -10,6 +10,10 @@ namespace GameEngine
 {
 namespace WBLoader
 {
+namespace
+{
+std::unordered_map<std::string, mat4*> boneMatrixes;
+}
 vec3 convert(const FbxVector4& v)
 {
     vec3 result;
@@ -27,14 +31,43 @@ vec2 convert(const FbxVector2& v)
     return result;
 }
 
+glm::mat4 convert(FbxAMatrix& mx)
+{
+    glm::mat4 m;
+    m[0][0] = static_cast<float>(mx[0][0]);
+    m[0][1] = static_cast<float>(mx[0][1]);
+    m[0][2] = static_cast<float>(mx[0][2]);
+    m[0][3] = static_cast<float>(mx[0][3]);
+    m[1][0] = static_cast<float>(mx[1][0]);
+    m[1][1] = static_cast<float>(mx[1][1]);
+    m[1][2] = static_cast<float>(mx[1][2]);
+    m[1][3] = static_cast<float>(mx[1][3]);
+    m[2][0] = static_cast<float>(mx[2][0]);
+    m[2][1] = static_cast<float>(mx[2][1]);
+    m[2][2] = static_cast<float>(mx[2][2]);
+    m[2][3] = static_cast<float>(mx[2][3]);
+    m[3][0] = static_cast<float>(mx[3][0]);
+    m[3][1] = static_cast<float>(mx[3][1]);
+    m[3][2] = static_cast<float>(mx[3][2]);
+    m[3][3] = static_cast<float>(mx[3][3]);
+    return m;
+}
+
 void createSkeleton(Animation::Joint& joint, FbxNode* node)
 {
     if (not node)
         return;
 
-    joint.name = node->GetName();
+    if (boneMatrixes.count(node->GetName()) > 0)
+    {
+        DEBUG_LOG("Duplicate bone name found. Ignore it. " + node->GetName());
+        return;
+    }
 
+    joint.name = node->GetName();
     joint.size = 1;
+
+    boneMatrixes.insert({joint.name, &joint.transform});
 
     for (auto childIndex = 0; childIndex < node->GetChildCount(); ++childIndex)
     {
@@ -48,6 +81,7 @@ void createSkeleton(Animation::Joint& joint, FbxNode* node)
 struct MaterialProperty
 {
     vec3 color_;
+    char unused0[4];
     Texture* texture_{nullptr};
 };
 struct FbxLoader::Pimpl
@@ -244,8 +278,7 @@ struct FbxLoader::Pimpl
         }
     }
 
-    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName,
-                                         const char* factorPropertyName)
+    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName, const char* factorPropertyName)
     {
         MaterialProperty result;
 
@@ -282,16 +315,15 @@ struct FbxLoader::Pimpl
     {
         Material result;
 
-        auto ambient = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
+        auto ambient          = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
         result.ambient        = ambient.color_;
         result.ambientTexture = ambient.texture_;
 
-        auto diffuse = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
+        auto diffuse          = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
         result.diffuse        = diffuse.color_;
         result.diffuseTexture = diffuse.texture_;
 
-        auto specular =
-            GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
+        auto specular          = GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
         result.specular        = specular.color_;
         result.specularTexture = specular.texture_;
 
@@ -374,6 +406,11 @@ struct FbxLoader::Pimpl
         // unsigned int boneIndex = 0;
         DEBUG_LOG("Skin count " + std::to_string(skinCount));
 
+        if (skinCount > 1)
+        {
+            DEBUG_LOG("More than 1 skin detected. Not supported");
+        }
+
         for (int skinIndex = 0; skinIndex < skinCount; ++skinIndex)
         {
             auto skinDeformer = static_cast<FbxSkin*>(fbxMesh.GetDeformer(skinIndex, FbxDeformer::eSkin));
@@ -388,8 +425,6 @@ struct FbxLoader::Pimpl
 
             createSkeleton(newMesh.skeleton_, link);
 
-            continue;
-
             for (int clusterIndex = 0; clusterIndex < skinDeformer->GetClusterCount(); ++clusterIndex)
             {
                 auto cluster = skinDeformer->GetCluster(clusterIndex);
@@ -398,15 +433,15 @@ struct FbxLoader::Pimpl
 
                 auto link = cluster->GetLink();
 
-                createSkeleton(newMesh.skeleton_, link);
-
-                DEBUG_LOG("Name : " + link->GetName());
-                for (int childIndex = 0; childIndex < link->GetChildCount(); ++childIndex)
+                if (boneMatrixes.count(link->GetName()) == 0)
                 {
-                    DEBUG_LOG("Child name : " + link->GetChild(childIndex)->GetName());
+                    DEBUG_LOG("Bone not found : " + link->GetName());
+                    continue;
                 }
 
-                DEBUG_LOG("GetControlPointIndicesCount : " + std::to_string(cluster->GetControlPointIndicesCount()));
+                FbxAMatrix linkMatrix;
+                cluster->GetTransformLinkMatrix(linkMatrix);
+                (*boneMatrixes.at(link->GetName())) = convert(linkMatrix);
 
                 for (int k = 0; k < cluster->GetControlPointIndicesCount(); ++k)
                 {
