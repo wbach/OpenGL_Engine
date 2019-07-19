@@ -16,6 +16,11 @@ namespace GameEngine
 {
 namespace WBLoader
 {
+struct JointInfo
+{
+    uint32 id;
+    float weight;
+};
 struct VertexBuffer
 {
     vec3i indexes;
@@ -25,8 +30,7 @@ struct VertexBuffer
     vec3 tangents;
     vec3 bitangents;
     uint32 material_id;
-    wb::optional<vec3> weights;
-    wb::optional<vec3i> jointIds;
+    std::vector<JointInfo> jointInfo;
 };
 
 struct MaterialLayer

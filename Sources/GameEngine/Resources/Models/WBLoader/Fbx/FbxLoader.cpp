@@ -278,7 +278,8 @@ struct FbxLoader::Pimpl
         }
     }
 
-    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName, const char* factorPropertyName)
+    MaterialProperty GetMaterialProperty(const FbxSurfaceMaterial& material, const char* propertyName,
+                                         const char* factorPropertyName)
     {
         MaterialProperty result;
 
@@ -315,15 +316,16 @@ struct FbxLoader::Pimpl
     {
         Material result;
 
-        auto ambient          = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
+        auto ambient = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
         result.ambient        = ambient.color_;
         result.ambientTexture = ambient.texture_;
 
-        auto diffuse          = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
+        auto diffuse = GetMaterialProperty(material, FbxSurfaceMaterial::sDiffuse, FbxSurfaceMaterial::sDiffuseFactor);
         result.diffuse        = diffuse.color_;
         result.diffuseTexture = diffuse.texture_;
 
-        auto specular          = GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
+        auto specular =
+            GetMaterialProperty(material, FbxSurfaceMaterial::sSpecular, FbxSurfaceMaterial::sSpecularFactor);
         result.specular        = specular.color_;
         result.specularTexture = specular.texture_;
 
@@ -396,6 +398,7 @@ struct FbxLoader::Pimpl
             }
         }
 
+        return;
         // FbxCluster::ELinkMode clusterMode =
         //    ((FbxSkin*)fbxMesh.GetDeformer(0, FbxDeformer::eSkin))->GetCluster(0)->GetLinkMode();
 
@@ -450,7 +453,9 @@ struct FbxLoader::Pimpl
                     if (index >= vertextCount)
                         continue;
 
-                    auto weight = cluster->GetControlPointWeights()[k];
+                    auto weight = static_cast<float>(cluster->GetControlPointWeights()[k]);
+                    newMesh.vertexBuffer[index].jointInfo.push_back(JointInfo{0, weight });
+
                     // DEBUG_LOG("Weight : " + std::to_string(weight));
 
                     // for (auto& v : newMesh.vertexBuffer)

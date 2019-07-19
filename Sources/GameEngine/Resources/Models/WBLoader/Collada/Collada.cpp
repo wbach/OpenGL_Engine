@@ -13,7 +13,7 @@ static mat4 correction_matrix = Utils::CreateTransformationMatrix(vec3(0), vec3(
 
 namespace WBLoader
 {
-ColladaDae::ColladaDae(ITextureLoader &textureLodaer)
+ColladaDae::ColladaDae(ITextureLoader& textureLodaer)
     : AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 {
 }
@@ -36,6 +36,12 @@ void ColladaDae::ConstructModel()
         NewGeometry(geometry.second);
     }
 }
+
+std::string operator+(const std::string& str, float t)
+{
+    return str + " " + std::to_string(t);
+}
+
 void ColladaDae::FillAnimationData()
 {
     std::vector<float> boneWeightsTmp;
@@ -68,13 +74,12 @@ void ColladaDae::FillAnimationData()
                 uint32 vbId = 0;
                 for (auto vc : skin.vertexWeights_.vcount_)
                 {
-                    std::vector<std::pair<int32, float>> wjoints;
-
+                    std::vector<JointInfo> joints;
                     for (uint32 x = 0; x < vc; ++x)
                     {
                         uint32 sumOffsets = 0;
 
-                        wjoints.emplace_back();
+                        joints.push_back({0, 0});
                         for (const auto& in : skin.vertexWeights_.inputs_)
                         {
                             auto offset = in.offset;
@@ -83,59 +88,23 @@ void ColladaDae::FillAnimationData()
 
                             if (in.semantic == "JOINT")
                             {
-                                wjoints.back().first = value;
+                                joints.back().id = value;
                             }
                             if (in.semantic == "WEIGHT")
                             {
-                                auto weightValue      = boneWeightsTmp[value];
-                                wjoints.back().second = weightValue;
+                                auto weightValue     = boneWeightsTmp[value];
+                                joints.back().weight = weightValue;
                             }
                         }
                         i += skin.vertexWeights_.inputs_.size();
                     }
 
-                    std::sort(wjoints.begin(), wjoints.end(),
-                              [](const std::pair<int32, float>& a, const std::pair<int32, float>& b) -> bool {
-                                  return a.second > b.second;
-                              });
-
-                    vec3 weight(0);
-                    vec3i joints;
-
-                    std::pair<int32, float> sum;
-                    int x = 0;
-                    for (const auto& p : wjoints)
-                    {
-                        if (x > 2)
-                            break;
-                        sum.first += p.first;
-                        sum.second += p.second;
-
-                        switch (x)
-                        {
-                            case 0:
-                                joints.x = p.first;
-                                weight.x = p.second;
-                                break;
-                            case 1:
-                                joints.y = p.first;
-                                weight.y = p.second;
-                                break;
-                            case 2:
-                                joints.z = p.first;
-                                weight.z = p.second;
-                                break;
-                        }
-
-                        ++x;
-                    }
-
-                    weight /= sum.second;
+                    std::sort(joints.begin(), joints.end(),
+                              [](const JointInfo& a, const JointInfo& b) { return a.weight > b.weight; });
 
                     for (const auto& ii : mesh->vertexPlacesInVertexBuffer_[vbId])
                     {
-                        mesh->vertexBuffer[ii].jointIds = joints;
-                        mesh->vertexBuffer[ii].weights  = weight;
+                        mesh->vertexBuffer[ii].jointInfo = joints;
                     }
 
                     ++vbId;
@@ -534,5 +503,5 @@ void ColladaDae::Clear()
     data_ = Collada::ColladaData();
     idToMeshMap_.clear();
 }
-}
+}  // namespace WBLoader
 }  // namespace GameEngine

@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-const int MAX_BONES = 25;
+const int MAX_BONES = 100;
 
 struct PerPoseUpdate
 {

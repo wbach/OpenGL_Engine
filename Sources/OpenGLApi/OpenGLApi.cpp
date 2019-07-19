@@ -862,8 +862,8 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, Graphi
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, meshRawData.textCoords_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::NORMAL, 3, meshRawData.normals_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TANGENT, 3, meshRawData.tangents_);
-    vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, 3, meshRawData.bonesWeights_);
-    vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, 3, meshRawData.joinIds_);
+    vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.bonesWeights_);
+    vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.joinIds_);
     mesh            = Convert(vaoCreator.Get());
     mesh.renderType = type;
     return rid;

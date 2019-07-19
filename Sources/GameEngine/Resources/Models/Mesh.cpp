@@ -41,7 +41,7 @@ void Mesh::CreateMesh()
 
 void Mesh::SetUseArmatorIfHaveBones()
 {
-    useAramture = !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
+    useAramture = not meshRawData_.bonesWeights_.empty() and not meshRawData_.joinIds_.empty();
 }
 
 void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
@@ -56,7 +56,7 @@ bool Mesh::IsInit() const
 
 bool Mesh::UseArmature() const
 {
-    return !meshRawData_.bonesWeights_.empty() && !meshRawData_.joinIds_.empty();
+    return not meshRawData_.bonesWeights_.empty() and not meshRawData_.joinIds_.empty();
 }
 
 void Mesh::GpuLoadingPass()

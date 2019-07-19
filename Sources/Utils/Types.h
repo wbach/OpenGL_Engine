@@ -30,6 +30,17 @@ typedef std::vector<uint8> Uint8Vec;
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
+// clang-format off
+#ifdef USE_GNU
+typedef std::chrono::_V2::system_clock::time_point Timepoint;
+#else
+#define not !
+#define and &&
+#define or ||
+typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
+#endif
+// clang-format on
+
 template <class T>
 struct alignas(16) AlignWrapper
 {
@@ -83,6 +94,13 @@ struct Tvec3
     {
     }
 
+    Tvec3(T a, T b, T c)
+        : x(a)
+        , y(b)
+        , z(c)
+    {
+    }
+
     bool operator==(const Tvec3& v) const
     {
         return x == v.x && y == v.y && z == v.z;
@@ -94,10 +112,50 @@ struct Tvec3
     }
 };
 
+template <class T>
+struct Tvec4
+{
+    T x;
+    T y;
+    T z;
+    T w;
+
+    Tvec4()
+        : Tvec4(0)
+    {
+    }
+    Tvec4(T a)
+        : x(a)
+        , y(a)
+        , z(a)
+        , w(a)
+    {
+    }
+
+    Tvec4(T a, T b, T c, T d)
+        : x(a)
+        , y(b)
+        , z(c)
+        , w(d)
+    {
+    }
+
+    bool operator==(const Tvec4& v) const
+    {
+        return x == v.x and y == v.y and z == v.z and w == v.w;
+    }
+    // To my model map find
+    bool operator<(const Tvec4& v) const
+    {
+        return x != v.x or y != v.y or z != v.z or w != v.w;
+    }
+};
+
 typedef Tvec2<int32> vec2i;
 typedef Tvec2<uint32> vec2ui;
 typedef Tvec3<int32> vec3i;
 typedef Tvec3<uint32> vec3ui;
+typedef Tvec4<int32> vec4i;
 
 std::string to_string(const vec2i& v);
 std::string to_string(const vec3i& v);
@@ -106,6 +164,7 @@ std::string to_string(const vec3i& v);
 typedef wb::vec2i vec2i;
 typedef wb::vec2ui vec2ui;
 typedef wb::vec3i vec3i;
+typedef wb::vec4i vec4i;
 
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
@@ -149,16 +208,7 @@ typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;
 
 // Specyfic types for different os
 
-// clang-format off
-#ifdef USE_GNU
-typedef std::chrono::_V2::system_clock::time_point Timepoint;
-#else
-#define not !
-#define and &&
-#define or ||
-typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
-#endif
-// clang-format on
+
 
 namespace std
 {

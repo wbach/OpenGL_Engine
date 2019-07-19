@@ -1,5 +1,6 @@
 #include "MeshData.h"
 #include <algorithm>
+#include <numeric>
 #include "GraphicsApi/MeshRawData.h"
 #include "Logger/Log.h"
 
@@ -26,24 +27,40 @@ wb::optional<int32> FindIndexFast(std::unordered_map<wb::vec3i, int32>& vertexes
     return it->second;
 }
 
-void AddToFloatBuffer(std::vector<float>& buffer, const vec3& v)
+void AddToBuffer(std::vector<float>& buffer, const vec3& v)
 {
     buffer.push_back(v.x);
     buffer.push_back(v.y);
     buffer.push_back(v.z);
 }
 
-void AddToFloatBuffer(std::vector<float>& buffer, const vec2& v)
+void AddToBuffer(std::vector<float>& buffer, const vec2& v)
 {
     buffer.push_back(v.x);
     buffer.push_back(v.y);
 }
 
-void AddToFloatBuffer(std::vector<int32>& buffer, const vec3i& v)
+void AddToBuffer(std::vector<int32>& buffer, const vec3i& v)
 {
     buffer.push_back(v.x);
     buffer.push_back(v.y);
     buffer.push_back(v.z);
+}
+
+void AddToBuffer(std::vector<int32>& buffer, const vec4i& v)
+{
+    buffer.push_back(v.x);
+    buffer.push_back(v.y);
+    buffer.push_back(v.z);
+    buffer.push_back(v.w);
+}
+
+void AddToBuffer(std::vector<float>& buffer, const vec4& v)
+{
+    buffer.push_back(v.x);
+    buffer.push_back(v.y);
+    buffer.push_back(v.z);
+    buffer.push_back(v.w);
 }
 
 void minMax(float v, float& min, float& max)
@@ -87,8 +104,8 @@ void computeTangentBasis(std::vector<VertexBuffer>& vertexBuffer)
         vec2 deltaUV1 = uv1 - uv0;
         vec2 deltaUV2 = uv2 - uv0;
 
-        float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-        vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+        float r        = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+        vec3 tangent   = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
         vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
 
         // Set the same tangent for all three vertices of the triangle.
@@ -148,17 +165,36 @@ void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& dat
         }
         else
         {
-            AddToFloatBuffer(data.positions_, v.position);
-            AddToFloatBuffer(data.normals_, v.normal);
-            AddToFloatBuffer(data.textCoords_, v.uvs);
-            AddToFloatBuffer(data.tangents_, v.tangents);
-            AddToFloatBuffer(data.bitangents_, v.bitangents);
+            AddToBuffer(data.positions_, v.position);
+            AddToBuffer(data.normals_, v.normal);
+            AddToBuffer(data.textCoords_, v.uvs);
+            AddToBuffer(data.tangents_, v.tangents);
+            AddToBuffer(data.bitangents_, v.bitangents);
 
-            if (v.jointIds)
-                AddToFloatBuffer(data.joinIds_, v.jointIds.constValue());
+            std::vector<JointInfo> joints;
+            joints.reserve(GraphicsApi::MAX_BONES_PER_VERTEX);
+            float sumWeights = 0.0f;
+            if (not v.jointInfo.empty())
+            {
+                for (size_t jointIndex = 0; jointIndex < GraphicsApi::MAX_BONES_PER_VERTEX; ++jointIndex)
+                {
+                    if (jointIndex < v.jointInfo.size())
+                    {
+                        joints.push_back(v.jointInfo[jointIndex]);
+                        sumWeights += v.jointInfo[jointIndex].weight;
+                    }
+                    else
+                    {
+                        joints.push_back({0, 0});
+                    }
+                }
+            }
 
-            if (v.weights)
-                AddToFloatBuffer(data.bonesWeights_, v.weights.constValue());
+            for (auto& joint : joints)
+            {
+                data.joinIds_.push_back(joint.id);
+                data.bonesWeights_.push_back(joint.weight / sumWeights);
+            }
 
             auto newIndex          = out_indexes.size();
             out_indexes[v.indexes] = newIndex;
@@ -191,5 +227,5 @@ float Mesh::GetScaleFactor() const
 
     return maxD;
 }
-}
-} // namespace GameEngine
+}  // namespace WBLoader
+}  // namespace GameEngine

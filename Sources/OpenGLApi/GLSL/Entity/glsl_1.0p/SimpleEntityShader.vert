@@ -64,7 +64,7 @@ void main()
     vec4 modelViewPosition  = ViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, ClipPlane);
 
-    gl_Position    = ProjectionMatrix * modelViewPosition; 
+    gl_Position    = ProjectionMatrix * modelViewPosition;
     TexCoord0      = (TexCoord / NumberOfRows) + TextureOffset;
 
     Distance = length(modelViewPosition.xyz);
