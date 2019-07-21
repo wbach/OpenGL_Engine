@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Input/KeyCodeToCharConverter.h"
 
@@ -122,6 +123,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"loadscene", [this](const auto &params) { LoadScene(params); }});
     commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
     commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
+    commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
@@ -303,7 +305,7 @@ void Console::LoadScene(const std::vector<std::string> &params)
     }
 }
 
-void Console::ReloadScene(const std::vector<std::string> & params)
+void Console::ReloadScene(const std::vector<std::string> &params)
 {
     SceneEvent sceneEvent(SceneEventType::RELOAD_SCENE, 0);
     scene_.addSceneEvent(sceneEvent);
@@ -320,6 +322,18 @@ void Console::SetImmeditalyLogs(const std::vector<std::string> &params)
         CLogger::Instance().ImmeditalyLog();
     else
         CLogger::Instance().LazyLog();
+}
+
+void Console::TakeSnapshoot(const std::vector<std::string> &params)
+{
+    std::string path{"../../snapshoot/"};
+    if (not params.empty())
+    {
+        path = params[0];
+    }
+
+    auto takeSnapshoot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshoot(path); };
+    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
 }
 
 std::vector<std::string> Console::GetParams(const std::string &command)

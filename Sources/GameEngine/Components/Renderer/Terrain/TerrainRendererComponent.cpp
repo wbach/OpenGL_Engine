@@ -35,7 +35,6 @@ TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
         if (texturePair.first == TerrainTextureType::heightmap)
         {
             LoadHeightMap(texturePair.second);
-            CalcualteNormalMap();
             continue;
         }
 
@@ -57,30 +56,7 @@ void TerrainRendererComponent::LoadHeightMap(const std::string& hightMapFile)
 
     SetTexture(TerrainTextureType::heightmap, heightMap_);
 }
-void TerrainRendererComponent::CalcualteNormalMap()
-{
-    if (not heightMap_)
-    {
-        return;
-    }
 
-    auto heightMap = dynamic_cast<HeightMap*>(heightMap_);
-
-    if (not heightMap)
-    {
-        return;
-    }
-
-    normalMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadNormalMap(
-        heightMap->GetImage()->floatData, heightMap_->GetSize(), normalStrength_);
-
-    if (not normalMap_)
-    {
-        return;
-    }
-
-    SetTexture(TerrainTextureType::normalmap, normalMap_);
-}
 const TerrainTexturesMap& TerrainRendererComponent::GetTextures() const
 {
     return textures_;
@@ -111,12 +87,18 @@ const TerrainConfiguration& TerrainRendererComponent::GetConfig() const
 
 Texture* TerrainRendererComponent::GetNormalMap() const
 {
-    return normalMap_;
+    return normalMap_.get();
 }
 
 Texture* TerrainRendererComponent::GetHeightMap() const
 {
     return heightMap_;
+}
+
+void TerrainRendererComponent::SetTexture(std::unique_ptr<Texture> texture)
+{
+    normalMap_ = std::move(texture);
+    SetTexture(TerrainTextureType::normalmap, normalMap_.get());
 }
 
 void TerrainRendererComponent::ReqisterFunctions()

@@ -74,7 +74,7 @@ public:
     MOCK_METHOD0(EnableCulling, void());
     MOCK_METHOD0(DisableCulling, void());
     MOCK_METHOD4(SetViewPort, void(uint32, uint32, uint32, uint32));
-    MOCK_METHOD1(BindTexture, void(uint32));
+    MOCK_CONST_METHOD1(BindTexture, void(uint32));
     MOCK_METHOD2(BindImageTexture, void(uint32, TextureAccess));
     MOCK_METHOD2(CreateShadowMap, uint32(uint32, uint32));
     MOCK_METHOD0(PolygonModeRender, void());
@@ -88,9 +88,10 @@ public:
     MOCK_METHOD1(LoadProjectionMatrix, void(const mat4&));
     MOCK_METHOD3(DrawLine, void(const vec3& color, const vec3& from, const vec3& to));
     MOCK_METHOD1(PrepareMatrixToLoad, mat4(const mat4&));
-    MOCK_METHOD1(GetTextureData, std::vector<uint8>(uint32));
-    MOCK_METHOD1(GetTextureInfo, const TextureInfo&(uint32));
+    MOCK_CONST_METHOD1(GetTextureData, std::vector<uint8>(uint32));
+    MOCK_CONST_METHOD1(GetTextureInfo, const TextureInfo&(uint32));
     MOCK_METHOD1(CreateFont, void(const std::string&));
     MOCK_METHOD2(PrintText, void(const std::string&, const vec2i&));
+    MOCK_CONST_METHOD1(TakeSnapshoot, void(const std::string&));
 };
 }  // namespace GraphicsApi

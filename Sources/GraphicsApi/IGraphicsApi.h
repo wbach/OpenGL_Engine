@@ -96,7 +96,7 @@ public:
     virtual void EnableCulling()                                                                                 = 0;
     virtual void DisableCulling()                                                                                = 0;
     virtual void SetViewPort(uint32, uint32, uint32, uint32)                                                     = 0;
-    virtual void BindTexture(uint32)                                                                             = 0;
+    virtual void BindTexture(uint32) const                                                                       = 0;
     virtual void BindImageTexture(uint32, TextureAccess)                                                         = 0;
     virtual uint32 CreateShadowMap(uint32, uint32)                                                               = 0;
     virtual void PolygonModeRender()                                                                             = 0;
@@ -110,8 +110,9 @@ public:
     virtual void LoadProjectionMatrix(const mat4&)                                                               = 0;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to)                                   = 0;
     virtual mat4 PrepareMatrixToLoad(const mat4&)                                                                = 0;
-    virtual std::vector<uint8> GetTextureData(uint32)                                                            = 0;
-    virtual const TextureInfo& GetTextureInfo(uint32)                                                            = 0;
+    virtual std::vector<uint8> GetTextureData(uint32) const                                                      = 0;
+    virtual const TextureInfo& GetTextureInfo(uint32) const                                                      = 0;
+    virtual void TakeSnapshoot(const std::string& path) const                                                    = 0;
     // temp
     virtual void CreateFont(const std::string&)              = 0;
     virtual void PrintText(const std::string&, const vec2i&) = 0;

@@ -88,7 +88,7 @@ public:
     virtual void EnableCulling() override;
     virtual void DisableCulling() override;
     virtual void SetViewPort(uint32, uint32, uint32, uint32) override;
-    virtual void BindTexture(uint32) override;
+    virtual void BindTexture(uint32) const override;
     virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override;
     virtual uint32 CreateShadowMap(uint32, uint32) override;
 
@@ -110,8 +110,9 @@ public:
     virtual void LoadProjectionMatrix(const mat4&) override;
     virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
     virtual mat4 PrepareMatrixToLoad(const mat4& m) override;
-    virtual std::vector<uint8> GetTextureData(uint32) override;
-    virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) override;
+    virtual std::vector<uint8> GetTextureData(uint32) const override;
+    virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override;
+    virtual void TakeSnapshoot(const std::string& path) const override;
 
 private:
     void InitRenderTarget();

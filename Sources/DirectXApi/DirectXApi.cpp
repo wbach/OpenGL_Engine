@@ -835,7 +835,7 @@ void DirectXApi::DisableCulling()
 void DirectXApi::SetViewPort(uint32, uint32, uint32, uint32)
 {
 }
-void DirectXApi::BindTexture(uint32 id)
+void DirectXApi::BindTexture(uint32 id) const
 {
     if (id == 0)
         return;
@@ -892,12 +892,15 @@ mat4 DirectXApi::PrepareMatrixToLoad(const mat4 &m)
 {
     return glm::transpose(m);
 }
-std::vector<uint8> DirectXApi::GetTextureData(uint32)
+std::vector<uint8> DirectXApi::GetTextureData(uint32) const
 {
     return std::vector<uint8>();
 }
-const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32)
+const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32) const
 {
     return defaultTextureInfo;
+}
+void DirectXApi::TakeSnapshoot(const std::string & path) const
+{
 }
 }  // namespace DirectX

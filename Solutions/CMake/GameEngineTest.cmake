@@ -3,14 +3,9 @@ if(BUILD_TESTS)
         ../../Sources/GameEngine/
     )
 
-    set(BoostLinkingLibs
-        boost_system
-        boost_filesystem
-    )
-
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/googletest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-    
+
     include(./Sources/GameEngineTestsSources.cmake)
     add_executable(GAME_ENGINE_TESTS ${GameEngineTestsSources})
     if(BUILD_I386)

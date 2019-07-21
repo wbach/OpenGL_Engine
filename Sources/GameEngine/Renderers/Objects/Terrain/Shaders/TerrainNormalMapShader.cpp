@@ -15,6 +15,7 @@ void TerrainNormalMapShader::GetAllUniformLocations()
 
     GetLocation(normalStrength);
     GetLocation(heightmap);
+    GetLocation(normalmap);
     GetLocation(N);
 }
 void TerrainNormalMapShader::BindAttributes()
@@ -22,6 +23,7 @@ void TerrainNormalMapShader::BindAttributes()
 }
 void TerrainNormalMapShader::ConnectTextureUnits() const
 {
-    Load(TerrainNormalMapShaderUniforms::heightmap, 0);
+    Load(TerrainNormalMapShaderUniforms::normalmap, 0);
+    Load(TerrainNormalMapShaderUniforms::heightmap, 1);
 }
 }  // namespace GameEngine

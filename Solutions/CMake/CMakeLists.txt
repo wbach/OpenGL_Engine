@@ -77,6 +77,34 @@ include_directories(
     ${PROJECT_BINARY_DIR}/../Tools/common/rapidxml-1.13/
 )
 
+set(BulletLinkingLibs
+            BulletDynamics
+            Bullet3Common
+            Bullet2FileLoader
+            Bullet3Collision
+            Bullet3Dynamics
+            Bullet3Geometry
+            Bullet3OpenCL_clew
+            BulletCollision
+            BulletFileLoader
+            BulletInverseDynamics
+            BulletInverseDynamicsUtils
+            BulletRobotics
+            BulletSoftBody
+            BulletWorldImporter
+            BulletXmlWorldImporter
+            ConvexDecomposition
+            GIMPACTUtils
+            HACD
+            LinearMath
+            fbxsdk
+      )
+
+set(BoostLinkingLibs
+    boost_system
+    boost_filesystem
+)
+
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Input.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/OpenGLApi.cmake)

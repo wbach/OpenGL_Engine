@@ -40,7 +40,8 @@ vec4 CalculateTerrainColor()
     float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;
     vec2 tiled_coords = mapCoord_FS * 400.0f ;
 
-    float normalFactor = dot(normal_FS, vec3(0.f, 4.f, 0.f));
+    vec3 normal = normalize(texture(normalmap, mapCoord_FS).xyz);
+    float normalFactor = dot(normal, vec3(0.f, 4.f, 0.f));
 
     if (normalFactor > 1 )
      normalFactor = 1;

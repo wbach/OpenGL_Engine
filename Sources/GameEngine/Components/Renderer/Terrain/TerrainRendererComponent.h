@@ -23,12 +23,12 @@ public:
     const TerrainConfiguration& GetConfig() const;
     Texture* GetNormalMap() const;
     Texture* GetHeightMap() const;
+    void SetTexture(std::unique_ptr<Texture>);
 
 private:
     void Update();
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& hightMapFile);
-    void CalcualteNormalMap();
     void Subscribe();
     void UnSubscribe();
 
@@ -38,7 +38,7 @@ private:
 
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
-    Texture* normalMap_;
+    std::unique_ptr<Texture> normalMap_;
     Texture* heightMap_;
     float normalStrength_;
 

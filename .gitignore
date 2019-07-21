@@ -11,6 +11,7 @@ GameEngineCM/output/
 #dynamic links
 Data
 Tools
+snapshoot
 *.autosave
 .vscode/
 build*

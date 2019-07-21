@@ -34,6 +34,7 @@ private:
     void LoadScene(const std::vector<std::string>&);
     void ReloadScene(const std::vector<std::string>&);
     void SetImmeditalyLogs(const std::vector<std::string>&);
+    void TakeSnapshoot(const std::vector<std::string>&);
     GameObject* GetGameObject(const std::string&);
     std::vector<std::string> GetParams(const std::string& comannd);
 

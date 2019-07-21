@@ -3,6 +3,7 @@ set(UtilsSources
 ../../Sources/Utils/EngineUitls.cpp
 ../../Sources/Utils/FileSystem/FileSystemUtils.cpp
 ../../Sources/Utils/GLM/GLMUtils.cpp
+../../Sources/Utils/Image/ImageUtils.cpp
 ../../Sources/Utils/Logger/Log.cpp
 ../../Sources/Utils/md5.cpp
 ../../Sources/Utils/ParseUtils.cpp

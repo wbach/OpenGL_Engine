@@ -2,6 +2,7 @@ set(UtilsIncludes
 ../../Sources/Utils/BidirectionalUnorderedMap.h
 ../../Sources/Utils/EngineUitls.h
 ../../Sources/Utils/GLM/GLMUtils.h
+../../Sources/Utils/Image/ImageUtils.h
 ../../Sources/Utils/Logger/Log.h
 ../../Sources/Utils/md5.h
 ../../Sources/Utils/ParseUtils.h

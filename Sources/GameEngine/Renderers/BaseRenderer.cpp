@@ -11,6 +11,7 @@
 #include "Objects/Skydome/SkydomeRenderer.h"
 #include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
+#include "Objects/Terrain/TerrainNormalMapRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
 
@@ -80,6 +81,7 @@ void BaseRenderer::CreateRenderers()
     AddRenderer<TreeRenderer>();
     AddRenderer<PlantsRenderer>();
     AddRenderer<EntityRenderer>();
+    AddRenderer<TerrainNormalMapRenderer>();
 
     if (EngineConf.renderer.particles.useParticles)
         AddRenderer<ParticlesRenderer>();

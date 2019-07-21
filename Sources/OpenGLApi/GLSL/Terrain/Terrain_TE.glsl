@@ -5,6 +5,7 @@
 layout(quads, fractional_odd_spacing, cw) in;
 
 uniform sampler2D heightmap;
+uniform sampler2D normalmap;
 uniform vec3 cameraPosition;
 
 in vec2 mapCoord_TE[];
@@ -71,6 +72,6 @@ void main(){
     height += 19.f;
     position.y = height;
     mapCoord_GS = mapCoord;
-    normal_GS = calculateNormal(position.xyz, mapCoord);
+    //normal_GS = calculateNormal(position.xyz, mapCoord);
     gl_Position = position;
 }

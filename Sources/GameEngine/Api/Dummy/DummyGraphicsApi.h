@@ -234,7 +234,7 @@ public:
     virtual void SetViewPort(uint32, uint32, uint32, uint32) override
     {
     }
-    virtual void BindTexture(uint32) override
+    virtual void BindTexture(uint32) const override
     {
     }
     virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override
@@ -286,13 +286,16 @@ public:
     {
         return m;
     }
-    virtual std::vector<uint8> GetTextureData(uint32) override
+    virtual std::vector<uint8> GetTextureData(uint32) const override
     {
         return {};
     }
-    virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) override
+    virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override
     {
         return textureInfo_;
+    }
+    virtual void TakeSnapshoot(const std::string&) const override
+    {
     }
 
 private:

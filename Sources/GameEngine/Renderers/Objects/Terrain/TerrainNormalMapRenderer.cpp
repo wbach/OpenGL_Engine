@@ -1,68 +1,94 @@
 ﻿#include "TerrainNormalMapRenderer.h"
 #include <FreeImage.h>
+#include <Utils/Image/ImageUtils.h>
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "Logger/Log.h"
 #include "Shaders/TerrainNormalMapShaderUniforms.h"
 
 namespace GameEngine
 {
-const uint32 NORMAL_STRENGTH = 12;
+const float NORMAL_STRENGTH = 12.f;
 
-TerrainNormalMapRenderer::TerrainNormalMapRenderer(RendererContext& context)
+TerrainNormalMapRenderer::TerrainNormalMapRenderer(RendererContext &context)
     : context_(context)
 {
     shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::TerrainNormal);
+    __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainNormalMapRenderer::Render);
 }
-std::unique_ptr<Texture> TerrainNormalMapRenderer::Render(const Texture& heightMap) const
-{
-    int32 N      = 256;  // heightMap.GetSize().y;
-    auto storage = context_.graphicsApi_.CreateTextureStorage(GraphicsApi::TextureType::FLOAT_TEXTURE_2D,
-                                                              GraphicsApi::TextureFilter::LINEAR, N);
 
-    if (not storage)
+void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
+{
+    if (subscribers_.empty() or not shader_)
+        return;
+
+    for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
+    {
+        if ((*iter)->GetHeightMap() and (*iter)->GetHeightMap()->IsInitialized())
+        {
+            auto heightMap = RenderTexture(*(*iter)->GetHeightMap());
+            (*iter)->SetTexture(std::move(heightMap));
+            iter = subscribers_.erase(iter);
+        }
+        else
+        {
+            DEBUG_LOG("Height map not ready.");
+            ++iter;
+        }
+    }
+}
+
+std::unique_ptr<Texture> TerrainNormalMapRenderer::RenderTexture(const Texture &heightMap) const
+{
+    auto imageSize    = heightMap.GetSize().y;
+    auto storageId = context_.graphicsApi_.CreateTextureStorage(GraphicsApi::TextureType::FLOAT_TEXTURE_2D,
+                                                              GraphicsApi::TextureFilter::LINEAR, static_cast<int>(imageSize));
+
+    if (not storageId)
     {
         return nullptr;
     }
     shader_->Start();
-    shader_->Load(TerrainNormalMapShaderUniforms::N, N);
+    shader_->Load(TerrainNormalMapShaderUniforms::N, static_cast<int32>(imageSize));
     shader_->Load(TerrainNormalMapShaderUniforms::normalStrength, NORMAL_STRENGTH);
 
-    context_.graphicsApi_.ActiveTexture(0, heightMap.GetId());
-    context_.graphicsApi_.BindImageTexture(*storage, GraphicsApi::TextureAccess::WRITE_ONLY);
-    context_.graphicsApi_.Compute(N / 16, N / 16, 1);
+    context_.graphicsApi_.ActiveTexture(0);
+    context_.graphicsApi_.BindImageTexture(*storageId, GraphicsApi::TextureAccess::WRITE_ONLY);
+    context_.graphicsApi_.ActiveTexture(1, heightMap.GetId());
+    context_.graphicsApi_.Compute(imageSize / 16, imageSize / 16, 1);
     shader_->Stop();
 
-    auto resultData = context_.graphicsApi_.GetTextureData(*storage);
-
-    auto bitmap = FreeImage_Allocate(N, N, 4);
-
-    RGBQUAD color;
-    if (bitmap)
-    {
-        int x = 0;
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
-                color.rgbRed   = resultData[x++];
-                color.rgbGreen = resultData[x++];
-                color.rgbBlue  = resultData[x++];
-                color.rgbReserved = 255;
-                x++;
-                FreeImage_SetPixelColor(bitmap, i, j, &color);
-            }
-        }
-
-        FreeImage_Save(FIF_PNG, bitmap, "terrainNormalMap.png", 0);
-    }
-
-    return std::make_unique<Texture>(context_.graphicsApi_, *storage);
+    return std::make_unique<Texture>(context_.graphicsApi_, *storageId);
 }
 void TerrainNormalMapRenderer::Init()
 {
     shader_->Init();
+}
+
+void TerrainNormalMapRenderer::Subscribe(GameObject *gameObject)
+{
+    auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
+
+    if (terrain == nullptr)
+        return;
+
+    subscribers_.push_back(terrain);
+}
+
+void TerrainNormalMapRenderer::UnSubscribe(GameObject *)
+{
+}
+
+void TerrainNormalMapRenderer::UnSubscribeAll()
+{
+}
+
+void TerrainNormalMapRenderer::ReloadShaders()
+{
+    shader_->Reload();
 }
 }  // namespace GameEngine

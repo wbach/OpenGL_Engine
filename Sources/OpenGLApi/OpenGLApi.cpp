@@ -1,5 +1,6 @@
 #include "OpenGLApi.h"
 #include <GL/glew.h>
+#include <Utils/Image/ImageUtils.h>
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
@@ -12,6 +13,7 @@
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
+#include <boost/filesystem.hpp>
 
 enum class ObjectType
 {
@@ -43,6 +45,51 @@ struct TextTypeParams
     GLint internalFormat = GL_RGBA;
     GLint format         = GL_RGBA;
 };
+TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
+{
+    TextTypeParams params;
+
+    if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::FLOAT_TEXTURE_2D ||
+        type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
+    {
+        params.dataType = GL_FLOAT;
+        if (type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
+        {
+            params.internalFormat = GL_DEPTH_COMPONENT32;
+            params.format         = GL_DEPTH_COMPONENT;
+        }
+        else
+        {
+            params.internalFormat = GL_RGBA16F;
+        }
+    }
+    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1C)
+    {
+        params.format         = GL_RED;
+        params.dataType       = GL_FLOAT;
+        params.internalFormat = GL_R32F;
+    }
+    else if (type == GraphicsApi::TextureType::U8_RGBA)
+    {
+        params.format         = GL_RGBA;
+        params.dataType       = GL_UNSIGNED_BYTE;
+        params.internalFormat = GL_RGBA;
+    }
+    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3C)
+    {
+        params.format         = GL_RGB;
+        params.dataType       = GL_FLOAT;
+        params.internalFormat = GL_RGB32F;
+    }
+    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_4C)
+    {
+        params.format         = GL_RGBA;
+        params.dataType       = GL_FLOAT;
+        params.internalFormat = GL_RGBA32F;
+    }
+    return params;
+}
+
 }  // namespace
 
 struct ShaderBuffer
@@ -293,27 +340,90 @@ mat4 OpenGLApi::PrepareMatrixToLoad(const mat4& m)
     return m;
 }
 
-std::vector<uint8> OpenGLApi::GetTextureData(uint32 id)
+std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
 {
-    const auto& textureInfo = impl_->textureInfos_.at(id);
+    if (not impl_->textureInfos_.count(id))
+    {
+        return {};
+    }
 
+    const auto& textureInfo = impl_->textureInfos_.at(id);
+    auto params             = GetTextureTypeParams(textureInfo.textureType);
+
+    std::vector<uint8> data;
     BindTexture(id);
 
-    std::vector<float> data;
-    data.resize(4 * textureInfo.size.x * textureInfo.size.y);
-    glReadPixels(0, 0, textureInfo.size.x, textureInfo.size.y, GL_RGBA, GL_FLOAT, &data[0]);
-
-    std::vector<uint8> result;
-    for (auto f : data)
+    if (params.dataType == GL_UNSIGNED_BYTE and params.format == GL_RGBA)
     {
-        result.push_back(static_cast<uint8>(f * 255.f));
+        data.resize(4 * textureInfo.size.x * textureInfo.size.y);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
     }
-    return result;
+    else if (params.dataType == GL_FLOAT and params.format == GL_RGBA)
+    {
+        data.resize(4 * textureInfo.size.x * textureInfo.size.y);
+        std::vector<float> floatdata;
+        floatdata.resize(4 * textureInfo.size.x * textureInfo.size.y);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &floatdata[0]);
+
+        std::transform(floatdata.begin(), floatdata.end(), data.begin(),
+                       [](float f) { return static_cast<uint8>(255.f * f); });
+    }
+    else if (params.dataType == GL_FLOAT and params.format == GL_RED)
+    {
+        data.reserve(4 * textureInfo.size.x * textureInfo.size.y);
+        std::vector<float> floatdata;
+        floatdata.resize(textureInfo.size.x * textureInfo.size.y);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, &floatdata[0]);
+
+        for (auto& f : floatdata)
+        {
+            auto value = static_cast<uint8>(255.f * f);
+            data.push_back(value);
+            data.push_back(value);
+            data.push_back(value);
+            data.push_back(255);
+        }
+    }
+    return data;
 }
 
-const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id)
+const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id) const
 {
     return impl_->textureInfos_.at(id);
+}
+
+void OpenGLApi::TakeSnapshoot(const std::string& path) const
+{
+    for (const auto& object : createdObjectIds)
+    {
+        switch (object.second)
+        {
+            case ObjectType::SHADER_PROGRAM:
+                break;
+            case ObjectType::TEXTURE_2D:
+            {
+                if (impl_->textureInfos_.count(object.first) == 0)
+                {
+                    DEBUG_LOG("Texture info not found. Id : " + std::to_string(object.first));
+                    break;
+                }
+                const auto& textureInfo = GetTextureInfo(object.first);
+                auto resultData = GetTextureData(object.first);
+                const std::string fullPath = path + "/Textures2d/";
+                boost::filesystem::create_directories(fullPath);
+                Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
+            }
+            break;
+            case ObjectType::TEXTURE_CUBE_MAP:
+                break;
+            case ObjectType::RENDER_BUFFER:
+                break;
+            case ObjectType::FRAME_BUFFER:
+                break;
+            case ObjectType::MESH:
+                break;
+        }
+    }
 }
 
 void OpenGLApi::DeleteMesh(uint32 id)
@@ -434,51 +544,6 @@ void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<vec3>& v)
 void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<mat4>& v)
 {
     impl_->shaderManager_.LoadValueToShader(loacation, v);
-}
-
-TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
-{
-    TextTypeParams params;
-
-    if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::FLOAT_TEXTURE_2D ||
-        type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
-    {
-        params.dataType = GL_FLOAT;
-        if (type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
-        {
-            params.internalFormat = GL_DEPTH_COMPONENT32;
-            params.format         = GL_DEPTH_COMPONENT;
-        }
-        else
-        {
-            params.internalFormat = GL_RGBA16F;
-        }
-    }
-    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1C)
-    {
-        params.format         = GL_RED;
-        params.dataType       = GL_FLOAT;
-        params.internalFormat = GL_R32F;
-    }
-    else if (type == GraphicsApi::TextureType::U8_RGBA)
-    {
-        params.format         = GL_RGBA;
-        params.dataType       = GL_UNSIGNED_BYTE;
-        params.internalFormat = GL_RGBA;
-    }
-    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3C)
-    {
-        params.format         = GL_RGB;
-        params.dataType       = GL_FLOAT;
-        params.internalFormat = GL_RGB32F;
-    }
-    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_4C)
-    {
-        params.format         = GL_RGBA;
-        params.dataType       = GL_FLOAT;
-        params.internalFormat = GL_RGBA32F;
-    }
-    return params;
 }
 
 void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
@@ -862,7 +927,8 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, Graphi
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, meshRawData.textCoords_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::NORMAL, 3, meshRawData.normals_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TANGENT, 3, meshRawData.tangents_);
-    vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.bonesWeights_);
+    vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, GraphicsApi::MAX_BONES_PER_VERTEX,
+                                  meshRawData.bonesWeights_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.joinIds_);
     mesh            = Convert(vaoCreator.Get());
     mesh.renderType = type;
@@ -1062,13 +1128,14 @@ void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
     glViewport(x, y, width, height);
 }
 
-void OpenGLApi::BindTexture(uint32 id)
+void OpenGLApi::BindTexture(uint32 id) const
 {
     glBindTexture(GL_TEXTURE_2D, impl_->idPool_.ToGL(id));
 }
 
 void OpenGLApi::BindImageTexture(uint32 id, GraphicsApi::TextureAccess acces)
 {
+    glActiveTexture(0);
     glBindImageTexture(0, impl_->idPool_.ToGL(id), 0, false, 0, textureAccessMap_.at(acces), GL_RGBA32F);
 }
 
