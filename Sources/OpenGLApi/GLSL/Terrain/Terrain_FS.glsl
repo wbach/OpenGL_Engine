@@ -22,8 +22,6 @@ uniform sampler2D snowTextureNormal;
 
 in vec2 mapCoord_FS;
 in vec4 worldPos;
-in vec3 normal_FS;
-
 
 vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float normalFactor)
 {
@@ -59,9 +57,7 @@ vec4 CalculateTerrainColor()
 void main()
 {
     WorldPosOut = worldPos;
-    //DiffuseOut  = texture(normalmap, mapCoord_FS);
-    DiffuseOut =  vec4(CalculateTerrainColor().xyz,1.0);
-    NormalOut = vec4(normalize(texture(normalmap, mapCoord_FS).xyz), 1.f);
-    //NormalOut   = vec4(0,1,0, 1);
+    DiffuseOut  = vec4(CalculateTerrainColor().xyz,1.0);
+    NormalOut   = vec4(normalize(texture(normalmap, mapCoord_FS).xyz), 1.f);
     SpecularOut = vec4(0);
 }

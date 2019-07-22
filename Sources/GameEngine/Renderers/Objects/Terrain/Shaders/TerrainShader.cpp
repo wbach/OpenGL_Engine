@@ -2,7 +2,8 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "TerrainShaderUniforms.h"
 
-#define GetLocation(X) uniforms_[TerrainShaderUniforms::X] = GetUniformLocation(#X);
+#define GetLocation(X) uniforms_[static_cast<int>(TerrainShaderUniforms::X)] = GetUniformLocation(#X);
+#define ConnectTerrainTexture(X) Load(TerrainShaderUniforms::X, static_cast<int>(TerrainTextureType::X));
 
 namespace GameEngine
 {
@@ -13,25 +14,8 @@ TerrainShader::TerrainShader(GraphicsApi::IGraphicsApi& graphicsApi)
 
 void TerrainShader::GetAllUniformLocations()
 {
-    uniforms_.resize(TerrainShaderUniforms::SIZE);
+    uniforms_.resize(static_cast<int>(TerrainShaderUniforms::SIZE));
 
-    GetLocation(localMatrix);
-    GetLocation(worldMatrix);
-    GetLocation(m_ViewProjection);
-    GetLocation(index);
-    GetLocation(gap);
-    GetLocation(lod);
-    GetLocation(scaleY);
-    GetLocation(location);
-    GetLocation(cameraPosition);
-    GetLocation(lod_morph_area_1);
-    GetLocation(lod_morph_area_2);
-    GetLocation(lod_morph_area_3);
-    GetLocation(lod_morph_area_4);
-    GetLocation(lod_morph_area_5);
-    GetLocation(lod_morph_area_6);
-    GetLocation(lod_morph_area_7);
-    GetLocation(lod_morph_area_8);
     GetLocation(heightmap);
     GetLocation(normalmap);
     GetLocation(blendMap);
@@ -52,20 +36,18 @@ void TerrainShader::BindAttributes()
 {
 }
 
-#define ConnectTerrainTexture(X) Load(TerrainShaderUniforms::X, static_cast<int>(TerrainTextureType::X));
-
 void TerrainShader::ConnectTextureUnits() const
 {
-    Load(TerrainShaderUniforms::heightmap, (int)TerrainTextureType::heightmap);
-    Load(TerrainShaderUniforms::normalmap, (int)TerrainTextureType::normalmap);
+    Load((int)TerrainShaderUniforms::heightmap, (int)TerrainTextureType::heightmap);
+    Load((int)TerrainShaderUniforms::normalmap, (int)TerrainTextureType::normalmap);
 
-    Load(TerrainShaderUniforms::blendMap, (int)TerrainTextureType::blendMap);
-    Load(TerrainShaderUniforms::backgorundTexture, (int)TerrainTextureType::backgorundTexture);
-    Load(TerrainShaderUniforms::redTexture, (int)TerrainTextureType::redTexture);
-    Load(TerrainShaderUniforms::greenTexture, (int)TerrainTextureType::greenTexture);
-    Load(TerrainShaderUniforms::blueTexture, (int)TerrainTextureType::blueTexture);
-    Load(TerrainShaderUniforms::rockTexture, (int)TerrainTextureType::rockTexture);
-    Load(TerrainShaderUniforms::snowTexture, (int)TerrainTextureType::snowTexture);
+    Load((int)TerrainShaderUniforms::blendMap, (int)TerrainTextureType::blendMap);
+    Load((int)TerrainShaderUniforms::backgorundTexture, (int)TerrainTextureType::backgorundTexture);
+    Load((int)TerrainShaderUniforms::redTexture, (int)TerrainTextureType::redTexture);
+    Load((int)TerrainShaderUniforms::greenTexture, (int)TerrainTextureType::greenTexture);
+    Load((int)TerrainShaderUniforms::blueTexture, (int)TerrainTextureType::blueTexture);
+    Load((int)TerrainShaderUniforms::rockTexture, (int)TerrainTextureType::rockTexture);
+    Load((int)TerrainShaderUniforms::snowTexture, (int)TerrainTextureType::snowTexture);
 }
 
 }  // namespace GameEngine

@@ -1,6 +1,11 @@
 #version 430
-
 layout(vertices = 16) out;
+layout (std140, binding = 1) uniform PerFrame
+{
+    mat4 projectionViewMatrix;
+    mat4 toShadowMapSpace;
+    vec3 cameraPosition;
+} perFrame;
 
 in vec2 mapCoord_TC[];
 out vec2 mapCoord_TE[];
@@ -13,8 +18,6 @@ const int DA = 1;
 const int tessellationFactor = 1600;
 const float tessellationSlope = 1.0f;
 const float tessellationShift = 0.1f;
-
-uniform vec3 cameraPosition;
 
 float lodFactor(float dist)
 {
@@ -30,10 +33,10 @@ void main()
         vec3 cdMid = vec3(gl_in[15].gl_Position + gl_in[12].gl_Position)/2.0;
         vec3 daMid = vec3(gl_in[12].gl_Position + gl_in[0].gl_Position)/2.0;
 
-        float distanceAB = distance(abMid, cameraPosition);
-        float distanceBC = distance(bcMid, cameraPosition);
-        float distanceCD = distance(cdMid, cameraPosition);
-        float distanceDA = distance(daMid, cameraPosition);
+        float distanceAB = distance(abMid, perFrame.cameraPosition);
+        float distanceBC = distance(bcMid, perFrame.cameraPosition);
+        float distanceCD = distance(cdMid, perFrame.cameraPosition);
+        float distanceDA = distance(daMid, perFrame.cameraPosition);
 
         gl_TessLevelOuter[AB] = mix(1, gl_MaxTessGenLevel, lodFactor(distanceAB));
         gl_TessLevelOuter[BC] = mix(1, gl_MaxTessGenLevel, lodFactor(distanceBC));

@@ -10,4 +10,7 @@ static const uint32 PER_OBJECT_UPDATE_BIND_LOCATION    = 3;
 static const uint32 PER_POSE_UPDATE_BIND_LOCATION      = 4;
 static const uint32 PER_INSTANCES_BIND_LOCATION        = 5;
 static const uint32 PER_MESH_OBJECT_BIND_LOCATION      = 6;
+
+static const uint32 PER_TERRAIN_BIND_LOCATION = 3;
+static const uint32 PER_NODE_LOCATION         = 4;
 }  // namespace GameEngine

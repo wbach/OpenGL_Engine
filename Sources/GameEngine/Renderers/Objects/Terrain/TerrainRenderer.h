@@ -43,5 +43,8 @@ private:
     vec4 clipPlane;
     std::vector<std::pair<uint32_t, Components::TerrainRendererComponent*>> subscribes_;
     uint32 objectId;
+    uint32 perTerrainId;
+    uint32 perNodeId;
+    bool isInit_;
 };
 }  // namespace GameEngine
