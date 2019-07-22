@@ -1,9 +1,18 @@
 #version 430
+#define TEXTURE_TILED_FACTOR 800.f
 
-layout (location = 0) out vec4 WorldPosOut;
-layout (location = 1) out vec4 DiffuseOut;
-layout (location = 2) out vec4 NormalOut;
-layout (location = 3) out vec4 SpecularOut;
+struct TerrainData
+{
+vec4 color;
+vec3 normal;
+};
+
+layout (std140, binding = 1) uniform PerFrame
+{
+    mat4 projectionViewMatrix;
+    mat4 toShadowMapSpace;
+    vec3 cameraPosition;
+} perFrame;
 
 uniform sampler2D normalmap;
 uniform sampler2D blendMap;
@@ -22,42 +31,73 @@ uniform sampler2D snowTextureNormal;
 
 in vec2 mapCoord_FS;
 in vec4 worldPos;
+in vec3 tangent;
 
-vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float normalFactor)
+layout (location = 0) out vec4 WorldPosOut;
+layout (location = 1) out vec4 DiffuseOut;
+layout (location = 2) out vec4 NormalOut;
+layout (location = 3) out vec4 SpecularOut;
+
+vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords)
 {
-    vec4 baseColor = texture(textureId, textCoords) * factor * normalFactor;
-    vec4 rockColor = texture(rockTexture, textCoords) * factor * (1.f - normalFactor);
-
-    return  baseColor + rockColor;
+    return texture(textureId, textCoords) * factor;
 }
 
-vec4 CalculateTerrainColor()
+TerrainData CalculateTerrainData()
 {
-    vec4 blend_map_colour = texture(blendMap, mapCoord_FS) ;
+    TerrainData result;
 
-    float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;
-    vec2 tiled_coords = mapCoord_FS * 400.0f ;
+    vec4 blendMapColor = texture(blendMap, mapCoord_FS) ;
+
+    float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b) ;
+    vec2 tiledCoords = mapCoord_FS * TEXTURE_TILED_FACTOR;
 
     vec3 normal = normalize(texture(normalmap, mapCoord_FS).xyz);
-    float normalFactor = dot(normal, vec3(0.f, 4.f, 0.f));
 
+    float dist = length(perFrame.cameraPosition - worldPos.xyz);
+    float largeDetailRange = 325;
+    if (dist < largeDetailRange)
+    {
+        float attenuation = clamp(-dist/largeDetailRange + 1,0.0,1.0);
+
+        vec3 bitangent = normalize(cross(normal, tangent));
+        mat3 TBN = mat3(tangent, bitangent, normal);
+
+        vec3 bumpNormal;
+        bumpNormal += (2.f * (texture(backgorundTextureNormal, tiledCoords).rgb) - 1.f) * backTextureAmount;
+        bumpNormal += (2.f * (texture(redTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.r;
+        bumpNormal += (2.f * (texture(greenTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.g;
+        bumpNormal += (2.f * (texture(blueTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.b;
+        bumpNormal = normalize(bumpNormal);
+        bumpNormal.xy *= attenuation;
+        result.normal = normalize(TBN * bumpNormal);
+    }
+    else
+    {
+        result.normal = normal;
+    }
+
+    float normalFactor = dot(normal, vec3(0.f, 4.f, 0.f));
     if (normalFactor > 1 )
-     normalFactor = 1;
+        normalFactor = 1;
 
     vec4 backgorund_texture_colour;
-    backgorund_texture_colour = CalculateColor(backgorundTexture, back_texture_amount, tiled_coords, normalFactor);
+    backgorund_texture_colour = CalculateColor(backgorundTexture, backTextureAmount, tiledCoords);
 
-    vec4 r_texture_colour = CalculateColor(redTexture, blend_map_colour.r, tiled_coords, normalFactor);
-    vec4 g_texture_colour = CalculateColor(greenTexture, blend_map_colour.g, tiled_coords, normalFactor);
-    vec4 b_texture_colour = CalculateColor(blueTexture, blend_map_colour.b, tiled_coords, normalFactor);
+    vec4 rColor = CalculateColor(redTexture, blendMapColor.r, tiledCoords);
+    vec4 gColor = CalculateColor(greenTexture, blendMapColor.g, tiledCoords);
+    vec4 bColor = CalculateColor(blueTexture, blendMapColor.b, tiledCoords);
 
-    return backgorund_texture_colour + r_texture_colour + g_texture_colour + b_texture_colour ;
+    result.color = backgorund_texture_colour + rColor + gColor + bColor;
+    return result;
 }
 
 void main()
 {
+    TerrainData data = CalculateTerrainData();
+
     WorldPosOut = worldPos;
-    DiffuseOut  = vec4(CalculateTerrainColor().xyz,1.0);
-    NormalOut   = vec4(normalize(texture(normalmap, mapCoord_FS).xyz), 1.f);
+    DiffuseOut  = vec4(data.color.xyz, 1.0);
+    NormalOut   = vec4(data.normal, 1.f);
     SpecularOut = vec4(0);
 }

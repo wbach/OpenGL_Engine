@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Input/KeyCodeToCharConverter.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 
 namespace GameEngine
 {
@@ -124,6 +125,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
     commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
     commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
+    commandsActions_.insert({ "reloadshaders", [this](const auto &params) { ReloadShaders(params); } });
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
@@ -334,6 +336,11 @@ void Console::TakeSnapshoot(const std::vector<std::string> &params)
 
     auto takeSnapshoot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshoot(path); };
     scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
+}
+
+void Console::ReloadShaders(const std::vector<std::string>&)
+{
+    scene_.renderersManager_->ReloadShaders();
 }
 
 std::vector<std::string> Console::GetParams(const std::string &command)

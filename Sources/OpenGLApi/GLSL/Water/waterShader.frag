@@ -3,7 +3,7 @@
 const float waveStrength = 0.02 ;
 const float shineDamper  = 20.0f;
 const float reflectivity = 0.6f;
-const float tiledValue   = 60.f;
+const float tiledValue   = 120.f;
 const float near         = 0.1f;
 const float far          = 1000.0f;
 

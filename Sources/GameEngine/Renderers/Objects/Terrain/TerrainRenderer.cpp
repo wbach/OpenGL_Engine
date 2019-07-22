@@ -123,6 +123,7 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
         context_.graphicsApi_.BindShaderBuffer(perTerrainId);
 
         BindTextures(sub.second->GetTextures());
+
         for (const auto& node : tree.GetNodes())
         {
             RenderNode(*node);
