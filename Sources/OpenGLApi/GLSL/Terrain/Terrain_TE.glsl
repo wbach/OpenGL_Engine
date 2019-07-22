@@ -48,6 +48,16 @@ vec3 calculateNormal(vec3 position, vec2 texCoord)
     return (normalize(normal)+1.0)/2.0;
 }
 
+float GetHeight(vec2 mapCoord)
+{
+    float height = texture(heightmap, mapCoord).r;
+    height *= HEIGHT_FACTOR;
+    height -= HEIGHT_FACTOR / 2.f;
+    height += 19.f;
+
+    return height;
+}
+
 void main(){
 
     float u = gl_TessCoord.x;
@@ -66,11 +76,7 @@ void main(){
     u * v * mapCoord_TE[3] +
     (1 - u) * v * mapCoord_TE[15]);
 
-    float height = texture(heightmap, mapCoord).r;
-    height *= HEIGHT_FACTOR;
-    height -= HEIGHT_FACTOR /2.f;
-    height += 19.f;
-    position.y = height;
+    position.y  = GetHeight(mapCoord);
     mapCoord_GS = mapCoord;
     //normal_GS = calculateNormal(position.xyz, mapCoord);
     gl_Position = position;

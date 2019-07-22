@@ -7,10 +7,7 @@ namespace GameEngine
 class IShaderProgram
 {
 public:
-    virtual ~IShaderProgram()
-    {
-    }
-
+    virtual ~IShaderProgram() = default;
     virtual bool Init()   = 0;
     virtual void Reload() = 0;
 

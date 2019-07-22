@@ -77,6 +77,6 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
         }
     }
 
-    return std::optional<uint32>();
+    return std::nullopt;
 }
 }  // namespace GameEngine

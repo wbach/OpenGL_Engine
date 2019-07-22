@@ -14,7 +14,6 @@ class TerrainNormalMapRenderer : public IRenderer
 {
 public:
     TerrainNormalMapRenderer(RendererContext&);
-    std::unique_ptr<Texture> RenderTexture(const Texture&) const;
     virtual void Render(const Scene&, const Time&);
     virtual void Init() override;
     virtual void Subscribe(GameObject*) override;
@@ -23,8 +22,13 @@ public:
     virtual void ReloadShaders() override;
 
 private:
+    std::unique_ptr<Texture> RenderTexture(const Texture&) const;
+    std::unique_ptr<Texture> RenderOnCpu(const Texture&);
+
+private:
     std::vector<Components::TerrainRendererComponent*> subscribers_;
     std::unique_ptr<IShaderProgram> shader_;
     RendererContext& context_;
+    bool useShader_;
 };
 }  // namespace GameEngine

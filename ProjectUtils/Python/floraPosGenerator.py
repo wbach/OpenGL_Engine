@@ -4,6 +4,18 @@ import matplotlib.pyplot as plt
 import sys
 import random
 
+import cv2
+
+HEIGHT_FACTOR = 800.0
+
+def getHeight(img, x, y):
+    px = img[x, y]
+    #heightFactor = (int(px[0])+int(px[1])+int(px[2])) / 3
+    height = float(px[0]) / 255.0 * HEIGHT_FACTOR
+    height = height - (HEIGHT_FACTOR / 2.0)
+    height = height + 19.0
+    return height
+
 # specify params
 n = 500
 shape = np.array([4096, 4096])
@@ -36,13 +48,15 @@ coords += noise
 
 print(len(coords))
 
-
 # plot
-plt.figure(figsize=(10*width_ratio,10))
-plt.scatter(coords[:,0], coords[:,1], s=3)
-plt.show()
+#plt.figure(figsize=(10*width_ratio,10))
+#plt.scatter(coords[:,0], coords[:,1], s=3)
+#plt.show()
 
-f = open(sys.argv[1], "w")
+input=sys.argv[1]
+img = cv2.imread(input)
+
+f = open(sys.argv[2], "w")
 
 f.write('<prefab>\n')
 f.write('	<worldTransform>\n')
@@ -58,7 +72,8 @@ for y in range(len(coords)):
     for x in range(len(coords)):
         f.write(str(coords[x, 0]))
         f.write(' ')
-        f.write('0')
+        #f.write('0')
+        f.write(str(getHeight(img, x, y)))
         f.write(' ')
         f.write(str(coords[y, 1]))
         f.write(' ')

@@ -74,6 +74,11 @@ struct Tvec2
         , y(y)
     {
     }
+
+    Tvec2 operator+(const Tvec2& l)
+    {
+        return Tvec2(x + l.x, y + l.y);
+    }
 };
 
 template <class T>

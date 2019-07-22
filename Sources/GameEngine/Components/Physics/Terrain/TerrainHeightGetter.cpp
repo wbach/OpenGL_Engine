@@ -1,5 +1,4 @@
 #include "TerrainHeightGetter.h"
-//#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GLM/GLMUtils.h"
 #include  <algorithm>
 
@@ -11,7 +10,7 @@ TerrainHeightGetter::TerrainHeightGetter(const vec2ui& size, std::vector<float>*
     : size_(size)
     , gridSquereSize_(1.f)
     , terrainPosition_(terrainPosition)
-    , heightMapResolution_(size.x)
+    , heightMapResolution_(static_cast<int>(size.x))
     , data_(heights)
     , yOffset_(0)
 {
@@ -33,7 +32,7 @@ std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float
     auto gridCoord = GetGridCoord(localPosition + vec2(size_.x / 2.f));
 
     if (not IsValidGridCoordinate(gridCoord))
-        return {};
+        return std::nullopt;
 
     return GetHeightInTerrainQuad(gridCoord, localPosition) + yOffset_ ;
 }
@@ -48,16 +47,16 @@ vec2 TerrainHeightGetter::GetLocalPositionOnTerrain(float worldX, float worldZ)
 
 vec2i TerrainHeightGetter::GetGridCoord(const vec2& position) const
 {
-    int x = (int)floor(position.x / gridSquereSize_);
-    int y = (int)floor(position.y / gridSquereSize_);
+    int x = static_cast<int>(floorf(position.x / gridSquereSize_));
+    int y = static_cast<int>(floorf(position.y / gridSquereSize_));
 
     return vec2i(x, y);
 }
 
 vec2 TerrainHeightGetter::GetPositionInQuad(const vec2& position) const
 {
-    float x_coord = (fmod(position.x, gridSquereSize_)) / gridSquereSize_;
-    float z_coord = (fmod(position.y, gridSquereSize_)) / gridSquereSize_;
+    float x_coord = (fmodf(position.x, gridSquereSize_)) / gridSquereSize_;
+    float z_coord = (fmodf(position.y, gridSquereSize_)) / gridSquereSize_;
 
     return vec2(x_coord, z_coord);
 }
@@ -99,7 +98,7 @@ float TerrainHeightGetter::GetHeight(int x, int y) const
     if ( not data_  or data_->empty())
         return 0;
 
-    return (*data_)[x + y * heightMapResolution_];
+    return (*data_)[static_cast<size_t>(x + y * heightMapResolution_)];
 }
 
 }  // namespace Components

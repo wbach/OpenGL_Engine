@@ -19,10 +19,6 @@ void main(void)
 	ivec2 x = ivec2(gl_GlobalInvocationID.xy);
 	vec2 texCoord = gl_GlobalInvocationID.xy/float(N);
 
-	//imageStore(normalmap, x, vec4(1, 0, 0, 1)); return;
-	//vec4 color = texture(heightmap, texCoord);
-	//imageStore(normalmap, x, color); return;
-
 	float texelSize = 1.0/N;
 
 	float z0 = texture(heightmap, texCoord + vec2(-texelSize,-texelSize)).r;
