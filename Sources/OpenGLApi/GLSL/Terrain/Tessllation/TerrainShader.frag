@@ -1,24 +1,11 @@
-#version 330
-
-in TES_OUT
-{
-    vec2 textCoord;
-    vec3 world_coord;
-    vec3 eye_coord;
-    vec4 position;
-    vec3 normal;
-    float height;
-    vec4 shadowCoords;
-    float useShadows;
-    float shadowMapSize;
-} fs_in;
+#version 430
 
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 SpecularOut;
 
-uniform sampler2DShadow shadowMap;
+uniform sampler2D normalmap;
 uniform sampler2D blendMap;
 uniform sampler2D backgorundTexture;
 uniform sampler2D backgorundTextureNormal;
@@ -33,7 +20,8 @@ uniform sampler2D rockNormalTexture;
 uniform sampler2D snowTexture;
 uniform sampler2D snowTextureNormal;
 
-const float EPSILON = 0.005f;
+in vec2 mapCoord_FS;
+in vec4 worldPos;
 
 vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float normalFactor)
 {
@@ -43,40 +31,15 @@ vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords, float no
     return  baseColor + rockColor;
 }
 
-float CalculateShadowFactor()
-{
-    float xOffset = 1.f / fs_in.shadowMapSize;
-    float yOffset = 1.f / fs_in.shadowMapSize;
-
-    float factor = 0.f;
-
-    float a = 0.f;
-    for (int y = -1 ; y <= 1 ; y++) 
-    {
-        for (int x = -1 ; x <= 1 ; x++) 
-        {
-            vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
-            vec3 uvc = vec3(fs_in.shadowCoords.xy + offsets, fs_in.shadowCoords.z);
-            
-            if (texture(shadowMap, uvc) >  0.f)
-                factor += (fs_in.shadowCoords.w * .4f);
-           ++a;
-        }
-    }
-    float value = (0.5 + (factor / a)) ;
-    if( value > 1 )
-        value = 1 ;
-    return value ;
-}
-
 vec4 CalculateTerrainColor()
 {
-    vec4 blend_map_colour = texture(blendMap, fs_in.textCoord) ;
+    vec4 blend_map_colour = texture(blendMap, mapCoord_FS) ;
 
     float back_texture_amount = 1 - (blend_map_colour.r + blend_map_colour.g + blend_map_colour.b) ;
-    vec2 tiled_coords = fs_in.textCoord * 200.0f ;
+    vec2 tiled_coords = mapCoord_FS * 400.0f ;
 
-    float normalFactor = dot(fs_in.normal, vec3(0.f, 4.f, 0.f));
+    vec3 normal = normalize(texture(normalmap, mapCoord_FS).xyz);
+    float normalFactor = dot(normal, vec3(0.f, 4.f, 0.f));
 
     if (normalFactor > 1 )
      normalFactor = 1;
@@ -91,23 +54,10 @@ vec4 CalculateTerrainColor()
     return backgorund_texture_colour + r_texture_colour + g_texture_colour + b_texture_colour ;
 }
 
-bool OutOfHeightMapSize()
-{
-    return (fs_in.textCoord.x < EPSILON || fs_in.textCoord.x > (1.f - EPSILON) || fs_in.textCoord.y <EPSILON || fs_in.textCoord.y > (1.f - EPSILON));
-}
-
 void main()
 {
-    //if (Distance > ViewDistance)
-    //discard;
-
-    if (OutOfHeightMapSize())
-        discard;
-
-    float shadow_factor = CalculateShadowFactor();
-
-    WorldPosOut     = fs_in.position;
-    DiffuseOut      = CalculateTerrainColor() * shadow_factor;
-    NormalOut       = vec4(fs_in.normal, 1.0f);//vec4(0.0f, 1.0f, 0.f, 1.f);
-    SpecularOut     = vec4(0.f);
+    WorldPosOut = worldPos;
+    DiffuseOut  = vec4(CalculateTerrainColor().xyz,1.0);
+    NormalOut   = vec4(normalize(texture(normalmap, mapCoord_FS).xyz), 1.f);
+    SpecularOut = vec4(0);
 }

@@ -1,88 +1,48 @@
-#version 420 core
+#version 430
+#define MORPH_AREAS 8
 
-layout (quads, fractional_odd_spacing) in;
-
-uniform sampler2D displacementMap;
-
-uniform vec3 lightDirection;
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-uniform float heightFactor;
-
-in TCS_OUT
+layout(quads, fractional_odd_spacing, cw) in;
+layout (std140, binding = 3) uniform PerTerrain
 {
-    vec2 textCoord;
-    vec3 camPos;
-} tes_in[];
+    int lodMorphArea[MORPH_AREAS];
+    float heightFactor;
+} perTerrain;
 
-out TES_OUT
+uniform sampler2D heightmap;
+
+in vec2 mapCoord_TE[];
+
+out vec2 mapCoord_GS;
+
+float GetHeight(vec2 mapCoord)
 {
-    vec2 textCoord;
-    vec3 world_coord;
-    vec3 eye_coord;
-    vec4 position;
-    vec3 normal;
-    float height;
-    vec4 shadowCoords;
-    float useShadows;
-    float shadowMapSize;
-} tes_out;
+    float height = texture(heightmap, mapCoord).r;
+    height *= perTerrain.heightFactor;
+    height -= perTerrain.heightFactor / 2.f;
+    height += 19.f;
 
-uniform mat4 toShadowMapSpace;
-uniform vec3 shadowVariables;
-
-float GetHeight(vec2 v)
-{
-    return texture(displacementMap, v).r * heightFactor;
+    return height;
 }
 
-const float resolution = 1.f / 4096.f;
-
-void main(void)
+void main()
 {
-    vec2 tc1 = mix(tes_in[0].textCoord, tes_in[1].textCoord, gl_TessCoord.x);
-    vec2 tc2 = mix(tes_in[2].textCoord, tes_in[3].textCoord, gl_TessCoord.x);
-    vec2 textCoord = mix(tc2, tc1, gl_TessCoord.y);
+    float u = gl_TessCoord.x;
+    float v = gl_TessCoord.y;
 
-    vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
-    vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
-    vec4 p = mix(p2, p1, gl_TessCoord.y);
-    p.y += GetHeight(textCoord);
+    // world position
+    vec4 position =
+    ((1 - u) * (1 - v) * gl_in[12].gl_Position +
+    u * (1 - v) * gl_in[0].gl_Position +
+    u * v * gl_in[3].gl_Position +
+    (1 - u) * v * gl_in[15].gl_Position);
 
-    tes_out.height = GetHeight(textCoord);
+    vec2 mapCoord =
+    ((1 - u) * (1 - v) * mapCoord_TE[12] +
+    u * (1 - v) * mapCoord_TE[0] +
+    u * v * mapCoord_TE[3] +
+    (1 - u) * v * mapCoord_TE[15]);
 
-    float heightL = GetHeight(textCoord - vec2(resolution, 0));
-    float heightR = GetHeight(textCoord + vec2(resolution, 0));
-    float heightD = GetHeight(textCoord - vec2(0, resolution));
-    float heightU = GetHeight(textCoord + vec2(0, resolution));
-
-    tes_out.normal = normalize( vec3(heightL - heightR, 2.0f, heightD - heightU) );
-
-    vec4 P_eye = modelViewMatrix * p;
-
-    tes_out.textCoord = textCoord;
-    tes_out.world_coord = p.xyz;
-    tes_out.eye_coord = P_eye.xyz;
-    tes_out.position = projectionMatrix * P_eye;
-
-    gl_Position = tes_out.position;
-
-    if (shadowVariables.x > 0.5f)
-    {
-        tes_out.shadowMapSize = shadowVariables.z;
-        vec3 pos = p.xyz;
-        pos -= normalize(lightDirection) * 25.f;
-
-        float shadow_distance       = shadowVariables.y;
-        const float transition_distance = 2.f;
-
-        vec4 pe = modelViewMatrix * vec4(pos, 1.0f);
-
-        float distance_to_cam   = length(pe.xyz);
-
-        tes_out.shadowCoords    = toShadowMapSpace * vec4(pos, 1.f);
-        distance_to_cam         = distance_to_cam - (shadow_distance - transition_distance);
-        distance_to_cam         = distance_to_cam / shadow_distance;
-        tes_out.shadowCoords.w  = clamp(1.f - distance_to_cam, 0.f, 1.f);
-    }
+    position.y  = GetHeight(mapCoord);
+    mapCoord_GS = mapCoord;
+    gl_Position = position;
 }

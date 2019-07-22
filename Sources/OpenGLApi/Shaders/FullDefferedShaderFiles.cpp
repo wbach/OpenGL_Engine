@@ -74,11 +74,11 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> fullDe
     {
         GraphicsApi::Shaders::Terrain,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Terrain_VS.glsl"},
-            {GraphicsApi::ShaderType::TESS_CONTROL_SHADER, "Terrain/Terrain_TC.glsl"},
-            {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER,"Terrain/Terrain_TE.glsl"},
-            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Terrain/Terrain_GS.glsl"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Terrain/Terrain_FS.glsl"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Tessllation/TerrainShader.vert"},
+            {GraphicsApi::ShaderType::TESS_CONTROL_SHADER, "Terrain/Tessllation/TerrainShader.cs"},
+            {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER,"Terrain/Tessllation/TerrainShader.es"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Terrain/Tessllation/TerrainShader.geom"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Terrain/Tessllation/TerrainShader.frag"}
         }
     },
     {
