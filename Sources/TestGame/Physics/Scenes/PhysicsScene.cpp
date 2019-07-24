@@ -43,8 +43,6 @@ TerrainTexturesFilesMap CreateTerrainTexturesMap()
         {TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
         {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png"},
         {TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        {TerrainTextureType::rockTexture, "Textures/Terrain/Ground/G3_Nature_Wall_Stone_12_Diffuse_01.png"},
-        {TerrainTextureType::snowTexture, "Textures/Terrain/Ground/snow512.png"},
         {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
         {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
         {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/TerrainFlat.terrain"}

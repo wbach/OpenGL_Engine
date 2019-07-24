@@ -1,5 +1,6 @@
 #version 430
 #define TEXTURE_TILED_FACTOR 800.f
+#define LARGE_DETAIL_RANGE 325.f
 
 struct TerrainData
 {
@@ -24,10 +25,6 @@ uniform sampler2D greenTexture;
 uniform sampler2D greenTextureNormal;
 uniform sampler2D blueTexture;
 uniform sampler2D blueTextureNormal;
-uniform sampler2D rockTexture;
-uniform sampler2D rockNormalTexture;
-uniform sampler2D snowTexture;
-uniform sampler2D snowTextureNormal;
 
 in vec2 mapCoord_FS;
 in vec4 worldPos;
@@ -55,10 +52,10 @@ TerrainData CalculateTerrainData()
     vec3 normal = normalize(texture(normalmap, mapCoord_FS).xyz);
 
     float dist = length(perFrame.cameraPosition - worldPos.xyz);
-    float largeDetailRange = 325;
-    if (dist < largeDetailRange)
+
+    if (dist < LARGE_DETAIL_RANGE)
     {
-        float attenuation = clamp(-dist/largeDetailRange + 1,0.0,1.0);
+        float attenuation = clamp(-dist/ LARGE_DETAIL_RANGE + 1,0.0,1.0);
 
         vec3 bitangent = normalize(cross(normal, tangent));
         mat3 TBN = mat3(tangent, bitangent, normal);
@@ -77,10 +74,6 @@ TerrainData CalculateTerrainData()
         result.normal = normal;
     }
 
-    float normalFactor = dot(normal, vec3(0.f, 4.f, 0.f));
-    if (normalFactor > 1 )
-        normalFactor = 1;
-
     vec4 backgorund_texture_colour;
     backgorund_texture_colour = CalculateColor(backgorundTexture, backTextureAmount, tiledCoords);
 
@@ -89,6 +82,7 @@ TerrainData CalculateTerrainData()
     vec4 bColor = CalculateColor(blueTexture, blendMapColor.b, tiledCoords);
 
     result.color = backgorund_texture_colour + rColor + gColor + bColor;
+
     return result;
 }
 

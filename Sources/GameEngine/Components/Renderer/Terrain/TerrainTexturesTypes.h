@@ -7,20 +7,20 @@ class Texture;
 enum class TerrainTextureType
 {
     blendMap = 1,
+    normalmap,
+    heightmap,
     backgorundTexture,
     backgorundTextureNormal,
+    backgorundTextureDisplacement,
     redTexture,
     redTextureNormal,
+    redTextureDisplacement,
     greenTexture,
     greenTextureNormal,
+    greenTextureDisplacement,
     blueTexture,
     blueTextureNormal,
-    rockTexture,
-    rockNormalTexture,
-    snowTexture,
-    snowNormalTexture,
-    heightmap,
-    normalmap
+    blueTextureDisplacement
 };
 typedef std::unordered_map<TerrainTextureType, Texture*> TerrainTexturesMap;
 }  // namespace GameEngine

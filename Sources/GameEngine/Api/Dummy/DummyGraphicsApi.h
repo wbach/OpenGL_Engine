@@ -75,7 +75,7 @@ public:
         return ++id;
     }
 
-    virtual void UpdateShaderBuffer(uint32 id, void* buffer) override
+    virtual void UpdateShaderBuffer(uint32 id, void const* buffer) override
     {
     }
 

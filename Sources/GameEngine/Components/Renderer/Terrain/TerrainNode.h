@@ -6,6 +6,7 @@
 #include "TerrainConfiguration.h"
 #include "TerrainDef.h"
 #include "Types.h"
+#include "PerNodeBuffer.h"
 
 namespace GameEngine
 {
@@ -17,15 +18,12 @@ public:
     TerrainNode(const TerrainNode&) = delete;
     void Update(const vec3& cameraPosition);
     const std::vector<std::unique_ptr<TerrainNode>>& GetChildren() const;
-    float GetGap() const;
-    int32 GetLod() const;
-    const vec2& GetLocation() const;
-    const vec2& GetIndex() const;
+    const PerNode& GetPerNodeBuffer() const;
     bool IsLeaf() const;
-    const mat4& GetWorldMatrix() const;
-    const mat4& GetLocalMatrix() const;
 
 private:
+    int32 GetLod() const;
+    vec2 GetLocation() const;
     void ComputeWorldPosition();
     void UpdateQuadTree(const vec3& cameraPosition);
     void Divide();
@@ -35,15 +33,10 @@ private:
 
 private:
     const TerrainConfiguration& terrainConfiguration_;
-    vec2 location_;
+    PerNode perNodeBuffer_;
     vec3 worldPos_;
-    vec2 index_;
-    int32 lod_;
     bool isleaf_;
-    float gap_;
     float halfGap_;
-    common::Transform worldTransform_;
-    common::Transform localTransform_;
     std::vector<std::unique_ptr<TerrainNode>> children_;
 };
 }  // namespace GameEngine

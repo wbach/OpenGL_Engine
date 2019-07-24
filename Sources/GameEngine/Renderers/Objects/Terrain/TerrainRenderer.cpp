@@ -16,26 +16,7 @@
 
 namespace GameEngine
 {
-namespace
-{
-const uint32 MORPH_AREAS = 8;
 
-struct PerTerrain
-{
-    AlignWrapper<int> lodMorphArea[MORPH_AREAS];
-    AlignWrapper<float> heightFactor;  // sacaleY
-};
-struct PerNode
-{
-    mat4 worldMatrix;
-    mat4 localMatrix;
-    AlignWrapper<vec2> index;
-    AlignWrapper<vec2> location;
-    AlignWrapper<float> gap;
-    AlignWrapper<int> lod;
-};
-
-}  // namespace
 TerrainRenderer::TerrainRenderer(RendererContext& context)
     : context_(context)
     , clipPlane(vec4(0, 1, 0, 100000))
@@ -113,13 +94,7 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
     {
         const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfig();
-        PerTerrain perTerrain;
-        perTerrain.heightFactor = config.GetScaleY();
-        for (size_t i = 0; i < MORPH_AREAS; ++i)
-        {
-            perTerrain.lodMorphArea[i] = config.GetMorphingArea(i);
-        }
-        context_.graphicsApi_.UpdateShaderBuffer(perTerrainId, &perTerrain);
+        context_.graphicsApi_.UpdateShaderBuffer(perTerrainId, &config.GetPerTerrainBuffer());
         context_.graphicsApi_.BindShaderBuffer(perTerrainId);
 
         BindTextures(sub.second->GetTextures());
@@ -143,13 +118,8 @@ void TerrainRenderer::RenderNode(const TerrainNode& node) const
 {
     if (node.IsLeaf())
     {
-        PerNode perNode;
-        perNode.worldMatrix = node.GetWorldMatrix();
-        perNode.localMatrix = node.GetLocalMatrix();
-
-        context_.graphicsApi_.UpdateShaderBuffer(perNodeId, &perNode);
+        context_.graphicsApi_.UpdateShaderBuffer(perNodeId, &node.GetPerNodeBuffer());
         context_.graphicsApi_.BindShaderBuffer(perNodeId);
-
         context_.graphicsApi_.RenderMesh(objectId);
     }
 

@@ -4,8 +4,10 @@
 layout(quads, fractional_odd_spacing, cw) in;
 layout (std140, binding = 3) uniform PerTerrain
 {
-    int lodMorphArea[MORPH_AREAS];
-    float heightFactor;
+    vec4 displacementStrength;
+    ivec4 morpharea1_4;
+    ivec4 morpharea5_8;
+    vec3 scale;
 } perTerrain;
 
 uniform sampler2D heightmap;
@@ -17,8 +19,8 @@ out vec2 mapCoord_GS;
 float GetHeight(vec2 mapCoord)
 {
     float height = texture(heightmap, mapCoord).r;
-    height *= perTerrain.heightFactor;
-    height -= perTerrain.heightFactor / 2.f;
+    height *= perTerrain.scale.y;
+    height -= perTerrain.scale.y / 2.f;
     height += 19.f;
 
     return height;

@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <Types.h>
 
 namespace GameEngine
 {
@@ -36,6 +37,7 @@ private:
     void SetImmeditalyLogs(const std::vector<std::string>&);
     void TakeSnapshoot(const std::vector<std::string>&);
     void ReloadShaders(const std::vector<std::string>&);
+    void SwapRenderMode(const std::vector<std::string>&);
     GameObject* GetGameObject(const std::string&);
     std::vector<std::string> GetParams(const std::string& comannd);
 
@@ -46,6 +48,7 @@ private:
     std::vector<std::string> commands_;
     GuiTextElement* currentCommand_;
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
+    int32 commandHistoryIndex_;
 };
 }  // namespace Debug
 }  // namespace GameEngine

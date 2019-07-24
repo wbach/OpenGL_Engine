@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "PerrTerrainBuffer.h"
 #include "TerrainDef.h"
 #include "Types.h"
 
@@ -12,32 +13,38 @@ public:
     inline float GetScaleY() const;
     inline float GetScaleXZ() const;
     inline int32 GetLodRange(uint32 index) const;
-    inline int32 GetMorphingArea(uint32 index) const;
+    const PerTerrain& GetPerTerrainBuffer() const;
+    const vec3& GetScale() const;
 
 private:
     int32 updateMorphingArea(uint32 lod);
     void SetLod(uint32 index, uint32 value);
 
 private:
-    float scaleXZ_;
-    float scaleY_;
+    PerTerrain perTerrainBuffer;
     std::vector<int32> lodRanges_;
-    std::vector<int32> morphingAreas_;
+    float normalStrength_;
 };
 inline float TerrainConfiguration::GetScaleY() const
 {
-    return scaleY_;
+    return perTerrainBuffer.scale.y;
 }
 inline float TerrainConfiguration::GetScaleXZ() const
 {
-    return scaleXZ_;
+    return perTerrainBuffer.scale.x;
 }
 inline int32 TerrainConfiguration::GetLodRange(uint32 index) const
 {
     return lodRanges_[index];
 }
-inline int32 TerrainConfiguration::GetMorphingArea(uint32 index) const
+inline const PerTerrain& TerrainConfiguration::GetPerTerrainBuffer() const
 {
-    return morphingAreas_[index];
+    return perTerrainBuffer;
 }
+
+inline const vec3& TerrainConfiguration::GetScale() const
+{
+    return perTerrainBuffer.scale;
+}
+
 }  // namespace GameEngine

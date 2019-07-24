@@ -526,7 +526,7 @@ GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
 
     return impl_->buffers_.size() - 1;
 }
-void DirectXApi::UpdateShaderBuffer(uint32 id, void *data)
+void DirectXApi::UpdateShaderBuffer(uint32 id, void const *data)
 {
     if (not Utils::ValidateRange(impl_->buffers_, id))
     {
@@ -737,7 +737,7 @@ uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData, GraphicsApi::RenderType rendertype)
 {
     Vao vao;
-    vao.vertexes_.reserve(meshData.positions_.size() / 3.f);
+    vao.vertexes_.reserve(meshData.positions_.size() / 3);
 
     for (size_t x = 0; x < meshData.positions_.size(); x += 3)
     {
@@ -900,7 +900,7 @@ const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32) const
 {
     return defaultTextureInfo;
 }
-void DirectXApi::TakeSnapshoot(const std::string & path) const
+void DirectXApi::TakeSnapshoot(const std::string &path) const
 {
 }
 }  // namespace DirectX

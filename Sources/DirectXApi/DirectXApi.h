@@ -28,7 +28,7 @@ public:
     virtual uint32 GetShaderVariableLocation(uint32, const std::string&) override;
 
     virtual GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size) override;
-    virtual void UpdateShaderBuffer(uint32 id, void* buffer) override;
+    virtual void UpdateShaderBuffer(uint32 id, void const* buffer) override;
     virtual uint32 BindShaderBuffer(uint32) override;
 
     virtual void BindAttribute(uint32, uint32, const std::string&) override;

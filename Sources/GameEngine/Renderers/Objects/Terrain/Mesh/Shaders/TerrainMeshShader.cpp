@@ -55,9 +55,9 @@ void TerrainMeshShader::ConnectTextureUnits() const
     ConnectTerrainTexture(greenTextureNormal);
     ConnectTerrainTexture(blueTexture);
     ConnectTerrainTexture(blueTextureNormal);
-    ConnectTerrainTexture(rockTexture);
-    ConnectTerrainTexture(rockNormalTexture);
-    ConnectTerrainTexture(snowTexture);
-    ConnectTerrainTexture(snowNormalTexture);
+    //ConnectTerrainTexture(rockTexture);
+    //ConnectTerrainTexture(rockNormalTexture);
+    //ConnectTerrainTexture(snowTexture);
+    //ConnectTerrainTexture(snowNormalTexture);
 }
 }  // namespace GameEngine

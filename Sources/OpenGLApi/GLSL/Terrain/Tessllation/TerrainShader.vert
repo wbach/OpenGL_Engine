@@ -12,47 +12,47 @@ layout (std140, binding = 1) uniform PerFrame
 
 layout (std140, binding = 3) uniform PerTerrain
 {
-    int lodMorphArea[MORPH_AREAS];
-    float heightFactor; // sacaleY
+    vec4 displacementStrength;
+    ivec4 morpharea1_4;
+    ivec4 morpharea5_8;
+    vec3 scale;
 } perTerrain;
 
 layout (std140, binding = 4) uniform PerNode
 {
     mat4 worldMatrix;
     mat4 localMatrix;
-    vec2 index;
-    vec2 location;
-    float gap;
-    int lod;
+    vec4 indexAndLocation; // xy index, zw location
+    vec4 gapAndLod; // x gap, y Lod
 } perNode;
 
 uniform sampler2D heightmap;
 
 out vec2 mapCoord_TC;
 
-float morphLatitude(vec2 position)
+float morphLatitude(vec2 position, vec2 location, vec2 index, float gap)
 {
-    vec2 frac = position - perNode.location;
+    vec2 frac  = position - location;
 
-    if (perNode.index == vec2(0, 0))
+    if (index == vec2(0, 0))
     {
         float morph = frac.x - frac.y;
         if (morph > 0)
             return morph;
     }
-    if (perNode.index == vec2(1, 0))
+    if (index == vec2(1, 0))
     {
-        float morph = perNode.gap - frac.x - frac.y;
+        float morph = gap - frac.x - frac.y;
         if (morph > 0)
             return morph;
     }
-    if (perNode.index == vec2(0, 1))
+    if (index == vec2(0, 1))
     {
-        float morph = frac.x + frac.y - perNode.gap;
+        float morph = frac.x + frac.y - gap;
         if (morph > 0)
             return -morph;
     }
-    if (perNode.index == vec2(1, 1))
+    if (index == vec2(1, 1))
     {
         float morph = frac.y - frac.x;
         if (morph > 0)
@@ -61,29 +61,29 @@ float morphLatitude(vec2 position)
     return 0;
 }
 
-float morphLongitude(vec2 position)
+float morphLongitude(vec2 position, vec2 location, vec2 index, float gap)
 {
-    vec2 frac = position - perNode.location;
+    vec2 frac = position - location;
 
-    if (perNode.index == vec2(0, 0))
+    if (index == vec2(0, 0))
     {
         float morph = frac.y - frac.x;
         if (morph > 0)
             return -morph;
     }
-    if (perNode.index == vec2(1, 0))
+    if (index == vec2(1, 0))
     {
-        float morph = frac.y - (perNode.gap - frac.x);
+        float morph = frac.y - (gap - frac.x);
         if (morph > 0)
             return morph;
     }
-    if (perNode.index == vec2(0, 1))
+    if (index == vec2(0, 1))
     {
-        float morph = perNode.gap - frac.y - frac.x;
+        float morph = gap - frac.y - frac.x;
         if (morph > 0)
             return -morph;
     }
-    if (perNode.index == vec2(1, 1))
+    if (index == vec2(1, 1))
     {
         float morph = frac.x - frac.y;
         if (morph > 0)
@@ -95,41 +95,44 @@ float morphLongitude(vec2 position)
 vec2 morph(vec2 localPosition, int morphArea){
 
     vec2 morphing = vec2(0, 0);
+    vec2 location = perNode.indexAndLocation.zw;
+    vec2 index    = perNode.indexAndLocation.xy;
+    float gap     = perNode.gapAndLod.x;
 
     vec2 fixPointLatitude  = vec2(0, 0);
     vec2 fixPointLongitude = vec2(0, 0);
     float distLatitude     = 0.f;
     float distLongitude    = 0.f;
 
-    if (perNode.index == vec2(0, 0))
+    if (index == vec2(0, 0))
     {
-        fixPointLatitude  = perNode.location + vec2(perNode.gap, 0);
-        fixPointLongitude = perNode.location + vec2(0, perNode.gap);
+        fixPointLatitude  = location + vec2(gap, 0);
+        fixPointLongitude = location + vec2(0, gap);
     }
-    else if (perNode.index == vec2(1, 0))
+    else if (index == vec2(1, 0))
     {
-        fixPointLatitude  = perNode.location;
-        fixPointLongitude = perNode.location + vec2(perNode.gap, perNode.gap);
+        fixPointLatitude  = location;
+        fixPointLongitude = location + vec2(gap, gap);
     }
-    else if (perNode.index == vec2(0, 1))
+    else if (index == vec2(0, 1))
     {
-        fixPointLatitude  = perNode.location + vec2(perNode.gap, perNode.gap);
-        fixPointLongitude = perNode.location;
+        fixPointLatitude  = location + vec2(gap, gap);
+        fixPointLongitude = location;
     }
-    else if (perNode.index == vec2(1, 1))
+    else if (index == vec2(1, 1))
     {
-        fixPointLatitude  = perNode.location + vec2(0, perNode.gap);
-        fixPointLongitude = perNode.location + vec2(perNode.gap, 0);
+        fixPointLatitude  = location + vec2(0, gap);
+        fixPointLongitude = location + vec2(gap, 0);
     }
 
     float planarFactor = 0.f;
-    if (perFrame.cameraPosition.y > abs(perTerrain.heightFactor))
+    if (perFrame.cameraPosition.y > abs(perTerrain.scale.y))
     {
         planarFactor = 1;
     }
     else
     {
-        planarFactor = perFrame.cameraPosition.y / abs(perTerrain.heightFactor);
+        planarFactor = perFrame.cameraPosition.y / abs(perTerrain.scale.y);
     }
 
     distLatitude = length(perFrame.cameraPosition - (perNode.worldMatrix *
@@ -139,12 +142,12 @@ vec2 morph(vec2 localPosition, int morphArea){
 
     if (distLatitude > morphArea)
     {
-        morphing.x = morphLatitude(localPosition.xy);
+        morphing.x = morphLatitude(localPosition.xy, location, index, gap);
     }
 
     if (distLongitude > morphArea)
     {
-        morphing.y = morphLongitude(localPosition.xy);
+        morphing.y = morphLongitude(localPosition.xy, location, index, gap);
     }
 
     return morphing;
@@ -154,9 +157,21 @@ void main()
 {
     vec2 localPosition = (perNode.localMatrix * vec4(Position.x, 0, Position.y, 1)).xz;
 
-    if (perNode.lod > 0)
+    int lodMorphArea[MORPH_AREAS];
+    lodMorphArea[0] = perTerrain.morpharea1_4.x;
+    lodMorphArea[1] = perTerrain.morpharea1_4.y;
+    lodMorphArea[2] = perTerrain.morpharea1_4.z;
+    lodMorphArea[3] = perTerrain.morpharea1_4.w;
+    lodMorphArea[4] = perTerrain.morpharea5_8.x;
+    lodMorphArea[5] = perTerrain.morpharea5_8.y;
+    lodMorphArea[6] = perTerrain.morpharea5_8.z;
+    lodMorphArea[7] = perTerrain.morpharea5_8.w;
+
+    int lod = int(perNode.gapAndLod.y);
+
+    if (lod > 0)
     {
-        localPosition += morph(localPosition, perTerrain.lodMorphArea[perNode.lod - 1]);
+        //localPosition += morph(localPosition, lodMorphArea[lod - 1]);
     }
 
     mapCoord_TC = localPosition;

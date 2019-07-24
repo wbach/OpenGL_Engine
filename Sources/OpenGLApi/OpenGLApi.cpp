@@ -466,7 +466,7 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
     return id;
 }
 
-void OpenGLApi::UpdateShaderBuffer(uint32 id, void* buffer)
+void OpenGLApi::UpdateShaderBuffer(uint32 id, void const* buffer)
 {
     const auto& b = impl_->shaderBuffers_[id];
 

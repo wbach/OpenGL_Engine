@@ -3,7 +3,8 @@
 #include "TerrainShaderUniforms.h"
 
 #define GetLocation(X) uniforms_[static_cast<int>(TerrainShaderUniforms::X)] = GetUniformLocation(#X);
-#define ConnectTerrainTexture(X) Load(TerrainShaderUniforms::X, static_cast<int>(TerrainTextureType::X));
+#define ConnectTerrainTexture(X) \
+    Load(static_cast<int>(TerrainShaderUniforms::X), static_cast<int>(TerrainTextureType::X));
 
 namespace GameEngine
 {
@@ -21,39 +22,39 @@ void TerrainShader::GetAllUniformLocations()
     GetLocation(blendMap);
     GetLocation(backgorundTexture);
     GetLocation(backgorundTextureNormal);
+    GetLocation(backgorundTextureDisplacement);
     GetLocation(redTexture);
     GetLocation(redTextureNormal);
+    GetLocation(redTextureDisplacement);
     GetLocation(greenTexture);
     GetLocation(greenTextureNormal);
+    GetLocation(greenTextureDisplacement);
     GetLocation(blueTexture);
     GetLocation(blueTextureNormal);
-    GetLocation(rockTexture);
-    GetLocation(rockNormalTexture);
-    GetLocation(snowTexture);
-    GetLocation(snowNormalTexture);
-}
-void TerrainShader::BindAttributes()
-{
+    GetLocation(blueTextureDisplacement);
 }
 
 void TerrainShader::ConnectTextureUnits() const
 {
-    Load((int)TerrainShaderUniforms::heightmap, (int)TerrainTextureType::heightmap);
-    Load((int)TerrainShaderUniforms::normalmap, (int)TerrainTextureType::normalmap);
+    ConnectTerrainTexture(blendMap);
+    ConnectTerrainTexture(normalmap);
+    ConnectTerrainTexture(heightmap);
+    ConnectTerrainTexture(backgorundTexture);
+    ConnectTerrainTexture(backgorundTextureNormal);
+    ConnectTerrainTexture(backgorundTextureDisplacement);
+    ConnectTerrainTexture(redTexture);
+    ConnectTerrainTexture(redTextureNormal);
+    ConnectTerrainTexture(redTextureDisplacement);
+    ConnectTerrainTexture(greenTexture);
+    ConnectTerrainTexture(greenTextureNormal);
+    ConnectTerrainTexture(greenTextureDisplacement);
+    ConnectTerrainTexture(blueTexture);
+    ConnectTerrainTexture(blueTextureNormal);
+    ConnectTerrainTexture(blueTextureDisplacement);
+}
 
-    Load((int)TerrainShaderUniforms::blendMap, (int)TerrainTextureType::blendMap);
-    Load((int)TerrainShaderUniforms::backgorundTexture, (int)TerrainTextureType::backgorundTexture);
-    Load((int)TerrainShaderUniforms::backgorundTextureNormal, (int)TerrainTextureType::backgorundTextureNormal);
-    Load((int)TerrainShaderUniforms::redTexture, (int)TerrainTextureType::redTexture);
-    Load((int)TerrainShaderUniforms::redTextureNormal, (int)TerrainTextureType::redTextureNormal);
-    Load((int)TerrainShaderUniforms::greenTexture, (int)TerrainTextureType::greenTexture);
-    Load((int)TerrainShaderUniforms::greenTextureNormal, (int)TerrainTextureType::greenTextureNormal);
-    Load((int)TerrainShaderUniforms::blueTexture, (int)TerrainTextureType::blueTexture);
-    Load((int)TerrainShaderUniforms::blueTextureNormal, (int)TerrainTextureType::blueTextureNormal);
-    Load((int)TerrainShaderUniforms::rockTexture, (int)TerrainTextureType::rockTexture);
-    Load((int)TerrainShaderUniforms::rockNormalTexture, (int)TerrainTextureType::rockNormalTexture);
-    Load((int)TerrainShaderUniforms::snowTexture, (int)TerrainTextureType::snowTexture);
-    Load((int)TerrainShaderUniforms::snowNormalTexture, (int)TerrainTextureType::snowNormalTexture);
+void TerrainShader::BindAttributes()
+{
 }
 
 }  // namespace GameEngine

@@ -5,28 +5,13 @@ namespace GameEngine
 TerrainNode::TerrainNode(const TerrainConfiguration& terrainConfiguration, const vec2& location, int32 lod,
                          const vec2& index)
     : terrainConfiguration_(terrainConfiguration)
-    , location_(location)
+    , perNodeBuffer_(index, location, lod,
+                     vec3(terrainConfiguration.GetScaleXZ() / -2.f, 0, terrainConfiguration.GetScaleXZ() / -2.f),
+                     terrainConfiguration.GetScale())
     , worldPos_(0)
-    , index_(index)
-    , lod_(lod)
     , isleaf_(true)
-    , gap_(1.f / (static_cast<float>(TerrainDef::TERRAIN_ROOT_NODES_COUNT) * powf(2, lod)))
-    , halfGap_(gap_ / 2.f)
+    , halfGap_(perNodeBuffer_.gapAndLod.x / 2.f)
 {
-    localTransform_.SetScale(vec3(gap_, 0, gap_));
-    localTransform_.SetPosition(vec3(location_.x, 0, location_.y));
-    localTransform_.TakeSnapShoot();
-
-    vec3 scale(terrainConfiguration.GetScaleXZ(), terrainConfiguration.GetScaleY(),
-                   terrainConfiguration.GetScaleXZ());
-
-    vec3 worldPosition = scale / -2.f;
-    worldPosition.y    = 0;
-
-    worldTransform_.SetScale(scale);
-    worldTransform_.SetPosition(worldPosition);
-    worldTransform_.TakeSnapShoot();
-
     ComputeWorldPosition();
     const vec3 cameraPos(0);
     Update(cameraPos);
@@ -41,37 +26,30 @@ const std::vector<std::unique_ptr<TerrainNode>>& TerrainNode::GetChildren() cons
 {
     return children_;
 }
-float TerrainNode::GetGap() const
+
+const PerNode& TerrainNode::GetPerNodeBuffer() const
 {
-    return gap_;
+    return perNodeBuffer_;
 }
+
 int32 TerrainNode::GetLod() const
 {
-    return lod_;
+    return static_cast<int32>(perNodeBuffer_.gapAndLod.y);
 }
-const vec2& TerrainNode::GetLocation() const
+vec2 TerrainNode::GetLocation() const
 {
-    return location_;
+    return vec2(perNodeBuffer_.indexAndLocation.z, perNodeBuffer_.indexAndLocation.w);
 }
-const vec2& TerrainNode::GetIndex() const
-{
-    return index_;
-}
+
 bool TerrainNode::IsLeaf() const
 {
     return isleaf_;
 }
-const mat4& TerrainNode::GetWorldMatrix() const
-{
-    return worldTransform_.GetMatrix();
-}
-const mat4& TerrainNode::GetLocalMatrix() const
-{
-    return localTransform_.GetMatrix();
-}
+
 void TerrainNode::ComputeWorldPosition()
 {
-    vec2 loc    = (location_ + halfGap_) * terrainConfiguration_.GetScaleXZ() - terrainConfiguration_.GetScaleXZ() / 2.f;
+    vec2 loc =
+        (GetLocation() + halfGap_) * terrainConfiguration_.GetScaleXZ() - terrainConfiguration_.GetScaleXZ() / 2.f;
     worldPos_.x = loc.x;
     worldPos_.z = loc.y;
 }
@@ -79,7 +57,7 @@ void TerrainNode::UpdateQuadTree(const vec3& cameraPosition)
 {
     float distance = glm::length(cameraPosition - worldPos_);
 
-    const auto& lodRange = terrainConfiguration_.GetLodRange(lod_);
+    const auto& lodRange = terrainConfiguration_.GetLodRange(GetLod());
 
     if (distance < lodRange)
     {
@@ -107,9 +85,9 @@ void TerrainNode::Divide()
         {
             for (int j = 0; j < 2; j++)
             {
-                const vec2 childLocation = location_ + vec2(i * halfGap_, j * halfGap_);
+                const vec2 childLocation = GetLocation() + vec2(i * halfGap_, j * halfGap_);
                 const vec2 index(i, j);
-                children_.emplace_back(new TerrainNode(terrainConfiguration_, childLocation, lod_ + 1, index));
+                children_.emplace_back(new TerrainNode(terrainConfiguration_, childLocation, GetLod() + 1, index));
             }
         }
     }

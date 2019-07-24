@@ -1,7 +1,10 @@
 #version 430
+#define TEXTURE_TILED_FACTOR 800.f
+#define LARGE_DETAIL_RANGE 325.f
+//#define scaleXZ 6000.f
 
 layout(triangles) in;
-layout(triangle_strip, max_vertices = 4) out; // line_strip
+layout(triangle_strip, max_vertices = 3) out; // line_strip
 
 layout (std140, binding = 1) uniform PerFrame
 {
@@ -10,11 +13,30 @@ layout (std140, binding = 1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
+layout (std140, binding = 3) uniform PerTerrain
+{
+    vec4 displacementStrength;
+    ivec4 morpharea1_4;
+    ivec4 morpharea5_8;
+    vec3 scale;
+} perTerrain;
+
 in vec2 mapCoord_GS[];
+
+uniform sampler2D blendMap;
+uniform sampler2D backgorundTextureDisplacement;
+uniform sampler2D redTextureDisplacement;
+uniform sampler2D greenTextureDisplacement;
+uniform sampler2D blueTextureDisplacement;
 
 out vec4 worldPos;
 out vec2 mapCoord_FS;
 out vec3 tangent;
+
+struct Displacement
+{
+    vec3 array[3];
+};
 
 vec3 calcTangent()
 {
@@ -37,13 +59,56 @@ vec3 calcTangent()
     return normalize((e1 * deltaUV2.y - e2 * deltaUV1.y) * r);
 }
 
+Displacement calculateDisplacment()
+{
+    Displacement displacement;
+
+    for(int k = 0; k < gl_in.length(); k++)
+    {
+        vec2 mapCoords = (gl_in[k].gl_Position.xz + perTerrain.scale.x / 2.f) / perTerrain.scale.x;
+        vec2 tiledCoords = mapCoords * TEXTURE_TILED_FACTOR;
+
+        vec4 blendMapColor = texture(blendMap, mapCoords);
+        float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b) ;
+
+        displacement.array[k] = vec3(0, 1, 0);
+
+        float height = gl_in[k].gl_Position.y;
+
+        float scale = 0.f;
+        scale += texture(backgorundTextureDisplacement, tiledCoords).r * backTextureAmount * perTerrain.displacementStrength.x;
+        scale += texture(redTextureDisplacement, tiledCoords).r * blendMapColor.r * perTerrain.displacementStrength.y;
+        scale += texture(greenTextureDisplacement, tiledCoords).r * blendMapColor.g * perTerrain.displacementStrength.z;
+        scale += texture(backgorundTextureDisplacement, tiledCoords).r * blendMapColor.b * perTerrain.displacementStrength.w;
+
+        float attenuation = clamp(- distance(gl_in[k].gl_Position.xyz, perFrame.cameraPosition) / LARGE_DETAIL_RANGE + 1.f , 0.f, 1.f);
+       // scale *= attenuation;
+
+        displacement.array[k] *= scale;
+    }
+
+    return displacement;
+}
+
 void main()
 {
-    tangent = calcTangent();
+    float dist = (distance(gl_in[0].gl_Position.xyz, perFrame.cameraPosition) + distance(gl_in[1].gl_Position.xyz, perFrame.cameraPosition) + distance(gl_in[2].gl_Position.xyz, perFrame.cameraPosition)) / 3.f;
+
+    Displacement displacement;
+    for (int i = 0; i < gl_in.length(); ++i)
+    {
+        displacement.array[i] = vec3(0);
+    }
+
+    if (dist < LARGE_DETAIL_RANGE)
+    {
+        tangent = calcTangent();
+        displacement = calculateDisplacment();
+    }
 
     for (int i = 0; i < gl_in.length(); ++i)
     {
-        vec4 position = gl_in[i].gl_Position;
+        vec4 position = gl_in[i].gl_Position + vec4(displacement.array[i], 0);
         mapCoord_FS = mapCoord_GS[i];
         worldPos =  perFrame.projectionViewMatrix * position;
         gl_Position = worldPos;

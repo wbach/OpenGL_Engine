@@ -5,10 +5,10 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Input/KeyCodeToCharConverter.h"
-#include "GameEngine/Renderers/RenderersManager.h"
 
 namespace GameEngine
 {
@@ -25,6 +25,7 @@ Console::Console(Scene &scene)
     : scene_(scene)
     , window_{nullptr}
     , currentCommand_{nullptr}
+    , commandHistoryIndex_{0}
 {
     window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5),
                                                          "GUI/darkGrayButton.png");
@@ -38,6 +39,8 @@ Console::Console(Scene &scene)
         scene_.inputManager_->StashSubscribers();
         SubscribeKeys();
         window_->Show();
+        if (not commands_.empty())
+            commandHistoryIndex_ = commands_.size();
 
         if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
             currentCommand_ = AddOrUpdateGuiText("");
@@ -48,8 +51,8 @@ Console::Console(Scene &scene)
 
 void Console::AddCommand(const std::string &command)
 {
-    std::string c = command.substr(2);
-    commands_.push_back(c);
+    std::string c = command.substr(COMMAND_CURRSOR.size());
+    commands_.push_back(command);
     DEBUG_LOG(c);
     ExecuteComand(c);
 }
@@ -125,7 +128,8 @@ void Console::RegisterActions()
     commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
     commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
     commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
-    commandsActions_.insert({ "reloadshaders", [this](const auto &params) { ReloadShaders(params); } });
+    commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
+    commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
@@ -338,9 +342,14 @@ void Console::TakeSnapshoot(const std::vector<std::string> &params)
     scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
 }
 
-void Console::ReloadShaders(const std::vector<std::string>&)
+void Console::ReloadShaders(const std::vector<std::string> &)
 {
     scene_.renderersManager_->ReloadShaders();
+}
+
+void Console::SwapRenderMode(const std::vector<std::string> &)
+{
+    scene_.renderersManager_->SwapLineFaceRender();
 }
 
 std::vector<std::string> Console::GetParams(const std::string &command)
@@ -364,19 +373,39 @@ void Console::SubscribeKeys()
         {
             return;
         }
-
+        commandHistoryIndex_ = commands_.size();
         AddCommand(currentCommand_->GetText());
         currentCommand_ = AddOrUpdateGuiText("");
     });
 
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
+        if (commands_.empty())
+            return;
+
+        currentCommand_->SetText(commands_[commandHistoryIndex_]);
+        ++commandHistoryIndex_;
+        if (commandHistoryIndex_ >= static_cast<int>(commands_.size()))
+        {
+            commandHistoryIndex_ = 0;
+        }
+    });
+
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
+        if (commands_.empty())
+            return;
+
+        currentCommand_->SetText(commands_[commandHistoryIndex_]);
+        --commandHistoryIndex_;
+
+        if (commandHistoryIndex_ < 0)
+        {
+            commandHistoryIndex_ = static_cast<int>(commands_.size() - 1);
+        }
+    });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
-
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
-
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-
     scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
         if (not window_->IsShow())
             return;
@@ -405,6 +434,7 @@ void Console::SubscribeKeys()
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Hide();
+
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
         {
             currentCommand_->Append(" (not executed)");

@@ -24,7 +24,7 @@ public:
     MOCK_METHOD2(CreateShader, uint32(Shaders shaderType, GraphicsApiFunctions));
     MOCK_METHOD2(GetShaderVariableLocation, uint32(uint32, const std::string&));
     MOCK_METHOD2(CreateShaderBuffer, ID(uint32 bindLocation, uint32 size));
-    MOCK_METHOD2(UpdateShaderBuffer, void(uint32 id, void* buffer));
+    MOCK_METHOD2(UpdateShaderBuffer, void(uint32 id, void const* buffer));
     MOCK_METHOD1(BindShaderBuffer, uint32(uint32));
     MOCK_METHOD1(UseShader, void(uint32));
     MOCK_METHOD3(BindAttribute, void(uint32, uint32, const std::string&));

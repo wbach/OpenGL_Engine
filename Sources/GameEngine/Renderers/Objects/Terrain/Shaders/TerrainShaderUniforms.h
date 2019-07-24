@@ -4,21 +4,21 @@ namespace GameEngine
 {
 enum class TerrainShaderUniforms
 {
-    heightmap,
-    normalmap,
     blendMap,
+    normalmap,
+    heightmap,
     backgorundTexture,
     backgorundTextureNormal,
+    backgorundTextureDisplacement,
     redTexture,
     redTextureNormal,
+    redTextureDisplacement,
     greenTexture,
     greenTextureNormal,
+    greenTextureDisplacement,
     blueTexture,
     blueTextureNormal,
-    rockTexture,
-    rockNormalTexture,
-    snowTexture,
-    snowNormalTexture,
+    blueTextureDisplacement,
     SIZE
 };
 }  // namespace GameEngine

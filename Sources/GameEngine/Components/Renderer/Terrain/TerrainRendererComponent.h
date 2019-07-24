@@ -25,6 +25,7 @@ public:
     Texture* GetHeightMap() const;
     void SetTexture(std::unique_ptr<Texture>);
 
+
 private:
     void Update();
     void SetTexture(TerrainTextureType, Texture*);
