@@ -15,7 +15,7 @@ snapshoot
 *.autosave
 .vscode/
 build*
-
+.commandHistory
 *.zip
 
 ## Ignore Visual Studio temporary files, build results, and

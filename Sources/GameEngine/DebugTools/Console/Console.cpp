@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <algorithm>
+#include <fstream>
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
@@ -27,7 +28,8 @@ Console::Console(Scene &scene)
     , currentCommand_{nullptr}
     , commandHistoryIndex_{0}
 {
-    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5), "GUI/darkGrayButton.png");
+    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5),
+                                                         "GUI/darkGrayButton.png");
     if (not window_)
         return;
 
@@ -38,7 +40,7 @@ Console::Console(Scene &scene)
         window_->Show();
 
         if (not commands_.empty())
-            commandHistoryIndex_ = static_cast<int32>(commands_.size());
+            commandHistoryIndex_ = static_cast<int32>(commands_.size() - 1);
 
         if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
             currentCommand_ = AddOrUpdateGuiText("");
@@ -48,6 +50,20 @@ Console::Console(Scene &scene)
     });
 
     RegisterActions();
+
+    std::ifstream file(".commandHistory");
+
+    if (file.is_open())
+    {
+        std::string command;
+        while (file >> command)
+        {
+            auto text = AddOrUpdateGuiText(command);
+            text->Hide();
+            commands_.push_back(COMMAND_CURRSOR + command);
+        }
+        file.close();
+    }
 }
 
 void Console::RegisterActions()
@@ -66,7 +82,24 @@ void Console::RegisterActions()
 void Console::AddCommand(const std::string &command)
 {
     std::string c = command.substr(COMMAND_CURRSOR.size());
-    commands_.push_back(command);
+
+    auto iter = std::find(commands_.begin(), commands_.end(), command);
+    if (iter == commands_.end())
+    {
+        commands_.push_back(command);
+    }
+    else
+    {
+        auto str = *iter;
+        commands_.erase(iter);
+        commands_.push_back(str);
+    }
+
+    std::ofstream file(".commandHistory");
+    for (const auto &com : commands_)
+        file << com.substr(COMMAND_CURRSOR.size()) << '\n';
+    file.close();
+
     DEBUG_LOG(c);
     ExecuteComand(c);
 }
@@ -99,8 +132,10 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText("DebugConsoleText_" + std::to_string(guiTexts_.size()), EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
-        result    = text;
+        auto text = scene_.guiElementFactory_->CreateGuiText(
+            "DebugConsoleText_" + std::to_string(guiTexts_.size()),
+            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
+        result = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
@@ -372,7 +407,7 @@ void Console::SubscribeKeys()
         {
             return;
         }
-        commandHistoryIndex_ = static_cast<int32>(commands_.size());
+        commandHistoryIndex_ = static_cast<int32>(commands_.size() - 1);
         AddCommand(currentCommand_->GetText());
         currentCommand_ = AddOrUpdateGuiText("");
     });
@@ -465,7 +500,8 @@ void Console::SubscribeKeys()
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
-    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(), [&name](const auto &p) { return p.second->GetName() == name; });
+    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
+                             [&name](const auto &p) { return p.second->GetName() == name; });
 
     if (iter != scene_.gameObjects.end())
         return iter->second.get();
