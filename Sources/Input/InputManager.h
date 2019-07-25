@@ -41,7 +41,7 @@ public:
     virtual void GetPressedKeys()                    = 0;
     virtual void ProcessKeysEvents()                 = 0;
 
-    virtual void ShowCursor(bool){};
+    virtual void ShowCursor(bool){}
     void StashSubscribers();
     void StashPopSubscribers();
 
@@ -52,8 +52,8 @@ public:
     void UnsubscribeOnKeyDown(KeyCodes::Type key);
     void UnsubscribeOnKeyUp(KeyCodes::Type key);
 
-    void UnsubscribeOnKeyDown(KeyCodes::Type key, std::size_t);
-    void UnsubscribeOnKeyUp(KeyCodes::Type key, std::size_t);
+    void UnsubscribeOnKeyDown(KeyCodes::Type key, long);
+    void UnsubscribeOnKeyUp(KeyCodes::Type key, long);
 
     void UnsubscribeAll();
 

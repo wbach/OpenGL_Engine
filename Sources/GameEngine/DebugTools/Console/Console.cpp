@@ -27,8 +27,7 @@ Console::Console(Scene &scene)
     , currentCommand_{nullptr}
     , commandHistoryIndex_{0}
 {
-    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5),
-                                                         "GUI/darkGrayButton.png");
+    window_ = scene_.guiElementFactory_->CreateGuiWindow("DebugConsoleWindow", vec2(0, 0.5), vec2(1, 0.5), "GUI/darkGrayButton.png");
     if (not window_)
         return;
 
@@ -36,17 +35,32 @@ Console::Console(Scene &scene)
     window_->SetZPosition(1.6f);
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        scene_.inputManager_->StashSubscribers();
-        SubscribeKeys();
         window_->Show();
+
         if (not commands_.empty())
-            commandHistoryIndex_ = commands_.size();
+            commandHistoryIndex_ = static_cast<int32>(commands_.size());
 
         if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
             currentCommand_ = AddOrUpdateGuiText("");
+
+        scene_.inputManager_->StashSubscribers();
+        SubscribeKeys();
     });
 
     RegisterActions();
+}
+
+void Console::RegisterActions()
+{
+    commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
+    commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
+    commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
+    commandsActions_.insert({"loadscene", [this](const auto &params) { LoadScene(params); }});
+    commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
+    commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
+    commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
+    commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
+    commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
 }
 
 void Console::AddCommand(const std::string &command)
@@ -85,10 +99,8 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText(
-            "DebugConsoleText_" + std::to_string(guiTexts_.size()),
-            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
-        result = text;
+        auto text = scene_.guiElementFactory_->CreateGuiText("DebugConsoleText_" + std::to_string(guiTexts_.size()), EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
+        result    = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
@@ -117,19 +129,6 @@ void Console::MoveUpTexts()
         position.y += 2.f * scale.y;
         guiText->SetPostion(position);
     }
-}
-
-void Console::RegisterActions()
-{
-    commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
-    commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
-    commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
-    commandsActions_.insert({"loadscene", [this](const auto &params) { LoadScene(params); }});
-    commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
-    commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
-    commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
-    commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
-    commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
@@ -296,7 +295,7 @@ void Console::LoadScene(const std::vector<std::string> &params)
     {
         try
         {
-            SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, std::stoi(params[0]));
+            SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, static_cast<uint32>(std::stoi(params[0])));
             scene_.addSceneEvent(sceneEvent);
         }
         catch (...)
@@ -311,7 +310,7 @@ void Console::LoadScene(const std::vector<std::string> &params)
     }
 }
 
-void Console::ReloadScene(const std::vector<std::string> &params)
+void Console::ReloadScene(const std::vector<std::string> &)
 {
     SceneEvent sceneEvent(SceneEventType::RELOAD_SCENE, 0);
     scene_.addSceneEvent(sceneEvent);
@@ -373,7 +372,7 @@ void Console::SubscribeKeys()
         {
             return;
         }
-        commandHistoryIndex_ = commands_.size();
+        commandHistoryIndex_ = static_cast<int32>(commands_.size());
         AddCommand(currentCommand_->GetText());
         currentCommand_ = AddOrUpdateGuiText("");
     });
@@ -382,25 +381,34 @@ void Console::SubscribeKeys()
         if (commands_.empty())
             return;
 
-        currentCommand_->SetText(commands_[commandHistoryIndex_]);
-        ++commandHistoryIndex_;
+        if (commandHistoryIndex_ < 0)
+        {
+            commandHistoryIndex_ = static_cast<int>(commands_.size() - 1);
+        }
         if (commandHistoryIndex_ >= static_cast<int>(commands_.size()))
         {
             commandHistoryIndex_ = 0;
         }
+
+        currentCommand_->SetText(commands_[static_cast<size_t>(commandHistoryIndex_)]);
+        ++commandHistoryIndex_;
     });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
         if (commands_.empty())
             return;
 
-        currentCommand_->SetText(commands_[commandHistoryIndex_]);
-        --commandHistoryIndex_;
-
         if (commandHistoryIndex_ < 0)
         {
             commandHistoryIndex_ = static_cast<int>(commands_.size() - 1);
         }
+        if (commandHistoryIndex_ >= static_cast<int>(commands_.size()))
+        {
+            commandHistoryIndex_ = 0;
+        }
+
+        currentCommand_->SetText(commands_[static_cast<size_t>(commandHistoryIndex_)]);
+        --commandHistoryIndex_;
     });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
@@ -457,8 +465,7 @@ void Console::SubscribeKeys()
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
-    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
-                             [&name](const auto &p) { return p.second->GetName() == name; });
+    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(), [&name](const auto &p) { return p.second->GetName() == name; });
 
     if (iter != scene_.gameObjects.end())
         return iter->second.get();

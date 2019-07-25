@@ -79,7 +79,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
     subscribers_.keyUpSubscribers_.erase(key);
 }
 
-void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, std::size_t i)
+void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, long i)
 {
     if (subscribers_.keyDownSubscribers_.count(key) == 0)
         return;
@@ -88,7 +88,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, std::size_t i)
     list.erase(list.begin() + i);
 }
 
-void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, std::size_t i)
+void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, long i)
 {
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
         return;
@@ -98,7 +98,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, std::size_t i)
 }
 void InputManager::StashSubscribers()
 {
-    stash_ = subscribers_;
+    stash_ = std::move(subscribers_);
     subscribers_ = Subscribers();
 }
 void InputManager::StashPopSubscribers()

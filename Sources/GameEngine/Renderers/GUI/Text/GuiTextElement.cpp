@@ -57,6 +57,7 @@ const std::string& GuiTextElement::GetText() const
 void GuiTextElement::SetTexture(Texture* texture)
 {
     texture_ = texture;
+    CalculateAlginOffset();
 }
 
 void GuiTextElement::SetText(const std::string& text)
@@ -66,6 +67,7 @@ void GuiTextElement::SetText(const std::string& text)
 
     text_ = text;
     RenderText();
+    CalculateAlginOffset();
 }
 
 void GuiTextElement::Append(const std::string& text)
@@ -157,7 +159,7 @@ void GuiTextElement::RenderText(bool fontOverride)
 
         if (surface_)
         {
-            windowApi_.DeleteSurface(surface_->id);
+            windowApi_.DeleteSurface(static_cast<uint32>(surface_->id));
         }
 
         surface_ = windowApi_.RenderFont(*fontId_, text_, ToVec4(color_), outline_);
