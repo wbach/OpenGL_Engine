@@ -171,7 +171,7 @@ void main()
 
     if (lod > 0)
     {
-        //localPosition += morph(localPosition, lodMorphArea[lod - 1]);
+        localPosition += morph(localPosition, lodMorphArea[lod - 1]);
     }
 
     mapCoord_TC = localPosition;

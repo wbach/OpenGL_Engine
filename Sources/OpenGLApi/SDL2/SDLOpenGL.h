@@ -8,12 +8,22 @@ namespace OpenGLApi
 {
 class SdlOpenGlApi : public GraphicsApi::IWindowApi
 {
+    struct RenderedText
+    {
+        uint32 fontId;
+        std::string text;
+        vec4 color;
+        uint32 outline;
+        GraphicsApi::Surface surface;
+        uint32 insances;
+    };
+
 public:
     SdlOpenGlApi();
     virtual ~SdlOpenGlApi() override;
     virtual void Init() override;
     virtual void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                              GraphicsApi::WindowType full_screen) override;
+                                  GraphicsApi::WindowType full_screen) override;
     virtual void CreateContext() override;
     virtual void DeleteContext() override;
 
@@ -48,5 +58,6 @@ private:
     bool fullScreenActive;
 
     std::function<void(uint32, uint32)> addKeyEvent_;
+    std::vector<RenderedText> rendererdTexts_;
 };
 }  // namespace OpenGLApi

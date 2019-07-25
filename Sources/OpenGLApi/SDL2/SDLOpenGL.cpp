@@ -3,6 +3,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_video.h>
+#include <algorithm>
 #include <optional>
 #include "InputSDL.h"
 #include "Logger/Log.h"
@@ -162,10 +163,20 @@ std::optional<uint32> SdlOpenGlApi::OpenFont(const std::string& filename, uint32
     return {};
 }
 
-std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const std::string& text, const vec4& color,
+std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 fontId, const std::string& text, const vec4& color,
                                                              uint32 outline)
 {
-    auto index = id - 1;
+    auto iter = std::find_if(rendererdTexts_.begin(), rendererdTexts_.end(), [&](const auto& r) {
+        return fontId == r.fontId and text == r.text and color == r.color and outline == r.outline;
+    });
+
+    if (iter != rendererdTexts_.end())
+    {
+        ++iter->insances;
+        return iter->surface;
+    }
+
+    auto index = fontId - 1;
     if (index >= impl_->fonts_.size())
     {
         return {};
@@ -202,9 +213,19 @@ std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 id, const st
         impl_->surfaces_.push_back(sdlSurface);
         surfaceId = impl_->surfaces_.size() - 1;
     }
-    return GraphicsApi::Surface{*surfaceId,
-                                vec2ui(static_cast<uint32>(sdlSurface->w), static_cast<uint32>(sdlSurface->h)),
-                                sdlSurface->format->BytesPerPixel, sdlSurface->pixels};
+
+    RenderedText newText;
+    newText.color   = color;
+    newText.fontId  = fontId;
+    newText.outline = outline;
+    newText.text    = text;
+    newText.surface =
+        GraphicsApi::Surface{*surfaceId, vec2ui(static_cast<uint32>(sdlSurface->w), static_cast<uint32>(sdlSurface->h)),
+                             sdlSurface->format->BytesPerPixel, sdlSurface->pixels};
+
+    rendererdTexts_.push_back(newText);
+
+    return newText.surface;
 }
 
 void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
@@ -214,8 +235,19 @@ void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
         return;
     }
 
-    impl_->DeleteSurface(impl_->surfaces_[surfaceId]);
-    impl_->surfaces_[surfaceId] = nullptr;
+    auto iter = std::find_if(rendererdTexts_.begin(), rendererdTexts_.end(), [&](const auto& r) {
+        return r.surface.id == surfaceId;
+    });
+
+    if (iter != rendererdTexts_.end())
+    {
+        --iter->insances;
+        if (iter->insances == 0)
+        {
+            impl_->DeleteSurface(impl_->surfaces_[surfaceId]);
+            impl_->surfaces_[surfaceId] = nullptr;
+        }
+    }
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const
