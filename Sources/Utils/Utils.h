@@ -64,7 +64,7 @@ std::string GetFilename(const std::string& fullpath);
 std::string GetFilePath(const std::string& fullpath);
 std::string GetFileExtension(const std::string& file_name);
 std::string GetFilenameWithExtension(const std::string& fullpath);
-std::string ConvertToRelativePath(std::string path);
+std::string GetPathAndFilenameWithoutExtension(const std::string& path);
 int NextP2(int a);
 bool CheckFileExist(const std::string& file);
 bool CheckExtension(const std::string& file, const std::string& ext);

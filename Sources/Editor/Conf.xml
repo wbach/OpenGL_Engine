@@ -1,0 +1,21 @@
+<Config>
+	<Window name="Default Window Name" width="1000" height="600" fullscreen="false"/>
+	<Files>
+		<DataLocation>../../Data/</DataLocation>
+		<ShadersLocation>../../Sources/OpenGLApi/GLSL/</ShadersLocation>
+		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
+	</Files>
+	<Sound enabled="1" volume="1.000000"/>
+	<Renderer resolutionX="1000" type="1" resolutionY="600" fpsLimit="60">
+		<Water type="2">
+			<Reflection width="640" height="480"/>
+			<Refraction width="320" height="240"/>
+		</Water>
+		<Flora enabled="true" grass="1" viewDistance="10.000000"/>
+		<Shadows enabled="true" viewDistance="35.000000" shadowMapSize="4096"/>
+		<Textures ambient="true" maxWidth="1024" maxHeight="1024" diffuse="true" normal="true" specular="true"/>
+		<Particles enabled="true"/>
+	</Renderer>
+	<EnableBinaryLoading>true</EnableBinaryLoading>
+</Config>
+

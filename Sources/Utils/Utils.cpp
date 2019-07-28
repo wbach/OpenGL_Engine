@@ -151,6 +151,12 @@ std::string GetFilenameWithExtension(const std::string & fullpath)
     return file.substr(file.find_last_of('/') + 1);
 }
 
+std::string GetPathAndFilenameWithoutExtension(const std::string& path)
+{
+    auto file = ReplaceSlash(path);
+    return file.substr(0, file.find_last_of('.'));
+}
+
 std::string ConvertToRelativePath(std::string path)
 {
     if (path.empty())
