@@ -6,6 +6,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GuiManager.h"
+#include "Layout/HorizontalLayout.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
 #include "Text/GuiTextFactory.h"
@@ -25,6 +26,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , windowSize_(entryParameters.renderersManager_.GetProjection().GetWindowSize())
     , guiTextFactory_(entryParameters.resourceManager_, EngineConf.renderer.resolution)
     , guiElementCounter_(0)
+    , unsubscribe_([this](uint32 id) { renderersManager_.GetGuiRenderer().UnSubscribe(id); })
 {
 }
 
@@ -118,7 +120,15 @@ GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &label, Gu
 
 VerticalLayout *GuiElementFactory::CreateVerticalLayout(const std::string &label)
 {
-    auto layout = std::make_unique<VerticalLayout>(windowSize_, inputManager_, [this](uint32 id) { renderersManager_.GetGuiRenderer().UnSubscribe(id); });
+    auto layout = std::make_unique<VerticalLayout>(windowSize_, inputManager_, unsubscribe_);
+    auto result = layout.get();
+    guiManager_.Add(label, std::move(layout));
+    return result;
+}
+
+HorizontalLayout *GuiElementFactory::CreateHorizontalLayout(const std::string &label)
+{
+    auto layout = std::make_unique<HorizontalLayout>(windowSize_, inputManager_, unsubscribe_);
     auto result = layout.get();
     guiManager_.Add(label, std::move(layout));
     return result;
@@ -409,7 +419,46 @@ GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory,
 
     return nullptr;
 }
-VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
+
+VerticalLayout *ReadVerticalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &, uint32 &);
+HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &, uint32 &);
+
+void ReadLayoutChildren(Utils::XmlNode &node, GuiElementFactory &factory, Layout *layout, GuiManager &manger,
+                        uint32 &unnamedTextId)
+{
+    for (auto &child : node.GetChildren())
+    {
+        DEBUG_LOG("Node : " + child->GetName());
+
+        if (auto text = ReadGuiText(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(text);
+        }
+        else if (auto texture = ReadGuiTexture(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(texture);
+        }
+        else if (auto button = ReadGuiButton(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(button);
+        }
+        else if (auto editBox = ReadEditBox(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(editBox);
+        }
+        else if (auto horizontalLayout = ReadHorizontalLayout(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(horizontalLayout);
+        }
+        else if (auto verticalLayout = ReadVerticalLayout(*child, factory, manger, unnamedTextId))
+        {
+            layout->AddChild(verticalLayout);
+        }
+    }
+}
+
+VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
+                                   uint32 &unnamedTextId)
 {
     if (node.GetName() != "verticalLayout")
     {
@@ -431,34 +480,37 @@ VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &fact
 
     auto layout = factory.CreateVerticalLayout(label);
     ReadGuiElementBasic(layout, node);
-
-    for (auto &child : node.GetChildren())
-    {
-        DEBUG_LOG("Node : " + child->GetName());
-
-        if (auto text = ReadGuiText(*child, factory, manger, unnamedTextId))
-        {
-            layout->AddChild(text);
-        }
-        else if (auto texture = ReadGuiTexture(*child, factory, manger, unnamedTextId))
-        {
-            layout->AddChild(texture);
-        }
-        else if (auto button = ReadGuiButton(*child, factory, manger, unnamedTextId))
-        {
-            layout->AddChild(button);
-        }
-        else if (auto editBox = ReadEditBox(*child, factory, manger, unnamedTextId))
-        {
-            layout->AddChild(editBox);
-        }
-        else if (auto verticalLayout = ReadVerticalLayout(*child, factory, manger, unnamedTextId))
-        {
-            layout->AddChild(verticalLayout);
-        }
-    }
+    ReadLayoutChildren(node, factory, layout, manger, unnamedTextId);
     return layout;
 }
+
+HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
+                                       uint32 &unnamedTextId)
+{
+    if (node.GetName() != "horizontalLayout")
+    {
+        return nullptr;
+    }
+
+    std::string label;
+
+    auto paramNode = node.GetChild("label");
+
+    if (paramNode)
+    {
+        label = paramNode->value_;
+    }
+    else
+    {
+        label = "Unnamed_layout_" + std::to_string(unnamedTextId++);
+    }
+
+    auto layout = factory.CreateHorizontalLayout(label);
+    ReadGuiElementBasic(layout, node);
+    ReadLayoutChildren(node, factory, layout, manger, unnamedTextId);
+    return layout;
+}
+
 GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
 {
     if (node.GetName() != "window")
@@ -478,7 +530,7 @@ GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory
     {
         label = "Unnamed_window_" + std::to_string(unnamedTextId++);
     }
-
+    DEBUG_LOG(label);
     paramNode = node.GetChild("background");
 
     if (paramNode)
@@ -526,6 +578,10 @@ GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory
         {
             window->AddChild(verticalLayout);
         }
+        else if (auto horizontalLayout = ReadHorizontalLayout(*child, factory, manger, unnamedTextId))
+        {
+            window->AddChild(horizontalLayout);
+        }
     }
 
     ReadGuiElementBasic(window, node);
@@ -567,6 +623,7 @@ void GuiElementFactory::ReadGuiFile(const std::string &filename)
     {
         DEBUG_LOG("Node : " + node->GetName());
 
+        ReadHorizontalLayout(*node, *this, guiManager_, unnameElementId);
         ReadVerticalLayout(*node, *this, guiManager_, unnameElementId);
         ReadGuiText(*node, *this, guiManager_, unnameElementId);
         ReadGuiTexture(*node, *this, guiManager_, unnameElementId);

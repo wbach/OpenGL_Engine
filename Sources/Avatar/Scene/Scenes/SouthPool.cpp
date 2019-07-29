@@ -44,7 +44,7 @@ int SouthPool::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDrawPhysicsDebyg(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() {
-        auto window = guiManager_->GetElement("PauseManuMainWindow");
+        auto window = guiManager_->GetElement("PauseMenuMainWindow");
         if (window)
         {
             if (window->IsShow())
@@ -66,7 +66,7 @@ int SouthPool::Initialize()
     });
 
     guiManager_->RegisterAction("Resume()", [&]() {
-        auto window = guiManager_->GetElement("PauseManuMainWindow");
+        auto window = guiManager_->GetElement("PauseMenuMainWindow");
         if (window)
         {
             if (window->IsShow())

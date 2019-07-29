@@ -1,4 +1,5 @@
 #include "GuiManager.h"
+#include <algorithm>
 
 namespace GameEngine
 {
@@ -22,6 +23,7 @@ void GuiManager::Add(const std::string& name, std::unique_ptr<GuiElement> elemen
     }
 
     subscribe_(*element.get());
+    elementsMap_.insert({name, element.get()});
     elements_.push_back(std::move(element));
 }
 const GuiElements& GuiManager::GetElements() const

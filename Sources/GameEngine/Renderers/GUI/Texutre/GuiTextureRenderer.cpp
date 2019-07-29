@@ -5,6 +5,7 @@
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "GuiTextureShaderUniforms.h"
+#include <algorithm>
 
 namespace GameEngine
 {

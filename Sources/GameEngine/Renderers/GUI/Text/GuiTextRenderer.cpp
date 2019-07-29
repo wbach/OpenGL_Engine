@@ -6,6 +6,7 @@
 #include "GameEngine/Shaders/IShaderFactory.h"
 #include "GameEngine/Shaders/IShaderProgram.h"
 #include "Logger/Log.h"
+#include <algorithm>
 
 namespace GameEngine
 {

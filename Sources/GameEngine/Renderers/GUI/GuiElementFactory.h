@@ -21,6 +21,7 @@ class GuiWindowElement;
 class GuiTextElement;
 class GuiEditBoxElement;
 class VerticalLayout;
+class HorizontalLayout;
 
 namespace Renderer
 {
@@ -48,6 +49,7 @@ public:
     GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiEditBoxElement* CreateEditBox(const std::string&, GuiTextElement*);
     VerticalLayout* CreateVerticalLayout(const std::string&);
+    HorizontalLayout* CreateHorizontalLayout(const std::string&);
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);
@@ -60,6 +62,7 @@ private:
     const vec2ui& windowSize_;
     GuiTextFactory guiTextFactory_;
     std::string lastGuiFileMd5Value_;
+    std::function<void(uint32)> unsubscribe_;
 
 private:
     uint32 guiElementCounter_;
