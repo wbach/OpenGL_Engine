@@ -85,6 +85,7 @@ void SdlOpenGlApi::CreateGameWindow(const std::string& window_name, uint32 width
     auto flags = CreateWindowFlags(windowType);
     CreateSDLWindow(window_name, width, height, flags);
     SDL_GL_SetSwapInterval(0);
+    windowSize_ = vec2ui(width, height);
 }
 
 void SdlOpenGlApi::CreateContext()
@@ -149,7 +150,13 @@ std::optional<uint32> SdlOpenGlApi::OpenFont(const std::string& filename, uint32
         return impl_->fontNameToIdMap_.at(fname);
     }
 
-    auto font = TTF_OpenFont(filename.c_str(), static_cast<int>(size));
+    auto percentFontSize = windowSize_.y * size / 768;
+
+    //auto percentFontSize = windowSize_.y / size;
+
+    DEBUG_LOG("Font percent size : " + std::to_string(percentFontSize) + "/" + std::to_string(size));
+
+    auto font = TTF_OpenFont(filename.c_str(), static_cast<int>(percentFontSize));
 
     if (font)
     {

@@ -145,7 +145,6 @@ void GuiTextElement::RenderText(bool fontOverride)
 
     if (not text_.empty())
     {
-        // memory leak, to do, remove old if exist or not create new one
         if (not fontId_ or fontOverride)
         {
             fontId_ = windowApi_.OpenFont(font_, fontSize_);
