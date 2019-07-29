@@ -137,6 +137,7 @@ Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit
 
     if (auto texture = GetTextureIfLoaded(file))
     {
+        DEBUG_LOG("The same texture exist. Not loading.");
         return texture;
     }
 

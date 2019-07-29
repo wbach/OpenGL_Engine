@@ -11,7 +11,7 @@ namespace GameEngine
 namespace Components
 {
 ComponentsType TerrainRendererComponent::type = ComponentsType::TerrainRenderer;
-const std::string HEIGHTMAP_EXTENSION         = ".terrain";
+const std::string HEIGHTMAP_EXTENSION         = "terrain";
 
 TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::TerrainRenderer, componentContext, gameObject)

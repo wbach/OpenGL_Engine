@@ -4,13 +4,21 @@
 #include <functional>
 #include <string>
 
+namespace GameEngine
+{
+class VerticalLayout;
+}
+
 namespace Editor
 {
 class FileExplorer
 {
 public:
-    FileExplorer(GameEngine::GuiManager&, GameEngine::GuiElementFactory& );
+    FileExplorer(GameEngine::GuiManager&, GameEngine::GuiElementFactory&);
     void Start(const std::string&, std::function<void(const std::string&)>);
+
+private:
+    void FillFileList(GameEngine::VerticalLayout& layout, const std::string& dir, std::function<void(const std::string&)>);
 
 private:
     GameEngine::GuiManager& guiManager_;

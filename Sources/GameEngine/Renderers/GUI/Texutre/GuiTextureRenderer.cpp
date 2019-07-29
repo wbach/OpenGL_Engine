@@ -1,4 +1,5 @@
 #include "GuiTextureRenderer.hpp"
+#include <Logger/Log.h>
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Shaders/IShaderFactory.h"
@@ -79,7 +80,6 @@ void GuiTextureRenderer::Subscribe(GuiElement* element)
     {
         return;
     }
-
     auto textureElement = static_cast<GuiTextureElement*>(element);
     textures_.push_back(textureElement);
 }
@@ -87,6 +87,34 @@ void GuiTextureRenderer::UnSubscribeAll()
 {
     textures_.clear();
 }
+
+void GuiTextureRenderer::UnSubscribe(uint32 id)
+{
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [id](auto texture) { return texture->GetId() == id; });
+
+    if (iter != textures_.end())
+    {
+        textures_.erase(iter);
+    }
+}
+
+void GuiTextureRenderer::UnSubscribe(GuiElement& element)
+{
+    if (element.GetType() != GuiElementTypes::Texture)
+    {
+        return;
+    }
+
+    auto id = element.GetId();
+
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [id](auto texture) { return texture->GetId() == id; });
+
+    if (iter != textures_.end())
+    {
+        textures_.erase(iter);
+    }
+}
+
 void GuiTextureRenderer::RenderTextureElement(const GuiTextureElement& te)
 {
     graphicsApi_.EnableBlend();

@@ -19,6 +19,8 @@ public:
     ~GUIRenderer();
     void Init();
     void UnSubscribeAll();
+    void UnSubscribe(uint32);
+    void UnSubscribe(GuiElement&);
     void ReloadShaders();
     void Subscribe(GuiElement&);
     void Render(const Scene& scene, const Time&);

@@ -28,6 +28,33 @@ void GuiTextRenderer::UnSubscribeAll()
     texts_.clear();
 }
 
+void GuiTextRenderer::UnSubscribe(uint32 id)
+{
+    auto iter = std::find_if(texts_.begin(), texts_.end(), [id](auto text) { return text->GetId() == id; });
+
+    if (iter != texts_.end())
+    {
+        texts_.erase(iter);
+    }
+}
+
+void GuiTextRenderer::UnSubscribe(GuiElement& element)
+{
+    if (element.GetType() != GuiElementTypes::Texture)
+    {
+        return;
+    }
+
+    auto id = element.GetId();
+
+    auto iter = std::find_if(texts_.begin(), texts_.end(), [id](auto text) { return text->GetId() == id; });
+
+    if (iter != texts_.end())
+    {
+        texts_.erase(iter);
+    }
+}
+
 void GuiTextRenderer::ReloadShaders()
 {
     shader_->Stop();
@@ -85,7 +112,7 @@ void GuiTextRenderer::Init()
     auto id = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
     if (not id)
     {
-        isInit_          = false;
+        isInit_ = false;
         return;
     }
     transformBuffer_ = *id;
@@ -93,7 +120,7 @@ void GuiTextRenderer::Init()
     id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(TextBuffer));
     if (not id)
     {
-        isInit_     = false;
+        isInit_ = false;
         return;
     }
     textBuffer_ = *id;

@@ -19,6 +19,8 @@ public:
     virtual void Render() override;
     virtual void Subscribe(GuiElement*) override;
     virtual void UnSubscribeAll() override;
+    virtual void UnSubscribe(uint32) override;
+    virtual void UnSubscribe(GuiElement& element) override;
     virtual void ReloadShaders() override;
 
 private:

@@ -6,7 +6,7 @@ namespace GameEngine
 class VerticalLayout : public Layout
 {
 public:
-    VerticalLayout(const vec2ui& windowSize, Input::InputManager& inputManager);
+    VerticalLayout(const vec2ui& windowSize, Input::InputManager& inputManager, std::function<void(uint32)> unsubscribe);
     virtual LayoutElementWrapper& AddChild(GuiElement*) override;
 
 private:

@@ -10,6 +10,7 @@ class LayoutElementWrapper
 {
 public:
     LayoutElementWrapper(GuiElement& element_, std::function<void()>);
+    LayoutElementWrapper(const LayoutElementWrapper&);
     void SetRect(const Rect& rect);
     void SetSize(const vec2ui& size);
     void SetScale(const vec2& scale);
@@ -20,6 +21,8 @@ public:
     void Show();
     void Hide();
     uint32 GetId() const;
+
+    LayoutElementWrapper operator=(const LayoutElementWrapper&);
 
 private:
     GuiElement& element_;

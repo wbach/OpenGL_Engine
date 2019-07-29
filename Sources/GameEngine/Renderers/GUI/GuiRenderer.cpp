@@ -10,9 +10,11 @@ GUIRenderer::GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory&
     renderers_.emplace_back(new Renderer::Gui::GuiTextureRenderer(graphicsApi_, shaderFactory));
     renderers_.emplace_back(new GuiTextRenderer(graphicsApi_, shaderFactory));
 }
+
 GUIRenderer::~GUIRenderer()
 {
 }
+
 void GUIRenderer::Init()
 {
     for (const auto& renderer : renderers_)
@@ -34,11 +36,25 @@ void GUIRenderer::UnSubscribeAll()
     for (auto& renderer : renderers_)
         renderer->UnSubscribeAll();
 }
+
+void GUIRenderer::UnSubscribe(uint32 id)
+{
+    for (auto& renderer : renderers_)
+        renderer->UnSubscribe(id);
+}
+
+void GUIRenderer::UnSubscribe(GuiElement& element)
+{
+    for (auto& renderer : renderers_)
+        renderer->UnSubscribe(element);
+}
+
 void GUIRenderer::ReloadShaders()
 {
     for (auto& renderer : renderers_)
         renderer->ReloadShaders();
 }
+
 void GUIRenderer::Subscribe(GuiElement& elemnt)
 {
     for (auto& renderer : renderers_)

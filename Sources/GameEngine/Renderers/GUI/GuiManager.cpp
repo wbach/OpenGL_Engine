@@ -2,20 +2,27 @@
 
 namespace GameEngine
 {
-GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe)
+GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(GuiElement&)> unubscribeElement, std::function<void()> unsubscribeAll)
     : subscribe_(renderSubscribe)
+    , unsubscribeAll_(unsubscribeAll)
+    , unubscribeElement_(unubscribeElement)
 {
 }
 void GuiManager::Add(const std::string& name, std::unique_ptr<GuiElement> element)
 {
-    if (elementsMap_.count(name) > 0 )
+    if (element == nullptr)
+    {
+        DEBUG_LOG(name + " is nullptr");
+        return;
+    }
+
+    if (elementsMap_.count(name) > 0)
     {
         DEBUG_LOG("REPLACE EXISTING Element name : " + name);
     }
-    DEBUG_LOG(name);
-    elementsMap_.insert({name, element.get()});
+
+    subscribe_(*element.get());
     elements_.push_back(std::move(element));
-    subscribe_(*elements_.back());
 }
 const GuiElements& GuiManager::GetElements() const
 {
@@ -49,9 +56,37 @@ void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
     registeredActions_.insert({name, action});
 }
 
-void GuiManager::SaveToFile(const std::string &)
+void GuiManager::SaveToFile(const std::string&)
 {
+}
 
+void GuiManager::Remove(const std::string& name)
+{
+    if (elementsMap_.count(name) == 0)
+        return;
+
+    auto id = elementsMap_.at(name)->GetId();
+
+    auto iter = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element){ return element->GetId() == id;});
+    if (iter != elements_.end())
+    {
+        elements_.erase(iter);
+        elementsMap_.erase(name);
+    }
+}
+
+void GuiManager::Remove(const GuiElement& element)
+{
+    auto id = element.GetId();
+
+    auto iter = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element){ return element->GetId() == id;});
+    auto mapiter = std::find_if(elementsMap_.begin(), elementsMap_.end(), [id](const auto& pair){ return pair.second->GetId() == id;});
+
+    if (iter != elements_.end() and mapiter != elementsMap_.end())
+    {
+        elements_.erase(iter);
+        elementsMap_.erase(mapiter);
+    }
 }
 
 }  // namespace GameEngine

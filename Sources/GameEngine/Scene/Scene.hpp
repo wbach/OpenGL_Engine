@@ -11,7 +11,6 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-//#include "GameEngine/Renderers/GUI/GuiContext.h"
 #include <GraphicsApi/IGraphicsApi.h>
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
@@ -132,7 +131,6 @@ protected:
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
 
 private:
-    void MakeGuiManager(std::function<void(GuiElement&)>);
     void CreateResourceManger(GraphicsApi::IGraphicsApi&);
 
     std::unique_ptr<Debug::Console> console_;

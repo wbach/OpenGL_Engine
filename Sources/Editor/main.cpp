@@ -20,6 +20,7 @@ using namespace GameEngine::Physics;
 int main(int, char**)
 {
     CLogger::Instance().EnableLogs();
+    CLogger::Instance().ImmeditalyLog();
 
     GameEngine::ReadFromFile(configFile);
     auto api                       = std::make_unique<OpenGLApi::OpenGLApi>();

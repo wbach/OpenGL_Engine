@@ -1,11 +1,11 @@
 #pragma once
+#include <functional>
 #include <string>
 #include "GuiElement.h"
 #include "Input/KeyCodes.h"
 #include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
-#include <functional>
 
 namespace GameEngine
 {
@@ -17,22 +17,30 @@ using ActionFunction = std::function<void()>;
 class GuiManager
 {
 public:
-    GuiManager(std::function<void(GuiElement&)> renderSubscribe);
-    template <class T>
-    T* Get(const std::string& name);
-    inline GuiElement* GetElement(const std::string& name);
+    GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(GuiElement&)> unubscribeElement, std::function<void()> unsubscribeAll);
+
     void Add(const std::string& name, std::unique_ptr<GuiElement> element);
-    const GuiElements& GetElements() const;
-    const GuiElementsMap& GetElementsMap() const;
     void Update();
-    ActionFunction GetActionFunction(const std::string& name);
     void RegisterAction(const std::string&, ActionFunction);
     void SaveToFile(const std::string&);
+    void Remove(const std::string&);
+    void Remove(const GuiElement&);
+
+    template <class T>
+    T* Get(const std::string&);
+    inline GuiElement* GetElement(const std::string& name);
+    const GuiElements& GetElements() const;
+    const GuiElementsMap& GetElementsMap() const;
+    ActionFunction GetActionFunction(const std::string& name);
 
 private:
     GuiElementsMap elementsMap_;
     GuiElements elements_;
+
     std::function<void(GuiElement&)> subscribe_;
+    std::function<void()> unsubscribeAll_;
+    std::function<void(GuiElement&)> unubscribeElement_;
+
     std::unordered_map<std::string, ActionFunction> registeredActions_;
 };
 
@@ -49,8 +57,7 @@ T* GuiManager::Get(const std::string& name)
         }
         else
         {
-            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) +
-                      ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
+            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) + ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
         }
     }
     else

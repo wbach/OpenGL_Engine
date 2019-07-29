@@ -53,10 +53,13 @@ void Scene::InitResources(SceneInitContext& context)
 
     CreateResourceManger(*context.graphicsApi_);
 
-    MakeGuiManager([context](auto& element) { context.renderersManager->GetGuiRenderer().Subscribe(element); });
+    auto guiRenderSubscribe      = [context](auto& element) { context.renderersManager->GetGuiRenderer().Subscribe(element); };
+    auto guiRenderUnsubscribe    = [context](auto& element) { context.renderersManager->GetGuiRenderer().UnSubscribe(element); };
+    auto guiRenderUnsubscribeAll = [context]() { context.renderersManager->UnSubscribeAll(); };
 
-    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
-                                                        renderersManager_->GetProjection().GetWindowSize()};
+    guiManager_ = std::make_unique<GuiManager>(guiRenderSubscribe, guiRenderUnsubscribe, guiRenderUnsubscribeAll);
+
+    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
 
     console_ = std::make_unique<Debug::Console>(*this);
@@ -64,8 +67,7 @@ void Scene::InitResources(SceneInitContext& context)
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(
-        componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -107,11 +109,6 @@ void Scene::PostUpdate()
 void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi)
 {
     resourceManager_ = std::make_unique<ResourceManager>(graphicsApi);
-}
-
-void Scene::MakeGuiManager(std::function<void(GuiElement&)> subscribe)
-{
-    guiManager_ = std::make_unique<GuiManager>(subscribe);
 }
 
 std::unique_ptr<GameObject> Scene::CreateGameObject() const
@@ -189,7 +186,7 @@ void Scene::LoadFromFile(const std::string& filename)
     SceneReader::LoadScene(*this, filename);
 }
 
-void Scene::LoadPrefab(const std::string &filename, const std::string &name)
+void Scene::LoadPrefab(const std::string& filename, const std::string& name)
 {
     SceneReader::LoadPrefab(*this, filename, name);
 }

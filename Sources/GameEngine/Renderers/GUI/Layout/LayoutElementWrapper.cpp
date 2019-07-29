@@ -9,6 +9,11 @@ LayoutElementWrapper::LayoutElementWrapper(GuiElement &element, std::function<vo
 {
 }
 
+LayoutElementWrapper::LayoutElementWrapper(const LayoutElementWrapper &wrapper)
+    : LayoutElementWrapper(wrapper.element_, wrapper.onChange_)
+{
+}
+
 void LayoutElementWrapper::SetRect(const Rect &rect)
 {
     element_.SetRect(rect);
@@ -66,6 +71,11 @@ void LayoutElementWrapper::Hide()
 uint32 LayoutElementWrapper::GetId() const
 {
     return element_.GetId();
+}
+
+LayoutElementWrapper LayoutElementWrapper::operator=(const LayoutElementWrapper &)
+{
+    return LayoutElementWrapper(element_, onChange_);
 }
 
 }  // namespace GameEngine
