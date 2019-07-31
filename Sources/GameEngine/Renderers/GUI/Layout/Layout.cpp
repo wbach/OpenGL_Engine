@@ -1,5 +1,6 @@
 #include "Layout.h"
 #include <algorithm>
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -23,12 +24,13 @@ void Layout::Remove(uint32 id)
 
 void Layout::RemoveAll()
 {
-    for(auto child : children_)
+    for(auto element : elements_)
     {
-        unsubscribe_(child.GetId());
+        element->execute(unsubscribe_);
     }
 
     children_.clear();
+    elements_.clear();
 }
 
 void Layout::SetScale(const vec2& scale)

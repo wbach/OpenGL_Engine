@@ -25,8 +25,8 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , renderersManager_(entryParameters.renderersManager_)
     , windowSize_(entryParameters.renderersManager_.GetProjection().GetWindowSize())
     , guiTextFactory_(entryParameters.resourceManager_, EngineConf.renderer.resolution)
-    , guiElementCounter_(0)
     , unsubscribe_([this](uint32 id) { renderersManager_.GetGuiRenderer().UnSubscribe(id); })
+    , guiElementCounter_(0)
 {
 }
 

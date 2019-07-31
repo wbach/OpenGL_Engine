@@ -27,38 +27,6 @@ GuiTextRenderer::GuiTextRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShader
 {
 }
 
-void GuiTextRenderer::UnSubscribeAll()
-{
-    texts_.clear();
-}
-
-void GuiTextRenderer::UnSubscribe(uint32 id)
-{
-    auto iter = std::find_if(texts_.begin(), texts_.end(), [id](auto text) { return text->GetId() == id; });
-
-    if (iter != texts_.end())
-    {
-        texts_.erase(iter);
-    }
-}
-
-void GuiTextRenderer::UnSubscribe(GuiElement& element)
-{
-    if (element.GetType() != GuiElementTypes::Texture)
-    {
-        return;
-    }
-
-    auto id = element.GetId();
-
-    auto iter = std::find_if(texts_.begin(), texts_.end(), [id](auto text) { return text->GetId() == id; });
-
-    if (iter != texts_.end())
-    {
-        texts_.erase(iter);
-    }
-}
-
 void GuiTextRenderer::ReloadShaders()
 {
     shader_->Stop();
@@ -113,6 +81,42 @@ void GuiTextRenderer::Subscribe(GuiElement* element)
 
     std::lock_guard<std::mutex> lk(subscriberMutex);
     texts_.push_back(textElement);
+}
+
+void GuiTextRenderer::UnSubscribeAll()
+{
+    std::lock_guard<std::mutex> lk(subscriberMutex);
+    texts_.clear();
+}
+
+void GuiTextRenderer::UnSubscribe(uint32 id)
+{
+    std::lock_guard<std::mutex> lk(subscriberMutex);
+    auto iter = std::find_if(texts_.begin(), texts_.end(), [id](auto text) { return text->GetId() == id; });
+
+    if (iter != texts_.end())
+    {
+        texts_.erase(iter);
+    }
+}
+
+void GuiTextRenderer::UnSubscribe(GuiElement& element)
+{
+    std::lock_guard<std::mutex> lk(subscriberMutex);
+
+    if (element.GetType() != GuiElementTypes::Text)
+    {
+        return;
+    }
+
+    auto id = element.GetId();
+
+    auto iter = std::find_if(texts_.begin(), texts_.end(), [id](auto text) { return text->GetId() == id; });
+
+    if (iter != texts_.end())
+    {
+        texts_.erase(iter);
+    }
 }
 
 void GuiTextRenderer::Init()

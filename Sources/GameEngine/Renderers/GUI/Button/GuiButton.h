@@ -33,6 +33,7 @@ public:
     void Show(bool) override;
     void Show() override;
     void Hide() override;
+    virtual void execute(std::function<void(uint32)>) override;
 
 private:
     void SubscribeInputAction();

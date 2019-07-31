@@ -3,6 +3,8 @@
 #include "GuiElementTypes.h"
 #include "Rect.h"
 #include <optional>
+#include <Types.h>
+#include <functional>
 
 namespace GameEngine
 {
@@ -30,6 +32,7 @@ public:
     virtual const Rect& GetRect() const;
     virtual const vec2& GetScale() const;
     virtual const vec2& GetPosition() const;
+    virtual void execute(std::function<void(uint32)>);
     void SetZPosition(float z);
     uint32 GetId() const;
 

@@ -239,6 +239,18 @@ void GuiButtonElement::Hide()
     //UnsubscribeInputAction();
 }
 
+void GuiButtonElement::execute(std::function<void(uint32)> function)
+{
+    if (onHoverTexture_)
+        function(onHoverTexture_->GetId());
+    if (onActiveTextue_)
+        function(onActiveTextue_->GetId());
+    if (backgroundTexture_)
+        function(backgroundTexture_->GetId());
+    if (text_)
+        function(text_->GetId());
+}
+
 void GuiButtonElement::SubscribeInputAction()
 {
     subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {

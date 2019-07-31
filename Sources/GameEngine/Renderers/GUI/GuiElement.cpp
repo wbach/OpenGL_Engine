@@ -26,23 +26,26 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , transformMatrix_(1.f)
     , rotation_{0}
     , show_{true}
-    , offset_{0,0}
-    , id_{ID++}
+    , offset_{0, 0}
+    , id_{GuiElement::ID++}
 {
     CalculateMatrix();
 }
+
 void GuiElement::Update()
 {
 }
 bool GuiElement::IsCollision(const vec2ui& pos) const
 {
-    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
+    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and
+           pos.y <= rect_.position.y + rect_.size.y;
 }
 
 bool GuiElement::IsCollision(const vec2& pos) const
 {
     auto convertedPos = pos;
-    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
+    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and
+           convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
 }
 std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 {
@@ -127,6 +130,10 @@ void GuiElement::SetZPosition(float z)
 uint32 GuiElement::GetId() const
 {
     return id_;
+}
+void GuiElement::execute(std::function<void(uint32)> func)
+{
+    func(id_);
 }
 GuiElementTypes GuiElement::GetType() const
 {
