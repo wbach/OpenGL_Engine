@@ -23,15 +23,18 @@ void VerticalLayout::OnChange()
     if (children_.empty())
         return;
 
-    elements_[0]->SetPostion(position_);
+    vec2 newPosition = position_;
+    newPosition.y += scale_.y;
+
+    elements_[0]->SetPostion(newPosition);
 
     for (std::size_t i = 1; i < elements_.size(); ++i)
     {
         const auto &position = elements_[i - 1]->GetPosition().y;
         const auto &scale    = elements_[i - 1]->GetScale().y;
 
-        auto posY = position + 2 * scale;
-        elements_[i]->SetPostion(vec2(position_.x, posY));
+        newPosition.y = position - 2.f * scale;
+        elements_[i]->SetPostion(newPosition);
     }
 }
 

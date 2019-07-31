@@ -16,6 +16,9 @@ struct TextBuffer
 {
     vec3 color;
 };
+
+std::mutex subscriberMutex;
+
 }  // namespace
 GuiTextRenderer::GuiTextRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
     : graphicsApi_(graphicsApi)
@@ -75,6 +78,8 @@ void GuiTextRenderer::Render()
     graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
     graphicsApi_.ActiveTexture(0);
 
+    std::lock_guard<std::mutex> lk(subscriberMutex);
+
     for (const auto& text : texts_)
     {
         if (not text or not text->IsShow() or not text->GetTextureId())
@@ -105,6 +110,8 @@ void GuiTextRenderer::Subscribe(GuiElement* element)
     }
 
     auto textElement = static_cast<GuiTextElement*>(element);
+
+    std::lock_guard<std::mutex> lk(subscriberMutex);
     texts_.push_back(textElement);
 }
 

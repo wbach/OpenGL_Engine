@@ -12,9 +12,14 @@
 #include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
+#include <Mutex.hpp>
 
 namespace GameEngine
 {
+namespace
+{
+std::mutex entityRendererSubscriberMutex;
+}
 EntityRenderer::EntityRenderer(RendererContext& context)
     : context_(context)
 {
@@ -56,6 +61,7 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
+    std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
     subscribes_.push_back({gameObject, rendererComponent});
 }
 
@@ -88,6 +94,8 @@ void EntityRenderer::ReloadShaders()
 
 void EntityRenderer::RenderEntities()
 {
+    std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
+
     for (const auto& sub : subscribes_)
     {
         const auto& rcomp = sub.renderComponent;

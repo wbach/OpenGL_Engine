@@ -62,4 +62,22 @@ void Layout::Hide()
     }
     GuiElement::Hide();
 }
+
+void Layout::SetPostion(const vec2 &position)
+{
+    for (auto& child : children_)
+    {
+        child.SetPostion(position);
+    }
+    GuiElement::SetPostion(position);
+}
+
+void Layout::SetPostion(const vec2ui &position)
+{
+    for (auto& child : children_)
+    {
+        child.SetPostion(position);
+    }
+    GuiElement::SetPostion(position);
+}
 }  // namespace GameEngine

@@ -21,6 +21,8 @@ public:
     virtual void Show(bool);
     virtual void Show() override;
     virtual void Hide() override;
+    virtual void SetPostion(const vec2& position) override;
+    virtual void SetPostion(const vec2ui& position) override;
 
 protected:
     std::vector<LayoutElementWrapper> children_;
