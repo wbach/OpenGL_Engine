@@ -481,6 +481,23 @@ VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &fact
     auto layout = factory.CreateVerticalLayout(label);
     ReadGuiElementBasic(layout, node);
     ReadLayoutChildren(node, factory, layout, manger, unnamedTextId);
+
+    paramNode = node.GetChild("algin");
+    if (paramNode)
+    {
+        if (paramNode->value_ == "LEFT")
+        {
+            layout->SetAlgin(VerticalLayout::Algin::LEFT);
+        }
+        else if (paramNode->value_ == "CENTER")
+        {
+            layout->SetAlgin(VerticalLayout::Algin::CENTER);
+        }
+        else if (paramNode->value_ == "RIGHT")
+        {
+            layout->SetAlgin(VerticalLayout::Algin::RIGHT);
+        }
+    }
     return layout;
 }
 
