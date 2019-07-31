@@ -1,6 +1,8 @@
 #include "FileSystemUtils.hpp"
+#include <Utils/Utils.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
+
 using namespace boost::filesystem;
 
 namespace Utils
@@ -36,17 +38,19 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
 
     for (directory_iterator itr(p); itr != end_itr; ++itr)
     {
+        auto filename = Utils::ReplaceSlash(itr->path().string());
+
         if (is_regular_file(itr->path()))
         {
-            result.push_back({File::Type::RegularFile, itr->path().string()});
+            result.push_back({File::Type::RegularFile, filename});
         }
         else if (is_directory(itr->path()))
         {
-            result.push_back({File::Type::Directory, itr->path().string()});
+            result.push_back({File::Type::Directory, filename});
         }
         else
         {
-            result.push_back({File::Type::Other, itr->path().string()});
+            result.push_back({File::Type::Other, filename});
         }
     }
 

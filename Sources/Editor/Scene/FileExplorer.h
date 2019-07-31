@@ -19,10 +19,11 @@ public:
 
 private:
     void FillFileList(GameEngine::VerticalLayout& layout, const std::string& dir, std::function<void(const std::string&)>);
+    void CreateButtonWithFilename(const std::string&, GameEngine::VerticalLayout&, std::function<void()>);
 
 private:
     GameEngine::GuiManager& guiManager_;
     GameEngine::GuiElementFactory& guiFactory_;
-    std::function<void(const std::string&)> onChoose_;
+    std::string font_;
 };
 }  // namespace Editor

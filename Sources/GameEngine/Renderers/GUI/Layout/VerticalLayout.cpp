@@ -24,7 +24,7 @@ void VerticalLayout::OnChange()
         return;
 
     vec2 newPosition = position_;
-    newPosition.y += scale_.y;
+    newPosition.y += scale_.y - elements_[0]->GetScale().y;
 
     elements_[0]->SetPostion(newPosition);
 
