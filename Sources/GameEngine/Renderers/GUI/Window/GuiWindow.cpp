@@ -34,7 +34,7 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
     , titleBarSize_(0.43f)
 {
     inputSubscribtionKeyDown_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-        auto position = inputManager_.GetMousePosition();
+        auto position   = inputManager_.GetMousePosition();
         collisionPoint_ = GetCollisionPoint(position);
     });
 
@@ -73,10 +73,13 @@ void GuiWindowElement::Update()
         auto newPosition = position - *collisionPoint_;
         auto moveVec     = newPosition - position_;
 
-        SetPostion(newPosition);
-        for (auto& child : children_)
+        if (glm::length(moveVec) > std::numeric_limits<float>::min())
         {
-            UpdatePosition(*child, moveVec);
+            SetPostion(newPosition);
+            for (auto& child : children_)
+            {
+                UpdatePosition(*child, moveVec);
+            }
         }
     }
     else
