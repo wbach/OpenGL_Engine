@@ -1,7 +1,7 @@
 #include "GuiButton.h"
+#include <Logger/Log.h>
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
-#include <Logger/Log.h>
 namespace GameEngine
 {
 const uint64 SHOW_ACTIVE_TIME = 100;
@@ -22,7 +22,15 @@ GuiButtonElement::GuiButtonElement(Input::InputManager &inputManager, OnClick on
 
 GuiButtonElement::~GuiButtonElement()
 {
-    DEBUG_LOG("");
+    if (backgroundTexture_)
+        backgroundTexture_->MarkToRemove();
+    if (onHoverTexture_)
+        onHoverTexture_->MarkToRemove();
+    if (onActiveTextue_)
+        onActiveTextue_->MarkToRemove();
+    if (text_)
+        text_->MarkToRemove();
+
     UnsubscribeInputAction();
 }
 

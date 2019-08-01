@@ -33,19 +33,30 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
     , inputManager_(inputManager)
     , titleBarSize_(0.43f)
 {
+    inputSubscribtionKeyDown_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        auto position = inputManager_.GetMousePosition();
+        collisionPoint_ = GetCollisionPoint(position);
+    });
+
+    inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
+}
+
+GuiWindowElement::~GuiWindowElement()
+{
+    for (auto& child : children_)
+    {
+        child->MarkToRemove();
+    }
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyDown_);
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyUp_);
+
+    children_.clear();
 }
 
 void GuiWindowElement::AddChild(GuiElement* element)
 {
     UpdatePosition(*element, position_);
     children_.push_back(element);
-
-    inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-        auto position   = inputManager_.GetMousePosition();
-        collisionPoint_ = GetCollisionPoint(position);
-    });
-
-    inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
 }
 
 void GuiWindowElement::Update()
@@ -81,7 +92,7 @@ void GuiWindowElement::SetScale(const vec2& scale)
 
 void GuiWindowElement::Show(bool b)
 {
-    for(auto child : children_)
+    for (auto child : children_)
     {
         child->Show(b);
     }
@@ -90,7 +101,7 @@ void GuiWindowElement::Show(bool b)
 
 void GuiWindowElement::Show()
 {
-    for(auto child : children_)
+    for (auto child : children_)
     {
         child->Show();
     }
@@ -99,7 +110,7 @@ void GuiWindowElement::Show()
 
 void GuiWindowElement::Hide()
 {
-    for(auto child : children_)
+    for (auto child : children_)
     {
         child->Hide();
     }

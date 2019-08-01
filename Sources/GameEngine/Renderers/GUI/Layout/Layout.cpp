@@ -10,6 +10,11 @@ Layout::Layout(GuiElementTypes type, const vec2ui& windowSize, std::function<voi
 {
 }
 
+Layout::~Layout()
+{
+    RemoveAll();
+}
+
 void Layout::Remove(GuiElement* element)
 {
     std::remove_if(elements_.begin(), elements_.end(), [element](GuiElement* e) { return e->GetId() == element->GetId(); });

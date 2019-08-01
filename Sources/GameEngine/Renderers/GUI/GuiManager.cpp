@@ -50,6 +50,7 @@ void GuiManager::Update()
 
         if (element and element->IsMarkToRemove())
         {
+            unubscribeElement_(*element);
             iter = elements_.erase(iter);
         }
         else

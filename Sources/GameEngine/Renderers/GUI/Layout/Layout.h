@@ -13,6 +13,7 @@ class Layout : public GuiElement
 {
 public:
     Layout(GuiElementTypes type, const vec2ui& windowSize, std::function< void (uint32)> unsubscribe);
+    ~Layout();
     virtual LayoutElementWrapper& AddChild(GuiElement*) = 0;
     virtual void Remove(GuiElement*);
     virtual void Remove(uint32 id);

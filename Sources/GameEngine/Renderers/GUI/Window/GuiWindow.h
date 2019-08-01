@@ -11,6 +11,7 @@ class GuiWindowElement : public GuiElement
 {
 public:
     GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
+    ~GuiWindowElement();
     void AddChild(GuiElement*);
     virtual void Update() override;
     virtual void SetScale(const vec2& scale);
@@ -22,6 +23,8 @@ private:
     std::vector<GuiElement*> children_;
     Input::InputManager& inputManager_;
     float titleBarSize_;
+    uint32 inputSubscribtionKeyDown_;
+    uint32 inputSubscribtionKeyUp_;
 
 public:
     static GuiElementTypes type;

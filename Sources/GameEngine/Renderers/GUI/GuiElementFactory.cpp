@@ -89,6 +89,17 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
             guiManager_.Add(label + "backgroundTexture", std::move(backgroundGuiTexture));
         }
     }
+
+    auto closeButton = CreateGuiButton(label + "CloseButton", [result]() {
+        result->MarkToRemove();
+    });
+    auto closeButtonX = CreateGuiText(label + "CloseButtonX", EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), "X", 32, 0);
+    closeButton->SetScale(closeButtonX->GetScale());
+    closeButton->SetText(closeButtonX);
+    auto closeButtonPosition = position + scale - closeButtonX->GetScale();
+    closeButton->SetPostion(closeButtonPosition);
+    guiWindow->AddChild(closeButton);
+
     guiManager_.Add(label, std::move(guiWindow));
     return result;
 }
