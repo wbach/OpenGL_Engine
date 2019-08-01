@@ -36,6 +36,15 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
 void FileExplorer::FillFileList(GameEngine::VerticalLayout &layout, const std::string &dir,
                                 std::function<void(const std::string &)> onChoose)
 {
+    auto parentDir = dir.substr(0, dir.find_last_of('/'));
+
+    auto onClick = [this, parentDir, &layout, onChoose]() {
+        layout.RemoveAll();
+        FillFileList(layout, parentDir, onChoose);
+    };
+    CreateButtonWithFilename(parentDir, layout, onClick);
+
+
     auto filesInDir = Utils::GetFilesInDirectory(dir);
     for (const auto &file : filesInDir)
     {

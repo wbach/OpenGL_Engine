@@ -1,9 +1,15 @@
 #include "GuiManager.h"
 #include <algorithm>
+//#include <mutex>
 
 namespace GameEngine
 {
-GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(GuiElement&)> unubscribeElement, std::function<void()> unsubscribeAll)
+//namespace
+//{
+//std::mutex guiElementMutex;
+//}
+GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe,
+                       std::function<void(GuiElement&)> unubscribeElement, std::function<void()> unsubscribeAll)
     : subscribe_(renderSubscribe)
     , unsubscribeAll_(unsubscribeAll)
     , unubscribeElement_(unubscribeElement)
@@ -38,9 +44,19 @@ const GuiElementsMap& GuiManager::GetElementsMap() const
 
 void GuiManager::Update()
 {
-    for (auto& element : elements_)
+    for (auto iter = elements_.begin(); iter != elements_.end();)
     {
-        element->Update();
+        auto element = iter->get();
+
+        if (element and element->IsMarkToRemove())
+        {
+            iter = elements_.erase(iter);
+        }
+        else
+        {
+            element->Update();
+            ++iter;
+        }
     }
 }
 
@@ -69,7 +85,8 @@ void GuiManager::Remove(const std::string& name)
 
     auto id = elementsMap_.at(name)->GetId();
 
-    auto iter = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element){ return element->GetId() == id;});
+    auto iter =
+        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
     if (iter != elements_.end())
     {
         elements_.erase(iter);
@@ -81,8 +98,10 @@ void GuiManager::Remove(const GuiElement& element)
 {
     auto id = element.GetId();
 
-    auto iter = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element){ return element->GetId() == id;});
-    auto mapiter = std::find_if(elementsMap_.begin(), elementsMap_.end(), [id](const auto& pair){ return pair.second->GetId() == id;});
+    auto iter =
+        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
+    auto mapiter = std::find_if(elementsMap_.begin(), elementsMap_.end(),
+                                [id](const auto& pair) { return pair.second->GetId() == id; });
 
     if (iter != elements_.end() and mapiter != elementsMap_.end())
     {

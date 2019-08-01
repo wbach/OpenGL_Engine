@@ -27,6 +27,7 @@ void Layout::RemoveAll()
     for(auto element : elements_)
     {
         element->execute(unsubscribe_);
+        element->MarkToRemove();
     }
 
     children_.clear();

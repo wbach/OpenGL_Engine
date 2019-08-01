@@ -35,6 +35,8 @@ public:
     virtual void execute(std::function<void(uint32)>);
     void SetZPosition(float z);
     uint32 GetId() const;
+    void MarkToRemove();
+    bool IsMarkToRemove() const;
 
 public:
     GuiElementTypes GetType() const;
@@ -66,6 +68,7 @@ protected:
     bool show_;
     vec2 offset_;
     uint32 id_;
+    bool isMarkToRemove_;
 
 public:
     static uint32 ID;

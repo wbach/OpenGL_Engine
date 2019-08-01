@@ -1,7 +1,7 @@
 #include "GuiButton.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
-
+#include <Logger/Log.h>
 namespace GameEngine
 {
 const uint64 SHOW_ACTIVE_TIME = 100;
@@ -18,6 +18,12 @@ GuiButtonElement::GuiButtonElement(Input::InputManager &inputManager, OnClick on
     , onActiveTextue_{nullptr}
 {
     SubscribeInputAction();
+}
+
+GuiButtonElement::~GuiButtonElement()
+{
+    DEBUG_LOG("");
+    UnsubscribeInputAction();
 }
 
 void GuiButtonElement::Update()
@@ -204,7 +210,7 @@ void GuiButtonElement::Show(bool b)
 
     GuiElement::Show(b);
 
-    //b ? SubscribeInputAction() : UnsubscribeInputAction();
+    b ? SubscribeInputAction() : UnsubscribeInputAction();
 }
 
 void GuiButtonElement::Show()
@@ -220,7 +226,7 @@ void GuiButtonElement::Show()
 
     GuiElement::Show();
 
-    //SubscribeInputAction();
+    SubscribeInputAction();
 }
 
 void GuiButtonElement::Hide()
@@ -236,7 +242,7 @@ void GuiButtonElement::Hide()
 
     GuiElement::Hide();
 
-    //UnsubscribeInputAction();
+    UnsubscribeInputAction();
 }
 
 void GuiButtonElement::execute(std::function<void(uint32)> function)

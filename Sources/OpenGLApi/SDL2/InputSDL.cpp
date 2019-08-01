@@ -125,14 +125,14 @@ void InputSDL::ProcessKeysEvents()
 
                 for (const auto& subscriber : subscribers)
                 {
-                    subscriber();
+                    subscriber.second();
                 }
             }
 
             auto subscribers = subscribers_.keysSubscribers_;
             for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
             {
-                keysSubscriber(keyCode);
+                keysSubscriber.second(keyCode);
             }
         }
         else if (type == SDL_KEYUP)
@@ -143,7 +143,7 @@ void InputSDL::ProcessKeysEvents()
 
                 for (const auto& subscriber : subscribers)
                 {
-                    subscriber();
+                    subscriber.second();
                 }
             }
         }

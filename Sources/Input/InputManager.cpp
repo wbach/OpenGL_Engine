@@ -5,6 +5,7 @@
 namespace Input
 {
 InputManager::InputManager()
+    : idCounter_(0)
 {
     SetDefaultKeys();
 }
@@ -42,22 +43,25 @@ void InputManager::SetDefaultKeys()
     keyGameActions[GameActions::WORLD_MAP]             = KeyCodes::M;
 }
 
-std::size_t InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
+uint32 InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
-    subscribers_.keyDownSubscribers_[key].push_back(func);
-    return subscribers_.keyDownSubscribers_.at(key).size() - 1;
+    auto id = idCounter_++;
+    subscribers_.keyDownSubscribers_[key].insert({ id, func });
+    return id;
 }
 
-std::size_t InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
+uint32 InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
-    subscribers_.keyUpSubscribers_[key].push_back(func);
-    return subscribers_.keyUpSubscribers_.at(key).size() - 1;
+    auto id = idCounter_++;
+    subscribers_.keyUpSubscribers_[key].insert({ id, func });
+    return id;
 }
 
-std::size_t InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
+uint32 InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
-    subscribers_.keysSubscribers_.push_back(func);
-    return subscribers_.keysSubscribers_.size() - 1;
+    auto id = idCounter_++;
+    subscribers_.keysSubscribers_.insert({id, func });
+    return id;
 }
 
 void InputManager::UnsubscribeAll()
@@ -79,22 +83,22 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
     subscribers_.keyUpSubscribers_.erase(key);
 }
 
-void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, long i)
+void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, uint32 id)
 {
     if (subscribers_.keyDownSubscribers_.count(key) == 0)
         return;
 
-    auto& list = subscribers_.keyDownSubscribers_.at(key);
-    list.erase(list.begin() + i);
+    auto& keys = subscribers_.keyDownSubscribers_.at(key);
+    keys.erase(id);
 }
 
-void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, long i)
+void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 {
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
         return;
 
-    auto& list = subscribers_.keyUpSubscribers_.at(key);
-    list.erase(list.begin() + i);
+    auto& keys = subscribers_.keyUpSubscribers_.at(key);
+    keys.erase(id);
 }
 void InputManager::StashSubscribers()
 {

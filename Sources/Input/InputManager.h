@@ -11,10 +11,10 @@
 namespace Input
 {
 typedef std::function<void()> KeyPressedFunc;
-typedef std::vector<KeyPressedFunc> KeySubscribers;
+typedef std::unordered_map<uint32, KeyPressedFunc> KeySubscribers;
 typedef std::unordered_map<KeyCodes::Type, KeySubscribers> KeyPressedSubscribers;
 typedef std::function<void(KeyCodes::Type key)> KeysPressedFunc;
-typedef std::list<KeysPressedFunc> KeysSubscribers;
+typedef std::unordered_map<uint32, KeysPressedFunc> KeysSubscribers;
 
 class InputManager
 {
@@ -45,15 +45,15 @@ public:
     void StashSubscribers();
     void StashPopSubscribers();
 
-    std::size_t SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
-    std::size_t SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
-    std::size_t SubscribeOnAnyKeyPress(KeysPressedFunc func);
+    uint32 SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
+    uint32 SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
+    uint32 SubscribeOnAnyKeyPress(KeysPressedFunc func);
 
     void UnsubscribeOnKeyDown(KeyCodes::Type key);
     void UnsubscribeOnKeyUp(KeyCodes::Type key);
 
-    void UnsubscribeOnKeyDown(KeyCodes::Type key, long);
-    void UnsubscribeOnKeyUp(KeyCodes::Type key, long);
+    void UnsubscribeOnKeyDown(KeyCodes::Type key, uint32);
+    void UnsubscribeOnKeyUp(KeyCodes::Type key, uint32);
 
     void UnsubscribeAll();
 
@@ -64,6 +64,7 @@ protected:
     std::set<KeyCodes::Type> keyBuffer;
     Subscribers subscribers_;
     Subscribers stash_;
+    uint32 idCounter_;
 };
 
 typedef std::shared_ptr<InputManager> InputManagerPtr;

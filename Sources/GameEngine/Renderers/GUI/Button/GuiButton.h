@@ -15,6 +15,7 @@ class GuiButtonElement : public GuiElement
 {
 public:
     GuiButtonElement(Input::InputManager&, OnClick, const vec2ui&);
+    ~GuiButtonElement();
     virtual void Update() override;
     void SetText(GuiTextElement*);
     void SetBackgroundTexture(GuiTextureElement*);

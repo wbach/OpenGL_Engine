@@ -28,6 +28,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , show_{true}
     , offset_{0, 0}
     , id_{GuiElement::ID++}
+    , isMarkToRemove_{false}
 {
     CalculateMatrix();
 }
@@ -130,6 +131,14 @@ void GuiElement::SetZPosition(float z)
 uint32 GuiElement::GetId() const
 {
     return id_;
+}
+void GuiElement::MarkToRemove()
+{
+    isMarkToRemove_ = true;
+}
+bool GuiElement::IsMarkToRemove() const
+{
+    return isMarkToRemove_;
 }
 void GuiElement::execute(std::function<void(uint32)> func)
 {
