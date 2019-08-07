@@ -7,7 +7,8 @@
 namespace GameEngine
 {
 class VerticalLayout;
-}
+class GuiTextElement;
+}  // namespace GameEngine
 
 namespace Editor
 {
@@ -18,12 +19,14 @@ public:
     void Start(const std::string&, std::function<void(const std::string&)>);
 
 private:
-    void FillFileList(GameEngine::VerticalLayout& layout, const std::string& dir, std::function<void(const std::string&)>);
+    void FillFileList(GameEngine::VerticalLayout& layout, const std::string& dir,
+                      std::function<void(const std::string&)>);
     void CreateButtonWithFilename(const std::string&, GameEngine::VerticalLayout&, std::function<void()>);
 
 private:
     GameEngine::GuiManager& guiManager_;
     GameEngine::GuiElementFactory& guiFactory_;
     std::string font_;
+    GameEngine::GuiTextElement* seletedFileText_;
 };
 }  // namespace Editor

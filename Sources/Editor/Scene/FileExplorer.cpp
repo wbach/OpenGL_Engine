@@ -3,6 +3,8 @@
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Renderers/GUI/EditText/GuiEditText.h>
+#include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <Utils.h>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
@@ -30,6 +32,20 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
 
     FillFileList(*layout, dir, onChoose);
 
+    auto okButton =
+        guiFactory_.CreateGuiButton("FileExplorerOkButton", [window, onChoose, this]() { onChoose(seletedFileText_->GetText()); window->MarkToRemove();});
+
+    auto okText = guiFactory_.CreateGuiText("FileExplorerSelectedFileOkText", font_, "ok", 32, 0);
+    okButton->SetText(okText);
+    okButton->SetScale(okText->GetScale());
+
+    seletedFileText_ = guiFactory_.CreateGuiText("FileExplorerSelectedFileText", font_, "", 32, 0);
+    auto seletedFileEditBox = guiFactory_.CreateEditBox("FileExplorerSelectedFileEditBox", seletedFileText_);
+    seletedFileEditBox->SetScale(vec2(scale.x, 0.05));
+    window->AddChild(seletedFileEditBox);
+    window->AddChild(okButton);
+    seletedFileEditBox->SetPostion(vec2(0, -scale.y + okButton->GetScale().y + seletedFileEditBox->GetScale().y));
+    okButton->SetPostion(vec2(0, -scale.y + okButton->GetScale().y));
     window->AddChild(layout);
 }
 
@@ -44,7 +60,6 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout &layout, const std::s
     };
     CreateButtonWithFilename(parentDir, layout, onClick);
 
-
     auto filesInDir = Utils::GetFilesInDirectory(dir);
     for (const auto &file : filesInDir)
     {
@@ -55,7 +70,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout &layout, const std::s
         {
             case Utils::File::Type::RegularFile:
             {
-                auto onClick = [file, onChoose]() { onChoose(file.name); };
+                auto onClick = [file, this]() { seletedFileText_->SetText(file.name); };
                 CreateButtonWithFilename(file.name, layout, onClick);
             }
             break;

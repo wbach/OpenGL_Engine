@@ -1,18 +1,22 @@
 #pragma once
 #include <Input/InputManager.h>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
-#include "Input/KeyCodeToCharConverter.h"
+#include "GameEngine/Renderers/GUI/TextInput.h"
 
 namespace GameEngine
 {
+class GuiTextureElement;
 class GuiTextElement;
+class TextInput;
 
 class GuiEditBoxElement : public GuiElement
 {
 public:
     GuiEditBoxElement(GuiTextElement&, Input::InputManager&, const vec2ui&);
+    ~GuiEditBoxElement();
     virtual void Update() override;
 
+    void SetBackgroundTexture(GuiTextureElement*);
     void SetRect(const Rect& rect) override;
     void SetSize(const vec2ui& size) override;
     void SetScale(const vec2& scale) override;
@@ -26,8 +30,11 @@ public:
 private:
     Input::InputManager& inputManager_;
     GuiTextElement& text_;
+    GuiTextureElement* backgroundTexture_;
     bool inputMode_;
-    Input::SingleCharType charType_;
+    uint32 lmouseSubscribtrion_;
+    uint32 entersubscribion_;
+    std::unique_ptr<TextInput> textInput_;
 
 public:
     static GuiElementTypes type;

@@ -54,6 +54,7 @@ public:
 
     void UnsubscribeOnKeyDown(KeyCodes::Type key, uint32);
     void UnsubscribeOnKeyUp(KeyCodes::Type key, uint32);
+    void UnsubscribeAnyKey(uint32);
 
     void UnsubscribeAll();
 

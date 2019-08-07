@@ -1,5 +1,7 @@
 #include "GuiEditText.h"
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
+#include "GameEngine/Renderers/GUI/TextInput.h"
+#include "GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 
 namespace GameEngine
 {
@@ -10,48 +12,47 @@ GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, Input::InputManager &
     , inputManager_(inputManager)
     , text_(text)
     , inputMode_(false)
-    , charType_(Input::SingleCharType::SMALL)
+
 {
-    inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
+    lmouseSubscribtrion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         auto position = inputManager_.GetMousePosition();
 
         if (IsCollision(position))
         {
-            inputMode_ = not inputMode_;
+            if (textInput_)
+            {
+                textInput_.reset();
+            }
+            else
+            {
+                textInput_ = std::make_unique<TextInput>(inputManager_, text_);
+            }
         }
     });
 
-    inputManager_.SubscribeOnKeyDown(KeyCodes::ENTER, [this]() {
+    entersubscribion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::ENTER, [this]() {
         if (inputMode_)
         {
-            inputMode_ = false;
+            textInput_.reset();
         }
     });
-
-    inputManager_.SubscribeOnKeyDown(KeyCodes::BACKSPACE, [this]() {
-        if (inputMode_)
-        {
-            text_.Pop();
-        }
-    });
-
-    inputManager_.SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
-        if (not inputMode_)
-            return;
-
-        auto character = Input::KeyCodeToCharConverter::Convert(key, charType_);
-        if (character)
-        {
-            text_.Append(*character);
-        }
-    });
+}
+GuiEditBoxElement::~GuiEditBoxElement()
+{
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, lmouseSubscribtrion_);
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::ENTER, entersubscribion_);
 }
 void GuiEditBoxElement::Update()
 {
 }
+void GuiEditBoxElement::SetBackgroundTexture(GuiTextureElement *texture)
+{
+    backgroundTexture_ = texture;
+}
 void GuiEditBoxElement::SetRect(const Rect &rect)
 {
     text_.SetRect(rect);
+    if (backgroundTexture_) backgroundTexture_->SetRect(rect);
     GuiElement::SetRect(rect);
 }
 

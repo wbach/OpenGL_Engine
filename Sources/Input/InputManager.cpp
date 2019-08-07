@@ -100,6 +100,12 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
     auto& keys = subscribers_.keyUpSubscribers_.at(key);
     keys.erase(id);
 }
+
+void InputManager::UnsubscribeAnyKey(uint32 id)
+{
+    subscribers_.keysSubscribers_.erase(id);
+}
+
 void InputManager::StashSubscribers()
 {
     stash_ = std::move(subscribers_);
