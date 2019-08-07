@@ -103,6 +103,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Text/IGuiTextFactory.h
+../../Sources/GameEngine/Renderers/GUI/TextInput.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShaderUniforms.h

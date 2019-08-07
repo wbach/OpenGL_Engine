@@ -70,6 +70,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextRenderer.cpp
+../../Sources/GameEngine/Renderers/GUI/TextInput.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
