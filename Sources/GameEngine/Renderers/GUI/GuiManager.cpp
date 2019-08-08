@@ -51,6 +51,8 @@ void GuiManager::Update()
         if (element and element->IsMarkToRemove())
         {
             unubscribeElement_(*element);
+            auto mapIter = std::find_if(elementsMap_.begin(), elementsMap_.end(), [element](const auto& p) { return p.second->GetId() == element->GetId(); });
+            elementsMap_.erase(mapIter);
             iter = elements_.erase(iter);
         }
         else
