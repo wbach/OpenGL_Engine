@@ -2,7 +2,6 @@
 #include "Engine/Engine.h"
 #include "Gateway.h"
 #include "Input/KeyCodeToCharConverter.h"
-#include "Renderers/GUI/Text/GuiTextRenderer.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
 

@@ -91,6 +91,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/GuiElementTypes.h
 ../../Sources/GameEngine/Renderers/GUI/GuiManager.h
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.h
+../../Sources/GameEngine/Renderers/GUI/GuiRendererElementBase.h
 ../../Sources/GameEngine/Renderers/GUI/IGuiRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/HorizontalLayout.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.h
@@ -101,7 +102,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShaderUniforms.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.h
-../../Sources/GameEngine/Renderers/GUI/Text/GuiTextRenderer.h
 ../../Sources/GameEngine/Renderers/GUI/Text/IGuiTextFactory.h
 ../../Sources/GameEngine/Renderers/GUI/TextInput.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
@@ -285,7 +285,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Common/common.hpp
 ../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.hpp
 ../../Sources/GameEngine/Display/DisplayManager.hpp
-../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureRenderer.hpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/IShadowFrameBuffer.hpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.hpp
 ../../Sources/GameEngine/Resources/IResourceManager.hpp

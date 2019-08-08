@@ -33,7 +33,8 @@ public:
     virtual const vec2& GetScale() const;
     virtual const vec2& GetPosition() const;
     virtual void execute(std::function<void(uint32)>);
-    void SetZPosition(float z);
+    virtual void SetZPosition(float z);
+    virtual float GetZValue() const;
     uint32 GetId() const;
     void MarkToRemove();
     bool IsMarkToRemove() const;

@@ -21,6 +21,7 @@ const size_t MAX_GUI_TEXTS{20};
 const vec2 DEFAULT_TEXT_POSITION(-1.00, -0.45);
 const std::string COMMAND_CURRSOR{"> "};
 auto inputType = Input::SingleCharType::SMALL;
+const float WINDOW_Z_POSITION = -10.f;
 }  // namespace
 Console::Console(Scene &scene)
     : scene_(scene)
@@ -34,7 +35,7 @@ Console::Console(Scene &scene)
         return;
 
     window_->Hide();
-    window_->SetZPosition(1.6f);
+    window_->SetZPosition(WINDOW_Z_POSITION);
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Show();
@@ -139,7 +140,6 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
-
         window_->AddChild(text);
     }
     else

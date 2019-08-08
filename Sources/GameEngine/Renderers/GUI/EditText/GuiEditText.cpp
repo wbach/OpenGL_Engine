@@ -11,8 +11,8 @@ GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, Input::InputManager &
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
     , text_(text)
+    , backgroundTexture_{nullptr}
     , inputMode_(false)
-
 {
     lmouseSubscribtrion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         auto position = inputManager_.GetMousePosition();

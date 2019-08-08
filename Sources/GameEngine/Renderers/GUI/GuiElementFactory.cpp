@@ -34,6 +34,7 @@ GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const
 {
     auto text   = guiTextFactory_.Create(font, str, size, outline);
     auto result = text.get();
+    result->SetZPosition(0.f);
     guiManager_.Add(label, std::move(text));
     return result;
 }
@@ -47,6 +48,7 @@ GuiTextureElement *GuiElementFactory::CreateGuiTexture(const std::string &label,
     }
 
     auto result = guiTexture.get();
+    result->SetZPosition(0.0f);
     guiManager_.Add(label, std::move(guiTexture));
     return result;
 }
@@ -147,7 +149,7 @@ HorizontalLayout *GuiElementFactory::CreateHorizontalLayout(const std::string &l
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
 {
-    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename);
+    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, false, true, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
     if (not texture)
     {
         DEBUG_LOG("Texture not loaded : " + filename);

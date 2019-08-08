@@ -9,7 +9,6 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
-#include "GameEngine/Renderers/GUI/Text/GuiTextRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "PhysicsScene.h"

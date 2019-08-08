@@ -128,6 +128,11 @@ void GuiElement::SetZPosition(float z)
     CalculateMatrix();
 }
 
+float GuiElement::GetZValue() const
+{
+    return zPosition_;
+}
+
 uint32 GuiElement::GetId() const
 {
     return id_;
@@ -162,7 +167,7 @@ const vec3& GuiElement::GetColor() const
 }
 void GuiElement::CalculateMatrix()
 {
-    transformMatrix_ = Utils::CreateTransformationMatrix(vec3(position_ + offset_, zPosition_), scale_, rotation_);
+    transformMatrix_ = Utils::CreateTransformationMatrix(vec3(position_ + offset_, 0), scale_, rotation_);
 }
 void GuiElement::CaclulateScaleBasedOnRect()
 {

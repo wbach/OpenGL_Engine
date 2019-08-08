@@ -62,6 +62,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/GuiElementFactory.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiManager.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiRenderer.cpp
+../../Sources/GameEngine/Renderers/GUI/GuiRendererElementBase.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/HorizontalLayout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/LayoutElementWrapper.cpp
@@ -69,10 +70,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.cpp
-../../Sources/GameEngine/Renderers/GUI/Text/GuiTextRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/TextInput.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.cpp
-../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureRenderer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindow.cpp
 ../../Sources/GameEngine/Renderers/IRenderer.cpp

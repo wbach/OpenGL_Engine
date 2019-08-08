@@ -1,7 +1,6 @@
 #include <fstream>
-#include "../GameEngine/Engine/Engine.h"
-#include "../GameEngine/Renderers/GUI/Text/GuiTextRenderer.h"
-#include "../GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
+#include <GameEngine/Engine/Engine.h>
+#include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include "GuiEdytorScene.h"
 #include "Thread.hpp"
 

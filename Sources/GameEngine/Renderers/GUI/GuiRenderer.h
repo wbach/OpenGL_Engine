@@ -3,15 +3,17 @@
 #include <vector>
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererFunctionType.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include "GuiElement.h"
+#include "GuiRendererElementBase.h"
 #include "IGuiRenderer.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
 struct Time;
+class IShaderProgram;
+class IShaderFactory;
+
 class GUIRenderer
 {
 public:
@@ -26,7 +28,17 @@ public:
     void Render(const Scene& scene, const Time&);
 
 private:
+    void SortSubscribers();
+
+private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    std::vector<std::unique_ptr<IGuiRenderer>> renderers_;
+    IShaderFactory& shaderFactory_;
+
+    std::unique_ptr<IShaderProgram> shader_;
+    std::vector<GuiRendererElementBase*> subscribers_;
+
+    bool isInit_;
+    uint32 colorBuffer_;
+    uint32 transformBuffer_;
 };
 }  // namespace GameEngine

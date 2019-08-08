@@ -25,13 +25,13 @@ GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi:
 GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
                                const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
                                uint32 outline)
-    : GuiElement(type, windowSize)
+    : GuiRendererElementBase(type, windowSize)
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
     , text_(str)
     , outline_(outline)
     , fontSize_(size)
-    , texture_(nullptr)
+ //   , texture_(nullptr)
     , font_(font)
     , openFontFailed_(false)
     , algin_(Algin::CENTER)
@@ -125,6 +125,11 @@ void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
 {
     algin_ = algin;
     CalculateAlginOffset();
+}
+
+void GuiTextElement::SetZPosition(float z)
+{
+    GuiElement::SetZPosition(z - 0.5f);
 }
 
 void GuiTextElement::UnsetTexture()

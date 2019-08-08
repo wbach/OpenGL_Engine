@@ -2,7 +2,7 @@
 #include <functional>
 #include <optional>
 #include <string>
-#include "GameEngine/Renderers/GUI/GuiElement.h"
+#include "GameEngine/Renderers/GUI/GuiRendererElementBase.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GraphicsApi/WindowApi.hpp"
 #include "Types.h"
@@ -12,7 +12,7 @@ namespace GameEngine
 class GuiTextElement;
 typedef std::function<void(GuiTextElement&)> UpdateTextureFunction;
 
-class GuiTextElement : public GuiElement
+class GuiTextElement : public GuiRendererElementBase
 {
 public:
     enum class Algin
@@ -46,6 +46,7 @@ public:
     void SetOutline(uint32 outline);
     void SetFont(const std::string& font);
     void SetAlgin(Algin algin);
+    virtual void SetZPosition(float z) override;
 
 private:
     void RenderText(bool fontOverride = false);
@@ -57,7 +58,6 @@ private:
     std::string text_;
     uint32 outline_;
     uint32 fontSize_;
-    Texture* texture_;
     std::optional<uint32> fontId_;
     std::string font_;
     std::optional<GraphicsApi::Surface> surface_;

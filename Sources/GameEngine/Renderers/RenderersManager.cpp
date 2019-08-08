@@ -3,8 +3,6 @@
 
 #include "DefferedRenderer.h"
 #include "GUI/GuiRenderer.h"
-#include "GUI/Text/GuiTextRenderer.h"
-#include "GUI/Texutre/GuiTextureRenderer.hpp"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"

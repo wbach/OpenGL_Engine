@@ -1,19 +1,15 @@
 #pragma once
-#include "GameEngine/Renderers/GUI/GuiElement.h"
+#include "GameEngine/Renderers/GUI/GuiRendererElementBase.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 class Texture;
-class GuiTextureElement : public GuiElement
+class GuiTextureElement : public GuiRendererElementBase
 {
 public:
-    GuiTextureElement(const vec2ui& windowSize, const Texture& texture);
-    const Texture& GetTexture() const;
+    GuiTextureElement(const vec2ui& windowSize, Texture& texture);
     void Flip();
-
-private:
-    const Texture& texture_;
 
 public:
     static GuiElementTypes type;

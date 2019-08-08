@@ -55,6 +55,7 @@ GuiWindowElement::~GuiWindowElement()
 
 void GuiWindowElement::AddChild(GuiElement* element)
 {
+    element->SetZPosition(zPosition_);
     UpdatePosition(*element, position_);
     children_.push_back(element);
 }
@@ -118,6 +119,16 @@ void GuiWindowElement::Hide()
         child->Hide();
     }
     GuiElement::Hide();
+}
+
+void GuiWindowElement::SetZPosition(float z)
+{
+    for (auto child : children_)
+    {
+        child->SetZPosition(z);
+    }
+
+    GuiElement::SetZPosition(z);
 }
 
 }  // namespace GameEngine
