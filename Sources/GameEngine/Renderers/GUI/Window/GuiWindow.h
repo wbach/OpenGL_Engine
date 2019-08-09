@@ -11,7 +11,7 @@ class GuiWindowElement : public GuiElement
 {
 public:
     GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
-    ~GuiWindowElement();
+    ~GuiWindowElement() override;
     void AddChild(GuiElement*);
     virtual void Update() override;
     virtual void SetScale(const vec2& scale);

@@ -16,6 +16,7 @@ public:
     void SetScale(const vec2& scale);
     void SetPostion(const vec2& position);
     void SetPostion(const vec2ui& position);
+    void SetZPosition(float z);
     void Rotate(float r);
     void Show(bool);
     void Show();

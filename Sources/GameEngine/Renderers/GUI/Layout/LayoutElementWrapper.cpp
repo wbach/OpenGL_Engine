@@ -44,6 +44,12 @@ void LayoutElementWrapper::SetPostion(const vec2ui &position)
     onChange_();
 }
 
+void LayoutElementWrapper::SetZPosition(float z)
+{
+    element_.SetZPosition(z);
+    onChange_();
+}
+
 void LayoutElementWrapper::Rotate(float r)
 {
     element_.Rotate(r);

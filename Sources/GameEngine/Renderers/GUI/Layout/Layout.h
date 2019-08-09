@@ -24,6 +24,7 @@ public:
     virtual void Hide() override;
     virtual void SetPostion(const vec2& position) override;
     virtual void SetPostion(const vec2ui& position) override;
+    virtual void SetZPosition(float z) override;
 
 protected:
     std::vector<LayoutElementWrapper> children_;

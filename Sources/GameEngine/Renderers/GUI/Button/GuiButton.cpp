@@ -191,6 +191,20 @@ void GuiButtonElement::SetPostion(const vec2ui &position)
     GuiElement::SetPostion(position);
 }
 
+void GuiButtonElement::SetZPosition(float z)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetZPosition(z);
+    if (onActiveTextue_)
+        onActiveTextue_->SetZPosition(z);
+    if (backgroundTexture_)
+        backgroundTexture_->SetZPosition(z);
+    if (text_)
+        text_->SetZPosition(z);
+
+    GuiElement::SetZPosition(z);
+}
+
 void GuiButtonElement::Rotate(float r)
 {
     if (onHoverTexture_)

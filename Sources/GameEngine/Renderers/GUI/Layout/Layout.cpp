@@ -88,4 +88,13 @@ void Layout::SetPostion(const vec2ui &position)
     }
     GuiElement::SetPostion(position);
 }
+
+void Layout::SetZPosition(float z)
+{
+    for (auto& child : children_)
+    {
+        child.SetZPosition(z);
+    }
+    GuiElement::SetZPosition(z);
+}
 }  // namespace GameEngine

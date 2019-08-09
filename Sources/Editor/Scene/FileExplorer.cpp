@@ -22,6 +22,7 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
     const vec2 position(0, 0);
     const vec2 scale(0.2, 0.4);
     auto window = guiFactory_.CreateGuiWindow("FileExplorer_Window", position, scale, "GUI/darkGrayButton.png");
+    window->SetZPosition(-20.f);
     auto layout = guiFactory_.CreateVerticalLayout("FileExplorer_layout");
     layout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
     layout->SetPostion(position);

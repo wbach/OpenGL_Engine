@@ -84,6 +84,13 @@ void GuiEditBoxElement::SetPostion(const vec2ui &position)
     GuiElement::SetPostion(position);
 }
 
+void GuiEditBoxElement::SetZPosition(float z)
+{
+    text_.SetZPosition(z);
+    if (backgroundTexture_) backgroundTexture_->SetZPosition(z);
+    GuiElement::SetZPosition(z);
+}
+
 void GuiEditBoxElement::Rotate(float r)
 {
     text_.Rotate(r);
