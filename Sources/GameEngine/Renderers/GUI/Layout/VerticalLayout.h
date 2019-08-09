@@ -19,6 +19,7 @@ public:
 
 private:
     void OnChange();
+    float CalculateXPosition(const GuiElement&);
 
 private:
     Input::InputManager& inputManager_;

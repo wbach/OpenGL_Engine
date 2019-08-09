@@ -33,15 +33,7 @@ void VerticalLayout::OnChange()
 
     vec2 newPosition = position_;
 
-    if (algin_ == Algin::LEFT)
-    {
-        newPosition.x -= scale_.x - elements_[0]->GetScale().x;
-    }
-    else if (algin_ == Algin::RIGHT)
-    {
-        newPosition.x += scale_.x - elements_[0]->GetScale().x;
-    }
-
+    newPosition.x = CalculateXPosition(*elements_[0]);
     newPosition.y += scale_.y - elements_[0]->GetScale().y;
 
     elements_[0]->SetPostion(newPosition);
@@ -49,26 +41,33 @@ void VerticalLayout::OnChange()
     for (std::size_t i = 1; i < elements_.size(); ++i)
     {
         const auto &oldPosition = elements_[i]->GetPosition();
-
         const auto &parentPositionY = elements_[i - 1]->GetPosition().y;
         const auto &parentScaleY    = elements_[i - 1]->GetScale().y;
 
-        if (algin_ == Algin::LEFT)
-        {
-            newPosition = position_;
-            newPosition.x -= scale_.x - elements_[i]->GetScale().x;
-        }
-        else if (algin_ == Algin::RIGHT)
-        {
-            newPosition = position_;
-            newPosition.x += scale_.x - elements_[i]->GetScale().x;
-        }
-
+        newPosition.x = CalculateXPosition(*elements_[i]);
         newPosition.y = parentPositionY - 2.f * parentScaleY;
 
         if (oldPosition != newPosition)
+        {
             elements_[i]->SetPostion(newPosition);
+        }
     }
+}
+
+float VerticalLayout::CalculateXPosition(const GuiElement & element)
+{
+    float result = position_.x;
+
+    if (algin_ == Algin::LEFT)
+    {
+        result -= scale_.x - element.GetScale().x;
+    }
+    else if (algin_ == Algin::RIGHT)
+    {
+        result += scale_.x - element.GetScale().x;
+    }
+
+    return result;
 }
 
 }  // namespace GameEngine
