@@ -22,9 +22,9 @@ PostProcessingManager::~PostProcessingManager()
 }
 void PostProcessingManager::Init()
 {
-    postproccesFrameBuffer1_.Init(context_.projection_.GetWindowSize());
-    postproccesFrameBuffer2_.Init(context_.projection_.GetWindowSize());
-    ambientOclusionFrameBuffer_.Init(context_.projection_.GetWindowSize());
+    postproccesFrameBuffer1_.Init(context_.projection_.GetRenderingSize());
+    postproccesFrameBuffer2_.Init(context_.projection_.GetRenderingSize());
+    ambientOclusionFrameBuffer_.Init(context_.projection_.GetRenderingSize());
 
     for (auto& renderer : postProcessingRenderers_)
     {
@@ -56,7 +56,7 @@ void PostProcessingManager::ReloadShaders()
 }
 void PostProcessingManager::AddEffect(PostprocessingRendererType type)
 {
-    postProcessingRenderers_.push_back(std::move(factory_->Create(type)));
+    postProcessingRenderers_.push_back(factory_->Create(type));
 }
 void PostProcessingManager::ResetBufferSet()
 {

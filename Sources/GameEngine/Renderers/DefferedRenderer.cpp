@@ -36,7 +36,7 @@ void DefferedRenderer::Init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
     CreateRenderers();
-    context_.defferedFrameBuffer_.Init(context_.projection_.GetWindowSize());
+    context_.defferedFrameBuffer_.Init(context_.projection_.GetRenderingSize());
     context_.shadowsFrameBuffer_.InitialiseFrameBuffer();
     InitRenderers();
     postprocessingRenderersManager_.Init();

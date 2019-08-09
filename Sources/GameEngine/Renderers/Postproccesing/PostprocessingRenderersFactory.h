@@ -3,21 +3,21 @@
 
 namespace GameEngine
 {
-	struct RendererContext;
-	class PostprocessFrameBuffer;
+struct RendererContext;
+class PostprocessFrameBuffer;
 
-	class PostprocessingRenderersFactory : public IPostprocessingRenderersFactory
-	{
-	public:
-		PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
-		virtual std::unique_ptr<PostprocessingRenderer> Create(PostprocessingRendererType type) override;
+class PostprocessingRenderersFactory : public IPostprocessingRenderersFactory
+{
+public:
+    PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
+    virtual std::unique_ptr<PostprocessingRenderer> Create(PostprocessingRendererType type) override;
 
-	private:
-		template<class T>
-		std::unique_ptr<T> CreateAndBasicInitialize();
+private:
+    template <class T>
+    std::unique_ptr<T> CreateAndBasicInitialize();
 
-	private:
-		RendererContext& context_;
-		PostprocessFrameBuffer** postprocessFrameBuffer_;
-	};
-} // GameEngine
+private:
+    RendererContext& context_;
+    PostprocessFrameBuffer** postprocessFrameBuffer_;
+};
+}  // namespace GameEngine

@@ -23,7 +23,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
     , renderersManager_(entryParameters.renderersManager_)
-    , windowSize_(entryParameters.renderersManager_.GetProjection().GetWindowSize())
+    , windowSize_(entryParameters.renderersManager_.GetProjection().GetRenderingSize())
     , guiTextFactory_(entryParameters.resourceManager_, EngineConf.renderer.resolution)
     , unsubscribe_([this](uint32 id) { renderersManager_.GetGuiRenderer().UnSubscribe(id); })
     , guiElementCounter_(0)

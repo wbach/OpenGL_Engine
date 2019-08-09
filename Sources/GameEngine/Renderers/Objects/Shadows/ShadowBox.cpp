@@ -9,7 +9,7 @@ namespace GameEngine
 {
 ShadowBox::ShadowBox(Projection& projection)
     : viewMatrix_(1.f)
-    , m_WindowSize(projection.GetWindowSize())
+    , m_WindowSize(projection.GetRenderingSize())
     , m_Min()
     , m_Max()
     , m_Fov(projection.GetFoV())

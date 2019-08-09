@@ -15,7 +15,7 @@ void DefferedLighting::Init()
     lightPass_.skyColor     = vec4(0.8, 0.8, 0.8, 1.f);
     lightPass_.viewDistance = rendererContext_->projection_.GetViewDistance();
     lightPass_.screenSize =
-        vec2(rendererContext_->projection_.GetWindowSize().x, rendererContext_->projection_.GetWindowSize().y);
+        vec2(rendererContext_->projection_.GetRenderingSize().x, rendererContext_->projection_.GetRenderingSize().y);
 
     if (not lightPassID_)
     {

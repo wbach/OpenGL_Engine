@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -11,10 +11,10 @@ class PostprocessingRenderer
 public:
     virtual ~PostprocessingRenderer();
 
-    virtual void Init()          = 0;
-    virtual void Prepare() = 0;
+    virtual void Init()               = 0;
+    virtual void Prepare()            = 0;
     virtual void Render(const Scene&) = 0;
-    virtual void ReloadShaders() = 0;
+    virtual void ReloadShaders()      = 0;
     void SetRendererContext(RendererContext* rendererContext);
     void SetPostProcessFrameBuffer(PostprocessFrameBuffer** postprocessFrameBuffer);
 
@@ -24,4 +24,4 @@ protected:
 };
 
 typedef std::unique_ptr<PostprocessingRenderer> PostprocessingRendererPtr;
-}  // GameEngine
+}  // namespace GameEngine
