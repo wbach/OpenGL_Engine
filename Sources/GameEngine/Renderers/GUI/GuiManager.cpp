@@ -4,9 +4,9 @@
 
 namespace GameEngine
 {
-//namespace
+// namespace
 //{
-//std::mutex guiElementMutex;
+// std::mutex guiElementMutex;
 //}
 GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe,
                        std::function<void(GuiElement&)> unubscribeElement, std::function<void()> unsubscribeAll)
@@ -26,6 +26,7 @@ void GuiManager::Add(const std::string& name, std::unique_ptr<GuiElement> elemen
     if (elementsMap_.count(name) > 0)
     {
         DEBUG_LOG("REPLACE EXISTING Element name : " + name);
+        Remove(name);
     }
 
     subscribe_(*element.get());
@@ -51,8 +52,16 @@ void GuiManager::Update()
         if (element and element->IsMarkToRemove())
         {
             unubscribeElement_(*element);
-            auto mapIter = std::find_if(elementsMap_.begin(), elementsMap_.end(), [element](const auto& p) { return p.second->GetId() == element->GetId(); });
-            elementsMap_.erase(mapIter);
+            auto mapIter = std::find_if(elementsMap_.begin(), elementsMap_.end(),
+                                        [element](const auto& p) { return p.second->GetId() == element->GetId(); });
+            if (mapIter != elementsMap_.end())
+            {
+                elementsMap_.erase(mapIter);
+            }
+            else
+            {
+                DEBUG_LOG("Somthing was wrong. GuiElement not found in map");
+            }
             iter = elements_.erase(iter);
         }
         else
@@ -86,15 +95,7 @@ void GuiManager::Remove(const std::string& name)
     if (elementsMap_.count(name) == 0)
         return;
 
-    auto id = elementsMap_.at(name)->GetId();
-
-    auto iter =
-        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
-    if (iter != elements_.end())
-    {
-        elements_.erase(iter);
-        elementsMap_.erase(name);
-    }
+    Remove(*elementsMap_.at(name));
 }
 
 void GuiManager::Remove(const GuiElement& element)
@@ -108,6 +109,7 @@ void GuiManager::Remove(const GuiElement& element)
 
     if (iter != elements_.end() and mapiter != elementsMap_.end())
     {
+        (*iter)->MarkToRemove();
         elements_.erase(iter);
         elementsMap_.erase(mapiter);
     }

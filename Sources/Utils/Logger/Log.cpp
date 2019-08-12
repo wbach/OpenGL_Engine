@@ -42,19 +42,27 @@ void CLogger::ErrorLog(const std::string& log)
 }
 void CLogger::Logg(const std::string& log)
 {
-    if (!enabled)
+    if (not enabled)
         return;
 
     std::lock_guard<std::mutex> lk(printMutex_);
 
+    std::stringstream ss;
+    auto now = std::chrono::system_clock::now();
+    std::time_t time = std::chrono::system_clock::to_time_t(now);
+    std::string timeStr = std::ctime(&time);
+    timeStr.pop_back();
+
+    ss << "[" << timeStr << "][" << std::this_thread::get_id() << "] " << log;
+
     if (logImmeditaly)
     {
-        std::cout << log << std::endl;
-        mainfile << log << '\n';
+        std::cout << ss.str() << std::endl;
+        mainfile << ss.str() << std::endl;
     }
     else
     {
-        logs.push_back(log);
+        logs.push_back(ss.str());
     }
 }
 void CLogger::LoggToFileOnly(const std::string& log)
@@ -62,7 +70,7 @@ void CLogger::LoggToFileOnly(const std::string& log)
     std::lock_guard<std::mutex> lk(printMutex_);
 
     std::ofstream file(fileName, std::ios_base::app);
-    file << log << '\n';
+    file << "[" << std::this_thread::get_id() << "]" << log << std::endl;
     file.close();
 }
 void CLogger::MessageBox(uint32 flags, const std::string& title, const std::string& message)
