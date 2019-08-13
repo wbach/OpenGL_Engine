@@ -54,7 +54,7 @@ private:
     vec3 onActiveTextColor_;
 
     Utils::Timer activeTimer_;
-    size_t subscribtion_;
+    std::optional<uint32> subscribtion_;
 
 public:
     static GuiElementTypes type;

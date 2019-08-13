@@ -1,27 +1,35 @@
 #include "FileExplorer.h"
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
-#include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
-#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <GameEngine/Renderers/GUI/EditText/GuiEditText.h>
+#include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
+#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <Utils.h>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 namespace Editor
 {
+namespace
+{
+const std::string FONT_NAME    = "GUI/monaco.ttf";
+}  // namespace
 FileExplorer::FileExplorer(GameEngine::GuiManager &manager, GameEngine::GuiElementFactory &factory)
     : guiManager_(manager)
     , guiFactory_(factory)
 {
-    font_ = EngineConf_GetFullDataPathAddToRequierd("GUI/monaco.ttf");
+    font_ = EngineConf_GetFullDataPathAddToRequierd(FONT_NAME);
+}
+
+FileExplorer::~FileExplorer()
+{
 }
 
 void FileExplorer::Start(const std::string &dir, std::function<void(const std::string &)> onChoose)
 {
     const vec2 position(0, 0);
     const vec2 scale(0.2, 0.4);
-    auto window = guiFactory_.CreateGuiWindow("FileExplorer_Window", position, scale, "GUI/darkGrayButton.png");
+    auto window = guiFactory_.CreateGuiWindow("FileExplorerWindow", position, scale, "GUI/darkGrayButton.png");
     window->SetZPosition(-20.f);
     auto layout = guiFactory_.CreateVerticalLayout("FileExplorer_layout");
     layout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
@@ -33,14 +41,16 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
 
     FillFileList(*layout, dir, onChoose);
 
-    auto okButton =
-        guiFactory_.CreateGuiButton("FileExplorerOkButton", [window, onChoose, this]() { onChoose(seletedFileText_->GetText()); window->MarkToRemove();});
+    auto okButton = guiFactory_.CreateGuiButton("FileExplorerOkButton", [window, onChoose, this]() {
+        onChoose(seletedFileText_->GetText());
+        window->MarkToRemove();
+    });
 
     auto okText = guiFactory_.CreateGuiText("FileExplorerSelectedFileOkText", font_, "ok", 32, 0);
     okButton->SetText(okText);
     okButton->SetScale(okText->GetScale());
 
-    seletedFileText_ = guiFactory_.CreateGuiText("FileExplorerSelectedFileText", font_, "", 32, 0);
+    seletedFileText_        = guiFactory_.CreateGuiText("FileExplorerSelectedFileText", font_, "", 32, 0);
     auto seletedFileEditBox = guiFactory_.CreateEditBox("FileExplorerSelectedFileEditBox", seletedFileText_);
     seletedFileEditBox->SetScale(vec2(scale.x, 0.05));
     window->AddChild(seletedFileEditBox);
@@ -50,8 +60,7 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
     window->AddChild(layout);
 }
 
-void FileExplorer::FillFileList(GameEngine::VerticalLayout &layout, const std::string &dir,
-                                std::function<void(const std::string &)> onChoose)
+void FileExplorer::FillFileList(GameEngine::VerticalLayout &layout, const std::string &dir, std::function<void(const std::string &)> onChoose)
 {
     auto parentDir = dir.substr(0, dir.find_last_of('/'));
 
@@ -90,8 +99,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout &layout, const std::s
     }
 }
 
-void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout &layout,
-                                            std::function<void()> onClick)
+void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout &layout, std::function<void()> onClick)
 {
     const std::string constLabel = "FileExplorerRegularFile" + filename;
 
@@ -107,12 +115,9 @@ void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEng
     button->SetScale(text->GetScale());
     button->SetText(text);
 
-    auto buttonTexture =
-        guiFactory_.CreateGuiTexture(constLabel + "Button" + "buttonTexture", "GUI/darkGrayButton.png");
-    auto hoverButtonTexture =
-        guiFactory_.CreateGuiTexture(constLabel + "Button" + "hoverButtonTexture", "GUI/darkGrayButtonHover.png");
-    auto activeButtonTexture =
-        guiFactory_.CreateGuiTexture(constLabel + "Button" + "activeButtonTexture", "GUI/darkGrayButtonActive.png");
+    auto buttonTexture       = guiFactory_.CreateGuiTexture(constLabel + "Button" + "buttonTexture", "GUI/darkGrayButton.png");
+    auto hoverButtonTexture  = guiFactory_.CreateGuiTexture(constLabel + "Button" + "hoverButtonTexture", "GUI/darkGrayButtonHover.png");
+    auto activeButtonTexture = guiFactory_.CreateGuiTexture(constLabel + "Button" + "activeButtonTexture", "GUI/darkGrayButtonActive.png");
 
     if (buttonTexture)
         button->SetBackgroundTexture(buttonTexture);

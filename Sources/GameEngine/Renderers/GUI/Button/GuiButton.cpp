@@ -231,8 +231,6 @@ void GuiButtonElement::Show(bool b)
         text_->Show(b);
 
     GuiElement::Show(b);
-
-    b ? SubscribeInputAction() : UnsubscribeInputAction();
 }
 
 void GuiButtonElement::Show()
@@ -247,8 +245,6 @@ void GuiButtonElement::Show()
         text_->Show();
 
     GuiElement::Show();
-
-    SubscribeInputAction();
 }
 
 void GuiButtonElement::Hide()
@@ -263,8 +259,6 @@ void GuiButtonElement::Hide()
         text_->Hide();
 
     GuiElement::Hide();
-
-    UnsubscribeInputAction();
 }
 
 void GuiButtonElement::execute(std::function<void(uint32)> function)
@@ -281,22 +275,29 @@ void GuiButtonElement::execute(std::function<void(uint32)> function)
 
 void GuiButtonElement::SubscribeInputAction()
 {
-    subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-        if (IsShow())
-        {
-            auto position = inputManager_.GetMousePosition();
-            if (IsCollision(position))
+    if (not subscribtion_)
+    {
+        subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+            if (IsShow())
             {
-                onClick_();
-                activeTimer_.Reset();
+                auto position = inputManager_.GetMousePosition();
+                if (IsCollision(position))
+                {
+                    onClick_();
+                    activeTimer_.Reset();
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 void GuiButtonElement::UnsubscribeInputAction()
 {
-    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, subscribtion_);
+    if (subscribtion_)
+    {
+        inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, *subscribtion_);
+        subscribtion_.reset();
+    }
 }
 
 }  // namespace GameEngine
