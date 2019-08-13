@@ -148,7 +148,7 @@ void GUIRenderer::UnSubscribe(uint32 id)
     }
 }
 
-void GUIRenderer::UnSubscribe(GuiElement& element)
+void GUIRenderer::UnSubscribe(const GuiElement &element)
 {
     if (element.GetType() == GuiElementTypes::Text or element.GetType() == GuiElementTypes::Texture)
     {

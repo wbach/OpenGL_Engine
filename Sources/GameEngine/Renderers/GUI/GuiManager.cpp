@@ -8,11 +8,10 @@ namespace GameEngine
 //{
 // std::mutex guiElementMutex;
 //}
-GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe,
-                       std::function<void(GuiElement&)> unubscribeElement, std::function<void()> unsubscribeAll)
+GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, std::function<void()> unsubscribeAll)
     : subscribe_(renderSubscribe)
     , unsubscribeAll_(unsubscribeAll)
-    , unubscribeElement_(unubscribeElement)
+    , unsubscribeElement_(unsubscribeElement)
 {
 }
 void GuiManager::Add(const std::string& name, std::unique_ptr<GuiElement> element)
@@ -51,9 +50,8 @@ void GuiManager::Update()
 
         if (element and element->IsMarkToRemove())
         {
-            unubscribeElement_(*element);
-            auto mapIter = std::find_if(elementsMap_.begin(), elementsMap_.end(),
-                                        [element](const auto& p) { return p.second->GetId() == element->GetId(); });
+            unsubscribeElement_(*element);
+            auto mapIter = std::find_if(elementsMap_.begin(), elementsMap_.end(), [element](const auto& p) { return p.second->GetId() == element->GetId(); });
             if (mapIter != elementsMap_.end())
             {
                 elementsMap_.erase(mapIter);
@@ -102,14 +100,12 @@ void GuiManager::Remove(const GuiElement& element)
 {
     auto id = element.GetId();
 
-    auto iter =
-        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
-    auto mapiter = std::find_if(elementsMap_.begin(), elementsMap_.end(),
-                                [id](const auto& pair) { return pair.second->GetId() == id; });
+    auto iter    = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
+    auto mapiter = std::find_if(elementsMap_.begin(), elementsMap_.end(), [id](const auto& pair) { return pair.second->GetId() == id; });
 
     if (iter != elements_.end() and mapiter != elementsMap_.end())
     {
-        (*iter)->MarkToRemove();
+        unsubscribeElement_(element);
         elements_.erase(iter);
         elementsMap_.erase(mapiter);
     }
