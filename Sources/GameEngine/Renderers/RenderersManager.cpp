@@ -85,10 +85,12 @@ void RenderersManager::InitMainRenderer()
 
     if (rendererType == Params::RendererType::SIMPLE_RENDERER)
     {
+        DEBUG_LOG("Create base renderer");
         renderers_.emplace_back(new BaseRenderer(graphicsApi_, projection_, shaderFactory_, registerFunc));
     }
     else
     {
+        DEBUG_LOG("Create deffered renderer");
         renderers_.emplace_back(new DefferedRenderer(graphicsApi_, projection_, shaderFactory_, registerFunc));
     }
 }

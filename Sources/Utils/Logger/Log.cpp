@@ -38,7 +38,12 @@ void CLogger::LazyLog()
 void CLogger::ErrorLog(const std::string& log)
 {
     MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
-    Logg(log);
+    Logg("[ERROR] "+ log);
+}
+
+void CLogger::DebugLog(const std::string &log)
+{
+    Logg("[DEBUG] "+ log);
 }
 void CLogger::Logg(const std::string& log)
 {
@@ -53,7 +58,7 @@ void CLogger::Logg(const std::string& log)
     std::string timeStr = std::ctime(&time);
     timeStr.pop_back();
 
-    ss << "[" << timeStr << "][" << std::this_thread::get_id() << "] " << log;
+    ss << "[" << timeStr << "][" << std::this_thread::get_id() << "]" << log;
 
     if (logImmeditaly)
     {

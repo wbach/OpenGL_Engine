@@ -95,10 +95,10 @@ void main()
 {
     VertexWorldData worldData = caluclateWorldData();
 
-    vec4 modelViewPosition = perFrame.viewMatrix * worldData.worldPosition;
+    vec4 modelViewPosition = perFrame.projectionViewMatrix * worldData.worldPosition;
     vs_out.texCoord      = TexCoord;
     vs_out.textureOffset = perObjectConstants.textureOffset;
-    vs_out.outOfViewRange = length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
+    vs_out.outOfViewRange = 0.f; //length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
     gl_Position = perResize.projectionMatrix * modelViewPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }

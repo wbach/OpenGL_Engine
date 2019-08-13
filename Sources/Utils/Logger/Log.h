@@ -15,6 +15,7 @@ public:
     void ImmeditalyLog();
     void LazyLog();
     void ErrorLog(const std::string& log);
+    void DebugLog(const std::string& log);
     void Logg(const std::string& log);
     void LoggToFileOnly(const std::string& log);
     void MessageBox(uint32 flags, const std::string& title, const std::string& message);
@@ -41,6 +42,6 @@ private:
 };
 // clang-format off
 #define LogToFile(x)// do {CLogger::Instance().LoggToFileOnly(x);} while(0)
-#define DEBUG_LOG(x) do {CLogger::Instance().Logg(__FUNCTION__ + std::string(": ") + x);} while(0)
+#define DEBUG_LOG(x) do {CLogger::Instance().DebugLog(__FUNCTION__ + std::string(": ") + x);} while(0)
 #define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(__FUNCTION__ + std::string(": ") + x);} while(0)
 // clang-format on
