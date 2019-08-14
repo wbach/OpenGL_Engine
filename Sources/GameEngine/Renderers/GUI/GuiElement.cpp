@@ -21,6 +21,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , rect_{{0, 0}, {100, 100}}
     , position_{0, 0}
     , zPosition_{0}
+    , zOffset_{0}
     , scale_{0.25, 0.25}
     , color_{1, 1, 1}
     , transformMatrix_(1.f)
@@ -125,12 +126,28 @@ const vec2& GuiElement::GetPosition() const
 void GuiElement::SetZPosition(float z)
 {
     zPosition_ = z;
-    CalculateMatrix();
+    zTotalValue_ = zPosition_ + zOffset_;
+}
+
+void GuiElement::SetZPositionOffset(float offset)
+{
+    zOffset_ = offset;
+    zTotalValue_ = zPosition_ + zOffset_;
 }
 
 float GuiElement::GetZValue() const
 {
     return zPosition_;
+}
+
+float GuiElement::GetZOffsetValue() const
+{
+    return zOffset_;
+}
+
+float GuiElement::GetZTotalValue() const
+{
+    return zTotalValue_;
 }
 
 uint32 GuiElement::GetId() const

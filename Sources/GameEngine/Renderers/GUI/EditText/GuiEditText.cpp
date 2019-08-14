@@ -39,6 +39,11 @@ GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, Input::InputManager &
 }
 GuiEditBoxElement::~GuiEditBoxElement()
 {
+    if (backgroundTexture_)
+        backgroundTexture_->MarkToRemove();
+
+    text_.MarkToRemove();
+
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, lmouseSubscribtrion_);
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::ENTER, entersubscribion_);
 }
@@ -48,74 +53,85 @@ void GuiEditBoxElement::Update()
 void GuiEditBoxElement::SetBackgroundTexture(GuiTextureElement *texture)
 {
     backgroundTexture_ = texture;
+    backgroundTexture_->SetScale(scale_);
 }
 void GuiEditBoxElement::SetRect(const Rect &rect)
 {
     text_.SetRect(rect);
-    if (backgroundTexture_) backgroundTexture_->SetRect(rect);
+    if (backgroundTexture_)
+        backgroundTexture_->SetRect(rect);
     GuiElement::SetRect(rect);
 }
 
 void GuiEditBoxElement::SetSize(const vec2ui &size)
 {
     text_.SetSize(size);
-    if (backgroundTexture_) backgroundTexture_->SetSize(size);
+    if (backgroundTexture_)
+        backgroundTexture_->SetSize(size);
     GuiElement::SetSize(size);
 }
 
 void GuiEditBoxElement::SetScale(const vec2 &scale)
 {
     text_.SetScale(scale);
-    if (backgroundTexture_) backgroundTexture_->SetScale(scale);
+    if (backgroundTexture_)
+        backgroundTexture_->SetScale(scale);
     GuiElement::SetScale(scale);
 }
 
 void GuiEditBoxElement::SetPostion(const vec2 &position)
 {
     text_.SetPostion(position);
-    if (backgroundTexture_) backgroundTexture_->SetPostion(position);
+    if (backgroundTexture_)
+        backgroundTexture_->SetPostion(position);
     GuiElement::SetPostion(position);
 }
 
 void GuiEditBoxElement::SetPostion(const vec2ui &position)
 {
     text_.SetPostion(position);
-    if (backgroundTexture_) backgroundTexture_->SetPostion(position);
+    if (backgroundTexture_)
+        backgroundTexture_->SetPostion(position);
     GuiElement::SetPostion(position);
 }
 
 void GuiEditBoxElement::SetZPosition(float z)
 {
     text_.SetZPosition(z);
-    if (backgroundTexture_) backgroundTexture_->SetZPosition(z);
+    if (backgroundTexture_)
+        backgroundTexture_->SetZPosition(z);
     GuiElement::SetZPosition(z);
 }
 
 void GuiEditBoxElement::Rotate(float r)
 {
     text_.Rotate(r);
-    if (backgroundTexture_) backgroundTexture_->Rotate(r);
+    if (backgroundTexture_)
+        backgroundTexture_->Rotate(r);
     GuiElement::Rotate(r);
 }
 
 void GuiEditBoxElement::Show(bool b)
 {
     text_.Show(b);
-    if (backgroundTexture_) backgroundTexture_->Show(b);
+    if (backgroundTexture_)
+        backgroundTexture_->Show(b);
     GuiElement::Show(b);
 }
 
 void GuiEditBoxElement::Show()
 {
     text_.Show();
-    if (backgroundTexture_) backgroundTexture_->Show();
+    if (backgroundTexture_)
+        backgroundTexture_->Show();
     GuiElement::Show();
 }
 
 void GuiEditBoxElement::Hide()
 {
     text_.Hide();
-    if (backgroundTexture_) backgroundTexture_->Hide();
+    if (backgroundTexture_)
+        backgroundTexture_->Hide();
     GuiElement::Hide();
 }
 }  // namespace GameEngine

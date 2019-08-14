@@ -31,12 +31,12 @@ GuiTextElement::GuiTextElement(UpdateTextureFunction updateTexture, GraphicsApi:
     , text_(str)
     , outline_(outline)
     , fontSize_(size)
- //   , texture_(nullptr)
     , font_(font)
     , openFontFailed_(false)
     , algin_(Algin::CENTER)
 {
     RenderText();
+    SetZPositionOffset(-0.5f);
 }
 
 const std::optional<GraphicsApi::Surface>& GuiTextElement::GetSurface() const
@@ -125,11 +125,6 @@ void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
 {
     algin_ = algin;
     CalculateAlginOffset();
-}
-
-void GuiTextElement::SetZPosition(float z)
-{
-    GuiElement::SetZPosition(z - 0.5f);
 }
 
 void GuiTextElement::UnsetTexture()

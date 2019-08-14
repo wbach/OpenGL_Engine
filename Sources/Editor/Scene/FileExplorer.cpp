@@ -12,7 +12,7 @@ namespace Editor
 {
 namespace
 {
-const std::string FONT_NAME    = "GUI/monaco.ttf";
+const std::string FONT_NAME = "GUI/monaco.ttf";
 }  // namespace
 FileExplorer::FileExplorer(GameEngine::GuiManager &manager, GameEngine::GuiElementFactory &factory)
     : guiManager_(manager)
@@ -28,13 +28,13 @@ FileExplorer::~FileExplorer()
 void FileExplorer::Start(const std::string &dir, std::function<void(const std::string &)> onChoose)
 {
     const vec2 position(0, 0);
-    const vec2 scale(0.2, 0.4);
-    auto window = guiFactory_.CreateGuiWindow("FileExplorerWindow", position, scale, "GUI/darkGrayButton.png");
+    const vec2 windowScale(0.2, 0.4);
+    auto window = guiFactory_.CreateGuiWindow("FileExplorerWindow", position, windowScale, "GUI/darkGrayButton.png");
     window->SetZPosition(-20.f);
     auto layout = guiFactory_.CreateVerticalLayout("FileExplorer_layout");
     layout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
-    layout->SetPostion(position);
-    layout->SetScale(scale);
+    layout->SetPostion(position + vec2(0, 0.05));
+    layout->SetScale(vec2(0.2, 0.3));
 
     if (not layout or not window)
         return;
@@ -50,13 +50,18 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
     okButton->SetText(okText);
     okButton->SetScale(okText->GetScale());
 
-    seletedFileText_        = guiFactory_.CreateGuiText("FileExplorerSelectedFileText", font_, "", 32, 0);
+    seletedFileText_ = guiFactory_.CreateGuiText("FileExplorerSelectedFileText", font_, "", 32, 0);
+    seletedFileText_->SetColor(vec3(0.2));
     auto seletedFileEditBox = guiFactory_.CreateEditBox("FileExplorerSelectedFileEditBox", seletedFileText_);
-    seletedFileEditBox->SetScale(vec2(scale.x, 0.05));
+    seletedFileEditBox->SetScale(vec2(windowScale.x, 0.04));
+
+    auto editBoxBgTexture = guiFactory_.CreateGuiTexture("FileExplorerSelectedFileEditBoxBg", "GUI/white.png");
+    seletedFileEditBox->SetBackgroundTexture(editBoxBgTexture);
     window->AddChild(seletedFileEditBox);
     window->AddChild(okButton);
-    seletedFileEditBox->SetPostion(vec2(0, -scale.y + okButton->GetScale().y + seletedFileEditBox->GetScale().y));
-    okButton->SetPostion(vec2(0, -scale.y + okButton->GetScale().y));
+
+    seletedFileEditBox->SetPostion(vec2(0, -windowScale.y + (2.f *okButton->GetScale().y) + seletedFileEditBox->GetScale().y));
+    okButton->SetPostion(vec2(0, -windowScale.y + okButton->GetScale().y));
     window->AddChild(layout);
 }
 

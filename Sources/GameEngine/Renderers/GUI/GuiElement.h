@@ -34,7 +34,10 @@ public:
     virtual const vec2& GetPosition() const;
     virtual void execute(std::function<void(uint32)>);
     virtual void SetZPosition(float z);
+    virtual void SetZPositionOffset(float offset);
     virtual float GetZValue() const;
+    virtual float GetZOffsetValue() const;
+    float GetZTotalValue() const;
     uint32 GetId() const;
     void MarkToRemove();
     bool IsMarkToRemove() const;
@@ -62,6 +65,8 @@ protected:
     Rect rect_;
     vec2 position_;
     float zPosition_;
+    float zOffset_;
+    float zTotalValue_;
     vec2 scale_;
     vec3 color_;
     mat4 transformMatrix_;

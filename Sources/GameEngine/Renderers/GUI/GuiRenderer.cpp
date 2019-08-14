@@ -93,12 +93,12 @@ void GUIRenderer::Render(const Scene&, const Time&)
         graphicsApi_.BindTexture(*subscriber->GetTextureId());
         graphicsApi_.RenderQuad();
 
-        if (subscriber->GetZValue() > min)
+        if (subscriber->GetZTotalValue() > min)
         {
             DEBUG_LOG("Sort needed");
             sortNeeded = true;
         }
-        min = subscriber->GetZValue();
+        min = subscriber->GetZTotalValue();
     }
 
     if (sortNeeded)
@@ -115,7 +115,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
 void GUIRenderer::SortSubscribers()
 {
     std::sort(subscribers_.begin(), subscribers_.end(),
-        [](const auto& l, const auto& r) { return l->GetZValue() > r->GetZValue(); });
+        [](const auto& l, const auto& r) { return l->GetZTotalValue() > r->GetZTotalValue(); });
 
 }
 
