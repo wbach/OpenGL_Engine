@@ -133,23 +133,13 @@ void XInputManager::ProcessKeysEvents()
         if (type == WM_KEYDOWN)
         {
             UpdateMouseState(keyCode, true);
-            for (const auto& subscriber : subscribers_.keyDownSubscribers_[keyCode])
-            {
-                subscriber();
-            }
-            for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
-            {
-                keysSubscriber(keyCode);
-            }
+            ExecuteOnKeyDown(keyCode);
+            ExecuteAnyKey(keyCode);
         }
         else if (type == WM_KEYUP)
         {
             UpdateMouseState(keyCode, false);
-
-            for (const auto& subscriber : subscribers_.keyUpSubscribers_[keyCode])
-            {
-                subscriber();
-            }
+            ExecuteOnKeyUp(keyCode);
         }
     }
 }

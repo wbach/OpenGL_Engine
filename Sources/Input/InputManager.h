@@ -58,6 +58,10 @@ public:
 
     void UnsubscribeAll();
 
+    void ExecuteOnKeyDown(KeyCodes::Type);
+    void ExecuteOnKeyUp(KeyCodes::Type);
+    void ExecuteAnyKey(KeyCodes::Type);
+
 public:
     std::unordered_map<GameActions::Type, KeyCodes::Type> keyGameActions;
 

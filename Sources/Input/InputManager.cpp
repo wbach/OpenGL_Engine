@@ -46,21 +46,21 @@ void InputManager::SetDefaultKeys()
 uint32 InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
     auto id = idCounter_++;
-    subscribers_.keyDownSubscribers_[key].insert({ id, func });
+    subscribers_.keyDownSubscribers_[key].insert({id, func});
     return id;
 }
 
 uint32 InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
     auto id = idCounter_++;
-    subscribers_.keyUpSubscribers_[key].insert({ id, func });
+    subscribers_.keyUpSubscribers_[key].insert({id, func});
     return id;
 }
 
 uint32 InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
     auto id = idCounter_++;
-    subscribers_.keysSubscribers_.insert({id, func });
+    subscribers_.keysSubscribers_.insert({id, func});
     return id;
 }
 
@@ -108,11 +108,43 @@ void InputManager::UnsubscribeAnyKey(uint32 id)
 
 void InputManager::StashSubscribers()
 {
-    stash_ = std::move(subscribers_);
+    stash_       = std::move(subscribers_);
     subscribers_ = Subscribers();
 }
 void InputManager::StashPopSubscribers()
 {
     subscribers_ = stash_;
+}
+void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
+{
+    if (subscribers_.keyDownSubscribers_.count(keyCode) > 0)
+    {
+        auto subscribers = subscribers_.keyDownSubscribers_.at(keyCode);
+
+        for (const auto& subscriber : subscribers)
+        {
+            subscriber.second();
+        }
+    }
+}
+void InputManager::ExecuteOnKeyUp(KeyCodes::Type keyCode)
+{
+    if (subscribers_.keyUpSubscribers_.count(keyCode) > 0)
+    {
+        auto subscribers = subscribers_.keyUpSubscribers_.at(keyCode);
+
+        for (const auto& subscriber : subscribers)
+        {
+            subscriber.second();
+        }
+    }
+}
+void InputManager::ExecuteAnyKey(KeyCodes::Type keyCode)
+{
+    auto subscribers = subscribers_.keysSubscribers_;
+    for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
+    {
+        keysSubscriber.second(keyCode);
+    }
 }
 }  // namespace Input
