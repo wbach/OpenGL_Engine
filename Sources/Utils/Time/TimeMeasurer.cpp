@@ -36,8 +36,9 @@ CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)
     , frameCount(0)
     , fps(0)
     , frameTime(0)
-    , lockframeTime(frequency / lockFps)
+    , lockframeTime(lockFps > 0 ?  static_cast<double>(frequency) / static_cast<double>(lockFps) : 0.0)
 {
+
 }
 
 void CTimeMeasurer::AddOnTickCallback(Callback c)
@@ -56,7 +57,7 @@ void CTimeMeasurer::CalculateAndLock()
     auto time_interval = CalculateFpsTimeInterval();
     CheckFpsTimeElapsed(time_interval);
 
-   // Lock();
+    Lock();
     lastFrameTime = std::chrono::high_resolution_clock::now();
 }
 

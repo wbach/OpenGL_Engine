@@ -26,7 +26,7 @@ void Subscriber::Start()
 {
     isRunning.store(true);
     thread = std::thread(std::bind(&Subscriber::Update, this));
-    // timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
+    timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
     isStarted = true;
 }
 
@@ -54,7 +54,7 @@ void Subscriber::Update()
 
 void Subscriber::PrintFps()
 {
-    std::string msg = "Thread id : " + std::to_string(threadId) + ", fps : " + std::to_string(timeMeasurer.GetFps()) + ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
+    std::string msg = "Fps : " + std::to_string(timeMeasurer.GetFps()) + ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
     DEBUG_LOG(msg);
 }
 
