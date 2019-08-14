@@ -17,6 +17,8 @@ public:
     ~VerticalLayout() override;
     virtual LayoutElementWrapper& AddChild(GuiElement*) override;
     void SetAlgin(Algin algin);
+    virtual void SetPostion(const vec2& position) override;
+    virtual void SetPostion(const vec2ui& position) override;
 
 private:
     void OnChange();

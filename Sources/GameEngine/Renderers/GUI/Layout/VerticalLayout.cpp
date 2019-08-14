@@ -36,7 +36,7 @@ VerticalLayout::~VerticalLayout()
 
 LayoutElementWrapper &VerticalLayout::AddChild(GuiElement *element)
 {
-    element->SetZPosition(zPosition_);
+    element->SetZPositionOffset(zPosition_);
     children_.emplace_back(*element, [this]() { OnChange(); });
     elements_.push_back(element);
     OnChange();
@@ -46,6 +46,18 @@ LayoutElementWrapper &VerticalLayout::AddChild(GuiElement *element)
 void VerticalLayout::SetAlgin(Algin algin)
 {
     algin_ = algin;
+    OnChange();
+}
+
+void VerticalLayout::SetPostion(const vec2 &position)
+{
+    Layout::SetPostion(position);
+    OnChange();
+}
+
+void VerticalLayout::SetPostion(const vec2ui &position)
+{
+    Layout::SetPostion(position);
     OnChange();
 }
 
