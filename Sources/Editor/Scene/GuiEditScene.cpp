@@ -20,11 +20,11 @@ int GuiEditScene::Initialize()
     fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
 
     guiManager_->RegisterAction("ReadFile()", [&]() {
-        fileExplorer_->Start(".", [&](const std::string& str){guiElementFactory_->ReadGuiFile(str);});
+        fileExplorer_->Start(".", [&](const std::string& str){ return guiElementFactory_->ReadGuiFile(str);});
     });
 
     guiManager_->RegisterAction("SaveToFile()", [&]() {
-        fileExplorer_->Start(".", [&](const std::string& str){guiManager_->SaveToFile(str);});
+        fileExplorer_->Start(".", [&](const std::string& str){ return guiManager_->SaveToFile(str);});
     });
 
     const std::string GUI_FILE = EngineConf_GetFullDataPath("Scenes/Editor/CommonMenu.xml");

@@ -26,6 +26,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , windowSize_(entryParameters.renderersManager_.GetProjection().GetRenderingSize())
     , guiTextFactory_(entryParameters.resourceManager_, EngineConf.renderer.resolution)
     , unsubscribe_([this](uint32 id) { renderersManager_.GetGuiRenderer().UnSubscribe(id); })
+    , unLabelId_(0)
     , guiElementCounter_(0)
 {
 }
@@ -92,9 +93,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
         }
     }
 
-    auto closeButton = CreateGuiButton(label + "CloseButton", [result]() {
-        result->MarkToRemove();
-    });
+    auto closeButton  = CreateGuiButton(label + "CloseButton", [result]() { result->MarkToRemove(); });
     auto closeButtonX = CreateGuiText(label + "CloseButtonX", EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), "X", 32, 0);
     closeButton->SetScale(closeButtonX->GetScale());
     closeButton->SetText(closeButtonX);
@@ -145,6 +144,34 @@ HorizontalLayout *GuiElementFactory::CreateHorizontalLayout(const std::string &l
     auto result = layout.get();
     guiManager_.Add(label, std::move(layout));
     return result;
+}
+
+void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message, std::function<void()> okFunc)
+{
+    auto window = CreateGuiWindow("MessageBoxWindow" + std::to_string(unLabelId_), vec2(0, 0), vec2(0.5, 0.3), "GUI/grayWindow.png");
+    window->SetZPosition(-100.f);
+
+    auto font      = EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf");
+    auto titleText = CreateGuiText("MessageBoxTitle" + std::to_string(unLabelId_), font, title, 32, 0);
+    titleText->SetPostion(vec2(0, 0.275));
+    window->AddChild(titleText);
+
+    auto messageText = CreateGuiText("MessageBoxMessage" + std::to_string(unLabelId_), font, message, 32, 0);
+    window->AddChild(messageText);
+
+    auto button = CreateGuiButton("MessageBoxMessageOk" + std::to_string(unLabelId_), [window, okFunc]() {
+        window->MarkToRemove();
+        if (okFunc)
+            okFunc();
+    });
+
+    auto okText = CreateGuiText("MessageBoxMessageOkText" + std::to_string(unLabelId_), font, "ok", 32, 0);
+    button->SetText(okText);
+    button->SetScale(1.5f * okText->GetScale());
+    button->SetPostion(vec2(0, -0.25));
+    window->AddChild(button);
+
+    ++unLabelId_;
 }
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
@@ -436,8 +463,7 @@ GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory,
 VerticalLayout *ReadVerticalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &, uint32 &);
 HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &, uint32 &);
 
-void ReadLayoutChildren(Utils::XmlNode &node, GuiElementFactory &factory, Layout *layout, GuiManager &manger,
-                        uint32 &unnamedTextId)
+void ReadLayoutChildren(Utils::XmlNode &node, GuiElementFactory &factory, Layout *layout, GuiManager &manger, uint32 &unnamedTextId)
 {
     for (auto &child : node.GetChildren())
     {
@@ -470,8 +496,7 @@ void ReadLayoutChildren(Utils::XmlNode &node, GuiElementFactory &factory, Layout
     }
 }
 
-VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
-                                   uint32 &unnamedTextId)
+VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
 {
     if (node.GetName() != "verticalLayout")
     {
@@ -514,8 +539,7 @@ VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &fact
     return layout;
 }
 
-HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger,
-                                       uint32 &unnamedTextId)
+HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger, uint32 &unnamedTextId)
 {
     if (node.GetName() != "horizontalLayout")
     {
@@ -618,37 +642,45 @@ GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory
     return window;
 }
 
-void GuiElementFactory::ReadGuiFile(const std::string &filename)
+bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 {
-    Utils::XmlReader reader;
+    if (not Utils::CheckExtension(filename, "xml"))
+    {
+        ERROR_LOG("This is not xml file. Format should be \".xml\".");
+        return false;
+    }
 
     auto fileContent = Utils::ReadFile(filename);
 
     if (fileContent.empty())
     {
-        return;
+        return false;
     }
 
     auto md5Value = md5(fileContent);
 
     if (md5Value == lastGuiFileMd5Value_)
     {
-        // DEBUG_LOG("Gui file not changed. Skip.");
-        return;
+        return false;
     }
 
     DEBUG_LOG("Gui file changed. Parsing : " + filename);
     lastGuiFileMd5Value_ = md5Value;
 
+    Utils::XmlReader reader;
     if (not reader.ReadXml(fileContent))
     {
-        return;
+        return false;
+    }
+
+    auto guiNode = reader.Get("gui");
+    if (not guiNode)
+    {
+        ERROR_LOG("This is not gui file.");
+        return false;
     }
 
     uint32 unnameElementId = 0;
-
-    auto guiNode = reader.Get("gui");
-
     for (auto &node : guiNode->GetChildren())
     {
         DEBUG_LOG("Node : " + node->GetName());
@@ -661,5 +693,6 @@ void GuiElementFactory::ReadGuiFile(const std::string &filename)
         ReadGuiButton(*node, *this, guiManager_, unnameElementId);
         ReadEditBox(*node, *this, guiManager_, unnameElementId);
     }
+    return true;
 }
 }  // namespace GameEngine

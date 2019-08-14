@@ -84,8 +84,9 @@ void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
     registeredActions_.insert({name, action});
 }
 
-void GuiManager::SaveToFile(const std::string&)
+bool GuiManager::SaveToFile(const std::string&)
 {
+    return false;
 }
 
 void GuiManager::Remove(const std::string& name)

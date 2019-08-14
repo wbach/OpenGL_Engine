@@ -25,7 +25,7 @@ FileExplorer::~FileExplorer()
 {
 }
 
-void FileExplorer::Start(const std::string &dir, std::function<void(const std::string &)> onChoose)
+void FileExplorer::Start(const std::string &dir, std::function<bool(const std::string &)> onChoose)
 {
     const vec2 position(0, 0);
     const vec2 windowScale(0.2, 0.4);
@@ -42,8 +42,14 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
     FillFileList(*layout, dir, onChoose);
 
     auto okButton = guiFactory_.CreateGuiButton("FileExplorerOkButton", [window, onChoose, this]() {
-        onChoose(seletedFileText_->GetText());
-        window->MarkToRemove();
+        if (onChoose(seletedFileText_->GetText()))
+        {
+            window->MarkToRemove();
+        }
+        else
+        {
+            guiFactory_.CreateMessageBox("Error", "File not supported.");
+        }
     });
 
     auto okText = guiFactory_.CreateGuiText("FileExplorerSelectedFileOkText", font_, "ok", 32, 0);
@@ -60,7 +66,7 @@ void FileExplorer::Start(const std::string &dir, std::function<void(const std::s
     window->AddChild(seletedFileEditBox);
     window->AddChild(okButton);
 
-    seletedFileEditBox->SetPostion(vec2(0, -windowScale.y + (2.f *okButton->GetScale().y) + seletedFileEditBox->GetScale().y));
+    seletedFileEditBox->SetPostion(vec2(0, -windowScale.y + (2.f * okButton->GetScale().y) + seletedFileEditBox->GetScale().y));
     okButton->SetPostion(vec2(0, -windowScale.y + okButton->GetScale().y));
     window->AddChild(layout);
 }

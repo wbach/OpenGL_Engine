@@ -22,7 +22,7 @@ public:
     void Add(const std::string& name, std::unique_ptr<GuiElement> element);
     void Update();
     void RegisterAction(const std::string&, ActionFunction);
-    void SaveToFile(const std::string&);
+    bool SaveToFile(const std::string&);
     void Remove(const std::string&);
     void Remove(const GuiElement&);
 

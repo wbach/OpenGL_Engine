@@ -17,7 +17,7 @@ class FileExplorer
 public:
     FileExplorer(GameEngine::GuiManager&, GameEngine::GuiElementFactory&);
     ~FileExplorer();
-    void Start(const std::string&, std::function<void(const std::string&)>);
+    void Start(const std::string&, std::function<bool(const std::string&)>);
 
 private:
     void FillFileList(GameEngine::VerticalLayout& layout, const std::string& dir,

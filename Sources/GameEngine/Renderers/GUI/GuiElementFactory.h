@@ -40,7 +40,7 @@ public:
     };
     GuiElementFactory(EntryParameters& entryParameters);
     ~GuiElementFactory() = default;
-    void ReadGuiFile(const std::string& filename);
+    bool ReadGuiFile(const std::string& filename);
     GuiTextElement* CreateGuiText(const std::string&, const std::string&, const std::string&, uint32, uint32);
     GuiTextureElement* CreateGuiTexture(const std::string&, const std::string&);
     GuiWindowElement* CreateGuiWindow(const std::string&, const Rect&, const std::string&);
@@ -50,6 +50,7 @@ public:
     GuiEditBoxElement* CreateEditBox(const std::string&, GuiTextElement*);
     VerticalLayout* CreateVerticalLayout(const std::string&);
     HorizontalLayout* CreateHorizontalLayout(const std::string&);
+    void CreateMessageBox(const std::string& title, const std::string& message, std::function<void()> = nullptr);
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);
@@ -63,6 +64,7 @@ private:
     GuiTextFactory guiTextFactory_;
     std::string lastGuiFileMd5Value_;
     std::function<void(uint32)> unsubscribe_;
+    uint32 unLabelId_;
 
 private:
     uint32 guiElementCounter_;
