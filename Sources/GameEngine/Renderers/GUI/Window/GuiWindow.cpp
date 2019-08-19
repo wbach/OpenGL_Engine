@@ -55,7 +55,7 @@ GuiWindowElement::~GuiWindowElement()
 
 void GuiWindowElement::AddChild(GuiElement* element)
 {
-    element->SetZPosition(zPosition_);
+    element->SetZPositionOffset(GetZTotalValue());
     UpdatePosition(*element, position_);
     children_.push_back(element);
 }
@@ -123,12 +123,20 @@ void GuiWindowElement::Hide()
 
 void GuiWindowElement::SetZPosition(float z)
 {
+    GuiElement::SetZPosition(z);
     for (auto child : children_)
     {
-        child->SetZPosition(z);
+        child->SetZPositionOffset(GetZTotalValue());
     }
+}
 
-    GuiElement::SetZPosition(z);
+void GuiWindowElement::SetZPositionOffset(float offset)
+{
+    GuiElement::SetZPositionOffset(offset);
+    for (auto child : children_)
+    {
+        child->SetZPositionOffset(GetZTotalValue());
+    }
 }
 
 }  // namespace GameEngine

@@ -126,6 +126,7 @@ void InputSDL::ProcessKeysEvents()
         {
             ExecuteOnKeyUp(keyCode);
         }
+        Unquque();
     }
 }
 

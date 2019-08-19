@@ -27,6 +27,15 @@ int GuiEditScene::Initialize()
         fileExplorer_->Start(".", [&](const std::string& str){ return guiManager_->SaveToFile(str);});
     });
 
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [&](){
+        DEBUG_LOG("Elements : ");
+        for (const auto& el : guiManager_->GetElementsMap())
+        {
+            DEBUG_LOG("Name : " + el.first + " : Z offset : "+ std::to_string(el.second->GetZOffsetValue()) + ", Z position : " + std::to_string(el.second->GetZValue()) + ", z total : " + std::to_string(el.second->GetZTotalValue()));
+        }
+        DEBUG_LOG("========================");
+    });
+
     const std::string GUI_FILE = EngineConf_GetFullDataPath("Scenes/Editor/CommonMenu.xml");
     guiElementFactory_->ReadGuiFile(GUI_FILE);
 

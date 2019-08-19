@@ -4,7 +4,8 @@ namespace GameEngine
 {
 GuiElementTypes VerticalLayout::type = GuiElementTypes::VerticalLayout;
 
-VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &inputManager, std::function<void(uint32)> unsubscribe)
+VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &inputManager,
+                               std::function<void(uint32)> unsubscribe)
     : Layout(type, windowSize, unsubscribe)
     , inputManager_(inputManager)
     , algin_(Algin::CENTER)
@@ -36,11 +37,7 @@ VerticalLayout::~VerticalLayout()
 
 LayoutElementWrapper &VerticalLayout::AddChild(GuiElement *element)
 {
-    element->SetZPositionOffset(zPosition_);
-    children_.emplace_back(*element, [this]() { OnChange(); });
-    elements_.push_back(element);
-    OnChange();
-    return children_.back();
+    return Layout::AddChild(element, [this]() { OnChange(); });
 }
 
 void VerticalLayout::SetAlgin(Algin algin)
@@ -111,7 +108,8 @@ void VerticalLayout::UpdateVisibility()
 
     for (auto &element : elements_)
     {
-        if (element->GetPosition().y - element->GetScale().y < position_.y - scale_.y or element->GetPosition().y + element->GetScale().y > position_.y + scale_.y)
+        if (element->GetPosition().y - element->GetScale().y < position_.y - scale_.y or
+            element->GetPosition().y + element->GetScale().y > position_.y + scale_.y)
         {
             element->Hide();
         }

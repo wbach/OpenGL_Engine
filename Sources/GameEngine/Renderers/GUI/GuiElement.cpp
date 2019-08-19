@@ -22,6 +22,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , position_{0, 0}
     , zPosition_{0}
     , zOffset_{0}
+    , zTotalValue_{0}
     , scale_{0.25, 0.25}
     , color_{1, 1, 1}
     , transformMatrix_(1.f)

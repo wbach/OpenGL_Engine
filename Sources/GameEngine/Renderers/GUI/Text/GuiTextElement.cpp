@@ -127,6 +127,11 @@ void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
     CalculateAlginOffset();
 }
 
+void GuiTextElement::SetZPositionOffset(float offset)
+{
+    GuiElement::SetZPositionOffset(offset - 0.5f);
+}
+
 void GuiTextElement::UnsetTexture()
 {
     texture_ = nullptr;

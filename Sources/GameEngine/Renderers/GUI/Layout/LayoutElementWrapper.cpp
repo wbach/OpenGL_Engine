@@ -50,6 +50,12 @@ void LayoutElementWrapper::SetZPosition(float z)
     onChange_();
 }
 
+void LayoutElementWrapper::SetZPositionOffset(float offset)
+{
+    element_.SetZPositionOffset(offset);
+    onChange_();
+}
+
 void LayoutElementWrapper::Rotate(float r)
 {
     element_.Rotate(r);

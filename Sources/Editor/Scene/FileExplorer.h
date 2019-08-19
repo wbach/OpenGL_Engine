@@ -20,9 +20,9 @@ public:
     void Start(const std::string&, std::function<bool(const std::string&)>);
 
 private:
-    void FillFileList(GameEngine::VerticalLayout& layout, const std::string& dir,
+    void FillFileList(GameEngine::VerticalLayout* layout, const std::string& dir,
                       std::function<void(const std::string&)>);
-    void CreateButtonWithFilename(const std::string&, GameEngine::VerticalLayout&, std::function<void()>);
+    void CreateButtonWithFilename(const std::string&, GameEngine::VerticalLayout*, std::function<void()>);
 
 private:
     GameEngine::GuiManager& guiManager_;

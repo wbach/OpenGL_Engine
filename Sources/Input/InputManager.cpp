@@ -46,21 +46,47 @@ void InputManager::SetDefaultKeys()
 uint32 InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
 {
     auto id = idCounter_++;
-    subscribers_.keyDownSubscribers_[key].insert({id, func});
+
+    if (needToQueue_)
+    {
+        quque_.keyDownSubscribers_[key].insert({id, func});
+    }
+    else
+    {
+        subscribers_.keyDownSubscribers_[key].insert({id, func});
+    }
     return id;
 }
 
 uint32 InputManager::SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func)
 {
     auto id = idCounter_++;
-    subscribers_.keyUpSubscribers_[key].insert({id, func});
+
+    if (needToQueue_)
+    {
+        quque_.keyUpSubscribers_[key].insert({id, func});
+    }
+    else
+    {
+        subscribers_.keyUpSubscribers_[key].insert({id, func});
+    }
+
     return id;
 }
 
 uint32 InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
 {
     auto id = idCounter_++;
-    subscribers_.keysSubscribers_.insert({id, func});
+
+    if (needToQueue_)
+    {
+        quque_.keysSubscribers_.insert({id, func});
+    }
+    else
+    {
+        subscribers_.keysSubscribers_.insert({id, func});
+    }
+
     return id;
 }
 
@@ -117,9 +143,11 @@ void InputManager::StashPopSubscribers()
 }
 void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
 {
+    needToQueue_ = true;
+
     if (subscribers_.keyDownSubscribers_.count(keyCode) > 0)
     {
-        auto subscribers = subscribers_.keyDownSubscribers_.at(keyCode);
+        const auto& subscribers = subscribers_.keyDownSubscribers_.at(keyCode);
 
         for (const auto& subscriber : subscribers)
         {
@@ -129,9 +157,11 @@ void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
 }
 void InputManager::ExecuteOnKeyUp(KeyCodes::Type keyCode)
 {
+    needToQueue_ = true;
+
     if (subscribers_.keyUpSubscribers_.count(keyCode) > 0)
     {
-        auto subscribers = subscribers_.keyUpSubscribers_.at(keyCode);
+        const auto& subscribers = subscribers_.keyUpSubscribers_.at(keyCode);
 
         for (const auto& subscriber : subscribers)
         {
@@ -141,10 +171,44 @@ void InputManager::ExecuteOnKeyUp(KeyCodes::Type keyCode)
 }
 void InputManager::ExecuteAnyKey(KeyCodes::Type keyCode)
 {
-    auto subscribers = subscribers_.keysSubscribers_;
+    needToQueue_ = true;
+
     for (const auto& keysSubscriber : subscribers_.keysSubscribers_)
     {
         keysSubscriber.second(keyCode);
     }
+}
+void InputManager::Unquque()
+{
+    for (const auto& keysSubscriber : quque_.keyDownSubscribers_)
+    {
+        for (const auto& keys : keysSubscriber.second)
+        {
+            if (subscribers_.keyDownSubscribers_.count(keysSubscriber.first) == 0)
+            {
+                subscribers_.keyDownSubscribers_.insert({keysSubscriber.first, {}});
+            }
+            subscribers_.keyDownSubscribers_.at(keysSubscriber.first).insert(keys);
+        }
+    }
+    for (const auto& keysSubscriber : quque_.keyUpSubscribers_)
+    {
+        for (const auto& keys : keysSubscriber.second)
+        {
+            if (subscribers_.keyUpSubscribers_.count(keysSubscriber.first) == 0)
+            {
+                subscribers_.keyUpSubscribers_.insert({keysSubscriber.first, {}});
+            }
+            subscribers_.keyUpSubscribers_.at(keysSubscriber.first).insert(keys);
+        }
+    }
+
+    for (const auto& keysSubscriber : quque_.keysSubscribers_)
+    {
+        subscribers_.keysSubscribers_.insert(keysSubscriber);
+    }
+
+    quque_       = Subscribers();
+    needToQueue_ = false;
 }
 }  // namespace Input

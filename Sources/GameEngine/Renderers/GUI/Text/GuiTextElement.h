@@ -46,6 +46,7 @@ public:
     void SetOutline(uint32 outline);
     void SetFont(const std::string& font);
     void SetAlgin(Algin algin);
+    virtual void SetZPositionOffset(float offset) override;
 
 private:
     void RenderText(bool fontOverride = false);

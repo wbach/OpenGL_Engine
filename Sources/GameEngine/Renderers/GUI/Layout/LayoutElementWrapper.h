@@ -17,6 +17,7 @@ public:
     void SetPostion(const vec2& position);
     void SetPostion(const vec2ui& position);
     void SetZPosition(float z);
+    void SetZPositionOffset(float offset);
     void Rotate(float r);
     void Show(bool);
     void Show();

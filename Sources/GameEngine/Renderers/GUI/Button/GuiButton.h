@@ -31,6 +31,7 @@ public:
     void SetPostion(const vec2& position) override;
     void SetPostion(const vec2ui& position) override;
     void SetZPosition(float z) override;
+    void SetZPositionOffset(float offset) override;
     void Rotate(float r) override;
     void Show(bool) override;
     void Show() override;

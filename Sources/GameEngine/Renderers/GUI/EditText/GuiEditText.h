@@ -22,6 +22,7 @@ public:
     void SetScale(const vec2& scale) override;
     void SetPostion(const vec2& position) override;
     void SetPostion(const vec2ui& position) override;
+    void SetZPositionOffset(float offset) override;
     void SetZPosition(float z) override;
     void Rotate(float r) override;
     void Show(bool) override;

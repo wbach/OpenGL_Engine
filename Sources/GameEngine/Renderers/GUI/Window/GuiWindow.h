@@ -19,6 +19,7 @@ public:
     virtual void Show() override;
     virtual void Hide() override;
     virtual void SetZPosition(float z) override;
+    virtual void SetZPositionOffset(float offset) override;
 
 private:
     std::vector<GuiElement*> children_;

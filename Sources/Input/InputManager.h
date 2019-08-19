@@ -61,6 +61,7 @@ public:
     void ExecuteOnKeyDown(KeyCodes::Type);
     void ExecuteOnKeyUp(KeyCodes::Type);
     void ExecuteAnyKey(KeyCodes::Type);
+    void Unquque();
 
 public:
     std::unordered_map<GameActions::Type, KeyCodes::Type> keyGameActions;
@@ -69,7 +70,9 @@ protected:
     std::set<KeyCodes::Type> keyBuffer;
     Subscribers subscribers_;
     Subscribers stash_;
+    Subscribers quque_;
     uint32 idCounter_;
+    bool needToQueue_;
 };
 
 typedef std::shared_ptr<InputManager> InputManagerPtr;

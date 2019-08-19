@@ -35,7 +35,6 @@ GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &label, const
 {
     auto text   = guiTextFactory_.Create(font, str, size, outline);
     auto result = text.get();
-    result->SetZPosition(0.f);
     guiManager_.Add(label, std::move(text));
     return result;
 }
@@ -49,7 +48,6 @@ GuiTextureElement *GuiElementFactory::CreateGuiTexture(const std::string &label,
     }
 
     auto result = guiTexture.get();
-    result->SetZPosition(0.0f);
     guiManager_.Add(label, std::move(guiTexture));
     return result;
 }
@@ -64,7 +62,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
 
     if (backgroundGuiTexture)
     {
-        backgroundGuiTexture->SetZPosition(0.1f);
+        backgroundGuiTexture->SetZPosition(0.5f);
         backgroundGuiTexture->SetScale(guiWindow->GetScale());
         guiWindow->AddChild(backgroundGuiTexture.get());
         guiManager_.Add(label, std::move(backgroundGuiTexture));
@@ -86,9 +84,10 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const std::string &label, c
         auto backgroundGuiTexture = MakeGuiTexture(background);
         if (backgroundGuiTexture)
         {
-            backgroundGuiTexture->SetZPositionOffset(0.1f);
+            backgroundGuiTexture->SetZPosition(0.5f);
             backgroundGuiTexture->SetScale(guiWindow->GetScale());
             guiWindow->AddChild(backgroundGuiTexture.get());
+            DEBUG_LOG("Name : " + label + " backgroundGuiTexture: Z offset : "+ std::to_string(backgroundGuiTexture->GetZOffsetValue()) + ", Z position : " + std::to_string(backgroundGuiTexture->GetZValue()) + ", z total : " + std::to_string(backgroundGuiTexture->GetZTotalValue()));
             guiManager_.Add(label + "backgroundTexture", std::move(backgroundGuiTexture));
         }
     }

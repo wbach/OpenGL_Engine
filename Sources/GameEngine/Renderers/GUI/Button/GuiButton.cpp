@@ -193,16 +193,30 @@ void GuiButtonElement::SetPostion(const vec2ui &position)
 
 void GuiButtonElement::SetZPosition(float z)
 {
-    if (onHoverTexture_)
-        onHoverTexture_->SetZPosition(z);
-    if (onActiveTextue_)
-        onActiveTextue_->SetZPosition(z);
-    if (backgroundTexture_)
-        backgroundTexture_->SetZPosition(z);
-    if (text_)
-        text_->SetZPosition(z);
-
     GuiElement::SetZPosition(z);
+
+    if (onHoverTexture_)
+        onHoverTexture_->SetZPositionOffset(GetZTotalValue());
+    if (onActiveTextue_)
+        onActiveTextue_->SetZPositionOffset(GetZTotalValue());
+    if (backgroundTexture_)
+        backgroundTexture_->SetZPositionOffset(GetZTotalValue());
+    if (text_)
+        text_->SetZPositionOffset(GetZTotalValue());
+}
+
+void GuiButtonElement::SetZPositionOffset(float offset)
+{
+    GuiElement::SetZPositionOffset(offset);
+
+    if (onHoverTexture_)
+        onHoverTexture_->SetZPositionOffset(GetZTotalValue());
+    if (onActiveTextue_)
+        onActiveTextue_->SetZPositionOffset(GetZTotalValue());
+    if (backgroundTexture_)
+        backgroundTexture_->SetZPositionOffset(GetZTotalValue());
+    if (text_)
+        text_->SetZPositionOffset(GetZTotalValue());
 }
 
 void GuiButtonElement::Rotate(float r)

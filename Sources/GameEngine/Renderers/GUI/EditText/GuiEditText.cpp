@@ -89,18 +89,34 @@ void GuiEditBoxElement::SetPostion(const vec2 &position)
 
 void GuiEditBoxElement::SetPostion(const vec2ui &position)
 {
+    GuiElement::SetPostion(position);
+
     text_.SetPostion(position);
     if (backgroundTexture_)
+    {
         backgroundTexture_->SetPostion(position);
-    GuiElement::SetPostion(position);
+    }
+}
+
+void GuiEditBoxElement::SetZPositionOffset(float offset)
+{
+    GuiElement::SetZPositionOffset(offset);
+
+    text_.SetZPositionOffset(GetZTotalValue());
+    if (backgroundTexture_)
+    {
+        backgroundTexture_->SetZPositionOffset(GetZTotalValue());
+    }
 }
 
 void GuiEditBoxElement::SetZPosition(float z)
 {
-    text_.SetZPosition(z);
-    if (backgroundTexture_)
-        backgroundTexture_->SetZPosition(z);
     GuiElement::SetZPosition(z);
+
+    text_.SetZPositionOffset(GetZTotalValue());
+
+    if (backgroundTexture_)
+        backgroundTexture_->SetZPositionOffset(GetZTotalValue());
 }
 
 void GuiEditBoxElement::Rotate(float r)
