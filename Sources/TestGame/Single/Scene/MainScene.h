@@ -61,6 +61,8 @@ private:
     GameEngine::GameObject* player;
     std::unique_ptr<GameEngine::Components::TerrainHeightGetter> terrainHeightGetter_;
 
+    std::unordered_map<std::string, uint32> guiIds_;
+
 private:
     vec3 centerObjectPosition_;
     GameEngine::Light* pointLight_;

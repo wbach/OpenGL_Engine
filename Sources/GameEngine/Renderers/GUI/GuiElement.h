@@ -41,6 +41,8 @@ public:
     uint32 GetId() const;
     void MarkToRemove();
     bool IsMarkToRemove() const;
+    const std::string& GetLabel() const;
+    void SetLabel(const std::string& label);
 
 public:
     GuiElementTypes GetType() const;
@@ -61,6 +63,7 @@ private:
     GuiElementTypes type_;
 
 protected:
+    std::string label_;
     vec2ui windowSize_;
     Rect rect_;
     vec2 position_;

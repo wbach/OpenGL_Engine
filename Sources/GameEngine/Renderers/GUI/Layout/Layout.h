@@ -1,8 +1,8 @@
 #pragma once
+#include <functional>
 #include <memory>
 #include <optional>
 #include <vector>
-#include <functional>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "Input/InputManager.h"
 #include "LayoutElementWrapper.h"
@@ -12,7 +12,7 @@ namespace GameEngine
 class Layout : public GuiElement
 {
 public:
-    Layout(GuiElementTypes type, const vec2ui& windowSize, std::function< void (uint32)> unsubscribe);
+    Layout(GuiElementTypes type, const vec2ui& windowSize, std::function<void(uint32)> unsubscribe);
     ~Layout();
     virtual LayoutElementWrapper& AddChild(GuiElement*) = 0;
     virtual LayoutElementWrapper& AddChild(GuiElement*, std::function<void()>);
@@ -30,7 +30,6 @@ public:
 
 protected:
     std::vector<LayoutElementWrapper> children_;
-    std::vector<GuiElement*> elements_;
-    std::function< void (uint32)> unsubscribe_;
+    std::function<void(uint32)> unsubscribe_;
 };
 }  // namespace GameEngine

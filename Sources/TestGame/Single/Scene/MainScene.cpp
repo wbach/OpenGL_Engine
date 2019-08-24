@@ -86,7 +86,7 @@ float Random()
 
 int MainScene::Initialize()
 {
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(EngineEvent::QUIT);});
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     DEBUG_LOG("MainScene::Initialize()");
     resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
@@ -258,7 +258,7 @@ template <typename Shape>
 void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset,
                                 const vec3& dir, float scale, bool isStatic)
 {
-    auto object = CreateGameObject(Utils::GetFilename(modelFilename));
+    auto object                       = CreateGameObject(Utils::GetFilename(modelFilename));
     object->worldTransform.isDynamic_ = not isStatic;
     object->worldTransform.SetPosition(pos);
     object->worldTransform.SetScale(scale);
@@ -392,13 +392,13 @@ void MainScene::KeyOperations()
 
         if (camType == CameraType::FirstPerson)
         {
-            camType     = CameraType::ThridPerson;
+            camType = CameraType::ThridPerson;
             camera_ = std::make_unique<ThirdPersonCamera>(*inputManager_, player->worldTransform);
             camera.Set(*camera_);
         }
         else if (camType == CameraType::ThridPerson)
         {
-            camType     = CameraType::FirstPerson;
+            camType = CameraType::FirstPerson;
             camera_ = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
             camera_->SetPosition(pos);
             camera_->SetPitch(rotation.x);
@@ -555,15 +555,6 @@ void MainScene::CreateExmapleStrtupObject()
                 treePos.x += static_cast<float>(rand() % 100) / 10.f;
                 treePos.z += static_cast<float>(rand() % 100) / 10.f;
                 treePos = treePos + vec3(-45, 0, -100);
-
-                // for (auto& terrain : terrains_)
-                //{
-                //    auto new_position = terrain->CollisionDetection(treePos);
-                //    if (!new_position)
-                //        continue;
-
-                //    treePos.y = new_position.constValue().y - .5f;
-                //}
                 treePositions[x + size.x * y] = treePos;
             }
         }
@@ -653,15 +644,10 @@ void MainScene::CreateExmapleStrtupObject()
     AddPhysicObject<Components::BoxShape>("Meshes/Bialczyk/well.obj", vec3(2, 0, 15), vec3(0, -.5f, 0), vec3(0), 2.f,
                                           true);
 
-    //  CreateAndAddGameEntity("Meshes/sponza/sponza_mod.obj", 60.f, vec2(0, 115));
-    //   CreateAndAddGameEntity("Meshes/Bialczyk/Bialczyk.obj", 30.f, vec2(0, 20));
-
     for (uint32_t x = 0; x < 4; x++)
     {
         CreateAndAddGameEntity("Meshes/Fern/fern.obj", 3.f, vec2(0, 10 - 5 * x), x);
     }
-
-    // for (const auto& terrain : terrains_)
     {
         auto grass = CreateGameObjectInstance("Grass", 1.8f, vec2(0, 10), true);
 
@@ -680,40 +666,34 @@ void MainScene::InitGui()
     auto fontSize = 20;
     auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
 
-    guiElementFactory_->CreateGuiText("rendererFps", fontPath, "rendererFps", fontSize, 0);
+    auto rendererFpsId = guiElementFactory_->CreateGuiText(fontPath, "rendererFps", fontSize, 0)->GetId();
+    guiIds_.insert({"rendererFps", rendererFpsId});
+
     guiManager_->GetElement("rendererFps")->SetPostion(vec2(-0.75, 0.9));
     guiManager_->Get<GuiTextElement>("rendererFps")->SetColor(vec3(.8f));
 
-    guiElementFactory_->CreateGuiText("playerPos", fontPath, "Player position", fontSize, 0);
+    auto playerPosId = guiElementFactory_->CreateGuiText(fontPath, "Player position", fontSize, 0)->GetId();
+    guiIds_.insert({"playerPos", playerPosId});
+
     guiManager_->GetElement("playerPos")->SetPostion(vec2(-0.5, -0.9));
     guiManager_->GetElement("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
 
     std::cout << __FUNCTION__ << "1" << std::endl;
-    auto window = guiElementFactory_->CreateGuiWindow("testWindow", Rect(320, 200, 640, 400), "GUI/darkGrayButton.png");
-
-    // auto windowText1 = guiElementFactory_->CreateGuiText("testWindow_text1", fontPath, "This is example window.",
-    // fontSize, 0); guiManager_->GetElement("testWindow_text1")->SetPostion(vec2(-0.0, 0.225));
-    // guiManager_->GetElement("testWindow_text1")->SetColor(vec3(.1f, 0.1f, 0.1f));
-    // window->AddChild(std::move(windowText1));
-
-
+    auto window = guiElementFactory_->CreateGuiWindow(Rect(320, 200, 640, 400), "GUI/darkGrayButton.png");
 
     {
-        auto button = guiElementFactory_->CreateGuiButton(
-            "TEST_BUTTON_1", []() { std::cout << "Start Game BUTTON pressed." << std::endl; });
+        auto button =
+            guiElementFactory_->CreateGuiButton([]() { std::cout << "Start Game BUTTON pressed." << std::endl; });
         button->SetScale(vec2(0.1, 0.05));
         button->SetPostion(vec2(-0.125, 0.15));
 
-        auto buttonText = guiElementFactory_->CreateGuiText("button_test_text", fontPath, "Start Game", fontSize, 0);
-        guiManager_->GetElement("button_test_text")->SetColor(vec3(.7f, 0.7f, 0.7f));
+        auto buttonText = guiElementFactory_->CreateGuiText(fontPath, "Start Game", fontSize, 0);
+        buttonText->SetColor(vec3(.7f, 0.7f, 0.7f));
         button->SetText(buttonText);
 
-
-        auto buttonTexture = guiElementFactory_->CreateGuiTexture("buttonTexture", "GUI/darkGrayButton.png");
-        auto hoverButtonTexture = guiElementFactory_->CreateGuiTexture("hoverButtonTexture", "GUI/darkGrayButtonHover.png");
-        auto activeButtonTexture =
-            guiElementFactory_->CreateGuiTexture("activeButtonTexture", "GUI/darkGrayButtonActive.png");
-
+        auto buttonTexture       = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButton.png");
+        auto hoverButtonTexture  = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonHover.png");
+        auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonActive.png");
 
         if (buttonTexture)
             button->SetBackgroundTexture(buttonTexture);
@@ -725,19 +705,18 @@ void MainScene::InitGui()
     }
 
     {
-        auto button = guiElementFactory_->CreateGuiButton(
-            "TEST_BUTTON_2", []() { std::cout << "Load Game BUTTON  pressed." << std::endl; });
+        auto button =
+            guiElementFactory_->CreateGuiButton([]() { std::cout << "Load Game BUTTON  pressed." << std::endl; });
         button->SetScale(vec2(0.1, 0.05));
         button->SetPostion(vec2(-0.125, 0.05));
 
-        auto buttonText = guiElementFactory_->CreateGuiText("button_test_text_2", fontPath, "Load Game", fontSize, 0);
-        guiManager_->GetElement("button_test_text_2")->SetColor(vec3(.7f, 0.7f, 0.7f));
+        auto buttonText = guiElementFactory_->CreateGuiText(fontPath, "Load Game", fontSize, 0);
+        buttonText->SetColor(vec3(.7f, 0.7f, 0.7f));
         button->SetText(buttonText);
 
-        auto buttonTexture = guiElementFactory_->CreateGuiTexture("buttonTextur2e", "GUI/darkGrayButton.png");
-        auto hoverButtonTexture = guiElementFactory_->CreateGuiTexture("hoverButtonTexture2", "GUI/darkGrayButtonHover.png");
-        auto activeButtonTexture =
-            guiElementFactory_->CreateGuiTexture("activeButtonTexture2", "GUI/darkGrayButtonActive.png");
+        auto buttonTexture       = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButton.png");
+        auto hoverButtonTexture  = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonHover.png");
+        auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonActive.png");
 
         if (buttonTexture)
             button->SetBackgroundTexture(buttonTexture);

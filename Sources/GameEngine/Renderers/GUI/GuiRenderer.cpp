@@ -139,6 +139,7 @@ void GUIRenderer::UnSubscribeAll()
 
 void GUIRenderer::UnSubscribe(uint32 id)
 {
+    DEBUG_LOG(std::to_string(id));
     std::lock_guard<std::mutex> lk(subscriberMutex);
     auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto text) { return text->GetId() == id; });
 

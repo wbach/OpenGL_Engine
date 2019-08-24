@@ -63,23 +63,24 @@ void VerticalLayout::OnChange()
     if (children_.empty())
         return;
 
+    const auto& firstChild = children_[0].Get();
     vec2 newPosition = position_;
-    newPosition.x    = CalculateXPosition(*elements_[0]);
-    newPosition.y += scale_.y - elements_[0]->GetScale().y - viewPosition_;
-    elements_[0]->SetPostion(newPosition);
+    newPosition.x    = CalculateXPosition(firstChild);
+    newPosition.y += scale_.y - firstChild.GetScale().y - viewPosition_;
+    children_[0].SetPositionWithoutNotif(newPosition);
 
-    for (std::size_t i = 1; i < elements_.size(); ++i)
+    for (std::size_t i = 1; i < children_.size(); ++i)
     {
-        const auto &oldPosition     = elements_[i]->GetPosition();
-        const auto &parentPositionY = elements_[i - 1]->GetPosition().y;
-        const auto &parentScaleY    = elements_[i - 1]->GetScale().y;
+        const auto &oldPosition     = children_[i].Get().GetPosition();
+        const auto &parentPositionY = children_[i - 1].Get().GetPosition().y;
+        const auto &parentScaleY    = children_[i - 1].Get().GetScale().y;
 
-        newPosition.x = CalculateXPosition(*elements_[i]);
+        newPosition.x = CalculateXPosition(children_[i].Get());
         newPosition.y = parentPositionY - (2.f * parentScaleY);
 
         if (oldPosition != newPosition)
         {
-            elements_[i]->SetPostion(newPosition);
+            children_[i].SetPositionWithoutNotif(newPosition);
         }
     }
 
@@ -106,19 +107,19 @@ void VerticalLayout::UpdateVisibility()
 {
     totalYScale_ = 0.f;
 
-    for (auto &element : elements_)
+    for (auto &element : children_)
     {
-        if (element->GetPosition().y - element->GetScale().y < position_.y - scale_.y or
-            element->GetPosition().y + element->GetScale().y > position_.y + scale_.y)
+        if (element.Get().GetPosition().y - element.Get().GetScale().y < position_.y - scale_.y or
+            element.Get().GetPosition().y + element.Get().GetScale().y > position_.y + scale_.y)
         {
-            element->Hide();
+            element.HideWithoutNotif();
         }
         else
         {
-            element->Show();
+            element.ShowWithoutNotif();
         }
 
-        totalYScale_ += element->GetScale().y;
+        totalYScale_ += element.Get().GetScale().y;
     }
 }
 

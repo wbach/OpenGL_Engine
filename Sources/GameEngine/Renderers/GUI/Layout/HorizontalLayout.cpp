@@ -12,10 +12,7 @@ HorizontalLayout::HorizontalLayout(const vec2ui &windowSize, Input::InputManager
 
 LayoutElementWrapper &HorizontalLayout::AddChild(GuiElement *element)
 {
-    children_.emplace_back(*element, [this]() { OnChange(); });
-    elements_.push_back(element);
-    OnChange();
-    return children_.back();
+    return Layout::AddChild(element, [this]() { OnChange(); });
 }
 
 void HorizontalLayout::OnChange()
@@ -23,15 +20,15 @@ void HorizontalLayout::OnChange()
     if (children_.empty())
         return;
 
-    elements_[0]->SetPostion(position_);
+    children_[0].SetPositionWithoutNotif(position_);
 
-    for (std::size_t i = 1; i < elements_.size(); ++i)
+    for (std::size_t i = 1; i < children_.size(); ++i)
     {
-        const auto &position = elements_[i - 1]->GetPosition().x;
-        const auto &scale    = elements_[i - 1]->GetScale().x;
+        const auto &position = children_[i - 1].Get().GetPosition().x;
+        const auto &scale    = children_[i - 1].Get().GetScale().x;
 
         auto posX = position + 2 * scale;
-        elements_[i]->SetPostion(vec2(posX, position_.y));
+        children_[i].SetPositionWithoutNotif(vec2(posX, position_.y));
     }
 }
 

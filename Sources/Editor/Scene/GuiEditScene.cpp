@@ -29,9 +29,9 @@ int GuiEditScene::Initialize()
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [&](){
         DEBUG_LOG("Elements : ");
-        for (const auto& el : guiManager_->GetElementsMap())
+        for (const auto& el : guiManager_->GetElements())
         {
-            DEBUG_LOG("Name : " + el.first + " : Z offset : "+ std::to_string(el.second->GetZOffsetValue()) + ", Z position : " + std::to_string(el.second->GetZValue()) + ", z total : " + std::to_string(el.second->GetZTotalValue()));
+            DEBUG_LOG(" : Z offset : "+ std::to_string(el->GetZOffsetValue()) + ", Z position : " + std::to_string(el->GetZValue()) + ", z total : " + std::to_string(el->GetZTotalValue()));
         }
         DEBUG_LOG("========================");
     });

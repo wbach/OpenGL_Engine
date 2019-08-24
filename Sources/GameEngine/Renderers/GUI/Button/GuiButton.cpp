@@ -31,6 +31,8 @@ GuiButtonElement::~GuiButtonElement()
     if (text_)
         text_->MarkToRemove();
 
+
+    DEBUG_LOG("");
     UnsubscribeInputAction();
 }
 

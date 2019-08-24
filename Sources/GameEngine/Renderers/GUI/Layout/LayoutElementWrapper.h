@@ -16,13 +16,18 @@ public:
     void SetScale(const vec2& scale);
     void SetPostion(const vec2& position);
     void SetPostion(const vec2ui& position);
+    void SetPositionWithoutNotif(const vec2& position);
     void SetZPosition(float z);
     void SetZPositionOffset(float offset);
     void Rotate(float r);
     void Show(bool);
     void Show();
+    void ShowWithoutNotif();
     void Hide();
+    void HideWithoutNotif();
+    void MarkToRemove();
     uint32 GetId() const;
+    const GuiElement& Get() const;
 
     LayoutElementWrapper operator=(const LayoutElementWrapper&);
 

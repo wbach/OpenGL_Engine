@@ -83,6 +83,14 @@ void GuiElement::SetPostion(const vec2& position)
     CalcualteRectPosition();
     CalculateMatrix();
 }
+const std::string& GuiElement::GetLabel() const
+{
+    return label_;
+}
+void GuiElement::SetLabel(const std::string& label)
+{
+    label_ = label;
+}
 void GuiElement::SetPostion(const vec2ui& position)
 {
     rect_.position = position;
@@ -126,13 +134,13 @@ const vec2& GuiElement::GetPosition() const
 }
 void GuiElement::SetZPosition(float z)
 {
-    zPosition_ = z;
+    zPosition_   = z;
     zTotalValue_ = zPosition_ + zOffset_;
 }
 
 void GuiElement::SetZPositionOffset(float offset)
 {
-    zOffset_ = offset;
+    zOffset_     = offset;
     zTotalValue_ = zPosition_ + zOffset_;
 }
 

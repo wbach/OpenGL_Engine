@@ -19,22 +19,24 @@ class GuiManager
 public:
     GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, std::function<void()> unsubscribeAll);
 
-    void Add(const std::string& name, std::unique_ptr<GuiElement> element);
+    void Add(std::unique_ptr<GuiElement> element);
     void Update();
     void RegisterAction(const std::string&, ActionFunction);
     bool SaveToFile(const std::string&);
-    void Remove(const std::string&);
+    void Remove(uint32);
     void Remove(const GuiElement&);
 
     template <class T>
+    T* Get(uint32);
+    template <class T>
     T* Get(const std::string&);
-    inline GuiElement* GetElement(const std::string& name);
+
+    GuiElement* GetElement(const std::string&);
+    GuiElement* GetElement(uint32 id);
     const GuiElements& GetElements() const;
-    const GuiElementsMap& GetElementsMap() const;
     ActionFunction GetActionFunction(const std::string& name);
 
 private:
-    GuiElementsMap elementsMap_;
     GuiElements elements_;
 
     std::function<void(GuiElement&)> subscribe_;
@@ -45,12 +47,12 @@ private:
 };
 
 template <class T>
-T* GuiManager::Get(const std::string& name)
+T* GuiManager::Get(uint32 id)
 {
-    if (elementsMap_.count(name) > 0)
-    {
-        auto& element = elementsMap_.at(name);
+    auto element = GetElement(id);
 
+    if (element)
+    {
         if (element->GetType() == T::type)
         {
             return static_cast<T*>(element);
@@ -62,20 +64,28 @@ T* GuiManager::Get(const std::string& name)
     }
     else
     {
-        DEBUG_LOG("Element with name : \"" + name + "\" not found.");
+        DEBUG_LOG("Element with id : \"" + std::to_string(id) + "\" not found.");
     }
     return nullptr;
 }
-GuiElement* GuiManager::GetElement(const std::string& name)
+
+template <class T>
+T* GuiManager::Get(const std::string& label)
 {
-    if (elementsMap_.count(name) > 0)
+    auto element = GetElement(label);
+
+    if (element)
     {
-        return elementsMap_.at(name);
-    }
-    else
-    {
-        DEBUG_LOG("Element with name : \"" + name + "\" not found.");
+        if (element->GetType() == T::type)
+        {
+            return static_cast<T*>(element);
+        }
+        else
+        {
+            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) + ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
+        }
     }
     return nullptr;
 }
+
 }  // namespace GameEngine

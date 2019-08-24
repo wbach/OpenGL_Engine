@@ -41,15 +41,15 @@ public:
     GuiElementFactory(EntryParameters& entryParameters);
     ~GuiElementFactory() = default;
     bool ReadGuiFile(const std::string& filename);
-    GuiTextElement* CreateGuiText(const std::string&, const std::string&, const std::string&, uint32, uint32);
-    GuiTextureElement* CreateGuiTexture(const std::string&, const std::string&);
-    GuiWindowElement* CreateGuiWindow(const std::string&, const Rect&, const std::string&);
-    GuiWindowElement* CreateGuiWindow(const std::string&, const vec2&, const vec2&, const std::string&);
-    GuiButtonElement* CreateGuiButton(const std::string&, std::function<void()>);
-    GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, const std::string&, uint32, uint32);
-    GuiEditBoxElement* CreateEditBox(const std::string&, GuiTextElement*);
-    VerticalLayout* CreateVerticalLayout(const std::string&);
-    HorizontalLayout* CreateHorizontalLayout(const std::string&);
+    GuiTextElement* CreateGuiText(const std::string&, const std::string&, uint32, uint32);
+    GuiTextureElement* CreateGuiTexture(const std::string&);
+    GuiWindowElement* CreateGuiWindow(const Rect&, const std::string&);
+    GuiWindowElement* CreateGuiWindow(const vec2&, const vec2&, const std::string&);
+    GuiButtonElement* CreateGuiButton(std::function<void()>);
+    GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, uint32, uint32);
+    GuiEditBoxElement* CreateEditBox(GuiTextElement*);
+    VerticalLayout* CreateVerticalLayout();
+    HorizontalLayout* CreateHorizontalLayout();
     void CreateMessageBox(const std::string& title, const std::string& message, std::function<void()> = nullptr);
 
 private:

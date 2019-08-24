@@ -44,6 +44,11 @@ void LayoutElementWrapper::SetPostion(const vec2ui &position)
     onChange_();
 }
 
+void LayoutElementWrapper::SetPositionWithoutNotif(const vec2 &position)
+{
+    element_.SetPostion(position);
+}
+
 void LayoutElementWrapper::SetZPosition(float z)
 {
     element_.SetZPosition(z);
@@ -74,10 +79,20 @@ void LayoutElementWrapper::Show()
     onChange_();
 }
 
+void LayoutElementWrapper::ShowWithoutNotif()
+{
+    element_.Show();
+}
+
 void LayoutElementWrapper::Hide()
 {
     element_.Hide();
     onChange_();
+}
+
+void LayoutElementWrapper::HideWithoutNotif()
+{
+    element_.Hide();
 }
 
 uint32 LayoutElementWrapper::GetId() const
@@ -85,9 +100,19 @@ uint32 LayoutElementWrapper::GetId() const
     return element_.GetId();
 }
 
+const GuiElement &LayoutElementWrapper::Get() const
+{
+    return element_;
+}
+
 LayoutElementWrapper LayoutElementWrapper::operator=(const LayoutElementWrapper &)
 {
     return LayoutElementWrapper(element_, onChange_);
+}
+
+void LayoutElementWrapper::MarkToRemove()
+{
+    element_.MarkToRemove();
 }
 
 }  // namespace GameEngine

@@ -19,34 +19,29 @@ LayoutElementWrapper& Layout::AddChild(GuiElement* element, std::function<void()
 {
     element->SetZPositionOffset(GetZTotalValue());
     children_.emplace_back(*element, f);
-    elements_.push_back(element);
     f();
     return children_.back();
 }
 
 void Layout::Remove(GuiElement* element)
 {
-    std::remove_if(elements_.begin(), elements_.end(),
-                   [element](GuiElement* e) { return e->GetId() == element->GetId(); });
     std::remove_if(children_.begin(), children_.end(),
                    [element](const LayoutElementWrapper& e) { return e.GetId() == element->GetId(); });
 }
 
 void Layout::Remove(uint32 id)
 {
-    std::remove_if(elements_.begin(), elements_.end(), [id](GuiElement* e) { return e->GetId() == id; });
     std::remove_if(children_.begin(), children_.end(), [id](const LayoutElementWrapper& e) { return e.GetId() == id; });
 }
 
 void Layout::RemoveAll()
 {
-    for (auto element : elements_)
+    for (auto element : children_)
     {
-        element->MarkToRemove();
+        element.MarkToRemove();
     }
 
     children_.clear();
-    elements_.clear();
 }
 
 void Layout::SetScale(const vec2& scale)
