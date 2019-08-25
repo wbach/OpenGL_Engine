@@ -143,13 +143,20 @@ void GetFileInfo(const std::string& full, std::string& filename, std::string& pa
 
 std::string GetFilename(const std::string& fullpath)
 {
-    auto file     = ReplaceSlash(fullpath);
+    auto file = ReplaceSlash(fullpath);
+
+    if (file.size() == 3 and file[1] == ':' and file[2] == '/')
+    {
+        file.pop_back();
+        return file;
+    }
+
     auto filename = file.substr(file.find_last_of('/') + 1);
 
     auto p = filename.find_last_of('.');
     if (p != std::string::npos)
     {
-    filename      = filename.substr(0, p);
+        filename = filename.substr(0, p);
     }
     return filename;
 }

@@ -111,8 +111,9 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
         {
             case Utils::File::Type::RegularFile:
             {
-                auto onClick = [file, this]() { seletedFileText_->SetText(file.name); };
-                CreateButtonWithFilename(Utils::GetFilenameWithExtension(file.name), layout, onClick);
+                auto rawFileName = Utils::GetFilenameWithExtension(file.name);
+                auto onClick = [rawFileName, this]() { seletedFileText_->SetText(rawFileName); };
+                CreateButtonWithFilename(rawFileName, layout, onClick);
             }
             break;
             case Utils::File::Type::Directory:
