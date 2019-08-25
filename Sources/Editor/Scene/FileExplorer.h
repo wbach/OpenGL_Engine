@@ -29,5 +29,6 @@ private:
     GameEngine::GuiElementFactory& guiFactory_;
     std::string font_;
     GameEngine::GuiTextElement* seletedFileText_;
+    GameEngine::GuiWindowElement* window_;
 };
 }  // namespace Editor

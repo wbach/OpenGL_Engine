@@ -110,7 +110,29 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const
 
 GuiButtonElement *GuiElementFactory::CreateGuiButton(std::function<void()> onClick)
 {
-    auto button = std::make_unique<GuiButtonElement>(inputManager_, onClick, windowSize_);
+    auto button = std::make_unique<GuiButtonElement>(
+        [this](uint32 id) {
+            auto mousePosition = inputManager_.GetMousePosition();
+
+            const auto& checkingElement = guiManager_.GetElement(id);
+            float checkingZ = checkingElement->GetZTotalValue() - 0.001f;
+
+            for (const auto &element : guiManager_.GetElements())
+            {
+                if (element->GetType() == GuiElementTypes::Text or element->GetId() == checkingElement->GetId())
+                {
+                    continue;
+                }
+
+                if (element->IsShow() and element->IsCollision(mousePosition) and element->GetZTotalValue() < checkingZ)
+                {
+                    return false;
+                }
+            }
+            return true;
+        },
+        inputManager_, onClick, windowSize_);
+
     auto result = button.get();
     guiManager_.Add(std::move(button));
     return result;

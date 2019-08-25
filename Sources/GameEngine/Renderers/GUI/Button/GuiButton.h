@@ -14,7 +14,7 @@ typedef std::function<void()> OnClick;
 class GuiButtonElement : public GuiElement
 {
 public:
-    GuiButtonElement(Input::InputManager&, OnClick, const vec2ui&);
+    GuiButtonElement(std::function<bool(uint32)>, Input::InputManager&, OnClick, const vec2ui&);
     ~GuiButtonElement();
     virtual void Update() override;
     void SetText(GuiTextElement*);
@@ -56,6 +56,7 @@ private:
 
     Utils::Timer activeTimer_;
     std::optional<uint32> subscribtion_;
+    std::function<bool(uint32)> isOnTop_;
 
 public:
     static GuiElementTypes type;

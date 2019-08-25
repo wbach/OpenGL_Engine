@@ -23,28 +23,29 @@ FileExplorer::FileExplorer(GameEngine::GuiManager &manager, GameEngine::GuiEleme
 
 FileExplorer::~FileExplorer()
 {
+    window_->MarkToRemove();
 }
 
 void FileExplorer::Start(const std::string &dir, std::function<bool(const std::string &)> onChoose)
 {
     const vec2 position(0, 0);
     const vec2 windowScale(0.2, 0.4);
-    auto window = guiFactory_.CreateGuiWindow(position, windowScale, "GUI/darkGrayButton.png");
-    window->SetZPosition(-20.f);
+    window_ = guiFactory_.CreateGuiWindow(position, windowScale, "GUI/darkGrayButton.png");
+    window_->SetZPosition(-20.f);
     auto layout = guiFactory_.CreateVerticalLayout();
     layout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
     layout->SetPostion(position + vec2(0, 0.05));
     layout->SetScale(vec2(0.2, 0.3));
 
-    if (not layout or not window)
+    if (not layout or not window_)
         return;
 
     FillFileList(layout, dir, onChoose);
 
-    auto okButton = guiFactory_.CreateGuiButton([window, onChoose, this]() {
+    auto okButton = guiFactory_.CreateGuiButton([onChoose, this]() {
         if (onChoose(seletedFileText_->GetText()))
         {
-            window->MarkToRemove();
+            window_->MarkToRemove();
         }
         else
         {
@@ -71,9 +72,9 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
     okButton->SetPostion(vec2(0, -windowScale.y + okButton->GetScale().y));
     okButton->SetZPosition(-1.f);
 
-    window->AddChild(seletedFileEditBox);
-    window->AddChild(okButton);
-    window->AddChild(layout);
+    window_->AddChild(seletedFileEditBox);
+    window_->AddChild(okButton);
+    window_->AddChild(layout);
 }
 
 void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::string &dir,

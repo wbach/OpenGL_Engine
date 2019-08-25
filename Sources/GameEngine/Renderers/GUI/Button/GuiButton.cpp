@@ -8,7 +8,8 @@ const uint64 SHOW_ACTIVE_TIME = 100;
 
 GuiElementTypes GuiButtonElement::type = GuiElementTypes::Button;
 
-GuiButtonElement::GuiButtonElement(Input::InputManager &inputManager, OnClick onClick, const vec2ui &windowSize)
+GuiButtonElement::GuiButtonElement(std::function<bool(uint32)> isOnTop, Input::InputManager &inputManager,
+                                   OnClick onClick, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
     , onClick_(onClick)
@@ -16,6 +17,7 @@ GuiButtonElement::GuiButtonElement(Input::InputManager &inputManager, OnClick on
     , backgroundTexture_{nullptr}
     , onHoverTexture_{nullptr}
     , onActiveTextue_{nullptr}
+    , isOnTop_{isOnTop}
 {
     SubscribeInputAction();
 }
@@ -30,7 +32,6 @@ GuiButtonElement::~GuiButtonElement()
         onActiveTextue_->MarkToRemove();
     if (text_)
         text_->MarkToRemove();
-
 
     DEBUG_LOG("");
     UnsubscribeInputAction();
@@ -58,7 +59,7 @@ void GuiButtonElement::Update()
         return;
     }
 
-    if (IsCollision(position))
+    if (IsCollision(position) and isOnTop_(GetId()))
     {
         if (backgroundTexture_)
             backgroundTexture_->Hide();
@@ -294,7 +295,7 @@ void GuiButtonElement::SubscribeInputAction()
     if (not subscribtion_)
     {
         subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-            if (IsShow())
+            if (IsShow() and isOnTop_(GetId()))
             {
                 auto position = inputManager_.GetMousePosition();
                 if (IsCollision(position))

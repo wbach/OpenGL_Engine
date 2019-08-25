@@ -17,13 +17,14 @@ GuiEditScene::~GuiEditScene()
 int GuiEditScene::Initialize()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
-    fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
 
     guiManager_->RegisterAction("ReadFile()", [&]() {
+        fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
         fileExplorer_->Start(".", [&](const std::string& str){ return guiElementFactory_->ReadGuiFile(str);});
     });
 
     guiManager_->RegisterAction("SaveToFile()", [&]() {
+        fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
         fileExplorer_->Start(".", [&](const std::string& str){ return guiManager_->SaveToFile(str);});
     });
 
