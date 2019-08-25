@@ -15,6 +15,7 @@ public:
 
     VerticalLayout(const vec2ui& windowSize, Input::InputManager& inputManager, std::function<void(uint32)> unsubscribe);
     ~VerticalLayout() override;
+    virtual void ResetView() override;
     virtual LayoutElementWrapper& AddChild(GuiElement*) override;
     void SetAlgin(Algin algin);
     virtual void SetPostion(const vec2& position) override;

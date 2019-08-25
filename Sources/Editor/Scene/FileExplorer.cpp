@@ -83,6 +83,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
 
     auto onClick = [this, parentDir, layout, onChoose]() {
         layout->RemoveAll();
+        layout->ResetView();
         FillFileList(layout, parentDir, onChoose);
     };
     CreateButtonWithFilename(parentDir, layout, onClick);
@@ -105,6 +106,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
             {
                 auto onClick = [this, file, layout, onChoose]() {
                     layout->RemoveAll();
+                    layout->ResetView();
                     FillFileList(layout, file.name, onChoose);
                 };
                 CreateButtonWithFilename(file.name + "/", layout, onClick);

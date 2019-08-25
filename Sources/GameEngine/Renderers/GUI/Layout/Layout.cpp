@@ -15,6 +15,11 @@ Layout::~Layout()
     RemoveAll();
 }
 
+void Layout::ResetView()
+{
+
+}
+
 LayoutElementWrapper& Layout::AddChild(GuiElement* element, std::function<void()> f)
 {
     element->SetZPositionOffset(GetZTotalValue());

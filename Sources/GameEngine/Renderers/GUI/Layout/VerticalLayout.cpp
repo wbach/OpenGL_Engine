@@ -35,6 +35,11 @@ VerticalLayout::~VerticalLayout()
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, mouseWheelDownSub_);
 }
 
+void VerticalLayout::ResetView()
+{
+    viewPosition_ = 0.f;
+}
+
 LayoutElementWrapper &VerticalLayout::AddChild(GuiElement *element)
 {
     return Layout::AddChild(element, [this]() { OnChange(); });
