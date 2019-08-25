@@ -53,6 +53,7 @@ struct FileInfo
     std::string extension;
 };
 
+std::vector<std::string> SplitString(char* s, int size, char split_char);
 std::vector<std::string> SplitString(const std::string& s, char split_char);
 std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char);
 std::string ReadFileBinary(const std::string& file_name);

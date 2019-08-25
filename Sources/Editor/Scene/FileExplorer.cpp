@@ -40,7 +40,8 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
     if (not layout or not window_)
         return;
 
-    FillFileList(layout, dir, onChoose);
+    DEBUG_LOG("Current dir : " + Utils::GetCurrentDir());
+    FillFileList(layout, Utils::GetCurrentDir(), onChoose);
 
     auto okButton = guiFactory_.CreateGuiButton([onChoose, this]() {
         if (onChoose(seletedFileText_->GetText()))
@@ -80,14 +81,25 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
 void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::string &dir,
                                 std::function<void(const std::string &)> onChoose)
 {
-    auto parentDir = dir.substr(0, dir.find_last_of('/'));
-
-    auto onClick = [this, parentDir, layout, onChoose]() {
+    auto onClickRoot = [this, layout, onChoose]() {
         layout->RemoveAll();
         layout->ResetView();
-        FillFileList(layout, parentDir, onChoose);
+        FillFileList(layout, "/", onChoose);
     };
-    CreateButtonWithFilename(parentDir, layout, onClick);
+    CreateButtonWithFilename(".", layout, onClickRoot);
+
+    auto parentDir = Utils::GetParent(dir);
+    DEBUG_LOG("Parent dir : " + parentDir);
+
+    if (not parentDir.empty())
+    {
+        auto onClick = [this, parentDir, layout, onChoose]() {
+            layout->RemoveAll();
+            layout->ResetView();
+            FillFileList(layout, parentDir, onChoose);
+        };
+        CreateButtonWithFilename("..", layout, onClick);
+    }
 
     auto filesInDir = Utils::GetFilesInDirectory(dir);
     for (const auto &file : filesInDir)
@@ -100,7 +112,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
             case Utils::File::Type::RegularFile:
             {
                 auto onClick = [file, this]() { seletedFileText_->SetText(file.name); };
-                CreateButtonWithFilename(file.name, layout, onClick);
+                CreateButtonWithFilename(Utils::GetFilenameWithExtension(file.name), layout, onClick);
             }
             break;
             case Utils::File::Type::Directory:
@@ -110,7 +122,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
                     layout->ResetView();
                     FillFileList(layout, file.name, onChoose);
                 };
-                CreateButtonWithFilename(file.name + "/", layout, onClick);
+                CreateButtonWithFilename(Utils::GetFilename(file.name) + "/", layout, onClick);
             }
             break;
             case Utils::File::Type::Other:

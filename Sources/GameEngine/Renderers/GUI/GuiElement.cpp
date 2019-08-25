@@ -18,12 +18,12 @@ uint32 GuiElement::ID = 0;
 GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     : type_(type)
     , windowSize_{windowSize}
-    , rect_{{0, 0}, {100, 100}}
+    , rect_{{0, 0}, {10, 10}}
     , position_{0, 0}
     , zPosition_{0}
     , zOffset_{0}
     , zTotalValue_{0}
-    , scale_{0.25, 0.25}
+    , scale_{0.05, 0.05}
     , color_{1, 1, 1}
     , transformMatrix_(1.f)
     , rotation_{0}

@@ -6,6 +6,29 @@
 
 namespace Utils
 {
+std::vector<std::string> SplitString(char* s, int size, char split_char)
+{
+    std::vector<std::string> tokens;
+    std::string token;
+
+    for (int i = 0; i < size; ++i)
+    {
+        if (s[i] == split_char)
+        {
+            if (not token.empty())
+            {
+                tokens.push_back(token);
+                token.clear();
+            }
+            continue;
+        }
+        token += s[i];
+    }
+    if (not token.empty())
+        tokens.push_back(token);
+
+    return tokens;
+}
 std::vector<std::string> SplitString(const std::string& s, char split_char)
 {
     std::vector<std::string> tokens;
@@ -94,7 +117,7 @@ std::list<std::string> ReadFileLines(const std::string& file_name)
     return output;
 }
 
-std::string ReplaceSlash(const std::string & str)
+std::string ReplaceSlash(const std::string& str)
 {
     std::string result(str);
     std::replace(result.begin(), result.end(), '\\', '/');
@@ -120,9 +143,14 @@ void GetFileInfo(const std::string& full, std::string& filename, std::string& pa
 
 std::string GetFilename(const std::string& fullpath)
 {
-    auto file = ReplaceSlash(fullpath);
+    auto file     = ReplaceSlash(fullpath);
     auto filename = file.substr(file.find_last_of('/') + 1);
-    filename = filename.substr(0, filename.find_last_of('.'));
+
+    auto p = filename.find_last_of('.');
+    if (p != std::string::npos)
+    {
+    filename      = filename.substr(0, p);
+    }
     return filename;
 }
 
@@ -145,7 +173,7 @@ std::string GetFileExtension(const std::string& file_name)
     return file_name.substr(pos);
 }
 
-std::string GetFilenameWithExtension(const std::string & fullpath)
+std::string GetFilenameWithExtension(const std::string& fullpath)
 {
     auto file = ReplaceSlash(fullpath);
     return file.substr(file.find_last_of('/') + 1);
