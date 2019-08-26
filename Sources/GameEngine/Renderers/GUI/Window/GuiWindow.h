@@ -13,6 +13,7 @@ public:
     GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
     ~GuiWindowElement() override;
     void AddChild(GuiElement*);
+    virtual void SetRect(const Rect& rect) override;
     virtual void Update() override;
     virtual void SetScale(const vec2& scale);
     virtual void Show(bool);

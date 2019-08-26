@@ -60,6 +60,15 @@ void GuiWindowElement::AddChild(GuiElement* element)
     children_.push_back(element);
 }
 
+void GuiWindowElement::SetRect(const Rect &rect)
+{
+    for (auto& child : children_)
+    {
+        child->SetRect(rect);
+    }
+    GuiElement::SetRect(rect);
+}
+
 void GuiWindowElement::Update()
 {
     if (not collisionPoint_)

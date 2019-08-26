@@ -150,4 +150,19 @@ void GuiEditBoxElement::Hide()
         backgroundTexture_->Hide();
     GuiElement::Hide();
 }
+
+const std::string &GuiEditBoxElement::GetTextString() const
+{
+    return text_.GetText();
+}
+
+void GuiEditBoxElement::SetText(const std::string &text)
+{
+    text_.SetText(text);
+}
+
+void GuiEditBoxElement::SetTextColor(const vec3 &color)
+{
+    text_.SetColor(color);
+}
 }  // namespace GameEngine

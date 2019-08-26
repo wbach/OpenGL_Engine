@@ -28,6 +28,9 @@ public:
     void Show(bool) override;
     void Show() override;
     void Hide() override;
+    const std::string& GetTextString() const;
+    void SetText(const std::string&);
+    void SetTextColor(const vec3& color);
 
 private:
     Input::InputManager& inputManager_;

@@ -81,6 +81,15 @@ void Layout::Hide()
     GuiElement::Hide();
 }
 
+void Layout::SetRect(const Rect &rect)
+{
+    for (auto& child : children_)
+    {
+        child.SetRect(rect);
+    }
+    GuiElement::SetRect(rect);
+}
+
 void Layout::SetPostion(const vec2& position)
 {
     for (auto& child : children_)

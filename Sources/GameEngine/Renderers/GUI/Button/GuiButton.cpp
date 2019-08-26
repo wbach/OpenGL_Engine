@@ -290,6 +290,11 @@ void GuiButtonElement::execute(std::function<void(uint32)> function)
         function(text_->GetId());
 }
 
+GuiTextElement *GuiButtonElement::GetText()
+{
+    return text_;
+}
+
 void GuiButtonElement::SubscribeInputAction()
 {
     if (not subscribtion_)

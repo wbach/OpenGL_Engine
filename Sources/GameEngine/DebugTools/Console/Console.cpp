@@ -29,8 +29,7 @@ Console::Console(Scene &scene)
     , currentCommand_{nullptr}
     , commandHistoryIndex_{0}
 {
-    window_ = scene_.guiElementFactory_->CreateGuiWindow(vec2(0, 0.5), vec2(1, 0.5),
-                                                         "GUI/darkGrayButton.png");
+    window_ = scene_.guiElementFactory_->CreateGuiWindow(vec2(0, 0.5), vec2(1, 0.5));
     if (not window_)
         return;
 
@@ -133,9 +132,8 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText(
-            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
-        result = text;
+        auto text = scene_.guiElementFactory_->CreateGuiText(EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
+        result    = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
@@ -499,8 +497,7 @@ void Console::SubscribeKeys()
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
-    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
-                             [&name](const auto &p) { return p.second->GetName() == name; });
+    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(), [&name](const auto &p) { return p.second->GetName() == name; });
 
     if (iter != scene_.gameObjects.end())
         return iter->second.get();

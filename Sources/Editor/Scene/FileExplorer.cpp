@@ -30,8 +30,10 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
 {
     const vec2 position(0, 0);
     const vec2 windowScale(0.2, 0.4);
-    window_ = guiFactory_.CreateGuiWindow(position, windowScale, "GUI/darkGrayButton.png");
+
+    window_ = guiFactory_.CreateGuiWindow(position, windowScale);
     window_->SetZPosition(-20.f);
+
     auto layout = guiFactory_.CreateVerticalLayout();
     layout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
     layout->SetPostion(position + vec2(0, 0.05));
@@ -40,11 +42,10 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
     if (not layout or not window_)
         return;
 
-    DEBUG_LOG("Current dir : " + Utils::GetCurrentDir());
     FillFileList(layout, dir, onChoose);
 
-    auto okButton = guiFactory_.CreateGuiButton([onChoose, this]() {
-        if (onChoose(seletedFileText_->GetText()))
+    auto okButton = guiFactory_.CreateGuiButton("ok", [onChoose, this]() {
+        if (onChoose(seletedFileText_->GetTextString()))
         {
             window_->MarkToRemove();
         }
@@ -53,33 +54,23 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
             guiFactory_.CreateMessageBox("Error", "File not supported.");
         }
     });
-
-    auto okText = guiFactory_.CreateGuiText(font_, "ok", 32, 0);
-    okButton->SetText(okText);
-    okButton->SetScale(okText->GetScale());
-
-    seletedFileText_ = guiFactory_.CreateGuiText(font_, "", 32, 0);
-    seletedFileText_->SetColor(vec3(0.2));
-    auto seletedFileEditBox = guiFactory_.CreateEditBox(seletedFileText_);
-    seletedFileEditBox->SetScale(vec2(windowScale.x, 0.04));
-
-    auto editBoxBgTexture = guiFactory_.CreateGuiTexture("GUI/white.png");
-    seletedFileEditBox->SetBackgroundTexture(editBoxBgTexture);
-
-    seletedFileEditBox->SetPostion(
-        vec2(0, -windowScale.y + (2.f * okButton->GetScale().y) + seletedFileEditBox->GetScale().y));
-    seletedFileEditBox->SetZPosition(-1.f);
-
     okButton->SetPostion(vec2(0, -windowScale.y + okButton->GetScale().y));
     okButton->SetZPosition(-1.f);
+    okButton->GetText()->SetColor(vec3(0.8f));
 
-    window_->AddChild(seletedFileEditBox);
+    seletedFileText_ = guiFactory_.CreateEditBox();
+    seletedFileText_->SetTextColor(vec3(0.2));
+
+    seletedFileText_->SetScale(vec2(windowScale.x, 0.04));
+    seletedFileText_->SetZPosition(-1.f);
+    seletedFileText_->SetPostion(vec2(0, -windowScale.y + (2.f * okButton->GetScale().y) + seletedFileText_->GetScale().y));
+
+    window_->AddChild(seletedFileText_);
     window_->AddChild(okButton);
     window_->AddChild(layout);
 }
 
-void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::string &dir,
-                                std::function<void(const std::string &)> onChoose)
+void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::string &dir, std::function<void(const std::string &)> onChoose)
 {
     auto onClickRoot = [this, layout, onChoose]() {
         layout->RemoveAll();
@@ -112,7 +103,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
             case Utils::File::Type::RegularFile:
             {
                 auto rawFileName = Utils::GetFilenameWithExtension(file.name);
-                auto onClick = [rawFileName, this]() { seletedFileText_->SetText(rawFileName); };
+                auto onClick     = [rawFileName, this]() { seletedFileText_->SetText(rawFileName); };
                 CreateButtonWithFilename(rawFileName, layout, onClick);
             }
             break;
@@ -132,32 +123,10 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
     }
 }
 
-void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout *layout,
-                                            std::function<void()> onClick)
+void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout *layout, std::function<void()> onClick)
 {
-    auto button = guiFactory_.CreateGuiButton(onClick);
+    auto button = guiFactory_.CreateGuiButton(filename, onClick);
     button->SetZPosition(-1.f);
-    auto text = guiFactory_.CreateGuiText(font_, filename, 32, 0);
-    if (not text)
-    {
-        DEBUG_LOG("text create error");
-        return;
-    }
-    text->SetColor(vec3(1, 1, 1));
-    button->SetScale(text->GetScale());
-    button->SetText(text);
-
-    auto buttonTexture       = guiFactory_.CreateGuiTexture("GUI/darkGrayButton.png");
-    auto hoverButtonTexture  = guiFactory_.CreateGuiTexture("GUI/darkGrayButtonHover.png");
-    auto activeButtonTexture = guiFactory_.CreateGuiTexture("GUI/darkGrayButtonActive.png");
-
-    if (buttonTexture)
-        button->SetBackgroundTexture(buttonTexture);
-    if (hoverButtonTexture)
-        button->SetOnHoverTexture(hoverButtonTexture);
-    if (activeButtonTexture)
-        button->SetOnActiveTexture(activeButtonTexture);
-
     layout->AddChild(button);
 }
 }  // namespace Editor

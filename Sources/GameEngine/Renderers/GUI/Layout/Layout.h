@@ -24,6 +24,7 @@ public:
     virtual void Show(bool);
     virtual void Show() override;
     virtual void Hide() override;
+    virtual void SetRect(const Rect& rect) override;
     virtual void SetPostion(const vec2& position) override;
     virtual void SetPostion(const vec2ui& position) override;
     virtual void SetZPosition(float z) override;
