@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 #include "GuiEditScene.h"
 #include "FileExplorer.h"
+#include "FileSystem/FileSystemUtils.hpp"
 
 using namespace GameEngine;
 
@@ -20,12 +21,12 @@ int GuiEditScene::Initialize()
 
     guiManager_->RegisterAction("ReadFile()", [&]() {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
-        fileExplorer_->Start(".", [&](const std::string& str){ return guiElementFactory_->ReadGuiFile(str);});
+        fileExplorer_->Start(Utils::GetCurrentDir(), [&](const std::string& str){ return guiElementFactory_->ReadGuiFile(str);});
     });
 
     guiManager_->RegisterAction("SaveToFile()", [&]() {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
-        fileExplorer_->Start(".", [&](const std::string& str){ return guiManager_->SaveToFile(str);});
+        fileExplorer_->Start(Utils::GetCurrentDir(), [&](const std::string& str){ return guiManager_->SaveToFile(str);});
     });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [&](){

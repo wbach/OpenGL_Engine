@@ -41,7 +41,7 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
         return;
 
     DEBUG_LOG("Current dir : " + Utils::GetCurrentDir());
-    FillFileList(layout, Utils::GetCurrentDir(), onChoose);
+    FillFileList(layout, dir, onChoose);
 
     auto okButton = guiFactory_.CreateGuiButton([onChoose, this]() {
         if (onChoose(seletedFileText_->GetText()))
@@ -123,7 +123,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
                     layout->ResetView();
                     FillFileList(layout, file.name, onChoose);
                 };
-                CreateButtonWithFilename(Utils::GetFilename(file.name) + "/", layout, onClick);
+                CreateButtonWithFilename(Utils::GetFilenameWithExtension(file.name) + "/", layout, onClick);
             }
             break;
             case Utils::File::Type::Other:

@@ -141,11 +141,16 @@ void GetFileInfo(const std::string& full, std::string& filename, std::string& pa
     filename = file.substr(file.find_last_of('/') + 1);
 }
 
+bool IsWindowsDriveName(const std::string& path)
+{
+    return (path.size() == 3 and path[1] == ':' and path[2] == '/');
+}
+
 std::string GetFilename(const std::string& fullpath)
 {
     auto file = ReplaceSlash(fullpath);
 
-    if (file.size() == 3 and file[1] == ':' and file[2] == '/')
+    if (IsWindowsDriveName(file))
     {
         file.pop_back();
         return file;
@@ -183,12 +188,24 @@ std::string GetFileExtension(const std::string& file_name)
 std::string GetFilenameWithExtension(const std::string& fullpath)
 {
     auto file = ReplaceSlash(fullpath);
+
+    if (IsWindowsDriveName(file))
+    {
+        file.pop_back();
+        return file;
+    }
     return file.substr(file.find_last_of('/') + 1);
 }
 
 std::string GetPathAndFilenameWithoutExtension(const std::string& path)
 {
     auto file = ReplaceSlash(path);
+    if (IsWindowsDriveName(file))
+    {
+        file.pop_back();
+        return file;
+    }
+
     return file.substr(0, file.find_last_of('.'));
 }
 
