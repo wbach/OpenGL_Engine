@@ -21,4 +21,5 @@ void PrintFilesInDirectory(const std::string& dirPath, const std::string& t = ""
 std::vector<File> GetFilesInDirectory(const std::string& dirPath);
 std::string GetParent(const std::string&);
 std::string GetCurrentDir();
+bool DirectoryExist(const std::string&);
 }  // namespace Utils

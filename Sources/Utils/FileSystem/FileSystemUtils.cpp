@@ -1,9 +1,9 @@
 #include "FileSystemUtils.hpp"
 #include <Logger/Log.h>
 #include <Utils/Utils.h>
+#include <algorithm>
 #include <boost/filesystem.hpp>
 #include <iostream>
-#include <algorithm>
 
 #ifndef USE_GNU
 #include <Windows.h>
@@ -75,8 +75,7 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
         }
     }
 
-    std::sort(result.begin(), result.end(), [](const File& l, const File& r)
-    {
+    std::sort(result.begin(), result.end(), [](const File& l, const File& r) {
         auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFilenameWithExtension(l.name);
         auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFilenameWithExtension(r.name);
         std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
@@ -89,7 +88,7 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
 std::string GetParent(const std::string& dir)
 {
     auto result = path(dir).parent_path().string();
-    auto slash = result.find_last_of('/');
+    auto slash  = result.find_last_of('/');
 
     if (slash != std::string::npos)
     {
@@ -103,5 +102,15 @@ std::string GetParent(const std::string& dir)
 std::string GetCurrentDir()
 {
     return Utils::ReplaceSlash(boost::filesystem::path(boost::filesystem::current_path()).string());
+}
+
+bool DirectoryExist(const std::string& pathDir)
+{
+    if (boost::filesystem::is_directory(pathDir))
+    {
+        path p(pathDir);
+        return boost::filesystem::exists(p);
+    }
+    return false;
 }
 }  // namespace Utils

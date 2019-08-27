@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "GameEngine/Renderers/GUI/TextInput.h"
+#include <functional>
 
 namespace GameEngine
 {
@@ -24,6 +25,7 @@ public:
     void SetPostion(const vec2ui& position) override;
     void SetZPositionOffset(float offset) override;
     void SetZPosition(float z) override;
+    void SetOnEnterAction(std::function<void(const std::string&)>);
     void Rotate(float r) override;
     void Show(bool) override;
     void Show() override;
@@ -40,6 +42,7 @@ private:
     uint32 lmouseSubscribtrion_;
     uint32 entersubscribion_;
     std::unique_ptr<TextInput> textInput_;
+    std::function<void(const std::string&)> onEnterAction_;
 
 public:
     static GuiElementTypes type;

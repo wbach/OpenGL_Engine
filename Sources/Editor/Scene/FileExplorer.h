@@ -30,6 +30,6 @@ private:
     std::string font_;
     GameEngine::GuiEditBoxElement* seletedFileText_;
     GameEngine::GuiWindowElement* window_;
-    std::string currentDir_;
+    GameEngine::GuiEditBoxElement* currentDir_;
 };
 }  // namespace Editor

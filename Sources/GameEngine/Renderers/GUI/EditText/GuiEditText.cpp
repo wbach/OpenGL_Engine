@@ -35,6 +35,11 @@ GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, Input::InputManager &
         {
             textInput_.reset();
         }
+
+        if (onEnterAction_)
+        {
+            onEnterAction_(text_.GetText());
+        }
     });
 }
 GuiEditBoxElement::~GuiEditBoxElement()
@@ -117,6 +122,11 @@ void GuiEditBoxElement::SetZPosition(float z)
 
     if (backgroundTexture_)
         backgroundTexture_->SetZPositionOffset(GetZTotalValue());
+}
+
+void GuiEditBoxElement::SetOnEnterAction(std::function<void(const std::string&)> f)
+{
+    onEnterAction_ = f;
 }
 
 void GuiEditBoxElement::Rotate(float r)
