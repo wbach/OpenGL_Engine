@@ -45,7 +45,7 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
     FillFileList(layout, dir, onChoose);
 
     auto okButton = guiFactory_.CreateGuiButton("ok", [onChoose, this]() {
-        if (onChoose(seletedFileText_->GetTextString()))
+        if (onChoose(currentDir_ + "/" + seletedFileText_->GetTextString()))
         {
             window_->MarkToRemove();
         }
@@ -72,6 +72,8 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
 
 void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::string &dir, std::function<void(const std::string &)> onChoose)
 {
+    currentDir_ = dir;
+
     auto onClickRoot = [this, layout, onChoose]() {
         layout->RemoveAll();
         layout->ResetView();
