@@ -95,8 +95,11 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
     }
 
     auto filesInDir = Utils::GetFilesInDirectory(dir);
+
     for (const auto &file : filesInDir)
     {
+        DEBUG_LOG(file.name);
+
         if (file.name.empty())
             continue;
 

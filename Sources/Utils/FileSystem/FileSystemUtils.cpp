@@ -3,6 +3,7 @@
 #include <Utils/Utils.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
+#include <algorithm>
 
 #ifndef USE_GNU
 #include <Windows.h>
@@ -73,6 +74,15 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
             result.push_back({File::Type::Other, filename});
         }
     }
+
+    std::sort(result.begin(), result.end(), [](const File& l, const File& r)
+    {
+        auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFilenameWithExtension(l.name);
+        auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFilenameWithExtension(r.name);
+        std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
+        std::transform(rname.begin(), rname.end(), rname.begin(), ::tolower);
+        return lname < rname;
+    });
 
     return result;
 }

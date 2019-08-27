@@ -8,8 +8,8 @@ struct File
 {
     enum class Type
     {
-        RegularFile,
         Directory,
+        RegularFile,
         Other
     };
 
