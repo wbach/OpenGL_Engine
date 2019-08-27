@@ -164,27 +164,24 @@ GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &text, st
 
 GuiEditBoxElement *GuiElementFactory::CreateEditBox()
 {
-    auto guiText          = CreateGuiText("");
-    auto editText         = CreateEditBox(guiText);
-    auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
-    editText->SetBackgroundTexture(editBoxBgTexture);
-    return editText;
+    auto guiText = CreateGuiText("");
+    return CreateEditBox(guiText);
 }
 
 GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size,
                                                     uint32 outline)
 {
-    auto text    = CreateGuiText(font, str, size, outline);
-    auto editBox = std::make_unique<GuiEditBoxElement>(*text, inputManager_, windowSize_);
-    auto result  = editBox.get();
-    guiManager_.Add(std::move(editBox));
-    return result;
+    auto text = CreateGuiText(font, str, size, outline);
+    return CreateEditBox(text);
 }
 
 GuiEditBoxElement *GuiElementFactory::CreateEditBox(GuiTextElement *text)
 {
-    auto editBox = std::make_unique<GuiEditBoxElement>(*text, inputManager_, windowSize_);
-    auto result  = editBox.get();
+    auto cursor           = CreateGuiText("|");
+    auto editBox          = std::make_unique<GuiEditBoxElement>(*text, *cursor, inputManager_, windowSize_);
+    auto result           = editBox.get();
+    auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
+    editBox->SetBackgroundTexture(editBoxBgTexture);
     guiManager_.Add(std::move(editBox));
     return result;
 }

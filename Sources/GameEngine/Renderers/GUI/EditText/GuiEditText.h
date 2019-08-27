@@ -1,8 +1,9 @@
 #pragma once
 #include <Input/InputManager.h>
+#include <functional>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "GameEngine/Renderers/GUI/TextInput.h"
-#include <functional>
+#include "Utils/Time/TimeMeasurer.h"
 
 namespace GameEngine
 {
@@ -13,7 +14,7 @@ class TextInput;
 class GuiEditBoxElement : public GuiElement
 {
 public:
-    GuiEditBoxElement(GuiTextElement&, Input::InputManager&, const vec2ui&);
+    GuiEditBoxElement(GuiTextElement&, GuiTextElement&, Input::InputManager&, const vec2ui&);
     ~GuiEditBoxElement();
     virtual void Update() override;
 
@@ -38,12 +39,13 @@ public:
 private:
     Input::InputManager& inputManager_;
     GuiTextElement& text_;
+    GuiTextElement& cursor_;
     GuiTextureElement* backgroundTexture_;
-    bool inputMode_;
     uint32 lmouseSubscribtrion_;
     uint32 entersubscribion_;
     std::unique_ptr<TextInput> textInput_;
     std::function<void(const std::string&)> onEnterAction_;
+    Utils::Time::CTimeMeasurer timer_;
 
 public:
     static GuiElementTypes type;

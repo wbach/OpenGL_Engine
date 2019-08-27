@@ -173,6 +173,11 @@ void GuiTextElement::RenderText(bool fontOverride)
             SetSize(surface_->size);
             updateTexture_(*this);
         }
+        Show();
+    }
+    else
+    {
+        Hide();
     }
 }
 
