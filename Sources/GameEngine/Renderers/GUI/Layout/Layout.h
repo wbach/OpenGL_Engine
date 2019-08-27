@@ -29,6 +29,7 @@ public:
     virtual void SetPostion(const vec2ui& position) override;
     virtual void SetZPosition(float z) override;
     virtual void SetZPositionOffset(float offset) override;
+    virtual void SetPermamanet(bool) override;
 
 protected:
     std::vector<LayoutElementWrapper> children_;

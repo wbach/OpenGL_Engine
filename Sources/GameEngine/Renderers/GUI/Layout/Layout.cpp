@@ -122,9 +122,17 @@ void Layout::SetZPositionOffset(float offset)
 {
     GuiElement::SetZPositionOffset(offset);
 
-    for (auto child : children_)
+    for (auto& child : children_)
     {
         child.SetZPositionOffset(GetZTotalValue());
     }
+}
+void Layout::SetPermamanet(bool is)
+{
+    for (auto& child : children_)
+    {
+        child.SetPermamanet(is);
+    }
+    GuiElement::SetPermamanet(is);
 }
 }  // namespace GameEngine

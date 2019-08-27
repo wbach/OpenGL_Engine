@@ -21,9 +21,10 @@ void GuiManager::Add(std::unique_ptr<GuiElement> element)
     subscribe_(*element.get());
     elements_.push_back(std::move(element));
 }
-GuiElement * GuiManager::GetElement(const std::string & label)
+GuiElement* GuiManager::GetElement(const std::string& label)
 {
-    auto element = std::find_if(elements_.begin(), elements_.end(), [&label](const auto& element) { return element->GetLabel() == label; });
+    auto element = std::find_if(elements_.begin(), elements_.end(),
+                                [&label](const auto& element) { return element->GetLabel() == label; });
 
     if (element != elements_.end())
     {
@@ -35,9 +36,10 @@ GuiElement * GuiManager::GetElement(const std::string & label)
         return nullptr;
     }
 }
-GuiElement * GuiManager::GetElement(uint32 id)
+GuiElement* GuiManager::GetElement(uint32 id)
 {
-    auto element = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
+    auto element =
+        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
 
     if (element != elements_.end())
     {
@@ -115,6 +117,24 @@ void GuiManager::Remove(const GuiElement& element)
     {
         unsubscribeElement_(element);
         elements_.erase(iter);
+    }
+}
+
+void GuiManager::RemoveNotPermaments()
+{
+    DEBUG_LOG("");
+    for (auto iter = elements_.begin(); iter != elements_.end();)
+    {
+        if (not (*iter)->IsPermament())
+        {
+            DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
+            unsubscribeElement_(**iter);
+            iter = elements_.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
     }
 }
 

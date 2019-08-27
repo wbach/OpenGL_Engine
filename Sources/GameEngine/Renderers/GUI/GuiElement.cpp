@@ -31,6 +31,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , offset_{0, 0}
     , id_{GuiElement::ID++}
     , isMarkToRemove_{false}
+    , isPermament_{true}
 {
     CalculateMatrix();
 }
@@ -219,5 +220,13 @@ void GuiElement::CalculatePosition()
 
     position_.x = ConvertSpaceInv(position_.x);
     position_.y = ConvertSpaceInv(position_.y);
+}
+void GuiElement::SetPermamanet(bool is)
+{
+    isPermament_ = is;
+}
+bool GuiElement::IsPermament() const
+{
+    return isPermament_;
 }
 }  // namespace GameEngine

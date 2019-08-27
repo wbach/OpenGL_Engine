@@ -85,6 +85,11 @@ void GuiButtonElement::Update()
 
 void GuiButtonElement::SetText(GuiTextElement *text)
 {
+    if (text_)
+    {
+        text_->MarkToRemove();
+    }
+    
     text_ = text;
     text_->SetPostion(position_);
 
@@ -95,6 +100,11 @@ void GuiButtonElement::SetText(GuiTextElement *text)
 
 void GuiButtonElement::SetBackgroundTexture(GuiTextureElement *texture)
 {
+    if (backgroundTexture_)
+    {
+        backgroundTexture_->MarkToRemove();
+    }
+
     backgroundTexture_ = texture;
     backgroundTexture_->SetScale(scale_);
     backgroundTexture_->SetPostion(position_);
@@ -102,6 +112,11 @@ void GuiButtonElement::SetBackgroundTexture(GuiTextureElement *texture)
 
 void GuiButtonElement::SetOnHoverTexture(GuiTextureElement *texture)
 {
+    if (onHoverTexture_)
+    {
+        onHoverTexture_->MarkToRemove();
+    }
+
     onHoverTexture_ = texture;
     onHoverTexture_->SetScale(scale_);
     onHoverTexture_->SetPostion(position_);
@@ -109,6 +124,11 @@ void GuiButtonElement::SetOnHoverTexture(GuiTextureElement *texture)
 
 void GuiButtonElement::SetOnActiveTexture(GuiTextureElement *texture)
 {
+    if (onActiveTextue_)
+    {
+        onActiveTextue_->MarkToRemove();
+    }
+
     onActiveTextue_ = texture;
     onActiveTextue_->SetScale(scale_);
     onActiveTextue_->SetPostion(position_);
@@ -288,6 +308,20 @@ void GuiButtonElement::execute(std::function<void(uint32)> function)
         function(backgroundTexture_->GetId());
     if (text_)
         function(text_->GetId());
+}
+
+void GuiButtonElement::SetPermamanet(bool is)
+{
+    if (onHoverTexture_)
+        onHoverTexture_->SetPermamanet(is);
+    if (onActiveTextue_)
+        onActiveTextue_->SetPermamanet(is);
+    if (backgroundTexture_)
+        backgroundTexture_->SetPermamanet(is);
+    if (text_)
+        text_->SetPermamanet(is);
+
+    GuiElement::SetPermamanet(is);
 }
 
 GuiTextElement *GuiButtonElement::GetText()

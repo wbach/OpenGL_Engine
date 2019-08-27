@@ -25,6 +25,7 @@ public:
     bool SaveToFile(const std::string&);
     void Remove(uint32);
     void Remove(const GuiElement&);
+    void RemoveNotPermaments();
 
     template <class T>
     T* Get(uint32);

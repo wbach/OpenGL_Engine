@@ -30,7 +30,8 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
 {
 }
 
-GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &font, const std::string &str, uint32 size, uint32 outline)
+GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &font, const std::string &str, uint32 size,
+                                                 uint32 outline)
 {
     auto text   = guiTextFactory_.Create(EngineConf_GetFullDataPathAddToRequierd(font), str, size, outline);
     auto result = text.get();
@@ -63,7 +64,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const Rect &rect)
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const Rect & rect, const std::string& backgorund)
+GuiWindowElement *GuiElementFactory::CreateGuiWindow(const Rect &rect, const std::string &backgorund)
 {
     auto result = CreateGuiWindow(vec2(), vec2(), backgorund);
     result->SetRect(rect);
@@ -75,7 +76,8 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const
     return CreateGuiWindow(position, scale, theme_.backgroundTexture);
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const vec2 &scale, const std::string &backgorund)
+GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const vec2 &scale,
+                                                     const std::string &backgorund)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(windowSize_, inputManager_);
     guiWindow->SetPostion(position);
@@ -169,7 +171,8 @@ GuiEditBoxElement *GuiElementFactory::CreateEditBox()
     return editText;
 }
 
-GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size, uint32 outline)
+GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size,
+                                                    uint32 outline)
 {
     auto text    = CreateGuiText(font, str, size, outline);
     auto editBox = std::make_unique<GuiEditBoxElement>(*text, inputManager_, windowSize_);
@@ -202,7 +205,8 @@ HorizontalLayout *GuiElementFactory::CreateHorizontalLayout()
     return result;
 }
 
-void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message, std::function<void()> okFunc)
+void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message,
+                                         std::function<void()> okFunc)
 {
     auto window = CreateGuiWindow(vec2(0, 0), vec2(0.5, 0.3));
     window->SetZPosition(-100.f);
@@ -237,7 +241,8 @@ const GuiTheme &GuiElementFactory::GetTheme() const
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
 {
-    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, false, true, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, false, true, ObjectTextureType::MATERIAL,
+                                                                   TextureFlip::Type::VERTICAL);
     if (not texture)
     {
         DEBUG_LOG("Texture not loaded : " + filename);
@@ -300,6 +305,16 @@ void ReadGuiElementBasic(GuiElement *element, Utils::XmlNode &node)
     if (paramNode)
     {
         element->SetLabel(paramNode->value_);
+    }
+
+    paramNode = node.GetChild("permamanet");
+    if (paramNode)
+    {
+        element->SetPermamanet(Utils::ReadBool(*paramNode));
+    }
+    else
+    {
+        element->SetPermamanet(false);
     }
 }
 
@@ -399,54 +414,54 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
 
     auto button = factory.CreateGuiButton(onClick);
 
-    //auto &children             = node.GetChildren();
-//    auto backgroundTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
-//        auto c = child->GetChild("label");
-//        if (c)
-//        {
-//            return c->value_ == "backgroundTexture";
-//        }
-//        return false;
-//    });
+    auto &children             = node.GetChildren();
+    auto backgroundTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
+        auto c = child->GetChild("label");
+        if (c)
+        {
+            return c->value_ == "backgroundTexture";
+        }
+        return false;
+    });
 
-//    if (backgroundTextureNode != children.end())
-//    {
-//        auto texture = ReadGuiTexture(**backgroundTextureNode, factory);
+    if (backgroundTextureNode != children.end())
+    {
+        auto texture = ReadGuiTexture(**backgroundTextureNode, factory);
 
-//        if (texture)
-//            button->SetBackgroundTexture(texture);
-//    }
+        if (texture)
+            button->SetBackgroundTexture(texture);
+    }
 
-//    auto hoverTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
-//        auto c = child->GetChild("label");
-//        if (c)
-//        {
-//            return c->value_ == "hoverTexture";
-//        }
-//        return false;
-//    });
-//    if (hoverTextureNode != children.end())
-//    {
-//        auto texture = ReadGuiTexture(**hoverTextureNode, factory);
-//        if (texture)
-//            button->SetOnHoverTexture(texture);
-//    }
+    auto hoverTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
+        auto c = child->GetChild("label");
+        if (c)
+        {
+            return c->value_ == "hoverTexture";
+        }
+        return false;
+    });
+    if (hoverTextureNode != children.end())
+    {
+        auto texture = ReadGuiTexture(**hoverTextureNode, factory);
+        if (texture)
+            button->SetOnHoverTexture(texture);
+    }
 
-//    auto activeTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
-//        auto c = child->GetChild("label");
-//        if (c)
-//        {
-//            return c->value_ == "activeTexture";
-//        }
-//        return false;
-//    });
+    auto activeTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
+        auto c = child->GetChild("label");
+        if (c)
+        {
+            return c->value_ == "activeTexture";
+        }
+        return false;
+    });
 
-//    if (hoverTextureNode != children.end())
-//    {
-//        auto texture = ReadGuiTexture(**activeTextureNode, factory);
-//        if (texture)
-//            button->SetOnActiveTexture(texture);
-//    }
+    if (hoverTextureNode != children.end())
+    {
+        auto texture = ReadGuiTexture(**activeTextureNode, factory);
+        if (texture)
+            button->SetOnActiveTexture(texture);
+    }
 
     auto textNode = node.GetChild("text");
     if (textNode)
@@ -677,6 +692,7 @@ bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 
     DEBUG_LOG("Gui file changed. Parsing : " + filename);
     lastGuiFileMd5Value_ = md5Value;
+    guiManager_.RemoveNotPermaments();
 
     Utils::XmlReader reader;
     if (not reader.ReadXml(fileContent))

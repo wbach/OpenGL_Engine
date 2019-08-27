@@ -43,6 +43,8 @@ public:
     bool IsMarkToRemove() const;
     const std::string& GetLabel() const;
     void SetLabel(const std::string& label);
+    virtual void SetPermamanet(bool);
+    virtual bool IsPermament() const;
 
 public:
     GuiElementTypes GetType() const;
@@ -78,6 +80,7 @@ protected:
     vec2 offset_;
     uint32 id_;
     bool isMarkToRemove_;
+    bool isPermament_;
 
 public:
     static uint32 ID;

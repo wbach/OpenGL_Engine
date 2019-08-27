@@ -105,6 +105,11 @@ const GuiElement &LayoutElementWrapper::Get() const
     return element_;
 }
 
+void LayoutElementWrapper::SetPermamanet(bool is)
+{
+    element_.SetPermamanet(is);
+}
+
 LayoutElementWrapper LayoutElementWrapper::operator=(const LayoutElementWrapper &)
 {
     return LayoutElementWrapper(element_, onChange_);

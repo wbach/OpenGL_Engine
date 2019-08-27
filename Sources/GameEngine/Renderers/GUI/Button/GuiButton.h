@@ -37,6 +37,7 @@ public:
     void Show() override;
     void Hide() override;
     void execute(std::function<void(uint32)>) override;
+    void SetPermamanet(bool) override;
     GuiTextElement* GetText();
 
 private:

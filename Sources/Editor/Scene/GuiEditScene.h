@@ -14,7 +14,7 @@ public:
     virtual void PostInitialize()
     {
     }
-    virtual int Update();
+    virtual int Update(float) override;
 
 private:
     std::unique_ptr<FileExplorer> fileExplorer_;

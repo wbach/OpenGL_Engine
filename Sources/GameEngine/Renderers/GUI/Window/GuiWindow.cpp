@@ -148,4 +148,13 @@ void GuiWindowElement::SetZPositionOffset(float offset)
     }
 }
 
+void GuiWindowElement::SetPermamanet(bool is)
+{
+    for (auto& child : children_)
+    {
+        child->SetPermamanet(is);
+    }
+    GuiElement::SetPermamanet(is);
+}
+
 }  // namespace GameEngine

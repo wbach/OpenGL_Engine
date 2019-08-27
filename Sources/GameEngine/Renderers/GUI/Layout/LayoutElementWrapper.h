@@ -28,6 +28,7 @@ public:
     void MarkToRemove();
     uint32 GetId() const;
     const GuiElement& Get() const;
+    void SetPermamanet(bool);
 
     LayoutElementWrapper operator=(const LayoutElementWrapper&);
 

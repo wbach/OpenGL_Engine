@@ -175,4 +175,11 @@ void GuiEditBoxElement::SetTextColor(const vec3 &color)
 {
     text_.SetColor(color);
 }
+void GuiEditBoxElement::SetPermamanet(bool is)
+{
+    text_.SetPermamanet(is);
+    if (backgroundTexture_)
+        backgroundTexture_->SetPermamanet(is);
+    GuiElement::SetPermamanet(is);
+}
 }  // namespace GameEngine
