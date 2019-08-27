@@ -124,7 +124,7 @@ void VerticalLayout::UpdateVisibility()
             element.ShowWithoutNotif();
         }
 
-        totalYScale_ += element.Get().GetScale().y;
+        totalYScale_ += 2.f * element.Get().GetScale().y;
     }
 }
 
