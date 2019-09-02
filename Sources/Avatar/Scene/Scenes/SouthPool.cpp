@@ -63,12 +63,12 @@ int SouthPool::Initialize()
         }
     });
 
-    guiManager_->RegisterAction("BackToMainMenu()", [&]() {
+    guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {
         SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
         addSceneEvent(sceneEvent);
     });
 
-    guiManager_->RegisterAction("Resume()", [&]() {
+    guiManager_->RegisterAction("Resume()", [&](auto&) {
         auto window = guiManager_->GetElement("PauseMenuMainWindow");
         if (window)
         {
@@ -85,7 +85,7 @@ int SouthPool::Initialize()
         }
     });
 
-    guiManager_->RegisterAction("ExitGame()", [&]() { addEngineEvent(EngineEvent::QUIT); });
+    guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
     guiElementFactory_->ReadGuiFile(EngineConf_GetFullDataPath(pauseMenuFile));
 

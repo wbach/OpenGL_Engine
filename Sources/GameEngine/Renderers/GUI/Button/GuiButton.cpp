@@ -339,7 +339,7 @@ void GuiButtonElement::SubscribeInputAction()
                 auto position = inputManager_.GetMousePosition();
                 if (IsCollision(position))
                 {
-                    onClick_();
+                    onClick_(*this);
                     activeTimer_.Reset();
                 }
             }

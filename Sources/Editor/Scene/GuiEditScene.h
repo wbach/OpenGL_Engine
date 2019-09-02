@@ -18,5 +18,6 @@ public:
 
 private:
     std::unique_ptr<FileExplorer> fileExplorer_;
+    vec2 mousePosition_;
 };
 }  // namespace Editor

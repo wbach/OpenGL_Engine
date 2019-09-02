@@ -12,7 +12,7 @@ namespace GameEngine
 typedef std::vector<std::unique_ptr<GuiElement>> GuiElements;
 typedef std::unordered_map<std::string, GuiElement*> GuiElementsMap;
 
-using ActionFunction = std::function<void()>;
+using ActionFunction = std::function<void(GuiElement&)>;
 
 class GuiManager
 {
@@ -22,10 +22,12 @@ public:
     void Add(std::unique_ptr<GuiElement> element);
     void Update();
     void RegisterAction(const std::string&, ActionFunction);
+    void RegisterDefaultAction(ActionFunction);
     bool SaveToFile(const std::string&);
     void Remove(uint32);
     void Remove(const GuiElement&);
     void RemoveNotPermaments();
+    void RemoveAll();
 
     template <class T>
     T* Get(uint32);

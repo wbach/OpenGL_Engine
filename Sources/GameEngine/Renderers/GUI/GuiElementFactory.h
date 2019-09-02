@@ -56,8 +56,8 @@ public:
     GuiWindowElement* CreateGuiWindow(const vec2&, const vec2&);
     GuiWindowElement* CreateGuiWindow(const vec2&, const vec2&, const std::string&);
     // GuiButton
-    GuiButtonElement* CreateGuiButton(std::function<void()>);
-    GuiButtonElement* CreateGuiButton(const std::string&, std::function<void()>);
+    GuiButtonElement* CreateGuiButton(std::function<void(GuiElement&)>);
+    GuiButtonElement* CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
     // GuiEditBox
     GuiEditBoxElement* CreateEditBox();
     GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, uint32, uint32);
@@ -78,7 +78,6 @@ private:
     Renderer::RenderersManager& renderersManager_;
     const vec2ui& windowSize_;
     GuiTextFactory guiTextFactory_;
-    std::string lastGuiFileMd5Value_;
     std::function<void(uint32)> unsubscribe_;
     GuiTheme theme_;
 

@@ -23,6 +23,7 @@ void Layout::ResetView()
 LayoutElementWrapper& Layout::AddChild(GuiElement* element, std::function<void()> f)
 {
     element->SetZPositionOffset(GetZTotalValue());
+    element->SetPermamanet(isPermament_);
     children_.emplace_back(*element, f);
     f();
     return children_.back();

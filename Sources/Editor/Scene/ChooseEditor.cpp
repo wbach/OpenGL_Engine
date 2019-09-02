@@ -17,12 +17,12 @@ int ChooseEditor::Initialize()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
-    guiManager_->RegisterAction("StartSceneEditor()", [&]() {
+    guiManager_->RegisterAction("StartSceneEditor()", [&](auto&) {
         SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_NAME, "EditorScene");
         addSceneEvent(sceneEvent);
     });
 
-    guiManager_->RegisterAction("StartGuiEditor()", [&]() {
+    guiManager_->RegisterAction("StartGuiEditor()", [&](auto&) {
         SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_NAME,  "GuiEditScene");
         addSceneEvent(sceneEvent);
     });

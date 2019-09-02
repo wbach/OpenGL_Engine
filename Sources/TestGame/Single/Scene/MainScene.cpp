@@ -683,7 +683,7 @@ void MainScene::InitGui()
 
     {
         auto button =
-            guiElementFactory_->CreateGuiButton([]() { std::cout << "Start Game BUTTON pressed." << std::endl; });
+            guiElementFactory_->CreateGuiButton([](auto&) { std::cout << "Start Game BUTTON pressed." << std::endl; });
         button->SetScale(vec2(0.1, 0.05));
         button->SetPostion(vec2(-0.125, 0.15));
 
@@ -706,7 +706,7 @@ void MainScene::InitGui()
 
     {
         auto button =
-            guiElementFactory_->CreateGuiButton([]() { std::cout << "Load Game BUTTON  pressed." << std::endl; });
+            guiElementFactory_->CreateGuiButton([](auto&) { std::cout << "Load Game BUTTON  pressed." << std::endl; });
         button->SetScale(vec2(0.1, 0.05));
         button->SetPostion(vec2(-0.125, 0.05));
 

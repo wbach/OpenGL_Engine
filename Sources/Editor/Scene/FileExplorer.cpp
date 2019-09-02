@@ -42,14 +42,15 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
     if (not layout or not window_)
         return;
 
-    auto okButton = guiFactory_.CreateGuiButton("ok", [onChoose, this]() {
-        if (onChoose(currentDir_->GetTextString() + "/" + seletedFileText_->GetTextString()))
+    auto okButton = guiFactory_.CreateGuiButton("ok", [onChoose, this](auto&) {
+        auto filename = currentDir_->GetTextString() + "/" + seletedFileText_->GetTextString();
+        if (onChoose(filename))
         {
             window_->MarkToRemove();
         }
         else
         {
-            guiFactory_.CreateMessageBox("Error", "File not supported.");
+            guiFactory_.CreateMessageBox("Error", "File " + filename + " not supported.");
         }
     });
 
@@ -91,7 +92,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
 {
     currentDir_->SetText(dir);
 
-    auto onClickRoot = [this, layout, onChoose]() {
+    auto onClickRoot = [this, layout, onChoose](auto&) {
         layout->RemoveAll();
         layout->ResetView();
         FillFileList(layout, "/", onChoose);
@@ -103,7 +104,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
 
     if (not parentDir.empty())
     {
-        auto onClick = [this, parentDir, layout, onChoose]() {
+        auto onClick = [this, parentDir, layout, onChoose](auto&) {
             layout->RemoveAll();
             layout->ResetView();
             FillFileList(layout, parentDir, onChoose);
@@ -125,13 +126,13 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
             case Utils::File::Type::RegularFile:
             {
                 auto rawFileName = Utils::GetFilenameWithExtension(file.name);
-                auto onClick     = [rawFileName, this]() { seletedFileText_->SetText(rawFileName); };
+                auto onClick     = [rawFileName, this](auto&) { seletedFileText_->SetText(rawFileName); };
                 CreateButtonWithFilename(rawFileName, layout, onClick);
             }
             break;
             case Utils::File::Type::Directory:
             {
-                auto onClick = [this, file, layout, onChoose]() {
+                auto onClick = [this, file, layout, onChoose](auto&) {
                     layout->RemoveAll();
                     layout->ResetView();
                     FillFileList(layout, file.name, onChoose);
@@ -145,7 +146,7 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
     }
 }
 
-void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout *layout, std::function<void()> onClick)
+void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout *layout, GameEngine::ActionFunction onClick)
 {
     auto button = guiFactory_.CreateGuiButton(filename, onClick);
     button->SetZPosition(-1.f);

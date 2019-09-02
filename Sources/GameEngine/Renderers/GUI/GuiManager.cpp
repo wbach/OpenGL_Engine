@@ -3,8 +3,11 @@
 
 namespace GameEngine
 {
-GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe,
-                       std::function<void(const GuiElement&)> unsubscribeElement, std::function<void()> unsubscribeAll)
+namespace
+{
+const std::string DEFAULT_ACTION = "DefaultAction";
+}
+GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, std::function<void()> unsubscribeAll)
     : subscribe_(renderSubscribe)
     , unsubscribeAll_(unsubscribeAll)
     , unsubscribeElement_(unsubscribeElement)
@@ -80,12 +83,21 @@ ActionFunction GuiManager::GetActionFunction(const std::string& name)
     {
         return registeredActions_.at(name);
     }
-    return []() { DEBUG_LOG("Button action not found."); };
+    if (registeredActions_.count(DEFAULT_ACTION))
+    {
+        return registeredActions_.at(DEFAULT_ACTION);
+    }
+    return [](auto&) { DEBUG_LOG("Button action not found. Default action not set."); };
 }
 
 void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
 {
     registeredActions_.insert({name, action});
+}
+
+void GuiManager::RegisterDefaultAction(ActionFunction action)
+{
+    registeredActions_.insert({DEFAULT_ACTION, action});
 }
 
 bool GuiManager::SaveToFile(const std::string&)
@@ -110,8 +122,7 @@ void GuiManager::Remove(const GuiElement& element)
 {
     auto id = element.GetId();
 
-    auto iter =
-        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
+    auto iter = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
 
     if (iter != elements_.end())
     {
@@ -136,6 +147,15 @@ void GuiManager::RemoveNotPermaments()
             ++iter;
         }
     }
+}
+
+void GuiManager::RemoveAll()
+{
+    for(auto& element : elements_)
+    {
+        unsubscribeElement_(*element);
+    }
+    elements_.clear();
 }
 
 }  // namespace GameEngine

@@ -37,23 +37,23 @@ int MainMenu::Initialize()
 
     DEBUG_LOG("");
 
-    guiManager_->RegisterAction("StartGame()", [&]() {
+    guiManager_->RegisterAction("StartGame()", [&](auto&) {
         SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 1);
         addSceneEvent(sceneEvent);
     });
 
-    guiManager_->RegisterAction("LoadGame()", [&]() { DEBUG_LOG("Load game button pressed"); stateToChange_ = State::LOAD_GAME; });
+    guiManager_->RegisterAction("LoadGame()", [&](auto&) { DEBUG_LOG("Load game button pressed"); stateToChange_ = State::LOAD_GAME; });
 
-    guiManager_->RegisterAction("Settings()", [&]() {
+    guiManager_->RegisterAction("Settings()", [&](auto&) {
         DEBUG_LOG("Settings button pressed");
         stateToChange_ = State::SETTINGS;
     });
 
-    guiManager_->RegisterAction("Exit()", [&]() { /*DEBUG_LOG("Exit game button pressed"); */
+    guiManager_->RegisterAction("Exit()", [&](auto&) { /*DEBUG_LOG("Exit game button pressed"); */
                                                   addEngineEvent(EngineEvent::QUIT);
     });
 
-    guiManager_->RegisterAction("BackToMainMenu()", [&]() {
+    guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {
         stateToChange_ = State::MAIN;
     });
 

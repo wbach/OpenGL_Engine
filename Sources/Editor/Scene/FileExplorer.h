@@ -22,7 +22,7 @@ public:
 private:
     void FillFileList(GameEngine::VerticalLayout* layout, const std::string& dir,
                       std::function<void(const std::string&)>);
-    void CreateButtonWithFilename(const std::string&, GameEngine::VerticalLayout*, std::function<void()>);
+    void CreateButtonWithFilename(const std::string&, GameEngine::VerticalLayout*, GameEngine::ActionFunction);
 
 private:
     GameEngine::GuiManager& guiManager_;

@@ -96,7 +96,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const
         }
     }
 
-    auto closeButton  = CreateGuiButton([result]() { result->MarkToRemove(); });
+    auto closeButton  = CreateGuiButton([result](auto&) { result->MarkToRemove(); });
     auto closeButtonX = CreateGuiText(theme_.font, "X", 32, 0);
     closeButton->SetScale(closeButtonX->GetScale());
     closeButton->SetText(closeButtonX);
@@ -108,7 +108,7 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const
     return result;
 }
 
-GuiButtonElement *GuiElementFactory::CreateGuiButton(std::function<void()> onClick)
+GuiButtonElement *GuiElementFactory::CreateGuiButton(ActionFunction onClick)
 {
     auto isOnTop = [this](uint32 id) {
         auto mousePosition          = inputManager_.GetMousePosition();
@@ -153,7 +153,7 @@ GuiButtonElement *GuiElementFactory::CreateGuiButton(std::function<void()> onCli
     return result;
 }
 
-GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &text, std::function<void()> onclick)
+GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &text, ActionFunction onclick)
 {
     auto button  = CreateGuiButton(onclick);
     auto guiText = CreateGuiText(text);
@@ -215,7 +215,7 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     auto messageText = CreateGuiText(message);
     window->AddChild(messageText);
 
-    auto button = CreateGuiButton("ok", [window, okFunc]() {
+    auto button = CreateGuiButton("ok", [window, okFunc](auto&) {
         window->MarkToRemove();
         if (okFunc)
             okFunc();
@@ -401,7 +401,7 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
         return nullptr;
     }
 
-    std::function<void()> onClick = []() {};
+    ActionFunction onClick;
 
     auto paramNode = node.GetChild("action");
     if (paramNode)
@@ -667,9 +667,11 @@ void ReadTheme(Utils::XmlNode &node, GuiElementFactory &factory)
 
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 {
+    DEBUG_LOG(filename);
+
     if (not Utils::CheckExtension(filename, "xml"))
     {
-        ERROR_LOG("This is not xml file. Format should be \".xml\".");
+        ERROR_LOG("This is not xml file. Format should be \".xml\". File name : " + filename);
         return false;
     }
 
@@ -680,15 +682,6 @@ bool GuiElementFactory::ReadGuiFile(const std::string &filename)
         return false;
     }
 
-    auto md5Value = md5(fileContent);
-
-    if (md5Value == lastGuiFileMd5Value_)
-    {
-        return false;
-    }
-
-    DEBUG_LOG("Gui file changed. Parsing : " + filename);
-    lastGuiFileMd5Value_ = md5Value;
     guiManager_.RemoveNotPermaments();
 
     Utils::XmlReader reader;

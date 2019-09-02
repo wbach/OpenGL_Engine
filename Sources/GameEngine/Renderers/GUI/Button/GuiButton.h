@@ -9,7 +9,7 @@ namespace GameEngine
 class GuiTextElement;
 class GuiTextureElement;
 
-typedef std::function<void()> OnClick;
+typedef std::function<void(GuiElement&)> OnClick;
 
 class GuiButtonElement : public GuiElement
 {
