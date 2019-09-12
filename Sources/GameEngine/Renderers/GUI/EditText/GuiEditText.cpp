@@ -7,16 +7,15 @@ namespace GameEngine
 {
 GuiElementTypes GuiEditBoxElement::type = GuiElementTypes::EditBox;
 
-GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, GuiTextElement &cursor, Input::InputManager &inputManager,
-                                     const vec2ui &windowSize)
+GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::unique_ptr<GuiTextElement> cursor, Input::InputManager &inputManager, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
-    , text_(text)
-    , cursor_(cursor)
+    , text_(std::move(text))
+    , cursor_(std::move(cursor))
     , backgroundTexture_{nullptr}
     , timer_(false, 500)
 {
-    cursor_.Hide();
+    cursor_->Hide();
     lmouseSubscribtrion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         auto position = inputManager_.GetMousePosition();
 
@@ -25,19 +24,19 @@ GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, GuiTextElement &curso
             if (textInput_)
             {
                 textInput_.reset();
-                cursor_.Hide();
+                cursor_->Hide();
             }
             else
             {
-                cursor_.Show();
-                textInput_ = std::make_unique<TextInput>(inputManager_, text_);
+                cursor_->Show();
+                textInput_ = std::make_unique<TextInput>(inputManager_, *text_);
             }
         }
         else
         {
             if (textInput_)
             {
-                cursor_.Hide();
+                cursor_->Hide();
                 textInput_.reset();
             }
         }
@@ -46,24 +45,23 @@ GuiEditBoxElement::GuiEditBoxElement(GuiTextElement &text, GuiTextElement &curso
     entersubscribion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::ENTER, [this]() {
         if (textInput_)
         {
-            cursor_.Hide();
+            cursor_->Hide();
             textInput_.reset();
         }
 
         if (onEnterAction_)
         {
-            onEnterAction_(text_.GetText());
+            onEnterAction_(text_->GetText());
         }
     });
 
-    timer_.AddOnTickCallback([this]()
-    {
+    timer_.AddOnTickCallback([this]() {
         if (IsShow() and textInput_)
         {
-            if (cursor_.IsShow())
-                cursor_.Hide();
+            if (cursor_->IsShow())
+                cursor_->Hide();
             else
-                cursor_.Show();
+                cursor_->Show();
         }
     });
 }
@@ -72,8 +70,8 @@ GuiEditBoxElement::~GuiEditBoxElement()
     if (backgroundTexture_)
         backgroundTexture_->MarkToRemove();
 
-    text_.MarkToRemove();
-    cursor_.MarkToRemove();
+    text_->MarkToRemove();
+    cursor_->MarkToRemove();
 
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, lmouseSubscribtrion_);
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::ENTER, entersubscribion_);
@@ -85,27 +83,27 @@ void GuiEditBoxElement::Update()
 
     timer_.CalculateAndLock();
 
-    if (cursor_.IsShow())
+    if (cursor_->IsShow())
     {
-        if (not text_.GetText().empty())
+        if (not text_->GetText().empty())
         {
-            cursor_.SetPostion(text_.GetPosition() + vec2(text_.GetScale().x + cursor_.GetScale().x, 0));
+            cursor_->SetPostion(text_->GetPosition() + vec2(text_->GetScale().x + cursor_->GetScale().x, 0));
         }
         else
         {
-            cursor_.SetPostion(GetPosition());
+            cursor_->SetPostion(GetPosition());
         }
     }
 }
-void GuiEditBoxElement::SetBackgroundTexture(GuiTextureElement *texture)
+void GuiEditBoxElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    backgroundTexture_ = texture;
+    backgroundTexture_ = std::move(texture);
     backgroundTexture_->SetScale(scale_);
 }
 void GuiEditBoxElement::SetRect(const Rect &rect)
 {
-    text_.SetRect(rect);
-    cursor_.SetRect(rect);
+    text_->SetRect(rect);
+    cursor_->SetRect(rect);
     if (backgroundTexture_)
         backgroundTexture_->SetRect(rect);
     GuiElement::SetRect(rect);
@@ -113,7 +111,7 @@ void GuiEditBoxElement::SetRect(const Rect &rect)
 
 void GuiEditBoxElement::SetSize(const vec2ui &size)
 {
-    text_.SetSize(size);
+    text_->SetSize(size);
     if (backgroundTexture_)
         backgroundTexture_->SetSize(size);
     GuiElement::SetSize(size);
@@ -121,7 +119,7 @@ void GuiEditBoxElement::SetSize(const vec2ui &size)
 
 void GuiEditBoxElement::SetScale(const vec2 &scale)
 {
-    text_.SetScale(scale);
+    text_->SetScale(scale);
     if (backgroundTexture_)
         backgroundTexture_->SetScale(scale);
     GuiElement::SetScale(scale);
@@ -129,7 +127,7 @@ void GuiEditBoxElement::SetScale(const vec2 &scale)
 
 void GuiEditBoxElement::SetPostion(const vec2 &position)
 {
-    text_.SetPostion(position);
+    text_->SetPostion(position);
     if (backgroundTexture_)
         backgroundTexture_->SetPostion(position);
     GuiElement::SetPostion(position);
@@ -139,7 +137,7 @@ void GuiEditBoxElement::SetPostion(const vec2ui &position)
 {
     GuiElement::SetPostion(position);
 
-    text_.SetPostion(position);
+    text_->SetPostion(position);
     if (backgroundTexture_)
     {
         backgroundTexture_->SetPostion(position);
@@ -150,8 +148,8 @@ void GuiEditBoxElement::SetZPositionOffset(float offset)
 {
     GuiElement::SetZPositionOffset(offset);
 
-    text_.SetZPositionOffset(GetZTotalValue());
-    cursor_.SetZPositionOffset(GetZTotalValue());
+    text_->SetZPositionOffset(GetZTotalValue());
+    cursor_->SetZPositionOffset(GetZTotalValue());
     if (backgroundTexture_)
     {
         backgroundTexture_->SetZPositionOffset(GetZTotalValue());
@@ -162,8 +160,8 @@ void GuiEditBoxElement::SetZPosition(float z)
 {
     GuiElement::SetZPosition(z);
 
-    text_.SetZPositionOffset(GetZTotalValue());
-    cursor_.SetZPositionOffset(GetZTotalValue());
+    text_->SetZPositionOffset(GetZTotalValue());
+    cursor_->SetZPositionOffset(GetZTotalValue());
 
     if (backgroundTexture_)
         backgroundTexture_->SetZPositionOffset(GetZTotalValue());
@@ -176,8 +174,8 @@ void GuiEditBoxElement::SetOnEnterAction(std::function<void(const std::string &)
 
 void GuiEditBoxElement::Rotate(float r)
 {
-    cursor_.Rotate(r);
-    text_.Rotate(r);
+    cursor_->Rotate(r);
+    text_->Rotate(r);
     if (backgroundTexture_)
         backgroundTexture_->Rotate(r);
     GuiElement::Rotate(r);
@@ -185,8 +183,8 @@ void GuiEditBoxElement::Rotate(float r)
 
 void GuiEditBoxElement::Show(bool b)
 {
-    cursor_.Show(b);
-    text_.Show(b);
+    cursor_->Show(b);
+    text_->Show(b);
     if (backgroundTexture_)
         backgroundTexture_->Show(b);
     GuiElement::Show(b);
@@ -194,8 +192,8 @@ void GuiEditBoxElement::Show(bool b)
 
 void GuiEditBoxElement::Show()
 {
-    cursor_.Show();
-    text_.Show();
+    cursor_->Show();
+    text_->Show();
     if (backgroundTexture_)
         backgroundTexture_->Show();
     GuiElement::Show();
@@ -203,8 +201,8 @@ void GuiEditBoxElement::Show()
 
 void GuiEditBoxElement::Hide()
 {
-    cursor_.Hide();
-    text_.Hide();
+    cursor_->Hide();
+    text_->Hide();
     if (backgroundTexture_)
         backgroundTexture_->Hide();
     GuiElement::Hide();
@@ -212,23 +210,23 @@ void GuiEditBoxElement::Hide()
 
 const std::string &GuiEditBoxElement::GetTextString() const
 {
-    return text_.GetText();
+    return text_->GetText();
 }
 
 void GuiEditBoxElement::SetText(const std::string &text)
 {
-    text_.SetText(text);
+    text_->SetText(text);
 }
 
 void GuiEditBoxElement::SetTextColor(const vec3 &color)
 {
-    text_.SetColor(color);
-    cursor_.SetColor(color);
+    text_->SetColor(color);
+    cursor_->SetColor(color);
 }
 void GuiEditBoxElement::SetPermamanet(bool is)
 {
-    cursor_.SetPermamanet(is);
-    text_.SetPermamanet(is);
+    cursor_->SetPermamanet(is);
+    text_->SetPermamanet(is);
 
     if (backgroundTexture_)
         backgroundTexture_->SetPermamanet(is);

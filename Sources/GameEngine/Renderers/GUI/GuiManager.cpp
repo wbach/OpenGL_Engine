@@ -1,4 +1,5 @@
 #include "GuiManager.h"
+#include <Utils/XML/XmlWriter.h>
 #include <algorithm>
 
 namespace GameEngine
@@ -7,27 +8,13 @@ namespace
 {
 const std::string DEFAULT_ACTION = "DefaultAction";
 }
-GuiManager::GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, std::function<void()> unsubscribeAll)
-    : subscribe_(renderSubscribe)
-    , unsubscribeAll_(unsubscribeAll)
-    , unsubscribeElement_(unsubscribeElement)
-{
-}
 void GuiManager::Add(std::unique_ptr<GuiElement> element)
 {
-    if (element == nullptr)
-    {
-        ERROR_LOG("Add nullptr");
-        return;
-    }
-
-    subscribe_(*element.get());
     elements_.push_back(std::move(element));
 }
 GuiElement* GuiManager::GetElement(const std::string& label)
 {
-    auto element = std::find_if(elements_.begin(), elements_.end(),
-                                [&label](const auto& element) { return element->GetLabel() == label; });
+    auto element = std::find_if(elements_.begin(), elements_.end(), [&label](const auto& element) { return element->GetLabel() == label; });
 
     if (element != elements_.end())
     {
@@ -41,8 +28,7 @@ GuiElement* GuiManager::GetElement(const std::string& label)
 }
 GuiElement* GuiManager::GetElement(uint32 id)
 {
-    auto element =
-        std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
+    auto element = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
 
     if (element != elements_.end())
     {
@@ -66,7 +52,6 @@ void GuiManager::Update()
 
         if (element and element->IsMarkToRemove())
         {
-            unsubscribeElement_(*element);
             iter = elements_.erase(iter);
         }
         else
@@ -74,6 +59,15 @@ void GuiManager::Update()
             element->Update();
             ++iter;
         }
+    }
+
+    if (not tasks_.empty())
+    {
+        for (auto& task : tasks_)
+        {
+            task();
+        }
+        tasks_.clear();
     }
 }
 
@@ -90,6 +84,11 @@ ActionFunction GuiManager::GetActionFunction(const std::string& name)
     return [](auto&) { DEBUG_LOG("Button action not found. Default action not set."); };
 }
 
+void GuiManager::AddTask(std::function<void()> task)
+{
+    tasks_.push_back(task);
+}
+
 void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
 {
     registeredActions_.insert({name, action});
@@ -100,9 +99,11 @@ void GuiManager::RegisterDefaultAction(ActionFunction action)
     registeredActions_.insert({DEFAULT_ACTION, action});
 }
 
-bool GuiManager::SaveToFile(const std::string&)
+bool GuiManager::SaveToFile(const std::string& filename)
 {
-    return false;
+    Utils::XmlNode root("gui");
+    Utils::Xml::Write(filename, root);
+    return true;
 }
 
 void GuiManager::Remove(uint32 id)
@@ -126,7 +127,6 @@ void GuiManager::Remove(const GuiElement& element)
 
     if (iter != elements_.end())
     {
-        unsubscribeElement_(element);
         elements_.erase(iter);
     }
 }
@@ -136,10 +136,9 @@ void GuiManager::RemoveNotPermaments()
     DEBUG_LOG("");
     for (auto iter = elements_.begin(); iter != elements_.end();)
     {
-        if (not (*iter)->IsPermament())
+        if (not(*iter)->IsPermament())
         {
             DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
-            unsubscribeElement_(**iter);
             iter = elements_.erase(iter);
         }
         else
@@ -151,10 +150,6 @@ void GuiManager::RemoveNotPermaments()
 
 void GuiManager::RemoveAll()
 {
-    for(auto& element : elements_)
-    {
-        unsubscribeElement_(*element);
-    }
     elements_.clear();
 }
 

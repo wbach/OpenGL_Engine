@@ -10,13 +10,16 @@
 
 namespace GameEngine
 {
+class GuiElement;
 class GuiTextElement;
 class IResourceManager;
 
 class GuiTextFactory : public IGuiTextFactory
 {
 public:
-    GuiTextFactory(IResourceManager&, const vec2ui& windowSize);
+    GuiTextFactory(std::function<void(GuiElement&)> renderSubscribe,
+                   std::function<void(const GuiElement&)> unsubscribeElement, IResourceManager&,
+                   const vec2ui& windowSize);
     ~GuiTextFactory();
 
 public:
@@ -30,5 +33,7 @@ private:
     IResourceManager& resourceManager_;
     GraphicsApi::IWindowApi& windowApi_;
     const vec2ui windowSize_;
+    std::function<void(GuiElement&)> renderSubscribe_;
+    std::function<void(const GuiElement&)> unsubscribeElement_;
 };
 }  // namespace GameEngine

@@ -9,10 +9,13 @@
 
 namespace GameEngine
 {
-GuiTextFactory::GuiTextFactory(IResourceManager& resourceManager, const vec2ui& windowSize)
+GuiTextFactory::GuiTextFactory(std::function<void(GuiElement&)> renderSubscribe,
+    std::function<void(const GuiElement&)> unsubscribeElement, IResourceManager& resourceManager, const vec2ui& windowSize)
     : resourceManager_(resourceManager)
     , windowApi_(resourceManager.GetGraphicsApi().GetWindowApi())
     , windowSize_(windowSize)
+    , renderSubscribe_(renderSubscribe)
+    , unsubscribeElement_(unsubscribeElement)
 {
 }
 
@@ -24,7 +27,7 @@ std::unique_ptr<GuiTextElement> GuiTextFactory::Create(const std::string& font, 
                                                        uint32 fontSize, uint32 outline)
 {
     auto textElement =
-        std::make_unique<GuiTextElement>(std::bind(&GuiTextFactory::UpdateTexture, this, std::placeholders::_1),
+        std::make_unique<GuiTextElement>(renderSubscribe_, unsubscribeElement_, std::bind(&GuiTextFactory::UpdateTexture, this, std::placeholders::_1),
                                          windowApi_, windowSize_, font, text, fontSize, outline);
     return textElement;
 }

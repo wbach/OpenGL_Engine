@@ -29,7 +29,10 @@ Console::Console(Scene &scene)
     , currentCommand_{nullptr}
     , commandHistoryIndex_{0}
 {
-    window_ = scene_.guiElementFactory_->CreateGuiWindow(vec2(0, 0.5), vec2(1, 0.5));
+    auto window = scene_.guiElementFactory_->CreateGuiWindow(vec2(0, 0.5), vec2(1, 0.5));
+    window_     = window.get();
+    scene_.guiManager_->Add(std::move(window));
+
     if (not window_)
         return;
 
@@ -133,18 +136,20 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     {
         MoveUpTexts();
         auto text = scene_.guiElementFactory_->CreateGuiText(EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
-        result    = text;
         text->SetAlgin(GuiTextElement::Algin::LEFT);
-        guiTexts_.push_back(text);
         text->SetPostion(DEFAULT_TEXT_POSITION);
-        window_->AddChild(text);
+
+        result = text.get();
+        guiTexts_.push_back(result);
+        window_->AddChild(std::move(text));
     }
     else
     {
+        const auto &windowPosition = window_->GetPosition();
+
         MoveUpTexts();
         result = guiTexts_.front();
         result->SetText(COMMAND_CURRSOR);
-        const auto &windowPosition = window_->GetPosition();
         result->SetPostion(windowPosition + DEFAULT_TEXT_POSITION);
         guiTexts_.pop_front();
         guiTexts_.push_back(result);

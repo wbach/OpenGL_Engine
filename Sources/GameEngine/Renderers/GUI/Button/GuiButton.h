@@ -14,13 +14,14 @@ typedef std::function<void(GuiElement&)> OnClick;
 class GuiButtonElement : public GuiElement
 {
 public:
-    GuiButtonElement(std::function<bool(uint32)>, Input::InputManager&, OnClick, const vec2ui&);
+    GuiButtonElement(std::function<bool(GuiElement&)>, Input::InputManager&, OnClick, const vec2ui&);
     ~GuiButtonElement();
     virtual void Update() override;
-    void SetText(GuiTextElement*);
-    void SetBackgroundTexture(GuiTextureElement*);
-    void SetOnHoverTexture(GuiTextureElement*);
-    void SetOnActiveTexture(GuiTextureElement*);
+
+    void SetText(std::unique_ptr<GuiTextElement>);
+    void SetBackgroundTexture(std::unique_ptr<GuiTextureElement>);
+    void SetOnHoverTexture(std::unique_ptr<GuiTextureElement>);
+    void SetOnActiveTexture(std::unique_ptr<GuiTextureElement>);
 
     void SetHoverTextColor(const vec3& color);
     void SetActiveTextColor(const vec3& color);
@@ -41,16 +42,18 @@ public:
     GuiTextElement* GetText();
 
 private:
+    void SetTexture(std::unique_ptr<GuiTextureElement>&, std::unique_ptr<GuiTextureElement>&);
     void SubscribeInputAction();
     void UnsubscribeInputAction();
 
 private:
     Input::InputManager& inputManager_;
     OnClick onClick_;
-    GuiTextElement* text_;
-    GuiTextureElement* backgroundTexture_;
-    GuiTextureElement* onHoverTexture_;
-    GuiTextureElement* onActiveTextue_;
+
+    std::unique_ptr<GuiTextElement> text_;
+    std::unique_ptr<GuiTextureElement> backgroundTexture_;
+    std::unique_ptr<GuiTextureElement> onHoverTexture_;
+    std::unique_ptr<GuiTextureElement> onActiveTextue_;
 
     vec3 backgroundTextColor_;
     vec3 onHoverTextColor_;
@@ -58,7 +61,7 @@ private:
 
     Utils::Timer activeTimer_;
     std::optional<uint32> subscribtion_;
-    std::function<bool(uint32)> isOnTop_;
+    std::function<bool(GuiElement&)> isOnTop_;
 
 public:
     static GuiElementTypes type;

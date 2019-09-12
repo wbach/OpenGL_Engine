@@ -1,3 +1,4 @@
+
 #include "GuiWindow.h"
 #include "Logger/Log.h"
 
@@ -43,21 +44,17 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
 
 GuiWindowElement::~GuiWindowElement()
 {
-    for (auto& child : children_)
-    {
-        child->MarkToRemove();
-    }
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyDown_);
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyUp_);
-
     children_.clear();
 }
 
-void GuiWindowElement::AddChild(GuiElement* element)
+void GuiWindowElement::AddChild(std::unique_ptr<GuiElement> element)
 {
     element->SetZPositionOffset(GetZTotalValue());
+    element->Show(IsShow());
     UpdatePosition(*element, position_);
-    children_.push_back(element);
+    children_.push_back(std::move(element));
 }
 
 void GuiWindowElement::SetRect(const Rect &rect)
@@ -71,6 +68,11 @@ void GuiWindowElement::SetRect(const Rect &rect)
 
 void GuiWindowElement::Update()
 {
+    for(auto& child : children_)
+    {
+        child->Update();
+    }
+
     if (not collisionPoint_)
         return;
 
@@ -105,7 +107,7 @@ void GuiWindowElement::SetScale(const vec2& scale)
 
 void GuiWindowElement::Show(bool b)
 {
-    for (auto child : children_)
+    for (auto& child : children_)
     {
         child->Show(b);
     }
@@ -114,7 +116,7 @@ void GuiWindowElement::Show(bool b)
 
 void GuiWindowElement::Show()
 {
-    for (auto child : children_)
+    for (auto& child : children_)
     {
         child->Show();
     }
@@ -123,7 +125,7 @@ void GuiWindowElement::Show()
 
 void GuiWindowElement::Hide()
 {
-    for (auto child : children_)
+    for (auto& child : children_)
     {
         child->Hide();
     }
@@ -133,7 +135,7 @@ void GuiWindowElement::Hide()
 void GuiWindowElement::SetZPosition(float z)
 {
     GuiElement::SetZPosition(z);
-    for (auto child : children_)
+    for (auto& child : children_)
     {
         child->SetZPositionOffset(GetZTotalValue());
     }
@@ -142,7 +144,7 @@ void GuiWindowElement::SetZPosition(float z)
 void GuiWindowElement::SetZPositionOffset(float offset)
 {
     GuiElement::SetZPositionOffset(offset);
-    for (auto child : children_)
+    for (auto& child : children_)
     {
         child->SetZPositionOffset(GetZTotalValue());
     }
@@ -155,6 +157,18 @@ void GuiWindowElement::SetPermamanet(bool is)
         child->SetPermamanet(is);
     }
     GuiElement::SetPermamanet(is);
+}
+
+bool GuiWindowElement::CompareZValue(const GuiElement & element) const
+{
+    for (auto& child : children_)
+    {
+        if (not child->CompareZValue(element))
+        {
+            return false;
+        }
+    }
+    return GuiElement::CompareZValue(element);
 }
 
 }  // namespace GameEngine

@@ -4,9 +4,8 @@ namespace GameEngine
 {
 GuiElementTypes VerticalLayout::type = GuiElementTypes::VerticalLayout;
 
-VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &inputManager,
-                               std::function<void(uint32)> unsubscribe)
-    : Layout(type, windowSize, unsubscribe)
+VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &inputManager)
+    : Layout(type, windowSize)
     , inputManager_(inputManager)
     , algin_(Algin::CENTER)
     , viewPosition_(0.f)
@@ -40,9 +39,9 @@ void VerticalLayout::ResetView()
     viewPosition_ = 0.f;
 }
 
-LayoutElementWrapper &VerticalLayout::AddChild(GuiElement *element)
+LayoutElementWrapper &VerticalLayout::AddChild(std::unique_ptr<GuiElement> element)
 {
-    return Layout::AddChild(element, [this]() { OnChange(); });
+    return Layout::AddChild(std::move(element), [this]() { OnChange(); });
 }
 
 void VerticalLayout::SetAlgin(Algin algin)
@@ -68,24 +67,24 @@ void VerticalLayout::OnChange()
     if (children_.empty())
         return;
 
-    const auto& firstChild = children_[0].Get();
+    const auto& firstChild = children_[0]->Get();
     vec2 newPosition = position_;
     newPosition.x    = CalculateXPosition(firstChild);
     newPosition.y += scale_.y - firstChild.GetScale().y - viewPosition_;
-    children_[0].SetPositionWithoutNotif(newPosition);
+    children_[0]->SetPositionWithoutNotif(newPosition);
 
     for (std::size_t i = 1; i < children_.size(); ++i)
     {
-        const auto &oldPosition     = children_[i].Get().GetPosition();
-        const auto &parentPositionY = children_[i - 1].Get().GetPosition().y;
-        const auto &parentScaleY    = children_[i - 1].Get().GetScale().y;
+        const auto &oldPosition     = children_[i]->Get().GetPosition();
+        const auto &parentPositionY = children_[i - 1]->Get().GetPosition().y;
+        const auto &parentScaleY    = children_[i - 1]->Get().GetScale().y;
 
-        newPosition.x = CalculateXPosition(children_[i].Get());
+        newPosition.x = CalculateXPosition(children_[i]->Get());
         newPosition.y = parentPositionY - (2.f * parentScaleY);
 
         if (oldPosition != newPosition)
         {
-            children_[i].SetPositionWithoutNotif(newPosition);
+            children_[i]->SetPositionWithoutNotif(newPosition);
         }
     }
 
@@ -114,17 +113,17 @@ void VerticalLayout::UpdateVisibility()
 
     for (auto &element : children_)
     {
-        if (element.Get().GetPosition().y - element.Get().GetScale().y < position_.y - scale_.y or
-            element.Get().GetPosition().y + element.Get().GetScale().y > position_.y + scale_.y)
+        if (element->Get().GetPosition().y - element->Get().GetScale().y < position_.y - scale_.y or
+            element->Get().GetPosition().y + element->Get().GetScale().y > position_.y + scale_.y)
         {
-            element.HideWithoutNotif();
+            element->HideWithoutNotif();
         }
         else
         {
-            element.ShowWithoutNotif();
+            element->ShowWithoutNotif();
         }
 
-        totalYScale_ += 2.f * element.Get().GetScale().y;
+        totalYScale_ += 2.f * element->Get().GetScale().y;
     }
 }
 

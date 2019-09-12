@@ -68,8 +68,6 @@ void MainMenu::PostInitialize()
 
 int MainMenu::Update(float)
 {
-    guiElementFactory_->ReadGuiFile(mainMenuGuiFile);
-
     if (stateToChange_)
     {
         ChangeState(*stateToChange_);

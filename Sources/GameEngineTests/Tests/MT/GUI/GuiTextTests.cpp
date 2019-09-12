@@ -16,16 +16,13 @@ struct GuiTextElementShould : public BaseComponentTestSchould
     GuiTextElementShould()
     {
         sdlApi_.Init();
-        sut_ = std::make_unique<GuiTextElement>(
-            std::bind(&GuiTextElementShould::UpdateTextureFunction, this, std::placeholders::_1), sdlApi_, windowSize,
-            fontStr);
+        auto subscribe   = [](GuiElement&) {};
+        auto unsubscribe = [](const GuiElement&) {};
+        auto updateTextureFunction = [](GuiTextElement&){};
+
+        sut_ = std::make_unique<GuiTextElement>(subscribe, unsubscribe, updateTextureFunction, sdlApi_, windowSize, fontStr);
     }
-    void SetUp()
-    {
-    }
-    void UpdateTextureFunction(GuiTextElement&)
-    {
-    }
+
     OpenGLApi::SdlOpenGlApi sdlApi_;
     std::unique_ptr<GuiTextElement> sut_;
 };

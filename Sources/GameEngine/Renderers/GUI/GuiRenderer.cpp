@@ -114,9 +114,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
 
 void GUIRenderer::SortSubscribers()
 {
-    std::sort(subscribers_.begin(), subscribers_.end(),
-        [](const auto& l, const auto& r) { return l->GetZTotalValue() > r->GetZTotalValue(); });
-
+    std::sort(subscribers_.begin(), subscribers_.end(), [](const auto& l, const auto& r) { return l->GetZTotalValue() > r->GetZTotalValue(); });
 }
 
 void GUIRenderer::Subscribe(GuiElement& element)
@@ -126,8 +124,11 @@ void GUIRenderer::Subscribe(GuiElement& element)
         std::lock_guard<std::mutex> lk(subscriberMutex);
         auto guiBaseRendererElement = static_cast<GuiRendererElementBase*>(&element);
         subscribers_.push_back(guiBaseRendererElement);
-
         SortSubscribers();
+    }
+    else
+    {
+        ERROR_LOG("Wrong type gui element, id: " + std::to_string(element.GetId()));
     }
 }
 
@@ -139,7 +140,6 @@ void GUIRenderer::UnSubscribeAll()
 
 void GUIRenderer::UnSubscribe(uint32 id)
 {
-    DEBUG_LOG(std::to_string(id));
     std::lock_guard<std::mutex> lk(subscriberMutex);
     auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto text) { return text->GetId() == id; });
 
@@ -149,7 +149,7 @@ void GUIRenderer::UnSubscribe(uint32 id)
     }
 }
 
-void GUIRenderer::UnSubscribe(const GuiElement &element)
+void GUIRenderer::UnSubscribe(const GuiElement& element)
 {
     if (element.GetType() == GuiElementTypes::Text or element.GetType() == GuiElementTypes::Texture)
     {

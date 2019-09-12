@@ -12,11 +12,12 @@ namespace GameEngine
 class Layout : public GuiElement
 {
 public:
-    Layout(GuiElementTypes type, const vec2ui& windowSize, std::function<void(uint32)> unsubscribe);
+    Layout(GuiElementTypes type, const vec2ui& windowSize);
     ~Layout();
+    virtual void Update();
     virtual void ResetView();
-    virtual LayoutElementWrapper& AddChild(GuiElement*) = 0;
-    virtual LayoutElementWrapper& AddChild(GuiElement*, std::function<void()>);
+    virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>) = 0;
+    virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>, std::function<void()>);
     virtual void Remove(GuiElement*);
     virtual void Remove(uint32 id);
     virtual void RemoveAll();
@@ -30,9 +31,9 @@ public:
     virtual void SetZPosition(float z) override;
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetPermamanet(bool) override;
+    virtual bool CompareZValue(const GuiElement&) const override;
 
 protected:
-    std::vector<LayoutElementWrapper> children_;
-    std::function<void(uint32)> unsubscribe_;
+    std::vector<std::unique_ptr<LayoutElementWrapper>> children_;
 };
 }  // namespace GameEngine

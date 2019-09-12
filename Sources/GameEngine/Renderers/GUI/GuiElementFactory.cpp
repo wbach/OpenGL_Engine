@@ -24,66 +24,71 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , resourceManager_(entryParameters.resourceManager_)
     , renderersManager_(entryParameters.renderersManager_)
     , windowSize_(entryParameters.renderersManager_.GetProjection().GetRenderingSize())
-    , guiTextFactory_(entryParameters.resourceManager_, EngineConf.renderer.resolution)
-    , unsubscribe_([this](uint32 id) { renderersManager_.GetGuiRenderer().UnSubscribe(id); })
+    , renderSubscribe_([this](GuiElement &element) { renderersManager_.GetGuiRenderer().Subscribe(element); })
+    , unsubscribeElement_([this](const GuiElement &element) { renderersManager_.GetGuiRenderer().UnSubscribe(element); })
+    , guiTextFactory_(renderSubscribe_, unsubscribeElement_, entryParameters.resourceManager_, EngineConf.renderer.resolution)
     , guiElementCounter_(0)
 {
+    isOnTop_ = [this](GuiElement &checkingElement) {
+        auto mousePosition = inputManager_.GetMousePosition();
+        for (const auto &element : guiManager_.GetElements())
+        {
+            if (element->GetType() == GuiElementTypes::Text or element->GetId() == element->GetId())
+            {
+                continue;
+            }
+
+            if (element->IsShow() and element->IsCollision(mousePosition) and element->CompareZValue(checkingElement))
+            {
+                return false;
+            }
+        }
+        return true;
+    };
 }
 
-GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &font, const std::string &str, uint32 size,
-                                                 uint32 outline)
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &str, uint32 size, uint32 outline)
 {
-    auto text   = guiTextFactory_.Create(EngineConf_GetFullDataPathAddToRequierd(font), str, size, outline);
-    auto result = text.get();
-    guiManager_.Add(std::move(text));
+    auto result = guiTextFactory_.Create(EngineConf_GetFullDataPathAddToRequierd(font), str, size, outline);
     return result;
 }
 
-GuiTextElement *GuiElementFactory::CreateGuiText(const std::string &text)
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &text)
 {
     return CreateGuiText(theme_.font, text, theme_.fontSize_, theme_.fontOutline);
 }
 
-GuiTextureElement *GuiElementFactory::CreateGuiTexture(const std::string &filename)
+std::unique_ptr<GuiTextureElement> GuiElementFactory::CreateGuiTexture(const std::string &filename)
 {
-    auto guiTexture = MakeGuiTexture(filename);
-    if (not guiTexture)
-    {
-        return nullptr;
-    }
-
-    auto result = guiTexture.get();
-    guiManager_.Add(std::move(guiTexture));
-    return result;
+    auto texture = MakeGuiTexture(filename);
+    return texture;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const Rect &rect)
+std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const Rect &rect)
 {
     auto result = CreateGuiWindow(vec2(), vec2());
     result->SetRect(rect);
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const Rect &rect, const std::string &backgorund)
+std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const Rect &rect, const std::string &backgorund)
 {
     auto result = CreateGuiWindow(vec2(), vec2(), backgorund);
     result->SetRect(rect);
     return result;
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const vec2 &scale)
+std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const vec2 &position, const vec2 &scale)
 {
     return CreateGuiWindow(position, scale, theme_.backgroundTexture);
 }
 
-GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const vec2 &scale,
-                                                     const std::string &backgorund)
+std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const vec2 &position, const vec2 &scale, const std::string &backgorund)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(windowSize_, inputManager_);
     guiWindow->SetPostion(position);
     guiWindow->SetScale(scale);
 
-    auto result = guiWindow.get();
     if (not backgorund.empty())
     {
         auto backgroundGuiTexture = MakeGuiTexture(backgorund);
@@ -91,139 +96,108 @@ GuiWindowElement *GuiElementFactory::CreateGuiWindow(const vec2 &position, const
         {
             backgroundGuiTexture->SetZPosition(0.5f);
             backgroundGuiTexture->SetScale(guiWindow->GetScale());
-            guiWindow->AddChild(backgroundGuiTexture.get());
-            guiManager_.Add(std::move(backgroundGuiTexture));
+            guiWindow->AddChild(std::move(backgroundGuiTexture));
         }
     }
 
-    auto closeButton  = CreateGuiButton([result](auto&) { result->MarkToRemove(); });
+    auto guiWindowPtr = guiWindow.get();
+
+    auto closeButton  = CreateGuiButton([guiWindowPtr](auto &) { guiWindowPtr->MarkToRemove(); });
     auto closeButtonX = CreateGuiText(theme_.font, "X", 32, 0);
     closeButton->SetScale(closeButtonX->GetScale());
-    closeButton->SetText(closeButtonX);
     auto closeButtonPosition = position + scale - closeButtonX->GetScale();
     closeButton->SetPostion(closeButtonPosition);
-    guiWindow->AddChild(closeButton);
 
-    guiManager_.Add(std::move(guiWindow));
-    return result;
+    closeButton->SetText(std::move(closeButtonX));
+    guiWindow->AddChild(std::move(closeButton));
+    return guiWindow;
 }
 
-GuiButtonElement *GuiElementFactory::CreateGuiButton(ActionFunction onClick)
+std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::function<void(GuiElement &)> onClick)
 {
-    auto isOnTop = [this](uint32 id) {
-        auto mousePosition          = inputManager_.GetMousePosition();
-        const auto &checkingElement = guiManager_.GetElement(id);
-        float checkingZ             = checkingElement->GetZTotalValue() - 0.001f;
-
-        for (const auto &element : guiManager_.GetElements())
-        {
-            if (element->GetType() == GuiElementTypes::Text or element->GetId() == checkingElement->GetId())
-            {
-                continue;
-            }
-
-            if (element->IsShow() and element->IsCollision(mousePosition) and element->GetZTotalValue() < checkingZ)
-            {
-                return false;
-            }
-        }
-        return true;
-    };
-
-    auto button = std::make_unique<GuiButtonElement>(isOnTop, inputManager_, onClick, windowSize_);
+    auto button = std::make_unique<GuiButtonElement>(isOnTop_, inputManager_, onClick, windowSize_);
 
     if (not theme_.buttonTexture.empty())
     {
         auto texture = CreateGuiTexture(theme_.buttonTexture);
-        button->SetBackgroundTexture(texture);
+        button->SetBackgroundTexture(std::move(texture));
     }
     if (not theme_.buttonHoverTexture.empty())
     {
         auto texture = CreateGuiTexture(theme_.buttonHoverTexture);
-        button->SetOnHoverTexture(texture);
+        button->SetOnHoverTexture(std::move(texture));
     }
     if (not theme_.buttonActiveTexture.empty())
     {
         auto texture = CreateGuiTexture(theme_.buttonActiveTexture);
-        button->SetOnActiveTexture(texture);
+        button->SetOnActiveTexture(std::move(texture));
     }
 
-    auto result = button.get();
-    guiManager_.Add(std::move(button));
-    return result;
+    return button;
 }
 
-GuiButtonElement *GuiElementFactory::CreateGuiButton(const std::string &text, ActionFunction onclick)
+std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::string &text, std::function<void(GuiElement &)> onclick)
 {
     auto button  = CreateGuiButton(onclick);
     auto guiText = CreateGuiText(text);
     button->SetScale(guiText->GetScale());
-    button->SetText(guiText);
+    button->SetText(std::move(guiText));
     return button;
 }
 
-GuiEditBoxElement *GuiElementFactory::CreateEditBox()
+std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox()
 {
     auto guiText = CreateGuiText("");
-    return CreateEditBox(guiText);
+    return CreateEditBox(std::move(guiText));
 }
 
-GuiEditBoxElement *GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size,
-                                                    uint32 outline)
+std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size, uint32 outline)
 {
     auto text = CreateGuiText(font, str, size, outline);
-    return CreateEditBox(text);
+    return CreateEditBox(std::move(text));
 }
 
-GuiEditBoxElement *GuiElementFactory::CreateEditBox(GuiTextElement *text)
+std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(std::unique_ptr<GuiTextElement> text)
 {
     auto cursor           = CreateGuiText("|");
-    auto editBox          = std::make_unique<GuiEditBoxElement>(*text, *cursor, inputManager_, windowSize_);
-    auto result           = editBox.get();
+    auto editBox          = std::make_unique<GuiEditBoxElement>(std::move(text), std::move(cursor), inputManager_, windowSize_);
     auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
-    editBox->SetBackgroundTexture(editBoxBgTexture);
-    guiManager_.Add(std::move(editBox));
-    return result;
+    editBox->SetBackgroundTexture(std::move(editBoxBgTexture));
+    return editBox;
 }
 
-VerticalLayout *GuiElementFactory::CreateVerticalLayout()
+std::unique_ptr<VerticalLayout> GuiElementFactory::CreateVerticalLayout()
 {
-    auto layout = std::make_unique<VerticalLayout>(windowSize_, inputManager_, unsubscribe_);
-    auto result = layout.get();
-    guiManager_.Add(std::move(layout));
-    return result;
+    return std::make_unique<VerticalLayout>(windowSize_, inputManager_);
 }
 
-HorizontalLayout *GuiElementFactory::CreateHorizontalLayout()
+std::unique_ptr<HorizontalLayout> GuiElementFactory::CreateHorizontalLayout()
 {
-    auto layout = std::make_unique<HorizontalLayout>(windowSize_, inputManager_, unsubscribe_);
-    auto result = layout.get();
-    guiManager_.Add(std::move(layout));
-    return result;
+    return std::make_unique<HorizontalLayout>(windowSize_, inputManager_);
 }
 
-void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message,
-                                         std::function<void()> okFunc)
+void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message, std::function<void()> okFunc)
 {
     auto window = CreateGuiWindow(vec2(0, 0), vec2(0.5, 0.3));
     window->SetZPosition(-100.f);
 
     auto titleText = CreateGuiText(title);
     titleText->SetPostion(vec2(0, 0.275));
-    window->AddChild(titleText);
+    window->AddChild(std::move(titleText));
 
     auto messageText = CreateGuiText(message);
-    window->AddChild(messageText);
+    window->AddChild(std::move(messageText));
 
-    auto button = CreateGuiButton("ok", [window, okFunc](auto&) {
-        window->MarkToRemove();
+    auto windowPtr = window.get();
+    auto button    = CreateGuiButton("ok", [windowPtr, okFunc](auto &) {
+        windowPtr->MarkToRemove();
         if (okFunc)
             okFunc();
     });
 
     button->SetScale(1.5f * button->GetScale());
     button->SetPostion(vec2(0, -0.25));
-    window->AddChild(button);
+    window->AddChild(std::move(button));
 }
 
 void GuiElementFactory::SetTheme(const GuiTheme &theme)
@@ -238,38 +212,23 @@ const GuiTheme &GuiElementFactory::GetTheme() const
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
 {
-    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, false, true, ObjectTextureType::MATERIAL,
-                                                                   TextureFlip::Type::VERTICAL);
+    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, false, true, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
     if (not texture)
     {
         DEBUG_LOG("Texture not loaded : " + filename);
         return nullptr;
     }
 
-    return std::make_unique<GuiTextureElement>(windowSize_, *texture);
+    return std::make_unique<GuiTextureElement>(renderSubscribe_, unsubscribeElement_, windowSize_, *texture);
 }
 
-void ReadGuiElementBasic(GuiElement *element, Utils::XmlNode &node)
+void ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &node)
 {
-    if (not element)
-        return;
-    /*
-    vec2ui windowSize_;
-    Rect rect_;
-    vec2 position_;
-    float zPosition_;
-    vec2 scale_;
-    vec3 color_;
-    mat4 transformMatrix_;
-    float rotation_;
-    bool show_;
-    */
-
     auto paramNode = node.GetChild("color");
     if (paramNode)
     {
         auto color = Utils::ReadVec3(*paramNode);
-        element->SetColor(color);
+        element.SetColor(color);
     }
 
     paramNode = node.GetChild("inBackground");
@@ -277,50 +236,46 @@ void ReadGuiElementBasic(GuiElement *element, Utils::XmlNode &node)
     {
         auto inBackground = Utils::ReadBool(*paramNode);
         if (inBackground)
-            element->SetZPosition(0.1f);
+            element.SetZPosition(0.1f);
     }
 
     paramNode = node.GetChild("position");
     if (paramNode)
     {
         auto position = Utils::ReadVec2(*paramNode);
-        element->SetPostion(position);
+        element.SetPostion(position);
     }
     paramNode = node.GetChild("show");
     if (paramNode)
     {
-        element->Show(Utils::ReadBool(*paramNode));
+        element.Show(Utils::ReadBool(*paramNode));
     }
 
     paramNode = node.GetChild("scale");
     if (paramNode)
     {
-        element->SetScale(Utils::ReadVec2(*paramNode));
+        element.SetScale(Utils::ReadVec2(*paramNode));
     }
 
     paramNode = node.GetChild("label");
     if (paramNode)
     {
-        element->SetLabel(paramNode->value_);
+        element.SetLabel(paramNode->value_);
     }
 
     paramNode = node.GetChild("permamanet");
     if (paramNode)
     {
-        element->SetPermamanet(Utils::ReadBool(*paramNode));
+        element.SetPermamanet(Utils::ReadBool(*paramNode));
     }
     else
     {
-        element->SetPermamanet(false);
+        element.SetPermamanet(false);
     }
 }
 
-GuiTextElement *ReadGuiText(Utils::XmlNode &node, GuiElementFactory &factory)
+std::unique_ptr<GuiTextElement> ReadGuiText(Utils::XmlNode &node, GuiElementFactory &factory)
 {
-    if (node.GetName() != "text")
-    {
-        return nullptr;
-    }
     std::string font = "GUI/Ubuntu-M.ttf", value = "empty string";
     uint32 fontSize = 10, outline = 0;
 
@@ -363,20 +318,13 @@ GuiTextElement *ReadGuiText(Utils::XmlNode &node, GuiElementFactory &factory)
     }
 
     auto text = factory.CreateGuiText(font, value, fontSize, outline);
-
-    ReadGuiElementBasic(text, node);
+    ReadGuiElementBasic(*text, node);
     return text;
 }
 
-GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &factory)
+std::unique_ptr<GuiTextureElement> ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &factory)
 {
-    if (node.GetName() != "texture")
-    {
-        return nullptr;
-    }
-
     std::string filename;
-
     auto paramNode = node.GetChild("file");
 
     if (paramNode)
@@ -391,26 +339,18 @@ GuiTextureElement *ReadGuiTexture(Utils::XmlNode &node, GuiElementFactory &facto
         return nullptr;
     }
 
-    ReadGuiElementBasic(texture, node);
+    ReadGuiElementBasic(*texture, node);
     return texture;
 }
-GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager)
+std::unique_ptr<GuiButtonElement> ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager)
 {
-    if (node.GetName() != "button")
-    {
-        return nullptr;
-    }
-
     ActionFunction onClick;
-
     auto paramNode = node.GetChild("action");
     if (paramNode)
     {
         onClick = manager.GetActionFunction(paramNode->value_);
     }
-
-    auto button = factory.CreateGuiButton(onClick);
-
+    auto button                = factory.CreateGuiButton(onClick);
     auto &children             = node.GetChildren();
     auto backgroundTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
         auto c = child->GetChild("label");
@@ -424,9 +364,8 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
     if (backgroundTextureNode != children.end())
     {
         auto texture = ReadGuiTexture(**backgroundTextureNode, factory);
-
         if (texture)
-            button->SetBackgroundTexture(texture);
+            button->SetBackgroundTexture(std::move(texture));
     }
 
     auto hoverTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
@@ -441,7 +380,7 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
     {
         auto texture = ReadGuiTexture(**hoverTextureNode, factory);
         if (texture)
-            button->SetOnHoverTexture(texture);
+            button->SetOnHoverTexture(std::move(texture));
     }
 
     auto activeTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
@@ -457,7 +396,7 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
     {
         auto texture = ReadGuiTexture(**activeTextureNode, factory);
         if (texture)
-            button->SetOnActiveTexture(texture);
+            button->SetOnActiveTexture(std::move(texture));
     }
 
     auto textNode = node.GetChild("text");
@@ -466,76 +405,82 @@ GuiButtonElement *ReadGuiButton(Utils::XmlNode &node, GuiElementFactory &factory
         auto text = ReadGuiText(*textNode, factory);
         if (text)
         {
-            button->SetText(text);
+            button->SetText(std::move(text));
         }
     }
-
-    ReadGuiElementBasic(button, node);
+    ReadGuiElementBasic(*button, node);
     return button;
 }
-GuiEditBoxElement *ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory)
+std::unique_ptr<GuiEditBoxElement> ReadEditBox(Utils::XmlNode &node, GuiElementFactory &factory)
 {
-    if (node.GetName() != "editBox")
-    {
-        return nullptr;
-    }
     auto textNode = node.GetChild("text");
     if (textNode)
     {
         auto text    = ReadGuiText(*textNode, factory);
-        auto editBox = factory.CreateEditBox(text);
-        ReadGuiElementBasic(editBox, node);
+        auto editBox = factory.CreateEditBox(std::move(text));
+        ReadGuiElementBasic(*editBox, node);
         return editBox;
     }
 
     return nullptr;
 }
 
-VerticalLayout *ReadVerticalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &);
-HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &);
-
-void ReadLayoutChildren(Utils::XmlNode &node, GuiElementFactory &factory, Layout *layout, GuiManager &manager)
+std::unique_ptr<VerticalLayout> ReadVerticalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &);
+std::unique_ptr<HorizontalLayout> ReadHorizontalLayout(Utils::XmlNode &, GuiElementFactory &, GuiManager &);
+std::unique_ptr<GuiWindowElement> ReadGuiWindow(Utils::XmlNode &, GuiElementFactory &, GuiManager &);
+std::vector<std::unique_ptr<GuiElement>> ReadChildrenElemets(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager)
 {
+    std::vector<std::unique_ptr<GuiElement>> result;
+
     for (auto &child : node.GetChildren())
     {
-        DEBUG_LOG("Node : " + child->GetName());
-
-        if (auto text = ReadGuiText(*child, factory))
+        if (child->GetName() == "text")
         {
-            layout->AddChild(text);
+            result.push_back(ReadGuiText(*child, factory));
         }
-        else if (auto texture = ReadGuiTexture(*child, factory))
+        else if (child->GetName() == "texture")
         {
-            layout->AddChild(texture);
+            result.push_back(ReadGuiTexture(*child, factory));
         }
-        else if (auto button = ReadGuiButton(*child, factory, manager))
+        else if (child->GetName() == "button")
         {
-            layout->AddChild(button);
+            result.push_back(ReadGuiButton(*child, factory, manager));
         }
-        else if (auto editBox = ReadEditBox(*child, factory))
+        else if (child->GetName() == "editBox")
         {
-            layout->AddChild(editBox);
+            result.push_back(ReadEditBox(*child, factory));
         }
-        else if (auto horizontalLayout = ReadHorizontalLayout(*child, factory, manager))
+        else if (child->GetName() == "horizontalLayout")
         {
-            layout->AddChild(horizontalLayout);
+            result.push_back(ReadHorizontalLayout(*child, factory, manager));
         }
-        else if (auto verticalLayout = ReadVerticalLayout(*child, factory, manager))
+        else if (child->GetName() == "verticalLayout")
         {
-            layout->AddChild(verticalLayout);
+            result.push_back(ReadVerticalLayout(*child, factory, manager));
+        }
+        else if (child->GetName() == "window")
+        {
+            result.push_back(ReadGuiWindow(*child, factory, manager));
+        }
+        else
+        {
+            ERROR_LOG("try read unknown gui element type : " + child->GetName());
         }
     }
+
+    return result;
 }
 
-VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger)
+std::unique_ptr<VerticalLayout> ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger)
 {
-    if (node.GetName() != "verticalLayout")
-    {
-        return nullptr;
-    }
     auto layout = factory.CreateVerticalLayout();
-    ReadGuiElementBasic(layout, node);
-    ReadLayoutChildren(node, factory, layout, manger);
+    ReadGuiElementBasic(*layout, node);
+
+    auto children = ReadChildrenElemets(node, factory, manger);
+    for (auto &child : children)
+    {
+        layout->AddChild(std::move(child));
+    }
 
     auto paramNode = node.GetChild("algin");
     if (paramNode)
@@ -556,30 +501,23 @@ VerticalLayout *ReadVerticalLayout(Utils::XmlNode &node, GuiElementFactory &fact
     return layout;
 }
 
-HorizontalLayout *ReadHorizontalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger)
+std::unique_ptr<HorizontalLayout> ReadHorizontalLayout(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger)
 {
-    if (node.GetName() != "horizontalLayout")
+    auto layout = factory.CreateHorizontalLayout();
+    ReadGuiElementBasic(*layout, node);
+    auto children = ReadChildrenElemets(node, factory, manger);
+    for (auto &child : children)
     {
-        return nullptr;
+        layout->AddChild(std::move(child));
     }
 
-    auto layout = factory.CreateHorizontalLayout();
-    ReadGuiElementBasic(layout, node);
-    ReadLayoutChildren(node, factory, layout, manger);
     return layout;
 }
 
-GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manger)
+std::unique_ptr<GuiWindowElement> ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory, GuiManager &manager)
 {
-    if (node.GetName() != "window")
-    {
-        return nullptr;
-    }
-
     std::string background;
-
     auto paramNode = node.GetChild("background");
-
     if (paramNode)
     {
         background = paramNode->value_;
@@ -600,48 +538,19 @@ GuiWindowElement *ReadGuiWindow(Utils::XmlNode &node, GuiElementFactory &factory
     }
 
     auto window = factory.CreateGuiWindow(position, scale);
+    ReadGuiElementBasic(*window, node);
 
-    for (auto &child : node.GetChildren())
+    auto children = ReadChildrenElemets(node, factory, manager);
+    for (auto &child : children)
     {
-        DEBUG_LOG("Node : " + child->GetName());
-
-        if (auto text = ReadGuiText(*child, factory))
-        {
-            window->AddChild(text);
-        }
-        else if (auto texture = ReadGuiTexture(*child, factory))
-        {
-            window->AddChild(texture);
-        }
-        else if (auto button = ReadGuiButton(*child, factory, manger))
-        {
-            window->AddChild(button);
-        }
-        else if (auto editBox = ReadEditBox(*child, factory))
-        {
-            window->AddChild(editBox);
-        }
-        else if (auto verticalLayout = ReadVerticalLayout(*child, factory, manger))
-        {
-            window->AddChild(verticalLayout);
-        }
-        else if (auto horizontalLayout = ReadHorizontalLayout(*child, factory, manger))
-        {
-            window->AddChild(horizontalLayout);
-        }
+        window->AddChild(std::move(child));
     }
 
-    ReadGuiElementBasic(window, node);
     return window;
 }
 
-void ReadTheme(Utils::XmlNode &node, GuiElementFactory &factory)
+GuiTheme ReadTheme(Utils::XmlNode &node)
 {
-    if (node.GetName() != "theme")
-    {
-        return;
-    }
-
     GuiTheme theme;
     for (auto &child : node.GetChildren())
     {
@@ -662,7 +571,7 @@ void ReadTheme(Utils::XmlNode &node, GuiElementFactory &factory)
             theme.buttonActiveTexture = child->value_;
         }
     }
-    factory.SetTheme(theme);
+    return theme;
 }
 
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)
@@ -697,18 +606,18 @@ bool GuiElementFactory::ReadGuiFile(const std::string &filename)
         return false;
     }
 
-    for (auto &node : guiNode->GetChildren())
-    {
-        DEBUG_LOG("Node : " + node->GetName());
+    auto theme = guiNode->GetChild("theme");
 
-        ReadTheme(*node, *this);
-        ReadHorizontalLayout(*node, *this, guiManager_);
-        ReadVerticalLayout(*node, *this, guiManager_);
-        ReadGuiText(*node, *this);
-        ReadGuiTexture(*node, *this);
-        ReadGuiWindow(*node, *this, guiManager_);
-        ReadGuiButton(*node, *this, guiManager_);
-        ReadEditBox(*node, *this);
+    if (theme)
+    {
+        SetTheme(ReadTheme(*theme));
+    }
+
+    auto children = ReadChildrenElemets(*guiNode, *this, guiManager_);
+
+    for (auto &child : children)
+    {
+        guiManager_.Add(std::move(child));
     }
     return true;
 }

@@ -52,13 +52,7 @@ void Scene::InitResources(SceneInitContext& context)
     renderersManager_ = context.renderersManager;
 
     CreateResourceManger(*context.graphicsApi_);
-
-    auto guiRenderSubscribe      = [context](auto& element) { context.renderersManager->GetGuiRenderer().Subscribe(element); };
-    auto guiRenderUnsubscribe    = [context](auto& element) { context.renderersManager->GetGuiRenderer().UnSubscribe(element); };
-    auto guiRenderUnsubscribeAll = [context]() { context.renderersManager->UnSubscribeAll(); };
-
-    guiManager_ = std::make_unique<GuiManager>(guiRenderSubscribe, guiRenderUnsubscribe, guiRenderUnsubscribeAll);
-
+    guiManager_ = std::make_unique<GuiManager>();
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
 

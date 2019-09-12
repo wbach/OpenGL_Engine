@@ -45,6 +45,7 @@ public:
     void SetLabel(const std::string& label);
     virtual void SetPermamanet(bool);
     virtual bool IsPermament() const;
+    virtual bool CompareZValue(const GuiElement&) const;
 
 public:
     GuiElementTypes GetType() const;

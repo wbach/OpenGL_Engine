@@ -554,7 +554,7 @@ void MainScene::CreateExmapleStrtupObject()
                 vec3 treePos(10.f * x, 0.f, 10.f * y);
                 treePos.x += static_cast<float>(rand() % 100) / 10.f;
                 treePos.z += static_cast<float>(rand() % 100) / 10.f;
-                treePos = treePos + vec3(-45, 0, -100);
+                treePos                       = treePos + vec3(-45, 0, -100);
                 treePositions[x + size.x * y] = treePos;
             }
         }
@@ -663,70 +663,5 @@ void MainScene::CreateExmapleStrtupObject()
 
 void MainScene::InitGui()
 {
-    auto fontSize = 20;
-    auto fontPath = EngineConf_GetFullDataPath("GUI/Ubuntu-M.ttf");
-
-    auto rendererFpsId = guiElementFactory_->CreateGuiText(fontPath, "rendererFps", fontSize, 0)->GetId();
-    guiIds_.insert({"rendererFps", rendererFpsId});
-
-    guiManager_->GetElement("rendererFps")->SetPostion(vec2(-0.75, 0.9));
-    guiManager_->Get<GuiTextElement>("rendererFps")->SetColor(vec3(.8f));
-
-    auto playerPosId = guiElementFactory_->CreateGuiText(fontPath, "Player position", fontSize, 0)->GetId();
-    guiIds_.insert({"playerPos", playerPosId});
-
-    guiManager_->GetElement("playerPos")->SetPostion(vec2(-0.5, -0.9));
-    guiManager_->GetElement("playerPos")->SetColor(vec3(.8f, 0.f, 0.f));
-
-    std::cout << __FUNCTION__ << "1" << std::endl;
-    auto window = guiElementFactory_->CreateGuiWindow(Rect(320, 200, 640, 400), "GUI/darkGrayButton.png");
-
-    {
-        auto button =
-            guiElementFactory_->CreateGuiButton([](auto&) { std::cout << "Start Game BUTTON pressed." << std::endl; });
-        button->SetScale(vec2(0.1, 0.05));
-        button->SetPostion(vec2(-0.125, 0.15));
-
-        auto buttonText = guiElementFactory_->CreateGuiText(fontPath, "Start Game", fontSize, 0);
-        buttonText->SetColor(vec3(.7f, 0.7f, 0.7f));
-        button->SetText(buttonText);
-
-        auto buttonTexture       = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButton.png");
-        auto hoverButtonTexture  = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonHover.png");
-        auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonActive.png");
-
-        if (buttonTexture)
-            button->SetBackgroundTexture(buttonTexture);
-        if (hoverButtonTexture)
-            button->SetOnHoverTexture(hoverButtonTexture);
-        if (activeButtonTexture)
-            button->SetOnActiveTexture(activeButtonTexture);
-        window->AddChild(button);
-    }
-
-    {
-        auto button =
-            guiElementFactory_->CreateGuiButton([](auto&) { std::cout << "Load Game BUTTON  pressed." << std::endl; });
-        button->SetScale(vec2(0.1, 0.05));
-        button->SetPostion(vec2(-0.125, 0.05));
-
-        auto buttonText = guiElementFactory_->CreateGuiText(fontPath, "Load Game", fontSize, 0);
-        buttonText->SetColor(vec3(.7f, 0.7f, 0.7f));
-        button->SetText(buttonText);
-
-        auto buttonTexture       = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButton.png");
-        auto hoverButtonTexture  = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonHover.png");
-        auto activeButtonTexture = guiElementFactory_->CreateGuiTexture("GUI/darkGrayButtonActive.png");
-
-        if (buttonTexture)
-            button->SetBackgroundTexture(buttonTexture);
-        if (hoverButtonTexture)
-            button->SetOnHoverTexture(hoverButtonTexture);
-        if (activeButtonTexture)
-            button->SetOnActiveTexture(activeButtonTexture);
-
-        window->AddChild(button);
-    }
-
     guiElementFactory_->ReadGuiFile(GUI_FILE);
 }

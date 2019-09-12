@@ -28,21 +28,27 @@ FileExplorer::~FileExplorer()
 
 void FileExplorer::Start(const std::string &dir, std::function<bool(const std::string &)> onChoose)
 {
+    onChoose_ = onChoose;
+
     const vec2 position(0, 0);
     const vec2 windowScale(0.6, 0.4);
 
-    window_ = guiFactory_.CreateGuiWindow(position, windowScale);
+    auto window = guiFactory_.CreateGuiWindow(position, windowScale);
+    window_     = window.get();
+
     window_->SetZPosition(-20.f);
 
-    auto layout = guiFactory_.CreateVerticalLayout();
-    layout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
-    layout->SetPostion(position + vec2(0, 0.05));
-    layout->SetScale(vec2(windowScale.x, 0.3));
+    auto layoutuptr = guiFactory_.CreateVerticalLayout();
+    layout_         = layoutuptr.get();
 
-    if (not layout or not window_)
+    layout_->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
+    layout_->SetPostion(position + vec2(0, 0.05));
+    layout_->SetScale(vec2(windowScale.x, 0.3));
+
+    if (not layout_ or not window_)
         return;
 
-    auto okButton = guiFactory_.CreateGuiButton("ok", [onChoose, this](auto&) {
+    auto okButton = guiFactory_.CreateGuiButton("ok", [onChoose, this](auto &) {
         auto filename = currentDir_->GetTextString() + "/" + seletedFileText_->GetTextString();
         if (onChoose(filename))
         {
@@ -58,62 +64,55 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
     okButton->SetZPosition(-1.f);
     okButton->GetText()->SetColor(vec3(0.8f));
 
-    seletedFileText_ = guiFactory_.CreateEditBox();
+    auto seletedFileText = guiFactory_.CreateEditBox();
+    seletedFileText_     = seletedFileText.get();
     seletedFileText_->SetTextColor(vec3(0.2));
     seletedFileText_->SetScale(vec2(windowScale.x, 0.04));
     seletedFileText_->SetZPosition(-1.f);
     seletedFileText_->SetPostion(vec2(0, -windowScale.y + (2.f * okButton->GetScale().y) + seletedFileText_->GetScale().y));
 
-    currentDir_ = guiFactory_.CreateEditBox();
+    auto currentDir = guiFactory_.CreateEditBox();
+    currentDir_     = currentDir.get();
     currentDir_->SetTextColor(vec3(0.2));
     currentDir_->SetScale(vec2(windowScale.x, 0.04));
     currentDir_->SetZPosition(-1.f);
     currentDir_->SetPostion(vec2(0, windowScale.y + seletedFileText_->GetScale().y));
-    currentDir_->SetOnEnterAction([this, layout, onChoose](const std::string& text)
-    {
+    currentDir_->SetOnEnterAction([this](const std::string &text) {
         if (Utils::DirectoryExist(text))
         {
-            layout->RemoveAll();
-            layout->ResetView();
-            FillFileList(layout, text, onChoose);
-            currentDir_->SetText(text);
+            AddRefillTask(text);
         }
     });
 
-    window_->AddChild(seletedFileText_);
-    window_->AddChild(currentDir_);
-    window_->AddChild(okButton);
-    window_->AddChild(layout);
+    window_->AddChild(std::move(seletedFileText));
+    window_->AddChild(std::move(currentDir));
+    window_->AddChild(std::move(okButton));
+    window_->AddChild(std::move(layoutuptr));
 
-    FillFileList(layout, dir, onChoose);
+    guiManager_.Add(std::move(window));
+
+    FillFileList(dir);
 }
 
-void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::string &dir, std::function<void(const std::string &)> onChoose)
+void FileExplorer::FillFileList(const std::string &dir)
 {
     currentDir_->SetText(dir);
 
-    auto onClickRoot = [this, layout, onChoose](auto&) {
-        layout->RemoveAll();
-        layout->ResetView();
-        FillFileList(layout, "/", onChoose);
+    auto onClickRoot = [this](auto &) {
+        const std::string rootDir{"/"};
+        AddRefillTask(rootDir);
     };
-    CreateButtonWithFilename(".", layout, onClickRoot);
+
+    CreateButtonWithFilename(".", onClickRoot);
 
     auto parentDir = Utils::GetParent(dir);
-    DEBUG_LOG("Parent dir : " + parentDir);
-
     if (not parentDir.empty())
     {
-        auto onClick = [this, parentDir, layout, onChoose](auto&) {
-            layout->RemoveAll();
-            layout->ResetView();
-            FillFileList(layout, parentDir, onChoose);
-        };
-        CreateButtonWithFilename("..", layout, onClick);
+        auto onClick = [this, parentDir](auto &) { AddRefillTask(parentDir); };
+        CreateButtonWithFilename("..", onClick);
     }
 
     auto filesInDir = Utils::GetFilesInDirectory(dir);
-
     for (const auto &file : filesInDir)
     {
         DEBUG_LOG(file.name);
@@ -126,18 +125,14 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
             case Utils::File::Type::RegularFile:
             {
                 auto rawFileName = Utils::GetFilenameWithExtension(file.name);
-                auto onClick     = [rawFileName, this](auto&) { seletedFileText_->SetText(rawFileName); };
-                CreateButtonWithFilename(rawFileName, layout, onClick);
+                auto onClick     = [rawFileName, this](auto &) { seletedFileText_->SetText(rawFileName); };
+                CreateButtonWithFilename(rawFileName, onClick);
             }
             break;
             case Utils::File::Type::Directory:
             {
-                auto onClick = [this, file, layout, onChoose](auto&) {
-                    layout->RemoveAll();
-                    layout->ResetView();
-                    FillFileList(layout, file.name, onChoose);
-                };
-                CreateButtonWithFilename(Utils::GetFilenameWithExtension(file.name) + "/", layout, onClick);
+                auto onClick = [this, file](auto &) { AddRefillTask(file.name); };
+                CreateButtonWithFilename(Utils::GetFilenameWithExtension(file.name) + "/", onClick);
             }
             break;
             case Utils::File::Type::Other:
@@ -146,10 +141,19 @@ void FileExplorer::FillFileList(GameEngine::VerticalLayout *layout, const std::s
     }
 }
 
-void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::VerticalLayout *layout, GameEngine::ActionFunction onClick)
+void FileExplorer::AddRefillTask(const std::string &dir)
+{
+    guiManager_.AddTask([this, dir]() {
+        layout_->RemoveAll();
+        layout_->ResetView();
+        FillFileList(dir);
+    });
+}
+
+void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::ActionFunction onClick)
 {
     auto button = guiFactory_.CreateGuiButton(filename, onClick);
     button->SetZPosition(-1.f);
-    layout->AddChild(button);
+    layout_->AddChild(std::move(button));
 }
 }  // namespace Editor

@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "GameEngine/Renderers/GUI/Rect.h"
+#include <memory>
 
 namespace GameEngine
 {
@@ -9,8 +10,9 @@ class GuiElement;
 class LayoutElementWrapper
 {
 public:
-    LayoutElementWrapper(GuiElement& element_, std::function<void()>);
-    LayoutElementWrapper(const LayoutElementWrapper&);
+    LayoutElementWrapper(std::unique_ptr<GuiElement> element_, std::function<void()>);
+    LayoutElementWrapper(const LayoutElementWrapper&) = delete;
+    void Update();
     void SetRect(const Rect& rect);
     void SetSize(const vec2ui& size);
     void SetScale(const vec2& scale);
@@ -29,11 +31,10 @@ public:
     uint32 GetId() const;
     const GuiElement& Get() const;
     void SetPermamanet(bool);
-
-    LayoutElementWrapper operator=(const LayoutElementWrapper&);
+    bool CompareZValue(const GuiElement&) const;
 
 private:
-    GuiElement& element_;
+    std::unique_ptr<GuiElement> element_;
     std::function<void()> onChange_;
 };
 }  // namespace GameEngine

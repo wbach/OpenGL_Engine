@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 #include "FileExplorer.h"
 #include "FileSystem/FileSystemUtils.hpp"
+#include <algorithm>
 
 using namespace GameEngine;
 

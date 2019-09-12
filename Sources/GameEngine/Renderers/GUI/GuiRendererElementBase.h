@@ -8,10 +8,12 @@ class Texture;
 class GuiRendererElementBase : public GuiElement
 {
 public:
-    GuiRendererElementBase(GuiElementTypes type, const vec2ui& windowSize);
+    GuiRendererElementBase(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, GuiElementTypes type, const vec2ui& windowSize);
+    ~GuiRendererElementBase() override;
     std::optional<uint32> GetTextureId() const;
 
 protected:
     Texture* texture_;
+    std::function<void(const GuiElement&)> unsubscribeElement_;
 };
 }  // namespace GameEngine

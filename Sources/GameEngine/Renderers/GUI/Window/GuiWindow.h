@@ -12,7 +12,7 @@ class GuiWindowElement : public GuiElement
 public:
     GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
     ~GuiWindowElement() override;
-    void AddChild(GuiElement*);
+    void AddChild(std::unique_ptr<GuiElement>);
     virtual void SetRect(const Rect& rect) override;
     virtual void Update() override;
     virtual void SetScale(const vec2& scale);
@@ -22,9 +22,10 @@ public:
     virtual void SetZPosition(float z) override;
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetPermamanet(bool) override;
+    virtual bool CompareZValue(const GuiElement&) const override;
 
 private:
-    std::vector<GuiElement*> children_;
+    std::vector<std::unique_ptr<GuiElement>> children_;
     Input::InputManager& inputManager_;
     float titleBarSize_;
     uint32 inputSubscribtionKeyDown_;

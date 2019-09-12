@@ -6,8 +6,8 @@ namespace GameEngine
 class HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout(const vec2ui& windowSize, Input::InputManager& inputManager, std::function<void(uint32)> unsubscribe);
-    virtual LayoutElementWrapper& AddChild(GuiElement*) override;
+    HorizontalLayout(const vec2ui& windowSize, Input::InputManager& inputManager);
+    virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>) override;
 
 private:
     void OnChange();

@@ -8,8 +8,7 @@ const uint64 SHOW_ACTIVE_TIME = 100;
 
 GuiElementTypes GuiButtonElement::type = GuiElementTypes::Button;
 
-GuiButtonElement::GuiButtonElement(std::function<bool(uint32)> isOnTop, Input::InputManager &inputManager,
-                                   OnClick onClick, const vec2ui &windowSize)
+GuiButtonElement::GuiButtonElement(std::function<bool(GuiElement&)> isOnTop, Input::InputManager &inputManager, OnClick onClick, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
     , onClick_(onClick)
@@ -24,16 +23,6 @@ GuiButtonElement::GuiButtonElement(std::function<bool(uint32)> isOnTop, Input::I
 
 GuiButtonElement::~GuiButtonElement()
 {
-    if (backgroundTexture_)
-        backgroundTexture_->MarkToRemove();
-    if (onHoverTexture_)
-        onHoverTexture_->MarkToRemove();
-    if (onActiveTextue_)
-        onActiveTextue_->MarkToRemove();
-    if (text_)
-        text_->MarkToRemove();
-
-    DEBUG_LOG("");
     UnsubscribeInputAction();
 }
 
@@ -59,7 +48,7 @@ void GuiButtonElement::Update()
         return;
     }
 
-    if (IsCollision(position) and isOnTop_(GetId()))
+    if (IsCollision(position) and isOnTop_(*this))
     {
         if (backgroundTexture_)
             backgroundTexture_->Hide();
@@ -83,14 +72,15 @@ void GuiButtonElement::Update()
     }
 }
 
-void GuiButtonElement::SetText(GuiTextElement *text)
+void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
 {
     if (text_)
     {
         text_->MarkToRemove();
     }
-    
-    text_ = text;
+
+    text_ = std::move(text);
+
     text_->SetPostion(position_);
 
     backgroundTextColor_ = text_->GetColor();
@@ -98,40 +88,31 @@ void GuiButtonElement::SetText(GuiTextElement *text)
     onActiveTextColor_   = text_->GetColor();
 }
 
-void GuiButtonElement::SetBackgroundTexture(GuiTextureElement *texture)
+void GuiButtonElement::SetTexture(std::unique_ptr<GuiTextureElement> &a, std::unique_ptr<GuiTextureElement> &b)
 {
-    if (backgroundTexture_)
+    if (b)
     {
-        backgroundTexture_->MarkToRemove();
+        b->MarkToRemove();
     }
 
-    backgroundTexture_ = texture;
-    backgroundTexture_->SetScale(scale_);
-    backgroundTexture_->SetPostion(position_);
+    a->SetScale(scale_);
+    a->SetPostion(position_);
+    b = std::move(a);
 }
 
-void GuiButtonElement::SetOnHoverTexture(GuiTextureElement *texture)
+void GuiButtonElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    if (onHoverTexture_)
-    {
-        onHoverTexture_->MarkToRemove();
-    }
-
-    onHoverTexture_ = texture;
-    onHoverTexture_->SetScale(scale_);
-    onHoverTexture_->SetPostion(position_);
+    SetTexture(texture, backgroundTexture_);
 }
 
-void GuiButtonElement::SetOnActiveTexture(GuiTextureElement *texture)
+void GuiButtonElement::SetOnHoverTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    if (onActiveTextue_)
-    {
-        onActiveTextue_->MarkToRemove();
-    }
+    SetTexture(texture, onHoverTexture_);
+}
 
-    onActiveTextue_ = texture;
-    onActiveTextue_->SetScale(scale_);
-    onActiveTextue_->SetPostion(position_);
+void GuiButtonElement::SetOnActiveTexture(std::unique_ptr<GuiTextureElement> texture)
+{
+    SetTexture(texture, onActiveTextue_);
 }
 
 void GuiButtonElement::SetHoverTextColor(const vec3 &color)
@@ -326,7 +307,7 @@ void GuiButtonElement::SetPermamanet(bool is)
 
 GuiTextElement *GuiButtonElement::GetText()
 {
-    return text_;
+    return text_.get();
 }
 
 void GuiButtonElement::SubscribeInputAction()
@@ -334,7 +315,7 @@ void GuiButtonElement::SubscribeInputAction()
     if (not subscribtion_)
     {
         subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-            if (IsShow() and isOnTop_(GetId()))
+            if (IsShow() and isOnTop_(*this))
             {
                 auto position = inputManager_.GetMousePosition();
                 if (IsCollision(position))

@@ -17,8 +17,6 @@ using ActionFunction = std::function<void(GuiElement&)>;
 class GuiManager
 {
 public:
-    GuiManager(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, std::function<void()> unsubscribeAll);
-
     void Add(std::unique_ptr<GuiElement> element);
     void Update();
     void RegisterAction(const std::string&, ActionFunction);
@@ -39,14 +37,12 @@ public:
     const GuiElements& GetElements() const;
     ActionFunction GetActionFunction(const std::string& name);
 
+    void AddTask(std::function<void()>);
+
 private:
     GuiElements elements_;
-
-    std::function<void(GuiElement&)> subscribe_;
-    std::function<void()> unsubscribeAll_;
-    std::function<void(const GuiElement&)> unsubscribeElement_;
-
     std::unordered_map<std::string, ActionFunction> registeredActions_;
+    std::vector<std::function<void()>> tasks_;
 };
 
 template <class T>

@@ -46,25 +46,25 @@ public:
     const GuiTheme& GetTheme() const;
 
     // GuiText
-    GuiTextElement* CreateGuiText(const std::string&, const std::string&, uint32, uint32);
-    GuiTextElement* CreateGuiText(const std::string&);
+    std::unique_ptr<GuiTextElement> CreateGuiText(const std::string&, const std::string&, uint32, uint32);
+    std::unique_ptr<GuiTextElement> CreateGuiText(const std::string&);
     // GuiTexture
-    GuiTextureElement* CreateGuiTexture(const std::string&);
+    std::unique_ptr<GuiTextureElement> CreateGuiTexture(const std::string&);
     // GuiWindow
-    GuiWindowElement* CreateGuiWindow(const Rect&);
-    GuiWindowElement* CreateGuiWindow(const Rect&, const std::string&);
-    GuiWindowElement* CreateGuiWindow(const vec2&, const vec2&);
-    GuiWindowElement* CreateGuiWindow(const vec2&, const vec2&, const std::string&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const Rect&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const Rect&, const std::string&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const vec2&, const vec2&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const vec2&, const vec2&, const std::string&);
     // GuiButton
-    GuiButtonElement* CreateGuiButton(std::function<void(GuiElement&)>);
-    GuiButtonElement* CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
     // GuiEditBox
-    GuiEditBoxElement* CreateEditBox();
-    GuiEditBoxElement* CreateEditBox(const std::string&, const std::string&, uint32, uint32);
-    GuiEditBoxElement* CreateEditBox(GuiTextElement*);
+    std::unique_ptr<GuiEditBoxElement> CreateEditBox();
+    std::unique_ptr<GuiEditBoxElement> CreateEditBox(const std::string&, const std::string&, uint32, uint32);
+    std::unique_ptr<GuiEditBoxElement> CreateEditBox(std::unique_ptr<GuiTextElement>);
     // GuiLayouts
-    VerticalLayout* CreateVerticalLayout();
-    HorizontalLayout* CreateHorizontalLayout();
+    std::unique_ptr<VerticalLayout> CreateVerticalLayout();
+    std::unique_ptr<HorizontalLayout> CreateHorizontalLayout();
 
     void CreateMessageBox(const std::string& title, const std::string& message, std::function<void()> = nullptr);
 
@@ -77,9 +77,12 @@ private:
     IResourceManager& resourceManager_;
     Renderer::RenderersManager& renderersManager_;
     const vec2ui& windowSize_;
+    std::function<void(GuiElement&)> renderSubscribe_;
+    std::function<void(const GuiElement&)> unsubscribeElement_;
     GuiTextFactory guiTextFactory_;
-    std::function<void(uint32)> unsubscribe_;
+    std::function<bool(GuiElement&)> isOnTop_;
     GuiTheme theme_;
+
 
 private:
     uint32 guiElementCounter_;

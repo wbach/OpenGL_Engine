@@ -3,10 +3,16 @@
 
 namespace GameEngine
 {
-GuiRendererElementBase::GuiRendererElementBase(GuiElementTypes type, const vec2ui& windowSize)
+GuiRendererElementBase::GuiRendererElementBase(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, GuiElementTypes type, const vec2ui& windowSize)
     : GuiElement(type, windowSize)
     , texture_{nullptr}
+    , unsubscribeElement_(unsubscribeElement)
 {
+    renderSubscribe(*this);
+}
+GuiRendererElementBase::~GuiRendererElementBase()
+{
+    unsubscribeElement_(*this);
 }
 std::optional<uint32> GuiRendererElementBase::GetTextureId() const
 {

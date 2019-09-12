@@ -14,11 +14,11 @@ class TextInput;
 class GuiEditBoxElement : public GuiElement
 {
 public:
-    GuiEditBoxElement(GuiTextElement&, GuiTextElement&, Input::InputManager&, const vec2ui&);
+    GuiEditBoxElement(std::unique_ptr<GuiTextElement>, std::unique_ptr<GuiTextElement>, Input::InputManager&, const vec2ui&);
     ~GuiEditBoxElement();
     virtual void Update() override;
 
-    void SetBackgroundTexture(GuiTextureElement*);
+    void SetBackgroundTexture(std::unique_ptr<GuiTextureElement>);
     void SetRect(const Rect& rect) override;
     void SetSize(const vec2ui& size) override;
     void SetScale(const vec2& scale) override;
@@ -38,9 +38,11 @@ public:
 
 private:
     Input::InputManager& inputManager_;
-    GuiTextElement& text_;
-    GuiTextElement& cursor_;
-    GuiTextureElement* backgroundTexture_;
+
+    std::unique_ptr<GuiTextElement> text_;
+    std::unique_ptr<GuiTextElement> cursor_;
+    std::unique_ptr<GuiTextureElement> backgroundTexture_;
+
     uint32 lmouseSubscribtrion_;
     uint32 entersubscribion_;
     std::unique_ptr<TextInput> textInput_;

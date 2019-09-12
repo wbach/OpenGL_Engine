@@ -229,4 +229,9 @@ bool GuiElement::IsPermament() const
 {
     return isPermament_;
 }
+
+bool GuiElement::CompareZValue(const GuiElement& element) const
+{// - 0.001f
+    return std::isgreater(GetZTotalValue(), element.GetZTotalValue());
+}
 }  // namespace GameEngine
