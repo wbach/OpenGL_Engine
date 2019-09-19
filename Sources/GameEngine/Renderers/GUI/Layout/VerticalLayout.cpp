@@ -1,4 +1,5 @@
 #include "VerticalLayout.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -9,29 +10,14 @@ VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &in
     , inputManager_(inputManager)
     , algin_(Algin::CENTER)
     , viewPosition_(0.f)
-    , totalYScale_(0.f)
+    , scrollSensitive_(0.02f)
 {
-    mouseWheelDownSub_ = inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this]() {
-        if (IsShow() and viewPosition_ < 0.f)
-        {
-            viewPosition_ += 0.01f;
-            OnChange();
-        }
-    });
-
-    mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() {
-        if (IsShow() and viewPosition_ > -totalYScale_)
-        {
-            viewPosition_ -= 0.01f;
-            OnChange();
-        }
-    });
+    EnableScroll();
 }
 
 VerticalLayout::~VerticalLayout()
 {
-    inputManager_.UnsubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, mouseWheelUpSub_);
-    inputManager_.UnsubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, mouseWheelDownSub_);
+    DisableScroll();
 }
 
 void VerticalLayout::ResetView()
@@ -67,20 +53,23 @@ void VerticalLayout::OnChange()
     if (children_.empty())
         return;
 
-    const auto& firstChild = children_[0]->Get();
-    vec2 newPosition = position_;
-    newPosition.x    = CalculateXPosition(firstChild);
+    const auto &firstChild = children_[0]->Get();
+    vec2 newPosition       = position_;
+    newPosition.x          = CalculateXPosition(firstChild);
     newPosition.y += scale_.y - firstChild.GetScale().y - viewPosition_;
     children_[0]->SetPositionWithoutNotif(newPosition);
 
     for (std::size_t i = 1; i < children_.size(); ++i)
     {
-        const auto &oldPosition     = children_[i]->Get().GetPosition();
-        const auto &parentPositionY = children_[i - 1]->Get().GetPosition().y;
-        const auto &parentScaleY    = children_[i - 1]->Get().GetScale().y;
+        const auto &parent = children_[i - 1]->Get();
+        const auto &child  = children_[i]->Get();
 
-        newPosition.x = CalculateXPosition(children_[i]->Get());
-        newPosition.y = parentPositionY - (2.f * parentScaleY);
+        const auto &oldPosition     = child.GetPosition();
+        const auto &parentPositionY = parent.GetPosition().y;
+        const auto &parentScaleY    = parent.GetScale().y;
+
+        newPosition.x = CalculateXPosition(child);
+        newPosition.y = parentPositionY - (child.GetScale().y + parentScaleY);
 
         if (oldPosition != newPosition)
         {
@@ -109,12 +98,12 @@ float VerticalLayout::CalculateXPosition(const GuiElement &element)
 
 void VerticalLayout::UpdateVisibility()
 {
-    totalYScale_ = 0.f;
-
     for (auto &element : children_)
     {
-        if (element->Get().GetPosition().y - element->Get().GetScale().y < position_.y - scale_.y or
-            element->Get().GetPosition().y + element->Get().GetScale().y > position_.y + scale_.y)
+        const auto &child = element->Get();
+
+        if (child.GetPosition().y - child.GetScale().y < position_.y - scale_.y or
+            child.GetPosition().y + child.GetScale().y > position_.y + scale_.y)
         {
             element->HideWithoutNotif();
         }
@@ -122,8 +111,44 @@ void VerticalLayout::UpdateVisibility()
         {
             element->ShowWithoutNotif();
         }
+    }
+}
 
-        totalYScale_ += 2.f * element->Get().GetScale().y;
+void VerticalLayout::EnableScroll()
+{
+    if (not mouseWheelDownSub_)
+    {
+        mouseWheelDownSub_ = inputManager_.SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this]() {
+            if (IsShow() and viewPosition_ < 0.f)
+            {
+                viewPosition_ += scrollSensitive_;
+                OnChange();
+            }
+        });
+    }
+
+    if (not mouseWheelUpSub_)
+    {
+        mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() {
+            auto isLastShow = children_.back()->Get().IsShow();
+            if (IsShow() and not isLastShow)
+            {
+                viewPosition_ -= scrollSensitive_;
+                OnChange();
+            }
+        });
+    }
+}
+
+void VerticalLayout::DisableScroll()
+{
+    if (mouseWheelUpSub_)
+    {
+        inputManager_.UnsubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, *mouseWheelUpSub_);
+    }
+    if (mouseWheelDownSub_)
+    {
+        inputManager_.UnsubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, *mouseWheelDownSub_);
     }
 }
 

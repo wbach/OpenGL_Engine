@@ -7,7 +7,8 @@ namespace GameEngine
 {
 GuiElementTypes GuiEditBoxElement::type = GuiElementTypes::EditBox;
 
-GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::unique_ptr<GuiTextElement> cursor, Input::InputManager &inputManager, const vec2ui &windowSize)
+GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::unique_ptr<GuiTextElement> cursor,
+                                     Input::InputManager &inputManager, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
     , text_(std::move(text))
@@ -36,8 +37,8 @@ GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::
         {
             if (textInput_)
             {
-                cursor_->Hide();
                 textInput_.reset();
+                cursor_->Hide();
             }
         }
     });
@@ -70,16 +71,16 @@ GuiEditBoxElement::~GuiEditBoxElement()
     if (backgroundTexture_)
         backgroundTexture_->MarkToRemove();
 
-    text_->MarkToRemove();
-    cursor_->MarkToRemove();
-
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, lmouseSubscribtrion_);
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::ENTER, entersubscribion_);
 }
 void GuiEditBoxElement::Update()
 {
     if (not IsShow() or not textInput_)
+    {
+        cursor_->Hide();
         return;
+    }
 
     timer_.CalculateAndLock();
 

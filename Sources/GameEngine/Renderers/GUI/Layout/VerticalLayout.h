@@ -25,14 +25,16 @@ private:
     void OnChange();
     float CalculateXPosition(const GuiElement&);
     void UpdateVisibility();
+    void EnableScroll();
+    void DisableScroll();
 
 private:
     Input::InputManager& inputManager_;
     Algin algin_;
     float viewPosition_;
-    uint32 mouseWheelUpSub_;
-    uint32 mouseWheelDownSub_;
-    float totalYScale_;
+    std::optional<uint32> mouseWheelUpSub_;
+    std::optional<uint32> mouseWheelDownSub_;
+    float scrollSensitive_;
 
 public:
     static GuiElementTypes type;

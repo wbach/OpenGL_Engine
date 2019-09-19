@@ -20,9 +20,14 @@ public:
     void Start(const std::string&, std::function<bool(const std::string&)>);
 
 private:
+    void CreateWindowWithLayout(const vec2& position, const vec2& size);
     void FillFileList(const std::string& dir);
     void AddRefillTask(const std::string& dir);
     void CreateButtonWithFilename(const std::string&, GameEngine::ActionFunction);
+    void CreateCurrentDirBar();
+    void CreateFileListLayout();
+    void CreateSeletedFileText();
+    void CreateActionButtons();
 
 private:
     GameEngine::GuiManager& guiManager_;
@@ -31,7 +36,8 @@ private:
     GameEngine::GuiEditBoxElement* seletedFileText_;
     GameEngine::GuiWindowElement* window_;
     GameEngine::GuiEditBoxElement* currentDir_;
-    GameEngine::VerticalLayout* layout_;
+    GameEngine::VerticalLayout* fileLayout_;
+    GameEngine::VerticalLayout* windowLayout_;
     std::function<bool(const std::string&)> onChoose_;
 };
 }  // namespace Editor

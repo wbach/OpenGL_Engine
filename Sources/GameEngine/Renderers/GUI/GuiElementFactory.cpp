@@ -105,7 +105,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const vec2 
     auto closeButton  = CreateGuiButton([guiWindowPtr](auto &) { guiWindowPtr->MarkToRemove(); });
     auto closeButtonX = CreateGuiText(theme_.font, "X", 32, 0);
     closeButton->SetScale(closeButtonX->GetScale());
-    auto closeButtonPosition = position + scale - closeButtonX->GetScale();
+    auto closeButtonPosition = position + scale + closeButtonX->GetScale();
     closeButton->SetPostion(closeButtonPosition);
 
     closeButton->SetText(std::move(closeButtonX));
