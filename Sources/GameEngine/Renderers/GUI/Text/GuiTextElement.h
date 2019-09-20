@@ -22,15 +22,18 @@ public:
         RIGHT
     };
 
+    struct FontInfo
+    {
+        uint32 outline_;
+        uint32 fontSize_;
+        std::string font_;
+    };
+
 public:
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize,
-                   const std::string& font);
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize,
-                   const std::string& font, const std::string& str);
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize,
-                   const std::string& font, const std::string& str, uint32 size);
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize,
-                   const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font);
+    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font, const std::string& str);
+    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size);
+    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
     const std::optional<GraphicsApi::Surface>& GetSurface() const;
@@ -47,6 +50,7 @@ public:
     void SetFont(const std::string& font);
     void SetAlgin(Algin algin);
     virtual void SetZPositionOffset(float offset) override;
+    const FontInfo& GetFontInfo() const;
 
 private:
     void RenderText(bool fontOverride = false);
@@ -56,10 +60,8 @@ private:
     UpdateTextureFunction updateTexture_;
     GraphicsApi::IWindowApi& windowApi_;
     std::string text_;
-    uint32 outline_;
-    uint32 fontSize_;
+    FontInfo fontInfo_;
     std::optional<uint32> fontId_;
-    std::string font_;
     std::optional<GraphicsApi::Surface> surface_;
     bool openFontFailed_;
     Algin algin_;

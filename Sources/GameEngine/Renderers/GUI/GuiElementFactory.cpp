@@ -239,7 +239,10 @@ void ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &node)
     {
         auto inBackground = Utils::ReadBool(*paramNode);
         if (inBackground)
+        {
             element.SetZPosition(0.1f);
+            element.SetInBackgorund(true);
+        }
     }
 
     paramNode = node.GetChild("position");

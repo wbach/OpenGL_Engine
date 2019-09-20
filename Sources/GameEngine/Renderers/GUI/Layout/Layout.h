@@ -32,6 +32,7 @@ public:
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetPermamanet(bool) override;
     virtual bool CompareZValue(const GuiElement&) const override;
+    const std::vector<std::unique_ptr<LayoutElementWrapper>>& GetChildren() const;
 
 protected:
     std::vector<std::unique_ptr<LayoutElementWrapper>> children_;

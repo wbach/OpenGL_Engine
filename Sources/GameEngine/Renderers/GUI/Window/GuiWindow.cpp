@@ -171,4 +171,8 @@ bool GuiWindowElement::CompareZValue(const GuiElement & element) const
     return GuiElement::CompareZValue(element);
 }
 
+const std::vector<std::unique_ptr<GuiElement>> &GuiWindowElement::GetChildren() const
+{
+    return children_;
+}
 }  // namespace GameEngine

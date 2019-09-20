@@ -32,6 +32,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , id_{GuiElement::ID++}
     , isMarkToRemove_{false}
     , isPermament_{true}
+    , isBackround_{false}
 {
     CalculateMatrix();
 }
@@ -171,6 +172,16 @@ void GuiElement::MarkToRemove()
 bool GuiElement::IsMarkToRemove() const
 {
     return isMarkToRemove_;
+}
+
+void GuiElement::SetInBackgorund(bool v)
+{
+    isBackround_ = v;
+}
+
+bool GuiElement::IsBackground() const
+{
+    return isBackround_;
 }
 void GuiElement::execute(std::function<void(uint32)> func)
 {

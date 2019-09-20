@@ -1,6 +1,6 @@
 #include "GuiManager.h"
-#include <Utils/XML/XmlWriter.h>
 #include <algorithm>
+#include "GuiElementWriter.h"
 
 namespace GameEngine
 {
@@ -138,9 +138,14 @@ void GuiManager::RegisterDefaultAction(ActionFunction action)
 
 bool GuiManager::SaveToFile(const std::string& filename)
 {
-    Utils::XmlNode root("gui");
-    Utils::Xml::Write(filename, root);
-    return true;
+    auto layer = GetLayer(DEFAULT_LAYER);
+    if (layer)
+    {
+        GuiElementWriter::write(filename, *layer);
+        return true;
+    }
+
+    return false;
 }
 
 void GuiManager::Remove(uint32 id)

@@ -29,9 +29,7 @@ GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
     , text_(str)
-    , outline_(outline)
-    , fontSize_(size)
-    , font_(font)
+    , fontInfo_{outline, size, font}
     , openFontFailed_(false)
     , algin_(Algin::CENTER)
 {
@@ -96,28 +94,28 @@ void GuiTextElement::Pop()
 
 void GuiTextElement::SetFontSize(uint32 size)
 {
-    if (fontSize_ == size)
+    if (fontInfo_.fontSize_ == size)
         return;
 
-    fontSize_ = size;
+    fontInfo_.fontSize_ = size;
     RenderText(true);
 }
 
 void GuiTextElement::SetOutline(uint32 outline)
 {
-    if (outline_ == outline)
+    if (fontInfo_.outline_ == outline)
         return;
 
-    outline_ = outline;
+    fontInfo_.outline_ = outline;
     RenderText();
 }
 
 void GuiTextElement::SetFont(const std::string& font)
 {
-    if (font_ == font)
+    if (fontInfo_.font_ == font)
         return;
 
-    font_ = font;
+    fontInfo_.font_ = font;
     RenderText(true);
 }
 
@@ -130,6 +128,11 @@ void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
 void GuiTextElement::SetZPositionOffset(float offset)
 {
     GuiElement::SetZPositionOffset(offset - 0.5f);
+}
+
+const GuiTextElement::FontInfo &GuiTextElement::GetFontInfo() const
+{
+    return fontInfo_;
 }
 
 void GuiTextElement::UnsetTexture()
@@ -152,7 +155,7 @@ void GuiTextElement::RenderText(bool fontOverride)
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = windowApi_.OpenFont(font_, fontSize_);
+            fontId_ = windowApi_.OpenFont(fontInfo_.font_, fontInfo_.fontSize_);
 
             if (not fontId_)
             {
@@ -166,7 +169,7 @@ void GuiTextElement::RenderText(bool fontOverride)
             windowApi_.DeleteSurface(static_cast<uint32>(surface_->id));
         }
 
-        surface_ = windowApi_.RenderFont(*fontId_, text_, ToVec4(color_), outline_);
+        surface_ = windowApi_.RenderFont(*fontId_, text_, ToVec4(color_), fontInfo_.outline_);
 
         if (surface_)
         {

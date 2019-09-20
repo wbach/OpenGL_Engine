@@ -1,13 +1,12 @@
 #pragma once
 #include <Types.h>
-#include <Utils/XML/XmlWriter.h>
 #include "GameEngine/Renderers/GUI/Layer/GuiLayer.h"
 
 namespace GameEngine
 {
-class GuiElementWriter
+namespace GuiElementWriter
 {
-public:
-    void write(const std::string&, std::vector<GuiLayer>);
-};
+void write(std::vector<GuiLayer>);
+void write(const std::string&, const GuiLayer& layer);
+}  // namespace GuiElementWriter
 }  // namespace GameEngine

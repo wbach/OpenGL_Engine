@@ -139,7 +139,7 @@ void Layout::SetPermamanet(bool is)
     GuiElement::SetPermamanet(is);
 }
 
-bool Layout::CompareZValue(const GuiElement & element) const
+bool Layout::CompareZValue(const GuiElement& element) const
 {
     for (auto& child : children_)
     {
@@ -149,6 +149,11 @@ bool Layout::CompareZValue(const GuiElement & element) const
         }
     }
     return GuiElement::CompareZValue(element);
+}
+
+const std::vector<std::unique_ptr<LayoutElementWrapper>>& Layout::GetChildren() const
+{
+    return children_;
 }
 
 }  // namespace GameEngine

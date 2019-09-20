@@ -45,6 +45,8 @@ public:
     float GetZTotalValue() const;
     const std::string& GetLabel() const;
     bool IsMarkToRemove() const;
+    void SetInBackgorund(bool);
+    bool IsBackground() const;
 
     void MarkToRemove();
     void SetLabel(const std::string& label);
@@ -84,6 +86,7 @@ protected:
     uint32 id_;
     bool isMarkToRemove_;
     bool isPermament_;
+    bool isBackround_;
 
 public:
     static uint32 ID;
