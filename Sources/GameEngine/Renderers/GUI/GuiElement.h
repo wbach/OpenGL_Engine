@@ -37,15 +37,17 @@ public:
     virtual void SetZPositionOffset(float offset);
     virtual float GetZValue() const;
     virtual float GetZOffsetValue() const;
-    float GetZTotalValue() const;
-    uint32 GetId() const;
-    void MarkToRemove();
-    bool IsMarkToRemove() const;
-    const std::string& GetLabel() const;
-    void SetLabel(const std::string& label);
     virtual void SetPermamanet(bool);
     virtual bool IsPermament() const;
     virtual bool CompareZValue(const GuiElement&) const;
+
+    uint32 GetId() const;
+    float GetZTotalValue() const;
+    const std::string& GetLabel() const;
+    bool IsMarkToRemove() const;
+
+    void MarkToRemove();
+    void SetLabel(const std::string& label);
 
 public:
     GuiElementTypes GetType() const;

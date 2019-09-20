@@ -63,15 +63,6 @@ int GuiEditScene::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() { multiSelect = true; });
     inputManager_->SubscribeOnKeyUp(KeyCodes::LCTRL, [&]() { multiSelect = false; });
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [&]() {
-        DEBUG_LOG("Elements : ");
-        for (const auto& el : guiManager_->GetElements())
-        {
-            DEBUG_LOG(" : Z offset : " + std::to_string(el->GetZOffsetValue()) + ", Z position : " + std::to_string(el->GetZValue()) + ", z total : " + std::to_string(el->GetZTotalValue()));
-        }
-        DEBUG_LOG("========================");
-    });
-
     GUI_FILE = EngineConf_GetFullDataPath("Scenes/Editor/CommonMenu.xml");
     guiElementFactory_->ReadGuiFile(GUI_FILE);
 

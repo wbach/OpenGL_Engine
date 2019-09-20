@@ -7,67 +7,104 @@ namespace GameEngine
 namespace
 {
 const std::string DEFAULT_ACTION = "DefaultAction";
+const std::string DEFAULT_LAYER  = "DefaultLayer";
+}  // namespace
+GuiManager::GuiManager()
+{
+    AddLayer(DEFAULT_LAYER);
 }
+
+GuiLayer& GuiManager::AddLayer(const std::string& name)
+{
+    auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
+    if (iter == layers_.end())
+    {
+        layers_.emplace_back(name);
+        return layers_.back();
+    }
+
+    ERROR_LOG("Layer with name : " + name + " already exist");
+    return *iter;
+}
+
+void GuiManager::Add(const std::string& layerName, std::unique_ptr<GuiElement> element)
+{
+    auto iter = std::find_if(layers_.begin(), layers_.end(), [layerName](const auto& layer) { return layer.GetName() == layerName; });
+
+    if (iter != layers_.end())
+    {
+        iter->Add(std::move(element));
+    }
+    else
+    {
+        ERROR_LOG("Layer with name : " + layerName + " not found");
+    }
+}
+
 void GuiManager::Add(std::unique_ptr<GuiElement> element)
 {
-    elements_.push_back(std::move(element));
+    Add(DEFAULT_LAYER, std::move(element));
 }
 GuiElement* GuiManager::GetElement(const std::string& label)
 {
-    auto element = std::find_if(elements_.begin(), elements_.end(), [&label](const auto& element) { return element->GetLabel() == label; });
+    for (auto& layer : layers_)
+    {
+        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [&label](const auto& element) { return element->GetLabel() == label; });
 
-    if (element != elements_.end())
-    {
-        return element->get();
+        if (element != layer.GetElements().end())
+        {
+            return element->get();
+        }
     }
-    else
-    {
-        DEBUG_LOG("Element with label " + label + " not found");
-        return nullptr;
-    }
+
+    DEBUG_LOG("Element with label " + label + " not found");
+    return nullptr;
 }
 GuiElement* GuiManager::GetElement(uint32 id)
 {
-    auto element = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
+    for (auto& layer : layers_)
+    {
+        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [id](const auto& element) { return element->GetId() == id; });
 
-    if (element != elements_.end())
-    {
-        return element->get();
+        if (element != layer.GetElements().end())
+        {
+            return element->get();
+        }
     }
-    else
-    {
-        return nullptr;
-    }
+    return nullptr;
 }
-const GuiElements& GuiManager::GetElements() const
+const GuiLayers& GuiManager::GetGuiLayers() const
 {
-    return elements_;
+    return layers_;
 }
 
 void GuiManager::Update()
 {
-    for (auto iter = elements_.begin(); iter != elements_.end();)
+    for (auto& layer : layers_)
     {
-        auto element = iter->get();
+        for (auto iter = layer.GetElements().begin(); iter != layer.GetElements().end();)
+        {
+            auto element = iter->get();
 
-        if (element and element->IsMarkToRemove())
-        {
-            iter = elements_.erase(iter);
+            if (element and element->IsMarkToRemove())
+            {
+                iter = layer.GetElements().erase(iter);
+            }
+            else
+            {
+                element->Update();
+                ++iter;
+            }
         }
-        else
-        {
-            element->Update();
-            ++iter;
-        }
-    }
 
-    if (not tasks_.empty())
-    {
-        for (auto& task : tasks_)
+        if (not tasks_.empty())
         {
-            task();
+            for (auto& task : tasks_)
+            {
+                task();
+            }
+            tasks_.clear();
         }
-        tasks_.clear();
     }
 }
 
@@ -123,34 +160,55 @@ void GuiManager::Remove(const GuiElement& element)
 {
     auto id = element.GetId();
 
-    auto iter = std::find_if(elements_.begin(), elements_.end(), [id](const auto& element) { return element->GetId() == id; });
-
-    if (iter != elements_.end())
+    for (auto& layer : layers_)
     {
-        elements_.erase(iter);
+        auto iter = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [id](const auto& element) { return element->GetId() == id; });
+
+        if (iter != layer.GetElements().end())
+        {
+            layer.GetElements().erase(iter);
+        }
     }
 }
 
 void GuiManager::RemoveNotPermaments()
 {
     DEBUG_LOG("");
-    for (auto iter = elements_.begin(); iter != elements_.end();)
+    for (auto& layer : layers_)
     {
-        if (not(*iter)->IsPermament())
+        for (auto iter = layer.GetElements().begin(); iter != layer.GetElements().end();)
         {
-            DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
-            iter = elements_.erase(iter);
-        }
-        else
-        {
-            ++iter;
+            if (not(*iter)->IsPermament())
+            {
+                DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
+                iter = layer.GetElements().erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
         }
     }
 }
 
 void GuiManager::RemoveAll()
 {
-    elements_.clear();
+    for (auto& layer : layers_)
+    {
+        layer.GetElements().clear();
+    }
+}
+
+GuiLayer* GuiManager::GetLayer(const std::string& name)
+{
+    auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
+    if (iter != layers_.end())
+    {
+        return &(*iter);
+    }
+
+    ERROR_LOG("Layer with name : " + name + " not found");
+    return nullptr;
 }
 
 }  // namespace GameEngine

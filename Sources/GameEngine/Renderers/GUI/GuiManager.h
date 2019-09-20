@@ -6,10 +6,11 @@
 #include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
+#include "Layer/GuiLayer.h"
 
 namespace GameEngine
 {
-typedef std::vector<std::unique_ptr<GuiElement>> GuiElements;
+typedef std::vector<GuiLayer> GuiLayers;
 typedef std::unordered_map<std::string, GuiElement*> GuiElementsMap;
 
 using ActionFunction = std::function<void(GuiElement&)>;
@@ -17,6 +18,9 @@ using ActionFunction = std::function<void(GuiElement&)>;
 class GuiManager
 {
 public:
+    GuiManager();
+    GuiLayer& AddLayer(const std::string&);
+    void Add(const std::string& layerName, std::unique_ptr<GuiElement> element);
     void Add(std::unique_ptr<GuiElement> element);
     void Update();
     void RegisterAction(const std::string&, ActionFunction);
@@ -32,15 +36,17 @@ public:
     template <class T>
     T* Get(const std::string&);
 
+    GuiLayer* GetLayer(const std::string&);
+    const GuiLayers& GetGuiLayers() const;
+
     GuiElement* GetElement(const std::string&);
     GuiElement* GetElement(uint32 id);
-    const GuiElements& GetElements() const;
     ActionFunction GetActionFunction(const std::string& name);
 
     void AddTask(std::function<void()>);
 
 private:
-    GuiElements elements_;
+    GuiLayers layers_;
     std::unordered_map<std::string, ActionFunction> registeredActions_;
     std::vector<std::function<void()>> tasks_;
 };

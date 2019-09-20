@@ -31,16 +31,19 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
 {
     isOnTop_ = [this](GuiElement &checkingElement) {
         auto mousePosition = inputManager_.GetMousePosition();
-        for (const auto &element : guiManager_.GetElements())
+        for (const auto &layer : guiManager_.GetGuiLayers())
         {
-            if (element->GetType() == GuiElementTypes::Text or element->GetId() == element->GetId())
+            for (const auto &element : layer.GetElements())
             {
-                continue;
-            }
+                if (element->GetType() == GuiElementTypes::Text or element->GetId() == element->GetId())
+                {
+                    continue;
+                }
 
-            if (element->IsShow() and element->IsCollision(mousePosition) and element->CompareZValue(checkingElement))
-            {
-                return false;
+                if (element->IsShow() and element->IsCollision(mousePosition) and element->CompareZValue(checkingElement))
+                {
+                    return false;
+                }
             }
         }
         return true;
