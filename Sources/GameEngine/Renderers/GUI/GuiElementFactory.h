@@ -70,6 +70,7 @@ public:
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);
+    void CreateWindowBar(GuiWindowElement& window);
 
 private:
     GuiManager& guiManager_;
@@ -82,7 +83,6 @@ private:
     GuiTextFactory guiTextFactory_;
     std::function<bool(GuiElement&)> isOnTop_;
     GuiTheme theme_;
-
 
 private:
     uint32 guiElementCounter_;

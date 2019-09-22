@@ -24,6 +24,7 @@ public:
     virtual void SetPermamanet(bool) override;
     virtual bool CompareZValue(const GuiElement&) const override;
     const std::vector<std::unique_ptr<GuiElement>>& GetChildren() const;
+    void CheckCollisionPoint();
 
 private:
     std::vector<std::unique_ptr<GuiElement>> children_;

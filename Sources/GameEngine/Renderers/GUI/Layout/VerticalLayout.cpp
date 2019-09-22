@@ -8,7 +8,6 @@ GuiElementTypes VerticalLayout::type = GuiElementTypes::VerticalLayout;
 VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &inputManager)
     : Layout(type, windowSize)
     , inputManager_(inputManager)
-    , algin_(Algin::CENTER)
     , viewPosition_(0.f)
     , scrollSensitive_(0.02f)
 {
@@ -28,12 +27,6 @@ void VerticalLayout::ResetView()
 LayoutElementWrapper &VerticalLayout::AddChild(std::unique_ptr<GuiElement> element)
 {
     return Layout::AddChild(std::move(element), [this]() { OnChange(); });
-}
-
-void VerticalLayout::SetAlgin(Algin algin)
-{
-    algin_ = algin;
-    OnChange();
 }
 
 void VerticalLayout::SetPostion(const vec2 &position)

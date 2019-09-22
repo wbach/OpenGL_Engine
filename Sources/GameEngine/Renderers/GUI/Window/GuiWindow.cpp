@@ -34,12 +34,7 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
     , inputManager_(inputManager)
     , titleBarSize_(0.43f)
 {
-    inputSubscribtionKeyDown_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
-        auto position   = inputManager_.GetMousePosition();
-        collisionPoint_ = GetCollisionPoint(position);
-    });
-
-    inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
+   inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
 }
 
 GuiWindowElement::~GuiWindowElement()
@@ -57,7 +52,7 @@ void GuiWindowElement::AddChild(std::unique_ptr<GuiElement> element)
     children_.push_back(std::move(element));
 }
 
-void GuiWindowElement::SetRect(const Rect &rect)
+void GuiWindowElement::SetRect(const Rect& rect)
 {
     for (auto& child : children_)
     {
@@ -68,7 +63,7 @@ void GuiWindowElement::SetRect(const Rect &rect)
 
 void GuiWindowElement::Update()
 {
-    for(auto& child : children_)
+    for (auto& child : children_)
     {
         child->Update();
     }
@@ -78,25 +73,16 @@ void GuiWindowElement::Update()
 
     auto position = inputManager_.GetMousePosition();
 
-    auto barYStart = scale_.y - (scale_.y * titleBarSize_);
+    auto newPosition = position - *collisionPoint_;
+    auto moveVec     = newPosition - position_;
 
-    if (collisionPoint_->y > barYStart)
+    if (glm::length(moveVec) > std::numeric_limits<float>::min())
     {
-        auto newPosition = position - *collisionPoint_;
-        auto moveVec     = newPosition - position_;
-
-        if (glm::length(moveVec) > std::numeric_limits<float>::min())
+        SetPostion(newPosition);
+        for (auto& child : children_)
         {
-            SetPostion(newPosition);
-            for (auto& child : children_)
-            {
-                UpdatePosition(*child, moveVec);
-            }
+            UpdatePosition(*child, moveVec);
         }
-    }
-    else
-    {
-        // Is on top
     }
 }
 
@@ -159,7 +145,7 @@ void GuiWindowElement::SetPermamanet(bool is)
     GuiElement::SetPermamanet(is);
 }
 
-bool GuiWindowElement::CompareZValue(const GuiElement & element) const
+bool GuiWindowElement::CompareZValue(const GuiElement& element) const
 {
     for (auto& child : children_)
     {
@@ -171,8 +157,13 @@ bool GuiWindowElement::CompareZValue(const GuiElement & element) const
     return GuiElement::CompareZValue(element);
 }
 
-const std::vector<std::unique_ptr<GuiElement>> &GuiWindowElement::GetChildren() const
+const std::vector<std::unique_ptr<GuiElement>>& GuiWindowElement::GetChildren() const
 {
     return children_;
+}
+void GuiWindowElement::CheckCollisionPoint()
+{
+    auto position   = inputManager_.GetMousePosition();
+    collisionPoint_ = position - position_;
 }
 }  // namespace GameEngine

@@ -56,7 +56,8 @@ void GrassRenderer::Subscribe(GameObject* gameObject)
 void GrassRenderer::UnSubscribe(GameObject* gameObject)
 {
     auto id = gameObject->GetId();
-    std::remove_if(subscribes_.begin(), subscribes_.end(), [id](const auto& pair) { return pair.first == id; });
+    auto value = std::remove_if(subscribes_.begin(), subscribes_.end(), [id](const auto& pair) { return pair.first == id; });
+    subscribes_.erase(value);
 }
 
 void GrassRenderer::UnSubscribeAll()

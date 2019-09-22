@@ -12,10 +12,18 @@ namespace GameEngine
 class Layout : public GuiElement
 {
 public:
+    enum class Algin
+    {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
+
     Layout(GuiElementTypes type, const vec2ui& windowSize);
     ~Layout();
     virtual void Update();
     virtual void ResetView();
+    void SetAlgin(Algin algin);
     virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>) = 0;
     virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>, std::function<void()>);
     virtual void Remove(GuiElement*);
@@ -36,5 +44,6 @@ public:
 
 protected:
     std::vector<std::unique_ptr<LayoutElementWrapper>> children_;
+    Algin algin_;
 };
 }  // namespace GameEngine

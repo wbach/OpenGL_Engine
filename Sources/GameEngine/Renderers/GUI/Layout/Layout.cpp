@@ -6,6 +6,7 @@ namespace GameEngine
 {
 Layout::Layout(GuiElementTypes type, const vec2ui& windowSize)
     : GuiElement(type, windowSize)
+    , algin_(Algin::CENTER)
 {
 }
 
@@ -109,6 +110,11 @@ void Layout::SetPostion(const vec2ui& position)
         child->SetPostion(position);
     }
     GuiElement::SetPostion(position);
+}
+
+void Layout::SetAlgin(Algin algin)
+{
+    algin_ = algin;
 }
 
 void Layout::SetZPosition(float z)

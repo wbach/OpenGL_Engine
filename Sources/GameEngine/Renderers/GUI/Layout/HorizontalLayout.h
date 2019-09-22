@@ -10,6 +10,7 @@ public:
     virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>) override;
 
 private:
+    float CalculateXPosition(const GuiElement&);
     void OnChange();
 
 private:
