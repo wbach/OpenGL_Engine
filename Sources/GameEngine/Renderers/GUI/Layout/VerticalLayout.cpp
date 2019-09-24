@@ -95,8 +95,10 @@ void VerticalLayout::UpdateVisibility()
     {
         const auto &child = element->Get();
 
-        if (child.GetPosition().y - child.GetScale().y < position_.y - scale_.y or
-            child.GetPosition().y + child.GetScale().y > position_.y + scale_.y)
+        bool bottomBorder = child.GetPosition().y - child.GetScale().y < (position_.y - scale_.y - std::numeric_limits<float>::epsilon());
+        bool upperBorder  = child.GetPosition().y + child.GetScale().y > (position_.y + scale_.y + std::numeric_limits<float>::epsilon());
+
+        if (bottomBorder or upperBorder)
         {
             element->HideWithoutNotif();
         }

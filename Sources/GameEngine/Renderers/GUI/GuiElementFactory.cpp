@@ -230,29 +230,27 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::
 void GuiElementFactory::CreateWindowBar(GuiWindowElement &window)
 {
     auto ptr = &window;
-
     const float barHeight = 0.04f;
+    const vec2 barPosition(0, window.GetScale().y + barHeight);
+
     auto horizontalLayout = CreateHorizontalLayout();
     horizontalLayout->SetScale(vec2(window.GetScale().x, barHeight));
-    horizontalLayout->SetPostion(vec2(0, window.GetScale().y + barHeight));
+    horizontalLayout->SetPostion(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
 
     auto barButton  = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
     auto barTexture = CreateGuiTexture(theme_.windowBarTexture);
     barButton->SetScale(vec2(window.GetScale().x, barHeight));
-    barButton->SetPostion(vec2(0, window.GetScale().y + barHeight));
+    barButton->SetPostion(barPosition);
     barButton->SetBackgroundTexture(std::move(barTexture));
     window.AddChild(std::move(barButton));
 
     auto closeButton = CreateGuiButton([ptr](auto &) { ptr->MarkToRemove(); });
-
     auto closeButtonX = CreateGuiText(theme_.font, "X", 32, 0);
     closeButton->SetScale(closeButtonX->GetScale());
-    auto closeButtonPosition = window.GetScale() + closeButtonX->GetScale();
-    closeButton->SetPostion(closeButtonPosition);
     closeButton->SetText(std::move(closeButtonX));
-
     horizontalLayout->AddChild(std::move(closeButton));
+
     window.AddChild(std::move(horizontalLayout));
 }
 
