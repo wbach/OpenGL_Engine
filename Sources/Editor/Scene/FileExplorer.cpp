@@ -114,7 +114,9 @@ void FileExplorer::AddRefillTask(const std::string &dir)
 void FileExplorer::CreateButtonWithFilename(const std::string &filename, GameEngine::ActionFunction onClick)
 {
     auto button = guiFactory_.CreateGuiButton(filename, onClick);
+    auto texture = guiFactory_.CreateGuiTexture("GUI/gray.png");
     button->SetZPosition(-1.f);
+    button->SetBackgroundTexture(std::move(texture));
     fileLayout_->AddChild(std::move(button));
 }
 void FileExplorer::CreateSeletedFileText()
@@ -142,6 +144,10 @@ void FileExplorer::CreateActionButtons()
 
     okButton->SetZPosition(-1.f);
     okButton->GetText()->SetColor(vec3(0.8f));
+
+    auto texture = guiFactory_.CreateGuiTexture("GUI/gray.png");
+    okButton->SetBackgroundTexture(std::move(texture));
+
     windowLayout_->AddChild(std::move(okButton));
 }
 void FileExplorer::CreateCurrentDirBar()

@@ -67,10 +67,11 @@ std::string GetFilePatch(const std::string& file_full_path)
         data_index = file_full_path.find(EngineConf.files.shaders);
         size       = EngineConf.files.shaders.size();
     }
-
-    auto str = file_full_path.substr(data_index + size);
-
-    return str;
+    if (data_index == std::string::npos)
+    {
+        return file_full_path;
+    }
+    return file_full_path.substr(data_index + size);
 }
 
 void AddRequiredFile(const std::string& file)
@@ -106,5 +107,9 @@ void ReadFromFile(const std::string& filename)
         WriteConfigurationToFile(EngineConf, filename);
     }
     AddRequiredFile(filename);
+}
+std::string RemoveDataPath(const std::string & path)
+{
+    return GetFilePatch(path);
 }
 }  // namespace GameEngine

@@ -13,6 +13,7 @@ public:
     GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
     ~GuiWindowElement() override;
     void AddChild(std::unique_ptr<GuiElement>);
+    void AddMember(std::unique_ptr<GuiElement>);
     virtual void SetRect(const Rect& rect) override;
     virtual void Update() override;
     virtual void SetScale(const vec2& scale);
@@ -28,6 +29,7 @@ public:
     void CheckCollisionPoint();
 
 private:
+    std::vector<std::unique_ptr<GuiElement>> members_;
     std::vector<std::unique_ptr<GuiElement>> children_;
     Input::InputManager& inputManager_;
     float titleBarSize_;

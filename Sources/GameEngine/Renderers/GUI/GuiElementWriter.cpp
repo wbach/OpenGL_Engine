@@ -6,8 +6,10 @@
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Engine/Configuration.h>
 #include <Utils/XML/XmlWriter.h>
 #include "GuiElementsDef.h"
+#include <Utils/Utils.h>
 
 namespace GameEngine
 {
@@ -27,6 +29,11 @@ void write(Utils::XmlNode& node, const vec2& v)
     node.attributes_.insert({Gui::Y, std::to_string(v.y)});
 }
 void write(Utils::XmlNode& node, bool v)
+{
+    node.value_ = Utils::BoolToString(v);
+}
+template<class T>
+void write(Utils::XmlNode& node, T v)
 {
     node.value_ = std::to_string(v);
 }
@@ -54,50 +61,55 @@ void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
 void write(Utils::XmlNode& node, const GuiTextElement& text)
 {
     auto& textNode = node.AddChild(Gui::TEXT);
+
     writeBasicParams(textNode, text);
-    auto& font = node.AddChild(Gui::FONT);
-    write(font, text.GetFontInfo().font_);
-    auto& fontSize = node.AddChild(Gui::FONT_SIZE);
+    auto& font = textNode.AddChild(Gui::FONT);
+    write(font, EngineConf_RemoveDataPath(text.GetFontInfo().font_));
+    auto& fontSize = textNode.AddChild(Gui::FONT_SIZE);
     write(fontSize, text.GetFontInfo().fontSize_);
-    auto& outline = node.AddChild(Gui::FONT_OUTLINE);
+    auto& outline = textNode.AddChild(Gui::FONT_OUTLINE);
     write(outline, text.GetFontInfo().outline_);
-    auto& value = node.AddChild(Gui::VALUE);
+    auto& value = textNode.AddChild(Gui::VALUE);
     write(value, text.GetText());
 }
 void write(Utils::XmlNode& node, const GuiTextureElement& texture)
 {
     auto& textureNode = node.AddChild(Gui::TEXTURE);
+
     writeBasicParams(textureNode, texture);
-    auto& file = node.AddChild(Gui::FILE);
-    write(file, texture.GetFilename());
+    auto& file = textureNode.AddChild(Gui::FILE);
+    write(file, EngineConf_RemoveDataPath(texture.GetFilename()));
 }
-void write(Utils::XmlNode& node, const GuiButtonElement& button)
+void write(Utils::XmlNode& node, const GuiButtonElement& button, const std::string& label = "")
 {
     auto& buttonNode = node.AddChild(Gui::BUTTON);
-    writeBasicParams(buttonNode, button);
 
-    auto& value = node.AddChild(Gui::ACTION);
+    writeBasicParams(buttonNode, button);
+    auto& value = buttonNode.AddChild(Gui::ACTION);
     write(value, button.GetActionName());
+
+    if (button.GetText())
+    {
+        write(buttonNode, *button.GetText());
+    }
 
     if (button.GetBackgroundTexture())
     {
-        auto& backgroundTexture = node.AddChild(Gui::BACKGROUND_TEXTURE);
-        write(backgroundTexture, button.GetBackgroundTexture());
+        write(buttonNode, *button.GetBackgroundTexture());
     }
     if (button.GetOnActiveTexture())
     {
-        auto& activeTexture = node.AddChild(Gui::ACTIVE_TEXTURE);
-        write(activeTexture, button.GetOnActiveTexture());
+        write(buttonNode, *button.GetOnActiveTexture());
     }
     if (button.GetOnHoverTexture())
     {
-        auto& hoverTexture = node.AddChild(Gui::HOVER_TEXTURE);
-        write(hoverTexture, button.GetOnHoverTexture());
+        write(buttonNode, *button.GetOnHoverTexture());
     }
 }
 void write(Utils::XmlNode& node, const GuiWindowElement& window)
 {
     auto& windowNode = node.AddChild(Gui::WINDOW);
+
     writeBasicParams(windowNode, window);
 
     for (const auto& child : window.GetChildren())
@@ -112,8 +124,7 @@ void write(Utils::XmlNode& node, const GuiEditBoxElement& editBox)
 
     if (editBox.GetText())
     {
-        auto& text = node.AddChild(Gui::TEXT);
-        write(text, *editBox.GetText());
+        write(editBoxNode, *editBox.GetText());
     }
 }
 
@@ -133,7 +144,7 @@ void write(Utils::XmlNode& node, const VerticalLayout& verticalLayout)
 {
     auto& verticalLayutNode = node.AddChild(Gui::VERTICAL_LAYOUT);
     writeBasicParams(verticalLayutNode, verticalLayout);
-    write(node, verticalLayout.GetAlgin());
+    write(verticalLayutNode, verticalLayout.GetAlgin());
 
     for (const auto& child : verticalLayout.GetChildren())
     {
@@ -144,7 +155,7 @@ void write(Utils::XmlNode& node, const HorizontalLayout& horizontalLayout)
 {
     auto& horizontalLayoutNode = node.AddChild(Gui::HORIZONTAL_LAYOUT);
     writeBasicParams(horizontalLayoutNode, horizontalLayout);
-    write(node, horizontalLayout.GetAlgin());
+    write(horizontalLayoutNode, horizontalLayout.GetAlgin());
 
     for (const auto& child : horizontalLayout.GetChildren())
     {

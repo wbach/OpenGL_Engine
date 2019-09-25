@@ -108,6 +108,7 @@ struct Configuration
 void SaveRequiredFiles();
 void AddRequiredFile(const std::string& file);
 void ReadFromFile(const std::string& filename);
+std::string RemoveDataPath(const std::string&);
 std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
 std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
 std::string GetFilePatch(const std::string& file_full_path);
@@ -123,3 +124,4 @@ std::string GetShaderLocationFromString(const std::string& str);
 #define EngineConf_GetFullShaderPathAddToRequierd(x) GameEngine::GetFullShaderPath(x)
 #define EngineConf_GetOrginFilePath(x) GameEngine::GetFilePatch(x)
 #define EngineConf_AddRequiredFile(x) GameEngine::AddRequiredFile(x)
+#define EngineConf_RemoveDataPath(x) GameEngine::RemoveDataPath(x)

@@ -100,7 +100,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const vec2 
         {
             backgroundGuiTexture->SetZPosition(0.5f);
             backgroundGuiTexture->SetScale(guiWindow->GetScale());
-            guiWindow->AddChild(std::move(backgroundGuiTexture));
+            guiWindow->AddMember(std::move(backgroundGuiTexture));
         }
     }
 
@@ -224,7 +224,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowElement &window)
     const vec2 barPosition(0, window.GetScale().y + barHeight);
 
     auto horizontalLayout = CreateHorizontalLayout();
-    horizontalLayout->SetScale(vec2(window.GetScale().x, barHeight));
+    horizontalLayout->SetScale(0.99f * vec2(window.GetScale().x, barHeight));
     horizontalLayout->SetPostion(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
 
@@ -233,19 +233,19 @@ void GuiElementFactory::CreateWindowBar(GuiWindowElement &window)
     barButton->SetScale(vec2(window.GetScale().x, barHeight));
     barButton->SetPostion(barPosition);
     barButton->SetBackgroundTexture(std::move(barTexture));
-    window.AddChild(std::move(barButton));
+    window.AddMember(std::move(barButton));
 
     {
         auto closeButton        = CreateGuiButton([ptr](auto &) { ptr->MarkToRemove(); });
         auto closeButtonTexture = CreateGuiTexture("GUI/close.png");
-        closeButtonTexture->SetScale(vec2(barHeight));
+        closeButtonTexture->SetScale(.5f * vec2(barHeight));
         closeButton->SetScale(closeButtonTexture->GetScale());
         closeButton->SetBackgroundTexture(std::move(closeButtonTexture));
         closeButton->SetZPosition(-1.f);
         horizontalLayout->AddChild(std::move(closeButton));
     }
 
-    window.AddChild(std::move(horizontalLayout));
+    window.AddMember(std::move(horizontalLayout));
 }
 
 void ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &node)
@@ -620,6 +620,7 @@ GuiTheme ReadTheme(Utils::XmlNode &node)
 
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 {
+
     DEBUG_LOG(filename);
 
     if (not Utils::CheckExtension(filename, "xml"))
@@ -659,9 +660,11 @@ bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 
     auto children = ReadChildrenElemets(*guiNode, *this, guiManager_);
 
+    const std::string& layerName = filename;
+    guiManager_.AddLayer(layerName);
     for (auto &child : children)
     {
-        guiManager_.Add(std::move(child));
+        guiManager_.Add(layerName, std::move(child));
     }
     return true;
 }

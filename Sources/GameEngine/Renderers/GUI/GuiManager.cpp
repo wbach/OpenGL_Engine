@@ -138,7 +138,12 @@ void GuiManager::RegisterDefaultAction(ActionFunction action)
 
 bool GuiManager::SaveToFile(const std::string& filename)
 {
-    auto layer = GetLayer(DEFAULT_LAYER);
+    return SaveToFile(filename, DEFAULT_LAYER);
+}
+
+bool GuiManager::SaveToFile(const std::string & filename, const std::string & layerName)
+{
+    auto layer = GetLayer(layerName);
     if (layer)
     {
         GuiElementWriter::write(filename, *layer);
@@ -146,6 +151,37 @@ bool GuiManager::SaveToFile(const std::string& filename)
     }
 
     return false;
+}
+
+void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
+{
+    DEBUG_LOG("Remove ");
+    if (exceptions.empty())
+    {
+        DEBUG_LOG("Remove all");
+        layers_.clear();
+    }
+    else
+    {
+        for (auto iter = layers_.begin(); iter != layers_.end();)
+        {
+            const auto& layerName = iter->GetName();
+            auto skip = std::find_if(exceptions.begin(), exceptions.end(), [&layerName](const auto& layer) 
+            {
+                return layerName == layer;
+            });
+
+            if (skip == exceptions.end())
+            {
+                DEBUG_LOG("Remove " + layerName);
+                iter = layers_.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+        }
+    }
 }
 
 void GuiManager::Remove(uint32 id)
@@ -178,22 +214,22 @@ void GuiManager::Remove(const GuiElement& element)
 
 void GuiManager::RemoveNotPermaments()
 {
-    DEBUG_LOG("");
-    for (auto& layer : layers_)
-    {
-        for (auto iter = layer.GetElements().begin(); iter != layer.GetElements().end();)
-        {
-            if (not(*iter)->IsPermament())
-            {
-                DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
-                iter = layer.GetElements().erase(iter);
-            }
-            else
-            {
-                ++iter;
-            }
-        }
-    }
+    //DEBUG_LOG("");
+    //for (auto& layer : layers_)
+    //{
+    //    for (auto iter = layer.GetElements().begin(); iter != layer.GetElements().end();)
+    //    {
+    //        if (not(*iter)->IsPermament())
+    //        {
+    //            DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
+    //            iter = layer.GetElements().erase(iter);
+    //        }
+    //        else
+    //        {
+    //            ++iter;
+    //        }
+    //    }
+    //}
 }
 
 void GuiManager::RemoveAll()

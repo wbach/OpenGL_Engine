@@ -305,7 +305,7 @@ void GuiButtonElement::SetPermamanet(bool is)
     GuiElement::SetPermamanet(is);
 }
 
-GuiTextElement *GuiButtonElement::GetText()
+GuiTextElement *GuiButtonElement::GetText() const
 {
     return text_.get();
 }

@@ -26,6 +26,8 @@ public:
     void RegisterAction(const std::string&, ActionFunction);
     void RegisterDefaultAction(ActionFunction);
     bool SaveToFile(const std::string&);
+    bool SaveToFile(const std::string&, const std::string&);
+    void RemoveLayersExpect(const std::vector<std::string>& exceptions = {});
     void Remove(uint32);
     void Remove(const GuiElement&);
     void RemoveNotPermaments();

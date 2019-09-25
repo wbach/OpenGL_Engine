@@ -39,7 +39,7 @@ public:
     void Hide() override;
     void execute(std::function<void(uint32)>) override;
     void SetPermamanet(bool) override;
-    GuiTextElement* GetText();
+    GuiTextElement* GetText() const;
     GuiTextureElement* GetBackgroundTexture() const;
     GuiTextureElement* GetOnHoverTexture() const;
     GuiTextureElement* GetOnActiveTexture() const;
