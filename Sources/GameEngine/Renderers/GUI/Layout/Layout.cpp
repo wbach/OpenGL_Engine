@@ -117,6 +117,11 @@ void Layout::SetAlgin(Algin algin)
     algin_ = algin;
 }
 
+Layout::Algin Layout::GetAlgin() const
+{
+    return algin_;
+}
+
 void Layout::SetZPosition(float z)
 {
     GuiElement::SetZPosition(z);

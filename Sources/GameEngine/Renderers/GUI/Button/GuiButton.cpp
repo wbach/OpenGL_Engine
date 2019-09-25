@@ -8,7 +8,7 @@ const uint64 SHOW_ACTIVE_TIME = 100;
 
 GuiElementTypes GuiButtonElement::type = GuiElementTypes::Button;
 
-GuiButtonElement::GuiButtonElement(std::function<bool(GuiElement&)> isOnTop, Input::InputManager &inputManager, OnClick onClick, const vec2ui &windowSize)
+GuiButtonElement::GuiButtonElement(std::function<bool(GuiElement &)> isOnTop, Input::InputManager &inputManager, OnClick onClick, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
     , onClick_(onClick)
@@ -308,6 +308,31 @@ void GuiButtonElement::SetPermamanet(bool is)
 GuiTextElement *GuiButtonElement::GetText()
 {
     return text_.get();
+}
+
+GuiTextureElement *GuiButtonElement::GetBackgroundTexture() const
+{
+    return backgroundTexture_.get();
+}
+
+GuiTextureElement *GuiButtonElement::GetOnHoverTexture() const
+{
+    return onHoverTexture_.get();
+}
+
+GuiTextureElement *GuiButtonElement::GetOnActiveTexture() const
+{
+    return onActiveTextue_.get();
+}
+
+void GuiButtonElement::SetActionName(const std::string &actionName)
+{
+    actionName_ = actionName;
+}
+
+const std::string &GuiButtonElement::GetActionName() const
+{
+    return actionName_;
 }
 
 void GuiButtonElement::SubscribeInputAction()

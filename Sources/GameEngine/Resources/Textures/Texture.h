@@ -21,8 +21,8 @@ public:
     virtual ~Texture();
     inline const vec2ui& GetSize() const;
     inline uint32 GetId() const;
-    inline const std::string GetFileName() const;
-    inline const std::string GetFilPath() const;
+    inline const std::string& GetFileName() const;
+    inline const std::string& GetFilPath() const;
     inline void SetExistId(uint32 i);
     inline bool IsInitialized() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;
@@ -49,11 +49,11 @@ uint32 Texture::GetId() const
 {
     return id;
 }
-const std::string Texture::GetFileName() const
+const std::string& Texture::GetFileName() const
 {
     return filename;
 }
-const std::string Texture::GetFilPath() const
+const std::string& Texture::GetFilPath() const
 {
     return fullpath;
 }

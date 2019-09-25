@@ -4,27 +4,22 @@ namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font)
     : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str)
     : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
     : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
-                               uint32 outline)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline)
     : GuiRendererElementBase(renderSubscribe, unsubscribeElement, type, windowSize)
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
@@ -130,7 +125,7 @@ void GuiTextElement::SetZPositionOffset(float offset)
     GuiElement::SetZPositionOffset(offset - 0.5f);
 }
 
-const GuiTextElement::FontInfo &GuiTextElement::GetFontInfo() const
+const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
 {
     return fontInfo_;
 }

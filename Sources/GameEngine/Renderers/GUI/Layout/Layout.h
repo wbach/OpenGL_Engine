@@ -23,7 +23,6 @@ public:
     ~Layout();
     virtual void Update();
     virtual void ResetView();
-    void SetAlgin(Algin algin);
     virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>) = 0;
     virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>, std::function<void()>);
     virtual void Remove(GuiElement*);
@@ -40,6 +39,9 @@ public:
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetPermamanet(bool) override;
     virtual bool CompareZValue(const GuiElement&) const override;
+
+    void SetAlgin(Algin algin);
+    Algin GetAlgin() const;
     const std::vector<std::unique_ptr<LayoutElementWrapper>>& GetChildren() const;
 
 protected:

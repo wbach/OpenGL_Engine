@@ -10,6 +10,7 @@ class GuiTextureElement : public GuiRendererElementBase
 public:
     GuiTextureElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, const vec2ui& windowSize, Texture& texture);
     void Flip();
+    const std::string& GetFilename() const;
 
 public:
     static GuiElementTypes type;

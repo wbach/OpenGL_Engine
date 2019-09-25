@@ -19,6 +19,7 @@ public:
     virtual void Show(bool);
     virtual void Show() override;
     virtual void Hide() override;
+    virtual void SetPostion(const vec2&) override;
     virtual void SetZPosition(float z) override;
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetPermamanet(bool) override;

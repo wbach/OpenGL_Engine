@@ -209,6 +209,11 @@ void GuiEditBoxElement::Hide()
     GuiElement::Hide();
 }
 
+GuiTextElement *GuiEditBoxElement::GetText() const
+{
+    return text_.get();
+}
+
 const std::string &GuiEditBoxElement::GetTextString() const
 {
     return text_->GetText();

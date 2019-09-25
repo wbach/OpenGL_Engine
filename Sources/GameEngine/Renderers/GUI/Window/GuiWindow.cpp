@@ -34,7 +34,7 @@ GuiWindowElement::GuiWindowElement(const vec2ui& windowSize, Input::InputManager
     , inputManager_(inputManager)
     , titleBarSize_(0.43f)
 {
-   inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
+    inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
 }
 
 GuiWindowElement::~GuiWindowElement()
@@ -78,7 +78,7 @@ void GuiWindowElement::Update()
 
     if (glm::length(moveVec) > std::numeric_limits<float>::min())
     {
-        SetPostion(newPosition);
+        GuiElement::SetPostion(newPosition);
         for (auto& child : children_)
         {
             UpdatePosition(*child, moveVec);
@@ -116,6 +116,18 @@ void GuiWindowElement::Hide()
         child->Hide();
     }
     GuiElement::Hide();
+}
+
+void GuiWindowElement::SetPostion(const vec2& position)
+{
+    auto moveVec = position - position_;
+
+    GuiElement::SetPostion(position);
+
+    for (auto& child : children_)
+    {
+        UpdatePosition(*child, moveVec);
+    }
 }
 
 void GuiWindowElement::SetZPosition(float z)

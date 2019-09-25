@@ -14,7 +14,7 @@ HorizontalLayout::HorizontalLayout(const vec2ui &windowSize, Input::InputManager
 
 LayoutElementWrapper &HorizontalLayout::AddChild(std::unique_ptr<GuiElement> element)
 {
-    auto& result =  Layout::AddChild(std::move(element), [this]() { OnChange(); });
+    auto &result = Layout::AddChild(std::move(element), [this]() { OnChange(); });
     UpdateVisibility();
     return result;
 }
@@ -37,7 +37,6 @@ void HorizontalLayout::SetPostion(const vec2ui &position)
     OnChange();
 }
 
-
 float HorizontalLayout::CalculateXPosition(const GuiElement &)
 {
     if (children_.empty())
@@ -51,7 +50,7 @@ float HorizontalLayout::CalculateXPosition(const GuiElement &)
     }
     else if (algin_ == Algin::RIGHT)
     {
-        return scale_.x - totalChildrenScale_ - 2.f * children_[0]->Get().GetScale().x;
+        return scale_.x - totalChildrenScale_;
     }
 
     return result;
@@ -67,7 +66,7 @@ void HorizontalLayout::OnChange()
     for (std::size_t i = 1; i < children_.size(); ++i)
     {
         const auto &parent = children_[i - 1]->Get();
-        const auto &child = children_[i]->Get();
+        const auto &child  = children_[i]->Get();
 
         const auto &parentPosition = parent.GetPosition().x;
         const auto &parentScale    = parent.GetScale().x;
@@ -81,9 +80,9 @@ void HorizontalLayout::UpdateVisibility()
 {
     totalChildrenScale_ = 0.f;
 
-    for (auto& child : children_)
+    for (auto &child : children_)
     {
-        totalChildrenScale_ += 2.f  * child->Get().GetScale().x;
+        totalChildrenScale_ += 2.f * child->Get().GetScale().x;
     }
 }
 

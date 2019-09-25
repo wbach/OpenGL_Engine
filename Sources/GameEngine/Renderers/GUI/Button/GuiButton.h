@@ -40,6 +40,11 @@ public:
     void execute(std::function<void(uint32)>) override;
     void SetPermamanet(bool) override;
     GuiTextElement* GetText();
+    GuiTextureElement* GetBackgroundTexture() const;
+    GuiTextureElement* GetOnHoverTexture() const;
+    GuiTextureElement* GetOnActiveTexture() const;
+    void SetActionName(const std::string&);
+    const std::string& GetActionName() const;
 
 private:
     void SetTexture(std::unique_ptr<GuiTextureElement>&, std::unique_ptr<GuiTextureElement>&);
@@ -62,6 +67,7 @@ private:
     Utils::Timer activeTimer_;
     std::optional<uint32> subscribtion_;
     std::function<bool(GuiElement&)> isOnTop_;
+    std::string actionName_;
 
 public:
     static GuiElementTypes type;

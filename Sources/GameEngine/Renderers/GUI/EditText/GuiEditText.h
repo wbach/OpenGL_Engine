@@ -31,6 +31,7 @@ public:
     void Show(bool) override;
     void Show() override;
     void Hide() override;
+    GuiTextElement* GetText() const;
     const std::string& GetTextString() const;
     void SetText(const std::string&);
     void SetTextColor(const vec3& color);
@@ -39,6 +40,7 @@ public:
 private:
     Input::InputManager& inputManager_;
 
+    std::string defaultText_;
     std::unique_ptr<GuiTextElement> text_;
     std::unique_ptr<GuiTextElement> cursor_;
     std::unique_ptr<GuiTextureElement> backgroundTexture_;
