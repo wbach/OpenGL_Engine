@@ -17,6 +17,7 @@ public:
     std::vector<std::unique_ptr<GuiElement>>& GetElements();
     const std::vector<std::unique_ptr<GuiElement>>& GetElements() const;
     const std::string& GetName() const;
+    void SetZPosition(float z);
 
 private:
     std::string name;

@@ -49,4 +49,12 @@ const std::string& GuiLayer::GetName() const
 {
     return name;
 }
+
+void GuiLayer::SetZPosition(float z)
+{
+    for (auto& element : children_)
+    {
+        element->SetZPosition(z);
+    }
+}
 }  // namespace GameEngine
