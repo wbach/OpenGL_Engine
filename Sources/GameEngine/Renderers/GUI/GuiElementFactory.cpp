@@ -193,6 +193,7 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     button->SetScale(1.5f * button->GetScale());
     button->SetPostion(vec2(0, -0.25));
     window->AddChild(std::move(button));
+    guiManager_.Add(std::move(window));
 }
 
 void GuiElementFactory::SetTheme(const GuiTheme &theme)
