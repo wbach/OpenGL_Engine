@@ -125,11 +125,14 @@ void VerticalLayout::EnableScroll()
     if (not mouseWheelUpSub_)
     {
         mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() {
-            auto isLastShow = children_.back()->Get().IsShow();
-            if (IsShow() and not isLastShow)
+            if (not children_.empty())
             {
-                viewPosition_ -= scrollSensitive_;
-                OnChange();
+                auto isLastShow = children_.back()->Get().IsShow();
+                if (IsShow() and not isLastShow)
+                {
+                    viewPosition_ -= scrollSensitive_;
+                    OnChange();
+                }
             }
         });
     }

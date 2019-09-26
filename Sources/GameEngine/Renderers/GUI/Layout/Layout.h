@@ -39,6 +39,7 @@ public:
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetPermamanet(bool) override;
     virtual bool CompareZValue(const GuiElement&) const override;
+    virtual GuiElement* Get(const std::string& label) override;
 
     void SetAlgin(Algin algin);
     Algin GetAlgin() const;

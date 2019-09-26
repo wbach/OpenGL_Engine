@@ -226,6 +226,21 @@ bool GuiWindowElement::CompareZValue(const GuiElement& element) const
     return GuiElement::CompareZValue(element);
 }
 
+GuiElement *GuiWindowElement::Get(const std::string &label)
+{
+    for (auto& child : children_)
+    {
+        auto toReturn = child->Get(label);
+
+        if (toReturn)
+        {
+            return toReturn;
+        }
+    }
+
+    return GuiElement::Get(label);
+}
+
 const std::vector<std::unique_ptr<GuiElement>>& GuiWindowElement::GetChildren() const
 {
     return children_;

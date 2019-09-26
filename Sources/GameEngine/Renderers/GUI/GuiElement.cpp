@@ -42,15 +42,13 @@ void GuiElement::Update()
 }
 bool GuiElement::IsCollision(const vec2ui& pos) const
 {
-    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and
-           pos.y <= rect_.position.y + rect_.size.y;
+    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
 }
 
 bool GuiElement::IsCollision(const vec2& pos) const
 {
     auto convertedPos = pos;
-    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and
-           convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
+    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
 }
 std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 {
@@ -242,7 +240,19 @@ bool GuiElement::IsPermament() const
 }
 
 bool GuiElement::CompareZValue(const GuiElement& element) const
-{// - 0.001f
+{
     return std::isgreater(GetZTotalValue(), element.GetZTotalValue());
+}
+
+GuiElement* GuiElement::Get(const std::string& label)
+{
+    if (label_ == label)
+    {
+        return this;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 }  // namespace GameEngine

@@ -162,6 +162,21 @@ bool Layout::CompareZValue(const GuiElement& element) const
     return GuiElement::CompareZValue(element);
 }
 
+GuiElement *Layout::Get(const std::string &label)
+{
+    for (auto& child : children_)
+    {
+        auto toReturn = child->Get(label);
+
+        if (toReturn)
+        {
+            return toReturn;
+        }
+    }
+
+    return GuiElement::Get(label);
+}
+
 const std::vector<std::unique_ptr<LayoutElementWrapper>>& Layout::GetChildren() const
 {
     return children_;

@@ -49,11 +49,11 @@ GuiElement* GuiManager::GetElement(const std::string& label)
 {
     for (auto& layer : layers_)
     {
-        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [&label](const auto& element) { return element->GetLabel() == label; });
+        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [&label](const auto& element) { return element->Get(label) != nullptr; });
 
         if (element != layer.GetElements().end())
         {
-            return element->get();
+            return (*element)->Get(label);
         }
     }
 

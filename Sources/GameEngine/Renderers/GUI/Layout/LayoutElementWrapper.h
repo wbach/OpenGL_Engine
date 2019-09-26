@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
-#include "GameEngine/Renderers/GUI/Rect.h"
 #include <memory>
+#include "GameEngine/Renderers/GUI/Rect.h"
 
 namespace GameEngine
 {
@@ -32,6 +32,7 @@ public:
     const GuiElement& Get() const;
     void SetPermamanet(bool);
     bool CompareZValue(const GuiElement&) const;
+    GuiElement* Get(const std::string& label);
 
 private:
     std::unique_ptr<GuiElement> element_;

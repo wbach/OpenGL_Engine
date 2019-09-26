@@ -70,6 +70,7 @@ void GuiEditScene::AddMenuButtonAction()
         fileExplorer_->Start(Utils::GetCurrentDir(), [&](const std::string& str) {
             guiManager_->RemoveLayersExpect(notCleanLayers_);
             processingFilename_ = str;
+
             return guiElementFactory_->ReadGuiFile(str);
         });
     });
@@ -77,6 +78,15 @@ void GuiEditScene::AddMenuButtonAction()
     guiManager_->RegisterAction("SaveToFile()", [&](auto&) {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
         fileExplorer_->Start(Utils::GetCurrentDir(), [&](const std::string& str) { return guiManager_->SaveToFile(str, processingFilename_); });
+    });
+
+    guiManager_->RegisterAction("QuickSave()", [&](auto&) {
+        guiManager_->SaveToFile(processingFilename_, processingFilename_);
+    });
+
+    guiManager_->RegisterAction("Reload()", [&](auto&) {
+        guiManager_->RemoveLayersExpect(notCleanLayers_);
+        guiElementFactory_->ReadGuiFile(processingFilename_);
     });
 
     guiManager_->RegisterAction("Clear()", [&](auto&) { guiManager_->RemoveLayersExpect(notCleanLayers_); });
@@ -92,7 +102,7 @@ void GuiEditScene::AddMenuButtonAction()
     });
 }
 
-void GuiEditScene::ReadGuiFile(const std::string & file)
+void GuiEditScene::ReadGuiFile(const std::string& file)
 {
     auto fullName = EngineConf_GetFullDataPath(file);
     guiElementFactory_->ReadGuiFile(fullName);
@@ -129,10 +139,10 @@ void GuiEditScene::EnableSetTheSameYDistance()
         {
             auto distance = guiElementsChoose_[1]->GetPosition().y - guiElementsChoose_[0]->GetPosition().y;
 
-            for(size_t i = 2; i < guiElementsChoose_.size(); ++i)
+            for (size_t i = 2; i < guiElementsChoose_.size(); ++i)
             {
                 auto pos = guiElementsChoose_[i]->GetPosition();
-                pos.y = guiElementsChoose_[i - 1]->GetPosition().y + distance;
+                pos.y    = guiElementsChoose_[i - 1]->GetPosition().y + distance;
                 guiElementsChoose_[i]->SetPostion(pos);
             }
         }

@@ -40,6 +40,7 @@ public:
     virtual void SetPermamanet(bool);
     virtual bool IsPermament() const;
     virtual bool CompareZValue(const GuiElement&) const;
+    virtual GuiElement* Get(const std::string& label);
 
     uint32 GetId() const;
     float GetZTotalValue() const;

@@ -115,6 +115,11 @@ bool LayoutElementWrapper::CompareZValue(const GuiElement &element) const
     return element_->CompareZValue(element);
 }
 
+GuiElement *LayoutElementWrapper::Get(const std::string &label)
+{
+    return element_->Get(label);
+}
+
 void LayoutElementWrapper::MarkToRemove()
 {
     element_->MarkToRemove();

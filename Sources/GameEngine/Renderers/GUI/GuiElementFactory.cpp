@@ -659,8 +659,6 @@ bool GuiElementFactory::ReadGuiFile(const std::string &filename)
         return false;
     }
 
-    guiManager_.RemoveNotPermaments();
-
     Utils::XmlReader reader;
     if (not reader.ReadXml(fileContent))
     {
