@@ -1,4 +1,5 @@
 #include "GuiElementWriter.h"
+#include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/EditText/GuiEditText.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
@@ -6,10 +7,9 @@
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
-#include <GameEngine/Engine/Configuration.h>
+#include <Utils/Utils.h>
 #include <Utils/XML/XmlWriter.h>
 #include "GuiElementsDef.h"
-#include <Utils/Utils.h>
 
 namespace GameEngine
 {
@@ -32,7 +32,7 @@ void write(Utils::XmlNode& node, bool v)
 {
     node.value_ = Utils::BoolToString(v);
 }
-template<class T>
+template <class T>
 void write(Utils::XmlNode& node, T v)
 {
     node.value_ = std::to_string(v);
@@ -80,7 +80,14 @@ void write(Utils::XmlNode& node, const GuiTextureElement& texture)
     auto& file = textureNode.AddChild(Gui::FILE);
     write(file, EngineConf_RemoveDataPath(texture.GetFilename()));
 }
-void write(Utils::XmlNode& node, const GuiButtonElement& button, const std::string& label = "")
+void writeNoneTexture(Utils::XmlNode& node, const std::string& label)
+{
+    auto& textureNode = node.AddChild(Gui::TEXTURE);
+
+    textureNode.AddChild(Gui::LABEL).value_ = label;
+    textureNode.AddChild(Gui::FILE).value_  = Gui::NONE;
+}
+void write(Utils::XmlNode& node, const GuiButtonElement& button)
 {
     auto& buttonNode = node.AddChild(Gui::BUTTON);
 
@@ -97,13 +104,27 @@ void write(Utils::XmlNode& node, const GuiButtonElement& button, const std::stri
     {
         write(buttonNode, *button.GetBackgroundTexture());
     }
+    else
+    {
+        writeNoneTexture(buttonNode, Gui::BACKGROUND_TEXTURE);
+    }
+
     if (button.GetOnActiveTexture())
     {
         write(buttonNode, *button.GetOnActiveTexture());
     }
+    else
+    {
+        writeNoneTexture(buttonNode, Gui::ACTIVE_TEXTURE);
+    }
+
     if (button.GetOnHoverTexture())
     {
         write(buttonNode, *button.GetOnHoverTexture());
+    }
+    else
+    {
+        writeNoneTexture(buttonNode, Gui::HOVER_TEXTURE);
     }
 }
 void write(Utils::XmlNode& node, const GuiWindowElement& window)

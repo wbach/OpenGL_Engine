@@ -115,6 +115,21 @@ void GuiButtonElement::SetOnActiveTexture(std::unique_ptr<GuiTextureElement> tex
     SetTexture(texture, onActiveTextue_);
 }
 
+void GuiButtonElement::ResetBackgroundTexture()
+{
+    backgroundTexture_.reset();
+}
+
+void GuiButtonElement::ResetOnHoverTexture()
+{
+    onHoverTexture_.reset();
+}
+
+void GuiButtonElement::ResetOnActiveTexture()
+{
+    onActiveTextue_.reset();
+}
+
 void GuiButtonElement::SetHoverTextColor(const vec3 &color)
 {
     onHoverTextColor_ = color;

@@ -5,6 +5,7 @@ namespace GameEngine
 {
 namespace Gui
 {
+extern const std::string NONE;
 extern const std::string ROOT;
 extern const std::string LABEL;
 extern const std::string COLOR;

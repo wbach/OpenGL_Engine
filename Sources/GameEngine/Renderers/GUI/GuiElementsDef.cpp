@@ -4,6 +4,7 @@ namespace GameEngine
 {
 namespace Gui
 {
+const std::string NONE               = "none";
 const std::string ROOT               = "gui";
 const std::string LABEL              = "label";
 const std::string COLOR              = "color";

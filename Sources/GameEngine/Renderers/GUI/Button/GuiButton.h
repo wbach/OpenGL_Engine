@@ -22,6 +22,10 @@ public:
     void SetBackgroundTexture(std::unique_ptr<GuiTextureElement>);
     void SetOnHoverTexture(std::unique_ptr<GuiTextureElement>);
     void SetOnActiveTexture(std::unique_ptr<GuiTextureElement>);
+    void ResetBackgroundTexture();
+    void ResetOnHoverTexture();
+    void ResetOnActiveTexture();
+
 
     void SetHoverTextColor(const vec3& color);
     void SetActiveTextColor(const vec3& color);

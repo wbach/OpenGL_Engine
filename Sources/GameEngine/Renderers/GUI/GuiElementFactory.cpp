@@ -93,7 +93,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(const vec2 
     guiWindow->SetPostion(position);
     guiWindow->SetScale(scale);
 
-    if (not backgorund.empty())
+    if (not backgorund.empty() and backgorund != "none")
     {
         auto backgroundGuiTexture = MakeGuiTexture(backgorund);
         if (backgroundGuiTexture)
@@ -397,9 +397,18 @@ std::unique_ptr<GuiButtonElement> ReadGuiButton(Utils::XmlNode &node, GuiElement
 
     if (backgroundTextureNode != children.end())
     {
-        auto texture = ReadGuiTexture(**backgroundTextureNode, factory);
-        if (texture)
-            button->SetBackgroundTexture(std::move(texture));
+        if ((**backgroundTextureNode).GetChild(Gui::FILE)->value_ != Gui::NONE)
+        {
+            auto texture = ReadGuiTexture(**backgroundTextureNode, factory);
+            if (texture)
+            {
+                button->SetBackgroundTexture(std::move(texture));
+            }
+        }
+        else
+        {
+            button->ResetBackgroundTexture();
+        }
     }
 
     auto hoverTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
@@ -412,9 +421,16 @@ std::unique_ptr<GuiButtonElement> ReadGuiButton(Utils::XmlNode &node, GuiElement
     });
     if (hoverTextureNode != children.end())
     {
-        auto texture = ReadGuiTexture(**hoverTextureNode, factory);
-        if (texture)
-            button->SetOnHoverTexture(std::move(texture));
+        if ((**hoverTextureNode).GetChild(Gui::FILE)->value_ != Gui::NONE)
+        {
+            auto texture = ReadGuiTexture(**hoverTextureNode, factory);
+            if (texture)
+                button->SetOnHoverTexture(std::move(texture));
+        }
+        else
+        {
+            button->ResetOnHoverTexture();
+        }
     }
 
     auto activeTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
@@ -426,11 +442,18 @@ std::unique_ptr<GuiButtonElement> ReadGuiButton(Utils::XmlNode &node, GuiElement
         return false;
     });
 
-    if (hoverTextureNode != children.end())
+    if (activeTextureNode != children.end())
     {
-        auto texture = ReadGuiTexture(**activeTextureNode, factory);
-        if (texture)
-            button->SetOnActiveTexture(std::move(texture));
+        if ((**activeTextureNode).GetChild(Gui::FILE)->value_ != Gui::NONE)
+        {
+            auto texture = ReadGuiTexture(**activeTextureNode, factory);
+            if (texture)
+                button->SetOnActiveTexture(std::move(texture));
+        }
+        else
+        {
+            button->ResetOnActiveTexture();
+        }
     }
 
     auto textNode = node.GetChild(Gui::TEXT);
@@ -621,7 +644,6 @@ GuiTheme ReadTheme(Utils::XmlNode &node)
 
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 {
-
     DEBUG_LOG(filename);
 
     if (not Utils::CheckExtension(filename, "xml"))
@@ -661,7 +683,7 @@ bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 
     auto children = ReadChildrenElemets(*guiNode, *this, guiManager_);
 
-    const std::string& layerName = filename;
+    const std::string &layerName = filename;
     guiManager_.AddLayer(layerName);
     for (auto &child : children)
     {
