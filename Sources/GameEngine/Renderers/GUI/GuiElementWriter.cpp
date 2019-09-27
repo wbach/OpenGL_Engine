@@ -53,10 +53,12 @@ void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
     write(show, element.IsShow());
     auto& scale = node.AddChild(Gui::SCALE);
     write(scale, element.GetScale());
-    auto& label = node.AddChild(Gui::LABEL);
-    write(label, element.GetLabel());
     auto& permamanet = node.AddChild(Gui::PERMAMENT);
     write(permamanet, element.IsPermament());
+    auto& label = node.AddChild(Gui::LABEL);
+    write(label, element.GetLabel());
+    auto& startupFunctionName = node.AddChild(Gui::STARTUP_FUNCTION);
+    write(startupFunctionName, element.GetStartupFunctionName());
 }
 void write(Utils::XmlNode& node, const GuiTextElement& text)
 {

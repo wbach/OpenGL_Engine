@@ -39,5 +39,6 @@ const std::string RIGHT              = "RIGHT";
 const std::string CENTER             = "CENTER";
 const std::string BACKGROUND         = "background";
 const std::string THEME              = "theme";
+const std::string STARTUP_FUNCTION   = "startupFunction";
 }  // namespace Gui
 }  // namespace GameEngine

@@ -52,6 +52,9 @@ public:
     void MarkToRemove();
     void SetLabel(const std::string& label);
 
+    void SetStartupFunctionName(const std::string&);
+    const std::string& GetStartupFunctionName() const;
+
 public:
     GuiElementTypes GetType() const;
     bool IsShow() const;
@@ -88,6 +91,7 @@ protected:
     bool isMarkToRemove_;
     bool isPermament_;
     bool isBackround_;
+    std::string startupFunctionName_;
 
 public:
     static uint32 ID;

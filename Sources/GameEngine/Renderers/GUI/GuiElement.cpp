@@ -91,6 +91,16 @@ void GuiElement::SetLabel(const std::string& label)
 {
     label_ = label;
 }
+
+void GuiElement::SetStartupFunctionName(const std::string& functionName)
+{
+    startupFunctionName_ = functionName;
+}
+
+const std::string& GuiElement::GetStartupFunctionName() const
+{
+    return startupFunctionName_;
+}
 void GuiElement::SetPostion(const vec2ui& position)
 {
     rect_.position = position;

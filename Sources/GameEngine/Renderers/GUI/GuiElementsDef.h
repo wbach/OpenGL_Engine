@@ -40,5 +40,6 @@ extern const std::string RIGHT;
 extern const std::string CENTER;
 extern const std::string BACKGROUND;
 extern const std::string THEME;
+extern const std::string STARTUP_FUNCTION;
 }  // namespace Gui
 }  // namespace GameEngine
