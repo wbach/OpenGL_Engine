@@ -11,7 +11,6 @@ extern const std::string LABEL;
 extern const std::string COLOR;
 extern const std::string POSITION;
 extern const std::string SCALE;
-extern const std::string PERMAMENT;
 extern const std::string SHOW;
 extern const std::string INBACKGROUND;
 extern const std::string VALUE;

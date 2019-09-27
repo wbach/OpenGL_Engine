@@ -60,6 +60,7 @@ public:
     std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
     // GuiEditBox
     std::unique_ptr<GuiEditBoxElement> CreateEditBox();
+    std::unique_ptr<GuiEditBoxElement> CreateEditBox(const std::string&);
     std::unique_ptr<GuiEditBoxElement> CreateEditBox(const std::string&, const std::string&, uint32, uint32);
     std::unique_ptr<GuiEditBoxElement> CreateEditBox(std::unique_ptr<GuiTextElement>);
     // GuiLayouts

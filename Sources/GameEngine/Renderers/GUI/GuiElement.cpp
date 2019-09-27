@@ -31,7 +31,7 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , offset_{0, 0}
     , id_{GuiElement::ID++}
     , isMarkToRemove_{false}
-    , isPermament_{true}
+    , isInternal_{false}
     , isBackround_{false}
 {
     CalculateMatrix();
@@ -240,13 +240,13 @@ void GuiElement::CalculatePosition()
     position_.x = ConvertSpaceInv(position_.x);
     position_.y = ConvertSpaceInv(position_.y);
 }
-void GuiElement::SetPermamanet(bool is)
+void GuiElement::SetIsInternal(bool is)
 {
-    isPermament_ = is;
+    isInternal_ = is;
 }
-bool GuiElement::IsPermament() const
+bool GuiElement::IsInternal() const
 {
-    return isPermament_;
+    return isInternal_;
 }
 
 bool GuiElement::CompareZValue(const GuiElement& element) const

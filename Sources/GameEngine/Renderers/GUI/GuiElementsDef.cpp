@@ -10,7 +10,6 @@ const std::string LABEL              = "label";
 const std::string COLOR              = "color";
 const std::string POSITION           = "position";
 const std::string SCALE              = "scale";
-const std::string PERMAMENT          = "permamanet";
 const std::string SHOW               = "show";
 const std::string INBACKGROUND       = "inBackground";
 const std::string VALUE              = "value";

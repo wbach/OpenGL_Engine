@@ -35,7 +35,7 @@ public:
     const std::string& GetTextString() const;
     void SetText(const std::string&);
     void SetTextColor(const vec3& color);
-    void SetPermamanet(bool) override;
+    void SetIsInternal(bool) override;
 
 private:
     Input::InputManager& inputManager_;

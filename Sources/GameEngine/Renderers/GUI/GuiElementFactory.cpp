@@ -5,6 +5,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GuiElementReader.h"
 #include "GuiElementsDef.h"
 #include "GuiManager.h"
 #include "Layout/HorizontalLayout.h"
@@ -12,7 +13,6 @@
 #include "Text/GuiTextElement.h"
 #include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
-#include "GuiElementReader.h"
 #include "Window/GuiWindow.h"
 
 namespace GameEngine
@@ -144,6 +144,12 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox()
     return CreateEditBox(std::move(guiText));
 }
 
+std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::string &startText)
+{
+    auto guiText = CreateGuiText(startText);
+    return CreateEditBox(std::move(guiText));
+}
+
 std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::string &font, const std::string &str, uint32 size, uint32 outline)
 {
     auto text = CreateGuiText(font, str, size, outline);
@@ -246,8 +252,6 @@ void GuiElementFactory::CreateWindowBar(GuiWindowElement &window)
 
     window.AddMember(std::move(horizontalLayout));
 }
-
-
 
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)
 {

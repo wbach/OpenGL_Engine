@@ -105,9 +105,9 @@ const GuiElement &LayoutElementWrapper::Get() const
     return *element_.get();
 }
 
-void LayoutElementWrapper::SetPermamanet(bool is)
+void LayoutElementWrapper::SetIsInternal(bool is)
 {
-    element_->SetPermamanet(is);
+    element_->SetIsInternal(is);
 }
 
 bool LayoutElementWrapper::CompareZValue(const GuiElement &element) const

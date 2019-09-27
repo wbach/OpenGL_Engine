@@ -31,7 +31,6 @@ LayoutElementWrapper& Layout::AddChild(std::unique_ptr<GuiElement> element, std:
 {
     element->Show(IsShow());
     element->SetZPositionOffset(GetZTotalValue());
-    element->SetPermamanet(isPermament_);
     children_.push_back(std::make_unique<LayoutElementWrapper>(std::move(element), onChange));
     onChange();
     return *children_.back();
@@ -141,13 +140,13 @@ void Layout::SetZPositionOffset(float offset)
         child->SetZPositionOffset(GetZTotalValue());
     }
 }
-void Layout::SetPermamanet(bool is)
+void Layout::SetIsInternal(bool is)
 {
     for (auto& child : children_)
     {
-        child->SetPermamanet(is);
+        child->SetIsInternal(is);
     }
-    GuiElement::SetPermamanet(is);
+    GuiElement::SetIsInternal(is);
 }
 
 bool Layout::CompareZValue(const GuiElement& element) const

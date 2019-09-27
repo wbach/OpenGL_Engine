@@ -30,7 +30,6 @@ public:
     void RemoveLayersExpect(const std::vector<std::string>& exceptions = {});
     void Remove(uint32);
     void Remove(const GuiElement&);
-    void RemoveNotPermaments();
     void RemoveAll();
 
     template <class T>

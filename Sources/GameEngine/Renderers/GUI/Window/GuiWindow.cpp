@@ -192,17 +192,17 @@ void GuiWindowElement::SetZPositionOffset(float offset)
     }
 }
 
-void GuiWindowElement::SetPermamanet(bool is)
+void GuiWindowElement::SetIsInternal(bool is)
 {
     for (auto& child : children_)
     {
-        child->SetPermamanet(is);
+        child->SetIsInternal(is);
     }
     for (auto& member : members_)
     {
-        member->SetPermamanet(is);
+        member->SetIsInternal(is);
     }
-    GuiElement::SetPermamanet(is);
+    GuiElement::SetIsInternal(is);
 }
 
 bool GuiWindowElement::CompareZValue(const GuiElement& element) const

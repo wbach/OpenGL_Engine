@@ -229,14 +229,14 @@ void GuiEditBoxElement::SetTextColor(const vec3 &color)
     text_->SetColor(color);
     cursor_->SetColor(color);
 }
-void GuiEditBoxElement::SetPermamanet(bool is)
+void GuiEditBoxElement::SetIsInternal(bool is)
 {
-    cursor_->SetPermamanet(is);
-    text_->SetPermamanet(is);
+    cursor_->SetIsInternal(is);
+    text_->SetIsInternal(is);
 
     if (backgroundTexture_)
-        backgroundTexture_->SetPermamanet(is);
+        backgroundTexture_->SetIsInternal(is);
 
-    GuiElement::SetPermamanet(is);
+    GuiElement::SetIsInternal(is);
 }
 }  // namespace GameEngine

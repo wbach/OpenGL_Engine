@@ -30,7 +30,7 @@ public:
     void MarkToRemove();
     uint32 GetId() const;
     const GuiElement& Get() const;
-    void SetPermamanet(bool);
+    void SetIsInternal(bool);
     bool CompareZValue(const GuiElement&) const;
     GuiElement* Get(const std::string& label);
 

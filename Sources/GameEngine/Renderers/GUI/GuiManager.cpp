@@ -212,26 +212,6 @@ void GuiManager::Remove(const GuiElement& element)
     }
 }
 
-void GuiManager::RemoveNotPermaments()
-{
-    //DEBUG_LOG("");
-    //for (auto& layer : layers_)
-    //{
-    //    for (auto iter = layer.GetElements().begin(); iter != layer.GetElements().end();)
-    //    {
-    //        if (not(*iter)->IsPermament())
-    //        {
-    //            DEBUG_LOG("Delete : " + std::to_string(iter->get()->GetId()));
-    //            iter = layer.GetElements().erase(iter);
-    //        }
-    //        else
-    //        {
-    //            ++iter;
-    //        }
-    //    }
-    //}
-}
-
 void GuiManager::RemoveAll()
 {
     for (auto& layer : layers_)

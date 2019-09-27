@@ -173,17 +173,8 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &
         element.SetLabel(paramNode->value_);
     }
 
-    paramNode = node.GetChild(Gui::PERMAMENT);
-    if (paramNode)
-    {
-        element.SetPermamanet(Utils::ReadBool(*paramNode));
-    }
-    else
-    {
-        element.SetPermamanet(false);
-    }
-
     paramNode = node.GetChild(Gui::STARTUP_FUNCTION);
+
     if (paramNode and not paramNode->value_.empty())
     {
         element.SetStartupFunctionName(paramNode->value_);
@@ -192,10 +183,6 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &
         if (action)
         {
             action(element);
-        }
-        else
-        {
-            ERROR_LOG("Startup action not found : " + paramNode->value_);
         }
     }
 }

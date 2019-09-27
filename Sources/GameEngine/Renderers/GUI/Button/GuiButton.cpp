@@ -306,18 +306,18 @@ void GuiButtonElement::execute(std::function<void(uint32)> function)
         function(text_->GetId());
 }
 
-void GuiButtonElement::SetPermamanet(bool is)
+void GuiButtonElement::SetIsInternal(bool is)
 {
     if (onHoverTexture_)
-        onHoverTexture_->SetPermamanet(is);
+        onHoverTexture_->SetIsInternal(is);
     if (onActiveTextue_)
-        onActiveTextue_->SetPermamanet(is);
+        onActiveTextue_->SetIsInternal(is);
     if (backgroundTexture_)
-        backgroundTexture_->SetPermamanet(is);
+        backgroundTexture_->SetIsInternal(is);
     if (text_)
-        text_->SetPermamanet(is);
+        text_->SetIsInternal(is);
 
-    GuiElement::SetPermamanet(is);
+    GuiElement::SetIsInternal(is);
 }
 
 GuiTextElement *GuiButtonElement::GetText() const

@@ -37,7 +37,7 @@ public:
     virtual void SetPostion(const vec2ui& position) override;
     virtual void SetZPosition(float z) override;
     virtual void SetZPositionOffset(float offset) override;
-    virtual void SetPermamanet(bool) override;
+    virtual void SetIsInternal(bool) override;
     virtual bool CompareZValue(const GuiElement&) const override;
     virtual GuiElement* Get(const std::string& label) override;
 

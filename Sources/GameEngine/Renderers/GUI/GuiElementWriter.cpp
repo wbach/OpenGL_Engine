@@ -7,6 +7,7 @@
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <Logger/Log.h>
 #include <Utils/Utils.h>
 #include <Utils/XML/XmlWriter.h>
 #include "GuiElementsDef.h"
@@ -53,8 +54,6 @@ void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
     write(show, element.IsShow());
     auto& scale = node.AddChild(Gui::SCALE);
     write(scale, element.GetScale());
-    auto& permamanet = node.AddChild(Gui::PERMAMENT);
-    write(permamanet, element.IsPermament());
     auto& label = node.AddChild(Gui::LABEL);
     write(label, element.GetLabel());
     auto& startupFunctionName = node.AddChild(Gui::STARTUP_FUNCTION);
@@ -187,6 +186,9 @@ void write(Utils::XmlNode& node, const HorizontalLayout& horizontalLayout)
 }
 void write(Utils::XmlNode& node, const GuiElement& element)
 {
+    if (element.IsInternal())
+        return;
+
     switch (element.GetType())
     {
         case GuiElementTypes::Text:
@@ -205,6 +207,10 @@ void write(Utils::XmlNode& node, const GuiElement& element)
             write(node, *static_cast<const GuiTextureElement*>(&element));
             break;
         case GuiElementTypes::Checkbox:
+            DEBUG_LOG("Gui Checkbox write method not implemented.");
+            break;
+        case GuiElementTypes::ComboBox:
+            DEBUG_LOG("Gui ComboBox write method not implemented.");
             break;
         case GuiElementTypes::VerticalLayout:
             write(node, *static_cast<const VerticalLayout*>(&element));

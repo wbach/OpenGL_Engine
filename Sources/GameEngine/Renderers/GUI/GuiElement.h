@@ -37,8 +37,8 @@ public:
     virtual void SetZPositionOffset(float offset);
     virtual float GetZValue() const;
     virtual float GetZOffsetValue() const;
-    virtual void SetPermamanet(bool);
-    virtual bool IsPermament() const;
+    virtual void SetIsInternal(bool);
+    virtual bool IsInternal() const;
     virtual bool CompareZValue(const GuiElement&) const;
     virtual GuiElement* Get(const std::string& label);
 
@@ -89,7 +89,7 @@ protected:
     vec2 offset_;
     uint32 id_;
     bool isMarkToRemove_;
-    bool isPermament_;
+    bool isInternal_;
     bool isBackround_;
     std::string startupFunctionName_;
 
