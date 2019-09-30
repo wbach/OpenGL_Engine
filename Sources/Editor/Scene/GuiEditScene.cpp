@@ -21,7 +21,8 @@ namespace Editor
 namespace
 {
 const std::string NEW_LAYER_NAME = "NewLayer";
-}
+const std::string TEMP_FILE_NAME = "fileExplorer.tmp";
+}  // namespace
 GuiEditScene::GuiEditScene()
     : GameEngine::Scene("GuiEditScene")
     , mousePosition_(0)
@@ -31,9 +32,11 @@ GuiEditScene::GuiEditScene()
 }
 GuiEditScene::~GuiEditScene()
 {
+    SaveLastOpenedLocation();
 }
 int GuiEditScene::Initialize()
 {
+    ReadLastOpenedLocation();
     AddStartupActions();
     AddMenuButtonAction();
     ReadMenu();
@@ -80,7 +83,8 @@ void GuiEditScene::KeyOperations()
 void GuiEditScene::AddStartupActions()
 {
     guiManager_->RegisterAction("FillGuiElementTypes()", [&](auto& element) {
-        if (element.GetType() == GuiElementTypes::VerticalLayout or element.GetType() == GuiElementTypes::HorizontalLayout)
+        if (element.GetType() == GuiElementTypes::VerticalLayout or
+            element.GetType() == GuiElementTypes::HorizontalLayout)
         {
             auto layout = static_cast<Layout*>(&element);
 
@@ -117,21 +121,29 @@ void GuiEditScene::AddMenuButtonAction()
 {
     guiManager_->RegisterAction("ReadFile()", [&](auto&) {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
-        fileExplorer_->Start(Utils::GetCurrentDir(), [&](const std::string& str) {
+        auto locationToOpen = Utils::GetCurrentDir();
+        if (not lastOpenedLocation_.empty())
+        {
+            locationToOpen = lastOpenedLocation_;
+        }
+
+        fileExplorer_->Start(locationToOpen, [&](const std::string& str) {
             guiManager_->RemoveLayersExpect(notCleanLayers_);
             processingFilename_ = str;
             currentLayer_       = str;
-
+            lastOpenedLocation_ = Utils::GetFilePath(str);
             return guiElementFactory_->ReadGuiFile(str);
         });
     });
 
     guiManager_->RegisterAction("SaveToFile()", [&](auto&) {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
-        fileExplorer_->Start(Utils::GetCurrentDir(), [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
+        fileExplorer_->Start(Utils::GetCurrentDir(),
+                             [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
     });
 
-    guiManager_->RegisterAction("QuickSave()", [&](auto&) { guiManager_->SaveToFile(processingFilename_, currentLayer_); });
+    guiManager_->RegisterAction("QuickSave()",
+                                [&](auto&) { guiManager_->SaveToFile(processingFilename_, currentLayer_); });
 
     guiManager_->RegisterAction("Reload()", [&](auto&) {
         guiManager_->RemoveLayersExpect(notCleanLayers_);
@@ -156,7 +168,8 @@ void GuiEditScene::AddMenuButtonAction()
                 if (element)
                 {
                     auto id           = element->GetId();
-                    auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(), [id](auto el) { return el->GetId() == id; });
+                    auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(),
+                                                     [id](auto el) { return el->GetId() == id; });
 
                     if (existElement == guiElementsChoose_.end())
                     {
@@ -245,18 +258,20 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         break;
         case GameEngine::GuiElementTypes::Button:
         {
-            auto button = guiElementFactory_->CreateGuiButton("new GuiButton", [](auto&) { DEBUG_LOG("action not implemented."); });
+            auto button = guiElementFactory_->CreateGuiButton("new GuiButton",
+                                                              [](auto&) { DEBUG_LOG("action not implemented."); });
             guiManager_->Add(currentLayer_, std::move(button));
         }
         break;
         case GameEngine::GuiElementTypes::Window:
         {
-            auto window = guiElementFactory_->CreateGuiWindow(vec2(0), vec2(0.5), "new GuiWindow");
+            auto window = guiElementFactory_->CreateGuiWindow(vec2(0), vec2(0.5));
             guiManager_->Add(currentLayer_, std::move(window));
         }
         break;
         case GameEngine::GuiElementTypes::Checkbox:
         {
+            guiElementFactory_->CreateMessageBox("Error", "Create Checkbox not imeplement.");
             DEBUG_LOG("Create Checkbox not imeplement.");
         }
         break;
@@ -268,6 +283,7 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         break;
         case GameEngine::GuiElementTypes::ComboBox:
         {
+            guiElementFactory_->CreateMessageBox("Error", "Create ComboBox not imeplement.");
             DEBUG_LOG("Create ComboBox not imeplement.");
         }
         break;
@@ -284,5 +300,14 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         }
         break;
     }
+}
+void GuiEditScene::ReadLastOpenedLocation()
+{
+    lastOpenedLocation_ = Utils::ReadFile(TEMP_FILE_NAME);
+}
+void GuiEditScene::SaveLastOpenedLocation()
+{
+    if (not lastOpenedLocation_.empty())
+        Utils::WrtieToFile(TEMP_FILE_NAME, lastOpenedLocation_);
 }
 }  // namespace Editor

@@ -117,6 +117,18 @@ std::list<std::string> ReadFileLines(const std::string& file_name)
     return output;
 }
 
+void WrtieToFile(const std::string& filename, const std::string& content)
+{
+    std::ofstream file(filename.c_str());
+    if (!file.is_open())
+    {
+        ERROR_LOG("cannot open file " + filename);
+        return;
+    }
+    file << content;
+    file.close();
+}
+
 std::string ReplaceSlash(const std::string& str)
 {
     std::string result(str);

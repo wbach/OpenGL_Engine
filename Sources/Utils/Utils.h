@@ -59,6 +59,7 @@ std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, 
 std::string ReadFileBinary(const std::string& file_name);
 std::string ReadFile(const std::string& file_name);
 std::list<std::string> ReadFileLines(const std::string& file_name);
+void WrtieToFile(const std::string& filename, const std::string& content);
 std::string ReplaceSlash(const std::string& str);
 FileInfo GetFileInfo(const std::string& fullpath);
 std::string GetFilename(const std::string& fullpath);

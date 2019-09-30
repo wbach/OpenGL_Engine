@@ -23,6 +23,8 @@ private:
     void EnableAlginToFirstX();
     void EnableSetTheSameYDistance();
     void ShowCreateWindow(GameEngine::GuiElementTypes);
+    void ReadLastOpenedLocation();
+    void SaveLastOpenedLocation();
 
 private:
     std::unique_ptr<FileExplorer> fileExplorer_;
@@ -32,5 +34,6 @@ private:
     std::string processingFilename_;
     std::string currentLayer_;
     bool multiSelect_;
+    std::string lastOpenedLocation_;
 };
 }  // namespace Editor

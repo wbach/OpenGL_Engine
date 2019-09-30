@@ -1,5 +1,6 @@
 #include "GuiElementReader.h"
 
+#include <algorithm>
 #include <Logger/Log.h>
 #include <Utils.h>
 #include <Utils/XML/XMLUtils.h>
