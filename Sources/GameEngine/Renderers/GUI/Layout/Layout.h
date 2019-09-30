@@ -38,6 +38,7 @@ public:
     virtual void SetZPosition(float z) override;
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetIsInternal(bool) override;
+    virtual GuiElement* GetCollisonElement(const vec2&) override;
     virtual bool CompareZValue(const GuiElement&) const override;
     virtual GuiElement* Get(const std::string& label) override;
 

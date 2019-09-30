@@ -226,7 +226,22 @@ bool GuiWindowElement::CompareZValue(const GuiElement& element) const
     return GuiElement::CompareZValue(element);
 }
 
-GuiElement *GuiWindowElement::Get(const std::string &label)
+GuiElement* GuiWindowElement::GetCollisonElement(const vec2& mousePosition)
+{
+    for (auto& child : children_)
+    {
+        auto toReturn = child->GetCollisonElement(mousePosition);
+
+        if (toReturn)
+        {
+            return toReturn;
+        }
+    }
+
+    return GuiElement::GetCollisonElement(mousePosition);
+}
+
+GuiElement* GuiWindowElement::Get(const std::string& label)
 {
     for (auto& child : children_)
     {

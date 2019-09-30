@@ -100,6 +100,11 @@ uint32 LayoutElementWrapper::GetId() const
     return element_->GetId();
 }
 
+GuiElement *LayoutElementWrapper::GetCollisonElement(const vec2 &mousePosition)
+{
+    return element_->GetCollisonElement(mousePosition);
+}
+
 const GuiElement &LayoutElementWrapper::Get() const
 {
     return *element_.get();

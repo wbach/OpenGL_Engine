@@ -45,10 +45,21 @@ bool GuiElement::IsCollision(const vec2ui& pos) const
     return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
 }
 
-bool GuiElement::IsCollision(const vec2& pos) const
+bool GuiElement::IsCollision(const vec2& mousePosition) const
 {
-    auto convertedPos = pos;
-    return convertedPos.x >= position_.x - scale_.x and convertedPos.x <= position_.x + scale_.x and convertedPos.y >= position_.y - scale_.y and convertedPos.y <= position_.y + scale_.y;
+    return mousePosition.x >= position_.x - scale_.x and mousePosition.x <= position_.x + scale_.x and mousePosition.y >= position_.y - scale_.y and mousePosition.y <= position_.y + scale_.y;
+}
+
+GuiElement* GuiElement::GetCollisonElement(const vec2& mousePosition)
+{
+    if (IsCollision(mousePosition))
+    {
+        return this;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 {

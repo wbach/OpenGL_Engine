@@ -25,6 +25,7 @@ public:
     virtual void SetZPositionOffset(float offset) override;
     virtual void SetIsInternal(bool) override;
     virtual bool CompareZValue(const GuiElement&) const override;
+    virtual GuiElement* GetCollisonElement(const vec2&) override;
     virtual GuiElement* Get(const std::string& label) override;
     const std::vector<std::unique_ptr<GuiElement>>& GetChildren() const;
     void CheckCollisionPoint();

@@ -149,6 +149,21 @@ void Layout::SetIsInternal(bool is)
     GuiElement::SetIsInternal(is);
 }
 
+GuiElement* Layout::GetCollisonElement(const vec2& mousePosition)
+{
+    for (auto& child : children_)
+    {
+        auto toReturn = child->GetCollisonElement(mousePosition);
+
+        if (toReturn)
+        {
+            return toReturn;
+        }
+    }
+
+    return GuiElement::GetCollisonElement(mousePosition);
+}
+
 bool Layout::CompareZValue(const GuiElement& element) const
 {
     for (auto& child : children_)
@@ -161,7 +176,7 @@ bool Layout::CompareZValue(const GuiElement& element) const
     return GuiElement::CompareZValue(element);
 }
 
-GuiElement *Layout::Get(const std::string &label)
+GuiElement* Layout::Get(const std::string& label)
 {
     for (auto& child : children_)
     {

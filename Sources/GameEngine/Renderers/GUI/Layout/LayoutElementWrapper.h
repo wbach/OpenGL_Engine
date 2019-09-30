@@ -29,6 +29,7 @@ public:
     void HideWithoutNotif();
     void MarkToRemove();
     uint32 GetId() const;
+    GuiElement* GetCollisonElement(const vec2& mousePosition);
     const GuiElement& Get() const;
     void SetIsInternal(bool);
     bool CompareZValue(const GuiElement&) const;

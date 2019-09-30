@@ -18,6 +18,7 @@ public:
     virtual void Update();
     virtual bool IsCollision(const vec2ui&) const;
     virtual bool IsCollision(const vec2&) const;
+    virtual GuiElement* GetCollisonElement(const vec2&);
     virtual std::optional<vec2> GetCollisionPoint(const vec2&) const;
     virtual void SetRect(const Rect& rect);
     virtual void SetSize(const vec2ui& size);

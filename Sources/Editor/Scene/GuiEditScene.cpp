@@ -46,12 +46,12 @@ void GuiEditScene::PostInitialize()
 }
 int GuiEditScene::Update(float)
 {
-    auto position  = inputManager_->GetMousePosition();
-    auto mouseVec  = position - mousePosition_;
-    mousePosition_ = position;
-
     if (not multiSelect_)
     {
+        auto position  = inputManager_->GetMousePosition();
+        auto mouseVec  = position - mousePosition_;
+        mousePosition_ = position;
+
         for (auto& element : guiElementsChoose_)
         {
             const auto& pos = element->GetPosition();
@@ -96,9 +96,14 @@ void GuiEditScene::AddStartupActions()
 
                 for (auto type : GUI_ELEMENT_TYPES)
                 {
-                    auto button = guiElementFactory_->CreateGuiButton(std::to_string(type), [this, type, &element](auto&) {
+                    auto button = guiElementFactory_->CreateGuiButton(std::to_string(type), [this, type](auto&) {
                         ShowCreateWindow(type);
-                        guiManager_->AddTask([&]() { guiManager_->Remove(element); });
+
+                        auto window = guiManager_->GetElement("chooseComponentTypeWindow");
+                        if (window)
+                        {
+                            guiManager_->AddTask([this, window]() { guiManager_->Remove(*window); });
+                        }
                     });
                     button->SetIsInternal(true);
                     layout->AddChild(std::move(button));
@@ -138,19 +143,40 @@ void GuiEditScene::AddMenuButtonAction()
         guiManager_->RemoveLayersExpect(notCleanLayers_);
     });
 
-    guiManager_->RegisterDefaultAction([&](auto& element) {
-        auto id = element.GetId();
+    inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        auto mousePosition = inputManager_->GetMousePosition();
 
-        auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(), [id](auto el) { return el->GetId() == id; });
-        if (existElement == guiElementsChoose_.end())
+        auto layer = guiManager_->GetLayer(currentLayer_);
+
+        if (layer)
         {
-            guiElementsChoose_.push_back(&element);
+            for (const auto& layerElement : layer->GetElements())
+            {
+                auto element = layerElement->GetCollisonElement(mousePosition);
+                if (element)
+                {
+                    auto id           = element->GetId();
+                    auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(), [id](auto el) { return el->GetId() == id; });
+
+                    if (existElement == guiElementsChoose_.end())
+                    {
+                        guiElementsChoose_.push_back(element);
+                    }
+                }
+            }
         }
     });
 
     guiManager_->RegisterAction("AddElement()", [&](auto&) {
         auto fullName = EngineConf_GetFullDataPath("Scenes/Editor/chooseComponentType.xml");
         guiElementFactory_->ReadGuiFile(fullName);
+    });
+
+    guiManager_->RegisterAction("DeleteElement()", [&](auto&) {
+        for (auto& element : guiElementsChoose_)
+            guiManager_->Remove(*element);
+
+        guiElementsChoose_.clear();
     });
 }
 
