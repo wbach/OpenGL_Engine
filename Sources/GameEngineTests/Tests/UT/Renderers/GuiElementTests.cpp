@@ -18,26 +18,6 @@ struct GuiElementShould : public ::testing::Test
     GuiElement sut_;
 };
 
-TEST_F(GuiElementShould, CalculatePositionBasedOnRect_0_0)
-{
-    Rect rect{0, 0, 640 , 300};
-    sut_.SetRect(rect);
-
-    const auto& position = sut_.GetPosition();
-    EXPECT_FLOAT_EQ(position.x, -1.f);
-    EXPECT_FLOAT_EQ(position.y, -1.f);
-}
-
-TEST_F(GuiElementShould, CalculatePositionBasedOnRect_05_05)
-{
-    Rect rect{WINDOW_SIZE.x / 2, WINDOW_SIZE.y / 2, 640 , 300};
-    sut_.SetRect(rect);
-
-    const auto& position = sut_.GetPosition();
-    EXPECT_FLOAT_EQ(position.x, 0.f);
-    EXPECT_FLOAT_EQ(position.y, 0.f);
-}
-
 TEST_F(GuiElementShould, CollisionsFloatCenteredPosition)
 {
     vec2 scale(0.25f, 0.25f);
@@ -100,11 +80,5 @@ TEST_F(GuiElementShould, NoCollisionsFloatCenteredPosition)
         EXPECT_FALSE(sut_.IsCollision(mousePosition + position));
     }
 }
-
-TEST_F(GuiElementShould, CollisionsFloatCustomPositions)
-{
-
-}
-
 }  // namespace UT
 }  // namespace GameEngine

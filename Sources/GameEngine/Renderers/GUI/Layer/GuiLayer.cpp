@@ -1,4 +1,5 @@
 #include "GuiLayer.h"
+#include <algorithm>
 
 namespace GameEngine
 {

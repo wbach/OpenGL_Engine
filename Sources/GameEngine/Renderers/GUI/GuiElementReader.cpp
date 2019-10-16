@@ -1,10 +1,10 @@
 #include "GuiElementReader.h"
 
-#include <algorithm>
 #include <Logger/Log.h>
 #include <Utils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
+#include <algorithm>
 
 #include "GuiElement.h"
 #include "GuiElementFactory.h"
@@ -132,25 +132,7 @@ bool GuiElementReader::Read(const std::string &filename)
 
 void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &node)
 {
-    auto paramNode = node.GetChild(Gui::COLOR);
-    if (paramNode)
-    {
-        auto color = Utils::ReadVec3(*paramNode);
-        element.SetColor(color);
-    }
-
-    paramNode = node.GetChild(Gui::INBACKGROUND);
-    if (paramNode)
-    {
-        auto inBackground = Utils::ReadBool(*paramNode);
-        if (inBackground)
-        {
-            element.SetZPosition(0.1f);
-            element.SetInBackgorund(true);
-        }
-    }
-
-    paramNode = node.GetChild(Gui::POSITION);
+    auto paramNode = node.GetChild(Gui::POSITION);
     if (paramNode)
     {
         auto position = Utils::ReadVec2(*paramNode);
@@ -231,8 +213,17 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(Utils::XmlNode &no
         }
     }
 
+
     auto text = factory_.CreateGuiText(font, value, fontSize, outline);
     ReadGuiElementBasic(*text, node);
+
+    paramNode = node.GetChild(Gui::COLOR);
+    if (paramNode)
+    {
+        auto color = Utils::ReadVec3(*paramNode);
+        DEBUG_LOG("SetColor " + std::to_string(color));
+        text->SetColor(color);
+    }
     return text;
 }
 
@@ -254,6 +245,14 @@ std::unique_ptr<GuiTextureElement> GuiElementReader::ReadGuiTexture(Utils::XmlNo
     }
 
     ReadGuiElementBasic(*texture, node);
+
+    paramNode = node.GetChild(Gui::COLOR);
+    if (paramNode)
+    if (paramNode)
+    {
+        auto color = Utils::ReadVec3(*paramNode);
+        texture->SetColor(color);
+    }
     return texture;
 }
 std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode &node)
@@ -405,9 +404,9 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(U
         else
         {
             ERROR_LOG("try read unknown gui element type : " + child->GetName());
+            continue;
         }
     }
-
     return result;
 }
 
@@ -418,11 +417,10 @@ std::unique_ptr<VerticalLayout> GuiElementReader::ReadVerticalLayout(Utils::XmlN
     layout->SetAlgin(ReadLayoutAlgin(node));
 
     auto children = ReadChildrenElemets(node);
-    for (auto &child : children)
+    for (auto &subChild : children)
     {
-        layout->AddChild(std::move(child));
+        layout->AddChild(std::move(subChild));
     }
-
     return layout;
 }
 
@@ -433,11 +431,10 @@ std::unique_ptr<HorizontalLayout> GuiElementReader::ReadHorizontalLayout(Utils::
     layout->SetAlgin(ReadLayoutAlgin(node));
 
     auto children = ReadChildrenElemets(node);
-    for (auto &child : children)
+    for (auto &subChild : children)
     {
-        layout->AddChild(std::move(child));
+        layout->AddChild(std::move(subChild));
     }
-
     return layout;
 }
 
@@ -464,13 +461,20 @@ std::unique_ptr<GuiWindowElement> GuiElementReader::ReadGuiWindow(Utils::XmlNode
         position = Utils::ReadVec2(*paramNode);
     }
 
-    auto window = factory_.CreateGuiWindow(position, scale);
+    std::string style;
+    paramNode = node.GetChild(Gui::STYLE);
+    if (paramNode)
+    {
+        style = paramNode->value_;
+    }
+
+    auto window = factory_.CreateGuiWindow(convert(style), position, scale, background);
     ReadGuiElementBasic(*window, node);
 
     auto children = ReadChildrenElemets(node);
-    for (auto &child : children)
+    for (auto &subChild : children)
     {
-        window->AddChild(std::move(child));
+        window->AddChild(std::move(subChild));
     }
 
     return window;

@@ -70,7 +70,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Layer/GuiLayer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/HorizontalLayout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.cpp
-../../Sources/GameEngine/Renderers/GUI/Layout/LayoutElementWrapper.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.cpp
@@ -79,6 +78,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindow.cpp
+../../Sources/GameEngine/Renderers/GUI/Window/GuiWindowStyle.cpp
 ../../Sources/GameEngine/Renderers/IRenderer.cpp
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.cpp

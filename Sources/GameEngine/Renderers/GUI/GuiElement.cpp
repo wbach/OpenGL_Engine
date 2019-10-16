@@ -1,65 +1,56 @@
 #include "GuiElement.h"
+#include <algorithm>
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-float ConvertSpace(float v)
-{
-    return (v + 1.f) / 2.f;
-}
-
-float ConvertSpaceInv(float v)
-{
-    return v * 2.f - 1.f;
-}
-
 uint32 GuiElement::ID = 0;
 
 GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     : type_(type)
+    , changeNotif_{true}
     , windowSize_{windowSize}
-    , rect_{{0, 0}, {10, 10}}
     , position_{0, 0}
-    , zPosition_{0}
-    , zOffset_{0}
-    , zTotalValue_{0}
     , scale_{0.05, 0.05}
-    , color_{1, 1, 1}
-    , transformMatrix_(1.f)
-    , rotation_{0}
     , show_{true}
-    , offset_{0, 0}
-    , id_{GuiElement::ID++}
-    , isMarkToRemove_{false}
     , isInternal_{false}
-    , isBackround_{false}
+    , isMarkToRemove_{false}
+    , id_{GuiElement::ID++}
 {
-    CalculateMatrix();
 }
+void GuiElement::AddChild(std::unique_ptr<GuiElement> child)
+{
+    child->SetZPositionOffset(GetZValue());
+    child->Show(IsShow());
+    children_.push_back(std::move(child));
+    CallOnChange();
+}
+const std::vector<std::unique_ptr<GuiElement>>& GuiElement::GetChildren() const
+{
+    return children_;
+}
+void GuiElement::RemoveChild(uint32 id)
+{
+    auto iter =
+        std::remove_if(children_.begin(), children_.end(), [id](const auto& child) { return child->GetId() == id; });
 
+    children_.erase(iter);
+}
+void GuiElement::RemoveAll()
+{
+    children_.clear();
+}
 void GuiElement::Update()
 {
+    for (auto& child : children_)
+    {
+        child->Update();
+    }
 }
-bool GuiElement::IsCollision(const vec2ui& pos) const
-{
-    return pos.x >= rect_.position.x and pos.x <= rect_.position.x + rect_.size.x and pos.y >= rect_.position.y and pos.y <= rect_.position.y + rect_.size.y;
-}
-
 bool GuiElement::IsCollision(const vec2& mousePosition) const
 {
-    return mousePosition.x >= position_.x - scale_.x and mousePosition.x <= position_.x + scale_.x and mousePosition.y >= position_.y - scale_.y and mousePosition.y <= position_.y + scale_.y;
-}
-
-GuiElement* GuiElement::GetCollisonElement(const vec2& mousePosition)
-{
-    if (IsCollision(mousePosition))
-    {
-        return this;
-    }
-    else
-    {
-        return nullptr;
-    }
+    return mousePosition.x >= position_.x - scale_.x and mousePosition.x <= position_.x + scale_.x and
+           mousePosition.y >= position_.y - scale_.y and mousePosition.y <= position_.y + scale_.y;
 }
 std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 {
@@ -69,30 +60,25 @@ std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
     }
     return pos - position_;
 }
-void GuiElement::SetRect(const Rect& rect)
-{
-    rect_ = rect;
-    CalculatePosition();
-    CaclulateScaleBasedOnRect();
-    CalculateMatrix();
-}
-void GuiElement::SetSize(const vec2ui& size)
-{
-    rect_.size = size;
-    CaclulateScaleBasedOnRect();
-    CalculateMatrix();
-}
 void GuiElement::SetScale(const vec2& scale)
 {
     scale_ = scale;
-    CalculateRectBasedOnScale();
-    CalculateMatrix();
+    for (auto& child : children_)
+    {
+        if (not child->isInternal_)
+        child->SetScale(scale);
+    }
+    CallOnChange();
 }
 void GuiElement::SetPostion(const vec2& position)
 {
+    auto moveVec = position - position_;
+    for (auto& child : children_)
+    {
+        UpdatePosition(*child, moveVec);
+    }
     position_ = position;
-    CalcualteRectPosition();
-    CalculateMatrix();
+    CallOnChange();
 }
 const std::string& GuiElement::GetLabel() const
 {
@@ -102,84 +88,88 @@ void GuiElement::SetLabel(const std::string& label)
 {
     label_ = label;
 }
-
 void GuiElement::SetStartupFunctionName(const std::string& functionName)
 {
     startupFunctionName_ = functionName;
 }
-
 const std::string& GuiElement::GetStartupFunctionName() const
 {
     return startupFunctionName_;
 }
-void GuiElement::SetPostion(const vec2ui& position)
+void GuiElement::EnableChangeNotif()
 {
-    rect_.position = position;
-    CalculatePosition();
-    CalculateMatrix();
+    changeNotif_ = true;
 }
-void GuiElement::Rotate(float r)
+void GuiElement::DisableChangeNotif()
 {
-    rotation_ = r;
-    CalculateMatrix();
+    changeNotif_ = false;
 }
 void GuiElement::Show(bool b)
 {
+    for (auto& child : children_)
+    {
+        child->Show(b);
+    }
+
     show_ = b;
+    CallOnChange();
 }
 void GuiElement::Show()
 {
+    for (auto& child : children_)
+    {
+        child->Show();
+    }
+
     show_ = true;
+    CallOnChange();
 }
 void GuiElement::Hide()
 {
+    for (auto& child : children_)
+    {
+        child->Hide();
+    }
     show_ = false;
+    CallOnChange();
 }
-void GuiElement::SetColor(const vec3& color)
-{
-    color_ = color;
-}
-const Rect& GuiElement::GetRect() const
-{
-    return rect_;
-}
-
 const vec2& GuiElement::GetScale() const
 {
     return scale_;
 }
-
 const vec2& GuiElement::GetPosition() const
 {
     return position_;
 }
 void GuiElement::SetZPosition(float z)
 {
-    zPosition_   = z;
-    zTotalValue_ = zPosition_ + zOffset_;
-}
+    zPosition_.value  = z;
+    zPosition_.total_ = zPosition_.value + zPosition_.offset_;
 
+    for (auto& child : children_)
+    {
+        child->SetZPositionOffset(GetZValue());
+    }
+}
 void GuiElement::SetZPositionOffset(float offset)
 {
-    zOffset_     = offset;
-    zTotalValue_ = zPosition_ + zOffset_;
-}
+    zPosition_.offset_ = offset;
+    zPosition_.total_  = zPosition_.value + zPosition_.offset_;
 
+    for (auto& child : children_)
+    {
+        child->SetZPositionOffset(GetZValue());
+    }
+}
 float GuiElement::GetZValue() const
 {
-    return zPosition_;
+    return zPosition_.total_;
 }
 
-float GuiElement::GetZOffsetValue() const
+void GuiElement::SetIsInternal()
 {
-    return zOffset_;
+    isInternal_ = true;
 }
-
-float GuiElement::GetZTotalValue() const
-{
-    return zTotalValue_;
-}
-
 uint32 GuiElement::GetId() const
 {
     return id_;
@@ -192,20 +182,6 @@ bool GuiElement::IsMarkToRemove() const
 {
     return isMarkToRemove_;
 }
-
-void GuiElement::SetInBackgorund(bool v)
-{
-    isBackround_ = v;
-}
-
-bool GuiElement::IsBackground() const
-{
-    return isBackround_;
-}
-void GuiElement::execute(std::function<void(uint32)> func)
-{
-    func(id_);
-}
 GuiElementTypes GuiElement::GetType() const
 {
     return type_;
@@ -214,66 +190,96 @@ bool GuiElement::IsShow() const
 {
     return show_;
 }
-const mat4& GuiElement::GetMatrix() const
-{
-    return transformMatrix_;
-}
-const vec3& GuiElement::GetColor() const
-{
-    return color_;
-}
-void GuiElement::CalculateMatrix()
-{
-    transformMatrix_ = Utils::CreateTransformationMatrix(vec3(position_ + offset_, 0), scale_, rotation_);
-}
-void GuiElement::CaclulateScaleBasedOnRect()
-{
-    scale_ = vec2(rect_.size.x, rect_.size.y);
-    scale_.x *= 1.f / (windowSize_.x * 2.f);
-    scale_.y *= 1.f / (windowSize_.y * 2.f);
-}
-void GuiElement::CalculateRectBasedOnScale()
-{
-    rect_.size.x = static_cast<uint32>(scale_.x * static_cast<float>(windowSize_.x)) * 2;
-    rect_.size.y = static_cast<uint32>(scale_.y * static_cast<float>(windowSize_.y)) * 2;
-}
-void GuiElement::CalcualteRectPosition()
-{
-    rect_.position.x = static_cast<uint32>(ConvertSpace(position_.x) * static_cast<float>(windowSize_.x));
-    rect_.position.y = static_cast<uint32>(ConvertSpace(position_.y) * static_cast<float>(windowSize_.y));
-}
-void GuiElement::CalculatePosition()
-{
-    position_ = vec2(rect_.position.x, rect_.position.y);
-    position_.x /= windowSize_.x;
-    position_.y /= windowSize_.y;
-
-    position_.x = ConvertSpaceInv(position_.x);
-    position_.y = ConvertSpaceInv(position_.y);
-}
 void GuiElement::SetIsInternal(bool is)
 {
     isInternal_ = is;
+
+    for (auto& child : children_)
+    {
+        child->SetIsInternal(is);
+    }
 }
 bool GuiElement::IsInternal() const
 {
     return isInternal_;
 }
-
 bool GuiElement::CompareZValue(const GuiElement& element) const
 {
-    return std::isgreater(GetZTotalValue(), element.GetZTotalValue());
+    for (auto& child : children_)
+    {
+        if (not child->CompareZValue(element))
+        {
+            return false;
+        }
+    }
+    return element.GetZValue() > GetZValue();
 }
+GuiElement* GuiElement::GetCollisonElement(const vec2& mousePosition)
+{
+    float tmin = std::numeric_limits<float>::max();
+    GuiElement* result{nullptr};
 
+    for (auto& child : children_)
+    {
+        if (not child->IsShow() or child->IsInternal())
+        {
+            continue;
+        }
+
+        auto toReturn = child->GetCollisonElement(mousePosition);
+
+        if (toReturn)
+        {
+            if (toReturn->GetZValue() < tmin)
+            {
+                tmin = toReturn->GetZValue();
+                result = toReturn;
+            }
+        }
+    }
+
+    return result ? result : (IsCollision(mousePosition) ? this : nullptr);
+}
 GuiElement* GuiElement::Get(const std::string& label)
 {
-    if (label_ == label)
+    for (auto& child : children_)
     {
-        return this;
+        auto toReturn = child->Get(label);
+
+        if (toReturn)
+        {
+            return toReturn;
+        }
     }
-    else
+    return label == label_ ? this : nullptr;
+}
+
+void GuiElement::CallOnChange()
+{
+    if (onChange_ and changeNotif_)
     {
-        return nullptr;
+        onChange_();
+
+        for (auto& child : children_)
+        {
+            child->CallOnChange();
+        }
     }
+}
+
+void GuiElement::UpdatePosition(GuiElement& element, const vec2& v)
+{
+    auto position = element.GetPosition();
+    position      = position + v;
+    element.SetPostion(position);
+}
+void GuiElement::SetOnchangeFunction(std::function<void()> function)
+{
+    for (auto& child : children_)
+    {
+        child->SetOnchangeFunction(function);
+    }
+
+    onChange_ = function;
 }
 }  // namespace GameEngine

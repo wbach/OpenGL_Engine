@@ -9,12 +9,9 @@ public:
     VerticalLayout(const vec2ui& windowSize, Input::InputManager& inputManager);
     ~VerticalLayout() override;
     virtual void ResetView() override;
-    virtual LayoutElementWrapper& AddChild(std::unique_ptr<GuiElement>) override;
-    virtual void SetPostion(const vec2& position) override;
-    virtual void SetPostion(const vec2ui& position) override;
 
 private:
-    void OnChange();
+    void OnChange() override;
     float CalculateXPosition(const GuiElement&);
     void UpdateVisibility();
     void EnableScroll();

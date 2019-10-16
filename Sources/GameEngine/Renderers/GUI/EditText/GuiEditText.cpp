@@ -11,11 +11,14 @@ GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::
                                      Input::InputManager &inputManager, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
-    , text_(std::move(text))
-    , cursor_(std::move(cursor))
+    , text_(text.get())
+    , cursor_(cursor.get())
     , backgroundTexture_{nullptr}
     , timer_(false, 500)
 {
+    AddChild(std::move(text));
+    AddChild(std::move(cursor));
+
     cursor_->Hide();
     lmouseSubscribtrion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         auto position = inputManager_.GetMousePosition();
@@ -98,74 +101,9 @@ void GuiEditBoxElement::Update()
 }
 void GuiEditBoxElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    backgroundTexture_ = std::move(texture);
+    backgroundTexture_ = texture.get();
     backgroundTexture_->SetScale(scale_);
-}
-void GuiEditBoxElement::SetRect(const Rect &rect)
-{
-    text_->SetRect(rect);
-    cursor_->SetRect(rect);
-    if (backgroundTexture_)
-        backgroundTexture_->SetRect(rect);
-    GuiElement::SetRect(rect);
-}
-
-void GuiEditBoxElement::SetSize(const vec2ui &size)
-{
-    text_->SetSize(size);
-    if (backgroundTexture_)
-        backgroundTexture_->SetSize(size);
-    GuiElement::SetSize(size);
-}
-
-void GuiEditBoxElement::SetScale(const vec2 &scale)
-{
-    text_->SetScale(scale);
-    if (backgroundTexture_)
-        backgroundTexture_->SetScale(scale);
-    GuiElement::SetScale(scale);
-}
-
-void GuiEditBoxElement::SetPostion(const vec2 &position)
-{
-    text_->SetPostion(position);
-    if (backgroundTexture_)
-        backgroundTexture_->SetPostion(position);
-    GuiElement::SetPostion(position);
-}
-
-void GuiEditBoxElement::SetPostion(const vec2ui &position)
-{
-    GuiElement::SetPostion(position);
-
-    text_->SetPostion(position);
-    if (backgroundTexture_)
-    {
-        backgroundTexture_->SetPostion(position);
-    }
-}
-
-void GuiEditBoxElement::SetZPositionOffset(float offset)
-{
-    GuiElement::SetZPositionOffset(offset);
-
-    text_->SetZPositionOffset(GetZTotalValue());
-    cursor_->SetZPositionOffset(GetZTotalValue());
-    if (backgroundTexture_)
-    {
-        backgroundTexture_->SetZPositionOffset(GetZTotalValue());
-    }
-}
-
-void GuiEditBoxElement::SetZPosition(float z)
-{
-    GuiElement::SetZPosition(z);
-
-    text_->SetZPositionOffset(GetZTotalValue());
-    cursor_->SetZPositionOffset(GetZTotalValue());
-
-    if (backgroundTexture_)
-        backgroundTexture_->SetZPositionOffset(GetZTotalValue());
+    AddChild(std::move(texture));
 }
 
 void GuiEditBoxElement::SetOnEnterAction(std::function<void(const std::string &)> f)
@@ -173,45 +111,9 @@ void GuiEditBoxElement::SetOnEnterAction(std::function<void(const std::string &)
     onEnterAction_ = f;
 }
 
-void GuiEditBoxElement::Rotate(float r)
-{
-    cursor_->Rotate(r);
-    text_->Rotate(r);
-    if (backgroundTexture_)
-        backgroundTexture_->Rotate(r);
-    GuiElement::Rotate(r);
-}
-
-void GuiEditBoxElement::Show(bool b)
-{
-    cursor_->Show(b);
-    text_->Show(b);
-    if (backgroundTexture_)
-        backgroundTexture_->Show(b);
-    GuiElement::Show(b);
-}
-
-void GuiEditBoxElement::Show()
-{
-    cursor_->Show();
-    text_->Show();
-    if (backgroundTexture_)
-        backgroundTexture_->Show();
-    GuiElement::Show();
-}
-
-void GuiEditBoxElement::Hide()
-{
-    cursor_->Hide();
-    text_->Hide();
-    if (backgroundTexture_)
-        backgroundTexture_->Hide();
-    GuiElement::Hide();
-}
-
 GuiTextElement *GuiEditBoxElement::GetText() const
 {
-    return text_.get();
+    return text_;
 }
 
 const std::string &GuiEditBoxElement::GetTextString() const
@@ -228,15 +130,5 @@ void GuiEditBoxElement::SetTextColor(const vec3 &color)
 {
     text_->SetColor(color);
     cursor_->SetColor(color);
-}
-void GuiEditBoxElement::SetIsInternal(bool is)
-{
-    cursor_->SetIsInternal(is);
-    text_->SetIsInternal(is);
-
-    if (backgroundTexture_)
-        backgroundTexture_->SetIsInternal(is);
-
-    GuiElement::SetIsInternal(is);
 }
 }  // namespace GameEngine

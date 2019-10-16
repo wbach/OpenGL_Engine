@@ -5,6 +5,7 @@
 #include "GuiElement.h"
 #include "GuiTheme.h"
 #include "Text/GuiTextFactory.h"
+#include "Window/GuiWindowStyle.h"
 
 namespace Input
 {
@@ -51,13 +52,13 @@ public:
     // GuiTexture
     std::unique_ptr<GuiTextureElement> CreateGuiTexture(const std::string&);
     // GuiWindow
-    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const Rect&);
-    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const Rect&, const std::string&);
-    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const vec2&, const vec2&);
-    std::unique_ptr<GuiWindowElement> CreateGuiWindow(const vec2&, const vec2&, const std::string&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const std::string&);
     // GuiButton
     std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>);
     std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>, const std::string&, const std::string&, const std::string&);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>, const std::string&, const std::string&, const std::string&);
     // GuiEditBox
     std::unique_ptr<GuiEditBoxElement> CreateEditBox();
     std::unique_ptr<GuiEditBoxElement> CreateEditBox(const std::string&);
@@ -71,7 +72,7 @@ public:
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);
-    void CreateWindowBar(GuiWindowElement& window);
+    void CreateWindowBar(GuiWindowStyle, GuiWindowElement& window);
 
 private:
     GuiManager& guiManager_;

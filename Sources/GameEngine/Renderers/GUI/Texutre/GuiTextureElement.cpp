@@ -19,7 +19,6 @@ GuiTextureElement::GuiTextureElement(std::function<void(GuiElement&)> renderSubs
 void GuiTextureElement::Flip()
 {
     scale_.y *= -1;
-    CalculateMatrix();
 }
 const std::string& GuiTextureElement::GetFilename() const
 {

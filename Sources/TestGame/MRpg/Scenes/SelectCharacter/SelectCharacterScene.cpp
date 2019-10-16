@@ -37,7 +37,7 @@ int SelectCharacterScene::Initialize()
 void SelectCharacterScene::PostInitialize()
 {
 }
-int SelectCharacterScene::Update(float deltaTime)
+int SelectCharacterScene::Update(float)
 {
     gateway_.Update();
 

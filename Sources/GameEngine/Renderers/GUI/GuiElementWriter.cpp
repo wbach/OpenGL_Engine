@@ -44,10 +44,6 @@ void write(Utils::XmlNode& node, const std::string& v)
 }
 void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
 {
-    auto& color = node.AddChild(Gui::COLOR);
-    write(color, element.GetColor());
-    auto& inBackground = node.AddChild(Gui::INBACKGROUND);
-    write(inBackground, element.IsBackground());
     auto& position = node.AddChild(Gui::POSITION);
     write(position, element.GetPosition());
     auto& show = node.AddChild(Gui::SHOW);
@@ -59,7 +55,7 @@ void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
     auto& startupFunctionName = node.AddChild(Gui::STARTUP_FUNCTION);
     write(startupFunctionName, element.GetStartupFunctionName());
 }
-void write(Utils::XmlNode& node, const GuiTextElement& text)
+Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextElement& text)
 {
     auto& textNode = node.AddChild(Gui::TEXT);
 
@@ -72,23 +68,30 @@ void write(Utils::XmlNode& node, const GuiTextElement& text)
     write(outline, text.GetFontInfo().outline_);
     auto& value = textNode.AddChild(Gui::VALUE);
     write(value, text.GetText());
+    auto& color = textNode.AddChild(Gui::COLOR);
+    write(color, text.GetColor());
+    return textNode;
 }
-void write(Utils::XmlNode& node, const GuiTextureElement& texture)
+Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextureElement& texture)
 {
     auto& textureNode = node.AddChild(Gui::TEXTURE);
 
     writeBasicParams(textureNode, texture);
     auto& file = textureNode.AddChild(Gui::FILE);
     write(file, EngineConf_RemoveDataPath(texture.GetFilename()));
+    auto& color = textureNode.AddChild(Gui::COLOR);
+    write(color, texture.GetColor());
+    return textureNode;
 }
-void writeNoneTexture(Utils::XmlNode& node, const std::string& label)
+Utils::XmlNode& writeNoneTexture(Utils::XmlNode& node, const std::string& label)
 {
     auto& textureNode = node.AddChild(Gui::TEXTURE);
 
     textureNode.AddChild(Gui::LABEL).value_ = label;
     textureNode.AddChild(Gui::FILE).value_  = Gui::NONE;
+    return textureNode;
 }
-void write(Utils::XmlNode& node, const GuiButtonElement& button)
+Utils::XmlNode& write(Utils::XmlNode& node, const GuiButtonElement& button)
 {
     auto& buttonNode = node.AddChild(Gui::BUTTON);
 
@@ -98,12 +101,12 @@ void write(Utils::XmlNode& node, const GuiButtonElement& button)
 
     if (button.GetText())
     {
-        write(buttonNode, *button.GetText());
+        // write(buttonNode, *button.GetText());
     }
 
     if (button.GetBackgroundTexture())
     {
-        write(buttonNode, *button.GetBackgroundTexture());
+        // write(buttonNode, *button.GetBackgroundTexture());
     }
     else
     {
@@ -112,7 +115,7 @@ void write(Utils::XmlNode& node, const GuiButtonElement& button)
 
     if (button.GetOnActiveTexture())
     {
-        write(buttonNode, *button.GetOnActiveTexture());
+        // write(buttonNode, *button.GetOnActiveTexture());
     }
     else
     {
@@ -121,33 +124,28 @@ void write(Utils::XmlNode& node, const GuiButtonElement& button)
 
     if (button.GetOnHoverTexture())
     {
-        write(buttonNode, *button.GetOnHoverTexture());
+        //  write(buttonNode, *button.GetOnHoverTexture());
     }
     else
     {
         writeNoneTexture(buttonNode, Gui::HOVER_TEXTURE);
     }
+    return buttonNode;
 }
-void write(Utils::XmlNode& node, const GuiWindowElement& window)
+Utils::XmlNode& write(Utils::XmlNode& node, const GuiWindowElement& window)
 {
     auto& windowNode = node.AddChild(Gui::WINDOW);
-
     writeBasicParams(windowNode, window);
 
-    for (const auto& child : window.GetChildren())
-    {
-        write(windowNode, *child);
-    }
+    auto& styleNode = windowNode.AddChild(Gui::STYLE);
+    styleNode.value_ = convert(window.GetStyle());
+    return windowNode;
 }
-void write(Utils::XmlNode& node, const GuiEditBoxElement& editBox)
+Utils::XmlNode& write(Utils::XmlNode& node, const GuiEditBoxElement& editBox)
 {
     auto& editBoxNode = node.AddChild(Gui::EDIT_BOX);
     writeBasicParams(editBoxNode, editBox);
-
-    if (editBox.GetText())
-    {
-        write(editBoxNode, *editBox.GetText());
-    }
+    return editBoxNode;
 }
 
 void write(Utils::XmlNode& node, Layout::Algin algin)
@@ -162,49 +160,44 @@ void write(Utils::XmlNode& node, Layout::Algin algin)
         verticalLayutNode.value_ = Gui::CENTER;
 }
 
-void write(Utils::XmlNode& node, const VerticalLayout& verticalLayout)
+Utils::XmlNode& write(Utils::XmlNode& node, const VerticalLayout& verticalLayout)
 {
     auto& verticalLayutNode = node.AddChild(Gui::VERTICAL_LAYOUT);
     writeBasicParams(verticalLayutNode, verticalLayout);
     write(verticalLayutNode, verticalLayout.GetAlgin());
-
-    for (const auto& child : verticalLayout.GetChildren())
-    {
-        write(verticalLayutNode, child->Get());
-    }
+    return verticalLayutNode;
 }
-void write(Utils::XmlNode& node, const HorizontalLayout& horizontalLayout)
+Utils::XmlNode& write(Utils::XmlNode& node, const HorizontalLayout& horizontalLayout)
 {
     auto& horizontalLayoutNode = node.AddChild(Gui::HORIZONTAL_LAYOUT);
     writeBasicParams(horizontalLayoutNode, horizontalLayout);
     write(horizontalLayoutNode, horizontalLayout.GetAlgin());
-
-    for (const auto& child : horizontalLayout.GetChildren())
-    {
-        write(horizontalLayoutNode, child->Get());
-    }
+    return horizontalLayoutNode;
 }
+
 void write(Utils::XmlNode& node, const GuiElement& element)
 {
     if (element.IsInternal())
         return;
 
+    Utils::XmlNode* addedNode{nullptr};
+
     switch (element.GetType())
     {
         case GuiElementTypes::Text:
-            write(node, *static_cast<const GuiTextElement*>(&element));
+            addedNode = &write(node, *static_cast<const GuiTextElement*>(&element));
             break;
         case GuiElementTypes::Button:
-            write(node, *static_cast<const GuiButtonElement*>(&element));
+            addedNode = &write(node, *static_cast<const GuiButtonElement*>(&element));
             break;
         case GuiElementTypes::Window:
-            write(node, *static_cast<const GuiWindowElement*>(&element));
+            addedNode = &write(node, *static_cast<const GuiWindowElement*>(&element));
             break;
         case GuiElementTypes::EditBox:
-            write(node, *static_cast<const GuiEditBoxElement*>(&element));
+            addedNode = &write(node, *static_cast<const GuiEditBoxElement*>(&element));
             break;
         case GuiElementTypes::Texture:
-            write(node, *static_cast<const GuiTextureElement*>(&element));
+            addedNode = &write(node, *static_cast<const GuiTextureElement*>(&element));
             break;
         case GuiElementTypes::Checkbox:
             DEBUG_LOG("Gui Checkbox write method not implemented.");
@@ -213,11 +206,19 @@ void write(Utils::XmlNode& node, const GuiElement& element)
             DEBUG_LOG("Gui ComboBox write method not implemented.");
             break;
         case GuiElementTypes::VerticalLayout:
-            write(node, *static_cast<const VerticalLayout*>(&element));
+            addedNode = &write(node, *static_cast<const VerticalLayout*>(&element));
             break;
         case GuiElementTypes::HorizontalLayout:
-            write(node, *static_cast<const HorizontalLayout*>(&element));
+            addedNode = &write(node, *static_cast<const HorizontalLayout*>(&element));
             break;
+    }
+
+    if (addedNode)
+    {
+        for (const auto& child : element.GetChildren())
+        {
+            write(*addedNode, *child);
+        }
     }
 }
 

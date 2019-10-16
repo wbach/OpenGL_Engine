@@ -2,21 +2,24 @@
 
 namespace MmmoRpg
 {
-	enum StateStatus
-	{
-		ON_GOING,
-		DONE,
-		BACK_TO_PREVIOUS_STATE
-	};
+enum StateStatus
+{
+    ON_GOING,
+    DONE,
+    BACK_TO_PREVIOUS_STATE
+};
 
-	class ISelectState
-	{
-	public:
-		virtual ~ISelectState() {}
-		virtual void Update() = 0;
-		StateStatus GetStatus() { return status_; }
+class ISelectState
+{
+public:
+    virtual ~ISelectState() = default;
+    virtual void Update()   = 0;
+    StateStatus GetStatus()
+    {
+        return status_;
+    }
 
-	protected:
-		StateStatus status_ = StateStatus::ON_GOING;
-	};
-}
+protected:
+    StateStatus status_ = StateStatus::ON_GOING;
+};
+}  // namespace MmmoRpg

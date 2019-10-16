@@ -85,6 +85,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.h
 ../../Sources/GameEngine/Renderers/GUI/Button/GuiButton.h
 ../../Sources/GameEngine/Renderers/GUI/EditText/GuiEditText.h
+../../Sources/GameEngine/Renderers/GUI/GuiContainer.h
 ../../Sources/GameEngine/Renderers/GUI/GuiContext.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElementFactory.h
@@ -100,7 +101,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Layer/GuiLayer.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/HorizontalLayout.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.h
-../../Sources/GameEngine/Renderers/GUI/Layout/LayoutElementWrapper.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.h
 ../../Sources/GameEngine/Renderers/GUI/Rect.h
 ../../Sources/GameEngine/Renderers/GUI/Text/FontShader.h
@@ -113,6 +113,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShaderUniforms.h
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindow.h
+../../Sources/GameEngine/Renderers/GUI/Window/GuiWindowStyle.h
 ../../Sources/GameEngine/Renderers/IRenderer.h
 ../../Sources/GameEngine/Renderers/LodingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.h

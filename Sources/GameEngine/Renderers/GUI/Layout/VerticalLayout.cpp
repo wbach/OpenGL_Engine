@@ -24,38 +24,22 @@ void VerticalLayout::ResetView()
     viewPosition_ = 0.f;
 }
 
-LayoutElementWrapper &VerticalLayout::AddChild(std::unique_ptr<GuiElement> element)
-{
-    return Layout::AddChild(std::move(element), [this]() { OnChange(); });
-}
-
-void VerticalLayout::SetPostion(const vec2 &position)
-{
-    Layout::SetPostion(position);
-    OnChange();
-}
-
-void VerticalLayout::SetPostion(const vec2ui &position)
-{
-    Layout::SetPostion(position);
-    OnChange();
-}
-
 void VerticalLayout::OnChange()
 {
     if (children_.empty())
         return;
 
-    const auto &firstChild = children_[0]->Get();
+    DisableChangeNotif();
+    const auto &firstChild = *children_[0];
     vec2 newPosition       = position_;
     newPosition.x          = CalculateXPosition(firstChild);
     newPosition.y += scale_.y - firstChild.GetScale().y - viewPosition_;
-    children_[0]->SetPositionWithoutNotif(newPosition);
+    children_[0]->SetPostion(newPosition);
 
     for (std::size_t i = 1; i < children_.size(); ++i)
     {
-        const auto &parent = children_[i - 1]->Get();
-        const auto &child  = children_[i]->Get();
+        const auto &parent = *children_[i - 1];
+        const auto &child  = *children_[i];
 
         const auto &oldPosition     = child.GetPosition();
         const auto &parentPositionY = parent.GetPosition().y;
@@ -66,10 +50,10 @@ void VerticalLayout::OnChange()
 
         if (oldPosition != newPosition)
         {
-            children_[i]->SetPositionWithoutNotif(newPosition);
+            children_[i]->SetPostion(newPosition);
         }
     }
-
+    EnableChangeNotif();
     UpdateVisibility();
 }
 
@@ -91,22 +75,26 @@ float VerticalLayout::CalculateXPosition(const GuiElement &element)
 
 void VerticalLayout::UpdateVisibility()
 {
+    DisableChangeNotif();
     for (auto &element : children_)
     {
-        const auto &child = element->Get();
+        const auto &child = *element;
 
-        bool bottomBorder = child.GetPosition().y - child.GetScale().y < (position_.y - scale_.y - std::numeric_limits<float>::epsilon());
-        bool upperBorder  = child.GetPosition().y + child.GetScale().y > (position_.y + scale_.y + std::numeric_limits<float>::epsilon());
+        bool bottomBorder = child.GetPosition().y - child.GetScale().y <
+                            (position_.y - scale_.y - std::numeric_limits<float>::epsilon());
+        bool upperBorder = child.GetPosition().y + child.GetScale().y >
+                           (position_.y + scale_.y + std::numeric_limits<float>::epsilon());
 
         if (bottomBorder or upperBorder)
         {
-            element->HideWithoutNotif();
+            element->Hide();
         }
         else
         {
-            element->ShowWithoutNotif();
+            element->Show();
         }
     }
+    EnableChangeNotif();
 }
 
 void VerticalLayout::EnableScroll()
@@ -127,7 +115,7 @@ void VerticalLayout::EnableScroll()
         mouseWheelUpSub_ = inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() {
             if (not children_.empty())
             {
-                auto isLastShow = children_.back()->Get().IsShow();
+                auto isLastShow = children_.back()->IsShow();
                 if (IsShow() and not isLastShow)
                 {
                     viewPosition_ -= scrollSensitive_;

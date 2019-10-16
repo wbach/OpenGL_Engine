@@ -14,6 +14,6 @@ struct CharacterSlot
         NICK
     };
     Network::CharacterInfo characterInfo;
-    std::unordered_map<TextType, GameEngine::GuiTextElement> texts;
+    //std::unordered_map<TextType, GameEngine::GuiTextElement> texts;
 };
 }  // MmmoRpg

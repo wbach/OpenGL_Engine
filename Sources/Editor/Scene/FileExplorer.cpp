@@ -44,7 +44,7 @@ void FileExplorer::Start(const std::string &dir, std::function<bool(const std::s
 
 void FileExplorer::CreateWindowWithLayout(const vec2 &position, const vec2 &size)
 {
-    auto window = guiFactory_.CreateGuiWindow(position, size);
+    auto window = guiFactory_.CreateGuiWindow(GameEngine::GuiWindowStyle::CLOSE, position, size);
     window->SetZPosition(-20.f);
 
     auto layout   = guiFactory_.CreateVerticalLayout();

@@ -81,7 +81,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
             continue;
 
         PerObjectUpdate buffer;
-        buffer.TransformationMatrix = subscriber->GetMatrix();
+        buffer.TransformationMatrix = subscriber->GetTransformMatrix();
         graphicsApi_.UpdateShaderBuffer(transformBuffer_, &buffer);
         graphicsApi_.BindShaderBuffer(transformBuffer_);
 
@@ -93,12 +93,12 @@ void GUIRenderer::Render(const Scene&, const Time&)
         graphicsApi_.BindTexture(*subscriber->GetTextureId());
         graphicsApi_.RenderQuad();
 
-        if (subscriber->GetZTotalValue() > min)
+        if (subscriber->GetZValue() > min)
         {
             DEBUG_LOG("Sort needed");
             sortNeeded = true;
         }
-        min = subscriber->GetZTotalValue();
+        min = subscriber->GetZValue();
     }
 
     if (sortNeeded)
@@ -114,13 +114,21 @@ void GUIRenderer::Render(const Scene&, const Time&)
 
 void GUIRenderer::SortSubscribers()
 {
-    std::sort(subscribers_.begin(), subscribers_.end(), [](const auto& l, const auto& r) { return l->GetZTotalValue() > r->GetZTotalValue(); });
+    std::sort(subscribers_.begin(), subscribers_.end(), [](const auto& l, const auto& r) { return l->GetZValue() > r->GetZValue(); });
 }
 
 void GUIRenderer::Subscribe(GuiElement& element)
 {
     if (element.GetType() == GuiElementTypes::Text or element.GetType() == GuiElementTypes::Texture)
     {
+
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [&element](const auto& lelement) { return element.GetId() == lelement->GetId(); });
+
+        if (iter != subscribers_.end())
+        {
+            ERROR_LOG("Try duplicate subscribe element");
+            return;
+        }
         std::lock_guard<std::mutex> lk(subscriberMutex);
         auto guiBaseRendererElement = static_cast<GuiRendererElementBase*>(&element);
         subscribers_.push_back(guiBaseRendererElement);

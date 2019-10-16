@@ -1,42 +1,31 @@
 #pragma once
 #include <memory>
+#include <optional>
 #include <vector>
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "Input/InputManager.h"
-#include <optional>
+#include "GuiWindowStyle.h"
 
 namespace GameEngine
 {
 class GuiWindowElement : public GuiElement
 {
 public:
-    GuiWindowElement(const vec2ui& windowSize, Input::InputManager& inputManager);
+    GuiWindowElement(GuiWindowStyle style, const vec2ui& windowSize, Input::InputManager& inputManager);
     ~GuiWindowElement() override;
-    void AddChild(std::unique_ptr<GuiElement>);
-    void AddMember(std::unique_ptr<GuiElement>);
-    virtual void SetRect(const Rect& rect) override;
     virtual void Update() override;
-    virtual void SetScale(const vec2& scale);
-    virtual void Show(bool);
-    virtual void Show() override;
-    virtual void Hide() override;
-    virtual void SetPostion(const vec2&) override;
-    virtual void SetZPosition(float z) override;
-    virtual void SetZPositionOffset(float offset) override;
-    virtual void SetIsInternal(bool) override;
-    virtual bool CompareZValue(const GuiElement&) const override;
-    virtual GuiElement* GetCollisonElement(const vec2&) override;
-    virtual GuiElement* Get(const std::string& label) override;
-    const std::vector<std::unique_ptr<GuiElement>>& GetChildren() const;
     void CheckCollisionPoint();
+    GuiWindowStyle GetStyle() const;
 
 private:
-    std::vector<std::unique_ptr<GuiElement>> members_;
-    std::vector<std::unique_ptr<GuiElement>> children_;
+
+
+private:
     Input::InputManager& inputManager_;
     float titleBarSize_;
     uint32 inputSubscribtionKeyDown_;
     uint32 inputSubscribtionKeyUp_;
+    GuiWindowStyle style_;
 
 public:
     static GuiElementTypes type;

@@ -4,22 +4,35 @@ namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
+                               std::function<void(const GuiElement&)> unsubscribeElement,
+                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+                               const vec2ui& windowSize, const std::string& font)
     : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
+                               std::function<void(const GuiElement&)> unsubscribeElement,
+                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+                               const vec2ui& windowSize, const std::string& font, const std::string& str)
     : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
+                               std::function<void(const GuiElement&)> unsubscribeElement,
+                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
     : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline)
+GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
+                               std::function<void(const GuiElement&)> unsubscribeElement,
+                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
+                               uint32 outline)
     : GuiRendererElementBase(renderSubscribe, unsubscribeElement, type, windowSize)
     , updateTexture_(updateTexture)
     , windowApi_(windowApi)
@@ -120,6 +133,10 @@ void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
     CalculateAlginOffset();
 }
 
+void GuiTextElement::SetScale(const vec2&)
+{
+}
+
 void GuiTextElement::SetZPositionOffset(float offset)
 {
     GuiElement::SetZPositionOffset(offset - 0.5f);
@@ -133,6 +150,14 @@ const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
 void GuiTextElement::UnsetTexture()
 {
     texture_ = nullptr;
+}
+
+vec2 ConvertToScale(const vec2ui& size, const vec2ui& windowSize)
+{
+    vec2 scale(size.x, size.y);
+    scale.x *= 1.f / (windowSize.x * 2.f);
+    scale.y *= 1.f / (windowSize.y * 2.f);
+    return scale;
 }
 
 void GuiTextElement::RenderText(bool fontOverride)
@@ -164,11 +189,13 @@ void GuiTextElement::RenderText(bool fontOverride)
             windowApi_.DeleteSurface(static_cast<uint32>(surface_->id));
         }
 
-        surface_ = windowApi_.RenderFont(*fontId_, text_, ToVec4(color_), fontInfo_.outline_);
+        const vec4 textBaseColor(1.f);
+        surface_ = windowApi_.RenderFont(*fontId_, text_, textBaseColor, fontInfo_.outline_);
 
         if (surface_)
         {
-            SetSize(surface_->size);
+            scale_ = ConvertToScale(surface_->size, windowSize_);
+            CallOnChange();
             updateTexture_(*this);
         }
         Show();
@@ -186,6 +213,6 @@ void GuiTextElement::CalculateAlginOffset()
     else if (algin_ == Algin::RIGHT)
         offset_.x = -scale_.x;
 
-    CalculateMatrix();
+    CallOnChange();
 }
 }  // namespace GameEngine

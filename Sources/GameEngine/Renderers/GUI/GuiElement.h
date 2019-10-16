@@ -1,98 +1,101 @@
+
 #pragma once
+#include <Types.h>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <vector>
 #include "GLM/GLMUtils.h"
 #include "GuiElementTypes.h"
 #include "Rect.h"
-#include <optional>
-#include <Types.h>
-#include <functional>
 
 namespace GameEngine
 {
 class GuiElement
 {
+    struct ZValue
+    {
+        float value   = 0.f;
+        float offset_ = 0.f;
+        float total_  = 0.f;
+    };
+
 public:
     GuiElement(GuiElementTypes type, const vec2ui& windowSize);
     virtual ~GuiElement() = default;
 
 public:
+    virtual void AddChild(std::unique_ptr<GuiElement>);
+    const std::vector<std::unique_ptr<GuiElement>>& GetChildren() const;
+    void RemoveChild(uint32 id);
+    void RemoveAll();
+
     virtual void Update();
-    virtual bool IsCollision(const vec2ui&) const;
     virtual bool IsCollision(const vec2&) const;
-    virtual GuiElement* GetCollisonElement(const vec2&);
     virtual std::optional<vec2> GetCollisionPoint(const vec2&) const;
-    virtual void SetRect(const Rect& rect);
-    virtual void SetSize(const vec2ui& size);
     virtual void SetScale(const vec2& scale);
     virtual void SetPostion(const vec2& position);
-    virtual void SetPostion(const vec2ui& position);
-    virtual void Rotate(float r);
     virtual void Show(bool);
     virtual void Show();
     virtual void Hide();
-    virtual void SetColor(const vec3& color);
-    virtual const Rect& GetRect() const;
+
     virtual const vec2& GetScale() const;
     virtual const vec2& GetPosition() const;
-    virtual void execute(std::function<void(uint32)>);
+
     virtual void SetZPosition(float z);
     virtual void SetZPositionOffset(float offset);
     virtual float GetZValue() const;
-    virtual float GetZOffsetValue() const;
+    virtual void SetIsInternal();
     virtual void SetIsInternal(bool);
     virtual bool IsInternal() const;
-    virtual bool CompareZValue(const GuiElement&) const;
+
+    virtual bool CompareZValue(const GuiElement& element) const;
+    virtual GuiElement* GetCollisonElement(const vec2& mousePosition);
     virtual GuiElement* Get(const std::string& label);
 
-    uint32 GetId() const;
-    float GetZTotalValue() const;
-    const std::string& GetLabel() const;
-    bool IsMarkToRemove() const;
-    void SetInBackgorund(bool);
-    bool IsBackground() const;
-
-    void MarkToRemove();
-    void SetLabel(const std::string& label);
-
-    void SetStartupFunctionName(const std::string&);
-    const std::string& GetStartupFunctionName() const;
+protected:
+    void CallOnChange();
 
 public:
     GuiElementTypes GetType() const;
+    uint32 GetId() const;
     bool IsShow() const;
-    const mat4& GetMatrix() const;
-    const vec3& GetColor() const;
+
+    const std::string& GetLabel() const;
+    void SetLabel(const std::string& label);
+
+    bool IsMarkToRemove() const;
+    void MarkToRemove();
+
+    void SetStartupFunctionName(const std::string&);
+    const std::string& GetStartupFunctionName() const;
+    void EnableChangeNotif();
+    void DisableChangeNotif();
 
 protected:
-    void CalculateMatrix();
-
-private:
-    void CaclulateScaleBasedOnRect();
-    void CalculateRectBasedOnScale();
-    void CalcualteRectPosition();
-    void CalculatePosition();
+    void UpdatePosition(GuiElement& element, const vec2& v);
+    void SetOnchangeFunction(std::function<void()>);
 
 private:
     GuiElementTypes type_;
+    std::function<void()> onChange_;
+    bool changeNotif_;
 
 protected:
+    std::vector<std::unique_ptr<GuiElement>> children_;
+    std::string startupFunctionName_;
+
     std::string label_;
     vec2ui windowSize_;
-    Rect rect_;
     vec2 position_;
-    float zPosition_;
-    float zOffset_;
-    float zTotalValue_;
+    ZValue zPosition_;
     vec2 scale_;
-    vec3 color_;
-    mat4 transformMatrix_;
-    float rotation_;
+
     bool show_;
-    vec2 offset_;
-    uint32 id_;
-    bool isMarkToRemove_;
     bool isInternal_;
-    bool isBackround_;
-    std::string startupFunctionName_;
+    bool isMarkToRemove_;
+
+    uint32 id_;
 
 public:
     static uint32 ID;

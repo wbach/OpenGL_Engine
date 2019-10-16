@@ -56,7 +56,7 @@ void GetCharacterState::AddSlot(const Network::CharacterInfo& info)
     vec2 offsetY(0.0f, -0.1f);
     vec2 startPosition(-0.441818, -0.477143);
 
-    uint32 slotId = charactersData_.size();
+    auto slotId = charactersData_.size();
     // vec2 finalPos = startPosition + offsetX * static_cast<float>(slotId);
 
     CharacterSlot newSlot;

@@ -121,13 +121,13 @@ void GuiEditScene::AddMenuButtonAction()
 {
     guiManager_->RegisterAction("ReadFile()", [&](auto&) {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
-        auto locationToOpen = Utils::GetCurrentDir();
+        auto dirToOpen = Utils::GetCurrentDir();
         if (not lastOpenedLocation_.empty())
         {
-            locationToOpen = lastOpenedLocation_;
+            dirToOpen = lastOpenedLocation_;
         }
 
-        fileExplorer_->Start(locationToOpen, [&](const std::string& str) {
+        fileExplorer_->Start(dirToOpen, [&](const std::string& str) {
             guiManager_->RemoveLayersExpect(notCleanLayers_);
             processingFilename_ = str;
             currentLayer_       = str;
@@ -138,7 +138,13 @@ void GuiEditScene::AddMenuButtonAction()
 
     guiManager_->RegisterAction("SaveToFile()", [&](auto&) {
         fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
-        fileExplorer_->Start(Utils::GetCurrentDir(),
+        auto dirToOpen = Utils::GetCurrentDir();
+        if (not lastOpenedLocation_.empty())
+        {
+            dirToOpen = lastOpenedLocation_;
+        }
+
+        fileExplorer_->Start(dirToOpen,
                              [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
     });
 
@@ -162,19 +168,32 @@ void GuiEditScene::AddMenuButtonAction()
 
         if (layer)
         {
+            GuiElement* result{nullptr};
             for (const auto& layerElement : layer->GetElements())
             {
+                if (not layerElement->IsShow() or layerElement->IsInternal())
+                {
+                    continue;
+                }
+
                 auto element = layerElement->GetCollisonElement(mousePosition);
                 if (element)
                 {
-                    auto id           = element->GetId();
-                    auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(),
-                                                     [id](auto el) { return el->GetId() == id; });
-
-                    if (existElement == guiElementsChoose_.end())
+                    if (result and result->GetZValue() < element->GetZValue())
                     {
-                        guiElementsChoose_.push_back(element);
+                        continue;
                     }
+                    result = element;
+                }
+            }
+            if (result)
+            {
+                auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(),
+                    [result](auto el) { return el->GetId() == result->GetId(); });
+
+                if (existElement == guiElementsChoose_.end())
+                {
+                    guiElementsChoose_.push_back(result);
                 }
             }
         }
@@ -265,7 +284,7 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         break;
         case GameEngine::GuiElementTypes::Window:
         {
-            auto window = guiElementFactory_->CreateGuiWindow(vec2(0), vec2(0.5));
+            auto window = guiElementFactory_->CreateGuiWindow(GameEngine::GuiWindowStyle::CLOSE, vec2(0), vec2(0.5));
             guiManager_->Add(currentLayer_, std::move(window));
         }
         break;

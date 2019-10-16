@@ -20,6 +20,7 @@ namespace
 const size_t MAX_GUI_TEXTS{20};
 const vec2 DEFAULT_TEXT_POSITION(-1.00, -0.45);
 const std::string COMMAND_CURRSOR{"> "};
+const std::string CONSOLE_LAYER_NAME{"consoleLayer"};
 auto inputType                = Input::SingleCharType::SMALL;
 const float WINDOW_Z_POSITION = -10.f;
 }  // namespace
@@ -29,9 +30,10 @@ Console::Console(Scene &scene)
     , currentCommand_{nullptr}
     , commandHistoryIndex_{0}
 {
-    auto window = scene_.guiElementFactory_->CreateGuiWindow(vec2(0, 0.5), vec2(1, 0.5));
+    scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
+    auto window = scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0, 0.5), vec2(1, 0.5));
     window_     = window.get();
-    scene_.guiManager_->Add(std::move(window));
+    scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
 
     if (not window_)
         return;
