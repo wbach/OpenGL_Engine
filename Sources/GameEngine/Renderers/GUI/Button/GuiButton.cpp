@@ -183,7 +183,7 @@ void GuiButtonElement::SubscribeInputAction()
 {
     if (not subscribtion_)
     {
-        subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
             if (IsShow() and isOnTop_(*this))
             {
                 auto position = inputManager_.GetMousePosition();
@@ -203,6 +203,10 @@ void GuiButtonElement::UnsubscribeInputAction()
     {
         inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, *subscribtion_);
         subscribtion_.reset();
+    }
+    else
+    {
+        ERROR_LOG("Subscribtion not exist.");
     }
 }
 

@@ -15,6 +15,7 @@ class GuiButtonElement : public GuiElement
 {
 public:
     GuiButtonElement(std::function<bool(GuiElement&)>, Input::InputManager&, OnClick, const vec2ui&);
+    GuiButtonElement(const GuiButtonElement&) = delete;
     ~GuiButtonElement();
     void Update() override;
     GuiElement* GetCollisonElement(const vec2& mousePosition) override;

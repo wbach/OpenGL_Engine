@@ -98,30 +98,69 @@ void InputManager::UnsubscribeAll()
 }
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
 {
-    if (subscribers_.keyDownSubscribers_.count(key) == 0)
+    if (quque_.keyDownSubscribers_.count(key) > 0)
+    {
+        quque_.keyDownSubscribers_.erase(key);
         return;
+    }
+
+    if (subscribers_.keyDownSubscribers_.count(key) == 0)
+    {
+        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        return;
+    }
     subscribers_.keyDownSubscribers_.erase(key);
 }
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 {
-    if (subscribers_.keyUpSubscribers_.count(key) == 0)
+    if (quque_.keyDownSubscribers_.count(key) > 0)
+    {
+        quque_.keyUpSubscribers_.erase(key);
         return;
+    }
+
+    if (subscribers_.keyUpSubscribers_.count(key) == 0)
+    {
+        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        return;
+    }
     subscribers_.keyUpSubscribers_.erase(key);
 }
 
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, uint32 id)
 {
-    if (subscribers_.keyDownSubscribers_.count(key) == 0)
+    if (quque_.keyDownSubscribers_.count(key) > 0)
+    {
+        auto& keys = quque_.keyDownSubscribers_.at(key);
+        keys.erase(id);
         return;
+    }
 
+    if (subscribers_.keyDownSubscribers_.count(key) == 0)
+    {
+        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
+                  "}");
+        return;
+    }
     auto& keys = subscribers_.keyDownSubscribers_.at(key);
     keys.erase(id);
 }
 
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 {
-    if (subscribers_.keyUpSubscribers_.count(key) == 0)
+    if (quque_.keyUpSubscribers_.count(key) > 0)
+    {
+        auto& keys = quque_.keyUpSubscribers_.at(key);
+        keys.erase(id);
         return;
+    }
+
+    if (subscribers_.keyUpSubscribers_.count(key) == 0)
+    {
+        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
+                  "}");
+        return;
+    }
 
     auto& keys = subscribers_.keyUpSubscribers_.at(key);
     keys.erase(id);
@@ -129,6 +168,17 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 
 void InputManager::UnsubscribeAnyKey(uint32 id)
 {
+    if (quque_.keysSubscribers_.count(id) > 0)
+    {
+        quque_.keysSubscribers_.erase(id);
+        return;
+    }
+
+    if (subscribers_.keysSubscribers_.count(id) == 0)
+    {
+        ERROR_LOG("Not existing subscribtion : {" + std::to_string(id) + "}");
+        return;
+    }
     subscribers_.keysSubscribers_.erase(id);
 }
 
