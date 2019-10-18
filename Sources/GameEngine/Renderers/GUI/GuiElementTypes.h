@@ -15,6 +15,7 @@ enum class GuiElementTypes
     ComboBox,
     VerticalLayout,
     HorizontalLayout,
+    TreeView
 };
 extern std::vector<GuiElementTypes> GUI_ELEMENT_TYPES;
 }  // namespace GameEngine

@@ -112,6 +112,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShaderUniforms.h
+../../Sources/GameEngine/Renderers/GUI/TreeView/TreeView.h
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindow.h
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindowStyle.h
 ../../Sources/GameEngine/Renderers/IRenderer.h

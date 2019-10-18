@@ -77,6 +77,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/TextInput.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureShader.cpp
+../../Sources/GameEngine/Renderers/GUI/TreeView/TreeView.cpp
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindow.cpp
 ../../Sources/GameEngine/Renderers/GUI/Window/GuiWindowStyle.cpp
 ../../Sources/GameEngine/Renderers/IRenderer.cpp
