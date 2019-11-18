@@ -27,7 +27,7 @@ FileExplorer::FileExplorer(GameEngine::GuiManager &manager, GameEngine::GuiEleme
 
 FileExplorer::~FileExplorer()
 {
-    window_->MarkToRemove();
+    guiManager_.AddRemoveTask(window_);
 }
 
 void FileExplorer::Start(const std::string &dir, std::function<bool(const std::string &)> onChoose)
@@ -134,7 +134,7 @@ void FileExplorer::CreateActionButtons()
         auto filename = currentDir_->GetTextString() + "/" + seletedFileText_->GetTextString();
         if (onChoose_(filename))
         {
-            window_->MarkToRemove();
+            guiManager_.AddRemoveTask(window_);
         }
         else
         {

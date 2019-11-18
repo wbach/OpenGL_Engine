@@ -1,7 +1,12 @@
 #pragma once
-#include "GameEngine/Scene/Scene.hpp"
-#include "FileExplorer.h"
 #include <memory>
+#include "FileExplorer.h"
+#include "GameEngine/Scene/Scene.hpp"
+
+namespace GameEngine
+{
+class TreeView;
+} // namespace GameEngine
 
 namespace Editor
 {
@@ -25,6 +30,7 @@ private:
     void ShowCreateWindow(GameEngine::GuiElementTypes);
     void ReadLastOpenedLocation();
     void SaveLastOpenedLocation();
+    void FillGuiElementInTreeObject(const std::unique_ptr<GameEngine::GuiElement>&, std::optional<uint32> parent = {});
 
 private:
     std::unique_ptr<FileExplorer> fileExplorer_;
@@ -35,5 +41,6 @@ private:
     std::string currentLayer_;
     bool multiSelect_;
     std::string lastOpenedLocation_;
+    GameEngine::TreeView* objectTree_;
 };
 }  // namespace Editor

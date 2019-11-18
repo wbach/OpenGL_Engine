@@ -8,8 +8,8 @@ class Timer
 {
 public:
     Timer();
-    uint64 GetTimeNanoseconds();
-    uint64 GetTimeMiliSeconds();
+    uint64 GetTimeNanoseconds() const;
+    uint64 GetTimeMiliSeconds() const;
     void Reset();
 
 private:

@@ -19,6 +19,7 @@ class GuiButtonElement;
 class GuiTextureElement;
 class GuiEditBoxElement;
 class GuiElementFactory;
+class TreeView;
 
 class GuiElementReader
 {
@@ -36,6 +37,7 @@ private:
     std::unique_ptr<VerticalLayout> ReadVerticalLayout(Utils::XmlNode& node);
     std::unique_ptr<HorizontalLayout> ReadHorizontalLayout(Utils::XmlNode& node);
     std::unique_ptr<GuiWindowElement> ReadGuiWindow(Utils::XmlNode &node);
+    std::unique_ptr<TreeView> ReadTreeView(Utils::XmlNode &node);
 
 private:
     GuiManager& manager_;

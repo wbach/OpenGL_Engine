@@ -18,6 +18,7 @@
 #include "Text/GuiTextElement.h"
 #include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
+#include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"
 
 namespace GameEngine
@@ -213,7 +214,6 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(Utils::XmlNode &no
         }
     }
 
-
     auto text = factory_.CreateGuiText(font, value, fontSize, outline);
     ReadGuiElementBasic(*text, node);
 
@@ -248,11 +248,11 @@ std::unique_ptr<GuiTextureElement> GuiElementReader::ReadGuiTexture(Utils::XmlNo
 
     paramNode = node.GetChild(Gui::COLOR);
     if (paramNode)
-    if (paramNode)
-    {
-        auto color = Utils::ReadVec3(*paramNode);
-        texture->SetColor(color);
-    }
+        if (paramNode)
+        {
+            auto color = Utils::ReadVec3(*paramNode);
+            texture->SetColor(color);
+        }
     return texture;
 }
 std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode &node)
@@ -367,6 +367,64 @@ std::unique_ptr<GuiEditBoxElement> GuiElementReader::ReadEditBox(Utils::XmlNode 
     return editBox;
 }
 
+VerticalLayout *GetVerticalLayoutById(VerticalLayout &root, uint32 id)
+{
+    if (root.GetId() == id and root.GetType() == GuiElementTypes::VerticalLayout)
+        return &root;
+
+    for (const auto &child : root.GetChildren())
+    {
+        if (child->GetType() != GuiElementTypes::VerticalLayout)
+            continue;
+
+        if (child->GetId() == id)
+            return static_cast<VerticalLayout *>(child.get());
+
+        auto result = GetVerticalLayoutById(*static_cast<VerticalLayout *>(child.get()), id);
+
+        if (result)
+            return result;
+    }
+
+    return nullptr;
+}
+
+std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(Utils::XmlNode &treeNode)
+{
+    auto actionNode = treeNode.GetChild(Gui::ACTION);
+    auto action     = manager_.GetActionFunction(actionNode->value_);
+
+    if (not action)
+    {
+        DEBUG_LOG("No action found for tree view \"" + actionNode->value_ + "\"");
+        return nullptr;
+    }
+
+    auto treeView = factory_.CreateTreeView(action);
+    ReadGuiElementBasic(*treeView, treeNode);
+
+    auto elementsNode = treeNode.GetChild(Gui::ELEMENTS);
+
+    if (elementsNode)
+    {
+        for (const auto &node : elementsNode->GetChildren())
+        {
+            auto x = node->GetChild(Gui::X)->value_;
+            auto y = node->GetChild(Gui::Y)->value_;
+
+            std::optional<uint32> parent{};
+            if (y != "-")
+            {
+                parent = std::stoi(y);
+            }
+
+            treeView->Add(x, parent);
+        }
+    }
+
+    return treeView;
+}
+
 std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(Utils::XmlNode &node)
 {
     std::vector<std::unique_ptr<GuiElement>> result;
@@ -395,11 +453,39 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(U
         }
         else if (child->GetName() == Gui::VERTICAL_LAYOUT)
         {
-            result.push_back(ReadVerticalLayout(*child));
+            auto vlayout = ReadVerticalLayout(*child);
+            if (vlayout)
+            {
+                result.push_back(std::move(vlayout));
+            }
+            else
+            {
+                ERROR_LOG("read vertical layout error.");
+            }
         }
         else if (child->GetName() == Gui::WINDOW)
         {
-            result.push_back(ReadGuiWindow(*child));
+            auto window = ReadGuiWindow(*child);
+            if (window)
+            {
+                result.push_back(std::move(window));
+            }
+            else
+            {
+                ERROR_LOG("read window error.");
+            }
+        }
+        else if (child->GetName() == Gui::TREE_VIEW)
+        {
+            auto treeView = ReadTreeView(*child);
+            if (treeView)
+            {
+                result.push_back(std::move(treeView));
+            }
+            else
+            {
+                ERROR_LOG("read tree view error.");
+            }
         }
         else
         {

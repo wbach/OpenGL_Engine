@@ -13,7 +13,8 @@ std::vector<GuiElementTypes> GUI_ELEMENT_TYPES
     GuiElementTypes::EditBox,
     GuiElementTypes::ComboBox,
     GuiElementTypes::VerticalLayout,
-    GuiElementTypes::HorizontalLayout
+    GuiElementTypes::HorizontalLayout,
+    GuiElementTypes::TreeView
 };
 }  // namespace GameEngine
 
@@ -32,6 +33,7 @@ std::string to_string(GameEngine::GuiElementTypes type)
         case GameEngine::GuiElementTypes::ComboBox:         return "ComboBox";
         case GameEngine::GuiElementTypes::VerticalLayout:   return "VerticalLayout";
         case GameEngine::GuiElementTypes::HorizontalLayout: return "HorizontalLayout";
+        case GameEngine::GuiElementTypes::TreeView:         return "TreeView";
     }
 
     return "undefined";

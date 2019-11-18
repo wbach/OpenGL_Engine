@@ -45,6 +45,7 @@ public:
     ActionFunction GetActionFunction(const std::string& name);
 
     void AddTask(std::function<void()>);
+    void AddRemoveTask(GuiElement*);
 
 private:
     GuiLayers layers_;

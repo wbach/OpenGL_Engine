@@ -8,7 +8,7 @@ Layout::Layout(GuiElementTypes type, const vec2ui& windowSize)
     : GuiElement(type, windowSize)
     , algin_(Algin::CENTER)
 {
-    SetOnchangeFunction([this]() { OnChange(); });
+    SubscribeForChange([this]() { OnChange(); });
 }
 
 Layout::~Layout()

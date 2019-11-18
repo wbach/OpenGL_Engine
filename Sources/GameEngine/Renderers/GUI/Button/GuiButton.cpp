@@ -10,7 +10,7 @@ const uint64 SHOW_ACTIVE_TIME = 100;
 
 GuiElementTypes GuiButtonElement::type = GuiElementTypes::Button;
 
-GuiButtonElement::GuiButtonElement(std::function<bool(GuiElement &)> isOnTop, Input::InputManager &inputManager,
+GuiButtonElement::GuiButtonElement(std::function<bool(const GuiElement &)> isOnTop, Input::InputManager &inputManager,
                                    OnClick onClick, const vec2ui &windowSize)
     : GuiElement(type, windowSize)
     , inputManager_(inputManager)
@@ -20,6 +20,7 @@ GuiButtonElement::GuiButtonElement(std::function<bool(GuiElement &)> isOnTop, In
     , onHoverTexture_{nullptr}
     , onActiveTextue_{nullptr}
     , isOnTop_{isOnTop}
+    , currentState_{State::Normal}
 {
     SubscribeInputAction();
 }
@@ -36,43 +37,26 @@ void GuiButtonElement::Update()
         return;
     }
 
-    auto position = inputManager_.GetMousePosition();
+    auto state = GetCurrentState();
 
-    if (activeTimer_.GetTimeMiliSeconds() < SHOW_ACTIVE_TIME)
+    if (currentState_ != state)
     {
-        if (backgroundTexture_)
-            backgroundTexture_->Hide();
-        if (onHoverTexture_)
-            onHoverTexture_->Hide();
-        if (onActiveTextue_)
-            onActiveTextue_->Show();
-        if (text_)
-            text_->SetColor(onActiveTextColor_);
-        return;
+        ApplyState(state);
     }
+}
 
-    if (IsCollision(position) and isOnTop_(*this))
-    {
-        if (backgroundTexture_)
-            backgroundTexture_->Hide();
-        if (onActiveTextue_)
-            onActiveTextue_->Hide();
-        if (onHoverTexture_)
-            onHoverTexture_->Show();
-        if (text_)
-            text_->SetColor(onHoverTextColor_);
-    }
-    else
-    {
-        if (onHoverTexture_)
-            onHoverTexture_->Hide();
-        if (onActiveTextue_)
-            onActiveTextue_->Hide();
-        if (backgroundTexture_)
-            backgroundTexture_->Show();
-        if (text_)
-            text_->SetColor(backgroundTextColor_);
-    }
+void GuiButtonElement::Show()
+{
+   GuiElement::Show();
+   onHoverTexture_->Hide();
+   onActiveTextue_->Hide();
+}
+
+void GuiButtonElement::Show(bool b)
+{
+    GuiElement::Show(b);
+    onHoverTexture_->Hide();
+    onActiveTextue_->Hide();
 }
 
 GuiElement *GuiButtonElement::GetCollisonElement(const vec2 &mousePosition)
@@ -106,7 +90,9 @@ void GuiButtonElement::SetTexture(std::unique_ptr<GuiTextureElement> &newTexture
     }
 
     texture = newTexture.get();
+    texture->Hide();
     AddChild(std::move(newTexture));
+    ApplyState(currentState_);
 }
 
 void GuiButtonElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
@@ -116,11 +102,13 @@ void GuiButtonElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> t
 
 void GuiButtonElement::SetOnHoverTexture(std::unique_ptr<GuiTextureElement> texture)
 {
+    texture->Hide();
     SetTexture(texture, onHoverTexture_);
 }
 
 void GuiButtonElement::SetOnActiveTexture(std::unique_ptr<GuiTextureElement> texture)
 {
+    texture->Hide();
     SetTexture(texture, onActiveTextue_);
 }
 
@@ -208,6 +196,76 @@ void GuiButtonElement::UnsubscribeInputAction()
     {
         ERROR_LOG("Subscribtion not exist.");
     }
+}
+
+GuiButtonElement::State GuiButtonElement::GetCurrentState() const
+{
+    if (activeTimer_.GetTimeMiliSeconds() < SHOW_ACTIVE_TIME)
+    {
+        return State::Active;
+    }
+
+    auto position = inputManager_.GetMousePosition();
+
+    if (IsCollision(position) and isOnTop_(*this))
+    {
+        return State::Hover;
+    }
+
+    return State::Normal;
+}
+
+void GuiButtonElement::ApplyState(State state)
+{
+    switch (state)
+    {
+        case State::Normal:
+            ApplyNormalState();
+            break;
+        case State::Hover:
+            ApplyHoverState();
+            break;
+        case State::Active:
+            break;
+    }
+
+    currentState_ = state;
+}
+
+void GuiButtonElement::ApplyNormalState()
+{
+    if (onHoverTexture_)
+        onHoverTexture_->Hide();
+    if (onActiveTextue_)
+        onActiveTextue_->Hide();
+    if (backgroundTexture_)
+        backgroundTexture_->Show();
+    if (text_)
+        text_->SetColor(backgroundTextColor_);
+}
+
+void GuiButtonElement::ApplyHoverState()
+{
+    if (backgroundTexture_)
+        backgroundTexture_->Hide();
+    if (onActiveTextue_)
+        onActiveTextue_->Hide();
+    if (onHoverTexture_)
+        onHoverTexture_->Show();
+    if (text_)
+        text_->SetColor(onHoverTextColor_);
+}
+
+void GuiButtonElement::ApplyActiveState()
+{
+    if (backgroundTexture_)
+        backgroundTexture_->Hide();
+    if (onHoverTexture_)
+        onHoverTexture_->Hide();
+    if (onActiveTextue_)
+        onActiveTextue_->Show();
+    if (text_)
+        text_->SetColor(onActiveTextColor_);
 }
 
 }  // namespace GameEngine

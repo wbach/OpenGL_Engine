@@ -11,12 +11,16 @@ public:
                            std::function<void(const GuiElement&)> unsubscribeElement, GuiElementTypes type,
                            const vec2ui& windowSize);
     ~GuiRendererElementBase() override;
+
+    void SetScale(const vec2& scale) override;
+    void SetPostion(const vec2& position) override;
+
     void SetColor(const vec3& color);
     inline std::optional<uint32> GetTextureId() const;
     inline const mat4& GetTransformMatrix() const;
     inline const vec3& GetColor() const;
 
-private:
+protected:
     void CalculateMatrix();
 
 protected:

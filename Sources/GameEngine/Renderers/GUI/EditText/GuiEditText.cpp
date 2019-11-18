@@ -71,9 +71,6 @@ GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::
 }
 GuiEditBoxElement::~GuiEditBoxElement()
 {
-    if (backgroundTexture_)
-        backgroundTexture_->MarkToRemove();
-
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, lmouseSubscribtrion_);
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::ENTER, entersubscribion_);
 }

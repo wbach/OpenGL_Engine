@@ -195,6 +195,7 @@ void GuiTextElement::RenderText(bool fontOverride)
         if (surface_)
         {
             scale_ = ConvertToScale(surface_->size, windowSize_);
+            CalculateMatrix();
             CallOnChange();
             updateTexture_(*this);
         }

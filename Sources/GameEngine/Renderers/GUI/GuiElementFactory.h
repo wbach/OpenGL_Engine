@@ -24,6 +24,7 @@ class GuiTextElement;
 class GuiEditBoxElement;
 class VerticalLayout;
 class HorizontalLayout;
+class TreeView;
 
 namespace Renderer
 {
@@ -68,6 +69,8 @@ public:
     std::unique_ptr<VerticalLayout> CreateVerticalLayout();
     std::unique_ptr<HorizontalLayout> CreateHorizontalLayout();
 
+    std::unique_ptr<TreeView> CreateTreeView(std::function<void(GuiElement&)> action);
+
     void CreateMessageBox(const std::string& title, const std::string& message, std::function<void()> = nullptr);
 
 private:
@@ -83,7 +86,7 @@ private:
     std::function<void(GuiElement&)> renderSubscribe_;
     std::function<void(const GuiElement&)> unsubscribeElement_;
     GuiTextFactory guiTextFactory_;
-    std::function<bool(GuiElement&)> isOnTop_;
+    std::function<bool(const GuiElement&)> isOnTop_;
     GuiTheme theme_;
 
 private:

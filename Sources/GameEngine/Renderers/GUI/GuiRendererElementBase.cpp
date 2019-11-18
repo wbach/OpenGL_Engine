@@ -1,4 +1,5 @@
 #include "GuiRendererElementBase.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -10,12 +11,24 @@ GuiRendererElementBase::GuiRendererElementBase(std::function<void(GuiElement&)> 
     , color_(vec3(1.f))
     , unsubscribeElement_(unsubscribeElement)
 {
+    CalculateMatrix();
     renderSubscribe(*this);
-    SetOnchangeFunction([this]() { CalculateMatrix(); });
 }
 GuiRendererElementBase::~GuiRendererElementBase()
 {
     unsubscribeElement_(*this);
+}
+
+void GuiRendererElementBase::SetScale(const vec2 &scale)
+{
+    GuiElement::SetScale(scale);
+    CalculateMatrix();
+}
+
+void GuiRendererElementBase::SetPostion(const vec2 &position)
+{
+    GuiElement::SetPostion(position);
+    CalculateMatrix();
 }
 void GuiRendererElementBase::SetColor(const vec3& color)
 {

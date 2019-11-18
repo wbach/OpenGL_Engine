@@ -14,6 +14,7 @@
 #include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
 #include "Window/GuiWindow.h"
+#include "TreeView/TreeView.h"
 
 namespace GameEngine
 {
@@ -30,7 +31,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
                       EngineConf.renderer.resolution)
     , guiElementCounter_(0)
 {
-    isOnTop_ = [this](GuiElement &checkingElement) {
+    isOnTop_ = [this](const GuiElement &checkingElement) {
         auto mousePosition = inputManager_.GetMousePosition();
         for (const auto &layer : guiManager_.GetGuiLayers())
         {
@@ -196,6 +197,11 @@ std::unique_ptr<HorizontalLayout> GuiElementFactory::CreateHorizontalLayout()
     return std::make_unique<HorizontalLayout>(windowSize_, inputManager_);
 }
 
+std::unique_ptr<TreeView> GuiElementFactory::CreateTreeView(std::function<void(GuiElement&)> action)
+{
+    return std::make_unique<TreeView>(*this, action, windowSize_);
+}
+
 void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message,
                                          std::function<void()> okFunc)
 {
@@ -210,10 +216,10 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     window->AddChild(std::move(messageText));
 
     auto windowPtr = window.get();
-    auto button    = CreateGuiButton("ok", [windowPtr, okFunc](auto &) {
-        windowPtr->MarkToRemove();
+    auto button    = CreateGuiButton("ok", [this, windowPtr, okFunc](auto &) {
         if (okFunc)
             okFunc();
+        guiManager_.AddRemoveTask(windowPtr);
     });
 
     button->SetScale(1.5f * button->GetScale());
@@ -267,7 +273,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
     if (style != GuiWindowStyle::WITHOUT_BUTTONS)
     {
-        auto closeButton        = CreateGuiButton([ptr](auto &) { ptr->MarkToRemove(); });
+        auto closeButton        = CreateGuiButton([this, ptr](auto &) { guiManager_.AddRemoveTask(ptr); });
         auto closeButtonTexture = CreateGuiTexture("GUI/close.png");
         closeButtonTexture->SetScale(.5f * vec2(barHeight));
         closeButton->SetScale(closeButtonTexture->GetScale());

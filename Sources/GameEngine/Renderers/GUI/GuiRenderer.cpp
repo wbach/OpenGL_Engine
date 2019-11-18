@@ -77,7 +77,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
 
     for (const auto& subscriber : subscribers_)
     {
-        if (not subscriber or not subscriber->IsShow() or not subscriber->GetTextureId())
+        if (not subscriber or not subscriber->IsShow() or not subscriber->IsActive() or not subscriber->GetTextureId())
             continue;
 
         PerObjectUpdate buffer;
@@ -114,15 +114,16 @@ void GUIRenderer::Render(const Scene&, const Time&)
 
 void GUIRenderer::SortSubscribers()
 {
-    std::sort(subscribers_.begin(), subscribers_.end(), [](const auto& l, const auto& r) { return l->GetZValue() > r->GetZValue(); });
+    std::sort(subscribers_.begin(), subscribers_.end(),
+              [](const auto& l, const auto& r) { return l->GetZValue() > r->GetZValue(); });
 }
 
 void GUIRenderer::Subscribe(GuiElement& element)
 {
     if (element.GetType() == GuiElementTypes::Text or element.GetType() == GuiElementTypes::Texture)
     {
-
-        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [&element](const auto& lelement) { return element.GetId() == lelement->GetId(); });
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(),
+                                 [&element](const auto& lelement) { return element.GetId() == lelement->GetId(); });
 
         if (iter != subscribers_.end())
         {

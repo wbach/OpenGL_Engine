@@ -16,7 +16,7 @@ LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddr
 {
     cursorTimer_.AddOnTickCallback(std::bind(&LoginScene::SwapCursor, this));
 
-    vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);
+    //vec3 textColor = glm::vec3(20.f / 255.f, 20.f / 255.f, 20.f / 255.f);
 
     // guiLogin_.text     = "Login :";
     // guiLogin_.colour   = textColor;

@@ -37,7 +37,11 @@ public:
     virtual void SetPostion(const vec2& position);
     virtual void Show(bool);
     virtual void Show();
+    virtual void ShowPartial(uint32 depth);
     virtual void Hide();
+    virtual void Activate();
+    virtual void Deactivate();
+    virtual bool IsActive() const;
 
     virtual const vec2& GetScale() const;
     virtual const vec2& GetPosition() const;
@@ -52,6 +56,7 @@ public:
     virtual bool CompareZValue(const GuiElement& element) const;
     virtual GuiElement* GetCollisonElement(const vec2& mousePosition);
     virtual GuiElement* Get(const std::string& label);
+    virtual GuiElement* GetChild(uint32);
 
 protected:
     void CallOnChange();
@@ -64,9 +69,6 @@ public:
     const std::string& GetLabel() const;
     void SetLabel(const std::string& label);
 
-    bool IsMarkToRemove() const;
-    void MarkToRemove();
-
     void SetStartupFunctionName(const std::string&);
     const std::string& GetStartupFunctionName() const;
     void EnableChangeNotif();
@@ -74,11 +76,11 @@ public:
 
 protected:
     void UpdatePosition(GuiElement& element, const vec2& v);
-    void SetOnchangeFunction(std::function<void()>);
+    void SubscribeForChange(std::function<void()>);
 
 private:
     GuiElementTypes type_;
-    std::function<void()> onChange_;
+    std::vector<std::function<void()>> changeSubscribers_;
     bool changeNotif_;
 
 protected:
@@ -92,8 +94,8 @@ protected:
     vec2 scale_;
 
     bool show_;
+    bool isActive_;
     bool isInternal_;
-    bool isMarkToRemove_;
 
     uint32 id_;
 

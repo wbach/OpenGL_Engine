@@ -1,4 +1,5 @@
 #include "HorizontalLayout.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {

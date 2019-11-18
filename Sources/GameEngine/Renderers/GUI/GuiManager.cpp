@@ -16,7 +16,8 @@ GuiManager::GuiManager()
 
 GuiLayer& GuiManager::AddLayer(const std::string& name)
 {
-    auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
+    auto iter =
+        std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
     if (iter == layers_.end())
     {
         layers_.emplace_back(name);
@@ -29,7 +30,8 @@ GuiLayer& GuiManager::AddLayer(const std::string& name)
 
 void GuiManager::Add(const std::string& layerName, std::unique_ptr<GuiElement> element)
 {
-    auto iter = std::find_if(layers_.begin(), layers_.end(), [layerName](const auto& layer) { return layer.GetName() == layerName; });
+    auto iter = std::find_if(layers_.begin(), layers_.end(),
+                             [layerName](const auto& layer) { return layer.GetName() == layerName; });
 
     if (iter != layers_.end())
     {
@@ -49,7 +51,8 @@ GuiElement* GuiManager::GetElement(const std::string& label)
 {
     for (auto& layer : layers_)
     {
-        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [&label](const auto& element) { return element->Get(label) != nullptr; });
+        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(),
+                                    [&label](const auto& element) { return element->Get(label) != nullptr; });
 
         if (element != layer.GetElements().end())
         {
@@ -64,7 +67,8 @@ GuiElement* GuiManager::GetElement(uint32 id)
 {
     for (auto& layer : layers_)
     {
-        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [id](const auto& element) { return element->GetId() == id; });
+        auto element = std::find_if(layer.GetElements().begin(), layer.GetElements().end(),
+                                    [id](const auto& element) { return element->GetId() == id; });
 
         if (element != layer.GetElements().end())
         {
@@ -82,29 +86,19 @@ void GuiManager::Update()
 {
     for (auto& layer : layers_)
     {
-        for (auto iter = layer.GetElements().begin(); iter != layer.GetElements().end();)
+        for (auto& element : layer.GetElements())
         {
-            auto element = iter->get();
-
-            if (element and element->IsMarkToRemove())
-            {
-                iter = layer.GetElements().erase(iter);
-            }
-            else
-            {
-                element->Update();
-                ++iter;
-            }
+            element->Update();
         }
+    }
 
-        if (not tasks_.empty())
+    if (not tasks_.empty())
+    {
+        for (auto& task : tasks_)
         {
-            for (auto& task : tasks_)
-            {
-                task();
-            }
-            tasks_.clear();
+            task();
         }
+        tasks_.clear();
     }
 }
 
@@ -126,6 +120,11 @@ void GuiManager::AddTask(std::function<void()> task)
     tasks_.push_back(task);
 }
 
+void GuiManager::AddRemoveTask(GuiElement* element)
+{
+    tasks_.push_back([this, element](){ Remove(element->GetId());});
+}
+
 void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
 {
     registeredActions_.insert({name, action});
@@ -141,7 +140,7 @@ bool GuiManager::SaveToFile(const std::string& filename)
     return SaveToFile(filename, DEFAULT_LAYER);
 }
 
-bool GuiManager::SaveToFile(const std::string & filename, const std::string & layerName)
+bool GuiManager::SaveToFile(const std::string& filename, const std::string& layerName)
 {
     auto layer = GetLayer(layerName);
     if (layer)
@@ -166,10 +165,8 @@ void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
         for (auto iter = layers_.begin(); iter != layers_.end();)
         {
             const auto& layerName = iter->GetName();
-            auto skip = std::find_if(exceptions.begin(), exceptions.end(), [&layerName](const auto& layer) 
-            {
-                return layerName == layer;
-            });
+            auto skip             = std::find_if(exceptions.begin(), exceptions.end(),
+                                     [&layerName](const auto& layer) { return layerName == layer; });
 
             if (skip == exceptions.end())
             {
@@ -203,7 +200,8 @@ void GuiManager::Remove(const GuiElement& element)
 
     for (auto& layer : layers_)
     {
-        auto iter = std::find_if(layer.GetElements().begin(), layer.GetElements().end(), [id](const auto& element) { return element->GetId() == id; });
+        auto iter = std::find_if(layer.GetElements().begin(), layer.GetElements().end(),
+                                 [id](const auto& element) { return element->GetId() == id; });
 
         if (iter != layer.GetElements().end())
         {
@@ -222,7 +220,8 @@ void GuiManager::RemoveAll()
 
 GuiLayer* GuiManager::GetLayer(const std::string& name)
 {
-    auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
+    auto iter =
+        std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
     if (iter != layers_.end())
     {
         return &(*iter);

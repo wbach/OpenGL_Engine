@@ -13,8 +13,8 @@ GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
     , position_{0, 0}
     , scale_{0.05, 0.05}
     , show_{true}
+    , isActive_{true}
     , isInternal_{false}
-    , isMarkToRemove_{false}
     , id_{GuiElement::ID++}
 {
 }
@@ -22,6 +22,12 @@ void GuiElement::AddChild(std::unique_ptr<GuiElement> child)
 {
     child->SetZPositionOffset(GetZValue());
     child->Show(IsShow());
+
+    for (auto& sub : changeSubscribers_)
+    {
+        child->SubscribeForChange(sub);
+    }
+
     children_.push_back(std::move(child));
     CallOnChange();
 }
@@ -62,12 +68,12 @@ std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 }
 void GuiElement::SetScale(const vec2& scale)
 {
-    scale_ = scale;
     for (auto& child : children_)
     {
         if (not child->isInternal_)
-        child->SetScale(scale);
+            child->SetScale(scale);
     }
+    scale_ = scale;
     CallOnChange();
 }
 void GuiElement::SetPostion(const vec2& position)
@@ -99,10 +105,16 @@ const std::string& GuiElement::GetStartupFunctionName() const
 void GuiElement::EnableChangeNotif()
 {
     changeNotif_ = true;
+
+    for (auto& child : children_)
+        child->EnableChangeNotif();
 }
 void GuiElement::DisableChangeNotif()
 {
     changeNotif_ = false;
+
+    for (auto& child : children_)
+        child->DisableChangeNotif();
 }
 void GuiElement::Show(bool b)
 {
@@ -120,7 +132,18 @@ void GuiElement::Show()
     {
         child->Show();
     }
-
+    show_ = true;
+    CallOnChange();
+}
+void GuiElement::ShowPartial(uint32 depth)
+{
+    if (depth > 0)
+    {
+        for (auto& child : children_)
+        {
+            child->ShowPartial(depth - 1);
+        }
+    }
     show_ = true;
     CallOnChange();
 }
@@ -132,6 +155,25 @@ void GuiElement::Hide()
     }
     show_ = false;
     CallOnChange();
+}
+
+void GuiElement::Activate()
+{
+    isActive_ = true;
+    for (auto& child : children_)
+        child->Activate();
+}
+
+void GuiElement::Deactivate()
+{
+    isActive_ = false;
+    for (auto& child : children_)
+        child->Deactivate();
+}
+
+bool GuiElement::IsActive() const
+{
+    return isActive_;
 }
 const vec2& GuiElement::GetScale() const
 {
@@ -173,14 +215,6 @@ void GuiElement::SetIsInternal()
 uint32 GuiElement::GetId() const
 {
     return id_;
-}
-void GuiElement::MarkToRemove()
-{
-    isMarkToRemove_ = true;
-}
-bool GuiElement::IsMarkToRemove() const
-{
-    return isMarkToRemove_;
 }
 GuiElementTypes GuiElement::GetType() const
 {
@@ -232,7 +266,7 @@ GuiElement* GuiElement::GetCollisonElement(const vec2& mousePosition)
         {
             if (toReturn->GetZValue() < tmin)
             {
-                tmin = toReturn->GetZValue();
+                tmin   = toReturn->GetZValue();
                 result = toReturn;
             }
         }
@@ -254,15 +288,21 @@ GuiElement* GuiElement::Get(const std::string& label)
     return label == label_ ? this : nullptr;
 }
 
+GuiElement* GuiElement::GetChild(uint32 childId)
+{
+    auto child = std::find_if(children_.begin(), children_.end(),
+                              [childId](const auto& element) { return element->GetId() == childId; });
+
+    return child != children_.end() ? child->get() : nullptr;
+}
+
 void GuiElement::CallOnChange()
 {
-    if (onChange_ and changeNotif_)
+    if (changeNotif_)
     {
-        onChange_();
-
-        for (auto& child : children_)
+        for (auto& subscriber : changeSubscribers_)
         {
-            child->CallOnChange();
+            subscriber();
         }
     }
 }
@@ -273,13 +313,8 @@ void GuiElement::UpdatePosition(GuiElement& element, const vec2& v)
     position      = position + v;
     element.SetPostion(position);
 }
-void GuiElement::SetOnchangeFunction(std::function<void()> function)
+void GuiElement::SubscribeForChange(std::function<void()> function)
 {
-    for (auto& child : children_)
-    {
-        child->SetOnchangeFunction(function);
-    }
-
-    onChange_ = function;
+    changeSubscribers_.push_back(function);
 }
 }  // namespace GameEngine

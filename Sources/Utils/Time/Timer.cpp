@@ -12,14 +12,14 @@ void Timer::Reset()
     start_ = std::chrono::high_resolution_clock::now();
 }
 
-uint64 Timer::GetTimeNanoseconds()
+uint64 Timer::GetTimeNanoseconds() const
 {
     auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(now - start_).count();
+    return static_cast<uint64>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - start_).count());
 }
-uint64 Timer::GetTimeMiliSeconds()
+uint64 Timer::GetTimeMiliSeconds() const
 {
     auto now = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count();
+    return static_cast<uint64>(std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count());
 }
 }  // namespace Utils

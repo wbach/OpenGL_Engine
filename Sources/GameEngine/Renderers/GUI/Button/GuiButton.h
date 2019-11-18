@@ -13,11 +13,20 @@ typedef std::function<void(GuiElement&)> OnClick;
 
 class GuiButtonElement : public GuiElement
 {
+    enum class State
+    {
+        Normal,
+        Hover,
+        Active
+    };
+
 public:
-    GuiButtonElement(std::function<bool(GuiElement&)>, Input::InputManager&, OnClick, const vec2ui&);
+    GuiButtonElement(std::function<bool(const GuiElement&)>, Input::InputManager&, OnClick, const vec2ui&);
     GuiButtonElement(const GuiButtonElement&) = delete;
     ~GuiButtonElement();
     void Update() override;
+    void Show() override;
+    void Show(bool) override;
     GuiElement* GetCollisonElement(const vec2& mousePosition) override;
 
     void SetText(std::unique_ptr<GuiTextElement>);
@@ -42,6 +51,11 @@ private:
     void SetTexture(std::unique_ptr<GuiTextureElement>&, GuiTextureElement*&);
     void SubscribeInputAction();
     void UnsubscribeInputAction();
+    State GetCurrentState() const;
+    void ApplyState(State);
+    void ApplyNormalState();
+    void ApplyHoverState();
+    void ApplyActiveState();
 
 private:
     Input::InputManager& inputManager_;
@@ -58,8 +72,9 @@ private:
 
     Utils::Timer activeTimer_;
     std::optional<uint32> subscribtion_;
-    std::function<bool(GuiElement&)> isOnTop_;
+    std::function<bool(const GuiElement&)> isOnTop_;
     std::string actionName_;
+    State currentState_;
 
 public:
     static GuiElementTypes type;

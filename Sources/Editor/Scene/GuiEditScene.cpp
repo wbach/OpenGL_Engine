@@ -8,6 +8,7 @@
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
+#include <GameEngine/Renderers/GUI/TreeView/TreeView.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <Input/InputManager.h>
 #include <algorithm>
@@ -28,6 +29,7 @@ GuiEditScene::GuiEditScene()
     , mousePosition_(0)
     , notCleanLayers_{"DefaultLayer"}
     , multiSelect_{false}
+    , objectTree_{nullptr}
 {
 }
 GuiEditScene::~GuiEditScene()
@@ -82,9 +84,27 @@ void GuiEditScene::KeyOperations()
 
 void GuiEditScene::AddStartupActions()
 {
+    guiManager_->RegisterAction("FillObjectTree()", [this](auto& element) {
+        DEBUG_LOG("FillObjectTree called");
+
+        if (element.GetType() != GuiElementTypes::TreeView)
+        {
+            ERROR_LOG("Type mismatch, treeView dedicated function");
+            return;
+        }
+
+        objectTree_ = static_cast<TreeView*>(&element);
+
+        //            auto test1    = objectTree_->Add("Test1");
+        //            auto test1_1  = objectTree_->Add("Test1_1", test1);
+        //            auto test2_1  = objectTree_->Add("Test2_1", test1_1);
+        //            auto test3_1  = objectTree_->Add("Test3_1", test2_1);
+        //            objectTree_->Add("Test4_1", test3_1);
+        //            objectTree_->Add("Test2");
+    });
+
     guiManager_->RegisterAction("FillGuiElementTypes()", [&](auto& element) {
-        if (element.GetType() == GuiElementTypes::VerticalLayout or
-            element.GetType() == GuiElementTypes::HorizontalLayout)
+        if (element.GetType() == GuiElementTypes::VerticalLayout or element.GetType() == GuiElementTypes::HorizontalLayout)
         {
             auto layout = static_cast<Layout*>(&element);
 
@@ -117,10 +137,43 @@ void GuiEditScene::AddStartupActions()
     });
 }
 
+void GuiEditScene::FillGuiElementInTreeObject(const std::unique_ptr<GuiElement>& element, std::optional<uint32> parent)
+{
+    auto printedText = std::to_string(element->GetType());
+
+    if (not element->IsShow())
+    {
+        printedText += " (Hide)";
+    }
+
+    if (not element->IsActive())
+    {
+        printedText += " (Disabled)";
+    }
+
+    if (element->GetType() == GuiElementTypes::Text)
+    {
+        auto guiText = static_cast<GuiTextElement*>(element.get());
+        printedText += " (" + guiText->GetText() + ")";
+    }
+    else if (element->GetType() == GuiElementTypes::Texture)
+    {
+        auto guiTexture = static_cast<GuiTextureElement*>(element.get());
+        printedText += " (" + guiTexture->GetFilename() + ")";
+    }
+
+    auto id = objectTree_->Add(printedText, parent);
+
+    for (auto& child : element->GetChildren())
+    {
+        FillGuiElementInTreeObject(child, id);
+    }
+}
+
 void GuiEditScene::AddMenuButtonAction()
 {
     guiManager_->RegisterAction("ReadFile()", [&](auto&) {
-        fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
+        fileExplorer_  = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
         auto dirToOpen = Utils::GetCurrentDir();
         if (not lastOpenedLocation_.empty())
         {
@@ -132,24 +185,34 @@ void GuiEditScene::AddMenuButtonAction()
             processingFilename_ = str;
             currentLayer_       = str;
             lastOpenedLocation_ = Utils::GetFilePath(str);
-            return guiElementFactory_->ReadGuiFile(str);
+
+            auto result = guiElementFactory_->ReadGuiFile(str);
+
+            if (objectTree_ and result)
+            {
+                auto currentLayer = guiManager_->GetLayer(currentLayer_);
+                for (auto& element : currentLayer->GetElements())
+                {
+                    FillGuiElementInTreeObject(element);
+                }
+            }
+
+            return result;
         });
     });
 
     guiManager_->RegisterAction("SaveToFile()", [&](auto&) {
-        fileExplorer_ = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
+        fileExplorer_  = std::make_unique<FileExplorer>(*guiManager_, *guiElementFactory_);
         auto dirToOpen = Utils::GetCurrentDir();
         if (not lastOpenedLocation_.empty())
         {
             dirToOpen = lastOpenedLocation_;
         }
 
-        fileExplorer_->Start(dirToOpen,
-                             [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
+        fileExplorer_->Start(dirToOpen, [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
     });
 
-    guiManager_->RegisterAction("QuickSave()",
-                                [&](auto&) { guiManager_->SaveToFile(processingFilename_, currentLayer_); });
+    guiManager_->RegisterAction("QuickSave()", [&](auto&) { guiManager_->SaveToFile(processingFilename_, currentLayer_); });
 
     guiManager_->RegisterAction("Reload()", [&](auto&) {
         guiManager_->RemoveLayersExpect(notCleanLayers_);
@@ -188,8 +251,7 @@ void GuiEditScene::AddMenuButtonAction()
             }
             if (result)
             {
-                auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(),
-                    [result](auto el) { return el->GetId() == result->GetId(); });
+                auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(), [result](auto el) { return el->GetId() == result->GetId(); });
 
                 if (existElement == guiElementsChoose_.end())
                 {
@@ -223,6 +285,7 @@ void GuiEditScene::ReadGuiFile(const std::string& file)
 void GuiEditScene::ReadMenu()
 {
     ReadGuiFile("Scenes/Editor/CommonMenu.xml");
+    ReadGuiFile("Scenes/Editor/ObjectTree.xml");
 }
 
 void GuiEditScene::EnableAlginToFirstX()
@@ -277,8 +340,7 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         break;
         case GameEngine::GuiElementTypes::Button:
         {
-            auto button = guiElementFactory_->CreateGuiButton("new GuiButton",
-                                                              [](auto&) { DEBUG_LOG("action not implemented."); });
+            auto button = guiElementFactory_->CreateGuiButton("new GuiButton", [](auto&) { DEBUG_LOG("action not implemented."); });
             guiManager_->Add(currentLayer_, std::move(button));
         }
         break;
@@ -304,6 +366,12 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         {
             guiElementFactory_->CreateMessageBox("Error", "Create ComboBox not imeplement.");
             DEBUG_LOG("Create ComboBox not imeplement.");
+        }
+        break;
+        case GameEngine::GuiElementTypes::TreeView:
+        {
+            guiElementFactory_->CreateMessageBox("Error", "Create TreeView not imeplement.");
+            DEBUG_LOG("Create TreeView not imeplement.");
         }
         break;
         case GameEngine::GuiElementTypes::VerticalLayout:
