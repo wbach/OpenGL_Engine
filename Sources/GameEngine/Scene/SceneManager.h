@@ -47,7 +47,7 @@ public:
 private:
     void TakeEvents();
     void ProccessEvents();
-    void UpadteScene(float dt);
+    void UpdateScene(float dt);
     void AddSceneEvent(const SceneEvent&);
     void AddEventToProcess(const SceneEvent&);
     wb::optional<GameEngine::SceneEvent> GetSceneEvent();

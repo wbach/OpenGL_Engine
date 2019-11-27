@@ -80,22 +80,22 @@ include_directories(
 set(BulletLinkingLibs
             BulletDynamics
             Bullet3Common
-            Bullet2FileLoader
+            #Bullet2FileLoader
             Bullet3Collision
             Bullet3Dynamics
             Bullet3Geometry
             Bullet3OpenCL_clew
             BulletCollision
-            BulletFileLoader
+            #BulletFileLoader
             BulletInverseDynamics
-            BulletInverseDynamicsUtils
-            BulletRobotics
+            #BulletInverseDynamicsUtils
+            #BulletRobotics
             BulletSoftBody
-            BulletWorldImporter
-            BulletXmlWorldImporter
-            ConvexDecomposition
-            GIMPACTUtils
-            HACD
+            #BulletWorldImporter
+            #BulletXmlWorldImporter
+            #ConvexDecomposition
+            #GIMPACTUtils
+            #HACD
             LinearMath
             fbxsdk
       )

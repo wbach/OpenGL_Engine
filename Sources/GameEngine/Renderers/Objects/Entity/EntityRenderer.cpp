@@ -1,4 +1,5 @@
 #include "EntityRenderer.h"
+#include <Mutex.hpp>
 #include "EntityRendererDef.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
@@ -12,7 +13,6 @@
 #include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
-#include <Mutex.hpp>
 
 namespace GameEngine
 {
@@ -110,9 +110,9 @@ void EntityRenderer::RenderEntities()
 
 void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model& model) const
 {
-    const auto& meshes                    = model.GetMeshes();
+    const auto& meshes = model.GetMeshes();
 
-    int meshId = 0;
+    uint32 meshId = 0;
     for (const auto& mesh : meshes)
     {
         const auto& buffers = mesh.GetBuffers();
@@ -129,7 +129,7 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
         }
-        
+
         const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(meshId);
         if (perMeshConstantBuffer)
         {

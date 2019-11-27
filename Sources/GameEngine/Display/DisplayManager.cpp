@@ -20,7 +20,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.PrintVersion();
     timeMeasurer.AddOnTickCallback([this]() {
         time_.fps = timeMeasurer.GetFps();
-        DEBUG_LOG("FPS : " + std::to_string(time_.fps));
+        DEBUG_LOG("Render thread FPS : " + std::to_string(time_.fps));
     });
 }
 
@@ -39,20 +39,20 @@ void DisplayManager::ProcessEvents()
 void DisplayManager::Update()
 {
     graphicsApi_.GetWindowApi().UpdateWindow();
-    timeMeasurer.EndFrame();
     time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
 }
 
-void DisplayManager::SetRefreshRate(const int& rate)
+void DisplayManager::SetRefreshRate(const int&)
 {
 }
 
 void DisplayManager::SetFullScreen(bool full_screen)
 {
+    isFullScreen = full_screen;
     graphicsApi_.GetWindowApi().SetFullScreen(isFullScreen);
 }
 
-const int DisplayManager::GetFps()
+int DisplayManager::GetFps() const
 {
     return static_cast<int>(timeMeasurer.GetFps());
 }

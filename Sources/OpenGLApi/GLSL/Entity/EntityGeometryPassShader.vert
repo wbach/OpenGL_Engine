@@ -35,7 +35,7 @@ layout (std140, binding=3) uniform PerObjectUpdate
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-layout (std140, binding=4) uniform PerPoseUpdate
+layout (std140, align=16, binding=4) uniform PerPoseUpdate
 {
     mat4 bonesTransforms[MAX_BONES];
 } perPoseUpdate;

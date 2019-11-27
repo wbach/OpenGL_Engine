@@ -18,40 +18,30 @@ public:
     CTimeMeasurer(uint32 lockFps, uint32 frequency = 1000);
     void AddOnTickCallback(Callback);
     void CalculateAndLock();
-    void EndFrame();
     float GetFps() const;
-    const double inline GetDeltaTime() const;
+    double GetDeltaTime() const;
 
 private:
+    void CalculateFrameTime();
     void RunCallbacks() const;
-    uint32 CalculateFpsTimeInterval();
-    void CheckFpsTimeElapsed(uint32 time_interval);
+    void CalculateFpsAndCallIfTimeElapsed();
     void Lock();
 
 private:
-    uint32 lockFps;
-    uint32 frequency_;
-    Callbacks callbacks;
-
-    float previousTime_;
-    float currentTime_;
-
     bool vsync;
+    uint32 lockFps_;
+    double frequency_;
+    Callbacks callbacks_;
 
-    Delta deltaTime, deltaTime2;
-    Timepoint lastFrameTime, lastFrameTime2;
+private:
+    Timepoint currentTime_;
+    Timepoint previousTime_;
 
-    Timepoint currentTime, previousTime;
-    float frameCount, fps;
-    double frameTime;
-
-    const double lockframeTime;
+    double frameTime_;
+    double periodTime_;
+    double frameCount_, fps_;
+    const double lockframeTime_;
 };
 
-const double inline CTimeMeasurer::GetDeltaTime() const
-{
-    return currentTime_ - previousTime_;  // static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(deltaTime2).count())
-                                          // / 1000000000.0;
-}
 }  // namespace Time
 }  // namespace Utils

@@ -42,6 +42,6 @@ private:
 };
 // clang-format off
 #define LogToFile(x)// do {CLogger::Instance().LoggToFileOnly(x);} while(0)
-#define DEBUG_LOG(x) do {CLogger::Instance().DebugLog(__FUNCTION__ + std::string(": ") + x);} while(0)
-#define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(__FUNCTION__ + std::string(": ") + x);} while(0)
+#define DEBUG_LOG(x) do {CLogger::Instance().DebugLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
+#define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
 // clang-format on

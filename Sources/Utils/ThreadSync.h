@@ -15,7 +15,7 @@ typedef std::function<void(float deltaTime)> frameFunc;
 
 struct Subscriber
 {
-    Subscriber(uint32 id, frameFunc func);
+    Subscriber(const std::string& label, uint32 id, frameFunc func);
     Subscriber(const Subscriber& s);
 
     void Start();
@@ -30,12 +30,13 @@ struct Subscriber
     std::thread thread;
     std::atomic_bool isRunning;
     Time::CTimeMeasurer timeMeasurer;
+    std::string label_;
 };
 
 class ThreadSync
 {
 public:
-    uint32 Subscribe(frameFunc func);
+    uint32 Subscribe(frameFunc func, const std::string& label = "unnamed");
     void Unsubscribe(uint32 id);
     void Start();
     void Stop();

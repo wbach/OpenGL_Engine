@@ -33,7 +33,7 @@ public:
 
     inline const Time& GetTime() const;
 
-    const int GetFps();
+    int GetFps() const;
     const wb::vec2i& GetWindowSize();
 
 private:

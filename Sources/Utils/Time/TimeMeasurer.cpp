@@ -6,95 +6,79 @@
 #include "Logger/Log.h"
 #include "Thread.hpp"
 
-float GetCTime()
-{
-    return static_cast<float>(clock()) / static_cast<float>(CLOCKS_PER_SEC);
-}
-
 namespace Utils
 {
 namespace Time
 {
+#define GetTime() std::chrono::high_resolution_clock::now()
+
 CTimeMeasurer::CTimeMeasurer()
     : CTimeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
 {
-    DEBUG_LOG("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps));
+    DEBUG_LOG("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps_));
 }
 
+// frequency in ms
 CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)
-    : lockFps(lockFps)
-    , frequency_(frequency)
-    , previousTime_(0.f)
-    , currentTime_(0.f)
-    , vsync(lockFps > 0)
-    , deltaTime(0)
-    , deltaTime2(0)
-    , lastFrameTime(std::chrono::high_resolution_clock::now())
-    , lastFrameTime2(std::chrono::high_resolution_clock::now())
-    , currentTime(std::chrono::high_resolution_clock::now())
-    , previousTime(std::chrono::high_resolution_clock::now())
-    , frameCount(0)
-    , fps(0)
-    , frameTime(0)
-    , lockframeTime(lockFps > 0 ?  static_cast<double>(frequency) / static_cast<double>(lockFps) : 0.0)
+    : vsync(lockFps > 0)
+    , lockFps_(lockFps)
+    , frequency_(frequency / 1e3)
+    , currentTime_(GetTime())
+    , frameTime_(0)
+    , periodTime_(0)
+    , frameCount_(0)
+    , fps_(0)
+    , lockframeTime_(lockFps_ > 0 ? 1.0 / static_cast<double>(lockFps_) : 0.0)
 {
+}
+double CTimeMeasurer::GetDeltaTime() const
+{
+    return frameTime_;
+}
 
+void CTimeMeasurer::CalculateFrameTime()
+{
+    frameTime_ = static_cast<double>(
+                     std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime_ - previousTime_).count()) /
+                 1e9;
 }
 
 void CTimeMeasurer::AddOnTickCallback(Callback c)
 {
-    callbacks.push_back(c);
+    callbacks_.push_back(c);
 }
 
 void CTimeMeasurer::CalculateAndLock()
 {
     previousTime_ = currentTime_;
-    currentTime_  = GetCTime();
-
-    currentTime = std::chrono::high_resolution_clock::now();
-    frameCount++;
-
-    auto time_interval = CalculateFpsTimeInterval();
-    CheckFpsTimeElapsed(time_interval);
-
+    currentTime_  = GetTime();
+    CalculateFrameTime();
+    CalculateFpsAndCallIfTimeElapsed();
     Lock();
-    lastFrameTime = std::chrono::high_resolution_clock::now();
-}
-
-void CTimeMeasurer::EndFrame()
-{
-    deltaTime2 = std::chrono::high_resolution_clock::now() - currentTime;
 }
 
 float CTimeMeasurer::GetFps() const
 {
-    return fps;
+    return static_cast<float>(1.0 / frameTime_);
 }
 
 void CTimeMeasurer::RunCallbacks() const
 {
-    for (const auto& c : callbacks)
+    for (const auto& c : callbacks_)
         c();
 }
 
-uint32 CTimeMeasurer::CalculateFpsTimeInterval()
+void CTimeMeasurer::CalculateFpsAndCallIfTimeElapsed()
 {
-    deltaTime = currentTime - lastFrameTime;
+    periodTime_ += frameTime_;
+    frameCount_ = frameCount_ + 1.0;
 
-    auto d = currentTime - previousTime;
-
-    return static_cast<uint32>(std::chrono::duration_cast<std::chrono::milliseconds>(d).count());
-}
-
-void CTimeMeasurer::CheckFpsTimeElapsed(uint32 time_interval)
-{
-    if (time_interval < frequency_)
+    if (periodTime_ < frequency_)
         return;
 
-    float time_interval_ms = static_cast<float>(time_interval) / static_cast<float>(frequency_);
-    fps                    = frameCount / time_interval_ms;
-    previousTime           = currentTime;
-    frameCount             = 0;
+    fps_        = (periodTime_ / frameCount_) ;
+    frameCount_ = 0.0;
+    periodTime_ = 0.0;
     RunCallbacks();
 }
 
@@ -103,12 +87,13 @@ void CTimeMeasurer::Lock()
     if (!vsync)
         return;
 
-    auto currentframeTime = std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime).count();
-
-    if (lockframeTime > currentframeTime)
+    if (lockframeTime_ > frameTime_)
     {
-        auto delay = static_cast<uint32>(lockframeTime - currentframeTime);
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        auto ln = lockframeTime_ * 1e9;
+        auto fn = frameTime_ * 1e9;
+
+        auto delay = static_cast<uint32>(ln -fn);
+        std::this_thread::sleep_for(std::chrono::nanoseconds(delay));
     }
 }
 

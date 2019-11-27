@@ -139,7 +139,7 @@ bool SceneManager::IsRunning() const
     return isRunning_;
 }
 
-void SceneManager::UpadteScene(float dt)
+void SceneManager::UpdateScene(float dt)
 {
     if (not sceneWrapper_.IsInitialized())
         return;
@@ -181,7 +181,7 @@ std::optional<GameEngine::SceneEvent> SceneManager::GetProcessingEvent()
     auto e = processingEvents_.front();
     processingEvents_.pop();
 
-    return e;
+    return std::move(e);
 }
 
 void SceneManager::LoadNextScene()
@@ -243,7 +243,7 @@ void SceneManager::SetSceneContext(Scene* scene)
 void SceneManager::UpdateSubscribe()
 {
     DEBUG_LOG("");
-    updateSceneThreadId_ = threadSync_.Subscribe(std::bind(&SceneManager::UpadteScene, this, std::placeholders::_1));
+    updateSceneThreadId_ = threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
     threadSync_.Start();
     isRunning_ = true;
 }

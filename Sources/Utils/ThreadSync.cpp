@@ -4,12 +4,13 @@ namespace Utils
 {
 namespace Thread
 {
-Subscriber::Subscriber(uint32 id, frameFunc func)
+Subscriber::Subscriber(const std::string& label, uint32 id, frameFunc func)
     : isFree(false)
     , isStarted(false)
     , func(func)
     , threadId(id)
     , isRunning(true)
+    , label_(label)
 {
 }
 
@@ -19,6 +20,7 @@ Subscriber::Subscriber(const Subscriber& s)
     , func(s.func)
     , threadId(s.threadId)
     , isRunning(s.isRunning.load())
+    , label_(s.label_)
 {
 }
 
@@ -47,18 +49,18 @@ void Subscriber::Update()
         timeMeasurer.CalculateAndLock();
         float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
         func(deltaTime);
-        timeMeasurer.EndFrame();
     }
     DEBUG_LOG("Subscriber::Update, End thread.");
 }
 
 void Subscriber::PrintFps()
 {
-    std::string msg = "Fps : " + std::to_string(timeMeasurer.GetFps()) + ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
+    std::string msg = "Thread label : " + label_ + " Fps : " + std::to_string(timeMeasurer.GetFps()) +
+                      ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
     DEBUG_LOG(msg);
 }
 
-uint32 ThreadSync::Subscribe(frameFunc func)
+uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)
 {
     uint32 i = 0;
     for (auto& s : subscribers)
@@ -73,7 +75,7 @@ uint32 ThreadSync::Subscribe(frameFunc func)
         ++i;
     }
 
-    subscribers.emplace_back(i, func);
+    subscribers.emplace_back(label, i, func);
     return subscribers.size() - 1;
 }
 

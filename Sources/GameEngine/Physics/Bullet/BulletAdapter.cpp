@@ -32,16 +32,9 @@ struct BulletAdapter::Pimpl
     Pimpl(GraphicsApi::IGraphicsApi& graphicsApi)
         : graphicsApi_(graphicsApi)
     {
-        // auto trimesh = new btTriangleMesh();
-        // btVector3 worldAabbMin(-1000, -1000, -1000);
-        // btVector3 worldAabbMax(1000, 1000, 1000);
-        // const int maxProxies = 32766;
-
-        // m_broadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
         collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
         btDispacher            = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
         btBroadPhase           = std::make_unique<btDbvtBroadphase>();
-        // btBroadPhase = std::make_unique<btAxisSweep3>(worldAabbMin, worldAabbMax, maxProxies);
         btSolver       = std::make_unique<btSequentialImpulseConstraintSolver>();
         btDynamicWorld = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(),
                                                                    btSolver.get(), collisionConfiguration.get());

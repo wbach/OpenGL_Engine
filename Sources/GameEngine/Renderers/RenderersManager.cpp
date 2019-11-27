@@ -121,6 +121,12 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
     Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
 
+    if (renderPhysicsDebug_ and physicsDebugDraw_)
+    {
+        DEBUG_LOG("Physic draw");
+        physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
+    }
+
     guiRenderer_.Render(*scene, threadTime);
 
     if (unsubscribeAllCallback_)
@@ -172,7 +178,7 @@ void RenderersManager::UnSubscribe(GameObject* gameObject)
         r->UnSubscribe(gameObject);
 }
 
-void RenderersManager::UnSubscribe(GameObject *gameObject, std::mutex & m, std::condition_variable & cv, bool &done)
+void RenderersManager::UnSubscribe(GameObject* gameObject, std::mutex& m, std::condition_variable& cv, bool& done)
 {
     tounsubscriber_.push_back({gameObject, m, cv, done});
 }
@@ -224,9 +230,6 @@ void RenderersManager::Render(RendererFunctionType type, Scene* scene, const Tim
         for (auto& f : rendererFunctions_.at(type))
             f(*scene, threadTime);
     }
-
-    if (renderPhysicsDebug_ and physicsDebugDraw_)
-        physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
 }
 void RenderersManager::CreateBuffers()
 {
