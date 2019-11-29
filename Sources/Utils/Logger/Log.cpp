@@ -128,8 +128,9 @@ void CLogger::ProccesLog()
 {
     while (running_.load())
     {
+        timer_.StartFrame();
         PrintLogs();
-        timer_.CalculateAndLock();
+        timer_.EndFrame();
     }
 }
 

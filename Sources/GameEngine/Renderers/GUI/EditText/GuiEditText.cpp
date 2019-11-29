@@ -82,7 +82,7 @@ void GuiEditBoxElement::Update()
         return;
     }
 
-    timer_.CalculateAndLock();
+    timer_.StartFrame();
 
     if (cursor_->IsShow())
     {
@@ -95,6 +95,8 @@ void GuiEditBoxElement::Update()
             cursor_->SetPostion(GetPosition());
         }
     }
+
+    timer_.EndFrame();
 }
 void GuiEditBoxElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
 {

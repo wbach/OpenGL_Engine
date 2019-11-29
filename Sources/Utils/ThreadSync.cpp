@@ -46,17 +46,17 @@ void Subscriber::Update()
 {
     while (isRunning.load())
     {
-        timeMeasurer.CalculateAndLock();
+        timeMeasurer.StartFrame();
         float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
         func(deltaTime);
+        timeMeasurer.EndFrame();
     }
     DEBUG_LOG("Subscriber::Update, End thread.");
 }
 
 void Subscriber::PrintFps()
 {
-    std::string msg = "Thread label : " + label_ + " Fps : " + std::to_string(timeMeasurer.GetFps()) +
-                      ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
+    std::string msg = "Thread label : " + label_ + " Fps : " + std::to_string(timeMeasurer.GetFps()) + ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
     DEBUG_LOG(msg);
 }
 

@@ -17,12 +17,13 @@ public:
     CTimeMeasurer();
     CTimeMeasurer(uint32 lockFps, uint32 frequency = 1000);
     void AddOnTickCallback(Callback);
-    void CalculateAndLock();
+    void StartFrame();
+    void EndFrame();
     float GetFps() const;
     double GetDeltaTime() const;
 
 private:
-    void CalculateFrameTime();
+    double CalculateTime(const Timepoint&, const Timepoint&) const;
     void RunCallbacks() const;
     void CalculateFpsAndCallIfTimeElapsed();
     void Lock();
@@ -37,9 +38,11 @@ private:
     Timepoint currentTime_;
     Timepoint previousTime_;
 
+    double deltaTime_;
     double frameTime_;
     double periodTime_;
-    double frameCount_, fps_;
+    double fps_;
+    uint32 frameCount_;
     const double lockframeTime_;
 };
 

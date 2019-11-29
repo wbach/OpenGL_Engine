@@ -71,6 +71,7 @@ SceneManager& Engine::GetSceneManager()
 
 void Engine::MainLoop()
 {
+    displayManager->StartFrame();
     inputManager_->GetPressedKeys();
     sceneManager_.RuntimeLoadObjectToGpu();
     PrepareFrame();
@@ -78,6 +79,7 @@ void Engine::MainLoop()
     sceneManager_.Update();
     displayManager->Update();
     ProcessEngineEvents();
+    displayManager->EndFrame();
 }
 
 void Engine::ProcessEngineEvents()

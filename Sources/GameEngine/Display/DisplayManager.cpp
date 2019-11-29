@@ -4,8 +4,7 @@
 
 namespace GameEngine
 {
-DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w,
-                               const int& h, GraphicsApi::WindowType type)
+DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, GraphicsApi::WindowType type)
     : graphicsApi_(api)
     , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
     , sync(true)
@@ -30,9 +29,18 @@ DisplayManager::~DisplayManager()
     DEBUG_LOG("");
 }
 
+void DisplayManager::StartFrame()
+{
+    timeMeasurer.StartFrame();
+}
+
+void DisplayManager::EndFrame()
+{
+    timeMeasurer.EndFrame();
+}
+
 void DisplayManager::ProcessEvents()
 {
-    timeMeasurer.CalculateAndLock();
     graphicsApi_.GetWindowApi().ProcessEvents();
 }
 

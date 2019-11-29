@@ -248,6 +248,7 @@ struct GameSceneState : public IMockState
     }
     virtual void Update() override
     {
+        timer_.StartFrame();
         auto now = std::chrono::high_resolution_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - sentTime_).count() > 50)
         {
@@ -255,7 +256,7 @@ struct GameSceneState : public IMockState
             // Log("Next transform message : " + std::to_string(forwardBackward) + ", push? : " +
             // std::to_string(pushMessage) );
         }
-        timer_.CalculateAndLock();
+        timer_.EndFrame();
     }
 
     void SendTransform()

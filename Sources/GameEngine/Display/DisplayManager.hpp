@@ -14,19 +14,15 @@ class DisplayManager
 public:
     DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, GraphicsApi::WindowType type);
     ~DisplayManager();
+    void StartFrame();
+    void EndFrame();
     void ProcessEvents();
     void Update();
     void ShowCoursor(bool show);
     bool CheckActiveWindow();
     std::shared_ptr<Input::InputManager> CreateInput();
-    void EnableTime()
-    {
-        time = true;
-    }
-    void DisableTime()
-    {
-        time = false;
-    }
+    inline void EnableTime();
+    inline void DisableTime();
 
     void SetRefreshRate(const int& rate);
     void SetFullScreen(bool full_screen);
@@ -47,7 +43,17 @@ private:
     wb::vec2i windowsSize;
 };
 
-inline const Time& DisplayManager::GetTime() const
+void DisplayManager::EnableTime()
+{
+    time = true;
+}
+
+void DisplayManager::DisableTime()
+{
+    time = false;
+}
+
+const Time& DisplayManager::GetTime() const
 {
     return time_;
 }

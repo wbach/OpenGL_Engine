@@ -72,11 +72,12 @@ void LoginScene::PostInitialize()
 {
 }
 
-int LoginScene::Update(float deltaTime)
+int LoginScene::Update(float)
 {
+    cursorTimer_.StartFrame();
     gateway_.Update();
     PrintLoginAndPassword();
-    cursorTimer_.CalculateAndLock();
+    cursorTimer_.EndFrame();
     return 0;
 }
 
