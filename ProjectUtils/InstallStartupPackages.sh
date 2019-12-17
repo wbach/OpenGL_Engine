@@ -21,12 +21,18 @@ sudo apt-get install -y lm-sensors
 sudo apt-get install -y clang-format
 
 sudo apt-get install -y python-pip
+sudo apt-get install -y python3-pip
 sudo apt-get install -y python-opencv
 python -m pip install -U matplotlib
 pip install -U scikit-learn
 pip install tqdm
 sudo apt-get install -y python-backports.functools-lru-cache
 sudo apt-get install -y python-tk
+pip install --upgrade google-api-python-client oauth2client
+
+#https://github.com/prahladyeri/tuxdrive
+sudo pip3 install google-api-python-client oauth2client
+sudo dpkg -i tuxdrive-1.0.12.deb
 
 #game dev
 sudo apt-get install -y libxkbcommon-dev
