@@ -19,31 +19,32 @@ public:
     void AddOnTickCallback(Callback);
     void StartFrame();
     void EndFrame();
-    float GetFps() const;
+    int64 GetFps() const;
     double GetDeltaTime() const;
 
 private:
-    double CalculateTime(const Timepoint&, const Timepoint&) const;
+    int64 CalculateTime(const Timepoint&, const Timepoint&) const;
     void RunCallbacks() const;
     void CalculateFpsAndCallIfTimeElapsed();
     void Lock();
+    void Sleep(int64 time);
 
 private:
     bool vsync;
     uint32 lockFps_;
-    double frequency_;
+    int64 frequency_;
     Callbacks callbacks_;
 
 private:
     Timepoint currentTime_;
     Timepoint previousTime_;
 
-    double deltaTime_;
-    double frameTime_;
-    double periodTime_;
-    double fps_;
+    int64 deltaTime_;
+    int64 frameTime_;
+    int64 periodTime_;
+    int64 fps_;
     uint32 frameCount_;
-    const double lockframeTime_;
+    const int64 lockframeTime_;
 };
 
 }  // namespace Time
