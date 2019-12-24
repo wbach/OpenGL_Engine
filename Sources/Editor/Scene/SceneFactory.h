@@ -3,9 +3,11 @@
 
 namespace Editor
 {
+struct Context;
+
 class SceneFactory : public GameEngine::SceneFactoryBase
 {
 public:
-    SceneFactory();
+    SceneFactory(Context&);
 };
 }  // namespace Editor

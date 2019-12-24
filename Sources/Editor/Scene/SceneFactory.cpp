@@ -1,14 +1,15 @@
-#include "GuiEditScene.h"
 #include "SceneFactory.h"
-#include "EditorScene.h"
 #include "ChooseEditor.h"
+#include "Editor/Context.h"
+#include "EditorScene.h"
+#include "GuiEditScene.h"
 
 namespace Editor
 {
-SceneFactory::SceneFactory()
+SceneFactory::SceneFactory(Context& context)
 {
     AddScene("ChooseEditor", []() { return std::make_unique<ChooseEditor>(); });
-    AddScene("GuiEditScene", []() { return std::make_unique<GuiEditScene>(); });
-    AddScene("EditorScene", []() { return std::make_unique<EditorScene>(); });
+    AddScene("GuiEditScene", [&context]() { return std::make_unique<GuiEditScene>(context); });
+    AddScene("EditorScene", [&context]() { return std::make_unique<EditorScene>(context); });
 }
 }  // namespace Editor

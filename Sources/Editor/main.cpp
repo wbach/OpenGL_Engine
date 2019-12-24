@@ -11,6 +11,7 @@
 #include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
 #include "Scene/SceneFactory.h"
+#include "Editor/Context.h"
 
 const std::string configFile = "./Conf.xml";
 
@@ -28,7 +29,10 @@ int main(int, char**)
 
     // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
-    Engine engine(std::move(api), std::make_unique<BulletAdapter>(ptr), std::make_shared<Editor::SceneFactory>());
+    Editor::Context editorContext;
+
+    Engine engine(std::move(api), std::make_unique<BulletAdapter>(ptr),
+                  std::make_shared<Editor::SceneFactory>(editorContext));
     engine.Init();
     engine.GetSceneManager().SetActiveScene("ChooseEditor");
     engine.GameLoop();

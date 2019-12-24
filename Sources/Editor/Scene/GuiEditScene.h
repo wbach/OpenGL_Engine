@@ -10,10 +10,12 @@ class TreeView;
 
 namespace Editor
 {
+struct Context;
+
 class GuiEditScene : public GameEngine::Scene
 {
 public:
-    GuiEditScene();
+    GuiEditScene(Context& context);
     virtual ~GuiEditScene() override;
     virtual int Initialize();
     virtual void PostInitialize();
@@ -33,6 +35,7 @@ private:
     void FillGuiElementInTreeObject(const std::unique_ptr<GameEngine::GuiElement>&, std::optional<uint32> parent = {});
 
 private:
+    Context& context_;
     std::unique_ptr<FileExplorer> fileExplorer_;
     vec2 mousePosition_;
     std::vector<GameEngine::GuiElement*> guiElementsChoose_;

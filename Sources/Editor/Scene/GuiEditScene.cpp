@@ -14,6 +14,7 @@
 #include <algorithm>
 #include "FileExplorer.h"
 #include "FileSystem/FileSystemUtils.hpp"
+#include "Editor/Context.h"
 
 using namespace GameEngine;
 
@@ -24,8 +25,9 @@ namespace
 const std::string NEW_LAYER_NAME = "NewLayer";
 const std::string TEMP_FILE_NAME = "fileExplorer.tmp";
 }  // namespace
-GuiEditScene::GuiEditScene()
+GuiEditScene::GuiEditScene(Context& context)
     : GameEngine::Scene("GuiEditScene")
+    , context_(context)
     , mousePosition_(0)
     , notCleanLayers_{"DefaultLayer"}
     , multiSelect_{false}
@@ -38,6 +40,8 @@ GuiEditScene::~GuiEditScene()
 }
 int GuiEditScene::Initialize()
 {
+    resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
+
     ReadLastOpenedLocation();
     AddStartupActions();
     AddMenuButtonAction();
@@ -104,7 +108,8 @@ void GuiEditScene::AddStartupActions()
     });
 
     guiManager_->RegisterAction("FillGuiElementTypes()", [&](auto& element) {
-        if (element.GetType() == GuiElementTypes::VerticalLayout or element.GetType() == GuiElementTypes::HorizontalLayout)
+        if (element.GetType() == GuiElementTypes::VerticalLayout or
+            element.GetType() == GuiElementTypes::HorizontalLayout)
         {
             auto layout = static_cast<Layout*>(&element);
 
@@ -209,10 +214,12 @@ void GuiEditScene::AddMenuButtonAction()
             dirToOpen = lastOpenedLocation_;
         }
 
-        fileExplorer_->Start(dirToOpen, [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
+        fileExplorer_->Start(dirToOpen,
+                             [&](const std::string& str) { return guiManager_->SaveToFile(str, currentLayer_); });
     });
 
-    guiManager_->RegisterAction("QuickSave()", [&](auto&) { guiManager_->SaveToFile(processingFilename_, currentLayer_); });
+    guiManager_->RegisterAction("QuickSave()",
+                                [&](auto&) { guiManager_->SaveToFile(processingFilename_, currentLayer_); });
 
     guiManager_->RegisterAction("Reload()", [&](auto&) {
         guiManager_->RemoveLayersExpect(notCleanLayers_);
@@ -251,7 +258,8 @@ void GuiEditScene::AddMenuButtonAction()
             }
             if (result)
             {
-                auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(), [result](auto el) { return el->GetId() == result->GetId(); });
+                auto existElement = std::find_if(guiElementsChoose_.begin(), guiElementsChoose_.end(),
+                                                 [result](auto el) { return el->GetId() == result->GetId(); });
 
                 if (existElement == guiElementsChoose_.end())
                 {
@@ -340,7 +348,8 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
         break;
         case GameEngine::GuiElementTypes::Button:
         {
-            auto button = guiElementFactory_->CreateGuiButton("new GuiButton", [](auto&) { DEBUG_LOG("action not implemented."); });
+            auto button = guiElementFactory_->CreateGuiButton("new GuiButton",
+                                                              [](auto&) { DEBUG_LOG("action not implemented."); });
             guiManager_->Add(currentLayer_, std::move(button));
         }
         break;
