@@ -81,7 +81,7 @@ void CTimeMeasurer::CalculateFpsAndCallIfTimeElapsed()
     if (periodTime_ < frequency_)
         return;
 
-    fps_        = frameCount_ * E9 / periodTime_;
+    fps_        = frameCount_ * E9 / frequency_;
     frameCount_ = 0;
     periodTime_ = 0;
     RunCallbacks();
@@ -90,9 +90,15 @@ void CTimeMeasurer::CalculateFpsAndCallIfTimeElapsed()
 void CTimeMeasurer::Sleep(int64 time)
 {
     auto startTime = GetTime();
-    std::this_thread::sleep_for(std::chrono::nanoseconds(time / 2));
 
-    while(true)
+    auto mili = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::nanoseconds(time - E6));
+
+    if (mili.count() > 0)
+    {
+        std::this_thread::sleep_for(mili);
+    }
+
+    while (true)
     {
         auto duration = CalculateTime(GetTime(), startTime);
         if (duration > time)
