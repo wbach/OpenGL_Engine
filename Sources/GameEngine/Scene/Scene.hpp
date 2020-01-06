@@ -21,6 +21,7 @@
 #include "Types.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/DebugTools/Console/Console.h"
+#include "GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h"
 
 namespace Input
 {
@@ -133,6 +134,7 @@ protected:
 private:
     void CreateResourceManger(GraphicsApi::IGraphicsApi&);
 
+    NetworkEditorInterface networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;
     friend class Debug::Console;
 };
