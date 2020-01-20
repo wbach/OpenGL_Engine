@@ -3,7 +3,7 @@
 #include <chrono>
 #include <functional>
 #include "Logger/Log.h"
-#include "Messages/IMessage.h"
+#include "IMessage.h"
 #include "SDLNetWrapper.h"
 #include "Thread.hpp"
 
@@ -16,11 +16,11 @@ CGateway::CGateway()
 
 CGateway::CGateway(Utils::Time::CTimeMeasurer timeMeasurer)
     : timeMeasurer_(timeMeasurer)
-    , iSDLNetWrapperPtr_(new SDLNetWrapper)
-    , sender_(timeMeasurer_, iSDLNetWrapperPtr_)
-    , receiver_(timeMeasurer_, iSDLNetWrapperPtr_)
-    , connectionManager_(sender_, receiver_, iSDLNetWrapperPtr_, context_)
-    , clientCreator_(sender_, receiver_, iSDLNetWrapperPtr_)
+    , sdlNetWrapper_(std::make_unique<SDLNetWrapper>())
+    , sender_(*sdlNetWrapper_, messageConverters_)
+    , receiver_(*sdlNetWrapper_, messageConverters_)
+    , connectionManager_(sender_, receiver_, *sdlNetWrapper_, context_)
+    , clientCreator_(sender_, receiver_, *sdlNetWrapper_)
     , isServer(false)
     , running(false)
 {
@@ -70,10 +70,9 @@ void CGateway::Update()
     {
         auto& user = *iter;
 
-        RecvError err = RecvError::None;
-        auto msg      = receiver_.Receive(user.second->socket, err);
+        auto [ status, msg ]      = receiver_.Receive(user.second->socket);
 
-        if (err == RecvError::Disconnect)
+        if (status == RecvStatus::Disconnect)
         {
             DisconnectUser(user.second->id);
             iter = context_.users.erase(iter);
@@ -83,7 +82,8 @@ void CGateway::Update()
         {
             ++iter;
         }
-        if (!msg)
+
+        if (status == RecvStatus::NotReady or not msg)
             continue;
 
         for (auto& sub : onMessageArrivedSubcribes_)
@@ -91,8 +91,8 @@ void CGateway::Update()
             auto subscribedType = sub.second.first;
             auto subscribedFunc = sub.second.second;
 
-            if (subscribedType == MessageTypes::Any || subscribedType == msg->GetType())
-                subscribedFunc({user.first, msg});
+            if (subscribedType == msg->GetType())
+                subscribedFunc({user.first, std::move(msg)});
         }
     }
     timeMeasurer_.EndFrame();
@@ -128,7 +128,7 @@ void CGateway::SubscribeForNewUser(CreationFunc func)
     connectionManager_.SubscribeForNewUser(func);
 }
 
-void CGateway::SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, MessageTypes type)
+void CGateway::SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, uint8 type)
 {
     onMessageArrivedSubcribes_[label] = {type, func};
 }

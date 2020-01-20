@@ -23,12 +23,10 @@ public:
     CGateway(Utils::Time::CTimeMeasurer timeMeasurer);
     virtual ~CGateway();
     void StartServer(uint32 maxClients, uint32 port);
-    bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
-                         uint32 port);
+    bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
     void SubscribeForNewUser(CreationFunc func);
     void SubscribeForDisconnectUser(DisconectFunc func);
-    void SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func,
-                                   MessageTypes messageType = MessageTypes::Any);
+    void SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, uint8 messageType);
     void UnsubscrieOnMessageArrived(const std::string& label);
     void UnsubscribeAllOnMessageArrived();
 
@@ -41,7 +39,8 @@ protected:
 
 protected:
     Utils::Time::CTimeMeasurer timeMeasurer_;
-    ISDLNetWrapperPtr iSDLNetWrapperPtr_;
+    std::unique_ptr<ISDLNetWrapper> sdlNetWrapper_;
+    std::vector<std::unique_ptr<IMessageConverter>> messageConverters_;
 
     Sender sender_;
     Receiver receiver_;
@@ -51,7 +50,7 @@ protected:
     ServerCreator serverCreator_;
     ClientCreator clientCreator_;
 
-    std::unordered_map<std::string, std::pair<MessageTypes, OnMessageArrived>> onMessageArrivedSubcribes_;
+    std::unordered_map<std::string, std::pair<uint8, OnMessageArrived>> onMessageArrivedSubcribes_;
     std::vector<DisconectFunc> disconnectSubscribes_;
 
     bool isServer;

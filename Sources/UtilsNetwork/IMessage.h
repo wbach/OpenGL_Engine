@@ -23,7 +23,7 @@ public:
     virtual ~IMessage() = default;
     virtual std::string ToString()
     {
-        return std::string();
+        return "---";
     }
     IMessage(uint8 type, uint8 target)
         : msgType(type)
@@ -44,16 +44,8 @@ private:
     uint8 target;
 };
 
-typedef std::shared_ptr<IMessage> IMessagePtr;
-
 template <class T>
-static IMessagePtr CreateIMessagePtr(const T& msg)
-{
-    return std::make_shared<T>(msg);
-}
-
-template <class T>
-std::shared_ptr<T> castMessageAs(IMessagePtr ptr)
+std::unique_ptr<T> castMessageAs(std::unique_ptr<IMessage> ptr)
 {
     auto msg = std::static_pointer_cast<T>(ptr);
     if (msg == nullptr)

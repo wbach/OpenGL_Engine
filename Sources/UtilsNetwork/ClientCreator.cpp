@@ -1,116 +1,124 @@
 #include "ClientCreator.h"
-#include "Utils.h"
 #include "Logger/Log.h"
-#include "Messages/Conntection/ConnectionMessage.h"
 #include "Messages/Conntection/AuthenticationMessage.h"
+#include "Messages/Conntection/ConnectionMessage.h"
+#include "Utils.h"
 
 namespace Network
 {
-	ClientCreator::ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapperPtr sdlNetWrapper)
-		: sdlNetWrapper_(sdlNetWrapper)
-		, sender_(sender)
-		, receiver_(receiver)
-	{
-	}
+ClientCreator::ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapper& sdlNetWrapper)
+    : sdlNetWrapper_(sdlNetWrapper)
+    , sender_(sender)
+    , receiver_(receiver)
+{
+}
 
-	wb::optional<ConectContext> ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
-	{
-		context_.port = port;
-		context_.serverName = host;
+wb::optional<ConectContext> ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+{
+    context_.port       = port;
+    context_.serverName = host;
 
-		if (!Init())			return wb::optional<ConectContext>();
-		if (!AllocSocketSet(1)) return wb::optional<ConectContext>();
-		if (!ResolveHost(context_.serverName.c_str())) return wb::optional<ConectContext>();
-		if (!ResolveIp())		return wb::optional<ConectContext>();
-		if (!OpenTcp())			return wb::optional<ConectContext>();
-		if (!AddSocketTcp())	return wb::optional<ConectContext>();
-		if (WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION) return wb::optional<ConectContext>();
-		if (!WaitForAuthentication(username, password)) return wb::optional<ConectContext>();
-		isCreated = true;
+    if (!Init())
+        return wb::optional<ConectContext>();
+    if (!AllocSocketSet(1))
+        return wb::optional<ConectContext>();
+    if (!ResolveHost(context_.serverName.c_str()))
+        return wb::optional<ConectContext>();
+    if (!ResolveIp())
+        return wb::optional<ConectContext>();
+    if (!OpenTcp())
+        return wb::optional<ConectContext>();
+    if (!AddSocketTcp())
+        return wb::optional<ConectContext>();
+    if (WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION)
+        return wb::optional<ConectContext>();
+    if (!WaitForAuthentication(username, password))
+        return wb::optional<ConectContext>();
+    isCreated = true;
 
-		return context_;
-	}
-	ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
-	{		
-		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);	
-		
-		RecvError err;
-		auto msg = receiver_.Receive(context_.socket, err);
+    return context_;
+}
+ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
+{
+    sdlNetWrapper_.CheckSockets(context_.socketSet, 5000);
 
-		if (msg == nullptr)
-			return ClientCreator::NOT_CONNECTED;
+    auto [status, msg] = receiver_.Receive(context_.socket);
 
-		auto connectingMsg = GetAndValidateConnectionMessage(msg.get());
-		if (connectingMsg == nullptr) return ClientCreator::NOT_CONNECTED;		
+    if (msg == nullptr)
+        return ClientCreator::NOT_CONNECTED;
 
-		if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
-		{
-			DEBUG_LOG("Joining server now...");
-			return ClientCreator::CONNECTED;
-		}
-		
-		if (connectingMsg->connectionStatus != ConnectionStatus::WAIT_FOR_AUTHENTICATION)
-			return ClientCreator::NOT_CONNECTED;
+    auto connectingMsg = GetAndValidateConnectionMessage(msg.get());
+    if (connectingMsg == nullptr)
+        return ClientCreator::NOT_CONNECTED;
 
-		DEBUG_LOG("Wait for authentication...");
-		return ClientCreator::WAIT_FOR_AUTHENTICATION;
-	}
+    if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
+    {
+        DEBUG_LOG("Joining server now...");
+        return ClientCreator::CONNECTED;
+    }
 
-	bool ClientCreator::WaitForAuthentication(const std::string& username, const std::string& password)
-	{
-		AuthenticationMessage msg(username, password);
+    if (connectingMsg->connectionStatus != ConnectionStatus::WAIT_FOR_AUTHENTICATION)
+        return ClientCreator::NOT_CONNECTED;
 
-		sender_.SendTcp(context_.socket, &msg);
-		
-		sdlNetWrapper_->CheckSockets(context_.socketSet, 5000);		
+    DEBUG_LOG("Wait for authentication...");
+    return ClientCreator::WAIT_FOR_AUTHENTICATION;
+}
 
-		RecvError err;
-		auto recvMsg = receiver_.Receive(context_.socket, err);
+bool ClientCreator::WaitForAuthentication(const std::string& username, const std::string& password)
+{
+    AuthenticationMessage msg(username, password);
 
-		if (recvMsg == nullptr)
-			return false;
+    sender_.SendTcp(context_.socket, &msg);
 
-		auto connectingMsg = GetAndValidateConnectionMessage(recvMsg.get());
-		if (connectingMsg == nullptr) return false;
+    sdlNetWrapper_.CheckSockets(context_.socketSet, 5000);
 
-		if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
-		{
-			DEBUG_LOG("Joining server now...");
-			return true;
-		}
+    auto [status, recvMsg] = receiver_.Receive(context_.socket);
 
-		DEBUG_LOG("Authentication failed. Wrong username or password.");
-		return false;
-	}
+    if (recvMsg == nullptr)
+        return false;
 
-	ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
-	{
-		if (msg == nullptr)
-		{
-			ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Recv nullptr msg.");
-			return nullptr;
-		}
+    auto connectingMsg = GetAndValidateConnectionMessage(recvMsg.get());
+    if (connectingMsg == nullptr)
+        return false;
 
-		if (msg->GetType() != MessageTypes::ConnectionMsg)
-		{
-			ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Unsupported msg recv.");
-			return nullptr;
-		}
+    if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
+    {
+        DEBUG_LOG("Joining server now...");
+        return true;
+    }
 
-		auto connectingMsg = dynamic_cast<ConnectionMessage*>(msg);
+    DEBUG_LOG("Authentication failed. Wrong username or password.");
+    return false;
+}
 
-		if (connectingMsg == nullptr)
-		{
-			ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to ConnectionMessage*.");
-			return nullptr;
-		}
+ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
+{
+    if (msg == nullptr)
+    {
+        ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Recv nullptr msg.");
+        return nullptr;
+    }
 
-		if (connectingMsg->connectionStatus == ConnectionStatus::ERROR_FULL)
-		{
-			ERROR_LOG("Not connected. Server is full.");
-			return nullptr;
-		}
+    if (msg->GetType() != MessageTypes::ConnectionMsg)
+    {
+        ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Unsupported msg recv.");
+        return nullptr;
+    }
 
-		return connectingMsg;
-	}
-} // Network
+    auto connectingMsg = dynamic_cast<ConnectionMessage*>(msg);
+
+    if (connectingMsg == nullptr)
+    {
+        ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to ConnectionMessage*.");
+        return nullptr;
+    }
+
+    if (connectingMsg->connectionStatus == ConnectionStatus::ERROR_FULL)
+    {
+        ERROR_LOG("Not connected. Server is full.");
+        return nullptr;
+    }
+
+    return connectingMsg;
+}
+}  // namespace Network

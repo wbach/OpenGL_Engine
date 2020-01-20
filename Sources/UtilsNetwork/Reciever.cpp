@@ -2,20 +2,6 @@
 
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
-#include "Messages/Conntection/AuthenticationMessage.h"
-#include "Messages/Conntection/ConnectionMessage.h"
-#include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
-#include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
-#include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
-#include "Messages/GetCharacters/GetCharactersMsgReq.h"
-#include "Messages/GetCharacters/GetCharactersMsgResp.h"
-#include "Messages/Other/OtherMsg.h"
-#include "Messages/RemoveCharacter/DisconnectCharacterMsg.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
-#include "Messages/TransformMessages/TransformMsgReq.h"
-#include "Messages/TransformMessages/TransformMsgResp.h"
-#include "Time/TimeMeasurer.h"
 
 #define Case(x, y)                              \
     case x:                                     \
@@ -24,65 +10,100 @@
 
 namespace Network
 {
-Receiver::Receiver(Utils::Time::CTimeMeasurer& tm, ISDLNetWrapperPtr sdlNetWrapper)
+Receiver::Receiver(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>& converters)
     : sdlNetWrapper_(sdlNetWrapper)
-    , timer_(tm)
-    , recvBytes_(0)
+    , messageConverters_(converters)
 {
-    timer_.AddOnTickCallback(std::bind(&Receiver::PrintRecvBytesPerSec, this));
 }
 
-std::shared_ptr<IMessage> Receiver::Receive(TCPsocket socket, RecvError& error)
+std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket socket)
 {
-    DEBUG_LOG("Times test : " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
+    if (sdlNetWrapper_.SocketReady((SDLNet_GenericSocket) socket) == 0)
+        return std::make_tuple(RecvStatus::NotReady, nullptr);
 
-    error = RecvError::None;
+    auto format = ReceiveFormat(socket);
 
-    if (sdlNetWrapper_->SocketReady((SDLNet_GenericSocket)socket) == 0)
-        return nullptr;
-
-    // DEBUG_LOG("Receiver::Receive");
-    std::shared_ptr<IMessage> result;
-
-    // char buffer[512];
-    MessageHeader header;
-    int recvBytes = sdlNetWrapper_->RecvTcp(socket, &header, sizeof(header));
-    DEBUG_LOG(Network::to_string(header.msgType));
-    // DEBUG_LOG(std::string("Receive header, msg type : ") + std::to_string(header.msgType));
-
-    if (recvBytes <= 0)
+    if (not format)
     {
-        DEBUG_LOG("Recv header bytes : -1, Disconnect.");
-        error = RecvError::Disconnect;
-        return nullptr;
+        return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
 
-    recvBytes_ += recvBytes;
+    auto type = ReceiveType(socket);
 
-    switch (header.msgType)
+    if (not type)
     {
-        Case(MessageTypes::ConnectionMsg, ConnectionMessage);
-        Case(MessageTypes::DisconnectCharacter, DisconnectCharacterMsg);
-        Case(MessageTypes::TransformReq, TransformMsgReq);
-        Case(MessageTypes::TransformResp, TransformMsgResp);
-        Case(MessageTypes::Authentication, AuthenticationMessage);
-        Case(MessageTypes::SelectCharacterReq, SelectCharacterMsgReq);
-        Case(MessageTypes::SelectCharacterResp, SelectCharacterMsgResp);
-        Case(MessageTypes::GetCharactersReq, GetCharactersMsgReq);
-        Case(MessageTypes::GetCharactersResp, GetCharactersMsgResp);
-        Case(MessageTypes::GetCharacterDataReq, GetCharacterDataMsgReq);
-        Case(MessageTypes::GetCharacterDataResp, GetCharacterDataMsgResp);
-        Case(MessageTypes::GetCharactersDataReq, GetCharactersDataMsgReq);
-        Case(MessageTypes::Other, OtherMsg);
+        return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
+
+    auto message = ReceiveMessage(socket);
+
+    if (message.empty())
+    {
+        return std::make_tuple(RecvStatus::Disconnect, nullptr);
+    }
+
+    for (auto& messageConverter : messageConverters_)
+    {
+        auto imessage = messageConverter->Convert(*format, *type, message);
+
+        if (imessage)
+            return std::make_tuple(RecvStatus::Disconnect, std::move(imessage));
+    }
+
+    return std::make_tuple(RecvStatus::UnknownConverter, nullptr);
+}
+
+std::optional<uint8> Receiver::ReceiveFormat(TCPsocket socket)
+{
+    uint8 messageFormat = 0;
+
+    if (sdlNetWrapper_.RecvTcp(socket, &messageFormat, sizeof(uint8)))
+    {
+        DEBUG_LOG(std::string("Receive header, msg type : ") + std::to_string(ConvertFormat(messageFormat)));
+    }
+
+    return messageFormat;
+}
+
+std::optional<uint8> Receiver::ReceiveType(TCPsocket socket)
+{
+    uint8 messageType = 0;
+    if (sdlNetWrapper_.RecvTcp(socket, &messageType, sizeof(uint8)))
+    {
+        DEBUG_LOG(std::string("Receive header, msg type : ") + std::to_string(messageType));
+        return messageType;
+    }
+    return {};
+}
+
+std::vector<int8> Receiver::ReceiveMessage(TCPsocket socket)
+{
+    std::vector<int8> result;
+
+    const int BUFF_SIZE = 512;
+    char buffer[BUFF_SIZE];
+    memset(&buffer, 0, BUFF_SIZE);
+
+    while (true)
+    {
+        if (sdlNetWrapper_.RecvTcp(socket, &buffer, BUFF_SIZE))
+        {
+            for (char c : buffer)
+            {
+                if (c == ';')
+                {
+                    return result;
+                }
+
+                result.push_back(c);
+            }
+        }
+        else
+        {
+            return {};
+        }
+    }
+
     return result;
-}
-
-void Receiver::PrintRecvBytesPerSec()
-{
-    auto recvPerSec = recvBytes_;  // / 1000;
-    DEBUG_LOG("Recv : " + std::to_string(recvPerSec) + " B/s");
-    std::cout << " Recv : " << std::to_string(recvPerSec) << " B / s" << std::endl;
-    recvBytes_ = 0;
 }
 }  // namespace Network
