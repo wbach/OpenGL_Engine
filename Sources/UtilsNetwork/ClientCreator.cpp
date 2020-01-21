@@ -1,4 +1,5 @@
 #include "ClientCreator.h"
+
 #include "Logger/Log.h"
 #include "Messages/Conntection/AuthenticationMessage.h"
 #include "Messages/Conntection/ConnectionMessage.h"
@@ -12,32 +13,33 @@ ClientCreator::ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapper&
     , receiver_(receiver)
 {
 }
+#define IfNotReturn(x) \
+    if (not x)   \
+        return   \
+        {        \
+        }
 
-wb::optional<ConectContext> ClientCreator::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+std::optional<ConectContext> ClientCreator::ConnectToServer(const std::string& username, const std::string& password,
+                                                            const std::string& host, uint32 port)
 {
     context_.port       = port;
     context_.serverName = host;
 
-    if (!Init())
-        return wb::optional<ConectContext>();
-    if (!AllocSocketSet(1))
-        return wb::optional<ConectContext>();
-    if (!ResolveHost(context_.serverName.c_str()))
-        return wb::optional<ConectContext>();
-    if (!ResolveIp())
-        return wb::optional<ConectContext>();
-    if (!OpenTcp())
-        return wb::optional<ConectContext>();
-    if (!AddSocketTcp())
-        return wb::optional<ConectContext>();
-    if (WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION)
-        return wb::optional<ConectContext>();
-    if (!WaitForAuthentication(username, password))
-        return wb::optional<ConectContext>();
-    isCreated = true;
+    IfNotReturn(Init());
+    IfNotReturn(AllocSocketSet(1));
+    IfNotReturn(ResolveHost(context_.serverName.c_str()));
+    IfNotReturn(ResolveIp());
+    IfNotReturn(OpenTcp());
+    IfNotReturn(AddSocketTcp());
+    IfNotReturn(WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION);
+    IfNotReturn(WaitForAuthentication(username, password));
 
+    isCreated = true;
     return context_;
 }
+
+#undef IfNotReturn
+
 ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
 {
     sdlNetWrapper_.CheckSockets(context_.socketSet, 5000);
@@ -68,7 +70,7 @@ bool ClientCreator::WaitForAuthentication(const std::string& username, const std
 {
     AuthenticationMessage msg(username, password);
 
-    sender_.SendTcp(context_.socket, &msg);
+    sender_.SendTcp(context_.socket, msg);
 
     sdlNetWrapper_.CheckSockets(context_.socketSet, 5000);
 
@@ -109,7 +111,9 @@ ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
 
     if (connectingMsg == nullptr)
     {
-        ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to ConnectionMessage*.");
+        ERROR_LOG(
+            "[ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to "
+            "ConnectionMessage*.");
         return nullptr;
     }
 
@@ -121,4 +125,5 @@ ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
 
     return connectingMsg;
 }
+
 }  // namespace Network

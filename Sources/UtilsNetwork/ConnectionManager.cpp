@@ -12,9 +12,15 @@ ConnectionManager::ConnectionManager(Sender& sender, Receiver& receiver, ISDLNet
     , sender_(sender)
     , receiver_(receiver)
 {
+    // clang-format off
     usersDb_ = {
-        {"baszek", UserAccount{14, "baszek", "haslo"}}, {"baszeka", UserAccount{7, "baszeka", "haslo"}}, {"baszekb", UserAccount{55, "baszekb", "haslo"}}, {"baszekb", UserAccount{21, "baszekc", "haslo"}}, {"baszekd", UserAccount{13, "baszekd", "haslo"}},
+        {"baszek", UserAccount{14, "baszek", "haslo"}},
+        {"baszeka", UserAccount{7, "baszeka", "haslo"}},
+        {"baszekb", UserAccount{55, "baszekb", "haslo"}},
+        {"baszekb", UserAccount{21, "baszekc", "haslo"}},
+        {"baszekd", UserAccount{13, "baszekd", "haslo"}},
     };
+    // clang-format on
 
     for (uint32 x = 100; x < 200; ++x)
     {
@@ -93,7 +99,7 @@ bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
     if (authenticated)
     {
         ConnectionMessage conMsg(ConnectionStatus::CONNECTED);
-        sender_.SendTcp(user->socket, &conMsg);
+        sender_.SendTcp(user->socket, conMsg);
 
         user->id                        = connectedUserId;
         context_.users[connectedUserId] = user;
@@ -106,7 +112,7 @@ bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
     else
     {
         ConnectionMessage conMsg(errorConnectionStatus);
-        sender_.SendTcp(user->socket, &conMsg);
+        sender_.SendTcp(user->socket, conMsg);
         --clientsCount_;
         DEBUG_LOG(errorString + name + ". Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
     }
@@ -132,7 +138,7 @@ void ConnectionManager::CreateClientSocketIfAvailable()
     ++clientsCount_;
 
     ConnectionMessage conMsg(ConnectionStatus::WAIT_FOR_AUTHENTICATION);
-    sender_.SendTcp(usr->socket, &conMsg);
+    sender_.SendTcp(usr->socket, conMsg);
 
     DEBUG_LOG("Client connected. Wait for authentication. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 }
@@ -168,7 +174,7 @@ void ConnectionManager::DissmissConection()
     TCPsocket tempSock = sdlNetWrapper_.TCPAccept(context_.socket);
 
     ConnectionMessage conMsg(ConnectionStatus::ERROR_FULL);
-    sender_.SendTcp(tempSock, &conMsg);
+    sender_.SendTcp(tempSock, conMsg);
 
     /*std::string full = "FULL";
     sdlNetWrapper_.SendTcp(tempSock, (void *)full.c_str(), full.size() + 1);*/

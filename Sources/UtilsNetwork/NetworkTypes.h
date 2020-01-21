@@ -5,6 +5,5 @@
 
 namespace Network
 {
-typedef std::pair<uint32, std::unique_ptr<IMessage>> BoxMessage;
-typedef std::function<void(const BoxMessage&)> OnMessageArrived;
+typedef std::function<void(std::unique_ptr<IMessage>)> OnMessageArrived;
 }  // namespace Network

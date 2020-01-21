@@ -23,15 +23,16 @@ public:
     CGateway(Utils::Time::CTimeMeasurer timeMeasurer);
     virtual ~CGateway();
     void StartServer(uint32 maxClients, uint32 port);
-    bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
+    bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
+                         uint32 port);
     void SubscribeForNewUser(CreationFunc func);
     void SubscribeForDisconnectUser(DisconectFunc func);
-    void SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, uint8 messageType);
-    void UnsubscrieOnMessageArrived(const std::string& label);
+    uint32 SubscribeOnMessageArrived(uint8 messageType, OnMessageArrived func);
+    void UnsubscrieOnMessageArrived(uint32);
     void UnsubscribeAllOnMessageArrived();
 
-    bool Send(IMessage* message);
-    bool Send(uint32 userId, IMessage* message);
+    bool Send(IMessage& message);
+    bool Send(uint32 userId, IMessage& message);
     void Update();
 
 protected:
@@ -50,11 +51,13 @@ protected:
     ServerCreator serverCreator_;
     ClientCreator clientCreator_;
 
-    std::unordered_map<std::string, std::pair<uint8, OnMessageArrived>> onMessageArrivedSubcribes_;
+    std::unordered_map<uint8, std::vector<std::pair<uint32, OnMessageArrived>>> onMessageArrivedSubcribes_;
     std::vector<DisconectFunc> disconnectSubscribes_;
 
     bool isServer;
     bool running;
+
+    uint32 idPool_;
 };
 
 typedef std::shared_ptr<CGateway> GatewayPtr;

@@ -25,6 +25,10 @@ public:
     SentStatus SendTcp(TCPsocket socket, IMessage& msg, MessageFormat format = MessageFormat::Xml);
 
 private:
+    bool sendMessageFormat(TCPsocket socket, MessageFormat format);
+    bool sendMessageType(TCPsocket socket, IMessage& msg);
+    bool sendMessage(TCPsocket socket, IMessage& msg, MessageFormat format);
+
     template <class T>
     SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
     {

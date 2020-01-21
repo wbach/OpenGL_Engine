@@ -1,9 +1,13 @@
 #include "Gateway.h"
+
 #include <SDL2/SDL_net.h>
+
+#include <algorithm>
 #include <chrono>
 #include <functional>
-#include "Logger/Log.h"
+
 #include "IMessage.h"
+#include "Logger/Log.h"
 #include "SDLNetWrapper.h"
 #include "Thread.hpp"
 
@@ -23,6 +27,7 @@ CGateway::CGateway(Utils::Time::CTimeMeasurer timeMeasurer)
     , clientCreator_(sender_, receiver_, *sdlNetWrapper_)
     , isServer(false)
     , running(false)
+    , idPool_(0)
 {
 }
 
@@ -36,7 +41,8 @@ void CGateway::StartServer(uint32 maxClients, uint32 port)
     isServer = true;
     running  = true;
 }
-bool CGateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+bool CGateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
+                               uint32 port)
 {
     auto op_context = clientCreator_.ConnectToServer(username, password, host, port);
 
@@ -70,7 +76,7 @@ void CGateway::Update()
     {
         auto& user = *iter;
 
-        auto [ status, msg ]      = receiver_.Receive(user.second->socket);
+        auto [status, msg] = receiver_.Receive(user.second->socket);
 
         if (status == RecvStatus::Disconnect)
         {
@@ -86,19 +92,20 @@ void CGateway::Update()
         if (status == RecvStatus::NotReady or not msg)
             continue;
 
-        for (auto& sub : onMessageArrivedSubcribes_)
+        if (onMessageArrivedSubcribes_.count(msg->GetType()) > 0)
         {
-            auto subscribedType = sub.second.first;
-            auto subscribedFunc = sub.second.second;
+            auto& v = onMessageArrivedSubcribes_.at(msg->GetType());
 
-            if (subscribedType == msg->GetType())
-                subscribedFunc({user.first, std::move(msg)});
+            for (auto& sub : v)
+            {
+                sub.second(std::move(msg));
+            }
         }
     }
     timeMeasurer_.EndFrame();
 }
 
-bool CGateway::Send(uint32 userId, IMessage* message)
+bool CGateway::Send(uint32 userId, IMessage& message)
 {
     auto i = sender_.SendTcp(context_.users[userId]->socket, message);
     ;
@@ -111,7 +118,7 @@ bool CGateway::Send(uint32 userId, IMessage* message)
 
     return i == SentStatus::OK;
 }
-bool CGateway::Send(IMessage* message)
+bool CGateway::Send(IMessage& message)
 {
     return Send(0, message);
 }
@@ -128,17 +135,29 @@ void CGateway::SubscribeForNewUser(CreationFunc func)
     connectionManager_.SubscribeForNewUser(func);
 }
 
-void CGateway::SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, uint8 type)
+uint32 CGateway::SubscribeOnMessageArrived(uint8 messageType, OnMessageArrived func)
 {
-    onMessageArrivedSubcribes_[label] = {type, func};
+    auto id = idPool_++;
+    onMessageArrivedSubcribes_[messageType].push_back({id, func});
+    return id;
 }
 void CGateway::UnsubscribeAllOnMessageArrived()
 {
     onMessageArrivedSubcribes_.clear();
 }
-void CGateway::UnsubscrieOnMessageArrived(const std::string& label)
+void CGateway::UnsubscrieOnMessageArrived(uint32 id)
 {
-    onMessageArrivedSubcribes_.erase(label);
+    for (auto& types : onMessageArrivedSubcribes_)
+    {
+        auto& v = types.second;
+
+        auto iter = std::find_if(v.begin(), v.end(), [id](auto& pair) { return id == pair.first; });
+
+        if (iter != v.end())
+        {
+            v.erase(iter);
+        }
+    }
 }
 void CGateway::SubscribeForDisconnectUser(DisconectFunc func)
 {

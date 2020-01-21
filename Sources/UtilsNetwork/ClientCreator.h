@@ -20,7 +20,7 @@ class ClientCreator : public CNetworkCreator
 
 public:
     ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapper& sdlNetWrapper);
-    wb::optional<ConectContext> ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
+    std::optional<ConectContext> ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port);
 
 private:
     ConnectionState WaitForAcceptConnection();

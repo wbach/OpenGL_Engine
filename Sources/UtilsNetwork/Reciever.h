@@ -1,19 +1,14 @@
 #pragma once
+#include <Logger/Log.h>
+#include <Types.h>
+
 #include <memory>
+#include <optional>
+
 #include "IMessageConverter.h"
 #include "ISDLNetWrapper.h"
-#include "Logger/Log.h"
 #include "MessageFormat.h"
 #include "SDLNetWrapper.h"
-#include "Types.h"
-
-namespace Utils
-{
-namespace Time
-{
-class CTimeMeasurer;
-}
-}  // namespace Utils
 
 namespace Network
 {
@@ -39,7 +34,7 @@ private:
     std::vector<int8> ReceiveMessage(TCPsocket socket);
 
     template <class T>
-    std::shared_ptr<IMessage> GetIMessage(TCPsocket socket, RecvError& error)
+    std::shared_ptr<IMessage> GetIMessage(TCPsocket socket)
     {
         T msg;
         auto recvBytes = sdlNetWrapper_.RecvTcp(socket, &msg, sizeof(msg));

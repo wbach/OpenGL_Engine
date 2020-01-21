@@ -1,7 +1,6 @@
 #include "Reciever.h"
 
-#include "GLM/GLMUtils.h"
-#include "Logger/Log.h"
+#include <GLM/GLMUtils.h>
 
 #define Case(x, y)                              \
     case x:                                     \

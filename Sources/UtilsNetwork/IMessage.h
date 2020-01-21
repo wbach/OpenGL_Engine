@@ -4,7 +4,7 @@
 #include <cstring>
 #include <memory>
 
-#include "MessageTypes.h"
+#include "Messages/MessageTypes.h"
 #include "Types.h"
 
 namespace Network
