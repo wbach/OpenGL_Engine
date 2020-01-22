@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../UtilsNetwork/Gateway.h"
 
+#include <UtilsNetwork/Messages/TextMessage.h>
 #include <condition_variable>
 #include <mutex>
 
@@ -8,7 +9,7 @@ namespace Network
 {
 class ClientServerTests : public ::testing::Test
 {
-public:
+   public:
     ClientServerTests()
         : isConnected_{false}
     {
@@ -29,6 +30,8 @@ public:
             return;
         }
 
+        TextMessage textMessage("test text message. Hello World!");
+        clientGateway_.Send(textMessage);
         isRunning_.store(false);
     }
 
@@ -38,7 +41,7 @@ public:
             DEBUG_LOG("Callback");
             std::lock_guard<std::mutex> lk(mutex_);
             serverStarted_ = true;
-            cv.notify_one();
+            cv.notify_all();
         });
 
         while (isRunning_.load())
@@ -52,19 +55,17 @@ public:
     void SetUp() override
     {
         isRunning_.store(true);
-        serverThread_ = std::thread([&]() { ServerMain(); });
         clientThread_ = std::thread([&]() { ClientMain(); });
+        ServerMain();
     }
     void TearDown() override
     {
-        serverThread_.join();
         clientThread_.join();
     }
 
-protected:
+   protected:
     Gateway serverGateway_;
     Gateway clientGateway_;
-    std::thread serverThread_;
     std::thread clientThread_;
     std::atomic_bool isRunning_;
 

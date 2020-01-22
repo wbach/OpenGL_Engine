@@ -41,6 +41,11 @@ public:
         return nullptr;
     }
 
+    bool IsAttributeExist(const std::string& name)
+    {
+        return attributes_.count(name) > 0;
+    }
+
 public:
     XmlNode* parent;
     std::string value_;
