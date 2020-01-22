@@ -1,20 +1,20 @@
 #include "ClientCreator.h"
 
 #include "Logger/Log.h"
-#include "Messages/Conntection/AuthenticationMessage.h"
-#include "Messages/Conntection/ConnectionMessage.h"
+#include "Messages/Connection/AuthenticationMessage.h"
+#include "Messages/Connection/ConnectionMessage.h"
 #include "Utils.h"
 
 namespace Network
 {
 ClientCreator::ClientCreator(Sender& sender, Receiver& receiver, ISDLNetWrapper& sdlNetWrapper)
-    : sdlNetWrapper_(sdlNetWrapper)
+    : NetworkCreator(sdlNetWrapper)
     , sender_(sender)
     , receiver_(receiver)
 {
 }
-#define IfNotReturn(x) \
-    if (not x)   \
+#define IfThenReturn(x) \
+    if (x)   \
         return   \
         {        \
         }
@@ -25,14 +25,14 @@ std::optional<ConectContext> ClientCreator::ConnectToServer(const std::string& u
     context_.port       = port;
     context_.serverName = host;
 
-    IfNotReturn(Init());
-    IfNotReturn(AllocSocketSet(1));
-    IfNotReturn(ResolveHost(context_.serverName.c_str()));
-    IfNotReturn(ResolveIp());
-    IfNotReturn(OpenTcp());
-    IfNotReturn(AddSocketTcp());
-    IfNotReturn(WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION);
-    IfNotReturn(WaitForAuthentication(username, password));
+    IfThenReturn(not Init());
+    IfThenReturn(not AllocSocketSet(1));
+    IfThenReturn(not ResolveHost(context_.serverName.c_str()));
+    IfThenReturn(not ResolveIp());
+    IfThenReturn(not OpenTcp());
+    IfThenReturn(not AddSocketTcp());
+    IfThenReturn(WaitForAcceptConnection() != ClientCreator::WAIT_FOR_AUTHENTICATION);
+    IfThenReturn(not WaitForAuthentication(username, password));
 
     isCreated = true;
     return context_;
@@ -55,7 +55,7 @@ ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
 
     if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
     {
-        DEBUG_LOG("Joining server now...");
+        DEBUG_LOG("Connected to server.");
         return ClientCreator::CONNECTED;
     }
 
@@ -71,6 +71,8 @@ bool ClientCreator::WaitForAuthentication(const std::string& username, const std
     AuthenticationMessage msg(username, password);
 
     sender_.SendTcp(context_.socket, msg);
+
+    DEBUG_LOG("Sent authenticationMessage");
 
     sdlNetWrapper_.CheckSockets(context_.socketSet, 5000);
 

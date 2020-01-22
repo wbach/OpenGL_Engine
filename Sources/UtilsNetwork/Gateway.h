@@ -16,13 +16,13 @@ namespace Network
 {
 typedef std::function<void(uint32)> DisconectFunc;
 
-class CGateway
+class Gateway
 {
 public:
-    CGateway();
-    CGateway(Utils::Time::CTimeMeasurer timeMeasurer);
-    virtual ~CGateway();
-    void StartServer(uint32 maxClients, uint32 port);
+    Gateway();
+    Gateway(Utils::Time::CTimeMeasurer timeMeasurer);
+    virtual ~Gateway();
+    void StartServer(uint32 maxClients, uint32 port, std::function<void ()> startCallback = nullptr);
     bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
                          uint32 port);
     void SubscribeForNewUser(CreationFunc func);
@@ -54,11 +54,8 @@ protected:
     std::unordered_map<uint8, std::vector<std::pair<uint32, OnMessageArrived>>> onMessageArrivedSubcribes_;
     std::vector<DisconectFunc> disconnectSubscribes_;
 
-    bool isServer;
-    bool running;
+    bool running_;
 
     uint32 idPool_;
 };
-
-typedef std::shared_ptr<CGateway> GatewayPtr;
 }  // namespace Network

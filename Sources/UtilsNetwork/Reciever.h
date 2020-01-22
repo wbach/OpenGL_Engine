@@ -33,21 +33,21 @@ private:
     std::optional<uint8> ReceiveType(TCPsocket socket);
     std::vector<int8> ReceiveMessage(TCPsocket socket);
 
-    template <class T>
-    std::shared_ptr<IMessage> GetIMessage(TCPsocket socket)
-    {
-        T msg;
-        auto recvBytes = sdlNetWrapper_.RecvTcp(socket, &msg, sizeof(msg));
+//    template <class T>
+//    std::shared_ptr<IMessage> GetIMessage(TCPsocket socket)
+//    {
+//        T msg;
+//        auto recvBytes = sdlNetWrapper_.RecvTcp(socket, &msg, sizeof(msg));
 
-        if (recvBytes <= 0)
-        {
-            DEBUG_LOG("Recv header bytes : -1, Disconnect.");
-            error = RecvError::Disconnect;
-            return nullptr;
-        }
+//        if (recvBytes <= 0)
+//        {
+//            DEBUG_LOG("Recv header bytes : -1, Disconnect.");
+//            error = RecvStatus::Disconnect;
+//            return nullptr;
+//        }
 
-        return std::make_shared<T>(msg);
-    }
+//        return std::make_shared<T>(msg);
+//    }
 
 private:
     ISDLNetWrapper& sdlNetWrapper_;

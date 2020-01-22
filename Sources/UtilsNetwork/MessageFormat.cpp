@@ -16,7 +16,7 @@ std::string to_string(Network::MessageFormat type)
     Return(Network::MessageFormat::Xml);
     Return(Network::MessageFormat::Unknown);
 
-    // return "Unknown message type : " + std::to_string(static_cast<int>(type));
+     return "Unknown message type : " + std::to_string(static_cast<int>(type));
 }
 }  // namespace std
 

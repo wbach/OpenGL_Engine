@@ -38,12 +38,12 @@ void CLogger::LazyLog()
 void CLogger::ErrorLog(const std::string& log)
 {
     MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
-    Logg("[ERROR] "+ log);
+    Logg("[ERROR] " + prefixTotal_ + log);
 }
 
-void CLogger::DebugLog(const std::string &log)
+void CLogger::DebugLog(const std::string& log)
 {
-    Logg("[DEBUG] "+ log);
+    Logg("[DEBUG] " + prefixTotal_ + log);
 }
 void CLogger::Logg(const std::string& log)
 {
@@ -53,8 +53,8 @@ void CLogger::Logg(const std::string& log)
     std::lock_guard<std::mutex> lk(printMutex_);
 
     std::stringstream ss;
-    auto now = std::chrono::system_clock::now();
-    std::time_t time = std::chrono::system_clock::to_time_t(now);
+    auto now            = std::chrono::system_clock::now();
+    std::time_t time    = std::chrono::system_clock::to_time_t(now);
     std::string timeStr = std::ctime(&time);
     timeStr.pop_back();
 
@@ -88,6 +88,23 @@ void CLogger::SaveToFile() const
     for (const auto& log : logs)
         file << log.c_str() << '\n';
     file.close();
+}
+
+void CLogger::AddPrefix(const std::string& prefix)
+{
+    prefixes_.push_back("[" + prefix + "]");
+    prefixTotal_.clear();
+
+    for (const auto& p : prefixes_)
+    {
+        prefixTotal_ += p;
+    }
+}
+
+void CLogger::ClearPrefixes()
+{
+    prefixes_.clear();
+    prefixTotal_.clear();
 }
 CLogger::~CLogger()
 {

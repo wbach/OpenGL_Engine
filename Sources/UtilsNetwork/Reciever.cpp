@@ -1,5 +1,5 @@
 #include "Reciever.h"
-
+#include "MessageFormat.h"
 #include <GLM/GLMUtils.h>
 
 #define Case(x, y)                              \
@@ -17,33 +17,44 @@ Receiver::Receiver(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IM
 
 std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket socket)
 {
-    if (sdlNetWrapper_.SocketReady((SDLNet_GenericSocket) socket) == 0)
+    if (sdlNetWrapper_.SocketReady((SDLNet_GenericSocket)socket) == 0)
         return std::make_tuple(RecvStatus::NotReady, nullptr);
 
     auto format = ReceiveFormat(socket);
 
     if (not format)
     {
+        DEBUG_LOG("Recevie unknown message incoming format");
         return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
+    DEBUG_LOG("Recevie message incoming format :" + std::to_string(*format));
 
     auto type = ReceiveType(socket);
 
     if (not type)
     {
+        DEBUG_LOG("Recevie unknown message incoming type");
         return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
+    DEBUG_LOG("Recevie message incoming type :" + std::to_string(*type));
 
     auto message = ReceiveMessage(socket);
 
     if (message.empty())
     {
+        DEBUG_LOG("Recevie incoming unknown message");
         return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
+    DEBUG_LOG("Recevie incoming message :" + std::to_string(*type));
 
     for (auto& messageConverter : messageConverters_)
     {
-        auto imessage = messageConverter->Convert(*format, *type, message);
+        if (messageConverter->GetFormat() != *format)
+        {
+            continue;
+        }
+
+        auto imessage = messageConverter->Convert(*type, message);
 
         if (imessage)
             return std::make_tuple(RecvStatus::Disconnect, std::move(imessage));

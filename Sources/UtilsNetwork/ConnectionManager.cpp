@@ -1,7 +1,7 @@
 #include "ConnectionManager.h"
 #include "Logger/Log.h"
-#include "Messages/Conntection/AuthenticationMessage.h"
-#include "Messages/Conntection/ConnectionMessage.h"
+#include "Messages/Connection/AuthenticationMessage.h"
+#include "Messages/Connection/ConnectionMessage.h"
 
 namespace Network
 {

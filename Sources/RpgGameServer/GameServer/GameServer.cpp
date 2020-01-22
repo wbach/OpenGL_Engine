@@ -13,7 +13,6 @@ namespace GameServer
 {
 GameServer::GameServer()
     : running_(true)
-    , gateway_(new Network::CGateway())
     , context_(std::make_shared<Database::DatabaseWrapperMock>(), std::bind(&GameServer::Send, this, std::placeholders::_1, std::placeholders::_2))
 {
     gateway_->StartServer(30, 1991);

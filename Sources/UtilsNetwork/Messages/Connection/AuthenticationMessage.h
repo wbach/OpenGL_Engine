@@ -23,12 +23,12 @@ public:
         CopyToArray(password_, password);
     }
 
-    std::string GetUserName()
+    std::string GetUserName() const
     {
         return userName_;
     }
 
-    std::string GetPassword()
+    std::string GetPassword() const
     {
         return password_;
     }

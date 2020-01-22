@@ -30,11 +30,11 @@ public:
         , target(target)
     {
     }
-    uint8 GetType()
+    uint8 GetType() const
     {
         return msgType;
     }
-    uint8 GetTarget()
+    uint8 GetTarget() const
     {
         return target;
     }
@@ -62,6 +62,17 @@ T* castMessageAs(IMessage* ptr)
     if (msg == nullptr)
     {
         ERROR_LOG("Cant cast type : " + std::to_string(ptr->GetType()));
+        return nullptr;
+    }
+    return msg;
+}
+template <class T>
+const T* const castMessageAs(const IMessage& ptr)
+{
+    auto msg = &static_cast<const T&>(ptr);
+    if (msg == nullptr)
+    {
+        ERROR_LOG("Cant cast type : " + std::to_string(ptr.GetType()));
         return nullptr;
     }
     return msg;

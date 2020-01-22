@@ -5,24 +5,23 @@
 
 namespace Network
 {
-	class CNetworkCreator
-	{
-	public:
-		CNetworkCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper = std::shared_ptr<ISDLNetWrapper>(new SDLNetWrapper()));
-		CNetworkCreator(ISDLNetWrapper* sdlNetWrapper);
-		virtual ~CNetworkCreator();
+class NetworkCreator
+{
+public:
+    NetworkCreator(ISDLNetWrapper& sdlNetWrapper);
+    virtual ~NetworkCreator();
 
-	public:
-		bool Init();
-		bool AllocSocketSet(int count);
-		bool ResolveHost(const char* hostName = nullptr);
-		bool ResolveIp();
-		bool OpenTcp();
-		bool AddSocketTcp();
+public:
+    bool Init();
+    bool AllocSocketSet(int count);
+    bool ResolveHost(const char* hostName = nullptr);
+    bool ResolveIp();
+    bool OpenTcp();
+    bool AddSocketTcp();
 
-	protected:
-		ConectContext context_;
-		std::shared_ptr<ISDLNetWrapper> sdlNetWrapper_;
-		bool isCreated;
-	};
-}
+protected:
+    ConectContext context_;
+    ISDLNetWrapper& sdlNetWrapper_;
+    bool isCreated;
+};
+}  // namespace Network

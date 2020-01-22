@@ -3,12 +3,10 @@
 
 namespace Network
 {
-	class ServerCreator : public CNetworkCreator
-	{
-	public:
-		ServerCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper = std::shared_ptr<ISDLNetWrapper>(new SDLNetWrapper()));
-		ServerCreator(ISDLNetWrapper* sdlNetWrapper);
-		ConectContext Create(uint32 maxClients, uint32 port);
-
-	};
-}
+class ServerCreator : public NetworkCreator
+{
+public:
+    ServerCreator(ISDLNetWrapper &sdlNetWrapper);
+    ConectContext Create(uint32 maxClients, uint32 port);
+};
+}  // namespace Network

@@ -9,7 +9,7 @@ namespace Network
 struct ConnectionMessage;
 class IMessage;
 
-class ClientCreator : public CNetworkCreator
+class ClientCreator : public NetworkCreator
 {
     enum ConnectionState
     {
@@ -28,7 +28,6 @@ private:
     bool WaitForAuthentication(const std::string& username, const std::string& password);
 
 private:
-    ISDLNetWrapper& sdlNetWrapper_;
     Sender& sender_;
     Receiver& receiver_;
 };

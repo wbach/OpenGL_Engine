@@ -20,7 +20,7 @@ private:
     bool running_;
     common::Dispacher dispatcher_;
 
-    Network::GatewayPtr gateway_;
+    Network::Gateway gateway_;
     Context context_;
 };
 }  // namespace GameServer
