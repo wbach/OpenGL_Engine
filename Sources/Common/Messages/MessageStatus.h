@@ -1,10 +1,10 @@
 #pragma once
 
-namespace Network
+namespace common
 {
-	enum MessageStatus
-	{
-		Fail,
-		Ok
-	};
-} // Network
+enum MessageStatus
+{
+    Fail,
+    Ok
+};
+}  // namespace common

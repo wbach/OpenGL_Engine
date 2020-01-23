@@ -19,5 +19,6 @@ enum MessageTypes
     GetCharactersDataReq
 };
 std::string to_string(uint8 type);
-const std::pair<uint8, uint8> MESSAGE_TYPE_RANGE{MessageTypes::TransformReq, MessageTypes::GetCharactersDataReq};
+#define COMMON_MESSAGE_TYPE_RANGE_LOW MessageTypes::TransformReq
+#define COMMON_MESSAGE_TYPE_RANGE_HIGH MessageTypes::GetCharactersDataReq
 }  // namespace Network

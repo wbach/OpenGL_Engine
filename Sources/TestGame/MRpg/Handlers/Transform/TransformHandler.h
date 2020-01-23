@@ -1,7 +1,7 @@
 #pragma once
 #include "Common/MessageHandling/AbstractHandler.h"
 
-namespace Network
+namespace common
 {
 struct TransformMsgResp;
 }
@@ -14,14 +14,14 @@ class TransformHandler : public common::AbstractHandler
 {
 public:
     TransformHandler(NetworkCharacterManager& networkCharacterManager)
-        : common::AbstractHandler({Network::MessageTypes::TransformResp})
+        : common::AbstractHandler({common::MessageTypes::TransformResp})
         , networkCharacterManager_(networkCharacterManager)
     {
     }
 
 protected:
-    virtual void ProcessMessage(const Network::BoxMessage& message) override;
-    void HandleTransformMsg(const Network::TransformMsgResp& msg);
+    virtual void ProcessMessage(const Network::IMessage &message) override;
+    void HandleTransformMsg(const common::TransformMsgResp& msg);
     NetworkCharacterManager& networkCharacterManager_;
 };
 

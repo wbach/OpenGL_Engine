@@ -6,7 +6,7 @@ namespace GameEngine
 class GameObject;
 } // namespace GameEngine
 
-namespace Network
+namespace common
 {
 struct GetCharacterDataMsgResp;
 }  // Network
@@ -22,16 +22,16 @@ class GetCharacterDataHandler : public common::AbstractHandler
 
 public:
     GetCharacterDataHandler(NetworkCharacterManager& networkCharacterManager)
-        : common::AbstractHandler({Network::MessageTypes::GetCharacterDataResp})
+        : common::AbstractHandler({common::MessageTypes::GetCharacterDataResp})
         , networkCharacterManager_(networkCharacterManager)
     {
     }
 
 private:
-    void HandleNetworkCharacterMsg(const Network::GetCharacterDataMsgResp& data);
+    void HandleNetworkCharacterMsg(const common::GetCharacterDataMsgResp& data);
 
 protected:
-    virtual void ProcessMessage(const Network::BoxMessage& message) override;
+    virtual void ProcessMessage(const Network::IMessage& message) override;
     NetworkCharacterManager& networkCharacterManager_;
 };
 }  // MmmoRpg

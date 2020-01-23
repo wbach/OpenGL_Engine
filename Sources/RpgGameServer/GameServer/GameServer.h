@@ -12,7 +12,7 @@ public:
     void Update();
 
 private:
-    void OnMessageArrived(const Network::BoxMessage& mesage);
+    void OnMessageArrived(std::unique_ptr<Network::IMessage> mesage);
     void Send(uint32, Network::IMessage*);
     void ProccesSdlEvent();
 

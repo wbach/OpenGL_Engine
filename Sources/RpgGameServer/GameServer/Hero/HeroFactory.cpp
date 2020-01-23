@@ -3,11 +3,11 @@
 
 namespace GameServer
 {
-	namespace HeroFactory
-	{
-		Hero::BaseHeroPtr CreateKnight()
-		{
-			return std::make_shared<Hero::Knight>();
-		}
-	} // Hero
-} // GameServer
+namespace HeroFactory
+{
+Hero::BaseHeroPtr CreateKnight()
+{
+    return std::make_shared<Hero::Knight>();
+}
+}  // namespace HeroFactory
+}  // namespace GameServer

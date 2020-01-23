@@ -3,15 +3,15 @@
 
 namespace GameServer
 {
-	namespace Hero
-	{
-		class Knight : public BaseHero
-		{
-		public:			
-			Knight();
-			Knight(const std::string& name);
-		protected:
-		
-		};
-	} // Hero
-} // GameServer
+namespace Hero
+{
+class Knight : public BaseHero
+{
+   public:
+    Knight();
+    Knight(const std::string& name);
+
+   protected:
+};
+}  // namespace Hero
+}  // namespace GameServer

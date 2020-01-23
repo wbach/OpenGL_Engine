@@ -13,7 +13,7 @@ public:
     void AddHandlers(Handlers handlers);
     void AddHandler(const std::string& label, AbstractHandler* handlerPtr);
     void RemoveHandler(const std::string& label);
-    void Dispatch(const Network::BoxMessage& message);
+    void Dispatch(const Network::IMessage &message);
     void Clear();
 
 private:

@@ -1,24 +1,27 @@
 #pragma once
-#include "../IMessage.h"
-#include "../MessageTarget.h"
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 
-namespace Network
+namespace common
 {
-	struct DisconnectCharacterMsg : public IMessage
-	{
-		DisconnectCharacterMsg()
-			: DisconnectCharacterMsg(0)
-		{}
-		DisconnectCharacterMsg(uint32 id)
-			: IMessage(MessageTypes::DisconnectCharacter, MessageTarget::Dedicated)
-			, id(id)
-		{}
+struct DisconnectCharacterMsg : public Network::IMessage
+{
+    DisconnectCharacterMsg()
+        : DisconnectCharacterMsg(0)
+    {
+    }
+    DisconnectCharacterMsg(uint32 id)
+        : Network::IMessage(MessageTypes::DisconnectCharacter, Network::MessageTarget::Dedicated)
+        , id(id)
+    {
+    }
 
-		uint32 id;
+    uint32 id;
 
-		virtual std::string ToString() override
-		{
-			return "Disconnect : " + std::to_string(id);
-		}
-	};
-} // Network
+    virtual std::string ToString() override
+    {
+        return "Disconnect : " + std::to_string(id);
+    }
+};
+}  // namespace Network

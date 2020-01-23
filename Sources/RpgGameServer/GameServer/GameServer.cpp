@@ -51,9 +51,9 @@ void GameServer::Update()
     }
 }
 
-void GameServer::OnMessageArrived(const Network::BoxMessage& mesage)
+void GameServer::OnMessageArrived(std::unique_ptr<Network::IMessage> mesage)
 {
-    dispatcher_.Dispatch(mesage);
+    dispatcher_.Dispatch(*mesage);
 }
 
 void GameServer::Send(uint32 id, Network::IMessage* ptr)

@@ -1,6 +1,7 @@
 #pragma once
 #include "../../Context.h"
 #include "Common/MessageHandling/AbstractHandler.h"
+#include <Common/Messages/MessageTypes.h>
 
 namespace GameServer
 {
@@ -11,15 +12,15 @@ class GetCharactersDataHandler : public common::AbstractHandler
 public:
     GetCharactersDataHandler(Context& context)
         : common::AbstractHandler(
-              {Network::MessageTypes::GetCharactersDataReq, Network::MessageTypes::GetCharacterDataReq})
+              {common::MessageTypes::GetCharactersDataReq, common::MessageTypes::GetCharacterDataReq})
         , context_(context)
     {
     }
 
 protected:
-    virtual void ProcessMessage(const Network::BoxMessage& message) override;
-    void ProccesGetCharactersDataReq(const Network::BoxMessage& message);
-    void ProccesGetCharacterDataReq(const Network::BoxMessage& message);
+    virtual void ProcessMessage(const Network::IMessage& message) override;
+    void ProccesGetCharactersDataReq(const Network::IMessage& message);
+    void ProccesGetCharacterDataReq(const Network::IMessage& message);
 
 private:
     Context& context_;

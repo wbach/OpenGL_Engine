@@ -2,12 +2,12 @@
 
 namespace GameServer
 {
-	namespace Scenario
-	{
-		enum class ScenariosTypes
-		{
-			CharacterSelect =0,
-		};
+namespace Scenario
+{
+enum class ScenariosTypes
+{
+    CharacterSelect = 0,
+};
 
-	} // Scenario
-} // GameServer
+}  // namespace Scenario
+}  // namespace GameServer

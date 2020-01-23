@@ -13,9 +13,6 @@ set(CommonIncludes
 ../../Sources/Common/Messages/SelectCharacter/SelectCharacterMsgReq.h
 ../../Sources/Common/Messages/SelectCharacter/SelectCharacterMsgResp.h
 ../../Sources/Common/Messages/MessageStatus.h
-../../Sources/Common/Messages/MessageTarget.h
-../../Sources/Common/Messages/Other/OtherMsg.h
-../../Sources/Common/Messages/IMessage.h
 ../../Sources/Common/Messages/MessageTypes.h
 ../../Sources/Common/Messages/TransformMessages/TransformMsgReq.h
 ../../Sources/Common/Messages/TransformMessages/TransformMessageTypes.h
@@ -23,15 +20,11 @@ set(CommonIncludes
 ../../Sources/Common/Messages/CreateCharacter/CreateCharacterMsgReq.h
 ../../Sources/Common/Messages/CreateCharacter/CreateCharacterMsgResp.h
 ../../Sources/Common/Messages/XmlMessageConverter.h
-../../Sources/Common/Messages/PingMessage.h
 ../../Sources/Common/Messages/GetCharacterData/GetCharacterDataMsgReq.h
 ../../Sources/Common/Messages/GetCharacterData/GetCharactersDataMsgReq.h
 ../../Sources/Common/Messages/GetCharacterData/GetCharacterDataMsgResp.h
 ../../Sources/Common/Messages/GetCharacters/CharacterInfo.h
 ../../Sources/Common/Messages/GetCharacters/GetCharactersMsgReq.h
 ../../Sources/Common/Messages/GetCharacters/GetCharactersMsgResp.h
-../../Sources/Common/Messages/Conntection/ConnectionMessage.h
-../../Sources/Common/Messages/Conntection/ConnectionStatus.h
-../../Sources/Common/Messages/Conntection/AuthenticationMessage.h
 ../../Sources/Common/Messages/RemoveCharacter/DisconnectCharacterMsg.h
 )

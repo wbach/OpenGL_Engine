@@ -1,23 +1,25 @@
 #pragma once
-#include "../IMessage.h"
-#include "../MessageTarget.h"
+#include <GLM/GLMUtils.h>
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 #include "TransformMessageTypes.h"
-#include "GLM/GLMUtils.h"
 
-namespace Network
+namespace common
 {
-	struct TransformMsgReq : public IMessage
-	{
-		TransformMsgReq()
-			: IMessage(MessageTypes::TransformReq, MessageTarget::All)
-		{}
-		TransformMessageTypes type = TransformMessageTypes::NONE;
-		TransformAction action = TransformAction::POP;
-		uint32 id = 0;
+struct TransformMsgReq : public Network::IMessage
+{
+    TransformMsgReq()
+        : IMessage(MessageTypes::TransformReq, Network::MessageTarget::All)
+    {
+    }
+    TransformMessageTypes type = TransformMessageTypes::NONE;
+    TransformAction action     = TransformAction::POP;
+    uint32 id                  = 0;
 
-		virtual std::string ToString() override
-		{
-			return "ID: " + std::to_string(id) + "\nType: " + std::to_string(type) + "\nAction: " + std::to_string(action);
-		}
-	};
-} // Network
+    virtual std::string ToString() override
+    {
+        return "ID: " + std::to_string(id) + "\nType: " + std::to_string(type) + "\nAction: " + std::to_string(action);
+    }
+};
+}  // namespace Network

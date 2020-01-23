@@ -3,19 +3,19 @@
 
 namespace MmmoRpg
 {
-	class NetworkCharacterManager;
+class NetworkCharacterManager;
 
-	class DisconnectHandler : public common::AbstractHandler
-	{
-	public:
-		DisconnectHandler(NetworkCharacterManager& networkCharacterManager)
-			: common::AbstractHandler({ Network::MessageTypes::DisconnectCharacter })
-			, networkCharacterManager_(networkCharacterManager)
-		{
-		}
+class DisconnectHandler : public common::AbstractHandler
+{
+   public:
+    DisconnectHandler(NetworkCharacterManager& networkCharacterManager)
+        : common::AbstractHandler({common::MessageTypes::DisconnectCharacter})
+        , networkCharacterManager_(networkCharacterManager)
+    {
+    }
 
-	protected:
-		virtual void ProcessMessage(const Network::BoxMessage& message) override;
-		NetworkCharacterManager&  networkCharacterManager_;
-	};
-} // MmmoRpg
+   protected:
+    virtual void ProcessMessage(const Network::IMessage& message) override;
+    NetworkCharacterManager& networkCharacterManager_;
+};
+}  // namespace MmmoRpg

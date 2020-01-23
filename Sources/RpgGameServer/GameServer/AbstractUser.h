@@ -3,9 +3,11 @@
 
 namespace GameServer
 {
-	class AbstractUser
-	{
-	public:
-		virtual void MessageArrived(Network::TransformMsg msg) {}
-	};
-}
+class AbstractUser
+{
+   public:
+    virtual void MessageArrived(common::TransformMsg msg)
+    {
+    }
+};
+}  // namespace GameServer

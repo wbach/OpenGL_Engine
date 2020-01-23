@@ -3,18 +3,18 @@
 
 namespace GameServer
 {
-	namespace Scenario
-	{
-		class CharacterSelect : public IScenario
-		{
-		public:
-			CharacterSelect();
-			virtual ActionStatus Perform() override;
+namespace Scenario
+{
+class CharacterSelect : public IScenario
+{
+   public:
+    CharacterSelect();
+    virtual ActionStatus Perform() override;
 
-		private:
-			std::vector<Action> actions_;
-		};
+   private:
+    std::vector<Action> actions_;
+};
 
-		typedef std::shared_ptr<Scenario::IScenario> ScenarioPtr;
-	} // Scenario
-} // GameServer
+typedef std::shared_ptr<Scenario::IScenario> ScenarioPtr;
+}  // namespace Scenario
+}  // namespace GameServer

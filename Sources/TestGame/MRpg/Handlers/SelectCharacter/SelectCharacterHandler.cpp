@@ -1,19 +1,19 @@
 #include "SelectCharacterHandler.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
+#include <Common/Messages/SelectCharacter/SelectCharacterMsgResp.h>
 
 namespace MmmoRpg
 {
-	void SelectCharacterHandler::ProcessMessage(const Network::BoxMessage& message)
-	{
-		auto msg = Network::castMessageAs<Network::SelectCharacterMsgResp>(message.second.get());
+void SelectCharacterHandler::ProcessMessage(const Network::IMessage &message)
+{
+    auto msg = static_cast<const common::SelectCharacterMsgResp*>(&message);
 
-		if (msg == nullptr)
-		{
-			ERROR_LOG("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " + std::to_string(msg->GetType()));
-			return;
-		}
+    if (msg == nullptr)
+    {
+        ERROR_LOG("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " + std::to_string(message.GetType()));
+        return;
+    }
 
-		callback_(msg->id, msg->id, msg->status_ == Network::MessageStatus::Ok);
-	}
+    callback_(msg->id, msg->id, msg->status_ == common::MessageStatus::Ok);
+}
 
-} // MmmoRpg
+}  // namespace MmmoRpg

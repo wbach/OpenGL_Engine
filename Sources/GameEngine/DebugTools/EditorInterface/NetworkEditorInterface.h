@@ -13,9 +13,9 @@ public:
 private:
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
-    void OnMessage(const Network::BoxMessage&);
+    void OnMessage(std::unique_ptr<Network::IMessage>);
 
 private:
-    Network::CGateway gateway_;
+    Network::Gateway gateway_;
 };
 }  // namespace GameEngine

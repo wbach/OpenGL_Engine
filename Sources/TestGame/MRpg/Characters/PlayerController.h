@@ -1,38 +1,39 @@
 #pragma once
-#include "Common/Hero/Stats.h"
-#include "UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
+#include <Common/Hero/Stats.h>
+#include <Common/Messages/TransformMessages/TransformMessageTypes.h>
 #include <memory>
 
 namespace Input
 {
-	class InputManager;
+class InputManager;
 }
 
 namespace Network
 {
-	class CGateway;
+class Gateway;
 }
 
 namespace MmmoRpg
 {
-	struct MrpgGameContext;
+struct MrpgGameContext;
 
-	class PlayerController
-	{
-	public:
-		PlayerController(Input::InputManager* manager, MrpgGameContext& gameContext, Network::CGateway& gateway);
+class PlayerController
+{
+   public:
+    PlayerController(Input::InputManager* manager, MrpgGameContext& gameContext, Network::Gateway& gateway);
 
-	private:
-		void SendTransformMessage(Network::TransformMessageTypes type, Network::TransformAction action);
-		bool FindState(Network::TransformMessageTypes type);
-		void SubscribeForPushActions();
-		void SubscribeForPopActions();
-	private:
-		MrpgGameContext& gameContext_;
-		Input::InputManager* inputManager_;
-		Network::CGateway& gateway_;
-		std::list<Network::TransformMessageTypes> states_;
-	};
+   private:
+    void SendTransformMessage(common::TransformMessageTypes type, common::TransformAction action);
+    bool FindState(common::TransformMessageTypes type);
+    void SubscribeForPushActions();
+    void SubscribeForPopActions();
 
-	typedef std::unique_ptr<PlayerController> PlayerControllerPtr;
-} // MmmoRpg
+   private:
+    MrpgGameContext& gameContext_;
+    Input::InputManager* inputManager_;
+    Network::Gateway& gateway_;
+    std::list<common::TransformMessageTypes> states_;
+};
+
+typedef std::unique_ptr<PlayerController> PlayerControllerPtr;
+}  // namespace MmmoRpg

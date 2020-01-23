@@ -1,18 +1,18 @@
 #include "GetCharactersHandler.h"
-#include "Messages/GetCharacters/GetCharactersMsgReq.h"
-#include "Messages/GetCharacters/GetCharactersMsgResp.h"
+#include <Common/Messages/GetCharacters/GetCharactersMsgReq.h>
+#include <Common/Messages/GetCharacters/GetCharactersMsgResp.h>
 
 namespace GameServer
 {
 namespace Handler
 {
-void GetCharactersHandler::ProcessMessage(const Network::BoxMessage& message)
+void GetCharactersHandler::ProcessMessage(const Network::IMessage& message)
 {
     auto userId         = message.first;
     auto& user          = context_.GetUser(userId);
     auto userCharacters = user.GetCharacters();
 
-    auto charactersMsgResp = std::make_unique<Network::GetCharactersMsgResp>();
+    auto charactersMsgResp = std::make_unique<common::GetCharactersMsgResp>();
 
     uint8 i = 0;
     for (const auto& characterId : userCharacters)

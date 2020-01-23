@@ -1,15 +1,16 @@
 #pragma once
-#include "../IMessage.h"
-#include "../MessageTarget.h"
-#include "GLM/GLMUtils.h"
+#include <GLM/GLMUtils.h>
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 #include "TransformMessageTypes.h"
 
-namespace Network
+namespace common
 {
-struct TransformMsgResp : public IMessage
+struct TransformMsgResp : public Network::IMessage
 {
     TransformMsgResp()
-        : IMessage(MessageTypes::TransformResp, MessageTarget::All)
+        : IMessage(MessageTypes::TransformResp, Network::MessageTarget::All)
     {
     }
     TransformMessageTypes type = TransformMessageTypes::NONE;
@@ -24,4 +25,4 @@ struct TransformMsgResp : public IMessage
                "\nPosition: " + std::to_string(position) + "\nRotation : " + std::to_string(rotation);
     }
 };
-}  // namespace Network
+}  // namespace common

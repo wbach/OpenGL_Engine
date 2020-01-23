@@ -1,30 +1,32 @@
 #pragma once
-#include "../IMessage.h"
-#include "../MessageTarget.h"
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 
-namespace Network
+namespace common
 {
-	class CreateCharacterMsgReq : public IMessage
-	{
-	public:
-		CreateCharacterMsgReq(const std::string& name)
-			: IMessage(MessageTypes::CreateCharacterReq, MessageTarget::Dedicated)
-		{
-			memset(characterName_, 0, arraySize);
-			CopyToArray(characterName_, name);
-		}
-		virtual std::string ToString() override
-		{
-			return "Selected character ID: " + std::to_string(id);
-		}
-		std::string GetCharacterName()
-		{
-			return characterName_;
-		}
-	public:
-		uint32 id = 0;
+class CreateCharacterMsgReq : public Network::IMessage
+{
+   public:
+    CreateCharacterMsgReq(const std::string& name)
+        : IMessage(MessageTypes::CreateCharacterReq, Network::MessageTarget::Dedicated)
+    {
+        memset(characterName_, 0, Network::arraySize);
+        CopyToArray(characterName_, name);
+    }
+    virtual std::string ToString() override
+    {
+        return "Selected character ID: " + std::to_string(id);
+    }
+    std::string GetCharacterName()
+    {
+        return characterName_;
+    }
 
-	private:
-		char characterName_[arraySize];
-	};
-} // Network
+   public:
+    uint32 id = 0;
+
+   private:
+    char characterName_[Network::arraySize];
+};
+}  // namespace common

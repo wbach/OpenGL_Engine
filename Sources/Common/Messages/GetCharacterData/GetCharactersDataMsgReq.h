@@ -1,20 +1,22 @@
 #pragma once
-#include "../IMessage.h"
-#include "../MessageTarget.h"
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 
-namespace Network
+namespace common
 {
-	struct GetCharactersDataMsgReq : public IMessage
-	{
-		GetCharactersDataMsgReq()
-			: IMessage(MessageTypes::GetCharactersDataReq, MessageTarget::Dedicated)
-		{}
+struct GetCharactersDataMsgReq : public Network::IMessage
+{
+    GetCharactersDataMsgReq()
+        : IMessage(MessageTypes::GetCharactersDataReq, Network::MessageTarget::Dedicated)
+    {
+    }
 
-		uint32 mapId;
+    uint32 mapId;
 
-		virtual std::string ToString() override
-		{
-			return "GetCharactersMsgReq";
-		}
-	};
-} // Network
+    virtual std::string ToString() override
+    {
+        return "GetCharactersMsgReq";
+    }
+};
+}  // namespace Network

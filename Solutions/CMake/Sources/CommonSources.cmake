@@ -6,5 +6,4 @@ set(CommonSources
 ../../Sources/Common/Transform.cpp
 ../../Sources/Common/Messages/XmlMessageConverter.cpp
 ../../Sources/Common/Messages/MessageTypes.cpp
-../../Sources/Common/Messages/IMessage.cpp
 )

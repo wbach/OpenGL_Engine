@@ -1,20 +1,22 @@
 #pragma once
-#include "../IMessage.h"
-#include "../MessageTarget.h"
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 
-namespace Network
+namespace common
 {
-	struct SelectCharacterMsgReq : public IMessage
-	{
-		SelectCharacterMsgReq()
-			: IMessage(MessageTypes::SelectCharacterReq, MessageTarget::Dedicated)
-		{}
+struct SelectCharacterMsgReq : public Network::IMessage
+{
+    SelectCharacterMsgReq()
+        : IMessage(MessageTypes::SelectCharacterReq, Network::MessageTarget::Dedicated)
+    {
+    }
 
-		uint32 id = 0;
+    uint32 id = 0;
 
-		virtual std::string ToString() override
-		{
-			return "Selected character ID: " + std::to_string(id);
-		}
-	};
-} // Network
+    virtual std::string ToString() override
+    {
+        return "Selected character ID: " + std::to_string(id);
+    }
+};
+}  // namespace Network

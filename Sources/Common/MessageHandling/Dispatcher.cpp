@@ -15,7 +15,7 @@ void Dispacher::AddHandler(const std::string& label, AbstractHandler* handlerPtr
 {
     handlers_[label] = std::shared_ptr<AbstractHandler>(handlerPtr);
 }
-void Dispacher::Dispatch(const Network::BoxMessage& message)
+void Dispacher::Dispatch(const Network::IMessage& message)
 {
     bool result = false;
     for (auto& handler : handlers_)

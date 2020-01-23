@@ -1,32 +1,38 @@
 #pragma once
+#include <UtilsNetwork/IMessage.h>
+#include <UtilsNetwork/MessageTarget.h>
+#include "Common/Messages/MessageTypes.h"
 #include "CharacterInfo.h"
-#include "../IMessage.h"
-#include "../MessageTarget.h"
-#include "optional.hpp"
+#include <optional>
 
-namespace Network
+namespace common
 {
-	const uint8 charactersPerAcount = 5;
-	struct GetCharactersMsgResp : public IMessage
-	{
-		GetCharactersMsgResp()
-			: IMessage(MessageTypes::GetCharactersResp, MessageTarget::Dedicated)
-		{}
+const uint8 charactersPerAcount = 5;
 
-		wb::optional<CharacterInfo> characterInfo[charactersPerAcount];
+struct GetCharactersMsgResp : public Network::IMessage
+{
+    GetCharactersMsgResp()
+        : IMessage(MessageTypes::GetCharactersResp, Network::MessageTarget::Dedicated)
+    {
+    }
 
-		virtual std::string ToString() override
-		{
-			std::string result = "GetCharactersMsgResp characters: {";
+    std::optional<CharacterInfo> characterInfo[charactersPerAcount];
 
-			for(const auto& ci : characterInfo)
-			{
-				if(!ci)	continue;
+    virtual std::string ToString() override
+    {
+        std::string result = "GetCharactersMsgResp characters: {";
 
-				result += "\nId : " + std::to_string(ci.constValue().id_);
-			}
+        for (const auto& ci : characterInfo)
+        {
+            if (not ci)
+            {
+                continue;
+            }
 
-			return result + "\n}";
-		}
-	};
-} // Network
+            result += "\nId : " + std::to_string(ci->id_);
+        }
+
+        return result + "\n}";
+    }
+};
+}  // namespace Network
