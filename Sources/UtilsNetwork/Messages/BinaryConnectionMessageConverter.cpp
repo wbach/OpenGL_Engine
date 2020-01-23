@@ -31,54 +31,53 @@ uint8 BinaryConnectionMessageConverter::GetFormat() const
 }
 std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(uint8 type, const std::vector<int8>& message)
 {
-    DEBUG_LOG(Network::Convert(message));
-
     switch (type)
     {
-            //        case Network::MessageTypes::ConnectionMsg:
-            //        {
-            //        }
-            //        case Network::MessageTypes::Authentication:
-            //        {
-            //        }
-            //        case Network::MessageTypes::Text:
-            //        {
-            //        }
+        case Network::MessageTypes::ConnectionMsg:
+            return ConvertMessage<ConnectionMessage>(message);
+        case Network::MessageTypes::Authentication:
+            return ConvertMessage<AuthenticationMessage>(message);
+        case Network::MessageTypes::Text:
+            return ConvertMessage<TextMessage>(message);
         default:
             DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
     }
 
     return nullptr;
 }
+
 std::vector<int8> BinaryConnectionMessageConverter::Convert(const IMessage& message)
 {
     switch (message.GetType())
     {
         case Network::MessageTypes::ConnectionMsg:
-            return ConvertConnectionMessage(message);
+            return ConvertMessage<ConnectionMessage>(message);
         case Network::MessageTypes::Authentication:
-            return ConvertAuthenticationMessage(message);
+            return ConvertMessage<AuthenticationMessage>(message);
         case Network::MessageTypes::Text:
-            return ConvertTextMessage(message);
+            return ConvertMessage<TextMessage>(message);
     }
 
     DEBUG_LOG("Convert to binary. Unsuporrted message.");
     return {};
 }
 
-std::vector<int8> BinaryConnectionMessageConverter::ConvertConnectionMessage(const IMessage& message)
+template <class T>
+std::unique_ptr<IMessage> BinaryConnectionMessageConverter::ConvertMessage(const std::vector<int8>& message)
 {
-    return {};
+    auto msg = std::make_unique<T>();
+    memcpy(msg.get(), &message[0], message.size());
+    return std::move(msg);
 }
 
-std::vector<int8> BinaryConnectionMessageConverter::ConvertAuthenticationMessage(const IMessage& message)
+template <class T>
+std::vector<int8> BinaryConnectionMessageConverter::ConvertMessage(const IMessage& message)
 {
-    return {};
-}
-
-std::vector<int8> BinaryConnectionMessageConverter::ConvertTextMessage(const IMessage& message)
-{
-    return {};
+    std::vector<int8> result;
+    result.resize(sizeof(T));
+    memcpy(&result[0], &message, sizeof(T));
+    result.push_back(';');
+    return result;
 }
 
 }  // namespace Network

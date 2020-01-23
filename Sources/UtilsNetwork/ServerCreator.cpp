@@ -9,21 +9,21 @@ ServerCreator::ServerCreator(ISDLNetWrapper& sdlNetWrapper)
 {
 }
 
-ConectContext ServerCreator::Create(uint32 maxClients, uint32 port)
+std::optional<ConectContext> ServerCreator::Create(uint32 maxClients, uint32 port)
 {
     context_.maxClients = maxClients;
     context_.port       = port;
 
     if (not Init())
-        return context_;
+        return {};
     if (not AllocSocketSet(context_.maxClients + 1))
-        return context_;
+        return {};
     if (not ResolveHost())
-        return context_;
+        return {};
     if (not OpenTcp())
-        return context_;
+        return {};
     if (not AddSocketTcp())
-        return context_;
+        return {};
 
     DEBUG_LOG("Connection is open.");
     isCreated = true;

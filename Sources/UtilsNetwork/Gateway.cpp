@@ -11,6 +11,7 @@
 #include "SDLNetWrapper.h"
 #include "Thread.hpp"
 
+#include "Messages/BinaryConnectionMessageConverter.h"
 #include "Messages/XmlConnectionMessageConverter.h"
 
 namespace Network
@@ -32,24 +33,31 @@ Gateway::Gateway(Utils::Time::CTimeMeasurer timeMeasurer)
     , idPool_(0)
 {
     messageConverters_.push_back(std::make_unique<XmlConnectionMessageConverter>());
+    messageConverters_.push_back(std::make_unique<BinaryConnectionMessageConverter>());
 }
 
 Gateway::~Gateway()
 {
 }
 
-void Gateway::StartServer(uint32 maxClients, uint32 port, std::function<void ()> startCallback)
+bool Gateway::StartServer(uint32 maxClients, uint32 port)
 {
     DEBUG_LOG("");
-    context_ = serverCreator_.Create(maxClients, port);
-    context_.isServer_ = true;
-    running_  = true;
+    auto context = serverCreator_.Create(maxClients, port);
 
-    if (startCallback)
-        startCallback();
+    if (not context)
+    {
+        DEBUG_LOG("Server creation failed.");
+        return false;
+    }
+
+    context_           = *context;
+    context_.isServer_ = true;
+    running_           = true;
+
+    return true;
 }
-bool Gateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
-                               uint32 port)
+bool Gateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
 {
     DEBUG_LOG("");
 
@@ -109,6 +117,11 @@ void Gateway::Update()
             }
         }
     }
+}
+
+void Gateway::SetDefaultMessageConverter(MessageFormat format)
+{
+    sender_.SetMessageFormat(format);
 }
 
 bool Gateway::Send(uint32 userId, IMessage& message)

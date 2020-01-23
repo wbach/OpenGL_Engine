@@ -22,7 +22,7 @@ public:
     Gateway();
     Gateway(Utils::Time::CTimeMeasurer timeMeasurer);
     virtual ~Gateway();
-    void StartServer(uint32 maxClients, uint32 port, std::function<void ()> startCallback = nullptr);
+    bool StartServer(uint32 maxClients, uint32 port);
     bool ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
                          uint32 port);
     void SubscribeForNewUser(CreationFunc func);
@@ -34,6 +34,7 @@ public:
     bool Send(IMessage& message);
     bool Send(uint32 userId, IMessage& message);
     void Update();
+    void SetDefaultMessageConverter(MessageFormat format);
 
 protected:
     void DisconnectUser(uint32 id);

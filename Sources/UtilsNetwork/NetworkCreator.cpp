@@ -15,6 +15,7 @@ NetworkCreator::~NetworkCreator()
     if (!isCreated)
         return;
 
+    SDLNet_TCP_Close(context_.socket);
     SDLNet_FreeSocketSet(context_.socketSet);
     SDLNet_Quit();
 }

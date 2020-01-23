@@ -1,12 +1,12 @@
 #pragma once
 #include <memory>
+#include "IMessage.h"
+#include "IMessageConverter.h"
 #include "ISDLNetWrapper.h"
 #include "Logger/Log.h"
-#include "IMessage.h"
+#include "MessageFormat.h"
 #include "SDLNetWrapper.h"
 #include "Types.h"
-#include "IMessageConverter.h"
-#include "MessageFormat.h"
 
 namespace Network
 {
@@ -22,12 +22,13 @@ class Sender
 {
 public:
     Sender(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>&);
-    SentStatus SendTcp(TCPsocket socket, IMessage& msg, MessageFormat format = MessageFormat::Xml);
+    SentStatus SendTcp(TCPsocket socket, IMessage& msg);
+    void SetMessageFormat(MessageFormat format);
 
 private:
-    bool sendMessageFormat(TCPsocket socket, MessageFormat format);
+    bool sendMessageFormat(TCPsocket socket);
     bool sendMessageType(TCPsocket socket, IMessage& msg);
-    bool sendMessage(TCPsocket socket, IMessage& msg, MessageFormat format);
+    bool sendMessage(TCPsocket socket, IMessage& msg);
 
     template <class T>
     SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
@@ -50,6 +51,7 @@ private:
 
 private:
     ISDLNetWrapper& sdlNetWrapper_;
+    MessageFormat messageFormat_;
     std::vector<std::unique_ptr<IMessageConverter>>& messageConverters_;
 };
 }  // namespace Network

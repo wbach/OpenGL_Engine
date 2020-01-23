@@ -8,6 +8,7 @@ class SDLNetWrapper : public ISDLNetWrapper
 {
 public:
     SDLNetWrapper();
+    ~SDLNetWrapper();
     virtual int Init() const override;
     virtual SDLNet_SocketSet AllocSocketSet(int maxsockets) const override;
     virtual int ResolveHost(IPaddress *address, const char *host, Uint16 port) const override;
@@ -30,5 +31,8 @@ public:
 private:
     uint64 receviedBytes_;
     uint64 sentBytes_;
+
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
 };
 }  // namespace Network

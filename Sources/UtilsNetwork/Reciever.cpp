@@ -57,7 +57,7 @@ std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket so
         auto imessage = messageConverter->Convert(*type, message);
 
         if (imessage)
-            return std::make_tuple(RecvStatus::Disconnect, std::move(imessage));
+            return std::make_tuple(RecvStatus::Ok, std::move(imessage));
     }
 
     return std::make_tuple(RecvStatus::UnknownConverter, nullptr);

@@ -2,10 +2,21 @@
 
 namespace Network
 {
+struct SDLNetWrapper::Impl
+{
+    IPaddress* ip_{nullptr};
+};
+
 SDLNetWrapper::SDLNetWrapper()
     : receviedBytes_{0}
     , sentBytes_{0}
+    , impl_(std::make_unique<Impl>())
 {
+}
+
+SDLNetWrapper::~SDLNetWrapper()
+{
+    SDLNet_Quit();
 }
 
 int SDLNetWrapper::Init() const
@@ -26,6 +37,7 @@ const char* SDLNetWrapper::ResolveIP(IPaddress* address) const
 }
 TCPsocket SDLNetWrapper::TCPOpen(IPaddress* ip) const
 {
+    impl_->ip_ = ip;
     return SDLNet_TCP_Open(ip);
 }
 const char* SDLNetWrapper::GetError() const

@@ -7,7 +7,12 @@ namespace Network
 {
 class TextMessage : public IMessage
 {
-   public:
+public:
+    TextMessage()
+        : IMessage(MessageTypes::Text, MessageTarget::Dedicated)
+    {
+        memset(text_, 0, arraySize);
+    }
     TextMessage(const std::string& text)
         : IMessage(MessageTypes::Text, MessageTarget::Dedicated)
     {
@@ -25,7 +30,7 @@ class TextMessage : public IMessage
         return text_;
     }
 
-   private:
+private:
     char text_[arraySize];
 };
 }  // namespace Network

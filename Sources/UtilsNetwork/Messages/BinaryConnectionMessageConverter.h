@@ -12,8 +12,9 @@ public:
     virtual std::vector<int8> Convert(const IMessage& message) override;
 
 private:
-    std::vector<int8> ConvertConnectionMessage(const IMessage& message);
-    std::vector<int8> ConvertAuthenticationMessage(const IMessage& message);
-    std::vector<int8> ConvertTextMessage(const IMessage& message);
+    template<class T>
+    std::vector<int8> ConvertMessage(const IMessage& message);
+    template<class T>
+    std::unique_ptr<IMessage> ConvertMessage(const std::vector<int8>& message);
 };
 }  // namespace Network

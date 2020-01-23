@@ -9,19 +9,15 @@ namespace Network
 {
 class ClientServerTests : public ::testing::Test
 {
-   public:
+public:
     ClientServerTests()
         : isConnected_{false}
+        , testShortMessage_{"test text message. Hello World!"}
     {
     }
 
     void ClientMain()
     {
-        std::unique_lock<std::mutex> mlock(mutex_);
-        cv.wait(mlock, [&]() { return serverStarted_; });
-
-        DEBUG_LOG("Started");
-
         isConnected_ = clientGateway_.ConnectToServer("baszek", "haslo", "127.0.0.1", 1991);
 
         if (not isConnected_)
@@ -30,20 +26,31 @@ class ClientServerTests : public ::testing::Test
             return;
         }
 
-        TextMessage textMessage("test text message. Hello World!");
+        TextMessage textMessage(testShortMessage_);
         clientGateway_.Send(textMessage);
         isRunning_.store(false);
     }
 
-    void ServerMain()
+    bool StartServer()
     {
-        serverGateway_.StartServer(30, 1991, [&]() {
-            DEBUG_LOG("Callback");
-            std::lock_guard<std::mutex> lk(mutex_);
-            serverStarted_ = true;
-            cv.notify_all();
+        auto serverStarted_ = serverGateway_.StartServer(30, 1991);
+
+        if (not serverStarted_)
+        {
+            return false;
+        }
+
+        serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](std::unique_ptr<IMessage> imessage) {
+            auto textMessage = castMessageAs<TextMessage>(imessage.get());
+            DEBUG_LOG("Server recevied message : " + textMessage->GetText());
+            receviedMessage_ = textMessage->GetText();
         });
 
+        return true;
+    }
+
+    void ServerMain()
+    {
         while (isRunning_.load())
         {
             serverGateway_.Update();
@@ -54,16 +61,22 @@ class ClientServerTests : public ::testing::Test
 
     void SetUp() override
     {
+        serverStarted_ = false;
+        isConnected_   = false;
         isRunning_.store(true);
-        clientThread_ = std::thread([&]() { ClientMain(); });
-        ServerMain();
+
+        if (StartServer())
+        {
+            clientThread_ = std::thread([&]() { ClientMain(); });
+            ServerMain();
+        }
     }
     void TearDown() override
     {
         clientThread_.join();
     }
 
-   protected:
+protected:
     Gateway serverGateway_;
     Gateway clientGateway_;
     std::thread clientThread_;
@@ -72,13 +85,22 @@ class ClientServerTests : public ::testing::Test
     bool serverStarted_;
     bool isConnected_;
 
-    std::mutex mutex_;
-    std::condition_variable cv;
+    std::string receviedMessage_;
+    std::string testShortMessage_;
 };
 
-TEST_F(ClientServerTests, FirstConnection)
+TEST_F(ClientServerTests, FirstConnectionBinaryConverter)
+{
+    serverGateway_.SetDefaultMessageConverter(MessageFormat::Binary);
+    clientGateway_.SetDefaultMessageConverter(MessageFormat::Binary);
+    EXPECT_TRUE(isConnected_);
+    EXPECT_EQ(testShortMessage_, receviedMessage_);
+}
+
+TEST_F(ClientServerTests, FirstConnectionXmlConverter)
 {
     EXPECT_TRUE(isConnected_);
+    EXPECT_EQ(testShortMessage_, receviedMessage_);
 }
 
 }  // namespace Network

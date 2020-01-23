@@ -6,26 +6,32 @@ namespace Network
 {
 Sender::Sender(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>& converters)
     : sdlNetWrapper_(sdlNetWrapper)
+    , messageFormat_(MessageFormat::Xml)
     , messageConverters_(converters)
 {
 }
-SentStatus Sender::SendTcp(TCPsocket socket, IMessage& msg, MessageFormat format)
+
+void Sender::SetMessageFormat(MessageFormat format)
 {
-    if (not sendMessageFormat(socket, format))
+    messageFormat_ = format;
+}
+SentStatus Sender::SendTcp(TCPsocket socket, IMessage& msg)
+{
+    if (not sendMessageFormat(socket))
         return SentStatus::ERROR;
 
     if (not sendMessageType(socket, msg))
         return SentStatus::ERROR;
 
-    if (not sendMessage(socket, msg, format))
+    if (not sendMessage(socket, msg))
         return SentStatus::ERROR;
 
     return SentStatus::OK;
 }
 
-bool Sender::sendMessageFormat(TCPsocket socket, MessageFormat format)
+bool Sender::sendMessageFormat(TCPsocket socket)
 {
-    auto formatValue = Network::ConvertFormat(format);
+    auto formatValue = Network::ConvertFormat(messageFormat_);
 
     auto length    = sizeof(uint8);
     auto sentBytes = sdlNetWrapper_.SendTcp(socket, &formatValue, length);
@@ -52,22 +58,25 @@ bool Sender::sendMessageType(TCPsocket socket, IMessage& msg)
     return true;
 }
 
-bool Sender::sendMessage(TCPsocket socket, IMessage& msg, MessageFormat format)
+bool Sender::sendMessage(TCPsocket socket, IMessage& msg)
 {
     for (auto& converter : messageConverters_)
     {
-        if (converter->GetFormat() != ConvertFormat(format))
+        if (converter->GetFormat() != ConvertFormat(messageFormat_))
         {
             continue;
         }
 
         auto convertedMsg = converter->Convert(msg);
 
-        auto length    = sizeof(uint8) * convertedMsg.size();
-        auto sentBytes = sdlNetWrapper_.SendTcp(socket, &convertedMsg[0], length);
+        auto length = sizeof(uint8) * convertedMsg.size();
+        auto isSent = sdlNetWrapper_.SendTcp(socket, &convertedMsg[0], length);
 
-        if (sentBytes < length)
+        if (not isSent)
+        {
+            DEBUG_LOG("Send error.");
             return false;
+        }
 
         DEBUG_LOG("Msssage type sent : " + std::to_string(msg.GetType()));
         return true;
