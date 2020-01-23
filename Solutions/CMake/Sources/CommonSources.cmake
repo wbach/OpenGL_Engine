@@ -4,6 +4,7 @@ set(CommonSources
 ../../Sources/Common/Controllers/CharacterController/NetworkActionsConverter.cpp
 ../../Sources/Common/Controllers/ControllersFactory.cpp
 ../../Sources/Common/Transform.cpp
+../../Sources/Common/Messages/XmlMessageConverter.cpp
 ../../Sources/Common/Messages/MessageTypes.cpp
 ../../Sources/Common/Messages/IMessage.cpp
 )

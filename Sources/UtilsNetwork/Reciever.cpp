@@ -49,7 +49,7 @@ std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket so
 
     for (auto& messageConverter : messageConverters_)
     {
-        if (messageConverter->GetFormat() != *format)
+        if (not messageConverter->IsValid(*format, *type))
         {
             continue;
         }

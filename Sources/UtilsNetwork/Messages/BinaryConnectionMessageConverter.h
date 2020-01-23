@@ -7,7 +7,7 @@ class BinaryConnectionMessageConverter : public IMessageConverter
 {
 public:
     BinaryConnectionMessageConverter();
-    virtual uint8 GetFormat() const override;
+    virtual bool IsValid(uint8 format, uint8 type) const override;
     virtual std::unique_ptr<IMessage> Convert(uint8 type, const std::vector<int8>& message) override;
     virtual std::vector<int8> Convert(const IMessage& message) override;
 

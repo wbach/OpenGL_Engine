@@ -62,7 +62,7 @@ bool Sender::sendMessage(TCPsocket socket, IMessage& msg)
 {
     for (auto& converter : messageConverters_)
     {
-        if (converter->GetFormat() != ConvertFormat(messageFormat_))
+        if (not converter->IsValid(static_cast<uint8>(messageFormat_), msg.GetType()))
         {
             continue;
         }

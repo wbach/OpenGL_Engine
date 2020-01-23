@@ -22,6 +22,7 @@ set(CommonIncludes
 ../../Sources/Common/Messages/TransformMessages/TransformMsgResp.h
 ../../Sources/Common/Messages/CreateCharacter/CreateCharacterMsgReq.h
 ../../Sources/Common/Messages/CreateCharacter/CreateCharacterMsgResp.h
+../../Sources/Common/Messages/XmlMessageConverter.h
 ../../Sources/Common/Messages/PingMessage.h
 ../../Sources/Common/Messages/GetCharacterData/GetCharacterDataMsgReq.h
 ../../Sources/Common/Messages/GetCharacterData/GetCharactersDataMsgReq.h

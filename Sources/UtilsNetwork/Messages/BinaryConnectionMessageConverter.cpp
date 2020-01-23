@@ -25,10 +25,12 @@ BinaryConnectionMessageConverter::BinaryConnectionMessageConverter()
 {
     DEBUG_LOG("");
 }
-uint8 BinaryConnectionMessageConverter::GetFormat() const
+
+bool BinaryConnectionMessageConverter::IsValid(uint8 format, uint8 type) const
 {
-    return ConvertFormat(MessageFormat::Binary);
+    return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
 }
+
 std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(uint8 type, const std::vector<int8>& message)
 {
     switch (type)

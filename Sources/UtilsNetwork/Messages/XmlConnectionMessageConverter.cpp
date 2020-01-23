@@ -25,10 +25,12 @@ XmlConnectionMessageConverter::XmlConnectionMessageConverter()
 {
     DEBUG_LOG("");
 }
-uint8 XmlConnectionMessageConverter::GetFormat() const
+
+bool XmlConnectionMessageConverter::IsValid(uint8 format, uint8 type) const
 {
-    return ConvertFormat(MessageFormat::Xml);
+    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
 }
+
 std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(uint8 type, const std::vector<int8>& message)
 {
     Utils::XmlReader reader;

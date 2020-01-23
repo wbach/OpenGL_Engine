@@ -1,16 +1,12 @@
 #pragma once
 #include "Types.h"
 
-namespace Network
+namespace common
 {
 enum MessageTypes
 {
-    Any,
-    Ping,
-    TransformReq,
-    ConnectionMsg,
+    TransformReq = 0,
     TransformResp,
-    Authentication,
     DisconnectCharacter,
     SelectCharacterReq,
     SelectCharacterResp,
@@ -20,8 +16,8 @@ enum MessageTypes
     GetCharactersResp,
     GetCharacterDataReq,
     GetCharacterDataResp,
-    GetCharactersDataReq,
-    Other
+    GetCharactersDataReq
 };
 std::string to_string(uint8 type);
+const std::pair<uint8, uint8> MESSAGE_TYPE_RANGE{MessageTypes::TransformReq, MessageTypes::GetCharactersDataReq};
 }  // namespace Network
