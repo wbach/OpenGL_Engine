@@ -28,7 +28,6 @@ public:
 
         TextMessage textMessage(testShortMessage_);
         clientGateway_.Send(textMessage);
-        isRunning_.store(false);
     }
 
     bool StartServer()
@@ -44,6 +43,7 @@ public:
             auto textMessage = castMessageAs<TextMessage>(imessage.get());
             DEBUG_LOG("Server recevied message : " + textMessage->GetText());
             receviedMessage_ = textMessage->GetText();
+            isRunning_.store(false);
         });
 
         return true;
