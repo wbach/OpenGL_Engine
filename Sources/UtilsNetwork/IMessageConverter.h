@@ -4,10 +4,6 @@
 
 namespace Network
 {
-typedef uint8 IMessageFormat;
-typedef uint8 IMessageType;
-typedef std::vector<int8> IMessageData;
-
 class IMessageConverter
 {
 public:

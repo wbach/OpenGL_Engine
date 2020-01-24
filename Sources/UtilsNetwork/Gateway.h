@@ -34,7 +34,8 @@ public:
     bool Send(const IMessage& message);
     bool Send(uint32 userId, const IMessage& message);
     void Update();
-    void SetDefaultMessageConverter(MessageFormat format);
+    void SetDefaultMessageConverterFormat(MessageFormat format);
+    void AddMessageConverter(std::unique_ptr<IMessageConverter>);
 
 protected:
     void DisconnectUser(uint32 id);

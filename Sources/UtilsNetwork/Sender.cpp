@@ -6,7 +6,7 @@ namespace Network
 {
 Sender::Sender(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>& converters)
     : sdlNetWrapper_(sdlNetWrapper)
-    , messageFormat_(MessageFormat::Xml)
+    , messageFormat_(MessageFormat::Binary)
     , messageConverters_(converters)
 {
 }

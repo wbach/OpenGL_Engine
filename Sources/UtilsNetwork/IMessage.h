@@ -9,12 +9,17 @@
 
 namespace Network
 {
+typedef uint8 IMessageFormat;
+typedef uint8 IMessageType;
+typedef uint8 IMessageTarget;
+typedef std::vector<int8> IMessageData;
+
 const uint16 arraySize = 256;
 void CopyToArray(char* dest, const std::string& str);
 
 struct MessageHeader
 {
-    uint8 msgType;
+    IMessageType msgType;
 };
 
 class IMessage
@@ -25,23 +30,23 @@ public:
     {
         return "---";
     }
-    IMessage(uint8 type, uint8 target)
+    IMessage(IMessageType type, IMessageTarget target)
         : msgType(type)
         , target(target)
     {
     }
-    uint8 GetType() const
+    IMessageType GetType() const
     {
         return msgType;
     }
-    uint8 GetTarget() const
+    IMessageTarget GetTarget() const
     {
         return target;
     }
 
 private:
-    uint8 msgType;
-    uint8 target;
+    IMessageType msgType;
+    IMessageTarget target;
 };
 
 template <class T>

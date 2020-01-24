@@ -119,9 +119,14 @@ void Gateway::Update()
     }
 }
 
-void Gateway::SetDefaultMessageConverter(MessageFormat format)
+void Gateway::SetDefaultMessageConverterFormat(MessageFormat format)
 {
     sender_.SetMessageFormat(format);
+}
+
+void Gateway::AddMessageConverter(std::unique_ptr<IMessageConverter> converter)
+{
+    messageConverters_.push_back(std::move(converter));
 }
 
 bool Gateway::Send(uint32 userId, const IMessage& message)

@@ -1,11 +1,12 @@
 #include "mrpg_main.h"
+#include <Common/Messages/BinaryMessageConverter.h>
+#include <Logger/Log.h>
 #include <UtilsNetwork/Gateway.h>
 #include "Common/Hero/HeroClassesTypes.h"
 #include "Common/MessageHandling/Dispatcher.h"
 #include "Engine/Engine.h"
 #include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
-#include "Logger/Log.h"
 #include "MrpgGameContext.h"
 #include "PlayerMock.h"
 #include "Scenes/ScenesFactory.h"
@@ -17,25 +18,26 @@ namespace MmmoRpg
 {
 class Game
 {
-   public:
+public:
     Game(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
-        : serverAdress(Utils::ReadFile("./server.conf"))
-        , engine(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<SceneFactory>(gateway, serverAdress, gameContext_))
+        : serverAdress_(Utils::ReadFile("./server.conf"))
+        , engine_(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<SceneFactory>(gateway_, serverAdress_, gameContext_))
     {
-        DEBUG_LOG("Server : " + serverAdress);
+        DEBUG_LOG("Server : " + serverAdress_);
+        gateway_.AddMessageConverter(std::make_unique<common::BinaryMessageConverter>());
 
-        engine.Init();
+        engine_.Init();
         // LoginScene
         // engine.sceneManager_.SetActiveScene("GuiEdytorScene");
-        engine.GetSceneManager().SetActiveScene("LoginScene");
+        engine_.GetSceneManager().SetActiveScene("LoginScene");
         // engine.sceneManager_.SetActiveScene("SelectCharacterScene");
-        engine.GameLoop();
+        engine_.GameLoop();
     }
 
-   private:
-    std::string serverAdress;
-    Network::Gateway gateway;
-    Engine engine;
+private:
+    std::string serverAdress_;
+    Network::Gateway gateway_;
+    Engine engine_;
     MrpgGameContext gameContext_;
 };
 

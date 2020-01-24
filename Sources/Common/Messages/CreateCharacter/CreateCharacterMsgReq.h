@@ -7,12 +7,17 @@ namespace common
 {
 class CreateCharacterMsgReq : public Network::IMessage
 {
-   public:
+public:
+    CreateCharacterMsgReq()
+        : CreateCharacterMsgReq("")
+    {
+    }
+
     CreateCharacterMsgReq(const std::string& name)
         : IMessage(MessageTypes::CreateCharacterReq, Network::MessageTarget::Dedicated)
     {
         memset(characterName_, 0, Network::arraySize);
-        CopyToArray(characterName_, name);
+        Network::CopyToArray(characterName_, name);
     }
     virtual std::string ToString() const override
     {
@@ -23,10 +28,10 @@ class CreateCharacterMsgReq : public Network::IMessage
         return characterName_;
     }
 
-   public:
+public:
     uint32 id = 0;
 
-   private:
+private:
     char characterName_[Network::arraySize];
 };
 }  // namespace common

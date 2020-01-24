@@ -8,6 +8,7 @@
 #include "Handlers/SelectCharacter/SelectCharacterHandler.h"
 #include "Logger/Log.h"
 #include "Time/TimeMeasurer.h"
+#include <Common/Messages/BinaryMessageConverter.h>
 
 namespace GameServer
 {
@@ -15,6 +16,8 @@ GameServer::GameServer()
     : running_(true)
     , context_(std::make_shared<Database::DatabaseWrapperMock>(), std::bind(&GameServer::Send, this, std::placeholders::_1, std::placeholders::_2))
 {
+    gateway_.AddMessageConverter(std::make_unique<common::BinaryMessageConverter>());
+
     gateway_.StartServer(30, 1991);
     gateway_.SubscribeForNewUser(std::bind(&Context::NewUser, &context_, std::placeholders::_1, std::placeholders::_2));
     gateway_.SubscribeForDisconnectUser(std::bind(&Context::DeleteUser, &context_, std::placeholders::_1));

@@ -8,6 +8,7 @@
 #include "Utils/XML/XmlReader.h"
 #include "Utils/XML/XmlWriter.h"
 #include "UtilsNetwork/IMessage.h"
+#include "UtilsNetwork/PayloadUtils.h"
 
 namespace Network
 {
@@ -36,11 +37,11 @@ std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(IMessageType
     switch (type)
     {
         case Network::MessageTypes::ConnectionMsg:
-            return ConvertMessage<ConnectionMessage>(message);
+            return ConvertMessage<Network::ConnectionMessage>(message);
         case Network::MessageTypes::Authentication:
-            return ConvertMessage<AuthenticationMessage>(message);
+            return ConvertMessage<Network::AuthenticationMessage>(message);
         case Network::MessageTypes::Text:
-            return ConvertMessage<TextMessage>(message);
+            return ConvertMessage<Network::TextMessage>(message);
         default:
             DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
     }
@@ -53,33 +54,14 @@ IMessageData BinaryConnectionMessageConverter::Convert(const IMessage& message)
     switch (message.GetType())
     {
         case Network::MessageTypes::ConnectionMsg:
-            return ConvertMessage<ConnectionMessage>(message);
+            return ConvertMessage<Network::ConnectionMessage>(message);
         case Network::MessageTypes::Authentication:
-            return ConvertMessage<AuthenticationMessage>(message);
+            return ConvertMessage<Network::AuthenticationMessage>(message);
         case Network::MessageTypes::Text:
-            return ConvertMessage<TextMessage>(message);
+            return ConvertMessage<Network::TextMessage>(message);
     }
 
     DEBUG_LOG("Convert to binary. Unsuporrted message.");
     return {};
 }
-
-template <class T>
-std::unique_ptr<IMessage> BinaryConnectionMessageConverter::ConvertMessage(const IMessageData& message)
-{
-    auto msg = std::make_unique<T>();
-    memcpy(msg.get(), &message[0], message.size());
-    return std::move(msg);
-}
-
-template <class T>
-IMessageData BinaryConnectionMessageConverter::ConvertMessage(const IMessage& message)
-{
-    std::vector<int8> result;
-    result.resize(sizeof(T));
-    memcpy(&result[0], &message, sizeof(T));
-    result.push_back(';');
-    return result;
-}
-
 }  // namespace Network

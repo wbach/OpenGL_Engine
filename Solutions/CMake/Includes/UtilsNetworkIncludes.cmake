@@ -13,6 +13,7 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/Gateway.h
 ../../Sources/UtilsNetwork/NetworkUtils.h
 ../../Sources/UtilsNetwork/MessageFormat.h
+../../Sources/UtilsNetwork/PayloadUtils.h
 ../../Sources/UtilsNetwork/Reciever.h
 ../../Sources/UtilsNetwork/ClientCreator.h
 ../../Sources/UtilsNetwork/MessageTarget.h

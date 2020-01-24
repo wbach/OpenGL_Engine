@@ -91,8 +91,8 @@ protected:
 
 TEST_F(ClientServerTests, FirstConnectionBinaryConverter)
 {
-    serverGateway_.SetDefaultMessageConverter(MessageFormat::Binary);
-    clientGateway_.SetDefaultMessageConverter(MessageFormat::Binary);
+    serverGateway_.SetDefaultMessageConverterFormat(MessageFormat::Binary);
+    clientGateway_.SetDefaultMessageConverterFormat(MessageFormat::Binary);
     EXPECT_TRUE(isConnected_);
     EXPECT_EQ(testShortMessage_, receviedMessage_);
 }

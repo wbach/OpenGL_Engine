@@ -8,12 +8,16 @@ namespace common
 {
 class CreateCharacterMsgResp : public Network::IMessage
 {
-   public:
+public:
+    CreateCharacterMsgResp()
+        : CreateCharacterMsgResp("")
+    {
+    }
     CreateCharacterMsgResp(const std::string& name)
         : IMessage(MessageTypes::CreateCharacterResp, Network::MessageTarget::Dedicated)
     {
         memset(characterName_, 0, Network::arraySize);
-        CopyToArray(characterName_, name);
+        Network::CopyToArray(characterName_, name);
     }
     virtual std::string ToString() const override
     {
@@ -24,11 +28,11 @@ class CreateCharacterMsgResp : public Network::IMessage
         return characterName_;
     }
 
-   public:
+public:
     uint32 id = 0;
     MessageStatus status_;
 
-   private:
+private:
     char characterName_[Network::arraySize];
 };
-}  // namespace Network
+}  // namespace common
