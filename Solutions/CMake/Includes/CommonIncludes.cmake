@@ -7,6 +7,7 @@ set(CommonIncludes
 ../../Sources/Common/Messages/TransformMessages/TransformMsgReq.h
 ../../Sources/Common/Messages/TransformMessages/TransformMessageTypes.h
 ../../Sources/Common/Messages/XmlMessageConverter.h
+../../Sources/Common/Messages/BinaryMessageConverter.h
 ../../Sources/Common/Messages/GetCharacters/CharacterInfo.h
 ../../Sources/Common/Messages/GetCharacters/GetCharactersMsgResp.h
 ../../Sources/Common/Messages/GetCharacters/GetCharactersMsgReq.h

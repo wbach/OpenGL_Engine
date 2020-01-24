@@ -26,12 +26,12 @@ XmlConnectionMessageConverter::XmlConnectionMessageConverter()
     DEBUG_LOG("");
 }
 
-bool XmlConnectionMessageConverter::IsValid(uint8 format, uint8 type) const
+bool XmlConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType type) const
 {
     return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
 }
 
-std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(uint8 type, const std::vector<int8>& message)
+std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType type, const IMessageData& message)
 {
     Utils::XmlReader reader;
     std::string a = Network::Convert(message);
@@ -72,7 +72,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(uint8 type, con
 
     return nullptr;
 }
-std::vector<int8> XmlConnectionMessageConverter::Convert(const IMessage& message)
+IMessageData XmlConnectionMessageConverter::Convert(const IMessage& message)
 {
     switch (message.GetType())
     {
@@ -88,7 +88,7 @@ std::vector<int8> XmlConnectionMessageConverter::Convert(const IMessage& message
     return {};
 }
 
-std::vector<int8> CreatePayload(Utils::XmlNode& root)
+IMessageData CreatePayload(Utils::XmlNode& root)
 {
     auto s = Utils::Xml::Write(root);
     std::vector<int8> v;
@@ -98,7 +98,7 @@ std::vector<int8> CreatePayload(Utils::XmlNode& root)
     return v;
 }
 
-std::vector<int8> XmlConnectionMessageConverter::ConvertConnectionMessage(const IMessage& message)
+IMessageData XmlConnectionMessageConverter::ConvertConnectionMessage(const IMessage& message)
 {
     auto connectionMessage = castMessageAs<ConnectionMessage>(message);
 
@@ -110,7 +110,7 @@ std::vector<int8> XmlConnectionMessageConverter::ConvertConnectionMessage(const 
     return v;
 }
 
-std::vector<int8> XmlConnectionMessageConverter::ConvertAuthenticationMessage(const IMessage& message)
+IMessageData XmlConnectionMessageConverter::ConvertAuthenticationMessage(const IMessage& message)
 {
     auto msg = castMessageAs<AuthenticationMessage>(message);
 
@@ -123,7 +123,7 @@ std::vector<int8> XmlConnectionMessageConverter::ConvertAuthenticationMessage(co
     return v;
 }
 
-std::vector<int8> XmlConnectionMessageConverter::ConvertTextMessage(const IMessage& message)
+IMessageData XmlConnectionMessageConverter::ConvertTextMessage(const IMessage& message)
 {
     auto msg = castMessageAs<TextMessage>(message);
 

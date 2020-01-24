@@ -26,12 +26,12 @@ BinaryConnectionMessageConverter::BinaryConnectionMessageConverter()
     DEBUG_LOG("");
 }
 
-bool BinaryConnectionMessageConverter::IsValid(uint8 format, uint8 type) const
+bool BinaryConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType type) const
 {
     return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
 }
 
-std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(uint8 type, const std::vector<int8>& message)
+std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(IMessageType type, const IMessageData& message)
 {
     switch (type)
     {
@@ -48,7 +48,7 @@ std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(uint8 type, 
     return nullptr;
 }
 
-std::vector<int8> BinaryConnectionMessageConverter::Convert(const IMessage& message)
+IMessageData BinaryConnectionMessageConverter::Convert(const IMessage& message)
 {
     switch (message.GetType())
     {
@@ -65,7 +65,7 @@ std::vector<int8> BinaryConnectionMessageConverter::Convert(const IMessage& mess
 }
 
 template <class T>
-std::unique_ptr<IMessage> BinaryConnectionMessageConverter::ConvertMessage(const std::vector<int8>& message)
+std::unique_ptr<IMessage> BinaryConnectionMessageConverter::ConvertMessage(const IMessageData& message)
 {
     auto msg = std::make_unique<T>();
     memcpy(msg.get(), &message[0], message.size());
@@ -73,7 +73,7 @@ std::unique_ptr<IMessage> BinaryConnectionMessageConverter::ConvertMessage(const
 }
 
 template <class T>
-std::vector<int8> BinaryConnectionMessageConverter::ConvertMessage(const IMessage& message)
+IMessageData BinaryConnectionMessageConverter::ConvertMessage(const IMessage& message)
 {
     std::vector<int8> result;
     result.resize(sizeof(T));

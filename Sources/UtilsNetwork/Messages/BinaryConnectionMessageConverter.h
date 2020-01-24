@@ -7,14 +7,14 @@ class BinaryConnectionMessageConverter : public IMessageConverter
 {
 public:
     BinaryConnectionMessageConverter();
-    virtual bool IsValid(uint8 format, uint8 type) const override;
-    virtual std::unique_ptr<IMessage> Convert(uint8 type, const std::vector<int8>& message) override;
-    virtual std::vector<int8> Convert(const IMessage& message) override;
+    virtual bool IsValid(IMessageFormat, IMessageType) const override;
+    virtual std::unique_ptr<IMessage> Convert(IMessageType, const IMessageData&) override;
+    virtual IMessageData Convert(const IMessage&) override;
 
 private:
     template<class T>
-    std::vector<int8> ConvertMessage(const IMessage& message);
+    std::vector<int8> ConvertMessage(const IMessage&);
     template<class T>
-    std::unique_ptr<IMessage> ConvertMessage(const std::vector<int8>& message);
+    std::unique_ptr<IMessage> ConvertMessage(const IMessageData&);
 };
 }  // namespace Network

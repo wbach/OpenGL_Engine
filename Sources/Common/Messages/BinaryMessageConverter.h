@@ -3,10 +3,10 @@
 
 namespace common
 {
-class XmlMessageConverter : public Network::IMessageConverter
+class BinaryMessageConverter : public Network::IMessageConverter
 {
 public:
-    XmlMessageConverter();
+    BinaryMessageConverter();
     virtual bool IsValid(Network::IMessageFormat, Network::IMessageType) const override;
     virtual std::unique_ptr<Network::IMessage> Convert(Network::IMessageType, const Network::IMessageData&) override;
     virtual Network::IMessageData Convert(const Network::IMessage&) override;

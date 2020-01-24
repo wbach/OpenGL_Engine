@@ -1,6 +1,7 @@
 set(CommonSources
 ../../Sources/Common/MessageHandling/Dispatcher.cpp
 ../../Sources/Common/Transform.cpp
+../../Sources/Common/Messages/BinaryMessageConverter.cpp
 ../../Sources/Common/Messages/MessageTypes.cpp
 ../../Sources/Common/Messages/XmlMessageConverter.cpp
 ../../Sources/Common/Controllers/CharacterController/NetworkActionsConverter.cpp

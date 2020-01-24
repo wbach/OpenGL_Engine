@@ -1,14 +1,14 @@
 #include "XmlMessageConverter.h"
-#include <UtilsNetwork/MessageFormat.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
+#include <UtilsNetwork/MessageFormat.h>
 #include "MessageTypes.h"
 
 namespace common
 {
 namespace
 {
-std::string Convert(const std::vector<int8>& message)
+std::string Convert(const std::vector<int8> &message)
 {
     std::string result;
     std::copy(message.begin(), message.end(), std::back_inserter(result));
@@ -20,10 +20,9 @@ XmlMessageConverter::XmlMessageConverter()
 {
 }
 
-bool XmlMessageConverter::IsValid(uint8 format, uint8 type) const
+bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and
-           type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
+    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
 }
 
 /*
@@ -41,7 +40,7 @@ bool XmlMessageConverter::IsValid(uint8 format, uint8 type) const
     case common::MessageTypes::GetCharactersDataReq
     */
 
-std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(uint8 type, const std::vector<int8> &message)
+std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType type, const Network::IMessageData &message)
 {
     std::string a = common::Convert(message);
     DEBUG_LOG(a);
@@ -106,7 +105,7 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(uint8 type, cons
     return nullptr;
 }
 
-std::vector<int8> XmlMessageConverter::Convert(const Network::IMessage &message)
+Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage &message)
 {
     switch (message.GetType())
     {
