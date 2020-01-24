@@ -5,5 +5,6 @@
 
 namespace Network
 {
-typedef std::function<void(std::unique_ptr<IMessage>)> OnMessageArrived;
+typedef uint32 UserId;
+typedef std::function<void(UserId, std::unique_ptr<IMessage>)> OnMessageArrived;
 }  // namespace Network

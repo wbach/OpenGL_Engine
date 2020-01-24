@@ -14,7 +14,7 @@ struct SelectCharacterMsgReq : public Network::IMessage
 
     uint32 id = 0;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "Selected character ID: " + std::to_string(id);
     }

@@ -22,13 +22,13 @@ class Sender
 {
 public:
     Sender(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>&);
-    SentStatus SendTcp(TCPsocket socket, IMessage& msg);
+    SentStatus SendTcp(TCPsocket socket, const IMessage &msg);
     void SetMessageFormat(MessageFormat format);
 
 private:
     bool sendMessageFormat(TCPsocket socket);
-    bool sendMessageType(TCPsocket socket, IMessage& msg);
-    bool sendMessage(TCPsocket socket, IMessage& msg);
+    bool sendMessageType(TCPsocket socket, const IMessage& msg);
+    bool sendMessage(TCPsocket socket, const IMessage& msg);
 
     template <class T>
     SentStatus SendIMessage(TCPsocket socket, IMessage* msg)

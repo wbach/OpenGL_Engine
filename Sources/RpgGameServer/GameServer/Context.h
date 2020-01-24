@@ -5,10 +5,11 @@
 #include "Manager.h"
 #include "Mutex.hpp"
 #include "User.h"
+#include <UtilsNetwork/NetworkTypes.h>
 
 namespace GameServer
 {
-typedef std::function<void(uint32, Network::IMessage*)> SendMessage;
+typedef std::function<void(Network::UserId, const Network::IMessage&)> SendMessage;
 
 class Context
 {

@@ -63,7 +63,7 @@ void SelectingCharacterState::SubscribesForKeysInput()
         if (!currentSelectCharacterId_)
             return;
 
-        gameContext_.selectedCharacterId = {currentSelectCharacterId_.constValue(), SelectedCharacterState::NOT_CONNECTED_WITH_PLAYER};
+        gameContext_.selectedCharacterId = {*currentSelectCharacterId_, SelectedCharacterState::NOT_CONNECTED_WITH_PLAYER};
         status_                          = StateStatus::DONE;
     });
 

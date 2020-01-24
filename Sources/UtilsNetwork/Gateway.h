@@ -31,8 +31,8 @@ public:
     void UnsubscrieOnMessageArrived(uint32);
     void UnsubscribeAllOnMessageArrived();
 
-    bool Send(IMessage& message);
-    bool Send(uint32 userId, IMessage& message);
+    bool Send(const IMessage& message);
+    bool Send(uint32 userId, const IMessage& message);
     void Update();
     void SetDefaultMessageConverter(MessageFormat format);
 

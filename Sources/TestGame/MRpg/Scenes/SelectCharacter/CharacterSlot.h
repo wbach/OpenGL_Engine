@@ -1,6 +1,6 @@
 #pragma once
+#include <Common/Messages/GetCharacters/CharacterInfo.h>
 #include <unordered_map>
-#include "Messages/GetCharacters/CharacterInfo.h"
 #include "Renderers/GUI/Text/GuiTextElement.h"
 
 namespace MmmoRpg
@@ -13,7 +13,7 @@ struct CharacterSlot
         CLASSNAME,
         NICK
     };
-    Network::CharacterInfo characterInfo;
-    //std::unordered_map<TextType, GameEngine::GuiTextElement> texts;
+    common::CharacterInfo characterInfo;
+    // std::unordered_map<TextType, GameEngine::GuiTextElement> texts;
 };
-}  // MmmoRpg
+}  // namespace MmmoRpg

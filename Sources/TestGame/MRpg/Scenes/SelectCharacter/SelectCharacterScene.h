@@ -9,7 +9,7 @@ namespace MmmoRpg
 class SelectCharacterScene : public MRpgScene
 {
 public:
-    SelectCharacterScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
+    SelectCharacterScene(Network::Gateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
     virtual ~SelectCharacterScene() override;
     virtual int Initialize() override;
     virtual void PostInitialize() override;

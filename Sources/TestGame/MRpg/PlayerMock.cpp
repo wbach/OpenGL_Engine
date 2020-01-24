@@ -48,15 +48,15 @@ struct IMockState
 
 struct GetCharacterState : public IMockState
 {
-    GetCharacterState(Gateway& gateway, wb::optional<uint32>& selectedId)
+    GetCharacterState(Gateway& gateway, std::optional<uint32>& selectedId)
         : IMockState(gateway)
         , selectedId_(selectedId)
     {
-        gateway_.SubscribeOnMessageArrived("GetCharactersMsgReq", std::bind(&GetCharacterState::OnMessage, this, std::placeholders::_1));
+        onMessageSubscribeId = gateway_.SubscribeOnMessageArrived(common::MessageTypes::GetCharactersResp, std::bind(&GetCharacterState::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
     }
-    virtual ~GetCharacterState()
+    virtual ~GetCharacterState() override
     {
-        gateway_.UnsubscrieOnMessageArrived("GetCharactersMsgReq");
+        gateway_.UnsubscrieOnMessageArrived(onMessageSubscribeId);
     }
     virtual void OnInit() override
     {
@@ -77,17 +77,16 @@ struct GetCharacterState : public IMockState
     void GetCharacters()
     {
         DEBUG_LOG("");
-        auto getCharactersMsgReq = std::make_unique<common::GetCharactersMsgReq>();
-        gateway_.Send(getCharactersMsgReq.get());
+        gateway_.Send(common::GetCharactersMsgReq());
     }
 
-    void OnMessage(const Network::IMessage& message)
+    void OnMessage(Network::UserId, std::unique_ptr<Network::IMessage> message)
     {
         DEBUG_LOG("");
-        if (message.second->GetType() == common::MessageTypes::GetCharactersResp)
+        if (message->GetType() == common::MessageTypes::GetCharactersResp)
         {
-            GetCharacter(*static_cast<const common::GetCharactersMsgResp*>(&message);
-            DEBUG_LOG(message.second->ToString());
+            GetCharacter(*static_cast<const common::GetCharactersMsgResp*>(message.get()));
+            DEBUG_LOG(message->ToString());
         }
     }
 
@@ -97,26 +96,27 @@ struct GetCharacterState : public IMockState
         {
             if (data)
             {
-                selectedId_ = data.constValue().id_;
+                selectedId_ = data->id_;
                 isFinished_ = true;
                 return;
             }
         }
     }
-    wb::optional<uint32>& selectedId_;
+    uint32 onMessageSubscribeId = 0;
+    std::optional<uint32>& selectedId_;
 };
 
 struct SelectCharacterState : public IMockState
 {
-    SelectCharacterState(Gateway& gateway, wb::optional<uint32>& selectedId)
+    SelectCharacterState(Gateway& gateway, std::optional<uint32>& selectedId)
         : IMockState(gateway)
         , selectedId_(selectedId)
     {
-        gateway_.SubscribeOnMessageArrived("SelectCharacterState", std::bind(&SelectCharacterState::OnMessage, this, std::placeholders::_1));
+        onMessageSubscribeId = gateway_.SubscribeOnMessageArrived(common::MessageTypes::SelectCharacterResp, std::bind(&SelectCharacterState::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
     }
-    virtual ~SelectCharacterState()
+    virtual ~SelectCharacterState() override
     {
-        gateway_.UnsubscrieOnMessageArrived("SelectCharacterState");
+        gateway_.UnsubscrieOnMessageArrived(onMessageSubscribeId);
     }
     virtual void OnInit() override
     {
@@ -137,41 +137,42 @@ struct SelectCharacterState : public IMockState
     void SelectCharacters()
     {
         DEBUG_LOG("");
-        auto selectCharacterMsgReq = std::make_unique<SelectCharacterMsgReq>();
-        selectCharacterMsgReq->id  = selectedId_.constValue();
-        gateway_.Send(selectCharacterMsgReq.get());
+        common::SelectCharacterMsgReq selectCharacterMsgReq;
+        selectCharacterMsgReq.id = *selectedId_;
+        gateway_.Send(selectCharacterMsgReq);
     }
 
-    void OnMessage(const BoxMessage& message)
+    void OnMessage(Network::UserId, std::unique_ptr<Network::IMessage> message)
     {
-        if (message.second->GetType() == MessageTypes::SelectCharacterResp)
+        if (message->GetType() == common::MessageTypes::SelectCharacterResp)
         {
-            SelectCharacter(*castMessageAs<SelectCharacterMsgResp>(message.second.get()));
-            DEBUG_LOG(message.second->ToString());
+            SelectCharacter(*static_cast<common::SelectCharacterMsgResp*>(message.get()));
+            DEBUG_LOG(message->ToString());
         }
     }
 
-    void SelectCharacter(const SelectCharacterMsgResp& character)
+    void SelectCharacter(const common::SelectCharacterMsgResp& character)
     {
-        if (character.status_ == MessageStatus::Ok && selectedId_.value() == character.id)
+        if (character.status_ == common::MessageStatus::Ok && selectedId_.value() == character.id)
         {
             isFinished_ = true;
         }
     }
-    wb::optional<uint32>& selectedId_;
+    uint32 onMessageSubscribeId = 0;
+    std::optional<uint32>& selectedId_;
 };
 
 struct GetCharacterDataState : public IMockState
 {
-    GetCharacterDataState(CGateway& gateway, wb::optional<uint32>& selectedId)
+    GetCharacterDataState(Gateway& gateway, std::optional<uint32>& selectedId)
         : IMockState(gateway)
         , selectedId_(selectedId)
     {
-        gateway_.SubscribeOnMessageArrived("GetCharacterDataState", std::bind(&GetCharacterDataState::OnMessage, this, std::placeholders::_1));
+        onMessageSubscribeId = gateway_.SubscribeOnMessageArrived(common::MessageTypes::GetCharacterDataResp, std::bind(&GetCharacterDataState::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
     }
-    virtual ~GetCharacterDataState()
+    virtual ~GetCharacterDataState() override
     {
-        gateway_.UnsubscrieOnMessageArrived("GetCharacterDataState");
+        gateway_.UnsubscrieOnMessageArrived(onMessageSubscribeId);
     }
     virtual void OnInit() override
     {
@@ -193,44 +194,45 @@ struct GetCharacterDataState : public IMockState
     void GetData()
     {
         DEBUG_LOG("");
-        auto getCharacterDataMsgReq   = std::make_unique<GetCharactersDataMsgReq>();
-        getCharacterDataMsgReq->mapId = 1;
-        gateway_.Send(getCharacterDataMsgReq.get());
+        common::GetCharactersDataMsgReq getCharacterDataMsgReq;
+        getCharacterDataMsgReq.mapId = 1;
+        gateway_.Send(getCharacterDataMsgReq);
     }
 
-    void OnMessage(const BoxMessage& message)
+    void OnMessage(Network::UserId, std::unique_ptr<IMessage> message)
     {
         DEBUG_LOG("");
-        if (message.second->GetType() == MessageTypes::GetCharacterDataResp)
+        if (message->GetType() == common::MessageTypes::GetCharacterDataResp)
         {
-            GetDataCharacter(*castMessageAs<GetCharacterDataMsgResp>(message.second.get()));
-            DEBUG_LOG(message.second->ToString());
+            GetDataCharacter(*static_cast<common::GetCharacterDataMsgResp*>(message.get()));
+            DEBUG_LOG(message->ToString());
         }
     }
 
-    void GetDataCharacter(const GetCharacterDataMsgResp& character)
+    void GetDataCharacter(const common::GetCharacterDataMsgResp& character)
     {
         if (selectedId_.value() == character.networkCharcterId)
         {
             isFinished_ = true;
         }
     }
-    wb::optional<uint32>& selectedId_;
+    uint32 onMessageSubscribeId = 0;
+    std::optional<uint32>& selectedId_;
 };
 
 struct GameSceneState : public IMockState
 {
-    GameSceneState(CGateway& gateway, wb::optional<uint32>& selectedId)
+    GameSceneState(Gateway& gateway, std::optional<uint32>& selectedId)
         : IMockState(gateway)
         , selectedId_(selectedId)
         , timer_(60, false)
     {
-        gateway_.SubscribeOnMessageArrived("GameSceneState", std::bind(&GameSceneState::OnMessage, this, std::placeholders::_1));
+        onMessageSubscribeId = gateway_.SubscribeOnMessageArrived(common::MessageTypes::TransformResp, std::bind(&GameSceneState::OnMessage, this, std::placeholders::_1,  std::placeholders::_2));
         timer_.AddOnTickCallback(std::bind(&GameSceneState::PrintPing, this));
     }
-    virtual ~GameSceneState()
+    virtual ~GameSceneState() override
     {
-        gateway_.UnsubscrieOnMessageArrived("GameSceneState");
+        gateway_.UnsubscrieOnMessageArrived(onMessageSubscribeId);
     }
     void PrintPing()
     {
@@ -238,7 +240,6 @@ struct GameSceneState : public IMockState
     }
     virtual void OnInit() override
     {
-        // Log("");
         SendTransform();
         sentTime_ = std::chrono::high_resolution_clock::now();
     }
@@ -257,14 +258,12 @@ struct GameSceneState : public IMockState
 
     void SendTransform()
     {
-        // Log("");
-
-        auto getCharacterDataMsgReq    = std::make_unique<TransformMsgReq>();
-        getCharacterDataMsgReq->action = pushMessage ? TransformAction::PUSH : TransformAction::POP;
-        getCharacterDataMsgReq->type   = (forwardBackward < 2) ? TransformMessageTypes::MOVE_FORWARD : TransformMessageTypes::MOVE_BACKWARD;
-        getCharacterDataMsgReq->id     = selectedId_.constValue();
-        gateway_.Send(getCharacterDataMsgReq.get());
-        pushMessage = !pushMessage;
+        common::TransformMsgReq getCharacterDataMsgReq;
+        getCharacterDataMsgReq.action = pushMessage ? common::TransformAction::PUSH : common::TransformAction::POP;
+        getCharacterDataMsgReq.type   = (forwardBackward < 2) ? common::TransformMessageTypes::MOVE_FORWARD : common::TransformMessageTypes::MOVE_BACKWARD;
+        getCharacterDataMsgReq.id     = *selectedId_;
+        gateway_.Send(getCharacterDataMsgReq);
+        pushMessage = not pushMessage;
 
         ++forwardBackward;
 
@@ -275,16 +274,16 @@ struct GameSceneState : public IMockState
         ;
     }
 
-    void OnMessage(const BoxMessage& message)
+    void OnMessage(Network::UserId, std::unique_ptr<IMessage> message)
     {
-        if (message.second->GetType() == MessageTypes::GetCharacterDataResp)
+//        if (message.second->GetType() == MessageTypes::GetCharacterDataResp)
+//        {
+//            DEBUG_LOG("Got GetCharacterDataResp.");
+//        }
+        if (message->GetType() == common::MessageTypes::TransformResp)
         {
-            DEBUG_LOG("Got GetCharacterDataResp.");
-        }
-        if (message.second->GetType() == MessageTypes::TransformResp)
-        {
-            auto m = castMessageAs<TransformMsgResp>(message.second.get());
-            if (m->id == selectedId_.constValue())
+            auto m = castMessageAs<common::TransformMsgResp>(message.get());
+            if (m->id == *selectedId_)
             {
                 auto now = std::chrono::high_resolution_clock::now();
                 auto t   = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(now - sentTransformTime_).count());
@@ -299,14 +298,15 @@ struct GameSceneState : public IMockState
     int forwardBackward = 0;
     bool pushMessage    = true;
     uint32 ping         = 0;
-    wb::optional<uint32>& selectedId_;
+    uint32 onMessageSubscribeId = 0;
+    std::optional<uint32>& selectedId_;
     Timepoint sentTransformTime_;
     Utils::Time::CTimeMeasurer timer_;
 };
 
 class PlayerMock
 {
-   public:
+public:
     PlayerMock()
     {
         InitScenario();
@@ -356,16 +356,19 @@ class PlayerMock
     }
     void InitScenario()
     {
-        scenario_ = {
-            std::make_shared<GetCharacterState>(gateway, seletedChracterId), std::make_shared<SelectCharacterState>(gateway, seletedChracterId),
-            std::make_shared<GetCharacterDataState>(gateway, seletedChracterId), std::make_shared<GameSceneState>(gateway, seletedChracterId)};
+        // clang-format off
+        scenario_ = {std::make_shared<GetCharacterState>(gateway, seletedChracterId),
+                     std::make_shared<SelectCharacterState>(gateway, seletedChracterId),
+                     std::make_shared<GetCharacterDataState>(gateway, seletedChracterId),
+                     std::make_shared<GameSceneState>(gateway, seletedChracterId)};
+        // clang-format on
     }
 
-   private:
+private:
     std::list<std::shared_ptr<IMockState>> scenario_;
     uint32 mockId = 100;
-    wb::optional<uint32> seletedChracterId;
-    CGateway gateway;
+    std::optional<uint32> seletedChracterId;
+    Gateway gateway;
     std::string name;
     Timepoint sentTime_;
 };

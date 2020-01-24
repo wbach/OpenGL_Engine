@@ -11,19 +11,19 @@ namespace GameServer
 namespace Handler
 {
 CharacterControllerHandler::CharacterControllerHandler(Context& context)
-    : common::AbstractHandler(Network::MessageTypes::TransformReq)
+    : common::AbstractHandler(common::MessageTypes::TransformReq)
     , context_(context)
 {
 }
 
-void CharacterControllerHandler::ProcessMessage(const Network::IMessage& message)
+void CharacterControllerHandler::ProcessMessage(uint32 userId, const Network::IMessage& message)
 {
-    auto msg = static_cast<common::TransformMsgReq*>(&message);
+    auto msg = static_cast<const common::TransformMsgReq*>(&message);
 
     if (msg == nullptr)
         return;
 
-    auto characterId = context_.GetUser(message.first).GetUsageCharacterId();
+    auto characterId = context_.GetUser(userId).GetUsageCharacterId();
 
     if (!characterId)
     {
@@ -51,10 +51,10 @@ void CharacterControllerHandler::ProcessMessage(const Network::IMessage& message
 
     switch (msg->action)
     {
-        case Network::TransformAction::PUSH:
+        case common::TransformAction::PUSH:
             characterController->AddState(NetworkActionsConverter::Convert(msg->type));
             break;
-        case Network::TransformAction::POP:
+        case common::TransformAction::POP:
             characterController->RemoveState(NetworkActionsConverter::Convert(msg->type));
             break;
     }
@@ -68,7 +68,7 @@ void CharacterControllerHandler::ProcessMessage(const Network::IMessage& message
 
     for (auto& user : context_.GetUsers())
     {
-        context_.sendMessage_(user.first, tdata.get());
+        context_.sendMessage_(user.first, *tdata);
     }
 }
 }  // namespace Handler

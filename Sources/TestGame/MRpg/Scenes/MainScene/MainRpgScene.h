@@ -12,7 +12,7 @@ class PlayerController;
 class MainRpgScene : public MRpgScene
 {
 public:
-    MainRpgScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
+    MainRpgScene(Network::Gateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
     virtual ~MainRpgScene() override;
     virtual int Initialize() override;
     virtual void PostInitialize() override{}

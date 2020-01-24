@@ -17,10 +17,10 @@ class SelectCharacterHandler : public common::AbstractHandler
     }
 
    protected:
-    virtual void ProcessMessage(const Network::IMessage &message) override;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage &message) override;
 
    private:
-    void SendResponse(bool status, uint32 userId, uint32 characterId, uint32 mapId);
+    void SendResponse(bool status, Network::UserId userId, uint32 characterId, uint32 mapId);
 
    private:
     Context& context_;

@@ -17,7 +17,7 @@ class SelectCharacterHandler : public common::AbstractHandler
     }
 
    protected:
-    virtual void ProcessMessage(const Network::IMessage& message) override;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage& message) override;
     Callback callback_;
 };
 }  // namespace MmmoRpg

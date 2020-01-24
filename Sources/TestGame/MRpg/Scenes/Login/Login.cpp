@@ -3,12 +3,12 @@
 #include "Gateway.h"
 #include "Input/KeyCodeToCharConverter.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
-#include "UtilsNetwork/Messages/Conntection/AuthenticationMessage.h"
+#include "UtilsNetwork/Messages/Connection/AuthenticationMessage.h"
 
 namespace MmmoRpg
 {
 // TO DO: remove pause when fix getdown key in input manager
-LoginScene::LoginScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
+LoginScene::LoginScene(Network::Gateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
     : MRpgScene("LoginScene", gateway, serverAddress, gameContext)
     , cursorTimer_(60, 250)
     , loginOrPasswordInput(false)

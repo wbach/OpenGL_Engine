@@ -17,7 +17,7 @@ struct TransformMsgReq : public Network::IMessage
     TransformAction action     = TransformAction::POP;
     uint32 id                  = 0;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "ID: " + std::to_string(id) + "\nType: " + std::to_string(type) + "\nAction: " + std::to_string(action);
     }

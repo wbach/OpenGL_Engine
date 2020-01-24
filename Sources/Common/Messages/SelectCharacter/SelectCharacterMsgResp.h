@@ -17,7 +17,7 @@ struct SelectCharacterMsgResp : public Network::IMessage
     uint32 mapId = 0;
     MessageStatus status_;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "Selected character ID: " + std::to_string(id) + " on map : " + std::to_string(mapId) +
                " status : " + (status_ == MessageStatus::Ok ? "Ok" : "Fail");

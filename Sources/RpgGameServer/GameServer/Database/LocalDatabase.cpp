@@ -2,16 +2,16 @@
 
 namespace GameServer
 {
-	namespace Database
-	{
-		LocalDatabase::LocalDatabase(std::shared_ptr<IDatabaseWrapper> dataBase)
-			: dataBase_(dataBase)
-		{
-		}
+namespace Database
+{
+LocalDatabase::LocalDatabase(std::shared_ptr<IDatabaseWrapper> dataBase)
+    : dataBase_(dataBase)
+{
+}
 
-		void LocalDatabase::Synchronize()
-		{
-		}
+void LocalDatabase::Synchronize()
+{
+}
 
-	} // DataBase
-} // GameServer
+}  // namespace Database
+}  // namespace GameServer

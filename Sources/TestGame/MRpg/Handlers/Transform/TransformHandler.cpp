@@ -8,7 +8,7 @@ using namespace common::Controllers;
 
 namespace MmmoRpg
 {
-void TransformHandler::ProcessMessage(const Network::IMessage& message)
+void TransformHandler::ProcessMessage(Network::UserId, const Network::IMessage& message)
 {
     auto msg = static_cast<const common::TransformMsgResp*>(&message);
 

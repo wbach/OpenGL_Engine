@@ -14,7 +14,7 @@ class CreateCharacterMsgReq : public Network::IMessage
         memset(characterName_, 0, Network::arraySize);
         CopyToArray(characterName_, name);
     }
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "Selected character ID: " + std::to_string(id);
     }

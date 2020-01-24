@@ -6,6 +6,7 @@
 
 std::string common::to_string(uint8 type)
 {
+    Return(Any);
     Return(TransformReq);
     Return(TransformResp);
     Return(SelectCharacterReq);

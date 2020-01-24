@@ -20,7 +20,7 @@ public:
     }
 
 protected:
-    virtual void ProcessMessage(const Network::IMessage &message) override;
+    virtual void ProcessMessage(Network::UserId, const Network::IMessage &message) override;
     void HandleTransformMsg(const common::TransformMsgResp& msg);
     NetworkCharacterManager& networkCharacterManager_;
 };

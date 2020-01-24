@@ -15,7 +15,7 @@ class CreateCharacterMsgResp : public Network::IMessage
         memset(characterName_, 0, Network::arraySize);
         CopyToArray(characterName_, name);
     }
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "Created character ID: " + std::to_string(id) + " status : " + (status_ == MessageStatus::Ok ? "Ok" : "Fail");
     }

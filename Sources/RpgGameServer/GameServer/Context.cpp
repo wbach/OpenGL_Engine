@@ -22,8 +22,10 @@ void Context::DeleteUser(uint32 id)
 
     users_.erase(id);
 
+    common::DisconnectCharacterMsg disconnectCharacterMsg(usageCharacter.value());
+
     for (const auto& user : users_)
-        sendMessage_(user.first, std::make_unique<common::DisconnectCharacterMsg>(usageCharacter.value()).get());
+        sendMessage_(user.first, disconnectCharacterMsg);
 }
 
 const UsersMap& Context::GetUsers()

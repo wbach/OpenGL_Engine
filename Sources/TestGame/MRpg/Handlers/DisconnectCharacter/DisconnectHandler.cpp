@@ -4,7 +4,7 @@
 
 namespace MmmoRpg
 {
-void DisconnectHandler::ProcessMessage(const Network::IMessage& message)
+void DisconnectHandler::ProcessMessage(Network::UserId, const Network::IMessage& message)
 {
     auto msg = static_cast<const common::DisconnectCharacterMsg*>(&message);
 

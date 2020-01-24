@@ -39,7 +39,7 @@ public:
             return false;
         }
 
-        serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](std::unique_ptr<IMessage> imessage) {
+        serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](auto, std::unique_ptr<IMessage> imessage) {
             auto textMessage = castMessageAs<TextMessage>(imessage.get());
             DEBUG_LOG("Server recevied message : " + textMessage->GetText());
             receviedMessage_ = textMessage->GetText();

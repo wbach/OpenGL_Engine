@@ -12,7 +12,7 @@ struct GetCharactersMsgReq : public Network::IMessage
     {
     }
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "GetCharactersMsgReq";
     }

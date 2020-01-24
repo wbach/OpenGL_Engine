@@ -8,27 +8,11 @@ namespace Network
 class TextMessage : public IMessage
 {
 public:
-    TextMessage()
-        : IMessage(MessageTypes::Text, MessageTarget::Dedicated)
-    {
-        memset(text_, 0, arraySize);
-    }
-    TextMessage(const std::string& text)
-        : IMessage(MessageTypes::Text, MessageTarget::Dedicated)
-    {
-        memset(text_, 0, arraySize);
-        CopyToArray(text_, text);
-    }
+    TextMessage();
+    TextMessage(const std::string& text);
 
-    std::string GetText() const
-    {
-        return text_;
-    }
-
-    virtual std::string ToString() override
-    {
-        return text_;
-    }
+    std::string GetText() const;
+    virtual std::string ToString() const override;
 
 private:
     char text_[arraySize];

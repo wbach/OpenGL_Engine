@@ -18,9 +18,9 @@ public:
     }
 
 protected:
-    virtual void ProcessMessage(const Network::IMessage& message) override;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage& message) override;
     void ProccesGetCharactersDataReq(const Network::IMessage& message);
-    void ProccesGetCharacterDataReq(const Network::IMessage& message);
+    void ProccesGetCharacterDataReq(Network::UserId userId, const Network::IMessage& message);
 
 private:
     Context& context_;

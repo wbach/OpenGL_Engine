@@ -6,14 +6,13 @@ namespace GameServer
 {
 namespace Handler
 {
-void SelectCharacterHandler::ProcessMessage(const Network::IMessage& message)
+void SelectCharacterHandler::ProcessMessage(Network::UserId userId, const Network::IMessage& message)
 {
-    auto msg = static_cast<common::SelectCharacterMsgReq>(&message);
+    auto msg = static_cast<const common::SelectCharacterMsgReq*>(&message);
 
-    if (!msg)
+    if (not msg)
         return;
 
-    auto userId      = message.first;
     auto characterId = msg->id;
 
     auto& user   = context_.GetUser(userId);
@@ -22,11 +21,13 @@ void SelectCharacterHandler::ProcessMessage(const Network::IMessage& message)
     uint32 mapId = 0;
 
     if (hasChar)
+    {
         mapId = context_.databaseWrapper_->GetCharacterData(characterId).value().mapId;
+    }
 
     SendResponse(hasChar, userId, characterId, mapId);
 
-    if (!hasChar)
+    if (not hasChar)
     {
         DEBUG_LOG("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
         return;
@@ -34,16 +35,14 @@ void SelectCharacterHandler::ProcessMessage(const Network::IMessage& message)
 
     context_.manager_.AddHero(characterId);
     user.SetUsageCharacter(characterId);
-
-    // user.GetUsageCharacterId
 }
-void SelectCharacterHandler::SendResponse(bool status, uint32 userId, uint32 characterId, uint32 mapId)
+void SelectCharacterHandler::SendResponse(bool status, Network::UserId userId, uint32 characterId, uint32 mapId)
 {
     auto resp     = std::make_unique<common::SelectCharacterMsgResp>();
     resp->status_ = status ? common::MessageStatus::Ok : common::MessageStatus::Fail;
     resp->id      = characterId;
     resp->mapId   = mapId;
-    context_.sendMessage_(userId, resp.get());
+    context_.sendMessage_(userId, *resp);
 }
 }  // namespace Handler
 }  // namespace GameServer

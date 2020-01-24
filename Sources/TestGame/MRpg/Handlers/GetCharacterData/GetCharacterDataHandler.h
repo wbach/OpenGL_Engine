@@ -31,7 +31,7 @@ private:
     void HandleNetworkCharacterMsg(const common::GetCharacterDataMsgResp& data);
 
 protected:
-    virtual void ProcessMessage(const Network::IMessage& message) override;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage& message) override;
     NetworkCharacterManager& networkCharacterManager_;
 };
 }  // MmmoRpg

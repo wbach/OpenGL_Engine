@@ -12,8 +12,8 @@ public:
     void Update();
 
 private:
-    void OnMessageArrived(std::unique_ptr<Network::IMessage> mesage);
-    void Send(uint32, Network::IMessage*);
+    void OnMessageArrived(uint32 userId, std::unique_ptr<Network::IMessage> mesage);
+    void Send(uint32, const Network::IMessage &message);
     void ProccesSdlEvent();
 
 private:

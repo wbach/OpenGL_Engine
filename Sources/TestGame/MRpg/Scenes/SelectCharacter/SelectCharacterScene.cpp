@@ -13,7 +13,7 @@
 
 namespace MmmoRpg
 {
-SelectCharacterScene::SelectCharacterScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
+SelectCharacterScene::SelectCharacterScene(Network::Gateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
     : MRpgScene("SelectCharacterScene", gateway, serverAddress, gameContext)
     , currentState_(0)
 {

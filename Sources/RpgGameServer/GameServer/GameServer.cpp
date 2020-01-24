@@ -15,10 +15,9 @@ GameServer::GameServer()
     : running_(true)
     , context_(std::make_shared<Database::DatabaseWrapperMock>(), std::bind(&GameServer::Send, this, std::placeholders::_1, std::placeholders::_2))
 {
-    gateway_->StartServer(30, 1991);
-    gateway_->SubscribeForNewUser(std::bind(&Context::NewUser, &context_, std::placeholders::_1, std::placeholders::_2));
-    gateway_->SubscribeForDisconnectUser(std::bind(&Context::DeleteUser, &context_, std::placeholders::_1));
-    // gateway_->SubscribeOnMessageArrived(std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
+    gateway_.StartServer(30, 1991);
+    gateway_.SubscribeForNewUser(std::bind(&Context::NewUser, &context_, std::placeholders::_1, std::placeholders::_2));
+    gateway_.SubscribeForDisconnectUser(std::bind(&Context::DeleteUser, &context_, std::placeholders::_1));
 
     common::AbstractHandlerPtr distributeHandler(new Handler::DistributeHandler(context_));
     common::AbstractHandlerPtr getCharactersHandler(new Handler::GetCharactersHandler(context_));
@@ -26,13 +25,15 @@ GameServer::GameServer()
     common::AbstractHandlerPtr characterControllerHandler(new Handler::CharacterControllerHandler(context_));
     common::AbstractHandlerPtr getCharacterDataHandler(new Handler::GetCharactersDataHandler(context_));
 
-    dispatcher_.AddHandlers({// distributeHandler,
-                             {"distributeHandler", selectCharacterHandler},
-                             {"getCharactersHandler", characterControllerHandler},
-                             {"selectCharacterHandler", getCharactersHandler},
+    // clang-format off
+    dispatcher_.AddHandlers({
+                             {"distributeHandler", distributeHandler},
+                             {"getCharactersHandler", getCharactersHandler},
+                             {"selectCharacterHandler", selectCharacterHandler},
                              {"getCharacterDataHandler", getCharacterDataHandler}});
+    // clang-format on
 
-    gateway_->SubscribeOnMessageArrived("Dispat", std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1));
+    gateway_.SubscribeOnMessageArrived(Network::MessageTypes::Any, std::bind(&GameServer::OnMessageArrived, this, std::placeholders::_1, std::placeholders::_2));
 
     Update();
 }
@@ -44,21 +45,21 @@ void GameServer::Update()
     while (running_)
     {
         timeMeasurer.StartFrame();
-        gateway_->Update();
+        gateway_.Update();
         ProccesSdlEvent();
         context_.manager_.UpdateAllControllers(static_cast<float>(timeMeasurer.GetDeltaTime()));
         timeMeasurer.EndFrame();
     }
 }
 
-void GameServer::OnMessageArrived(std::unique_ptr<Network::IMessage> mesage)
+void GameServer::OnMessageArrived(uint32 userId, std::unique_ptr<Network::IMessage> mesage)
 {
-    dispatcher_.Dispatch(*mesage);
+    dispatcher_.Dispatch(userId, *mesage);
 }
 
-void GameServer::Send(uint32 id, Network::IMessage* ptr)
+void GameServer::Send(uint32 id, const Network::IMessage& message)
 {
-    gateway_->Send(id, ptr);
+    gateway_.Send(id, message);
 }
 
 void GameServer::ProccesSdlEvent()

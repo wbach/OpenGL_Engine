@@ -26,14 +26,14 @@ public:
     {
     }
 
-    bool Handle(const Network::IMessage& message)
+    bool Handle(uint32 userId, const Network::IMessage& message)
     {
         if (!CheckType(message))
             return false;
 
-        ProcessMessage(message);
+        ProcessMessage(userId, message);
 
-        DEBUG_LOG(Network::to_string(message.GetType()));
+        DEBUG_LOG(std::to_string(message.GetType()));
 
         return true;
     }
@@ -53,13 +53,13 @@ public:
     }
 
 protected:
-    virtual void ProcessMessage(const Network::IMessage& message) = 0;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage& message) = 0;
 
     bool CheckType(const Network::IMessage& mesage)
     {
         for (auto type : types_)
         {
-            if (type == Network::MessageTypes::Any)
+            if (type == common::MessageTypes::Any)
                 return true;
 
             if (mesage.GetType() == type)

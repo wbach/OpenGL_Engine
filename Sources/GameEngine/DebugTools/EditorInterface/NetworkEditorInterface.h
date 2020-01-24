@@ -13,7 +13,7 @@ public:
 private:
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
-    void OnMessage(std::unique_ptr<Network::IMessage>);
+    void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
 
 private:
     Network::Gateway gateway_;

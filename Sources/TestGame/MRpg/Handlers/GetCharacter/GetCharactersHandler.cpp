@@ -3,7 +3,7 @@
 
 namespace MmmoRpg
 {
-void GetCharactersHandler::ProcessMessage(const Network::IMessage& message)
+void GetCharactersHandler::ProcessMessage(Network::UserId, const Network::IMessage& message)
 {
     auto msg = static_cast<const common::GetCharactersMsgResp*>(&message);
 

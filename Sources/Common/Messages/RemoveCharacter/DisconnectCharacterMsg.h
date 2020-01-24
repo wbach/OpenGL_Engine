@@ -19,7 +19,7 @@ struct DisconnectCharacterMsg : public Network::IMessage
 
     uint32 id;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "Disconnect : " + std::to_string(id);
     }

@@ -19,7 +19,7 @@ struct TransformMsgResp : public Network::IMessage
     vec3 position;
     vec3 rotation;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "ID: " + std::to_string(id) + "\nType: " + std::to_string(type) + "\nAction: " + std::to_string(action) +
                "\nPosition: " + std::to_string(position) + "\nRotation : " + std::to_string(rotation);

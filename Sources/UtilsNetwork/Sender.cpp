@@ -15,7 +15,7 @@ void Sender::SetMessageFormat(MessageFormat format)
 {
     messageFormat_ = format;
 }
-SentStatus Sender::SendTcp(TCPsocket socket, IMessage& msg)
+SentStatus Sender::SendTcp(TCPsocket socket, const IMessage& msg)
 {
     if (not sendMessageFormat(socket))
         return SentStatus::ERROR;
@@ -43,7 +43,7 @@ bool Sender::sendMessageFormat(TCPsocket socket)
     return true;
 }
 
-bool Sender::sendMessageType(TCPsocket socket, IMessage& msg)
+bool Sender::sendMessageType(TCPsocket socket, const IMessage& msg)
 {
     uint8 type  = msg.GetType();
     auto length = sizeof(uint8);
@@ -58,7 +58,7 @@ bool Sender::sendMessageType(TCPsocket socket, IMessage& msg)
     return true;
 }
 
-bool Sender::sendMessage(TCPsocket socket, IMessage& msg)
+bool Sender::sendMessage(TCPsocket socket, const IMessage &msg)
 {
     for (auto& converter : messageConverters_)
     {

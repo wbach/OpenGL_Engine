@@ -7,17 +7,17 @@ namespace GameServer
 {
 namespace Handler
 {
-void GetCharactersDataHandler::ProcessMessage(const Network::IMessage& message)
+void GetCharactersDataHandler::ProcessMessage(Network::UserId userId, const Network::IMessage& message)
 {
-    if (message.GetType() == Network::MessageTypes::GetCharactersDataReq)
+    if (message.GetType() == common::MessageTypes::GetCharactersDataReq)
         ProccesGetCharactersDataReq(message);
 
-    if (message.GetType() == Network::MessageTypes::GetCharacterDataReq)
-        ProccesGetCharacterDataReq(message);
+    if (message.GetType() == common::MessageTypes::GetCharacterDataReq)
+        ProccesGetCharacterDataReq(userId, message);
 }
 void GetCharactersDataHandler::ProccesGetCharactersDataReq(const Network::IMessage& message)
 {
-    auto msg = static_cast<common::GetCharactersDataMsgReq*>(&message);
+    auto msg = static_cast<const common::GetCharactersDataMsgReq*>(&message);
 
     auto charactersOnMap = context_.manager_.GetAllCharactersInMap(msg->mapId);
 
@@ -32,12 +32,12 @@ void GetCharactersDataHandler::ProccesGetCharactersDataReq(const Network::IMessa
         resp->rotation          = characterContext.transform_.GetRotation();
 
         for (const auto& user : context_.GetUsers())  // TO DO : all character to new user, but only new character to other users
-            context_.sendMessage_(user.first, resp.get());
+            context_.sendMessage_(user.first, *resp);
     }
 }
-void GetCharactersDataHandler::ProccesGetCharacterDataReq(const Network::IMessage& message)
+void GetCharactersDataHandler::ProccesGetCharacterDataReq(Network::UserId userId, const Network::IMessage& message)
 {
-    auto msg = static_cast<common::GetCharacterDataMsgReq*>(&message);
+    auto msg = static_cast<const common::GetCharacterDataMsgReq*>(&message);
 
     auto hero = context_.manager_.GetHero(msg->networkCharacterId);
 
@@ -52,7 +52,7 @@ void GetCharactersDataHandler::ProccesGetCharacterDataReq(const Network::IMessag
     resp->position          = characterContext.transform_.GetPosition();
     resp->rotation          = characterContext.transform_.GetRotation();
 
-    context_.sendMessage_(message.first, resp.get());
+    context_.sendMessage_(userId, *resp);
 }
 }  // namespace Handler
 }  // namespace GameServer

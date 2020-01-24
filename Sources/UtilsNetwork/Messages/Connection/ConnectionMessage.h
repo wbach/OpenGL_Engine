@@ -19,7 +19,7 @@ struct ConnectionMessage : public IMessage
     }
     uint8 connectionStatus = 0;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "ConnectionStatus: " + std::to_string(connectionStatus);
     }

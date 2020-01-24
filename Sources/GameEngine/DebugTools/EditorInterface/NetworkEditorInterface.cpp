@@ -10,7 +10,7 @@ NetworkEditorInterface::NetworkEditorInterface()
     gateway_.StartServer(30, 1991);
     gateway_.SubscribeForNewUser(std::bind(&NetworkEditorInterface::NewUser, this, std::placeholders::_1, std::placeholders::_2));
     gateway_.SubscribeForDisconnectUser(std::bind(&NetworkEditorInterface::DisconnectUser, this, std::placeholders::_1));
-    gateway_.SubscribeOnMessageArrived(Network::MessageTypes::Text, std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1));
+    gateway_.SubscribeOnMessageArrived(Network::MessageTypes::Text, std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 }
 void NetworkEditorInterface::AddObject(const std::string &path)
 {
@@ -24,7 +24,7 @@ void NetworkEditorInterface::DisconnectUser(uint32 id)
 {
     DEBUG_LOG("Disconnect user : {" + std::to_string(id) + "}");
 }
-void NetworkEditorInterface::OnMessage(std::unique_ptr<Network::IMessage> message)
+void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network::IMessage>)
 {
 }
 }  // namespace GameEngine

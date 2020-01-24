@@ -13,7 +13,7 @@ class CharacterControllerHandler : public common::AbstractHandler
     CharacterControllerHandler(Context& context);
 
    protected:
-    virtual void ProcessMessage(const Network::IMessage& message) override;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage& message) override;
 
    private:
     Context& context_;

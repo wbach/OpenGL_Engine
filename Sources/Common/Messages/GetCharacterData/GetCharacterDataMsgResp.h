@@ -19,7 +19,7 @@ struct GetCharacterDataMsgResp : public Network::IMessage
     vec3 position;
     vec3 rotation;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         std::string result = "GetCharacterDataMsgResp{";
         return result + "\n}";

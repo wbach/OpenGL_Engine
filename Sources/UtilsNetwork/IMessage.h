@@ -21,7 +21,7 @@ class IMessage
 {
 public:
     virtual ~IMessage() = default;
-    virtual std::string ToString()
+    virtual std::string ToString() const
     {
         return "---";
     }

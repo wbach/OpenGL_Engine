@@ -113,7 +113,7 @@ void Gateway::Update()
 
             for (auto& sub : v)
             {
-                sub.second(std::move(msg));
+                sub.second(user.first, std::move(msg));
             }
         }
     }
@@ -124,7 +124,7 @@ void Gateway::SetDefaultMessageConverter(MessageFormat format)
     sender_.SetMessageFormat(format);
 }
 
-bool Gateway::Send(uint32 userId, IMessage& message)
+bool Gateway::Send(uint32 userId, const IMessage& message)
 {
     auto i = sender_.SendTcp(context_.users[userId]->socket, message);
     ;
@@ -137,7 +137,8 @@ bool Gateway::Send(uint32 userId, IMessage& message)
 
     return i == SentStatus::OK;
 }
-bool Gateway::Send(IMessage& message)
+
+bool Gateway::Send(const IMessage& message)
 {
     return Send(0, message);
 }

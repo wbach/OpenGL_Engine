@@ -33,7 +33,7 @@ public:
         return password_;
     }
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "Username: " + GetUserName() + "\nPassword: " + GetPassword();
     }

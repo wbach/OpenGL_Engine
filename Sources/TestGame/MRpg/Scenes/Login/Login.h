@@ -13,7 +13,7 @@ namespace MmmoRpg
 class LoginScene : public MRpgScene
 {
 public:
-    LoginScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
+    LoginScene(Network::Gateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext);
     virtual int Initialize() override;
     virtual void PostInitialize() override;
     virtual int Update(float deltaTime) override;

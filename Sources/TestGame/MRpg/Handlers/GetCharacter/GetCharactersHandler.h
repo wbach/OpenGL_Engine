@@ -16,7 +16,7 @@ class GetCharactersHandler : public common::AbstractHandler
     }
 
    protected:
-    virtual void ProcessMessage(const Network::IMessage& message) override;
+    virtual void ProcessMessage(Network::UserId, const Network::IMessage& message) override;
     GetCharacterFunc getCharacter_;
 };
 }  // namespace MmmoRpg

@@ -11,15 +11,15 @@
 #include "TestGame/MRpg/Handlers/DisconnectCharacter/DisconnectHandler.h"
 #include "TestGame/MRpg/Handlers/GetCharacterData/GetCharacterDataHandler.h"
 #include "TestGame/MRpg/Handlers/Transform/TransformHandler.h"
-#include "UtilsNetwork/Messages/GetCharacterData/GetCharactersDataMsgReq.h"
-#include "UtilsNetwork/Messages/RemoveCharacter/DisconnectCharacterMsg.h"
-#include "UtilsNetwork/Messages/TransformMessages/TransformMessageTypes.h"
+#include <Common/Messages/GetCharacterData/GetCharactersDataMsgReq.h>
+#include <Common/Messages/RemoveCharacter/DisconnectCharacterMsg.h>
+#include <Common/Messages/TransformMessages/TransformMessageTypes.h>
 
 using namespace GameEngine;
 
 namespace MmmoRpg
 {
-MainRpgScene::MainRpgScene(Network::CGateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
+MainRpgScene::MainRpgScene(Network::Gateway& gateway, const std::string& serverAddress, MrpgGameContext& gameContext)
     : MRpgScene("MainRpgScene", gateway, serverAddress, gameContext)
 {
 }
@@ -83,9 +83,9 @@ std::unique_ptr<GameEngine::GameObject> MainRpgScene::CreateGameObjectWithDefaul
 void MainRpgScene::ReqNetworkSceneCharacters()
 {
     DEBUG_LOG("Send request");
-    auto characterMsgReq   = std::make_unique<Network::GetCharactersDataMsgReq>();
-    characterMsgReq->mapId = 1;  // hack id : 1
-    gateway_.Send(characterMsgReq.get());
+    common::GetCharactersDataMsgReq characterMsgReq;
+    characterMsgReq.mapId = 1;  // hack id : 1
+    gateway_.Send(characterMsgReq);
 }
 
 void MainRpgScene::OnGetPlayer(NetworkCharacter* character)

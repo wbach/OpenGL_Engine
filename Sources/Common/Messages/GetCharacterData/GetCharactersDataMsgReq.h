@@ -14,7 +14,7 @@ struct GetCharactersDataMsgReq : public Network::IMessage
 
     uint32 mapId;
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         return "GetCharactersMsgReq";
     }

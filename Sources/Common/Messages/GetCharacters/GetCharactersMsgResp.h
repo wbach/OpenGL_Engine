@@ -18,7 +18,7 @@ struct GetCharactersMsgResp : public Network::IMessage
 
     std::optional<CharacterInfo> characterInfo[charactersPerAcount];
 
-    virtual std::string ToString() override
+    virtual std::string ToString() const override
     {
         std::string result = "GetCharactersMsgResp characters: {";
 

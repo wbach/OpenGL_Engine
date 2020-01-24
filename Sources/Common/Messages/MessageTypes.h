@@ -5,7 +5,8 @@ namespace common
 {
 enum MessageTypes
 {
-    TransformReq = 0,
+    Any,
+    TransformReq,
     TransformResp,
     DisconnectCharacter,
     SelectCharacterReq,
@@ -19,6 +20,6 @@ enum MessageTypes
     GetCharactersDataReq
 };
 std::string to_string(uint8 type);
-#define COMMON_MESSAGE_TYPE_RANGE_LOW MessageTypes::TransformReq
+#define COMMON_MESSAGE_TYPE_RANGE_LOW MessageTypes::Any
 #define COMMON_MESSAGE_TYPE_RANGE_HIGH MessageTypes::GetCharactersDataReq
 }  // namespace Network

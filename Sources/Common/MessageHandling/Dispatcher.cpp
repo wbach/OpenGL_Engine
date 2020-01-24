@@ -9,23 +9,34 @@ void Dispacher::SetHandlers(Handlers handlers)
 void Dispacher::AddHandlers(Handlers handlers)
 {
     for (const auto& h : handlers)
-        handlers_[h.first] = h.second;
+    {
+        if (handlers_.count(h.first) == 0)
+        {
+            handlers_.insert({h.first, h.second});
+        }
+        else
+        {
+            DEBUG_LOG("Handler already exist.");
+        }
+    }
 }
 void Dispacher::AddHandler(const std::string& label, AbstractHandler* handlerPtr)
 {
     handlers_[label] = std::shared_ptr<AbstractHandler>(handlerPtr);
 }
-void Dispacher::Dispatch(const Network::IMessage& message)
+void Dispacher::Dispatch(uint32 userId, const Network::IMessage& message)
 {
     bool result = false;
     for (auto& handler : handlers_)
     {
-        if (handler.second->Handle(message))
+        if (handler.second->Handle(userId, message))
             result = true;
     }
 
-    if (!result)
-        DEBUG_LOG("Dispacher::Dispatch message missed.");
+    if (not result)
+    {
+        DEBUG_LOG("Handler not found. Dispacher::Dispatch message missed.");
+    }
 }
 void Dispacher::RemoveHandler(const std::string& label)
 {
