@@ -1,5 +1,5 @@
 #pragma once
-#include "IMessageConverter.h"
+#include "UtilsNetwork/IMessageConverter.h"
 
 namespace Network
 {
