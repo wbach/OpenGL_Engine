@@ -6,6 +6,9 @@ TCP_IP = 'localhost'
 TCP_PORT = 1991
 BUFFER_SIZE = 512
 
+if len(sys.argv) > 0:
+    print("Connecting to {0}".format(sys.argv[1]))
+    TCP_IP=sys.argv[1]
 
 #enum MessageTypes
 Any = chr(251)
