@@ -15,7 +15,7 @@ typedef uint8 IMessageTarget;
 typedef std::vector<int8> IMessageData;
 
 const uint16 arraySize = 256;
-void CopyToArray(char* dest, const std::string& str);
+void CopyToArray(char* dest, const std::string& str, int size = arraySize - 1);
 
 struct MessageHeader
 {

@@ -5,6 +5,8 @@
 
 namespace Network
 {
+static const uint32 TEXT_MSG_ARRAY_SIZE{512};
+
 class TextMessage : public IMessage
 {
 public:
@@ -15,6 +17,6 @@ public:
     virtual std::string ToString() const override;
 
 private:
-    char text_[arraySize];
+    char text_[TEXT_MSG_ARRAY_SIZE];
 };
 }  // namespace Network

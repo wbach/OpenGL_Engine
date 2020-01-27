@@ -14,6 +14,17 @@ public:
         : isConnected_{false}
         , testShortMessage_{"test text message. Hello World!"}
     {
+        testShortMessage_.clear();
+        for(uint32 x = 0; x < TEXT_MSG_ARRAY_SIZE - 1; ++x)
+        {
+            auto c = static_cast<char>(x);
+            if (c == ';' or c == 0)
+            {
+                c = '-';
+            }
+            testShortMessage_.push_back(c);
+        }
+        DEBUG_LOG("testShortMessage_ size : " + std::to_string(testShortMessage_.size()));
     }
 
     void ClientMain()
@@ -27,6 +38,7 @@ public:
         }
 
         TextMessage textMessage(testShortMessage_);
+                DEBUG_LOG("TextMessage textMessage size : " + std::to_string(textMessage.GetText().size()));
         clientGateway_.Send(textMessage);
     }
 
@@ -41,7 +53,8 @@ public:
 
         serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](auto, std::unique_ptr<IMessage> imessage) {
             auto textMessage = castMessageAs<TextMessage>(imessage.get());
-            DEBUG_LOG("Server recevied message : " + textMessage->GetText());
+            auto t = textMessage->GetText();
+            DEBUG_LOG("Server recevied message : " + t + " size : " + std::to_string(t.size()));
             receviedMessage_ = textMessage->GetText();
             isRunning_.store(false);
         });

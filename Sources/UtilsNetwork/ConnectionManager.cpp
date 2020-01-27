@@ -5,7 +5,7 @@
 
 namespace Network
 {
-ConnectionManager::ConnectionManager(Sender& sender, Receiver& receiver, ISDLNetWrapper &sdlNetWrapper, ConectContext& context)
+ConnectionManager::ConnectionManager(Sender& sender, Receiver& receiver, ISDLNetWrapper& sdlNetWrapper, ConectContext& context)
     : context_(context)
     , clientsCount_(0)
     , sdlNetWrapper_(sdlNetWrapper)
@@ -44,7 +44,7 @@ void ConnectionManager::WaitForAuthentication()
 {
     for (auto iter = notAuthenticatedUsers.begin(); iter != notAuthenticatedUsers.end();)
     {
-        if (!ProccessAuthentication(iter))
+        if (not ProccessAuthentication(iter))
             ++iter;
     }
 }
@@ -58,8 +58,15 @@ bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
 {
     auto& user = userIter->second;
 
-
     auto [status, msg] = receiver_.Receive(user->socket);
+
+    if (status == RecvStatus::Disconnect)
+    {
+        --clientsCount_;
+        userIter = notAuthenticatedUsers.erase(userIter);
+        DEBUG_LOG("Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+        return true;
+    }
 
     if (msg == nullptr)
         return false;

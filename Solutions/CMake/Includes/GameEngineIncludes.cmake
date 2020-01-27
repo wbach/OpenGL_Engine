@@ -23,6 +23,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Objects/Particle.h
 ../../Sources/GameEngine/Objects/GameObject.h
 ../../Sources/GameEngine/DebugTools/Console/Console.h
+../../Sources/GameEngine/DebugTools/EditorInterface/XMLMessageConverter.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.h
 ../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h

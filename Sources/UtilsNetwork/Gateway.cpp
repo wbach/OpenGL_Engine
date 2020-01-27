@@ -95,6 +95,7 @@ void Gateway::Update()
 
         if (status == RecvStatus::Disconnect)
         {
+            DEBUG_LOG("Disconnect : " + std::to_string(user.second->id));
             DisconnectUser(user.second->id);
             iter = context_.users.erase(iter);
             continue;

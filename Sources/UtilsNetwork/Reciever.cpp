@@ -66,13 +66,13 @@ std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket so
 std::optional<uint8> Receiver::ReceiveFormat(TCPsocket socket)
 {
     uint8 messageFormat = 0;
-
     if (sdlNetWrapper_.RecvTcp(socket, &messageFormat, sizeof(uint8)))
     {
         DEBUG_LOG(std::string("Receive header, msg type : ") + std::to_string(ConvertFormat(messageFormat)));
+        return messageFormat;
     }
 
-    return messageFormat;
+    return {};
 }
 
 std::optional<uint8> Receiver::ReceiveType(TCPsocket socket)
@@ -113,7 +113,5 @@ std::vector<int8> Receiver::ReceiveMessage(TCPsocket socket)
             return {};
         }
     }
-
-    return result;
 }
 }  // namespace Network

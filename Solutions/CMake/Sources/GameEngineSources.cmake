@@ -16,6 +16,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Objects/GameObject.cpp
 ../../Sources/GameEngine/DebugTools/Console/Console.cpp
 ../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.cpp
+../../Sources/GameEngine/DebugTools/EditorInterface/XMLMessageConverter.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
 ../../Sources/GameEngine/Components/BaseComponent.cpp
