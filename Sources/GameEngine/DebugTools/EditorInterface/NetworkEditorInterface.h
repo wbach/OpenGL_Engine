@@ -7,10 +7,12 @@
 
 namespace GameEngine
 {
+class Scene;
+
 class NetworkEditorInterface : public IEditorInterface
 {
 public:
-    NetworkEditorInterface();
+    NetworkEditorInterface(Scene& scene);
     ~NetworkEditorInterface();
     virtual void AddObject(const std::string&) override;
 
@@ -18,8 +20,10 @@ private:
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
+    void LoadSceneFromFile(const std::vector<std::string>&);
 
 private:
+    Scene& scene_;
     Network::Gateway gateway_;
     std::thread networkThread_;
     std::atomic_bool isRunning_;

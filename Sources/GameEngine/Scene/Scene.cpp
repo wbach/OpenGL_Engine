@@ -29,6 +29,7 @@ Scene::Scene(const std::string& name)
     , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
     , componentFactory_(nullptr)
     , simulatePhysics_(true)
+    , networkEditorInterface_(*this)
 {
 }
 
@@ -178,6 +179,7 @@ void Scene::SaveToFile(const std::string& filename)
 }
 void Scene::LoadFromFile(const std::string& filename)
 {
+    DEBUG_LOG("Load scene from file : " + filename);
     SceneReader::LoadScene(*this, filename);
 }
 

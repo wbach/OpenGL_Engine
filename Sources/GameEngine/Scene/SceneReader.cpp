@@ -412,7 +412,7 @@ void Read(Utils::XmlNode& node, Scene& scene)
 void LoadScene(Scene& scene, const std::string& filename)
 {
     Utils::XmlReader xmlReader;
-    if (!xmlReader.Read(filename))
+    if (not xmlReader.Read(filename))
         return;
 
     currentReadingScene = &scene;

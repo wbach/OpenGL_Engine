@@ -1,6 +1,7 @@
 from tkinter import *
 import socket
 import json
+from tkinter import filedialog
 
 TCP_IP = 'localhost'
 TCP_PORT = 1991
@@ -54,13 +55,18 @@ def connect():
         RecevieConnectionMsg();
         SendAuthenticationMessage();
         RecevieConnectionMsg();
-        SendOpenFileCommand("openFile /home/baszek/test.jpg");
-        s.close()
     except socket.error as exc:
         print("Connecting error: {0}".format(exc))
         return
     except:
         print("Unexpected error:", sys.exc_info()[0])
+
+def OpenFile():
+    filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("scene files","*.xml"),("all files","*.*")))
+    SendOpenFileCommand("openFile " + filename);
+
+def Close():
+    s.close()
 
 window = Tk()
 window.title("Editor")
@@ -68,5 +74,11 @@ window.geometry('350x200')
 
 btn = Button(window, text="Connect", command=connect) 
 btn.grid(column=1, row=0)
+
+btn = Button(window, text="OpenFile", command=OpenFile) 
+btn.grid(column=1, row=1)
+
+btn = Button(window, text="Close", command=Close) 
+btn.grid(column=1, row=2)
 
 window.mainloop()
