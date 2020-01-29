@@ -1,101 +1,96 @@
-#include "ServerCreator.h"
 #include "Logger/Log.h"
 #include "NetworkUtils.h"
+#include "ServerCreator.h"
 
 namespace Network
 {
-	CNetworkCreator::CNetworkCreator(std::shared_ptr<ISDLNetWrapper> sdlNetWrapper)
-		: sdlNetWrapper_(sdlNetWrapper)
-		, isCreated(false)
-	{
-	}
+NetworkCreator::NetworkCreator(ISDLNetWrapper& sdlNetWrapper)
+    : sdlNetWrapper_(sdlNetWrapper)
+    , isCreated(false)
+{
+}
 
-	CNetworkCreator::CNetworkCreator(ISDLNetWrapper* sdlNetWrapper)
-		: sdlNetWrapper_(sdlNetWrapper)
-		, isCreated(false)
-	{
-	}
+NetworkCreator::~NetworkCreator()
+{
+    if (!isCreated)
+        return;
 
-	CNetworkCreator::~CNetworkCreator()
-	{
-		if (!isCreated)
-			return;
+    SDLNet_TCP_Close(context_.socket);
+    SDLNet_FreeSocketSet(context_.socketSet);
+    SDLNet_Quit();
+}
 
-		SDLNet_FreeSocketSet(context_.socketSet);
-		SDLNet_Quit();
-	}	
+bool NetworkCreator::Init()
+{
+    if (sdlNetWrapper_.Init() != -1)
+        return true;
 
-	bool CNetworkCreator::Init()
-	{
-		if (sdlNetWrapper_->Init() != -1)
-			return true;
+    ERROR_LOG("Failed to intialise SDL_net: " + std::string(sdlNetWrapper_.GetError()));
+    return false;
+}
 
-		ERROR_LOG("Failed to intialise SDL_net: " + std::string(sdlNetWrapper_->GetError()));
-		return false;
-	}
+bool NetworkCreator::AllocSocketSet(int count)
+{
+    context_.socketSet = sdlNetWrapper_.AllocSocketSet(count);
 
-	bool CNetworkCreator::AllocSocketSet(int count)
-	{
-		context_.socketSet = sdlNetWrapper_->AllocSocketSet(count);
+    if (context_.socketSet == nullptr)
+    {
+        ERROR_LOG("Failed to allocate the socket set:: " + std::string(sdlNetWrapper_.GetError()));
+        return false;
+    }
 
-		if (context_.socketSet == nullptr)
-		{
-			ERROR_LOG("Failed to allocate the socket set:: " + std::string(sdlNetWrapper_->GetError()));
-			return false;
-		}
-		
-		std::string str = "Allocated socket set with size:  " + std::to_string(context_.maxClients + 1) + ", of which " + std::to_string(context_.maxClients) + " are availble for use by clients.";
-		DEBUG_LOG(str);
-		return true;
-	}
+    std::string str = "Allocated socket set with size:  " + std::to_string(context_.maxClients + 1) + ", of which " + std::to_string(context_.maxClients) + " are availble for use by clients.";
+    DEBUG_LOG(str);
+    return true;
+}
 
-	bool CNetworkCreator::ResolveHost(const char* hostName)
-	{
-		int hostResolved = sdlNetWrapper_->ResolveHost(&context_.serverIP, hostName, context_.port);
+bool NetworkCreator::ResolveHost(const char* hostName)
+{
+    int hostResolved = sdlNetWrapper_.ResolveHost(&context_.serverIP, hostName, context_.port);
 
-		if (hostResolved == -1)
-		{
-			ERROR_LOG("Failed to resolve the server host: " + std::string(sdlNetWrapper_->GetError()));
-			return false;
-		}
+    if (hostResolved == -1)
+    {
+        ERROR_LOG("Failed to resolve the server host: " + std::string(sdlNetWrapper_.GetError()));
+        return false;
+    }
 
-		DEBUG_LOG("Successfully resolved server host to IP: " + UtilsNetwork::IpAddressToString(context_.serverIP));
-		return true;
-	}
+    DEBUG_LOG("Successfully resolved server host to IP: " + UtilsNetwork::IpAddressToString(context_.serverIP));
+    return true;
+}
 
-	bool CNetworkCreator::ResolveIp()
-	{
-		const char* ipResolved = sdlNetWrapper_->ResolveIP(&context_.serverIP);
+bool NetworkCreator::ResolveIp()
+{
+    const char* ipResolved = sdlNetWrapper_.ResolveIP(&context_.serverIP);
 
-		if (ipResolved == nullptr)
-		{
-			ERROR_LOG("Failed to resolve ip: " + std::string(sdlNetWrapper_->GetError()));
-			return false;
-		}
+    if (ipResolved == nullptr)
+    {
+        ERROR_LOG("Failed to resolve ip: " + std::string(sdlNetWrapper_.GetError()));
+        return false;
+    }
 
-		DEBUG_LOG("Ip resolved : " + std::string(ipResolved));
-		return true;
-	}
+    DEBUG_LOG("Ip resolved : " + std::string(ipResolved));
+    return true;
+}
 
-	bool CNetworkCreator::OpenTcp()
-	{
-		// Try to open the server socket
-		context_.socket = sdlNetWrapper_->TCPOpen(&context_.serverIP);
+bool NetworkCreator::OpenTcp()
+{
+    // Try to open the server socket
+    context_.socket = sdlNetWrapper_.TCPOpen(&context_.serverIP);
 
-		if (!context_.socket)
-		{
-			ERROR_LOG("Failed to open the server socket: " + std::string(sdlNetWrapper_->GetError()));
-			return false;
-		}
+    if (!context_.socket)
+    {
+        ERROR_LOG("Failed to open the server socket: " + std::string(sdlNetWrapper_.GetError()));
+        return false;
+    }
 
-		DEBUG_LOG("Sucessfully created server socket.");
-		return true;
-	}
+    DEBUG_LOG("Sucessfully created server socket.");
+    return true;
+}
 
-	bool CNetworkCreator::AddSocketTcp()
-	{
-		int i = sdlNetWrapper_->TCPAddSocket(context_.socketSet, context_.socket);
-		return i != -1;
-	}
+bool NetworkCreator::AddSocketTcp()
+{
+    int i = sdlNetWrapper_.TCPAddSocket(context_.socketSet, context_.socket);
+    return i != -1;
+}
 
-} // Network
+}  // namespace Network

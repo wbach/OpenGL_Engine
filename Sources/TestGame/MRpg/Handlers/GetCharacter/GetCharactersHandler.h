@@ -1,22 +1,22 @@
 #pragma once
-#include "Common/MessageHandling/AbstractHandler.h"
-#include "Messages/GetCharacters/CharacterInfo.h"
+#include <Common/MessageHandling/AbstractHandler.h>
+#include <Common/Messages/GetCharacters/CharacterInfo.h>
 
 namespace MmmoRpg
 {
-	class GetCharactersHandler : public common::AbstractHandler
-	{
-		typedef std::function<void(const std::vector<Network::CharacterInfo>&)> GetCharacterFunc;
-	public:
+class GetCharactersHandler : public common::AbstractHandler
+{
+    typedef std::function<void(const std::vector<common::CharacterInfo>&)> GetCharacterFunc;
 
-		GetCharactersHandler(GetCharacterFunc characters_)
-			: common::AbstractHandler({ Network::MessageTypes::GetCharactersResp })
-			, getCharacter_(characters_)
-		{
-		}
+   public:
+    GetCharactersHandler(GetCharacterFunc characters_)
+        : common::AbstractHandler({common::MessageTypes::GetCharactersResp})
+        , getCharacter_(characters_)
+    {
+    }
 
-	protected:
-		virtual void ProcessMessage(const Network::BoxMessage& message) override;
-		GetCharacterFunc getCharacter_;
-	};
-} // MmmoRpg
+   protected:
+    virtual void ProcessMessage(Network::UserId, const Network::IMessage& message) override;
+    GetCharacterFunc getCharacter_;
+};
+}  // namespace MmmoRpg

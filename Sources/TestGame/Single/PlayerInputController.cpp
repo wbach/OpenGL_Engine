@@ -1,17 +1,15 @@
 #include "PlayerInputController.h"
+#include <Common/Messages/TransformMessages/TransformMsgReq.h>
 #include <algorithm>
 #include <ctime>
 #include "GameEngine/Components/Animation/Animator.h"
 #include "Input/InputManager.h"
-#include "Messages/TransformMessages/TransformMsgReq.h"
 #include "TestGame/MRpg/MrpgGameContext.h"
 #include "UtilsNetwork/Gateway.h"
 
 using namespace common::Controllers::CharacterActions;
 
-PlayerInputController::PlayerInputController(GameEngine::Components::Animator* animator,
-                                             Input::InputManager* manager,
-                                             common::Controllers::CharacterController* characterController)
+PlayerInputController::PlayerInputController(GameEngine::Components::Animator* animator, Input::InputManager* manager, common::Controllers::CharacterController* characterController)
     : inputManager_(manager)
     , animator_(animator)
     , characterController_(characterController)

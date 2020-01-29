@@ -1,17 +1,19 @@
 #pragma once
 #include "Logger/Log.h"
-#include "UtilsNetwork/NetworkTypes.h"
+#include <UtilsNetwork/NetworkTypes.h>
+#include "Common/Messages/MessageTypes.h"
 
 namespace common
 {
-typedef std::vector<Network::MessageTypes> CompatibilityTypes;
+typedef std::vector<common::MessageTypes> CompatibilityTypes;
+
 class AbstractHandler
 {
 public:
     AbstractHandler()
     {
     }
-    AbstractHandler(Network::MessageTypes type)
+    AbstractHandler(common::MessageTypes type)
         : types_({type})
     {
     }
@@ -24,22 +26,22 @@ public:
     {
     }
 
-    bool Handle(const Network::BoxMessage& message)
+    bool Handle(uint32 userId, const Network::IMessage& message)
     {
         if (!CheckType(message))
             return false;
 
-        ProcessMessage(message);
+        ProcessMessage(userId, message);
 
-        DEBUG_LOG(Network::to_string(message.second->GetType()));
+        DEBUG_LOG(std::to_string(message.GetType()));
 
         return true;
     }
 
     template <class T>
-    T* CastToMsgType(Network::IMessagePtr message)
+    T* CastToMsgType(Network::IMessage* message)
     {
-        auto msg = dynamic_cast<T*>(message.get());
+        auto msg = dynamic_cast<T*>(message);
 
         if (msg == nullptr)
         {
@@ -51,16 +53,16 @@ public:
     }
 
 protected:
-    virtual void ProcessMessage(const Network::BoxMessage& message) = 0;
+    virtual void ProcessMessage(Network::UserId userId, const Network::IMessage& message) = 0;
 
-    bool CheckType(const Network::BoxMessage& mesage)
+    bool CheckType(const Network::IMessage& mesage)
     {
         for (auto type : types_)
         {
-            if (type == Network::MessageTypes::Any)
+            if (type == common::MessageTypes::Any)
                 return true;
 
-            if (mesage.second->GetType() == type)
+            if (mesage.GetType() == type)
                 return true;
         }
 

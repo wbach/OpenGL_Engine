@@ -23,6 +23,7 @@ createSrc TerrainGeneration
 createSrc TestGame
 createSrc Utils
 createSrc UtilsNetwork
+createSrc UtilsNetworkTests
 createSrc WindowAppCreator
 createSrc RpgGameServer
 createSrc Common

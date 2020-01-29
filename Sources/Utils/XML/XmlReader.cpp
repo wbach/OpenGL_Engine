@@ -49,7 +49,7 @@ bool XmlReader::Read(const std::string& filename)
     return ReadXml(str);
 }
 
-bool XmlReader::ReadXml(std::string& fileContent)
+bool XmlReader::ReadXml(std::string fileContent)
 {
     rapidxml::xml_document<> document;
 

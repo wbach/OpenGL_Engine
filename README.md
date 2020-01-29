@@ -10,7 +10,8 @@
     CMake possible flags:
 
     -DBUILD_UTILS               : "Build game engine utils"
-    -DBUILD_UTILS_NETWORK       : "Build game engine network utils"
+    -DBUILD_UTILS_NETWORK       : "Build network utils"
+    -DBUILD_UTILS_NETWORK_TESTS : "Build network utils tests"
     -DBUILD_COMMON              : "Build common"
     -DBUILD_LIB_NOISE           : "Build libnoise"
     -DBUILD_GAME_ENGINE         : "Build game engine"

@@ -19,6 +19,7 @@ sudo apt-get install -y libboost-all-dev
 sudo apt-get install -y font-manager
 sudo apt-get install -y lm-sensors
 sudo apt-get install -y clang-format
+sudo apt-get install -y qtcreator
 
 sudo apt-get install -y python-pip
 sudo apt-get install -y python3-pip
@@ -47,6 +48,12 @@ sudo apt-get install -y libfreeimage3 libfreeimage-dev
 sudo apt-get install -y libfreetype6-dev
 sudo apt-get install -y libsdl2-ttf-dev
 
+#onde drive
+sudo apt-get install -y libcurl4-openssl-dev curl git
+sudo apt-get install -y libsqlite3-dev
+curl -fsS https://dlang.org/install.sh | bash -s dmd
+source ~/dlang/dmd-2.076.0/activate
+
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
 sudo apt-get install apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
@@ -58,11 +65,7 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 exit 1
 
-#onde drive
-sudo apt-get install -y libcurl4-openssl-dev curl git
-sudo apt-get install -y libsqlite3-dev
-curl -fsS https://dlang.org/install.sh | bash -s dmd
-source ~/dlang/dmd-2.076.0/activate
+
 
 git clone https://github.com/skilion/onedrive.git ~/onedrive
 cd ~/onedrive

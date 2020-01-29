@@ -1,25 +1,20 @@
-#include "Common/MessageHandling/Dispatcher.h"
+#include "WaitForConfirmationState.h"
+#include <Common/MessageHandling/Dispatcher.h>
+#include <Common/Messages/SelectCharacter/SelectCharacterMsgReq.h>
+#include <UtilsNetwork/Gateway.h>
 #include "TestGame/MRpg/Handlers/SelectCharacter/SelectCharacterHandler.h"
 #include "TestGame/MRpg/MrpgGameContext.h"
-#include "UtilsNetwork/Gateway.h"
-#include "UtilsNetwork/Messages/SelectCharacter/SelectCharacterMsgReq.h"
-#include "WaitForConfirmationState.h"
 
 namespace MmmoRpg
 {
-WaitForConfirmationState::WaitForConfirmationState(common::Dispacher& dispatcher, Network::CGateway& gateway,
-                                                   MrpgGameContext& gameContext, GameEngine::AddEvent& addEvent,
-                                                   std::vector<CharacterSlot>& charactersData)
+WaitForConfirmationState::WaitForConfirmationState(common::Dispacher& dispatcher, Network::Gateway& gateway, MrpgGameContext& gameContext, GameEngine::AddEvent& addEvent, std::vector<CharacterSlot>& charactersData)
     : dispatcher_(dispatcher)
     , gateway_(gateway)
     , gameContext_(gameContext)
     , charactersData_(charactersData)
     , addSceneEvent(addEvent)
 {
-    dispatcher_.AddHandler(
-        "WaitForSelectResponseState",
-        new SelectCharacterHandler(std::bind(&WaitForConfirmationState::SceneToLoad, this, std::placeholders::_1,
-                                             std::placeholders::_2, std::placeholders::_3)));
+    dispatcher_.AddHandler("WaitForSelectResponseState", new SelectCharacterHandler(std::bind(&WaitForConfirmationState::SceneToLoad, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
     SendSelectCharacterReq();
 }
 WaitForConfirmationState::~WaitForConfirmationState()
@@ -28,9 +23,9 @@ WaitForConfirmationState::~WaitForConfirmationState()
 }
 void WaitForConfirmationState::SendSelectCharacterReq()
 {
-    auto characterSelectReq = std::make_unique<Network::SelectCharacterMsgReq>();
-    characterSelectReq->id  = charactersData_[gameContext_.selectedCharacterId.first].characterInfo.id_;
-    gateway_.Send(characterSelectReq.get());
+    common::SelectCharacterMsgReq characterSelectReq;
+    characterSelectReq.id  = charactersData_[gameContext_.selectedCharacterId.first].characterInfo.id_;
+    gateway_.Send(characterSelectReq);
     sentTime_ = std::chrono::high_resolution_clock::now();
     DEBUG_LOG("SelectCharacterScene::SendSelectCharacterReq : Character selected");
     status_ = StateStatus::DONE;

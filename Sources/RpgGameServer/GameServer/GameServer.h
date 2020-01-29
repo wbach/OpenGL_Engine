@@ -12,15 +12,15 @@ public:
     void Update();
 
 private:
-    void OnMessageArrived(const Network::BoxMessage& mesage);
-    void Send(uint32, Network::IMessage*);
+    void OnMessageArrived(uint32 userId, std::unique_ptr<Network::IMessage> mesage);
+    void Send(uint32, const Network::IMessage &message);
     void ProccesSdlEvent();
 
 private:
     bool running_;
     common::Dispacher dispatcher_;
 
-    Network::GatewayPtr gateway_;
+    Network::Gateway gateway_;
     Context context_;
 };
 }  // namespace GameServer

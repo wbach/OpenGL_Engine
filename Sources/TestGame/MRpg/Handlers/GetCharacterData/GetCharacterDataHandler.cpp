@@ -1,12 +1,12 @@
 #include "GetCharacterDataHandler.h"
-#include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
-#include "TestGame/MRpg/Characters/NetworkCharacterManger.h"
+#include <Common/Messages/GetCharacterData/GetCharacterDataMsgResp.h>
+#include <TestGame/MRpg/Characters/NetworkCharacterManger.h>
 
 namespace MmmoRpg
 {
-void GetCharacterDataHandler::ProcessMessage(const Network::BoxMessage& message)
+void GetCharacterDataHandler::ProcessMessage(Network::UserId, const Network::IMessage &message)
 {
-    auto msg = Network::castMessageAs<Network::GetCharacterDataMsgResp>(message.second.get());
+    auto msg = static_cast<const common::GetCharacterDataMsgResp*>(&message);
 
     if (msg == nullptr)
     {
@@ -17,7 +17,7 @@ void GetCharacterDataHandler::ProcessMessage(const Network::BoxMessage& message)
     HandleNetworkCharacterMsg(*msg);
 }
 
-void GetCharacterDataHandler::HandleNetworkCharacterMsg(const Network::GetCharacterDataMsgResp& data)
+void GetCharacterDataHandler::HandleNetworkCharacterMsg(const common::GetCharacterDataMsgResp& data)
 {
     networkCharacterManager_.AddCharacter(data.networkCharcterId, data.characterData.classId, data.position,
                                           data.rotation, data.commonStats);

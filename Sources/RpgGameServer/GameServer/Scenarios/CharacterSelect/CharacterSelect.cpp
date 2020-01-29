@@ -2,15 +2,14 @@
 
 namespace GameServer
 {
-	namespace Scenario
-	{
-		CharacterSelect::CharacterSelect()
-		{
-
-		}
-		ActionStatus CharacterSelect::Perform()
-		{
-			return ActionStatus();
-		}
-	} // Scenario
-} // GameServer
+namespace Scenario
+{
+CharacterSelect::CharacterSelect()
+{
+}
+ActionStatus CharacterSelect::Perform()
+{
+    return ActionStatus();
+}
+}  // namespace Scenario
+}  // namespace GameServer

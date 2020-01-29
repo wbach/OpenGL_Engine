@@ -1,25 +1,26 @@
 #include "GetCharactersHandler.h"
-#include "Messages/GetCharacters/GetCharactersMsgResp.h"
+#include <Common/Messages/GetCharacters/GetCharactersMsgResp.h>
 
 namespace MmmoRpg
 {
-void GetCharactersHandler::ProcessMessage(const Network::BoxMessage& message)
+void GetCharactersHandler::ProcessMessage(Network::UserId, const Network::IMessage& message)
 {
-    auto msg = Network::castMessageAs<Network::GetCharactersMsgResp>(message.second.get());
+    auto msg = static_cast<const common::GetCharactersMsgResp*>(&message);
 
     if (msg == nullptr)
     {
-        DEBUG_LOG("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " +
-                  std::to_string(msg->GetType()));
+        DEBUG_LOG("SelectCharacterScene::WaitForGetCharacterResp, got msg but wrong type : " + std::to_string(message.GetType()));
         return;
     }
 
-    std::vector<Network::CharacterInfo> characters;
+    std::vector<common::CharacterInfo> characters;
     for (const auto& cd : msg->characterInfo)
     {
-        if (!cd)
+        if (not cd)
+        {
             continue;
-        characters.push_back(cd.constValue());
+        }
+        characters.push_back(*cd);
     }
     getCharacter_(characters);
 }

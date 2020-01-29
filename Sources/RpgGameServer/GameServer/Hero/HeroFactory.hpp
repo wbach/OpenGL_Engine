@@ -3,8 +3,8 @@
 
 namespace GameServer
 {
-	namespace HeroFactory
-	{
-		Hero::BaseHeroPtr CreateKnight();
-	} // Hero
-} // GameServer
+namespace HeroFactory
+{
+Hero::BaseHeroPtr CreateKnight();
+}  // namespace HeroFactory
+}  // namespace GameServer

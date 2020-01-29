@@ -1,28 +1,28 @@
 #pragma once
-#include "Scene/SceneFactoryBase.h"
 #include "../MrpgGameContext.h"
+#include "Scene/SceneFactoryBase.h"
 
 namespace Network
 {
-	class CGateway;
-} // Network
+class Gateway;
+}  // namespace Network
 
 namespace MmmoRpg
-{	
-	class SceneFactory : public GameEngine::SceneFactoryBase
-	{
-	public:
-		SceneFactory(Network::CGateway& gateway, std::string& serverAdress, MrpgGameContext& gameContext);
+{
+class SceneFactory : public GameEngine::SceneFactoryBase
+{
+   public:
+    SceneFactory(Network::Gateway& gateway, std::string& serverAdress, MrpgGameContext& gameContext);
 
-	private:
-		GameEngine::ScenePtr CreateMainScene();
-		GameEngine::ScenePtr CreateLoginScene();
-		GameEngine::ScenePtr CreateSelectCharacterScene();
-		GameEngine::ScenePtr CreateGuiEditorScene();
+   private:
+    GameEngine::ScenePtr CreateMainScene();
+    GameEngine::ScenePtr CreateLoginScene();
+    GameEngine::ScenePtr CreateSelectCharacterScene();
+    GameEngine::ScenePtr CreateGuiEditorScene();
 
-	private:
-		Network::CGateway& gateway_;
-		std::string& serverAdress_;
-		MrpgGameContext& gameContext_;
-	};
-}
+   private:
+    Network::Gateway& gateway_;
+    std::string& serverAdress_;
+    MrpgGameContext& gameContext_;
+};
+}  // namespace MmmoRpg

@@ -12,6 +12,7 @@ enum SceneEventType
     LOAD_SCENE_BY_NAME,
     LOAD_SCENE_BY_ID,
     RELOAD_SCENE,
+    LOAD_FROM_FILE,
     EXIT_GAME
 };
 

@@ -2,5 +2,5 @@
 
 namespace Mock
 {
-	void StartMock();
-} // MmmoRpg
+void StartMock();
+}  // namespace Mock

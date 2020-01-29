@@ -1,36 +1,37 @@
 #include "Context.h"
-#include "../../UtilsNetwork/Messages/RemoveCharacter/DisconnectCharacterMsg.h"
+#include "Common/Messages/RemoveCharacter/DisconnectCharacterMsg.h"
 
 namespace GameServer
 {
-
 void Context::NewUser(const std::string& name, uint32 id)
 {
-	std::lock_guard<std::mutex> lk(usersMutex);
-	users_[id] = User(name, id);
-	users_[id].SetCharacters(databaseWrapper_->GetCharacterByUser(id));
+    std::lock_guard<std::mutex> lk(usersMutex);
+    users_[id] = User(name, id);
+    users_[id].SetCharacters(databaseWrapper_->GetCharacterByUser(id));
 }
 
 void Context::DeleteUser(uint32 id)
 {
-	DEBUG_LOG("");
+    DEBUG_LOG("");
 
-	std::lock_guard<std::mutex> lk(usersMutex);
-	auto usageCharacter = users_[id].GetUsageCharacterId();
+    std::lock_guard<std::mutex> lk(usersMutex);
+    auto usageCharacter = users_[id].GetUsageCharacterId();
 
-	if (usageCharacter)
-		manager_.RemoveHero(usageCharacter.value());
+    if (usageCharacter)
+        manager_.RemoveHero(usageCharacter.value());
 
-	users_.erase(id);
+    users_.erase(id);
 
-	for (const auto& user : users_)
-		sendMessage_(user.first, std::make_unique<Network::DisconnectCharacterMsg>(usageCharacter.value()).get());
+    common::DisconnectCharacterMsg disconnectCharacterMsg(usageCharacter.value());
+
+    for (const auto& user : users_)
+        sendMessage_(user.first, disconnectCharacterMsg);
 }
 
-const UsersMap & Context::GetUsers()
+const UsersMap& Context::GetUsers()
 {
-	std::lock_guard<std::mutex> lk(usersMutex);
-	return users_;
+    std::lock_guard<std::mutex> lk(usersMutex);
+    return users_;
 }
 
-} // GameServer
+}  // namespace GameServer

@@ -1,10 +1,13 @@
 set(UtilsNetworkSources
-../../Sources/UtilsNetwork/BoxesGateway.cpp
 ../../Sources/UtilsNetwork/ClientCreator.cpp
 ../../Sources/UtilsNetwork/ConnectionManager.cpp
 ../../Sources/UtilsNetwork/Gateway.cpp
-../../Sources/UtilsNetwork/Messages/IMessage.cpp
+../../Sources/UtilsNetwork/IMessage.cpp
+../../Sources/UtilsNetwork/MessageFormat.cpp
+../../Sources/UtilsNetwork/Messages/BinaryConnectionMessageConverter.cpp
 ../../Sources/UtilsNetwork/Messages/MessageTypes.cpp
+../../Sources/UtilsNetwork/Messages/TextMessage.cpp
+../../Sources/UtilsNetwork/Messages/XmlConnectionMessageConverter.cpp
 ../../Sources/UtilsNetwork/NetworkCreator.cpp
 ../../Sources/UtilsNetwork/NetworkUtils.cpp
 ../../Sources/UtilsNetwork/Reciever.cpp

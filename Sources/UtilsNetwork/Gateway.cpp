@@ -1,43 +1,66 @@
 #include "Gateway.h"
+
 #include <SDL2/SDL_net.h>
+
+#include <algorithm>
 #include <chrono>
 #include <functional>
+
+#include "IMessage.h"
 #include "Logger/Log.h"
-#include "Messages/IMessage.h"
 #include "SDLNetWrapper.h"
 #include "Thread.hpp"
 
+#include "Messages/BinaryConnectionMessageConverter.h"
+#include "Messages/XmlConnectionMessageConverter.h"
+
 namespace Network
 {
-CGateway::CGateway()
-    : CGateway(Utils::Time::CTimeMeasurer(120, false))
+Gateway::Gateway()
+    : Gateway(Utils::Time::CTimeMeasurer(120, false))
 {
 }
 
-CGateway::CGateway(Utils::Time::CTimeMeasurer timeMeasurer)
+Gateway::Gateway(Utils::Time::CTimeMeasurer timeMeasurer)
     : timeMeasurer_(timeMeasurer)
-    , iSDLNetWrapperPtr_(new SDLNetWrapper)
-    , sender_(timeMeasurer_, iSDLNetWrapperPtr_)
-    , receiver_(timeMeasurer_, iSDLNetWrapperPtr_)
-    , connectionManager_(sender_, receiver_, iSDLNetWrapperPtr_, context_)
-    , clientCreator_(sender_, receiver_, iSDLNetWrapperPtr_)
-    , isServer(false)
-    , running(false)
+    , sdlNetWrapper_(std::make_unique<SDLNetWrapper>())
+    , sender_(*sdlNetWrapper_, messageConverters_)
+    , receiver_(*sdlNetWrapper_, messageConverters_)
+    , connectionManager_(sender_, receiver_, *sdlNetWrapper_, context_)
+    , serverCreator_(*sdlNetWrapper_)
+    , clientCreator_(sender_, receiver_, *sdlNetWrapper_)
+    , running_(false)
+    , idPool_(0)
+{
+    messageConverters_.push_back(std::make_unique<XmlConnectionMessageConverter>());
+    messageConverters_.push_back(std::make_unique<BinaryConnectionMessageConverter>());
+}
+
+Gateway::~Gateway()
 {
 }
 
-CGateway::~CGateway()
+bool Gateway::StartServer(uint32 maxClients, uint32 port)
 {
-}
+    DEBUG_LOG("");
+    auto context = serverCreator_.Create(maxClients, port);
 
-void CGateway::StartServer(uint32 maxClients, uint32 port)
-{
-    context_ = serverCreator_.Create(maxClients, port);
-    isServer = true;
-    running  = true;
+    if (not context)
+    {
+        DEBUG_LOG("Server creation failed.");
+        return false;
+    }
+
+    context_           = *context;
+    context_.isServer_ = true;
+    running_           = true;
+
+    return true;
 }
-bool CGateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+bool Gateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
 {
+    DEBUG_LOG("");
+
     auto op_context = clientCreator_.ConnectToServer(username, password, host, port);
 
     if (!op_context)
@@ -49,32 +72,30 @@ bool CGateway::ConnectToServer(const std::string& username, const std::string& p
     context_.users[0]         = std::make_shared<UtilsNetwork::UserData>();
     context_.users[0]->socket = context_.socket;
 
-    running = true;
+    running_ = true;
     return true;
 }
 
-void CGateway::Update()
+void Gateway::Update()
 {
-    if (!running)
+    if (not running_)
         return;
-
-    timeMeasurer_.StartFrame();
 
     if (!connectionManager_.CheckSocketsActivity())
         return;
 
-    if (isServer)
+    if (context_.isServer_)
         connectionManager_.CheckNewConnectionsToServer();
 
     for (auto iter = context_.users.begin(); iter != context_.users.end();)
     {
         auto& user = *iter;
 
-        RecvError err = RecvError::None;
-        auto msg      = receiver_.Receive(user.second->socket, err);
+        auto [status, msg] = receiver_.Receive(user.second->socket);
 
-        if (err == RecvError::Disconnect)
+        if (status == RecvStatus::Disconnect)
         {
+            DEBUG_LOG("Disconnect : " + std::to_string(user.second->id));
             DisconnectUser(user.second->id);
             iter = context_.users.erase(iter);
             continue;
@@ -83,22 +104,33 @@ void CGateway::Update()
         {
             ++iter;
         }
-        if (!msg)
+
+        if (status == RecvStatus::NotReady or not msg)
             continue;
 
-        for (auto& sub : onMessageArrivedSubcribes_)
+        if (onMessageArrivedSubcribes_.count(msg->GetType()) > 0)
         {
-            auto subscribedType = sub.second.first;
-            auto subscribedFunc = sub.second.second;
+            auto& v = onMessageArrivedSubcribes_.at(msg->GetType());
 
-            if (subscribedType == MessageTypes::Any || subscribedType == msg->GetType())
-                subscribedFunc({user.first, msg});
+            for (auto& sub : v)
+            {
+                sub.second(user.first, std::move(msg));
+            }
         }
     }
-    timeMeasurer_.EndFrame();
 }
 
-bool CGateway::Send(uint32 userId, IMessage* message)
+void Gateway::SetDefaultMessageConverterFormat(MessageFormat format)
+{
+    sender_.SetMessageFormat(format);
+}
+
+void Gateway::AddMessageConverter(std::unique_ptr<IMessageConverter> converter)
+{
+    messageConverters_.push_back(std::move(converter));
+}
+
+bool Gateway::Send(uint32 userId, const IMessage& message)
 {
     auto i = sender_.SendTcp(context_.users[userId]->socket, message);
     ;
@@ -111,36 +143,49 @@ bool CGateway::Send(uint32 userId, IMessage* message)
 
     return i == SentStatus::OK;
 }
-bool CGateway::Send(IMessage* message)
+
+bool Gateway::Send(const IMessage& message)
 {
     return Send(0, message);
 }
 
-void CGateway::DisconnectUser(uint32 id)
+void Gateway::DisconnectUser(uint32 id)
 {
     connectionManager_.DisconectUser(id);
     for (auto& sub : disconnectSubscribes_)
         sub(id);
 }
 
-void CGateway::SubscribeForNewUser(CreationFunc func)
+void Gateway::SubscribeForNewUser(CreationFunc func)
 {
     connectionManager_.SubscribeForNewUser(func);
 }
 
-void CGateway::SubscribeOnMessageArrived(const std::string& label, OnMessageArrived func, MessageTypes type)
+uint32 Gateway::SubscribeOnMessageArrived(uint8 messageType, OnMessageArrived func)
 {
-    onMessageArrivedSubcribes_[label] = {type, func};
+    auto id = idPool_++;
+    onMessageArrivedSubcribes_[messageType].push_back({id, func});
+    return id;
 }
-void CGateway::UnsubscribeAllOnMessageArrived()
+void Gateway::UnsubscribeAllOnMessageArrived()
 {
     onMessageArrivedSubcribes_.clear();
 }
-void CGateway::UnsubscrieOnMessageArrived(const std::string& label)
+void Gateway::UnsubscrieOnMessageArrived(uint32 id)
 {
-    onMessageArrivedSubcribes_.erase(label);
+    for (auto& types : onMessageArrivedSubcribes_)
+    {
+        auto& v = types.second;
+
+        auto iter = std::find_if(v.begin(), v.end(), [id](auto& pair) { return id == pair.first; });
+
+        if (iter != v.end())
+        {
+            v.erase(iter);
+        }
+    }
 }
-void CGateway::SubscribeForDisconnectUser(DisconectFunc func)
+void Gateway::SubscribeForDisconnectUser(DisconectFunc func)
 {
     disconnectSubscribes_.push_back(func);
 }

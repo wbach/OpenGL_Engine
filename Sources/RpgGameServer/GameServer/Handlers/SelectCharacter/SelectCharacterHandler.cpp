@@ -1,49 +1,48 @@
 #include "SelectCharacterHandler.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
+#include <Common/Messages/SelectCharacter/SelectCharacterMsgReq.h>
+#include <Common/Messages/SelectCharacter/SelectCharacterMsgResp.h>
 
 namespace GameServer
 {
-	namespace Handler
-	{
-		void SelectCharacterHandler::ProcessMessage(const Network::BoxMessage & message)
-		{
-			auto msg = CastToMsgType<Network::SelectCharacterMsgReq>(message.second);
+namespace Handler
+{
+void SelectCharacterHandler::ProcessMessage(Network::UserId userId, const Network::IMessage& message)
+{
+    auto msg = static_cast<const common::SelectCharacterMsgReq*>(&message);
 
-			if (!msg) return;
+    if (not msg)
+        return;
 
-			auto userId = message.first;
-			auto characterId = msg->id;			
+    auto characterId = msg->id;
 
-			auto& user = context_.GetUser(userId);			
-			bool hasChar = user.HasCharacter(characterId);
+    auto& user   = context_.GetUser(userId);
+    bool hasChar = user.HasCharacter(characterId);
 
-			uint32 mapId = 0;
-			
-			if(hasChar)
-				mapId = context_.databaseWrapper_->GetCharacterData(characterId).value().mapId;
+    uint32 mapId = 0;
 
-			SendResponse(hasChar, userId, characterId, mapId);
+    if (hasChar)
+    {
+        mapId = context_.databaseWrapper_->GetCharacterData(characterId).value().mapId;
+    }
 
-			if (!hasChar)
-			{
-				DEBUG_LOG("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
-				return;
-			}
+    SendResponse(hasChar, userId, characterId, mapId);
 
-			context_.manager_.AddHero(characterId);
-			user.SetUsageCharacter(characterId);
+    if (not hasChar)
+    {
+        DEBUG_LOG("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
+        return;
+    }
 
-			//user.GetUsageCharacterId
-
-		}
-		void SelectCharacterHandler::SendResponse(bool status, uint32 userId, uint32 characterId, uint32 mapId)
-		{
-			auto resp = std::make_unique<Network::SelectCharacterMsgResp>();
-			resp->status_ = status ? Network::MessageStatus::Ok : Network::MessageStatus::Fail;
-			resp->id = characterId;
-			resp->mapId = mapId;
-			context_.sendMessage_(userId, resp.get());
-		}
-	} // Handler
-} // GameServer
+    context_.manager_.AddHero(characterId);
+    user.SetUsageCharacter(characterId);
+}
+void SelectCharacterHandler::SendResponse(bool status, Network::UserId userId, uint32 characterId, uint32 mapId)
+{
+    auto resp     = std::make_unique<common::SelectCharacterMsgResp>();
+    resp->status_ = status ? common::MessageStatus::Ok : common::MessageStatus::Fail;
+    resp->id      = characterId;
+    resp->mapId   = mapId;
+    context_.sendMessage_(userId, *resp);
+}
+}  // namespace Handler
+}  // namespace GameServer

@@ -36,6 +36,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.cpp
 ../../Sources/GameEngine/DebugTools/Console/Console.cpp
+../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.cpp
+../../Sources/GameEngine/DebugTools/EditorInterface/XMLMessageConverter.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
 ../../Sources/GameEngine/Engine/ConfigurationReader.cpp
@@ -57,6 +59,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Framebuffer/FrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.cpp
 ../../Sources/GameEngine/Renderers/GUI/Button/GuiButton.cpp
+../../Sources/GameEngine/Renderers/GUI/ContextMenu/ContextMenu.cpp
 ../../Sources/GameEngine/Renderers/GUI/EditText/GuiEditText.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/GuiElementFactory.cpp

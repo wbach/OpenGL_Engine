@@ -7,7 +7,7 @@ class XmlReader
 {
 public:
     bool Read(const std::string& filename);
-    bool ReadXml(std::string& fileContent);
+    bool ReadXml(std::string fileContent);
     XmlNode* Get(const std::string& name, XmlNode* node = nullptr);
 
 private:

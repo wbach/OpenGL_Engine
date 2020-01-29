@@ -89,6 +89,13 @@ public:
         file.close();
     }
 
+    std::string GetString()
+    {
+        std::stringstream result;
+        result << document_;
+        return result.str();
+    }
+
 private:
     xml_document<> document_;
     std::unique_ptr<XmlNodeWrapper> root_;
@@ -124,4 +131,15 @@ void Xml::Write(const std::string& filename, XmlNode& root)
 
     creator.Save(filename);
 }
+
+std::string Xml::Write(XmlNode &root)
+{
+    XmlCreator creator;
+    auto& builderRoot = creator.CreateRoot(root.GetName(), root.value_);
+
+    WroteNodeMembers(root, builderRoot);
+
+    return creator.GetString();
+}
+
 }  // namespace Utils

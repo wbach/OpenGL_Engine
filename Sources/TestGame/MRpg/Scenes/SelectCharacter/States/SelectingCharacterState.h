@@ -45,6 +45,6 @@ private:
     std::vector<CharacterSlot>& charactersData_;
 
     //GameEngine::GuiTextElement characterSelectText_;
-    wb::optional<int8> currentSelectCharacterId_;
+    std::optional<int8> currentSelectCharacterId_;
 };
 }

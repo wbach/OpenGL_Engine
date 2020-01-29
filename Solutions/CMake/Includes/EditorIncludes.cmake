@@ -1,4 +1,5 @@
 set(EditorIncludes
+../../Sources/Editor/Context.h
 ../../Sources/Editor/Scene/ChooseEditor.h
 ../../Sources/Editor/Scene/EditorScene.h
 ../../Sources/Editor/Scene/FileExplorer.h

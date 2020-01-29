@@ -1,21 +1,32 @@
 #pragma once
-#include "IEditorInterface.hpp"
 #include <UtilsNetwork/Gateway.h>
+#include "IEditorInterface.hpp"
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
 namespace GameEngine
 {
+class Scene;
+
 class NetworkEditorInterface : public IEditorInterface
 {
 public:
-    NetworkEditorInterface();
+    NetworkEditorInterface(Scene& scene);
+    ~NetworkEditorInterface();
     virtual void AddObject(const std::string&) override;
 
 private:
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
-    void OnMessage(const Network::BoxMessage&);
+    void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
+    void LoadSceneFromFile(const std::vector<std::string>&);
 
 private:
-    Network::CGateway gateway_;
+    Scene& scene_;
+    Network::Gateway gateway_;
+    std::thread networkThread_;
+    std::atomic_bool isRunning_;
+    std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commands_;
 };
 }  // namespace GameEngine

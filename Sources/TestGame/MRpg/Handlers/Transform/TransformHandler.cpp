@@ -1,33 +1,33 @@
 #include "TransformHandler.h"
+#include <Common/Messages/TransformMessages/TransformMsgResp.h>
 #include "Common/Controllers/CharacterController/Character.h"
 #include "Common/Controllers/CharacterController/NetworkActionsConverter.h"
-#include "Messages/TransformMessages/TransformMsgResp.h"
 #include "TestGame/MRpg/Characters/NetworkCharacterManger.h"
 
 using namespace common::Controllers;
 
 namespace MmmoRpg
 {
-void TransformHandler::ProcessMessage(const Network::BoxMessage& message)
+void TransformHandler::ProcessMessage(Network::UserId, const Network::IMessage& message)
 {
-    auto msg = Network::castMessageAs<Network::TransformMsgResp>(message.second.get());
+    auto msg = static_cast<const common::TransformMsgResp*>(&message);
 
     if (msg == nullptr)
     {
-        ERROR_LOG("Got msg but wrong type : " + std::to_string(msg->GetType()));
+        ERROR_LOG("Got msg but wrong type : " + std::to_string(message.GetType()));
         return;
     }
     HandleTransformMsg(*msg);
 }
 
-void TransformHandler::HandleTransformMsg(const Network::TransformMsgResp& msg)
+void TransformHandler::HandleTransformMsg(const common::TransformMsgResp& msg)
 {
     auto networkCharacter = networkCharacterManager_.GetCharacter(msg.id);
 
     if (networkCharacter == nullptr)
         return;
 
-    auto &gameObject = networkCharacter->GetGameObject();
+    auto& gameObject = networkCharacter->GetGameObject();
 
     gameObject.worldTransform.SetPosition(msg.position);
     gameObject.worldTransform.SetRotation(msg.rotation);
@@ -37,12 +37,12 @@ void TransformHandler::HandleTransformMsg(const Network::TransformMsgResp& msg)
 
     switch (msg.action)
     {
-        case Network::TransformAction::PUSH:
+        case common::TransformAction::PUSH:
             controller->AddState(NetworkActionsConverter::Convert(msg.type));
             break;
-        case Network::TransformAction::POP:
+        case common::TransformAction::POP:
             controller->RemoveState(NetworkActionsConverter::Convert(msg.type));
             break;
     }
 }
-}  // MmmoRpg
+}  // namespace MmmoRpg

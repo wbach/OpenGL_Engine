@@ -1,86 +1,87 @@
 #include "Sender.h"
 
-#include "Logger/Log.h"
-#include "Messages/Conntection/AuthenticationMessage.h"
-#include "Messages/Conntection/ConnectionMessage.h"
-#include "Messages/GetCharacterData/GetCharacterDataMsgReq.h"
-#include "Messages/GetCharacterData/GetCharacterDataMsgResp.h"
-#include "Messages/GetCharacterData/GetCharactersDataMsgReq.h"
-#include "Messages/GetCharacters/GetCharactersMsgReq.h"
-#include "Messages/GetCharacters/GetCharactersMsgResp.h"
-#include "Messages/Other/OtherMsg.h"
-#include "Messages/RemoveCharacter/DisconnectCharacterMsg.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgReq.h"
-#include "Messages/SelectCharacter/SelectCharacterMsgResp.h"
-#include "Messages/TransformMessages/TransformMsgReq.h"
-#include "Messages/TransformMessages/TransformMsgResp.h"
-#include "Time/TimeMeasurer.h"
-//#include <ctime>
+#include <Logger/Log.h>
+
 namespace Network
 {
-Sender::Sender(Utils::Time::CTimeMeasurer& tm, ISDLNetWrapperPtr sdlNetWrapper)
+Sender::Sender(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>& converters)
     : sdlNetWrapper_(sdlNetWrapper)
-    , timer_(tm)
-    , sentBytes_(0)
+    , messageFormat_(MessageFormat::Binary)
+    , messageConverters_(converters)
 {
-    timer_.AddOnTickCallback(std::bind(&Sender::PrintSentBytesPerSec, this));
 }
 
-#define Convert(messageType, type)                             \
-    case messageType:                                          \
-        if (SendIMessage<type>(socket, msg) != SentStatus::OK) \
-            return SentStatus::ERROR;                          \
-        break;
-
-SentStatus Sender::SendTcp(TCPsocket socket, IMessage* msg)
+void Sender::SetMessageFormat(MessageFormat format)
 {
-    DEBUG_LOG("Times test : Sent time: " + std::to_string(clock() * 1000.0f / (float)CLOCKS_PER_SEC));
-
-    if (msg == nullptr)
-    {
-        DEBUG_LOG("Sender::SendTcp: Try send nullptr msg.");
-        return SentStatus::EMPTY;
-    }
-
-    MessageHeader header;
-    header.msgType = msg->GetType();
-
-    int length     = sizeof(header);
-    auto sentBytes = sdlNetWrapper_->SendTcp(socket, &header, length);
-    // DEBUG_LOG("Sent header bytes : " + std::to_string(sentBytes) + "/" + std::to_string(sizeof(header)));
-
-    if (sentBytes < length)
+    messageFormat_ = format;
+}
+SentStatus Sender::SendTcp(TCPsocket socket, const IMessage& msg)
+{
+    if (not sendMessageFormat(socket))
         return SentStatus::ERROR;
 
-    DEBUG_LOG("Sent : " + Network::to_string(msg->GetType()));
+    if (not sendMessageType(socket, msg))
+        return SentStatus::ERROR;
 
-    sentBytes_ += sentBytes;
-
-    switch (msg->GetType())
-    {
-        Convert(MessageTypes::ConnectionMsg, ConnectionMessage);
-        Convert(MessageTypes::DisconnectCharacter, DisconnectCharacterMsg);
-        Convert(MessageTypes::TransformReq, TransformMsgReq);
-        Convert(MessageTypes::TransformResp, TransformMsgResp);
-        Convert(MessageTypes::Authentication, AuthenticationMessage);
-        Convert(MessageTypes::SelectCharacterReq, SelectCharacterMsgReq);
-        Convert(MessageTypes::SelectCharacterResp, SelectCharacterMsgResp);
-        Convert(MessageTypes::GetCharactersReq, GetCharactersMsgReq);
-        Convert(MessageTypes::GetCharactersResp, GetCharactersMsgResp);
-        Convert(MessageTypes::GetCharacterDataReq, GetCharacterDataMsgReq);
-        Convert(MessageTypes::GetCharacterDataResp, GetCharacterDataMsgResp);
-        Convert(MessageTypes::GetCharactersDataReq, GetCharactersDataMsgReq);
-        Convert(MessageTypes::Other, OtherMsg);
-    }
+    if (not sendMessage(socket, msg))
+        return SentStatus::ERROR;
 
     return SentStatus::OK;
 }
-void Sender::PrintSentBytesPerSec()
+
+bool Sender::sendMessageFormat(TCPsocket socket)
 {
-    auto recvPerSec = sentBytes_;  // / 1000;
-    DEBUG_LOG("Send : " + std::to_string(recvPerSec) + " B/s");
-    std::cout << " Send : " << std::to_string(recvPerSec) << " B/s" << std::endl;
-    sentBytes_ = 0;
+    auto formatValue = Network::ConvertFormat(messageFormat_);
+
+    auto length    = sizeof(uint8);
+    auto sentBytes = sdlNetWrapper_.SendTcp(socket, &formatValue, length);
+
+    if (sentBytes < length)
+        return false;
+
+    DEBUG_LOG("formatValue sent : " + std::to_string(formatValue));
+    return true;
 }
 
+bool Sender::sendMessageType(TCPsocket socket, const IMessage& msg)
+{
+    uint8 type  = msg.GetType();
+    auto length = sizeof(uint8);
+
+    auto sentBytes = sdlNetWrapper_.SendTcp(socket, &type, length);
+
+    if (sentBytes < length)
+        return false;
+
+    DEBUG_LOG("Msssage type sent : " + std::to_string(type));
+
+    return true;
+}
+
+bool Sender::sendMessage(TCPsocket socket, const IMessage &msg)
+{
+    for (auto& converter : messageConverters_)
+    {
+        if (not converter->IsValid(static_cast<uint8>(messageFormat_), msg.GetType()))
+        {
+            continue;
+        }
+
+        auto convertedMsg = converter->Convert(msg);
+
+        auto length = sizeof(uint8) * convertedMsg.size();
+        auto isSent = sdlNetWrapper_.SendTcp(socket, &convertedMsg[0], length);
+
+        if (not isSent)
+        {
+            DEBUG_LOG("Send error.");
+            return false;
+        }
+
+        DEBUG_LOG("Msssage type sent : " + std::to_string(msg.GetType()));
+        return true;
+    }
+
+    return false;
+}
 }  // namespace Network

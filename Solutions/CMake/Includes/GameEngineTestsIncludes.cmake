@@ -3,7 +3,6 @@ set(GameEngineTestsIncludes
 ../../Sources/GameEngineTests/Tests/Mocks/Api/InputManagerMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Camera/CameraMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Components/ComponentFactoryMock.h
-../../Sources/GameEngineTests/Tests/Mocks/Network/SDLNetWrapperMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Renderers/FrameBuffer/FrameBufferMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Renderers/GuiTextFactoryMock.h

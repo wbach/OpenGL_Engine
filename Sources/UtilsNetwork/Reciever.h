@@ -1,59 +1,56 @@
 #pragma once
-#include "Types.h"
-#include "ISDLNetWrapper.h"
-#include "SDLNetWrapper.h"
-#include <memory>
-#include "Logger/Log.h"
+#include <Logger/Log.h>
+#include <Types.h>
 
-namespace Utils
-{
-	namespace Time
-	{
-		class CTimeMeasurer;
-	}
-} // Utils
+#include <memory>
+#include <optional>
+
+#include "IMessageConverter.h"
+#include "ISDLNetWrapper.h"
+#include "MessageFormat.h"
+#include "SDLNetWrapper.h"
 
 namespace Network
 {
-	class IMessage;
+class IMessage;
 
-	enum class RecvError
-	{
-		None,
-		Disconnect,
-		ZeroBytes
-	};
+enum class RecvStatus
+{
+    Ok,
+    NotReady,
+    Disconnect,
+    UnknownConverter
+};
 
-	class Receiver
-	{
-	public:
-		Receiver(Utils::Time::CTimeMeasurer&, ISDLNetWrapperPtr sdlNetWrapper);
-		std::shared_ptr<IMessage> Receive(TCPsocket socket, RecvError& error);
-	
-	private:
-		void PrintRecvBytesPerSec();
+class Receiver
+{
+public:
+    Receiver(ISDLNetWrapper& sdlNetWrapper, std::vector<std::unique_ptr<IMessageConverter>>&);
+    std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receive(TCPsocket socket);
 
-		template<class T>
-		std::shared_ptr<IMessage> GetIMessage(TCPsocket socket, RecvError& error)
-		{
-			T msg;
-			auto recvBytes = sdlNetWrapper_->RecvTcp(socket, &msg, sizeof(msg));
+private:
+    std::optional<uint8> ReceiveFormat(TCPsocket socket);
+    std::optional<uint8> ReceiveType(TCPsocket socket);
+    std::vector<int8> ReceiveMessage(TCPsocket socket);
 
-			if (recvBytes <= 0)
-			{
-				DEBUG_LOG("Recv header bytes : -1, Disconnect.");
-				error = RecvError::Disconnect;
-				return nullptr;
-			}
+//    template <class T>
+//    std::shared_ptr<IMessage> GetIMessage(TCPsocket socket)
+//    {
+//        T msg;
+//        auto recvBytes = sdlNetWrapper_.RecvTcp(socket, &msg, sizeof(msg));
 
-			//DEBUG_LOG("Recv bytes: " + std::to_string(recvBytes) + "Message:\n" + msg.ToString());
-			recvBytes_ += recvBytes;
-			return std::make_shared<T>(msg);
-		}
+//        if (recvBytes <= 0)
+//        {
+//            DEBUG_LOG("Recv header bytes : -1, Disconnect.");
+//            error = RecvStatus::Disconnect;
+//            return nullptr;
+//        }
 
-	private:
-		ISDLNetWrapperPtr sdlNetWrapper_;
-		Utils::Time::CTimeMeasurer& timer_;
-		uint32 recvBytes_;
-	};
-}
+//        return std::make_shared<T>(msg);
+//    }
+
+private:
+    ISDLNetWrapper& sdlNetWrapper_;
+    std::vector<std::unique_ptr<IMessageConverter>>& messageConverters_;
+};
+}  // namespace Network

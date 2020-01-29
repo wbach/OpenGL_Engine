@@ -17,7 +17,7 @@ class Dispacher;
 
 namespace Network
 {
-class CGateway;
+class Gateway;
 }  // namespace Network
 
 namespace MmmoRpg
@@ -25,19 +25,19 @@ namespace MmmoRpg
 class GetCharacterState : public ISelectState
 {
 public:
-    GetCharacterState(common::Dispacher& dispatcher, GameEngine::Renderer::RenderersManager& rendererManager, Network::CGateway& gateway, std::vector<CharacterSlot>& charactersData);
+    GetCharacterState(common::Dispacher& dispatcher, GameEngine::Renderer::RenderersManager& rendererManager, Network::Gateway& gateway, std::vector<CharacterSlot>& charactersData);
     virtual ~GetCharacterState() override;
     virtual void Update() override;
 
 private:
-    void AddSlot(const Network::CharacterInfo& info);
+    void AddSlot(const common::CharacterInfo& info);
     void SlotToRenderer(const CharacterSlot& slot, uint32 id);
-    void GetCharacters(const std::vector<Network::CharacterInfo>& characters);
+    void GetCharacters(const std::vector<common::CharacterInfo>& characters);
     void SendGetCharacter();
 
 private:
     common::Dispacher& dispatcher_;
-    Network::CGateway& gateway_;
+    Network::Gateway& gateway_;
     GameEngine::Renderer::RenderersManager& rendererManager_;
     std::vector<CharacterSlot>& charactersData_;
     vec3 itemsTextColour_;

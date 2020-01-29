@@ -52,6 +52,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
 ../../Sources/GameEngine/DebugTools/Console/Console.h
+../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h
+../../Sources/GameEngine/DebugTools/EditorInterface/XMLMessageConverter.h
 ../../Sources/GameEngine/Engine/AplicationContext.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/ConfigurationReader.h
@@ -84,6 +86,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Framebuffer/IFrameBuffer.h
 ../../Sources/GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.h
 ../../Sources/GameEngine/Renderers/GUI/Button/GuiButton.h
+../../Sources/GameEngine/Renderers/GUI/ContextMenu/ContextMenu.h
 ../../Sources/GameEngine/Renderers/GUI/EditText/GuiEditText.h
 ../../Sources/GameEngine/Renderers/GUI/GuiContainer.h
 ../../Sources/GameEngine/Renderers/GUI/GuiContext.h
@@ -291,6 +294,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Time/Time.h
 ../../Sources/GameEngine/Common/common.hpp
 ../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.hpp
+../../Sources/GameEngine/DebugTools/EditorInterface/IEditorInterface.hpp
 ../../Sources/GameEngine/Display/DisplayManager.hpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/IShadowFrameBuffer.hpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.hpp

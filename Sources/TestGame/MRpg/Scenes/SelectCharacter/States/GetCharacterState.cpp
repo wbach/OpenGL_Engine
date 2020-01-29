@@ -1,26 +1,22 @@
 
-#include "Common/MessageHandling/Dispatcher.h"
-#include "GameEngine/Renderers/RenderersManager.h"
 #include "GetCharacterState.h"
-#include "Logger/Log.h"
+#include <Common/MessageHandling/Dispatcher.h>
+#include <Common/Messages/GetCharacters/GetCharactersMsgReq.h>
+#include <Logger/Log.h>
+#include <UtilsNetwork/Gateway.h>
+#include "GameEngine/Renderers/RenderersManager.h"
 #include "TestGame/MRpg/Handlers/GetCharacter/GetCharactersHandler.h"
-#include "UtilsNetwork/Gateway.h"
-#include "UtilsNetwork/Messages/GetCharacters/GetCharactersMsgReq.h"
 
 namespace MmmoRpg
 {
-GetCharacterState::GetCharacterState(common::Dispacher& dispatcher,
-                                     GameEngine::Renderer::RenderersManager& rendererManager,
-                                     Network::CGateway& gateway, std::vector<CharacterSlot>& charactersData)
+GetCharacterState::GetCharacterState(common::Dispacher& dispatcher, GameEngine::Renderer::RenderersManager& rendererManager, Network::Gateway& gateway, std::vector<CharacterSlot>& charactersData)
     : dispatcher_(dispatcher)
     , gateway_(gateway)
     , rendererManager_(rendererManager)
     , charactersData_(charactersData)
     , itemsTextColour_(0, 162.f / 255.f, 232.f / 255.f)
 {
-    dispatcher_.AddHandler(
-        "GetCharacterStateHandler",
-        new GetCharactersHandler(std::bind(&GetCharacterState::GetCharacters, this, std::placeholders::_1)));
+    dispatcher_.AddHandler("GetCharacterStateHandler", new GetCharactersHandler(std::bind(&GetCharacterState::GetCharacters, this, std::placeholders::_1)));
     SendGetCharacter();
 }
 GetCharacterState::~GetCharacterState()
@@ -30,8 +26,8 @@ GetCharacterState::~GetCharacterState()
 void GetCharacterState::SendGetCharacter()
 {
     DEBUG_LOG("SelectCharacterScene::SendGetCharacter()");
-    auto getCharactersMsgReq = std::make_unique<Network::GetCharactersMsgReq>();
-    gateway_.Send(getCharactersMsgReq.get());
+    common::GetCharactersMsgReq getCharactersMsgReq;
+    gateway_.Send(getCharactersMsgReq);
     sentTime_ = std::chrono::high_resolution_clock::now();
 }
 void GetCharacterState::Update()
@@ -43,14 +39,14 @@ void GetCharacterState::Update()
     DEBUG_LOG("SelectCharacterScene::WaitForSelectCharacterResp : time out. Resend msg.");
     SendGetCharacter();
 }
-void GetCharacterState::GetCharacters(const std::vector<Network::CharacterInfo>& characters)
+void GetCharacterState::GetCharacters(const std::vector<common::CharacterInfo>& characters)
 {
     for (auto& character : characters)
         AddSlot(character);
 
     status_ = StateStatus::DONE;
 }
-void GetCharacterState::AddSlot(const Network::CharacterInfo& info)
+void GetCharacterState::AddSlot(const common::CharacterInfo& info)
 {
     vec2 offsetX(0.25f, 0.f);
     vec2 offsetY(0.0f, -0.1f);

@@ -1,23 +1,20 @@
 #include "DistributeHandler.h"
-#include "Messages/MessageTarget.h"
+#include <UtilsNetwork/MessageTarget.h>
 
 namespace GameServer
 {
-	namespace Handler
-	{
-		void DistributeHandler::ProcessMessage(const Network::BoxMessage& message)
-		{
-			if (!message.second)
-				return;
+namespace Handler
+{
+void DistributeHandler::ProcessMessage(Network::UserId userId, const Network::IMessage &message)
+{
+    switch (message.GetTarget())
+    {
+        case Network::MessageTarget::All:
+            for (uint32 x = 0; x < context_.GetUsers().size(); ++x)
+                context_.sendMessage_(userId, message);
+            break;
+    }
+}
 
-			switch (message.second->GetTarget())
-			{
-			case Network::MessageTarget::All:
-				for (uint32 x =0; x < context_.GetUsers().size(); ++x)
-					context_.sendMessage_(message.first, message.second.get());
-				break;
-			}
-		}
-
-	} // Handler
-} // GameServer
+}  // namespace Handler
+}  // namespace GameServer
