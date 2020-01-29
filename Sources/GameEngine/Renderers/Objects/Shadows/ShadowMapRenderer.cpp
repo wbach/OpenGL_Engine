@@ -137,6 +137,9 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
     int meshId = 0;
     for (const auto& mesh : meshes)
     {
+        if (not mesh.IsInit())
+            continue;
+
         const auto& buffers = mesh.GetBuffers();
 
         context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);

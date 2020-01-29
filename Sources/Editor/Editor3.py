@@ -1,13 +1,18 @@
 from tkinter import *
 from tkinter.ttk import *
+from tkinter import filedialog
+from tkinter import messagebox
 
 import socket
 import json
-from tkinter import filedialog
+import pathlib
+
+import subprocess
 
 TCP_IP = 'localhost'
 TCP_PORT = 1991
 BUFFER_SIZE = 512
+CONNECTED = False
 
 if len(sys.argv) > 1:
     print("Connecting to {0}".format(sys.argv[1]))
@@ -53,20 +58,51 @@ def SendOpenFileCommand(cmd):
 def connect():
     try:
         s.connect(server_address)
+        CONNECTED = True
         print("Connected.")
-        RecevieConnectionMsg();
-        SendAuthenticationMessage();
-        RecevieConnectionMsg();
+        RecevieConnectionMsg()
+        SendAuthenticationMessage()
+        RecevieConnectionMsg()
+        return True
     except socket.error as exc:
-        print("Connecting error: {0}".format(exc))
-        return
+        #print("Connecting error: {0}".format(exc))
+        messagebox.showerror(title="Error", message=exc)
     except:
-        print("Unexpected error:", sys.exc_info()[0])
+        #print("Unexpected error:", sys.exc_info()[0])
+        messagebox.showerror(title="Error", message=sys.exc_info()[0])
+    return False
+
+def AskAndTryConnect(msg, func):
+    if not CONNECTED:
+        while True:
+            answer = messagebox.askyesno(title="Error", message= msg)
+            if answer:
+                if func():
+                    return True
+            else:
+                return False
+    return False
 
 def OpenFile():
-    filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("scene files","*.xml"),("all files","*.*")))
-    if filename:
-        SendOpenFileCommand("openFile " + filename);
+    if not AskAndTryConnect("System not connected. Do you want connect?", connect):
+        return
+
+    try:
+        initDir="/"
+        if pathlib.Path("h.tmp").exists():
+            file = open("h.tmp","r") 
+            initDir = file.readline()[:-1]
+            print(initDir)
+            file.close()
+
+        filename = filedialog.askopenfilename(initialdir = initDir,title = "Select file",filetypes = (("scene files","*.xml"),("all files","*.*")))
+        if filename:
+            file = open("h.tmp","w")
+            file.write(str(pathlib.Path(filename).parent) + "/") 
+            file.close()
+            SendOpenFileCommand("openFile " + filename);
+    except:
+        messagebox.showerror(title="Error", message=sys.exc_info()[0])
 
 def Close():
     s.close()
@@ -115,5 +151,7 @@ menubar.add_cascade(label="File", menu=filemenu)
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=window.quit)
 window.config(menu=menubar)
+
+pid=subprocess.Popen(["/home/bach/Projects/OpenGL_Engine/build/Editor"]).pid
 
 window.mainloop()

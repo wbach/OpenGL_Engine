@@ -13,7 +13,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
 {
     commands_.insert({"openFile", [&](const std::vector<std::string> &v) { LoadSceneFromFile(v); }});
 
-    DEBUG_LOG("Starting server...");
+    DEBUG_LOG("Starting server");
     gateway_.StartServer(30, 1991);
     gateway_.SetDefaultMessageConverterFormat(Network::MessageFormat::Xml);
     gateway_.SubscribeForNewUser(
@@ -25,6 +25,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
     networkThread_ = std::thread([&]() {
+        DEBUG_LOG("Starting gateway thread");
+
         while (isRunning_.load())
         {
             gateway_.Update();
