@@ -29,7 +29,6 @@ Scene::Scene(const std::string& name)
     , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
     , componentFactory_(nullptr)
     , simulatePhysics_(true)
-    , networkEditorInterface_(*this)
 {
 }
 
@@ -198,5 +197,10 @@ void Scene::PostInitialize()
 int Scene::Update(float)
 {
     return 0;
+}
+
+void Scene::RunNetworkEditorInterface()
+{
+    networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this);
 }
 }  // namespace GameEngine

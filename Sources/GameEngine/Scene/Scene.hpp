@@ -90,6 +90,7 @@ public:
     void SaveToFile(const std::string& filename);
     void LoadFromFile(const std::string& filename);
     void LoadPrefab(const std::string& filename, const std::string& name);
+    void RunNetworkEditorInterface();
 
 public:
     uint32 objectCount;
@@ -134,7 +135,7 @@ protected:
 private:
     void CreateResourceManger(GraphicsApi::IGraphicsApi&);
 
-    NetworkEditorInterface networkEditorInterface_;
+    std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;
     friend class Debug::Console;
 };

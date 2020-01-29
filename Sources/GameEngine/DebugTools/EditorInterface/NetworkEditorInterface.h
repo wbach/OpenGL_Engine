@@ -21,6 +21,7 @@ private:
     void DisconnectUser(uint32);
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
     void LoadSceneFromFile(const std::vector<std::string>&);
+    void GetObjectList(const std::vector<std::string>&);
 
 private:
     Scene& scene_;
@@ -28,5 +29,7 @@ private:
     std::thread networkThread_;
     std::atomic_bool isRunning_;
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commands_;
+
+    uint32 userId_;
 };
 }  // namespace GameEngine

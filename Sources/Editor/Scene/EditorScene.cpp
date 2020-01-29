@@ -17,7 +17,12 @@ EditorScene::~EditorScene()
 }
 int EditorScene::Initialize()
 {
-    resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
+    RunNetworkEditorInterface();
+    //resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
+
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
+    LoadFromFile(sceneFile);
+
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
     return 0;
 }

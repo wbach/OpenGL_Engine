@@ -3,6 +3,8 @@ from tkinter.ttk import *
 from tkinter import filedialog
 from tkinter import messagebox
 
+from lxml import objectify
+
 import socket
 import json
 import pathlib
@@ -51,18 +53,39 @@ def SendAuthenticationMessage():
     msg = "<AuthenticationMessage username=\"baszek\" password=\"haslo\"/>"
     SendMsg(msg, Authentication);
 
-def SendOpenFileCommand(cmd):
+def SendCommand(cmd):
     msg = "<TextMessage text=\"" + cmd + "\"/>"
     SendMsg(msg, Text);
+
+def GetObjectList():
+    SendCommand("getObjectList")
+    count = 0
+    while(True):
+        msg = RecevieMsg()[:-1]
+        print("RecevieMsg:")
+        print(msg)
+
+        main = objectify.fromstring(msg)
+        if main.tag == "TextMessage":
+            if main.get("text") == "end":
+                break;
+        if main.tag == "GameObject":
+            print("insert")
+            #tree.insert(folder1, "end", None, text="t", values=("", "","--"))
+            count = count + 1
+
+    print("Objects count : {0}".format(count))
 
 def connect():
     try:
         s.connect(server_address)
+        #sock.settimeout(10.0)
         CONNECTED = True
         print("Connected.")
         RecevieConnectionMsg()
         SendAuthenticationMessage()
         RecevieConnectionMsg()
+        GetObjectList()
         return True
     except socket.error as exc:
         #print("Connecting error: {0}".format(exc))
@@ -100,7 +123,7 @@ def OpenFile():
             file = open("h.tmp","w")
             file.write(str(pathlib.Path(filename).parent) + "/") 
             file.close()
-            SendOpenFileCommand("openFile " + filename);
+            SendCommand("openFile " + filename);
     except:
         messagebox.showerror(title="Error", message=sys.exc_info()[0])
 
@@ -128,10 +151,10 @@ tree.heading("two", text="Type")
 tree.heading("three", text="Size")
 
 # Level 1
-folder1=tree.insert("", 1, None, text="Folder 1", values=("23-Jun-17 11:05","File folder",""))
+#folder1=tree.insert("", 1, None, text="Folder 1", values=("23-Jun-17 11:05","File folder",""))
 # tree.insert("", 2, "", text="text_file.txt", values=("23-Jun-17 11:25","TXT file","1 KB"))
 # # Level 2
-tree.insert(folder1, "end", None, text="photo1.png", values=("23-Jun-17 11:28","PNG file","2.6 KB"))
+#tree.insert(folder1, "end", None, text="photo1.png", values=("23-Jun-17 11:28","PNG file","2.6 KB"))
 
 # tree.insert(folder1, "end", "", text="photo2.png", values=("23-Jun-17 11:29","PNG file","3.2 KB"))
 # tree.insert(folder1, "end", "", text="photo3.png", values=("23-Jun-17 11:30","PNG file","3.1 KB"))
@@ -152,6 +175,6 @@ filemenu.add_separator()
 filemenu.add_command(label="Exit", command=window.quit)
 window.config(menu=menubar)
 
-pid=subprocess.Popen(["/home/bach/Projects/OpenGL_Engine/build/Editor"]).pid
+#pid=subprocess.Popen(["/home/bach/Projects/OpenGL_Engine/build/Editor"]).pid
 
 window.mainloop()

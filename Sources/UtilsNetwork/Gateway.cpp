@@ -132,7 +132,13 @@ void Gateway::AddMessageConverter(std::unique_ptr<IMessageConverter> converter)
 
 bool Gateway::Send(uint32 userId, const IMessage& message)
 {
-    auto i = sender_.SendTcp(context_.users[userId]->socket, message);
+    if (context_.users.count(userId) == 0)
+    {
+        DEBUG_LOG("User not found: Id : " + std::to_string(userId));
+        return false;
+    }
+
+    auto i = sender_.SendTcp(context_.users.at(userId)->socket, message);
     ;
 
     if (i == SentStatus::ERROR)

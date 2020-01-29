@@ -26,9 +26,10 @@ public:
     void SetMessageFormat(MessageFormat format);
 
 private:
+    Network::IMessageConverter* GetConverter(const IMessage&);
     bool sendMessageFormat(TCPsocket socket);
     bool sendMessageType(TCPsocket socket, const IMessage& msg);
-    bool sendMessage(TCPsocket socket, const IMessage& msg);
+    bool sendMessage(TCPsocket socket, const IMessage& msg, Network::IMessageConverter&);
 
     template <class T>
     SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
