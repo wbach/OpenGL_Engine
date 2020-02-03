@@ -1,4 +1,5 @@
 import socket
+import tkinter as tk
 
 #enum MessageTypes
 Any = chr(251)
@@ -54,10 +55,10 @@ class NetworkClient:
             return True
         except socket.error as exc:
             #print("Connecting error: {0}".format(exc))
-            messagebox.showerror(title="Error", message=exc)
+            tk.messagebox.showerror(title="Error", message=exc)
         except:
             #print("Unexpected error:", syself.socket_.exc_info()[0])
-            messagebox.showerror(title="Error", message=syself.socket_.exc_info())
+            tk.messagebox.showerror(title="Error", message=syself.socket_.exc_info())
         return False
 
     def IsConnected(self):

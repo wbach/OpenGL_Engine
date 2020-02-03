@@ -92,25 +92,24 @@ void NetworkEditorInterface::LoadSceneFromFile(const std::vector<std::string> &a
     scene_.LoadFromFile(args[1]);
 }
 
-void SendChildrenObjectList(uint32 userId, Network::Gateway& gateway, uint32 parentId /*, const std::vector<std::unique_ptr<GameObject>>& objectList*/)
+void SendChildrenObjectList(uint32 userId, Network::Gateway& gateway, uint32 parentId, const std::vector<std::unique_ptr<GameObject>>& objectList)
 {
-//     GameObject* ptr;
+    if (objectList.empty())
+    {
+        DEBUG_LOG("No children found. Parent id : " + std::to_string(parentId));
+        return;
+    }
 
-//    if (not objectList.empty())
-//    {
-//        return;
-//    }
+    for (auto &go : objectList)
+    {
+        GameObjectMsg message(go->GetName());
+        message.id = go->GetId();
+        message.parentId = parentId;
+        gateway.Send(userId, message);
 
-//    for (auto &go : objectList)
-//    {
-//        GameObjectMsg message(go->GetName());
-//        message.id = go->GetId();
-//        message.parentId = parentId;
-//        gateway.Send(userId, message);
-
-//        auto& children = go->GetChildrens();
-//        SendGameObjectList(userId, gateway, children);
-//    }
+        const auto& children = go->GetChildrens();
+        SendChildrenObjectList(userId, gateway, go->GetId(), children);
+    }
 }
 
 void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
@@ -125,7 +124,7 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
             GameObjectMsg message(go.second->GetName());
             message.id = go.second->GetId();
             gateway_.Send(userId_, message);
-            SendChildrenObjectList(userId_, gateway_, go.second->GetId()/*, go.second->GetChildrens()*/);
+            SendChildrenObjectList(userId_, gateway_, go.second->GetId(), go.second->GetChildrens());
         }
     }
 

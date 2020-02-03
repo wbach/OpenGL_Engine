@@ -3,12 +3,12 @@
 
 namespace GameEngine
 {
-enum MessageTypes
+enum class MessageTypes
 {
     Any,
     GameObject,
 };
-std::string to_string(uint8 type);
+std::string to_string(MessageTypes type);
 #define NETWORK_INTERFACE_MESSAGE_TYPE_RANGE_LOW GameEngine::MessageTypes::Any
 #define NETWORK_INTERFACE_TYPE_RANGE_HIGH GameEngine::MessageTypes::GameObject
 }  // namespace Network

@@ -15,7 +15,7 @@ public:
 
     }
     GameObjectMsg(const std::string& name)
-        : IMessage(MessageTypes::GameObject, Network::MessageTarget::All)
+        : IMessage(static_cast<uint8>(MessageTypes::GameObject), Network::MessageTarget::All)
     {
         memset(name_, 0, Network::arraySize);
         Network::CopyToArray(name_, name);
