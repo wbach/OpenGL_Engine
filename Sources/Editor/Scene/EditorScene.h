@@ -17,6 +17,9 @@ public:
     virtual int Update();
 
 private:
+    void AddGameObjects(GameEngine::GameObject*, int lvl);
+
+private:
     Context& context_;
     double timeClock = 0;
 };

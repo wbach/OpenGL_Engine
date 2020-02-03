@@ -92,6 +92,27 @@ void NetworkEditorInterface::LoadSceneFromFile(const std::vector<std::string> &a
     scene_.LoadFromFile(args[1]);
 }
 
+void SendChildrenObjectList(uint32 userId, Network::Gateway& gateway, uint32 parentId /*, const std::vector<std::unique_ptr<GameObject>>& objectList*/)
+{
+//     GameObject* ptr;
+
+//    if (not objectList.empty())
+//    {
+//        return;
+//    }
+
+//    for (auto &go : objectList)
+//    {
+//        GameObjectMsg message(go->GetName());
+//        message.id = go->GetId();
+//        message.parentId = parentId;
+//        gateway.Send(userId, message);
+
+//        auto& children = go->GetChildrens();
+//        SendGameObjectList(userId, gateway, children);
+//    }
+}
+
 void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
 {
     DEBUG_LOG("");
@@ -104,6 +125,7 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
             GameObjectMsg message(go.second->GetName());
             message.id = go.second->GetId();
             gateway_.Send(userId_, message);
+            SendChildrenObjectList(userId_, gateway_, go.second->GetId()/*, go.second->GetChildrens()*/);
         }
     }
 

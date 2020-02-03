@@ -17,6 +17,7 @@ public:
     virtual ~GameObject();
     GameObject(const GameObject&&) = delete;
 
+    void AddChild(std::unique_ptr<GameObject>);
     inline const std::string& GetName() const;
     inline const std::vector<std::unique_ptr<GameObject>>& GetChildrens();
     inline uint32 GetId() const;

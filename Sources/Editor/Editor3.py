@@ -1,3 +1,4 @@
+from NetworkUtils import NetworkClient
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog
@@ -5,7 +6,6 @@ from tkinter import messagebox
 
 from lxml import objectify
 
-import socket
 import json
 import pathlib
 
@@ -13,62 +13,21 @@ import subprocess
 
 TCP_IP = 'localhost'
 TCP_PORT = 1991
-BUFFER_SIZE = 512
-CONNECTED = False
 
 if len(sys.argv) > 1:
     print("Connecting to {0}".format(sys.argv[1]))
     TCP_IP=sys.argv[1]
 
-#enum MessageTypes
-Any = chr(251)
-Ping = chr(252)
-ConnectionMsg = chr(253)
-Authentication = chr(254)
-Text = chr(255)
-EncodeFormat = 'iso-8859-15'
+networkClient = NetworkClient(TCP_IP, TCP_PORT)
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = (TCP_IP, TCP_PORT)
-recevieBuffer=""
-
-def donothing():
+def DoNothing():
     return
 
-def SendMsg(msg, type):
-    s.send(chr(4).encode(EncodeFormat))
-    s.send(type.encode(EncodeFormat))
-    print("Sent msg size : {0}".format(len(msg)))
-    s.send(len(msg).to_bytes(4, byteorder="little"))
-    s.send(msg.encode(EncodeFormat))
-
-def RecevieMsg():
-    global recevieBuffer
-    msgFormat = s.recv(1)
-    print("msgFormat : {0}".format(ord(msgFormat)))
-    msgType = s.recv(1)
-    print("msgType : {0}".format(ord(msgType)))
-    msgSizeBytes = s.recv(4)
-    msgSize = int.from_bytes(msgSizeBytes, "little")
-    print("msgSize : {0}".format(msgSize))
-    return s.recv(msgSize).decode(EncodeFormat)
-
-def RecevieConnectionMsg():
-    print("msg data: {0}".format(RecevieMsg()));
-
-def SendAuthenticationMessage():
-    msg = "<AuthenticationMessage username=\"baszek\" password=\"haslo\"/>"
-    SendMsg(msg, Authentication);
-
-def SendCommand(cmd):
-    msg = "<TextMessage text=\"" + cmd + "\"/>"
-    SendMsg(msg, Text);
-
 def GetObjectList():
-    SendCommand("getObjectList")
+    networkClient.SendCommand("getObjectList")
     count = 0
     while(True):
-        msg = RecevieMsg()
+        msg = networkClient.RecevieMsg()
         print("RecevieMsg:")
         print(msg)
         print("===============")
@@ -84,27 +43,8 @@ def GetObjectList():
 
     print("Objects count : {0}".format(count))
 
-def connect():
-    try:
-        s.connect(server_address)
-        #sock.settimeout(10.0)
-        CONNECTED = True
-        print("Connected.")
-        RecevieConnectionMsg()
-        SendAuthenticationMessage()
-        RecevieConnectionMsg()
-        GetObjectList()
-        return True
-    except socket.error as exc:
-        #print("Connecting error: {0}".format(exc))
-        messagebox.showerror(title="Error", message=exc)
-    except:
-        #print("Unexpected error:", sys.exc_info()[0])
-        messagebox.showerror(title="Error", message=sys.exc_info())
-    return False
-
 def AskAndTryConnect(msg, func):
-    if not CONNECTED:
+    if not networkClient.IsConnected():
         while True:
             answer = messagebox.askyesno(title="Error", message= msg)
             if answer:
@@ -114,8 +54,12 @@ def AskAndTryConnect(msg, func):
                 return False
     return False
 
+def Connect():
+    networkClient.Connect()
+    GetObjectList()
+
 def OpenFile():
-    if not AskAndTryConnect("System not connected. Do you want connect?", connect):
+    if not AskAndTryConnect("System not connected. Do you want connect?", Connect):
         return
 
     try:
@@ -169,11 +113,11 @@ tree.heading("three", text="Size")
 
 menubar = Menu(window)
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="Connect", command=connect)
-filemenu.add_command(label="New", command=donothing)
+filemenu.add_command(label="Connect", command=Connect)
+filemenu.add_command(label="New", command=DoNothing)
 filemenu.add_command(label="Open", command=OpenFile)
-filemenu.add_command(label="Save", command=donothing)
-filemenu.add_command(label="Save as...", command=donothing)
+filemenu.add_command(label="Save", command=DoNothing)
+filemenu.add_command(label="Save as...", command=DoNothing)
 filemenu.add_command(label="Close", command=Close)
 menubar.add_cascade(label="File", menu=filemenu)
 filemenu.add_separator()

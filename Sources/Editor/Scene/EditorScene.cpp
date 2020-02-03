@@ -26,6 +26,7 @@ int EditorScene::Initialize()
     for (uint32 i = 0; i < 4; ++i)
     {
         auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
+        AddGameObjects(go.get(), 3);
         AddGameObject(go);
     }
 
@@ -35,5 +36,20 @@ int EditorScene::Initialize()
 int EditorScene::Update()
 {
     return 0;
+}
+
+void EditorScene::AddGameObjects(GameObject* go, int lvl)
+{
+    if (lvl == 0)
+    {
+        return;
+    }
+
+    for (uint32 i = 0; i < 4; ++i)
+    {
+        auto newGo = CreateGameObject(go->GetName() + "_" + std::to_string(i));
+        AddGameObjects(newGo.get(), lvl - 1);
+        go->AddChild(std::move(newGo));
+    }
 }
 }  // namespace Editor

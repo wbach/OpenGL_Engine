@@ -16,6 +16,11 @@ GameObject::~GameObject()
 {
 }
 
+void GameObject::AddChild(std::unique_ptr<GameObject> go)
+{
+    childrens.push_back(std::move(go));
+}
+
 void GameObject::RegisterComponentFunctions()
 {
     for (const auto& c : components_)
