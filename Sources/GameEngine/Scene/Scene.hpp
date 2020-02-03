@@ -91,6 +91,7 @@ public:
     void LoadFromFile(const std::string& filename);
     void LoadPrefab(const std::string& filename, const std::string& name);
     void RunNetworkEditorInterface();
+    void StopNetworkEditorInterface();
 
 public:
     uint32 objectCount;

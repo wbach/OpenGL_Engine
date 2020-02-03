@@ -1,5 +1,5 @@
 #include "Sender.h"
-
+#include <algorithm>
 #include <Logger/Log.h>
 
 namespace Network
@@ -76,7 +76,14 @@ bool Sender::sendMessageType(TCPsocket socket, const IMessage& msg)
 bool Sender::sendMessage(TCPsocket socket, const IMessage& msg, IMessageConverter& converter)
 {
     auto convertedMsg = converter.Convert(msg);
-    auto length       = static_cast<int>(sizeof(uint8) * convertedMsg.size());
-    return sdlNetWrapper_.SendTcp(socket, &convertedMsg[0], length);
+    uint32 length       = static_cast<int>(sizeof(uint8) * convertedMsg.size());
+    DEBUG_LOG("Message size : " + std::to_string(length));
+    DEBUG_LOG(Convert(convertedMsg));
+
+    if (sdlNetWrapper_.SendTcp(socket, &length, sizeof(uint32)))
+    {
+        return sdlNetWrapper_.SendTcp(socket, &convertedMsg[0], length);
+    }
+    return false;
 }
 }  // namespace Network

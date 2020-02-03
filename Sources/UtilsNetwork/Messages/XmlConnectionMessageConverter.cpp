@@ -1,26 +1,18 @@
 #include "XmlConnectionMessageConverter.h"
 #include <Logger/Log.h>
-#include "UtilsNetwork/MessageFormat.h"
 #include "MessageTypes.h"
-#include "UtilsNetwork/Messages/Connection/AuthenticationMessage.h"
-#include "UtilsNetwork/Messages/Connection/ConnectionMessage.h"
-#include "UtilsNetwork/Messages/TextMessage.h"
 #include "Utils/XML/XmlReader.h"
 #include "Utils/XML/XmlWriter.h"
 #include "UtilsNetwork/IMessage.h"
+#include "UtilsNetwork/MessageFormat.h"
+#include "UtilsNetwork/Messages/Connection/AuthenticationMessage.h"
+#include "UtilsNetwork/Messages/Connection/ConnectionMessage.h"
+#include "UtilsNetwork/Messages/TextMessage.h"
+#include "XmlConverterUtils.h"
+#include <algorithm>
 
 namespace Network
 {
-namespace
-{
-std::string Convert(const std::vector<int8>& message)
-{
-    std::string result;
-    std::copy(message.begin(), message.end(), std::back_inserter(result));
-    return result;
-}
-}  // namespace
-
 XmlConnectionMessageConverter::XmlConnectionMessageConverter()
 {
     DEBUG_LOG("");
@@ -33,18 +25,28 @@ bool XmlConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType 
 
 std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType type, const IMessageData& message)
 {
+    DEBUG_LOG(Network::Convert(message));
+
     Utils::XmlReader reader;
     std::string a = Network::Convert(message);
-    reader.ReadXml(a);
-    DEBUG_LOG(Network::Convert(message));
+    if (not reader.ReadXml(a))
+    {
+        return nullptr;
+    }
 
     switch (type)
     {
         case Network::MessageTypes::ConnectionMsg:
         {
-            auto result              = std::make_unique<ConnectionMessage>();
-            result->connectionStatus = std::stoi(reader.Get("ConnectionMessage")->attributes_.at("connectionStatus"));
-            return std::move(result);
+            auto result = std::make_unique<ConnectionMessage>();
+            auto msg    = reader.Get("ConnectionMessage");
+
+            if (msg and msg->IsAttributeExist("connectionStatus"))
+            {
+                result->connectionStatus = static_cast<uint8>(std::stoi(msg->attributes_.at("connectionStatus")));
+                return std::move(result);
+            }
+            break;
         }
         case Network::MessageTypes::Authentication:
         {
@@ -63,8 +65,14 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
         }
         case Network::MessageTypes::Text:
         {
-            auto text = reader.Get("TextMessage")->attributes_.at("text");
-            return std::make_unique<TextMessage>(text);
+            auto text = reader.Get("TextMessage");
+
+            if (text and text->IsAttributeExist("text"))
+            {
+                auto t = text->attributes_.at("text");
+                return std::make_unique<TextMessage>(t);
+            }
+            break;
         }
         default:
             DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
@@ -86,16 +94,6 @@ IMessageData XmlConnectionMessageConverter::Convert(const IMessage& message)
     //  XML
     DEBUG_LOG("Convert to xml. Unsuporrted message.");
     return {};
-}
-
-IMessageData CreatePayload(Utils::XmlNode& root)
-{
-    auto s = Utils::Xml::Write(root);
-    std::vector<int8> v;
-    std::copy(s.begin(), s.end(), std::back_inserter(v));
-    v.push_back('\0');
-    v.push_back(';');
-    return v;
 }
 
 IMessageData XmlConnectionMessageConverter::ConvertConnectionMessage(const IMessage& message)
@@ -126,6 +124,8 @@ IMessageData XmlConnectionMessageConverter::ConvertAuthenticationMessage(const I
 IMessageData XmlConnectionMessageConverter::ConvertTextMessage(const IMessage& message)
 {
     auto msg = castMessageAs<TextMessage>(message);
+
+    DEBUG_LOG("testShortMessage_ : " +  msg->GetText());
 
     Utils::XmlNode root("TextMessage");
     root.attributes_.insert({"text", msg->GetText()});

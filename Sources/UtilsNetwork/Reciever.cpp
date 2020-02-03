@@ -27,7 +27,6 @@ std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket so
         DEBUG_LOG("Recevie unknown message incoming format");
         return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
-    DEBUG_LOG("Recevie message incoming format :" + std::to_string(*format));
 
     auto type = ReceiveType(socket);
 
@@ -36,9 +35,16 @@ std::tuple<RecvStatus, std::unique_ptr<IMessage>> Receiver::Receive(TCPsocket so
         DEBUG_LOG("Recevie unknown message incoming type");
         return std::make_tuple(RecvStatus::Disconnect, nullptr);
     }
-    DEBUG_LOG("Recevie message incoming type :" + std::to_string(*type));
 
-    auto message = ReceiveMessage(socket);
+    auto messageSize = ReceiveMessageSize(socket);
+
+    if (not messageSize)
+    {
+        DEBUG_LOG("Recevie messageSize error");
+        return std::make_tuple(RecvStatus::Disconnect, nullptr);
+    }
+
+    auto message = ReceiveMessage(socket, *messageSize);
 
     if (message.empty())
     {
@@ -68,7 +74,7 @@ std::optional<uint8> Receiver::ReceiveFormat(TCPsocket socket)
     uint8 messageFormat = 0;
     if (sdlNetWrapper_.RecvTcp(socket, &messageFormat, sizeof(uint8)))
     {
-        DEBUG_LOG(std::string("Receive header, msg type : ") + std::to_string(ConvertFormat(messageFormat)));
+        DEBUG_LOG(std::string("Receive header, msg format : ") + std::to_string(ConvertFormat(messageFormat)));
         return messageFormat;
     }
 
@@ -86,27 +92,37 @@ std::optional<uint8> Receiver::ReceiveType(TCPsocket socket)
     return {};
 }
 
-std::vector<int8> Receiver::ReceiveMessage(TCPsocket socket)
+std::optional<uint32> Receiver::ReceiveMessageSize(TCPsocket socket)
 {
-    std::vector<int8> result;
+    uint32 messageSize = 0;
+    if (sdlNetWrapper_.RecvTcp(socket, &messageSize, sizeof(uint32)))
+    {
+        DEBUG_LOG(std::string("Receive header, msg size : ") + std::to_string(messageSize));
+        return messageSize;
+    }
+    return {};
+}
 
-    const int BUFF_SIZE = 512;
+std::vector<int8> Receiver::ReceiveMessage(TCPsocket socket, uint32 messageSize)
+{
+    const int BUFF_SIZE = 1024;
+    
+    if (messageSize >= BUFF_SIZE)
+    {
+        DEBUG_LOG("Buffer overflow");
+        return {};
+    }
+    std::vector<int8> result;
+    result.resize(messageSize);
+
     char buffer[BUFF_SIZE];
     memset(&buffer, 0, BUFF_SIZE);
 
     while (true)
     {
-        if (sdlNetWrapper_.RecvTcp(socket, &buffer, BUFF_SIZE))
+        if (sdlNetWrapper_.RecvTcp(socket, &result[0], messageSize))
         {
-            for (char c : buffer)
-            {
-                if (c == ';')
-                {
-                    return result;
-                }
-
-                result.push_back(c);
-            }
+            return result;
         }
         else
         {

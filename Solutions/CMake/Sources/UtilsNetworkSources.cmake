@@ -5,6 +5,7 @@ set(UtilsNetworkSources
 ../../Sources/UtilsNetwork/Messages/BinaryConnectionMessageConverter.cpp
 ../../Sources/UtilsNetwork/Messages/MessageTypes.cpp
 ../../Sources/UtilsNetwork/Messages/XmlConnectionMessageConverter.cpp
+../../Sources/UtilsNetwork/Messages/XmlConverterUtils.cpp
 ../../Sources/UtilsNetwork/Messages/TextMessage.cpp
 ../../Sources/UtilsNetwork/ClientCreator.cpp
 ../../Sources/UtilsNetwork/Reciever.cpp

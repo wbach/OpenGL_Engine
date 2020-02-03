@@ -1,8 +1,11 @@
 #include "Console.h"
+
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
+
 #include <algorithm>
 #include <fstream>
+
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
@@ -31,8 +34,9 @@ Console::Console(Scene &scene)
     , commandHistoryIndex_{0}
 {
     scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
-    auto window = scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0, 0.5), vec2(1, 0.5));
-    window_     = window.get();
+    auto window =
+        scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0, 0.5), vec2(1, 0.5));
+    window_ = window.get();
     scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
 
     if (not window_)
@@ -82,6 +86,8 @@ void Console::RegisterActions()
     commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
     commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
     commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
+    commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
+    commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
 }
 
 void Console::AddCommand(const std::string &command)
@@ -137,7 +143,8 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText(EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
+        auto text = scene_.guiElementFactory_->CreateGuiText(
+            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         text->SetPostion(DEFAULT_TEXT_POSITION);
 
@@ -390,6 +397,28 @@ void Console::SwapRenderMode(const std::vector<std::string> &)
     scene_.renderersManager_->SwapLineFaceRender();
 }
 
+void Console::EnableEditorNetworkInterface(const std::vector<std::string> &params)
+{
+    if (params.empty() or params[0] == "on" or params[0] == "true")
+    {
+        scene_.RunNetworkEditorInterface();
+    }
+    else
+    {
+        scene_.StopNetworkEditorInterface();
+    }
+}
+
+void Console::Help(const std::vector<std::string> &)
+{
+    DEBUG_LOG("All commands : ");
+
+    for (const auto &command : commandsActions_)
+    {
+        DEBUG_LOG(command.first);
+    }
+}
+
 std::vector<std::string> Console::GetParams(const std::string &command)
 {
     auto result = Utils::SplitString(command, ' ');
@@ -504,7 +533,8 @@ void Console::SubscribeKeys()
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
-    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(), [&name](const auto &p) { return p.second->GetName() == name; });
+    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
+                             [&name](const auto &p) { return p.second->GetName() == name; });
 
     if (iter != scene_.gameObjects.end())
         return iter->second.get();

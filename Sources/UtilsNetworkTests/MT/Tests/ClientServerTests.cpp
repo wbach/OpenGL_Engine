@@ -13,17 +13,21 @@ public:
     ClientServerTests()
         : isConnected_{false}
         , testShortMessage_{"test text message. Hello World!"}
+        , textMessagesCount_{10}
     {
+        CLogger::Instance().ImmeditalyLog();
+
         testShortMessage_.clear();
-        for(uint32 x = 0; x < TEXT_MSG_ARRAY_SIZE - 1; ++x)
+        for (uint32 x = 0; x < TEXT_MSG_ARRAY_SIZE - 1; ++x)
         {
             auto c = static_cast<char>(x);
-            if (c == ';' or c == 0)
+            if (c == '"' or c == 0)
             {
-                c = '-';
+                c = '\'';
             }
             testShortMessage_.push_back(c);
         }
+        DEBUG_LOG("testShortMessage_ : " +  testShortMessage_);
         DEBUG_LOG("testShortMessage_ size : " + std::to_string(testShortMessage_.size()));
     }
 
@@ -37,9 +41,12 @@ public:
             return;
         }
 
-        TextMessage textMessage(testShortMessage_);
-                DEBUG_LOG("TextMessage textMessage size : " + std::to_string(textMessage.GetText().size()));
-        clientGateway_.Send(textMessage);
+        for (uint32 i = 0; i < textMessagesCount_; ++i)
+        {
+            TextMessage textMessage(testShortMessage_);
+            DEBUG_LOG("TextMessage textMessage size : " + std::to_string(textMessage.GetText().size()));
+            clientGateway_.Send(textMessage);
+        }
     }
 
     bool StartServer()
@@ -53,10 +60,20 @@ public:
 
         serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](auto, std::unique_ptr<IMessage> imessage) {
             auto textMessage = castMessageAs<TextMessage>(imessage.get());
-            auto t = textMessage->GetText();
+            auto t           = textMessage->GetText();
             DEBUG_LOG("Server recevied message : " + t + " size : " + std::to_string(t.size()));
             receviedMessage_ = textMessage->GetText();
-            isRunning_.store(false);
+
+            if (testShortMessage_ == receviedMessage_)
+            {
+                DEBUG_LOG("==");
+            }
+            else {
+                DEBUG_LOG("!=");
+            }
+            ++textMessagesRecvCount_;
+            if (textMessagesRecvCount_ >= textMessagesCount_)
+                isRunning_.store(false);
         });
 
         return true;
@@ -74,8 +91,13 @@ public:
 
     void SetUp() override
     {
-        serverStarted_ = false;
-        isConnected_   = false;
+
+    }
+    void Start()
+    {
+        textMessagesRecvCount_ = 0;
+        serverStarted_         = false;
+        isConnected_           = false;
         isRunning_.store(true);
 
         if (StartServer())
@@ -100,20 +122,28 @@ protected:
 
     std::string receviedMessage_;
     std::string testShortMessage_;
+
+    uint32 textMessagesCount_;
+    uint32 textMessagesRecvCount_;
 };
+
+TEST_F(ClientServerTests, FirstConnectionXmlConverter)
+{
+    serverGateway_.SetDefaultMessageConverterFormat(MessageFormat::Xml);
+    clientGateway_.SetDefaultMessageConverterFormat(MessageFormat::Xml);
+    Start();
+    EXPECT_TRUE(isConnected_);
+    EXPECT_EQ(testShortMessage_, receviedMessage_);
+}
 
 TEST_F(ClientServerTests, FirstConnectionBinaryConverter)
 {
     serverGateway_.SetDefaultMessageConverterFormat(MessageFormat::Binary);
     clientGateway_.SetDefaultMessageConverterFormat(MessageFormat::Binary);
+    Start();
     EXPECT_TRUE(isConnected_);
     EXPECT_EQ(testShortMessage_, receviedMessage_);
 }
 
-TEST_F(ClientServerTests, FirstConnectionXmlConverter)
-{
-    EXPECT_TRUE(isConnected_);
-    EXPECT_EQ(testShortMessage_, receviedMessage_);
-}
 
 }  // namespace Network

@@ -30,21 +30,28 @@ EncodeFormat = 'iso-8859-15'
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = (TCP_IP, TCP_PORT)
+recevieBuffer=""
+
+def donothing():
+    return
 
 def SendMsg(msg, type):
     s.send(chr(4).encode(EncodeFormat))
     s.send(type.encode(EncodeFormat))
-    s.send((msg + ';').encode(EncodeFormat))
+    print("Sent msg size : {0}".format(len(msg)))
+    s.send(len(msg).to_bytes(4, byteorder="little"))
+    s.send(msg.encode(EncodeFormat))
 
 def RecevieMsg():
-    msgFormat = s.recv(1).decode(EncodeFormat)
-    print("msgFormat data: {0}".format(ord(msgFormat)))
-    msgType = s.recv(1).decode(EncodeFormat)
-    print("msgType data: {0}".format(ord(msgType)))
-    msg = s.recv(BUFFER_SIZE).decode(EncodeFormat)
-    msg = msg.replace(';', '')
-    msg = msg.replace('\x00', '')
-    return msg
+    global recevieBuffer
+    msgFormat = s.recv(1)
+    print("msgFormat : {0}".format(ord(msgFormat)))
+    msgType = s.recv(1)
+    print("msgType : {0}".format(ord(msgType)))
+    msgSizeBytes = s.recv(4)
+    msgSize = int.from_bytes(msgSizeBytes, "little")
+    print("msgSize : {0}".format(msgSize))
+    return s.recv(msgSize).decode(EncodeFormat)
 
 def RecevieConnectionMsg():
     print("msg data: {0}".format(RecevieMsg()));
@@ -61,9 +68,10 @@ def GetObjectList():
     SendCommand("getObjectList")
     count = 0
     while(True):
-        msg = RecevieMsg()[:-1]
+        msg = RecevieMsg()
         print("RecevieMsg:")
         print(msg)
+        print("===============")
 
         main = objectify.fromstring(msg)
         if main.tag == "TextMessage":
@@ -71,7 +79,7 @@ def GetObjectList():
                 break;
         if main.tag == "GameObject":
             print("insert")
-            #tree.insert(folder1, "end", None, text="t", values=("", "","--"))
+            tree.insert("", "end", None, text=main.get("name"), values=("", "","--"))
             count = count + 1
 
     print("Objects count : {0}".format(count))
@@ -92,7 +100,7 @@ def connect():
         messagebox.showerror(title="Error", message=exc)
     except:
         #print("Unexpected error:", sys.exc_info()[0])
-        messagebox.showerror(title="Error", message=sys.exc_info()[0])
+        messagebox.showerror(title="Error", message=sys.exc_info())
     return False
 
 def AskAndTryConnect(msg, func):
@@ -134,9 +142,6 @@ window = Tk()
 window.title("Editor")
 window.geometry('405x800')
 
-# btn = Button(window, text="Connect", command=connect) 
-# btn.grid(column=0, row=0, sticky=(N, S, E, W))
-
 tree=Treeview(window)
 tree.grid(columnspan=3, row=1)
 tree["columns"]=("one","two","three")
@@ -159,8 +164,8 @@ tree.heading("three", text="Size")
 # tree.insert(folder1, "end", "", text="photo2.png", values=("23-Jun-17 11:29","PNG file","3.2 KB"))
 # tree.insert(folder1, "end", "", text="photo3.png", values=("23-Jun-17 11:30","PNG file","3.1 KB"))
 
-def donothing():
-    return
+# btn = Button(window, text="Connect", command=connect) 
+# btn.grid(column=0, row=0, sticky=(N, S, E, W))
 
 menubar = Menu(window)
 filemenu = Menu(menubar, tearoff=0)

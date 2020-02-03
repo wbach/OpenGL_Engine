@@ -38,8 +38,11 @@ private:
     void TakeSnapshoot(const std::vector<std::string>&);
     void ReloadShaders(const std::vector<std::string>&);
     void SwapRenderMode(const std::vector<std::string>&);
+    void EnableEditorNetworkInterface(const std::vector<std::string>&);
+    void Help(const std::vector<std::string>&);
     GameObject* GetGameObject(const std::string&);
     std::vector<std::string> GetParams(const std::string& comannd);
+
 
 private:
     Scene& scene_;

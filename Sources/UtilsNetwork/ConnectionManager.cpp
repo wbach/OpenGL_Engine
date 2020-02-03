@@ -140,7 +140,7 @@ void ConnectionManager::CreateClientSocketIfAvailable()
 
     sdlNetWrapper_.TCPAddSocket(context_.socketSet, usr->socket);
 
-    notAuthenticatedUsers[usr->GetNextId()] = usr;
+    notAuthenticatedUsers.insert({usr->GetNextId(), usr});
 
     ++clientsCount_;
 

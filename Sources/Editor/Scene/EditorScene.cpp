@@ -18,10 +18,16 @@ EditorScene::~EditorScene()
 int EditorScene::Initialize()
 {
     RunNetworkEditorInterface();
-    //resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
+    // resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
 
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
-    LoadFromFile(sceneFile);
+    // const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
+    // LoadFromFile(sceneFile);
+
+    for (uint32 i = 0; i < 4; ++i)
+    {
+        auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
+        AddGameObject(go);
+    }
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
     return 0;

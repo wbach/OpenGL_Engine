@@ -12,15 +12,11 @@ namespace Network
 typedef uint8 IMessageFormat;
 typedef uint8 IMessageType;
 typedef uint8 IMessageTarget;
+typedef uint32 IMessageDataSize;
 typedef std::vector<int8> IMessageData;
 
 const uint16 arraySize = 256;
 void CopyToArray(char* dest, const std::string& str, int size = arraySize - 1);
-
-struct MessageHeader
-{
-    IMessageType msgType;
-};
 
 class IMessage
 {
@@ -81,5 +77,11 @@ const T* const castMessageAs(const IMessage& ptr)
         return nullptr;
     }
     return msg;
+}
+inline std::string Convert(const IMessageData& message)
+{
+    std::string result;
+    std::copy(message.begin(), message.end(), std::back_inserter(result));
+    return result;
 }
 }  // namespace Network

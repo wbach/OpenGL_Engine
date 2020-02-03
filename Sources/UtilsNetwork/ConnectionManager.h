@@ -38,7 +38,6 @@ private:
     Receiver& receiver_;
     Users notAuthenticatedUsers;
     std::vector<CreationFunc> newUserSubscribes_;
-
     // tmp simple dataBase
     std::unordered_map<std::string, UserAccount> usersDb_;
 };

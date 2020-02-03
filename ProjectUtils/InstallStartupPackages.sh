@@ -25,6 +25,8 @@ sudo apt-get install -y python-pip
 sudo apt-get install -y python3-pip
 sudo apt-get install -y python-opencv
 python -m pip install -U matplotlib
+sudo apt-get install -y cifs-utils
+sudo pip3 install lxml
 pip install -U scikit-learn
 pip install tqdm
 sudo apt-get install -y python-backports.functools-lru-cache
@@ -103,3 +105,11 @@ sudo apt-get install -y libglew-dev:i386
 sudo apt-get install -y libassimp-dev:i386
 sudo apt-get install -y libfreeimage3:i386 libfreeimage-dev:i386
 sudo apt-get install -y libfreetype6-dev:i386
+
+#sudo mount -t cifs -o username=username //samba_hostname_or_server_ip/sharename /mnt/smbmount
+# [projects]
+#     comment = projects
+#     path = /home/baszek/Projects/
+#     read only = no
+#     browsable = yes
+#     valid users = baszek

@@ -4,6 +4,7 @@
 #include <UtilsNetwork/MessageFormat.h>
 #include "MessageTypes.h"
 #include "Messages/GameObjectMsg.h"
+#include <UtilsNetwork/Messages/XmlConverterUtils.h>
 
 namespace GameEngine
 {
@@ -21,16 +22,6 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessag
     return {};
 }
 
-Network::IMessageData CreatePayload(Utils::XmlNode& root)
-{
-    auto s = Utils::Xml::Write(root);
-    std::vector<int8> v;
-    std::copy(s.begin(), s.end(), std::back_inserter(v));
-    v.push_back('\0');
-    v.push_back(';');
-    return v;
-}
-
 Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& message)
 {
     switch (message.GetType())
@@ -44,7 +35,7 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
             root.attributes_.insert({"parentId", std::to_string(msg->parentId)});
             root.attributes_.insert({"name", msg->GetName()});
             DEBUG_LOG(Utils::Xml::Write(root));
-            auto v = CreatePayload(root);
+            auto v = Network::CreatePayload(root);
             //DEBUG_LOG(Network::Convert(v));
             return v;
         }

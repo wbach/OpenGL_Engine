@@ -203,4 +203,8 @@ void Scene::RunNetworkEditorInterface()
 {
     networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this);
 }
+void Scene::StopNetworkEditorInterface()
+{
+    networkEditorInterface_.reset();
+}
 }  // namespace GameEngine

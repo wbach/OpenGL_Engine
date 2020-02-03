@@ -4,6 +4,7 @@ set(UtilsNetworkIncludes
 ../../Sources/UtilsNetwork/ConnectionManager.h
 ../../Sources/UtilsNetwork/Sender.h
 ../../Sources/UtilsNetwork/Messages/MessageTypes.h
+../../Sources/UtilsNetwork/Messages/XmlConverterUtils.h
 ../../Sources/UtilsNetwork/Messages/TextMessage.h
 ../../Sources/UtilsNetwork/Messages/Connection/ConnectionMessage.h
 ../../Sources/UtilsNetwork/Messages/Connection/AuthenticationMessage.h
