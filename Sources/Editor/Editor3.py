@@ -22,6 +22,7 @@ if len(sys.argv) > 1:
 
 networkClient = NetworkClient(TCP_IP, TCP_PORT)
 gameObjects={}
+componentNumber=0
 
 def DoNothing():
     return
@@ -133,9 +134,9 @@ def EditBoxSetText(editBox, value):
 
 def RecevieTransform():
     msg = networkClient.RecevieMsg()
-    print("RecevieMsg:")
-    print(msg)
-    print("===============")
+    # print("RecevieMsg:")
+    # print(msg)
+    # print("===============")
 
     root = objectify.fromstring(msg)
     if root.tag != "Transform":
@@ -155,6 +156,27 @@ def RecevieTransform():
             EditBoxSetText(scaleY, e.get("y"))
             EditBoxSetText(scaleZ, e.get("z"))
 
+def SendGetGameObjectComponentsReq(gameObjectId):
+    networkClient.SendCommand("getGameObjectComponentsListReq id=" + str(gameObjectId));
+
+def RecevieComponents():
+    global componentNumber
+    while(True):
+        msg = networkClient.RecevieMsg()
+        print("RecevieMsg:")
+        print(msg)
+        print("===============")
+
+        main = objectify.fromstring(msg)
+        if main.tag == "TextMessage":
+            value=main.get("text")
+            if value == "end":
+                break;
+            btn = tk.Button(componentsFrame, text=value, command=DoNothing,width=30) 
+            btn.grid(column=0, row=componentNumber, padx=5, pady=0)
+            componentNumber = componentNumber + 1
+
+
 def OnSelectGameObject(event):
     curItem = tree.focus()
     item=tree.item(curItem)
@@ -167,6 +189,8 @@ def OnSelectGameObject(event):
     labelIdText.set(gameObjectId)
     SendTransformRequest(gameObjectId)
     RecevieTransform()
+    SendGetGameObjectComponentsReq(gameObjectId)
+    RecevieComponents()
 
 window = tk.Tk()
 window.title("Editor")
@@ -195,16 +219,24 @@ componentsFrame = tk.LabelFrame(rightFrame, text="Components", width=200, height
 componentsFrame.grid(column=0, row=4, padx=0, pady=0, ipady=5)
 
 btn = tk.Button(componentsFrame, text="Test componnent 1", command=DoNothing,width=30) 
-btn.grid(column=0, row=0, padx=5, pady=0)
+btn.grid(column=0, row=componentNumber, padx=5, pady=0)
+componentNumber = componentNumber + 1
+
 btn = tk.Button(componentsFrame, text="Test componnent 2", command=DoNothing,width=30) 
-btn.grid(column=0, row=1, padx=5, pady=0)
+btn.grid(column=0, row=componentNumber, padx=5, pady=0)
+componentNumber = componentNumber + 1
+
 btn = tk.Button(componentsFrame, text="Test componnent 3", command=DoNothing,width=30) 
-btn.grid(column=0, row=2, padx=5, pady=0)
+btn.grid(column=0, row=componentNumber, padx=5, pady=0)
+componentNumber = componentNumber + 1
+
 btn = tk.Button(componentsFrame, text="Test componnent 4", command=DoNothing,width=30) 
-btn.grid(column=0, row=3, padx=5, pady=0)
+btn.grid(column=0, row=componentNumber, padx=5, pady=0)
+componentNumber = componentNumber + 1
 
 btn = tk.Button(rightFrame, text="Add componnent", command=DoNothing,width=30) 
 btn.grid(column=0, row=5, padx=5, pady=5)
+
 
 # componentsTree=ttk.Treeview(rightFrame, height=20)
 # componentsTree.grid(columnspan=3, row=3, pady=20)

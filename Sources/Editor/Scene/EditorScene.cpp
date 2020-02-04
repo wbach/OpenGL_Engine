@@ -3,6 +3,9 @@
 #include <Input/InputManager.h>
 #include "Editor/Context.h"
 
+#include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
+
 using namespace GameEngine;
 
 namespace Editor
@@ -26,6 +29,9 @@ int EditorScene::Initialize()
     for (uint32 i = 0; i < 4; ++i)
     {
         auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
+        go->AddComponent<GameEngine::Components::BoxShape>();
+        go->AddComponent<GameEngine::Components::MeshShape>();
+
         AddGameObjects(go.get(), 3);
         AddGameObject(go);
     }
@@ -48,6 +54,9 @@ void EditorScene::AddGameObjects(GameObject* go, int lvl)
     for (uint32 i = 0; i < 4; ++i)
     {
         auto newGo = CreateGameObject(go->GetName() + "_" + std::to_string(i));
+        newGo->AddComponent<GameEngine::Components::BoxShape>();
+        newGo->AddComponent<GameEngine::Components::MeshShape>();
+
         AddGameObjects(newGo.get(), lvl - 1);
         go->AddChild(std::move(newGo));
     }

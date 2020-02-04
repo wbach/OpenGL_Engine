@@ -35,6 +35,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.cpp
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
 ../../Sources/GameEngine/Components/ComponentController.cpp
+../../Sources/GameEngine/Components/ComponentsType.cpp
 ../../Sources/GameEngine/Components/Physics/CapsuleShape.cpp
 ../../Sources/GameEngine/Components/Physics/DebugDrawner.cpp
 ../../Sources/GameEngine/Components/Physics/CollisionShape.cpp

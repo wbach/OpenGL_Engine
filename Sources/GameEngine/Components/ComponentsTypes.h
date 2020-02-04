@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace GameEngine
 {
@@ -25,7 +26,11 @@ enum class ComponentsType
     ThridPersonCamera,
     PlayerInputController,
     CharacterController,
-    
 };
 }  // namespace Components
 }  // namespace GameEngine
+
+namespace std
+{
+std::string to_string(GameEngine::Components::ComponentsType);
+} // namespace std

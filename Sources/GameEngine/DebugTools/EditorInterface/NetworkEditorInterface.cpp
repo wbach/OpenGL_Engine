@@ -19,6 +19,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"openFile", [&](const std::vector<std::string> &v) { LoadSceneFromFile(v); }});
     commands_.insert({"getObjectList", [&](const std::vector<std::string> &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const std::vector<std::string> &v) { TransformReq(v); }});
+    commands_.insert({"getGameObjectComponentsListReq", [&](const std::vector<std::string> &v) { GetGameObjectComponentsListReq(v); }});
 
     gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
 
@@ -136,7 +137,7 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
     gateway_.Send(userId_, endMsg);
 }
 
-void NetworkEditorInterface::TransformReq(const std::vector<std::string> & v)
+void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
 {
     if (v.empty())
     {
@@ -144,33 +145,72 @@ void NetworkEditorInterface::TransformReq(const std::vector<std::string> & v)
         return;
     }
 
-    auto& param = v[1];
-    for(auto& p : v)
-        DEBUG_LOG(p);
-    DEBUG_LOG("--");
-    DEBUG_LOG(param);
+    auto gameObject = GetGameObjectBasedOnParam(v[1]);
+
+    if (not gameObject)
+    {
+        DEBUG_LOG("GameObject not found. " + v[1]);
+        return;
+    }
+
+    auto &transform = gameObject->worldTransform;
+
+    TransformMsg msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation(), transform.GetScale());
+    gateway_.Send(userId_, msg);
+}
+
+void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<std::string> &v)
+{
+    if (v.empty())
+    {
+        DEBUG_LOG("object id not found.");
+        return;
+    }
+
+    auto gameObject = GetGameObjectBasedOnParam(v[1]);
+
+    if (not gameObject)
+    {
+        DEBUG_LOG("GameObject not found. " + v[1]);
+        return;
+    }
+
+    for(auto& component : gameObject->GetComponents())
+    {
+        Network::TextMessage componentNameMsg(std::to_string(component->GetType()));
+        gateway_.Send(userId_, componentNameMsg);
+    }
+
+    DEBUG_LOG("");
+    Network::TextMessage endMsg("end");
+    gateway_.Send(userId_, endMsg);
+}
+
+std::tuple<std::string, std::string> NetworkEditorInterface::GetParamFromCommand(const std::string &param)
+{
     auto name = param.substr(0, param.find_first_of('='));
-    DEBUG_LOG(name);
+
     if (name != "id")
     {
         DEBUG_LOG("param id not found.");
-        return;
+        return {};
     }
+    auto value = param.substr(param.find_first_of('=') + 1);
 
-    auto value = param.substr(param.find_first_of('=') +1);
-    DEBUG_LOG("Get object id : " + value);
-    auto objectId = std::stoi(value);
-    auto go = scene_.GetGameObject(objectId);
+    return {name, value};
+}
 
-    if (not go)
+GameObject *NetworkEditorInterface::GetGameObjectBasedOnParam(const std::string & param)
+{
+    if (param.empty())
     {
-        DEBUG_LOG("GameObject not found. Id="+value);
-        return;
+        DEBUG_LOG("param is empty");
+        return nullptr;
     }
 
-    auto& transform = go->worldTransform;
+    auto [name, value] = GetParamFromCommand(param);
 
-    TransformMsg msg(objectId, transform.GetPosition(), transform.GetRotation(), transform.GetScale());
-    gateway_.Send(userId_, msg);
+    auto objectId = std::stoi(value);
+    return scene_.GetGameObject(objectId);
 }
 }  // namespace GameEngine

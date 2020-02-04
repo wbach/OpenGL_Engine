@@ -8,6 +8,7 @@
 namespace GameEngine
 {
 class Scene;
+class GameObject;
 
 class NetworkEditorInterface : public IEditorInterface
 {
@@ -23,6 +24,10 @@ private:
     void LoadSceneFromFile(const std::vector<std::string>&);
     void GetObjectList(const std::vector<std::string>&);
     void TransformReq(const std::vector<std::string>&);
+    void GetGameObjectComponentsListReq(const std::vector<std::string>&);
+
+    std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
+    GameObject* GetGameObjectBasedOnParam(const std::string&);
 
 private:
     Scene& scene_;
