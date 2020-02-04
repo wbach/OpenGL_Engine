@@ -1,4 +1,16 @@
 import tkinter as tk
+from tkinter import messagebox
+
+def AskAndTryConnect(networkClient, msg, func):
+    if not networkClient.IsConnected():
+        while True:
+            answer = messagebox.askyesno(title="Error", message= msg)
+            if answer:
+                if func():
+                    return True
+            else:
+                return False
+    return True
 
 def CreateVectorInput(rootFrame, label, startColumn, startRow, keyFunc):
     frame = tk.Frame(rootFrame, width=200, height=400)

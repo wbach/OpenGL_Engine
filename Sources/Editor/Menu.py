@@ -1,5 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import filedialog
+
+import sys
+import pathlib
+
+from CommonWidgetTools import AskAndTryConnect
 
 class Menu:
     def __init__(self, networkClient, root, gameObjectView):
@@ -40,7 +46,7 @@ class Menu:
         return False
 
     def OpenFile(self):
-        if not self.AskAndTryConnect("System not connected. Do you want connect?", self.Connect):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
             return
 
         try:
@@ -58,15 +64,4 @@ class Menu:
                 file.close()
                 self.networkClient.SendCommand("openFile " + filename);
         except:
-            messagebox.showerror(title="Error", message=sys.exc_info()[0])
-
-    def AskAndTryConnect(self, msg, func):
-        if not self.networkClient.IsConnected():
-            while True:
-                answer = messagebox.askyesno(title="Error", message= msg)
-                if answer:
-                    if func():
-                        return True
-                else:
-                    return False
-        return True
+            messagebox.showerror(title="Error", message=sys.exc_info())

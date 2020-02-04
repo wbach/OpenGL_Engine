@@ -6,17 +6,7 @@ from InfoView import InfoView
 from Menu import Menu
 
 import tkinter as tk
-from tkinter import ttk
 import sys
-from tkinter import filedialog
-from tkinter import messagebox
-
-from lxml import objectify
-
-import json
-import pathlib
-
-import subprocess
 
 class Editor():
     def __init__(self):
