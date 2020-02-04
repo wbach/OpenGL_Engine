@@ -63,3 +63,8 @@ class NetworkClient:
 
     def IsConnected(self):
         return self.connect_
+
+    def PrintMsg(self, msg):
+        print("RecevieMsg:")
+        print(msg)
+        print("===========")

@@ -1,4 +1,11 @@
 #include "Scene.hpp"
+
+#include <Input/InputManager.h>
+#include <Logger/Log.h>
+#include <Utils/Time/Timer.h>
+
+#include <algorithm>
+
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
@@ -9,12 +16,8 @@
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "Input/InputManager.h"
-#include "Logger/Log.h"
 #include "SceneReader.h"
 #include "SceneWriter.h"
-#include "Utils/Time/Timer.h"
-
 
 namespace GameEngine
 {
@@ -54,7 +57,8 @@ void Scene::InitResources(SceneInitContext& context)
 
     CreateResourceManger(*context.graphicsApi_);
     guiManager_ = std::make_unique<GuiManager>();
-    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
+    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
+                                                        *renderersManager_};
     guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
 
     console_ = std::make_unique<Debug::Console>(*this);
@@ -62,7 +66,8 @@ void Scene::InitResources(SceneInitContext& context)
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(
+        componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnAwake();
     componentController_.OnStart();
@@ -147,14 +152,14 @@ void Scene::SetAddEngineEventCallback(std::function<void(EngineEvent)> func)
 {
     addEngineEvent = func;
 }
-GameObject *GetGameObjectChild(GameObject& go , uint32 id)
+GameObject* GetGameObjectChild(GameObject& go, uint32 id)
 {
     if (go.GetId() == id)
     {
         return &go;
     }
 
-    for(auto& go : go.GetChildrens())
+    for (auto& go : go.GetChildrens())
     {
         auto ptr = GetGameObjectChild(*go, id);
         if (ptr)
@@ -163,15 +168,16 @@ GameObject *GetGameObjectChild(GameObject& go , uint32 id)
     return nullptr;
 }
 
-GameObject *Scene::GetGameObject(uint32 id) const
+GameObject* Scene::GetGameObject(uint32 id) const
 {
-    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(), [id](const auto& pair){return pair.second->GetId() == id;});
+    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
+                             [id](const auto& pair) { return pair.second->GetId() == id; });
     if (iter != gameObjects.end())
     {
         return iter->second.get();
     }
 
-    for(auto& go : gameObjects)
+    for (auto& go : gameObjects)
     {
         auto ptr = GetGameObjectChild(*go.second, id);
         if (ptr)
