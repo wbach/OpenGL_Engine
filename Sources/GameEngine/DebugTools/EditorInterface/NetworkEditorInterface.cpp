@@ -6,6 +6,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/GameObjectMsg.h"
+#include "Messages/TransformMsg.h"
 #include "XMLMessageConverter.h"
 
 namespace GameEngine
@@ -17,6 +18,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
 {
     commands_.insert({"openFile", [&](const std::vector<std::string> &v) { LoadSceneFromFile(v); }});
     commands_.insert({"getObjectList", [&](const std::vector<std::string> &v) { GetObjectList(v); }});
+    commands_.insert({"transformReq", [&](const std::vector<std::string> &v) { TransformReq(v); }});
+
     gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
 
     DEBUG_LOG("Starting server");
@@ -92,7 +95,7 @@ void NetworkEditorInterface::LoadSceneFromFile(const std::vector<std::string> &a
     scene_.LoadFromFile(args[1]);
 }
 
-void SendChildrenObjectList(uint32 userId, Network::Gateway& gateway, uint32 parentId, const std::vector<std::unique_ptr<GameObject>>& objectList)
+void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId, const std::vector<std::unique_ptr<GameObject>> &objectList)
 {
     if (objectList.empty())
     {
@@ -103,11 +106,11 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway& gateway, uint32 par
     for (auto &go : objectList)
     {
         GameObjectMsg message(go->GetName());
-        message.id = go->GetId();
+        message.id       = go->GetId();
         message.parentId = parentId;
         gateway.Send(userId, message);
 
-        const auto& children = go->GetChildrens();
+        const auto &children = go->GetChildrens();
         SendChildrenObjectList(userId, gateway, go->GetId(), children);
     }
 }
@@ -131,5 +134,43 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
     DEBUG_LOG("");
     Network::TextMessage endMsg("end");
     gateway_.Send(userId_, endMsg);
+}
+
+void NetworkEditorInterface::TransformReq(const std::vector<std::string> & v)
+{
+    if (v.empty())
+    {
+        DEBUG_LOG("object id not found.");
+        return;
+    }
+
+    auto& param = v[1];
+    for(auto& p : v)
+        DEBUG_LOG(p);
+    DEBUG_LOG("--");
+    DEBUG_LOG(param);
+    auto name = param.substr(0, param.find_first_of('='));
+    DEBUG_LOG(name);
+    if (name != "id")
+    {
+        DEBUG_LOG("param id not found.");
+        return;
+    }
+
+    auto value = param.substr(param.find_first_of('=') +1);
+    DEBUG_LOG("Get object id : " + value);
+    auto objectId = std::stoi(value);
+    auto go = scene_.GetGameObject(objectId);
+
+    if (not go)
+    {
+        DEBUG_LOG("GameObject not found. Id="+value);
+        return;
+    }
+
+    auto& transform = go->worldTransform;
+
+    TransformMsg msg(objectId, transform.GetPosition(), transform.GetRotation(), transform.GetScale());
+    gateway_.Send(userId_, msg);
 }
 }  // namespace GameEngine

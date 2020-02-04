@@ -147,6 +147,38 @@ void Scene::SetAddEngineEventCallback(std::function<void(EngineEvent)> func)
 {
     addEngineEvent = func;
 }
+GameObject *GetGameObjectChild(GameObject& go , uint32 id)
+{
+    if (go.GetId() == id)
+    {
+        return &go;
+    }
+
+    for(auto& go : go.GetChildrens())
+    {
+        auto ptr = GetGameObjectChild(*go, id);
+        if (ptr)
+            return ptr;
+    }
+    return nullptr;
+}
+
+GameObject *Scene::GetGameObject(uint32 id) const
+{
+    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(), [id](const auto& pair){return pair.second->GetId() == id;});
+    if (iter != gameObjects.end())
+    {
+        return iter->second.get();
+    }
+
+    for(auto& go : gameObjects)
+    {
+        auto ptr = GetGameObjectChild(*go.second, id);
+        if (ptr)
+            return ptr;
+    }
+    return nullptr;
+}
 
 void Scene::UpdateCamera()
 {

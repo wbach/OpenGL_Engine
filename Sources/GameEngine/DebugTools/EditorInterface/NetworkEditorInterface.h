@@ -22,6 +22,7 @@ private:
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
     void LoadSceneFromFile(const std::vector<std::string>&);
     void GetObjectList(const std::vector<std::string>&);
+    void TransformReq(const std::vector<std::string>&);
 
 private:
     Scene& scene_;

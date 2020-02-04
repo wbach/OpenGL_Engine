@@ -68,9 +68,14 @@ def AskAndTryConnect(msg, func):
                 return False
     return True
 
+def Listen():
+    print("Listen");
+    window.after(100, Listen)
+
 def Connect():
     if networkClient.Connect():
         GetObjectList()
+        #window.after(1000, Listen)
         return True
     return False
 
@@ -119,15 +124,49 @@ def CreateVectorInput(rootFrame, label, startColumn, startRow):
 
     return positionX, positionY, positionZ
 
+def SendTransformRequest(gameObjectId):
+    networkClient.SendCommand("transformReq id=" + str(gameObjectId));
+
+def EditBoxSetText(editBox, value):
+    editBox.delete('1.0', tk.END)
+    editBox.insert(tk.END, value)
+
+def RecevieTransform():
+    msg = networkClient.RecevieMsg()
+    print("RecevieMsg:")
+    print(msg)
+    print("===============")
+
+    root = objectify.fromstring(msg)
+    if root.tag != "Transform":
+        return
+
+    for e in root.getchildren():
+        if e.tag == "position":
+            EditBoxSetText(positionX, e.get("x"))
+            EditBoxSetText(positionY, e.get("y"))
+            EditBoxSetText(positionZ, e.get("z"))
+        if e.tag == "rotation":
+            EditBoxSetText(rotX, e.get("x"))
+            EditBoxSetText(rotY, e.get("y"))
+            EditBoxSetText(rotZ, e.get("z"))
+        if e.tag == "scale":
+            EditBoxSetText(scaleX, e.get("x"))
+            EditBoxSetText(scaleY, e.get("y"))
+            EditBoxSetText(scaleZ, e.get("z"))
+
 def OnSelectGameObject(event):
     curItem = tree.focus()
     item=tree.item(curItem)
-    hwnd=event.widget.selection()
+    gameObjectId=item['values'][0]
+    #hwnd=event.widget.selection()
     #print("OnSelectGameObject : {0}".format(event.widget.selection()))
     #print("Focus : {0}".format(item))
     nameText.delete('1.0', tk.END)
     nameText.insert(tk.END, item['text'])
-    labelIdText.set(item['values'][0])
+    labelIdText.set(gameObjectId)
+    SendTransformRequest(gameObjectId)
+    RecevieTransform()
 
 window = tk.Tk()
 window.title("Editor")

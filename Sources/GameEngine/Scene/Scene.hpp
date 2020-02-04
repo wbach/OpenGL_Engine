@@ -73,6 +73,7 @@ public:
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
+    GameObject* GetGameObject(uint32) const;
 
     // Cameras
     void UpdateCamera();
