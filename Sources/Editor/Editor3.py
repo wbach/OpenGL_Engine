@@ -3,7 +3,7 @@ from NetworkUtils import NetworkClient
 import tkinter as tk
 from tkinter import ttk
 import sys
-# from tkinter import filedialog
+from tkinter import filedialog
 from tkinter import messagebox
 
 from lxml import objectify
@@ -46,11 +46,11 @@ def GetObjectList():
             name = main.get("name")
 
             if parentId == 0:
-                hwnd = tree.insert("", "end", None, text=name, values=("", "","--"))
+                hwnd = tree.insert("", "end", None, text=name, values=(goId))
                 gameObjects[goId] = parentId, name, hwnd
             else:
-                parentId, parentName, hwnd = gameObjects[parentId]
-                hwnd = tree.insert(hwnd, "end", None, text=name, values=("", "","--"))
+                parentId, parentName, parentHwnd = gameObjects[parentId]
+                hwnd = tree.insert(parentHwnd, "end", None, text=name, values=(goId))
                 gameObjects[goId] = parentId, name, hwnd
 
             count = count + 1
@@ -66,7 +66,7 @@ def AskAndTryConnect(msg, func):
                     return True
             else:
                 return False
-    return False
+    return True
 
 def Connect():
     if networkClient.Connect():
@@ -120,26 +120,30 @@ def CreateVectorInput(rootFrame, label, startColumn, startRow):
     return positionX, positionY, positionZ
 
 def OnSelectGameObject(event):
-    print("OnSelectGameObject : {0}".format(event.widget.selection()))
     curItem = tree.focus()
-    print("Focus : {0}".format(tree.item(curItem)))
+    item=tree.item(curItem)
+    hwnd=event.widget.selection()
+    #print("OnSelectGameObject : {0}".format(event.widget.selection()))
+    #print("Focus : {0}".format(item))
     nameText.delete('1.0', tk.END)
-    nameText.insert(tk.END, tree.item(curItem)['text'])
+    nameText.insert(tk.END, item['text'])
+    labelIdText.set(item['values'][0])
 
 window = tk.Tk()
 window.title("Editor")
-window.geometry('620x750')
+window.geometry('650x750')
 
 leftFrame = tk.LabelFrame(window, width=200, height=400, text="GameObjects")
 leftFrame.grid(row=0, column=0, padx=5, pady=5)
-rightFrame = tk.Frame(window, width=650, height=400)
+rightFrame = tk.Frame(window, width=620, height=400)
 rightFrame.grid(row=0, column=1, padx=5, pady=5, sticky=(tk.W, tk.N))
 
 infoFrame = tk.LabelFrame(rightFrame, width=290, height=50, text="Info")
 infoFrame.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.N))
 
 tk.Label(infoFrame, text="Id : ").grid(row=0, column=0, padx=5, pady=0, ipadx=0, sticky=(tk.W))
-tk.Label(infoFrame, text="-").grid(row=0, column=1, padx=5, pady=0, ipadx=0, sticky=(tk.W))
+labelIdText = tk.StringVar()
+tk.Label(infoFrame, textvariable=labelIdText).grid(row=0, column=1, padx=5, pady=0, ipadx=0, sticky=(tk.W))
 tk.Label(infoFrame, text="Name : ").grid(row=1, column=0, padx=5, pady=0, ipadx=0, sticky=(tk.W))
 nameText = tk.Text(infoFrame, height=1, width=25)
 nameText.grid(column=1, row=1, padx=7, pady=5)
@@ -148,19 +152,19 @@ positionX, positionY, positionZ = CreateVectorInput(rootFrame=rightFrame, label=
 rotX, rotY, rotZ = CreateVectorInput(rootFrame=rightFrame, label="Rotation", startColumn=0, startRow=2)
 scaleX, scaleY, scaleZ = CreateVectorInput(rootFrame=rightFrame, label="Scale", startColumn=0, startRow=3)
 
-componentsFrame = tk.LabelFrame(rightFrame, text="Components", width=250, height=550)
+componentsFrame = tk.LabelFrame(rightFrame, text="Components", width=200, height=550)
 componentsFrame.grid(column=0, row=4, padx=0, pady=0, ipady=5)
 
-btn = tk.Button(componentsFrame, text="Test componnent 1", command=DoNothing,width=36) 
+btn = tk.Button(componentsFrame, text="Test componnent 1", command=DoNothing,width=30) 
 btn.grid(column=0, row=0, padx=5, pady=0)
-btn = tk.Button(componentsFrame, text="Test componnent 2", command=DoNothing,width=36) 
+btn = tk.Button(componentsFrame, text="Test componnent 2", command=DoNothing,width=30) 
 btn.grid(column=0, row=1, padx=5, pady=0)
-btn = tk.Button(componentsFrame, text="Test componnent 3", command=DoNothing,width=36) 
+btn = tk.Button(componentsFrame, text="Test componnent 3", command=DoNothing,width=30) 
 btn.grid(column=0, row=2, padx=5, pady=0)
-btn = tk.Button(componentsFrame, text="Test componnent 4", command=DoNothing,width=36) 
+btn = tk.Button(componentsFrame, text="Test componnent 4", command=DoNothing,width=30) 
 btn.grid(column=0, row=3, padx=5, pady=0)
 
-btn = tk.Button(rightFrame, text="Add componnent", command=DoNothing,width=36) 
+btn = tk.Button(rightFrame, text="Add componnent", command=DoNothing,width=30) 
 btn.grid(column=0, row=5, padx=5, pady=5)
 
 # componentsTree=ttk.Treeview(rightFrame, height=20)
