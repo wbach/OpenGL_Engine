@@ -19,7 +19,7 @@ class Editor():
 
         self.networkClient  = NetworkClient(TCP_IP, TCP_PORT)
         self.infoView       = InfoView(self.networkClient, self.rightFrame)
-        self.transformView  = TransformView(self.networkClient, self.rightFrame)
+        self.transformView  = TransformView(self.networkClient, self.rightFrame, self.infoView)
         self.componentsView = ComponentsView(self.networkClient, self.rightFrame)
         self.gameObjectView = GameObjectView(self.networkClient, self.root, self.infoView, self.transformView, self.componentsView)
         self.menu           = Menu(self.networkClient, self.root, self.gameObjectView)

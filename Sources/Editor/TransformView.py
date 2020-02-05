@@ -4,12 +4,13 @@ from lxml import objectify
 from CommonWidgetTools import CreateVectorInput
 
 class TransformView:
-    def __init__(self, networkClient, frame):
+    def __init__(self, networkClient, frame, infoView):
         self.networkClient = networkClient
+        self.infoView = infoView
 
-        self.positionX, self.positionY, self.positionZ = CreateVectorInput(rootFrame=frame, label="Position", startColumn=0, startRow=1, keyFunc=self.EnterPosition)
-        self.rotX, self.rotY, self.rotZ                = CreateVectorInput(rootFrame=frame, label="Rotation", startColumn=0, startRow=2, keyFunc=self.EnterRotation)
-        self.scaleX, self.scaleY, self.scaleZ          = CreateVectorInput(rootFrame=frame, label="Scale", startColumn=0, startRow=3, keyFunc=self.EnterScale)
+        self.positionX, self.positionY, self.positionZ = CreateVectorInput(rootFrame=frame, label="Position", startColumn=0, startRow=1, inputCallback=self.EnterPosition)
+        self.rotX, self.rotY, self.rotZ                = CreateVectorInput(rootFrame=frame, label="Rotation", startColumn=0, startRow=2, inputCallback=self.EnterRotation)
+        self.scaleX, self.scaleY, self.scaleZ          = CreateVectorInput(rootFrame=frame, label="Scale", startColumn=0, startRow=3, inputCallback=self.EnterScale)
 
     def Fill(self, gameObjectId):
         self.SendGetTransformRequest(gameObjectId)
@@ -27,28 +28,34 @@ class TransformView:
 
         for e in root.getchildren():
             if e.tag == "position":
-                self.EditBoxSetText(self.positionX, e.get("x"))
-                self.EditBoxSetText(self.positionY, e.get("y"))
-                self.EditBoxSetText(self.positionZ, e.get("z"))
+                self.positionX.set(e.get("x"))
+                self.positionY.set(e.get("y"))
+                self.positionZ.set(e.get("z"))
             if e.tag == "rotation":
-                self.EditBoxSetText(self.rotX, e.get("x"))
-                self.EditBoxSetText(self.rotY, e.get("y"))
-                self.EditBoxSetText(self.rotZ, e.get("z"))
+                self.rotX.set(e.get("x"))
+                self.rotY.set(e.get("y"))
+                self.rotZ.set(e.get("z"))
             if e.tag == "scale":
-                self.EditBoxSetText(self.scaleX, e.get("x"))
-                self.EditBoxSetText(self.scaleY, e.get("y"))
-                self.EditBoxSetText(self.scaleZ, e.get("z"))
-
-    def EditBoxSetText(self, editBox, value):
-        editBox.delete('1.0', tk.END)
-        editBox.insert(tk.END, value)
+                self.scaleX.set(e.get("x"))
+                self.scaleY.set(e.get("y"))
+                self.scaleZ.set(e.get("z"))
 
     def EnterPosition(self, input):
-        #networkClient.SendCommand("setPosition ")
-        print("Enter : {0}".format(input))
+        x = self.positionX.get()
+        y = self.positionY.get()
+        z = self.positionZ.get()
+
+        if self.infoView.GetObjectId():
+            self.networkClient.SendCommand("setPosition id=" + self.infoView.GetObjectId() + " x=" + x + " y=" + y + " z=" + z)
+
     def EnterRotation(self, input):
         #networkClient.SendCommand("setPosition ")
-        print("Enter : {0}".format(input))
+        print(self.rotX.get())
+        print(self.rotY.get())
+        print(self.rotZ.get())
+
     def EnterScale(self, input):
         #networkClient.SendCommand("setPosition ")
-        print("Enter : {0}".format(input))
+        print(self.scaleX.get())
+        print(self.scaleY.get())
+        print(self.scaleZ.get())

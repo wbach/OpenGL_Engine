@@ -25,6 +25,9 @@ private:
     void GetObjectList(const std::vector<std::string>&);
     void TransformReq(const std::vector<std::string>&);
     void GetGameObjectComponentsListReq(const std::vector<std::string>&);
+    void SetGameObjectPosition(const std::vector<std::string>&);
+    void SetGameObjectRotation(const std::vector<std::string>&);
+    void SetGameObjectScale(const std::vector<std::string>&);
 
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
     GameObject* GetGameObjectBasedOnParam(const std::string&);

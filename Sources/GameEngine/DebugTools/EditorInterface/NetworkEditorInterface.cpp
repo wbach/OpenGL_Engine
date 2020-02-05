@@ -20,6 +20,9 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"getObjectList", [&](const std::vector<std::string> &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const std::vector<std::string> &v) { TransformReq(v); }});
     commands_.insert({"getGameObjectComponentsListReq", [&](const std::vector<std::string> &v) { GetGameObjectComponentsListReq(v); }});
+    commands_.insert({"setPosition", [&](const std::vector<std::string> &v) { SetGameObjectPosition(v); }});
+    commands_.insert({"setRotation", [&](const std::vector<std::string> &v) { SetGameObjectRotation(v); }});
+    commands_.insert({"setScale", [&](const std::vector<std::string> &v) { SetGameObjectScale(v); }});
 
     gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
 
@@ -175,7 +178,7 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<st
         return;
     }
 
-    for(auto& component : gameObject->GetComponents())
+    for (auto &component : gameObject->GetComponents())
     {
         Network::TextMessage componentNameMsg(std::to_string(component->GetType()));
         gateway_.Send(userId_, componentNameMsg);
@@ -184,6 +187,41 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<st
     DEBUG_LOG("");
     Network::TextMessage endMsg("end");
     gateway_.Send(userId_, endMsg);
+}
+
+void NetworkEditorInterface::SetGameObjectPosition(const std::vector<std::string> &param)
+{
+    if (param.size() < 5)
+    {
+        DEBUG_LOG("param is empty");
+        return;
+    }
+
+    std::unordered_map<std::string, std::string> v;
+
+    for(const auto& p : param)
+    {
+        auto [name, value] = GetParamFromCommand(p);
+        v.insert({name, value});
+    }
+}
+
+void NetworkEditorInterface::SetGameObjectRotation(const std::vector<std::string> &param)
+{
+    if (param.size() < 5)
+    {
+        DEBUG_LOG("param is empty");
+        return;
+    }
+}
+
+void NetworkEditorInterface::SetGameObjectScale(const std::vector<std::string> &param)
+{
+    if (param.size() < 5)
+    {
+        DEBUG_LOG("param is empty");
+        return;
+    }
 }
 
 std::tuple<std::string, std::string> NetworkEditorInterface::GetParamFromCommand(const std::string &param)
@@ -200,7 +238,7 @@ std::tuple<std::string, std::string> NetworkEditorInterface::GetParamFromCommand
     return {name, value};
 }
 
-GameObject *NetworkEditorInterface::GetGameObjectBasedOnParam(const std::string & param)
+GameObject *NetworkEditorInterface::GetGameObjectBasedOnParam(const std::string &param)
 {
     if (param.empty())
     {

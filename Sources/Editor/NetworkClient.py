@@ -41,6 +41,7 @@ class NetworkClient:
     def SendCommand(self, cmd):
         msg = "<TextMessage text=\"" + cmd + "\"/>"
         self.SendMsg(msg, Text);
+        print(msg)
 
     def Connect(self):
         try:

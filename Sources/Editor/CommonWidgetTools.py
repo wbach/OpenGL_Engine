@@ -12,29 +12,41 @@ def AskAndTryConnect(networkClient, msg, func):
                 return False
     return True
 
-def CreateVectorInput(rootFrame, label, startColumn, startRow, keyFunc):
+# def callback(sv):
+#     print(sv.get())
+
+def CreateVectorInput(rootFrame, label, startColumn, startRow, inputCallback):
     frame = tk.Frame(rootFrame, width=200, height=400)
     frame.grid(row=startRow, column=startColumn, padx=5, pady=0, sticky=(tk.W, tk.E))
 
     vframe = tk.LabelFrame(frame, text=label)
     vframe.grid(column=startColumn, row=startRow, padx=0, pady=0, ipadx=5,ipady=5, sticky=(tk.W), columnspan=1)
 
+    xVar = tk.StringVar()
+    xVar.trace("w", lambda name, index, mode, sv=xVar: inputCallback(xVar))
+
     tk.Label(vframe, text="X :").grid(row=0, column=0, padx=5, pady=0, ipadx=0)
-    editBox_X = tk.Text(vframe, height=1, width=7)
+    editBox_X = tk.Entry(vframe, width=7, textvariable = xVar)
     editBox_X.grid(column=1, row=0, sticky=(tk.W))
-    editBox_X.bind('<Key>', keyFunc)
+    #editBox_X.bind('<Key>', keyFunc)
+
+    yVar = tk.StringVar()
+    yVar.trace("w", lambda name, index, mode, sv=yVar: inputCallback(yVar))
 
     tk.Label(vframe, text="Y :").grid(row=0, column=2, padx=5, pady=0, ipadx=0)
-    editBox_Y = tk.Text(vframe, height=1, width=7)
+    editBox_Y = tk.Entry(vframe, width=7,textvariable = yVar)
     editBox_Y.grid(column=3, row=0, sticky=(tk.W))
-    editBox_Y.bind('<Key>', keyFunc)
+    #editBox_Y.bind('<Key>', keyFunc)
+
+    zVar = tk.StringVar()
+    zVar.trace("w", lambda name, index, mode, sv=zVar: inputCallback(zVar))
 
     tk.Label(vframe, text="Z :").grid(row=0, column=4, padx=5, pady=0, ipadx=0)
-    editBox_Z = tk.Text(vframe, height=1, width=7)
+    editBox_Z = tk.Entry(vframe, width=7, textvariable = zVar)
     editBox_Z.grid(column=5, row=0, sticky=(tk.W))
-    editBox_Z.bind('<Key>', keyFunc)
+    #editBox_Z.bind('<Key>', keyFunc)
 
-    return editBox_X, editBox_Y, editBox_Z
+    return xVar, yVar, zVar
 
 
 
