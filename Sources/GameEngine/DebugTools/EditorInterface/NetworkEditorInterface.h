@@ -1,9 +1,16 @@
 #pragma once
 #include <UtilsNetwork/Gateway.h>
-#include "IEditorInterface.hpp"
+
+#include <functional>
 #include <unordered_map>
 #include <vector>
-#include <functional>
+
+#include "IEditorInterface.hpp"
+
+namespace common
+{
+class Transform;
+}
 
 namespace GameEngine
 {
@@ -38,7 +45,8 @@ private:
     std::thread networkThread_;
     std::atomic_bool isRunning_;
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commands_;
-
+    std::optional<uint32> transformChangeSubscriptionId_;
+    common::Transform* transformChangeSubscription_;
     uint32 userId_;
 };
 }  // namespace GameEngine

@@ -1,6 +1,8 @@
 #pragma once
 #include "Mutex.hpp"
 #include "Types.h"
+#include <utility>
+#include <functional>
 
 namespace common
 {
@@ -27,6 +29,8 @@ public:
     Transform(const vec3& pos, const vec3& rot);
     Transform(const vec3& pos, const vec3& rot, const vec3& scale);
     Transform(const Transform& transform);
+    uint32 SubscribeOnChange(std::function<void(const Transform&)>);
+    void UnsubscribeOnChange(uint32);
 
     void TakeSnapShoot();
     const TransformContext& GetSnapShoot() const;
@@ -53,11 +57,15 @@ public:
 
 private:
     void UpdateMatrix();
+    void NotifySubscribers();
 
 private:
     std::mutex contextMutex_;
     TransformContext context_;
     TransformContext snapshoot_;
     mat4 matrix;
+
+    uint32 idPool_;
+    std::vector<std::pair<uint32, std::function<void(const Transform&)>>> subscribers_;
 };
-}  // common
+}  // namespace common
