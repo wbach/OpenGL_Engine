@@ -7,6 +7,7 @@ class TransformView:
     def __init__(self, networkClient, frame, infoView):
         self.networkClient = networkClient
         self.infoView = infoView
+        self.recevingTransform = False
 
         self.positionX, self.positionY, self.positionZ = CreateVectorInput(rootFrame=frame, label="Position", startColumn=0, startRow=1, inputCallback=self.EnterPosition)
         self.rotX, self.rotY, self.rotZ                = CreateVectorInput(rootFrame=frame, label="Rotation", startColumn=0, startRow=2, inputCallback=self.EnterRotation)
@@ -26,6 +27,7 @@ class TransformView:
         if root.tag != "Transform":
             return
 
+        self.recevingTransform = True
         for e in root.getchildren():
             if e.tag == "position":
                 self.positionX.set(e.get("x"))
@@ -39,8 +41,12 @@ class TransformView:
                 self.scaleX.set(e.get("x"))
                 self.scaleY.set(e.get("y"))
                 self.scaleZ.set(e.get("z"))
+        self.recevingTransform = False
 
     def EnterPosition(self, input):
+        if self.recevingTransform :
+            return
+
         x = self.positionX.get()
         y = self.positionY.get()
         z = self.positionZ.get()
@@ -49,13 +55,23 @@ class TransformView:
             self.networkClient.SendCommand("setPosition id=" + self.infoView.GetObjectId() + " x=" + x + " y=" + y + " z=" + z)
 
     def EnterRotation(self, input):
-        #networkClient.SendCommand("setPosition ")
-        print(self.rotX.get())
-        print(self.rotY.get())
-        print(self.rotZ.get())
+        if self.recevingTransform :
+            return
+
+        x = self.rotX.get()
+        y = self.rotY.get()
+        z = self.rotZ.get()
+
+        if self.infoView.GetObjectId():
+            self.networkClient.SendCommand("setRotation id=" + self.infoView.GetObjectId() + " x=" + x + " y=" + y + " z=" + z)
 
     def EnterScale(self, input):
-        #networkClient.SendCommand("setPosition ")
-        print(self.scaleX.get())
-        print(self.scaleY.get())
-        print(self.scaleZ.get())
+        if self.recevingTransform :
+            return
+
+        x = self.scaleX.get()
+        y = self.scaleY.get()
+        z = self.scaleZ.get()
+
+        if self.infoView.GetObjectId():
+            self.networkClient.SendCommand("setScale id=" + self.infoView.GetObjectId() + " x=" + x + " y=" + y + " z=" + z)

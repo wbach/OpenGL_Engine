@@ -247,16 +247,16 @@ void NetworkEditorInterface::SetGameObjectPosition(const std::vector<std::string
         {
             try
             {
-                vec3 v(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
+                vec3 position(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
 
                 auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
                 if (rigidbody)
                 {
-                    rigidbody->SetPosition(v);
+                    rigidbody->SetPosition(position);
                 }
                 else
                 {
-                    gameObject->worldTransform.SetPosition(v);
+                    gameObject->worldTransform.SetPosition(position);
                     gameObject->worldTransform.TakeSnapShoot();
                 }
             }
@@ -284,16 +284,16 @@ void NetworkEditorInterface::SetGameObjectRotation(const std::vector<std::string
         {
             try
             {
-                vec3 v(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
+                vec3 rotation(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
 
                 auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
                 if (rigidbody)
                 {
-                    rigidbody->SetRotation(v);
+                    rigidbody->SetRotation(rotation);
                 }
                 else
                 {
-                    gameObject->worldTransform.SetRotation(v);
+                    gameObject->worldTransform.SetRotation(rotation);
                     gameObject->worldTransform.TakeSnapShoot();
                 }
             }
@@ -327,8 +327,8 @@ void NetworkEditorInterface::SetGameObjectScale(const std::vector<std::string> &
         {
             try
             {
-                vec3 v(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
-                gameObject->worldTransform.SetScale(v);
+                vec3 scale(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
+                gameObject->worldTransform.SetScale(scale);
                 gameObject->worldTransform.TakeSnapShoot();
             }
             catch (...)

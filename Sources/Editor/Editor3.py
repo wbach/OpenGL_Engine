@@ -6,6 +6,8 @@ from InfoView import InfoView
 from Menu import Menu
 
 import tkinter as tk
+import _thread
+import time
 import sys
 
 class Editor():
@@ -24,8 +26,16 @@ class Editor():
         self.gameObjectView = GameObjectView(self.networkClient, self.root, self.infoView, self.transformView, self.componentsView)
         self.menu           = Menu(self.networkClient, self.root, self.gameObjectView)
 
+        _thread.start_new_thread(self.RecevieThread, ())
         self.root.mainloop()
 
+    def RecevieThread(self):
+        delay = 2
+        count = 0
+        while count < 5:
+            time.sleep(delay)
+            count += 1
+            print("test second thread {0}".format(time.ctime(time.time())))
 
 TCP_IP = 'localhost'
 TCP_PORT = 1991
