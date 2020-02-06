@@ -1,4 +1,4 @@
-if(BUILD_UTILS_NETWORK_TESTS)
+if(BUILD_UtilsNetworkTestsExe)
 
     if(NOT DEFINED GTEST_INLCUDED)
         set(GTEST_INLCUDED true)
@@ -11,12 +11,12 @@ if(BUILD_UTILS_NETWORK_TESTS)
     endif()
 
     include(./Sources/UtilsNetworkTestsSources.cmake)
-    add_executable(UTILS_NETWORK_TESTS ${UtilsNetworkTestsSources})
+    add_executable(UtilsNetworkTestsExe ${UtilsNetworkTestsSources})
     
     if(BUILD_I386)
-        set_target_properties(UTILS_NETWORK_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+        set_target_properties(UtilsNetworkTestsExe PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
 
-    target_link_libraries(UTILS_NETWORK_TESTS UtilsNetworkLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs} ${BoostLinkingLibs})
+    target_link_libraries(UtilsNetworkTestsExe UtilsNetworkLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs} ${BoostLinkingLibs})
 endif()
 

@@ -10,11 +10,11 @@ if(BUILD_TESTS)
     endif()
 
     include(./Sources/GameEngineTestsSources.cmake)
-    add_executable(GAME_ENGINE_TESTS ${GameEngineTestsSources})
+    add_executable(GameEngineTestsExe ${GameEngineTestsSources})
 
     if(BUILD_I386)
-        set_target_properties(GAME_ENGINE_TESTS PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
+        set_target_properties(GameEngineTestsExe PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
 
-    target_link_libraries(GAME_ENGINE_TESTS GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main fbxsdk ${LinkingLibs} ${BoostLinkingLibs})
+    target_link_libraries(GameEngineTestsExe GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main fbxsdk ${LinkingLibs} ${BoostLinkingLibs})
 endif()

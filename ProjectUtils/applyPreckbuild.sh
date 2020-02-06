@@ -1,5 +1,7 @@
 #!/bin/bash
+
 cd /home/baszek/Projects/prebuild/OpenGL_Engine/
+echo "Used threads : "`nproc`
 revision=`cat ../toCommit.revision`
 git stash
 git clean -fd
@@ -8,6 +10,7 @@ git reset --hard $revision
 git rev-parse HEAD
 git apply ../toCommit.diff
 
-cd /home/baszek/Projects/prebuild/OpenGL_Engine/build/
+mkdir build
+cd build/
 cmake ../Solutions/CMake/ -DBUILD_ALL=ON -DCMAKE_BUILD_TYPE=Release
-make -j4
+time make -j`nproc`
