@@ -1,7 +1,7 @@
 if(BUILD_RPG_GAME_SERVER)
 
-    include(./Sources/RpgGameServerExeSources.cmake)
-    add_executable(RpgGameServerExe ${RpgGameServerExeSources})
+    include(./Sources/RpgGameServerSources.cmake)
+    add_executable(RpgGameServerExe ${RpgGameServerSources})
     if(BUILD_I386)
         set_target_properties(RpgGameServerExe PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
