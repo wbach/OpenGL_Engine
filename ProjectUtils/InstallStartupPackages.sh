@@ -27,6 +27,12 @@ sudo apt-get install -y python-opencv
 python -m pip install -U matplotlib
 sudo apt-get install -y cifs-utils
 sudo pip3 install lxml
+sudo apt-get install -y python-backports.functools-lru-cache
+sudo apt-get install -y python-tk
+sudo apt-get install -y python3-tk
+# sudo apt-get install python-support
+# sudo update-python-modules -a
+
 pip install -U scikit-learn
 pip install tqdm
 sudo apt-get install -y python-backports.functools-lru-cache

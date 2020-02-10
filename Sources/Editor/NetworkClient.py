@@ -1,5 +1,10 @@
+from collections import defaultdict
 import socket
+import _thread
+import time
+
 import tkinter as tk
+from lxml import objectify
 
 #enum MessageTypes
 Any = chr(251)
@@ -13,6 +18,22 @@ class NetworkClient:
         self.encodeFormat_ = 'iso-8859-15'
         self.connect_ = False
         self.serverAddress = (tcpIp, port)
+        self.messageSubscribers = defaultdict(list)
+        self.isRunning = False
+
+    def SubscribeOnMessage(self, msgType, callback):
+        self.messageSubscribers[msgType].append(callback)
+
+    def RecevieThread(self):
+        while self.isRunning:
+            msg = self.RecevieMsg()
+            self.PrintMsg(msg)
+            main = objectify.fromstring(msg)
+            msgType=main.tag;
+            if msgType in self.messageSubscribers:
+                for sub in messageSubscribers[msgType]:
+                    self.messageSubscribers[msgType](main)
+
 
     def SendMsg(self, msg, type):
         self.socket_.send(chr(4).encode(self.encodeFormat_))
@@ -52,6 +73,7 @@ class NetworkClient:
             self.RecevieConnectionMsg()
             self.SendAuthenticationMessage()
             self.RecevieConnectionMsg()
+            self.thread_ = _thread.start_new_thread(self.RecevieThread, ())
             print("Connected. Authentication process end.")
             return True
         except socket.error as exc:

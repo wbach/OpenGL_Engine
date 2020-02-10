@@ -1,4 +1,4 @@
-if(BUILD_UtilsNetworkTestsExe)
+if(BUILD_UTILS_NETWORK_TESTS)
 
     if(NOT DEFINED GTEST_INLCUDED)
         set(GTEST_INLCUDED true)
