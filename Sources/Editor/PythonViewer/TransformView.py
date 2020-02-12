@@ -1,6 +1,6 @@
 from lxml import objectify
 
-from PythonViewer.CommonWidgetTools import CreateVectorInput
+from CommonWidgetTools import CreateVectorInput
 
 
 class TransformView:

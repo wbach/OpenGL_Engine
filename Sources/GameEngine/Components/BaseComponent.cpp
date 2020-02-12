@@ -8,12 +8,23 @@ BaseComponent::BaseComponent(ComponentsType type, const ComponentContext& compon
     : type_(type)
     , thisObject_(gameObject)
     , componentContext_(componentContext)
+    , isActive_(true)
 {
 }
 BaseComponent::~BaseComponent()
 {
     for (auto id : ids_)
         componentContext_.componentController_.UnRegisterFunction(id.second, id.first);
+}
+
+void BaseComponent::Activate()
+{
+    isActive_ = true;
+}
+
+void BaseComponent::Deactivate()
+{
+    isActive_ = false;
 }
 }  // Components
 }  // GameEngine

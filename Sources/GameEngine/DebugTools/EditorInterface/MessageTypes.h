@@ -6,11 +6,13 @@ namespace GameEngine
 enum class MessageTypes
 {
     Any,
-    GameObject,
+    NewGameObjectInd,
+    RemoveGameObjectInd,
     Transform,
-    Component
+    NewComponentMsgInd,
+    RemoveComponentMsgInd
 };
 std::string to_string(MessageTypes type);
 #define NETWORK_INTERFACE_MESSAGE_TYPE_RANGE_LOW GameEngine::MessageTypes::Any
-#define NETWORK_INTERFACE_TYPE_RANGE_HIGH GameEngine::MessageTypes::Component
+#define NETWORK_INTERFACE_TYPE_RANGE_HIGH GameEngine::MessageTypes::RemoveComponentMsgInd
 }  // namespace Network

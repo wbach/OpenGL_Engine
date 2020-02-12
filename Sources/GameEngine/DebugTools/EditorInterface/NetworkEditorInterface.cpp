@@ -6,8 +6,11 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Messages/GameObjectMsg.h"
+#include "Messages/NewComponentMsgInd.h"
+#include "Messages/NewGameObjectIndMsg.h"
 #include "Messages/TransformMsg.h"
+#include "Messages/RemoveComponentMsgInd.h"
+#include "Messages/RemoveGameObjectIndMsg.h"
 #include "XMLMessageConverter.h"
 
 namespace GameEngine
@@ -127,7 +130,7 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 par
 
     for (auto &go : objectList)
     {
-        GameObjectMsg message(go->GetName());
+        NewGameObjectIndMsg message(go->GetName());
         message.id       = go->GetId();
         message.parentId = parentId;
         gateway.Send(userId, message);
@@ -146,16 +149,12 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
     {
         for (auto &go : objectList)
         {
-            GameObjectMsg message(go.second->GetName());
+            NewGameObjectIndMsg message(go.second->GetName());
             message.id = go.second->GetId();
             gateway_.Send(userId_, message);
             SendChildrenObjectList(userId_, gateway_, go.second->GetId(), go.second->GetChildrens());
         }
     }
-
-    DEBUG_LOG("");
-    Network::TextMessage endMsg("end");
-    gateway_.Send(userId_, endMsg);
 }
 
 void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
@@ -215,13 +214,10 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<st
 
     for (auto &component : gameObject->GetComponents())
     {
-        Network::TextMessage componentNameMsg(std::to_string(component->GetType()));
+        NewComponentMsgInd componentNameMsg(std::to_string(component->GetType()));
+        componentNameMsg.isActive_ = component->IsActive();
         gateway_.Send(userId_, componentNameMsg);
     }
-
-    DEBUG_LOG("");
-    Network::TextMessage endMsg("end");
-    gateway_.Send(userId_, endMsg);
 }
 
 void NetworkEditorInterface::SetGameObjectPosition(const std::vector<std::string> &param)

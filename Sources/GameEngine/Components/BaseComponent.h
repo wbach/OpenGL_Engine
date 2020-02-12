@@ -15,8 +15,11 @@ class BaseComponent : public IComponent
 {
 public:
     BaseComponent(ComponentsType type, const ComponentContext& ComponentContext, GameObject& gameObject);
-    virtual ~BaseComponent();
-    inline ComponentsType GetType() const;
+    virtual ~BaseComponent() override;
+    inline ComponentsType GetType() const override;
+    inline bool IsActive() const override;
+    void Activate() override;
+    void Deactivate() override;
 
 protected:
     inline void RegisterFunction(FunctionType, std::function<void()> func);
@@ -27,6 +30,7 @@ protected:
     ComponentContext componentContext_;
 
 private:
+    bool isActive_;
     std::unordered_map<uint32, FunctionType> ids_;
 };
 
@@ -37,6 +41,10 @@ void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> fu
 ComponentsType BaseComponent::GetType() const
 {
     return type_;
+}
+
+bool BaseComponent::IsActive() const
+{
 }
 }  // namespace Components
 }  // namespace GameEngine

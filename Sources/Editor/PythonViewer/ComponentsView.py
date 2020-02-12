@@ -3,6 +3,7 @@ from tkinter import messagebox
 
 from lxml import objectify
 
+
 class ComponentsView:
     def __init__(self, networkClient, rootFrame):
         self.networkClient = networkClient
@@ -26,11 +27,11 @@ class ComponentsView:
         self.networkClient.SendCommand("getGameObjectComponentsListReq id=" + str(gameObjectId))
 
     def RecevieComponents(self):
-        list = self.componentsFrame.grid_slaves()
-        for l in list:
+        componentList = self.componentsFrame.grid_slaves()
+        for l in componentList:
             l.destroy()
 
-        self.size=0
+        self.size = 0
 
         while True:
             msg = self.networkClient.RecevieMsg()
@@ -43,7 +44,7 @@ class ComponentsView:
                     break;
 
                 checkVar = tk.BooleanVar()
-                checkVar = False
+                checkVar.set(False)
                 checkBox = tk.Checkbutton(self.componentsFrame, variable=checkVar, command=self.ChangeComponentState, onvalue=True, offvalue=False)
                 checkBox.grid(column=0, row=self.size, padx=5, pady=0)
                 checkBox.select()
