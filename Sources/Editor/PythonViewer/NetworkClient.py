@@ -6,12 +6,13 @@ import time
 import tkinter as tk
 from lxml import objectify
 
-#enum MessageTypes
+# enum MessageTypes
 Any = chr(251)
 Ping = chr(252)
 ConnectionMsg = chr(253)
 Authentication = chr(254)
 Text = chr(255)
+
 
 class NetworkClient:
     def __init__(self, tcpIp, port):
@@ -29,11 +30,10 @@ class NetworkClient:
             msg = self.RecevieMsg()
             self.PrintMsg(msg)
             main = objectify.fromstring(msg)
-            msgType=main.tag;
+            msgType = main.tag
             if msgType in self.messageSubscribers:
-                for sub in messageSubscribers[msgType]:
+                for sub in self.messageSubscribers[msgType]:
                     self.messageSubscribers[msgType](main)
-
 
     def SendMsg(self, msg, type):
         self.socket_.send(chr(4).encode(self.encodeFormat_))
@@ -53,7 +53,7 @@ class NetworkClient:
         return self.socket_.recv(msgSize).decode(self.encodeFormat_)
 
     def RecevieConnectionMsg(self):
-        print("msg data: {0}".format(self.RecevieMsg()));
+        print("msg data: {0}".format(self.RecevieMsg()))
 
     def SendAuthenticationMessage(self):
         msg = "<AuthenticationMessage username=\"baszek\" password=\"haslo\"/>"
@@ -61,7 +61,7 @@ class NetworkClient:
 
     def SendCommand(self, cmd):
         msg = "<TextMessage text=\"" + cmd + "\"/>"
-        self.SendMsg(msg, Text);
+        self.SendMsg(msg, Text)
         print(msg)
 
     def Connect(self):
@@ -77,10 +77,10 @@ class NetworkClient:
             print("Connected. Authentication process end.")
             return True
         except socket.error as exc:
-            #print("Connecting error: {0}".format(exc))
+            # print("Connecting error: {0}".format(exc))
             tk.messagebox.showerror(title="Error", message=exc)
         except:
-            #print("Unexpected error:", syself.socket_.exc_info()[0])
+            # print("Unexpected error:", syself.socket_.exc_info()[0])
             tk.messagebox.showerror(title="Error", message=syself.socket_.exc_info())
         return False
 

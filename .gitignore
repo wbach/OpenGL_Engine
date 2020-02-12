@@ -17,6 +17,7 @@ snapshoot
 *.autosave
 .vscode/
 build*
+.idea/
 .commandHistory
 *.zip
 *.pyc

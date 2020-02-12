@@ -5,7 +5,7 @@ from tkinter import filedialog
 import sys
 import pathlib
 
-from CommonWidgetTools import AskAndTryConnect
+from PythonViewer.CommonWidgetTools import AskAndTryConnect
 
 class Menu:
     def __init__(self, networkClient, root, gameObjectView):

@@ -19,11 +19,11 @@ class ComponentsView:
         self.RecevieComponents()
 
     def AddComponent(self):
-        print("Not supported yet.");
+        print("Not supported yet.")
         messagebox.showinfo(title="Info", message="Not supported yet.")
 
     def SendGetGameObjectComponentsReq(self, gameObjectId):
-        self.networkClient.SendCommand("getGameObjectComponentsListReq id=" + str(gameObjectId));
+        self.networkClient.SendCommand("getGameObjectComponentsListReq id=" + str(gameObjectId))
 
     def RecevieComponents(self):
         list = self.componentsFrame.grid_slaves()
@@ -32,7 +32,7 @@ class ComponentsView:
 
         self.size=0
 
-        while(True):
+        while True:
             msg = self.networkClient.RecevieMsg()
             self.networkClient.PrintMsg(msg)
 

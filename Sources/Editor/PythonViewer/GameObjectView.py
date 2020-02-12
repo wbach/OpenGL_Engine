@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from lxml import objectify
 
-from InfoView import InfoView
 
 class GameObjectView:
     def __init__(self, networkClient, root, infoView, transformView, componentsView):
