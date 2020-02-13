@@ -7,7 +7,7 @@ class TransformView:
     def __init__(self, networkClient, frame, infoView):
         self.networkClient = networkClient
         self.infoView = infoView
-        self.recevingTransform = False
+        self.selfEntering = False
 
         self.positionX, self.positionY, self.positionZ = CreateVectorInput(rootFrame=frame, label="Position",
                                                                            startColumn=0, startRow=1,
@@ -18,6 +18,20 @@ class TransformView:
                                                                   startRow=3, inputCallback=self.EnterScale)
 
         self.networkClient.SubscribeOnMessage("Transform", self.RecevieTransform)
+        self.networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def Clear(self):
+        self.selfEntering = True
+        self.positionX.set("")
+        self.positionY.set("")
+        self.positionZ.set("")
+        self.rotX.set("")
+        self.rotY.set("")
+        self.rotZ.set("")
+        self.scaleX.set("")
+        self.scaleY.set("")
+        self.scaleZ.set("")
+        self.selfEntering = False
 
     def Fill(self, gameObjectId):
         self.SendGetTransformRequest(gameObjectId)
@@ -26,7 +40,7 @@ class TransformView:
         self.networkClient.SendCommand("transformReq id=" + str(gameObjectId))
 
     def RecevieTransform(self, root):
-        self.recevingTransform = True
+        self.selfEntering = True
         for e in root.getchildren():
             if e.tag == "position":
                 self.positionX.set(e.get("x"))
@@ -40,10 +54,10 @@ class TransformView:
                 self.scaleX.set(e.get("x"))
                 self.scaleY.set(e.get("y"))
                 self.scaleZ.set(e.get("z"))
-        self.recevingTransform = False
+        self.selfEntering = False
 
     def EnterPosition(self, input):
-        if self.recevingTransform:
+        if self.selfEntering:
             return
 
         x = self.positionX.get()
@@ -55,7 +69,7 @@ class TransformView:
                 "setPosition id=" + self.infoView.GetObjectId() + " x=" + x + " y=" + y + " z=" + z)
 
     def EnterRotation(self, input):
-        if self.recevingTransform:
+        if self.selfEntering:
             return
 
         x = self.rotX.get()
@@ -67,7 +81,7 @@ class TransformView:
                 "setRotation id=" + self.infoView.GetObjectId() + " x=" + x + " y=" + y + " z=" + z)
 
     def EnterScale(self, input):
-        if self.recevingTransform:
+        if self.selfEntering:
             return
 
         x = self.scaleX.get()

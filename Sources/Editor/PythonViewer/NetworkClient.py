@@ -18,27 +18,44 @@ class NetworkClient:
     def __init__(self, tcpIp, port):
         self.encodeFormat_ = 'iso-8859-15'
         self.connect_ = False
-        self.serverAddress = (tcpIp, port)
-        self.messageSubscribers = defaultdict(list)
         self.isRunning = True
+        self.serverAddress = (tcpIp, port)
+        self.disconnectSubscribers = []
+        self.messageSubscribers = defaultdict(list)
 
     def SubscribeOnMessage(self, msgType, callback):
         self.messageSubscribers[msgType].append(callback)
 
+    def SubscribeOnDisconnect(self, callback):
+        self.disconnectSubscribers.append(callback)
+
+    def Disconnect(self):
+        print("Disconnect.")
+        self.isRunning = False
+        self.connect_ = False
+        self.socket_.close()
+        for sub in self.disconnectSubscribers:
+            sub()
+
     def RecevieThread(self):
         while self.isRunning:
-            msg = self.RecevieMsg()
-            if len(msg) <= 0:
-                continue
+            try:
+                msg = self.RecevieMsg()
+            except:
+                self.Disconnect()
+                break
 
             self.PrintMsg(msg)
-            main = objectify.fromstring(msg)
-            msgType = main.tag
-            if msgType in self.messageSubscribers:
-                for subscriber in self.messageSubscribers[msgType]:
-                    subscriber(main)
-            else:
-                print("Msg \"{0}\" not handler found".format(msgType))
+            try:
+                main = objectify.fromstring(msg)
+                msgType = main.tag
+                if msgType in self.messageSubscribers:
+                    for subscriber in self.messageSubscribers[msgType]:
+                        subscriber(main)
+                else:
+                    print("Msg \"{0}\" not handler found".format(msgType))
+            except:
+                print("Parsing msg failed.")
 
     def SendMsg(self, msg, type):
         self.socket_.send(chr(4).encode(self.encodeFormat_))
@@ -74,6 +91,7 @@ class NetworkClient:
             self.socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket_.connect(self.serverAddress)
             self.connect_ = True
+            self.isRunning = True
             print("Connected. Start authentication process.")
             self.RecevieConnectionMsg()
             self.SendAuthenticationMessage()

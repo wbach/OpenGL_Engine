@@ -85,6 +85,7 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 void NetworkEditorInterface::DisconnectUser(uint32 id)
 {
     DEBUG_LOG("Disconnect user : {" + std::to_string(id) + "}");
+    UnsubscribeTransformUpdateIfExist();
 }
 void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network::IMessage> msg)
 {
@@ -173,22 +174,13 @@ void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
         return;
     }
 
-    if (transformChangeSubscriptionId_)
-    {
-        if (not transformChangeSubscription_)
-        {
-            ERROR_LOG("Somthing went wrong. transformChangeSubscription_ is nullptr");
-            return;
-        }
-
-        transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
-    }
+    UnsubscribeTransformUpdateIfExist();
 
     auto &transform                = gameObject->worldTransform;
     transformChangeSubscription_   = &transform;
-    transformChangeSubscriptionId_ = transform.SubscribeOnChange([&](const auto &transform) {
-        const auto &t = transform.GetSnapShoot();
-        TransformMsg msg(gameObject->GetId(), t.position, t.rotation, t.scale);
+    auto gameObjectId              = gameObject->GetId();
+    transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
+        TransformMsg msg(gameObjectId, transform.GetPosition(), transform.GetRotation(), transform.GetScale());
         gateway_.Send(userId_, msg);
     });
 
@@ -361,5 +353,18 @@ GameObject *NetworkEditorInterface::GetGameObjectBasedOnParam(const std::string 
 
     auto objectId = std::stoi(value);
     return scene_.GetGameObject(objectId);
+}
+void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
+{
+    if (transformChangeSubscriptionId_)
+    {
+        if (not transformChangeSubscription_)
+        {
+            ERROR_LOG("Somthing went wrong. transformChangeSubscription_ is nullptr");
+            return;
+        }
+
+        transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
+    }
 }
 }  // namespace GameEngine

@@ -38,10 +38,10 @@ public:
     void IncrasePosition(vec3 v, uint32 index = 0);
     void IncreaseRotation(float dx, float dy, float dz);
 
-    vec3 GetPosition();
-    vec3 GetRotation();
-    vec3 GetScale();
-    vec2 GetPositionXZ();
+    const vec3& GetPosition() const;
+    const vec3& GetRotation() const;
+    const vec3& GetScale() const;
+    vec2 GetPositionXZ() const;
     const mat4& GetMatrix() const;
 
     void SetScale(float s);

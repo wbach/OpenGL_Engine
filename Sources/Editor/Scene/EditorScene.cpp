@@ -1,8 +1,9 @@
 #include "EditorScene.h"
+
 #include <GameEngine/Engine/Configuration.h>
 #include <Input/InputManager.h>
-#include "Editor/Context.h"
 
+#include "Editor/Context.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 
@@ -37,10 +38,24 @@ int EditorScene::Initialize()
     }
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
+        for (auto& go : gameObjects)
+        {
+            go.second->worldTransform.IncrasePosition(vec3(0.001));
+        }
+    });
     return 0;
 }
-int EditorScene::Update()
+void EditorScene::PostInitialize()
 {
+}
+int EditorScene::Update(float)
+{
+    for (auto& go : gameObjects)
+    {
+        go.second->worldTransform.IncrasePosition(vec3(0.00001));
+    }
+
     return 0;
 }
 

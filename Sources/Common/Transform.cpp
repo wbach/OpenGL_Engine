@@ -159,7 +159,7 @@ void Transform::NotifySubscribers()
 {
     for (auto& sub : subscribers_)
     {
-        //sub.second(*this);
+        sub.second(*this);
     }
 }
 
@@ -168,25 +168,22 @@ const TransformContext& Transform::GetSnapShoot() const
     return snapshoot_;
 }
 
-vec3 Transform::GetPosition()
+const vec3& Transform::GetPosition() const
 {
-    std::lock_guard<std::mutex> l(contextMutex);
     return context_.position;
 }
 
-vec3 Transform::GetRotation()
+const vec3& Transform::GetRotation() const
 {
-    std::lock_guard<std::mutex> l(contextMutex);
     return context_.rotation;
 }
 
-vec3 Transform::GetScale()
+const vec3& Transform::GetScale() const
 {
-    std::lock_guard<std::mutex> l(contextMutex);
     return context_.scale;
 }
 
-vec2 Transform::GetPositionXZ()
+vec2 Transform::GetPositionXZ() const
 {
     std::lock_guard<std::mutex> l(contextMutex);
     return vec2(context_.position.x, context_.position.z);

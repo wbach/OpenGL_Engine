@@ -16,6 +16,7 @@ class ComponentsView:
         btn.grid(column=0, row=5, padx=5, pady=5)
 
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
+        self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
 
     def ClearComponents(self):
         self.size = 0

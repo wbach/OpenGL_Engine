@@ -10,11 +10,9 @@ class EditorScene : public GameEngine::Scene
 public:
     EditorScene(Context& context);
     virtual ~EditorScene() override;
-    virtual int Initialize();
-    virtual void PostInitialize()
-    {
-    }
-    virtual int Update();
+    int Initialize() override;
+    void PostInitialize() override;
+    int Update(float) override;
 
 private:
     void AddGameObjects(GameEngine::GameObject*, int lvl);

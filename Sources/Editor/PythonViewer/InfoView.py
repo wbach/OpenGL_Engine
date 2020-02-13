@@ -14,5 +14,12 @@ class InfoView:
         self.nameTextWidget = tk.Text(infoFrame, height=1, width=25)
         self.nameTextWidget.grid(column=1, row=1, padx=7, pady=5)
 
+        networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def Clear(self):
+        self.idTextVar.set("")
+        self.nameTextWidget.delete('1.0', tk.END)
+        self.nameTextWidget.update()
+
     def GetObjectId(self):
         return self.idTextVar.get()

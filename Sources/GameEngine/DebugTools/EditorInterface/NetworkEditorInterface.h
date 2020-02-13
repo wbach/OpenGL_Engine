@@ -38,6 +38,7 @@ private:
 
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
     GameObject* GetGameObjectBasedOnParam(const std::string&);
+    void UnsubscribeTransformUpdateIfExist();
 
 private:
     Scene& scene_;

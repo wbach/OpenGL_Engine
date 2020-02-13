@@ -29,6 +29,11 @@ class GameObjectView:
         gameObjectsCountLabel.grid(row=1, column=0, padx=5, pady=5, sticky=(tk.W))
 
         self.networkClient.SubscribeOnMessage("NewGameObjectInd", self.OnGameObjectMsg)
+        networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def Clear(self):
+        for i in self.tree.get_children():
+            self.tree.delete(i)
 
     def OnGameObjectMsg(self, msg):
         print("OnGameObjectMsg, Message : \"{0}\"".format(msg.tag))
