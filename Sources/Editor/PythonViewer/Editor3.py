@@ -1,9 +1,9 @@
-from PythonViewer.NetworkClient import NetworkClient
-from PythonViewer.GameObjectView import GameObjectView
-from PythonViewer.ComponentsView import ComponentsView
-from PythonViewer.TransformView import TransformView
-from PythonViewer.InfoView import InfoView
-from PythonViewer.Menu import Menu
+from NetworkClient import NetworkClient
+from GameObjectView import GameObjectView
+from ComponentsView import ComponentsView
+from TransformView import TransformView
+from InfoView import InfoView
+from Menu import Menu
 
 import tkinter as tk
 import sys

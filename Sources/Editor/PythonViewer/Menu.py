@@ -5,7 +5,7 @@ from tkinter import filedialog
 import sys
 import pathlib
 
-from PythonViewer.CommonWidgetTools import AskAndTryConnect
+from CommonWidgetTools import AskAndTryConnect
 
 class Menu:
     def __init__(self, networkClient, root, gameObjectView):
@@ -35,7 +35,7 @@ class Menu:
         return
 
     def Listen(self):
-        print("Listen");
+        print("Listen")
         self.root.after(100, self.Listen)
 
     def Connect(self):

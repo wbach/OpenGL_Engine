@@ -6,31 +6,33 @@
 
 namespace GameEngine
 {
-struct GameObjectMsg : public Network::IMessage
+struct RemoveComponentMsgInd : public Network::IMessage
 {
 public:
-    GameObjectMsg()
-        : GameObjectMsg("")
+    RemoveComponentMsgInd()
+        : RemoveComponentMsgInd("")
     {
 
     }
-    GameObjectMsg(const std::string& name)
-        : IMessage(static_cast<uint8>(MessageTypes::GameObject), Network::MessageTarget::All)
+    RemoveComponentMsgInd(const std::string& name)
+        : IMessage(static_cast<uint8>(MessageTypes::RemoveComponentMsgInd), Network::MessageTarget::All)
     {
-        memset(name_, 0, Network::arraySize);
         Network::CopyToArray(name_, name);
     }
+
     std::string GetName() const
     {
         return name_;
     }
 
-    uint32 id = 0;
-    uint32 parentId = 0;
+    void SetName(const std::string& name)
+    {
+        Network::CopyToArray(name_, name);
+    }
 
     virtual std::string ToString() const override
     {
-        return "ID: " + std::to_string(id) + "\nName: " + name_ + "\nParentId: " + std::to_string(parentId);
+        return std::string("Component name: ") + name_;
     }
 
 private:

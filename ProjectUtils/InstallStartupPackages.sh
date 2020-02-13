@@ -24,7 +24,7 @@ sudo apt-get install -y qtcreator
 sudo apt-get install -y python-pip
 sudo apt-get install -y python3-pip
 sudo apt-get install -y python-opencv
-python -m pip install -U matplotlib
+sudo pip install -U matplotlib
 sudo apt-get install -y cifs-utils
 sudo pip3 install lxml
 sudo apt-get install -y python-backports.functools-lru-cache
@@ -33,11 +33,11 @@ sudo apt-get install -y python3-tk
 # sudo apt-get install python-support
 # sudo update-python-modules -a
 
-pip install -U scikit-learn
-pip install tqdm
+sudo pip install -U scikit-learn
+sudo pip install tqdm
 sudo apt-get install -y python-backports.functools-lru-cache
 sudo apt-get install -y python-tk
-pip install --upgrade google-api-python-client oauth2client
+sudo pip install --upgrade google-api-python-client oauth2client
 
 #https://github.com/prahladyeri/tuxdrive
 sudo pip3 install google-api-python-client oauth2client

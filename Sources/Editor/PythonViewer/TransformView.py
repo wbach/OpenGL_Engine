@@ -1,6 +1,6 @@
 from lxml import objectify
 
-from PythonViewer.CommonWidgetTools import CreateVectorInput
+from CommonWidgetTools import CreateVectorInput
 
 
 class TransformView:
@@ -17,20 +17,15 @@ class TransformView:
         self.scaleX, self.scaleY, self.scaleZ = CreateVectorInput(rootFrame=frame, label="Scale", startColumn=0,
                                                                   startRow=3, inputCallback=self.EnterScale)
 
+        self.networkClient.SubscribeOnMessage("Transform", self.RecevieTransform)
+
     def Fill(self, gameObjectId):
         self.SendGetTransformRequest(gameObjectId)
-        self.RecevieTransform()
 
     def SendGetTransformRequest(self, gameObjectId):
         self.networkClient.SendCommand("transformReq id=" + str(gameObjectId))
 
-    def RecevieTransform(self):
-        msg = self.networkClient.RecevieMsg()
-        root = objectify.fromstring(msg)
-
-        if root.tag != "Transform":
-            return
-
+    def RecevieTransform(self, root):
         self.recevingTransform = True
         for e in root.getchildren():
             if e.tag == "position":

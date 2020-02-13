@@ -20,7 +20,7 @@ class NetworkClient:
         self.connect_ = False
         self.serverAddress = (tcpIp, port)
         self.messageSubscribers = defaultdict(list)
-        self.isRunning = False
+        self.isRunning = True
 
     def SubscribeOnMessage(self, msgType, callback):
         self.messageSubscribers[msgType].append(callback)
@@ -28,12 +28,17 @@ class NetworkClient:
     def RecevieThread(self):
         while self.isRunning:
             msg = self.RecevieMsg()
+            if len(msg) <= 0:
+                continue
+
             self.PrintMsg(msg)
             main = objectify.fromstring(msg)
             msgType = main.tag
             if msgType in self.messageSubscribers:
-                for sub in self.messageSubscribers[msgType]:
-                    self.messageSubscribers[msgType](main)
+                for subscriber in self.messageSubscribers[msgType]:
+                    subscriber(main)
+            else:
+                print("Msg \"{0}\" not handler found".format(msgType))
 
     def SendMsg(self, msg, type):
         self.socket_.send(chr(4).encode(self.encodeFormat_))
