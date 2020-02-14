@@ -54,6 +54,8 @@ public:
     void PostInit();
     void FullUpdate(float deltaTime);
     void PostUpdate();
+    void Start();
+    void Stop();
 
     inline const std::string& GetName() const;
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
@@ -136,9 +138,11 @@ protected:
 
 private:
     void CreateResourceManger(GraphicsApi::IGraphicsApi&);
-
+    std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;
+
+    friend class NetworkEditorInterface;
     friend class Debug::Console;
 };
 

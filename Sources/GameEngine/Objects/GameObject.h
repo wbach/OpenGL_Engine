@@ -27,6 +27,7 @@ public:
     T* GetComponent();
     template <class T>
     T& AddComponent();
+    Components::IComponent* AddComponent(Components::ComponentsType);
     inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
 
 public:

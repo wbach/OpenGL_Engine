@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <optional>
 
 namespace GameEngine
 {
@@ -33,4 +34,5 @@ enum class ComponentsType
 namespace std
 {
 std::string to_string(GameEngine::Components::ComponentsType);
+std::optional<GameEngine::Components::ComponentsType> from_string(const std::string&);
 } // namespace std

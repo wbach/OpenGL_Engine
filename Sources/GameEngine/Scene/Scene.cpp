@@ -32,6 +32,7 @@ Scene::Scene(const std::string& name)
     , directionalLight(vec3(10000, 15000, 10000), vec3(0.8))
     , componentFactory_(nullptr)
     , simulatePhysics_(true)
+    , start_(true)
 {
 }
 
@@ -79,6 +80,11 @@ void Scene::PostInit()
 
 void Scene::FullUpdate(float deltaTime)
 {
+    if (not start_.load())
+    {
+        return;
+    }
+
     if (physicsApi_ && simulatePhysics_.load())
     {
         physicsApi_->SetSimulationStep(deltaTime);
@@ -103,7 +109,20 @@ void Scene::FullUpdate(float deltaTime)
 
 void Scene::PostUpdate()
 {
-    componentController_.PostUpdate();
+    if (start_.load())
+    {
+        componentController_.PostUpdate();
+    }
+}
+
+void Scene::Start()
+{
+    start_.store(true);
+}
+
+void Scene::Stop()
+{
+    start_.store(false);
 }
 
 void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi)

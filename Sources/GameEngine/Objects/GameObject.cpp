@@ -28,4 +28,11 @@ void GameObject::RegisterComponentFunctions()
         c->ReqisterFunctions();
     }
 }
+
+Components::IComponent* GameObject::AddComponent(Components::ComponentsType type)
+{
+    auto component = componentFactory_.Create(type, *this);
+    components_.push_back(std::move(component));
+    return components_.back().get();
+}
 }  // namespace GameEngine

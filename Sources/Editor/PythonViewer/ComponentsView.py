@@ -1,19 +1,17 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from lxml import objectify
-
 
 class ComponentsView:
     def __init__(self, networkClient, rootFrame):
         self.networkClient = networkClient
         self.size          = 0
 
-        self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=250, height=25)
-        self.componentsFrame.grid(column=0, row=4, padx=0, pady=0, ipady=5)
+        self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=270, height=25)
+        self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
 
         btn = tk.Button(rootFrame, text="Add componnent", command=self.AddComponent, width=30)
-        btn.grid(column=0, row=5, padx=5, pady=5)
+        btn.pack(padx=5, pady=5,)
 
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)

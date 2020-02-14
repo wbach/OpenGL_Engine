@@ -17,7 +17,8 @@ def AskAndTryConnect(networkClient, msg, func):
 
 def CreateVectorInput(rootFrame, label, startColumn, startRow, inputCallback):
     frame = tk.Frame(rootFrame, width=200, height=400)
-    frame.grid(row=startRow, column=startColumn, padx=5, pady=0, sticky=(tk.W, tk.E))
+    #frame.grid(row=startRow, column=startColumn, padx=5, pady=0, sticky=(tk.W, tk.E))
+    frame.pack()
 
     vframe = tk.LabelFrame(frame, text=label)
     vframe.grid(column=startColumn, row=startRow, padx=0, pady=0, ipadx=5,ipady=5, sticky=(tk.W), columnspan=1)

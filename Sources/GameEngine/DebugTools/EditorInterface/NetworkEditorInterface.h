@@ -35,10 +35,17 @@ private:
     void SetGameObjectPosition(const std::vector<std::string>&);
     void SetGameObjectRotation(const std::vector<std::string>&);
     void SetGameObjectScale(const std::vector<std::string>&);
+    void CreateGameObject(const std::vector<std::string>&);
+    void GetComponentsList(const std::vector<std::string>&);
+    void AddComponent(const std::vector<std::string>&);
+    void StartScene(const std::vector<std::string>&);
+    void StopScene(const std::vector<std::string>&);
 
+    std::unordered_map<std::string, std::string> CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
     GameObject* GetGameObjectBasedOnParam(const std::string&);
     void UnsubscribeTransformUpdateIfExist();
+    void SetFreeCamera();
 
 private:
     Scene& scene_;

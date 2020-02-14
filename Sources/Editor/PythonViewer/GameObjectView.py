@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from lxml import objectify
 
 
 class GameObjectView:
@@ -34,6 +33,7 @@ class GameObjectView:
     def Clear(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
+        self.gameObjectsCountStr.set("Game objects count : 0")
 
     def OnGameObjectMsg(self, msg):
         print("OnGameObjectMsg, Message : \"{0}\"".format(msg.tag))
