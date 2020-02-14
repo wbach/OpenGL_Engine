@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <optional>
+#include <vector>
 
 namespace GameEngine
 {
@@ -26,8 +27,9 @@ enum class ComponentsType
     Water,
     ThridPersonCamera,
     PlayerInputController,
-    CharacterController,
+    CharacterController
 };
+std::vector<ComponentsType> GetComponentTypes();
 }  // namespace Components
 }  // namespace GameEngine
 

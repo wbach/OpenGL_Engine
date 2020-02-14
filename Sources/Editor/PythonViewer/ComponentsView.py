@@ -1,11 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
-
+from CommonWidgetTools import CalculateGeomentryCenterPosition
 
 class ComponentsView:
-    def __init__(self, networkClient, rootFrame):
-        self.networkClient = networkClient
-        self.size          = 0
+    def __init__(self, context, rootFrame):
+        self.size = 0
+        self.context = context
+        self.networkClient = context.networkClient
+        self.availableComponents = set()
+        self.rootFrame = rootFrame
 
         self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=270, height=25)
         self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
@@ -14,7 +17,12 @@ class ComponentsView:
         btn.pack(padx=5, pady=5,)
 
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
+        self.networkClient.SubscribeOnMessage("AvailableComponentMsgInd", self.OnComponentIndMsg)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
+
+    def AvailableComponentMsgInd(self, msg):
+        self.availableComponents.add(msg.get("name"))
+        print(self.availableComponents)
 
     def ClearComponents(self):
         self.size = 0
@@ -29,6 +37,11 @@ class ComponentsView:
     def AddComponent(self):
         print("Not supported yet.")
         messagebox.showinfo(title="Info", message="Not supported yet.")
+
+        d = tk.Toplevel(self.rootFrame)
+        d.title("Add component")
+        d.geometry(CalculateGeomentryCenterPosition(self.context, 500, 300))
+        d.attributes('-topmost', 'true')
 
     def SendGetGameObjectComponentsReq(self, gameObjectId):
         self.networkClient.SendCommand("getGameObjectComponentsListReq id=" + str(gameObjectId))

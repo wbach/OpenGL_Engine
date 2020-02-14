@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
 
+def CalculateGeomentryCenterPosition(context, w, h):
+    x = (context.screenWidth / 2) - (w / 2)
+    y = (context.screenHeight / 2) - (h / 2)
+    return '%dx%d+%d+%d' % (w, h, x, y)
+
 def AskAndTryConnect(networkClient, msg, func):
     if not networkClient.IsConnected():
         while True:

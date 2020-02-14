@@ -7,6 +7,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectIndMsg.h"
 #include "Messages/RemoveComponentMsgInd.h"
@@ -355,7 +356,11 @@ void NetworkEditorInterface::CreateGameObject(const std::vector<std::string> &pa
 
 void NetworkEditorInterface::GetComponentsList(const std::vector<std::string> &)
 {
-
+    for (auto type : Components::GetComponentTypes())
+    {
+        AvailableComponentMsgInd msg(std::to_string(type));
+        gateway_.Send(userId_, msg);
+    }
 }
 
 void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params)
@@ -393,12 +398,12 @@ void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params
     }
 }
 
-void NetworkEditorInterface::StartScene(const std::vector<std::string>&)
+void NetworkEditorInterface::StartScene(const std::vector<std::string> &)
 {
     scene_.Start();
 }
 
-void NetworkEditorInterface::StopScene(const std::vector<std::string>&)
+void NetworkEditorInterface::StopScene(const std::vector<std::string> &)
 {
     scene_.Stop();
 }

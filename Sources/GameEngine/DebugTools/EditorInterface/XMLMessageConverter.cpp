@@ -7,11 +7,12 @@
 #include <UtilsNetwork/Messages/XmlConverterUtils.h>
 
 #include "MessageTypes.h"
+#include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectIndMsg.h"
-#include "Messages/TransformMsg.h"
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectIndMsg.h"
+#include "Messages/TransformMsg.h"
 
 namespace GameEngine
 {
@@ -21,9 +22,7 @@ XmlMessageConverter::XmlMessageConverter()
 
 bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and
-           type >= static_cast<uint8>(NETWORK_INTERFACE_MESSAGE_TYPE_RANGE_LOW) and
-           type <= static_cast<uint8>(NETWORK_INTERFACE_TYPE_RANGE_HIGH);
+    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= static_cast<uint8>(NETWORK_INTERFACE_MESSAGE_TYPE_RANGE_LOW) and type <= static_cast<uint8>(NETWORK_INTERFACE_TYPE_RANGE_HIGH);
 }
 
 std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType, const Network::IMessageData&)
@@ -82,6 +81,16 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
             auto v = Network::CreatePayload(root);
             return v;
         }
+        case GameEngine::MessageTypes::AvailableComponentMsgInd:
+        {
+            auto msg = Network::castMessageAs<AvailableComponentMsgInd>(message);
+            Utils::XmlNode root("AvailableComponentMsgInd");
+            root.attributes_.insert({"name", msg->GetName()});
+            DEBUG_LOG(Utils::Xml::Write(root));
+            auto v = Network::CreatePayload(root);
+            return v;
+        }
+
         default:
             break;
     }

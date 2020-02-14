@@ -41,6 +41,7 @@ class Menu:
     def Connect(self):
         if self.networkClient.Connect():
             self.gameObjectView.GetObjectList()
+            self.networkClient.SendCommand("getComponentList")
             #window.after(1000, Listen)
             return True
         return False

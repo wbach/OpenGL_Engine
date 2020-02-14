@@ -1,10 +1,11 @@
-from NetworkClient import NetworkClient
 from GameObjectView import GameObjectView
 from ComponentsView import ComponentsView
 from SceneControlView import SceneControlView
 from TransformView import TransformView
 from InfoView import InfoView
 from Menu import Menu
+from Context import Context
+from CommonWidgetTools import CalculateGeomentryCenterPosition
 
 import tkinter as tk
 import sys
@@ -13,21 +14,22 @@ import sys
 class Editor:
     def __init__(self):
         self.root = tk.Tk()
+        self.context = Context(self.root, TCP_IP, TCP_PORT)
         self.root.title("Editor")
-        self.root.geometry('660x750')
+
+        self.root.geometry(CalculateGeomentryCenterPosition(self.context, 660, 750))
 
         self.rightFrame = tk.Frame(self.root, width=325, height=400)
         self.rightFrame.grid(row=0, column=1, padx=5, pady=5, sticky=(tk.W, tk.N))
 
-        self.networkClient = NetworkClient(TCP_IP, TCP_PORT)
-        self.sceneControlView = SceneControlView(self.networkClient, self.rightFrame)
-        self.infoView = InfoView(self.networkClient, self.rightFrame)
-        self.transformView = TransformView(self.networkClient, self.rightFrame, self.infoView)
-        self.componentsView = ComponentsView(self.networkClient, self.rightFrame)
+        self.sceneControlView = SceneControlView(self.context.networkClient, self.rightFrame)
+        self.infoView = InfoView(self.context.networkClient, self.rightFrame)
+        self.transformView = TransformView(self.context.networkClient, self.rightFrame, self.infoView)
+        self.componentsView = ComponentsView(self.context, self.rightFrame)
 
-        self.gameObjectView = GameObjectView(self.networkClient, self.root, self.infoView, self.transformView,
+        self.gameObjectView = GameObjectView(self.context.networkClient, self.root, self.infoView, self.transformView,
                                              self.componentsView)
-        self.menu = Menu(self.networkClient, self.root, self.gameObjectView)
+        self.menu = Menu(self.context.networkClient, self.root, self.gameObjectView)
 
         self.root.mainloop()
 

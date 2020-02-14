@@ -9,6 +9,7 @@ enum class MessageTypes
     NewGameObjectInd,
     RemoveGameObjectInd,
     Transform,
+    AvailableComponentMsgInd,
     NewComponentMsgInd,
     RemoveComponentMsgInd
 };
