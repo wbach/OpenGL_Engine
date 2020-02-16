@@ -29,6 +29,7 @@ private:
     void DisconnectUser(uint32);
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
     void LoadSceneFromFile(const std::vector<std::string>&);
+    void GetCamera(const std::vector<std::string>&);
     void GetObjectList(const std::vector<std::string>&);
     void TransformReq(const std::vector<std::string>&);
     void GetGameObjectComponentsListReq(const std::vector<std::string>&);

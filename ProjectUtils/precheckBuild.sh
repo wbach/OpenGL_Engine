@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sshTarget='baszek@192.168.0.45'
+sshTarget='baszek@'$1
 
 revision=`git rev-parse HEAD`
 

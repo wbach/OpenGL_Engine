@@ -23,3 +23,8 @@ class InfoView:
 
     def GetObjectId(self):
         return self.idTextVar.get()
+
+    def UpdateInfoWidget(self, name, id):
+        self.nameWidget.delete('1.0', tk.END)
+        self.nameWidget.insert(tk.END, name)
+        self.idTextVar.set(id)

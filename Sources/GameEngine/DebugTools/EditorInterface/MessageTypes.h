@@ -6,6 +6,7 @@ namespace GameEngine
 enum class MessageTypes
 {
     Any,
+    CameraMsg,
     NewGameObjectInd,
     RemoveGameObjectInd,
     Transform,

@@ -3,11 +3,12 @@
 #include <Utils.h>
 #include <UtilsNetwork/Messages/TextMessage.h>
 
-#include <Camera/FirstPersonCamera.h>
+#include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
+#include "Messages/CameraMsg.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectIndMsg.h"
 #include "Messages/RemoveComponentMsgInd.h"
@@ -33,7 +34,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"openFile", [&](const std::vector<std::string> &v) { LoadSceneFromFile(v); }});
     commands_.insert({"getObjectList", [&](const std::vector<std::string> &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const std::vector<std::string> &v) { TransformReq(v); }});
-    commands_.insert({"getGameObjectComponentsListReq", [&](const std::vector<std::string> &v) { GetGameObjectComponentsListReq(v); }});
+    commands_.insert({"getGameObjectComponentsListReq",
+                      [&](const std::vector<std::string> &v) { GetGameObjectComponentsListReq(v); }});
     commands_.insert({"setPosition", [&](const std::vector<std::string> &v) { SetGameObjectPosition(v); }});
     commands_.insert({"setRotation", [&](const std::vector<std::string> &v) { SetGameObjectRotation(v); }});
     commands_.insert({"setScale", [&](const std::vector<std::string> &v) { SetGameObjectScale(v); }});
@@ -42,15 +44,20 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"startScene", [&](const std::vector<std::string> &v) { StartScene(v); }});
     commands_.insert({"stopScene", [&](const std::vector<std::string> &v) { StopScene(v); }});
     commands_.insert({"getComponentList", [&](const std::vector<std::string> &v) { GetComponentsList(v); }});
-
+    commands_.insert({"getCamera", [&](const std::vector<std::string> &v) { GetCamera(v); }});
+    
     gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
 
     DEBUG_LOG("Starting server");
     gateway_.StartServer(30, 1991);
     gateway_.SetDefaultMessageConverterFormat(Network::MessageFormat::Xml);
-    gateway_.SubscribeForNewUser(std::bind(&NetworkEditorInterface::NewUser, this, std::placeholders::_1, std::placeholders::_2));
-    gateway_.SubscribeForDisconnectUser(std::bind(&NetworkEditorInterface::DisconnectUser, this, std::placeholders::_1));
-    gateway_.SubscribeOnMessageArrived(Network::MessageTypes::Text, std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
+    gateway_.SubscribeForNewUser(
+        std::bind(&NetworkEditorInterface::NewUser, this, std::placeholders::_1, std::placeholders::_2));
+    gateway_.SubscribeForDisconnectUser(
+        std::bind(&NetworkEditorInterface::DisconnectUser, this, std::placeholders::_1));
+    gateway_.SubscribeOnMessageArrived(
+        Network::MessageTypes::Text,
+        std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
     networkThread_ = std::thread([&]() {
         DEBUG_LOG("Starting gateway thread");
@@ -130,7 +137,16 @@ void NetworkEditorInterface::LoadSceneFromFile(const std::vector<std::string> &a
     scene_.LoadFromFile(args[1]);
 }
 
-void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId, const std::vector<std::unique_ptr<GameObject>> &objectList)
+void NetworkEditorInterface::GetCamera(const std::vector<std::string> &)
+{
+    CameraMsg msg;
+    msg.position_ = scene_.GetCamera().GetPosition();
+    msg.rotation_ = scene_.GetCamera().GetRotation();
+    gateway_.Send(userId_, msg);
+}
+
+void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId,
+                            const std::vector<std::unique_ptr<GameObject>> &objectList)
 {
     if (objectList.empty())
     {
@@ -165,6 +181,8 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
             SendChildrenObjectList(userId_, gateway_, go.second->GetId(), go.second->GetChildrens());
         }
     }
+    // NewGameObjectIndMsg message("Camera");
+    //   message.id = go.second->GetId();
 }
 
 void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
@@ -365,7 +383,7 @@ void NetworkEditorInterface::GetComponentsList(const std::vector<std::string> &)
 
 void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params)
 {
-    if (params.size() <= 3)
+    if (params.size() < 3)
     {
         DEBUG_LOG("param is empty");
         return;
@@ -408,7 +426,8 @@ void NetworkEditorInterface::StopScene(const std::vector<std::string> &)
     scene_.Stop();
 }
 
-std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(const std::vector<std::string> &param)
+std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(
+    const std::vector<std::string> &param)
 {
     std::unordered_map<std::string, std::string> v;
     for (const auto &p : param)

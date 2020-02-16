@@ -8,6 +8,7 @@
 
 #include "MessageTypes.h"
 #include "Messages/AvailableComponentMsgInd.h"
+#include "Messages/CameraMsg.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectIndMsg.h"
 #include "Messages/RemoveComponentMsgInd.h"
@@ -22,7 +23,9 @@ XmlMessageConverter::XmlMessageConverter()
 
 bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= static_cast<uint8>(NETWORK_INTERFACE_MESSAGE_TYPE_RANGE_LOW) and type <= static_cast<uint8>(NETWORK_INTERFACE_TYPE_RANGE_HIGH);
+    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and
+           type >= static_cast<uint8>(NETWORK_INTERFACE_MESSAGE_TYPE_RANGE_LOW) and
+           type <= static_cast<uint8>(NETWORK_INTERFACE_TYPE_RANGE_HIGH);
 }
 
 std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType, const Network::IMessageData&)
@@ -90,6 +93,25 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
             auto v = Network::CreatePayload(root);
             return v;
         }
+        case GameEngine::MessageTypes::CameraMsg:
+        {
+            auto msg = Network::castMessageAs<CameraMsg>(message);
+            Utils::XmlNode root("CameraMsg");
+            auto& position = root.AddChild("position");
+            position.attributes_.insert({"x", std::to_string(msg->position_.x)});
+            position.attributes_.insert({"y", std::to_string(msg->position_.y)});
+            position.attributes_.insert({"z", std::to_string(msg->position_.z)});
+
+            auto& rotation = root.AddChild("rotation");
+            rotation.attributes_.insert({"x", std::to_string(msg->rotation_.x)});
+            rotation.attributes_.insert({"y", std::to_string(msg->rotation_.y)});
+            rotation.attributes_.insert({"z", std::to_string(msg->rotation_.z)});
+
+            DEBUG_LOG(Utils::Xml::Write(root));
+            auto v = Network::CreatePayload(root);
+            return v;
+        }
+        break;
 
         default:
             break;

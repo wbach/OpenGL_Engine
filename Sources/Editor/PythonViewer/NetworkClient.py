@@ -19,6 +19,7 @@ class NetworkClient:
         self.encodeFormat_ = 'iso-8859-15'
         self.connect_ = False
         self.isRunning = True
+        self.debugPrinting = True
         self.serverAddress = (tcpIp, port)
         self.disconnectSubscribers = []
         self.messageSubscribers = defaultdict(list)
@@ -53,38 +54,38 @@ class NetworkClient:
                     for subscriber in self.messageSubscribers[msgType]:
                         subscriber(main)
                 else:
-                    print("Msg \"{0}\" not handler found".format(msgType))
+                    self.Print("Msg \"{0}\" not handler found".format(msgType))
             except:
                 print("Parsing msg failed.")
 
     def SendMsg(self, msg, type):
         self.socket_.send(chr(4).encode(self.encodeFormat_))
         self.socket_.send(type.encode(self.encodeFormat_))
-        print("Sent msg size : {0}".format(len(msg)))
+        self.Print("Sent msg size : {0}".format(len(msg)))
         self.socket_.send(len(msg).to_bytes(4, byteorder="little"))
         self.socket_.send(msg.encode(self.encodeFormat_))
 
     def RecevieMsg(self):
         msgFormat = self.socket_.recv(1)
-        print("msgFormat : {0}".format(ord(msgFormat)))
+        self.Print("msgFormat : {0}".format(ord(msgFormat)))
         msgType = self.socket_.recv(1)
-        print("msgType : {0}".format(ord(msgType)))
+        self.Print("msgType : {0}".format(ord(msgType)))
         msgSizeBytes = self.socket_.recv(4)
         msgSize = int.from_bytes(msgSizeBytes, "little")
-        print("msgSize : {0}".format(msgSize))
+        self.Print("msgSize : {0}".format(msgSize))
         return self.socket_.recv(msgSize).decode(self.encodeFormat_)
 
     def RecevieConnectionMsg(self):
-        print("msg data: {0}".format(self.RecevieMsg()))
+        self.Print("msg data: {0}".format(self.RecevieMsg()))
 
     def SendAuthenticationMessage(self):
         msg = "<AuthenticationMessage username=\"baszek\" password=\"haslo\"/>"
-        self.SendMsg(msg, Authentication);
+        self.SendMsg(msg, Authentication)
 
     def SendCommand(self, cmd):
         msg = "<TextMessage text=\"" + cmd + "\"/>"
         self.SendMsg(msg, Text)
-        print(msg)
+        self.Print(msg)
 
     def Connect(self):
         try:
@@ -92,12 +93,13 @@ class NetworkClient:
             self.socket_.connect(self.serverAddress)
             self.connect_ = True
             self.isRunning = True
-            print("Connected. Start authentication process.")
+            print("Connected")
+            self.Print("Start authentication process.")
             self.RecevieConnectionMsg()
             self.SendAuthenticationMessage()
             self.RecevieConnectionMsg()
             self.thread_ = _thread.start_new_thread(self.RecevieThread, ())
-            print("Connected. Authentication process end.")
+            self.Print("Connected. Authentication process end.")
             return True
         except socket.error as exc:
             # print("Connecting error: {0}".format(exc))
@@ -111,6 +113,10 @@ class NetworkClient:
         return self.connect_
 
     def PrintMsg(self, msg):
-        print("RecevieMsg:")
-        print(msg)
-        print("===========")
+        self.Print("RecevieMsg:")
+        self.Print(msg)
+        self.Print("===========")
+
+    def Print(self,  str):
+        if self.debugPrinting:
+            print(str)

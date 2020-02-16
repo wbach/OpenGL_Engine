@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter import messagebox
 from CommonWidgetTools import CalculateGeomentryCenterPosition
 
@@ -9,6 +10,8 @@ class ComponentsView:
         self.networkClient = context.networkClient
         self.availableComponents = set()
         self.rootFrame = rootFrame
+        self.addComponentCB = tk.StringVar()
+        self.gameObjectId = 0
 
         self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=270, height=25)
         self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
@@ -17,7 +20,7 @@ class ComponentsView:
         btn.pack(padx=5, pady=5,)
 
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
-        self.networkClient.SubscribeOnMessage("AvailableComponentMsgInd", self.OnComponentIndMsg)
+        self.networkClient.SubscribeOnMessage("AvailableComponentMsgInd", self.AvailableComponentMsgInd)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
 
     def AvailableComponentMsgInd(self, msg):
@@ -31,17 +34,31 @@ class ComponentsView:
             l.destroy()
 
     def Fill(self, gameObjectId):
+        self.gameObjectId = gameObjectId
         self.ClearComponents()
         self.SendGetGameObjectComponentsReq(gameObjectId)
 
     def AddComponent(self):
-        print("Not supported yet.")
-        messagebox.showinfo(title="Info", message="Not supported yet.")
+        if len(self.availableComponents)  > 0:
+            dialog = tk.Toplevel(self.rootFrame)
+            dialog.title("Add component")
+            dialog.geometry(CalculateGeomentryCenterPosition(self.context, 400, 50))
+            dialog.attributes('-topmost', 'true')
 
-        d = tk.Toplevel(self.rootFrame)
-        d.title("Add component")
-        d.geometry(CalculateGeomentryCenterPosition(self.context, 500, 300))
-        d.attributes('-topmost', 'true')
+            combobox = ttk.Combobox(dialog, textvariable=self.addComponentCB)
+            combobox['values'] = list(self.availableComponents)
+            combobox.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.N))
+            combobox.current(0)
+            combobox.bind("<<ComboboxSelected>>", self.OnSelectedNewComponent)
+
+            btn = tk.Button(dialog, text="Add", command=self.SendAddComponentReq, width=30)
+            btn.grid(row=0, column=1, padx=5, pady=0)
+
+    def SendAddComponentReq(self):
+        self.networkClient.SendCommand("addComponent id=" + str(self.gameObjectId) + " name=" + self.addComponentCB.get())
+
+    def OnSelectedNewComponent(self, event):
+        print("selcted {0}".format(self.addComponentCB.get()))
 
     def SendGetGameObjectComponentsReq(self, gameObjectId):
         self.networkClient.SendCommand("getGameObjectComponentsListReq id=" + str(gameObjectId))

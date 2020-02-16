@@ -33,8 +33,21 @@ class TransformView:
         self.scaleZ.set("")
         self.selfEntering = False
 
-    def Fill(self, gameObjectId):
+    def ReqAndFill(self, gameObjectId):
         self.SendGetTransformRequest(gameObjectId)
+
+    def Fill(self, position, rotation, scale):
+        self.selfEntering = True
+        self.positionX.set(position[0])
+        self.positionY.set(position[1])
+        self.positionZ.set(position[2])
+        self.rotX.set(rotation[0])
+        self.rotY.set(rotation[1])
+        self.rotZ.set(rotation[2])
+        self.scaleX.set(scale[0])
+        self.scaleY.set(scale[1])
+        self.scaleZ.set(scale[2])
+        self.selfEntering = False
 
     def SendGetTransformRequest(self, gameObjectId):
         self.networkClient.SendCommand("transformReq id=" + str(gameObjectId))
