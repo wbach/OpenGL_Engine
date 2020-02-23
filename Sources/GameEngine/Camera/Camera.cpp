@@ -49,12 +49,27 @@ void BaseCamera::UpdateMatrix()
 void BaseCamera::SetPosition(const vec3& position)
 {
     position_ = position;
+    NotifySubscribers();
+}
+void BaseCamera::NotifySubscribers()
+{
+    for (auto& sub : subscribers_)
+    {
+        sub.second(*this);
+    }
+}
+uint32 BaseCamera::SubscribeOnChange(std::function<void(const ICamera&)> callback)
+{
+    subscribers_.push_back({idPool_, callback});
+    ++idPool_;
+    return idPool_ - 1;
 }
 void BaseCamera::LookAt(const vec3& lookAtPosition)
 {
     auto direction = position_ - lookAtPosition;
     rotation_.y    = Utils::ToDegrees(atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
     rotation_.x = Utils::ToDegrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
+    NotifySubscribers();
 }
 
 void BaseCamera::InvertPitch()
@@ -80,10 +95,12 @@ float BaseCamera::GetPitch() const
 void BaseCamera::SetPitch(float p)
 {
     rotation_.x = p;
+    NotifySubscribers();
 }
 void BaseCamera::SetRotation(const vec3& rotation)
 {
     rotation_ = rotation;
+    NotifySubscribers();
 }
 float BaseCamera::GetYaw() const
 {
@@ -92,6 +109,7 @@ float BaseCamera::GetYaw() const
 void BaseCamera::SetYaw(float y)
 {
     rotation_.y = y;
+    NotifySubscribers();
 }
 float BaseCamera::GetRoll() const
 {
@@ -100,6 +118,7 @@ float BaseCamera::GetRoll() const
 void BaseCamera::SetRoll(float roll)
 {
     rotation_.z = roll;
+    NotifySubscribers();
 }
 void BaseCamera::CalculateDirection()
 {
@@ -128,5 +147,15 @@ void BaseCamera::UpdateViewMatrix()
 const mat4& BaseCamera::GetViewMatrix() const
 {
     return viewMatrix_;
+}
+void BaseCamera::IncreaseYaw(float yaw)
+{
+    rotation_.y += yaw;
+    NotifySubscribers();
+}
+void BaseCamera::IncreasePitch(float pitch)
+{
+    rotation_.x += pitch;
+    NotifySubscribers();
 }
 }  // namespace GameEngine

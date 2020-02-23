@@ -1,4 +1,5 @@
 #include "FirstPersonCamera.h"
+
 #include "../Display/DisplayManager.hpp"
 #include "../Input/InputManager.h"
 #include "math.hpp"
@@ -50,18 +51,18 @@ void FirstPersonCamera::LockCamera()
 
 void FirstPersonCamera::LockPitch()
 {
-    if (rotation_.x > 90.f)
-        rotation_.x = 90.f;
-    if (rotation_.x < -90.f)
-        rotation_.x = -90.f;
+    if (GetRotation().x > 90.f)
+        SetPitch(90.f);
+    if (GetRotation().x < -90.f)
+        SetPitch(-90.f);
 }
 
 void FirstPersonCamera::LockYaw()
 {
-    if (rotation_.y < 0.f)
-        rotation_.y += 360.f;
-    if (rotation_.y > 360.f)
-        rotation_.y -= 360.f;
+    if (GetRotation().y < 0.f)
+        IncreaseYaw(360.f);
+    if (GetRotation().y > 360.f)
+        IncreaseYaw(-360.f);
 }
 
 void FirstPersonCamera::Move()
@@ -77,7 +78,7 @@ void FirstPersonCamera::Move()
 vec2 FirstPersonCamera::CalcualteMouseMove()
 {
     auto result = inputManager->CalcualteMouseMove();
-    return vec2(result.x, result.y) * mousevel;
+    return vec2(result.y, result.x) * mousevel;
 }
 
 void FirstPersonCamera::ApllyMove()
@@ -85,9 +86,10 @@ void FirstPersonCamera::ApllyMove()
     if (not inputManager->GetMouseKey(KeyCodes::LMOUSE) or inputManager->GetKey(KeyCodes::LCTRL))
         return;
 
-    vec2 dmove = CalcualteMouseMove();
-    rotation_.y -= dmove.x;
-    rotation_.x -= dmove.y;
+    vec2 dmove = CalcualteMouseMove() * -1.f;
+    IncreasePitch(dmove.x);
+    IncreaseYaw(dmove.y);
+
     LockCamera();
 }
 
@@ -110,7 +112,7 @@ bool FirstPersonCamera::CheckAndProccesUpDirection()
     if (!inputManager->GetKey(KeyCodes::UARROW))
         return false;
 
-    if (rotation_.x != 90.f and rotation_.x != -90.f)
+    if (GetRotation().x != 90.f and GetRotation().x != -90.f)
         MoveCamera(currentMoveVelocity, 0.f);
 
     MoveCameraUp(currentMoveVelocity, 0.f);
@@ -122,7 +124,7 @@ bool FirstPersonCamera::CheckAndProccesDownDirection()
     if (!inputManager->GetKey(KeyCodes::DARROW))
         return false;
 
-    if (rotation_.x != 90.f and rotation_.x != -90.f)
+    if (GetRotation().x != 90.f and GetRotation().x != -90.f)
         MoveCamera(currentMoveVelocity, 180.f);
 
     MoveCameraUp(currentMoveVelocity, 180.f);
@@ -149,14 +151,13 @@ bool FirstPersonCamera::CheckAndProccesRightDirection()
 
 void FirstPersonCamera::MoveCamera(float dist, float dir)
 {
-    float rad = Utils::ToRadians(rotation_.y + dir);
-    position_.x -= sinf(-rad) * dist;
-    position_.z -= cosf(-rad) * dist;
+    float rad = Utils::ToRadians(GetRotation().y + dir);
+    SetPosition(vec3(sinf(-rad) * dist, GetPosition().y, cosf(-rad) * dist));
 }
 
 void FirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
-    float rad = Utils::ToRadians(rotation_.x + dir);
-    position_.y += sinf(-rad) * dist;
+    float rad = Utils::ToRadians(GetRotation().x + dir);
+    SetPosition(vec3(GetPosition().x, sinf(-rad) * dist, GetPosition().z));
 }
 }  // namespace GameEngine

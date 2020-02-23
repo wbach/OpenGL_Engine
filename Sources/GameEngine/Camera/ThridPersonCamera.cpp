@@ -51,8 +51,8 @@ void ThirdPersonCamera::LockYaw()
 }
 void ThirdPersonCamera::StaticCameraMove()
 {
-    rotation_.x = destinationPitch;
-    rotation_.y = destinationYaw;
+    SetPitch(destinationPitch);
+    SetYaw(destinationYaw);
     SetPosition(destinationPosition);
 }
 void ThirdPersonCamera::LockCamera()
@@ -237,14 +237,14 @@ bool ThirdPersonCamera::IsOnDestinationPos()
 
 bool ThirdPersonCamera::IsOnDestinationPitch()
 {
-    auto l = rotation_.y - destinationYaw;
+    auto l = GetYaw() - destinationYaw;
 
     return fabsf(l) < 0.1f;
 }
 
 bool ThirdPersonCamera::IsOnDestinationYaw()
 {
-    auto l = rotation_.x - destinationPitch;
+    auto l = GetPitch() - destinationPitch;
 
     return fabsf(l) < 0.1f;
 }

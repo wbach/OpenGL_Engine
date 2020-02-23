@@ -45,7 +45,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"stopScene", [&](const std::vector<std::string> &v) { StopScene(v); }});
     commands_.insert({"getComponentList", [&](const std::vector<std::string> &v) { GetComponentsList(v); }});
     commands_.insert({"getCamera", [&](const std::vector<std::string> &v) { GetCamera(v); }});
-    
+
     gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
 
     DEBUG_LOG("Starting server");
@@ -143,6 +143,13 @@ void NetworkEditorInterface::GetCamera(const std::vector<std::string> &)
     msg.position_ = scene_.GetCamera().GetPosition();
     msg.rotation_ = scene_.GetCamera().GetRotation();
     gateway_.Send(userId_, msg);
+
+    scene_.camera.SubscribeOnChange([&](const auto &camera) {
+        CameraMsg msg;
+        msg.position_ = camera.GetPosition();
+        msg.rotation_ = camera.GetRotation();
+        gateway_.Send(userId_, msg);
+    });
 }
 
 void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId,

@@ -4,12 +4,12 @@ from tkinter import ttk
 
 class GameObjectView:
     def __init__(self, networkClient, root, infoView, transformView, componentsView):
-        self.networkClient    = networkClient
-        self.root             = root
-        self.infoView         = infoView
-        self.transformView    = transformView
-        self.componentsView   = componentsView
-        self.gameObjects      = {}
+        self.networkClient = networkClient
+        self.root = root
+        self.infoView = infoView
+        self.transformView = transformView
+        self.componentsView = componentsView
+        self.gameObjects = {}
         self.gameObjectsCount = 0
         self.goType = "go"
         self.cameraType = "camera"
@@ -34,10 +34,9 @@ class GameObjectView:
         networkClient.SubscribeOnDisconnect(self.Clear)
 
     def OnCameraMsg(self, msg):
-        print("1")
-        hwnd = self.tree.insert("", "end", None, text=self.cameraType, values=(0, self.cameraType))
-        print("2")
-        self.gameObjects["camera"] = 0, self.cameraType, hwnd
+        if not self.cameraType in self.gameObjects:
+            hwnd = self.tree.insert("", "end", None, text=self.cameraType, values=(0, self.cameraType))
+            self.gameObjects[self.cameraType] = 0, self.cameraType, hwnd
 
         position = []
         rotation = []
@@ -48,8 +47,9 @@ class GameObjectView:
                 rotation = [e.get("x"), e.get("y"), e.get("z")]
 
         self.cameraInfo = [position, rotation]
-        print(self.cameraInfo)
-        print("3")
+
+        if self.infoView.GetViewName() == self.cameraType:
+            self.ShowCameraInView()
 
     def Clear(self):
         for i in self.tree.get_children():
@@ -71,13 +71,13 @@ class GameObjectView:
             self.gameObjects[goId] = parentId, name, hwnd
 
         self.gameObjectsCount = self.gameObjectsCount + 1
-        #self.frame.setvar()
+        # self.frame.setvar()
         print("Objects count : {0}".format(self.gameObjectsCount))
         self.gameObjectsCountStr.set("Game objects count : {0}".format(self.gameObjectsCount))
 
     def GetGameObjectNameAndId(self):
         curItem = self.tree.focus()
-        item    = self.tree.item(curItem)
+        item = self.tree.item(curItem)
         gameObjectId = item['values'][0]
         type = item['values'][1]
         return item['text'], gameObjectId, type
@@ -90,9 +90,12 @@ class GameObjectView:
             self.transformView.ReqAndFill(gameObjectId)
             self.componentsView.Fill(gameObjectId)
         elif type == self.cameraType:
-            self.infoView.UpdateInfoWidget(self.cameraType, "---")
-            self.transformView.Fill(self.cameraInfo[0], self.cameraInfo[1], ["---", "---", "---"])
+            self.ShowCameraInView()
 
     def GetObjectList(self):
         self.networkClient.SendCommand("getObjectList")
         self.networkClient.SendCommand("getCamera")
+
+    def ShowCameraInView(self):
+        self.infoView.UpdateInfoWidget(self.cameraType, "---")
+        self.transformView.Fill(self.cameraInfo[0], self.cameraInfo[1], ["---", "---", "---"])

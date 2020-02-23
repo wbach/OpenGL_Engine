@@ -38,6 +38,8 @@ public:
     void SetRotation(const vec3&);
     void SetPosition(const vec3&);
 
+    uint32 SubscribeOnChange(std::function<void(const ICamera&)>);
+
 private:
     BaseCamera baseCamera_;
     ICamera* camera_;

@@ -25,11 +25,16 @@ struct ICamera
     virtual const vec3& GetDirection() const  = 0;
     virtual const mat4& GetViewMatrix() const = 0;
 
+    virtual void IncreaseYaw(float yaw) = 0;
+    virtual void IncreasePitch(float pitch) = 0;
+
     virtual void LookAt(const vec3&)      = 0;
     virtual void SetYaw(float yaw)        = 0;
     virtual void SetRoll(float roll)      = 0;
     virtual void SetPitch(float pitch)    = 0;
     virtual void SetRotation(const vec3&) = 0;
     virtual void SetPosition(const vec3&) = 0;
+
+    virtual uint32 SubscribeOnChange(std::function<void(const ICamera&)>) = 0;
 };
 }  // namespace GameEngine

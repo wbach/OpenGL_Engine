@@ -150,4 +150,8 @@ void CameraWrapper::SetPosition(const vec3 &position)
     std::lock_guard<std::mutex> m(cameraMutex);
     camera_->SetPosition(position);
 }
+uint32 CameraWrapper::SubscribeOnChange(std::function<void(const ICamera &)> callback)
+{
+    return camera_->SubscribeOnChange(callback);
+}
 }  // namespace GameEngine

@@ -1,4 +1,6 @@
 #pragma once
+#include <functional>
+
 #include "ICamera.h"
 
 namespace GameEngine
@@ -30,6 +32,9 @@ public:
     virtual const vec3& GetDirection() const override;
     virtual const mat4& GetViewMatrix() const override;
 
+    virtual void IncreaseYaw(float yaw) override;
+    virtual void IncreasePitch(float pitch) override;
+
     virtual void LookAt(const vec3&) override;
     virtual void SetYaw(float yaw) override;
     virtual void SetRoll(float roll) override;
@@ -37,12 +42,20 @@ public:
     virtual void SetRotation(const vec3&) override;
     virtual void SetPosition(const vec3&) override;
 
+    void NotifySubscribers();
+    uint32 SubscribeOnChange(std::function<void(const ICamera&)>) override;
+
 protected:
     void CalculateDirection();
     void UpdateViewMatrix();
 
 protected:
     bool lock_{false};
+
+private:
+    uint32 idPool_;
+    std::vector<std::pair<uint32, std::function<void(const ICamera&)>>> subscribers_;
+
     vec3 up_;
     vec3 position_;
     vec3 rotation_;
