@@ -45,6 +45,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShad
     , shaderFactory_(shaderFactory)
     , renderPhysicsDebug_(false)
     , bufferDataUpdater_(graphicsApi)
+//    , debugRenderer_()
 {
 }
 const Projection& RenderersManager::GetProjection() const
@@ -121,12 +122,13 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
     Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
 
-    if (renderPhysicsDebug_ and physicsDebugDraw_)
-    {
-        DEBUG_LOG("Physic draw");
-        physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
-    }
+    //if (renderPhysicsDebug_ and physicsDebugDraw_)
+    //{
+    //    DEBUG_LOG("Physic draw");
+    //    physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
+    //}
 
+    //debugRenderer_.Render(*scene, threadTime);
     guiRenderer_.Render(*scene, threadTime);
 
     if (unsubscribeAllCallback_)
@@ -199,9 +201,9 @@ void RenderersManager::SwapLineFaceRender()
     renderAsLines.store(!renderAsLines.load());
 }
 
-void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_)
+void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
 {
-    physicsDebugDraw_ = func_;
+   // debugRenderer_.SetPhysicsDebugDraw(func);
 }
 void RenderersManager::EnableDrawPhysicsDebyg()
 {

@@ -5,6 +5,7 @@ namespace GraphicsApi
 enum class Shaders
 {
     Entity,
+    SimpleEntity,
     Grass,
     Particles,
     AnimatedParticles,
@@ -23,6 +24,7 @@ enum class Shaders
     Deffered,
     Loading,
     Font,
-    Texture
+    Texture,
+    Grid
 };
 }  // namespace GraphicsApi

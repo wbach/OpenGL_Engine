@@ -1,0 +1,84 @@
+#include "DebugRenderer.h"
+#include <Logger/Log.h>
+#include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GameEngine/Shaders/IShaderFactory.h"
+
+GameEngine::DebugRenderer::DebugRenderer(const RendererContext& context)
+    : context_(context)
+{
+    simpleShader_ = context.shaderFactory_.create(GraphicsApi::Shaders::SimpleEntity);
+    gridShader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Grid);
+    __RegisterRenderFunction__(RendererFunctionType::UPDATE, DebugRenderer::Render);
+}
+
+GameEngine::DebugRenderer::~DebugRenderer()
+{
+}
+
+void GameEngine::DebugRenderer::Init()
+{
+}
+
+void GameEngine::DebugRenderer::ReloadShaders()
+{
+}
+
+void GameEngine::DebugRenderer::Render(const Scene& scene, const Time& threadTime)
+{
+    DrawGrid();
+    DrawDebugObjects();
+
+    if (physicsDebugDraw_)
+    {
+        DEBUG_LOG("Physic draw");
+        physicsDebugDraw_(scene.GetCamera().GetViewMatrix(), context_.projection_.GetProjectionMatrix());
+    }
+}
+
+void GameEngine::DebugRenderer::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
+{
+    physicsDebugDraw_ = func;
+}
+
+void GameEngine::DebugRenderer::InitShaders()
+{
+}
+
+void GameEngine::DebugRenderer::DrawGrid()
+{
+    if (not gridShader_)
+        return;
+
+    gridShader_->Start();
+    context_.graphicsApi_.RenderQuad();
+    gridShader_->Stop();
+}
+
+void GameEngine::DebugRenderer::DrawDebugObjects()
+{
+    if (not simpleShader_)
+        return;
+
+    simpleShader_->Start();
+
+    for (const auto& sub : debugObjects_)
+    {
+        if (not sub.model)
+            continue;
+
+
+        //const auto& rcomp = sub->GetComponent<RendererComponent>;
+        //auto model        = rcomp->GetMohadedelWrapper().Get(LevelOfDetail::L1);
+
+        //if (model == nullptr)
+        //    continue;
+
+        //RenderModel(sub, *model);
+    }
+
+    simpleShader_->Stop();
+}

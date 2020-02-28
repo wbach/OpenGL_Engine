@@ -22,6 +22,20 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> fullDe
         }
     },
     {
+        GraphicsApi::Shaders::SimpleEntity,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/SimpleEntityShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/SimpleEntityShader.frag"}
+        }
+    },
+    {
+        GraphicsApi::Shaders::Grid,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/Grid.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/Grid.frag"}
+        }
+    },
+    {
         GraphicsApi::Shaders::Grass,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Grass/GrassShader.vert"},

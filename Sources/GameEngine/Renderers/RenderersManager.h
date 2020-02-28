@@ -5,6 +5,7 @@
 #include "GUI/GuiContext.h"
 #include "GUI/GuiRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "DebugElements/DebugRenderer.h"
 #include "IRenderer.h"
 #include "Projection.h"
 #include "RendererFunctionType.h"
@@ -45,7 +46,7 @@ public:
     void UnSubscribeAll(std::function<void()>);
     void SwapLineFaceRender();
 
-    void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func_);
+    void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)>);
     void EnableDrawPhysicsDebyg();
     void DisableDrawPhysicsDebyg();
     GUIRenderer& GetGuiRenderer();
@@ -66,17 +67,19 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
+    
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;
     std::vector<UnsubscribeContex> tounsubscriber_;
 
+   // DebugRenderer debugRenderer_;
     IRenderersPtrVec renderers_;
     GUIRenderer guiRenderer_;
     Projection projection_;
     RendererFunctions rendererFunctions_;
     IShaderFactory& shaderFactory_;
+
     bool renderPhysicsDebug_;
     GraphicsApi::ID perFrameId_;
     BufferDataUpdater bufferDataUpdater_;
