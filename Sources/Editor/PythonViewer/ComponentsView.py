@@ -17,10 +17,11 @@ class ComponentsView:
         self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
 
         btn = tk.Button(rootFrame, text="Add componnent", command=self.AddComponent, width=30)
-        btn.pack(padx=5, pady=5,)
+        btn.pack(padx=5, pady=5)
 
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
         self.networkClient.SubscribeOnMessage("AvailableComponentMsgInd", self.AvailableComponentMsgInd)
+        self.networkClient.SubscribeOnMessage("OnComponentMsgInfo", self.ShowEditComponentDialog)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
 
     def AvailableComponentMsgInd(self, msg):
@@ -74,13 +75,23 @@ class ComponentsView:
                                   onvalue=True, offvalue=False)
         checkBox.grid(column=0, row=self.size, padx=5, pady=0)
 
-        btn = tk.Button(self.componentsFrame, text=msg.get("name"), command=self.ShowEditComponentDialog, width=30)
+        id = self.size
+        btn = tk.Button(self.componentsFrame, text=msg.get("name"), command=lambda: self.SendGetComponentParamRequest(msg.get("name")), width=30)
         btn.grid(column=1, row=self.size, padx=5, pady=0)
 
         self.size = self.size + 1
 
-    def ShowEditComponentDialog(self):
-        messagebox.showinfo(title="Info", message="ShowEditComponentDialog no supported.")
+    def SendGetComponentParamRequest(self, name):
+        self.networkClient.SendCommand("getComponentParams gameObjectId=" + str(self.gameObjectId) + "name=" + name);
+
+    def ShowEditComponentDialog(self, msg):
+        dialog = tk.Toplevel(self.rootFrame)
+        dialog.title("Edit component")
+        dialog.geometry(CalculateGeomentryCenterPosition(self.context, 400, 50))
+        dialog.attributes('-topmost', 'true')
+
+        messagebox.showinfo(title="Info", message="ShowEditComponentDialog no supported. " + msg.get("name"))
+
 
     def ChangeComponentState(self):
         messagebox.showinfo(title="Info", message="ChangeComponentState no supported.")

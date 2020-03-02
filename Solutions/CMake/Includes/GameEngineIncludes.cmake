@@ -52,7 +52,12 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
 ../../Sources/GameEngine/DebugTools/Console/Console.h
-../../Sources/GameEngine/DebugTools/EditorInterface/Messages/GameObjectMsg.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/AvailableComponentMsgInd.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/CameraMsg.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/NewComponentMsgInd.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/NewGameObjectIndMsg.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveComponentMsgInd.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveGameObjectIndMsg.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/TransformMsg.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/MessageTypes.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h

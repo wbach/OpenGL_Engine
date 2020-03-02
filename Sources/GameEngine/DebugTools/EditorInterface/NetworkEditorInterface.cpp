@@ -44,6 +44,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"startScene", [&](const std::vector<std::string> &v) { StartScene(v); }});
     commands_.insert({"stopScene", [&](const std::vector<std::string> &v) { StopScene(v); }});
     commands_.insert({"getComponentList", [&](const std::vector<std::string> &v) { GetComponentsList(v); }});
+    commands_.insert({"getComponentParams", [&](const std::vector<std::string> &v) { GetComponentParams(v); }});
     commands_.insert({"getCamera", [&](const std::vector<std::string> &v) { GetCamera(v); }});
 
     gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
@@ -421,6 +422,10 @@ void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params
             gateway_.Send(userId_, componentNameMsg);
         }
     }
+}
+
+void NetworkEditorInterface::GetComponentParams(const std::vector<std::string> &)
+{
 }
 
 void NetworkEditorInterface::StartScene(const std::vector<std::string> &)

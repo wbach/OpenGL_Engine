@@ -10,6 +10,13 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+const std::string MODEL_L1      = "model_l1";
+const std::string MODEL_L2      = "model_l2";
+const std::string MODEL_L3      = "model_l3";
+const std::string TEXTURE_INDEX = "textureIndex";
+}  // namespace
 ComponentsType RendererComponent::type = ComponentsType::Renderer;
 
 RendererComponent::RendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
@@ -26,6 +33,40 @@ RendererComponent::~RendererComponent()
 void RendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::Subscribe, this));
+}
+void RendererComponent::InitFromParams(std::unordered_map<std::string, std::string> params)
+{
+    if (params.count(MODEL_L1))
+        AddModel(params.at(MODEL_L1), LevelOfDetail::L1);
+    if (params.count(MODEL_L2))
+        AddModel(params.at(MODEL_L2), LevelOfDetail::L2);
+    if (params.count(MODEL_L3))
+        AddModel(params.at(MODEL_L3), LevelOfDetail::L3);
+    if (params.count(TEXTURE_INDEX))
+        SetTextureIndex(std::stoi(params.at(TEXTURE_INDEX)));
+}
+std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
+{
+    std::unordered_map<ParamName, Param> result;
+
+    for (const auto& p : model_.Get())
+    {
+        if (p.first == LevelOfDetail::L1)
+        {
+            result.insert({MODEL_L1, {STRING, p.second->GetFileName()}});
+        }
+        else if (p.first == LevelOfDetail::L2)
+        {
+            result.insert({MODEL_L2, {STRING, p.second->GetFileName()}});
+        }
+        else if (p.first == LevelOfDetail::L3)
+        {
+            result.insert({MODEL_L3, {STRING, p.second->GetFileName()}});
+        }
+    }
+
+    result.insert({TEXTURE_INDEX, {INT, std::to_string(textureIndex_)}});
+    return result;
 }
 RendererComponent& RendererComponent::AddModel(const std::string& filename, GameEngine::LevelOfDetail lvl)
 {

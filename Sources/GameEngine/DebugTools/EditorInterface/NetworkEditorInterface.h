@@ -39,6 +39,7 @@ private:
     void CreateGameObject(const std::vector<std::string>&);
     void GetComponentsList(const std::vector<std::string>&);
     void AddComponent(const std::vector<std::string>&);
+    void GetComponentParams(const std::vector<std::string>&);
     void StartScene(const std::vector<std::string>&);
     void StopScene(const std::vector<std::string>&);
 

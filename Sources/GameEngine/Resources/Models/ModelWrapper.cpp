@@ -21,4 +21,8 @@ ModelRawPtr ModelWrapper::Get(LevelOfDetail lvl)
 
     return nullptr;
 }
+const std::unordered_map<LevelOfDetail, ModelRawPtr>& ModelWrapper::Get() const
+{
+    return models_;
+}
 }  // GameEngine

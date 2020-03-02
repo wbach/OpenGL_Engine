@@ -24,9 +24,16 @@ void BaseComponent::Deactivate()
 {
     isActive_ = false;
 }
+std::unordered_map<ParamName, Param> BaseComponent::GetParams() const
+{
+    return {};
+}
 bool BaseComponent::IsActive() const
 {
     return isActive_;
 }
-}  // Components
-}  // GameEngine
+void BaseComponent::InitFromParams(std::unordered_map<std::string, std::string>)
+{
+}
+}  // namespace Components
+}  // namespace GameEngine

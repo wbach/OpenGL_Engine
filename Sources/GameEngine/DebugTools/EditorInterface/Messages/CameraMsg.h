@@ -7,20 +7,55 @@
 
 namespace GameEngine
 {
-struct CameraMsg : public Network::IMessage
+class ComponentParam : public Network::IMessage
 {
 public:
-    CameraMsg()
-        : IMessage(static_cast<uint8>(MessageTypes::CameraMsg), Network::MessageTarget::All)
+    ComponentParam()
+        : IMessage(static_cast<uint8>(MessageTypes::ComponentParam), Network::MessageTarget::All)
     {
     }
 
-    vec3 position_;
-    vec3 rotation_;
+    void SetName(const std::string& str)
+    {
+        Network::CopyToArray(name_, str);
+    }
+
+    void SetType(const std::string& str)
+    {
+        Network::CopyToArray(type_, str);
+    }
+
+    void SetValue(const std::string& str)
+    {
+        Network::CopyToArray(value_, str);
+    }
+
+    std::string GetName() const
+    {
+        return name_;
+    }
+
+    std::string GetType() const
+    {
+        return type_;
+    }
+
+    std::string GetValue() const
+    {
+        return value_;
+    }
 
     virtual std::string ToString() const override
     {
-        return std::string("camera name: ") ;
+        return std::string("param name: ") + name_;
     }
+
+    uint32 gameObjectId_;
+
+private:
+    char componentName_[Network::arraySize];
+    char name_[Network::arraySize];
+    char value_[Network::arraySize];
+    char type_[Network::arraySize];
 };
 }  // namespace GameEngine
