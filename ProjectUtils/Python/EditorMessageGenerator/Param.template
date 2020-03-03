@@ -1,0 +1,3 @@
+std::string name
+std::string value
+std::string type

@@ -92,6 +92,23 @@ std::string MessageBuilder(std::multimap<std::string, std::string>& messeges)
     return ss.str();
 }
 
+XmlNode Convert(const std::string& label, const vec2& v)
+{
+    Utils::XmlNode root(label);
+    root.attributes_.insert({"x", std::to_string(v.x)});
+    root.attributes_.insert({"y", std::to_string(v.y)});
+    return root;
+}
+
+XmlNode Convert(const std::string& label, const vec3& v)
+{
+    Utils::XmlNode root(label);
+    root.attributes_.insert({"x", std::to_string(v.x)});
+    root.attributes_.insert({"y", std::to_string(v.y)});
+    root.attributes_.insert({"z", std::to_string(v.z)});
+    return root;
+}
+
 float ReadFloat(Utils::XmlNode& node)
 {
     return std::stof(node.value_);

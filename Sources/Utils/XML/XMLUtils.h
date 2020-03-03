@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <map>
 #include "Types.h"
+#include "XmlNode.h"
 
 namespace rapidxml
 {
@@ -16,8 +17,6 @@ class xml_document;
 
 namespace Utils
 {
-class XmlNode;
-
 struct RapidNodeData
 {
     std::string name;
@@ -40,4 +39,7 @@ void ForEachAttribute(rapidxml::xml_attribute<char>* att,
 void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec3 vector);
 void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec2 vector);
 std::string MessageBuilder(std::multimap<std::string, std::string>& messeges);
+XmlNode Convert(const std::string& label, const vec2&);
+XmlNode Convert(const std::string& label, const vec3&);
+
 }  // namespace Utils

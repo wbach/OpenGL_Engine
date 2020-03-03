@@ -32,6 +32,12 @@ public:
         return *children_.back();
     }
 
+    void AddChild(const XmlNode& child)
+    {
+        children_.emplace_back(child);
+        childrenMap_.insert({child.GetName(), children_.back().get()});
+    }
+
     XmlNode* GetChild(const std::string& name)
     {
         if (childrenMap_.count(name))
