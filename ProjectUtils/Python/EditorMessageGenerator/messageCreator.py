@@ -192,9 +192,56 @@ def CreateDeserializationFile(filename, params):
     EndNamespace(file)
     file.close()
 
+def CreateConverter(fileNames):
+    file = open(resultPath + "XmlMessageConverter.h","w")
+    file.write("#pragma once\n")
+    file.write("#include <UtilsNetwork/IMessageConverter.h>\n")
+    file.write("\n")
+    StartNamespace(file)
+    file.write("class XmlMessageConverter : public Network::IMessageConverter\n")
+    file.write("{\n")
+    file.write("public:\n")
+    file.write(indent + "virtual bool IsValid(Network::IMessageFormat, Network::IMessageType) const override;\n")
+    file.write(indent + "virtual std::unique_ptr<Network::IMessage> Convert(Network::IMessageType, const Network::IMessageData&) override;\n")
+    file.write(indent + "virtual Network::IMessageData Convert(const Network::IMessage&) override;\n")
+    file.write("};\n")
+    EndNamespace(file)
+    file.close()
+
+    file = open(resultPath + "XmlMessageConverter.cpp","w")
+    file.write("#include \"XmlMessageConverter.h\"\n")
+    file.write("#include <UtilsNetwork/MessageFormat.h>\n")
+    file.write("#include <UtilsNetwork/Messages/XmlConverterUtils.h>\n")
+    file.write("#include \"MessageTypes.h\"\n")
+    file.write("\n")
+    StartNamespace(file)
+    file.write("bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const\n")
+    file.write("{\n")
+    file.write(indent + "return format == Network::ConvertFormat(Network::MessageFormat::Xml) and\n")
+    file.write(indent + indent + "type >= " + CreateNamespaceRangeString() + "MIN_VALUE and\n")
+    file.write(indent + indent + "type <= " + CreateNamespaceRangeString() + "MAX_VALUE;\n")
+    file.write("}\n")
+    file.write("std::unique_ptr<Network::IMessage> Convert(Network::IMessageType, const Network::IMessageData&)\n")
+    file.write("{\n")
+    file.write(indent + "return nullptr;\n")
+    file.write("}\n")
+    file.write("Network::IMessageData Convert(const Network::IMessage&)\n")
+    file.write("{\n")
+    file.write(indent + "return {};\n")
+    file.write("}\n")
+    EndNamespace(file)
+    file.close()
+
+def CreateNamespaceRangeString():
+    result=""
+    for name in namespace:
+        result = result + name + "::"
+    return result
+
 def CreateMessageTypesFile(fileNames):
     file = open(resultPath + "MessageTypes.h","w")
     file.write("#pragma once\n")
+    file.write("#include <Types.h>\n")
     file.write("\n")
     StartNamespace(file)
     file.write("enum class MessageTypes\n")
@@ -208,7 +255,34 @@ def CreateMessageTypesFile(fileNames):
             file.write(indent + filename + "\n")
         i = i + 1
     file.write("};\n")
+    file.write("const uint8 MIN_VALUE{static_cast<uint8>(MessageTypes::Any)};\n")
+    file.write("const uint8 MAX_VALUE{static_cast<uint8>(MessageTypes::" + fileNames[-1] +")};\n")
     EndNamespace(file)
+    file.write("namespace std\n")
+    file.write("{\n")
+    file.write("string to_string(" + CreateNamespaceRangeString() + "MessageTypes);\n")
+    file.write(CreateNamespaceRangeString() + "MessageTypes from_string(const string&);\n")
+    file.write("} // namespace std\n")
+    file.close()
+
+    file = open(resultPath + "MessageTypes.cpp","w")
+    file.write("#include \"MessageTypes.h\"\n")
+    file.write("\n")
+    file.write("namespace std\n")
+    file.write("{\n")
+    file.write("string to_string(" + CreateNamespaceRangeString() + "MessageTypes type)\n")
+    file.write("{\n")
+    for filename in fileNames:
+        file.write(indent + "if (type == " + CreateNamespaceRangeString() + "MessageTypes::"+ filename + ") return \"" + filename + "\";\n")
+    file.write(indent + "return \"Unknown type\";\n")
+    file.write("}\n")
+    file.write(CreateNamespaceRangeString() + "MessageTypes from_string(const string& type)\n")
+    file.write("{\n")
+    for filename in fileNames:
+        file.write(indent + "if (type == \"" + filename + "\") return " + CreateNamespaceRangeString() + "MessageTypes::" + filename + ";\n")
+    file.write(indent + "return " + CreateNamespaceRangeString() + "MessageTypes::Any;\n")
+    file.write("}\n")
+    file.write("} // namespace std\n")
     file.close()
 
 if __name__ == "__main__":
@@ -230,6 +304,7 @@ if __name__ == "__main__":
             CreateDeserializationFile(fileName, params)
 
     CreateMessageTypesFile(templateFiles)
+    CreateConverter(templateFiles)
 
 
 
