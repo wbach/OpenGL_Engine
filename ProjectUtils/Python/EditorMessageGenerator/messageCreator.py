@@ -6,10 +6,19 @@ dir_path = os.path.realpath('.')
 
 mypath="."
 resultPath=dir_path + "/build/"
-namespace="GameEngine"
+namespace=["GameEngine", "DebugNetworkInterface"]
 indent="    "
 basicTypes=["bool", "int", "int8", "int32", "uint8", "uint32", "float", "char", "std::string", "vec3", "vec2"]
 complexTypes=["std::vector", "std::list"]
+
+def StartNamespace(file):
+    for name in namespace:
+        file.write("namespace " + name + "\n")
+        file.write("{\n")
+
+def EndNamespace(file):
+    for name in reversed(namespace):
+        file.write("} // namespace " + name + "\n")
 
 def GetHeaderFromCustomType(type):
     for complexType in complexTypes:
@@ -50,8 +59,8 @@ def CreateClassFile(filename, params):
             file.write("#include \"" + GetHeaderFromCustomType(param[0]) + ".h\"\n")
 
     file.write("\n")
-    file.write("namespace " + namespace + "\n")
-    file.write("{\n")
+    StartNamespace(file)
+
     file.write("class " + fileName[0] + " : public Network::IMessage\n")
     file.write("{\n")
     file.write("public:\n")
@@ -65,7 +74,8 @@ def CreateClassFile(filename, params):
         file.write(indent + param[0] + " " + param[1] + ";\n")
 
     file.write("};\n")
-    file.write("} // namespace " + namespace + " \n")
+    EndNamespace(file)
+
     file.close()
 
 def CreateSerializationFile(filename, params):
@@ -74,11 +84,11 @@ def CreateSerializationFile(filename, params):
     file.write("#include <Utils/XML/XmlWriter.h>\n")
     file.write("#include \"" + fileName[0] + ".h\"\n")
     file.write("\n")
-    file.write("namespace " + namespace + "\n")
-    file.write("{\n")
+
+    StartNamespace(file)
     file.write("std::unique_ptr<Utils::XmlNode> Convert(const "+ fileName[0] + "&);\n")
     file.write("Network::IMessageData Serialize(const "+ fileName[0] + "&);\n")
-    file.write("} // namespace " + namespace + " \n")
+    EndNamespace(file)
     file.close()
 
     file = open(resultPath + filename[0] + "XmlSerializer.cpp","w")
@@ -92,9 +102,8 @@ def CreateSerializationFile(filename, params):
             file.write("#include \"" + GetHeaderFromCustomType(param[0]) + "XmlSerializer.h\"\n")
 
     file.write("\n")
-    file.write("namespace " + namespace + "\n")
-    file.write("{\n")
 
+    StartNamespace(file)
     file.write("std::unique_ptr<Utils::XmlNode> Convert(const "+ fileName[0] + "& input)\n")
     file.write("{\n")
     file.write(indent + "auto root = std::make_unique<Utils::XmlNode>(\"" + fileName[0] + "\");\n")
@@ -120,8 +129,7 @@ def CreateSerializationFile(filename, params):
     file.write(indent + "auto root = Convert(input);\n")
     file.write(indent + "return Network::CreatePayload(*root);\n")
     file.write("}\n")
-
-    file.write("} // namespace " + namespace + " \n")
+    EndNamespace(file)
     file.close()
 
 def CreateDeserializationFile(filename, params):
@@ -130,11 +138,10 @@ def CreateDeserializationFile(filename, params):
     file.write("#include \"" + fileName[0] + ".h\"\n")
     file.write("#include <Utils/XML/XmlReader.h>\n")
     file.write("\n")
-    file.write("namespace " + namespace + "\n")
-    file.write("{\n")
+    StartNamespace(file)
     file.write("void SetParam(" + filename[0] + "&, Utils::XmlNode&);\n")
     file.write("std::unique_ptr<Network::IMessage> Deserialize"+ filename[0] +"(Utils::XmlReader& reader);\n")
-    file.write("} // namespace " + namespace + " \n")
+    EndNamespace(file)
     file.close()
 
     file = open(resultPath + filename[0] + "XmlDeserializer.cpp","w")
@@ -144,8 +151,7 @@ def CreateDeserializationFile(filename, params):
         if not (param[0] in basicTypes):
             file.write("#include \"" + GetHeaderFromCustomType(param[0]) + "XmlDeserializer.h\"\n")
     file.write("\n")
-    file.write("namespace " + namespace + "\n")
-    file.write("{\n")
+    StartNamespace(file)
     file.write("void SetParam(" + filename[0] + "& output, Utils::XmlNode& input)\n")
     file.write("{\n")
     for param in params:
@@ -183,15 +189,14 @@ def CreateDeserializationFile(filename, params):
     file.write(indent + "SetParam(*result, *msg);\n")
     file.write(indent + "return std::move(result);\n")
     file.write("}\n")
-    file.write("} // namespace " + namespace + " \n")
+    EndNamespace(file)
     file.close()
 
 def CreateMessageTypesFile(fileNames):
     file = open(resultPath + "MessageTypes.h","w")
     file.write("#pragma once\n")
     file.write("\n")
-    file.write("namespace " + namespace + "\n")
-    file.write("{\n")
+    StartNamespace(file)
     file.write("enum class MessageTypes\n")
     file.write("{\n")
     file.write(indent + "Any,\n")
@@ -203,7 +208,7 @@ def CreateMessageTypesFile(fileNames):
             file.write(indent + filename + "\n")
         i = i + 1
     file.write("};\n")
-    file.write("} // namespace " + namespace + " \n")
+    EndNamespace(file)
     file.close()
 
 if __name__ == "__main__":
