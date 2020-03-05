@@ -2,22 +2,32 @@
 #include <GLM/GLMUtils.h>
 #include <UtilsNetwork/IMessage.h>
 #include <UtilsNetwork/MessageTarget.h>
+#include <optional>
 #include "GameEngine/DebugTools/EditorInterface/MessageTypes.h"
 
 namespace GameEngine
 {
-struct NewComponentMsgInd : public Network::IMessage
+class ComponentParam : public Network::IMessage
 {
 public:
-    NewComponentMsgInd()
-        : NewComponentMsgInd("")
+    ComponentParam()
+        : IMessage(static_cast<uint8>(MessageTypes::ComponentParam), Network::MessageTarget::All)
     {
-
     }
-    NewComponentMsgInd(const std::string& name)
-        : IMessage(static_cast<uint8>(MessageTypes::NewComponentMsgInd), Network::MessageTarget::All)
+
+    void SetName(const std::string& str)
     {
-        Network::CopyToArray(name_, name);
+        Network::CopyToArray(name_, str);
+    }
+
+    void SetType(const std::string& str)
+    {
+        Network::CopyToArray(type_, str);
+    }
+
+    void SetValue(const std::string& str)
+    {
+        Network::CopyToArray(value_, str);
     }
 
     std::string GetName() const
@@ -25,19 +35,27 @@ public:
         return name_;
     }
 
-    void SetName(const std::string& name)
+    std::string GetType() const
     {
-        Network::CopyToArray(name_, name);
+        return type_;
     }
 
-    bool isActive_;
+    std::string GetValue() const
+    {
+        return value_;
+    }
 
     virtual std::string ToString() const override
     {
-        return std::string("Component name: ") + name_;
+        return std::string("param name: ") + name_;
     }
 
+    uint32 gameObjectId_;
+
 private:
+    char componentName_[Network::arraySize];
     char name_[Network::arraySize];
+    char value_[Network::arraySize];
+    char type_[Network::arraySize];
 };
-}  // namespace Network
+}  // namespace GameEngine

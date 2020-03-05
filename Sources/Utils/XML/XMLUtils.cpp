@@ -92,21 +92,38 @@ std::string MessageBuilder(std::multimap<std::string, std::string>& messeges)
     return ss.str();
 }
 
-XmlNode Convert(const std::string& label, const vec2& v)
+std::unique_ptr<XmlNode> Convert(const std::string& label, const vec2& v)
 {
-    Utils::XmlNode root(label);
-    root.attributes_.insert({"x", std::to_string(v.x)});
-    root.attributes_.insert({"y", std::to_string(v.y)});
-    return root;
+    auto root = std::make_unique<XmlNode>(label);
+    root->attributes_.insert({"x", std::to_string(v.x)});
+    root->attributes_.insert({"y", std::to_string(v.y)});
+    return std::move(root);
 }
 
-XmlNode Convert(const std::string& label, const vec3& v)
+std::unique_ptr<XmlNode> Convert(const std::string& label, const vec3& v)
 {
-    Utils::XmlNode root(label);
-    root.attributes_.insert({"x", std::to_string(v.x)});
-    root.attributes_.insert({"y", std::to_string(v.y)});
-    root.attributes_.insert({"z", std::to_string(v.z)});
-    return root;
+    auto root = std::make_unique<XmlNode>(label);
+    root->attributes_.insert({"x", std::to_string(v.x)});
+    root->attributes_.insert({"y", std::to_string(v.y)});
+    root->attributes_.insert({"z", std::to_string(v.z)});
+    return std::move(root);
+}
+
+vec2 ConvertToVec2(XmlNode& node)
+{
+    vec2 result;
+    result.x = std::stof(node.attributes_.at("x"));
+    result.y = std::stof(node.attributes_.at("y"));
+    return result;
+}
+
+vec3 ConvertToVec3(XmlNode& node)
+{
+    vec3 result;
+    result.x = std::stof(node.attributes_.at("x"));
+    result.y = std::stof(node.attributes_.at("y"));
+    result.z = std::stof(node.attributes_.at("z"));
+    return result;
 }
 
 float ReadFloat(Utils::XmlNode& node)

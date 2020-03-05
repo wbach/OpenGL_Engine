@@ -32,10 +32,10 @@ public:
         return *children_.back();
     }
 
-    void AddChild(const XmlNode& child)
+    void AddChild(std::unique_ptr<XmlNode> child)
     {
-        children_.emplace_back(child);
-        childrenMap_.insert({child.GetName(), children_.back().get()});
+        children_.push_back(std::move(child));
+        childrenMap_.insert({child->GetName(), children_.back().get()});
     }
 
     XmlNode* GetChild(const std::string& name)
@@ -47,7 +47,7 @@ public:
         return nullptr;
     }
 
-    bool IsAttributeExist(const std::string& name)
+    bool IsAttributePresent(const std::string& name) const
     {
         return attributes_.count(name) > 0;
     }

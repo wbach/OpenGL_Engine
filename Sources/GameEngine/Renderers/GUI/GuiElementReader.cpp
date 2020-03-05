@@ -91,7 +91,7 @@ bool GuiElementReader::Read(const std::string &filename)
 
     if (fileContent.empty())
     {
-        (filename + " is empty!");
+        ERROR_LOG(filename + " is empty!");
         return false;
     }
 

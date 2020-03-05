@@ -39,7 +39,20 @@ void ForEachAttribute(rapidxml::xml_attribute<char>* att,
 void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec3 vector);
 void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec2 vector);
 std::string MessageBuilder(std::multimap<std::string, std::string>& messeges);
-XmlNode Convert(const std::string& label, const vec2&);
-XmlNode Convert(const std::string& label, const vec3&);
+std::unique_ptr<XmlNode> Convert(const std::string& label, const vec2&);
+std::unique_ptr<XmlNode> Convert(const std::string& label, const vec3&);
+vec2 ConvertToVec2(XmlNode&);
+vec3 ConvertToVec3(XmlNode&);
 
+template <class T>
+std::unique_ptr<XmlNode> Convert(const std::string& label, const std::vector<T>& v)
+{
+    auto root = std::make_unique<XmlNode>(label);
+
+    for (const auto& element : v)
+    {
+        root->AddChild(std::move(Convert(element)));
+    }
+    return std::move(root);
+}
 }  // namespace Utils

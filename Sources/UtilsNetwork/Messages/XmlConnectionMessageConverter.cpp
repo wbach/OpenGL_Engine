@@ -41,7 +41,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
             auto result = std::make_unique<ConnectionMessage>();
             auto msg    = reader.Get("ConnectionMessage");
 
-            if (msg and msg->IsAttributeExist("connectionStatus"))
+            if (msg and msg->IsAttributePresent("connectionStatus"))
             {
                 result->connectionStatus = static_cast<uint8>(std::stoi(msg->attributes_.at("connectionStatus")));
                 return std::move(result);
@@ -52,7 +52,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
         {
             auto msg = reader.Get("AuthenticationMessage");
 
-            if (not msg and (not msg->IsAttributeExist("username") or not msg->IsAttributeExist("password")))
+            if (not msg and (not msg->IsAttributePresent("username") or not msg->IsAttributePresent("password")))
             {
                 DEBUG_LOG("AuthenticationMessage : format error");
                 break;
@@ -67,7 +67,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
         {
             auto text = reader.Get("TextMessage");
 
-            if (text and text->IsAttributeExist("text"))
+            if (text and text->IsAttributePresent("text"))
             {
                 auto t = text->attributes_.at("text");
                 return std::make_unique<TextMessage>(t);
