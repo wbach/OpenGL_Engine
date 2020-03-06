@@ -22,7 +22,46 @@ class ComponentsView:
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
         self.networkClient.SubscribeOnMessage("AvailableComponentMsgInd", self.AvailableComponentMsgInd)
         self.networkClient.SubscribeOnMessage("OnComponentMsgInfo", self.ShowEditComponentDialog)
+        self.networkClient.SubscribeOnMessage("ComponentDataMessage", self.HandleComponentDataMessage)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
+
+    def HandleComponentDataMessage(self, msg):
+        dialog = tk.Toplevel(self.rootFrame)
+        dialog.title(msg.get("name"))
+        dialog.geometry(CalculateGeomentryCenterPosition(self.context, 400, 50))
+        dialog.attributes('-topmost', 'true')
+
+        frame = tk.LabelFrame(dialog, text="Component parameters", width=270, height=25)
+        frame.grid(row=0, column=0, padx=5, pady=5)
+
+        # variableFrame = tk.Frame(frame, width=270, height=25)
+        # variableFrame.grid(row=0, column=0, padx=5, pady=5)
+
+        # valueFrame = tk.Frame(frame, width=270, height=25)
+        # valueFrame.grid(row=0, column=1, padx=5, pady=5)
+
+        paramsVariables =[]
+        for child in msg.getchildren():
+            if child.tag == "params":
+                for param in child.getchildren():
+                    variableFrame = tk.Frame(frame, width=270, height=25)
+                    variableFrame.pack(padx=5, pady=5)
+                    tk.Label(variableFrame, text=param.get("name")).grid(row=0, column=0, padx=5, pady=5)
+                    tk.Label(variableFrame, text=param.get("type")).grid(row=0, column=1, padx=5, pady=5)
+
+                    varType = param.get("type")
+                    if varType == "vector":
+                        print("unsupported");
+                    else:
+                        paramsVariables.append(tk.StringVar())
+                        xVar = paramsVariables[-1]
+                        xVar.set(param.get("value"))
+                        xVar.trace("w", lambda name, index, mode, sv=xVar: self.ComponentParamChange(xVar))
+                        tk.Entry(variableFrame, textvariable = xVar, width=15).grid(row=0, column=2, padx=5, pady=5)
+
+    def ComponentParamChange(self, input):
+        print("Param " + input.get() + " is changed");
+
 
     def AvailableComponentMsgInd(self, msg):
         self.availableComponents.add(msg.get("name"))
@@ -82,7 +121,7 @@ class ComponentsView:
         self.size = self.size + 1
 
     def SendGetComponentParamRequest(self, name):
-        self.networkClient.SendCommand("getComponentParams gameObjectId=" + str(self.gameObjectId) + "name=" + name);
+        self.networkClient.SendCommand("getComponentParams gameObjectId=" + str(self.gameObjectId) + " name=" + name);
 
     def ShowEditComponentDialog(self, msg):
         dialog = tk.Toplevel(self.rootFrame)

@@ -25,10 +25,6 @@ void SetParam(ComponentDataMessage& output, Utils::XmlNode& input)
             output.params.push_back(obj);
         }
     }
-    if (input.IsAttributePresent("testVec3Param"))
-    {
-        output.testVec3Param = Utils::ConvertToVec3(*input.GetChild("testVec3Param"));
-    }
 }
 std::unique_ptr<Network::IMessage> DeserializeComponentDataMessage(Utils::XmlReader& reader)
 {

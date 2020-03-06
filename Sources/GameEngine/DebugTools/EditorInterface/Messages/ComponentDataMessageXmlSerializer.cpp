@@ -15,7 +15,6 @@ std::unique_ptr<Utils::XmlNode> Convert(const ComponentDataMessage& input)
     root->attributes_.insert({"name", input.name});
     root->attributes_.insert({"gameObjectId", std::to_string(input.gameObjectId)});
     root->AddChild(std::move(Utils::Convert("params", input.params)));
-    root->AddChild(std::move(Utils::Convert("testVec3Param", input.testVec3Param)));
     return root;
 }
 Network::IMessageData Serialize(const ComponentDataMessage& input)

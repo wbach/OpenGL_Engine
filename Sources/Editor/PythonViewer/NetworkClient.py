@@ -54,7 +54,7 @@ class NetworkClient:
                     for subscriber in self.messageSubscribers[msgType]:
                         subscriber(main)
                 else:
-                    self.Print("Msg \"{0}\" not handler found".format(msgType))
+                    self.Print("Msg \"{0}\" handler not found".format(msgType))
             except:
                 print("Parsing msg failed.")
 

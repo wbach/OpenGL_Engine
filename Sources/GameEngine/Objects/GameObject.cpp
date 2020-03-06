@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include <Logger/Log.h>
 #include "GameEngine/Components/ComponentFactory.h"
 #include "Types.h"
 
@@ -27,6 +28,17 @@ void GameObject::RegisterComponentFunctions()
     {
         c->ReqisterFunctions();
     }
+}
+
+Components::IComponent* GameObject::GetComponent(Components::ComponentsType type)
+{
+    for (auto& c : components_)
+    {
+        if (c->GetType() == type)
+            return c.get();
+    }
+    ERROR_LOG("Component not found, gameObjectId=" + std::to_string(id) + ", component=" + std::to_string(type));
+    return nullptr;
 }
 
 Components::IComponent* GameObject::AddComponent(Components::ComponentsType type)

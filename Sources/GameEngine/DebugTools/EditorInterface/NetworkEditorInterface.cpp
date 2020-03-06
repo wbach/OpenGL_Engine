@@ -9,6 +9,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
+#include "Messages/ComponentDataMessage.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
 #include "Messages/RemoveComponentMsgInd.h"
@@ -367,6 +368,34 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
 
 void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
 {
+    if (not params.count("gameObjectId") or not params.count("name"))
+        return;
+
+    auto gameObject = GetGameObject(params.at("gameObjectId"));
+
+    if (not gameObject)
+        return;
+
+    auto componentType = Components::from_string(params.at("name"));
+
+    if (not componentType)
+        return;
+
+    auto component = gameObject->GetComponent(*componentType);
+
+    if (not component)
+        return;
+
+    std::vector<DebugNetworkInterface::Param> componentParams;
+
+    for (auto &p : component->GetParams())
+    {
+        componentParams.push_back({p.first, p.second.value, p.second.type});
+    }
+
+    DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")),
+                                                    componentParams);
+    gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::StartScene(const EntryParameters &)

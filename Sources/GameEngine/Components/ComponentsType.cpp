@@ -1,4 +1,5 @@
 #include "ComponentsTypes.h"
+#include <Logger/Log.h>
 
 #define RETURN_STR(x)       \
     case ComponentsType::x: \
@@ -62,6 +63,7 @@ std::optional<GameEngine::Components::ComponentsType> from_string(const std::str
     FROM_STR(PlayerInputController);
     FROM_STR(CharacterController);
 
+    ERROR_LOG("Invalid name : " + name);
     return {};
 }
 }  // namespace Components

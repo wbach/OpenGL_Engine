@@ -48,23 +48,13 @@ void RendererComponent::InitFromParams(std::unordered_map<std::string, std::stri
 std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
 {
     std::unordered_map<ParamName, Param> result;
-
-    for (const auto& p : model_.Get())
-    {
-        if (p.first == LevelOfDetail::L1)
-        {
-            result.insert({MODEL_L1, {STRING, p.second->GetFileName()}});
-        }
-        else if (p.first == LevelOfDetail::L2)
-        {
-            result.insert({MODEL_L2, {STRING, p.second->GetFileName()}});
-        }
-        else if (p.first == LevelOfDetail::L3)
-        {
-            result.insert({MODEL_L3, {STRING, p.second->GetFileName()}});
-        }
-    }
-
+    auto models = model_.Get();
+    result.insert(
+        {MODEL_L1, {STRING, models.count(LevelOfDetail::L1) ? models.at(LevelOfDetail::L1)->GetFileName() : ""}});
+    result.insert(
+        {MODEL_L2, {STRING, models.count(LevelOfDetail::L2) ? models.at(LevelOfDetail::L2)->GetFileName() : ""}});
+    result.insert(
+        {MODEL_L3, {STRING, models.count(LevelOfDetail::L3) ? models.at(LevelOfDetail::L3)->GetFileName() : ""}});
     result.insert({TEXTURE_INDEX, {INT, std::to_string(textureIndex_)}});
     return result;
 }

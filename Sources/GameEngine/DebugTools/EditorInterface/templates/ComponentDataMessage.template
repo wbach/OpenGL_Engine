@@ -1,4 +1,3 @@
 std::string name
-uint8 gameObjectId
+uint32 gameObjectId
 std::vector<Param> params
-vec3 testVec3Param

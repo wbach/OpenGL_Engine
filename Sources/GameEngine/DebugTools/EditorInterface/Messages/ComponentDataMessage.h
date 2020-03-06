@@ -17,21 +17,18 @@ struct ComponentDataMessage : public Network::IMessage
     }
     ComponentDataMessage(
             const std::string& name,
-            uint8 gameObjectId,
-            const std::vector<Param>& params,
-            const vec3& testVec3Param)
+            uint32 gameObjectId,
+            const std::vector<Param>& params)
     : IMessage(Convert(MessageTypes::ComponentDataMessage), Network::MessageTarget::All)
     , name{name}
     , gameObjectId{gameObjectId}
     , params{params}
-    , testVec3Param{testVec3Param}
     {
     }
 
     std::string name;
-    uint8 gameObjectId;
+    uint32 gameObjectId;
     std::vector<Param> params;
-    vec3 testVec3Param;
 };
 } // namespace DebugNetworkInterface
 } // namespace GameEngine
