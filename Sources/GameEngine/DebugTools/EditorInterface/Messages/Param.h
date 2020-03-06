@@ -8,23 +8,26 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-struct NewComponentMsgInd : public Network::IMessage
+struct Param : public Network::IMessage
 {
-    NewComponentMsgInd()
-    : IMessage(Convert(MessageTypes::NewComponentMsgInd), Network::MessageTarget::All)
+    Param()
+    : IMessage(Convert(MessageTypes::Param), Network::MessageTarget::All)
     {
     }
-    NewComponentMsgInd(
+    Param(
             const std::string& name,
-            bool isActive)
-    : IMessage(Convert(MessageTypes::NewComponentMsgInd), Network::MessageTarget::All)
+            const std::string& value,
+            const std::string& type)
+    : IMessage(Convert(MessageTypes::Param), Network::MessageTarget::All)
     , name{name}
-    , isActive{isActive}
+    , value{value}
+    , type{type}
     {
     }
 
     std::string name;
-    bool isActive;
+    std::string value;
+    std::string type;
 };
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

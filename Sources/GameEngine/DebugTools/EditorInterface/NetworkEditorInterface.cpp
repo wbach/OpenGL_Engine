@@ -10,11 +10,11 @@
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
 #include "Messages/NewComponentMsgInd.h"
-#include "Messages/NewGameObjectIndMsg.h"
+#include "Messages/NewGameObjectInd.h"
 #include "Messages/RemoveComponentMsgInd.h"
-#include "Messages/RemoveGameObjectIndMsg.h"
-#include "Messages/TransformMsg.h"
-#include "XMLMessageConverter.h"
+#include "Messages/RemoveGameObjectInd.h"
+#include "Messages/Transform.h"
+#include "Messages/XMLMessageConverter.h"
 
 namespace GameEngine
 {
@@ -47,7 +47,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"getComponentParams", [&](const std::vector<std::string> &v) { GetComponentParams(v); }});
     commands_.insert({"getCamera", [&](const std::vector<std::string> &v) { GetCamera(v); }});
 
-    gateway_.AddMessageConverter(std::make_unique<GameEngine::XmlMessageConverter>());
+    gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 
     DEBUG_LOG("Starting server");
     gateway_.StartServer(30, 1991);
@@ -140,15 +140,15 @@ void NetworkEditorInterface::LoadSceneFromFile(const std::vector<std::string> &a
 
 void NetworkEditorInterface::GetCamera(const std::vector<std::string> &)
 {
-    CameraMsg msg;
-    msg.position_ = scene_.GetCamera().GetPosition();
-    msg.rotation_ = scene_.GetCamera().GetRotation();
+    DebugNetworkInterface::CameraMsg msg;
+    msg.position = scene_.GetCamera().GetPosition();
+    msg.rotation = scene_.GetCamera().GetRotation();
     gateway_.Send(userId_, msg);
 
     scene_.camera.SubscribeOnChange([&](const auto &camera) {
-        CameraMsg msg;
-        msg.position_ = camera.GetPosition();
-        msg.rotation_ = camera.GetRotation();
+        DebugNetworkInterface::CameraMsg msg;
+        msg.position = camera.GetPosition();
+        msg.rotation = camera.GetRotation();
         gateway_.Send(userId_, msg);
     });
 }
@@ -164,9 +164,7 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 par
 
     for (auto &go : objectList)
     {
-        NewGameObjectIndMsg message(go->GetName());
-        message.id       = go->GetId();
-        message.parentId = parentId;
+        DebugNetworkInterface::NewGameObjectInd message(go->GetId(), parentId, go->GetName());
         gateway.Send(userId, message);
 
         const auto &children = go->GetChildrens();
@@ -183,14 +181,11 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
     {
         for (auto &go : objectList)
         {
-            NewGameObjectIndMsg message(go.second->GetName());
-            message.id = go.second->GetId();
+            DebugNetworkInterface::NewGameObjectInd message(go.second->GetId(), 0, go.second->GetName());
             gateway_.Send(userId_, message);
             SendChildrenObjectList(userId_, gateway_, go.second->GetId(), go.second->GetChildrens());
         }
     }
-    // NewGameObjectIndMsg message("Camera");
-    //   message.id = go.second->GetId();
 }
 
 void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
@@ -215,11 +210,13 @@ void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
     transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
-        TransformMsg msg(gameObjectId, transform.GetPosition(), transform.GetRotation(), transform.GetScale());
+        DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(), transform.GetRotation(),
+                                                transform.GetScale());
         gateway_.Send(userId_, msg);
     });
 
-    TransformMsg msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation(), transform.GetScale());
+    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation(),
+                                            transform.GetScale());
     gateway_.Send(userId_, msg);
 }
 
@@ -241,8 +238,8 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<st
 
     for (auto &component : gameObject->GetComponents())
     {
-        NewComponentMsgInd componentNameMsg(std::to_string(component->GetType()));
-        componentNameMsg.isActive_ = component->IsActive();
+        DebugNetworkInterface::NewComponentMsgInd componentNameMsg(std::to_string(component->GetType()),
+                                                                   component->IsActive());
         gateway_.Send(userId_, componentNameMsg);
     }
 }
@@ -384,7 +381,7 @@ void NetworkEditorInterface::GetComponentsList(const std::vector<std::string> &)
 {
     for (auto type : Components::GetComponentTypes())
     {
-        AvailableComponentMsgInd msg(std::to_string(type));
+        DebugNetworkInterface::AvailableComponentMsgInd msg(std::to_string(type));
         gateway_.Send(userId_, msg);
     }
 }
@@ -412,13 +409,12 @@ void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params
             return;
         }
 
-        auto componentType = std::from_string(componentName);
+        auto componentType = Components::from_string(componentName);
 
         if (componentType)
         {
             auto component = go->AddComponent(*componentType);
-            NewComponentMsgInd componentNameMsg(componentName);
-            componentNameMsg.isActive_ = component->IsActive();
+            DebugNetworkInterface::NewComponentMsgInd componentNameMsg(componentName, component->IsActive());
             gateway_.Send(userId_, componentNameMsg);
         }
     }

@@ -8,23 +8,29 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-struct CameraMsg : public Network::IMessage
+struct Transform : public Network::IMessage
 {
-    CameraMsg()
-    : IMessage(Convert(MessageTypes::CameraMsg), Network::MessageTarget::All)
+    Transform()
+    : IMessage(Convert(MessageTypes::Transform), Network::MessageTarget::All)
     {
     }
-    CameraMsg(
+    Transform(
+            uint32 objectId,
             const vec3& position,
-            const vec3& rotation)
-    : IMessage(Convert(MessageTypes::CameraMsg), Network::MessageTarget::All)
+            const vec3& rotation,
+            const vec3& scale)
+    : IMessage(Convert(MessageTypes::Transform), Network::MessageTarget::All)
+    , objectId{objectId}
     , position{position}
     , rotation{rotation}
+    , scale{scale}
     {
     }
 
+    uint32 objectId;
     vec3 position;
     vec3 rotation;
+    vec3 scale;
 };
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

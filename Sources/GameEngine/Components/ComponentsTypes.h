@@ -30,11 +30,11 @@ enum class ComponentsType
     CharacterController
 };
 std::vector<ComponentsType> GetComponentTypes();
+std::optional<GameEngine::Components::ComponentsType> from_string(const std::string&);
 }  // namespace Components
 }  // namespace GameEngine
 
 namespace std
 {
 std::string to_string(GameEngine::Components::ComponentsType);
-std::optional<GameEngine::Components::ComponentsType> from_string(const std::string&);
 } // namespace std

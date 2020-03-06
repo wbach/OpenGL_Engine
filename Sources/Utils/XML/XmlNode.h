@@ -35,7 +35,8 @@ public:
     void AddChild(std::unique_ptr<XmlNode> child)
     {
         children_.push_back(std::move(child));
-        childrenMap_.insert({child->GetName(), children_.back().get()});
+        auto ptr = children_.back().get();
+        childrenMap_.insert({ptr->GetName(), ptr});
     }
 
     XmlNode* GetChild(const std::string& name)

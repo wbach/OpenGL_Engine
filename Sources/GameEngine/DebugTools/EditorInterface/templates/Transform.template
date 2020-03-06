@@ -1,0 +1,4 @@
+uint32 objectId
+vec3 position
+vec3 rotation
+vec3 scale

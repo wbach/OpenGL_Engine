@@ -2,40 +2,26 @@
 #include <GLM/GLMUtils.h>
 #include <UtilsNetwork/IMessage.h>
 #include <UtilsNetwork/MessageTarget.h>
-#include "GameEngine/DebugTools/EditorInterface/MessageTypes.h"
+#include "MessageTypes.h"
 
 namespace GameEngine
 {
+namespace DebugNetworkInterface
+{
 struct RemoveComponentMsgInd : public Network::IMessage
 {
-public:
     RemoveComponentMsgInd()
-        : RemoveComponentMsgInd("")
+    : IMessage(Convert(MessageTypes::RemoveComponentMsgInd), Network::MessageTarget::All)
     {
-
     }
-    RemoveComponentMsgInd(const std::string& name)
-        : IMessage(static_cast<uint8>(MessageTypes::RemoveComponentMsgInd), Network::MessageTarget::All)
+    RemoveComponentMsgInd(
+            const std::string& name)
+    : IMessage(Convert(MessageTypes::RemoveComponentMsgInd), Network::MessageTarget::All)
+    , name{name}
     {
-        Network::CopyToArray(name_, name);
-    }
-
-    std::string GetName() const
-    {
-        return name_;
     }
 
-    void SetName(const std::string& name)
-    {
-        Network::CopyToArray(name_, name);
-    }
-
-    virtual std::string ToString() const override
-    {
-        return std::string("Component name: ") + name_;
-    }
-
-private:
-    char name_[Network::arraySize];
+    std::string name;
 };
-}  // namespace Network
+} // namespace DebugNetworkInterface
+} // namespace GameEngine

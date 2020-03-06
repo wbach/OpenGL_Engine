@@ -3,12 +3,14 @@
 
 namespace GameEngine
 {
+namespace DebugNetworkInterface
+{
 class XmlMessageConverter : public Network::IMessageConverter
 {
 public:
-    XmlMessageConverter();
     virtual bool IsValid(Network::IMessageFormat, Network::IMessageType) const override;
     virtual std::unique_ptr<Network::IMessage> Convert(Network::IMessageType, const Network::IMessageData&) override;
     virtual Network::IMessageData Convert(const Network::IMessage&) override;
 };
-}  // namespace GameEngine
+} // namespace DebugNetworkInterface
+} // namespace GameEngine
