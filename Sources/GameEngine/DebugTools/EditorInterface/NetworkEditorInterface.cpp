@@ -31,21 +31,21 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     SetFreeCamera();
 
     scene_.Stop();
-    commands_.insert({"openFile", [&](const std::vector<std::string> &v) { LoadSceneFromFile(v); }});
-    commands_.insert({"getObjectList", [&](const std::vector<std::string> &v) { GetObjectList(v); }});
-    commands_.insert({"transformReq", [&](const std::vector<std::string> &v) { TransformReq(v); }});
-    commands_.insert({"getGameObjectComponentsListReq",
-                      [&](const std::vector<std::string> &v) { GetGameObjectComponentsListReq(v); }});
-    commands_.insert({"setPosition", [&](const std::vector<std::string> &v) { SetGameObjectPosition(v); }});
-    commands_.insert({"setRotation", [&](const std::vector<std::string> &v) { SetGameObjectRotation(v); }});
-    commands_.insert({"setScale", [&](const std::vector<std::string> &v) { SetGameObjectScale(v); }});
-    commands_.insert({"createGameObject", [&](const std::vector<std::string> &v) { CreateGameObject(v); }});
-    commands_.insert({"addComponent", [&](const std::vector<std::string> &v) { AddComponent(v); }});
-    commands_.insert({"startScene", [&](const std::vector<std::string> &v) { StartScene(v); }});
-    commands_.insert({"stopScene", [&](const std::vector<std::string> &v) { StopScene(v); }});
-    commands_.insert({"getComponentList", [&](const std::vector<std::string> &v) { GetComponentsList(v); }});
-    commands_.insert({"getComponentParams", [&](const std::vector<std::string> &v) { GetComponentParams(v); }});
-    commands_.insert({"getCamera", [&](const std::vector<std::string> &v) { GetCamera(v); }});
+    commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
+    commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
+    commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
+    commands_.insert(
+        {"getGameObjectComponentsListReq", [&](const EntryParameters &v) { GetGameObjectComponentsListReq(v); }});
+    commands_.insert({"setPosition", [&](const EntryParameters &v) { SetGameObjectPosition(v); }});
+    commands_.insert({"setRotation", [&](const EntryParameters &v) { SetGameObjectRotation(v); }});
+    commands_.insert({"setScale", [&](const EntryParameters &v) { SetGameObjectScale(v); }});
+    commands_.insert({"createGameObject", [&](const EntryParameters &v) { CreateGameObject(v); }});
+    commands_.insert({"addComponent", [&](const EntryParameters &v) { AddComponent(v); }});
+    commands_.insert({"startScene", [&](const EntryParameters &v) { StartScene(v); }});
+    commands_.insert({"stopScene", [&](const EntryParameters &v) { StopScene(v); }});
+    commands_.insert({"getComponentList", [&](const EntryParameters &v) { GetComponentsList(v); }});
+    commands_.insert({"getComponentParams", [&](const EntryParameters &v) { GetComponentParams(v); }});
+    commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 
@@ -120,25 +120,25 @@ void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network:
 
     if (commands_.count(splitCommand[0]))
     {
-        commands_.at(splitCommand[0])(splitCommand);
+        commands_.at(splitCommand[0])(CreateParamMap(splitCommand));
     }
     else
     {
         DEBUG_LOG("Unknown command : \"" + splitCommand[0] + "\"");
     }
 }
-void NetworkEditorInterface::LoadSceneFromFile(const std::vector<std::string> &args)
+void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
 {
-    if (args.empty())
+    if (args.count("filename") == 0)
     {
         DEBUG_LOG("Filename not found.");
         return;
     }
 
-    scene_.LoadFromFile(args[1]);
+    scene_.LoadFromFile(args.at("filename"));
 }
 
-void NetworkEditorInterface::GetCamera(const std::vector<std::string> &)
+void NetworkEditorInterface::GetCamera(const EntryParameters &)
 {
     DebugNetworkInterface::CameraMsg msg;
     msg.position = scene_.GetCamera().GetPosition();
@@ -172,7 +172,7 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 par
     }
 }
 
-void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
+void NetworkEditorInterface::GetObjectList(const EntryParameters &)
 {
     DEBUG_LOG("");
 
@@ -188,21 +188,15 @@ void NetworkEditorInterface::GetObjectList(const std::vector<std::string> &)
     }
 }
 
-void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
+void NetworkEditorInterface::TransformReq(const EntryParameters &param)
 {
-    if (v.empty())
-    {
-        DEBUG_LOG("object id not found.");
+    if (not param.count("id"))
         return;
-    }
 
-    auto gameObject = GetGameObjectBasedOnParam(v[1]);
+    auto gameObject = GetGameObject(param.at("id"));
 
     if (not gameObject)
-    {
-        DEBUG_LOG("GameObject not found. " + v[1]);
         return;
-    }
 
     UnsubscribeTransformUpdateIfExist();
 
@@ -211,30 +205,24 @@ void NetworkEditorInterface::TransformReq(const std::vector<std::string> &v)
     auto gameObjectId              = gameObject->GetId();
     transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
         DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(), transform.GetRotation(),
-                                                transform.GetScale());
+                                             transform.GetScale());
         gateway_.Send(userId_, msg);
     });
 
     DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation(),
-                                            transform.GetScale());
+                                         transform.GetScale());
     gateway_.Send(userId_, msg);
 }
 
-void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<std::string> &v)
+void NetworkEditorInterface::GetGameObjectComponentsListReq(const EntryParameters &param)
 {
-    if (v.empty())
-    {
-        DEBUG_LOG("object id not found.");
+    if (not param.count("id"))
         return;
-    }
 
-    auto gameObject = GetGameObjectBasedOnParam(v[1]);
+    auto gameObject = GetGameObject(param.at("id"));
 
     if (not gameObject)
-    {
-        DEBUG_LOG("GameObject not found. " + v[1]);
         return;
-    }
 
     for (auto &component : gameObject->GetComponents())
     {
@@ -244,30 +232,16 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const std::vector<st
     }
 }
 
-void NetworkEditorInterface::SetGameObjectPosition(const std::vector<std::string> &param)
+void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
 {
-    if (param.size() < 5)
+    if (param.count("x") and param.count("y") and param.count("z") and param.count("id"))
     {
-        DEBUG_LOG("param is empty");
-        return;
-    }
-
-    std::unordered_map<std::string, std::string> v;
-
-    for (const auto &p : param)
-    {
-        auto [name, value] = GetParamFromCommand(p);
-        v.insert({name, value});
-    }
-
-    if (v.count("x") and v.count("y") and v.count("z"))
-    {
-        auto gameObject = GetGameObjectBasedOnParam(param[1]);
+        auto gameObject = GetGameObject(param.at("id"));
         if (gameObject)
         {
             try
             {
-                vec3 position(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
+                vec3 position(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
 
                 auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
                 if (rigidbody)
@@ -288,23 +262,16 @@ void NetworkEditorInterface::SetGameObjectPosition(const std::vector<std::string
     }
 }
 
-void NetworkEditorInterface::SetGameObjectRotation(const std::vector<std::string> &param)
+void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
 {
-    if (param.size() < 5)
+    if (param.count("x") and param.count("y") and param.count("z") and param.count("id"))
     {
-        DEBUG_LOG("param is empty");
-        return;
-    }
-
-    std::unordered_map<std::string, std::string> v;
-    if (v.count("x") and v.count("y") and v.count("z"))
-    {
-        auto gameObject = GetGameObjectBasedOnParam(param[1]);
+        auto gameObject = GetGameObject(param.at("id"));
         if (gameObject)
         {
             try
             {
-                vec3 rotation(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
+                vec3 rotation(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
 
                 auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
                 if (rigidbody)
@@ -325,41 +292,29 @@ void NetworkEditorInterface::SetGameObjectRotation(const std::vector<std::string
     }
 }
 
-void NetworkEditorInterface::SetGameObjectScale(const std::vector<std::string> &param)
+void NetworkEditorInterface::SetGameObjectScale(const EntryParameters &param)
 {
-    if (param.size() < 5)
+    if (param.count("x") and param.count("y") and param.count("z") and param.count("id"))
     {
-        DEBUG_LOG("param is empty");
-        return;
-    }
+        auto gameObject = GetGameObject(param.at("id"));
 
-    std::unordered_map<std::string, std::string> v;
-    for (const auto &p : param)
-    {
-        auto [name, value] = GetParamFromCommand(p);
-        v.insert({name, value});
-    }
-
-    if (v.count("x") and v.count("y") and v.count("z"))
-    {
-        auto gameObject = GetGameObjectBasedOnParam(param[1]);
         if (gameObject)
         {
             try
             {
-                vec3 scale(std::stof(v.at("x")), std::stof(v.at("y")), std::stof(v.at("z")));
+                vec3 scale(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
                 gameObject->worldTransform.SetScale(scale);
                 gameObject->worldTransform.TakeSnapShoot();
             }
             catch (...)
             {
-                ERROR_LOG("Set scale error");
+                ERROR_LOG("Set scale error. Can not convert str to float.");
             }
         }
     }
 }
 
-void NetworkEditorInterface::CreateGameObject(const std::vector<std::string> &params)
+void NetworkEditorInterface::CreateGameObject(const EntryParameters &params)
 {
     if (params.empty())
     {
@@ -368,16 +323,16 @@ void NetworkEditorInterface::CreateGameObject(const std::vector<std::string> &pa
     }
 
     std::string goName("NewGameObject");
-    if (params.size() > 1)
+    if (params.count("name") > 1)
     {
-        goName = params[1];
+        goName = params.at("name");
     }
 
     auto go = scene_.CreateGameObject(goName);
     scene_.AddGameObject(go);
 }
 
-void NetworkEditorInterface::GetComponentsList(const std::vector<std::string> &)
+void NetworkEditorInterface::GetComponentsList(const EntryParameters &)
 {
     for (auto type : Components::GetComponentTypes())
     {
@@ -386,28 +341,18 @@ void NetworkEditorInterface::GetComponentsList(const std::vector<std::string> &)
     }
 }
 
-void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params)
+void NetworkEditorInterface::AddComponent(const EntryParameters &params)
 {
-    if (params.size() < 3)
+    if (params.count("id") > 0 and params.count("name") > 0)
     {
-        DEBUG_LOG("param is empty");
-        return;
-    }
-    auto map = CreateParamMap(params);
-
-    if (map.count("id") > 0 and map.count("name") > 0)
-    {
-        auto &idParam       = map.at("id");
-        auto &componentName = map.at("name");
+        auto &idParam       = params.at("id");
+        auto &componentName = params.at("name");
 
         auto objectId = std::stoi(idParam);
         auto go       = scene_.GetGameObject(objectId);
 
         if (not go)
-        {
-            ERROR_LOG("Object not found with id : " + idParam);
             return;
-        }
 
         auto componentType = Components::from_string(componentName);
 
@@ -420,16 +365,16 @@ void NetworkEditorInterface::AddComponent(const std::vector<std::string> &params
     }
 }
 
-void NetworkEditorInterface::GetComponentParams(const std::vector<std::string> &)
+void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
 {
 }
 
-void NetworkEditorInterface::StartScene(const std::vector<std::string> &)
+void NetworkEditorInterface::StartScene(const EntryParameters &)
 {
     scene_.Start();
 }
 
-void NetworkEditorInterface::StopScene(const std::vector<std::string> &)
+void NetworkEditorInterface::StopScene(const EntryParameters &)
 {
     scene_.Stop();
 }
@@ -454,24 +399,25 @@ std::tuple<std::string, std::string> NetworkEditorInterface::GetParamFromCommand
     return {name, value};
 }
 
-GameObject *NetworkEditorInterface::GetGameObjectBasedOnParam(const std::string &param)
+GameObject *NetworkEditorInterface::GetGameObject(const std::string &gameObjectId)
 {
-    if (param.empty())
+    try
     {
-        DEBUG_LOG("param is empty");
-        return nullptr;
+        auto objectId   = std::stoi(gameObjectId);
+        auto gameObject = scene_.GetGameObject(objectId);
+
+        if (gameObject)
+        {
+            return gameObject;
+        }
+    }
+    catch (...)
+    {
+        DEBUG_LOG("Invalid convert gameObject str to int.");
     }
 
-    auto [name, value] = GetParamFromCommand(param);
-
-    if (name != "id")
-    {
-        DEBUG_LOG("param id not found.");
-        return nullptr;
-    }
-
-    auto objectId = std::stoi(value);
-    return scene_.GetGameObject(objectId);
+    DEBUG_LOG("GameObject not found. " + gameObjectId);
+    return nullptr;
 }
 void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
 {

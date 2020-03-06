@@ -25,27 +25,29 @@ public:
     virtual void AddObject(const std::string&) override;
 
 private:
+    typedef std::unordered_map<std::string, std::string> EntryParameters;
+
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
-    void LoadSceneFromFile(const std::vector<std::string>&);
-    void GetCamera(const std::vector<std::string>&);
-    void GetObjectList(const std::vector<std::string>&);
-    void TransformReq(const std::vector<std::string>&);
-    void GetGameObjectComponentsListReq(const std::vector<std::string>&);
-    void SetGameObjectPosition(const std::vector<std::string>&);
-    void SetGameObjectRotation(const std::vector<std::string>&);
-    void SetGameObjectScale(const std::vector<std::string>&);
-    void CreateGameObject(const std::vector<std::string>&);
-    void GetComponentsList(const std::vector<std::string>&);
-    void AddComponent(const std::vector<std::string>&);
-    void GetComponentParams(const std::vector<std::string>&);
-    void StartScene(const std::vector<std::string>&);
-    void StopScene(const std::vector<std::string>&);
+    void LoadSceneFromFile(const EntryParameters&);
+    void GetCamera(const EntryParameters&);
+    void GetObjectList(const EntryParameters&);
+    void TransformReq(const EntryParameters&);
+    void GetGameObjectComponentsListReq(const EntryParameters&);
+    void SetGameObjectPosition(const EntryParameters&);
+    void SetGameObjectRotation(const EntryParameters&);
+    void SetGameObjectScale(const EntryParameters&);
+    void CreateGameObject(const EntryParameters&);
+    void GetComponentsList(const EntryParameters&);
+    void AddComponent(const EntryParameters&);
+    void GetComponentParams(const EntryParameters&);
+    void StartScene(const EntryParameters&);
+    void StopScene(const EntryParameters&);
 
     std::unordered_map<std::string, std::string> CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
-    GameObject* GetGameObjectBasedOnParam(const std::string&);
+    GameObject* GetGameObject(const std::string&);
     void UnsubscribeTransformUpdateIfExist();
     void SetFreeCamera();
 
@@ -54,7 +56,7 @@ private:
     Network::Gateway gateway_;
     std::thread networkThread_;
     std::atomic_bool isRunning_;
-    std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commands_;
+    std::unordered_map<std::string, std::function<void(const EntryParameters&)>> commands_;
     std::optional<uint32> transformChangeSubscriptionId_;
     common::Transform* transformChangeSubscription_;
     uint32 userId_;
