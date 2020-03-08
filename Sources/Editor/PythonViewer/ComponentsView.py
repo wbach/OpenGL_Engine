@@ -12,6 +12,9 @@ class ComponentsView:
         self.rootFrame = rootFrame
         self.addComponentCB = tk.StringVar()
         self.gameObjectId = 0
+        self.isDialogVisible = False
+        self.params=[]
+        self.seletedCompoentName=""
 
         self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=270, height=25)
         self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
@@ -21,18 +24,14 @@ class ComponentsView:
 
         self.networkClient.SubscribeOnMessage("NewComponentMsgInd", self.OnComponentIndMsg)
         self.networkClient.SubscribeOnMessage("AvailableComponentMsgInd", self.AvailableComponentMsgInd)
-        self.networkClient.SubscribeOnMessage("OnComponentMsgInfo", self.ShowEditComponentDialog)
         self.networkClient.SubscribeOnMessage("ComponentDataMessage", self.HandleComponentDataMessage)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
 
     def HandleComponentDataMessage(self, msg):
-        dialog = tk.Toplevel(self.rootFrame)
-        dialog.title(msg.get("name"))
-        dialog.geometry(CalculateGeomentryCenterPosition(self.context, 400, 50))
-        dialog.attributes('-topmost', 'true')
-
-        frame = tk.LabelFrame(dialog, text="Component parameters", width=270, height=25)
+        self.CreateDialog(msg.get("name"), 280, 400)
+        frame = tk.LabelFrame(self.dialog, text="Component parameters", width=270, height=25)
         frame.grid(row=0, column=0, padx=5, pady=5)
+        self.seletedCompoentName = msg.get("name")
 
         # variableFrame = tk.Frame(frame, width=270, height=25)
         # variableFrame.grid(row=0, column=0, padx=5, pady=5)
@@ -40,9 +39,10 @@ class ComponentsView:
         # valueFrame = tk.Frame(frame, width=270, height=25)
         # valueFrame.grid(row=0, column=1, padx=5, pady=5)
 
-        paramsVariables =[]
         for child in msg.getchildren():
+            self.params = []
             if child.tag == "params":
+                i = 0
                 for param in child.getchildren():
                     variableFrame = tk.Frame(frame, width=270, height=25)
                     variableFrame.pack(padx=5, pady=5)
@@ -51,17 +51,37 @@ class ComponentsView:
 
                     varType = param.get("type")
                     if varType == "vector":
-                        print("unsupported");
+                        print("unsupported")
                     else:
-                        paramsVariables.append(tk.StringVar())
-                        xVar = paramsVariables[-1]
-                        xVar.set(param.get("value"))
-                        xVar.trace("w", lambda name, index, mode, sv=xVar: self.ComponentParamChange(xVar))
-                        tk.Entry(variableFrame, textvariable = xVar, width=15).grid(row=0, column=2, padx=5, pady=5)
+                        text = tk.StringVar()
+                        text.set(param.get("value"))
+                        tk.Entry(variableFrame, textvariable=text, width=15).grid(row=0, column=2, padx=5, pady=5)
+                        self.params.append([param.get("name"), text])
+                        i = i + 1
+
+        buttonFrame = tk.Frame(self.dialog, width=270, height=25)
+        buttonFrame.grid(row=1, column=0, padx=5, pady=0)
+
+        btn = tk.Button(buttonFrame, text="Confirm", command=self.SendModifyComponentReq)
+        btn.grid(row=0, column=0, padx=5, pady=0)
+        btn = tk.Button(buttonFrame, text="Cancel", command=lambda : dialog.destroy())
+        btn.grid(row=0, column=1, padx=5, pady=0)
+
+    def SendModifyComponentReq(self):
+        print(self.params)
+        paramList = ""
+        for param in self.params:
+            print(param)
+            print(param[0])
+            print(param[1].get())
+            value=param[1].get().replace(" ", "%")
+            paramList = paramList + param[0] + "=" + value + " "
+
+        print(paramList)
+        self.networkClient.SendCommand("modifyComponentReq gameObjectId=" + str(self.gameObjectId) + " componentName=" + self.seletedCompoentName + " " + paramList)
 
     def ComponentParamChange(self, input):
-        print("Param " + input.get() + " is changed");
-
+        print("Param " + input.get() + " is changed")
 
     def AvailableComponentMsgInd(self, msg):
         self.availableComponents.add(msg.get("name"))
@@ -80,22 +100,19 @@ class ComponentsView:
 
     def AddComponent(self):
         if len(self.availableComponents)  > 0:
-            dialog = tk.Toplevel(self.rootFrame)
-            dialog.title("Add component")
-            dialog.geometry(CalculateGeomentryCenterPosition(self.context, 400, 50))
-            dialog.attributes('-topmost', 'true')
-
-            combobox = ttk.Combobox(dialog, textvariable=self.addComponentCB)
+            self.CreateDialog("Add component", 400, 50)
+            combobox = ttk.Combobox(self.dialog, textvariable=self.addComponentCB)
             combobox['values'] = list(self.availableComponents)
             combobox.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.N))
             combobox.current(0)
             combobox.bind("<<ComboboxSelected>>", self.OnSelectedNewComponent)
 
-            btn = tk.Button(dialog, text="Add", command=self.SendAddComponentReq, width=30)
+            btn = tk.Button(self.dialog, text="Add", command=self.SendAddComponentReq, width=30)
             btn.grid(row=0, column=1, padx=5, pady=0)
 
     def SendAddComponentReq(self):
         self.networkClient.SendCommand("addComponent id=" + str(self.gameObjectId) + " name=" + self.addComponentCB.get())
+        self.CloseDialog()
 
     def OnSelectedNewComponent(self, event):
         print("selcted {0}".format(self.addComponentCB.get()))
@@ -123,14 +140,19 @@ class ComponentsView:
     def SendGetComponentParamRequest(self, name):
         self.networkClient.SendCommand("getComponentParams gameObjectId=" + str(self.gameObjectId) + " name=" + name);
 
-    def ShowEditComponentDialog(self, msg):
-        dialog = tk.Toplevel(self.rootFrame)
-        dialog.title("Edit component")
-        dialog.geometry(CalculateGeomentryCenterPosition(self.context, 400, 50))
-        dialog.attributes('-topmost', 'true')
-
-        messagebox.showinfo(title="Info", message="ShowEditComponentDialog no supported. " + msg.get("name"))
-
-
     def ChangeComponentState(self):
         messagebox.showinfo(title="Info", message="ChangeComponentState no supported.")
+
+    def CreateDialog(self, title, sizeX, sizeY):
+        if (self.isDialogVisible):
+            self.dialog.destroy()
+        self.dialog = tk.Toplevel(self.rootFrame)
+        self.dialog.title(title)
+        self.dialog.geometry(CalculateGeomentryCenterPosition(self.context, sizeX, sizeY))
+        self.dialog.attributes('-topmost', 'true')
+        self.isDialogVisible = True
+
+    def CloseDialog(self):
+        if (self.isDialogVisible):
+            self.dialog.destroy()
+            self.isDialogVisible = False

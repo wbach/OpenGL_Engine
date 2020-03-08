@@ -3,6 +3,8 @@
 #include <Utils.h>
 #include <UtilsNetwork/Messages/TextMessage.h>
 
+#include <algorithm>
+
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -47,6 +49,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"getComponentList", [&](const EntryParameters &v) { GetComponentsList(v); }});
     commands_.insert({"getComponentParams", [&](const EntryParameters &v) { GetComponentParams(v); }});
     commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
+    commands_.insert({"modifyComponentReq", [&](const EntryParameters &v) { ModifyComponentReq(v); }});
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 
@@ -406,6 +409,44 @@ void NetworkEditorInterface::StartScene(const EntryParameters &)
 void NetworkEditorInterface::StopScene(const EntryParameters &)
 {
     scene_.Stop();
+}
+
+void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
+{
+    if (not paramters.count("gameObjectId"))
+        return;
+
+    auto gameObject = GetGameObject(paramters.at("gameObjectId"));
+
+    if (not gameObject)
+        return;
+
+    auto componentType = Components::from_string(paramters.at("componentName"));
+
+    if (not componentType)
+        return;
+
+    auto component = gameObject->GetComponent(*componentType);
+
+    if (not component)
+        return;
+
+    auto p = paramters;
+
+    auto iter = p.begin();
+    while(iter != p.end())
+    {
+        if (iter->first == "gameObjectId" or iter->first == "componentName")
+        {
+            iter = p.erase(iter);
+        }
+        else
+        {
+            std::replace(iter->second.begin(), iter->second.end(), '%', ' ');
+            ++iter;
+        }
+    }
+    component->InitFromParams(p);
 }
 
 std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(

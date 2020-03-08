@@ -80,7 +80,7 @@ bool SDLNetWrapper::RecvTcp(TCPsocket sock, void* data, int maxlen)
 }
 int SDLNetWrapper::CheckSockets(SDLNet_SocketSet set, Uint32 timeout) const
 {
-    return SDLNet_CheckSockets(set, timeout);
+     return SDLNet_CheckSockets(set, timeout);
 }
 int SDLNetWrapper::SocketReady(SDLNet_GenericSocket sock) const
 {

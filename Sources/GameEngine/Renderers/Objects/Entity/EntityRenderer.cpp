@@ -13,6 +13,8 @@
 #include "GraphicsApi/ShadersTypes.h"
 #include "Logger/Log.h"
 #include "Shaders/EntityShaderUniforms.h"
+#include <algorithm>
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 
 namespace GameEngine
 {
@@ -56,11 +58,20 @@ void EntityRenderer::Render(const Scene&, const Time&)
 
 void EntityRenderer::Subscribe(GameObject* gameObject)
 {
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(), [id = gameObject->GetId()](const auto& sub){ return sub.gameObject->GetId() == id; });
+
+    if (iter != subscribes_.end())
+        return;
+
     auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
 
     if (rendererComponent == nullptr)
         return;
 
+    auto model = rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+    if (not model)
+        return;
+    
     std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
     subscribes_.push_back({gameObject, rendererComponent});
 }

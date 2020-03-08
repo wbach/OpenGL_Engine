@@ -44,6 +44,7 @@ private:
     void GetComponentParams(const EntryParameters&);
     void StartScene(const EntryParameters&);
     void StopScene(const EntryParameters&);
+    void ModifyComponentReq(const EntryParameters&);
 
     std::unordered_map<std::string, std::string> CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
