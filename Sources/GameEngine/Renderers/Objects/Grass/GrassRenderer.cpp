@@ -127,8 +127,8 @@ void GrassRenderer::RenderModel(const Model& model)
 
 void GrassRenderer::RenderMesh(const Mesh& mesh)
 {
-    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
-    context_.graphicsApi_.RenderPoints(mesh.GetObjectId());
+    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
+    context_.graphicsApi_.RenderPoints(mesh.GetGraphicsObjectId());
 }
 
 void GrassRenderer::PrepareShader(const Scene& scene)

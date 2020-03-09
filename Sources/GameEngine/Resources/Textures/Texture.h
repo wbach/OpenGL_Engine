@@ -20,10 +20,8 @@ public:
             bool applySizeLimit = true);
     virtual ~Texture();
     inline const vec2ui& GetSize() const;
-    inline uint32 GetId() const;
     inline const std::string& GetFileName() const;
     inline const std::string& GetFilPath() const;
-    inline void SetExistId(uint32 i);
     inline bool IsInitialized() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;
     inline float GetTextureYOffset(uint32 textureIndex) const;
@@ -40,15 +38,9 @@ protected:
     vec2ui size_ = vec2ui(0);
 
     bool applySizeLimit = true;
-
-    uint32 id   = 0;
     bool isInit = false;
 };
 
-uint32 Texture::GetId() const
-{
-    return id;
-}
 const std::string& Texture::GetFileName() const
 {
     return filename;
@@ -57,10 +49,7 @@ const std::string& Texture::GetFilPath() const
 {
     return fullpath;
 }
-void Texture::SetExistId(uint32 i)
-{
-    id = i;
-}
+
 bool Texture::IsInitialized() const
 {
     return isInit;

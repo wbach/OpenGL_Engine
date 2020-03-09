@@ -170,8 +170,8 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
     if (!mesh.IsInit())
         return;
 
-    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetId());
-    context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
+    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
+    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
 }
 
 }  // namespace GameEngine

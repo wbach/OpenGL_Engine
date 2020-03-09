@@ -35,7 +35,6 @@ private:
     void SetDisplay();
     void MainLoop();
     void ProcessEngineEvents();
-    void PrepareFrame();
     void Quit();
 
 private:

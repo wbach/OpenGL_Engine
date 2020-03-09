@@ -26,7 +26,7 @@ Mesh::~Mesh()
     if (!isInit)
         return;
 
-    graphicsApi_.DeleteObject(objectId_);
+    graphicsApi_.DeleteObject(graphicsObjectId_);
 }
 void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 {
@@ -35,7 +35,7 @@ void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 
 void Mesh::CreateMesh()
 {
-    objectId_ = graphicsApi_.CreateMesh(meshRawData_, renderType_);
+    graphicsObjectId_ = graphicsApi_.CreateMesh(meshRawData_, renderType_);
     isInit    = true;
 }
 
@@ -61,7 +61,7 @@ bool Mesh::UseArmature() const
 
 void Mesh::GpuLoadingPass()
 {
-    if (isLoadedToGpu())
+    if (IsLoadedToGpu())
         return;
 
     CreateMesh();
@@ -78,11 +78,6 @@ void Mesh::GpuPostLoadingPass()
 void Mesh::SetTransformMatrix(const glm::mat4& m)
 {
     transform_ = m;
-}
-
-uint32 Mesh::GetObjectId() const
-{
-    return objectId_;
 }
 
 const Material& Mesh::GetMaterial() const

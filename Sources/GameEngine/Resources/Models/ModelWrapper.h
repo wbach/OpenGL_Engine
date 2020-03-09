@@ -14,9 +14,6 @@ enum LevelOfDetail
 class ModelWrapper
 {
 public:
-    ModelWrapper()
-    {
-    }
     void Add(ModelRawPtr model, LevelOfDetail lvl);
     ModelRawPtr Get(LevelOfDetail lvl = LevelOfDetail::L1);
     const std::unordered_map<LevelOfDetail, ModelRawPtr>& Get() const;

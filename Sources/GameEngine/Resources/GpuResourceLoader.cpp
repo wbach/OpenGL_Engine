@@ -1,6 +1,6 @@
 #include "GpuResourceLoader.h"
-#include "Types.h"
 #include "Mutex.hpp"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -8,6 +8,7 @@ namespace
 {
 std::mutex gpuPassMutex;
 std::mutex postLoadingmutex;
+std::mutex releaseMutex;
 std::mutex functionMutex;
 }  // namespace
 GpuResourceLoader::GpuResourceLoader()
@@ -63,5 +64,20 @@ GpuObject* GpuResourceLoader::GetObjectToGpuPostLoadingPass()
     GpuObject* obj = gpuPostPassLoad.back();
     gpuPostPassLoad.pop_back();
     return obj;
+}
+void GpuResourceLoader::AddObjectToRelease(uint32 id)
+{
+    std::lock_guard<std::mutex> lock(releaseMutex);
+    objectToRelease.push_back(id);
+}
+std::optional<uint32> GpuResourceLoader::GetObjectToRelease()
+{
+    std::lock_guard<std::mutex> lock(releaseMutex);
+    if (objectToRelease.empty())
+        return {};
+
+    auto id = objectToRelease.back();
+    objectToRelease.pop_back();
+    return id;
 }
 }  // namespace GameEngine

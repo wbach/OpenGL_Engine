@@ -36,12 +36,12 @@ void CubeMapTexture::GpuLoadingPass()
         data[x] = &images_[x].data[0];
     }
 
-    id = graphicsApi_.CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
+    graphicsObjectId_ = graphicsApi_.CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
 
     for (auto& i : images_)
         i.data.clear();
 
-    if (id == 0)
+    if (graphicsObjectId_ == 0)
     {
         ERROR_LOG("There was an error loading the texture : " + filename);
         return;

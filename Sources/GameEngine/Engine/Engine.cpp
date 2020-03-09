@@ -73,11 +73,13 @@ void Engine::MainLoop()
 {
     displayManager->StartFrame();
     inputManager_->GetPressedKeys();
-    sceneManager_.RuntimeLoadObjectToGpu();
-    PrepareFrame();
-    renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());
+    displayManager->ProcessEvents();
     sceneManager_.Update();
-    displayManager->Update();
+
+    sceneManager_.RuntimeLoadObjectToGpu();
+    renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());
+    displayManager->UpdateWindow();
+
     ProcessEngineEvents();
     displayManager->EndFrame();
 }
@@ -100,12 +102,6 @@ void Engine::ProcessEngineEvents()
         default:
             break;
     }
-}
-
-void Engine::PrepareFrame()
-{
-    graphicsApi_->PrepareFrame();
-    displayManager->ProcessEvents();
 }
 
 void Engine::Quit()

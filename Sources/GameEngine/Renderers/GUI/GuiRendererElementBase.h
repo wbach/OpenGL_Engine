@@ -33,7 +33,7 @@ protected:
 
 std::optional<uint32> GuiRendererElementBase::GetTextureId() const
 {
-    return texture_ ? texture_->GetId() : std::optional<uint32>();
+    return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
 }
 const mat4& GuiRendererElementBase::GetTransformMatrix() const
 {

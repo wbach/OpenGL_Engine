@@ -25,8 +25,13 @@ struct ICamera
     virtual const vec3& GetDirection() const  = 0;
     virtual const mat4& GetViewMatrix() const = 0;
 
-    virtual void IncreaseYaw(float yaw) = 0;
-    virtual void IncreasePitch(float pitch) = 0;
+    virtual void IncreaseYaw(float yaw)          = 0;
+    virtual void IncreasePitch(float pitch)      = 0;
+    virtual void IncreasePosition(const vec3&)   = 0;
+    virtual void IncreasePositionX(float)        = 0;
+    virtual void IncreasePositionY(float)        = 0;
+    virtual void IncreasePositionZ(float)        = 0;
+    virtual void IncreasePositionXZ(const vec2&) = 0;
 
     virtual void LookAt(const vec3&)      = 0;
     virtual void SetYaw(float yaw)        = 0;

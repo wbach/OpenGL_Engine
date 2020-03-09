@@ -70,7 +70,7 @@ void TerrainMeshRenderer::RenderModel(const Model& model) const
 }
 void TerrainMeshRenderer::RenderMesh(const Mesh& mesh) const
 {
-    context_.graphicsApi_.RenderTriangleStripMesh(mesh.GetObjectId());
+    context_.graphicsApi_.RenderTriangleStripMesh(mesh.GetGraphicsObjectId());
 }
 void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
@@ -84,7 +84,7 @@ void TerrainMeshRenderer::BindTexture(Texture* texture, int id) const
     if (texture == nullptr)
         return;
 
-    context_.graphicsApi_.ActiveTexture(id, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(id, texture->GetGraphicsObjectId());
 }
 void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
 {

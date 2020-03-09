@@ -33,7 +33,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     firstPersonCamera = std::make_unique<FirstPersonCamera>(scene.inputManager_, scene.displayManager_);
     SetFreeCamera();
 
-    scene_.Stop();
+   // scene_.Stop();
     commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
     commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
@@ -240,13 +240,19 @@ void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
 {
     if (param.count("x") and param.count("y") and param.count("z") and param.count("id"))
     {
-        auto gameObject = GetGameObject(param.at("id"));
-        if (gameObject)
+        try
         {
-            try
-            {
-                vec3 position(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
+            vec3 position(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
 
+            if (param.at("id") == "camera")
+            {
+                scene_.camera.SetPosition(position);
+                return;
+            }
+
+            auto gameObject = GetGameObject(param.at("id"));
+            if (gameObject)
+            {
                 auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
                 if (rigidbody)
                 {
@@ -258,10 +264,10 @@ void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
                     gameObject->worldTransform.TakeSnapShoot();
                 }
             }
-            catch (...)
-            {
-                ERROR_LOG("Set position error");
-            }
+        }
+        catch (...)
+        {
+            ERROR_LOG("Set position error");
         }
     }
 }
@@ -270,13 +276,19 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
 {
     if (param.count("x") and param.count("y") and param.count("z") and param.count("id"))
     {
-        auto gameObject = GetGameObject(param.at("id"));
-        if (gameObject)
+        try
         {
-            try
-            {
-                vec3 rotation(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
+            vec3 rotation(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
 
+            if (param.at("id") == "camera")
+            {
+                scene_.camera.SetRotation(rotation);
+                return;
+            }
+
+            auto gameObject = GetGameObject(param.at("id"));
+            if (gameObject)
+            {
                 auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
                 if (rigidbody)
                 {
@@ -288,10 +300,10 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
                     gameObject->worldTransform.TakeSnapShoot();
                 }
             }
-            catch (...)
-            {
-                ERROR_LOG("Set rotation error");
-            }
+        }
+        catch (...)
+        {
+            ERROR_LOG("Set rotation error");
         }
     }
 }
@@ -434,7 +446,7 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters
     auto p = paramters;
 
     auto iter = p.begin();
-    while(iter != p.end())
+    while (iter != p.end())
     {
         if (iter->first == "gameObjectId" or iter->first == "componentName")
         {

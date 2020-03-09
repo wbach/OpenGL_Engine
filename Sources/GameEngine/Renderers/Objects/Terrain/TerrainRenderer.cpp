@@ -143,7 +143,7 @@ void TerrainRenderer::BindTexture(Texture* texture, int id) const
     if (texture == nullptr)
         return;
 
-    context_.graphicsApi_.ActiveTexture(id, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(id, texture->GetGraphicsObjectId());
 }
 void TerrainRenderer::Subscribe(GameObject* gameObject)
 {

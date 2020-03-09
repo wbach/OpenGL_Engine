@@ -14,7 +14,7 @@ PostProcessingManager::PostProcessingManager(RendererContext& context)
 {
     ResetBufferSet();
     factory_      = std::make_unique<PostprocessingRenderersFactory>(context_, &passivePostProcessFrameBuffer_);
-    ssaoRenderer_ = factory_->Create(PostprocessingRendererType::SSAO);
+    //ssaoRenderer_ = factory_->Create(PostprocessingRendererType::SSAO);
     AddEffects();
 }
 PostProcessingManager::~PostProcessingManager()
@@ -30,7 +30,7 @@ void PostProcessingManager::Init()
     {
         renderer->Init();
     }
-    ssaoRenderer_->Init();
+   // ssaoRenderer_->Init();
 }
 void PostProcessingManager::Render(const Scene& scene)
 {

@@ -1,5 +1,7 @@
 #pragma once
+#include <Types.h>
 #include <functional>
+#include <optional>
 #include "IGpuResourceLoader.h"
 
 namespace GameEngine
@@ -16,5 +18,7 @@ public:
     virtual GpuObject* GetObjectToGpuLoadingPass()         = 0;
     virtual void AddObjectToGpuPostLoadingPass(GpuObject*) = 0;
     virtual GpuObject* GetObjectToGpuPostLoadingPass()     = 0;
+    virtual void AddObjectToRelease(uint32)                = 0;
+    virtual std::optional<uint32> GetObjectToRelease()     = 0;
 };
 }  // namespace GameEngine

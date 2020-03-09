@@ -125,7 +125,7 @@ void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const
 
 void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, int id) const
 {
-    context_.graphicsApi_.ActiveTexture(id, texture.GetId());
+    context_.graphicsApi_.ActiveTexture(id, texture.GetGraphicsObjectId());
 }
 
 void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
@@ -133,6 +133,6 @@ void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
     if (!mesh.IsInit())
         return;
 
-    context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
+    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
 }
 }  // namespace GameEngine

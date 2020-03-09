@@ -70,7 +70,7 @@ void RenderersManager::Init()
 void RenderersManager::InitProjection()
 {
     auto& conf  = EngineConf;
-    projection_ = conf.renderer.resolution;
+    projection_ = Projection(conf.renderer.resolution);
 }
 void RenderersManager::InitMainRenderer()
 {
@@ -105,6 +105,8 @@ void RenderersManager::RegisterRenderFunction(RendererFunctionType type, Rendere
 }
 void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
 {
+    graphicsApi_.PrepareFrame();
+
     if (scene == nullptr)
         return;
 
@@ -180,10 +182,6 @@ void RenderersManager::UnSubscribe(GameObject* gameObject)
         r->UnSubscribe(gameObject);
 }
 
-void RenderersManager::UnSubscribe(GameObject* gameObject, std::mutex& m, std::condition_variable& cv, bool& done)
-{
-    tounsubscriber_.push_back({gameObject, m, cv, done});
-}
 void RenderersManager::UnSubscribeAll()
 {
     for (auto& r : renderers_)

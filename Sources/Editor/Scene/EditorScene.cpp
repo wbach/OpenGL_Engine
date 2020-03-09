@@ -6,6 +6,7 @@
 #include "Editor/Context.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 
 using namespace GameEngine;
 
@@ -26,6 +27,16 @@ int EditorScene::Initialize()
 
     // const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
     // LoadFromFile(sceneFile);
+
+    camera.SetPosition(vec3(2, 2, 2));
+    camera.LookAt(vec3(0, 0.5, 0));
+    camera.UpdateMatrix();
+
+    auto go = CreateGameObject("Crate");
+    go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
+                                                                           GameEngine::LevelOfDetail::L1);
+    go->worldTransform.TakeSnapShoot();
+    AddGameObject(go);
 
     for (uint32 i = 0; i < 4; ++i)
     {
@@ -51,11 +62,6 @@ void EditorScene::PostInitialize()
 }
 int EditorScene::Update(float)
 {
-    for (auto& go : gameObjects)
-    {
-        go.second->worldTransform.IncrasePosition(vec3(0.00001));
-    }
-
     return 0;
 }
 

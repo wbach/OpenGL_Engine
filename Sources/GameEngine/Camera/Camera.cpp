@@ -158,4 +158,32 @@ void BaseCamera::IncreasePitch(float pitch)
     rotation_.x += pitch;
     NotifySubscribers();
 }
+void BaseCamera::IncreasePosition(const vec3& v)
+{
+    position_.x += v.x;
+    position_.y += v.y;
+    position_.z += v.z;
+    NotifySubscribers();
+}
+void BaseCamera::IncreasePositionX(float x)
+{
+    position_.x += x;
+    NotifySubscribers();
+}
+void BaseCamera::IncreasePositionY(float y)
+{
+    position_.y += y;
+    NotifySubscribers();
+}
+void BaseCamera::IncreasePositionZ(float z)
+{
+    position_.z += z;
+    NotifySubscribers();
+}
+void BaseCamera::IncreasePositionXZ(const vec2& v)
+{
+    position_.x += v.x;
+    position_.z += v.y;
+    NotifySubscribers();
+}
 }  // namespace GameEngine

@@ -44,7 +44,7 @@ void DisplayManager::ProcessEvents()
     graphicsApi_.GetWindowApi().ProcessEvents();
 }
 
-void DisplayManager::Update()
+void DisplayManager::UpdateWindow()
 {
     graphicsApi_.GetWindowApi().UpdateWindow();
     time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());

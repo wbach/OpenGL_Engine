@@ -36,10 +36,11 @@ void DefferedRenderer::Init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
     CreateRenderers();
+    DEBUG_LOG("Rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
     context_.defferedFrameBuffer_.Init(context_.projection_.GetRenderingSize());
     context_.shadowsFrameBuffer_.InitialiseFrameBuffer();
     InitRenderers();
-    postprocessingRenderersManager_.Init();
+    postprocessingRenderersManager_.Init(); 
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
     __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::OnEndFrame);
     DEBUG_LOG("DefferedRenderer initialized.");

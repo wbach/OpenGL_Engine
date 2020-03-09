@@ -97,5 +97,5 @@ class GameObjectView:
         self.networkClient.SendCommand("getCamera")
 
     def ShowCameraInView(self):
-        self.infoView.UpdateInfoWidget(self.cameraType, "---")
+        self.infoView.UpdateInfoWidget(self.cameraType, "camera")
         self.transformView.Fill(self.cameraInfo[0], self.cameraInfo[1], ["---", "---", "---"])

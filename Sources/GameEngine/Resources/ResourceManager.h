@@ -18,6 +18,7 @@ public:
     ~ResourceManager() override;
     Model* LoadModel(const std::string& file) override;
     void AddModel(Model* model) override;
+    void ReleaseModel(Model* model) override;
     inline Model* GetModel(uint32 id) override;
     inline IGpuResourceLoader& GetGpuResourceLoader() override;
     inline ITextureLoader& GetTextureLaoder() override;

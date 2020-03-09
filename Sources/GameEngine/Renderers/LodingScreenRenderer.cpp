@@ -34,8 +34,8 @@ void LoadingScreenRenderer::Render(Scene *)
     shader_->Start();
     graphicsApi_.EnableBlend();
     graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
-    renderQuad(backgroundBufferId_, backgroundTexture->GetId());
-    renderQuad(circleBufferId_, circleTexture->GetId());
+    renderQuad(backgroundBufferId_, backgroundTexture->GetGraphicsObjectId());
+    renderQuad(circleBufferId_, circleTexture->GetGraphicsObjectId());
     graphicsApi_.DisableBlend();
     shader_->Stop();
     timer_ = Utils::Timer();

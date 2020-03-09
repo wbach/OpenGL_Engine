@@ -29,8 +29,8 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi)
 Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 id)
     : graphicsApi_(graphicsApi)
     , size_(0)
-    , id(id)
 {
+    graphicsObjectId_ = id;
 }
 
 Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
@@ -55,9 +55,9 @@ Texture::~Texture()
 {
     if (!isInit)
         return;
-    DEBUG_LOG("Delete " + fullpath + ", texture id: " + std::to_string(id));
+    DEBUG_LOG("Delete " + fullpath + ", texture id: " + std::to_string(graphicsObjectId_));
 
-    graphicsApi_.DeleteObject(id);
+    graphicsApi_.DeleteObject(graphicsObjectId_);
 }
 std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const
 {

@@ -26,7 +26,7 @@ void AbstractLoader::Parse(const std::string& filename)
     auto binFile = CreateBinPath(fileName_);
     if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))
     {
-        // ReadBinFile(binFile, textureLoader_);
+        ReadBinFile(binFile, textureLoader_);
         loadedFromBin_ = true;
         fileName_      = binFile;
         DEBUG_LOG("Load from bin file :" + filename);
@@ -61,6 +61,7 @@ std::unique_ptr<Model> AbstractLoader::Create()
 std::unique_ptr<Model> AbstractLoader::CreateModel()
 {
     float maxFactor = FindMaxFactor();
+    DEBUG_LOG(std::to_string(1.f / maxFactor));
 
     auto newModel = std::make_unique<Model>(maxFactor);
 

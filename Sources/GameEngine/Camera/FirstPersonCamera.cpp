@@ -6,8 +6,8 @@
 
 static vec3 zero(0);
 
-const float defaultCamSpeed         = Utils::KmToMs<float>(2500);
-const float defaultCamRotationSpeed = 0.2f;
+const float defaultCamSpeed         = Utils::KmToMs<float>(5);
+const float defaultCamRotationSpeed = 0.1f;
 
 namespace GameEngine
 {
@@ -152,12 +152,12 @@ bool FirstPersonCamera::CheckAndProccesRightDirection()
 void FirstPersonCamera::MoveCamera(float dist, float dir)
 {
     float rad = Utils::ToRadians(GetRotation().y + dir);
-    SetPosition(vec3(sinf(-rad) * dist, GetPosition().y, cosf(-rad) * dist));
+    IncreasePositionXZ(vec2(-sinf(-rad) * dist, -cosf(-rad) * dist));
 }
 
 void FirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
     float rad = Utils::ToRadians(GetRotation().x + dir);
-    SetPosition(vec3(GetPosition().x, sinf(-rad) * dist, GetPosition().z));
+    IncreasePositionY(sinf(-rad) * dist);
 }
 }  // namespace GameEngine

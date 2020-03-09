@@ -15,10 +15,13 @@ public:
     GpuObject* GetObjectToGpuLoadingPass() override;
     void AddObjectToGpuPostLoadingPass(GpuObject* obj) override;
     GpuObject* GetObjectToGpuPostLoadingPass() override;
+    void AddObjectToRelease(uint32) override;
+    std::optional<uint32> GetObjectToRelease() override;
 
 private:
     std::vector<std::function<void()>> functions;
     std::vector<GpuObject*> gpuPassLoad;
     std::vector<GpuObject*> gpuPostPassLoad;
+    std::vector<uint32> objectToRelease;
 };
 }  // namespace GameEngine

@@ -52,7 +52,7 @@ const std::optional<GraphicsApi::Surface>& GuiTextElement::GetSurface() const
 
 std::optional<uint32> GuiTextElement::GetTextureId() const
 {
-    return texture_ ? texture_->GetId() : std::optional<uint32>();
+    return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
 }
 
 const std::string& GuiTextElement::GetText() const

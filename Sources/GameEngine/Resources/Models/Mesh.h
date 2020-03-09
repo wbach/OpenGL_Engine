@@ -34,7 +34,6 @@ public:
     bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
 
-    uint32 GetObjectId() const;
     const Material& GetMaterial() const;
     inline const mat4& GetMeshTransform() const;
     inline GraphicsApi::MeshRawData& GetMeshDataRef();
@@ -55,7 +54,6 @@ private:
     GraphicsApi::MeshRawData meshRawData_;
     GraphicsApi::RenderType renderType_;
     Material material_;
-    uint32 objectId_;
 
     bool isInit              = false;
     bool transformVboCreated = false;

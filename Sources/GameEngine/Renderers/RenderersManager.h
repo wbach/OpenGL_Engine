@@ -40,7 +40,6 @@ public:
     void ReloadShaders();
     void Subscribe(GameObject* gameObject);
     void UnSubscribe(GameObject* gameObject);
-    void UnSubscribe(GameObject* gameObject, std::mutex&, std::condition_variable&, bool& done);
 
     void UnSubscribeAll();
     void UnSubscribeAll(std::function<void()>);

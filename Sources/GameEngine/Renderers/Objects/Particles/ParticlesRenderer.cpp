@@ -200,7 +200,7 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
                              static_cast<float>(textureNumberOfrows));
     }
 
-    context_.graphicsApi_.ActiveTexture(0, texture->GetId());
+    context_.graphicsApi_.ActiveTexture(0, texture->GetGraphicsObjectId());
 }
 
 void ParticlesRenderer::GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix)

@@ -19,8 +19,9 @@ void GeneralTexture::GpuLoadingPass()
         return;
     }
 
-    DEBUG_LOG("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-    id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
+    DEBUG_LOG("Create texutre id : " + std::to_string(graphicsObjectId_) + ", filneame : " + fullpath);
+    graphicsObjectId_ =
+        graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
                                     GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, data_);
 
     isInit = true;

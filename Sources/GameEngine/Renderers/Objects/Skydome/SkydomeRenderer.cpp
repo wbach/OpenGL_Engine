@@ -61,7 +61,7 @@ void SkydomRenderer::Render(const Scene& scene, const Time&)
 
     for (const auto& mesh : subscriber_.model_->GetMeshes())
     {
-        context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
+        context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
     }
 
     shader_->Stop();

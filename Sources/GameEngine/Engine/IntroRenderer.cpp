@@ -31,7 +31,7 @@ void IntroRenderer::Render()
 
     displayManager_->ProcessEvents();
     RenderThis();
-    displayManager_->Update();
+    displayManager_->UpdateWindow();
 }
 void IntroRenderer::Init()
 {
@@ -60,7 +60,7 @@ void IntroRenderer::RenderThis()
     graphicsApi_.PrepareFrame();
     shader_->Start();
     graphicsApi_.BindShaderBuffer(*perUpdateObjectBuffer_);
-    graphicsApi_.ActiveTexture(0, backgroundTexture_->GetId());
+    graphicsApi_.ActiveTexture(0, backgroundTexture_->GetGraphicsObjectId());
     graphicsApi_.RenderQuad();
     shader_->Stop();
 }

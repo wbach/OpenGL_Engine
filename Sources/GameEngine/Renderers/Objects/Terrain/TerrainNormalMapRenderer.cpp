@@ -73,7 +73,7 @@ std::unique_ptr<Texture> TerrainNormalMapRenderer::RenderTexture(const Texture &
 
     context_.graphicsApi_.ActiveTexture(0);
     context_.graphicsApi_.BindImageTexture(*storageId, GraphicsApi::TextureAccess::WRITE_ONLY);
-    context_.graphicsApi_.ActiveTexture(1, heightMap.GetId());
+    context_.graphicsApi_.ActiveTexture(1, heightMap.GetGraphicsObjectId());
     context_.graphicsApi_.Compute(imageSize / 16, imageSize / 16, 1);
     shader_->Stop();
 

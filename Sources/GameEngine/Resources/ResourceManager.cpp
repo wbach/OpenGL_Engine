@@ -50,6 +50,38 @@ void ResourceManager::AddModel(Model* model)
     modelsIds_.insert({model->GetFileName(), models_.size() - 1});
     gpuLoader_->AddObjectToGpuLoadingPass(model);
 }
+void ResourceManager::ReleaseModel(Model* model)
+{
+    for (auto& mesh : model->GetMeshes())
+    {
+        auto& material = mesh.GetMaterial();
+
+        if (material.diffuseTexture)
+            gpuLoader_->AddObjectToRelease(material.diffuseTexture->GetGraphicsObjectId());
+
+        if (material.ambientTexture)
+            gpuLoader_->AddObjectToRelease(material.ambientTexture->GetGraphicsObjectId());
+
+        if (material.specularTexture)
+            gpuLoader_->AddObjectToRelease(material.specularTexture->GetGraphicsObjectId());
+
+        if (material.normalTexture)
+            gpuLoader_->AddObjectToRelease(material.normalTexture->GetGraphicsObjectId());
+    }
+
+    gpuLoader_->AddObjectToRelease(model->GetGraphicsObjectId());
+
+    auto iter = std::find_if(models_.begin(), models_.end(), [filename = model->GetFileName()](const auto& model) {
+        return model->GetFileName() == filename;
+    });
+
+    if (iter != models_.end())
+    {
+        models_.erase(iter);
+    }
+
+    modelsIds_.erase(model->GetFileName());
+}
 Texture* ResourceManager::AddTexture(std::unique_ptr<Texture> texture)
 {
     textures_.push_back(std::move(texture));
@@ -58,7 +90,7 @@ Texture* ResourceManager::AddTexture(std::unique_ptr<Texture> texture)
 void ResourceManager::DeleteTexture(uint32 id)
 {
     auto iter = std::find_if(textures_.begin(), textures_.end(),
-                             [id](const auto& texture) { return (texture->GetId() == id); });
+                             [id](const auto& texture) { return (texture->GetGraphicsObjectId() == id); });
 
     if (iter != textures_.end())
     {

@@ -84,7 +84,7 @@ void SceneLoader::UpdateScreen()
     if (displayManager == nullptr)
         return;
 
-    displayManager->Update();
+    displayManager->UpdateWindow();
 }
 
 void SceneLoader::LoadingLoop(Scene* scene)

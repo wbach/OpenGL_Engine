@@ -102,7 +102,7 @@ void TreeRenderer::RenderModel(const Model& model, const TreeSubscriber& sub) co
 void TreeRenderer::RenderMesh(const Mesh& mesh, uint32 size) const
 {
     BindMaterial(mesh.GetMaterial());
-    context_.graphicsApi_.RenderMeshInstanced(mesh.GetObjectId(), size);
+    context_.graphicsApi_.RenderMeshInstanced(mesh.GetGraphicsObjectId(), size);
 }
 void TreeRenderer::RenderTrees()
 {
@@ -119,21 +119,21 @@ void TreeRenderer::BindMaterial(const Material& material) const
 
     if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
     {
-        context_.graphicsApi_.ActiveTexture(1, material.diffuseTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(1, material.diffuseTexture->GetGraphicsObjectId());
     }
 
     if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
     {
-        context_.graphicsApi_.ActiveTexture(2, material.ambientTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(2, material.ambientTexture->GetGraphicsObjectId());
     }
 
     if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
     {
-        context_.graphicsApi_.ActiveTexture(3, material.normalTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(3, material.normalTexture->GetGraphicsObjectId());
     }
 
     if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
-        context_.graphicsApi_.ActiveTexture(4, material.specularTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(4, material.specularTexture->GetGraphicsObjectId());
 }
 void TreeRenderer::UnBindMaterial(const Material& material) const
 {

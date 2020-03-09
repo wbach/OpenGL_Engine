@@ -19,7 +19,7 @@ Projection::Projection(const vec2ui &renderingSize)
 {
 }
 Projection::Projection(const vec2ui &renderingSize, float near, float far, float fov)
-    : renderingSize_(renderingSize.x / 2, renderingSize.y / 2)
+    : renderingSize_(renderingSize.x, renderingSize.y)
     , nearPlane_(near)
     , farPlane_(far)
     , fov_(fov)

@@ -21,12 +21,13 @@ void HeightMap::GpuLoadingPass()
         return;
     }
 
-    DEBUG_LOG("Create texutre id : " + std::to_string(id) + ", filneame : " + fullpath);
-    id = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
+    DEBUG_LOG("Create texutre id : " + std::to_string(graphicsObjectId_) + ", filneame : " + fullpath);
+    graphicsObjectId_ = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C,
+                                                   GraphicsApi::TextureFilter::LINEAR,
                                     GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_,
                                     &image_->floatData[0]);
 
-    if (id == 0)
+    if (graphicsObjectId_ == 0)
     {
         image_->data.clear();
         ERROR_LOG("There was an error loading the texture : " + filename + " cannot create texture.");

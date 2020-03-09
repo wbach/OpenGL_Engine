@@ -157,7 +157,7 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
 void EntityRenderer::RenderMesh(const Mesh& mesh) const
 {
     BindMaterial(mesh.GetMaterial());
-    context_.graphicsApi_.RenderMesh(mesh.GetObjectId());
+    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
     UnBindMaterial(mesh.GetMaterial());
 }
 
@@ -169,25 +169,25 @@ void EntityRenderer::BindMaterial(const Material& material) const
     if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized() &&
         EngineConf.renderer.textures.useDiffuse)
     {
-        context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetGraphicsObjectId());
     }
 
     if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized() &&
         EngineConf.renderer.textures.useAmbient)
     {
-        context_.graphicsApi_.ActiveTexture(1, material.ambientTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(1, material.ambientTexture->GetGraphicsObjectId());
     }
 
     if (material.normalTexture != nullptr && material.normalTexture->IsInitialized() &&
         EngineConf.renderer.textures.useNormal)
     {
-        context_.graphicsApi_.ActiveTexture(2, material.normalTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(2, material.normalTexture->GetGraphicsObjectId());
     }
 
     if (material.specularTexture != nullptr && material.specularTexture->IsInitialized() &&
         EngineConf.renderer.textures.useSpecular)
     {
-        context_.graphicsApi_.ActiveTexture(3, material.specularTexture->GetId());
+        context_.graphicsApi_.ActiveTexture(3, material.specularTexture->GetGraphicsObjectId());
     }
 }
 

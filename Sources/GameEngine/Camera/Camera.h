@@ -34,6 +34,11 @@ public:
 
     virtual void IncreaseYaw(float yaw) override;
     virtual void IncreasePitch(float pitch) override;
+    virtual void IncreasePosition(const vec3&) override;
+    virtual void IncreasePositionX(float) override;
+    virtual void IncreasePositionY(float) override;
+    virtual void IncreasePositionZ(float) override;
+    virtual void IncreasePositionXZ(const vec2&) override;
 
     virtual void LookAt(const vec3&) override;
     virtual void SetYaw(float yaw) override;

@@ -17,7 +17,7 @@ public:
     void StartFrame();
     void EndFrame();
     void ProcessEvents();
-    void Update();
+    void UpdateWindow();
     void ShowCoursor(bool show);
     bool CheckActiveWindow();
     std::shared_ptr<Input::InputManager> CreateInput();

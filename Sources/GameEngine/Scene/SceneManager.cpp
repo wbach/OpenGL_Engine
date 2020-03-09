@@ -47,11 +47,32 @@ void SceneManager::RuntimeLoadObjectToGpu()
         return;
 
     auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
-    auto obj        = gpuLoader.GetObjectToGpuLoadingPass();
-    if (obj != nullptr && !obj->isLoadedToGpu())
-        obj->GpuLoadingPass();
 
-    gpuLoader.CallFunctions();
+    auto obj = gpuLoader.GetObjectToGpuLoadingPass();
+
+    while (obj != nullptr)
+    {
+        if (obj->IsLoadedToGpu())
+            obj->GpuLoadingPass();
+
+       obj = gpuLoader.GetObjectToGpuLoadingPass();
+    }
+}
+void SceneManager::RuntimeReleaseObjectGpu()
+{
+    auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
+
+    auto obj = gpuLoader.GetObjectToRelease();
+
+    while (obj)
+    {
+        grahpicsApi_.DeleteObject(*obj);
+        obj = gpuLoader.GetObjectToRelease();
+    }
+}
+void SceneManager::RuntimeCallFunctionGpu()
+{
+    sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader().CallFunctions();
 }
 void SceneManager::Update()
 {
@@ -243,7 +264,8 @@ void SceneManager::SetSceneContext(Scene* scene)
 void SceneManager::UpdateSubscribe()
 {
     DEBUG_LOG("");
-    updateSceneThreadId_ = threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
+    updateSceneThreadId_ =
+        threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
     threadSync_.Start();
     isRunning_ = true;
 }
