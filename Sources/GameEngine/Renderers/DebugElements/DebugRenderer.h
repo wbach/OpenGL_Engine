@@ -22,7 +22,7 @@ namespace Components
 class RendererComponent;
 }  // namespace Components
 
-struct EntitySubscriber
+struct DebugRendererSubscriber
 {
     GameObject* gameObject;
     Components::RendererComponent* renderComponent;
@@ -34,7 +34,7 @@ struct DebugObject
     Model* model{nullptr};
 };
 
-typedef std::vector<EntitySubscriber> EnitySubscribers;
+typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
 
 class DebugRenderer : public IRenderer
 {

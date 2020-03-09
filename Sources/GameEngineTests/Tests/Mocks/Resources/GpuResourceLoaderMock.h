@@ -13,5 +13,7 @@ public:
     MOCK_METHOD0(GetObjectToGpuLoadingPass, GpuObject*());
     MOCK_METHOD1(AddObjectToGpuPostLoadingPass, void(GpuObject*));
     MOCK_METHOD0(GetObjectToGpuPostLoadingPass, GpuObject*());
+    MOCK_METHOD1(AddObjectToRelease, void(uint32));
+    MOCK_METHOD0(GetObjectToRelease, std::optional<uint32>());
 };
 }  // namespace GameEngine

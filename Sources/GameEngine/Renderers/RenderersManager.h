@@ -10,7 +10,6 @@
 #include "Projection.h"
 #include "RendererFunctionType.h"
 #include <functional>
-#include <condition_variable>
 
 namespace GameEngine
 {
@@ -24,14 +23,6 @@ namespace Renderer
 {
 class RenderersManager
 {
-    struct UnsubscribeContex
-    {
-        GameObject* gameObject;
-        std::mutex& mutex;
-        std::condition_variable& cv;
-        bool& done;
-    };
-
 public:
     RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
     void Init();
@@ -70,7 +61,6 @@ private:
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;
-    std::vector<UnsubscribeContex> tounsubscriber_;
 
    // DebugRenderer debugRenderer_;
     IRenderersPtrVec renderers_;

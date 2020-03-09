@@ -139,14 +139,6 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
         unsubscribeAllCallback_();
         unsubscribeAllCallback_ = {};
     }
-
-    for (auto& sub : tounsubscriber_)
-    {
-        UnSubscribe(sub.gameObject);
-        sub.done = true;
-        sub.mutex.unlock();
-        sub.cv.notify_all();
-    }
 }
 void RenderersManager::ReloadShaders()
 {

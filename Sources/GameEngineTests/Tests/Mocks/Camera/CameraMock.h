@@ -22,18 +22,20 @@ public:
     MOCK_CONST_METHOD0(GetPosition, const vec3&());
     MOCK_CONST_METHOD0(GetDirection, const vec3&());
     MOCK_CONST_METHOD0(GetViewMatrix, const mat4&());
-    MOCK_METHOD1(IncreaseYaw, float());
-    MOCK_METHOD1(IncreasePitch, float());
-    MOCK_METHOD1(IncreasePosition, const vec3&());
-    MOCK_METHOD1(IncreasePositionX, float());
-    MOCK_METHOD1(IncreasePositionY, float());
-    MOCK_METHOD1(IncreasePositionZ, float());
-    MOCK_METHOD1(IncreasePosition, const vec2&());
+    MOCK_METHOD1(IncreaseYaw, void(float));
+    MOCK_METHOD1(IncreasePitch, void(float));
+    MOCK_METHOD1(IncreasePosition, void(const vec3&));
+    MOCK_METHOD1(IncreasePositionX, void(float));
+    MOCK_METHOD1(IncreasePositionY, void(float));
+    MOCK_METHOD1(IncreasePositionZ, void(float));
+    MOCK_METHOD1(IncreasePositionXZ, void(const vec2&));
     MOCK_METHOD1(LookAt, void(const vec3&));
     MOCK_METHOD1(SetYaw, void(float yaw));
     MOCK_METHOD1(SetRoll, void(float roll));
     MOCK_METHOD1(SetPitch, void(float pitch));
     MOCK_METHOD1(SetRotation, void(const vec3&));
     MOCK_METHOD1(SetPosition, void(const vec3&));
+    MOCK_METHOD1(SubscribeOnChange, uint32(std::function<void(const ICamera&)>));
+
 };
 }  // namespace GameEngine

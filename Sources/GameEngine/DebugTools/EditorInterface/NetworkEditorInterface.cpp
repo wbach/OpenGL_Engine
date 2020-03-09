@@ -17,7 +17,7 @@
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectInd.h"
 #include "Messages/Transform.h"
-#include "Messages/XMLMessageConverter.h"
+#include "Messages/XmlMessageConverter.h"
 
 namespace GameEngine
 {
