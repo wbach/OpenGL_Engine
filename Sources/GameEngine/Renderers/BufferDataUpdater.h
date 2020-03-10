@@ -1,7 +1,10 @@
 #pragma once
+#include <Mutex.hpp>
+#include <memory>
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include <memory>
+#include "IBufferDataUpdaterEvent.h"
+#include "IBufferDataUpdaterSubcriber.h"
 
 namespace GameEngine
 {
@@ -10,16 +13,8 @@ namespace Components
 class RendererComponent;
 }  // namespace Components
 
-
-class IBufferDataUpdaterSubcriber
-{
-public:
-    virtual ~IBufferDataUpdaterSubcriber() {}
-    virtual void Update() = 0;
-    virtual uint32 GetId() const = 0;
-};
-
 typedef std::vector<std::unique_ptr<IBufferDataUpdaterSubcriber>> BufferDataUpdaterSubcribers;
+typedef std::vector<std::unique_ptr<IBufferDataUpdaterEvent>> BufferDataUpdaterEvents;
 
 class BufferDataUpdater
 {
@@ -31,10 +26,14 @@ public:
     void UnSubscribe(GameObject* gameObject);
     void Update();
     void UnSubscribeAll();
+    void ProcessEvents();
+    void AddEvent(std::unique_ptr<IBufferDataUpdaterEvent>);
 
 private:
     BufferDataUpdaterSubcribers subscribers_;
+    BufferDataUpdaterEvents events_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    std::mutex eventMutex_;
 };
 
 }  // namespace GameEngine

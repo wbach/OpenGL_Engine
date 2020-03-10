@@ -1,5 +1,5 @@
 #pragma once
-#include "Mutex.hpp"
+#include <Mutex.hpp>
 #include "Types.h"
 #include <utility>
 #include <functional>
@@ -63,7 +63,7 @@ private:
     std::mutex contextMutex_;
     TransformContext context_;
     TransformContext snapshoot_;
-    mat4 matrix;
+    mat4 matrix_;
 
     uint32 idPool_;
     std::vector<std::pair<uint32, std::function<void(const Transform&)>>> subscribers_;
