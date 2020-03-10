@@ -20,6 +20,7 @@
 #include "GameEngine/Renderers/Postproccesing/DefferedLighting/Shaders/DefferedShader.h"
 #include "GameEngine/Renderers/Postproccesing/SSAO/Shaders/SSAOShader.h"
 #include "GameEngine/Shaders/Loading/LoadingShader.h"
+#include "GameEngine/Renderers/DebugElements/Shaders/GridShader.h"
 
 namespace GameEngine
 {
@@ -35,6 +36,8 @@ std::unique_ptr<IShaderProgram> ShaderFactory::create(GraphicsApi::Shaders type)
             return std::make_unique<LoadingShader>(graphicsApi_);
         case GraphicsApi::Shaders::Entity:
             return std::make_unique<DefferedEntityShader>(graphicsApi_);
+        case GraphicsApi::Shaders::Grid:
+            return std::make_unique<GridShader>(graphicsApi_);
         case GraphicsApi::Shaders::Grass:
             return std::make_unique<GrassShader>(graphicsApi_);
         case GraphicsApi::Shaders::Particles:

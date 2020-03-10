@@ -12,9 +12,9 @@ void DefferedEntityShader::GetAllUniformLocations()
 {
     EntityShader::GetAllUniformLocations();
 
-    uniforms_[EntityShaderUniforms::NormalMap] = GetUniformLocation("NormalMap");
-    uniforms_[EntityShaderUniforms::ShadowMap] = GetUniformLocation("SpecularMap");
-    uniforms_[EntityShaderUniforms::ShadowMap] = GetUniformLocation("ShadowMap");
+    uniforms_[EntityShaderUniforms::NormalMap]   = GetUniformLocation("NormalMap");
+    uniforms_[EntityShaderUniforms::SpecularMap] = GetUniformLocation("SpecularMap");
+    uniforms_[EntityShaderUniforms::ShadowMap]   = GetUniformLocation("ShadowMap");
 }
 
 void DefferedEntityShader::ConnectTextureUnits() const

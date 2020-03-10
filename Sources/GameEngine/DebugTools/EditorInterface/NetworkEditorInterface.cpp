@@ -33,7 +33,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     firstPersonCamera = std::make_unique<FirstPersonCamera>(scene.inputManager_, scene.displayManager_);
     SetFreeCamera();
 
-   // scene_.Stop();
+    // scene_.Stop();
     commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
     commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
@@ -85,6 +85,11 @@ NetworkEditorInterface::~NetworkEditorInterface()
         }
 
         transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
+    }
+
+    if (cameraChangeSubscriptionId_)
+    {
+        scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
     }
 
     isRunning_.store(false);
@@ -149,7 +154,7 @@ void NetworkEditorInterface::GetCamera(const EntryParameters &)
     msg.rotation = scene_.GetCamera().GetRotation();
     gateway_.Send(userId_, msg);
 
-    scene_.camera.SubscribeOnChange([&](const auto &camera) {
+    cameraChangeSubscriptionId_ = scene_.camera.SubscribeOnChange([&](const auto &camera) {
         DebugNetworkInterface::CameraMsg msg;
         msg.position = camera.GetPosition();
         msg.rotation = camera.GetRotation();

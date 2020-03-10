@@ -154,4 +154,8 @@ uint32 CameraWrapper::SubscribeOnChange(std::function<void(const ICamera &)> cal
 {
     return camera_->SubscribeOnChange(callback);
 }
+void CameraWrapper::UnsubscribeOnChange(uint32 id)
+{
+    camera_->UnsubscribeOnChange(id);
+}
 }  // namespace GameEngine

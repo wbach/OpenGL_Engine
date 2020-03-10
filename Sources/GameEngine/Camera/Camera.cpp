@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <algorithm>
 #include <glm/gtx/quaternion.hpp>
 #include "GLM/GLMUtils.h"
 #include "Utils.h"
@@ -63,6 +64,15 @@ uint32 BaseCamera::SubscribeOnChange(std::function<void(const ICamera&)> callbac
     subscribers_.push_back({idPool_, callback});
     ++idPool_;
     return idPool_ - 1;
+}
+void BaseCamera::UnsubscribeOnChange(uint32 id)
+{
+    auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
+
+    if (iter != subscribers_.end())
+    {
+        subscribers_.erase(iter);
+    }
 }
 void BaseCamera::LookAt(const vec3& lookAtPosition)
 {

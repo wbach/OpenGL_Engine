@@ -49,6 +49,7 @@ public:
 
     void NotifySubscribers();
     uint32 SubscribeOnChange(std::function<void(const ICamera&)>) override;
+    void UnsubscribeOnChange(uint32) override;
 
 protected:
     void CalculateDirection();

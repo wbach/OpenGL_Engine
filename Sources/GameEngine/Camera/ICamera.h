@@ -1,6 +1,6 @@
 #pragma once
-#include "Types.h"
 #include <functional>
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -42,5 +42,6 @@ struct ICamera
     virtual void SetPosition(const vec3&) = 0;
 
     virtual uint32 SubscribeOnChange(std::function<void(const ICamera&)>) = 0;
+    virtual void UnsubscribeOnChange(uint32)                              = 0;
 };
 }  // namespace GameEngine

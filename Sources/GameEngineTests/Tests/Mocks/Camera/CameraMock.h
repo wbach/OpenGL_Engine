@@ -36,6 +36,7 @@ public:
     MOCK_METHOD1(SetRotation, void(const vec3&));
     MOCK_METHOD1(SetPosition, void(const vec3&));
     MOCK_METHOD1(SubscribeOnChange, uint32(std::function<void(const ICamera&)>));
+    MOCK_METHOD1(UnsubscribeOnChange, void(uint32));
 
 };
 }  // namespace GameEngine

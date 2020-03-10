@@ -39,6 +39,7 @@ public:
     void SetPosition(const vec3&);
 
     uint32 SubscribeOnChange(std::function<void(const ICamera&)>);
+    void UnsubscribeOnChange(uint32);
 
 private:
     BaseCamera baseCamera_;
