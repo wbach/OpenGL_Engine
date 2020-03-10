@@ -159,7 +159,13 @@ void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
 
 void Scene::RemoveGameObject(GameObject* object)
 {
-    gameObjects.erase(object->GetId());
+    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
+                             [object](const auto& gameObject) { return object->GetId() == gameObject->GetId(); });
+
+    if (iter != gameObjects.end())
+    {
+        gameObjects.erase(iter);
+    }
 }
 
 void Scene::SetAddSceneEventCallback(AddEvent func)
@@ -190,15 +196,49 @@ GameObject* GetGameObjectChild(GameObject& go, uint32 id)
 GameObject* Scene::GetGameObject(uint32 id) const
 {
     auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
-                             [id](const auto& pair) { return pair.second->GetId() == id; });
+                             [id](const auto& object) { return object->GetId() == id; });
     if (iter != gameObjects.end())
     {
-        return iter->second.get();
+        return iter->get();
     }
 
     for (auto& go : gameObjects)
     {
-        auto ptr = GetGameObjectChild(*go.second, id);
+        auto ptr = GetGameObjectChild(*go, id);
+        if (ptr)
+            return ptr;
+    }
+    return nullptr;
+}
+
+GameObject* GetGameObjectChild(GameObject& go, const std::string& name)
+{
+    if (go.GetName() == name)
+    {
+        return &go;
+    }
+
+    for (auto& go : go.GetChildrens())
+    {
+        auto ptr = GetGameObjectChild(*go, name);
+        if (ptr)
+            return ptr;
+    }
+    return nullptr;
+}
+
+GameObject* Scene::GetGameObject(const std::string& name) const
+{
+    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
+                             [name](const auto& object) { return object->GetName() == name; });
+    if (iter != gameObjects.end())
+    {
+        return iter->get();
+    }
+
+    for (auto& go : gameObjects)
+    {
+        auto ptr = GetGameObjectChild(*go, name);
         if (ptr)
             return ptr;
     }

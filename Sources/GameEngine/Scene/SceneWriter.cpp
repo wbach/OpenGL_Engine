@@ -364,7 +364,7 @@ void Create(XmlNode& node, const GameObjects& gameObjects)
 
     for (const auto& gameObject : gameObjects)
     {
-        Create(node.AddChild(CSTR_GAMEOBJECT), *gameObject.second);
+        Create(node.AddChild(CSTR_GAMEOBJECT), *gameObject);
     }
 }
 void SaveSceneState(const Scene& input, const std::string& filename)

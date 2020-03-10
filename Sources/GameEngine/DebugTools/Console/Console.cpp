@@ -533,13 +533,7 @@ void Console::SubscribeKeys()
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
-    auto iter = std::find_if(scene_.gameObjects.begin(), scene_.gameObjects.end(),
-                             [&name](const auto &p) { return p.second->GetName() == name; });
-
-    if (iter != scene_.gameObjects.end())
-        return iter->second.get();
-
-    return nullptr;
+    return scene_.GetGameObject(name);
 }
 
 }  // namespace Debug

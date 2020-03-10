@@ -190,9 +190,9 @@ void NetworkEditorInterface::GetObjectList(const EntryParameters &)
     {
         for (auto &go : objectList)
         {
-            DebugNetworkInterface::NewGameObjectInd message(go.second->GetId(), 0, go.second->GetName());
+            DebugNetworkInterface::NewGameObjectInd message(go->GetId(), 0, go->GetName());
             gateway_.Send(userId_, message);
-            SendChildrenObjectList(userId_, gateway_, go.second->GetId(), go.second->GetChildrens());
+            SendChildrenObjectList(userId_, gateway_, go->GetId(), go->GetChildrens());
         }
     }
 }

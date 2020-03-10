@@ -41,7 +41,7 @@ class GuiTextElement;
 class GuiTextureElement;
 class GuiWindowElement;
 
-typedef std::unordered_map<uint32, std::unique_ptr<GameObject>> GameObjects;
+typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
 
 class Scene
 {
@@ -76,6 +76,7 @@ public:
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
     GameObject* GetGameObject(uint32) const;
+    GameObject* GetGameObject(const std::string&) const;
 
     // Cameras
     void UpdateCamera();

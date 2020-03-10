@@ -52,7 +52,7 @@ int EditorScene::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
         for (auto& go : gameObjects)
         {
-            go.second->worldTransform.IncrasePosition(vec3(0.001));
+            go->worldTransform.IncrasePosition(vec3(0.001));
         }
     });
     return 0;
