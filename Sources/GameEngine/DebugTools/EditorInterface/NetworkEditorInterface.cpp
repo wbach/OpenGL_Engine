@@ -19,6 +19,11 @@
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
 
+#include <Input/InputManager.h>
+#include "GameEngine/DebugTools/MousePicker/MousePicker.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/RenderersManager.h"
+
 namespace GameEngine
 {
 namespace
@@ -29,6 +34,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     : scene_(scene)
     , isRunning_{true}
     , userId_{0}
+    , transformChangeSubscription_{nullptr}
+    , selectedGameObject_{nullptr}
 {
     firstPersonCamera = std::make_unique<FirstPersonCamera>(scene.inputManager_, scene.displayManager_);
     SetFreeCamera();
@@ -72,10 +79,23 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
             gateway_.Update();
         }
     });
+
+    keyDownSub_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
+        MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
+
+        selectedGameObject_ =
+            mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects());
+    });
+
+    keyUpSub_ =
+        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { selectedGameObject_ = nullptr; });
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
 {
+    scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LMOUSE, keyDownSub_);
+    scene_.inputManager_->UnsubscribeOnKeyUp(KeyCodes::LMOUSE, keyUpSub_);
+
     if (transformChangeSubscriptionId_)
     {
         if (not transformChangeSubscription_)
