@@ -1,5 +1,8 @@
 #include "MousePicker.h"
+
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
+
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -26,8 +29,10 @@ std::optional<float> SphereIntersect(const vec3& objectPosition, float radius, c
         else
             return t0;
     }
+
     return {};
 }
+
 MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize)
     : camera_(camera)
     , projection_(projection)
@@ -56,16 +61,9 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
 }
 vec3 MousePicker::CalculateMouseRay(const vec2& mousePosition)
 {
-    auto coords = NormalizedWindowCoordinates(mousePosition.x, windowSize_.y - mousePosition.y);
-    vec4 clipCoords(coords.x, coords.y, -1.0f, 1.0f);
+    vec4 clipCoords(mousePosition.x, mousePosition.y, -1.0f, 1.0f);
     auto eyeCoords = ConvertToEyeCoords(clipCoords);
     return ConvertToWorldCoords(eyeCoords);
-}
-vec2 MousePicker::NormalizedWindowCoordinates(float mouseX, float mouseY)
-{
-    float x = (2.0f * mouseX) / windowSize_.x - 1.0f;
-    float y = (2.0f * mouseY) / windowSize_.y - 1.0f;
-    return vec2(x, y);
 }
 vec4 MousePicker::ConvertToEyeCoords(const vec4& clipCoords)
 {

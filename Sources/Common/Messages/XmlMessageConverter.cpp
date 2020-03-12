@@ -1,7 +1,9 @@
 #include "XmlMessageConverter.h"
+
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
 #include <UtilsNetwork/MessageFormat.h>
+
 #include "MessageTypes.h"
 
 namespace common
@@ -22,7 +24,8 @@ XmlMessageConverter::XmlMessageConverter()
 
 bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
+    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and
+           type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
 }
 
 /*
@@ -40,7 +43,8 @@ bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMess
     case common::MessageTypes::GetCharactersDataReq
     */
 
-std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType type, const Network::IMessageData &message)
+std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType type,
+                                                                const Network::IMessageData &message)
 {
     std::string a = common::Convert(message);
     DEBUG_LOG(a);
@@ -107,57 +111,7 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessag
 
 Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage &message)
 {
-    switch (message.GetType())
-    {
-        case common::MessageTypes::TransformReq:
-        {
-        }
-        break;
-        case common::MessageTypes::TransformResp:
-        {
-        }
-        break;
-        case common::MessageTypes::DisconnectCharacter:
-        {
-        }
-        break;
-        case common::MessageTypes::SelectCharacterReq:
-        {
-        }
-        break;
-        case common::MessageTypes::SelectCharacterResp:
-        {
-        }
-        break;
-        case common::MessageTypes::CreateCharacterReq:
-        {
-        }
-        break;
-        case common::MessageTypes::CreateCharacterResp:
-        {
-        }
-        break;
-        case common::MessageTypes::GetCharactersReq:
-        {
-        }
-        break;
-        case common::MessageTypes::GetCharactersResp:
-        {
-        }
-        break;
-        case common::MessageTypes::GetCharacterDataReq:
-        {
-        }
-        break;
-        case common::MessageTypes::GetCharacterDataResp:
-        {
-        }
-        break;
-        case common::MessageTypes::GetCharactersDataReq:
-        {
-        }
-        break;
-    }
+    return {};
 }
 
 }  // namespace common

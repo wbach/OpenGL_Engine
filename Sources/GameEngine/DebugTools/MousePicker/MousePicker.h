@@ -16,7 +16,6 @@ public:
 private:
     GameObject* Intersect(const std::vector<std::unique_ptr<GameObject>>&, const vec3& ray);
     vec3 CalculateMouseRay(const vec2&);
-    vec2 NormalizedWindowCoordinates(float mouseX, float mouseY);
     vec4 ConvertToEyeCoords(const vec4& clipCoords);
     vec3 ConvertToWorldCoords(const vec4& eyeCoords);
     std::optional<float> Intersect(const GameObject&, const vec3&);
