@@ -85,10 +85,18 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
 
         selectedGameObject_ =
             mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects());
+
+        if (selectedGameObject_)
+        {
+            DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
+        }
+        else
+        {
+            DEBUG_LOG("no object selected");
+        }
     });
 
-    keyUpSub_ =
-        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { selectedGameObject_ = nullptr; });
+    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { selectedGameObject_ = nullptr; });
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()

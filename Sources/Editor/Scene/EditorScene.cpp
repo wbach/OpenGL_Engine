@@ -38,15 +38,15 @@ int EditorScene::Initialize()
     go->worldTransform.TakeSnapShoot();
     AddGameObject(go);
 
-    for (uint32 i = 0; i < 4; ++i)
-    {
-        auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
-        go->AddComponent<GameEngine::Components::BoxShape>();
-        go->AddComponent<GameEngine::Components::MeshShape>();
+    //for (uint32 i = 0; i < 4; ++i)
+    //{
+    //    auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
+    //    go->AddComponent<GameEngine::Components::BoxShape>();
+    //    go->AddComponent<GameEngine::Components::MeshShape>();
 
-        AddGameObjects(go.get(), 3);
-        AddGameObject(go);
-    }
+    //    AddGameObjects(go.get(), 3);
+    //    AddGameObject(go);
+    //}
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {

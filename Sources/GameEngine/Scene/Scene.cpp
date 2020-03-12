@@ -154,7 +154,7 @@ Light& Scene::AddLight(const Light& light)
 void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
 {
     object->RegisterComponentFunctions();
-    gameObjects[object->GetId()] = std::move(object);
+    gameObjects.push_back(std::move(object));
 }
 
 void Scene::RemoveGameObject(GameObject* object)
