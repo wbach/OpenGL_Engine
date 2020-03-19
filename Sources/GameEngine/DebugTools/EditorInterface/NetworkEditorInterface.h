@@ -16,6 +16,7 @@ namespace GameEngine
 {
 class Scene;
 class GameObject;
+class DragObject;
 
 class NetworkEditorInterface : public IEditorInterface
 {
@@ -65,5 +66,6 @@ private:
     uint32 keyUpSub_;
     GameObject* selectedGameObject_;
     uint32 userId_;
+    std::unique_ptr<DragObject> dragObject_;
 };
 }  // namespace GameEngine

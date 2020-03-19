@@ -46,6 +46,10 @@ GameObject* MousePicker::SelectObject(const vec2& mousePosition,
 }
 GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList, const vec3& ray)
 {
+    DEBUG_LOG(std::to_string(glm::dot(vec3(1, 0, 0), ray)));
+    DEBUG_LOG(std::to_string(glm::dot(vec3(0, 1, 0), ray)));
+    DEBUG_LOG(std::to_string(glm::dot(vec3(0, 0, 1), ray)));
+
     for (auto& object : objectList)
     {
         auto child = Intersect(object->GetChildrens(), ray);

@@ -1,5 +1,6 @@
 #include "NetworkEditorInterface.h"
 
+#include <Input/InputManager.h>
 #include <Utils.h>
 #include <UtilsNetwork/Messages/TextMessage.h>
 
@@ -7,7 +8,10 @@
 
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/DebugTools/MousePicker/MousePicker.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
@@ -19,17 +23,65 @@
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
 
-#include <Input/InputManager.h>
-#include "GameEngine/DebugTools/MousePicker/MousePicker.h"
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/RenderersManager.h"
-
 namespace GameEngine
 {
 namespace
 {
 std::unique_ptr<FirstPersonCamera> firstPersonCamera;
 }
+
+class DragObject
+{
+public:
+    DragObject(Input::InputManager &manager, common::Transform &transform, const CameraWrapper& camera, const Projection& projection)
+        : input_(manager)
+        , transform_(transform)
+        , camera_(camera)
+        , projection_(projection)
+    {
+        mouseZcoord_ = CalculateMouseZCoord(transform_.GetPosition());
+        DEBUG_LOG(std::to_string(mouseZcoord_));
+        offset_      = transform_.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+    }
+
+    void Update()
+    {
+        auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+        transform_.SetPosition(mouseWorldPoint + offset_);
+    }
+
+private:
+    vec3 WorldToScreenPoint(const vec3 &point)
+    {
+        return Utils::Vec4ToVec3(projection_.GetProjectionMatrix() * camera_.GetViewMatrix() * vec4(point, 1.f));
+    }
+
+    vec3 ScreenToWorldPoint(const vec3 &point)
+    {
+        auto eyeCoords = glm::inverse(projection_.GetProjectionMatrix()) * vec4(point, 1.f);
+        auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * eyeCoords;
+        return Utils::Vec4ToVec3(worldCoords);
+    }
+
+    float CalculateMouseZCoord(const vec3 &objectPosition)
+    {
+        return WorldToScreenPoint(objectPosition).z;
+    }
+
+    vec3 GetMouseAsWorldPoint(const vec2 &mousePosition, float zCoord)
+    {
+        return ScreenToWorldPoint(vec3(mousePosition, zCoord));
+    }
+
+private:
+    Input::InputManager &input_;
+    common::Transform &transform_;
+    const CameraWrapper& camera_;
+    const Projection& projection_;
+    vec3 offset_;
+    float mouseZcoord_;
+};
+
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     : scene_(scene)
     , isRunning_{true}
@@ -77,6 +129,9 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         while (isRunning_.load())
         {
             gateway_.Update();
+
+           // if (dragObject_)
+              //  dragObject_->Update();
         }
     });
 
@@ -89,6 +144,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         if (selectedGameObject_)
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform, scene_.camera, scene_.renderersManager_->GetProjection());
         }
         else
         {
@@ -96,7 +152,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         }
     });
 
-    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { selectedGameObject_ = nullptr; });
+    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { selectedGameObject_ = nullptr; dragObject_ = nullptr; });
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
