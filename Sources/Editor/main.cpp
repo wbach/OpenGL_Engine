@@ -7,11 +7,11 @@
 #include "DirectXApi/DirectXApi.h"
 #endif
 
+#include "Editor/Context.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
 #include "Scene/SceneFactory.h"
-#include "Editor/Context.h"
 
 const std::string configFile = "./Conf.xml";
 
@@ -24,14 +24,15 @@ int main(int, char**)
     CLogger::Instance().ImmeditalyLog();
 
     GameEngine::ReadFromFile(configFile);
-    auto api                       = std::make_unique<OpenGLApi::OpenGLApi>();
-    GraphicsApi::IGraphicsApi& ptr = *api;
+    std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-    // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
+    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    // graphicsApi = std::make_unique<DirectX::DirectXApi>();
 
     Editor::Context editorContext;
 
-    Engine engine(std::move(api), std::make_unique<BulletAdapter>(ptr),
+    GraphicsApi::IGraphicsApi& apiRef = *graphicsApi;
+    Engine engine(std::move(graphicsApi), std::make_unique<BulletAdapter>(apiRef),
                   std::make_shared<Editor::SceneFactory>(editorContext));
     engine.Init();
     engine.GetSceneManager().SetActiveScene("EditorScene");

@@ -15,7 +15,7 @@ std::mutex subscriberMutex;
 
 struct ColorBuffer
 {
-    vec3 color;
+    AlignWrapper<vec3> color;
 };
 }  // namespace
 

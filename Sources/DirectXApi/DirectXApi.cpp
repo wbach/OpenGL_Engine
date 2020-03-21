@@ -8,6 +8,7 @@
 #undef CreateFont
 #undef CreateWindow
 #include <string>
+
 #include "Buffer.h"
 #include "DirectXApi.h"
 #include "DirectXContext.h"
@@ -364,7 +365,7 @@ void DirectXApi::SetRenderTargets()
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
 {
-    shadersFileLocation_ = path;
+    shadersFileLocation_ = path + "DirectXApi/HLSL/";
 }
 void DirectXApi::SetShaderQuaility(GraphicsApi::ShaderQuaility)
 {
@@ -420,21 +421,22 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
 
     DxShader shader;
 
-    auto hr = CompileShaderFromFile(shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER), "VS",
-                                    "vs_4_0", &shader.blob_.vertex_);
+    auto vsShaderFileName = shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER);
+    DEBUG_LOG("Compiling " + vsShaderFileName + "...");
+    auto hr = CompileShaderFromFile(vsShaderFileName, "VS", "vs_4_0", &shader.blob_.vertex_);
+
     if (FAILED(hr))
     {
-        MessageBox(NULL,
-                   "The FX file cannot be compiled.  Please run this executable from the directory that contains the "
-                   "FX file.",
-                   "Error", MB_OK);
+        auto failResult = "Vertex sheder can not be compiled. " + vsShaderFileName;
+        MessageBox(NULL, failResult.c_str(), "Error", MB_OK);
         return 0;
     }
     hr = impl_->dxCondext_.dev->CreateVertexShader(shader.blob_.vertex_->GetBufferPointer(),
                                                    shader.blob_.vertex_->GetBufferSize(), NULL, &shader.vertex_);
     if (FAILED(hr))
     {
-        MessageBox(NULL, "Can vertex shader error.", __FUNCTION__, MB_OK);
+        auto failResult = vsShaderFileName + " create vertex shader error";
+        MessageBox(NULL, failResult.c_str(), __FUNCTION__, MB_OK);
         shader.blob_.Release();
         return 0;
     }
@@ -463,15 +465,14 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
 
     impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
 
-    hr = CompileShaderFromFile(shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER), "PS",
-                               "ps_4_0", &shader.blob_.pixel_);
+    auto fragmentShaderFile = shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER);
+    DEBUG_LOG("Compiling " + fragmentShaderFile + "...");
+    hr = CompileShaderFromFile(fragmentShaderFile, "PS", "ps_4_0", &shader.blob_.pixel_);
 
     if (FAILED(hr))
     {
-        MessageBox(NULL,
-                   "The FX file cannot be compiled.  Please run this executable from the directory that contains the "
-                   "FX file.",
-                   "Error", MB_OK);
+        auto fail = "Fragment sheder can not be compiled. " +  fragmentShaderFile;
+        MessageBox(NULL, fail.c_str(), "Error", MB_OK);
         return 0;
     }
 

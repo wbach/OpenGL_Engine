@@ -20,7 +20,8 @@ TerrainConfiguration::TerrainConfiguration()
 // namespace GameEngine
 int32 TerrainConfiguration::updateMorphingArea(uint32 lod)
 {
-    return static_cast<uint32>((perTerrainBuffer.scale.x / static_cast<float>(TerrainDef::TERRAIN_ROOT_NODES_COUNT)) /
+    return static_cast<uint32>(
+        (perTerrainBuffer.scale.value.x / static_cast<float>(TerrainDef::TERRAIN_ROOT_NODES_COUNT)) /
                                static_cast<float>(pow(2, lod)));
 }
 
@@ -36,28 +37,28 @@ void TerrainConfiguration::SetLod(uint32 index, uint32 value)
     switch (index)
     {
     case 0:
-        perTerrainBuffer.morpharea1_4.x = value - updateMorphingArea(index + 1);
+            perTerrainBuffer.morpharea1_4.value.x = value - updateMorphingArea(index + 1);
         break;
     case 1:
-        perTerrainBuffer.morpharea1_4.y = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea1_4.value.y = value - updateMorphingArea(index + 1);
         break;
     case 2:
-        perTerrainBuffer.morpharea1_4.z = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea1_4.value.z = value - updateMorphingArea(index + 1);
         break;
     case 3:
-        perTerrainBuffer.morpharea1_4.w = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea1_4.value.w = value - updateMorphingArea(index + 1);
         break;
     case 4:
-        perTerrainBuffer.morpharea5_8.x = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea5_8.value.x = value - updateMorphingArea(index + 1);
         break;
     case 5:
-        perTerrainBuffer.morpharea5_8.y = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea5_8.value.y = value - updateMorphingArea(index + 1);
         break;
     case 6:
-        perTerrainBuffer.morpharea5_8.z = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea5_8.value.z = value - updateMorphingArea(index + 1);
         break;
     case 7:
-        perTerrainBuffer.morpharea5_8.w = value - updateMorphingArea(index + 1);
+        perTerrainBuffer.morpharea5_8.value.w = value - updateMorphingArea(index + 1);
         break;
     default:
         break;

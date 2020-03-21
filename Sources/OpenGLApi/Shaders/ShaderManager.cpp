@@ -47,7 +47,7 @@ void ShaderManager::UseShader(uint32 id)
 
 void ShaderManager::SetShadersFilesLocations(const std::string& path)
 {
-    shadersFileLocation_ = path;
+    shadersFileLocation_ = path + "OpenGLApi/GLSL/";
 }
 
 std::optional<GLuint> ShaderManager::CreateShaderProgram()

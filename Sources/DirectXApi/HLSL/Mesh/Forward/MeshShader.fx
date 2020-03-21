@@ -94,7 +94,7 @@ VertexWorldData caluclateWorldData(VS_INPUT input)
     if (!Is(useBoneTransform))
     {
         result.worldPosition = mul(float4(input.Pos, 1.0), transformationMatrix);
-        result.worldNormal   = mul(float4(input.normal, 1.0), transformationMatrix);
+        result.worldNormal   = mul(float4(input.normal, 0.0), transformationMatrix);
         return result;
     }
 
@@ -116,12 +116,10 @@ VertexWorldData caluclateWorldData(VS_INPUT input)
 PS_INPUT VS(VS_INPUT input)
 {
     PS_INPUT output                 = (PS_INPUT)0;
-    //VertexWorldData vertexWorldData = caluclateWorldData(input);
+    VertexWorldData vertexWorldData = caluclateWorldData(input);
 
-    //output.Pos      = vertexWorldData.worldPosition;  // mul(output.Pos, transformationMatrix);
-    output.Pos      = mul(output.Pos, transformationMatrix);
     output.WorldPos = output.Pos.xyz;
-    output.Pos      = mul(output.Pos, projectionViewMatrix);
+    output.Pos      = mul(vertexWorldData.worldPosition, projectionViewMatrix);
     output.Tex      = input.Tex;
     output.N        = normalize(vertexWorldData.worldNormal.xyz);
     return output;

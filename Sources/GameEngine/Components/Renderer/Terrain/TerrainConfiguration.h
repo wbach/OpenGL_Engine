@@ -27,11 +27,11 @@ private:
 };
 inline float TerrainConfiguration::GetScaleY() const
 {
-    return perTerrainBuffer.scale.y;
+    return perTerrainBuffer.scale.value.y;
 }
 inline float TerrainConfiguration::GetScaleXZ() const
 {
-    return perTerrainBuffer.scale.x;
+    return perTerrainBuffer.scale.value.x;
 }
 inline int32 TerrainConfiguration::GetLodRange(uint32 index) const
 {
@@ -44,7 +44,7 @@ inline const PerTerrain& TerrainConfiguration::GetPerTerrainBuffer() const
 
 inline const vec3& TerrainConfiguration::GetScale() const
 {
-    return perTerrainBuffer.scale;
+    return perTerrainBuffer.scale.value;
 }
 
 }  // namespace GameEngine
