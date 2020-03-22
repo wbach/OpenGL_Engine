@@ -51,6 +51,7 @@ public:
     void SetPositionXZ(const vec2& pos);
     void SetRotation(const vec3& r);
     void SetRotate(Axis axis, float v);
+    void SetPositionAndRotation(const vec3& position, const vec3& rotation);
 
 public:
     bool isDynamic_;

@@ -106,20 +106,21 @@ void BulletAdapter::Simulate()
         return;
     }
 
+
     impl_->btDynamicWorld->stepSimulation(simulationStep_);
 
     for (auto& pair : impl_->rigidBodies)
     {
         auto& transform = impl_->transforms.at(pair.first);
         auto& rigidbody = pair.second;
-        vec3 rot;
-        rigidbody.btRigidbody_->getWorldTransform().getRotation().getEulerZYX(rot.z, rot.y, rot.x);
+        vec3 newRotation;
+        rigidbody.btRigidbody_->getWorldTransform().getRotation().getEulerZYX(newRotation.z, newRotation.y,
+                                                                              newRotation.x);
 
-        // rot = vec3(Utils::ToDegrees(rot.x), Utils::ToDegrees(rot.y), Utils::ToDegrees(rot.z));
-        transform->SetRotation(Utils::ToDegrees(rot));
-        auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
-        transform->SetPosition(Convert(newPosition));
-        transform->TakeSnapShoot();
+         newRotation =
+            vec3(Utils::ToDegrees(newRotation.x), Utils::ToDegrees(newRotation.y), Utils::ToDegrees(newRotation.z));
+         auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
+         transform->SetPositionAndRotation(Convert(newPosition), Utils::ToDegrees(newRotation));
     }
 }
 void BulletAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)

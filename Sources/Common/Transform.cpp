@@ -64,49 +64,42 @@ void Transform::IncrasePosition(float dx, float dy, float dz, uint32 index)
 
 void Transform::IncrasePosition(vec3 v, uint32 index)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.position += v;
     NotifySubscribers();
 }
 
 void Transform::IncreaseRotation(float dx, float dy, float dz)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.rotation += vec3(dx, dy, dz);
     NotifySubscribers();
 }
 
 void Transform::SetScale(float s)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.scale = vec3(s);
     NotifySubscribers();
 }
 
 void Transform::SetScale(const vec3& s)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.scale = s;
     NotifySubscribers();
 }
 
 void Transform::SetPosition(const vec3& pos)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.position = pos;
     NotifySubscribers();
 }
 
 void Transform::SetYPosition(float pos)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.position.y = pos;
     NotifySubscribers();
 }
 
 void Transform::SetPositionXZ(const vec2& pos)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.position.x = pos.x;
     context_.position.z = pos.y;
     NotifySubscribers();
@@ -114,7 +107,6 @@ void Transform::SetPositionXZ(const vec2& pos)
 
 void Transform::SetRotation(const vec3& r)
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     context_.rotation = r;
     NotifySubscribers();
 }
@@ -139,16 +131,22 @@ void Transform::SetRotate(Axis axis, float v)
     NotifySubscribers();
 }
 
+void Transform::SetPositionAndRotation(const vec3& position, const vec3& rotation)
+{
+    context_.position = position;
+    context_.rotation = rotation;
+    NotifySubscribers();
+}
+
 void Transform::TakeSnapShoot()
 {
-    std::lock_guard<std::mutex> l(contextMutex_);
     snapshoot_ = context_;
     UpdateMatrix();
 }
 
 void Transform::UpdateMatrix()
 {
-    matrix_ = Utils::CreateTransformationMatrix(context_.position, context_.rotation, context_.scale);
+    matrix_ = Utils::CreateTransformationMatrix(snapshoot_.position, snapshoot_.rotation, snapshoot_.scale);
 }
 
 void Transform::NotifySubscribers()

@@ -54,6 +54,7 @@ BufferDataUpdater::~BufferDataUpdater()
 void BufferDataUpdater::Subscribe(GameObject* gameObject)
 {
     auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
+
     if (rendererComponent)
     {
         rendererComponent->UpdateBuffers();
