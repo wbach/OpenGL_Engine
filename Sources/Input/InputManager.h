@@ -74,6 +74,4 @@ protected:
     uint32 idCounter_;
     bool needToQueue_;
 };
-
-typedef std::shared_ptr<InputManager> InputManagerPtr;
 }  // namespace Input

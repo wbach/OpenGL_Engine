@@ -2,7 +2,7 @@
 
 namespace GraphicsApi
 {
-enum class Shaders
+enum class ShaderProgramType
 {
     Entity,
     SimpleEntity,

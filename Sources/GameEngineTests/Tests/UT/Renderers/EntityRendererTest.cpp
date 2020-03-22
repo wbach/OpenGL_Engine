@@ -3,7 +3,6 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRendererDef.h"
-#include "GameEngine/Renderers/Objects/Entity/Shaders/EntityShaderUniforms.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -13,8 +12,6 @@
 #include "GameEngineTests/Tests/Mocks/Renderers/Objects/Shadows/ShadowFrameBufferMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h"
-#include "GameEngineTests/Tests/Mocks/Shaders/ShaderFactoryMock.h"
-#include "GameEngineTests/Tests/Mocks/Shaders/ShaderProgramMock.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 
 using namespace testing;
@@ -35,12 +32,11 @@ struct EntityRendererShould : public BaseComponentTestSchould
 {
     EntityRendererShould()
         : graphicsMock_()
-        , shaderFactoryMock_()
         , frameBufferMock_()
         , shadowFrameBufferMock_()
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, graphicsMock_)
-        , context_(projection_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, shaderFactoryMock_, std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
+        , context_(projection_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
     {
     }
     void SetUp()
@@ -51,9 +47,6 @@ struct EntityRendererShould : public BaseComponentTestSchould
         SceneInitContext sceneInitContext{&graphicsMock_, nullptr, nullptr, &renderersManager_, &physicsApiMock_};
 
         context_.projection_.CreateProjectionMatrix();
-
-        shaderProgramMock_ = new ShaderProgramMock();
-        EXPECT_CALL(shaderFactoryMock_, createImpl(Shaders::Entity)).WillOnce(Return(shaderProgramMock_));
 
         scene_.InitResources(sceneInitContext);
         scene_.Init();
@@ -67,12 +60,10 @@ struct EntityRendererShould : public BaseComponentTestSchould
     }
     void ExpectShaderInit()
     {
-        EXPECT_CALL(*shaderProgramMock_, Init());
     }
 
     void ExpectRender()
     {
-        EXPECT_CALL(*shaderProgramMock_, Start()).Times(1);
         EXPECT_CALL(graphicsMock_, BindShaderBuffer(_)).Times(1);
         EXPECT_CALL(graphicsMock_, RenderMesh(_)).Times(1);
     }
@@ -103,8 +94,6 @@ struct EntityRendererShould : public BaseComponentTestSchould
     }
     GpuResourceLoaderMock gpuResourceLoaderMock_;
     GraphicsApi::GraphicsApiMock graphicsMock_;
-    ShaderProgramMock* shaderProgramMock_;
-    ShaderFactoryMock shaderFactoryMock_;
     ResourceManagerMock resourceManagerMock_;
     Projection projection_;
     FrameBufferMock frameBufferMock_;

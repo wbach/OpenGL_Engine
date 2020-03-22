@@ -11,7 +11,6 @@
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
 #include "GameEngineTests/Tests/Mocks/Components/ComponentFactoryMock.h"
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
-#include "GameEngineTests/Tests/Mocks/Shaders/ShaderFactoryMock.h"
 #include "GameEngineTests/Tests/Mocks/Api/InputManagerMock.h"
 
 using namespace GameEngine;
@@ -32,7 +31,6 @@ public:
     ResourceManager resourcesManager_;
     ComponentController componentController_;
     Renderer::RenderersManager renderersManager_;
-    ShaderFactoryMock shaderFactoryMock_;
     PhysicsApiMock physicsApiMock_;
     GraphicsApi::WindowApiMock windowApiMock_;
     CameraWrapper cameraWrapper_;

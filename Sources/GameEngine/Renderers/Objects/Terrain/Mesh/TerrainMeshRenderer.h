@@ -2,6 +2,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -10,7 +11,6 @@ class Texture;
 class Projection;
 class TerrainWrapper;
 struct RendererContext;
-class IShaderProgram;
 
 typedef TerrainWrapper* TerrainPtr;
 
@@ -30,7 +30,7 @@ class TerrainMeshRenderer : public IRenderer
 public:
     TerrainMeshRenderer(RendererContext& context);
     ~TerrainMeshRenderer();
-    // Loading lights itp to shader
+
     virtual void Init() override;
     virtual void Subscribe(GameObject* gameObject) override;
     virtual void UnSubscribe(GameObject* gameObject) override;
@@ -46,11 +46,10 @@ private:
     void RenderSubscriber(const Subscriber& subscriber) const;
     void RenderModel(const Model& model) const;
     void RenderMesh(const Mesh& mesh) const;
-    void InitShader();
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     std::vector<std::pair<uint32_t, Subscriber>> subscribes_;
 };
 }  // namespace GameEngine

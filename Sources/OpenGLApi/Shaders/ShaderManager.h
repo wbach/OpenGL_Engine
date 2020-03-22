@@ -1,13 +1,16 @@
 #pragma once
-#include "Types.h"
-#include <optional>
-#include "OpenGLShaderProgram.h"
-#include "GraphicsApi/ShaderQuaility.h"
-#include "GraphicsApi/ShaderTypes.h"
-#include "GraphicsApi/ShadersTypes.h"
-#include "GraphicsApi/FunctionsTypes.h"
-#include "GraphicsApi/ShaderFiles.h"
 #include <GL/glew.h>
+#include <GraphicsApi/FunctionsTypes.h>
+#include <GraphicsApi/GraphicsApiDef.h>
+#include <GraphicsApi/ShaderFiles.h>
+#include <GraphicsApi/ShaderQuaility.h>
+#include <GraphicsApi/ShaderTypes.h>
+#include <GraphicsApi/ShaderProgramType.h>
+
+#include <optional>
+
+#include "OpenGLShaderProgram.h"
+#include "Types.h"
 
 namespace OpenGLApi
 {
@@ -19,30 +22,19 @@ public:
     ShaderManager(IdPool& idPool);
     void UseShader(uint32);
     void UseDeprectedShaders();
-    void SetShadersFilesLocations(const std::string & path);
-    uint32 Create(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions);
+    void SetShadersFilesLocations(const std::string& path);
+    GraphicsApi::ID Create(GraphicsApi::ShaderProgramType);
     void DeleteShader(uint32 programId);
-    uint32 GetShaderVariableLocation(uint32, const std::string&);
     void SetShaderQuaility(GraphicsApi::ShaderQuaility);
-    void BindAttribute(uint32, uint32, const std::string&);
-    void LoadValueToShader(uint32, int);
-    void LoadValueToShader(uint32, float);
-    void LoadValueToShader(uint32, uint32);
-    void LoadValueToShader(uint32, const vec2&);
-    void LoadValueToShader(uint32, const vec3&);
-    void LoadValueToShader(uint32, const vec4&);
-    void LoadValueToShader(uint32, const mat3&);
-    void LoadValueToShader(uint32, const mat4&);
-    void LoadValueToShader(uint32, const std::vector<float>&);
-    void LoadValueToShader(uint32, const std::vector<vec3>&);
-    void LoadValueToShader(uint32, const std::vector<mat4>&);
+
+private:
     uint32 GetBindedShader() const;
 
 private:
     std::optional<GLuint> CreateShaderProgram();
     bool AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode);
-    bool FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsApi::GraphicsApiFunctions);
-    GraphicsApi::ShadersFiles GetShaderFiles(GraphicsApi::Shaders shaderType);
+    bool FinalizeShader(OpenGLShaderProgram& shaderProgram);
+    GraphicsApi::ShadersFiles GetShaderFiles(GraphicsApi::ShaderProgramType);
 
 private:
     bool useDeprectedShaders_;
@@ -52,4 +44,4 @@ private:
     GraphicsApi::ShaderQuaility shaderQuality_;
     std::unordered_map<GLuint, OpenGLShaderProgram> shaderPrograms_;
 };
-} // namespace GameEngine
+}  // namespace OpenGLApi

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <optional>
+
 #include "ApiMessages.h"
 #include "Surface.h"
 #include "Types.h"
@@ -27,7 +28,7 @@ public:
     virtual void SetFullScreen(bool full_screen)                                                                = 0;
     virtual bool CheckActiveWindow()                                                                            = 0;
     virtual void ShowCursor(bool show)                                                                          = 0;
-    virtual std::shared_ptr<Input::InputManager> CreateInput()                                                  = 0;
+    virtual std::unique_ptr<Input::InputManager> CreateInput()                                                  = 0;
     virtual double GetTime()                                                                                    = 0;
     virtual void SetCursorPosition(int x, int y)                                                                = 0;
     virtual std::optional<uint32> OpenFont(const std::string& filename, uint32 size)                            = 0;
@@ -37,5 +38,4 @@ public:
     // Take time function to lock fps, shuld be on begin main loop
     virtual void BeginFrame() = 0;
 };
-typedef std::shared_ptr<IWindowApi> IWindowApiPtr;
 }  // namespace GraphicsApi

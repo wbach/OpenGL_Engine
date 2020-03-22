@@ -24,11 +24,11 @@ in VS_OUT
     vec3 toCameraVector;
 } vs_out;
 
-uniform sampler2D reflectionTexture;
-uniform sampler2D refractionTexture;
-uniform sampler2D normalMap;
-uniform sampler2D depthMap;
-uniform sampler2D dudvMap;
+layout(binding = 0) uniform sampler2D reflectionTexture;
+layout(binding = 1) uniform sampler2D refractionTexture;
+layout(binding = 2) uniform sampler2D normalMap;
+layout(binding = 5) uniform sampler2D depthMap;
+layout(binding = 4) uniform sampler2D dudvMap;
 
 layout (location = 0) out vec3 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;

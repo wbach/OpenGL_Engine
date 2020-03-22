@@ -3,6 +3,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "Postproccesing/PostprocessingRenderersManager.h"
@@ -17,8 +18,8 @@ typedef std::vector<RendererPtr> RendererVecPtr;
 class BaseRenderer : public IRenderer
 {
 public:
-    BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix, IShaderFactory& shaderFactory,
-             std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
+    BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix,
+                 std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
     ~BaseRenderer();
     // Loading lights itp to shader
     virtual void Init() override;

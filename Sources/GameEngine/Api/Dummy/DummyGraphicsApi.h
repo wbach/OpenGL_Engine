@@ -50,24 +50,10 @@ public:
     virtual void PrepareFrame() override
     {
     }
-    virtual uint32 CreateShader(GraphicsApi::Shaders, GraphicsApi::GraphicsApiFunctions functions) override
+    virtual GraphicsApi::ID CreateShader(GraphicsApi::ShaderProgramType) override
     {
         auto programId = ++id;
-
-        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_SET_ID) != 0)
-            functions.at(GraphicsApi::GraphicFunctionType::SHADER_SET_ID)(programId);
-        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES) != 0)
-            functions.at(GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES)(0);
-        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION) != 0)
-            functions.at(GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION)(0);
-        if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES) != 0)
-            functions.at(GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES)(0);
-
         return programId;
-    }
-    virtual uint32 GetShaderVariableLocation(uint32, const std::string&) override
-    {
-        return ++id;
     }
 
     virtual GraphicsApi::ID CreateShaderBuffer(uint32, uint32) override
@@ -87,50 +73,18 @@ public:
     virtual void UseShader(uint32) override
     {
     }
-    virtual void BindAttribute(uint32, uint32, const std::string&) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, int) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, uint32) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, float) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, const vec2&) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, const vec3&) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, const vec4&) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, const mat3&) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, const mat4&) override
-    {
-    }
-    virtual void LoadValueToShader(uint32, const std::vector<float>&)
-    {
-    }
-    virtual void LoadValueToShader(uint32, const std::vector<vec3>&)
-    {
-    }
     virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
                                                        int32) override
     {
         return {};
     }
-    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+    virtual GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                          GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override
     {
         return ++id;
     }
-    virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override
+    virtual GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override
     {
         return ++id;
     }
@@ -167,7 +121,7 @@ public:
     virtual void ActiveTexture(uint32) override
     {
     }
-    virtual uint32 CreateBuffer() override
+    virtual GraphicsApi::ID CreateBuffer() override
     {
         return ++id;
     }
@@ -184,20 +138,20 @@ public:
     {
         return {};
     }
-    virtual uint32 CreatePatchMesh(const std::vector<float>&) override
+    virtual GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override
     {
         return ++id;
     }
-    virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override
+    virtual GraphicsApi::ID CreatePurePatchMeshInstanced(uint32, uint32) override
     {
         return ++id;
     }
-    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType) override
+    virtual GraphicsApi::ID CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType) override
     {
         return ++id;
     }
-    virtual uint32 CreateParticle() override;
-    virtual uint32 CreateAnimatedParticle() override
+    virtual GraphicsApi::ID CreateParticle() override;
+    virtual GraphicsApi::ID CreateAnimatedParticle() override
     {
         return ++id;
     }
@@ -240,7 +194,7 @@ public:
     virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override
     {
     }
-    virtual uint32 CreateShadowMap(uint32, uint32) override
+    virtual GraphicsApi::ID CreateShadowMap(uint32, uint32) override
     {
         return ++id;
     }
@@ -262,7 +216,7 @@ public:
     virtual void UpdateBlend(uint32, const std::vector<float>&) override
     {
     }
-    virtual uint32 CloneImage(uint32) override
+    virtual GraphicsApi::ID CloneImage(uint32) override
     {
         return ++id;
     }

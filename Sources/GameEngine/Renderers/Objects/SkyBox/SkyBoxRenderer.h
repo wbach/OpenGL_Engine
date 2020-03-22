@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GraphicsApi/IGraphicsApi.h"
 
@@ -40,7 +41,6 @@ private:
     void PrepareShaderBeforeFrameRender(const Scene& scene);
     void BindCubeMapTexture(const Texture& texture, int id) const;
     void PrepareToRendering(const Scene& scene);
-    void InitShader();
     void UpdateBuffer(const Scene& scene, const Time&);
 
 private:
@@ -52,7 +52,7 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     SkyBoxSubscriberMap subscribes_;
     GraphicsApi::ID perMeshObjectId_;
     GraphicsApi::ID perObjectUpdateId_;

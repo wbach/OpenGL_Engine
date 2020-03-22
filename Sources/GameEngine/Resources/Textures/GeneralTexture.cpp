@@ -1,4 +1,5 @@
 #include "GeneralTexture.h"
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -19,14 +20,21 @@ void GeneralTexture::GpuLoadingPass()
         return;
     }
 
-    DEBUG_LOG("Create texutre id : " + std::to_string(graphicsObjectId_) + ", filneame : " + fullpath);
-    graphicsObjectId_ =
+    DEBUG_LOG("Create texutre filneame : " + fullpath);
+    auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
-                                    GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, data_);
+                                   GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, data_);
 
-    isInit = true;
-
-    DEBUG_LOG("File " + filename + " is in GPU.");
+    if (graphicsObjectId)
+    {
+        graphicsObjectId_ = *graphicsObjectId;
+        isInit            = true;
+        DEBUG_LOG("File " + filename + " is in GPU.");
+    }
+    else
+    {
+        ERROR_LOG("Texutre not created. Filename : " + fullpath);
+    }
 }
 
 void GeneralTexture::GpuPostLoadingPass()

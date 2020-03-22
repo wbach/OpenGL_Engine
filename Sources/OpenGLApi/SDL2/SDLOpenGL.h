@@ -34,7 +34,7 @@ public:
 
     virtual void BeginFrame() override;
     virtual void ShowCursor(bool show) override;
-    virtual std::shared_ptr<Input::InputManager> CreateInput() override;
+    virtual std::unique_ptr<Input::InputManager> CreateInput() override;
     virtual double GetTime() override;
     virtual void SetCursorPosition(int x, int y) override;
 

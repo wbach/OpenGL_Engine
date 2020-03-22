@@ -1,23 +1,10 @@
 #include "PlantsShader.h"
+#include "GraphicsApi/ShaderProgramType.h"
 
 namespace GameEngine
 {
 PlantsShader::PlantsShader(GraphicsApi::IGraphicsApi& graphicsApi)
-    : ShaderProgram(graphicsApi, GraphicsApi::Shaders::Plants)
-{
-
-}
-
-void PlantsShader::GetAllUniformLocations()
-{
-
-}
-
-void PlantsShader::BindAttributes()
-{
-}
-
-void PlantsShader::ConnectTextureUnits() const
+    : ShaderProgram(graphicsApi, GraphicsApi::ShaderProgramType::Plants)
 {
 
 }

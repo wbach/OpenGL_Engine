@@ -3,6 +3,7 @@
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -14,8 +15,6 @@ class Projection;
 class ModelWrapper;
 struct RendererContext;
 struct Material;
-class IShaderFactory;
-class IShaderProgram;
 
 namespace Components
 {
@@ -55,8 +54,8 @@ private:
 
 private:
     const RendererContext& context_;
-    std::unique_ptr<IShaderProgram> simpleShader_;
-    std::unique_ptr<IShaderProgram> gridShader_;
+    ShaderProgram simpleShader_;
+    ShaderProgram gridShader_;
 
     std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
 

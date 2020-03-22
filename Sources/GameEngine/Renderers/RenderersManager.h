@@ -16,7 +16,6 @@ namespace GameEngine
 class Scene;
 class GameObject;
 class GuiTextElement;
-class IShaderFactory;
 class GuiTextureElement;
 
 namespace Renderer
@@ -24,7 +23,7 @@ namespace Renderer
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
+    RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi);
     void Init();
     const Projection& GetProjection() const;
     void RenderScene(Scene* scene, const Time& threadTime);
@@ -67,7 +66,6 @@ private:
     GUIRenderer guiRenderer_;
     Projection projection_;
     RendererFunctions rendererFunctions_;
-    IShaderFactory& shaderFactory_;
 
     bool renderPhysicsDebug_;
     GraphicsApi::ID perFrameId_;

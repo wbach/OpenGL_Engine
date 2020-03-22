@@ -1,6 +1,8 @@
 #include "ShaderManager.h"
+
 #include <iostream>
 #include <unordered_map>
+
 #include "FullDefferedShaderFiles.h"
 #include "Logger/Log.h"
 #include "OpenGLApi/IdPool.h"
@@ -61,7 +63,7 @@ std::optional<GLuint> ShaderManager::CreateShaderProgram()
     return id;
 }
 
-uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions functions)
+GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
 {
     DEBUG_LOG("Create shader, type : " + std::to_string((int)shaderType));
     auto files = GetShaderFiles(shaderType);
@@ -80,19 +82,19 @@ uint32 ShaderManager::Create(GraphicsApi::Shaders shaderType, GraphicsApi::Graph
     auto programId = *program;
     auto uId       = idPool_.ToUint(programId);
 
-    if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_SET_ID) != 0)
-        functions.at(GraphicsApi::GraphicFunctionType::SHADER_SET_ID)(uId);
+    //if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_SET_ID) != 0)
+    //    functions.at(GraphicsApi::GraphicFunctionType::SHADER_SET_ID)(uId);
 
     shaderPrograms_.insert({uId, OpenGLShaderProgram(programId, files.begin()->second)});
 
     for (const auto& p : files)
     {
-        if (!AddShader(shaderPrograms_.at(uId), p.second, p.first))
-            return false;
+        if (not AddShader(shaderPrograms_.at(uId), p.second, p.first))
+            return {};
     }
 
-    if (!FinalizeShader(shaderPrograms_.at(uId), functions))
-        return false;
+    if (not FinalizeShader(shaderPrograms_.at(uId)))
+        return {};
 
     DEBUG_LOG("Shader succesful created. Id : " + std::to_string(uId));
 
@@ -116,7 +118,7 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
 
     if (id == 0)
     {
-       ERROR_LOG("Error creating shader type " + std::to_string(static_cast<int>(shaderTypeMap.at(mode))));
+        ERROR_LOG("Error creating shader type " + std::to_string(static_cast<int>(shaderTypeMap.at(mode))));
         return false;
     }
 
@@ -147,11 +149,8 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
     return true;
 }
 
-bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsApi::GraphicsApiFunctions functions)
+bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram)
 {
-    if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES) != 0)
-        functions.at(GraphicsApi::GraphicFunctionType::SHADER_BIND_ATTRIBUTES)(0);
-
     glLinkProgram(shaderProgram.id);
 
     GLint Success         = 0;
@@ -161,17 +160,11 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsA
     if (Success == 0)
     {
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), NULL, ErrorLog);
-       ERROR_LOG("Error linking shader program: " + shaderProgram.name + " : " + std::string(ErrorLog));
+        ERROR_LOG("Error linking shader program: " + shaderProgram.name + " : " + std::string(ErrorLog));
         return false;
     }
 
     glUseProgram(shaderProgram.id);
-
-    if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION) != 0)
-        functions.at(GraphicsApi::GraphicFunctionType::SHADER_VARIABLES_LOCATION)(0);
-
-    if (functions.count(GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES) != 0)
-        functions.at(GraphicsApi::GraphicFunctionType::SHADER_CONNECT_TEXTURES)(0);
 
     glValidateProgram(shaderProgram.id);
     glGetProgramiv(shaderProgram.id, GL_VALIDATE_STATUS, &Success);
@@ -179,7 +172,7 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsA
     if (!Success)
     {
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), NULL, ErrorLog);
-       ERROR_LOG("Invalid shader program : " + shaderProgram.name + " : " + std::string(ErrorLog));
+        ERROR_LOG("Invalid shader program : " + shaderProgram.name + " : " + std::string(ErrorLog));
         return false;
     }
 
@@ -193,7 +186,8 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram, GraphicsA
     {
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), NULL, ErrorLog);
         std::string error(ErrorLog);
-       ERROR_LOG("GlError ShaderprogramID: : " + shaderProgram.name + " error code : " + std::to_string(glError) + " : ");
+        ERROR_LOG("GlError ShaderprogramID: : " + shaderProgram.name + " error code : " + std::to_string(glError) +
+                  " : ");
     }
 
     glUseProgram(0);
@@ -216,114 +210,6 @@ void ShaderManager::DeleteShader(uint32 programId)
     shaderPrograms_.erase(programId);
 }
 
-void ShaderManager::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
-{
-    auto glId = idPool_.ToGL(programId);
-    glBindAttribLocation(glId, attribute, variableName.c_str());
-}
-
-uint32 ShaderManager::GetShaderVariableLocation(uint32 id, const std::string& varname)
-{
-    auto glId = shaderPrograms_.at(id).id;
-    auto i    = glGetUniformLocation(glId, varname.c_str());
-
-    if (i < 0)
-    {
-        DEBUG_LOG("Variable \"" + varname + "\" not found " + " in : " + shaderPrograms_.at(id).name);
-        return 0;
-    }
-
-    return static_cast<uint32>(i) + 1;
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, int value)
-{
-    if (loacation)
-    {
-        glUniform1i(loacation - 1, value);
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, float value)
-{
-    if (loacation)
-    {
-        glUniform1f(loacation - 1, value);
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, uint32 value)
-{
-    if (loacation)
-    {
-        glUniform1ui(loacation - 1, value);
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const vec2& value)
-{
-    if (loacation)
-    {
-        glUniform2fv(loacation - 1, 1, glm::value_ptr(value));
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const vec3& value)
-{
-    if (loacation)
-    {
-        glUniform3fv(loacation - 1, 1, glm::value_ptr(value));
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const vec4& value)
-{
-    if (loacation)
-    {
-        glUniform4fv(loacation - 1, 1, glm::value_ptr(value));
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const mat3& value)
-{
-    if (loacation)
-    {
-        glUniformMatrix3fv(loacation - 1, 1, GL_FALSE, glm::value_ptr(value));
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const mat4& value)
-{
-    if (loacation)
-    {
-        glUniformMatrix4fv(loacation - 1, 1, GL_FALSE, glm::value_ptr(value));
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const std::vector<float>& v)
-{
-    if (loacation)
-    {
-        glUniform3fv(loacation - 1, v.size(), (const GLfloat*)&v[0]);
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const std::vector<vec3>& v)
-{
-    if (loacation)
-    {
-        glUniform3fv(loacation - 1, v.size(), (const GLfloat*)&v[0]);
-    }
-}
-
-void ShaderManager::LoadValueToShader(uint32 loacation, const std::vector<mat4>& v)
-{
-    if (loacation)
-    {
-        glUniformMatrix4fv(loacation - 1, v.size(), GL_FALSE, (const GLfloat*)&v[0]);
-    }
-}
-
 uint32 ShaderManager::GetBindedShader() const
 {
     return currentShader_;
@@ -334,7 +220,7 @@ void ShaderManager::SetShaderQuaility(GraphicsApi::ShaderQuaility q)
     shaderQuality_ = q;
 }
 
-GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::Shaders shaderType)
+GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
     if (useDeprectedShaders_)
     {

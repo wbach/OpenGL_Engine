@@ -1,5 +1,10 @@
 #include "EntityRenderer.h"
+
+#include <Logger/Log.h>
+
 #include <Mutex.hpp>
+#include <algorithm>
+
 #include "EntityRendererDef.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
@@ -8,13 +13,8 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GraphicsApi/ShadersTypes.h"
-#include "Logger/Log.h"
-#include "Shaders/EntityShaderUniforms.h"
-#include <algorithm>
-#include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
+#include "GraphicsApi/ShaderProgramType.h"
 
 namespace GameEngine
 {
@@ -24,8 +24,8 @@ std::mutex entityRendererSubscriberMutex;
 }
 EntityRenderer::EntityRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Entity);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, EntityRenderer::Render);
 }
 
@@ -33,32 +33,27 @@ EntityRenderer::~EntityRenderer()
 {
     DEBUG_LOG("");
     UnSubscribeAll();
-    DEBUG_LOG("");
 }
 
 void EntityRenderer::Init()
 {
-    DEBUG_LOG("Start initialize entity renderer...");
-    InitShader();
-    DEBUG_LOG("EntityRenderer initialized.");
-}
-
-void EntityRenderer::InitShader()
-{
-    shader_->Init();
+    DEBUG_LOG("");
+    shader_.Init();
 }
 
 void EntityRenderer::Render(const Scene&, const Time&)
 {
-    if (subscribes_.empty())
+    if (not shader_.IsReady() or subscribes_.empty())
         return;
-    shader_->Start();
+
+    shader_.Start();
     RenderEntities();
 }
 
 void EntityRenderer::Subscribe(GameObject* gameObject)
 {
-    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(), [id = gameObject->GetId()](const auto& sub){ return sub.gameObject->GetId() == id; });
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                             [id = gameObject->GetId()](const auto& sub) { return sub.gameObject->GetId() == id; });
 
     if (iter != subscribes_.end())
         return;
@@ -71,7 +66,7 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     auto model = rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1);
     if (not model)
         return;
-    
+
     std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
     subscribes_.push_back({gameObject, rendererComponent});
 }
@@ -98,9 +93,8 @@ void EntityRenderer::UnSubscribeAll()
 
 void EntityRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    InitShader();
+    DEBUG_LOG("");
+    shader_.Reload();
 }
 
 void EntityRenderer::RenderEntities()

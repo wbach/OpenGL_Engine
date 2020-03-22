@@ -6,19 +6,18 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
+
 namespace GameEngine
 {
 SkydomRenderer::SkydomRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Skydome)
 {
-    shader_ = context_.shaderFactory_.create(GraphicsApi::Shaders::Skydome);
     __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkydomRenderer::Render);
 }
 void SkydomRenderer::Init()
 {
-    shader_->Init();
+    shader_.Init();
 
     if (not perObjectUpdateId_)
     {
@@ -38,9 +37,7 @@ void SkydomRenderer::Subscribe(GameObject* gameObject)
 }
 void SkydomRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    shader_->Init();
+    shader_.Reload();
 }
 void SkydomRenderer::UnSubscribe(GameObject * gameObject)
 {
@@ -55,7 +52,7 @@ void SkydomRenderer::Render(const Scene& scene, const Time&)
     if (not subscriber_.model_)
         return;
 
-    shader_->Start();
+    shader_.Start();
     UpdateBuffer(scene.GetCamera().GetPosition());
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
 
@@ -64,7 +61,7 @@ void SkydomRenderer::Render(const Scene& scene, const Time&)
         context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
     }
 
-    shader_->Stop();
+    shader_.Stop();
 }
 void SkydomRenderer::UpdateBuffer(const vec3& cameraPos)
 {

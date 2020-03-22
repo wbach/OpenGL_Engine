@@ -85,9 +85,9 @@ private:
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     : scene_(scene)
     , isRunning_{true}
-    , userId_{0}
     , transformChangeSubscription_{nullptr}
     , selectedGameObject_{nullptr}
+    , userId_{0}
 {
     firstPersonCamera = std::make_unique<FirstPersonCamera>(scene.inputManager_, scene.displayManager_);
     SetFreeCamera();

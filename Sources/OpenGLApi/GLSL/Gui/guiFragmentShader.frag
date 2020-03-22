@@ -4,7 +4,7 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform sampler2D guiTexture;
+layout(binding = 0) uniform sampler2D guiTexture;
 
 layout (std140, binding=6) uniform PerMeshObject
 {

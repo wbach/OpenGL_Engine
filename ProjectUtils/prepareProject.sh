@@ -66,8 +66,8 @@ additionalIncludesDir='
 ..\..\Tools\common\rapidxml-1.13;
 ..\..\Tools\Windows\fbx_sdk\include;
 ..\..\Tools\Windows\Assimp\include;
-..\..\Tools\Windows\SDL2-2.0.9\include\;
-..\..\Tools\Windows\SDL2-2.0.9\include\SDL2\;
+..\..\Tools\Windows\SDL2-2.0.12\include\;
+..\..\Tools\Windows\SDL2-2.0.12\include\SDL2\;
 ..\..\Tools\Windows\SDL2_net-2.0.1\include\;
 ..\..\Tools\Windows\SDL2_ttf-2.0.15\include;
 ..\..\Tools\Windows\SDL2_image-2.0.4\include\;
@@ -246,7 +246,7 @@ additionalLibsDir='
 '$toolsDir'\Assimp\lib\x86;
 '$toolsDir'\GL;
 '$toolsDir'\SDL2_ttf-2.0.15\lib\x86;
-'$toolsDir'\SDL2-2.0.3\lib\x86;
+'$toolsDir'\SDL2-2.0.12\lib\x86;
 '$toolsDir'\SDL2_net-2.0.1\lib\x86;
 '$toolsDir'\SDL2_image-2.0.4\lib\x86;
 '$toolsDir'\freeImage;

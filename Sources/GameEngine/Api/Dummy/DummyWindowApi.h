@@ -9,14 +9,13 @@ class DummyWindowApi : public GraphicsApi::IWindowApi
 public:
     DummyWindowApi()
     {
-        time                  = 0;
-        dummyInputManagerPtr_ = std::make_shared<DummyInputManager>();
+        time = 0;
     }
     virtual void Init() override
     {
     }
     virtual void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                              GraphicsApi::WindowType type) override
+                                  GraphicsApi::WindowType type) override
     {
     }
     virtual void CreateContext() override
@@ -41,9 +40,9 @@ public:
     virtual void ShowCursor(bool show) override
     {
     }
-    virtual std::shared_ptr<Input::InputManager> CreateInput() override
+    virtual std::unique_ptr<Input::InputManager> CreateInput() override
     {
-        return dummyInputManagerPtr_;
+        return std::make_unique<DummyInputManager>();
     }
     virtual double GetTime() override
     {
@@ -71,8 +70,6 @@ public:
     }
 
 private:
-    DummyInputManagerPtr dummyInputManagerPtr_;
     float time;
 };
-typedef std::shared_ptr<DummyWindowApi> DummyWindowApiPtr;
 }  // namespace GameEngine

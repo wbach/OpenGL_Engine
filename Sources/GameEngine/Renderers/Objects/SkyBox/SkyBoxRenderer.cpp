@@ -8,27 +8,25 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GraphicsApi/ShadersTypes.h"
+#include "GraphicsApi/ShaderProgramType.h"
 #include "Logger/Log.h"
-#include "Shaders/SkyBoxShaderUniforms.h"
 
 namespace GameEngine
 {
 SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SkyBox)
     , rotationSpeed_(1.f)
     , rotation_(0.f)
     , scale_(150.f)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::SkyBox);
     __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkyBoxRenderer::Render);
 }
 
 void SkyBoxRenderer::Init()
 {
-    InitShader();
+    shader_.Init();
+
     if (not perObjectUpdateId_)
     {
         perObjectUpdateId_ =
@@ -46,13 +44,8 @@ void SkyBoxRenderer::Init()
 
 void SkyBoxRenderer::PrepareToRendering(const Scene& scene)
 {
-    shader_->Start();
+    shader_.Start();
     PrepareShaderBeforeFrameRender(scene);
-}
-
-void SkyBoxRenderer::InitShader()
-{
-    shader_->Init();
 }
 
 void SkyBoxRenderer::UpdateBuffer(const Scene& scene, const Time& threadTime)
@@ -112,9 +105,7 @@ void SkyBoxRenderer::Subscribe(GameObject* gameObject)
 
 void SkyBoxRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    InitShader();
+    shader_.Reload();
 }
 
 void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const

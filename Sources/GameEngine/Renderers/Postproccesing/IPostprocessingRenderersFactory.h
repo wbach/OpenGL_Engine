@@ -1,14 +1,16 @@
 #pragma once
-#include "PostprocessingRendererTypes.h"
 #include <memory>
+
+#include "PostprocessingRendererTypes.h"
 
 namespace GameEngine
 {
-	class PostprocessingRenderer;
+class PostprocessingRenderer;
 
-	struct IPostprocessingRenderersFactory
-	{
-		virtual ~IPostprocessingRenderersFactory() {}
-		virtual std::unique_ptr<PostprocessingRenderer> Create(PostprocessingRendererType type) = 0;
-	};
-} // GameEngine
+struct IPostprocessingRenderersFactory
+{
+    virtual ~IPostprocessingRenderersFactory() = default;
+
+    virtual std::unique_ptr<PostprocessingRenderer> Create(PostprocessingRendererType type) = 0;
+};
+}  // namespace GameEngine

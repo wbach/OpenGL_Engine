@@ -16,7 +16,7 @@ int main(int, char**)
 
     GameEngine::ReadFromFile(configFile);
     auto api = std::make_unique<OpenGLApi::OpenGLApi>();
-    // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
+    //auto api = std::make_unique<DirectX::DirectXApi>();
     AvatarGame::Start(std::move(api));
     return 0;
 }

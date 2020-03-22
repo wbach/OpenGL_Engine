@@ -21,12 +21,13 @@ in VS_OUT
     vec3 normal;
     vec4 worldPos;
     mat3 tbn;
-} vs_in;
+} fs_in;
 
-uniform sampler2DShadow ShadowMap;
-uniform sampler2D DiffuseTexture;
-uniform sampler2D NormalMap;
-uniform sampler2D SpecularMap;
+layout(binding = 4) uniform sampler2DShadow ShadowMap;
+layout(binding = 0) uniform sampler2D DiffuseTexture;
+layout(binding = 1) uniform sampler2D AmbientTexture;
+layout(binding = 2) uniform sampler2D NormalMap;
+layout(binding = 3) uniform sampler2D SpecularMap;
 
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
@@ -37,7 +38,7 @@ vec4 CalcBumpedNormal(vec2 text_coords)
 {
     vec3 bumpMapNormal = texture(NormalMap, text_coords).xyz;
     bumpMapNormal = 2.0 * bumpMapNormal - vec3(1.0, 1.0, 1.0);
-    return vec4(normalize(vs_in.tbn * bumpMapNormal) , 1.f);
+    return vec4(normalize(fs_in.tbn * bumpMapNormal) , 1.f);
 }
 
 bool Is(float v)
@@ -53,7 +54,7 @@ vec4 GetNormal(vec2 textCoord)
     }
     else
     {
-        return Is(perMeshObject.useNormalMap) ? CalcBumpedNormal(textCoord) : vec4(normalize(vs_in.normal), 1.f);
+        return Is(perMeshObject.useNormalMap) ? CalcBumpedNormal(textCoord) : vec4(normalize(fs_in.normal), 1.f);
     }
 }
 
@@ -73,7 +74,7 @@ vec4 GetSpecular(vec2 textCoord)
 void main()
 {
     vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
-    vec2 textCoord = (vs_in.texCoord / perMeshObject.numberOfRows) + vs_in.textureOffset;
+    vec2 textCoord = (fs_in.texCoord / perMeshObject.numberOfRows) + fs_in.textureOffset;
 
     if (Is(perMeshObject.useTexture))
     {
@@ -84,7 +85,7 @@ void main()
         }
     }
 
-    WorldPosOut      = vs_in.worldPos;
+    WorldPosOut      = fs_in.worldPos;
     NormalOut        = GetNormal(textCoord);
     DiffuseOut       = colorFromTexture * perMeshObject.diffuse;
     MaterialSpecular = GetSpecular(textCoord);

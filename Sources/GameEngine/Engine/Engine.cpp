@@ -11,13 +11,13 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                SceneFactoryBasePtr sceneFactory)
     : graphicsApi_(std::move(graphicsApi))
     , physicsApi_(std::move(physicsApi))
-    , displayManager(nullptr)
-    , inputManager_(nullptr)
-    , renderersManager_(*graphicsApi_, shaderFactory_)
-    , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager, shaderFactory_, inputManager_,
+    , displayManager_(*graphicsApi_, EngineConf.window.name, EngineConf.window.size.x, EngineConf.window.size.y,
+          EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW)
+    , inputManager_(displayManager_.CreateInput())
+    , renderersManager_(*graphicsApi_)
+    , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager_, *inputManager_,
                     renderersManager_, guiContext_, [&](EngineEvent e) { AddEngineEvent(e); })
-    , shaderFactory_(*graphicsApi_)
-    , introRenderer_(*graphicsApi_, displayManager, shaderFactory_)
+    , introRenderer_(*graphicsApi_, displayManager_)
     , isRunning_(true)
 {
     graphicsApi_->SetBackgroundColor(vec3(.8f));
@@ -38,12 +38,6 @@ Engine::~Engine()
 
 void Engine::SetDisplay()
 {
-    auto& conf = EngineConf;
-
-    displayManager = std::make_shared<DisplayManager>(
-        *graphicsApi_, conf.window.name, conf.window.size.x, conf.window.size.y,
-        conf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW);
-    inputManager_ = displayManager->CreateInput();
     introRenderer_.Render();
 }
 
@@ -61,7 +55,7 @@ void Engine::AddEngineEvent(EngineEvent event)
 
 DisplayManager& Engine::GetDisplayManager()
 {
-    return *displayManager;
+    return displayManager_;
 }
 
 SceneManager& Engine::GetSceneManager()
@@ -71,17 +65,17 @@ SceneManager& Engine::GetSceneManager()
 
 void Engine::MainLoop()
 {
-    displayManager->StartFrame();
+    displayManager_.StartFrame();
     inputManager_->GetPressedKeys();
-    displayManager->ProcessEvents();
+    displayManager_.ProcessEvents();
     sceneManager_.Update();
 
     sceneManager_.RuntimeLoadObjectToGpu();
-    renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager->GetTime());
-    displayManager->UpdateWindow();
+    renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager_.GetTime());
+    displayManager_.UpdateWindow();
 
     ProcessEngineEvents();
-    displayManager->EndFrame();
+    displayManager_.EndFrame();
 }
 
 void Engine::ProcessEngineEvents()

@@ -1,14 +1,11 @@
 #pragma once
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
-
-class CProjection;
 
 namespace GameEngine
 {
-class IShaderProgram;
-
 class PlantsRenderer : public IRenderer
 {
 public:
@@ -24,6 +21,6 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
 };
 }  // namespace GameEngine

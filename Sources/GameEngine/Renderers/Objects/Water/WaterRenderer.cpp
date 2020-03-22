@@ -1,8 +1,8 @@
 #include "WaterRenderer.h"
+
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
 
 namespace GameEngine
 {
@@ -17,13 +17,13 @@ struct WaterTileMeshBuffer
 
 WaterRenderer::WaterRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Water)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Water);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, WaterRenderer::Render);
 }
 void WaterRenderer::Init()
 {
-    shader_->Init();
+    shader_.Init();
 
     if (not perObjectUpdateId_)
     {
@@ -39,7 +39,7 @@ void WaterRenderer::Init()
 }
 void WaterRenderer::Render(const Scene&, const Time& time)
 {
-    shader_->Start();
+    shader_.Start();
 
     WaterTileMeshBuffer waterTileMeshBuffer;
     waterTileMeshBuffer.isSimpleRender = 1.f;
@@ -93,8 +93,6 @@ void WaterRenderer::UnSubscribeAll()
 }
 void WaterRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    shader_->Init();
+    shader_.Reload();
 }
 }  // namespace GameEngine

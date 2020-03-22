@@ -9,7 +9,7 @@ class HeightMap : public Texture
 {
 public:
     HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
-              const std::string& filepath, std::unique_ptr<Image> image);
+              const std::string& filepath, Image image);
     virtual void GpuLoadingPass() override;
     virtual void GpuPostLoadingPass() override;
     Image* GetImage();
@@ -17,7 +17,7 @@ public:
     const vec3& GetScale() const;
 
 private:
-    std::unique_ptr<Image> image_;
+    Image image_;
     vec3 scale_;
     bool keepData_ = false;
 };

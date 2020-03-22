@@ -5,38 +5,38 @@ namespace OpenGLApi
 namespace
 {
 // clang-format off
-const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simpleForwardShaderFiles =
+const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFiles> simpleForwardShaderFiles =
 {
     {
-        GraphicsApi::Shaders::Loading,
+        GraphicsApi::ShaderProgramType::Loading,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Game/loadingShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Game/loadingShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Entity,
+        GraphicsApi::ShaderProgramType::Entity,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::SimpleEntity,
+        GraphicsApi::ShaderProgramType::SimpleEntity,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/SimpleEntityShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/SimpleEntityShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Grid,
+        GraphicsApi::ShaderProgramType::Grid,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/Grid.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/Grid.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Grass,
+        GraphicsApi::ShaderProgramType::Grass,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Grass/Forward/GrassShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Grass/Forward/GrassShader.frag"},
@@ -44,49 +44,49 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simple
         }
     },
     {
-        GraphicsApi::Shaders::Particles,
+        GraphicsApi::ShaderProgramType::Particles,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Particles/Forward/ParticlesShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Particles/Forward/ParticlesShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::AnimatedParticles,
+        GraphicsApi::ShaderProgramType::AnimatedParticles,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Particles/Forward/AnimatedParticlesShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Particles/Forward/AnimatedParticlesShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Plants,
+        GraphicsApi::ShaderProgramType::Plants,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Particles/Forward/AnimatedParticlesShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Particles/Forward/AnimatedParticlesShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Shadows,
+        GraphicsApi::ShaderProgramType::Shadows,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Shadows/ShadowVertexShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Shadows/ShadowFragmentShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::SkyBox,
+        GraphicsApi::ShaderProgramType::SkyBox,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "SkyBox/Forward/SkyboxVertexShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "SkyBox/Forward/SkyboxFragmentShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Skydome,
+        GraphicsApi::ShaderProgramType::Skydome,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Skydome/Forward/Skydome.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Skydome/Forward/Skydome.frag"}
         }
     },
     { 
-        GraphicsApi::Shaders::Terrain,
+        GraphicsApi::ShaderProgramType::Terrain,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Tessllation/Forward/TerrainShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Tessllation/Forward/TerrainShader.frag"},
@@ -95,69 +95,69 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simple
         }
     },
     {
-        GraphicsApi::Shaders::TerrainNormal,
+        GraphicsApi::ShaderProgramType::TerrainNormal,
         {
             {GraphicsApi::ShaderType::COMPUTE_SHADER, "Terrain/NormalMap.glsl"}
         }
     },
     { 
-        GraphicsApi::Shaders::TerrainMesh,
+        GraphicsApi::ShaderProgramType::TerrainMesh,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/Forward/TerrainShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/Forward/TerrainShader.frag"}
         }
     },
     { 
-        GraphicsApi::Shaders::Tree,
+        GraphicsApi::ShaderProgramType::Tree,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/Forward/TreeShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/TreeShader.frag"}
         }
     },
     { 
-        GraphicsApi::Shaders::Water,
+        GraphicsApi::ShaderProgramType::Water,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/simpleWater.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/simpleWater.frag"}
         }
     },
     { 
-        GraphicsApi::Shaders::Blur,
+        GraphicsApi::ShaderProgramType::Blur,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Blur/Blur.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Blur/Blur.frag"}
         }
     },
     { 
-        GraphicsApi::Shaders::ColorFilper,
+        GraphicsApi::ShaderProgramType::ColorFilper,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/ColorFliper/ColorFliper.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/ColorFliper/ColorFliper.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Deffered,
+        GraphicsApi::ShaderProgramType::Deffered,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Light/LightPassShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Light/LightPassShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::SSAO,
+        GraphicsApi::ShaderProgramType::SSAO,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/SSAO/SSAOShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/SSAO/SSAOShader.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Font,
+        GraphicsApi::ShaderProgramType::Font,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Font/fontVertex.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Font/fontFragment.frag"}
         }
     },
     {
-        GraphicsApi::Shaders::Texture,
+        GraphicsApi::ShaderProgramType::Texture,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiVertexShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}
@@ -167,7 +167,7 @@ const std::unordered_map<GraphicsApi::Shaders, GraphicsApi::ShadersFiles> simple
 // clang-format on
 }  // namespace
 
-GraphicsApi::ShadersFiles GetSimpleForwardShaderFiles(GraphicsApi::Shaders shaderType)
+GraphicsApi::ShadersFiles GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
     return simpleForwardShaderFiles.at(shaderType);
 }

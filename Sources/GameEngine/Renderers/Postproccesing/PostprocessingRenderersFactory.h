@@ -13,10 +13,6 @@ public:
     virtual std::unique_ptr<PostprocessingRenderer> Create(PostprocessingRendererType type) override;
 
 private:
-    template <class T>
-    std::unique_ptr<T> CreateAndBasicInitialize();
-
-private:
     RendererContext& context_;
     PostprocessFrameBuffer** postprocessFrameBuffer_;
 };

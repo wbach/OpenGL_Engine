@@ -1,7 +1,7 @@
 #pragma once
 #include "GameEngine/Renderers/Postproccesing/Blur/Blur.h"
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
-#include "Shaders/SSAOShader.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -9,6 +9,7 @@ const uint32 KERNEL_SIZE = 128;
 class SSAORenderer : public PostprocessingRenderer
 {
 public:
+    SSAORenderer(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;
@@ -20,7 +21,7 @@ private:
     void BlurPass();
 
 private:
-    std::unique_ptr<SSAOShader> ssaoShader_;
+    ShaderProgram ssaoShader_;
     Blur blurRenderer_;
 };
 }  // namespace GameEngine

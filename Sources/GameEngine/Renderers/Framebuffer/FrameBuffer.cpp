@@ -1,4 +1,5 @@
 #include "FrameBuffer.h"
+
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Logger/Log.h"
 
@@ -10,8 +11,17 @@ FrameBuffer::FrameBuffer(GraphicsApi::IGraphicsApi& api)
 }
 void FrameBuffer::CreateFrameBuffer()
 {
-    fbo           = graphicsApi_.CreateBuffer();
-    isInitialized = true;
+    auto fboId = graphicsApi_.CreateBuffer();
+
+    if (fboId)
+    {
+        fbo           = *fboId;
+        isInitialized = true;
+    }
+    else
+    {
+        ERROR_LOG("CreateFrameBuffer error!");
+    }
 }
 void FrameBuffer::AddTexture(uint32 texture)
 {

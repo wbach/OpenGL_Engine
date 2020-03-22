@@ -1,18 +1,17 @@
 #include "SouthPool.h"
 
 #include <GLM/GLMUtils.h>
-#include <Thread.hpp>
-
-#include <GameEngine/Renderers/GUI/GuiRenderer.h>
-#include <GameEngine/Resources/Textures/HeightMap.h>
-#include <GameEngine/Resources/Textures/Image.h>
-
+#include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
+#include <GameEngine/Renderers/GUI/GuiRenderer.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
-
-#include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/RenderersManager.h>
+#include <GameEngine/Resources/Textures/HeightMap.h>
+#include <GameEngine/Resources/Textures/Image.h>
+#include <GameEngine/Resources/ResourceManager.h>
+
+#include <Thread.hpp>
 
 using namespace GameEngine;
 
@@ -33,6 +32,9 @@ SouthPool::~SouthPool()
 int SouthPool::Initialize()
 {
     DEBUG_LOG("SouthPool::Initialize()");
+
+    //resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
+    //                                                     "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
 

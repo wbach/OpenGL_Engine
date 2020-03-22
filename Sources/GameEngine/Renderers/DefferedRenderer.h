@@ -7,8 +7,8 @@ struct Time;
 class DefferedRenderer : public BaseRenderer
 {
 public:
-    DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix, IShaderFactory& shaderFactory,
-                 std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
+    DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix,
+                     std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
     ~DefferedRenderer();
 
     virtual void Init() override;
@@ -22,4 +22,4 @@ private:
 private:
     PostProcessingManager postprocessingRenderersManager_;
 };
-}  // GameEngine
+}  // namespace GameEngine

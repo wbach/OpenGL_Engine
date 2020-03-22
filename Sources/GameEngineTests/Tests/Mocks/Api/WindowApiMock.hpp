@@ -1,6 +1,7 @@
 #pragma once
 #include <gmock/gmock.h>
 #include "GraphicsApi/WindowApi.hpp"
+#include "Input/InputManager.h"
 
 namespace GraphicsApi
 {
@@ -16,7 +17,7 @@ public:
     MOCK_METHOD1(SetFullScreen, void(bool));
     MOCK_METHOD0(CheckActiveWindow, bool());
     MOCK_METHOD1(ShowCursor, void(bool));
-    MOCK_METHOD0(CreateInput, std::shared_ptr<Input::InputManager>());
+    MOCK_METHOD0(CreateInput, std::unique_ptr<Input::InputManager>());
     MOCK_METHOD0(GetTime, double());
     MOCK_METHOD2(SetCursorPosition, void(int x, int y));
     MOCK_METHOD2(OpenFont, std::optional<uint32>(const std::string&, uint32));

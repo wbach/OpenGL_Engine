@@ -3,13 +3,13 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
 struct Time;
 class Mesh;
 class Model;
-class IShaderProgram;
 struct RendererContext;
 
 struct SkydomeSubscriber
@@ -33,7 +33,7 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     GraphicsApi::ID perObjectUpdateId_;
     PerObjectUpdate perObjectUpdate_;
     SkydomeSubscriber subscriber_;

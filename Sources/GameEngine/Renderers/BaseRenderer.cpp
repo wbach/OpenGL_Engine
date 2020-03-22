@@ -23,16 +23,16 @@
 namespace GameEngine
 {
 BaseRenderer::BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection,
-                           IShaderFactory& shaderFactory,
                            std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
     : defferedFrameBuffer_(std::make_unique<DefferedFrameBuffer>(graphicsApi))
     , shadowsFrameBuffer_(std::make_unique<ShadowFrameBuffer>(graphicsApi))
-    , context_(projection, graphicsApi, *defferedFrameBuffer_, *shadowsFrameBuffer_, shaderFactory, rendererFunction)
+    , context_(projection, graphicsApi, *defferedFrameBuffer_, *shadowsFrameBuffer_, rendererFunction)
 {
 }
 BaseRenderer::~BaseRenderer()
 {
 }
+
 void BaseRenderer::Init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);

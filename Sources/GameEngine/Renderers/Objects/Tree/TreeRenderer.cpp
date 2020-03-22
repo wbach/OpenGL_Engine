@@ -10,22 +10,19 @@
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "Shaders/TreeShaderUniforms.h"
 
 namespace GameEngine
 {
 TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Tree)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Tree);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TreeRenderer::Render);
 }
 
 void TreeRenderer::Init()
 {
-    shader_->Init();
+    shader_.Init();
 }
 
 void TreeRenderer::Render(const Scene& scene, const Time& threadTime)
@@ -33,7 +30,7 @@ void TreeRenderer::Render(const Scene& scene, const Time& threadTime)
     if (subscribes_.empty())
         return;
 
-    shader_->Start();
+    shader_.Start();
 
     for (auto& sub : subscribes_)
     {
@@ -85,9 +82,7 @@ void TreeRenderer::UnSubscribeAll()
 }
 void TreeRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    Init();
+    shader_.Reload();
 }
 
 void TreeRenderer::RenderModel(const Model& model, const TreeSubscriber& sub) const
@@ -111,11 +106,6 @@ void TreeRenderer::BindMaterial(const Material& material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
-
-    shader_->Load(TreeShaderUniforms::ModelMaterial_Ambient, material.ambient);
-    shader_->Load(TreeShaderUniforms::ModelMaterial_Diffuse, material.diffuse);
-    shader_->Load(TreeShaderUniforms::ModelMaterial_Specular, material.specular);
-    shader_->Load(TreeShaderUniforms::ModelMaterial_ShineDumper, material.shineDamper);
 
     if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
     {

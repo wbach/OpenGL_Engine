@@ -5,7 +5,6 @@
 #include "../Scene/SceneManager.h"
 #include "EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "GameEngine/Shaders/ShaderFactory.h"
 #include "IntroRenderer.h"
 #include "ThreadSync.h"
 
@@ -40,12 +39,11 @@ private:
 private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
     std::unique_ptr<Physics::IPhysicsApi> physicsApi_;
-    std::shared_ptr<DisplayManager> displayManager;
+    DisplayManager displayManager_;
+    std::unique_ptr<Input::InputManager> inputManager_;
     Renderer::Gui::GuiContext guiContext_;
-    Input::InputManagerPtr inputManager_;
     Renderer::RenderersManager renderersManager_;
     SceneManager sceneManager_;
-    ShaderFactory shaderFactory_;
     IntroRenderer introRenderer_;
     std::mutex engineEventsMutex;
     std::list<EngineEvent> engineEvents;

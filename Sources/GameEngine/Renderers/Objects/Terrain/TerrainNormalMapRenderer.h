@@ -2,12 +2,12 @@
 #include <memory>
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 class Texture;
-class IShaderProgram;
 struct RendererContext;
 
 class TerrainNormalMapRenderer : public IRenderer
@@ -27,8 +27,7 @@ private:
 
 private:
     std::vector<Components::TerrainRendererComponent*> subscribers_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     RendererContext& context_;
-    bool useShader_;
 };
 }  // namespace GameEngine

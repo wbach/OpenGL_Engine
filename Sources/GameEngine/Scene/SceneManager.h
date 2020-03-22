@@ -1,5 +1,6 @@
 #pragma once
 #include <queue>
+
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "Mutex.hpp"
@@ -29,9 +30,9 @@ class RenderersManager;
 class SceneManager
 {
 public:
-    SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi, SceneFactoryBasePtr,
-                 std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory, std::shared_ptr<Input::InputManager>&,
-                 Renderer::RenderersManager&, Renderer::Gui::GuiContext& guiContext, std::function<void(EngineEvent)>);
+    SceneManager(GraphicsApi::IGraphicsApi&, Physics::IPhysicsApi&, SceneFactoryBasePtr, DisplayManager&,
+                 Input::InputManager&, Renderer::RenderersManager&, Renderer::Gui::GuiContext&,
+                 std::function<void(EngineEvent)>);
     ~SceneManager();
 
     Scene* GetActiveScene();
@@ -80,8 +81,8 @@ private:
     std::queue<GameEngine::SceneEvent> events_;
     std::queue<GameEngine::SceneEvent> processingEvents_;
 
-    std::shared_ptr<DisplayManager>& displayManager_;
-    std::shared_ptr<Input::InputManager>& inputManager_;
+    DisplayManager& displayManager_;
+    Input::InputManager& inputManager_;
     Renderer::RenderersManager& renderersManager_;
     Renderer::Gui::GuiContext& guiContext_;
     std::function<void(EngineEvent)> addEngineEvent_;

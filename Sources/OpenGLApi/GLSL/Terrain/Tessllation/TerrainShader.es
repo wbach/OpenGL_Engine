@@ -10,7 +10,7 @@ layout (std140, binding = 3) uniform PerTerrain
     vec3 scale;
 } perTerrain;
 
-uniform sampler2D heightmap;
+layout(binding = 1) uniform sampler2D heightmap;
 
 in vec2 mapCoord_TE[];
 

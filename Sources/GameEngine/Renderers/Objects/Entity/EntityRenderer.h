@@ -1,5 +1,6 @@
 #pragma once
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
@@ -12,8 +13,6 @@ class Projection;
 class ModelWrapper;
 struct RendererContext;
 struct Material;
-class IShaderFactory;
-class IShaderProgram;
 
 namespace Components
 {
@@ -43,7 +42,6 @@ public:
     void Render(const Scene& scene, const Time& threadTime);
 
 private:
-    void InitShader();
     void RenderModel(const EntitySubscriber& subsriber, const Model& model) const;
     void RenderMesh(const Mesh& mesh) const;
     void RenderEntities();
@@ -52,7 +50,7 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
 
     EnitySubscribers subscribes_;
 

@@ -22,6 +22,7 @@ struct Header
     uint32 height;
     vec3 scale;
 };
+const std::string HEIGHTMAP_EXTENSION = "terrain";
 
 TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi,
                              std::vector<std::unique_ptr<Texture>>& textures_vector,
@@ -281,49 +282,8 @@ Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass
         return texture;
     }
 
-    auto fp = fopen(filename.c_str(), "rb");
-
-    if (!fp)
-    {
-        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + filename);
-        return nullptr;
-    }
-
-    Header header;
-    auto bytes = fread(&header, sizeof(Header), 1, fp);
-
-    if (bytes == 0)
-    {
-        ERROR_LOG("Read file error." + filename);
-    }
-
-    DEBUG_LOG(" Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
-
-    auto texture = std::make_unique<Image>();
-    auto& text   = *texture;
-    text.width   = header.width;
-    text.height  = header.height;
-
-    auto size = header.width * header.height;
-    text.floatData.resize(size);
-
-    bytes = fread(&text.floatData[0], sizeof(float), size, fp);
-
-    if (bytes < sizeof(float) * size)
-    {
-        ERROR_LOG("Read file error." + filename + " " + ", bytes : " + std::to_string(bytes));
-    }
-
-    fclose(fp);
-
-    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, std::move(texture));
-    heightmap_texture->SetScale(header.scale);
-    textures_.emplace_back(heightmap_texture);
-
-    if (gpu_pass)
-        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmap_texture);
-
-    return heightmap_texture;
+    auto isBinnary = Utils::CheckExtension(filename, HEIGHTMAP_EXTENSION);
+    return isBinnary ? LoadHeightMapBinary(filename, gpu_pass) : LoadHeightMapTexture(filename, gpu_pass);
 }
 
 Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength)
@@ -421,6 +381,89 @@ void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector
     }
 
     FreeImage_Save(fformat, im, (name + ext).c_str(), 0);
+}
+Texture* TextureLoader::LoadHeightMapBinary(const std::string& filename, bool gpu_pass)
+{
+    auto fp = fopen(filename.c_str(), "rb");
+
+    if (!fp)
+    {
+        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + filename);
+        return nullptr;
+    }
+
+    Header header;
+    auto bytes = fread(&header, sizeof(Header), 1, fp);
+
+    if (bytes == 0)
+    {
+        ERROR_LOG("Read file error." + filename);
+    }
+
+    DEBUG_LOG("Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
+    DEBUG_LOG("Height map scale : " + std::to_string(header.scale));
+
+    Image texture;
+    texture.width = header.width;
+    texture.height = header.height;
+
+    auto size = header.width * header.height;
+    texture.floatData.resize(size);
+
+    bytes = fread(&texture.floatData[0], sizeof(float), size, fp);
+    fclose(fp);
+
+    if (bytes < size)
+    {
+        ERROR_LOG("Read file error." + filename + " " + ", bytes : " + std::to_string(bytes) + "/" +
+                  std::to_string(sizeof(float) * size));
+        return nullptr;
+    }
+
+    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, std::move(texture));
+    heightmap_texture->SetScale(header.scale);
+    textures_.emplace_back(heightmap_texture);
+
+    if (gpu_pass)
+        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmap_texture);
+
+    return heightmap_texture;
+}
+Texture* TextureLoader::LoadHeightMapTexture(const std::string& filename, bool gpu_pass)
+{
+    DEBUG_LOG(filename);
+    auto optImage = ReadFile(filename, false);
+
+    if (not optImage)
+    {
+        return nullptr;
+    }
+
+    auto& image = *optImage;
+
+    if (image.floatData.empty())
+    {
+        image.floatData.reserve(image.data.size());
+
+        for (auto i = 0u; i < image.data.size(); i += 4)
+        {
+            auto color = (Utils::RGBtoFloat(image.data[i]) + Utils::RGBtoFloat(image.data[i + 1]) +
+                          Utils::RGBtoFloat(image.data[i + 2])) /
+                         3.f;
+            image.floatData.push_back(color);
+        }
+
+        image.data.clear();
+    }
+
+    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, std::move(image));
+    heightmap_texture->SetScale(vec3(heightMapFactor_));
+    textures_.emplace_back(heightmap_texture);
+
+    if (gpu_pass)
+        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmap_texture);
+
+    return heightmap_texture;
 }
 Texture* TextureLoader::GetTextureIfLoaded(const std::string& filename) const
 {

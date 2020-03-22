@@ -20,7 +20,7 @@ public:
     void UpdateWindow();
     void ShowCoursor(bool show);
     bool CheckActiveWindow();
-    std::shared_ptr<Input::InputManager> CreateInput();
+    std::unique_ptr<Input::InputManager> CreateInput();
     inline void EnableTime();
     inline void DisableTime();
 

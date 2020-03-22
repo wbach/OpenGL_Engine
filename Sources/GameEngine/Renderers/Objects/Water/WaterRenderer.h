@@ -2,13 +2,11 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
-class IShaderProgram;
-
 namespace Components
 {
 class WaterRendererComponent;
@@ -36,7 +34,7 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     std::unordered_map<uint32, Subscriber> subscribers_;
 
     GraphicsApi::ID perObjectUpdateId_;

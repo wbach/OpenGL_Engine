@@ -58,7 +58,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
     {
         rendererComponent->UpdateBuffers();
 
-        auto subscribtionId =
+        //auto subscribtionId =
             gameObject->worldTransform.SubscribeOnChange([this, rendererComponent](const common::Transform& transform) mutable {
                 AddEvent(std::make_unique<TransformDataEvent>(*rendererComponent));
             });

@@ -8,11 +8,8 @@
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GraphicsApi/ShadersTypes.h"
+#include "GraphicsApi/ShaderProgramType.h"
 #include "Logger/Log.h"
-#include "Shaders/ShadowShaderUniforms.h"
 #include "ShadowFrameBuffer.h"
 #include "math.hpp"
 
@@ -20,12 +17,11 @@ namespace GameEngine
 {
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
     , viewOffset_(Utils::CreateOffset())
-    , isInit_(false)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Shadows);
     __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
 }
 
@@ -39,25 +35,24 @@ ShadowMapRenderer::~ShadowMapRenderer()
 
 void ShadowMapRenderer::Init()
 {
-    isInit_ = shader_->Init();
-
+    shader_.Init();
     perFrameBuffer_  = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+}
 
-    if (not isInit_ or not perFrameBuffer_)
-    {
-        ERROR_LOG("ShadowMapRenderer inir error");
-    }
+bool ShadowMapRenderer::IsInit() const
+{
+    return shader_.IsReady() and perFrameBuffer_.has_value();
 }
 
 void ShadowMapRenderer::Render(const Scene& scene, const Time&)
 {
-    if (not isInit_ or not perFrameBuffer_)
+    if (not IsInit())
         return;
 
     uint32 lastBindedPerFrameBuffer  = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
 
     PrepareRender(scene);
-    shader_->Start();
+    shader_.Start();
     RenderSubscribes();
     context_.shadowsFrameBuffer_.UnbindFrameBuffer();
 
@@ -96,9 +91,7 @@ void ShadowMapRenderer::UnSubscribeAll()
 
 void ShadowMapRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    shader_->Init();
+    shader_.Reload();
 }
 
 void ShadowMapRenderer::PrepareRender(const Scene& scene)

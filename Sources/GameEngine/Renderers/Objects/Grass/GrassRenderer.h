@@ -2,6 +2,8 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
+#include "GrassShaderBuffer.h"
 
 namespace GameEngine
 {
@@ -9,8 +11,6 @@ struct Time;
 class Mesh;
 class Model;
 class Projection;
-class IShaderFactory;
-class IShaderProgram;
 
 namespace Components
 {
@@ -32,7 +32,7 @@ private:
     void Render(const Scene& scene, const Time& threadTime);
 
 private:
-    void InitShader();
+    void InitShaderBuffer();
     void PrepareRender(const Scene& scene);
     void EndRender() const;
     void RenderSubscribes();
@@ -42,7 +42,10 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
+
+    GrassShaderBuffer grassShaderBuffer_;
+    GraphicsApi::ID grassShaderBufferId_;
 
     std::vector<std::pair<uint32_t, Components::GrassRendererComponent*>> subscribes_;
     float viewDistance = 30.f;

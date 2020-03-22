@@ -1,6 +1,9 @@
 #include "DefferedRenderer.h"
 
 #include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "Logger/Log.h"
 #include "Objects/Entity/EntityRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
@@ -12,17 +15,11 @@
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
 
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
-
-#include "Logger/Log.h"
-
 namespace GameEngine
 {
 DefferedRenderer::DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection,
-                                   IShaderFactory& shaderFactory,
                                    std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
-    : BaseRenderer(graphicsApi, projection, shaderFactory, rendererFunction)
+    : BaseRenderer(graphicsApi, projection, rendererFunction)
     , postprocessingRenderersManager_(context_)
 {
 }
@@ -35,12 +32,13 @@ DefferedRenderer::~DefferedRenderer()
 void DefferedRenderer::Init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
+
     CreateRenderers();
     DEBUG_LOG("Rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
     context_.defferedFrameBuffer_.Init(context_.projection_.GetRenderingSize());
     context_.shadowsFrameBuffer_.InitialiseFrameBuffer();
     InitRenderers();
-    postprocessingRenderersManager_.Init(); 
+    postprocessingRenderersManager_.Init();
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
     __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::OnEndFrame);
     DEBUG_LOG("DefferedRenderer initialized.");

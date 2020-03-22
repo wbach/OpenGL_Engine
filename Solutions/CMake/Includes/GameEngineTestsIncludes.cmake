@@ -11,8 +11,6 @@ set(GameEngineTestsIncludes
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/OpenGLLoaderMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h
 ../../Sources/GameEngineTests/Tests/Mocks/Resources/TextureLoaderMock.h
-../../Sources/GameEngineTests/Tests/Mocks/Shaders/ShaderFactoryMock.h
-../../Sources/GameEngineTests/Tests/Mocks/Shaders/ShaderProgramMock.h
 ../../Sources/GameEngineTests/Tests/UT/Components/BaseComponent.h
 ../../Sources/GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp
 ../../Sources/GameEngineTests/Tests/Mocks/Renderers/Objects/Shadows/ShadowFrameBufferMock.hpp

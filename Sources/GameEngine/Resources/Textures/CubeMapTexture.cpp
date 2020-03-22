@@ -1,10 +1,11 @@
 #include "CubeMapTexture.h"
+
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
-                                 std::vector<Image>& image)
+                               std::vector<Image>& image)
     : Texture(graphicsApi, name, name)
     , images_(std::move(image))
 {
@@ -30,24 +31,27 @@ void CubeMapTexture::GpuLoadingPass()
         if (images_[x].data.empty())
         {
             ERROR_LOG("There was an error loading the texture : " + filename +
-                ". data is null or is initialized. Wrong image : " + std::to_string(x));
+                      ". data is null or is initialized. Wrong image : " + std::to_string(x));
             return;
         }
         data[x] = &images_[x].data[0];
     }
 
-    graphicsObjectId_ = graphicsApi_.CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
+    auto graphicsObjectId = graphicsApi_.CreateCubMapTexture(vec2ui(images_[0].width, images_[0].height), data);
+
+    if (graphicsObjectId)
+    {
+        graphicsObjectId_ = *graphicsObjectId;
+        isInit            = true;
+        DEBUG_LOG("File " + filename + " is in GPU.");
+    }
+    else
+    {
+        ERROR_LOG("Texutre not created. Filename : " + fullpath);
+    }
 
     for (auto& i : images_)
         i.data.clear();
-
-    if (graphicsObjectId_ == 0)
-    {
-        ERROR_LOG("There was an error loading the texture : " + filename);
-        return;
-    }
-
-    isInit = true;
 }
 
 void CubeMapTexture::GpuPostLoadingPass()

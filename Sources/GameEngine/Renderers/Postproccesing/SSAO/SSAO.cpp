@@ -1,23 +1,26 @@
 #include "SSAO.h"
+
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "Shaders/SSAOShaderUniforms.h"
 
 namespace GameEngine
 {
+SSAORenderer::SSAORenderer(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
+    : PostprocessingRenderer(context, postprocessFrameBuffer)
+    , ssaoShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SSAO)
+    , blurRenderer_(context, postprocessFrameBuffer)
+{
+}
 void SSAORenderer::Init()
 {
-    blurRenderer_.SetRendererContext(rendererContext_);
-    blurRenderer_.SetPostProcessFrameBuffer(postprocessFrameBuffer_);
     blurRenderer_.Init();
 
-    ssaoShader_.reset(new SSAOShader(rendererContext_->graphicsApi_));
-    ssaoShader_->Init();
-    ssaoShader_->Start();
+    ssaoShader_.Init();
+    ssaoShader_.Start();
     GenKernel();
-    ssaoShader_->Load(SSAOShaderUniforms::SampleRadius, 1.5f);
-    ssaoShader_->Load(SSAOShaderUniforms::ProjectionMatrix, rendererContext_->projection_.GetProjectionMatrix());
-    ssaoShader_->Stop();
+    //ssaoShader_->Load(SSAOShaderUniforms::SampleRadius, 1.5f);
+    //ssaoShader_->Load(SSAOShaderUniforms::ProjectionMatrix, rendererContext_->projection_.GetProjectionMatrix());
+    ssaoShader_.Stop();
 }
 void SSAORenderer::Prepare()
 {
@@ -29,22 +32,20 @@ void SSAORenderer::Render(const Scene&)
 }
 void SSAORenderer::ReloadShaders()
 {
-    ssaoShader_->Stop();
-    ssaoShader_->Reload();
-    ssaoShader_->Init();
+    ssaoShader_.Reload();
 }
 void SSAORenderer::SSAOPass()
 {
-    auto positionTexture = rendererContext_->defferedFrameBuffer_.GetTexture(0);
+    auto positionTexture = rendererContext_.defferedFrameBuffer_.GetTexture(0);
 
-    ssaoShader_->Start();
-    rendererContext_->graphicsApi_.ActiveTexture(0, positionTexture);
-    rendererContext_->graphicsApi_.RenderQuad();
-    ssaoShader_->Stop();
+    ssaoShader_.Start();
+    rendererContext_.graphicsApi_.ActiveTexture(0, positionTexture);
+    rendererContext_.graphicsApi_.RenderQuad();
+    ssaoShader_.Stop();
 }
 void SSAORenderer::BlurPass()
 {
-    //blurRenderer_.Render();
+    // blurRenderer_.Render();
 }
 void SSAORenderer::GenKernel()
 {
@@ -64,6 +65,6 @@ void SSAORenderer::GenKernel()
 
         kernel[i] = v;
     }
-    ssaoShader_->Load(SSAOShaderUniforms::Kernel, kernel);
+    //ssaoShader_->Load(SSAOShaderUniforms::Kernel, kernel);
 }
 }  // namespace GameEngine

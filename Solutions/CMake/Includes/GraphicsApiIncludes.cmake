@@ -3,13 +3,14 @@ set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/BlendFunctionsTypes.h
 ../../Sources/GraphicsApi/BufferParamters.h
 ../../Sources/GraphicsApi/FunctionsTypes.h
+../../Sources/GraphicsApi/GraphicsApiDef.h
 ../../Sources/GraphicsApi/IGraphicsApi.h
 ../../Sources/GraphicsApi/MeshRawData.h
 ../../Sources/GraphicsApi/RenderType.h
 ../../Sources/GraphicsApi/ShaderBufferVariable.h
 ../../Sources/GraphicsApi/ShaderFiles.h
+../../Sources/GraphicsApi/ShaderProgramType.h
 ../../Sources/GraphicsApi/ShaderQuaility.h
-../../Sources/GraphicsApi/ShadersTypes.h
 ../../Sources/GraphicsApi/ShaderTypes.h
 ../../Sources/GraphicsApi/Surface.h
 ../../Sources/GraphicsApi/TextureInfo.h

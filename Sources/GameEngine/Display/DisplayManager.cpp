@@ -1,6 +1,7 @@
 #include "DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
+#include <Input/InputManager.h>
 
 namespace GameEngine
 {
@@ -12,6 +13,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     , isFullScreen(false)
     , windowsSize({w, h})
 {
+    isFullScreen = type == GraphicsApi::WindowType::FULL_SCREEN;
+
     graphicsApi_.GetWindowApi().Init();
     graphicsApi_.GetWindowApi().CreateGameWindow(window_name, w, h, type);
     graphicsApi_.CreateContext();
@@ -80,8 +83,8 @@ bool DisplayManager::CheckActiveWindow()
     return graphicsApi_.GetWindowApi().CheckActiveWindow();
 }
 
-std::shared_ptr<Input::InputManager> DisplayManager::CreateInput()
+std::unique_ptr<Input::InputManager> DisplayManager::CreateInput()
 {
-    return graphicsApi_.GetWindowApi().CreateInput();
+    return std::move(graphicsApi_.GetWindowApi().CreateInput());
 }
 }  // namespace GameEngine

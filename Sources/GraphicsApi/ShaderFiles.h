@@ -1,8 +1,8 @@
 #pragma once
-#include "Utils/BidirectionalUnorderedMap.h"
 #include "ShaderTypes.h"
+#include "Utils/BidirectionalUnorderedMap.h"
 
 namespace GraphicsApi
 {
-    typedef std::unordered_map<GraphicsApi::ShaderType, std::string> ShadersFiles;
-} // namespace OpenGLApi
+typedef std::unordered_map<GraphicsApi::ShaderType, std::string> ShadersFiles;
+}  // namespace GraphicsApi

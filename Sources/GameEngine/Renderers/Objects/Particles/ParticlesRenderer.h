@@ -2,6 +2,8 @@
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
+#include "ParticleInputBuffer.h"
 
 namespace GameEngine
 {
@@ -9,7 +11,6 @@ struct Time;
 class Texture;
 class Projection;
 struct RendererContext;
-class IShaderProgram;
 
 struct ParticleSubscriber
 {
@@ -36,7 +37,8 @@ private:
     void Render(const Scene& scene, const Time&);
 
 private:
-    void InitShaders();
+    bool IsInit() const;
+    void InitShaderBuffer();
     void StartShader();
     void StopShader();
     void PrepareFrame();
@@ -52,12 +54,14 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
-    std::unique_ptr<IShaderProgram> animatedShader_;
+    ShaderProgram shader_;
+    ShaderProgram animatedShader_;
     SubscribesMap subscribers_;
-    uint32 particleObjecId;
-    uint32 aniamtedParticleObjecId;
-    uint32 staticParticleObjecId;
+    GraphicsApi::ID particleObjecId;
+    GraphicsApi::ID aniamtedParticleObjecId;
+    GraphicsApi::ID staticParticleObjecId;
+    GraphicsApi::ID particleInputBufferId;
+    ParticleInputBuffer particleInputBuffer;
 
 private:
     bool currentUseAnimation;

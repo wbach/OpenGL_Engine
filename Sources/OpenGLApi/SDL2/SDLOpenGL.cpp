@@ -125,9 +125,9 @@ void SdlOpenGlApi::ShowCursor(bool show)
     SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
 }
 
-std::shared_ptr<Input::InputManager> SdlOpenGlApi::CreateInput()
+std::unique_ptr<Input::InputManager> SdlOpenGlApi::CreateInput()
 {
-    auto input   = std::make_shared<InputSDL>(impl_->window);
+    auto input   = std::make_unique<InputSDL>(impl_->window);
     addKeyEvent_ = std::bind(&InputSDL::AddKeyEvent, input.get(), std::placeholders::_1, std::placeholders::_2);
     return std::move(input);
 }

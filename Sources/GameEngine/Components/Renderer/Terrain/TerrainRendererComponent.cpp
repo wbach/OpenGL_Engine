@@ -1,4 +1,5 @@
 #include "TerrainRendererComponent.h"
+
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -11,7 +12,6 @@ namespace GameEngine
 namespace Components
 {
 ComponentsType TerrainRendererComponent::type = ComponentsType::TerrainRenderer;
-const std::string HEIGHTMAP_EXTENSION         = "terrain";
 
 TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::TerrainRenderer, componentContext, gameObject)
@@ -49,20 +49,7 @@ void TerrainRendererComponent::LoadHeightMap(const std::string& hightMapFile)
 {
     const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(hightMapFile);
 
-    if (Utils::CheckExtension(hightMapFile, HEIGHTMAP_EXTENSION))
-    {
-        heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, true);
-    }
-    else
-    {
-        const auto heightMapCreatedFile =
-            Utils::GetPathAndFilenameWithoutExtension(fullNameWithPath) + HEIGHTMAP_EXTENSION;
-
-        componentContext_.resourceManager_.GetTextureLaoder().CreateHeightMap(fullNameWithPath, heightMapCreatedFile,
-                                                                              vec3(1.f));
-
-        heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(heightMapCreatedFile, true);
-    }
+    heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, true);
 
     if (not heightMap_)
     {

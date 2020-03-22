@@ -75,7 +75,7 @@ HRESULT InitDevice(DirectXContext &directXContext)
     UINT width                   = rc.right - rc.left;
     UINT height                  = rc.bottom - rc.top;
     directXContext.viewPort.size = vec2ui(width, height);
-
+#define _DEBUG
     UINT createDeviceFlags = 0;
 #ifdef _DEBUG
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -168,10 +168,38 @@ void Release(T &t)
 class DirectXApi::Pimpl
 {
 public:
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc_;
     uint32 quadId;
     DirectXContext dxCondext_;
     std::vector<Buffer> buffers_;
     std::vector<DxShader> shaders_;
+
+    Pimpl()
+    {
+        D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+        ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+        // Set up the description of the stencil state.
+        depthStencilDesc.DepthEnable    = true;
+        depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+        depthStencilDesc.DepthFunc      = D3D11_COMPARISON_LESS;
+
+        depthStencilDesc.StencilEnable    = true;
+        depthStencilDesc.StencilReadMask  = 0xFF;
+        depthStencilDesc.StencilWriteMask = 0xFF;
+
+        // Stencil operations if pixel is front-facing.
+        depthStencilDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+        depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+        depthStencilDesc.FrontFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
+        depthStencilDesc.FrontFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
+
+        // Stencil operations if pixel is back-facing.
+        depthStencilDesc.BackFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+        depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+        depthStencilDesc.BackFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
+        depthStencilDesc.BackFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
+    }
 
     const Object &GetDxObject(uint32 id)
     {
@@ -301,40 +329,7 @@ void DirectXApi::InitDepthSetncilView()
         MessageBox(NULL, "CreateDepthStencilView error.", __FUNCTION__, MB_OK);
     }
 
-    return;
-
-    D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-    ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-    // Set up the description of the stencil state.
-    depthStencilDesc.DepthEnable    = true;
-    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    depthStencilDesc.DepthFunc      = D3D11_COMPARISON_LESS;
-
-    depthStencilDesc.StencilEnable    = true;
-    depthStencilDesc.StencilReadMask  = 0xFF;
-    depthStencilDesc.StencilWriteMask = 0xFF;
-
-    // Stencil operations if pixel is front-facing.
-    depthStencilDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-    depthStencilDesc.FrontFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.FrontFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
-
-    // Stencil operations if pixel is back-facing.
-    depthStencilDesc.BackFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-    depthStencilDesc.BackFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.BackFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
-
-    // Create the depth stencil state.
-    auto result =
-        impl_->dxCondext_.dev->CreateDepthStencilState(&depthStencilDesc, &impl_->dxCondext_.depthStencilState);
-    if (FAILED(result))
-    {
-        return;
-    }
-    impl_->dxCondext_.devcon->OMSetDepthStencilState(impl_->dxCondext_.depthStencilState, 1);
+    //UpdateDepthStencilState();
 }
 
 void DirectXApi::SetRasterState()
@@ -361,6 +356,20 @@ void DirectXApi::SetRenderTargets()
 {
     impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
                                                  impl_->dxCondext_.depthStencilView);
+}
+
+void DirectXApi::UpdateDepthStencilState()
+{
+    // Create the depth stencil state.
+    auto result =
+        impl_->dxCondext_.dev->CreateDepthStencilState(&impl_->depthStencilDesc_, &impl_->dxCondext_.depthStencilState);
+
+    if (FAILED(result))
+    {
+        MessageBox(NULL, "CreateDepthStencilState error.", __FUNCTION__, MB_OK);
+        return;
+    }
+    impl_->dxCondext_.devcon->OMSetDepthStencilState(impl_->dxCondext_.depthStencilState, 1);
 }
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
@@ -406,15 +415,19 @@ void DirectXApi::SetBackgroundColor(const vec3 &bgColor)
 }
 void DirectXApi::EnableDepthTest()
 {
+    impl_->depthStencilDesc_.DepthEnable = true;
+  //  UpdateDepthStencilState();
 }
 void DirectXApi::DisableDepthTest()
 {
+    impl_->depthStencilDesc_.DepthEnable = false;
+    //UpdateDepthStencilState();
 }
-uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions)
+GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderType)
 {
     if (not FileNameExist(shaderType))
     {
-        return 0;
+        return {};
     }
 
     auto filenames = GetDxForwardShaderFiles(shaderType);
@@ -429,7 +442,7 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     {
         auto failResult = "Vertex sheder can not be compiled. " + vsShaderFileName;
         MessageBox(NULL, failResult.c_str(), "Error", MB_OK);
-        return 0;
+        return {};
     }
     hr = impl_->dxCondext_.dev->CreateVertexShader(shader.blob_.vertex_->GetBufferPointer(),
                                                    shader.blob_.vertex_->GetBufferSize(), NULL, &shader.vertex_);
@@ -438,7 +451,7 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
         auto failResult = vsShaderFileName + " create vertex shader error";
         MessageBox(NULL, failResult.c_str(), __FUNCTION__, MB_OK);
         shader.blob_.Release();
-        return 0;
+        return {};
     }
 
     D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -460,7 +473,7 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
                    "Can not create input layout."
                    "FX file.",
                    "Error", MB_OK);
-        return 0;
+        return {};
     }
 
     impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
@@ -471,9 +484,9 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
 
     if (FAILED(hr))
     {
-        auto fail = "Fragment sheder can not be compiled. " +  fragmentShaderFile;
+        auto fail = "Fragment sheder can not be compiled. " + fragmentShaderFile;
         MessageBox(NULL, fail.c_str(), "Error", MB_OK);
-        return 0;
+        return {};
     }
 
     // Create the pixel shader
@@ -484,7 +497,7 @@ uint32 DirectXApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::Gr
     if (FAILED(hr))
     {
         MessageBox(NULL, "Can pixel shader error.", __FUNCTION__, MB_OK);
-        return 0;
+        return {};
     }
 
     impl_->shaders_.push_back(shader);
@@ -501,10 +514,7 @@ void DirectXApi::UseShader(uint32 id)
     impl_->dxCondext_.devcon->VSSetShader(shader.vertex_, NULL, 0);
     impl_->dxCondext_.devcon->PSSetShader(shader.pixel_, NULL, 0);
 }
-uint32 DirectXApi::GetShaderVariableLocation(uint32, const std::string &)
-{
-    return uint32();
-}
+
 GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
 {
     D3D11_BUFFER_DESC bd;
@@ -550,47 +560,13 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
 
     return 0;  // to do return last binded buffer
 }
-void DirectXApi::BindAttribute(uint32, uint32, const std::string &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, int)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, float)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, uint32)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const vec2 &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const vec3 &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const vec4 &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const mat3 &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const mat4 &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const std::vector<float> &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const std::vector<vec3> &)
-{
-}
-void DirectXApi::LoadValueToShader(uint32, const std::vector<mat4> &)
-{
-}
-uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
-                                 GraphicsApi::BufferAtachment, vec2ui size, void *data)
+
+GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter,
+                                          GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui size,
+                                          void *data)
 {
     if (type != GraphicsApi::TextureType::U8_RGBA)
-        return 0;
+        return {};
 
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
@@ -618,7 +594,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     if (FAILED(result))
     {
         ERROR_LOG("Create CreateTexture2D failed.");
-        return 0;
+        return {};
     }
 
     // Create texture view
@@ -633,7 +609,7 @@ uint32 DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Tex
     if (FAILED(result))
     {
         ERROR_LOG("Create shaderResourceView failed.");
-        return 0;
+        return {};
     }
 
     // Create the sample state
@@ -654,9 +630,9 @@ std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType,
 {
     return std::optional<uint32>();
 }
-uint32 DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
+GraphicsApi::ID DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 {
-    return uint32();
+    return {};
 }
 void DirectXApi::UpdateTexture(uint32, const vec2ui &, const vec2ui &, void *data)
 {
@@ -687,9 +663,11 @@ void DirectXApi::DisableBlend()
 }
 void DirectXApi::EnableDepthMask()
 {
+    impl_->depthStencilDesc_.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 }
 void DirectXApi::DisableDepthMask()
 {
+    impl_->depthStencilDesc_.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 }
 void DirectXApi::ActiveTexture(uint32 id)
 {
@@ -710,9 +688,9 @@ void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
     impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
     impl_->dxCondext_.devcon->PSSetSamplers(nr, 1, &texture.samplerState_);
 }
-uint32 DirectXApi::CreateBuffer()
+GraphicsApi::ID DirectXApi::CreateBuffer()
 {
-    return uint32();
+    return {};
 }
 void DirectXApi::BindBuffer(GraphicsApi::BindType, uint32)
 {
@@ -727,15 +705,15 @@ std::string DirectXApi::GetBufferStatus()
 {
     return std::string();
 }
-uint32 DirectXApi::CreatePatchMesh(const std::vector<float> &)
+GraphicsApi::ID DirectXApi::CreatePatchMesh(const std::vector<float> &)
 {
-    return uint32();
+    return {};
 }
-uint32 DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
+GraphicsApi::ID DirectXApi::CreatePurePatchMeshInstanced(uint32, uint32)
 {
-    return uint32();
+    return {};
 }
-uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData, GraphicsApi::RenderType rendertype)
+GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData, GraphicsApi::RenderType rendertype)
 {
     Vao vao;
     vao.vertexes_.reserve(meshData.positions_.size() / 3);
@@ -778,13 +756,13 @@ uint32 DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData, Graphics
 
     return impl_->CreateAndAddDxObject(vao);
 }
-uint32 DirectXApi::CreateParticle()
+GraphicsApi::ID DirectXApi::CreateParticle()
 {
-    return uint32();
+    return {};
 }
-uint32 DirectXApi::CreateAnimatedParticle()
+GraphicsApi::ID DirectXApi::CreateAnimatedParticle()
 {
-    return uint32();
+    return {};
 }
 void DirectXApi::Compute(uint32, uint32, uint32)
 {
@@ -848,9 +826,9 @@ void DirectXApi::BindTexture(uint32 id) const
 void DirectXApi::BindImageTexture(uint32, GraphicsApi::TextureAccess)
 {
 }
-uint32 DirectXApi::CreateShadowMap(uint32, uint32)
+GraphicsApi::ID DirectXApi::CreateShadowMap(uint32, uint32)
 {
-    return uint32();
+    return {};
 }
 void DirectXApi::PolygonModeRender()
 {
@@ -870,9 +848,9 @@ void DirectXApi::UpdateOffset(uint32, const std::vector<vec4> &)
 void DirectXApi::UpdateBlend(uint32, const std::vector<float> &)
 {
 }
-uint32 DirectXApi::CloneImage(uint32)
+GraphicsApi::ID DirectXApi::CloneImage(uint32)
 {
-    return uint32();
+    return {};
 }
 void DirectXApi::CreateFont(const std::string &)
 {

@@ -1,8 +1,10 @@
 #pragma once
 #include <memory>
 #include <vector>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererFunctionType.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GuiRendererElementBase.h"
 #include "IGuiRenderer.h"
@@ -11,13 +13,11 @@
 namespace GameEngine
 {
 struct Time;
-class IShaderProgram;
-class IShaderFactory;
 
 class GUIRenderer
 {
 public:
-    GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory);
+    GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi);
     ~GUIRenderer();
     void Init();
     void UnSubscribeAll();
@@ -32,9 +32,8 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    IShaderFactory& shaderFactory_;
 
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     std::vector<GuiRendererElementBase*> subscribers_;
 
     bool isInit_;

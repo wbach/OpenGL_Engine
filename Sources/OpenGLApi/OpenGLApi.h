@@ -31,32 +31,19 @@ public:
     virtual void EnableDepthTest() override;
     virtual void DisableDepthTest() override;
 
-    virtual uint32 CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions) override;
+    virtual GraphicsApi::ID CreateShader(GraphicsApi::ShaderProgramType) override;
     virtual void UseShader(uint32) override;
-    virtual uint32 GetShaderVariableLocation(uint32, const std::string&) override;
 
     virtual GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size) override;
     virtual void UpdateShaderBuffer(uint32 id, void const* buffer) override;
     virtual uint32 BindShaderBuffer(uint32) override;
 
-    virtual void BindAttribute(uint32, uint32, const std::string&) override;
-    virtual void LoadValueToShader(uint32, int) override;
-    virtual void LoadValueToShader(uint32, float) override;
-    virtual void LoadValueToShader(uint32, uint32) override;
-    virtual void LoadValueToShader(uint32, const vec2&) override;
-    virtual void LoadValueToShader(uint32, const vec3&) override;
-    virtual void LoadValueToShader(uint32, const vec4&) override;
-    virtual void LoadValueToShader(uint32, const mat3&) override;
-    virtual void LoadValueToShader(uint32, const mat4&) override;
-    virtual void LoadValueToShader(uint32, const std::vector<float>&) override;
-    virtual void LoadValueToShader(uint32, const std::vector<vec3>&) override;
-    virtual void LoadValueToShader(uint32, const std::vector<mat4>&) override;
-
-    virtual uint32 CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+    virtual GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
+                                          GraphicsApi::TextureMipmap,
                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override;
     virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
                                                        int32 N) override;
-    virtual uint32 CreateCubMapTexture(vec2ui, std::vector<void*>) override;
+    virtual GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override;
 
     virtual void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override;
     virtual void UpdateTexture(uint32, const vec2ui&, void* data) override;
@@ -73,18 +60,18 @@ public:
     virtual void ActiveTexture(uint32) override;
     virtual void ActiveTexture(uint32, uint32) override;
 
-    virtual uint32 CreateBuffer() override;
+    virtual GraphicsApi::ID CreateBuffer() override;
     virtual void BindBuffer(GraphicsApi::BindType, uint32) override;
 
     virtual void DeleteObject(uint32) override;
     virtual void DeleteShaderBuffer(uint32) override;
 
     virtual std::string GetBufferStatus() override;
-    virtual uint32 CreatePatchMesh(const std::vector<float>&) override;
-    virtual uint32 CreatePurePatchMeshInstanced(uint32, uint32) override;
-    virtual uint32 CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType type) override;
-    virtual uint32 CreateParticle() override;
-    virtual uint32 CreateAnimatedParticle() override;
+    virtual GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override;
+    virtual GraphicsApi::ID CreatePurePatchMeshInstanced(uint32, uint32) override;
+    virtual GraphicsApi::ID CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType type) override;
+    virtual GraphicsApi::ID CreateParticle() override;
+    virtual GraphicsApi::ID CreateAnimatedParticle() override;
     virtual void Compute(uint32, uint32, uint32) override;
     virtual void RenderPurePatchedMeshInstances(uint32) override;
     virtual void RenderMesh(uint32) override;
@@ -98,7 +85,7 @@ public:
     virtual void SetViewPort(uint32, uint32, uint32, uint32) override;
     virtual void BindTexture(uint32) const override;
     virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override;
-    virtual uint32 CreateShadowMap(uint32, uint32) override;
+    virtual GraphicsApi::ID CreateShadowMap(uint32, uint32) override;
 
     virtual void PolygonModeRender() override;
     virtual void LineModeRender() override;
@@ -108,7 +95,7 @@ public:
     virtual void UpdateOffset(uint32, const std::vector<vec4>&) override;
     virtual void UpdateBlend(uint32, const std::vector<float>&) override;
 
-    virtual uint32 CloneImage(uint32) override;
+    virtual GraphicsApi::ID CloneImage(uint32) override;
 
     // temp
     virtual void CreateFont(const std::string&) override;

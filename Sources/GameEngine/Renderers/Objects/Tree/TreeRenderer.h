@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -9,8 +10,6 @@ class Model;
 struct Material;
 struct RendererContext;
 class ModelWrapper;
-class IShaderFactory;
-class IShaderProgram;
 struct Time;
 
 namespace Components
@@ -49,7 +48,7 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
 
     vec4 clipPlane;
 

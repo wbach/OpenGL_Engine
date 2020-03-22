@@ -3,19 +3,15 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GameEngine/Shaders/Loading/LoadingShaderUnfiorms.h"
 
 namespace GameEngine
 {
-LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture *bgTexture, Texture *circleTexture,
-                                             IShaderFactory &shaderFactory)
+LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture *bgTexture, Texture *circleTexture)
     : graphicsApi_(api)
+    , shader_(api, GraphicsApi::ShaderProgramType::Loading)
     , circleTexture(circleTexture)
     , backgroundTexture(bgTexture)
 {
-    shader_ = shaderFactory.create(GraphicsApi::Shaders::Loading);
 }
 
 LoadingScreenRenderer::~LoadingScreenRenderer()
@@ -24,20 +20,20 @@ LoadingScreenRenderer::~LoadingScreenRenderer()
 
 void LoadingScreenRenderer::Init()
 {
-    shader_->Init();
+    shader_.Init();
     CreateBuffers();
 }
 
 void LoadingScreenRenderer::Render(Scene *)
 {
     prepareRender();
-    shader_->Start();
+    shader_.Start();
     graphicsApi_.EnableBlend();
     graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
     renderQuad(backgroundBufferId_, backgroundTexture->GetGraphicsObjectId());
     renderQuad(circleBufferId_, circleTexture->GetGraphicsObjectId());
     graphicsApi_.DisableBlend();
-    shader_->Stop();
+    shader_.Stop();
     timer_ = Utils::Timer();
 }
 

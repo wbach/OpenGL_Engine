@@ -8,7 +8,6 @@ namespace GameEngine
 {
 class Scene;
 class DisplayManager;
-class IShaderFactory;
 typedef std::unique_ptr<Scene> ScenePtr;
 
 enum SceneWrapperState
@@ -22,7 +21,7 @@ enum SceneWrapperState
 class SceneWrapper
 {
 public:
-    SceneWrapper(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>&, IShaderFactory& shaderFactory);
+    SceneWrapper(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager&);
 
     Scene* Get();
     SceneWrapperState GetState();
@@ -38,12 +37,11 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    IShaderFactory& shaderFactory_;
     std::mutex initMutex_;
     std::mutex stateMutex_;
 
     ScenePtr activeScene;
-    std::shared_ptr<DisplayManager>& displayManager_;
+    DisplayManager& displayManager_;
     SceneWrapperState state_;
 };
 }  // GameEngine

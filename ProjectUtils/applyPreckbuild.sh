@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd /home/baszek/Projects/prebuild/OpenGL_Engine/
+
 echo "Used threads : "`nproc`
 revision=`cat ../toCommit.revision`
 git stash
@@ -9,6 +10,10 @@ git pull
 git reset --hard $revision
 git rev-parse HEAD
 git apply ../toCommit.diff
+
+cd /home/baszek/Projects/prebuild/OpenGL_Engine/ProjectUtils
+getAllSourcesAndIncludes.sh
+cd /home/baszek/Projects/prebuild/OpenGL_Engine/
 
 mkdir build
 cd build/

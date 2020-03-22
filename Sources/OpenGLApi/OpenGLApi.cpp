@@ -1,10 +1,14 @@
 #include "OpenGLApi.h"
+
 #include <GL/glew.h>
 #include <Utils/Image/ImageUtils.h>
+
 #include <algorithm>
+#include <boost/filesystem.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <optional>
+
 #include "Font.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GraphicsApi/MeshRawData.h"
@@ -13,7 +17,6 @@
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
-#include <boost/filesystem.hpp>
 
 enum class ObjectType
 {
@@ -283,10 +286,14 @@ void OpenGLApi::DisableDepthTest()
 {
     glDisable(GL_DEPTH_TEST);
 }
-uint32 OpenGLApi::CreateShader(GraphicsApi::Shaders shaderType, GraphicsApi::GraphicsApiFunctions functions)
+GraphicsApi::ID OpenGLApi::CreateShader(GraphicsApi::ShaderProgramType shaderType)
 {
-    auto id = impl_->shaderManager_.Create(shaderType, functions);
-    createdObjectIds.insert({id, ObjectType::SHADER_PROGRAM});
+    auto id = impl_->shaderManager_.Create(shaderType);
+
+    if (not id)
+        return {};
+
+    createdObjectIds.insert({*id, ObjectType::SHADER_PROGRAM});
     return id;
 }
 void OpenGLApi::DeleteShader(uint32 id)
@@ -407,8 +414,8 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                     DEBUG_LOG("Texture info not found. Id : " + std::to_string(object.first));
                     break;
                 }
-                const auto& textureInfo = GetTextureInfo(object.first);
-                auto resultData = GetTextureData(object.first);
+                const auto& textureInfo    = GetTextureInfo(object.first);
+                auto resultData            = GetTextureData(object.first);
                 const std::string fullPath = path + "/Textures2d/";
                 boost::filesystem::create_directories(fullPath);
                 Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
@@ -449,11 +456,6 @@ void OpenGLApi::UseShader(uint32 id)
     impl_->shaderManager_.UseShader(id);
 }
 
-uint32 OpenGLApi::GetShaderVariableLocation(uint32 id, const std::string& varname)
-{
-    return impl_->shaderManager_.GetShaderVariableLocation(id, varname);
-}
-
 GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
 {
     uint32 buffer;
@@ -486,66 +488,6 @@ uint32 OpenGLApi::BindShaderBuffer(uint32 id)
     return result;
 }
 
-void OpenGLApi::BindAttribute(uint32 programId, uint32 attribute, const std::string& variableName)
-{
-    impl_->shaderManager_.BindAttribute(programId, attribute, variableName);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, int value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, float value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, uint32 value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const vec2& value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const vec3& value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const vec4& value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const mat3& value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const mat4& value)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, value);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<float>& v)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, v);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<vec3>& v)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, v);
-}
-
-void OpenGLApi::LoadValueToShader(uint32 loacation, const std::vector<mat4>& v)
-{
-    impl_->shaderManager_.LoadValueToShader(loacation, v);
-}
-
 void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
                      GraphicsApi::TextureMipmap mimpamp, GraphicsApi::BufferAtachment atachment, vec2ui size,
                      void* data)
@@ -571,7 +513,7 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
     glBindTexture(params.target, 0);
 }
 
-uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
+GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
                                 GraphicsApi::TextureMipmap mipmap, GraphicsApi::BufferAtachment atachment, vec2ui size,
                                 void* data)
 {
@@ -584,7 +526,7 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
     {
         auto errInfo = gluErrorString(hubo_error);
         DEBUG_LOG("" + (char*)errInfo);
-        return 0;
+        return {};
     }
 
     CreateGlTexture(texture, type, filter, mipmap, atachment, size, data);
@@ -605,7 +547,7 @@ uint32 OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::Text
     return rid;
 }
 
-std::optional<uint32> OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter filter,
+GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter filter,
                                                       int32 N)
 {
     GLuint texture;
@@ -617,7 +559,7 @@ std::optional<uint32> OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, 
     {
         auto errInfo = gluErrorString(hubo_error);
         DEBUG_LOG("" + (char*)errInfo);
-        return std::optional<uint32>();
+        return {};
     }
 
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -639,10 +581,10 @@ std::optional<uint32> OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, 
     return rid;
 }
 
-uint32 OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
+GraphicsApi::ID OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
 {
     if (data.size() != 6)
-        return 0;
+        return {};
 
     uint32 id;
     glGenTextures(1, &id);
@@ -650,7 +592,7 @@ uint32 OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
 
     if (hubo_error)
     {
-        return 0;
+        return {};
     }
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
@@ -783,7 +725,7 @@ void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
         glBindTexture(GL_TEXTURE_2D, openGLId);
 }
 
-uint32 OpenGLApi::CreateBuffer()
+GraphicsApi::ID OpenGLApi::CreateBuffer()
 {
     GLuint glId;
     glGenFramebuffers(1, &glId);
@@ -871,11 +813,11 @@ std::string OpenGLApi::GetBufferStatus()
     return std::string();
 }
 
-uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
+GraphicsApi::ID OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
 {
     if (not impl_->maxPatchVertices_)
     {
-        return 0;
+        return {};
     }
 
     auto rid = impl_->idPool_.ToUint(0);
@@ -891,11 +833,11 @@ uint32 OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
     return rid;
 }
 
-uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
+GraphicsApi::ID OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
 {
     if (not impl_->maxPatchVertices_)
     {
-        return 0;
+        return {};
     }
 
     uint32 vao;
@@ -912,7 +854,7 @@ uint32 OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 count)
     return rid;
 }
 
-uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, GraphicsApi::RenderType type)
+GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, GraphicsApi::RenderType type)
 {
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
@@ -935,7 +877,7 @@ uint32 OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, Graphi
     return rid;
 }
 
-uint32 OpenGLApi::CreateParticle()
+GraphicsApi::ID OpenGLApi::CreateParticle()
 {
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
@@ -955,7 +897,7 @@ uint32 OpenGLApi::CreateParticle()
     mesh = Convert(vaoCreator.Get());
     return rid;
 }
-uint32 OpenGLApi::CreateAnimatedParticle()
+GraphicsApi::ID OpenGLApi::CreateAnimatedParticle()
 {
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
@@ -1033,13 +975,13 @@ void OpenGLApi::UpdateBlend(uint32 objectId, const std::vector<float>& blendFact
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::BLEND_FACTOR]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * blendFactor.size(), &blendFactor[0], GL_STREAM_DRAW);
 }
-uint32 OpenGLApi::CloneImage(uint32 objectId)
+GraphicsApi::ID OpenGLApi::CloneImage(uint32 objectId)
 {
     // auto& obj = idToGlId_.at(objectId];
 
     DEBUG_LOG("Not implementet");
     // glCopyTexImage2D();
-    return uint32();
+    return {};
 }
 void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
 {
@@ -1139,7 +1081,7 @@ void OpenGLApi::BindImageTexture(uint32 id, GraphicsApi::TextureAccess acces)
     glBindImageTexture(0, impl_->idPool_.ToGL(id), 0, false, 0, textureAccessMap_.at(acces), GL_RGBA32F);
 }
 
-uint32 OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
+GraphicsApi::ID OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
 {
     auto glId = CreateDepthBufferAttachment(sizex, sizey);
     auto rid  = impl_->idPool_.ToUint(glId);

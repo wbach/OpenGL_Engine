@@ -1,4 +1,4 @@
-#version 330
+#version 430
 #define EPSILON 0.001
 
 layout (location = 0) out vec3 WorldPosOut;
@@ -9,17 +9,19 @@ layout (location = 3) out vec3 MaterialSpecular;
 uniform sampler2D Texture0;
 uniform sampler2DShadow ShadowMap;
 
-in vec2 TexCoord;
-in vec3 WorldPos; 
-
-in vec4 ShadowCoords;
-in float UseShadows;
-in float ShadowMapSize;
+in GS_OUT
+{
+    vec4 shadowCoords;
+    float useShadows;
+    float shadowMapSize;
+    vec2 texCoord;
+    vec3 worldPos;
+} fs_in;
 
 float CalculateShadowFactor()
 {
-    float xOffset = 1.0/ShadowMapSize;
-    float yOffset = 1.0/ShadowMapSize;
+    float xOffset = 1.0 / fs_in.shadowMapSize;
+    float yOffset = 1.0 / fs_in.shadowMapSize;
 
     float Factor = 0.0;
 
@@ -29,28 +31,31 @@ float CalculateShadowFactor()
         for (int x = -1 ; x <= 1 ; x++)
          {
             vec2 Offsets = vec2(float(x) * xOffset, float(y) * yOffset);
-            vec3 UVC = vec3(ShadowCoords.xy + Offsets, ShadowCoords.z + EPSILON);
-            
+            vec3 UVC = vec3(fs_in.shadowCoords.xy + Offsets, fs_in.shadowCoords.z + EPSILON);
+
             if (texture(ShadowMap, UVC) >  0.f)
-                Factor += (ShadowCoords.w * 0.4f);
+                Factor += (fs_in.shadowCoords.w * 0.4f);
            a++;
         }
     }
-    float value = (0.5 + (Factor / a)) ;
+
+    float value = (0.5 + (Factor / a));
     if( value > 1 )
-    value =1 ;
-    return value ;
+    {
+        value = 1;
+    }
+    return value;
 }
 
 void main()
-{   
-    vec4 texture_color  = texture(Texture0, TexCoord);
+{
+    vec4 texture_color  = texture(Texture0, fs_in.texCoord);
     if(texture_color.a < .5f) discard;
-    
-    float shadow_factor = UseShadows > 0.5f ? CalculateShadowFactor() : 1.0;
-    
-    WorldPosOut      = WorldPos;
-    DiffuseOut       = texture_color * shadow_factor; //vec4(1.f, 0.f, 0.f, 1.f);
+
+    float shadow_factor = fs_in.useShadows > 0.5f ? CalculateShadowFactor() : 1.0;
+
+    WorldPosOut      = fs_in.worldPos;
+    DiffuseOut       = texture_color * shadow_factor;
     NormalOut        = vec4(.0f, 1.f, .0f, 1.f);
     MaterialSpecular = vec3(.0f);
 }

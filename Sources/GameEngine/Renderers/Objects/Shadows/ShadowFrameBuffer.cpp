@@ -1,4 +1,5 @@
 #include "ShadowFrameBuffer.h"
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Logger/Log.h"
@@ -34,9 +35,24 @@ void ShadowFrameBuffer::UnbindFrameBuffer() const
 
 void ShadowFrameBuffer::InitialiseFrameBuffer()
 {
-    fbo = graphicsApi_.CreateBuffer();
+    auto fboId = graphicsApi_.CreateBuffer();
+    if (not fboId)
+    {
+        ERROR_LOG("CreateBuffer error.");
+        return;
+    }
+    fbo = *fboId;
+
     graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, fbo);
-    shadowMap = graphicsApi_.CreateShadowMap(size.x, size.y);
+
+    auto shadowMapId = graphicsApi_.CreateShadowMap(size.x, size.y);
+    if (not shadowMapId)
+    {
+        ERROR_LOG("CreateShadowMap error.");
+        return;
+    }
+    shadowMap = *shadowMapId;
+
     UnbindFrameBuffer();
 }
 

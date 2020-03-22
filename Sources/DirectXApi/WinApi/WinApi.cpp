@@ -135,12 +135,12 @@ void WinApi::BeginFrame()
 void WinApi::ShowCursor(bool show)
 {
 }
-std::shared_ptr<Input::InputManager> WinApi::CreateInput()
+std::unique_ptr<Input::InputManager> WinApi::CreateInput()
 {
-    auto input      = std::make_shared<XInputManager>(impl_->directXContext_.mainWindow,
+    auto input      = std::make_unique<XInputManager>(impl_->directXContext_.mainWindow,
                                                  vec2ui(impl_->rect_.right, impl_->rect_.bottom));
     addKeyEventFunc = std::bind(&XInputManager::AddKeyEvent, input.get(), std::placeholders::_1, std::placeholders::_2);
-    return input;
+    return std::move(input);
 }
 double WinApi::GetTime()
 {

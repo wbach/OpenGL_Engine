@@ -3,6 +3,7 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "ShadowBox.h"
 
 namespace GameEngine
@@ -13,7 +14,6 @@ struct Material;
 class Projection;
 class ShadowFrameBuffer;
 class ModelWrapper;
-class IShaderProgram;
 struct Time;
 
 namespace Components
@@ -40,6 +40,7 @@ public:
     virtual void ReloadShaders() override;
 
 private:
+    bool IsInit() const;
     void Render(const Scene&, const Time&);
     void PrepareRender(const Scene&);
     void RenderSubscribes() const;
@@ -48,12 +49,11 @@ private:
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     ShadowBox shadowBox_;
     mat4 projectionViewMatrix_;
     mat4 viewOffset_;
     Subscribers subscribes_;
     GraphicsApi::ID perFrameBuffer_;
-    bool isInit_;
 };
 }  // namespace GameEngine

@@ -16,26 +16,18 @@ std::unique_ptr<PostprocessingRenderer> PostprocessingRenderersFactory::Create(P
     switch (type)
     {
         case PostprocessingRendererType::SSAO:
-            return CreateAndBasicInitialize<SSAORenderer>();
+            return std::make_unique<SSAORenderer>(context_, postprocessFrameBuffer_);
         case PostprocessingRendererType::BLUR:
-            return CreateAndBasicInitialize<Blur>();
+            return std::make_unique<Blur>(context_, postprocessFrameBuffer_);
         case PostprocessingRendererType::COLOR_FLIPER:
-            return CreateAndBasicInitialize<ColorFliper>();
+            return std::make_unique<ColorFliper>(context_, postprocessFrameBuffer_);
         case PostprocessingRendererType::DEFFERED_LIGHT:
-            return CreateAndBasicInitialize<DefferedLighting>();
+            return std::make_unique<DefferedLighting>(context_, postprocessFrameBuffer_);
         case PostprocessingRendererType::CONTRAST_CHANGER:
             return nullptr;
         case PostprocessingRendererType::FXAA:
             return nullptr;
     }
     return nullptr;
-}
-template <class T>
-std::unique_ptr<T> PostprocessingRenderersFactory::CreateAndBasicInitialize()
-{
-    auto comp = std::make_unique<T>();
-    comp->SetRendererContext(&context_);
-    comp->SetPostProcessFrameBuffer(postprocessFrameBuffer_);
-    return comp;
 }
 }  // namespace GameEngine

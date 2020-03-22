@@ -1,18 +1,19 @@
 #pragma once
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
-#include "Shaders/ColorFliperShader.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
 class ColorFliper : public PostprocessingRenderer
 {
 public:
+    ColorFliper(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;
     virtual void ReloadShaders() override;
 
 private:
-    std::unique_ptr<ColorFliperShader> shader_;
+    ShaderProgram shader_;
 };
-}  // GameEngine
+}  // namespace GameEngine

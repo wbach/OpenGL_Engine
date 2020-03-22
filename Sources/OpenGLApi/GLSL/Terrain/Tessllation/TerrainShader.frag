@@ -15,16 +15,17 @@ layout (std140, binding = 1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
-uniform sampler2D normalmap;
-uniform sampler2D blendMap;
-uniform sampler2D backgorundTexture;
-uniform sampler2D backgorundTextureNormal;
-uniform sampler2D redTexture;
-uniform sampler2D redTextureNormal;
-uniform sampler2D greenTexture;
-uniform sampler2D greenTextureNormal;
-uniform sampler2D blueTexture;
-uniform sampler2D blueTextureNormal;
+layout(binding = 0) uniform sampler2DShadow shadowMap;
+layout(binding = 2) uniform sampler2D blendMap;
+layout(binding = 3) uniform sampler2D normalmap;
+layout(binding = 4) uniform sampler2D backgorundTexture;
+layout(binding = 5) uniform sampler2D backgorundTextureNormal;
+layout(binding = 7) uniform sampler2D redTexture;
+layout(binding = 8) uniform sampler2D redTextureNormal;
+layout(binding = 10) uniform sampler2D greenTexture;
+layout(binding = 11) uniform sampler2D greenTextureNormal;
+layout(binding = 13) uniform sampler2D blueTexture;
+layout(binding = 14) uniform sampler2D blueTextureNormal;
 
 in vec2 mapCoord_FS;
 in vec4 worldPos;

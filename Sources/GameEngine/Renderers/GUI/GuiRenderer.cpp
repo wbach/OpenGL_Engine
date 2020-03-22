@@ -2,8 +2,6 @@
 #include <algorithm>
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
 
 #include "Text/GuiTextElement.h"
 
@@ -19,10 +17,10 @@ struct ColorBuffer
 };
 }  // namespace
 
-GUIRenderer::GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IShaderFactory& shaderFactory)
+GUIRenderer::GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
-    , shaderFactory_(shaderFactory)
     , isInit_{false}
+    , shader_(graphicsApi, GraphicsApi::ShaderProgramType::Texture)
 {
 }
 
@@ -50,20 +48,20 @@ void GUIRenderer::Init()
     }
     colorBuffer_ = *id;
 
-    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Texture);
-    isInit_ = shader_->Init();
+    shader_.Init();
 
+    isInit_ = true;
     DEBUG_LOG("GUIRenderer is initialize status : " + std::to_string(isInit_));
 }
 
 void GUIRenderer::Render(const Scene&, const Time&)
 {
-    if (not isInit_ or subscribers_.empty())
+    if (not isInit_ or not shader_.IsReady() or subscribers_.empty())
     {
         return;
     }
 
-    shader_->Start();
+    shader_.Start();
     graphicsApi_.EnableBlend();
     graphicsApi_.DisableDepthTest();
     graphicsApi_.DisableDepthMask();
@@ -106,7 +104,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
         SortSubscribers();
     }
 
-    shader_->Stop();
+    shader_.Stop();
     graphicsApi_.DisableBlend();
     graphicsApi_.EnableDepthMask();
     graphicsApi_.EnableDepthTest();
@@ -168,8 +166,6 @@ void GUIRenderer::UnSubscribe(const GuiElement& element)
 
 void GUIRenderer::ReloadShaders()
 {
-    shader_->Stop();
-    shader_->Reload();
-    shader_->Init();
+    shader_.Reload();
 }
 }  // namespace GameEngine

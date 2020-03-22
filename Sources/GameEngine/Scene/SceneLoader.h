@@ -12,13 +12,11 @@ class GpuObject;
 class DisplayManager;
 class ResourceManager;
 class LoadingScreenRenderer;
-class IShaderFactory;
 
 class SceneLoader
 {
 public:
-    SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
-                IShaderFactory& shaderFactory);
+    SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager);
     ~SceneLoader();
     bool Load(Scene* scene);
 
@@ -37,7 +35,6 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    IShaderFactory& shaderFactory_;
 
     int objectCount;
     int objectLoaded;
@@ -45,7 +42,7 @@ private:
 
     std::atomic_bool isLoading;
 
-    std::shared_ptr<DisplayManager>& displayManager;
+    DisplayManager& displayManager;
     ResourceManager resorceManager;
 };
 }  // namespace GameEngine

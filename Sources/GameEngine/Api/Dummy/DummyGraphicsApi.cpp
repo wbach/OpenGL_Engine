@@ -1,6 +1,6 @@
 #include "DummyGraphicsApi.h"
 
-uint32 GameEngine::DummyGraphicsApi::CreateParticle()
+GraphicsApi::ID GameEngine::DummyGraphicsApi::CreateParticle()
 {
 	return ++id;
 }

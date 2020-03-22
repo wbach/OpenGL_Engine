@@ -7,9 +7,8 @@
 
 namespace GameEngine
 {
-SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager, IShaderFactory& shaderFactory)
+SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager)
     : graphicsApi_(graphicsApi)
-    , shaderFactory_(shaderFactory)
     , objectCount(0)
     , objectLoaded(0)
     , displayManager(displayManager)
@@ -23,9 +22,6 @@ SceneLoader::~SceneLoader()
 
 bool SceneLoader::Load(Scene* scene)
 {
-    if (displayManager == nullptr)
-        return false;
-
     Init();
 
     isLoading = true;
@@ -49,7 +45,7 @@ void SceneLoader::Init()
     auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately(
         "GUI/black-knight-dark-souls.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
     loadingScreenRenderer =
-        std::make_unique<LoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture, shaderFactory_);
+        std::make_unique<LoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture);
     loadingScreenRenderer->Init();
 }
 
@@ -81,10 +77,7 @@ void SceneLoader::UpdateScreen()
     if (loadingScreenRenderer != nullptr)
         loadingScreenRenderer->Render(nullptr);
 
-    if (displayManager == nullptr)
-        return;
-
-    displayManager->UpdateWindow();
+    displayManager.UpdateWindow();
 }
 
 void SceneLoader::LoadingLoop(Scene* scene)
@@ -98,8 +91,7 @@ void SceneLoader::LoadingLoop(Scene* scene)
 
 bool SceneLoader::ProccesLoadingLoop(GpuObject *obj)
 {
-    if (displayManager != nullptr)
-        displayManager->ProcessEvents();
+   displayManager.ProcessEvents();
 
     auto load = GetIsLoading();
     if (LoadObject(obj))

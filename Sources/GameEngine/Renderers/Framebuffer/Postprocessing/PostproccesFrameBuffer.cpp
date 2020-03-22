@@ -1,5 +1,7 @@
 #include "PostproccesFrameBuffer.h"
+
 #include "GraphicsApi/IGraphicsApi.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -15,7 +17,16 @@ void PostprocessFrameBuffer::Init(const wb::vec2ui& size)
     auto texture = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_BUFFER_2D,
                                               GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE,
                                               GraphicsApi::BufferAtachment::COLOR_1, size, nullptr);
-    AddTexture(texture);
+
+    if (texture)
+    {
+        AddTexture(*texture);
+    }
+    else
+    {
+        ERROR_LOG("CreateFrameBuffer error!");
+        return;
+    }
 
     graphicsApi_.SetBuffers({GraphicsApi::BufferAtachment::COLOR_1});
 

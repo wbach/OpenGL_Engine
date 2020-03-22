@@ -1,4 +1,7 @@
 #include "GrassRenderer.h"
+
+#include <algorithm>
+
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
@@ -6,19 +9,17 @@
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GraphicsApi/ShadersTypes.h"
+#include "GraphicsApi/ShaderProgramType.h"
 #include "Logger/Log.h"
-#include "Shaders/GrassShaderUniforms.h"
-#include <algorithm>
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
+
 GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Grass);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, GrassRenderer::Render);
 }
 
@@ -28,16 +29,16 @@ GrassRenderer::~GrassRenderer()
 
 void GrassRenderer::Init()
 {
-    InitShader();
-
-    viewDistance = EngineConf.renderer.flora.viewDistance;
+    shader_.Init();
+    InitShaderBuffer();
     DEBUG_LOG("Grass renderer initialized.");
 }
 
-void GrassRenderer::Render(const Scene& scene, const Time&)
+void GrassRenderer::Render(const Scene& scene, const Time& time)
 {
-    if (subscribes_.empty())
+    if (not shader_.IsReady() or subscribes_.empty())
         return;
+
     PrepareRender(scene);
     RenderSubscribes();
     EndRender();
@@ -56,7 +57,7 @@ void GrassRenderer::Subscribe(GameObject* gameObject)
 void GrassRenderer::UnSubscribe(GameObject* gameObject)
 {
     auto iter = subscribes_.begin();
-    while(iter != subscribes_.end())
+    while (iter != subscribes_.end())
     {
         if (iter->first == gameObject->GetId())
         {
@@ -76,19 +77,19 @@ void GrassRenderer::UnSubscribeAll()
 
 void GrassRenderer::ReloadShaders()
 {
-    shader_->Reload();
-    InitShader();
+    shader_.Reload();
 }
 
-void GrassRenderer::InitShader()
+ void GrassRenderer::InitShaderBuffer()
 {
-    shader_->Init();
-    shader_->Start();
-    shader_->Load(GrassShaderUniforms::ProjectionMatrix, context_.projection_.GetProjectionMatrix());
-    shader_->Load(GrassShaderUniforms::ShadowVariables, vec3(0.f, 0.f, 512.f));
-    shader_->Load(GrassShaderUniforms::ViewDistance, viewDistance);
-    shader_->Stop();
-}
+     grassShaderBufferId_ =
+         context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer));
+
+     grassShaderBuffer_.variables.value.x = EngineConf.renderer.flora.viewDistance;
+     grassShaderBuffer_.variables.value.y = 0;
+
+     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
+ }
 
 void GrassRenderer::PrepareRender(const Scene& scene)
 {
@@ -133,8 +134,9 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
 
 void GrassRenderer::PrepareShader(const Scene& scene)
 {
-    shader_->Start();
-    shader_->Load(GrassShaderUniforms::GlobalTime, scene.GetGlobalTime());
-    shader_->Load(GrassShaderUniforms::ViewMatrix, scene.GetCamera().GetViewMatrix());
+    shader_.Start();
+    grassShaderBuffer_.variables.value.y = scene.GetGlobalTime();
+    context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
+    context_.graphicsApi_.BindShaderBuffer(*grassShaderBufferId_);
 }
 }  // namespace GameEngine

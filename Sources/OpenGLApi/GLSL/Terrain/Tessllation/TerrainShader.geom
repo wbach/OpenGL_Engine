@@ -23,11 +23,11 @@ layout (std140, binding = 3) uniform PerTerrain
 
 in vec2 mapCoord_GS[];
 
-uniform sampler2D blendMap;
-uniform sampler2D backgorundTextureDisplacement;
-uniform sampler2D redTextureDisplacement;
-uniform sampler2D greenTextureDisplacement;
-uniform sampler2D blueTextureDisplacement;
+layout(binding = 2) uniform sampler2D blendMap;
+layout(binding = 6) uniform sampler2D backgorundTextureDisplacement;
+layout(binding = 9) uniform sampler2D redTextureDisplacement;
+layout(binding = 12) uniform sampler2D greenTextureDisplacement;
+layout(binding = 15) uniform sampler2D blueTextureDisplacement;
 
 out vec4 worldPos;
 out vec2 mapCoord_FS;

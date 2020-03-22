@@ -4,14 +4,12 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
 
 GameEngine::DebugRenderer::DebugRenderer(const RendererContext& context)
     : context_(context)
+    , simpleShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleEntity)
+    , gridShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
 {
-    simpleShader_ = context.shaderFactory_.create(GraphicsApi::Shaders::SimpleEntity);
-    gridShader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Grid);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, DebugRenderer::Render);
 }
 
@@ -21,10 +19,14 @@ GameEngine::DebugRenderer::~DebugRenderer()
 
 void GameEngine::DebugRenderer::Init()
 {
+    simpleShader_.Init();
+    gridShader_.Init();
 }
 
 void GameEngine::DebugRenderer::ReloadShaders()
 {
+    simpleShader_.Reload();
+    gridShader_.Reload();
 }
 
 void GameEngine::DebugRenderer::Render(const Scene& scene, const Time& threadTime)
@@ -50,20 +52,20 @@ void GameEngine::DebugRenderer::InitShaders()
 
 void GameEngine::DebugRenderer::DrawGrid()
 {
-    if (not gridShader_)
+    if (not gridShader_.IsReady())
         return;
 
-    gridShader_->Start();
+    gridShader_.Start();
     context_.graphicsApi_.RenderQuad();
-    gridShader_->Stop();
+    gridShader_.Stop();
 }
 
 void GameEngine::DebugRenderer::DrawDebugObjects()
 {
-    if (not simpleShader_)
+    if (not simpleShader_.IsReady())
         return;
 
-    simpleShader_->Start();
+    simpleShader_.Start();
 
     for (const auto& sub : debugObjects_)
     {
@@ -80,5 +82,5 @@ void GameEngine::DebugRenderer::DrawDebugObjects()
         //RenderModel(sub, *model);
     }
 
-    simpleShader_->Stop();
+    simpleShader_.Stop();
 }

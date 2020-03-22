@@ -1,4 +1,5 @@
 #include "Mesh.h"
+
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
@@ -35,8 +36,12 @@ void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 
 void Mesh::CreateMesh()
 {
-    graphicsObjectId_ = graphicsApi_.CreateMesh(meshRawData_, renderType_);
-    isInit    = true;
+    auto graphicsObjectId = graphicsApi_.CreateMesh(meshRawData_, renderType_);
+    if (graphicsObjectId)
+    {
+        graphicsObjectId_ = *graphicsObjectId;
+        isInit            = true;
+    }
 }
 
 void Mesh::SetUseArmatorIfHaveBones()

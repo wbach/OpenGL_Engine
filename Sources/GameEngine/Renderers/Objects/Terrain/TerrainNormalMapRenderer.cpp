@@ -1,24 +1,28 @@
 ﻿#include "TerrainNormalMapRenderer.h"
+
 #include <FreeImage.h>
 #include <Utils/Image/ImageUtils.h>
+
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Logger/Log.h"
-#include "Shaders/TerrainNormalMapShaderUniforms.h"
 
 namespace GameEngine
 {
 const float NORMAL_STRENGTH = 12.f;
 
+struct TerrainNormalMapInputBuffer
+{
+    AlignWrapper<vec2> inputs;  // x = N, y = normalStrength
+};
+
 TerrainNormalMapRenderer::TerrainNormalMapRenderer(RendererContext &context)
     : context_(context)
-    , useShader_{false}
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainNormal)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::TerrainNormal);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainNormalMapRenderer::Render);
 }
 
@@ -31,7 +35,7 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
     {
         if ((*iter)->GetHeightMap() and (*iter)->GetHeightMap()->IsInitialized())
         {
-            if (useShader_)
+            if (shader_.IsReady())
             {
                 auto heightMap = RenderTexture(*(*iter)->GetHeightMap());
                 if (heightMap)
@@ -47,41 +51,47 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
                     (*iter)->SetTexture(std::move(heightMap));
                 }
             }
-
-            iter = subscribers_.erase(iter);
         }
-        else
-        {
-            DEBUG_LOG("Height map not ready.");
-            ++iter;
-        }
+        
+        iter = subscribers_.erase(iter);
     }
 }
 
 std::unique_ptr<Texture> TerrainNormalMapRenderer::RenderTexture(const Texture &heightMap) const
 {
     auto imageSize = heightMap.GetSize().y;
-    auto storageId = context_.graphicsApi_.CreateTextureStorage(GraphicsApi::TextureType::FLOAT_TEXTURE_2D, GraphicsApi::TextureFilter::LINEAR, static_cast<int>(imageSize));
+    auto storageId = context_.graphicsApi_.CreateTextureStorage(
+        GraphicsApi::TextureType::FLOAT_TEXTURE_2D, GraphicsApi::TextureFilter::LINEAR, static_cast<int>(imageSize));
 
     if (not storageId)
     {
         return nullptr;
     }
-    shader_->Start();
-    shader_->Load(TerrainNormalMapShaderUniforms::N, static_cast<int32>(imageSize));
-    shader_->Load(TerrainNormalMapShaderUniforms::normalStrength, NORMAL_STRENGTH);
 
+    auto bufferId = context_.graphicsApi_.CreateShaderBuffer(6, sizeof(TerrainNormalMapInputBuffer));
+
+    if (not bufferId)
+    {
+        return nullptr;
+    }
+
+    TerrainNormalMapInputBuffer buffer;
+    buffer.inputs = vec2{static_cast<int32>(imageSize), NORMAL_STRENGTH};
+    context_.graphicsApi_.UpdateShaderBuffer(*bufferId, &buffer);
+
+    shader_.Start();
+    context_.graphicsApi_.BindShaderBuffer(*bufferId);
     context_.graphicsApi_.ActiveTexture(0);
     context_.graphicsApi_.BindImageTexture(*storageId, GraphicsApi::TextureAccess::WRITE_ONLY);
     context_.graphicsApi_.ActiveTexture(1, heightMap.GetGraphicsObjectId());
     context_.graphicsApi_.Compute(imageSize / 16, imageSize / 16, 1);
-    shader_->Stop();
+    shader_.Stop();
 
     return std::make_unique<Texture>(context_.graphicsApi_, *storageId);
 }
 void TerrainNormalMapRenderer::Init()
 {
-    useShader_ = shader_->Init();
+    shader_.Init();
 }
 
 void TerrainNormalMapRenderer::Subscribe(GameObject *gameObject)
@@ -104,7 +114,7 @@ void TerrainNormalMapRenderer::UnSubscribeAll()
 
 void TerrainNormalMapRenderer::ReloadShaders()
 {
-    shader_->Reload();
+    shader_.Reload();
 }
 
 float getHeight(const std::vector<uint8> &imageData, int32 heightMapResolution, vec2i textCoord)

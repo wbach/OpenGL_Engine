@@ -1,8 +1,8 @@
 #pragma once
 #include "GraphicsApi/ShaderFiles.h"
-#include "GraphicsApi/ShadersTypes.h"
+#include "GraphicsApi/ShaderProgramType.h"
 
 namespace OpenGLApi
 {
-GraphicsApi::ShadersFiles GetSimpleDeprecetedShaders(GraphicsApi::Shaders shaderType);
+GraphicsApi::ShadersFiles GetSimpleDeprecetedShaders(GraphicsApi::ShaderProgramType shaderType);
 } // namespace OpenGLApi

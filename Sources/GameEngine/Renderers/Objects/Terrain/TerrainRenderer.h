@@ -2,6 +2,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -10,7 +11,6 @@ class Texture;
 class Projection;
 class TerrainWrapper;
 struct RendererContext;
-class IShaderProgram;
 class TerrainNode;
 
 typedef TerrainWrapper* TerrainPtr;
@@ -30,21 +30,20 @@ private:
     void Render(const Scene& scene, const Time& threadTime);
 
 private:
+    bool IsInit() const;
     void BindTexture(Texture* texture, int id) const;
     void BindTextures(const TerrainTexturesMap& textures) const;
     void RenderSubscribers(const mat4& viewMatrix) const;
     void RenderSubscriber(const TerrainTexturesMap& textures) const;
-    void InitShader();
     void RenderNode(const TerrainNode& node) const;
 
 private:
     RendererContext& context_;
-    std::unique_ptr<IShaderProgram> shader_;
+    ShaderProgram shader_;
     vec4 clipPlane;
     std::vector<std::pair<uint32_t, Components::TerrainRendererComponent*>> subscribes_;
-    uint32 objectId;
-    uint32 perTerrainId;
-    uint32 perNodeId;
-    bool isInit_;
+    GraphicsApi::ID objectId;
+    GraphicsApi::ID perTerrainId;
+    GraphicsApi::ID perNodeId;
 };
 }  // namespace GameEngine

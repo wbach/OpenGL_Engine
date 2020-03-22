@@ -1,44 +1,38 @@
 #include "IntroRenderer.h"
+
 #include "../Display/DisplayManager.hpp"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "GameEngine/Shaders/Loading/LoadingShaderUnfiorms.h"
 
 namespace GameEngine
 {
-IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, std::shared_ptr<DisplayManager>& displayManager,
-                             IShaderFactory& shaderFactory)
+IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager)
     : graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
-    , shaderFactory_(shaderFactory)
-    , resorceManager_(graphicsApi)
+    , resourceManager(graphicsApi)
+    , shader_(graphicsApi, GraphicsApi::ShaderProgramType::Loading)
     , initialized_(false)
 {
 }
 IntroRenderer::~IntroRenderer()
 {
 }
+
 void IntroRenderer::Render()
 {
-    if (displayManager_ == nullptr)
-        return;
-
-    if (!initialized_)
+    if (not initialized_)
         Init();
 
-    displayManager_->ProcessEvents();
+    displayManager_.ProcessEvents();
     RenderThis();
-    displayManager_->UpdateWindow();
+    displayManager_.UpdateWindow();
 }
 void IntroRenderer::Init()
 {
-    shader_ = shaderFactory_.create(GraphicsApi::Shaders::Loading);
-    shader_->Init();
-    shader_->Start();
-    backgroundTexture_ = resorceManager_.GetTextureLaoder().LoadTextureImmediately(
+    shader_.Init();
+    shader_.Start();
+    backgroundTexture_ = resourceManager.GetTextureLaoder().LoadTextureImmediately(
         "GUI/BENGINE.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
 
     if (not perUpdateObjectBuffer_)
@@ -50,7 +44,6 @@ void IntroRenderer::Init()
         perObjectUpdate.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
         graphicsApi_.UpdateShaderBuffer(*perUpdateObjectBuffer_, &perObjectUpdate);
     }
-
     initialized_ = true;
 }
 
@@ -58,10 +51,10 @@ void IntroRenderer::RenderThis()
 {
     graphicsApi_.EnableDepthTest();
     graphicsApi_.PrepareFrame();
-    shader_->Start();
+    shader_.Start();
     graphicsApi_.BindShaderBuffer(*perUpdateObjectBuffer_);
     graphicsApi_.ActiveTexture(0, backgroundTexture_->GetGraphicsObjectId());
     graphicsApi_.RenderQuad();
-    shader_->Stop();
+    shader_.Stop();
 }
 }  // namespace GameEngine

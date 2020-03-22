@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <memory>
+
 #include "RendererFunctionType.h"
 #include "Types.h"
 
@@ -16,17 +17,14 @@ class Projection;
 class IFrameBuffer;
 class IShadowFrameBuffer;
 class PostprocessFrameBuffer;
-class IShaderFactory;
 
 struct RendererContext
 {
-    RendererContext(Projection& projection, GraphicsApi::IGraphicsApi& api,
-                    IFrameBuffer& defferedBuffer,
-                    IShadowFrameBuffer& shadowBuffer, IShaderFactory& shaderFactory,
+    RendererContext(Projection& projection, GraphicsApi::IGraphicsApi& api, IFrameBuffer& defferedBuffer,
+                    IShadowFrameBuffer& shadowBuffer,
                     std::function<void(RendererFunctionType, RendererFunction)> registerFunction)
         : projection_(projection)
         , graphicsApi_(api)
-        , shaderFactory_(shaderFactory)
         , defferedFrameBuffer_(defferedBuffer)
         , shadowsFrameBuffer_(shadowBuffer)
         , registerFunction_(registerFunction)
@@ -35,7 +33,6 @@ struct RendererContext
     Projection& projection_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     mat4 toShadowMapZeroMatrix_;
-    IShaderFactory& shaderFactory_;
     IFrameBuffer& defferedFrameBuffer_;
     IShadowFrameBuffer& shadowsFrameBuffer_;
     std::function<void(RendererFunctionType, RendererFunction)> registerFunction_;

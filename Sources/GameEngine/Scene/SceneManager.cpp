@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+
 #include "GameEngine/Renderers/GUI/GuiContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -8,15 +9,14 @@
 namespace GameEngine
 {
 SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi,
-                           SceneFactoryBasePtr sceneFactory, std::shared_ptr<DisplayManager>& displayManager,
-                           IShaderFactory& shaderFactory, std::shared_ptr<Input::InputManager>& inputManager,
-                           Renderer::RenderersManager& renderersManager, Renderer::Gui::GuiContext& guiContext,
-                           std::function<void(EngineEvent)> addEngineEvent)
+                           SceneFactoryBasePtr sceneFactory, DisplayManager& displayManager,
+                           Input::InputManager& inputManager, Renderer::RenderersManager& renderersManager,
+                           Renderer::Gui::GuiContext& guiContext, std::function<void(EngineEvent)> addEngineEvent)
     : grahpicsApi_(grahpicsApi)
     , physicsApi_(physicsApi)
     , sceneFactory_(sceneFactory)
     , currentSceneId_(0)
-    , sceneWrapper_(grahpicsApi, displayManager, shaderFactory)
+    , sceneWrapper_(grahpicsApi, displayManager)
     , displayManager_(displayManager)
     , inputManager_(inputManager)
     , renderersManager_(renderersManager)
@@ -55,7 +55,7 @@ void SceneManager::RuntimeLoadObjectToGpu()
         if (obj->IsLoadedToGpu())
             obj->GpuLoadingPass();
 
-       obj = gpuLoader.GetObjectToGpuLoadingPass();
+        obj = gpuLoader.GetObjectToGpuLoadingPass();
     }
 }
 void SceneManager::RuntimeReleaseObjectGpu()
@@ -140,8 +140,8 @@ void SceneManager::Reset()
 void SceneManager::SetFactor()
 {
     sceneFactory_->SetGraphicsApi(grahpicsApi_);
-    sceneFactory_->SetDisplayManager(displayManager_.get());
-    sceneFactory_->SetInputManager(inputManager_.get());
+    sceneFactory_->SetDisplayManager(&displayManager_);
+    sceneFactory_->SetInputManager(&inputManager_);
     sceneFactory_->SetRenderersManager(&renderersManager_);
     sceneFactory_->SetPhysicsApi(physicsApi_);
 }

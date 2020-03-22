@@ -9,28 +9,24 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
-#include "Logger/Log.h"
-#include "Shaders/TerrainShaderUniforms.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
 
 TerrainRenderer::TerrainRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_,GraphicsApi::ShaderProgramType::Terrain)
     , clipPlane(vec4(0, 1, 0, 100000))
     , objectId(0)
     , perTerrainId(0)
     , perNodeId(0)
-    , isInit_(false)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::Terrain);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
 }
 void TerrainRenderer::Init()
 {
-    InitShader();
+    shader_.Init();
 
     // clang-format off
     const std::vector<float> patches =
@@ -59,31 +55,26 @@ void TerrainRenderer::Init()
 
     objectId = context_.graphicsApi_.CreatePatchMesh(patches);
 
-    auto id = context_.graphicsApi_.CreateShaderBuffer(PER_TERRAIN_BIND_LOCATION, sizeof(PerTerrain));
-    if (not id)
+    perTerrainId = context_.graphicsApi_.CreateShaderBuffer(PER_TERRAIN_BIND_LOCATION, sizeof(PerTerrain));
+    if (not perTerrainId)
     {
-        isInit_ = false;
         return;
     }
-    perTerrainId = *id;
 
-    id = context_.graphicsApi_.CreateShaderBuffer(PER_NODE_LOCATION, sizeof(PerNode));
-    if (not id)
+    perNodeId = context_.graphicsApi_.CreateShaderBuffer(PER_NODE_LOCATION, sizeof(PerNode));
+    if (not perNodeId)
     {
-        isInit_ = false;
         return;
     }
-    perNodeId = *id;
-    isInit_   = true;
 }
 
 void TerrainRenderer::Render(const Scene& scene, const Time&)
 {
-    if (not isInit_ or subscribes_.empty())
+    if (not IsInit() or subscribes_.empty())
         return;
 
     context_.graphicsApi_.DisableCulling();
-    shader_->Start();
+    shader_.Start();
 
     auto modelViewMatrix = scene.GetCamera().GetViewMatrix();
     RenderSubscribers(modelViewMatrix);
@@ -94,8 +85,8 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
     {
         const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfig();
-        context_.graphicsApi_.UpdateShaderBuffer(perTerrainId, &config.GetPerTerrainBuffer());
-        context_.graphicsApi_.BindShaderBuffer(perTerrainId);
+        context_.graphicsApi_.UpdateShaderBuffer(*perTerrainId, &config.GetPerTerrainBuffer());
+        context_.graphicsApi_.BindShaderBuffer(*perTerrainId);
 
         BindTextures(sub.second->GetTextures());
 
@@ -108,19 +99,16 @@ void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
 void TerrainRenderer::RenderSubscriber(const TerrainTexturesMap& textures) const
 {
     BindTextures(textures);
-    context_.graphicsApi_.RenderPurePatchedMeshInstances(objectId);
+    context_.graphicsApi_.RenderPurePatchedMeshInstances(*objectId);
 }
-void TerrainRenderer::InitShader()
-{
-    shader_->Init();
-}
+
 void TerrainRenderer::RenderNode(const TerrainNode& node) const
 {
     if (node.IsLeaf())
     {
-        context_.graphicsApi_.UpdateShaderBuffer(perNodeId, &node.GetPerNodeBuffer());
-        context_.graphicsApi_.BindShaderBuffer(perNodeId);
-        context_.graphicsApi_.RenderMesh(objectId);
+        context_.graphicsApi_.UpdateShaderBuffer(*perNodeId, &node.GetPerNodeBuffer());
+        context_.graphicsApi_.BindShaderBuffer(*perNodeId);
+        context_.graphicsApi_.RenderMesh(*objectId);
     }
 
     for (const auto& node : node.GetChildren())
@@ -137,6 +125,10 @@ void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 
     for (const auto& t : textures)
         BindTexture(t.second, static_cast<int>(t.first));
+}
+bool TerrainRenderer::IsInit() const
+{
+    return shader_.IsReady() and objectId.has_value() and perTerrainId.has_value() and perNodeId.has_value();
 }
 void TerrainRenderer::BindTexture(Texture* texture, int id) const
 {
@@ -170,7 +162,6 @@ void TerrainRenderer::UnSubscribeAll()
 }
 void TerrainRenderer::ReloadShaders()
 {
-    shader_->Reload();
-    InitShader();
+    shader_.Reload();
 }
 }  // namespace GameEngine

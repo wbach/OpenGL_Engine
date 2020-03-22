@@ -26,7 +26,7 @@ layout (std140, binding = 4) uniform PerNode
     vec4 gapAndLod; // x gap, y Lod
 } perNode;
 
-uniform sampler2D heightmap;
+layout(binding = 1) uniform sampler2D heightmap;
 
 out vec2 mapCoord_TC;
 

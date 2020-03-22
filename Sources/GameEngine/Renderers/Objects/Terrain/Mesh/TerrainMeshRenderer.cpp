@@ -8,15 +8,13 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Shaders/IShaderFactory.h"
-#include "GameEngine/Shaders/IShaderProgram.h"
 
 namespace GameEngine
 {
 TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     : context_(context)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainMesh)
 {
-    shader_ = context.shaderFactory_.create(GraphicsApi::Shaders::TerrainMesh);
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainMeshRenderer::Render);
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
@@ -24,18 +22,14 @@ TerrainMeshRenderer::~TerrainMeshRenderer()
 }
 void TerrainMeshRenderer::Init()
 {
-    InitShader();
-}
-void TerrainMeshRenderer::InitShader()
-{
-    shader_->Init();
+    shader_.Init();
 }
 void TerrainMeshRenderer::Render(const Scene&, const Time&)
 {
     if (subscribes_.empty())
         return;
     context_.graphicsApi_.EnableCulling();
-    shader_->Start();
+    shader_.Start();
     RenderSubscribers();
 }
 void TerrainMeshRenderer::RenderSubscribers() const
@@ -107,7 +101,6 @@ void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
 }
 void TerrainMeshRenderer::ReloadShaders()
 {
-    shader_->Reload();
-    InitShader();
+    shader_.Reload();
 }
 }  // namespace GameEngine

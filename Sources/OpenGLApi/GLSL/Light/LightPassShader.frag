@@ -38,11 +38,11 @@ layout (std140, align=16, binding=6) uniform LightPass
     int type_[MAX_LIGHTS];
 } lightsPass;
 
-uniform sampler2D PositionMap;
-uniform sampler2D ColorMap;
-uniform sampler2D NormalMap;
-uniform sampler2D SpecularMap;
-uniform sampler2D DepthTexture;
+layout(binding = 0) uniform sampler2D PositionMap;
+layout(binding = 1) uniform sampler2D ColorMap;
+layout(binding = 2) uniform sampler2D NormalMap;
+layout(binding = 3) uniform sampler2D SpecularMap;
+layout(binding = 4) uniform sampler2D DepthTexture;
 
 in VS_OUT
 {

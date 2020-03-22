@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
-#include "Shaders/DefferedShader.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
+#include "GameEngine/Lights/Light.h"
 
 namespace GameEngine
 {
@@ -24,6 +25,7 @@ private:
     };
 
 public:
+    DefferedLighting(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;
@@ -33,10 +35,10 @@ private:
     void LoadLights(const Scene& scene);
     void PrepareApiStateToRender();
     void RetriveChanges();
-    void convert(const Light& light, int index);
+    void Convert(const Light& light, int index);
 
 private:
-    std::unique_ptr<DefferedShader> shader_;
+    ShaderProgram shader_;
     GraphicsApi::ID lightPassID_;
     LightPass lightPass_;
     bool lightsInGpu_ = false;

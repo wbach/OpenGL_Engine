@@ -27,6 +27,8 @@ public:
     virtual void SaveTextureToFile(const std::string& name, const std::vector<uint8>&, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat) const override;
 
 private:
+    Texture* LoadHeightMapBinary(const std::string& filename, bool gpu_pass = true);
+    Texture* LoadHeightMapTexture(const std::string& filename, bool gpu_pass = true);
     Texture* GetTextureIfLoaded(const std::string& filename) const;
     Texture* GetTextureNotFound();
 

@@ -5,7 +5,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , cameraMock_(new CameraMock())
     , obj_("Test GameObject", componentFactoryMock_)
     , resourcesManager_(graphicsApiMock_)
-    , renderersManager_(graphicsApiMock_, shaderFactoryMock_)
+    , renderersManager_(graphicsApiMock_)
     , cameraWrapper_(*cameraMock_)
     , context_(time_, inputManagerMock_, cameraWrapper_, physicsApiMock_, resourcesManager_, renderersManager_, componentController_)
 {

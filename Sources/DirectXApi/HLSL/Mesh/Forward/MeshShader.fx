@@ -237,8 +237,7 @@ float4 CalculateColor(LightPass lightsPass, Material material, float3 world_pos,
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-    float4 samplerColor = float4(1, 1, 1, 1);
-    samplerColor        = txDiffuse.Sample(samLinear, input.Tex);
+    float4 samplerColor = txDiffuse.Sample(samLinear, input.Tex);
 
     if (samplerColor.w < 0.5)
     {
