@@ -1,12 +1,17 @@
 #pragma once
 #include <memory>
-#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "GameEngine/Time/Time.h"
 #include "Types.h"
 
 namespace GameEngine
 {
+namespace Components
+{
+class TerrainTessellationRendererComponent;
+} // namespace Components
+
 class Texture;
 struct RendererContext;
 
@@ -26,8 +31,8 @@ private:
     std::unique_ptr<Texture> RenderOnCpu(const Texture&);
 
 private:
-    std::vector<Components::TerrainRendererComponent*> subscribers_;
-    ShaderProgram shader_;
+    std::vector<Components::TerrainTessellationRendererComponent*> subscribers_;
     RendererContext& context_;
+    ShaderProgram shader_;
 };
 }  // namespace GameEngine

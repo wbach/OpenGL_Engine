@@ -6,7 +6,6 @@
 #include "Utils/XML/XMLUtils.h"
 #include "Utils/XML/XmlReader.h"
 
-#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
@@ -23,10 +22,10 @@
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 
 using namespace Utils;
 
@@ -286,12 +285,21 @@ void Read(Utils::XmlNode& node, Components::GrassRendererComponent& component)
 void Read(Utils::XmlNode& node, Components::TerrainRendererComponent& component)
 {
     auto textures = ReadTerrainTextures(*node.GetChild(CSTR_TEXTURE_FILENAMES));
-    component.LoadTextures(textures);
-}
 
-void Read(Utils::XmlNode& node, Components::TerrainMeshRendererComponent& component)
-{
-    auto textures = ReadTerrainTextures(*node.GetChild(CSTR_TEXTURE_FILENAMES));
+    auto rendererTypeNode = node.GetChild(CSTR_TERRAIN_RENDERER_TYPE);
+
+    if (rendererTypeNode)
+    {
+        auto rendererTypeStr = rendererTypeNode->value_;
+
+        if (rendererTypeStr == "Mesh")
+            component.SetRendererType(Components::TerrainRendererComponent::RendererType::Mesh);
+        if (rendererTypeStr == "Tessellation")
+            component.SetRendererType(Components::TerrainRendererComponent::RendererType::Tessellation);
+
+        ERROR_LOG("Unknown terrain rendererType : " + rendererTypeStr);
+    }
+
     component.LoadTextures(textures);
 }
 
@@ -355,9 +363,6 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 break;
             case Components::ComponentsType::TerrainRenderer:
                 AddComponent<Components::TerrainRendererComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::TerrainMeshRenderer:
-                AddComponent<Components::TerrainMeshRendererComponent>(*component, gameObject);
                 break;
             case Components::ComponentsType::Water:
                 AddComponent<Components::WaterRendererComponent>(*component, gameObject);

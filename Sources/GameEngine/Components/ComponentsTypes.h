@@ -23,7 +23,6 @@ enum class ComponentsType
     Skydome,
     Grass,
     TerrainRenderer,
-    TerrainMeshRenderer,
     Water,
     ThridPersonCamera,
     PlayerInputController,

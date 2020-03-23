@@ -7,6 +7,7 @@
 namespace GameEngine
 {
 class Model;
+class Mesh;
 class Texture;
 class Projection;
 class TerrainWrapper;
@@ -17,7 +18,7 @@ typedef TerrainWrapper* TerrainPtr;
 namespace Components
 {
 class TerrainMeshRendererComponent;
-}
+} // namespace Components
 
 class TerrainMeshRenderer : public IRenderer
 {

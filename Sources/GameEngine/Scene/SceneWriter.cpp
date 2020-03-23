@@ -21,7 +21,6 @@
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
@@ -262,11 +261,11 @@ void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 void Create(XmlNode& node, const Components::TerrainRendererComponent& component)
 {
     Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
-}
 
-void Create(XmlNode& node, const Components::TerrainMeshRendererComponent& component)
-{
-    Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
+    if (component.GetRendererType() == Components::TerrainRendererComponent::RendererType::Mesh)
+        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), "Mesh");
+    if (component.GetRendererType() == Components::TerrainRendererComponent::RendererType::Tessellation)
+        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), "Tessellation");
 }
 
 template <typename T>
@@ -323,9 +322,6 @@ void Create(XmlNode& node, const Components::IComponent& component)
             break;
         case Components::ComponentsType::TerrainRenderer:
             CreateComponent<Components::TerrainRendererComponent>(node, component);
-            break;
-        case Components::ComponentsType::TerrainMeshRenderer:
-            CreateComponent<Components::TerrainMeshRendererComponent>(node, component);
             break;
         case Components::ComponentsType::Water:
             CreateComponent<Components::WaterRendererComponent>(node, component);

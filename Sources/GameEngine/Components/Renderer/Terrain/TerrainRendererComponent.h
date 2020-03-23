@@ -1,51 +1,49 @@
 #pragma once
+#include <Types.h>
+#include <unordered_map>
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "TerrainTexturesTypes.h"
-#include "TerrainConfiguration.h"
-#include "TerrainQuadTree.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+class TerrainMeshRendererComponent;
+class TerrainTessellationRendererComponent;
+
 class TerrainRendererComponent : public BaseComponent
 {
 public:
-    TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    enum class RendererType
+    {
+        Mesh,
+        Tessellation
+    };
+
+public:
+    TerrainRendererComponent(const ComponentContext&, GameObject&);
     ~TerrainRendererComponent();
-    virtual void ReqisterFunctions() override;
+
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
-    const TerrainTexturesMap& GetTextures() const;
-    Texture* GetTexture(TerrainTextureType type);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
-    const TerrainQuadTree& GetTree() const;
-    const TerrainConfiguration& GetConfig() const;
-    Texture* GetNormalMap() const;
-    Texture* GetHeightMap() const;
-    void SetTexture(std::unique_ptr<Texture>);
 
-
-private:
-    void Update();
-    void SetTexture(TerrainTextureType, Texture*);
-    void LoadHeightMap(const std::string& hightMapFile);
-    void Subscribe();
-    void UnSubscribe();
+    TerrainRendererComponent& SetRendererType(RendererType);
+    RendererType GetRendererType() const;
+    TerrainTessellationRendererComponent* GetTesselationTerrain();
+    TerrainMeshRendererComponent* GetMeshTerrain();
+    const vec3& GetScale() const;
 
 private:
-    TerrainConfiguration terrainConfiguration_;
-    TerrainQuadTree terrainQuadTree_;
+    virtual void ReqisterFunctions() override;
 
-    TerrainTexturesMap textures_;
-    std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
-    std::unique_ptr<Texture> normalMap_;
-    Texture* heightMap_;
-    float normalStrength_;
+private:
+    RendererType rendererType_;
+    std::unique_ptr<TerrainMeshRendererComponent> meshComponent_;
+    std::unique_ptr<TerrainTessellationRendererComponent> tesselationComponent_;
+    bool functionsRegistered_;
 
 public:
     static ComponentsType type;
 };
-
 }  // namespace Components
 }  // namespace GameEngine

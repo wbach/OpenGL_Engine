@@ -41,7 +41,7 @@ private:
     RendererContext& context_;
     ShaderProgram shader_;
     vec4 clipPlane;
-    std::vector<std::pair<uint32_t, Components::TerrainRendererComponent*>> subscribes_;
+    std::vector<std::pair<uint32_t, Components::TerrainTessellationRendererComponent*>> subscribes_;
     GraphicsApi::ID objectId;
     GraphicsApi::ID perTerrainId;
     GraphicsApi::ID perNodeId;

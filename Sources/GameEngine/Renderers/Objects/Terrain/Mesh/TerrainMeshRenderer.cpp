@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "GameEngine/Resources/Models/Mesh.h"
 
 namespace GameEngine
 {
@@ -82,12 +83,12 @@ void TerrainMeshRenderer::BindTexture(Texture* texture, int id) const
 }
 void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
 {
-    auto terrain = gameObject->GetComponent<Components::TerrainMeshRendererComponent>();
+    auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
 
-    if (terrain == nullptr)
+    if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
         return;
 
-    subscribes_.push_back({gameObject->GetId(), {gameObject, terrain}});
+    subscribes_.push_back({gameObject->GetId(), {gameObject, terrain->GetMeshTerrain()}});
 }
 void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
 {

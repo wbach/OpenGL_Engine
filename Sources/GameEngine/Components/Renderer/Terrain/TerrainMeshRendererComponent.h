@@ -22,9 +22,9 @@ public:
     const TerrainTexturesMap& GetTextures() const;
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
+    virtual void ReqisterFunctions() override;
 
 private:
-    virtual void ReqisterFunctions() override;
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);
     void Subscribe();

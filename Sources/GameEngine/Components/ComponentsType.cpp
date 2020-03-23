@@ -33,7 +33,6 @@ std::vector<ComponentsType> GetComponentTypes()
         ComponentsType::Skydome,
         ComponentsType::Grass,
         ComponentsType::TerrainRenderer,
-        ComponentsType::TerrainMeshRenderer,
         ComponentsType::Water,
         ComponentsType::ThridPersonCamera,
         ComponentsType::PlayerInputController,
@@ -57,7 +56,6 @@ std::optional<GameEngine::Components::ComponentsType> from_string(const std::str
     FROM_STR(Skydome);
     FROM_STR(Grass);
     FROM_STR(TerrainRenderer);
-    FROM_STR(TerrainMeshRenderer);
     FROM_STR(Water);
     FROM_STR(ThridPersonCamera);
     FROM_STR(PlayerInputController);
@@ -89,7 +87,6 @@ std::string to_string(GameEngine::Components::ComponentsType type)
         RETURN_STR(Skydome);
         RETURN_STR(Grass);
         RETURN_STR(TerrainRenderer);
-        RETURN_STR(TerrainMeshRenderer);
         RETURN_STR(Water);
         RETURN_STR(ThridPersonCamera);
         RETURN_STR(PlayerInputController);

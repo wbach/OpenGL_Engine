@@ -10,11 +10,11 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType TerrainMeshRendererComponent::type = ComponentsType::TerrainMeshRenderer;
+ComponentsType TerrainMeshRendererComponent::type = ComponentsType::TerrainRenderer;
 
 TerrainMeshRendererComponent::TerrainMeshRendererComponent(const ComponentContext &componentContext,
                                                            GameObject &gameObject)
-    : BaseComponent(ComponentsType::TerrainMeshRenderer, componentContext, gameObject)
+    : BaseComponent(type, componentContext, gameObject)
 {
 }
 TerrainMeshRendererComponent::~TerrainMeshRendererComponent()

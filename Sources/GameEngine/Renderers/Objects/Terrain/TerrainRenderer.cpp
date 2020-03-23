@@ -9,6 +9,7 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
 #include <Logger/Log.h>
 
 namespace GameEngine
@@ -141,10 +142,10 @@ void TerrainRenderer::Subscribe(GameObject* gameObject)
 {
     auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
 
-    if (terrain == nullptr)
+    if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Tessellation)
         return;
 
-    subscribes_.push_back({gameObject->GetId(), terrain});
+    subscribes_.push_back({gameObject->GetId(), terrain->GetTesselationTerrain()});
 }
 void TerrainRenderer::UnSubscribe(GameObject* gameObject)
 {

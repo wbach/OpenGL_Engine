@@ -3,6 +3,8 @@
 #include <FreeImage.h>
 #include <Utils/Image/ImageUtils.h>
 
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
@@ -52,7 +54,7 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
                 }
             }
         }
-        
+
         iter = subscribers_.erase(iter);
     }
 }
@@ -98,10 +100,10 @@ void TerrainNormalMapRenderer::Subscribe(GameObject *gameObject)
 {
     auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
 
-    if (terrain == nullptr)
+    if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Tessellation)
         return;
 
-    subscribers_.push_back(terrain);
+    subscribers_.push_back(terrain->GetTesselationTerrain());
 }
 
 void TerrainNormalMapRenderer::UnSubscribe(GameObject *)

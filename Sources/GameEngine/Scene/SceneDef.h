@@ -74,6 +74,7 @@ extern const std::string CSTR_SPEED;
 extern const std::string CSTR_DAY_TEXTURES;
 extern const std::string CSTR_NIGHT_TEXTURES;
 extern const std::string CSTR_TEXTURE_FILENAME;
+extern const std::string CSTR_TERRAIN_RENDERER_TYPE;
 extern const std::string CSTR_TEXTURE_FILENAMES;
 extern const std::string CSTR_TEXTURE_TYPE;
 extern const std::string CSTR_V;

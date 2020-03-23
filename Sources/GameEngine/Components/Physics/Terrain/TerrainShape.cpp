@@ -48,10 +48,7 @@ void TerrainShape::OnAwake()
 
     if (renderComponent)
     {
-        const auto& scaleXY = renderComponent->GetConfig().GetScaleXZ();
-        scale.x             = scaleXY;
-        scale.y             = renderComponent->GetConfig().GetScaleY();
-        scale.z             = scaleXY;
+        scale = renderComponent->GetScale();
     }
 
     collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, scale);
