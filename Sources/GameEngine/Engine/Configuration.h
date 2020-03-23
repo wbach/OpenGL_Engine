@@ -5,7 +5,7 @@
 #include "Utils.h"
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
-const std::string DEFAULT_SHADERS_PATH       = "../Sources/OpenGLApi/GLSL/";
+const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
 const std::string DEFAULT_REQUIRED_FILE_NAME = "required_files.inf";
 
 const vec2ui DEFAULT_WINDOW_SIZE = {1000, 600};
@@ -102,7 +102,7 @@ struct Configuration
     Params::Sound sound;
     Params::Window window;
     Params::Renderer renderer;
-    bool useBinaryLoading = true;
+    bool useBinaryLoading = false;
 };
 
 void SaveRequiredFiles();
