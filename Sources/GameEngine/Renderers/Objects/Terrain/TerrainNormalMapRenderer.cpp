@@ -3,6 +3,8 @@
 #include <FreeImage.h>
 #include <Utils/Image/ImageUtils.h>
 
+#include <algorithm>
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -35,22 +37,22 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
 
     for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
     {
-        if ((*iter)->GetHeightMap() and (*iter)->GetHeightMap()->IsInitialized())
+        if (iter->second->GetHeightMap() and iter->second->GetHeightMap()->IsInitialized())
         {
             if (shader_.IsReady())
             {
-                auto heightMap = RenderTexture(*(*iter)->GetHeightMap());
+                auto heightMap = RenderTexture(*iter->second->GetHeightMap());
                 if (heightMap)
                 {
-                    (*iter)->SetTexture(std::move(heightMap));
+                    iter->second->SetTexture(std::move(heightMap));
                 }
             }
             else
             {
-                auto heightMap = RenderOnCpu(*(*iter)->GetHeightMap());
+                auto heightMap = RenderOnCpu(*iter->second->GetHeightMap());
                 if (heightMap)
                 {
-                    (*iter)->SetTexture(std::move(heightMap));
+                    iter->second->SetTexture(std::move(heightMap));
                 }
             }
         }
@@ -103,15 +105,17 @@ void TerrainNormalMapRenderer::Subscribe(GameObject *gameObject)
     if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Tessellation)
         return;
 
-    subscribers_.push_back(terrain->GetTesselationTerrain());
+    subscribers_.insert({gameObject->GetId(), terrain->GetTesselationTerrain()});
 }
 
-void TerrainNormalMapRenderer::UnSubscribe(GameObject *)
+void TerrainNormalMapRenderer::UnSubscribe(GameObject *gameObject)
 {
+    subscribers_.erase(gameObject->GetId());
 }
 
 void TerrainNormalMapRenderer::UnSubscribeAll()
 {
+    subscribers_.clear();
 }
 
 void TerrainNormalMapRenderer::ReloadShaders()

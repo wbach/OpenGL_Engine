@@ -80,6 +80,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
     commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
+    commandsActions_.insert({"savescene", [this](const auto &params) { SaveScene(params); }});
     commandsActions_.insert({"loadscene", [this](const auto &params) { LoadScene(params); }});
     commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
     commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
@@ -320,6 +321,14 @@ void Console::PrintPosition(const std::vector<std::string> &args)
     {
         AddOrUpdateGuiText(args[0] + " not found");
     }
+}
+
+void Console::SaveScene(const std::vector<std::string> &params)
+{
+    if (params.empty())
+        return;
+
+    scene_.SaveToFile(params[0]);
 }
 
 void Console::LoadScene(const std::vector<std::string> &params)

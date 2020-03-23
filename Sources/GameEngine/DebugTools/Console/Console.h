@@ -32,6 +32,7 @@ private:
     void LoadPrefab(const std::vector<std::string>&);
     void SetPosition(const std::vector<std::string>&);
     void PrintPosition(const std::vector<std::string>&);
+    void SaveScene(const std::vector<std::string>&);
     void LoadScene(const std::vector<std::string>&);
     void ReloadScene(const std::vector<std::string>&);
     void SetImmeditalyLogs(const std::vector<std::string>&);

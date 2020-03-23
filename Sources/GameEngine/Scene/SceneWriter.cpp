@@ -246,15 +246,22 @@ void Create(XmlNode& node, const Components::WaterRendererComponent& component)
     Create(node.AddChild(CSTR_WAVE_SPEED), component.GetWaveSpeed());
 
     if (component.GetDudvTexture())
-        Create(node.AddChild(CSTR_DUDV_MAP), component.GetDudvTexture());
+        Create(node.AddChild(CSTR_DUDV_MAP), component.GetDudvTexture()->GetFilPath());
 
     if (component.GetNormalTexture())
-        Create(node.AddChild(CSTR_NORMAL_MAP), component.GetNormalTexture());
+        Create(node.AddChild(CSTR_NORMAL_MAP), component.GetNormalTexture()->GetFilPath());
 }
 
 void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 {
-    Create(node.AddChild(CSTR_POSITIONS), component.GetPositions());
+    std::string positionsValue = "";
+    for (const auto& p : component.GetPositions())
+    {
+        positionsValue += std::to_string(p) + ' ';
+    }
+    positionsValue.pop_back();
+
+    Create(node.AddChild(CSTR_POSITIONS), positionsValue);
     Create(node.AddChild(CSTR_TEXTURE_FILENAME), component.GetTextureFileName());
 }
 
@@ -263,9 +270,9 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
     Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
 
     if (component.GetRendererType() == Components::TerrainRendererComponent::RendererType::Mesh)
-        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), "Mesh");
+        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), CSTR_TERRAIN_MESH_RENDERER_TYPE);
     if (component.GetRendererType() == Components::TerrainRendererComponent::RendererType::Tessellation)
-        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), "Tessellation");
+        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), CSTR_TERRAIN_TESSELLATION_RENDERER_TYPE);
 }
 
 template <typename T>
@@ -277,7 +284,7 @@ void CreateComponent(XmlNode& node, const Components::IComponent& component)
 
 void Create(XmlNode& node, const Components::IComponent& component)
 {
-    node.attributes_[CSTR_TYPE] = std::to_string(static_cast<int>(component.GetType()));
+    node.attributes_[CSTR_TYPE] = std::to_string(component.GetType());
 
     switch (component.GetType())
     {

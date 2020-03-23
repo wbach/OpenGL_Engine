@@ -1,10 +1,4 @@
 #include "SceneReader.h"
-#include "Logger/Log.h"
-#include "Scene.hpp"
-#include "SceneDef.h"
-#include "Utils.h"
-#include "Utils/XML/XMLUtils.h"
-#include "Utils/XML/XmlReader.h"
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
@@ -26,6 +20,12 @@
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "Logger/Log.h"
+#include "Scene.hpp"
+#include "SceneDef.h"
+#include "Utils.h"
+#include "Utils/XML/XMLUtils.h"
+#include "Utils/XML/XmlReader.h"
 
 using namespace Utils;
 
@@ -284,23 +284,37 @@ void Read(Utils::XmlNode& node, Components::GrassRendererComponent& component)
 
 void Read(Utils::XmlNode& node, Components::TerrainRendererComponent& component)
 {
-    auto textures = ReadTerrainTextures(*node.GetChild(CSTR_TEXTURE_FILENAMES));
-
     auto rendererTypeNode = node.GetChild(CSTR_TERRAIN_RENDERER_TYPE);
 
     if (rendererTypeNode)
     {
         auto rendererTypeStr = rendererTypeNode->value_;
 
-        if (rendererTypeStr == "Mesh")
+        if (rendererTypeStr == CSTR_TERRAIN_MESH_RENDERER_TYPE)
+        {
             component.SetRendererType(Components::TerrainRendererComponent::RendererType::Mesh);
-        if (rendererTypeStr == "Tessellation")
+        }
+        else if (rendererTypeStr == CSTR_TERRAIN_TESSELLATION_RENDERER_TYPE)
+        {
             component.SetRendererType(Components::TerrainRendererComponent::RendererType::Tessellation);
-
-        ERROR_LOG("Unknown terrain rendererType : " + rendererTypeStr);
+        }
+        else
+        {
+            ERROR_LOG("Unknown terrain rendererType : " + rendererTypeStr);
+        }
     }
 
-    component.LoadTextures(textures);
+    auto texturesNode = node.GetChild(CSTR_TEXTURE_FILENAMES);
+
+    if (texturesNode)
+    {
+        auto textures = ReadTerrainTextures(*node.GetChild(CSTR_TEXTURE_FILENAMES));
+        component.LoadTextures(textures);
+    }
+    else
+    {
+        ERROR_LOG("Child node with textures not found in terrain render component.");
+    }
 }
 
 template <typename T>
@@ -318,9 +332,12 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
 
     for (const auto& component : componentsNode.GetChildren())
     {
-        auto type = static_cast<Components::ComponentsType>(std::stoi(component->attributes_[CSTR_TYPE]));
+        auto type = Components::from_string(component->attributes_[CSTR_TYPE]);
 
-        switch (type)
+        if (not type)
+            continue;
+
+        switch (*type)
         {
             case Components::ComponentsType::Animator:
                 AddComponent<Components::Animator>(*component, gameObject);
@@ -406,11 +423,6 @@ void Read(Utils::XmlNode& node, Scene& scene)
         auto gameObject = scene.CreateGameObject(child->attributes_.at(CSTR_NAME));
         Read(*child, *gameObject);
         scene.AddGameObject(gameObject);
-    }
-
-    for (const auto& child : node.GetChild(CSTR_PREFABS)->GetChildren())
-    {
-        LoadPrefab(scene, child->value_, child->attributes_.at(CSTR_NAME));
     }
 }
 

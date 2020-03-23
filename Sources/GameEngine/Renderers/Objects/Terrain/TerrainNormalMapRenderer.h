@@ -31,7 +31,7 @@ private:
     std::unique_ptr<Texture> RenderOnCpu(const Texture&);
 
 private:
-    std::vector<Components::TerrainTessellationRendererComponent*> subscribers_;
+    std::unordered_map<uint32, Components::TerrainTessellationRendererComponent*> subscribers_;
     RendererContext& context_;
     ShaderProgram shader_;
 };
