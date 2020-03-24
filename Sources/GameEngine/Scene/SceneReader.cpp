@@ -15,7 +15,6 @@
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"

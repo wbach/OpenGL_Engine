@@ -7,7 +7,7 @@ TerrainNode::TerrainNode(const TerrainConfiguration& terrainConfiguration, const
     : terrainConfiguration_(terrainConfiguration)
     , perNodeBuffer_(index, location, lod,
                      vec3(terrainConfiguration.GetScaleXZ() / -2.f, 0, terrainConfiguration.GetScaleXZ() / -2.f),
-                     terrainConfiguration.GetScale())
+                     terrainConfiguration.GetScale(), terrainConfiguration.GetTerrainRootNodesCount())
     , worldPos_(0)
     , isleaf_(true)
     , halfGap_(perNodeBuffer_.gapAndLod.x / 2.f)

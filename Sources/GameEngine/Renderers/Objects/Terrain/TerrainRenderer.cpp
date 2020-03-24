@@ -1,7 +1,6 @@
 #include "TerrainRenderer.h"
 #include <algorithm>
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"

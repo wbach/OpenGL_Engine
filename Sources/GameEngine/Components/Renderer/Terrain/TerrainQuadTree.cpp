@@ -1,5 +1,4 @@
 #include "TerrainQuadTree.h"
-#include "TerrainDef.h"
 
 namespace GameEngine
 {
@@ -7,16 +6,16 @@ TerrainQuadTree::TerrainQuadTree(const TerrainConfiguration& terrainConfiguratio
     : terrainConfiguration_(terrainConfiguration)
 {
     constexpr uint32 lod           = 0;
-    constexpr float rootNodesCount = static_cast<float>(TerrainDef::TERRAIN_ROOT_NODES_COUNT);
+    uint32 rootNodesCount = static_cast<uint32>(terrainConfiguration_.GetTerrainRootNodesCount());
 
-    for (uint32 i = 0; i < TerrainDef::TERRAIN_ROOT_NODES_COUNT; ++i)
+    for (uint32 i = 0; i < rootNodesCount; ++i)
     {
-        for (uint32 j = 0; j < TerrainDef::TERRAIN_ROOT_NODES_COUNT; ++j)
+        for (uint32 j = 0; j < rootNodesCount; ++j)
         {
             const auto _if = static_cast<float>(i);
             const auto _jf = static_cast<float>(j);
 
-            const vec2 location(_if / rootNodesCount, _jf / rootNodesCount);
+            const vec2 location(_if / terrainConfiguration_.GetTerrainRootNodesCount(), _jf / terrainConfiguration_.GetTerrainRootNodesCount());
             const vec2 index(_if, _jf);
 
             nodes_.emplace_back(new TerrainNode(terrainConfiguration_, location, lod, index));

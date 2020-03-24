@@ -4,7 +4,6 @@
 #include <vector>
 #include "Common/Transform.h"
 #include "TerrainConfiguration.h"
-#include "TerrainDef.h"
 #include "Types.h"
 #include "PerNodeBuffer.h"
 

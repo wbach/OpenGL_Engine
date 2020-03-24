@@ -1,6 +1,6 @@
 #include "TerrainMeshLoader.h"
 #include <algorithm>
-#include "GameEngine/Components/Renderer/Terrain/TerrainDef.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -15,8 +15,10 @@ TerrainMeshLoader::TerrainMeshLoader(ITextureLoader& textureLoader)
 }
 void TerrainMeshLoader::ParseFile(const std::string& filename)
 {
-    auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
-    auto texture      = textureLoader_.LoadHeightMap(fullFilePath);
+    auto fullFilePath      = EngineConf_GetFullDataPathAddToRequierd(filename);
+    auto texture           = textureLoader_.LoadHeightMap(fullFilePath);
+    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullFilePath) + ".terrainConfig";
+    terrainScale_          = TerrainConfiguration::ReadFromFile(terrainConfigFile).GetScale();
 
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage()->width;
@@ -109,7 +111,7 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
 }
 float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
-    return (*heights_)[x + y * heightMapResolution_] * 20.f;
+    return (*heights_)[x + y * heightMapResolution_] * terrainScale_.y;
 }
 void TerrainMeshLoader::CreateMesh()
 {

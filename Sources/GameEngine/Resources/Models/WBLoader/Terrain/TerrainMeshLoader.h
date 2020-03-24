@@ -5,6 +5,7 @@
 namespace GameEngine
 {
 class ITextureLoader;
+class TerrainConfiguration;
 
 namespace WBLoader
 {
@@ -33,6 +34,7 @@ private:
     FloatAttributeVec tangens_;
     FloatAttributeVec textureCoords_;
     FloatAttributeVec* heights_;
+    vec3 terrainScale_;
 };
 }  // WBLoader
 } // namespace GameEngine

@@ -39,6 +39,8 @@ TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
             tesselationComponent_->LoadTextures(texutres);
             return *this;
     }
+
+    return *this;
 }
 
 const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererComponent::GetTextureFileNames() const

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "PerrTerrainBuffer.h"
-#include "TerrainDef.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -9,9 +8,13 @@ namespace GameEngine
 class TerrainConfiguration
 {
 public:
+    static TerrainConfiguration ReadFromFile(const std::string&);
+
+public:
     TerrainConfiguration();
     inline float GetScaleY() const;
     inline float GetScaleXZ() const;
+    inline float GetTerrainRootNodesCount() const;
     inline int32 GetLodRange(uint32 index) const;
     const PerTerrain& GetPerTerrainBuffer() const;
     const vec3& GetScale() const;
@@ -23,7 +26,7 @@ private:
 private:
     PerTerrain perTerrainBuffer;
     std::vector<int32> lodRanges_;
-    float normalStrength_;
+    float terrainRootNodesCount_;
 };
 inline float TerrainConfiguration::GetScaleY() const
 {
@@ -47,4 +50,10 @@ inline const vec3& TerrainConfiguration::GetScale() const
     return perTerrainBuffer.scale.value;
 }
 
+inline float TerrainConfiguration::GetTerrainRootNodesCount() const
+{
+    return terrainRootNodesCount_;
+}
+
+void SaveTerrainConfigurationToFile(const TerrainConfiguration&, const std::string&);
 }  // namespace GameEngine
