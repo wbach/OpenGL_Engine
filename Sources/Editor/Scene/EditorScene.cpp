@@ -7,6 +7,8 @@
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 
 using namespace GameEngine;
 
@@ -20,25 +22,28 @@ EditorScene::EditorScene(Context& context)
 EditorScene::~EditorScene()
 {
 }
+
 int EditorScene::Initialize()
 {
     RunNetworkEditorInterface();
     // resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
 
-    // const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
-    // LoadFromFile(sceneFile);
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
+    LoadFromFile(sceneFile);
 
     camera.SetPosition(vec3(2, 2, 2));
     camera.LookAt(vec3(0, 0.5, 0));
     camera.UpdateMatrix();
 
-    auto go = CreateGameObject("Crate");
-    go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
-                                                                           GameEngine::LevelOfDetail::L1);
-    go->worldTransform.TakeSnapShoot();
-    AddGameObject(go);
+    {
+        auto go = CreateGameObject("Crate");
+        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
+                                                                               GameEngine::LevelOfDetail::L1);
+        go->worldTransform.TakeSnapShoot();
+        AddGameObject(go);
+    }
 
-    //for (uint32 i = 0; i < 4; ++i)
+    // for (uint32 i = 0; i < 4; ++i)
     //{
     //    auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
     //    go->AddComponent<GameEngine::Components::BoxShape>();
@@ -55,6 +60,11 @@ int EditorScene::Initialize()
             go->worldTransform.IncrasePosition(vec3(0.001));
         }
     });
+
+    inputManager_->SubscribeOnKeyDown(KeyCodes::L, [renderersManager = this->renderersManager_]() {
+        renderersManager->SwapLineFaceRender();
+    });
+
     return 0;
 }
 void EditorScene::PostInitialize()

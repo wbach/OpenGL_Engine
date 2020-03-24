@@ -9,6 +9,7 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Resources/Models/Mesh.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -88,6 +89,7 @@ void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
     if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
         return;
 
+    DEBUG_LOG("Subscribe goId : " + std::to_string(gameObject->GetId()));
     subscribes_.push_back({gameObject->GetId(), {gameObject, terrain->GetMeshTerrain()}});
 }
 void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)

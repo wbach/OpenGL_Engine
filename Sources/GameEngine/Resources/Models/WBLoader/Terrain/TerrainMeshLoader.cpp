@@ -109,7 +109,7 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
 }
 float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
-    return (*heights_)[x + y * heightMapResolution_];
+    return (*heights_)[x + y * heightMapResolution_] * 20.f;
 }
 void TerrainMeshLoader::CreateMesh()
 {

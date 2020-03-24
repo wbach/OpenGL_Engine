@@ -52,7 +52,7 @@ void main()
     vs_out.worldPos         = worldPos;
 
     vs_out.passTangent  = (perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz;
-    vs_out.useNormalMap = 1.f;
+    vs_out.useNormalMap = 0.f;
 
     float distanceToCam = length(perFrame.cameraPosition - worldPos.xyz);
     vs_out.useShadows    = perApp.shadowVariables.x;
