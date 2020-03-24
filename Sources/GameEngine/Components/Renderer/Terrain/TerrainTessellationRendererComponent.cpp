@@ -58,7 +58,8 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& high
     {
         return;
     }
-
+    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullNameWithPath) + ".terrainConfig";
+    terrainConfiguration_  = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     SetTexture(TerrainTextureType::heightmap, heightMap_);
 }
 

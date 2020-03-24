@@ -71,11 +71,11 @@ void TerrainMeshLoader::CreateTerrainVertexes(uint32 x_start, uint32 y_start, ui
         for (uint32 j = x_start; j < width; j++)
         {
             float height = GetHeight(j, i);
-            vertices_.push_back(static_cast<float>(j - halfTerrainSize) /
-                                (static_cast<float>(heightMapResolution_ - 1)) * terrainSize);
+            vertices_.push_back(static_cast<float>(j - (terrainScale_.x / 2)) /
+                                (static_cast<float>(heightMapResolution_ - 1)) * terrainScale_.x);
             vertices_.push_back(height);
-            vertices_.push_back(static_cast<float>(i - halfTerrainSize) /
-                                (static_cast<float>(heightMapResolution_) - 1) * terrainSize);
+            vertices_.push_back(static_cast<float>(i - (terrainScale_.z / 2)) /
+                                (static_cast<float>(heightMapResolution_) - 1) * terrainScale_.z);
 
             glm::vec3 normal = CalculateNormalMap(j, i);
 
