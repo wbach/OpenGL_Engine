@@ -18,22 +18,19 @@ public:
     virtual std::unique_ptr<Model> Create() override;
 
 private:
-    void CreateTerrainVertexes(uint32 x_start, uint32 y_start, uint32 width, uint32 height);
+    void ReserveMeshData(GameEngine::Mesh& mesh, uint32 size);
+    void CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width, uint32 height);
     vec3 CalculateNormalMap(uint32 x, uint32 z);
     float GetHeight(uint32 x, uint32 y) const;
-    void CreateMesh();
+    void CreateIndicies(GameEngine::Mesh& mesh);
     void Clear();
-    float FindMaxY(const FloatAttributeVec& v) const;
-    void TranslateY(FloatAttributeVec&v, float y);
 
 private:
+    std::unique_ptr<Model> model_;
+
     uint32 heightMapResolution_;
-    IndicesVector indices_;
-    FloatAttributeVec vertices_;
-    FloatAttributeVec normals_;
-    FloatAttributeVec tangens_;
-    FloatAttributeVec textureCoords_;
     FloatAttributeVec* heights_;
+    float halfMaximumHeight_;
     vec3 terrainScale_;
 };
 }  // WBLoader

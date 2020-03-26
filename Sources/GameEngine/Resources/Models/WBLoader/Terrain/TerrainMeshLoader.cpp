@@ -1,4 +1,5 @@
 #include "TerrainMeshLoader.h"
+#include <Logger/Log.h>
 #include <algorithm>
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -23,14 +24,21 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage()->width;
     heights_             = &hm->GetImage()->floatData;
+    halfMaximumHeight_   = (*std::max_element(heights_->begin(), heights_->end())) / 2.f;
+    halfMaximumHeight_ *= terrainScale_.y;
 
-    vertices_.reserve(heightMapResolution_ * heightMapResolution_ * 3);
-    normals_.reserve(heightMapResolution_ * heightMapResolution_ * 3);
-    textureCoords_.reserve(heightMapResolution_ * heightMapResolution_ * 2);
-    indices_.reserve(heightMapResolution_ * heightMapResolution_ * 2);
+    DEBUG_LOG("halfMaximumHeight_ = " + std::to_string(halfMaximumHeight_));
 
-    CreateTerrainVertexes(0, 0, heightMapResolution_, heightMapResolution_);
-    CreateMesh();
+    model_ = std::make_unique<Model>();
+
+    Material material;
+    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), material);
+
+    ReserveMeshData(newMesh, heightMapResolution_);
+    CreateTerrainVertexes(newMesh, 0, 0, heightMapResolution_, heightMapResolution_);
+    CreateIndicies(newMesh);
+
+    model_->AddMesh(newMesh);
 }
 bool TerrainMeshLoader::CheckExtension(const std::string& filename)
 {
@@ -39,52 +47,49 @@ bool TerrainMeshLoader::CheckExtension(const std::string& filename)
 }
 std::unique_ptr<Model> TerrainMeshLoader::Create()
 {
-    auto model = std::make_unique<Model>();
+    if (not model_)
+    {
+        ERROR_LOG("Model not created. Please parse file first.");
+    }
 
-    Material material;
-    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), material);
-
-    auto maxElement = FindMaxY(vertices_);
-    TranslateY(vertices_, maxElement / 2.f);
-
-    newMesh.GetMeshDataRef().positions_  = vertices_;
-    newMesh.GetMeshDataRef().textCoords_ = textureCoords_;
-    newMesh.GetMeshDataRef().normals_    = normals_;
-    newMesh.GetMeshDataRef().tangents_   = tangens_;
-    newMesh.GetMeshDataRef().indices_    = indices_;
-    model->AddMesh(newMesh);
-
-    // Normals stay
-    indices_.clear();
-    vertices_.clear();
-    tangens_.clear();
-    textureCoords_.clear();
-
-    return model;
+    return std::move(model_);
 }
-void TerrainMeshLoader::CreateTerrainVertexes(uint32 x_start, uint32 y_start, uint32 width, uint32 height)
+
+void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)
 {
-    const auto terrainSize      = heightMapResolution_ - 1;
-    const auto& halfTerrainSize = terrainSize / 2.f;
+    auto& data = mesh.GetMeshDataRef();
+    data.positions_.reserve(size * size * 3);
+    data.normals_.reserve(size * size * 3);
+    data.textCoords_.reserve(size * size * 2);
+    data.indices_.reserve(size * size * 2);
+}
+void TerrainMeshLoader::CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width,
+                                              uint32 height)
+{
+    auto& vertices      = mesh.GetMeshDataRef().positions_;
+    auto& normals       = mesh.GetMeshDataRef().normals_;
+    auto& textureCoords = mesh.GetMeshDataRef().textCoords_;
+
     for (uint32 i = y_start; i < height; i++)
     {
         for (uint32 j = x_start; j < width; j++)
         {
             float height = GetHeight(j, i);
-            vertices_.push_back(static_cast<float>(j - (terrainScale_.x / 2)) /
-                                (static_cast<float>(heightMapResolution_ - 1)) * terrainScale_.x);
-            vertices_.push_back(height);
-            vertices_.push_back(static_cast<float>(i - (terrainScale_.z / 2)) /
-                                (static_cast<float>(heightMapResolution_) - 1) * terrainScale_.z);
+
+            vertices.push_back(static_cast<float>(j - (terrainScale_.x / 2)) /
+                               (static_cast<float>(heightMapResolution_ - 1)) * terrainScale_.x);
+            vertices.push_back(height);
+            vertices.push_back(static_cast<float>(i - (terrainScale_.z / 2)) /
+                               (static_cast<float>(heightMapResolution_) - 1) * terrainScale_.z);
 
             glm::vec3 normal = CalculateNormalMap(j, i);
 
-            normals_.push_back(normal.x);
-            normals_.push_back(normal.y);
-            normals_.push_back(normal.z);
+            normals.push_back(normal.x);
+            normals.push_back(normal.y);
+            normals.push_back(normal.z);
 
-            textureCoords_.push_back(static_cast<float>(j) / static_cast<float>(heightMapResolution_ - 1));
-            textureCoords_.push_back(static_cast<float>(i) / static_cast<float>(heightMapResolution_ - 1));
+            textureCoords.push_back(static_cast<float>(j) / static_cast<float>(heightMapResolution_ - 1));
+            textureCoords.push_back(static_cast<float>(i) / static_cast<float>(heightMapResolution_ - 1));
         }
     }
 }
@@ -102,36 +107,41 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
     auto uz = z + 1;
     if (uz > heightMapResolution_ - 1)
         uz = heightMapResolution_ - 1;
+
     float heightL = GetHeight(lx, z);
     float heightR = GetHeight(rx, z);
     float heightD = GetHeight(x, dz);
     float heightU = GetHeight(x, uz);
     glm::vec3 normal(heightL - heightR, 2.0f, heightD - heightU);
+
     return glm::normalize(normal);
 }
 float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
-    return (*heights_)[x + y * heightMapResolution_] * terrainScale_.y;
+    return ((*heights_)[x + y * heightMapResolution_] * terrainScale_.y) - halfMaximumHeight_;
 }
-void TerrainMeshLoader::CreateMesh()
+void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh)
 {
-    // Triaagnle strip
-    for (uint32 gz = 0; gz < heightMapResolution_ - 1; gz++)
+    auto& indices = mesh.GetMeshDataRef().indices_;
+    auto size     = static_cast<IndicesDataType>(heightMapResolution_);
+
+    // Triagnle strip
+    for (IndicesDataType gz = 0; gz < size - 1; gz++)
     {
         if ((gz & 1) == 0)
         {  // even rows
-            for (uint32 gx = 0; gx < heightMapResolution_; gx++)
+            for (IndicesDataType gx = 0; gx < size; gx++)
             {
-                indices_.push_back(gx + gz * heightMapResolution_);
-                indices_.push_back(gx + (gz + 1) * heightMapResolution_);
+                indices.push_back(gx + gz * size);
+                indices.push_back(gx + (gz + 1) * size);
             }
         }
         else
         {  // odd rows
-            for (uint32 gx = heightMapResolution_ - 1; gx > 0; gx--)
+            for (IndicesDataType gx = size - 1; gx > 0; gx--)
             {
-                indices_.push_back(gx + (gz + 1) * heightMapResolution_);
-                indices_.push_back(gx - 1 + +gz * heightMapResolution_);
+                indices.push_back(gx + (gz + 1) * size);
+                indices.push_back(gx - 1 + +gz * size);
             }
         }
     }
@@ -139,46 +149,7 @@ void TerrainMeshLoader::CreateMesh()
 void TerrainMeshLoader::Clear()
 {
     heightMapResolution_ = 0;
-    indices_.clear();
-    vertices_.clear();
-    normals_.clear();
-    tangens_.clear();
-    textureCoords_.clear();
     heights_->clear();
-}
-void TerrainMeshLoader::TranslateY(FloatAttributeVec& v, float y)
-{
-    int x = 0;
-    for (auto& v : vertices_)
-    {
-        if (x == 1)
-            v -= y;
-
-        if (x == 2)
-            x = 0;
-        else
-            ++x;
-    }
-}
-float TerrainMeshLoader::FindMaxY(const FloatAttributeVec& v) const
-{
-    auto maxElement = -std::numeric_limits<float>::max();
-
-    int x = 0;
-    for (auto& v : vertices_)
-    {
-        if (x == 1)
-        {
-            if (v > maxElement)
-                maxElement = v;
-        }
-
-        if (x == 2)
-            x = 0;
-        else
-            ++x;
-    }
-    return maxElement;
 }
 }  // namespace WBLoader
 }  // namespace GameEngine
