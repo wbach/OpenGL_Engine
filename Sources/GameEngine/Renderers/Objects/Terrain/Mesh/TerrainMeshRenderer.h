@@ -45,7 +45,6 @@ private:
     void BindTextures(const TerrainTexturesMap& textures) const;
     void RenderSubscribers() const;
     void RenderSubscriber(const Subscriber& subscriber) const;
-    void RenderModel(const Model& model) const;
     void RenderMesh(const Mesh& mesh) const;
 
 private:

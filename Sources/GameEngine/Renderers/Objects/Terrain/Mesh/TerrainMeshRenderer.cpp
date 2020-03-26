@@ -57,13 +57,6 @@ void TerrainMeshRenderer::RenderSubscriber(const Subscriber& subscriber) const
         RenderMesh(mesh);
     }
 }
-void TerrainMeshRenderer::RenderModel(const Model& model) const
-{
-    for (const auto& mesh : model.GetMeshes())
-    {
-        RenderMesh(mesh);
-    }
-}
 void TerrainMeshRenderer::RenderMesh(const Mesh& mesh) const
 {
     context_.graphicsApi_.RenderTriangleStripMesh(mesh.GetGraphicsObjectId());

@@ -18,6 +18,7 @@ public:
     inline int32 GetLodRange(uint32 index) const;
     const PerTerrain& GetPerTerrainBuffer() const;
     const vec3& GetScale() const;
+    std::optional<uint32> GetPartsCount() const;
 
 private:
     int32 updateMorphingArea(uint32 lod);
@@ -27,6 +28,7 @@ private:
     PerTerrain perTerrainBuffer;
     std::vector<int32> lodRanges_;
     float terrainRootNodesCount_;
+    std::optional<uint32> partsCount_;
 };
 inline float TerrainConfiguration::GetScaleY() const
 {

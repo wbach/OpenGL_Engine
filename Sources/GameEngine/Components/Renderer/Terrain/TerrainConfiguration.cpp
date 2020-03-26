@@ -24,6 +24,11 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
         file << "SetLod " << std::to_string(i) << " " << config.GetLodRange(i) << "\n";
     }
 
+    if (config.GetPartsCount())
+    {
+        file << "PartsCount " << *config.GetPartsCount() << "\n";
+    }
+
     file.close();
 }
 
@@ -104,6 +109,33 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filen
                 continue;
             }
         }
+        else if (params.front() == "PartsCount")
+        {
+            if (params.size() < 2)
+            {
+                ERROR_LOG("Wrong PartsCount format in line : " + std::to_string(lineNumber));
+                continue;
+            }
+
+            try
+            {
+                auto partsCount = std::stoi(params[1]);
+                if (partsCount > 1)
+                {
+                    DEBUG_LOG("Terrain parts enabled. " + std::to_string(partsCount) + "x" + std::to_string(partsCount));
+                    config.partsCount_ = partsCount;
+                }
+                else
+                {
+                    DEBUG_LOG("Terrain parts disabled.");
+                }
+            }
+            catch (...)
+            {
+                ERROR_LOG("Read PartsCount error in line : " + std::to_string(lineNumber));
+                continue;
+            }
+        }
         ++lineNumber;
     }
     file.close();
@@ -123,6 +155,11 @@ TerrainConfiguration::TerrainConfiguration()
     SetLod(5, 50);
     SetLod(6, 0);
     SetLod(7, 0);
+}
+
+std::optional<uint32> TerrainConfiguration::GetPartsCount() const
+{
+    return partsCount_;
 }
 
 // namespace GameEngine

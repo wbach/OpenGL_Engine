@@ -18,6 +18,8 @@ public:
     virtual std::unique_ptr<Model> Create() override;
 
 private:
+    void CreateAsSingleTerrain();
+    void CreatePartial(uint32 partsCount);
     void ReserveMeshData(GameEngine::Mesh& mesh, uint32 size);
     void CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width, uint32 height);
     vec3 CalculateNormalMap(uint32 x, uint32 z);

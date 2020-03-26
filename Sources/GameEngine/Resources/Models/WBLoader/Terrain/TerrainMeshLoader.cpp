@@ -19,7 +19,8 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
     auto fullFilePath      = EngineConf_GetFullDataPathAddToRequierd(filename);
     auto texture           = textureLoader_.LoadHeightMap(fullFilePath);
     auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullFilePath) + ".terrainConfig";
-    terrainScale_          = TerrainConfiguration::ReadFromFile(terrainConfigFile).GetScale();
+    auto terrainConfig     = TerrainConfiguration::ReadFromFile(terrainConfigFile);
+    terrainScale_          = terrainConfig.GetScale();
 
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage()->width;
@@ -31,14 +32,15 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
 
     model_ = std::make_unique<Model>();
 
-    Material material;
-    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), material);
-
-    ReserveMeshData(newMesh, heightMapResolution_);
-    CreateTerrainVertexes(newMesh, 0, 0, heightMapResolution_, heightMapResolution_);
-    CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution_));
-
-    model_->AddMesh(newMesh);
+    auto partsCount= terrainConfig.GetPartsCount();
+    if (partsCount)
+    {
+        CreatePartial(*partsCount);
+    }
+    else
+    {
+        CreateAsSingleTerrain();
+    }
 }
 bool TerrainMeshLoader::CheckExtension(const std::string& filename)
 {
@@ -53,6 +55,46 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
     }
 
     return std::move(model_);
+}
+
+void TerrainMeshLoader::CreateAsSingleTerrain()
+{
+    Material material;
+    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), material);
+
+    ReserveMeshData(newMesh, heightMapResolution_);
+    CreateTerrainVertexes(newMesh, 0, 0, heightMapResolution_, heightMapResolution_);
+    CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution_));
+    model_->AddMesh(newMesh);
+}
+
+void TerrainMeshLoader::CreatePartial(uint32 partsCount)
+{
+    auto partialSize = heightMapResolution_ / partsCount;
+    auto rest        = heightMapResolution_ - (partsCount * partialSize);
+
+    DEBUG_LOG("Rest : " + std::to_string(rest));
+
+    for (uint32 j = 0; j < partsCount; ++j)
+    {
+        for (uint32 i = 0; i < partsCount; ++i)
+        {
+            Material material;
+            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(),
+                                     material);
+
+            uint32 startX = i * partialSize;
+            uint32 startY = j * partialSize;
+            uint32 endX   = (i + 1) * partialSize + 1;
+            uint32 endY   = (j + 1) * partialSize + 1;
+
+            ReserveMeshData(newMesh, partialSize + 1);
+            CreateTerrainVertexes(newMesh, startX, startY, endX, endY);
+            CreateIndicies(newMesh, static_cast<IndicesDataType>(partialSize + 1));
+
+            model_->AddMesh(newMesh);
+        }
+    }
 }
 
 void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)
@@ -125,25 +167,29 @@ void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType s
     auto& indices = mesh.GetMeshDataRef().indices_;
 
     // Triagnle strip
-    for (IndicesDataType gz = 0; gz < size - 1; gz++)
+    for (IndicesDataType row = 0; row < size - 1; row++)
     {
-        if ((gz & 1) == 0)
+        if ((row & 1) == 0)
         {  // even rows
-            for (IndicesDataType gx = 0; gx < size; gx++)
+            for (IndicesDataType col = 0; col < size; col++)
             {
-                indices.push_back(gx + gz * size);
-                indices.push_back(gx + (gz + 1) * size);
+                indices.push_back(col + row * size);
+                indices.push_back(col + (row + 1) * size);
             }
         }
         else
         {  // odd rows
-            for (IndicesDataType gx = size - 1; gx > 0; gx--)
+            for (IndicesDataType col = size - 1; col > 0; col--)
             {
-                indices.push_back(gx + (gz + 1) * size);
-                indices.push_back(gx - 1 + +gz * size);
+                indices.push_back(col + (row + 1) * size);
+                indices.push_back(col - 1 + row * size);
             }
         }
     }
+
+    auto row = size - 1;
+    auto col = 0;
+    indices.push_back(col + row * size);
 }
 void TerrainMeshLoader::Clear()
 {
