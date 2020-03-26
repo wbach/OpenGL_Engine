@@ -36,7 +36,7 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
 
     ReserveMeshData(newMesh, heightMapResolution_);
     CreateTerrainVertexes(newMesh, 0, 0, heightMapResolution_, heightMapResolution_);
-    CreateIndicies(newMesh);
+    CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution_));
 
     model_->AddMesh(newMesh);
 }
@@ -120,10 +120,9 @@ float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
     return ((*heights_)[x + y * heightMapResolution_] * terrainScale_.y) - halfMaximumHeight_;
 }
-void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh)
+void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size)
 {
     auto& indices = mesh.GetMeshDataRef().indices_;
-    auto size     = static_cast<IndicesDataType>(heightMapResolution_);
 
     // Triagnle strip
     for (IndicesDataType gz = 0; gz < size - 1; gz++)

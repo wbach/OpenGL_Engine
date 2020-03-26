@@ -22,7 +22,7 @@ private:
     void CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width, uint32 height);
     vec3 CalculateNormalMap(uint32 x, uint32 z);
     float GetHeight(uint32 x, uint32 y) const;
-    void CreateIndicies(GameEngine::Mesh& mesh);
+    void CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size);
     void Clear();
 
 private:
