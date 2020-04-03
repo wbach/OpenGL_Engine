@@ -11,14 +11,6 @@ namespace GameEngine
 {
 const float OFFSET = 0.001f;
 
-struct FrustumCorners
-{
-    vec3 nw;
-    vec3 ne;
-    vec3 se;
-    vec3 sw;
-};
-
 struct CameraFrustrumShould : public ::testing::Test
 {
     void CalculatePlanes(const vec3& cameraPosition, const vec3& cameraLookAt)
@@ -66,7 +58,6 @@ struct CameraFrustrumShould : public ::testing::Test
     Frustrum sut_;
     BaseCamera camera_;
     Projection projection_;
-    FrustumCorners viewSpaceCorners_;
 };
 
 // PointTest
@@ -155,113 +146,81 @@ TEST_F(CameraFrustrumShould, PointBorderInside)
 
 // Sphere Tests
 
-// TEST_F(CameraFrustrumShould, Matrix_SphereAtFront)
-//{
-//    camera_.SetPosition(vec3(0, 0, -3));
-//    camera_.LookAt(vec3(0, 0, 0));
-//    camera_.UpdateMatrix();
+TEST_F(CameraFrustrumShould, SphereAtFront)
+{
+    vec3 sphereCenter(0, 0, 0);
+    float radius(1.f);
 
-//    vec3 sphereCenter(0, 0, 0);
-//    float radius(1.f);
+    CalculatePlanes(vec3(0, 0, -3), vec3(0, 0, 0));
+    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-//    CalculatePlanes();
-//    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
-//}
+TEST_F(CameraFrustrumShould, SphereAtFrontSwapPositions)
+{
+    vec3 sphereCenter(0, 0, -3);
+    float radius(1.f);
 
-// TEST_F(CameraFrustrumShould, Matrix_SphereAtFrontSwapPositions)
-//{
-//    camera_.SetPosition(vec3(0, 0, 0));
-//    camera_.LookAt(vec3(0, 0, -3));
-//    camera_.UpdateMatrix();
+    CalculatePlanes(vec3(0, 0, 0), vec3(0, 0, -3));
+    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-//    vec3 sphereCenter(0, 0, -3);
-//    float radius(1.f);
+TEST_F(CameraFrustrumShould, SphereAtFrontOtherPositions)
+{
+    vec3 sphereCenter(-2, 4, 3);
+    float radius(1.f);
 
-//    CalculatePlanes();
-//    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
-//}
+    CalculatePlanes(vec3(2, -3, 1), vec3(-2, 4, 3));
+    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-// TEST_F(CameraFrustrumShould, Matrix_SphereAtFrontOtherPositions)
-//{
-//    camera_.SetPosition(vec3(2, -3, 1));
-//    camera_.LookAt(vec3(-2, 4, 3));
-//    camera_.UpdateMatrix();
+TEST_F(CameraFrustrumShould, SphereBehind)
+{
+    vec3 sphereCenter(0, 0, -4);
+    float radius(1.f);
 
-//    vec3 sphereCenter(-2, 4, 3);
-//    float radius(1.f);
+    CalculatePlanes(vec3(0, 0, -3), vec3(0, 0, 0));
+    EXPECT_FALSE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-//    CalculatePlanes();
-//    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
-//}
+TEST_F(CameraFrustrumShould, SphereBehindCloseToCamera)
+{
+    vec3 sphereCenter(0, 0, -4 + projection_.GetNear() + OFFSET);
+    float radius(1.f);
 
-// TEST_F(CameraFrustrumShould, Matrix_SphereBehind)
-//{
-//    camera_.SetPosition(vec3(0, 0, -3));
-//    camera_.LookAt(vec3(0, 0, 0));
-//    camera_.UpdateMatrix();
+    CalculatePlanes(vec3(0, 0, -3), vec3(0, 0, 0));
+    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-//    vec3 sphereCenter(0, 0, -4);
-//    float radius(1.f);
+TEST_F(CameraFrustrumShould, SphereAtFrontBehindFarPlane)
+{
+    float radius(1.f);
+    vec3 sphereCenter(vec3(0, 0, projection_.GetFar() + 1 + OFFSET));
 
-//    CalculatePlanes();
-//    EXPECT_FALSE(sut_.SphereIntersection(sphereCenter, radius));
-//}
+    CalculatePlanes(vec3(0, 0, -3), sphereCenter);
+    EXPECT_FALSE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-// TEST_F(CameraFrustrumShould, Matrix_SphereBehindCloseToCamera)
-//{
-//    camera_.SetPosition(vec3(0, 0, -3));
-//    camera_.LookAt(vec3(0, 0, 0));
-//    camera_.UpdateMatrix();
+TEST_F(CameraFrustrumShould, SphereRightBorderOutside)
+{
+    auto distanceSphreToPlane = 1.0f + OFFSET;
+    auto v3                   = CalculateSpherePositionInDistanceToSidePlane(distanceSphreToPlane);
 
-//    vec3 sphereCenter(0, 0, -4 + projection_.GetNear() + OFFSET);
-//    float radius(1.f);
+    float radius(1.f);
+    vec3 sphereCenter(v3);
 
-//    CalculatePlanes();
-//    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
-//}
+    CalculatePlanes(vec3(0, 0, 0), vec3(0, 0, 10));
+    EXPECT_FALSE(sut_.SphereIntersection(sphereCenter, radius));
+}
 
-// TEST_F(CameraFrustrumShould, Matrix_SphereAtFrontBehindFarPlane)
-//{
-//    float radius(1.f);
-//    vec3 sphereCenter(vec3(0, 0, projection_.GetFar() + 1 + OFFSET));
+TEST_F(CameraFrustrumShould, SphereRightBorderInside)
+{
+    auto distanceSphreToPlane = 1.0f - OFFSET;
+    auto v3                   = CalculateSpherePositionInDistanceToSidePlane(distanceSphreToPlane);
 
-//    camera_.SetPosition(vec3(0, 0, -3));
-//    camera_.LookAt(sphereCenter);
-//    camera_.UpdateMatrix();
+    float radius(1.f);
+    vec3 sphereCenter(v3);
 
-//    CalculatePlanes();
-//    EXPECT_FALSE(sut_.SphereIntersection(sphereCenter, radius));
-//}
-
-// TEST_F(CameraFrustrumShould, Matrix_SphereRightBorderOutside)
-//{
-//    camera_.SetPosition(vec3(0, 0, 0));
-//    camera_.LookAt(vec3(0, 0, 10));
-//    camera_.UpdateMatrix();
-
-//    auto distanceSphreToPlane = 1.0f + OFFSET;
-//    auto v3                   = CalculateSpherePositionInDistanceToSidePlane(distanceSphreToPlane);
-
-//    float radius(1.f);
-//    vec3 sphereCenter(v3);
-
-//    CalculatePlanes();
-//    EXPECT_FALSE(sut_.SphereIntersection(sphereCenter, radius));
-//}
-
-// TEST_F(CameraFrustrumShould, Matrix_SphereRightBorderInside)
-//{
-//    camera_.SetPosition(vec3(0, 0, 0));
-//    camera_.LookAt(vec3(0, 0, 10));
-//    camera_.UpdateMatrix();
-
-//    auto distanceSphreToPlane = 1.0f - OFFSET;
-//    auto v3                   = CalculateSpherePositionInDistanceToSidePlane(distanceSphreToPlane);
-
-//    float radius(1.f);
-//    vec3 sphereCenter(v3);
-
-//    CalculatePlanes();
-//    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
-//}
+    CalculatePlanes(vec3(0, 0, 0), vec3(0, 0, 10));
+    EXPECT_TRUE(sut_.SphereIntersection(sphereCenter, radius));
+}
 }  // namespace GameEngine
