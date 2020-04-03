@@ -9,6 +9,7 @@
 #include "IRenderer.h"
 #include "Projection.h"
 #include "RendererFunctionType.h"
+#include "GameEngine/Camera/Frustrum.h"
 #include <functional>
 
 namespace GameEngine
@@ -17,6 +18,9 @@ class Scene;
 class GameObject;
 class GuiTextElement;
 class GuiTextureElement;
+class IFrameBuffer;
+class IShadowFrameBuffer;
+class RendererContext;
 
 namespace Renderer
 {
@@ -24,6 +28,7 @@ class RenderersManager
 {
 public:
     RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi);
+    ~RenderersManager();
     void Init();
     const Projection& GetProjection() const;
     void RenderScene(Scene* scene, const Time& threadTime);
@@ -56,7 +61,11 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    
+    std::unique_ptr<IFrameBuffer> defferedFrameBuffer_;
+    std::unique_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
+    std::unique_ptr<RendererContext> rendererContext_;
+
+    Frustrum frustrum_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;

@@ -7,8 +7,7 @@ struct Time;
 class DefferedRenderer : public BaseRenderer
 {
 public:
-    DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix,
-                     std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
+    DefferedRenderer(RendererContext& context);
     ~DefferedRenderer();
 
     virtual void Init() override;

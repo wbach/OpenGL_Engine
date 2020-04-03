@@ -17,13 +17,15 @@ class Projection;
 class IFrameBuffer;
 class IShadowFrameBuffer;
 class PostprocessFrameBuffer;
+class Frustrum;
 
 struct RendererContext
 {
-    RendererContext(Projection& projection, GraphicsApi::IGraphicsApi& api, IFrameBuffer& defferedBuffer,
+    RendererContext(Projection& projection, Frustrum& frustrum, GraphicsApi::IGraphicsApi& api, IFrameBuffer& defferedBuffer,
                     IShadowFrameBuffer& shadowBuffer,
                     std::function<void(RendererFunctionType, RendererFunction)> registerFunction)
         : projection_(projection)
+        , frustrum_(frustrum)
         , graphicsApi_(api)
         , defferedFrameBuffer_(defferedBuffer)
         , shadowsFrameBuffer_(shadowBuffer)
@@ -31,6 +33,7 @@ struct RendererContext
     {
     }
     Projection& projection_;
+    Frustrum& frustrum_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     mat4 toShadowMapZeroMatrix_;
     IFrameBuffer& defferedFrameBuffer_;

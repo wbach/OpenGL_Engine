@@ -26,8 +26,8 @@ int main(int, char**)
     GameEngine::ReadFromFile(configFile);
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-    // graphicsApi = std::make_unique<DirectX::DirectXApi>();
+   // graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+     graphicsApi = std::make_unique<DirectX::DirectXApi>();
 
     Editor::Context editorContext;
 

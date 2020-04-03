@@ -17,10 +17,9 @@
 
 namespace GameEngine
 {
-DefferedRenderer::DefferedRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection,
-                                   std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
-    : BaseRenderer(graphicsApi, projection, rendererFunction)
-    , postprocessingRenderersManager_(context_)
+DefferedRenderer::DefferedRenderer(RendererContext& context)
+    : BaseRenderer(context)
+    , postprocessingRenderersManager_(context)
 {
 }
 

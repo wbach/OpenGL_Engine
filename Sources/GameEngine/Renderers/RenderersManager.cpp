@@ -4,16 +4,18 @@
 #include "DefferedRenderer.h"
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Objects/Shadows/ShadowFrameBuffer.h"
+#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
-
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "RendererContext.h"
 
 namespace GameEngine
 {
@@ -45,6 +47,9 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
     , renderPhysicsDebug_(false)
     , bufferDataUpdater_(graphicsApi)
 //    , debugRenderer_()
+{
+}
+RenderersManager::~RenderersManager()
 {
 }
 const Projection& RenderersManager::GetProjection() const
@@ -83,15 +88,20 @@ void RenderersManager::InitMainRenderer()
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
+    defferedFrameBuffer_ = std::make_unique<DefferedFrameBuffer>(graphicsApi_);
+    shadowsFrameBuffer_  = std::make_unique<ShadowFrameBuffer>(graphicsApi_);
+    rendererContext_     = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
+                                                         *shadowsFrameBuffer_, registerFunc);
+
     if (rendererType == Params::RendererType::SIMPLE_RENDERER)
     {
         DEBUG_LOG("Create base renderer");
-        renderers_.emplace_back(new BaseRenderer(graphicsApi_, projection_, registerFunc));
+        renderers_.emplace_back(new BaseRenderer(*rendererContext_));
     }
     else
     {
         DEBUG_LOG("Create deffered renderer");
-        renderers_.emplace_back(new DefferedRenderer(graphicsApi_, projection_, registerFunc));
+        renderers_.emplace_back(new DefferedRenderer(*rendererContext_));
     }
 }
 void RenderersManager::InitGuiRenderer()
@@ -123,13 +133,13 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
     Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
 
-    //if (renderPhysicsDebug_ and physicsDebugDraw_)
+    // if (renderPhysicsDebug_ and physicsDebugDraw_)
     //{
     //    DEBUG_LOG("Physic draw");
     //    physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
     //}
 
-    //debugRenderer_.Render(*scene, threadTime);
+    // debugRenderer_.Render(*scene, threadTime);
     guiRenderer_.Render(*scene, threadTime);
 
     if (unsubscribeAllCallback_)
@@ -192,7 +202,7 @@ void RenderersManager::SwapLineFaceRender()
 
 void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
 {
-   // debugRenderer_.SetPhysicsDebugDraw(func);
+    // debugRenderer_.SetPhysicsDebugDraw(func);
 }
 void RenderersManager::EnableDrawPhysicsDebyg()
 {
@@ -270,6 +280,7 @@ void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
             graphicsApi_.PrepareMatrixToLoad(projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix());
         buffer.cameraPosition = scene->GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
+        frustrum_.CalculatePlanes(buffer.ProjectionViewMatrix);
     }
 }
 

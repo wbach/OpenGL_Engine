@@ -55,8 +55,6 @@ void TerrainMeshRenderer::RenderSubscriber(const Subscriber& subscriber) const
     auto partsCount = config.GetPartsCount();
     auto scaleXZ = config.GetScaleXZ();
 
-
-
     int index = 0;
     for (const auto& mesh : model->GetMeshes())
     {

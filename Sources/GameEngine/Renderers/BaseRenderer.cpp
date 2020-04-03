@@ -1,11 +1,10 @@
 #include "BaseRenderer.h"
-#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 
 #include "Objects/Entity/EntityRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Plants/PlantsRenderer.h"
-#include "Objects/Shadows/ShadowFrameBuffer.h"
+
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
 #include "Objects/Skydome/SkydomeRenderer.h"
@@ -22,11 +21,8 @@
 
 namespace GameEngine
 {
-BaseRenderer::BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection,
-                           std::function<void(RendererFunctionType, RendererFunction)> rendererFunction)
-    : defferedFrameBuffer_(std::make_unique<DefferedFrameBuffer>(graphicsApi))
-    , shadowsFrameBuffer_(std::make_unique<ShadowFrameBuffer>(graphicsApi))
-    , context_(projection, graphicsApi, *defferedFrameBuffer_, *shadowsFrameBuffer_, rendererFunction)
+BaseRenderer::BaseRenderer(RendererContext& context)
+    : context_(context)
 {
 }
 BaseRenderer::~BaseRenderer()

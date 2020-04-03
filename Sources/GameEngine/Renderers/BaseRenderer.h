@@ -18,8 +18,7 @@ typedef std::vector<RendererPtr> RendererVecPtr;
 class BaseRenderer : public IRenderer
 {
 public:
-    BaseRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection_matrix,
-                 std::function<void(RendererFunctionType, RendererFunction)> rendererFunction);
+    BaseRenderer(RendererContext& context);
     ~BaseRenderer();
     // Loading lights itp to shader
     virtual void Init() override;
@@ -40,9 +39,7 @@ protected:
     }
 
 protected:
-    std::unique_ptr<IFrameBuffer> defferedFrameBuffer_;
-    std::unique_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
-    RendererContext context_;
+    RendererContext& context_;
     RendererVecPtr renderers;
 };
 }  // namespace GameEngine
