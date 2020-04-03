@@ -24,9 +24,7 @@ void CLogger::EnableLogs()
 }
 void CLogger::ImmeditalyLog()
 {
-    std::lock_guard<std::mutex> lk(printMutex_);
     logImmeditaly = true;
-    mainfile      = std::ofstream(fileName, std::ios_base::app);
 }
 void CLogger::LazyLog()
 {

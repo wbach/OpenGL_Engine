@@ -19,11 +19,16 @@ public:
     inline float GetFoV() const;
     inline float GetFar() const;
     inline float GetNear() const;
+    inline float GetAspectRatio() const;
     const vec2ui& GetRenderingSize() const;
     const mat4& GetProjectionMatrix() const;
 
 private:
+    float CalculateAspectRatio() const;
+
+private:
     vec2ui renderingSize_;
+    float aspectRatio_;
     float nearPlane_;
     float farPlane_;
     float fov_;
@@ -47,5 +52,10 @@ float Projection::GetFar() const
 float Projection::GetNear() const
 {
     return nearPlane_;
+}
+
+float Projection::GetAspectRatio() const
+{
+    return aspectRatio_;
 }
 }  // namespace GameEngine

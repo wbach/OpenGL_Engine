@@ -1,19 +1,20 @@
 #pragma once
 #include "Types.h"
 
-class CPlane
+namespace GameEngine
 {
-public:
-	void Normalize()
-	{
-		float scale = 1.f / glm::length(normal);
-		normal.x *= scale;
-		normal.y *= scale;
-		normal.z *= scale;
-		distanceToOrgin *= scale;
-	}
+struct Plane
+{
+    vec3 normal_; // a b c
+    float d_;  // The "distance" to the origin.
 
-public:
-	vec3 normal; // The normal
-	float distanceToOrgin;  // The "distance" to the origin.
+    void Normalize()
+    {
+        float scale = 1.f / glm::length(normal_);
+        normal_.x *= scale;
+        normal_.y *= scale;
+        normal_.z *= scale;
+        d_ *= scale;
+    }
 };
+}  // namespace GameEngine

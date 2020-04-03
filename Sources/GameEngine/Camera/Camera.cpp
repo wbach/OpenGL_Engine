@@ -7,7 +7,7 @@
 namespace GameEngine
 {
 BaseCamera::BaseCamera()
-    : BaseCamera(20, 0)
+    : BaseCamera(0, 0)
 {
 }
 BaseCamera::BaseCamera(float pitch, float yaw)

@@ -1,50 +1,71 @@
 #include "Frustrum.h"
+#include <Logger/Log.h>
 #include "Utils.h"
 
-void CFrustrum::CalculatePlanes(const mat4& projection_view_matrix)
+namespace GameEngine
 {
-    planes[FrustrumPlane::FRUSTUM_RIGHT].normal.x        = projection_view_matrix[0][3] - projection_view_matrix[0][0];
-    planes[FrustrumPlane::FRUSTUM_RIGHT].normal.y        = projection_view_matrix[1][3] - projection_view_matrix[1][0];
-    planes[FrustrumPlane::FRUSTUM_RIGHT].normal.z        = projection_view_matrix[2][3] - projection_view_matrix[2][0];
-    planes[FrustrumPlane::FRUSTUM_RIGHT].distanceToOrgin = projection_view_matrix[3][3] - projection_view_matrix[3][0];
+void Frustrum::CalculatePlanes(const mat4& projectionViewMatrix)
+{
+    const auto& m = projectionViewMatrix;
+    // Left clipping plane
+    planes_[0].normal_.x = m[3][0] + m[0][0];
+    planes_[0].normal_.y = m[3][1] + m[0][1];
+    planes_[0].normal_.z = m[3][2] + m[0][2];
+    planes_[0].d_        = m[3][3] + m[0][3];
+    // Right clipping plane
+    planes_[1].normal_.x = m[3][0] - m[0][0];
+    planes_[1].normal_.y = m[3][1] - m[0][1];
+    planes_[1].normal_.z = m[3][2] - m[0][2];
+    planes_[1].d_        = m[3][3] - m[0][3];
+    // Top clipping plane
+    planes_[2].normal_.x = m[3][0] - m[1][0];
+    planes_[2].normal_.y = m[3][1] - m[1][1];
+    planes_[2].normal_.z = m[3][2] - m[1][2];
+    planes_[2].d_        = m[3][3] - m[1][3];
+    // Bottom clipping plane
+    planes_[3].normal_.x = m[3][0] + m[1][0];
+    planes_[3].normal_.y = m[3][1] + m[1][1];
+    planes_[3].normal_.z = m[3][2] + m[1][2];
+    planes_[3].d_        = m[3][3] + m[1][3];
+    // Near clipping plane
+    planes_[4].normal_.x = m[3][0] + m[2][0];
+    planes_[4].normal_.y = m[3][1] + m[2][1];
+    planes_[4].normal_.z = m[3][2] + m[2][2];
+    planes_[4].d_        = m[3][3] + m[2][3];
+    // Far clipping plane
+    planes_[5].normal_.x = m[3][0] - m[2][0];
+    planes_[5].normal_.y = m[3][1] - m[2][1];
+    planes_[5].normal_.z = m[3][2] - m[2][2];
+    planes_[5].d_        = m[3][3] - m[2][3];
 
-    planes[FrustrumPlane::FRUSTUM_LEFT].normal.x        = projection_view_matrix[0][3] + projection_view_matrix[0][0];
-    planes[FrustrumPlane::FRUSTUM_LEFT].normal.y        = projection_view_matrix[1][3] + projection_view_matrix[1][0];
-    planes[FrustrumPlane::FRUSTUM_LEFT].normal.z        = projection_view_matrix[2][3] + projection_view_matrix[2][0];
-    planes[FrustrumPlane::FRUSTUM_LEFT].distanceToOrgin = projection_view_matrix[3][3] + projection_view_matrix[3][0];
-
-    planes[FrustrumPlane::FRUSTUM_DOWN].normal.x        = projection_view_matrix[0][3] + projection_view_matrix[0][1];
-    planes[FrustrumPlane::FRUSTUM_DOWN].normal.y        = projection_view_matrix[1][3] + projection_view_matrix[1][1];
-    planes[FrustrumPlane::FRUSTUM_DOWN].normal.z        = projection_view_matrix[2][3] + projection_view_matrix[2][1];
-    planes[FrustrumPlane::FRUSTUM_DOWN].distanceToOrgin = projection_view_matrix[3][3] + projection_view_matrix[3][1];
-
-    planes[FrustrumPlane::FRUSTUM_UP].normal.x        = projection_view_matrix[0][3] - projection_view_matrix[0][1];
-    planes[FrustrumPlane::FRUSTUM_UP].normal.y        = projection_view_matrix[1][3] - projection_view_matrix[1][1];
-    planes[FrustrumPlane::FRUSTUM_UP].normal.z        = projection_view_matrix[2][3] - projection_view_matrix[2][1];
-    planes[FrustrumPlane::FRUSTUM_UP].distanceToOrgin = projection_view_matrix[3][3] - projection_view_matrix[3][1];
-
-    planes[FrustrumPlane::FRUSTUM_FAR].normal.x        = projection_view_matrix[0][3] - projection_view_matrix[0][2];
-    planes[FrustrumPlane::FRUSTUM_FAR].normal.y        = projection_view_matrix[1][3] - projection_view_matrix[1][2];
-    planes[FrustrumPlane::FRUSTUM_FAR].normal.z        = projection_view_matrix[2][3] - projection_view_matrix[2][2];
-    planes[FrustrumPlane::FRUSTUM_FAR].distanceToOrgin = projection_view_matrix[3][3] - projection_view_matrix[3][2];
-
-    planes[FrustrumPlane::FRUSTUM_NEAR].normal.x        = projection_view_matrix[0][3] + projection_view_matrix[0][2];
-    planes[FrustrumPlane::FRUSTUM_NEAR].normal.y        = projection_view_matrix[1][3] + projection_view_matrix[1][2];
-    planes[FrustrumPlane::FRUSTUM_NEAR].normal.z        = projection_view_matrix[2][3] + projection_view_matrix[2][2];
-    planes[FrustrumPlane::FRUSTUM_NEAR].distanceToOrgin = projection_view_matrix[3][3] + projection_view_matrix[3][2];
-
-    // Normalize all planeslane normals
-    for (int i = 0; i < 6; i++)
-        planes[i].Normalize();
+    for(auto& plane : planes_)
+        plane.Normalize();
 }
 
-bool CFrustrum::SphereIntersection(const vec3& center, const float& radius) const
+Halfspace ClassifyPoint(const Plane& plane, const vec3& pt)
 {
-    for (int i = 0; i < 6; i++)
+    float distance = (plane.normal_.x * pt.x) + (plane.normal_.y * pt.y) + (plane.normal_.z * pt.z) + plane.d_;
+    if (distance < 0)
+        return Halfspace::NEGATIVE;
+    if (distance > 0)
+        return Halfspace::POSITIVE;
+
+    return Halfspace::ON_PLANE;
+}
+
+bool Frustrum::PointIntersection(const vec3& point) const
+{
+    return std::all_of(planes_.begin(), planes_.end(), [&point](const auto& plane) { return ClassifyPoint(plane, point) != Halfspace::NEGATIVE; });
+}
+
+bool Frustrum::SphereIntersection(const vec3& center, const float& radius) const
+{
+    for (const auto& plane : planes_)
     {
         // Plane-sphere intersection test. If p*n + d + r < 0 then we're outside the plane.
-        if (glm::dot(center, planes[i].normal) + planes[i].distanceToOrgin + radius <= 0)
+        if (glm::dot(center, plane.normal_) + plane.d_ + radius <= 0)
             return false;
     }
     return true;
 }
+}  // namespace GameEngine

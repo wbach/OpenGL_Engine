@@ -1,6 +1,7 @@
 set(GameEngineTestsSources
 ../../Sources/GameEngineTests/main.cpp
 ../../Sources/GameEngineTests/Tests/UT/Scene/Scene.cpp
+../../Sources/GameEngineTests/Tests/UT/Camera/CameraFrustrumTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Renderers/TerrainNormalCalulation.cpp
 ../../Sources/GameEngineTests/Tests/UT/Renderers/EntityRendererTest.cpp
 ../../Sources/GameEngineTests/Tests/UT/Renderers/GuiElementTests.cpp

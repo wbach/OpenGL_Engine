@@ -1,24 +1,23 @@
 #pragma once
 #include "Plane.h"
 
-namespace FrustrumPlane
+namespace GameEngine
 {
-enum Type
+enum class Halfspace
 {
-    FRUSTUM_NEAR = 0,
-    FRUSTUM_FAR,
-    FRUSTUM_LEFT,
-    FRUSTUM_RIGHT,
-    FRUSTUM_UP,
-    FRUSTUM_DOWN
+    NEGATIVE,
+    ON_PLANE,
+    POSITIVE
 };
-}
-class CFrustrum
+
+class Frustrum
 {
 public:
-    void CalculatePlanes(const mat4& projection_view_matrix);
+    void CalculatePlanes(const mat4& projectionViewMatrix);
+    bool PointIntersection(const vec3& point) const;
     bool SphereIntersection(const vec3& center, const float& radius) const;
 
 private:
-    CPlane planes[6];
+    std::array<Plane, 6> planes_;
 };
+}  // namespace GameEngine
