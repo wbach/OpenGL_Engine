@@ -25,6 +25,10 @@ void TerrainMeshRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&TerrainMeshRendererComponent::Subscribe, this));
 }
+const TerrainConfiguration& TerrainMeshRendererComponent::GetConfiguration() const
+{
+    return config_;
+}
 TerrainMeshRendererComponent &TerrainMeshRendererComponent::LoadTextures(
     const std::unordered_map<TerrainTextureType, std::string> &textures)
 {
@@ -71,6 +75,8 @@ void TerrainMeshRendererComponent::SetTexture(TerrainTextureType type, Texture *
 void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
 {
     auto model = componentContext_.resourceManager_.LoadModel(terrainFile);
+    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(terrainFile) + ".terrainConfig";
+    config_ = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     modelWrapper_.Add(model, LevelOfDetail::L1);
 
     perObjectUpdateBuffer_.reserve(model->GetMeshes().size());

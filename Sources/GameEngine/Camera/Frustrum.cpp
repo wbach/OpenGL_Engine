@@ -1,6 +1,8 @@
 #include "Frustrum.h"
 #include <Logger/Log.h>
 #include "Utils.h"
+#include <glm/glm.hpp>
+#include <algorithm>
 
 namespace GameEngine
 {

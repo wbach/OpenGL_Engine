@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <optional>
 #include "PerrTerrainBuffer.h"
 #include "Types.h"
 

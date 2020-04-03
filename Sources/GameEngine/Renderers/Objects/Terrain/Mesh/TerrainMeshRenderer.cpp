@@ -50,6 +50,13 @@ void TerrainMeshRenderer::RenderSubscriber(const Subscriber& subscriber) const
     if (not model)
         return;
 
+    const auto& config = subscriber.component_->GetConfiguration();
+
+    auto partsCount = config.GetPartsCount();
+    auto scaleXZ = config.GetScaleXZ();
+
+
+
     int index = 0;
     for (const auto& mesh : model->GetMeshes())
     {

@@ -1,9 +1,10 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "TerrainTexturesTypes.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "TerrainTexturesTypes.h"
+#include "TerrainConfiguration.h"
 
 namespace GameEngine
 {
@@ -23,6 +24,7 @@ public:
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
     virtual void ReqisterFunctions() override;
+    const TerrainConfiguration& GetConfiguration() const;
 
 private:
     void SetTexture(TerrainTextureType, Texture*);
@@ -31,6 +33,7 @@ private:
     void UnSubscribe();
 
 private:
+    TerrainConfiguration config_;
     ModelWrapper modelWrapper_;
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
