@@ -75,7 +75,7 @@ HRESULT InitDevice(DirectXContext &directXContext)
     UINT width                   = rc.right - rc.left;
     UINT height                  = rc.bottom - rc.top;
     directXContext.viewPort.size = vec2ui(width, height);
-#define _DEBUG
+
     UINT createDeviceFlags = 0;
 #ifdef _DEBUG
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;

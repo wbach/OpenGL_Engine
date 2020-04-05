@@ -1,6 +1,9 @@
 #include "TerrainMeshLoader.h"
+
 #include <Logger/Log.h>
+
 #include <algorithm>
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -25,14 +28,13 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage()->width;
     heights_             = &hm->GetImage()->floatData;
-    halfMaximumHeight_   = (*std::max_element(heights_->begin(), heights_->end())) / 2.f;
-    halfMaximumHeight_ *= terrainScale_.y;
 
-    DEBUG_LOG("halfMaximumHeight_ = " + std::to_string(halfMaximumHeight_));
+    halfMaximumHeight_ = (*std::max_element(heights_->begin(), heights_->end())) / 2.f;
+    halfMaximumHeight_ *= terrainScale_.y;
 
     model_ = std::make_unique<Model>();
 
-    auto partsCount= terrainConfig.GetPartsCount();
+    auto partsCount = terrainConfig.GetPartsCount();
     if (partsCount)
     {
         CreatePartial(*partsCount);

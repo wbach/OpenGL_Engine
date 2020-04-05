@@ -420,14 +420,14 @@ Texture* TextureLoader::LoadHeightMapBinary(const std::string& filename, bool gp
         return nullptr;
     }
 
-    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, std::move(texture));
-    heightmap_texture->SetScale(header.scale);
-    textures_.emplace_back(heightmap_texture);
+    auto heightmapTexture = new HeightMap(graphicsApi_, true, filename, filename, std::move(texture));
+    heightmapTexture->SetScale(header.scale);
+    textures_.emplace_back(heightmapTexture);
 
     if (gpu_pass)
-        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmap_texture);
+        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmapTexture);
 
-    return heightmap_texture;
+    return heightmapTexture;
 }
 Texture* TextureLoader::LoadHeightMapTexture(const std::string& filename, bool gpu_pass)
 {

@@ -126,9 +126,9 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 
     auto& graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
 
-    const mat4 viewProjectionMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+    const mat4 transformMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
 
-    buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(viewProjectionMatrix);
+    buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     perObjectUpdateBuffer_.push_back(buffer);
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(&perObjectUpdateBuffer_.back());
@@ -163,10 +163,10 @@ void RendererComponent::UpdateBuffers()
     {
         auto& poc = perObjectUpdateBuffer_[index++];
 
-        auto& graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
-        const mat4 vpm    = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+        auto& graphicsApi         = componentContext_.resourceManager_.GetGraphicsApi();
+        const mat4 transformMatix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
 
-        poc.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(vpm);
+        poc.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatix);
         poc.UpdateBuffer();
     }
 }

@@ -35,7 +35,6 @@ void HeightMap::GpuLoadingPass()
     }
     else
     {
-        image_.floatData.clear();
         ERROR_LOG("Texutre not created. Filename : " + fullpath);
     }
 

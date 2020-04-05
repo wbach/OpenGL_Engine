@@ -39,6 +39,7 @@ int EditorScene::Initialize()
         auto go = CreateGameObject("Crate");
         go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
                                                                                GameEngine::LevelOfDetail::L1);
+        go->worldTransform.SetPosition(vec3(2, 0, 0));
         go->worldTransform.TakeSnapShoot();
         AddGameObject(go);
     }
