@@ -17,20 +17,29 @@ ShadowFrameBuffer::ShadowFrameBuffer(GraphicsApi::IGraphicsApi& graphicsApi)
 ShadowFrameBuffer::~ShadowFrameBuffer()
 {
     DEBUG_LOG("");
-    graphicsApi_.DeleteObject(shadowMap);
-    graphicsApi_.DeleteObject(fbo);
+    if (shadowMap)
+        graphicsApi_.DeleteObject(*shadowMap);
+
+    if (fbo)
+        graphicsApi_.DeleteObject(*fbo);
 }
 
 void ShadowFrameBuffer::BindFBO()
 {
-    graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, fbo);
-    graphicsApi_.SetViewPort(0, 0, size.x, size.y);
+    if (fbo)
+    {
+        graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, *fbo);
+        graphicsApi_.SetViewPort(0, 0, size.x, size.y);
+    }
 }
 
 void ShadowFrameBuffer::UnbindFrameBuffer() const
 {
-    graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, 0);
-    graphicsApi_.SetViewPort(0, 0, renderResolution.x, renderResolution.y);
+    if (fbo)
+    {
+        graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, 0);
+        graphicsApi_.SetViewPort(0, 0, renderResolution.x, renderResolution.y);
+    }
 }
 
 void ShadowFrameBuffer::InitialiseFrameBuffer()
@@ -38,12 +47,12 @@ void ShadowFrameBuffer::InitialiseFrameBuffer()
     auto fboId = graphicsApi_.CreateBuffer();
     if (not fboId)
     {
-        ERROR_LOG("CreateBuffer error.");
+        ERROR_LOG("Create shadowFrameBuffer error.");
         return;
     }
     fbo = *fboId;
 
-    graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, fbo);
+    graphicsApi_.BindBuffer(GraphicsApi::BindType::DEFAULT, *fbo);
 
     auto shadowMapId = graphicsApi_.CreateShadowMap(size.x, size.y);
     if (not shadowMapId)
@@ -56,7 +65,7 @@ void ShadowFrameBuffer::InitialiseFrameBuffer()
     UnbindFrameBuffer();
 }
 
-uint32 ShadowFrameBuffer::GetShadowMap() const
+std::optional<uint32> ShadowFrameBuffer::GetShadowMap() const
 {
     return shadowMap;
 }

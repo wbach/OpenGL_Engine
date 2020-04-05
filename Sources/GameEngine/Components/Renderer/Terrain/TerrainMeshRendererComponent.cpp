@@ -5,6 +5,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -45,7 +46,6 @@ TerrainMeshRendererComponent &TerrainMeshRendererComponent::LoadTextures(
         auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second);
         SetTexture(texturePair.first, texture);
     }
-
     return *this;
 }
 const TerrainTexturesMap &TerrainMeshRendererComponent::GetTextures() const
@@ -75,7 +75,8 @@ void TerrainMeshRendererComponent::SetTexture(TerrainTextureType type, Texture *
 void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
 {
     auto model = componentContext_.resourceManager_.LoadModel(terrainFile);
-    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(terrainFile) + ".terrainConfig";
+    auto terrainFileFullpath = EngineConf_GetFullDataPath(terrainFile);
+    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(terrainFileFullpath) + ".terrainConfig";
     config_ = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     modelWrapper_.Add(model, LevelOfDetail::L1);
 

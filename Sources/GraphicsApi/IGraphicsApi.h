@@ -11,6 +11,7 @@
 #include "FunctionsTypes.h"
 #include "GraphicsApiDef.h"
 #include "RenderType.h"
+#include "RendererType.h"
 #include "ShaderProgramType.h"
 #include "ShaderQuaility.h"
 #include "ShaderTypes.h"
@@ -35,6 +36,7 @@ public:
     virtual void DeleteContext()                                                                             = 0;
     virtual void PrintVersion()                                                                              = 0;
     virtual bool IsTesselationSupported() const                                                              = 0;
+    virtual std::vector<RendererType> GetSupportedRenderers() const                                          = 0;
     virtual void SetDefaultTarget()                                                                          = 0;
     virtual void SetBackgroundColor(const vec3&)                                                             = 0;
     virtual void EnableDepthTest()                                                                           = 0;

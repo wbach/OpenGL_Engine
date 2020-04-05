@@ -66,7 +66,8 @@ void Read(Utils::XmlNode& node, Params::Textures& textures)
 
 void Read(Utils::XmlNode& node, Params::Renderer& renderer)
 {
-    renderer.type         = static_cast<Params::RendererType>(Utils::StringToInt(node.attributes_[CSTR_RENDERER_TYPE]));
+    renderer.graphicsApi  = node.attributes_[CSTR_GRAPHICS_API];
+    renderer.type         = static_cast<GraphicsApi::RendererType>(Utils::StringToInt(node.attributes_[CSTR_RENDERER_TYPE]));
     renderer.viewDistance = Utils::StringToFloat(node.attributes_[CSTR_RENDERER_VIEW_DISTANCE]);
     renderer.fpsLimt      = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_LIMIT]);
     renderer.resolution.x = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X]);

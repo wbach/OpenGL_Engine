@@ -160,25 +160,25 @@ void EntityRenderer::BindMaterial(const Material& material) const
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
 
-    if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized() &&
+    if (material.diffuseTexture != nullptr && material.diffuseTexture->IsLoadedToGpu() &&
         EngineConf.renderer.textures.useDiffuse)
     {
         context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetGraphicsObjectId());
     }
 
-    if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized() &&
+    if (material.ambientTexture != nullptr && material.ambientTexture->IsLoadedToGpu() &&
         EngineConf.renderer.textures.useAmbient)
     {
         context_.graphicsApi_.ActiveTexture(1, material.ambientTexture->GetGraphicsObjectId());
     }
 
-    if (material.normalTexture != nullptr && material.normalTexture->IsInitialized() &&
+    if (material.normalTexture != nullptr && material.normalTexture->IsLoadedToGpu() &&
         EngineConf.renderer.textures.useNormal)
     {
         context_.graphicsApi_.ActiveTexture(2, material.normalTexture->GetGraphicsObjectId());
     }
 
-    if (material.specularTexture != nullptr && material.specularTexture->IsInitialized() &&
+    if (material.specularTexture != nullptr && material.specularTexture->IsLoadedToGpu() &&
         EngineConf.renderer.textures.useSpecular)
     {
         context_.graphicsApi_.ActiveTexture(3, material.specularTexture->GetGraphicsObjectId());

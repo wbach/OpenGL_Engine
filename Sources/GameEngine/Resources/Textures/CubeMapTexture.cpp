@@ -17,7 +17,7 @@ CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
 
 void CubeMapTexture::GpuLoadingPass()
 {
-    if (isInit or images_.size() != 6)
+    if (isInGpu_ or images_.size() != 6)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
@@ -42,7 +42,7 @@ void CubeMapTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInit            = true;
+        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else

@@ -3,6 +3,7 @@
 #include "LoD.h"
 #include "SingleTon.h"
 #include "Utils.h"
+#include <GraphicsApi/RendererType.h>
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
 const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
@@ -30,12 +31,6 @@ struct Files
     std::string data                    = DEFAULT_DATA_PATH;
     std::string shaders                 = DEFAULT_SHADERS_PATH;
     std::string requiredFilesOutputFile = DEFAULT_REQUIRED_FILE_NAME;
-};
-
-enum class RendererType
-{
-    SIMPLE_RENDERER = 0,
-    FULL
 };
 
 struct Shadows
@@ -82,7 +77,8 @@ struct Textures
 
 struct Renderer
 {
-    RendererType type  = RendererType::FULL;
+    std::string graphicsApi = "OpenGL";
+    GraphicsApi::RendererType type  = GraphicsApi::RendererType::FULL;
     float viewDistance = 250.f;
     uint32 fpsLimt     = 60;
     vec2ui resolution  = DEFAULT_WINDOW_SIZE;

@@ -2,19 +2,19 @@
 #include "RenderersManager.h"
 
 #include "DefferedRenderer.h"
+#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "Objects/Shadows/ShadowFrameBuffer.h"
-#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
+#include "Objects/Shadows/ShadowFrameBuffer.h"
 #include "RendererContext.h"
 
 namespace GameEngine
@@ -90,18 +90,49 @@ void RenderersManager::InitMainRenderer()
 
     defferedFrameBuffer_ = std::make_unique<DefferedFrameBuffer>(graphicsApi_);
     shadowsFrameBuffer_  = std::make_unique<ShadowFrameBuffer>(graphicsApi_);
-    rendererContext_     = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
+    rendererContext_ = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
                                                          *shadowsFrameBuffer_, registerFunc);
 
-    if (rendererType == Params::RendererType::SIMPLE_RENDERER)
+    auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
+
+    if (supportedRenderers.empty())
     {
-        DEBUG_LOG("Create base renderer");
-        renderers_.emplace_back(new BaseRenderer(*rendererContext_));
+        ERROR_LOG("Graphics api not supporting any renderer!");
+        return;
     }
-    else
+
+    if (rendererType == GraphicsApi::RendererType::SIMPLE)
     {
-        DEBUG_LOG("Create deffered renderer");
-        renderers_.emplace_back(new DefferedRenderer(*rendererContext_));
+        auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::SIMPLE);
+        if (iter != supportedRenderers.end())
+        {
+            DEBUG_LOG("Create base renderer");
+            renderers_.emplace_back(new BaseRenderer(*rendererContext_));
+        }
+        else
+        {
+            DEBUG_LOG("Graphics api are not supporting SIMPLE renderer try using full");
+            DEBUG_LOG("Create deffered renderer");
+            renderers_.emplace_back(new DefferedRenderer(*rendererContext_));
+        }
+        return;
+    }
+
+    if (rendererType == GraphicsApi::RendererType::FULL)
+    {
+        auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::FULL);
+        if (iter != supportedRenderers.end())
+        {
+            DEBUG_LOG("Create deffered renderer");
+            renderers_.emplace_back(new DefferedRenderer(*rendererContext_));
+        }
+        else
+        {
+            DEBUG_LOG("Graphics api are not supporting FULL renderer try using simple");
+            DEBUG_LOG("Create base renderer");
+            renderers_.emplace_back(new BaseRenderer(*rendererContext_));
+        }
+        return;
     }
 }
 void RenderersManager::InitGuiRenderer()
@@ -118,10 +149,12 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
 
     if (scene == nullptr)
         return;
-
     ReloadShadersExecution();
     bufferDataUpdater_.Update();
     UpdateCamera(scene);
+
+    viewProjectionMatrix_ = projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix();
+    frustrum_.CalculatePlanes(viewProjectionMatrix_);
     UpdatePerFrameBuffer(scene);
 
     RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
@@ -277,12 +310,10 @@ void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
     {
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix =
-            graphicsApi_.PrepareMatrixToLoad(projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix());
+            graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
         buffer.cameraPosition = scene->GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
-        frustrum_.CalculatePlanes(buffer.ProjectionViewMatrix);
     }
 }
-
 }  // namespace Renderer
 }  // namespace GameEngine

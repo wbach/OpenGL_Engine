@@ -16,7 +16,7 @@ NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepDa
 
 void NormalTexture::GpuLoadingPass()
 {
-    if (image_->floatData.empty() || isInit)
+    if (image_->floatData.empty() || isInGpu_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
         return;
@@ -30,7 +30,7 @@ void NormalTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInit            = true;
+        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else

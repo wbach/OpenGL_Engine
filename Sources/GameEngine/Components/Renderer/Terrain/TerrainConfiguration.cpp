@@ -11,6 +11,13 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
 {
     std::ofstream file;
     file.open(filename, std::ios::out);
+
+    if (not file.is_open())
+    {
+        ERROR_LOG("Can not open file to writing :" + filename);
+        return;
+    }
+
     file << "Scale " << config.GetScale().x << " " << config.GetScale().y << " " << config.GetScale().z << "\n";
 
     file << "# Tesselation terrain parameters\n";

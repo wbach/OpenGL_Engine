@@ -19,8 +19,8 @@ struct ColorBuffer
 
 GUIRenderer::GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
-    , isInit_{false}
     , shader_(graphicsApi, GraphicsApi::ShaderProgramType::Texture)
+    , isInit_{false}
 {
 }
 

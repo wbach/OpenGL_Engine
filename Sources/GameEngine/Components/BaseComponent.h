@@ -1,5 +1,7 @@
 #pragma once
+#include <atomic>
 #include <memory>
+
 #include "ComponentContext.h"
 #include "ComponentController.h"
 #include "GameEngine/Time/Time.h"

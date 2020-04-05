@@ -26,6 +26,7 @@ public:
     virtual void ReqisterFunctions() override;
     const TerrainConfiguration& GetConfiguration() const;
 
+
 private:
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);
@@ -39,7 +40,6 @@ private:
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
 
     std::vector<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
-
 public:
     static ComponentsType type;
 };

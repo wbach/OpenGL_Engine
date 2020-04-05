@@ -20,6 +20,7 @@ extern const std::string CSTR_SHADER_LOCATION;
 extern const std::string CSTR_REQUIRED_FILE_OUTPUT;
 // Renderer
 extern const std::string CSTR_RENDERER;
+extern const std::string CSTR_GRAPHICS_API;
 extern const std::string CSTR_RENDERER_TYPE;
 extern const std::string CSTR_RENDERER_VIEW_DISTANCE;
 extern const std::string CSTR_RENDERER_FPS_LIMIT;

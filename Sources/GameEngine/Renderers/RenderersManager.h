@@ -20,7 +20,7 @@ class GuiTextElement;
 class GuiTextureElement;
 class IFrameBuffer;
 class IShadowFrameBuffer;
-class RendererContext;
+struct RendererContext;
 
 namespace Renderer
 {
@@ -78,6 +78,7 @@ private:
 
     bool renderPhysicsDebug_;
     GraphicsApi::ID perFrameId_;
+    mat4 viewProjectionMatrix_;
     BufferDataUpdater bufferDataUpdater_;
 };
 }  // namespace Renderer

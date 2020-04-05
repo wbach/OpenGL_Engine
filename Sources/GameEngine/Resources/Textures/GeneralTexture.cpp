@@ -14,7 +14,7 @@ GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
 
 void GeneralTexture::GpuLoadingPass()
 {
-    if (not data_ || isInit)
+    if (not data_ || isInGpu_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
@@ -28,7 +28,7 @@ void GeneralTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInit            = true;
+        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else

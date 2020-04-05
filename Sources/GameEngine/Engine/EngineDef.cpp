@@ -19,6 +19,7 @@ const std::string CSTR_SHADER_LOCATION      = "ShadersLocation";
 const std::string CSTR_REQUIRED_FILE_OUTPUT = "RequiredFilesOutputFile";
 // Renderer
 const std::string CSTR_RENDERER                  = "Renderer";
+const std::string CSTR_GRAPHICS_API              = "graphicsApi";
 const std::string CSTR_RENDERER_TYPE             = "type";
 const std::string CSTR_RENDERER_VIEW_DISTANCE    = "viewDistance";
 const std::string CSTR_RENDERER_FPS_LIMIT        = "fpsLimit";

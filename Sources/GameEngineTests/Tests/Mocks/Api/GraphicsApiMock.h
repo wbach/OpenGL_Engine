@@ -16,6 +16,7 @@ public:
     MOCK_METHOD0(DeleteContext, void());
     MOCK_METHOD0(PrintVersion, void());
     MOCK_CONST_METHOD0(IsTesselationSupported, bool());
+    MOCK_CONST_METHOD0(GetSupportedRenderers, std::vector<GraphicsApi::RendererType>());
     MOCK_METHOD0(SetDefaultTarget, void());
     MOCK_METHOD1(SetBackgroundColor, void(const vec3&));
     MOCK_METHOD0(EnableDepthTest, void());

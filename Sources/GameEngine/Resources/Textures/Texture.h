@@ -22,7 +22,6 @@ public:
     inline const vec2ui& GetSize() const;
     inline const std::string& GetFileName() const;
     inline const std::string& GetFilPath() const;
-    inline bool IsInitialized() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;
     inline float GetTextureYOffset(uint32 textureIndex) const;
     inline vec2 GetTextureOffset(uint32 textureIndex) const;
@@ -38,7 +37,6 @@ protected:
     vec2ui size_ = vec2ui(0);
 
     bool applySizeLimit = true;
-    bool isInit = false;
 };
 
 const std::string& Texture::GetFileName() const
@@ -50,10 +48,6 @@ const std::string& Texture::GetFilPath() const
     return fullpath;
 }
 
-bool Texture::IsInitialized() const
-{
-    return isInit;
-}
 float Texture::GetTextureXOffset(uint32 textureIndex) const
 {
     return GameEngine::GetTextureXOffset(textureIndex, numberOfRows);

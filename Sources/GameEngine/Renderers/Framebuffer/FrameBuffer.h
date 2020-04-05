@@ -14,9 +14,7 @@ class FrameBuffer : public IFrameBuffer
 public:
     FrameBuffer(GraphicsApi::IGraphicsApi& api);
     virtual void Init(const wb::vec2ui& size) = 0;
-    virtual void Clean() override
-    {
-    }
+    virtual void Clean() override;
     void CreateFrameBuffer() final;
     void AddTexture(uint32 texture) final;
     void SetDepthTexture(uint32 texture) final;

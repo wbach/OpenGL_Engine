@@ -46,6 +46,7 @@ void Create(XmlNode& node, const Params::Water& param)
 }
 void Create(XmlNode& node, const Params::Renderer& param)
 {
+    node.attributes_[CSTR_GRAPHICS_API]              = param.graphicsApi;
     node.attributes_[CSTR_RENDERER_TYPE]             = std::to_string(static_cast<uint32>(param.type));
     node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X] = std::to_string(param.resolution.x);
     node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y] = std::to_string(param.resolution.y);

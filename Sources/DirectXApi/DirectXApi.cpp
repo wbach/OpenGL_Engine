@@ -393,6 +393,10 @@ bool DirectXApi::IsTesselationSupported() const
 {
     return false;
 }
+std::vector<GraphicsApi::RendererType> DirectXApi::GetSupportedRenderers() const
+{
+    return { GraphicsApi::RendererType::SIMPLE };
+}
 GraphicsApi::IWindowApi &DirectXApi::GetWindowApi()
 {
     return *windowApi_;

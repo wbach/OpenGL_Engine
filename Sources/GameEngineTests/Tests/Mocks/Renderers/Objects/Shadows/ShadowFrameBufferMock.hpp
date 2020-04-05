@@ -11,6 +11,6 @@ public:
     MOCK_METHOD0(BindFBO, void());
     MOCK_CONST_METHOD0(UnbindFrameBuffer, void());
     MOCK_METHOD0(InitialiseFrameBuffer, void());
-    MOCK_CONST_METHOD0(GetShadowMap, uint32());
+    MOCK_CONST_METHOD0(GetShadowMap, std::optional<uint32>());
 };
 }  // GameEngine

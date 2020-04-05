@@ -248,6 +248,11 @@ void OpenGLApi::PrintVersion()
     GetInfoAndPrint("GL_MAX_SHADER_STORAGE_BLOCK_SIZE", GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
 }
 
+std::vector<GraphicsApi::RendererType> OpenGLApi::GetSupportedRenderers() const
+{
+    return {GraphicsApi::RendererType::FULL};
+}
+
 bool OpenGLApi::IsTesselationSupported() const
 {
     return impl_->maxPatchVertices_ > 0;
@@ -514,8 +519,8 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
 }
 
 GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                                GraphicsApi::TextureMipmap mipmap, GraphicsApi::BufferAtachment atachment, vec2ui size,
-                                void* data)
+                                         GraphicsApi::TextureMipmap mipmap, GraphicsApi::BufferAtachment atachment,
+                                         vec2ui size, void* data)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -547,8 +552,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, Graphics
     return rid;
 }
 
-GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter filter,
-                                                      int32 N)
+GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter filter, int32 N)
 {
     GLuint texture;
     glGenTextures(1, &texture);

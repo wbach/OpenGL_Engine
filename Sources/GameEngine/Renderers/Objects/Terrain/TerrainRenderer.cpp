@@ -122,10 +122,20 @@ void TerrainRenderer::RenderNode(const TerrainNode& node) const
 }
 void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
-    context_.graphicsApi_.ActiveTexture(0, context_.shadowsFrameBuffer_.GetShadowMap());
+    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
+
+    if (shadowMap)
+    {
+        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
+    }
 
     for (const auto& t : textures)
-        BindTexture(t.second, static_cast<int>(t.first));
+    {
+        if (t.second->IsLoadedToGpu())
+        {
+            BindTexture(t.second, static_cast<int>(t.first));
+        }
+    }
 }
 bool TerrainRenderer::IsInit() const
 {

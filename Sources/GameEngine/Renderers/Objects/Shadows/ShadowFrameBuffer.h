@@ -17,12 +17,12 @@ public:
     void BindFBO();
     void UnbindFrameBuffer() const;
     void InitialiseFrameBuffer();
-    uint32 GetShadowMap() const;
+    std::optional<uint32> GetShadowMap() const;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    uint32 fbo;
-    uint32 shadowMap;
+    std::optional<uint32> fbo;
+    std::optional<uint32> shadowMap;
 
     vec2ui size;
     vec2ui renderResolution;

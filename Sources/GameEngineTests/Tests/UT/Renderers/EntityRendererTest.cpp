@@ -36,7 +36,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         , shadowFrameBufferMock_()
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, graphicsMock_)
-        , context_(projection_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
+        , context_(projection_, frustrum_, graphicsMock_, frameBufferMock_, shadowFrameBufferMock_, std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
     {
     }
     void SetUp()

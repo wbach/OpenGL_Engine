@@ -107,22 +107,22 @@ void TreeRenderer::BindMaterial(const Material& material) const
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
 
-    if (material.diffuseTexture != nullptr && material.diffuseTexture->IsInitialized())
+    if (material.diffuseTexture != nullptr && material.diffuseTexture->IsLoadedToGpu())
     {
         context_.graphicsApi_.ActiveTexture(1, material.diffuseTexture->GetGraphicsObjectId());
     }
 
-    if (material.ambientTexture != nullptr && material.ambientTexture->IsInitialized())
+    if (material.ambientTexture != nullptr && material.ambientTexture->IsLoadedToGpu())
     {
         context_.graphicsApi_.ActiveTexture(2, material.ambientTexture->GetGraphicsObjectId());
     }
 
-    if (material.normalTexture != nullptr && material.normalTexture->IsInitialized())
+    if (material.normalTexture != nullptr && material.normalTexture->IsLoadedToGpu())
     {
         context_.graphicsApi_.ActiveTexture(3, material.normalTexture->GetGraphicsObjectId());
     }
 
-    if (material.specularTexture != nullptr && material.specularTexture->IsInitialized())
+    if (material.specularTexture != nullptr && material.specularTexture->IsLoadedToGpu())
         context_.graphicsApi_.ActiveTexture(4, material.specularTexture->GetGraphicsObjectId());
 }
 void TreeRenderer::UnBindMaterial(const Material& material) const

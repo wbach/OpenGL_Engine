@@ -6,6 +6,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Time/Time.h"
+#include "GameEngine/Camera/Frustrum.h"
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
@@ -35,4 +36,5 @@ public:
     GraphicsApi::WindowApiMock windowApiMock_;
     CameraWrapper cameraWrapper_;
     ComponentContext context_;
+    Frustrum frustrum_;
 };

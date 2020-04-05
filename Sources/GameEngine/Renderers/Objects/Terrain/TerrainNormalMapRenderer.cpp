@@ -37,7 +37,7 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
 
     for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
     {
-        if (iter->second->GetHeightMap() and iter->second->GetHeightMap()->IsInitialized())
+        if (iter->second->GetHeightMap() and iter->second->GetHeightMap()->IsLoadedToGpu())
         {
             if (shader_.IsReady())
             {

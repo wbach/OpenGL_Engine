@@ -9,6 +9,9 @@ FrameBuffer::FrameBuffer(GraphicsApi::IGraphicsApi& api)
     : graphicsApi_(api)
 {
 }
+void FrameBuffer::Clean()
+{
+}
 void FrameBuffer::CreateFrameBuffer()
 {
     auto fboId = graphicsApi_.CreateBuffer();
@@ -58,6 +61,9 @@ uint32 FrameBuffer::GetTexture(const uint32& id)
 }
 void FrameBuffer::BindTextures(int offset)
 {
+    if (not isInitialized)
+        return;
+
     uint32 nr = 0;
     for (auto i : textures)
         graphicsApi_.ActiveTexture(offset + nr++, i);

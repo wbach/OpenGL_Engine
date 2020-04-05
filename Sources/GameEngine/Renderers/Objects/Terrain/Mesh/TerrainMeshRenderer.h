@@ -33,19 +33,20 @@ public:
     ~TerrainMeshRenderer();
 
     virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
+    virtual void Subscribe(GameObject*) override;
+    virtual void UnSubscribe(GameObject*) override;
     virtual void ReloadShaders() override;
 
 private:
-    void Render(const Scene& scene, const Time&);
+    void Render(const Scene&, const Time&);
 
 private:
-    void BindTexture(Texture* texture, int id) const;
-    void BindTextures(const TerrainTexturesMap& textures) const;
-    void RenderSubscribers() const;
-    void RenderSubscriber(const Subscriber& subscriber) const;
-    void RenderMesh(const Mesh& mesh) const;
+    void BindTexture(Texture*, int id) const;
+    void BindTextures(const TerrainTexturesMap&) const;
+    void RenderSubscribers(const Scene&) const;
+    void RenderSubscriber(const Scene&, const Subscriber&) const;
+    void RenderMesh(const Mesh&) const;
+    void PartialRendering(const Scene&, const Subscriber&) const;
 
 private:
     RendererContext& context_;

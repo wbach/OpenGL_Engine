@@ -26,9 +26,26 @@ int main(int, char**)
     GameEngine::ReadFromFile(configFile);
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-   // graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-     graphicsApi = std::make_unique<DirectX::DirectXApi>();
-
+#ifndef USE_GNU
+    if (EngineConf.renderer.graphicsApi == "OpenGL")
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
+    else if (EngineConf.renderer.graphicsApi == "DirectX11")
+    {
+        graphicsApi = std::make_unique<DirectX::DirectXApi>();
+    }
+    else
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
+#else
+    if (EngineConf.renderer.graphicsApi != "OpenGL")
+    {
+        DEBUG_LOG("GNU support only OpenGL");
+    }
+    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+#endif
     Editor::Context editorContext;
 
     GraphicsApi::IGraphicsApi& apiRef = *graphicsApi;

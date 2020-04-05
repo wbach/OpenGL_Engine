@@ -13,18 +13,18 @@ public:
     inline uint32 GetGraphicsObjectId() const override;
 
 protected:
-    bool loaded              = false;
+    bool isInGpu_ = false;
     uint32 graphicsObjectId_ = 0;
 };
 
 void GpuObject::GpuLoadingPass()
 {
-    loaded = true;
+    isInGpu_ = true;
 }
 
 void GpuObject::GpuPostLoadingPass()
 {
-    loaded = true;
+    isInGpu_ = true;
 }
 uint32 GpuObject::GetGraphicsObjectId() const
 {
@@ -33,6 +33,6 @@ uint32 GpuObject::GetGraphicsObjectId() const
 
 bool GpuObject::IsLoadedToGpu() const
 {
-    return loaded;
+    return isInGpu_;
 }
 }  // namespace GameEngine

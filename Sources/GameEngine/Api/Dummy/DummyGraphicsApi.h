@@ -31,6 +31,10 @@ public:
     virtual void PrintVersion() override
     {
     }
+    virtual std::vector<GraphicsApi::RendererType> GetSupportedRenderers() const override
+    {
+        return {GraphicsApi::RendererType::SIMPLE, GraphicsApi::RendererType::FULL};
+    }
     virtual bool IsTesselationSupported() const override
     {
         return false;
@@ -79,8 +83,8 @@ public:
         return {};
     }
     virtual GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap,
-                                 GraphicsApi::BufferAtachment, vec2ui, void* data) override
+                                          GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui,
+                                          void* data) override
     {
         return ++id;
     }
