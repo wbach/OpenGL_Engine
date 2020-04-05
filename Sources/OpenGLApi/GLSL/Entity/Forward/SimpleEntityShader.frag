@@ -9,6 +9,7 @@ layout (std140, align=16, binding=6) uniform PerMeshObject
     uint numberOfRows;
     float useTexture;
     float useNormalMap;
+    float useSpecularMap;
     float shineDamper;
     float useFakeLighting;
 } perMeshObject;

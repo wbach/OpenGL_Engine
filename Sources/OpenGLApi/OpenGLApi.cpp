@@ -250,7 +250,7 @@ void OpenGLApi::PrintVersion()
 
 std::vector<GraphicsApi::RendererType> OpenGLApi::GetSupportedRenderers() const
 {
-    return {GraphicsApi::RendererType::FULL};
+    return {GraphicsApi::RendererType::SIMPLE, GraphicsApi::RendererType::FULL};
 }
 
 bool OpenGLApi::IsTesselationSupported() const

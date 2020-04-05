@@ -1,13 +1,14 @@
 #version 440
 const int MAX_BONES = 100;
-const int MAX_WEIGHTS = 3;
+const int MAX_WEIGHTS = 4;
 
+//Attributes
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 layout (location = 2) in vec3 Normal;
 layout (location = 3) in vec3 Tangent;
-layout (location = 4) in vec3 Weights;
-layout (location = 5) in ivec3 BoneIds;
+layout (location = 4) in vec4 Weights;
+layout (location = 5) in ivec4 BoneIds;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
@@ -17,11 +18,6 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 clipPlane;
 } perApp;
 
-layout (std140, binding=1) uniform PerResize
-{
-    mat4 projectionMatrix;
-} perResize;
-
 layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
@@ -29,18 +25,18 @@ layout (std140,binding=1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
-layout (std140, align=16, binding=3) uniform PerObjectConstants
+layout (std140, align=16, binding=2) uniform PerObjectConstants
 {
     float useBoneTransform;
     vec2 textureOffset;
 } perObjectConstants;
 
-layout (std140, binding=4) uniform PerObjectUpdate
+layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-layout (std140, binding=5) uniform PerPoseUpdate
+layout (std140, align=16, binding=4) uniform PerPoseUpdate
 {
     mat4 bonesTransforms[MAX_BONES];
 } perPoseUpdate;
@@ -95,10 +91,9 @@ void main()
 {
     VertexWorldData worldData = caluclateWorldData();
 
-    vec4 modelViewPosition = perFrame.projectionViewMatrix * worldData.worldPosition;
     vs_out.texCoord      = TexCoord;
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.outOfViewRange = 0.f; //length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
-    gl_Position = perResize.projectionMatrix * modelViewPosition;
+    gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }
