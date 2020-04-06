@@ -19,13 +19,12 @@ protected:
 
 void GpuObject::GpuLoadingPass()
 {
-    isInGpu_ = true;
 }
 
 void GpuObject::GpuPostLoadingPass()
 {
-    isInGpu_ = true;
 }
+
 uint32 GpuObject::GetGraphicsObjectId() const
 {
     return graphicsObjectId_;

@@ -213,9 +213,6 @@ void write(Utils::XmlNode& node, const TreeView& treeView)
 
 void write(Utils::XmlNode& node, const GuiElement& element)
 {
-    if (element.IsInternal())
-        return;
-
     switch (element.GetType())
     {
         case GuiElementTypes::Text:

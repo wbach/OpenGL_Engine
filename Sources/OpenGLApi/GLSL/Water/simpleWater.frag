@@ -1,25 +1,62 @@
 #version 440
 
+const float waveStrength = 0.02 ;
+const float shineDamper  = 20.0f;
+const float reflectivity = 0.6f;
+const float tiledValue   = 120.f;
+const float near         = 0.1f;
+const float far          = 1000.0f;
+
+layout (std140, align=16, binding=6) uniform PerMeshObject
+{
+    float isSimpleRender;
+    float moveFactor;
+    vec4 waterColor;
+} perMeshObject;
+
 in VS_OUT
 {
-    vec4 worldPos;
     vec2 texCoord;
-    vec4 normal;
-} vs_in;
+    vec3 normal;
+    vec3 worldPos;
+    vec3 toCameraVector;
+} vs_out;
 
-uniform sampler2D diffuseTexture;
+layout(binding = 0) uniform sampler2D reflectionTexture;
+layout(binding = 1) uniform sampler2D refractionTexture;
+layout(binding = 2) uniform sampler2D normalMap;
+layout(binding = 5) uniform sampler2D depthMap;
+layout(binding = 4) uniform sampler2D dudvMap;
 
-layout (location = 0) out vec4 WorldPosOut;
-layout (location = 1) out vec4 DiffuseOut;
-layout (location = 2) out vec4 NormalOut;
-layout (location = 3) out vec4 MaterialSpecular;
+layout (location = 0) out vec4 outputColor;
 
-void main()
+bool Is(float v)
 {
-    vec4 colorFromTexture = texture(diffuseTexture, vs_in.texCoord);
+    return v > .5f;
+}
 
-    WorldPosOut      = vs_in.worldPos;
-    NormalOut        = vec4(vs_in.normal.xyz, 0.f);
-    DiffuseOut       = vec4(0, 0, 0.2, 1);//colorFromTexture;
-    MaterialSpecular = vec4(0);
+float calculateDistance(float depth)
+{
+    return 2.f * near * far / (far + near - (2.f * depth - 1.f) * (far - near));
+}
+
+vec2 calculateDisctortionCoords()
+{
+    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * tiledValue + perMeshObject.moveFactor, vs_out.texCoord.y * tiledValue)).rg * 0.1f;
+    return vs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ perMeshObject.moveFactor);
+}
+
+vec3 calculateNormal(vec4 normalMapValue)
+{
+    vec3 normal = vec3(normalMapValue.r*2.0f - 1.0f, normalMapValue.b *1.0, normalMapValue.g*2.0f - 1.0f);
+    return normalize(normal);
+}
+
+void main(void)
+{
+    //vec2 distortedTexCoords = calculateDisctortionCoords();
+    // vec4 normalMapValue = texture(normalMap, distortedTexCoords);
+    // vec3 normal = calculateNormal(normalMapValue);
+
+    outputColor  = vec4(perMeshObject.waterColor.xyz, 1.f);
 }

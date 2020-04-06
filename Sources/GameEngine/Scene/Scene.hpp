@@ -40,6 +40,7 @@ class RenderersManager;
 class GuiTextElement;
 class GuiTextureElement;
 class GuiWindowElement;
+class GuiEngineContextManger;
 
 typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
 
@@ -117,6 +118,7 @@ protected:
 
     std::unique_ptr<GuiManager> guiManager_;
     std::unique_ptr<GuiElementFactory> guiElementFactory_;
+    std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
 
     // Minimum one light on scene only (night - decrease strength)
     float gloabalTime = 0.f;

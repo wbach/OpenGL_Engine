@@ -49,6 +49,7 @@ public:
 
     // GuiText
     std::unique_ptr<GuiTextElement> CreateGuiText(const std::string&, const std::string&, uint32, uint32);
+    std::unique_ptr<GuiTextElement> CreateGuiText(const std::string&, uint32);
     std::unique_ptr<GuiTextElement> CreateGuiText(const std::string&);
     // GuiTexture
     std::unique_ptr<GuiTextureElement> CreateGuiTexture(const std::string&);

@@ -7,6 +7,7 @@
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -19,11 +20,17 @@
 
 namespace GameEngine
 {
+namespace
+{
+uint32 renderedTerrains = 0;
+const std::string TERRAIN_MEASURMENT_NAME{"TerrainMeshesRendered"};
+}  // namespace
 TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainMesh)
 {
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainMeshRenderer::Render);
+    EngineContext.measurements_.insert({TERRAIN_MEASURMENT_NAME, "0"});
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
 {
@@ -34,11 +41,15 @@ void TerrainMeshRenderer::Init()
 }
 void TerrainMeshRenderer::Render(const Scene& scene, const Time&)
 {
+    renderedTerrains = 0;
+
     if (subscribes_.empty())
         return;
     context_.graphicsApi_.EnableCulling();
     shader_.Start();
     RenderSubscribers(scene);
+
+    EngineContext.measurements_.at(TERRAIN_MEASURMENT_NAME) = std::to_string(renderedTerrains);
 }
 void TerrainMeshRenderer::RenderSubscribers(const Scene& scene) const
 {
@@ -66,13 +77,14 @@ void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber&
     int index = 0;
     for (const auto& mesh : model->GetMeshes())
     {
-        context_.graphicsApi_.BindShaderBuffer(*subscriber.component_->GetPerObjectUpdateBuffer(index++));
-        RenderMesh(mesh);
+        RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
     }
 }
-void TerrainMeshRenderer::RenderMesh(const Mesh& mesh) const
+void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& id) const
 {
+    context_.graphicsApi_.BindShaderBuffer(*id);
     context_.graphicsApi_.RenderTriangleStripMesh(mesh.GetGraphicsObjectId());
+    ++renderedTerrains;
 }
 void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subscriber) const
 {
@@ -92,25 +104,21 @@ void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subsc
     auto position   = terrainPosition + vec3(firstIndex, 0, firstIndex);
 
     uint32 index = 0;
-    uint32 rendererdTerrains = 0;
+
     for (const auto& mesh : model->GetMeshes())
     {
-        auto x = index % partsCount;
-        auto z = index / partsCount;
+        auto x              = index % partsCount;
+        auto z              = index / partsCount;
         auto centerPosition = position + vec3(x * partScale, 0, z * partScale);
 
-        auto isVisible =
-          context_.frustrum_.SphereIntersection(centerPosition, (partScale * 1.41 ) / 2.f);
+        auto isVisible = context_.frustrum_.SphereIntersection(centerPosition, (partScale * 1.41) / 2.f);
 
         if (isVisible)
         {
-            context_.graphicsApi_.BindShaderBuffer(*subscriber.component_->GetPerObjectUpdateBuffer(index));
-            RenderMesh(mesh);
-            ++rendererdTerrains;
+            RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index));
         }
         ++index;
     }
-   // DEBUG_LOG("Terrains count :" + std::to_string(rendererdTerrains));
 }
 void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {

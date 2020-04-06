@@ -4,7 +4,6 @@
 #include "Camera/FirstPersonCamera.h"
 #include "Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "SingleTon.h"
 #include "TestGame/MRpg/Characters/PlayerController.h"

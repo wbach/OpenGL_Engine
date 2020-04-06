@@ -125,6 +125,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
 Texture* TextureLoader::CreateTexture(const std::string& name, GraphicsApi::TextureType, GraphicsApi::TextureFilter,
                                       GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui size, void* data)
 {
+    DEBUG_LOG(name);
     textures_.emplace_back(new GeneralTexture(graphicsApi_, name, size, data));
     gpuResourceLoader_->AddObjectToGpuLoadingPass(textures_.back().get());
     return textures_.back().get();

@@ -28,7 +28,7 @@ void Subscriber::Start()
 {
     isRunning.store(true);
     thread = std::thread(std::bind(&Subscriber::Update, this));
-    timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
+    //timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
     isStarted = true;
 }
 
@@ -77,6 +77,14 @@ uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)
 
     subscribers.emplace_back(label, i, func);
     return subscribers.size() - 1;
+}
+
+Subscriber *ThreadSync::GetSubscriber(uint32 i)
+{
+    if (i >= subscribers.size() or subscribers[i].isFree)
+        return nullptr;
+
+    return &subscribers[i];
 }
 
 void ThreadSync::Unsubscribe(uint32 id)

@@ -1,10 +1,14 @@
 #include "DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "Logger/Log.h"
 #include <Input/InputManager.h>
 
 namespace GameEngine
 {
+namespace  {
+const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
+}
 DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, GraphicsApi::WindowType type)
     : graphicsApi_(api)
     , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
@@ -20,9 +24,10 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.CreateContext();
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
+    EngineContext.measurements_.insert({FPS_ENGINE_CONTEXT, "0"});
     timeMeasurer.AddOnTickCallback([this]() {
         time_.fps = timeMeasurer.GetFps();
-        DEBUG_LOG("Render thread FPS : " + std::to_string(time_.fps));
+        EngineContext.measurements_.at(FPS_ENGINE_CONTEXT) = std::to_string(static_cast<int>(time_.fps));
     });
 }
 

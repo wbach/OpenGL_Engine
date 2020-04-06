@@ -6,7 +6,6 @@
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"

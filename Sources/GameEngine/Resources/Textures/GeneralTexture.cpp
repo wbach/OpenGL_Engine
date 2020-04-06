@@ -14,13 +14,14 @@ GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
 
 void GeneralTexture::GpuLoadingPass()
 {
+    DEBUG_LOG("Create texutre filneame : " + fullpath);
+
     if (not data_ || isInGpu_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
     }
 
-    DEBUG_LOG("Create texutre filneame : " + fullpath);
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
                                    GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, data_);

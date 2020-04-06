@@ -13,8 +13,8 @@
 #include "Text/GuiTextElement.h"
 #include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
-#include "Window/GuiWindow.h"
 #include "TreeView/TreeView.h"
+#include "Window/GuiWindow.h"
 
 namespace GameEngine
 {
@@ -60,6 +60,11 @@ std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::stri
     return result;
 }
 
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &text, uint32 fontSize)
+{
+    return CreateGuiText(theme_.font, text, fontSize, theme_.fontOutline);
+}
+
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &text)
 {
     return CreateGuiText(theme_.font, text, theme_.fontSize_, theme_.fontOutline);
@@ -88,12 +93,10 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
     {
         auto &bg                  = backgorund.empty() ? theme_.backgroundTexture : backgorund;
         auto backgroundGuiTexture = MakeGuiTexture(bg);
+
         if (backgroundGuiTexture)
         {
-            backgroundGuiTexture->SetZPosition(0.5f);
-            backgroundGuiTexture->SetScale(guiWindow->GetScale());
-            backgroundGuiTexture->SetIsInternal();
-            guiWindow->AddChild(std::move(backgroundGuiTexture));
+            guiWindow->SetBackground(std::move(backgroundGuiTexture));
         }
     }
 
@@ -197,7 +200,7 @@ std::unique_ptr<HorizontalLayout> GuiElementFactory::CreateHorizontalLayout()
     return std::make_unique<HorizontalLayout>(windowSize_, inputManager_);
 }
 
-std::unique_ptr<TreeView> GuiElementFactory::CreateTreeView(std::function<void(GuiElement&)> action)
+std::unique_ptr<TreeView> GuiElementFactory::CreateTreeView(std::function<void(GuiElement &)> action)
 {
     return std::make_unique<TreeView>(*this, action, windowSize_);
 }
@@ -254,32 +257,28 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::
 void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &window)
 {
     auto ptr              = &window;
-    const float barHeight = 0.04f;
-    const vec2 barPosition(0, window.GetScale().y + barHeight);
+    const vec2 barPosition(0, window.GetScale().y + GUI_WINDOW_BAR_HEIGHT);
 
     auto horizontalLayout = CreateHorizontalLayout();
-    horizontalLayout->SetScale(0.99f * vec2(window.GetScale().x, barHeight));
+    horizontalLayout->SetScale(0.99f * vec2(window.GetScale().x, GUI_WINDOW_BAR_HEIGHT));
     horizontalLayout->SetPostion(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
-    horizontalLayout->SetIsInternal();
 
     auto barButton  = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
     auto barTexture = CreateGuiTexture(theme_.windowBarTexture);
-    barButton->SetScale(vec2(window.GetScale().x, barHeight));
+    barButton->SetScale(vec2(window.GetScale().x, GUI_WINDOW_BAR_HEIGHT));
     barButton->SetPostion(barPosition);
     barButton->SetBackgroundTexture(std::move(barTexture));
-    barButton->SetIsInternal();
-    window.AddChild(std::move(barButton));
+    horizontalLayout->AddChild(std::move(barButton));
 
     if (style != GuiWindowStyle::WITHOUT_BUTTONS)
     {
         auto closeButton        = CreateGuiButton([this, ptr](auto &) { guiManager_.AddRemoveTask(ptr); });
         auto closeButtonTexture = CreateGuiTexture("GUI/close.png");
-        closeButtonTexture->SetScale(.5f * vec2(barHeight));
+        closeButtonTexture->SetScale(.5f * vec2(GUI_WINDOW_BAR_HEIGHT));
         closeButton->SetScale(closeButtonTexture->GetScale());
         closeButton->SetBackgroundTexture(std::move(closeButtonTexture));
         closeButton->SetZPosition(-1.f);
-        closeButton->SetIsInternal();
         horizontalLayout->AddChild(std::move(closeButton));
     }
 
@@ -288,7 +287,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
         DEBUG_LOG("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
     }
 
-    window.AddChild(std::move(horizontalLayout));
+    window.SetBar(std::move(horizontalLayout));
 }
 
 bool GuiElementFactory::ReadGuiFile(const std::string &filename)

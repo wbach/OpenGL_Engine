@@ -22,6 +22,7 @@ void GuiElement::AddChild(std::unique_ptr<GuiElement> child)
 {
     child->SetZPositionOffset(GetZValue());
     child->Show(IsShow());
+    child->SetPostion(position_ + child->GetPosition());
 
     for (auto& sub : changeSubscribers_)
     {
@@ -207,7 +208,6 @@ float GuiElement::GetZValue() const
 {
     return zPosition_.total_;
 }
-
 void GuiElement::SetIsInternal()
 {
     isInternal_ = true;

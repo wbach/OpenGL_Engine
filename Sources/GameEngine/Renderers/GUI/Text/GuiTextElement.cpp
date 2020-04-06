@@ -175,7 +175,7 @@ void GuiTextElement::RenderText(bool fontOverride)
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = windowApi_.OpenFont(fontInfo_.font_, fontInfo_.fontSize_);
+            fontId_ = windowApi_.OpenFont(fontInfo_.font_, 2 * fontInfo_.fontSize_);
 
             if (not fontId_)
             {
@@ -194,7 +194,7 @@ void GuiTextElement::RenderText(bool fontOverride)
 
         if (surface_)
         {
-            scale_ = ConvertToScale(surface_->size, windowSize_);
+            scale_ = ConvertToScale(surface_->size, windowSize_) / 2.f;
             CalculateMatrix();
             CallOnChange();
             updateTexture_(*this);

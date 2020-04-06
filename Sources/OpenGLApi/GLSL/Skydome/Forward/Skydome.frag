@@ -1,16 +1,18 @@
-#version 430
+#version 430 core
 
 const vec3 baseColor = vec3(0.18, 0.27, 0.47);
 
-in vec3 worldPosition;
+in vec4 worldPosition;
 
 layout(location = 0) out vec4 outputColor;
 
 void main()
 {
-    float red = -0.00022f * (abs(worldPosition.y)-2800) + baseColor.x;
-    float green = -0.00025f * (abs(worldPosition.y)-2800) + baseColor.y;
-    float blue = -0.00019f * (abs(worldPosition.y)-2800) + baseColor.z;
-    
+    float factor = 2.f;
+    float yOffset = 2400.f * factor;
+    float red = -0.00022f / factor * (abs(worldPosition.y) - yOffset) + baseColor.x;
+    float green = -0.00025f / factor * (abs(worldPosition.y) - yOffset) + baseColor.y;
+    float blue = -0.00019f / factor * (abs(worldPosition.y) - yOffset) + baseColor.z;
+
     outputColor = vec4(red, green, blue, 1.f);
 }

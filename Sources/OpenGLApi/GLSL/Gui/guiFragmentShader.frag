@@ -2,7 +2,7 @@
 
 in vec2 textureCoords;
 
-out vec4 out_Color;
+out vec4 outColor;
 
 layout(binding = 0) uniform sampler2D guiTexture;
 
@@ -13,5 +13,5 @@ layout (std140, binding=6) uniform PerMeshObject
 
 void main(void)
 {
-    out_Color = texture(guiTexture, textureCoords) * vec4(perMeshObject.color, 1.f);
+    outColor = texture(guiTexture, textureCoords) * vec4(perMeshObject.color, 1.f);
 }

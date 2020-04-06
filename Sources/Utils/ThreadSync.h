@@ -37,6 +37,7 @@ class ThreadSync
 {
 public:
     uint32 Subscribe(frameFunc func, const std::string& label = "unnamed");
+    Subscriber* GetSubscriber(uint32);
     void Unsubscribe(uint32 id);
     void Start();
     void Stop();

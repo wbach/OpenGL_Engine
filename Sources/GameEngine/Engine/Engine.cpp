@@ -70,7 +70,7 @@ void Engine::MainLoop()
     displayManager_.ProcessEvents();
     sceneManager_.Update();
 
-    sceneManager_.RuntimeLoadObjectToGpu();
+    sceneManager_.RuntimeGpuTasks();
     renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager_.GetTime());
     displayManager_.UpdateWindow();
 

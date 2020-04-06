@@ -37,9 +37,7 @@ public:
 
     Scene* GetActiveScene();
     void InitActiveScene();
-    void RuntimeLoadObjectToGpu();
-    void RuntimeReleaseObjectGpu();
-    void RuntimeCallFunctionGpu();
+    void RuntimeGpuTasks();
     void Update();
     void SetActiveScene(const std::string& name);
     void Reset();
@@ -48,6 +46,9 @@ public:
     bool IsRunning() const;
 
 private:
+    void RuntimeLoadObjectToGpu();
+    void RuntimeReleaseObjectGpu();
+    void RuntimeCallFunctionGpu();
     void TakeEvents();
     void ProccessEvents();
     void UpdateScene(float dt);

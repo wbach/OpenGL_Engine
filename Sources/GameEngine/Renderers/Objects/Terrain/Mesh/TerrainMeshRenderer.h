@@ -1,8 +1,8 @@
 #pragma once
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -18,7 +18,7 @@ typedef TerrainWrapper* TerrainPtr;
 namespace Components
 {
 class TerrainMeshRendererComponent;
-} // namespace Components
+}  // namespace Components
 
 class TerrainMeshRenderer : public IRenderer
 {
@@ -45,7 +45,7 @@ private:
     void BindTextures(const TerrainTexturesMap&) const;
     void RenderSubscribers(const Scene&) const;
     void RenderSubscriber(const Scene&, const Subscriber&) const;
-    void RenderMesh(const Mesh&) const;
+    void RenderMesh(const Mesh&, const GraphicsApi::ID&) const;
     void PartialRendering(const Scene&, const Subscriber&) const;
 
 private:

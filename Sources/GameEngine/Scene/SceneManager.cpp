@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/GUI/GuiContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -41,9 +42,16 @@ void SceneManager::InitActiveScene()
         return;
     }
 }
+
+void SceneManager::RuntimeGpuTasks()
+{
+    RuntimeReleaseObjectGpu();
+    RuntimeLoadObjectToGpu();
+    RuntimeCallFunctionGpu();
+}
 void SceneManager::RuntimeLoadObjectToGpu()
 {
-    if (!sceneWrapper_.IsInitialized())
+    if (not sceneWrapper_.IsInitialized())
         return;
 
     auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
@@ -52,14 +60,23 @@ void SceneManager::RuntimeLoadObjectToGpu()
 
     while (obj != nullptr)
     {
-        if (obj->IsLoadedToGpu())
+        if (not obj->IsLoadedToGpu())
+        {
             obj->GpuLoadingPass();
+        }
+        else
+        {
+            DEBUG_LOG("Is already loaded.");
+        }
 
         obj = gpuLoader.GetObjectToGpuLoadingPass();
     }
 }
 void SceneManager::RuntimeReleaseObjectGpu()
 {
+    if (not sceneWrapper_.IsInitialized())
+        return;
+
     auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
 
     auto obj = gpuLoader.GetObjectToRelease();
@@ -72,6 +89,9 @@ void SceneManager::RuntimeReleaseObjectGpu()
 }
 void SceneManager::RuntimeCallFunctionGpu()
 {
+    if (not sceneWrapper_.IsInitialized())
+        return;
+
     sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader().CallFunctions();
 }
 void SceneManager::Update()
@@ -266,6 +286,14 @@ void SceneManager::UpdateSubscribe()
     DEBUG_LOG("");
     updateSceneThreadId_ =
         threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
+
+    const std::string updateSceneThreadFps="UpdateSceneThreadFps";
+    EngineContext.measurements_.insert({updateSceneThreadFps, "0"});
+
+    auto& timeMeasurer = threadSync_.GetSubscriber(updateSceneThreadId_)->timeMeasurer;
+    threadSync_.GetSubscriber(updateSceneThreadId_)->timeMeasurer.AddOnTickCallback([&timeMeasurer, updateSceneThreadFps]() {
+        EngineContext.measurements_.at(updateSceneThreadFps) = std::to_string(static_cast<int>(timeMeasurer.GetFps()));
+    });
     threadSync_.Start();
     isRunning_ = true;
 }

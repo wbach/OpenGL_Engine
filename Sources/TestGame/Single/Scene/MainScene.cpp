@@ -18,7 +18,6 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
-#include "GameEngine/Engine/AplicationContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Lights/Light.h"

@@ -1,14 +1,23 @@
-#version 330
+#version 420 core
 
 layout (location = 0) in vec3 Position;
 
-out vec3 TextureCoords;
-
-uniform mat4 ProjectionMatrix;
-uniform mat4 ViewMatrix;
-
-void main(void)
+layout (std140, binding=1) uniform PerFrame
 {
-    gl_Position = ProjectionMatrix * ViewMatrix * vec4(Position, 1.f);
-    TextureCoords = Position;
+    mat4 projectionViewMatrix;
+    mat4 toShadowMapSpace;
+    vec3 cameraPosition;
+} perFrame;
+
+layout (std140, binding=3) uniform PerObjectUpdate
+{
+    mat4 transformationMatrix;
+} perObjectUpdate;
+
+out vec4 worldPosition;
+
+void main()
+{
+    worldPosition = perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
+    gl_Position = perFrame.projectionViewMatrix * worldPosition;
 }
