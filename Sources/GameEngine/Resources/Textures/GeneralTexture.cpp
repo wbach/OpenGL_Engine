@@ -23,7 +23,7 @@ void GeneralTexture::GpuLoadingPass()
     }
 
     auto graphicsObjectId =
-        graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
+        graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::LINEAR,
                                    GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, data_);
 
     if (graphicsObjectId)

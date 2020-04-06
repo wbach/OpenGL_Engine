@@ -8,10 +8,10 @@ layout(binding = 0) uniform sampler2D guiTexture;
 
 layout (std140, binding=6) uniform PerMeshObject
 {
-    vec3 color;
+    vec4 color;
 } perMeshObject;
 
 void main(void)
 {
-    outColor = texture(guiTexture, textureCoords) * vec4(perMeshObject.color, 1.f);
+    outColor = texture(guiTexture, textureCoords) * perMeshObject.color;
 }

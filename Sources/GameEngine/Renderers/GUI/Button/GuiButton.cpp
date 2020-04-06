@@ -127,12 +127,12 @@ void GuiButtonElement::ResetOnActiveTexture()
     onActiveTextue_ = nullptr;
 }
 
-void GuiButtonElement::SetHoverTextColor(const vec3 &color)
+void GuiButtonElement::SetHoverTextColor(const vec4 &color)
 {
     onHoverTextColor_ = color;
 }
 
-void GuiButtonElement::SetActiveTextColor(const vec3 &color)
+void GuiButtonElement::SetActiveTextColor(const vec4 &color)
 {
     onActiveTextColor_ = color;
 }

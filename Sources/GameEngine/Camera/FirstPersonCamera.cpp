@@ -89,7 +89,6 @@ void FirstPersonCamera::ApllyMove()
     vec2 dmove = CalcualteMouseMove() * -1.f;
     IncreasePitch(dmove.x);
     IncreaseYaw(dmove.y);
-
     LockCamera();
 }
 

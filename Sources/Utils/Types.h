@@ -190,6 +190,7 @@ std::string to_string(const vec2i&);
 std::string to_string(const vec2ui&);
 std::string to_string(const vec3i&);
 std::string to_string(const vec3&);
+std::string to_string(const vec4&);
 std::string to_string(const glm::mat4& m);
 }  // namespace std
 

@@ -26,9 +26,7 @@ public:
     virtual std::optional<Image> ReadFile(const std::string& file, bool applySizeLimit = true,
                                           TextureFlip::Type flip_mode = TextureFlip::Type::NONE) = 0;
     // Return place in texture loader not in OpenGL
-    virtual Texture* CreateTexture(const std::string& name, GraphicsApi::TextureType type,
-                                   GraphicsApi::TextureFilter filter, GraphicsApi::TextureMipmap mimpamp,
-                                   GraphicsApi::BufferAtachment atachment, vec2ui size, void* data)        = 0;
+    virtual Texture* CreateTexture(const std::string& name, vec2ui size, void* data)        = 0;
     virtual Texture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool gpu_pass = true,
                                  ObjectTextureType type      = ObjectTextureType::MATERIAL,
                                  TextureFlip::Type flip_mode = TextureFlip::Type::NONE)                    = 0;

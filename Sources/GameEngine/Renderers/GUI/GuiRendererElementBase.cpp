@@ -8,7 +8,7 @@ GuiRendererElementBase::GuiRendererElementBase(std::function<void(GuiElement&)> 
                                                GuiElementTypes type, const vec2ui& windowSize)
     : GuiElement(type, windowSize)
     , texture_{nullptr}
-    , color_(vec3(1.f))
+    , color_(vec4(1.f))
     , unsubscribeElement_(unsubscribeElement)
 {
     CalculateMatrix();
@@ -31,6 +31,13 @@ void GuiRendererElementBase::SetPostion(const vec2 &position)
     CalculateMatrix();
 }
 void GuiRendererElementBase::SetColor(const vec3& color)
+{
+    color_.x = color.x;
+    color_.y = color.y;
+    color_.z = color.z;
+    color_.w = 1.f;
+}
+void GuiRendererElementBase::SetColor(const vec4& color)
 {
     color_ = color;
 }

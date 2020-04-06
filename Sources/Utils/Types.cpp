@@ -56,9 +56,13 @@ std::string to_string(const vec3& v)
 {
     return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z);
 }
+std::string to_string(const vec4& v)
+{
+    return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w);
+}
 std::string to_string(const glm::mat4& m)
 {
-    std::string s;
+    std::string s{"\n"};
     for (int y = 0; y < 4; y++)
         s += std::to_string(m[y][0]) + " " + std::to_string(m[y][1]) + " " + std::to_string(m[y][2]) + " " +
              std::to_string(m[y][3]) + "\n";

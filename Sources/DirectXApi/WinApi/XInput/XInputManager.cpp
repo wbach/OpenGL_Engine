@@ -1,8 +1,11 @@
+#include "XInputManager.h"
+
 #include <D3DX11.h>
+
 #include <algorithm>
+
 #include "Mutex.hpp"
 #include "WinApiKeyConverter.h"
-#include "XInputManager.h"
 
 namespace DirectX
 {
@@ -47,19 +50,22 @@ bool XInputManager::GetMouseKey(KeyCodes::Type key)
 
 vec2i XInputManager::CalcualteMouseMove()
 {
-    auto mousePosition = GetMousePosition();
-
-    vec2i dmove(0);
-    dmove.x = halfWindowsSize_.x - mousePosition.x;
-    dmove.y = halfWindowsSize_.y - mousePosition.y;
+    auto mousePosition = GetPixelMousePosition();
     SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
-
-    return dmove;
+    return vec2i(halfWindowsSize_.x - mousePosition.x, halfWindowsSize_.y - mousePosition.y);
 }
 
-vec2i XInputManager::GetPixelMousePosition() 
+vec2i XInputManager::GetPixelMousePosition()
 {
-    return vec2i();
+    POINT p;
+    if (GetCursorPos(&p))
+    {
+        if (ScreenToClient(windowHwnd_, &p))
+        {
+            return vec2i(p.x, p.y);
+        }
+    }
+    return vec2i(0);
 }
 
 vec2 XInputManager::GetMousePosition()

@@ -37,6 +37,7 @@ extern const std::string TEXTURE;
 extern const std::string X;
 extern const std::string Y;
 extern const std::string Z;
+extern const std::string W;
 extern const std::string FILE;
 extern const std::string ALGIN;
 extern const std::string LEFT;

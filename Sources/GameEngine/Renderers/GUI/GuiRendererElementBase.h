@@ -16,16 +16,17 @@ public:
     void SetPostion(const vec2& position) override;
 
     void SetColor(const vec3& color);
+    void SetColor(const vec4& color);
     inline std::optional<uint32> GetTextureId() const;
     inline const mat4& GetTransformMatrix() const;
-    inline const vec3& GetColor() const;
+    inline const vec4& GetColor() const;
 
 protected:
     void CalculateMatrix();
 
 protected:
     Texture* texture_;
-    vec3 color_;
+    vec4 color_;
     vec2 offset_;
     mat4 transformMatrix_;
     std::function<void(const GuiElement&)> unsubscribeElement_;
@@ -39,7 +40,7 @@ const mat4& GuiRendererElementBase::GetTransformMatrix() const
 {
     return transformMatrix_;
 }
-const vec3& GuiRendererElementBase::GetColor() const
+const vec4& GuiRendererElementBase::GetColor() const
 {
     return color_;
 }

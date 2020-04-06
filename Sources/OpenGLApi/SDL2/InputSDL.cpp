@@ -1,5 +1,4 @@
 #include "InputSDL.h"
-#include "SdlKeyConverter.h"
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -7,12 +6,15 @@
 #include <SDL2/SDL_video.h>
 
 #include "Logger/Log.h"
+#include "SdlKeyConverter.h"
 
 namespace OpenGLApi
 {
 InputSDL::InputSDL(SDL_Window* sdl_window)
     : sdlWindow(sdl_window)
 {
+    SDL_GetWindowSize(sdlWindow, &windowsSize_.x, &windowsSize_.y);
+    halfWindowsSize_ = vec2i{windowsSize_.x / 2, windowsSize_.y / 2};
 }
 
 bool InputSDL::GetKey(KeyCodes::Type key)
@@ -27,20 +29,9 @@ bool InputSDL::GetKey(KeyCodes::Type key)
 
 vec2i InputSDL::CalcualteMouseMove()
 {
-    int w = 320;
-    int h = 240;
-
-    SDL_GetWindowSize(sdlWindow, &w, &h);
-
-    int tmp_x, tmp_y;
-    SDL_GetMouseState(&tmp_x, &tmp_y);
-
-    vec2i dmove(0);
-    dmove.x = w / 2 - tmp_x;
-    dmove.y = h / 2 - tmp_y;
-    SDL_WarpMouseInWindow(sdlWindow, w / 2, h / 2);
-
-    return dmove;
+    auto mousePosition = GetPixelMousePosition();
+    SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
+    return vec2i(halfWindowsSize_.x - mousePosition.x, halfWindowsSize_.y - mousePosition.y);
 }
 
 bool InputSDL::GetMouseKey(KeyCodes::Type key)
@@ -57,21 +48,18 @@ vec2i InputSDL::GetPixelMousePosition()
 
 vec2 InputSDL::GetMousePosition()
 {
-    int tmp_x, tmp_y;
-    int w = 320;
-    int h = 240;
-    SDL_GetWindowSize(sdlWindow, &w, &h);
-    SDL_GetMouseState(&tmp_x, &tmp_y);
+    auto mousePosition = GetPixelMousePosition();
 
     vec2 out;
-    out.x = 2.f * (static_cast<float>(tmp_x) / static_cast<float>(w)) - 1.f;
-    out.y = 2.f * (static_cast<float>(tmp_y) / static_cast<float>(h)) - 1.f;
+    out.x = 2.f * (static_cast<float>(mousePosition.x) / static_cast<float>(windowsSize_.x)) - 1.f;
+    out.y = 2.f * (static_cast<float>(mousePosition.y) / static_cast<float>(windowsSize_.y)) - 1.f;
     out.y *= -1.f;
     return out;
 }
 
-void InputSDL::SetCursorPosition(int, int)
+void InputSDL::SetCursorPosition(int x, int y)
 {
+    SDL_WarpMouseInWindow(sdlWindow, x, y);
 }
 
 void InputSDL::GetPressedKeys()

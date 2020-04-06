@@ -36,6 +36,7 @@ const std::string TEXTURE            = "texture";
 const std::string X                  = "x";
 const std::string Y                  = "y";
 const std::string Z                  = "z";
+const std::string W                  = "w";
 const std::string FILE               = "file";
 const std::string ALGIN              = "algin";
 const std::string LEFT               = "LEFT";

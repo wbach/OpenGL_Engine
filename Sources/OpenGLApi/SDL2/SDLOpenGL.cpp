@@ -190,14 +190,16 @@ std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 fontId, cons
     }
     const auto& font = impl_->fonts_[index];
 
-    SDL_Color _color;
-    _color.r = static_cast<uint8>(color.x * 255.f);
-    _color.g = static_cast<uint8>(color.y * 255.f);
-    _color.b = static_cast<uint8>(color.z * 255.f);
-    _color.a = 255;
-    TTF_SetFontOutline(font, static_cast<int>(outline));
-    auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), _color);
-    TTF_SetFontOutline(font, static_cast<int>(outline));
+    SDL_Color sdlColor;
+    sdlColor.r = static_cast<uint8>(color.x * 255.f);
+    sdlColor.g = static_cast<uint8>(color.y * 255.f);
+    sdlColor.b = static_cast<uint8>(color.z * 255.f);
+    sdlColor.a = 255;
+    if (outline > 0)
+        TTF_SetFontOutline(font, static_cast<int>(outline));
+    auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), sdlColor);
+    if (outline > 0)
+        TTF_SetFontOutline(font, static_cast<int>(outline));
     if (not sdlSurface)
     {
         ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));

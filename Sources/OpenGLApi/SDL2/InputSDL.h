@@ -43,6 +43,8 @@ private:
 
     std::list<KeyEvent> keyEvents_;
     SDL_Window* sdlWindow;
+    vec2i windowsSize_;
+    vec2i halfWindowsSize_;
 };
 
 }  // OpenGLApi

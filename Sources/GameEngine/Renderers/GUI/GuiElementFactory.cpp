@@ -93,6 +93,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
     {
         auto &bg                  = backgorund.empty() ? theme_.backgroundTexture : backgorund;
         auto backgroundGuiTexture = MakeGuiTexture(bg);
+        backgroundGuiTexture->SetColor(vec4(1.f, 1.f,1.f, 0.5f));
 
         if (backgroundGuiTexture)
         {

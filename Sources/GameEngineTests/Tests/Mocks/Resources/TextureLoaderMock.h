@@ -17,8 +17,7 @@ public:
     MOCK_METHOD2(LoadHeightMapImpl, Texture*(const std::string&, bool));
     MOCK_METHOD3(CreateHeightMap, void(const std::string&, const std::string&, const vec3&));
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
-    MOCK_METHOD7(CreateTextureImpl, Texture*(const std::string&, GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                             GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui, void*));
+    MOCK_METHOD3(CreateTextureImpl, Texture*(const std::string&, vec2ui, void*));
     MOCK_METHOD3(LoadNormalMapImpl, Texture*(const std::vector<float>&, const vec2ui&, float));
     MOCK_METHOD1(SetHeightMapFactorImpl, void(float));
     MOCK_CONST_METHOD5(SetTextureToFileImpl, void(const std::string&, const std::vector<uint8>&, const vec2ui&, uint8,
@@ -55,11 +54,9 @@ private:
     {
         return LoadHeightMapImpl(filename, gpu_pass);
     }
-    Texture* CreateTexture(const std::string& name, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                           GraphicsApi::TextureMipmap mimpamp, GraphicsApi::BufferAtachment atachment, vec2ui size,
-                           void* data) override
+    Texture* CreateTexture(const std::string& name, vec2ui size, void* data) override
     {
-        return CreateTextureImpl(name, type, filter, mimpamp, atachment, size, data);
+        return CreateTextureImpl(name, size, data);
     }
     Texture* LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength) override
     {

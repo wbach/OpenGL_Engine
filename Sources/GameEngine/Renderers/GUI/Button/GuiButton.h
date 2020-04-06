@@ -37,8 +37,8 @@ public:
     void ResetOnHoverTexture();
     void ResetOnActiveTexture();
 
-    void SetHoverTextColor(const vec3& color);
-    void SetActiveTextColor(const vec3& color);
+    void SetHoverTextColor(const vec4& color);
+    void SetActiveTextColor(const vec4& color);
 
     GuiTextElement* GetText() const;
     GuiTextureElement* GetBackgroundTexture() const;
@@ -66,9 +66,9 @@ private:
     GuiTextureElement* onHoverTexture_;
     GuiTextureElement* onActiveTextue_;
 
-    vec3 backgroundTextColor_;
-    vec3 onHoverTextColor_;
-    vec3 onActiveTextColor_;
+    vec4 backgroundTextColor_;
+    vec4 onHoverTextColor_;
+    vec4 onActiveTextColor_;
 
     Utils::Timer activeTimer_;
     std::optional<uint32> subscribtion_;

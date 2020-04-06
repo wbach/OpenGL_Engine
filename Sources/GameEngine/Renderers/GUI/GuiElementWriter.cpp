@@ -27,6 +27,14 @@ void writeChildren(Utils::XmlNode& node, const GuiElement& element)
     }
 }
 
+void write(Utils::XmlNode& node, const vec4& v)
+{
+    node.attributes_.insert({ Gui::X, std::to_string(v.x) });
+    node.attributes_.insert({ Gui::Y, std::to_string(v.y) });
+    node.attributes_.insert({ Gui::Z, std::to_string(v.z) });
+    node.attributes_.insert({ Gui::W, std::to_string(v.w) });
+}
+
 void write(Utils::XmlNode& node, const vec3& v)
 {
     node.attributes_.insert({Gui::X, std::to_string(v.x)});

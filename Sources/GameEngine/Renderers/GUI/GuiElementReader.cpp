@@ -221,7 +221,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(Utils::XmlNode &no
     paramNode = node.GetChild(Gui::COLOR);
     if (paramNode)
     {
-        auto color = Utils::ReadVec3(*paramNode);
+        auto color = Utils::ReadVec4(*paramNode);
         DEBUG_LOG("SetColor " + std::to_string(color));
         text->SetColor(color);
     }

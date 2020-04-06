@@ -50,9 +50,7 @@ void GuiTextFactory::UpdateTexture(GuiTextElement& textElement)
     }
 
     auto fontTexture = resourceManager_.GetTextureLaoder().CreateTexture(
-        "FontImage_" + std::to_string(textElement.GetSurface()->id) + "_" + textElement.GetText(),
-        GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::NONE,
-        GraphicsApi::BufferAtachment::NONE, textElement.GetSurface()->size, textElement.GetSurface()->pixels);
+        "FontImage_" + std::to_string(textElement.GetSurface()->id) + "_" + textElement.GetText(), textElement.GetSurface()->size, textElement.GetSurface()->pixels);
 
     if (fontTexture)
     {
