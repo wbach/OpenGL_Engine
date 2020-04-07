@@ -18,6 +18,10 @@ public:
     MOCK_METHOD2(SetKeyToBuffer, void(int, bool));
     MOCK_METHOD0(ClearKeyBuffer, void());
     MOCK_METHOD0(GetPressedKeys, void());
-    MOCK_METHOD0(ProcessKeysEvents, void());
+    MOCK_METHOD1(ShowCursor, void(bool));
+
+    MOCK_CONST_METHOD1(ConvertCode, KeyCodes::Type(uint32));
+    MOCK_CONST_METHOD1(IsKeyUpEventType, bool(uint32));
+    MOCK_CONST_METHOD1(IsKeyDownEventType, bool(uint32));
 };
 } // namespace Input
