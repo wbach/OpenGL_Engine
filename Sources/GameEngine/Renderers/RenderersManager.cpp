@@ -156,14 +156,16 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     frustrum_.CalculatePlanes(viewProjectionMatrix_);
     UpdatePerFrameBuffer(scene);
 
-    RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
+    {
+        RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
 
-    Render(RendererFunctionType::PRERENDER, scene, threadTime);
-    Render(RendererFunctionType::PRECONFIGURE, scene, threadTime);
-    Render(RendererFunctionType::CONFIGURE, scene, threadTime);
-    Render(RendererFunctionType::UPDATE, scene, threadTime);
-    Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
-    Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
+        Render(RendererFunctionType::PRERENDER, scene, threadTime);
+        Render(RendererFunctionType::PRECONFIGURE, scene, threadTime);
+        Render(RendererFunctionType::CONFIGURE, scene, threadTime);
+        Render(RendererFunctionType::UPDATE, scene, threadTime);
+        Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
+        Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
+    }
 
     // if (renderPhysicsDebug_ and physicsDebugDraw_)
     //{
@@ -308,9 +310,8 @@ void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
     if (perFrameId_)
     {
         PerFrameBuffer buffer;
-        buffer.ProjectionViewMatrix =
-            graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
-        buffer.cameraPosition = scene->GetCamera().GetPosition();
+        buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
+        buffer.cameraPosition       = scene->GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }
