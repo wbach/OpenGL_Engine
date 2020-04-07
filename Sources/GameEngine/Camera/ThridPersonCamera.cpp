@@ -220,13 +220,13 @@ vec2 ThirdPersonCamera::CalcualteMouseMove()
 }
 void ThirdPersonCamera::CalculatePitch(const vec2& d_move)
 {
-    destinationPitch = destinationPitch - d_move.y;
+    destinationPitch = destinationPitch + d_move.y;
 }
 
 void ThirdPersonCamera::CalculateAngleAroundPlayer(const vec2& d_move)
 {
     float angle_change = d_move.x;
-    angleAroundPlayer += angle_change;
+    angleAroundPlayer -= angle_change;
 }
 
 bool ThirdPersonCamera::IsOnDestinationPos()

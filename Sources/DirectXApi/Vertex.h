@@ -9,7 +9,7 @@ struct Vertex
     vec2 textCoord;
     vec3 normal;
     vec3 tangent;
-    //vec3 weights;
-    //vec3i bonesIds;
+    vec4 weights;
+    vec4i bonesIds;
 };
 }  // namespace DirectX

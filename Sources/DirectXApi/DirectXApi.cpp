@@ -444,8 +444,8 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"BONEWEIGHTS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"BONEIDS", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BONEWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"BONEIDS", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
     UINT numElements = ARRAYSIZE(layout);
 
@@ -742,6 +742,10 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
             v.normal.y = meshData.normals_[x + 1];
             v.normal.z = meshData.normals_[x + 2];
         }
+        else
+        {
+            v.normal = vec3(0, 1, 0);
+        }
 
         if (not meshData.tangents_.empty())
         {
@@ -749,6 +753,11 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
             v.tangent.y = meshData.tangents_[x + 1];
             v.tangent.z = meshData.tangents_[x + 2];
         }
+        else
+        {
+            v.tangent = vec3(0);
+        }
+
         vao.vertexes_.push_back(v);
     }
 
@@ -756,6 +765,13 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
     for (size_t x = 0; x < meshData.textCoords_.size(); x += 2)
     {
         vao.vertexes_[i++].textCoord = vec2(meshData.textCoords_[x], meshData.textCoords_[x + 1]);
+    }
+
+    i = 0;
+    for (size_t x = 0; x < meshData.bonesWeights_.size(); x += 4)
+    {
+        vao.vertexes_[i].weights = vec4(meshData.bonesWeights_[x], meshData.bonesWeights_[x + 1], meshData.bonesWeights_[x + 2], meshData.bonesWeights_[x + 3]);
+        vao.vertexes_[i++].bonesIds = vec4i(meshData.joinIds_[x], meshData.joinIds_[x + 1], meshData.joinIds_[x + 2], meshData.joinIds_[x + 3]);
     }
 
     vao.indices_.reserve(meshData.indices_.size());

@@ -2,8 +2,10 @@
 #include <functional>
 #include <list>
 #include <memory>
+#include <optional>
 #include <set>
 #include <unordered_map>
+
 #include "GameActions.h"
 #include "KeyCodes.h"
 #include "Types.h"
@@ -15,15 +17,16 @@ typedef std::unordered_map<uint32, KeyPressedFunc> KeySubscribers;
 typedef std::unordered_map<KeyCodes::Type, KeySubscribers> KeyPressedSubscribers;
 typedef std::function<void(KeyCodes::Type key)> KeysPressedFunc;
 typedef std::unordered_map<uint32, KeysPressedFunc> KeysSubscribers;
+typedef std::pair<uint32, uint32> KeyEvent;
 
 class InputManager
 {
-struct Subscribers
-{
-    KeyPressedSubscribers keyDownSubscribers_;
-    KeyPressedSubscribers keyUpSubscribers_;
-    KeysSubscribers keysSubscribers_;
-};
+    struct Subscribers
+    {
+        KeyPressedSubscribers keyDownSubscribers_;
+        KeyPressedSubscribers keyUpSubscribers_;
+        KeysSubscribers keysSubscribers_;
+    };
 
 public:
     InputManager();
@@ -40,9 +43,10 @@ public:
     virtual void SetKeyToBuffer(int key, bool value) = 0;
     virtual void ClearKeyBuffer()                    = 0;
     virtual void GetPressedKeys()                    = 0;
-    virtual void ProcessKeysEvents()                 = 0;
+    virtual void ShowCursor(bool)                    = 0;
 
-    virtual void ShowCursor(bool){}
+    void AddKeyEvent(uint32 eventType, uint32 key);
+    void ProcessKeysEvents();
     void StashSubscribers();
     void StashPopSubscribers();
 
@@ -59,6 +63,16 @@ public:
 
     void UnsubscribeAll();
 
+protected:
+    virtual KeyCodes::Type ConvertCode(uint32) const = 0;
+    virtual bool IsKeyUpEventType(uint32) const      = 0;
+    virtual bool IsKeyDownEventType(uint32) const    = 0;
+    bool FindEvent(uint32 eventType, uint32 key);
+    std::optional<KeyEvent> GetEvent();
+    void UpdateMouseState(uint32 code, bool state);
+    bool GetMouseState(uint32 code);
+
+private:
     void ExecuteOnKeyDown(KeyCodes::Type);
     void ExecuteOnKeyUp(KeyCodes::Type);
     void ExecuteAnyKey(KeyCodes::Type);
@@ -69,6 +83,7 @@ public:
 
 protected:
     std::set<KeyCodes::Type> keyBuffer;
+    std::list<KeyEvent> keyEvents_;
     Subscribers subscribers_;
     Subscribers stash_;
     Subscribers quque_;

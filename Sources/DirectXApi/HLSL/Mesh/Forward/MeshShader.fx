@@ -4,8 +4,8 @@
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
-static const int MAX_BONES   = 25;
-static const int MAX_WEIGHTS = 3;
+static const int MAX_BONES   = 100;
+static const int MAX_WEIGHTS = 4;
 
 cbuffer PerApp : register(b0)
 {
@@ -58,8 +58,8 @@ struct VS_INPUT
     float2 Tex : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
-    float3 boneWeights : BONEWEIGHTS;
-    int3 boneIds : BONEIDS;
+    float4 boneWeights : BONEWEIGHTS;
+    int4 boneIds : BONEIDS;
 };
 
 struct PS_INPUT
@@ -104,7 +104,7 @@ VertexWorldData caluclateWorldData(VS_INPUT input)
         float4 posePosition  = mul(float4(input.Pos, 1.0), boneTransform);
         result.worldPosition += posePosition * input.boneWeights[i];
 
-        float4 worldNormal = mul(float4(input.normal, 1.0), boneTransform);
+        float4 worldNormal = mul(float4(input.normal, 0.0), boneTransform);
         result.worldNormal += worldNormal * input.boneWeights[i];
     }
 

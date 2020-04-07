@@ -10,15 +10,14 @@
 
 namespace OpenGLApi
 {
-InputSDL::InputSDL(SDL_Window* sdl_window)
-    : sdlWindow(sdl_window)
+InputSDL::InputSDL(SDL_Window* sdlWindow)
+    : sdlWindow_(sdlWindow)
     , isRelativeMouseMode(false)
     , lastMouseMovmentPosition_(GetPixelMousePosition())
 {
-    SDL_GetWindowSize(sdlWindow, &windowsSize_.x, &windowsSize_.y);
+    SDL_GetWindowSize(sdlWindow_, &windowsSize_.x, &windowsSize_.y);
     halfWindowsSize_ = vec2i{windowsSize_.x / 2, windowsSize_.y / 2};
 }
-
 bool InputSDL::GetKey(KeyCodes::Type key)
 {
     for (auto k : keyBuffer)
@@ -28,7 +27,6 @@ bool InputSDL::GetKey(KeyCodes::Type key)
     }
     return false;
 }
-
 vec2i InputSDL::CalcualteMouseMove()
 {
     vec2i result;
@@ -39,31 +37,27 @@ vec2i InputSDL::CalcualteMouseMove()
     else
     {
         auto currentMousePosition = GetPixelMousePosition();
-        result.x = lastMouseMovmentPosition_.x - currentMousePosition.x;
-        result.y = lastMouseMovmentPosition_.y - currentMousePosition.y;
+        result.x                  = lastMouseMovmentPosition_.x - currentMousePosition.x;
+        result.y                  = lastMouseMovmentPosition_.y - currentMousePosition.y;
         lastMouseMovmentPosition_ = currentMousePosition;
     }
     return result;
 }
-
 bool InputSDL::GetMouseKey(KeyCodes::Type key)
 {
     return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SdlKeyConverter::Convert(key));
 }
-
 void InputSDL::SetReleativeMouseMode(bool v)
 {
     isRelativeMouseMode = v;
     SDL_SetRelativeMouseMode(v ? SDL_TRUE : SDL_FALSE);
 }
-
 vec2i InputSDL::GetPixelMousePosition()
 {
     vec2i result;
     SDL_GetMouseState(&result.x, &result.y);
     return result;
 }
-
 vec2 InputSDL::GetMousePosition()
 {
     auto mousePosition = GetPixelMousePosition();
@@ -74,12 +68,10 @@ vec2 InputSDL::GetMousePosition()
     out.y *= -1.f;
     return out;
 }
-
 void InputSDL::SetCursorPosition(int x, int y)
 {
-    SDL_WarpMouseInWindow(sdlWindow, x, y);
+    SDL_WarpMouseInWindow(sdlWindow_, x, y);
 }
-
 void InputSDL::GetPressedKeys()
 {
     keyBuffer.clear();
@@ -94,76 +86,25 @@ void InputSDL::GetPressedKeys()
         }
     }
 }
-
-void InputSDL::AddKeyEvent(uint32 eventType, uint32 sdlKey)
-{
-    if (FindEvent(eventType, sdlKey))
-        return;
-
-    std::lock_guard<std::mutex> lk(keyEventMutex_);
-    keyEvents_.push_back({eventType, sdlKey});
-}
-
 void InputSDL::ShowCursor(bool is)
 {
     SDL_ShowCursor(is ? SDL_ENABLE : SDL_DISABLE);
 }
-
-void InputSDL::ProcessKeysEvents()
+KeyCodes::Type InputSDL::ConvertCode(uint32 value) const
 {
-    while (true)
-    {
-        auto e = GetEvent();
-
-        if (!e)
-            return;
-
-        auto type  = e.value().first;
-        auto value = e.value().second;
-
-        auto keyCode = SdlKeyConverter::Convert(value);
-
-        if (type == SDL_KEYDOWN)
-        {
-            ExecuteOnKeyDown(keyCode);
-            ExecuteAnyKey(keyCode);
-        }
-        else if (type == SDL_KEYUP)
-        {
-            ExecuteOnKeyUp(keyCode);
-        }
-        Unquque();
-    }
+    return SdlKeyConverter::Convert(value);
 }
-
-bool InputSDL::FindEvent(uint32 eventType, uint32 sdlKey)
+bool InputSDL::IsKeyUpEventType(uint32 type) const
 {
-    std::lock_guard<std::mutex> lk(keyEventMutex_);
-
-    for (const auto& e : keyEvents_)
-    {
-        if (e.second == sdlKey && e.first == eventType)
-            return true;
-    }
-    return false;
+    return type == SDL_KEYUP;
 }
-
-wb::optional<KeyEvent> InputSDL::GetEvent()
+bool InputSDL::IsKeyDownEventType(uint32 type) const
 {
-    std::lock_guard<std::mutex> lk(keyEventMutex_);
-
-    if (keyEvents_.empty())
-        return wb::optional<KeyEvent>();
-
-    auto e = keyEvents_.front();
-    keyEvents_.pop_front();
-    return e;
+    return type == SDL_KEYDOWN;
 }
-
 void InputSDL::SetKeyToBuffer(int, bool)
 {
 }
-
 void InputSDL::ClearKeyBuffer()
 {
     keyBuffer.clear();

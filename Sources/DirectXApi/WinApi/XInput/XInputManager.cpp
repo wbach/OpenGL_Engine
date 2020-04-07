@@ -1,6 +1,7 @@
 #include "XInputManager.h"
 
 #include <D3DX11.h>
+#include <Logger/Log.h>
 
 #include <algorithm>
 
@@ -9,32 +10,18 @@
 
 namespace DirectX
 {
-namespace
-{
-std::mutex keyEventMutex;
-
-struct MouseState
-{
-    bool lButton_ = false;
-    bool rButton_ = false;
-    bool mButton_ = false;
-};
-
-MouseState mouseState;
-}  // namespace
-
 XInputManager::XInputManager(HWND windowHwnd, const vec2ui& windowSize)
     : windowHwnd_(windowHwnd)
+    , windowSize_(windowSize)
     , halfWindowsSize_(windowSize.x / 2, windowSize.y / 2)
     , isRelativeMouseMode_(false)
     , lastMouseMovmentPosition_(GetPixelMousePosition())
 {
 }
-
 XInputManager::~XInputManager()
 {
+    DEBUG_LOG("");
 }
-
 bool XInputManager::GetKey(KeyCodes::Type key)
 {
     for (auto k : keyBuffer)
@@ -44,17 +31,15 @@ bool XInputManager::GetKey(KeyCodes::Type key)
     }
     return false;
 }
-
 bool XInputManager::GetMouseKey(KeyCodes::Type key)
 {
     return GetMouseState(key);
 }
-
 void XInputManager::SetReleativeMouseMode(bool v)
 {
     isRelativeMouseMode_ = v;
+    ShowCursor(not v);
 }
-
 vec2i XInputManager::CalcualteMouseMove()
 {
     if (isRelativeMouseMode_)
@@ -65,11 +50,11 @@ vec2i XInputManager::CalcualteMouseMove()
     }
 
     auto currentMousePosition = GetPixelMousePosition();
-    vec2i result(currentMousePosition.x - lastMouseMovmentPosition_.x, currentMousePosition.y - lastMouseMovmentPosition_.y);
+    vec2i result(currentMousePosition.x - lastMouseMovmentPosition_.x,
+                 currentMousePosition.y - lastMouseMovmentPosition_.y);
     lastMouseMovmentPosition_ = currentMousePosition;
     return result;
 }
-
 vec2i XInputManager::GetPixelMousePosition()
 {
     POINT p;
@@ -82,7 +67,6 @@ vec2i XInputManager::GetPixelMousePosition()
     }
     return vec2i(0);
 }
-
 vec2 XInputManager::GetMousePosition()
 {
     POINT p;
@@ -90,21 +74,22 @@ vec2 XInputManager::GetMousePosition()
     {
         if (ScreenToClient(windowHwnd_, &p))
         {
-            return vec2(p.x, p.y);
+            vec2 out;
+            out.x = 2.f * (static_cast<float>(p.x) / static_cast<float>(windowSize_.x)) - 1.f;
+            out.y = 2.f * (static_cast<float>(p.y) / static_cast<float>(windowSize_.y)) - 1.f;
+            out.y *= -1.f;
+            return out;
         }
     }
     return vec2(0);
 }
-
 void XInputManager::SetKeyToBuffer(int key, bool value)
 {
 }
-
 void XInputManager::ClearKeyBuffer()
 {
     keyBuffer.clear();
 }
-
 void XInputManager::SetCursorPosition(int x, int y)
 {
     POINT pt;
@@ -113,13 +98,11 @@ void XInputManager::SetCursorPosition(int x, int y)
     ClientToScreen(windowHwnd_, &pt);
     SetCursorPos(pt.x, pt.y);
 }
-
 void ReadKeyboard(char* keys)
 {
     for (int x = 0; x < 256; x++)
         keys[x] = (char)(GetAsyncKeyState(x) >> 8);
 }
-
 void XInputManager::GetPressedKeys()
 {
     ClearKeyBuffer();
@@ -136,100 +119,20 @@ void XInputManager::GetPressedKeys()
         }
     }
 }
-
-void XInputManager::ProcessKeysEvents()
-{
-    while (true)
-    {
-        auto e = GetEvent();
-
-        if (!e)
-            return;
-
-        auto type  = e.value().first;
-        auto value = e.value().second;
-
-        auto keyCode = WinApiKeyConverter::Convert(value);
-
-        if (type == WM_KEYDOWN)
-        {
-            UpdateMouseState(keyCode, true);
-            ExecuteOnKeyDown(keyCode);
-            ExecuteAnyKey(keyCode);
-        }
-        else if (type == WM_KEYUP)
-        {
-            UpdateMouseState(keyCode, false);
-            ExecuteOnKeyUp(keyCode);
-        }
-    }
-}
-
-void XInputManager::AddKeyEvent(uint32 eventType, uint32 key)
-{
-    if (FindEvent(eventType, key))
-        return;
-
-    std::lock_guard<std::mutex> lk(keyEventMutex);
-    keyEvents_.push_back({eventType, key});
-}
-
 void XInputManager::ShowCursor(bool show)
 {
     ::ShowCursor(show ? TRUE : FALSE);
 }
-
-bool XInputManager::FindEvent(uint32 eventType, uint32 key)
+KeyCodes::Type XInputManager::ConvertCode(uint32 value) const
 {
-    std::lock_guard<std::mutex> lk(keyEventMutex);
-
-    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent) {
-        return keyEvent.first == eventType and key == keyEvent.second;
-    });
-
-    return iter != keyEvents_.end();
+    return WinApiKeyConverter::Convert(value);
 }
-
-std::optional<KeyEvent> XInputManager::GetEvent()
+bool XInputManager::IsKeyUpEventType(uint32 type) const
 {
-    std::lock_guard<std::mutex> lk(keyEventMutex);
-
-    if (keyEvents_.empty())
-        return std::optional<KeyEvent>();
-
-    auto e = keyEvents_.front();
-    keyEvents_.pop_front();
-    return e;
+    return (type == WM_KEYUP);
 }
-void XInputManager::UpdateMouseState(uint32 keyCode, bool state)
+bool XInputManager::IsKeyDownEventType(uint32 type) const
 {
-    if (keyCode == KeyCodes::LMOUSE)
-    {
-        mouseState.lButton_ = state;
-    }
-    if (keyCode == KeyCodes::RMOUSE)
-    {
-        mouseState.rButton_ = state;
-    }
-    if (keyCode == KeyCodes::MOUSE_WHEEL)
-    {
-        mouseState.mButton_ = state;
-    }
-}
-bool XInputManager::GetMouseState(uint32 keyCode)
-{
-    if (keyCode == KeyCodes::LMOUSE and mouseState.lButton_)
-    {
-        return true;
-    }
-    else if (keyCode == KeyCodes::RMOUSE and mouseState.rButton_)
-    {
-        return true;
-    }
-    else if (keyCode == KeyCodes::MOUSE_WHEEL and mouseState.mButton_)
-    {
-        return true;
-    }
-    return false;
+    return (type == WM_KEYDOWN);
 }
 }  // namespace DirectX

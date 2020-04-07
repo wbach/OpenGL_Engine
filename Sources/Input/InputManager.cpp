@@ -1,9 +1,24 @@
 #include "InputManager.h"
+
 #include <Logger/Log.h>
+
 #include <algorithm>
 
 namespace Input
 {
+namespace
+{
+std::mutex keyEventMutex;
+
+struct MouseState
+{
+    bool lButton_ = false;
+    bool rButton_ = false;
+    bool mButton_ = false;
+};
+MouseState mouseState;
+}  // namespace
+
 InputManager::InputManager()
     : idCounter_(0)
 {
@@ -260,5 +275,98 @@ void InputManager::Unquque()
 
     quque_       = Subscribers();
     needToQueue_ = false;
+}
+
+void InputManager::AddKeyEvent(uint32 eventType, uint32 key)
+{
+    if (FindEvent(eventType, key))
+        return;
+
+    std::lock_guard<std::mutex> lk(keyEventMutex);
+    keyEvents_.push_back({eventType, key});
+}
+
+bool InputManager::FindEvent(uint32 eventType, uint32 key)
+{
+    std::lock_guard<std::mutex> lk(keyEventMutex);
+
+    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent) {
+        return keyEvent.first == eventType and key == keyEvent.second;
+    });
+
+    return iter != keyEvents_.end();
+}
+
+std::optional<KeyEvent> InputManager::GetEvent()
+{
+    std::lock_guard<std::mutex> lk(keyEventMutex);
+
+    if (keyEvents_.empty())
+        return std::optional<KeyEvent>();
+
+    auto e = keyEvents_.front();
+    keyEvents_.pop_front();
+    return e;
+}
+
+void InputManager::ProcessKeysEvents()
+{
+    while (true)
+    {
+        auto incomingEvent = GetEvent();
+
+        if (not incomingEvent)
+            return;
+
+        auto type  = incomingEvent->first;
+        auto value = incomingEvent->second;
+
+        auto keyCode = ConvertCode(value);
+
+        if (IsKeyDownEventType(type))
+        {
+            UpdateMouseState(keyCode, true);
+            ExecuteOnKeyDown(keyCode);
+            ExecuteAnyKey(keyCode);
+        }
+        else if (IsKeyUpEventType(type))
+        {
+            UpdateMouseState(keyCode, false);
+            ExecuteOnKeyUp(keyCode);
+        }
+        Unquque();
+    }
+}
+
+void InputManager::UpdateMouseState(uint32 keyCode, bool state)
+{
+    if (keyCode == KeyCodes::LMOUSE)
+    {
+        mouseState.lButton_ = state;
+    }
+    else if (keyCode == KeyCodes::RMOUSE)
+    {
+        mouseState.rButton_ = state;
+    }
+    else if (keyCode == KeyCodes::MOUSE_WHEEL)
+    {
+        mouseState.mButton_ = state;
+    }
+}
+bool InputManager::GetMouseState(uint32 keyCode)
+{
+    if (keyCode == KeyCodes::LMOUSE and mouseState.lButton_)
+    {
+        return true;
+    }
+    else if (keyCode == KeyCodes::RMOUSE and mouseState.rButton_)
+    {
+        return true;
+    }
+    else if (keyCode == KeyCodes::MOUSE_WHEEL and mouseState.mButton_)
+    {
+        return true;
+    }
+    return false;
 }
 }  // namespace Input

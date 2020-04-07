@@ -44,7 +44,7 @@ int SouthPool::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDrawPhysicsDebyg(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDrawPhysicsDebyg(); });
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() {
+    auto escapeKeySub = inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() {
         auto window = guiManager_->GetElement("PauseMenuMainWindow");
         if (window)
         {
@@ -64,6 +64,7 @@ int SouthPool::Initialize()
             camera.Unlock();
         }
     });
+    DEBUG_LOG(std::to_string(escapeKeySub));
 
     guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {
         SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
@@ -91,6 +92,7 @@ int SouthPool::Initialize()
 
     guiElementFactory_->ReadGuiFile(EngineConf_GetFullDataPath(pauseMenuFile));
 
+    DEBUG_LOG("SouthPool::Initialized");
     return 0;
 }
 
