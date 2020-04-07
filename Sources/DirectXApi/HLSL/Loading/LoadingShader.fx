@@ -45,9 +45,5 @@ float4 PS(PS_INPUT input)
     : SV_Target
 {
     float4 color = txDiffuse.Sample(samLinear, input.Tex);
-    if (color.w < 0.5)
-    {
-        discard;
-    }
     return color;
 }

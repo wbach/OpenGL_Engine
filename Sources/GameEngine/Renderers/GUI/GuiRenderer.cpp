@@ -66,8 +66,6 @@ void GUIRenderer::Render(const Scene&, const Time&)
     graphicsApi_.DisableDepthTest();
     graphicsApi_.DisableDepthMask();
     graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
-    graphicsApi_.ActiveTexture(0);
-
     std::lock_guard<std::mutex> lk(subscriberMutex);
 
     float min = 100000000.f;
@@ -79,7 +77,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
             continue;
 
         PerObjectUpdate buffer;
-        buffer.TransformationMatrix = subscriber->GetTransformMatrix();
+        buffer.TransformationMatrix =  graphicsApi_.PrepareMatrixToLoad(subscriber->GetTransformMatrix());
         graphicsApi_.UpdateShaderBuffer(transformBuffer_, &buffer);
         graphicsApi_.BindShaderBuffer(transformBuffer_);
 
@@ -88,7 +86,7 @@ void GUIRenderer::Render(const Scene&, const Time&)
         graphicsApi_.UpdateShaderBuffer(colorBuffer_, &colorBuffer);
         graphicsApi_.BindShaderBuffer(colorBuffer_);
 
-        graphicsApi_.BindTexture(*subscriber->GetTextureId());
+        graphicsApi_.ActiveTexture(0, *subscriber->GetTextureId());
         graphicsApi_.RenderQuad();
 
         if (subscriber->GetZValue() > min)

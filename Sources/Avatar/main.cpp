@@ -15,8 +15,29 @@ int main(int, char**)
     CLogger::Instance().EnableLogs();
 
     GameEngine::ReadFromFile(configFile);
-    auto api = std::make_unique<OpenGLApi::OpenGLApi>();
-    //auto api = std::make_unique<DirectX::DirectXApi>();
-    AvatarGame::Start(std::move(api));
+    std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
+
+#ifndef USE_GNU
+    if (EngineConf.renderer.graphicsApi == "OpenGL")
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
+    else if (EngineConf.renderer.graphicsApi == "DirectX11")
+    {
+        graphicsApi = std::make_unique<DirectX::DirectXApi>();
+    }
+    else
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
+#else
+    if (EngineConf.renderer.graphicsApi != "OpenGL")
+    {
+        DEBUG_LOG("GNU support only OpenGL");
+    }
+    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+#endif
+
+    AvatarGame::Start(std::move(graphicsApi));
     return 0;
 }

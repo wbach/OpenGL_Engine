@@ -1,6 +1,7 @@
 #include "GeneralTexture.h"
 
 #include "Logger/Log.h"
+#include <Utils/Utils.h>
 
 namespace GameEngine
 {

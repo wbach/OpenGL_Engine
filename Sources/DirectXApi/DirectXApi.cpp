@@ -168,45 +168,24 @@ void Release(T &t)
 class DirectXApi::Pimpl
 {
 public:
+    ID3D11BlendState *alphaBlendState = nullptr;
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc_;
     uint32 quadId;
     DirectXContext dxCondext_;
     std::vector<Buffer> buffers_;
     std::vector<DxShader> shaders_;
 
-    Pimpl()
-    {
-        D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-        ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-
-        // Set up the description of the stencil state.
-        depthStencilDesc.DepthEnable    = true;
-        depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-        depthStencilDesc.DepthFunc      = D3D11_COMPARISON_LESS;
-
-        depthStencilDesc.StencilEnable    = true;
-        depthStencilDesc.StencilReadMask  = 0xFF;
-        depthStencilDesc.StencilWriteMask = 0xFF;
-
-        // Stencil operations if pixel is front-facing.
-        depthStencilDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
-        depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-        depthStencilDesc.FrontFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
-        depthStencilDesc.FrontFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
-
-        // Stencil operations if pixel is back-facing.
-        depthStencilDesc.BackFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
-        depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-        depthStencilDesc.BackFace.StencilPassOp      = D3D11_STENCIL_OP_KEEP;
-        depthStencilDesc.BackFace.StencilFunc        = D3D11_COMPARISON_ALWAYS;
-    }
-
     const Object &GetDxObject(uint32 id)
     {
         return objects_[id - 1];
     }
 
-    const Texture &GetTexture(uint32 id)
+    const Texture &GetTexture(uint32 id) const
+    {
+        return textures_[id - 1];
+    }
+
+    Texture &GetTexture(uint32 id)
     {
         return textures_[id - 1];
     }
@@ -217,7 +196,7 @@ public:
         return objects_.size();
     }
 
-    uint32 CreateTexture(const D3D11_SAMPLER_DESC &samplerDesc, ID3D11ShaderResourceView *rv)
+    Texture CreateDirectXTexture(const D3D11_SAMPLER_DESC &samplerDesc, ID3D11ShaderResourceView *rv)
     {
         Texture texture;
         texture.resourceView_ = rv;
@@ -227,8 +206,12 @@ public:
         {
             MessageBox(NULL, "Create texture error.", "Error", MB_OK);
         }
+        return texture;
+    }
 
-        textures_.push_back(texture);
+    uint32 CreateTexture(const D3D11_SAMPLER_DESC &samplerDesc, ID3D11ShaderResourceView *rv)
+    {
+        textures_.push_back(CreateDirectXTexture(samplerDesc, rv));
         return textures_.size();
     }
 
@@ -242,6 +225,7 @@ public:
 
     ~Pimpl()
     {
+        ReleasePtr(alphaBlendState);
         Release(shaders_);
         Release(buffers_);
         Release(textures_);
@@ -281,6 +265,20 @@ void DirectXApi::Init()
     InitViewPort(impl_->dxCondext_);
     InitDepthSetncilView();
     SetRenderTargets();
+
+    D3D11_BLEND_DESC dsc = {false,
+                            false,
+                            {true, D3D11_BLEND_SRC_ALPHA, D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND_OP_ADD,
+                             D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD, D3D11_COLOR_WRITE_ENABLE_ALL}};
+
+    auto hr = impl_->dxCondext_.dev->CreateBlendState(&dsc, &impl_->alphaBlendState);
+
+    if (FAILED(hr))
+    {
+        MessageBox(NULL, "CreateBlendState error.", __FUNCTION__, MB_OK);
+        return;
+    }
+
     impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->quadId = impl_->CreateAndAddDxObject(Quad());
 }
@@ -328,8 +326,6 @@ void DirectXApi::InitDepthSetncilView()
     {
         MessageBox(NULL, "CreateDepthStencilView error.", __FUNCTION__, MB_OK);
     }
-
-    //UpdateDepthStencilState();
 }
 
 void DirectXApi::SetRasterState()
@@ -358,20 +354,6 @@ void DirectXApi::SetRenderTargets()
                                                  impl_->dxCondext_.depthStencilView);
 }
 
-void DirectXApi::UpdateDepthStencilState()
-{
-    // Create the depth stencil state.
-    auto result =
-        impl_->dxCondext_.dev->CreateDepthStencilState(&impl_->depthStencilDesc_, &impl_->dxCondext_.depthStencilState);
-
-    if (FAILED(result))
-    {
-        MessageBox(NULL, "CreateDepthStencilState error.", __FUNCTION__, MB_OK);
-        return;
-    }
-    impl_->dxCondext_.devcon->OMSetDepthStencilState(impl_->dxCondext_.depthStencilState, 1);
-}
-
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
 {
     shadersFileLocation_ = path + "DirectXApi/HLSL/";
@@ -395,7 +377,7 @@ bool DirectXApi::IsTesselationSupported() const
 }
 std::vector<GraphicsApi::RendererType> DirectXApi::GetSupportedRenderers() const
 {
-    return { GraphicsApi::RendererType::SIMPLE };
+    return {GraphicsApi::RendererType::SIMPLE};
 }
 GraphicsApi::IWindowApi &DirectXApi::GetWindowApi()
 {
@@ -419,13 +401,12 @@ void DirectXApi::SetBackgroundColor(const vec3 &bgColor)
 }
 void DirectXApi::EnableDepthTest()
 {
-    impl_->depthStencilDesc_.DepthEnable = true;
-  //  UpdateDepthStencilState();
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
+                                                 impl_->dxCondext_.depthStencilView);
 }
 void DirectXApi::DisableDepthTest()
 {
-    impl_->depthStencilDesc_.DepthEnable = false;
-    //UpdateDepthStencilState();
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView, nullptr);
 }
 GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderType)
 {
@@ -565,13 +546,10 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     return 0;  // to do return last binded buffer
 }
 
-GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui size,
-                                          void *data)
+std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateTexture2DDesc(ID3D11Device &dev,
+                                                                                             const vec2ui &size,
+                                                                                             void *data)
 {
-    if (type != GraphicsApi::TextureType::U8_RGBA)
-        return {};
-
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
     // D3DX11CreateShaderResourceViewFromFile(impl_->dxCondext_.dev, "seafloor.dds", NULL, NULL, &rv, NULL);
@@ -593,7 +571,7 @@ GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, Graphic
     subResource.pSysMem          = data;
     subResource.SysMemPitch      = desc.Width * 4;
     subResource.SysMemSlicePitch = 0;
-    auto result                  = impl_->dxCondext_.dev->CreateTexture2D(&desc, &subResource, &texture2d);
+    auto result                  = dev.CreateTexture2D(&desc, &subResource, &texture2d);
 
     if (FAILED(result))
     {
@@ -608,7 +586,8 @@ GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, Graphic
     srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels       = desc.MipLevels;
     srvDesc.Texture2D.MostDetailedMip = 0;
-    result                            = impl_->dxCondext_.dev->CreateShaderResourceView(texture2d, &srvDesc, &rv);
+    result                            = dev.CreateShaderResourceView(texture2d, &srvDesc, &rv);
+    texture2d->Release();
 
     if (FAILED(result))
     {
@@ -628,7 +607,22 @@ GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, Graphic
     sampDesc.MaxLOD         = D3D11_FLOAT32_MAX;
     sampDesc.MipLODBias     = 0;
 
-    return impl_->CreateTexture(sampDesc, rv);
+    return std::make_pair(sampDesc, rv);
+}
+
+GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter,
+                                          GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui size,
+                                          void *data)
+{
+    if (type != GraphicsApi::TextureType::U8_RGBA)
+        return {};
+
+    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, size, data);
+
+    if (not result)
+        return {};
+
+    return impl_->CreateTexture(result->first, result->second);
 }
 std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32)
 {
@@ -641,8 +635,19 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 void DirectXApi::UpdateTexture(uint32, const vec2ui &, const vec2ui &, void *data)
 {
 }
-void DirectXApi::UpdateTexture(uint32, const vec2ui &, void *data)
+void DirectXApi::UpdateTexture(uint32 id, const vec2ui &size, void *data)
 {
+    // TO DO: maybe is better way to update texture than delete and create new one
+
+    auto &texture = impl_->GetTexture(id);
+    texture.Release();
+
+    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, size, data);
+
+    if (not result)
+        return;
+
+    texture = impl_->CreateDirectXTexture(result->first, result->second);
 }
 void DirectXApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment> &)
 {
@@ -661,6 +666,8 @@ void DirectXApi::ClearBuffers(const std::vector<GraphicsApi::BufferType> &)
 }
 void DirectXApi::EnableBlend()
 {
+    float bf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    impl_->dxCondext_.devcon->OMSetBlendState(impl_->alphaBlendState, bf, 0xffffffff);
 }
 void DirectXApi::DisableBlend()
 {

@@ -11,7 +11,7 @@ cbuffer PerObjectUpdate : register(b3)
 
 cbuffer PerMeshObject : register(b6)
 {
-    float3 color;
+    float4 inputTextureColor;
 }
 
 //--------------------------------------------------------------------------------------
@@ -29,6 +29,7 @@ struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
     float2 Tex : TEXCOORD0;
+    float4 Color : COLOR;
 };
 
 //--------------------------------------------------------------------------------------
@@ -40,6 +41,7 @@ PS_INPUT VS(VS_INPUT input)
     output.Pos      = float4(input.Pos, 1);
     output.Pos      = mul(output.Pos, transformMatrix);
     output.Tex      = float2((input.Pos.x + 1.0) / 2.0, 1 - (input.Pos.y + 1.0) / 2.0);
+    output.Color    = inputTextureColor;
     return output;
 }
 
@@ -49,6 +51,6 @@ PS_INPUT VS(VS_INPUT input)
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-    float4 color = txDiffuse.Sample(samLinear, input.Tex);
+    float4 color = txDiffuse.Sample(samLinear, input.Tex) * input.Color;
     return color;
 }
