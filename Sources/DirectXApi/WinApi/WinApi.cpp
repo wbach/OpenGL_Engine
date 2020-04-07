@@ -149,18 +149,6 @@ double WinApi::GetTime()
 void WinApi::SetCursorPosition(int x, int y)
 {
 }
-std::optional<uint32> WinApi::OpenFont(const std::string& filename, uint32 size)
-{
-    return {};
-}
-std::optional<GraphicsApi::Surface> WinApi::RenderFont(uint32 id, const std::string& text, const vec4& color,
-                                                       uint32 outline)
-{
-    return {};
-}
-void WinApi::DeleteSurface(uint32 surfaceId)
-{
-}
 uint32 WinApi::CreateWindowFlags(GraphicsApi::WindowType type) const
 {
     return uint32();

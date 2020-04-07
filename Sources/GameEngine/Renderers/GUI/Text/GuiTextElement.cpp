@@ -1,41 +1,38 @@
 #include "GuiTextElement.h"
+#include "FontManager.h"
 
 namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
-                               std::function<void(const GuiElement&)> unsubscribeElement,
-                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
+                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
                                const vec2ui& windowSize, const std::string& font)
-    : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, "")
+    : GuiTextElement(fontManager, renderSubscribe, unsubscribeElement, updateTexture, windowSize, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
-                               std::function<void(const GuiElement&)> unsubscribeElement,
-                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
+                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
                                const vec2ui& windowSize, const std::string& font, const std::string& str)
-    : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, str, 10)
+    : GuiTextElement(fontManager, renderSubscribe, unsubscribeElement, updateTexture, windowSize, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
-                               std::function<void(const GuiElement&)> unsubscribeElement,
-                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
+                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
                                const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
-    : GuiTextElement(renderSubscribe, unsubscribeElement, updateTexture, windowApi, windowSize, font, str, size, 0)
+    : GuiTextElement(fontManager, renderSubscribe, unsubscribeElement, updateTexture, windowSize, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
-                               std::function<void(const GuiElement&)> unsubscribeElement,
-                               UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi& windowApi,
+GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
+                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
                                const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
                                uint32 outline)
     : GuiRendererElementBase(renderSubscribe, unsubscribeElement, type, windowSize)
     , updateTexture_(updateTexture)
-    , windowApi_(windowApi)
+    , fontManager_(fontManager)
     , text_(str)
     , fontInfo_{outline, size, font}
     , openFontFailed_(false)
@@ -45,7 +42,7 @@ GuiTextElement::GuiTextElement(std::function<void(GuiElement&)> renderSubscribe,
     SetZPositionOffset(-0.5f);
 }
 
-const std::optional<GraphicsApi::Surface>& GuiTextElement::GetSurface() const
+const std::optional<Surface>& GuiTextElement::GetSurface() const
 {
     return surface_;
 }
@@ -175,7 +172,7 @@ void GuiTextElement::RenderText(bool fontOverride)
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = windowApi_.OpenFont(fontInfo_.font_, fontInfo_.fontSize_);
+            fontId_ = fontManager_.OpenFont(fontInfo_.font_, fontInfo_.fontSize_);
 
             if (not fontId_)
             {
@@ -186,11 +183,11 @@ void GuiTextElement::RenderText(bool fontOverride)
 
         if (surface_)
         {
-            windowApi_.DeleteSurface(static_cast<uint32>(surface_->id));
+            fontManager_.DeleteSurface(static_cast<uint32>(surface_->id));
         }
 
         const vec4 textBaseColor(1.f);
-        surface_ = windowApi_.RenderFont(*fontId_, text_, textBaseColor, fontInfo_.outline_);
+        surface_ = fontManager_.RenderFont(*fontId_, text_, textBaseColor, fontInfo_.outline_);
 
         if (surface_)
         {

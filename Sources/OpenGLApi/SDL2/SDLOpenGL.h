@@ -8,16 +8,6 @@ namespace OpenGLApi
 {
 class SdlOpenGlApi : public GraphicsApi::IWindowApi
 {
-    struct RenderedText
-    {
-        uint32 fontId;
-        std::string text;
-        vec4 color;
-        uint32 outline;
-        GraphicsApi::Surface surface;
-        uint32 insances;
-    };
-
 public:
     SdlOpenGlApi();
     virtual ~SdlOpenGlApi() override;
@@ -38,11 +28,6 @@ public:
     virtual double GetTime() override;
     virtual void SetCursorPosition(int x, int y) override;
 
-    virtual std::optional<uint32> OpenFont(const std::string& filename, uint32 size) override;
-    virtual std::optional<GraphicsApi::Surface> RenderFont(uint32 id, const std::string& text, const vec4& color,
-                                                           uint32 outline) override;
-    virtual void DeleteSurface(uint32 surfaceId) override;
-
 private:
     uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;
     void CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
@@ -59,6 +44,5 @@ private:
     vec2ui windowSize_;
 
     std::function<void(uint32, uint32)> addKeyEvent_;
-    std::vector<RenderedText> rendererdTexts_;
 };
 }  // namespace OpenGLApi

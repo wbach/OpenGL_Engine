@@ -8,7 +8,7 @@
 
 namespace GameEngine
 {
-const float GUI_WINDOW_BAR_HEIGHT{0.4};
+const float GUI_WINDOW_BAR_HEIGHT{0.4f};
 
 class GuiWindowElement : public GuiElement
 {

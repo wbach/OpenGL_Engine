@@ -5,6 +5,7 @@
 #include "GameEngine/Renderers/GUI/GuiElement.h"
 #include "GraphicsApi/WindowApi.hpp"
 #include "IGuiTextFactory.h"
+#include "FontManager.h"
 
 #include "Types.h"
 
@@ -31,8 +32,8 @@ private:
 
 private:
     IResourceManager& resourceManager_;
-    GraphicsApi::IWindowApi& windowApi_;
     const vec2ui windowSize_;
+    FontManager fontManger_;
     std::function<void(GuiElement&)> renderSubscribe_;
     std::function<void(const GuiElement&)> unsubscribeElement_;
 };

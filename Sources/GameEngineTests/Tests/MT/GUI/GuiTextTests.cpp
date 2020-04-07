@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
-#include "OpenGLApi/SDL2/SDLOpenGL.h"
+#include "GameEngine/Renderers/GUI/Text/FontManager.h"
 #include "Utils/GLM/GLMUtils.h"
 
 namespace GameEngine
@@ -14,16 +14,16 @@ const std::string fontStr = "../Data/GUI/Ubuntu-M.ttf";
 struct GuiTextElementShould : public BaseComponentTestSchould
 {
     GuiTextElementShould()
+    : fontManager_(windowSize)
     {
-        sdlApi_.Init();
         auto subscribe   = [](GuiElement&) {};
         auto unsubscribe = [](const GuiElement&) {};
         auto updateTextureFunction = [](GuiTextElement&){};
 
-        sut_ = std::make_unique<GuiTextElement>(subscribe, unsubscribe, updateTextureFunction, sdlApi_, windowSize, fontStr);
+        sut_ = std::make_unique<GuiTextElement>(fontManager_, subscribe, unsubscribe, updateTextureFunction, windowSize, fontStr);
     }
 
-    OpenGLApi::SdlOpenGlApi sdlApi_;
+    FontManager fontManager_;
     std::unique_ptr<GuiTextElement> sut_;
 };
 TEST_F(GuiTextElementShould, MCT_SDL_UpdateText)

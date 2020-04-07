@@ -56,18 +56,6 @@ public:
     virtual void BeginFrame() override
     {
     }
-    virtual std::optional<uint32> OpenFont(const std::string& filename, uint32 size) override
-    {
-        return 0;
-    }
-    virtual std::optional<GraphicsApi::Surface> RenderFont(uint32 id, const std::string& text, const vec4& color,
-                                                           uint32 outline) override
-    {
-        return GraphicsApi::Surface();
-    }
-    virtual void DeleteSurface(uint32 surfaceId) override
-    {
-    }
 
 private:
     float time;

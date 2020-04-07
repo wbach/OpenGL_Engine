@@ -135,9 +135,12 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.h
 ../../Sources/GameEngine/Renderers/GUI/Rect.h
+../../Sources/GameEngine/Renderers/GUI/Text/FontManager.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.h
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.h
 ../../Sources/GameEngine/Renderers/GUI/Text/IGuiTextFactory.h
+../../Sources/GameEngine/Renderers/GUI/Text/RenderedText.h
+../../Sources/GameEngine/Renderers/GUI/Text/Surface.h
 ../../Sources/GameEngine/Renderers/GUI/TextInput.h
 ../../Sources/GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h
 ../../Sources/GameEngine/Renderers/GUI/TreeView/TreeView.h

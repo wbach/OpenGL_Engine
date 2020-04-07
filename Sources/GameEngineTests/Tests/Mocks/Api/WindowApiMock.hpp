@@ -20,9 +20,6 @@ public:
     MOCK_METHOD0(CreateInput, std::unique_ptr<Input::InputManager>());
     MOCK_METHOD0(GetTime, double());
     MOCK_METHOD2(SetCursorPosition, void(int x, int y));
-    MOCK_METHOD2(OpenFont, std::optional<uint32>(const std::string&, uint32));
-    MOCK_METHOD4(RenderFont, std::optional<Surface>(uint32 id, const std::string&, const vec4&, uint32));
-    MOCK_METHOD1(DeleteSurface, void(uint32));
     MOCK_METHOD0(BeginFrame, void());
 };
 }  // namespace GraphicsApi

@@ -1,7 +1,6 @@
 #include "SDLOpenGL.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_video.h>
 #include <algorithm>
 #include <optional>
@@ -26,29 +25,6 @@ struct SdlOpenGlApi::Pimpl
     SDL_GLContext glContext;
     SDL_Window* window;
     SDL_Event event;
-    std::vector<TTF_Font*> fonts_;
-    std::vector<SDL_Surface*> surfaces_;
-    std::unordered_map<std::string, uint32> fontNameToIdMap_;
-
-    void Clear()
-    {
-        for (auto& surface : surfaces_)
-        {
-            DeleteSurface(surface);
-        }
-        for (auto& font : fonts_)
-        {
-            TTF_CloseFont(font);
-        }
-    }
-    void DeleteSurface(SDL_Surface*& surface)
-    {
-        if (surface)
-        {
-            SDL_FreeSurface(surface);
-            surface = nullptr;
-        }
-    }
 };
 
 SdlOpenGlApi::SdlOpenGlApi()
@@ -58,9 +34,6 @@ SdlOpenGlApi::SdlOpenGlApi()
 
 SdlOpenGlApi::~SdlOpenGlApi()
 {
-    impl_->Clear();
-    TTF_Quit();
-
     if (impl_->window)
     {
         SDL_DestroyWindow(impl_->window);
@@ -72,11 +45,6 @@ SdlOpenGlApi::~SdlOpenGlApi()
 void SdlOpenGlApi::Init()
 {
     SDL_Init(SDL_INIT_VIDEO);
-
-    if (TTF_Init() == 1)
-    {
-        ERROR_LOG("Failed to init TTF");
-    }
 }
 
 void SdlOpenGlApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
@@ -140,122 +108,6 @@ double SdlOpenGlApi::GetTime()
 void SdlOpenGlApi::SetCursorPosition(int x, int y)
 {
     SDL_WarpMouseInWindow(impl_->window, x, y);
-}
-
-std::optional<uint32> SdlOpenGlApi::OpenFont(const std::string& filename, uint32 size)
-{
-    auto fname = filename + std::to_string(size);
-    if (impl_->fontNameToIdMap_.count(fname) > 0)
-    {
-        return impl_->fontNameToIdMap_.at(fname);
-    }
-
-    auto percentFontSize = windowSize_.y * size / 768;
-
-    // auto percentFontSize = windowSize_.y / size;
-
-    DEBUG_LOG("Font percent size : " + std::to_string(percentFontSize) + "/" + std::to_string(size));
-
-    auto font = TTF_OpenFont(filename.c_str(), static_cast<int>(percentFontSize));
-
-    if (font)
-    {
-        impl_->fonts_.push_back(font);
-        auto id = impl_->fonts_.size();
-        impl_->fontNameToIdMap_.insert({fname, id});
-        return id;
-    }
-
-    ERROR_LOG("Cannot open font : " + filename);
-    return {};
-}
-
-std::optional<GraphicsApi::Surface> SdlOpenGlApi::RenderFont(uint32 fontId, const std::string& text, const vec4& color,
-                                                             uint32 outline)
-{
-    auto iter = std::find_if(rendererdTexts_.begin(), rendererdTexts_.end(), [&](const auto& r) {
-        return fontId == r.fontId and text == r.text and color == r.color and outline == r.outline;
-    });
-
-    if (iter != rendererdTexts_.end())
-    {
-        ++iter->insances;
-        return iter->surface;
-    }
-
-    auto index = fontId - 1;
-    if (index >= impl_->fonts_.size())
-    {
-        return {};
-    }
-    const auto& font = impl_->fonts_[index];
-
-    SDL_Color sdlColor;
-    sdlColor.r = static_cast<uint8>(color.x * 255.f);
-    sdlColor.g = static_cast<uint8>(color.y * 255.f);
-    sdlColor.b = static_cast<uint8>(color.z * 255.f);
-    sdlColor.a = 255;
-    if (outline > 0)
-        TTF_SetFontOutline(font, static_cast<int>(outline));
-    auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), sdlColor);
-    if (outline > 0)
-        TTF_SetFontOutline(font, static_cast<int>(outline));
-    if (not sdlSurface)
-    {
-        ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));
-        return {};
-    }
-
-    std::optional<uint32> surfaceId;
-
-    for (size_t i = 0; i < impl_->surfaces_.size(); ++i)
-    {
-        if (impl_->surfaces_[i] == nullptr)
-        {
-            surfaceId           = i;
-            impl_->surfaces_[i] = sdlSurface;
-        }
-    }
-
-    if (not surfaceId)
-    {
-        impl_->surfaces_.push_back(sdlSurface);
-        surfaceId = impl_->surfaces_.size() - 1;
-    }
-
-    RenderedText newText;
-    newText.color   = color;
-    newText.fontId  = fontId;
-    newText.outline = outline;
-    newText.text    = text;
-    newText.surface =
-        GraphicsApi::Surface{*surfaceId, vec2ui(static_cast<uint32>(sdlSurface->w), static_cast<uint32>(sdlSurface->h)),
-                             sdlSurface->format->BytesPerPixel, sdlSurface->pixels};
-
-    rendererdTexts_.push_back(newText);
-
-    return newText.surface;
-}
-
-void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
-{
-    if (surfaceId >= impl_->surfaces_.size())
-    {
-        return;
-    }
-
-    auto iter = std::find_if(rendererdTexts_.begin(), rendererdTexts_.end(),
-                             [&](const auto& r) { return r.surface.id == surfaceId; });
-
-    if (iter != rendererdTexts_.end())
-    {
-        --iter->insances;
-        if (iter->insances == 0)
-        {
-            impl_->DeleteSurface(impl_->surfaces_[surfaceId]);
-            impl_->surfaces_[surfaceId] = nullptr;
-        }
-    }
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const
@@ -331,15 +183,6 @@ void SdlOpenGlApi::ProcessSdlEvent() const
             ProccesSdlKeyDown(SDL_KEYUP);
             break;
         case SDL_FINGERDOWN:
-            break;
-        case SDL_MOUSEMOTION:
-//             static int xpos = windowSize_.x / 2; // = 400 to center the cursor in the window
-//             static int ypos = windowSize_.y / 2; // = 300 to center the cursor in the window
-//           //  xpos = impl_->event.motion.xrel;
-//          //   ypos = impl_->event.motion.yrel;
-//             SDL_GetRelativeMouseState(&xpos, &ypos);
-//             DEBUG_LOG(std::to_string(vec2i(xpos, ypos)));
-
             break;
     }
 }

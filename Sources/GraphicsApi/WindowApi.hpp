@@ -31,10 +31,6 @@ public:
     virtual std::unique_ptr<Input::InputManager> CreateInput()                                                  = 0;
     virtual double GetTime()                                                                                    = 0;
     virtual void SetCursorPosition(int x, int y)                                                                = 0;
-    virtual std::optional<uint32> OpenFont(const std::string& filename, uint32 size)                            = 0;
-    virtual std::optional<Surface> RenderFont(uint32 id, const std::string& text, const vec4& color,
-                                              uint32 outline)                                                   = 0;
-    virtual void DeleteSurface(uint32 surfaceId)                                                                = 0;
     // Take time function to lock fps, shuld be on begin main loop
     virtual void BeginFrame() = 0;
 };

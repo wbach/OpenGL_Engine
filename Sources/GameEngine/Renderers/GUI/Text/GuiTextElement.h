@@ -4,13 +4,16 @@
 #include <string>
 #include "GameEngine/Renderers/GUI/GuiRendererElementBase.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GraphicsApi/WindowApi.hpp"
+#include "Surface.h"
 #include "Types.h"
 
 namespace GameEngine
 {
+class FontManager;
 class GuiTextElement;
 typedef std::function<void(GuiTextElement&)> UpdateTextureFunction;
+typedef std::function<void(GuiElement&)> RenderSubscriberFunction;
+typedef std::function<void(const GuiElement&)> UnsubscriberElementFunction;
 
 class GuiTextElement : public GuiRendererElementBase
 {
@@ -30,13 +33,13 @@ public:
     };
 
 public:
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font);
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font, const std::string& str);
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size);
-    GuiTextElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, UpdateTextureFunction updateTexture, GraphicsApi::IWindowApi&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font);
+    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font, const std::string& str);
+    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size);
+    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
-    const std::optional<GraphicsApi::Surface>& GetSurface() const;
+    const std::optional<Surface>& GetSurface() const;
     std::optional<uint32> GetTextureId() const;
     const std::string& GetText() const;
     void SetTexture(Texture*);
@@ -59,11 +62,11 @@ private:
 
 private:
     UpdateTextureFunction updateTexture_;
-    GraphicsApi::IWindowApi& windowApi_;
+    FontManager& fontManager_;
     std::string text_;
     FontInfo fontInfo_;
     std::optional<uint32> fontId_;
-    std::optional<GraphicsApi::Surface> surface_;
+    std::optional<Surface> surface_;
     bool openFontFailed_;
     Algin algin_;
 

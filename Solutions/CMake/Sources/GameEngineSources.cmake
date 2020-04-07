@@ -98,6 +98,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/GUI/Layout/HorizontalLayout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.cpp
 ../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.cpp
+../../Sources/GameEngine/Renderers/GUI/Text/FontManager.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextElement.cpp
 ../../Sources/GameEngine/Renderers/GUI/Text/GuiTextFactory.cpp
 ../../Sources/GameEngine/Renderers/GUI/TextInput.cpp
