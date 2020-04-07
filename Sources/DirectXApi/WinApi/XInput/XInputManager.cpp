@@ -61,11 +61,11 @@ vec2i XInputManager::CalcualteMouseMove()
     {
         auto mousePosition = GetPixelMousePosition();
         SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
-        return vec2i(halfWindowsSize_.x - mousePosition.x, halfWindowsSize_.y - mousePosition.y);
+        return vec2i(mousePosition.x - halfWindowsSize_.x, mousePosition.y - halfWindowsSize_.y);
     }
 
     auto currentMousePosition = GetPixelMousePosition();
-    vec2i result(lastMouseMovmentPosition_.x - currentMousePosition.x, lastMouseMovmentPosition_.y - currentMousePosition.y);
+    vec2i result(currentMousePosition.x - lastMouseMovmentPosition_.x, currentMousePosition.y - lastMouseMovmentPosition_.y);
     lastMouseMovmentPosition_ = currentMousePosition;
     return result;
 }
