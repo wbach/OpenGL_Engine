@@ -11,7 +11,8 @@ BaseCamera::BaseCamera()
 {
 }
 BaseCamera::BaseCamera(float pitch, float yaw)
-    : up_(0, 1, 0)
+    : lock_(false)
+    , up_(0, 1, 0)
     , position_(0)
     , rotation_(pitch, yaw, 0)
     , viewMatrix_(mat4())
@@ -19,7 +20,8 @@ BaseCamera::BaseCamera(float pitch, float yaw)
     UpdateMatrix();
 }
 BaseCamera::BaseCamera(const vec3& position, const vec3& lookAt)
-    : position_(position)
+    : lock_(false)
+    , position_(position)
 {
     LookAt(lookAt);
 }
@@ -42,6 +44,12 @@ void BaseCamera::Unlock()
 {
     lock_ = false;
 }
+
+bool BaseCamera::IsLocked() const
+{
+    return lock_;
+}
+
 void BaseCamera::UpdateMatrix()
 {
     UpdateViewMatrix();

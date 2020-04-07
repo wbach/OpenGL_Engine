@@ -12,6 +12,8 @@ namespace OpenGLApi
 {
 InputSDL::InputSDL(SDL_Window* sdl_window)
     : sdlWindow(sdl_window)
+    , isRelativeMouseMode(false)
+    , lastMouseMovmentPosition_(GetPixelMousePosition())
 {
     SDL_GetWindowSize(sdlWindow, &windowsSize_.x, &windowsSize_.y);
     halfWindowsSize_ = vec2i{windowsSize_.x / 2, windowsSize_.y / 2};
@@ -29,14 +31,30 @@ bool InputSDL::GetKey(KeyCodes::Type key)
 
 vec2i InputSDL::CalcualteMouseMove()
 {
-    auto mousePosition = GetPixelMousePosition();
-    SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
-    return vec2i(halfWindowsSize_.x - mousePosition.x, halfWindowsSize_.y - mousePosition.y);
+    vec2i result;
+    if (isRelativeMouseMode)
+    {
+        SDL_GetRelativeMouseState(&result.x, &result.y);
+    }
+    else
+    {
+        auto currentMousePosition = GetPixelMousePosition();
+        result.x = lastMouseMovmentPosition_.x - currentMousePosition.x;
+        result.y = lastMouseMovmentPosition_.y - currentMousePosition.y;
+        lastMouseMovmentPosition_ = currentMousePosition;
+    }
+    return result;
 }
 
 bool InputSDL::GetMouseKey(KeyCodes::Type key)
 {
     return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SdlKeyConverter::Convert(key));
+}
+
+void InputSDL::SetReleativeMouseMode(bool v)
+{
+    isRelativeMouseMode = v;
+    SDL_SetRelativeMouseMode(v ? SDL_TRUE : SDL_FALSE);
 }
 
 vec2i InputSDL::GetPixelMousePosition()

@@ -55,7 +55,9 @@ public:
     std::unique_ptr<GuiTextureElement> CreateGuiTexture(const std::string&);
     // GuiWindow
     std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const vec4&);
     std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const std::string&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const std::string&, const vec4&);
     // GuiButton
     std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>);
     std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);

@@ -26,6 +26,8 @@ MouseState mouseState;
 XInputManager::XInputManager(HWND windowHwnd, const vec2ui& windowSize)
     : windowHwnd_(windowHwnd)
     , halfWindowsSize_(windowSize.x / 2, windowSize.y / 2)
+    , isRelativeMouseMode_(false)
+    , lastMouseMovmentPosition_(GetPixelMousePosition())
 {
 }
 
@@ -48,11 +50,24 @@ bool XInputManager::GetMouseKey(KeyCodes::Type key)
     return GetMouseState(key);
 }
 
+void XInputManager::SetReleativeMouseMode(bool v)
+{
+    isRelativeMouseMode_ = v;
+}
+
 vec2i XInputManager::CalcualteMouseMove()
 {
-    auto mousePosition = GetPixelMousePosition();
-    SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
-    return vec2i(halfWindowsSize_.x - mousePosition.x, halfWindowsSize_.y - mousePosition.y);
+    if (isRelativeMouseMode_)
+    {
+        auto mousePosition = GetPixelMousePosition();
+        SetCursorPosition(halfWindowsSize_.x, halfWindowsSize_.y);
+        return vec2i(halfWindowsSize_.x - mousePosition.x, halfWindowsSize_.y - mousePosition.y);
+    }
+
+    auto currentMousePosition = GetPixelMousePosition();
+    vec2i result(lastMouseMovmentPosition_.x - currentMousePosition.x, lastMouseMovmentPosition_.y - currentMousePosition.y);
+    lastMouseMovmentPosition_ = currentMousePosition;
+    return result;
 }
 
 vec2i XInputManager::GetPixelMousePosition()

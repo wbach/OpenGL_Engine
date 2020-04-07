@@ -11,8 +11,10 @@ struct ICamera
     virtual void Move()                        = 0;
     virtual void CalculateInput()              = 0;
     virtual void CalculateZoom(float zoom_lvl) = 0;
-    virtual void Lock()                        = 0;
-    virtual void Unlock()                      = 0;
+
+    virtual void Lock()     = 0;
+    virtual void Unlock()   = 0;
+    virtual bool IsLocked() const = 0;
 
     virtual void UpdateMatrix() = 0;
     virtual void InvertPitch()  = 0;

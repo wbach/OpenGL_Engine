@@ -18,6 +18,7 @@ public:
 
     // Mouse
     virtual bool GetMouseKey(KeyCodes::Type key) override;
+    virtual void SetReleativeMouseMode(bool) override;
     virtual vec2i CalcualteMouseMove() override;
     virtual vec2i GetPixelMousePosition() override;
     virtual vec2 GetMousePosition() override;
@@ -42,6 +43,8 @@ private:
     std::list<KeyEvent> keyEvents_;
     HWND windowHwnd_;
     vec2ui halfWindowsSize_;
+    bool isRelativeMouseMode_;
+    vec2i lastMouseMovmentPosition_;
 };
 
 }  // namespace DirectX

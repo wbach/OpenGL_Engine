@@ -152,7 +152,7 @@ std::optional<uint32> SdlOpenGlApi::OpenFont(const std::string& filename, uint32
 
     auto percentFontSize = windowSize_.y * size / 768;
 
-    //auto percentFontSize = windowSize_.y / size;
+    // auto percentFontSize = windowSize_.y / size;
 
     DEBUG_LOG("Font percent size : " + std::to_string(percentFontSize) + "/" + std::to_string(size));
 
@@ -244,9 +244,8 @@ void SdlOpenGlApi::DeleteSurface(uint32 surfaceId)
         return;
     }
 
-    auto iter = std::find_if(rendererdTexts_.begin(), rendererdTexts_.end(), [&](const auto& r) {
-        return r.surface.id == surfaceId;
-    });
+    auto iter = std::find_if(rendererdTexts_.begin(), rendererdTexts_.end(),
+                             [&](const auto& r) { return r.surface.id == surfaceId; });
 
     if (iter != rendererdTexts_.end())
     {
@@ -332,6 +331,15 @@ void SdlOpenGlApi::ProcessSdlEvent() const
             ProccesSdlKeyDown(SDL_KEYUP);
             break;
         case SDL_FINGERDOWN:
+            break;
+        case SDL_MOUSEMOTION:
+//             static int xpos = windowSize_.x / 2; // = 400 to center the cursor in the window
+//             static int ypos = windowSize_.y / 2; // = 300 to center the cursor in the window
+//           //  xpos = impl_->event.motion.xrel;
+//          //   ypos = impl_->event.motion.yrel;
+//             SDL_GetRelativeMouseState(&xpos, &ypos);
+//             DEBUG_LOG(std::to_string(vec2i(xpos, ypos)));
+
             break;
     }
 }

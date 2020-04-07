@@ -22,6 +22,8 @@ public:
                       float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
 
     void Move() override;
+    void Lock() override;
+    void Unlock() override;
 
 private:
     void ApllyMove();

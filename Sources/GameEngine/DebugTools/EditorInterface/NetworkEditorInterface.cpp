@@ -33,7 +33,8 @@ std::unique_ptr<FirstPersonCamera> firstPersonCamera;
 class DragObject
 {
 public:
-    DragObject(Input::InputManager &manager, common::Transform &transform, const CameraWrapper& camera, const Projection& projection)
+    DragObject(Input::InputManager &manager, common::Transform &transform, const CameraWrapper &camera,
+               const Projection &projection)
         : input_(manager)
         , transform_(transform)
         , camera_(camera)
@@ -41,7 +42,7 @@ public:
     {
         mouseZcoord_ = CalculateMouseZCoord(transform_.GetPosition());
         DEBUG_LOG(std::to_string(mouseZcoord_));
-        offset_      = transform_.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+        offset_ = transform_.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
     }
 
     void Update()
@@ -58,7 +59,7 @@ private:
 
     vec3 ScreenToWorldPoint(const vec3 &point)
     {
-        auto eyeCoords = glm::inverse(projection_.GetProjectionMatrix()) * vec4(point, 1.f);
+        auto eyeCoords   = glm::inverse(projection_.GetProjectionMatrix()) * vec4(point, 1.f);
         auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * eyeCoords;
         return Utils::Vec4ToVec3(worldCoords);
     }
@@ -76,8 +77,8 @@ private:
 private:
     Input::InputManager &input_;
     common::Transform &transform_;
-    const CameraWrapper& camera_;
-    const Projection& projection_;
+    const CameraWrapper &camera_;
+    const Projection &projection_;
     vec3 offset_;
     float mouseZcoord_;
 };
@@ -90,6 +91,18 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     , userId_{0}
 {
     firstPersonCamera = std::make_unique<FirstPersonCamera>(scene.inputManager_, scene.displayManager_);
+    firstPersonCamera->Lock();
+
+    cameraLockUnlockKeySubscribtion_ = scene.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
+        if (firstPersonCamera->IsLocked())
+        {
+            firstPersonCamera->Unlock();
+        }
+        else
+        {
+            firstPersonCamera->Lock();
+        }
+    });
     SetFreeCamera();
 
     // scene_.Stop();
@@ -130,8 +143,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         {
             gateway_.Update();
 
-           // if (dragObject_)
-              //  dragObject_->Update();
+            // if (dragObject_)
+            //  dragObject_->Update();
         }
     });
 
@@ -144,7 +157,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         if (selectedGameObject_)
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform, scene_.camera, scene_.renderersManager_->GetProjection());
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform,
+                                                       scene_.camera, scene_.renderersManager_->GetProjection());
         }
         else
         {
@@ -152,13 +166,17 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         }
     });
 
-    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { selectedGameObject_ = nullptr; dragObject_ = nullptr; });
+    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() {
+        selectedGameObject_ = nullptr;
+        dragObject_         = nullptr;
+    });
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
 {
     scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LMOUSE, keyDownSub_);
     scene_.inputManager_->UnsubscribeOnKeyUp(KeyCodes::LMOUSE, keyUpSub_);
+    scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LCTRL, cameraLockUnlockKeySubscribtion_);
 
     if (transformChangeSubscriptionId_)
     {

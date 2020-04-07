@@ -19,6 +19,7 @@ public:
 
     // Mouse
     virtual bool GetMouseKey(KeyCodes::Type key) override;
+    virtual void SetReleativeMouseMode(bool) override;
     virtual vec2i CalcualteMouseMove() override;
     virtual vec2i GetPixelMousePosition() override;
     virtual vec2 GetMousePosition() override;
@@ -45,6 +46,8 @@ private:
     SDL_Window* sdlWindow;
     vec2i windowsSize_;
     vec2i halfWindowsSize_;
+    bool isRelativeMouseMode;
+    vec2i lastMouseMovmentPosition_;
 };
 
 }  // OpenGLApi

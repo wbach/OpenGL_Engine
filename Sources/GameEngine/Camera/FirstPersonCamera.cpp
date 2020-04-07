@@ -41,6 +41,7 @@ FirstPersonCamera::FirstPersonCamera(Input::InputManager* input_manager, GameEng
     , mousevel(mouse_velocity)
     , movevel(move_velocity)
 {
+    inputManager->SetReleativeMouseMode(true);
 }
 
 void FirstPersonCamera::LockCamera()
@@ -75,6 +76,18 @@ void FirstPersonCamera::Move()
     CheckAndProccesDirections();
 }
 
+void FirstPersonCamera::Lock()
+{
+    BaseCamera::Lock();
+    inputManager->SetReleativeMouseMode(false);
+}
+
+void FirstPersonCamera::Unlock()
+{
+    BaseCamera::Unlock();
+    inputManager->SetReleativeMouseMode(true);
+}
+
 vec2 FirstPersonCamera::CalcualteMouseMove()
 {
     auto result = inputManager->CalcualteMouseMove();
@@ -83,10 +96,7 @@ vec2 FirstPersonCamera::CalcualteMouseMove()
 
 void FirstPersonCamera::ApllyMove()
 {
-    if (not inputManager->GetMouseKey(KeyCodes::LMOUSE) or inputManager->GetKey(KeyCodes::LCTRL))
-        return;
-
-    vec2 dmove = CalcualteMouseMove() * -1.f;
+    vec2 dmove = CalcualteMouseMove();
     IncreasePitch(dmove.x);
     IncreaseYaw(dmove.y);
     LockCamera();

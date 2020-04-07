@@ -9,6 +9,7 @@ class InputManagerMock : public InputManager
 public:
     MOCK_METHOD1(GetKey, bool(KeyCodes::Type));
     MOCK_METHOD1(GetMouseKey, bool(KeyCodes::Type));
+    MOCK_METHOD1(SetReleativeMouseMode, void(bool));
     MOCK_METHOD0(CalcualteMouseMove, vec2i());
     MOCK_METHOD0(GetPixelMousePosition, vec2i());
     MOCK_METHOD0(GetMousePosition, vec2());

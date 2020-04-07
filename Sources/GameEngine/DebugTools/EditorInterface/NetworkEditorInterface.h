@@ -64,6 +64,7 @@ private:
     common::Transform* transformChangeSubscription_;
     uint32 keyDownSub_;
     uint32 keyUpSub_;
+    uint32 cameraLockUnlockKeySubscribtion_;
     GameObject* selectedGameObject_;
     uint32 userId_;
     std::unique_ptr<DragObject> dragObject_;

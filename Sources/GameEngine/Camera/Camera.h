@@ -19,6 +19,7 @@ public:
     virtual void CalculateZoom(float) override;
     virtual void Lock() override;
     virtual void Unlock() override;
+    virtual bool IsLocked() const override;
 
     virtual void UpdateMatrix() override;
     virtual void InvertPitch() override;
@@ -56,7 +57,7 @@ protected:
     void UpdateViewMatrix();
 
 protected:
-    bool lock_{false};
+    bool lock_;
 
 private:
     uint32 idPool_;

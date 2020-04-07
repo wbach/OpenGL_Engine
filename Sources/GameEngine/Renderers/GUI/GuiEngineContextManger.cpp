@@ -10,7 +10,8 @@ namespace GameEngine
 GuiEngineContextManger::GuiEngineContextManger(GuiElementFactory& guiFactory)
     : guiFactory_(guiFactory)
 {
-    rootWindow_         = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.75, 1.0), vec2(0.25, 0));
+    rootWindow_ = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.75, 1.0), vec2(0.25, 0),
+                                              vec4(1.f, 1.f, 1.f, 0.5f));
     rootWindow_->SetZPosition(-11.f);
     auto verticalLayout = guiFactory.CreateVerticalLayout();
     verticalLayout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);

@@ -13,6 +13,7 @@ public:
     ~DummyInputManager();
     virtual bool GetKey(KeyCodes::Type) override;
     virtual bool GetMouseKey(KeyCodes::Type) override;
+    virtual void SetReleativeMouseMode(bool) override;
     virtual vec2i CalcualteMouseMove() override;
     virtual vec2i GetPixelMousePosition() override;
     virtual vec2 GetMousePosition() override;

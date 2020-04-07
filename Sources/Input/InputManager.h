@@ -31,6 +31,7 @@ public:
     void SetDefaultKeys();
     virtual bool GetKey(KeyCodes::Type i)        = 0;
     virtual bool GetMouseKey(KeyCodes::Type key) = 0;
+    virtual void SetReleativeMouseMode(bool)     = 0;
     virtual vec2i CalcualteMouseMove()           = 0;
     virtual vec2i GetPixelMousePosition()        = 0;
     virtual vec2 GetMousePosition()              = 0;

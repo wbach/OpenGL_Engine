@@ -23,6 +23,11 @@ bool GameEngine::DummyInputManager::GetMouseKey(KeyCodes::Type)
     return false;
 }
 
+void DummyInputManager::SetReleativeMouseMode(bool)
+{
+
+}
+
 vec2i GameEngine::DummyInputManager::CalcualteMouseMove()
 {
     return vec2i();

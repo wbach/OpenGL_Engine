@@ -83,7 +83,20 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
 }
 
 std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowStyle style, const vec2 &position,
+                                                                     const vec2 &scale, const vec4 &backgorundColor)
+{
+    return CreateGuiWindow(style, position, scale, theme_.backgroundTexture, backgorundColor);
+}
+
+std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowStyle style, const vec2 &position,
                                                                      const vec2 &scale, const std::string &backgorund)
+{
+    return CreateGuiWindow(style, position, scale, backgorund, vec4(1.f));
+}
+
+std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowStyle style, const vec2 &position,
+                                                                     const vec2 &scale, const std::string &backgorund,
+                                                                     const vec4 &backgorundColor)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(style, windowSize_, inputManager_);
     guiWindow->SetPostion(position);
@@ -93,7 +106,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
     {
         auto &bg                  = backgorund.empty() ? theme_.backgroundTexture : backgorund;
         auto backgroundGuiTexture = MakeGuiTexture(bg);
-        backgroundGuiTexture->SetColor(vec4(1.f, 1.f,1.f, 0.5f));
+        backgroundGuiTexture->SetColor(backgorundColor);
 
         if (backgroundGuiTexture)
         {
@@ -257,7 +270,7 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::
 
 void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &window)
 {
-    auto ptr              = &window;
+    auto ptr = &window;
     const vec2 barPosition(0, window.GetScale().y + GUI_WINDOW_BAR_HEIGHT);
 
     auto horizontalLayout = CreateHorizontalLayout();
