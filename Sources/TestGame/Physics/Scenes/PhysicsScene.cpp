@@ -134,15 +134,14 @@ void PhysicsScene::KeyOperations()
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { simulatePhysics_.store(!simulatePhysics_.load()); });
 
-    auto rm = renderersManager_;
     inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]() {
         gameObjects.clear();
         AddStartupObjects();
     });
     inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]() { AddBoxes(GetCamera().GetPosition()); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::L, [&]() { renderersManager_->SwapLineFaceRender(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [rm]() { rm->DisableDrawPhysicsDebyg(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [rm]() { rm->EnableDrawPhysicsDebyg(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::G, [&]() { AddExampleMesh(GetCamera().GetPosition(), 10.f); });
 

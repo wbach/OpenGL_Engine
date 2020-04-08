@@ -41,28 +41,31 @@ public:
     DebugRenderer(const RendererContext& context);
     ~DebugRenderer();
 
-    // Loading lights itp to shader
     virtual void Init() override;
     virtual void ReloadShaders() override;
-    void Render(const Scene& scene, const Time& threadTime);
+    void Render(const Scene&, const Time&);
     void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)>);
 
 private:
-    void InitShaders();
     void DrawGrid();
     void DrawDebugObjects();
+    void RenderModel(const Model&) const;
+    void BindMeshBuffers(const Mesh&) const;
+    void RenderMesh(const Mesh&) const;
 
 private:
     const RendererContext& context_;
-    ShaderProgram simpleShader_;
+    ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
 
     std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
 
     std::vector<DebugObject> debugObjects_;
 
-    GraphicsApi::ID perObjectUpdateId;
-    GraphicsApi::ID perObjectId;
+    GraphicsApi::ID gridPerObjectUpdateBufferId_;
+
+//    GraphicsApi::ID perObjectUpdateId;
+//    GraphicsApi::ID perObjectId;
 };
 
 }  // namespace GameEngine

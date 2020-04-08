@@ -41,8 +41,8 @@ public:
     void SwapLineFaceRender();
 
     void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)>);
-    void EnableDrawPhysicsDebyg();
-    void DisableDrawPhysicsDebyg();
+    void EnableDebugRenderer();
+    void DisableDebugRenderer();
     GUIRenderer& GetGuiRenderer();
     bool IsTesselationSupported() const;
 
@@ -64,19 +64,19 @@ private:
     std::unique_ptr<IFrameBuffer> defferedFrameBuffer_;
     std::unique_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
     std::unique_ptr<RendererContext> rendererContext_;
+    std::unique_ptr<DebugRenderer> debugRenderer_;
 
     Frustrum frustrum_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;
 
-   // DebugRenderer debugRenderer_;
     IRenderersPtrVec renderers_;
     GUIRenderer guiRenderer_;
     Projection projection_;
     RendererFunctions rendererFunctions_;
 
-    bool renderPhysicsDebug_;
+    bool useDebugRenderer_;
     GraphicsApi::ID perFrameId_;
     mat4 viewProjectionMatrix_;
     BufferDataUpdater bufferDataUpdater_;

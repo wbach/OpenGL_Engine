@@ -43,9 +43,8 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
-    , renderPhysicsDebug_(false)
+    , useDebugRenderer_(false)
     , bufferDataUpdater_(graphicsApi)
-//    , debugRenderer_()
 {
 }
 RenderersManager::~RenderersManager()
@@ -91,6 +90,8 @@ void RenderersManager::InitMainRenderer()
     shadowsFrameBuffer_  = std::make_unique<ShadowFrameBuffer>(graphicsApi_);
     rendererContext_ = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
                                                          *shadowsFrameBuffer_, registerFunc);
+    debugRenderer_   = std::make_unique<DebugRenderer>(*rendererContext_);
+    debugRenderer_->Init();
 
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 
@@ -167,13 +168,9 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
         Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
     }
 
-    // if (renderPhysicsDebug_ and physicsDebugDraw_)
-    //{
-    //    DEBUG_LOG("Physic draw");
-    //    physicsDebugDraw_(scene->GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
-    //}
+    if (useDebugRenderer_)
+        debugRenderer_->Render(*scene, threadTime);
 
-    // debugRenderer_.Render(*scene, threadTime);
     guiRenderer_.Render(*scene, threadTime);
 
     if (unsubscribeAllCallback_)
@@ -236,15 +233,22 @@ void RenderersManager::SwapLineFaceRender()
 
 void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
 {
-    // debugRenderer_.SetPhysicsDebugDraw(func);
+    if (debugRenderer_)
+    {
+        debugRenderer_->SetPhysicsDebugDraw(func);
+    }
+    else
+    {
+        ERROR_LOG("Can not set physics debug draw function before initialization.");
+    }
 }
-void RenderersManager::EnableDrawPhysicsDebyg()
+void RenderersManager::EnableDebugRenderer()
 {
-    renderPhysicsDebug_ = true;
+    useDebugRenderer_ = true;
 }
-void RenderersManager::DisableDrawPhysicsDebyg()
+void RenderersManager::DisableDebugRenderer()
 {
-    renderPhysicsDebug_ = false;
+    useDebugRenderer_ = false;
 }
 GUIRenderer& RenderersManager::GetGuiRenderer()
 {

@@ -54,17 +54,7 @@ int EditorScene::Initialize()
     //    AddGameObject(go);
     //}
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
-        for (auto& go : gameObjects)
-        {
-            go->worldTransform.IncrasePosition(vec3(0.001));
-        }
-    });
-
-    inputManager_->SubscribeOnKeyDown(KeyCodes::L, [renderersManager = this->renderersManager_]() {
-        renderersManager->SwapLineFaceRender();
-    });
+    KeySubscribtions();
 
     return 0;
 }
@@ -92,5 +82,21 @@ void EditorScene::AddGameObjects(GameObject* go, int lvl)
         AddGameObjects(newGo.get(), lvl - 1);
         go->AddChild(std::move(newGo));
     }
+}
+
+void EditorScene::KeySubscribtions()
+{
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::L, [renderersManager = this->renderersManager_]() {
+        renderersManager->SwapLineFaceRender();
+    });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
+        for (auto& go : gameObjects)
+        {
+            go->worldTransform.IncrasePosition(vec3(0.001));
+        }
+    });
 }
 }  // namespace Editor

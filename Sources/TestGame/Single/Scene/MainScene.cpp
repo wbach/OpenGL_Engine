@@ -375,8 +375,8 @@ void MainScene::KeyOperations()
 
     auto rm = renderersManager_;
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { SaveToFile(sceneFile); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [rm]() { rm->DisableDrawPhysicsDebyg(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [rm]() { rm->EnableDrawPhysicsDebyg(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]() { renderersManager_->ReloadShaders(); });
 

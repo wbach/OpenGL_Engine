@@ -5,7 +5,7 @@ namespace GraphicsApi
 enum class ShaderProgramType
 {
     Entity,
-    SimpleEntity,
+    DebugObject,
     Grass,
     Particles,
     AnimatedParticles,

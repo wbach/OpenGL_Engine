@@ -16,6 +16,7 @@ public:
 
 private:
     void AddGameObjects(GameEngine::GameObject*, int lvl);
+    void KeySubscribtions();
 
 private:
     Context& context_;

@@ -21,9 +21,6 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
     , isRunning_(true)
 {
     graphicsApi_->SetBackgroundColor(vec3(.8f));
-    renderersManager_.SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix) {
-        physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
-    });
     graphicsApi_->SetShadersFilesLocations(EngineConf.files.shaders);
     SetDisplay();
     sceneManager_.SetFactor();
@@ -108,5 +105,8 @@ void Engine::Init()
 {
     graphicsApi_->EnableDepthTest();
     renderersManager_.Init();
+    renderersManager_.SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix) {
+        physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
+    });
 }
 }  // namespace GameEngine
