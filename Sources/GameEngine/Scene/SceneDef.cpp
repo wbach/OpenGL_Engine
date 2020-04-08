@@ -79,6 +79,3 @@ const std::string CSTR_WAVE_SPEED                         = "waveSpeed";
 const std::string CSTR_HEIGHT                             = "height";
 const std::string CSTR_RADIUS                             = "radius";
 const std::string CSTR_ANGULAR_FACTOR                     = "angularFactor";
-const std::string CSTR_TERRAIN_RENDERER_TYPE              = "terrainRendererType";
-const std::string CSTR_TERRAIN_MESH_RENDERER_TYPE         = "Mesh";
-const std::string CSTR_TERRAIN_TESSELLATION_RENDERER_TYPE = "Tessellation";

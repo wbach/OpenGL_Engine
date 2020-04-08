@@ -44,6 +44,14 @@ void Create(XmlNode& node, const Params::Water& param)
     refraction.attributes_[CSTR_WATER_REFRACTION_WIDTH]  = std::to_string(param.waterRefractionResolution.x);
     refraction.attributes_[CSTR_WATER_REFRACTION_HEIGHT] = std::to_string(param.waterRefractionResolution.y);
 }
+void Create(XmlNode& node, const Params::TerrainType& param)
+{
+    node.value_ = std::to_string(param);
+}
+void Create(XmlNode& node, const Params::Terrain& param)
+{
+    Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), param.terrainType);
+}
 void Create(XmlNode& node, const Params::Renderer& param)
 {
     node.attributes_[CSTR_GRAPHICS_API]              = param.graphicsApi;
@@ -51,6 +59,8 @@ void Create(XmlNode& node, const Params::Renderer& param)
     node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X] = std::to_string(param.resolution.x);
     node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y] = std::to_string(param.resolution.y);
     node.attributes_[CSTR_RENDERER_FPS_LIMIT]        = std::to_string(param.fpsLimt);
+
+    Create(node.AddChild(CSTR_TERRAIN), param.terrain);
     Create(node.AddChild(CSTR_WATER), param.water);
     Create(node.AddChild(CSTR_FLORA), param.flora);
     Create(node.AddChild(CSTR_SHADOWS), param.shadows);

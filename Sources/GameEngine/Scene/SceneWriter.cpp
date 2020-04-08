@@ -267,11 +267,6 @@ void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 void Create(XmlNode& node, const Components::TerrainRendererComponent& component)
 {
     Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
-
-    if (component.GetRendererType() == Components::TerrainRendererComponent::RendererType::Mesh)
-        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), CSTR_TERRAIN_MESH_RENDERER_TYPE);
-    if (component.GetRendererType() == Components::TerrainRendererComponent::RendererType::Tessellation)
-        Create(node.AddChild(CSTR_TERRAIN_RENDERER_TYPE), CSTR_TERRAIN_TESSELLATION_RENDERER_TYPE);
 }
 
 template <typename T>

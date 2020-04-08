@@ -3,7 +3,6 @@
 
 namespace GameEngine
 {
-	struct Configuration;
-
-	void WriteConfigurationToFile(const Configuration& configuration, const std::string& filename);
-} // GameEngine
+struct Configuration;
+void WriteConfigurationToFile(const Configuration& configuration, const std::string& filename);
+}  // namespace GameEngine

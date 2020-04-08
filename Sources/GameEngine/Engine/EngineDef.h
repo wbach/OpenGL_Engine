@@ -56,5 +56,8 @@ extern const std::string CSTR_WATER_REFLECTION_HEIGHT;
 extern const std::string CSTR_WATER_REFRACTION;
 extern const std::string CSTR_WATER_REFRACTION_WIDTH;
 extern const std::string CSTR_WATER_REFRACTION_HEIGHT;
+//Terrain
+extern const std::string CSTR_TERRAIN;
+extern const std::string CSTR_TERRAIN_RENDERER_TYPE;
 // Other
 extern const std::string CSTR_ENABLE_BINARY_LOADING;

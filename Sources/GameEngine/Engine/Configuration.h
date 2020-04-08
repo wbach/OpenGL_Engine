@@ -1,9 +1,12 @@
 #pragma once
+#include <GraphicsApi/RendererType.h>
+
 #include <unordered_map>
+
 #include "LoD.h"
 #include "SingleTon.h"
 #include "Utils.h"
-#include <GraphicsApi/RendererType.h>
+#include "ConfigurationParams/TerrainParam/TerrainParam.h"
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
 const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
@@ -75,21 +78,24 @@ struct Textures
     bool useSpecular = true;
 };
 
+
+
 struct Renderer
 {
-    std::string graphicsApi = "OpenGL";
-    GraphicsApi::RendererType type  = GraphicsApi::RendererType::FULL;
-    float viewDistance = 250.f;
-    uint32 fpsLimt     = 60;
-    vec2ui resolution  = DEFAULT_WINDOW_SIZE;
+    std::string graphicsApi        = "OpenGL";
+    GraphicsApi::RendererType type = GraphicsApi::RendererType::FULL;
 
+    float viewDistance             = 250.f;
+    uint32 fpsLimt                 = 60;
+    vec2ui resolution              = DEFAULT_WINDOW_SIZE;
+
+    Terrain terrain;
     Water water;
     Flora flora;
     Shadows shadows;
     Textures textures;
     Particles particles;
 };
-
 }  // namespace Params
 
 struct Configuration

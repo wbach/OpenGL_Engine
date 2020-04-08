@@ -27,13 +27,13 @@ public:
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
 
-    TerrainRendererComponent& SetRendererType(RendererType);
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();
     TerrainMeshRendererComponent* GetMeshTerrain();
     const vec3& GetScale() const;
 
 private:
+    void SetRendererType(RendererType);
     virtual void ReqisterFunctions() override;
 
 private:

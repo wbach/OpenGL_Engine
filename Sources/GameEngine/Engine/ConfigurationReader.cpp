@@ -1,8 +1,9 @@
 #include "ConfigurationReader.h"
+
 #include "Configuration.h"
 #include "EngineDef.h"
-#include "Utils/XML/XmlReader.h"
 #include "Utils.h"
+#include "Utils/XML/XmlReader.h"
 
 namespace GameEngine
 {
@@ -64,15 +65,32 @@ void Read(Utils::XmlNode& node, Params::Textures& textures)
     textures.useSpecular = Utils::StringToBool(node.attributes_[CSTR_TEXTURE_SPECULAR]);
 }
 
+void Read(Utils::XmlNode* node, Params::TerrainType& param)
+{
+    if (not node)
+        return;
+
+    std::from_string(node->value_, param);
+}
+
+void Read(Utils::XmlNode* node, Params::Terrain& param)
+{
+    if (not node)
+        return;
+
+    Read(node->GetChild(CSTR_TERRAIN_RENDERER_TYPE), param.terrainType);
+}  // namespace GameEngine
+
 void Read(Utils::XmlNode& node, Params::Renderer& renderer)
 {
-    renderer.graphicsApi  = node.attributes_[CSTR_GRAPHICS_API];
-    renderer.type         = static_cast<GraphicsApi::RendererType>(Utils::StringToInt(node.attributes_[CSTR_RENDERER_TYPE]));
+    renderer.graphicsApi = node.attributes_[CSTR_GRAPHICS_API];
+    renderer.type = static_cast<GraphicsApi::RendererType>(Utils::StringToInt(node.attributes_[CSTR_RENDERER_TYPE]));
     renderer.viewDistance = Utils::StringToFloat(node.attributes_[CSTR_RENDERER_VIEW_DISTANCE]);
     renderer.fpsLimt      = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_LIMIT]);
     renderer.resolution.x = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X]);
     renderer.resolution.y = Utils::StringToInt(node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y]);
 
+    Read(node.GetChild(CSTR_TERRAIN), renderer.terrain);
     Read(*node.GetChild(CSTR_WATER), renderer.water);
     Read(*node.GetChild(CSTR_FLORA), renderer.flora);
     Read(*node.GetChild(CSTR_SHADOWS), renderer.shadows);

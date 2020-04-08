@@ -283,26 +283,6 @@ void Read(Utils::XmlNode& node, Components::GrassRendererComponent& component)
 
 void Read(Utils::XmlNode& node, Components::TerrainRendererComponent& component)
 {
-    auto rendererTypeNode = node.GetChild(CSTR_TERRAIN_RENDERER_TYPE);
-
-    if (rendererTypeNode)
-    {
-        auto rendererTypeStr = rendererTypeNode->value_;
-
-        if (rendererTypeStr == CSTR_TERRAIN_MESH_RENDERER_TYPE)
-        {
-            component.SetRendererType(Components::TerrainRendererComponent::RendererType::Mesh);
-        }
-        else if (rendererTypeStr == CSTR_TERRAIN_TESSELLATION_RENDERER_TYPE)
-        {
-            component.SetRendererType(Components::TerrainRendererComponent::RendererType::Tessellation);
-        }
-        else
-        {
-            ERROR_LOG("Unknown terrain rendererType : " + rendererTypeStr);
-        }
-    }
-
     auto texturesNode = node.GetChild(CSTR_TEXTURE_FILENAMES);
 
     if (texturesNode)

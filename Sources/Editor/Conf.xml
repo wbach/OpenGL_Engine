@@ -1,12 +1,15 @@
 <Config>
-	<Window name="Default Window Name" width="1366" height="768" fullscreen="false"/>
+	<Window name="Default Window Name" width="1000" height="600" fullscreen="false"/>
 	<Files>
 		<DataLocation>../../Data/</DataLocation>
 		<ShadersLocation>../../Sources/</ShadersLocation>
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer resolutionX="1366" graphicsApi="DirectX11" type="1" resolutionY="768" fpsLimit="60">
+	<Renderer graphicsApi="OpenGL" resolutionX="1000" type="1" resolutionY="600" fpsLimit="60">
+		<terrain>
+			<terrainRenderer>s</terrainRenderer>
+		</terrain>
 		<Water type="2">
 			<Reflection width="640" height="480"/>
 			<Refraction width="320" height="240"/>

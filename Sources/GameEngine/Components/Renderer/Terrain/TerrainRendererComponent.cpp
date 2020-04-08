@@ -1,5 +1,9 @@
 #include "TerrainRendererComponent.h"
+
 #include <Logger/Log.h>
+
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/ConfigurationParams/TerrainParam/TerrainType.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "TerrainMeshRendererComponent.h"
 #include "TerrainTessellationRendererComponent.h"
@@ -16,11 +20,38 @@ std::unordered_map<TerrainTextureType, std::string> defualtEmptyTexturesMap;
 
 ComponentsType TerrainRendererComponent::type = ComponentsType::TerrainRenderer;
 
+TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
+{
+    switch (type)
+    {
+        case Params::TerrainType::Mesh:
+            return TerrainRendererComponent::RendererType::Mesh;
+        case Params::TerrainType::Tessellation:
+            return TerrainRendererComponent::RendererType::Tessellation;
+    }
+
+    return TerrainRendererComponent::RendererType::Mesh;
+}
+
 TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , functionsRegistered_(false)
 {
-    SetRendererType(RendererType::Tessellation);
+    if (EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE)
+    {
+        DEBUG_LOG("Choosed simple renderer force using terrain mesh renderer.");
+        SetRendererType(RendererType::Mesh);
+    }
+    else if (not componentContext_.resourceManager_.GetGraphicsApi().IsTesselationSupported())
+    {
+        DEBUG_LOG("Tessellation is not supported force using terrain mesh renderer.");
+        SetRendererType(RendererType::Mesh);
+        return;
+    }
+    else
+    {
+        SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
+    }
 }
 
 TerrainRendererComponent::~TerrainRendererComponent()
@@ -56,7 +87,7 @@ const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererCompon
     return defualtEmptyTexturesMap;
 }
 
-TerrainRendererComponent& TerrainRendererComponent::SetRendererType(TerrainRendererComponent::RendererType type)
+void TerrainRendererComponent::SetRendererType(TerrainRendererComponent::RendererType type)
 {
     switch (type)
     {
@@ -69,13 +100,6 @@ TerrainRendererComponent& TerrainRendererComponent::SetRendererType(TerrainRende
             break;
         case RendererType::Tessellation:
             DEBUG_LOG("Set RendererType::Tessellation");
-
-            if (not componentContext_.resourceManager_.GetGraphicsApi().IsTesselationSupported())
-            {
-                DEBUG_LOG("Tessellation is not supported force using terrain mesh renderer.");
-                return SetRendererType(RendererType::Mesh);
-            }
-
             meshComponent_.reset();
             tesselationComponent_ =
                 std::make_unique<TerrainTessellationRendererComponent>(componentContext_, thisObject_);
@@ -83,10 +107,7 @@ TerrainRendererComponent& TerrainRendererComponent::SetRendererType(TerrainRende
                 tesselationComponent_->ReqisterFunctions();
             break;
     }
-
     rendererType_ = type;
-
-    return *this;
 }
 
 TerrainRendererComponent::RendererType TerrainRendererComponent::GetRendererType() const
