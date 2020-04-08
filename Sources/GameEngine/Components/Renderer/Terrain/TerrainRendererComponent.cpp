@@ -141,8 +141,8 @@ const vec3& TerrainRendererComponent::GetScale() const
 {
     switch (rendererType_)
     {
-            //      case RendererType::Mesh:
-            //          return meshComponent_->GetScale();
+        case RendererType::Mesh:
+            return meshComponent_->GetConfiguration().GetScale();
         case RendererType::Tessellation:
             return tesselationComponent_->GetScale();
         default:

@@ -26,7 +26,6 @@ public:
     virtual void ReqisterFunctions() override;
     const TerrainConfiguration& GetConfiguration() const;
 
-
 private:
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);
