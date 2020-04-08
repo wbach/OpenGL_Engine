@@ -24,15 +24,15 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
     {
         GraphicsApi::ShaderProgramType::DebugObject,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Debug/debugObject.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Debug/debugObject.frag"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/debugObject.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/debugObject.frag"}
         }
     },
     {
         GraphicsApi::ShaderProgramType::Grid,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Debug/gridShader.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Debug/gridShader.frag"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/gridShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/gridShader.frag"}
         }
     },
     {
