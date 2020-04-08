@@ -1,5 +1,7 @@
 #include "GuiElementFactory.h"
+
 #include <algorithm>
+
 #include "Button/GuiButton.h"
 #include "EditText/GuiEditText.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -11,7 +13,6 @@
 #include "Layout/HorizontalLayout.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
-#include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"
@@ -20,15 +21,12 @@ namespace GameEngine
 {
 GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryParameters)
     : guiManager_(entryParameters.guiManager_)
+    , guiRenderer_(entryParameters.renderersManager_.GetGuiRenderer())
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
     , renderersManager_(entryParameters.renderersManager_)
     , windowSize_(entryParameters.renderersManager_.GetProjection().GetRenderingSize())
-    , renderSubscribe_([this](GuiElement &element) { renderersManager_.GetGuiRenderer().Subscribe(element); })
-    , unsubscribeElement_(
-          [this](const GuiElement &element) { renderersManager_.GetGuiRenderer().UnSubscribe(element); })
-    , guiTextFactory_(renderSubscribe_, unsubscribeElement_, entryParameters.resourceManager_,
-                      EngineConf.renderer.resolution)
+    , fontManger_(windowSize_)
     , guiElementCounter_(0)
 {
     isOnTop_ = [this](const GuiElement &checkingElement) {
@@ -53,11 +51,12 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     };
 }
 
-std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &str,
-                                                                 uint32 size, uint32 outline)
+std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,
+                                                                 uint32 fontSize, uint32 outline)
 {
-    auto result = guiTextFactory_.Create(EngineConf_GetFullDataPathAddToRequierd(font), str, size, outline);
-    return result;
+    auto textElement = std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, windowSize_, font,
+                                                        text, fontSize, outline);
+    return textElement;
 }
 
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &text, uint32 fontSize)
@@ -265,7 +264,7 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::
         return nullptr;
     }
 
-    return std::make_unique<GuiTextureElement>(renderSubscribe_, unsubscribeElement_, windowSize_, *texture);
+    return std::make_unique<GuiTextureElement>(guiRenderer_, windowSize_, *texture);
 }
 
 void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &window)

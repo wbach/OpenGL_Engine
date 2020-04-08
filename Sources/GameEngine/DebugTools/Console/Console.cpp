@@ -7,7 +7,6 @@
 #include <fstream>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
@@ -144,8 +143,7 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
         MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText(
-            EngineConf_GetFullDataPathAddToRequierd("GUI/Ubuntu-M.ttf"), COMMAND_CURRSOR + command, 25, 0);
+        auto text = scene_.guiElementFactory_->CreateGuiText("GUI/Ubuntu-M.ttf", COMMAND_CURRSOR + command, 25, 0);
         text->SetAlgin(GuiTextElement::Algin::LEFT);
         text->SetPostion(DEFAULT_TEXT_POSITION);
 

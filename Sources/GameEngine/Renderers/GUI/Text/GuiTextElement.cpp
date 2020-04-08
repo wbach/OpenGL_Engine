@@ -1,43 +1,46 @@
 #include "GuiTextElement.h"
+
 #include "FontManager.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Engine/Configuration.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
-                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
+GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const vec2ui& windowSize, const std::string& font)
-    : GuiTextElement(fontManager, renderSubscribe, unsubscribeElement, updateTexture, windowSize, font, "")
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, windowSize, font, "")
 {
 }
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
-                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
+GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const vec2ui& windowSize, const std::string& font, const std::string& str)
-    : GuiTextElement(fontManager, renderSubscribe, unsubscribeElement, updateTexture, windowSize, font, str, 10)
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, windowSize, font, str, 10)
 {
 }
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
-                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
+GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
-    : GuiTextElement(fontManager, renderSubscribe, unsubscribeElement, updateTexture, windowSize, font, str, size, 0)
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, windowSize, font, str, size, 0)
 {
 }
 
-GuiTextElement::GuiTextElement(FontManager& fontManager, RenderSubscriberFunction renderSubscribe,
-                               UnsubscriberElementFunction unsubscribeElement, UpdateTextureFunction updateTexture,
+GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
                                uint32 outline)
-    : GuiRendererElementBase(renderSubscribe, unsubscribeElement, type, windowSize)
-    , updateTexture_(updateTexture)
+    : GuiRendererElementBase(guiRenderer, type, windowSize)
+    , resourceManager_(resourceManager)
     , fontManager_(fontManager)
     , text_(str)
     , fontInfo_{outline, size, font}
     , openFontFailed_(false)
     , algin_(Algin::CENTER)
 {
+    DEBUG_LOG(text_);
     RenderText();
     SetZPositionOffset(-0.5f);
 }
@@ -172,7 +175,7 @@ void GuiTextElement::RenderText(bool fontOverride)
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = fontManager_.OpenFont(fontInfo_.font_, fontInfo_.fontSize_);
+            fontId_ = fontManager_.OpenFont(EngineConf_GetFullDataPathAddToRequierd(fontInfo_.font_), fontInfo_.fontSize_);
 
             if (not fontId_)
             {
@@ -194,13 +197,42 @@ void GuiTextElement::RenderText(bool fontOverride)
             scale_ = ConvertToScale(surface_->size, windowSize_);
             CalculateMatrix();
             CallOnChange();
-            updateTexture_(*this);
+            UpdateTexture();
         }
+        else
+        {
+            ERROR_LOG("RenderFont error for : " + text_);
+        }
+
         Show();
     }
     else
     {
         Hide();
+    }
+}
+
+void GuiTextElement::UpdateTexture()
+{
+    if (not GetSurface())
+    {
+        return;
+    }
+
+    if (GetTextureId())
+    {
+        resourceManager_.GetGpuResourceLoader().AddFunctionToCall([this]() {
+            resourceManager_.GetGraphicsApi().UpdateTexture(*GetTextureId(), surface_->size, surface_->pixels);
+        });
+        return;
+    }
+
+    auto fontTexture = resourceManager_.GetTextureLaoder().CreateTexture(
+        "FontImage_" + std::to_string(surface_->id) + "_" + text_, surface_->size, surface_->pixels);
+
+    if (fontTexture)
+    {
+        SetTexture(fontTexture);
     }
 }
 

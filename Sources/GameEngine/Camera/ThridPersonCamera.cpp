@@ -22,10 +22,11 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& input_manager, common:
     , destinationPitch(0)
     , moveTime(.125f)
     , destinationPosition(0)
+    , distanceFromPlayer(2.f)
+    , referenceTime(std::chrono::high_resolution_clock::now())
     , clock(std::chrono::milliseconds(5))
 {
-    distanceFromPlayer = 2.0f;
-    referenceTime      = std::chrono::high_resolution_clock::now();
+    inputManager.SetReleativeMouseMode(true);
 }
 ThirdPersonCamera::~ThirdPersonCamera()
 {
@@ -212,6 +213,16 @@ void ThirdPersonCamera::CalculateYaw()
 void ThirdPersonCamera::CalculateZoom(float zoom_lvl)
 {
     this->distanceFromPlayer += zoom_lvl;
+}
+void ThirdPersonCamera::Lock()
+{
+    BaseCamera::Lock();
+    inputManager.SetReleativeMouseMode(false);
+}
+void ThirdPersonCamera::Unlock()
+{
+    BaseCamera::Unlock();
+    inputManager.SetReleativeMouseMode(true);
 }
 vec2 ThirdPersonCamera::CalcualteMouseMove()
 {

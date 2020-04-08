@@ -1,22 +1,23 @@
 #include "GuiRendererElementBase.h"
 #include <Logger/Log.h>
+#include "GameEngine/Renderers/GUI/GuiRenderer.h"
 
 namespace GameEngine
 {
-GuiRendererElementBase::GuiRendererElementBase(std::function<void(GuiElement&)> renderSubscribe,
-                                               std::function<void(const GuiElement&)> unsubscribeElement,
+GuiRendererElementBase::GuiRendererElementBase(GUIRenderer& guiRenderer,
                                                GuiElementTypes type, const vec2ui& windowSize)
     : GuiElement(type, windowSize)
+    , guiRenderer_(guiRenderer)
     , texture_{nullptr}
     , color_(vec4(1.f))
-    , unsubscribeElement_(unsubscribeElement)
 {
     CalculateMatrix();
-    renderSubscribe(*this);
+    guiRenderer_.Subscribe(*this);
 }
+
 GuiRendererElementBase::~GuiRendererElementBase()
 {
-    unsubscribeElement_(*this);
+    guiRenderer_.UnSubscribe(*this);
 }
 
 void GuiRendererElementBase::SetScale(const vec2 &scale)

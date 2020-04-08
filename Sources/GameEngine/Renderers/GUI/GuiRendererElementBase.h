@@ -4,11 +4,12 @@
 
 namespace GameEngine
 {
+class GUIRenderer;
+
 class GuiRendererElementBase : public GuiElement
 {
 public:
-    GuiRendererElementBase(std::function<void(GuiElement&)> renderSubscribe,
-                           std::function<void(const GuiElement&)> unsubscribeElement, GuiElementTypes type,
+    GuiRendererElementBase(GUIRenderer& guiRenderer, GuiElementTypes type,
                            const vec2ui& windowSize);
     ~GuiRendererElementBase() override;
 
@@ -25,11 +26,11 @@ protected:
     void CalculateMatrix();
 
 protected:
+    GUIRenderer& guiRenderer_;
     Texture* texture_;
     vec4 color_;
     vec2 offset_;
     mat4 transformMatrix_;
-    std::function<void(const GuiElement&)> unsubscribeElement_;
 };
 
 std::optional<uint32> GuiRendererElementBase::GetTextureId() const

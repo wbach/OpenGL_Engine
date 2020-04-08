@@ -41,6 +41,8 @@ public:
     void Move() override;
     void CalculateInput() override;
     void CalculateZoom(float zoom_lvl) override;
+    void Lock() override;
+    void Unlock() override;
 
 private:
     void StaticCameraMove();

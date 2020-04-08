@@ -10,10 +10,8 @@
 namespace GameEngine
 {
 class FontManager;
-class GuiTextElement;
-typedef std::function<void(GuiTextElement&)> UpdateTextureFunction;
-typedef std::function<void(GuiElement&)> RenderSubscriberFunction;
-typedef std::function<void(const GuiElement&)> UnsubscriberElementFunction;
+class GUIRenderer;
+class IResourceManager;
 
 class GuiTextElement : public GuiRendererElementBase
 {
@@ -33,10 +31,10 @@ public:
     };
 
 public:
-    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font);
-    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font, const std::string& str);
-    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size);
-    GuiTextElement(FontManager&, RenderSubscriberFunction, UnsubscriberElementFunction, UpdateTextureFunction, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font, const std::string& str);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
     const std::optional<Surface>& GetSurface() const;
@@ -57,11 +55,12 @@ public:
     const FontInfo& GetFontInfo() const;
 
 private:
+    void UpdateTexture();
     void RenderText(bool fontOverride = false);
     void CalculateAlginOffset();
 
 private:
-    UpdateTextureFunction updateTexture_;
+    IResourceManager& resourceManager_;
     FontManager& fontManager_;
     std::string text_;
     FontInfo fontInfo_;

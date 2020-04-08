@@ -4,7 +4,7 @@
 #include <memory>
 #include "GuiElement.h"
 #include "GuiTheme.h"
-#include "Text/GuiTextFactory.h"
+#include "Text/FontManager.h"
 #include "Window/GuiWindowStyle.h"
 
 namespace Input
@@ -15,7 +15,7 @@ class InputManager;
 namespace GameEngine
 {
 class GuiManager;
-class GuiTextFactory;
+class GUIRenderer;
 class IResourceManager;
 class GuiButtonElement;
 class GuiTextureElement;
@@ -82,13 +82,12 @@ private:
 
 private:
     GuiManager& guiManager_;
+    GUIRenderer& guiRenderer_;
     Input::InputManager& inputManager_;
     IResourceManager& resourceManager_;
     Renderer::RenderersManager& renderersManager_;
     const vec2ui& windowSize_;
-    std::function<void(GuiElement&)> renderSubscribe_;
-    std::function<void(const GuiElement&)> unsubscribeElement_;
-    GuiTextFactory guiTextFactory_;
+    FontManager fontManger_;
     std::function<bool(const GuiElement&)> isOnTop_;
     GuiTheme theme_;
 

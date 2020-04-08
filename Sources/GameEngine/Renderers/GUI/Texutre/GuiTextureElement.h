@@ -8,7 +8,7 @@ class Texture;
 class GuiTextureElement : public GuiRendererElementBase
 {
 public:
-    GuiTextureElement(std::function<void(GuiElement&)> renderSubscribe, std::function<void(const GuiElement&)> unsubscribeElement, const vec2ui& windowSize, Texture& texture);
+    GuiTextureElement(GUIRenderer&, const vec2ui& windowSize, Texture& texture);
     void Flip();
     const std::string& GetFilename() const;
 
