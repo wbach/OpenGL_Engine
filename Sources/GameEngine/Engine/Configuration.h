@@ -78,8 +78,6 @@ struct Textures
     bool useSpecular = true;
 };
 
-
-
 struct Renderer
 {
     std::string graphicsApi        = "OpenGL";

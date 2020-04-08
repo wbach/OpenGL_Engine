@@ -56,7 +56,7 @@ const std::string CSTR_WATER_REFRACTION        = "Refraction";
 const std::string CSTR_WATER_REFRACTION_WIDTH  = "width";
 const std::string CSTR_WATER_REFRACTION_HEIGHT = "height";
 // Terrain
-const std::string CSTR_TERRAIN               = "terrain";
-const std::string CSTR_TERRAIN_RENDERER_TYPE = "terrainRenderer";
+const std::string CSTR_TERRAIN               = "Terrain";
+const std::string CSTR_TERRAIN_RENDERER_TYPE = "TerrainRenderer";
 // Other
 const std::string CSTR_ENABLE_BINARY_LOADING = "EnableBinaryLoading";
