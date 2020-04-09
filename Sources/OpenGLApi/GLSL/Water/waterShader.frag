@@ -9,9 +9,9 @@ const float far          = 1000.0f;
 
 layout (std140, align=16, binding=6) uniform PerMeshObject
 {
+    vec4 waterColor;
     float isSimpleRender;
     float moveFactor;
-    vec4 waterColor;
 } perMeshObject;
 
 in VS_OUT

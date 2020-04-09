@@ -111,7 +111,7 @@ void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subsc
         auto z              = index / partsCount;
         auto centerPosition = position + vec3(x * partScale, 0, z * partScale);
 
-        auto isVisible = context_.frustrum_.SphereIntersection(centerPosition, (partScale * 1.41) / 2.f);
+        auto isVisible = context_.frustrum_.SphereIntersection(centerPosition, (partScale * 1.41f) / 2.f);
 
         if (isVisible)
         {

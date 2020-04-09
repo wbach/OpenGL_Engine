@@ -41,7 +41,14 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/Forward/TerrainMeshShader.fx",},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/Forward/TerrainMeshShader.fx"}
         }
-    }
+    },
+    {
+        GraphicsApi::ShaderProgramType::Water,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/WaterShader.fx"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/WaterShader.fx"}
+        }
+    },
 };
 // clang-format on
 }  // namespace

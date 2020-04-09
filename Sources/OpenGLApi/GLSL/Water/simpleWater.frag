@@ -9,9 +9,9 @@ const float far          = 1000.0f;
 
 layout (std140, align=16, binding=6) uniform PerMeshObject
 {
+    vec4 waterColor;
     float isSimpleRender;
     float moveFactor;
-    vec4 waterColor;
 } perMeshObject;
 
 in VS_OUT
@@ -25,8 +25,8 @@ in VS_OUT
 layout(binding = 0) uniform sampler2D reflectionTexture;
 layout(binding = 1) uniform sampler2D refractionTexture;
 layout(binding = 2) uniform sampler2D normalMap;
-layout(binding = 5) uniform sampler2D depthMap;
 layout(binding = 4) uniform sampler2D dudvMap;
+layout(binding = 5) uniform sampler2D depthMap;
 
 layout (location = 0) out vec4 outputColor;
 

@@ -10,9 +10,9 @@ struct Material
 {
     std::string name;
 
-    vec3 ambient  = vec3(0);
-    vec3 diffuse  = vec3(0.8);
-    vec3 specular = vec3(0);
+    vec3 ambient  = vec3(0.f);
+    vec3 diffuse  = vec3(.8f);
+    vec3 specular = vec3(0.f);
 
     float shineDamper       = 0.f;
     float reflectivity      = 0.f;

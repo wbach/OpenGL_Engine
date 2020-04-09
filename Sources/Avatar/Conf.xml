@@ -6,7 +6,7 @@
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer resolutionX="1366" graphicsApi="OpenGL" type="0" resolutionY="768" fpsLimit="60">
+	<Renderer resolutionX="1366" graphicsApi="DirectX11" type="0" resolutionY="768" fpsLimit="60">
 		<Water type="2">
 			<Reflection width="640" height="480"/>
 			<Refraction width="320" height="240"/>

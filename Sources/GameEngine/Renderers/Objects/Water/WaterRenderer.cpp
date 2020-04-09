@@ -10,9 +10,9 @@ const float WAVE_SPEED = 0.0025f;
 
 struct WaterTileMeshBuffer
 {
+    AlignWrapper<vec4> waterColor;
     AlignWrapper<float> isSimpleRender;
     AlignWrapper<float> moveFactor;
-    vec4 waterColor;
 };
 
 WaterRenderer::WaterRenderer(RendererContext& context)
@@ -70,7 +70,7 @@ void WaterRenderer::Render(const Scene&, const Time& time)
 }
 PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
 {
-    return {Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale)};
+    return {context_.graphicsApi_.PrepareMatrixToLoad(Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
 }
 void WaterRenderer::Subscribe(GameObject* gameObject)
 {

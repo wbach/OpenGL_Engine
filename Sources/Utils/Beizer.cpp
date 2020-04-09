@@ -22,8 +22,8 @@ float factorialf(int n)
 float bernstein(int i, int n, float t)
 {
     float r = factorialf(n) / (factorialf(i) * factorialf(n - i));
-    r *= powf(1 - t, n - i);
-    r *= powf(t, i);
+    r *= powf(1 - t, static_cast<float>(n - i));
+    r *= powf(t, static_cast<float>(i));
     return r;
 }
 Beizer::Beizer(const std::vector<vec2>& controlPoints, float timeStep)

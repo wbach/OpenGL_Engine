@@ -49,9 +49,9 @@ bool Sender::sendMessageFormat(TCPsocket socket)
     auto formatValue = Network::ConvertFormat(messageFormat_);
 
     int length    = sizeof(uint8);
-    auto sentBytes = sdlNetWrapper_.SendTcp(socket, &formatValue, length);
+    auto sentStatus = sdlNetWrapper_.SendTcp(socket, &formatValue, length);
 
-    if (sentBytes < length)
+    if (not sentStatus)
         return false;
 
     DEBUG_LOG("formatValue sent : " + std::to_string(formatValue));
@@ -63,9 +63,9 @@ bool Sender::sendMessageType(TCPsocket socket, const IMessage& msg)
     uint8 type  = msg.GetType();
     int length = sizeof(uint8);
 
-    auto sentBytes = sdlNetWrapper_.SendTcp(socket, &type, length);
+    auto sentStatus = sdlNetWrapper_.SendTcp(socket, &type, length);
 
-    if (sentBytes < length)
+    if (not sentStatus)
         return false;
 
     DEBUG_LOG("Msssage type sent : " + std::to_string(type));

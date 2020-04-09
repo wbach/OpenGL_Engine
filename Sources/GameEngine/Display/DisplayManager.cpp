@@ -26,8 +26,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.PrintVersion();
     EngineContext.measurements_.insert({FPS_ENGINE_CONTEXT, "0"});
     timeMeasurer.AddOnTickCallback([this]() {
-        time_.fps = timeMeasurer.GetFps();
-        EngineContext.measurements_.at(FPS_ENGINE_CONTEXT) = std::to_string(static_cast<int>(time_.fps));
+        time_.fps = static_cast<float>(timeMeasurer.GetFps());
+        EngineContext.measurements_.at(FPS_ENGINE_CONTEXT) = std::to_string(timeMeasurer.GetFps());
     });
 }
 
