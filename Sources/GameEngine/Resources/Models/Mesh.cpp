@@ -10,6 +10,7 @@ namespace GameEngine
 Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
     , renderType_(type)
+    , transform_(1.f)
 {
 }
 
@@ -104,7 +105,7 @@ void Mesh::CreateBufferObject()
         PerPoseUpdate perPoseUpdate;
         for (uint32 i = 0; i < MAX_BONES; ++i)
         {
-            perPoseUpdate.bonesTransforms[i] = mat4();
+            perPoseUpdate.bonesTransforms[i] = mat4(1.f);
         }
         graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_, &perPoseUpdate);
     }

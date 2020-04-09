@@ -3,6 +3,7 @@ set(UtilsIncludes
 ../../Sources/Utils/Types.h
 ../../Sources/Utils/Pathes.h
 ../../Sources/Utils/ParseUtils.h
+../../Sources/Utils/Glm.h
 ../../Sources/Utils/Time/Timer.h
 ../../Sources/Utils/Time/TimeMeasurer.h
 ../../Sources/Utils/BidirectionalUnorderedMap.h

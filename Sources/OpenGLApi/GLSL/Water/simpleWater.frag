@@ -58,5 +58,5 @@ void main(void)
     // vec4 normalMapValue = texture(normalMap, distortedTexCoords);
     // vec3 normal = calculateNormal(normalMapValue);
 
-    outputColor  = vec4(perMeshObject.waterColor.xyz, 1.f);
+    outputColor  = vec4(perMeshObject.waterColor.xyz, 0.5f);
 }

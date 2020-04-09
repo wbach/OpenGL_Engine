@@ -34,8 +34,8 @@ private:
     vec4 CalculateLightSpaceFrustumCorner(const vec3& startPoint, const vec3& direction, const float& width) const;
 
 private:
-    mat4 projectionMatrix_;
-    mat4 viewMatrix_;
+    mat4 projectionMatrix_ = mat4(1.f);
+    mat4 viewMatrix_       = mat4(1.f);
     vec2ui m_WindowSize;
     vec3 m_Min;
     vec3 m_Max;

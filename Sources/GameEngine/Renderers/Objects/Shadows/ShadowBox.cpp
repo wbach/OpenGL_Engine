@@ -24,8 +24,8 @@ ShadowBox::ShadowBox(Projection& projection)
 
 void ShadowBox::CalculateWidthsAndHeights()
 {
-    m_FarWidth   = static_cast<float>(m_ShadowDistance * tanf(Utils::ToRadians(m_Fov)));
-    m_NearWidth  = static_cast<float>(m_NearPlane * tanf(Utils::ToRadians(m_Fov)));
+    m_FarWidth   = static_cast<float>(m_ShadowDistance * tanf(ToRadians(m_Fov)));
+    m_NearWidth  = static_cast<float>(m_NearPlane * tanf(ToRadians(m_Fov)));
     m_FarHeight  = m_FarWidth / GetAspectRatio();
     m_NearHeight = m_NearWidth / GetAspectRatio();
 }

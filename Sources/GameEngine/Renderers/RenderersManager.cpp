@@ -44,6 +44,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
     , useDebugRenderer_(false)
+    , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
 {
 }
@@ -302,7 +303,7 @@ void RenderersManager::CreatePerFrameBuffer()
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix =
             projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
-        buffer.ToShadowMapSpace = mat4();
+        buffer.ToShadowMapSpace = mat4(1.f);
         buffer.cameraPosition   = vec3(0);
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);

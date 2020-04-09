@@ -53,11 +53,10 @@ void Read(Utils::XmlNode& node, common::Transform& tranfsorm)
     auto position = ReadVec3(*node.GetChild(CSTR_POSITION));
     tranfsorm.SetPosition(position);
     auto rotation = ReadVec3(*node.GetChild(CSTR_ROTATION));
-    tranfsorm.SetRotation(rotation);
+    tranfsorm.SetRotation(DegreesVec3(rotation));
     auto scale = ReadVec3(*node.GetChild(CSTR_SCALE));
     tranfsorm.SetScale(scale);
 
-    tranfsorm.isDynamic_ = ReadBool(*node.GetChild(CSTR_ISDYNAMIC));
     tranfsorm.TakeSnapShoot();
 }
 

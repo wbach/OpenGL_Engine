@@ -156,7 +156,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 }
 void RendererComponent::UpdateBuffers()
 {
-    int index = 0;
+    size_t index = 0;
     thisObject_.worldTransform.TakeSnapShoot();
 
     for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
@@ -165,7 +165,6 @@ void RendererComponent::UpdateBuffers()
 
         auto& graphicsApi         = componentContext_.resourceManager_.GetGraphicsApi();
         const mat4 transformMatix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
-
         poc.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatix);
         poc.UpdateBuffer();
     }

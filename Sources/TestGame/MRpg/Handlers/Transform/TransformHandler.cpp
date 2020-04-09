@@ -30,7 +30,7 @@ void TransformHandler::HandleTransformMsg(const common::TransformMsgResp& msg)
     auto& gameObject = networkCharacter->GetGameObject();
 
     gameObject.worldTransform.SetPosition(msg.position);
-    gameObject.worldTransform.SetRotation(msg.rotation);
+    gameObject.worldTransform.SetRotation(DegreesVec3(msg.rotation));
 
     auto icontroller = networkCharacter->GetControllerByType(CharacterControllerType);
     auto controller  = castControllerAs<CharacterController>(icontroller);

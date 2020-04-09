@@ -35,8 +35,8 @@ struct BulletAdapter::Pimpl
         collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
         btDispacher            = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
         btBroadPhase           = std::make_unique<btDbvtBroadphase>();
-        btSolver       = std::make_unique<btSequentialImpulseConstraintSolver>();
-        btDynamicWorld = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(),
+        btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
+        btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(),
                                                                    btSolver.get(), collisionConfiguration.get());
         btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
@@ -106,28 +106,24 @@ void BulletAdapter::Simulate()
         return;
     }
 
-
     impl_->btDynamicWorld->stepSimulation(simulationStep_);
 
     for (auto& pair : impl_->rigidBodies)
     {
         auto& transform = impl_->transforms.at(pair.first);
         auto& rigidbody = pair.second;
-        vec3 newRotation;
-        rigidbody.btRigidbody_->getWorldTransform().getRotation().getEulerZYX(newRotation.z, newRotation.y,
-                                                                              newRotation.x);
 
-         newRotation =
-            vec3(Utils::ToDegrees(newRotation.x), Utils::ToDegrees(newRotation.y), Utils::ToDegrees(newRotation.z));
-         auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
-         transform->SetPositionAndRotation(Convert(newPosition), newRotation);
+        auto newPosition       = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
+
+        Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
+        transform->SetPositionAndRotation(Convert(newPosition), newRotation * glm::angleAxis(glm::radians(180.f), vec3(0.f, 0.f, 1.f)));
     }
 }
 void BulletAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)
 {
     impl_->bulletDebugDrawer_->SetMatrices(viewMatrix, projectionMatrix);
     impl_->btDynamicWorld->debugDrawWorld();
-    impl_->bulletDebugDrawer_->SetMatrices(mat4(), projectionMatrix);
+    impl_->bulletDebugDrawer_->SetMatrices(mat4(1.f), projectionMatrix);
 }
 void BulletAdapter::DisableSimulation()
 {

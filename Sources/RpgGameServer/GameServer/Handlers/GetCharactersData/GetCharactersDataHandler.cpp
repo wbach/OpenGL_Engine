@@ -29,7 +29,7 @@ void GetCharactersDataHandler::ProccesGetCharactersDataReq(const Network::IMessa
         resp->characterData     = characterContext.data_;
         resp->commonStats       = characterContext.commonStats_;
         resp->position          = characterContext.transform_.GetPosition();
-        resp->rotation          = characterContext.transform_.GetRotation();
+        resp->rotation          = characterContext.transform_.GetRotation().GetEulerDegrees().value;
 
         for (const auto& user : context_.GetUsers())  // TO DO : all character to new user, but only new character to other users
             context_.sendMessage_(user.first, *resp);
@@ -50,7 +50,7 @@ void GetCharactersDataHandler::ProccesGetCharacterDataReq(Network::UserId userId
     resp->characterData     = characterContext.data_;
     resp->commonStats       = characterContext.commonStats_;
     resp->position          = characterContext.transform_.GetPosition();
-    resp->rotation          = characterContext.transform_.GetRotation();
+    resp->rotation          = characterContext.transform_.GetRotation().GetEulerDegrees().value;
 
     context_.sendMessage_(userId, *resp);
 }

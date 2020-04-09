@@ -3,6 +3,7 @@
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/Projection.h>
 #include <Utils/GLM/GLMUtils.h>
+#include <Types.h>
 #include <gtest/gtest.h>
 #include <Utils/math.hpp>
 #include "Scene/Scene.hpp"
@@ -30,7 +31,7 @@ struct CameraFrustrumShould : public ::testing::Test
         auto z1 = camera_.GetPosition().z;
 
         auto fi = (projection_.GetFoV() / 2.f);  // + camera_.GetRotation().y;
-        auto x  = z * tanf(Utils::ToRadians(fi)) * projection_.GetAspectRatio();
+        auto x  = z * tanf(ToRadians(fi)) * projection_.GetAspectRatio();
         auto x2 = x1 + x;
         auto z2 = z1 + z;
 

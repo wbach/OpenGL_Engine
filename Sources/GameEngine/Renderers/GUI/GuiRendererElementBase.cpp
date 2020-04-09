@@ -10,6 +10,8 @@ GuiRendererElementBase::GuiRendererElementBase(GUIRenderer& guiRenderer,
     , guiRenderer_(guiRenderer)
     , texture_{nullptr}
     , color_(vec4(1.f))
+    , offset_(0)
+    , transformMatrix_(1.f)
 {
     CalculateMatrix();
     guiRenderer_.Subscribe(*this);
@@ -44,6 +46,6 @@ void GuiRendererElementBase::SetColor(const vec4& color)
 }
 void GuiRendererElementBase::CalculateMatrix()
 {
-    transformMatrix_ = Utils::CreateTransformationMatrix(vec3(position_ + offset_, 0), scale_, 0.f);
+    transformMatrix_ = Utils::CreateTransformationMatrix(position_ + offset_, scale_, DegreesFloat(0.f));
 }
 }  // namespace GameEngine

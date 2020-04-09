@@ -32,7 +32,7 @@ void Manager::AddHero(uint32 id)
     if (characterTransformInfo)
     {
         knight->context_.transform_.SetPosition(characterTransformInfo.value().position);
-        knight->context_.transform_.SetRotation(characterTransformInfo.value().rotation);
+        knight->context_.transform_.SetRotation(DegreesVec3(characterTransformInfo.value().rotation));
     }
     CreateCharacterController(knight);
 

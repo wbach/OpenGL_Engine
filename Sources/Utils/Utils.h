@@ -1,7 +1,7 @@
 #pragma once
 #include "Types.h"
 #include "math.hpp"
-#include <glm/glm.hpp>
+#include "Glm.h"
 #include <vector>
 #include <list>
 #include <sstream>

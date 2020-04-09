@@ -100,7 +100,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
     for (const auto& pos : positions_)
     {
         perInstances_->GetData().transformationMatrixes[index++] =
-            Utils::CreateTransformationMatrix(pos, vec3(0.f), vec3(1.f));
+            Utils::CreateTransformationMatrix(pos, DegreesVec3(0.f), vec3(1.f));
     }
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(perInstances_.get());

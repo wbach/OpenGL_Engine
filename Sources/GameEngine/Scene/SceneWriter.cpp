@@ -112,9 +112,8 @@ void Create(XmlNode& node, const std::unordered_map<TerrainTextureType, std::str
 void Create(XmlNode& node, common::Transform transform)
 {
     Create(node.AddChild(CSTR_POSITION), transform.GetPosition());
-    Create(node.AddChild(CSTR_ROTATION), transform.GetRotation());
+    Create(node.AddChild(CSTR_ROTATION), transform.GetRotation().GetEulerDegrees().value);
     Create(node.AddChild(CSTR_SCALE), transform.GetScale());
-    Create(node.AddChild(CSTR_ISDYNAMIC), transform.isDynamic_);
 }
 
 void Create(XmlNode& node, const std::string& filename, LevelOfDetail lvl)

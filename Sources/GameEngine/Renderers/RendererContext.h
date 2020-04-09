@@ -35,7 +35,7 @@ struct RendererContext
     Projection& projection_;
     Frustrum& frustrum_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    mat4 toShadowMapZeroMatrix_;
+    mat4 toShadowMapZeroMatrix_ = glm::mat4(1.f);
     IFrameBuffer& defferedFrameBuffer_;
     IShadowFrameBuffer& shadowsFrameBuffer_;
     std::function<void(RendererFunctionType, RendererFunction)> registerFunction_;

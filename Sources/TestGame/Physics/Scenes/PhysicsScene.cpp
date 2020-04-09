@@ -218,7 +218,6 @@ std::unique_ptr<GameEngine::GameObject> PhysicsScene::CreateGameObjectInstance(f
 {
     auto obj = CreateGameObject();
     obj->worldTransform.SetScale(scale);
-    obj->worldTransform.isDynamic_ = isDynamic;
     vec3 obj_pos(position.x, 0, position.y);
     obj->worldTransform.SetPosition(obj_pos);
     obj->worldTransform.TakeSnapShoot();

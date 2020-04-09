@@ -33,7 +33,7 @@ vec2 convert(const FbxVector2& v)
 
 glm::mat4 convert(FbxAMatrix& mx)
 {
-    glm::mat4 m;
+    glm::mat4 m(1.f);
     m[0][0] = static_cast<float>(mx[0][0]);
     m[0][1] = static_cast<float>(mx[0][1]);
     m[0][2] = static_cast<float>(mx[0][2]);

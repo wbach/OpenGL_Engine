@@ -1,8 +1,9 @@
 #pragma once
 #include <Mutex.hpp>
-#include "Types.h"
-#include <utility>
 #include <functional>
+#include <utility>
+#include "Rotation.h"
+#include "Types.h"
 
 namespace common
 {
@@ -16,7 +17,7 @@ enum Axis
 struct TransformContext
 {
     vec3 position;
-    vec3 rotation;
+    Rotation rotation;
     vec3 scale;
 };
 
@@ -26,35 +27,40 @@ public:
     Transform();
     Transform(const vec2& pos);
     Transform(const vec3& pos);
-    Transform(const vec3& pos, const vec3& rot);
-    Transform(const vec3& pos, const vec3& rot, const vec3& scale);
+    Transform(const vec3& pos, const DegreesVec3& rotation);
+    Transform(const vec3& pos, const DegreesVec3& rotation, const vec3& scale);
     Transform(const Transform& transform);
+
     uint32 SubscribeOnChange(std::function<void(const Transform&)>);
     void UnsubscribeOnChange(uint32);
 
-    void TakeSnapShoot();
-    const TransformContext& GetSnapShoot() const;
-    void IncrasePosition(float dx, float dy, float dz, uint32 index = 0);
-    void IncrasePosition(vec3 v, uint32 index = 0);
-    void IncreaseRotation(float dx, float dy, float dz);
-
-    const vec3& GetPosition() const;
-    const vec3& GetRotation() const;
-    const vec3& GetScale() const;
+    void SetYPosition(float);
+    void SetPosition(const vec3& pos);
+    void SetPositionXZ(const vec2& pos);
+    void IncrasePosition(const vec3& v);
+    void IncrasePosition(float dx, float dy, float dz);
     vec2 GetPositionXZ() const;
-    const mat4& GetMatrix() const;
+    const vec3& GetPosition() const;
+
+    void SetRotate(Axis axis, DegreesFloat v);
+    void SetRotation(const DegreesVec3& eulerAngles);
+    void SetRotation(const RadiansVec3& eulerAngles);
+    void SetRotation(const Quaternion& rotation);
+    void SetPositionAndRotation(const vec3& position, const DegreesVec3& rotation);
+    void SetPositionAndRotation(const vec3& position, const RadiansVec3& rotation);
+    void SetPositionAndRotation(const vec3& position, const Quaternion& rotation);
+    void SetPositionAndRotation(const vec3& position, const Rotation& rotation);
+    void IncreaseRotation(const DegreesVec3&);
+    void IncreaseRotation(const RadiansVec3&);
+    const Rotation& GetRotation() const;
 
     void SetScale(float s);
     void SetScale(const vec3& s);
-    void SetPosition(const vec3& pos);
-    void SetYPosition(float);
-    void SetPositionXZ(const vec2& pos);
-    void SetRotation(const vec3& r);
-    void SetRotate(Axis axis, float v);
-    void SetPositionAndRotation(const vec3& position, const vec3& rotation);
+    const vec3& GetScale() const;
 
-public:
-    bool isDynamic_;
+    void TakeSnapShoot();
+    const mat4& GetMatrix() const;
+    const TransformContext& GetSnapShoot() const;
 
 private:
     void UpdateMatrix();

@@ -1,7 +1,6 @@
 #pragma once
+#include "Glm.h"
 #include <chrono>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -179,6 +178,130 @@ typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::fquat Quaternion;
 
+template <class type>
+type ToRadians(type a)
+{
+    return a * static_cast<float>(M_PI) / 180.0f;
+}
+
+template <class type>
+type ToDegrees(type a)
+{
+    return a * 180.0f / static_cast<float>(M_PI);
+}
+
+struct RadianFloat
+{
+    RadianFloat() = default;
+    RadianFloat(float v)
+        : value(v)
+    {
+    }
+
+    float Degrees() const
+    {
+        return ToDegrees(value);
+    }
+    float& operator*()
+    {
+        return value;
+    }
+    float* operator->()
+    {
+        return &value;
+    }
+
+    float value;
+};
+
+struct RadiansVec3
+{
+    RadiansVec3() = default;
+    RadiansVec3(float x, float y, float z)
+        : value(x, y, z)
+    {
+    }
+    RadiansVec3(float v)
+        : value(v)
+    {
+    }
+    RadiansVec3(const vec3& v)
+        : value(v)
+    {
+    }
+
+    vec3 Degrees() const
+    {
+        return ToDegrees(value);
+    }
+    vec3& operator*()
+    {
+        return value;
+    }
+    vec3* operator->()
+    {
+        return &value;
+    }
+
+    vec3 value;
+};
+
+struct DegreesFloat
+{
+    DegreesFloat() = default;
+    DegreesFloat(float v)
+        : value(v)
+    {
+    }
+
+    float Radians() const
+    {
+        return ToRadians(value);
+    }
+    float& operator*()
+    {
+        return value;
+    }
+    float* operator->()
+    {
+        return &value;
+    }
+
+    float value;
+};
+
+struct DegreesVec3
+{
+    DegreesVec3() = default;
+    DegreesVec3(float x, float y, float z)
+        : value(x, y, z)
+    {
+    }
+    DegreesVec3(float v)
+        : value(v)
+    {
+    }
+    DegreesVec3(const vec3& v)
+        : value(v)
+    {
+    }
+
+    vec3 Radians() const
+    {
+        return ToRadians(value);
+    }
+    vec3& operator*()
+    {
+        return value;
+    }
+    vec3* operator->()
+    {
+        return &value;
+    }
+
+    vec3 value;
+};
+
 vec4 ToVec4(const vec3& v3);
 vec4 ToVec4(const vec3& v3, float w);
 vec4 ToVec4(const vec2& v2, float z, float w);
@@ -213,8 +336,6 @@ enum class VertexBufferObjects
 typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;
 
 // Specyfic types for different os
-
-
 
 namespace std
 {

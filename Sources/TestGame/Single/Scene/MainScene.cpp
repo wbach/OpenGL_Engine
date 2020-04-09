@@ -257,7 +257,6 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
                                 const vec3& dir, float scale, bool isStatic)
 {
     auto object                       = CreateGameObject(Utils::GetFilename(modelFilename));
-    object->worldTransform.isDynamic_ = not isStatic;
     object->worldTransform.SetPosition(pos);
     object->worldTransform.SetScale(scale);
     object->worldTransform.TakeSnapShoot();
@@ -278,7 +277,7 @@ int MainScene::Update(float dt)
     deltaTime = dt;
 
     vec3 lightPos = pointLight_->GetPosition();
-    lightPos      = Utils::RotateObject(centerObjectPosition_, lightPos, Utils::ToRadians(10.f * dt));
+    lightPos      = Utils::RotateObject(centerObjectPosition_, lightPos, ToRadians(10.f * dt));
     pointLight_->SetPosition(lightPos);
 
     lightBulb_->worldTransform.SetPosition(pointLight_->GetPosition());
@@ -475,7 +474,6 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(floa
 {
     auto obj = CreateGameObject();
     obj->worldTransform.SetScale(scale);
-    obj->worldTransform.isDynamic_ = isDynamic;
     vec3 obj_pos(position.x, 0, position.y);
 
     obj->worldTransform.SetPosition(obj_pos);
@@ -488,7 +486,6 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(cons
 {
     auto obj = CreateGameObject(name);
     obj->worldTransform.SetScale(scale);
-    obj->worldTransform.isDynamic_ = isDynamic;
     vec3 obj_pos(position.x, 0, position.y);
 
     obj->worldTransform.SetPosition(obj_pos);

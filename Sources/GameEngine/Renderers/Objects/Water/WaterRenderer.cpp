@@ -19,7 +19,7 @@ WaterRenderer::WaterRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Water)
 {
-    __RegisterRenderFunction__(RendererFunctionType::UPDATE, WaterRenderer::Render);
+    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, WaterRenderer::Render);
 }
 void WaterRenderer::Init()
 {
@@ -39,6 +39,7 @@ void WaterRenderer::Init()
 }
 void WaterRenderer::Render(const Scene&, const Time& time)
 {
+    context_.graphicsApi_.EnableBlend();
     shader_.Start();
 
     WaterTileMeshBuffer waterTileMeshBuffer;
@@ -65,10 +66,11 @@ void WaterRenderer::Render(const Scene&, const Time& time)
 
         context_.graphicsApi_.RenderQuad();
     }
+    context_.graphicsApi_.DisableBlend();
 }
 PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
 {
-    return {Utils::CreateTransformationMatrix(position, vec3(90, 0, 0), scale)};
+    return {Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale)};
 }
 void WaterRenderer::Subscribe(GameObject* gameObject)
 {

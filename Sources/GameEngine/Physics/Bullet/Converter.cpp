@@ -19,12 +19,16 @@ btQuaternion Convert(const Quaternion& quat)
     return btQuaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
+Quaternion Convert(const btQuaternion& quat)
+{
+    return Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
+}
+
 btTransform Convert(common::Transform& transform)
 {
     btTransform result;
     result.setOrigin(Convert(transform.GetPosition()));
-    Quaternion rotaton(transform.GetRotation());
-    result.setRotation(Convert(rotaton));
+    result.setRotation(Convert(transform.GetRotation().value_));
     return result;
 }
 }  // namespace Physics

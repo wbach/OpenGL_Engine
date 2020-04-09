@@ -90,7 +90,7 @@ void Animator::ChangeAnimState()
         currentChangeAnimTime_ = 1.f;
     }
     auto pos = interpolatePoses(startChaneAnimPose, endChangeAnimPose, currentChangeAnimTime_);
-    applyPoseToJoints(pos, *rootJoint_, mat4());
+    applyPoseToJoints(pos, *rootJoint_, mat4(1.f));
 }
 bool Animator::IsReady()
 {
@@ -109,7 +109,7 @@ void Animator::Update()
 
     increaseAnimationTime();
     auto currentPose = calculateCurrentAnimationPose();
-    applyPoseToJoints(currentPose, *rootJoint_, mat4());
+    applyPoseToJoints(currentPose, *rootJoint_, mat4(1.f));
 }
 
 void Animator::increaseAnimationTime()

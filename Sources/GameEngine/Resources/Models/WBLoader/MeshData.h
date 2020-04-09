@@ -58,7 +58,7 @@ struct Object
 {
     std::string name;
     std::vector<Mesh> meshes;
-    mat4 transformMatrix;
+    mat4 transformMatrix{1.f};
 };
 
 void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& data);

@@ -8,7 +8,7 @@ namespace Components
 {
 ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
-const float DEFAULT_RUN_SPEED = Utils::KmToMs(15.f);
+const float DEFAULT_RUN_SPEED  = Utils::KmToMs(15.f);
 const float DEFAULT_TURN_SPEED = 160.f;
 const float DEFAULT_JUMP_POWER = 25.f;
 
@@ -37,8 +37,9 @@ void CharacterController::Update()
     }
 
     const auto& currentVelocvity = rigidbody_->GetVelocity();
-    float rad = Utils::ToRadians(rotation_.y);
-    auto v    = vec3(DEFAULT_RUN_SPEED);
+    float rad                    = ToRadians(rotation_.y);
+    auto v                       = vec3(DEFAULT_RUN_SPEED);
+
     v.x *= sinf(rad);
     v.y = currentVelocvity.y;
     v.z *= cosf(rad);
@@ -61,14 +62,18 @@ void CharacterController::Update()
             case Action::ROTATE_LEFT:
             {
                 rotation_.y += DEFAULT_TURN_SPEED * componentContext_.time_.deltaTime;
-                auto v = Utils::ToRadians(rotation_);
+                auto v = ToRadians(rotation_);
+                if (rotation_.y > 360.f)
+                    rotation_.y -= 360.f;
                 rigidbody_->SetRotation(v);
             }
             break;
             case Action::ROTATE_RIGHT:
             {
                 rotation_.y -= DEFAULT_TURN_SPEED * componentContext_.time_.deltaTime;
-                auto v = Utils::ToRadians(rotation_);
+                auto v = ToRadians(rotation_);
+                if (rotation_.y < 0.f)
+                    rotation_.y += 360.f;
                 rigidbody_->SetRotation(v);
             }
             break;

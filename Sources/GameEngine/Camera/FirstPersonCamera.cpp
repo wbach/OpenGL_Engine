@@ -160,13 +160,13 @@ bool FirstPersonCamera::CheckAndProccesRightDirection()
 
 void FirstPersonCamera::MoveCamera(float dist, float dir)
 {
-    float rad = Utils::ToRadians(GetRotation().y + dir);
+    float rad = ToRadians(GetRotation().y + dir);
     IncreasePositionXZ(vec2(-sinf(-rad) * dist, -cosf(-rad) * dist));
 }
 
 void FirstPersonCamera::MoveCameraUp(float dist, float dir)
 {
-    float rad = Utils::ToRadians(GetRotation().x + dir);
+    float rad = ToRadians(GetRotation().x + dir);
     IncreasePositionY(sinf(-rad) * dist);
 }
 }  // namespace GameEngine

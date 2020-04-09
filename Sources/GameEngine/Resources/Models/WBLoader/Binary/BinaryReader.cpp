@@ -207,7 +207,7 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
         ReadFile(file, data.positions_);
         ReadFile(file, data.tangents_);
         ReadFile(file, data.textCoords_);
-        mat4 transform;
+        mat4 transform(1.f);
         ReadFile(file, transform);
         mesh.SetTransformMatrix(transform);
     }

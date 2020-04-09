@@ -1,10 +1,12 @@
 #include "Transform.h"
 
 #include <GLM/GLMUtils.h>
-
+#include <Utils/math.hpp>
 
 #include <algorithm>
 #include <limits>
+
+#include <Logger/Log.h>
 
 namespace common
 {
@@ -17,29 +19,27 @@ Transform::Transform(const vec2& pos)
 {
 }
 Transform::Transform(const vec3& pos)
-    : Transform(pos, vec3(0))
+    : Transform(pos, DegreesVec3(0))
 {
 }
-Transform::Transform(const vec3& pos, const vec3& rot)
-    : Transform(pos, rot, vec3(1))
+Transform::Transform(const vec3& pos, const DegreesVec3& degreesRotation)
+    : Transform(pos, degreesRotation, vec3(1))
 {
 }
-Transform::Transform(const vec3& pos, const vec3& rot, const vec3& scale)
-    : isDynamic_(false)
-    , context_({pos, rot, scale})
-    , snapshoot_({pos, rot, scale})
-    , matrix_(Utils::CreateTransformationMatrix(pos, rot, scale))
+Transform::Transform(const vec3& pos, const DegreesVec3& degreesRotation, const vec3& scale)
+    : context_({pos, Quaternion(degreesRotation.Radians()), scale})
+    , snapshoot_(context_)
+    , matrix_(Utils::CreateTransformationMatrix(context_.position, context_.rotation.value_, context_.scale))
     , idPool_(0)
 {
 }
 
 Transform::Transform(const Transform& t)
-    : isDynamic_(t.isDynamic_)
-    , context_(t.context_)
+    : context_(t.context_)
     , snapshoot_(t.snapshoot_)
     , matrix_(t.matrix_)
-    , subscribers_(t.subscribers_)
     , idPool_(t.idPool_)
+    , subscribers_(t.subscribers_)
 {
 }
 
@@ -57,21 +57,125 @@ void Transform::UnsubscribeOnChange(uint32 id)
         subscribers_.erase(iter);
 }
 
-void Transform::IncrasePosition(float dx, float dy, float dz, uint32 index)
+void Transform::SetYPosition(float pos)
 {
-    IncrasePosition(vec3(dx, dy, dz));
+    context_.position.y = pos;
+    NotifySubscribers();;
 }
 
-void Transform::IncrasePosition(vec3 v, uint32 index)
+void Transform::SetPosition(const vec3& pos)
+{
+    context_.position = pos;
+    NotifySubscribers();
+}
+
+void Transform::SetPositionXZ(const vec2& pos)
+{
+    context_.position.x = pos.x;
+    context_.position.z = pos.y;
+    NotifySubscribers();
+}
+
+void Transform::IncrasePosition(const vec3& v)
 {
     context_.position += v;
     NotifySubscribers();
 }
 
-void Transform::IncreaseRotation(float dx, float dy, float dz)
+void Transform::IncrasePosition(float dx, float dy, float dz)
 {
-    context_.rotation += vec3(dx, dy, dz);
+    context_.position.x += dx;
+    context_.position.y += dy;
+    context_.position.z += dz;
     NotifySubscribers();
+}
+
+vec2 Transform::GetPositionXZ() const
+{
+    return vec2(context_.position.x, context_.position.z);
+}
+
+const vec3& Transform::GetPosition() const
+{
+    return context_.position;
+}
+
+void Transform::SetRotate(Axis axis, DegreesFloat v)
+{
+    std::lock_guard<std::mutex> l(contextMutex_);
+
+    auto euler = context_.rotation.GetEulerDegrees();
+
+    switch (axis)
+    {
+        case X:
+            euler.value.x = v.value;
+            break;
+        case Y:
+            euler.value.y = v.value;
+            break;
+        case Z:
+            euler.value.z = v.value;
+            break;
+    }
+
+    SetRotation(euler);
+    NotifySubscribers();
+}
+
+void Transform::SetRotation(const DegreesVec3& eulerAngles)
+{
+    SetRotation(Quaternion(eulerAngles.Radians()));
+}
+
+void Transform::SetRotation(const RadiansVec3& eulerAngles)
+{
+    SetRotation(Quaternion(eulerAngles.value));
+}
+
+void Transform::SetRotation(const Quaternion& rotation)
+{
+    context_.rotation = rotation;
+    NotifySubscribers();
+}
+
+void Transform::SetPositionAndRotation(const vec3& position, const DegreesVec3& rotation)
+{
+    SetPositionAndRotation(position, Rotation(rotation));
+}
+
+void Transform::SetPositionAndRotation(const vec3& position, const RadiansVec3& rotation)
+{
+    SetPositionAndRotation(position, Rotation(rotation));
+}
+
+void Transform::SetPositionAndRotation(const vec3& position, const Quaternion& rotation)
+{
+    SetPositionAndRotation(position, Rotation(rotation));
+}
+
+void Transform::SetPositionAndRotation(const vec3& position, const Rotation& rotation)
+{
+    context_.position = position;
+    context_.rotation = rotation;
+    NotifySubscribers();
+}
+
+void Transform::IncreaseRotation(const DegreesVec3& rotation)
+{
+    context_.rotation = context_.rotation.value_ * Quaternion(rotation.Radians());
+    NotifySubscribers();
+}
+
+void Transform::IncreaseRotation(const RadiansVec3& rotation)
+{
+    context_.rotation = context_.rotation.value_ * Quaternion(rotation.value);
+    NotifySubscribers();
+}
+
+const Rotation& Transform::GetRotation() const
+{
+    return context_.rotation;
 }
 
 void Transform::SetScale(float s)
@@ -86,56 +190,9 @@ void Transform::SetScale(const vec3& s)
     NotifySubscribers();
 }
 
-void Transform::SetPosition(const vec3& pos)
+const vec3& Transform::GetScale() const
 {
-    context_.position = pos;
-    NotifySubscribers();
-}
-
-void Transform::SetYPosition(float pos)
-{
-    context_.position.y = pos;
-    NotifySubscribers();
-}
-
-void Transform::SetPositionXZ(const vec2& pos)
-{
-    context_.position.x = pos.x;
-    context_.position.z = pos.y;
-    NotifySubscribers();
-}
-
-void Transform::SetRotation(const vec3& r)
-{
-    context_.rotation = r;
-    NotifySubscribers();
-}
-
-void Transform::SetRotate(Axis axis, float v)
-{
-    std::lock_guard<std::mutex> l(contextMutex_);
-    switch (axis)
-    {
-        case X:
-            context_.rotation.x = v;
-            break;
-        case Y:
-            context_.rotation.y = v;
-            break;
-        case Z:
-            context_.rotation.z = v;
-            break;
-        default:
-            return;
-    }
-    NotifySubscribers();
-}
-
-void Transform::SetPositionAndRotation(const vec3& position, const vec3& rotation)
-{
-    context_.position = position;
-    context_.rotation = rotation;
-    NotifySubscribers();
+    return context_.scale;
 }
 
 void Transform::TakeSnapShoot()
@@ -144,9 +201,19 @@ void Transform::TakeSnapShoot()
     UpdateMatrix();
 }
 
+const mat4& Transform::GetMatrix() const
+{
+    return matrix_;
+}
+
+const TransformContext& Transform::GetSnapShoot() const
+{
+    return snapshoot_;
+}
+
 void Transform::UpdateMatrix()
 {
-    matrix_ = Utils::CreateTransformationMatrix(snapshoot_.position, snapshoot_.rotation, snapshoot_.scale);
+    matrix_ = Utils::CreateTransformationMatrix(snapshoot_.position, snapshoot_.rotation.value_, snapshoot_.scale);
 }
 
 void Transform::NotifySubscribers()
@@ -155,35 +222,5 @@ void Transform::NotifySubscribers()
     {
         sub.second(*this);
     }
-}
-
-const TransformContext& Transform::GetSnapShoot() const
-{
-    return snapshoot_;
-}
-
-const vec3& Transform::GetPosition() const
-{
-    return context_.position;
-}
-
-const vec3& Transform::GetRotation() const
-{
-    return context_.rotation;
-}
-
-const vec3& Transform::GetScale() const
-{
-    return context_.scale;
-}
-
-vec2 Transform::GetPositionXZ() const
-{
-    return vec2(context_.position.x, context_.position.z);
-}
-
-const mat4& Transform::GetMatrix() const
-{
-    return matrix_;
 }
 }  // namespace common

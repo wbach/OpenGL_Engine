@@ -22,6 +22,7 @@ set(CommonIncludes
 ../../Sources/Common/Hero/HeroClassesTypes.h
 ../../Sources/Common/MessageHandling/Dispatcher.h
 ../../Sources/Common/MessageHandling/AbstractHandler.h
+../../Sources/Common/Rotation.h
 ../../Sources/Common/Controllers/CharacterController/NetworkActionsConverter.h
 ../../Sources/Common/Controllers/CharacterController/Character.h
 ../../Sources/Common/Controllers/CharacterController/CharacterActions.h

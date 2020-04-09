@@ -21,9 +21,7 @@ namespace GameEngine
 {
 namespace UT
 {
-const uint32 SHADER_PROGRAM_ID = 12;
-const mat4 VIEW_MATRIX;
-const mat4 INDENITY_MATRIX;
+const mat4 INDENITY_MATRIX(1.f);
 const vec3 MATERIAL_AMBIENT{0.f, 0.f, 1.f};
 const vec3 MATERIAL_DIFFUSE{1.f, 0.f, 1.f};
 const vec3 MATERIAL_SPECULAR{1.f, 1.f, 1.f};

@@ -53,7 +53,7 @@ void SkyBoxRenderer::UpdateBuffer(const Scene& scene, const Time& threadTime)
     rotation_.y += threadTime.deltaTime * rotationSpeed_;
 
     perObjectUpdateBuffer_.TransformationMatrix =
-        Utils::CreateTransformationMatrix(scene.GetCamera().GetPosition(), rotation_, scale_);
+        Utils::CreateTransformationMatrix(scene.GetCamera().GetPosition(), DegreesVec3(rotation_), scale_);
 
     context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdateBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);

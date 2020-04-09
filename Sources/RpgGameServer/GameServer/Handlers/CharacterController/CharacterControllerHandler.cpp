@@ -61,7 +61,7 @@ void CharacterControllerHandler::ProcessMessage(uint32 userId, const Network::IM
 
     auto tdata      = std::make_unique<common::TransformMsgResp>();
     tdata->position = characterController->GetTransform().GetPosition();
-    tdata->rotation = characterController->GetTransform().GetRotation();
+    tdata->rotation = characterController->GetTransform().GetRotation().GetEulerDegrees().value;
     tdata->id       = msg->id;
     tdata->type     = msg->type;
     tdata->action   = msg->action;

@@ -9,7 +9,7 @@
 namespace GameEngine
 {
 static Collada::Node staticNode;
-static mat4 correction_matrix = Utils::CreateTransformationMatrix(vec3(0), vec3(-90, 0, 0), vec3(1));
+static mat4 correction_matrix = Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(1));
 
 namespace WBLoader
 {

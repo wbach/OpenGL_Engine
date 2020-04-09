@@ -33,7 +33,7 @@ void DebugRenderer::Init()
     {
         PerObjectUpdate gridPerObjectUpdate;
         gridPerObjectUpdate.TransformationMatrix =
-            Utils::CreateTransformationMatrix(vec3(0), vec3(-90, 0, 0), vec3(100));
+            Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(100));
         context_.graphicsApi_.UpdateShaderBuffer(*gridPerObjectUpdateBufferId_,
                                                  &gridPerObjectUpdate.TransformationMatrix);
     }

@@ -1,5 +1,6 @@
-#include "../math.hpp"
 #include "GLMUtils.h"
+#include "../math.hpp"
+#include <Logger/Log.h>
 
 glm::vec3 Utils::Vec4ToVec3(const glm::vec4& v)
 {
@@ -84,32 +85,61 @@ float Utils::GetMaxFromVector(const glm::vec3& vector)
         return vector.z;
 }
 
-glm::mat4 Utils::CreateTransformationMatrix(const glm::vec3& translation, const glm::vec3& rotation,
-                                            const glm::vec3& scale)
+mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation, const vec3& scale)
 {
-    glm::mat4 matrix = glm::mat4(1.0);
+    mat4 matrix = mat4(1.0);
     matrix *= glm::translate(translation);
-    matrix *= glm::rotate(rotation.x, 1.0f, 0.0f, 0.0f);
-    matrix *= glm::rotate(rotation.y, 0.0f, 1.0f, 0.0f);
-    matrix *= glm::rotate(rotation.z, 0.0f, 0.0f, 1.0f);
-    matrix *= glm::scale(scale.x, scale.y, scale.z);
+    matrix *= glm::mat4_cast(rotation);
+    matrix *= glm::scale(scale);
     return matrix;
 }
 
-glm::mat4 Utils::CreateTransformationMatrix(const glm::vec2& translation, const glm::vec2& scale, const float& rotation)
+mat4 Utils::CreateTransformationMatrix(const vec3& translation, const DegreesVec3& rotation, const vec3& scale)
 {
-    glm::mat4 matrix = glm::mat4(1.0);
-    matrix *= glm::translate(glm::vec3(translation, 0.0f));
-    matrix *= glm::rotate(rotation, 0.0f, 0.0f, 1.0f);
+    glm::mat4 matrix = glm::translate(translation);
+    matrix *= glm::mat4_cast(Quaternion(rotation.Radians()));
+    matrix *= glm::scale(scale);
+    return matrix;
+}
+
+mat4 Utils::CreateTransformationMatrix(const vec3& translation, const RadiansVec3& rotation, const vec3& scale)
+{
+    glm::mat4 matrix = glm::translate(translation);
+    matrix *= glm::mat4_cast(Quaternion(rotation.value));
+    matrix *= glm::scale(scale);
+    return matrix;
+}
+
+mat4 Utils::CreateTransformationMatrix(const glm::vec2& translation, const vec2& scale, DegreesFloat rotation)
+{
+    mat4 matrix = glm::translate(glm::mat4(1.0f), vec3(translation, 0.0f));
+    matrix *= glm::rotate(rotation.Radians(), vec3(0.0f, 0.0f, 1.0f));
+    matrix *= glm::scale(vec3(scale, 1.0f));
+    return matrix;
+}
+
+mat4 Utils::CreateTransformationMatrix(const vec3& translation, const vec2& scale, DegreesFloat rotation)
+{
+    mat4 matrix = mat4(1.0);
+    matrix *= glm::translate(translation);
+    matrix *= glm::rotate(rotation.Radians(), vec3(0.0f, 0.0f, 1.0f));
     matrix *= glm::scale(glm::vec3(scale, 1.0f));
     return matrix;
 }
 
-glm::mat4 Utils::CreateTransformationMatrix(const glm::vec3& translation, const glm::vec2 & scale, const float & rotation)
+mat4 Utils::CreateTransformationMatrix(const vec2& translation, const vec2& scale, RadianFloat rotation)
 {
-    glm::mat4 matrix = glm::mat4(1.0);
-    matrix *= glm::translate(translation);
-    matrix *= glm::rotate(rotation, 0.0f, 0.0f, 1.0f);
+    mat4 matrix = mat4(1.0);
+    matrix *= glm::translate(glm::vec3(translation, 0.0f));
+    matrix *= glm::rotate(rotation.value, vec3(0.0f, 0.0f, 1.0f));
+    matrix *= glm::scale(vec3(scale, 1.0f));
+    return matrix;
+}
+
+mat4 Utils::CreateTransformationMatrix(const vec3& translation, const vec2& scale, RadianFloat rotation)
+{
+    glm::mat4 matrix = glm::translate(translation);
+    matrix *= glm::rotate(rotation.value, vec3(0.0f, 0.0f, 1.0f));
     matrix *= glm::scale(glm::vec3(scale, 1.0f));
     return matrix;
 }
@@ -177,22 +207,6 @@ glm::vec3 Utils::RotateObject(const vec3& center, const vec3& point, float angle
     result.x = x * cos(angle) - z * sin(angle) + center.x;
     result.z = x * sin(angle) + z * cos(angle) + center.z;
     result.y = point.y;
-
-    // auto x   = point.x - center.x;
-    // auto z = -point.z - center.z;
-    // result.x = cos(angle) * (x) - sin(angle) * (z) + center.x;
-
-    // result.z = sin(angle) * (x) + cos(angle) * (z) + center.z;
-
-    // auto distance = glm::length(center - point);
-    ////auto horizontal_distance = distance * cos(Utils::ToRadians(destinationPitch)));
-    ////auto vertical_distance = distance * sin(Utils::ToRadians(destinationPitch)));
-
-    // float x_offset = (float)(distance * sin(Utils::ToRadians(angle)));
-    // float z_offset = (float)(distance * cos(Utils::ToRadians(angle)));
-    // result.x       = center.x - x_offset;
-    // result.y       = center.y + distance;
-    // result.z       = center.z - z_offset;
     return result;
 }
 
@@ -227,11 +241,11 @@ mat4 Utils::CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center)
     mat4 lightViewMatrix(1.0);
 
     float length = glm::length(glm::vec2(direction.x, direction.z));
-    float pitch  = (float)Utils::ToDegrees(acos(length));
+    float pitch  = (float)glm::degrees(acos(length));
 
     lightViewMatrix *= glm::rotate(pitch, glm::vec3(1, 0, 0));
 
-    float yaw = (float)Utils::ToDegrees(((float)atan(direction.x / direction.z)));
+    float yaw = (float)glm::degrees(((float)atan(direction.x / direction.z)));
     yaw       = direction.z > 0 ? yaw - 180 : yaw;
 
     lightViewMatrix *= glm::rotate((float)-(yaw), glm::vec3(0, 1, 0));

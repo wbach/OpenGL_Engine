@@ -75,7 +75,7 @@ void main(void)
     if (Is(perMeshObject.isSimpleRender))
     {
             WorldPosOut      = vs_out.worldPos;
-            DiffuseOut       = vec4(perMeshObject.waterColor.xyz, 1.f) ;//* normalMapValue;
+            DiffuseOut       = vec4(perMeshObject.waterColor.xyz, 0.5f) ;//* normalMapValue;
             NormalOut        = vec4(normal, 1.f);
             MaterialSpecular = vec4(vec3(1.f), 20.f);
             return;

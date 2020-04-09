@@ -1,12 +1,9 @@
 #pragma once
-#include <glm/glm.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
 #include "../Types.h"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/transform.hpp"
+#include "Glm.h"
 
 namespace Utils
 {
@@ -40,68 +37,17 @@ void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& boundin
 
 float GetMaxFromVector(const glm::vec3& vector);
 
-glm::mat4 CreateOffset();
-mat4 CreateOrthoProjectionMatrix(float width, float height, float length);
+mat4 CreateOffset();
 mat4 CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center);
-glm::mat4 CreateTransformationMatrix(const glm::vec2& translation, const glm::vec2& scale, const float& rotation = 0.f);
-glm::mat4 CreateTransformationMatrix(const glm::vec3& translation, const glm::vec2& scale, const float& rotation = 0.f);
-glm::mat4 CreateTransformationMatrix(const glm::vec3& translation = glm::vec3(.0f),
-                                     const glm::vec3& rotation    = glm::vec3(.0f),
-                                     const glm::vec3& scale       = glm::vec3(1.f));
+mat4 CreateOrthoProjectionMatrix(float width, float height, float length);
+mat4 CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation, const vec3& scale);
+mat4 CreateTransformationMatrix(const vec3& translation, const DegreesVec3& rotation, const vec3& scale);
+mat4 CreateTransformationMatrix(const vec3& translation, const RadiansVec3& rotation, const vec3& scale);
+mat4 CreateTransformationMatrix(const vec2& translation, const vec2& scale, DegreesFloat rotationZ = 0.f);
+mat4 CreateTransformationMatrix(const vec3& translation, const vec2& scale, DegreesFloat rotationZ = 0.f);
+mat4 CreateTransformationMatrix(const vec2& translation, const vec2& scale, RadianFloat rotationZ = 0.f);
+mat4 CreateTransformationMatrix(const vec3& translation, const vec2& scale, RadianFloat rotationZ = 0.f);
+
 Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend);
 float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
-
-// float IntersectTriangle(const glm::vec3 & normal, const glm::vec3 & rayPos, const glm::vec3 & rayDirection, const
-// SFaceVertex & vertexes)
-//{
-//	glm::vec3 v0 = vertexes.v3 - vertexes.v1;
-//	glm::vec3 v1 = vertexes.v2 - vertexes.v1;
-//	float d = -1 * (glm::dot(normal, vertexes.v1));
-//	float t = -(normal.x*rayPos.x + normal.y*rayPos.y + normal.z*rayPos.z + d) / (normal.x*rayDirection.x +
-//normal.y*rayDirection.y +
-// normal.z*rayDirection.z);
-//	glm::vec3 point = rayPos + t*rayDirection;
-//	glm::vec3 v2 = point - vertexes.v1;
-//	float dot00 = glm::dot(v0, v0);
-//	float dot01 = glm::dot(v0, v1);
-//	float dot02 = glm::dot(v0, v2);
-//	float dot11 = glm::dot(v1, v1);
-//	float dot12 = glm::dot(v1, v2);
-//	float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-//	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-//	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-//	if ((u >= 0) && (v >= 0) && (u + v < 1))
-//	{
-//		return t;
-//	}
-//	else return -1;
-//}
-
-// bool DetectSphereTriangleCollision(const glm::vec3 & sp, const float & r, const SFaceVertex & vertexes, const
-// glm::vec3 & normal, SCollisionInfo & colision_info)
-//{
-//	glm::vec3 n = glm::normalize(normal);
-
-//	float dist1 = IntersectTriangle(-n, sp, n, vertexes);
-//	float dist2 = IntersectTriangle(n, sp, -n, vertexes);
-
-//	colision_info.collision = false;
-//	colision_info.normal = n;
-//	colision_info.updateVector = glm::vec3(0);
-
-//	if (dist2 > 0 && dist2 < r) {
-//		colision_info.normal = n;
-//		colision_info.collision = true;
-//		colision_info.t = dist2;
-//		colision_info.updateVector = n*(r - dist2);
-//	}
-//	else if (dist1 > 0 && dist1 < r) {
-//		colision_info.normal = -n;
-//		colision_info.updateVector = -n*(r - dist1);
-//		colision_info.collision = true;
-//		colision_info.t = dist1;
-//		colision_info.collisionY = sp.y + colision_info.updateVector.y;
-//	}
-//	return colision_info.collision;
-//}
 }  // namespace Utils

@@ -11,6 +11,7 @@ LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Tex
     , shader_(api, GraphicsApi::ShaderProgramType::Loading)
     , circleTexture(circleTexture)
     , backgroundTexture(bgTexture)
+    , circleMatrix_(1.f)
 {
 }
 
@@ -47,7 +48,7 @@ void LoadingScreenRenderer::prepareRender()
     if (circleBufferId_)
     {
         float deltaTime = timer_.GetTimeMiliSeconds() / 10.f;
-        circleMatrix_ *= glm::rotate(-deltaTime, 0.0f, 0.0f, 1.0f);
+        circleMatrix_ *= glm::rotate(-ToRadians(deltaTime), vec3(0.0f, 0.0f, 1.0f));
 
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
@@ -78,7 +79,7 @@ void LoadingScreenRenderer::CreateBuffers()
     if (not circleBufferId_)
     {
         circleBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-        circleMatrix_ = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), vec3(0), vec3(0.1));
+        circleMatrix_ = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), DegreesVec3(0), vec3(0.1f));
        
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);

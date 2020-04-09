@@ -183,7 +183,7 @@ mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotati
 
     // modelMatrix *= glm::rotate(rotation, 0.f, 0.f, 1.f);
     scale *= 0.125f;
-    modelMatrix *= glm::scale(scale, scale, scale);
+    modelMatrix *= glm::scale(vec3(scale));
     auto modelViewMatrix = viewMatrix * modelMatrix;
     return modelViewMatrix;
 }

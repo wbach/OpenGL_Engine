@@ -1,7 +1,7 @@
 #include "Camera.h"
+#include <GLM/GLMUtils.h>
+#include <Logger/Log.h>
 #include <algorithm>
-#include <glm/gtx/quaternion.hpp>
-#include "GLM/GLMUtils.h"
 #include "Utils.h"
 
 namespace GameEngine
@@ -15,7 +15,7 @@ BaseCamera::BaseCamera(float pitch, float yaw)
     , up_(0, 1, 0)
     , position_(0)
     , rotation_(pitch, yaw, 0)
-    , viewMatrix_(mat4())
+    , viewMatrix_(1.f)
 {
     UpdateMatrix();
 }
@@ -85,8 +85,8 @@ void BaseCamera::UnsubscribeOnChange(uint32 id)
 void BaseCamera::LookAt(const vec3& lookAtPosition)
 {
     auto direction = position_ - lookAtPosition;
-    rotation_.y    = Utils::ToDegrees(atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
-    rotation_.x = Utils::ToDegrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
+    rotation_.y    = glm::degrees(atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
+    rotation_.x    = glm::degrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
     NotifySubscribers();
 }
 
@@ -140,8 +140,8 @@ void BaseCamera::SetRoll(float roll)
 }
 void BaseCamera::CalculateDirection()
 {
-    float pitch_ = Utils::ToRadians(rotation_.x);
-    float yaw_   = Utils::ToRadians(rotation_.y);
+    float pitch_ = glm::radians(rotation_.x);
+    float yaw_   = glm::radians(rotation_.y);
     float xzLen  = cosf(pitch_);
 
     direction_.z = xzLen * cosf(yaw_);
@@ -151,16 +151,11 @@ void BaseCamera::CalculateDirection()
 }
 void BaseCamera::UpdateViewMatrix()
 {
-    float p  = GetPitch();
-    float y  = GetYaw();
-    float r  = GetRoll();
-    auto pos = GetPosition();
-
-    viewMatrix_ = mat4(1.0f);
-    viewMatrix_ *= glm::rotate(p, 1.0f, 0.0f, 0.0f);
-    viewMatrix_ *= glm::rotate(y, 0.0f, 1.0f, 0.0f);
-    viewMatrix_ *= glm::rotate(r, 0.0f, 0.0f, 1.0f);
-    viewMatrix_ *= glm::translate(-pos);
+    viewMatrix_ = mat4(1.f);
+    viewMatrix_ *= glm::rotate(glm::radians(rotation_.x), vec3(1.0f, 0.0f, 0.0f));
+    viewMatrix_ *= glm::rotate(glm::radians(rotation_.y), vec3(0.0f, 1.0f, 0.0f));
+    viewMatrix_ *= glm::rotate(glm::radians(rotation_.z), vec3(0.0f, 0.0f, 1.0f));
+    viewMatrix_ *= glm::translate(-position_);
 }
 const mat4& BaseCamera::GetViewMatrix() const
 {

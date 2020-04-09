@@ -112,7 +112,7 @@ float CharacterController::GetTime() const
 
 void CharacterController::SetRotateStateInfo(RotationDirection dir)
 {
-    rotateStateInfo.startValue   = transform_.GetRotation().y;
+    rotateStateInfo.startValue   = transform_.GetRotation().GetEulerDegrees()->y;
     rotateStateInfo.currentValue = turnSpeed_ * moveTime_ * (dir == RotationDirection::RIGHT ? -1.f : 1.f);
     rotateStateInfo.startTime    = GetTime();
     rotateStateInfo.direction    = dir;
@@ -211,7 +211,7 @@ void CharacterController::MoveState(std::list<CharacterActions::Type>::iterator&
 
 vec2 CharacterController::CalculateMoveVector(Direction direction)
 {
-    float rad = Utils::ToRadians(transform_.GetRotation().y);
+    float rad = transform_.GetRotation().GetEulerRadians()->y;
     auto v    = vec2(runSpeed_ * (direction == Direction::BACKWARD ? -1.f : 1.f));
     v.x *= sinf(rad);
     v.y *= cosf(rad);

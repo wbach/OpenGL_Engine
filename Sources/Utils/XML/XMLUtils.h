@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include <glm/glm.hpp>
+#include "Glm.h"
 #include <map>
 #include "Types.h"
 #include "XmlNode.h"

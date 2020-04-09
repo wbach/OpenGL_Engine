@@ -315,12 +315,12 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
     transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
-        DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(), transform.GetRotation(),
+        DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(), transform.GetRotation().GetEulerDegrees().value,
                                              transform.GetScale());
         gateway_.Send(userId_, msg);
     });
 
-    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation(),
+    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation().GetEulerDegrees().value,
                                          transform.GetScale());
     gateway_.Send(userId_, msg);
 }
@@ -403,7 +403,7 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
                 }
                 else
                 {
-                    gameObject->worldTransform.SetRotation(rotation);
+                    gameObject->worldTransform.SetRotation(DegreesVec3(rotation));
                     gameObject->worldTransform.TakeSnapShoot();
                 }
             }

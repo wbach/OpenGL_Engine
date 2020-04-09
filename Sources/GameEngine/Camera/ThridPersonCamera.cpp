@@ -136,7 +136,7 @@ void ThirdPersonCamera::Move()
     if (lock_) return;
 
     lookAtPosition_  = lookAt_.GetSnapShoot().position;
-    lookAtRotataion_ = lookAt_.GetSnapShoot().rotation;
+    lookAtRotataion_ = lookAt_.GetSnapShoot().rotation.GetEulerDegrees().value;
 
     float horizontal_distance = CalculateHorizontalDistance();
     float vertical_distance   = CalculateVerticalDistance();
@@ -190,8 +190,8 @@ void ThirdPersonCamera::SmoothCameraMove()
 void ThirdPersonCamera::CalculateCameraPosition(float horizontal_distance, float vertical_distance)
 {
     float theata   = lookAtRotataion_.y + angleAroundPlayer;
-    float x_offset = horizontal_distance * sinf(Utils::ToRadians(theata));
-    float z_offset = horizontal_distance * cosf(Utils::ToRadians(theata));
+    float x_offset = horizontal_distance * sinf(ToRadians(theata));
+    float z_offset = horizontal_distance * cosf(ToRadians(theata));
 
     destinationPosition.x = lookAtPosition_.x - x_offset;
     destinationPosition.y = lookAtPosition_.y + vertical_distance;
@@ -200,11 +200,11 @@ void ThirdPersonCamera::CalculateCameraPosition(float horizontal_distance, float
 }
 float ThirdPersonCamera::CalculateHorizontalDistance()
 {
-    return distanceFromPlayer * cosf(Utils::ToRadians(destinationPitch));
+    return distanceFromPlayer * cosf(ToRadians(destinationPitch));
 }
 float ThirdPersonCamera::CalculateVerticalDistance()
 {
-    return distanceFromPlayer * sinf(Utils::ToRadians(destinationPitch));
+    return distanceFromPlayer * sinf(ToRadians(destinationPitch));
 }
 void ThirdPersonCamera::CalculateYaw()
 {
