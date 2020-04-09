@@ -16,7 +16,6 @@
 #include "Layout/HorizontalLayout.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
-#include "Text/GuiTextFactory.h"
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"

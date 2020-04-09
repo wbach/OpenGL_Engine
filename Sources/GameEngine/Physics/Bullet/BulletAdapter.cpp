@@ -120,7 +120,7 @@ void BulletAdapter::Simulate()
          newRotation =
             vec3(Utils::ToDegrees(newRotation.x), Utils::ToDegrees(newRotation.y), Utils::ToDegrees(newRotation.z));
          auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
-         transform->SetPositionAndRotation(Convert(newPosition), Utils::ToDegrees(newRotation));
+         transform->SetPositionAndRotation(Convert(newPosition), newRotation);
     }
 }
 void BulletAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)

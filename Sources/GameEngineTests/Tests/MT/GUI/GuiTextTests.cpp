@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
-#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
-#include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
+#include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/FontManager.h"
+#include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
+#include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
+#include "GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h"
+#include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 #include "Utils/GLM/GLMUtils.h"
 
 namespace GameEngine
@@ -14,15 +17,15 @@ const std::string fontStr = "../Data/GUI/Ubuntu-M.ttf";
 struct GuiTextElementShould : public BaseComponentTestSchould
 {
     GuiTextElementShould()
-    : fontManager_(windowSize)
+        : guiRenderer_(graphicsApi_)
+        , fontManager_(windowSize)
     {
-        auto subscribe   = [](GuiElement&) {};
-        auto unsubscribe = [](const GuiElement&) {};
-        auto updateTextureFunction = [](GuiTextElement&){};
-
-        sut_ = std::make_unique<GuiTextElement>(fontManager_, subscribe, unsubscribe, updateTextureFunction, windowSize, fontStr);
+        sut_ = std::make_unique<GuiTextElement>(fontManager_, guiRenderer_, resourcesManager_, windowSize, fontStr);
     }
 
+    GraphicsApi::GraphicsApiMock graphicsApi_;
+    GUIRenderer guiRenderer_;
+    ResourceManagerMock resourcesManager_;
     FontManager fontManager_;
     std::unique_ptr<GuiTextElement> sut_;
 };
