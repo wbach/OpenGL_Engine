@@ -90,20 +90,7 @@ public:
         , shapeId_(shapeId)
     {
     }
-    // std::optional<CollisionData> checkCollision(Rigidbody& rigidbody)
-    //{
-    //    return checkCollision(shape_, rigidbody);
-    //}
 
-    // private:
-    // std::optional<CollisionData> checkCollision(Shape& shape, Rigidbody& rigidbody)
-    //{
-    //    std::visit(overloaded{[&shape](SphehreShape& arg) { collision(shape, arg); },
-    //                          [&shape](TerrainShape& arg) { collision(shape, arg); },
-    //                          [&shape](MeshShape& arg) { collision(shape, arg); },
-    //                          [&shape](BoxShape& arg) { collision(shape, arg); }},
-    //               rigidbody.shape_);
-    //}
     vec3 velocity_;
     common::Transform& transform_;
     float mass_;
@@ -114,25 +101,13 @@ public:
 struct TerrainShape
 {
     TerrainShape(const vec2ui& size, std::vector<float>* heights, const vec2& terrainPosition, float heightFactor)
-        : terrainHeightGetter_(size, heights, terrainPosition)
-        , heightFactor_(heightFactor)
+        : heightFactor_(heightFactor)
     {
     }
     std::optional<CollisionData> collision(Rigidbody& sphere)
     {
-        auto height = terrainHeightGetter_.GetHeightofTerrain(sphere.transform_.GetPositionXZ());
-
-        if (not height)
-        {
-            return {};
-        }
-
-        CollisionData data;
-        data.position_   = sphere.transform_.GetPosition();
-        data.position_.y = *height;
-        return data;
+        return {};
     }
-    Components::TerrainHeightGetter terrainHeightGetter_;
     float heightFactor_;
 };
 

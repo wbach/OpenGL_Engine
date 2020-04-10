@@ -3,8 +3,8 @@
 
 #include <algorithm>
 #include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -21,7 +21,9 @@ ComponentsType TerrainShape::type = ComponentsType::TerrainShape;
 
 TerrainShape::TerrainShape(const ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(ComponentsType::TerrainShape, componentContext, gameObject)
-    , size_(1)
+    , terrainHeightGetter_(nullptr)
+    , terrainRendererComponent_(nullptr)
+    , size_(1.f)
     , heightMap_(nullptr)
 {
 }
@@ -42,12 +44,16 @@ void TerrainShape::OnAwake()
 
     vec3 scale(6000.f, 800.f, 6000.f);
 
-    auto& data           = heightMap_->GetImage()->floatData;
-    auto renderComponent = thisObject_.GetComponent<TerrainRendererComponent>();
+    auto& data                = heightMap_->GetImage().floatData;
+    terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
 
-    if (renderComponent)
+    if (terrainRendererComponent_)
     {
-        scale = renderComponent->GetScale();
+        scale = terrainRendererComponent_->GetScale();
+    }
+    else
+    {
+        ERROR_LOG("TerrainRendererComponent not found.");
     }
 
     collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, scale);
@@ -71,13 +77,33 @@ void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
 
     heightMap_ = static_cast<HeightMap*>(heightMapTexture);
 
-    size_.x = heightMap_->GetImage()->width;
-    size_.y = heightMap_->GetImage()->height;
+    size_.x = heightMap_->GetImage().width;
+    size_.y = heightMap_->GetImage().height;
+
+    if (terrainRendererComponent_)
+    {
+        vec2 terrainPosition(0.f);  // To do position terrain in grid of terrains
+        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(
+            terrainRendererComponent_->GetTerrainConfiguration(), *heightMap_, terrainPosition);
+    }
+    else
+    {
+        ERROR_LOG("terrainHeightGetter_ creating error! terrainRendererComponent not found.");
+    }
 }
 const std::string TerrainShape::GetHeightMapFileName() const
 {
     return heightMapFile_;
 }
+
+std::optional<float> TerrainShape::GetHeightOfTerrain(const vec3& worldPosition) const
+{
+    if (not terrainHeightGetter_)
+        return std::nullopt;
+
+    return terrainHeightGetter_->GetHeightofTerrain(worldPosition.x, worldPosition.z);
+}
+
 HeightMap* TerrainShape::GetHeightMap()
 {
     return heightMap_;

@@ -26,11 +26,9 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
     terrainScale_          = terrainConfig.GetScale();
 
     auto hm              = static_cast<HeightMap*>(texture);
-    heightMapResolution_ = hm->GetImage()->width;
-    heights_             = &hm->GetImage()->floatData;
-
-    halfMaximumHeight_ = (*std::max_element(heights_->begin(), heights_->end())) / 2.f;
-    halfMaximumHeight_ *= terrainScale_.y;
+    heightMapResolution_ = hm->GetImage().width;
+    heights_             = &hm->GetImage().floatData;
+    halfMaximumHeight_   = hm->GetMaximumHeight() / 2.f * terrainScale_.y;
 
     model_ = std::make_unique<Model>();
 

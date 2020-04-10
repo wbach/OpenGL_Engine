@@ -12,13 +12,17 @@ public:
               const std::string& filepath, Image image);
     virtual void GpuLoadingPass() override;
     virtual void GpuPostLoadingPass() override;
-    Image* GetImage();
+
+    Image& GetImage();
+    const Image& GetImage() const;
     void SetScale(const vec3&);
     const vec3& GetScale() const;
+    float GetMaximumHeight() const;
 
 private:
     Image image_;
     vec3 scale_;
     bool keepData_ = false;
+    float maximumHeight_;
 };
 }  // namespace GameEngine

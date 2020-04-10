@@ -15,6 +15,7 @@ namespace Components
 namespace
 {
 const vec3 DEFAULT_SCALE(1);
+const TerrainConfiguration DEFAULT_TERRAIN_CONFIG;
 std::unordered_map<TerrainTextureType, std::string> defualtEmptyTexturesMap;
 }  // namespace
 
@@ -84,7 +85,22 @@ const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererCompon
             return tesselationComponent_->GetTextureFileNames();
     }
 
+    ERROR_LOG("RendererType unkonown, return default.");
     return defualtEmptyTexturesMap;
+}
+
+const TerrainConfiguration& TerrainRendererComponent::GetTerrainConfiguration() const
+{
+    switch (rendererType_)
+    {
+        case RendererType::Mesh:
+            return meshComponent_->GetConfiguration();
+        case RendererType::Tessellation:
+            return tesselationComponent_->GetConfig();
+    }
+
+    ERROR_LOG("RendererType unkonown, return default terrain config.");
+    return DEFAULT_TERRAIN_CONFIG;
 }
 
 void TerrainRendererComponent::SetRendererType(TerrainRendererComponent::RendererType type)
@@ -145,9 +161,10 @@ const vec3& TerrainRendererComponent::GetScale() const
             return meshComponent_->GetConfiguration().GetScale();
         case RendererType::Tessellation:
             return tesselationComponent_->GetScale();
-        default:
-            return DEFAULT_SCALE;
     }
+
+    ERROR_LOG("RendererType unkonown, return default.");
+    return DEFAULT_SCALE;
 }
 
 void TerrainRendererComponent::ReqisterFunctions()

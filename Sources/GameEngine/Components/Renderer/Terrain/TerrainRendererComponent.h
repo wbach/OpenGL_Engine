@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "GameEngine/Components/BaseComponent.h"
 #include "TerrainTexturesTypes.h"
+#include "TerrainConfiguration.h"
 
 namespace GameEngine
 {
@@ -27,6 +28,7 @@ public:
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
 
+    const TerrainConfiguration& GetTerrainConfiguration() const;
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();
     TerrainMeshRendererComponent* GetMeshTerrain();

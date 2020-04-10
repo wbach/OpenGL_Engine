@@ -9,8 +9,10 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, cons
     : Texture(graphicsApi, file, filepath)
     , image_(std::move(image))
     , keepData_(keepData)
+    , maximumHeight_(0)
 {
-    size_ = vec2ui(image_.width, image_.height);
+    size_          = vec2ui(image_.width, image_.height);
+    maximumHeight_ = *std::max_element(image_.floatData.begin(), image_.floatData.end());
 }
 
 void HeightMap::GpuLoadingPass()
@@ -22,15 +24,14 @@ void HeightMap::GpuLoadingPass()
     }
 
     DEBUG_LOG("Create texutre filneame : " + fullpath);
-    auto graphicsObjectId = graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C,
-                                                   GraphicsApi::TextureFilter::LINEAR,
-                                    GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_,
-                                    &image_.floatData[0]);
+    auto graphicsObjectId = graphicsApi_.CreateTexture(
+        GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
+        GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, &image_.floatData[0]);
 
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInGpu_ = true;
+        isInGpu_          = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else
@@ -48,9 +49,14 @@ void HeightMap::GpuPostLoadingPass()
 {
 }
 
-Image* HeightMap::GetImage()
+const Image& HeightMap::GetImage() const
 {
-    return &image_;
+    return image_;
+}
+
+Image& HeightMap::GetImage()
+{
+    return image_;
 }
 
 void HeightMap::SetScale(const vec3& scale)
@@ -61,5 +67,10 @@ void HeightMap::SetScale(const vec3& scale)
 const vec3& HeightMap::GetScale() const
 {
     return scale_;
+}
+
+float HeightMap::GetMaximumHeight() const
+{
+    return maximumHeight_;
 }
 }  // namespace GameEngine

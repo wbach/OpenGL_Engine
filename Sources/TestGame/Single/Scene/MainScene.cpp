@@ -372,7 +372,6 @@ void MainScene::KeyOperations()
 
     inputManager_->SubscribeOnKeyUp(KeyCodes::G, [&]() { guiElementFactory_->ReadGuiFile(GUI_FILE); });
 
-    auto rm = renderersManager_;
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { SaveToFile(sceneFile); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
@@ -435,8 +434,6 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
                          .SetIsStatic(true);
 
     auto image = terrainShapeComponent.GetHeightMap()->GetImage();
-    terrainHeightGetter_.reset(new GameEngine::Components::TerrainHeightGetter(
-        vec2ui(image->width, image->height), &image->floatData, vec2(position.x, position.y)));
 
     AddGameObject(object);
 }
