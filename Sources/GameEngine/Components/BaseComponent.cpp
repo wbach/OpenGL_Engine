@@ -9,12 +9,17 @@ BaseComponent::BaseComponent(ComponentsType type, const ComponentContext& compon
     , thisObject_(gameObject)
     , componentContext_(componentContext)
     , isActive_(true)
+    , componentRegistredId_(0)
 {
+   componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_, this);
 }
 BaseComponent::~BaseComponent()
 {
     for (auto id : ids_)
         componentContext_.componentController_.UnRegisterFunction(id.second, id.first);
+
+    if (componentRegistredId_)
+        componentContext_.componentController_.UnRegisterComponent(type_, componentRegistredId_);
 }
 void BaseComponent::Activate()
 {

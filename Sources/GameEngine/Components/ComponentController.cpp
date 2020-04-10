@@ -5,15 +5,28 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;
+}
+
 ComponentController::ComponentController()
     : functionId(0)
+    , componentId(0)
     , isStarted(false)
-    , isAwake(false)
 {
 }
 ComponentController::~ComponentController()
 {
     DEBUG_LOG("");
+}
+
+const RegistredComponentsMap& ComponentController::GetAllComonentsOfType(ComponentsType type) const
+{
+    if (registredComponents_.count(type) > 0)
+        return registredComponents_.at(type);
+
+    return DEFAULT_COMPONETNS_MAP;
 }
 uint32 ComponentController::RegisterFunction(FunctionType type, std::function<void()> func)
 {
@@ -23,6 +36,20 @@ uint32 ComponentController::RegisterFunction(FunctionType type, std::function<vo
     functions_[type][currentId] = func;
     return currentId;
 }
+
+uint32 ComponentController::RegisterComponent(ComponentsType type, IComponent* component)
+{
+    auto currentComponentId = componentId++;
+
+    registredComponents_[type][currentComponentId] = component;
+    return currentComponentId;
+}
+
+void ComponentController::UnRegisterComponent(ComponentsType type, uint32 id)
+{
+    if (registredComponents_.count(type) > 0)
+        registredComponents_.at(type).erase(id);
+}
 void ComponentController::UnRegisterFunction(FunctionType type, uint32 id)
 {
     if (functions_.count(type) > 0)
@@ -31,11 +58,7 @@ void ComponentController::UnRegisterFunction(FunctionType type, uint32 id)
 void ComponentController::UnRegisterAll()
 {
     functions_.clear();
-}
-void ComponentController::OnAwake()
-{
-    CallFunc(FunctionType::Awake);
-    isAwake = true;
+    registredComponents_.clear();
 }
 void ComponentController::OnStart()
 {
@@ -52,14 +75,17 @@ void ComponentController::PostUpdate()
 }
 void ComponentController::CallFunc(FunctionType type)
 {
-    for (const auto& funcPair : functions_[type])
-        funcPair.second();
+    if (functions_.count(type) > 0)
+    {
+        for (const auto& funcPair : functions_.at(type))
+            funcPair.second();
+    }
 }
 void ComponentController::CallFunctionIfControllerStarted(FunctionType type, std::function<void()> func)
 {
-    if (isStarted && type == FunctionType::OnStart)
+    if (type == FunctionType::Awake)
         func();
-    else if (isAwake && type == FunctionType::Awake)
+    else if (isStarted && type == FunctionType::OnStart)
         func();
 }
 }  // namespace Components

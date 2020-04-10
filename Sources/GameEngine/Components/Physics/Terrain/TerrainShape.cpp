@@ -36,32 +36,23 @@ void TerrainShape::ReqisterFunctions()
 }
 void TerrainShape::OnAwake()
 {
-    if (heightMap_ == nullptr)
-    {
-        ERROR_LOG("Height data is nullptr, SetHeightMap need to be called.");
-        return;
-    }
-
-    vec3 scale(6000.f, 800.f, 6000.f);
-
-    auto& data                = heightMap_->GetImage().floatData;
     terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
 
     if (terrainRendererComponent_)
     {
-        scale = terrainRendererComponent_->GetScale();
+        LoadHeightMap(heightMapFile_);
+        const auto& scale = terrainRendererComponent_->GetScale();
+        const auto& data  = heightMap_->GetImage().floatData;
+        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, scale);
     }
     else
     {
-        ERROR_LOG("TerrainRendererComponent not found.");
+        ERROR_LOG("TerrainRendererComponent not found !");
     }
-
-    collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, scale);
 }
 TerrainShape& TerrainShape::SetHeightMap(const std::string& filename)
 {
     heightMapFile_ = filename;
-    LoadHeightMap(filename);
     return *this;
 }
 void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
@@ -88,7 +79,7 @@ void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
     }
     else
     {
-        ERROR_LOG("terrainHeightGetter_ creating error! terrainRendererComponent not found.");
+        ERROR_LOG("terrainHeightGetter creating error! terrainRendererComponent not found.");
     }
 }
 const std::string TerrainShape::GetHeightMapFileName() const

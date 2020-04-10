@@ -18,13 +18,13 @@ public:
     std::optional<float> GetHeightofTerrain(float worldX, float worldZ) const;
 
 private:
-    float GetHeight(int x, int y) const;
-    vec2i GetGridCoord(const vec2& position) const;
+    float GetHeight(uint32 x, uint32 y) const;
+    vec2ui GetGridCoord(const vec2& position) const;
     vec2 GetPositionInQuad(const vec2& position) const;
     bool IsInLeftTriangle(const vec2& position) const;
-    bool IsValidGridCoordinate(const vec2i& position) const;
+    bool IsValidGridCoordinate(const vec2ui &position) const;
     vec2 GetLocalPositionOnTerrain(float worldX, float worldZ) const;
-    float GetHeightInTerrainQuad(const vec2i& gridCoord, const vec2& localPosition) const;
+    float GetHeightInTerrainQuad(const vec2ui &gridCoord, const vec2& localPosition) const;
 
 private:
     const TerrainConfiguration& terrainConfiguration_;
@@ -32,7 +32,7 @@ private:
     vec2 terrainPosition_;
 
 private:
-    float heightMapResolution_;
+    uint32 heightMapResolution_;
     float gridSquereSize_;
     float yOffset_;
 

@@ -71,7 +71,6 @@ void Scene::Init()
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
         componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
-    componentController_.OnAwake();
     componentController_.OnStart();
 }
 

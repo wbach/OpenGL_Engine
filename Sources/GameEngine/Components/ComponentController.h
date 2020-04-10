@@ -1,12 +1,15 @@
 #pragma once
 #include <functional>
 #include <unordered_map>
+#include "ComponentsTypes.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+class IComponent;
+
 enum class FunctionType
 {
     Awake,
@@ -16,18 +19,25 @@ enum class FunctionType
 };
 
 typedef std::unordered_map<uint32, std::function<void()> > FunctionMap;
+typedef std::unordered_map<uint32, IComponent*> RegistredComponentsMap;
 
-class ComponentController
+class ComponentController final
 {
 public:
     ComponentController();
-    virtual ~ComponentController();
-    uint32 RegisterFunction(FunctionType type, std::function<void()> func);
-    void UnRegisterFunction(FunctionType type, uint32 id);
+    ~ComponentController();
+
+    const RegistredComponentsMap &GetAllComonentsOfType(ComponentsType) const;
+
+    uint32 RegisterFunction(FunctionType, std::function<void()>);
+    void UnRegisterFunction(FunctionType, uint32);
+
+    uint32 RegisterComponent(ComponentsType, IComponent*);
+    void UnRegisterComponent(ComponentsType, uint32);
+
     void UnRegisterAll();
 
 public:
-    void OnAwake();
     void OnStart();
     void Update();
     void PostUpdate();
@@ -38,9 +48,10 @@ private:
 
 private:
     std::unordered_map<FunctionType, FunctionMap> functions_;
+    std::unordered_map<ComponentsType, RegistredComponentsMap> registredComponents_;
     uint32 functionId;
+    uint32 componentId;
     bool isStarted;
-    bool isAwake;
 };
 }  // namespace Components
 }  // namespace GameEngine

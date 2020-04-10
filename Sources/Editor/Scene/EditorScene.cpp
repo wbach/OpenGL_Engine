@@ -6,6 +6,7 @@
 #include "Editor/Context.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -35,11 +36,45 @@ int EditorScene::Initialize()
     camera.LookAt(vec3(0, 0.5, 0));
     camera.UpdateMatrix();
 
+    const auto& terrainShapeComponents =
+        componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainShape);
+
+    vec3 cratePosition(0);
+
+    DEBUG_LOG("terrainShapeComponents.count : " + std::to_string(terrainShapeComponents.size()));
+
+    for (const auto& p : terrainShapeComponents)
+    {
+        auto terrainShapeComponent = static_cast<Components::TerrainShape*>(p.second);
+
+        if (terrainShapeComponent)
+        {
+            auto terrainHeight = terrainShapeComponent->GetHeightOfTerrain(cratePosition);
+
+            if (terrainHeight)
+            {
+                cratePosition.y = *terrainHeight;
+                DEBUG_LOG("Succes, get terrain height : " + std::to_string(cratePosition));
+                break;
+            }
+            else
+            {
+                DEBUG_LOG("outside of terrain.");
+            }
+        }
+        else
+        {
+            DEBUG_LOG("cast error.count ");
+        }
+    }
+
+    DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
+
     {
         auto go = CreateGameObject("Crate");
         go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
                                                                                GameEngine::LevelOfDetail::L1);
-        go->worldTransform.SetPosition(vec3(2, 0, 0));
+        go->worldTransform.SetPosition(cratePosition);
         go->worldTransform.SetRotation(DegreesVec3(0, 45, 0));
         go->worldTransform.TakeSnapShoot();
         AddGameObject(go);
@@ -90,9 +125,8 @@ void EditorScene::KeySubscribtions()
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::L, [renderersManager = this->renderersManager_]() {
-        renderersManager->SwapLineFaceRender();
-    });
+    inputManager_->SubscribeOnKeyDown(
+        KeyCodes::L, [renderersManager = this->renderersManager_]() { renderersManager->SwapLineFaceRender(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
         for (auto& go : gameObjects)
         {

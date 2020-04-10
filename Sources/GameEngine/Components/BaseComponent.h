@@ -36,12 +36,14 @@ protected:
 private:
     bool isActive_;
     std::unordered_map<uint32, FunctionType> ids_;
+    uint32 componentRegistredId_;
 };
 
 void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
 {
     ids_.insert({componentContext_.componentController_.RegisterFunction(type, func), type});
 }
+
 ComponentsType BaseComponent::GetType() const
 {
     return type_;

@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -160,7 +161,7 @@ vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
 }
 float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
 {
-    return ((*heights_)[x + y * heightMapResolution_] * terrainScale_.y) - halfMaximumHeight_;
+    return GetTerrainHeight(*heights_, terrainScale_.y, heightMapResolution_, halfMaximumHeight_, x, y);
 }
 void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size)
 {

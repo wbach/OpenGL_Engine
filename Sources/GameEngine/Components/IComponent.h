@@ -1,5 +1,7 @@
 #pragma once
 #include "ComponentsTypes.h"
+#include <unordered_map>
+#include <string>
 
 namespace GameEngine
 {
