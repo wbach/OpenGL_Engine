@@ -1,5 +1,6 @@
 #include "DebugRenderer.h"
 #include <Logger/Log.h>
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -11,6 +12,7 @@ namespace GameEngine
 {
 DebugRenderer::DebugRenderer(const RendererContext& context)
     : context_(context)
+    , resourceManager_(context.graphicsApi_)
     , debugObjectShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
 {
@@ -41,6 +43,8 @@ void DebugRenderer::Init()
     {
         ERROR_LOG("gridPerObjectUpdateBufferId_ error!");
     }
+
+//    resourceManager_.LoadModel(EngineConf_GetFullDataPathAddToRequierd("Meshes/Indicator/Arrows.obj"));
 }
 
 void DebugRenderer::ReloadShaders()

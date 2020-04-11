@@ -4,6 +4,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "Resources/ResourceManager.h"
 
 namespace GameEngine
 {
@@ -55,6 +56,7 @@ private:
 
 private:
     const RendererContext& context_;
+    ResourceManager resourceManager_;
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
 
