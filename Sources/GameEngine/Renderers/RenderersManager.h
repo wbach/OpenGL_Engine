@@ -44,6 +44,7 @@ public:
     void EnableDebugRenderer();
     void DisableDebugRenderer();
     GUIRenderer& GetGuiRenderer();
+    DebugRenderer& GetDebugRenderer();
     bool IsTesselationSupported() const;
 
 private:
@@ -64,16 +65,16 @@ private:
     std::unique_ptr<IFrameBuffer> defferedFrameBuffer_;
     std::unique_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
     std::unique_ptr<RendererContext> rendererContext_;
-    std::unique_ptr<DebugRenderer> debugRenderer_;
 
     Frustrum frustrum_;
+    Projection projection_;
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;
 
     IRenderersPtrVec renderers_;
     GUIRenderer guiRenderer_;
-    Projection projection_;
+    DebugRenderer debugRenderer_;
     RendererFunctions rendererFunctions_;
 
     bool useDebugRenderer_;

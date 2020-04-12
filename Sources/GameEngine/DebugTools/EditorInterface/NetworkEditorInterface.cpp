@@ -157,6 +157,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         if (selectedGameObject_)
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
+            arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(), selectedGameObject_->worldTransform.GetRotation());
+            DEBUG_LOG("arrowsIndicatorTransform_ pos : " + std::to_string(arrowsIndicatorTransform_.GetPosition()));
             dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform,
                                                        scene_.camera, scene_.renderersManager_->GetProjection());
         }
@@ -170,6 +172,13 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         selectedGameObject_ = nullptr;
         dragObject_         = nullptr;
     });
+
+    auto model = scene_.resourceManager_->LoadModel("Meshes/Indicators/Arrows.obj");
+
+    if (model)
+    {
+        scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*model, arrowsIndicatorTransform_);
+    }
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
@@ -315,13 +324,13 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
     transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
-        DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(), transform.GetRotation().GetEulerDegrees().value,
-                                             transform.GetScale());
+        DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(),
+                                             transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
         gateway_.Send(userId_, msg);
     });
 
-    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(), transform.GetRotation().GetEulerDegrees().value,
-                                         transform.GetScale());
+    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
+                                         transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
     gateway_.Send(userId_, msg);
 }
 

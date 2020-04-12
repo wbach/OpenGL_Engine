@@ -16,9 +16,9 @@ enum Axis
 
 struct TransformContext
 {
-    vec3 position;
+    vec3 position = vec3(0.f);
     Rotation rotation;
-    vec3 scale;
+    vec3 scale = vec3(1.f);
 };
 
 class Transform
@@ -46,6 +46,7 @@ public:
     void SetRotation(const DegreesVec3& eulerAngles);
     void SetRotation(const RadiansVec3& eulerAngles);
     void SetRotation(const Quaternion& rotation);
+    void SetRotation(const Rotation& rotation);
     void SetPositionAndRotation(const vec3& position, const DegreesVec3& rotation);
     void SetPositionAndRotation(const vec3& position, const RadiansVec3& rotation);
     void SetPositionAndRotation(const vec3& position, const Quaternion& rotation);

@@ -1,6 +1,7 @@
 #include "HeightMap.h"
 #include "GameEngine/Renderers/Objects/Terrain/TerrainNormalMapRenderer.h"
 #include "Logger/Log.h"
+#include <algorithm>
 
 namespace GameEngine
 {

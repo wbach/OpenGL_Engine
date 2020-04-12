@@ -1,10 +1,14 @@
 #pragma once
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GraphicsApi/IGraphicsApi.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "Resources/ResourceManager.h"
+#include "GraphicsApi/IGraphicsApi.h"
+
+namespace common
+{
+class Transform;
+}
 
 namespace GameEngine
 {
@@ -14,7 +18,6 @@ class Model;
 class Entity;
 class Projection;
 class ModelWrapper;
-struct RendererContext;
 struct Material;
 
 namespace Components
@@ -30,8 +33,19 @@ struct DebugRendererSubscriber
 
 struct DebugObject
 {
-    BufferObject<PerObjectUpdate> buffer;
-    Model* model{nullptr};
+    DebugObject(GraphicsApi::IGraphicsApi& graphicsApi, Model& model, common::Transform& transform);
+    ~DebugObject();
+
+    void CreateBuffer();
+    void UpdateBuffer();
+    void BindBuffer() const;
+
+    GraphicsApi::IGraphicsApi& graphicsApi_;
+    Model& model_;
+    common::Transform& transform_;
+    PerObjectUpdate buffer;
+    GraphicsApi::ID perObjectBufferId;
+    bool toUpdate_;
 };
 
 typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
@@ -39,15 +53,20 @@ typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
 class DebugRenderer : public IRenderer
 {
 public:
-    DebugRenderer(const RendererContext& context);
+    DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection);
     ~DebugRenderer();
 
     virtual void Init() override;
     virtual void ReloadShaders() override;
     void Render(const Scene&, const Time&);
     void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)>);
+    void AddDebugObject(Model&, common::Transform&);
+    void Enable();
+    void Disable();
 
 private:
+    void CreateDebugObjects();
+    void UpdateDebugObjectsIfNeeded();
     void DrawGrid();
     void DrawDebugObjects();
     void RenderModel(const Model&) const;
@@ -55,19 +74,18 @@ private:
     void RenderMesh(const Mesh&) const;
 
 private:
-    const RendererContext& context_;
-    ResourceManager resourceManager_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
+    Projection& projection_;
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
 
     std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
 
     std::vector<DebugObject> debugObjects_;
-
+    std::vector<DebugObject*> toCreateDebugObjects_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
 
-//    GraphicsApi::ID perObjectUpdateId;
-//    GraphicsApi::ID perObjectId;
+    bool isActive_;
 };
 
 }  // namespace GameEngine

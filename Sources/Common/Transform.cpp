@@ -139,6 +139,12 @@ void Transform::SetRotation(const Quaternion& rotation)
     NotifySubscribers();
 }
 
+void Transform::SetRotation(const Rotation& rotation)
+{
+    context_.rotation = rotation;
+    NotifySubscribers();
+}
+
 void Transform::SetPositionAndRotation(const vec3& position, const DegreesVec3& rotation)
 {
     SetPositionAndRotation(position, Rotation(rotation));

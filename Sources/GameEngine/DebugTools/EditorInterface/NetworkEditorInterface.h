@@ -1,16 +1,11 @@
 #pragma once
 #include <UtilsNetwork/Gateway.h>
-
+#include <Common/Transform.h>
 #include <functional>
 #include <unordered_map>
 #include <vector>
 
 #include "IEditorInterface.hpp"
-
-namespace common
-{
-class Transform;
-}
 
 namespace GameEngine
 {
@@ -62,6 +57,7 @@ private:
     std::optional<uint32> transformChangeSubscriptionId_;
     std::optional<uint32> cameraChangeSubscriptionId_;
     common::Transform* transformChangeSubscription_;
+    common::Transform arrowsIndicatorTransform_;
     uint32 keyDownSub_;
     uint32 keyUpSub_;
     uint32 cameraLockUnlockKeySubscribtion_;

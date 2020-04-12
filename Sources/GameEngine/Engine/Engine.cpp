@@ -105,7 +105,7 @@ void Engine::Init()
 {
     graphicsApi_->EnableDepthTest();
     renderersManager_.Init();
-    renderersManager_.SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix) {
+    renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix) {
         physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
     });
 }

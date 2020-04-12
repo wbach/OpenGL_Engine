@@ -1,6 +1,6 @@
 #include "TerrainUtils.h"
-#include "Resources/Textures/HeightMap.h"
-#include "Components/Renderer/Terrain/TerrainConfiguration.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 
 namespace GameEngine
 {

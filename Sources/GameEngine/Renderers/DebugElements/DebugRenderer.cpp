@@ -1,20 +1,70 @@
 #include "DebugRenderer.h"
+
+#include <Common/Transform.h>
 #include <Logger/Log.h>
-#include "GameEngine/Engine/Configuration.h"
+
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
-DebugRenderer::DebugRenderer(const RendererContext& context)
-    : context_(context)
-    , resourceManager_(context.graphicsApi_)
-    , debugObjectShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
-    , gridShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
+DebugObject::DebugObject(GraphicsApi::IGraphicsApi& graphicsApi, Model& model, common::Transform& transform)
+    : graphicsApi_(graphicsApi)
+    , model_(model)
+    , transform_(transform)
+    , toUpdate_(true)
+{
+}
+DebugObject::~DebugObject()
+{
+    if (perObjectBufferId)
+        graphicsApi_.DeleteShaderBuffer(*perObjectBufferId);
+}
+void DebugObject::CreateBuffer()
+{
+    DEBUG_LOG("perObjectBufferId");
+    perObjectBufferId = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+
+    DEBUG_LOG("perObjectBufferId");
+    transform_.TakeSnapShoot();
+    buffer.TransformationMatrix = transform_.GetMatrix();
+    UpdateBuffer();
+
+    toUpdate_ = false;
+
+    transform_.SubscribeOnChange([&](const common::Transform&) {
+        transform_.TakeSnapShoot();
+        buffer.TransformationMatrix = transform_.GetMatrix();
+        toUpdate_ = true;
+    });
+}
+void DebugObject::UpdateBuffer()
+{
+    if (perObjectBufferId)
+    {
+        graphicsApi_.UpdateShaderBuffer(*perObjectBufferId, &buffer);
+        toUpdate_ = false;
+    }
+}
+void DebugObject::BindBuffer() const
+{
+    if (perObjectBufferId)
+    {
+        graphicsApi_.BindShaderBuffer(*perObjectBufferId);
+    }
+}
+
+DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection)
+    : graphicsApi_(graphicsApi)
+    , projection_(projection)
+    , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
+    , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
+    , isActive_(false)
 {
 }
 
@@ -29,23 +79,20 @@ void DebugRenderer::Init()
     gridShader_.Init();
 
     gridPerObjectUpdateBufferId_ =
-        context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
     if (gridPerObjectUpdateBufferId_)
     {
         PerObjectUpdate gridPerObjectUpdate;
         gridPerObjectUpdate.TransformationMatrix =
             Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(100));
-        context_.graphicsApi_.UpdateShaderBuffer(*gridPerObjectUpdateBufferId_,
-                                                 &gridPerObjectUpdate.TransformationMatrix);
+        graphicsApi_.UpdateShaderBuffer(*gridPerObjectUpdateBufferId_, &gridPerObjectUpdate);
     }
     else
     {
         ERROR_LOG("gridPerObjectUpdateBufferId_ error!");
     }
-
-//    resourceManager_.LoadModel(EngineConf_GetFullDataPathAddToRequierd("Meshes/Indicator/Arrows.obj"));
-}
+}  // namespace GameEngine
 
 void DebugRenderer::ReloadShaders()
 {
@@ -55,24 +102,61 @@ void DebugRenderer::ReloadShaders()
 
 void DebugRenderer::Render(const Scene& scene, const Time&)
 {
-    context_.graphicsApi_.EnableBlend();
-    context_.graphicsApi_.DisableCulling();
+    if (not isActive_)
+        return;
+
+    graphicsApi_.EnableBlend();
+    graphicsApi_.DisableCulling();
 
     DrawGrid();
     DrawDebugObjects();
 
     if (physicsDebugDraw_)
     {
-        physicsDebugDraw_(scene.GetCamera().GetViewMatrix(), context_.projection_.GetProjectionMatrix());
+        physicsDebugDraw_(scene.GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
     }
 
-    context_.graphicsApi_.EnableCulling();
-    context_.graphicsApi_.DisableBlend();
+    graphicsApi_.EnableCulling();
+    graphicsApi_.DisableBlend();
 }
 
 void GameEngine::DebugRenderer::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
 {
     physicsDebugDraw_ = func;
+}
+
+void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)
+{
+    debugObjects_.emplace_back(graphicsApi_, model, transform);
+    toCreateDebugObjects_.push_back(&debugObjects_.back());
+}
+
+void DebugRenderer::Enable()
+{
+    isActive_ = true;
+}
+
+void DebugRenderer::Disable()
+{
+    isActive_ = false;
+}
+
+void DebugRenderer::CreateDebugObjects()
+{
+    for (auto iter = toCreateDebugObjects_.begin(); iter != toCreateDebugObjects_.end();)
+    {
+        (*iter)->CreateBuffer();
+        iter = toCreateDebugObjects_.erase(iter);
+    }
+}
+
+void DebugRenderer::UpdateDebugObjectsIfNeeded()
+{
+    for (auto& debugObject : debugObjects_)
+    {
+        if (debugObject.toUpdate_)
+            debugObject.UpdateBuffer();
+    }
 }
 
 void DebugRenderer::DrawGrid()
@@ -81,8 +165,8 @@ void DebugRenderer::DrawGrid()
         return;
 
     gridShader_.Start();
-    context_.graphicsApi_.BindShaderBuffer(*gridPerObjectUpdateBufferId_);
-    context_.graphicsApi_.RenderQuad();
+    graphicsApi_.BindShaderBuffer(*gridPerObjectUpdateBufferId_);
+    graphicsApi_.RenderQuad();
     gridShader_.Stop();
 }
 
@@ -91,19 +175,18 @@ void DebugRenderer::DrawDebugObjects()
     if (not debugObjectShader_.IsReady())
         return;
 
+    CreateDebugObjects();
+    UpdateDebugObjectsIfNeeded();
+
     debugObjectShader_.Start();
 
     for (const auto& debugObject : debugObjects_)
     {
-        if (not debugObject.model)
+        if (not debugObject.perObjectBufferId)
             continue;
 
-        if (debugObject.buffer.GetId())
-        {
-            context_.graphicsApi_.BindShaderBuffer(*debugObject.buffer.GetId());
-        }
-
-        RenderModel(*debugObject.model);
+        debugObject.BindBuffer();
+        RenderModel(debugObject.model_);
     }
 
     debugObjectShader_.Stop();
@@ -123,12 +206,12 @@ void DebugRenderer::BindMeshBuffers(const Mesh& mesh) const
     const auto& perMeshObjectBuffer = mesh.GetBuffers().perMeshObjectBuffer_;
     if (perMeshObjectBuffer)
     {
-        context_.graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);
+        graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);
     }
 }
 
 void DebugRenderer::RenderMesh(const Mesh& mesh) const
 {
-    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
+    graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
 }
 }  // namespace GameEngine

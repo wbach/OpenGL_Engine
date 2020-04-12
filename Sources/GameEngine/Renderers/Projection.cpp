@@ -1,9 +1,11 @@
 #include "Projection.h"
+
+#include <GLM/GLMUtils.h>
+#include <Logger/Log.h>
+
 #include "Mutex.hpp"
 #include "Utils.h"
 #include "math.hpp"
-#include <GLM/GLMUtils.h>
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -11,13 +13,17 @@ namespace
 {
 std::mutex mmutex;
 std::mutex wmutex;
+
+const float DEFAULT_NEAR_PLANE{.3f};
+const float DEFAULT_FAR_PLANE{1000.f};
+const float DEFAULT_FOV{60.f};
 }  // namespace
 Projection::Projection()
     : Projection({640, 480})
 {
 }
 Projection::Projection(const vec2ui &renderingSize)
-    : Projection(renderingSize, .3f, 1000.f, 60.f)
+    : Projection(renderingSize, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE, DEFAULT_FOV)
 {
 }
 Projection::Projection(const vec2ui &renderingSize, float near, float far, float fov)
@@ -47,6 +53,11 @@ Projection &Projection::operator=(const Projection &p)
     fov_              = p.fov_;
     projectionMatrix_ = p.projectionMatrix_;
     return *this;
+}
+void Projection::Init(const vec2ui &renderingSize)
+{
+    renderingSize_ = renderingSize;
+    aspectRatio_   = CalculateAspectRatio();
 }
 const mat4 &Projection::GetProjectionMatrix() const
 {

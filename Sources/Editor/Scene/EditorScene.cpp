@@ -27,23 +27,24 @@ EditorScene::~EditorScene()
 int EditorScene::Initialize()
 {
     RunNetworkEditorInterface();
-    // resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
-
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
-    LoadFromFile(sceneFile);
-
     camera.SetPosition(vec3(2, 2, 2));
     camera.LookAt(vec3(0, 0.5, 0));
     camera.UpdateMatrix();
+    renderersManager_->GetDebugRenderer().Enable();
 
-    const auto& terrainShapeComponents =
+    //// resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
+
+    // const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
+    // LoadFromFile(sceneFile);
+
+     const auto& terrainShapeComponents =
         componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainShape);
 
-    vec3 cratePosition(0);
+     vec3 cratePosition(2, 0, 1);
 
-    DEBUG_LOG("terrainShapeComponents.count : " + std::to_string(terrainShapeComponents.size()));
+     DEBUG_LOG("terrainShapeComponents.count : " + std::to_string(terrainShapeComponents.size()));
 
-    for (const auto& p : terrainShapeComponents)
+     for (const auto& p : terrainShapeComponents)
     {
         auto terrainShapeComponent = static_cast<Components::TerrainShape*>(p.second);
 
@@ -68,7 +69,7 @@ int EditorScene::Initialize()
         }
     }
 
-    DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
+     DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
 
     {
         auto go = CreateGameObject("Crate");
@@ -76,19 +77,27 @@ int EditorScene::Initialize()
                                                                                GameEngine::LevelOfDetail::L1);
         go->worldTransform.SetPosition(cratePosition);
         go->worldTransform.SetRotation(DegreesVec3(0, 45, 0));
-        go->worldTransform.TakeSnapShoot();
         AddGameObject(go);
     }
 
-    // for (uint32 i = 0; i < 4; ++i)
-    //{
-    //    auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
-    //    go->AddComponent<GameEngine::Components::BoxShape>();
-    //    go->AddComponent<GameEngine::Components::MeshShape>();
+    {
+        auto go = CreateGameObject("Crate2");
+        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
+            GameEngine::LevelOfDetail::L1);
+        go->worldTransform.SetPosition(vec3(-2, 0, 2));
+        go->worldTransform.SetRotation(DegreesVec3(0, -45, 0));
+        AddGameObject(go);
+    }
 
-    //    AddGameObjects(go.get(), 3);
-    //    AddGameObject(go);
-    //}
+     for (uint32 i = 0; i < 4; ++i)
+    {
+        auto go = CreateGameObject("GameObjectName_" + std::to_string(i));
+        go->AddComponent<GameEngine::Components::BoxShape>();
+        go->AddComponent<GameEngine::Components::MeshShape>();
+
+        AddGameObjects(go.get(), 3);
+        AddGameObject(go);
+    }
 
     KeySubscribtions();
 
@@ -122,15 +131,15 @@ void EditorScene::AddGameObjects(GameObject* go, int lvl)
 
 void EditorScene::KeySubscribtions()
 {
-    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
     inputManager_->SubscribeOnKeyDown(
         KeyCodes::L, [renderersManager = this->renderersManager_]() { renderersManager->SwapLineFaceRender(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
         for (auto& go : gameObjects)
         {
-            go->worldTransform.IncrasePosition(vec3(0.001));
+            go->worldTransform.IncrasePosition(vec3(0.001f));
         }
     });
 }

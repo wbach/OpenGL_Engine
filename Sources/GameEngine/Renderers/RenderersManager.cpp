@@ -40,12 +40,12 @@ namespace Renderer
 {
 RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
-    , renderAsLines(false)
-    , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
-    , useDebugRenderer_(false)
+    , debugRenderer_(graphicsApi, projection_)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
+    , renderAsLines(false)
+    , markToReloadShaders_(false)
 {
 }
 RenderersManager::~RenderersManager()
@@ -65,6 +65,7 @@ void RenderersManager::Init()
     InitProjection();
     InitMainRenderer();
     InitGuiRenderer();
+    debugRenderer_.Init();
     CreateBuffers();
 
     for (auto& r : renderers_)
@@ -72,8 +73,8 @@ void RenderersManager::Init()
 }
 void RenderersManager::InitProjection()
 {
-    auto& conf  = EngineConf;
-    projection_ = Projection(conf.renderer.resolution);
+    projection_ .Init(EngineConf.renderer.resolution);
+    projection_.CreateProjectionMatrix();
 }
 void RenderersManager::InitMainRenderer()
 {
@@ -91,8 +92,6 @@ void RenderersManager::InitMainRenderer()
     shadowsFrameBuffer_  = std::make_unique<ShadowFrameBuffer>(graphicsApi_);
     rendererContext_ = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
                                                          *shadowsFrameBuffer_, registerFunc);
-    debugRenderer_   = std::make_unique<DebugRenderer>(*rendererContext_);
-    debugRenderer_->Init();
 
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 
@@ -169,9 +168,7 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
         Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
     }
 
-    if (useDebugRenderer_)
-        debugRenderer_->Render(*scene, threadTime);
-
+    debugRenderer_.Render(*scene, threadTime);
     guiRenderer_.Render(*scene, threadTime);
 
     if (unsubscribeAllCallback_)
@@ -232,28 +229,14 @@ void RenderersManager::SwapLineFaceRender()
     renderAsLines.store(!renderAsLines.load());
 }
 
-void RenderersManager::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
-{
-    if (debugRenderer_)
-    {
-        debugRenderer_->SetPhysicsDebugDraw(func);
-    }
-    else
-    {
-        ERROR_LOG("Can not set physics debug draw function before initialization.");
-    }
-}
-void RenderersManager::EnableDebugRenderer()
-{
-    useDebugRenderer_ = true;
-}
-void RenderersManager::DisableDebugRenderer()
-{
-    useDebugRenderer_ = false;
-}
 GUIRenderer& RenderersManager::GetGuiRenderer()
 {
     return guiRenderer_;
+}
+
+DebugRenderer& RenderersManager::GetDebugRenderer()
+{
+    return debugRenderer_;
 }
 
 bool RenderersManager::IsTesselationSupported() const
