@@ -64,6 +64,7 @@ public:
     virtual GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override;
     virtual GraphicsApi::ID CreatePurePatchMeshInstanced(uint32, uint32) override;
     virtual GraphicsApi::ID CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType rendertype) override;
+    virtual GraphicsApi::ID CreateDynamicLineMesh() override;
     virtual GraphicsApi::ID CreateParticle() override;
     virtual GraphicsApi::ID CreateAnimatedParticle() override;
     virtual void Compute(uint32, uint32, uint32) override;
@@ -86,6 +87,7 @@ public:
     virtual void SetBlendFunction(GraphicsApi::BlendFunctionType) override;
 
     virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) override;
+    virtual void UpdateLineMesh(uint32, const GraphicsApi::LineMesh&) override;
     virtual void UpdateOffset(uint32, const std::vector<vec4>&) override;
     virtual void UpdateBlend(uint32, const std::vector<float>&) override;
 

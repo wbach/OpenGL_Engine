@@ -8,7 +8,7 @@ namespace GameEngine
 struct PhysicsApiMock : public Physics::IPhysicsApi
 {
     MOCK_METHOD0(Simulate, void());
-    MOCK_METHOD2(DebugDraw, void(const mat4&, const mat4&));
+    MOCK_METHOD0(DebugDraw, const GraphicsApi::LineMesh&());
     MOCK_METHOD0(EnableSimulation, void());
     MOCK_METHOD0(DisableSimulation, void());
     MOCK_METHOD1(SetSimulationStep, void(float));

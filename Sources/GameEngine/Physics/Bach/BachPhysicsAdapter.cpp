@@ -1,9 +1,11 @@
 #include "BachPhysicsAdapter.h"
+
 #include <iomanip>
 #include <optional>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
+
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "Types.h"
@@ -70,14 +72,13 @@ void collision(const BoxShape& a, const TerrainShape& b)
 template <typename T>
 void collision(const Shape& collisionShape, const T& shape)
 {
-    std::visit(
-        overloaded{
-            [&shape](const SphehreShape& arg) { collision(arg, shape); },
-            [&shape](const TerrainShape& arg) { collision(arg, shape); },
-            [&shape](const MeshShape& arg) { collision(arg, shape); },
-            [&shape](const BoxShape& arg) { collision(arg, shape); },
-        },
-        collisionShape);
+    std::visit(overloaded{
+                   [&shape](const SphehreShape& arg) { collision(arg, shape); },
+                   [&shape](const TerrainShape& arg) { collision(arg, shape); },
+                   [&shape](const MeshShape& arg) { collision(arg, shape); },
+                   [&shape](const BoxShape& arg) { collision(arg, shape); },
+               },
+               collisionShape);
 }
 
 class Rigidbody
@@ -154,8 +155,9 @@ void BachPhysicsAdapter::Simulate()
         }
     }
 }
-void BachPhysicsAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)
+const GraphicsApi::LineMesh& BachPhysicsAdapter::DebugDraw()
 {
+    return lineMesh_;
 }
 void BachPhysicsAdapter::SetSimulationStep(float step)
 {

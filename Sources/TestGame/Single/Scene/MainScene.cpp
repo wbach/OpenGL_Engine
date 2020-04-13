@@ -373,8 +373,8 @@ void MainScene::KeyOperations()
     inputManager_->SubscribeOnKeyUp(KeyCodes::G, [&]() { guiElementFactory_->ReadGuiFile(GUI_FILE); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { SaveToFile(sceneFile); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]() { renderersManager_->ReloadShaders(); });
 

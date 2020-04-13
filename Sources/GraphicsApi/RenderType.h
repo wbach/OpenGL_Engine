@@ -7,6 +7,7 @@ enum class RenderType
     TRIANGLES,
     TRIAGNLE_STRIP,
     PATCHES,
-    POINTS
+    POINTS,
+    LINES
 };
 }  // namespace GraphicsApi

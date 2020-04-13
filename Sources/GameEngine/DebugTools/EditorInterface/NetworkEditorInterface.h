@@ -64,5 +64,6 @@ private:
     GameObject* selectedGameObject_;
     uint32 userId_;
     std::unique_ptr<DragObject> dragObject_;
+    Utils::Time::CTimeMeasurer timeMeasurer_;
 };
 }  // namespace GameEngine

@@ -40,7 +40,7 @@ void DebugObject::CreateBuffer()
     transform_.SubscribeOnChange([&](const common::Transform&) {
         transform_.TakeSnapShoot();
         buffer.TransformationMatrix = transform_.GetMatrix();
-        toUpdate_ = true;
+        toUpdate_                   = true;
     });
 }
 void DebugObject::UpdateBuffer()
@@ -64,6 +64,7 @@ DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection&
     , projection_(projection)
     , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
+    , lineShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
     , isActive_(false)
 {
 }
@@ -77,6 +78,7 @@ void DebugRenderer::Init()
 {
     debugObjectShader_.Init();
     gridShader_.Init();
+    lineShader_.Init();
 
     gridPerObjectUpdateBufferId_ =
         graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
@@ -92,7 +94,9 @@ void DebugRenderer::Init()
     {
         ERROR_LOG("gridPerObjectUpdateBufferId_ error!");
     }
-}  // namespace GameEngine
+
+    lineMeshId_ = graphicsApi_.CreateDynamicLineMesh();
+}
 
 void DebugRenderer::ReloadShaders()
 {
@@ -110,17 +114,13 @@ void DebugRenderer::Render(const Scene& scene, const Time&)
 
     DrawGrid();
     DrawDebugObjects();
-
-    if (physicsDebugDraw_)
-    {
-        physicsDebugDraw_(scene.GetCamera().GetViewMatrix(), projection_.GetProjectionMatrix());
-    }
+    DrawPhysics(scene.GetCamera().GetViewMatrix());
 
     graphicsApi_.EnableCulling();
     graphicsApi_.DisableBlend();
 }
 
-void GameEngine::DebugRenderer::SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)> func)
+void GameEngine::DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
 {
     physicsDebugDraw_ = func;
 }
@@ -139,6 +139,26 @@ void DebugRenderer::Enable()
 void DebugRenderer::Disable()
 {
     isActive_ = false;
+}
+
+void DebugRenderer::DrawPhysics(const mat4& viewMatrix)
+{
+    if (physicsDebugDraw_ and lineMeshId_)
+    {
+        const auto& lineMesh = physicsDebugDraw_();
+
+        if (not lineMesh.positions_.empty() and not lineMesh.colors_.empty())
+        {
+            if (lineMesh.updateBufferNeeded)
+            {
+                graphicsApi_.UpdateLineMesh(*lineMeshId_, lineMesh);
+            }
+
+            lineShader_.Start();
+            graphicsApi_.RenderMesh(*lineMeshId_);
+            lineShader_.Stop();
+        }
+    }
 }
 
 void DebugRenderer::CreateDebugObjects()

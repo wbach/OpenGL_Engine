@@ -19,6 +19,7 @@
 #include "TextureParamters.h"
 #include "WindowApi.hpp"
 #include "WindowType.h"
+#include "LineMesh.h"
 
 namespace GraphicsApi
 {
@@ -69,6 +70,7 @@ public:
     virtual ID CreatePatchMesh(const std::vector<float>&)                                                    = 0;
     virtual ID CreatePurePatchMeshInstanced(uint32, uint32)                                                  = 0;
     virtual ID CreateMesh(const MeshRawData&, RenderType type)                                               = 0;
+    virtual ID CreateDynamicLineMesh()                                                                       = 0;
     virtual ID CreateParticle()                                                                              = 0;
     virtual ID CreateAnimatedParticle()                                                                      = 0;
     virtual void Compute(uint32, uint32, uint32)                                                             = 0;
@@ -89,6 +91,7 @@ public:
     virtual void LineModeRender()                                                                            = 0;
     virtual void SetBlendFunction(BlendFunctionType)                                                         = 0;
     virtual void UpdateMatrixes(uint32, const std::vector<mat4>&)                                            = 0;
+    virtual void UpdateLineMesh(uint32, const LineMesh&)                                                     = 0;
     virtual void UpdateOffset(uint32, const std::vector<vec4>&)                                              = 0;
     virtual void UpdateBlend(uint32, const std::vector<float>&)                                              = 0;
     virtual ID CloneImage(uint32)                                                                            = 0;

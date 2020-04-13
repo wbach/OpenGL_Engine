@@ -783,6 +783,10 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
 
     return impl_->CreateAndAddDxObject(vao);
 }
+GraphicsApi::ID DirectXApi::CreateDynamicLineMesh()
+{
+    return GraphicsApi::ID();
+}
 GraphicsApi::ID DirectXApi::CreateParticle()
 {
     return {};
@@ -867,6 +871,9 @@ void DirectXApi::SetBlendFunction(GraphicsApi::BlendFunctionType)
 {
 }
 void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4> &)
+{
+}
+void DirectXApi::UpdateLineMesh(uint32, const GraphicsApi::LineMesh&)
 {
 }
 void DirectXApi::UpdateOffset(uint32, const std::vector<vec4> &)

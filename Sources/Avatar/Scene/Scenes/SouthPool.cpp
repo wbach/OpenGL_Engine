@@ -41,8 +41,8 @@ int SouthPool::Initialize()
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
     LoadFromFile(sceneFile);
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->DisableDebugRenderer(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->EnableDebugRenderer(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() {
         auto window = guiManager_->GetElement("PauseMenuMainWindow");

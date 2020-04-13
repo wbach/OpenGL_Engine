@@ -40,7 +40,7 @@ struct BulletAdapter::Pimpl
                                                                    btSolver.get(), collisionConfiguration.get());
         btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
-        bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>(graphicsApi_);
+        bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
         bulletDebugDrawer_->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
         btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
     }
@@ -85,6 +85,7 @@ BulletAdapter::BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi)
     : simulationStep_(1.f / 60.f)
     , simualtePhysics_(true)
     , id_(1)
+    , frameNumber_(0)
 {
     impl_.reset(new Pimpl(graphicsApi));
 }
@@ -119,11 +120,25 @@ void BulletAdapter::Simulate()
         transform->SetPositionAndRotation(Convert(newPosition), newRotation * glm::angleAxis(glm::radians(180.f), vec3(0.f, 0.f, 1.f)));
     }
 }
-void BulletAdapter::DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)
+const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
 {
-    impl_->bulletDebugDrawer_->SetMatrices(viewMatrix, projectionMatrix);
-    impl_->btDynamicWorld->debugDrawWorld();
-    impl_->bulletDebugDrawer_->SetMatrices(mat4(1.f), projectionMatrix);
+    const uint32 updateFpsDevider = 4;
+    
+    if (frameNumber_ >= updateFpsDevider)
+        frameNumber_ = 0;
+
+    if (frameNumber_ == 0)
+    {
+        impl_->bulletDebugDrawer_->clear();
+        impl_->btDynamicWorld->debugDrawWorld();
+        impl_->bulletDebugDrawer_->SetNeedUpdateBuffer(true);
+    }
+    else
+    {
+        impl_->bulletDebugDrawer_->SetNeedUpdateBuffer(false);
+    }
+    ++frameNumber_;
+    return impl_->bulletDebugDrawer_->getMesh();
 }
 void BulletAdapter::DisableSimulation()
 {

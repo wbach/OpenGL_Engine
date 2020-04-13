@@ -1,11 +1,8 @@
 #pragma once
 #include <LinearMath/btIDebugDraw.h>
-#include "Types.h"
+#include <GraphicsApi/IGraphicsApi.h>
+#include <Types.h>
 
-namespace GraphicsApi
-{
-class IGraphicsApi;
-}  // namespace GraphicsApi
 namespace GameEngine
 {
 namespace Physics
@@ -13,18 +10,21 @@ namespace Physics
 class BulletDebugDrawer : public btIDebugDraw
 {
 public:
-    BulletDebugDrawer(GraphicsApi::IGraphicsApi &graphicsApi);
-    void SetMatrices(const mat4 &viewMatrix, const mat4 &projectionMatrix);
-    virtual void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color);
-    virtual void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &);
-    virtual void reportErrorWarning(const char *);
-    virtual void draw3dText(const btVector3 &, const char *);
-    virtual void setDebugMode(int p);
-    int getDebugMode(void) const;
-    int m;
+    BulletDebugDrawer();
+    ~BulletDebugDrawer();
+    void clear();
+    void drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) override;
+    void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &) override;
+    void reportErrorWarning(const char *) override;
+    void draw3dText(const btVector3 &, const char *) override;
+    void setDebugMode(int p) override;
+    int getDebugMode(void) const override;
+    const GraphicsApi::LineMesh& getMesh() const;
+    void SetNeedUpdateBuffer(bool);
 
 private:
-    GraphicsApi::IGraphicsApi &graphicsApi_;
+    GraphicsApi::LineMesh lineMesh_;
+    size_t lastMeshSize_ = 0;
 };
 }  // namespace Physics
 }  // namespace GameEngine

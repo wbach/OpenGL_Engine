@@ -123,6 +123,16 @@ void VaoCreator::AllocateDynamicAttribute(VertexBufferObjects type, uint32 coord
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+void VaoCreator::AllocateDynamicAttribute(VertexBufferObjects type, uint32 coordinateSize)
+{
+    auto& vboId = vao_.vbos[type];
+    glGenBuffers(1, &vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glEnableVertexAttribArray(attributeNumber_);
+    glVertexAttribPointer(attributeNumber_, coordinateSize, GL_FLOAT, GL_FALSE, 0, 0);
+    vao_.attributes[type] = attributeNumber_++;
+}
+
 const Vao& VaoCreator::Get()
 {
     return vao_;

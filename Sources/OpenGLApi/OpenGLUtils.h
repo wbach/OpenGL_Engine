@@ -26,6 +26,7 @@ public:
     void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data);
     void AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<int32>& data);
     void AllocateDynamicAttribute(VertexBufferObjects type, uint32 coordinateSize, uint32 dataLength);
+    void AllocateDynamicAttribute(VertexBufferObjects type, uint32 coordinateSize);
     const Vao& Get();
 
 private:

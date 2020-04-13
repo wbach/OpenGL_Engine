@@ -156,6 +156,7 @@ OpenGLApi::OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi)
 
     renderTypeMap_ = {{GraphicsApi::RenderType::PATCHES, GL_PATCHES},
                       {GraphicsApi::RenderType::POINTS, GL_POINTS},
+                      {GraphicsApi::RenderType::LINES, GL_LINES},
                       {GraphicsApi::RenderType::TRIAGNLE_STRIP, GL_TRIANGLE_STRIP},
                       {GraphicsApi::RenderType::TRIANGLES, GL_TRIANGLES}};
 
@@ -880,6 +881,24 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     return rid;
 }
 
+GraphicsApi::ID OpenGLApi::CreateDynamicLineMesh()
+{
+    auto rid = impl_->idPool_.ToUint(0);
+    createdObjectIds.insert({rid, ObjectType::MESH});
+
+    openGlMeshes_.insert({rid, {}});
+    auto& mesh = openGlMeshes_.at(rid);
+
+    VaoCreator vaoCreator;
+    vaoCreator.SetSize(0);
+    vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::POSITION, 3);
+    vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::NORMAL, 3);
+
+    mesh            = Convert(vaoCreator.Get());
+    mesh.renderType = GraphicsApi::RenderType::LINES;
+    return rid;
+}
+
 GraphicsApi::ID OpenGLApi::CreateParticle()
 {
     auto rid = impl_->idPool_.ToUint(0);
@@ -964,6 +983,18 @@ void OpenGLApi::UpdateMatrixes(uint32 objectId, const std::vector<mat4>& mat)
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * mat.size(), &mat[0], GL_STREAM_DRAW);
 }
+void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mesh)
+{
+    auto& obj = openGlMeshes_.at(objectId);
+
+    obj.vertexCount = mesh.positions_.size();
+
+    glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.positions_.size(), &mesh.positions_[0], GL_STREAM_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.colors_.size(), &mesh.colors_[0], GL_STREAM_DRAW);
+}
 void OpenGLApi::UpdateOffset(uint32 objectId, const std::vector<vec4>& offset)
 {
     auto& obj = openGlMeshes_.at(objectId);
@@ -1007,11 +1038,11 @@ void OpenGLApi::RenderMesh(uint32 id)
 
     if (mesh.useIndiecies)
     {
-        glDrawElements(renderTypeMap_[mesh.renderType], mesh.vertexCount, GL_UNSIGNED_INT, 0);
+        glDrawElements(renderTypeMap_.at(mesh.renderType), mesh.vertexCount, GL_UNSIGNED_INT, 0);
     }
     else
     {
-        glDrawArrays(renderTypeMap_[mesh.renderType], 0, mesh.vertexCount);
+        glDrawArrays(renderTypeMap_.at(mesh.renderType), 0, mesh.vertexCount);
     }
 }
 

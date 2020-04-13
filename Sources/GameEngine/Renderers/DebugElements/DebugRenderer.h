@@ -59,12 +59,13 @@ public:
     virtual void Init() override;
     virtual void ReloadShaders() override;
     void Render(const Scene&, const Time&);
-    void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)>);
+    void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void AddDebugObject(Model&, common::Transform&);
     void Enable();
     void Disable();
 
 private:
+    void DrawPhysics(const mat4&);
     void CreateDebugObjects();
     void UpdateDebugObjectsIfNeeded();
     void DrawGrid();
@@ -78,12 +79,15 @@ private:
     Projection& projection_;
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
+    ShaderProgram lineShader_;
 
-    std::function<void(const mat4&, const mat4&)> physicsDebugDraw_;
+    std::function<const GraphicsApi::LineMesh&()> physicsDebugDraw_;
 
     std::vector<DebugObject> debugObjects_;
     std::vector<DebugObject*> toCreateDebugObjects_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
+
+    GraphicsApi::ID lineMeshId_;
 
     bool isActive_;
 };

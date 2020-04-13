@@ -49,6 +49,7 @@ public:
     MOCK_METHOD1(CreatePatchMesh, ID(const std::vector<float>&));
     MOCK_METHOD2(CreatePurePatchMeshInstanced, ID(uint32, uint32));
     MOCK_METHOD2(CreateMesh, ID(const MeshRawData&, RenderType type));
+    MOCK_METHOD0(CreateDynamicLineMesh, ID());
     MOCK_METHOD0(CreateParticle, ID());
     MOCK_METHOD0(CreateAnimatedParticle, ID());
     MOCK_METHOD3(Compute, void(uint32, uint32, uint32));
@@ -68,6 +69,7 @@ public:
     MOCK_METHOD0(PolygonModeRender, void());
     MOCK_METHOD0(LineModeRender, void());
     MOCK_METHOD1(SetBlendFunction, void(BlendFunctionType));
+    MOCK_METHOD2(UpdateLineMesh, void(uint32, const LineMesh&));
     MOCK_METHOD2(UpdateMatrixes, void(uint32, const std::vector<mat4>&));
     MOCK_METHOD2(UpdateOffset, void(uint32, const std::vector<vec4>&));
     MOCK_METHOD2(UpdateBlend, void(uint32, const std::vector<float>&));

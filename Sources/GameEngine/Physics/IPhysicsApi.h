@@ -2,6 +2,8 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <GraphicsApi/LineMesh.h>
+
 #include "Common/Transform.h"
 #include "ShapeType.h"
 #include "Types.h"
@@ -14,7 +16,7 @@ struct IPhysicsApi
 {
     virtual ~IPhysicsApi()                                                                      = default;
     virtual void Simulate()                                                                     = 0;
-    virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix)                = 0;
+    virtual const GraphicsApi::LineMesh& DebugDraw()                                            = 0;
     virtual void EnableSimulation()                                                             = 0;
     virtual void DisableSimulation()                                                            = 0;
     virtual void SetSimulationStep(float step)                                                  = 0;

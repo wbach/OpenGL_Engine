@@ -12,7 +12,7 @@ public:
     BachPhysicsAdapter();
     ~BachPhysicsAdapter();
     virtual void Simulate() override;
-    virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix) override;
+    virtual const GraphicsApi::LineMesh& DebugDraw() override;
     virtual void SetSimulationStep(float step) override;
     virtual void EnableSimulation() override;
     virtual void DisableSimulation() override;
@@ -37,6 +37,7 @@ public:
 private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
+    GraphicsApi::LineMesh lineMesh_;
 };
 }  // namespace Physics
 }  // namespace GameEngine

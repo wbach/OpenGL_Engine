@@ -1,4 +1,5 @@
 #include "Engine.h"
+
 #include "Configuration.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GraphicsApi/IGraphicsApi.h"
@@ -11,12 +12,13 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                SceneFactoryBasePtr sceneFactory)
     : graphicsApi_(std::move(graphicsApi))
     , physicsApi_(std::move(physicsApi))
-    , displayManager_(*graphicsApi_, EngineConf.window.name, EngineConf.window.size.x, EngineConf.window.size.y,
+    , displayManager_(
+          *graphicsApi_, EngineConf.window.name, EngineConf.window.size.x, EngineConf.window.size.y,
           EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW)
     , inputManager_(displayManager_.CreateInput())
     , renderersManager_(*graphicsApi_)
-    , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager_, *inputManager_,
-                    renderersManager_, guiContext_, [&](EngineEvent e) { AddEngineEvent(e); })
+    , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager_, *inputManager_, renderersManager_,
+                    guiContext_, [&](EngineEvent e) { AddEngineEvent(e); })
     , introRenderer_(*graphicsApi_, displayManager_)
     , isRunning_(true)
 {
@@ -105,8 +107,7 @@ void Engine::Init()
 {
     graphicsApi_->EnableDepthTest();
     renderersManager_.Init();
-    renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw([this](const mat4& viewMatrix, const mat4& projectionMatrix) {
-        physicsApi_->DebugDraw(viewMatrix, projectionMatrix);
-    });
+ //   renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw([this]() { return physicsApi_->DebugDraw(); });
+    renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw(std::bind(&Physics::IPhysicsApi::DebugDraw, physicsApi_.get()));
 }
 }  // namespace GameEngine

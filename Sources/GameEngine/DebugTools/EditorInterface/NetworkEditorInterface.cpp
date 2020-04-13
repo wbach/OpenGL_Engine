@@ -10,6 +10,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -28,7 +29,8 @@ namespace GameEngine
 namespace
 {
 std::unique_ptr<FirstPersonCamera> firstPersonCamera;
-}
+const std::string FPS_MEASURMENT_NAME{"NetworkEditorThreadFps"};
+}  // namespace
 
 class DragObject
 {
@@ -136,11 +138,16 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         Network::MessageTypes::Text,
         std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
+    EngineContext.measurements_.insert({FPS_MEASURMENT_NAME, "0"});
+
+    timeMeasurer_.AddOnTickCallback(
+        [&]() { EngineContext.measurements_.at(FPS_MEASURMENT_NAME) = std::to_string(timeMeasurer_.GetFps()); });
     networkThread_ = std::thread([&]() {
         DEBUG_LOG("Starting gateway thread");
 
         while (isRunning_.load())
         {
+            timeMeasurer_.StartFrame();
             gateway_.Update();
 
             // if (dragObject_)
@@ -157,7 +164,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         if (selectedGameObject_)
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-            arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(), selectedGameObject_->worldTransform.GetRotation());
+            arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(),
+                                                             selectedGameObject_->worldTransform.GetRotation());
             DEBUG_LOG("arrowsIndicatorTransform_ pos : " + std::to_string(arrowsIndicatorTransform_.GetPosition()));
             dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform,
                                                        scene_.camera, scene_.renderersManager_->GetProjection());

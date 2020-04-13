@@ -18,7 +18,7 @@ public:
     BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi);
     ~BulletAdapter();
     virtual void Simulate() override;
-    virtual void DebugDraw(const mat4& viewMatrix, const mat4& projectionMatrix) override;
+    virtual const GraphicsApi::LineMesh& DebugDraw() override;
     virtual void SetSimulationStep(float step) override;
     virtual void EnableSimulation() override;
     virtual void DisableSimulation() override;
@@ -46,6 +46,7 @@ private:
     float simulationStep_;
     bool simualtePhysics_;
     uint32 id_;
+    uint32 frameNumber_;
 };
 }  // namespace Physics
 }  // namespace GameEngine

@@ -40,9 +40,6 @@ public:
     void UnSubscribeAll(std::function<void()>);
     void SwapLineFaceRender();
 
-    void SetPhysicsDebugDraw(std::function<void(const mat4&, const mat4&)>);
-    void EnableDebugRenderer();
-    void DisableDebugRenderer();
     GUIRenderer& GetGuiRenderer();
     DebugRenderer& GetDebugRenderer();
     bool IsTesselationSupported() const;

@@ -1,27 +1,43 @@
 #include "DebugDrawer.h"
-#include "GraphicsApi/IGraphicsApi.h"
+
 #include "Converter.h"
 
 namespace GameEngine
 {
 namespace Physics
 {
-BulletDebugDrawer::BulletDebugDrawer(GraphicsApi::IGraphicsApi& graphicsApi)
-    : graphicsApi_(graphicsApi)
+BulletDebugDrawer::BulletDebugDrawer()
 {
 }
-void BulletDebugDrawer::SetMatrices(const mat4& viewMatrix, const mat4& projectionMatrix)
+BulletDebugDrawer::~BulletDebugDrawer()
 {
-    graphicsApi_.UseShader(0);
-    graphicsApi_.LoadViewMatrix(viewMatrix);
-    graphicsApi_.LoadProjectionMatrix(projectionMatrix);
+}
+void BulletDebugDrawer::clear()
+{
+    lastMeshSize_ = lineMesh_.positions_.size();
+    lineMesh_.colors_.clear();
+    lineMesh_.positions_.clear();
+    lineMesh_.positions_.reserve(lastMeshSize_);
+    lineMesh_.colors_.reserve(lastMeshSize_);
 }
 void BulletDebugDrawer::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color)
 {
-    graphicsApi_.DrawLine(Convert(color), Convert(from), Convert(to) );
+    lineMesh_.positions_.push_back(from.x());
+    lineMesh_.positions_.push_back(from.y());
+    lineMesh_.positions_.push_back(from.z());
+    lineMesh_.positions_.push_back(to.x());
+    lineMesh_.positions_.push_back(to.y());
+    lineMesh_.positions_.push_back(to.z());
+
+    lineMesh_.colors_.push_back(color.x());
+    lineMesh_.colors_.push_back(color.y());
+    lineMesh_.colors_.push_back(color.z());
+    lineMesh_.colors_.push_back(color.x());
+    lineMesh_.colors_.push_back(color.y());
+    lineMesh_.colors_.push_back(color.z());
+    // graphicsApi_.DrawLine(Convert(color), Convert(from), Convert(to));
 }
-void BulletDebugDrawer::drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int,
-                                                          const btVector3 &)
+void BulletDebugDrawer::drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &)
 {
 }
 void BulletDebugDrawer::reportErrorWarning(const char *)
@@ -30,13 +46,20 @@ void BulletDebugDrawer::reportErrorWarning(const char *)
 void BulletDebugDrawer::draw3dText(const btVector3 &, const char *)
 {
 }
-void BulletDebugDrawer::setDebugMode(int p)
+void BulletDebugDrawer::setDebugMode(int)
 {
-    m = p;
 }
 int BulletDebugDrawer::getDebugMode(void) const
 {
     return 3;
+}
+const GraphicsApi::LineMesh &BulletDebugDrawer::getMesh() const
+{
+    return lineMesh_;
+}
+void BulletDebugDrawer::SetNeedUpdateBuffer(bool v)
+{
+    lineMesh_.updateBufferNeeded = v;
 }
 }  // namespace Physics
 }  // namespace GameEngine

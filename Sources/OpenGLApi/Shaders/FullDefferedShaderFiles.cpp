@@ -35,6 +35,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/gridShader.frag"}
         }
     },
+   {
+        GraphicsApi::ShaderProgramType::Line,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/lineDebugShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/lineDebugShader.frag"}
+        }
+    },
     {
         GraphicsApi::ShaderProgramType::Grass,
         {
