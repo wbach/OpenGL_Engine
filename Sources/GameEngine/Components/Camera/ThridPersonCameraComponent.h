@@ -16,6 +16,7 @@ public:
 private:
     float zoomSpeed_;
     std::unique_ptr<ICamera> camera_;
+    vec3 offset_;
 
 public:
     static ComponentsType type;

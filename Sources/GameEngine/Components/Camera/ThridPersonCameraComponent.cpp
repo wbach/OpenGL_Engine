@@ -12,8 +12,9 @@ ComponentsType ThridPersonCameraComponent::type = ComponentsType::ThridPersonCam
 ThridPersonCameraComponent::ThridPersonCameraComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , zoomSpeed_(0.1f)
+    , offset_(0, 1.8f, 0)
 {
-    camera_     = std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.worldTransform);
+    camera_     = std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.worldTransform, offset_);
     auto ptrCam = camera_.get();
 
     componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL,

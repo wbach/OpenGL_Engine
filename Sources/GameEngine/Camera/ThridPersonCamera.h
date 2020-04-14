@@ -1,9 +1,6 @@
 #pragma once
-#include <list>
-
 #include "Camera.h"
 #include "Clock.hpp"
-#include "Mutex.hpp"
 
 namespace common
 {
@@ -20,7 +17,8 @@ namespace GameEngine
 class ThirdPersonCamera : public BaseCamera
 {
 public:
-    ThirdPersonCamera(Input::InputManager&, common::Transform&);
+    ThirdPersonCamera(Input::InputManager&, const common::Transform&);
+    ThirdPersonCamera(Input::InputManager&, const common::Transform&, const vec3&);
     ~ThirdPersonCamera() override;
     void Move() override;
     void CalculateInput() override;
@@ -30,7 +28,6 @@ public:
 
 private:
     void LockCamera();
-    void SetCaptureMouse(bool capture);
     void LockPitch();
     void LockYaw();
     void CalculateCameraPosition(float horizontalDistance, float verticalDistance);
@@ -43,15 +40,14 @@ private:
 
 private:
     Input::InputManager& inputManager_;
-    common::Transform& lookAtTransform_;
+    const common::Transform& lookAtTransform_;
     float angleAroundPlayer_;
     float distanceFromPlayer_;
 
-    bool isShowCursor;
-    vec3 offset;
-    float mousevel;
-    bool captureMouse;
+    vec3 offset_;
+    float mouseSensitivity_;
+    bool captureMouse_;
 
-    Utils::CClock clock;
+    Utils::CClock clock_;
 };
 }  // namespace GameEngine

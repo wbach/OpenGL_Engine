@@ -1,38 +1,31 @@
 #include "ThridPersonCamera.h"
 
-#include <algorithm>
-#include <cmath>
-
-#include "Common/Transform.h"
-#include "GLM/GLMUtils.h"
-#include "Input/InputManager.h"
-#include "Logger/Log.h"
-#include "Utils.h"
-
-#define DurationToFloatMs(x) std::chrono::duration<float, std::milli>(x).count()
+#include <Common/Transform.h>
+#include <GLM/GLMUtils.h>
+#include <Input/InputManager.h>
+#include <Logger/Log.h>
+#include <Utils.h>
 
 namespace GameEngine
 {
-ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, common::Transform& lookAt)
+ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const common::Transform& lookAt)
+    : ThirdPersonCamera(inputManager, lookAt, vec3(0))
+{
+}
+ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const common::Transform& lookAt,
+                                     const vec3& offset)
     : inputManager_(inputManager)
     , lookAtTransform_(lookAt)
     , angleAroundPlayer_(0.f)
     , distanceFromPlayer_(3.f)
-    , isShowCursor(false)
-    , offset(0.f, 1.8f, 0.f)
-    , mousevel(0.5f)
-    , captureMouse(true)
-    , clock(std::chrono::milliseconds(5))
+    , offset_(offset)
+    , mouseSensitivity_(.4f)
+    , clock_(std::chrono::milliseconds(5))
 {
     inputManager.SetReleativeMouseMode(true);
 }
 ThirdPersonCamera::~ThirdPersonCamera()
 {
-    inputManager_.ShowCursor(true);
-}
-void ThirdPersonCamera::SetCaptureMouse(bool capture)
-{
-    captureMouse = capture;
 }
 void ThirdPersonCamera::LockPitch()
 {
@@ -63,10 +56,10 @@ void ThirdPersonCamera::CalculateInput()
 
     inputManager_.ShowCursor(false);
 
-    if (!clock.OnTick())
+    if (!clock_.OnTick())
         return;
 
-    vec2 move = CalcualteMouseMove() * mousevel;
+    vec2 move = CalcualteMouseMove() * mouseSensitivity_;
     CalculatePitch(move);
     CalculateAngleAroundPlayer(move);
 }
@@ -92,7 +85,7 @@ void ThirdPersonCamera::CalculateCameraPosition(float horizontalDistance, float 
     pos.x = lookAtTransform_.GetPosition().x - xOffset;
     pos.y = lookAtTransform_.GetPosition().y + verticalDistance;
     pos.z = lookAtTransform_.GetPosition().z - zOffset;
-    pos += offset;
+    pos += offset_;
 
     SetPosition(pos);
 }
