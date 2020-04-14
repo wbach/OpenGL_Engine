@@ -66,6 +66,9 @@ public:
     void Enable();
     void Disable();
 
+    void EnablePhysics();
+    void DisablPhysics();
+
 private:
     void CreateDebugObjects();
     void UpdateDebugObjectsIfNeeded();

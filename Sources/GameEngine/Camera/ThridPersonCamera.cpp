@@ -1,6 +1,8 @@
 #include "ThridPersonCamera.h"
+
 #include <algorithm>
 #include <cmath>
+
 #include "Common/Transform.h"
 #include "GLM/GLMUtils.h"
 #include "Input/InputManager.h"
@@ -11,26 +13,22 @@
 
 namespace GameEngine
 {
-ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& input_manager, common::Transform& look_at)
-    : inputManager(input_manager)
-    , lookAt_(look_at)
+ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, common::Transform& lookAt)
+    : inputManager_(inputManager)
+    , lookAtTransform_(lookAt)
+    , angleAroundPlayer_(0.f)
+    , distanceFromPlayer_(3.f)
     , isShowCursor(false)
     , offset(0.f, 1.8f, 0.f)
     , mousevel(0.5f)
     , captureMouse(true)
-    , destinationYaw(0)
-    , destinationPitch(0)
-    , moveTime(.125f)
-    , destinationPosition(0)
-    , referenceTime(std::chrono::high_resolution_clock::now())
-    , distanceFromPlayer(2.f)
     , clock(std::chrono::milliseconds(5))
 {
     inputManager.SetReleativeMouseMode(true);
 }
 ThirdPersonCamera::~ThirdPersonCamera()
 {
-    inputManager.ShowCursor(true);
+    inputManager_.ShowCursor(true);
 }
 void ThirdPersonCamera::SetCaptureMouse(bool capture)
 {
@@ -38,23 +36,17 @@ void ThirdPersonCamera::SetCaptureMouse(bool capture)
 }
 void ThirdPersonCamera::LockPitch()
 {
-    if (destinationPitch > 90.0f)
-        destinationPitch = (90.0f);
-    if (destinationPitch < -90.0f)
-        destinationPitch = (-90.0f);
+    if (GetRotation().x > 90.f)
+        SetPitch(90.f);
+    if (GetRotation().x < -90.f)
+        SetPitch(-90.f);
 }
 void ThirdPersonCamera::LockYaw()
 {
-    if (destinationYaw < 0.0f)
-        destinationYaw += 360.0f;
-    if (destinationYaw > 360.0f)
-        destinationYaw -= 360.0f;
-}
-void ThirdPersonCamera::StaticCameraMove()
-{
-    SetPitch(destinationPitch);
-    SetYaw(destinationYaw);
-    SetPosition(destinationPosition);
+    if (GetRotation().y < 0.f)
+        IncreaseYaw(360.f);
+    if (GetRotation().y > 360.f)
+        IncreaseYaw(-360.f);
 }
 void ThirdPersonCamera::LockCamera()
 {
@@ -63,213 +55,85 @@ void ThirdPersonCamera::LockCamera()
 }
 void ThirdPersonCamera::CalculateInput()
 {
-    if (inputManager.GetKey(KeyCodes::LCTRL) or lock_)
+    if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
     {
-        inputManager.ShowCursor(true);
+        inputManager_.ShowCursor(true);
         return;
     }
 
-    inputManager.ShowCursor(false);
+    inputManager_.ShowCursor(false);
 
     if (!clock.OnTick())
         return;
 
-    vec2 d_move = CalcualteMouseMove() * mousevel;
-    CalculatePitch(d_move);
-    CalculateAngleAroundPlayer(d_move);
+    vec2 move = CalcualteMouseMove() * mousevel;
+    CalculatePitch(move);
+    CalculateAngleAroundPlayer(move);
 }
-float ThirdPersonCamera::GetTime() const
-{
-    auto currnet = std::chrono::high_resolution_clock::now() - referenceTime;
-    return DurationToFloatMs(currnet) / 1000.0f;
-}
-bool ThirdPersonCamera::FindState(CameraState state)
-{
-    return std::find(states_.begin(), states_.end(), state) != states_.end();
-}
-template <class T>
-T ThirdPersonCamera::ProcessState(CameraEvent<T>& stateInfo, const T& destination, float time, bool& remove)
-{
-    auto newValue = CalculateNewValueInTimeInterval<T>(stateInfo, time);
 
-    float dt             = (stateInfo.endTime - time) / moveTime;
-    stateInfo.startValue = newValue;
-    stateInfo.moveValue  = destination - stateInfo.startValue;
-    stateInfo.moveValue *= dt;
-    stateInfo.startTime = time;
-
-    if (time > stateInfo.endTime)
-        remove = true;
-    else
-        remove = false;
-
-    return newValue;
-}
-template <class T>
-void ThirdPersonCamera::ControlState(CameraEvent<T>& stateInfo, CameraState state, const T& startValue,
-                                     const T& destination, float time, bool use)
-{
-    if (!use)
-    {
-        if (!FindState(state))
-        {
-            states_.push_back(state);
-            stateInfo.startValue = startValue;
-            stateInfo.moveValue  = destination - stateInfo.startValue;
-            stateInfo.startTime  = GetTime();
-            stateInfo.endTime    = stateInfo.startTime + moveTime;
-        }
-    }
-    else
-    {
-        if (FindState(state))
-        {
-            if (time > stateInfo.endTime)
-            {
-                states_.remove(state);
-            }
-        }
-    }
-}
 void ThirdPersonCamera::Move()
 {
-    if (lock_) return;
+    if (lock_)
+        return;
 
-    lookAtPosition_  = lookAt_.GetSnapShoot().position;
-    lookAtRotataion_ = lookAt_.GetSnapShoot().rotation.GetEulerDegrees().value;
-
-    float horizontal_distance = CalculateHorizontalDistance();
-    float vertical_distance   = CalculateVerticalDistance();
-    CalculateCameraPosition(horizontal_distance, vertical_distance);
+    float horizontalDistance = CalculateHorizontalDistance();
+    float verticalDistance   = CalculateVerticalDistance();
+    CalculateCameraPosition(horizontalDistance, verticalDistance);
     CalculateYaw();
-
-    StaticCameraMove();
-    // SmoothCameraMove();
-
     LockCamera();
 }
-void ThirdPersonCamera::SmoothCameraMove()
+void ThirdPersonCamera::CalculateCameraPosition(float horizontalDistance, float verticalDistance)
 {
-    float time = GetTime();
+    float theata  = lookAtTransform_.GetRotation().GetEulerDegrees()->y + angleAroundPlayer_;
+    float xOffset = (float)(horizontalDistance * sin(glm::radians(theata)));
+    float zOffset = (float)(horizontalDistance * cos(glm::radians(theata)));
 
-    for (auto state = states_.begin(); state != states_.end();)
-    {
-        bool remove = false;
+    vec3 pos;
+    pos.x = lookAtTransform_.GetPosition().x - xOffset;
+    pos.y = lookAtTransform_.GetPosition().y + verticalDistance;
+    pos.z = lookAtTransform_.GetPosition().z - zOffset;
+    pos += offset;
 
-        switch (*state)
-        {
-            case CameraState::MOVING:
-            {
-                auto newPos = ProcessState<vec3>(moveStateInfo_, destinationPosition, time, remove);
-                SetPosition(newPos);
-                break;
-            }
-            case CameraState::ROTATE_PITCH:
-                break;
-            case CameraState::ROTATE_YAW:
-                break;
-            case CameraState::SHAKING:
-                break;
-        }
-
-        if (remove)
-        {
-            state = states_.erase(state);
-        }
-        else
-        {
-            ++state;
-        }
-    }
-
-    LookAt(lookAtPosition_);
-
-    ControlState<vec3>(moveStateInfo_, CameraState::MOVING, GetPosition(), destinationPosition, time,
-                       IsOnDestinationPos());
-}
-void ThirdPersonCamera::CalculateCameraPosition(float horizontal_distance, float vertical_distance)
-{
-    float theata   = lookAtRotataion_.y + angleAroundPlayer;
-    float x_offset = horizontal_distance * sinf(ToRadians(theata));
-    float z_offset = horizontal_distance * cosf(ToRadians(theata));
-
-    destinationPosition.x = lookAtPosition_.x - x_offset;
-    destinationPosition.y = lookAtPosition_.y + vertical_distance;
-    destinationPosition.z = lookAtPosition_.z - z_offset;
-    destinationPosition += offset;
+    SetPosition(pos);
 }
 float ThirdPersonCamera::CalculateHorizontalDistance()
 {
-    return distanceFromPlayer * cosf(ToRadians(destinationPitch));
+    return distanceFromPlayer_ * cosf(glm::radians(GetRotation().x));
 }
 float ThirdPersonCamera::CalculateVerticalDistance()
 {
-    return distanceFromPlayer * sinf(ToRadians(destinationPitch));
+    return distanceFromPlayer_ * sinf(glm::radians(GetRotation().x));
 }
 void ThirdPersonCamera::CalculateYaw()
 {
-    destinationYaw = 180 - (lookAtRotataion_.y + angleAroundPlayer);
+    SetYaw(180.f - (lookAtTransform_.GetRotation().GetEulerDegrees()->y + angleAroundPlayer_));
 }
-void ThirdPersonCamera::CalculateZoom(float zoom_lvl)
+void ThirdPersonCamera::CalculateZoom(float v)
 {
-    this->distanceFromPlayer += zoom_lvl;
+    distanceFromPlayer_ += v;
 }
 void ThirdPersonCamera::Lock()
 {
     BaseCamera::Lock();
-    inputManager.SetReleativeMouseMode(false);
+    inputManager_.SetReleativeMouseMode(false);
 }
 void ThirdPersonCamera::Unlock()
 {
     BaseCamera::Unlock();
-    inputManager.SetReleativeMouseMode(true);
+    inputManager_.SetReleativeMouseMode(true);
 }
 vec2 ThirdPersonCamera::CalcualteMouseMove()
 {
-    auto v = inputManager.CalcualteMouseMove();
+    auto v = inputManager_.CalcualteMouseMove();
     return vec2(v.x, v.y);
 }
-void ThirdPersonCamera::CalculatePitch(const vec2& d_move)
+void ThirdPersonCamera::CalculatePitch(const vec2& mouseMove)
 {
-    destinationPitch = destinationPitch + d_move.y;
+    SetPitch(GetPitch() + mouseMove.y);
 }
 
-void ThirdPersonCamera::CalculateAngleAroundPlayer(const vec2& d_move)
+void ThirdPersonCamera::CalculateAngleAroundPlayer(const vec2& mouseMove)
 {
-    float angle_change = d_move.x;
-    angleAroundPlayer -= angle_change;
-}
-
-bool ThirdPersonCamera::IsOnDestinationPos()
-{
-    auto l = glm::length(GetPosition() - destinationPosition);
-    return l < 0.1f;
-}
-
-bool ThirdPersonCamera::IsOnDestinationPitch()
-{
-    auto l = GetYaw() - destinationYaw;
-
-    return fabsf(l) < 0.1f;
-}
-
-bool ThirdPersonCamera::IsOnDestinationYaw()
-{
-    auto l = GetPitch() - destinationPitch;
-
-    return fabsf(l) < 0.1f;
-}
-
-template <class T>
-T ThirdPersonCamera::CalculateNewValueInTimeInterval(const CameraEvent<T>& t, float time) const
-{
-    float totalMoveTime = t.endTime - t.startTime;
-
-    if (fabsf(totalMoveTime) < FLT_EPSILON)
-    {
-        return t.startValue;
-    }
-
-    return t.startValue + t.moveValue * (time - t.startTime) / totalMoveTime;
+    angleAroundPlayer_ -= mouseMove.x;
 }
 }  // namespace GameEngine

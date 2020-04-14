@@ -139,6 +139,16 @@ void DebugRenderer::Disable()
     isActive_ = false;
 }
 
+void DebugRenderer::EnablePhysics()
+{
+    physicsVisualizator_.Enable();
+}
+
+void DebugRenderer::DisablPhysics()
+{
+    physicsVisualizator_.Disable();
+}
+
 void DebugRenderer::CreateDebugObjects()
 {
     for (auto iter = toCreateDebugObjects_.begin(); iter != toCreateDebugObjects_.end();)

@@ -1,5 +1,6 @@
 #include "ThreadSync.h"
 #include "GameEngine/Engine/EngineContext.h"
+#include <algorithm>
 
 namespace Utils
 {

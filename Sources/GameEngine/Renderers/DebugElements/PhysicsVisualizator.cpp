@@ -69,6 +69,16 @@ void PhysicsVisualizator::ReloadShader()
     shader_.Reload();
 }
 
+void PhysicsVisualizator::Enable()
+{
+    isActive_ = true;
+}
+
+void PhysicsVisualizator::Disable()
+{
+    isActive_ = false;
+}
+
 void PhysicsVisualizator::UpdatePhycisLineMesh()
 {
     if (frameRefreshNumber_ > refreshRateStepDown_)

@@ -22,6 +22,8 @@ public:
     void Render();
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void ReloadShader();
+    void Enable();
+    void Disable();
 
 private:
     void UpdatePhycisLineMesh();
