@@ -4,6 +4,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "PhysicsVisualizator.h"
 
 namespace common
 {
@@ -53,11 +54,12 @@ typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
 class DebugRenderer : public IRenderer
 {
 public:
-    DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection);
+    DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi);
     ~DebugRenderer();
 
-    virtual void Init() override;
-    virtual void ReloadShaders() override;
+    void Init() override;
+    void ReloadShaders() override;
+
     void Render(const Scene&, const Time&);
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void AddDebugObject(Model&, common::Transform&);
@@ -65,30 +67,23 @@ public:
     void Disable();
 
 private:
-    void DrawPhysics(const mat4&);
     void CreateDebugObjects();
     void UpdateDebugObjectsIfNeeded();
     void DrawGrid();
     void DrawDebugObjects();
     void RenderModel(const Model&) const;
     void BindMeshBuffers(const Mesh&) const;
-    void RenderMesh(const Mesh&) const;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    Projection& projection_;
+    PhysicsVisualizator physicsVisualizator_;
+
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
-    ShaderProgram lineShader_;
-
-    std::function<const GraphicsApi::LineMesh&()> physicsDebugDraw_;
 
     std::vector<DebugObject> debugObjects_;
     std::vector<DebugObject*> toCreateDebugObjects_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
-
-    GraphicsApi::ID lineMeshId_;
-
     bool isActive_;
 };
 

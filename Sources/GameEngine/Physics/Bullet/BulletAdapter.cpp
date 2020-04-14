@@ -85,7 +85,6 @@ BulletAdapter::BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi)
     : simulationStep_(1.f / 60.f)
     , simualtePhysics_(true)
     , id_(1)
-    , frameNumber_(0)
 {
     impl_.reset(new Pimpl(graphicsApi));
 }
@@ -114,30 +113,17 @@ void BulletAdapter::Simulate()
         auto& transform = impl_->transforms.at(pair.first);
         auto& rigidbody = pair.second;
 
-        auto newPosition       = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
+        auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
 
         Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
-        transform->SetPositionAndRotation(Convert(newPosition), newRotation * glm::angleAxis(glm::radians(180.f), vec3(0.f, 0.f, 1.f)));
+        transform->SetPositionAndRotation(Convert(newPosition),
+                                          newRotation * glm::angleAxis(glm::radians(180.f), vec3(0.f, 0.f, 1.f)));
     }
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
 {
-    const uint32 updateFpsDevider = 4;
-    
-    if (frameNumber_ >= updateFpsDevider)
-        frameNumber_ = 0;
-
-    if (frameNumber_ == 0)
-    {
-        impl_->bulletDebugDrawer_->clear();
-        impl_->btDynamicWorld->debugDrawWorld();
-        impl_->bulletDebugDrawer_->SetNeedUpdateBuffer(true);
-    }
-    else
-    {
-        impl_->bulletDebugDrawer_->SetNeedUpdateBuffer(false);
-    }
-    ++frameNumber_;
+    impl_->bulletDebugDrawer_->clear();
+    impl_->btDynamicWorld->debugDrawWorld();
     return impl_->bulletDebugDrawer_->getMesh();
 }
 void BulletAdapter::DisableSimulation()

@@ -35,7 +35,6 @@ void BulletDebugDrawer::drawLine(const btVector3 &from, const btVector3 &to, con
     lineMesh_.colors_.push_back(color.x());
     lineMesh_.colors_.push_back(color.y());
     lineMesh_.colors_.push_back(color.z());
-    // graphicsApi_.DrawLine(Convert(color), Convert(from), Convert(to));
 }
 void BulletDebugDrawer::drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &)
 {
@@ -56,10 +55,6 @@ int BulletDebugDrawer::getDebugMode(void) const
 const GraphicsApi::LineMesh &BulletDebugDrawer::getMesh() const
 {
     return lineMesh_;
-}
-void BulletDebugDrawer::SetNeedUpdateBuffer(bool v)
-{
-    lineMesh_.updateBufferNeeded = v;
 }
 }  // namespace Physics
 }  // namespace GameEngine

@@ -20,7 +20,6 @@ public:
     void setDebugMode(int p) override;
     int getDebugMode(void) const override;
     const GraphicsApi::LineMesh& getMesh() const;
-    void SetNeedUpdateBuffer(bool);
 
 private:
     GraphicsApi::LineMesh lineMesh_;

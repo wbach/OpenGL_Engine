@@ -70,6 +70,8 @@ bool Subscriber::IsStarted() const
 ThreadSync::ThreadSync()
     : printedThreadsCountText_("Threads count")
 {
+    const auto processorCount = std::thread::hardware_concurrency();
+    DEBUG_LOG("System procesors count : " + std::to_string(processorCount));
 }
 
 uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)

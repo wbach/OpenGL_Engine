@@ -46,7 +46,6 @@ private:
     float simulationStep_;
     bool simualtePhysics_;
     uint32 id_;
-    uint32 frameNumber_;
 };
 }  // namespace Physics
 }  // namespace GameEngine

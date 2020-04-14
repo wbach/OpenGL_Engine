@@ -59,12 +59,11 @@ void DebugObject::BindBuffer() const
     }
 }
 
-DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Projection& projection)
+DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
-    , projection_(projection)
+    , physicsVisualizator_(graphicsApi)
     , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
-    , lineShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
     , isActive_(false)
 {
 }
@@ -78,7 +77,7 @@ void DebugRenderer::Init()
 {
     debugObjectShader_.Init();
     gridShader_.Init();
-    lineShader_.Init();
+    physicsVisualizator_.Init();
 
     gridPerObjectUpdateBufferId_ =
         graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
@@ -94,17 +93,16 @@ void DebugRenderer::Init()
     {
         ERROR_LOG("gridPerObjectUpdateBufferId_ error!");
     }
-
-    lineMeshId_ = graphicsApi_.CreateDynamicLineMesh();
 }
 
 void DebugRenderer::ReloadShaders()
 {
     debugObjectShader_.Reload();
     gridShader_.Reload();
+    physicsVisualizator_.ReloadShader();
 }
 
-void DebugRenderer::Render(const Scene& scene, const Time&)
+void DebugRenderer::Render(const Scene&, const Time&)
 {
     if (not isActive_)
         return;
@@ -114,15 +112,15 @@ void DebugRenderer::Render(const Scene& scene, const Time&)
 
     DrawGrid();
     DrawDebugObjects();
-    DrawPhysics(scene.GetCamera().GetViewMatrix());
+    physicsVisualizator_.Render();
 
     graphicsApi_.EnableCulling();
     graphicsApi_.DisableBlend();
 }
 
-void GameEngine::DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
+void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
 {
-    physicsDebugDraw_ = func;
+    physicsVisualizator_.SetPhysicsDebugDraw(func);
 }
 
 void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)
@@ -139,26 +137,6 @@ void DebugRenderer::Enable()
 void DebugRenderer::Disable()
 {
     isActive_ = false;
-}
-
-void DebugRenderer::DrawPhysics(const mat4& viewMatrix)
-{
-    if (physicsDebugDraw_ and lineMeshId_)
-    {
-        const auto& lineMesh = physicsDebugDraw_();
-
-        if (not lineMesh.positions_.empty() and not lineMesh.colors_.empty())
-        {
-            if (lineMesh.updateBufferNeeded)
-            {
-                graphicsApi_.UpdateLineMesh(*lineMeshId_, lineMesh);
-            }
-
-            lineShader_.Start();
-            graphicsApi_.RenderMesh(*lineMeshId_);
-            lineShader_.Stop();
-        }
-    }
 }
 
 void DebugRenderer::CreateDebugObjects()
@@ -217,7 +195,7 @@ void DebugRenderer::RenderModel(const Model& model) const
     for (const auto& mesh : model.GetMeshes())
     {
         BindMeshBuffers(mesh);
-        RenderMesh(mesh);
+        graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
     }
 }
 
@@ -228,10 +206,5 @@ void DebugRenderer::BindMeshBuffers(const Mesh& mesh) const
     {
         graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);
     }
-}
-
-void DebugRenderer::RenderMesh(const Mesh& mesh) const
-{
-    graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
 }
 }  // namespace GameEngine

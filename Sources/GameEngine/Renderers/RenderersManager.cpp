@@ -43,7 +43,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
-    , debugRenderer_(graphicsApi, projection_)
+    , debugRenderer_(graphicsApi)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
 {
