@@ -1,6 +1,15 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include <atomic>
+
+namespace Utils
+{
+namespace Thread
+{
+class Worker;
+}
+}  // namespace Utils
 
 namespace GameEngine
 {
@@ -8,6 +17,7 @@ class PhysicsVisualizator
 {
 public:
     PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi);
+    ~PhysicsVisualizator();
     void Init();
     void Render();
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
@@ -15,6 +25,7 @@ public:
 
 private:
     void UpdatePhycisLineMesh();
+    void UpdatePhysicsByWorker();
     bool IsReady() const;
 
 private:
@@ -30,5 +41,9 @@ private:
     bool isActive_;
 
     uint32 frameRefreshNumber_;
+    Utils::Thread::Worker* worker_;
+    std::atomic_bool isUpdated_;
+    const GraphicsApi::LineMesh* lineMesh_;
+    bool useWorkerToUpdate_;
 };
 }  // namespace GameEngine

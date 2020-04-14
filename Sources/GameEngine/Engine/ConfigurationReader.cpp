@@ -104,6 +104,31 @@ void Read(Utils::XmlNode& node, Params::Files& files)
     files.shaders                 = GetShaderLocationFromString(node.GetChild(CSTR_SHADER_LOCATION)->value_);
     files.requiredFilesOutputFile = node.GetChild(CSTR_REQUIRED_FILE_OUTPUT)->value_;
 }
+
+void Read(Utils::XmlNode* node, Params::PhysicsVisualizatorParams& params)
+{
+    if (not node)
+        return;
+
+    if (node->attributes_.count(CSTR_USE_WORKER) > 0)
+    {
+        params.useWorkredToUpdatePhysicsVisualization_ = Utils::StringToBool(node->attributes_.at(CSTR_USE_WORKER));
+    }
+
+    if (node->attributes_.count(CSTR_REFRESH_STEP_DOWN) > 0)
+    {
+        params.refreshRateStepDown_ = static_cast<uint32>(Utils::StringToInt(node->attributes_.at(CSTR_REFRESH_STEP_DOWN)));
+    }
+}
+
+void Read(Utils::XmlNode* node, Params::DebugParams& params)
+{
+    if (not node)
+        return;
+
+    Read(node->GetChild(CSTR_PHYSICS_VISUALIZATION_PARAMS), params.physicsVisualizator);
+}
+
 void ReadConfiguration(Configuration& configuration, const std::string& filename)
 {
     Utils::XmlReader xmlReader;
@@ -114,6 +139,7 @@ void ReadConfiguration(Configuration& configuration, const std::string& filename
     Read(*xmlReader.Get(CSTR_SOUND), configuration.sound);
     Read(*xmlReader.Get(CSTR_FILES), configuration.files);
     Read(*xmlReader.Get(CSTR_RENDERER), configuration.renderer);
+    Read(xmlReader.Get(CSTR_DEBUG_PARAMS), configuration.debugParams);
     EngineConf.useBinaryLoading = Utils::StringToBool(xmlReader.Get(CSTR_ENABLE_BINARY_LOADING)->value_);
 }
 }  // namespace GameEngine

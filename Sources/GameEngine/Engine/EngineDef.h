@@ -61,3 +61,7 @@ extern const std::string CSTR_TERRAIN;
 extern const std::string CSTR_TERRAIN_RENDERER_TYPE;
 // Other
 extern const std::string CSTR_ENABLE_BINARY_LOADING;
+extern const std::string CSTR_DEBUG_PARAMS;
+extern const std::string CSTR_PHYSICS_VISUALIZATION_PARAMS;
+extern const std::string CSTR_REFRESH_STEP_DOWN;
+extern const std::string CSTR_USE_WORKER;

@@ -22,8 +22,8 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& input_manager, common:
     , destinationPitch(0)
     , moveTime(.125f)
     , destinationPosition(0)
-    , distanceFromPlayer(2.f)
     , referenceTime(std::chrono::high_resolution_clock::now())
+    , distanceFromPlayer(2.f)
     , clock(std::chrono::milliseconds(5))
 {
     inputManager.SetReleativeMouseMode(true);

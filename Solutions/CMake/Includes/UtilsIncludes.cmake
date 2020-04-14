@@ -2,6 +2,7 @@ set(UtilsIncludes
 ../../Sources/Utils/GLM/GLMUtils.h
 ../../Sources/Utils/Types.h
 ../../Sources/Utils/Pathes.h
+../../Sources/Utils/ThreadSubscriber.h
 ../../Sources/Utils/ParseUtils.h
 ../../Sources/Utils/Glm.h
 ../../Sources/Utils/Time/Timer.h
@@ -14,6 +15,7 @@ set(UtilsIncludes
 ../../Sources/Utils/Logger/Log.h
 ../../Sources/Utils/EngineUitls.h
 ../../Sources/Utils/SingleTon.h
+../../Sources/Utils/Worker.h
 ../../Sources/Utils/XML/XMLUtils.h
 ../../Sources/Utils/XML/XmlNode.h
 ../../Sources/Utils/XML/SceneReader.h

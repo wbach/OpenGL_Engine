@@ -306,6 +306,23 @@ vec4 ToVec4(const vec3& v3);
 vec4 ToVec4(const vec3& v3, float w);
 vec4 ToVec4(const vec2& v2, float z, float w);
 
+struct MeasurementValue
+{
+    MeasurementValue() = default;
+    MeasurementValue(const std::string& v)
+        : value(v)
+    {}
+    MeasurementValue(const MeasurementValue&) = delete;
+    MeasurementValue(MeasurementValue&&)      = delete;
+
+    void operator=(const std::string& value)
+    {
+        this->value = value;
+    }
+
+    std::string value;
+};
+
 namespace std
 {
 std::string to_string(const vec2&);

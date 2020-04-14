@@ -59,12 +59,15 @@ struct BulletAdapter::Pimpl
     std::unordered_map<uint32, common::Transform*> transforms;
     std::unordered_map<uint32, Shape> shapes_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    std::mutex worldMutex_;
 };
 void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody)
 {
     target.insert({id, std::move(newBody)});
     auto& body = target.at(id).btRigidbody_;
     body->setUserIndex(-1);
+
+    std::lock_guard<std::mutex> lk(worldMutex_);
     btDynamicWorld->addRigidBody(body.get());
     btDynamicWorld->updateSingleAabb(body.get());
 }
@@ -77,7 +80,10 @@ void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>
 
     auto& rigidbody = target.at(id);
     shapes_.erase(rigidbody.shapeId);
-    btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
+    {
+        std::lock_guard<std::mutex> lk(worldMutex_);
+        btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
+    }
     rigidBodies.erase(id);
     transforms.erase(id);
 }
@@ -123,7 +129,10 @@ void BulletAdapter::Simulate()
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
 {
     impl_->bulletDebugDrawer_->clear();
-    impl_->btDynamicWorld->debugDrawWorld();
+    {
+        std::lock_guard<std::mutex> lk(impl_->worldMutex_);
+        impl_->btDynamicWorld->debugDrawWorld();
+    }
     return impl_->bulletDebugDrawer_->getMesh();
 }
 void BulletAdapter::DisableSimulation()

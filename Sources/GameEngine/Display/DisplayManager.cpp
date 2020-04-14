@@ -1,15 +1,17 @@
 #include "DisplayManager.hpp"
+#include <Input/InputManager.h>
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "Logger/Log.h"
-#include <Input/InputManager.h>
 
 namespace GameEngine
 {
-namespace  {
+namespace
+{
 const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
 }
-DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w, const int& h, GraphicsApi::WindowType type)
+DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w,
+                               const int& h, GraphicsApi::WindowType type)
     : graphicsApi_(api)
     , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
     , sync(true)
@@ -24,10 +26,12 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
     graphicsApi_.CreateContext();
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
-    EngineContext.measurements_.insert({FPS_ENGINE_CONTEXT, "0"});
-    timeMeasurer.AddOnTickCallback([this]() {
-        time_.fps = static_cast<float>(timeMeasurer.GetFps());
-        EngineContext.measurements_.at(FPS_ENGINE_CONTEXT) = std::to_string(timeMeasurer.GetFps());
+
+    auto& measurmentValue = EngineContext.AddNewMeasurment(FPS_ENGINE_CONTEXT);
+
+    timeMeasurer.AddOnTickCallback([this, &measurmentValue]() {
+        time_.fps       = static_cast<float>(timeMeasurer.GetFps());
+        measurmentValue = std::to_string(timeMeasurer.GetFps());
     });
 }
 

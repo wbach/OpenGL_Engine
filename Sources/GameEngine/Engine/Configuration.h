@@ -7,6 +7,7 @@
 #include "SingleTon.h"
 #include "Utils.h"
 #include "ConfigurationParams/TerrainParam/TerrainParam.h"
+#include "ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h"
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
 const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
@@ -78,6 +79,11 @@ struct Textures
     bool useSpecular = true;
 };
 
+struct DebugParams
+{
+    PhysicsVisualizatorParams physicsVisualizator;
+};
+
 struct Renderer
 {
     std::string graphicsApi        = "OpenGL";
@@ -102,6 +108,7 @@ struct Configuration
     Params::Sound sound;
     Params::Window window;
     Params::Renderer renderer;
+    Params::DebugParams debugParams;
     bool useBinaryLoading = false;
 };
 

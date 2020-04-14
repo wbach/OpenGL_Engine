@@ -26,9 +26,9 @@ GuiEngineContextManger::~GuiEngineContextManger()
 
 void GuiEngineContextManger::Update()
 {
-    for (const auto& measurment : EngineContext.measurements_)
+    for (const auto& measurment : EngineContext.GetMeasurments())
     {
-        auto printedText = measurment.first + " : " + measurment.second;
+        auto printedText = measurment.first + " : " + measurment.second.value;
 
         if (guiTexts_.count(measurment.first) == 0)
         {

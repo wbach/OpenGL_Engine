@@ -1,4 +1,7 @@
 #include "PhysicsVisualizator.h"
+#include <Utils/ThreadSync.h>
+#include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -8,13 +11,30 @@ PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi)
     , refreshRateStepDown_(1)
     , isActive_(true)
     , frameRefreshNumber_(0)
+    , worker_(nullptr)
+    , isUpdated_(true)
 {
+}
+
+PhysicsVisualizator::~PhysicsVisualizator()
+{
+    if (worker_)
+    {
+        EngineContext.threadSync_.RemoveWorker(*worker_);
+        worker_ = nullptr;
+    }
 }
 
 void PhysicsVisualizator::Init()
 {
+    useWorkerToUpdate_ = EngineConf.debugParams.physicsVisualizator.useWorkredToUpdatePhysicsVisualization_;
+    refreshRateStepDown_ = EngineConf.debugParams.physicsVisualizator.refreshRateStepDown_;
+
     shader_.Init();
     lineMeshId_ = graphicsApi_.CreateDynamicLineMesh();
+
+    if (useWorkerToUpdate_)
+        worker_ = &EngineContext.threadSync_.AddWorker();
 }
 
 void PhysicsVisualizator::Render()
@@ -22,7 +42,14 @@ void PhysicsVisualizator::Render()
     if (not isActive_ or not IsReady())
         return;
 
-    UpdatePhycisLineMesh();
+    if (useWorkerToUpdate_)
+    {
+        UpdatePhysicsByWorker();
+    }
+    else
+    {
+        UpdatePhycisLineMesh();
+    }
 
     if (physicsLineMeshReady_)
     {
@@ -59,6 +86,34 @@ void PhysicsVisualizator::UpdatePhycisLineMesh()
     else
     {
         ++frameRefreshNumber_;
+    }
+}
+
+void PhysicsVisualizator::UpdatePhysicsByWorker()
+{
+    if (not isUpdated_.load())
+        return;
+
+    auto task = [&]() {
+        lineMesh_ = &physicsDebugDraw_();
+
+        if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
+        {
+            physicsLineMeshReady_ = true;
+        }
+    };
+
+    auto callback = [&]() { isUpdated_.store(true); };
+
+    if (physicsLineMeshReady_)
+    {
+        graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
+    }
+
+    if (worker_)
+    {
+        isUpdated_.store(false);
+        worker_->AddTask(task, callback);
     }
 }
 

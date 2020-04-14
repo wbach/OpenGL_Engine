@@ -3,6 +3,7 @@ set(UtilsSources
 ../../Sources/Utils/ThreadSync.cpp
 ../../Sources/Utils/GLM/GLMUtils.cpp
 ../../Sources/Utils/md5.cpp
+../../Sources/Utils/Worker.cpp
 ../../Sources/Utils/Utils.cpp
 ../../Sources/Utils/Time/TimeMeasurer.cpp
 ../../Sources/Utils/Time/Timer.cpp
@@ -17,5 +18,6 @@ set(UtilsSources
 ../../Sources/Utils/XML/SerializedMethods.cpp
 ../../Sources/Utils/XML/XmlWriter.cpp
 ../../Sources/Utils/EngineUitls.cpp
+../../Sources/Utils/ThreadSubscriber.cpp
 ../../Sources/Utils/Image/ImageUtils.cpp
 )

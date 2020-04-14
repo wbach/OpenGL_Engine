@@ -50,6 +50,7 @@ private:
 
 private:
     RendererContext& context_;
+    MeasurementValue* measurementValue_;
     ShaderProgram shader_;
     std::vector<std::pair<uint32_t, Subscriber>> subscribes_;
 };

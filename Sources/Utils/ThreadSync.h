@@ -3,55 +3,46 @@
 #include <iostream>
 #include <unordered_map>
 #include "Logger/Log.h"
+#include "Mutex.hpp"
 #include "Thread.hpp"
 #include "Time/TimeMeasurer.h"
 #include "Types.h"
+#include "Time/Timer.h"
+#include "Worker.h"
+#include "ThreadSubscriber.h"
 
 namespace Utils
 {
 namespace Thread
 {
-typedef std::function<void(float deltaTime)> frameFunc;
-
-class Subscriber
-{
-public:
-    Subscriber(const std::string& label, frameFunc func);
-    Subscriber(const Subscriber& s) = delete;
-    ~Subscriber();
-
-    void Start();
-    void Stop();
-    void Update();
-    void PrintFps();
-    bool IsStarted() const;
-
-private:
-    frameFunc func;
-    std::thread thread;
-    std::atomic_bool isRunning;
-    Time::CTimeMeasurer timeMeasurer;
-    std::string label_;
-    std::string printedFpsLabel_;
-};
-
 class ThreadSync
 {
 public:
-    ThreadSync();
+    ThreadSync(std::function<MeasurementValue&(const std::string&)>);
+    ThreadSync(const ThreadSync&) = delete;
+    ThreadSync(ThreadSync&&)      = delete;
+    ~ThreadSync();
+
     uint32 Subscribe(frameFunc func, const std::string& label = "unnamed");
-    Subscriber* GetSubscriber(uint32);
+    ThreadSubscriber* GetSubscriber(uint32);
     void Unsubscribe(uint32 id);
     void Start();
     void Stop();
+
+    Worker& AddWorker();
+    void RemoveWorker(Worker&);
 
 private:
     void UpdateThreadsCountText();
 
 private:
-    std::unordered_map<uint32, Subscriber> subscribers;
-    uint32 idPool_ = 0;
-    std::string printedThreadsCountText_;
+    std::function<MeasurementValue&(const std::string&)> addMeasurment_;
+    MeasurementValue& measurementValue_;
+    std::unordered_map<uint32, ThreadSubscriber> subscribers;
+    std::list<Worker> workers_;
+    uint32 idPool_         = 0;
+    uint32 processorCount_ = 0;
 };
+
 }  // namespace Thread
 }  // namespace Utils

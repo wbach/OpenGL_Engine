@@ -5,84 +5,30 @@ namespace Utils
 {
 namespace Thread
 {
-Subscriber::Subscriber(const std::string& label, frameFunc func)
-    : func(func)
-    , isRunning(false)
-    , label_(label)
+ThreadSync::ThreadSync(std::function<MeasurementValue&(const std::string&)> addMeasurment)
+    : addMeasurment_(addMeasurment)
+    , measurementValue_(addMeasurment_("Threads count"))
 {
-    Start();
+    measurementValue_ = "1";
+
+    processorCount_ = std::thread::hardware_concurrency();
+    DEBUG_LOG("System procesors count : " + std::to_string(processorCount_));
 }
 
-Subscriber::~Subscriber()
+ThreadSync::~ThreadSync()
 {
-    DEBUG_LOG("");
     Stop();
-}
-
-void Subscriber::Start()
-{
-    DEBUG_LOG("Start \"" + label_ + "\",  thread.");
-    isRunning.store(true);
-    thread = std::thread(std::bind(&Subscriber::Update, this));
-    timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
-
-    printedFpsLabel_ = label_ + "Fps";
-    if (EngineContext.measurements_.count(printedFpsLabel_) == 0)
-    {
-        EngineContext.measurements_.insert({printedFpsLabel_, "0"});
-    }
-}
-
-void Subscriber::Stop()
-{
-    if (not isRunning.load())
-        return;
-
-    EngineContext.measurements_.at(printedFpsLabel_) = "disabled";
-
-    isRunning.store(false);
-    thread.join();
-}
-
-void Subscriber::Update()
-{
-    while (isRunning.load())
-    {
-        timeMeasurer.StartFrame();
-        float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
-        func(deltaTime);
-        timeMeasurer.EndFrame();
-    }
-
-    DEBUG_LOG("End \"" + label_ + "\",  thread.");
-}
-
-void Subscriber::PrintFps()
-{
-    EngineContext.measurements_.at(printedFpsLabel_) = std::to_string(timeMeasurer.GetFps());
-}
-
-bool Subscriber::IsStarted() const
-{
-    return isRunning.load();
-}
-
-ThreadSync::ThreadSync()
-    : printedThreadsCountText_("Threads count")
-{
-    const auto processorCount = std::thread::hardware_concurrency();
-    DEBUG_LOG("System procesors count : " + std::to_string(processorCount));
 }
 
 uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)
 {
     auto id = idPool_++;
-    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func));
+    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, addMeasurment_));
     UpdateThreadsCountText();
     return id;
 }
 
-Subscriber* ThreadSync::GetSubscriber(uint32 id)
+ThreadSubscriber* ThreadSync::GetSubscriber(uint32 id)
 {
     if (subscribers.count(id) > 0)
         return &subscribers.at(id);
@@ -118,15 +64,29 @@ void ThreadSync::Stop()
         s.second.Stop();
 }
 
+Worker& ThreadSync::AddWorker()
+{
+    workers_.emplace_back();
+    auto& worker = workers_.back();
+    worker.id_   = Subscribe([&worker](float dt) { worker.Work(dt); }, "Worker");
+    return worker;
+}
+
+void ThreadSync::RemoveWorker(Worker& worker)
+{
+    Unsubscribe(worker.id_);
+
+    auto iter = std::find_if(workers_.begin(), workers_.end(),
+                             [id = worker.id_](const Worker& worker) { return worker.id_ == id; });
+
+    if (iter != workers_.end())
+        workers_.erase(iter);
+}
+
 void ThreadSync::UpdateThreadsCountText()
 {
     // + 1 (Renderer Thread)
-    if (EngineContext.measurements_.count(printedThreadsCountText_) == 0)
-    {
-        EngineContext.measurements_.insert({printedThreadsCountText_, "1"});
-    }
-    EngineContext.measurements_.at(printedThreadsCountText_) = std::to_string(subscribers.size() + 1);
+    measurementValue_ = std::to_string(subscribers.size() + 1) + "/" + std::to_string(processorCount_);
 }
-
 }  // namespace Thread
 }  // namespace Utils

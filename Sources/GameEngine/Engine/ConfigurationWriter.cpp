@@ -85,6 +85,15 @@ void Create(XmlNode& node, const Params::Sound& param)
     node.attributes_[CSTR_SOUND_ENABLED] = std::to_string(param.isEnabled);
     node.attributes_[CSTR_SOUND_VOLUME]  = std::to_string(param.volume);
 }
+void Create(XmlNode& node, const Params::PhysicsVisualizatorParams& param)
+{
+    node.attributes_[CSTR_USE_WORKER] = Utils::BoolToString(param.useWorkredToUpdatePhysicsVisualization_);
+    node.attributes_[CSTR_REFRESH_STEP_DOWN]  = std::to_string(param.refreshRateStepDown_);
+}
+void Create(XmlNode& node, const Params::DebugParams& param)
+{
+    Create(node.AddChild(CSTR_PHYSICS_VISUALIZATION_PARAMS), param.physicsVisualizator);
+}
 void CreateBinary(XmlNode& node, bool param)
 {
     node.value_ = Utils::BoolToString(param);
@@ -97,6 +106,7 @@ void WriteConfigurationToFile(const Configuration& configuration, const std::str
     Create(config.AddChild(CSTR_FILES), configuration.files);
     Create(config.AddChild(CSTR_SOUND), configuration.sound);
     Create(config.AddChild(CSTR_RENDERER), configuration.renderer);
+    Create(config.AddChild(CSTR_DEBUG_PARAMS), configuration.debugParams);
     CreateBinary(config.AddChild(CSTR_ENABLE_BINARY_LOADING), configuration.useBinaryLoading);
 
     Xml::Write(filename, config);

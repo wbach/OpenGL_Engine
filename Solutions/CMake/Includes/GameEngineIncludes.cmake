@@ -133,6 +133,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Engine/IntroRenderer.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/TerrainParam/TerrainType.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/TerrainParam/TerrainParam.h
+../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h
 ../../Sources/GameEngine/Engine/EngineContext.h
 ../../Sources/GameEngine/Engine/LoD.h
 ../../Sources/GameEngine/Engine/ConfigurationWriter.h

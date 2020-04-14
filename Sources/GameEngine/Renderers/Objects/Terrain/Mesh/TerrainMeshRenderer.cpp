@@ -30,7 +30,7 @@ TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainMesh)
 {
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainMeshRenderer::Render);
-    EngineContext.measurements_.insert({TERRAIN_MEASURMENT_NAME, "0"});
+    measurementValue_ = &EngineContext.AddNewMeasurment(TERRAIN_MEASURMENT_NAME, "0");
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
 {
@@ -49,7 +49,7 @@ void TerrainMeshRenderer::Render(const Scene& scene, const Time&)
     shader_.Start();
     RenderSubscribers(scene);
 
-    EngineContext.measurements_.at(TERRAIN_MEASURMENT_NAME) = std::to_string(renderedTerrains);
+    *measurementValue_ = std::to_string(renderedTerrains);
 }
 void TerrainMeshRenderer::RenderSubscribers(const Scene& scene) const
 {

@@ -59,4 +59,8 @@ const std::string CSTR_WATER_REFRACTION_HEIGHT = "height";
 const std::string CSTR_TERRAIN               = "Terrain";
 const std::string CSTR_TERRAIN_RENDERER_TYPE = "TerrainRenderer";
 // Other
-const std::string CSTR_ENABLE_BINARY_LOADING = "EnableBinaryLoading";
+const std::string CSTR_ENABLE_BINARY_LOADING        = "EnableBinaryLoading";
+const std::string CSTR_DEBUG_PARAMS                 = "DebugParams";
+const std::string CSTR_PHYSICS_VISUALIZATION_PARAMS = "PhysicsVisualizator";
+const std::string CSTR_REFRESH_STEP_DOWN            = "refreshStepDown";
+const std::string CSTR_USE_WORKER                   = "useWorker";
