@@ -2,5 +2,8 @@
 
 namespace GameEngine
 {
-    
+EngineContextData::~EngineContextData()
+{
+    threadSync_.Stop();
 }
+}  // namespace GameEngine

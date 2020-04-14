@@ -51,8 +51,6 @@ private:
 private:
     Scene& scene_;
     Network::Gateway gateway_;
-    std::thread networkThread_;
-    std::atomic_bool isRunning_;
     std::unordered_map<std::string, std::function<void(const EntryParameters&)>> commands_;
     std::optional<uint32> transformChangeSubscriptionId_;
     std::optional<uint32> cameraChangeSubscriptionId_;
@@ -64,6 +62,6 @@ private:
     GameObject* selectedGameObject_;
     uint32 userId_;
     std::unique_ptr<DragObject> dragObject_;
-    Utils::Time::CTimeMeasurer timeMeasurer_;
+    uint32 threadId_;
 };
 }  // namespace GameEngine

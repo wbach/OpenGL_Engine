@@ -40,12 +40,12 @@ namespace Renderer
 {
 RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
+    , renderAsLines(false)
+    , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
     , debugRenderer_(graphicsApi, projection_)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
-    , renderAsLines(false)
-    , markToReloadShaders_(false)
 {
 }
 RenderersManager::~RenderersManager()

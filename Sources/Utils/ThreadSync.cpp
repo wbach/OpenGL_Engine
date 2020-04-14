@@ -1,43 +1,45 @@
 #include "ThreadSync.h"
+#include "GameEngine/Engine/EngineContext.h"
 
 namespace Utils
 {
 namespace Thread
 {
-Subscriber::Subscriber(const std::string& label, uint32 id, frameFunc func)
-    : isFree(false)
-    , isStarted(false)
-    , func(func)
-    , threadId(id)
-    , isRunning(true)
+Subscriber::Subscriber(const std::string& label, frameFunc func)
+    : func(func)
+    , isRunning(false)
     , label_(label)
 {
+    Start();
 }
 
-Subscriber::Subscriber(const Subscriber& s)
-    : isFree(s.isFree)
-    , isStarted(false)
-    , func(s.func)
-    , threadId(s.threadId)
-    , isRunning(s.isRunning.load())
-    , label_(s.label_)
+Subscriber::~Subscriber()
 {
+    DEBUG_LOG("");
+    Stop();
 }
 
 void Subscriber::Start()
 {
+    DEBUG_LOG("Start \"" + label_ + "\",  thread.");
     isRunning.store(true);
     thread = std::thread(std::bind(&Subscriber::Update, this));
-    //timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
-    isStarted = true;
+    timeMeasurer.AddOnTickCallback(std::bind(&Subscriber::PrintFps, this));
+
+    printedFpsLabel_ = label_ + "Fps";
+    if (EngineContext.measurements_.count(printedFpsLabel_) == 0)
+    {
+        EngineContext.measurements_.insert({printedFpsLabel_, "0"});
+    }
 }
 
 void Subscriber::Stop()
 {
-    if (not isStarted)
+    if (not isRunning.load())
         return;
 
-    isStarted = false;
+    EngineContext.measurements_.at(printedFpsLabel_) = "disabled";
+
     isRunning.store(false);
     thread.join();
 }
@@ -51,61 +53,77 @@ void Subscriber::Update()
         func(deltaTime);
         timeMeasurer.EndFrame();
     }
-    DEBUG_LOG("Subscriber::Update, End thread.");
+
+    DEBUG_LOG("End \"" + label_ + "\",  thread.");
 }
 
 void Subscriber::PrintFps()
 {
-    std::string msg = "Thread label : " + label_ + " Fps : " + std::to_string(timeMeasurer.GetFps()) + ", Frame Time: " + std::to_string(timeMeasurer.GetDeltaTime());
-    DEBUG_LOG(msg);
+    EngineContext.measurements_.at(printedFpsLabel_) = std::to_string(timeMeasurer.GetFps());
+}
+
+bool Subscriber::IsStarted() const
+{
+    return isRunning.load();
+}
+
+ThreadSync::ThreadSync()
+    : printedThreadsCountText_("Threads count")
+{
 }
 
 uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)
 {
-    uint32 i = 0;
-    for (auto& s : subscribers)
-    {
-        if (s.isFree)
-        {
-            subscribers[i].threadId = i;
-            subscribers[i].func     = func;
-            subscribers[i].isFree   = false;
-            return i;
-        }
-        ++i;
-    }
-
-    subscribers.emplace_back(label, i, func);
-    return subscribers.size() - 1;
+    auto id = idPool_++;
+    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func));
+    UpdateThreadsCountText();
+    return id;
 }
 
-Subscriber *ThreadSync::GetSubscriber(uint32 i)
+Subscriber* ThreadSync::GetSubscriber(uint32 id)
 {
-    if (i >= subscribers.size() or subscribers[i].isFree)
-        return nullptr;
+    if (subscribers.count(id) > 0)
+        return &subscribers.at(id);
 
-    return &subscribers[i];
+    return nullptr;
 }
 
 void ThreadSync::Unsubscribe(uint32 id)
 {
-    subscribers[id].Stop();
-    subscribers[id].isFree = true;
+    if (subscribers.count(id) > 0)
+    {
+        subscribers.erase(id);
+        UpdateThreadsCountText();
+    }
+    else
+    {
+        ERROR_LOG("Unsubscribe error, " + std::to_string(id));
+    }
 }
 
 void ThreadSync::Start()
 {
     for (auto& s : subscribers)
     {
-        if (not s.isFree)
-            s.Start();
+        if (not s.second.IsStarted())
+            s.second.Start();
     }
 }
 
 void ThreadSync::Stop()
 {
     for (auto& s : subscribers)
-        s.Stop();
+        s.second.Stop();
+}
+
+void ThreadSync::UpdateThreadsCountText()
+{
+    // + 1 (Renderer Thread)
+    if (EngineContext.measurements_.count(printedThreadsCountText_) == 0)
+    {
+        EngineContext.measurements_.insert({printedThreadsCountText_, "1"});
+    }
+    EngineContext.measurements_.at(printedThreadsCountText_) = std::to_string(subscribers.size() + 1);
 }
 
 }  // namespace Thread

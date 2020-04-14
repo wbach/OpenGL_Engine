@@ -29,7 +29,6 @@ namespace GameEngine
 namespace
 {
 std::unique_ptr<FirstPersonCamera> firstPersonCamera;
-const std::string FPS_MEASURMENT_NAME{"NetworkEditorThreadFps"};
 }  // namespace
 
 class DragObject
@@ -87,7 +86,6 @@ private:
 
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     : scene_(scene)
-    , isRunning_{true}
     , transformChangeSubscription_{nullptr}
     , selectedGameObject_{nullptr}
     , userId_{0}
@@ -138,22 +136,13 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         Network::MessageTypes::Text,
         std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
-    EngineContext.measurements_.insert({FPS_MEASURMENT_NAME, "0"});
-
-    timeMeasurer_.AddOnTickCallback(
-        [&]() { EngineContext.measurements_.at(FPS_MEASURMENT_NAME) = std::to_string(timeMeasurer_.GetFps()); });
-    networkThread_ = std::thread([&]() {
-        DEBUG_LOG("Starting gateway thread");
-
-        while (isRunning_.load())
-        {
-            timeMeasurer_.StartFrame();
+    threadId_ = EngineContext.threadSync_.Subscribe(
+        [&](float) {
             gateway_.Update();
-
             // if (dragObject_)
             //  dragObject_->Update();
-        }
-    });
+        },
+        "NetworkEditorFps");
 
     keyDownSub_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
@@ -211,12 +200,7 @@ NetworkEditorInterface::~NetworkEditorInterface()
         scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
     }
 
-    isRunning_.store(false);
-
-    if (networkThread_.joinable())
-    {
-        networkThread_.join();
-    }
+    EngineContext.threadSync_.Unsubscribe(threadId_);
 }
 void NetworkEditorInterface::AddObject(const std::string &path)
 {

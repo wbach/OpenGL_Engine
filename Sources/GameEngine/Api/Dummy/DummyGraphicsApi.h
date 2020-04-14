@@ -154,7 +154,10 @@ public:
     {
         return ++id;
     }
-    virtual GraphicsApi::ID CreateDynamicLineMesh() override {}
+    virtual GraphicsApi::ID CreateDynamicLineMesh() override
+    {
+        return std::nullopt;
+    }
     virtual GraphicsApi::ID CreateParticle() override;
     virtual GraphicsApi::ID CreateAnimatedParticle() override
     {
@@ -212,7 +215,9 @@ public:
     virtual void SetBlendFunction(GraphicsApi::BlendFunctionType) override
     {
     }
-    virtual void UpdateLineMesh(uint32, const GraphicsApi::LineMesh&) override {}
+    virtual void UpdateLineMesh(uint32, const GraphicsApi::LineMesh&) override
+    {
+    }
     virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) override
     {
     }

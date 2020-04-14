@@ -1,7 +1,7 @@
 #pragma once
 #include <atomic>
 #include <iostream>
-#include <vector>
+#include <unordered_map>
 #include "Logger/Log.h"
 #include "Thread.hpp"
 #include "Time/TimeMeasurer.h"
@@ -13,29 +13,32 @@ namespace Thread
 {
 typedef std::function<void(float deltaTime)> frameFunc;
 
-struct Subscriber
+class Subscriber
 {
-    Subscriber(const std::string& label, uint32 id, frameFunc func);
-    Subscriber(const Subscriber& s);
+public:
+    Subscriber(const std::string& label, frameFunc func);
+    Subscriber(const Subscriber& s) = delete;
+    ~Subscriber();
 
     void Start();
     void Stop();
     void Update();
     void PrintFps();
+    bool IsStarted() const;
 
-    bool isFree;
-    bool isStarted;
+private:
     frameFunc func;
-    uint32 threadId;
     std::thread thread;
     std::atomic_bool isRunning;
     Time::CTimeMeasurer timeMeasurer;
     std::string label_;
+    std::string printedFpsLabel_;
 };
 
 class ThreadSync
 {
 public:
+    ThreadSync();
     uint32 Subscribe(frameFunc func, const std::string& label = "unnamed");
     Subscriber* GetSubscriber(uint32);
     void Unsubscribe(uint32 id);
@@ -43,7 +46,12 @@ public:
     void Stop();
 
 private:
-    std::vector<Subscriber> subscribers;
+    void UpdateThreadsCountText();
+
+private:
+    std::unordered_map<uint32, Subscriber> subscribers;
+    uint32 idPool_ = 0;
+    std::string printedThreadsCountText_;
 };
 }  // namespace Thread
 }  // namespace Utils

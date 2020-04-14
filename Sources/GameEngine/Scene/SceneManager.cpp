@@ -1,7 +1,6 @@
 #include "SceneManager.h"
 
 #include "GameEngine/Engine/EngineContext.h"
-#include "GameEngine/Renderers/GUI/GuiContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "Logger/Log.h"
@@ -104,15 +103,13 @@ void SceneManager::Update()
 }
 void SceneManager::TakeEvents()
 {
-    auto optionalEvent = GetSceneEvent();
+    auto incomingEvent = GetSceneEvent();
 
-    if (!optionalEvent)
+    if (not incomingEvent)
         return;
 
-    auto& e = optionalEvent.value();
-
     StopUpdateSubscribe();
-    renderersManager_.UnSubscribeAll([&, e]() { AddEventToProcess(e); });
+    renderersManager_.UnSubscribeAll([&, e = *incomingEvent]() { AddEventToProcess(e); });
 }
 void SceneManager::ProccessEvents()
 {
@@ -171,7 +168,6 @@ void SceneManager::Stop()
     if (not isRunning_)
         return;
 
-    threadSync_.Stop();
     isRunning_ = false;
 }
 
@@ -199,17 +195,16 @@ void SceneManager::AddEventToProcess(const SceneEvent& e)
     processingEvents_.push(e);
 }
 
-wb::optional<GameEngine::SceneEvent> SceneManager::GetSceneEvent()
+std::optional<GameEngine::SceneEvent> SceneManager::GetSceneEvent()
 {
     std::lock_guard<std::mutex> lk(eventMutex_);
 
     if (events_.empty())
-        return wb::optional<GameEngine::SceneEvent>();
+        return std::nullopt;
 
     auto e = events_.front();
     events_.pop();
-
-    return e;
+    return std::move(e);
 }
 
 std::optional<GameEngine::SceneEvent> SceneManager::GetProcessingEvent()
@@ -285,24 +280,14 @@ void SceneManager::UpdateSubscribe()
 {
     DEBUG_LOG("");
     updateSceneThreadId_ =
-        threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
-
-    const std::string updateSceneThreadFps="UpdateSceneThreadFps";
-    EngineContext.measurements_.insert({updateSceneThreadFps, "0"});
-
-    auto& timeMeasurer = threadSync_.GetSubscriber(updateSceneThreadId_)->timeMeasurer;
-    threadSync_.GetSubscriber(updateSceneThreadId_)->timeMeasurer.AddOnTickCallback([&timeMeasurer, updateSceneThreadFps]() {
-        EngineContext.measurements_.at(updateSceneThreadFps) = std::to_string(static_cast<int>(timeMeasurer.GetFps()));
-    });
-    threadSync_.Start();
+        EngineContext.threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
     isRunning_ = true;
 }
 
 void SceneManager::StopUpdateSubscribe()
 {
     DEBUG_LOG("");
-    threadSync_.Unsubscribe(updateSceneThreadId_);
-    threadSync_.Stop();
+    EngineContext.threadSync_.Unsubscribe(updateSceneThreadId_);
     isRunning_ = false;
 }
 

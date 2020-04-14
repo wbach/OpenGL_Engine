@@ -54,7 +54,7 @@ private:
     void UpdateScene(float dt);
     void AddSceneEvent(const SceneEvent&);
     void AddEventToProcess(const SceneEvent&);
-    wb::optional<GameEngine::SceneEvent> GetSceneEvent();
+    std::optional<GameEngine::SceneEvent> GetSceneEvent();
     std::optional<GameEngine::SceneEvent> GetProcessingEvent();
 
     void LoadNextScene();
@@ -87,8 +87,6 @@ private:
     Renderer::RenderersManager& renderersManager_;
     Renderer::Gui::GuiContext& guiContext_;
     std::function<void(EngineEvent)> addEngineEvent_;
-
-    Utils::Thread::ThreadSync threadSync_;
     uint32 updateSceneThreadId_;
     bool isRunning_;
 };
