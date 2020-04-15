@@ -44,6 +44,17 @@ private:
     GameObject* GetGameObject(const std::string&);
     std::vector<std::string> GetParams(const std::string& comannd);
 
+private:
+    void UnsubscribeKeys();
+
+    struct KeysSubscriptions
+    {
+        void operator=(uint32 id)
+        {
+            subscriptions_.push_back(id);
+        }
+        std::vector<uint32> subscriptions_;
+    };
 
 private:
     Scene& scene_;
@@ -53,6 +64,7 @@ private:
     GuiTextElement* currentCommand_;
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
     int32 commandHistoryIndex_;
+    KeysSubscriptions keysSubscriptions_;
 };
 }  // namespace Debug
 }  // namespace GameEngine

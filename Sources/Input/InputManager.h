@@ -61,6 +61,7 @@ public:
     void UnsubscribeOnKeyUp(KeyCodes::Type key, uint32);
     void UnsubscribeAnyKey(uint32);
 
+    void Unsubscribe(uint32);
     void UnsubscribeAll();
 
 protected:

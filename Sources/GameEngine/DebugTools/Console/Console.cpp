@@ -440,9 +440,18 @@ std::vector<std::string> Console::GetParams(const std::string &command)
     }
 }
 
+void Console::UnsubscribeKeys()
+{
+    for (auto &ks : keysSubscriptions_.subscriptions_)
+    {
+        scene_.inputManager_->Unsubscribe(ks);
+    }
+    keysSubscriptions_.subscriptions_.clear();
+}
+
 void Console::SubscribeKeys()
 {
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
+    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
         if (not window_->IsShow() or not currentCommand_)
         {
             return;
@@ -451,8 +460,7 @@ void Console::SubscribeKeys()
         AddCommand(currentCommand_->GetText());
         currentCommand_ = AddOrUpdateGuiText("");
     });
-
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
+    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
         if (commands_.empty())
             return;
 
@@ -469,7 +477,7 @@ void Console::SubscribeKeys()
         ++commandHistoryIndex_;
     });
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
+    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
         if (commands_.empty())
             return;
 
@@ -485,11 +493,16 @@ void Console::SubscribeKeys()
         currentCommand_->SetText(commands_[static_cast<size_t>(commandHistoryIndex_)]);
         --commandHistoryIndex_;
     });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
-    scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
+
+    keysSubscriptions_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
+    keysSubscriptions_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
+    keysSubscriptions_ =
+        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
+    keysSubscriptions_ =
+        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
+    keysSubscriptions_ = scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
         if (not window_->IsShow())
             return;
 
@@ -515,7 +528,7 @@ void Console::SubscribeKeys()
         }
     });
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
+    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Hide();
 
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
@@ -523,10 +536,12 @@ void Console::SubscribeKeys()
             currentCommand_->Append(" (not executed)");
         }
 
+        // to do: fix remove all without that
         scene_.inputManager_->StashPopSubscribers();
+        UnsubscribeKeys();
     });
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
+    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
         window_->Hide();
 
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
@@ -538,7 +553,7 @@ void Console::SubscribeKeys()
     });
 }
 
-GameObject *Console::GetGameObject(const std::string &name)
+GameObject* Console::GetGameObject(const std::string &name)
 {
     return scene_.GetGameObject(name);
 }

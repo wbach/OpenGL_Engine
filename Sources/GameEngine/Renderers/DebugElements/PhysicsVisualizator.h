@@ -38,7 +38,7 @@ private:
 
     uint32 refreshRateStepDown_;
     GraphicsApi::ID lineMeshId_;
-    bool physicsLineMeshReady_;
+    std::atomic_bool physicsLineMeshReady_;
     uint32 updatePhycisLineMesh_;
     bool isActive_;
 

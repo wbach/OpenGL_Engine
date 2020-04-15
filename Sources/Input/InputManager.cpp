@@ -105,6 +105,44 @@ uint32 InputManager::SubscribeOnAnyKeyPress(KeysPressedFunc func)
     return id;
 }
 
+bool UnsubscribeImpl(KeyPressedSubscribers& sub, uint32 id)
+{
+    for (auto& k : sub)
+    {
+        if (k.second.count(id) > 0)
+        {
+            k.second.erase(id);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool UnsubscribeImpl(KeysSubscribers& sub, uint32 id)
+{
+    if (sub.count(id) > 0)
+    {
+        sub.erase(id);
+        return true;
+    }
+
+    return false;
+}
+
+void InputManager::Unsubscribe(uint32 id)
+{
+    // clang-format off
+    if (UnsubscribeImpl(subscribers_.keyDownSubscribers_, id)) return;
+    if (UnsubscribeImpl(subscribers_.keyUpSubscribers_, id)) return;
+    if (UnsubscribeImpl(subscribers_.keysSubscribers_, id)) return;
+
+    if (UnsubscribeImpl(quque_.keyDownSubscribers_, id)) return;
+    if (UnsubscribeImpl(quque_.keyUpSubscribers_, id)) return;
+    if (UnsubscribeImpl(quque_.keysSubscribers_, id)) return;
+    // clang-format on
+}
+
 void InputManager::UnsubscribeAll()
 {
     subscribers_.keysSubscribers_.clear();

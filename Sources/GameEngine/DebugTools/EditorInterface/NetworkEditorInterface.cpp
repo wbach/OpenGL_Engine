@@ -139,8 +139,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     threadId_ = EngineContext.threadSync_.Subscribe(
         [&](float) {
             gateway_.Update();
-            // if (dragObject_)
-            //  dragObject_->Update();
+             if (dragObject_)
+              dragObject_->Update();
         },
         "NetworkEditorFps");
 

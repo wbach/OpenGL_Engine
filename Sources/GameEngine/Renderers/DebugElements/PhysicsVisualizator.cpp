@@ -1,7 +1,9 @@
 #include "PhysicsVisualizator.h"
+
 #include <Utils/ThreadSync.h>
-#include "GameEngine/Engine/EngineContext.h"
+
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/EngineContext.h"
 
 namespace GameEngine
 {
@@ -27,7 +29,7 @@ PhysicsVisualizator::~PhysicsVisualizator()
 
 void PhysicsVisualizator::Init()
 {
-    useWorkerToUpdate_ = EngineConf.debugParams.physicsVisualizator.useWorkredToUpdatePhysicsVisualization_;
+    useWorkerToUpdate_   = EngineConf.debugParams.physicsVisualizator.useWorkredToUpdatePhysicsVisualization_;
     refreshRateStepDown_ = EngineConf.debugParams.physicsVisualizator.refreshRateStepDown_;
 
     shader_.Init();
@@ -51,7 +53,7 @@ void PhysicsVisualizator::Render()
         UpdatePhycisLineMesh();
     }
 
-    if (physicsLineMeshReady_)
+    if (lineMesh_ and not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
     {
         shader_.Start();
         graphicsApi_.RenderMesh(*lineMeshId_);
@@ -106,10 +108,9 @@ void PhysicsVisualizator::UpdatePhysicsByWorker()
 
     auto task = [&]() {
         lineMesh_ = &physicsDebugDraw_();
-
         if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
         {
-            physicsLineMeshReady_ = true;
+            physicsLineMeshReady_ .store(true);
         }
     };
 
@@ -117,7 +118,8 @@ void PhysicsVisualizator::UpdatePhysicsByWorker()
 
     if (physicsLineMeshReady_)
     {
-        graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
+        if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
+            graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
     }
 
     if (worker_)

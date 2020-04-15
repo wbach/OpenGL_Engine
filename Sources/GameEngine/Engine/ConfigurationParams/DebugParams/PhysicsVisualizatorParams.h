@@ -7,7 +7,7 @@ namespace Params
 {
 struct PhysicsVisualizatorParams
 {
-    bool useWorkredToUpdatePhysicsVisualization_{true};
+    bool useWorkredToUpdatePhysicsVisualization_{false};
     uint32 refreshRateStepDown_{0}; 
 };
 }  // namespace Params
