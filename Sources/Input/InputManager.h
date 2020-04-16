@@ -45,6 +45,7 @@ public:
     virtual void GetPressedKeys()                    = 0;
     virtual void ShowCursor(bool)                    = 0;
 
+    void AddEvent(KeyPressedFunc);
     void AddKeyEvent(uint32 eventType, uint32 key);
     void ProcessKeysEvents();
     void StashSubscribers();
@@ -68,6 +69,7 @@ protected:
     virtual KeyCodes::Type ConvertCode(uint32) const = 0;
     virtual bool IsKeyUpEventType(uint32) const      = 0;
     virtual bool IsKeyDownEventType(uint32) const    = 0;
+    void ProcessEvents();
     bool FindEvent(uint32 eventType, uint32 key);
     std::optional<KeyEvent> GetEvent();
     void UpdateMouseState(uint32 code, bool state);
@@ -84,6 +86,7 @@ public:
 
 protected:
     std::set<KeyCodes::Type> keyBuffer;
+    std::vector<KeyPressedFunc> events_;
     std::list<KeyEvent> keyEvents_;
     Subscribers subscribers_;
     Subscribers stash_;

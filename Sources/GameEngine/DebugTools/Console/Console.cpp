@@ -53,8 +53,10 @@ Console::Console(Scene &scene)
         if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
             currentCommand_ = AddOrUpdateGuiText("");
 
-        scene_.inputManager_->StashSubscribers();
-        SubscribeKeys();
+        scene_.inputManager_->AddEvent([&]() {
+            scene_.inputManager_->StashSubscribers();
+            SubscribeKeys();
+        });
     });
 
     RegisterActions();
@@ -530,15 +532,13 @@ void Console::SubscribeKeys()
 
     keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Hide();
-
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
         {
             currentCommand_->Append(" (not executed)");
         }
 
-        // to do: fix remove all without that
-        scene_.inputManager_->StashPopSubscribers();
-        UnsubscribeKeys();
+        // stash pop remove existing subscriptions
+        scene_.inputManager_->AddEvent([&]() { scene_.inputManager_->StashPopSubscribers(); });
     });
 
     keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
@@ -553,7 +553,7 @@ void Console::SubscribeKeys()
     });
 }
 
-GameObject* Console::GetGameObject(const std::string &name)
+GameObject *Console::GetGameObject(const std::string &name)
 {
     return scene_.GetGameObject(name);
 }

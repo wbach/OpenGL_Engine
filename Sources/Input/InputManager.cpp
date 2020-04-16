@@ -9,6 +9,7 @@ namespace Input
 namespace
 {
 std::mutex keyEventMutex;
+std::mutex eventMutex;
 
 struct MouseState
 {
@@ -56,6 +57,12 @@ void InputManager::SetDefaultKeys()
     keyGameActions[GameActions::ITEM_5]                = KeyCodes::W;
     keyGameActions[GameActions::ITEM_6]                = KeyCodes::W;
     keyGameActions[GameActions::WORLD_MAP]             = KeyCodes::M;
+}
+
+void InputManager::AddEvent(KeyPressedFunc eventFunc)
+{
+    std::lock_guard<std::mutex> lk(eventMutex);
+    events_.push_back(eventFunc);
 }
 
 uint32 InputManager::SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func)
@@ -148,6 +155,19 @@ void InputManager::UnsubscribeAll()
     subscribers_.keysSubscribers_.clear();
     subscribers_.keyUpSubscribers_.clear();
     subscribers_.keyDownSubscribers_.clear();
+}
+
+void InputManager::ProcessEvents()
+{
+    if (events_.empty())
+        return;
+
+    std::lock_guard<std::mutex> lk(eventMutex);
+    for (auto& event : events_)
+    {
+        event();
+    }
+    events_.clear();
 }
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
 {
@@ -340,7 +360,7 @@ std::optional<KeyEvent> InputManager::GetEvent()
     std::lock_guard<std::mutex> lk(keyEventMutex);
 
     if (keyEvents_.empty())
-        return std::optional<KeyEvent>();
+        return std::nullopt;
 
     auto e = keyEvents_.front();
     keyEvents_.pop_front();
@@ -373,6 +393,7 @@ void InputManager::ProcessKeysEvents()
             ExecuteOnKeyUp(keyCode);
         }
         Unquque();
+        ProcessEvents();
     }
 }
 
