@@ -2,6 +2,22 @@
 
 namespace common
 {
+namespace
+{
+vec3 EulerAngles(const Quaternion &quaternion)
+{
+    auto euler = glm::eulerAngles(quaternion); // <-90, 90>
+
+    if (std::fabs(euler.z) >= M_PI / 2.f)
+    {
+        euler.x += M_PI;
+        euler.y = M_PI - euler.y;
+        euler.z += M_PI;
+    }
+
+    return euler;
+}
+}  // namespace
 Rotation::Rotation(const DegreesVec3 &v)
     : value_(v.Radians())
 {
@@ -19,11 +35,11 @@ Rotation::Rotation(const Quaternion &v)
 
 DegreesVec3 Rotation::GetEulerDegrees() const
 {
-    return RadiansVec3(glm::eulerAngles(value_)).Degrees();
+    return RadiansVec3(EulerAngles(value_)).Degrees();
 }
 
 RadiansVec3 Rotation::GetEulerRadians() const
 {
-    return RadiansVec3(glm::eulerAngles(value_));
+    return RadiansVec3(EulerAngles(value_));
 }
 }  // namespace common
