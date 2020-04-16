@@ -15,6 +15,8 @@ public:
         IDLE = 0,
         MOVE_FORWARD,
         MOVE_BACKWARD,
+        MOVE_LEFT,
+        MOVE_RIGHT,
         ROTATE_LEFT,
         ROTATE_RIGHT,
         RUN,
@@ -42,7 +44,6 @@ private:
     float jumpPower_;
     float turnSpeed_;
     float runSpeed_;
-    vec3 rotation_;
 
 public:
     static ComponentsType type;

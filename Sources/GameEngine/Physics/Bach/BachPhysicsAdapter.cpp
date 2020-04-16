@@ -45,40 +45,41 @@ overloaded(Ts...)->overloaded<Ts...>;
 
 typedef std::variant<TerrainShape, SphehreShape, MeshShape, BoxShape> Shape;
 
-void collision(const SphehreShape& a, const SphehreShape& b)
+void collision(const SphehreShape&, const SphehreShape&)
 {
 }
 
-void collision(const TerrainShape& a, const SphehreShape& b)
+void collision(const TerrainShape&, const SphehreShape&)
 {
 }
 
-void collision(const MeshShape& a, const SphehreShape& b)
+void collision(const MeshShape&, const SphehreShape&)
 {
 }
 
-void collision(const BoxShape& a, const SphehreShape& b)
+void collision(const BoxShape&, const SphehreShape&)
 {
 }
 
-void collision(const MeshShape& a, const TerrainShape& b)
+void collision(const MeshShape&, const TerrainShape&)
 {
 }
 
-void collision(const BoxShape& a, const TerrainShape& b)
+void collision(const BoxShape&, const TerrainShape&)
 {
 }
 
 template <typename T>
 void collision(const Shape& collisionShape, const T& shape)
 {
-    std::visit(overloaded{
-                   [&shape](const SphehreShape& arg) { collision(arg, shape); },
-                   [&shape](const TerrainShape& arg) { collision(arg, shape); },
-                   [&shape](const MeshShape& arg) { collision(arg, shape); },
-                   [&shape](const BoxShape& arg) { collision(arg, shape); },
-               },
-               collisionShape);
+    std::visit(
+        overloaded{
+            [&shape](const SphehreShape& arg) { collision(arg, shape); },
+            [&shape](const TerrainShape& arg) { collision(arg, shape); },
+            [&shape](const MeshShape& arg) { collision(arg, shape); },
+            [&shape](const BoxShape& arg) { collision(arg, shape); },
+        },
+        collisionShape);
 }
 
 class Rigidbody
@@ -101,11 +102,11 @@ public:
 
 struct TerrainShape
 {
-    TerrainShape(const vec2ui& size, std::vector<float>* heights, const vec2& terrainPosition, float heightFactor)
+    TerrainShape(const vec2ui&, std::vector<float>*, const vec2&, float heightFactor)
         : heightFactor_(heightFactor)
     {
     }
-    std::optional<CollisionData> collision(Rigidbody& sphere)
+    std::optional<CollisionData> collision(Rigidbody&)
     {
         return {};
     }
@@ -159,7 +160,7 @@ const GraphicsApi::LineMesh& BachPhysicsAdapter::DebugDraw()
 {
     return lineMesh_;
 }
-void BachPhysicsAdapter::SetSimulationStep(float step)
+void BachPhysicsAdapter::SetSimulationStep(float)
 {
     impl_->enableSimulation_ = 1.f;
 }
@@ -171,7 +172,7 @@ void BachPhysicsAdapter::DisableSimulation()
 {
     impl_->enableSimulation_ = false;
 }
-uint32 BachPhysicsAdapter::CreateBoxColider(const vec3& positionOffset, const vec3& size)
+uint32 BachPhysicsAdapter::CreateBoxColider(const vec3&, const vec3&)
 {
     return impl_->id_++;
 }
@@ -180,18 +181,16 @@ uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, float
     impl_->shapes_.insert({impl_->id_, {positionOffset, radius}});
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3& positionOffset, float radius, float height)
+uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3&, float, float)
 {
     return uint32();
 }
-uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
-                                                const std::vector<float>& data, const vec3& scale)
+uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec2ui&, const std::vector<float>&, const vec3&)
 {
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                                              const IndicesVector& indicies, float scaleFactor)
+uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, float)
 {
     return impl_->id_++;
 }
@@ -204,28 +203,51 @@ void BachPhysicsAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& ve
 {
     impl_->rigidbodies_.at(rigidBodyId).velocity_ = velocity;
 }
-void BachPhysicsAdapter::IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
+
+void BachPhysicsAdapter::ApplyImpulse(uint32, const vec3&)
 {
 }
-std::optional<vec3> BachPhysicsAdapter::GetVelocity(uint32 rigidBodyId)
+void BachPhysicsAdapter::IncreaseVelocityRigidbody(uint32, const vec3&)
+{
+}
+std::optional<vec3> BachPhysicsAdapter::GetVelocity(uint32)
 {
     return {};
 }
-void BachPhysicsAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
+void BachPhysicsAdapter::SetAngularFactor(uint32, float)
 {
+}
+
+void BachPhysicsAdapter::SetAngularFactor(uint32, const vec3&)
+{
+}
+
+std::optional<vec3> BachPhysicsAdapter::GetAngularFactor(uint32)
+{
+    return std::nullopt;
 }
 void BachPhysicsAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->rigidbodies_.erase(id);
 }
-void BachPhysicsAdapter::SetRotation(uint32 rigidBodyId, const vec3&)
+void BachPhysicsAdapter::SetRotation(uint32, const vec3&)
 {
 }
-void BachPhysicsAdapter::SetRotation(uint32 rigidBodyId, const Quaternion&)
+void BachPhysicsAdapter::SetRotation(uint32, const Quaternion&)
 {
 }
-void BachPhysicsAdapter::SetPosition(uint32 rigidBodyId, const vec3&)
+void BachPhysicsAdapter::SetPosition(uint32, const vec3&)
 {
+}
+
+std::optional<Quaternion> BachPhysicsAdapter::GetRotation(uint32 rigidBodyId) const
+{
+    return std::nullopt;
+}
+
+std::optional<common::Transform> BachPhysicsAdapter::GetTransfrom(uint32 rigidBodyId) const
+{
+    return std::nullopt;
 }
 }  // namespace Physics
 }  // namespace GameEngine

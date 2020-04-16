@@ -79,7 +79,7 @@ void DebugRenderer::Init()
     gridShader_.Init();
     physicsVisualizator_.Init();
 
-    physicsVisualizator_.Disable(); // explicit default disable
+   // physicsVisualizator_.Disable(); // explicit default disable
 
     gridPerObjectUpdateBufferId_ =
         graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));

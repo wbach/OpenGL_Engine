@@ -15,6 +15,9 @@ const float DEFAULT_JUMP_POWER = 25.f;
 CharacterController::CharacterController(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , rigidbody_{nullptr}
+    , jumpPower_(DEFAULT_JUMP_POWER)
+    , turnSpeed_(DEFAULT_TURN_SPEED)
+    , runSpeed_(DEFAULT_RUN_SPEED)
 {
 }
 
@@ -27,61 +30,73 @@ void CharacterController::ReqisterFunctions()
 void CharacterController::Init()
 {
     rigidbody_ = thisObject_.GetComponent<Rigidbody>();
+
+    if (rigidbody_)
+        rigidbody_->InputParams().angularFactor_ = vec3(0);
 }
 
 void CharacterController::Update()
 {
-    if (not rigidbody_)
+    if (not rigidbody_ or not rigidbody_->IsReady() or actions_.empty())
     {
         return;
     }
 
-    const auto& currentVelocvity = rigidbody_->GetVelocity();
-    float rad                    = ToRadians(rotation_.y);
-    auto v                       = vec3(DEFAULT_RUN_SPEED);
-
-    v.x *= sinf(rad);
-    v.y = currentVelocvity.y;
-    v.z *= cosf(rad);
-
+    vec3 targetVelocity(0.f);
     for (const auto& action : actions_)
     {
         switch (action)
         {
             case Action::MOVE_BACKWARD:
-                v.x *= -1.f;
-                v.z *= -1.f;
-                rigidbody_->SetVelocity(v);
+                targetVelocity.z = -1.f;
                 break;
             case Action::MOVE_FORWARD:
-                rigidbody_->SetVelocity(v);
+                targetVelocity.z = 1.f;
                 break;
             case Action::JUMP:
-                rigidbody_->SetVelocity(vec3(0, DEFAULT_JUMP_POWER, 0));
+                targetVelocity.y += jumpPower_;
+                break;
+            case Action::MOVE_LEFT:
+                targetVelocity.x = 1.f;
+                break;
+            case Action::MOVE_RIGHT:
+                targetVelocity.x = -1.f;
                 break;
             case Action::ROTATE_LEFT:
             {
-                rotation_.y += DEFAULT_TURN_SPEED * componentContext_.time_.deltaTime;
-                auto v = ToRadians(rotation_);
-                if (rotation_.y > 360.f)
-                    rotation_.y -= 360.f;
-                rigidbody_->SetRotation(v);
+                auto rotation = rigidbody_->GetRotation() *
+                                glm::angleAxis(glm::radians(turnSpeed_ * componentContext_.time_.deltaTime),
+                                               glm::vec3(0.f, 1.f, 0.f));
+                rigidbody_->SetRotation(rotation);
             }
             break;
             case Action::ROTATE_RIGHT:
             {
-                rotation_.y -= DEFAULT_TURN_SPEED * componentContext_.time_.deltaTime;
-                auto v = ToRadians(rotation_);
-                if (rotation_.y < 0.f)
-                    rotation_.y += 360.f;
-                rigidbody_->SetRotation(v);
+                auto rotation = rigidbody_->GetRotation() *
+                                glm::angleAxis(glm::radians(-turnSpeed_ * componentContext_.time_.deltaTime),
+                                               glm::vec3(0.f, 1.f, 0.f));
+                rigidbody_->SetRotation(rotation);
             }
             break;
-
             default:
+                DEBUG_LOG("unknown action!");
                 break;
         }
     }
+
+    if (glm::length(targetVelocity) < std::numeric_limits<float>::epsilon())
+        return;
+
+    targetVelocity = rigidbody_->GetRotation() * targetVelocity;
+    targetVelocity = glm::normalize(targetVelocity);
+    targetVelocity *= runSpeed_;
+
+    auto velocity       = rigidbody_->GetVelocity();
+    auto velocityChange = (targetVelocity - velocity);
+    velocityChange.x    = glm::clamp(velocityChange.x, -runSpeed_, runSpeed_);
+    velocityChange.z    = glm::clamp(velocityChange.z, -runSpeed_, runSpeed_);
+    velocityChange.y    = 0;
+    rigidbody_->ApplyImpulse(velocityChange);
 }
 
 void CharacterController::AddState(CharacterController::Action action)

@@ -122,8 +122,7 @@ void BulletAdapter::Simulate()
         auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
 
         Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
-        transform->SetPositionAndRotation(Convert(newPosition),
-                                          newRotation * glm::angleAxis(glm::radians(180.f), vec3(0.f, 0.f, 1.f)));
+        transform->SetPositionAndRotation(Convert(newPosition), newRotation);
     }
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
@@ -234,10 +233,6 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
     impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
     impl_->transforms[id_] = &transform;
 
-    if (not isStatic)
-    {
-    }
-
     return id_++;
 }
 void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
@@ -248,6 +243,16 @@ void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocit
     }
 
     impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setLinearVelocity(Convert(velocity));
+}
+
+void BulletAdapter::ApplyImpulse(uint32 rigidBodyId, const vec3& impulse)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return;
+    }
+
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->applyCentralImpulse(Convert(impulse));
 }
 void BulletAdapter::IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
 {
@@ -270,18 +275,43 @@ std::optional<vec3> BulletAdapter::GetVelocity(uint32 rigidBodyId)
 }
 void BulletAdapter::SetAngularFactor(uint32 rigidBodyId, float value)
 {
-    if (!impl_->rigidBodies.count(rigidBodyId))
+    if (not impl_->rigidBodies.count(rigidBodyId))
     {
+        ERROR_LOG("Rigidbody not found !" + std::to_string(rigidBodyId));
         return;
     }
 
     if (compare(value, 0.f))
     {
-        DEBUG_LOG("DISABLE_DEACTIVATION btRigidbody_");
+        DEBUG_LOG("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(rigidBodyId));
         impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
     }
 
     impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setAngularFactor(value);
+}
+
+void BulletAdapter::SetAngularFactor(uint32 rigidBodyId, const vec3& value)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        ERROR_LOG("Rigidbody not found !" + std::to_string(rigidBodyId));
+        return;
+    }
+
+    DEBUG_LOG("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(rigidBodyId));
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
+    impl_->rigidBodies.at(rigidBodyId).btRigidbody_->setAngularFactor(Convert(value));
+}
+
+std::optional<vec3> BulletAdapter::GetAngularFactor(uint32 rigidBodyId)
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        ERROR_LOG("Rigidbody not found !" + std::to_string(rigidBodyId));
+        return std::nullopt;
+    }
+
+    return Convert(impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getAngularFactor());
 }
 void BulletAdapter::RemoveRigidBody(uint32 id)
 {
@@ -310,6 +340,24 @@ void BulletAdapter::SetPosition(uint32 rigidBodyId, const vec3& position)
         return;
     }
     impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().setOrigin(Convert(position));
+}
+
+std::optional<Quaternion> BulletAdapter::GetRotation(uint32 rigidBodyId) const
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return std::nullopt;
+    }
+    return Convert(impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform().getRotation());
+}
+
+std::optional<common::Transform> BulletAdapter::GetTransfrom(uint32 rigidBodyId) const
+{
+    if (not impl_->rigidBodies.count(rigidBodyId))
+    {
+        return std::nullopt;
+    }
+    return Convert(impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform());
 }
 }  // namespace Physics
 

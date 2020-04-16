@@ -60,7 +60,8 @@ void Transform::UnsubscribeOnChange(uint32 id)
 void Transform::SetYPosition(float pos)
 {
     context_.position.y = pos;
-    NotifySubscribers();;
+    NotifySubscribers();
+    ;
 }
 
 void Transform::SetPosition(const vec3& pos)
@@ -177,6 +178,11 @@ void Transform::IncreaseRotation(const RadiansVec3& rotation)
 {
     context_.rotation = context_.rotation.value_ * Quaternion(rotation.value);
     NotifySubscribers();
+}
+
+vec3 Transform::TransformDirection(const vec3& v) const
+{
+    return context_.rotation.value_ * v;
 }
 
 const Rotation& Transform::GetRotation() const

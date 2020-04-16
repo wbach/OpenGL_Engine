@@ -163,13 +163,18 @@ void Create(XmlNode& node, const Components::Rigidbody& component)
 {
     Create(node.AddChild(CSTR_MASS), component.GetMass());
     Create(node.AddChild(CSTR_IS_STATIC), component.IsStatic());
-    Create(node.AddChild(CSTR_VELOCITY), component.GetVelocity());
     Create(node.AddChild(CSTR_COLLISION_SHAPE), static_cast<int>(component.GetCollisionShapeType()));
 
-    auto angularFactor = component.GetAngularFactor();
+    auto angularFactor = component.InputParams().angularFactor_;
     if (angularFactor)
     {
         Create(node.AddChild(CSTR_ANGULAR_FACTOR), *angularFactor);
+    }
+
+    auto velocty = component.InputParams().velocity_;
+    if (velocty)
+    {
+        Create(node.AddChild(CSTR_VELOCITY), *velocty);
     }
 }
 

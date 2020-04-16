@@ -18,48 +18,51 @@ ComponentsType Rigidbody::type = ComponentsType::Rigidbody;
 
 Rigidbody::Rigidbody(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Rigidbody, componentContext, gameObject)
+    , collisionShape_(nullptr)
     , mass_(1.0f)
     , isStatic_(false)
-    , isInitilized_(false)
-    , collisionShape_(nullptr)
-    , rigidBodyId_(0)
-    , velocity_(0)
-    , shapeType_(ComponentsType::Rigidbody)
 {
 }
 Rigidbody::~Rigidbody()
 {
-    if (rigidBodyId_ == 0)
+    if (not rigidBodyId_)
     {
         return;
     }
 
-    componentContext_.physicsApi_.RemoveRigidBody(rigidBodyId_);
-    rigidBodyId_ = 0;
+    componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
 }
 void Rigidbody::OnStart()
 {
     GetCollisionShape();
 
-    if (collisionShape_ == nullptr)
+    if (not collisionShape_)
     {
+        ERROR_LOG("Can not create Rigidbody without shape.");
         return;
     }
 
-    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
-                                                                 thisObject_.worldTransform, mass_, isStatic_);
-    componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, velocity_);
+    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
+                                                                     thisObject_.worldTransform, mass_, isStatic_);
 
-    if (angularFactor_)
-    {
-        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, *angularFactor_);
-    }
+    if (rigidBodyId == 0)
+        return;
 
-    isInitilized_ = true;
+    rigidBodyId_ = rigidBodyId;
+
+    if (inputParams_.velocity_)
+        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId, *inputParams_.velocity_);
+
+    if (inputParams_.angularFactor_)
+        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *inputParams_.angularFactor_);
 }
 void Rigidbody::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
+}
+bool Rigidbody::IsReady() const
+{
+    return rigidBodyId_.has_value();
 }
 Rigidbody& Rigidbody::SetMass(float mass)
 {
@@ -94,46 +97,42 @@ bool Rigidbody::isShapeTypeValid(ComponentsType shapeType)
 }
 Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
-    if (isInitilized_)
-    {
-        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, velocity);
-    }
-    else
-    {
-        velocity_ = velocity;
-    }
-
+    componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, velocity);
     return *this;
 }
 Rigidbody& Rigidbody::SetAngularFactor(float v)
 {
-    angularFactor_ = v;
+    componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, v);
+    return *this;
+}
 
-    if (isInitilized_)
-    {
-        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, v);
-    }
-
+Rigidbody& Rigidbody::SetAngularFactor(const vec3& angularFactor)
+{
+    componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, angularFactor);
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const vec3& rotation)
 {
-    componentContext_.physicsApi_.SetRotation(rigidBodyId_, rotation);
+    componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation);
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const Quaternion& rotation)
 {
-    componentContext_.physicsApi_.SetRotation(rigidBodyId_, rotation);
+    componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation);
     return *this;
 }
 Rigidbody& Rigidbody::SetPosition(const vec3& pos)
 {
-    componentContext_.physicsApi_.SetPosition(rigidBodyId_, pos);
+    componentContext_.physicsApi_.SetPosition(*rigidBodyId_, pos);
     return *this;
+}
+void Rigidbody::ApplyImpulse(const vec3& v)
+{
+    componentContext_.physicsApi_.ApplyImpulse(*rigidBodyId_, v);
 }
 void Rigidbody::IncreaseVelocity(const vec3& v)
 {
-    componentContext_.physicsApi_.IncreaseVelocityRigidbody(rigidBodyId_, v);
+    componentContext_.physicsApi_.IncreaseVelocityRigidbody(*rigidBodyId_, v);
 }
 float Rigidbody::GetMass() const
 {
@@ -149,15 +148,38 @@ ComponentsType Rigidbody::GetCollisionShapeType() const
 }
 vec3 Rigidbody::GetVelocity() const
 {
-    return *componentContext_.physicsApi_.GetVelocity(rigidBodyId_);
+    return *componentContext_.physicsApi_.GetVelocity(*rigidBodyId_);
 }
-std::optional<float> Rigidbody::GetAngularFactor() const
+vec3 Rigidbody::GetAngularFactor() const
 {
-    return angularFactor_;
+    return *componentContext_.physicsApi_.GetAngularFactor(*rigidBodyId_);
+}
+
+Quaternion Rigidbody::GetRotation() const
+{
+    return *componentContext_.physicsApi_.GetRotation(*rigidBodyId_);
+}
+
+common::Transform Rigidbody::GetTransform() const
+{
+    return *componentContext_.physicsApi_.GetTransfrom(*rigidBodyId_);
+}
+
+Rigidbody::Params& Rigidbody::InputParams()
+{
+    return inputParams_;
+}
+
+const Rigidbody::Params& Rigidbody::InputParams() const
+{
+    return inputParams_;
 }
 void Rigidbody::GetCollisionShape()
 {
-    switch (shapeType_)
+    if (not shapeType_)
+        return;
+
+    switch (*shapeType_)
     {
         case ComponentsType::BoxShape:
             collisionShape_ = thisObject_.GetComponent<BoxShape>();
@@ -175,7 +197,7 @@ void Rigidbody::GetCollisionShape()
             collisionShape_ = thisObject_.GetComponent<CapsuleShape>();
             break;
         default:
-            ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType_)) + ") is not found.");
+            ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(*shapeType_)) + ") is not found.");
             break;
     };
 }

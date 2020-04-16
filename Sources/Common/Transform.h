@@ -53,6 +53,8 @@ public:
     void SetPositionAndRotation(const vec3& position, const Rotation& rotation);
     void IncreaseRotation(const DegreesVec3&);
     void IncreaseRotation(const RadiansVec3&);
+
+    vec3 TransformDirection(const vec3&) const;
     const Rotation& GetRotation() const;
 
     void SetScale(float s);
