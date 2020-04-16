@@ -69,23 +69,24 @@ void ThirdPersonCamera::Move()
     if (lock_)
         return;
 
+    float cameraYaw = lookAtTransform_.GetSnapShoot().rotation.GetEulerDegrees()->y;
     float horizontalDistance = CalculateHorizontalDistance();
     float verticalDistance   = CalculateVerticalDistance();
-    CalculateCameraPosition(horizontalDistance, verticalDistance);
-    CalculateYaw();
+
+    CalculateCameraPosition(cameraYaw, horizontalDistance, verticalDistance);
+    CalculateYaw(cameraYaw);
     LockCamera();
 }
-void ThirdPersonCamera::CalculateCameraPosition(float horizontalDistance, float verticalDistance)
+void ThirdPersonCamera::CalculateCameraPosition(float cameraYaw, float horizontalDistance, float verticalDistance)
 {
-    float theata  = lookAtTransform_.GetRotation().GetEulerDegrees()->y + angleAroundPlayer_;
-    float xOffset = (float)(horizontalDistance * sin(glm::radians(theata)));
-    float zOffset = (float)(horizontalDistance * cos(glm::radians(theata)));
+    float theata  = cameraYaw + angleAroundPlayer_;
+    float xOffset = horizontalDistance * sinf(glm::radians(theata));
+    float zOffset = horizontalDistance * cosf(glm::radians(theata));
 
-    vec3 pos;
-    pos.x = lookAtTransform_.GetPosition().x - xOffset;
-    pos.y = lookAtTransform_.GetPosition().y + verticalDistance;
-    pos.z = lookAtTransform_.GetPosition().z - zOffset;
-    pos += offset_;
+    auto pos = lookAtTransform_.GetSnapShoot().position + offset_;
+    pos.x -= xOffset;
+    pos.y += verticalDistance;
+    pos.z -= zOffset;
 
     SetPosition(pos);
 }
@@ -97,9 +98,9 @@ float ThirdPersonCamera::CalculateVerticalDistance()
 {
     return distanceFromPlayer_ * sinf(glm::radians(GetRotation().x));
 }
-void ThirdPersonCamera::CalculateYaw()
+void ThirdPersonCamera::CalculateYaw(float cameraYaw)
 {
-    SetYaw(180.f - (lookAtTransform_.GetRotation().GetEulerDegrees()->y + angleAroundPlayer_));
+    SetYaw(180.f - (cameraYaw + angleAroundPlayer_));
 }
 void ThirdPersonCamera::CalculateZoom(float v)
 {

@@ -30,10 +30,10 @@ private:
     void LockCamera();
     void LockPitch();
     void LockYaw();
-    void CalculateCameraPosition(float horizontalDistance, float verticalDistance);
+    void CalculateCameraPosition(float cameraYaw, float horizontalDistance, float verticalDistance);
     float CalculateHorizontalDistance();
     float CalculateVerticalDistance();
-    void CalculateYaw();
+    void CalculateYaw(float cameraYaw);
     vec2 CalcualteMouseMove();
     void CalculatePitch(const vec2& mouseMove);
     void CalculateAngleAroundPlayer(const vec2& mouseMove);
