@@ -18,6 +18,7 @@ enum class MessageTypes
     Param,
     RemoveComponentMsgInd,
     RemoveGameObjectInd,
+    SelectedObjectChanged,
     Transform
 };
 const uint8 MIN_VALUE{static_cast<uint8>(MessageTypes::Any)};

@@ -16,6 +16,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
+#include "Messages/SelectedObjectChanged.h"
 #include "Messages/ComponentDataMessage.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
@@ -34,9 +35,10 @@ std::unique_ptr<FirstPersonCamera> firstPersonCamera;
 class DragObject
 {
 public:
-    DragObject(Input::InputManager &manager, common::Transform &transform, const CameraWrapper &camera,
+    DragObject(Input::InputManager &manager, common::Transform& positionIndicator, common::Transform &transform, const CameraWrapper &camera,
                const Projection &projection)
         : input_(manager)
+        , positionIndicator_(positionIndicator)
         , transform_(transform)
         , camera_(camera)
         , projection_(projection)
@@ -50,6 +52,7 @@ public:
     {
         auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
         transform_.SetPosition(mouseWorldPoint + offset_);
+        positionIndicator_.SetPosition(mouseWorldPoint + offset_);
     }
 
 private:
@@ -77,6 +80,7 @@ private:
 
 private:
     Input::InputManager &input_;
+    common::Transform& positionIndicator_;
     common::Transform &transform_;
     const CameraWrapper &camera_;
     const Projection &projection_;
@@ -155,9 +159,14 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
             arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(),
                                                              selectedGameObject_->worldTransform.GetRotation());
-            DEBUG_LOG("arrowsIndicatorTransform_ pos : " + std::to_string(arrowsIndicatorTransform_.GetPosition()));
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform,
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, arrowsIndicatorTransform_, selectedGameObject_->worldTransform,
                                                        scene_.camera, scene_.renderersManager_->GetProjection());
+
+            if (userId_ > 0)
+            {
+                DebugNetworkInterface::SelectedObjectChanged msg(selectedGameObject_->GetId());
+                gateway_.Send(userId_, msg);
+            }
         }
         else
         {
@@ -214,6 +223,7 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 }
 void NetworkEditorInterface::DisconnectUser(uint32 id)
 {
+    userId_ = 0;
     DEBUG_LOG("Disconnect user : {" + std::to_string(id) + "}");
     UnsubscribeTransformUpdateIfExist();
 }

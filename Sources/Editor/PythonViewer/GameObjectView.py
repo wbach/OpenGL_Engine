@@ -31,6 +31,7 @@ class GameObjectView:
 
         self.networkClient.SubscribeOnMessage("NewGameObjectInd", self.OnGameObjectMsg)
         self.networkClient.SubscribeOnMessage("CameraMsg", self.OnCameraMsg)
+        self.networkClient.SubscribeOnMessage("SelectedObjectChanged", self.OnSelectedObjectChanged)
         networkClient.SubscribeOnDisconnect(self.Clear)
 
     def OnCameraMsg(self, msg):
@@ -91,6 +92,13 @@ class GameObjectView:
             self.componentsView.Fill(gameObjectId)
         elif type == self.cameraType:
             self.ShowCameraInView()
+
+    def OnSelectedObjectChanged(self, msg):
+        gameObjectId = int(msg.get("id"))
+        id, name, hwnd = self.gameObjects[gameObjectId]
+        self.infoView.UpdateInfoWidget(name, gameObjectId)
+        self.transformView.ReqAndFill(gameObjectId)
+        self.componentsView.Fill(gameObjectId)
 
     def GetObjectList(self):
         self.networkClient.SendCommand("getObjectList")
