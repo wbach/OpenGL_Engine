@@ -395,7 +395,7 @@ void MainScene::KeyOperations()
         else if (camType == CameraType::ThridPerson)
         {
             camType = CameraType::FirstPerson;
-            camera_ = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+            camera_ = std::make_unique<FirstPersonCamera>(*inputManager_, *displayManager_);
             camera_->SetPosition(pos);
             camera_->SetPitch(rotation.x);
             camera_->SetYaw(rotation.y);

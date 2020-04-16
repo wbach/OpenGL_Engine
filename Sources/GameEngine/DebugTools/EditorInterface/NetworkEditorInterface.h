@@ -22,6 +22,12 @@ public:
 
 private:
     typedef std::unordered_map<std::string, std::string> EntryParameters;
+    void DefineCommands();
+    void SetupCamera();
+    void StartGatway();
+    void PrepareDebugModels();
+    void KeysSubscribtions();
+    void KeysUnsubscribe();
 
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
@@ -58,6 +64,8 @@ private:
     common::Transform arrowsIndicatorTransform_;
     uint32 keyDownSub_;
     uint32 keyUpSub_;
+    uint32 scrollKeyUpSub_;
+    uint32 scrollKeyDownSub_;
     uint32 cameraLockUnlockKeySubscribtion_;
     GameObject* selectedGameObject_;
     uint32 userId_;

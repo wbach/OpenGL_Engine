@@ -8,6 +8,7 @@
 
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
@@ -16,12 +17,12 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
-#include "Messages/SelectedObjectChanged.h"
 #include "Messages/ComponentDataMessage.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectInd.h"
+#include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
 
@@ -32,84 +33,38 @@ namespace
 std::unique_ptr<FirstPersonCamera> firstPersonCamera;
 }  // namespace
 
-class DragObject
-{
-public:
-    DragObject(Input::InputManager &manager, common::Transform& positionIndicator, common::Transform &transform, const CameraWrapper &camera,
-               const Projection &projection)
-        : input_(manager)
-        , positionIndicator_(positionIndicator)
-        , transform_(transform)
-        , camera_(camera)
-        , projection_(projection)
-    {
-        mouseZcoord_ = CalculateMouseZCoord(transform_.GetPosition());
-        DEBUG_LOG(std::to_string(mouseZcoord_));
-        offset_ = transform_.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
-    }
-
-    void Update()
-    {
-        auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
-        transform_.SetPosition(mouseWorldPoint + offset_);
-        positionIndicator_.SetPosition(mouseWorldPoint + offset_);
-    }
-
-private:
-    vec3 WorldToScreenPoint(const vec3 &point)
-    {
-        return Utils::Vec4ToVec3(projection_.GetProjectionMatrix() * camera_.GetViewMatrix() * vec4(point, 1.f));
-    }
-
-    vec3 ScreenToWorldPoint(const vec3 &point)
-    {
-        auto eyeCoords   = glm::inverse(projection_.GetProjectionMatrix()) * vec4(point, 1.f);
-        auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * eyeCoords;
-        return Utils::Vec4ToVec3(worldCoords);
-    }
-
-    float CalculateMouseZCoord(const vec3 &objectPosition)
-    {
-        return WorldToScreenPoint(objectPosition).z;
-    }
-
-    vec3 GetMouseAsWorldPoint(const vec2 &mousePosition, float zCoord)
-    {
-        return ScreenToWorldPoint(vec3(mousePosition, zCoord));
-    }
-
-private:
-    Input::InputManager &input_;
-    common::Transform& positionIndicator_;
-    common::Transform &transform_;
-    const CameraWrapper &camera_;
-    const Projection &projection_;
-    vec3 offset_;
-    float mouseZcoord_;
-};
-
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     : scene_(scene)
     , transformChangeSubscription_{nullptr}
     , selectedGameObject_{nullptr}
     , userId_{0}
 {
-    firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene.inputManager_, *scene.displayManager_);
-    firstPersonCamera->Lock();
+    DefineCommands();
+    StartGatway();
+    SetupCamera();
+    PrepareDebugModels();
+    KeysSubscribtions();
+}
 
-    cameraLockUnlockKeySubscribtion_ = scene.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
-        if (firstPersonCamera->IsLocked())
-        {
-            firstPersonCamera->Unlock();
-        }
-        else
-        {
-            firstPersonCamera->Lock();
-        }
-    });
-    SetFreeCamera();
+NetworkEditorInterface::~NetworkEditorInterface()
+{
+    KeysUnsubscribe();
+    UnsubscribeTransformUpdateIfExist();
 
-    // scene_.Stop();
+    if (cameraChangeSubscriptionId_)
+    {
+        scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
+    }
+
+    EngineContext.threadSync_.Unsubscribe(threadId_);
+}
+void NetworkEditorInterface::AddObject(const std::string &path)
+{
+    DEBUG_LOG("AddObject not implemented : path=" + path);
+}
+
+void NetworkEditorInterface::DefineCommands()
+{
     commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
     commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
@@ -126,9 +81,29 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     commands_.insert({"getComponentParams", [&](const EntryParameters &v) { GetComponentParams(v); }});
     commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
     commands_.insert({"modifyComponentReq", [&](const EntryParameters &v) { ModifyComponentReq(v); }});
-
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
+}
 
+void NetworkEditorInterface::SetupCamera()
+{
+    firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
+    firstPersonCamera->Lock();
+
+    cameraLockUnlockKeySubscribtion_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
+        if (firstPersonCamera->IsLocked())
+        {
+            firstPersonCamera->Unlock();
+        }
+        else
+        {
+            firstPersonCamera->Lock();
+        }
+    });
+    SetFreeCamera();
+}
+
+void NetworkEditorInterface::StartGatway()
+{
     DEBUG_LOG("Starting server");
     gateway_.StartServer(30, 1991);
     gateway_.SetDefaultMessageConverterFormat(Network::MessageFormat::Xml);
@@ -143,11 +118,29 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     threadId_ = EngineContext.threadSync_.Subscribe(
         [&](float) {
             gateway_.Update();
-             if (dragObject_)
-              dragObject_->Update();
+            if (selectedGameObject_)
+            {
+                arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(),
+                                                                 selectedGameObject_->worldTransform.GetRotation());
+            }
+            if (dragObject_)
+                dragObject_->Update();
         },
         "NetworkEditorFps");
+}
 
+void NetworkEditorInterface::PrepareDebugModels()
+{
+    auto model = scene_.resourceManager_->LoadModel("Meshes/Indicators/Arrows.obj");
+
+    if (model)
+    {
+        scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*model, arrowsIndicatorTransform_);
+    }
+}
+
+void NetworkEditorInterface::KeysSubscribtions()
+{
     keyDownSub_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
@@ -157,9 +150,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         if (selectedGameObject_)
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-            arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(),
-                                                             selectedGameObject_->worldTransform.GetRotation());
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, arrowsIndicatorTransform_, selectedGameObject_->worldTransform,
+
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform,
                                                        scene_.camera, scene_.renderersManager_->GetProjection());
 
             if (userId_ > 0)
@@ -174,46 +166,58 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
         }
     });
 
-    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() {
-        selectedGameObject_ = nullptr;
-        dragObject_         = nullptr;
+    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { dragObject_ = nullptr; });
+
+    float rotationSpeed = 2.f;
+
+    scrollKeyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
+        if (selectedGameObject_)
+        {
+            vec3 v(0, 0, 0);
+            if (scene_.inputManager_->GetKey(KeyCodes::X))
+            {
+                v.x = rotationSpeed;
+            }
+            if (scene_.inputManager_->GetKey(KeyCodes::Y))
+            {
+                v.y = rotationSpeed;
+            }
+            if (scene_.inputManager_->GetKey(KeyCodes::Z))
+            {
+                v.z = rotationSpeed;
+            }
+            selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
+        }
     });
 
-    auto model = scene_.resourceManager_->LoadModel("Meshes/Indicators/Arrows.obj");
-
-    if (model)
-    {
-        scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*model, arrowsIndicatorTransform_);
-    }
+    scrollKeyDownSub_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
+        if (selectedGameObject_)
+        {
+            vec3 v(0, 0, 0);
+            if (scene_.inputManager_->GetKey(KeyCodes::X))
+            {
+                v.x = -rotationSpeed;
+            }
+            if (scene_.inputManager_->GetKey(KeyCodes::Y))
+            {
+                v.y = -rotationSpeed;
+            }
+            if (scene_.inputManager_->GetKey(KeyCodes::Z))
+            {
+                v.z = -rotationSpeed;
+            }
+            selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
+        }
+    });
 }
 
-NetworkEditorInterface::~NetworkEditorInterface()
+void NetworkEditorInterface::KeysUnsubscribe()
 {
     scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LMOUSE, keyDownSub_);
     scene_.inputManager_->UnsubscribeOnKeyUp(KeyCodes::LMOUSE, keyUpSub_);
+    scene_.inputManager_->UnsubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, scrollKeyUpSub_);
+    scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, scrollKeyDownSub_);
     scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LCTRL, cameraLockUnlockKeySubscribtion_);
-
-    if (transformChangeSubscriptionId_)
-    {
-        if (not transformChangeSubscription_)
-        {
-            ERROR_LOG("Somthing went wrong. transformChangeSubscription_ is nullptr");
-            return;
-        }
-
-        transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
-    }
-
-    if (cameraChangeSubscriptionId_)
-    {
-        scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
-    }
-
-    EngineContext.threadSync_.Unsubscribe(threadId_);
-}
-void NetworkEditorInterface::AddObject(const std::string &path)
-{
-    DEBUG_LOG("AddObject not implemented : path=" + path);
 }
 
 void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
