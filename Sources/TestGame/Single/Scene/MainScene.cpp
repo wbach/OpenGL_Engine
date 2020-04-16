@@ -239,7 +239,7 @@ int MainScene::Initialize()
             std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
         AddGameObject(uplayer);
     }
-    camera_ = std::make_unique<FirstPersonCamera>(inputManager_, displayManager_);
+    camera_ = std::make_unique<FirstPersonCamera>(*inputManager_, *displayManager_);
     camera.Set(*camera_);
     camera.SetPosition(vec3(.5, 3.5, 2.1));
     // camera.SetPosition(vec3(-5107.217, 3324.774, 5352.738));

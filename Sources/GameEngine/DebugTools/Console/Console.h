@@ -1,10 +1,13 @@
 #pragma once
+#include <Types.h>
+
 #include <functional>
 #include <list>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <Types.h>
+
+#include "GameEngine/Camera/FirstPersonCamera.h"
 
 namespace GameEngine
 {
@@ -29,6 +32,8 @@ private:
 private:
     void SubscribeKeys();
     void RegisterActions();
+    void SetFreeCamera(const std::vector<std::string>&);
+    void DisableFreeCam(const std::vector<std::string>&);
     void LoadPrefab(const std::vector<std::string>&);
     void SetPosition(const std::vector<std::string>&);
     void PrintPosition(const std::vector<std::string>&);
@@ -65,6 +70,8 @@ private:
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
     int32 commandHistoryIndex_;
     KeysSubscriptions keysSubscriptions_;
+    ICamera* stashedCamera_;
+    std::unique_ptr<FirstPersonCamera> firstPersonCamera_;
 };
 }  // namespace Debug
 }  // namespace GameEngine

@@ -23,6 +23,11 @@ void CameraWrapper::Set(ICamera& camera)
     camera_ = &camera;
 }
 
+ICamera* CameraWrapper::Get() const
+{
+    return camera_;
+}
+
 void CameraWrapper::Update()
 {
     std::lock_guard<std::mutex> m(cameraMutex);

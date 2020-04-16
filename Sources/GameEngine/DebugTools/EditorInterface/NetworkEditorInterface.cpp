@@ -90,7 +90,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     , selectedGameObject_{nullptr}
     , userId_{0}
 {
-    firstPersonCamera = std::make_unique<FirstPersonCamera>(scene.inputManager_, scene.displayManager_);
+    firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene.inputManager_, *scene.displayManager_);
     firstPersonCamera->Lock();
 
     cameraLockUnlockKeySubscribtion_ = scene.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {

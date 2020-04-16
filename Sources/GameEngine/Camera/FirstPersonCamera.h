@@ -3,8 +3,8 @@
 
 namespace Input
 {
-    class InputManager;
-} // input
+class InputManager;
+}  // namespace Input
 
 namespace GameEngine
 {
@@ -13,12 +13,11 @@ class DisplayManager;
 class FirstPersonCamera : public BaseCamera
 {
 public:
-    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager);
-    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager, float mouse_velocity,
-                      float move_velocity);
-    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager, vec3& position_entity,
+    FirstPersonCamera(Input::InputManager&, DisplayManager&);
+    FirstPersonCamera(Input::InputManager&, DisplayManager&, float mouse_velocity, float move_velocity);
+    FirstPersonCamera(Input::InputManager&, DisplayManager&, vec3& position_entity,
                       vec3& rotation_entity);
-    FirstPersonCamera(Input::InputManager* input_manager, DisplayManager* display_manager, float mouse_velocity,
+    FirstPersonCamera(Input::InputManager&, DisplayManager&, float mouse_velocity,
                       float move_velocity, vec3& position_entity, vec3& rotation_entity, bool freeCamera);
 
     void Move() override;
@@ -43,8 +42,8 @@ private:
     void LockYaw();
 
 private:
-    Input::InputManager* inputManager;
-    DisplayManager* displayManager;
+    Input::InputManager& inputManager;
+    DisplayManager& displayManager;
 
     vec3& lookPosition;
     vec3& lookRotation;
@@ -55,4 +54,4 @@ private:
 
     float currentMoveVelocity;
 };
-}  // GameEngine
+}  // namespace GameEngine

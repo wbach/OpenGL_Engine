@@ -78,6 +78,8 @@ Console::Console(Scene &scene)
 
 void Console::RegisterActions()
 {
+    commandsActions_.insert({"freecam", [this](const auto &params) { SetFreeCamera(params); }});
+    commandsActions_.insert({"disablefreecam", [this](const auto &params) { DisableFreeCam(params); }});
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
     commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
@@ -90,6 +92,24 @@ void Console::RegisterActions()
     commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
     commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
     commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
+}
+
+void Console::SetFreeCamera(const std::vector<std::string> &)
+{
+    if (firstPersonCamera_)
+        return;
+
+    firstPersonCamera_ = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
+    stashedCamera_     = scene_.GetCamera().Get();
+    firstPersonCamera_->SetPosition(stashedCamera_->GetPosition());
+    firstPersonCamera_->SetRotation(stashedCamera_->GetRotation());
+    scene_.SetCamera(*firstPersonCamera_);
+}
+
+void Console::DisableFreeCam(const std::vector<std::string> &)
+{
+    scene_.SetCamera(*stashedCamera_);
+    firstPersonCamera_.reset(nullptr);
 }
 
 void Console::AddCommand(const std::string &command)

@@ -10,6 +10,7 @@ public:
     CameraWrapper();
     CameraWrapper(ICamera& camera);
     void Set(ICamera& camera);
+    ICamera* Get() const;
 
     void Update();
 
