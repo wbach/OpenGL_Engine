@@ -86,6 +86,14 @@ void Console::RegisterActions()
     commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
     commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
     commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
+    commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
+}
+
+void Console::CameraInfo(const std::vector<std::string> &)
+{
+    PrintMsgInConsole("Camera info: ");
+    PrintMsgInConsole(std::to_string(scene_.camera.GetPosition()));
+    PrintMsgInConsole(std::to_string(scene_.camera.GetRotation()));
 }
 
 void Console::SetFreeCamera(const std::vector<std::string> &)
@@ -118,6 +126,7 @@ void Console::AddCommand(const std::string &command)
 
 void Console::ExecuteComand(const std::string &commandWithParams)
 {
+    AddAndUpdateHistoryFileIfNeeded(commandWithParams);
     auto command = GetCommandNameFromString(commandWithParams);
     auto params  = GetParams(commandWithParams);
     commandsActions_.at(command)(params);
@@ -147,6 +156,12 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     const auto &windowPosition = window_->GetPosition();
     result->SetPostion(windowPosition + DEFAULT_TEXT_POSITION);
     return result;
+}
+
+void Console::PrintMsgInConsole(const std::string &msg)
+{
+    currentCommand_->SetText(msg);
+    currentCommand_ = AddOrUpdateGuiText("");
 }
 
 void Console::MoveUpTexts()
@@ -203,7 +218,7 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
 {
     if (params.size() < 2)
     {
-        AddOrUpdateGuiText("Can not load prefab. Params : filename objectName.");
+        PrintMsgInConsole("Can not load prefab. Params : filename objectName.");
         return;
     }
 
@@ -217,7 +232,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
 {
     if (args.size() < 3)
     {
-        AddOrUpdateGuiText("Not enough arguments");
+        PrintMsgInConsole("Not enough arguments");
         return;
     }
 
@@ -247,7 +262,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
             }
             catch (...)
             {
-                AddOrUpdateGuiText("exception stof");
+                PrintMsgInConsole("exception stof");
             }
         }
         else if (args[1] == "y")
@@ -270,7 +285,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
             }
             catch (...)
             {
-                AddOrUpdateGuiText("exception stof");
+                PrintMsgInConsole("exception stof");
             }
         }
         else if (args[1] == "z")
@@ -292,7 +307,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
             }
             catch (...)
             {
-                AddOrUpdateGuiText("exception stof");
+                PrintMsgInConsole("exception stof");
             }
         }
         else
@@ -316,13 +331,13 @@ void Console::SetPosition(const std::vector<std::string> &args)
             }
             catch (...)
             {
-                AddOrUpdateGuiText("exception stof");
+                PrintMsgInConsole("exception stof");
             }
         }
     }
     else
     {
-        AddOrUpdateGuiText("GameObject with name not found.");
+        PrintMsgInConsole("GameObject with name not found.");
     }
 }
 
@@ -330,17 +345,17 @@ void Console::PrintPosition(const std::vector<std::string> &args)
 {
     if (args.empty())
     {
-        AddOrUpdateGuiText("GameObject with name not found.");
+        PrintMsgInConsole("GameObject with name not found.");
         return;
     }
 
     if (auto gameObject = GetGameObject(args[0]))
     {
-        AddOrUpdateGuiText("Position of " + args[0] + " : " + std::to_string(gameObject->worldTransform.GetPosition()));
+        PrintMsgInConsole("Position of " + args[0] + " : " + std::to_string(gameObject->worldTransform.GetPosition()));
     }
     else
     {
-        AddOrUpdateGuiText(args[0] + " not found");
+        PrintMsgInConsole(args[0] + " not found");
     }
 }
 
@@ -376,7 +391,7 @@ void Console::LoadScene(const std::vector<std::string> &params)
         }
         catch (...)
         {
-            AddOrUpdateGuiText("LOAD_SCENE_BY_ID stoi exception");
+            PrintMsgInConsole("LOAD_SCENE_BY_ID stoi exception");
         }
     }
     else

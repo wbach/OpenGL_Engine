@@ -40,6 +40,7 @@ private:
 
     void MoveUpTexts();
     GuiTextElement* AddOrUpdateGuiText(const std::string& command);
+    void PrintMsgInConsole(const std::string& msg);
     void CloseConsole();
     void SubscribeKeys();
     void RegisterActions();
@@ -49,6 +50,7 @@ private:
     void LoadCommandHistoryFromFile();
 
 private:
+    void CameraInfo(const std::vector<std::string>&);
     void SetFreeCamera(const std::vector<std::string>&);
     void DisableFreeCam(const std::vector<std::string>&);
     void LoadPrefab(const std::vector<std::string>&);
