@@ -54,6 +54,11 @@ void CameraWrapper::CalculateZoom(float lvl)
     camera_->CalculateZoom(lvl);
 }
 
+bool CameraWrapper::IsLocked() const
+{
+    return camera_->IsLocked();
+}
+
 void CameraWrapper::Lock()
 {
     std::lock_guard<std::mutex> m(cameraMutex);

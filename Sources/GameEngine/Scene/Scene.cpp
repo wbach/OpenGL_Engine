@@ -85,6 +85,10 @@ void Scene::FullUpdate(float deltaTime)
         return;
     }
 
+    if (console_)
+    {
+        console_->ExecuteCommands();
+    }
     if (physicsApi_ && simulatePhysics_.load())
     {
         physicsApi_->SetSimulationStep(deltaTime);

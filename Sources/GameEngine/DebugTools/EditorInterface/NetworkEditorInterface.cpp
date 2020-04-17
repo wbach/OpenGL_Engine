@@ -90,13 +90,13 @@ void NetworkEditorInterface::SetupCamera()
     firstPersonCamera->Lock();
 
     cameraLockUnlockKeySubscribtion_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
-        if (firstPersonCamera->IsLocked())
+        if (scene_.camera.IsLocked())
         {
-            firstPersonCamera->Unlock();
+            scene_.camera.Unlock();
         }
         else
         {
-            firstPersonCamera->Lock();
+            scene_.camera.Lock();
         }
     });
     SetFreeCamera();

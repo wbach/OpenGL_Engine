@@ -1,13 +1,14 @@
 #pragma once
 #include <Types.h>
 
+#include <Mutex.hpp>
 #include <functional>
 #include <list>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <memory>
-
+#include <Input/KeysSubscriptionsManager.h>
 #include "GameEngine/Camera/FirstPersonCamera.h"
 
 namespace GameEngine
@@ -23,16 +24,31 @@ class Console
 {
 public:
     Console(Scene& scene);
+    void ExecuteCommands();
 
 private:
+    std::string GetCommandNameFromString(const std::string&) const;
+    std::vector<std::string> GetParams(const std::string& comannd) const;
+    bool IsKnownCommand(const std::string&) const;
+
     void AddCommand(const std::string& command);
+    void AddAndUpdateHistoryFileIfNeeded(const std::string& command);
     void ExecuteComand(const std::string& command);
-    GuiTextElement* AddOrUpdateGuiText(const std::string& command);
-    void MoveUpTexts();
 
-private:
+    void AddCommandToExecute(const std::string&);
+    std::string GetCommandToExecute();
+
+    void MoveUpTexts();
+    GuiTextElement* AddOrUpdateGuiText(const std::string& command);
+    void CloseConsole();
     void SubscribeKeys();
     void RegisterActions();
+    GameObject* GetGameObject(const std::string&);
+
+    void PrepareConsoleWindow();
+    void LoadCommandHistoryFromFile();
+
+private:
     void SetFreeCamera(const std::vector<std::string>&);
     void DisableFreeCam(const std::vector<std::string>&);
     void LoadPrefab(const std::vector<std::string>&);
@@ -47,32 +63,22 @@ private:
     void SwapRenderMode(const std::vector<std::string>&);
     void EnableEditorNetworkInterface(const std::vector<std::string>&);
     void Help(const std::vector<std::string>&);
-    GameObject* GetGameObject(const std::string&);
-    std::vector<std::string> GetParams(const std::string& comannd);
-
-private:
-    void UnsubscribeKeys();
-
-    struct KeysSubscriptions
-    {
-        void operator=(uint32 id)
-        {
-            subscriptions_.push_back(id);
-        }
-        std::vector<uint32> subscriptions_;
-    };
 
 private:
     Scene& scene_;
     GuiWindowElement* window_;
     std::list<GuiTextElement*> guiTexts_;
-    std::vector<std::string> commands_;
+    std::vector<std::string> commandsHistory_;
+    std::list<std::string> commandsToExecute_;
+    std::mutex commandsExecuteMutex_;
     GuiTextElement* currentCommand_;
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
     int32 commandHistoryIndex_;
-    KeysSubscriptions keysSubscriptions_;
     ICamera* stashedCamera_;
     std::unique_ptr<FirstPersonCamera> firstPersonCamera_;
+
+private:
+    Input::KeysSubscriptionsManager keysSubscribtionManager_;
 };
 }  // namespace Debug
 }  // namespace GameEngine

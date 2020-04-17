@@ -242,7 +242,7 @@ void GuiTextElement::CalculateAlginOffset()
         offset_.x = scale_.x;
     else if (algin_ == Algin::RIGHT)
         offset_.x = -scale_.x;
-
+    CalculateMatrix();
     CallOnChange();
 }
 }  // namespace GameEngine

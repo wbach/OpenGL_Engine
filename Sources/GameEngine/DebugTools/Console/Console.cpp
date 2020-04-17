@@ -20,61 +20,54 @@ namespace Debug
 namespace
 {
 const size_t MAX_GUI_TEXTS{20};
-const vec2 DEFAULT_TEXT_POSITION(-1.00, -0.45);
+const vec2 DEFAULT_TEXT_POSITION(-0.99f, -0.45f);
 const std::string COMMAND_CURRSOR{"> "};
 const std::string CONSOLE_LAYER_NAME{"consoleLayer"};
-auto inputType                = Input::SingleCharType::SMALL;
-const float WINDOW_Z_POSITION = -10.f;
+Input::SingleCharType inputType{Input::SingleCharType::SMALL};
+const float WINDOW_Z_POSITION{-100.f};
 }  // namespace
+
 Console::Console(Scene &scene)
     : scene_(scene)
     , window_{nullptr}
     , currentCommand_{nullptr}
     , commandHistoryIndex_{0}
+    , keysSubscribtionManager_(*scene_.inputManager_)
 {
-    scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
-    auto window =
-        scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0, 0.5), vec2(1, 0.5));
-    window_ = window.get();
-    scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
-
-    if (not window_)
-        return;
-
-    window_->Hide();
-    window_->SetZPosition(WINDOW_Z_POSITION);
-
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        window_->Show();
-
-        if (not commands_.empty())
-            commandHistoryIndex_ = static_cast<int32>(commands_.size() - 1);
-
-        if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
-            currentCommand_ = AddOrUpdateGuiText("");
-
-        scene_.camera.Lock();
-        scene_.inputManager_->AddEvent([&]() {
-            scene_.inputManager_->StashSubscribers();
-            SubscribeKeys();
-        });
-    });
-
+    PrepareConsoleWindow();
     RegisterActions();
+    LoadCommandHistoryFromFile();
+}
 
-    std::ifstream file(".commandHistory");
-
-    if (file.is_open())
+void Console::ExecuteCommands()
+{
+    while (not commandsToExecute_.empty())
     {
-        std::string command;
-        while (file >> command)
-        {
-            auto text = AddOrUpdateGuiText(command);
-            text->Hide();
-            commands_.push_back(COMMAND_CURRSOR + command);
-        }
-        file.close();
+        auto command = GetCommandToExecute();
+        ExecuteComand(command);
     }
+}
+
+void Console::AddAndUpdateHistoryFileIfNeeded(const std::string &command)
+{
+    auto iter = std::find(commandsHistory_.begin(), commandsHistory_.end(), command);
+
+    if (iter == commandsHistory_.end())
+    {
+        commandsHistory_.push_back(command);
+    }
+    else
+    {
+        // move item to end
+        auto str = *iter;
+        commandsHistory_.erase(iter);
+        commandsHistory_.push_back(str);
+    }
+
+    std::ofstream file(".commandHistory");
+    for (const auto &com : commandsHistory_)
+        file << com << '\n';
+    file.close();
 }
 
 void Console::RegisterActions()
@@ -115,76 +108,44 @@ void Console::DisableFreeCam(const std::vector<std::string> &)
 
 void Console::AddCommand(const std::string &command)
 {
-    std::string c = command.substr(COMMAND_CURRSOR.size());
-
-    auto iter = std::find(commands_.begin(), commands_.end(), command);
-    if (iter == commands_.end())
+    if (not IsKnownCommand(command))
     {
-        commands_.push_back(command);
+        AddOrUpdateGuiText("command not found");
+        return;
     }
-    else
-    {
-        auto str = *iter;
-        commands_.erase(iter);
-        commands_.push_back(str);
-    }
-
-    std::ofstream file(".commandHistory");
-    for (const auto &com : commands_)
-        file << com.substr(COMMAND_CURRSOR.size()) << '\n';
-    file.close();
-
-    DEBUG_LOG(c);
-    ExecuteComand(c);
+    AddCommandToExecute(command);
 }
 
 void Console::ExecuteComand(const std::string &commandWithParams)
 {
-    auto command = commandWithParams.substr(0, commandWithParams.find_first_of(' '));
-
-    if (commandsActions_.count(command) > 0)
-    {
-        auto params = GetParams(commandWithParams);
-        for (const auto &param : params)
-        {
-            DEBUG_LOG("Param : " + param);
-        }
-        commandsActions_.at(command)(params);
-    }
-    else
-    {
-        AddOrUpdateGuiText("command not found");
-    }
+    auto command = GetCommandNameFromString(commandWithParams);
+    auto params  = GetParams(commandWithParams);
+    commandsActions_.at(command)(params);
 }
 
 GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
 {
-    DEBUG_LOG(command);
-
+    MoveUpTexts();
     GuiTextElement *result{nullptr};
 
     if (guiTexts_.size() < MAX_GUI_TEXTS)
     {
-        MoveUpTexts();
-        auto text = scene_.guiElementFactory_->CreateGuiText("GUI/Ubuntu-M.ttf", COMMAND_CURRSOR + command, 25, 0);
+        auto text = scene_.guiElementFactory_->CreateGuiText("GUI/Ubuntu-M.ttf", COMMAND_CURRSOR + command, 35, 0);
         text->SetAlgin(GuiTextElement::Algin::LEFT);
-        text->SetPostion(DEFAULT_TEXT_POSITION);
-
         result = text.get();
         guiTexts_.push_back(result);
         window_->AddChild(std::move(text));
     }
     else
     {
-        const auto &windowPosition = window_->GetPosition();
-
-        MoveUpTexts();
         result = guiTexts_.front();
-        result->SetText(COMMAND_CURRSOR);
-        result->SetPostion(windowPosition + DEFAULT_TEXT_POSITION);
+        result->SetText(COMMAND_CURRSOR + command);
         guiTexts_.pop_front();
         guiTexts_.push_back(result);
     }
+
+    const auto &windowPosition = window_->GetPosition();
+    result->SetPostion(windowPosition + DEFAULT_TEXT_POSITION);
     return result;
 }
 
@@ -197,6 +158,45 @@ void Console::MoveUpTexts()
         position.y += 2.f * scale.y;
         guiText->SetPostion(position);
     }
+}
+
+bool Console::IsKnownCommand(const std::string &commandWithParams) const
+{
+    return commandsActions_.count(GetCommandNameFromString(commandWithParams)) > 0;
+}
+
+std::string Console::GetCommandNameFromString(const std::string &commandWithParams) const
+{
+    return commandWithParams.substr(0, commandWithParams.find_first_of(' '));
+}
+
+void Console::AddCommandToExecute(const std::string &command)
+{
+    std::lock_guard<std::mutex> lk(commandsExecuteMutex_);
+    commandsToExecute_.push_back(command);
+}
+
+std::string Console::GetCommandToExecute()
+{
+    std::lock_guard<std::mutex> lk(commandsExecuteMutex_);
+    auto result = commandsToExecute_.front();
+    commandsToExecute_.pop_front();
+    return result;
+}
+
+void Console::CloseConsole()
+{
+    window_->Hide();
+    scene_.camera.Unlock();
+
+    if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
+    {
+        currentCommand_->Append(" (not executed)");
+        currentCommand_->Hide();
+    }
+
+    // stash pop remove existing subscriptions
+    scene_.inputManager_->StashPopSubscribers();
 }
 
 void Console::LoadPrefab(const std::vector<std::string> &params)
@@ -429,6 +429,11 @@ void Console::SwapRenderMode(const std::vector<std::string> &)
 
 void Console::EnableEditorNetworkInterface(const std::vector<std::string> &params)
 {
+    // need to close console for key subscribtions are stashed when console is running
+    // subscribe and unsubsribe
+
+    CloseConsole();
+
     if (params.empty() or params[0] == "on" or params[0] == "true")
     {
         scene_.RunNetworkEditorInterface();
@@ -449,7 +454,7 @@ void Console::Help(const std::vector<std::string> &)
     }
 }
 
-std::vector<std::string> Console::GetParams(const std::string &command)
+std::vector<std::string> Console::GetParams(const std::string &command) const
 {
     auto result = Utils::SplitString(command, ' ');
     if (result.size() > 1)
@@ -463,69 +468,73 @@ std::vector<std::string> Console::GetParams(const std::string &command)
     }
 }
 
-void Console::UnsubscribeKeys()
+void Console::LoadCommandHistoryFromFile()
 {
-    for (auto &ks : keysSubscriptions_.subscriptions_)
+    std::ifstream file(".commandHistory");
+
+    if (file.is_open())
     {
-        scene_.inputManager_->Unsubscribe(ks);
+        std::string command;
+        while (std::getline(file, command))
+        {
+            auto text = AddOrUpdateGuiText(command);
+            text->Hide();
+            commandsHistory_.push_back(command);
+        }
+        file.close();
     }
-    keysSubscriptions_.subscriptions_.clear();
 }
 
 void Console::SubscribeKeys()
 {
-    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
         if (not window_->IsShow() or not currentCommand_)
         {
             return;
         }
-        commandHistoryIndex_ = static_cast<int32>(commands_.size() - 1);
-        AddCommand(currentCommand_->GetText());
+        commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+        AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
         currentCommand_ = AddOrUpdateGuiText("");
     });
-    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
-        if (commands_.empty())
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
+        if (commandsHistory_.empty())
             return;
 
         if (commandHistoryIndex_ < 0)
         {
-            commandHistoryIndex_ = static_cast<int>(commands_.size() - 1);
+            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
         }
-        if (commandHistoryIndex_ >= static_cast<int>(commands_.size()))
+        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
         {
             commandHistoryIndex_ = 0;
         }
 
-        currentCommand_->SetText(commands_[static_cast<size_t>(commandHistoryIndex_)]);
+        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
         ++commandHistoryIndex_;
     });
 
-    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
-        if (commands_.empty())
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
+        if (commandsHistory_.empty())
             return;
 
         if (commandHistoryIndex_ < 0)
         {
-            commandHistoryIndex_ = static_cast<int>(commands_.size() - 1);
+            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
         }
-        if (commandHistoryIndex_ >= static_cast<int>(commands_.size()))
+        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
         {
             commandHistoryIndex_ = 0;
         }
 
-        currentCommand_->SetText(commands_[static_cast<size_t>(commandHistoryIndex_)]);
+        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
         --commandHistoryIndex_;
     });
 
-    keysSubscriptions_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
-    keysSubscriptions_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
-    keysSubscriptions_ =
-        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    keysSubscriptions_ =
-        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    keysSubscriptions_ = scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
+    scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
+    scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
+    scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
         if (not window_->IsShow())
             return;
 
@@ -536,7 +545,8 @@ void Console::SubscribeKeys()
                 break;
 
             case KeyCodes::BACKSPACE:
-                currentCommand_->Pop();
+                if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
+                    currentCommand_->Pop();
                 break;
 
             default:
@@ -551,34 +561,47 @@ void Console::SubscribeKeys()
         }
     });
 
-    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        window_->Hide();
-        scene_.camera.Unlock();
-        if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
-        {
-            currentCommand_->Append(" (not executed)");
-        }
+    auto closeConsole = [this]() { scene_.inputManager_->AddEvent([&]() { CloseConsole(); }); };
 
-        // stash pop remove existing subscriptions
-        scene_.inputManager_->AddEvent([&]() { scene_.inputManager_->StashPopSubscribers(); });
-    });
-
-    keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
-        window_->Hide();
-
-        if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
-        {
-            currentCommand_->Append(" (not executed)");
-        }
-
-        scene_.inputManager_->StashPopSubscribers();
-    });
-}
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, closeConsole);
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, closeConsole);
+}  // namespace Debug
 
 GameObject *Console::GetGameObject(const std::string &name)
 {
     return scene_.GetGameObject(name);
 }
 
+void Console::PrepareConsoleWindow()
+{
+    scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
+
+    auto window =
+        scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0, 0.5), vec2(1, 0.5));
+
+    window_ = window.get();
+    window_->Hide();
+    window_->SetZPosition(WINDOW_Z_POSITION);
+
+    scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
+
+    keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
+        window_->Show();
+
+        if (not commandsHistory_.empty())
+            commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+
+        if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+            currentCommand_ = AddOrUpdateGuiText("");
+
+        currentCommand_->Show();
+
+        scene_.camera.Lock();
+        scene_.inputManager_->AddEvent([&]() {
+            scene_.inputManager_->StashSubscribers();
+            SubscribeKeys();
+        });
+    });
+}
 }  // namespace Debug
 }  // namespace GameEngine

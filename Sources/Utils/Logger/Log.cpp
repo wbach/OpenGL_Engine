@@ -20,6 +20,9 @@ void CLogger::EnableLogs()
 {
     enabled = true;
     CreateLogFile();
+
+    logImmeditaly = true;
+
     loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
 }
 void CLogger::ImmeditalyLog()

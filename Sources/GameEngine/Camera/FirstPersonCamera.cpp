@@ -80,12 +80,14 @@ void FirstPersonCamera::Lock()
 {
     BaseCamera::Lock();
     inputManager.SetReleativeMouseMode(false);
+    inputManager.ShowCursor(true);
 }
 
 void FirstPersonCamera::Unlock()
 {
     BaseCamera::Unlock();
     inputManager.SetReleativeMouseMode(true);
+    inputManager.ShowCursor(false);
 }
 
 vec2 FirstPersonCamera::CalcualteMouseMove()
