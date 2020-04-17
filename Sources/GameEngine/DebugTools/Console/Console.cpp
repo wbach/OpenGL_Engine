@@ -53,6 +53,7 @@ Console::Console(Scene &scene)
         if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
             currentCommand_ = AddOrUpdateGuiText("");
 
+        scene_.camera.Lock();
         scene_.inputManager_->AddEvent([&]() {
             scene_.inputManager_->StashSubscribers();
             SubscribeKeys();
@@ -552,6 +553,7 @@ void Console::SubscribeKeys()
 
     keysSubscriptions_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Hide();
+        scene_.camera.Unlock();
         if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
         {
             currentCommand_->Append(" (not executed)");

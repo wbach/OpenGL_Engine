@@ -13,6 +13,10 @@ namespace GameEngine
 {
 namespace Physics
 {
+namespace
+{
+const float TRANSFROM_CHANGED_EPSILON = std::numeric_limits<float>::epsilon();
+}
 struct Shape
 {
     std::unique_ptr<btCollisionShape> shape_;
@@ -119,10 +123,18 @@ void BulletAdapter::Simulate()
         auto& transform = impl_->transforms.at(pair.first);
         auto& rigidbody = pair.second;
 
-        auto newPosition = rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_;
+        auto newPosition =
+            Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_);
 
         Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
-        transform->SetPositionAndRotation(Convert(newPosition), newRotation);
+
+        auto l1 = glm::length(transform->GetPosition() - newPosition);
+        auto l2 = glm::length(transform->GetRotation().value_ - newRotation);
+
+        if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
+        {
+            transform->SetPositionAndRotation(newPosition, newRotation);
+        }
     }
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()

@@ -69,7 +69,7 @@ void ThirdPersonCamera::Move()
     if (lock_)
         return;
 
-    float cameraYaw = lookAtTransform_.GetSnapShoot().rotation.GetEulerDegrees()->y;
+    float cameraYaw          = lookAtTransform_.GetSnapShoot().rotation.GetEulerDegrees()->y;
     float horizontalDistance = CalculateHorizontalDistance();
     float verticalDistance   = CalculateVerticalDistance();
 
@@ -110,11 +110,13 @@ void ThirdPersonCamera::Lock()
 {
     BaseCamera::Lock();
     inputManager_.SetReleativeMouseMode(false);
+    inputManager_.ShowCursor(true);
 }
 void ThirdPersonCamera::Unlock()
 {
     BaseCamera::Unlock();
     inputManager_.SetReleativeMouseMode(true);
+    inputManager_.ShowCursor(false);
 }
 vec2 ThirdPersonCamera::CalcualteMouseMove()
 {
