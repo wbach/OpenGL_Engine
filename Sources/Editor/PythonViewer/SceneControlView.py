@@ -19,6 +19,15 @@ class SceneControlView:
         status = tk.Label(infoFrame, textvariable=self.statusStr)
         status.grid(column=0, row=1, sticky=(tk.N, tk.S, tk.E, tk.W), columnspan=2)
 
+        self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
+        self.networkClient.SubscribeOnConnect(self.OnConnect)
+
+    def OnDisconnect(self):
+        self.statusStr.set("Status : disconnected")
+
+    def OnConnect(self):
+        self.statusStr.set("Status : stopped")
+
     def StartScene(self):
         self.networkClient.SendCommand("startScene")
         self.statusStr.set("Status : started")

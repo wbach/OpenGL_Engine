@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 
+import os
 import sys
 import pathlib
 
@@ -12,6 +13,8 @@ class Menu:
         self.root           = root
         self.networkClient  = networkClient
         self.gameObjectView = gameObjectView
+        self.sceneFileName = ""
+        self.histTmpFile = "history.autosave"
 
         menubar = tk.Menu(root)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -27,8 +30,17 @@ class Menu:
         createMenu = tk.Menu(menubar, tearoff=0)
         createMenu.add_command(label="Add game object", command=self.DoNothing)
         menubar.add_cascade(label="Scene", menu=createMenu)
-
         root.config(menu=menubar)
+
+        self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
+
+    def OnSceneFileMsg(self, msg):
+        self.sceneFileName = msg.get("filename")
+        if filename:
+            file = open(self.histTmpFile, "w")
+            file.write(self.sceneFileName)
+            file.close()
+            self.networkClient.SendCommand("saveFile " + filename)
 
     def DoNothing(self):
         return
@@ -45,24 +57,32 @@ class Menu:
             return True
         return False
 
+    def GetInitDir(self):
+        if self.sceneFileName:
+            return os.path.dirname(self.sceneFileName)
+        if pathlib.Path(self.histTmpFile).exists():
+            file = open(self.histTmpFile, "r")
+            dir = file.readline()[:-1]
+            file.close()
+            return dir
+        else:
+            return "/"
+
+    def WriteToHistFile(self, filename):
+            file = open(self.histTmpFile, "w")
+            file.write(os.path.dirname(filename) + "/")
+            file.close()
+
     def OpenFile(self):
         if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
             return
 
         try:
-            initDir="/"
-            if pathlib.Path("h.tmp").exists():
-                file = open("h.tmp","r")
-                initDir = file.readline()[:-1]
-                print(initDir)
-                file.close()
-
+            initDir = self.GetInitDirFromHistFile()
             filename = filedialog.askopenfilename(initialdir=initDir, title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
             if filename:
-                file = open("h.tmp","w")
-                file.write(str(pathlib.Path(filename).parent) + "/")
-                file.close()
-                self.networkClient.SendCommand("openFile " + filename)
+                self.networkClient.SendCommand("openFile filename=" + filename)
+                WriteToHistFile(filename)
         except:
             messagebox.showerror(title="Error", message=sys.exc_info())
 
@@ -71,18 +91,10 @@ class Menu:
             return
 
         try:
-            initDir="/"
-            if pathlib.Path("h.tmp").exists():
-                file = open("h.tmp","r")
-                initDir = file.readline()[:-1]
-                print(initDir)
-                file.close()
-
-            filename = filedialog.askopenfilename(initialdir=initDir, title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
+            initDir = self.GetInitDir()
+            filename = filedialog.asksaveasfilename(initialdir=initDir, title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
             if filename:
-                file = open("h.tmp","w")
-                file.write(str(pathlib.Path(filename).parent) + "/")
-                file.close()
-                self.networkClient.SendCommand("saveFile " + filename)
+                self.networkClient.SendCommand("saveToFile filename=" + filename)
+                WriteToHistFile(filename)
         except:
             messagebox.showerror(title="Error", message=sys.exc_info())

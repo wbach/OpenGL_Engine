@@ -22,10 +22,10 @@
 #include "Messages/NewGameObjectInd.h"
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectInd.h"
+#include "Messages/SceneFileMsg.h"
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
-#include "Messages/SceneFileMsg.h"
 
 namespace GameEngine
 {
@@ -69,11 +69,12 @@ void NetworkEditorInterface::AddObject(const std::string &path)
 
 void NetworkEditorInterface::DefineCommands()
 {
+    // clang-format off
     commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
+    commands_.insert({"saveToFile", [&](const EntryParameters &v) { SaveSceneToFile(v); }});
     commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
     commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
-    commands_.insert(
-        {"getGameObjectComponentsListReq", [&](const EntryParameters &v) { GetGameObjectComponentsListReq(v); }});
+    commands_.insert({"getGameObjectComponentsListReq", [&](const EntryParameters &v) { GetGameObjectComponentsListReq(v); }});
     commands_.insert({"setPosition", [&](const EntryParameters &v) { SetGameObjectPosition(v); }});
     commands_.insert({"setRotation", [&](const EntryParameters &v) { SetGameObjectRotation(v); }});
     commands_.insert({"setScale", [&](const EntryParameters &v) { SetGameObjectScale(v); }});
@@ -86,6 +87,7 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
     commands_.insert({"modifyComponentReq", [&](const EntryParameters &v) { ModifyComponentReq(v); }});
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
+    // clang-fromat on
 }
 
 void NetworkEditorInterface::SetupCamera()
@@ -252,7 +254,7 @@ void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const
 
 void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, const vec3 &increseValue)
 {
-    vec3 newValue  = gameObject.worldTransform.GetRotation().GetEulerDegrees().value + increseValue;
+    vec3 newValue = gameObject.worldTransform.GetRotation().GetEulerDegrees().value + increseValue;
 
     auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
     if (rigidbody)
@@ -289,8 +291,10 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 
     if (not scene_.GetFile().empty())
     {
-        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile());
+        auto path = realpath(scene_.GetFile().c_str(), nullptr);
+        DebugNetworkInterface::SceneFileMsg msg(path);
         gateway_.Send(userId_, msg);
+        free(path);
     }
 }
 void NetworkEditorInterface::DisconnectUser(uint32 id)
@@ -298,6 +302,7 @@ void NetworkEditorInterface::DisconnectUser(uint32 id)
     userId_ = 0;
     DEBUG_LOG("Disconnect user : {" + std::to_string(id) + "}");
     UnsubscribeTransformUpdateIfExist();
+    StartScene();
 }
 void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network::IMessage> msg)
 {
@@ -330,6 +335,17 @@ void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
     }
 
     scene_.LoadFromFile(args.at("filename"));
+}
+
+void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::EntryParameters & args)
+{
+    if (args.count("filename") == 0)
+    {
+        DEBUG_LOG("Filename not found.");
+        return;
+    }
+
+    scene_.SaveToFile(args.at("filename"));
 }
 
 void NetworkEditorInterface::GetCamera(const EntryParameters &)

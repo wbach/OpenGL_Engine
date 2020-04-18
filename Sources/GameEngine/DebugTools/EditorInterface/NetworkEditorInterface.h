@@ -43,6 +43,7 @@ private:
     void DisconnectUser(uint32);
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);
     void LoadSceneFromFile(const EntryParameters&);
+    void SaveSceneToFile(const EntryParameters&);
     void GetCamera(const EntryParameters&);
     void GetObjectList(const EntryParameters&);
     void TransformReq(const EntryParameters&);

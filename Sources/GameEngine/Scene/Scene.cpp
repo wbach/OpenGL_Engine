@@ -84,24 +84,6 @@ void Scene::FullUpdate(float deltaTime)
     {
         inputManager_->ProcessKeysEvents();
     }
-
-    if (not start_.load())
-    {
-        return;
-    }
-    if (console_)
-    {
-        console_->ExecuteCommands();
-    }
-    if (physicsApi_ && simulatePhysics_.load())
-    {
-        physicsApi_->SetSimulationStep(deltaTime);
-        physicsApi_->Simulate();
-    }
-    if (displayManager_)
-    {
-        time_.deltaTime = deltaTime;
-    }
     if (guiManager_)
     {
         guiManager_->Update();
@@ -110,9 +92,26 @@ void Scene::FullUpdate(float deltaTime)
     {
         guiEngineContextManger_->Update();
     }
+    if (displayManager_)
+    {
+        time_.deltaTime = deltaTime;
+    }
+    if (console_)
+    {
+        console_->ExecuteCommands();
+    }
 
-    Update(deltaTime);
-    componentController_.Update();
+    if (start_.load())
+    {
+        if (physicsApi_ && simulatePhysics_.load())
+        {
+            physicsApi_->SetSimulationStep(deltaTime);
+            physicsApi_->Simulate();
+        }
+
+        Update(deltaTime);
+        componentController_.Update();
+    }
 }
 
 void Scene::PostUpdate()

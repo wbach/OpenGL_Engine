@@ -7,6 +7,7 @@ from Menu import Menu
 from Context import Context
 from CommonWidgetTools import CalculateGeomentryCenterPosition
 
+import os
 import tkinter as tk
 import sys
 
@@ -45,7 +46,7 @@ class Editor:
         self.root.title(self.titleBase + " (connected)")
 
     def OnSceneFileMsg(self, msg):
-        self.root.title(self.titleBase + " (connected)" + msg.get("filename"))
+        self.root.title(self.titleBase + " (connected)" + os.path.basename(msg.get("filename")))
 
 if __name__ == "__main__":
     TCP_IP = 'localhost'
