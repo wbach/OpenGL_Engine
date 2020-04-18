@@ -123,12 +123,6 @@ void NetworkEditorInterface::StartGatway()
                 dragObject_->Update();
         },
         "NetworkEditorFps");
-
-    if (not scene_.GetFile().empty())
-    {
-        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile());
-        gateway_.Send(userId_, msg);
-    }
 }
 
 void NetworkEditorInterface::PrepareDebugModels()
@@ -292,6 +286,12 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 {
     DEBUG_LOG("New user : {" + str + ", " + std::to_string(id) + "}");
     userId_ = id;
+
+    if (not scene_.GetFile().empty())
+    {
+        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile());
+        gateway_.Send(userId_, msg);
+    }
 }
 void NetworkEditorInterface::DisconnectUser(uint32 id)
 {

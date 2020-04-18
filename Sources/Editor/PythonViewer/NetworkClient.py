@@ -22,6 +22,7 @@ class NetworkClient:
         self.debugPrinting = True
         self.serverAddress = (tcpIp, port)
         self.disconnectSubscribers = []
+        self.connectSubscribers = []
         self.messageSubscribers = defaultdict(list)
 
     def SubscribeOnMessage(self, msgType, callback):
@@ -29,6 +30,9 @@ class NetworkClient:
 
     def SubscribeOnDisconnect(self, callback):
         self.disconnectSubscribers.append(callback)
+
+    def SubscribeOnConnect(self, callback):
+        self.connectSubscribers.append(callback)
 
     def Disconnect(self):
         print("Disconnect.")
@@ -100,6 +104,8 @@ class NetworkClient:
             self.RecevieConnectionMsg()
             self.thread_ = _thread.start_new_thread(self.RecevieThread, ())
             self.Print("Connected. Authentication process end.")
+            for sub in self.connectSubscribers:
+                sub()
             return True
         except socket.error as exc:
             # print("Connecting error: {0}".format(exc))

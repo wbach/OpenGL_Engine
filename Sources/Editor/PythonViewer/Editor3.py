@@ -15,7 +15,8 @@ class Editor:
     def __init__(self):
         self.root = tk.Tk()
         self.context = Context(self.root, TCP_IP, TCP_PORT)
-        self.root.title("Editor")
+        self.titleBase = "Editor"
+        self.root.title(self.titleBase + " (disconnected)")
 
         self.root.geometry(CalculateGeomentryCenterPosition(self.context, 660, 750))
 
@@ -31,8 +32,20 @@ class Editor:
                                              self.componentsView)
         self.menu = Menu(self.context.networkClient, self.root, self.gameObjectView)
 
+        self.context.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
+        self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
+        self.context.networkClient.SubscribeOnConnect(self.OnConnect)
+
         self.root.mainloop()
 
+    def OnDisconnect(self):
+        self.root.title(self.titleBase + " (disconnected)")
+
+    def OnConnect(self):
+        self.root.title(self.titleBase + " (connected)")
+
+    def OnSceneFileMsg(self, msg):
+        self.root.title(self.titleBase + " (connected)" + msg.get("filename"))
 
 if __name__ == "__main__":
     TCP_IP = 'localhost'
