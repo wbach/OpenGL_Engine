@@ -140,40 +140,14 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
         if (selectedGameObject_)
         {
-            vec3 v(0, 0, 0);
-            if (scene_.inputManager_->GetKey(KeyCodes::X))
-            {
-                v.x = rotationSpeed;
-            }
-            if (scene_.inputManager_->GetKey(KeyCodes::Y))
-            {
-                v.y = rotationSpeed;
-            }
-            if (scene_.inputManager_->GetKey(KeyCodes::Z))
-            {
-                v.z = rotationSpeed;
-            }
-            selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
+            IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, 1.f));
         }
     });
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
             if (selectedGameObject_)
             {
-                vec3 v(0, 0, 0);
-                if (scene_.inputManager_->GetKey(KeyCodes::X))
-                {
-                    v.x = -rotationSpeed;
-                }
-                if (scene_.inputManager_->GetKey(KeyCodes::Y))
-                {
-                    v.y = -rotationSpeed;
-                }
-                if (scene_.inputManager_->GetKey(KeyCodes::Z))
-                {
-                    v.z = -rotationSpeed;
-                }
-                selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
+                IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, -1.f));
             }
         });
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
@@ -196,8 +170,8 @@ void NetworkEditorInterface::KeysSubscribtions()
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
 
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, selectedGameObject_->worldTransform,
-                                                       scene_.camera, scene_.renderersManager_->GetProjection());
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
+                                                       scene_.renderersManager_->GetProjection());
 
             if (userId_ > 0)
             {
@@ -230,11 +204,10 @@ void NetworkEditorInterface::NotifSelectedTransformIsChaned()
     if (transformChangedToSend_ and transformTimer_.GetTimeMiliSeconds() > sendChangeTimeInterval)
     {
         std::lock_guard<std::mutex> lk(transformChangedMutex_);
-        auto go = scene_.GetGameObject(*transformChangedToSend_);
-        const auto& transform = go->worldTransform;
+        auto go               = scene_.GetGameObject(*transformChangedToSend_);
+        const auto &transform = go->worldTransform;
         DebugNetworkInterface::Transform msg(*transformChangedToSend_, transform.GetPosition(),
-            transform.GetRotation().GetEulerDegrees().value,
-            transform.GetScale());
+                                             transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
         gateway_.Send(userId_, msg);
         transformChangedToSend_ = std::nullopt;
         transformTimer_.Reset();
@@ -252,6 +225,60 @@ void NetworkEditorInterface::NotifSelectedCameraIsChaned()
         cameraChangedToSend_.store(false);
         cameraTimer_.Reset();
     }
+}
+
+void NetworkEditorInterface::SetGameObjectPosition(GameObject &gameObject, const vec3 &position)
+{
+    auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
+    if (rigidbody)
+    {
+        rigidbody->SetPosition(position);
+    }
+    gameObject.worldTransform.SetPosition(position);
+    gameObject.worldTransform.TakeSnapShoot();
+}
+
+void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const vec3 &rotation)
+{
+    auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
+    if (rigidbody)
+    {
+        rigidbody->SetRotation(DegreesVec3(rotation));
+    }
+    gameObject.worldTransform.SetRotation(DegreesVec3(rotation));
+    gameObject.worldTransform.TakeSnapShoot();
+}
+
+void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, const vec3 &increseValue)
+{
+    vec3 newValue  = gameObject.worldTransform.GetRotation().GetEulerDegrees().value + increseValue;
+
+    auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
+    if (rigidbody)
+    {
+        rigidbody->SetRotation(DegreesVec3(newValue));
+    }
+
+    gameObject.worldTransform.SetRotation(DegreesVec3(newValue));
+    gameObject.worldTransform.TakeSnapShoot();
+}
+
+vec3 NetworkEditorInterface::GetRotationValueBasedOnKeys(float rotationSpeed, float dir)
+{
+    vec3 v(0, 0, 0);
+    if (scene_.inputManager_->GetKey(KeyCodes::X))
+    {
+        v.x = dir * rotationSpeed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::Y))
+    {
+        v.y = dir * rotationSpeed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::Z))
+    {
+        v.z = dir * rotationSpeed;
+    }
+    return v;
 }
 
 void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
@@ -307,9 +334,8 @@ void NetworkEditorInterface::GetCamera(const EntryParameters &)
     msg.rotation = scene_.GetCamera().GetRotation();
     gateway_.Send(userId_, msg);
 
-    cameraChangeSubscriptionId_ = scene_.camera.SubscribeOnChange([&](const auto &camera) {
-        cameraChangedToSend_.store(true);
-    });
+    cameraChangeSubscriptionId_ =
+        scene_.camera.SubscribeOnChange([&](const auto &camera) { cameraChangedToSend_.store(true); });
 }
 
 void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId,
@@ -360,7 +386,7 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();
 
-        auto &transform            = gameObject->worldTransform;
+    auto &transform                = gameObject->worldTransform;
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
     transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
@@ -411,16 +437,7 @@ void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
             auto gameObject = GetGameObject(param.at("id"));
             if (gameObject)
             {
-                auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
-                if (rigidbody)
-                {
-                    rigidbody->SetPosition(position);
-                }
-                else
-                {
-                    gameObject->worldTransform.SetPosition(position);
-                    gameObject->worldTransform.TakeSnapShoot();
-                }
+                SetGameObjectPosition(*gameObject, position);
             }
         }
         catch (...)
@@ -447,16 +464,7 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
             auto gameObject = GetGameObject(param.at("id"));
             if (gameObject)
             {
-                auto rigidbody = gameObject->GetComponent<Components::Rigidbody>();
-                if (rigidbody)
-                {
-                    rigidbody->SetRotation(rotation);
-                }
-                else
-                {
-                    gameObject->worldTransform.SetRotation(DegreesVec3(rotation));
-                    gameObject->worldTransform.TakeSnapShoot();
-                }
+                SetGameObjectRotation(*gameObject, rotation);
             }
         }
         catch (...)

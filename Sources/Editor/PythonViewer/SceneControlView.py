@@ -13,8 +13,16 @@ class SceneControlView:
         btn = tk.Button(infoFrame, text="Stop", command=self.StopScene)
         btn.grid(column=1, row=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
+        self.statusStr = tk.StringVar()
+        self.statusStr.set("Status : stopped")
+
+        status = tk.Label(infoFrame, textvariable=self.statusStr)
+        status.grid(column=0, row=1, sticky=(tk.N, tk.S, tk.E, tk.W), columnspan=2)
+
     def StartScene(self):
         self.networkClient.SendCommand("startScene")
+        self.statusStr.set("Status : started")
 
     def StopScene(self):
         self.networkClient.SendCommand("stopScene")
+        self.statusStr.set("Status : stopped")

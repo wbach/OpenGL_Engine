@@ -111,9 +111,14 @@ Rigidbody& Rigidbody::SetAngularFactor(const vec3& angularFactor)
     componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, angularFactor);
     return *this;
 }
-Rigidbody& Rigidbody::SetRotation(const vec3& rotation)
+Rigidbody& Rigidbody::SetRotation(const DegreesVec3& rotation)
 {
-    componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation);
+    componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation.Radians());
+    return *this;
+}
+Rigidbody& Rigidbody::SetRotation(const RadiansVec3& rotation)
+{
+    componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation.value);
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const Quaternion& rotation)

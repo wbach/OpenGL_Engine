@@ -34,6 +34,10 @@ private:
     void NotifIfObjectIsChanged();
     void NotifSelectedTransformIsChaned();
     void NotifSelectedCameraIsChaned();
+    void SetGameObjectPosition(GameObject&, const vec3&);
+    void SetGameObjectRotation(GameObject&, const vec3&);
+    void IncreseGameObjectRotation(GameObject&, const vec3&);
+    vec3 GetRotationValueBasedOnKeys(float, float);
 
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);

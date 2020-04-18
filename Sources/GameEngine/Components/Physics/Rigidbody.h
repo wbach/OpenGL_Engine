@@ -32,7 +32,8 @@ public:
     Rigidbody& SetVelocity(const vec3& velocity);
     Rigidbody& SetAngularFactor(float);
     Rigidbody& SetAngularFactor(const vec3&);
-    Rigidbody& SetRotation(const vec3&);
+    Rigidbody& SetRotation(const DegreesVec3&);
+    Rigidbody& SetRotation(const RadiansVec3&);
     Rigidbody& SetRotation(const Quaternion&);
     Rigidbody& SetPosition(const vec3&);
 

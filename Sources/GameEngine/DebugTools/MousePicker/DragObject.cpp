@@ -10,21 +10,30 @@
 
 namespace GameEngine
 {
-DragObject::DragObject(Input::InputManager& manager, common::Transform& transform, const CameraWrapper& camera,
+DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, const CameraWrapper& camera,
                        const Projection& projection)
     : input_(manager)
-    , transform_(transform)
+    , gameObject_(gameObject)
     , camera_(camera)
     , projection_(projection)
+    , rigidbody_(nullptr)
 {
-    mouseZcoord_ = CalculateMouseZCoord(transform_.GetPosition());
+    mouseZcoord_ = CalculateMouseZCoord(gameObject_.worldTransform.GetPosition());
     DEBUG_LOG(std::to_string(mouseZcoord_));
-    offset_ = transform_.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+    offset_ = gameObject_.worldTransform.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+    rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
 }
 void DragObject::Update()
 {
     auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
-    transform_.SetPosition(mouseWorldPoint + offset_);
+    auto newPosition     = mouseWorldPoint + offset_;
+
+    gameObject_.worldTransform.SetPosition(newPosition);
+
+    if (rigidbody_)
+    {
+        rigidbody_->SetPosition(newPosition);
+    }
 }
 vec3 DragObject::WorldToScreenPoint(const vec3& point)
 {

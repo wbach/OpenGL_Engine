@@ -2,16 +2,14 @@
 #include <Types.h>
 
 #include "GameEngine/Camera/CameraWrapper.h"
+#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace Input
 {
 class InputManager;
 }
 
-namespace common
-{
-class Transform;
-}
 
 namespace GameEngine
 {
@@ -19,7 +17,7 @@ class Projection;
 class DragObject
 {
 public:
-    DragObject(Input::InputManager&, common::Transform&, const CameraWrapper&, const Projection&);
+    DragObject(Input::InputManager&, GameObject&, const CameraWrapper&, const Projection&);
     void Update();
 
 private:
@@ -30,7 +28,8 @@ private:
 
 private:
     Input::InputManager& input_;
-    common::Transform& transform_;
+    GameObject& gameObject_;
+    Components::Rigidbody* rigidbody_;
     const CameraWrapper& camera_;
     const Projection& projection_;
     vec3 offset_;
