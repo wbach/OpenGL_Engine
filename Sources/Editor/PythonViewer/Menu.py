@@ -68,6 +68,11 @@ class Menu:
         else:
             return "/"
 
+    def GetInitFilename(self, default):
+        if self.sceneFileName:
+            return os.path.basename(self.sceneFileName)
+        return default
+
     def WriteToHistFile(self, filename):
             file = open(self.histTmpFile, "w")
             file.write(os.path.dirname(filename) + "/")
@@ -78,11 +83,11 @@ class Menu:
             return
 
         try:
-            initDir = self.GetInitDirFromHistFile()
-            filename = filedialog.askopenfilename(initialdir=initDir, title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
+            initDir = self.GetInitDir()
+            filename = filedialog.askopenfilename(initialdir=initDir, initialfile=self.GetInitFilename(""), title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
             if filename:
                 self.networkClient.SendCommand("openFile filename=" + filename)
-                WriteToHistFile(filename)
+                self.WriteToHistFile(filename)
         except:
             messagebox.showerror(title="Error", message=sys.exc_info())
 
@@ -92,9 +97,9 @@ class Menu:
 
         try:
             initDir = self.GetInitDir()
-            filename = filedialog.asksaveasfilename(initialdir=initDir, title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
+            filename = filedialog.asksaveasfilename(initialdir=initDir, initialfile=self.GetInitFilename("newScene.xml"), title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
             if filename:
                 self.networkClient.SendCommand("saveToFile filename=" + filename)
-                WriteToHistFile(filename)
+                self.WriteToHistFile(filename)
         except:
             messagebox.showerror(title="Error", message=sys.exc_info())

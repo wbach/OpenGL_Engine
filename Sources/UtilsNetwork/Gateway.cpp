@@ -38,6 +38,9 @@ Gateway::Gateway(Utils::Time::CTimeMeasurer timeMeasurer)
 
 Gateway::~Gateway()
 {
+    DEBUG_LOG("Disconnecting users");
+    for (auto& user : context_.users)
+        DisconnectUser(user.second->id);
 }
 
 bool Gateway::StartServer(uint32 maxClients, uint32 port)
@@ -57,7 +60,8 @@ bool Gateway::StartServer(uint32 maxClients, uint32 port)
 
     return true;
 }
-bool Gateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host, uint32 port)
+bool Gateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
+                              uint32 port)
 {
     DEBUG_LOG("");
 

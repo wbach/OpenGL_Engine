@@ -107,6 +107,7 @@ class GameObjectView:
         self.componentsView.Fill(gameObjectId)
 
     def GetObjectList(self):
+        self.Clear()
         self.networkClient.SendCommand("getObjectList")
         self.networkClient.SendCommand("getCamera")
 

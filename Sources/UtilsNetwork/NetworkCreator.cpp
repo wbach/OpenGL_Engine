@@ -15,6 +15,7 @@ NetworkCreator::~NetworkCreator()
     if (!isCreated)
         return;
 
+    DEBUG_LOG("Closing TCP");
     SDLNet_TCP_Close(context_.socket);
     SDLNet_FreeSocketSet(context_.socketSet);
     SDLNet_Quit();

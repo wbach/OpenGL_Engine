@@ -42,6 +42,13 @@ void Rigidbody::OnStart()
         return;
     }
 
+    if (not isStatic_)
+    {
+        // add offst prevent set position on shape (collision error)
+        // exmaple loading from file, when file was saved when object is on the ground
+        thisObject_.worldTransform.IncrasePosition(vec3(0.f, 1.f, 0.f));
+    }
+
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
                                                                      thisObject_.worldTransform, mass_, isStatic_);
 
