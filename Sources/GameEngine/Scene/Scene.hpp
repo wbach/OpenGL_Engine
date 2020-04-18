@@ -59,6 +59,7 @@ public:
     void Stop();
 
     inline const std::string& GetName() const;
+    inline const std::string& GetFile() const;
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
     inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
 
@@ -108,6 +109,7 @@ protected:
 
 protected:
     std::string name;
+    std::string file_;
     AddEvent addSceneEvent;
     std::function<void(EngineEvent)> addEngineEvent;
 
@@ -152,6 +154,11 @@ private:
 const std::string& Scene::GetName() const
 {
     return name;
+}
+
+inline const std::string& Scene::GetFile() const
+{
+    return file_;
 }
 
 void Scene::RegisterParticleEmitFunction(const std::string& name, EmitFunction f)

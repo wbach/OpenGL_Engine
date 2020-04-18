@@ -22,6 +22,7 @@ GameEngine::DebugNetworkInterface::MessageTypes CreateFromString(const std::stri
     if (type == "Param") return GameEngine::DebugNetworkInterface::MessageTypes::Param;
     if (type == "RemoveComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveComponentMsgInd;
     if (type == "RemoveGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd;
+    if (type == "SceneFileMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg;
     if (type == "SelectedObjectChanged") return GameEngine::DebugNetworkInterface::MessageTypes::SelectedObjectChanged;
     if (type == "Transform") return GameEngine::DebugNetworkInterface::MessageTypes::Transform;
     return GameEngine::DebugNetworkInterface::MessageTypes::Any;
@@ -40,6 +41,7 @@ string to_string(GameEngine::DebugNetworkInterface::MessageTypes type)
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::Param) return "Param";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveComponentMsgInd) return "RemoveComponentMsgInd";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd) return "RemoveGameObjectInd";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg) return "SceneFileMsg";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::SelectedObjectChanged) return "SelectedObjectChanged";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::Transform) return "Transform";
     return "Unknown type";

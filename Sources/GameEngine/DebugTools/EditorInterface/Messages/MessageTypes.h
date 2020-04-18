@@ -18,6 +18,7 @@ enum class MessageTypes
     Param,
     RemoveComponentMsgInd,
     RemoveGameObjectInd,
+    SceneFileMsg,
     SelectedObjectChanged,
     Transform
 };

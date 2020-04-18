@@ -284,6 +284,7 @@ void Scene::SaveToFile(const std::string& filename)
 void Scene::LoadFromFile(const std::string& filename)
 {
     DEBUG_LOG("Load scene from file : " + filename);
+    file_ = filename;
     SceneReader::LoadScene(*this, filename);
 }
 

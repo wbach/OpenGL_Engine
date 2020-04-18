@@ -25,6 +25,7 @@
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
+#include "Messages/SceneFileMsg.h"
 
 namespace GameEngine
 {
@@ -122,6 +123,12 @@ void NetworkEditorInterface::StartGatway()
                 dragObject_->Update();
         },
         "NetworkEditorFps");
+
+    if (not scene_.GetFile().empty())
+    {
+        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile());
+        gateway_.Send(userId_, msg);
+    }
 }
 
 void NetworkEditorInterface::PrepareDebugModels()

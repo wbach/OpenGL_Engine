@@ -18,6 +18,8 @@
 #include "RemoveComponentMsgIndXmlDeserializer.h"
 #include "RemoveGameObjectIndXmlSerializer.h"
 #include "RemoveGameObjectIndXmlDeserializer.h"
+#include "SceneFileMsgXmlSerializer.h"
+#include "SceneFileMsgXmlDeserializer.h"
 #include "SelectedObjectChangedXmlSerializer.h"
 #include "SelectedObjectChangedXmlDeserializer.h"
 #include "TransformXmlSerializer.h"
@@ -51,6 +53,7 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessag
     case MessageTypes::Param: return DeserializeParam(reader);
     case MessageTypes::RemoveComponentMsgInd: return DeserializeRemoveComponentMsgInd(reader);
     case MessageTypes::RemoveGameObjectInd: return DeserializeRemoveGameObjectInd(reader);
+    case MessageTypes::SceneFileMsg: return DeserializeSceneFileMsg(reader);
     case MessageTypes::SelectedObjectChanged: return DeserializeSelectedObjectChanged(reader);
     case MessageTypes::Transform: return DeserializeTransform(reader);
     }
@@ -100,6 +103,11 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
     case MessageTypes::RemoveGameObjectInd:
     {
         auto msg = Network::castMessageAs<RemoveGameObjectInd>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::SceneFileMsg:
+    {
+        auto msg = Network::castMessageAs<SceneFileMsg>(message);
         return Serialize(*msg);
     }
     case MessageTypes::SelectedObjectChanged:

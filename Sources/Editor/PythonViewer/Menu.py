@@ -19,8 +19,7 @@ class Menu:
         filemenu.add_command(label="Disconnect", command=self.networkClient.Disconnect)
         filemenu.add_command(label="New", command=self.DoNothing)
         filemenu.add_command(label="Open", command=self.OpenFile)
-        filemenu.add_command(label="Save", command=self.DoNothing)
-        filemenu.add_command(label="Save as...", command=self.DoNothing)
+        filemenu.add_command(label="Save", command=self.SaveFile)
         menubar.add_cascade(label="File", menu=filemenu)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.root.quit)
@@ -63,6 +62,27 @@ class Menu:
                 file = open("h.tmp","w")
                 file.write(str(pathlib.Path(filename).parent) + "/")
                 file.close()
-                self.networkClient.SendCommand("openFile " + filename);
+                self.networkClient.SendCommand("openFile " + filename)
+        except:
+            messagebox.showerror(title="Error", message=sys.exc_info())
+
+    def SaveFile(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
+        try:
+            initDir="/"
+            if pathlib.Path("h.tmp").exists():
+                file = open("h.tmp","r")
+                initDir = file.readline()[:-1]
+                print(initDir)
+                file.close()
+
+            filename = filedialog.askopenfilename(initialdir=initDir, title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
+            if filename:
+                file = open("h.tmp","w")
+                file.write(str(pathlib.Path(filename).parent) + "/")
+                file.close()
+                self.networkClient.SendCommand("saveFile " + filename)
         except:
             messagebox.showerror(title="Error", message=sys.exc_info())
