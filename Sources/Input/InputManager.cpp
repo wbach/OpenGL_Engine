@@ -22,6 +22,7 @@ MouseState mouseState;
 
 InputManager::InputManager()
     : idCounter_(0)
+    , stashedSubsribtions_(false)
 {
     SetDefaultKeys();
 }
@@ -257,12 +258,19 @@ void InputManager::UnsubscribeAnyKey(uint32 id)
 
 void InputManager::StashSubscribers()
 {
-    stash_       = std::move(subscribers_);
-    subscribers_ = Subscribers();
+    if (stashedSubsribtions_)
+    {
+        DEBUG_LOG("Multiple stash subscribtions, losing last one");
+    }
+
+    stashedSubsribtions_ = true;
+    stash_               = std::move(subscribers_);
+    subscribers_         = Subscribers();
 }
 void InputManager::StashPopSubscribers()
 {
-    subscribers_ = stash_;
+    subscribers_         = stash_;
+    stashedSubsribtions_ = false;
 }
 void InputManager::ExecuteOnKeyDown(KeyCodes::Type keyCode)
 {

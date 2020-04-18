@@ -12,6 +12,7 @@ public:
     void operator=(uint32 id);
     void AddSubscribtion(uint32);
     void UnsubscribeKeys();
+    void Clear();
 
 private:
     InputManager& inputManager_;

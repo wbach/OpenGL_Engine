@@ -1,6 +1,9 @@
 #pragma once
-#include <UtilsNetwork/Gateway.h>
 #include <Common/Transform.h>
+#include <Input/KeysSubscriptionsManager.h>
+#include <Time/Timer.h>
+#include <UtilsNetwork/Gateway.h>
+
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -28,6 +31,9 @@ private:
     void PrepareDebugModels();
     void KeysSubscribtions();
     void KeysUnsubscribe();
+    void NotifIfObjectIsChanged();
+    void NotifSelectedTransformIsChaned();
+    void NotifSelectedCameraIsChaned();
 
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
@@ -44,14 +50,15 @@ private:
     void GetComponentsList(const EntryParameters&);
     void AddComponent(const EntryParameters&);
     void GetComponentParams(const EntryParameters&);
-    void StartScene(const EntryParameters&);
-    void StopScene(const EntryParameters&);
+    void StartScene();
+    void StopScene();
     void ModifyComponentReq(const EntryParameters&);
 
     std::unordered_map<std::string, std::string> CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
     GameObject* GetGameObject(const std::string&);
     void UnsubscribeTransformUpdateIfExist();
+    void UnsubscribeCameraUpdateIfExist();
     void SetFreeCamera();
 
 private:
@@ -71,5 +78,9 @@ private:
     uint32 userId_;
     std::unique_ptr<DragObject> dragObject_;
     uint32 threadId_;
+
+    Utils::Timer cameraTimer_;
+    Utils::Timer transformTimer_;
+    Input::KeysSubscriptionsManager keysSubscriptionsManager_;
 };
 }  // namespace GameEngine

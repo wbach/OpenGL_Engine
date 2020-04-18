@@ -68,5 +68,9 @@ private:
     vec3 rotation_;
     vec3 direction_;
     mat4 viewMatrix_;
+
+private:
+    vec3 lastNotifiedPosition_;
+    vec3 lastNotifRotation_;
 };
 }  // namespace GameEngine

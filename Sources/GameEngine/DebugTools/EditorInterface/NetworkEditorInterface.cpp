@@ -31,6 +31,12 @@ namespace GameEngine
 namespace
 {
 std::unique_ptr<FirstPersonCamera> firstPersonCamera;
+
+std::mutex transformChangedMutex_;
+std::optional<uint32> transformChangedToSend_;
+
+std::atomic_bool cameraChangedToSend_;
+uint64 sendChangeTimeInterval{100};
 }  // namespace
 
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
@@ -38,23 +44,20 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     , transformChangeSubscription_{nullptr}
     , selectedGameObject_{nullptr}
     , userId_{0}
+    , keysSubscriptionsManager_(*scene_.inputManager_)
 {
     DefineCommands();
     StartGatway();
     SetupCamera();
     PrepareDebugModels();
-    KeysSubscribtions();
+    StopScene();
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
 {
     KeysUnsubscribe();
     UnsubscribeTransformUpdateIfExist();
-
-    if (cameraChangeSubscriptionId_)
-    {
-        scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
-    }
+    UnsubscribeCameraUpdateIfExist();
 
     EngineContext.threadSync_.Unsubscribe(threadId_);
 }
@@ -75,8 +78,8 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"setScale", [&](const EntryParameters &v) { SetGameObjectScale(v); }});
     commands_.insert({"createGameObject", [&](const EntryParameters &v) { CreateGameObject(v); }});
     commands_.insert({"addComponent", [&](const EntryParameters &v) { AddComponent(v); }});
-    commands_.insert({"startScene", [&](const EntryParameters &v) { StartScene(v); }});
-    commands_.insert({"stopScene", [&](const EntryParameters &v) { StopScene(v); }});
+    commands_.insert({"startScene", [&](const EntryParameters &) { StartScene(); }});
+    commands_.insert({"stopScene", [&](const EntryParameters &) { StopScene(); }});
     commands_.insert({"getComponentList", [&](const EntryParameters &v) { GetComponentsList(v); }});
     commands_.insert({"getComponentParams", [&](const EntryParameters &v) { GetComponentParams(v); }});
     commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
@@ -88,17 +91,6 @@ void NetworkEditorInterface::SetupCamera()
 {
     firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
     firstPersonCamera->Lock();
-
-    cameraLockUnlockKeySubscribtion_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
-        if (scene_.camera.IsLocked())
-        {
-            scene_.camera.Unlock();
-        }
-        else
-        {
-            scene_.camera.Lock();
-        }
-    });
     SetFreeCamera();
 }
 
@@ -118,6 +110,9 @@ void NetworkEditorInterface::StartGatway()
     threadId_ = EngineContext.threadSync_.Subscribe(
         [&](float) {
             gateway_.Update();
+
+            NotifIfObjectIsChanged();
+
             if (selectedGameObject_)
             {
                 arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(),
@@ -141,7 +136,57 @@ void NetworkEditorInterface::PrepareDebugModels()
 
 void NetworkEditorInterface::KeysSubscribtions()
 {
-    keyDownSub_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
+    float rotationSpeed       = 2.f;
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
+        if (selectedGameObject_)
+        {
+            vec3 v(0, 0, 0);
+            if (scene_.inputManager_->GetKey(KeyCodes::X))
+            {
+                v.x = rotationSpeed;
+            }
+            if (scene_.inputManager_->GetKey(KeyCodes::Y))
+            {
+                v.y = rotationSpeed;
+            }
+            if (scene_.inputManager_->GetKey(KeyCodes::Z))
+            {
+                v.z = rotationSpeed;
+            }
+            selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
+        }
+    });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
+            if (selectedGameObject_)
+            {
+                vec3 v(0, 0, 0);
+                if (scene_.inputManager_->GetKey(KeyCodes::X))
+                {
+                    v.x = -rotationSpeed;
+                }
+                if (scene_.inputManager_->GetKey(KeyCodes::Y))
+                {
+                    v.y = -rotationSpeed;
+                }
+                if (scene_.inputManager_->GetKey(KeyCodes::Z))
+                {
+                    v.z = -rotationSpeed;
+                }
+                selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
+            }
+        });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
+        if (scene_.camera.IsLocked())
+        {
+            scene_.camera.Unlock();
+        }
+        else
+        {
+            scene_.camera.Lock();
+        }
+    });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
         selectedGameObject_ =
@@ -165,59 +210,48 @@ void NetworkEditorInterface::KeysSubscribtions()
             DEBUG_LOG("no object selected");
         }
     });
-
-    keyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { dragObject_ = nullptr; });
-
-    float rotationSpeed = 2.f;
-
-    scrollKeyUpSub_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
-        if (selectedGameObject_)
-        {
-            vec3 v(0, 0, 0);
-            if (scene_.inputManager_->GetKey(KeyCodes::X))
-            {
-                v.x = rotationSpeed;
-            }
-            if (scene_.inputManager_->GetKey(KeyCodes::Y))
-            {
-                v.y = rotationSpeed;
-            }
-            if (scene_.inputManager_->GetKey(KeyCodes::Z))
-            {
-                v.z = rotationSpeed;
-            }
-            selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
-        }
-    });
-
-    scrollKeyDownSub_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
-        if (selectedGameObject_)
-        {
-            vec3 v(0, 0, 0);
-            if (scene_.inputManager_->GetKey(KeyCodes::X))
-            {
-                v.x = -rotationSpeed;
-            }
-            if (scene_.inputManager_->GetKey(KeyCodes::Y))
-            {
-                v.y = -rotationSpeed;
-            }
-            if (scene_.inputManager_->GetKey(KeyCodes::Z))
-            {
-                v.z = -rotationSpeed;
-            }
-            selectedGameObject_->worldTransform.IncreaseRotation(DegreesVec3(v));
-        }
-    });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { dragObject_ = nullptr; });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
 {
-    scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LMOUSE, keyDownSub_);
-    scene_.inputManager_->UnsubscribeOnKeyUp(KeyCodes::LMOUSE, keyUpSub_);
-    scene_.inputManager_->UnsubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, scrollKeyUpSub_);
-    scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, scrollKeyDownSub_);
-    scene_.inputManager_->UnsubscribeOnKeyDown(KeyCodes::LCTRL, cameraLockUnlockKeySubscribtion_);
+    keysSubscriptionsManager_.UnsubscribeKeys();
+}
+
+void NetworkEditorInterface::NotifIfObjectIsChanged()
+{
+    NotifSelectedTransformIsChaned();
+    NotifSelectedCameraIsChaned();
+}
+
+void NetworkEditorInterface::NotifSelectedTransformIsChaned()
+{
+    if (transformChangedToSend_ and transformTimer_.GetTimeMiliSeconds() > sendChangeTimeInterval)
+    {
+        std::lock_guard<std::mutex> lk(transformChangedMutex_);
+        auto go = scene_.GetGameObject(*transformChangedToSend_);
+        const auto& transform = go->worldTransform;
+        DebugNetworkInterface::Transform msg(*transformChangedToSend_, transform.GetPosition(),
+            transform.GetRotation().GetEulerDegrees().value,
+            transform.GetScale());
+        gateway_.Send(userId_, msg);
+        transformChangedToSend_ = std::nullopt;
+        transformTimer_.Reset();
+    }
+}
+
+void NetworkEditorInterface::NotifSelectedCameraIsChaned()
+{
+    if (cameraChangedToSend_ and cameraTimer_.GetTimeMiliSeconds() > sendChangeTimeInterval)
+    {
+        DebugNetworkInterface::CameraMsg msg;
+        msg.position = scene_.GetCamera().GetPosition();
+        msg.rotation = scene_.GetCamera().GetRotation();
+        gateway_.Send(userId_, msg);
+        cameraChangedToSend_.store(false);
+        cameraTimer_.Reset();
+    }
 }
 
 void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
@@ -266,16 +300,15 @@ void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
 
 void NetworkEditorInterface::GetCamera(const EntryParameters &)
 {
+    UnsubscribeTransformUpdateIfExist();
+
     DebugNetworkInterface::CameraMsg msg;
     msg.position = scene_.GetCamera().GetPosition();
     msg.rotation = scene_.GetCamera().GetRotation();
     gateway_.Send(userId_, msg);
 
     cameraChangeSubscriptionId_ = scene_.camera.SubscribeOnChange([&](const auto &camera) {
-        DebugNetworkInterface::CameraMsg msg;
-        msg.position = camera.GetPosition();
-        msg.rotation = camera.GetRotation();
-        gateway_.Send(userId_, msg);
+        cameraChangedToSend_.store(true);
     });
 }
 
@@ -325,14 +358,17 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
         return;
 
     UnsubscribeTransformUpdateIfExist();
+    UnsubscribeCameraUpdateIfExist();
 
-    auto &transform                = gameObject->worldTransform;
+        auto &transform            = gameObject->worldTransform;
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
     transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
-        DebugNetworkInterface::Transform msg(gameObjectId, transform.GetPosition(),
-                                             transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
-        gateway_.Send(userId_, msg);
+        if (not transformChangedToSend_)
+        {
+            std::lock_guard<std::mutex> lk(transformChangedMutex_);
+            transformChangedToSend_ = gameObjectId;
+        }
     });
 
     DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
@@ -535,13 +571,23 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
     gateway_.Send(userId_, msg);
 }
 
-void NetworkEditorInterface::StartScene(const EntryParameters &)
+void NetworkEditorInterface::StartScene()
 {
+    if (scene_.start_.load())
+        return;
+
+    keysSubscriptionsManager_.Clear();
+    scene_.inputManager_->StashPopSubscribers();
     scene_.Start();
 }
 
-void NetworkEditorInterface::StopScene(const EntryParameters &)
+void NetworkEditorInterface::StopScene()
 {
+    if (not scene_.start_.load())
+        return;
+
+    scene_.inputManager_->StashSubscribers();
+    KeysSubscribtions();
     scene_.Stop();
 }
 
@@ -634,6 +680,14 @@ void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
         }
 
         transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
+    }
+}
+
+void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
+{
+    if (cameraChangeSubscriptionId_)
+    {
+        scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
     }
 }
 

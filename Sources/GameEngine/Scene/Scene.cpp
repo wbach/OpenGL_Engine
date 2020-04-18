@@ -10,12 +10,12 @@
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/GUI/GuiEngineContextManger.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "GameEngine/Renderers/GUI/GuiEngineContextManger.h"
 #include "SceneReader.h"
 #include "SceneWriter.h"
 
@@ -60,8 +60,8 @@ void Scene::InitResources(SceneInitContext& context)
     guiManager_ = std::make_unique<GuiManager>();
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
                                                         *renderersManager_};
-    guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
-    guiEngineContextManger_ =  std::make_unique<GuiEngineContextManger>(*guiElementFactory_);
+    guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
+    guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(*guiElementFactory_);
 
     console_ = std::make_unique<Debug::Console>(*this);
 }
@@ -80,11 +80,15 @@ void Scene::PostInit()
 
 void Scene::FullUpdate(float deltaTime)
 {
+    if (inputManager_)
+    {
+        inputManager_->ProcessKeysEvents();
+    }
+
     if (not start_.load())
     {
         return;
     }
-
     if (console_)
     {
         console_->ExecuteCommands();
@@ -98,15 +102,11 @@ void Scene::FullUpdate(float deltaTime)
     {
         time_.deltaTime = deltaTime;
     }
-    if (inputManager_)
-    {
-        inputManager_->ProcessKeysEvents();
-    }
     if (guiManager_)
     {
         guiManager_->Update();
     }
-    if(guiEngineContextManger_)
+    if (guiEngineContextManger_)
     {
         guiEngineContextManger_->Update();
     }

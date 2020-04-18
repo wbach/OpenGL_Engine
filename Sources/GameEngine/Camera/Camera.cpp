@@ -1,11 +1,18 @@
 #include "Camera.h"
+
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
+
 #include <algorithm>
+
 #include "Utils.h"
 
 namespace GameEngine
 {
+namespace
+{
+const float NOTIF_EPSILON{std::numeric_limits<float>::epsilon()};
+}
 BaseCamera::BaseCamera()
     : BaseCamera(0, 0)
 {
@@ -16,6 +23,8 @@ BaseCamera::BaseCamera(float pitch, float yaw)
     , position_(0)
     , rotation_(pitch, yaw, 0)
     , viewMatrix_(1.f)
+    , lastNotifiedPosition_(0)
+    , lastNotifRotation_(0)
 {
     UpdateMatrix();
 }
@@ -62,9 +71,17 @@ void BaseCamera::SetPosition(const vec3& position)
 }
 void BaseCamera::NotifySubscribers()
 {
-    for (auto& sub : subscribers_)
+    auto l1 = glm::length(position_ - lastNotifiedPosition_);
+    auto l2 = glm::length(rotation_ - lastNotifRotation_);
+
+    if (l1 > NOTIF_EPSILON or l2 > NOTIF_EPSILON)
     {
-        sub.second(*this);
+        for (auto& sub : subscribers_)
+        {
+            sub.second(*this);
+        }
+        lastNotifRotation_    = rotation_;
+        lastNotifiedPosition_ = position_;
     }
 }
 uint32 BaseCamera::SubscribeOnChange(std::function<void(const ICamera&)> callback)

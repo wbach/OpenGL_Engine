@@ -93,5 +93,6 @@ protected:
     Subscribers quque_;
     uint32 idCounter_;
     bool needToQueue_;
+    bool stashedSubsribtions_;
 };
 }  // namespace Input

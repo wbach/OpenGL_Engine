@@ -26,4 +26,8 @@ void KeysSubscriptionsManager::UnsubscribeKeys()
     }
     subscriptions_.clear();
 }
+void KeysSubscriptionsManager::Clear()
+{
+    subscriptions_.clear(); // after stash pop subscribtion can be invalid
+}
 }  // namespace Input

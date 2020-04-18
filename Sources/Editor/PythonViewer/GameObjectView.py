@@ -9,11 +9,8 @@ class GameObjectView:
         self.infoView = infoView
         self.transformView = transformView
         self.componentsView = componentsView
-        self.gameObjects = {}
-        self.gameObjectsCount = 0
-        self.goType = "go"
-        self.cameraType = "camera"
-        self.cameraInfo = []
+
+        self.InitVariables()
 
         self.frame = tk.LabelFrame(root, width=200, height=400, text="GameObjects")
         self.frame.grid(row=0, column=0, padx=5, pady=5)
@@ -33,6 +30,13 @@ class GameObjectView:
         self.networkClient.SubscribeOnMessage("CameraMsg", self.OnCameraMsg)
         self.networkClient.SubscribeOnMessage("SelectedObjectChanged", self.OnSelectedObjectChanged)
         networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def InitVariables(self):
+        self.gameObjects = {}
+        self.gameObjectsCount = 0
+        self.goType = "go"
+        self.cameraType = "camera"
+        self.cameraInfo = []
 
     def OnCameraMsg(self, msg):
         if not self.cameraType in self.gameObjects:
@@ -56,6 +60,7 @@ class GameObjectView:
         for i in self.tree.get_children():
             self.tree.delete(i)
         self.gameObjectsCountStr.set("Game objects count : 0")
+        self.InitVariables()
 
     def OnGameObjectMsg(self, msg):
         print("OnGameObjectMsg, Message : \"{0}\"".format(msg.tag))
@@ -92,6 +97,7 @@ class GameObjectView:
             self.componentsView.Fill(gameObjectId)
         elif type == self.cameraType:
             self.ShowCameraInView()
+            self.networkClient.SendCommand("getCamera")
 
     def OnSelectedObjectChanged(self, msg):
         gameObjectId = int(msg.get("id"))

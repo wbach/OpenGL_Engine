@@ -1,15 +1,13 @@
 #include "Log.h"
+
 #include <boost/filesystem.hpp>
 #include <chrono>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
 #include "SDL2/SDL_messagebox.h"
 
-namespace
-{
-std::ofstream mainfile;
-}
 CLogger& CLogger::Instance()
 {
     static CLogger logger;
@@ -20,10 +18,8 @@ void CLogger::EnableLogs()
 {
     enabled = true;
     CreateLogFile();
-
-    logImmeditaly = true;
-
-    loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
+    if (not logImmeditaly)
+        loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
 }
 void CLogger::ImmeditalyLog()
 {
@@ -33,8 +29,6 @@ void CLogger::LazyLog()
 {
     std::lock_guard<std::mutex> lk(printMutex_);
     logImmeditaly = false;
-    if (mainfile.is_open())
-        mainfile.close();
 }
 void CLogger::ErrorLog(const std::string& log)
 {
@@ -64,7 +58,10 @@ void CLogger::Logg(const std::string& log)
     if (logImmeditaly)
     {
         std::cout << ss.str() << std::endl;
-        mainfile << ss.str() << std::endl;
+
+        std::ofstream file(fileName, std::ios_base::app);
+        file << ss.str() << std::endl;
+        file.close();
     }
     else
     {
@@ -114,11 +111,6 @@ CLogger::~CLogger()
         running_.store(false);
         loggerThread_.join();
         PrintLogs();
-
-        if (mainfile.is_open())
-        {
-            mainfile.close();
-        }
     }
 }
 
