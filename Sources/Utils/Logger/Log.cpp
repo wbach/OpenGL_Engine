@@ -33,7 +33,10 @@ void CLogger::ErrorLog(const std::string& log)
 {
     Logg("[ERROR] " + prefixTotal_ + log);
 }
-
+void CLogger::WarningLog(const std::string& log)
+{
+    Logg("[WARNING] " + prefixTotal_ + log);
+}
 void CLogger::DebugLog(const std::string& log)
 {
     Logg("[DEBUG] " + prefixTotal_ + log);

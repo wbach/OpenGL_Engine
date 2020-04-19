@@ -108,35 +108,31 @@ protected:
     virtual int Update(float /*deltaTime*/);
 
 protected:
-    std::string name;
-    std::string file_;
-    AddEvent addSceneEvent;
-    std::function<void(EngineEvent)> addEngineEvent;
+    std::unique_ptr<IResourceManager> resourceManager_;
+    Components::ComponentController componentController_;
+    std::unique_ptr<Components::IComponentFactory> componentFactory_;
+    std::unique_ptr<GuiManager> guiManager_;
+    std::unique_ptr<GuiElementFactory> guiElementFactory_;
+    std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
+    GameObjects gameObjects;
+    CameraWrapper camera;
 
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
     Physics::IPhysicsApi* physicsApi_;
 
-    std::unique_ptr<GuiManager> guiManager_;
-    std::unique_ptr<GuiElementFactory> guiElementFactory_;
-    std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
-
+    std::string name;
+    std::string file_;
+    AddEvent addSceneEvent;
+    std::function<void(EngineEvent)> addEngineEvent;
+    
     // Minimum one light on scene only (night - decrease strength)
+    Time time_;
     float gloabalTime = 0.f;
     Light directionalLight;
     std::vector<Light> lights;
     DayNightCycle dayNightCycle;
-
-    CameraWrapper camera;
-
-    GameObjects gameObjects;
-
-    Time time_;
-
-    std::unique_ptr<IResourceManager> resourceManager_;
-    Components::ComponentController componentController_;
-    std::unique_ptr<Components::IComponentFactory> componentFactory_;
 
     std::atomic_bool simulatePhysics_;
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;

@@ -16,7 +16,7 @@ ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, std
 
 ThreadSubscriber::~ThreadSubscriber()
 {
-    DEBUG_LOG("");
+    DEBUG_LOG("destructor " + label_);
     Stop();
 }
 

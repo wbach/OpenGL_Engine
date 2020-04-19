@@ -9,6 +9,7 @@ EngineContextData::EngineContextData()
 
 EngineContextData::~EngineContextData()
 {
+    DEBUG_LOG("destructor");
     threadSync_.Stop();
 }
 

@@ -22,7 +22,7 @@ class SceneWrapper
 {
 public:
     SceneWrapper(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager&);
-
+    ~SceneWrapper();
     Scene* Get();
     SceneWrapperState GetState();
     void Reset();

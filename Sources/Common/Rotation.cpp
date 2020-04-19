@@ -8,11 +8,11 @@ vec3 EulerAngles(const Quaternion &quaternion)
 {
     auto euler = glm::eulerAngles(quaternion); // <-90, 90>
 
-    if (std::fabs(euler.z) >= M_PI / 2.f)
+    if (std::fabs(euler.z) >= glm::pi<float>() / 2.f)
     {
-        euler.x += M_PI;
-        euler.y = M_PI - euler.y;
-        euler.z += M_PI;
+        euler.x += glm::pi<float>();
+        euler.y = glm::pi<float>() - euler.y;
+        euler.z += glm::pi<float>();
     }
 
     return euler;

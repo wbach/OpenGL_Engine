@@ -43,7 +43,6 @@ public:
     void Reset();
     void SetFactor();
     void Stop();
-    bool IsRunning() const;
 
 private:
     void RuntimeLoadObjectToGpu();
@@ -66,8 +65,7 @@ private:
     template <class T>
     void JustLoadScene(T scene);
 
-    void UpdateSubscribe();
-    void StopUpdateSubscribe();
+    void Start();
 
 private:
     GraphicsApi::IGraphicsApi& grahpicsApi_;

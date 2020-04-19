@@ -56,6 +56,8 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
 
 NetworkEditorInterface::~NetworkEditorInterface()
 {
+    DEBUG_LOG("destructor");
+
     KeysUnsubscribe();
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();

@@ -2,6 +2,7 @@
 #include <atomic>
 #include <list>
 #include <string>
+
 #include "../Types.h"
 #include "Mutex.hpp"
 #include "Thread.hpp"
@@ -14,6 +15,7 @@ public:
     void EnableLogs();
     void ImmeditalyLog();
     void LazyLog();
+    void WarningLog(const std::string& log);
     void ErrorLog(const std::string& log);
     void DebugLog(const std::string& log);
     void Logg(const std::string& log);
@@ -48,5 +50,6 @@ private:
 #define LOG_CLEAR_PREFIXES() do{CLogger::Instance().ClearPrefixes(); } while(0)
 #define LogToFile(x)// do {CLogger::Instance().LoggToFileOnly(x);} while(0)
 #define DEBUG_LOG(x) do {CLogger::Instance().DebugLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
+#define WARNING_LOG(x) do {CLogger::Instance().WarningLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
 #define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
 // clang-format on

@@ -1,4 +1,5 @@
 #include "BaseComponent.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -15,6 +16,8 @@ BaseComponent::BaseComponent(ComponentsType type, const ComponentContext& compon
 }
 BaseComponent::~BaseComponent()
 {
+    DEBUG_LOG("destructor " + std::to_string(type_));
+
     for (auto id : ids_)
         componentContext_.componentController_.UnRegisterFunction(id.second, id.first);
 

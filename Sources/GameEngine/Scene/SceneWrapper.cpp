@@ -12,6 +12,11 @@ SceneWrapper::SceneWrapper(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManage
 {
 }
 
+SceneWrapper::~SceneWrapper()
+{
+    DEBUG_LOG("destructor");
+}
+
 void SceneWrapper::Set(ScenePtr scene)
 {
     Reset();

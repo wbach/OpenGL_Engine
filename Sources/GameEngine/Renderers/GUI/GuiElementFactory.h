@@ -42,7 +42,7 @@ public:
         Renderer::RenderersManager& renderersManager_;
     };
     GuiElementFactory(EntryParameters& entryParameters);
-    ~GuiElementFactory() = default;
+    ~GuiElementFactory();
     bool ReadGuiFile(const std::string& filename);
     void SetTheme(const GuiTheme&);
     const GuiTheme& GetTheme() const;

@@ -4,6 +4,7 @@
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -17,6 +18,7 @@ IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, DisplayMana
 }
 IntroRenderer::~IntroRenderer()
 {
+    DEBUG_LOG("destructor");
 }
 
 void IntroRenderer::Render()

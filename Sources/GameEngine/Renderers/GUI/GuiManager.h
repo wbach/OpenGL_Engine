@@ -19,6 +19,7 @@ class GuiManager
 {
 public:
     GuiManager();
+    ~GuiManager();
     GuiLayer& AddLayer(const std::string&);
     void Add(const std::string& layerName, std::unique_ptr<GuiElement> element);
     void Add(std::unique_ptr<GuiElement> element);

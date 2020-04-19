@@ -13,9 +13,7 @@ namespace Components
 class IComponentFactory
 {
 public:
-    virtual ~IComponentFactory()
-    {
-    }
+    virtual ~IComponentFactory() = default;
     virtual std::unique_ptr<IComponent> Create(ComponentsType type, GameObject& ptr) = 0;
 };
 }  // namespace Components

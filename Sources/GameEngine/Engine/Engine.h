@@ -31,6 +31,7 @@ public:
     SceneManager& GetSceneManager();
 
 private:
+    void CheckThreadsBeforeQuit();
     void SetDisplay();
     void MainLoop();
     void ProcessEngineEvents();

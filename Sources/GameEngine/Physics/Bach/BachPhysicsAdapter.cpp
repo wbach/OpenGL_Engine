@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
-
+#include <Logger/Log.h>
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "Types.h"
@@ -135,6 +135,7 @@ BachPhysicsAdapter::BachPhysicsAdapter()
 }
 BachPhysicsAdapter::~BachPhysicsAdapter()
 {
+    DEBUG_LOG("destructor");
 }
 void BachPhysicsAdapter::Simulate()
 {

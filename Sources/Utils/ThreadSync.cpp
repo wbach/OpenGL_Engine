@@ -65,6 +65,11 @@ void ThreadSync::Stop()
         s.second.Stop();
 }
 
+size_t ThreadSync::SubscribersCount() const
+{
+    return subscribers.size();
+}
+
 Worker& ThreadSync::AddWorker()
 {
     workers_.emplace_back();

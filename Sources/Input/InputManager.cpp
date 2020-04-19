@@ -29,7 +29,7 @@ InputManager::InputManager()
 
 InputManager::~InputManager()
 {
-    DEBUG_LOG("");
+    DEBUG_LOG("destructor");
 }
 
 void InputManager::SetDefaultKeys()

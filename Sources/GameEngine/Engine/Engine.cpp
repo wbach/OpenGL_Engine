@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "Configuration.h"
+#include "EngineContext.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Input/InputManager.h"
@@ -30,9 +31,18 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
 
 Engine::~Engine()
 {
-    DEBUG_LOG("");
+    DEBUG_LOG("destructor");
     sceneManager_.Reset();
     EngineConf_SaveRequiredFiles();
+}
+
+void Engine::CheckThreadsBeforeQuit()
+{
+    if (EngineContext.threadSync_.SubscribersCount() > 0)
+    {
+        WARNING_LOG("Not closed threads. Force to close.");
+        EngineContext.threadSync_.Stop();
+    }
 }
 
 void Engine::SetDisplay()
@@ -43,7 +53,11 @@ void Engine::SetDisplay()
 void Engine::GameLoop()
 {
     while (isRunning_)
+    {
         MainLoop();
+    }
+
+    CheckThreadsBeforeQuit();
 }
 
 void Engine::AddEngineEvent(EngineEvent event)

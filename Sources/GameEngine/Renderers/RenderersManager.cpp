@@ -50,6 +50,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
 }
 RenderersManager::~RenderersManager()
 {
+    DEBUG_LOG("destructor");
 }
 const Projection& RenderersManager::GetProjection() const
 {

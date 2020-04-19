@@ -51,6 +51,11 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     };
 }
 
+GuiElementFactory::~GuiElementFactory()
+{
+    DEBUG_LOG("destructor");
+}
+
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,
                                                                  uint32 fontSize, uint32 outline)
 {

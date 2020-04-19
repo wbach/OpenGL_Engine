@@ -23,7 +23,7 @@ TerrainShape::TerrainShape(const ComponentContext& componentContext, GameObject&
     : CollisionShape(ComponentsType::TerrainShape, componentContext, gameObject)
     , terrainHeightGetter_(nullptr)
     , terrainRendererComponent_(nullptr)
-    , size_(1.f)
+    , size_(1)
     , heightMap_(nullptr)
 {
 }

@@ -23,14 +23,14 @@ namespace GameEngine
 {
 Scene::Scene(const std::string& name)
     : objectCount(0)
-    , name(name)
+    , componentFactory_(nullptr)
     , inputManager_(nullptr)
     , displayManager_(nullptr)
     , renderersManager_(nullptr)
     , physicsApi_(nullptr)
+    , name(name)
     , gloabalTime(0.f)
     , directionalLight(vec3(1000.f, 15000.f, 10000.f), vec3(.8f))
-    , componentFactory_(nullptr)
     , simulatePhysics_(true)
     , start_(true)
 {
@@ -38,9 +38,10 @@ Scene::Scene(const std::string& name)
 
 Scene::~Scene()
 {
-    gameObjects.clear();
-    guiManager_.reset();
-    guiElementFactory_.reset();
+    DEBUG_LOG("destructor");
+
+   // gameObjects.clear();
+
     if (inputManager_ != nullptr)
     {
         inputManager_->UnsubscribeAll();

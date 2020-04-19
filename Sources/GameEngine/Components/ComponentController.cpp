@@ -1,4 +1,5 @@
 #include "ComponentController.h"
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -18,7 +19,23 @@ ComponentController::ComponentController()
 }
 ComponentController::~ComponentController()
 {
-    DEBUG_LOG("");
+    DEBUG_LOG("destructor");
+
+    for (auto& f : functions_)
+    {
+        if (f.second.size() > 0)
+        {
+            WARNING_LOG("Some funstion left.");
+        }
+    }
+
+    for (auto& f : registredComponents_)
+    {
+        if (f.second.size() > 0)
+        {
+            WARNING_LOG("Some components left.");
+        }
+    }
 }
 
 const RegistredComponentsMap& ComponentController::GetAllComonentsOfType(ComponentsType type) const
@@ -48,12 +65,24 @@ uint32 ComponentController::RegisterComponent(ComponentsType type, IComponent* c
 void ComponentController::UnRegisterComponent(ComponentsType type, uint32 id)
 {
     if (registredComponents_.count(type) > 0)
+    {
         registredComponents_.at(type).erase(id);
+    }
+    else
+    {
+        WARNING_LOG("ComponentsType not found.");
+    }
 }
 void ComponentController::UnRegisterFunction(FunctionType type, uint32 id)
 {
     if (functions_.count(type) > 0)
+    {
         functions_.at(type).erase(id);
+    }
+    else
+    {
+        WARNING_LOG("Function not found.");
+    }
 }
 void ComponentController::UnRegisterAll()
 {

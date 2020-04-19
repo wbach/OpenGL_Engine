@@ -28,6 +28,7 @@ public:
     void Unsubscribe(uint32 id);
     void Start();
     void Stop();
+    size_t SubscribersCount() const;
 
     Worker& AddWorker();
     void RemoveWorker(Worker&);

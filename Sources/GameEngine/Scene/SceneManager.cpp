@@ -23,10 +23,11 @@ SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhy
     , guiContext_(guiContext)
     , addEngineEvent_(addEngineEvent)
 {
-    UpdateSubscribe();
+    Start();
 }
 SceneManager::~SceneManager()
 {
+    DEBUG_LOG("destructor");
     Stop();
 }
 Scene* SceneManager::GetActiveScene()
@@ -108,7 +109,7 @@ void SceneManager::TakeEvents()
     if (not incomingEvent)
         return;
 
-    StopUpdateSubscribe();
+    Stop();
     renderersManager_.UnSubscribeAll([&, e = *incomingEvent]() { AddEventToProcess(e); });
 }
 void SceneManager::ProccessEvents()
@@ -141,7 +142,7 @@ void SceneManager::ProccessEvents()
             break;
     }
 
-    UpdateSubscribe();
+    Start();
 }
 
 void SceneManager::SetActiveScene(const std::string& name)
@@ -161,19 +162,6 @@ void SceneManager::SetFactor()
     sceneFactory_->SetInputManager(&inputManager_);
     sceneFactory_->SetRenderersManager(&renderersManager_);
     sceneFactory_->SetPhysicsApi(physicsApi_);
-}
-
-void SceneManager::Stop()
-{
-    if (not isRunning_)
-        return;
-
-    isRunning_ = false;
-}
-
-bool SceneManager::IsRunning() const
-{
-    return isRunning_;
 }
 
 void SceneManager::UpdateScene(float dt)
@@ -276,19 +264,33 @@ void SceneManager::SetSceneContext(Scene* scene)
     scene->SetAddEngineEventCallback(addEngineEvent_);
 }
 
-void SceneManager::UpdateSubscribe()
+void SceneManager::Start()
 {
-    DEBUG_LOG("");
-    updateSceneThreadId_ =
-        EngineContext.threadSync_.Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
-    isRunning_ = true;
+    if (not isRunning_)
+    {
+        DEBUG_LOG("Starting scene");
+        updateSceneThreadId_ = EngineContext.threadSync_.Subscribe(
+            std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
+        isRunning_ = true;
+    }
+    else
+    {
+        ERROR_LOG("Scene is already started!");
+    }
 }
 
-void SceneManager::StopUpdateSubscribe()
+void SceneManager::Stop()
 {
-    DEBUG_LOG("");
-    EngineContext.threadSync_.Unsubscribe(updateSceneThreadId_);
-    isRunning_ = false;
+    if (isRunning_)
+    {
+        DEBUG_LOG("Stopping scene");
+        EngineContext.threadSync_.Unsubscribe(updateSceneThreadId_);
+        isRunning_ = false;
+    }
+    else
+    {
+        WARNING_LOG("Scene is not started.");
+    }
 }
 
 }  // namespace GameEngine

@@ -22,6 +22,7 @@ GuiEngineContextManger::GuiEngineContextManger(GuiElementFactory& guiFactory)
 
 GuiEngineContextManger::~GuiEngineContextManger()
 {
+    DEBUG_LOG("destructor");
 }
 
 void GuiEngineContextManger::Update()

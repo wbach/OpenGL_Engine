@@ -24,6 +24,7 @@ class Console
 {
 public:
     Console(Scene& scene);
+    ~Console();
     void ExecuteCommands();
 
 private:

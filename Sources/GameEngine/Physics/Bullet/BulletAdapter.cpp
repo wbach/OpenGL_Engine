@@ -100,6 +100,7 @@ BulletAdapter::BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi)
 }
 BulletAdapter::~BulletAdapter()
 {
+    DEBUG_LOG("destructor");
 }
 void BulletAdapter::SetSimulationStep(float step)
 {

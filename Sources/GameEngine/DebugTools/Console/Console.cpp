@@ -39,6 +39,11 @@ Console::Console(Scene &scene)
     LoadCommandHistoryFromFile();
 }
 
+Console::~Console()
+{
+    DEBUG_LOG("destructor");
+}
+
 void Console::ExecuteCommands()
 {
     while (not commandsToExecute_.empty())

@@ -51,6 +51,7 @@ SdlOpenGlApi::SdlOpenGlApi()
 
 SdlOpenGlApi::~SdlOpenGlApi()
 {
+    DEBUG_LOG("destructor");
     if (impl_->window)
     {
         SDL_DestroyWindow(impl_->window);

@@ -14,6 +14,11 @@ GuiManager::GuiManager()
     AddLayer(DEFAULT_LAYER);
 }
 
+GuiManager::~GuiManager()
+{
+    DEBUG_LOG("destructor");
+}
+
 GuiLayer& GuiManager::AddLayer(const std::string& name)
 {
     auto iter =

@@ -4,6 +4,7 @@
 #include "DirectXApi/DirectXContext.h"
 #include "WinApi.h"
 #include "XInput/XInputManager.h"
+#include <Logger/Log.h>
 
 #undef CreateWindow
 
@@ -85,6 +86,7 @@ WinApi::WinApi(DirectXContext& directXContext)
 }
 WinApi::~WinApi()
 {
+    DEBUG_LOG("destructor");
 }
 void WinApi::Init()
 {

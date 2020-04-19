@@ -37,8 +37,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string
 
 DisplayManager::~DisplayManager()
 {
+    DEBUG_LOG("destructor");
     graphicsApi_.DeleteContext();
-    DEBUG_LOG("");
 }
 
 void DisplayManager::StartFrame()

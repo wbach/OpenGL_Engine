@@ -150,7 +150,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filen
 }
 
 TerrainConfiguration::TerrainConfiguration()
-    : perTerrainBuffer{vec4(.3f), vec4i(0.f), vec4i(0.f), vec3(6000.f, 800.f, 6000.f)}
+    : perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec3(6000.f, 800.f, 6000.f)}
     , terrainRootNodesCount_{8.f}
 {
     lodRanges_.resize(LOD_SIZE);

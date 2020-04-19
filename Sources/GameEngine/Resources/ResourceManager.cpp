@@ -19,7 +19,7 @@ ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi)
 
 ResourceManager::~ResourceManager()
 {
-    DEBUG_LOG("");
+    DEBUG_LOG("destructor");
 }
 
 Model* ResourceManager::LoadModel(const std::string& file)

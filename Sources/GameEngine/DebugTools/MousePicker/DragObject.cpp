@@ -14,9 +14,9 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
                        const Projection& projection)
     : input_(manager)
     , gameObject_(gameObject)
+    , rigidbody_(nullptr)
     , camera_(camera)
     , projection_(projection)
-    , rigidbody_(nullptr)
 {
     mouseZcoord_ = CalculateMouseZCoord(gameObject_.worldTransform.GetPosition());
     DEBUG_LOG(std::to_string(mouseZcoord_));

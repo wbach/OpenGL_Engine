@@ -1,7 +1,7 @@
 if(UNIX)
     message(STATUS "Unix : ON")
     include_directories(/usr/include/freetype2)
-    
+
     if(BUILD_I386)
     else()
         find_package(PkgConfig REQUIRED)
@@ -13,22 +13,23 @@ if(UNIX)
         #pkg_check_modules(FREEIMAGE REQUIRED freeimage)
         pkg_check_modules(FREETYPE REQUIRED freetype2)
         pkg_check_modules(GLU REQUIRED glu)
-        
+
           set(LinkingLibs
                 SDL2main
                 SDL2
                 SDL2_net
-	        SDL2_ttf
+                SDL2_ttf
                 GL
                 GLU
                 GLEW
                 drm
                 assimp
                 pthread
+                stdc++fs
                 freeimage
                 freetype
           )
-    endif()    
+    endif()
 
     add_definitions(-DUSE_GNU)
     link_directories(${PROJECT_BINARY_DIR}/../Tools/linux/fbx/lib/gcc4/x64/release/)
@@ -36,16 +37,17 @@ if(UNIX)
                 SDL2main
                 SDL2
                 SDL2_net
-	          SDL2_ttf
+                SDL2_ttf
                 GL
                 GLU
                 GLEW
                 drm
                 assimp
                 pthread
+                stdc++fs
                 freeimage
                 freetype
                 fbxsdk
-          )  
+          )
 
 endif()
