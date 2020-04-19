@@ -93,7 +93,7 @@ void Engine::ProcessEngineEvents()
             Quit();
             break;
         case EngineEvent::ASK_QUIT:
-            graphicsApi_->GetWindowApi().ShowMessageBox("Quit", "Do really want exit?", [this](bool ok) {
+            graphicsApi_->GetWindowApi().ShowMessageBox("Quit", "Do you really want exit?", [this](bool ok) {
                 if (ok)
                 {
                     Quit();
