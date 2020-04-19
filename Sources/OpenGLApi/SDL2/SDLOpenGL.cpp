@@ -20,6 +20,23 @@ SDL_INIT_EVENTTHREAD
 
 namespace OpenGLApi
 {
+const SDL_MessageBoxButtonData buttons[] = {
+    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"},
+    {/* .flags, .buttonid, .text */ 0, 0, "no"},
+ //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
+};
+const SDL_MessageBoxColorScheme colorScheme = {{/* .colors (.r, .g, .b) */
+                                                /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+                                                {200, 200, 200},
+                                                /* [SDL_MESSAGEBOX_COLOR_TEXT] */
+                                                {20, 20, 20},
+                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+                                                {255, 255, 250},
+                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+                                                {150, 150, 150},
+                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+                                                {100, 100, 100}}};
+
 struct SdlOpenGlApi::Pimpl
 {
     SDL_GLContext glContext;
@@ -108,6 +125,33 @@ double SdlOpenGlApi::GetTime()
 void SdlOpenGlApi::SetCursorPosition(int x, int y)
 {
     SDL_WarpMouseInWindow(impl_->window, x, y);
+}
+
+void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& message) const
+{
+    // SDL_MESSAGEBOX_ERROR
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title.c_str(), message.c_str(), nullptr);
+}
+
+void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& msg, std::function<void(bool)> selectedFunc) const
+{
+    const SDL_MessageBoxData messageboxdata = {
+        SDL_MESSAGEBOX_INFORMATION, /* .flags */
+        impl_->window,              /* .window, can be null */
+        title.c_str(),              /* .title */
+        msg.c_str(),                /* .message */
+        SDL_arraysize(buttons),     /* .numbuttons */
+        buttons,                    /* .buttons */
+        nullptr     //&colorScheme  /* .colorScheme */
+    };
+    int buttonid;
+    if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
+    {
+        ERROR_LOG("error displaying message box");
+        return;
+    }
+
+    selectedFunc(buttonid == 1);
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const

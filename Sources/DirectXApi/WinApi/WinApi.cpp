@@ -205,4 +205,13 @@ void WinApi::ProcessSdlEvent() const
 void WinApi::ProccesSdlKeyDown(uint32 type) const
 {
 }
+void WinApi::ShowMessageBox(const std::string& title, const std::string& msg) const
+{
+    MessageBox(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_OK);
+}
+void WinApi::ShowMessageBox(const std::string& title, const std::string& msg, std::function<void(bool)> func) const
+{
+    MessageBox(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_OK);
+    func(true);
+}
 }  // namespace DirectX

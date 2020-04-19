@@ -202,7 +202,7 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
-            scene_.addEngineEvent(EngineEvent::QUIT);
+            scene_.addEngineEvent(EngineEvent::ASK_QUIT);
         });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [this]() {
         StartScene();

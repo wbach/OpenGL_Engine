@@ -14,23 +14,27 @@ class WinApi : public GraphicsApi::IWindowApi
 {
 public:
     WinApi(DirectXContext& directXContext);
-    virtual ~WinApi() override;
-    virtual void Init() override;
-    virtual void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
+    ~WinApi() override;
+    void Init() override;
+    void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                               GraphicsApi::WindowType full_screen) override;
-    virtual void CreateContext() override;
-    virtual void DeleteContext() override;
+    void CreateContext() override;
+    void DeleteContext() override;
 
-    virtual void ProcessEvents() override;
-    virtual void UpdateWindow() override;
-    virtual void SetFullScreen(bool full_screen) override;
-    virtual bool CheckActiveWindow() override;
+    void ProcessEvents() override;
+    void UpdateWindow() override;
+    void SetFullScreen(bool full_screen) override;
+    bool CheckActiveWindow() override;
 
-    virtual void BeginFrame() override;
-    virtual void ShowCursor(bool show) override;
-    virtual std::unique_ptr<Input::InputManager> CreateInput() override;
-    virtual double GetTime() override;
-    virtual void SetCursorPosition(int x, int y) override;
+    void BeginFrame() override;
+    void ShowCursor(bool show) override;
+    std::unique_ptr<Input::InputManager> CreateInput() override;
+    double GetTime() override;
+    void SetCursorPosition(int x, int y) override;
+
+    void ShowMessageBox(const std::string&, const std::string&) const override;
+    void ShowMessageBox(const std::string&, const std::string&, std::function<void(bool)>) const override;
+
 private:
     uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;
     void CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);

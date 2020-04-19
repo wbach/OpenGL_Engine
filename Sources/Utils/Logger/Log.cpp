@@ -32,7 +32,6 @@ void CLogger::LazyLog()
 }
 void CLogger::ErrorLog(const std::string& log)
 {
-    MessageBox(SDL_MESSAGEBOX_ERROR, "Error", log.c_str());
     Logg("[ERROR] " + prefixTotal_ + log);
 }
 
@@ -75,10 +74,6 @@ void CLogger::LoggToFileOnly(const std::string& log)
     std::ofstream file(fileName, std::ios_base::app);
     file << "[" << std::this_thread::get_id() << "]" << log << std::endl;
     file.close();
-}
-void CLogger::MessageBox(uint32 flags, const std::string& title, const std::string& message)
-{
-    // SDL_ShowSimpleMessageBox(flags, title.c_str(), message.c_str(), NULL);
 }
 void CLogger::SaveToFile() const
 {

@@ -10,6 +10,7 @@
 #include "BufferParamters.h"
 #include "FunctionsTypes.h"
 #include "GraphicsApiDef.h"
+#include "LineMesh.h"
 #include "RenderType.h"
 #include "RendererType.h"
 #include "ShaderProgramType.h"
@@ -19,7 +20,6 @@
 #include "TextureParamters.h"
 #include "WindowApi.hpp"
 #include "WindowType.h"
-#include "LineMesh.h"
 
 namespace GraphicsApi
 {

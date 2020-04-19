@@ -9,7 +9,7 @@ class WindowApiMock : public IWindowApi
 {
 public:
     MOCK_METHOD0(Init, void());
-    MOCK_METHOD4(CreateGameWindow, void(const std::string&, uint32, uint32, WindowType));
+    MOCK_METHOD4(CreateGameWindow, void(const std::string &, uint32, uint32, WindowType));
     MOCK_METHOD0(CreateContext, void());
     MOCK_METHOD0(DeleteContext, void());
     MOCK_METHOD0(ProcessEvents, void());
@@ -21,5 +21,7 @@ public:
     MOCK_METHOD0(GetTime, double());
     MOCK_METHOD2(SetCursorPosition, void(int x, int y));
     MOCK_METHOD0(BeginFrame, void());
+    MOCK_CONST_METHOD2(ShowMessageBox, void(const std::string &, const std::string &));
+    MOCK_CONST_METHOD3(ShowMessageBox, void(const std::string &, const std::string &, std::function<void(bool)>));
 };
 }  // namespace GraphicsApi

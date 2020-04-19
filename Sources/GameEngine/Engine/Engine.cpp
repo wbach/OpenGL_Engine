@@ -92,7 +92,13 @@ void Engine::ProcessEngineEvents()
         case EngineEvent::QUIT:
             Quit();
             break;
-        default:
+        case EngineEvent::ASK_QUIT:
+            graphicsApi_->GetWindowApi().ShowMessageBox("Quit", "Do really want exit?", [this](bool ok) {
+                if (ok)
+                {
+                    Quit();
+                }
+            });
             break;
     }
 }
@@ -107,7 +113,7 @@ void Engine::Init()
 {
     graphicsApi_->EnableDepthTest();
     renderersManager_.Init();
- //   renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw([this]() { return physicsApi_->DebugDraw(); });
-    renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw(std::bind(&Physics::IPhysicsApi::DebugDraw, physicsApi_.get()));
+    renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw(
+        std::bind(&Physics::IPhysicsApi::DebugDraw, physicsApi_.get()));
 }
 }  // namespace GameEngine

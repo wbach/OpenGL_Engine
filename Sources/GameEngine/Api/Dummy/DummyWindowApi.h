@@ -14,8 +14,7 @@ public:
     virtual void Init() override
     {
     }
-    virtual void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                                  GraphicsApi::WindowType type) override
+    virtual void CreateGameWindow(const std::string&, uint32, uint32, GraphicsApi::WindowType) override
     {
     }
     virtual void CreateContext() override
@@ -30,14 +29,14 @@ public:
     virtual void UpdateWindow() override
     {
     }
-    virtual void SetFullScreen(bool full_screen) override
+    virtual void SetFullScreen(bool) override
     {
     }
     virtual bool CheckActiveWindow() override
     {
         return true;
     }
-    virtual void ShowCursor(bool show) override
+    virtual void ShowCursor(bool) override
     {
     }
     virtual std::unique_ptr<Input::InputManager> CreateInput() override
@@ -49,12 +48,19 @@ public:
         time += 0.1f;
         return time;
     }
-    virtual void SetCursorPosition(int x, int y) override
+    virtual void SetCursorPosition(int, int) override
     {
     }
     // Take time function to lock fps, shuld be on begin main loop
     virtual void BeginFrame() override
     {
+    }
+    void ShowMessageBox(const std::string&, const std::string&) const override
+    {
+    }
+    void ShowMessageBox(const std::string&, const std::string&, std::function<void(bool)> func) const override
+    {
+        func(true);
     }
 
 private:
