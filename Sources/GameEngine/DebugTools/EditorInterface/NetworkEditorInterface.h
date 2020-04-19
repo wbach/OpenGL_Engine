@@ -7,7 +7,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
-
+#include "GameEngine/Camera/ICamera.h"
 #include "IEditorInterface.hpp"
 
 namespace GameEngine
@@ -21,6 +21,7 @@ class NetworkEditorInterface : public IEditorInterface
 public:
     NetworkEditorInterface(Scene& scene);
     ~NetworkEditorInterface();
+    virtual void Run() override;
     virtual void AddObject(const std::string&) override;
 
 private:
@@ -65,6 +66,7 @@ private:
     void UnsubscribeTransformUpdateIfExist();
     void UnsubscribeCameraUpdateIfExist();
     void SetFreeCamera();
+    void SetOrignalCamera();
 
 private:
     Scene& scene_;
@@ -87,5 +89,7 @@ private:
     Utils::Timer cameraTimer_;
     Utils::Timer transformTimer_;
     Input::KeysSubscriptionsManager keysSubscriptionsManager_;
+    ICamera* sceneCamera_;
+    bool running_;
 };
 }  // namespace GameEngine

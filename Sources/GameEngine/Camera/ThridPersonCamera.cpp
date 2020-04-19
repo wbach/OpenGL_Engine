@@ -20,9 +20,10 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
     , distanceFromPlayer_(3.f)
     , offset_(offset)
     , mouseSensitivity_(.4f)
+    , isRelativeModeEnabled_(false)
     , clock_(std::chrono::milliseconds(5))
 {
-    inputManager.SetReleativeMouseMode(true);
+    SetRelativeMode(true);
 }
 ThirdPersonCamera::~ThirdPersonCamera()
 {
@@ -51,9 +52,10 @@ void ThirdPersonCamera::CalculateInput()
     if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
     {
         inputManager_.ShowCursor(true);
+        SetRelativeMode(false);
         return;
     }
-
+    SetRelativeMode(true);
     inputManager_.ShowCursor(false);
 
     if (!clock_.OnTick())
@@ -109,14 +111,23 @@ void ThirdPersonCamera::CalculateZoom(float v)
 void ThirdPersonCamera::Lock()
 {
     BaseCamera::Lock();
-    inputManager_.SetReleativeMouseMode(false);
+    SetRelativeMode(false);
     inputManager_.ShowCursor(true);
 }
 void ThirdPersonCamera::Unlock()
 {
     BaseCamera::Unlock();
-    inputManager_.SetReleativeMouseMode(true);
+    SetRelativeMode(true);
     inputManager_.ShowCursor(false);
+}
+
+void ThirdPersonCamera::SetRelativeMode(bool v)
+{
+    if (v != isRelativeModeEnabled_)
+    {
+        inputManager_.SetReleativeMouseMode(v);
+        isRelativeModeEnabled_ = v;
+    }
 }
 vec2 ThirdPersonCamera::CalcualteMouseMove()
 {

@@ -46,12 +46,9 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     , selectedGameObject_{nullptr}
     , userId_{0}
     , keysSubscriptionsManager_(*scene_.inputManager_)
+    , running_{false}
 {
-    DefineCommands();
-    StartGatway();
     SetupCamera();
-    PrepareDebugModels();
-    StopScene();
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
@@ -61,6 +58,20 @@ NetworkEditorInterface::~NetworkEditorInterface()
     UnsubscribeCameraUpdateIfExist();
 
     EngineContext.threadSync_.Unsubscribe(threadId_);
+}
+
+void NetworkEditorInterface::Run()
+{
+    StopScene();
+
+    if (not running_)
+    {
+        DefineCommands();
+        StartGatway();
+        PrepareDebugModels();
+    }
+
+    running_ = true;
 }
 void NetworkEditorInterface::AddObject(const std::string &path)
 {
@@ -94,7 +105,6 @@ void NetworkEditorInterface::SetupCamera()
 {
     firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
     firstPersonCamera->Lock();
-    SetFreeCamera();
 }
 
 void NetworkEditorInterface::StartGatway()
@@ -189,6 +199,17 @@ void NetworkEditorInterface::KeysSubscribtions()
     });
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { dragObject_ = nullptr; });
+
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
+            scene_.addEngineEvent(EngineEvent::QUIT);
+        });
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [this]() {
+        StartScene();
+    });
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
+        StopScene();
+    });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -609,6 +630,7 @@ void NetworkEditorInterface::StartScene()
 
     keysSubscriptionsManager_.Clear();
     scene_.inputManager_->StashPopSubscribers();
+    SetOrignalCamera();
     scene_.Start();
 }
 
@@ -617,9 +639,10 @@ void NetworkEditorInterface::StopScene()
     if (not scene_.start_.load())
         return;
 
+    scene_.Stop();
     scene_.inputManager_->StashSubscribers();
     KeysSubscribtions();
-    scene_.Stop();
+    SetFreeCamera();
 }
 
 void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
@@ -724,10 +747,17 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
 
 void NetworkEditorInterface::SetFreeCamera()
 {
-    auto cameraPosition = scene_.camera.GetPosition();
-    auto cameraRotation = scene_.camera.GetRotation();
-    firstPersonCamera->SetPosition(cameraPosition);
-    firstPersonCamera->SetRotation(cameraRotation);
+    sceneCamera_ = scene_.camera.Get();
+    sceneCamera_->Lock();
+    firstPersonCamera->SetPosition(sceneCamera_->GetPosition());
+    firstPersonCamera->SetRotation(sceneCamera_->GetRotation());
+    firstPersonCamera->Lock();
     scene_.SetCamera(*firstPersonCamera);
+}
+
+void NetworkEditorInterface::SetOrignalCamera()
+{
+    scene_.SetCamera(*sceneCamera_);
+    sceneCamera_->Unlock();
 }
 }  // namespace GameEngine

@@ -306,7 +306,15 @@ int Scene::Update(float)
 
 void Scene::RunNetworkEditorInterface()
 {
-    networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this);
+    if (not networkEditorInterface_)
+    {
+        networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this);
+        networkEditorInterface_->Run();
+    }
+    else
+    {
+        networkEditorInterface_->Run();
+    }
 }
 void Scene::StopNetworkEditorInterface()
 {

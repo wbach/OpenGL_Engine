@@ -6,14 +6,12 @@ namespace GameEngine
 {
 enum SceneEventType
 {
-    NONE,
+    RELOAD_SCENE,
     LOAD_NEXT_SCENE,
     LOAD_PREVIOUS_SCENE,
     LOAD_SCENE_BY_NAME,
     LOAD_SCENE_BY_ID,
-    RELOAD_SCENE,
-    LOAD_FROM_FILE,
-    EXIT_GAME
+    LOAD_FROM_FILE
 };
 
 struct SceneEvent
@@ -22,7 +20,7 @@ struct SceneEvent
         : SceneEvent(t, "", id)
     {
     }
-    SceneEvent(SceneEventType t = SceneEventType::NONE, const std::string& n = "", uint32 i = 0)
+    SceneEvent(SceneEventType t = SceneEventType::RELOAD_SCENE, const std::string& n = "", uint32 i = 0)
         : type(t)
         , name(n)
         , id(i)

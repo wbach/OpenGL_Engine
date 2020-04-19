@@ -27,6 +27,7 @@ public:
     void Unlock() override;
 
 private:
+    void SetRelativeMode(bool);
     void LockCamera();
     void LockPitch();
     void LockYaw();
@@ -47,6 +48,7 @@ private:
     vec3 offset_;
     float mouseSensitivity_;
     bool captureMouse_;
+    bool isRelativeModeEnabled_;
 
     Utils::CClock clock_;
 };
