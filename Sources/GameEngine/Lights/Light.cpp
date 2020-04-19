@@ -17,7 +17,7 @@ namespace GameEngine
 		, position(position)
 		, colour(colour)
 		, attenuation(attenuation)
-		, cutOff(0)
+		, cutOff(0.f)
 	{
 	}
 
@@ -25,26 +25,26 @@ namespace GameEngine
 		: type(LightType::DIRECTIONAL_LIGHT)
 		, position(position)
 		, colour(colour)
-		, attenuation(vec3(1, 0, 0))
-		, cutOff(0)
+		, attenuation(vec3(1.f, 0.f, 0.f))
+		, cutOff(0.f)
 	{
 		direction = -1.f * glm::normalize(position);
 	}
 	Light::Light(vec3 colour)
 		: type(LightType::DIRECTIONAL_LIGHT)
-		, position(100000, 150000, 100000)
+		, position(100000.f, 150000.f, 100000.f)
 		, colour(colour)
-		, attenuation(vec3(1, 0, 0))
-		, cutOff(0)
+		, attenuation(vec3(1.f, 0.f, 0.f))
+		, cutOff(0.f)
 	{
 		direction = -1.f * glm::normalize(position);
 	}
 	Light::Light()
 		: type(LightType::DIRECTIONAL_LIGHT)
-		, position(100000, 150000, 100000)
-		, colour(0.8)
-		, attenuation(vec3(1, 0, 0))
-		, cutOff(0)
+		, position(100000.f, 150000.f, 100000.f)
+		, colour(.8f)
+		, attenuation(vec3(1.f, 0.f, 0.f))
+		, cutOff(0.f)
 	{
 		direction = -1.f * glm::normalize(position);
 	}

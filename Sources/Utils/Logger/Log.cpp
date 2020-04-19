@@ -7,8 +7,6 @@
 #include <sstream>
 #include <filesystem>
 
-#include "SDL2/SDL_messagebox.h"
-
 CLogger& CLogger::Instance()
 {
     static CLogger logger;

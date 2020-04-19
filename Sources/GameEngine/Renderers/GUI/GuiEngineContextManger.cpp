@@ -33,7 +33,7 @@ void GuiEngineContextManger::Update()
         if (guiTexts_.count(measurment.first) == 0)
         {
             auto text = guiFactory_.CreateGuiText(printedText, 40);
-            text->SetColor(vec3(0.1));
+            text->SetColor(vec3(.1f));
             guiTexts_.insert({measurment.first, text.get()});
             AdjustSize(text->GetScale().y);
             verticalLayout_->AddChild(std::move(text));

@@ -12,8 +12,6 @@ const std::string configFile = "./Conf.xml";
 
 int main(int, char**)
 {
-    Utils::PrintFilesInDirectory(".");
-    return 0;
     CLogger::Instance().EnableLogs();
 
     GameEngine::ReadFromFile(configFile);
