@@ -3,7 +3,7 @@
 #include "Logger/Log.h"
 #include "OpenGLApi/OpenGLApi.h"
 #include "StartGame.h"
-
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #ifndef USE_GNU
 #include "DirectXApi/DirectXApi.h"
 #endif
@@ -12,6 +12,8 @@ const std::string configFile = "./Conf.xml";
 
 int main(int, char**)
 {
+    Utils::PrintFilesInDirectory(".");
+    return 0;
     CLogger::Instance().EnableLogs();
 
     GameEngine::ReadFromFile(configFile);

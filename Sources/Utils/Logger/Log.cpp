@@ -1,10 +1,11 @@
 #include "Log.h"
 
-#include <boost/filesystem.hpp>
 #include <chrono>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 #include "SDL2/SDL_messagebox.h"
 
@@ -123,7 +124,7 @@ void CLogger::CreateLogFile()
     std::stringstream ss;
     ss << in_time_t;
 
-    boost::filesystem::create_directories("./Logs");
+    std::filesystem::create_directories("./Logs");
     fileName = "Logs/Logs.txt";
     std::ofstream file(fileName);
     file.close();

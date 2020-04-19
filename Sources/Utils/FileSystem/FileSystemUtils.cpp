@@ -1,43 +1,40 @@
 #include "FileSystemUtils.hpp"
+
 #include <Logger/Log.h>
 #include <Utils/Utils.h>
+
 #include <algorithm>
-#include <boost/filesystem.hpp>
 #include <iostream>
 
 #ifndef USE_GNU
 #include <Windows.h>
 #endif
 
-using namespace boost::filesystem;
+#include <filesystem>
 
 namespace Utils
 {
 void PrintFilesInDirectory(const std::string& dirPath, const std::string& t)
 {
-    path p(dirPath);
-
-    directory_iterator end_itr;
-
-    for (directory_iterator itr(p); itr != end_itr; ++itr)
+    for (auto& p : std::filesystem::directory_iterator(dirPath))
     {
-        if (is_regular_file(itr->path()))
+        if (p.is_directory())
         {
-            std::string current_file = itr->path().string();
-            std::cout << t << "[F] " << current_file << std::endl;
+            auto filename = Utils::ReplaceSlash(p.path().string());
+            std::cout << t << "[D] " << filename << std::endl;
+
+            PrintFilesInDirectory(p.path().string(), t + "    ");
         }
-        else if (is_directory(itr->path()))
+        else
         {
-            std::string current_file = itr->path().string();
-            std::cout << t << "[D] " << current_file << std::endl;
-            PrintFilesInDirectory(current_file, t + "    ");
+            auto filename = Utils::ReplaceSlash(p.path().string());
+            std::cout << t << "[F] " << filename << std::endl;
         }
     }
 }
 std::vector<File> GetFilesInDirectory(const std::string& dirPath)
 {
     std::vector<File> result;
-    path p(dirPath);
 
 #ifndef USE_GNU
     if (dirPath.empty() or dirPath == "/")
@@ -55,17 +52,15 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
     }
 #endif
 
-    directory_iterator end_itr;
-
-    for (directory_iterator itr(p); itr != end_itr; ++itr)
+    for (auto& p : std::filesystem::directory_iterator(dirPath))
     {
-        auto filename = Utils::ReplaceSlash(itr->path().string());
+        auto filename = Utils::ReplaceSlash(p.path().string());
 
-        if (is_regular_file(itr->path()))
+        if (p.is_regular_file())
         {
             result.push_back({File::Type::RegularFile, filename});
         }
-        else if (is_directory(itr->path()))
+        else if (p.is_directory())
         {
             result.push_back({File::Type::Directory, filename});
         }
@@ -87,7 +82,7 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
 }
 std::string GetParent(const std::string& dir)
 {
-    auto result = path(dir).parent_path().string();
+    auto result = std::filesystem::path(dir).parent_path().string();
     auto slash  = result.find_last_of('/');
 
     if (slash != std::string::npos)
@@ -101,16 +96,16 @@ std::string GetParent(const std::string& dir)
 }
 std::string GetCurrentDir()
 {
-    return Utils::ReplaceSlash(boost::filesystem::path(boost::filesystem::current_path()).string());
+    return Utils::ReplaceSlash(std::filesystem::path(std::filesystem::current_path()).string());
+}
+
+std::string GetAbsolutePath(const std::string& file)
+{
+    return std::filesystem::canonical(file).string();
 }
 
 bool DirectoryExist(const std::string& pathDir)
 {
-    if (boost::filesystem::is_directory(pathDir))
-    {
-        path p(pathDir);
-        return boost::filesystem::exists(p);
-    }
-    return false;
+    return std::filesystem::exists(pathDir) and std::filesystem::is_directory(pathDir);
 }
 }  // namespace Utils

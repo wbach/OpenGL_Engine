@@ -4,7 +4,6 @@
 #include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <optional>
 
@@ -16,6 +15,7 @@
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
+#include <filesystem>
 
 enum class ObjectType
 {
@@ -422,7 +422,7 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                 const auto& textureInfo    = GetTextureInfo(object.first);
                 auto resultData            = GetTextureData(object.first);
                 const std::string fullPath = path + "/Textures2d/";
-                boost::filesystem::create_directories(fullPath);
+                std::filesystem::create_directories(fullPath);
                 Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
             }
             break;
