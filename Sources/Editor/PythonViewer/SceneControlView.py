@@ -21,12 +21,20 @@ class SceneControlView:
 
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
         self.networkClient.SubscribeOnConnect(self.OnConnect)
+        self.networkClient.SubscribeOnMessage("SceneStartedNotifMsg", self.OnStartSceneMsg)
+        self.networkClient.SubscribeOnMessage("SceneStopedNotifMsg", self.OnStopedMsg)
 
     def OnDisconnect(self):
         self.statusStr.set("Status : disconnected")
 
     def OnConnect(self):
         self.statusStr.set("Status : stopped")
+
+    def OnStopedMsg(self, msg):
+        self.statusStr.set("Status : stopped")
+
+    def OnStartSceneMsg(self, msg):
+        self.statusStr.set("Status : started")
 
     def StartScene(self):
         self.networkClient.SendCommand("startScene")

@@ -64,32 +64,39 @@ def CreateStructFile(filename, params):
     file.write("struct " + fileName[0] + " : public Network::IMessage\n")
     file.write("{\n")
     file.write(indent + fileName[0] + "()\n")
+    # default constructor
     file.write(indent + ": IMessage(Convert(MessageTypes::" +  fileName[0] + "), Network::MessageTarget::All)\n")
     file.write(indent + "{\n")
     file.write(indent + "}\n")
-    file.write(indent + fileName[0] + "(\n");
-    i = 0
-    for param in params:
-        if param[0] in basicTypes and not (param[0] == "std::string" or param[0] == "vec2" or param[0] == "vec3"):
-            file.write(indent + indent + indent + param[0] + " " + param[1])
-        else:
-            file.write(indent + indent + indent + "const " + param[0] + "& " + param[1])
-        if i < len(params) - 1:
-            file.write(",\n")
-        i = i + 1
+    # end of default constructor
 
-    file.write(")\n")
-    file.write(indent + ": IMessage(Convert(MessageTypes::" +  fileName[0] + "), Network::MessageTarget::All)\n")
+    # custom constructor
+    if params:
+        file.write(indent + fileName[0] + "(\n");
+        i = 0
+        for param in params:
+            if param[0] in basicTypes and not (param[0] == "std::string" or param[0] == "vec2" or param[0] == "vec3"):
+                file.write(indent + indent + indent + param[0] + " " + param[1])
+            else:
+                file.write(indent + indent + indent + "const " + param[0] + "& " + param[1])
+            if i < len(params) - 1:
+                file.write(",\n")
+            i = i + 1
 
-    for param in params:
-        file.write(indent + ", ")
-        file.write(param[1] + "{" + param[1] + "}\n")
+        file.write(")\n")
+        file.write(indent + ": IMessage(Convert(MessageTypes::" +  fileName[0] + "), Network::MessageTarget::All)\n")
+
+        for param in params:
+            file.write(indent + ", ")
+            file.write(param[1] + "{" + param[1] + "}\n")
 
 
-    file.write(indent + "{\n")
-    file.write(indent + "}\n")
-    file.write("\n")
+        file.write(indent + "{\n")
+        file.write(indent + "}\n")
+        file.write("\n")
+    # end of custom constructor
 
+    # create members
     for param in params:
         file.write(indent + param[0] + " " + param[1] + ";\n")
 

@@ -53,6 +53,7 @@ class Menu:
         if self.networkClient.Connect():
             self.gameObjectView.GetObjectList()
             self.networkClient.SendCommand("getComponentList")
+            self.networkClient.SendCommand("getRunningStatus")
             #window.after(1000, Listen)
             return True
         return False

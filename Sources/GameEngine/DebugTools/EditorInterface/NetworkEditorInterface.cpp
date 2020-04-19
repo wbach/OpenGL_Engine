@@ -23,6 +23,8 @@
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectInd.h"
 #include "Messages/SceneFileMsg.h"
+#include "Messages/SceneStartedNotifMsg.h"
+#include "Messages/SceneStopedNotifMsg.h"
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
@@ -84,6 +86,7 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
     commands_.insert({"saveToFile", [&](const EntryParameters &v) { SaveSceneToFile(v); }});
     commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
+    commands_.insert({"getRunningStatus", [&](const EntryParameters &v) { GetRunningStatus(v); }});
     commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
     commands_.insert({"getGameObjectComponentsListReq", [&](const EntryParameters &v) { GetGameObjectComponentsListReq(v); }});
     commands_.insert({"setPosition", [&](const EntryParameters &v) { SetGameObjectPosition(v); }});
@@ -632,6 +635,7 @@ void NetworkEditorInterface::StartScene()
     scene_.inputManager_->StashPopSubscribers();
     SetOrignalCamera();
     scene_.Start();
+    gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
 }
 
 void NetworkEditorInterface::StopScene()
@@ -643,6 +647,7 @@ void NetworkEditorInterface::StopScene()
     scene_.inputManager_->StashSubscribers();
     KeysSubscribtions();
     SetFreeCamera();
+    gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
 }
 
 void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
@@ -681,6 +686,18 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters
         }
     }
     component->InitFromParams(p);
+}
+
+void NetworkEditorInterface::GetRunningStatus(const NetworkEditorInterface::EntryParameters &)
+{
+    if (scene_.start_.load())
+    {
+        gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
+    }
+    else
+    {
+        gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
+    }
 }
 
 std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(

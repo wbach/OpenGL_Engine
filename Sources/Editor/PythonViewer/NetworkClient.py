@@ -53,6 +53,7 @@ class NetworkClient:
             self.PrintMsg(msg)
             try:
                 main = objectify.fromstring(msg)
+                print("Parsing fromstring complete.")
                 msgType = main.tag
                 if msgType in self.messageSubscribers:
                     for subscriber in self.messageSubscribers[msgType]:

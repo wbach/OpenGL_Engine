@@ -10,20 +10,22 @@ namespace DebugNetworkInterface
 enum class MessageTypes
 {
     Any,
-    AvailableComponentMsgInd,
-    CameraMsg,
-    ComponentDataMessage,
-    NewComponentMsgInd,
     NewGameObjectInd,
-    Param,
-    RemoveComponentMsgInd,
-    RemoveGameObjectInd,
-    SceneFileMsg,
     SelectedObjectChanged,
-    Transform
+    AvailableComponentMsgInd,
+    Param,
+    RemoveGameObjectInd,
+    Transform,
+    SceneFileMsg,
+    NewComponentMsgInd,
+    SceneStopedNotifMsg,
+    SceneStartedNotifMsg,
+    RemoveComponentMsgInd,
+    ComponentDataMessage,
+    CameraMsg
 };
 const uint8 MIN_VALUE{static_cast<uint8>(MessageTypes::Any)};
-const uint8 MAX_VALUE{static_cast<uint8>(MessageTypes::Transform)};
+const uint8 MAX_VALUE{static_cast<uint8>(MessageTypes::CameraMsg)};
 Network::IMessageType Convert(MessageTypes);
 std::optional<MessageTypes> Convert(Network::IMessageType);
 GameEngine::DebugNetworkInterface::MessageTypes CreateFromString(const std::string&);
