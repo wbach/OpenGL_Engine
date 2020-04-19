@@ -28,6 +28,7 @@
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
+#include <filesystem>
 
 namespace GameEngine
 {
@@ -315,10 +316,9 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 
     if (not scene_.GetFile().empty())
     {
-        auto path = realpath(scene_.GetFile().c_str(), nullptr);
-        DebugNetworkInterface::SceneFileMsg msg(path);
+        auto path = std::filesystem::canonical(scene_.GetFile());
+        DebugNetworkInterface::SceneFileMsg msg(path.string());
         gateway_.Send(userId_, msg);
-        free(path);
     }
 }
 void NetworkEditorInterface::DisconnectUser(uint32 id)

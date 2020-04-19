@@ -1,4 +1,5 @@
 #include "WinApiKeyConverter.h"
+
 #include <Windows.h>
 
 namespace DirectX
@@ -47,6 +48,17 @@ KeysMap keys = KeysMap({{KeyCodes::LMOUSE, VK_LBUTTON},
                         {KeyCodes::UARROW, VK_UP},
                         {KeyCodes::DARROW, VK_DOWN},
                         {KeyCodes::F1, VK_F1},
+                        {KeyCodes::F2, VK_F2},
+                        {KeyCodes::F3, VK_F3},
+                        {KeyCodes::F4, VK_F4},
+                        {KeyCodes::F5, VK_F5},
+                        {KeyCodes::F6, VK_F6},
+                        {KeyCodes::F7, VK_F7},
+                        {KeyCodes::F8, VK_F8},
+                        {KeyCodes::F9, VK_F9},
+                        {KeyCodes::F10, VK_F10},
+                        {KeyCodes::F11, VK_F11},
+                        {KeyCodes::F12, VK_F12},
                         {KeyCodes::TAB, VK_TAB},
                         {KeyCodes::LSHIFT, VK_LSHIFT},
                         {KeyCodes::RSHIFT, VK_RSHIFT},

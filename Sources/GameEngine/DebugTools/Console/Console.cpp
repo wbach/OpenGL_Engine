@@ -589,6 +589,7 @@ GameObject *Console::GetGameObject(const std::string &name)
 
 void Console::PrepareConsoleWindow()
 {
+    DEBUG_LOG("");
     scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
 
     auto window =
@@ -602,7 +603,7 @@ void Console::PrepareConsoleWindow()
 
     keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
         window_->Show();
-
+        DEBUG_LOG("f2");
         if (not commandsHistory_.empty())
             commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
 

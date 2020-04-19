@@ -39,6 +39,8 @@ Scene::Scene(const std::string& name)
 Scene::~Scene()
 {
     gameObjects.clear();
+    guiManager_.reset();
+    guiElementFactory_.reset();
     if (inputManager_ != nullptr)
     {
         inputManager_->UnsubscribeAll();
