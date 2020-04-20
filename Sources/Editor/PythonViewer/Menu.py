@@ -13,8 +13,9 @@ class Menu:
         self.root           = root
         self.networkClient  = networkClient
         self.gameObjectView = gameObjectView
-        self.sceneFileName = ""
-        self.histTmpFile = "history.autosave"
+        self.sceneFileName  = ""
+        self.histTmpFile    = "history.autosave"
+        self.exitRequested  = False
 
         menubar = tk.Menu(root)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -35,10 +36,15 @@ class Menu:
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
+        self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
     def Exit(self):
         self.networkClient.SendCommand("exit")
-        self.root.quit()
+        self.exitRequested=True
+
+    def OnDisconnect(self):
+        if self.exitRequested:
+            self.root.quit()
 
     def OnSceneFileMsg(self, msg):
         self.sceneFileName = msg.get("filename")
