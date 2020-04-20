@@ -8,6 +8,8 @@
 #include "RemoveGameObjectIndXmlDeserializer.h"
 #include "SceneFileMsgXmlSerializer.h"
 #include "SceneFileMsgXmlDeserializer.h"
+#include "ReloadSceneXmlSerializer.h"
+#include "ReloadSceneXmlDeserializer.h"
 #include "GameObjectDeletedXmlSerializer.h"
 #include "GameObjectDeletedXmlDeserializer.h"
 #include "NewGameObjectIndXmlSerializer.h"
@@ -64,6 +66,7 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessag
     case MessageTypes::RemoveComponentMsgInd: return DeserializeRemoveComponentMsgInd(reader);
     case MessageTypes::RemoveGameObjectInd: return DeserializeRemoveGameObjectInd(reader);
     case MessageTypes::SceneFileMsg: return DeserializeSceneFileMsg(reader);
+    case MessageTypes::ReloadScene: return DeserializeReloadScene(reader);
     case MessageTypes::GameObjectDeleted: return DeserializeGameObjectDeleted(reader);
     case MessageTypes::NewGameObjectInd: return DeserializeNewGameObjectInd(reader);
     case MessageTypes::GameObjectRenamed: return DeserializeGameObjectRenamed(reader);
@@ -102,6 +105,11 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
     case MessageTypes::SceneFileMsg:
     {
         auto msg = Network::castMessageAs<SceneFileMsg>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::ReloadScene:
+    {
+        auto msg = Network::castMessageAs<ReloadScene>(message);
         return Serialize(*msg);
     }
     case MessageTypes::GameObjectDeleted:

@@ -17,6 +17,7 @@ GameEngine::DebugNetworkInterface::MessageTypes CreateFromString(const std::stri
     if (type == "RemoveComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveComponentMsgInd;
     if (type == "RemoveGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd;
     if (type == "SceneFileMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg;
+    if (type == "ReloadScene") return GameEngine::DebugNetworkInterface::MessageTypes::ReloadScene;
     if (type == "GameObjectDeleted") return GameEngine::DebugNetworkInterface::MessageTypes::GameObjectDeleted;
     if (type == "NewGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::NewGameObjectInd;
     if (type == "GameObjectRenamed") return GameEngine::DebugNetworkInterface::MessageTypes::GameObjectRenamed;
@@ -44,6 +45,7 @@ string to_string(GameEngine::DebugNetworkInterface::MessageTypes type)
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveComponentMsgInd) return "RemoveComponentMsgInd";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd) return "RemoveGameObjectInd";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg) return "SceneFileMsg";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::ReloadScene) return "ReloadScene";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::GameObjectDeleted) return "GameObjectDeleted";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::NewGameObjectInd) return "NewGameObjectInd";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::GameObjectRenamed) return "GameObjectRenamed";

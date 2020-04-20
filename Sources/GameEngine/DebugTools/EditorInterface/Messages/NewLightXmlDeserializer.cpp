@@ -1,5 +1,4 @@
 #include "NewLightXmlDeserializer.h"
-
 #include <Utils/XML/XMLUtils.h>
 
 namespace GameEngine
@@ -40,11 +39,10 @@ void SetParam(NewLight& output, Utils::XmlNode& input)
 std::unique_ptr<Network::IMessage> DeserializeNewLight(Utils::XmlReader& reader)
 {
     auto result = std::make_unique<NewLight>();
-    auto msg    = reader.Get("NewLight");
-    if (not msg)
-        return nullptr;
+    auto msg = reader.Get("NewLight");
+    if (not msg) return nullptr;
     SetParam(*result, *msg);
     return std::move(result);
 }
-}  // namespace DebugNetworkInterface
-}  // namespace GameEngine
+} // namespace DebugNetworkInterface
+} // namespace GameEngine

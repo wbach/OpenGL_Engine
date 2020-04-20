@@ -64,6 +64,9 @@ private:
     void StopScene();
     void ModifyComponentReq(const EntryParameters&);
     void GetRunningStatus(const EntryParameters&);
+    void ReloadScene(const EntryParameters&);
+    void ClearAll(const EntryParameters&);
+    void ClearAllGameObjects(const EntryParameters&);
 
     std::unordered_map<std::string, std::string> CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);

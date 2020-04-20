@@ -64,6 +64,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/NewLightXmlSerializer.cpp
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ParamXmlDeserializer.cpp
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ParamXmlSerializer.cpp
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ReloadSceneXmlDeserializer.cpp
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ReloadSceneXmlSerializer.cpp
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveComponentMsgIndXmlDeserializer.cpp
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveComponentMsgIndXmlSerializer.cpp
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveGameObjectIndXmlDeserializer.cpp

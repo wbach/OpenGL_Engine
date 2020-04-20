@@ -22,6 +22,7 @@
 #include "Messages/CameraMsg.h"
 #include "Messages/ComponentDataMessage.h"
 #include "Messages/GameObjectDeleted.h"
+#include "Messages/GameObjectRenamed.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
 #include "Messages/RemoveComponentMsgInd.h"
@@ -32,7 +33,7 @@
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
-#include "Messages/GameObjectRenamed.h"
+#include "Messages/ReloadScene.h"
 
 namespace GameEngine
 {
@@ -111,6 +112,9 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"modifyComponentReq", [&](const EntryParameters &v) { ModifyComponentReq(v); }});
     commands_.insert({"createGameObjectWithModel", [&](const EntryParameters &v) { CreateGameObjectWithModel(v); }});
     commands_.insert({"loadPrefab", [&](const EntryParameters& v) { LoadPrefab(v); }});
+    commands_.insert({"reloadScene", [&](const EntryParameters& v) { ReloadScene(v); } });
+    commands_.insert({"clearAll", [&](const EntryParameters& v) { ClearAll(v); } });
+    commands_.insert({"clearAllGameObjects", [&](const EntryParameters& v) { ClearAllGameObjects(v); } });
     commands_.insert({"exit", [&](const EntryParameters&) { scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT)); }});
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
     // clang-format on
@@ -852,6 +856,31 @@ void NetworkEditorInterface::GetRunningStatus(const NetworkEditorInterface::Entr
     {
         gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
     }
+}
+
+void NetworkEditorInterface::ReloadScene(const EntryParameters &v)
+{
+    DebugNetworkInterface::ReloadScene msg(scene_.GetName());
+    gateway_.Send(userId_, msg);
+    scene_.addSceneEvent(SceneEventType::RELOAD_SCENE);
+}
+
+void NetworkEditorInterface::ClearAll(const EntryParameters &v)
+{
+    ClearAllGameObjects(v);
+    //ClearLigts(v);
+    //ClearGui();
+}
+
+void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &v)
+{
+    for (auto& go : scene_.gameObjects)
+    {
+        // If parent is erase child automatically too
+        DebugNetworkInterface::GameObjectDeleted msg(go->GetId());
+        gateway_.Send(userId_, msg);
+    }
+    scene_.gameObjects.clear();
 }
 
 std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(

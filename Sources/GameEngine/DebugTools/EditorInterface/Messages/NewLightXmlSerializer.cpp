@@ -1,5 +1,4 @@
 #include "NewLightXmlSerializer.h"
-
 #include <Utils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <UtilsNetwork/MessageFormat.h>
@@ -26,5 +25,5 @@ Network::IMessageData Serialize(const NewLight& input)
     auto root = Convert(input);
     return Network::CreatePayload(*root);
 }
-}  // namespace DebugNetworkInterface
-}  // namespace GameEngine
+} // namespace DebugNetworkInterface
+} // namespace GameEngine

@@ -32,6 +32,7 @@ class GameObjectView:
         self.popupMenu.add_command(label="Delete gameObject", command=self.DeleteSelected)
         self.tree.bind("<Button-3>", self.Popup)
 
+        self.networkClient.SubscribeOnMessage("ReloadScene", self.Clear)
         self.networkClient.SubscribeOnMessage("GameObjectRenamed", self.OnGameObjectRenamed)
         self.networkClient.SubscribeOnMessage("GameObjectDeleted", self.OnGameObjectDeleted)
         self.networkClient.SubscribeOnMessage("NewGameObjectInd", self.OnGameObjectMsg)
@@ -56,10 +57,10 @@ class GameObjectView:
 
     def OnGameObjectDeleted(self, msg):
         gameObjectId = int(msg.get("gameObjectId"))
-        id, name, hwnd = self.gameObjects[gameObjectId]
+        parentId, name, hwnd = self.gameObjects[gameObjectId]
         self.tree.delete(hwnd)
         del self.gameObjects[gameObjectId]
-        self.gameObjectsCountStr.set("Game objects count : {0}".format(self.gameObjectsCount))
+        self.UpdateGameObjectCount()
 
     def RenameObject(self):
         curItem = self.tree.focus()
@@ -73,13 +74,12 @@ class GameObjectView:
     def OnGameObjectRenamed(self, msg):
         gameObjectId = int(msg.get("gameObjectId"))
         newName = msg.get("newName")
-        id, oldName, hwnd = self.gameObjects[gameObjectId]
+        parentId, oldName, hwnd = self.gameObjects[gameObjectId]
         self.tree.item(hwnd, text=newName)
         #rename tuple
         lst = list(self.gameObjects[gameObjectId])
         lst[1] = newName
         self.gameObjects[gameObjectId] = tuple(lst)
-
 
     def InitVariables(self):
         self.gameObjects = {}
@@ -109,8 +109,10 @@ class GameObjectView:
     def Clear(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
-        self.gameObjectsCountStr.set("Game objects count : 0")
+
+        self.gameObjects.clear()
         self.InitVariables()
+        self.UpdateGameObjectCount()
 
     def OnGameObjectMsg(self, msg):
         print("OnGameObjectMsg, Message : \"{0}\"".format(msg.tag))
@@ -129,7 +131,7 @@ class GameObjectView:
         self.gameObjectsCount = self.gameObjectsCount + 1
         # self.frame.setvar()
         print("Objects count : {0}".format(self.gameObjectsCount))
-        self.gameObjectsCountStr.set("Game objects count : {0}".format(self.gameObjectsCount))
+        self.UpdateGameObjectCount()
 
     def GetGameObjectNameAndId(self):
         curItem = self.tree.focus()
@@ -164,3 +166,6 @@ class GameObjectView:
     def ShowCameraInView(self):
         self.infoView.UpdateInfoWidget(self.cameraType, "camera")
         self.transformView.Fill(self.cameraInfo[0], self.cameraInfo[1], ["---", "---", "---"])
+
+    def UpdateGameObjectCount(self):
+        self.gameObjectsCountStr.set("Game objects count : {0}".format(len(self.gameObjects)))

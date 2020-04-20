@@ -90,6 +90,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/Param.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ParamXmlDeserializer.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ParamXmlSerializer.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ReloadScene.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ReloadSceneXmlDeserializer.h
+../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ReloadSceneXmlSerializer.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveComponentMsgInd.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveComponentMsgIndXmlDeserializer.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/RemoveComponentMsgIndXmlSerializer.h

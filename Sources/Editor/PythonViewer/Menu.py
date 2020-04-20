@@ -32,11 +32,38 @@ class Menu:
         createMenu.add_command(label="Add game object", command=self.AddGameObjct)
         createMenu.add_command(label="Add object with model", command=self.AddModel)
         createMenu.add_command(label="Load prefab", command=self.LoadPrefab)
+        createMenu.add_command(label="Reload scene", command=self.ReloadScene)
+        createMenu.add_command(label="Clear all game objects", command=self.ClearAllGameObjects)
+        createMenu.add_command(label="Clear all", command=self.ClearAll)
         menubar.add_cascade(label="Scene", menu=createMenu)
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
+
+    def ReloadScene(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
+        answer = messagebox.askyesno(title="Info", message="Do you really want reload scene?")
+        if answer:
+            self.networkClient.SendCommand("reloadScene")
+
+    def ClearAllGameObjects(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
+        answer = messagebox.askyesno(title="Info", message="Do you really want delete all game objects in scene?")
+        if answer:
+            self.networkClient.SendCommand("clearAllGameObjects")
+
+    def ClearAll(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
+        answer = messagebox.askyesno(title="Info", message="Do you really want clear all?")
+        if answer:
+            self.networkClient.SendCommand("clearAll")
 
     def Exit(self):
         self.networkClient.SendCommand("exit")
@@ -55,15 +82,23 @@ class Menu:
             self.networkClient.SendCommand("saveFile " + filename)
 
     def AddGameObjct(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
         self.networkClient.SendCommand("createGameObject")
-        return
 
     def AddModel(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
         filename = self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
         if filename:
             self.networkClient.SendCommand("createGameObjectWithModel filename=" + filename + " frontCamera=5")
 
     def LoadPrefab(self):
+        if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
+            return
+
         filename = self.OpenFile("", (("prefab files","*.xml"),("all files","*.*")))
         if filename:
             self.networkClient.SendCommand("loadPrefab filename=" + filename)

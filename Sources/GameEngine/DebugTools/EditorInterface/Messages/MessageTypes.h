@@ -13,6 +13,7 @@ enum class MessageTypes
     RemoveComponentMsgInd,
     RemoveGameObjectInd,
     SceneFileMsg,
+    ReloadScene,
     GameObjectDeleted,
     NewGameObjectInd,
     GameObjectRenamed,
