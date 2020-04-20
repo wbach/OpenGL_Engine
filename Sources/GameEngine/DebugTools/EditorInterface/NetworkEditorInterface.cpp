@@ -6,8 +6,11 @@
 
 #include <algorithm>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -28,7 +31,6 @@
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
-#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 namespace GameEngine
 {
@@ -103,8 +105,11 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"getComponentParams", [&](const EntryParameters &v) { GetComponentParams(v); }});
     commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
     commands_.insert({"modifyComponentReq", [&](const EntryParameters &v) { ModifyComponentReq(v); }});
+    commands_.insert({"createGameObjectWithModel", [&](const EntryParameters &v) { CreateGameObjectWithModel(v); }});
+    commands_.insert({"loadPrefab", [&](const EntryParameters& v) { LoadPrefab(v); }});
+    commands_.insert({"exit", [&](const EntryParameters&) { scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT)); }});
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
-    // clang-fromat on
+    // clang-format on
 }
 
 void NetworkEditorInterface::SetupCamera()
@@ -206,16 +211,10 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { dragObject_ = nullptr; });
 
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [this]() {
-            scene_.addEngineEvent(EngineEvent::ASK_QUIT);
-        });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [this]() {
-        StartScene();
-    });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        StopScene();
-    });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::ESCAPE, [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [this]() { StartScene(); });
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() { StopScene(); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -362,7 +361,7 @@ void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
     scene_.LoadFromFile(args.at("filename"));
 }
 
-void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::EntryParameters & args)
+void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::EntryParameters &args)
 {
     if (args.count("filename") == 0)
     {
@@ -546,20 +545,124 @@ void NetworkEditorInterface::SetGameObjectScale(const EntryParameters &param)
 
 void NetworkEditorInterface::CreateGameObject(const EntryParameters &params)
 {
-    if (params.empty())
-    {
-        DEBUG_LOG("param is empty");
-        return;
-    }
-
     std::string goName("NewGameObject");
-    if (params.count("name") > 1)
+    if (params.count("name"))
     {
         goName = params.at("name");
     }
 
-    auto go = scene_.CreateGameObject(goName);
-    scene_.AddGameObject(go);
+    auto gameObject = scene_.CreateGameObject(goName);
+    DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+    scene_.AddGameObject(gameObject);
+    gateway_.Send(userId_, message);
+}
+
+void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterface::EntryParameters &params)
+{
+    vec3 position(0.f);
+    try
+    {
+        if (params.count("frontCamera"))
+        {
+            position = scene_.camera.GetPosition();
+            position += scene_.camera.GetDirection() * 5.f;
+        }
+        else
+        {
+            if (params.count("posX"))
+            {
+                position.x = stof(params.at("posX"));
+            }
+            if (params.count("posY"))
+            {
+                position.y = stof(params.at("posY"));
+            }
+            if (params.count("posZ"))
+            {
+                position.z = stof(params.at("posZ"));
+            }
+        }
+    }
+    catch (...)
+    {
+        ERROR_LOG("Position parsing stof error");
+    }
+
+    vec3 rotationEulerDegrees(0.f);
+    try
+    {
+        if (params.count("rotX"))
+        {
+            rotationEulerDegrees.x = stof(params.at("rotX"));
+        }
+        if (params.count("rotY"))
+        {
+            rotationEulerDegrees.y = stof(params.at("rotY"));
+        }
+        if (params.count("rotZ"))
+        {
+            rotationEulerDegrees.z = stof(params.at("rotZ"));
+        }
+    }
+    catch (...)
+    {
+        ERROR_LOG("Stof error");
+    }
+
+    if (params.count("filename"))
+    {
+        std::string goName = std::filesystem::path(params.at("filename")).filename().stem().string();
+
+        if (params.count("name"))
+        {
+            goName = params.at("name");
+        }
+
+        auto gameObject = scene_.CreateGameObject(goName);
+        try
+        {
+            gameObject->AddComponent<Components::RendererComponent>().AddModel(
+                GetRelativeDataPath(params.at("filename")));
+            gameObject->worldTransform.SetPosition(position);
+            gameObject->worldTransform.SetRotation(DegreesVec3(rotationEulerDegrees));
+
+            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+            scene_.AddGameObject(gameObject);
+            gateway_.Send(userId_, message);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Exception caught");
+        }
+    }
+    else
+    {
+        ERROR_LOG("mandatory param filename not found.");
+    }
+}
+
+void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParameters &params)
+{
+    if (params.count("filename"))
+    {
+        std::string goName = std::filesystem::path(params.at("filename")).filename().stem().string();
+        if (params.count("name"))
+        {
+            goName = params.at("name");
+        }
+
+        auto gameObject = scene_.LoadPrefab(GetRelativeDataPath(params.at("filename")), goName);
+
+        if (gameObject)
+        {
+            auto position = scene_.camera.GetPosition();
+            position += scene_.camera.GetDirection() * 5.f;
+            gameObject->worldTransform.SetPosition(position);
+
+            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+            gateway_.Send(userId_, message);
+        }
+    }
 }
 
 void NetworkEditorInterface::GetComponentsList(const EntryParameters &)

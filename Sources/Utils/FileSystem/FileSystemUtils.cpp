@@ -108,4 +108,20 @@ bool DirectoryExist(const std::string& pathDir)
 {
     return std::filesystem::exists(pathDir) and std::filesystem::is_directory(pathDir);
 }
+
+bool IsAbsolutePath(const std::string& path)
+{
+    return std::filesystem::path(path).is_absolute();
+}
+
+bool IsRelativePath(const std::string& path)
+{
+    return std::filesystem::path(path).is_relative();
+}
+
+std::string GetRelativePath(const std::string& absoultePath, const std::string& workingPath)
+{
+    return std::filesystem::relative(absoultePath, workingPath);
+}
+
 }  // namespace Utils

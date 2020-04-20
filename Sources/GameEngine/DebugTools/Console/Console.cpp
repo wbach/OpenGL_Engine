@@ -92,6 +92,8 @@ void Console::RegisterActions()
     commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
     commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
     commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
+    commandsActions_.insert({"exit", [this](const auto &params) { Exit(params); }});
+    commandsActions_.insert({"quit", [this](const auto &params) { Exit(params); }});
 }
 
 void Console::CameraInfo(const std::vector<std::string> &)
@@ -472,6 +474,11 @@ void Console::Help(const std::vector<std::string> &)
     {
         DEBUG_LOG(command.first);
     }
+}
+
+void Console::Exit(const std::vector<std::string> &)
+{
+    scene_.addEngineEvent(EngineEvent::ASK_QUIT);
 }
 
 std::vector<std::string> Console::GetParams(const std::string &command) const

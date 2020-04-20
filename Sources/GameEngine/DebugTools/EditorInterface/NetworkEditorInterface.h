@@ -53,6 +53,8 @@ private:
     void SetGameObjectRotation(const EntryParameters&);
     void SetGameObjectScale(const EntryParameters&);
     void CreateGameObject(const EntryParameters&);
+    void CreateGameObjectWithModel(const EntryParameters&);
+    void LoadPrefab(const EntryParameters&);
     void GetComponentsList(const EntryParameters&);
     void AddComponent(const EntryParameters&);
     void GetComponentParams(const EntryParameters&);

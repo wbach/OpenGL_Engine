@@ -121,6 +121,7 @@ std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd =
 std::string GetFilePatch(const std::string& file_full_path);
 std::string GetDataLocationFromString(const std::string& str);
 std::string GetShaderLocationFromString(const std::string& str);
+std::string GetRelativeDataPath(const std::string&);
 }  // namespace GameEngine
 
 #define EngineConf SingleTon<GameEngine::Configuration>::Get()

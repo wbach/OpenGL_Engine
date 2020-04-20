@@ -290,9 +290,9 @@ void Scene::LoadFromFile(const std::string& filename)
     SceneReader::LoadScene(*this, filename);
 }
 
-void Scene::LoadPrefab(const std::string& filename, const std::string& name)
+GameObject* Scene::LoadPrefab(const std::string& filename, const std::string& name)
 {
-    SceneReader::LoadPrefab(*this, filename, name);
+    return SceneReader::LoadPrefab(*this, filename, name);
 }
 
 int Scene::Initialize()

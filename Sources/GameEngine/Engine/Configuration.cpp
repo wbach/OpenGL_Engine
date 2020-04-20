@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <fstream>
 #include "ConfigurationReader.h"
 #include "ConfigurationWriter.h"
@@ -6,7 +7,10 @@
 
 namespace GameEngine
 {
+namespace
+{
 std::vector<std::string> requiredFiles;
+}
 
 std::string GetDataLocationFromString(const std::string& str)
 {
@@ -33,15 +37,30 @@ std::string GetShaderLocationFromString(const std::string& str)
 
     return str;
 }
+
+void AddToRequierdFilesIfNotExist(const std::string& file)
+{
+    if (std::find(requiredFiles.begin(), requiredFiles.end(), file) != requiredFiles.end())
+    {
+        requiredFiles.push_back(file);
+    }
+}
+
 std::string GetFullDataPath(const std::string& file_name, bool addToRequierd)
 {
-    auto path = EngineConf.files.data + file_name;
+    std::string path;
+    if (Utils::IsAbsolutePath(file_name))
+    {
+        path = file_name;
+    }
+    else
+    {
+        path = EngineConf.files.data + file_name;
+    }
+
     if (addToRequierd)
     {
-        if (std::find(requiredFiles.begin(), requiredFiles.end(), file_name) != requiredFiles.end())
-        {
-            requiredFiles.push_back(path);
-        }
+        AddToRequierdFilesIfNotExist(file_name);
     }
     return path;
 }
@@ -60,7 +79,7 @@ std::string GetFilePatch(const std::string& file_full_path)
         return {};
 
     auto data_index = file_full_path.find(EngineConf.files.data);
-    uint32 size     = EngineConf.files.data.size();
+    size_t size     = EngineConf.files.data.size();
 
     if (data_index == std::string::npos)
     {
@@ -108,8 +127,15 @@ void ReadFromFile(const std::string& filename)
     }
     AddRequiredFile(filename);
 }
-std::string RemoveDataPath(const std::string & path)
+std::string RemoveDataPath(const std::string& path)
 {
     return GetFilePatch(path);
 }
+
+std::string GetRelativeDataPath(const std::string& str)
+{
+    auto absoluteDataPath = Utils::GetAbsolutePath(EngineConf.files.data);
+    return Utils::GetRelativePath(str, absoluteDataPath);
+}
+
 }  // namespace GameEngine

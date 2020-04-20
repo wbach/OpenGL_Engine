@@ -21,18 +21,24 @@ class Menu:
         filemenu.add_command(label="Connect", command=self.Connect)
         filemenu.add_command(label="Disconnect", command=self.networkClient.Disconnect)
         filemenu.add_command(label="New", command=self.DoNothing)
-        filemenu.add_command(label="Open", command=self.OpenFile)
+        filemenu.add_command(label="Open", command=self.OpenSceneFile)
         filemenu.add_command(label="Save", command=self.SaveFile)
         menubar.add_cascade(label="File", menu=filemenu)
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=self.root.quit)
+        filemenu.add_command(label="Exit", command=self.Exit)
 
         createMenu = tk.Menu(menubar, tearoff=0)
-        createMenu.add_command(label="Add game object", command=self.DoNothing)
+        createMenu.add_command(label="Add game object", command=self.AddGameObjct)
+        createMenu.add_command(label="Add object with model", command=self.AddModel)
+        createMenu.add_command(label="Load prefab", command=self.LoadPrefab)
         menubar.add_cascade(label="Scene", menu=createMenu)
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
+
+    def Exit(self):
+        self.networkClient.SendCommand("exit")
+        self.root.quit()
 
     def OnSceneFileMsg(self, msg):
         self.sceneFileName = msg.get("filename")
@@ -41,6 +47,20 @@ class Menu:
             file.write(self.sceneFileName)
             file.close()
             self.networkClient.SendCommand("saveFile " + filename)
+
+    def AddGameObjct(self):
+        self.networkClient.SendCommand("createGameObject")
+        return
+
+    def AddModel(self):
+        filename = self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
+        if filename:
+            self.networkClient.SendCommand("createGameObjectWithModel filename=" + filename + " frontCamera=5")
+
+    def LoadPrefab(self):
+        filename = self.OpenFile("", (("prefab files","*.xml"),("all files","*.*")))
+        if filename:
+            self.networkClient.SendCommand("loadPrefab filename=" + filename)
 
     def DoNothing(self):
         return
@@ -79,16 +99,21 @@ class Menu:
             file.write(os.path.dirname(filename) + "/")
             file.close()
 
-    def OpenFile(self):
+    def OpenSceneFile(self):
+        filename = self.OpenFile(self.GetInitFilename(""), (("scene files","*.xml"),("all files","*.*")))
+        if filename:
+            self.networkClient.SendCommand("openFile filename=" + filename)
+
+    def OpenFile(self, intialFileName, fileTypes):
         if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
             return
 
         try:
             initDir = self.GetInitDir()
-            filename = filedialog.askopenfilename(initialdir=initDir, initialfile=self.GetInitFilename(""), title="Select file", filetypes=(("scene files","*.xml"),("all files","*.*")))
+            filename = filedialog.askopenfilename(initialdir=initDir, initialfile=intialFileName, title="Select file", filetypes=fileTypes)
             if filename:
-                self.networkClient.SendCommand("openFile filename=" + filename)
                 self.WriteToHistFile(filename)
+            return filename
         except:
             messagebox.showerror(title="Error", message=sys.exc_info())
 

@@ -117,7 +117,7 @@ void Read(Utils::XmlNode& node, Components::Rigidbody& component)
         if (angularFactorNode->value_.empty())
             component.InputParams().angularFactor_ = ReadVec3(*angularFactorNode);
         else
-            component.InputParams().angularFactor_ =  vec3(ReadFloat(*angularFactorNode));
+            component.InputParams().angularFactor_ = vec3(ReadFloat(*angularFactorNode));
     }
 
     auto collShape = static_cast<Components::ComponentsType>(std::stoi(node.GetChild(CSTR_COLLISION_SHAPE)->value_));
@@ -382,23 +382,30 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
     }
 }
 
-void LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
+GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
 {
     Utils::XmlReader xmlReader;
 
-    if (not xmlReader.Read(EngineConf_GetFullDataPathAddToRequierd(filename)))
+    auto fullpath = EngineConf_GetFullDataPathAddToRequierd(filename);
+
+    DEBUG_LOG("filename : " + filename);
+    DEBUG_LOG("fullpath : " + fullpath);
+
+    if (not xmlReader.Read(fullpath))
     {
         ERROR_LOG("Prefab read error");
-        return;
+        return nullptr;
     }
 
     currentReadingScene = &scene;
-    DEBUG_LOG("filename : " + EngineConf_GetFullDataPathAddToRequierd(filename));
     DEBUG_LOG("Name : " + name);
 
     auto gameObject = scene.CreateGameObject(name);
     Read(*xmlReader.Get(CSTR_PREFAB), *gameObject);
+
+    auto result = gameObject.get();
     scene.AddGameObject(gameObject);
+    return result;
 }
 
 void Read(Utils::XmlNode& node, Scene& scene)
