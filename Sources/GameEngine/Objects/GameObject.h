@@ -19,6 +19,7 @@ public:
 
     void AddChild(std::unique_ptr<GameObject>);
     inline const std::string& GetName() const;
+    inline void SetName(const std::string&);
     inline const std::vector<std::unique_ptr<GameObject>>& GetChildrens();
     inline uint32 GetId() const;
     inline virtual wb::optional<vec3> CollisionDetection(const vec3&);
@@ -48,6 +49,10 @@ private:
 inline const std::string& GameObject::GetName() const
 {
     return name_;
+}
+inline void GameObject::SetName(const std::string& name)
+{
+    name_ = name;
 }
 inline const std::vector<std::unique_ptr<GameObject>>& GameObject::GetChildrens()
 {

@@ -4,10 +4,10 @@
 #include <Utils.h>
 #include <UtilsNetwork/Messages/TextMessage.h>
 
-#include <algorithm>
-
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 #include <filesystem>
+
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -21,6 +21,7 @@
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
 #include "Messages/ComponentDataMessage.h"
+#include "Messages/GameObjectDeleted.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
 #include "Messages/RemoveComponentMsgInd.h"
@@ -31,6 +32,7 @@
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
+#include "Messages/GameObjectRenamed.h"
 
 namespace GameEngine
 {
@@ -98,6 +100,8 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"setRotation", [&](const EntryParameters &v) { SetGameObjectRotation(v); }});
     commands_.insert({"setScale", [&](const EntryParameters &v) { SetGameObjectScale(v); }});
     commands_.insert({"createGameObject", [&](const EntryParameters &v) { CreateGameObject(v); }});
+    commands_.insert({"deleteGameObject", [&](const EntryParameters& v) { DeleteGameObject(v); }});
+    commands_.insert({"renameGameObject", [&](const EntryParameters& v) { RenameGameObject(v);}});
     commands_.insert({"addComponent", [&](const EntryParameters &v) { AddComponent(v); }});
     commands_.insert({"startScene", [&](const EntryParameters &) { StartScene(); }});
     commands_.insert({"stopScene", [&](const EntryParameters &) { StopScene(); }});
@@ -555,6 +559,52 @@ void NetworkEditorInterface::CreateGameObject(const EntryParameters &params)
     DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
     scene_.AddGameObject(gameObject);
     gateway_.Send(userId_, message);
+}
+
+void NetworkEditorInterface::DeleteGameObject(const EntryParameters &params)
+{
+    if (params.count("gameObjectId"))
+    {
+        auto go = GetGameObject(params.at("gameObjectId"));
+        if (go)
+        {
+            auto id = go->GetId();
+            scene_.RemoveGameObject(go);
+
+            DebugNetworkInterface::GameObjectDeleted msg(id);
+            gateway_.Send(userId_, msg);
+        }
+        else
+        {
+            ERROR_LOG("GameObject not found");
+        }
+    }
+    else
+    {
+        ERROR_LOG("Incomplete request");
+    }
+}
+
+void NetworkEditorInterface::RenameGameObject(const EntryParameters &params)
+{
+    if (params.count("gameObjectId") and params.count("name"))
+    {
+        auto go = GetGameObject(params.at("gameObjectId"));
+        if (go)
+        {
+            go->SetName(params.at("name"));
+            DebugNetworkInterface::GameObjectRenamed msg(go->GetId(), params.at("name"));
+            gateway_.Send(userId_, msg);
+        }
+        else
+        {
+            ERROR_LOG("GameObject not found");
+        }
+    }
+    else
+    {
+        ERROR_LOG("Incomplete request");
+    }
 }
 
 void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterface::EntryParameters &params)

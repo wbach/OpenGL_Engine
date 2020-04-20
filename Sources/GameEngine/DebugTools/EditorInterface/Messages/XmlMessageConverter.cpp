@@ -2,32 +2,44 @@
 #include <UtilsNetwork/MessageFormat.h>
 #include <UtilsNetwork/Messages/XmlConverterUtils.h>
 #include "MessageTypes.h"
-#include "NewGameObjectIndXmlSerializer.h"
-#include "NewGameObjectIndXmlDeserializer.h"
-#include "SelectedObjectChangedXmlSerializer.h"
-#include "SelectedObjectChangedXmlDeserializer.h"
-#include "AvailableComponentMsgIndXmlSerializer.h"
-#include "AvailableComponentMsgIndXmlDeserializer.h"
-#include "ParamXmlSerializer.h"
-#include "ParamXmlDeserializer.h"
-#include "RemoveGameObjectIndXmlSerializer.h"
-#include "RemoveGameObjectIndXmlDeserializer.h"
-#include "TransformXmlSerializer.h"
-#include "TransformXmlDeserializer.h"
-#include "SceneFileMsgXmlSerializer.h"
-#include "SceneFileMsgXmlDeserializer.h"
-#include "NewComponentMsgIndXmlSerializer.h"
-#include "NewComponentMsgIndXmlDeserializer.h"
-#include "SceneStopedNotifMsgXmlSerializer.h"
-#include "SceneStopedNotifMsgXmlDeserializer.h"
-#include "SceneStartedNotifMsgXmlSerializer.h"
-#include "SceneStartedNotifMsgXmlDeserializer.h"
 #include "RemoveComponentMsgIndXmlSerializer.h"
 #include "RemoveComponentMsgIndXmlDeserializer.h"
-#include "ComponentDataMessageXmlSerializer.h"
-#include "ComponentDataMessageXmlDeserializer.h"
+#include "RemoveGameObjectIndXmlSerializer.h"
+#include "RemoveGameObjectIndXmlDeserializer.h"
+#include "SceneFileMsgXmlSerializer.h"
+#include "SceneFileMsgXmlDeserializer.h"
+#include "GameObjectDeletedXmlSerializer.h"
+#include "GameObjectDeletedXmlDeserializer.h"
+#include "NewGameObjectIndXmlSerializer.h"
+#include "NewGameObjectIndXmlDeserializer.h"
+#include "GameObjectRenamedXmlSerializer.h"
+#include "GameObjectRenamedXmlDeserializer.h"
+#include "SceneStartedNotifMsgXmlSerializer.h"
+#include "SceneStartedNotifMsgXmlDeserializer.h"
+#include "ComponentDeletedXmlSerializer.h"
+#include "ComponentDeletedXmlDeserializer.h"
 #include "CameraMsgXmlSerializer.h"
 #include "CameraMsgXmlDeserializer.h"
+#include "NewComponentMsgIndXmlSerializer.h"
+#include "NewComponentMsgIndXmlDeserializer.h"
+#include "NewLightXmlSerializer.h"
+#include "NewLightXmlDeserializer.h"
+#include "SelectedObjectChangedXmlSerializer.h"
+#include "SelectedObjectChangedXmlDeserializer.h"
+#include "TransformXmlSerializer.h"
+#include "TransformXmlDeserializer.h"
+#include "LightDeletedXmlSerializer.h"
+#include "LightDeletedXmlDeserializer.h"
+#include "ParamXmlSerializer.h"
+#include "ParamXmlDeserializer.h"
+#include "ComponentDataMessageXmlSerializer.h"
+#include "ComponentDataMessageXmlDeserializer.h"
+#include "AvailableComponentMsgIndXmlSerializer.h"
+#include "AvailableComponentMsgIndXmlDeserializer.h"
+#include "SceneStopedNotifMsgXmlSerializer.h"
+#include "SceneStopedNotifMsgXmlDeserializer.h"
+#include "ExitRespXmlSerializer.h"
+#include "ExitRespXmlDeserializer.h"
 
 namespace GameEngine
 {
@@ -49,19 +61,25 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessag
     if (not type) return nullptr;
     switch (*type)
     {
-    case MessageTypes::NewGameObjectInd: return DeserializeNewGameObjectInd(reader);
-    case MessageTypes::SelectedObjectChanged: return DeserializeSelectedObjectChanged(reader);
-    case MessageTypes::AvailableComponentMsgInd: return DeserializeAvailableComponentMsgInd(reader);
-    case MessageTypes::Param: return DeserializeParam(reader);
-    case MessageTypes::RemoveGameObjectInd: return DeserializeRemoveGameObjectInd(reader);
-    case MessageTypes::Transform: return DeserializeTransform(reader);
-    case MessageTypes::SceneFileMsg: return DeserializeSceneFileMsg(reader);
-    case MessageTypes::NewComponentMsgInd: return DeserializeNewComponentMsgInd(reader);
-    case MessageTypes::SceneStopedNotifMsg: return DeserializeSceneStopedNotifMsg(reader);
-    case MessageTypes::SceneStartedNotifMsg: return DeserializeSceneStartedNotifMsg(reader);
     case MessageTypes::RemoveComponentMsgInd: return DeserializeRemoveComponentMsgInd(reader);
-    case MessageTypes::ComponentDataMessage: return DeserializeComponentDataMessage(reader);
+    case MessageTypes::RemoveGameObjectInd: return DeserializeRemoveGameObjectInd(reader);
+    case MessageTypes::SceneFileMsg: return DeserializeSceneFileMsg(reader);
+    case MessageTypes::GameObjectDeleted: return DeserializeGameObjectDeleted(reader);
+    case MessageTypes::NewGameObjectInd: return DeserializeNewGameObjectInd(reader);
+    case MessageTypes::GameObjectRenamed: return DeserializeGameObjectRenamed(reader);
+    case MessageTypes::SceneStartedNotifMsg: return DeserializeSceneStartedNotifMsg(reader);
+    case MessageTypes::ComponentDeleted: return DeserializeComponentDeleted(reader);
     case MessageTypes::CameraMsg: return DeserializeCameraMsg(reader);
+    case MessageTypes::NewComponentMsgInd: return DeserializeNewComponentMsgInd(reader);
+    case MessageTypes::NewLight: return DeserializeNewLight(reader);
+    case MessageTypes::SelectedObjectChanged: return DeserializeSelectedObjectChanged(reader);
+    case MessageTypes::Transform: return DeserializeTransform(reader);
+    case MessageTypes::LightDeleted: return DeserializeLightDeleted(reader);
+    case MessageTypes::Param: return DeserializeParam(reader);
+    case MessageTypes::ComponentDataMessage: return DeserializeComponentDataMessage(reader);
+    case MessageTypes::AvailableComponentMsgInd: return DeserializeAvailableComponentMsgInd(reader);
+    case MessageTypes::SceneStopedNotifMsg: return DeserializeSceneStopedNotifMsg(reader);
+    case MessageTypes::ExitResp: return DeserializeExitResp(reader);
     }
     return nullptr;
 }
@@ -71,24 +89,9 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
     if (not type) return {};
     switch (*type)
     {
-    case MessageTypes::NewGameObjectInd:
+    case MessageTypes::RemoveComponentMsgInd:
     {
-        auto msg = Network::castMessageAs<NewGameObjectInd>(message);
-        return Serialize(*msg);
-    }
-    case MessageTypes::SelectedObjectChanged:
-    {
-        auto msg = Network::castMessageAs<SelectedObjectChanged>(message);
-        return Serialize(*msg);
-    }
-    case MessageTypes::AvailableComponentMsgInd:
-    {
-        auto msg = Network::castMessageAs<AvailableComponentMsgInd>(message);
-        return Serialize(*msg);
-    }
-    case MessageTypes::Param:
-    {
-        auto msg = Network::castMessageAs<Param>(message);
+        auto msg = Network::castMessageAs<RemoveComponentMsgInd>(message);
         return Serialize(*msg);
     }
     case MessageTypes::RemoveGameObjectInd:
@@ -96,24 +99,24 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
         auto msg = Network::castMessageAs<RemoveGameObjectInd>(message);
         return Serialize(*msg);
     }
-    case MessageTypes::Transform:
-    {
-        auto msg = Network::castMessageAs<Transform>(message);
-        return Serialize(*msg);
-    }
     case MessageTypes::SceneFileMsg:
     {
         auto msg = Network::castMessageAs<SceneFileMsg>(message);
         return Serialize(*msg);
     }
-    case MessageTypes::NewComponentMsgInd:
+    case MessageTypes::GameObjectDeleted:
     {
-        auto msg = Network::castMessageAs<NewComponentMsgInd>(message);
+        auto msg = Network::castMessageAs<GameObjectDeleted>(message);
         return Serialize(*msg);
     }
-    case MessageTypes::SceneStopedNotifMsg:
+    case MessageTypes::NewGameObjectInd:
     {
-        auto msg = Network::castMessageAs<SceneStopedNotifMsg>(message);
+        auto msg = Network::castMessageAs<NewGameObjectInd>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::GameObjectRenamed:
+    {
+        auto msg = Network::castMessageAs<GameObjectRenamed>(message);
         return Serialize(*msg);
     }
     case MessageTypes::SceneStartedNotifMsg:
@@ -121,9 +124,44 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
         auto msg = Network::castMessageAs<SceneStartedNotifMsg>(message);
         return Serialize(*msg);
     }
-    case MessageTypes::RemoveComponentMsgInd:
+    case MessageTypes::ComponentDeleted:
     {
-        auto msg = Network::castMessageAs<RemoveComponentMsgInd>(message);
+        auto msg = Network::castMessageAs<ComponentDeleted>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::CameraMsg:
+    {
+        auto msg = Network::castMessageAs<CameraMsg>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::NewComponentMsgInd:
+    {
+        auto msg = Network::castMessageAs<NewComponentMsgInd>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::NewLight:
+    {
+        auto msg = Network::castMessageAs<NewLight>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::SelectedObjectChanged:
+    {
+        auto msg = Network::castMessageAs<SelectedObjectChanged>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::Transform:
+    {
+        auto msg = Network::castMessageAs<Transform>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::LightDeleted:
+    {
+        auto msg = Network::castMessageAs<LightDeleted>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::Param:
+    {
+        auto msg = Network::castMessageAs<Param>(message);
         return Serialize(*msg);
     }
     case MessageTypes::ComponentDataMessage:
@@ -131,9 +169,19 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage& mess
         auto msg = Network::castMessageAs<ComponentDataMessage>(message);
         return Serialize(*msg);
     }
-    case MessageTypes::CameraMsg:
+    case MessageTypes::AvailableComponentMsgInd:
     {
-        auto msg = Network::castMessageAs<CameraMsg>(message);
+        auto msg = Network::castMessageAs<AvailableComponentMsgInd>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::SceneStopedNotifMsg:
+    {
+        auto msg = Network::castMessageAs<SceneStopedNotifMsg>(message);
+        return Serialize(*msg);
+    }
+    case MessageTypes::ExitResp:
+    {
+        auto msg = Network::castMessageAs<ExitResp>(message);
         return Serialize(*msg);
     }
     }

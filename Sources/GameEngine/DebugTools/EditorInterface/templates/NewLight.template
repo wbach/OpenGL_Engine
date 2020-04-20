@@ -1,0 +1,7 @@
+uint32 id
+uint32 type
+vec3 position
+vec3 colour
+vec3 attenuation
+float cutOff
+vec3 direction

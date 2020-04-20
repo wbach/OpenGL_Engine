@@ -14,19 +14,25 @@ std::optional<MessageTypes> Convert(Network::IMessageType type)
 }
 GameEngine::DebugNetworkInterface::MessageTypes CreateFromString(const std::string& type)
 {
-    if (type == "NewGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::NewGameObjectInd;
-    if (type == "SelectedObjectChanged") return GameEngine::DebugNetworkInterface::MessageTypes::SelectedObjectChanged;
-    if (type == "AvailableComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::AvailableComponentMsgInd;
-    if (type == "Param") return GameEngine::DebugNetworkInterface::MessageTypes::Param;
-    if (type == "RemoveGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd;
-    if (type == "Transform") return GameEngine::DebugNetworkInterface::MessageTypes::Transform;
-    if (type == "SceneFileMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg;
-    if (type == "NewComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::NewComponentMsgInd;
-    if (type == "SceneStopedNotifMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneStopedNotifMsg;
-    if (type == "SceneStartedNotifMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneStartedNotifMsg;
     if (type == "RemoveComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveComponentMsgInd;
-    if (type == "ComponentDataMessage") return GameEngine::DebugNetworkInterface::MessageTypes::ComponentDataMessage;
+    if (type == "RemoveGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd;
+    if (type == "SceneFileMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg;
+    if (type == "GameObjectDeleted") return GameEngine::DebugNetworkInterface::MessageTypes::GameObjectDeleted;
+    if (type == "NewGameObjectInd") return GameEngine::DebugNetworkInterface::MessageTypes::NewGameObjectInd;
+    if (type == "GameObjectRenamed") return GameEngine::DebugNetworkInterface::MessageTypes::GameObjectRenamed;
+    if (type == "SceneStartedNotifMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneStartedNotifMsg;
+    if (type == "ComponentDeleted") return GameEngine::DebugNetworkInterface::MessageTypes::ComponentDeleted;
     if (type == "CameraMsg") return GameEngine::DebugNetworkInterface::MessageTypes::CameraMsg;
+    if (type == "NewComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::NewComponentMsgInd;
+    if (type == "NewLight") return GameEngine::DebugNetworkInterface::MessageTypes::NewLight;
+    if (type == "SelectedObjectChanged") return GameEngine::DebugNetworkInterface::MessageTypes::SelectedObjectChanged;
+    if (type == "Transform") return GameEngine::DebugNetworkInterface::MessageTypes::Transform;
+    if (type == "LightDeleted") return GameEngine::DebugNetworkInterface::MessageTypes::LightDeleted;
+    if (type == "Param") return GameEngine::DebugNetworkInterface::MessageTypes::Param;
+    if (type == "ComponentDataMessage") return GameEngine::DebugNetworkInterface::MessageTypes::ComponentDataMessage;
+    if (type == "AvailableComponentMsgInd") return GameEngine::DebugNetworkInterface::MessageTypes::AvailableComponentMsgInd;
+    if (type == "SceneStopedNotifMsg") return GameEngine::DebugNetworkInterface::MessageTypes::SceneStopedNotifMsg;
+    if (type == "ExitResp") return GameEngine::DebugNetworkInterface::MessageTypes::ExitResp;
     return GameEngine::DebugNetworkInterface::MessageTypes::Any;
 }
 } // namespace DebugNetworkInterface
@@ -35,19 +41,25 @@ namespace std
 {
 string to_string(GameEngine::DebugNetworkInterface::MessageTypes type)
 {
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::NewGameObjectInd) return "NewGameObjectInd";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SelectedObjectChanged) return "SelectedObjectChanged";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::AvailableComponentMsgInd) return "AvailableComponentMsgInd";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::Param) return "Param";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd) return "RemoveGameObjectInd";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::Transform) return "Transform";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg) return "SceneFileMsg";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::NewComponentMsgInd) return "NewComponentMsgInd";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneStopedNotifMsg) return "SceneStopedNotifMsg";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneStartedNotifMsg) return "SceneStartedNotifMsg";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveComponentMsgInd) return "RemoveComponentMsgInd";
-    if (type == GameEngine::DebugNetworkInterface::MessageTypes::ComponentDataMessage) return "ComponentDataMessage";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::RemoveGameObjectInd) return "RemoveGameObjectInd";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneFileMsg) return "SceneFileMsg";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::GameObjectDeleted) return "GameObjectDeleted";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::NewGameObjectInd) return "NewGameObjectInd";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::GameObjectRenamed) return "GameObjectRenamed";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneStartedNotifMsg) return "SceneStartedNotifMsg";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::ComponentDeleted) return "ComponentDeleted";
     if (type == GameEngine::DebugNetworkInterface::MessageTypes::CameraMsg) return "CameraMsg";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::NewComponentMsgInd) return "NewComponentMsgInd";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::NewLight) return "NewLight";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SelectedObjectChanged) return "SelectedObjectChanged";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::Transform) return "Transform";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::LightDeleted) return "LightDeleted";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::Param) return "Param";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::ComponentDataMessage) return "ComponentDataMessage";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::AvailableComponentMsgInd) return "AvailableComponentMsgInd";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::SceneStopedNotifMsg) return "SceneStopedNotifMsg";
+    if (type == GameEngine::DebugNetworkInterface::MessageTypes::ExitResp) return "ExitResp";
     return "Unknown type";
 }
 } // namespace std

@@ -121,7 +121,7 @@ bool IsRelativePath(const std::string& path)
 
 std::string GetRelativePath(const std::string& absoultePath, const std::string& workingPath)
 {
-    return std::filesystem::relative(absoultePath, workingPath);
+    return std::filesystem::relative(absoultePath, workingPath).string();
 }
 
 }  // namespace Utils

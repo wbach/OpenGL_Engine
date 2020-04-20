@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-
+from tkinter import simpledialog
 
 class GameObjectView:
     def __init__(self, networkClient, root, infoView, transformView, componentsView):
@@ -26,10 +26,60 @@ class GameObjectView:
         gameObjectsCountLabel = ttk.Label(root, textvariable=self.gameObjectsCountStr)
         gameObjectsCountLabel.grid(row=1, column=0, padx=5, pady=5, sticky=(tk.W))
 
+        self.popupMenuSelection = 0
+        self.popupMenu = tk.Menu(self.tree, tearoff=0)
+        self.popupMenu.add_command(label="Rename gameObject", command=self.RenameObject)
+        self.popupMenu.add_command(label="Delete gameObject", command=self.DeleteSelected)
+        self.tree.bind("<Button-3>", self.Popup)
+
+        self.networkClient.SubscribeOnMessage("GameObjectRenamed", self.OnGameObjectRenamed)
+        self.networkClient.SubscribeOnMessage("GameObjectDeleted", self.OnGameObjectDeleted)
         self.networkClient.SubscribeOnMessage("NewGameObjectInd", self.OnGameObjectMsg)
         self.networkClient.SubscribeOnMessage("CameraMsg", self.OnCameraMsg)
         self.networkClient.SubscribeOnMessage("SelectedObjectChanged", self.OnSelectedObjectChanged)
         networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def Popup(self, event):
+        self.popupMenuSelection = self.tree.identify_row(event.y)
+        if self.popupMenuSelection:
+            self.tree.focus(self.popupMenuSelection)
+            self.tree.selection_set(self.popupMenuSelection)
+            self.popupMenu.post(event.x_root, event.y_root)
+
+    def DeleteSelected(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+        if self.popupMenuSelection:
+           # self.tree.delete(self.popupMenuSelection)
+            self.networkClient.SendCommand("deleteGameObject gameObjectId=" + str(gameObjectId))
+
+    def OnGameObjectDeleted(self, msg):
+        gameObjectId = int(msg.get("gameObjectId"))
+        id, name, hwnd = self.gameObjects[gameObjectId]
+        self.tree.delete(hwnd)
+        del self.gameObjects[gameObjectId]
+        self.gameObjectsCountStr.set("Game objects count : {0}".format(self.gameObjectsCount))
+
+    def RenameObject(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+        if self.popupMenuSelection:
+            answer = simpledialog.askstring("Input", "New game object name",
+                                            parent=self.root)
+            self.networkClient.SendCommand("renameGameObject gameObjectId=" + str(gameObjectId) + " name=" + answer)
+
+    def OnGameObjectRenamed(self, msg):
+        gameObjectId = int(msg.get("gameObjectId"))
+        newName = msg.get("newName")
+        id, oldName, hwnd = self.gameObjects[gameObjectId]
+        self.tree.item(hwnd, text=newName)
+        #rename tuple
+        lst = list(self.gameObjects[gameObjectId])
+        lst[1] = newName
+        self.gameObjects[gameObjectId] = tuple(lst)
+
 
     def InitVariables(self):
         self.gameObjects = {}

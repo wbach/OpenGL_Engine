@@ -1,0 +1,2 @@
+uint32 gameObjectId
+std::string componentName
