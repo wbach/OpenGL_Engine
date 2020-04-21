@@ -20,8 +20,11 @@ public:
     void Unlock() override;
 
 private:
+    void CalculatePitch(float);
+    void CalculateYaw(float);
     void LockPitch();
     void LockYaw();
+    vec2 CalcualteMouseMove();
 
 private:
     Input::InputManager& inputManager_;

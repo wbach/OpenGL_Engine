@@ -24,8 +24,9 @@ CameraEditor::CameraEditor(Input::InputManager& inputManager, DisplayManager& di
 
 void CameraEditor::Move()
 {
-    LockPitch();
-    LockYaw();
+    auto mouseMove = CalcualteMouseMove() * 0.4f;
+    CalculateYaw(mouseMove.x);
+    CalculatePitch(mouseMove.y);
 
     vec3 moveVector(0.f);
     if (inputManager_.GetKey(Input::GameAction::MOVE_FORWARD))
@@ -47,16 +48,15 @@ void CameraEditor::Move()
     if (inputManager_.GetKey(KeyCodes::X))
         IncreasePitch(1.f);
 
-
     if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
     {
         DegreesVec3 v(GetRotation());
         glm::quat qPitch = glm::angleAxis(-v.Radians().x, glm::vec3(1, 0, 0));
         glm::quat qYaw   = glm::angleAxis(-v.Radians().y, glm::vec3(0, 1, 0));
         glm::quat qRoll  = glm::angleAxis(-v.Radians().z, glm::vec3(0, 0, 1));
-
-        // For a FPS camera we can omit roll
         glm::quat orientation = qPitch * qYaw * qRoll;
+
+
         orientation           = glm::normalize(orientation);
 
         moveVector = orientation * moveVector;
@@ -77,6 +77,18 @@ void CameraEditor::Unlock()
 {
 }
 
+void CameraEditor::CalculatePitch(float v)
+{
+    IncreasePitch(v);
+    LockPitch();
+}
+
+void CameraEditor::CalculateYaw(float v)
+{
+    IncreaseYaw(v);
+    LockYaw();
+}
+
 void CameraEditor::LockPitch()
 {
     if (GetRotation().x > 90.f)
@@ -92,5 +104,9 @@ void CameraEditor::LockYaw()
     if (GetRotation().y > 360.f)
         IncreaseYaw(-360.f);
 }
-
+vec2 CameraEditor::CalcualteMouseMove()
+{
+    auto v = inputManager_.CalcualteMouseMove();
+    return vec2(v.x, v.y);
+}
 }  // namespace GameEngine
