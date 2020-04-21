@@ -85,6 +85,14 @@ float Utils::GetMaxFromVector(const glm::vec3& vector)
         return vector.z;
 }
 
+mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation)
+{
+    mat4 matrix = mat4(1.0);
+    matrix *= glm::translate(translation);
+    matrix *= glm::mat4_cast(rotation);
+    return matrix;
+}
+
 mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation, const vec3& scale)
 {
     mat4 matrix = mat4(1.0);

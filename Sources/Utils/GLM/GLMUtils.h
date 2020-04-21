@@ -40,6 +40,7 @@ float GetMaxFromVector(const glm::vec3& vector);
 mat4 CreateOffset();
 mat4 CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center);
 mat4 CreateOrthoProjectionMatrix(float width, float height, float length);
+mat4 CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation);
 mat4 CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation, const vec3& scale);
 mat4 CreateTransformationMatrix(const vec3& translation, const DegreesVec3& rotation, const vec3& scale);
 mat4 CreateTransformationMatrix(const vec3& translation, const RadiansVec3& rotation, const vec3& scale);

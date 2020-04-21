@@ -77,12 +77,6 @@ void CameraWrapper::UpdateMatrix()
     camera_->UpdateMatrix();
 }
 
-void CameraWrapper::InvertPitch()
-{
-    std::lock_guard<std::mutex> m(cameraMutex);
-    camera_->InvertPitch();
-}
-
 float CameraWrapper::GetPitch() const
 {
     std::lock_guard<std::mutex> m(cameraMutex);
@@ -93,12 +87,6 @@ float CameraWrapper::GetYaw() const
 {
     std::lock_guard<std::mutex> m(cameraMutex);
     return camera_->GetYaw();
-}
-
-float CameraWrapper::GetRoll() const
-{
-    std::lock_guard<std::mutex> m(cameraMutex);
-    return camera_->GetRoll();
 }
 
 const vec3 &CameraWrapper::GetRotation() const
@@ -135,12 +123,6 @@ void CameraWrapper::SetYaw(float yaw)
 {
     std::lock_guard<std::mutex> m(cameraMutex);
     camera_->SetYaw(yaw);
-}
-
-void CameraWrapper::SetRoll(float roll)
-{
-    std::lock_guard<std::mutex> m(cameraMutex);
-    camera_->SetRoll(roll);
 }
 
 void CameraWrapper::SetPitch(float pitch)

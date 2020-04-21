@@ -22,11 +22,9 @@ public:
     void Unlock();
 
     void UpdateMatrix();
-    void InvertPitch();
 
     float GetPitch() const;
     float GetYaw() const;
-    float GetRoll() const;
 
     const vec3& GetRotation() const;
     const vec3& GetPosition() const;
@@ -35,7 +33,6 @@ public:
 
     void LookAt(const vec3&);
     void SetYaw(float yaw);
-    void SetRoll(float roll);
     void SetPitch(float pitch);
     void SetRotation(const vec3&);
     void SetPosition(const vec3&);

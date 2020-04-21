@@ -28,16 +28,7 @@ public:
 
 private:
     void SetRelativeMode(bool);
-    void LockCamera();
-    void LockPitch();
-    void LockYaw();
-    void CalculateCameraPosition(float cameraYaw, float horizontalDistance, float verticalDistance);
-    float CalculateHorizontalDistance();
-    float CalculateVerticalDistance();
-    void CalculateYaw(float cameraYaw);
     vec2 CalcualteMouseMove();
-    void CalculatePitch(const vec2& mouseMove);
-    void CalculateAngleAroundPlayer(const vec2& mouseMove);
 
 private:
     Input::InputManager& inputManager_;
@@ -46,6 +37,7 @@ private:
     float distanceFromPlayer_;
 
     vec3 offset_;
+    vec3 lookAtOffset_;
     float mouseSensitivity_;
     bool captureMouse_;
     bool isRelativeModeEnabled_;

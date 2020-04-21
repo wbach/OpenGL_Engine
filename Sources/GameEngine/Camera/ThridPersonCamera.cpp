@@ -13,12 +13,13 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
 {
 }
 ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const common::Transform& lookAt,
-                                     const vec3& offset)
+                                     const vec3& lookAtOffset)
     : inputManager_(inputManager)
     , lookAtTransform_(lookAt)
     , angleAroundPlayer_(0.f)
     , distanceFromPlayer_(3.f)
-    , offset_(offset)
+    , offset_(0, 0, 1.f)
+    , lookAtOffset_(lookAtOffset)
     , mouseSensitivity_(.4f)
     , isRelativeModeEnabled_(false)
     , clock_(std::chrono::milliseconds(5))
@@ -28,42 +29,25 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
 ThirdPersonCamera::~ThirdPersonCamera()
 {
 }
-void ThirdPersonCamera::LockPitch()
-{
-    if (GetRotation().x > 90.f)
-        SetPitch(90.f);
-    if (GetRotation().x < -90.f)
-        SetPitch(-90.f);
-}
-void ThirdPersonCamera::LockYaw()
-{
-    if (GetRotation().y < 0.f)
-        IncreaseYaw(360.f);
-    if (GetRotation().y > 360.f)
-        IncreaseYaw(-360.f);
-}
-void ThirdPersonCamera::LockCamera()
-{
-    LockPitch();
-    LockYaw();
-}
 void ThirdPersonCamera::CalculateInput()
 {
-    if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
+     if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
     {
         inputManager_.ShowCursor(true);
         SetRelativeMode(false);
         return;
     }
-    SetRelativeMode(true);
-    inputManager_.ShowCursor(false);
+     SetRelativeMode(true);
+     inputManager_.ShowCursor(false);
 
     if (!clock_.OnTick())
         return;
 
-    vec2 move = CalcualteMouseMove() * mouseSensitivity_;
-    CalculatePitch(move);
-    CalculateAngleAroundPlayer(move);
+    vec2 move  = CalcualteMouseMove() * mouseSensitivity_;
+
+    auto pitch = glm::angleAxis(glm::radians(move.y), vec3(1, 0, 0));
+    auto yaw   = glm::angleAxis(glm::radians(move.x), vec3(0, 1, 0));
+    offset_    = pitch * yaw * offset_;
 }
 
 void ThirdPersonCamera::Move()
@@ -71,38 +55,10 @@ void ThirdPersonCamera::Move()
     if (lock_)
         return;
 
-    float cameraYaw          = lookAtTransform_.GetSnapShoot().rotation.GetEulerDegrees()->y;
-    float horizontalDistance = CalculateHorizontalDistance();
-    float verticalDistance   = CalculateVerticalDistance();
+    auto lookAtPosition = lookAtTransform_.GetPosition() + lookAtOffset_;
+    SetPosition(lookAtPosition + (lookAtTransform_.GetRotation().value_ * offset_ * distanceFromPlayer_));
+    LookAt(lookAtPosition);
 
-    CalculateCameraPosition(cameraYaw, horizontalDistance, verticalDistance);
-    CalculateYaw(cameraYaw);
-    LockCamera();
-}
-void ThirdPersonCamera::CalculateCameraPosition(float cameraYaw, float horizontalDistance, float verticalDistance)
-{
-    float theata  = cameraYaw + angleAroundPlayer_;
-    float xOffset = horizontalDistance * sinf(glm::radians(theata));
-    float zOffset = horizontalDistance * cosf(glm::radians(theata));
-
-    auto pos = lookAtTransform_.GetSnapShoot().position + offset_;
-    pos.x -= xOffset;
-    pos.y += verticalDistance;
-    pos.z -= zOffset;
-
-    SetPosition(pos);
-}
-float ThirdPersonCamera::CalculateHorizontalDistance()
-{
-    return distanceFromPlayer_ * cosf(glm::radians(GetRotation().x));
-}
-float ThirdPersonCamera::CalculateVerticalDistance()
-{
-    return distanceFromPlayer_ * sinf(glm::radians(GetRotation().x));
-}
-void ThirdPersonCamera::CalculateYaw(float cameraYaw)
-{
-    SetYaw(180.f - (cameraYaw + angleAroundPlayer_));
 }
 void ThirdPersonCamera::CalculateZoom(float v)
 {
@@ -133,14 +89,5 @@ vec2 ThirdPersonCamera::CalcualteMouseMove()
 {
     auto v = inputManager_.CalcualteMouseMove();
     return vec2(v.x, v.y);
-}
-void ThirdPersonCamera::CalculatePitch(const vec2& mouseMove)
-{
-    SetPitch(GetPitch() + mouseMove.y);
-}
-
-void ThirdPersonCamera::CalculateAngleAroundPlayer(const vec2& mouseMove)
-{
-    angleAroundPlayer_ -= mouseMove.x;
 }
 }  // namespace GameEngine

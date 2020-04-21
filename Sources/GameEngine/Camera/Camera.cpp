@@ -2,17 +2,18 @@
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
+#include <Utils.h>
 
 #include <algorithm>
-
-#include "Utils.h"
 
 namespace GameEngine
 {
 namespace
 {
 const float NOTIF_EPSILON{std::numeric_limits<float>::epsilon()};
-}
+DegreesVec3 eulerRotation_;  // only for get
+}  // namespace
+
 BaseCamera::BaseCamera()
     : BaseCamera(0, 0)
 {
@@ -21,10 +22,10 @@ BaseCamera::BaseCamera(float pitch, float yaw)
     : lock_(false)
     , up_(0, 1, 0)
     , position_(0)
-    , rotation_(pitch, yaw, 0)
+    , rotation_(DegreesVec3(pitch, yaw, 0))
     , viewMatrix_(1.f)
     , lastNotifiedPosition_(0)
-    , lastNotifRotation_(0)
+    , lastNotifRotation_(DegreesVec3(0.f))
 {
     UpdateMatrix();
 }
@@ -72,7 +73,7 @@ void BaseCamera::SetPosition(const vec3& position)
 void BaseCamera::NotifySubscribers()
 {
     auto l1 = glm::length(position_ - lastNotifiedPosition_);
-    auto l2 = glm::length(rotation_ - lastNotifRotation_);
+    auto l2 = glm::length(rotation_.value_ - lastNotifRotation_.value_);
 
     if (l1 > NOTIF_EPSILON or l2 > NOTIF_EPSILON)
     {
@@ -101,15 +102,13 @@ void BaseCamera::UnsubscribeOnChange(uint32 id)
 }
 void BaseCamera::LookAt(const vec3& lookAtPosition)
 {
-    auto direction = position_ - lookAtPosition;
-    rotation_.y    = glm::degrees(atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f);
-    rotation_.x    = glm::degrees(atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z)));
+    auto direction   = position_ - lookAtPosition;
+    auto yaw         = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
+    auto pitch       = atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z));
+    glm::quat qPitch = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+    glm::quat qYaw   = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+    rotation_.value_ = qPitch * qYaw;
     NotifySubscribers();
-}
-
-void BaseCamera::InvertPitch()
-{
-    rotation_.x *= -1.f;
 }
 const vec3& BaseCamera::GetDirection() const
 {
@@ -121,44 +120,40 @@ const vec3& BaseCamera::GetPosition() const
 }
 const vec3& BaseCamera::GetRotation() const
 {
-    return rotation_;
+    eulerRotation_ = rotation_.GetEulerDegrees();
+    return eulerRotation_.value;
 }
 float BaseCamera::GetPitch() const
 {
-    return rotation_.x;
+    return rotation_.GetEulerDegrees()->x;
 }
-void BaseCamera::SetPitch(float p)
+void BaseCamera::SetPitch(float angle)
 {
-    rotation_.x = p;
+    glm::quat pitch  = glm::angleAxis(glm::radians(angle), vec3(1.f, 0.f, 0.f));
+    glm::quat yaw    = glm::angleAxis(glm::eulerAngles(rotation_.value_).y, vec3(0.f, 1.f, 0.f));
+    rotation_.value_ = pitch * yaw;
     NotifySubscribers();
 }
 void BaseCamera::SetRotation(const vec3& rotation)
 {
-    rotation_ = rotation;
+    rotation_ = common::Rotation(DegreesVec3(rotation));
     NotifySubscribers();
 }
 float BaseCamera::GetYaw() const
 {
-    return rotation_.y;
+    return rotation_.GetEulerDegrees()->y;
 }
-void BaseCamera::SetYaw(float y)
+void BaseCamera::SetYaw(float angle)
 {
-    rotation_.y = y;
-    NotifySubscribers();
-}
-float BaseCamera::GetRoll() const
-{
-    return rotation_.z;
-}
-void BaseCamera::SetRoll(float roll)
-{
-    rotation_.z = roll;
+    glm::quat pitch  = glm::angleAxis(glm::eulerAngles(rotation_.value_).x, vec3(1.f, 0.f, 0.f));
+    glm::quat yaw    = glm::angleAxis(glm::radians(angle), vec3(0.f, 1.f, 0.f));
+    rotation_.value_ = pitch * yaw;
     NotifySubscribers();
 }
 void BaseCamera::CalculateDirection()
 {
-    float pitch_ = glm::radians(rotation_.x);
-    float yaw_   = glm::radians(rotation_.y);
+    float pitch_ = rotation_.GetEulerRadians()->x;
+    float yaw_   = rotation_.GetEulerRadians()->y;
     float xzLen  = cosf(pitch_);
 
     direction_.z = xzLen * cosf(yaw_);
@@ -169,9 +164,7 @@ void BaseCamera::CalculateDirection()
 void BaseCamera::UpdateViewMatrix()
 {
     viewMatrix_ = mat4(1.f);
-    viewMatrix_ *= glm::rotate(glm::radians(rotation_.x), vec3(1.0f, 0.0f, 0.0f));
-    viewMatrix_ *= glm::rotate(glm::radians(rotation_.y), vec3(0.0f, 1.0f, 0.0f));
-    viewMatrix_ *= glm::rotate(glm::radians(rotation_.z), vec3(0.0f, 0.0f, 1.0f));
+    viewMatrix_ *= glm::mat4_cast(rotation_.value_);
     viewMatrix_ *= glm::translate(-position_);
 }
 const mat4& BaseCamera::GetViewMatrix() const
@@ -180,12 +173,13 @@ const mat4& BaseCamera::GetViewMatrix() const
 }
 void BaseCamera::IncreaseYaw(float yaw)
 {
-    rotation_.y += yaw;
+    rotation_.value_ *= glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f));
     NotifySubscribers();
 }
 void BaseCamera::IncreasePitch(float pitch)
 {
-    rotation_.x += pitch;
+    glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
+    rotation_.value_ = qPitch * rotation_.value_;
     NotifySubscribers();
 }
 void BaseCamera::IncreasePosition(const vec3& v)

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <filesystem>
 
+#include "CameraEditor.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -25,6 +26,7 @@
 #include "Messages/GameObjectRenamed.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
+#include "Messages/ReloadScene.h"
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectInd.h"
 #include "Messages/SceneFileMsg.h"
@@ -33,14 +35,13 @@
 #include "Messages/SelectedObjectChanged.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
-#include "Messages/ReloadScene.h"
-#include "CameraEditor.h"
 
 namespace GameEngine
 {
 namespace
 {
-std::unique_ptr<CameraEditor> cameraEditor;
+using CameraEditorType = FirstPersonCamera;
+std::unique_ptr<CameraEditorType> cameraEditor;
 
 std::mutex transformChangedMutex_;
 std::optional<uint32> transformChangedToSend_;
@@ -123,7 +124,7 @@ void NetworkEditorInterface::DefineCommands()
 
 void NetworkEditorInterface::SetupCamera()
 {
-    cameraEditor = std::make_unique<CameraEditor>(*scene_.inputManager_, *scene_.displayManager_);
+    cameraEditor = std::make_unique<CameraEditorType>(*scene_.inputManager_, *scene_.displayManager_);
 }
 
 void NetworkEditorInterface::StartGatway()
@@ -868,13 +869,13 @@ void NetworkEditorInterface::ReloadScene(const EntryParameters &v)
 void NetworkEditorInterface::ClearAll(const EntryParameters &v)
 {
     ClearAllGameObjects(v);
-    //ClearLigts(v);
-    //ClearGui();
+    // ClearLigts(v);
+    // ClearGui();
 }
 
 void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &v)
 {
-    for (auto& go : scene_.gameObjects)
+    for (auto &go : scene_.gameObjects)
     {
         // If parent is erase child automatically too
         DebugNetworkInterface::GameObjectDeleted msg(go->GetId());
@@ -949,9 +950,9 @@ void NetworkEditorInterface::SetFreeCamera()
 {
     sceneCamera_ = scene_.camera.Get();
     sceneCamera_->Lock();
-   // cameraEditor->SetPosition(sceneCamera_->GetPosition());
-   // cameraEditor->SetRotation(sceneCamera_->GetRotation());
-  //  cameraEditor->Lock();
+    // cameraEditor->SetPosition(sceneCamera_->GetPosition());
+    // cameraEditor->SetRotation(sceneCamera_->GetRotation());
+    //  cameraEditor->Lock();
     scene_.SetCamera(*cameraEditor);
 }
 

@@ -15,10 +15,8 @@ public:
     MOCK_METHOD0(Unlock, void());
     MOCK_CONST_METHOD0(IsLocked, bool());
     MOCK_METHOD0(UpdateMatrix, void());
-    MOCK_METHOD0(InvertPitch, void());
     MOCK_CONST_METHOD0(GetPitch, float());
     MOCK_CONST_METHOD0(GetYaw, float());
-    MOCK_CONST_METHOD0(GetRoll, float());
     MOCK_CONST_METHOD0(GetRotation, const vec3&());
     MOCK_CONST_METHOD0(GetPosition, const vec3&());
     MOCK_CONST_METHOD0(GetDirection, const vec3&());
@@ -32,7 +30,6 @@ public:
     MOCK_METHOD1(IncreasePositionXZ, void(const vec2&));
     MOCK_METHOD1(LookAt, void(const vec3&));
     MOCK_METHOD1(SetYaw, void(float yaw));
-    MOCK_METHOD1(SetRoll, void(float roll));
     MOCK_METHOD1(SetPitch, void(float pitch));
     MOCK_METHOD1(SetRotation, void(const vec3&));
     MOCK_METHOD1(SetPosition, void(const vec3&));

@@ -399,7 +399,6 @@ void MainScene::KeyOperations()
             camera_->SetPosition(pos);
             camera_->SetPitch(rotation.x);
             camera_->SetYaw(rotation.y);
-            camera_->SetRoll(rotation.z);
             camera.Set(*camera_);
         }
     });

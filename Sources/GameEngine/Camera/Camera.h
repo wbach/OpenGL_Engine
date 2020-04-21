@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-
+#include <Common/Rotation.h>
 #include "ICamera.h"
 
 namespace GameEngine
@@ -22,11 +22,9 @@ public:
     virtual bool IsLocked() const override;
 
     virtual void UpdateMatrix() override;
-    virtual void InvertPitch() override;
 
     virtual float GetPitch() const override;
     virtual float GetYaw() const override;
-    virtual float GetRoll() const override;
 
     virtual const vec3& GetRotation() const override;
     virtual const vec3& GetPosition() const override;
@@ -43,7 +41,6 @@ public:
 
     virtual void LookAt(const vec3&) override;
     virtual void SetYaw(float yaw) override;
-    virtual void SetRoll(float roll) override;
     virtual void SetPitch(float pitch) override;
     virtual void SetRotation(const vec3&) override;
     virtual void SetPosition(const vec3&) override;
@@ -58,6 +55,7 @@ protected:
 
 protected:
     bool lock_;
+    common::Rotation rotation_;
 
 private:
     uint32 idPool_;
@@ -65,12 +63,11 @@ private:
 
     vec3 up_;
     vec3 position_;
-    vec3 rotation_;
     vec3 direction_;
     mat4 viewMatrix_;
 
 private:
     vec3 lastNotifiedPosition_;
-    vec3 lastNotifRotation_;
+    common::Rotation lastNotifRotation_;
 };
 }  // namespace GameEngine
