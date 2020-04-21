@@ -11,10 +11,11 @@ PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
     , shader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
     , refreshRateStepDown_(1)
-    , isActive_(false)
+    , isActive_(true)
     , frameRefreshNumber_(0)
     , worker_(nullptr)
     , isUpdated_(true)
+    , lineMesh_(nullptr)
 {
 }
 
@@ -53,7 +54,7 @@ void PhysicsVisualizator::Render()
         UpdatePhycisLineMesh();
     }
 
-    if (lineMesh_ and not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
+    if (physicsLineMeshReady_.load())
     {
         shader_.Start();
         graphicsApi_.RenderMesh(*lineMeshId_);
@@ -83,17 +84,16 @@ void PhysicsVisualizator::Disable()
 
 void PhysicsVisualizator::UpdatePhycisLineMesh()
 {
-    if (frameRefreshNumber_ > refreshRateStepDown_)
+    if (frameRefreshNumber_ >= refreshRateStepDown_)
     {
-        const auto& lineMesh = physicsDebugDraw_();
-
-        if (not lineMesh.positions_.empty() and not lineMesh.colors_.empty())
+        lineMesh_ = &physicsDebugDraw_();
+        if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
         {
-            graphicsApi_.UpdateLineMesh(*lineMeshId_, lineMesh);
-            physicsLineMeshReady_ = true;
+            graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
+            physicsLineMeshReady_.store(true);
         }
 
-        frameRefreshNumber_ = 1;
+        frameRefreshNumber_ = 0;
     }
     else
     {
@@ -110,7 +110,7 @@ void PhysicsVisualizator::UpdatePhysicsByWorker()
         lineMesh_ = &physicsDebugDraw_();
         if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
         {
-            physicsLineMeshReady_ .store(true);
+            physicsLineMeshReady_.store(true);
         }
     };
 
