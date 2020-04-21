@@ -45,6 +45,8 @@ public:
     virtual void GetPressedKeys()                    = 0;
     virtual void ShowCursor(bool)                    = 0;
 
+    bool GetKey(GameAction);
+
     void AddEvent(KeyPressedFunc);
     void AddKeyEvent(uint32 eventType, uint32 key);
     void ProcessKeysEvents();
@@ -54,16 +56,22 @@ public:
     uint32 SubscribeOnKeyDown(KeyCodes::Type key, KeyPressedFunc func);
     uint32 SubscribeOnKeyUp(KeyCodes::Type key, KeyPressedFunc func);
     uint32 SubscribeOnAnyKeyPress(KeysPressedFunc func);
-
     void UnsubscribeOnKeyDown(KeyCodes::Type key);
     void UnsubscribeOnKeyUp(KeyCodes::Type key);
-
     void UnsubscribeOnKeyDown(KeyCodes::Type key, uint32);
     void UnsubscribeOnKeyUp(KeyCodes::Type key, uint32);
     void UnsubscribeAnyKey(uint32);
 
+    uint32 SubscribeOnKeyDown(GameAction, KeyPressedFunc func);
+    uint32 SubscribeOnKeyUp(GameAction, KeyPressedFunc func);
+    void UnsubscribeOnKeyDown(GameAction, uint32);
+    void UnsubscribeOnKeyUp(GameAction, uint32);
+    void UnsubscribeOnKeyDown(GameAction);
+    void UnsubscribeOnKeyUp(GameAction);
+
     void Unsubscribe(uint32);
     void UnsubscribeAll();
+    const std::unordered_map<GameAction, KeyCodes::Type>& GetKeysGameActions() const;
 
 protected:
     virtual KeyCodes::Type ConvertCode(uint32) const = 0;
@@ -76,15 +84,14 @@ protected:
     bool GetMouseState(uint32 code);
 
 private:
+    void RegisterGameAction(GameAction, KeyCodes::Type);
     void ExecuteOnKeyDown(KeyCodes::Type);
     void ExecuteOnKeyUp(KeyCodes::Type);
     void ExecuteAnyKey(KeyCodes::Type);
     void Unquque();
 
-public:
-    std::unordered_map<GameActions::Type, KeyCodes::Type> keyGameActions;
-
 protected:
+    std::unordered_map<GameAction, KeyCodes::Type> keyGameActions_;
     std::set<KeyCodes::Type> keyBuffer;
     std::vector<KeyPressedFunc> events_;
     std::list<KeyEvent> keyEvents_;

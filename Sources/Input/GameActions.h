@@ -1,8 +1,8 @@
 #pragma once
 
-namespace GameActions
+namespace Input
 {
-enum Type
+enum class GameAction
 {
     MOVE_FORWARD = 0,
     MOVE_BACKWARD,

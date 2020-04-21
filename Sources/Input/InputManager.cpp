@@ -34,30 +34,43 @@ InputManager::~InputManager()
 
 void InputManager::SetDefaultKeys()
 {
-    keyGameActions[GameActions::MOVE_FORWARD]          = KeyCodes::W;
-    keyGameActions[GameActions::MOVE_BACKWARD]         = KeyCodes::S;
-    keyGameActions[GameActions::MOVE_LEFT]             = KeyCodes::Q;
-    keyGameActions[GameActions::MOVE_RIGHT]            = KeyCodes::R;
-    keyGameActions[GameActions::TURN_LEFT]             = KeyCodes::A;
-    keyGameActions[GameActions::TURN_RIGHT]            = KeyCodes::D;
-    keyGameActions[GameActions::JUMP]                  = KeyCodes::SPACE;
-    keyGameActions[GameActions::ATTACK_1]              = KeyCodes::LMOUSE;
-    keyGameActions[GameActions::ATTACK_2]              = KeyCodes::RMOUSE;
-    keyGameActions[GameActions::ATTACK_3]              = KeyCodes::Z;
-    keyGameActions[GameActions::SPELL_1]               = KeyCodes::W;
-    keyGameActions[GameActions::SPELL_2]               = KeyCodes::W;
-    keyGameActions[GameActions::SPELL_3]               = KeyCodes::W;
-    keyGameActions[GameActions::SPELL_4]               = KeyCodes::W;
-    keyGameActions[GameActions::GUI_STATS_WINDOW]      = KeyCodes::C;
-    keyGameActions[GameActions::GUI_INVENTORY_WINDOW]  = KeyCodes::I;
-    keyGameActions[GameActions::GUI_PAUSE_MENU_WINDOW] = KeyCodes::ESCAPE;
-    keyGameActions[GameActions::ITEM_1]                = KeyCodes::W;
-    keyGameActions[GameActions::ITEM_2]                = KeyCodes::W;
-    keyGameActions[GameActions::ITEM_3]                = KeyCodes::W;
-    keyGameActions[GameActions::ITEM_4]                = KeyCodes::W;
-    keyGameActions[GameActions::ITEM_5]                = KeyCodes::W;
-    keyGameActions[GameActions::ITEM_6]                = KeyCodes::W;
-    keyGameActions[GameActions::WORLD_MAP]             = KeyCodes::M;
+    RegisterGameAction(GameAction::MOVE_FORWARD, KeyCodes::W);
+    RegisterGameAction(GameAction::MOVE_BACKWARD, KeyCodes::S);
+    RegisterGameAction(GameAction::MOVE_LEFT, KeyCodes::Q);
+    RegisterGameAction(GameAction::MOVE_RIGHT, KeyCodes::R);
+    RegisterGameAction(GameAction::TURN_LEFT, KeyCodes::A);
+    RegisterGameAction(GameAction::TURN_RIGHT, KeyCodes::D);
+    RegisterGameAction(GameAction::JUMP, KeyCodes::SPACE);
+    RegisterGameAction(GameAction::ATTACK_1, KeyCodes::LMOUSE);
+    RegisterGameAction(GameAction::ATTACK_2, KeyCodes::RMOUSE);
+    RegisterGameAction(GameAction::ATTACK_3, KeyCodes::Z);
+    RegisterGameAction(GameAction::SPELL_1, KeyCodes::W);
+    RegisterGameAction(GameAction::SPELL_2, KeyCodes::W);
+    RegisterGameAction(GameAction::SPELL_3, KeyCodes::W);
+    RegisterGameAction(GameAction::SPELL_4, KeyCodes::W);
+    RegisterGameAction(GameAction::GUI_STATS_WINDOW, KeyCodes::C);
+    RegisterGameAction(GameAction::GUI_INVENTORY_WINDOW, KeyCodes::I);
+    RegisterGameAction(GameAction::GUI_PAUSE_MENU_WINDOW, KeyCodes::ESCAPE);
+    RegisterGameAction(GameAction::ITEM_1, KeyCodes::W);
+    RegisterGameAction(GameAction::ITEM_2, KeyCodes::W);
+    RegisterGameAction(GameAction::ITEM_3, KeyCodes::W);
+    RegisterGameAction(GameAction::ITEM_4, KeyCodes::W);
+    RegisterGameAction(GameAction::ITEM_5, KeyCodes::W);
+    RegisterGameAction(GameAction::ITEM_6, KeyCodes::W);
+    RegisterGameAction(GameAction::WORLD_MAP, KeyCodes::M);
+}
+
+bool InputManager::GetKey(GameAction action)
+{
+    if (keyGameActions_.count(action))
+    {
+        return GetKey(keyGameActions_.at(action));
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
+    return false;
 }
 
 void InputManager::AddEvent(KeyPressedFunc eventFunc)
@@ -158,6 +171,11 @@ void InputManager::UnsubscribeAll()
     subscribers_.keyDownSubscribers_.clear();
 }
 
+const std::unordered_map<GameAction, KeyCodes::Type>& InputManager::GetKeysGameActions() const
+{
+    return keyGameActions_;
+}
+
 void InputManager::ProcessEvents()
 {
     if (events_.empty())
@@ -254,6 +272,80 @@ void InputManager::UnsubscribeAnyKey(uint32 id)
         return;
     }
     subscribers_.keysSubscribers_.erase(id);
+}
+
+uint32 InputManager::SubscribeOnKeyDown(GameAction action, KeyPressedFunc func)
+{
+    if (keyGameActions_.count(action))
+    {
+        return SubscribeOnKeyDown(keyGameActions_.at(action), func);
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
+    return 0;
+}
+
+uint32 InputManager::SubscribeOnKeyUp(GameAction action, KeyPressedFunc func)
+{
+    if (keyGameActions_.count(action))
+    {
+        return SubscribeOnKeyUp(keyGameActions_.at(action), func);
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
+    return 0;
+}
+
+void InputManager::UnsubscribeOnKeyDown(GameAction action, uint32 id)
+{
+    if (keyGameActions_.count(action))
+    {
+        UnsubscribeOnKeyDown(keyGameActions_.at(action), id);
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
+}
+
+void InputManager::UnsubscribeOnKeyUp(GameAction action, uint32 id)
+{
+    if (keyGameActions_.count(action))
+    {
+        UnsubscribeOnKeyUp(keyGameActions_.at(action), id);
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
+}
+
+void InputManager::UnsubscribeOnKeyDown(GameAction action)
+{
+    if (keyGameActions_.count(action))
+    {
+        UnsubscribeOnKeyDown(keyGameActions_.at(action));
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
+}
+
+void InputManager::UnsubscribeOnKeyUp(GameAction action)
+{
+    if (keyGameActions_.count(action))
+    {
+        UnsubscribeOnKeyUp(keyGameActions_.at(action));
+    }
+    else
+    {
+        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    }
 }
 
 void InputManager::StashSubscribers()
@@ -372,7 +464,7 @@ std::optional<KeyEvent> InputManager::GetEvent()
 
     auto e = keyEvents_.front();
     keyEvents_.pop_front();
-    return e;
+    return std::move(e);
 }
 
 void InputManager::ProcessKeysEvents()
@@ -435,5 +527,10 @@ bool InputManager::GetMouseState(uint32 keyCode)
         return true;
     }
     return false;
+}
+
+void InputManager::RegisterGameAction(GameAction action, KeyCodes::Type key)
+{
+    keyGameActions_.insert({action, key});
 }
 }  // namespace Input
