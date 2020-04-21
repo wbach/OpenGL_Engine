@@ -36,10 +36,10 @@ void InputManager::SetDefaultKeys()
 {
     RegisterGameAction(GameAction::MOVE_FORWARD, KeyCodes::W);
     RegisterGameAction(GameAction::MOVE_BACKWARD, KeyCodes::S);
-    RegisterGameAction(GameAction::MOVE_LEFT, KeyCodes::Q);
-    RegisterGameAction(GameAction::MOVE_RIGHT, KeyCodes::R);
-    RegisterGameAction(GameAction::TURN_LEFT, KeyCodes::A);
-    RegisterGameAction(GameAction::TURN_RIGHT, KeyCodes::D);
+    RegisterGameAction(GameAction::MOVE_LEFT, KeyCodes::A);
+    RegisterGameAction(GameAction::MOVE_RIGHT, KeyCodes::D);
+    RegisterGameAction(GameAction::TURN_LEFT, KeyCodes::Q);
+    RegisterGameAction(GameAction::TURN_RIGHT, KeyCodes::E);
     RegisterGameAction(GameAction::JUMP, KeyCodes::SPACE);
     RegisterGameAction(GameAction::ATTACK_1, KeyCodes::LMOUSE);
     RegisterGameAction(GameAction::ATTACK_2, KeyCodes::RMOUSE);

@@ -30,5 +30,6 @@ private:
 private:
     MeasurementValue& cameraPosiionDebug_;
     MeasurementValue& cameraRotationDebug_;
+    MeasurementValue& moveVector_;
 };
 }  // namespace GameEngine

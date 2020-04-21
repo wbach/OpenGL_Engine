@@ -22,6 +22,7 @@ SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhy
     , renderersManager_(renderersManager)
     , guiContext_(guiContext)
     , addEngineEvent_(addEngineEvent)
+    , isRunning_(false)
 {
     Start();
 }

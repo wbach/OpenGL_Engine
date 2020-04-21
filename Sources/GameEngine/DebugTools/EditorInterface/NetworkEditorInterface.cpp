@@ -34,12 +34,13 @@
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
 #include "Messages/ReloadScene.h"
+#include "CameraEditor.h"
 
 namespace GameEngine
 {
 namespace
 {
-std::unique_ptr<FirstPersonCamera> firstPersonCamera;
+std::unique_ptr<CameraEditor> cameraEditor;
 
 std::mutex transformChangedMutex_;
 std::optional<uint32> transformChangedToSend_;
@@ -122,8 +123,7 @@ void NetworkEditorInterface::DefineCommands()
 
 void NetworkEditorInterface::SetupCamera()
 {
-    firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
-    firstPersonCamera->Lock();
+    cameraEditor = std::make_unique<CameraEditor>(*scene_.inputManager_, *scene_.displayManager_);
 }
 
 void NetworkEditorInterface::StartGatway()
@@ -949,10 +949,10 @@ void NetworkEditorInterface::SetFreeCamera()
 {
     sceneCamera_ = scene_.camera.Get();
     sceneCamera_->Lock();
-    firstPersonCamera->SetPosition(sceneCamera_->GetPosition());
-    firstPersonCamera->SetRotation(sceneCamera_->GetRotation());
-    firstPersonCamera->Lock();
-    scene_.SetCamera(*firstPersonCamera);
+   // cameraEditor->SetPosition(sceneCamera_->GetPosition());
+   // cameraEditor->SetRotation(sceneCamera_->GetRotation());
+  //  cameraEditor->Lock();
+    scene_.SetCamera(*cameraEditor);
 }
 
 void NetworkEditorInterface::SetOrignalCamera()
