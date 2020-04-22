@@ -66,8 +66,11 @@ class Menu:
             self.networkClient.SendCommand("clearAll")
 
     def Exit(self):
-        self.networkClient.SendCommand("exit")
-        self.exitRequested=True
+        if self.networkClient.IsConnected():
+            self.networkClient.SendCommand("exit")
+            self.exitRequested=True
+        else:
+            self.root.quit()
 
     def OnDisconnect(self):
         if self.exitRequested:

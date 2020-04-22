@@ -99,20 +99,28 @@ class ComponentsView:
         self.SendGetGameObjectComponentsReq(gameObjectId)
 
     def AddComponent(self):
-        if len(self.availableComponents)  > 0:
-            self.CreateDialog("Add component", 400, 50)
-            combobox = ttk.Combobox(self.dialog, textvariable=self.addComponentCB)
-            combobox['values'] = list(self.availableComponents)
-            combobox.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.N))
-            combobox.current(0)
-            combobox.bind("<<ComboboxSelected>>", self.OnSelectedNewComponent)
+        if self.networkClient.IsConnected():
+            if len(self.availableComponents) > 0:
+                self.CreateDialog("Add component", 400, 50)
+                combobox = ttk.Combobox(self.dialog, textvariable=self.addComponentCB)
+                combobox['values'] = list(self.availableComponents)
+                combobox.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.N))
+                combobox.current(0)
+                combobox.bind("<<ComboboxSelected>>", self.OnSelectedNewComponent)
 
-            btn = tk.Button(self.dialog, text="Add", command=self.SendAddComponentReq, width=30)
-            btn.grid(row=0, column=1, padx=5, pady=0)
+                btn = tk.Button(self.dialog, text="Add", command=self.SendAddComponentReq, width=30)
+                btn.grid(row=0, column=1, padx=5, pady=0)
+            else:
+                messagebox.showinfo(title="Info", message="Components are not available")
+        else:
+            messagebox.showinfo(title="Info", message="Not connected")
 
     def SendAddComponentReq(self):
-        self.networkClient.SendCommand("addComponent id=" + str(self.gameObjectId) + " name=" + self.addComponentCB.get())
-        self.CloseDialog()
+        if self.networkClient.IsConnected():
+            self.networkClient.SendCommand("addComponent id=" + str(self.gameObjectId) + " name=" + self.addComponentCB.get())
+            self.CloseDialog()
+        else:
+            messagebox.showinfo(title="Info", message="Not connected")
 
     def OnSelectedNewComponent(self, event):
         print("selcted {0}".format(self.addComponentCB.get()))

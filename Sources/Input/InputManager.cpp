@@ -58,8 +58,8 @@ void InputManager::SetDefaultKeys()
     RegisterGameAction(GameAction::ITEM_5, KeyCodes::W);
     RegisterGameAction(GameAction::ITEM_6, KeyCodes::W);
     RegisterGameAction(GameAction::WORLD_MAP, KeyCodes::M);
-    RegisterGameAction(GameAction::INCREASE_PITCH, KeyCodes::R);
-    RegisterGameAction(GameAction::INCREASE_YAW, KeyCodes::F);
+    RegisterGameAction(GameAction::INCREASE_PITCH_UP, KeyCodes::R);
+    RegisterGameAction(GameAction::INCREASE_PITCH_DOWN, KeyCodes::F);
 }
 
 bool InputManager::GetKey(GameAction action)

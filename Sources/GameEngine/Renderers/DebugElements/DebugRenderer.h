@@ -65,9 +65,11 @@ public:
     void AddDebugObject(Model&, common::Transform&);
     void Enable();
     void Disable();
+    bool IsEnable() const;
 
     void EnablePhysics();
     void DisablPhysics();
+    bool IsEnablePhysics() const;
 
 private:
     void CreateDebugObjects();

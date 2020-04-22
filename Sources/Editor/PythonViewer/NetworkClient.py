@@ -1,4 +1,5 @@
 from collections import defaultdict
+from tkinter import messagebox
 import socket
 import _thread
 import time
@@ -35,12 +36,15 @@ class NetworkClient:
         self.connectSubscribers.append(callback)
 
     def Disconnect(self):
-        print("Disconnect.")
-        self.isRunning = False
-        self.connect_ = False
-        self.socket_.close()
-        for sub in self.disconnectSubscribers:
-            sub()
+        if self.connect_:
+            print("Disconnect.")
+            self.isRunning = False
+            self.connect_ = False
+            self.socket_.close()
+            for sub in self.disconnectSubscribers:
+                sub()
+        else:
+            messagebox.showinfo(title="Info", message="Not connected")
 
     def RecevieThread(self):
         while self.isRunning:

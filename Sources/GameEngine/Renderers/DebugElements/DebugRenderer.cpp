@@ -79,7 +79,7 @@ void DebugRenderer::Init()
     gridShader_.Init();
     physicsVisualizator_.Init();
 
-   // physicsVisualizator_.Disable(); // explicit default disable
+    physicsVisualizator_.Disable(); // explicit default disable
 
     gridPerObjectUpdateBufferId_ =
         graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
@@ -106,6 +106,8 @@ void DebugRenderer::ReloadShaders()
 
 void DebugRenderer::Render(const Scene&, const Time&)
 {
+    physicsVisualizator_.Render();
+    
     if (not isActive_)
         return;
 
@@ -114,7 +116,6 @@ void DebugRenderer::Render(const Scene&, const Time&)
 
     DrawGrid();
     DrawDebugObjects();
-    physicsVisualizator_.Render();
 
     graphicsApi_.EnableCulling();
     graphicsApi_.DisableBlend();
@@ -141,6 +142,11 @@ void DebugRenderer::Disable()
     isActive_ = false;
 }
 
+bool DebugRenderer::IsEnable() const
+{
+    return isActive_;
+}
+
 void DebugRenderer::EnablePhysics()
 {
     physicsVisualizator_.Enable();
@@ -149,6 +155,11 @@ void DebugRenderer::EnablePhysics()
 void DebugRenderer::DisablPhysics()
 {
     physicsVisualizator_.Disable();
+}
+
+bool DebugRenderer::IsEnablePhysics() const
+{
+    return physicsVisualizator_.IsEnabled();
 }
 
 void DebugRenderer::CreateDebugObjects()

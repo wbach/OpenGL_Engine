@@ -82,6 +82,11 @@ void PhysicsVisualizator::Disable()
     isActive_ = false;
 }
 
+bool PhysicsVisualizator::IsEnabled() const
+{
+    return isActive_;
+}
+
 void PhysicsVisualizator::UpdatePhycisLineMesh()
 {
     if (frameRefreshNumber_ >= refreshRateStepDown_)

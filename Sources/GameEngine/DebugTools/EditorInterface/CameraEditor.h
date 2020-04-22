@@ -1,5 +1,6 @@
 #pragma once
 #include "GameEngine/Camera/Camera.h"
+#include <optional>
 
 namespace Input
 {

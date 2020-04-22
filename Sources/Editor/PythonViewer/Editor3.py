@@ -6,6 +6,7 @@ from InfoView import InfoView
 from Menu import Menu
 from Context import Context
 from CommonWidgetTools import CalculateGeomentryCenterPosition
+from tkinter import messagebox
 
 import os
 import tkinter as tk
@@ -34,10 +35,14 @@ class Editor:
         self.menu = Menu(self.context.networkClient, self.root, self.gameObjectView)
 
         self.context.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
+        self.context.networkClient.SubscribeOnMessage("ErrorIndication", self.OnSceneFileMsg)
         self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
         self.context.networkClient.SubscribeOnConnect(self.OnConnect)
 
         self.root.mainloop()
+
+    def OnErrorIndication(self, msg):
+        messagebox.showerror(title=msg.get("title"), message=msg.get("message"))
 
     def OnDisconnect(self):
         self.root.title(self.titleBase + " (disconnected)")

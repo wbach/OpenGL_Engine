@@ -69,9 +69,9 @@ vec3 CameraEditor::CalculateInputs()
         IncreaseYaw(-1.f);
     if (inputManager_.GetKey(Input::GameAction::TURN_RIGHT))
         IncreaseYaw(1.f);
-    if (inputManager_.GetKey(Input::GameAction::INCREASE_PITCH))
+    if (inputManager_.GetKey(Input::GameAction::INCREASE_PITCH_UP))
         IncreasePitch(-1.f);
-    if (inputManager_.GetKey(Input::GameAction::INCREASE_YAW))
+    if (inputManager_.GetKey(Input::GameAction::INCREASE_PITCH_DOWN))
         IncreasePitch(1.f);
     return moveVector;
 }

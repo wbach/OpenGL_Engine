@@ -65,6 +65,7 @@ private:
     void ReloadShaders(const std::vector<std::string>&);
     void SwapRenderMode(const std::vector<std::string>&);
     void EnableEditorNetworkInterface(const std::vector<std::string>&);
+    void SetPhysicsVisualization(const std::vector<std::string>&);
     void Help(const std::vector<std::string>&);
     void Exit(const std::vector<std::string>&);
 

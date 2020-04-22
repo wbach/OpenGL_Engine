@@ -24,6 +24,7 @@ public:
     void ReloadShader();
     void Enable();
     void Disable();
+    bool IsEnabled() const;
 
 private:
     void UpdatePhycisLineMesh();

@@ -78,6 +78,7 @@ void Console::AddAndUpdateHistoryFileIfNeeded(const std::string &command)
 void Console::RegisterActions()
 {
     commandsActions_.insert({"freecam", [this](const auto &params) { SetFreeCamera(params); }});
+    commandsActions_.insert({"showphysics", [this](const auto& params) { SetPhysicsVisualization(params); } });
     commandsActions_.insert({"disablefreecam", [this](const auto &params) { DisableFreeCam(params); }});
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
@@ -464,6 +465,18 @@ void Console::EnableEditorNetworkInterface(const std::vector<std::string> &param
     {
         scene_.StopNetworkEditorInterface();
     }
+}
+
+void Console::SetPhysicsVisualization(const std::vector<std::string>& params)
+{
+    bool set{ false };
+    if (params.empty() or params[0] == "on" or params[0] == "true")
+    {
+        set = true;
+    }
+
+    set ? scene_.renderersManager_->GetDebugRenderer().EnablePhysics()
+        : scene_.renderersManager_->GetDebugRenderer().DisablPhysics();
 }
 
 void Console::Help(const std::vector<std::string> &)

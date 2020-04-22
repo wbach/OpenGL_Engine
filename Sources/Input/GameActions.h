@@ -28,7 +28,7 @@ enum class GameAction
     ITEM_5,
     ITEM_6,
     WORLD_MAP,
-    INCREASE_PITCH,
-    INCREASE_YAW
+    INCREASE_PITCH_UP,
+    INCREASE_PITCH_DOWN
 };
 }

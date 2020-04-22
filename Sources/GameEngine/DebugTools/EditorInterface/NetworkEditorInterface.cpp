@@ -116,6 +116,7 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"reloadScene", [&](const EntryParameters& v) { ReloadScene(v); } });
     commands_.insert({"clearAll", [&](const EntryParameters& v) { ClearAll(v); } });
     commands_.insert({"clearAllGameObjects", [&](const EntryParameters& v) { ClearAllGameObjects(v); } });
+    commands_.insert({"setPhysicsVisualization", [&](const EntryParameters& v) { SetPhysicsVisualization(v); } });
     commands_.insert({"exit", [&](const EntryParameters&) { scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT)); }});
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
     // clang-format on
@@ -217,8 +218,9 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         KeyCodes::ESCAPE, [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [this]() { StartScene(); });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() { StopScene(); });
+
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1,
+                                             [this]() { scene_.inputManager_->AddEvent([&]() { StartScene(); }); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -780,15 +782,27 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
     gateway_.Send(userId_, msg);
 }
 
+void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
+{
+    bool set{true};
+    if (params.count("enabled"))
+    {
+        set = Utils::StringToBool(params.at("enabled"));
+    }
+
+    set ? scene_.renderersManager_->GetDebugRenderer().EnablePhysics()
+        : scene_.renderersManager_->GetDebugRenderer().DisablPhysics();
+}
+
 void NetworkEditorInterface::StartScene()
 {
     if (scene_.start_.load())
         return;
 
+    scene_.renderersManager_->GetDebugRenderer().Disable();
     keysSubscriptionsManager_.Clear();
-    cameraEditor.reset();
-    scene_.inputManager_->StashPopSubscribers();
     SetOrignalCamera();
+    scene_.inputManager_->StashPopSubscribers();
     scene_.Start();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
 }
@@ -803,6 +817,7 @@ void NetworkEditorInterface::StopScene()
     SetupCamera();
     KeysSubscribtions();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
+    scene_.renderersManager_->GetDebugRenderer().Enable();
 }
 
 void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
@@ -946,5 +961,6 @@ void NetworkEditorInterface::SetOrignalCamera()
 {
     scene_.SetCamera(*sceneCamera_);
     sceneCamera_->Unlock();
+    cameraEditor.reset();
 }
 }  // namespace GameEngine
