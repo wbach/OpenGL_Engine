@@ -109,6 +109,8 @@ class NetworkClient:
             self.RecevieConnectionMsg()
             self.thread_ = _thread.start_new_thread(self.RecevieThread, ())
             self.Print("Connected. Authentication process end.")
+            self.SendCommand("getComponentList")
+            self.SendCommand("getRunningStatus")
             for sub in self.connectSubscribers:
                 sub()
             return True

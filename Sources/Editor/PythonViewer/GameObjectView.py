@@ -3,12 +3,13 @@ from tkinter import ttk
 from tkinter import simpledialog
 
 class GameObjectView:
-    def __init__(self, networkClient, root, infoView, transformView, componentsView):
+    def __init__(self, networkClient, root, infoView, transformView, componentsView, fileManger):
         self.networkClient = networkClient
         self.root = root
         self.infoView = infoView
         self.transformView = transformView
         self.componentsView = componentsView
+        self.fileManger = fileManger
 
         self.InitVariables()
 
@@ -40,7 +41,11 @@ class GameObjectView:
         self.networkClient.SubscribeOnMessage("NewGameObjectInd", self.OnGameObjectMsg)
         self.networkClient.SubscribeOnMessage("CameraMsg", self.OnCameraMsg)
         self.networkClient.SubscribeOnMessage("SelectedObjectChanged", self.OnSelectedObjectChanged)
-        networkClient.SubscribeOnDisconnect(self.Clear)
+        self.networkClient.SubscribeOnConnect(self.OnConnect)
+        self.networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def OnConnect(self):
+        self.GetObjectList()
 
     def CreateChild(self):
         curItem = self.tree.focus()
@@ -53,7 +58,12 @@ class GameObjectView:
         curItem = self.tree.focus()
         item = self.tree.item(curItem)
         gameObjectId = item['values'][0]
-        self.networkClient.SendCommand("createGameObject parentGameObjectId=" + str(gameObjectId))
+
+        filename = self.fileManger.OpenModelFile()
+        if filename:
+            self.networkClient.SendCommand(
+                "createGameObjectWithModel filename=" + filename + " frontCamera=5 " + "parentGameObjectId=" + str(
+                    gameObjectId))
 
     def Popup(self, event):
         self.popupMenuSelection = self.tree.identify_row(event.y)

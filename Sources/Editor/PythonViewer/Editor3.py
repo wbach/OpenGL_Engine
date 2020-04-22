@@ -2,6 +2,7 @@ from GameObjectView import GameObjectView
 from ComponentsView import ComponentsView
 from SceneControlView import SceneControlView
 from TransformView import TransformView
+from FileManager import FileManager
 from InfoView import InfoView
 from Menu import Menu
 from Context import Context
@@ -25,14 +26,15 @@ class Editor:
         self.rightFrame = tk.Frame(self.root, width=325, height=400)
         self.rightFrame.grid(row=0, column=1, padx=5, pady=5, sticky=(tk.W, tk.N))
 
+        self.fileManager = FileManager(self.context.networkClient)
         self.sceneControlView = SceneControlView(self.context.networkClient, self.rightFrame)
         self.infoView = InfoView(self.context.networkClient, self.rightFrame)
         self.transformView = TransformView(self.context.networkClient, self.rightFrame, self.infoView)
         self.componentsView = ComponentsView(self.context, self.rightFrame)
 
         self.gameObjectView = GameObjectView(self.context.networkClient, self.root, self.infoView, self.transformView,
-                                             self.componentsView)
-        self.menu = Menu(self.context.networkClient, self.root, self.gameObjectView)
+                                             self.componentsView, self.fileManager)
+        self.menu = Menu(self.context.networkClient, self.root, self.fileManager)
 
         self.context.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
         self.context.networkClient.SubscribeOnMessage("ErrorIndication", self.OnSceneFileMsg)

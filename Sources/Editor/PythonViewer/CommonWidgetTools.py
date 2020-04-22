@@ -6,12 +6,12 @@ def CalculateGeomentryCenterPosition(context, w, h):
     y = (context.screenHeight / 2) - (h / 2)
     return '%dx%d+%d+%d' % (w, h, x, y)
 
-def AskAndTryConnect(networkClient, msg, func):
+def AskAndTryConnect(networkClient):
     if not networkClient.IsConnected():
         while True:
-            answer = messagebox.askyesno(title="Error", message= msg)
+            answer = messagebox.askyesno(title="Error", message="System not connected. Do you want connect?")
             if answer:
-                if func():
+                if networkClient.Connect():
                     return True
             else:
                 return False
