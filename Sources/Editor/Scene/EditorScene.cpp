@@ -78,7 +78,7 @@ int EditorScene::Initialize()
                                                                                GameEngine::LevelOfDetail::L1);
         go->worldTransform.SetPosition(cratePosition);
         go->worldTransform.SetRotation(DegreesVec3(0, 45, 0));
-        AddGameObject(go);
+        AddGameObject(std::move(go));
     }
 
     {
@@ -87,7 +87,7 @@ int EditorScene::Initialize()
             GameEngine::LevelOfDetail::L1);
         go->worldTransform.SetPosition(vec3(-2, 0, 2));
         go->worldTransform.SetRotation(DegreesVec3(0, -45, 0));
-        AddGameObject(go);
+        AddGameObject(std::move(go));
     }
 
     // for (uint32 i = 0; i < 4; ++i)
@@ -138,7 +138,7 @@ void EditorScene::KeySubscribtions()
     inputManager_->SubscribeOnKeyDown(
         KeyCodes::L, [renderersManager = this->renderersManager_]() { renderersManager->SwapLineFaceRender(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
-        for (auto& go : gameObjects)
+        for (auto& go : GetGameObjects())
         {
             go->worldTransform.IncrasePosition(vec3(0.001f));
         }

@@ -1,9 +1,4 @@
 #include "SceneWriter.h"
-#include "GameEngine/Scene/Scene.hpp"
-#include "SceneDef.h"
-#include "Utils.h"
-#include "Utils/GLM/GLMUtils.h"
-#include "Utils/XML/XmlWriter.h"
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
@@ -23,6 +18,11 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Scene/Scene.hpp"
+#include "SceneDef.h"
+#include "Utils.h"
+#include "Utils/GLM/GLMUtils.h"
+#include "Utils/XML/XmlWriter.h"
 
 using namespace Utils;
 
@@ -357,6 +357,16 @@ void Create(XmlNode& node, const GameObject& gameObject)
     node.attributes_[CSTR_NAME] = gameObject.GetName();
     Create(node.AddChild(CSTR_TRANSFORM), gameObject.worldTransform);
     Create(node.AddChild(CSTR_COMPONENTS), gameObject.GetComponents());
+
+    if (not gameObject.GetChildren().empty())
+    {
+        auto& childrenNode = node.AddChild(CSTR_CHILDREN);
+
+        for (const auto& gameObject : gameObject.GetChildren())
+        {
+            Create(childrenNode.AddChild(CSTR_GAMEOBJECT), *gameObject);
+        }
+    }
 }
 
 void Create(XmlNode& node, const GameObjects& gameObjects)

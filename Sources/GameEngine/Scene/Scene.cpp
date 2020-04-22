@@ -40,7 +40,7 @@ Scene::~Scene()
 {
     DEBUG_LOG("destructor");
 
-   // gameObjects.clear();
+    // gameObjects.clear();
 
     if (inputManager_ != nullptr)
     {
@@ -67,12 +67,15 @@ void Scene::InitResources(SceneInitContext& context)
     guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(*guiElementFactory_);
 
     console_ = std::make_unique<Debug::Console>(*this);
+
+    componentFactory_ = std::make_unique<Components::ComponentFactory>(
+        componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
+
+    rootGameObject_ = CreateGameObject("root");
 }
 
 void Scene::Init()
 {
-    componentFactory_ = std::make_unique<Components::ComponentFactory>(
-        componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
     Initialize();
     componentController_.OnStart();
 }
@@ -161,21 +164,23 @@ Light& Scene::AddLight(const Light& light)
     return lights.back();
 }
 
-void Scene::AddGameObject(std::unique_ptr<GameObject>& object)
+void Scene::AddGameObject(std::unique_ptr<GameObject> object)
 {
     object->RegisterComponentFunctions();
-    gameObjects.push_back(std::move(object));
+    gameObjectsIds_.insert({object->GetId(), object.get()});
+    rootGameObject_->AddChild(std::move(object));
 }
 
-void Scene::RemoveGameObject(GameObject* object)
+bool Scene::RemoveGameObject(GameObject& object)
 {
-    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
-                             [object](const auto& gameObject) { return object->GetId() == gameObject->GetId(); });
+    gameObjectsIds_.erase(object.GetId());
+    return rootGameObject_->RemoveChild(object);
+}
 
-    if (iter != gameObjects.end())
-    {
-        gameObjects.erase(iter);
-    }
+void Scene::ClearGameObjects()
+{
+    gameObjectsIds_.clear();
+    rootGameObject_->RemoveAllChildren();
 }
 
 void Scene::SetAddSceneEventCallback(AddEvent func)
@@ -187,72 +192,18 @@ void Scene::SetAddEngineEventCallback(std::function<void(EngineEvent)> func)
 {
     addEngineEvent = func;
 }
-GameObject* GetGameObjectChild(GameObject& go, uint32 id)
-{
-    if (go.GetId() == id)
-    {
-        return &go;
-    }
-
-    for (auto& go : go.GetChildrens())
-    {
-        auto ptr = GetGameObjectChild(*go, id);
-        if (ptr)
-            return ptr;
-    }
-    return nullptr;
-}
 
 GameObject* Scene::GetGameObject(uint32 id) const
 {
-    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
-                             [id](const auto& object) { return object->GetId() == id; });
-    if (iter != gameObjects.end())
-    {
-        return iter->get();
-    }
+    if (gameObjectsIds_.count(id))
+        return gameObjectsIds_.at(id);
 
-    for (auto& go : gameObjects)
-    {
-        auto ptr = GetGameObjectChild(*go, id);
-        if (ptr)
-            return ptr;
-    }
-    return nullptr;
-}
-
-GameObject* GetGameObjectChild(GameObject& go, const std::string& name)
-{
-    if (go.GetName() == name)
-    {
-        return &go;
-    }
-
-    for (auto& go : go.GetChildrens())
-    {
-        auto ptr = GetGameObjectChild(*go, name);
-        if (ptr)
-            return ptr;
-    }
-    return nullptr;
+    return rootGameObject_->GetChild(id);
 }
 
 GameObject* Scene::GetGameObject(const std::string& name) const
 {
-    auto iter = std::find_if(gameObjects.begin(), gameObjects.end(),
-                             [name](const auto& object) { return object->GetName() == name; });
-    if (iter != gameObjects.end())
-    {
-        return iter->get();
-    }
-
-    for (auto& go : gameObjects)
-    {
-        auto ptr = GetGameObjectChild(*go, name);
-        if (ptr)
-            return ptr;
-    }
-    return nullptr;
+    return rootGameObject_->GetChild(name);
 }
 
 void Scene::UpdateCamera()

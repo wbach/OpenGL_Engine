@@ -309,7 +309,7 @@ void AddComponent(Utils::XmlNode& node, GameObject& gameObject)
     Read(node, comp);
 }
 
-void Read(Utils::XmlNode& node, GameObject& gameObject)
+void Read(Scene& scene, Utils::XmlNode& node, GameObject& gameObject)
 {
     Read(*node.GetChild(CSTR_TRANSFORM), gameObject.worldTransform);
 
@@ -380,7 +380,17 @@ void Read(Utils::XmlNode& node, GameObject& gameObject)
                 break;
         }
     }
-}
+    auto childrenNode = node.GetChild(CSTR_CHILDREN);
+    if (childrenNode)
+    {
+        for (auto& childNode : childrenNode->GetChildren())
+        {
+            auto child = scene.CreateGameObject(childNode->attributes_.at(CSTR_NAME));
+            Read(scene, *childNode, *child);
+            gameObject.AddChild(std::move(child));
+        }
+    }
+ }
 
 GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
 {
@@ -401,10 +411,10 @@ GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::str
     DEBUG_LOG("Name : " + name);
 
     auto gameObject = scene.CreateGameObject(name);
-    Read(*xmlReader.Get(CSTR_PREFAB), *gameObject);
+    Read(scene , *xmlReader.Get(CSTR_PREFAB), *gameObject);
 
     auto result = gameObject.get();
-    scene.AddGameObject(gameObject);
+    scene.AddGameObject(std::move(gameObject));
     return result;
 }
 
@@ -413,8 +423,8 @@ void Read(Utils::XmlNode& node, Scene& scene)
     for (const auto& child : node.GetChild(CSTR_GAMEOBJECTS)->GetChildren())
     {
         auto gameObject = scene.CreateGameObject(child->attributes_.at(CSTR_NAME));
-        Read(*child, *gameObject);
-        scene.AddGameObject(gameObject);
+        Read(scene, *child, *gameObject);
+        scene.AddGameObject(std::move(gameObject));
     }
 }
 

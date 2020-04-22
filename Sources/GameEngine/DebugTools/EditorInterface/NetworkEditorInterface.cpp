@@ -406,7 +406,7 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 par
         DebugNetworkInterface::NewGameObjectInd message(go->GetId(), parentId, go->GetName());
         gateway.Send(userId, message);
 
-        const auto &children = go->GetChildrens();
+        const auto &children = go->GetChildren();
         SendChildrenObjectList(userId, gateway, go->GetId(), children);
     }
 }
@@ -422,7 +422,7 @@ void NetworkEditorInterface::GetObjectList(const EntryParameters &)
         {
             DebugNetworkInterface::NewGameObjectInd message(go->GetId(), 0, go->GetName());
             gateway_.Send(userId_, message);
-            SendChildrenObjectList(userId_, gateway_, go->GetId(), go->GetChildrens());
+            SendChildrenObjectList(userId_, gateway_, go->GetId(), go->GetChildren());
         }
     }
 }
@@ -559,8 +559,12 @@ void NetworkEditorInterface::CreateGameObject(const EntryParameters &params)
     }
 
     auto gameObject = scene_.CreateGameObject(goName);
-    DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
-    scene_.AddGameObject(gameObject);
+    DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName()); 
+    auto parentId = AddGameObject(params, gameObject);
+    if (parentId)
+    {
+        message.parentId = *parentId;
+    }
     gateway_.Send(userId_, message);
 }
 
@@ -572,7 +576,7 @@ void NetworkEditorInterface::DeleteGameObject(const EntryParameters &params)
         if (go)
         {
             auto id = go->GetId();
-            scene_.RemoveGameObject(go);
+            scene_.RemoveGameObject(*go);
 
             DebugNetworkInterface::GameObjectDeleted msg(id);
             gateway_.Send(userId_, msg);
@@ -680,7 +684,11 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
             gameObject->worldTransform.SetRotation(DegreesVec3(rotationEulerDegrees));
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
-            scene_.AddGameObject(gameObject);
+            auto parentId = AddGameObject(params, gameObject);
+            if (parentId)
+            {
+                message.parentId = *parentId;
+            }
             gateway_.Send(userId_, message);
         }
         catch (...)
@@ -795,7 +803,7 @@ void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &para
         : scene_.renderersManager_->GetDebugRenderer().DisablPhysics();
 }
 
-void NetworkEditorInterface::SelectGameObject(const EntryParameters& paramters)
+void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
 {
     if (not paramters.count("gameObjectId"))
         return;
@@ -806,7 +814,8 @@ void NetworkEditorInterface::SelectGameObject(const EntryParameters& paramters)
         return;
 
     selectedGameObject_ = gameObject;
-    cameraEditor->SetPosition(selectedGameObject_->worldTransform.GetPosition() + (2.f * selectedGameObject_->worldTransform.GetScale()));
+    cameraEditor->SetPosition(selectedGameObject_->worldTransform.GetPosition() +
+                              (2.f * selectedGameObject_->worldTransform.GetScale()));
     cameraEditor->LookAt(selectedGameObject_->worldTransform.GetPosition());
 }
 
@@ -902,13 +911,13 @@ void NetworkEditorInterface::ClearAll(const EntryParameters &v)
 
 void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &v)
 {
-    for (auto &go : scene_.gameObjects)
+    for (const auto &go : scene_.GetGameObjects())
     {
         // If parent is erase child automatically too
         DebugNetworkInterface::GameObjectDeleted msg(go->GetId());
         gateway_.Send(userId_, msg);
     }
-    scene_.gameObjects.clear();
+    scene_.ClearGameObjects();
 }
 
 std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(
@@ -978,5 +987,28 @@ void NetworkEditorInterface::SetOrignalCamera()
     scene_.SetCamera(*sceneCamera_);
     sceneCamera_->Unlock();
     cameraEditor.reset();
+}
+std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameters& params, std::unique_ptr<GameObject>& gameObject)
+{
+    std::optional<uint32> result{ std::nullopt };
+    if (params.count("parentGameObjectId"))
+    {
+        auto parentGameObject = GetGameObject(params.at("parentGameObjectId"));
+
+        if (parentGameObject)
+        {
+            result = parentGameObject->GetId();
+            parentGameObject->AddChild(std::move(gameObject));
+        }
+        else
+        {
+            ERROR_LOG("Parent not found, parentId=" + params.at("parentGameObjectId"));
+        }
+    }
+    else
+    {
+        scene_.AddGameObject(std::move(gameObject));
+    }
+    return result;
 }
 }  // namespace GameEngine

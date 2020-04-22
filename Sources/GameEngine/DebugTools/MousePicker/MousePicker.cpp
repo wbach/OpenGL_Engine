@@ -48,7 +48,7 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
 {
     for (auto& object : objectList)
     {
-        auto child = Intersect(object->GetChildrens(), ray);
+        auto child = Intersect(object->GetChildren(), ray);
 
         if (child)
             return child;

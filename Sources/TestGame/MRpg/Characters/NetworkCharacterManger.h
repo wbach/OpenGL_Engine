@@ -27,7 +27,7 @@ typedef std::function<void(NetworkCharacter*)> OnGetPlayer;
 
 class NetworkCharacterManager
 {
-    typedef std::function<void(std::unique_ptr<GameEngine::GameObject>&)> AddObject;
+    typedef std::function<void(std::unique_ptr<GameEngine::GameObject>)> AddObject;
     typedef std::function<std::unique_ptr<GameEngine::GameObject>()> CreateObject;
 
 public:

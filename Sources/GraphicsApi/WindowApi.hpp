@@ -31,8 +31,9 @@ public:
     virtual std::unique_ptr<Input::InputManager> CreateInput()                                                  = 0;
     virtual double GetTime()                                                                                    = 0;
     virtual void SetCursorPosition(int x, int y)                                                                = 0;
-    virtual void ShowMessageBox(const std::string&, const std::string&) const                                   = 0;
-    virtual void ShowMessageBox(const std::string&, const std::string&, std::function<void(bool)>) const        = 0;
+    virtual void ShowMessageBox(const std::string& title, const std::string& message) const                     = 0;
+    virtual void ShowMessageBox(const std::string& title, const std::string& message,
+                                std::function<void(bool)>) const                                                = 0;
     // Take time function to lock fps, shuld be on begin main loop
     virtual void BeginFrame() = 0;
 };

@@ -28,6 +28,8 @@ class GameObjectView:
 
         self.popupMenuSelection = 0
         self.popupMenu = tk.Menu(self.tree, tearoff=0)
+        self.popupMenu.add_command(label="Create child", command=self.CreateChild)
+        self.popupMenu.add_command(label="Create child with model", command=self.CreateChildWithModel)
         self.popupMenu.add_command(label="Rename gameObject", command=self.RenameObject)
         self.popupMenu.add_command(label="Delete gameObject", command=self.DeleteSelected)
         self.tree.bind("<Button-3>", self.Popup)
@@ -39,6 +41,19 @@ class GameObjectView:
         self.networkClient.SubscribeOnMessage("CameraMsg", self.OnCameraMsg)
         self.networkClient.SubscribeOnMessage("SelectedObjectChanged", self.OnSelectedObjectChanged)
         networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def CreateChild(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+        answer = simpledialog.askstring("Input", "Game object name", parent=self.root, initialvalue="GameObject")
+        self.networkClient.SendCommand("createGameObject parentGameObjectId=" + str(gameObjectId) + " name=" + answer)
+
+    def CreateChildWithModel(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+        self.networkClient.SendCommand("createGameObject parentGameObjectId=" + str(gameObjectId))
 
     def Popup(self, event):
         self.popupMenuSelection = self.tree.identify_row(event.y)

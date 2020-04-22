@@ -42,8 +42,6 @@ class GuiTextureElement;
 class GuiWindowElement;
 class GuiEngineContextManger;
 
-typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
-
 class Scene
 {
 public:
@@ -70,13 +68,15 @@ public:
     Light& AddLight(const Light& light);
 
     // Add Entities
-    void AddGameObject(std::unique_ptr<GameObject>& object);
-    void RemoveGameObject(GameObject* object);
+    void AddGameObject(std::unique_ptr<GameObject> object);
+    bool RemoveGameObject(GameObject& object);
+    void ClearGameObjects();
     void SetAddSceneEventCallback(AddEvent func);
     void SetAddEngineEventCallback(std::function<void(EngineEvent)>);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
+    const std::unordered_map<uint32, GameObject*> GetAllGameObjectsPtrs() const;
     GameObject* GetGameObject(uint32) const;
     GameObject* GetGameObject(const std::string&) const;
 
@@ -114,9 +114,9 @@ protected:
     std::unique_ptr<GuiManager> guiManager_;
     std::unique_ptr<GuiElementFactory> guiElementFactory_;
     std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
-    GameObjects gameObjects;
+    std::unique_ptr<GameObject> rootGameObject_;
+    std::unordered_map<uint32, GameObject*> gameObjectsIds_;
     CameraWrapper camera;
-
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
@@ -169,7 +169,12 @@ std::optional<EmitFunction> Scene::GetParticleEmitFunction(const std::string& na
 
 inline const GameObjects& Scene::GetGameObjects() const
 {
-    return gameObjects;
+    return rootGameObject_->GetChildren();
+}
+
+inline const std::unordered_map<uint32, GameObject*> Scene::GetAllGameObjectsPtrs() const
+{
+    return gameObjectsIds_;
 }
 
 inline const DayNightCycle& Scene::GetDayNightCycle() const

@@ -186,20 +186,20 @@ int MainScene::Initialize()
 
     auto skydome = CreateGameObject();
     skydome->AddComponent<Components::SkydomeComponent>();
-    AddGameObject(skydome);
+    AddGameObject(std::move(skydome));
 
     centerObjectPosition_ = vec3(0);
     auto geralt           = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), false);
     geralt->worldTransform.SetPosition(centerObjectPosition_);
     geralt->worldTransform.TakeSnapShoot();
     geralt->AddComponent<Components::RendererComponent>().AddModel("Meshes/Geralt/geralt.obj");
-    AddGameObject(geralt);
+    AddGameObject(std::move(geralt));
 
     auto water = CreateGameObject("Water");
     water->AddComponent<Components::WaterRendererComponent>()
         .LoadTextures("Textures/Water/waterDUDV.png", "Textures/Water/waternormal.png")
         .SetWaveSpeed(10.f);
-    AddGameObject(water);
+    AddGameObject(std::move(water));
 
     SetDirectionalLightColor(vec3(0.4));
     pointLight_ = &AddLight(Light(vec3(2, 4, 2), vec3(1), vec3(0, 0, 0.1)));
@@ -208,19 +208,19 @@ int MainScene::Initialize()
         auto obj   = CreateGameObjectInstance("LightBulb", 0.5f, vec2(0, 0), true);
         lightBulb_ = obj.get();
         obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/BulbPack/Bulb.obj");
-        AddGameObject(obj);
+        AddGameObject(std::move(obj));
     }
 
     {
         auto obj = CreateGameObjectInstance("Barrel", 1.8f, vec2(-2, 0), true);
         obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Barrel/barrel.obj");
-        AddGameObject(obj);
+        AddGameObject(std::move(obj));
     }
 
     {
         auto obj = CreateGameObjectInstance("Garen", 1.8f, vec2(-4, 0), true);
         obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Garen/garen_idle.fbx");
-        AddGameObject(obj);
+        AddGameObject(std::move(obj));
     }
 
     {
@@ -237,7 +237,7 @@ int MainScene::Initialize()
 
         playerInputController_ =
             std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
-        AddGameObject(uplayer);
+        AddGameObject(std::move(uplayer));
     }
     camera_ = std::make_unique<FirstPersonCamera>(*inputManager_, *displayManager_);
     camera.Set(*camera_);
@@ -269,7 +269,7 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
         .SetCollisionShape(shape.GetType())
         .SetVelocity(dir);
 
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 
 int MainScene::Update(float dt)
@@ -337,7 +337,7 @@ void MainScene::KeyOperations()
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos + dir, vec3(0), dir * 20.f, 1.f, false);
         DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
-                  ", Objecsts : " + std::to_string(gameObjects.size()));
+                  ", Objecsts : " + std::to_string(GetAllGameObjectsPtrs().size()));
     });
 
     bool run = true;
@@ -433,7 +433,7 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
 
     auto image = terrainShapeComponent.GetHeightMap()->GetImage();
 
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 
 std::vector<float> MainScene::CreateGrassPositions(GameObject* object, vec2 pos)
@@ -504,7 +504,7 @@ void MainScene::CreateAndAddGameEntity(const std::string& filename, float scale,
     }
 
     object->AddComponent<Components::RendererComponent>().AddModel(filename).SetTextureIndex(textureIndex);
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 
 void MainScene::CreateExmapleStrtupObject()
@@ -525,7 +525,7 @@ void MainScene::CreateExmapleStrtupObject()
             .SetNightTexture(nightTextures)
             .SetDayTexture(dayTextures);
 
-        AddGameObject(skybox);
+        AddGameObject(std::move(skybox));
     }
     // clang-format on
 
@@ -553,7 +553,7 @@ void MainScene::CreateExmapleStrtupObject()
             .SetPositions(treePositions, size)
             .SetTopModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/top.obj")
             .SetBottomModel("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2T.obj");
-        AddGameObject(tree1);
+        AddGameObject(std::move(tree1));
     }
 
     {
@@ -582,7 +582,7 @@ void MainScene::CreateExmapleStrtupObject()
                 return particle;
             });
 
-        AddGameObject(particle1);
+        AddGameObject(std::move(particle1));
     }
 
     {
@@ -620,7 +620,7 @@ void MainScene::CreateExmapleStrtupObject()
                 return particle;
             });
 
-        AddGameObject(particle2);
+        AddGameObject(std::move(particle2));
     }
 
     CreateAndAddGameEntity("Meshes/woodland_pack_1/WOODLAND_PACK/WOODLAND_TREES/f_tree1/bottom2.obj", 10.f,
@@ -647,7 +647,7 @@ void MainScene::CreateExmapleStrtupObject()
             .SetPositions(grass_position)
             .SetTexture("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
 
-        AddGameObject(grass);
+        AddGameObject(std::move(grass));
     }
 }
 

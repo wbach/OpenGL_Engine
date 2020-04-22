@@ -8,6 +8,7 @@ extern const std::string CSTR_GAMEOBJECTS;
 extern const std::string CSTR_PREFABS;
 extern const std::string CSTR_COUNT;
 extern const std::string CSTR_GAMEOBJECT;
+extern const std::string CSTR_CHILDREN;
 extern const std::string CSTR_TRANSFORM;
 extern const std::string CSTR_POSITION;
 extern const std::string CSTR_ROTATION;

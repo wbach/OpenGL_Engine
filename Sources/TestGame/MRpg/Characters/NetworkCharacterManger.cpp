@@ -32,7 +32,7 @@ void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3
     object->worldTransform.TakeSnapShoot();
 
     networkCharacters_.insert({ id, std::make_shared<NetworkCharacter>(id, stats, *object) });
-    addObject_(object);
+    addObject_(std::move(object));
 
     if (id == gameContext_.selectedCharacterId.first)
     {

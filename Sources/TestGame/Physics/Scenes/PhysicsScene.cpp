@@ -82,7 +82,7 @@ void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3&
         .SetCollisionShape(shape.GetType())
         .SetVelocity(dir);
 
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 
 const std::string OBJECT_COUNT_GUI_TEXT = "objectsCount";
@@ -106,17 +106,6 @@ void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
 
 void PhysicsScene::RemoveObjectsUnderYValue(float y)
 {
-    for (auto iter = gameObjects.begin(); iter != gameObjects.end();)
-    {
-        if ((*iter)->worldTransform.GetPosition().y < y)
-        {
-            iter = gameObjects.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
-    }
 }
 
 void PhysicsScene::KeyOperations()
@@ -129,13 +118,13 @@ void PhysicsScene::KeyOperations()
         auto pos = GetCamera().GetPosition();
         AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos, vec3(0), dir * 20.f, 1.f, false);
         DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
-                  ", Objecsts : " + std::to_string(gameObjects.size()));
+                  ", Objecsts : " + std::to_string(GetAllGameObjectsPtrs().size()));
     });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { simulatePhysics_.store(!simulatePhysics_.load()); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::R, [&]() {
-        gameObjects.clear();
+        ClearGameObjects();
         AddStartupObjects();
     });
     inputManager_->SubscribeOnKeyDown(KeyCodes::B, [&]() { AddBoxes(GetCamera().GetPosition()); });
@@ -174,7 +163,7 @@ void PhysicsScene::CreateAndAddGameEntity(const std::string& filename, float sca
 {
     auto object = CreateGameObjectInstance(scale, position, isDynamic);
     object->AddComponent<Components::RendererComponent>().AddModel(filename).SetTextureIndex(textureIndex);
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 int PhysicsScene::Initialize()
 {
@@ -210,7 +199,7 @@ void PhysicsScene::AddTerrain()
                          .SetCollisionShape(terrainShapeComponent.GetType())
                          .SetIsStatic(true);
 
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 
 std::unique_ptr<GameEngine::GameObject> PhysicsScene::CreateGameObjectInstance(float scale, const vec2& position,
@@ -251,7 +240,7 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
     auto& meshShape = object->AddComponent<Components::MeshShape>().SetSize(scale);
     object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(meshShape.GetType());
 
-    AddGameObject(object);
+    AddGameObject(std::move(object));
 }
 
 int PhysicsScene::Update(float dt)

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
+from tkinter import simpledialog
 
 import os
 import sys
@@ -88,7 +89,8 @@ class Menu:
         if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):
             return
 
-        self.networkClient.SendCommand("createGameObject")
+        answer = simpledialog.askstring("Input", "Game object name", parent=self.root, initialvalue="GameObject")
+        self.networkClient.SendCommand("createGameObject name=" + answer)
 
     def AddModel(self):
         if not AskAndTryConnect(self.networkClient, "System not connected. Do you want connect?", self.Connect):

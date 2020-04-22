@@ -49,7 +49,7 @@ int MainRpgScene::Initialize()
     obj->worldTransform.SetPosition(vec3(100, 17, -7));
     obj->worldTransform.TakeSnapShoot();
     obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Bialczyk/Bialczyk.obj");
-    AddGameObject(obj);
+    AddGameObject(std::move(obj));
 
     // camera = std::make_unique<CFirstPersonCamera>(inputManager_, displayManager_);
     playerController_ = std::make_shared<PlayerController>(inputManager_, gameContext_, gateway_);

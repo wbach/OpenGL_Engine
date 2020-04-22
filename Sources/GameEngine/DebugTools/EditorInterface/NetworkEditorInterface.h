@@ -76,6 +76,7 @@ private:
     void UnsubscribeTransformUpdateIfExist();
     void UnsubscribeCameraUpdateIfExist();
     void SetOrignalCamera();
+    std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
 
 private:
     Scene& scene_;
