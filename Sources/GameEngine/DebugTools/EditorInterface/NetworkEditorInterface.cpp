@@ -40,7 +40,7 @@ namespace GameEngine
 {
 namespace
 {
-using CameraEditorType = FirstPersonCamera;
+using CameraEditorType = CameraEditor;
 std::unique_ptr<CameraEditorType> cameraEditor;
 
 std::mutex transformChangedMutex_;
@@ -58,7 +58,6 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
     , keysSubscriptionsManager_(*scene_.inputManager_)
     , running_{false}
 {
-    SetupCamera();
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
@@ -791,6 +790,7 @@ void NetworkEditorInterface::StartScene()
         return;
 
     keysSubscriptionsManager_.Clear();
+    cameraEditor.reset();
     scene_.inputManager_->StashPopSubscribers();
     SetOrignalCamera();
     scene_.Start();
@@ -804,6 +804,7 @@ void NetworkEditorInterface::StopScene()
 
     scene_.Stop();
     scene_.inputManager_->StashSubscribers();
+    SetupCamera();
     KeysSubscribtions();
     SetFreeCamera();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));

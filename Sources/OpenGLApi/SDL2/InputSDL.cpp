@@ -85,6 +85,15 @@ void InputSDL::GetPressedKeys()
             keyBuffer.insert(p.first);
         }
     }
+
+    if (GetMouseKey(KeyCodes::LMOUSE))
+    {
+        keyBuffer.insert(KeyCodes::LMOUSE);
+    }
+    if (GetMouseKey(KeyCodes::RMOUSE))
+    {
+        keyBuffer.insert(KeyCodes::RMOUSE);
+    }
 }
 void InputSDL::ShowCursor(bool is)
 {

@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include <Logger/Log.h>
 #include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
@@ -18,6 +19,17 @@ CameraEditor::CameraEditor(Input::InputManager& inputManager, DisplayManager& di
     , inputManager_(inputManager)
     , displayManager_(displayManager)
 {
+    mouseKeyDownSubscribtion_ = inputManager_.SubscribeOnKeyDown(
+        KeyCodes::RMOUSE, [&]() { referenceMousePosition_ = inputManager_.GetPixelMousePosition(); });
+
+    mouseKeyUpSubscribtion_ =
+        inputManager_.SubscribeOnKeyUp(KeyCodes::RMOUSE, [&]() { referenceMousePosition_ = std::nullopt; });
+}
+
+CameraEditor::~CameraEditor()
+{
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::RMOUSE, mouseKeyDownSubscribtion_);
+    inputManager_.UnsubscribeOnKeyDown(KeyCodes::RMOUSE, mouseKeyUpSubscribtion_);
 }
 
 void CameraEditor::Move()
@@ -25,9 +37,12 @@ void CameraEditor::Move()
     if (lock_)
         return;
 
-    auto mouseMove = CalcualteMouseMove() * defaultCamRotationSpeed;
-    CalculateYaw(mouseMove.x);
-    CalculatePitch(mouseMove.y);
+    if (referenceMousePosition_)
+    {
+        auto mouseMove = CalcualteMouseMove() * defaultCamRotationSpeed;
+        CalculateYaw(mouseMove.x);
+        CalculatePitch(mouseMove.y);
+    }
 
     vec3 moveVector = CalculateInputs();
 
@@ -73,7 +88,11 @@ void CameraEditor::CalculateYaw(float v)
 
 vec2 CameraEditor::CalcualteMouseMove()
 {
-    auto v = inputManager_.CalcualteMouseMove();
-    return vec2(v.x, v.y);
+    vec2 result;
+    auto currentMousePosition = inputManager_.GetPixelMousePosition();
+    result.x                  = currentMousePosition.x - referenceMousePosition_->x;
+    result.y                  = currentMousePosition.y - referenceMousePosition_->y;
+    referenceMousePosition_   = currentMousePosition;
+    return result;
 }
 }  // namespace GameEngine
