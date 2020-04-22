@@ -12,18 +12,18 @@ CameraWrapper::CameraWrapper()
 {
 }
 
-CameraWrapper::CameraWrapper(ICamera& camera)
+CameraWrapper::CameraWrapper(ICamera &camera)
     : camera_(&camera)
 {
 }
 
-void CameraWrapper::Set(ICamera& camera)
+void CameraWrapper::Set(ICamera &camera)
 {
     std::lock_guard<std::mutex> m(cameraMutex);
     camera_ = &camera;
 }
 
-ICamera* CameraWrapper::Get() const
+ICamera *CameraWrapper::Get() const
 {
     return camera_;
 }
@@ -89,7 +89,7 @@ float CameraWrapper::GetYaw() const
     return camera_->GetYaw();
 }
 
-const vec3 &CameraWrapper::GetRotation() const
+const Rotation &CameraWrapper::GetRotation() const
 {
     std::lock_guard<std::mutex> m(cameraMutex);
     return camera_->GetRotation();
@@ -131,7 +131,7 @@ void CameraWrapper::SetPitch(float pitch)
     camera_->SetPitch(pitch);
 }
 
-void CameraWrapper::SetRotation(const vec3 &rotation)
+void CameraWrapper::SetRotation(const Rotation &rotation)
 {
     std::lock_guard<std::mutex> m(cameraMutex);
     camera_->SetRotation(rotation);

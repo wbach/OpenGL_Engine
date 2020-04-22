@@ -26,7 +26,7 @@ public:
     float GetPitch() const;
     float GetYaw() const;
 
-    const vec3& GetRotation() const;
+    const Rotation& GetRotation() const;
     const vec3& GetPosition() const;
     const vec3& GetDirection() const;
     const mat4& GetViewMatrix() const;
@@ -34,7 +34,7 @@ public:
     void LookAt(const vec3&);
     void SetYaw(float yaw);
     void SetPitch(float pitch);
-    void SetRotation(const vec3&);
+    void SetRotation(const Rotation&);
     void SetPosition(const vec3&);
 
     uint32 SubscribeOnChange(std::function<void(const ICamera&)>);

@@ -1,7 +1,5 @@
 #include "Rotation.h"
 
-namespace common
-{
 namespace
 {
 vec3 EulerAngles(const Quaternion &quaternion)
@@ -42,4 +40,3 @@ RadiansVec3 Rotation::GetEulerRadians() const
 {
     return RadiansVec3(EulerAngles(value_));
 }
-}  // namespace common

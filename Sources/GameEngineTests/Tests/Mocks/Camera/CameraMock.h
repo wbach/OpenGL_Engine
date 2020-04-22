@@ -17,7 +17,7 @@ public:
     MOCK_METHOD0(UpdateMatrix, void());
     MOCK_CONST_METHOD0(GetPitch, float());
     MOCK_CONST_METHOD0(GetYaw, float());
-    MOCK_CONST_METHOD0(GetRotation, const vec3&());
+    MOCK_CONST_METHOD0(GetRotation, const Rotation&());
     MOCK_CONST_METHOD0(GetPosition, const vec3&());
     MOCK_CONST_METHOD0(GetDirection, const vec3&());
     MOCK_CONST_METHOD0(GetViewMatrix, const mat4&());
@@ -31,7 +31,7 @@ public:
     MOCK_METHOD1(LookAt, void(const vec3&));
     MOCK_METHOD1(SetYaw, void(float yaw));
     MOCK_METHOD1(SetPitch, void(float pitch));
-    MOCK_METHOD1(SetRotation, void(const vec3&));
+    MOCK_METHOD1(SetRotation, void(const Rotation&));
     MOCK_METHOD1(SetPosition, void(const vec3&));
     MOCK_METHOD1(SubscribeOnChange, uint32(std::function<void(const ICamera&)>));
     MOCK_METHOD1(UnsubscribeOnChange, void(uint32));

@@ -2,7 +2,7 @@
 #include <Mutex.hpp>
 #include <functional>
 #include <utility>
-#include "Rotation.h"
+#include <Rotation.h>
 #include "Types.h"
 
 namespace common

@@ -397,8 +397,7 @@ void MainScene::KeyOperations()
             camType = CameraType::FirstPerson;
             camera_ = std::make_unique<FirstPersonCamera>(*inputManager_, *displayManager_);
             camera_->SetPosition(pos);
-            camera_->SetPitch(rotation.x);
-            camera_->SetYaw(rotation.y);
+            camera_->SetRotation(rotation);
             camera.Set(*camera_);
         }
     });

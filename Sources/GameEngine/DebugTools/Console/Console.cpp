@@ -100,7 +100,7 @@ void Console::CameraInfo(const std::vector<std::string> &)
 {
     PrintMsgInConsole("Camera info: ");
     PrintMsgInConsole(std::to_string(scene_.camera.GetPosition()));
-    PrintMsgInConsole(std::to_string(scene_.camera.GetRotation()));
+    PrintMsgInConsole(std::to_string(scene_.camera.GetRotation().GetEulerDegrees().value));
 }
 
 void Console::SetFreeCamera(const std::vector<std::string> &)

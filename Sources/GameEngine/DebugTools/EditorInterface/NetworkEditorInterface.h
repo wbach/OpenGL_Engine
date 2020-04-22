@@ -73,7 +73,6 @@ private:
     GameObject* GetGameObject(const std::string&);
     void UnsubscribeTransformUpdateIfExist();
     void UnsubscribeCameraUpdateIfExist();
-    void SetFreeCamera();
     void SetOrignalCamera();
 
 private:

@@ -1,8 +1,6 @@
 #pragma once
 #include <Types.h>
 
-namespace common
-{
 struct Rotation
 {
     Rotation() = default;
@@ -24,4 +22,3 @@ struct Rotation
 
     Quaternion value_;
 };
-}  // namespace common

@@ -4,13 +4,14 @@
 
 #include "GameEngine/Display/DisplayManager.hpp"
 
-static vec3 zero(0);
-
-const float defaultCamSpeed         = Utils::KmToMs<float>(135);
-const float defaultCamRotationSpeed = 0.2f;
-
 namespace GameEngine
 {
+namespace
+{
+const float defaultCamRotationSpeed = 0.2f;
+const float defaultCamSpeed         = Utils::KmToMs<float>(135);
+}  // namespace
+
 FirstPersonCamera::FirstPersonCamera(Input::InputManager& inputManager, GameEngine::DisplayManager& displayManager)
     : BaseCamera(vec3(2.f), vec3(0.f))
     , inputManager_(inputManager)
@@ -32,7 +33,7 @@ void FirstPersonCamera::Move()
 
     if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
     {
-        moveVector = moveVector * glm::normalize(rotation_.value_);
+        moveVector = moveVector * glm::normalize(GetRotation().value_);
         moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTime;
         IncreasePosition(moveVector);
     }

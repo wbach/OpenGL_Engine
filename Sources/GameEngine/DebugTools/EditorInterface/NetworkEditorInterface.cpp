@@ -123,7 +123,13 @@ void NetworkEditorInterface::DefineCommands()
 
 void NetworkEditorInterface::SetupCamera()
 {
+    sceneCamera_ = scene_.camera.Get();
+    sceneCamera_->Lock();
+
     cameraEditor = std::make_unique<CameraEditorType>(*scene_.inputManager_, *scene_.displayManager_);
+    cameraEditor->SetPosition(sceneCamera_->GetPosition());
+    cameraEditor->SetRotation(sceneCamera_->GetRotation());
+    scene_.SetCamera(*cameraEditor);
 }
 
 void NetworkEditorInterface::StartGatway()
@@ -257,7 +263,7 @@ void NetworkEditorInterface::NotifSelectedCameraIsChaned()
     {
         DebugNetworkInterface::CameraMsg msg;
         msg.position = scene_.GetCamera().GetPosition();
-        msg.rotation = scene_.GetCamera().GetRotation();
+        msg.rotation = scene_.GetCamera().GetRotation().GetEulerDegrees().value;
         gateway_.Send(userId_, msg);
         cameraChangedToSend_.store(false);
         cameraTimer_.Reset();
@@ -386,7 +392,7 @@ void NetworkEditorInterface::GetCamera(const EntryParameters &)
 
     DebugNetworkInterface::CameraMsg msg;
     msg.position = scene_.GetCamera().GetPosition();
-    msg.rotation = scene_.GetCamera().GetRotation();
+    msg.rotation = scene_.GetCamera().GetRotation().GetEulerDegrees().value;
     gateway_.Send(userId_, msg);
 
     cameraChangeSubscriptionId_ =
@@ -512,7 +518,7 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
 
             if (param.at("id") == "camera")
             {
-                scene_.camera.SetRotation(rotation);
+                scene_.camera.SetRotation(DegreesVec3(rotation));
                 return;
             }
 
@@ -806,7 +812,6 @@ void NetworkEditorInterface::StopScene()
     scene_.inputManager_->StashSubscribers();
     SetupCamera();
     KeysSubscribtions();
-    SetFreeCamera();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
 }
 
@@ -945,16 +950,6 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
     {
         scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
     }
-}
-
-void NetworkEditorInterface::SetFreeCamera()
-{
-    sceneCamera_ = scene_.camera.Get();
-    sceneCamera_->Lock();
-    // cameraEditor->SetPosition(sceneCamera_->GetPosition());
-    // cameraEditor->SetRotation(sceneCamera_->GetRotation());
-    //  cameraEditor->Lock();
-    scene_.SetCamera(*cameraEditor);
 }
 
 void NetworkEditorInterface::SetOrignalCamera()

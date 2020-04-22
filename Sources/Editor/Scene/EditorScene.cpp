@@ -26,10 +26,11 @@ EditorScene::~EditorScene()
 
 int EditorScene::Initialize()
 {
+    camera.SetPosition(vec3(2, 2, 2));
+    camera.LookAt(vec3(0, 0.5, 0));
+    camera.UpdateMatrix();
+
     RunNetworkEditorInterface();
-//    camera.SetPosition(vec3(2, 2, 2));
-//    camera.LookAt(vec3(0, 0.5, 0));
-//    camera.UpdateMatrix();
     renderersManager_->GetDebugRenderer().Enable();
 
     //// resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);

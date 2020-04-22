@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include <Common/Rotation.h>
 #include "ICamera.h"
 
 namespace GameEngine
@@ -26,7 +25,7 @@ public:
     virtual float GetPitch() const override;
     virtual float GetYaw() const override;
 
-    virtual const vec3& GetRotation() const override;
+    virtual const Rotation& GetRotation() const override;
     virtual const vec3& GetPosition() const override;
     virtual const vec3& GetDirection() const override;
     virtual const mat4& GetViewMatrix() const override;
@@ -42,7 +41,7 @@ public:
     virtual void LookAt(const vec3&) override;
     virtual void SetYaw(float yaw) override;
     virtual void SetPitch(float pitch) override;
-    virtual void SetRotation(const vec3&) override;
+    virtual void SetRotation(const Rotation&) override;
     virtual void SetPosition(const vec3&) override;
 
     void NotifySubscribers();
@@ -55,19 +54,18 @@ protected:
 
 protected:
     bool lock_;
-    common::Rotation rotation_;
 
 private:
     uint32 idPool_;
     std::vector<std::pair<uint32, std::function<void(const ICamera&)>>> subscribers_;
 
-    vec3 up_;
     vec3 position_;
+    Rotation rotation_;
     vec3 direction_;
     mat4 viewMatrix_;
 
 private:
     vec3 lastNotifiedPosition_;
-    common::Rotation lastNotifRotation_;
+    Rotation lastNotifRotation_;
 };
 }  // namespace GameEngine

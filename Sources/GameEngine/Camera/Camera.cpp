@@ -11,7 +11,6 @@ namespace GameEngine
 namespace
 {
 const float NOTIF_EPSILON{std::numeric_limits<float>::epsilon()};
-DegreesVec3 eulerRotation_;  // only for get
 }  // namespace
 
 BaseCamera::BaseCamera()
@@ -20,8 +19,7 @@ BaseCamera::BaseCamera()
 }
 BaseCamera::BaseCamera(float pitch, float yaw)
     : lock_(false)
-    , up_(0, 1, 0)
-    , position_(0)
+    , position_(0.f)
     , rotation_(DegreesVec3(pitch, yaw, 0))
     , viewMatrix_(1.f)
     , lastNotifiedPosition_(0)
@@ -118,10 +116,9 @@ const vec3& BaseCamera::GetPosition() const
 {
     return position_;
 }
-const vec3& BaseCamera::GetRotation() const
+const Rotation &BaseCamera::GetRotation() const
 {
-    eulerRotation_ = rotation_.GetEulerDegrees();
-    return eulerRotation_.value;
+    return rotation_;
 }
 float BaseCamera::GetPitch() const
 {
@@ -134,9 +131,9 @@ void BaseCamera::SetPitch(float angle)
     rotation_.value_ = pitch * yaw;
     NotifySubscribers();
 }
-void BaseCamera::SetRotation(const vec3& rotation)
+void BaseCamera::SetRotation(const Rotation& rotation)
 {
-    rotation_ = common::Rotation(DegreesVec3(rotation));
+    rotation_ = rotation;
     NotifySubscribers();
 }
 float BaseCamera::GetYaw() const

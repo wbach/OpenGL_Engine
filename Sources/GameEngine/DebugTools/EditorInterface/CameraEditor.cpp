@@ -48,7 +48,7 @@ void CameraEditor::Move()
 
     if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
     {
-        moveVector = moveVector * glm::normalize(rotation_.value_);
+        moveVector = moveVector * glm::normalize(GetRotation().value_);
         moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTime;
         IncreasePosition(moveVector);
     }
