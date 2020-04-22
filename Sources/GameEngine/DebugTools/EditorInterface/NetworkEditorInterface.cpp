@@ -188,16 +188,6 @@ void NetworkEditorInterface::KeysSubscribtions()
                 IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, -1.f));
             }
         });
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
-        if (scene_.camera.IsLocked())
-        {
-            scene_.camera.Unlock();
-        }
-        else
-        {
-            scene_.camera.Lock();
-        }
-    });
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 

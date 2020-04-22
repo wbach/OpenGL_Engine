@@ -149,14 +149,7 @@ void BaseCamera::SetYaw(float angle)
 }
 void BaseCamera::CalculateDirection()
 {
-    float pitch_ = rotation_.GetEulerRadians()->x;
-    float yaw_   = rotation_.GetEulerRadians()->y;
-    float xzLen  = cosf(pitch_);
-
-    direction_.z = xzLen * cosf(yaw_);
-    direction_.y = sinf(pitch_);
-    direction_.x = xzLen * sinf(-yaw_);
-    direction_   = glm::normalize(direction_) * -1.f;
+    direction_ = glm::normalize(vec3(0.f, 0.f, -1.f) * rotation_.value_);
 }
 void BaseCamera::UpdateViewMatrix()
 {
