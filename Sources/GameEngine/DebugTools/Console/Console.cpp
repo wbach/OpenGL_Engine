@@ -469,7 +469,8 @@ void Console::EnableEditorNetworkInterface(const std::vector<std::string> &param
 
 void Console::SetPhysicsVisualization(const std::vector<std::string>& params)
 {
-    bool set{ false };
+    bool set = not scene_.renderersManager_->GetDebugRenderer().IsEnable();
+
     if (params.empty() or params[0] == "on" or params[0] == "true")
     {
         set = true;

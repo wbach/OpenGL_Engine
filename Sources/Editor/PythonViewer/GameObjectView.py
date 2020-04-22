@@ -147,6 +147,7 @@ class GameObjectView:
             self.infoView.UpdateInfoWidget(name, gameObjectId)
             self.transformView.ReqAndFill(gameObjectId)
             self.componentsView.Fill(gameObjectId)
+            self.networkClient.SendCommand("selectGameObject gameObjectId=" + str(gameObjectId))
         elif type == self.cameraType:
             self.ShowCameraInView()
             self.networkClient.SendCommand("getCamera")

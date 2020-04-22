@@ -117,6 +117,7 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"clearAll", [&](const EntryParameters& v) { ClearAll(v); } });
     commands_.insert({"clearAllGameObjects", [&](const EntryParameters& v) { ClearAllGameObjects(v); } });
     commands_.insert({"setPhysicsVisualization", [&](const EntryParameters& v) { SetPhysicsVisualization(v); } });
+    commands_.insert({"selectGameObject", [&](const EntryParameters& v) { SelectGameObject(v); } });
     commands_.insert({"exit", [&](const EntryParameters&) { scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT)); }});
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
     // clang-format on
@@ -784,7 +785,7 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
 
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
 {
-    bool set{true};
+    bool set = not scene_.renderersManager_->GetDebugRenderer().IsEnable();
     if (params.count("enabled"))
     {
         set = Utils::StringToBool(params.at("enabled"));
@@ -792,6 +793,21 @@ void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &para
 
     set ? scene_.renderersManager_->GetDebugRenderer().EnablePhysics()
         : scene_.renderersManager_->GetDebugRenderer().DisablPhysics();
+}
+
+void NetworkEditorInterface::SelectGameObject(const EntryParameters& paramters)
+{
+    if (not paramters.count("gameObjectId"))
+        return;
+
+    auto gameObject = GetGameObject(paramters.at("gameObjectId"));
+
+    if (not gameObject)
+        return;
+
+    selectedGameObject_ = gameObject;
+    cameraEditor->SetPosition(selectedGameObject_->worldTransform.GetPosition() + (2.f * selectedGameObject_->worldTransform.GetScale()));
+    cameraEditor->LookAt(selectedGameObject_->worldTransform.GetPosition());
 }
 
 void NetworkEditorInterface::StartScene()
