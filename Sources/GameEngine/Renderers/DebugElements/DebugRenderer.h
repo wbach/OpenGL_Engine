@@ -5,6 +5,7 @@
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "PhysicsVisualizator.h"
+#include <Mutex.hpp>
 
 namespace common
 {
@@ -70,10 +71,12 @@ public:
     void EnablePhysics();
     void DisablPhysics();
     bool IsEnablePhysics() const;
+    void ClearDebugObjects();
 
 private:
     void CreateDebugObjects();
     void UpdateDebugObjectsIfNeeded();
+    void RenderDebugObjects();
     void DrawGrid();
     void DrawDebugObjects();
     void RenderModel(const Model&) const;
@@ -90,6 +93,7 @@ private:
     std::vector<DebugObject*> toCreateDebugObjects_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
     bool isActive_;
+    std::mutex debugObjectsMutex_;
 };
 
 }  // namespace GameEngine

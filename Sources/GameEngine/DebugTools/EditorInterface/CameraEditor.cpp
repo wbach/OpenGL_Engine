@@ -29,7 +29,7 @@ CameraEditor::CameraEditor(Input::InputManager& inputManager, DisplayManager& di
 CameraEditor::~CameraEditor()
 {
     inputManager_.UnsubscribeOnKeyDown(KeyCodes::RMOUSE, mouseKeyDownSubscribtion_);
-    inputManager_.UnsubscribeOnKeyDown(KeyCodes::RMOUSE, mouseKeyUpSubscribtion_);
+    inputManager_.UnsubscribeOnKeyUp(KeyCodes::RMOUSE, mouseKeyUpSubscribtion_);
 }
 
 void CameraEditor::Move()

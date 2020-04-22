@@ -158,6 +158,8 @@ class GameObjectView:
         self.infoView.UpdateInfoWidget(name, gameObjectId)
         self.transformView.ReqAndFill(gameObjectId)
         self.componentsView.Fill(gameObjectId)
+        #self.tree.focus(hwnd)
+        self.tree.selection_set(hwnd)
 
     def GetObjectList(self):
         self.Clear()

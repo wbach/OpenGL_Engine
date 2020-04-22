@@ -63,11 +63,11 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
 NetworkEditorInterface::~NetworkEditorInterface()
 {
     DEBUG_LOG("destructor");
-
+    cameraEditor.reset();
     KeysUnsubscribe();
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();
-
+    scene_.renderersManager_->GetDebugRenderer().ClearDebugObjects();
     EngineContext.threadSync_.Unsubscribe(threadId_);
 }
 

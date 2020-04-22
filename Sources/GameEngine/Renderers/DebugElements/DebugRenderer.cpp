@@ -128,6 +128,7 @@ void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMes
 
 void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)
 {
+    std::lock_guard<std::mutex> lk(debugObjectsMutex_);
     debugObjects_.emplace_back(graphicsApi_, model, transform);
     toCreateDebugObjects_.push_back(&debugObjects_.back());
 }
@@ -162,6 +163,12 @@ bool DebugRenderer::IsEnablePhysics() const
     return physicsVisualizator_.IsEnabled();
 }
 
+void DebugRenderer::ClearDebugObjects()
+{
+    std::lock_guard<std::mutex> lk(debugObjectsMutex_);
+    debugObjects_.clear();
+}
+
 void DebugRenderer::CreateDebugObjects()
 {
     for (auto iter = toCreateDebugObjects_.begin(); iter != toCreateDebugObjects_.end();)
@@ -173,10 +180,24 @@ void DebugRenderer::CreateDebugObjects()
 
 void DebugRenderer::UpdateDebugObjectsIfNeeded()
 {
+    std::lock_guard<std::mutex> lk(debugObjectsMutex_);
     for (auto& debugObject : debugObjects_)
     {
         if (debugObject.toUpdate_)
             debugObject.UpdateBuffer();
+    }
+}
+
+void DebugRenderer::RenderDebugObjects()
+{
+    std::lock_guard<std::mutex> lk(debugObjectsMutex_);
+    for (const auto& debugObject : debugObjects_)
+    {
+        if (not debugObject.perObjectBufferId)
+            continue;
+
+        debugObject.BindBuffer();
+        RenderModel(debugObject.model_);
     }
 }
 
@@ -200,16 +221,7 @@ void DebugRenderer::DrawDebugObjects()
     UpdateDebugObjectsIfNeeded();
 
     debugObjectShader_.Start();
-
-    for (const auto& debugObject : debugObjects_)
-    {
-        if (not debugObject.perObjectBufferId)
-            continue;
-
-        debugObject.BindBuffer();
-        RenderModel(debugObject.model_);
-    }
-
+    RenderDebugObjects();
     debugObjectShader_.Stop();
 }
 
