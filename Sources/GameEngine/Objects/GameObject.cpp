@@ -22,9 +22,10 @@ GameObject::GameObject(const std::string& name, Components::IComponentFactory& c
 GameObject::~GameObject()
 {
     if (parent_ and parentIdTransfromSubscribtion_)
-    {
         parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
-    }
+
+    if (localTransfromSubscribtion_)
+        localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 }
 
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
@@ -67,7 +68,7 @@ void GameObject::SetParent(GameObject* parent)
     parentIdTransfromSubscribtion_ =
         parent->SubscribeOnWorldTransfomChange([this](const auto&) { CalculateWorldTransform(); });
 
-    localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
+    localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
 }
 
 GameObject* GameObject::GetParent() const

@@ -10,6 +10,7 @@ class GameObjectView:
         self.transformView = transformView
         self.componentsView = componentsView
         self.fileManger = fileManger
+        self.trigerObjectSelectChange = True
 
         self.InitVariables()
 
@@ -166,6 +167,9 @@ class GameObjectView:
         return item['text'], gameObjectId, type
 
     def OnSelectGameObject(self, event):
+        if not self.trigerObjectSelectChange:
+            return
+
         name, gameObjectId, type = self.GetGameObjectNameAndId()
 
         if type == self.goType:
@@ -183,8 +187,7 @@ class GameObjectView:
         self.infoView.UpdateInfoWidget(name, gameObjectId)
         self.transformView.ReqAndFill(gameObjectId)
         self.componentsView.Fill(gameObjectId)
-        #self.tree.focus(hwnd)
-        self.tree.selection_set(hwnd)
+        self.SelectTreeElementWihoutTrigerMsg(hwnd)
 
     def GetObjectList(self):
         self.Clear()
@@ -197,3 +200,9 @@ class GameObjectView:
 
     def UpdateGameObjectCount(self):
         self.gameObjectsCountStr.set("Game objects count : {0}".format(len(self.gameObjects)))
+
+    def SelectTreeElementWihoutTrigerMsg(self, hwnd):
+            self.self.trigerObjectSelectChange = False
+            self.tree.focus(hwnd)
+            self.tree.selection_set(hwnd)
+            self.trigerObjectSelectChange = True

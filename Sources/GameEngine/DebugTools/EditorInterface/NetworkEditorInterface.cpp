@@ -194,20 +194,30 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
+        std::optional<uint32> lastSelectedGameObject;
+
+        if (selectedGameObject_)
+        {
+            lastSelectedGameObject = selectedGameObject_->GetId();
+        }
+
         selectedGameObject_ =
             mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects());
 
         if (selectedGameObject_)
         {
-            DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                       scene_.renderersManager_->GetProjection());
-
-            if (userId_ > 0)
+            if (not lastSelectedGameObject or *lastSelectedGameObject != selectedGameObject_->GetId())
             {
-                DebugNetworkInterface::SelectedObjectChanged msg(selectedGameObject_->GetId());
-                gateway_.Send(userId_, msg);
+                DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
+
+                dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
+                                                          scene_.renderersManager_->GetProjection());
+
+                if (userId_ > 0)
+                {
+                    DebugNetworkInterface::SelectedObjectChanged msg(selectedGameObject_->GetId());
+                    gateway_.Send(userId_, msg);
+                }
             }
         }
         else
@@ -242,7 +252,7 @@ void NetworkEditorInterface::NotifSelectedTransformIsChaned()
     {
         std::lock_guard<std::mutex> lk(transformChangedMutex_);
         auto go               = scene_.GetGameObject(*transformChangedToSend_);
-        const auto &transform = go->GetWorldTransform();
+        const auto &transform = go->GetTransform();
         DebugNetworkInterface::Transform msg(*transformChangedToSend_, transform.GetPosition(),
                                              transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
         gateway_.Send(userId_, msg);
@@ -811,9 +821,9 @@ void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
         return;
 
     selectedGameObject_ = gameObject;
-    cameraEditor->SetPosition(selectedGameObject_->GetTransform().GetPosition() +
-                              (2.f * selectedGameObject_->GetTransform().GetScale()));
-    cameraEditor->LookAt(selectedGameObject_->GetTransform().GetPosition());
+    cameraEditor->SetPosition(selectedGameObject_->GetWorldTransform().GetPosition() +
+                              (2.f * selectedGameObject_->GetWorldTransform().GetScale()));
+    cameraEditor->LookAt(selectedGameObject_->GetWorldTransform().GetPosition());
 }
 
 void NetworkEditorInterface::StartScene()
@@ -942,7 +952,7 @@ GameObject *NetworkEditorInterface::GetGameObject(const std::string &gameObjectI
     try
     {
         auto objectId   = std::stoi(gameObjectId);
-        auto gameObject = scene_.GetGameObject(objectId);
+        auto gameObject = scene_.GetGameObject(static_cast<uint32>(objectId));
 
         if (gameObject)
         {
