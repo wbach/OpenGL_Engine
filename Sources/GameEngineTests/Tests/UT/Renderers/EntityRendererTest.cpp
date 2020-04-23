@@ -78,7 +78,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         auto entity = scene_.CreateGameObject();
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
         sut_->Subscribe(entity.get());
-        transformToShader_ = entity->worldTransform.GetMatrix() * mesh_.GetMeshTransform();
+        transformToShader_ = entity->GetWorldTransform().GetMatrix() * mesh_.GetMeshTransform();
         scene_.AddGameObject(std::move(entity));
     }
 

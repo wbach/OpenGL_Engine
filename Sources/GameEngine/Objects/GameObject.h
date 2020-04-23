@@ -17,12 +17,14 @@ class GameObject
 {
 public:
     GameObject(const std::string& name, Components::IComponentFactory& componentFactory);
-    virtual ~GameObject();
     GameObject(const GameObject&&) = delete;
+    virtual ~GameObject();
 
     void AddChild(std::unique_ptr<GameObject>);
     bool RemoveChild(GameObject&);
     bool RemoveChild(uint32);
+    void SetParent(GameObject*);
+    GameObject* GetParent() const;
     GameObject* GetChild(uint32 id) const;
     // return first child with name
     GameObject* GetChild(const std::string&) const;
@@ -44,14 +46,25 @@ public:
     Components::IComponent* AddComponent(Components::ComponentsType);
     inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
 
-public:
-    common::Transform localTransform;
-    common::Transform worldTransform;
+    common::Transform& GetTransform();
+    const common::Transform& GetTransform() const;
+    const common::Transform& GetWorldTransform() const;
+
+    void TakeWorldTransfromSnapshot();
+    uint32 SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)>);
+    void UnsubscribeOnWorldTransfromChange(uint32);
+
+private:
+    void CalculateWorldTransform();
 
 protected:
+    GameObject* parent_;
     std::string name_;
     GameObjects children_;
+    common::Transform localTransform_;
+    common::Transform worldTransform_;
     std::vector<std::unique_ptr<Components::IComponent>> components_;
+    std::optional<uint32> parentIdTransfromSubscribtion_;
 
 private:
     static uint32 s_id;

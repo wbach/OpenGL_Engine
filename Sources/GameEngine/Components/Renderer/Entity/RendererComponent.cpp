@@ -80,7 +80,7 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
 
     if (model)
     {
-        thisObject_.worldTransform.TakeSnapShoot();
+        thisObject_.TakeWorldTransfromSnapshot();
         ReserveBufferVectors(model->GetMeshes().size());
         CreateBuffers(model);
         model_.Add(model, lvl);
@@ -126,7 +126,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 
     auto& graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
 
-    const mat4 transformMatrix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+    const mat4 transformMatrix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
 
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     perObjectUpdateBuffer_.push_back(buffer);
@@ -157,14 +157,14 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 void RendererComponent::UpdateBuffers()
 {
     size_t index = 0;
-    thisObject_.worldTransform.TakeSnapShoot();
+    thisObject_.TakeWorldTransfromSnapshot();
 
     for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
     {
         auto& poc = perObjectUpdateBuffer_[index++];
 
         auto& graphicsApi         = componentContext_.resourceManager_.GetGraphicsApi();
-        const mat4 transformMatix = thisObject_.worldTransform.GetMatrix() * mesh.GetMeshTransform();
+        const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
         poc.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatix);
         poc.UpdateBuffer();
     }

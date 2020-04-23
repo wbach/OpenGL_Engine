@@ -253,7 +253,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
         {
             try
             {
-                auto position = gameObject->worldTransform.GetPosition();
+                auto position = gameObject->GetTransform().GetPosition();
                 position.x    = std::stof(args[2]);
 
                 if (rigidbody)
@@ -263,8 +263,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->worldTransform.SetPosition(position);
-                    gameObject->worldTransform.TakeSnapShoot();
+                    gameObject->GetTransform().SetPosition(position);
                     DEBUG_LOG("Set transform position");
                 }
             }
@@ -277,7 +276,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
         {
             try
             {
-                auto position = gameObject->worldTransform.GetPosition();
+                auto position = gameObject->GetTransform().GetPosition();
                 position.y    = std::stof(args[2]);
                 if (rigidbody)
                 {
@@ -286,8 +285,8 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->worldTransform.SetPosition(position);
-                    gameObject->worldTransform.TakeSnapShoot();
+                    gameObject->GetTransform().SetPosition(position);
+
                     DEBUG_LOG("Set transform position");
                 }
             }
@@ -300,7 +299,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
         {
             try
             {
-                auto position = gameObject->worldTransform.GetPosition();
+                auto position = gameObject->GetTransform().GetPosition();
                 position.z    = std::stof(args[2]);
 
                 if (rigidbody)
@@ -309,8 +308,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->worldTransform.SetPosition(position);
-                    gameObject->worldTransform.TakeSnapShoot();
+                    gameObject->GetTransform().SetPosition(position);
                 }
             }
             catch (...)
@@ -333,8 +331,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->worldTransform.SetPosition(position);
-                    gameObject->worldTransform.TakeSnapShoot();
+                    gameObject->GetTransform().SetPosition(position);
                 }
             }
             catch (...)
@@ -359,7 +356,8 @@ void Console::PrintPosition(const std::vector<std::string> &args)
 
     if (auto gameObject = GetGameObject(args[0]))
     {
-        PrintMsgInConsole("Position of " + args[0] + " : " + std::to_string(gameObject->worldTransform.GetPosition()));
+        PrintMsgInConsole("Local Position of " + args[0] + " : " + std::to_string(gameObject->GetTransform().GetPosition()));
+        PrintMsgInConsole("World Position of " + args[0] + " : " + std::to_string(gameObject->GetWorldTransform().GetPosition()));
     }
     else
     {

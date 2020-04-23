@@ -355,7 +355,7 @@ void Create(XmlNode& node, const std::vector<std::unique_ptr<Components::ICompon
 void Create(XmlNode& node, const GameObject& gameObject)
 {
     node.attributes_[CSTR_NAME] = gameObject.GetName();
-    Create(node.AddChild(CSTR_TRANSFORM), gameObject.worldTransform);
+    Create(node.AddChild(CSTR_TRANSFORM), gameObject.GetTransform());
     Create(node.AddChild(CSTR_COMPONENTS), gameObject.GetComponents());
 
     if (not gameObject.GetChildren().empty())

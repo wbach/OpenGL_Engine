@@ -1,3 +1,4 @@
+#include "PhysicsScene.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
@@ -10,7 +11,6 @@
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Textures/Image.h"
-#include "PhysicsScene.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
 
@@ -70,9 +70,9 @@ void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3&
                                    const vec3& dir, float scale, bool isStatic)
 {
     auto object = CreateGameObject();
-    object->worldTransform.SetPosition(pos);
-    object->worldTransform.SetScale(scale);
-    object->worldTransform.TakeSnapShoot();
+    object->GetTransform().SetPosition(pos);
+    object->GetTransform().SetScale(scale);
+
     object->AddComponent<Components::RendererComponent>().AddModel(modelFilename);
 
     auto& shape = object->AddComponent<Shape>().SetSize(scale);
@@ -110,7 +110,7 @@ void PhysicsScene::RemoveObjectsUnderYValue(float y)
 
 void PhysicsScene::KeyOperations()
 {
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&](){ addEngineEvent(EngineEvent::QUIT);});
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]() {
         auto dir = GetCamera().GetDirection();
@@ -203,13 +203,12 @@ void PhysicsScene::AddTerrain()
 }
 
 std::unique_ptr<GameEngine::GameObject> PhysicsScene::CreateGameObjectInstance(float scale, const vec2& position,
-                                                                               bool isDynamic)
+                                                                               bool)
 {
     auto obj = CreateGameObject();
-    obj->worldTransform.SetScale(scale);
     vec3 obj_pos(position.x, 0, position.y);
-    obj->worldTransform.SetPosition(obj_pos);
-    obj->worldTransform.TakeSnapShoot();
+    obj->GetTransform().SetPosition(obj_pos);
+    obj->GetTransform().SetScale(scale);
     return obj;
 }
 
@@ -231,9 +230,8 @@ void PhysicsScene::AddBoxes(const vec3& pos)
 void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
 {
     auto object = CreateGameObject();
-    object->worldTransform.SetScale(scale);
-    object->worldTransform.SetPosition(pos);
-    object->worldTransform.TakeSnapShoot();
+    object->GetTransform().SetScale(scale);
+    object->GetTransform().SetPosition(pos);
 
     object->AddComponent<Components::RendererComponent>().AddModel("Meshes/Rampa.obj");
 
@@ -243,7 +241,7 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
     AddGameObject(std::move(object));
 }
 
-int PhysicsScene::Update(float dt)
+int PhysicsScene::Update(float)
 {
     UpdateObjectsCountText();
     RemoveObjectsUnderYValue(-100);

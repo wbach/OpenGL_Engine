@@ -46,8 +46,7 @@ int MainRpgScene::Initialize()
     ReqNetworkSceneCharacters();
 
     auto obj = CreateGameObject();
-    obj->worldTransform.SetPosition(vec3(100, 17, -7));
-    obj->worldTransform.TakeSnapShoot();
+    obj->GetTransform().SetPosition(vec3(100, 17, -7));
     obj->AddComponent<Components::RendererComponent>().AddModel("Meshes/Bialczyk/Bialczyk.obj");
     AddGameObject(std::move(obj));
 
@@ -68,7 +67,7 @@ int MainRpgScene::Update(float dt)
     return 0;
 }
 
-void MainRpgScene::UpdatePlayerandCamera(float time)
+void MainRpgScene::UpdatePlayerandCamera(float)
 {
     camera.CalculateInput();
     camera.Move();
@@ -89,7 +88,7 @@ void MainRpgScene::ReqNetworkSceneCharacters()
 
 void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 {
-    camera_ = std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().worldTransform);
+    camera_ = std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().GetTransform());
     camera.Set(*camera_);
 }
 

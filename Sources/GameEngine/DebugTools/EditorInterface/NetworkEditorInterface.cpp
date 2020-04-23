@@ -155,8 +155,9 @@ void NetworkEditorInterface::StartGatway()
 
             if (selectedGameObject_)
             {
-                arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->worldTransform.GetPosition(),
-                                                                 selectedGameObject_->worldTransform.GetRotation());
+                arrowsIndicatorTransform_.SetPositionAndRotation(
+                    selectedGameObject_->GetWorldTransform().GetPosition(),
+                    selectedGameObject_->GetWorldTransform().GetRotation());
             }
             if (dragObject_)
                 dragObject_->Update();
@@ -241,7 +242,7 @@ void NetworkEditorInterface::NotifSelectedTransformIsChaned()
     {
         std::lock_guard<std::mutex> lk(transformChangedMutex_);
         auto go               = scene_.GetGameObject(*transformChangedToSend_);
-        const auto &transform = go->worldTransform;
+        const auto &transform = go->GetWorldTransform();
         DebugNetworkInterface::Transform msg(*transformChangedToSend_, transform.GetPosition(),
                                              transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
         gateway_.Send(userId_, msg);
@@ -270,8 +271,7 @@ void NetworkEditorInterface::SetGameObjectPosition(GameObject &gameObject, const
     {
         rigidbody->SetPosition(position);
     }
-    gameObject.worldTransform.SetPosition(position);
-    gameObject.worldTransform.TakeSnapShoot();
+    gameObject.GetTransform().SetPosition(position);
 }
 
 void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const vec3 &rotation)
@@ -281,13 +281,12 @@ void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const
     {
         rigidbody->SetRotation(DegreesVec3(rotation));
     }
-    gameObject.worldTransform.SetRotation(DegreesVec3(rotation));
-    gameObject.worldTransform.TakeSnapShoot();
+    gameObject.GetTransform().SetRotation(DegreesVec3(rotation));
 }
 
 void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, const vec3 &increseValue)
 {
-    vec3 newValue = gameObject.worldTransform.GetRotation().GetEulerDegrees().value + increseValue;
+    vec3 newValue = gameObject.GetTransform().GetRotation().GetEulerDegrees().value + increseValue;
 
     auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
     if (rigidbody)
@@ -295,8 +294,7 @@ void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, c
         rigidbody->SetRotation(DegreesVec3(newValue));
     }
 
-    gameObject.worldTransform.SetRotation(DegreesVec3(newValue));
-    gameObject.worldTransform.TakeSnapShoot();
+    gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
 }
 
 vec3 NetworkEditorInterface::GetRotationValueBasedOnKeys(float rotationSpeed, float dir)
@@ -440,10 +438,10 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();
 
-    auto &transform                = gameObject->worldTransform;
+    auto &transform                = gameObject->GetTransform();
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
-    transformChangeSubscriptionId_ = transform.SubscribeOnChange([this, gameObjectId](const auto &transform) {
+    transformChangeSubscriptionId_ = transform.SubscribeOnChange([gameObjectId](const auto &) {
         if (not transformChangedToSend_)
         {
             std::lock_guard<std::mutex> lk(transformChangedMutex_);
@@ -539,8 +537,7 @@ void NetworkEditorInterface::SetGameObjectScale(const EntryParameters &param)
             try
             {
                 vec3 scale(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
-                gameObject->worldTransform.SetScale(scale);
-                gameObject->worldTransform.TakeSnapShoot();
+                gameObject->GetTransform().SetScale(scale);
             }
             catch (...)
             {
@@ -559,7 +556,7 @@ void NetworkEditorInterface::CreateGameObject(const EntryParameters &params)
     }
 
     auto gameObject = scene_.CreateGameObject(goName);
-    DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName()); 
+    DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
     auto parentId = AddGameObject(params, gameObject);
     if (parentId)
     {
@@ -680,8 +677,8 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
         {
             gameObject->AddComponent<Components::RendererComponent>().AddModel(
                 GetRelativeDataPath(params.at("filename")));
-            gameObject->worldTransform.SetPosition(position);
-            gameObject->worldTransform.SetRotation(DegreesVec3(rotationEulerDegrees));
+            gameObject->GetTransform().SetPosition(position);
+            gameObject->GetTransform().SetRotation(DegreesVec3(rotationEulerDegrees));
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
             auto parentId = AddGameObject(params, gameObject);
@@ -718,7 +715,7 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
         {
             auto position = scene_.camera.GetPosition();
             position += scene_.camera.GetDirection() * 5.f;
-            gameObject->worldTransform.SetPosition(position);
+            gameObject->GetTransform().SetPosition(position);
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
             gateway_.Send(userId_, message);
@@ -814,9 +811,9 @@ void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
         return;
 
     selectedGameObject_ = gameObject;
-    cameraEditor->SetPosition(selectedGameObject_->worldTransform.GetPosition() +
-                              (2.f * selectedGameObject_->worldTransform.GetScale()));
-    cameraEditor->LookAt(selectedGameObject_->worldTransform.GetPosition());
+    cameraEditor->SetPosition(selectedGameObject_->GetTransform().GetPosition() +
+                              (2.f * selectedGameObject_->GetTransform().GetScale()));
+    cameraEditor->LookAt(selectedGameObject_->GetTransform().GetPosition());
 }
 
 void NetworkEditorInterface::StartScene()
@@ -988,9 +985,10 @@ void NetworkEditorInterface::SetOrignalCamera()
     sceneCamera_->Unlock();
     cameraEditor.reset();
 }
-std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameters& params, std::unique_ptr<GameObject>& gameObject)
+std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameters &params,
+                                                            std::unique_ptr<GameObject> &gameObject)
 {
-    std::optional<uint32> result{ std::nullopt };
+    std::optional<uint32> result{std::nullopt};
     if (params.count("parentGameObjectId"))
     {
         auto parentGameObject = GetGameObject(params.at("parentGameObjectId"));

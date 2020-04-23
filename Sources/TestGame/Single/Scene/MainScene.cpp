@@ -190,8 +190,7 @@ int MainScene::Initialize()
 
     centerObjectPosition_ = vec3(0);
     auto geralt           = CreateGameObjectInstance("Geralt", 1.8f, vec2(0), false);
-    geralt->worldTransform.SetPosition(centerObjectPosition_);
-    geralt->worldTransform.TakeSnapShoot();
+    geralt->GetTransform().SetPosition(centerObjectPosition_);
     geralt->AddComponent<Components::RendererComponent>().AddModel("Meshes/Geralt/geralt.obj");
     AddGameObject(std::move(geralt));
 
@@ -233,7 +232,7 @@ int MainScene::Initialize()
         player = uplayer.get();
 
         characterController_ = std::make_shared<common::Controllers::CharacterController>(
-            player->worldTransform, playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
+            player->GetTransform(), playerStats_.runSpeed, playerStats_.turnSpeed, playerStats_.jumpPower);
 
         playerInputController_ =
             std::make_shared<PlayerInputController>(&animator, inputManager_, characterController_.get());
@@ -257,9 +256,8 @@ void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& po
                                 const vec3& dir, float scale, bool isStatic)
 {
     auto object                       = CreateGameObject(Utils::GetFilename(modelFilename));
-    object->worldTransform.SetPosition(pos);
-    object->worldTransform.SetScale(scale);
-    object->worldTransform.TakeSnapShoot();
+    object->GetTransform().SetPosition(pos);
+    object->GetTransform().SetScale(scale);
     object->AddComponent<Components::RendererComponent>().AddModel(modelFilename);
 
     auto& shape = object->AddComponent<Shape>().SetSize(scale);
@@ -280,8 +278,7 @@ int MainScene::Update(float dt)
     lightPos      = Utils::RotateObject(centerObjectPosition_, lightPos, ToRadians(10.f * dt));
     pointLight_->SetPosition(lightPos);
 
-    lightBulb_->worldTransform.SetPosition(pointLight_->GetPosition());
-    lightBulb_->worldTransform.TakeSnapShoot();
+    lightBulb_->GetTransform().SetPosition(pointLight_->GetPosition());
 
     //	renderersManager_->GuiTexture("shadowMap").texture->SetExistId(EngineConf.texturesIds["shadowMap"]);
 
@@ -296,7 +293,7 @@ int MainScene::Update(float dt)
         //":" + std::to_string(dayNightCycle.GetCurrentHour().y);
 
         guiManager_->Get<GuiTextElement>("playerPos")
-            ->SetText("Player position : " + std::to_string(player->worldTransform.GetPosition()));
+            ->SetText("World Player position : " + std::to_string(player->GetWorldTransform().GetPosition()));
         guiManager_->Get<GuiTextElement>("rendererFps")
             ->SetText("Render thread fps : " + std::to_string((int)displayManager_->GetTime().fps));
 
@@ -380,7 +377,7 @@ void MainScene::KeyOperations()
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::L, [&]() { renderersManager_->SwapLineFaceRender(); });
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { player->worldTransform.SetPosition(vec3(0, 0, 0)); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { player->GetTransform().SetPosition(vec3(0, 0, 0)); });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::C, [&]() {
         auto pos      = camera.GetPosition();
@@ -389,7 +386,7 @@ void MainScene::KeyOperations()
         if (camType == CameraType::FirstPerson)
         {
             camType = CameraType::ThridPerson;
-            camera_ = std::make_unique<ThirdPersonCamera>(*inputManager_, player->worldTransform);
+            camera_ = std::make_unique<ThirdPersonCamera>(*inputManager_, player->GetTransform());
             camera.Set(*camera_);
         }
         else if (camType == CameraType::ThridPerson)
@@ -403,19 +400,19 @@ void MainScene::KeyOperations()
     });
 }
 
-void MainScene::CheckCollisions(float dt)
+void MainScene::CheckCollisions(float)
 {
     return;
 
     float g        = 9.8f * deltaTime;
-    auto playerPos = player->worldTransform.GetPosition();
+    auto playerPos = player->GetTransform().GetPosition();
 
     playerPos.y -= g;
 
     bool wasCollision = false;
 
     if (!wasCollision)
-        player->worldTransform.IncrasePosition(0.f, -g, 0.f);
+        player->GetTransform().IncrasePosition(0.f, -g, 0.f);
 }
 
 void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position)
@@ -468,11 +465,9 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(floa
                                                                             bool isDynamic)
 {
     auto obj = CreateGameObject();
-    obj->worldTransform.SetScale(scale);
     vec3 obj_pos(position.x, 0, position.y);
-
-    obj->worldTransform.SetPosition(obj_pos);
-    obj->worldTransform.TakeSnapShoot();
+    obj->GetTransform().SetScale(scale);
+    obj->GetTransform().SetPosition(obj_pos);
     return obj;
 }
 
@@ -480,11 +475,9 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(cons
                                                                             const vec2& position, bool isDynamic)
 {
     auto obj = CreateGameObject(name);
-    obj->worldTransform.SetScale(scale);
     vec3 obj_pos(position.x, 0, position.y);
-
-    obj->worldTransform.SetPosition(obj_pos);
-    obj->worldTransform.TakeSnapShoot();
+    obj->GetTransform().SetScale(scale);
+    obj->GetTransform().SetPosition(obj_pos);
     return obj;
 }
 
@@ -498,8 +491,7 @@ void MainScene::CreateAndAddGameEntity(const std::string& filename, float scale,
         auto height = terrainHeightGetter_->GetHeightofTerrain(position);
         if (height)
         {
-            object->worldTransform.SetYPosition(*height);
-            object->worldTransform.TakeSnapShoot();
+            object->GetTransform().SetYPosition(*height);
         }
     }
 
@@ -560,7 +552,7 @@ void MainScene::CreateExmapleStrtupObject()
         auto particle1 = CreateGameObjectInstance("particle1", 1.f, vec2(5, 10));
 
         Particle particle;
-        particle.position      = particle1->worldTransform.GetPosition();
+        particle.position      = particle1->GetTransform().GetPosition();
         particle.velocity      = vec3(0, 0.1, 0);
         particle.rotation      = 0;
         particle.scale         = 8;
@@ -589,7 +581,7 @@ void MainScene::CreateExmapleStrtupObject()
         auto particle2 = CreateGameObjectInstance("particle2", 1.f, vec2(5, 5));
 
         Particle particle_2;
-        particle_2.position      = particle2->worldTransform.GetPosition();
+        particle_2.position      = particle2->GetTransform().GetPosition();
         particle_2.velocity      = vec3(0, 0.01, 0);
         particle_2.rotation      = 0;
         particle_2.scale         = 4;

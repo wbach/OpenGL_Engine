@@ -18,17 +18,18 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
     , camera_(camera)
     , projection_(projection)
 {
-    mouseZcoord_ = CalculateMouseZCoord(gameObject_.worldTransform.GetPosition());
+    mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetTransform().GetPosition());
     DEBUG_LOG(std::to_string(mouseZcoord_));
-    offset_ = gameObject_.worldTransform.GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+    offset_ = gameObject_.GetTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
 }
 void DragObject::Update()
 {
+    // To do from world space to object localspace
     auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
     auto newPosition     = mouseWorldPoint + offset_;
 
-    gameObject_.worldTransform.SetPosition(newPosition);
+    gameObject_.GetTransform().SetPosition(newPosition);
 
     if (rigidbody_)
     {

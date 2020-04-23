@@ -27,9 +27,7 @@ void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3
 
     auto object = createObject_();
     object->AddComponent<GameEngine::Components::RendererComponent>().SetModel(modelWrapper);
-    object->worldTransform.SetPosition(position);
-    object->worldTransform.SetRotation(DegreesVec3(rotation));
-    object->worldTransform.TakeSnapShoot();
+    object->GetTransform().SetPositionAndRotation(position, DegreesVec3(rotation));
 
     networkCharacters_.insert({ id, std::make_shared<NetworkCharacter>(id, stats, *object) });
     addObject_(std::move(object));

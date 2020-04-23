@@ -82,7 +82,7 @@ vec3 MousePicker::ConvertToWorldCoords(const vec4& eyeCoords)
 std::optional<float> MousePicker::Intersect(const GameObject& object, const vec3& ray)
 {
     auto radius = CalculateBoundingSphereRadius(object);
-    return SphereIntersect(object.worldTransform.GetPosition(), radius, ray, camera_.GetPosition());
+    return SphereIntersect(object.GetWorldTransform().GetPosition(), radius, ray, camera_.GetPosition());
 }
 
 float MousePicker::CalculateBoundingSphereRadius(const GameObject&)

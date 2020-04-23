@@ -76,8 +76,8 @@ int EditorScene::Initialize()
         auto go = CreateGameObject("Crate");
         go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
                                                                                GameEngine::LevelOfDetail::L1);
-        go->worldTransform.SetPosition(cratePosition);
-        go->worldTransform.SetRotation(DegreesVec3(0, 45, 0));
+        go->GetTransform().SetPosition(cratePosition);
+        go->GetTransform().SetRotation(DegreesVec3(0, 45, 0));
         AddGameObject(std::move(go));
     }
 
@@ -85,8 +85,8 @@ int EditorScene::Initialize()
         auto go = CreateGameObject("Crate2");
         go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
             GameEngine::LevelOfDetail::L1);
-        go->worldTransform.SetPosition(vec3(-2, 0, 2));
-        go->worldTransform.SetRotation(DegreesVec3(0, -45, 0));
+        go->GetTransform().SetPosition(vec3(0, 0, 0));
+        go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
         AddGameObject(std::move(go));
     }
 
@@ -137,10 +137,10 @@ void EditorScene::KeySubscribtions()
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::ASK_QUIT); });
     inputManager_->SubscribeOnKeyDown(
         KeyCodes::L, [renderersManager = this->renderersManager_]() { renderersManager->SwapLineFaceRender(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::W, [&]() {
+    inputManager_->SubscribeOnKeyDown(KeyCodes::J, [&]() {
         for (auto& go : GetGameObjects())
         {
-            go->worldTransform.IncrasePosition(vec3(0.001f));
+            go->GetTransform().IncrasePosition(vec3(0.001f));
         }
     });
 }

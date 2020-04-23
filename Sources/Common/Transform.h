@@ -1,8 +1,8 @@
 #pragma once
+#include <Rotation.h>
 #include <Mutex.hpp>
 #include <functional>
 #include <utility>
-#include <Rotation.h>
 #include "Types.h"
 
 namespace common
@@ -51,6 +51,7 @@ public:
     void SetPositionAndRotation(const vec3& position, const RadiansVec3& rotation);
     void SetPositionAndRotation(const vec3& position, const Quaternion& rotation);
     void SetPositionAndRotation(const vec3& position, const Rotation& rotation);
+    void SetPositionAndRotationAndScale(const vec3& position, const Rotation& rotation, const vec3&);
     void IncreaseRotation(const DegreesVec3&);
     void IncreaseRotation(const RadiansVec3&);
 

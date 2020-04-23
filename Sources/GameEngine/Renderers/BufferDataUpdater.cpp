@@ -16,6 +16,7 @@ public:
     {
         model_ = renderComponent.GetModelWrapper().Get(LevelOfDetail::L1);
     }
+    ~BonesDataSubcriber() override = default;
 
     virtual void Update() override
     {
@@ -60,7 +61,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
         rendererComponent->UpdateBuffers();
 
         //auto subscribtionId =
-            gameObject->worldTransform.SubscribeOnChange([this, rendererComponent](const common::Transform& transform) mutable {
+            gameObject->SubscribeOnWorldTransfomChange([this, rendererComponent](const auto&) mutable {
                 AddEvent(std::make_unique<TransformDataEvent>(*rendererComponent));
             });
 

@@ -11,7 +11,7 @@ NetworkCharacter::NetworkCharacter(uint32 id, const common::Hero::CommonStats& s
     , stats_(stats)
     , gameObject_(gameObject)
 {
-    auto characterController = common::Controllers::CreateCharacterController(gameObject_.worldTransform, stats_);
+    auto characterController = common::Controllers::CreateCharacterController(gameObject_.GetTransform(), stats_);
     controllers_.insert({ common::Controllers::Types::CharacterControllerType, characterController });
 }
 

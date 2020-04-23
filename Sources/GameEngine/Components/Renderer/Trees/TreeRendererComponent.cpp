@@ -43,7 +43,7 @@ TreeRendererComponent& TreeRendererComponent::SetBottomModel(const std::string& 
     bottomFilenames_.insert({filename, i});
 
     ModelRawPtr model = componentContext_.resourceManager_.LoadModel(filename);
-    thisObject_.worldTransform.TakeSnapShoot();
+    thisObject_.TakeWorldTransfromSnapshot();
     bottom_.Add(model, i);
 
     return *this;
@@ -56,7 +56,7 @@ TreeRendererComponent& TreeRendererComponent::SetTopModel(const std::string& fil
     topFilenames_.insert({filename, i});
 
     ModelRawPtr model = componentContext_.resourceManager_.LoadModel(filename);
-    thisObject_.worldTransform.TakeSnapShoot();
+    thisObject_.TakeWorldTransfromSnapshot();
     top_.Add(model, i);
 
     return *this;
@@ -86,7 +86,7 @@ void TreeRendererComponent::CreatePerObjectUpdateBuffer()
     perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(
         componentContext_.resourceManager_.GetGraphicsApi(), PER_OBJECT_UPDATE_BIND_LOCATION);
 
-    auto normalizedMatrix = glm::scale(vec3(1.f / factor)) * thisObject_.worldTransform.GetMatrix();
+    auto normalizedMatrix = glm::scale(vec3(1.f / factor)) * thisObject_.GetWorldTransform().GetMatrix();
     perObjectUpdateBuffer_->GetData().TransformationMatrix = normalizedMatrix;
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(perObjectUpdateBuffer_.get());

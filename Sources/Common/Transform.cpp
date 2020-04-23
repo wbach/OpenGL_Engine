@@ -168,6 +168,14 @@ void Transform::SetPositionAndRotation(const vec3& position, const Rotation& rot
     NotifySubscribers();
 }
 
+void Transform::SetPositionAndRotationAndScale(const vec3& position, const Rotation& rotation, const vec3& scale)
+{
+    context_.position = position;
+    context_.rotation = rotation;
+    context_.scale    = scale;
+    NotifySubscribers();
+}
+
 void Transform::IncreaseRotation(const DegreesVec3& rotation)
 {
     context_.rotation = context_.rotation.value_ * Quaternion(rotation.Radians());

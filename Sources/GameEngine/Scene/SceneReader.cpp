@@ -51,13 +51,10 @@ std::vector<vec3> ReadVectorVec3(Utils::XmlNode& node)
 void Read(Utils::XmlNode& node, common::Transform& tranfsorm)
 {
     auto position = ReadVec3(*node.GetChild(CSTR_POSITION));
-    tranfsorm.SetPosition(position);
     auto rotation = ReadVec3(*node.GetChild(CSTR_ROTATION));
-    tranfsorm.SetRotation(DegreesVec3(rotation));
     auto scale = ReadVec3(*node.GetChild(CSTR_SCALE));
-    tranfsorm.SetScale(scale);
 
-    tranfsorm.TakeSnapShoot();
+    tranfsorm.SetPositionAndRotationAndScale(position, DegreesVec3(rotation), scale);
 }
 
 void Read(Utils::XmlNode&, Components::ThridPersonCameraComponent&)
@@ -311,7 +308,7 @@ void AddComponent(Utils::XmlNode& node, GameObject& gameObject)
 
 void Read(Scene& scene, Utils::XmlNode& node, GameObject& gameObject)
 {
-    Read(*node.GetChild(CSTR_TRANSFORM), gameObject.worldTransform);
+    Read(*node.GetChild(CSTR_TRANSFORM), gameObject.GetTransform());
 
     auto& componentsNode = *node.GetChild(CSTR_COMPONENTS);
 

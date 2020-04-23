@@ -93,7 +93,7 @@ void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subsc
     if (not model)
         return;
 
-    const auto& terrainPosition = subscriber.gameObject_->worldTransform.GetPosition();
+    const auto& terrainPosition = subscriber.gameObject_->GetWorldTransform().GetPosition();
     const auto& config          = subscriber.component_->GetConfiguration();
 
     auto partsCount = *config.GetPartsCount();
