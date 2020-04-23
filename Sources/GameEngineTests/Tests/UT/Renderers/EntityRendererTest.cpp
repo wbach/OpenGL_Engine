@@ -1,3 +1,4 @@
+
 #include <gtest/gtest.h>
 #include <functional>
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -78,7 +79,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
         sut_->Subscribe(entity.get());
         transformToShader_ = entity->worldTransform.GetMatrix() * mesh_.GetMeshTransform();
-        scene_.AddGameObject(entity);
+        scene_.AddGameObject(std::move(entity));
     }
 
     void CreateModel()
