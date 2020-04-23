@@ -166,7 +166,6 @@ Light& Scene::AddLight(const Light& light)
 
 void Scene::AddGameObject(std::unique_ptr<GameObject> object)
 {
-    object->RegisterComponentFunctions();
     gameObjectsIds_.insert({object->GetId(), object.get()});
     rootGameObject_->AddChild(std::move(object));
 }

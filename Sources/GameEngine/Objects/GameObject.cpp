@@ -21,9 +21,10 @@ GameObject::~GameObject()
 {
 }
 
-void GameObject::AddChild(std::unique_ptr<GameObject> go)
+void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
-    children_.push_back(std::move(go));
+    object->RegisterComponentFunctions();
+    children_.push_back(std::move(object));
 }
 
 bool GameObject::RemoveChild(GameObject& gameObject)
