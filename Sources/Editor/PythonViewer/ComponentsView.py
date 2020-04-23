@@ -35,22 +35,14 @@ class ComponentsView:
         frame.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         self.seletedCompoentName = msg.get("name")
 
-        # variableFrame = tk.Frame(frame, width=270, height=25)
-        # variableFrame.grid(row=0, column=0, padx=5, pady=5)
-
-        # valueFrame = tk.Frame(frame, width=270, height=25)
-        # valueFrame.grid(row=0, column=1, padx=5, pady=5)
-
         for child in msg.getchildren():
             self.params = []
             if child.tag == "params":
-
+                i = 0
                 for param in child.getchildren():
-                    print(param.get("name"))
-                    variableFrame = tk.Frame(frame, width=270, height=25)
-                    variableFrame.pack(padx=5, pady=5)
-                    tk.Label(variableFrame, text=param.get("name")).grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
-                    tk.Label(variableFrame, text=param.get("type")).grid(row=0, column=1, padx=5, pady=5, sticky=(tk.W, tk.E))
+
+                    tk.Label(frame, text=param.get("name")).grid(row=i, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
+                    tk.Label(frame, text=param.get("type")).grid(row=i, column=1, padx=5, pady=5, sticky=(tk.W, tk.E))
 
                     varType = param.get("type")
                     if varType == "vector":
@@ -61,20 +53,21 @@ class ComponentsView:
                         columnSpan = 1
                         if varType != "file":
                             columnSpan = 3
-                        tk.Entry(variableFrame, textvariable=text, width=50).grid(row=0, column=2, padx=5, pady=5, sticky=tk.W, columnspan=columnSpan)
+                        tk.Entry(frame, textvariable=text, width=50).grid(row=i, column=2, padx=5, pady=5, sticky=tk.W, columnspan=columnSpan)
                         self.params.append([param.get("name"), text])
 
                         if varType == "file":
-                            btn = tk.Button(variableFrame, text="Choose file", command=partial(self.OpenFile, text))
-                            btn.grid(row=0, column=3, padx=5, pady=0)
+                            btn = tk.Button(frame, text="Choose file", command=partial(self.OpenFile, text))
+                            btn.grid(row=i, column=3, padx=5, pady=0)
+                    i = i + 1
 
         buttonFrame = tk.Frame(self.dialog, width=270, height=25)
-        buttonFrame.grid(row=1, column=0, padx=5, pady=0)
+        buttonFrame.grid(row=i, column=0, padx=5, pady=0)
 
         btn = tk.Button(buttonFrame, text="Confirm", command=self.SendModifyComponentReqAndCloseDialog)
-        btn.grid(row=0, column=0, padx=5, pady=0)
+        btn.grid(row=0, column=0, padx=5, pady=10)
         btn = tk.Button(buttonFrame, text="Cancel", command=self.CloseDialog)
-        btn.grid(row=0, column=1, padx=5, pady=0)
+        btn.grid(row=0, column=1, padx=5, pady=10)
 
     def OpenFile(self, text):
         filename = self.fileManager.OpenAllTypesFile()
