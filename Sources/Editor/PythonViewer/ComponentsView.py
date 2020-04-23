@@ -2,9 +2,10 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
 from CommonWidgetTools import CalculateGeomentryCenterPosition
+from functools import partial
 
 class ComponentsView:
-    def __init__(self, context, rootFrame):
+    def __init__(self, context, rootFrame, fileManager):
         self.size = 0
         self.context = context
         self.networkClient = context.networkClient
@@ -15,6 +16,7 @@ class ComponentsView:
         self.isDialogVisible = False
         self.params=[]
         self.seletedCompoentName=""
+        self.fileManager = fileManager
 
         self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=270, height=25)
         self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
@@ -28,9 +30,9 @@ class ComponentsView:
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
 
     def HandleComponentDataMessage(self, msg):
-        self.CreateDialog(msg.get("name"), 280, 400)
+        self.CreateDialog(msg.get("name"), 600, 400)
         frame = tk.LabelFrame(self.dialog, text="Component parameters", width=270, height=25)
-        frame.grid(row=0, column=0, padx=5, pady=5)
+        frame.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         self.seletedCompoentName = msg.get("name")
 
         # variableFrame = tk.Frame(frame, width=270, height=25)
@@ -46,8 +48,8 @@ class ComponentsView:
                 for param in child.getchildren():
                     variableFrame = tk.Frame(frame, width=270, height=25)
                     variableFrame.pack(padx=5, pady=5)
-                    tk.Label(variableFrame, text=param.get("name")).grid(row=0, column=0, padx=5, pady=5)
-                    tk.Label(variableFrame, text=param.get("type")).grid(row=0, column=1, padx=5, pady=5)
+                    tk.Label(variableFrame, text=param.get("name")).grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
+                    tk.Label(variableFrame, text=param.get("type")).grid(row=0, column=1, padx=5, pady=5, sticky=(tk.W, tk.E))
 
                     varType = param.get("type")
                     if varType == "vector":
@@ -55,19 +57,32 @@ class ComponentsView:
                     else:
                         text = tk.StringVar()
                         text.set(param.get("value"))
-                        tk.Entry(variableFrame, textvariable=text, width=15).grid(row=0, column=2, padx=5, pady=5)
+                        columnSpan = 1
+                        if varType != "file":
+                            columnSpan = 3
+                        tk.Entry(variableFrame, textvariable=text, width=50).grid(row=0, column=2, padx=5, pady=5, sticky=tk.W, columnspan=columnSpan)
                         self.params.append([param.get("name"), text])
+
+                        if varType == "file":
+                            btn = tk.Button(variableFrame, text="Choose file", command=partial(self.OpenFile, text))
+                            btn.grid(row=0, column=3, padx=5, pady=0)
+
                         i = i + 1
 
         buttonFrame = tk.Frame(self.dialog, width=270, height=25)
         buttonFrame.grid(row=1, column=0, padx=5, pady=0)
 
-        btn = tk.Button(buttonFrame, text="Confirm", command=self.SendModifyComponentReq)
+        btn = tk.Button(buttonFrame, text="Confirm", command=self.SendModifyComponentReqAndCloseDialog)
         btn.grid(row=0, column=0, padx=5, pady=0)
-        btn = tk.Button(buttonFrame, text="Cancel", command=lambda : dialog.destroy())
+        btn = tk.Button(buttonFrame, text="Cancel", command=self.CloseDialog())
         btn.grid(row=0, column=1, padx=5, pady=0)
 
-    def SendModifyComponentReq(self):
+    def OpenFile(self, text):
+        filename = self.fileManager.OpenAllTypesFile()
+        if filename:
+            text.set(filename)
+
+    def SendModifyComponentReqAndCloseDialog(self):
         print(self.params)
         paramList = ""
         for param in self.params:
@@ -79,6 +94,7 @@ class ComponentsView:
 
         print(paramList)
         self.networkClient.SendCommand("modifyComponentReq gameObjectId=" + str(self.gameObjectId) + " componentName=" + self.seletedCompoentName + " " + paramList)
+        self.CloseDialog()
 
     def ComponentParamChange(self, input):
         print("Param " + input.get() + " is changed")

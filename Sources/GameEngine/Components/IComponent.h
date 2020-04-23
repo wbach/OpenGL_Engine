@@ -1,12 +1,14 @@
 #pragma once
-#include "ComponentsTypes.h"
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
+
+#include "ComponentsTypes.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+const std::string FILE{"file"};
 const std::string STRING{"string"};
 const std::string INT{"int"};
 const std::string BOOL{"bool"};

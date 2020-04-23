@@ -55,7 +55,7 @@ std::unique_ptr<Model> AbstractLoader::Create()
 
     auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    DEBUG_LOG("Time : " + std::to_string(duration) + "ms.");
+    DEBUG_LOG("Model created. " + fileName_ + ". Time : " + std::to_string(duration) + "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()) );
     return newModel;
 }
 std::unique_ptr<Model> AbstractLoader::CreateModel()
@@ -65,8 +65,17 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
     auto newModel = std::make_unique<Model>(maxFactor);
 
+    if (objects.empty())
+    {
+        ERROR_LOG(fileName_ + ". No object to create!");
+    }
     for (auto& obj : objects)
     {
+        if (obj.meshes.empty())
+        {
+            ERROR_LOG(fileName_ + ". No meshes in object!");
+        }
+
         NormalizeMatrix(obj.transformMatrix, maxFactor);
 
         for (auto& mesh : obj.meshes)

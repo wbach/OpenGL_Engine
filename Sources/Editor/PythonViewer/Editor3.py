@@ -30,7 +30,7 @@ class Editor:
         self.sceneControlView = SceneControlView(self.context.networkClient, self.rightFrame)
         self.infoView = InfoView(self.context.networkClient, self.rightFrame)
         self.transformView = TransformView(self.context.networkClient, self.rightFrame, self.infoView)
-        self.componentsView = ComponentsView(self.context, self.rightFrame)
+        self.componentsView = ComponentsView(self.context, self.rightFrame, self.fileManager)
 
         self.gameObjectView = GameObjectView(self.context.networkClient, self.root, self.infoView, self.transformView,
                                              self.componentsView, self.fileManager)

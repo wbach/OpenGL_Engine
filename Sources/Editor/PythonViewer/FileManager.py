@@ -61,8 +61,11 @@ class FileManager:
             messagebox.showerror(title="Error", message=sys.exc_info())
         return ""
 
+    def OpenAllTypesFile(self):
+        return self.OpenFile(self.GetInitFilename(""), (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
+
     def OpenSceneFile(self):
-        filename = self.fileManger.OpenFile(self.GetInitFilename(""), (("scene files","*.xml"),("all files","*.*")))
+        filename = self.OpenFile(self.GetInitFilename(""), (("scene files","*.xml"),("all files","*.*")))
         if filename:
             self.networkClient.SendCommand("openFile filename=" + filename)
 
