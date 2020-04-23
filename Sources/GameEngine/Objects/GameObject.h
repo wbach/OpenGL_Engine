@@ -65,6 +65,7 @@ protected:
     common::Transform worldTransform_;
     std::vector<std::unique_ptr<Components::IComponent>> components_;
     std::optional<uint32> parentIdTransfromSubscribtion_;
+    std::optional<uint32> localTransfromSubscribtion_;
 
 private:
     static uint32 s_id;

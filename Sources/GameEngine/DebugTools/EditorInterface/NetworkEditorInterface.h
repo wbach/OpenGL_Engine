@@ -62,6 +62,7 @@ private:
     void GetComponentParams(const EntryParameters&);
     void SetPhysicsVisualization(const EntryParameters&);
     void SelectGameObject(const EntryParameters&);
+    void GoCameraToObject(const EntryParameters&);
     void StartScene();
     void StopScene();
     void ModifyComponentReq(const EntryParameters&);

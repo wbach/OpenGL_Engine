@@ -118,6 +118,7 @@ void NetworkEditorInterface::DefineCommands()
     commands_.insert({"clearAllGameObjects", [&](const EntryParameters& v) { ClearAllGameObjects(v); } });
     commands_.insert({"setPhysicsVisualization", [&](const EntryParameters& v) { SetPhysicsVisualization(v); } });
     commands_.insert({"selectGameObject", [&](const EntryParameters& v) { SelectGameObject(v); } });
+    commands_.insert({"goCameraToObject", [&](const EntryParameters& v) { GoCameraToObject(v); } });
     commands_.insert({"exit", [&](const EntryParameters&) { scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT)); }});
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
     // clang-format on
@@ -211,7 +212,7 @@ void NetworkEditorInterface::KeysSubscribtions()
                 DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
 
                 dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                          scene_.renderersManager_->GetProjection());
+                                                           scene_.renderersManager_->GetProjection());
 
                 if (userId_ > 0)
                 {
@@ -821,9 +822,21 @@ void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
         return;
 
     selectedGameObject_ = gameObject;
-    cameraEditor->SetPosition(selectedGameObject_->GetWorldTransform().GetPosition() +
-                              (2.f * selectedGameObject_->GetWorldTransform().GetScale()));
-    cameraEditor->LookAt(selectedGameObject_->GetWorldTransform().GetPosition());
+}
+
+void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::EntryParameters &paramters)
+{
+    if (not paramters.count("gameObjectId"))
+        return;
+
+    auto gameObject = GetGameObject(paramters.at("gameObjectId"));
+
+    if (not gameObject)
+        return;
+
+    cameraEditor->SetPosition(gameObject->GetWorldTransform().GetPosition() +
+                              (3.f * gameObject->GetWorldTransform().GetScale()));
+    cameraEditor->LookAt(gameObject->GetWorldTransform().GetPosition());
 }
 
 void NetworkEditorInterface::StartScene()

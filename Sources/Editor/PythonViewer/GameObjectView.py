@@ -30,11 +30,13 @@ class GameObjectView:
 
         self.popupMenuSelection = 0
         self.popupMenu = tk.Menu(self.tree, tearoff=0)
+        self.popupMenu.add_command(label="Go to object", command=self.GoToObject)
         self.popupMenu.add_command(label="Create child", command=self.CreateChild)
         self.popupMenu.add_command(label="Create child with model", command=self.CreateChildWithModel)
         self.popupMenu.add_command(label="Rename gameObject", command=self.RenameObject)
         self.popupMenu.add_command(label="Delete gameObject", command=self.DeleteSelected)
         self.tree.bind("<Button-3>", self.Popup)
+        self.tree.bind('<Double-1>', self.OnDoubleClick)
 
         self.networkClient.SubscribeOnMessage("ReloadScene", self.Clear)
         self.networkClient.SubscribeOnMessage("GameObjectRenamed", self.OnGameObjectRenamed)
@@ -71,7 +73,7 @@ class GameObjectView:
         if self.popupMenuSelection:
             self.tree.focus(self.popupMenuSelection)
             self.tree.selection_set(self.popupMenuSelection)
-            self.popupMenu.post(event.x_root, event.y_root)
+            self.popupMenu.tk_popup(event.x_root, event.y_root)
 
     def DeleteSelected(self):
         curItem = self.tree.focus()
@@ -180,6 +182,14 @@ class GameObjectView:
         elif type == self.cameraType:
             self.ShowCameraInView()
             self.networkClient.SendCommand("getCamera")
+
+    def OnDoubleClick(self, event):
+        self.GoToObject()
+
+    def GoToObject(self):
+        name, gameObjectId, type = self.GetGameObjectNameAndId()
+        if type == self.goType:
+            self.networkClient.SendCommand("goCameraToObject gameObjectId=" + str(gameObjectId))
 
     def OnSelectedObjectChanged(self, msg):
         gameObjectId = int(msg.get("id"))
