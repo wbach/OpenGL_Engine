@@ -34,6 +34,9 @@ public:
     TerrainMeshRendererComponent* GetMeshTerrain();
     const vec3& GetScale() const;
 
+    virtual void InitFromParams(std::unordered_map<std::string, std::string>) override;
+    virtual std::unordered_map<ParamName, Param> GetParams() const override;
+
 private:
     void SetRendererType(RendererType);
     virtual void ReqisterFunctions() override;

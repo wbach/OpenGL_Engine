@@ -22,13 +22,15 @@ public:
                                 GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     RendererComponent& SetTextureIndex(uint32_t index);
     virtual void ReqisterFunctions() override;
-    virtual void InitFromParams(std::unordered_map<std::string, std::string>) override;
-    virtual std::unordered_map<ParamName, Param> GetParams() const override;
+
     inline ModelWrapper& GetModelWrapper();
     inline uint32_t GetTextureIndex() const;
     inline const std::unordered_map<std::string, LevelOfDetail>& GetFileNames() const;
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 meshId) const;
     inline const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint32 meshId) const;
+
+    virtual void InitFromParams(std::unordered_map<std::string, std::string>) override;
+    virtual std::unordered_map<ParamName, Param> GetParams() const override;
 
 public:
     void UpdateBuffers(); // Call on rendering thread

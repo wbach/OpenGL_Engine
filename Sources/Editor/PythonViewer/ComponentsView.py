@@ -44,8 +44,9 @@ class ComponentsView:
         for child in msg.getchildren():
             self.params = []
             if child.tag == "params":
-                i = 0
+
                 for param in child.getchildren():
+                    print(param.get("name"))
                     variableFrame = tk.Frame(frame, width=270, height=25)
                     variableFrame.pack(padx=5, pady=5)
                     tk.Label(variableFrame, text=param.get("name")).grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
@@ -67,14 +68,12 @@ class ComponentsView:
                             btn = tk.Button(variableFrame, text="Choose file", command=partial(self.OpenFile, text))
                             btn.grid(row=0, column=3, padx=5, pady=0)
 
-                        i = i + 1
-
         buttonFrame = tk.Frame(self.dialog, width=270, height=25)
         buttonFrame.grid(row=1, column=0, padx=5, pady=0)
 
         btn = tk.Button(buttonFrame, text="Confirm", command=self.SendModifyComponentReqAndCloseDialog)
         btn.grid(row=0, column=0, padx=5, pady=0)
-        btn = tk.Button(buttonFrame, text="Cancel", command=self.CloseDialog())
+        btn = tk.Button(buttonFrame, text="Cancel", command=self.CloseDialog)
         btn.grid(row=0, column=1, padx=5, pady=0)
 
     def OpenFile(self, text):
@@ -172,7 +171,7 @@ class ComponentsView:
             self.dialog.destroy()
         self.dialog = tk.Toplevel(self.rootFrame)
         self.dialog.title(title)
-        self.dialog.geometry(CalculateGeomentryCenterPosition(self.context, sizeX, sizeY))
+        #self.dialog.geometry(CalculateGeomentryCenterPosition(self.context, sizeX, sizeY))
         self.dialog.attributes('-topmost', 'true')
         self.isDialogVisible = True
 

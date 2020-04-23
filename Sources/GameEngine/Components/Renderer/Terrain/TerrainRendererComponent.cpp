@@ -5,6 +5,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/ConfigurationParams/TerrainParam/TerrainType.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 #include "TerrainMeshRendererComponent.h"
 #include "TerrainTessellationRendererComponent.h"
 
@@ -165,6 +166,24 @@ const vec3& TerrainRendererComponent::GetScale() const
 
     ERROR_LOG("RendererType unkonown, return default.");
     return DEFAULT_SCALE;
+}
+
+void TerrainRendererComponent::InitFromParams(std::unordered_map<std::string, std::string>)
+{
+}
+
+std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
+{
+    std::unordered_map<ParamName, Param> result;
+
+    const auto& textures = GetTextureFileNames();
+
+    for (const auto& texture : textures)
+    {
+        result.insert({std::to_string(texture.first), {FILE, texture.second}});
+    }
+
+    return result;
 }
 
 void TerrainRendererComponent::ReqisterFunctions()
