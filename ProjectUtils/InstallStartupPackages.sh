@@ -34,14 +34,14 @@ sudo apt-get install -y python3-tk
 sudo apt-get install -y python-backports.functools-lru-cache
 sudo apt-get install -y python-tk
 
-sudo pip install -U scikit-learn
-sudo pip install tqdm
-sudo pip install -U matplotlib
-sudo pip install --upgrade google-api-python-client oauth2client
+pip install -U scikit-learn
+pip install tqdm
+pip install -U matplotlib
+pip install --upgrade google-api-python-client oauth2client
 #https://github.com/prahladyeri/tuxdrive
-sudo pip3 install pillow
-sudo pip3 install lxml
-sudo pip3 install google-api-python-client oauth2client
+pip3 install pillow
+pip3 install lxml
+pip3 install google-api-python-client oauth2client
 sudo dpkg -i tuxdrive-1.0.12.deb
 
 #game dev
@@ -74,7 +74,8 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 exit 1
 
-
+#sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.4 50
+#sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.4 50
 
 git clone https://github.com/skilion/onedrive.git ~/onedrive
 cd ~/onedrive

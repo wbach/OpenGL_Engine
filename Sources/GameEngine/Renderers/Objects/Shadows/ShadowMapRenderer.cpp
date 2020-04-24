@@ -163,7 +163,9 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
     if (!mesh.IsInit())
         return;
 
-    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
+    if (mesh.GetMaterial().diffuseTexture)
+        context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
+
     context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
 }
 

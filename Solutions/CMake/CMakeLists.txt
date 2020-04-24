@@ -1,6 +1,14 @@
 project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # require at least gcc 8.0
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        message(FATAL_ERROR "GCC version must be at least 8.0!")
+    endif()
+    message(WARNING "You are using an unsupported compiler!.")
+endif()
+
 option(BUILD_ALL "Build all" OFF)
 option(BUILD_UTILS "Build game engine utils" OFF)
 option(BUILD_UTILS_NETWORK "Build network utils" OFF)

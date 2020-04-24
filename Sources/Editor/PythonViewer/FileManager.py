@@ -63,23 +63,36 @@ class FileManager:
 
     def OpenAllTypesFile(self):
         ftypes = [('All files', '*.*')]
-        return self.OpenFile(self.GetInitFilename(""), ftypes)
+        filename = self.OpenFile(self.GetInitFilename(""), ftypes)
+        if filename:
+            self.WriteToHistFile(filename)
+        return filename
 
     def OpenImageFile(self):
-        return self.OpenFile(self.GetInitFilename(""), (("Image file","*.png"),("Image file","*.jpg"), ("Image file","*.jpeg"), ("Image file","*.bmp")))
+        filename = self.OpenFile(self.GetInitFilename(""), (("Image file","*.png"),("Image file","*.jpg"), ("Image file","*.jpeg"), ("Image file","*.bmp")))
+        if filename:
+            self.WriteToHistFile(filename)
+        return filename
 
     def OpenSceneFile(self):
         filename = self.OpenFile(self.GetInitFilename(""), (("Scene files","*.xml"),("All files","*.*")))
         if filename:
+            self.WriteToHistFile(filename)
             self.networkClient.SendCommand("openFile filename=" + filename)
 
     def OpenModelFile(self, parentId=-1):
         if not AskAndTryConnect(self.networkClient):
             return ""
-        return self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
+        filename = self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
+        if filename:
+            self.WriteToHistFile(filename)
+        return filename
 
     def OpenPrefabFile(self):
-        return self.OpenFile("", (("Prefab files","*.xml"),("all files","*.*")))
+        filename = self.OpenFile("", (("Prefab files","*.xml"),("all files","*.*")))
+        if filename:
+            self.WriteToHistFile(filename)
+        return filename
 
     def SaveFile(self, initialFile, fileTypes):
         if not AskAndTryConnect(self.networkClient):
