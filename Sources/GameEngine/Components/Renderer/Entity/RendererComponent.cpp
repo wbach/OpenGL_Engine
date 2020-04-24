@@ -60,11 +60,11 @@ std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
     std::unordered_map<ParamName, Param> result;
     auto models = model_.Get();
     result.insert(
-        {MODEL_L1, {FILE, models.count(LevelOfDetail::L1) ? models.at(LevelOfDetail::L1)->GetFileName() : ""}});
+        {MODEL_L1, {MODEL_FILE, models.count(LevelOfDetail::L1) ? models.at(LevelOfDetail::L1)->GetFileName() : ""}});
     result.insert(
-        {MODEL_L2, {FILE, models.count(LevelOfDetail::L2) ? models.at(LevelOfDetail::L2)->GetFileName() : ""}});
+        {MODEL_L2, {MODEL_FILE, models.count(LevelOfDetail::L2) ? models.at(LevelOfDetail::L2)->GetFileName() : ""}});
     result.insert(
-        {MODEL_L3, {FILE, models.count(LevelOfDetail::L3) ? models.at(LevelOfDetail::L3)->GetFileName() : ""}});
+        {MODEL_L3, {MODEL_FILE, models.count(LevelOfDetail::L3) ? models.at(LevelOfDetail::L3)->GetFileName() : ""}});
     result.insert({TEXTURE_INDEX, {INT, std::to_string(textureIndex_)}});
 
     return result;

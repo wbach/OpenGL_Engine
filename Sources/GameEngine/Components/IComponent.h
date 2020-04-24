@@ -8,6 +8,8 @@ namespace GameEngine
 {
 namespace Components
 {
+const std::string IMAGE_FILE{"imageFile"};
+const std::string MODEL_FILE{"modelFile"};
 const std::string FILE{"file"};
 const std::string STRING{"string"};
 const std::string INT{"int"};

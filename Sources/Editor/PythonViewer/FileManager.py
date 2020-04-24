@@ -62,10 +62,14 @@ class FileManager:
         return ""
 
     def OpenAllTypesFile(self):
-        return self.OpenFile(self.GetInitFilename(""), (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
+        ftypes = [('All files', '*.*')]
+        return self.OpenFile(self.GetInitFilename(""), ftypes)
+
+    def OpenImageFile(self):
+        return self.OpenFile(self.GetInitFilename(""), (("Image file","*.png"),("Image file","*.jpg"), ("Image file","*.jpeg"), ("Image file","*.bmp")))
 
     def OpenSceneFile(self):
-        filename = self.OpenFile(self.GetInitFilename(""), (("scene files","*.xml"),("all files","*.*")))
+        filename = self.OpenFile(self.GetInitFilename(""), (("Scene files","*.xml"),("All files","*.*")))
         if filename:
             self.networkClient.SendCommand("openFile filename=" + filename)
 
@@ -75,7 +79,7 @@ class FileManager:
         return self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
 
     def OpenPrefabFile(self):
-        return self.OpenFile("", (("prefab files","*.xml"),("all files","*.*")))
+        return self.OpenFile("", (("Prefab files","*.xml"),("all files","*.*")))
 
     def SaveFile(self, initialFile, fileTypes):
         if not AskAndTryConnect(self.networkClient):
@@ -92,6 +96,6 @@ class FileManager:
         return ""
 
     def SaveSceneFile(self):
-        filename = self.SaveFile(self.GetInitFilename("newScene.xml"), (("scene files", "*.xml"), ("all files", "*.*")))
+        filename = self.SaveFile(self.GetInitFilename("newScene.xml"), (("Scene files", "*.xml"), ("all files", "*.*")))
         if filename:
             self.networkClient.SendCommand("saveToFile filename=" + filename)

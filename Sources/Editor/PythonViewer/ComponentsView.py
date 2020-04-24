@@ -4,6 +4,9 @@ from tkinter import messagebox
 from CommonWidgetTools import CenterPosition
 from functools import partial
 from collections import defaultdict
+from PIL import Image, ImageTk
+import os.path
+from os import path
 
 class ComponentsView:
     def __init__(self, context, rootFrame, fileManager):
@@ -31,6 +34,12 @@ class ComponentsView:
         self.networkClient.SubscribeOnMessage("ComponentDataMessage", self.HandleComponentDataMessage)
         self.networkClient.SubscribeOnDisconnect(self.ClearComponents)
 
+        # load = Image.open("/media/baszek/Drive/DriveWBachProjects/GameData/Data/Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg")
+        # render = ImageTk.PhotoImage(load)
+        # img = tk.Label(self.rootFrame, image=render)
+        # img.image = render
+        # img.grid(row=0, column=4, padx=5, pady=0)
+
     def HandleComponentDataMessage(self, msg):
         self.CreateDialog(msg.get("name"), 600, 400)
         frame = tk.LabelFrame(self.dialog, text="Component parameters", width=270, height=25)
@@ -53,15 +62,35 @@ class ComponentsView:
                     else:
                         text = tk.StringVar()
                         text.set(param.get("value"))
+
                         columnSpan = 1
                         if varType != "file":
                             columnSpan = 3
                         tk.Entry(frame, textvariable=text, width=50).grid(row=i, column=2, padx=5, pady=5, sticky=tk.W, columnspan=columnSpan)
                         self.params.append([param.get("name"), text])
 
-                        if varType == "file":
-                            btn = tk.Button(frame, text="Choose file", command=partial(self.OpenFile, text))
+                        if varType == "file" or varType == "imageFile" or varType == "modelFile":
+                            btn = tk.Button(frame, text="Choose file", command=partial(self.OpenFile, text, varType))
                             btn.grid(row=i, column=3, padx=5, pady=0)
+
+                        if varType == "imageFile":
+                            try:
+                                load = Image.open(param.get("value"))
+                                load = load.resize((32, 32), Image.ANTIALIAS)
+                                render = ImageTk.PhotoImage(load)
+                                img = tk.Label(frame, image=render)
+                                img.image = render
+                                img.grid(row=i, column=4, padx=5, pady=0)
+                                text.trace("w", partial(self.ParamValueChange, varType, text, img))
+                                #img.place(x=0, y=0)
+                            except OSError as err:
+                                print("OS error: {0}".format(err))
+                            except:
+                                print("Exception in user code.")
+                                print('-' * 60)
+                                print(traceback.print_exc(file=sys.stdout))
+                                print('-' * 60)
+
                     i = i + 1
 
         buttonFrame = tk.Frame(self.dialog, width=270, height=25)
@@ -74,8 +103,26 @@ class ComponentsView:
 
         #CenterPosition(self.dialog, self.context)
 
-    def OpenFile(self, text):
-        filename = self.fileManager.OpenAllTypesFile()
+    def ParamValueChange(self, varType, text, img, *args):
+        #print(varType + " is changed. " + text.get())
+        if text.get().lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+            if path.exists(text.get()):
+                load = Image.open(text.get())
+                load = load.resize((32, 32), Image.ANTIALIAS)
+                render = ImageTk.PhotoImage(load)
+                img.configure(image=render)
+                img.image = render
+
+
+    def OpenFile(self, text, varType):
+        filename = ""
+        if varType == "imageFile":
+            filename = self.fileManager.OpenImageFile()
+        elif varType == "modelFile":
+            filename = self.fileManager.OpenModelFile()
+        else:
+            filename = self.fileManager.OpenAllTypesFile()
+
         if filename:
             text.set(filename)
 

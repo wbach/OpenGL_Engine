@@ -101,7 +101,20 @@ std::string GetCurrentDir()
 
 std::string GetAbsolutePath(const std::string& file)
 {
-    return std::filesystem::canonical(file).string();
+    try
+    {
+        return std::filesystem::canonical(file).string();
+    }
+    catch (std::filesystem::filesystem_error e)
+    {
+        ERROR_LOG(e.what());
+        return file;
+    }
+    catch (...)
+    {
+        ERROR_LOG("error " + file);
+        return file;
+    }
 }
 
 bool DirectoryExist(const std::string& pathDir)
@@ -121,7 +134,20 @@ bool IsRelativePath(const std::string& path)
 
 std::string GetRelativePath(const std::string& absoultePath, const std::string& workingPath)
 {
-    return std::filesystem::relative(absoultePath, workingPath).string();
+    try
+    {
+        return std::filesystem::relative(absoultePath, workingPath).string();
+    }
+    catch (std::filesystem::filesystem_error e)
+    {
+        ERROR_LOG(e.what());
+        return absoultePath;
+    }
+    catch (...)
+    {
+        ERROR_LOG("error " + absoultePath);
+        return absoultePath;
+    }
 }
 
 }  // namespace Utils

@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "TerrainMeshRendererComponent.h"
 #include "TerrainTessellationRendererComponent.h"
+#include "Utils/FileSystem/FileSystemUtils.hpp"
 
 namespace GameEngine
 {
@@ -189,7 +190,7 @@ void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::stri
             continue;
 
         auto textureType = CreateFromString(param.first);
-        UpdateTexture(textureType, param.second);
+        UpdateTexture(textureType, GetRelativeDataPath(param.second));
     }
 }
 
@@ -201,7 +202,8 @@ std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
 
     for (const auto& texture : textures)
     {
-        result.insert({std::to_string(texture.first), {FILE, texture.second}});
+        auto varType = texture.first == TerrainTextureType::heightmap ? FILE : IMAGE_FILE;
+        result.insert({std::to_string(texture.first), {varType, Utils::GetAbsolutePath(GetFullDataPath(texture.second))}});
     }
 
     return result;
