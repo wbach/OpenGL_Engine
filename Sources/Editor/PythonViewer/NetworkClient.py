@@ -64,8 +64,13 @@ class NetworkClient:
                         subscriber(main)
                 else:
                     self.Print("Msg \"{0}\" handler not found".format(msgType))
+            except OSError as err:
+                print("OS error: {0}".format(err))
             except:
-                print("Parsing msg failed.")
+                print("Exception in user code. Msg: \n" + msg)
+                print('-' * 60)
+                print(traceback.print_exc(file=sys.stdout))
+                print('-' * 60)
 
     def SendMsg(self, msg, type):
         self.socket_.send(chr(4).encode(self.encodeFormat_))

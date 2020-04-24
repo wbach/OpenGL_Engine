@@ -357,9 +357,12 @@ void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network:
         return;
     }
 
-    if (commands_.count(splitCommand[0]))
+    auto command = splitCommand[0];
+    splitCommand.erase(splitCommand.begin());
+
+    if (commands_.count(command))
     {
-        commands_.at(splitCommand[0])(CreateParamMap(splitCommand));
+        commands_.at(command)(CreateParamMap(splitCommand));
     }
     else
     {
@@ -940,7 +943,7 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &v)
     scene_.ClearGameObjects();
 }
 
-std::unordered_map<std::string, std::string> NetworkEditorInterface::CreateParamMap(
+NetworkEditorInterface::EntryParameters NetworkEditorInterface::CreateParamMap(
     const std::vector<std::string> &param)
 {
     std::unordered_map<std::string, std::string> v;

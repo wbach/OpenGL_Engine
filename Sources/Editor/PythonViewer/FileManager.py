@@ -20,7 +20,7 @@ class FileManager:
 
     def OnSceneFileMsg(self, msg):
         self.sceneFileName = msg.get("filename")
-        if filename:
+        if self.sceneFileName:
             file = open(self.histTmpFile, "w")
             file.write(self.sceneFileName)
             file.close()

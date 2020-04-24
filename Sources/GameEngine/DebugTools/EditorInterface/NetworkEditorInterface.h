@@ -71,7 +71,7 @@ private:
     void ClearAll(const EntryParameters&);
     void ClearAllGameObjects(const EntryParameters&);
 
-    std::unordered_map<std::string, std::string> CreateParamMap(const std::vector<std::string>&);
+    EntryParameters CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
     GameObject* GetGameObject(const std::string&);
     void UnsubscribeTransformUpdateIfExist();

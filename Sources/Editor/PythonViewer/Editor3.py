@@ -6,7 +6,7 @@ from FileManager import FileManager
 from InfoView import InfoView
 from Menu import Menu
 from Context import Context
-from CommonWidgetTools import CalculateGeomentryCenterPosition
+from CommonWidgetTools import LeftPosition
 from tkinter import messagebox
 
 import os
@@ -20,8 +20,6 @@ class Editor:
         self.context = Context(self.root, TCP_IP, TCP_PORT)
         self.titleBase = "Editor"
         self.root.title(self.titleBase + " (disconnected)")
-
-        self.root.geometry(CalculateGeomentryCenterPosition(self.context, 660, 750))
 
         self.rightFrame = tk.Frame(self.root, width=325, height=400)
         self.rightFrame.grid(row=0, column=1, padx=5, pady=5, sticky=(tk.W, tk.N))
@@ -41,6 +39,8 @@ class Editor:
         self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
         self.context.networkClient.SubscribeOnConnect(self.OnConnect)
 
+        LeftPosition(self.root, self.context)
+
         self.root.mainloop()
 
     def OnErrorIndication(self, msg):
@@ -53,7 +53,7 @@ class Editor:
         self.root.title(self.titleBase + " (connected)")
 
     def OnSceneFileMsg(self, msg):
-        self.root.title(self.titleBase + " (connected)" + os.path.basename(msg.get("filename")))
+        self.root.title(self.titleBase + " (connected) Scene : " + os.path.basename(msg.get("filename")))
 
 if __name__ == "__main__":
     TCP_IP = 'localhost'

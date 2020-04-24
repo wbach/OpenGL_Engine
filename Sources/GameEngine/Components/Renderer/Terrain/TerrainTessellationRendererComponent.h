@@ -1,9 +1,9 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "TerrainTexturesTypes.h"
 #include "TerrainConfiguration.h"
 #include "TerrainQuadTree.h"
+#include "TerrainTexturesTypes.h"
 
 namespace GameEngine
 {
@@ -17,6 +17,7 @@ public:
     virtual void ReqisterFunctions() override;
     TerrainTessellationRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const TerrainTexturesMap& GetTextures() const;
+    void UpdateTexture(TerrainTextureType, const std::string&);
     Texture* GetTexture(TerrainTextureType type);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     const TerrainQuadTree& GetTree() const;
@@ -29,6 +30,7 @@ public:
 private:
     void Update();
     void SetTexture(TerrainTextureType, Texture*);
+    void UpdateTexture(TerrainTextureType type, Texture *texture);
     void LoadHeightMap(const std::string& hightMapFile);
     void Subscribe();
     void UnSubscribe();

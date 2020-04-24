@@ -40,7 +40,7 @@ bool BaseComponent::IsActive() const
 {
     return isActive_;
 }
-void BaseComponent::InitFromParams(std::unordered_map<std::string, std::string>)
+void BaseComponent::InitFromParams(const std::unordered_map<std::string, std::string>&)
 {
 }
 }  // namespace Components

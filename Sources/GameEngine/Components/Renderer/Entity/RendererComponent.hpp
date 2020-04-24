@@ -29,7 +29,7 @@ public:
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 meshId) const;
     inline const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint32 meshId) const;
 
-    virtual void InitFromParams(std::unordered_map<std::string, std::string>) override;
+    virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     virtual std::unordered_map<ParamName, Param> GetParams() const override;
 
 public:

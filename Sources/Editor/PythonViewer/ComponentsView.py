@@ -1,8 +1,9 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
-from CommonWidgetTools import CalculateGeomentryCenterPosition
+from CommonWidgetTools import CenterPosition
 from functools import partial
+from collections import defaultdict
 
 class ComponentsView:
     def __init__(self, context, rootFrame, fileManager):
@@ -15,6 +16,7 @@ class ComponentsView:
         self.gameObjectId = 0
         self.isDialogVisible = False
         self.params=[]
+        self.requestedParams = dict() #defaultdict(list)
         self.seletedCompoentName=""
         self.fileManager = fileManager
 
@@ -37,10 +39,11 @@ class ComponentsView:
 
         for child in msg.getchildren():
             self.params = []
+            self.requestedParams = dict()
             if child.tag == "params":
                 i = 0
                 for param in child.getchildren():
-
+                    self.requestedParams[param.get("name")] = param.get("value")
                     tk.Label(frame, text=param.get("name")).grid(row=i, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
                     tk.Label(frame, text=param.get("type")).grid(row=i, column=1, padx=5, pady=5, sticky=(tk.W, tk.E))
 
@@ -69,23 +72,26 @@ class ComponentsView:
         btn = tk.Button(buttonFrame, text="Cancel", command=self.CloseDialog)
         btn.grid(row=0, column=1, padx=5, pady=10)
 
+        #CenterPosition(self.dialog, self.context)
+
     def OpenFile(self, text):
         filename = self.fileManager.OpenAllTypesFile()
         if filename:
             text.set(filename)
 
     def SendModifyComponentReqAndCloseDialog(self):
-        print(self.params)
         paramList = ""
+        #print(self.params)
+        #print(self.requestedParams)
         for param in self.params:
-            print(param)
-            print(param[0])
-            print(param[1].get())
-            value=param[1].get().replace(" ", "%")
-            paramList = paramList + param[0] + "=" + value + " "
+            if self.requestedParams[param[0]] != param[1].get():
+                value=param[1].get().replace(" ", "%")
+                paramList = paramList + param[0] + "=" + value + " "
 
-        print(paramList)
-        self.networkClient.SendCommand("modifyComponentReq gameObjectId=" + str(self.gameObjectId) + " componentName=" + self.seletedCompoentName + " " + paramList)
+        if paramList:
+            self.networkClient.SendCommand("modifyComponentReq gameObjectId=" + str(self.gameObjectId) + " componentName=" + self.seletedCompoentName + " " + paramList)
+        else:
+            print("no param to change")
         self.CloseDialog()
 
     def ComponentParamChange(self, input):
@@ -164,8 +170,7 @@ class ComponentsView:
             self.dialog.destroy()
         self.dialog = tk.Toplevel(self.rootFrame)
         self.dialog.title(title)
-        #self.dialog.geometry(CalculateGeomentryCenterPosition(self.context, sizeX, sizeY))
-        self.dialog.attributes('-topmost', 'true')
+        #self.dialog.attributes('-topmost', 'true')
         self.isDialogVisible = True
 
     def CloseDialog(self):

@@ -26,14 +26,14 @@ typedef std::string ParamName;
 class IComponent
 {
 public:
-    virtual ~IComponent()                                                     = default;
-    virtual void ReqisterFunctions()                                          = 0;
-    virtual ComponentsType GetType() const                                    = 0;
-    virtual bool IsActive() const                                             = 0;
-    virtual void Activate()                                                   = 0;
-    virtual void Deactivate()                                                 = 0;
-    virtual void InitFromParams(std::unordered_map<std::string, std::string>) = 0;
-    virtual std::unordered_map<ParamName, Param> GetParams() const            = 0;
+    virtual ~IComponent()                                                            = default;
+    virtual void ReqisterFunctions()                                                 = 0;
+    virtual ComponentsType GetType() const                                           = 0;
+    virtual bool IsActive() const                                                    = 0;
+    virtual void Activate()                                                          = 0;
+    virtual void Deactivate()                                                        = 0;
+    virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) = 0;
+    virtual std::unordered_map<ParamName, Param> GetParams() const                   = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

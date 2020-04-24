@@ -6,6 +6,26 @@ def CalculateGeomentryCenterPosition(context, w, h):
     y = (context.screenHeight / 2) - (h / 2)
     return '%dx%d+%d+%d' % (w, h, x, y)
 
+def CenterPosition(widget, context):
+    widget.wm_withdraw()
+    widget.update_idletasks()  # Update "requested size" from geometry manager
+    windowWidth = widget.winfo_reqwidth()
+    windowHeight = widget.winfo_reqheight()
+    x = (context.screenWidth / 2) - (windowWidth / 2)
+    y = (context.screenHeight / 2) - (windowHeight / 2)
+    widget.geometry("+%d+%d" % (x, y))
+    widget.wm_deiconify()
+
+def LeftPosition(widget, context):
+    widget.wm_withdraw()
+    widget.update_idletasks()  # Update "requested size" from geometry manager
+    windowWidth = widget.winfo_reqwidth()
+    windowHeight = widget.winfo_reqheight()
+    x = 0
+    y = (context.screenHeight / 2) - (windowHeight / 2)
+    widget.geometry("+%d+%d" % (x, y))
+    widget.wm_deiconify()
+
 def AskAndTryConnect(networkClient):
     if not networkClient.IsConnected():
         while True:

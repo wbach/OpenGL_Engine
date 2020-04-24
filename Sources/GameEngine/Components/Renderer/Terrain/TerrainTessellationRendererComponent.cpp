@@ -13,7 +13,8 @@ namespace Components
 {
 ComponentsType TerrainTessellationRendererComponent::type = ComponentsType::TerrainRenderer;
 
-TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
+TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(const ComponentContext& componentContext,
+                                                                           GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , terrainQuadTree_(terrainConfiguration_)
     , normalMap_(nullptr)
@@ -30,7 +31,13 @@ void TerrainTessellationRendererComponent::SetTexture(TerrainTextureType type, T
 {
     textures_.insert({type, texture});
 }
-
+void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type, Texture* texture)
+{
+    if (textures_.count(type))
+        textures_.at(type) = texture;
+    else
+        SetTexture(type, texture);
+}
 TerrainTessellationRendererComponent& TerrainTessellationRendererComponent::LoadTextures(
     const std::unordered_map<TerrainTextureType, std::string>& textures)
 {
@@ -68,6 +75,34 @@ const TerrainTexturesMap& TerrainTessellationRendererComponent::GetTextures() co
     return textures_;
 }
 
+void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type, const std::string& filename)
+{
+    if (texturedFileNames_.count(type))
+        texturedFileNames_.at(type) = filename;
+    else
+        texturedFileNames_.insert({type, filename});
+
+    if (type == TerrainTextureType::heightmap)
+    {
+        const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(filename);
+
+        heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, true);
+
+        if (not heightMap_)
+        {
+            return;
+        }
+        auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullNameWithPath) + ".terrainConfig";
+        terrainConfiguration_  = TerrainConfiguration::ReadFromFile(terrainConfigFile);
+        UpdateTexture(TerrainTextureType::heightmap, heightMap_);
+        return;
+    }
+
+    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename);
+    if (texture)
+        UpdateTexture(type, texture);
+}
+
 Texture* TerrainTessellationRendererComponent::GetTexture(TerrainTextureType type)
 {
     if (textures_.count(type) == 0)
@@ -76,7 +111,8 @@ Texture* TerrainTessellationRendererComponent::GetTexture(TerrainTextureType typ
     return textures_.at(type);
 }
 
-const std::unordered_map<TerrainTextureType, std::string>& TerrainTessellationRendererComponent::GetTextureFileNames() const
+const std::unordered_map<TerrainTextureType, std::string>& TerrainTessellationRendererComponent::GetTextureFileNames()
+    const
 {
     return texturedFileNames_;
 }
@@ -107,7 +143,7 @@ void TerrainTessellationRendererComponent::SetTexture(std::unique_ptr<Texture> t
     SetTexture(TerrainTextureType::normalmap, normalMap_.get());
 }
 
-const vec3 &TerrainTessellationRendererComponent::GetScale() const
+const vec3& TerrainTessellationRendererComponent::GetScale() const
 {
     return terrainConfiguration_.GetScale();
 }

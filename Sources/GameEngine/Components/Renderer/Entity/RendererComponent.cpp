@@ -35,7 +35,7 @@ void RendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::Subscribe, this));
 }
-void RendererComponent::InitFromParams(std::unordered_map<std::string, std::string> params)
+void RendererComponent::InitFromParams(const std::unordered_map<std::string, std::string> &params)
 {
     try
     {

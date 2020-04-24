@@ -90,6 +90,19 @@ const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererCompon
     return defualtEmptyTexturesMap;
 }
 
+void TerrainRendererComponent::UpdateTexture(TerrainTextureType textureType, const std::string& texture)
+{
+    switch (rendererType_)
+    {
+        case RendererType::Mesh:
+            meshComponent_->UpdateTexture(textureType, texture);
+            break;
+        case RendererType::Tessellation:
+            tesselationComponent_->UpdateTexture(textureType, texture);
+            break;
+    }
+}
+
 const TerrainConfiguration& TerrainRendererComponent::GetTerrainConfiguration() const
 {
     switch (rendererType_)
@@ -168,8 +181,16 @@ const vec3& TerrainRendererComponent::GetScale() const
     return DEFAULT_SCALE;
 }
 
-void TerrainRendererComponent::InitFromParams(std::unordered_map<std::string, std::string>)
+void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
 {
+    for (const auto& param : params)
+    {
+        if (param.second.empty())
+            continue;
+
+        auto textureType = CreateFromString(param.first);
+        UpdateTexture(textureType, param.second);
+    }
 }
 
 std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const

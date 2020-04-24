@@ -25,8 +25,10 @@ public:
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
     virtual void ReqisterFunctions() override;
     const TerrainConfiguration& GetConfiguration() const;
+    void UpdateTexture(TerrainTextureType, const std::string&);
 
 private:
+    void UpdateTexture(TerrainTextureType, Texture*);
     void SetTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);
     void Subscribe();

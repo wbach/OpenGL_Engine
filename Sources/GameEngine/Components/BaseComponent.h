@@ -19,7 +19,7 @@ public:
     BaseComponent(ComponentsType type, const ComponentContext& ComponentContext, GameObject& gameObject);
     virtual ~BaseComponent() override;
     inline ComponentsType GetType() const override;
-    virtual void InitFromParams(std::unordered_map<std::string, std::string>) override;
+    virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     virtual std::unordered_map<ParamName, Param> GetParams() const override;
     bool IsActive() const override;
     void Activate() override;
