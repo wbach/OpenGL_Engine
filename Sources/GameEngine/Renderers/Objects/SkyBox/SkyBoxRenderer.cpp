@@ -121,7 +121,7 @@ void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, int id) const
 
 void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
 {
-    if (!mesh.IsInit())
+    if (not mesh.IsLoadedToGpu())
         return;
 
     context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());

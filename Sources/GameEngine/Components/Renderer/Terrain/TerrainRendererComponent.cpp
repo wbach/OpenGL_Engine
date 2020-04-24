@@ -189,8 +189,12 @@ void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::stri
         if (param.second.empty())
             continue;
 
-        auto textureType = CreateFromString(param.first);
-        UpdateTexture(textureType, GetRelativeDataPath(param.second));
+        if (IsTerrainTextureType(param.first))
+        {
+            auto textureType = CreateFromString(param.first);
+            UpdateTexture(textureType, GetRelativeDataPath(param.second));
+        }
+
     }
 }
 
@@ -203,7 +207,8 @@ std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
     for (const auto& texture : textures)
     {
         auto varType = texture.first == TerrainTextureType::heightmap ? FILE : IMAGE_FILE;
-        result.insert({std::to_string(texture.first), {varType, Utils::GetAbsolutePath(GetFullDataPath(texture.second))}});
+        result.insert(
+            {std::to_string(texture.first), {varType, Utils::GetAbsolutePath(GetFullDataPath(texture.second))}});
     }
 
     return result;

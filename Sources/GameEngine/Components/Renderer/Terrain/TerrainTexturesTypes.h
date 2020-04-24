@@ -26,6 +26,7 @@ enum class TerrainTextureType
     blueTextureDisplacement       = 15
 };
 TerrainTextureType CreateFromString(const std::string& type);
+bool IsTerrainTextureType(const std::string&);
 typedef std::unordered_map<TerrainTextureType, Texture*> TerrainTexturesMap;
 }  // namespace GameEngine
 namespace std

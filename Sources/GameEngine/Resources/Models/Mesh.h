@@ -22,15 +22,13 @@ public:
          const mat4& transformMatix = mat4(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&)      = default;
-    virtual ~Mesh();
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+    ~Mesh() override;
+    void GpuLoadingPass() override;
     void SetMaterial(const Material& material);
     const MeshBufferes& GetBuffers() const;
     void UpdatePoseBuffer(void* pose) const;
 
     void SetTransformMatrix(const mat4& m);
-    bool IsInit() const;
     bool UseArmature() const;
     const BoundingBox& GetBoundingBox() const;
 
@@ -40,7 +38,6 @@ public:
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
     void SetUseArmatorIfHaveBones();
-
 private:
     void CreateBufferObject();
     void CreateMesh();

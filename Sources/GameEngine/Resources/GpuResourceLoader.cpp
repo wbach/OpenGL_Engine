@@ -40,11 +40,11 @@ void GpuResourceLoader::AddObjectToGpuLoadingPass(GpuObject* obj)
 }
 GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
 {
-    std::lock_guard<std::mutex> lock(gpuPassMutex);
     if (gpuPassLoad.empty())
     {
         return nullptr;
     }
+    std::lock_guard<std::mutex> lock(gpuPassMutex);
     GpuObject* obj = gpuPassLoad.back();
     gpuPassLoad.pop_back();
     return obj;

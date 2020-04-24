@@ -120,7 +120,7 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
     uint32 meshId = 0;
     for (const auto& mesh : meshes)
     {
-        if (not mesh.IsInit())
+        if (not mesh.IsLoadedToGpu())
             continue;
 
         const auto& buffers = mesh.GetBuffers();

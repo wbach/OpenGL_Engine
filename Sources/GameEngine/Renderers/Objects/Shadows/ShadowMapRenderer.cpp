@@ -1,4 +1,5 @@
 #include "ShadowMapRenderer.hpp"
+
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -36,7 +37,7 @@ ShadowMapRenderer::~ShadowMapRenderer()
 void ShadowMapRenderer::Init()
 {
     shader_.Init();
-    perFrameBuffer_  = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+    perFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
 }
 
 bool ShadowMapRenderer::IsInit() const
@@ -49,7 +50,7 @@ void ShadowMapRenderer::Render(const Scene& scene, const Time&)
     if (not IsInit())
         return;
 
-    uint32 lastBindedPerFrameBuffer  = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
+    uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
 
     PrepareRender(scene);
     shader_.Start();
@@ -125,12 +126,12 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
     if (model == nullptr)
         return;
 
-    const auto& meshes                    = model->GetMeshes();
+    const auto& meshes = model->GetMeshes();
 
     int meshId = 0;
     for (const auto& mesh : meshes)
     {
-        if (not mesh.IsInit())
+        if (not mesh.IsLoadedToGpu())
             continue;
 
         const auto& buffers = mesh.GetBuffers();
@@ -160,9 +161,6 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
 
 void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
 {
-    if (!mesh.IsInit())
-        return;
-
     if (mesh.GetMaterial().diffuseTexture)
         context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
 

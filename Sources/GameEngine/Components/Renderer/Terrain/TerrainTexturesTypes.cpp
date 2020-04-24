@@ -41,3 +41,23 @@ GameEngine::TerrainTextureType GameEngine::CreateFromString(const std::string& t
     ERROR_LOG("unknow terrainTextureType=" + type);
     return TerrainTextureType();
 }
+
+bool GameEngine::IsTerrainTextureType(const std::string& type)
+{
+    if (type == "heightmap") return true;
+    if (type == "blendMap") return true;
+    if (type == "normalmap") return true;
+    if (type == "backgorundTexture") return true;
+    if (type == "backgorundTextureNormal") return true;
+    if (type == "backgorundTextureDisplacement") return true;
+    if (type == "redTexture") return true;
+    if (type == "redTextureNormal") return true;
+    if (type == "redTextureDisplacement") return true;
+    if (type == "greenTexture") return true;
+    if (type == "greenTextureNormal") return true;
+    if (type == "greenTextureDisplacement") return true;
+    if (type == "blueTexture") return true;
+    if (type == "blueTextureNormal") return true;
+    if (type == "blueTextureDisplacement") return true;
+    return false;
+}

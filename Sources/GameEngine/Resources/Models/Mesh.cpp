@@ -25,7 +25,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
 
 Mesh::~Mesh()
 {
-    if (!isInit)
+    if (not isInGpu_)
         return;
 
     graphicsApi_.DeleteObject(graphicsObjectId_);
@@ -41,7 +41,6 @@ void Mesh::CreateMesh()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInit            = true;
     }
 }
 
@@ -53,11 +52,6 @@ void Mesh::SetUseArmatorIfHaveBones()
 void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 {
     meshRawData_.instancedMatrixes_ = m;
-}
-
-bool Mesh::IsInit() const
-{
-    return isInit;
 }
 
 bool Mesh::UseArmature() const
@@ -73,12 +67,8 @@ void Mesh::GpuLoadingPass()
     CreateMesh();
     // ClearData();
     CreateBufferObject();
-    GpuObject::GpuLoadingPass();
-}
 
-void Mesh::GpuPostLoadingPass()
-{
-    GpuObject::GpuPostLoadingPass();
+    isInGpu_ = true;
 }
 
 void Mesh::SetTransformMatrix(const glm::mat4& m)

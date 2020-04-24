@@ -76,14 +76,24 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
 
     filenames_.insert({filename, lvl});
 
-    ModelRawPtr model = componentContext_.resourceManager_.LoadModel(filename);
+    auto model = componentContext_.resourceManager_.LoadModel(filename);
 
     if (model)
     {
         thisObject_.TakeWorldTransfromSnapshot();
         ReserveBufferVectors(model->GetMeshes().size());
         CreateBuffers(model);
-        model_.Add(model, lvl);
+
+        auto existModel = model_.Get(lvl);
+        if (not existModel)
+        {
+            model_.Add(model, lvl);
+        }
+        else
+        {
+            model_.Update(model, lvl);
+          //  componentContext_.resourceManager_.ReleaseModel(existModel);
+        }
     }
 
     return *this;
