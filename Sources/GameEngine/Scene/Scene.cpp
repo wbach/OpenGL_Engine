@@ -40,7 +40,7 @@ Scene::~Scene()
 {
     DEBUG_LOG("destructor");
 
-    // gameObjects.clear();
+    networkEditorInterface_.reset();
 
     if (inputManager_ != nullptr)
     {

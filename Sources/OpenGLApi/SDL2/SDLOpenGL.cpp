@@ -20,11 +20,19 @@ SDL_INIT_EVENTTHREAD
 
 namespace OpenGLApi
 {
+#ifndef USE_GNU
 const SDL_MessageBoxButtonData buttons[] = {
-    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"},
     {/* .flags, .buttonid, .text */ 0, 0, "no"},
+    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"}
  //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
 };
+#else
+    const SDL_MessageBoxButtonData buttons[] = {
+    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"},
+    {/* .flags, .buttonid, .text */ 0, 0, "no"}
+    //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
+};
+#endif
 const SDL_MessageBoxColorScheme colorScheme = {{/* .colors (.r, .g, .b) */
                                                 /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
                                                 {200, 200, 200},

@@ -64,10 +64,11 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::Thre
 NetworkEditorInterface::~NetworkEditorInterface()
 {
     DEBUG_LOG("destructor");
+    UnsubscribeCameraUpdateIfExist();
+    SetOrignalCamera();
     cameraEditor.reset();
     KeysUnsubscribe();
     UnsubscribeTransformUpdateIfExist();
-    UnsubscribeCameraUpdateIfExist();
     scene_.renderersManager_->GetDebugRenderer().ClearDebugObjects();
     threadSync_.Unsubscribe(threadId_);
 }
@@ -1002,6 +1003,7 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
     if (cameraChangeSubscriptionId_)
     {
         scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
+        cameraEditor->UnsubscribeOnChange(*cameraChangeSubscriptionId_);
     }
 }
 

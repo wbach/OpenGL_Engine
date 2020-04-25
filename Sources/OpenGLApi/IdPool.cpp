@@ -9,7 +9,7 @@ uint32 IdPool::ToUint(GLuint glId)
 }
 GLuint IdPool::ToGL(uint32 id)
 {
-    if (id <= 0)
+    if (id == 0)
     {
         return 0;
     }

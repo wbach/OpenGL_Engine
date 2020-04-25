@@ -162,8 +162,10 @@ void Engine::RuntimeReleaseObjectGpu()
     while (obj)
     {
         if (obj->GetGraphicsObjectId())
+        {
             engineContext_.GetGraphicsApi().DeleteObject(*obj->GetGraphicsObjectId());
-
+            obj->Reset();
+        }
         obj = gpuLoader.GetObjectToRelease();
     }
 }
