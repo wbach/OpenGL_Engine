@@ -19,11 +19,11 @@ typedef std::vector<std::unique_ptr<IBufferDataUpdaterEvent>> BufferDataUpdaterE
 class BufferDataUpdater
 {
 public:
-    BufferDataUpdater(GraphicsApi::IGraphicsApi& graphicsApi);
+    BufferDataUpdater(GraphicsApi::IGraphicsApi&);
     ~BufferDataUpdater();
 
-    void Subscribe(GameObject* gameObject);
-    void UnSubscribe(GameObject* gameObject);
+    void Subscribe(GameObject*);
+    void UnSubscribe(GameObject*);
     void Update();
     void UnSubscribeAll();
     void ProcessEvents();

@@ -1,34 +1,43 @@
 #include "EngineContext.h"
+#include <Input/InputManager.h>
+#include "Configuration.h"
 
 namespace GameEngine
 {
-EngineContextData::EngineContextData()
-    : threadSync_([this](const std::string &name) -> MeasurementValue & { return AddNewMeasurment(name); })
+EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi,
+                             std::unique_ptr<Physics::IPhysicsApi> physicsApi)
+    : measurmentHandler_()
+    , graphicsApi_(std::move(graphicsApi))
+    , physicsApi_(std::move(physicsApi))
+    , displayManager_(*graphicsApi_, measurmentHandler_)
+    , inputManager_(displayManager_.CreateInput())
+    , threadSync_(measurmentHandler_)
+    , renderersManager_(*graphicsApi_, measurmentHandler_, threadSync_)
 {
 }
 
-EngineContextData::~EngineContextData()
+EngineContext::~EngineContext()
 {
     DEBUG_LOG("destructor");
     threadSync_.Stop();
 }
 
-MeasurementValue &EngineContextData::AddNewMeasurment(const std::string &name)
+void EngineContext::AddEngineEvent(EngineEvent event)
 {
-    measurements_.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(""));
-
-    return measurements_.at(name);
+    std::lock_guard<std::mutex> lk(engineEventsMutex_);
+    engineEvents_.push_back(event);
 }
 
-MeasurementValue &EngineContextData::AddNewMeasurment(const std::string &name, const std::string &value)
+std::optional<EngineEvent> EngineContext::GetEngineEvent()
 {
-    measurements_.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(value));
+    if (engineEvents_.empty())
+        return std::nullopt;
 
-    return measurements_.at(name);
-}
+    std::lock_guard<std::mutex> lk(engineEventsMutex_);
 
-const std::unordered_map<std::string, MeasurementValue> &EngineContextData::GetMeasurments() const
-{
-    return measurements_;
+    auto event = engineEvents_.front();
+    engineEvents_.pop_front();
+
+    return event;
 }
 }  // namespace GameEngine

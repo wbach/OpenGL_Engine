@@ -50,8 +50,9 @@ std::atomic_bool cameraChangedToSend_;
 uint64 sendChangeTimeInterval{100};
 }  // namespace
 
-NetworkEditorInterface::NetworkEditorInterface(Scene &scene)
+NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::ThreadSync &threadSync)
     : scene_(scene)
+    , threadSync_(threadSync)
     , transformChangeSubscription_{nullptr}
     , selectedGameObject_{nullptr}
     , userId_{0}
@@ -68,7 +69,7 @@ NetworkEditorInterface::~NetworkEditorInterface()
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();
     scene_.renderersManager_->GetDebugRenderer().ClearDebugObjects();
-    EngineContext.threadSync_.Unsubscribe(threadId_);
+    threadSync_.Unsubscribe(threadId_);
 }
 
 void NetworkEditorInterface::Run()
@@ -148,7 +149,7 @@ void NetworkEditorInterface::StartGatway()
         Network::MessageTypes::Text,
         std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
-    threadId_ = EngineContext.threadSync_.Subscribe(
+    threadId_ = threadSync_.Subscribe(
         [&](float) {
             gateway_.Update();
 
@@ -401,7 +402,7 @@ void NetworkEditorInterface::GetCamera(const EntryParameters &)
     gateway_.Send(userId_, msg);
 
     cameraChangeSubscriptionId_ =
-        scene_.camera.SubscribeOnChange([&](const auto &camera) { cameraChangedToSend_.store(true); });
+        scene_.camera.SubscribeOnChange([&](const auto &) { cameraChangedToSend_.store(true); });
 }
 
 void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId,
@@ -918,7 +919,7 @@ void NetworkEditorInterface::GetRunningStatus(const NetworkEditorInterface::Entr
     }
 }
 
-void NetworkEditorInterface::ReloadScene(const EntryParameters &v)
+void NetworkEditorInterface::ReloadScene(const EntryParameters &)
 {
     DebugNetworkInterface::ReloadScene msg(scene_.GetName());
     gateway_.Send(userId_, msg);
@@ -932,7 +933,7 @@ void NetworkEditorInterface::ClearAll(const EntryParameters &v)
     // ClearGui();
 }
 
-void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &v)
+void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
 {
     for (const auto &go : scene_.GetGameObjects())
     {
@@ -943,8 +944,7 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &v)
     scene_.ClearGameObjects();
 }
 
-NetworkEditorInterface::EntryParameters NetworkEditorInterface::CreateParamMap(
-    const std::vector<std::string> &param)
+NetworkEditorInterface::EntryParameters NetworkEditorInterface::CreateParamMap(const std::vector<std::string> &param)
 {
     std::unordered_map<std::string, std::string> v;
     for (const auto &p : param)

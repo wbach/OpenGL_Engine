@@ -1,13 +1,14 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
-#include "GameEngine/Shaders/ShaderProgram.h"
 #include <atomic>
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace Utils
 {
 namespace Thread
 {
 class Worker;
+class ThreadSync;
 }
 }  // namespace Utils
 
@@ -16,7 +17,7 @@ namespace GameEngine
 class PhysicsVisualizator
 {
 public:
-    PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi);
+    PhysicsVisualizator(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
     ~PhysicsVisualizator();
     void Init();
     void Render();
@@ -33,6 +34,7 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    Utils::Thread::ThreadSync& threadSync_;
     ShaderProgram shader_;
 
     std::function<const GraphicsApi::LineMesh&()> physicsDebugDraw_;

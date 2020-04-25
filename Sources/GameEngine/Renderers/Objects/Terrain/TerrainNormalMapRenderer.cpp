@@ -37,7 +37,7 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
 
     for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
     {
-        if (iter->second->GetHeightMap() and iter->second->GetHeightMap()->IsLoadedToGpu())
+        if (iter->second->GetHeightMap() and iter->second->GetHeightMap()->GetGraphicsObjectId())
         {
             if (shader_.IsReady())
             {
@@ -87,7 +87,12 @@ std::unique_ptr<Texture> TerrainNormalMapRenderer::RenderTexture(const Texture &
     context_.graphicsApi_.BindShaderBuffer(*bufferId);
     context_.graphicsApi_.ActiveTexture(0);
     context_.graphicsApi_.BindImageTexture(*storageId, GraphicsApi::TextureAccess::WRITE_ONLY);
-    context_.graphicsApi_.ActiveTexture(1, heightMap.GetGraphicsObjectId());
+
+    if (heightMap.GetGraphicsObjectId())
+        context_.graphicsApi_.ActiveTexture(1, *heightMap.GetGraphicsObjectId());
+    else
+        ERROR_LOG("Height map is not in gpu.");
+
     context_.graphicsApi_.Compute(imageSize / 16, imageSize / 16, 1);
     shader_.Stop();
 

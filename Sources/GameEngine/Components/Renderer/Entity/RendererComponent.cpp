@@ -3,7 +3,6 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
@@ -22,21 +21,24 @@ ComponentsType RendererComponent::type = ComponentsType::Renderer;
 
 RendererComponent::RendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(RendererComponent::type, componentContext, gameObject)
+    , isSubscribed_(false)
     , textureIndex_(0)
 {
 }
 
 RendererComponent::~RendererComponent()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    UnSubscribe();
 }
 
 void RendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::Subscribe, this));
 }
-void RendererComponent::InitFromParams(const std::unordered_map<std::string, std::string> &params)
+void RendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
 {
+    UnSubscribe();
+
     try
     {
         if (params.count(MODEL_L1) and not params.at(MODEL_L1).empty())
@@ -48,6 +50,7 @@ void RendererComponent::InitFromParams(const std::unordered_map<std::string, std
         if (params.count(TEXTURE_INDEX) and not params.at(TEXTURE_INDEX).empty())
             SetTextureIndex(std::stoi(params.at(TEXTURE_INDEX)));
 
+        DEBUG_LOG("Subscribe");
         Subscribe();
     }
     catch (...)
@@ -80,9 +83,8 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
 
     if (model)
     {
-        thisObject_.TakeWorldTransfromSnapshot();
         ReserveBufferVectors(model->GetMeshes().size());
-        CreateBuffers(model);
+        CreateBuffers(*model);
 
         auto existModel = model_.Get(lvl);
         if (not existModel)
@@ -92,7 +94,7 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
         else
         {
             model_.Update(model, lvl);
-          //  componentContext_.resourceManager_.ReleaseModel(existModel);
+            componentContext_.resourceManager_.ReleaseModel(existModel);
         }
     }
 
@@ -110,20 +112,30 @@ RendererComponent& RendererComponent::SetTextureIndex(uint32_t index)
 }
 void RendererComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void RendererComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 void RendererComponent::ReserveBufferVectors(size_t size)
 {
+    perObjectUpdateBuffer_.clear();
+    perObjectConstantsBuffer_.clear();
     perObjectUpdateBuffer_.reserve(size);
     perObjectConstantsBuffer_.reserve(size);
 }
-void RendererComponent::CreateBuffers(ModelRawPtr model)
+void RendererComponent::CreateBuffers(Model& model)
 {
-    for (auto& mesh : model->GetMeshes())
+    for (auto& mesh : model.GetMeshes())
     {
         CreatePerObjectUpdateBuffer(mesh);
         CreatePerObjectConstantsBuffer(mesh);
@@ -141,7 +153,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     perObjectUpdateBuffer_.push_back(buffer);
 
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(&perObjectUpdateBuffer_.back());
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(perObjectUpdateBuffer_.back());
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
@@ -162,7 +174,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     perObjectConstantsBuffer_.push_back(buffer);
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(
-        &perObjectConstantsBuffer_.back());
+        perObjectConstantsBuffer_.back());
 }
 void RendererComponent::UpdateBuffers()
 {

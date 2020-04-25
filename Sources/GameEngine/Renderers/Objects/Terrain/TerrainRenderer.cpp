@@ -1,6 +1,8 @@
 #include "TerrainRenderer.h"
+#include <Logger/Log.h>
 #include <algorithm>
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
 #include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -8,15 +10,12 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
-
 TerrainRenderer::TerrainRenderer(RendererContext& context)
     : context_(context)
-    , shader_(context.graphicsApi_,GraphicsApi::ShaderProgramType::Terrain)
+    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Terrain)
     , clipPlane(vec4(0, 1, 0, 100000))
     , objectId(0)
     , perTerrainId(0)
@@ -68,7 +67,7 @@ void TerrainRenderer::Init()
     }
 }
 
-void TerrainRenderer::Render(const Scene& scene, const Time&)
+void TerrainRenderer::Render(const Scene&, const Time&)
 {
     if (not IsInit() or subscribes_.empty())
         return;
@@ -76,10 +75,9 @@ void TerrainRenderer::Render(const Scene& scene, const Time&)
     context_.graphicsApi_.DisableCulling();
     shader_.Start();
 
-    auto modelViewMatrix = scene.GetCamera().GetViewMatrix();
-    RenderSubscribers(modelViewMatrix);
+    RenderSubscribers();
 }
-void TerrainRenderer::RenderSubscribers(const mat4& viewMatrix) const
+void TerrainRenderer::RenderSubscribers() const
 {
     for (auto& sub : subscribes_)
     {
@@ -131,9 +129,10 @@ void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 
     for (const auto& t : textures)
     {
-        if (t.second->IsLoadedToGpu())
+        auto texture = t.second;
+        if (texture and texture->GetGraphicsObjectId())
         {
-            BindTexture(t.second, static_cast<int>(t.first));
+            BindTexture(*texture, static_cast<uint32>(t.first));
         }
     }
 }
@@ -141,12 +140,9 @@ bool TerrainRenderer::IsInit() const
 {
     return shader_.IsReady() and objectId.has_value() and perTerrainId.has_value() and perNodeId.has_value();
 }
-void TerrainRenderer::BindTexture(Texture* texture, int id) const
+void TerrainRenderer::BindTexture(Texture& texture, uint32 id) const
 {
-    if (texture == nullptr)
-        return;
-
-    context_.graphicsApi_.ActiveTexture(id, texture->GetGraphicsObjectId());
+    context_.graphicsApi_.ActiveTexture(id, *texture.GetGraphicsObjectId());
 }
 void TerrainRenderer::Subscribe(GameObject* gameObject)
 {

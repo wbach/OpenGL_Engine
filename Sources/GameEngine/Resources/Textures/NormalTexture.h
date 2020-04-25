@@ -10,8 +10,7 @@ class NormalTexture : public Texture
 public:
     NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
               const std::string& filepath, std::unique_ptr<Image> image);
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+    void GpuLoadingPass() override;
     Image* GetImage();
 
 private:

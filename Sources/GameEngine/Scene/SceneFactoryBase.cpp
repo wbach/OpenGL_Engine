@@ -24,50 +24,15 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 
     return GetScene(GetSceneName(id));
 }
-void SceneFactoryBase::SetGraphicsApi(GraphicsApi::IGraphicsApi& graphicsApi)
-{
-    graphicsApi_ = &graphicsApi;
-}
-void SceneFactoryBase::SetInputManager(Input::InputManager* input)
-{
-    input_ = input;
-}
-void SceneFactoryBase::SetDisplayManager(DisplayManager* displayManager)
-{
-    displayManager_ = displayManager;
-}
-void SceneFactoryBase::SetRenderersManager(Renderer::RenderersManager* manager)
-{
-    rendererMandager_ = manager;
-}
-void SceneFactoryBase::SetPhysicsApi(Physics::IPhysicsApi& physicsApi)
-{
-    physicsApi_ = &physicsApi;
-}
 ScenePtr SceneFactoryBase::GetScene(const std::string& name)
 {
     auto scene = scenesMap_[name]();
-    SetMenagersAndApi(scene.get());
+    SetMenagersAndApi(*scene.get());
     return scene;
 }
-void SceneFactoryBase::SetMenagersAndApi(Scene* scene)
+void SceneFactoryBase::SetMenagersAndApi(Scene& scene)
 {
-    if (not graphicsApi_)
-    {
-        ERROR_LOG("graphicsApi not set!.");
-        return;
-    }
-
-    SceneInitContext context
-    {
-        graphicsApi_,
-        input_,
-        displayManager_,
-        rendererMandager_,
-        physicsApi_
-    };
-
-    scene->InitResources(context);
+    scene.InitResources(*engineContext_);
 }
 void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)
 {
@@ -92,5 +57,10 @@ bool SceneFactoryBase::IsExist(uint32 id) const
 bool SceneFactoryBase::IsExist(const std::string& name) const
 {
     return idMap_.count(name) > 0;
+}
+
+void SceneFactoryBase::SetEngineContext(EngineContext& engineContext)
+{
+    engineContext_ = &engineContext;
 }
 }  // namespace GameEngine

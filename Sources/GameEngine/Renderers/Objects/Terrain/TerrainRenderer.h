@@ -31,9 +31,9 @@ private:
 
 private:
     bool IsInit() const;
-    void BindTexture(Texture* texture, int id) const;
+    void BindTexture(Texture &, uint32 id) const;
     void BindTextures(const TerrainTexturesMap& textures) const;
-    void RenderSubscribers(const mat4& viewMatrix) const;
+    void RenderSubscribers() const;
     void RenderSubscriber(const TerrainTexturesMap& textures) const;
     void RenderNode(const TerrainNode& node) const;
 

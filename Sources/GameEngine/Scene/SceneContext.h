@@ -21,12 +21,12 @@ namespace Renderer
 class RenderersManager;
 }  // namespace Renderer
 
-struct SceneInitContext
+struct SceneContext
 {
-    GraphicsApi::IGraphicsApi* graphicsApi_;
-    Input::InputManager* inputManager;
-    DisplayManager* displayManager;
-    Renderer::RenderersManager* renderersManager;
-    Physics::IPhysicsApi* physicsApi;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
+    Input::InputManager& inputManager;
+    DisplayManager& displayManager;
+    Renderer::RenderersManager& renderersManager;
+    Physics::IPhysicsApi& physicsApi;
 };
 }  // namespace GameEngine

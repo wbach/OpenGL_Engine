@@ -5,8 +5,8 @@ namespace Utils
 {
 namespace Thread
 {
-ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, std::function<MeasurementValue&(const std::string&)> addMeasurment)
-    : measurementValue_(addMeasurment(label + "Fps"))
+ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler & measurementHandler)
+    : measurementValue_(measurementHandler.AddNewMeasurment(label + "Fps"))
     , func(func)
     , isRunning(false)
     , label_(label)

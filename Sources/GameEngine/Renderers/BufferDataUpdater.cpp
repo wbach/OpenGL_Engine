@@ -41,7 +41,7 @@ public:
 
 private:
     uint32 goId_;
-    ModelRawPtr model_;
+    Model* model_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
 };
 

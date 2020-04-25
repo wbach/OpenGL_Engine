@@ -1,12 +1,9 @@
 #pragma once
-#include "../Display/DisplayManager.hpp"
-#include "../Input/InputManager.h"
-#include "../Renderers/RenderersManager.h"
-#include "../Scene/SceneManager.h"
-#include "EngineEvent.h"
-#include "GameEngine/Physics/IPhysicsApi.h"
+#include <Input/InputManager.h>
+
+#include "EngineContext.h"
+#include "GameEngine/Scene/SceneManager.h"
 #include "IntroRenderer.h"
-#include "ThreadSync.h"
 
 namespace GraphicsApi
 {
@@ -21,16 +18,20 @@ class LoadingScreenRenderer;
 class Engine
 {
 public:
-    Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
-           SceneFactoryBasePtr sceneFactory);
+    Engine(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>,
+           std::unique_ptr<SceneFactoryBase>);
     ~Engine();
+
     void Init();
     void GameLoop();
-    void AddEngineEvent(EngineEvent event);
-    DisplayManager& GetDisplayManager();
+    // DisplayManager& GetDisplayManager();
     SceneManager& GetSceneManager();
 
 private:
+    void RuntimeGpuTasks();
+    void RuntimeLoadObjectToGpu();
+    void RuntimeReleaseObjectGpu();
+    void RuntimeCallFunctionGpu();
     void CheckThreadsBeforeQuit();
     void SetDisplay();
     void MainLoop();
@@ -38,16 +39,10 @@ private:
     void Quit();
 
 private:
-    std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
-    std::unique_ptr<Physics::IPhysicsApi> physicsApi_;
-    DisplayManager displayManager_;
-    std::unique_ptr<Input::InputManager> inputManager_;
-    Renderer::Gui::GuiContext guiContext_;
-    Renderer::RenderersManager renderersManager_;
+    EngineContext engineContext_;
     SceneManager sceneManager_;
     IntroRenderer introRenderer_;
-    std::mutex engineEventsMutex;
-    std::list<EngineEvent> engineEvents;
+
     bool isRunning_;
 };
 }  // namespace GameEngine

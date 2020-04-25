@@ -39,12 +39,13 @@ private:
     void Subscribe();
     void UnSubscribe();
     void ReserveBufferVectors(size_t size);
-    void CreateBuffers(ModelRawPtr model);
+    void CreateBuffers(Model&);
     void CreatePerObjectUpdateBuffer(const Mesh& mesh);
     void CreatePerObjectConstantsBuffer(const Mesh& mesh);
 
 private:
     ModelWrapper model_;
+    bool isSubscribed_;
     uint32_t textureIndex_;
 
 private:

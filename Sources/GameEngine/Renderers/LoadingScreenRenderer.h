@@ -12,15 +12,15 @@ class Texture;
 class LoadingScreenRenderer : public IRenderer
 {
 public:
-    LoadingScreenRenderer(GraphicsApi::IGraphicsApi&, Texture* bgTexture, Texture* circleTexture);
+    LoadingScreenRenderer(GraphicsApi::IGraphicsApi&, Texture& bgTexture, Texture& circleTexture);
     ~LoadingScreenRenderer();
     virtual void Init() override;
-    void Render(Scene*);
+    void Render();
     virtual void ReloadShaders() override;
 
 private:
     void prepareRender();
-    void renderQuad(const GraphicsApi::ID& bufferId, uint32 textureId) const;
+    void renderQuad(const GraphicsApi::ID& bufferId, const GraphicsApi::ID& textureId) const;
     void CreateBuffers();
 
 private:
@@ -29,8 +29,8 @@ private:
     GraphicsApi::ID circleBufferId_;
 
     ShaderProgram shader_;
-    Texture* circleTexture;
-    Texture* backgroundTexture;
+    Texture& circleTexture;
+    Texture& backgroundTexture;
     mat4 circleMatrix_;
     Utils::Timer timer_;
 };

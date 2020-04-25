@@ -80,7 +80,7 @@ void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std:
 
 TEST_F(FbxLoaderShould, ReadGarenAnimations)
 {
-    EXPECT_CALL(textureLoaderMock_, LoadTextureImpl(_, _, _, _, _)).WillOnce(Return(nullptr));
+    EXPECT_CALL(textureLoaderMock_, LoadTexture(_, _)).WillOnce(Return(nullptr));
     std::string file{"Meshes/Garen/garen_idle_b.fbx"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + file));
     sut_->Parse(file);

@@ -7,8 +7,9 @@
 
 namespace GameEngine
 {
-PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi)
+PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::ThreadSync& threadSync)
     : graphicsApi_(graphicsApi)
+    , threadSync_(threadSync)
     , shader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
     , refreshRateStepDown_(1)
     , isActive_(true)
@@ -23,7 +24,7 @@ PhysicsVisualizator::~PhysicsVisualizator()
 {
     if (worker_)
     {
-        EngineContext.threadSync_.RemoveWorker(*worker_);
+        threadSync_.RemoveWorker(*worker_);
         worker_ = nullptr;
     }
 }
@@ -37,7 +38,7 @@ void PhysicsVisualizator::Init()
     lineMeshId_ = graphicsApi_.CreateDynamicLineMesh();
 
     if (useWorkerToUpdate_)
-        worker_ = &EngineContext.threadSync_.AddWorker();
+        worker_ = &threadSync_.AddWorker();
 }
 
 void PhysicsVisualizator::Render()

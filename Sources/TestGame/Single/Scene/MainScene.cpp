@@ -255,7 +255,7 @@ template <typename Shape>
 void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset,
                                 const vec3& dir, float scale, bool isStatic)
 {
-    auto object                       = CreateGameObject(Utils::GetFilename(modelFilename));
+    auto object = CreateGameObject(Utils::GetFilename(modelFilename));
     object->GetTransform().SetPosition(pos);
     object->GetTransform().SetScale(scale);
     object->AddComponent<Components::RendererComponent>().AddModel(modelFilename);
@@ -503,11 +503,11 @@ void MainScene::CreateExmapleStrtupObject()
 {
     // clang-format off
     {
-        std::vector<std::string> nightTextures{ "Skybox/Night/right.png", "Skybox/Night/left.png",
+        std::array<std::string, 6> nightTextures{ "Skybox/Night/right.png", "Skybox/Night/left.png",
                                                 "Skybox/Night/top.png",   "Skybox/Night/bottom.png",
                                                 "Skybox/Night/back.png",  "Skybox/Night/front.png" };
 
-        std::vector<std::string> dayTextures{ "Skybox/TropicalSunnyDay/right.png", "Skybox/TropicalSunnyDay/left.png",
+        std::array<std::string, 6> dayTextures{ "Skybox/TropicalSunnyDay/right.png", "Skybox/TropicalSunnyDay/left.png",
                                                 "Skybox/TropicalSunnyDay/top.png",   "Skybox/TropicalSunnyDay/bottom.png",
                                                 "Skybox/TropicalSunnyDay/back.png",  "Skybox/TropicalSunnyDay/front.png" };
 

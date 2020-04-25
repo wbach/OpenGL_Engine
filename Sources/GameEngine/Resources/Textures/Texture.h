@@ -19,6 +19,7 @@ public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
             bool applySizeLimit = true);
     virtual ~Texture();
+
     inline const vec2ui& GetSize() const;
     inline const std::string& GetFileName() const;
     inline const std::string& GetFilPath() const;

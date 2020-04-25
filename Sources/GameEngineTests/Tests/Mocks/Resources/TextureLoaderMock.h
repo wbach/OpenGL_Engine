@@ -10,66 +10,16 @@ namespace GameEngine
 class TextureLoaderMock : public ITextureLoader
 {
 public:
-    MOCK_METHOD3(ReadFileImpl, std::optional<Image>(const std::string&, bool, TextureFlip::Type));
-    MOCK_METHOD5(LoadTextureImpl, Texture*(const std::string&, bool, bool, ObjectTextureType, TextureFlip::Type));
-    MOCK_METHOD4(LoadTextureImmediatelyImpl, Texture*(const std::string&, bool, ObjectTextureType, TextureFlip::Type));
-    MOCK_METHOD3(LoadCubeMapImpl, Texture*(const std::vector<std::string>&, bool, bool));
-    MOCK_METHOD2(LoadHeightMapImpl, Texture*(const std::string&, bool));
-    MOCK_METHOD3(CreateHeightMap, void(const std::string&, const std::string&, const vec3&));
+    MOCK_METHOD4(CreateTexture, Texture*(const std::string&, const TextureParameters&, const TextureSize&, RawData));
+    MOCK_METHOD2(LoadTexture, Texture*(const InputFileName&, const TextureParameters&));
+    MOCK_METHOD2(LoadCubeMap, Texture*(const std::array<InputFileName, 6>&, const TextureParameters&));
+    MOCK_METHOD2(LoadHeightMap, Texture*(const InputFileName&, const TextureParameters&));
+    MOCK_METHOD3(LoadNormalMap, Texture*(const std::vector<float>&, const TextureSize&, float));
+    MOCK_METHOD3(CreateHeightMap, void(const InputFileName&, const OutputFileName&, const vec3&));
+    MOCK_METHOD1(SetHeightMapFactor, void(float));
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
-    MOCK_METHOD3(CreateTextureImpl, Texture*(const std::string&, vec2ui, void*));
-    MOCK_METHOD3(LoadNormalMapImpl, Texture*(const std::vector<float>&, const vec2ui&, float));
-    MOCK_METHOD1(SetHeightMapFactorImpl, void(float));
-    MOCK_CONST_METHOD5(SetTextureToFileImpl, void(const std::string&, const std::vector<uint8>&, const vec2ui&, uint8,
-                                                  GraphicsApi::TextureFormat));
-
-private:
-    std::optional<Image> ReadFile(const std::string& file, bool applySizeLimit = true,
-                                  TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override
-    {
-        return ReadFileImpl(file, applySizeLimit, flip_mode);
-    }
-
-    Texture* LoadTexture(const std::string& file, bool applySizeLimit = true, bool gpu_pass = true,
-                         ObjectTextureType type      = ObjectTextureType::MATERIAL,
-                         TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override
-    {
-        return LoadTextureImpl(file, applySizeLimit, gpu_pass, type, flip_mode);
-    }
-
-    Texture* LoadTextureImmediately(const std::string& file, bool applySizeLimit = true,
-                                    ObjectTextureType type      = ObjectTextureType::MATERIAL,
-                                    TextureFlip::Type flip_mode = TextureFlip::Type::NONE) override
-    {
-        return LoadTextureImmediatelyImpl(file, applySizeLimit, type, flip_mode);
-    }
-
-    Texture* LoadCubeMap(const std::vector<std::string>& files, bool applySizeLimit = true,
-                         bool gpu_pass = true) override
-    {
-        return LoadCubeMapImpl(files, applySizeLimit, gpu_pass);
-    }
-
-    Texture* LoadHeightMap(const std::string& filename, bool gpu_pass = true) override
-    {
-        return LoadHeightMapImpl(filename, gpu_pass);
-    }
-    Texture* CreateTexture(const std::string& name, vec2ui size, void* data) override
-    {
-        return CreateTextureImpl(name, size, data);
-    }
-    Texture* LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength) override
-    {
-        return LoadNormalMapImpl(baseData, size, strength);
-    }
-    void SetHeightMapFactor(float f) override
-    {
-        SetHeightMapFactorImpl(f);
-    }
-    void SaveTextureToFile(const std::string& name, const std::vector<uint8>& data, const vec2ui& size, uint8 bytes,
-                           GraphicsApi::TextureFormat foramt) const override
-    {
-        SetTextureToFileImpl(name, data, size, bytes, foramt);
-    }
+    MOCK_CONST_METHOD5(SaveTextureToFile, void(const OutputFileName&, const std::vector<uint8>&, const TextureSize&,
+                                               uint8, GraphicsApi::TextureFormat));
+    MOCK_METHOD1(DeleteTexture, void(Texture&));
 };
 }  // namespace GameEngine

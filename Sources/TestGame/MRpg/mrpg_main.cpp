@@ -21,7 +21,7 @@ class Game
 public:
     Game(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
         : serverAdress_(Utils::ReadFile("./server.conf"))
-        , engine_(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_shared<SceneFactory>(gateway_, serverAdress_, gameContext_))
+        , engine_(std::move(gptr), std::make_unique<BachPhysicsAdapter>(), std::make_unique<SceneFactory>(gateway_, serverAdress_, gameContext_))
     {
         DEBUG_LOG("Server : " + serverAdress_);
         gateway_.AddMessageConverter(std::make_unique<common::BinaryMessageConverter>());

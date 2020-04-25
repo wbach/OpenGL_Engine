@@ -1,17 +1,18 @@
 #include "IntroRenderer.h"
 
+#include <Logger/Log.h>
 #include "../Display/DisplayManager.hpp"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
-IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager)
+IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
+                             DisplayManager& displayManager)
     : graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
-    , resourceManager(graphicsApi)
+    , resourceManager_(graphicsApi, gpuResourceLoader)
     , shader_(graphicsApi, GraphicsApi::ShaderProgramType::Loading)
     , initialized_(false)
 {
@@ -34,8 +35,13 @@ void IntroRenderer::Init()
 {
     shader_.Init();
     shader_.Start();
-    backgroundTexture_ = resourceManager.GetTextureLaoder().LoadTextureImmediately(
-        "GUI/BENGINE.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+
+    TextureParameters params;
+    params.loadType       = TextureLoadType::Immediately;
+    params.flipMode       = TextureFlip::VERTICAL;
+    params.applySizeLimit = false;
+
+    backgroundTexture_ = resourceManager_.GetTextureLaoder().LoadTexture("GUI/BENGINE.png", params);
 
     if (not perUpdateObjectBuffer_)
     {
@@ -55,7 +61,10 @@ void IntroRenderer::RenderThis()
     graphicsApi_.PrepareFrame();
     shader_.Start();
     graphicsApi_.BindShaderBuffer(*perUpdateObjectBuffer_);
-    graphicsApi_.ActiveTexture(0, backgroundTexture_->GetGraphicsObjectId());
+
+    if (backgroundTexture_ and backgroundTexture_->GetGraphicsObjectId())
+        graphicsApi_.ActiveTexture(0, *backgroundTexture_->GetGraphicsObjectId());
+
     graphicsApi_.RenderQuad();
     shader_.Stop();
 }

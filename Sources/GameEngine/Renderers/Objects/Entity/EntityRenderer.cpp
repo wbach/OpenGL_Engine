@@ -69,10 +69,18 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
 
     std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
     subscribes_.push_back({gameObject, rendererComponent});
+    subscribesIds_.insert(gameObject->GetId());
 }
 
 void EntityRenderer::UnSubscribe(GameObject* gameObject)
 {
+    if (not subscribesIds_.count(gameObject->GetId()))
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
+
     for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
     {
         if ((*iter).gameObject->GetId() == gameObject->GetId())
@@ -84,6 +92,8 @@ void EntityRenderer::UnSubscribe(GameObject* gameObject)
             ++iter;
         }
     }
+
+    subscribesIds_.erase(gameObject->GetId());
 }
 
 void EntityRenderer::UnSubscribeAll()
@@ -106,7 +116,7 @@ void EntityRenderer::RenderEntities()
         const auto& rcomp = sub.renderComponent;
         auto model        = rcomp->GetModelWrapper().Get(LevelOfDetail::L1);
 
-        if (model == nullptr)
+        if (not model)
             continue;
 
         RenderModel(sub, *model);
@@ -120,7 +130,7 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
     uint32 meshId = 0;
     for (const auto& mesh : meshes)
     {
-        if (not mesh.IsLoadedToGpu())
+        if (not mesh.GetGraphicsObjectId())
             continue;
 
         const auto& buffers = mesh.GetBuffers();
@@ -151,7 +161,7 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
 void EntityRenderer::RenderMesh(const Mesh& mesh) const
 {
     BindMaterial(mesh.GetMaterial());
-    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
+    context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
     UnBindMaterial(mesh.GetMaterial());
 }
 
@@ -160,34 +170,24 @@ void EntityRenderer::BindMaterial(const Material& material) const
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
 
-    if (material.diffuseTexture != nullptr && material.diffuseTexture->IsLoadedToGpu() &&
-        EngineConf.renderer.textures.useDiffuse)
-    {
-        context_.graphicsApi_.ActiveTexture(0, material.diffuseTexture->GetGraphicsObjectId());
-    }
-
-    if (material.ambientTexture != nullptr && material.ambientTexture->IsLoadedToGpu() &&
-        EngineConf.renderer.textures.useAmbient)
-    {
-        context_.graphicsApi_.ActiveTexture(1, material.ambientTexture->GetGraphicsObjectId());
-    }
-
-    if (material.normalTexture != nullptr && material.normalTexture->IsLoadedToGpu() &&
-        EngineConf.renderer.textures.useNormal)
-    {
-        context_.graphicsApi_.ActiveTexture(2, material.normalTexture->GetGraphicsObjectId());
-    }
-
-    if (material.specularTexture != nullptr && material.specularTexture->IsLoadedToGpu() &&
-        EngineConf.renderer.textures.useSpecular)
-    {
-        context_.graphicsApi_.ActiveTexture(3, material.specularTexture->GetGraphicsObjectId());
-    }
+    const auto& config = EngineConf.renderer.textures;
+    BindMaterialTexture(0, material.diffuseTexture, config.useDiffuse);
+    BindMaterialTexture(1, material.ambientTexture, config.useAmbient);
+    BindMaterialTexture(2, material.normalTexture, config.useNormal);
+    BindMaterialTexture(3, material.specularTexture, config.useSpecular);
 }
 
 void EntityRenderer::UnBindMaterial(const Material& material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_.EnableCulling();
+}
+
+void EntityRenderer::BindMaterialTexture(uint32 location, Texture* texture, bool enabled) const
+{
+    if (enabled and texture and texture->GetGraphicsObjectId())
+    {
+        context_.graphicsApi_.ActiveTexture(location, *texture->GetGraphicsObjectId());
+    }
 }
 }  // namespace GameEngine

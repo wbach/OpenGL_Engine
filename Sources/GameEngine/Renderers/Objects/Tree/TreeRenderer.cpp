@@ -10,6 +10,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -25,7 +26,7 @@ void TreeRenderer::Init()
     shader_.Init();
 }
 
-void TreeRenderer::Render(const Scene& scene, const Time& threadTime)
+void TreeRenderer::Render(const Scene&, const Time&)
 {
     if (subscribes_.empty())
         return;
@@ -57,13 +58,14 @@ void TreeRenderer::Render(const Scene& scene, const Time& threadTime)
 }  // namespace GameEngine
 void TreeRenderer::Subscribe(GameObject* gameObject)
 {
-    if (gameObject == nullptr)
+    if (not gameObject)
         return;
 
     auto component = gameObject->GetComponent<Components::TreeRendererComponent>();
 
-    if (component == nullptr)
+    if (not component)
         return;
+
     subscribes_.push_back({gameObject, component});
 }
 void TreeRenderer::UnSubscribe(GameObject* gameObject)
@@ -89,15 +91,18 @@ void TreeRenderer::RenderModel(const Model& model, const TreeSubscriber& sub) co
 {
     for (const auto& mesh : model.GetMeshes())
     {
-        const auto& buffers = mesh.GetBuffers();
-        context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
-        RenderMesh(mesh, sub.treeRendererComponent_->GetInstancesSize());
+        if (mesh.GetGraphicsObjectId())
+        {
+            const auto& buffers = mesh.GetBuffers();
+            context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
+            RenderMesh(mesh, sub.treeRendererComponent_->GetInstancesSize());
+        }
     }
 }
 void TreeRenderer::RenderMesh(const Mesh& mesh, uint32 size) const
 {
     BindMaterial(mesh.GetMaterial());
-    context_.graphicsApi_.RenderMeshInstanced(mesh.GetGraphicsObjectId(), size);
+    context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(), size);
 }
 void TreeRenderer::RenderTrees()
 {
@@ -107,27 +112,22 @@ void TreeRenderer::BindMaterial(const Material& material) const
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
 
-    if (material.diffuseTexture != nullptr && material.diffuseTexture->IsLoadedToGpu())
-    {
-        context_.graphicsApi_.ActiveTexture(1, material.diffuseTexture->GetGraphicsObjectId());
-    }
-
-    if (material.ambientTexture != nullptr && material.ambientTexture->IsLoadedToGpu())
-    {
-        context_.graphicsApi_.ActiveTexture(2, material.ambientTexture->GetGraphicsObjectId());
-    }
-
-    if (material.normalTexture != nullptr && material.normalTexture->IsLoadedToGpu())
-    {
-        context_.graphicsApi_.ActiveTexture(3, material.normalTexture->GetGraphicsObjectId());
-    }
-
-    if (material.specularTexture != nullptr && material.specularTexture->IsLoadedToGpu())
-        context_.graphicsApi_.ActiveTexture(4, material.specularTexture->GetGraphicsObjectId());
+    const auto& config = EngineConf.renderer.textures;
+    BindMaterialTexture(1, material.diffuseTexture, config.useDiffuse);
+    BindMaterialTexture(2, material.ambientTexture, config.useAmbient);
+    BindMaterialTexture(3, material.normalTexture, config.useNormal);
+    BindMaterialTexture(4, material.specularTexture, config.useSpecular);
 }
 void TreeRenderer::UnBindMaterial(const Material& material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_.EnableCulling();
+}
+void TreeRenderer::BindMaterialTexture(uint32 location, Texture* texture, bool enabled) const
+{
+    if (enabled and texture and texture->GetGraphicsObjectId())
+    {
+        context_.graphicsApi_.ActiveTexture(location, *texture->GetGraphicsObjectId());
+    }
 }
 }  // namespace GameEngine

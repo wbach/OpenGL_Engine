@@ -83,6 +83,14 @@ void Create(XmlNode& node, const std::vector<std::string>& str)
     }
 }
 
+void Create(XmlNode& node, const std::array<std::string, 6>& str)
+{
+    for (const auto& value : str)
+    {
+        Create(node.AddChild(CSTR_TEXTURE_FILENAME), value);
+    }
+}
+
 void Create(XmlNode& node, const std::vector<float>& str)
 {
     for (const auto& value : str)

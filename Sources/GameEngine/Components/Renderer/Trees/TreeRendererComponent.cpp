@@ -2,7 +2,6 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
@@ -42,7 +41,7 @@ TreeRendererComponent& TreeRendererComponent::SetBottomModel(const std::string& 
 
     bottomFilenames_.insert({filename, i});
 
-    ModelRawPtr model = componentContext_.resourceManager_.LoadModel(filename);
+    auto model = componentContext_.resourceManager_.LoadModel(filename);
     thisObject_.TakeWorldTransfromSnapshot();
     bottom_.Add(model, i);
 
@@ -55,7 +54,7 @@ TreeRendererComponent& TreeRendererComponent::SetTopModel(const std::string& fil
 
     topFilenames_.insert({filename, i});
 
-    ModelRawPtr model = componentContext_.resourceManager_.LoadModel(filename);
+    auto model = componentContext_.resourceManager_.LoadModel(filename);
     thisObject_.TakeWorldTransfromSnapshot();
     top_.Add(model, i);
 
@@ -89,7 +88,7 @@ void TreeRendererComponent::CreatePerObjectUpdateBuffer()
     auto normalizedMatrix = glm::scale(vec3(1.f / factor)) * thisObject_.GetWorldTransform().GetMatrix();
     perObjectUpdateBuffer_->GetData().TransformationMatrix = normalizedMatrix;
 
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(perObjectUpdateBuffer_.get());
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perObjectUpdateBuffer_);
 }
 void TreeRendererComponent::CreatePerInstancesBuffer()
 {
@@ -103,7 +102,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
             Utils::CreateTransformationMatrix(pos, DegreesVec3(0.f), vec3(1.f));
     }
 
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(perInstances_.get());
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perInstances_);
 }
 }  // namespace Components
 }  // namespace GameEngine

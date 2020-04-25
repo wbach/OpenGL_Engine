@@ -235,7 +235,7 @@ struct FbxLoader::Pimpl
                     }
                     DEBUG_LOG("New file name path : " + fileName);
 
-                    auto texture = textureLoader_.LoadTexture(fileName);
+                    auto texture = textureLoader_.LoadTexture(fileName, TextureParameters());
                     if (texture)
                         textureFile->SetUserDataPtr(texture);
                 }

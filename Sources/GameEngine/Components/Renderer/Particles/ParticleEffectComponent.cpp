@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 
 namespace GameEngine
@@ -89,8 +88,10 @@ ParticleEffectComponent& ParticleEffectComponent::SetBlendFunction(GraphicsApi::
 ParticleEffectComponent& ParticleEffectComponent::SetTexture(const std::string& filename)
 {
     textureFile_ = filename;
-    texture_     = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(
-        filename, true, true, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
+    TextureParameters params;
+    params.flipMode = TextureFlip::VERTICAL;
+
+    texture_ = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, params);
     return *this;
 }
 void ParticleEffectComponent::UnSubscribe()
@@ -122,7 +123,7 @@ uint32 ParticleEffectComponent::CalculateToEmitParticles()
 
     if (toEmitF > std::numeric_limits<float>::min())
     {
-        rest += static_cast<float>(fmod(toEmitF, 1.f));
+        rest += static_cast<float>(fmodf(toEmitF, 1.f));
         if (rest > 1.f)
         {
             ++toEmit;

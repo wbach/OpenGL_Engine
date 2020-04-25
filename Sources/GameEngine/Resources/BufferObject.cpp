@@ -13,7 +13,7 @@ BaseBufferObject::~BaseBufferObject()
 {
     if (id_)
     {
-        graphicsApi_.DeleteShaderBuffer(*id_);
+        //graphicsApi_.DeleteShaderBuffer(*id_);
     }
 }
 

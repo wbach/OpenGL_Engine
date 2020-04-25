@@ -16,6 +16,10 @@
 
 namespace GameEngine
 {
+namespace
+{
+std::mutex rendererSubscriberMutex;
+}
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
@@ -67,11 +71,13 @@ void ShadowMapRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
+    std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
     subscribes_.push_back({gameObject, rendererComponent});
 }
 
 void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
 {
+    std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
     for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
     {
         if ((*iter).gameObject->GetId() == gameObject->GetId())
@@ -115,6 +121,7 @@ void ShadowMapRenderer::PrepareRender(const Scene& scene)
 
 void ShadowMapRenderer::RenderSubscribes() const
 {
+    std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
     for (auto& sub : subscribes_)
         RenderSubscriber(sub);
 }
@@ -123,20 +130,23 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
 {
     auto model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
 
-    if (model == nullptr)
+    if (not model)
         return;
 
     const auto& meshes = model->GetMeshes();
 
-    int meshId = 0;
+    uint32 meshId = 0;
     for (const auto& mesh : meshes)
     {
-        if (not mesh.IsLoadedToGpu())
+        if (not mesh.GetGraphicsObjectId())
             continue;
 
         const auto& buffers = mesh.GetBuffers();
 
-        context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
+        if (buffers.perMeshObjectBuffer_)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
+        }
 
         if (mesh.UseArmature())
         {
@@ -154,6 +164,7 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
         }
+
         ++meshId;
         RenderMesh(mesh);
     }
@@ -161,10 +172,12 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
 
 void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
 {
-    if (mesh.GetMaterial().diffuseTexture)
-        context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
+    const auto& material = mesh.GetMaterial();
 
-    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
+    if (material.diffuseTexture)
+        context_.graphicsApi_.ActiveTexture(0, *material.diffuseTexture->GetGraphicsObjectId());
+
+    context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
 }
 
 }  // namespace GameEngine

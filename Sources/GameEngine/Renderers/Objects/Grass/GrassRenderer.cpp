@@ -8,14 +8,13 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GraphicsApi/ShaderProgramType.h"
 #include "Logger/Log.h"
-#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
-
 GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
@@ -34,7 +33,7 @@ void GrassRenderer::Init()
     DEBUG_LOG("Grass renderer initialized.");
 }
 
-void GrassRenderer::Render(const Scene& scene, const Time& time)
+void GrassRenderer::Render(const Scene& scene, const Time&)
 {
     if (not shader_.IsReady() or subscribes_.empty())
         return;
@@ -80,16 +79,16 @@ void GrassRenderer::ReloadShaders()
     shader_.Reload();
 }
 
- void GrassRenderer::InitShaderBuffer()
+void GrassRenderer::InitShaderBuffer()
 {
-     grassShaderBufferId_ =
-         context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer));
+    grassShaderBufferId_ =
+        context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer));
 
-     grassShaderBuffer_.variables.value.x = EngineConf.renderer.flora.viewDistance;
-     grassShaderBuffer_.variables.value.y = 0;
+    grassShaderBuffer_.variables.value.x = EngineConf.renderer.flora.viewDistance;
+    grassShaderBuffer_.variables.value.y = 0;
 
-     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
- }
+    context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
+}
 
 void GrassRenderer::PrepareRender(const Scene& scene)
 {
@@ -108,7 +107,7 @@ void GrassRenderer::RenderSubscribes()
     {
         auto model = s.second->GetModel().Get();
 
-        if (model == nullptr)
+        if (not model)
             continue;
 
         RenderModel(*model);
@@ -119,17 +118,19 @@ void GrassRenderer::RenderModel(const Model& model)
 {
     for (const auto& mesh : model.GetMeshes())
     {
-        if (mesh.GetMaterial().diffuseTexture == nullptr)
-            continue;
-
-        RenderMesh(mesh);
+        if (mesh.GetGraphicsObjectId())
+            RenderMesh(mesh);
     }
 }
 
 void GrassRenderer::RenderMesh(const Mesh& mesh)
 {
-    context_.graphicsApi_.ActiveTexture(0, mesh.GetMaterial().diffuseTexture->GetGraphicsObjectId());
-    context_.graphicsApi_.RenderPoints(mesh.GetGraphicsObjectId());
+    auto diffTexture = mesh.GetMaterial().diffuseTexture;
+
+    if (diffTexture and diffTexture->GetGraphicsObjectId())
+        context_.graphicsApi_.ActiveTexture(0, *diffTexture->GetGraphicsObjectId());
+
+    context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
 }
 
 void GrassRenderer::PrepareShader(const Scene& scene)

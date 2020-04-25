@@ -10,6 +10,7 @@
 #include "Time/Timer.h"
 #include "Worker.h"
 #include "ThreadSubscriber.h"
+#include "MeasurementHandler.h"
 
 namespace Utils
 {
@@ -18,7 +19,7 @@ namespace Thread
 class ThreadSync
 {
 public:
-    ThreadSync(std::function<MeasurementValue&(const std::string&)>);
+    ThreadSync(MeasurementHandler&);
     ThreadSync(const ThreadSync&) = delete;
     ThreadSync(ThreadSync&&)      = delete;
     ~ThreadSync();
@@ -37,7 +38,7 @@ private:
     void UpdateThreadsCountText();
 
 private:
-    std::function<MeasurementValue&(const std::string&)> addMeasurment_;
+    MeasurementHandler& measurementHandler_;
     MeasurementValue& measurementValue_;
     std::unordered_map<uint32, ThreadSubscriber> subscribers;
     std::list<Worker> workers_;

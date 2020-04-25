@@ -4,22 +4,22 @@
 
 namespace GameEngine
 {
-void ModelWrapper::Add(ModelRawPtr model, LevelOfDetail lvl)
+void ModelWrapper::Add(Model* model, LevelOfDetail lvl)
 {
     models_.insert({lvl, model});
 }
-void ModelWrapper::Update(ModelRawPtr model, LevelOfDetail lvl)
+void ModelWrapper::Update(Model* model, LevelOfDetail lvl)
 {
     if (models_.count(lvl))
     {
         models_.at(lvl) = model;
     }
 }
-ModelRawPtr ModelWrapper::Get(LevelOfDetail lvl)
+Model* ModelWrapper::Get(LevelOfDetail lvl)
 {
     return models_.count(lvl) > 0 ? models_.at(lvl) : nullptr;
 }
-const std::unordered_map<LevelOfDetail, ModelRawPtr>& ModelWrapper::Get() const
+const std::unordered_map<LevelOfDetail, Model*>& ModelWrapper::Get() const
 {
     return models_;
 }

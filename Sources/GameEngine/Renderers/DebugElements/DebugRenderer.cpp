@@ -59,9 +59,9 @@ void DebugObject::BindBuffer() const
     }
 }
 
-DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi)
+DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::ThreadSync& threadSync)
     : graphicsApi_(graphicsApi)
-    , physicsVisualizator_(graphicsApi)
+    , physicsVisualizator_(graphicsApi, threadSync)
     , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , isActive_(false)
@@ -79,7 +79,7 @@ void DebugRenderer::Init()
     gridShader_.Init();
     physicsVisualizator_.Init();
 
-    physicsVisualizator_.Disable(); // explicit default disable
+    physicsVisualizator_.Disable();  // explicit default disable
 
     gridPerObjectUpdateBufferId_ =
         graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
@@ -107,7 +107,7 @@ void DebugRenderer::ReloadShaders()
 void DebugRenderer::Render(const Scene&, const Time&)
 {
     physicsVisualizator_.Render();
-    
+
     if (not isActive_)
         return;
 
@@ -229,8 +229,11 @@ void DebugRenderer::RenderModel(const Model& model) const
 {
     for (const auto& mesh : model.GetMeshes())
     {
-        BindMeshBuffers(mesh);
-        graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
+        if (mesh.GetGraphicsObjectId())
+        {
+            BindMeshBuffers(mesh);
+            graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
+        }
     }
 }
 

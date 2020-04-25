@@ -227,8 +227,11 @@ void GuiTextElement::UpdateTexture()
         return;
     }
 
+    TextureParameters params;
+    params.applySizeLimit = false;
+
     auto fontTexture = resourceManager_.GetTextureLaoder().CreateTexture(
-        "FontImage_" + std::to_string(surface_->id) + "_" + text_, surface_->size, surface_->pixels);
+        "FontImage_" + std::to_string(surface_->id) + "_" + text_, params, surface_->size, surface_->pixels);
 
     if (fontTexture)
     {

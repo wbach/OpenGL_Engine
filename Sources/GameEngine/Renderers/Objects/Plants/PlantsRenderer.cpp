@@ -14,10 +14,10 @@ void PlantsRenderer::Init()
 void PlantsRenderer::Render(const Scene&, const Time&)
 {
 }
-void PlantsRenderer::Subscribe(GameObject* gameObject)
+void PlantsRenderer::Subscribe(GameObject*)
 {
 }
-void PlantsRenderer::UnSubscribe(GameObject* gameObject)
+void PlantsRenderer::UnSubscribe(GameObject*)
 {
 }
 void PlantsRenderer::UnSubscribeAll()

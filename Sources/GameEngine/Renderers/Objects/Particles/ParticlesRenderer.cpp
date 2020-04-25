@@ -132,7 +132,7 @@ void ParticlesRenderer::RenderParticles(const ParticleSubscriber& effect, const 
     RenderInstances(particlesSize);
 }
 
-void ParticlesRenderer::RenderInstances(uint32 size)
+void ParticlesRenderer::RenderInstances(size_t size)
 {
     context_.graphicsApi_.UpdateMatrixes(*particleObjecId, transformsParticles_);
 
@@ -141,7 +141,7 @@ void ParticlesRenderer::RenderInstances(uint32 size)
         context_.graphicsApi_.UpdateOffset(*particleObjecId, offsets_);
         context_.graphicsApi_.UpdateBlend(*particleObjecId, blendFactors_);
     }
-    context_.graphicsApi_.RenderMeshInstanced(*particleObjecId, size);
+    context_.graphicsApi_.RenderMeshInstanced(*particleObjecId, static_cast<uint32>(size));
 }
 bool ParticlesRenderer::IsInit() const
 {
@@ -166,7 +166,7 @@ void ParticlesRenderer::StopShader()
 {
     currentUseAnimation ? animatedShader_.Stop() : shader_.Stop();
 }
-mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix)
+mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float, float scale, const mat4& viewMatrix)
 {
     mat4 modelMatrix(1.f);
     modelMatrix = glm::translate(position);
@@ -190,7 +190,7 @@ mat4 ParticlesRenderer::UpdateModelViewMatrix(const vec3& position, float rotati
 
 void ParticlesRenderer::UpdateTexture(Texture* texture)
 {
-    if (texture == nullptr)
+    if (not texture)
     {
         return;
     }
@@ -204,7 +204,8 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
         // animatedShader_->Load(ParticlesShadersUniforms::NumberOfRows, static_cast<float>(textureNumberOfrows));
     }
 
-    context_.graphicsApi_.ActiveTexture(0, texture->GetGraphicsObjectId());
+    if (texture->GetGraphicsObjectId())
+        context_.graphicsApi_.ActiveTexture(0, *texture->GetGraphicsObjectId());
 }
 
 void ParticlesRenderer::GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix)
@@ -228,7 +229,7 @@ void ParticlesRenderer::GetParticleData(const std::vector<Particle>& particles, 
     }
 }
 
-void ParticlesRenderer::ReallocationParticlesData(uint32 size)
+void ParticlesRenderer::ReallocationParticlesData(size_t size)
 {
     transformsParticles_.clear();
     transformsParticles_.reserve(size);

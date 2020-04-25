@@ -58,8 +58,12 @@ TerrainShape& TerrainShape::SetHeightMap(const std::string& filename)
 void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
 {
     heightMapFile_        = hightMapFile;
+
+    TextureParameters params;
+    params.applySizeLimit = false;
+
     auto heightMapTexture = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(
-        EngineConf_GetFullDataPathAddToRequierd(hightMapFile), true);
+        EngineConf_GetFullDataPathAddToRequierd(hightMapFile), params);
 
     if (not heightMapTexture)
     {

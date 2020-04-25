@@ -30,7 +30,7 @@ TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainMesh)
 {
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainMeshRenderer::Render);
-    measurementValue_ = &EngineContext.AddNewMeasurment(TERRAIN_MEASURMENT_NAME, "0");
+    measurementValue_ = &context.measurmentHandler_.AddNewMeasurment(TERRAIN_MEASURMENT_NAME, "0");
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
 {
@@ -74,17 +74,21 @@ void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber&
     if (not model)
         return;
 
-    int index = 0;
+    uint32 index = 0;
     for (const auto& mesh : model->GetMeshes())
     {
-        RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
+        if (mesh.GetGraphicsObjectId())
+            RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
     }
 }
-void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& id) const
+void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId) const
 {
-    context_.graphicsApi_.BindShaderBuffer(*id);
-    context_.graphicsApi_.RenderTriangleStripMesh(mesh.GetGraphicsObjectId());
-    ++renderedTerrains;
+    if (bufferId)
+    {
+        context_.graphicsApi_.BindShaderBuffer(*bufferId);
+        context_.graphicsApi_.RenderTriangleStripMesh(*mesh.GetGraphicsObjectId());
+        ++renderedTerrains;
+    }
 }
 void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subscriber) const
 {
@@ -131,18 +135,17 @@ void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 
     for (const auto& t : textures)
     {
-        if (t.second->IsLoadedToGpu())
+        auto texture = t.second;
+
+        if (texture and texture->GetGraphicsObjectId())
         {
-            BindTexture(t.second, static_cast<int>(t.first));
+            BindTexture(texture, static_cast<uint32>(t.first));
         }
     }
 }
-void TerrainMeshRenderer::BindTexture(Texture* texture, int id) const
+void TerrainMeshRenderer::BindTexture(Texture* texture, uint32 id) const
 {
-    if (texture == nullptr)
-        return;
-
-    context_.graphicsApi_.ActiveTexture(id, texture->GetGraphicsObjectId());
+    context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
 }
 void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
 {

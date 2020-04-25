@@ -6,9 +6,9 @@ namespace Utils
 {
 namespace Thread
 {
-ThreadSync::ThreadSync(std::function<MeasurementValue&(const std::string&)> addMeasurment)
-    : addMeasurment_(addMeasurment)
-    , measurementValue_(addMeasurment_("Threads count"))
+ThreadSync::ThreadSync(MeasurementHandler & measurementHandler)
+    : measurementHandler_(measurementHandler)
+    , measurementValue_(measurementHandler_.AddNewMeasurment("Threads count"))
 {
     measurementValue_ = "1";
 
@@ -24,7 +24,7 @@ ThreadSync::~ThreadSync()
 uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)
 {
     auto id = idPool_++;
-    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, addMeasurment_));
+    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, measurementHandler_));
     UpdateThreadsCountText();
     return id;
 }

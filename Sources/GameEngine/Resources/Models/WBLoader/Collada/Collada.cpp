@@ -439,7 +439,7 @@ void ColladaDae::ApplyMaterials(Material& material, const std::string& materialI
             {
                 const auto& textureFileName = data_.libraryImages_.images_[surface.constValue().initfrom_].initFrom_;
                 material.diffuseTexture =
-                    textureLoader_.LoadTexture("Textures/" + textureFileName, true, true, ObjectTextureType::MATERIAL);
+                    textureLoader_.LoadTexture("Textures/" + textureFileName, TextureParameters());
             }
         }
         if (param.surface_)

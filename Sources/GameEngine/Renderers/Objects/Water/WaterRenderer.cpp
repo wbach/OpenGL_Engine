@@ -58,11 +58,11 @@ void WaterRenderer::Render(const Scene&, const Time& time)
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 
-        if (component.GetDudvTexture())
-            context_.graphicsApi_.ActiveTexture(4, component.GetDudvTexture()->GetGraphicsObjectId());
+        if (component.GetNormalTexture() and component.GetNormalTexture()->GetGraphicsObjectId())
+            context_.graphicsApi_.ActiveTexture(2, *component.GetNormalTexture()->GetGraphicsObjectId());
 
-        if (component.GetNormalTexture())
-            context_.graphicsApi_.ActiveTexture(2, component.GetNormalTexture()->GetGraphicsObjectId());
+        if (component.GetDudvTexture() and component.GetDudvTexture()->GetGraphicsObjectId())
+            context_.graphicsApi_.ActiveTexture(4, *component.GetDudvTexture()->GetGraphicsObjectId());
 
         context_.graphicsApi_.RenderQuad();
     }

@@ -3,7 +3,6 @@
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
@@ -49,7 +48,7 @@ TerrainTessellationRendererComponent& TerrainTessellationRendererComponent::Load
             continue;
         }
 
-        auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second);
+        auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second, TextureParameters());
         SetTexture(texturePair.first, texture);
     }
 
@@ -59,7 +58,7 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& high
 {
     const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(hightMapFile);
 
-    heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, true);
+    heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, TextureParameters());
 
     if (not heightMap_)
     {
@@ -86,7 +85,7 @@ void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type
     {
         const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(filename);
 
-        heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, true);
+        heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, TextureParameters());
 
         if (not heightMap_)
         {
@@ -98,7 +97,7 @@ void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type
         return;
     }
 
-    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename);
+    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, TextureParameters());
     if (texture)
         UpdateTexture(type, texture);
 }

@@ -114,16 +114,17 @@ void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const
     BindCubeMapTexture(*sub.nightTexture_, 1);
 }
 
-void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, int id) const
+void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, uint32 id) const
 {
-    context_.graphicsApi_.ActiveTexture(id, texture.GetGraphicsObjectId());
+    if (texture.GetGraphicsObjectId())
+        context_.graphicsApi_.ActiveTexture(id, *texture.GetGraphicsObjectId());
 }
 
 void SkyBoxRenderer::RenderSkyBoxMesh(const Mesh& mesh) const
 {
-    if (not mesh.IsLoadedToGpu())
+    if (not mesh.GetGraphicsObjectId())
         return;
 
-    context_.graphicsApi_.RenderMesh(mesh.GetGraphicsObjectId());
+    context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
 }
 }  // namespace GameEngine

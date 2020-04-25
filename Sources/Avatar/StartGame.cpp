@@ -12,7 +12,7 @@ namespace AvatarGame
 void Start(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
 {
     GraphicsApi::IGraphicsApi& ptr = *gptr;
-    Engine engine(std::move(gptr), std::make_unique<BulletAdapter>(ptr), std::make_shared<SceneFactory>());
+    Engine engine(std::move(gptr), std::make_unique<BulletAdapter>(ptr), std::make_unique<SceneFactory>());
     engine.Init();
     engine.GetSceneManager().SetActiveScene("MainMenu");
     engine.GameLoop();

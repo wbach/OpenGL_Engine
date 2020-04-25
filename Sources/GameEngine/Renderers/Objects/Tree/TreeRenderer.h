@@ -11,6 +11,7 @@ struct Material;
 struct RendererContext;
 class ModelWrapper;
 struct Time;
+class Texture;
 
 namespace Components
 {
@@ -28,23 +29,24 @@ class TreeRenderer : public IRenderer
     typedef std::vector<TreeSubscriber> Subscribers;
 
 public:
-    TreeRenderer(RendererContext& context);
+    TreeRenderer(RendererContext&);
     // Loading lights itp to shader
     virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
+    virtual void Subscribe(GameObject*) override;
+    virtual void UnSubscribe(GameObject*) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
 
 private:
-    void Render(const Scene& scene, const Time& threadTime);
+    void Render(const Scene&, const Time&);
 
 private:
-    void RenderModel(const Model& model, const TreeSubscriber&) const;
-    void RenderMesh(const Mesh& mesh, uint32) const;
+    void RenderModel(const Model&, const TreeSubscriber&) const;
+    void RenderMesh(const Mesh&, uint32) const;
     void RenderTrees();
-    void BindMaterial(const Material& material) const;
-    void UnBindMaterial(const Material& material) const;
+    void BindMaterial(const Material&) const;
+    void UnBindMaterial(const Material&) const;
+    void BindMaterialTexture(uint32, Texture*, bool) const;
 
 private:
     RendererContext& context_;

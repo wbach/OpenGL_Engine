@@ -39,7 +39,7 @@ private:
     void RenderSkyBoxMesh(const Mesh& mesh) const;
     void RenderSkyBoxModel(const SkyBoxSubscriber& sub);
     void PrepareShaderBeforeFrameRender(const Scene& scene);
-    void BindCubeMapTexture(const Texture& texture, int id) const;
+    void BindCubeMapTexture(const Texture& texture, uint32 id) const;
     void PrepareToRendering(const Scene& scene);
     void UpdateBuffer(const Scene& scene, const Time&);
 

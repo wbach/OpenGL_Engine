@@ -10,8 +10,7 @@ class MaterialTexture : public Texture
 public:
     MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                     const std::string& filepath, Image& image);
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+    void GpuLoadingPass() override;
 
 private:
     Image image;

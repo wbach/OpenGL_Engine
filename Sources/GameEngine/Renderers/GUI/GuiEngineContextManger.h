@@ -12,7 +12,7 @@ class VerticalLayout;
 class GuiEngineContextManger
 {
 public:
-    GuiEngineContextManger(GuiElementFactory& guiFactory);
+    GuiEngineContextManger(Utils::MeasurementHandler&, GuiElementFactory&);
     ~GuiEngineContextManger();
     void Update();
 
@@ -20,6 +20,7 @@ private:
     void AdjustSize(float);
 
 private:
+    Utils::MeasurementHandler& measurementHandler_;
     GuiElementFactory& guiFactory_;
     VerticalLayout* verticalLayout_;
     std::unique_ptr<GuiWindowElement> rootWindow_;

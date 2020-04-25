@@ -15,9 +15,9 @@ GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
 
 void GeneralTexture::GpuLoadingPass()
 {
-    DEBUG_LOG("Create texutre filneame : " + fullpath);
+    DEBUG_LOG("Create texutre filename : " + fullpath);
 
-    if (not data_ || isInGpu_)
+    if (not data_ or graphicsObjectId_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
@@ -30,16 +30,11 @@ void GeneralTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else
     {
         ERROR_LOG("Texutre not created. Filename : " + fullpath);
     }
-}
-
-void GeneralTexture::GpuPostLoadingPass()
-{
 }
 }  // namespace GameEngine

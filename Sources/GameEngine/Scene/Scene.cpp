@@ -52,19 +52,21 @@ Scene::~Scene()
     }
 }
 
-void Scene::InitResources(SceneInitContext& context)
+void Scene::InitResources(EngineContext& context)
 {
-    inputManager_     = context.inputManager;
-    physicsApi_       = context.physicsApi;
-    displayManager_   = context.displayManager;
-    renderersManager_ = context.renderersManager;
+    inputManager_     = &context.GetInputManager();
+    physicsApi_       = &context.GetPhysicsApi();
+    displayManager_   = &context.GetDisplayManager();
+    renderersManager_ = &context.GetRenderersManager();
+    threadSync_       = &context.GetThreadSync();
+    addEngineEvent    = [&context](EngineEvent event) { context.AddEngineEvent(event); };
 
-    CreateResourceManger(*context.graphicsApi_);
+    CreateResourceManger(context.GetGraphicsApi(), context.GetGpuResourceLoader());
     guiManager_ = std::make_unique<GuiManager>();
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
                                                         *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
-    guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(*guiElementFactory_);
+    guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
 
     console_ = std::make_unique<Debug::Console>(*this);
 
@@ -138,9 +140,9 @@ void Scene::Stop()
     start_.store(false);
 }
 
-void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi)
+void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
 {
-    resourceManager_ = std::make_unique<ResourceManager>(graphicsApi);
+    resourceManager_ = std::make_unique<ResourceManager>(graphicsApi, gpuResourceLoader);
 }
 
 std::unique_ptr<GameObject> Scene::CreateGameObject() const
@@ -185,11 +187,6 @@ void Scene::ClearGameObjects()
 void Scene::SetAddSceneEventCallback(AddEvent func)
 {
     addSceneEvent = func;
-}
-
-void Scene::SetAddEngineEventCallback(std::function<void(EngineEvent)> func)
-{
-    addEngineEvent = func;
 }
 
 GameObject* Scene::GetGameObject(uint32 id) const
@@ -261,7 +258,7 @@ void Scene::RunNetworkEditorInterface()
 {
     if (not networkEditorInterface_)
     {
-        networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this);
+        networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this, *threadSync_);
         networkEditorInterface_->Run();
     }
     else

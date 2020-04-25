@@ -7,6 +7,7 @@
 namespace GameEngine
 {
 class Scene;
+class IGpuResourceLoader;
 class DisplayManager;
 typedef std::unique_ptr<Scene> ScenePtr;
 
@@ -21,7 +22,7 @@ enum SceneWrapperState
 class SceneWrapper
 {
 public:
-    SceneWrapper(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager&);
+    SceneWrapper(GraphicsApi::IGraphicsApi&, DisplayManager&, IGpuResourceLoader&);
     ~SceneWrapper();
     Scene* Get();
     SceneWrapperState GetState();
@@ -37,11 +38,12 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    DisplayManager& displayManager_;
+    IGpuResourceLoader& gpuResourceLoader_;
     std::mutex initMutex_;
     std::mutex stateMutex_;
 
     ScenePtr activeScene;
-    DisplayManager& displayManager_;
     SceneWrapperState state_;
 };
 }  // GameEngine

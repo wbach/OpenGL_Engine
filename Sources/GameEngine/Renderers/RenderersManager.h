@@ -2,7 +2,6 @@
 #include <atomic>
 #include <list>
 #include "BufferDataUpdater.h"
-#include "GUI/GuiContext.h"
 #include "GUI/GuiRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "DebugElements/DebugRenderer.h"
@@ -11,6 +10,11 @@
 #include "RendererFunctionType.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include <functional>
+
+namespace Utils
+{
+class MeasurementHandler;
+} // namespace Utils
 
 namespace GameEngine
 {
@@ -27,7 +31,7 @@ namespace Renderer
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi);
+    RenderersManager(GraphicsApi::IGraphicsApi&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&);
     ~RenderersManager();
     void Init();
     const Projection& GetProjection() const;
@@ -59,6 +63,7 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    Utils::MeasurementHandler& measurmentHandler_;
     std::unique_ptr<IFrameBuffer> defferedFrameBuffer_;
     std::unique_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
     std::unique_ptr<RendererContext> rendererContext_;
@@ -74,7 +79,6 @@ private:
     DebugRenderer debugRenderer_;
     RendererFunctions rendererFunctions_;
 
-    bool useDebugRenderer_;
     GraphicsApi::ID perFrameId_;
     mat4 viewProjectionMatrix_;
     BufferDataUpdater bufferDataUpdater_;

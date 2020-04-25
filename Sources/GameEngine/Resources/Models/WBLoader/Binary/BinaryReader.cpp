@@ -186,13 +186,13 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
         ReadFile(file, textures[3]);
 
         if (not textures[0].empty())
-            material.diffuseTexture = textureLoader.LoadTexture(textures[0], true, true, ObjectTextureType::MATERIAL);
+            material.diffuseTexture = textureLoader.LoadTexture(textures[0], TextureParameters());
         if (not textures[1].empty())
-            material.normalTexture = textureLoader.LoadTexture(textures[1], true, true, ObjectTextureType::MATERIAL);
+            material.normalTexture = textureLoader.LoadTexture(textures[1], TextureParameters());
         if (not textures[2].empty())
-            material.ambientTexture = textureLoader.LoadTexture(textures[2], true, true, ObjectTextureType::MATERIAL);
+            material.ambientTexture = textureLoader.LoadTexture(textures[2], TextureParameters());
         if (not textures[3].empty())
-            material.specularTexture = textureLoader.LoadTexture(textures[3], true, true, ObjectTextureType::MATERIAL);
+            material.specularTexture = textureLoader.LoadTexture(textures[3], TextureParameters());
 
         auto& mesh = *(out->AddMesh(GraphicsApi::RenderType::TRIANGLES, textureLoader.GetGraphicsApi()));
         auto& data = mesh.GetMeshDataRef();

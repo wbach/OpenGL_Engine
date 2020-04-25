@@ -13,22 +13,22 @@ struct TextureLoaderTest : public ::testing::Test
 {
     TextureLoaderTest()
     {
-        gpuLoader_.reset(new GpuResourceLoaderMock());
     }
 
     virtual void SetUp() override
     {
-        sut_.reset(new TextureLoader(apiMock_, textures_, gpuLoader_));
+        sut_.reset(new TextureLoader(apiMock_, gpuLoader_, textures_));
     }
     GraphicsApi::GraphicsApiMock apiMock_;
-    std::vector<std::unique_ptr<Texture>> textures_;
-    std::shared_ptr<GpuResourceLoaderMock> gpuLoader_;
-    std::shared_ptr<TextureLoader> sut_;
+    std::unordered_map<std::string, ResourceInfo<Texture>> textures_;
+    GpuResourceLoaderMock gpuLoader_;
+    std::unique_ptr<TextureLoader> sut_;
 };
 
 TEST_F(TextureLoaderTest, LoadTexture)
 {
-    auto image = sut_->ReadFile("");
+    TextureParameters params;
+    auto image = sut_->ReadFile("", params);
 
     EXPECT_TRUE(true);
 }

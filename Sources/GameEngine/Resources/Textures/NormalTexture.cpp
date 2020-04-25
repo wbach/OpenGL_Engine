@@ -16,13 +16,13 @@ NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepDa
 
 void NormalTexture::GpuLoadingPass()
 {
-    if (image_->floatData.empty() || isInGpu_)
+    if (image_->floatData.empty() or graphicsObjectId_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
         return;
     }
 
-    DEBUG_LOG("Create texutre id : " + std::to_string(graphicsObjectId_) + ", filneame : " + fullpath);
+    DEBUG_LOG("Create texutre id : " + std::to_string(*graphicsObjectId_) + ", filneame : " + fullpath);
     auto graphicsObjectId = graphicsApi_.CreateTexture(
         GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::LINEAR,
         GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, &image_->floatData[0]);
@@ -30,7 +30,6 @@ void NormalTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else
@@ -43,10 +42,6 @@ void NormalTexture::GpuLoadingPass()
     {
         image_->floatData.clear();
     }
-}
-
-void NormalTexture::GpuPostLoadingPass()
-{
 }
 
 Image* NormalTexture::GetImage()

@@ -1,18 +1,22 @@
 #include "SceneLoader.h"
-#include "../Display/DisplayManager.hpp"
-#include "../Renderers/LodingScreenRenderer.h"
+#include <Logger/Log.h>
+#include <Utils/Time/Timer.h>
+#include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Renderers/LoadingScreenRenderer.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
-#include "Logger/Log.h"
 #include "Scene.hpp"
 
 namespace GameEngine
 {
-SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager)
+SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
+                         DisplayManager& displayManager)
     : graphicsApi_(graphicsApi)
-    , objectCount(0)
-    , objectLoaded(0)
-    , displayManager(displayManager)
-    , resorceManager(graphicsApi)
+    , displayManager_(displayManager)
+    , isLoading_(true)
+    , objectCount_(0)
+    , objectLoaded_(0)
+    , loadingScreenRenderer(nullptr)
+    , resorceManager_(graphicsApi, gpuResourceLoader)
 {
 }
 
@@ -20,113 +24,79 @@ SceneLoader::~SceneLoader()
 {
 }
 
-bool SceneLoader::Load(Scene* scene)
+void SceneLoader::Load(Scene& scene)
 {
     Init();
+    SetIsLoading(true);
 
-    isLoading = true;
-    std::thread loading_thread(&SceneLoader::LoadScene, this, scene);
-    OpenGLLoadingPass(scene, loading_thread);
-    return true;
-}
+    std::thread loadingThread([this, &scene]() { LoadScene(scene); });
 
-void SceneLoader::OpenGLLoadingPass(Scene* scene, std::thread& loading_thread)
-{
     CheckObjectCount(scene);
-    LoadingLoop(scene);
-    loading_thread.join();
-    PostLoadingPass(scene);
+    ScreenRenderLoop();
+    loadingThread.join();
 }
 
 void SceneLoader::Init()
 {
-    auto circleTexture =
-        resorceManager.GetTextureLaoder().LoadTextureImmediately("GUI/circle2.png", false, ObjectTextureType::MATERIAL);
-    auto bgtexture = resorceManager.GetTextureLaoder().LoadTextureImmediately(
-        "GUI/black-knight-dark-souls.png", false, ObjectTextureType::MATERIAL, TextureFlip::Type::VERTICAL);
-    loadingScreenRenderer =
-        std::make_unique<LoadingScreenRenderer>(graphicsApi_, bgtexture, circleTexture);
-    loadingScreenRenderer->Init();
+    TextureParameters params;
+    params.loadType       = TextureLoadType::Immediately;
+    params.flipMode       = TextureFlip::VERTICAL;
+    params.applySizeLimit = false;
+
+    auto& texureLoader = resorceManager_.GetTextureLaoder();
+    auto circleTexture = texureLoader.LoadTexture("GUI/circle2.png", params);
+    auto bgtexture     = texureLoader.LoadTexture("GUI/black-knight-dark-souls.png", params);
+
+    if (circleTexture and bgtexture)
+    {
+        loadingScreenRenderer = std::make_unique<LoadingScreenRenderer>(graphicsApi_, *bgtexture, *circleTexture);
+        loadingScreenRenderer->Init();
+    }
+    else
+    {
+        ERROR_LOG("background or circle texure creatrion error.");
+    }
 }
 
 void SceneLoader::SetIsLoading(bool is)
 {
-    isLoading.store(is);
+    isLoading_.store(is);
 }
 
 bool SceneLoader::GetIsLoading()
 {
-    return isLoading.load();
-}
-
-bool SceneLoader::LoadObject(GpuObject *obj)
-{
-    if (obj == nullptr)
-        return false;
-
-    obj->GpuLoadingPass();
-    ++objectLoaded;
-
-    // std::cout << "Loading... " + std::to_string((int)((float)objectLoaded / (float)objectCount) *100.f) + "%" <<
-    // std::endl;
-    return true;
+    return isLoading_.load();
 }
 
 void SceneLoader::UpdateScreen()
 {
-    if (loadingScreenRenderer != nullptr)
-        loadingScreenRenderer->Render(nullptr);
+    if (loadingScreenRenderer)
+        loadingScreenRenderer->Render();
 
-    displayManager.UpdateWindow();
+    displayManager_.UpdateWindow();
 }
 
-void SceneLoader::LoadingLoop(Scene* scene)
+void SceneLoader::ScreenRenderLoop()
 {
-    bool load       = true;
-    auto& objLoader = scene->GetResourceManager().GetGpuResourceLoader();
-
-    while (load)
-        load = ProccesLoadingLoop(objLoader.GetObjectToGpuLoadingPass());
+    while (GetIsLoading())
+    {
+        displayManager_.ProcessEvents();
+        UpdateScreen();
+    }
 }
 
-bool SceneLoader::ProccesLoadingLoop(GpuObject *obj)
+void SceneLoader::CheckObjectCount(Scene& scene)
 {
-   displayManager.ProcessEvents();
-
-    auto load = GetIsLoading();
-    if (LoadObject(obj))
-        load = true;
-    UpdateScreen();
-
-    return load;
+    objectCount_ = scene.objectCount;
+    if (objectCount_ <= 0)
+        objectCount_ = 1;
 }
 
-void SceneLoader::CheckObjectCount(Scene* scene)
+void SceneLoader::LoadScene(Scene& scene)
 {
-    objectCount = scene->objectCount;
-    if (objectCount <= 0)
-        objectCount = 1;
-}
-
-void SceneLoader::PostLoadingPass(Scene* scene)
-{
-    bool load       = true;
-    auto& objLoader = scene->GetResourceManager().GetGpuResourceLoader();
-
-    while (load)
-        load = ProccesLoadingLoop(objLoader.GetObjectToGpuPostLoadingPass());
-}
-
-void SceneLoader::LoadScene(Scene* scene)
-{
-    if (scene == nullptr)
-        return;
-
-    auto start = std::chrono::high_resolution_clock::now();
-    scene->Init();
-    auto end = std::chrono::high_resolution_clock::now();
-    DEBUG_LOG("Scene loading time: " +
-        std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000.f) + "s.");
+    Utils::Timer timer;
+    scene.Init();
+    DEBUG_LOG("Scene loading time: " + std::to_string(timer.GetTimeMiliSeconds()) + "ms.");
     SetIsLoading(false);
 }
-}  // GameEnigne
+}  // namespace GameEngine

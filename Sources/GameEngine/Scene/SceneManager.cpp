@@ -8,20 +8,11 @@
 
 namespace GameEngine
 {
-SceneManager::SceneManager(GraphicsApi::IGraphicsApi& grahpicsApi, Physics::IPhysicsApi& physicsApi,
-                           SceneFactoryBasePtr sceneFactory, DisplayManager& displayManager,
-                           Input::InputManager& inputManager, Renderer::RenderersManager& renderersManager,
-                           Renderer::Gui::GuiContext& guiContext, std::function<void(EngineEvent)> addEngineEvent)
-    : grahpicsApi_(grahpicsApi)
-    , physicsApi_(physicsApi)
-    , sceneFactory_(sceneFactory)
+SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<SceneFactoryBase> sceneFactory)
+    : engineContext_(engineContext)
+    , sceneFactory_(std::move(sceneFactory))
+    , sceneWrapper_(engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(), engineContext.GetGpuResourceLoader())
     , currentSceneId_(0)
-    , sceneWrapper_(grahpicsApi, displayManager)
-    , displayManager_(displayManager)
-    , inputManager_(inputManager)
-    , renderersManager_(renderersManager)
-    , guiContext_(guiContext)
-    , addEngineEvent_(addEngineEvent)
     , isRunning_(false)
 {
     Start();
@@ -44,57 +35,6 @@ void SceneManager::InitActiveScene()
     }
 }
 
-void SceneManager::RuntimeGpuTasks()
-{
-    RuntimeReleaseObjectGpu();
-    RuntimeLoadObjectToGpu();
-    RuntimeCallFunctionGpu();
-}
-void SceneManager::RuntimeLoadObjectToGpu()
-{
-    if (not sceneWrapper_.IsInitialized())
-        return;
-
-    auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
-
-    auto obj = gpuLoader.GetObjectToGpuLoadingPass();
-
-    while (obj != nullptr)
-    {
-        if (not obj->IsLoadedToGpu())
-        {
-            obj->GpuLoadingPass();
-        }
-        else
-        {
-            DEBUG_LOG("Is already loaded.");
-        }
-
-        obj = gpuLoader.GetObjectToGpuLoadingPass();
-    }
-}
-void SceneManager::RuntimeReleaseObjectGpu()
-{
-    if (not sceneWrapper_.IsInitialized())
-        return;
-
-    auto& gpuLoader = sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader();
-
-    auto obj = gpuLoader.GetObjectToRelease();
-
-    while (obj)
-    {
-        grahpicsApi_.DeleteObject(*obj);
-        obj = gpuLoader.GetObjectToRelease();
-    }
-}
-void SceneManager::RuntimeCallFunctionGpu()
-{
-    if (not sceneWrapper_.IsInitialized())
-        return;
-
-    sceneWrapper_.Get()->GetResourceManager().GetGpuResourceLoader().CallFunctions();
-}
 void SceneManager::Update()
 {
     if (sceneWrapper_.GetState() == SceneWrapperState::ReadyToInitialized)
@@ -111,7 +51,7 @@ void SceneManager::TakeEvents()
         return;
 
     Stop();
-    renderersManager_.UnSubscribeAll([&, e = *incomingEvent]() { AddEventToProcess(e); });
+    engineContext_.GetRenderersManager().UnSubscribeAll([&, e = *incomingEvent]() { AddEventToProcess(e); });
 }
 void SceneManager::ProccessEvents()
 {
@@ -158,11 +98,7 @@ void SceneManager::Reset()
 
 void SceneManager::SetFactor()
 {
-    sceneFactory_->SetGraphicsApi(grahpicsApi_);
-    sceneFactory_->SetDisplayManager(&displayManager_);
-    sceneFactory_->SetInputManager(&inputManager_);
-    sceneFactory_->SetRenderersManager(&renderersManager_);
-    sceneFactory_->SetPhysicsApi(physicsApi_);
+    sceneFactory_->SetEngineContext(engineContext_);
 }
 
 void SceneManager::UpdateScene(float dt)
@@ -262,7 +198,6 @@ void SceneManager::LoadScene(const std::string& name)
 void SceneManager::SetSceneContext(Scene* scene)
 {
     scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
-    scene->SetAddEngineEventCallback(addEngineEvent_);
 }
 
 void SceneManager::Start()
@@ -270,7 +205,7 @@ void SceneManager::Start()
     if (not isRunning_)
     {
         DEBUG_LOG("Starting scene");
-        updateSceneThreadId_ = EngineContext.threadSync_.Subscribe(
+        updateSceneThreadId_ = engineContext_.GetThreadSync().Subscribe(
             std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
         isRunning_ = true;
     }
@@ -285,7 +220,7 @@ void SceneManager::Stop()
     if (isRunning_)
     {
         DEBUG_LOG("Stopping scene");
-        EngineContext.threadSync_.Unsubscribe(updateSceneThreadId_);
+        engineContext_.GetThreadSync().Unsubscribe(updateSceneThreadId_);
         isRunning_ = false;
     }
     else

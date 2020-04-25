@@ -11,9 +11,11 @@ class GrassRendererComponent : public BaseComponent
 public:
     GrassRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
     ~GrassRendererComponent();
+
     inline ModelWrapper& GetModel();
     inline const std::vector<float>& GetPositions() const;
     inline const std::string& GetTextureFileName() const;
+
     GrassRendererComponent& SetPositions(const std::vector<float>& positions);
     GrassRendererComponent& SetTexture(const std::string& filename);
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <Mutex.hpp>
 #include "GpuObject.h"
 #include "IGpuResourceLoader.h"
 
@@ -11,17 +12,22 @@ public:
     GpuResourceLoader();
     void AddFunctionToCall(std::function<void()>) override;
     void CallFunctions() override;
-    void AddObjectToGpuLoadingPass(GpuObject* obj) override;
+
+    void AddObjectToGpuLoadingPass(GpuObject&) override;
     GpuObject* GetObjectToGpuLoadingPass() override;
-    void AddObjectToGpuPostLoadingPass(GpuObject* obj) override;
-    GpuObject* GetObjectToGpuPostLoadingPass() override;
-    void AddObjectToRelease(uint32) override;
-    std::optional<uint32> GetObjectToRelease() override;
+
+    void AddObjectToRelease(std::unique_ptr<GpuObject>) override;
+    std::unique_ptr<GpuObject> GetObjectToRelease() override;
 
 private:
     std::vector<std::function<void()>> functions;
     std::vector<GpuObject*> gpuPassLoad;
     std::vector<GpuObject*> gpuPostPassLoad;
-    std::vector<uint32> objectToRelease;
+    std::vector<std::unique_ptr<GpuObject>> objectsToRelease;
+
+private:
+    std::mutex gpuPassMutex;
+    std::mutex releaseMutex;
+    std::mutex functionMutex;
 };
 }  // namespace GameEngine

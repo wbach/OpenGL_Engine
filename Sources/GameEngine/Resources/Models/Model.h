@@ -1,7 +1,7 @@
 #pragma once
 #include <list>
 #include <memory>
-#include "../GpuObject.h"
+#include "GameEngine/Resources/GpuObject.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
 #include "Mesh.h"
@@ -16,11 +16,10 @@ public:
     Model();
     Model(float scaleFactor);
     Model(const Model&) = delete;
+    ~Model();
 
-    virtual ~Model();
-    virtual void InitModel(const std::string& file_name);
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+    void SetFileName(const std::string& filename);
+    void GpuLoadingPass() override;
 
     Mesh* AddMesh(Mesh& mesh);
     Mesh* AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi& api);
@@ -48,9 +47,6 @@ protected:
     std::vector<mat4> boneTransforms_;
     float scaleFactor_;
 };
-
-typedef Model* ModelRawPtr;
-typedef std::shared_ptr<Model> ModelPtr;
 
 const std::vector<Mesh>& Model::GetMeshes() const
 {

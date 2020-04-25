@@ -1,53 +1,45 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
-#include <vector>
+#include <Mutex.hpp>
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "IResourceManager.hpp"
 #include "Models/Model.h"
 #include "Models/WBLoader/LoaderManager.h"
+#include "ResourceInfo.h"
 
 namespace GameEngine
 {
-class IGpuResourceLoader;
-
 class ResourceManager : public IResourceManager
 {
 public:
-    ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi);
+    ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader);
     ~ResourceManager() override;
+
     Model* LoadModel(const std::string& file) override;
-    void AddModel(Model* model) override;
+    void AddModel(std::unique_ptr<Model>) override;
     void ReleaseModel(Model* model) override;
-    inline Model* GetModel(uint32 id) override;
-    inline IGpuResourceLoader& GetGpuResourceLoader() override;
+
     inline ITextureLoader& GetTextureLaoder() override;
+    inline IGpuResourceLoader& GetGpuResourceLoader() override;
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
-    Texture* AddTexture(std::unique_ptr<Texture>) override;
-    void DeleteTexture(uint32 id);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-
-    std::vector<std::unique_ptr<Model>> models_;
-    std::vector<std::unique_ptr<Texture>> textures_;
-
-    std::unordered_map<std::string, uint32> modelsIds_;
-
-    std::shared_ptr<IGpuResourceLoader> gpuLoader_;
-    std::shared_ptr<ITextureLoader> textureLoader_;
-
+    IGpuResourceLoader& gpuResourceLoader_;
+    std::unique_ptr<ITextureLoader> textureLoader_;
     LoaderManager loaderManager_;
-};
 
-Model* ResourceManager::GetModel(uint32 id)
-{
-    return models_[id].get();
-}
+    std::unordered_map<std::string, ResourceInfo<Model>> models_;
+    std::unordered_map<std::string, ResourceInfo<Texture>> textures_;
+
+    uint32 unknowFileNameResourceId_;
+    std::mutex modelMutex_;
+};
 
 IGpuResourceLoader& ResourceManager::GetGpuResourceLoader()
 {
-    return *gpuLoader_;
+    return gpuResourceLoader_;
 }
 
 ITextureLoader& ResourceManager::GetTextureLaoder()

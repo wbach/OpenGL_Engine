@@ -5,9 +5,9 @@
 namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
-                               std::vector<Image>& image)
+                               std::array<Image, 6> images)
     : Texture(graphicsApi, name, name)
-    , images_(std::move(image))
+    , images_(std::move(images))
 {
     if (images_.size() != 6)
     {
@@ -17,7 +17,7 @@ CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
 
 void CubeMapTexture::GpuLoadingPass()
 {
-    if (isInGpu_ or images_.size() != 6)
+    if (graphicsObjectId_ or images_.size() != 6)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
@@ -26,7 +26,7 @@ void CubeMapTexture::GpuLoadingPass()
     std::vector<void*> data;
     data.resize(6);
 
-    for (int x = 0; x < 6; x++)
+    for (size_t x = 0; x < 6; x++)
     {
         if (images_[x].data.empty())
         {
@@ -42,7 +42,6 @@ void CubeMapTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else
@@ -52,9 +51,5 @@ void CubeMapTexture::GpuLoadingPass()
 
     for (auto& i : images_)
         i.data.clear();
-}
-
-void CubeMapTexture::GpuPostLoadingPass()
-{
 }
 }  // namespace GameEngine

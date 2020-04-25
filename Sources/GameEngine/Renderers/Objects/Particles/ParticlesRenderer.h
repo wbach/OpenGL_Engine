@@ -45,10 +45,10 @@ private:
     void ClearFrame();
     void RenderSubscribes(const mat4& viewMatrix);
     void RenderParticles(const ParticleSubscriber& effect, const mat4& viewMatrix);
-    void RenderInstances(uint32 size);
+    void RenderInstances(size_t);
     mat4 UpdateModelViewMatrix(const vec3& position, float rotation, float scale, const mat4& viewMatrix);
-    void UpdateTexture(Texture* texture);
-    void ReallocationParticlesData(uint32 size);
+    void UpdateTexture(Texture*);
+    void ReallocationParticlesData(size_t);
     void GetParticleData(const std::vector<Particle>& particles, const mat4& viewMatrix);
     vec4 GetTextureOffsets(float blendFactor);
 

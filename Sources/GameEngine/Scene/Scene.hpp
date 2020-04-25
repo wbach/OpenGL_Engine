@@ -17,7 +17,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
 #include "SceneEvents.h"
-#include "SceneInitContext.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "Types.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/DebugTools/Console/Console.h"
@@ -48,7 +48,7 @@ public:
     Scene(const std::string& name);
     virtual ~Scene();
 
-    void InitResources(SceneInitContext&);
+    void InitResources(EngineContext&);
     void Init();
     void PostInit();
     void FullUpdate(float deltaTime);
@@ -72,7 +72,6 @@ public:
     bool RemoveGameObject(GameObject& object);
     void ClearGameObjects();
     void SetAddSceneEventCallback(AddEvent func);
-    void SetAddEngineEventCallback(std::function<void(EngineEvent)>);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
@@ -117,10 +116,12 @@ protected:
     std::unique_ptr<GameObject> rootGameObject_;
     std::unordered_map<uint32, GameObject*> gameObjectsIds_;
     CameraWrapper camera;
+
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;
     Physics::IPhysicsApi* physicsApi_;
+    Utils::Thread::ThreadSync* threadSync_;
 
     std::string name;
     std::string file_;
@@ -138,7 +139,7 @@ protected:
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
 
 private:
-    void CreateResourceManger(GraphicsApi::IGraphicsApi&);
+    void CreateResourceManger(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&);
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;

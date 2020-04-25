@@ -7,8 +7,10 @@
 
 namespace GameEngine
 {
-GuiEngineContextManger::GuiEngineContextManger(GuiElementFactory& guiFactory)
-    : guiFactory_(guiFactory)
+GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measurementHandler,
+                                               GuiElementFactory& guiFactory)
+    : measurementHandler_(measurementHandler)
+    , guiFactory_(guiFactory)
 {
     rootWindow_ = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.75, 1.0), vec2(0.25, 0),
                                               vec4(1.f, 1.f, 1.f, 0.5f));
@@ -27,7 +29,7 @@ GuiEngineContextManger::~GuiEngineContextManger()
 
 void GuiEngineContextManger::Update()
 {
-    for (const auto& measurment : EngineContext.GetMeasurments())
+    for (const auto& measurment : measurementHandler_.GetMeasurments())
     {
         auto printedText = measurment.first + " : " + measurment.second.value;
 

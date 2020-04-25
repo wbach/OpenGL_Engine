@@ -8,10 +8,10 @@ namespace GameEngine
 class HeightMap : public Texture
 {
 public:
-    HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
+    HeightMap(GraphicsApi::IGraphicsApi&, bool keepData, const std::string& file,
               const std::string& filepath, Image image);
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+
+    void GpuLoadingPass() override;
 
     Image& GetImage();
     const Image& GetImage() const;

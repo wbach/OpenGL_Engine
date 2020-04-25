@@ -35,7 +35,7 @@ struct DebugRendererSubscriber
 
 struct DebugObject
 {
-    DebugObject(GraphicsApi::IGraphicsApi& graphicsApi, Model& model, common::Transform& transform);
+    DebugObject(GraphicsApi::IGraphicsApi&, Model&, common::Transform&);
     ~DebugObject();
 
     void CreateBuffer();
@@ -55,7 +55,7 @@ typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
 class DebugRenderer : public IRenderer
 {
 public:
-    DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi);
+    DebugRenderer(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
     ~DebugRenderer();
 
     void Init() override;

@@ -21,9 +21,10 @@ class FileManager:
     def OnSceneFileMsg(self, msg):
         self.sceneFileName = msg.get("filename")
         if self.sceneFileName:
-            file = open(self.histTmpFile, "w")
-            file.write(self.sceneFileName)
-            file.close()
+            if not os.path.exists(self.sceneFileName):
+                file = open(self.histTmpFile, "w")
+                file.write(self.sceneFileName)
+                file.close()
 
     def GetInitFilename(self, default):
         if self.sceneFileName:
@@ -31,8 +32,6 @@ class FileManager:
         return default
 
     def GetInitDir(self):
-        if self.sceneFileName:
-            return os.path.dirname(self.sceneFileName)
         if pathlib.Path(self.histTmpFile).exists():
             file = open(self.histTmpFile, "r")
             dir = file.readline()[:-1]

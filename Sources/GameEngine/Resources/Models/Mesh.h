@@ -24,6 +24,7 @@ public:
     Mesh(Mesh&&)      = default;
     ~Mesh() override;
     void GpuLoadingPass() override;
+
     void SetMaterial(const Material& material);
     const MeshBufferes& GetBuffers() const;
     void UpdatePoseBuffer(void* pose) const;

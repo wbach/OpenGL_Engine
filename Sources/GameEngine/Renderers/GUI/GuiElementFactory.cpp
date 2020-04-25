@@ -261,8 +261,11 @@ const GuiTheme &GuiElementFactory::GetTheme() const
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
 {
-    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, false, true, ObjectTextureType::MATERIAL,
-                                                                   TextureFlip::Type::VERTICAL);
+    TextureParameters params;
+    params.applySizeLimit = false;
+    params.flipMode       = TextureFlip::VERTICAL;
+
+    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, params);
     if (not texture)
     {
         DEBUG_LOG("Texture not loaded : " + filename);

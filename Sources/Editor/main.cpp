@@ -50,7 +50,7 @@ int main(int, char**)
 
     GraphicsApi::IGraphicsApi& apiRef = *graphicsApi;
     Engine engine(std::move(graphicsApi), std::make_unique<BulletAdapter>(apiRef),
-                  std::make_shared<Editor::SceneFactory>(editorContext));
+                  std::make_unique<Editor::SceneFactory>(editorContext));
     engine.Init();
     engine.GetSceneManager().SetActiveScene("EditorScene");
     engine.GameLoop();

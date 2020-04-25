@@ -1,4 +1,4 @@
-#include "LodingScreenRenderer.h"
+#include "LoadingScreenRenderer.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture *bgTexture, Texture *circleTexture)
+LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture& bgTexture, Texture& circleTexture)
     : graphicsApi_(api)
     , shader_(api, GraphicsApi::ShaderProgramType::Loading)
     , circleTexture(circleTexture)
@@ -25,14 +25,14 @@ void LoadingScreenRenderer::Init()
     CreateBuffers();
 }
 
-void LoadingScreenRenderer::Render(Scene *)
+void LoadingScreenRenderer::Render()
 {
     prepareRender();
     shader_.Start();
     graphicsApi_.EnableBlend();
     graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
-    renderQuad(backgroundBufferId_, backgroundTexture->GetGraphicsObjectId());
-    renderQuad(circleBufferId_, circleTexture->GetGraphicsObjectId());
+    renderQuad(backgroundBufferId_, backgroundTexture.GetGraphicsObjectId());
+    renderQuad(circleBufferId_, circleTexture.GetGraphicsObjectId());
     graphicsApi_.DisableBlend();
     shader_.Stop();
     timer_ = Utils::Timer();
@@ -56,12 +56,14 @@ void LoadingScreenRenderer::prepareRender()
     }
 }
 
-void LoadingScreenRenderer::renderQuad(const GraphicsApi::ID &bufferId, uint32 textureId) const
+void LoadingScreenRenderer::renderQuad(const GraphicsApi::ID &bufferId, const GraphicsApi::ID &textureId) const
 {
     if (not bufferId)
         return;
 
-    graphicsApi_.ActiveTexture(0, textureId);
+    if (textureId)
+        graphicsApi_.ActiveTexture(0, *textureId);
+
     graphicsApi_.BindShaderBuffer(*bufferId);
     graphicsApi_.RenderQuad();
 }

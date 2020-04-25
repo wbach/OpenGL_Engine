@@ -3,6 +3,7 @@
 #include <Input/KeysSubscriptionsManager.h>
 #include <Time/Timer.h>
 #include <UtilsNetwork/Gateway.h>
+#include <Utils/ThreadSync.h>
 
 #include <functional>
 #include <unordered_map>
@@ -19,7 +20,7 @@ class DragObject;
 class NetworkEditorInterface : public IEditorInterface
 {
 public:
-    NetworkEditorInterface(Scene& scene);
+    NetworkEditorInterface(Scene&, Utils::Thread::ThreadSync&);
     ~NetworkEditorInterface();
     virtual void Run() override;
     virtual void AddObject(const std::string&) override;
@@ -81,6 +82,7 @@ private:
 
 private:
     Scene& scene_;
+    Utils::Thread::ThreadSync& threadSync_;
     Network::Gateway gateway_;
     std::unordered_map<std::string, std::function<void(const EntryParameters&)>> commands_;
     std::optional<uint32> transformChangeSubscriptionId_;

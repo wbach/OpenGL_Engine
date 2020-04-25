@@ -3,6 +3,7 @@
 #include <functional>
 #include "Thread.hpp"
 #include "Time/TimeMeasurer.h"
+#include "MeasurementHandler.h"
 #include "Types.h"
 
 namespace Utils
@@ -14,7 +15,7 @@ typedef std::function<void(float deltaTime)> frameFunc;
 class ThreadSubscriber
 {
 public:
-    ThreadSubscriber(const std::string& label, frameFunc func, std::function<MeasurementValue&(const std::string&)>);
+    ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler&);
     ThreadSubscriber(const ThreadSubscriber& s) = delete;
     ~ThreadSubscriber();
 

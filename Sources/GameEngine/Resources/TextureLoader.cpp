@@ -1,5 +1,6 @@
 #include "TextureLoader.h"
 #include <FreeImage.h>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <fstream>
 #include "../Engine/Configuration.h"
@@ -15,6 +16,10 @@
 
 namespace GameEngine
 {
+namespace
+{
+uint32 unknownTextureNameId{0};
+}
 struct Header
 {
     uint32 width;
@@ -23,13 +28,12 @@ struct Header
 };
 const std::string HEIGHTMAP_EXTENSION = "terrain";
 
-TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi,
-                             std::vector<std::unique_ptr<Texture>>& textures_vector,
-                             std::shared_ptr<IGpuResourceLoader> gpuLoader)
+TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
+                             std::unordered_map<std::string, ResourceInfo<Texture>>& textures)
     : graphicsApi_(graphicsApi)
-    , textures_(textures_vector)
     , gpuResourceLoader_(gpuLoader)
-    , textureNotFound_(nullptr)
+    , textures_(textures)
+    , textureNotFound_({nullptr, false})
     , heightMapFactor_(1.f)
 {
 }
@@ -38,20 +42,19 @@ TextureLoader::~TextureLoader()
 {
 }
 
-std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool applySizeLimit, TextureFlip::Type flip_mode)
+std::optional<Image> TextureLoader::ReadFile(const InputFileName& inputFileName, const TextureParameters& params)
 {
-    auto file_location        = file;
-    FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(file_location.c_str(), 0);
+    FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(inputFileName.c_str(), 0);
     if (formato == FIF_UNKNOWN)
     {
-        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + file_location);
+        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + inputFileName);
         return {};
     }
 
-    FIBITMAP* imagen2 = FreeImage_Load(formato, file_location.c_str());
+    FIBITMAP* imagen2 = FreeImage_Load(formato, inputFileName.c_str());
     if (!imagen2)
     {
-        ERROR_LOG("FreeImageLoad: wrong image format or file does not exist : " + file_location);
+        ERROR_LOG("FreeImageLoad: wrong image format or file does not exist : " + inputFileName);
         return {};
     }
 
@@ -59,17 +62,17 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     if (!imagen)
     {
         FreeImage_Unload(imagen2);
-        ERROR_LOG("Cant convert to 32 bits : " + file_location);
+        ERROR_LOG("Cant convert to 32 bits : " + inputFileName);
         return {};
     }
     FreeImage_Unload(imagen2);
 
-    if (flip_mode == TextureFlip::Type::VERTICAL || flip_mode == TextureFlip::Type::BOTH)
+    if (params.flipMode == TextureFlip::VERTICAL or params.flipMode == TextureFlip::BOTH)
     {
         FreeImage_FlipVertical(imagen);
     }
 
-    if (flip_mode == TextureFlip::Type::HORIZONTAL || flip_mode == TextureFlip::Type::BOTH)
+    if (params.flipMode == TextureFlip::HORIZONTAL or params.flipMode == TextureFlip::BOTH)
     {
         FreeImage_FlipHorizontal(imagen);
     }
@@ -77,7 +80,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     uint32 w = FreeImage_GetWidth(imagen);
     uint32 h = FreeImage_GetHeight(imagen);
 
-    if (applySizeLimit)
+    if (params.applySizeLimit)
     {
         auto& texture_size  = EngineConf.renderer.textures.maxSize;
         bool resize_texture = false;
@@ -101,7 +104,7 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     resultImage.height = h;
 
     auto pixeles = FreeImage_GetBits(imagen);
-    DEBUG_LOG("File convert bgr2rgb" + file_location + ".");
+    // DEBUG_LOG("File convert bgr2rgb" + inputFileName + ".");
 
     resultImage.data.resize(4 * w * h);
 
@@ -115,100 +118,68 @@ std::optional<Image> TextureLoader::ReadFile(const std::string& file, bool apply
     }
 
     FreeImage_Unload(imagen);
-
-    DEBUG_LOG("File: " + file_location + " is loaded.");
-
+    DEBUG_LOG("File: " + inputFileName + " is loaded.");
     return std::move(resultImage);
 }
 
-Texture* TextureLoader::CreateTexture(const std::string& name, vec2ui size, void* data)
+Texture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params, const TextureSize& size,
+                                      RawData data)
 {
-    DEBUG_LOG(name);
-    textures_.emplace_back(new GeneralTexture(graphicsApi_, name, size, data));
-    gpuResourceLoader_->AddObjectToGpuLoadingPass(textures_.back().get());
-    return textures_.back().get();
-}
+    std::lock_guard<std::mutex> lk(textureMutex_);
 
-Texture* TextureLoader::LoadTexture(const std::string& file, bool applySizeLimit, bool gpu_pass, ObjectTextureType type,
-                                    TextureFlip::Type flip_mode)
-{
-    if (file.empty())
-        return nullptr;
-
-    if (auto texture = GetTextureIfLoaded(file))
-    {
+    if (auto texture = GetTextureIfLoaded(name))
         return texture;
-    }
 
-    auto texture = ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), applySizeLimit, flip_mode);
+    return AddTexture(name, std::make_unique<GeneralTexture>(graphicsApi_, name, size, data), params.loadType);
+}
 
-    if (not texture)
-    {
+Texture* TextureLoader::LoadTexture(const InputFileName& inputFileName, const TextureParameters& params)
+{
+    std::lock_guard<std::mutex> lk(textureMutex_);
+
+    if (inputFileName.empty())
+        return nullptr;
+
+    if (auto texture = GetTextureIfLoaded(inputFileName))
+        return texture;
+
+    auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(inputFileName), params);
+
+    if (not image)
         return GetTextureNotFound();
-    }
 
-    switch (type)
-    {
-        case ObjectTextureType::MATERIAL:
-        {
-            textures_.emplace_back(new MaterialTexture(graphicsApi_, false, file, file, *texture));
-        }
-        break;
-        case ObjectTextureType::HEIGHT_MAP:
-            break;
-    }
-    if (gpu_pass)
-    {
-        gpuResourceLoader_->AddObjectToGpuLoadingPass(textures_.back().get());
-    }
+    auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, false, Utils::GetFilename(inputFileName),
+                                                             Utils::GetFilePath(inputFileName), *image);
 
-    return textures_.back().get();
+    return AddTexture(inputFileName, std::move(materialTexture), params.loadType);
 }
 
-Texture* TextureLoader::LoadTextureImmediately(const std::string& file, bool applySizeLimit, ObjectTextureType type,
-                                               TextureFlip::Type flip_mode)
+Texture* TextureLoader::LoadCubeMap(const std::array<InputFileName, 6>& files, const TextureParameters& params)
 {
-    if (file.empty())
-        return nullptr;
+    std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto texture = LoadTexture(file, applySizeLimit, false, type, flip_mode);
-    texture->GpuLoadingPass();
-    return texture;
-}
+    std::ostringstream textureName;
+    for (const auto& file : files)
+        textureName << file;
 
-Texture* TextureLoader::LoadCubeMap(const std::vector<std::string>& files, bool applySizeLimit, bool gpu_pass)
-{
-    if (files.size() != 6)
-    {
-        ERROR_LOG("Cube map texture need 6 texutres.");
-        return nullptr;
-    }
+    if (auto texture = GetTextureIfLoaded(textureName.str()))
+        return texture;
 
-    std::vector<Image> images;
-    images.resize(6);
+    std::array<Image, 6> images;
 
-    size_t x = 0;
+    size_t index = 0;
     for (const auto& file : files)
     {
-        auto image =
-            ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), applySizeLimit, TextureFlip::Type::VERTICAL);
+        auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), params);
 
         if (not image)
-        {
             return GetTextureNotFound();
-        }
 
-        images[x++] = std::move(*image);
+        images[index++] = std::move(*image);
     }
 
-    textures_.emplace_back(new CubeMapTexture(graphicsApi_, files[0], images));
-
-    auto texture = textures_.back().get();
-
-    if (gpu_pass)
-        gpuResourceLoader_->AddObjectToGpuLoadingPass(texture);
-
-    return texture;
+    return AddTexture(textureName.str(), std::make_unique<CubeMapTexture>(graphicsApi_, textureName.str(), images),
+                      params.loadType);
 }
 
 float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui& position)
@@ -274,31 +245,31 @@ std::vector<float> createNromalMapData(const vec2ui& size, const std::vector<flo
     return result;
 }
 
-Texture* TextureLoader::LoadHeightMap(const std::string& filename, bool gpu_pass)
+Texture* TextureLoader::LoadHeightMap(const InputFileName& inputFileName, const TextureParameters& params)
 {
-    if (auto texture = GetTextureIfLoaded(filename))
+    std::lock_guard<std::mutex> lk(textureMutex_);
+
+    if (auto texture = GetTextureIfLoaded(inputFileName))
     {
         return texture;
     }
 
-    auto isBinnary = Utils::CheckExtension(filename, HEIGHTMAP_EXTENSION);
-    return isBinnary ? LoadHeightMapBinary(filename, gpu_pass) : LoadHeightMapTexture(filename, gpu_pass);
+    auto isBinnary = Utils::CheckExtension(inputFileName, HEIGHTMAP_EXTENSION);
+    return isBinnary ? LoadHeightMapBinary(inputFileName, params) : LoadHeightMapTexture(inputFileName, params);
 }
 
-Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const vec2ui& size, float strength)
+Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const TextureSize& size, float strength)
 {
-    auto texture   = std::make_unique<Image>();
-    auto& text     = *texture;
-    text.width     = size.x;
-    text.height    = size.y;
-    text.floatData = createNromalMapData(size, baseData, strength);
+    std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto normaltexture = new NormalTexture(graphicsApi_, true, "noname_NormalTexutre", "nopath", std::move(texture));
-    textures_.emplace_back(normaltexture);
+    auto image       = std::make_unique<Image>();
+    image->width     = size.x;
+    image->height    = size.y;
+    image->floatData = createNromalMapData(size, baseData, strength);
+    auto normaltexture =
+        std::make_unique<NormalTexture>(graphicsApi_, true, "noname_NormalTexutre", "nopath", std::move(image));
 
-    gpuResourceLoader_->AddObjectToGpuLoadingPass(normaltexture);
-
-    return normaltexture;
+    return AddTexture(GetNoName(), std::move(normaltexture), TextureLoadType::AddToGpuPass);
 }
 
 void TextureLoader::CreateHeightMap(const std::string& in, const std::string& out, const vec3& scale)
@@ -313,7 +284,10 @@ void TextureLoader::CreateHeightMap(const std::string& in, const std::string& ou
         return;
     }
 
-    auto optImage = ReadFile(input, false);
+    TextureParameters textureParams;
+    textureParams.applySizeLimit = false;
+
+    auto optImage = ReadFile(input, textureParams);
 
     if (not optImage)
     {
@@ -381,13 +355,33 @@ void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector
 
     FreeImage_Save(fformat, im, (name + ext).c_str(), 0);
 }
-Texture* TextureLoader::LoadHeightMapBinary(const std::string& filename, bool gpu_pass)
+
+void TextureLoader::DeleteTexture(Texture& texture)
 {
-    auto fp = fopen(filename.c_str(), "rb");
+    std::lock_guard<std::mutex> lk(textureMutex_);
+
+    auto iter =
+        std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGraphicsObjectId()](const auto& texture) {
+            return (texture.second.resource_->GetGraphicsObjectId() == id);
+        });
+
+    auto& textureInfo = iter->second;
+    --textureInfo.instances_;
+
+    if (textureInfo.instances_ > 0)
+        return;
+
+    gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
+    textures_.erase(iter);
+}
+
+Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, const TextureParameters& params)
+{
+    auto fp = fopen(inputFileName.c_str(), "rb");
 
     if (!fp)
     {
-        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + filename);
+        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + inputFileName);
         return nullptr;
     }
 
@@ -396,42 +390,40 @@ Texture* TextureLoader::LoadHeightMapBinary(const std::string& filename, bool gp
 
     if (bytes == 0)
     {
-        ERROR_LOG("Read file error." + filename);
+        ERROR_LOG("Read file error." + inputFileName);
     }
 
     DEBUG_LOG("Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
     DEBUG_LOG("Height map scale : " + std::to_string(header.scale));
 
-    Image texture;
-    texture.width = header.width;
-    texture.height = header.height;
+    Image image;
+    image.width  = header.width;
+    image.height = header.height;
 
     auto size = header.width * header.height;
-    texture.floatData.resize(size);
+    image.floatData.resize(size);
 
-    bytes = fread(&texture.floatData[0], sizeof(float), size, fp);
+    bytes = fread(&image.floatData[0], sizeof(float), size, fp);
     fclose(fp);
 
     if (bytes < size)
     {
-        ERROR_LOG("Read file error." + filename + " " + ", bytes : " + std::to_string(bytes) + "/" +
+        ERROR_LOG("Read file error." + inputFileName + " " + ", bytes : " + std::to_string(bytes) + "/" +
                   std::to_string(sizeof(float) * size));
         return nullptr;
     }
 
-    auto heightmapTexture = new HeightMap(graphicsApi_, true, filename, filename, std::move(texture));
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, true, Utils::GetFilename(inputFileName),
+                                                        GetRelativeDataPath(inputFileName), std::move(image));
     heightmapTexture->SetScale(header.scale);
-    textures_.emplace_back(heightmapTexture);
 
-    if (gpu_pass)
-        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmapTexture);
-
-    return heightmapTexture;
+    return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
 }
-Texture* TextureLoader::LoadHeightMapTexture(const std::string& filename, bool gpu_pass)
+Texture* TextureLoader::LoadHeightMapTexture(const InputFileName& inputFileName, const TextureParameters& params)
 {
-    DEBUG_LOG(filename);
-    auto optImage = ReadFile(filename, false);
+    DEBUG_LOG(inputFileName);
+
+    auto optImage = ReadFile(inputFileName, params);
 
     if (not optImage)
     {
@@ -455,30 +447,74 @@ Texture* TextureLoader::LoadHeightMapTexture(const std::string& filename, bool g
         image.data.clear();
     }
 
-    auto heightmap_texture = new HeightMap(graphicsApi_, true, filename, filename, std::move(image));
-    heightmap_texture->SetScale(vec3(heightMapFactor_));
-    textures_.emplace_back(heightmap_texture);
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, true, Utils::GetFilename(inputFileName),
+                                                        GetRelativeDataPath(inputFileName), std::move(image));
+    heightmapTexture->SetScale(vec3(heightMapFactor_));
 
-    if (gpu_pass)
-        gpuResourceLoader_->AddObjectToGpuLoadingPass(heightmap_texture);
-
-    return heightmap_texture;
+    return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
 }
-Texture* TextureLoader::GetTextureIfLoaded(const std::string& filename) const
+
+Texture* TextureLoader::GetTextureIfLoaded(const std::string& name)
 {
-    auto iter = std::find_if(textures_.begin(), textures_.end(), [&filename](const std::unique_ptr<Texture>& texture) {
-        return texture->GetFileName() == filename;
-    });
-    return iter != textures_.end() ? iter->get() : nullptr;
+    if (textures_.count(name))
+    {
+        DEBUG_LOG("Created texture already exist : " + name);
+
+        auto& textureInfo = textures_.at(name);
+        ++textureInfo.instances_;
+        return textureInfo.resource_.get();
+    }
+
+    return nullptr;
 }
 
 Texture* TextureLoader::GetTextureNotFound()
 {
-    if (not textureNotFound_)
+    if (textureNotFound_.second)
+        return textureNotFound_.first;
+
+    textureNotFound_.second = true;
+    auto filename = "Textures/textureNotFound.png";
+    TextureParameters params;
+    auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(filename), params);
+
+    if (image)
     {
-        textureNotFound_ = LoadTexture("Textures/textureNotFound.png", false);
+        auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, false, Utils::GetFilename(filename),
+                                                                 Utils::GetFilePath(filename), *image);
+        textureNotFound_.first = AddTexture(filename, std::move(materialTexture), params.loadType);
     }
 
-    return textureNotFound_;
+    return textureNotFound_.first;
+}
+
+Texture* TextureLoader::AddTexture(const std::string& name, std::unique_ptr<Texture> texture, TextureLoadType loadType)
+{
+    ResourceInfo<Texture> textureInfo;
+    textureInfo.resource_ = std::move(texture);
+    auto result           = textureInfo.resource_.get();
+    textures_.insert({name, std::move(textureInfo)});
+    ApplyLoadTypeAction(*result, loadType);
+    return result;
+}
+
+void TextureLoader::ApplyLoadTypeAction(Texture& texture, TextureLoadType type)
+{
+    switch (type)
+    {
+        case TextureLoadType::AddToGpuPass:
+            gpuResourceLoader_.AddObjectToGpuLoadingPass(texture);
+            break;
+        case TextureLoadType::Immediately:
+            texture.GpuLoadingPass();
+            break;
+        case TextureLoadType::None:
+            return;
+    }
+}
+
+std::string TextureLoader::GetNoName() const
+{
+    return "nonameTexture_" + std::to_string(unknownTextureNameId++);
 }
 }  // namespace GameEngine

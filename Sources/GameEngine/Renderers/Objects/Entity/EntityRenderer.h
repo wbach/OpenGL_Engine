@@ -2,6 +2,7 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include <set>
 
 namespace GameEngine
 {
@@ -11,6 +12,7 @@ class Model;
 class Entity;
 class Projection;
 class ModelWrapper;
+class Texture;
 struct RendererContext;
 struct Material;
 
@@ -47,12 +49,14 @@ private:
     void RenderEntities();
     void BindMaterial(const Material& material) const;
     void UnBindMaterial(const Material& material) const;
+    void BindMaterialTexture(uint32, Texture*, bool) const;
 
 private:
     RendererContext& context_;
     ShaderProgram shader_;
 
     EnitySubscribers subscribes_;
+    std::set<uint32> subscribesIds_;
 
     GraphicsApi::ID perObjectUpdateId;
     GraphicsApi::ID perObjectId;

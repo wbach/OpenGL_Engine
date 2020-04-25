@@ -46,21 +46,23 @@ void AddToRequierdFilesIfNotExist(const std::string& file)
     }
 }
 
-std::string GetFullDataPath(const std::string& file_name, bool addToRequierd)
+std::string GetFullDataPath(const std::string& fileName, bool addToRequierd)
 {
+    auto inputFileName = Utils::ReplaceSlash(fileName);
+
     std::string path;
-    if (Utils::IsAbsolutePath(file_name))
+    if (Utils::IsAbsolutePath(inputFileName))
     {
-        path = file_name;
+        path = inputFileName;
     }
     else
     {
-        path = EngineConf.files.data + file_name;
+        path = EngineConf.files.data + inputFileName;
     }
 
     if (addToRequierd)
     {
-        AddToRequierdFilesIfNotExist(file_name);
+        AddToRequierdFilesIfNotExist(inputFileName);
     }
     return path;
 }

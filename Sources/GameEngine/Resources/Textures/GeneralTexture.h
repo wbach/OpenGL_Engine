@@ -10,8 +10,7 @@ class GeneralTexture : public Texture
 public:
     GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file,
                    const vec2ui& size, void* data);
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+    void GpuLoadingPass() override;
 
 private:
     void* data_;

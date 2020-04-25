@@ -15,7 +15,7 @@ MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool ke
 
 void MaterialTexture::GpuLoadingPass()
 {
-    if (image.data.empty() || isInGpu_)
+    if (image.data.empty() or graphicsObjectId_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
         return;
@@ -30,7 +30,6 @@ void MaterialTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInGpu_ = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else
@@ -39,13 +38,9 @@ void MaterialTexture::GpuLoadingPass()
         ERROR_LOG("Texutre not created. Filename : " + fullpath);
     }
 
-    if (!keepData)
+    if (not keepData)
     {
         image.data.clear();
     }
-}
-
-void MaterialTexture::GpuPostLoadingPass()
-{
 }
 }  // namespace GameEngine

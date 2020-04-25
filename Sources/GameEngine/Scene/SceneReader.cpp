@@ -52,7 +52,7 @@ void Read(Utils::XmlNode& node, common::Transform& tranfsorm)
 {
     auto position = ReadVec3(*node.GetChild(CSTR_POSITION));
     auto rotation = ReadVec3(*node.GetChild(CSTR_ROTATION));
-    auto scale = ReadVec3(*node.GetChild(CSTR_SCALE));
+    auto scale    = ReadVec3(*node.GetChild(CSTR_SCALE));
 
     tranfsorm.SetPositionAndRotationAndScale(position, DegreesVec3(rotation), scale);
 }
@@ -201,6 +201,24 @@ std::vector<std::string> ReadStringVector(Utils::XmlNode& node, const std::strin
     return textures;
 }
 
+std::array<std::string, 6> ReadCubeMapArray(Utils::XmlNode& node, const std::string& str)
+{
+    std::array<std::string, 6> textures;
+    uint32 index = 0;
+    for (const auto& modelFileName : node.GetChild(str)->GetChildren())
+    {
+        if (index < 6)
+        {
+            textures[index++] = modelFileName->value_;
+        }
+        else
+        {
+            ERROR_LOG("To many textures in cubeMap texture.");
+        }
+    }
+    return textures;
+}
+
 std::vector<float> ReadFloatVector(Utils::XmlNode& node)
 {
     auto strings = Utils::SplitString(node.value_, ' ');
@@ -223,8 +241,8 @@ std::vector<float> ReadFloatVector(Utils::XmlNode& node)
 
 void Read(Utils::XmlNode& node, Components::SkyBoxComponent& component)
 {
-    component.SetDayTexture(ReadStringVector(node, CSTR_DAY_TEXTURES));
-    component.SetNightTexture(ReadStringVector(node, CSTR_NIGHT_TEXTURES));
+    component.SetDayTexture(ReadCubeMapArray(node, CSTR_DAY_TEXTURES));
+    component.SetNightTexture(ReadCubeMapArray(node, CSTR_NIGHT_TEXTURES));
     component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
 }
 
@@ -387,7 +405,7 @@ void Read(Scene& scene, Utils::XmlNode& node, GameObject& gameObject)
             gameObject.AddChild(std::move(child));
         }
     }
- }
+}
 
 GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
 {
@@ -408,7 +426,7 @@ GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::str
     DEBUG_LOG("Name : " + name);
 
     auto gameObject = scene.CreateGameObject(name);
-    Read(scene , *xmlReader.Get(CSTR_PREFAB), *gameObject);
+    Read(scene, *xmlReader.Get(CSTR_PREFAB), *gameObject);
 
     auto result = gameObject.get();
     scene.AddGameObject(std::move(gameObject));

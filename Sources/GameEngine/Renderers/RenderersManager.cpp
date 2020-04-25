@@ -38,12 +38,14 @@ struct RenderAsLine
 
 namespace Renderer
 {
-RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi)
+RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils::MeasurementHandler& measurmentHandler,
+                                   Utils::Thread::ThreadSync& threadSync)
     : graphicsApi_(graphicsApi)
+    , measurmentHandler_(measurmentHandler)
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
-    , debugRenderer_(graphicsApi)
+    , debugRenderer_(graphicsApi, threadSync)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
 {
@@ -74,7 +76,7 @@ void RenderersManager::Init()
 }
 void RenderersManager::InitProjection()
 {
-    projection_ .Init(EngineConf.renderer.resolution);
+    projection_.Init(EngineConf.renderer.resolution);
     projection_.CreateProjectionMatrix();
 }
 void RenderersManager::InitMainRenderer()
@@ -92,7 +94,7 @@ void RenderersManager::InitMainRenderer()
     defferedFrameBuffer_ = std::make_unique<DefferedFrameBuffer>(graphicsApi_);
     shadowsFrameBuffer_  = std::make_unique<ShadowFrameBuffer>(graphicsApi_);
     rendererContext_ = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
-                                                         *shadowsFrameBuffer_, registerFunc);
+                                                         *shadowsFrameBuffer_, measurmentHandler_, registerFunc);
 
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 

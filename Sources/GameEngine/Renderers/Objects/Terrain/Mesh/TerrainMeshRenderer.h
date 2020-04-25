@@ -41,7 +41,7 @@ private:
     void Render(const Scene&, const Time&);
 
 private:
-    void BindTexture(Texture*, int id) const;
+    void BindTexture(Texture*, uint32 id) const;
     void BindTextures(const TerrainTexturesMap&) const;
     void RenderSubscribers(const Scene&) const;
     void RenderSubscriber(const Scene&, const Subscriber&) const;

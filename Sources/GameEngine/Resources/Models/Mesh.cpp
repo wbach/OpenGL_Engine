@@ -5,6 +5,8 @@
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
+#include <Logger/Log.h>
+
 namespace GameEngine
 {
 Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi)
@@ -25,11 +27,29 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
 
 Mesh::~Mesh()
 {
-    if (not isInGpu_)
+    if (not graphicsObjectId_)
         return;
 
-    graphicsApi_.DeleteObject(graphicsObjectId_);
+    DEBUG_LOG("Clean gpu resources");
+
+    graphicsApi_.DeleteObject(*graphicsObjectId_);
+
+    if (meshBuffers_.perMeshObjectBuffer_)
+        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perMeshObjectBuffer_);
+    if (meshBuffers_.perPoseUpdateBuffer_)
+        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
 }
+
+void Mesh::GpuLoadingPass()
+{
+    if (graphicsObjectId_)
+        return;
+
+    CreateBufferObject();
+    CreateMesh();
+    // ClearData();
+}
+
 void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 {
     Utils::CalculateBoudnigBox(positions, boundingBox.min, boundingBox.max, boundingBox.size, boundingBox.center);
@@ -38,6 +58,7 @@ void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
 void Mesh::CreateMesh()
 {
     auto graphicsObjectId = graphicsApi_.CreateMesh(meshRawData_, renderType_);
+
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
@@ -57,18 +78,6 @@ void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 bool Mesh::UseArmature() const
 {
     return not meshRawData_.bonesWeights_.empty() and not meshRawData_.joinIds_.empty();
-}
-
-void Mesh::GpuLoadingPass()
-{
-    if (IsLoadedToGpu())
-        return;
-
-    CreateMesh();
-    // ClearData();
-    CreateBufferObject();
-
-    isInGpu_ = true;
 }
 
 void Mesh::SetTransformMatrix(const glm::mat4& m)

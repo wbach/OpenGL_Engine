@@ -1,43 +1,26 @@
 #pragma once
 #include <queue>
 
+#include <Mutex.hpp>
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "Mutex.hpp"
+#include "SceneContext.h"
 #include "SceneEvents.h"
 #include "SceneFactoryBase.h"
 #include "SceneWrapper.h"
-#include "ThreadSync.h"
-#include "optional.hpp"
-
-namespace Input
-{
-class InputManager;
-}  // namespace Input
 
 namespace GameEngine
 {
-namespace Renderer
-{
-namespace Gui
-{
-struct GuiContext;
-}
-
-class RenderersManager;
-}  // namespace Renderer
+class EngineContext;
 
 class SceneManager
 {
 public:
-    SceneManager(GraphicsApi::IGraphicsApi&, Physics::IPhysicsApi&, SceneFactoryBasePtr, DisplayManager&,
-                 Input::InputManager&, Renderer::RenderersManager&, Renderer::Gui::GuiContext&,
-                 std::function<void(EngineEvent)>);
+    SceneManager(EngineContext&, std::unique_ptr<SceneFactoryBase>);
     ~SceneManager();
 
     Scene* GetActiveScene();
     void InitActiveScene();
-    void RuntimeGpuTasks();
     void Update();
     void SetActiveScene(const std::string& name);
     void Reset();
@@ -45,9 +28,6 @@ public:
     void Stop();
 
 private:
-    void RuntimeLoadObjectToGpu();
-    void RuntimeReleaseObjectGpu();
-    void RuntimeCallFunctionGpu();
     void TakeEvents();
     void ProccessEvents();
     void UpdateScene(float dt);
@@ -68,23 +48,16 @@ private:
     void Start();
 
 private:
-    GraphicsApi::IGraphicsApi& grahpicsApi_;
-    Physics::IPhysicsApi& physicsApi_;
-    SceneFactoryBasePtr sceneFactory_;
-
-    uint32 currentSceneId_;
+    EngineContext& engineContext_;
+    std::unique_ptr<SceneFactoryBase> sceneFactory_;
     SceneWrapper sceneWrapper_;
+    uint32 currentSceneId_;
 
     std::mutex eventMutex_;
     std::mutex processingEventMutex_;
     std::queue<GameEngine::SceneEvent> events_;
     std::queue<GameEngine::SceneEvent> processingEvents_;
 
-    DisplayManager& displayManager_;
-    Input::InputManager& inputManager_;
-    Renderer::RenderersManager& renderersManager_;
-    Renderer::Gui::GuiContext& guiContext_;
-    std::function<void(EngineEvent)> addEngineEvent_;
     uint32 updateSceneThreadId_;
     bool isRunning_;
 };

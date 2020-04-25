@@ -44,7 +44,7 @@ void TerrainMeshRendererComponent::UpdateTexture(TerrainTextureType type, const 
         return;
     }
 
-    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename);
+    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, TextureParameters());
     if (texture)
         UpdateTexture(type, texture);
 }
@@ -69,7 +69,8 @@ TerrainMeshRendererComponent &TerrainMeshRendererComponent::LoadTextures(
             continue;
         }
 
-        auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second);
+        auto texture =
+            componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second, TextureParameters());
         SetTexture(texturePair.first, texture);
     }
     return *this;
@@ -119,7 +120,7 @@ void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
         perObjectUpdateBuffer_.push_back(obj);
 
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(
-            &perObjectUpdateBuffer_.back());
+            perObjectUpdateBuffer_.back());
     }
 }
 void TerrainMeshRendererComponent::Subscribe()

@@ -1,6 +1,5 @@
 #include "ModelsCreator.h"
 #include "Common/Hero/HeroClassesTypes.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Logger/Log.h"
 
@@ -37,7 +36,7 @@ ModelWrapper ModelsCreator::CreateHero(uint32 classId)
         break;
     }
 
-    auto model = LoadModel(resourceManager_, "Meshes/DaeAnimationExample/CharacterRunning.dae");
+    auto model = resourceManager_->LoadModel("Meshes/DaeAnimationExample/CharacterRunning.dae");
     modelWrapper.Add(model, LevelOfDetail::L1);
     return modelWrapper;
 }

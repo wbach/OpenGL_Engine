@@ -9,14 +9,12 @@ namespace GameEngine
 class CubeMapTexture : public Texture
 {
 public:
-    CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
-                    std::vector<Image>& image);
+    CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name, std::array<Image, 6> images);
 
-    virtual void GpuLoadingPass() override;
-    virtual void GpuPostLoadingPass() override;
+    void GpuLoadingPass() override;
 
 private:
-    std::vector<Image> images_;
+    std::array<Image, 6> images_;
     bool keepData_ = false;
 };
 }  // namespace GameEngine

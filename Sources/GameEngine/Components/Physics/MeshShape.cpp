@@ -5,7 +5,6 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/Model.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 
 namespace GameEngine
@@ -56,7 +55,7 @@ MeshShape& MeshShape::SetModel(Model* model)
 }
 MeshShape& MeshShape::SetModel(const std::string& filename)
 {
-    model_ = GameEngine::LoadModel(&componentContext_.resourceManager_, filename);
+    model_ = componentContext_.resourceManager_.LoadModel(filename);
     return *this;
 }
 MeshShape& MeshShape::SetSize(float size)

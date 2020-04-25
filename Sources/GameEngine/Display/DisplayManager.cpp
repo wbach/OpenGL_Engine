@@ -10,28 +10,28 @@ namespace
 {
 const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
 }
-DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, const std::string& window_name, const int& w,
-                               const int& h, GraphicsApi::WindowType type)
+
+DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::MeasurementHandler& measurementHandler)
     : graphicsApi_(api)
-    , timeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
-    , sync(true)
-    , time(true)
-    , isFullScreen(false)
-    , windowsSize({w, h})
+    , measurementHandler_(measurementHandler)
+    , timeMeasurer_(static_cast<uint32>(EngineConf.renderer.fpsLimt))
+    , sync_(true)
+    , isFullScreen_(EngineConf.window.fullScreen)
+    , windowsSize_(EngineConf.window.size)
 {
-    isFullScreen = type == GraphicsApi::WindowType::FULL_SCREEN;
+    auto windowType = EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
     graphicsApi_.GetWindowApi().Init();
-    graphicsApi_.GetWindowApi().CreateGameWindow(window_name, w, h, type);
+    graphicsApi_.GetWindowApi().CreateGameWindow(EngineConf.window.name, windowsSize_.x, windowsSize_.y, windowType);
     graphicsApi_.CreateContext();
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
 
-    auto& measurmentValue = EngineContext.AddNewMeasurment(FPS_ENGINE_CONTEXT);
+    auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 
-    timeMeasurer.AddOnTickCallback([this, &measurmentValue]() {
-        time_.fps       = static_cast<float>(timeMeasurer.GetFps());
-        measurmentValue = std::to_string(timeMeasurer.GetFps());
+    timeMeasurer_.AddOnTickCallback([this, &measurmentValue]() {
+        time_.fps       = static_cast<float>(timeMeasurer_.GetFps());
+        measurmentValue = std::to_string(timeMeasurer_.GetFps());
     });
 }
 
@@ -43,12 +43,12 @@ DisplayManager::~DisplayManager()
 
 void DisplayManager::StartFrame()
 {
-    timeMeasurer.StartFrame();
+    timeMeasurer_.StartFrame();
 }
 
 void DisplayManager::EndFrame()
 {
-    timeMeasurer.EndFrame();
+    timeMeasurer_.EndFrame();
 }
 
 void DisplayManager::ProcessEvents()
@@ -59,27 +59,29 @@ void DisplayManager::ProcessEvents()
 void DisplayManager::UpdateWindow()
 {
     graphicsApi_.GetWindowApi().UpdateWindow();
-    time_.deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
+    time_.deltaTime = static_cast<float>(timeMeasurer_.GetDeltaTime());
 }
 
-void DisplayManager::SetRefreshRate(const int&)
+void DisplayManager::SetRefreshRate(uint32 rate)
 {
+    EngineConf.renderer.fpsLimt = rate;
+    // timeMeasurer_.ChangeRate(rate);
 }
 
-void DisplayManager::SetFullScreen(bool full_screen)
+void DisplayManager::SetFullScreen(bool state)
 {
-    isFullScreen = full_screen;
-    graphicsApi_.GetWindowApi().SetFullScreen(isFullScreen);
+    isFullScreen_ = state;
+    graphicsApi_.GetWindowApi().SetFullScreen(state);
 }
 
 int DisplayManager::GetFps() const
 {
-    return static_cast<int>(timeMeasurer.GetFps());
+    return static_cast<int>(timeMeasurer_.GetFps());
 }
 
-const wb::vec2i& DisplayManager::GetWindowSize()
+const vec2ui& DisplayManager::GetWindowSize()
 {
-    return windowsSize;
+    return windowsSize_;
 }
 
 void DisplayManager::ShowCoursor(bool show)
@@ -94,6 +96,6 @@ bool DisplayManager::CheckActiveWindow()
 
 std::unique_ptr<Input::InputManager> DisplayManager::CreateInput()
 {
-    return std::move(graphicsApi_.GetWindowApi().CreateInput());
+    return graphicsApi_.GetWindowApi().CreateInput();
 }
 }  // namespace GameEngine

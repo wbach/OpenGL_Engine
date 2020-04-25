@@ -14,30 +14,20 @@ Model::Model(float scaleFactor)
 {
 }
 
-void Model::InitModel(const std::string& file_name)
+void Model::SetFileName(const std::string& fileName)
 {
-    filename_ = file_name;
+    filename_ = fileName;
 }
 
 Model::~Model()
 {
-    DEBUG_LOG("");
+    DEBUG_LOG(filename_);
 }
 
 void Model::GpuLoadingPass()
 {
     for (auto& mesh : meshes_)
         mesh.GpuLoadingPass();
-
-    GpuObject::GpuLoadingPass();
-}
-
-void Model::GpuPostLoadingPass()
-{
-    for (auto& mesh : meshes_)
-        mesh.GpuPostLoadingPass();
-
-    GpuObject::GpuPostLoadingPass();
 }
 
 Mesh* Model::AddMesh(Mesh& mesh)

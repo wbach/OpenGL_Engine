@@ -1,6 +1,5 @@
 #include "GrassComponent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/Models/ModelFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 
 namespace GameEngine
@@ -53,17 +52,17 @@ Mesh GrassRendererComponent::CreateGrassMesh(const Material &material) const
 }
 void GrassRendererComponent::CreateGrassModel()
 {
-    auto model = new Model();
+    auto model = std::make_unique<Model>();
     auto material = CreateGrassMaterial();
     auto mesh = CreateGrassMesh(material);
     model->AddMesh(mesh);
-    model_.Add(model, LevelOfDetail::L1);
-    componentContext_.resourceManager_.AddModel(model);
+    model_.Add(model.get(), LevelOfDetail::L1);
+    componentContext_.resourceManager_.AddModel(std::move(model));
 }
 Material GrassRendererComponent::CreateGrassMaterial() const
 {
     Material grass_material;
-    grass_material.diffuseTexture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(textureFile_);
+    grass_material.diffuseTexture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(textureFile_, TextureParameters());
     return grass_material;
 }
 

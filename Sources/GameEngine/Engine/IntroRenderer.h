@@ -11,7 +11,7 @@ class DisplayManager;
 class IntroRenderer
 {
 public:
-    IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager);
+    IntroRenderer(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&);
     ~IntroRenderer();
     void Render();
 
@@ -24,7 +24,7 @@ private:
     GraphicsApi::ID perUpdateObjectBuffer_;
 
     DisplayManager& displayManager_;
-    ResourceManager resourceManager;
+    ResourceManager resourceManager_;
 
     ShaderProgram shader_;
     Texture* backgroundTexture_;

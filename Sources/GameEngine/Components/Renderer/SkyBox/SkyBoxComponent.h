@@ -14,15 +14,15 @@ class SkyBoxComponent : public BaseComponent
 public:
     SkyBoxComponent(const ComponentContext& componentContext, GameObject& gameObject);
     ~SkyBoxComponent();
-    SkyBoxComponent& SetDayTexture(const std::vector<std::string>& filenames);
-    SkyBoxComponent& SetNightTexture(const std::vector<std::string>& filenames);
+    SkyBoxComponent& SetDayTexture(const std::array<std::string, 6>&);
+    SkyBoxComponent& SetNightTexture(const std::array<std::string, 6>&);
     SkyBoxComponent& SetModel(const std::string& filename);
     virtual void ReqisterFunctions() override;
     Texture* GetDayTexture();
     Texture* GetNightTexture();
     Model* GetModel();
-    const std::vector<std::string>& GetDayTextureFiles() const;
-    const std::vector<std::string>& GetNightTextureFiles() const;
+    const std::array<std::string, 6>& GetDayTextureFiles() const;
+    const std::array<std::string, 6>& GetNightTextureFiles() const;
     const std::string& GetModelFileName() const;
 
 private:
@@ -33,8 +33,8 @@ private:
     Texture* dayTexture_;
     Texture* nightTexture_;
     Model* model_;
-    std::vector<std::string> dayTextureFiles_;
-    std::vector<std::string> nightTextureFiles_;
+    std::array<std::string, 6> dayTextureFiles_;
+    std::array<std::string, 6> nightTextureFiles_;
     std::string modelFileName_;
 
 public:

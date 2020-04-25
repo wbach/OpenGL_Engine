@@ -21,7 +21,7 @@ TerrainMeshLoader::TerrainMeshLoader(ITextureLoader& textureLoader)
 void TerrainMeshLoader::ParseFile(const std::string& filename)
 {
     auto fullFilePath      = EngineConf_GetFullDataPathAddToRequierd(filename);
-    auto texture           = textureLoader_.LoadHeightMap(fullFilePath);
+    auto texture           = textureLoader_.LoadHeightMap(fullFilePath, TextureParameters());
     auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullFilePath) + ".terrainConfig";
     auto terrainConfig     = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     terrainScale_          = terrainConfig.GetScale();

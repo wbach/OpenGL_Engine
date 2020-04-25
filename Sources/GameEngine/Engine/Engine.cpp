@@ -3,28 +3,28 @@
 #include "Configuration.h"
 #include "EngineContext.h"
 #include "GameEngine/Display/DisplayManager.hpp"
-#include "GraphicsApi/IGraphicsApi.h"
-#include "Input/InputManager.h"
-#include "Logger/Log.h"
+
+#include <GraphicsApi/IGraphicsApi.h>
+#include <Input/InputManager.h>
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
+namespace
+{
+const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
+}
+
 Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
-               SceneFactoryBasePtr sceneFactory)
-    : graphicsApi_(std::move(graphicsApi))
-    , physicsApi_(std::move(physicsApi))
-    , displayManager_(
-          *graphicsApi_, EngineConf.window.name, EngineConf.window.size.x, EngineConf.window.size.y,
-          EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW)
-    , inputManager_(displayManager_.CreateInput())
-    , renderersManager_(*graphicsApi_)
-    , sceneManager_(*graphicsApi_, *physicsApi_, sceneFactory, displayManager_, *inputManager_, renderersManager_,
-                    guiContext_, [&](EngineEvent e) { AddEngineEvent(e); })
-    , introRenderer_(*graphicsApi_, displayManager_)
+               std::unique_ptr<SceneFactoryBase> sceneFactory)
+    : engineContext_(std::move(graphicsApi), std::move(physicsApi))
+    , sceneManager_(engineContext_, std::move(sceneFactory))
+    , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(),
+                     engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
-    graphicsApi_->SetBackgroundColor(vec3(.8f));
-    graphicsApi_->SetShadersFilesLocations(EngineConf.files.shaders);
+    engineContext_.GetGraphicsApi().SetBackgroundColor(vec3(.8f));
+    engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     SetDisplay();
     sceneManager_.SetFactor();
 }
@@ -38,10 +38,10 @@ Engine::~Engine()
 
 void Engine::CheckThreadsBeforeQuit()
 {
-    if (EngineContext.threadSync_.SubscribersCount() > 0)
+    if (engineContext_.GetThreadSync().SubscribersCount() > 0)
     {
         WARNING_LOG("Not closed threads. Force to close.");
-        EngineContext.threadSync_.Stop();
+        engineContext_.GetThreadSync().Stop();
     }
 }
 
@@ -60,16 +60,10 @@ void Engine::GameLoop()
     CheckThreadsBeforeQuit();
 }
 
-void Engine::AddEngineEvent(EngineEvent event)
-{
-    std::lock_guard<std::mutex> lk(engineEventsMutex);
-    engineEvents.push_back(event);
-}
-
-DisplayManager& Engine::GetDisplayManager()
-{
-    return displayManager_;
-}
+// DisplayManager& Engine::GetDisplayManager()
+//{
+//    return engineContext_.GetDisplayManager();
+//}
 
 SceneManager& Engine::GetSceneManager()
 {
@@ -78,41 +72,43 @@ SceneManager& Engine::GetSceneManager()
 
 void Engine::MainLoop()
 {
-    displayManager_.StartFrame();
-    inputManager_->GetPressedKeys();
-    displayManager_.ProcessEvents();
+    auto& displayManager = engineContext_.GetDisplayManager();
+    const auto& time     = displayManager.GetTime();
+
+    displayManager.StartFrame();
+    RuntimeGpuTasks();
+
+    engineContext_.GetInputManager().GetPressedKeys();
+    displayManager.ProcessEvents();
     sceneManager_.Update();
 
-    sceneManager_.RuntimeGpuTasks();
-    renderersManager_.RenderScene(sceneManager_.GetActiveScene(), displayManager_.GetTime());
-    displayManager_.UpdateWindow();
+    engineContext_.GetRenderersManager().RenderScene(sceneManager_.GetActiveScene(), time);
+    displayManager.UpdateWindow();
 
     ProcessEngineEvents();
-    displayManager_.EndFrame();
+    displayManager.EndFrame();
 }
 
 void Engine::ProcessEngineEvents()
 {
-    std::lock_guard<std::mutex> lk(engineEventsMutex);
+    auto incomingEvent = engineContext_.GetEngineEvent();
 
-    if (engineEvents.empty())
+    if (not incomingEvent)
         return;
 
-    auto event = engineEvents.front();
-    engineEvents.pop_front();
-
-    switch (event)
+    switch (*incomingEvent)
     {
         case EngineEvent::QUIT:
             Quit();
             break;
         case EngineEvent::ASK_QUIT:
-            graphicsApi_->GetWindowApi().ShowMessageBox("Quit", "Do you really want exit?", [this](bool ok) {
-                if (ok)
-                {
-                    Quit();
-                }
-            });
+            engineContext_.GetGraphicsApi().GetWindowApi().ShowMessageBox("Quit", "Do you really want exit?",
+                                                                          [this](bool ok) {
+                                                                              if (ok)
+                                                                              {
+                                                                                  Quit();
+                                                                              }
+                                                                          });
             break;
     }
 }
@@ -125,9 +121,56 @@ void Engine::Quit()
 
 void Engine::Init()
 {
-    graphicsApi_->EnableDepthTest();
-    renderersManager_.Init();
-    renderersManager_.GetDebugRenderer().SetPhysicsDebugDraw(
-        std::bind(&Physics::IPhysicsApi::DebugDraw, physicsApi_.get()));
+    engineContext_.GetGraphicsApi().EnableDepthTest();
+    engineContext_.GetRenderersManager().Init();
+    engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(
+        [&]() { return engineContext_.GetPhysicsApi().DebugDraw(); });
+}
+
+void Engine::RuntimeGpuTasks()
+{
+    RuntimeReleaseObjectGpu();
+    RuntimeLoadObjectToGpu();
+    RuntimeCallFunctionGpu();
+}
+
+void Engine::RuntimeLoadObjectToGpu()
+{
+    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
+    auto obj        = gpuLoader.GetObjectToGpuLoadingPass();
+
+    while (obj != nullptr)
+    {
+        if (not obj->GetGraphicsObjectId())
+        {
+            obj->GpuLoadingPass();
+        }
+        else
+        {
+            DEBUG_LOG("Is already loaded.");
+        }
+
+        obj = gpuLoader.GetObjectToGpuLoadingPass();
+    }
+}
+
+void Engine::RuntimeReleaseObjectGpu()
+{
+    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
+    auto obj        = gpuLoader.GetObjectToRelease();
+
+    while (obj)
+    {
+        if (obj->GetGraphicsObjectId())
+            engineContext_.GetGraphicsApi().DeleteObject(*obj->GetGraphicsObjectId());
+
+        obj = gpuLoader.GetObjectToRelease();
+    }
+}
+
+void Engine::RuntimeCallFunctionGpu()
+{
+    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
+    gpuLoader.CallFunctions();
 }
 }  // namespace GameEngine

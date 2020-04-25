@@ -18,7 +18,7 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, cons
 
 void HeightMap::GpuLoadingPass()
 {
-    if (image_.floatData.empty() or isInGpu_)
+    if (image_.floatData.empty() or graphicsObjectId_)
     {
         ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
         return;
@@ -32,7 +32,6 @@ void HeightMap::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        isInGpu_          = true;
         DEBUG_LOG("File " + filename + " is in GPU.");
     }
     else
@@ -44,10 +43,6 @@ void HeightMap::GpuLoadingPass()
     {
         image_.floatData.clear();
     }
-}
-
-void HeightMap::GpuPostLoadingPass()
-{
 }
 
 const Image& HeightMap::GetImage() const

@@ -1,9 +1,9 @@
 #pragma once
-#include <memory>
-#include "GraphicsApi/IGraphicsApi.h"
-#include "GameEngine/Resources/ResourceManager.h"
-#include "Thread.hpp"
 #include <atomic>
+#include <memory>
+#include "GameEngine/Resources/ResourceManager.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "Thread.hpp"
 
 namespace GameEngine
 {
@@ -16,33 +16,27 @@ class LoadingScreenRenderer;
 class SceneLoader
 {
 public:
-    SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager);
+    SceneLoader(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&);
     ~SceneLoader();
-    bool Load(Scene* scene);
+    void Load(Scene&);
 
 private:
     void Init();
-    void LoadScene(Scene* scene);
-    void SetIsLoading(bool is);
+    void LoadScene(Scene&);
+    void SetIsLoading(bool);
     bool GetIsLoading();
-    bool ProccesLoadingLoop(GpuObject* obj);
-    bool LoadObject(GpuObject* obj);
     void UpdateScreen();
-    void LoadingLoop(Scene* scene);
-    void CheckObjectCount(Scene* scene);
-    void PostLoadingPass(Scene* scene);
-    void OpenGLLoadingPass(Scene* scene, std::thread& loading_thread);
+    void ScreenRenderLoop();
+    void CheckObjectCount(Scene&);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    DisplayManager& displayManager_;
+    std::atomic_bool isLoading_;
 
-    int objectCount;
-    int objectLoaded;
+    size_t objectCount_;
+    size_t objectLoaded_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
-
-    std::atomic_bool isLoading;
-
-    DisplayManager& displayManager;
-    ResourceManager resorceManager;
+    ResourceManager resorceManager_;
 };
 }  // namespace GameEngine
