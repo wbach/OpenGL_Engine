@@ -1,6 +1,5 @@
 #pragma once
-#include <stdexcept>
-#include <vector>
+#include <array>
 #include "Image.h"
 #include "Texture.h"
 
@@ -10,7 +9,6 @@ class CubeMapTexture : public Texture
 {
 public:
     CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name, std::array<Image, 6> images);
-
     void GpuLoadingPass() override;
 
 private:

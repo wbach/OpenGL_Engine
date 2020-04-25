@@ -1,6 +1,7 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include <array>
 
 namespace GameEngine
 {

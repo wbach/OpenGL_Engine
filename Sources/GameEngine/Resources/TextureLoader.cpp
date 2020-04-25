@@ -3,7 +3,8 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <fstream>
-#include "../Engine/Configuration.h"
+#include <array>
+#include "GameEngine/Engine/Configuration.h"
 #include "GLM/GLMUtils.h"
 #include "GpuResourceLoader.h"
 #include "IGpuResourceLoader.h"
