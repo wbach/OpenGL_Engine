@@ -794,6 +794,7 @@ void OpenGLApi::DeleteObject(uint32 id)
             break;
     }
 
+    DEBUG_LOG("Delete object :" + std::to_string(id));
     createdObjectIds.erase(id);
 }
 

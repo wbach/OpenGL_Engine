@@ -29,6 +29,22 @@ RendererComponent::RendererComponent(const ComponentContext& componentContext, G
 RendererComponent::~RendererComponent()
 {
     UnSubscribe();
+
+    {
+        auto model = model_.Get(LevelOfDetail::L1);
+        if (model)
+            componentContext_.resourceManager_.ReleaseModel(model);
+    }
+    {
+        auto model = model_.Get(LevelOfDetail::L2);
+        if (model)
+            componentContext_.resourceManager_.ReleaseModel(model);
+    }
+    {
+        auto model = model_.Get(LevelOfDetail::L3);
+        if (model)
+            componentContext_.resourceManager_.ReleaseModel(model);
+    }
 }
 
 void RendererComponent::ReqisterFunctions()

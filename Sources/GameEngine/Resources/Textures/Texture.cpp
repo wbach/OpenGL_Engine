@@ -56,7 +56,7 @@ Texture::~Texture()
     if (not graphicsObjectId_)
         return;
 
-    DEBUG_LOG("Clean gpu resources, " + fullpath + ", texture id: " + std::to_string(*graphicsObjectId_));
+    DEBUG_LOG("Clean gpu resources, " + filename + ", texture id: " + std::to_string(*graphicsObjectId_));
     graphicsApi_.DeleteObject(*graphicsObjectId_);
 }
 std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const

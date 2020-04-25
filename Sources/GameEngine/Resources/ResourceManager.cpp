@@ -73,7 +73,24 @@ void ResourceManager::ReleaseModel(Model* model)
     if (modelInfo.instances_ > 0)
         return;
 
+    for (auto& mesh : modelInfo.resource_->GetMeshes())
+    {
+        DeleteMaterial(mesh.GetMaterial());
+    }
+
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(model->GetFileName());
+}
+
+void ResourceManager::DeleteMaterial(const Material& material)
+{
+    if (material.diffuseTexture)
+        textureLoader_->DeleteTexture(*material.diffuseTexture);
+    if (material.ambientTexture)
+        textureLoader_->DeleteTexture(*material.ambientTexture);
+    if (material.normalTexture)
+        textureLoader_->DeleteTexture(*material.normalTexture);
+    if (material.specularTexture)
+        textureLoader_->DeleteTexture(*material.specularTexture);
 }
 }  // namespace GameEngine

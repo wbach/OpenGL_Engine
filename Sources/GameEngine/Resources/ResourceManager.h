@@ -25,6 +25,9 @@ public:
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
 
 private:
+    void DeleteMaterial(const Material&);
+
+private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     IGpuResourceLoader& gpuResourceLoader_;
     std::unique_ptr<ITextureLoader> textureLoader_;
