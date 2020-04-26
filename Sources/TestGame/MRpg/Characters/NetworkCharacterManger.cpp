@@ -23,10 +23,11 @@ void NetworkCharacterManager::AddCharacter(uint32 id, uint32 classId, const vec3
     if (networkCharacters_.count(id) > 0)
         return;
 
-    auto modelWrapper                 = modelCreator_->CreateHero(classId);
 
     auto object = createObject_();
-    object->AddComponent<GameEngine::Components::RendererComponent>().SetModel(modelWrapper);
+    auto& rendererComponent = object->AddComponent<GameEngine::Components::RendererComponent>();
+    modelCreator_->CreateHero(classId, rendererComponent.GetModelWrapper());
+
     object->GetTransform().SetPositionAndRotation(position, DegreesVec3(rotation));
 
     networkCharacters_.insert({ id, std::make_shared<NetworkCharacter>(id, stats, *object) });

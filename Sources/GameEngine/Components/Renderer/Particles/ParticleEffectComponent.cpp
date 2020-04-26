@@ -1,5 +1,7 @@
 #include "ParticleEffectComponent.h"
+
 #include <algorithm>
+
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -22,6 +24,10 @@ ParticleEffectComponent::ParticleEffectComponent(const ComponentContext& compone
 {
     emitFunction_ = std::bind(&ParticleEffectComponent::DefaultEmitFunction, this, std::placeholders::_1);
     particles_.reserve(10000);
+}
+ParticleEffectComponent::~ParticleEffectComponent()
+{
+    DeleteTexture();
 }
 void ParticleEffectComponent::ReqisterFunctions()
 {
@@ -48,6 +54,14 @@ Particle ParticleEffectComponent::DefaultEmitFunction(const Particle& referenceP
     float dirZ        = static_cast<float>(rand() % 100) / 100.f * 2.f - 1.f;
     particle.velocity = vec3(dirX, 1, dirZ);
     return particle;
+}
+void ParticleEffectComponent::DeleteTexture()
+{
+    if (texture_)
+    {
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture_);
+    }
+    texture_ = nullptr;
 }
 ParticleEffectComponent& ParticleEffectComponent::SetParticle(const Particle& particle)
 {
@@ -91,7 +105,9 @@ ParticleEffectComponent& ParticleEffectComponent::SetTexture(const std::string& 
     TextureParameters params;
     params.flipMode = TextureFlip::VERTICAL;
 
-    texture_ = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, params);
+    DeleteTexture();
+    texture_ = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(filename, params);
+
     return *this;
 }
 void ParticleEffectComponent::UnSubscribe()

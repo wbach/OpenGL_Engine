@@ -12,13 +12,12 @@ class ResourceManagerMock : public IResourceManager
 public:
     MOCK_METHOD1(LoadModel, Model*(const std::string&));
     MOCK_METHOD1(AddModelImpl, void(Model*));
-    MOCK_METHOD1(ReleaseModel, void(Model*));
-    MOCK_METHOD1(GetModel, Model*(uint32));
+    MOCK_METHOD1(ReleaseModel, void(Model&));
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());
-    MOCK_METHOD0(GetTextureLaoder, ITextureLoader&());
+    MOCK_METHOD0(GetTextureLoader, ITextureLoader&());
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
 
-    void AddModel(std::unique_ptr<Model> model)
+    void AddModel(std::unique_ptr<Model> model) override
     {
         AddModelImpl(model.get());
         models_.push_back(std::move(model));

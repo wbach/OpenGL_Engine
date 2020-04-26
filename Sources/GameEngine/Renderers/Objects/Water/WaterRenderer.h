@@ -22,6 +22,8 @@ class WaterRenderer : public IRenderer
 
 public:
     WaterRenderer(RendererContext&);
+    ~WaterRenderer();
+
     virtual void Init() override;
     virtual void Subscribe(GameObject*) override;
     virtual void UnSubscribe(GameObject*) override;

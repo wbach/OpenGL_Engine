@@ -80,14 +80,14 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
         for (auto& mesh : obj.meshes)
         {
-            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material,
-                                     obj.transformMatrix);
+            auto& newMesh = newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material,
+                obj.transformMatrix);
+
             IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
             newMesh.SetUseArmatorIfHaveBones();
             newModel->animationClips_ = mesh.animationClips_;
             newModel->skeleton_       = mesh.skeleton_;
             Animation::CalcInverseBindTransform(newModel->skeleton_, mat4(1.f));
-            newModel->AddMesh(newMesh);
         }
     }
     objects.clear();

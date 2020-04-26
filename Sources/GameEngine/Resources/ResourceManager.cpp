@@ -60,14 +60,14 @@ void ResourceManager::AddModel(std::unique_ptr<Model> model)
     models_.insert({filename, std::move(modelInfo)});
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
 }
-void ResourceManager::ReleaseModel(Model* model)
+void ResourceManager::ReleaseModel(Model& model)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
 
-    if (not models_.count(model->GetFileName()))
+    if (not models_.count(model.GetFileName()))
         return;
 
-    auto& modelInfo = models_.at(model->GetFileName());
+    auto& modelInfo = models_.at(model.GetFileName());
     --modelInfo.instances_;
 
     if (modelInfo.instances_ > 0)
@@ -79,7 +79,7 @@ void ResourceManager::ReleaseModel(Model* model)
     }
 
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
-    models_.erase(model->GetFileName());
+    models_.erase(model.GetFileName());
 }
 
 void ResourceManager::DeleteMaterial(const Material& material)

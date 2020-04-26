@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "Model.h"
+#include <Mutex.hpp>
 
 namespace GameEngine
 {
@@ -18,8 +19,10 @@ public:
     void Update(Model*, LevelOfDetail);
     Model* Get(LevelOfDetail lvl = LevelOfDetail::L1);
     const std::unordered_map<LevelOfDetail, Model*>& Get() const;
+    std::vector<Model*> PopModels();
 
 private:
+    std::mutex mutex_;
     std::unordered_map<LevelOfDetail, Model*> models_;
 };
 }  // GameEngine

@@ -24,7 +24,7 @@ TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(const
 
 TerrainTessellationRendererComponent::~TerrainTessellationRendererComponent()
 {
-    UnSubscribe();
+    CleanUp();
 }
 void TerrainTessellationRendererComponent::SetTexture(TerrainTextureType type, Texture* texture)
 {
@@ -48,7 +48,8 @@ TerrainTessellationRendererComponent& TerrainTessellationRendererComponent::Load
             continue;
         }
 
-        auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second, TextureParameters());
+        auto texture =
+            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(texturePair.second, TextureParameters());
         SetTexture(texturePair.first, texture);
     }
 
@@ -58,7 +59,8 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& high
 {
     const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(hightMapFile);
 
-    heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, TextureParameters());
+    heightMap_ =
+        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(fullNameWithPath, TextureParameters());
 
     if (not heightMap_)
     {
@@ -85,7 +87,8 @@ void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type
     {
         const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(filename);
 
-        heightMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadHeightMap(fullNameWithPath, TextureParameters());
+        heightMap_ =
+            componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(fullNameWithPath, TextureParameters());
 
         if (not heightMap_)
         {
@@ -97,7 +100,7 @@ void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type
         return;
     }
 
-    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, TextureParameters());
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(filename, TextureParameters());
     if (texture)
         UpdateTexture(type, texture);
 }
@@ -160,6 +163,19 @@ void TerrainTessellationRendererComponent::UnSubscribe()
 {
     componentContext_.renderersManager_.UnSubscribe(&thisObject_);
 }
+void TerrainTessellationRendererComponent::CleanUp()
+{
+    UnSubscribe();
+    ReleaseTextures();
+}
+void TerrainTessellationRendererComponent::ReleaseTextures()
+{
+    for (auto& texture : textures_)
+    {
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
+    }
+}
+
 void TerrainTessellationRendererComponent::Update()
 {
     const auto& campos = componentContext_.camera_.GetPosition();

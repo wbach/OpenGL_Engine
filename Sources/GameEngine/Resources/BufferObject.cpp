@@ -1,5 +1,5 @@
 #include "BufferObject.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -11,14 +11,16 @@ BaseBufferObject::BaseBufferObject(GraphicsApi::IGraphicsApi& graphicsApi, uint3
 
 BaseBufferObject::~BaseBufferObject()
 {
-    if (id_)
-    {
-        //graphicsApi_.DeleteShaderBuffer(*id_);
-    }
+    ReleaseGpuPass();
 }
 
-const GraphicsApi::ID& BaseBufferObject::GetId() const
+void BaseBufferObject::ReleaseGpuPass()
 {
-    return id_;
+    if (graphicsObjectId_)
+    {
+        DEBUG_LOG("Clean gpu resources graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
+        graphicsApi_.DeleteShaderBuffer(*graphicsObjectId_);
+    }
+    GpuObject::ReleaseGpuPass();
 }
 }  // namespace GameEngine

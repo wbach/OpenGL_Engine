@@ -9,14 +9,13 @@ namespace GameEngine
 class BaseBufferObject : public GpuObject
 {
 public:
-    BaseBufferObject(GraphicsApi::IGraphicsApi& graphicsApi, uint32 bindLocation);
-    virtual ~BaseBufferObject();
-    const GraphicsApi::ID& GetId() const;
+    BaseBufferObject(GraphicsApi::IGraphicsApi&, uint32);
+    ~BaseBufferObject() override;
+    void ReleaseGpuPass() override;
     virtual void UpdateBuffer() = 0;
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    GraphicsApi::ID id_;
     uint32 bindLocation_;
 };
 
@@ -43,23 +42,23 @@ public:
 
     void UpdateBuffer() override
     {
-        if (id_)
+        if (graphicsObjectId_)
         {
-            graphicsApi_.UpdateShaderBuffer(*id_, &data_);
+            graphicsApi_.UpdateShaderBuffer(*graphicsObjectId_, &data_);
         }
     }
 
 private:
     virtual void GpuLoadingPass() override
     {
-        if (not id_)
+        if (not graphicsObjectId_)
         {
-            id_ = graphicsApi_.CreateShaderBuffer(bindLocation_, sizeof(T));
+            graphicsObjectId_ = graphicsApi_.CreateShaderBuffer(bindLocation_, sizeof(T));
         }
 
-        if (id_)
+        if (graphicsObjectId_)
         {
-            graphicsApi_.UpdateShaderBuffer(*id_, &data_);
+            graphicsApi_.UpdateShaderBuffer(*graphicsObjectId_, &data_);
         }
     }
 

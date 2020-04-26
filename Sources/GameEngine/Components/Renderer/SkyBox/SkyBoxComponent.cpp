@@ -15,17 +15,31 @@ SkyBoxComponent::SkyBoxComponent(const ComponentContext& componentContext, GameO
 SkyBoxComponent::~SkyBoxComponent()
 {
     UnSubscribe();
+    CleanUp();
+}
+void SkyBoxComponent::CleanUp()
+{
+    DeleteTexture(dayTexture_);
+    DeleteTexture(nightTexture_);
+}
+void SkyBoxComponent::DeleteTexture(Texture*& texture)
+{
+    if (texture)
+    {
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture);
+    }
+    texture = nullptr;
 }
 SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<std::string, 6>& filenames)
 {
     dayTextureFiles_ = filenames;
-    dayTexture_      = componentContext_.resourceManager_.GetTextureLaoder().LoadCubeMap(filenames, TextureParameters());
+    dayTexture_      = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<std::string, 6>& filenames)
 {
     nightTextureFiles_ = filenames;
-    nightTexture_      = componentContext_.resourceManager_.GetTextureLaoder().LoadCubeMap(filenames, TextureParameters());
+    nightTexture_      = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetModel(const std::string& filename)

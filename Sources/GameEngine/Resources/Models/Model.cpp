@@ -1,4 +1,5 @@
 #include "Model.h"
+
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 
@@ -30,16 +31,29 @@ void Model::GpuLoadingPass()
         mesh.GpuLoadingPass();
 }
 
-Mesh* Model::AddMesh(Mesh& mesh)
+void Model::ReleaseGpuPass()
 {
-    meshes_.push_back(std::move(mesh));
-    return &meshes_.back();
+    for (auto& mesh : meshes_)
+        mesh.ReleaseGpuPass();
 }
 
-Mesh* Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api)
+Mesh& Model::AddMesh(Mesh& mesh)
+{
+    meshes_.push_back(std::move(mesh));
+    return meshes_.back();
+}
+
+Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api)
 {
     meshes_.emplace_back(type, api);
-    return &meshes_.back();
+    return meshes_.back();
+}
+
+Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api, const Material& material,
+                     const mat4& transformMatix)
+{
+    meshes_.emplace_back(type, api, material, transformMatix);
+    return meshes_.back();
 }
 
 bool Model::IsAnyMeshUseTransform() const

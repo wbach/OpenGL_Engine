@@ -53,6 +53,11 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils
 RenderersManager::~RenderersManager()
 {
     DEBUG_LOG("destructor");
+
+    if (perFrameId_)
+    {
+        graphicsApi_.DeleteShaderBuffer(*perFrameId_);
+    }
 }
 const Projection& RenderersManager::GetProjection() const
 {

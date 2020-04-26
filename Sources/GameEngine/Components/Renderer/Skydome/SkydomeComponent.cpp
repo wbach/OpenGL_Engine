@@ -15,6 +15,8 @@ SkydomeComponent::SkydomeComponent(const ComponentContext& componentContext, Gam
 SkydomeComponent::~SkydomeComponent()
 {
     UnSubscribe();
+    if (model_)
+        componentContext_.resourceManager_.ReleaseModel(*model_);
 }
 
 void SkydomeComponent::ReqisterFunctions()

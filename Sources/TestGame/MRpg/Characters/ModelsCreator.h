@@ -13,7 +13,7 @@ class ModelsCreator
 {
 public:
     ModelsCreator(GameEngine::IResourceManager* resourceManager);
-    GameEngine::ModelWrapper CreateHero(uint32 classId);
+    void CreateHero(uint32 classId, GameEngine::ModelWrapper& model);
 
 private:
     GameEngine::IResourceManager* resourceManager_;

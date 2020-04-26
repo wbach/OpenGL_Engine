@@ -20,9 +20,11 @@ public:
     std::unique_ptr<GpuObject> GetObjectToRelease() override;
 
 private:
+    void IsRemoveObjectIfIsToLoadState(GpuObject&);
+
+private:
     std::vector<std::function<void()>> functions;
     std::vector<GpuObject*> gpuPassLoad;
-    std::vector<GpuObject*> gpuPostPassLoad;
     std::vector<std::unique_ptr<GpuObject>> objectsToRelease;
 
 private:

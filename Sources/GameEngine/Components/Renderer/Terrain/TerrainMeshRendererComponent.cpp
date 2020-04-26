@@ -1,4 +1,5 @@
 #include "TerrainMeshRendererComponent.h"
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -20,7 +21,7 @@ TerrainMeshRendererComponent::TerrainMeshRendererComponent(const ComponentContex
 }
 TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 {
-    UnSubscribe();
+    CleanUp();
 }
 void TerrainMeshRendererComponent::ReqisterFunctions()
 {
@@ -44,9 +45,24 @@ void TerrainMeshRendererComponent::UpdateTexture(TerrainTextureType type, const 
         return;
     }
 
-    auto texture = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(filename, TextureParameters());
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(filename, TextureParameters());
     if (texture)
         UpdateTexture(type, texture);
+}
+
+void TerrainMeshRendererComponent::CleanUp()
+{
+    UnSubscribe();
+    ReleaseModels();
+    ClearShaderBuffers();
+}
+
+void TerrainMeshRendererComponent::ReleaseModels()
+{
+    for (auto model : modelWrapper_.PopModels())
+    {
+        componentContext_.resourceManager_.ReleaseModel(*model);
+    }
 }
 
 void TerrainMeshRendererComponent::UpdateTexture(TerrainTextureType type, Texture *texture)
@@ -70,7 +86,7 @@ TerrainMeshRendererComponent &TerrainMeshRendererComponent::LoadTextures(
         }
 
         auto texture =
-            componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(texturePair.second, TextureParameters());
+            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(texturePair.second, TextureParameters());
         SetTexture(texturePair.first, texture);
     }
     return *this;
@@ -107,20 +123,50 @@ void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
     config_                  = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     modelWrapper_.Add(model, LevelOfDetail::L1);
 
-    perObjectUpdateBuffer_.reserve(model->GetMeshes().size());
+    CreateShaderBuffers(*model);
+}
+void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &model)
+{
+    perObjectUpdateBuffer_.reserve(model.GetMeshes().size());
 
-    for (auto &mesh : model->GetMeshes())
+    for (auto &mesh : model.GetMeshes())
     {
-        BufferObject<PerObjectUpdate> obj(componentContext_.resourceManager_.GetGraphicsApi(),
-                                          PER_OBJECT_UPDATE_BIND_LOCATION);
+        auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
+        auto &obj = CreatePerObjectBuffer(graphicsApi);
 
-        auto &graphicsApi                  = componentContext_.resourceManager_.GetGraphicsApi();
-        auto transformMatix                = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
-        obj.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatix);
-        perObjectUpdateBuffer_.push_back(obj);
+        obj.GetData().TransformationMatrix =
+            graphicsApi.PrepareMatrixToLoad(thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform());
 
-        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(
-            perObjectUpdateBuffer_.back());
+        LoadObjectToGpu(obj);
+    }
+}
+
+BufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuffer(
+    GraphicsApi::IGraphicsApi &graphicsApi)
+{
+    perObjectUpdateBuffer_.push_back(
+        std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
+    return *perObjectUpdateBuffer_.back();
+}
+
+void TerrainMeshRendererComponent::LoadObjectToGpu(GpuObject& obj)
+{
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(obj);
+}
+
+void TerrainMeshRendererComponent::ClearShaderBuffers()
+{
+    for (auto iter = perObjectUpdateBuffer_.begin(); iter != perObjectUpdateBuffer_.end();)
+    {
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(*iter));
+        iter = perObjectUpdateBuffer_.erase(iter);
+    }
+}
+void TerrainMeshRendererComponent::ReleaseTextures()
+{
+    for (auto& texture : textures_)
+    {
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
     }
 }
 void TerrainMeshRendererComponent::Subscribe()

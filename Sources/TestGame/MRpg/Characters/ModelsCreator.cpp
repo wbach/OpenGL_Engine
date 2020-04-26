@@ -12,14 +12,14 @@ ModelsCreator::ModelsCreator(IResourceManager *resourceManager)
     : resourceManager_(resourceManager)
 {
 }
-ModelWrapper ModelsCreator::CreateHero(uint32 classId)
+void ModelsCreator::CreateHero(uint32 classId, GameEngine::ModelWrapper& model)
 {
     ModelWrapper modelWrapper;
 
     if (resourceManager_ == nullptr)
     {
         ERROR_LOG("ModelsCreator::CreateHero resourceManager is nullptr.");
-        return modelWrapper;
+        return;
     }
 
     switch (classId)
@@ -36,8 +36,7 @@ ModelWrapper ModelsCreator::CreateHero(uint32 classId)
         break;
     }
 
-    auto model = resourceManager_->LoadModel("Meshes/DaeAnimationExample/CharacterRunning.dae");
-    modelWrapper.Add(model, LevelOfDetail::L1);
-    return modelWrapper;
+    auto l1Model = resourceManager_->LoadModel("Meshes/DaeAnimationExample/CharacterRunning.dae");
+    model.Add(l1Model, LevelOfDetail::L1);
 }
 }  // MmmoRpg

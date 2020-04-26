@@ -32,8 +32,7 @@ GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRendere
 GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
                                const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
                                uint32 outline)
-    : GuiRendererElementBase(guiRenderer, type, windowSize)
-    , resourceManager_(resourceManager)
+    : GuiRendererElementBase(resourceManager, guiRenderer, type, windowSize)
     , fontManager_(fontManager)
     , text_(str)
     , fontInfo_{outline, size, font}
@@ -230,7 +229,7 @@ void GuiTextElement::UpdateTexture()
     TextureParameters params;
     params.applySizeLimit = false;
 
-    auto fontTexture = resourceManager_.GetTextureLaoder().CreateTexture(
+    auto fontTexture = resourceManager_.GetTextureLoader().CreateTexture(
         "FontImage_" + std::to_string(surface_->id) + "_" + text_, params, surface_->size, surface_->pixels);
 
     if (fontTexture)

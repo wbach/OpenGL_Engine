@@ -1,5 +1,7 @@
 #include "Texture.h"
+
 #include <algorithm>
+
 #include "Logger/Log.h"
 #include "Utils.h"
 
@@ -26,7 +28,7 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi)
 {
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 id)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id)
     : graphicsApi_(graphicsApi)
     , size_(0)
 {
@@ -53,11 +55,19 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file
 }
 Texture::~Texture()
 {
+    ReleaseGpuPass();
+}
+void Texture::GpuLoadingPass()
+{
+}
+void Texture::ReleaseGpuPass()
+{
     if (not graphicsObjectId_)
         return;
 
-    DEBUG_LOG("Clean gpu resources, " + filename + ", texture id: " + std::to_string(*graphicsObjectId_));
+    DEBUG_LOG("Clean gpu resources, " + filename + ", graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
     graphicsApi_.DeleteObject(*graphicsObjectId_);
+    GpuObject::ReleaseGpuPass();
 }
 std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const
 {

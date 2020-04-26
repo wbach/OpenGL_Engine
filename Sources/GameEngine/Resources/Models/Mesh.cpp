@@ -1,11 +1,11 @@
 #include "Mesh.h"
 
+#include <Logger/Log.h>
+
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -27,17 +27,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
 
 Mesh::~Mesh()
 {
-    if (not graphicsObjectId_)
-        return;
-
-    DEBUG_LOG("Clean gpu resources");
-
-    graphicsApi_.DeleteObject(*graphicsObjectId_);
-
-    if (meshBuffers_.perMeshObjectBuffer_)
-        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perMeshObjectBuffer_);
-    if (meshBuffers_.perPoseUpdateBuffer_)
-        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
+    ReleaseGpuPass();
 }
 
 void Mesh::GpuLoadingPass()
@@ -48,6 +38,27 @@ void Mesh::GpuLoadingPass()
     CreateBufferObject();
     CreateMesh();
     // ClearData();
+}
+
+void Mesh::ReleaseGpuPass()
+{
+    DEBUG_LOG("Clean gpu resources");
+    if (graphicsObjectId_)
+    {
+        DEBUG_LOG("Mesh, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
+        graphicsApi_.DeleteObject(*graphicsObjectId_);
+    }
+    if (meshBuffers_.perMeshObjectBuffer_)
+    {
+        DEBUG_LOG("perMeshObjectBuffer, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
+        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perMeshObjectBuffer_);
+    }
+    if (meshBuffers_.perPoseUpdateBuffer_)
+    {
+        DEBUG_LOG("perPoseUpdateBuffer_, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
+        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
+    }
+    GpuObject::ReleaseGpuPass();
 }
 
 void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+
 #include "ComponentContext.h"
 #include "IComponentFactory.h"
 
@@ -25,10 +26,9 @@ namespace Components
 class ComponentFactory : public IComponentFactory
 {
 public:
-    ComponentFactory(ComponentController& componentController, Time& time, Input::InputManager& input,
-                     IResourceManager& resourceManager, Renderer::RenderersManager& rendererManager,
-                     CameraWrapper& camera, Physics::IPhysicsApi& physicsApi);
-    virtual std::unique_ptr<IComponent> Create(ComponentsType type, GameObject& ptr) override;
+    ComponentFactory(ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&, Input::InputManager&,
+                     IResourceManager&, Renderer::RenderersManager&, CameraWrapper&, Physics::IPhysicsApi&);
+    virtual std::unique_ptr<IComponent> Create(ComponentsType, GameObject&) override;
 
 private:
     ComponentContext context_;

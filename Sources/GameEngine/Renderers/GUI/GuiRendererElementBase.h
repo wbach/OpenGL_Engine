@@ -5,19 +5,19 @@
 namespace GameEngine
 {
 class GUIRenderer;
+class IResourceManager;
 
 class GuiRendererElementBase : public GuiElement
 {
 public:
-    GuiRendererElementBase(GUIRenderer& guiRenderer, GuiElementTypes type,
-                           const vec2ui& windowSize);
+    GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes, const vec2ui&);
     ~GuiRendererElementBase() override;
 
-    void SetScale(const vec2& scale) override;
-    void SetPostion(const vec2& position) override;
+    void SetScale(const vec2&) override;
+    void SetPostion(const vec2&) override;
 
-    void SetColor(const vec3& color);
-    void SetColor(const vec4& color);
+    void SetColor(const vec3&);
+    void SetColor(const vec4&);
     inline std::optional<uint32> GetTextureId() const;
     inline const mat4& GetTransformMatrix() const;
     inline const vec4& GetColor() const;
@@ -26,6 +26,7 @@ protected:
     void CalculateMatrix();
 
 protected:
+    IResourceManager& resourceManager_;
     GUIRenderer& guiRenderer_;
     Texture* texture_;
     vec4 color_;

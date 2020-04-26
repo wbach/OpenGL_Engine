@@ -60,11 +60,6 @@ void Engine::GameLoop()
     CheckThreadsBeforeQuit();
 }
 
-// DisplayManager& Engine::GetDisplayManager()
-//{
-//    return engineContext_.GetDisplayManager();
-//}
-
 SceneManager& Engine::GetSceneManager()
 {
     return sceneManager_;
@@ -139,7 +134,7 @@ void Engine::RuntimeLoadObjectToGpu()
     auto& gpuLoader = engineContext_.GetGpuResourceLoader();
     auto obj        = gpuLoader.GetObjectToGpuLoadingPass();
 
-    while (obj != nullptr)
+    while (obj)
     {
         if (not obj->GetGraphicsObjectId())
         {
@@ -163,8 +158,7 @@ void Engine::RuntimeReleaseObjectGpu()
     {
         if (obj->GetGraphicsObjectId())
         {
-            engineContext_.GetGraphicsApi().DeleteObject(*obj->GetGraphicsObjectId());
-            obj->Reset();
+            obj->ReleaseGpuPass();
         }
         obj = gpuLoader.GetObjectToRelease();
     }

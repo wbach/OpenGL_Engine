@@ -15,10 +15,12 @@ class Texture : public GpuObject
 {
 public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 id);
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
             bool applySizeLimit = true);
-    virtual ~Texture();
+    ~Texture() override;
+    void GpuLoadingPass() override;
+    void ReleaseGpuPass() override;
 
     inline const vec2ui& GetSize() const;
     inline const std::string& GetFileName() const;

@@ -10,8 +10,8 @@ const std::string emptyString = "";
 
 GuiElementTypes GuiTextureElement::type = GuiElementTypes::Texture;
 
-GuiTextureElement::GuiTextureElement(GUIRenderer& guiRenderer, const vec2ui& windowSize, Texture& texture)
-    : GuiRendererElementBase(guiRenderer, GuiTextureElement::type, windowSize)
+GuiTextureElement::GuiTextureElement(IResourceManager& resourceManager, GUIRenderer& guiRenderer, const vec2ui& windowSize, Texture& texture)
+    : GuiRendererElementBase(resourceManager, guiRenderer, GuiTextureElement::type, windowSize)
 {
     texture_ = &texture;
 }

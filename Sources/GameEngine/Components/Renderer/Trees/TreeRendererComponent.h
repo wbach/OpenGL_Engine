@@ -18,6 +18,8 @@ public:
     TreeRendererComponent& SetBottomModel(const std::string& filename,
                                           GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d = vec2ui(0, 0));
+    ~TreeRendererComponent();
+
     virtual void ReqisterFunctions() override;
     inline ModelWrapper& GetTopModelWrapper();
     inline ModelWrapper& GetBottomModelWrapper();
@@ -27,14 +29,19 @@ public:
     inline const std::unordered_map<std::string, LevelOfDetail>& GetTopFileNames() const;
     inline const std::unordered_map<std::string, LevelOfDetail>& GetBottomFileNames() const;
     inline const std::vector<vec3>& GetCPositions() const;
-    inline GraphicsApi::ID GetPerObjectUpdateId() const;
-    inline GraphicsApi::ID GetPerInstancesBufferId() const;
+    inline const GraphicsApi::ID& GetPerObjectUpdateId() const;
+    inline const GraphicsApi::ID& GetPerInstancesBufferId() const;
 
 private:
     void Subscribe();
     void UnSubscribe();
     void CreatePerObjectUpdateBuffer();
     void CreatePerInstancesBuffer();
+
+private:
+    void CleanUp();
+    void ReleaseModels();
+    void DeleteShaderBuffers();
 
 private:
     std::unordered_map<std::string, LevelOfDetail> topFilenames_;
@@ -83,18 +90,13 @@ const std::vector<vec3>& TreeRendererComponent::GetCPositions() const
 {
     return positions_;
 }
-inline GraphicsApi::ID TreeRendererComponent::GetPerObjectUpdateId() const
+inline const GraphicsApi::ID& TreeRendererComponent::GetPerObjectUpdateId() const
 {
-    if (perObjectUpdateBuffer_)
-        return perObjectUpdateBuffer_->GetId();
-
-    return GraphicsApi::ID();
+    return perObjectUpdateBuffer_->GetGraphicsObjectId();
 }
-inline GraphicsApi::ID TreeRendererComponent::GetPerInstancesBufferId() const
+inline const GraphicsApi::ID& TreeRendererComponent::GetPerInstancesBufferId() const
 {
-    if (perInstances_)
-        return perInstances_->GetId();
-    return GraphicsApi::ID();
+    return perInstances_->GetGraphicsObjectId();
 }
 }  // namespace Components
 }  // namespace GameEngine

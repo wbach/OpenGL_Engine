@@ -21,6 +21,18 @@ WaterRenderer::WaterRenderer(RendererContext& context)
 {
     __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, WaterRenderer::Render);
 }
+WaterRenderer::~WaterRenderer()
+{
+    if (perObjectUpdateId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perObjectUpdateId_);
+    }
+
+    if (perMeshObjectId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perMeshObjectId_);
+    }
+}
 void WaterRenderer::Init()
 {
     shader_.Init();
@@ -70,7 +82,8 @@ void WaterRenderer::Render(const Scene&, const Time& time)
 }
 PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
 {
-    return {context_.graphicsApi_.PrepareMatrixToLoad(Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
+    return {context_.graphicsApi_.PrepareMatrixToLoad(
+        Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
 }
 void WaterRenderer::Subscribe(GameObject* gameObject)
 {
@@ -87,7 +100,12 @@ void WaterRenderer::Subscribe(GameObject* gameObject)
 }
 void WaterRenderer::UnSubscribe(GameObject* gameObject)
 {
-    subscribers_.erase(gameObject->GetId());
+    auto waterComponent = gameObject->GetComponent<Components::WaterRendererComponent>();
+
+    if (waterComponent)
+    {
+        subscribers_.erase(gameObject->GetId());
+    }
 }
 void WaterRenderer::UnSubscribeAll()
 {

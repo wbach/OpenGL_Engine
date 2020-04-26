@@ -27,6 +27,8 @@ public:
     const std::string& GetModelFileName() const;
 
 private:
+    void CleanUp();
+    void DeleteTexture(Texture*&);
     void Subscribe();
     void UnSubscribe();
 

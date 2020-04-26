@@ -28,6 +28,7 @@ void IntroRenderer::Render()
         Init();
 
     displayManager_.ProcessEvents();
+    
     RenderThis();
     displayManager_.UpdateWindow();
 }
@@ -41,7 +42,7 @@ void IntroRenderer::Init()
     params.flipMode       = TextureFlip::VERTICAL;
     params.applySizeLimit = false;
 
-    backgroundTexture_ = resourceManager_.GetTextureLaoder().LoadTexture("GUI/BENGINE.png", params);
+    backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("GUI/BENGINE.png", params);
 
     if (not perUpdateObjectBuffer_)
     {

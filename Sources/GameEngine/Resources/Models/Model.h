@@ -20,10 +20,11 @@ public:
 
     void SetFileName(const std::string& filename);
     void GpuLoadingPass() override;
+    void ReleaseGpuPass() override;
 
-    Mesh* AddMesh(Mesh& mesh);
-    Mesh* AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi& api);
-
+    Mesh& AddMesh(Mesh&);
+    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
+    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, const Material&, const mat4& transformMatix = mat4(1.f));
     bool IsAnyMeshUseTransform() const;
 
     inline float GetScaleFactor();

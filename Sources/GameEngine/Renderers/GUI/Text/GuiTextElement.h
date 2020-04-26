@@ -60,7 +60,6 @@ private:
     void CalculateAlginOffset();
 
 private:
-    IResourceManager& resourceManager_;
     FontManager& fontManager_;
     std::string text_;
     FontInfo fontInfo_;

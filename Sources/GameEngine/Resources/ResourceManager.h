@@ -18,9 +18,9 @@ public:
 
     Model* LoadModel(const std::string& file) override;
     void AddModel(std::unique_ptr<Model>) override;
-    void ReleaseModel(Model* model) override;
+    void ReleaseModel(Model&) override;
 
-    inline ITextureLoader& GetTextureLaoder() override;
+    inline ITextureLoader& GetTextureLoader() override;
     inline IGpuResourceLoader& GetGpuResourceLoader() override;
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
 
@@ -45,7 +45,7 @@ IGpuResourceLoader& ResourceManager::GetGpuResourceLoader()
     return gpuResourceLoader_;
 }
 
-ITextureLoader& ResourceManager::GetTextureLaoder()
+ITextureLoader& ResourceManager::GetTextureLoader()
 {
     return *textureLoader_;
 }

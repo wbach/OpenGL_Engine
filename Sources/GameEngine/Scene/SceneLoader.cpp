@@ -43,7 +43,7 @@ void SceneLoader::Init()
     params.flipMode       = TextureFlip::VERTICAL;
     params.applySizeLimit = false;
 
-    auto& texureLoader = resorceManager_.GetTextureLaoder();
+    auto& texureLoader = resorceManager_.GetTextureLoader();
     auto circleTexture = texureLoader.LoadTexture("GUI/circle2.png", params);
     auto bgtexture     = texureLoader.LoadTexture("GUI/black-knight-dark-souls.png", params);
 

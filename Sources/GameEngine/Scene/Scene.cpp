@@ -65,13 +65,15 @@ void Scene::InitResources(EngineContext& context)
     guiManager_ = std::make_unique<GuiManager>();
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
                                                         *renderersManager_};
-    guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
-    guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
+    guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
+    guiEngineContextManger_ =
+        std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
 
     console_ = std::make_unique<Debug::Console>(*this);
 
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
-        componentController_, time_, *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_);
+        componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_, *inputManager_,
+        *resourceManager_, *renderersManager_, camera, *physicsApi_);
 
     rootGameObject_ = CreateGameObject("root");
 }

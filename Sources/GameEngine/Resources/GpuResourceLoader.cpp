@@ -1,12 +1,12 @@
 #include "GpuResourceLoader.h"
 #include "Types.h"
+#include <algorithm>
 
 namespace GameEngine
 {
 GpuResourceLoader::GpuResourceLoader()
 {
     gpuPassLoad.reserve(10000);
-    gpuPostPassLoad.reserve(100000);
     functions.reserve(100000);
 }
 void GpuResourceLoader::AddFunctionToCall(std::function<void()> f)
@@ -44,6 +44,8 @@ GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
 
 void GpuResourceLoader::AddObjectToRelease(std::unique_ptr<GpuObject> object)
 {
+    IsRemoveObjectIfIsToLoadState(*object);
+
     std::lock_guard<std::mutex> lock(releaseMutex);
     objectsToRelease.push_back(std::move(object));
 }
@@ -56,5 +58,12 @@ std::unique_ptr<GpuObject> GpuResourceLoader::GetObjectToRelease()
     auto object = std::move(objectsToRelease.back());
     objectsToRelease.pop_back();
     return object;
+}
+void GpuResourceLoader::IsRemoveObjectIfIsToLoadState(GpuObject& obj)
+{
+    std::lock_guard<std::mutex> lock(gpuPassMutex);
+    auto iter = std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(), [id = obj.GetGpuObjectId()](const auto& gpuObject){ return id == gpuObject->GetGpuObjectId(); });
+    if (iter != gpuPassLoad.end())
+        gpuPassLoad.erase(iter);
 }
 }  // namespace GameEngine

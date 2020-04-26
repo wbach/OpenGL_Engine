@@ -13,6 +13,7 @@ class WaterRendererComponent : public BaseComponent
 {
 public:
     WaterRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    ~WaterRendererComponent();
 
     float moveFactor() const;
     float increaseAndGetMoveFactor(float deltaTime);
@@ -34,6 +35,10 @@ private:
     void ReqisterFunctions();
     void Subscribe();
     void UnSubscribe();
+
+private:
+    void CleanUp();
+    void DeleteTextures();
 
 private:
     vec3 position_;

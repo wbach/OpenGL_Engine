@@ -6,24 +6,34 @@ namespace GameEngine
 class GpuObject : public IGpuObject
 {
 public:
-    inline void GpuLoadingPass() override;
-    inline std::optional<uint32> GetGraphicsObjectId() const override;
-    inline void Reset();
+    GpuObject();
+    inline void GpuLoadingPass() override = 0;
+    inline void ReleaseGpuPass() override = 0;
+    inline uint64 GetGpuObjectId() const override;
+    inline const GraphicsApi::ID& GetGraphicsObjectId() const override;
 
 protected:
     std::optional<uint32> graphicsObjectId_;
+
+private:
+    static uint64 s_Id_;
+    uint64 id_;
 };
 
 void GpuObject::GpuLoadingPass()
 {
 }
 
-std::optional<uint32> GpuObject::GetGraphicsObjectId() const
+const GraphicsApi::ID& GpuObject::GetGraphicsObjectId() const
 {
     return graphicsObjectId_;
 }
-void GpuObject::Reset()
+void GpuObject::ReleaseGpuPass()
 {
     graphicsObjectId_ = std::nullopt;
+}
+inline uint64 GpuObject::GetGpuObjectId() const
+{
+    return id_;
 }
 }  // namespace GameEngine

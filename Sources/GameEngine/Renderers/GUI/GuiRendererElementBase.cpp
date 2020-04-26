@@ -1,12 +1,15 @@
 #include "GuiRendererElementBase.h"
 #include <Logger/Log.h>
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/ITextureLoader.h"
 
 namespace GameEngine
 {
-GuiRendererElementBase::GuiRendererElementBase(GUIRenderer& guiRenderer,
+GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager, GUIRenderer& guiRenderer,
                                                GuiElementTypes type, const vec2ui& windowSize)
     : GuiElement(type, windowSize)
+    , resourceManager_(resourceManager)
     , guiRenderer_(guiRenderer)
     , texture_{nullptr}
     , color_(vec4(1.f))
@@ -20,6 +23,11 @@ GuiRendererElementBase::GuiRendererElementBase(GUIRenderer& guiRenderer,
 GuiRendererElementBase::~GuiRendererElementBase()
 {
     guiRenderer_.UnSubscribe(*this);
+
+    if (texture_)
+    {
+        resourceManager_.GetTextureLoader().DeleteTexture(*texture_);
+    }
 }
 
 void GuiRendererElementBase::SetScale(const vec2 &scale)

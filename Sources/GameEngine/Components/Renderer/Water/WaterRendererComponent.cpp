@@ -20,6 +20,10 @@ WaterRendererComponent::WaterRendererComponent(const ComponentContext& component
     , waveSpeed_(.1f)
 {
 }
+WaterRendererComponent::~WaterRendererComponent()
+{
+    CleanUp();
+}
 void WaterRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&WaterRendererComponent::Subscribe, this));
@@ -72,8 +76,8 @@ void WaterRendererComponent::SetScale(const vec3& s)
 
 WaterRendererComponent& WaterRendererComponent::LoadTextures(const std::string& dudv, const std::string& normal)
 {
-    normalMap_ = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(normal, TextureParameters());
-    dudvMap_   = componentContext_.resourceManager_.GetTextureLaoder().LoadTexture(dudv, TextureParameters());
+    normalMap_ = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(normal, TextureParameters());
+    dudvMap_   = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(dudv, TextureParameters());
 
     return *this;
 }
@@ -100,6 +104,18 @@ void WaterRendererComponent::Subscribe()
 void WaterRendererComponent::UnSubscribe()
 {
     componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+}
+void WaterRendererComponent::CleanUp()
+{
+    UnSubscribe();
+    DeleteTextures();
+}
+void WaterRendererComponent::DeleteTextures()
+{
+    if (normalMap_)
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*normalMap_);
+    if (dudvMap_)
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*dudvMap_);
 }
 }  // namespace Components
 }  // namespace GameEngine

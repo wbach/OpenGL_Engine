@@ -1,4 +1,5 @@
 #include "SkydomeRenderer.h"
+
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -39,9 +40,12 @@ void SkydomRenderer::ReloadShaders()
 {
     shader_.Reload();
 }
-void SkydomRenderer::UnSubscribe(GameObject*)
+void SkydomRenderer::UnSubscribe(GameObject* gameObject)
 {
-    subscriber_.model_ = nullptr;
+    auto component = gameObject->GetComponent<Components::SkydomeComponent>();
+
+    if (component)
+        subscriber_.model_ = nullptr;
 }
 void SkydomRenderer::UnSubscribeAll()
 {

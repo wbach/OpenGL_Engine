@@ -5,6 +5,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "TerrainTexturesTypes.h"
 #include "TerrainConfiguration.h"
+#include <GraphicsApi/IGraphicsApi.h>
 
 namespace GameEngine
 {
@@ -28,11 +29,20 @@ public:
     void UpdateTexture(TerrainTextureType, const std::string&);
 
 private:
-    void UpdateTexture(TerrainTextureType, Texture*);
     void SetTexture(TerrainTextureType, Texture*);
+    void UpdateTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);
     void Subscribe();
     void UnSubscribe();
+    void CreateShaderBuffers(const GameEngine::Model&);
+    BufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
+    void LoadObjectToGpu(GpuObject&);
+    
+private:
+    void CleanUp();
+    void ReleaseModels();
+    void ClearShaderBuffers();
+    void ReleaseTextures();
 
 private:
     TerrainConfiguration config_;
@@ -40,14 +50,14 @@ private:
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
 
-    std::vector<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
+    std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
 public:
     static ComponentsType type;
 };
 
 inline const GraphicsApi::ID& TerrainMeshRendererComponent::GetPerObjectUpdateBuffer(uint32 id) const
 {
-    return perObjectUpdateBuffer_[id].GetId();
+    return perObjectUpdateBuffer_[id]->GetGraphicsObjectId();
 }
 
 }  // namespace Components

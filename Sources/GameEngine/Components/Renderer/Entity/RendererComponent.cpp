@@ -30,21 +30,12 @@ RendererComponent::~RendererComponent()
 {
     UnSubscribe();
 
+    for (auto model : model_.PopModels())
     {
-        auto model = model_.Get(LevelOfDetail::L1);
-        if (model)
-            componentContext_.resourceManager_.ReleaseModel(model);
+        componentContext_.resourceManager_.ReleaseModel(*model);
     }
-    {
-        auto model = model_.Get(LevelOfDetail::L2);
-        if (model)
-            componentContext_.resourceManager_.ReleaseModel(model);
-    }
-    {
-        auto model = model_.Get(LevelOfDetail::L3);
-        if (model)
-            componentContext_.resourceManager_.ReleaseModel(model);
-    }
+
+    ClearShaderBuffers();
 }
 
 void RendererComponent::ReqisterFunctions()
@@ -110,21 +101,34 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
         else
         {
             model_.Update(model, lvl);
-            componentContext_.resourceManager_.ReleaseModel(existModel);
+            componentContext_.resourceManager_.ReleaseModel(*existModel);
         }
     }
 
-    return *this;
-}
-RendererComponent& RendererComponent::SetModel(const ModelWrapper& model)
-{
-    model_ = model;
     return *this;
 }
 RendererComponent& RendererComponent::SetTextureIndex(uint32_t index)
 {
     textureIndex_ = index;
     return *this;
+}
+void RendererComponent::ClearShaderBuffers()
+{
+    for (auto iter = perObjectUpdateBuffer_.begin(); iter != perObjectUpdateBuffer_.end();)
+    {
+        DeleteShaderBuffer(std::move(*iter));
+        iter = perObjectUpdateBuffer_.erase(iter);
+    }
+
+    for (auto iter = perObjectConstantsBuffer_.begin(); iter != perObjectConstantsBuffer_.end();)
+    {
+        DeleteShaderBuffer(std::move(*iter));
+        iter = perObjectConstantsBuffer_.erase(iter);
+    }
+}
+void RendererComponent::DeleteShaderBuffer(std::unique_ptr<GpuObject> obj)
+{
+    componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(obj));
 }
 void RendererComponent::Subscribe()
 {
@@ -144,8 +148,7 @@ void RendererComponent::UnSubscribe()
 }
 void RendererComponent::ReserveBufferVectors(size_t size)
 {
-    perObjectUpdateBuffer_.clear();
-    perObjectConstantsBuffer_.clear();
+    ClearShaderBuffers();
     perObjectUpdateBuffer_.reserve(size);
     perObjectConstantsBuffer_.reserve(size);
 }
@@ -159,24 +162,23 @@ void RendererComponent::CreateBuffers(Model& model)
 }
 void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 {
-    BufferObject<PerObjectUpdate> buffer(componentContext_.resourceManager_.GetGraphicsApi(),
-                                         PER_OBJECT_UPDATE_BIND_LOCATION);
+    auto& graphicsApi = componentContext_.graphicsApi_;
 
-    auto& graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
+    perObjectUpdateBuffer_.push_back(
+        std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
 
-    const mat4 transformMatrix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+    auto& buffer = *perObjectUpdateBuffer_.back();
 
+    const mat4 transformMatrix            = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
-    perObjectUpdateBuffer_.push_back(buffer);
-
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(perObjectUpdateBuffer_.back());
+    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
-    BufferObject<PerObjectConstants> buffer(componentContext_.resourceManager_.GetGraphicsApi(),
-                                            PER_OBJECT_CONSTANTS_BIND_LOCATION);
+    perObjectConstantsBuffer_.push_back(std::make_unique<BufferObject<PerObjectConstants>>(
+        componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION));
 
-    buffer.GetData().UseBoneTransform = mesh.UseArmature();
+    auto& buffer = *perObjectConstantsBuffer_.back();
 
     if (mesh.GetMaterial().diffuseTexture)
     {
@@ -186,11 +188,9 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     {
         buffer.GetData().textureOffset = vec2(0);
     }
+    buffer.GetData().UseBoneTransform = mesh.UseArmature();
 
-    perObjectConstantsBuffer_.push_back(buffer);
-
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(
-        perObjectConstantsBuffer_.back());
+    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
 void RendererComponent::UpdateBuffers()
 {
@@ -201,10 +201,12 @@ void RendererComponent::UpdateBuffers()
     {
         auto& poc = perObjectUpdateBuffer_[index++];
 
-        auto& graphicsApi                  = componentContext_.resourceManager_.GetGraphicsApi();
-        const mat4 transformMatix          = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
-        poc.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatix);
-        poc.UpdateBuffer();
+        if (poc)
+        {
+            const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+            poc->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
+            poc->UpdateBuffer();
+        }
     }
 }
 }  // namespace Components

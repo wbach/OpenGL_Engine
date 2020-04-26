@@ -1,11 +1,14 @@
 #include "TextureLoader.h"
+
 #include <FreeImage.h>
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
-#include <fstream>
 #include <array>
-#include "GameEngine/Engine/Configuration.h"
+#include <fstream>
+
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GpuResourceLoader.h"
 #include "IGpuResourceLoader.h"
 #include "Logger/Log.h"
@@ -362,8 +365,8 @@ void TextureLoader::DeleteTexture(Texture& texture)
     std::lock_guard<std::mutex> lk(textureMutex_);
 
     auto iter =
-        std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGraphicsObjectId()](const auto& texture) {
-            return (texture.second.resource_->GetGraphicsObjectId() == id);
+        std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
+            return (texture.second.resource_->GetGpuObjectId() == id);
         });
 
     auto& textureInfo = iter->second;
@@ -475,13 +478,13 @@ Texture* TextureLoader::GetTextureNotFound()
         return textureNotFound_.first;
 
     textureNotFound_.second = true;
-    auto filename = "Textures/textureNotFound.png";
+    auto filename           = "Textures/textureNotFound.png";
     TextureParameters params;
     auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(filename), params);
 
     if (image)
     {
-        auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, false, Utils::GetFilename(filename),
+        auto materialTexture   = std::make_unique<MaterialTexture>(graphicsApi_, false, Utils::GetFilename(filename),
                                                                  Utils::GetFilePath(filename), *image);
         textureNotFound_.first = AddTexture(filename, std::move(materialTexture), params.loadType);
     }

@@ -87,8 +87,8 @@ int MainScene::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     DEBUG_LOG("MainScene::Initialize()");
-    resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
-    resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
+    resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
+    resourceManager_->GetTextureLoader().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
                                                          "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
 
     InitGui();
@@ -418,7 +418,7 @@ void MainScene::CheckCollisions(float)
 void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position)
 {
     auto object = CreateGameObjectInstance("Terrain", 1.f, vec2(0));
-    resourceManager_->GetTextureLaoder().SetHeightMapFactor(10.f);
+    resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
     object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =

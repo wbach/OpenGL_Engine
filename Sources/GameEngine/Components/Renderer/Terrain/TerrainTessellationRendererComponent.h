@@ -36,6 +36,10 @@ private:
     void UnSubscribe();
 
 private:
+    void CleanUp();
+    void ReleaseTextures();
+
+private:
     TerrainConfiguration terrainConfiguration_;
     TerrainQuadTree terrainQuadTree_;
 

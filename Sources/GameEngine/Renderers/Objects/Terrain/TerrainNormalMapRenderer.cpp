@@ -96,7 +96,7 @@ std::unique_ptr<Texture> TerrainNormalMapRenderer::RenderTexture(const Texture &
     context_.graphicsApi_.Compute(imageSize / 16, imageSize / 16, 1);
     shader_.Stop();
 
-    return std::make_unique<Texture>(context_.graphicsApi_, *storageId);
+    return std::make_unique<Texture>(context_.graphicsApi_, storageId);
 }
 void TerrainNormalMapRenderer::Init()
 {

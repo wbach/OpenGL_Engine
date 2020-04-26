@@ -12,6 +12,7 @@ class ParticleEffectComponent : public BaseComponent
 {
 public:
     ParticleEffectComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    ~ParticleEffectComponent();
 
     ParticleEffectComponent& SetTexture(const std::string& filename);
     ParticleEffectComponent& SetParticle(const Particle& particle);
@@ -47,6 +48,7 @@ private:
     void SortParticlesByCameraDistance();
     uint32 CalculateToEmitParticles();
     Particle DefaultEmitFunction(const Particle&);
+    void DeleteTexture();
 
 private:
     Texture* texture_;

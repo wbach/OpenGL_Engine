@@ -57,9 +57,6 @@ private:
 
     EnitySubscribers subscribes_;
     std::set<uint32> subscribesIds_;
-
-    GraphicsApi::ID perObjectUpdateId;
-    GraphicsApi::ID perObjectId;
 };
 
 }  // namespace GameEngine

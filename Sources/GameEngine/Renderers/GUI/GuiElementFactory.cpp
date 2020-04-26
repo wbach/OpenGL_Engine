@@ -265,14 +265,14 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::
     params.applySizeLimit = false;
     params.flipMode       = TextureFlip::VERTICAL;
 
-    auto texture = resourceManager_.GetTextureLaoder().LoadTexture(filename, params);
+    auto texture = resourceManager_.GetTextureLoader().LoadTexture(filename, params);
     if (not texture)
     {
         DEBUG_LOG("Texture not loaded : " + filename);
         return nullptr;
     }
 
-    return std::make_unique<GuiTextureElement>(guiRenderer_, windowSize_, *texture);
+    return std::make_unique<GuiTextureElement>(resourceManager_, guiRenderer_, windowSize_, *texture);
 }
 
 void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &window)

@@ -24,7 +24,6 @@ public:
 
     void Init();
     void GameLoop();
-    // DisplayManager& GetDisplayManager();
     SceneManager& GetSceneManager();
 
 private:

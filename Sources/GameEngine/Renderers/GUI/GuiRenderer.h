@@ -17,7 +17,7 @@ struct Time;
 class GUIRenderer
 {
 public:
-    GUIRenderer(GraphicsApi::IGraphicsApi& graphicsApi);
+    GUIRenderer(GraphicsApi::IGraphicsApi&);
     ~GUIRenderer();
     void Init();
     void UnSubscribeAll();
@@ -25,7 +25,7 @@ public:
     void UnSubscribe(const GuiElement&);
     void ReloadShaders();
     void Subscribe(GuiElement&);
-    void Render(const Scene& scene, const Time&);
+    void Render(const Scene&, const Time&);
 
 private:
     void SortSubscribers();

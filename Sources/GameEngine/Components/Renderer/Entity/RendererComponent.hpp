@@ -14,10 +14,9 @@ namespace Components
 class RendererComponent : public BaseComponent
 {
 public:
-    RendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    RendererComponent(const ComponentContext&, GameObject&);
     ~RendererComponent();
 
-    RendererComponent& SetModel(const ModelWrapper& model);
     RendererComponent& AddModel(const std::string& filename,
                                 GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     RendererComponent& SetTextureIndex(uint32_t index);
@@ -36,9 +35,11 @@ public:
     void UpdateBuffers(); // Call on rendering thread
 
 private:
+    void ClearShaderBuffers();
+    void DeleteShaderBuffer(std::unique_ptr<GpuObject>);
     void Subscribe();
     void UnSubscribe();
-    void ReserveBufferVectors(size_t size);
+    void ReserveBufferVectors(size_t);
     void CreateBuffers(Model&);
     void CreatePerObjectUpdateBuffer(const Mesh& mesh);
     void CreatePerObjectConstantsBuffer(const Mesh& mesh);
@@ -50,8 +51,8 @@ private:
 
 private:
     std::unordered_map<std::string, LevelOfDetail> filenames_;
-    std::vector<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
-    std::vector<BufferObject<PerObjectConstants>> perObjectConstantsBuffer_;
+    std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    std::vector< std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
 
 public:
     static ComponentsType type;
@@ -71,11 +72,11 @@ const std::unordered_map<std::string, LevelOfDetail>& RendererComponent::GetFile
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint32 meshId) const
 {
-    return perObjectUpdateBuffer_[meshId].GetId();
+    return perObjectUpdateBuffer_[meshId]->GetGraphicsObjectId();
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(uint32 meshId) const
 {
-    return perObjectConstantsBuffer_[meshId].GetId();
+    return perObjectConstantsBuffer_[meshId]->GetGraphicsObjectId();
 }
 }  // namespace Components
 }  // namespace GameEngine

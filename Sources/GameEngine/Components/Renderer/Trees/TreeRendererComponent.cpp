@@ -34,6 +34,10 @@ TreeRendererComponent& TreeRendererComponent::SetPositions(const std::vector<vec
 
     return *this;
 }
+TreeRendererComponent::~TreeRendererComponent()
+{
+    CleanUp();
+}
 TreeRendererComponent& TreeRendererComponent::SetBottomModel(const std::string& filename, GameEngine::LevelOfDetail i)
 {
     if (filename.empty())
@@ -103,6 +107,24 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
     }
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perInstances_);
+}
+void TreeRendererComponent::CleanUp()
+{
+    UnSubscribe();
+    DeleteShaderBuffers();
+    ReleaseModels();
+}
+void TreeRendererComponent::ReleaseModels()
+{
+    for (auto model : top_.PopModels())
+        componentContext_.resourceManager_.ReleaseModel(*model);
+    for (auto model : bottom_.PopModels())
+        componentContext_.resourceManager_.ReleaseModel(*model);
+}
+void TreeRendererComponent::DeleteShaderBuffers()
+{
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perObjectUpdateBuffer_));
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perInstances_));
 }
 }  // namespace Components
 }  // namespace GameEngine
