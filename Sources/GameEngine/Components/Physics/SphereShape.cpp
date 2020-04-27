@@ -14,6 +14,11 @@ SphereShape::SphereShape(const ComponentContext& componentContext, GameObject& g
     , size_(1.f)
 {
 }
+
+void SphereShape::CleanUp()
+{
+
+}
 void SphereShape::Update()
 {
 }

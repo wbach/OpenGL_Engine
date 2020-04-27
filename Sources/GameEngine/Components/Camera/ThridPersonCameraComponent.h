@@ -11,7 +11,8 @@ class ThridPersonCameraComponent : public BaseComponent
 {
 public:
     ThridPersonCameraComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    virtual void ReqisterFunctions() override;
+    void CleanUp() override;
+    void ReqisterFunctions() override;
 
 private:
     float zoomSpeed_;

@@ -13,7 +13,10 @@ class WaterRendererComponent : public BaseComponent
 {
 public:
     WaterRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    ~WaterRendererComponent();
+    ~WaterRendererComponent() override;
+
+    void CleanUp() override;
+    void ReqisterFunctions() override;
 
     float moveFactor() const;
     float increaseAndGetMoveFactor(float deltaTime);
@@ -32,12 +35,10 @@ public:
     WaterRendererComponent& LoadTextures(const std::string& dudv, const std::string& normal);
 
 private:
-    void ReqisterFunctions();
     void Subscribe();
     void UnSubscribe();
 
 private:
-    void CleanUp();
     void DeleteTextures();
 
 private:
@@ -49,6 +50,8 @@ private:
 
     Texture* normalMap_;
     Texture* dudvMap_;
+
+    bool isSubscribed_;
 
 public:
     static ComponentsType type;

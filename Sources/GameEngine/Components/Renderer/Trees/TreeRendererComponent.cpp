@@ -13,6 +13,10 @@ ComponentsType TreeRendererComponent::type = ComponentsType::TreeRenderer;
 
 TreeRendererComponent::TreeRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::TreeRenderer, componentContext, gameObject)
+    , isSubsribed_(false)
+{
+}
+TreeRendererComponent::~TreeRendererComponent()
 {
 }
 void TreeRendererComponent::ReqisterFunctions()
@@ -33,10 +37,6 @@ TreeRendererComponent& TreeRendererComponent::SetPositions(const std::vector<vec
     }
 
     return *this;
-}
-TreeRendererComponent::~TreeRendererComponent()
-{
-    CleanUp();
 }
 TreeRendererComponent& TreeRendererComponent::SetBottomModel(const std::string& filename, GameEngine::LevelOfDetail i)
 {
@@ -66,17 +66,22 @@ TreeRendererComponent& TreeRendererComponent::SetTopModel(const std::string& fil
 }
 void TreeRendererComponent::Subscribe()
 {
-    if (not positions_.empty())
+    if (not isSubsribed_ and not positions_.empty())
     {
         CreatePerObjectUpdateBuffer();
         CreatePerInstancesBuffer();
 
         componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubsribed_ = true;
     }
 }
 void TreeRendererComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubsribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubsribed_ = false;
+    }
 }
 void TreeRendererComponent::CreatePerObjectUpdateBuffer()
 {
@@ -123,8 +128,10 @@ void TreeRendererComponent::ReleaseModels()
 }
 void TreeRendererComponent::DeleteShaderBuffers()
 {
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perObjectUpdateBuffer_));
-    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perInstances_));
+    if (perObjectUpdateBuffer_)
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perObjectUpdateBuffer_));
+    if (perInstances_)
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perInstances_));
 }
 }  // namespace Components
 }  // namespace GameEngine

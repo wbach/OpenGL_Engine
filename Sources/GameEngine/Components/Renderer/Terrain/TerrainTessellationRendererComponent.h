@@ -13,8 +13,11 @@ class TerrainTessellationRendererComponent : public BaseComponent
 {
 public:
     TerrainTessellationRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    ~TerrainTessellationRendererComponent();
-    virtual void ReqisterFunctions() override;
+    ~TerrainTessellationRendererComponent() override;
+
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     TerrainTessellationRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const TerrainTexturesMap& GetTextures() const;
     void UpdateTexture(TerrainTextureType, const std::string&);
@@ -36,7 +39,6 @@ private:
     void UnSubscribe();
 
 private:
-    void CleanUp();
     void ReleaseTextures();
 
 private:
@@ -48,6 +50,7 @@ private:
     std::unique_ptr<Texture> normalMap_;
     Texture* heightMap_;
     float normalStrength_;
+    bool isSubscribed_;
 
 public:
     static ComponentsType type;

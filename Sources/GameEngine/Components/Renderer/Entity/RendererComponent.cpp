@@ -28,13 +28,16 @@ RendererComponent::RendererComponent(const ComponentContext& componentContext, G
 
 RendererComponent::~RendererComponent()
 {
+}
+
+void RendererComponent::CleanUp()
+{
     UnSubscribe();
 
     for (auto model : model_.PopModels())
     {
         componentContext_.resourceManager_.ReleaseModel(*model);
     }
-
     ClearShaderBuffers();
 }
 

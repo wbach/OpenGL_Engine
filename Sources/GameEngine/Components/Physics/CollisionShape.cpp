@@ -14,9 +14,6 @@ CollisionShape::CollisionShape(ComponentsType type, const ComponentContext& comp
     , positionOffset_(0.f)
 {
 }
-CollisionShape::~CollisionShape()
-{
-}
 uint32 CollisionShape::GetCollisionShapeId() const
 {
     return collisionShapeId_;

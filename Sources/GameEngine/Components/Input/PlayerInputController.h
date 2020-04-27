@@ -13,7 +13,8 @@ class PlayerInputController : public BaseComponent
 public:
     PlayerInputController(const ComponentContext& componentContext, GameObject& gameObject);
 
-    virtual void ReqisterFunctions() override;
+    void CleanUp() override;
+    void ReqisterFunctions() override;
 
 private:
     void Init();

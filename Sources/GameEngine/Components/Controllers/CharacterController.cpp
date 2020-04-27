@@ -21,6 +21,11 @@ CharacterController::CharacterController(const ComponentContext& componentContex
 {
 }
 
+void CharacterController::CleanUp()
+{
+
+}
+
 void CharacterController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Init, this));

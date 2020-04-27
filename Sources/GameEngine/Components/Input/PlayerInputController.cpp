@@ -17,6 +17,11 @@ PlayerInputController::PlayerInputController(const ComponentContext& componentCo
 {
 }
 
+void PlayerInputController::CleanUp()
+{
+
+}
+
 void PlayerInputController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&PlayerInputController::Init, this));

@@ -27,6 +27,12 @@ TerrainShape::TerrainShape(const ComponentContext& componentContext, GameObject&
     , heightMap_(nullptr)
 {
 }
+
+void TerrainShape::CleanUp()
+{
+    if (heightMap_)
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*heightMap_);
+}
 void TerrainShape::Update()
 {
 }

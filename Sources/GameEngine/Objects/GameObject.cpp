@@ -21,6 +21,11 @@ GameObject::GameObject(const std::string& name, Components::IComponentFactory& c
 
 GameObject::~GameObject()
 {
+    for(auto& component : components_)
+    {
+        component->CleanUp();
+    }
+
     if (parent_ and parentIdTransfromSubscribtion_)
         parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
 
@@ -143,6 +148,19 @@ Components::IComponent* GameObject::AddComponent(Components::ComponentsType type
     auto component = componentFactory_.Create(type, *this);
     components_.push_back(std::move(component));
     return components_.back().get();
+}
+
+void GameObject::RemoveComponent(Components::ComponentsType type)
+{
+    for (auto iter = components_.begin(); iter != components_.end(); ++iter)
+    {
+        if ((**iter).GetType() == type)
+        {
+            (**iter).CleanUp();
+            components_.erase(iter);
+            return;
+        }
+    }
 }
 
 common::Transform& GameObject::GetTransform()

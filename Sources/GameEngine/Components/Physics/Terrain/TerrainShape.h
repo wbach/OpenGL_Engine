@@ -18,8 +18,10 @@ class TerrainShape : public CollisionShape
 {
 public:
     TerrainShape(const ComponentContext& componentContext, GameObject& gameObject);
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     void Update();
-    virtual void ReqisterFunctions() override;
     TerrainShape& SetHeightMap(const std::string& filename);
     HeightMap* GetHeightMap();
     const std::string GetHeightMapFileName() const;

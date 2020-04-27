@@ -24,6 +24,11 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(const ComponentContext& c
     componentContext_.camera_.Set(*camera_);
 }
 
+void ThridPersonCameraComponent::CleanUp()
+{
+
+}
+
 void ThridPersonCameraComponent::ReqisterFunctions()
 {
 }

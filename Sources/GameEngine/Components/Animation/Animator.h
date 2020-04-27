@@ -15,9 +15,11 @@ typedef std::unordered_map<std::string, mat4> Pose;
 class Animator : public BaseComponent
 {
 public:
-    Animator(const ComponentContext& componentContext, GameObject& gameObject);
+    Animator(const ComponentContext&, GameObject&);
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     void Update();
-    virtual void ReqisterFunctions() override;
     Animator& SetSkeleton(Animation::Joint* skeleton);
     Animator& SetAnimation(const std::string& name);
     void ChangeAnimation(const std::string& name);

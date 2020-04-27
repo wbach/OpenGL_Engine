@@ -23,7 +23,12 @@ Rigidbody::Rigidbody(const ComponentContext& componentContext, GameObject& gameO
     , isStatic_(false)
 {
 }
+
 Rigidbody::~Rigidbody()
+{
+}
+
+void Rigidbody::CleanUp()
 {
     if (not rigidBodyId_)
     {
@@ -31,6 +36,7 @@ Rigidbody::~Rigidbody()
     }
 
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
+    rigidBodyId_ = std::nullopt;
 }
 void Rigidbody::OnStart()
 {

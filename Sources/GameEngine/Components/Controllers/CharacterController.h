@@ -26,7 +26,8 @@ public:
 
     CharacterController(const ComponentContext& componentContext, GameObject& gameObject);
 
-    virtual void ReqisterFunctions() override;
+    void CleanUp() override;
+    void ReqisterFunctions() override;
 
     void Init();
     void Update();

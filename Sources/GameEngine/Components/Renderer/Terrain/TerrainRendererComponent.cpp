@@ -59,6 +59,20 @@ TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& compo
 
 TerrainRendererComponent::~TerrainRendererComponent()
 {
+    CleanUp();
+}
+
+void TerrainRendererComponent::CleanUp()
+{
+    switch (rendererType_)
+    {
+        case RendererType::Mesh:
+            meshComponent_->CleanUp();
+            break;
+        case RendererType::Tessellation:
+            tesselationComponent_->CleanUp();
+            break;
+    }
 }
 
 TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
@@ -194,7 +208,6 @@ void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::stri
             auto textureType = CreateFromString(param.first);
             UpdateTexture(textureType, GetRelativeDataPath(param.second));
         }
-
     }
 }
 

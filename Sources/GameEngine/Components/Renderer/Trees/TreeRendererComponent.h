@@ -18,9 +18,11 @@ public:
     TreeRendererComponent& SetBottomModel(const std::string& filename,
                                           GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d = vec2ui(0, 0));
-    ~TreeRendererComponent();
+    ~TreeRendererComponent() override;
 
-    virtual void ReqisterFunctions() override;
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     inline ModelWrapper& GetTopModelWrapper();
     inline ModelWrapper& GetBottomModelWrapper();
     inline std::vector<vec3>& GetPositions();
@@ -39,7 +41,6 @@ private:
     void CreatePerInstancesBuffer();
 
 private:
-    void CleanUp();
     void ReleaseModels();
     void DeleteShaderBuffers();
 
@@ -53,6 +54,7 @@ private:
 
     std::unique_ptr<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
     std::unique_ptr<BufferObject<PerInstances>> perInstances_;
+    bool isSubsribed_;
 
 public:
     static ComponentsType type;

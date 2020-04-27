@@ -10,13 +10,23 @@ ComponentsType SkydomeComponent::type = ComponentsType::Skydome;
 
 SkydomeComponent::SkydomeComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Skydome, componentContext, gameObject)
+    , model_(nullptr)
+    , isSubscribed_(false)
 {
 }
 SkydomeComponent::~SkydomeComponent()
 {
+}
+
+void SkydomeComponent::CleanUp()
+{
     UnSubscribe();
+
     if (model_)
+    {
         componentContext_.resourceManager_.ReleaseModel(*model_);
+        model_ = nullptr;
+    }
 }
 
 void SkydomeComponent::ReqisterFunctions()
@@ -29,12 +39,23 @@ Model* SkydomeComponent::GetModel()
 }
 void SkydomeComponent::LoadAndSubscribe()
 {
-    model_ = componentContext_.resourceManager_.LoadModel("Meshes/dome/dome_long.obj");
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not model_)
+    {
+        model_ = componentContext_.resourceManager_.LoadModel("Meshes/dome/dome_long.obj");
+    }
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void SkydomeComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

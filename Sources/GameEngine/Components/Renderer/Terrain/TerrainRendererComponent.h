@@ -23,25 +23,24 @@ public:
 
 public:
     TerrainRendererComponent(const ComponentContext&, GameObject&);
-    ~TerrainRendererComponent();
+    ~TerrainRendererComponent() override;
+
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+    void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
+    std::unordered_map<ParamName, Param> GetParams() const override;
 
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
-
     void UpdateTexture(TerrainTextureType, const std::string&);
-
     const TerrainConfiguration& GetTerrainConfiguration() const;
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();
     TerrainMeshRendererComponent* GetMeshTerrain();
     const vec3& GetScale() const;
 
-    virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
-    virtual std::unordered_map<ParamName, Param> GetParams() const override;
-
 private:
     void SetRendererType(RendererType);
-    virtual void ReqisterFunctions() override;
 
 private:
     RendererType rendererType_;

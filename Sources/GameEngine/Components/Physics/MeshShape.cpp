@@ -19,6 +19,11 @@ MeshShape::MeshShape(const ComponentContext& componentContext, GameObject& gameO
     , model_(nullptr)
 {
 }
+
+void MeshShape::CleanUp()
+{
+    // Render comonent loading model
+}
 void MeshShape::Update()
 {
 }
@@ -28,11 +33,11 @@ void MeshShape::ReqisterFunctions()
 }
 void MeshShape::OnAwake()
 {
-    if (model_ == nullptr)
+    if (not model_)
     {
         auto renderer = thisObject_.GetComponent<RendererComponent>();
 
-        if (renderer == nullptr)
+        if (not renderer)
             return;
 
         model_ = renderer->GetModelWrapper().Get(GameEngine::L1);

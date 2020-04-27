@@ -13,9 +13,11 @@ class SkydomeComponent : public BaseComponent
 {
 public:
     SkydomeComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    ~SkydomeComponent();
+    ~SkydomeComponent() override;
 
-    virtual void ReqisterFunctions() override;
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     Model* GetModel();
 
 private:
@@ -25,6 +27,7 @@ private:
 private:
     Model* model_;
     std::string modelFileName_;
+    bool isSubscribed_;
 
 public:
     static ComponentsType type;

@@ -588,6 +588,8 @@ void NetworkEditorInterface::DeleteGameObject(const EntryParameters &params)
         auto go = GetGameObject(params.at("gameObjectId"));
         if (go)
         {
+            UnsubscribeTransformUpdateIfExist();
+
             auto id = go->GetId();
             scene_.RemoveGameObject(*go);
 

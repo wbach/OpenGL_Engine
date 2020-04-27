@@ -10,15 +10,15 @@ ComponentsType SkyBoxComponent::type = ComponentsType::SkyBox;
 
 SkyBoxComponent::SkyBoxComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::SkyBox, componentContext, gameObject)
+    , isSubscribed_(false)
 {
 }
 SkyBoxComponent::~SkyBoxComponent()
 {
-    UnSubscribe();
-    CleanUp();
 }
 void SkyBoxComponent::CleanUp()
 {
+    UnSubscribe();
     DeleteTexture(dayTexture_);
     DeleteTexture(nightTexture_);
 }
@@ -33,13 +33,13 @@ void SkyBoxComponent::DeleteTexture(Texture*& texture)
 SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<std::string, 6>& filenames)
 {
     dayTextureFiles_ = filenames;
-    dayTexture_      = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
+    dayTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<std::string, 6>& filenames)
 {
     nightTextureFiles_ = filenames;
-    nightTexture_      = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
+    nightTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetModel(const std::string& filename)
@@ -78,11 +78,19 @@ const std::string& SkyBoxComponent::GetModelFileName() const
 }
 void SkyBoxComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void SkyBoxComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

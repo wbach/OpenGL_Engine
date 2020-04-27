@@ -21,12 +21,18 @@ ParticleEffectComponent::ParticleEffectComponent(const ComponentContext& compone
     , isAnimated_(false)
     , blendFunction_(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA)
     , rest(0)
+    , isSubscribed_(false)
 {
     emitFunction_ = std::bind(&ParticleEffectComponent::DefaultEmitFunction, this, std::placeholders::_1);
     particles_.reserve(10000);
 }
 ParticleEffectComponent::~ParticleEffectComponent()
 {
+}
+
+void ParticleEffectComponent::CleanUp()
+{
+    UnSubscribe();
     DeleteTexture();
 }
 void ParticleEffectComponent::ReqisterFunctions()
@@ -36,7 +42,11 @@ void ParticleEffectComponent::ReqisterFunctions()
 }
 void ParticleEffectComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void ParticleEffectComponent::EmitParticle(const vec3&)
 {
@@ -112,7 +122,11 @@ ParticleEffectComponent& ParticleEffectComponent::SetTexture(const std::string& 
 }
 void ParticleEffectComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void ParticleEffectComponent::Update()
 {

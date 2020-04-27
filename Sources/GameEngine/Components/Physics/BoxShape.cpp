@@ -14,6 +14,11 @@ BoxShape::BoxShape(const ComponentContext& componentContext, GameObject& gameObj
     , size_(1.f)
 {
 }
+
+void BoxShape::CleanUp()
+{
+
+}
 void BoxShape::Update()
 {
 }

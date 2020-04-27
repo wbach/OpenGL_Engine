@@ -17,6 +17,9 @@ public:
     TerrainMeshRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
     ~TerrainMeshRendererComponent() override;
 
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     TerrainMeshRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
 
     ModelWrapper& GetModel();
@@ -24,7 +27,6 @@ public:
     const TerrainTexturesMap& GetTextures() const;
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
-    virtual void ReqisterFunctions() override;
     const TerrainConfiguration& GetConfiguration() const;
     void UpdateTexture(TerrainTextureType, const std::string&);
 
@@ -39,7 +41,6 @@ private:
     void LoadObjectToGpu(GpuObject&);
     
 private:
-    void CleanUp();
     void ReleaseModels();
     void ClearShaderBuffers();
     void ReleaseTextures();
@@ -49,8 +50,9 @@ private:
     ModelWrapper modelWrapper_;
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
-
     std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    bool isSubscribed_;
+
 public:
     static ComponentsType type;
 };

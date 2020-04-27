@@ -18,11 +18,11 @@ WaterRendererComponent::WaterRendererComponent(const ComponentContext& component
     , moveFactor_(0)
     , waterColor_(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
     , waveSpeed_(.1f)
+    , isSubscribed_(false)
 {
 }
 WaterRendererComponent::~WaterRendererComponent()
 {
-    CleanUp();
 }
 void WaterRendererComponent::ReqisterFunctions()
 {
@@ -99,11 +99,19 @@ void WaterRendererComponent::SetWaterColor(const vec4& color)
 }
 void WaterRendererComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void WaterRendererComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 void WaterRendererComponent::CleanUp()
 {
@@ -113,9 +121,15 @@ void WaterRendererComponent::CleanUp()
 void WaterRendererComponent::DeleteTextures()
 {
     if (normalMap_)
+    {
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*normalMap_);
+        normalMap_ = nullptr;
+    }
     if (dudvMap_)
+    {
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*dudvMap_);
+        dudvMap_ = nullptr;
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

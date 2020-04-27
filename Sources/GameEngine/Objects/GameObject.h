@@ -42,8 +42,12 @@ public:
     template <class T>
     T& AddComponent();
 
+    template <class T>
+    void RemoveComponent();
+
     Components::IComponent* GetComponent(Components::ComponentsType);
     Components::IComponent* AddComponent(Components::ComponentsType);
+    void RemoveComponent(Components::ComponentsType);
     inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
 
     common::Transform& GetTransform();
@@ -72,6 +76,7 @@ private:
     uint32 id;
     Components::IComponentFactory& componentFactory_;
 };
+
 inline const std::string& GameObject::GetName() const
 {
     return name_;
@@ -101,9 +106,13 @@ inline T* GameObject::GetComponent()
 template <class T>
 inline T& GameObject::AddComponent()
 {
-    auto component = componentFactory_.Create(T::type, *this);
-    components_.push_back(std::move(component));
-    return *static_cast<T*>(components_.back().get());
+    auto component = AddComponent(T::type);
+    return *static_cast<T*>(component);
+}
+template<class T>
+void GameObject::RemoveComponent()
+{
+    RemoveComponent(T::type);
 }
 const std::vector<std::unique_ptr<Components::IComponent>>& GameObject::GetComponents() const
 {

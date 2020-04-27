@@ -19,12 +19,12 @@ TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(const
     , normalMap_(nullptr)
     , heightMap_(nullptr)
     , normalStrength_(12.f)
+    , isSubscribed_(false)
 {
 }
 
 TerrainTessellationRendererComponent::~TerrainTessellationRendererComponent()
 {
-    CleanUp();
 }
 void TerrainTessellationRendererComponent::SetTexture(TerrainTextureType type, Texture* texture)
 {
@@ -157,11 +157,19 @@ void TerrainTessellationRendererComponent::ReqisterFunctions()
 }
 void TerrainTessellationRendererComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void TerrainTessellationRendererComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 void TerrainTessellationRendererComponent::CleanUp()
 {

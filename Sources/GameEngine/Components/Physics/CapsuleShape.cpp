@@ -13,6 +13,11 @@ CapsuleShape::CapsuleShape(const ComponentContext& componentContext, GameObject&
     : CollisionShape(CapsuleShape::type, componentContext, gameObject)
 {
 }
+
+void CapsuleShape::CleanUp()
+{
+
+}
 void CapsuleShape::Update()
 {
 }

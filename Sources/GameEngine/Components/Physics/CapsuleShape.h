@@ -9,8 +9,10 @@ class CapsuleShape : public CollisionShape
 {
 public:
     CapsuleShape(const ComponentContext& componentContext, GameObject& gameObject);
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     void Update();
-    virtual void ReqisterFunctions() override;
     void OnAwake();
 
 public:

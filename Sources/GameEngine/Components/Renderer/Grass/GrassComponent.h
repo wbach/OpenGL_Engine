@@ -12,6 +12,9 @@ public:
     GrassRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
     ~GrassRendererComponent();
 
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     inline ModelWrapper& GetModel();
     inline const std::vector<float>& GetPositions() const;
     inline const std::string& GetTextureFileName() const;
@@ -20,7 +23,6 @@ public:
     GrassRendererComponent& SetTexture(const std::string& filename);
 
 private:
-    virtual void ReqisterFunctions() override;
     void CreateModelAndSubscribe();
     void UnSubscribe();
     Material CreateGrassMaterial() const;
@@ -31,6 +33,7 @@ private:
     ModelWrapper model_;
     std::string textureFile_;
     std::vector<float> positions_;
+    bool isSubscribed_;
 
 public:
     static ComponentsType type;

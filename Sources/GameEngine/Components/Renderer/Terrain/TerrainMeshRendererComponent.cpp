@@ -17,11 +17,11 @@ ComponentsType TerrainMeshRendererComponent::type = ComponentsType::TerrainRende
 TerrainMeshRendererComponent::TerrainMeshRendererComponent(const ComponentContext &componentContext,
                                                            GameObject &gameObject)
     : BaseComponent(type, componentContext, gameObject)
+    , isSubscribed_(false)
 {
 }
 TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 {
-    CleanUp();
 }
 void TerrainMeshRendererComponent::ReqisterFunctions()
 {
@@ -171,11 +171,19 @@ void TerrainMeshRendererComponent::ReleaseTextures()
 }
 void TerrainMeshRendererComponent::Subscribe()
 {
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void TerrainMeshRendererComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

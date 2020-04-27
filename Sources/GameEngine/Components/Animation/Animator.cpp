@@ -22,6 +22,11 @@ Animator::Animator(const ComponentContext& componentContext, GameObject& gameObj
     , changeAnim(false)
 {
 }
+
+void Animator::CleanUp()
+{
+
+}
 void Animator::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));

@@ -17,10 +17,12 @@ public:
     RendererComponent(const ComponentContext&, GameObject&);
     ~RendererComponent();
 
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+
     RendererComponent& AddModel(const std::string& filename,
                                 GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     RendererComponent& SetTextureIndex(uint32_t index);
-    virtual void ReqisterFunctions() override;
 
     inline ModelWrapper& GetModelWrapper();
     inline uint32_t GetTextureIndex() const;

@@ -29,6 +29,7 @@ class IComponent
 {
 public:
     virtual ~IComponent()                                                            = default;
+    virtual void CleanUp()                                                           = 0;
     virtual void ReqisterFunctions()                                                 = 0;
     virtual ComponentsType GetType() const                                           = 0;
     virtual bool IsActive() const                                                    = 0;

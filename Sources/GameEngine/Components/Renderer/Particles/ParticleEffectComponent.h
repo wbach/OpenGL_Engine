@@ -12,7 +12,10 @@ class ParticleEffectComponent : public BaseComponent
 {
 public:
     ParticleEffectComponent(const ComponentContext& componentContext, GameObject& gameObject);
-    ~ParticleEffectComponent();
+    ~ParticleEffectComponent() override;
+
+    void CleanUp() override;
+    void ReqisterFunctions() override;
 
     ParticleEffectComponent& SetTexture(const std::string& filename);
     ParticleEffectComponent& SetParticle(const Particle& particle);
@@ -35,7 +38,6 @@ public:
     inline const Particle& GetReferenceParticle() const;
     inline const std::string& GetTextureFile() const;
     inline const std::string& GetEmitFunction() const;
-    virtual void ReqisterFunctions() override;
 
 private:
     inline void AddParticle(const Particle& particle);
@@ -63,6 +65,7 @@ private:
     float rest;
     std::string textureFile_;
     std::string emitFunctionName_;
+    bool isSubscribed_;
 
 public:
     static ComponentsType type;

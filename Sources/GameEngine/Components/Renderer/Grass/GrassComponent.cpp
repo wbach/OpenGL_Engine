@@ -12,10 +12,15 @@ ComponentsType GrassRendererComponent::type = ComponentsType::Grass;
 
 GrassRendererComponent::GrassRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Grass, componentContext, gameObject)
+    , isSubscribed_(false)
 {
 }
 
 GrassRendererComponent::~GrassRendererComponent()
+{
+}
+
+void GrassRendererComponent::CleanUp()
 {
     UnSubscribe();
 
@@ -44,11 +49,20 @@ void GrassRendererComponent::ReqisterFunctions()
 void GrassRendererComponent::CreateModelAndSubscribe()
 {
     CreateGrassModel();
-    componentContext_.renderersManager_.Subscribe(&thisObject_);
+
+    if (not isSubscribed_)
+    {
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 void GrassRendererComponent::UnSubscribe()
 {
-    componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+    if (isSubscribed_)
+    {
+        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        isSubscribed_ = false;
+    }
 }
 Mesh GrassRendererComponent::CreateGrassMesh(const Material& material) const
 {
@@ -58,12 +72,15 @@ Mesh GrassRendererComponent::CreateGrassMesh(const Material& material) const
 }
 void GrassRendererComponent::CreateGrassModel()
 {
-    auto model    = std::make_unique<Model>();
-    auto material = CreateGrassMaterial();
-    auto mesh     = CreateGrassMesh(material);
-    model->AddMesh(mesh);
-    model_.Add(model.get(), LevelOfDetail::L1);
-    componentContext_.resourceManager_.AddModel(std::move(model));
+    if (not model_.Get(LevelOfDetail::L1))
+    {
+        auto model    = std::make_unique<Model>();
+        auto material = CreateGrassMaterial();
+        auto mesh     = CreateGrassMesh(material);
+        model->AddMesh(mesh);
+        model_.Add(model.get(), LevelOfDetail::L1);
+        componentContext_.resourceManager_.AddModel(std::move(model));
+    }
 }
 Material GrassRendererComponent::CreateGrassMaterial() const
 {
