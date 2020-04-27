@@ -24,6 +24,9 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
     mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetTransform().GetPosition());
     offset_ = gameObject_.GetTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
 }
+DragObject::~DragObject()
+{
+}
 void DragObject::Update()
 {
     auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
@@ -31,6 +34,8 @@ void DragObject::Update()
 
     auto cameraPosChange = camera_.GetPosition() - cameraStartPos_;
     newPosition          = newPosition + cameraPosChange;
+
+    KeyDirectionLock(newPosition);
 
     gameObject_.GetTransform().SetPosition(newPosition);
 
@@ -58,5 +63,25 @@ float DragObject::CalculateMouseZCoord(const vec3& objectPosition)
 vec3 DragObject::GetMouseAsWorldPoint(const vec2& mousePosition, float zCoord)
 {
     return ScreenToWorldPoint(vec3(mousePosition, zCoord));
+}
+void DragObject::KeyDirectionLock(vec3& newPosition)
+{
+    const auto& position = gameObject_.GetTransform().GetPosition();
+
+    if (input_.GetKey(KeyCodes::B))
+    {
+        newPosition.y = position.y;
+        newPosition.z = position.z;
+    }
+    if (input_.GetKey(KeyCodes::N))
+    {
+        newPosition.x = position.x;
+        newPosition.z = position.z;
+    }
+    if (input_.GetKey(KeyCodes::M))
+    {
+        newPosition.x = position.x;
+        newPosition.y = position.y;
+    }
 }
 }  // namespace GameEngine

@@ -162,8 +162,11 @@ void NetworkEditorInterface::StartGatway()
                     selectedGameObject_->GetWorldTransform().GetPosition(),
                     selectedGameObject_->GetWorldTransform().GetRotation());
             }
-            if (dragObject_)
-                dragObject_->Update();
+            {
+                std::lock_guard<std::mutex> lk(dragObjectMutex_);
+                if (dragObject_)
+                    dragObject_->Update();
+            }
         },
         "NetworkEditorFps");
 }
@@ -185,6 +188,11 @@ void NetworkEditorInterface::KeysSubscribtions()
         if (selectedGameObject_)
         {
             IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, 1.f));
+
+            auto moveVector = GetPositionChangeValueBasedOnKeys(0.1f, 1.f);
+            moveVector      = selectedGameObject_->GetTransform().GetRotation().value_ * moveVector;
+            moveVector      = moveVector + selectedGameObject_->GetTransform().GetPosition();
+            selectedGameObject_->GetTransform().SetPosition(moveVector);
         }
     });
     keysSubscriptionsManager_ =
@@ -192,6 +200,11 @@ void NetworkEditorInterface::KeysSubscribtions()
             if (selectedGameObject_)
             {
                 IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, -1.f));
+
+                auto moveVector = GetPositionChangeValueBasedOnKeys(0.1f, -1.f);
+                moveVector      = selectedGameObject_->GetTransform().GetRotation().value_ * moveVector;
+                moveVector      = moveVector + selectedGameObject_->GetTransform().GetPosition();
+                selectedGameObject_->GetTransform().SetPosition(moveVector);
             }
         });
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
@@ -227,8 +240,10 @@ void NetworkEditorInterface::KeysSubscribtions()
             DEBUG_LOG("no object selected");
         }
     });
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { dragObject_ = nullptr; });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() {
+        std::lock_guard<std::mutex> lk(dragObjectMutex_);
+        dragObject_ = nullptr;
+    });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         KeyCodes::ESCAPE, [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
@@ -323,6 +338,24 @@ vec3 NetworkEditorInterface::GetRotationValueBasedOnKeys(float rotationSpeed, fl
     if (scene_.inputManager_->GetKey(KeyCodes::Z))
     {
         v.z = dir * rotationSpeed;
+    }
+    return v;
+}
+
+vec3 NetworkEditorInterface::GetPositionChangeValueBasedOnKeys(float speed, float dir)
+{
+    vec3 v(0, 0, 0);
+    if (scene_.inputManager_->GetKey(KeyCodes::B))
+    {
+        v.x = dir * speed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::N))
+    {
+        v.y = dir * speed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::M))
+    {
+        v.z = dir * speed;
     }
     return v;
 }

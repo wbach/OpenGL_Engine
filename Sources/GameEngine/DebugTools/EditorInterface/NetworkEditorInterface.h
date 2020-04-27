@@ -40,6 +40,7 @@ private:
     void SetGameObjectRotation(GameObject&, const vec3&);
     void IncreseGameObjectRotation(GameObject&, const vec3&);
     vec3 GetRotationValueBasedOnKeys(float, float);
+    vec3 GetPositionChangeValueBasedOnKeys(float, float);
 
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
@@ -104,5 +105,7 @@ private:
     Input::KeysSubscriptionsManager keysSubscriptionsManager_;
     ICamera* sceneCamera_;
     bool running_;
+
+    std::mutex dragObjectMutex_;
 };
 }  // namespace GameEngine

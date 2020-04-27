@@ -18,6 +18,8 @@ class DragObject
 {
 public:
     DragObject(Input::InputManager&, GameObject&, const CameraWrapper&, const Projection&);
+    ~DragObject();
+
     void Update();
 
 private:
@@ -25,6 +27,7 @@ private:
     vec3 ScreenToWorldPoint(const vec3& point);
     float CalculateMouseZCoord(const vec3& objectPosition);
     vec3 GetMouseAsWorldPoint(const vec2& mousePosition, float zCoord);
+    void KeyDirectionLock(vec3& newPosition);
 
 private:
     Input::InputManager& input_;

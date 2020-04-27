@@ -30,6 +30,7 @@ protected:
     virtual bool IsKeyDownEventType(uint32) const override;
 
 private:
+    std::mutex keyBufferMutex_;
     std::mutex keyEventMutex_;
     SDL_Window* sdlWindow_;
     vec2i windowsSize_;

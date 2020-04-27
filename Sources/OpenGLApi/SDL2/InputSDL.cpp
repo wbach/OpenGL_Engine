@@ -20,6 +20,7 @@ InputSDL::InputSDL(SDL_Window* sdlWindow)
 }
 bool InputSDL::GetKey(KeyCodes::Type key)
 {
+    std::lock_guard<std::mutex> lk(keyBufferMutex_);
     for (auto k : keyBuffer)
     {
         if (k == key)
@@ -73,6 +74,7 @@ void InputSDL::SetCursorPosition(int x, int y)
 }
 void InputSDL::GetPressedKeys()
 {
+    std::lock_guard<std::mutex> lk(keyBufferMutex_);
     keyBuffer.clear();
     int32 arraySize;
     const Uint8* state = SDL_GetKeyboardState(&arraySize);
