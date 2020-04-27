@@ -64,8 +64,7 @@ vec2 InputSDL::GetMousePosition()
 
     vec2 out;
     out.x = 2.f * (static_cast<float>(mousePosition.x) / static_cast<float>(windowsSize_.x)) - 1.f;
-    out.y = 2.f * (static_cast<float>(mousePosition.y) / static_cast<float>(windowsSize_.y)) - 1.f;
-    out.y *= -1.f;
+    out.y = 1.f - (2.f * (static_cast<float>(mousePosition.y) / static_cast<float>(windowsSize_.y)));
     return out;
 }
 void InputSDL::SetCursorPosition(int x, int y)

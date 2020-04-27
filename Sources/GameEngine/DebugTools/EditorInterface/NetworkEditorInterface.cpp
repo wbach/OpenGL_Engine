@@ -209,13 +209,12 @@ void NetworkEditorInterface::KeysSubscribtions()
 
         if (selectedGameObject_)
         {
+            DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
+                                                       scene_.renderersManager_->GetProjection());
+
             if (not lastSelectedGameObject or *lastSelectedGameObject != selectedGameObject_->GetId())
             {
-                DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-
-                dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                           scene_.renderersManager_->GetProjection());
-
                 if (userId_ > 0)
                 {
                     DebugNetworkInterface::SelectedObjectChanged msg(selectedGameObject_->GetId());

@@ -17,17 +17,20 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
     , rigidbody_(nullptr)
     , camera_(camera)
     , projection_(projection)
+    , cameraStartPos_(camera_.GetPosition())
 {
-    mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetTransform().GetPosition());
-    DEBUG_LOG(std::to_string(mouseZcoord_));
-    offset_ = gameObject_.GetTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
+
+    mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetTransform().GetPosition());
+    offset_ = gameObject_.GetTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
 }
 void DragObject::Update()
 {
-    // To do from world space to object localspace
     auto mouseWorldPoint = GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
     auto newPosition     = mouseWorldPoint + offset_;
+
+    auto cameraPosChange = camera_.GetPosition() - cameraStartPos_;
+    newPosition          = newPosition + cameraPosChange;
 
     gameObject_.GetTransform().SetPosition(newPosition);
 
@@ -42,9 +45,11 @@ vec3 DragObject::WorldToScreenPoint(const vec3& point)
 }
 vec3 DragObject::ScreenToWorldPoint(const vec3& point)
 {
-    auto eyeCoords   = glm::inverse(projection_.GetProjectionMatrix()) * vec4(point, 1.f);
-    auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * eyeCoords;
-    return Utils::Vec4ToVec3(worldCoords);
+    vec4 clipCoords(point.x, point.y, -1.0f, 1.0f);
+    auto eyeCoords   = glm::inverse(projection_.GetProjectionMatrix()) * clipCoords;
+    auto coords      = vec4(eyeCoords.x, eyeCoords.y, -1.f, 0.0f);
+    auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * coords;
+    return Utils::Vec4ToVec3(worldCoords) * point.z;
 }
 float DragObject::CalculateMouseZCoord(const vec3& objectPosition)
 {

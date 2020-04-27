@@ -34,5 +34,7 @@ private:
     const Projection& projection_;
     vec3 offset_;
     float mouseZcoord_;
+
+    vec3 cameraStartPos_;
 };
 }  // namespace GameEngine
