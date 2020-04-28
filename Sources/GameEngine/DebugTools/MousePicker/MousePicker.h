@@ -1,11 +1,13 @@
 #pragma once
-#include "GameEngine/Camera/CameraWrapper.h"
-#include "GameEngine/Renderers/Projection.h"
+#include <Types.h>
 #include <optional>
+#include <memory>
 
 namespace GameEngine
 {
 class GameObject;
+class Projection;
+class CameraWrapper;
 
 class MousePicker
 {
@@ -15,9 +17,6 @@ public:
 
 private:
     GameObject* Intersect(const std::vector<std::unique_ptr<GameObject>>&, const vec3& ray);
-    vec3 CalculateMouseRay(const vec2&);
-    vec4 ConvertToEyeCoords(const vec4& clipCoords);
-    vec3 ConvertToWorldCoords(const vec4& eyeCoords);
     std::optional<float> Intersect(const GameObject&, const vec3&);
     float CalculateBoundingSphereRadius(const GameObject&);
 

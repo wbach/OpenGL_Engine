@@ -8,8 +8,6 @@ namespace GameEngine
 class HeightMap;
 class TerrainConfiguration;
 
-namespace Components
-{
 class TerrainHeightGetter
 {
 public:
@@ -37,5 +35,4 @@ private:
     float yOffset_;
 
 };
-}  // namespace Components
 }  // namespace GameEngine

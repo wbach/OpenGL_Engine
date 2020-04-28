@@ -6,6 +6,8 @@
 
 namespace GameEngine
 {
+class GameObject;
+
 namespace Components
 {
 const std::string IMAGE_FILE{"imageFile"};
@@ -37,6 +39,7 @@ public:
     virtual void Deactivate()                                                        = 0;
     virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) = 0;
     virtual std::unordered_map<ParamName, Param> GetParams() const                   = 0;
+    virtual GameObject& GetParentGameObject()                                        = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

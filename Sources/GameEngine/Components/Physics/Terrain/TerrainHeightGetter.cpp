@@ -8,8 +8,6 @@
 
 namespace GameEngine
 {
-namespace Components
-{
 TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConfiguration, const HeightMap& heightMap,
                                          const vec2& terrainPosition)
     : terrainConfiguration_(terrainConfiguration)
@@ -97,6 +95,4 @@ float TerrainHeightGetter::GetHeight(uint32 x, uint32 y) const
 {
     return GetTerrainHeight(heightMap_.GetImage().floatData, terrainConfiguration_.GetScale().y, heightMapResolution_, yOffset_, x, y);
 }
-
-}  // namespace Components
 }  // namespace GameEngine

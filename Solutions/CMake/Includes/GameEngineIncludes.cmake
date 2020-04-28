@@ -52,6 +52,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainUtils.h
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
+../../Sources/GameEngine/DebugTools/Common/MouseUtils.h
 ../../Sources/GameEngine/DebugTools/Console/Console.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/CameraEditor.h
 ../../Sources/GameEngine/DebugTools/EditorInterface/Messages/AvailableComponentMsgInd.h
@@ -119,6 +120,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h
 ../../Sources/GameEngine/DebugTools/MousePicker/DragObject.h
 ../../Sources/GameEngine/DebugTools/MousePicker/MousePicker.h
+../../Sources/GameEngine/DebugTools/TerrainPainter/TerrainPainter.h
 ../../Sources/GameEngine/Engine/Configuration.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/TerrainParam/TerrainParam.h

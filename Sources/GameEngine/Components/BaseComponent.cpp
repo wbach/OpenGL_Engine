@@ -1,4 +1,5 @@
 #include "BaseComponent.h"
+
 #include <Logger/Log.h>
 
 namespace GameEngine
@@ -12,11 +13,11 @@ BaseComponent::BaseComponent(ComponentsType type, const ComponentContext& compon
     , isActive_(true)
     , componentRegistredId_(0)
 {
-   componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_, this);
+    componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_, this);
 }
 BaseComponent::~BaseComponent()
 {
- //   DEBUG_LOG("destructor " + std::to_string(type_));
+    //   DEBUG_LOG("destructor " + std::to_string(type_));
 
     for (auto id : ids_)
         componentContext_.componentController_.UnRegisterFunction(id.second, id.first);
@@ -35,6 +36,10 @@ void BaseComponent::Deactivate()
 std::unordered_map<ParamName, Param> BaseComponent::GetParams() const
 {
     return {};
+}
+GameObject& BaseComponent::GetParentGameObject()
+{
+    return thisObject_;
 }
 bool BaseComponent::IsActive() const
 {

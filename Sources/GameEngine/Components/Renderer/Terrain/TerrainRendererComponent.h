@@ -1,12 +1,16 @@
 #pragma once
 #include <Types.h>
+
 #include <unordered_map>
+
 #include "GameEngine/Components/BaseComponent.h"
 #include "TerrainConfiguration.h"
 #include "TerrainTexturesTypes.h"
 
 namespace GameEngine
 {
+class HeightMap;
+
 namespace Components
 {
 class TerrainMeshRendererComponent;
@@ -38,6 +42,7 @@ public:
     TerrainTessellationRendererComponent* GetTesselationTerrain();
     TerrainMeshRendererComponent* GetMeshTerrain();
     const vec3& GetScale() const;
+    HeightMap* GetHeightMap();
 
 private:
     void SetRendererType(RendererType);

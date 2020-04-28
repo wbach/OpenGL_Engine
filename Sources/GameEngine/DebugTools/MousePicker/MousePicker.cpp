@@ -4,6 +4,7 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/DebugTools/Common/MouseUtils.h"
 
 namespace GameEngine
 {
@@ -42,7 +43,7 @@ MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projecti
 GameObject* MousePicker::SelectObject(const vec2& mousePosition,
                                       const std::vector<std::unique_ptr<GameObject>>& objectList)
 {
-    return Intersect(objectList, CalculateMouseRay(mousePosition));
+    return Intersect(objectList, CalculateMouseRay(projection_, camera_, mousePosition));
 }
 GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList, const vec3& ray)
 {
@@ -59,26 +60,7 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
     }
     return nullptr;
 }
-vec3 MousePicker::CalculateMouseRay(const vec2& mousePosition)
-{
-    vec4 clipCoords(mousePosition.x, mousePosition.y, -1.0f, 1.0f);
-    auto eyeCoords = ConvertToEyeCoords(clipCoords);
-    return ConvertToWorldCoords(eyeCoords);
-}
-vec4 MousePicker::ConvertToEyeCoords(const vec4& clipCoords)
-{
-    auto invertedMatrix = glm::inverse(projection_.GetProjectionMatrix());
 
-    auto coords = invertedMatrix * clipCoords;
-    return vec4(coords.x, coords.y, -1.0f, 0.0f);
-}
-vec3 MousePicker::ConvertToWorldCoords(const vec4& eyeCoords)
-{
-    auto invertedMatrix = glm::inverse(camera_.GetViewMatrix());
-
-    auto coords = invertedMatrix * eyeCoords;
-    return glm::normalize(Utils::Vec4ToVec3(coords));
-}
 std::optional<float> MousePicker::Intersect(const GameObject& object, const vec3& ray)
 {
     auto radius = CalculateBoundingSphereRadius(object);

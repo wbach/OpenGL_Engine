@@ -40,7 +40,7 @@ ComponentController::~ComponentController()
 
 const RegistredComponentsMap& ComponentController::GetAllComonentsOfType(ComponentsType type) const
 {
-    if (registredComponents_.count(type) > 0)
+    if (registredComponents_.count(type))
         return registredComponents_.at(type);
 
     return DEFAULT_COMPONETNS_MAP;

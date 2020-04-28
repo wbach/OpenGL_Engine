@@ -196,6 +196,11 @@ const vec3& TerrainRendererComponent::GetScale() const
     return DEFAULT_SCALE;
 }
 
+HeightMap* TerrainRendererComponent::GetHeightMap()
+{
+    return nullptr;
+}
+
 void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
 {
     for (const auto& param : params)
