@@ -198,7 +198,28 @@ const vec3& TerrainRendererComponent::GetScale() const
 
 HeightMap* TerrainRendererComponent::GetHeightMap()
 {
+    switch (rendererType_)
+    {
+        case RendererType::Mesh:
+            return meshComponent_->GetHeightMap();
+        case RendererType::Tessellation:
+            return tesselationComponent_->GetHeightMap();
+    }
+
     return nullptr;
+}
+
+void TerrainRendererComponent::HeightMapChanged()
+{
+    switch (rendererType_)
+    {
+        case RendererType::Mesh:
+            meshComponent_->HeightMapChanged();
+            break;
+        case RendererType::Tessellation:
+            tesselationComponent_->HeightMapChanged();
+            break;
+    }
 }
 
 void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)

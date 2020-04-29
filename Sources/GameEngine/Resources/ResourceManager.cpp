@@ -30,6 +30,10 @@ Model* ResourceManager::LoadModel(const std::string& file)
     {
         auto& modelInfo = models_.at(file);
         ++modelInfo.instances_;
+        modelInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
+        // ResourceGpuStatus::NotLoaded for models not implmented. T
+        // To do: Can be useful for simplified physics collision mesh shapes.
+        // Visual representation of physics shape not needed
         DEBUG_LOG(file + " model already loaded, instances count : " + std::to_string(modelInfo.instances_));
         return modelInfo.resource_.get();
     }

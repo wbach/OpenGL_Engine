@@ -9,6 +9,8 @@
 
 namespace GameEngine
 {
+class HeightMap;
+
 namespace Components
 {
 class TerrainMeshRendererComponent : public BaseComponent
@@ -29,6 +31,8 @@ public:
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
     const TerrainConfiguration& GetConfiguration() const;
     void UpdateTexture(TerrainTextureType, const std::string&);
+    HeightMap* GetHeightMap();
+    void HeightMapChanged();
 
 private:
     void SetTexture(TerrainTextureType, Texture*);
@@ -49,6 +53,7 @@ private:
     TerrainConfiguration config_;
     ModelWrapper modelWrapper_;
     TerrainTexturesMap textures_;
+    HeightMap* heightMap_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
     std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
     bool isSubscribed_;

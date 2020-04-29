@@ -43,6 +43,7 @@ public:
     TerrainMeshRendererComponent* GetMeshTerrain();
     const vec3& GetScale() const;
     HeightMap* GetHeightMap();
+    void HeightMapChanged();
 
 private:
     void SetRendererType(RendererType);

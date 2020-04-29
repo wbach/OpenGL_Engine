@@ -31,12 +31,13 @@ public:
 private:
     Texture* LoadHeightMapBinary(const InputFileName&, const TextureParameters&);
     Texture* LoadHeightMapTexture(const InputFileName&, const TextureParameters&);
-    Texture* GetTextureIfLoaded(const std::string&);
+    Texture* GetTextureIfLoaded(const std::string&, const TextureParameters&);
     Texture* GetTextureNotFound();
 
     Texture* AddTexture(const std::string& name, std::unique_ptr<Texture>, TextureLoadType);
     void ApplyLoadTypeAction(Texture&, TextureLoadType);
     std::string GetNoName() const;
+    ResourceGpuStatus Convert(TextureLoadType);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;

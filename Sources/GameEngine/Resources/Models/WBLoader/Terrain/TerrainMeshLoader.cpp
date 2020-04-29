@@ -20,8 +20,19 @@ TerrainMeshLoader::TerrainMeshLoader(ITextureLoader& textureLoader)
 }
 void TerrainMeshLoader::ParseFile(const std::string& filename)
 {
-    auto fullFilePath      = EngineConf_GetFullDataPathAddToRequierd(filename);
-    auto texture           = textureLoader_.LoadHeightMap(fullFilePath, TextureParameters());
+    auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
+
+    TextureParameters params;
+    params.loadType = TextureLoadType::None;
+
+    auto texture = textureLoader_.LoadHeightMap(fullFilePath, params);
+
+    if (not texture)
+    {
+        ERROR_LOG("Height mapt not loaded. " + filename);
+        return;
+    }
+
     auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullFilePath) + ".terrainConfig";
     auto terrainConfig     = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     terrainScale_          = terrainConfig.GetScale();
@@ -42,6 +53,8 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
     {
         CreateAsSingleTerrain();
     }
+
+    textureLoader_.DeleteTexture(*texture);
 }
 bool TerrainMeshLoader::CheckExtension(const std::string& filename)
 {
@@ -53,6 +66,7 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
     if (not model_)
     {
         ERROR_LOG("Model not created. Please parse file first.");
+        return nullptr;
     }
 
     return std::move(model_);

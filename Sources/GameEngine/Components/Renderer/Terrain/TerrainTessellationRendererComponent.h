@@ -7,6 +7,8 @@
 
 namespace GameEngine
 {
+class HeightMap;
+
 namespace Components
 {
 class TerrainTessellationRendererComponent : public BaseComponent
@@ -26,9 +28,10 @@ public:
     const TerrainQuadTree& GetTree() const;
     const TerrainConfiguration& GetConfig() const;
     Texture* GetNormalMap() const;
-    Texture* GetHeightMap() const;
+    HeightMap* GetHeightMap() const;
     void SetTexture(std::unique_ptr<Texture>);
     const vec3& GetScale() const;
+    void HeightMapChanged();
 
 private:
     void Update();
@@ -48,7 +51,7 @@ private:
     TerrainTexturesMap textures_;
     std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
     std::unique_ptr<Texture> normalMap_;
-    Texture* heightMap_;
+    HeightMap* heightMap_;
     float normalStrength_;
     bool isSubscribed_;
 

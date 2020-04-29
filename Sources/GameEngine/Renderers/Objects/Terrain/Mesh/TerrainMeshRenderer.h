@@ -32,10 +32,10 @@ public:
     TerrainMeshRenderer(RendererContext& context);
     ~TerrainMeshRenderer();
 
-    virtual void Init() override;
-    virtual void Subscribe(GameObject*) override;
-    virtual void UnSubscribe(GameObject*) override;
-    virtual void ReloadShaders() override;
+    void Init() override;
+    void Subscribe(GameObject*) override;
+    void UnSubscribe(GameObject*) override;
+    void ReloadShaders() override;
 
 private:
     void Render(const Scene&, const Time&);

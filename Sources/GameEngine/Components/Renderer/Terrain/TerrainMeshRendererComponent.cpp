@@ -7,6 +7,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
@@ -50,10 +51,24 @@ void TerrainMeshRendererComponent::UpdateTexture(TerrainTextureType type, const 
         UpdateTexture(type, texture);
 }
 
+HeightMap *TerrainMeshRendererComponent::GetHeightMap()
+{
+    return heightMap_;
+}
+
+void TerrainMeshRendererComponent::HeightMapChanged()
+{
+    UnSubscribe();
+    ReleaseModels();
+    textures_.erase(TerrainTextureType::heightmap);
+    //LoadHeightMap(newHeightMap);
+}
+
 void TerrainMeshRendererComponent::CleanUp()
 {
     UnSubscribe();
     ReleaseModels();
+    ReleaseTextures();
     ClearShaderBuffers();
 }
 
@@ -117,10 +132,19 @@ void TerrainMeshRendererComponent::SetTexture(TerrainTextureType type, Texture *
 }
 void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
 {
+    TextureParameters params;
+    params.loadType = TextureLoadType::None;
+
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(terrainFile, params);
+    SetTexture(TerrainTextureType::heightmap, texture);
+
+    heightMap_ = static_cast<HeightMap*>(texture);
+
     auto model               = componentContext_.resourceManager_.LoadModel(terrainFile);
     auto terrainFileFullpath = EngineConf_GetFullDataPath(terrainFile);
-    auto terrainConfigFile   = Utils::GetPathAndFilenameWithoutExtension(terrainFileFullpath) + ".terrainConfig";
-    config_                  = TerrainConfiguration::ReadFromFile(terrainConfigFile);
+
+    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(terrainFileFullpath) + ".terrainConfig";
+    config_                = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     modelWrapper_.Add(model, LevelOfDetail::L1);
 
     CreateShaderBuffers(*model);
@@ -132,7 +156,7 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
     for (auto &mesh : model.GetMeshes())
     {
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
-        auto &obj = CreatePerObjectBuffer(graphicsApi);
+        auto &obj         = CreatePerObjectBuffer(graphicsApi);
 
         obj.GetData().TransformationMatrix =
             graphicsApi.PrepareMatrixToLoad(thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform());
@@ -149,7 +173,7 @@ BufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuff
     return *perObjectUpdateBuffer_.back();
 }
 
-void TerrainMeshRendererComponent::LoadObjectToGpu(GpuObject& obj)
+void TerrainMeshRendererComponent::LoadObjectToGpu(GpuObject &obj)
 {
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(obj);
 }
@@ -164,7 +188,7 @@ void TerrainMeshRendererComponent::ClearShaderBuffers()
 }
 void TerrainMeshRendererComponent::ReleaseTextures()
 {
-    for (auto& texture : textures_)
+    for (auto &texture : textures_)
     {
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
     }

@@ -19,6 +19,8 @@ public:
     const vec3& GetScale() const;
     float GetMaximumHeight() const;
 
+    bool SetHeight(const vec2ui&, float);
+
 private:
     Image image_;
     vec3 scale_;

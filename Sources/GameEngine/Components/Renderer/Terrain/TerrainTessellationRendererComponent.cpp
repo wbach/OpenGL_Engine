@@ -59,13 +59,15 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& high
 {
     const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(hightMapFile);
 
-    heightMap_ =
+    auto texture =
         componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(fullNameWithPath, TextureParameters());
 
-    if (not heightMap_)
+    if (not texture)
     {
         return;
     }
+    heightMap_ = static_cast<HeightMap*>(texture);
+
     auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullNameWithPath) + ".terrainConfig";
     terrainConfiguration_  = TerrainConfiguration::ReadFromFile(terrainConfigFile);
     SetTexture(TerrainTextureType::heightmap, heightMap_);
@@ -87,13 +89,15 @@ void TerrainTessellationRendererComponent::UpdateTexture(TerrainTextureType type
     {
         const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(filename);
 
-        heightMap_ =
+        auto texture =
             componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(fullNameWithPath, TextureParameters());
 
-        if (not heightMap_)
+        if (not texture)
         {
             return;
         }
+        heightMap_ = static_cast<HeightMap*>(texture);
+
         auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullNameWithPath) + ".terrainConfig";
         terrainConfiguration_  = TerrainConfiguration::ReadFromFile(terrainConfigFile);
         UpdateTexture(TerrainTextureType::heightmap, heightMap_);
@@ -134,7 +138,7 @@ Texture* TerrainTessellationRendererComponent::GetNormalMap() const
     return normalMap_.get();
 }
 
-Texture* TerrainTessellationRendererComponent::GetHeightMap() const
+HeightMap* TerrainTessellationRendererComponent::GetHeightMap() const
 {
     return heightMap_;
 }
@@ -148,6 +152,11 @@ void TerrainTessellationRendererComponent::SetTexture(std::unique_ptr<Texture> t
 const vec3& TerrainTessellationRendererComponent::GetScale() const
 {
     return terrainConfiguration_.GetScale();
+}
+
+void TerrainTessellationRendererComponent::HeightMapChanged()
+{
+
 }
 
 void TerrainTessellationRendererComponent::ReqisterFunctions()
@@ -183,7 +192,6 @@ void TerrainTessellationRendererComponent::ReleaseTextures()
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
     }
 }
-
 void TerrainTessellationRendererComponent::Update()
 {
     const auto& campos = componentContext_.camera_.GetPosition();

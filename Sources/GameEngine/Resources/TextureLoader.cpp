@@ -131,7 +131,7 @@ Texture* TextureLoader::CreateTexture(const std::string& name, const TexturePara
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    if (auto texture = GetTextureIfLoaded(name))
+    if (auto texture = GetTextureIfLoaded(name, params))
         return texture;
 
     return AddTexture(name, std::make_unique<GeneralTexture>(graphicsApi_, name, size, data), params.loadType);
@@ -144,7 +144,7 @@ Texture* TextureLoader::LoadTexture(const InputFileName& inputFileName, const Te
     if (inputFileName.empty())
         return nullptr;
 
-    if (auto texture = GetTextureIfLoaded(inputFileName))
+    if (auto texture = GetTextureIfLoaded(inputFileName, params))
         return texture;
 
     auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(inputFileName), params);
@@ -166,7 +166,7 @@ Texture* TextureLoader::LoadCubeMap(const std::array<InputFileName, 6>& files, c
     for (const auto& file : files)
         textureName << file;
 
-    if (auto texture = GetTextureIfLoaded(textureName.str()))
+    if (auto texture = GetTextureIfLoaded(textureName.str(), params))
         return texture;
 
     std::array<Image, 6> images;
@@ -253,7 +253,7 @@ Texture* TextureLoader::LoadHeightMap(const InputFileName& inputFileName, const 
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    if (auto texture = GetTextureIfLoaded(inputFileName))
+    if (auto texture = GetTextureIfLoaded(inputFileName, params))
     {
         return texture;
     }
@@ -364,10 +364,9 @@ void TextureLoader::DeleteTexture(Texture& texture)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto iter =
-        std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
-            return (texture.second.resource_->GetGpuObjectId() == id);
-        });
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
+        return (texture.second.resource_->GetGpuObjectId() == id);
+    });
 
     auto& textureInfo = iter->second;
     --textureInfo.instances_;
@@ -458,7 +457,7 @@ Texture* TextureLoader::LoadHeightMapTexture(const InputFileName& inputFileName,
     return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
 }
 
-Texture* TextureLoader::GetTextureIfLoaded(const std::string& name)
+Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const TextureParameters& params)
 {
     if (textures_.count(name))
     {
@@ -466,6 +465,21 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name)
 
         auto& textureInfo = textures_.at(name);
         ++textureInfo.instances_;
+
+        if (params.loadType != TextureLoadType::None and textureInfo.resourceGpuStatus_ == ResourceGpuStatus::NotLoaded)
+        {
+            if (params.loadType == TextureLoadType::Immediately)
+            {
+                textureInfo.resource_->GpuLoadingPass();
+            }
+            else if (params.loadType == TextureLoadType::AddToGpuPass)
+            {
+                gpuResourceLoader_.AddObjectToGpuLoadingPass(*textureInfo.resource_);
+            }
+
+            textureInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
+        }
+
         return textureInfo.resource_.get();
     }
 
@@ -495,8 +509,10 @@ Texture* TextureLoader::GetTextureNotFound()
 Texture* TextureLoader::AddTexture(const std::string& name, std::unique_ptr<Texture> texture, TextureLoadType loadType)
 {
     ResourceInfo<Texture> textureInfo;
-    textureInfo.resource_ = std::move(texture);
-    auto result           = textureInfo.resource_.get();
+    textureInfo.resourceGpuStatus_ = Convert(loadType);
+    textureInfo.resource_          = std::move(texture);
+
+    auto result = textureInfo.resource_.get();
     textures_.insert({name, std::move(textureInfo)});
     ApplyLoadTypeAction(*result, loadType);
     return result;
@@ -520,5 +536,10 @@ void TextureLoader::ApplyLoadTypeAction(Texture& texture, TextureLoadType type)
 std::string TextureLoader::GetNoName() const
 {
     return "nonameTexture_" + std::to_string(unknownTextureNameId++);
+}
+
+ResourceGpuStatus TextureLoader::Convert(TextureLoadType loadType)
+{
+    return (loadType == TextureLoadType::None) ? ResourceGpuStatus::NotLoaded : ResourceGpuStatus::Loaded;
 }
 }  // namespace GameEngine

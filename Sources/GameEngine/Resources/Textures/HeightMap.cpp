@@ -1,7 +1,7 @@
 #include "HeightMap.h"
-#include "GameEngine/Renderers/Objects/Terrain/TerrainNormalMapRenderer.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
 #include <algorithm>
+#include "GameEngine/Renderers/Objects/Terrain/TerrainNormalMapRenderer.h"
 
 namespace GameEngine
 {
@@ -68,5 +68,25 @@ const vec3& HeightMap::GetScale() const
 float HeightMap::GetMaximumHeight() const
 {
     return maximumHeight_;
+}
+
+bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
+{
+    if (cooridnate.x < image_.width and cooridnate.y < image_.height)
+    {
+        auto index       = cooridnate.x + cooridnate.y * image_.width;
+        auto actualValue = image_.floatData[index];
+
+        if (not compare(actualValue, value))
+        {
+            image_.floatData[index] = value;
+            return true;
+        }
+        else
+        {
+            DEBUG_LOG("Setting value is almost the same. (Set/Actual)" + std::to_string(value) + "|" + std::to_string(actualValue ));
+        }
+    }
+    return false;
 }
 }  // namespace GameEngine

@@ -10,7 +10,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Resources/Textures/Texture.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Logger/Log.h"
 
