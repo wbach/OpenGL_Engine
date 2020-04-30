@@ -69,6 +69,7 @@ public:
     MOCK_METHOD0(PolygonModeRender, void());
     MOCK_METHOD0(LineModeRender, void());
     MOCK_METHOD1(SetBlendFunction, void(BlendFunctionType));
+    MOCK_METHOD3(UpdateMesh, void(uint32, const GraphicsApi::MeshRawData&, const std::set<VertexBufferObjects>&));
     MOCK_METHOD2(UpdateLineMesh, void(uint32, const LineMesh&));
     MOCK_METHOD2(UpdateMatrixes, void(uint32, const std::vector<mat4>&));
     MOCK_METHOD2(UpdateOffset, void(uint32, const std::vector<vec4>&));

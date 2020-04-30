@@ -17,9 +17,6 @@ class ITextureLoader
 public:
     virtual ~ITextureLoader() = default;
 
-    // virtual std::optional<Image> ReadFile(const TextureParameters&) = 0;
-    // Return place in texture loader not in OpenGL
-
     virtual Texture* CreateTexture(const std::string&, const TextureParameters&, const TextureSize&, RawData) = 0;
     virtual Texture* LoadTexture(const InputFileName&, const TextureParameters&)                                = 0;
     virtual Texture* LoadCubeMap(const std::array<InputFileName, 6>&, const TextureParameters&)                 = 0;

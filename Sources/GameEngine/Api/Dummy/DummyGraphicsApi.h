@@ -12,254 +12,255 @@ public:
     {
         dummyWindowApiPtr_ = std::make_unique<DummyWindowApi>();
     }
-    virtual GraphicsApi::IWindowApi& GetWindowApi() override
+    GraphicsApi::IWindowApi& GetWindowApi() override
     {
         return *dummyWindowApiPtr_;
     }
-    virtual void Init() override
+    void Init() override
     {
     }
-    virtual void SetShaderQuaility(GraphicsApi::ShaderQuaility) override
+    void SetShaderQuaility(GraphicsApi::ShaderQuaility) override
     {
     }
-    virtual void CreateContext() override
+    void CreateContext() override
     {
     }
-    virtual void DeleteContext() override
+    void DeleteContext() override
     {
     }
-    virtual void PrintVersion() override
+    void PrintVersion() override
     {
     }
-    virtual std::vector<GraphicsApi::RendererType> GetSupportedRenderers() const override
+    std::vector<GraphicsApi::RendererType> GetSupportedRenderers() const override
     {
         return {GraphicsApi::RendererType::SIMPLE, GraphicsApi::RendererType::FULL};
     }
-    virtual bool IsTesselationSupported() const override
+    bool IsTesselationSupported() const override
     {
         return false;
     }
-    virtual void SetDefaultTarget() override
+    void SetDefaultTarget() override
     {
     }
-    virtual void SetBackgroundColor(const vec3&) override
+    void SetBackgroundColor(const vec3&) override
     {
     }
-    virtual void EnableDepthTest() override
+    void EnableDepthTest() override
     {
     }
-    virtual void DisableDepthTest() override
+    void DisableDepthTest() override
     {
     }
-    virtual void PrepareFrame() override
+    void PrepareFrame() override
     {
     }
-    virtual GraphicsApi::ID CreateShader(GraphicsApi::ShaderProgramType) override
+    GraphicsApi::ID CreateShader(GraphicsApi::ShaderProgramType) override
     {
         auto programId = ++id;
         return programId;
     }
 
-    virtual GraphicsApi::ID CreateShaderBuffer(uint32, uint32) override
+    GraphicsApi::ID CreateShaderBuffer(uint32, uint32) override
     {
         return ++id;
     }
 
-    virtual void UpdateShaderBuffer(uint32 id, void const* buffer) override
+    void UpdateShaderBuffer(uint32 id, void const* buffer) override
     {
     }
 
-    virtual uint32 BindShaderBuffer(uint32) override
+    uint32 BindShaderBuffer(uint32) override
     {
         return 0;
     }
 
-    virtual void UseShader(uint32) override
+    void UseShader(uint32) override
     {
     }
-    virtual std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                                       int32) override
-    {
-        return {};
-    }
-    virtual GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui,
-                                          void* data) override
-    {
-        return ++id;
-    }
-    virtual GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override
-    {
-        return ++id;
-    }
-    virtual void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override
-    {
-    }
-    virtual void UpdateTexture(uint32, const vec2ui&, void* data) override
-    {
-    }
-    virtual void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override
-    {
-    }
-    virtual void ClearBuffer(GraphicsApi::BufferType) override
-    {
-    }
-    virtual void ClearBuffers(const std::vector<GraphicsApi::BufferType>&) override
-    {
-    }
-    virtual void EnableBlend() override
-    {
-    }
-    virtual void DisableBlend() override
-    {
-    }
-    virtual void EnableDepthMask() override
-    {
-    }
-    virtual void DisableDepthMask() override
-    {
-    }
-    virtual void ActiveTexture(uint32, uint32) override
-    {
-    }
-    virtual void ActiveTexture(uint32) override
-    {
-    }
-    virtual GraphicsApi::ID CreateBuffer() override
-    {
-        return ++id;
-    }
-    virtual void BindBuffer(GraphicsApi::BindType, uint32) override
-    {
-    }
-    virtual void DeleteObject(uint32) override
-    {
-    }
-    virtual void DeleteShaderBuffer(uint32) override
-    {
-    }
-    virtual std::string GetBufferStatus() override
+    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override
     {
         return {};
     }
-    virtual GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override
+    GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override
     {
         return ++id;
     }
-    virtual GraphicsApi::ID CreatePurePatchMeshInstanced(uint32, uint32) override
+    GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override
     {
         return ++id;
     }
-    virtual GraphicsApi::ID CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType) override
+    void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override
+    {
+    }
+    void UpdateTexture(uint32, const vec2ui&, void* data) override
+    {
+    }
+    void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override
+    {
+    }
+    void ClearBuffer(GraphicsApi::BufferType) override
+    {
+    }
+    void ClearBuffers(const std::vector<GraphicsApi::BufferType>&) override
+    {
+    }
+    void EnableBlend() override
+    {
+    }
+    void DisableBlend() override
+    {
+    }
+    void EnableDepthMask() override
+    {
+    }
+    void DisableDepthMask() override
+    {
+    }
+    void ActiveTexture(uint32, uint32) override
+    {
+    }
+    void ActiveTexture(uint32) override
+    {
+    }
+    GraphicsApi::ID CreateBuffer() override
     {
         return ++id;
     }
-    virtual GraphicsApi::ID CreateDynamicLineMesh() override
+    void BindBuffer(GraphicsApi::BindType, uint32) override
+    {
+    }
+    void DeleteObject(uint32) override
+    {
+    }
+    void DeleteShaderBuffer(uint32) override
+    {
+    }
+    std::string GetBufferStatus() override
+    {
+        return {};
+    }
+    GraphicsApi::ID CreatePatchMesh(const std::vector<float>&) override
+    {
+        return ++id;
+    }
+    GraphicsApi::ID CreatePurePatchMeshInstanced(uint32, uint32) override
+    {
+        return ++id;
+    }
+    GraphicsApi::ID CreateMesh(const GraphicsApi::MeshRawData&, GraphicsApi::RenderType) override
+    {
+        return ++id;
+    }
+    GraphicsApi::ID CreateDynamicLineMesh() override
     {
         return std::nullopt;
     }
-    virtual GraphicsApi::ID CreateParticle() override;
-    virtual GraphicsApi::ID CreateAnimatedParticle() override
+    GraphicsApi::ID CreateParticle() override;
+    GraphicsApi::ID CreateAnimatedParticle() override
     {
         return ++id;
     }
-    virtual void RenderPurePatchedMeshInstances(uint32) override
+    void RenderPurePatchedMeshInstances(uint32) override
     {
     }
-    virtual void Compute(uint32, uint32, uint32) override
+    void Compute(uint32, uint32, uint32) override
     {
     }
-    virtual void RenderMesh(uint32) override
+    void RenderMesh(uint32) override
     {
     }
-    virtual void RenderTriangleStripMesh(uint32) override
+    void RenderTriangleStripMesh(uint32) override
     {
     }
-    virtual void RenderMeshInstanced(uint32, uint32) override
+    void RenderMeshInstanced(uint32, uint32) override
     {
     }
-    virtual void RenderPoints(uint32) override
+    void RenderPoints(uint32) override
     {
     }
-    virtual void RenderQuad() override
+    void RenderQuad() override
     {
     }
-    virtual void RenderQuadTs()
+    void RenderQuadTs()
     {
     }
-    virtual void EnableCulling() override
+    void EnableCulling() override
     {
     }
-    virtual void DisableCulling() override
+    void DisableCulling() override
     {
     }
-    virtual void SetViewPort(uint32, uint32, uint32, uint32) override
+    void SetViewPort(uint32, uint32, uint32, uint32) override
     {
     }
-    virtual void BindTexture(uint32) const override
+    void BindTexture(uint32) const override
     {
     }
-    virtual void BindImageTexture(uint32, GraphicsApi::TextureAccess) override
+    void BindImageTexture(uint32, GraphicsApi::TextureAccess) override
     {
     }
-    virtual GraphicsApi::ID CreateShadowMap(uint32, uint32) override
+    GraphicsApi::ID CreateShadowMap(uint32, uint32) override
     {
         return ++id;
     }
-    virtual void PolygonModeRender() override
+    void PolygonModeRender() override
     {
     }
-    virtual void LineModeRender() override
+    void LineModeRender() override
     {
     }
-    virtual void SetBlendFunction(GraphicsApi::BlendFunctionType) override
+    void SetBlendFunction(GraphicsApi::BlendFunctionType) override
     {
     }
-    virtual void UpdateLineMesh(uint32, const GraphicsApi::LineMesh&) override
+    void UpdateMesh(uint32, const GraphicsApi::MeshRawData&, const std::set<VertexBufferObjects>&) override
     {
     }
-    virtual void UpdateMatrixes(uint32, const std::vector<mat4>&) override
+    void UpdateLineMesh(uint32, const GraphicsApi::LineMesh&) override
     {
     }
-    virtual void UpdateOffset(uint32, const std::vector<vec4>&) override
+    void UpdateMatrixes(uint32, const std::vector<mat4>&) override
     {
     }
-    virtual void UpdateBlend(uint32, const std::vector<float>&) override
+    void UpdateOffset(uint32, const std::vector<vec4>&) override
     {
     }
-    virtual GraphicsApi::ID CloneImage(uint32) override
+    void UpdateBlend(uint32, const std::vector<float>&) override
+    {
+    }
+    GraphicsApi::ID CloneImage(uint32) override
     {
         return ++id;
     }
     // temp
-    virtual void CreateFont(const std::string&) override
+    void CreateFont(const std::string&) override
     {
     }
-    virtual void PrintText(const std::string&, const vec2i&) override
+    void PrintText(const std::string&, const vec2i&) override
     {
     }
-    virtual void LoadViewMatrix(const mat4&) override
+    void LoadViewMatrix(const mat4&) override
     {
     }
-    virtual void LoadProjectionMatrix(const mat4&) override
+    void LoadProjectionMatrix(const mat4&) override
     {
     }
-    virtual void DrawLine(const vec3& color, const vec3& from, const vec3& to) override
+    void DrawLine(const vec3& color, const vec3& from, const vec3& to) override
     {
     }
-    virtual mat4 PrepareMatrixToLoad(const mat4& m) override
+    mat4 PrepareMatrixToLoad(const mat4& m) override
     {
         return m;
     }
-    virtual std::vector<uint8> GetTextureData(uint32) const override
+    std::vector<uint8> GetTextureData(uint32) const override
     {
         return {};
     }
-    virtual const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override
+    const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override
     {
         return textureInfo_;
     }
-    virtual void TakeSnapshoot(const std::string&) const override
+    void TakeSnapshoot(const std::string&) const override
     {
     }
 

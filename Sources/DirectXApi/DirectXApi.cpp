@@ -870,14 +870,21 @@ void DirectXApi::LineModeRender()
 void DirectXApi::SetBlendFunction(GraphicsApi::BlendFunctionType)
 {
 }
-void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4> &)
+void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4>&)
 {
+    DEBUG_LOG("Not implmented.");
+}
+void DirectXApi::UpdateMesh(uint32, const GraphicsApi::MeshRawData&, const std::set<VertexBufferObjects>&)
+{
+    DEBUG_LOG("Not implmented.");
 }
 void DirectXApi::UpdateLineMesh(uint32, const GraphicsApi::LineMesh&)
 {
+    DEBUG_LOG("Not implmented.");
 }
 void DirectXApi::UpdateOffset(uint32, const std::vector<vec4> &)
 {
+    DEBUG_LOG("Not implmented.");
 }
 void DirectXApi::UpdateBlend(uint32, const std::vector<float> &)
 {

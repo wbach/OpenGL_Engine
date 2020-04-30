@@ -191,6 +191,7 @@ void TerrainTessellationRendererComponent::ReleaseTextures()
     {
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
     }
+    textures_.clear();
 }
 void TerrainTessellationRendererComponent::Update()
 {

@@ -59,9 +59,69 @@ HeightMap *TerrainMeshRendererComponent::GetHeightMap()
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
     UnSubscribe();
-    ReleaseModels();
-    textures_.erase(TerrainTextureType::heightmap);
-    //LoadHeightMap(newHeightMap);
+    UpdateMeshHeights();
+}
+
+void TerrainMeshRendererComponent::UpdateMeshHeights()
+{
+    if (config_.GetPartsCount())
+    {
+        UpdatePartialTerrainMeshes();
+    }
+    else
+    {
+        UpdateSingleTerrainMesh();
+    }
+}
+
+void TerrainMeshRendererComponent::UpdatePartialTerrainMeshes()
+{
+    auto model      = modelWrapper_.Get(LevelOfDetail::L1);
+    auto partsCount = *config_.GetPartsCount();
+
+    size_t heightMapIndex = 0;
+    for (uint32 j = 0; j < partsCount; ++j)
+    {
+        for (uint32 i = 0; i < partsCount; ++i)
+        {
+            auto &mesh     = model->GetMeshes()[i + j * partsCount];
+            auto &meshData = mesh.GetMeshDataRef();
+
+            size_t axis = 0;  // pos x, y, z
+            bool isHeightChangedInTerrainPart{false};
+            for (auto &pos : meshData.positions_)
+            {
+                if (axis > 2)
+                {
+                    axis = 0;
+                }
+
+                if (axis == 1)  // update y
+                {
+                    auto newHeightValue = heightMap_->GetImage().floatData[heightMapIndex++];
+                    if (not compare(pos, newHeightValue))
+                    {
+                        pos                          = newHeightValue;
+                        isHeightChangedInTerrainPart = true;
+                    }
+                }
+                ++axis;
+            }
+
+            if (isHeightChangedInTerrainPart and mesh.GetGraphicsObjectId())
+            {
+                componentContext_.gpuResourceLoader_.AddFunctionToCall([&]() {
+                    componentContext_.graphicsApi_.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
+                                                              {VertexBufferObjects::POSITION});
+                });
+            }
+        }
+    }
+}
+
+void TerrainMeshRendererComponent::UpdateSingleTerrainMesh()
+{
+    DEBUG_LOG("Not implemented yet.");
 }
 
 void TerrainMeshRendererComponent::CleanUp()
@@ -128,7 +188,8 @@ const std::unordered_map<TerrainTextureType, std::string> &TerrainMeshRendererCo
 
 void TerrainMeshRendererComponent::SetTexture(TerrainTextureType type, Texture *texture)
 {
-    textures_.insert({type, texture});
+    if (texture)
+        textures_.insert({type, texture});
 }
 void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
 {
@@ -190,8 +251,10 @@ void TerrainMeshRendererComponent::ReleaseTextures()
 {
     for (auto &texture : textures_)
     {
-        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
+        if (texture.second)
+            componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*texture.second);
     }
+    textures_.clear();
 }
 void TerrainMeshRendererComponent::Subscribe()
 {

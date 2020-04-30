@@ -35,6 +35,9 @@ public:
     void HeightMapChanged();
 
 private:
+    void UpdateMeshHeights();
+    void UpdatePartialTerrainMeshes();
+    void UpdateSingleTerrainMesh();
     void SetTexture(TerrainTextureType, Texture*);
     void UpdateTexture(TerrainTextureType, Texture*);
     void LoadHeightMap(const std::string& terrainFile);

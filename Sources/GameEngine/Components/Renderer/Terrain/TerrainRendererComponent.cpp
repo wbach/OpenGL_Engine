@@ -59,7 +59,6 @@ TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& compo
 
 TerrainRendererComponent::~TerrainRendererComponent()
 {
-    CleanUp();
 }
 
 void TerrainRendererComponent::CleanUp()

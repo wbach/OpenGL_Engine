@@ -30,6 +30,7 @@ public:
     inline float GetScaleFactor();
     inline const std::string& GetFileName() const;
     inline const std::vector<Mesh>& GetMeshes() const;
+    inline std::vector<Mesh>& GetMeshes();
     const std::vector<mat4>& GetBoneTransforms();
 
     inline bool operator==(const Model& q) const;
@@ -50,6 +51,10 @@ protected:
 };
 
 const std::vector<Mesh>& Model::GetMeshes() const
+{
+    return meshes_;
+}
+std::vector<Mesh> &Model::GetMeshes()
 {
     return meshes_;
 }

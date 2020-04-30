@@ -7,6 +7,7 @@
 #include <iostream>
 #include <optional>
 
+#include <filesystem>
 #include "Font.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GraphicsApi/MeshRawData.h"
@@ -15,7 +16,6 @@
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
-#include <filesystem>
 
 enum class ObjectType
 {
@@ -983,6 +983,37 @@ void OpenGLApi::UpdateMatrixes(uint32 objectId, const std::vector<mat4>& mat)
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * mat.size(), &mat[0], GL_STREAM_DRAW);
+}
+
+void UpdateVBO(OpenGLMesh& obj, VertexBufferObjects type, const std::vector<float>& data)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[type]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), &data[0], GL_STREAM_DRAW);
+}
+
+void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data,
+                           const std::set<VertexBufferObjects>& buffers)
+{
+    auto& obj = openGlMeshes_.at(objectId);
+
+    for (auto& buffer : buffers)
+    {
+        switch (buffer)
+        {
+            case VertexBufferObjects::POSITION:
+                obj.vertexCount = static_cast<uint32>(data.positions_.size());
+                UpdateVBO(obj, buffer, data.positions_);
+                break;
+            case VertexBufferObjects::NORMAL:
+                UpdateVBO(obj, buffer, data.normals_);
+                break;
+            case VertexBufferObjects::TANGENT:
+                UpdateVBO(obj, buffer, data.tangents_);
+                break;
+            default:
+                DEBUG_LOG("Update not implemented.");
+        }
+    }
 }
 void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mesh)
 {
