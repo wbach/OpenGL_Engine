@@ -8,7 +8,7 @@ namespace Components
 class SphereShape : public CollisionShape
 {
 public:
-    SphereShape(const ComponentContext& componentContext, GameObject& gameObject);
+    SphereShape(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Update();

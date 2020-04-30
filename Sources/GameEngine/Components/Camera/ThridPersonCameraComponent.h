@@ -10,7 +10,7 @@ namespace Components
 class ThridPersonCameraComponent : public BaseComponent
 {
 public:
-    ThridPersonCameraComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
 

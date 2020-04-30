@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "GameEngine/Components/BaseComponent.h"
+#include "TerrainComponentBase.h"
 #include "TerrainConfiguration.h"
 #include "TerrainTexturesTypes.h"
 
@@ -26,7 +27,7 @@ public:
     };
 
 public:
-    TerrainRendererComponent(const ComponentContext&, GameObject&);
+    TerrainRendererComponent(ComponentContext&, GameObject&);
     ~TerrainRendererComponent() override;
 
     void CleanUp() override;
@@ -34,24 +35,24 @@ public:
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     std::unordered_map<ParamName, Param> GetParams() const override;
 
-    TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
-    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
+    void HeightMapChanged();
     void UpdateTexture(TerrainTextureType, const std::string&);
+    TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
+
+    HeightMap* GetHeightMap();
     const TerrainConfiguration& GetTerrainConfiguration() const;
+    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
+
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();
     TerrainMeshRendererComponent* GetMeshTerrain();
-    const vec3& GetScale() const;
-    HeightMap* GetHeightMap();
-    void HeightMapChanged();
 
 private:
     void SetRendererType(RendererType);
 
 private:
     RendererType rendererType_;
-    std::unique_ptr<TerrainMeshRendererComponent> meshComponent_;
-    std::unique_ptr<TerrainTessellationRendererComponent> tesselationComponent_;
+    std::unique_ptr<TerrainComponentBase> terrainComponent_;
     bool functionsRegistered_;
 
 public:

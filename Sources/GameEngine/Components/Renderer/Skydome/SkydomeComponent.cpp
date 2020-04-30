@@ -8,7 +8,7 @@ namespace Components
 {
 ComponentsType SkydomeComponent::type = ComponentsType::Skydome;
 
-SkydomeComponent::SkydomeComponent(const ComponentContext& componentContext, GameObject& gameObject)
+SkydomeComponent::SkydomeComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Skydome, componentContext, gameObject)
     , model_(nullptr)
     , isSubscribed_(false)

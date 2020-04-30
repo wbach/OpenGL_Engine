@@ -19,7 +19,7 @@ const std::string TEXTURE_INDEX = "textureIndex";
 }  // namespace
 ComponentsType RendererComponent::type = ComponentsType::Renderer;
 
-RendererComponent::RendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
+RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(RendererComponent::type, componentContext, gameObject)
     , isSubscribed_(false)
     , textureIndex_(0)

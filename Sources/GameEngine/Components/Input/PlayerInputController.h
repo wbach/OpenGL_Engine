@@ -11,7 +11,7 @@ namespace Components
 class PlayerInputController : public BaseComponent
 {
 public:
-    PlayerInputController(const ComponentContext& componentContext, GameObject& gameObject);
+    PlayerInputController(ComponentContext& componentContext, GameObject& gameObject);
 
     void CleanUp() override;
     void ReqisterFunctions() override;

@@ -12,7 +12,7 @@ namespace Components
 class TreeRendererComponent : public BaseComponent
 {
 public:
-    TreeRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    TreeRendererComponent(ComponentContext&, GameObject&);
     TreeRendererComponent& SetTopModel(const std::string& filename,
                                        GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetBottomModel(const std::string& filename,

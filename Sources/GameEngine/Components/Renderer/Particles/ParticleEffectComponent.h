@@ -11,7 +11,7 @@ namespace Components
 class ParticleEffectComponent : public BaseComponent
 {
 public:
-    ParticleEffectComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject);
     ~ParticleEffectComponent() override;
 
     void CleanUp() override;

@@ -419,7 +419,7 @@ void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::v
 {
     auto object = CreateGameObjectInstance("Terrain", 1.f, vec2(0));
     resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
-    object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
+    object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =
         object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));

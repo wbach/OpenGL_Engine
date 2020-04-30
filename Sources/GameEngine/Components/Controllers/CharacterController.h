@@ -24,7 +24,7 @@ public:
         JUMP
     };
 
-    CharacterController(const ComponentContext& componentContext, GameObject& gameObject);
+    CharacterController(ComponentContext& componentContext, GameObject& gameObject);
 
     void CleanUp() override;
     void ReqisterFunctions() override;

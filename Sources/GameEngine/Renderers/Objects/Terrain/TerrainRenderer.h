@@ -19,12 +19,13 @@ class TerrainRenderer : public IRenderer
 {
 public:
     TerrainRenderer(RendererContext& context);
+    ~TerrainRenderer();
     // Loading lights itp to shader
-    virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
-    virtual void UnSubscribeAll();
-    virtual void ReloadShaders() override;
+    void Init() override;
+    void Subscribe(GameObject* gameObject) override;
+    void UnSubscribe(GameObject* gameObject) override;
+    void UnSubscribeAll();
+    void ReloadShaders() override;
 
 private:
     void Render(const Scene& scene, const Time& threadTime);

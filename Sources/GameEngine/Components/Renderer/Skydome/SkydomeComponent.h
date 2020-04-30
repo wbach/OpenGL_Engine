@@ -12,7 +12,7 @@ namespace Components
 class SkydomeComponent : public BaseComponent
 {
 public:
-    SkydomeComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    SkydomeComponent(ComponentContext&, GameObject&);
     ~SkydomeComponent() override;
 
     void CleanUp() override;

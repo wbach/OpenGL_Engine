@@ -11,7 +11,7 @@ const uint32 WATER_SCALE = 4000;
 
 ComponentsType WaterRendererComponent::type = ComponentsType::Water;
 
-WaterRendererComponent::WaterRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
+WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(WaterRendererComponent::type, componentContext, gameObject)
     , position_(0, -75, 0)
     , scale_(WATER_SCALE, WATER_SCALE, 1)

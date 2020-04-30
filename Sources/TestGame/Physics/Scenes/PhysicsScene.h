@@ -27,12 +27,10 @@ class PhysicsScene : public GameEngine::Scene
 {
 public:
     PhysicsScene();
-    virtual ~PhysicsScene() override;
-    virtual int Initialize() override;
-    virtual void PostInitialize() override
-    {
-    }
-    virtual int Update(float deltaTime) override;
+    ~PhysicsScene() override;
+    int Initialize() override;
+    void PostInitialize() override;
+    int Update(float deltaTime) override;
 
 private:
     void AddTerrain();

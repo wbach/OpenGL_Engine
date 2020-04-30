@@ -23,6 +23,14 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
 {
     __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
 }
+
+TerrainRenderer::~TerrainRenderer()
+{
+    if (objectId)
+    {
+        context_.graphicsApi_.DeleteObject(*objectId);
+    }
+}
 void TerrainRenderer::Init()
 {
     shader_.Init();
@@ -82,7 +90,7 @@ void TerrainRenderer::RenderSubscribers() const
     for (auto& sub : subscribes_)
     {
         const auto& tree   = sub.second->GetTree();
-        const auto& config = sub.second->GetConfig();
+        const auto& config = sub.second->GetConfiguration();
         DEBUG_LOG(std::to_string(config.GetPerTerrainBuffer().scale.value));
         context_.graphicsApi_.UpdateShaderBuffer(*perTerrainId, &config.GetPerTerrainBuffer());
         context_.graphicsApi_.BindShaderBuffer(*perTerrainId);

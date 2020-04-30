@@ -12,8 +12,10 @@
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
+#include "GameEngine/DebugTools/TerrainPainter/TerrainPainter.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -48,6 +50,8 @@ std::optional<uint32> transformChangedToSend_;
 
 std::atomic_bool cameraChangedToSend_;
 uint64 sendChangeTimeInterval{100};
+
+bool TERRAIN_PAINTING{false};
 }  // namespace
 
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::ThreadSync &threadSync)
@@ -91,40 +95,67 @@ void NetworkEditorInterface::AddObject(const std::string &path)
     DEBUG_LOG("AddObject not implemented : path=" + path);
 }
 
+void NetworkEditorInterface::Main()
+{
+    gateway_.Update();
+
+    NotifIfObjectIsChanged();
+
+    if (selectedGameObject_)
+    {
+        arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->GetWorldTransform().GetPosition(),
+                                                         selectedGameObject_->GetWorldTransform().GetRotation());
+    }
+    {
+        std::lock_guard<std::mutex> lk(dragObjectMutex_);
+        if (dragObject_)
+            dragObject_->Update();
+    }
+
+    {
+        std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+        if (terrainPainter_)
+            terrainPainter_->PaintHeightMap(scene_.inputManager_->GetMousePosition(), 10, 1);
+    }
+}
+
+#define REGISTER_COMMAND(X, Y) commands_.insert({X, [&](const EntryParameters &v) { Y(v); }})
+
 void NetworkEditorInterface::DefineCommands()
 {
-    // clang-format off
-    commands_.insert({"openFile", [&](const EntryParameters &v) { LoadSceneFromFile(v); }});
-    commands_.insert({"saveToFile", [&](const EntryParameters &v) { SaveSceneToFile(v); }});
-    commands_.insert({"getObjectList", [&](const EntryParameters &v) { GetObjectList(v); }});
-    commands_.insert({"getRunningStatus", [&](const EntryParameters &v) { GetRunningStatus(v); }});
-    commands_.insert({"transformReq", [&](const EntryParameters &v) { TransformReq(v); }});
-    commands_.insert({"getGameObjectComponentsListReq", [&](const EntryParameters &v) { GetGameObjectComponentsListReq(v); }});
-    commands_.insert({"setPosition", [&](const EntryParameters &v) { SetGameObjectPosition(v); }});
-    commands_.insert({"setRotation", [&](const EntryParameters &v) { SetGameObjectRotation(v); }});
-    commands_.insert({"setScale", [&](const EntryParameters &v) { SetGameObjectScale(v); }});
-    commands_.insert({"createGameObject", [&](const EntryParameters &v) { CreateGameObject(v); }});
-    commands_.insert({"deleteGameObject", [&](const EntryParameters& v) { DeleteGameObject(v); }});
-    commands_.insert({"renameGameObject", [&](const EntryParameters& v) { RenameGameObject(v);}});
-    commands_.insert({"addComponent", [&](const EntryParameters &v) { AddComponent(v); }});
-    commands_.insert({"startScene", [&](const EntryParameters &) { StartScene(); }});
-    commands_.insert({"stopScene", [&](const EntryParameters &) { StopScene(); }});
-    commands_.insert({"getComponentList", [&](const EntryParameters &v) { GetComponentsList(v); }});
-    commands_.insert({"getComponentParams", [&](const EntryParameters &v) { GetComponentParams(v); }});
-    commands_.insert({"getCamera", [&](const EntryParameters &v) { GetCamera(v); }});
-    commands_.insert({"modifyComponentReq", [&](const EntryParameters &v) { ModifyComponentReq(v); }});
-    commands_.insert({"createGameObjectWithModel", [&](const EntryParameters &v) { CreateGameObjectWithModel(v); }});
-    commands_.insert({"loadPrefab", [&](const EntryParameters& v) { LoadPrefab(v); }});
-    commands_.insert({"reloadScene", [&](const EntryParameters& v) { ReloadScene(v); } });
-    commands_.insert({"clearAll", [&](const EntryParameters& v) { ClearAll(v); } });
-    commands_.insert({"clearAllGameObjects", [&](const EntryParameters& v) { ClearAllGameObjects(v); } });
-    commands_.insert({"setPhysicsVisualization", [&](const EntryParameters& v) { SetPhysicsVisualization(v); } });
-    commands_.insert({"selectGameObject", [&](const EntryParameters& v) { SelectGameObject(v); } });
-    commands_.insert({"goCameraToObject", [&](const EntryParameters& v) { GoCameraToObject(v); } });
-    commands_.insert({"exit", [&](const EntryParameters&) { scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT)); }});
+    REGISTER_COMMAND("openFile", LoadSceneFromFile);
+    REGISTER_COMMAND("saveToFile", SaveSceneToFile);
+    REGISTER_COMMAND("getObjectList", GetObjectList);
+    REGISTER_COMMAND("getRunningStatus", GetRunningStatus);
+    REGISTER_COMMAND("transformReq", TransformReq);
+    REGISTER_COMMAND("getGameObjectComponentsListReq", GetGameObjectComponentsListReq);
+    REGISTER_COMMAND("setPosition", SetGameObjectPosition);
+    REGISTER_COMMAND("setRotation", SetGameObjectRotation);
+    REGISTER_COMMAND("setScale", SetGameObjectScale);
+    REGISTER_COMMAND("createGameObject", CreateGameObject);
+    REGISTER_COMMAND("deleteGameObject", DeleteGameObject);
+    REGISTER_COMMAND("renameGameObject", RenameGameObject);
+    REGISTER_COMMAND("renameGameObject", AddComponent);
+    REGISTER_COMMAND("startScene", StartScene);
+    REGISTER_COMMAND("stopScene", StopScene);
+    REGISTER_COMMAND("getComponentList", GetComponentsList);
+    REGISTER_COMMAND("getComponentParams", GetComponentParams);
+    REGISTER_COMMAND("getCamera", GetCamera);
+    REGISTER_COMMAND("modifyComponentReq", ModifyComponentReq);
+    REGISTER_COMMAND("createGameObjectWithModel", CreateGameObjectWithModel);
+    REGISTER_COMMAND("loadPrefab", LoadPrefab);
+    REGISTER_COMMAND("reloadScene", ReloadScene);
+    REGISTER_COMMAND("clearAll", ClearAll);
+    REGISTER_COMMAND("clearAllGameObjects", ClearAllGameObjects);
+    REGISTER_COMMAND("setPhysicsVisualization", SetPhysicsVisualization);
+    REGISTER_COMMAND("selectGameObject", SelectGameObject);
+    REGISTER_COMMAND("goCameraToObject", GoCameraToObject);
+    REGISTER_COMMAND("exit", Exit);
+
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
-    // clang-format on
 }
+
+#undef REGISTER_COMMAND
 
 void NetworkEditorInterface::SetupCamera()
 {
@@ -150,25 +181,7 @@ void NetworkEditorInterface::StartGatway()
         Network::MessageTypes::Text,
         std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
-    threadId_ = threadSync_.Subscribe(
-        [&](float) {
-            gateway_.Update();
-
-            NotifIfObjectIsChanged();
-
-            if (selectedGameObject_)
-            {
-                arrowsIndicatorTransform_.SetPositionAndRotation(
-                    selectedGameObject_->GetWorldTransform().GetPosition(),
-                    selectedGameObject_->GetWorldTransform().GetRotation());
-            }
-            {
-                std::lock_guard<std::mutex> lk(dragObjectMutex_);
-                if (dragObject_)
-                    dragObject_->Update();
-            }
-        },
-        "NetworkEditorFps");
+    threadId_ = threadSync_.Subscribe([&](float) { Main(); }, "NetworkEditorFps");
 }
 
 void NetworkEditorInterface::PrepareDebugModels()
@@ -223,8 +236,22 @@ void NetworkEditorInterface::KeysSubscribtions()
         if (selectedGameObject_)
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                       scene_.renderersManager_->GetProjection());
+
+            auto terrainComponent = selectedGameObject_->GetComponent<Components::TerrainRendererComponent>();
+            if (terrainComponent)
+            {
+                if (TERRAIN_PAINTING)
+                {
+                    terrainPainter_ = std::make_unique<TerrainPainter>(
+                        scene_.camera, scene_.renderersManager_->GetProjection(),
+                        scene_.displayManager_->GetWindowSize(), scene_.componentController_);
+                }
+            }
+            else
+            {
+                dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
+                                                           scene_.renderersManager_->GetProjection());
+            }
 
             if (not lastSelectedGameObject or *lastSelectedGameObject != selectedGameObject_->GetId())
             {
@@ -241,8 +268,14 @@ void NetworkEditorInterface::KeysSubscribtions()
         }
     });
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() {
-        std::lock_guard<std::mutex> lk(dragObjectMutex_);
-        dragObject_ = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(dragObjectMutex_);
+            dragObject_.reset(nullptr);
+        }
+        {
+            std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+            terrainPainter_.reset(nullptr);
+        }
     });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
@@ -878,6 +911,16 @@ void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::Entr
     cameraEditor->LookAt(gameObject->GetWorldTransform().GetPosition());
 }
 
+void NetworkEditorInterface::StartScene(const NetworkEditorInterface::EntryParameters &)
+{
+    StartScene();
+}
+
+void NetworkEditorInterface::StopScene(const NetworkEditorInterface::EntryParameters &)
+{
+    StopScene();
+}
+
 void NetworkEditorInterface::StartScene()
 {
     if (scene_.start_.load())
@@ -977,6 +1020,11 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
         gateway_.Send(userId_, msg);
     }
     scene_.ClearGameObjects();
+}
+
+void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)
+{
+    scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT));
 }
 
 NetworkEditorInterface::EntryParameters NetworkEditorInterface::CreateParamMap(const std::vector<std::string> &param)

@@ -9,7 +9,7 @@ namespace Components
 {
 ComponentsType SphereShape::type = ComponentsType::SphereShape;
 
-SphereShape::SphereShape(const ComponentContext& componentContext, GameObject& gameObject)
+SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(ComponentsType::SphereShape, componentContext, gameObject)
     , size_(1.f)
 {

@@ -5,10 +5,13 @@
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
 
 #include <Logger/Log.h>
+
+#include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
@@ -18,8 +21,9 @@ const uint32 RECURSION_COUNT{200};
 const uint32 RAY_RANGE{600};
 }  // namespace
 
-TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize,
-                               const Components::ComponentController& componentController)
+TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection,
+                                       const vec2ui& windowSize,
+                                       const Components::ComponentController& componentController)
     : camera_(camera)
     , projection_(projection)
     , windowSize_(windowSize)
@@ -75,13 +79,21 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
 
     if (terrain)
     {
-        TerrainHeightGetter terrainHeightGetter(terrain->GetTerrainConfiguration(), *terrain->GetHeightMap(),
-                                                terrain->GetParentGameObject().GetTransform().GetPosition());
+        if (not terrain->GetHeightMap())
+        {
+            ERROR_LOG("No height map in terrain.");
+        }
 
-        auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
+        if (terrain->GetHeightMap())
+        {
+            TerrainHeightGetter terrainHeightGetter(terrain->GetTerrainConfiguration(), *terrain->GetHeightMap(),
+                                                    terrain->GetParentGameObject().GetTransform().GetPosition());
 
-        if (height)
-            return (testPoint.y <= *height);
+            auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
+
+            if (height)
+                return (testPoint.y <= *height);
+        }
     }
     return false;
 }

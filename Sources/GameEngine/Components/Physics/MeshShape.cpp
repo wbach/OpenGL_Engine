@@ -13,7 +13,7 @@ namespace Components
 {
 ComponentsType MeshShape::type = ComponentsType::MeshShape;
 
-MeshShape::MeshShape(const ComponentContext& componentContext, GameObject& gameObject)
+MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(ComponentsType::MeshShape, componentContext, gameObject)
     , size_(1.f)
     , model_(nullptr)

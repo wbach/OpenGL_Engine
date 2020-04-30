@@ -57,7 +57,7 @@ struct ComponentContext
     IResourceManager& resourceManager_;
     ComponentController& componentController_;
     Renderer::RenderersManager& renderersManager_;
-    ComponentIdsMap ids_;
+    //ComponentIdsMap ids_;
 };
 }  // namespace Components
 }  // namespace GameEngine

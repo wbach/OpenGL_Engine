@@ -14,7 +14,7 @@ namespace Components
 class RendererComponent : public BaseComponent
 {
 public:
-    RendererComponent(const ComponentContext&, GameObject&);
+    RendererComponent(ComponentContext&, GameObject&);
     ~RendererComponent();
 
     void CleanUp() override;

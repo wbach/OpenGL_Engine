@@ -9,7 +9,7 @@ namespace Components
 {
 ComponentsType CapsuleShape::type = ComponentsType::CapsuleShape;
 
-CapsuleShape::CapsuleShape(const ComponentContext& componentContext, GameObject& gameObject)
+CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(CapsuleShape::type, componentContext, gameObject)
 {
 }

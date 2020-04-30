@@ -16,7 +16,7 @@ namespace Components
 class BaseComponent : public IComponent
 {
 public:
-    BaseComponent(ComponentsType, const ComponentContext&, GameObject&);
+    BaseComponent(ComponentsType, ComponentContext&, GameObject&);
     ~BaseComponent() override;
 
     inline ComponentsType GetType() const override;
@@ -35,7 +35,7 @@ protected:
 protected:
     ComponentsType type_;
     GameObject& thisObject_;
-    ComponentContext componentContext_;
+    ComponentContext& componentContext_;
 
 private:
     bool isActive_;

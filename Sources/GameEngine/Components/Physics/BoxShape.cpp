@@ -9,7 +9,7 @@ namespace Components
 {
 ComponentsType BoxShape::type = ComponentsType::BoxShape;
 
-BoxShape::BoxShape(const ComponentContext& componentContext, GameObject& gameObject)
+BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(ComponentsType::BoxShape, componentContext, gameObject)
     , size_(1.f)
 {

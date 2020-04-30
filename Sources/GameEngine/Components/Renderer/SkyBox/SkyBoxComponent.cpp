@@ -8,7 +8,7 @@ namespace Components
 {
 ComponentsType SkyBoxComponent::type = ComponentsType::SkyBox;
 
-SkyBoxComponent::SkyBoxComponent(const ComponentContext& componentContext, GameObject& gameObject)
+SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::SkyBox, componentContext, gameObject)
     , isSubscribed_(false)
 {

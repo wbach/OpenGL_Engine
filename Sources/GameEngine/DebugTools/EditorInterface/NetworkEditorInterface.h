@@ -16,6 +16,7 @@ namespace GameEngine
 class Scene;
 class GameObject;
 class DragObject;
+class TerrainPainter;
 
 class NetworkEditorInterface : public IEditorInterface
 {
@@ -26,6 +27,7 @@ public:
     virtual void AddObject(const std::string&) override;
 
 private:
+    void Main();
     typedef std::unordered_map<std::string, std::string> EntryParameters;
     void DefineCommands();
     void SetupCamera();
@@ -65,13 +67,17 @@ private:
     void SetPhysicsVisualization(const EntryParameters&);
     void SelectGameObject(const EntryParameters&);
     void GoCameraToObject(const EntryParameters&);
-    void StartScene();
-    void StopScene();
+    void StartScene(const EntryParameters&);
+    void StopScene(const EntryParameters&);
     void ModifyComponentReq(const EntryParameters&);
     void GetRunningStatus(const EntryParameters&);
     void ReloadScene(const EntryParameters&);
     void ClearAll(const EntryParameters&);
     void ClearAllGameObjects(const EntryParameters&);
+    void Exit(const EntryParameters&);
+
+    void StartScene();
+    void StopScene();
 
     EntryParameters CreateParamMap(const std::vector<std::string>&);
     std::tuple<std::string, std::string> GetParamFromCommand(const std::string&);
@@ -97,7 +103,6 @@ private:
     uint32 cameraLockUnlockKeySubscribtion_;
     GameObject* selectedGameObject_;
     uint32 userId_;
-    std::unique_ptr<DragObject> dragObject_;
     uint32 threadId_;
 
     Utils::Timer cameraTimer_;
@@ -107,5 +112,8 @@ private:
     bool running_;
 
     std::mutex dragObjectMutex_;
+    std::unique_ptr<DragObject> dragObject_;
+    std::mutex terrainPainterMutex_;
+    std::unique_ptr<TerrainPainter> terrainPainter_;
 };
 }  // namespace GameEngine

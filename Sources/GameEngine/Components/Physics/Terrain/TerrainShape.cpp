@@ -19,7 +19,7 @@ namespace Components
 {
 ComponentsType TerrainShape::type = ComponentsType::TerrainShape;
 
-TerrainShape::TerrainShape(const ComponentContext& componentContext, GameObject& gameObject)
+TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(ComponentsType::TerrainShape, componentContext, gameObject)
     , terrainHeightGetter_(nullptr)
     , terrainRendererComponent_(nullptr)
@@ -47,7 +47,7 @@ void TerrainShape::OnAwake()
     if (terrainRendererComponent_)
     {
         LoadHeightMap(heightMapFile_);
-        const auto& scale = terrainRendererComponent_->GetScale();
+        const auto& scale = terrainRendererComponent_->GetTerrainConfiguration().GetScale();
         const auto& data  = heightMap_->GetImage().floatData;
         collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, scale);
     }

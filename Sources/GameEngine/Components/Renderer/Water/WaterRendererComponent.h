@@ -12,7 +12,7 @@ namespace Components
 class WaterRendererComponent : public BaseComponent
 {
 public:
-    WaterRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    WaterRendererComponent(ComponentContext&, GameObject&);
     ~WaterRendererComponent() override;
 
     void CleanUp() override;

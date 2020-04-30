@@ -9,7 +9,7 @@ namespace Components
 {
 ComponentsType ThridPersonCameraComponent::type = ComponentsType::ThridPersonCamera;
 
-ThridPersonCameraComponent::ThridPersonCameraComponent(const ComponentContext& componentContext, GameObject& gameObject)
+ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , zoomSpeed_(0.1f)
     , offset_(0, 1.8f, 0)

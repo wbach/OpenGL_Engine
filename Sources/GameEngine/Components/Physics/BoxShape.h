@@ -8,7 +8,7 @@ namespace Components
 class BoxShape : public CollisionShape
 {
 public:
-    BoxShape(const ComponentContext& componentContext, GameObject& gameObject);
+    BoxShape(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Update();

@@ -13,7 +13,7 @@ namespace Components
 class SkyBoxComponent : public BaseComponent
 {
 public:
-    SkyBoxComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    SkyBoxComponent(ComponentContext&, GameObject&);
     ~SkyBoxComponent() override;
 
     void CleanUp() override;

@@ -185,12 +185,16 @@ int PhysicsScene::Initialize()
     return 0;
 }
 
+void PhysicsScene::PostInitialize()
+{
+}
+
 void PhysicsScene::AddTerrain()
 {
     auto textures = CreateTerrainTexturesMap();
     auto object   = CreateGameObjectInstance(1.f, vec2(0));
     resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
-    object->AddComponent<Components::TerrainMeshRendererComponent>().LoadTextures(textures);
+    object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =
         object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));

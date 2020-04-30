@@ -15,7 +15,7 @@ typedef std::unordered_map<std::string, mat4> Pose;
 class Animator : public BaseComponent
 {
 public:
-    Animator(const ComponentContext&, GameObject&);
+    Animator(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
 
@@ -57,5 +57,5 @@ protected:
 public:
     static ComponentsType type;
 };
-}  // Components
-}  // GameEngine
+}  // namespace Components
+}  // namespace GameEngine

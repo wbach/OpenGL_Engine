@@ -44,7 +44,7 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
                 auto heightMap = RenderTexture(*iter->second->GetHeightMap());
                 if (heightMap)
                 {
-                    iter->second->SetTexture(std::move(heightMap));
+                    iter->second->SetNormalMap(std::move(heightMap));
                 }
             }
             else
@@ -52,7 +52,7 @@ void TerrainNormalMapRenderer::Render(const Scene &, const Time &)
                 auto heightMap = RenderOnCpu(*iter->second->GetHeightMap());
                 if (heightMap)
                 {
-                    iter->second->SetTexture(std::move(heightMap));
+                    iter->second->SetNormalMap(std::move(heightMap));
                 }
             }
         }

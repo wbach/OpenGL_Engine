@@ -10,7 +10,7 @@ namespace Components
 {
 ComponentsType PlayerInputController::type = ComponentsType::PlayerInputController;
 
-PlayerInputController::PlayerInputController(const ComponentContext& componentContext, GameObject& gameObject)
+PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , animator_{nullptr}
     , characterController_{nullptr}

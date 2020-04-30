@@ -1,6 +1,6 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "TerrainComponentBase.h"
 #include "TerrainConfiguration.h"
 #include "TerrainQuadTree.h"
 #include "TerrainTexturesTypes.h"
@@ -11,52 +11,29 @@ class HeightMap;
 
 namespace Components
 {
-class TerrainTessellationRendererComponent : public BaseComponent
+class TerrainTessellationRendererComponent : public TerrainComponentBase
 {
 public:
-    TerrainTessellationRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    TerrainTessellationRendererComponent(ComponentContext&, GameObject&);
     ~TerrainTessellationRendererComponent() override;
 
-    void CleanUp() override;
-    void ReqisterFunctions() override;
+    virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
 
-    TerrainTessellationRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
-    const TerrainTexturesMap& GetTextures() const;
-    void UpdateTexture(TerrainTextureType, const std::string&);
-    Texture* GetTexture(TerrainTextureType type);
-    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
+    void CleanUp() override;
     const TerrainQuadTree& GetTree() const;
-    const TerrainConfiguration& GetConfig() const;
     Texture* GetNormalMap() const;
-    HeightMap* GetHeightMap() const;
-    void SetTexture(std::unique_ptr<Texture>);
-    const vec3& GetScale() const;
+    void SetNormalMap(std::unique_ptr<Texture>);
     void HeightMapChanged();
 
 private:
+    void LoadHeightMap(const std::string&) override;
+    void UpdateHeightMap(const std::string&) override;
     void Update();
-    void SetTexture(TerrainTextureType, Texture*);
-    void UpdateTexture(TerrainTextureType type, Texture *texture);
-    void LoadHeightMap(const std::string& hightMapFile);
-    void Subscribe();
-    void UnSubscribe();
 
 private:
-    void ReleaseTextures();
-
-private:
-    TerrainConfiguration terrainConfiguration_;
     TerrainQuadTree terrainQuadTree_;
-
-    TerrainTexturesMap textures_;
-    std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
     std::unique_ptr<Texture> normalMap_;
-    HeightMap* heightMap_;
     float normalStrength_;
-    bool isSubscribed_;
-
-public:
-    static ComponentsType type;
 };
 
 }  // namespace Components

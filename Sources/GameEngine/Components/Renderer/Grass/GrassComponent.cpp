@@ -10,7 +10,7 @@ namespace Components
 {
 ComponentsType GrassRendererComponent::type = ComponentsType::Grass;
 
-GrassRendererComponent::GrassRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
+GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Grass, componentContext, gameObject)
     , isSubscribed_(false)
 {

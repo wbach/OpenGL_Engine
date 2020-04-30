@@ -10,7 +10,7 @@ namespace Components
 class MeshShape : public CollisionShape
 {
 public:
-    MeshShape(const ComponentContext& componentContext, GameObject& gameObject);
+    MeshShape(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Update();

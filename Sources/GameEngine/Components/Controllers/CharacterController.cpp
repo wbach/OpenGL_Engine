@@ -12,7 +12,7 @@ const float DEFAULT_RUN_SPEED  = Utils::KmToMs(15.f);
 const float DEFAULT_TURN_SPEED = 160.f;
 const float DEFAULT_JUMP_POWER = 25.f;
 
-CharacterController::CharacterController(const ComponentContext& componentContext, GameObject& gameObject)
+CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , rigidbody_{nullptr}
     , jumpPower_(DEFAULT_JUMP_POWER)

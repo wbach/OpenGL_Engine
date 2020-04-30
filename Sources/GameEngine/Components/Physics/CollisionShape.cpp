@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-CollisionShape::CollisionShape(ComponentsType type, const ComponentContext& componentContext, GameObject& gameObject)
+CollisionShape::CollisionShape(ComponentsType type, ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , collisionShapeId_(0)
     , positionOffset_(0.f)

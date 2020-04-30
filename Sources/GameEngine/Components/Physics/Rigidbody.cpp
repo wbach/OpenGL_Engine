@@ -16,7 +16,7 @@ namespace Components
 {
 ComponentsType Rigidbody::type = ComponentsType::Rigidbody;
 
-Rigidbody::Rigidbody(const ComponentContext& componentContext, GameObject& gameObject)
+Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Rigidbody, componentContext, gameObject)
     , collisionShape_(nullptr)
     , mass_(1.0f)

@@ -17,7 +17,7 @@ namespace Components
 class TerrainShape : public CollisionShape
 {
 public:
-    TerrainShape(const ComponentContext& componentContext, GameObject& gameObject);
+    TerrainShape(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
 

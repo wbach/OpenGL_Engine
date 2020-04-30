@@ -12,7 +12,7 @@ namespace Components
 {
 ComponentsType Animator::type = ComponentsType::Animator;
 
-Animator::Animator(const ComponentContext& componentContext, GameObject& gameObject)
+Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Animator, componentContext, gameObject)
     , rootJoint_(nullptr)
     , currentTime_(0.f)

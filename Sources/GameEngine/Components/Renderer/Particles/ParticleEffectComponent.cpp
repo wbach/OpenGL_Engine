@@ -12,7 +12,7 @@ namespace Components
 {
 ComponentsType ParticleEffectComponent::type = ComponentsType::ParticleEffect;
 
-ParticleEffectComponent::ParticleEffectComponent(const ComponentContext& componentContext, GameObject& gameObject)
+ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::ParticleEffect, componentContext, gameObject)
     , texture_(nullptr)
     , particlesSpeed_(10.f)

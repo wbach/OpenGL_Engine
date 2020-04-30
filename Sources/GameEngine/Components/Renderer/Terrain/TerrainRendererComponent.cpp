@@ -14,13 +14,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const vec3 DEFAULT_SCALE(1);
-const TerrainConfiguration DEFAULT_TERRAIN_CONFIG;
-std::unordered_map<TerrainTextureType, std::string> defualtEmptyTexturesMap;
-}  // namespace
-
 ComponentsType TerrainRendererComponent::type = ComponentsType::TerrainRenderer;
 
 TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
@@ -36,7 +29,7 @@ TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
     return TerrainRendererComponent::RendererType::Mesh;
 }
 
-TerrainRendererComponent::TerrainRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
+TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , functionsRegistered_(false)
 {
@@ -63,93 +56,53 @@ TerrainRendererComponent::~TerrainRendererComponent()
 
 void TerrainRendererComponent::CleanUp()
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            meshComponent_->CleanUp();
-            break;
-        case RendererType::Tessellation:
-            tesselationComponent_->CleanUp();
-            break;
-    }
+    terrainComponent_->CleanUp();
 }
 
 TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
-    const std::unordered_map<TerrainTextureType, std::string>& texutres)
+    const std::unordered_map<TerrainTextureType, std::string>& textures)
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            meshComponent_->LoadTextures(texutres);
-            return *this;
-        case RendererType::Tessellation:
-            tesselationComponent_->LoadTextures(texutres);
-            return *this;
-    }
-
+    terrainComponent_->LoadTextures(textures);
     return *this;
 }
 
 const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererComponent::GetTextureFileNames() const
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            return meshComponent_->GetTextureFileNames();
-        case RendererType::Tessellation:
-            return tesselationComponent_->GetTextureFileNames();
-    }
-
-    ERROR_LOG("RendererType unkonown, return default.");
-    return defualtEmptyTexturesMap;
+    return terrainComponent_->GetTextureFileNames();
 }
 
 void TerrainRendererComponent::UpdateTexture(TerrainTextureType textureType, const std::string& texture)
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            meshComponent_->UpdateTexture(textureType, texture);
-            break;
-        case RendererType::Tessellation:
-            tesselationComponent_->UpdateTexture(textureType, texture);
-            break;
-    }
+    terrainComponent_->UpdateTexture(textureType, texture);
 }
 
 const TerrainConfiguration& TerrainRendererComponent::GetTerrainConfiguration() const
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            return meshComponent_->GetConfiguration();
-        case RendererType::Tessellation:
-            return tesselationComponent_->GetConfig();
-    }
-
-    ERROR_LOG("RendererType unkonown, return default terrain config.");
-    return DEFAULT_TERRAIN_CONFIG;
+    return terrainComponent_->GetConfiguration();
 }
 
 void TerrainRendererComponent::SetRendererType(TerrainRendererComponent::RendererType type)
 {
+    if (terrainComponent_)
+    {
+        terrainComponent_->CleanUp();
+    }
+
     switch (type)
     {
         case RendererType::Mesh:
             DEBUG_LOG("Set RendererType::Mesh");
-            tesselationComponent_.reset();
-            meshComponent_ = std::make_unique<TerrainMeshRendererComponent>(componentContext_, thisObject_);
-            if (functionsRegistered_)
-                meshComponent_->ReqisterFunctions();
+            terrainComponent_ = std::make_unique<TerrainMeshRendererComponent>(componentContext_, thisObject_);
             break;
         case RendererType::Tessellation:
             DEBUG_LOG("Set RendererType::Tessellation");
-            meshComponent_.reset();
-            tesselationComponent_ =
-                std::make_unique<TerrainTessellationRendererComponent>(componentContext_, thisObject_);
-            if (functionsRegistered_)
-                tesselationComponent_->ReqisterFunctions();
+            terrainComponent_ = std::make_unique<TerrainTessellationRendererComponent>(componentContext_, thisObject_);
             break;
+    }
+
+    if (functionsRegistered_)
+    {
+        ReqisterFunctions();
     }
     rendererType_ = type;
 }
@@ -167,7 +120,7 @@ TerrainTessellationRendererComponent* TerrainRendererComponent::GetTesselationTe
         return nullptr;
     }
 
-    return tesselationComponent_.get();
+    return static_cast<TerrainTessellationRendererComponent*>(terrainComponent_.get());
 }
 
 TerrainMeshRendererComponent* TerrainRendererComponent::GetMeshTerrain()
@@ -178,47 +131,17 @@ TerrainMeshRendererComponent* TerrainRendererComponent::GetMeshTerrain()
         return nullptr;
     }
 
-    return meshComponent_.get();
-}
-
-const vec3& TerrainRendererComponent::GetScale() const
-{
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            return meshComponent_->GetConfiguration().GetScale();
-        case RendererType::Tessellation:
-            return tesselationComponent_->GetScale();
-    }
-
-    ERROR_LOG("RendererType unkonown, return default.");
-    return DEFAULT_SCALE;
+    return static_cast<TerrainMeshRendererComponent*>(terrainComponent_.get());
 }
 
 HeightMap* TerrainRendererComponent::GetHeightMap()
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            return meshComponent_->GetHeightMap();
-        case RendererType::Tessellation:
-            return tesselationComponent_->GetHeightMap();
-    }
-
-    return nullptr;
+    return terrainComponent_->GetHeightMap();
 }
 
 void TerrainRendererComponent::HeightMapChanged()
 {
-    switch (rendererType_)
-    {
-        case RendererType::Mesh:
-            meshComponent_->HeightMapChanged();
-            break;
-        case RendererType::Tessellation:
-            tesselationComponent_->HeightMapChanged();
-            break;
-    }
+    terrainComponent_->HeightMapChanged();
 }
 
 void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
@@ -254,16 +177,10 @@ std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
 
 void TerrainRendererComponent::ReqisterFunctions()
 {
-    switch (rendererType_)
+    for (auto f : terrainComponent_->FunctionsToRegister())
     {
-        case RendererType::Mesh:
-            meshComponent_->ReqisterFunctions();
-            break;
-        case RendererType::Tessellation:
-            tesselationComponent_->ReqisterFunctions();
-            break;
+        RegisterFunction(f.first, f.second);
     }
-
     functionsRegistered_ = true;
 }
 }  // namespace Components

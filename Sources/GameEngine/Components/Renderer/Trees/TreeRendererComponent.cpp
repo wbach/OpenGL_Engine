@@ -11,7 +11,7 @@ namespace Components
 {
 ComponentsType TreeRendererComponent::type = ComponentsType::TreeRenderer;
 
-TreeRendererComponent::TreeRendererComponent(const ComponentContext& componentContext, GameObject& gameObject)
+TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::TreeRenderer, componentContext, gameObject)
     , isSubsribed_(false)
 {

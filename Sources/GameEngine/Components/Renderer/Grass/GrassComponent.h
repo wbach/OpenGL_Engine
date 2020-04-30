@@ -9,7 +9,7 @@ namespace Components
 class GrassRendererComponent : public BaseComponent
 {
 public:
-    GrassRendererComponent(const ComponentContext& componentContext, GameObject& gameObject);
+    GrassRendererComponent(ComponentContext&, GameObject&);
     ~GrassRendererComponent();
 
     void CleanUp() override;
