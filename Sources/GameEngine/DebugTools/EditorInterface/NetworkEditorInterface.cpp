@@ -115,7 +115,14 @@ void NetworkEditorInterface::Main()
     {
         std::lock_guard<std::mutex> lk(terrainPainterMutex_);
         if (terrainPainter_)
+        {
             terrainPainter_->PaintHeightMap(scene_.inputManager_->GetMousePosition(), 10, 1);
+            //auto position = terrainPainter_->GetMouseTerrainPosition(scene_.inputManager_->GetMousePosition());
+            //if (selectedGameObject_)
+            //{
+            //    SetGameObjectPosition(*selectedGameObject_, *position);
+            //}
+        }
     }
 }
 

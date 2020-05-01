@@ -2,10 +2,10 @@
 
 #include <chrono>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <filesystem>
 
 CLogger& CLogger::Instance()
 {
@@ -165,4 +165,9 @@ std::string CLogger::GetLog()
     auto l = logs.front();
     logs.pop_front();
     return l;
+}
+
+std::string FileNameLogRepresentation(char* filename)
+{
+    return std::filesystem::path(filename).filename().string();
 }

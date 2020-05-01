@@ -45,11 +45,12 @@ private:
     std::vector<std::string> prefixes_;
     std::string prefixTotal_;
 };
+std::string FileNameLogRepresentation(char*);
 // clang-format off
 #define LOG_ADD_PREFIX(x) do{CLogger::Instance().AddPrefix(x); } while(0)
 #define LOG_CLEAR_PREFIXES() do{CLogger::Instance().ClearPrefixes(); } while(0)
 #define LogToFile(x)// do {CLogger::Instance().LoggToFileOnly(x);} while(0)
-#define DEBUG_LOG(x) do {CLogger::Instance().DebugLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
-#define WARNING_LOG(x) do {CLogger::Instance().WarningLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
-#define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
+#define DEBUG_LOG(x) do {CLogger::Instance().DebugLog(FileNameLogRepresentation(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
+#define WARNING_LOG(x) do {CLogger::Instance().WarningLog(FileNameLogRepresentation(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
+#define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(FileNameLogRepresentation(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
 // clang-format on

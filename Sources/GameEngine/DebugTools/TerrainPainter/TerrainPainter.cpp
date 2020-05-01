@@ -1,8 +1,9 @@
 #include "TerrainPainter.h"
 
+#include <Logger/Log.h>
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -25,9 +26,12 @@ void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float height, flo
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
 
     if (terrainPoint)
-        DEBUG_LOG("Terrrain point : " + std::to_string(terrainPoint->pointOnTerrain));
-    //if (not terrainPoint)
-        return;
+    {
+        DEBUG_LOG("Terrrain heightMapPoint : " + std::to_string(terrainPoint->pointOnHeightMap));
+        DEBUG_LOG("Terrrain worldPoint : " + std::to_string(terrainPoint->pointOnTerrain));
+    }
+    // if (not terrainPoint)
+    return;
 
     auto heightMap = terrainPoint->terrainComponent.GetHeightMap();
     if (not heightMap)
@@ -35,9 +39,18 @@ void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float height, flo
         return;
     }
 
-   auto succes = terrainPoint->terrainComponent.GetHeightMap()->SetHeight(terrainPoint->pointOnTerrain, height);
+    auto succes = terrainPoint->terrainComponent.GetHeightMap()->SetHeight(terrainPoint->pointOnHeightMap, height);
 
-   if (succes)
-       terrainPoint->terrainComponent.HeightMapChanged();
+    if (succes)
+        terrainPoint->terrainComponent.HeightMapChanged();
+}
+std::optional<vec3> TerrainPainter::GetMouseTerrainPosition(const vec2& mousePosition)
+{
+    auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
+
+    if (terrainPoint)
+        return terrainPoint->pointOnTerrain;
+
+    return std::nullopt;
 }
 }  // namespace GameEngine

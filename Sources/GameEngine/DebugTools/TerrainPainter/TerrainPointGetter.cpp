@@ -18,7 +18,7 @@ namespace GameEngine
 namespace
 {
 const uint32 RECURSION_COUNT{200};
-const uint32 RAY_RANGE{600};
+const uint32 RAY_RANGE{100};
 }  // namespace
 
 TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection,
@@ -120,21 +120,26 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
         if (not terrain)
             return std::nullopt;
 
-        DEBUG_LOG("Result : " + std::to_string(pointOnRay));
-
-        vec2ui pointOnTerrain(static_cast<uint32>(pointOnRay.x), static_cast<uint32>(pointOnRay.z));
-        TerrainPoint result{pointOnTerrain, *terrain};
+        auto pointOnHeightMap = CastToTerrainSpace(*terrain, pointOnRay);
+        TerrainPoint result{ pointOnRay, pointOnHeightMap,  *terrain};
         return result;
     }
     if (IntersectionInRange(start, half, ray))
     {
-        DEBUG_LOG("first part inter");
         return BinarySearch(count + 1, start, half, ray);
     }
     else
     {
-        DEBUG_LOG("sec part inter");
         return BinarySearch(count + 1, half, finish, ray);
     }
+}
+vec2ui TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3& point)
+{
+    vec2ui result;
+    auto halfScale = terrain.GetTerrainConfiguration().GetScale() / 2.f;
+    auto terrainPosition = terrain.GetParentGameObject().GetTransform().GetPosition();
+    result.x = static_cast<uint32>(point.x + halfScale.x + terrainPosition.x);
+    result.y = static_cast<uint32>(point.z + halfScale.z + terrainPosition.z);
+    return result;
 }
 }  // namespace GameEngine
