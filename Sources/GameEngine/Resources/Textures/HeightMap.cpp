@@ -13,7 +13,7 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, cons
     , maximumHeight_(0)
 {
     size_          = vec2ui(image_.width, image_.height);
-    maximumHeight_ = *std::max_element(image_.floatData.begin(), image_.floatData.end());
+    CalculateMaximumHeight();
 }
 
 void HeightMap::GpuLoadingPass()
@@ -80,6 +80,8 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
         if (not compare(actualValue, value))
         {
             image_.floatData[index] = value;
+          //  if (value > maximumHeight_)
+             //   maximumHeight_ = value;
             return true;
         }
         else
@@ -88,5 +90,19 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
         }
     }
     return false;
+}
+std::optional<float> HeightMap::GetHeight(const vec2ui& cooridnate)
+{
+    if (cooridnate.x < image_.width and cooridnate.y < image_.height)
+    {
+        auto index = cooridnate.x + cooridnate.y * image_.width;
+        return image_.floatData[index];
+    }
+
+    return std::nullopt;
+}
+void HeightMap::CalculateMaximumHeight()
+{
+    maximumHeight_ = *std::max_element(image_.floatData.begin(), image_.floatData.end());
 }
 }  // namespace GameEngine

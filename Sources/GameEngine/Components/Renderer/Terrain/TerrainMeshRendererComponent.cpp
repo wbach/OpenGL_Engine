@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 
 namespace GameEngine
 {
@@ -22,9 +23,9 @@ TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
-    UnSubscribe();
+   // UnSubscribe();
     UpdateMeshHeights();
-    Subscribe();
+ //   Subscribe();
 }
 void TerrainMeshRendererComponent::UpdateMeshHeights()
 {
@@ -40,8 +41,9 @@ void TerrainMeshRendererComponent::UpdateMeshHeights()
 }
 void TerrainMeshRendererComponent::UpdatePartialTerrainMeshes()
 {
-    auto model      = modelWrapper_.Get(LevelOfDetail::L1);
-    auto partsCount = *config_.GetPartsCount();
+    auto model       = modelWrapper_.Get(LevelOfDetail::L1);
+    auto partsCount  = *config_.GetPartsCount();
+    auto partialSize = heightMap_->GetImage().width / partsCount;
 
     size_t heightMapIndex = 0;
     for (uint32 j = 0; j < partsCount; ++j)
@@ -51,34 +53,60 @@ void TerrainMeshRendererComponent::UpdatePartialTerrainMeshes()
             auto &mesh     = model->GetMeshes()[i + j * partsCount];
             auto &meshData = mesh.GetMeshDataRef();
 
-            size_t axis = 0;  // pos x, y, z
-            bool isHeightChangedInTerrainPart{false};
-            for (auto &pos : meshData.positions_)
-            {
-                if (axis > 2)
-                {
-                    axis = 0;
-                }
+            uint32 startX = i * partialSize;
+            uint32 startY = j * partialSize;
+            uint32 endX   = (i + 1) * partialSize + 1;
+            uint32 endY   = (j + 1) * partialSize + 1;
 
-                if (axis == 1)  // update y
+            size_t meshDataIndex = 0;
+            bool isHeightChangedInTerrainPart{ false };
+            for (uint32 i = startY; i < endY; i++)
+            {
+                for (uint32 j = startX; j < endX; j++)
                 {
-                    auto newHeightValue = heightMap_->GetImage().floatData[heightMapIndex++];
-                    if (not compare(pos, newHeightValue))
+                    ++meshDataIndex; // position x
+                    auto& currentHeight = meshData.positions_[meshDataIndex++]; // position  y
+
+                    auto newHeightValue = GetTerrainHeight(heightMap_->GetImage().floatData, config_.GetScale().y, heightMap_->GetImage().width, heightMap_->GetMaximumHeight() / 2.f, j, i);
+
+                    if (not compare(currentHeight, newHeightValue))
                     {
-                        pos                          = newHeightValue;
+                        currentHeight = newHeightValue;
                         isHeightChangedInTerrainPart = true;
                     }
+                    ++meshDataIndex; // position z
                 }
-                ++axis;
             }
 
             if (isHeightChangedInTerrainPart and mesh.GetGraphicsObjectId())
             {
                 componentContext_.gpuResourceLoader_.AddFunctionToCall([&]() {
                     componentContext_.graphicsApi_.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
-                                                              {VertexBufferObjects::POSITION});
+                        { VertexBufferObjects::POSITION });
                 });
             }
+            // size_t axis = 0;  // pos x, y, z
+            // bool isHeightChangedInTerrainPart{false};
+            // for (auto &pos : meshData.positions_)
+            //{
+            //    if (axis > 2)
+            //    {
+            //        axis = 0;
+            //    }
+
+            //    if (axis == 1)  // update y
+            //    {
+            //        auto newHeightValue = heightMap_->GetImage().floatData[heightMapIndex++];
+            //        if (not compare(pos, newHeightValue))
+            //        {
+            //            pos                          = newHeightValue;
+            //            isHeightChangedInTerrainPart = true;
+            //        }
+            //    }
+            //    ++axis;
+            //}
+
+
         }
     }
 }
@@ -93,7 +121,7 @@ void TerrainMeshRendererComponent::CleanUp()
     ReleaseModels();
     ClearShaderBuffers();
 }
-std::vector<std::pair<FunctionType, std::function<void ()> > > TerrainMeshRendererComponent::FunctionsToRegister()
+std::vector<std::pair<FunctionType, std::function<void()>>> TerrainMeshRendererComponent::FunctionsToRegister()
 {
     return {{FunctionType::Awake, [&]() { Subscribe(); }}};
 }

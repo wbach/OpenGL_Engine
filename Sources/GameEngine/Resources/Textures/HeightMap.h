@@ -20,6 +20,10 @@ public:
     float GetMaximumHeight() const;
 
     bool SetHeight(const vec2ui&, float);
+    std::optional<float> GetHeight(const vec2ui&);
+
+private:
+    void CalculateMaximumHeight();
 
 private:
     Image image_;
