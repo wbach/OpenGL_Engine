@@ -13,6 +13,7 @@ public:
 
 public:
     TerrainConfiguration();
+    TerrainConfiguration(const vec3&);
     inline float GetScaleY() const;
     inline float GetScaleXZ() const;
     inline float GetTerrainRootNodesCount() const;
@@ -22,6 +23,7 @@ public:
     std::optional<uint32> GetPartsCount() const;
 
 private:
+    void SetLods();
     int32 updateMorphingArea(uint32 lod);
     void SetLod(uint32 index, uint32 value);
 

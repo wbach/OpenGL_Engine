@@ -24,7 +24,9 @@ void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float height, flo
 {
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
 
-    if (not terrainPoint)
+    if (terrainPoint)
+        DEBUG_LOG("Terrrain point : " + std::to_string(terrainPoint->pointOnTerrain));
+    //if (not terrainPoint)
         return;
 
     auto heightMap = terrainPoint->terrainComponent.GetHeightMap();

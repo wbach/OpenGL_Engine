@@ -64,7 +64,7 @@ bool TerrainPointGetter::IntersectionInRange(float start, float finish, const ve
 {
     auto startPoint = GetPointOnRay(ray, start);
     auto endPoint   = GetPointOnRay(ray, finish);
-    return (not IsUnderGround(startPoint) or IsUnderGround(endPoint));
+    return (not IsUnderGround(startPoint) and IsUnderGround(endPoint));
 }
 
 vec3 TerrainPointGetter::GetPointOnRay(const vec3& ray, float distance)
@@ -77,24 +77,22 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
 {
     const auto& terrain = GetTerrain(testPoint.x, testPoint.z);
 
-    if (terrain)
+    if (not terrain and not terrain->GetHeightMap())
     {
-        if (not terrain->GetHeightMap())
-        {
-            ERROR_LOG("No height map in terrain.");
-        }
-
-        if (terrain->GetHeightMap())
-        {
-            TerrainHeightGetter terrainHeightGetter(terrain->GetTerrainConfiguration(), *terrain->GetHeightMap(),
-                                                    terrain->GetParentGameObject().GetTransform().GetPosition());
-
-            auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
-
-            if (height)
-                return (testPoint.y <= *height);
-        }
+        ERROR_LOG("No terrain or height map in terrain.");
+        return false;
     }
+
+    TerrainHeightGetter terrainHeightGetter(terrain->GetTerrainConfiguration(), *terrain->GetHeightMap(),
+                                            terrain->GetParentGameObject().GetTransform().GetPosition());
+
+    auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
+
+    if (height)
+    {
+        return (testPoint.y <= *height);
+    }
+
     return false;
 }
 
@@ -122,16 +120,20 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
         if (not terrain)
             return std::nullopt;
 
+        DEBUG_LOG("Result : " + std::to_string(pointOnRay));
+
         vec2ui pointOnTerrain(static_cast<uint32>(pointOnRay.x), static_cast<uint32>(pointOnRay.z));
         TerrainPoint result{pointOnTerrain, *terrain};
         return result;
     }
     if (IntersectionInRange(start, half, ray))
     {
+        DEBUG_LOG("first part inter");
         return BinarySearch(count + 1, start, half, ray);
     }
     else
     {
+        DEBUG_LOG("sec part inter");
         return BinarySearch(count + 1, half, finish, ray);
     }
 }

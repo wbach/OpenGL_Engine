@@ -1,10 +1,10 @@
 #include "TerrainHeightGetter.h"
+#include <Logger/Log.h>
 #include <algorithm>
 #include "GLM/GLMUtils.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -19,37 +19,46 @@ TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConf
     gridSquereSize_      = terrainConfiguration_.GetScale().x / (heightMapResolution_ - 1.f);
 }
 
-std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& posXZ) const
-{
-    return GetHeightofTerrain(posXZ.x, posXZ.y);
-}
-
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float worldZ) const
 {
-    auto localPosition = GetLocalPositionOnTerrain(worldX, worldZ);
-
-    auto gridCoord = GetGridCoord(localPosition + vec2(terrainConfiguration_.GetScale().x / 2.f));
-
-    if (not IsValidGridCoordinate(gridCoord))
-        return std::nullopt;
-
-    return GetHeightInTerrainQuad(gridCoord, localPosition);
+    return GetHeightofTerrain(vec2(worldX, worldZ));
 }
 
-vec2 TerrainHeightGetter::GetLocalPositionOnTerrain(float worldX, float worldZ) const
+std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& worldPosition) const
 {
-    float terrain_x = worldX - terrainPosition_.x;
-    float terrain_z = worldZ - terrainPosition_.y;
+    auto localPosition = GetLocalPositionOnTerrain(worldPosition);
+
+    if (not localPosition)
+        return std::nullopt;
+
+    auto gridCoord = GetGridCoord(*localPosition);
+    if (not gridCoord)
+        return std::nullopt;
+
+    return GetHeightInTerrainQuad(*gridCoord, *localPosition);
+}
+
+std::optional<vec2> TerrainHeightGetter::GetLocalPositionOnTerrain(const vec2& worldPostion) const
+{
+    auto halfTerrainScale = terrainConfiguration_.GetScale() / 2.f;
+    auto terrain_x        = worldPostion.x - terrainPosition_.x + halfTerrainScale.x;
+    auto terrain_z        = worldPostion.y - terrainPosition_.y + halfTerrainScale.z;
+
+    if (terrain_x > terrainConfiguration_.GetScale().x or terrain_z > terrainConfiguration_.GetScale().z)
+        return std::nullopt;
 
     return vec2(terrain_x, terrain_z);
 }
 
-vec2ui TerrainHeightGetter::GetGridCoord(const vec2& position) const
+std::optional<vec2ui> TerrainHeightGetter::GetGridCoord(const vec2& position) const
 {
-    uint32 x = static_cast<uint32>(floorf(position.x / gridSquereSize_));
-    uint32 y = static_cast<uint32>(floorf(position.y / gridSquereSize_));
+    auto xi = static_cast<int32>(floorf(position.x / gridSquereSize_));
+    auto yi = static_cast<int32>(floorf(position.y / gridSquereSize_));
 
-    return vec2ui(x, y);
+    if (not IsValidGridCoordinate(vec2i(xi, yi)))
+        return std::nullopt;
+
+    return vec2ui(static_cast<uint32>(xi), static_cast<uint32>(yi));
 }
 
 vec2 TerrainHeightGetter::GetPositionInQuad(const vec2& position) const
@@ -65,9 +74,12 @@ bool TerrainHeightGetter::IsInLeftTriangle(const vec2& position) const
     return position.x <= (1 - position.y);
 }
 
-bool TerrainHeightGetter::IsValidGridCoordinate(const vec2ui& position) const
+bool TerrainHeightGetter::IsValidGridCoordinate(const vec2i& position) const
 {
-    return (position.x < heightMapResolution_ or position.y < heightMapResolution_);
+    auto heightMapResolution = static_cast<int32>(heightMapResolution_);
+
+    return (position.x >= 0 and position.y >= 0 and position.x < heightMapResolution and
+            position.y < heightMapResolution);
 }
 
 float TerrainHeightGetter::GetHeightInTerrainQuad(const vec2ui& gridCoord, const vec2& localPosition) const
@@ -93,6 +105,7 @@ float TerrainHeightGetter::GetHeightInTerrainQuad(const vec2ui& gridCoord, const
 
 float TerrainHeightGetter::GetHeight(uint32 x, uint32 y) const
 {
-    return GetTerrainHeight(heightMap_.GetImage().floatData, terrainConfiguration_.GetScale().y, heightMapResolution_, yOffset_, x, y);
+    return GetTerrainHeight(heightMap_.GetImage().floatData, terrainConfiguration_.GetScale().y, heightMapResolution_,
+                            yOffset_, x, y);
 }
 }  // namespace GameEngine

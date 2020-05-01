@@ -129,7 +129,8 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filen
                 auto partsCount = std::stoi(params[1]);
                 if (partsCount > 1)
                 {
-                    DEBUG_LOG("Terrain parts enabled. " + std::to_string(partsCount) + "x" + std::to_string(partsCount));
+                    DEBUG_LOG("Terrain parts enabled. " + std::to_string(partsCount) + "x" +
+                              std::to_string(partsCount));
                     config.partsCount_ = partsCount;
                 }
                 else
@@ -152,6 +153,17 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filen
 TerrainConfiguration::TerrainConfiguration()
     : perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec3(6000.f, 800.f, 6000.f)}
     , terrainRootNodesCount_{8.f}
+{
+    SetLods();
+}
+
+TerrainConfiguration::TerrainConfiguration(const vec3& scale)
+    : perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), scale}
+{
+    SetLods();
+}
+
+void TerrainConfiguration::SetLods()
 {
     lodRanges_.resize(LOD_SIZE);
     SetLod(0, 1750);

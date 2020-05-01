@@ -35,8 +35,8 @@ int EditorScene::Initialize()
 
     //// resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
 
-    //const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
-    //LoadFromFile(sceneFile);
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
+    LoadFromFile(sceneFile);
 
      const auto& terrainShapeComponents =
         componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainShape);

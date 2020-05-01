@@ -223,6 +223,10 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
+        terrainPainter_ = std::make_unique<TerrainPainter>(
+            scene_.camera, scene_.renderersManager_->GetProjection(),
+            scene_.displayManager_->GetWindowSize(), scene_.componentController_);
+
         std::optional<uint32> lastSelectedGameObject;
 
         if (selectedGameObject_)
@@ -242,9 +246,7 @@ void NetworkEditorInterface::KeysSubscribtions()
             {
                 if (TERRAIN_PAINTING)
                 {
-                    terrainPainter_ = std::make_unique<TerrainPainter>(
-                        scene_.camera, scene_.renderersManager_->GetProjection(),
-                        scene_.displayManager_->GetWindowSize(), scene_.componentController_);
+
                 }
             }
             else
