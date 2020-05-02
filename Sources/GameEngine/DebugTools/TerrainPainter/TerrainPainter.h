@@ -21,12 +21,18 @@ namespace Components
 class ComponentController;
 }  // namespace Components
 
+enum class HeightBrushType
+{
+    CircleLinear,
+    CircleAverage
+};
+
 class TerrainPainter
 {
 public:
     TerrainPainter(const CameraWrapper&, const Projection&, const vec2ui&, const Components::ComponentController&);
     void PaintBlendMap(const vec2&, const vec3& color, float range);
-    void PaintHeightMap(const vec2&, float height, float range);
+    void PaintHeightMap(HeightBrushType type, const vec2&, float height, int32 brushSize);
     std::optional<vec3> GetMouseTerrainPosition(const vec2&);
 
 private:

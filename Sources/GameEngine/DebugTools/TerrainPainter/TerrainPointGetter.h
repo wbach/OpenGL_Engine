@@ -6,6 +6,7 @@
 
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "TerrainPoint.h"
 
 namespace common
 {
@@ -22,13 +23,6 @@ namespace Components
 class ComponentController;
 class TerrainRendererComponent;
 }  // namespace Components
-
-struct TerrainPoint
-{
-    vec3 pointOnTerrain;
-    vec2ui pointOnHeightMap;
-    Components::TerrainRendererComponent& terrainComponent;
-};
 
 class TerrainPointGetter
 {

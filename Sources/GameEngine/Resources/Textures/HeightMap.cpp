@@ -84,10 +84,6 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
              //   maximumHeight_ = value;
             return true;
         }
-        else
-        {
-            DEBUG_LOG("Setting value is almost the same. (Set/Actual)" + std::to_string(value) + "|" + std::to_string(actualValue ));
-        }
     }
     return false;
 }
