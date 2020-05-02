@@ -1,6 +1,5 @@
 #include "TerrainMeshRendererComponent.h"
 
-#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -8,7 +7,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "TerrainMeshUpdater.h"
 
 namespace GameEngine
 {
@@ -23,77 +22,10 @@ TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
-    UpdateMeshHeights();
-}
-void TerrainMeshRendererComponent::UpdateMeshHeights()
-{
-    if (config_.GetPartsCount())
-    {
-        DEBUG_LOG("Update partial mesh");
-        UpdatePartialTerrainMeshes();
-    }
-    else
-    {
-        UpdateSingleTerrainMesh();
-    }
-}
-void TerrainMeshRendererComponent::UpdatePartialTerrainMeshes()
-{
-    auto model             = modelWrapper_.Get(LevelOfDetail::L1);
-    auto partsCount        = *config_.GetPartsCount();
-    auto partialSize       = heightMap_->GetImage().width / partsCount;
-    auto halfMaximumHeight = heightMap_->GetMaximumHeight() / 2.f * config_.GetScale().y;
+    if (not heightMap_)
+        return;
 
-    size_t heightMapIndex = 0;
-    for (uint32 j = 0; j < partsCount; ++j)
-    {
-        for (uint32 i = 0; i < partsCount; ++i)
-        {
-            auto &mesh     = model->GetMeshes()[i + j * partsCount];
-            auto &meshData = mesh.GetMeshDataRef();
-
-            uint32 startX = i * partialSize;
-            uint32 startY = j * partialSize;
-            uint32 endX   = (i + 1) * partialSize + 1;
-            uint32 endY   = (j + 1) * partialSize + 1;
-
-            size_t meshDataIndex = 0;
-            bool isHeightChangedInTerrainPart{false};
-            int count = 0;
-            for (uint32 i = startY; i < endY; i++)
-            {
-                for (uint32 j = startX; j < endX; j++)
-                {
-                    ++meshDataIndex;                                             // position x
-                    auto &currentHeight = meshData.positions_[meshDataIndex++];  // position  y
-
-                    auto newHeightValue = GetTerrainHeight(heightMap_->GetImage().floatData, config_.GetScale().y,
-                                                           heightMap_->GetImage().width, halfMaximumHeight, j, i);
-
-                    if (not compare(currentHeight, newHeightValue))
-                    {
-                        currentHeight = newHeightValue;
-                        ++count;
-                        isHeightChangedInTerrainPart = true;
-                    }
-                    ++meshDataIndex;  // position z
-                }
-            }
-            DEBUG_LOG("count " + std::to_string(count));
-
-            if (isHeightChangedInTerrainPart and mesh.GetGraphicsObjectId())
-            {
-                componentContext_.gpuResourceLoader_.AddFunctionToCall([&]() {
-                    componentContext_.graphicsApi_.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
-                                                              {VertexBufferObjects::POSITION});
-                });
-            }
-        }
-    }
-}
-void TerrainMeshRendererComponent::UpdateSingleTerrainMesh()
-{
-    DEBUG_LOG("Not implemented yet.");
+    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).Update();
 }
 void TerrainMeshRendererComponent::CleanUp()
 {

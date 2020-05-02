@@ -24,9 +24,6 @@ public:
 private:
     void LoadHeightMap(const std::string& terrainFile) override;
     void UpdateHeightMap(const std::string&) override;
-    void UpdateMeshHeights();
-    void UpdatePartialTerrainMeshes();
-    void UpdateSingleTerrainMesh();
     void CreateShaderBuffers(const GameEngine::Model&);
     BufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
     void LoadObjectToGpu(GpuObject&);
