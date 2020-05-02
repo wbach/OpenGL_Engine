@@ -89,6 +89,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/DebugTools/MousePicker/DragObject.cpp
 ../../Sources/GameEngine/DebugTools/MousePicker/MousePicker.cpp
 ../../Sources/GameEngine/DebugTools/TerrainPainter/HeightBrushes/CircleAverageHeightBrush.cpp
+../../Sources/GameEngine/DebugTools/TerrainPainter/HeightBrushes/CircleConstantHeightBrush.cpp
 ../../Sources/GameEngine/DebugTools/TerrainPainter/HeightBrushes/CircleLinearHeightBrush.cpp
 ../../Sources/GameEngine/DebugTools/TerrainPainter/TerrainPainter.cpp
 ../../Sources/GameEngine/DebugTools/TerrainPainter/TerrainPointGetter.cpp

@@ -122,6 +122,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/MousePicker/DragObject.h
 ../../Sources/GameEngine/DebugTools/MousePicker/MousePicker.h
 ../../Sources/GameEngine/DebugTools/TerrainPainter/HeightBrushes/CircleAverageHeightBrush.h
+../../Sources/GameEngine/DebugTools/TerrainPainter/HeightBrushes/CircleConstantHeightBrush.h
 ../../Sources/GameEngine/DebugTools/TerrainPainter/HeightBrushes/CircleLinearHeightBrush.h
 ../../Sources/GameEngine/DebugTools/TerrainPainter/TerrainPainter.h
 ../../Sources/GameEngine/DebugTools/TerrainPainter/TerrainPoint.h

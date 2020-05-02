@@ -6,6 +6,7 @@
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "HeightBrushes/CircleAverageHeightBrush.h"
 #include "HeightBrushes/CircleLinearHeightBrush.h"
+#include "HeightBrushes/CircleConstantHeightBrush.h"
 
 namespace GameEngine
 {
@@ -22,8 +23,9 @@ void TerrainPainter::PaintBlendMap(const vec2& mousePosition, const vec3& color,
     if (not terrainPoint)
         return;
 }
+#define PAINT(X)  X(*terrainPoint, linearStep == StepInterpolation::Linear, mousePosition, strength, brushSize).Paint()
 
-void TerrainPainter::PaintHeightMap(HeightBrushType type, const vec2& mousePosition, float strength, int32 brushSize)
+void TerrainPainter::PaintHeightMap(HeightBrushType type, const vec2& mousePosition, float strength, int32 brushSize, StepInterpolation linearStep)
 {
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
 
@@ -41,16 +43,21 @@ void TerrainPainter::PaintHeightMap(HeightBrushType type, const vec2& mousePosit
     switch (type)
     {
         case HeightBrushType::CircleLinear:
-            heightmapChange = CircleLinearHeightBrush(*terrainPoint).Paint(mousePosition, strength, brushSize);
+            heightmapChange = PAINT(CircleLinearHeightBrush);
             break;
         case HeightBrushType::CircleAverage:
-            heightmapChange = CircleAverageHeightBrush(*terrainPoint).Paint(mousePosition, strength, brushSize);
+            heightmapChange = PAINT(CircleAverageHeightBrush);
+            break;
+        case HeightBrushType::CircleConstantValue:
+            heightmapChange = PAINT(CircleConstantHeightBrush);
             break;
     }
 
     if (heightmapChange)
         terrainPoint->terrainComponent.HeightMapChanged();
 }
+#undef PAINT
+
 std::optional<vec3> TerrainPainter::GetMouseTerrainPosition(const vec2& mousePosition)
 {
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);

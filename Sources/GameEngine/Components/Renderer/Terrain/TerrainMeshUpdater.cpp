@@ -25,7 +25,6 @@ void TerrainMeshUpdater::Update()
 {
     if (config_.GetPartsCount())
     {
-        DEBUG_LOG("Update partial mesh");
         UpdatePartialTerrainMeshes();
     }
     else
