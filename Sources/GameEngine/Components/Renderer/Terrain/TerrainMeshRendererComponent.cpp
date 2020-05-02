@@ -1,5 +1,6 @@
 #include "TerrainMeshRendererComponent.h"
 
+#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -8,7 +9,6 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 
 namespace GameEngine
 {
@@ -23,9 +23,7 @@ TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
-   // UnSubscribe();
     UpdateMeshHeights();
- //   Subscribe();
 }
 void TerrainMeshRendererComponent::UpdateMeshHeights()
 {
@@ -41,9 +39,10 @@ void TerrainMeshRendererComponent::UpdateMeshHeights()
 }
 void TerrainMeshRendererComponent::UpdatePartialTerrainMeshes()
 {
-    auto model       = modelWrapper_.Get(LevelOfDetail::L1);
-    auto partsCount  = *config_.GetPartsCount();
-    auto partialSize = heightMap_->GetImage().width / partsCount;
+    auto model             = modelWrapper_.Get(LevelOfDetail::L1);
+    auto partsCount        = *config_.GetPartsCount();
+    auto partialSize       = heightMap_->GetImage().width / partsCount;
+    auto halfMaximumHeight = heightMap_->GetMaximumHeight() / 2.f * config_.GetScale().y;
 
     size_t heightMapIndex = 0;
     for (uint32 j = 0; j < partsCount; ++j)
@@ -59,54 +58,36 @@ void TerrainMeshRendererComponent::UpdatePartialTerrainMeshes()
             uint32 endY   = (j + 1) * partialSize + 1;
 
             size_t meshDataIndex = 0;
-            bool isHeightChangedInTerrainPart{ false };
+            bool isHeightChangedInTerrainPart{false};
+            int count = 0;
             for (uint32 i = startY; i < endY; i++)
             {
                 for (uint32 j = startX; j < endX; j++)
                 {
-                    ++meshDataIndex; // position x
-                    auto& currentHeight = meshData.positions_[meshDataIndex++]; // position  y
+                    ++meshDataIndex;                                             // position x
+                    auto &currentHeight = meshData.positions_[meshDataIndex++];  // position  y
 
-                    auto newHeightValue = GetTerrainHeight(heightMap_->GetImage().floatData, config_.GetScale().y, heightMap_->GetImage().width, heightMap_->GetMaximumHeight() / 2.f, j, i);
+                    auto newHeightValue = GetTerrainHeight(heightMap_->GetImage().floatData, config_.GetScale().y,
+                                                           heightMap_->GetImage().width, halfMaximumHeight, j, i);
 
                     if (not compare(currentHeight, newHeightValue))
                     {
                         currentHeight = newHeightValue;
+                        ++count;
                         isHeightChangedInTerrainPart = true;
                     }
-                    ++meshDataIndex; // position z
+                    ++meshDataIndex;  // position z
                 }
             }
+            DEBUG_LOG("count " + std::to_string(count));
 
             if (isHeightChangedInTerrainPart and mesh.GetGraphicsObjectId())
             {
                 componentContext_.gpuResourceLoader_.AddFunctionToCall([&]() {
                     componentContext_.graphicsApi_.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
-                        { VertexBufferObjects::POSITION });
+                                                              {VertexBufferObjects::POSITION});
                 });
             }
-            // size_t axis = 0;  // pos x, y, z
-            // bool isHeightChangedInTerrainPart{false};
-            // for (auto &pos : meshData.positions_)
-            //{
-            //    if (axis > 2)
-            //    {
-            //        axis = 0;
-            //    }
-
-            //    if (axis == 1)  // update y
-            //    {
-            //        auto newHeightValue = heightMap_->GetImage().floatData[heightMapIndex++];
-            //        if (not compare(pos, newHeightValue))
-            //        {
-            //            pos                          = newHeightValue;
-            //            isHeightChangedInTerrainPart = true;
-            //        }
-            //    }
-            //    ++axis;
-            //}
-
-
         }
     }
 }

@@ -21,7 +21,7 @@ void TerrainPainter::PaintBlendMap(const vec2& mousePosition, const vec3& color,
         return;
 }
 
-void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float strength, float /*range*/)
+void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float strength, float brushSize)
 {
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
 
@@ -40,7 +40,6 @@ void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float strength, f
         return;
     }
 
-    int brushSize = 16;
     bool heightmapChange{false};
     for (int y = -brushSize; y < brushSize; y++)
     {
@@ -87,9 +86,6 @@ void TerrainPainter::PaintHeightMap(const vec2& mousePosition, float strength, f
                 //        blend_height = down_limit;
                 //}
             }
-
-            // auto l = glm::length(v2 - v1);
-            // auto succes = terrainPoint->terrainComponent.GetHeightMap()->SetHeight(, strength);
         }
     }
 

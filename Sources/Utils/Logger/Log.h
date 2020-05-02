@@ -45,7 +45,7 @@ private:
     std::vector<std::string> prefixes_;
     std::string prefixTotal_;
 };
-std::string FileNameLogRepresentation(char*);
+std::string FileNameLogRepresentation(const char*);
 // clang-format off
 #define LOG_ADD_PREFIX(x) do{CLogger::Instance().AddPrefix(x); } while(0)
 #define LOG_CLEAR_PREFIXES() do{CLogger::Instance().ClearPrefixes(); } while(0)

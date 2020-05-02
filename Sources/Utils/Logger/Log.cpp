@@ -167,7 +167,7 @@ std::string CLogger::GetLog()
     return l;
 }
 
-std::string FileNameLogRepresentation(char* filename)
+std::string FileNameLogRepresentation(const char* filename)
 {
     return std::filesystem::path(filename).filename().string();
 }
