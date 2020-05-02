@@ -43,6 +43,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Terrain/PerrTerrainBuffer.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainComponentBase.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshUpdater.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainNode.h
@@ -50,7 +51,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h
-../../Sources/GameEngine/Components/Renderer/Terrain/TerrainUtils.h
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
 ../../Sources/GameEngine/DebugTools/Common/MouseUtils.h

@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -39,19 +39,20 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
 
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage().width;
-    heights_             = &hm->GetImage().floatData;
-    halfMaximumHeight_   = hm->GetMaximumHeight() / 2.f * terrainScale_.y;
+    auto yoffset         = hm->GetMaximumHeight() / 2.f * terrainScale_.y;
 
     model_ = std::make_unique<Model>();
+
+    TerrainHeightTools tools(hm->GetImage().floatData, terrainConfig.GetScale().y, heightMapResolution_, yoffset);
 
     auto partsCount = terrainConfig.GetPartsCount();
     if (partsCount)
     {
-        CreatePartial(*partsCount);
+        CreatePartial(tools, *partsCount);
     }
     else
     {
-        CreateAsSingleTerrain();
+        CreateAsSingleTerrain(tools);
     }
 
     textureLoader_.DeleteTexture(*texture);
@@ -72,18 +73,18 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
     return std::move(model_);
 }
 
-void TerrainMeshLoader::CreateAsSingleTerrain()
+void TerrainMeshLoader::CreateAsSingleTerrain(TerrainHeightTools& tools)
 {
     Material material;
     GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), material);
 
     ReserveMeshData(newMesh, heightMapResolution_);
-    CreateTerrainVertexes(newMesh, 0, 0, heightMapResolution_, heightMapResolution_);
+    CreateTerrainVertexes(tools, newMesh, 0, 0, heightMapResolution_, heightMapResolution_);
     CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution_));
     model_->AddMesh(newMesh);
 }
 
-void TerrainMeshLoader::CreatePartial(uint32 partsCount)
+void TerrainMeshLoader::CreatePartial(TerrainHeightTools& tools, uint32 partsCount)
 {
     auto partialSize = heightMapResolution_ / partsCount;
     auto rest        = heightMapResolution_ - (partsCount * partialSize);
@@ -104,7 +105,7 @@ void TerrainMeshLoader::CreatePartial(uint32 partsCount)
             uint32 endY   = (j + 1) * partialSize + 1;
 
             ReserveMeshData(newMesh, partialSize + 1);
-            CreateTerrainVertexes(newMesh, startX, startY, endX, endY);
+            CreateTerrainVertexes(tools, newMesh, startX, startY, endX, endY);
             CreateIndicies(newMesh, static_cast<IndicesDataType>(partialSize + 1));
 
             model_->AddMesh(newMesh);
@@ -120,7 +121,7 @@ void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)
     data.textCoords_.reserve(size * size * 2);
     data.indices_.reserve(size * size * 2);
 }
-void TerrainMeshLoader::CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width,
+void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width,
                                               uint32 height)
 {
     auto& vertices      = mesh.GetMeshDataRef().positions_;
@@ -131,7 +132,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_s
     {
         for (uint32 j = x_start; j < width; j++)
         {
-            float height = GetHeight(j, i);
+            float height = tools.GetHeight(j, i);
 
             vertices.push_back(static_cast<float>(j - (terrainScale_.x / 2)) /
                                (static_cast<float>(heightMapResolution_ - 1)) * terrainScale_.x);
@@ -139,7 +140,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_s
             vertices.push_back(static_cast<float>(i - (terrainScale_.z / 2)) /
                                (static_cast<float>(heightMapResolution_) - 1) * terrainScale_.z);
 
-            glm::vec3 normal = CalculateNormalMap(j, i);
+            glm::vec3 normal = tools.GetNormal(j, i);
 
             normals.push_back(normal.x);
             normals.push_back(normal.y);
@@ -149,33 +150,6 @@ void TerrainMeshLoader::CreateTerrainVertexes(GameEngine::Mesh& mesh, uint32 x_s
             textureCoords.push_back(static_cast<float>(i) / static_cast<float>(heightMapResolution_ - 1));
         }
     }
-}
-vec3 TerrainMeshLoader::CalculateNormalMap(uint32 x, uint32 z)
-{
-    auto lx = x - 1;
-    if (x == 0)
-        lx = 0;
-    auto rx = x + 1;
-    if (rx > heightMapResolution_ - 1)
-        rx = heightMapResolution_ - 1;
-    auto dz = z - 1;
-    if (z == 0)
-        dz = 0;
-    auto uz = z + 1;
-    if (uz > heightMapResolution_ - 1)
-        uz = heightMapResolution_ - 1;
-
-    float heightL = GetHeight(lx, z);
-    float heightR = GetHeight(rx, z);
-    float heightD = GetHeight(x, dz);
-    float heightU = GetHeight(x, uz);
-    glm::vec3 normal(heightL - heightR, 2.0f, heightD - heightU);
-
-    return glm::normalize(normal);
-}
-float TerrainMeshLoader::GetHeight(uint32 x, uint32 y) const
-{
-    return GetTerrainHeight(*heights_, terrainScale_.y, heightMapResolution_, halfMaximumHeight_, x, y);
 }
 void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size)
 {
@@ -209,7 +183,6 @@ void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType s
 void TerrainMeshLoader::Clear()
 {
     heightMapResolution_ = 0;
-    heights_->clear();
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

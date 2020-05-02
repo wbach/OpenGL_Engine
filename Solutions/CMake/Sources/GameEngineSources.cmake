@@ -30,6 +30,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainComponentBase.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainConfiguration.cpp
+../../Sources/GameEngine/Components/Renderer/Terrain/TerrainHeightTools.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainMeshUpdater.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainNode.cpp
@@ -37,7 +38,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.cpp
-../../Sources/GameEngine/Components/Renderer/Terrain/TerrainUtils.cpp
 ../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.cpp
 ../../Sources/GameEngine/DebugTools/Common/MouseUtils.cpp

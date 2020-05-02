@@ -2,6 +2,7 @@
 #include <optional>
 #include <vector>
 #include "Types.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
 
 namespace GameEngine
 {
@@ -16,7 +17,6 @@ public:
     std::optional<float> GetHeightofTerrain(float worldX, float worldZ) const;
 
 private:
-    float GetHeight(uint32 x, uint32 y) const;
     std::optional<vec2ui> GetGridCoord(const vec2& position) const;
     vec2 GetPositionInQuad(const vec2& position) const;
     bool IsInLeftTriangle(const vec2& position) const;
@@ -33,5 +33,7 @@ private:
     uint32 heightMapResolution_;
     float gridSquereSize_;
     float yOffset_;
+
+    TerrainHeightTools tools_;
 };
 }  // namespace GameEngine

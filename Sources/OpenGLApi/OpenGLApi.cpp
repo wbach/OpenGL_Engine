@@ -4,10 +4,10 @@
 #include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
 #include <optional>
 
-#include <filesystem>
 #include "Font.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GraphicsApi/MeshRawData.h"
@@ -1001,7 +1001,10 @@ void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data
         switch (buffer)
         {
             case VertexBufferObjects::POSITION:
-                obj.vertexCount = static_cast<uint32>(data.positions_.size());
+                if (not obj.useIndiecies)
+                {
+                    obj.vertexCount = static_cast<uint32>(data.positions_.size() / 3);
+                }
                 UpdateVBO(obj, buffer, data.positions_);
                 break;
             case VertexBufferObjects::NORMAL:

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainUtils.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -14,6 +13,7 @@ TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConf
     , heightMap_(heightMap)
     , terrainPosition_(terrainPosition)
     , yOffset_(heightMap.GetMaximumHeight() / 2.f * terrainConfiguration.GetScale().y)
+    , tools_(heightMap.GetImage().floatData, terrainConfiguration.GetScale().y, heightMap_.GetImage().width, yOffset_)
 {
     heightMapResolution_ = heightMap_.GetImage().width;
     gridSquereSize_      = terrainConfiguration_.GetScale().x / (heightMapResolution_ - 1.f);
@@ -86,26 +86,20 @@ float TerrainHeightGetter::GetHeightInTerrainQuad(const vec2ui& gridCoord, const
 {
     auto positionInQuad = GetPositionInQuad(localPosition);
 
-    vec3 p3(0, GetHeight(gridCoord.x, gridCoord.y + 1), 1);
+    vec3 p3(0, tools_.GetHeight(gridCoord.x, gridCoord.y + 1), 1);
     vec3 p1, p2;
 
     if (IsInLeftTriangle(positionInQuad))
     {
-        p1 = vec3(0, GetHeight(gridCoord.x, gridCoord.y), 0);
-        p2 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+        p1 = vec3(0, tools_.GetHeight(gridCoord.x, gridCoord.y), 0);
+        p2 = vec3(1, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
     }
     else
     {
-        p1 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y), 0);
-        p2 = vec3(1, GetHeight(gridCoord.x + 1, gridCoord.y + 1), 1);
+        p1 = vec3(1, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+        p2 = vec3(1, tools_.GetHeight(gridCoord.x + 1, gridCoord.y + 1), 1);
     }
 
     return Utils::BarryCentric(p1, p2, p3, positionInQuad);
-}
-
-float TerrainHeightGetter::GetHeight(uint32 x, uint32 y) const
-{
-    return GetTerrainHeight(heightMap_.GetImage().floatData, terrainConfiguration_.GetScale().y, heightMapResolution_,
-                            yOffset_, x, y);
 }
 }  // namespace GameEngine
