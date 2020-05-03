@@ -66,6 +66,11 @@ TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
     return *this;
 }
 
+Texture *TerrainRendererComponent::GetTexture(TerrainTextureType type) const
+{
+    return terrainComponent_->GetTexture(type);
+}
+
 const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererComponent::GetTextureFileNames() const
 {
     return terrainComponent_->GetTextureFileNames();

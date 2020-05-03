@@ -49,6 +49,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/TextureLoader.cpp
 ../../Sources/GameEngine/Resources/ResourceManager.cpp
 ../../Sources/GameEngine/Resources/BufferObject.cpp
+../../Sources/GameEngine/Resources/ResourceUtils.cpp
 ../../Sources/GameEngine/Resources/GpuResourceLoader.cpp
 ../../Sources/GameEngine/Resources/GpuObject.cpp
 ../../Sources/GameEngine/DebugTools/MousePicker/DragObject.cpp

@@ -18,6 +18,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "SceneDef.h"
 #include "Utils.h"
@@ -279,6 +280,28 @@ void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 void Create(XmlNode& node, const Components::TerrainRendererComponent& component)
 {
     Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
+
+    auto heightMapTexture = component.GetTexture(TerrainTextureType::heightmap);
+
+    if (heightMapTexture and heightMapTexture->IsModified())
+    {
+        auto heightMap = static_cast<HeightMap*>(heightMapTexture);
+        if (heightMap)
+        {
+            auto heightMapFile = component.GetTextureFileNames().at(TerrainTextureType::heightmap);
+            SaveHeightMap(*heightMap, heightMapFile);
+        }
+        else
+        {
+            ERROR_LOG("Heightmap texture cast error");
+        }
+    }
+
+    auto blendMap = component.GetTexture(TerrainTextureType::blendMap);
+
+    if (blendMap and blendMap->IsModified())
+    {
+    }
 }
 
 template <typename T>

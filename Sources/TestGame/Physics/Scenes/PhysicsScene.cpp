@@ -2,6 +2,11 @@
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Physics/BoxShape.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
+#include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -10,15 +15,10 @@
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"
 #include "SingleTon.h"
-
-#include "GameEngine/Components/Physics/BoxShape.h"
-#include "GameEngine/Components/Physics/MeshShape.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Components/Physics/SphereShape.h"
-#include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
@@ -104,7 +104,7 @@ void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
     }
 }
 
-void PhysicsScene::RemoveObjectsUnderYValue(float y)
+void PhysicsScene::RemoveObjectsUnderYValue(float)
 {
 }
 
@@ -167,8 +167,8 @@ void PhysicsScene::CreateAndAddGameEntity(const std::string& filename, float sca
 }
 int PhysicsScene::Initialize()
 {
-    resourceManager_->GetTextureLoader().CreateHeightMap("Textures/Terrain/HeightMaps/flat_height_map.png",
-                                                         "Textures/Terrain/HeightMaps/TerrainFlat.terrain", vec3(1.f));
+    CreateHeightMap("Textures/Terrain/HeightMaps/flat_height_map.png",
+                    "Textures/Terrain/HeightMaps/TerrainFlat.terrain", vec3(1.f));
     // auto& octext    = renderersManager_->GuiText(OBJECT_COUNT_GUI_TEXT);
     // octext.position = vec2(0.5, 0.9);
     // octext.m_size   = 0.5f;
@@ -193,7 +193,6 @@ void PhysicsScene::AddTerrain()
 {
     auto textures = CreateTerrainTexturesMap();
     auto object   = CreateGameObjectInstance(1.f, vec2(0));
-    resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
     object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =
@@ -206,8 +205,7 @@ void PhysicsScene::AddTerrain()
     AddGameObject(std::move(object));
 }
 
-std::unique_ptr<GameEngine::GameObject> PhysicsScene::CreateGameObjectInstance(float scale, const vec2& position,
-                                                                               bool)
+std::unique_ptr<GameEngine::GameObject> PhysicsScene::CreateGameObjectInstance(float scale, const vec2& position, bool)
 {
     auto obj = CreateGameObject();
     vec3 obj_pos(position.x, 0, position.y);

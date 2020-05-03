@@ -16,14 +16,11 @@ public:
     TextureLoader(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, std::unordered_map<std::string, ResourceInfo<Texture>>&);
     ~TextureLoader() override;
 
-    std::optional<Image> ReadFile(const InputFileName& file, const TextureParameters&);
     Texture* CreateTexture(const std::string&, const TextureParameters&, const TextureSize&, RawData) override;
     Texture* LoadTexture(const InputFileName&, const TextureParameters&) override;
     Texture* LoadCubeMap(const std::array<InputFileName, 6>&, const TextureParameters&) override;
     Texture* LoadNormalMap(const std::vector<float>&, const TextureSize&, float) override;
     Texture* LoadHeightMap(const InputFileName&, const TextureParameters&) override;
-    void CreateHeightMap(const std::string& input, const std::string& output, const vec3&) override;
-    void SetHeightMapFactor(float) override;
     GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
     void SaveTextureToFile(const std::string& name, const std::vector<uint8>&, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat) const override;
     void DeleteTexture(Texture& texture) override;
@@ -44,7 +41,6 @@ private:
     IGpuResourceLoader& gpuResourceLoader_;
     std::unordered_map<std::string, ResourceInfo<Texture>>& textures_;
     std::pair<Texture*, bool> textureNotFound_;
-    float heightMapFactor_;
     std::mutex textureMutex_;
 };
 }  // namespace GameEngine

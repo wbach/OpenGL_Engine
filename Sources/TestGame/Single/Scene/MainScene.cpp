@@ -22,6 +22,7 @@
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Image.h"
 #include "GraphicsApi/BlendFunctionsTypes.h"
@@ -87,9 +88,7 @@ int MainScene::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     DEBUG_LOG("MainScene::Initialize()");
-    resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
-    resourceManager_->GetTextureLoader().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
-                                                         "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
+    CreateHeightMap("Textures/Terrain/HeightMaps/World.png", "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
 
     InitGui();
 
@@ -418,7 +417,6 @@ void MainScene::CheckCollisions(float)
 void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position)
 {
     auto object = CreateGameObjectInstance("Terrain", 1.f, vec2(0));
-    resourceManager_->GetTextureLoader().SetHeightMapFactor(10.f);
     object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
 
     auto& terrainShapeComponent =

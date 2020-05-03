@@ -40,6 +40,7 @@ public:
     void HeightMapChanged();
     void UpdateTexture(TerrainTextureType, const std::string&);
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
+    Texture* GetTexture(TerrainTextureType) const;
 
     HeightMap* GetHeightMap();
     const TerrainConfiguration& GetTerrainConfiguration() const;

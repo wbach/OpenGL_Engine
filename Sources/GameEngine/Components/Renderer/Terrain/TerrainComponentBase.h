@@ -33,7 +33,7 @@ public:
     void LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     const TerrainTexturesMap& GetTextures() const;
-    Texture* GetTexture(TerrainTextureType);
+    Texture* GetTexture(TerrainTextureType) const;
     const TerrainConfiguration& GetConfiguration() const;
     HeightMap* GetHeightMap();
     void UpdateTexture(TerrainTextureType, const std::string&);

@@ -95,6 +95,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Models/Mesh.h
 ../../Sources/GameEngine/Resources/Models/Bone.h
 ../../Sources/GameEngine/Resources/GpuObject.h
+../../Sources/GameEngine/Resources/ResourceUtils.h
 ../../Sources/GameEngine/Resources/GpuObjectCommon.h
 ../../Sources/GameEngine/Resources/ResourceManager.h
 ../../Sources/GameEngine/Resources/TextureParameters.h
@@ -109,6 +110,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/Textures/Texture.h
 ../../Sources/GameEngine/Resources/Textures/MaterialTexture.h
 ../../Sources/GameEngine/Resources/ResourceInfo.h
+../../Sources/GameEngine/Resources/HeightMapHeader.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerObjectConstants.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerMeshObject.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerInstances.h

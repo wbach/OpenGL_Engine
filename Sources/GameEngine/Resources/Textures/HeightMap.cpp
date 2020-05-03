@@ -80,6 +80,7 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
         if (not compare(actualValue, value))
         {
             image_.floatData[index] = value;
+            orginalData_ = false;
             return true;
         }
     }

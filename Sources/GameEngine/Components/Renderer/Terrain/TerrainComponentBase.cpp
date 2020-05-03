@@ -52,7 +52,7 @@ const TerrainTexturesMap &TerrainComponentBase::GetTextures() const
     return textures_;
 }
 
-Texture *TerrainComponentBase::GetTexture(TerrainTextureType type)
+Texture *TerrainComponentBase::GetTexture(TerrainTextureType type) const
 {
     return textures_.count(type) ? textures_.at(type) : nullptr;
 }

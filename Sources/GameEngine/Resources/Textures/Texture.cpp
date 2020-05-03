@@ -89,4 +89,12 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
 
     return std::nullopt;
 }
+bool Texture::IsModified() const
+{
+    return not orginalData_;
+}
+void Texture::ResetModifyAcknowlage()
+{
+    orginalData_ = true;
+}
 }  // namespace GameEngine
