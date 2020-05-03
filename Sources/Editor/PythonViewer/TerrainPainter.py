@@ -11,6 +11,7 @@ class TerrainPainterView:
         self.stepInterpolationStr = tk.StringVar()
         self.strengthStr = tk.StringVar()
         self.brushSizeStr = tk.StringVar()
+        self.IsDialogVisible = False
 
         self.dialog = 0
         self.strengthInput = 0
@@ -18,6 +19,7 @@ class TerrainPainterView:
         self.stepInterpolaton = 0
         self.brushTypes = 0
         self.networkClient.SubscribeOnMessage("TerrainPainterEnabled", self.OnTerrainPainterEnabled)
+        self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
 
     def OnTerrainPainterEnabled(self, msg):
@@ -85,6 +87,7 @@ class TerrainPainterView:
         # dialog.update()
         self.dialog.attributes('-topmost', False)
         self.dialog.protocol("WM_DELETE_WINDOW", self.OnClose)
+        self.IsDialogVisible = True
 
 
     def SendStrength(self, *args):
@@ -104,4 +107,8 @@ class TerrainPainterView:
     def OnClose(self, *args):
         self.networkClient.SendCommand("disableTerrainHeightPainter")
         self.dialog.destroy()
+        self.IsDialogVisible = False
 
+    def OnDisconnect(self):
+        if self.IsDialogVisible:
+            self.dialog.destroy()

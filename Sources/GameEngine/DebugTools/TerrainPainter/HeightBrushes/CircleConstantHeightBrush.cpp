@@ -18,7 +18,8 @@ bool CircleConstantHeightBrush::Main(HeightMap& heightMap, const vec2ui& painted
 
     if (currentHeightOpt)
     {
-        auto newHeight = glm::mix(*currentHeightOpt, inputStrength_, intensity_);
+        auto heightFactor = terrainPoint_.terrainComponent.GetTerrainConfiguration().GetScale().y;
+        auto newHeight = glm::mix(*currentHeightOpt, inputStrength_ / heightFactor, intensity_);
         return heightMap.SetHeight(paintedPoint, newHeight);
     }
     return false;
