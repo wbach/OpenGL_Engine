@@ -1,11 +1,20 @@
 from os import listdir
 from os.path import isfile, join, splitext
 import os
+import sys
 
-dir_path = os.path.realpath('.')
+inPath='.'
+outPath='.'
 
-mypath="."
-resultPath=dir_path + "/build/"
+if len(sys.argv) > 1:
+    path=sys.argv[1]
+if len(sys.argv) > 2:
+    path=sys.argv[2]
+
+current_path = os.path.realpath(outPath)
+dir_path = os.path.realpath(path)
+
+resultPath=current_path + "/build/"
 namespace=["GameEngine", "DebugNetworkInterface"]
 indent="    "
 basicTypes=["bool", "int", "int8", "int32", "uint8", "uint32", "float", "char", "std::string", "vec3", "vec2"]
@@ -36,7 +45,7 @@ def IsComplextType(type):
     return False
 
 def ReadFile(fileName):
-    file = open("./" + fileName, "r")
+    file = open(fileName, "r")
     print("File " + fileName +" content : ")
     result=[]
     for line in file:
@@ -56,7 +65,9 @@ def CreateStructFile(filename, params):
 
     for param in params:
         if not (param[0] in basicTypes):
-            file.write("#include \"" + GetHeaderFromCustomType(param[0]) + ".h\"\n")
+            typeInside=GetHeaderFromCustomType(param[0])
+            if not (typeInside  in basicTypes):
+                file.write("#include \"" + typeInside + ".h\"\n")
 
     file.write("\n")
     StartNamespace(file)
@@ -126,7 +137,9 @@ def CreateSerializationFile(filename, params):
     file.write("#include <UtilsNetwork/Messages/XmlConverterUtils.h>\n")
     for param in params:
         if not (param[0] in basicTypes):
-            file.write("#include \"" + GetHeaderFromCustomType(param[0]) + "XmlSerializer.h\"\n")
+            typeInside=GetHeaderFromCustomType(param[0])
+            if not (typeInside  in basicTypes):
+                file.write("#include \"" + typeInside + "XmlSerializer.h\"\n")
 
     file.write("\n")
 
@@ -140,11 +153,11 @@ def CreateSerializationFile(filename, params):
             if param[0] == "std::string":
                 file.write(indent + "root->attributes_.insert({\"" + param[1] + "\", input." + param[1] + "});\n")
             elif param[0] == "vec3" or param[0] == "vec2":
-                file.write(indent + "root->AddChild(std::move(Utils::Convert(\"" + param[1] + "\", input." + param[1] +")));\n")
+                file.write(indent + "root->AddChild(Utils::Convert(\"" + param[1] + "\", input." + param[1] +"));\n")
             else:
                 file.write(indent + "root->attributes_.insert({\"" + param[1] + "\", std::to_string(input." + param[1] + ")});\n")
         elif IsComplextType(param[0]):
-            file.write(indent + "root->AddChild(std::move(Utils::Convert(\""+ param[1] + "\", input.params)));\n")
+            file.write(indent + "root->AddChild(Utils::Convert(\""+ param[1] + "\", input." + param[1] + "));\n")
         else:
             file.write(indent + "root->AddChild(std::move(Convert(input." + param[1] +")));\n")
 
@@ -176,7 +189,10 @@ def CreateDeserializationFile(filename, params):
     file.write("#include <Utils/XML/XMLUtils.h>\n")
     for param in params:
         if not (param[0] in basicTypes):
-            file.write("#include \"" + GetHeaderFromCustomType(param[0]) + "XmlDeserializer.h\"\n")
+            typeInside=GetHeaderFromCustomType(param[0])
+            if not (typeInside  in basicTypes):
+                file.write("#include \"" + GetHeaderFromCustomType(param[0]) + "XmlDeserializer.h\"\n")
+
     file.write("\n")
     StartNamespace(file)
     file.write("void SetParam(" + filename[0] + "& output, Utils::XmlNode& input)\n")
@@ -199,9 +215,24 @@ def CreateDeserializationFile(filename, params):
         elif IsComplextType(param[0]):
             file.write(indent + indent + "for (auto& child : input.GetChild(\"" + param[1] + "\")->GetChildren())\n")
             file.write(indent + indent + "{\n")
-            file.write(indent + indent + indent + GetHeaderFromCustomType(param[0]) + " obj;\n")
-            file.write(indent + indent + indent + "SetParam(obj, *child);\n")
-            file.write(indent + indent + indent + "output." + param[1] + ".push_back(obj);\n")
+
+            typeInside=GetHeaderFromCustomType(param[0])
+            if not (typeInside  in basicTypes):
+                file.write(indent + indent + indent + typeInside + " obj;\n")
+                file.write(indent + indent + indent + "SetParam(obj, *child);\n")
+                file.write(indent + indent + indent + "output." + param[1] + ".push_back(obj);\n")
+            else:
+                if typeInside == "std::string":
+                    file.write(indent + indent + indent + "output." + param[1] + ".push_back(child->value_);\n")
+                if typeInside == "int" or typeInside == "int8" or typeInside == "int32" or typeInside == "uint8" or typeInside == "uint32" or typeInside == "char":
+                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(std::stoi(child->value_));\n")
+                if typeInside == "float":
+                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(std::stof(child->value_));\n")
+                if typeInside == "vec2":
+                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(Utils::ConvertToVec2(*child->GetChild(\"" + param[1] + "\")));\n")
+                if typeInside == "vec3":
+                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(Utils::ConvertToVec3(*child->GetChild(\"" + param[1] + "\")));\n")
+
             file.write(indent + indent + "}\n")
         else:
             file.write(indent + indent + "SetParam(output." + param[1] + ", *input.GetChild(\"" + param[1] + "\"));\n")
@@ -264,6 +295,7 @@ def CreateConverter(fileNames):
     for filename in fileNames:
         file.write(indent + "case MessageTypes::" + filename + ": ")
         file.write("return Deserialize" + filename + "(reader);\n")
+    file.write(indent + "default: break;\n")
     file.write(indent + "}\n")
     file.write(indent + "return nullptr;\n")
     file.write("}\n")
@@ -279,6 +311,7 @@ def CreateConverter(fileNames):
         file.write(indent + indent + "auto msg = Network::castMessageAs<" + filename + ">(message);\n")
         file.write(indent + indent + "return Serialize(*msg);\n")
         file.write(indent + "}\n")
+    file.write(indent + "default: break;\n")
     file.write(indent + "}\n")
     file.write(indent + "return {};\n")
     file.write("}\n")
@@ -358,13 +391,13 @@ if __name__ == "__main__":
     if not os.path.exists(resultPath):
         os.makedirs(resultPath)
 
-    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    onlyfiles = [f for f in listdir(dir_path) if isfile(join(dir_path, f))]
 
     templateFiles = []
     for fileNameWithExtension in onlyfiles:
         fileName=fileNameWithExtension.split('.')
         if fileName[1]=="template":
-            params = ReadFile(fileNameWithExtension)
+            params = ReadFile(join(dir_path, fileNameWithExtension))
             print(fileName)
             print(params)
             templateFiles.append(fileName[0])

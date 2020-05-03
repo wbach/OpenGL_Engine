@@ -11,8 +11,8 @@ namespace DebugNetworkInterface
 std::unique_ptr<Utils::XmlNode> Convert(const CameraMsg& input)
 {
     auto root = std::make_unique<Utils::XmlNode>("CameraMsg");
-    root->AddChild(std::move(Utils::Convert("position", input.position)));
-    root->AddChild(std::move(Utils::Convert("rotation", input.rotation)));
+    root->AddChild(Utils::Convert("position", input.position));
+    root->AddChild(Utils::Convert("rotation", input.rotation));
     return root;
 }
 Network::IMessageData Serialize(const CameraMsg& input)

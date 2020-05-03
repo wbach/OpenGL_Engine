@@ -1,11 +1,8 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
-from CommonWidgetTools import CenterPosition
 from functools import partial
-from collections import defaultdict
 from PIL import Image, ImageTk
-import os.path
 from os import path
 
 class ComponentsView:

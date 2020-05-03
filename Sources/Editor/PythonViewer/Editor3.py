@@ -8,6 +8,7 @@ from Menu import Menu
 from Context import Context
 from CommonWidgetTools import LeftPosition
 from tkinter import messagebox
+from TerrainPainter import TerrainPainterView
 
 import os
 import tkinter as tk
@@ -33,6 +34,7 @@ class Editor:
         self.gameObjectView = GameObjectView(self.context.networkClient, self.root, self.infoView, self.transformView,
                                              self.componentsView, self.fileManager)
         self.menu = Menu(self.context.networkClient, self.root, self.fileManager)
+        self.terrainPainterView = TerrainPainterView(self.context, self.root)
 
         self.context.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
         self.context.networkClient.SubscribeOnMessage("ErrorIndication", self.OnSceneFileMsg)

@@ -2,31 +2,62 @@
 
 #include <Logger/Log.h>
 
+#include <Input/InputManager.h>
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "HeightBrushes/CircleAverageHeightBrush.h"
-#include "HeightBrushes/CircleLinearHeightBrush.h"
 #include "HeightBrushes/CircleConstantHeightBrush.h"
+#include "HeightBrushes/CircleLinearHeightBrush.h"
 
 namespace GameEngine
 {
-TerrainPainter::TerrainPainter(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize,
+TerrainPainter::TerrainPainter(Input::InputManager& inputManager, const CameraWrapper& camera,
+                               const Projection& projection, const vec2ui& windowSize,
                                const Components::ComponentController& componentController)
-    : pointGetter_(camera, projection, windowSize, componentController)
+    : strength_(0.01f)
+    , brushSize_(16)
+    , heightBrushType_(HeightBrushType::CircleLinear)
+    , stepInterpolation_(StepInterpolation::Linear)
+    , inputManager_(inputManager)
+    , pointGetter_(camera, projection, windowSize, componentController)
+    , lmouseKeyIsPressed_(false)
 {
+    mouseKeyDownSubscribtion_ =
+        inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() { lmouseKeyIsPressed_ = true; });
+
+    mouseKeyUpSubscribtion_ =
+            inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { lmouseKeyIsPressed_ = false; });
 }
 
-void TerrainPainter::PaintBlendMap(const vec2& mousePosition, const vec3& color, float range)
+TerrainPainter::~TerrainPainter()
 {
+    if (mouseKeyDownSubscribtion_)
+        inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, *mouseKeyDownSubscribtion_);
+
+    if (mouseKeyUpSubscribtion_)
+        inputManager_.UnsubscribeOnKeyUp(KeyCodes::LMOUSE, *mouseKeyUpSubscribtion_);
+}
+
+void TerrainPainter::PaintBlendMap(const vec2& mousePosition, const vec3&, float)
+{
+    if (not lmouseKeyIsPressed_)
+        return;
+
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
 
     if (not terrainPoint)
         return;
 }
-#define PAINT(X)  X(*terrainPoint, linearStep == StepInterpolation::Linear, mousePosition, strength, brushSize).Paint()
 
-void TerrainPainter::PaintHeightMap(HeightBrushType type, const vec2& mousePosition, float strength, int32 brushSize, StepInterpolation linearStep)
+#define PAINT(X)                                                                                                     \
+    X(*terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_) \
+        .Paint()
+
+void TerrainPainter::PaintHeightMap(const vec2& mousePosition)
 {
+    if (not lmouseKeyIsPressed_)
+        return;
+
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
 
     if (not terrainPoint)
@@ -40,7 +71,7 @@ void TerrainPainter::PaintHeightMap(HeightBrushType type, const vec2& mousePosit
 
     bool heightmapChange{false};
 
-    switch (type)
+    switch (heightBrushType_)
     {
         case HeightBrushType::CircleLinear:
             heightmapChange = PAINT(CircleLinearHeightBrush);

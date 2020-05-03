@@ -35,9 +35,25 @@ class Menu:
         createMenu.add_command(label="Clear all game objects", command=self.ClearAllGameObjects)
         createMenu.add_command(label="Clear all", command=self.ClearAll)
         menubar.add_cascade(label="Scene", menu=createMenu)
+
+        toolsMenu = tk.Menu(menubar, tearoff=0)
+        toolsMenu.add_command(label="Terrain height painter", command=self.EnableTerrainHeightPainter)
+        toolsMenu.add_command(label="Terrain texture painter", command=self.EnableTerrainTexturePainter)
+        menubar.add_cascade(label="Tools", menu=toolsMenu)
+
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
+
+    def EnableTerrainHeightPainter(self):
+        if not AskAndTryConnect(self.networkClient):
+            return
+        self.networkClient.SendCommand("enableTerrainHeightPainter")
+
+    def EnableTerrainTexturePainter(self):
+        if not AskAndTryConnect(self.networkClient):
+            return
+        self.networkClient.SendCommand("enableTerrainTexturePainter")
 
     def ReloadScene(self):
         if not AskAndTryConnect(self.networkClient):

@@ -212,7 +212,7 @@ class GameObjectView:
         self.gameObjectsCountStr.set("Game objects count : {0}".format(len(self.gameObjects)))
 
     def SelectTreeElementWihoutTrigerMsg(self, hwnd):
-            self.self.trigerObjectSelectChange = False
+            self.trigerObjectSelectChange = False
             self.tree.focus(hwnd)
             self.tree.selection_set(hwnd)
             self.trigerObjectSelectChange = True

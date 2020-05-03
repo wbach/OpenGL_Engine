@@ -74,6 +74,11 @@ private:
     void ReloadScene(const EntryParameters&);
     void ClearAll(const EntryParameters&);
     void ClearAllGameObjects(const EntryParameters&);
+    void EnableTerrainHeightPainter(const EntryParameters&);
+    void EnableTerrainTexturePainter(const EntryParameters&);
+    void DisableTerrainHeightPainter(const EntryParameters&);
+    void DisableTerrainTexturePainter(const EntryParameters&);
+    void UpdateTerrainPainterParam(const EntryParameters&);
     void Exit(const EntryParameters&);
 
     void StartScene();

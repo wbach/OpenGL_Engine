@@ -16,6 +16,12 @@ public:
         , name_(name)
     {
     }
+    XmlNode(const std::string& name, const std::string& value)
+        : parent(nullptr)
+        , value_(value)
+        , name_(name)
+    {
+    }
 
     const std::string& GetName() const
     {
@@ -31,7 +37,12 @@ public:
         childrenMap_.insert({name, children_.back().get()});
         return *children_.back();
     }
-
+    XmlNode& AddChild(const std::string& name, const std::string& value)
+    {
+        children_.emplace_back(new XmlNode(name, value));
+        childrenMap_.insert({name, children_.back().get()});
+        return *children_.back();
+    }
     void AddChild(std::unique_ptr<XmlNode> child)
     {
         children_.push_back(std::move(child));

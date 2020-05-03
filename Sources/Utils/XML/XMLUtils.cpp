@@ -171,5 +171,9 @@ vec2 ReadVec2(XmlNode& node)
     return v;
 }
 
-}  // namespace Utils
+std::unique_ptr<XmlNode> Convert(const std::string& v)
+{
+    return std::make_unique<Utils::XmlNode>("v", v);
+}
 
+}  // namespace Utils

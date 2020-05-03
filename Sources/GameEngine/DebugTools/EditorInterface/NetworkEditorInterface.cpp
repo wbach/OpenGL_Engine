@@ -28,6 +28,7 @@
 #include "Messages/GameObjectRenamed.h"
 #include "Messages/NewComponentMsgInd.h"
 #include "Messages/NewGameObjectInd.h"
+#include "Messages/PlantBrushEnabled.h"
 #include "Messages/ReloadScene.h"
 #include "Messages/RemoveComponentMsgInd.h"
 #include "Messages/RemoveGameObjectInd.h"
@@ -35,6 +36,7 @@
 #include "Messages/SceneStartedNotifMsg.h"
 #include "Messages/SceneStopedNotifMsg.h"
 #include "Messages/SelectedObjectChanged.h"
+#include "Messages/TerrainPainterEnabled.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
 
@@ -50,8 +52,6 @@ std::optional<uint32> transformChangedToSend_;
 
 std::atomic_bool cameraChangedToSend_;
 uint64 sendChangeTimeInterval{100};
-
-bool TERRAIN_PAINTING{false};
 }  // namespace
 
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::ThreadSync &threadSync)
@@ -116,12 +116,7 @@ void NetworkEditorInterface::Main()
         std::lock_guard<std::mutex> lk(terrainPainterMutex_);
         if (terrainPainter_)
         {
-            terrainPainter_->PaintHeightMap( HeightBrushType::CircleConstantValue, scene_.inputManager_->GetMousePosition(), 0.001f, 16, StepInterpolation::Linear);
-            //auto position = terrainPainter_->GetMouseTerrainPosition(scene_.inputManager_->GetMousePosition());
-            //if (selectedGameObject_)
-            //{
-            //    SetGameObjectPosition(*selectedGameObject_, *position);
-            //}
+            terrainPainter_->PaintHeightMap(scene_.inputManager_->GetMousePosition());
         }
     }
 }
@@ -157,6 +152,11 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("setPhysicsVisualization", SetPhysicsVisualization);
     REGISTER_COMMAND("selectGameObject", SelectGameObject);
     REGISTER_COMMAND("goCameraToObject", GoCameraToObject);
+    REGISTER_COMMAND("enableTerrainHeightPainter", EnableTerrainHeightPainter);
+    REGISTER_COMMAND("enableTerrainTexturePainter", EnableTerrainTexturePainter);
+    REGISTER_COMMAND("disableTerrainHeightPainter", DisableTerrainHeightPainter);
+    REGISTER_COMMAND("disableTerrainTexturePainter", DisableTerrainTexturePainter);
+    REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
     REGISTER_COMMAND("exit", Exit);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
@@ -230,10 +230,6 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
-        terrainPainter_ = std::make_unique<TerrainPainter>(
-            scene_.camera, scene_.renderersManager_->GetProjection(),
-            scene_.displayManager_->GetWindowSize(), scene_.componentController_);
-
         std::optional<uint32> lastSelectedGameObject;
 
         if (selectedGameObject_)
@@ -248,19 +244,8 @@ void NetworkEditorInterface::KeysSubscribtions()
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
 
-            auto terrainComponent = selectedGameObject_->GetComponent<Components::TerrainRendererComponent>();
-            if (terrainComponent)
-            {
-                if (TERRAIN_PAINTING)
-                {
-
-                }
-            }
-            else
-            {
-                dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                           scene_.renderersManager_->GetProjection());
-            }
+            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
+                                                       scene_.renderersManager_->GetProjection());
 
             if (not lastSelectedGameObject or *lastSelectedGameObject != selectedGameObject_->GetId())
             {
@@ -280,10 +265,6 @@ void NetworkEditorInterface::KeysSubscribtions()
         {
             std::lock_guard<std::mutex> lk(dragObjectMutex_);
             dragObject_.reset(nullptr);
-        }
-        {
-            std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-            terrainPainter_.reset(nullptr);
         }
     });
 
@@ -1029,6 +1010,68 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
         gateway_.Send(userId_, msg);
     }
     scene_.ClearGameObjects();
+}
+
+void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
+{
+    terrainPainter_ = std::make_unique<TerrainPainter>(
+        *scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
+        scene_.displayManager_->GetWindowSize(), scene_.componentController_);
+
+    DebugNetworkInterface::TerrainPainterEnabled msg;
+    msg.type               = "Height";
+    msg.strength           = terrainPainter_->strength_;
+    msg.brushSize          = terrainPainter_->brushSize_;
+    msg.selectedBrushType  = std::to_string(terrainPainter_->heightBrushType_);
+    msg.stepInterpolation  = std::to_string(terrainPainter_->stepInterpolation_);
+    msg.brushTypes         = AvaiableHeightBrushTypeStrs();
+    msg.stepInterpolations = AvaiableStepInterpolationsStrs();
+    gateway_.Send(userId_, msg);
+}
+
+void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &)
+{
+}
+
+void NetworkEditorInterface::DisableTerrainHeightPainter(const NetworkEditorInterface::EntryParameters &)
+{
+    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    terrainPainter_.reset(nullptr);
+}
+
+void NetworkEditorInterface::DisableTerrainTexturePainter(const NetworkEditorInterface::EntryParameters &)
+{
+}
+
+void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterface::EntryParameters &params)
+{
+    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    if (not terrainPainter_)
+        return;
+
+    try
+    {
+        if (params.count("strength"))
+        {
+            terrainPainter_->strength_ = std::stof(params.at("strength"));
+        }
+        if (params.count("brushSize"))
+        {
+            terrainPainter_->brushSize_ = std::stoi(params.at("brushSize"));
+        }
+        if (params.count("stepInterpolation"))
+        {
+            std::from_string(params.at("stepInterpolation"), terrainPainter_->stepInterpolation_);
+        }
+        if (params.count("brushType"))
+        {
+            std::from_string(params.at("brushType"), terrainPainter_->heightBrushType_);
+        }
+    }
+    catch (...)
+    {
+        ERROR_LOG("Message parsing error.");
+    }
 }
 
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)

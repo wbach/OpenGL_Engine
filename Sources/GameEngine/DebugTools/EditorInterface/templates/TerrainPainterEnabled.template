@@ -1,0 +1,7 @@
+std::vector<std::string> brushTypes
+std::vector<std::string> stepInterpolations
+std::string selectedBrushType
+std::string type
+std::string stepInterpolation
+float strength
+int brushSize

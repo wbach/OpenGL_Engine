@@ -44,6 +44,14 @@ std::unique_ptr<XmlNode> Convert(const std::string& label, const vec3&);
 vec2 ConvertToVec2(XmlNode&);
 vec3 ConvertToVec3(XmlNode&);
 
+std::unique_ptr<Utils::XmlNode> Convert(const std::string&);
+
+template<class T>
+std::unique_ptr<Utils::XmlNode> Convert(T v)
+{
+    return std::make_unique<Utils::XmlNode>("v", std::to_string(v));
+}
+
 template <class T>
 std::unique_ptr<XmlNode> Convert(const std::string& label, const std::vector<T>& v)
 {

@@ -5,6 +5,13 @@
 #include <optional>
 
 #include "TerrainPointGetter.h"
+#include "StepInterpolation.h"
+#include "HeightBrushType.h"
+
+namespace Input
+{
+class InputManager;
+} // namespace Input
 
 namespace common
 {
@@ -21,28 +28,27 @@ namespace Components
 class ComponentController;
 }  // namespace Components
 
-enum class HeightBrushType
-{
-    CircleLinear,
-    CircleAverage,
-    CircleConstantValue
-};
-
-enum class StepInterpolation
-{
-    None,
-    Linear
-};
-
 class TerrainPainter
 {
 public:
-    TerrainPainter(const CameraWrapper&, const Projection&, const vec2ui&, const Components::ComponentController&);
-    void PaintBlendMap(const vec2&, const vec3& color, float range);
-    void PaintHeightMap(HeightBrushType type, const vec2&, float height, int32 brushSize, StepInterpolation linearStep);
+    TerrainPainter(Input::InputManager&, const CameraWrapper&, const Projection&, const vec2ui&, const Components::ComponentController&);
+    ~TerrainPainter();
+    void PaintBlendMap(const vec2&, const vec3&, float);
+    void PaintHeightMap(const vec2&);
     std::optional<vec3> GetMouseTerrainPosition(const vec2&);
 
+public:
+    float strength_;
+    int32 brushSize_;
+    HeightBrushType heightBrushType_;
+    StepInterpolation stepInterpolation_;
+
 private:
+    Input::InputManager& inputManager_;
     TerrainPointGetter pointGetter_;
+    std::optional<uint32> mouseKeyDownSubscribtion_;
+    std::optional<uint32> mouseKeyUpSubscribtion_;
+    bool lmouseKeyIsPressed_;
 };
 }  // namespace GameEngine
+
