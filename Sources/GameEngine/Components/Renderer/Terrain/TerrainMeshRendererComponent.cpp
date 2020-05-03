@@ -20,6 +20,22 @@ TerrainMeshRendererComponent::TerrainMeshRendererComponent(ComponentContext &com
 TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 {
 }
+
+void TerrainMeshRendererComponent::RecalculateYOffset()
+{
+    if (not heightMap_)
+        return;
+
+    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).RecalculateYOffset();
+}
+
+void TerrainMeshRendererComponent::RecalculateNormals()
+{
+    if (not heightMap_)
+        return;
+
+    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).RecalculateNormals();
+}
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
     if (not heightMap_)

@@ -14,6 +14,8 @@ public:
     TerrainMeshRendererComponent(ComponentContext& componentContext, GameObject& gameObject);
     ~TerrainMeshRendererComponent() override;
 
+    void RecalculateYOffset() override;
+    void RecalculateNormals() override;
     void CleanUp() override;
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
 

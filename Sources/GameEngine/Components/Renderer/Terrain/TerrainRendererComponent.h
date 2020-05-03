@@ -35,6 +35,8 @@ public:
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     std::unordered_map<ParamName, Param> GetParams() const override;
 
+    void RecalculateYOffset();
+    void RecalculateNormals();
     void HeightMapChanged();
     void UpdateTexture(TerrainTextureType, const std::string&);
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);

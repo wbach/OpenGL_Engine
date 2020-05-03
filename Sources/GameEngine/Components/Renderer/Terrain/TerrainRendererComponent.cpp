@@ -175,6 +175,16 @@ std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
     return result;
 }
 
+void TerrainRendererComponent::RecalculateYOffset()
+{
+    terrainComponent_->RecalculateYOffset();
+}
+
+void TerrainRendererComponent::RecalculateNormals()
+{
+    terrainComponent_->RecalculateNormals();
+}
+
 void TerrainRendererComponent::ReqisterFunctions()
 {
     for (auto f : terrainComponent_->FunctionsToRegister())

@@ -25,6 +25,14 @@ std::vector<std::pair<FunctionType, std::function<void()>>> TerrainTessellationR
 {
     return {{FunctionType::Awake, [&]() { Subscribe(); }}, {FunctionType::Update, [&]() { Update(); }}};
 }
+
+void TerrainTessellationRendererComponent::RecalculateYOffset()
+{
+}
+
+void TerrainTessellationRendererComponent::RecalculateNormals()
+{
+}
 void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& filename)
 {
     heightMapParameters_.flipMode       = TextureFlip::NONE;

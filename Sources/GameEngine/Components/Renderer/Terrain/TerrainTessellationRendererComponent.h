@@ -17,8 +17,10 @@ public:
     TerrainTessellationRendererComponent(ComponentContext&, GameObject&);
     ~TerrainTessellationRendererComponent() override;
 
-    virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
+    std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
 
+    void RecalculateYOffset() override;
+    void RecalculateNormals() override;
     void CleanUp() override;
     const TerrainQuadTree& GetTree() const;
     Texture* GetNormalMap() const;

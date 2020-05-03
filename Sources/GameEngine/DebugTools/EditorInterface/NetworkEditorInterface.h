@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Common/Transform.h>
 #include <Input/KeysSubscriptionsManager.h>
 #include <Time/Timer.h>
@@ -79,6 +79,8 @@ private:
     void DisableTerrainHeightPainter(const EntryParameters&);
     void DisableTerrainTexturePainter(const EntryParameters&);
     void UpdateTerrainPainterParam(const EntryParameters&);
+    void RecalculateTerrainYOffset(const EntryParameters&);
+    void RecalculateTerrainNormals(const EntryParameters&);
     void Exit(const EntryParameters&);
 
     void StartScene();

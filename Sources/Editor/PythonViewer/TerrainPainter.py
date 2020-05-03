@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from CommonWidgetTools import CalculateGeomentryCenterPosition
 
+
 class TerrainPainterView:
     def __init__(self, context, rootFrame):
         self.context = context
@@ -21,15 +22,13 @@ class TerrainPainterView:
         self.networkClient.SubscribeOnMessage("TerrainPainterEnabled", self.OnTerrainPainterEnabled)
         self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
-
     def OnTerrainPainterEnabled(self, msg):
         if msg.get("type") == "Height":
             self.HeightPainterDialog(msg)
 
-
     def HeightPainterDialog(self, msg):
-        inputBrushTypes=[]
-        inputStepInterpolation=[]
+        inputBrushTypes = []
+        inputStepInterpolation = []
         for child in msg.getchildren():
             if child.tag == "brushTypes":
                 for v in child.getchildren():
@@ -70,14 +69,15 @@ class TerrainPainterView:
         brushSizeLabel = tk.LabelFrame(self.dialog, text="Brush size")
         brushSizeLabel.pack(fill=tk.X)
 
-        self.brushSize = tk.Scale(brushSizeLabel, from_=1, to=50, tickinterval=5, orient=tk.HORIZONTAL, command=self.SendBrushSize)
+        self.brushSize = tk.Scale(brushSizeLabel, from_=1, to=50, tickinterval=5, orient=tk.HORIZONTAL,
+                                  command=self.SendBrushSize)
         self.brushSize.pack(fill=tk.X, expand=1)
         self.brushSize.set(int(msg.get("brushSize")))
 
         stengthLabel = tk.LabelFrame(self.dialog, text="Strength")
         stengthLabel.pack(fill=tk.X)
 
-        self.strengthInput=tk.Entry(stengthLabel, textvariable=self.strengthStr)
+        self.strengthInput = tk.Entry(stengthLabel, textvariable=self.strengthStr)
         self.strengthInput.pack(fill=tk.X, expand=1)
         self.strengthStr.set(msg.get("strength"))
         self.strengthStr.trace("w", self.SendStrength)
@@ -87,8 +87,13 @@ class TerrainPainterView:
         # dialog.update()
         self.dialog.attributes('-topmost', False)
         self.dialog.protocol("WM_DELETE_WINDOW", self.OnClose)
-        self.IsDialogVisible = True
 
+        tk.Button(self.dialog, text="Recalculate normals",
+                  command=lambda: self.networkClient.SendCommand("recalculateTerrainNormals")).pack(fill=tk.X)
+        tk.Button(self.dialog, text="Recalculate Y offset",
+                  command=lambda: self.networkClient.SendCommand(
+                      "recalculateTerrainYOffset")).pack(fill=tk.X)
+        self.IsDialogVisible = True
 
     def SendStrength(self, *args):
         value = self.strengthStr.get()
@@ -99,7 +104,8 @@ class TerrainPainterView:
         self.networkClient.SendCommand("updateTerrainPainterParam brushSize=" + str(self.brushSize.get()))
 
     def SendStepInterpolation(self, *args):
-        self.networkClient.SendCommand("updateTerrainPainterParam stepInterpolation=" + str(self.stepInterpolaton.get()))
+        self.networkClient.SendCommand(
+            "updateTerrainPainterParam stepInterpolation=" + str(self.stepInterpolaton.get()))
 
     def SendBrushType(self, *args):
         self.networkClient.SendCommand("updateTerrainPainterParam brushType=" + str(self.brushTypes.get()))

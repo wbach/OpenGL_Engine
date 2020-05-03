@@ -25,6 +25,8 @@ public:
 
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() = 0;
 
+    virtual void RecalculateYOffset() = 0;
+    virtual void RecalculateNormals() = 0;
     virtual void HeightMapChanged() = 0;
     virtual void CleanUp();
 

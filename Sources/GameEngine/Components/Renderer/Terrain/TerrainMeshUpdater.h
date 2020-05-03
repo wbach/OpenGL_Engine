@@ -23,11 +23,13 @@ public:
     TerrainMeshUpdater(const EntryParameters&);
     ~TerrainMeshUpdater();
     void Update();
+    void RecalculateYOffset();
+    void RecalculateNormals();
 
 private:
     void UpdatePartialTerrainMeshes();
     void UpdateSingleTerrainMesh();
-    bool UpdatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData&, uint32 i, uint32 j, uint32 partSize);
+    bool UpdatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData&, uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
 private:
     ComponentContext& componentContext_;
@@ -35,6 +37,7 @@ private:
     ModelWrapper& modelWrapper_;
     HeightMap& heightMap_;
     float halfMaximumHeight_;
+    bool forceToUpdateMesh_;
 };
 }  // namespace Components
 }  // namespace GameEngine

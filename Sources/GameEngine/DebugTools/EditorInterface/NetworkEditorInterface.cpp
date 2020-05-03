@@ -157,6 +157,8 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("disableTerrainHeightPainter", DisableTerrainHeightPainter);
     REGISTER_COMMAND("disableTerrainTexturePainter", DisableTerrainTexturePainter);
     REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
+    REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
+    REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
     REGISTER_COMMAND("exit", Exit);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
@@ -1072,6 +1074,24 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
     {
         ERROR_LOG("Message parsing error.");
     }
+}
+
+void NetworkEditorInterface::RecalculateTerrainYOffset(const NetworkEditorInterface::EntryParameters &)
+{
+    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    if (not terrainPainter_)
+        return;
+
+    terrainPainter_->RecalcualteYOffset();
+}
+
+void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterface::EntryParameters &)
+{
+    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    if (not terrainPainter_)
+        return;
+
+    terrainPainter_->RecalculateNormals();
 }
 
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)

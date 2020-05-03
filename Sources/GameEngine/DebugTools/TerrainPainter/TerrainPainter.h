@@ -36,6 +36,8 @@ public:
     void PaintBlendMap(const vec2&, const vec3&, float);
     void PaintHeightMap(const vec2&);
     std::optional<vec3> GetMouseTerrainPosition(const vec2&);
+    void RecalculateNormals();
+    void RecalcualteYOffset();
 
 public:
     float strength_;

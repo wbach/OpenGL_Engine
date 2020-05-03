@@ -16,6 +16,7 @@ TerrainMeshUpdater::TerrainMeshUpdater(const EntryParameters& entry)
     , modelWrapper_(entry.modelWrapper_)
     , heightMap_(entry.heightMap_)
     , halfMaximumHeight_(heightMap_.GetMaximumHeight() / 2.f * config_.GetScale().y)
+    , forceToUpdateMesh_(false)
 {
 }
 TerrainMeshUpdater::~TerrainMeshUpdater()
@@ -32,6 +33,24 @@ void TerrainMeshUpdater::Update()
         UpdateSingleTerrainMesh();
     }
 }
+
+void TerrainMeshUpdater::RecalculateYOffset()
+{
+    auto difference = heightMap_.UpdateMaximumHeight();
+
+    if (difference)
+    {
+        halfMaximumHeight_ = heightMap_.GetMaximumHeight() / 2.f * config_.GetScale().y;
+        Update();
+    }
+}
+
+void TerrainMeshUpdater::RecalculateNormals()
+{
+    forceToUpdateMesh_ = true;
+    Update();
+    forceToUpdateMesh_ = false;
+}
 void TerrainMeshUpdater::UpdatePartialTerrainMeshes()
 {
     auto model       = modelWrapper_.Get(LevelOfDetail::L1);
@@ -39,7 +58,6 @@ void TerrainMeshUpdater::UpdatePartialTerrainMeshes()
     auto partialSize = heightMap_.GetImage().width / partsCount;
 
     std::vector<std::pair<uint32, GraphicsApi::MeshRawData*>> meshesToUpdate;
-    size_t heightMapIndex = 0;
 
     TerrainHeightTools tools(heightMap_.GetImage().floatData, config_.GetScale().y, heightMap_.GetImage().width,
                              halfMaximumHeight_);
@@ -51,7 +69,12 @@ void TerrainMeshUpdater::UpdatePartialTerrainMeshes()
             auto& mesh     = model->GetMeshes()[i + j * partsCount];
             auto& meshData = mesh.GetMeshDataRef();
 
-            if (mesh.GetGraphicsObjectId() and UpdatePart(tools, meshData, i, j, partialSize))
+            uint32 startX = i * partialSize;
+            uint32 startY = j * partialSize;
+            uint32 endX   = (i + 1) * partialSize + 1;
+            uint32 endY   = (j + 1) * partialSize + 1;
+
+            if (mesh.GetGraphicsObjectId() and UpdatePart(tools, meshData, startX, startY, endX, endY))
             {
                 meshesToUpdate.push_back({*mesh.GetGraphicsObjectId(), &meshData});
             }
@@ -72,16 +95,33 @@ void TerrainMeshUpdater::UpdatePartialTerrainMeshes()
 }
 void TerrainMeshUpdater::UpdateSingleTerrainMesh()
 {
-    DEBUG_LOG("Not implemented yet.");
-}
-bool TerrainMeshUpdater::UpdatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData& meshData, uint32 i, uint32 j,
-                                    uint32 partSize)
-{
-    uint32 startX = i * partSize;
-    uint32 startY = j * partSize;
-    uint32 endX   = (i + 1) * partSize + 1;
-    uint32 endY   = (j + 1) * partSize + 1;
+    auto model   = modelWrapper_.Get(LevelOfDetail::L1);
+    auto& meshes = model->GetMeshes();
+    if (meshes.size() != 1)
+    {
+        ERROR_LOG("Meshes size inccorect for single terrain mesh.");
+        return;
+    }
 
+    auto& mesh     = model->GetMeshes()[0];
+    auto& meshData = mesh.GetMeshDataRef();
+
+    TerrainHeightTools tools(heightMap_.GetImage().floatData, config_.GetScale().y, heightMap_.GetImage().width,
+                             halfMaximumHeight_);
+
+    if (mesh.GetGraphicsObjectId() and
+        UpdatePart(tools, meshData, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
+    {
+        componentContext_.gpuResourceLoader_.AddFunctionToCall(
+            [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
+                graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
+                                       {VertexBufferObjects::POSITION, VertexBufferObjects::NORMAL});
+            });
+    }
+}
+bool TerrainMeshUpdater::UpdatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData& meshData, uint32 startX,
+                                    uint32 startY, uint32 endX, uint32 endY)
+{
     size_t meshVertexIndex = 0;
     bool isHeightChangedInTerrainPart{false};
     for (uint32 i = startY; i < endY; i++)
@@ -91,11 +131,11 @@ bool TerrainMeshUpdater::UpdatePart(TerrainHeightTools& tools, GraphicsApi::Mesh
             auto& currentHeight = meshData.positions_[meshVertexIndex + 1];
             auto newHeightValue = tools.GetHeight(j, i);
 
-            if (not compare(currentHeight, newHeightValue))
+            if (forceToUpdateMesh_ or not compare(currentHeight, newHeightValue))
             {
-                currentHeight                              = newHeightValue;
-                isHeightChangedInTerrainPart               = true;
-                auto newNormal                             = tools.GetNormal(j, i);
+                currentHeight                          = newHeightValue;
+                isHeightChangedInTerrainPart           = true;
+                auto newNormal                         = tools.GetNormal(j, i);
                 meshData.normals_[meshVertexIndex]     = newNormal.x;
                 meshData.normals_[meshVertexIndex + 1] = newNormal.y;
                 meshData.normals_[meshVertexIndex + 2] = newNormal.z;

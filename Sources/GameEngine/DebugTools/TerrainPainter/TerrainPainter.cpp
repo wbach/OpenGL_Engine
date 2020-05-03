@@ -98,4 +98,20 @@ std::optional<vec3> TerrainPainter::GetMouseTerrainPosition(const vec2& mousePos
 
     return std::nullopt;
 }
+
+void TerrainPainter::RecalculateNormals()
+{
+    for(auto& terrain : pointGetter_.GetSceneTerrains())
+    {
+        terrain->RecalculateNormals();
+    }
+}
+
+void TerrainPainter::RecalcualteYOffset()
+{
+    for(auto& terrain : pointGetter_.GetSceneTerrains())
+    {
+        terrain->RecalculateYOffset();
+    }
+}
 }  // namespace GameEngine

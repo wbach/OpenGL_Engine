@@ -31,16 +31,22 @@ TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projec
 {
 }
 
-void TerrainPointGetter::GetAllSceneTerrains()
+std::vector<Components::TerrainRendererComponent*> TerrainPointGetter::GetSceneTerrains() const
 {
-    terrains_.clear();
-
     const auto& components = componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
 
+    std::vector<Components::TerrainRendererComponent*> terrains;
     for (auto& terrain : components)
     {
-        terrains_.push_back(static_cast<Components::TerrainRendererComponent*>(terrain.second));
+        terrains.push_back(static_cast<Components::TerrainRendererComponent*>(terrain.second));
     }
+
+    return terrains;
+}
+
+void TerrainPointGetter::GetAllSceneTerrains()
+{
+    terrains_ = GetSceneTerrains();
 }
 
 std::optional<TerrainPoint> TerrainPointGetter::GetMousePointOnTerrain(const vec2& mousePosition)
@@ -121,7 +127,7 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
             return std::nullopt;
 
         auto pointOnHeightMap = CastToTerrainSpace(*terrain, pointOnRay);
-        TerrainPoint result{ pointOnRay, pointOnHeightMap,  *terrain};
+        TerrainPoint result{pointOnRay, pointOnHeightMap, *terrain};
         return result;
     }
     if (IntersectionInRange(start, half, ray))
@@ -136,10 +142,10 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
 vec2ui TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3& point)
 {
     vec2ui result;
-    auto halfScale = terrain.GetTerrainConfiguration().GetScale() / 2.f;
+    auto halfScale       = terrain.GetTerrainConfiguration().GetScale() / 2.f;
     auto terrainPosition = terrain.GetParentGameObject().GetTransform().GetPosition();
-    result.x = static_cast<uint32>(point.x + halfScale.x + terrainPosition.x);
-    result.y = static_cast<uint32>(point.z + halfScale.z + terrainPosition.z);
+    result.x             = static_cast<uint32>(point.x + halfScale.x + terrainPosition.x);
+    result.y             = static_cast<uint32>(point.z + halfScale.z + terrainPosition.z);
     return result;
 }
 }  // namespace GameEngine
