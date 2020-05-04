@@ -54,7 +54,7 @@ void CircleAverageHeightBrush::CalcualteAverage()
     {
         for (int32 x = -brushSize_; x < brushSize_; x++)
         {
-            vec2i brushPoint = GetBrushPoint(x, y, terrainPoint_.pointOnHeightMap);
+            vec2i brushPoint = GetBrushPoint(x, y, terrainPoint_.terrainSpacePoint);
             if (not IsBrushInRange(brushPoint, vec2ui(heightMapImage.width, heightMapImage.height)))
                 continue;
 

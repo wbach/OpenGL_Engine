@@ -149,6 +149,11 @@ void TerrainRendererComponent::HeightMapChanged()
     terrainComponent_->HeightMapChanged();
 }
 
+void TerrainRendererComponent::BlendMapChanged()
+{
+    terrainComponent_->BlendMapChanged();
+}
+
 void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
 {
     for (const auto& param : params)

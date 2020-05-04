@@ -1,10 +1,15 @@
 #include "TerrainComponentBase.h"
+
+#include <GraphicsApi/IGraphicsApi.h>
 #include <Logger/Log.h>
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Resources/Textures/MaterialTexture.h"
 
 namespace GameEngine
 {
@@ -21,6 +26,20 @@ void TerrainComponentBase::CleanUp()
 {
     UnSubscribe();
     ReleaseTextures();
+}
+
+void TerrainComponentBase::BlendMapChanged()
+{
+    auto texture = GetTexture(TerrainTextureType::blendMap);
+    if (texture and texture->GetGraphicsObjectId())
+    {
+        auto blendMap = static_cast<MaterialTexture *>(texture);
+
+        componentContext_.gpuResourceLoader_.AddFunctionToCall([blendMap, api = &componentContext_.graphicsApi_]() {
+            api->UpdateTexture(*blendMap->GetGraphicsObjectId(), blendMap->GetImage().Size(),
+                               &blendMap->GetImage().data[0]);
+        });
+    }
 }
 
 void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureType, std::string> &textures)

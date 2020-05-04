@@ -126,8 +126,8 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
         if (not terrain)
             return std::nullopt;
 
-        auto pointOnHeightMap = CastToTerrainSpace(*terrain, pointOnRay);
-        TerrainPoint result{pointOnRay, pointOnHeightMap, *terrain};
+        auto terrainSpacePoint = CastToTerrainSpace(*terrain, pointOnRay);
+        TerrainPoint result{pointOnRay, terrainSpacePoint, *terrain};
         return result;
     }
     if (IntersectionInRange(start, half, ray))

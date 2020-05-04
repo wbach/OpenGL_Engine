@@ -7,6 +7,7 @@
 #include "TerrainPointGetter.h"
 #include "StepInterpolation.h"
 #include "HeightBrushType.h"
+#include "PaintType.h"
 
 namespace Input
 {
@@ -33,13 +34,18 @@ class TerrainPainter
 public:
     TerrainPainter(Input::InputManager&, const CameraWrapper&, const Projection&, const vec2ui&, const Components::ComponentController&);
     ~TerrainPainter();
-    void PaintBlendMap(const vec2&, const vec3&, float);
-    void PaintHeightMap(const vec2&);
+    void Paint(const vec2&);
     std::optional<vec3> GetMouseTerrainPosition(const vec2&);
     void RecalculateNormals();
     void RecalcualteYOffset();
 
+private:
+    void PaintBlendMap(const vec2&);
+    void PaintHeightMap(const vec2&);
+
 public:
+    PaintType paintType_;
+    Color paintBlendMapColor_;
     float strength_;
     int32 brushSize_;
     HeightBrushType heightBrushType_;

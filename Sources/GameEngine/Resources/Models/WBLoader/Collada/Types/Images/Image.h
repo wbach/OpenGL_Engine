@@ -11,5 +11,5 @@ struct Image
     std::string name_;
     std::string initFrom_;
 };
-}
-}
+}  // namespace Collada
+}  // namespace GameEngine

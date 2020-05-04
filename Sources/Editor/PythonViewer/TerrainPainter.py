@@ -23,8 +23,10 @@ class TerrainPainterView:
         self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
     def OnTerrainPainterEnabled(self, msg):
-        if msg.get("type") == "Height":
+        if msg.get("type") == "HeightMap":
             self.HeightPainterDialog(msg)
+        if msg.get("type") == "BlendMap":
+            print("Terrain Texture painter enabled.")
 
     def HeightPainterDialog(self, msg):
         inputBrushTypes = []

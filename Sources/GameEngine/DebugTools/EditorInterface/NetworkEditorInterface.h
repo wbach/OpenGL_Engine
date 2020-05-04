@@ -2,13 +2,15 @@
 #include <Common/Transform.h>
 #include <Input/KeysSubscriptionsManager.h>
 #include <Time/Timer.h>
-#include <UtilsNetwork/Gateway.h>
 #include <Utils/ThreadSync.h>
+#include <UtilsNetwork/Gateway.h>
 
 #include <functional>
 #include <unordered_map>
 #include <vector>
+
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/DebugTools/TerrainPainter/PaintType.h"
 #include "IEditorInterface.hpp"
 
 namespace GameEngine
@@ -93,6 +95,7 @@ private:
     void UnsubscribeCameraUpdateIfExist();
     void SetOrignalCamera();
     std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
+    void EnableTerrainPainter(PaintType);
 
 private:
     Scene& scene_;

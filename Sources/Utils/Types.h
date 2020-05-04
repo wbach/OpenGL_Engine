@@ -1,9 +1,10 @@
 #pragma once
-#include "Glm.h"
 #include <chrono>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "Glm.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
@@ -163,6 +164,7 @@ typedef Tvec2<uint32> vec2ui;
 typedef Tvec3<int32> vec3i;
 typedef Tvec3<uint32> vec3ui;
 typedef Tvec4<int32> vec4i;
+typedef Tvec4<uint32> vec4ui;
 
 std::string to_string(const vec2i& v);
 std::string to_string(const vec3i& v);
@@ -171,7 +173,9 @@ std::string to_string(const vec3i& v);
 typedef wb::vec2i vec2i;
 typedef wb::vec2ui vec2ui;
 typedef wb::vec3i vec3i;
+typedef wb::vec3ui vec3ui;
 typedef wb::vec4i vec4i;
+typedef wb::vec4ui vec4ui;
 
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
@@ -305,6 +309,99 @@ struct DegreesVec3
     vec3 value;
 };
 
+struct Color
+{
+    Color() : color(1.f) {}
+    Color(const vec4& floatColor)
+        : color(floatColor)
+    {
+    }
+    Color(const vec3& floatColor)
+        : color(floatColor, 1.f)
+    {
+    }
+    Color(const vec3ui& color)
+    {
+        rgb(color);
+        this->color.w = 1.f;
+    }
+    Color(const vec4ui& color)
+    {
+        rgba(color);
+    }
+    Color(int r, int g, int b)
+        : Color(r, g, b, 255)
+    {
+    }
+    Color(int r, int g, int b, int a)
+        : color(static_cast<float>(r) / 255.f, static_cast<float>(g) / 255.f, static_cast<float>(b) / 255.f,
+                static_cast<float>(a) / 255.f)
+    {
+    }
+    Color(float r, float g, float b)
+        : Color(r, g, b, 1.f)
+    {
+    }
+    Color(float r, float g, float b, float a)
+        : color(r, g, b, a)
+    {
+    }
+    void r(uint8 r)
+    {
+        color.x = static_cast<float>(r) / 255.f;
+    }
+    void g(uint8 g)
+    {
+        color.y = static_cast<float>(g) / 255.f;
+    }
+    void b(uint8 b)
+    {
+        color.z = static_cast<float>(b) / 255.f;
+    }
+    void a(uint8 a)
+    {
+        color.w = static_cast<float>(a) / 255.f;
+    }
+    void rgb(const vec3ui& color)
+    {
+        r(color.x);
+        g(color.y);
+        b(color.z);
+    }
+    void rgba(const vec4ui& color)
+    {
+        r(color.x);
+        g(color.y);
+        b(color.z);
+        a(color.w);
+    }
+    uint8 r() const
+    {
+        return static_cast<uint8>(color.x * 255.f);
+    }
+    uint8 g() const
+    {
+        return static_cast<uint8>(color.y * 255.f);
+    }
+    uint8 b() const
+    {
+        return static_cast<uint8>(color.z * 255.f);
+    }
+    uint8 a() const
+    {
+        return static_cast<uint8>(color.w * 255.f);
+    }
+    vec3ui rgb() const
+    {
+        return vec3ui(r(), g(), b());
+    }
+    vec4ui rgba() const
+    {
+        return vec4ui(r(), g(), b(), a());
+    }
+    vec4 color;
+};
+
 vec4 ToVec4(const vec3& v3);
 vec4 ToVec4(const vec3& v3, float w);
 vec4 ToVec4(const vec2& v2, float z, float w);
@@ -314,7 +411,8 @@ struct MeasurementValue
     MeasurementValue() = default;
     MeasurementValue(const std::string& v)
         : value(v)
-    {}
+    {
+    }
     MeasurementValue(const MeasurementValue&) = delete;
     MeasurementValue(MeasurementValue&&)      = delete;
 

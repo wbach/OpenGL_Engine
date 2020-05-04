@@ -38,6 +38,7 @@ public:
     void RecalculateYOffset();
     void RecalculateNormals();
     void HeightMapChanged();
+    void BlendMapChanged();
     void UpdateTexture(TerrainTextureType, const std::string&);
     TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     Texture* GetTexture(TerrainTextureType) const;

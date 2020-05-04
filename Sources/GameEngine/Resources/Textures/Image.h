@@ -11,5 +11,10 @@ struct Image
 
     uint32 width{0};
     uint32 height{0};
+
+    vec2ui Size() const
+    {
+        return vec2ui(width, height);
+    }
 };
 }  // namespace GameEngine

@@ -116,7 +116,7 @@ void NetworkEditorInterface::Main()
         std::lock_guard<std::mutex> lk(terrainPainterMutex_);
         if (terrainPainter_)
         {
-            terrainPainter_->PaintHeightMap(scene_.inputManager_->GetMousePosition());
+            terrainPainter_->Paint(scene_.inputManager_->GetMousePosition());
         }
     }
 }
@@ -1014,25 +1014,37 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
     scene_.ClearGameObjects();
 }
 
-void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
+DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(TerrainPainter& painter)
+{
+    DebugNetworkInterface::TerrainPainterEnabled msg;
+    msg.type = std::to_string(painter.paintType_);
+    msg.strength = painter.strength_;
+    msg.brushSize = painter.brushSize_;
+    msg.selectedBrushType = std::to_string(painter.heightBrushType_);
+    msg.stepInterpolation = std::to_string(painter.stepInterpolation_);
+    msg.brushTypes = AvaiableHeightBrushTypeStrs();
+    msg.stepInterpolations = AvaiableStepInterpolationsStrs();
+    return msg;
+}
+
+void NetworkEditorInterface::EnableTerrainPainter(PaintType type)
 {
     terrainPainter_ = std::make_unique<TerrainPainter>(
         *scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
         scene_.displayManager_->GetWindowSize(), scene_.componentController_);
 
-    DebugNetworkInterface::TerrainPainterEnabled msg;
-    msg.type               = "Height";
-    msg.strength           = terrainPainter_->strength_;
-    msg.brushSize          = terrainPainter_->brushSize_;
-    msg.selectedBrushType  = std::to_string(terrainPainter_->heightBrushType_);
-    msg.stepInterpolation  = std::to_string(terrainPainter_->stepInterpolation_);
-    msg.brushTypes         = AvaiableHeightBrushTypeStrs();
-    msg.stepInterpolations = AvaiableStepInterpolationsStrs();
-    gateway_.Send(userId_, msg);
+    terrainPainter_->paintType_ = type;
+    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
+}
+
+void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
+{
+    EnableTerrainPainter(PaintType::HeightMap);
 }
 
 void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &)
 {
+    EnableTerrainPainter(PaintType::BlendMap);
 }
 
 void NetworkEditorInterface::DisableTerrainHeightPainter(const NetworkEditorInterface::EntryParameters &)
@@ -1043,6 +1055,8 @@ void NetworkEditorInterface::DisableTerrainHeightPainter(const NetworkEditorInte
 
 void NetworkEditorInterface::DisableTerrainTexturePainter(const NetworkEditorInterface::EntryParameters &)
 {
+    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    terrainPainter_.reset(nullptr);
 }
 
 void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterface::EntryParameters &params)
@@ -1191,4 +1205,6 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
     }
     return result;
 }
+
+
 }  // namespace GameEngine

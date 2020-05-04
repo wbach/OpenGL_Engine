@@ -28,7 +28,7 @@ bool CircleBrushBase::Paint()
     {
         for (int32 x = -brushSize_; x < brushSize_; x++)
         {
-            vec2i brushPoint = GetBrushPoint(x, y, terrainPoint_.pointOnHeightMap);
+            vec2i brushPoint = GetBrushPoint(x, y, terrainPoint_.terrainSpacePoint);
             if (not IsBrushInRange(brushPoint, vec2ui(heightMapImage.width, heightMapImage.height)))
                 continue;
 
@@ -68,7 +68,7 @@ float CircleBrushBase::CalculateStrength(const vec2ui& paintedPoint)
     if (linearDistance_)
     {
         auto currentPoint      = vec2(paintedPoint.x, paintedPoint.y);
-        auto pointOnHeightMapf = vec2(terrainPoint_.pointOnHeightMap.x, terrainPoint_.pointOnHeightMap.y);
+        auto pointOnHeightMapf = vec2(terrainPoint_.terrainSpacePoint.x, terrainPoint_.terrainSpacePoint.y);
         float distance         = glm::length(currentPoint - pointOnHeightMapf) / static_cast<float>(brushSize_);
         intensity_ = 1.f - distance;
 

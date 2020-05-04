@@ -30,6 +30,8 @@ public:
     virtual void HeightMapChanged() = 0;
     virtual void CleanUp();
 
+    void BlendMapChanged();
+
     void LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
     const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
     const TerrainTexturesMap& GetTextures() const;
