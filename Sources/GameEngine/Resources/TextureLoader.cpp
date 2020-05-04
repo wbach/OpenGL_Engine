@@ -65,7 +65,7 @@ Texture* TextureLoader::LoadTexture(const InputFileName& inputFileName, const Te
     if (not image)
         return GetTextureNotFound();
 
-    auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, false, Utils::GetFilename(inputFileName),
+    auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, params.keepData, Utils::GetFilename(inputFileName),
                                                              Utils::GetFilePath(inputFileName), *image);
 
     return AddTexture(inputFileName, std::move(materialTexture), params.loadType);
@@ -94,7 +94,7 @@ Texture* TextureLoader::LoadCubeMap(const std::array<InputFileName, 6>& files, c
         images[index++] = std::move(*image);
     }
 
-    return AddTexture(textureName.str(), std::make_unique<CubeMapTexture>(graphicsApi_, textureName.str(), images),
+    return AddTexture(textureName.str(), std::make_unique<CubeMapTexture>(graphicsApi_, textureName.str(), images, params.keepData),
                       params.loadType);
 }
 Texture* TextureLoader::LoadHeightMap(const InputFileName& inputFileName, const TextureParameters& params)
@@ -207,7 +207,7 @@ Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, 
         return nullptr;
     }
 
-    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, true, Utils::GetFilename(inputFileName),
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, Utils::GetFilename(inputFileName),
                                                         GetRelativeDataPath(inputFileName), std::move(image));
     heightmapTexture->SetScale(header.scale);
 
@@ -241,7 +241,7 @@ Texture* TextureLoader::LoadHeightMapTexture(const InputFileName& inputFileName,
         image.data.clear();
     }
 
-    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, true, Utils::GetFilename(inputFileName),
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, Utils::GetFilename(inputFileName),
                                                         GetRelativeDataPath(inputFileName), std::move(image));
 
     return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);

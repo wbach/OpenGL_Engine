@@ -5,6 +5,7 @@
 #include <Input/InputManager.h>
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Resources/Textures/MaterialTexture.h"
 #include "HeightBrushes/CircleAverageHeightBrush.h"
 #include "HeightBrushes/CircleConstantHeightBrush.h"
 #include "HeightBrushes/CircleLinearHeightBrush.h"
@@ -47,6 +48,13 @@ void TerrainPainter::PaintBlendMap(const vec2& mousePosition, const vec3&, float
 
     if (not terrainPoint)
         return;
+
+    auto blendMapTexture = terrainPoint->terrainComponent.GetTexture(TerrainTextureType::blendMap);
+    if (blendMapTexture)
+    {
+        auto blendMap = static_cast<MaterialTexture*>(blendMapTexture);
+        auto blendMapImage = blendMap->GetImage();
+    }
 }
 
 #define PAINT(X)                                                                                                     \

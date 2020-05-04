@@ -5,9 +5,10 @@
 namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
-                               std::array<Image, 6> images)
+                               std::array<Image, 6> images, bool keepData)
     : Texture(graphicsApi, name, name)
     , images_(std::move(images))
+    , keepData_(keepData)
 {
     if (images_.size() != 6)
     {

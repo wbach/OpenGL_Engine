@@ -16,6 +16,7 @@ struct TextureParameters
     TextureFlip flipMode{TextureFlip::NONE};
     TextureLoadType loadType{TextureLoadType::AddToGpuPass};
     bool applySizeLimit{true};
+    bool keepData{false};
 };
 typedef vec2ui TextureSize;
 typedef void* RawData;

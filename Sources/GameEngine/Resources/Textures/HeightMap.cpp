@@ -5,11 +5,10 @@
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file,
                      const std::string& filepath, Image image)
     : Texture(graphicsApi, file, filepath)
     , image_(std::move(image))
-    , keepData_(keepData)
     , maximumHeight_(0)
 {
     size_ = vec2ui(image_.width, image_.height);
@@ -37,11 +36,6 @@ void HeightMap::GpuLoadingPass()
     else
     {
         ERROR_LOG("Texutre not created. Filename : " + fullpath);
-    }
-
-    if (not keepData_)
-    {
-        image_.floatData.clear();
     }
 }
 

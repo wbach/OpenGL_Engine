@@ -8,7 +8,7 @@ namespace GameEngine
 class HeightMap : public Texture
 {
 public:
-    HeightMap(GraphicsApi::IGraphicsApi&, bool keepData, const std::string& file,
+    HeightMap(GraphicsApi::IGraphicsApi&, const std::string& file,
               const std::string& filepath, Image image);
 
     void GpuLoadingPass() override;
@@ -26,7 +26,6 @@ public:
 private:
     Image image_;
     vec3 scale_;
-    bool keepData_ = false;
     float maximumHeight_;
 };
 }  // namespace GameEngine

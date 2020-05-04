@@ -29,15 +29,21 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
 
     for (const auto &texturePair : textures)
     {
+        TextureParameters textureParams;
+
         if (texturePair.first == TerrainTextureType::heightmap)
         {
             LoadTerrainConfiguration(texturePair.second);
             LoadHeightMap(texturePair.second);
             continue;
         }
+        else if (texturePair.first == TerrainTextureType::blendMap)
+        {
+            textureParams.keepData = true;
+        }
 
         auto texture =
-            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(texturePair.second, TextureParameters());
+            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(texturePair.second, textureParams);
         SetTexture(texturePair.first, texture);
     }
 }

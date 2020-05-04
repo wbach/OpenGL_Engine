@@ -43,4 +43,14 @@ void MaterialTexture::GpuLoadingPass()
         image.data.clear();
     }
 }
+
+Image &MaterialTexture::GetImage()
+{
+    return image;
+}
+
+const Image &MaterialTexture::GetImage() const
+{
+    return image;
+}
 }  // namespace GameEngine

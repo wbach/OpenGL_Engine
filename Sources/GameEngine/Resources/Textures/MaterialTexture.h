@@ -11,6 +11,8 @@ public:
     MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                     const std::string& filepath, Image& image);
     void GpuLoadingPass() override;
+    Image& GetImage();
+    const Image& GetImage() const;
 
 private:
     Image image;
