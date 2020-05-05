@@ -15,5 +15,6 @@ private:
 
 private:
     MaterialTexture& blendMap_;
+    Color inputColor_;
 };
 }  // namespace GameEngine

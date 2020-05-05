@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Types.h"
+#include <optional>
 
 namespace GameEngine
 {
