@@ -58,9 +58,9 @@ void SetPixel(Image& image, const vec2ui& position, const Color& color)
     auto startIndex = 4 * (position.x + position.y * image.width);
     if (startIndex + 2 < image.data.size())
     {
-        image.data[startIndex]     = color.b();
+        image.data[startIndex]     = color.r();
         image.data[startIndex + 1] = color.g();
-        image.data[startIndex + 2] = color.r();
+        image.data[startIndex + 2] = color.b();
         image.data[startIndex + 3] = color.a();
     }
 }
@@ -78,23 +78,24 @@ void TerrainPainter::PaintBlendMap(const vec2& mousePosition)
     auto blendMapTexture = terrainPoint->terrainComponent.GetTexture(TerrainTextureType::blendMap);
     if (blendMapTexture)
     {
-        auto blendMap      = static_cast<MaterialTexture*>(blendMapTexture);
+        auto blendMap       = static_cast<MaterialTexture*>(blendMapTexture);
         auto& blendMapImage = blendMap->GetImage();
 
         auto& config = terrainPoint->terrainComponent.GetTerrainConfiguration();
         auto posX    = static_cast<float>(terrainPoint->terrainSpacePoint.x) / config.GetScale().x;
         auto posY    = static_cast<float>(terrainPoint->terrainSpacePoint.y) / config.GetScale().z;
 
-        auto imageCoordX = static_cast<uint32>(posX * static_cast<float>(blendMapImage.width));
-        auto imageCoordY = static_cast<uint32>(posY * static_cast<float>(blendMapImage.height));
+        auto imageCoordX = static_cast<int32>(posX * static_cast<float>(blendMapImage.width));
+        auto imageCoordY = static_cast<int32>(posY * static_cast<float>(blendMapImage.height));
 
         for (int32 y = -brushSize_; y < brushSize_; y++)
         {
             for (int32 x = -brushSize_; x < brushSize_; x++)
             {
-                if (((x) * (x)+(y) * (y)) <= brushSize_ * brushSize_)
+                if (((x) * (x) + (y) * (y)) <= brushSize_ * brushSize_)
                 {
-                    SetPixel(blendMapImage, vec2ui(imageCoordX + x, imageCoordY + y), Color(255, 0, 0));
+                    vec2ui imageCoord(static_cast<uint32>(imageCoordX + x), static_cast<uint32>(imageCoordY + y));
+                    SetPixel(blendMapImage, imageCoord, Color(255, 0, 0));
                 }
             }
         }
