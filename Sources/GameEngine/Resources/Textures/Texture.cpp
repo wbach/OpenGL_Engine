@@ -35,12 +35,12 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& 
     graphicsObjectId_ = id;
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath, const vec2ui &size,
                  bool applySizeLimit)
     : graphicsApi_(graphicsApi)
     , filename(file)
     , fullpath(filepath)
-    , size_(0)
+    , size_(size)
     , applySizeLimit(applySizeLimit)
 {
     auto rows = GetNumberOfRowsBasedOnTextureFileName(file);

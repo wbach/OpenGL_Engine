@@ -3,12 +3,13 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
+#include "Brushes/Circle/CircleHeightBrushes/CircleAverageHeightBrush.h"
+#include "Brushes/Circle/CircleHeightBrushes/CircleConstantHeightBrush.h"
+#include "Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.h"
+#include "Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/MaterialTexture.h"
-#include "HeightBrushes/CircleAverageHeightBrush.h"
-#include "HeightBrushes/CircleConstantHeightBrush.h"
-#include "HeightBrushes/CircleLinearHeightBrush.h"
 
 namespace GameEngine
 {
@@ -53,17 +54,8 @@ void TerrainPainter::Paint(const vec2& mousePosition)
     }
 }
 
-void SetPixel(Image& image, const vec2ui& position, const Color& color)
-{
-    auto startIndex = 4 * (position.x + position.y * image.width);
-    if (startIndex + 2 < image.data.size())
-    {
-        image.data[startIndex]     = color.r();
-        image.data[startIndex + 1] = color.g();
-        image.data[startIndex + 2] = color.b();
-        image.data[startIndex + 3] = color.a();
-    }
-}
+#define PAINT(X) \
+    X(*terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_).Paint()
 
 void TerrainPainter::PaintBlendMap(const vec2& mousePosition)
 {
@@ -76,35 +68,14 @@ void TerrainPainter::PaintBlendMap(const vec2& mousePosition)
         return;
 
     auto blendMapTexture = terrainPoint->terrainComponent.GetTexture(TerrainTextureType::blendMap);
-    if (blendMapTexture)
+    if (not blendMapTexture)
     {
-        auto blendMap       = static_cast<MaterialTexture*>(blendMapTexture);
-        auto& blendMapImage = blendMap->GetImage();
-
-        auto& config = terrainPoint->terrainComponent.GetTerrainConfiguration();
-        auto posX    = static_cast<float>(terrainPoint->terrainSpacePoint.x) / config.GetScale().x;
-        auto posY    = static_cast<float>(terrainPoint->terrainSpacePoint.y) / config.GetScale().z;
-
-        auto imageCoordX = static_cast<int32>(posX * static_cast<float>(blendMapImage.width));
-        auto imageCoordY = static_cast<int32>(posY * static_cast<float>(blendMapImage.height));
-
-        for (int32 y = -brushSize_; y < brushSize_; y++)
-        {
-            for (int32 x = -brushSize_; x < brushSize_; x++)
-            {
-                if (((x) * (x) + (y) * (y)) <= brushSize_ * brushSize_)
-                {
-                    vec2ui imageCoord(static_cast<uint32>(imageCoordX + x), static_cast<uint32>(imageCoordY + y));
-                    SetPixel(blendMapImage, imageCoord, Color(255, 0, 0));
-                }
-            }
-        }
-        terrainPoint->terrainComponent.BlendMapChanged();
+        return;
     }
-}
 
-#define PAINT(X) \
-    X(*terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_).Paint()
+    if (PAINT(CircleLinearTextureBrush))
+        terrainPoint->terrainComponent.BlendMapChanged();
+}
 
 void TerrainPainter::PaintHeightMap(const vec2& mousePosition)
 {

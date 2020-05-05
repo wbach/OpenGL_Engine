@@ -6,7 +6,7 @@
 
 #include "TerrainPointGetter.h"
 #include "StepInterpolation.h"
-#include "HeightBrushType.h"
+#include "Brushes/HeightBrushType.h"
 #include "PaintType.h"
 
 namespace Input

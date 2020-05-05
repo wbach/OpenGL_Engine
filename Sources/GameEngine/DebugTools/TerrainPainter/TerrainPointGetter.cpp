@@ -120,14 +120,14 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
     float half = start + ((finish - start) / 2.0f);
     if (count >= RECURSION_COUNT)
     {
-        auto pointOnRay = GetPointOnRay(ray, half);
+        auto worldPointOnTerrain = GetPointOnRay(ray, half);
 
-        auto terrain = GetTerrain(pointOnRay.x, pointOnRay.z);
+        auto terrain = GetTerrain(worldPointOnTerrain.x, worldPointOnTerrain.z);
         if (not terrain)
             return std::nullopt;
 
-        auto terrainSpacePoint = CastToTerrainSpace(*terrain, pointOnRay);
-        TerrainPoint result{pointOnRay, terrainSpacePoint, *terrain};
+        auto terrainSpacePoint = CastToTerrainSpace(*terrain, worldPointOnTerrain);
+        TerrainPoint result{worldPointOnTerrain, terrainSpacePoint, *terrain};
         return result;
     }
     if (IntersectionInRange(start, half, ray))
@@ -139,13 +139,15 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
         return BinarySearch(count + 1, half, finish, ray);
     }
 }
-vec2ui TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3& point)
+vec2 TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3& worldPointOnTerrain)
 {
-    vec2ui result;
-    auto halfScale       = terrain.GetTerrainConfiguration().GetScale() / 2.f;
+    const auto& scale = terrain.GetTerrainConfiguration().GetScale();
+    vec2 result;
+    auto halfScale       = scale / 2.f;
     auto terrainPosition = terrain.GetParentGameObject().GetTransform().GetPosition();
-    result.x             = static_cast<uint32>(point.x + halfScale.x + terrainPosition.x);
-    result.y             = static_cast<uint32>(point.z + halfScale.z + terrainPosition.z);
+    result.x             = (worldPointOnTerrain.x + halfScale.x + terrainPosition.x) / scale.x;
+    result.y             = (worldPointOnTerrain.z + halfScale.z + terrainPosition.z) / scale.z;
+    // point on terrain in <0, 1>
     return result;
 }
 }  // namespace GameEngine

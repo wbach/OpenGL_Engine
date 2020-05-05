@@ -114,9 +114,10 @@ void NetworkEditorInterface::Main()
 
     {
         std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-        if (terrainPainter_)
+        if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000/30))
         {
             terrainPainter_->Paint(scene_.inputManager_->GetMousePosition());
+            terrainPainterTimer_.Reset();
         }
     }
 }

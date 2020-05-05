@@ -6,11 +6,10 @@ namespace GameEngine
 {
 MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                                  const std::string& filepath, Image& image)
-    : Texture(graphicsApi, file, filepath)
+    : Texture(graphicsApi, file, filepath, vec2ui(image.width, image.height))
     , image(std::move(image))
     , keepData(keepData)
 {
-    size_ = vec2ui(image.width, image.height);
 }
 
 void MaterialTexture::GpuLoadingPass()

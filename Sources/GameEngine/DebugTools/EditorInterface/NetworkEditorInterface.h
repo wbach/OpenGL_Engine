@@ -125,5 +125,6 @@ private:
     std::unique_ptr<DragObject> dragObject_;
     std::mutex terrainPainterMutex_;
     std::unique_ptr<TerrainPainter> terrainPainter_;
+    Utils::Timer terrainPainterTimer_;
 };
 }  // namespace GameEngine

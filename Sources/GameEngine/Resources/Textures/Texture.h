@@ -17,7 +17,7 @@ public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
-            bool applySizeLimit = true);
+           const vec2ui& size, bool applySizeLimit = true);
     ~Texture() override;
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;

@@ -7,9 +7,8 @@ namespace GameEngine
 {
 GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const vec2ui& size,
                                void* data)
-    : Texture(graphicsApi, file, file)
+    : Texture(graphicsApi, file, file, size)
     , data_(data)
-    , size_(size)
 {
 }
 

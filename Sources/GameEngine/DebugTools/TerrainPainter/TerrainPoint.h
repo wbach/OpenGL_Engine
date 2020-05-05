@@ -11,7 +11,7 @@ class TerrainRendererComponent;
 struct TerrainPoint
 {
     vec3 pointOnTerrain;
-    vec2ui terrainSpacePoint;
+    vec2 terrainSpacePoint;
     Components::TerrainRendererComponent& terrainComponent;
 };
 }  // namespace GameEngine

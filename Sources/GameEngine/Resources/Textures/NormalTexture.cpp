@@ -7,11 +7,10 @@ namespace GameEngine
 {
 NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                              const std::string& filepath, std::unique_ptr<Image> image)
-    : Texture(graphicsApi, file, filepath)
+    : Texture(graphicsApi, file, filepath, vec2ui(image->width, image->height))
     , image_(std::move(image))
     , keepData_(keepData)
 {
-    size_ = vec2ui(image_->width, image_->height);
 }
 
 void NormalTexture::GpuLoadingPass()

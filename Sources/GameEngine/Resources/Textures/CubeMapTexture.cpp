@@ -6,7 +6,7 @@ namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
                                std::array<Image, 6> images, bool keepData)
-    : Texture(graphicsApi, name, name)
+    : Texture(graphicsApi, name, name, vec2ui(0, 0))
     , images_(std::move(images))
     , keepData_(keepData)
 {

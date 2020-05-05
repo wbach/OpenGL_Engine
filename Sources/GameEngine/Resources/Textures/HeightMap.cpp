@@ -7,11 +7,10 @@ namespace GameEngine
 {
 HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file,
                      const std::string& filepath, Image image)
-    : Texture(graphicsApi, file, filepath)
+    : Texture(graphicsApi, file, filepath, vec2ui(image.width, image.height))
     , image_(std::move(image))
     , maximumHeight_(0)
 {
-    size_ = vec2ui(image_.width, image_.height);
     UpdateMaximumHeight();
 }
 

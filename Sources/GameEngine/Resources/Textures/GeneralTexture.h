@@ -14,6 +14,5 @@ public:
 
 private:
     void* data_;
-    vec2ui size_;
 };
 }  // namespace GameEngine

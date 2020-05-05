@@ -40,7 +40,7 @@ private:
     bool IsUnderGround(const vec3& testPoint);
     Terrain* GetTerrain(float worldX, float worldZ);
     std::optional<TerrainPoint> BinarySearch(uint32 count, float start, float finish, const vec3& ray);
-    vec2ui CastToTerrainSpace(Terrain&, const vec3&);
+    vec2 CastToTerrainSpace(Terrain&, const vec3&);
 
 private:
     const CameraWrapper& camera_;

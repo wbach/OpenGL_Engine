@@ -1,5 +1,5 @@
 #pragma once
-#include "CircleBrushBase.h"
+#include "../CircleBrushBase.h"
 
 namespace GameEngine
 {
@@ -10,6 +10,9 @@ public:
     CircleConstantHeightBrush(TerrainPoint&, bool, const vec2&, float, int32);
 
 private:
-    bool Main(HeightMap&, const vec2ui&, float) override;
+    bool Main(const vec2ui&) override;
+
+private:
+    HeightMap& heightMap_;
 };
 }  // namespace GameEngine

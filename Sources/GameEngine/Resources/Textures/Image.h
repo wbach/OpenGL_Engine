@@ -12,9 +12,8 @@ struct Image
     uint32 width{0};
     uint32 height{0};
 
-    vec2ui Size() const
-    {
-        return vec2ui(width, height);
-    }
+    vec2ui Size() const;
 };
+std::optional<Color> GetPixel(Image&, const vec2ui&);
+void SetPixel(Image&, const vec2ui&, const Color&);
 }  // namespace GameEngine
