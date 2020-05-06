@@ -28,6 +28,7 @@ layout(binding = 6) uniform sampler2D backgorundTextureDisplacement;
 layout(binding = 9) uniform sampler2D redTextureDisplacement;
 layout(binding = 12) uniform sampler2D greenTextureDisplacement;
 layout(binding = 15) uniform sampler2D blueTextureDisplacement;
+layout(binding = 18) uniform sampler2D alphaTextureDisplacement;
 
 out vec4 worldPos;
 out vec2 mapCoord_FS;
@@ -69,7 +70,7 @@ Displacement calculateDisplacment()
         vec2 tiledCoords = mapCoords * TEXTURE_TILED_FACTOR;
 
         vec4 blendMapColor = texture(blendMap, mapCoords);
-        float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b) ;
+        float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a) ;
 
         displacement.array[k] = vec3(0, 1, 0);
 
@@ -80,6 +81,7 @@ Displacement calculateDisplacment()
         scale += texture(redTextureDisplacement, tiledCoords).r * blendMapColor.r * perTerrain.displacementStrength.y;
         scale += texture(greenTextureDisplacement, tiledCoords).r * blendMapColor.g * perTerrain.displacementStrength.z;
         scale += texture(backgorundTextureDisplacement, tiledCoords).r * blendMapColor.b * perTerrain.displacementStrength.w;
+        scale += texture(alphaTextureDisplacement, tiledCoords).r * blendMapColor.a * perTerrain.displacementStrength.w;
 
         float attenuation = clamp(- distance(gl_in[k].gl_Position.xyz, perFrame.cameraPosition) / LARGE_DETAIL_RANGE + 1.f , 0.f, 1.f);
        // scale *= attenuation;

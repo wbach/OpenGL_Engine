@@ -20,6 +20,7 @@
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
@@ -114,7 +115,7 @@ void NetworkEditorInterface::Main()
 
     {
         std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-        if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000/30))
+        if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
         {
             terrainPainter_->Paint(scene_.inputManager_->GetMousePosition());
             terrainPainterTimer_.Reset();
@@ -276,6 +277,9 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1,
                                              [this]() { scene_.inputManager_->AddEvent([&]() { StartScene(); }); });
+
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { GenerateTerrainBlendMap(EntryParameters()); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -1015,15 +1019,15 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
     scene_.ClearGameObjects();
 }
 
-DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(TerrainPainter& painter)
+DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(TerrainPainter &painter)
 {
     DebugNetworkInterface::TerrainPainterEnabled msg;
-    msg.type = std::to_string(painter.paintType_);
-    msg.strength = painter.strength_;
-    msg.brushSize = painter.brushSize_;
-    msg.selectedBrushType = std::to_string(painter.heightBrushType_);
-    msg.stepInterpolation = std::to_string(painter.stepInterpolation_);
-    msg.brushTypes = AvaiableHeightBrushTypeStrs();
+    msg.type               = std::to_string(painter.paintType_);
+    msg.strength           = painter.strength_;
+    msg.brushSize          = painter.brushSize_;
+    msg.selectedBrushType  = std::to_string(painter.heightBrushType_);
+    msg.stepInterpolation  = std::to_string(painter.stepInterpolation_);
+    msg.brushTypes         = AvaiableHeightBrushTypeStrs();
     msg.stepInterpolations = AvaiableStepInterpolationsStrs();
     return msg;
 }
@@ -1107,6 +1111,34 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
         return;
 
     terrainPainter_->RecalculateNormals();
+}
+void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
+{
+    auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
+
+    std::set<std::string> generetedBlendMaps;
+
+    for (auto &terrain : terrains)
+    {
+        auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
+
+        if (not tc)
+            continue;
+
+        const auto &heightMap = *tc->GetHeightMap();
+
+        auto heightMapFile = tc->GetTextureFileNames().at(TerrainTextureType::heightmap);
+
+        if (not generetedBlendMaps.count(heightMapFile))
+        {
+            std::filesystem::path path(EngineConf_GetFullDataPath(heightMapFile));
+            path.replace_extension("");
+
+            auto resultFileName = path.string() + "_generatedBlendmap";
+            GenerateBlendMap(tc->GetTerrainConfiguration().GetScale(), heightMap, resultFileName);
+            generetedBlendMaps.insert(heightMapFile);
+        }
+    }
 }
 
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)
@@ -1206,6 +1238,5 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
     }
     return result;
 }
-
 
 }  // namespace GameEngine

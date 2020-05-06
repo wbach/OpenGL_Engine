@@ -8,7 +8,7 @@ namespace GameEngine
 class TerrainHeightTools
 {
 public:
-    TerrainHeightTools(const std::vector<float>& data, float heightFactor, uint32 heightMapWidth, float offset);
+    TerrainHeightTools(const vec3& terrainScale, const std::vector<float>& data, uint32 heightMapWidth, float offset);
     float GetHeight(uint32 x, uint32 y) const;
     vec3 GetNormal(uint32 x, uint32 z) const;
 
@@ -20,6 +20,7 @@ private:
 
 private:
     const std::vector<float>& data_;
+    vec2 terrainScale_;
     float heightFactor_;
     uint32 heightMapWidth_;
     float offset_;

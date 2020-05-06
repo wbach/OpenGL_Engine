@@ -29,6 +29,8 @@ layout(binding = 10) uniform sampler2D greenTexture;
 layout(binding = 11) uniform sampler2D greenTextureNormal;
 layout(binding = 13) uniform sampler2D blueTexture;
 layout(binding = 14) uniform sampler2D blueTextureNormal;
+layout(binding = 16) uniform sampler2D alphaTexture;
+layout(binding = 17) uniform sampler2D alphaTextureNormal;
 
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
@@ -88,7 +90,7 @@ TerrainNormalColor CalculateTerrainColor()
     TerrainNormalColor result;
     vec4 blendMapColour = texture(blendMap, vs_in.texCoord);
 
-    float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
+    float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b + blendMapColour.a);
     vec2 tiledCoords        = vs_in.texCoord * 40.0f ;
 
     vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
@@ -96,6 +98,7 @@ TerrainNormalColor CalculateTerrainColor()
     vec4 redTextureColour   = texture(redTexture, tiledCoords) * blendMapColour.r;
     vec4 greenTextureColour = texture(greenTexture, tiledCoords) * blendMapColour.g;
     vec4 blueTextureColour  = texture(blueTexture, tiledCoords) * blendMapColour.b;
+    vec4 alphaTextureColour = texture(alphaTexture, tiledCoords) * blendMapColour.a;
 
     if (Is(vs_in.useNormalMap))
     {
@@ -103,14 +106,15 @@ TerrainNormalColor CalculateTerrainColor()
         vec4 redNormalTextureColour      = texture(redTextureNormal, tiledCoords) * blendMapColour.r;
         vec4 greenNormalTextureColour    = texture(greenTextureNormal, tiledCoords) * blendMapColour.g;
         vec4 blueNormalTextureColour     = texture(blueTextureNormal, tiledCoords) * blendMapColour.b;
-        result.normal = vec4(CalcBumpedNormal(vs_in.normal, vs_in.passTangent, backgorund_n_texture_colour + redNormalTextureColour + greenNormalTextureColour + blueNormalTextureColour), 1.f); // w use fog
+        vec4 alphaNormalTextureColour    = texture(alphaTextureNormal, tiledCoords) * blendMapColour.a;
+        result.normal = vec4(CalcBumpedNormal(vs_in.normal, vs_in.passTangent, backgorund_n_texture_colour + redNormalTextureColour + greenNormalTextureColour + blueNormalTextureColour + alphaNormalTextureColour), 1.f); // w use fog
     }
     else
     {
        result.normal = vec4(normalize(vs_in.normal), 1.f);
     }
 
-    result.color = backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
+    result.color = backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour + alphaTextureColour;
     return result;
 }
 

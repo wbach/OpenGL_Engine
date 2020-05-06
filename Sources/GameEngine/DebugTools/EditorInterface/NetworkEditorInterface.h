@@ -83,6 +83,7 @@ private:
     void UpdateTerrainPainterParam(const EntryParameters&);
     void RecalculateTerrainYOffset(const EntryParameters&);
     void RecalculateTerrainNormals(const EntryParameters&);
+    void GenerateTerrainBlendMap(const EntryParameters&);
     void Exit(const EntryParameters&);
 
     void StartScene();

@@ -15,6 +15,10 @@ CircleLinearTextureBrush::CircleLinearTextureBrush(TerrainPoint& terrainPoint, b
     if (inputStrength_ < 0.1f)
         inputStrength_ = 0.1f;
 }
+void CircleLinearTextureBrush::SetColor(const Color& inputColor)
+{
+    inputColor_ = inputColor;
+}
 bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
 {
     auto currentColor = GetPixel(blendMap_.GetImage(), imageCoord);

@@ -1,5 +1,32 @@
 #include "TerrainTexturesTypes.h"
+
 #include "Logger/Log.h"
+
+// clang-format off
+#define FROM_STRING(x)  if (type == #x) {texture = GameEngine::TerrainTextureType::x; return;}
+
+void std::from_string(const std::string& type, GameEngine::TerrainTextureType& texture)
+{
+    FROM_STRING(heightmap);
+    FROM_STRING(blendMap);
+    FROM_STRING(normalmap);
+    FROM_STRING(backgorundTexture);
+    FROM_STRING(backgorundTextureDisplacement);
+    FROM_STRING(redTexture);
+    FROM_STRING(redTextureNormal);
+    FROM_STRING(redTextureDisplacement);
+    FROM_STRING(greenTexture);
+    FROM_STRING(greenTextureNormal);
+    FROM_STRING(greenTextureDisplacement);
+    FROM_STRING(blueTexture);
+    FROM_STRING(blueTextureNormal);
+    FROM_STRING(blueTextureDisplacement);
+    FROM_STRING(alphaTexture);
+    FROM_STRING(alphaTextureNormal);
+    FROM_STRING(alphaTextureDisplacement);
+    ERROR_LOG("unknow terrainTextureType=" + type);
+}
+#undef FROM_STRING
 
 std::string std::to_string(GameEngine::TerrainTextureType type)
 {
@@ -18,28 +45,10 @@ std::string std::to_string(GameEngine::TerrainTextureType type)
     if (type == GameEngine::TerrainTextureType::blueTexture) return "blueTexture";
     if (type == GameEngine::TerrainTextureType::blueTextureNormal) return "blueTextureNormal";
     if (type == GameEngine::TerrainTextureType::blueTextureDisplacement) return "blueTextureDisplacement";
+    if (type == GameEngine::TerrainTextureType::alphaTexture) return "alphaTexture";
+    if (type == GameEngine::TerrainTextureType::alphaTextureNormal) return "alphaTextureNormal";
+    if (type == GameEngine::TerrainTextureType::alphaTextureDisplacement) return "alphaTextureDisplacement";
     return "Unknown type";
-}
-
-GameEngine::TerrainTextureType GameEngine::CreateFromString(const std::string& type)
-{
-    if (type == "heightmap") return GameEngine::TerrainTextureType::heightmap;
-    if (type == "blendMap") return GameEngine::TerrainTextureType::blendMap;
-    if (type == "normalmap") return GameEngine::TerrainTextureType::normalmap;
-    if (type == "backgorundTexture") return GameEngine::TerrainTextureType::backgorundTexture;
-    if (type == "backgorundTextureNormal") return GameEngine::TerrainTextureType::backgorundTextureNormal;
-    if (type == "backgorundTextureDisplacement") return GameEngine::TerrainTextureType::backgorundTextureDisplacement;
-    if (type == "redTexture") return GameEngine::TerrainTextureType::redTexture;
-    if (type == "redTextureNormal") return GameEngine::TerrainTextureType::redTextureNormal;
-    if (type == "redTextureDisplacement") return GameEngine::TerrainTextureType::redTextureDisplacement;
-    if (type == "greenTexture") return GameEngine::TerrainTextureType::greenTexture;
-    if (type == "greenTextureNormal") return GameEngine::TerrainTextureType::greenTextureNormal;
-    if (type == "greenTextureDisplacement") return GameEngine::TerrainTextureType::greenTextureDisplacement;
-    if (type == "blueTexture") return GameEngine::TerrainTextureType::blueTexture;
-    if (type == "blueTextureNormal") return GameEngine::TerrainTextureType::blueTextureNormal;
-    if (type == "blueTextureDisplacement") return GameEngine::TerrainTextureType::blueTextureDisplacement;
-    ERROR_LOG("unknow terrainTextureType=" + type);
-    return TerrainTextureType();
 }
 
 bool GameEngine::IsTerrainTextureType(const std::string& type)
@@ -59,5 +68,9 @@ bool GameEngine::IsTerrainTextureType(const std::string& type)
     if (type == "blueTexture") return true;
     if (type == "blueTextureNormal") return true;
     if (type == "blueTextureDisplacement") return true;
+    if (type == "alphaTexture") return true;
+    if (type == "alphaTextureNormal") return true;
+    if (type == "alphaTextureDisplacement") return true;
     return false;
 }
+// clang-format on

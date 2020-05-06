@@ -289,7 +289,8 @@ std::unordered_map<TerrainTextureType, std::string> ReadTerrainTextures(Utils::X
     for (const auto& texture : node.GetChildren())
     {
         const auto& filename = texture->GetChild(CSTR_TEXTURE_FILENAME)->value_;
-        auto type            = static_cast<TerrainTextureType>(std::stoi(texture->GetChild(CSTR_TEXTURE_TYPE)->value_));
+        TerrainTextureType type;
+        std::from_string(texture->GetChild(CSTR_TEXTURE_TYPE)->value_, type);
         result.insert({type, filename});
     }
 

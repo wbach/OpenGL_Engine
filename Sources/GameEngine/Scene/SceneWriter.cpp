@@ -106,7 +106,7 @@ void Create(XmlNode&, const Components::ThridPersonCameraComponent&)
 
 void Create(XmlNode& node, TerrainTextureType type, const std::string& filename)
 {
-    Create(node.AddChild(CSTR_TEXTURE_TYPE), static_cast<int>(type));
+    Create(node.AddChild(CSTR_TEXTURE_TYPE), std::to_string(type));
     Create(node.AddChild(CSTR_TEXTURE_FILENAME), filename);
 }
 

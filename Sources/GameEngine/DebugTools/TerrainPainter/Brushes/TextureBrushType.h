@@ -4,19 +4,19 @@
 
 namespace GameEngine
 {
-enum class HeightBrushType
+enum class TextureBrushType
 {
     CircleLinear,
     CircleAverage,
     CircleConstantValue
 };
-std::vector<HeightBrushType> AvaiableHeightBrushType();
-std::vector<std::string> AvaiableHeightBrushTypeStrs();
+std::vector<TextureBrushType> AvaiableTextureBrushType();
+std::vector<std::string> AvaiableTextureBrushTypeStrs();
 }  // namespace GameEngine
 
 namespace std
 {
-void from_string(const std::string&, GameEngine::HeightBrushType&);
-string to_string(GameEngine::HeightBrushType);
+void from_string(const std::string&, GameEngine::TextureBrushType&);
+string to_string(GameEngine::TextureBrushType);
 } // namespace std
 

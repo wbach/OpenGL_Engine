@@ -1,17 +1,17 @@
-#include "HeightBrushType.h"
+#include "TextureBrushType.h"
 #include <algorithm>
 
 namespace GameEngine
 {
-std::vector<HeightBrushType> AvaiableHeightBrushType()
+std::vector<TextureBrushType> AvaiableTextureBrushType()
 {
-    return {HeightBrushType::CircleLinear, HeightBrushType::CircleAverage, HeightBrushType::CircleConstantValue};
+    return {TextureBrushType::CircleLinear, TextureBrushType::CircleAverage, TextureBrushType::CircleConstantValue};
 }
 
-std::vector<std::string> AvaiableHeightBrushTypeStrs()
+std::vector<std::string> AvaiableTextureBrushTypeStrs()
 {
     std::vector<std::string> result;
-    auto input = AvaiableHeightBrushType();
+    auto input = AvaiableTextureBrushType();
 
     std::transform(input.begin(), input.end(), std::back_inserter(result), [](auto hb){ return std::to_string(hb);});
     return result;
@@ -21,33 +21,33 @@ std::vector<std::string> AvaiableHeightBrushTypeStrs()
 
 namespace std
 {
-string to_string(GameEngine::HeightBrushType input)
+string to_string(GameEngine::TextureBrushType input)
 {
     switch (input)
     {
-        case GameEngine::HeightBrushType::CircleLinear:
+        case GameEngine::TextureBrushType::CircleLinear:
             return "CircleLinear";
-        case GameEngine::HeightBrushType::CircleAverage:
+        case GameEngine::TextureBrushType::CircleAverage:
             return "CircleAverage";
-        case GameEngine::HeightBrushType::CircleConstantValue:
+        case GameEngine::TextureBrushType::CircleConstantValue:
             return "CircleConstantValue";
     }
     return "unknown";
 }
 
-void from_string(const string& input, GameEngine::HeightBrushType& output)
+void from_string(const string& input, GameEngine::TextureBrushType& output)
 {
     if (input == "CircleLinear")
     {
-        output = GameEngine::HeightBrushType::CircleLinear;
+        output = GameEngine::TextureBrushType::CircleLinear;
     }
     else if (input == "CircleAverage")
     {
-        output = GameEngine::HeightBrushType::CircleAverage;
+        output = GameEngine::TextureBrushType::CircleAverage;
     }
     else if (input == "CircleConstantValue")
     {
-        output = GameEngine::HeightBrushType::CircleConstantValue;
+        output = GameEngine::TextureBrushType::CircleConstantValue;
     }
 }
 

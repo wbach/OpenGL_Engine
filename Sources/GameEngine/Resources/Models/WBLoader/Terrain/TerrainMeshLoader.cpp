@@ -43,7 +43,7 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
 
     model_ = std::make_unique<Model>();
 
-    TerrainHeightTools tools(hm->GetImage().floatData, terrainConfig.GetScale().y, heightMapResolution_, yoffset);
+    TerrainHeightTools tools(terrainConfig.GetScale(), hm->GetImage().floatData, heightMapResolution_, yoffset);
 
     auto partsCount = terrainConfig.GetPartsCount();
     if (partsCount)

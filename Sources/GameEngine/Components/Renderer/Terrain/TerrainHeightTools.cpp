@@ -1,14 +1,17 @@
 #include "TerrainHeightTools.h"
 
+#include <Logger/Log.h>
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
-TerrainHeightTools::TerrainHeightTools(const std::vector<float>& data, float heightFactor, uint32 heightMapWidth,
+TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const std::vector<float>& data, uint32 heightMapWidth,
                                        float offset)
     : data_(data)
-    , heightFactor_(heightFactor)
+    , terrainScale_(terrainScale.x, terrainScale.z)
+    , heightFactor_(terrainScale.y)
     , heightMapWidth_(heightMapWidth)
     , offset_(offset)
 {
@@ -23,12 +26,73 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 }
 vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
 {
-    float heightLeft   = GetHeight(Left(x), z);
-    float heightRright = GetHeight(Right(x), z);
-    float heightDown   = GetHeight(x, Down(z));
-    float heightUp     = GetHeight(x, Up(z));
+    // z0 -- z1 -- z2
+    // |     |     |
+    // z3 -- h  -- z4
+    // |     |     |
+    // z5 -- z6 -- z7
 
-    return glm::normalize(vec3(heightLeft - heightRright, 2.0f, heightDown - heightUp));
+    float heightLeft      = GetHeight(Left(x), z);
+    float heightRight     = GetHeight(Right(x), z);
+    float heightDown      = GetHeight(x, Down(z));
+    float heightUp        = GetHeight(x, Up(z));
+    float heightUpLeft    = GetHeight(Left(x), Up(z));
+    float heightUpRight   = GetHeight(Right(x), Up(z));
+    float heightDownLeft  = GetHeight(Left(x), Down(z));
+    float heightDownRight = GetHeight(Right(x), Down(z));
+
+    auto gridSquereSize = terrainScale_ / (heightMapWidth_ - 1.f);
+
+    auto vh = vec3(0, GetHeight(x, z), 0);
+
+    auto v0 = vec3(-gridSquereSize.x, heightUpLeft, -gridSquereSize.y);
+    auto v1 = vec3(0, heightUp, z - gridSquereSize.y);
+    auto v2 = vec3(gridSquereSize.x, heightUpRight, -gridSquereSize.y);
+
+    auto v3 = vec3(-gridSquereSize.x, heightLeft, 0);
+    auto v4 = vec3(gridSquereSize.x, heightRight, 0);
+
+    auto v5 = vec3(-gridSquereSize.x, heightDownLeft, gridSquereSize.y);
+    auto v6 = vec3(0, heightDown, gridSquereSize.y);
+    auto v7 = vec3(gridSquereSize.x, heightDownRight, gridSquereSize.y);
+
+    auto v0vh = v0 - vh;
+    auto v3vh = v3 - vh;
+    auto vn1  = glm::normalize(glm::cross(v0vh, v3vh));
+
+    auto v1vh = v1 - vh;
+    // auto v0vh = v0 - vh;
+    auto vn2 = glm::normalize(glm::cross(v1vh, v0vh));
+
+    auto v2vh = v2 - vh;
+    // auto v1vh = v1 - vh;
+    auto vn3 = glm::normalize(glm::cross(v2vh, v1vh));
+
+    auto v4vh = v4 - vh;
+    //  auto v2vh = v2 - vh;
+    auto vn4 = glm::normalize(glm::cross(v4vh, v2vh));
+
+    auto v7vh = v7 - vh;
+    //  auto v4vh = v4 - vh;
+    auto vn5 = glm::normalize(glm::cross(v7vh, v4vh));
+
+    auto v6vh = v6 - vh;
+    // auto v7vh = v7 - vh;
+    auto vn6 = glm::normalize(glm::cross(v6vh, v7vh));
+
+    auto v5vh = v5 - vh;
+    // auto v6vh = v6 - vh;
+    auto vn7 = glm::normalize(glm::cross(v5vh, v6vh));
+
+    // auto v3vh = v3 - vh;
+    // auto v5vh = v5 - vh;
+    auto vn8  = glm::normalize(glm::cross(v3vh, v5vh));
+
+    auto normal = glm::normalize((vn1 + vn2 + vn3 + vn4 + vn5 + vn6 + vn7 + vn8) / 8.f);
+    normal.x *= -1.f;
+    normal.z *= -1.f;
+
+    return normal;
 }
 uint32 TerrainHeightTools::Left(uint32 x) const
 {

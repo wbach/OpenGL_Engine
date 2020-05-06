@@ -59,7 +59,7 @@ void TerrainMeshUpdater::UpdatePartialTerrainMeshes()
 
     std::vector<std::pair<uint32, GraphicsApi::MeshRawData*>> meshesToUpdate;
 
-    TerrainHeightTools tools(heightMap_.GetImage().floatData, config_.GetScale().y, heightMap_.GetImage().width,
+    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage().floatData, heightMap_.GetImage().width,
                              halfMaximumHeight_);
 
     for (uint32 j = 0; j < partsCount; ++j)
@@ -106,7 +106,7 @@ void TerrainMeshUpdater::UpdateSingleTerrainMesh()
     auto& mesh     = model->GetMeshes()[0];
     auto& meshData = mesh.GetMeshDataRef();
 
-    TerrainHeightTools tools(heightMap_.GetImage().floatData, config_.GetScale().y, heightMap_.GetImage().width,
+    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage().floatData, heightMap_.GetImage().width,
                              halfMaximumHeight_);
 
     if (mesh.GetGraphicsObjectId() and

@@ -49,6 +49,7 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
     for (const auto &texturePair : textures)
     {
         TextureParameters textureParams;
+        textureParams.flipMode = TextureFlip::VERTICAL;
 
         if (texturePair.first == TerrainTextureType::heightmap)
         {

@@ -163,7 +163,8 @@ void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::stri
 
         if (IsTerrainTextureType(param.first))
         {
-            auto textureType = CreateFromString(param.first);
+            TerrainTextureType textureType;
+            std::from_string(param.first, textureType);
             UpdateTexture(textureType, GetRelativeDataPath(param.second));
         }
     }

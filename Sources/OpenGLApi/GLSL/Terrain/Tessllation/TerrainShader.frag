@@ -26,6 +26,8 @@ layout(binding = 10) uniform sampler2D greenTexture;
 layout(binding = 11) uniform sampler2D greenTextureNormal;
 layout(binding = 13) uniform sampler2D blueTexture;
 layout(binding = 14) uniform sampler2D blueTextureNormal;
+layout(binding = 16) uniform sampler2D alphaTexture;
+layout(binding = 17) uniform sampler2D alphaTextureNormal;
 
 in vec2 mapCoord_FS;
 in vec4 worldPos;
@@ -47,7 +49,7 @@ TerrainData CalculateTerrainData()
 
     vec4 blendMapColor = texture(blendMap, mapCoord_FS) ;
 
-    float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b) ;
+    float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a) ;
     vec2 tiledCoords = mapCoord_FS * TEXTURE_TILED_FACTOR;
 
     vec3 normal = normalize(texture(normalmap, mapCoord_FS).xyz);
@@ -66,6 +68,7 @@ TerrainData CalculateTerrainData()
         bumpNormal += (2.f * (texture(redTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.r;
         bumpNormal += (2.f * (texture(greenTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.g;
         bumpNormal += (2.f * (texture(blueTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.b;
+        bumpNormal += (2.f * (texture(alphaTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.a;
         bumpNormal = normalize(bumpNormal);
         bumpNormal.xy *= attenuation;
         result.normal = normalize(TBN * bumpNormal);
@@ -75,14 +78,15 @@ TerrainData CalculateTerrainData()
         result.normal = normal;
     }
 
-    vec4 backgorund_texture_colour;
-    backgorund_texture_colour = CalculateColor(backgorundTexture, backTextureAmount, tiledCoords);
+    vec4 backgorundTextureColor;
+    backgorundTextureColor = CalculateColor(backgorundTexture, backTextureAmount, tiledCoords);
 
     vec4 rColor = CalculateColor(redTexture, blendMapColor.r, tiledCoords);
     vec4 gColor = CalculateColor(greenTexture, blendMapColor.g, tiledCoords);
     vec4 bColor = CalculateColor(blueTexture, blendMapColor.b, tiledCoords);
+    vec4 aColor = CalculateColor(alphaTexture, blendMapColor.a, tiledCoords);
 
-    result.color = backgorund_texture_colour + rColor + gColor + bColor;
+    result.color = backgorundTextureColor + rColor + gColor + bColor + aColor;
 
     return result;
 }

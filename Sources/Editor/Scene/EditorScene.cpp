@@ -90,6 +90,19 @@ int EditorScene::Initialize()
         AddGameObject(std::move(go));
     }
 
+    {
+        auto go = CreateGameObject("Sun visualization");
+        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/sun.obj",
+            GameEngine::LevelOfDetail::L1);
+        
+        auto lightPosOnRay = directionalLight.GetPosition() / 100.f;
+        DEBUG_LOG(std::to_string(lightPosOnRay));
+        go->GetTransform().SetPosition(lightPosOnRay);
+        go->GetTransform().SetScale(10);
+        go->GetTransform().TakeSnapShoot();
+        AddGameObject(std::move(go));
+    }
+
     // for (uint32 i = 0; i < 4; ++i)
     //{
     //    auto go = CreateGameObject("GameObjectName_" + std::to_string(i));

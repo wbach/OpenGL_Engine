@@ -4,7 +4,7 @@
 
 namespace Utils
 {
-void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename)
+void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename, const std::optional<vec2>& scale)
 {
     auto minSize = size.x * size.y * 4;
     if (data.size() < minSize)
@@ -32,8 +32,15 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
             bits += 4;
         }
     }
+    if (scale)
+    {
+        auto scaledBitmap = FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
+        FreeImage_Unload(bitmap);
+        bitmap = scaledBitmap;
+    }
+
     FreeImage_FlipVertical(bitmap);
-    FreeImage_Save(FIF_PNG, bitmap, (filename + ".png").c_str(), PNG_DEFAULT);
+    FreeImage_Save(FIF_PNG, bitmap, (filename + ".png").c_str());
     FreeImage_Unload(bitmap);
 }
 }  // namespace Utils
