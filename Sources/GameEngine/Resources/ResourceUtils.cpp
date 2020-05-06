@@ -178,16 +178,51 @@ void SaveHeightMap(const HeightMap& heightmap, const std::string& outfile)
     fwrite(&image.floatData[0], sizeof(float), size, fp);
     fclose(fp);
 }
-void SetPixel(std::vector<uint8>& data, uint32 width, const vec2ui& position, const Color& color)
+
+uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)
 {
-    auto startIndex = 4 * (position.x + position.y * width);
-    if (startIndex + 3 < data.size())
+    float value = 1.f - normal.y;
+
+    if (value > thresholds.x)
     {
-        data[startIndex]     = color.r();
-        data[startIndex + 1] = color.g();
-        data[startIndex + 2] = color.b();
-        data[startIndex + 3] = color.a();
+        value = 1.f;
     }
+    else if (value > thresholds.y)
+    {
+        value = (value - thresholds.y) / (thresholds.x - thresholds.y);
+    }
+    else
+    {
+        value = 0.f;
+    }
+
+    return static_cast<uint8>(value * 255.f);
+}
+
+Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap, const vec2& thresholds)
+{
+    auto width = heightMap.GetImage().width;
+    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
+
+    Image outputImage;
+    auto& imageData = outputImage.data;
+    outputImage.width = heightMap.GetImage().width;
+    outputImage.height = heightMap.GetImage().height;
+
+    for (uint32 j = 0; j < width; ++j)
+    {
+        for (uint32 i = 0; i < width; ++i)
+        {
+            auto normal = tools.GetNormal(i, j);
+
+            imageData.push_back(0);
+            imageData.push_back(GetBlendValue(normal, thresholds));
+            imageData.push_back(0);
+            imageData.push_back(0);
+        }
+    }
+
+    return outputImage;
 }
 float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui& position)
 {
@@ -195,49 +230,14 @@ float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui&
 }
 void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, const OutputFileName& file, const vec2& thresholds)
 {
-    vec3 upVector(0.f, 1.f, 0.f);
-    std::vector<uint8> imageData;
-    std::vector<uint8> imageDataPreview;
+    auto image = GenerateBlendMapImage(terrainScale, heightMap, thresholds);
+    Utils::SaveImage(image.data, heightMap.GetSize(), file, vec2(4));
 
-    auto width = heightMap.GetImage().width;
-    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
+    for (size_t i = 3; i < image.data.size(); i += 4)
+        image.data[i] = 255;
 
-    for (uint32 j = 0; j < width; ++j)
-    {
-        for (uint32 i = 0; i < width; ++i)
-        {
-            auto normal = tools.GetNormal(i, j);
-            float value = 1.f - normal.y;
-
-            if (value > thresholds.x)
-            {
-                value = 1.f;
-            }
-            else if (value > thresholds.y)
-            {
-                value = (value - thresholds.y) / (thresholds.x - thresholds.y);
-            }
-            else
-            {
-                value = 0.f;
-            }
-           
-            imageData.push_back(0);
-            imageData.push_back(static_cast<uint8>(value * 255.f));
-            imageData.push_back(0);
-            imageData.push_back(0);
-
-            // create imageDataPreview with Alpha = 1
-            imageDataPreview.push_back(0);
-            imageDataPreview.push_back(static_cast<uint8>(value * 255.f));
-            imageDataPreview.push_back(0);
-            imageDataPreview.push_back(255);
-        }
-    }
-
-    Utils::SaveImage(imageData, heightMap.GetSize(), file, vec2(4));
-    Utils::SaveImage(imageDataPreview, heightMap.GetSize(), file + "_alpha1_preview");
-    Utils::SaveImage(imageDataPreview, heightMap.GetSize(), file + "_alpha1_preview_scaled", vec2(4));
+    Utils::SaveImage(image.data, image.Size(), file + "_alpha1_preview");
+    Utils::SaveImage(image.data, image.Size(), file + "_alpha1_preview_scaled", vec2(4));
 }
 std::vector<float> createNromalMapData(const vec2ui& size, const std::vector<float>& heightMapData,
                                        float normalStrength)

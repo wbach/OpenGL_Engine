@@ -10,7 +10,7 @@ CircleLinearTextureBrush::CircleLinearTextureBrush(TerrainPoint& terrainPoint, b
     : CircleBrushBase(*terrainPoint.terrainComponent.GetTexture(TerrainTextureType::blendMap), terrainPoint,
                       linearDistance, mousePosition, strength, brushSize)
     , blendMap_(*static_cast<MaterialTexture*>(&texture_))
-    , inputColor_(255, 0, 0)
+    , inputColor_(255, 0, 0, 0)
 {
     if (inputStrength_ < 0.1f)
         inputStrength_ = 0.1f;

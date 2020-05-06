@@ -40,6 +40,7 @@
 #include "Messages/TerrainPainterEnabled.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
+#include "GameEngine/Resources/Textures/MaterialTexture.h"
 
 namespace GameEngine
 {
@@ -279,7 +280,10 @@ void NetworkEditorInterface::KeysSubscribtions()
                                              [this]() { scene_.inputManager_->AddEvent([&]() { StartScene(); }); });
 
     keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { GenerateTerrainBlendMap(EntryParameters()); });
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { GenerateTerrainBlendMapToFile(); });
+
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::H, [this]() { GenerateTerrainBlendMap({}); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -1113,6 +1117,26 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
     terrainPainter_->RecalculateNormals();
 }
 void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
+{
+    auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
+
+    for (auto &terrain : terrains)
+    {
+        auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
+
+        if (not tc)
+            continue;
+
+        const auto &heightMap = *tc->GetHeightMap();
+        auto image = GenerateBlendMapImage(tc->GetTerrainConfiguration().GetScale(), heightMap);
+
+        auto blendMap = static_cast<MaterialTexture*>(tc->GetTexture(TerrainTextureType::blendMap));
+        blendMap->GetImage() = std::move(image);
+        tc->BlendMapChanged();
+    }
+}
+
+void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 {
     auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
 

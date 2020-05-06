@@ -84,6 +84,7 @@ private:
     void RecalculateTerrainYOffset(const EntryParameters&);
     void RecalculateTerrainNormals(const EntryParameters&);
     void GenerateTerrainBlendMap(const EntryParameters&);
+    void GenerateTerrainBlendMapToFile();
     void Exit(const EntryParameters&);
 
     void StartScene();

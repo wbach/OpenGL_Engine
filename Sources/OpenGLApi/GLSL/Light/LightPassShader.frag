@@ -70,7 +70,7 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     }
     //ambient color
     diffuse_color = diffuse_color * material.diffuse_;
-    ambient_color =  material.ambient_;
+    ambient_color =  material.ambient_ + (0.05f * material.diffuse_);
 
     if (material.shineDamper_ > .0f)
     {
