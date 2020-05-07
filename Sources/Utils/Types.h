@@ -311,7 +311,14 @@ struct DegreesVec3
 
 struct Color
 {
-    Color() : color(1.f) {}
+    Color()
+        : color(1.f)
+    {
+    }
+    Color(float v)
+        : color(v)
+    {
+    }
     Color(const vec4& floatColor)
         : color(floatColor)
     {
@@ -398,6 +405,14 @@ struct Color
     vec4ui rgba() const
     {
         return vec4ui(r(), g(), b(), a());
+    }
+    float& operator[](std::size_t idx)
+    {
+        return color[idx];
+    }
+    float operator[](std::size_t idx) const
+    {
+        return color[idx];
     }
     vec4 color;
 };

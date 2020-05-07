@@ -1,4 +1,5 @@
 #include "Image.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {

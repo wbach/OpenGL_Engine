@@ -17,6 +17,7 @@ TerrainPainter::TerrainPainter(Input::InputManager& inputManager, const CameraWr
                                const Projection& projection, const vec2ui& windowSize,
                                const Components::ComponentController& componentController)
     : paintType_(PaintType::HeightMap)
+    , paintBlendMapColor_(1.f, 0.f, 0.f, 0.f)
     , strength_(0.01f)
     , brushSize_(16)
     , heightBrushType_(HeightBrushType::CircleLinear)
@@ -54,8 +55,8 @@ void TerrainPainter::Paint(const vec2& mousePosition)
     }
 }
 
-#define PAINT(X) \
-    X(*terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_).Paint()
+#define BRUSH(X) \
+    X(*terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_)
 
 void TerrainPainter::PaintBlendMap(const vec2& mousePosition)
 {
@@ -73,7 +74,8 @@ void TerrainPainter::PaintBlendMap(const vec2& mousePosition)
         return;
     }
 
-    if (PAINT(CircleLinearTextureBrush))
+   // DEBUG_LOG("paintBlendMapColor_ " + std::to_string(paintBlendMapColor_.color));
+    if (BRUSH(CircleLinearTextureBrush).SetColor(paintBlendMapColor_).Paint())
         terrainPoint->terrainComponent.BlendMapChanged();
 }
 
@@ -98,20 +100,20 @@ void TerrainPainter::PaintHeightMap(const vec2& mousePosition)
     switch (heightBrushType_)
     {
         case HeightBrushType::CircleLinear:
-            heightmapChange = PAINT(CircleLinearHeightBrush);
+            heightmapChange = BRUSH(CircleLinearHeightBrush).Paint();
             break;
         case HeightBrushType::CircleAverage:
-            heightmapChange = PAINT(CircleAverageHeightBrush);
+            heightmapChange = BRUSH(CircleAverageHeightBrush).Paint();
             break;
         case HeightBrushType::CircleConstantValue:
-            heightmapChange = PAINT(CircleConstantHeightBrush);
+            heightmapChange = BRUSH(CircleConstantHeightBrush).Paint();
             break;
     }
 
     if (heightmapChange)
         terrainPoint->terrainComponent.HeightMapChanged();
 }
-#undef PAINT
+#undef BRUSH
 
 std::optional<vec3> TerrainPainter::GetMouseTerrainPosition(const vec2& mousePosition)
 {

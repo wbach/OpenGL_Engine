@@ -46,6 +46,7 @@ void TerrainMeshRenderer::Render(const Scene& scene, const Time&)
     if (subscribes_.empty())
         return;
     context_.graphicsApi_.EnableCulling();
+    context_.graphicsApi_.EnableBlend();
     shader_.Start();
     RenderSubscribers(scene);
 

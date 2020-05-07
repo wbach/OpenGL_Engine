@@ -1,5 +1,6 @@
 #include "CircleLinearTextureBrush.h"
 
+#include <Logger/Log.h>
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/MaterialTexture.h"
 
@@ -15,9 +16,10 @@ CircleLinearTextureBrush::CircleLinearTextureBrush(TerrainPoint& terrainPoint, b
     if (inputStrength_ < 0.1f)
         inputStrength_ = 0.1f;
 }
-void CircleLinearTextureBrush::SetColor(const Color& inputColor)
+CircleLinearTextureBrush& CircleLinearTextureBrush::SetColor(const Color& inputColor)
 {
     inputColor_ = inputColor;
+    return *this;
 }
 bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
 {
@@ -25,8 +27,7 @@ bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
     if (currentColor)
     {
         auto scaledInputColor = glm::mix(currentColor->color, inputColor_.color, inputStrength_);
-
-        auto newColor   = glm::mix(currentColor->color, scaledInputColor, intensity_);
+        auto newColor = glm::mix(currentColor->color, scaledInputColor, intensity_);
         SetPixel(blendMap_.GetImage(), imageCoord, Color(newColor));
         return true;
     }

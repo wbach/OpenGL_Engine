@@ -21,6 +21,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceUtils.h"
+#include "GameEngine/Resources/Textures/MaterialTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
@@ -40,7 +41,6 @@
 #include "Messages/TerrainPainterEnabled.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
 
 namespace GameEngine
 {
@@ -157,8 +157,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("goCameraToObject", GoCameraToObject);
     REGISTER_COMMAND("enableTerrainHeightPainter", EnableTerrainHeightPainter);
     REGISTER_COMMAND("enableTerrainTexturePainter", EnableTerrainTexturePainter);
-    REGISTER_COMMAND("disableTerrainHeightPainter", DisableTerrainHeightPainter);
-    REGISTER_COMMAND("disableTerrainTexturePainter", DisableTerrainTexturePainter);
+    REGISTER_COMMAND("disablePainter", DisableTerrainPainter);
     REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
     REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
     REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
@@ -1031,8 +1030,17 @@ DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Ter
     msg.brushSize          = painter.brushSize_;
     msg.selectedBrushType  = std::to_string(painter.heightBrushType_);
     msg.stepInterpolation  = std::to_string(painter.stepInterpolation_);
-    msg.brushTypes         = AvaiableHeightBrushTypeStrs();
     msg.stepInterpolations = AvaiableStepInterpolationsStrs();
+
+    switch (painter.paintType_)
+    {
+        case PaintType::HeightMap:
+            msg.brushTypes = AvaiableHeightBrushTypeStrs();
+            break;
+        case PaintType::BlendMap:
+            msg.brushTypes = AvaiableTextureBrushTypeStrs();
+            break;
+    }
     return msg;
 }
 
@@ -1056,13 +1064,7 @@ void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &
     EnableTerrainPainter(PaintType::BlendMap);
 }
 
-void NetworkEditorInterface::DisableTerrainHeightPainter(const NetworkEditorInterface::EntryParameters &)
-{
-    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    terrainPainter_.reset(nullptr);
-}
-
-void NetworkEditorInterface::DisableTerrainTexturePainter(const NetworkEditorInterface::EntryParameters &)
+void NetworkEditorInterface::DisableTerrainPainter(const NetworkEditorInterface::EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
     terrainPainter_.reset(nullptr);
@@ -1091,6 +1093,18 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
         if (params.count("brushType"))
         {
             std::from_string(params.at("brushType"), terrainPainter_->heightBrushType_);
+        }
+        if (params.count("color"))
+        {
+            auto inputColor = params.at("color");
+            size_t i = 0;
+            for (auto c : inputColor)
+            {
+                if (i < 4)
+                    terrainPainter_->paintBlendMapColor_[i++] = c == '1' ? 1.f : 0.f;
+                else
+                    ERROR_LOG("to many bits.");
+            }
         }
     }
     catch (...)
@@ -1128,9 +1142,9 @@ void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
             continue;
 
         const auto &heightMap = *tc->GetHeightMap();
-        auto image = GenerateBlendMapImage(tc->GetTerrainConfiguration().GetScale(), heightMap);
+        auto image            = GenerateBlendMapImage(tc->GetTerrainConfiguration().GetScale(), heightMap);
 
-        auto blendMap = static_cast<MaterialTexture*>(tc->GetTexture(TerrainTextureType::blendMap));
+        auto blendMap        = static_cast<MaterialTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
         blendMap->GetImage() = std::move(image);
         tc->BlendMapChanged();
     }

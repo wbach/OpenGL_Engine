@@ -9,7 +9,7 @@ class CircleLinearTextureBrush : public CircleBrushBase
 {
 public:
     CircleLinearTextureBrush(TerrainPoint&, bool, const vec2&, float, int32);
-    void SetColor(const Color&);
+    CircleLinearTextureBrush& SetColor(const Color&);
 
 private:
     bool Main(const vec2ui&) override;

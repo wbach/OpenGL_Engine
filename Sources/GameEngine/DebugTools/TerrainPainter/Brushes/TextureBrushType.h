@@ -6,9 +6,8 @@ namespace GameEngine
 {
 enum class TextureBrushType
 {
-    CircleLinear,
-    CircleAverage,
-    CircleConstantValue
+    CircleLinear
+
 };
 std::vector<TextureBrushType> AvaiableTextureBrushType();
 std::vector<std::string> AvaiableTextureBrushTypeStrs();

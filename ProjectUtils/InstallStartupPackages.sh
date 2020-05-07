@@ -19,7 +19,7 @@ sudo apt-get install -y libboost-all-dev
 sudo apt-get install -y font-manager
 sudo apt-get install -y lm-sensors
 sudo apt-get install -y clang-format
-sudo apt-get install -y qtcreator
+#sudo apt-get install -y qtcreator
 
 sudo apt-get install -y python-pip
 sudo apt-get install -y python3-pip
