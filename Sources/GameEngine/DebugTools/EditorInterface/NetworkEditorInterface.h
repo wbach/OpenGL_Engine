@@ -84,6 +84,8 @@ private:
     void RecalculateTerrainNormals(const EntryParameters&);
     void GenerateTerrainBlendMap(const EntryParameters&);
     void GenerateTerrainBlendMapToFile();
+    void ReloadShaders(const EntryParameters&);
+    void Takesnapshot(const EntryParameters&);
     void Exit(const EntryParameters&);
 
     void StartScene();

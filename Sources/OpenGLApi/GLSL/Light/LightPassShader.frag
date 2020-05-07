@@ -72,13 +72,14 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     diffuse_color = diffuse_color * material.diffuse_;
     ambient_color =  material.ambient_ + (0.05f * material.diffuse_);
 
-    if (material.shineDamper_ > .0f)
+    if (length(material.specular_) > .01f)
     {
         vec3    vertex_to_camera    = normalize(world_pos - vs_in.cameraPosition);
         vec3    light_reflect       = normalize(reflect(light_direction, unit_normal));
         float   specular_factor     = dot(vertex_to_camera, light_reflect);
                 specular_factor     = pow(specular_factor, material.shineDamper_);
-        if (specular_factor > .0f && specular_factor < 90.f*M_PI/180.f)
+
+        if (specular_factor > .0f && specular_factor < 90.f* M_PI/180.f)
         {
             specular_color = light_color * material.specular_ * specular_factor;
         }

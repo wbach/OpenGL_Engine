@@ -1,4 +1,4 @@
-#version 440
+#version 440 core
 
 struct TerrainNormalColor
 {
@@ -122,8 +122,9 @@ void main()
 {
     TerrainNormalColor terrainNormalColor = CalculateTerrainColor();
     float shadowFactor = Is(vs_in.useShadows) ? CalculateShadowFactor() : 1.f;
+    
     WorldPosOut     = vs_in.worldPos;
     DiffuseOut      = terrainNormalColor.color * shadowFactor;
-    SpecularOut     = vec4(0.f);
     NormalOut       = terrainNormalColor.normal;
+    SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
 }

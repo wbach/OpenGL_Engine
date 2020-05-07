@@ -6,6 +6,7 @@ import time
 
 import tkinter as tk
 from lxml import objectify
+from CommonWidgetTools import AskAndTryConnect
 
 # enum MessageTypes
 Any = chr(251)
@@ -97,6 +98,8 @@ class NetworkClient:
         self.SendMsg(msg, Authentication)
 
     def SendCommand(self, cmd):
+        if not AskAndTryConnect(self):
+            return
         msg = "<TextMessage text=\"" + cmd + "\"/>"
         self.SendMsg(msg, Text)
         self.Print(msg)

@@ -28,6 +28,7 @@ public:
     void SetShaderQuaility(GraphicsApi::ShaderQuaility);
 
 private:
+    void CheckAndPrintGLError(OpenGLShaderProgram&);
     uint32 GetBindedShader() const;
 
 private:

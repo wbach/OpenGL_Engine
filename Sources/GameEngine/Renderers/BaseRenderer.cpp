@@ -72,7 +72,9 @@ void BaseRenderer::CreateRenderers()
     if (EngineConf.renderer.flora.isGrass)
         AddRenderer<GrassRenderer>();
 
-    AddRenderer<TerrainRenderer>();
+    if (context_.graphicsApi_.IsTesselationSupported())
+        AddRenderer<TerrainRenderer>();
+
     AddRenderer<TerrainMeshRenderer>();
     AddRenderer<TreeRenderer>();
     AddRenderer<PlantsRenderer>();

@@ -161,6 +161,8 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
     REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
     REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
+    REGISTER_COMMAND("reloadShaders", ReloadShaders);
+    REGISTER_COMMAND("takeSnapshot", Takesnapshot);
     REGISTER_COMMAND("exit", Exit);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
@@ -1097,7 +1099,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
         if (params.count("color"))
         {
             auto inputColor = params.at("color");
-            size_t i = 0;
+            size_t i        = 0;
             for (auto c : inputColor)
             {
                 if (i < 4)
@@ -1177,6 +1179,23 @@ void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
             generetedBlendMaps.insert(heightMapFile);
         }
     }
+}
+
+void NetworkEditorInterface::ReloadShaders(const NetworkEditorInterface::EntryParameters &)
+{
+    scene_.renderersManager_->ReloadShaders();
+}
+
+void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryParameters & params)
+{
+    std::string path{"./snapshoot/"};
+    if (not params.count("location"))
+    {
+        path = params.at("location");
+    }
+
+    auto takeSnapshoot = [this, path]() { scene_.resourceManager_->GetGraphicsApi().TakeSnapshoot(path); };
+    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
 }
 
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)

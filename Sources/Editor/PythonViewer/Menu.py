@@ -7,8 +7,6 @@ import os
 import sys
 import pathlib
 
-from CommonWidgetTools import AskAndTryConnect
-
 class Menu:
     def __init__(self, networkClient, root, fileManger):
         self.root           = root
@@ -41,40 +39,39 @@ class Menu:
         toolsMenu.add_command(label="Terrain texture painter", command=self.EnableTerrainTexturePainter)
         menubar.add_cascade(label="Tools", menu=toolsMenu)
 
+        rendererMenu = tk.Menu(menubar, tearoff=0)
+        rendererMenu.add_command(label="Reload shaders", command=self.ReloadShaders)
+        rendererMenu.add_command(label="Take snapshot", command=self.TakeSnapshot)
+        #rendererMenu.add_command(label="Change renderer", command=self.EnableTerrainTexturePainter)
+        menubar.add_cascade(label="Renderer", menu=rendererMenu)
+
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
+    def TakeSnapshot(self):
+        self.networkClient.SendCommand("takeSnapshot")
+
+    def ReloadShaders(self):
+        self.networkClient.SendCommand("reloadShaders")
+
     def EnableTerrainHeightPainter(self):
-        if not AskAndTryConnect(self.networkClient):
-            return
         self.networkClient.SendCommand("enableTerrainHeightPainter")
 
     def EnableTerrainTexturePainter(self):
-        if not AskAndTryConnect(self.networkClient):
-            return
         self.networkClient.SendCommand("enableTerrainTexturePainter")
 
     def ReloadScene(self):
-        if not AskAndTryConnect(self.networkClient):
-            return
-
         answer = messagebox.askyesno(title="Info", message="Do you really want reload scene?")
         if answer:
             self.networkClient.SendCommand("reloadScene")
 
     def ClearAllGameObjects(self):
-        if not AskAndTryConnect(self.networkClient):
-            return
-
         answer = messagebox.askyesno(title="Info", message="Do you really want delete all game objects in scene?")
         if answer:
             self.networkClient.SendCommand("clearAllGameObjects")
 
     def ClearAll(self):
-        if not AskAndTryConnect(self.networkClient):
-            return
-
         answer = messagebox.askyesno(title="Info", message="Do you really want clear all?")
         if answer:
             self.networkClient.SendCommand("clearAll")
@@ -91,9 +88,6 @@ class Menu:
             self.root.quit()
 
     def AddGameObjct(self):
-        if not AskAndTryConnect(self.networkClient):
-            return
-
         answer = simpledialog.askstring("Input", "Game object name", parent=self.root, initialvalue="GameObject")
         self.networkClient.SendCommand("createGameObject name=" + answer)
 

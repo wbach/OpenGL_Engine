@@ -29,6 +29,7 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
         if (texture)
         {
             AddTexture(*texture);
+            DEBUG_LOG("Attachment : " + std::to_string(static_cast<int>(at)) + " textureId :" +  std::to_string(*texture));
         }
         else
         {
@@ -42,6 +43,7 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
 
     if (depthTextureId)
     {
+        DEBUG_LOG("Depth attachment, textureId :" +  std::to_string(*depthTextureId));
         depthTexture = *depthTextureId;
     }
     else
