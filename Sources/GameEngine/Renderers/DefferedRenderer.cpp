@@ -59,7 +59,7 @@ void DefferedRenderer::CreateRenderers()
 void DefferedRenderer::Prepare(const Scene&, const Time&)
 {
     context_.defferedFrameBuffer_.Clean();
-    context_.defferedFrameBuffer_.BindToDraw();
+    //context_.defferedFrameBuffer_.BindToDraw();
 }
 void DefferedRenderer::OnEndFrame(const Scene& scene, const Time&)
 {

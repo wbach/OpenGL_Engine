@@ -35,6 +35,7 @@ public:
     MOCK_METHOD1(SetBuffers, void(const std::vector<BufferAtachment>&));
     MOCK_METHOD1(ClearBuffer, void(BufferType));
     MOCK_METHOD1(ClearBuffers, void(const std::vector<BufferType>&));
+    MOCK_METHOD2(ClearTexture, void(uint32, const Color&)); 
     MOCK_METHOD0(EnableBlend, void());
     MOCK_METHOD0(DisableBlend, void());
     MOCK_METHOD0(EnableDepthMask, void());

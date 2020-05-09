@@ -2,10 +2,10 @@
 #pragma once
 #include <functional>
 #include <optional>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <set>
 
 #include "BlendFunctionsTypes.h"
 #include "BufferParamters.h"
@@ -57,6 +57,7 @@ public:
     virtual void SetBuffers(const std::vector<BufferAtachment>&)                                             = 0;
     virtual void ClearBuffer(BufferType)                                                                     = 0;
     virtual void ClearBuffers(const std::vector<BufferType>&)                                                = 0;
+    virtual void ClearTexture(uint32, const Color&)                                                          = 0;
     virtual void EnableBlend()                                                                               = 0;
     virtual void DisableBlend()                                                                              = 0;
     virtual void EnableDepthMask()                                                                           = 0;

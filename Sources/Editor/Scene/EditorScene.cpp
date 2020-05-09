@@ -10,6 +10,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include <Types.h>
 
 using namespace GameEngine;
 
@@ -33,7 +34,7 @@ int EditorScene::Initialize()
     RunNetworkEditorInterface();
     renderersManager_->GetDebugRenderer().Enable();
 
-    //// resourceManager_->GetGraphicsApi().SetBackgroundColor(context_.backgorundColor);
+     resourceManager_->GetGraphicsApi().SetBackgroundColor(Color(0, 0, 255).color);
 
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
     LoadFromFile(sceneFile);

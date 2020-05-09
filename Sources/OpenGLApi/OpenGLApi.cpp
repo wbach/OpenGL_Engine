@@ -62,7 +62,7 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
         }
         else
         {
-            params.internalFormat = GL_RGBA16F;
+            params.internalFormat = GL_RGBA32F;
         }
     }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1C)
@@ -691,6 +691,11 @@ void OpenGLApi::ClearBuffers(const std::vector<GraphicsApi::BufferType>& buffers
     }
 
     glClear(mask);
+}
+
+void OpenGLApi::ClearTexture(uint32 id, const Color& color)
+{
+    glClearTexImage(impl_->idPool_.ToGL(id), 0, GL_RGBA, GL_FLOAT, &color.color);
 }
 
 void OpenGLApi::EnableBlend()

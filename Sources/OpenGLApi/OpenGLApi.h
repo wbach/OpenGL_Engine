@@ -52,6 +52,7 @@ public:
     void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
     void ClearBuffer(GraphicsApi::BufferType) override;
     void ClearBuffers(const std::vector<GraphicsApi::BufferType>&) override;
+    void ClearTexture(uint32, const Color&) override;
 
     void EnableBlend() override;
     void DisableBlend() override;

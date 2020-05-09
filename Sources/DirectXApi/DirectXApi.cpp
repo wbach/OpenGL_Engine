@@ -664,6 +664,9 @@ void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
 void DirectXApi::ClearBuffers(const std::vector<GraphicsApi::BufferType> &)
 {
 }
+void DirectXApi::ClearTexture(uint32, const Color&)
+{
+}
 void DirectXApi::EnableBlend()
 {
     float bf[4] = {1.0f, 1.0f, 1.0f, 1.0f};

@@ -20,6 +20,7 @@ enum class BufferAtachment
 enum class BindType
 {
     DEFAULT,
-    DRAW
+    DRAW,
+    READ
 };
 }

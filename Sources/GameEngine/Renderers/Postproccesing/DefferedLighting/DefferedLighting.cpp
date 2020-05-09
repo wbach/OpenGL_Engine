@@ -23,7 +23,7 @@ void DefferedLighting::Init()
     if (not lightPassID_)
     {
         lightPassID_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
-                                                          sizeof(DefferedLighting::LightPass));
+                                                                        sizeof(DefferedLighting::LightPass));
     }
 }
 void DefferedLighting::Prepare()
@@ -34,6 +34,8 @@ void DefferedLighting::Render(const Scene& scene)
     PrepareApiStateToRender();
 
     rendererContext_.defferedFrameBuffer_.BindTextures(0);
+    rendererContext_.graphicsApi_.ClearBuffer(GraphicsApi::BufferType::COLOR);
+
     shader_.Start();
     LoadLights(scene);
     rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);

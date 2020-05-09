@@ -29,7 +29,8 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
         if (texture)
         {
             AddTexture(*texture);
-            DEBUG_LOG("Attachment : " + std::to_string(static_cast<int>(at)) + " textureId :" +  std::to_string(*texture));
+            DEBUG_LOG("Attachment : " + std::to_string(static_cast<int>(at)) +
+                      " textureId :" + std::to_string(*texture));
         }
         else
         {
@@ -43,7 +44,7 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
 
     if (depthTextureId)
     {
-        DEBUG_LOG("Depth attachment, textureId :" +  std::to_string(*depthTextureId));
+        DEBUG_LOG("Depth attachment, textureId :" + std::to_string(*depthTextureId));
         depthTexture = *depthTextureId;
     }
     else
@@ -62,6 +63,11 @@ void DefferedFrameBuffer::Init(const wb::vec2ui& size)
 void DefferedFrameBuffer::Clean()
 {
     BindToDraw();
-    graphicsApi_.ClearBuffers({GraphicsApi::BufferType::COLOR, GraphicsApi::BufferType::DEPTH});
+    graphicsApi_.ClearBuffer(GraphicsApi::BufferType::DEPTH);
+
+    graphicsApi_.ClearTexture(textures[0], Color(0.f, 0.f, 0.f, 0.f));
+    graphicsApi_.ClearTexture(textures[1], Color(0.f, 0.f, 0.f, 0.f));
+    graphicsApi_.ClearTexture(textures[2], Color(0.f, 0.f, 0.f, 1.f));
+    graphicsApi_.ClearTexture(textures[3], Color(0.f, 0.f, 0.f, 0.f));  // specular
 }
 }  // namespace GameEngine
