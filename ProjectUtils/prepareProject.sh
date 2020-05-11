@@ -73,6 +73,7 @@ additionalIncludesDir='
 ..\..\Tools\Windows\SDL2_image-2.0.4\include\;
 ..\..\Tools\common\glm\;
 ..\..\Tools\Windows;
+..\..\Tools\Windows\glew-2.1.0\include;
 ..\..\Tools\Windows\freeImage;
 ..\..\Tools\Windows\freetype\include;
 ..\..\Tools\Windows\GLFW3\include;
@@ -247,6 +248,7 @@ additionalDebugLibsDir='
 '$toolsDir'\fbx_sdk\lib\vs2017\x86\debug;
 '$toolsDir'\Assimp\lib\x86;
 '$toolsDir'\GL;
+'$toolsDir'\glew-2.1.0\lib\Release\Win32
 '$toolsDir'\SDL2_ttf-2.0.15\lib\x86;
 '$toolsDir'\SDL2-2.0.12\lib\x86;
 '$toolsDir'\SDL2_net-2.0.1\lib\x86;
@@ -263,6 +265,7 @@ additionalReleaseLibsDir='
 '$toolsDir'\fbx_sdk\lib\vs2017\x86\release;
 '$toolsDir'\Assimp\lib\x86;
 '$toolsDir'\GL;
+'$toolsDir'\glew-2.1.0\lib\Release\Win32;
 '$toolsDir'\SDL2_ttf-2.0.15\lib\x86;
 '$toolsDir'\SDL2-2.0.12\lib\x86;
 '$toolsDir'\SDL2_net-2.0.1\lib\x86;

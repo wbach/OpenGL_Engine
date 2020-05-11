@@ -1,6 +1,7 @@
 #include "OpenGLApi.h"
 
 #include <GL/glew.h>
+#include <GL/GL.h>
 #include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
