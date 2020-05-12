@@ -15,7 +15,8 @@ enum class FunctionType
     Awake,
     OnStart,
     Update,
-    PostUpdate
+    PostUpdate,
+    AlwaysUpdate,
 };
 
 typedef std::unordered_map<uint32, std::function<void()> > FunctionMap;
@@ -41,6 +42,7 @@ public:
     void OnStart();
     void Update();
     void PostUpdate();
+    void AlwaysUpdate();
     void CallFunc(FunctionType type);
 
 private:

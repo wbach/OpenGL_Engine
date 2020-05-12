@@ -7,7 +7,7 @@ layout (std140, binding = 3) uniform PerTerrain
     vec4 displacementStrength;
     ivec4 morpharea1_4;
     ivec4 morpharea5_8;
-    vec3 scale;
+    vec4 scaleAndOffset;
 } perTerrain;
 
 layout(binding = 1) uniform sampler2D heightmap;
@@ -18,12 +18,11 @@ out vec2 mapCoord_GS;
 
 float GetHeight(vec2 mapCoord)
 {
-    float height = texture(heightmap, mapCoord).r;
-    height *= perTerrain.scale.y;
-    height -= perTerrain.scale.y / 2.f;
-    height += 19.f;
+    float offset_ = perTerrain.scaleAndOffset.w;
+    float heightFactor = perTerrain.scaleAndOffset.y;
 
-    return height;
+    float height = texture(heightmap, mapCoord).r;
+    return (height * heightFactor) - offset_;
 }
 
 void main()

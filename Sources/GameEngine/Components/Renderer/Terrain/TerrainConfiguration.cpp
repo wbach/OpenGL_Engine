@@ -41,6 +41,7 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
 
 TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filename)
 {
+    DEBUG_LOG("filename : " + filename);
     TerrainConfiguration config;
 
     std::fstream file(filename);
@@ -71,7 +72,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filen
 
             try
             {
-                config.perTerrainBuffer.scale = vec3(stof(params[1]), stof(params[2]), stof(params[3]));
+                config.scale_ = vec3(stof(params[1]), stof(params[2]), stof(params[3]));
             }
             catch (...)
             {
@@ -146,19 +147,22 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filen
         }
         ++lineNumber;
     }
+    config.perTerrainBuffer.scaleAndYOffset.value = vec4(config.scale_, 0.f);
     file.close();
     return config;
 }
 
 TerrainConfiguration::TerrainConfiguration()
-    : perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec3(6000.f, 800.f, 6000.f)}
+    : scale_(513, 20, 513)
+    , perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec4(scale_, 0.f)}
     , terrainRootNodesCount_{8.f}
 {
     SetLods();
 }
 
 TerrainConfiguration::TerrainConfiguration(const vec3& scale)
-    : perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), scale}
+    : scale_(scale)
+    , perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec4(scale, 0.f)}
 {
     SetLods();
 }
@@ -181,10 +185,15 @@ std::optional<uint32> TerrainConfiguration::GetPartsCount() const
     return partsCount_;
 }
 
+void TerrainConfiguration::SetTerrainYOffset(float offset)
+{
+    perTerrainBuffer.scaleAndYOffset.value.w = offset;
+}
+
 // namespace GameEngine
 int32 TerrainConfiguration::updateMorphingArea(uint32 lod)
 {
-    return static_cast<int32>((perTerrainBuffer.scale.value.x / terrainRootNodesCount_) /
+    return static_cast<int32>((scale_.x / terrainRootNodesCount_) /
                               static_cast<float>(pow(2, lod)));
 }
 

@@ -5,7 +5,12 @@ namespace GameEngine
 TerrainQuadTree::TerrainQuadTree(const TerrainConfiguration& terrainConfiguration)
     : terrainConfiguration_(terrainConfiguration)
 {
-    constexpr uint32 lod           = 0;
+}
+void TerrainQuadTree::CreateNodes()
+{
+    nodes_.clear();
+
+    constexpr uint32 lod = 0;
     uint32 rootNodesCount = static_cast<uint32>(terrainConfiguration_.GetTerrainRootNodesCount());
 
     for (uint32 i = 0; i < rootNodesCount; ++i)

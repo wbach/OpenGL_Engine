@@ -1,4 +1,4 @@
-#version 430
+#version 430 core
 #define TEXTURE_TILED_FACTOR 800.f
 #define LARGE_DETAIL_RANGE 325.f
 //#define scaleXZ 6000.f
@@ -18,7 +18,7 @@ layout (std140, binding = 3) uniform PerTerrain
     vec4 displacementStrength;
     ivec4 morpharea1_4;
     ivec4 morpharea5_8;
-    vec3 scale;
+    vec4 scaleAndOffset;
 } perTerrain;
 
 in vec2 mapCoord_GS[];
@@ -30,9 +30,22 @@ layout(binding = 12) uniform sampler2D greenTextureDisplacement;
 layout(binding = 15) uniform sampler2D blueTextureDisplacement;
 layout(binding = 18) uniform sampler2D alphaTextureDisplacement;
 
-out vec4 worldPos;
-out vec2 mapCoord_FS;
-out vec3 tangent;
+// out vec4 worldPos;
+// out vec2 mapCoord_FS;
+// out vec3 tangent;
+
+out GS_OUT
+{
+    vec2 texCoord;
+    vec3 normal;
+    vec4 worldPos;
+    vec4 shadowCoords;
+    float useShadows;
+    float shadowMapSize;
+    vec3 passTangent;
+    float useNormalMap;
+}  go_out;
+
 
 struct Displacement
 {
@@ -66,7 +79,7 @@ Displacement calculateDisplacment()
 
     for(int k = 0; k < gl_in.length(); k++)
     {
-        vec2 mapCoords = (gl_in[k].gl_Position.xz + perTerrain.scale.x / 2.f) / perTerrain.scale.x;
+        vec2 mapCoords = (gl_in[k].gl_Position.xz + perTerrain.scaleAndOffset.x / 2.f) / perTerrain.scaleAndOffset.x;
         vec2 tiledCoords = mapCoords * TEXTURE_TILED_FACTOR;
 
         vec4 blendMapColor = texture(blendMap, mapCoords);
@@ -83,7 +96,7 @@ Displacement calculateDisplacment()
         scale += texture(backgorundTextureDisplacement, tiledCoords).r * blendMapColor.b * perTerrain.displacementStrength.w;
         scale += texture(alphaTextureDisplacement, tiledCoords).r * blendMapColor.a * perTerrain.displacementStrength.w;
 
-        float attenuation = clamp(- distance(gl_in[k].gl_Position.xyz, perFrame.cameraPosition) / LARGE_DETAIL_RANGE + 1.f , 0.f, 1.f);
+       // float attenuation = clamp(- distance(gl_in[k].gl_Position.xyz, perFrame.cameraPosition) / LARGE_DETAIL_RANGE + 1.f , 0.f, 1.f);
        // scale *= attenuation;
 
         displacement.array[k] *= scale;
@@ -102,18 +115,18 @@ void main()
         displacement.array[i] = vec3(0);
     }
 
-    if (dist < LARGE_DETAIL_RANGE)
+    if (false)//if (dist < LARGE_DETAIL_RANGE)
     {
-        tangent = calcTangent();
+        go_out.passTangent = calcTangent();
         displacement = calculateDisplacment();
     }
 
     for (int i = 0; i < gl_in.length(); ++i)
     {
         vec4 position = gl_in[i].gl_Position + vec4(displacement.array[i], 0);
-        mapCoord_FS = mapCoord_GS[i];
-        worldPos =  perFrame.projectionViewMatrix * position;
-        gl_Position = worldPos;
+        go_out.texCoord = mapCoord_GS[i];
+        go_out.worldPos =  perFrame.projectionViewMatrix * position;
+        gl_Position = go_out.worldPos;
         EmitVertex();
     }
     EndPrimitive();

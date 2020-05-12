@@ -22,17 +22,22 @@ layout(binding = 17) uniform sampler2D alphaTextureNormal;
 
 out vec4 outputColor;
 
+vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
+{
+    vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
+    vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
+    vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;
+    vec4 blueTextureColor       = texture(blueTexture, tiledCoords) * blendMapColor.b;
+    vec4 alphaTextureColor      = texture(alphaTexture, tiledCoords) * blendMapColor.a;
+    return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
+}
+
 vec4 CalculateTerrainColor()
 {
-    vec4 blendMapColour     = texture(blendMap, vs_in.texCoord);
-    float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b + blendMapColour.a);
     vec2 tiledCoords        = vs_in.texCoord * 40.0f ;
-    vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
-    vec4 redTextureColour        = texture(redTexture, tiledCoords) * blendMapColour.r;
-    vec4 greenTextureColour      = texture(greenTexture, tiledCoords) * blendMapColour.g;
-    vec4 blueTextureColour       = texture(blueTexture, tiledCoords) * blendMapColour.b;
-    vec4 alphaTextureColour      = texture(alphaTexture, tiledCoords) * blendMapColour.a;
-    return backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour + alphaTextureColour;
+    vec4 blendMapColor = texture(blendMap, vs_in.texCoord);
+    float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
+    return CalculateTerrainColor(tiledCoords, blendMapColor, backTextureAmount);
 }
 
 void main()

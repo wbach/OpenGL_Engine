@@ -21,6 +21,7 @@ public:
     const PerTerrain& GetPerTerrainBuffer() const;
     const vec3& GetScale() const;
     std::optional<uint32> GetPartsCount() const;
+    void SetTerrainYOffset(float);
 
 private:
     void SetLods();
@@ -28,6 +29,7 @@ private:
     void SetLod(uint32 index, uint32 value);
 
 private:
+    vec3 scale_;
     PerTerrain perTerrainBuffer;
     std::vector<int32> lodRanges_;
     float terrainRootNodesCount_;
@@ -35,11 +37,11 @@ private:
 };
 inline float TerrainConfiguration::GetScaleY() const
 {
-    return perTerrainBuffer.scale.value.y;
+    return scale_.y;
 }
 inline float TerrainConfiguration::GetScaleXZ() const
 {
-    return perTerrainBuffer.scale.value.x;
+    return scale_.x;
 }
 inline int32 TerrainConfiguration::GetLodRange(uint32 index) const
 {
@@ -52,7 +54,7 @@ inline const PerTerrain& TerrainConfiguration::GetPerTerrainBuffer() const
 
 inline const vec3& TerrainConfiguration::GetScale() const
 {
-    return perTerrainBuffer.scale.value;
+    return scale_;
 }
 
 inline float TerrainConfiguration::GetTerrainRootNodesCount() const

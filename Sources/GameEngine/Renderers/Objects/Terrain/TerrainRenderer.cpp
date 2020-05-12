@@ -91,7 +91,7 @@ void TerrainRenderer::RenderSubscribers() const
     {
         const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfiguration();
-        DEBUG_LOG(std::to_string(config.GetPerTerrainBuffer().scale.value));
+    //    DEBUG_LOG(std::to_string(config.GetPerTerrainBuffer().scale.value));
         context_.graphicsApi_.UpdateShaderBuffer(*perTerrainId, &config.GetPerTerrainBuffer());
         context_.graphicsApi_.BindShaderBuffer(*perTerrainId);
 

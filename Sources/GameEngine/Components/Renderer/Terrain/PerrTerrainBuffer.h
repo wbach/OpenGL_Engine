@@ -8,6 +8,6 @@ struct PerTerrain
     AlignWrapper<vec4> displacementStrength;
     AlignWrapper<vec4i> morpharea1_4;
     AlignWrapper<vec4i> morpharea5_8;
-    AlignWrapper<vec3> scale;
+    AlignWrapper<vec4> scaleAndYOffset;
 };
 }  // namespace GameEngine

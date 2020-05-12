@@ -102,6 +102,10 @@ void ComponentController::PostUpdate()
 {
     CallFunc(FunctionType::PostUpdate);
 }
+void ComponentController::AlwaysUpdate()
+{
+    CallFunc(FunctionType::AlwaysUpdate);
+}
 void ComponentController::CallFunc(FunctionType type)
 {
     if (functions_.count(type) > 0)

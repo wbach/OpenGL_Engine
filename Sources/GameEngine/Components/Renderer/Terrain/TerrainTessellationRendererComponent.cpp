@@ -23,7 +23,7 @@ TerrainTessellationRendererComponent::~TerrainTessellationRendererComponent()
 }
 std::vector<std::pair<FunctionType, std::function<void()>>> TerrainTessellationRendererComponent::FunctionsToRegister()
 {
-    return {{FunctionType::Awake, [&]() { Subscribe(); }}, {FunctionType::Update, [&]() { Update(); }}};
+    return {{FunctionType::Awake, [&]() { Subscribe(); }}, {FunctionType::AlwaysUpdate, [&]() { Update(); }}};
 }
 
 void TerrainTessellationRendererComponent::RecalculateYOffset()
@@ -39,6 +39,9 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& file
     heightMapParameters_.loadType       = TextureLoadType::AddToGpuPass;
     heightMapParameters_.applySizeLimit = false;
     TerrainComponentBase::LoadHeightMap(filename);
+    auto yoffset = heightMap_->GetMaximumHeight() / 2.f * config_.GetScale().y;
+    config_.SetTerrainYOffset(yoffset);
+    terrainQuadTree_.CreateNodes();
 }
 void TerrainTessellationRendererComponent::UpdateHeightMap(const std::string& filename)
 {
@@ -55,6 +58,7 @@ void TerrainTessellationRendererComponent::UpdateHeightMap(const std::string& fi
     heightMap_ = static_cast<HeightMap*>(texture);
     UpdateTexture(TerrainTextureType::heightmap, heightMap_);
     LoadTerrainConfiguration(filename);
+    terrainQuadTree_.CreateNodes();
 }
 const TerrainQuadTree& TerrainTessellationRendererComponent::GetTree() const
 {

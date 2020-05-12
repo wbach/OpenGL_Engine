@@ -4,6 +4,7 @@
 #include "EngineDef.h"
 #include "Utils.h"
 #include "Utils/XML/XmlReader.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -71,6 +72,7 @@ void Read(Utils::XmlNode* node, Params::TerrainType& param)
         return;
 
     std::from_string(node->value_, param);
+    DEBUG_LOG(node->value_);
 }
 
 void Read(Utils::XmlNode* node, Params::Terrain& param)

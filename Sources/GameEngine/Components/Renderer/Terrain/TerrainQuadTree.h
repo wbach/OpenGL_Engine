@@ -13,6 +13,7 @@ public:
     TerrainQuadTree(const TerrainConfiguration& terrainConfiguration);
     TerrainQuadTree(const TerrainQuadTree&)  = delete;
     TerrainQuadTree(const TerrainQuadTree&&) = delete;
+    void CreateNodes();
     const TerrainNodes& GetNodes() const;
     void Update(const vec3& cameraPosition);
 

@@ -122,6 +122,8 @@ void Scene::FullUpdate(float deltaTime)
         Update(deltaTime);
         componentController_.Update();
     }
+
+    componentController_.AlwaysUpdate();
 }
 
 void Scene::PostUpdate()

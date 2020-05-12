@@ -47,6 +47,7 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
     else
     {
         SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
+        SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
     }
 }
 
@@ -198,7 +199,8 @@ void TerrainRendererComponent::RecalculateNormals()
 
 void TerrainRendererComponent::ReqisterFunctions()
 {
-    for (auto f : terrainComponent_->FunctionsToRegister())
+    const auto functions = terrainComponent_->FunctionsToRegister();
+    for (auto f : functions)
     {
         RegisterFunction(f.first, f.second);
     }

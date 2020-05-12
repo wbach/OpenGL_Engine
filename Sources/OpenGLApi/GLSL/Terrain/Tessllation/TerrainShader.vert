@@ -1,4 +1,4 @@
-#version 430
+#version 430 core
 #define MORPH_AREAS 8
 
 layout (location = 0) in vec2 Position;
@@ -15,7 +15,7 @@ layout (std140, binding = 3) uniform PerTerrain
     vec4 displacementStrength;
     ivec4 morpharea1_4;
     ivec4 morpharea5_8;
-    vec3 scale;
+    vec4 scaleAndOffset;
 } perTerrain;
 
 layout (std140, binding = 4) uniform PerNode
@@ -92,7 +92,7 @@ float morphLongitude(vec2 position, vec2 location, vec2 index, float gap)
     return 0;
 }
 
-vec2 morph(vec2 localPosition, int morphArea){
+vec2 morph(vec2 localPosition, int morphArea, vec3 scale){
 
     vec2 morphing = vec2(0, 0);
     vec2 location = perNode.indexAndLocation.zw;
@@ -126,13 +126,13 @@ vec2 morph(vec2 localPosition, int morphArea){
     }
 
     float planarFactor = 0.f;
-    if (perFrame.cameraPosition.y > abs(perTerrain.scale.y))
+    if (perFrame.cameraPosition.y > abs(scale.y))
     {
         planarFactor = 1;
     }
     else
     {
-        planarFactor = perFrame.cameraPosition.y / abs(perTerrain.scale.y);
+        planarFactor = perFrame.cameraPosition.y / abs(scale.y);
     }
 
     distLatitude = length(perFrame.cameraPosition - (perNode.worldMatrix *
@@ -171,9 +171,11 @@ void main()
 
     if (lod > 0)
     {
-        localPosition += morph(localPosition, lodMorphArea[lod - 1]);
+        vec3 scale = perTerrain.scaleAndOffset.xyz;
+        localPosition += morph(localPosition, lodMorphArea[lod - 1], scale);
     }
 
     mapCoord_TC = localPosition;
-    gl_Position = perNode.worldMatrix * vec4(localPosition.x, texture(heightmap, localPosition).r, localPosition.y, 1);
+    float yOffset = perTerrain.scaleAndOffset.w;
+    gl_Position = perNode.worldMatrix * vec4(localPosition.x, texture(heightmap, localPosition).r + yOffset, localPosition.y, 1);
 }

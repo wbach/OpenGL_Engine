@@ -1,4 +1,4 @@
-#version 430
+#version 430 core
 layout(vertices = 16) out;
 layout (std140, binding = 1) uniform PerFrame
 {
@@ -15,7 +15,7 @@ const int BC = 3;
 const int CD = 0;
 const int DA = 1;
 
-const int tessellationFactor = 1600;
+const int tessellationFactor = 2;
 const float tessellationSlope = 1.0f;
 const float tessellationShift = 0.1f;
 

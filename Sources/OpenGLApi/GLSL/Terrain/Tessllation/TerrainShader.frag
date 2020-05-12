@@ -1,11 +1,11 @@
-#version 430
+#version 430 core
 #define TEXTURE_TILED_FACTOR 800.f
 #define LARGE_DETAIL_RANGE 325.f
 
 struct TerrainData
 {
-vec4 color;
-vec3 normal;
+    vec4 color;
+    vec4 normal;
 };
 
 layout (std140, binding = 1) uniform PerFrame
@@ -33,70 +33,122 @@ in vec2 mapCoord_FS;
 in vec4 worldPos;
 in vec3 tangent;
 
+in GS_OUT
+{
+    vec2 texCoord;
+    vec3 normal;
+    vec4 worldPos;
+    vec4 shadowCoords;
+    float useShadows;
+    float shadowMapSize;
+    vec3 passTangent;
+    float useNormalMap;
+} fs_in;
+
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 SpecularOut;
 
-vec4 CalculateColor(sampler2D textureId, float factor, vec2 textCoords)
+vec3 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, vec4 normal_map)
 {
-    return texture(textureId, textCoords) * factor;
+    vec3 normal  = normalize(surface_normal);
+    vec3 tangent = normalize(pass_tangent);
+    tangent = normalize(tangent - dot(tangent, normal) * normal);
+    vec3 bitangent = cross(tangent, normal);
+    vec3 bumpMapNormal = normal_map.xyz ;
+    bumpMapNormal = 2.f * bumpMapNormal - vec3(1.f, 1.f, 1.f);
+    vec3 new_normal;
+    mat3 tbn = mat3(tangent, bitangent, normal);
+    new_normal = tbn * bumpMapNormal;
+    new_normal = normalize(new_normal);
+    return new_normal;
 }
 
-TerrainData CalculateTerrainData()
+float CalculateShadowFactor()
 {
-    TerrainData result;
+    float xOffset = 1.0/fs_in.shadowMapSize;
+    float yOffset = 1.0/fs_in.shadowMapSize;
 
-    vec4 blendMapColor = texture(blendMap, mapCoord_FS) ;
+    float factor = 0.0;
 
-    float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a) ;
-    vec2 tiledCoords = mapCoord_FS * TEXTURE_TILED_FACTOR;
-
-    vec3 normal = normalize(texture(normalmap, mapCoord_FS).xyz);
-
-    float dist = length(perFrame.cameraPosition - worldPos.xyz);
-
-    if (dist < LARGE_DETAIL_RANGE)
+    float a = 0;
+    for (int y = -1 ; y <= 1 ; y++)
     {
-        float attenuation = clamp(-dist/ LARGE_DETAIL_RANGE + 1,0.0,1.0);
+        for (int x = -1 ; x <= 1 ; x++)
+        {
+            vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
+            vec3 uvc = vec3(fs_in.shadowCoords.xy + offsets, fs_in.shadowCoords.z);
 
-        vec3 bitangent = normalize(cross(normal, tangent));
-        mat3 TBN = mat3(tangent, bitangent, normal);
+            if (texture(shadowMap, uvc) >  0.f)
+                factor += (fs_in.shadowCoords.w * 0.4f);
+           a++;
+        }
+    }
+    float value = (.5f + (factor / a));
+    if( value > 1.f )
+        value = 1.f ;
 
-        vec3 bumpNormal;
-        bumpNormal += (2.f * (texture(backgorundTextureNormal, tiledCoords).rgb) - 1.f) * backTextureAmount;
-        bumpNormal += (2.f * (texture(redTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.r;
-        bumpNormal += (2.f * (texture(greenTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.g;
-        bumpNormal += (2.f * (texture(blueTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.b;
-        bumpNormal += (2.f * (texture(alphaTextureNormal, tiledCoords).rgb) - 1.f) * blendMapColor.a;
-        bumpNormal = normalize(bumpNormal);
-        bumpNormal.xy *= attenuation;
-        result.normal = normalize(TBN * bumpNormal);
+    return value ;
+}
+
+bool Is(float f)
+{
+    return f > .5f;
+}
+
+bool NormalMaping()
+{
+    float dist = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
+    return Is(fs_in.useNormalMap) && (dist < LARGE_DETAIL_RANGE);
+}
+
+vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
+{
+    vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
+    vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
+    vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;
+    vec4 blueTextureColor       = texture(blueTexture, tiledCoords) * blendMapColor.b;
+    vec4 alphaTextureColor      = texture(alphaTexture, tiledCoords) * blendMapColor.a;
+    return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
+}
+
+vec4 CalculateTerrainNormal(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
+{
+    if (NormalMaping())
+    {
+        vec4 backgorundNormalColor   = texture(backgorundTextureNormal, tiledCoords) * backTextureAmount;
+        vec4 redNormalTextureColor   = texture(redTextureNormal, tiledCoords) * blendMapColor.r;
+        vec4 greenNormalTextureColor = texture(greenTextureNormal, tiledCoords) * blendMapColor.g;
+        vec4 blueNormalTextureColor  = texture(blueTextureNormal, tiledCoords) * blendMapColor.b;
+        vec4 alphaNormalTextureColor = texture(alphaTextureNormal, tiledCoords) * blendMapColor.a;
+        return vec4(CalcBumpedNormal(fs_in.normal, fs_in.passTangent, backgorundNormalColor + redNormalTextureColor + greenNormalTextureColor + blueNormalTextureColor + alphaNormalTextureColor), 1.f); // w use fog
     }
     else
     {
-        result.normal = normal;
+       return vec4(normalize(fs_in.normal), 1.f);
     }
+}
 
-    vec4 backgorundTextureColor;
-    backgorundTextureColor = CalculateColor(backgorundTexture, backTextureAmount, tiledCoords);
+TerrainData GetTerrainData()
+{
+    vec2 tiledCoords   = fs_in.texCoord * 40.0f ;
+    vec4 blendMapColor = texture(blendMap, fs_in.texCoord);
+    float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
 
-    vec4 rColor = CalculateColor(redTexture, blendMapColor.r, tiledCoords);
-    vec4 gColor = CalculateColor(greenTexture, blendMapColor.g, tiledCoords);
-    vec4 bColor = CalculateColor(blueTexture, blendMapColor.b, tiledCoords);
-    vec4 aColor = CalculateColor(alphaTexture, blendMapColor.a, tiledCoords);
-
-    result.color = backgorundTextureColor + rColor + gColor + bColor + aColor;
-
+    TerrainData result;
+    result.color  = CalculateTerrainColor(tiledCoords, blendMapColor, backTextureAmount);
+    result.normal = CalculateTerrainNormal(tiledCoords, blendMapColor, backTextureAmount);
     return result;
 }
 
 void main()
 {
-    TerrainData data = CalculateTerrainData();
+    TerrainData terrainData = GetTerrainData();
+    float shadowFactor = Is(fs_in.useShadows) ? CalculateShadowFactor() : 1.f;
 
-    WorldPosOut = worldPos;
-    DiffuseOut  = vec4(data.color.xyz, 1.0);
-    NormalOut   = vec4(data.normal, 1.f);
-    SpecularOut = vec4(0);
+    WorldPosOut     = fs_in.worldPos;
+    DiffuseOut      = terrainData.color * shadowFactor;
+    NormalOut       = vec4(0, 1, 0, 1);//terrainData.normal;
+    SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
 }
