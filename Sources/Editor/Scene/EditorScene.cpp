@@ -34,8 +34,6 @@ int EditorScene::Initialize()
     RunNetworkEditorInterface();
     renderersManager_->GetDebugRenderer().Enable();
 
-     resourceManager_->GetGraphicsApi().SetBackgroundColor(Color(0, 0, 255).color);
-
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
     LoadFromFile(sceneFile);
 

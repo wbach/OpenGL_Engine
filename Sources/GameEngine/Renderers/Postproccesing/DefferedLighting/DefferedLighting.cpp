@@ -25,6 +25,8 @@ void DefferedLighting::Init()
         lightPassID_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
                                                                         sizeof(DefferedLighting::LightPass));
     }
+
+    lightPass_.skyColor = vec4(.18f, .27f, .47f, 1.f);
 }
 void DefferedLighting::Prepare()
 {

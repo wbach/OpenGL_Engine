@@ -20,5 +20,6 @@ private:
 
 private:
     PostProcessingManager postprocessingRenderersManager_;
+    bool resizeRenderingMode_;
 };
 }  // namespace GameEngine

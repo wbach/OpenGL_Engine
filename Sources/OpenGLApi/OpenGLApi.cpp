@@ -1,7 +1,7 @@
 #include "OpenGLApi.h"
 
 #include <GL/glew.h>
-#include <GL/GL.h>
+
 #include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
@@ -765,6 +765,9 @@ void OpenGLApi::BindBuffer(GraphicsApi::BindType type, uint32 id)
             break;
         case GraphicsApi::BindType::DRAW:
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, openGLId);
+            break;
+        case GraphicsApi::BindType::READ:
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, openGLId);
             break;
     }
 }

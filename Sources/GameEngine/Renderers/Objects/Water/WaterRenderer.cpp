@@ -19,7 +19,7 @@ WaterRenderer::WaterRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Water)
 {
-    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, WaterRenderer::Render);
+    __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, WaterRenderer::Render);
 }
 WaterRenderer::~WaterRenderer()
 {

@@ -27,6 +27,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
     graphicsApi_.PrepareFrame();
+    graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
 
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 

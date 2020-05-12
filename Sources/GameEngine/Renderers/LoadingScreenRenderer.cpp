@@ -3,6 +3,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -23,6 +24,7 @@ void LoadingScreenRenderer::Init()
 {
     shader_.Init();
     CreateBuffers();
+    graphicsApi_.SetViewPort(0, 0, EngineConf.window.size.x, EngineConf.window.size.y);
 }
 
 void LoadingScreenRenderer::Render()

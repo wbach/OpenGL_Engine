@@ -16,6 +16,7 @@
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -25,7 +26,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
     , renderersManager_(entryParameters.renderersManager_)
-    , windowSize_(entryParameters.renderersManager_.GetProjection().GetRenderingSize())
+    , windowSize_(EngineConf.window.size)
     , fontManger_(windowSize_)
     , guiElementCounter_(0)
 {
