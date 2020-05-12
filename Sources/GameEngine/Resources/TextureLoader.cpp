@@ -109,17 +109,11 @@ Texture* TextureLoader::LoadHeightMap(const InputFileName& inputFileName, const 
     auto isBinnary = Utils::CheckExtension(inputFileName, HEIGHTMAP_EXTENSION);
     return isBinnary ? LoadHeightMapBinary(inputFileName, params) : LoadHeightMapTexture(inputFileName, params);
 }
-Texture* TextureLoader::LoadNormalMap(const std::vector<float>& baseData, const TextureSize& size, float strength)
+Texture* TextureLoader::CreateNormalMap(const HeightMap& heightMap, const vec3& terrainScale)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto image       = std::make_unique<Image>();
-    image->width     = size.x;
-    image->height    = size.y;
-    image->floatData = createNromalMapData(size, baseData, strength);
-    auto normaltexture =
-        std::make_unique<NormalTexture>(graphicsApi_, true, "noname_NormalTexutre", "nopath", std::move(image));
-
+    auto normaltexture = CreateNormalTexture(graphicsApi_, terrainScale, heightMap);
     return AddTexture(GetNoName(), std::move(normaltexture), TextureLoadType::AddToGpuPass);
 }
 GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()

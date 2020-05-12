@@ -1,7 +1,6 @@
 #include "OpenGLApi.h"
 
 #include <GL/glew.h>
-
 #include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
@@ -386,6 +385,25 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
 
         std::transform(floatdata.begin(), floatdata.end(), data.begin(),
                        [](float f) { return static_cast<uint8>(255.f * f); });
+    }
+    else if (params.dataType == GL_FLOAT and params.format == GL_RGB)
+    {
+        std::vector<float> floatdata;
+        data.reserve(4 * textureInfo.size.x * textureInfo.size.y);
+        floatdata.resize(3 * textureInfo.size.x * textureInfo.size.y);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, &floatdata[0]);
+
+        for (size_t i = 0; i < floatdata.size(); i += 3)
+        {
+            auto x = static_cast<uint8>(255.f * floatdata[i]);
+            auto y = static_cast<uint8>(255.f * floatdata[i + 1]);
+            auto z = static_cast<uint8>(255.f * floatdata[i + 2]);
+
+            data.push_back(x);
+            data.push_back(y);
+            data.push_back(z);
+            data.push_back(255);
+        }
     }
     else if (params.dataType == GL_FLOAT and params.format == GL_RED)
     {

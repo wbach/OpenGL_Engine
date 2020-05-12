@@ -24,6 +24,7 @@ layout (std140, binding = 3) uniform PerTerrain
 in vec2 mapCoord_GS[];
 
 layout(binding = 2) uniform sampler2D blendMap;
+layout(binding = 3) uniform sampler2D normalmap;
 layout(binding = 6) uniform sampler2D backgorundTextureDisplacement;
 layout(binding = 9) uniform sampler2D redTextureDisplacement;
 layout(binding = 12) uniform sampler2D greenTextureDisplacement;
@@ -48,6 +49,11 @@ out GS_OUT
 
 
 struct Displacement
+{
+    vec3 array[3];
+};
+
+struct Normal
 {
     vec3 array[3];
 };
@@ -105,28 +111,46 @@ Displacement calculateDisplacment()
     return displacement;
 }
 
+Normal GetNormal()
+{
+    Normal normal;
+
+    for (int i = 0; i < gl_in.length(); ++i)
+    {
+        vec2 mapCoords = (gl_in[i].gl_Position.xz + perTerrain.scaleAndOffset.x / 2.f) / perTerrain.scaleAndOffset.x;
+        normal.array[i] = texture(normalmap, mapCoords).xyz;
+    }
+
+    return normal;
+}
+
 void main()
 {
     float dist = (distance(gl_in[0].gl_Position.xyz, perFrame.cameraPosition) + distance(gl_in[1].gl_Position.xyz, perFrame.cameraPosition) + distance(gl_in[2].gl_Position.xyz, perFrame.cameraPosition)) / 3.f;
 
     Displacement displacement;
-    for (int i = 0; i < gl_in.length(); ++i)
-    {
-        displacement.array[i] = vec3(0);
-    }
 
     if (false)//if (dist < LARGE_DETAIL_RANGE)
     {
         go_out.passTangent = calcTangent();
         displacement = calculateDisplacment();
     }
+    else
+    {
+        for (int i = 0; i < gl_in.length(); ++i)
+        {
+            displacement.array[i] = vec3(0);
+        }
+    }
 
     for (int i = 0; i < gl_in.length(); ++i)
     {
-        vec4 position = gl_in[i].gl_Position + vec4(displacement.array[i], 0);
-        go_out.texCoord = mapCoord_GS[i];
-        go_out.worldPos =  perFrame.projectionViewMatrix * position;
-        gl_Position = go_out.worldPos;
+        vec4 position       = gl_in[i].gl_Position + vec4(displacement.array[i], 0);
+        go_out.texCoord     = mapCoord_GS[i];
+        go_out.worldPos     =  perFrame.projectionViewMatrix * position;
+        go_out.useNormalMap = 0.f;
+        go_out.normal       = GetNormal().array[i];
+        gl_Position         = go_out.worldPos;
         EmitVertex();
     }
     EndPrimitive();

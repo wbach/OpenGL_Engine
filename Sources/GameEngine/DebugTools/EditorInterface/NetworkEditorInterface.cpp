@@ -1189,7 +1189,7 @@ void NetworkEditorInterface::ReloadShaders(const NetworkEditorInterface::EntryPa
 void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryParameters & params)
 {
     std::string path{"./snapshoot/"};
-    if (not params.count("location"))
+    if (params.count("location"))
     {
         path = params.at("location");
     }

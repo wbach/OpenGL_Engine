@@ -14,7 +14,6 @@ TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(Compo
                                                                            GameObject& gameObject)
     : TerrainComponentBase(componentContext, gameObject)
     , terrainQuadTree_(config_)
-    , normalMap_(nullptr)
     , normalStrength_(12.f)
 {
 }
@@ -39,6 +38,11 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& file
     heightMapParameters_.loadType       = TextureLoadType::AddToGpuPass;
     heightMapParameters_.applySizeLimit = false;
     TerrainComponentBase::LoadHeightMap(filename);
+
+    auto normalMap =
+        componentContext_.resourceManager_.GetTextureLoader().CreateNormalMap(*heightMap_, config_.GetScale());
+    SetTexture(TerrainTextureType::normalmap, normalMap);
+
     auto yoffset = heightMap_->GetMaximumHeight() / 2.f * config_.GetScale().y;
     config_.SetTerrainYOffset(yoffset);
     terrainQuadTree_.CreateNodes();
@@ -63,15 +67,6 @@ void TerrainTessellationRendererComponent::UpdateHeightMap(const std::string& fi
 const TerrainQuadTree& TerrainTessellationRendererComponent::GetTree() const
 {
     return terrainQuadTree_;
-}
-Texture* TerrainTessellationRendererComponent::GetNormalMap() const
-{
-    return normalMap_.get();
-}
-void TerrainTessellationRendererComponent::SetNormalMap(std::unique_ptr<Texture> texture)
-{
-    normalMap_ = std::move(texture);
-    SetTexture(TerrainTextureType::normalmap, normalMap_.get());
 }
 void TerrainTessellationRendererComponent::HeightMapChanged()
 {

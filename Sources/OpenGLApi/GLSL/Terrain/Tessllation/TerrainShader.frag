@@ -17,7 +17,6 @@ layout (std140, binding = 1) uniform PerFrame
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;
 layout(binding = 2) uniform sampler2D blendMap;
-layout(binding = 3) uniform sampler2D normalmap;
 layout(binding = 4) uniform sampler2D backgorundTexture;
 layout(binding = 5) uniform sampler2D backgorundTextureNormal;
 layout(binding = 7) uniform sampler2D redTexture;
@@ -149,6 +148,6 @@ void main()
 
     WorldPosOut     = fs_in.worldPos;
     DiffuseOut      = terrainData.color * shadowFactor;
-    NormalOut       = vec4(0, 1, 0, 1);//terrainData.normal;
+    NormalOut       = terrainData.normal;
     SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
 }

@@ -220,7 +220,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h
-../../Sources/GameEngine/Renderers/Objects/Terrain/TerrainNormalMapRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/TerrainRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.h

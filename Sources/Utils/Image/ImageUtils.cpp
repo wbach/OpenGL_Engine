@@ -1,15 +1,27 @@
 #include "ImageUtils.h"
+
 #include <FreeImage.h>
 #include <Logger/Log.h>
 
+#include <algorithm>
+
 namespace Utils
 {
-void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename, const std::optional<vec2>& scale)
+std::vector<uint8> ConvertColorData(const std::vector<float> &inputData)
+{
+    std::vector<uint8> result;
+    std::transform(inputData.begin(), inputData.end(), std::back_inserter(result),
+                   [](auto input) { return static_cast<uint8>(input * 255.f); });
+    return result;
+}
+void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename,
+               const std::optional<vec2> &scale)
 {
     auto minSize = size.x * size.y * 4;
     if (data.size() < minSize)
     {
-        DEBUG_LOG("Data image not complete : " + filename + " size : " + std::to_string(data.size()) + "/" + std::to_string(minSize));
+        DEBUG_LOG("Data image not complete : " + filename + " size : " + std::to_string(data.size()) + "/" +
+                  std::to_string(minSize));
         return;
     }
 
@@ -34,7 +46,8 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     }
     if (scale)
     {
-        auto scaledBitmap = FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
+        auto scaledBitmap =
+            FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
         FreeImage_Unload(bitmap);
         bitmap = scaledBitmap;
     }

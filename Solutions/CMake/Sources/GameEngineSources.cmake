@@ -163,7 +163,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.cpp
-../../Sources/GameEngine/Renderers/Objects/Terrain/TerrainNormalMapRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/TerrainRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.cpp

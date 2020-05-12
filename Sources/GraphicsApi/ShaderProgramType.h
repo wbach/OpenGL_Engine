@@ -14,7 +14,6 @@ enum class ShaderProgramType
     SkyBox,
     Skydome,
     Terrain,
-    TerrainNormal,
     TerrainMesh,
     Tree,
     Water,

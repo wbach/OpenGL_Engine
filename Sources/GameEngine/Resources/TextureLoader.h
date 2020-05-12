@@ -19,7 +19,7 @@ public:
     Texture* CreateTexture(const std::string&, const TextureParameters&, const TextureSize&, RawData) override;
     Texture* LoadTexture(const InputFileName&, const TextureParameters&) override;
     Texture* LoadCubeMap(const std::array<InputFileName, 6>&, const TextureParameters&) override;
-    Texture* LoadNormalMap(const std::vector<float>&, const TextureSize&, float) override;
+    Texture* CreateNormalMap(const HeightMap&, const vec3&) override;
     Texture* LoadHeightMap(const InputFileName&, const TextureParameters&) override;
     GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
     void SaveTextureToFile(const std::string& name, const std::vector<uint8>&, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat) const override;

@@ -23,8 +23,6 @@ public:
     void RecalculateNormals() override;
     void CleanUp() override;
     const TerrainQuadTree& GetTree() const;
-    Texture* GetNormalMap() const;
-    void SetNormalMap(std::unique_ptr<Texture>);
     void HeightMapChanged();
 
 private:
@@ -34,7 +32,6 @@ private:
 
 private:
     TerrainQuadTree terrainQuadTree_;
-    std::unique_ptr<Texture> normalMap_;
     float normalStrength_;
 };
 

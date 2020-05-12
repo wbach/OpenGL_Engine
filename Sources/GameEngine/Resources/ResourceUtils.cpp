@@ -224,6 +224,29 @@ Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap
 
     return outputImage;
 }
+std::unique_ptr<NormalTexture> CreateNormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const vec3& terrainScale, const HeightMap& heightMap)
+{
+    auto width = heightMap.GetImage().width;
+    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
+
+    Image normalImage;
+    auto& imageData = normalImage.floatData;
+    normalImage.width = heightMap.GetImage().width;
+    normalImage.height = heightMap.GetImage().height;
+    imageData.reserve(normalImage.width * normalImage.height * 3);
+
+    for (uint32 j = 0; j < width; ++j)
+    {
+        for (uint32 i = 0; i < width; ++i)
+        {
+            auto normal = tools.GetNormal(i, j);
+            imageData.push_back(normal.x);
+            imageData.push_back(normal.y);
+            imageData.push_back(normal.z);
+        }
+    }
+    return std::make_unique<NormalTexture>(graphicsApi, heightMap.GetFileName() + "_normalMap", std::move(normalImage));
+}
 float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui& position)
 {
     return data[position.x + position.y * size.x];
@@ -238,63 +261,5 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
 
     Utils::SaveImage(image.data, image.Size(), file + "_alpha1_preview");
     Utils::SaveImage(image.data, image.Size(), file + "_alpha1_preview_scaled", vec2(4));
-}
-std::vector<float> createNromalMapData(const vec2ui& size, const std::vector<float>& heightMapData,
-                                       float normalStrength)
-{
-    // z0 -- z1 -- z2
-    // |	 |     |
-    // z3 -- h  -- z4
-    // |     |     |
-    // z5 -- z6 -- z7
-
-    std::vector<float> result;
-
-    for (uint32 j = 0; j < size.y; ++j)
-    {
-        for (uint32 i = 0; i < size.x; ++i)
-        {
-            uint32 x = i;
-            uint32 y = j;
-
-            if (i == 0)
-                x = i + 1;
-
-            if (i >= size.x - 1)
-                x = i - 1;
-
-            if (j == 0)
-                y = j + 1;
-
-            if (j >= size.y - 1)
-                y = j - 1;
-
-            float z0 = getPixel(heightMapData, size, vec2ui(x - 1, y - 1));
-            float z1 = getPixel(heightMapData, size, vec2ui(x, y - 1));
-            float z2 = getPixel(heightMapData, size, vec2ui(x + 1, y - 1));
-            float z3 = getPixel(heightMapData, size, vec2ui(x - 1, y));
-            float z4 = getPixel(heightMapData, size, vec2ui(x + 1, y));
-            float z5 = getPixel(heightMapData, size, vec2ui(x - 1, y + 1));
-            float z6 = getPixel(heightMapData, size, vec2ui(x, y + 1));
-            float z7 = getPixel(heightMapData, size, vec2ui(x + 1, y + 1));
-
-            vec3 normal;
-
-            // Sobel Filter
-            normal.z = 1.0f / normalStrength;
-            normal.x = z0 + 2.f * z3 + z5 - z2 - 2.f * z4 - z7;
-            normal.y = z0 + 2.f * z1 + z2 - z5 - 2.f * z6 - z7;
-
-            normal = (glm::normalize(normal) + 1.0f) / 2.0f;
-            // normal = glm::normalize(0.25f * vec3(2.f * (z4 - z3), 2.f * (z6 - z1), -4));
-            // normal = glm::normalize(vec3((z4 - z3) ,2.f , (z6 - z1)));
-            // bgr
-            result.push_back(normal.z);
-            result.push_back(normal.y);
-            result.push_back(normal.x);
-        }
-    }
-
-    return result;
 }
 }  // namespace GameEngine

@@ -101,12 +101,6 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER, "Terrain/Tessllation/Forward/TerrainShader.es"}
         }
     },
-    {
-        GraphicsApi::ShaderProgramType::TerrainNormal,
-        {
-            {GraphicsApi::ShaderType::COMPUTE_SHADER, "Terrain/NormalMap.glsl"}
-        }
-    },
     { 
         GraphicsApi::ShaderProgramType::TerrainMesh,
         {

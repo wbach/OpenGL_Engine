@@ -103,12 +103,6 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
-        GraphicsApi::ShaderProgramType::TerrainNormal,
-        {
-            {GraphicsApi::ShaderType::COMPUTE_SHADER, "Terrain/NormalMap.glsl"}
-        }
-    },
-    {
         GraphicsApi::ShaderProgramType::TerrainMesh,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/TerrainShader.vert"},
