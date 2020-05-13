@@ -62,7 +62,7 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
         }
         else
         {
-            params.internalFormat = GL_RGBA32F;
+            params.internalFormat = GL_RGBA16F;
         }
     }
     else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1C)
@@ -530,7 +530,7 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
     glTexParameterf(params.target, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
 
     if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, bufferAtachmentMap_[atachment], params.target, texture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, bufferAtachmentMap_[atachment], params.target, texture, 0);
 
     if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
     {

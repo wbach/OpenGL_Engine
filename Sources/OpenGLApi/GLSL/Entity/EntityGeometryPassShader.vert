@@ -92,9 +92,9 @@ VertexWorldData caluclateWorldData()
 
 mat3 CreateTBNMatrix(vec3 normal)
 {
-    vec3 tangent = normalize((perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz);
+    vec3 tangent  = normalize((perObjectUpdate.transformationMatrix * vec4(Tangent, 0.0)).xyz);
     tangent = normalize(tangent - dot(tangent, normal) * normal);
-    vec3 binormal = cross(tangent, normal);
+    vec3 binormal = cross(normal, tangent);
     return mat3(tangent, binormal, normal);
 }
 
@@ -105,8 +105,8 @@ void main()
     vs_out.texCoord      = TexCoord;
     vs_out.worldPos      = worldData.worldPosition;
     vs_out.textureOffset = perObjectConstants.textureOffset;
-    vs_out.normal        = worldData.worldNormal.xyz;
-    vs_out.tbn           = CreateTBNMatrix(worldData.worldNormal.xyz);
+    vs_out.normal        = normalize(worldData.worldNormal.xyz);
+    vs_out.tbn           = CreateTBNMatrix(vs_out.normal);
     gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }

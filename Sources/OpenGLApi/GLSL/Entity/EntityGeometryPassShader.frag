@@ -37,7 +37,7 @@ layout (location = 3) out vec4 MaterialSpecular;
 vec4 CalcBumpedNormal(vec2 text_coords)
 {
     vec3 bumpMapNormal = texture(NormalMap, text_coords).xyz;
-    bumpMapNormal = 2.0 * bumpMapNormal - vec3(1.0, 1.0, 1.0);
+    bumpMapNormal = bumpMapNormal * 2.f - 1.f;
     return vec4(normalize(fs_in.tbn * bumpMapNormal) , 1.f);
 }
 
