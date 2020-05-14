@@ -11,8 +11,6 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
-#include "GameEngineTests/Tests/Mocks/Renderers/FrameBuffer/FrameBufferMock.h"
-#include "GameEngineTests/Tests/Mocks/Renderers/Objects/Shadows/ShadowFrameBufferMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
@@ -34,11 +32,9 @@ struct EntityRendererShould : public BaseComponentTestSchould
     EntityRendererShould()
         : graphicsMock_(new GraphicsApiMock())
         , engineContext_(std::unique_ptr<IGraphicsApi>(graphicsMock_), std::make_unique<PhysicsApiMock>())
-        , frameBufferMock_()
-        , shadowFrameBufferMock_()
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, engineContext_.GetGraphicsApi())
-        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(), frameBufferMock_, shadowFrameBufferMock_,
+        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(),
                    measurmentHandler_,
                    std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
     {
@@ -99,8 +95,6 @@ struct EntityRendererShould : public BaseComponentTestSchould
     GpuResourceLoaderMock gpuResourceLoaderMock_;
     ResourceManagerMock resourceManagerMock_;
     Projection projection_;
-    FrameBufferMock frameBufferMock_;
-    ShadowFrameBufferMock shadowFrameBufferMock_;
     GameEngine::Scene scene_;
     Model model_;
     Mesh mesh_;

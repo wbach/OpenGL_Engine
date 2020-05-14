@@ -12,6 +12,5 @@ struct TextureInfo
     TextureType textureType;
     TextureFilter textureFilter;
     TextureMipmap textureMipmap;
-    BufferAtachment atachment;
 };
 }  // namespace GraphicsApi

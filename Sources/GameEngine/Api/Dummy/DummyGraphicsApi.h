@@ -42,7 +42,10 @@ public:
     void SetDefaultTarget() override
     {
     }
-    void SetBackgroundColor(const vec3&) override
+    void SetBackgroundColor(const Color&) override
+    {
+    }
+    const Color& GetBackgroundColor() const override
     {
     }
     void EnableDepthTest() override
@@ -82,7 +85,7 @@ public:
         return {};
     }
     GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
-                                  GraphicsApi::BufferAtachment, vec2ui, void* data) override
+                                  const vec2ui&, void* data) override
     {
         return ++id;
     }
@@ -94,15 +97,6 @@ public:
     {
     }
     void UpdateTexture(uint32, const vec2ui&, void* data) override
-    {
-    }
-    void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override
-    {
-    }
-    void ClearBuffer(GraphicsApi::BufferType) override
-    {
-    }
-    void ClearBuffers(const std::vector<GraphicsApi::BufferType>&) override
     {
     }
     void ClearTexture(uint32, const Color&) override
@@ -124,13 +118,6 @@ public:
     {
     }
     void ActiveTexture(uint32) override
-    {
-    }
-    GraphicsApi::ID CreateBuffer() override
-    {
-        return ++id;
-    }
-    void BindBuffer(GraphicsApi::BindType, uint32) override
     {
     }
     void DeleteObject(uint32) override
@@ -231,17 +218,6 @@ public:
     void UpdateBlend(uint32, const std::vector<float>&) override
     {
     }
-    GraphicsApi::ID CloneImage(uint32) override
-    {
-        return ++id;
-    }
-    // temp
-    void CreateFont(const std::string&) override
-    {
-    }
-    void PrintText(const std::string&, const vec2i&) override
-    {
-    }
     void LoadViewMatrix(const mat4&) override
     {
     }
@@ -264,6 +240,9 @@ public:
         return textureInfo_;
     }
     void TakeSnapshoot(const std::string&) const override
+    {
+    }
+    void BindDefaultFrameBuffer() override
     {
     }
 

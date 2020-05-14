@@ -175,8 +175,9 @@ float ToZBuffer(sampler2D tex, vec2 coord)
 void main()
 {
     vec2 tex_coord  = vs_in.textureCoords;
-    tex_coord.y*=-1;
-    float z = ToZBuffer(DepthTexture, tex_coord);
+    tex_coord.y    *= - 1;
+   // FragColor = texture(ColorMap, tex_coord); return;
+    float distance  = ToZBuffer(DepthTexture, tex_coord);
 
     vec4 normal4    = texture(NormalMap, tex_coord);
     vec4 specular   = texture(SpecularMap, tex_coord);
@@ -184,8 +185,8 @@ void main()
     vec3 color      = texture(ColorMap, tex_coord).xyz;
     vec3 normal     = normalize(normal4.xyz);
 
+
     float visibility;
-    float distance = z ;
     visibility = exp(-pow((distance*((1.5 / lightsPass.viewDistance))), gradient));
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
@@ -193,7 +194,7 @@ void main()
     material.ambient_ = color * 0.1f;
     material.diffuse_ = color;
     material.specular_ = specular.xyz;
-    material.shineDamper_ = specular.a;
+    material.shineDamper_ = specular.a * 255.f;
 
     vec3 final_color;
 

@@ -1,8 +1,8 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "ShadowBox.h"
 
@@ -55,5 +55,6 @@ private:
     mat4 viewOffset_;
     Subscribers subscribes_;
     GraphicsApi::ID perFrameBuffer_;
+    GraphicsApi::IFrameBuffer* shadowFrameBuffer_;
 };
 }  // namespace GameEngine

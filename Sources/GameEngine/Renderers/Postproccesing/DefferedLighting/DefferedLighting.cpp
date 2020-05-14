@@ -1,13 +1,12 @@
 #include "DefferedLighting.h"
-#include "GameEngine/Renderers/Framebuffer/IFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
-DefferedLighting::DefferedLighting(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
-    : PostprocessingRenderer(context, postprocessFrameBuffer)
+DefferedLighting::DefferedLighting(RendererContext& context)
+    : PostprocessingRenderer(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Deffered)
 {
 }
@@ -26,18 +25,15 @@ void DefferedLighting::Init()
                                                                         sizeof(DefferedLighting::LightPass));
     }
 
-    lightPass_.skyColor = vec4(.18f, .27f, .47f, 1.f);
+    lightPass_.skyColor = rendererContext_.graphicsApi_.GetBackgroundColor().color;
 }
 void DefferedLighting::Prepare()
 {
+
 }
 void DefferedLighting::Render(const Scene& scene)
 {
     PrepareApiStateToRender();
-
-    rendererContext_.defferedFrameBuffer_.BindTextures(0);
-    rendererContext_.graphicsApi_.ClearBuffer(GraphicsApi::BufferType::COLOR);
-
     shader_.Start();
     LoadLights(scene);
     rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);

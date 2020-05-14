@@ -1,6 +1,5 @@
 #include "DefferedRenderer.h"
 
-#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "Logger/Log.h"
@@ -8,7 +7,6 @@
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Plants/PlantsRenderer.h"
-#include "Objects/Shadows/ShadowFrameBuffer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
@@ -19,14 +17,19 @@ namespace GameEngine
 {
 DefferedRenderer::DefferedRenderer(RendererContext& context)
     : BaseRenderer(context)
+    , defferedFrameBuffer_(nullptr)
     , postprocessingRenderersManager_(context)
     , resizeRenderingMode_(false)
+    , isReady_(false)
 {
 }
 
 DefferedRenderer::~DefferedRenderer()
 {
     DEBUG_LOG("");
+
+    if (defferedFrameBuffer_)
+        context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
 }
 
 void DefferedRenderer::Init()
@@ -36,16 +39,17 @@ void DefferedRenderer::Init()
     resizeRenderingMode_ = (context_.projection_.GetRenderingSize().x != EngineConf.window.size.x or
                             context_.projection_.GetRenderingSize().y != EngineConf.window.size.y);
 
+    CreateFrameBuffer();
     CreateRenderers();
+
     DEBUG_LOG("Rendering size : " + std::to_string(context_.projection_.GetRenderingSize()) +
               ", resizeRenderingMode : " + Utils::BoolToString(resizeRenderingMode_));
 
-    context_.defferedFrameBuffer_.Init(context_.projection_.GetRenderingSize());
-    context_.shadowsFrameBuffer_.InitialiseFrameBuffer();
     InitRenderers();
     postprocessingRenderersManager_.Init();
     __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
     __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::OnEndFrame);
+
     DEBUG_LOG("DefferedRenderer initialized.");
 }
 
@@ -64,7 +68,11 @@ void DefferedRenderer::CreateRenderers()
 }
 void DefferedRenderer::Prepare(const Scene&, const Time&)
 {
-    context_.defferedFrameBuffer_.Clean();
+    if (not isReady_)
+        return;
+
+    defferedFrameBuffer_->Clear();
+    defferedFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 
     if (resizeRenderingMode_)
     {
@@ -74,7 +82,8 @@ void DefferedRenderer::Prepare(const Scene&, const Time&)
 }
 void DefferedRenderer::OnEndFrame(const Scene& scene, const Time&)
 {
-    context_.defferedFrameBuffer_.UnBind();
+    if (not isReady_)
+        return;
 
     if (resizeRenderingMode_)
     {
@@ -82,6 +91,21 @@ void DefferedRenderer::OnEndFrame(const Scene& scene, const Time&)
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
 
-    postprocessingRenderersManager_.Render(scene);
+    postprocessingRenderersManager_.Render(*defferedFrameBuffer_, scene);
+}
+
+void DefferedRenderer::CreateFrameBuffer()
+{
+    using namespace GraphicsApi::FrameBuffer;
+    const auto& size = context_.projection_.GetRenderingSize();
+    Attachment worldPositionAttachment(size, Type::Color0, Format::Rgba32f);
+    Attachment diffuseAttachment(size, Type::Color1, Format::Rgba8);
+    Attachment normalAttachment(size, Type::Color2, Format::Rgba32f, vec4(0.f, 0.f, 0.f, 1.f));
+    Attachment specularAttachment(size, Type::Color3, Format::Rgba8);
+    Attachment depthAttachment(size, Type::Depth, Format::Depth);
+
+    defferedFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer(
+        {worldPositionAttachment, diffuseAttachment, normalAttachment, specularAttachment, depthAttachment});
+    isReady_ = defferedFrameBuffer_->Init();
 }
 }  // namespace GameEngine

@@ -7,7 +7,7 @@ namespace GameEngine
 class ColorFliper : public PostprocessingRenderer
 {
 public:
-    ColorFliper(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
+    ColorFliper(RendererContext&);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;

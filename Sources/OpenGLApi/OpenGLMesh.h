@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include "Types.h"
+#include <GL/glew.h>
+#include <GraphicsApi/RenderType.h>
 
 namespace OpenGLApi
 {
@@ -11,7 +13,7 @@ struct OpenGLMesh
     VboMap vbos;
     uint32 patches;
     VboMap attributes;
-    uint32 vertexCount;
+    GLsizei vertexCount;
     uint32 instancesCount;
     GraphicsApi::RenderType renderType;
 };

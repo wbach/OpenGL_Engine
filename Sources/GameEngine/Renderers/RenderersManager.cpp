@@ -2,7 +2,6 @@
 #include "RenderersManager.h"
 
 #include "DefferedRenderer.h"
-#include "Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -13,7 +12,6 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
-#include "Objects/Shadows/ShadowFrameBuffer.h"
 #include "RendererContext.h"
 
 namespace GameEngine
@@ -96,10 +94,8 @@ void RenderersManager::InitMainRenderer()
     auto registerFunc =
         std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
 
-    defferedFrameBuffer_ = std::make_unique<DefferedFrameBuffer>(graphicsApi_);
-    shadowsFrameBuffer_  = std::make_unique<ShadowFrameBuffer>(graphicsApi_);
-    rendererContext_ = std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, *defferedFrameBuffer_,
-                                                         *shadowsFrameBuffer_, measurmentHandler_, registerFunc);
+    rendererContext_ =
+        std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, measurmentHandler_, registerFunc);
 
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 

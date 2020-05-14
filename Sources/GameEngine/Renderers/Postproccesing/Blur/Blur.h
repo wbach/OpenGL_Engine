@@ -7,7 +7,7 @@ namespace GameEngine
 class Blur : public PostprocessingRenderer
 {
 public:
-    Blur(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
+    Blur(RendererContext&);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;

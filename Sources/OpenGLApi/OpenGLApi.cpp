@@ -10,6 +10,7 @@
 
 #include "Font.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GlFrameBuffer.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
@@ -33,20 +34,19 @@ namespace
 {
 std::unordered_map<uint32, ObjectType> createdObjectIds;
 std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap_;
-std::unordered_map<GraphicsApi::TextureFilter, uint32> textureFilterMap_;
+std::unordered_map<GraphicsApi::TextureFilter, GLfloat> textureFilterMap_;
 std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
-std::unordered_map<GraphicsApi::BufferAtachment, uint32> bufferAtachmentMap_;
-std::unordered_map<GraphicsApi::BufferType, uint32> bufferTypeMap_;
 std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
 CFont font;
 
 struct TextTypeParams
 {
     GLenum target        = GL_TEXTURE_2D;
-    GLint dataType       = GL_FLOAT;
+    GLenum dataType      = GL_FLOAT;
     GLint internalFormat = GL_RGBA;
-    GLint format         = GL_RGBA;
+    GLenum format        = GL_RGBA;
 };
+
 TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
 {
     TextTypeParams params;
@@ -113,6 +113,9 @@ struct OpenGLApi::Pimpl
     ShaderManager shaderManager_;
     std::vector<ShaderBuffer> shaderBuffers_;
     std::unordered_map<uint32, GraphicsApi::TextureInfo> textureInfos_;
+    std::vector<std::unique_ptr<FrameBuffer>> frameBuffers_;
+
+    std::unordered_map<uint64, ObjectType> createdGraphicsObjects_;
 };
 
 OpenGLMesh Convert(const Vao& v)
@@ -121,7 +124,7 @@ OpenGLMesh Convert(const Vao& v)
     mesh.vao          = v.vao;
     mesh.vbos         = v.vbos;
     mesh.attributes   = v.attributes;
-    mesh.vertexCount  = v.size;
+    mesh.vertexCount  = static_cast<GLsizei>(v.size);
     mesh.useIndiecies = v.useIndicies;
 
     return mesh;
@@ -145,15 +148,6 @@ OpenGLApi::OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi)
     textureFilterMap_ = {{GraphicsApi::TextureFilter::LINEAR, GL_LINEAR},
                          {GraphicsApi::TextureFilter::NEAREST, GL_NEAREST}};
 
-    bufferAtachmentMap_ = {{GraphicsApi::BufferAtachment::COLOR_1, GL_COLOR_ATTACHMENT0},
-                           {GraphicsApi::BufferAtachment::COLOR_2, GL_COLOR_ATTACHMENT1},
-                           {GraphicsApi::BufferAtachment::COLOR_3, GL_COLOR_ATTACHMENT2},
-                           {GraphicsApi::BufferAtachment::COLOR_4, GL_COLOR_ATTACHMENT3},
-                           {GraphicsApi::BufferAtachment::DEPTH, GL_DEPTH_ATTACHMENT}};
-
-    bufferTypeMap_ = {{GraphicsApi::BufferType::COLOR, GL_COLOR_BUFFER_BIT},
-                      {GraphicsApi::BufferType::DEPTH, GL_DEPTH_BUFFER_BIT}};
-
     renderTypeMap_ = {{GraphicsApi::RenderType::PATCHES, GL_PATCHES},
                       {GraphicsApi::RenderType::POINTS, GL_POINTS},
                       {GraphicsApi::RenderType::LINES, GL_LINES},
@@ -172,11 +166,10 @@ OpenGLApi::~OpenGLApi()
 {
 }
 
-void GetInfoAndPrint(const std::string& str, int i)
+void GetInfoAndPrint(const std::string& str, GLenum i)
 {
     int info;
     glGetIntegerv(i, &info);
-
     DEBUG_LOG(str + " : " + std::to_string(info));
 }
 
@@ -269,25 +262,29 @@ GraphicsApi::IWindowApi& OpenGLApi::GetWindowApi()
 }
 void OpenGLApi::PrepareFrame()
 {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(bgColor_.x, bgColor_.y, bgColor_.z, 1.f);
+    glClearColor(bgColor_.color.x, bgColor_.color.y, bgColor_.color.z, bgColor_.color.w);
 
-    auto code = glGetError();
-    if (code != GL_NO_ERROR)
+    auto errorString = GetGlError();
+
+    if (not errorString.empty())
     {
-        auto errString = gluErrorString(code);
-        std::string error((char*)errString);
-        ERROR_LOG(error);
+        ERROR_LOG(errorString);
     }
 }
 void OpenGLApi::SetDefaultTarget()
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
-void OpenGLApi::SetBackgroundColor(const vec3& color)
+void OpenGLApi::SetBackgroundColor(const Color& color)
 {
     bgColor_ = color;
+}
+
+const Color& OpenGLApi::GetBackgroundColor() const
+{
+    return bgColor_;
 }
 void OpenGLApi::EnableDepthTest()
 {
@@ -435,8 +432,6 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
     {
         switch (object.second)
         {
-            case ObjectType::SHADER_PROGRAM:
-                break;
             case ObjectType::TEXTURE_2D:
             {
                 if (impl_->textureInfos_.count(object.first) == 0)
@@ -451,15 +446,59 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                 Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
             }
             break;
-            case ObjectType::TEXTURE_CUBE_MAP:
-                break;
-            case ObjectType::RENDER_BUFFER:
-                break;
-            case ObjectType::FRAME_BUFFER:
-                break;
-            case ObjectType::MESH:
+            default:
+                DEBUG_LOG("not imeplmented");
                 break;
         }
+    }
+    // moving to graphics objects
+    for (const auto& object : impl_->createdGraphicsObjects_)
+    {
+        switch (object.second)
+        {
+            case ObjectType::FRAME_BUFFER:
+            {
+                const auto& frameBuffer = impl_->frameBuffers_.at(object.first);
+
+                const std::string fullPath =
+                    path + "/FrameBuffersTextures/FrameBuffer_" + std::to_string(frameBuffer->GetId()) + "/";
+                std::filesystem::create_directories(fullPath);
+                impl_->frameBuffers_.at(object.first)->TakeSnapshot(fullPath);
+            }
+            break;
+            default:
+                DEBUG_LOG("not imeplmented");
+                break;
+        }
+    }
+}
+
+void OpenGLApi::BindDefaultFrameBuffer()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+OpenGLApi::IFrameBuffer& OpenGLApi::CreateFrameBuffer(
+    const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
+{
+    impl_->frameBuffers_.push_back(std::make_unique<FrameBuffer>(impl_->idPool_, attachments));
+    DEBUG_LOG(std::to_string(impl_->frameBuffers_.back()->GetId()));
+    impl_->createdGraphicsObjects_.insert({impl_->frameBuffers_.back()->GetId(), ObjectType::FRAME_BUFFER});
+    return *impl_->frameBuffers_.back();
+}
+
+void OpenGLApi::DeleteFrameBuffer(OpenGLApi::IFrameBuffer& framebuffer)
+{
+    DEBUG_LOG(std::to_string(framebuffer.GetId()));
+    framebuffer.CleanUp();
+
+    auto& v   = impl_->frameBuffers_;
+    auto iter = std::find_if(v.begin(), v.end(),
+                             [id = framebuffer.GetId()](const auto& object) { return object->GetId() == id; });
+
+    if (iter != v.end())
+    {
+        v.erase(iter);
     }
 }
 
@@ -491,7 +530,7 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
     uint32 buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
-    glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
     auto id = impl_->shaderBuffers_.size() - 1;
@@ -519,18 +558,15 @@ uint32 OpenGLApi::BindShaderBuffer(uint32 id)
 }
 
 void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                     GraphicsApi::TextureMipmap mimpamp, GraphicsApi::BufferAtachment atachment, vec2ui size,
-                     void* data)
+                     GraphicsApi::TextureMipmap mimpamp, const vec2ui& size, void* data)
 {
     auto params = GetTextureTypeParams(type);
 
     glBindTexture(params.target, texture);
-    glTexImage2D(params.target, 0, params.internalFormat, size.x, size.y, 0, params.format, params.dataType, data);
-    glTexParameterf(params.target, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
-    glTexParameterf(params.target, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
-
-    if (type == GraphicsApi::TextureType::FLOAT_BUFFER_2D || type == GraphicsApi::TextureType::DEPTH_BUFFER_2D)
-        glFramebufferTexture2D(GL_FRAMEBUFFER, bufferAtachmentMap_[atachment], params.target, texture, 0);
+    glTexImage2D(params.target, 0, params.internalFormat, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), 0,
+                 params.format, params.dataType, data);
+    glTexParameterf(params.target, GL_TEXTURE_MIN_FILTER, textureFilterMap_.at(filter));
+    glTexParameterf(params.target, GL_TEXTURE_MAG_FILTER, textureFilterMap_.at(filter));
 
     if (mimpamp == GraphicsApi::TextureMipmap::LINEAR)
     {
@@ -538,28 +574,26 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
         glTexParameteri(params.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameterf(params.target, GL_TEXTURE_LOD_BIAS, 0);
     }
+
     glTexParameteri(params.target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(params.target, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glBindTexture(params.target, 0);
 }
 
 GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                                         GraphicsApi::TextureMipmap mipmap, GraphicsApi::BufferAtachment atachment,
-                                         vec2ui size, void* data)
+                                         GraphicsApi::TextureMipmap mipmap, const vec2ui& size, void* data)
 {
     GLuint texture;
     glGenTextures(1, &texture);
 
-    GLenum hubo_error = glGetError();
-
-    if (hubo_error)
+    auto errorString = GetGlError();
+    if (not errorString.empty())
     {
-        auto errInfo = gluErrorString(hubo_error);
-        DEBUG_LOG("" + (char*)errInfo);
+        ERROR_LOG(errorString);
         return {};
     }
 
-    CreateGlTexture(texture, type, filter, mipmap, atachment, size, data);
+    CreateGlTexture(texture, type, filter, mipmap, size, data);
 
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
@@ -570,7 +604,6 @@ GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, Graphics
     texutreInfo.textureFilter = filter;
     texutreInfo.textureMipmap = mipmap;
     texutreInfo.textureType   = type;
-    texutreInfo.atachment     = atachment;
 
     impl_->textureInfos_.insert({rid, texutreInfo});
 
@@ -582,26 +615,24 @@ GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, Graphi
     GLuint texture;
     glGenTextures(1, &texture);
 
-    GLenum hubo_error = glGetError();
-
-    if (hubo_error)
+    auto errorString = GetGlError();
+    if (not errorString.empty())
     {
-        auto errInfo = gluErrorString(hubo_error);
-        DEBUG_LOG("" + (char*)errInfo);
+        ERROR_LOG(errorString);
         return {};
     }
 
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexStorage2D(GL_TEXTURE_2D, (int)(log(N) / log(2)), GL_RGBA32F, N, N);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLfloat)textureFilterMap_[filter]);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLfloat)textureFilterMap_[filter]);
+    glTexStorage2D(GL_TEXTURE_2D, static_cast<GLsizei>(log(N) / log(2)), GL_RGBA32F, N, N);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterMap_[filter]);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterMap_[filter]);
 
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
 
     GraphicsApi::TextureInfo texutreInfo;
     texutreInfo.id            = rid;
-    texutreInfo.size          = vec2ui(N);
+    texutreInfo.size          = vec2ui(static_cast<uint32>(N));
     texutreInfo.textureFilter = filter;
     texutreInfo.textureMipmap = GraphicsApi::TextureMipmap::NONE;
     texutreInfo.textureType   = GraphicsApi::TextureType::FLOAT_TEXTURE_4C;
@@ -625,10 +656,11 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> d
     }
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-    for (int x = 0; x < 6; x++)
+    for (size_t x = 0; x < 6; x++)
     {
         auto ptr = data[x];
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, ptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(x), 0, GL_RGBA, static_cast<GLsizei>(size.x),
+                     static_cast<GLsizei>(size.y), 0, GL_RGBA, GL_UNSIGNED_BYTE, ptr);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -652,7 +684,8 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& siz
     auto params       = GetTextureTypeParams(textureInfo.textureType);
 
     BindTexture(id);
-    glTexSubImage2D(params.target, 0, offset.x, offset.y, size.x, size.y, params.format, params.dataType, data);
+    glTexSubImage2D(params.target, 0, static_cast<GLint>(offset.x), static_cast<GLint>(offset.y),
+                    static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), params.format, params.dataType, data);
 }
 void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, void* data)
 {
@@ -665,51 +698,8 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, void* data)
     auto glId         = impl_->idPool_.ToGL(id);
 
     BindTexture(id);
-    CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap,
-                    textureInfo.atachment, size, data);
+    CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap, size, data);
     textureInfo.size = size;
-}
-
-void OpenGLApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment>& attachemnts)
-{
-    GLenum* drawBuffers;
-
-    drawBuffers = new GLenum[attachemnts.size()];
-
-    uint32 i = 0;
-    for (auto at : attachemnts)
-    {
-        drawBuffers[i++] = bufferAtachmentMap_[at];
-    }
-    glDrawBuffers(attachemnts.size(), drawBuffers);
-
-    delete[] drawBuffers;
-}
-
-void OpenGLApi::ClearBuffer(GraphicsApi::BufferType type)
-{
-    glClear(bufferTypeMap_.at(type));
-}
-
-void OpenGLApi::ClearBuffers(const std::vector<GraphicsApi::BufferType>& buffers)
-{
-    if (buffers.empty())
-        return;
-
-    GLbitfield& mask = bufferTypeMap_[buffers.front()];
-
-    bool first = true;
-    for (auto buffer : buffers)
-    {
-        if (first)
-        {
-            first = false;
-            continue;
-        }
-        mask |= bufferTypeMap_[buffer];
-    }
-
-    glClear(mask);
 }
 
 void OpenGLApi::ClearTexture(uint32 id, const Color& color)
@@ -759,37 +749,6 @@ void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
         glBindTexture(GL_TEXTURE_2D, openGLId);
 }
 
-GraphicsApi::ID OpenGLApi::CreateBuffer()
-{
-    GLuint glId;
-    glGenFramebuffers(1, &glId);
-    auto id = impl_->idPool_.ToUint(glId);
-    createdObjectIds.insert({id, ObjectType::FRAME_BUFFER});
-    return id;
-}
-
-void OpenGLApi::BindBuffer(GraphicsApi::BindType type, uint32 id)
-{
-    if (activeBuffer_ == id)
-        return;
-
-    activeBuffer_ = id;
-    auto openGLId = impl_->idPool_.ToGL(id);
-
-    switch (type)
-    {
-        case GraphicsApi::BindType::DEFAULT:
-            glBindFramebuffer(GL_FRAMEBUFFER, openGLId);
-            break;
-        case GraphicsApi::BindType::DRAW:
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, openGLId);
-            break;
-        case GraphicsApi::BindType::READ:
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, openGLId);
-            break;
-    }
-}
-
 void OpenGLApi::DeleteObject(uint32 id)
 {
     if (id == 0)
@@ -819,11 +778,14 @@ void OpenGLApi::DeleteObject(uint32 id)
         case ObjectType::RENDER_BUFFER:
             glDeleteRenderbuffers(1, &openGLId);
             break;
-        case ObjectType::FRAME_BUFFER:
-            glDeleteFramebuffers(1, &openGLId);
+            // case ObjectType::FRAME_BUFFER:
+            // DeleteFrameBuffer(id);
             break;
         case ObjectType::MESH:
             DeleteMesh(id);
+            break;
+
+        default:
             break;
     }
 
@@ -867,7 +829,7 @@ GraphicsApi::ID OpenGLApi::CreatePatchMesh(const std::vector<float>& patches)
     vaoCreator.AddStaticAttributePatch(VertexBufferObjects::POSITION, 2, patches);
     mesh             = Convert(vaoCreator.Get());
     mesh.renderType  = GraphicsApi::RenderType::PATCHES;
-    mesh.vertexCount = patches.size();
+    mesh.vertexCount = static_cast<GLsizei>(patches.size());
     return rid;
 }
 
@@ -985,7 +947,7 @@ struct FloatBufferMatrix
     std::vector<float> rows[4];
 };
 
-void pushRow(const mat4& matrix, uint32 row, std::vector<float>& dest)
+void pushRow(const mat4& matrix, int row, std::vector<float>& dest)
 {
     dest.push_back(matrix[row][0]);
     dest.push_back(matrix[row][1]);
@@ -1036,7 +998,7 @@ void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data
             case VertexBufferObjects::POSITION:
                 if (not obj.useIndiecies)
                 {
-                    obj.vertexCount = static_cast<uint32>(data.positions_.size() / 3);
+                    obj.vertexCount = static_cast<GLsizei>(data.positions_.size() / 3);
                 }
                 UpdateVBO(obj, buffer, data.positions_);
                 break;
@@ -1055,7 +1017,7 @@ void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mes
 {
     auto& obj = openGlMeshes_.at(objectId);
 
-    obj.vertexCount = mesh.positions_.size();
+    obj.vertexCount = static_cast<GLsizei>(mesh.positions_.size());
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh.positions_.size(), &mesh.positions_[0], GL_STREAM_DRAW);
@@ -1076,14 +1038,6 @@ void OpenGLApi::UpdateBlend(uint32 objectId, const std::vector<float>& blendFact
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::BLEND_FACTOR]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * blendFactor.size(), &blendFactor[0], GL_STREAM_DRAW);
-}
-GraphicsApi::ID OpenGLApi::CloneImage(uint32 objectId)
-{
-    // auto& obj = idToGlId_.at(objectId];
-
-    DEBUG_LOG("Not implementet");
-    // glCopyTexImage2D();
-    return {};
 }
 void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
 {
@@ -1106,7 +1060,7 @@ void OpenGLApi::RenderMesh(uint32 id)
 
     if (mesh.useIndiecies)
     {
-        glDrawElements(renderTypeMap_.at(mesh.renderType), mesh.vertexCount, GL_UNSIGNED_INT, 0);
+        glDrawElements(renderTypeMap_.at(mesh.renderType), mesh.vertexCount, GL_UNSIGNED_INT, nullptr);
     }
     else
     {
@@ -1122,7 +1076,7 @@ void OpenGLApi::RenderTriangleStripMesh(uint32 id)
     auto& mesh = openGlMeshes_.at(id);
 
     glBindVertexArray(mesh.vao);
-    glDrawElements(GL_TRIANGLE_STRIP, mesh.vertexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLE_STRIP, mesh.vertexCount, GL_UNSIGNED_INT, nullptr);
 }
 
 void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
@@ -1133,7 +1087,7 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
     auto& mesh = openGlMeshes_.at(id);
 
     glBindVertexArray(mesh.vao);
-    glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, 0, istanced);
+    glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, nullptr, istanced);
 }
 
 void OpenGLApi::RenderPoints(uint32 id)
@@ -1169,7 +1123,7 @@ void OpenGLApi::DisableCulling()
 
 void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
 {
-    glViewport(x, y, width, height);
+    glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLint>(width), static_cast<GLint>(height));
 }
 
 void OpenGLApi::BindTexture(uint32 id) const
@@ -1241,18 +1195,4 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
             break;
     }
 }
-
-void OpenGLApi::CreateFont(const std::string& filename)
-{
-    font.Init(filename);
-}
-
-void OpenGLApi::PrintText(const std::string& text, const vec2i& position)
-{
-    glPushMatrix();
-    glLoadIdentity();
-    font.Print((int)position.x, (int)position.y, text.c_str());
-    glPopMatrix();
-}
-
 }  // namespace OpenGLApi

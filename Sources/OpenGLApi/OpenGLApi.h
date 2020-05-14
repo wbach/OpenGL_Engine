@@ -13,6 +13,8 @@ const uint32 MAX_SHADER_BUFFER_SIZE = 20;
 class OpenGLApi : public GraphicsApi::IGraphicsApi
 {
 public:
+    using IFrameBuffer = GraphicsApi::IFrameBuffer;
+
     OpenGLApi();
     OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi);
     ~OpenGLApi();
@@ -28,7 +30,8 @@ public:
 
     void PrepareFrame() override;
     void SetDefaultTarget() override;
-    void SetBackgroundColor(const vec3&) override;
+    void SetBackgroundColor(const Color&) override;
+    const Color& GetBackgroundColor() const override;
     void EnableDepthTest() override;
     void DisableDepthTest() override;
 
@@ -39,19 +42,14 @@ public:
     void UpdateShaderBuffer(uint32 id, void const* buffer) override;
     uint32 BindShaderBuffer(uint32) override;
 
-    GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap,
-                                 GraphicsApi::BufferAtachment, vec2ui, void* data) override;
-    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                                       int32 N) override;
+    GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
+                                  const vec2ui&, void*) override;
+    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32 N) override;
     GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override;
 
     void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override;
     void UpdateTexture(uint32, const vec2ui&, void* data) override;
 
-    void SetBuffers(const std::vector<GraphicsApi::BufferAtachment>&) override;
-    void ClearBuffer(GraphicsApi::BufferType) override;
-    void ClearBuffers(const std::vector<GraphicsApi::BufferType>&) override;
     void ClearTexture(uint32, const Color&) override;
 
     void EnableBlend() override;
@@ -61,9 +59,6 @@ public:
     void DisableDepthMask() override;
     void ActiveTexture(uint32) override;
     void ActiveTexture(uint32, uint32) override;
-
-    GraphicsApi::ID CreateBuffer() override;
-    void BindBuffer(GraphicsApi::BindType, uint32) override;
 
     void DeleteObject(uint32) override;
     void DeleteShaderBuffer(uint32) override;
@@ -100,12 +95,6 @@ public:
     void UpdateOffset(uint32, const std::vector<vec4>&) override;
     void UpdateBlend(uint32, const std::vector<float>&) override;
 
-    GraphicsApi::ID CloneImage(uint32) override;
-
-    // temp
-    void CreateFont(const std::string&) override;
-    void PrintText(const std::string&, const vec2i&) override;
-
     void LoadViewMatrix(const mat4&) override;
     void LoadProjectionMatrix(const mat4&) override;
     void DrawLine(const vec3& color, const vec3& from, const vec3& to) override;
@@ -113,6 +102,10 @@ public:
     std::vector<uint8> GetTextureData(uint32) const override;
     const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override;
     void TakeSnapshoot(const std::string& path) const override;
+
+    void BindDefaultFrameBuffer() override;
+    IFrameBuffer &CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override;
+    void DeleteFrameBuffer(IFrameBuffer&) override;
 
 private:
     void DeleteMesh(uint32);
@@ -126,7 +119,7 @@ private:
     uint32 activeBuffer_;
     std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
     uint32 usedShader;
-    vec3 bgColor_;
+    Color bgColor_;
     uint32 bindedShaderBuffers_[MAX_SHADER_BUFFER_SIZE];
 
     std::unordered_map<uint32, OpenGLMesh> openGlMeshes_;

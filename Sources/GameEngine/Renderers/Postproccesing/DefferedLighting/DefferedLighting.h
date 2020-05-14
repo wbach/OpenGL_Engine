@@ -25,7 +25,7 @@ private:
     };
 
 public:
-    DefferedLighting(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
+    DefferedLighting(RendererContext&);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;

@@ -6,9 +6,8 @@
 
 namespace GameEngine
 {
-PostprocessingRenderersFactory::PostprocessingRenderersFactory(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
+PostprocessingRenderersFactory::PostprocessingRenderersFactory(RendererContext& context)
     : context_(context)
-    , postprocessFrameBuffer_(postprocessFrameBuffer)
 {
 }
 std::unique_ptr<PostprocessingRenderer> PostprocessingRenderersFactory::Create(PostprocessingRendererType type)
@@ -16,13 +15,13 @@ std::unique_ptr<PostprocessingRenderer> PostprocessingRenderersFactory::Create(P
     switch (type)
     {
         case PostprocessingRendererType::SSAO:
-            return std::make_unique<SSAORenderer>(context_, postprocessFrameBuffer_);
+            return std::make_unique<SSAORenderer>(context_);
         case PostprocessingRendererType::BLUR:
-            return std::make_unique<Blur>(context_, postprocessFrameBuffer_);
+            return std::make_unique<Blur>(context_);
         case PostprocessingRendererType::COLOR_FLIPER:
-            return std::make_unique<ColorFliper>(context_, postprocessFrameBuffer_);
+            return std::make_unique<ColorFliper>(context_);
         case PostprocessingRendererType::DEFFERED_LIGHT:
-            return std::make_unique<DefferedLighting>(context_, postprocessFrameBuffer_);
+            return std::make_unique<DefferedLighting>(context_);
         case PostprocessingRendererType::CONTRAST_CHANGER:
             return nullptr;
         case PostprocessingRendererType::FXAA:

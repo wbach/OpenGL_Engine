@@ -9,7 +9,7 @@ const uint32 KERNEL_SIZE = 128;
 class SSAORenderer : public PostprocessingRenderer
 {
 public:
-    SSAORenderer(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer);
+    SSAORenderer(RendererContext&);
     virtual void Init() override;
     virtual void Prepare() override;
     virtual void Render(const Scene&) override;

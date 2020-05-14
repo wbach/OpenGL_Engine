@@ -1,18 +1,16 @@
 #pragma once
 #include <memory>
 
-#include "GameEngine/Renderers/Framebuffer/Postprocessing/PostproccesFrameBuffer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GraphicsApi/IGraphicsApi.h"
+#include <GraphicsApi/IGraphicsApi.h>
 
 namespace GameEngine
 {
 class PostprocessingRenderer
 {
 public:
-    PostprocessingRenderer(RendererContext& rendererContext, PostprocessFrameBuffer** postprocessFrameBuffer)
+    PostprocessingRenderer(RendererContext& rendererContext)
         : rendererContext_(rendererContext)
-        , postprocessFrameBuffer_(postprocessFrameBuffer)
     {
     }
 
@@ -25,7 +23,6 @@ public:
 
 protected:
     RendererContext& rendererContext_;
-    PostprocessFrameBuffer** postprocessFrameBuffer_;
 };
 
 typedef std::unique_ptr<PostprocessingRenderer> PostprocessingRendererPtr;

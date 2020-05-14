@@ -7,13 +7,6 @@
 
 namespace Utils
 {
-std::vector<uint8> ConvertColorData(const std::vector<float> &inputData)
-{
-    std::vector<uint8> result;
-    std::transform(inputData.begin(), inputData.end(), std::back_inserter(result),
-                   [](auto input) { return static_cast<uint8>(input * 255.f); });
-    return result;
-}
 void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename,
                const std::optional<vec2> &scale)
 {

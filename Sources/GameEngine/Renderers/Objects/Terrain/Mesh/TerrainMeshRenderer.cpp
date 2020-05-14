@@ -9,7 +9,6 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Mesh.h"
@@ -127,12 +126,12 @@ void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subsc
 }
 void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
-    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
+//    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
 
-    if (shadowMap)
-    {
-        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
-    }
+//    if (shadowMap)
+//    {
+//        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
+//    }
 
     for (const auto& t : textures)
     {

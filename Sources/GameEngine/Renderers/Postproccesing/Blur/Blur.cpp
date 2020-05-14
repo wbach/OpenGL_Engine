@@ -2,8 +2,8 @@
 
 namespace GameEngine
 {
-Blur::Blur(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
-    : PostprocessingRenderer(context, postprocessFrameBuffer)
+Blur::Blur(RendererContext& context)
+    : PostprocessingRenderer(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Blur)
 {
 }
@@ -17,7 +17,6 @@ void Blur::Prepare()
 void Blur::Render(const Scene&)
 {
     shader_.Start();
-    (*postprocessFrameBuffer_)->BindTextures();
     rendererContext_.graphicsApi_.RenderQuad();
     shader_.Stop();
 }

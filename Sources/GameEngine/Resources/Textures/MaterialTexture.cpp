@@ -22,9 +22,9 @@ void MaterialTexture::GpuLoadingPass()
 
     DEBUG_LOG("Create texutre filneame : " + fullpath);
 
-    auto graphicsObjectId = graphicsApi_.CreateTexture(
-        GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST, GraphicsApi::TextureMipmap::LINEAR,
-        GraphicsApi::BufferAtachment::NONE, size_, &image.data[0]);
+    auto graphicsObjectId =
+        graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
+                                   GraphicsApi::TextureMipmap::LINEAR, size_, &image.data[0]);
 
     if (graphicsObjectId)
     {
@@ -43,12 +43,12 @@ void MaterialTexture::GpuLoadingPass()
     }
 }
 
-Image &MaterialTexture::GetImage()
+Image& MaterialTexture::GetImage()
 {
     return image;
 }
 
-const Image &MaterialTexture::GetImage() const
+const Image& MaterialTexture::GetImage() const
 {
     return image;
 }

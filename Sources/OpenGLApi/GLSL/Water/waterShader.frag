@@ -67,17 +67,18 @@ vec3 calculateNormal(vec4 normalMapValue)
 
 void main(void)
 {
+    MaterialSpecular = vec4(vec3(1.f), 255.f / 255.f);
+    WorldPosOut      = vs_out.worldPos;
     vec2 distortedTexCoords = calculateDisctortionCoords();
 
     vec4 normalMapValue = texture(normalMap, distortedTexCoords);
     vec3 normal = calculateNormal(normalMapValue);
 
+
     if (Is(perMeshObject.isSimpleRender))
     {
-            WorldPosOut      = vs_out.worldPos;
             DiffuseOut       = vec4(perMeshObject.waterColor.xyz, 0.5f) ;//* normalMapValue;
             NormalOut        = vec4(normal, 1.f);
-            MaterialSpecular = vec4(vec3(1.f), 20.f);
             return;
     }
 
@@ -100,9 +101,8 @@ void main(void)
     vec4 refractColor   = texture(refractionTexture, refractTexCoords);
     vec4 outColor       = mix(reflectColor, refractColor, refractiveFactor);
 
-    WorldPosOut      = vs_out.worldPos;
+
     DiffuseOut       = mix(outColor, vec4(perMeshObject.waterColor.xyz, 1.f), perMeshObject.waterColor.w);
     DiffuseOut.a     = edgesFactor;
     NormalOut        = vec4(normal, 1.f);
-    MaterialSpecular = vec4(vec3(1.f), 20.f);
 }

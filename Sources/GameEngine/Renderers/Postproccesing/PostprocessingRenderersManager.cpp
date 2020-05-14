@@ -1,4 +1,5 @@
 #include "PostprocessingRenderersManager.h"
+#include <Logger/Log.h>
 #include "GameEngine/Renderers/Projection.h"
 #include "PostprocessingRenderer.h"
 #include "PostprocessingRenderersFactory.h"
@@ -8,45 +9,71 @@ namespace GameEngine
 PostProcessingManager::PostProcessingManager(RendererContext& context)
     : context_(context)
     , first_(false)
-    , postproccesFrameBuffer1_(context.graphicsApi_)
-    , postproccesFrameBuffer2_(context.graphicsApi_)
-    , ambientOclusionFrameBuffer_(context.graphicsApi_)
 {
-    ResetBufferSet();
-    factory_      = std::make_unique<PostprocessingRenderersFactory>(context_, &passivePostProcessFrameBuffer_);
-    //ssaoRenderer_ = factory_->Create(PostprocessingRendererType::SSAO);
+    factory_ = std::make_unique<PostprocessingRenderersFactory>(context_);
     AddEffects();
 }
 PostProcessingManager::~PostProcessingManager()
 {
+    fboManager_.reset();
 }
 void PostProcessingManager::Init()
 {
-    postproccesFrameBuffer1_.Init(context_.projection_.GetRenderingSize());
-    postproccesFrameBuffer2_.Init(context_.projection_.GetRenderingSize());
-    ambientOclusionFrameBuffer_.Init(context_.projection_.GetRenderingSize());
+    GraphicsApi::FrameBuffer::Attachment colorAttachment(context_.projection_.GetRenderingSize(),
+                                                         GraphicsApi::FrameBuffer::Type::Color0,
+                                                         GraphicsApi::FrameBuffer::Format::Rgba8);
 
-    for (auto& renderer : postProcessingRenderers_)
+    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, colorAttachment);
+
+    if (fboManager_->GetStatus())
     {
-        renderer->Init();
+        for (auto& renderer : postProcessingRenderers_)
+        {
+            renderer->Init();
+        }
     }
-   // ssaoRenderer_->Init();
-}
-void PostProcessingManager::Render(const Scene& scene)
-{
-    uint32 i = 0;
-    first_   = true;
-    ResetBufferSet();
-
-    //	ambientOclusionFrameBuffer_.BindToDraw();
-    //	ssaoRenderer_->Render(scene);
-    //	ambientOclusionFrameBuffer_.UnBind();
-
-    for (auto& renderer : postProcessingRenderers_)
+    else
     {
-        BindBuffer(i++);
-        renderer->Render(scene);
-        SwapBuffers();
+        ERROR_LOG("Buffer creation error.");
+    }
+}
+void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer, const Scene& scene)
+{
+    if (not fboManager_->GetStatus() or postProcessingRenderers_.empty())
+    {
+        ERROR_LOG("No activePostProcessing effects.");
+        return;
+    }
+
+    fboManager_->StartFrame();
+
+    if (IsLastRenderer(0))
+    {
+        context_.graphicsApi_.BindDefaultFrameBuffer();
+    }
+    else
+    {
+        fboManager_->BindForWriting();
+    }
+
+    startedFrameBuffer.Bind(GraphicsApi::FrameBuffer::BindType::Textures);
+    postProcessingRenderers_[0]->Render(scene);
+    fboManager_->Swap();
+
+    for (size_t index = 1; index < postProcessingRenderers_.size(); ++index)
+    {
+        if (IsLastRenderer(index))
+        {
+            context_.graphicsApi_.BindDefaultFrameBuffer();
+        }
+        else
+        {
+            fboManager_->BindForWriting();
+        }
+
+        fboManager_->BindForReading();
+        postProcessingRenderers_[index]->Render(scene);
+        fboManager_->Swap();
     }
 }
 void PostProcessingManager::ReloadShaders()
@@ -58,45 +85,14 @@ void PostProcessingManager::AddEffect(PostprocessingRendererType type)
 {
     postProcessingRenderers_.push_back(factory_->Create(type));
 }
-void PostProcessingManager::ResetBufferSet()
-{
-    activePostProcessFrameBuffer_  = &postproccesFrameBuffer1_;
-    passivePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
-}
-void PostProcessingManager::SwapBuffers()
-{
-    if (first_)
-    {
-        activePostProcessFrameBuffer_  = &postproccesFrameBuffer2_;
-        passivePostProcessFrameBuffer_ = &postproccesFrameBuffer1_;
-    }
-    else
-    {
-        activePostProcessFrameBuffer_  = &postproccesFrameBuffer1_;
-        passivePostProcessFrameBuffer_ = &postproccesFrameBuffer2_;
-    }
-
-    first_ = !first_;
-}
-void PostProcessingManager::BindBuffer(uint32 i)
-{
-    if (IsLastRenderer(i))
-    {
-        activePostProcessFrameBuffer_->UnBindDraw();
-    }
-    else
-    {
-        activePostProcessFrameBuffer_->BindToDraw();
-    }
-}
-bool PostProcessingManager::IsLastRenderer(uint32 i)
+bool PostProcessingManager::IsLastRenderer(size_t i)
 {
     return i == postProcessingRenderers_.size() - 1;
 }
 void PostProcessingManager::AddEffects()
 {
     AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
-    // AddEffect(PostprocessingRendererType::COLOR_FLIPER);
-    // AddEffect(PostprocessingRendererType::BLUR);
+    //AddEffect(PostprocessingRendererType::COLOR_FLIPER);
+   // AddEffect(PostprocessingRendererType::BLUR);
 }
 }  // namespace GameEngine

@@ -1,14 +1,13 @@
 #include "SSAO.h"
 
-#include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 
 namespace GameEngine
 {
-SSAORenderer::SSAORenderer(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
-    : PostprocessingRenderer(context, postprocessFrameBuffer)
+SSAORenderer::SSAORenderer(RendererContext& context)
+    : PostprocessingRenderer(context)
     , ssaoShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SSAO)
-    , blurRenderer_(context, postprocessFrameBuffer)
+    , blurRenderer_(context)
 {
 }
 void SSAORenderer::Init()
@@ -36,10 +35,10 @@ void SSAORenderer::ReloadShaders()
 }
 void SSAORenderer::SSAOPass()
 {
-    auto positionTexture = rendererContext_.defferedFrameBuffer_.GetTexture(0);
+//    auto positionTexture = rendererContext_.defferedFrameBuffer_.GetTexture(0);
 
     ssaoShader_.Start();
-    rendererContext_.graphicsApi_.ActiveTexture(0, positionTexture);
+   // rendererContext_.graphicsApi_.ActiveTexture(0, positionTexture);
     rendererContext_.graphicsApi_.RenderQuad();
     ssaoShader_.Stop();
 }

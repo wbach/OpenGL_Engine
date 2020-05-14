@@ -25,6 +25,15 @@ option(BUILD_EDITOR "Build editor" OFF)
 
 option(BUILD_I386 "32bit build" OFF)
 
+if (BUILD_EDITOR)
+    SET(BUILD_UTILS ON)
+    SET(BUILD_UTILS_NETWORK ON)
+    SET(BUILD_UTILS_NETWORK_TESTS ON)
+    SET(BUILD_COMMON ON)
+    SET(BUILD_GAME_ENGINE ON)
+    SET(BUILD_EDITOR ON)
+endif()
+
 if(BUILD_ALL)
     SET(BUILD_UTILS ON)
     SET(BUILD_UTILS_NETWORK ON)
@@ -118,6 +127,7 @@ set(BoostLinkingLibs
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Input.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/GraphicsApi.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/OpenGLApi.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtilsTests.cmake)

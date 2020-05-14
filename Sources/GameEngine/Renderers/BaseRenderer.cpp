@@ -33,8 +33,6 @@ void BaseRenderer::Init()
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
     CreateRenderers();
     InitRenderers();
-
-    __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, BaseRenderer::PreConfigure);
 }
 void BaseRenderer::Subscribe(GameObject* gameObject)
 {
@@ -83,9 +81,5 @@ void BaseRenderer::CreateRenderers()
         AddRenderer<ParticlesRenderer>();
 
     AddRenderer<WaterRenderer>();
-}
-void BaseRenderer::PreConfigure(const Scene&, const Time&)
-{
-    context_.graphicsApi_.ClearBuffers({GraphicsApi::BufferType::COLOR, GraphicsApi::BufferType::DEPTH});
 }
 }  // namespace GameEngine

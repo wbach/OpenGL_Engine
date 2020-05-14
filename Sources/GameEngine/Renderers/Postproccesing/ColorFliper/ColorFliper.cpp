@@ -2,8 +2,8 @@
 
 namespace GameEngine
 {
-ColorFliper::ColorFliper(RendererContext& context, PostprocessFrameBuffer** postprocessFrameBuffer)
-    : PostprocessingRenderer(context, postprocessFrameBuffer)
+ColorFliper::ColorFliper(RendererContext& context)
+    : PostprocessingRenderer(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::ColorFilper)
 {
 }
@@ -17,7 +17,6 @@ void ColorFliper::Prepare()
 void ColorFliper::Render(const Scene&)
 {
     shader_.Start();
-    (*postprocessFrameBuffer_)->BindTextures();
     rendererContext_.graphicsApi_.RenderQuad();
     shader_.Stop();
 }

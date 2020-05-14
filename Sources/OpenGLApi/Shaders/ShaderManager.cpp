@@ -3,14 +3,15 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <filesystem>
 #include "FullDefferedShaderFiles.h"
 #include "Logger/Log.h"
 #include "OpenGLApi/IdPool.h"
+#include "OpenGLApi/OpenGLUtils.h"
 #include "SimpleDeprecetedShaders.h"
 #include "SimpleForwardShaderFiles.h"
 #include "Utils.h"
 #include "glm/gtc/type_ptr.hpp"
-#include <filesystem>
 
 namespace OpenGLApi
 {
@@ -217,12 +218,12 @@ void ShaderManager::SetShaderQuaility(GraphicsApi::ShaderQuaility q)
 
 void ShaderManager::CheckAndPrintGLError(OpenGLShaderProgram& shaderProgram)
 {
-    auto code = glGetError();
-    if (code != GL_NO_ERROR)
+    auto errorString = GetGlError();
+
+    if (not errorString.empty())
     {
-        std::string errorStr(reinterpret_cast<const char*>(gluErrorString(code)));
-        ERROR_LOG("GlError, code : " + std::to_string(code) + " (" + errorStr +
-                  ") Shaderprogram : " + shaderProgram.name + " (" + std::to_string(shaderProgram.id) + ")");
+        ERROR_LOG("GlError : " + errorString + ", Shaderprogram : " + shaderProgram.name + " (" +
+                  std::to_string(shaderProgram.id) + ")");
     }
 }
 

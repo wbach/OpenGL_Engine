@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file,
-                     const std::string& filepath, Image image)
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
+                     Image image)
     : Texture(graphicsApi, file, filepath, vec2ui(image.width, image.height))
     , image_(std::move(image))
     , maximumHeight_(0)
@@ -22,9 +22,9 @@ void HeightMap::GpuLoadingPass()
     }
 
     DEBUG_LOG("Create texutre filneame : " + fullpath);
-    auto graphicsObjectId = graphicsApi_.CreateTexture(
-        GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
-        GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, &image_.floatData[0]);
+    auto graphicsObjectId =
+        graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
+                                   GraphicsApi::TextureMipmap::NONE, size_, &image_.floatData[0]);
 
     if (graphicsObjectId)
     {
@@ -72,7 +72,7 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
         if (not compare(actualValue, value))
         {
             image_.floatData[index] = value;
-            orginalData_ = false;
+            orginalData_            = false;
             return true;
         }
     }

@@ -64,8 +64,6 @@ private:
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     Utils::MeasurementHandler& measurmentHandler_;
-    std::unique_ptr<IFrameBuffer> defferedFrameBuffer_;
-    std::unique_ptr<IShadowFrameBuffer> shadowsFrameBuffer_;
     std::unique_ptr<RendererContext> rendererContext_;
 
     Frustrum frustrum_;

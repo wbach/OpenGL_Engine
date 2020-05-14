@@ -16,5 +16,5 @@ if(BUILD_TESTS)
         set_target_properties(GameEngineTestsExe PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
     endif()
 
-    target_link_libraries(GameEngineTestsExe GameEngineLib OpenGLApiLib InputLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main fbxsdk ${LinkingLibs} ${BoostLinkingLibs})
+    target_link_libraries(GameEngineTestsExe GameEngineLib OpenGLApiLib GraphicsApiLib InputLib UtilsNetworkLib CommonLib UtilsLib gtest gtest_main gmock gmock_main fbxsdk ${LinkingLibs} ${BoostLinkingLibs})
 endif()

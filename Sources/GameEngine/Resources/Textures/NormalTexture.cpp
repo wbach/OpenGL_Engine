@@ -18,9 +18,9 @@ void NormalTexture::GpuLoadingPass()
     }
 
     DEBUG_LOG("Create normal texture filename : " + fullpath);
-    auto graphicsObjectId = graphicsApi_.CreateTexture(
-        GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::LINEAR,
-        GraphicsApi::TextureMipmap::NONE, GraphicsApi::BufferAtachment::NONE, size_, &image_.floatData[0]);
+    auto graphicsObjectId =
+        graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::LINEAR,
+                                   GraphicsApi::TextureMipmap::NONE, size_, &image_.floatData[0]);
 
     if (graphicsObjectId)
     {

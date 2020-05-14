@@ -1,18 +1,17 @@
 #include "ShadowMapRenderer.hpp"
 
-#include "GLM/GLMUtils.h"
+#include <GLM/GLMUtils.h>
+#include <GraphicsApi/ShaderProgramType.h>
+#include <Logger/Log.h>
+#include <math.hpp>
+
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Framebuffer/DeferedFrameBuffer/DeferedFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GraphicsApi/ShaderProgramType.h"
-#include "Logger/Log.h"
-#include "ShadowFrameBuffer.h"
-#include "math.hpp"
 
 namespace GameEngine
 {
@@ -26,6 +25,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
     , viewOffset_(Utils::CreateOffset())
+    , shadowFrameBuffer_(nullptr)
 {
     __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
 }
@@ -36,12 +36,29 @@ ShadowMapRenderer::~ShadowMapRenderer()
     {
         context_.graphicsApi_.DeleteShaderBuffer(*perFrameBuffer_);
     }
+    if (shadowFrameBuffer_)
+    {
+        context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer_);
+    }
 }
 
 void ShadowMapRenderer::Init()
 {
     shader_.Init();
-    perFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+    GraphicsApi::FrameBuffer::Attachment depthAttachment(EngineConf.renderer.shadows.mapSize, GraphicsApi::FrameBuffer::Type::Depth,
+                                         GraphicsApi::FrameBuffer::Format::Depth);
+
+    perFrameBuffer_    = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+    shadowFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer({depthAttachment});
+
+    auto status = shadowFrameBuffer_->Init();
+
+    if (not status)
+    {
+        context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer_);
+        shadowFrameBuffer_ = nullptr;
+        ERROR_LOG("Shadow framebuffer creation error.");
+    }
 }
 
 bool ShadowMapRenderer::IsInit() const
@@ -51,15 +68,19 @@ bool ShadowMapRenderer::IsInit() const
 
 void ShadowMapRenderer::Render(const Scene& scene, const Time&)
 {
-    if (not IsInit())
+    if (not IsInit() and shadowFrameBuffer_)
         return;
 
     uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
 
+    shadowFrameBuffer_->Clear();
+    shadowFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
+
     PrepareRender(scene);
     shader_.Start();
     RenderSubscribes();
-    context_.shadowsFrameBuffer_.UnbindFrameBuffer();
+
+    shadowFrameBuffer_->UnBind();
 
     context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
 }
@@ -103,9 +124,7 @@ void ShadowMapRenderer::ReloadShaders()
 
 void ShadowMapRenderer::PrepareRender(const Scene& scene)
 {
-    context_.shadowsFrameBuffer_.BindFBO();
     context_.graphicsApi_.EnableDepthTest();
-    context_.graphicsApi_.ClearBuffer(GraphicsApi::BufferType::DEPTH);
     shadowBox_.Update(scene.GetCamera());
 
     auto light_direction = scene.GetDirectionalLight().GetDirection();

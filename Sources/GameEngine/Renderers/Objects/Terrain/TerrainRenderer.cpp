@@ -3,8 +3,6 @@
 #include <algorithm>
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
-#include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
-#include "GameEngine/Renderers/Objects/Shadows/ShadowFrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
@@ -128,12 +126,12 @@ void TerrainRenderer::RenderNode(const TerrainNode& node) const
 }
 void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
-    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
+//    auto shadowMap = context_.GetShadowMap();
 
-    if (shadowMap)
-    {
-        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
-    }
+//    if (shadowMap)
+//    {
+//        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
+//    }
 
     for (const auto& t : textures)
     {

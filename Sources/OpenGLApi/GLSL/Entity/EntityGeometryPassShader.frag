@@ -67,7 +67,7 @@ vec4 GetSpecular(vec2 textCoord)
     }
     else
     {
-       return vec4(perMeshObject.specular.xyz, perMeshObject.shineDamper);
+       return vec4(perMeshObject.specular.xyz, perMeshObject.shineDamper / 255.f);
     }
 }
 

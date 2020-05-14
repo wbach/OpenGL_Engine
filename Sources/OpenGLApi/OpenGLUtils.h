@@ -42,7 +42,7 @@ static const GLuint s_GLuint_zero = 0;
 
 void BindFrameBuffer(int frameBuffer, int width, int height);
 int CreateFrameBuffer();
-int CreateDepthBufferAttachment(int width, int height);
+GLuint CreateDepthBufferAttachment(uint32, uint32);
 int CreateVao();
 GLuint BindIndicesBuffer(const std::vector<uint16>& indices);
 GLuint StoreDataInAttributesList(int attributeNumber, int coordinateSize, const std::vector<float>& data);
@@ -55,5 +55,6 @@ void SimpleRenderVao(const GLuint& vao, int indices, int attributes = 1, GLenum 
 void CreateQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size);
 void CreateQuadTS05(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord, int& indices_size);
 void DeleteQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vbo_text_coord);
-void ActiveBindTexture(int i, int id);
+void ActiveBindTexture(int i, GLuint id);
+std::string GetGlError();
 }  // namespace OpenGLApi

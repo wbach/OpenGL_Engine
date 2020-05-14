@@ -1,6 +1,5 @@
 #include "SkyBoxRenderer.h"
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
-#include "GameEngine/Renderers/Framebuffer/FrameBuffer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Model.h"

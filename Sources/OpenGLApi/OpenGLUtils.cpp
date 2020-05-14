@@ -168,7 +168,7 @@ int CreateFrameBuffer()
     return frame_buffer;
 }
 
-int CreateDepthBufferAttachment(int width, int height)
+GLuint CreateDepthBufferAttachment(uint32 width, uint32 height)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -307,9 +307,22 @@ void DeleteQuad(GLuint& vao, GLuint& vbo_indices, GLuint& vbo_vertex, GLuint& vb
     glDeleteVertexArrays(1, &vao);
 }
 
-void ActiveBindTexture(int i, int id)
+void ActiveBindTexture(int i, GLuint id)
 {
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, id);
 }
+
+std::string GetGlError()
+{
+    std::string result;
+    auto code = glGetError();
+    if (code != GL_NO_ERROR)
+    {
+        result = "(" + std::to_string(code) + ") " +  (reinterpret_cast<const char*>(gluErrorString(code)));
+    }
+
+    return result;
+}
+
 }  // namespace OpenGLApi
