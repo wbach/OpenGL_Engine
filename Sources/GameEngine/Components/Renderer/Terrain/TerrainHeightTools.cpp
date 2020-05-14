@@ -86,13 +86,34 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
 
     // auto v3vh = v3 - vh;
     // auto v5vh = v5 - vh;
-    auto vn8  = glm::normalize(glm::cross(v3vh, v5vh));
+    auto vn8 = glm::normalize(glm::cross(v3vh, v5vh));
 
     auto normal = glm::normalize((vn1 + vn2 + vn3 + vn4 + vn5 + vn6 + vn7 + vn8) / 8.f);
     normal.x *= -1.f;
     normal.z *= -1.f;
 
     return normal;
+}
+vec3 TerrainHeightTools::GetTangent(uint32 x, uint32 z) const
+{
+    return {};
+ /*   vec3 v0 = gl_in[0].gl_Position.xyz;
+    vec3 v1 = gl_in[1].gl_Position.xyz;
+    vec3 v2 = gl_in[2].gl_Position.xyz;
+
+    vec3 e1 = v1 - v0;
+    vec3 e2 = v2 - v0;
+
+    vec2 uv0 = mapCoord_GS[0];
+    vec2 uv1 = mapCoord_GS[1];
+    vec2 uv2 = mapCoord_GS[2];
+
+    vec2 deltaUV1 = uv1 - uv0;
+    vec2 deltaUV2 = uv2 - uv0;
+
+    float r = 1.0 / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+
+    return normalize((e1 * deltaUV2.y - e2 * deltaUV1.y) * r);*/
 }
 uint32 TerrainHeightTools::Left(uint32 x) const
 {

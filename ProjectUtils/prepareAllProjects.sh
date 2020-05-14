@@ -43,13 +43,13 @@ echo "Generate VisualStudio Common project"
 ./prepareProject.sh Common $CommonId StaticLibrary Utils > ../Sources/Common/Common.vcxproj
 
 echo "Generate VisualStudio TestGame project"
-./prepareProject.sh TestGame $testGameId Application GameEngine Input DirectXApi OpenGLApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
+./prepareProject.sh TestGame $testGameId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
 
 echo "Generate VisualStudio Avatar project"
-./prepareProject.sh Avatar $AvatarId Application GameEngine Input DirectXApi OpenGLApi Utils UtilsNetwork Common > ../Sources/Avatar/Avatar.vcxproj
+./prepareProject.sh Avatar $AvatarId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Avatar/Avatar.vcxproj
 
 echo "Generate VisualStudio Editor project"
-./prepareProject.sh Editor $EditorId Application GameEngine Input DirectXApi OpenGLApi Utils UtilsNetwork Common > ../Sources/Editor/Editor.vcxproj
+./prepareProject.sh Editor $EditorId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Editor/Editor.vcxproj
 
 echo "Generate VisualStudio RpgGameServer project"
 ./prepareProject.sh RpgGameServer $testGameId Application Utils UtilsNetwork Common > ../Sources/RpgGameServer/RpgGameServer.vcxproj

@@ -8,7 +8,7 @@
 	<Sound enabled="1" volume="1.000000"/>
 	<Renderer graphicsApi="OpenGL" resolutionX="1000" type="1" resolutionY="600" fpsLimit="60">
 		<Terrain>
-			<TerrainRenderer>Tessellation</TerrainRenderer>
+			<TerrainRenderer>Mesh</TerrainRenderer>
 		</Terrain>
 		<Water type="2">
 			<Reflection width="640" height="480"/>

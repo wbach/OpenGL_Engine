@@ -7,12 +7,14 @@
 #include <xnamath.h>
 #undef CreateFont
 #undef CreateWindow
+#include <algorithm>
 #include <string>
 
 #include "Buffer.h"
 #include "DirectXApi.h"
 #include "DirectXContext.h"
 #include "DirectXTools.h"
+#include "DxFrameBuffer.h"
 #include "DxShader.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "Logger/Log.h"
@@ -174,6 +176,7 @@ public:
     DirectXContext dxCondext_;
     std::vector<Buffer> buffers_;
     std::vector<DxShader> shaders_;
+    std::vector<std::unique_ptr<GraphicsApi::IFrameBuffer>> frameBuffers_;
 
     const Object &GetDxObject(uint32 id)
     {
@@ -281,6 +284,23 @@ void DirectXApi::Init()
 
     impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->quadId = impl_->CreateAndAddDxObject(Quad());
+}
+void DirectXApi::BindDefaultFrameBuffer()
+{
+}
+GraphicsApi::IFrameBuffer &DirectXApi::CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment> &)
+{
+    impl_->frameBuffers_.push_back(std::make_unique<DxFrameBuffer>());
+    return *impl_->frameBuffers_.back();
+}
+void DirectXApi::DeleteFrameBuffer(GraphicsApi::IFrameBuffer &frameBuffer)
+{
+    auto iter = std::find_if(impl_->frameBuffers_.begin(), impl_->frameBuffers_.end(),
+                             [id = frameBuffer.GetId()](const auto &bufferPtr) { return bufferPtr->GetId() == id; });
+    if (iter != impl_->frameBuffers_.end())
+    {
+        impl_->frameBuffers_.erase(iter);
+    }
 }
 void DirectXApi::InitRenderTarget()
 {
@@ -392,12 +412,18 @@ void DirectXApi::PrepareFrame()
 void DirectXApi::SetDefaultTarget()
 {
 }
-void DirectXApi::SetBackgroundColor(const vec3 &bgColor)
+void DirectXApi::SetBackgroundColor(const Color &background)
 {
-    bgColor_[0] = bgColor.x;
-    bgColor_[1] = bgColor.y;
-    bgColor_[2] = bgColor.z;
-    bgColor_[3] = 1.f;
+    bgColor_[0] = background.color.x;
+    bgColor_[1] = background.color.y;
+    bgColor_[2] = background.color.z;
+    bgColor_[3] = background.color.w;
+    bgColor = background;
+}
+
+const Color &DirectXApi::GetBackgroundColor() const
+{
+    return bgColor;
 }
 void DirectXApi::EnableDepthTest()
 {
@@ -611,8 +637,7 @@ std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateT
 }
 
 GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, GraphicsApi::BufferAtachment, vec2ui size,
-                                          void *data)
+                                          GraphicsApi::TextureMipmap, const vec2ui &size, void *data)
 {
     if (type != GraphicsApi::TextureType::U8_RGBA)
         return {};
@@ -649,22 +674,17 @@ void DirectXApi::UpdateTexture(uint32 id, const vec2ui &size, void *data)
 
     texture = impl_->CreateDirectXTexture(result->first, result->second);
 }
-void DirectXApi::SetBuffers(const std::vector<GraphicsApi::BufferAtachment> &)
-{
-}
-void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
-{
-    FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
-    if (type == GraphicsApi::BufferType::COLOR)
-        impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, color);
-
-    if (type == GraphicsApi::BufferType::DEPTH)
-        impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-}
-void DirectXApi::ClearBuffers(const std::vector<GraphicsApi::BufferType> &)
-{
-}
-void DirectXApi::ClearTexture(uint32, const Color&)
+// void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
+//{
+//    FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
+//    if (type == GraphicsApi::BufferType::COLOR)
+//        impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, color);
+//
+//    if (type == GraphicsApi::BufferType::DEPTH)
+//        impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH, 1.0f,
+//        0);
+//}
+void DirectXApi::ClearTexture(uint32, const Color &)
 {
 }
 void DirectXApi::EnableBlend()
@@ -701,13 +721,6 @@ void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
     const auto &texture = impl_->GetTexture(id);
     impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
     impl_->dxCondext_.devcon->PSSetSamplers(nr, 1, &texture.samplerState_);
-}
-GraphicsApi::ID DirectXApi::CreateBuffer()
-{
-    return {};
-}
-void DirectXApi::BindBuffer(GraphicsApi::BindType, uint32)
-{
 }
 void DirectXApi::DeleteObject(uint32)
 {
@@ -773,8 +786,10 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
     i = 0;
     for (size_t x = 0; x < meshData.bonesWeights_.size(); x += 4)
     {
-        vao.vertexes_[i].weights = vec4(meshData.bonesWeights_[x], meshData.bonesWeights_[x + 1], meshData.bonesWeights_[x + 2], meshData.bonesWeights_[x + 3]);
-        vao.vertexes_[i++].bonesIds = vec4i(meshData.joinIds_[x], meshData.joinIds_[x + 1], meshData.joinIds_[x + 2], meshData.joinIds_[x + 3]);
+        vao.vertexes_[i].weights = vec4(meshData.bonesWeights_[x], meshData.bonesWeights_[x + 1],
+                                        meshData.bonesWeights_[x + 2], meshData.bonesWeights_[x + 3]);
+        vao.vertexes_[i++].bonesIds =
+            vec4i(meshData.joinIds_[x], meshData.joinIds_[x + 1], meshData.joinIds_[x + 2], meshData.joinIds_[x + 3]);
     }
 
     vao.indices_.reserve(meshData.indices_.size());
@@ -873,15 +888,15 @@ void DirectXApi::LineModeRender()
 void DirectXApi::SetBlendFunction(GraphicsApi::BlendFunctionType)
 {
 }
-void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4>&)
+void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4> &)
 {
     DEBUG_LOG("Not implmented.");
 }
-void DirectXApi::UpdateMesh(uint32, const GraphicsApi::MeshRawData&, const std::set<VertexBufferObjects>&)
+void DirectXApi::UpdateMesh(uint32, const GraphicsApi::MeshRawData &, const std::set<VertexBufferObjects> &)
 {
     DEBUG_LOG("Not implmented.");
 }
-void DirectXApi::UpdateLineMesh(uint32, const GraphicsApi::LineMesh&)
+void DirectXApi::UpdateLineMesh(uint32, const GraphicsApi::LineMesh &)
 {
     DEBUG_LOG("Not implmented.");
 }
@@ -890,16 +905,6 @@ void DirectXApi::UpdateOffset(uint32, const std::vector<vec4> &)
     DEBUG_LOG("Not implmented.");
 }
 void DirectXApi::UpdateBlend(uint32, const std::vector<float> &)
-{
-}
-GraphicsApi::ID DirectXApi::CloneImage(uint32)
-{
-    return {};
-}
-void DirectXApi::CreateFont(const std::string &)
-{
-}
-void DirectXApi::PrintText(const std::string &, const vec2i &)
 {
 }
 void DirectXApi::LoadViewMatrix(const mat4 &)
