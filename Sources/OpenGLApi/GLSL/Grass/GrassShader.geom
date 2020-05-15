@@ -1,4 +1,4 @@
-#version 450
+#version 440 core
 const float size = 0.35f;
 
 layout (points) in;
@@ -6,9 +6,9 @@ layout (triangle_strip, max_vertices = 16) out;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
-    float useTextures;
-    float viewDistance;
-    vec3 shadowVariables;
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
     vec4 clipPlane;
 } perApp;
 

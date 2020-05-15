@@ -5,14 +5,6 @@ layout (location = 1) in vec2 TEXTCOORD;
 layout (location = 2) in vec3 NORMAL;
 layout (location = 3) in vec3 TANGENT;
 
-layout (std140, align=16, binding=0) uniform PerApp
-{
-    float useTextures;
-    float viewDistance;
-    vec3 shadowVariables;
-    vec4 clipPlane;
-} perApp;
-
 layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;

@@ -9,9 +9,9 @@ struct PerMeshObject
     AlignWrapper<vec4> diffuse;
     AlignWrapper<vec4> specular;
     AlignWrapper<uint32> numberOfRows;
-    AlignWrapper<float> useTexture;
-    AlignWrapper<float> useNormalMap;
-    AlignWrapper<float> useSpecularMap;
+    AlignWrapper<float> haveDiffTexture;
+    AlignWrapper<float> haveNormalMap;
+    AlignWrapper<float> haveSpecularMap;
     AlignWrapper<float> shineDamper;
     AlignWrapper<float> useFakeLighting;
 };

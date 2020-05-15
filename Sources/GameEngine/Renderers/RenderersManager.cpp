@@ -263,17 +263,28 @@ void RenderersManager::CreateBuffers()
     CreatePerAppBuffer();
     CreatePerFrameBuffer();
 }
+
+namespace{}
+float F(bool v)
+{
+    return v ? 1.f : 0.f;
+}
 void RenderersManager::CreatePerAppBuffer()
 {
     auto perAppId = graphicsApi_.CreateShaderBuffer(PER_APP_BIND_LOCATION, sizeof(PerAppBuffer));
 
     if (perAppId)
     {
+        const auto& textureConfig = EngineConf.renderer.textures;
+        const auto& shadowsConfig = EngineConf.renderer.shadows;
+        const auto& floraConfig = EngineConf.renderer.flora;
+        const auto& rendererConfig = EngineConf.renderer;
+
         PerAppBuffer perApp;
         perApp.clipPlane       = vec4{0.f, 1.f, 0.f, 100000.f};
-        perApp.shadowVariables = vec3(0.f, 10.f, 10.f);
-        perApp.useTextures     = 1.f;
-        perApp.viewDistance    = 500.f;
+        perApp.useTextures     = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular), F(textureConfig.useDisplacement));
+        perApp.shadowVariables = vec4(F(shadowsConfig.isEnabled), shadowsConfig.distance, shadowsConfig.mapSize, 0.f);
+        perApp.viewDistance    = vec4(rendererConfig.viewDistance, rendererConfig.normalMappingDistance, floraConfig.viewDistance, rendererConfig.viewDistance);
         graphicsApi_.UpdateShaderBuffer(*perAppId, &perApp);
         graphicsApi_.BindShaderBuffer(*perAppId);
     }

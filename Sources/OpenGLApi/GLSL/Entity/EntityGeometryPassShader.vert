@@ -1,4 +1,4 @@
-#version 440
+#version 440 core
 const int MAX_BONES = 100;
 const int MAX_WEIGHTS = 4;
 
@@ -10,12 +10,11 @@ layout (location = 3) in vec3 Tangent;
 layout (location = 4) in vec4 Weights;
 layout (location = 5) in ivec4 BoneIds;
 //
-
 layout (std140, align=16, binding=0) uniform PerApp
 {
-    float useTextures;
-    float viewDistance;
-    vec3 shadowVariables;
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
     vec4 clipPlane;
 } perApp;
 
@@ -98,6 +97,12 @@ mat3 CreateTBNMatrix(vec3 normal)
     return mat3(tangent, binormal, normal);
 }
 
+bool NormalMaping(vec3 worldPos)
+{
+    float dist = length(perFrame.cameraPosition - worldPos);
+    return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
+}
+
 void main()
 {
     VertexWorldData worldData = caluclateWorldData();
@@ -106,7 +111,12 @@ void main()
     vs_out.worldPos      = worldData.worldPosition;
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.normal        = normalize(worldData.worldNormal.xyz);
-    vs_out.tbn           = CreateTBNMatrix(vs_out.normal);
+
+    if (NormalMaping(vs_out.worldPos.xyz))
+    {
+        vs_out.tbn = CreateTBNMatrix(vs_out.normal);
+    }
+
     gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
 }

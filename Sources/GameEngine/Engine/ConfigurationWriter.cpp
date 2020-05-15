@@ -1,4 +1,5 @@
 #include "ConfigurationWriter.h"
+
 #include "Configuration.h"
 #include "EngineDef.h"
 #include "Utils/XML/XmlWriter.h"
@@ -12,6 +13,7 @@ void Create(XmlNode& node, const Params::Textures& param)
     node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]  = std::to_string(param.maxSize.x);
     node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT] = std::to_string(param.maxSize.y);
     node.attributes_[CSTR_TEXTURE_AMBIENT]               = Utils::BoolToString(param.useAmbient);
+    node.attributes_[CSTR_TEXTURE_DISPLACEMENT]          = Utils::BoolToString(param.useDisplacement);
     node.attributes_[CSTR_TEXTURE_DIFFUSE]               = Utils::BoolToString(param.useDiffuse);
     node.attributes_[CSTR_TEXTURE_NORMAL]                = Utils::BoolToString(param.useNormal);
     node.attributes_[CSTR_TEXTURE_SPECULAR]              = Utils::BoolToString(param.useSpecular);
@@ -54,11 +56,13 @@ void Create(XmlNode& node, const Params::Terrain& param)
 }
 void Create(XmlNode& node, const Params::Renderer& param)
 {
-    node.attributes_[CSTR_GRAPHICS_API]              = param.graphicsApi;
-    node.attributes_[CSTR_RENDERER_TYPE]             = std::to_string(static_cast<uint32>(param.type));
-    node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X] = std::to_string(param.resolution.x);
-    node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y] = std::to_string(param.resolution.y);
-    node.attributes_[CSTR_RENDERER_FPS_LIMIT]        = std::to_string(param.fpsLimt);
+    node.attributes_[CSTR_GRAPHICS_API]                    = param.graphicsApi;
+    node.attributes_[CSTR_RENDERER_TYPE]                   = std::to_string(static_cast<uint32>(param.type));
+    node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X]       = std::to_string(param.resolution.x);
+    node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y]       = std::to_string(param.resolution.y);
+    node.attributes_[CSTR_RENDERER_FPS_LIMIT]              = std::to_string(param.fpsLimt);
+    node.attributes_[CSTR_RENDERER_VIEW_DISTANCE]          = std::to_string(param.viewDistance);
+    node.attributes_[CSTR_RENDERER_NORMALMAPPING_DISTANCE] = std::to_string(param.normalMappingDistance);
 
     Create(node.AddChild(CSTR_TERRAIN), param.terrain);
     Create(node.AddChild(CSTR_WATER), param.water);
@@ -87,8 +91,8 @@ void Create(XmlNode& node, const Params::Sound& param)
 }
 void Create(XmlNode& node, const Params::PhysicsVisualizatorParams& param)
 {
-    node.attributes_[CSTR_USE_WORKER] = Utils::BoolToString(param.useWorkredToUpdatePhysicsVisualization_);
-    node.attributes_[CSTR_REFRESH_STEP_DOWN]  = std::to_string(param.refreshRateStepDown_);
+    node.attributes_[CSTR_USE_WORKER]        = Utils::BoolToString(param.useWorkredToUpdatePhysicsVisualization_);
+    node.attributes_[CSTR_REFRESH_STEP_DOWN] = std::to_string(param.refreshRateStepDown_);
 }
 void Create(XmlNode& node, const Params::DebugParams& param)
 {

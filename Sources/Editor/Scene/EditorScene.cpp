@@ -2,6 +2,7 @@
 
 #include <GameEngine/Engine/Configuration.h>
 #include <Input/InputManager.h>
+#include <Types.h>
 
 #include "Editor/Context.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
@@ -10,7 +11,6 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include <Types.h>
 
 using namespace GameEngine;
 
@@ -37,14 +37,14 @@ int EditorScene::Initialize()
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
     LoadFromFile(sceneFile);
 
-     const auto& terrainShapeComponents =
+    const auto& terrainShapeComponents =
         componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainShape);
 
-     vec3 cratePosition(2, 0, 1);
+    vec3 cratePosition(2, 0, 1);
 
-     DEBUG_LOG("terrainShapeComponents.count : " + std::to_string(terrainShapeComponents.size()));
+    DEBUG_LOG("terrainShapeComponents.count : " + std::to_string(terrainShapeComponents.size()));
 
-     for (const auto& p : terrainShapeComponents)
+    for (const auto& p : terrainShapeComponents)
     {
         auto terrainShapeComponent = static_cast<Components::TerrainShape*>(p.second);
 
@@ -69,7 +69,7 @@ int EditorScene::Initialize()
         }
     }
 
-     DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
+    DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
 
     {
         auto go = CreateGameObject("Crate");
@@ -82,8 +82,8 @@ int EditorScene::Initialize()
 
     {
         auto go = CreateGameObject("Crate2");
-        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
-            GameEngine::LevelOfDetail::L1);
+        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Test/testCube.obj",
+                                                                               GameEngine::LevelOfDetail::L1);
         go->GetTransform().SetPosition(vec3(0, 0, 0));
         go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
         AddGameObject(std::move(go));
@@ -92,8 +92,8 @@ int EditorScene::Initialize()
     {
         auto go = CreateGameObject("Sun visualization");
         go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/sun.obj",
-            GameEngine::LevelOfDetail::L1);
-        
+                                                                               GameEngine::LevelOfDetail::L1);
+
         auto lightPosOnRay = directionalLight.GetPosition() / 100.f;
         DEBUG_LOG(std::to_string(lightPosOnRay));
         go->GetTransform().SetPosition(lightPosOnRay);

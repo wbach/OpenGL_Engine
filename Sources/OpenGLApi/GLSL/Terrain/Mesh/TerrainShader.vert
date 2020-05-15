@@ -7,9 +7,9 @@ layout (location = 3) in vec3 TANGENT;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
-    float useTextures;
-    float viewDistance;
-    vec3 shadowVariables;
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
     vec4 clipPlane;
 } perApp;
 
@@ -35,8 +35,7 @@ out VS_OUT
     vec4 shadowCoords;
     float useShadows;
     float shadowMapSize;
-    vec3 passTangent;
-    float useNormalMap;
+    mat3 tbn;
 } vs_out;
 
 bool Is(float f)
@@ -44,22 +43,28 @@ bool Is(float f)
     return f > .5f;
 }
 
+mat3 CreateTBNMatrix(vec3 normal)
+{
+    vec3 tangent  = normalize((perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz);
+    tangent = normalize(tangent - dot(tangent, normal) * normal);
+    vec3 binormal = cross(normal, tangent);
+    return mat3(tangent, binormal, normal);
+}
+
 void main()
 {
-    vec4 worldPos           = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
-    vs_out.texCoord         = TEXTCOORD;
-    vs_out.normal           = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
-    vs_out.worldPos         = worldPos;
+    vec4 worldPos      = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
+    vs_out.texCoord    = TEXTCOORD;
+    vs_out.normal      = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
+    vs_out.worldPos    = worldPos;
 
-    float useNormalMap = 0.f;
-    if (Is(useNormalMap))
+    if (Is(perApp.useTextures.y))
     {
-        vs_out.passTangent  = (perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz;
+        vs_out.tbn = CreateTBNMatrix(vs_out.normal);
     }
-    vs_out.useNormalMap = useNormalMap;
 
     float distanceToCam = length(perFrame.cameraPosition - worldPos.xyz);
-    vs_out.useShadows    = perApp.shadowVariables.x;
+    vs_out.useShadows   = perApp.shadowVariables.x;
 
     if (Is(vs_out.useShadows))
     {

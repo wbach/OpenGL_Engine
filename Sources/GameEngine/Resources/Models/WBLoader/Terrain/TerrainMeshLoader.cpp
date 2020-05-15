@@ -121,12 +121,13 @@ void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)
     data.textCoords_.reserve(size * size * 2);
     data.indices_.reserve(size * size * 2);
 }
-void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width,
-                                              uint32 height)
+void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEngine::Mesh& mesh, uint32 x_start,
+                                              uint32 y_start, uint32 width, uint32 height)
 {
     auto& vertices      = mesh.GetMeshDataRef().positions_;
     auto& normals       = mesh.GetMeshDataRef().normals_;
     auto& textureCoords = mesh.GetMeshDataRef().textCoords_;
+    auto& tangents = mesh.GetMeshDataRef().tangents_;
 
     for (uint32 i = y_start; i < height; i++)
     {
@@ -140,11 +141,17 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
             vertices.push_back(static_cast<float>(i - (terrainScale_.z / 2)) /
                                (static_cast<float>(heightMapResolution_) - 1) * terrainScale_.z);
 
-            glm::vec3 normal = tools.GetNormal(j, i);
+            vec3 normal  = tools.GetNormal(j, i);
+            vec3 tangnet = tools.GetTangent(normal);
+
 
             normals.push_back(normal.x);
             normals.push_back(normal.y);
             normals.push_back(normal.z);
+
+            tangents.push_back(tangnet.x);
+            tangents.push_back(tangnet.y);
+            tangents.push_back(tangnet.z);
 
             textureCoords.push_back(static_cast<float>(j) / static_cast<float>(heightMapResolution_ - 1));
             textureCoords.push_back(static_cast<float>(i) / static_cast<float>(heightMapResolution_ - 1));

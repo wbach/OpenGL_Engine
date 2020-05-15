@@ -1,5 +1,13 @@
 #version 440 core
 
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
+
 in VS_OUT
 {
     vec2 texCoord;
@@ -22,8 +30,18 @@ layout(binding = 17) uniform sampler2D alphaTextureNormal;
 
 out vec4 outputColor;
 
+bool Is(float f)
+{
+    return f > .5f;
+}
+
 vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
 {
+    if (!Is(perApp.useTextures.x))
+    {
+        return vec4(.8f, .8f, .8f, 1.f);
+    }
+
     vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
     vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;

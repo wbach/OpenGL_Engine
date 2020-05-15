@@ -23,6 +23,7 @@ extern const std::string CSTR_RENDERER;
 extern const std::string CSTR_GRAPHICS_API;
 extern const std::string CSTR_RENDERER_TYPE;
 extern const std::string CSTR_RENDERER_VIEW_DISTANCE;
+extern const std::string CSTR_RENDERER_NORMALMAPPING_DISTANCE;
 extern const std::string CSTR_RENDERER_FPS_LIMIT;
 extern const std::string CSTR_RENDERER_FPS_RESOLUTION_X;
 extern const std::string CSTR_RENDERER_FPS_RESOLUTION_Y;
@@ -38,7 +39,9 @@ extern const std::string CSTR_PARTICLES_ENABLED;
 extern const std::string CSTR_TEXTURES;
 extern const std::string CSTR_TEXTURE_MAX_RESOLUTION_WIDTH;
 extern const std::string CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT;
+
 extern const std::string CSTR_TEXTURE_AMBIENT;
+extern const std::string CSTR_TEXTURE_DISPLACEMENT;
 extern const std::string CSTR_TEXTURE_DIFFUSE;
 extern const std::string CSTR_TEXTURE_NORMAL;
 extern const std::string CSTR_TEXTURE_SPECULAR;

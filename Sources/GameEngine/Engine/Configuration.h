@@ -3,11 +3,11 @@
 
 #include <unordered_map>
 
+#include "ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h"
+#include "ConfigurationParams/TerrainParam/TerrainParam.h"
 #include "LoD.h"
 #include "SingleTon.h"
 #include "Utils.h"
-#include "ConfigurationParams/TerrainParam/TerrainParam.h"
-#include "ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h"
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
 const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
@@ -39,7 +39,7 @@ struct Files
 
 struct Shadows
 {
-    bool isEnabled = true;
+    bool isEnabled = false;
     float distance = 35.f;
     uint32 mapSize = 4096;
 };
@@ -72,11 +72,12 @@ struct Water
 
 struct Textures
 {
-    vec2ui maxSize   = {1024, 1024};
-    bool useAmbient  = true;
-    bool useDiffuse  = true;
-    bool useNormal   = true;
-    bool useSpecular = true;
+    vec2ui maxSize       = {1024, 1024};
+    bool useDisplacement = false;
+    bool useAmbient      = false;
+    bool useDiffuse      = true;
+    bool useNormal       = true;
+    bool useSpecular     = true;
 };
 
 struct DebugParams
@@ -89,9 +90,10 @@ struct Renderer
     std::string graphicsApi        = "OpenGL";
     GraphicsApi::RendererType type = GraphicsApi::RendererType::FULL;
 
-    float viewDistance             = 250.f;
-    uint32 fpsLimt                 = 60;
-    vec2ui resolution              = DEFAULT_WINDOW_SIZE;
+    float viewDistance          = 250.f;
+    float normalMappingDistance = 50.f;
+    uint32 fpsLimt              = 60;
+    vec2ui resolution           = DEFAULT_WINDOW_SIZE;
 
     Terrain terrain;
     Water water;

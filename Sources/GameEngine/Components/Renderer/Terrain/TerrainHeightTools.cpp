@@ -24,6 +24,13 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 
     return (data_[index] * heightFactor_) - offset_;
 }
+vec2 TerrainHeightTools::GetTexCoord(uint32 x, uint32 y) const
+{
+    vec2 result;
+    result.x = static_cast<float>(x) / static_cast<float>(heightMapWidth_ - 1);
+    result.y = static_cast<float>(y) / static_cast<float>(heightMapWidth_ - 1);
+    return result;
+}
 vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
 {
     // z0 -- z1 -- z2
@@ -96,24 +103,27 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
 }
 vec3 TerrainHeightTools::GetTangent(uint32 x, uint32 z) const
 {
-    return {};
- /*   vec3 v0 = gl_in[0].gl_Position.xyz;
-    vec3 v1 = gl_in[1].gl_Position.xyz;
-    vec3 v2 = gl_in[2].gl_Position.xyz;
+    return GetTangent(GetNormal(x, z));
+}
+vec3 TerrainHeightTools::GetTangent(const vec3& normal) const
+{
+    vec3 up(0, 1, 0);
+    vec3 tangent(1, 0, 0); // flat terrain is regular grid
 
-    vec3 e1 = v1 - v0;
-    vec3 e2 = v2 - v0;
+    auto v = normal - up;
+    if (glm::dot(normal, up) > 0.999999 and glm::dot(normal, up) < -0.999999)
+    {
+        return tangent;
+    }
+    Quaternion q;
+    vec3 a = glm::cross(up, normal);
+    q.x = a.x;
+    q.y = a.y;
+    q.z = a.z;
+    q.w = sqrt((glm::length(normal) * glm::length(normal)) * (glm::length(up) * glm::length(up))) + glm::dot(up, normal);
 
-    vec2 uv0 = mapCoord_GS[0];
-    vec2 uv1 = mapCoord_GS[1];
-    vec2 uv2 = mapCoord_GS[2];
-
-    vec2 deltaUV1 = uv1 - uv0;
-    vec2 deltaUV2 = uv2 - uv0;
-
-    float r = 1.0 / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-
-    return normalize((e1 * deltaUV2.y - e2 * deltaUV1.y) * r);*/
+    tangent = glm::normalize(q) * tangent;
+    return glm::normalize(tangent);
 }
 uint32 TerrainHeightTools::Left(uint32 x) const
 {

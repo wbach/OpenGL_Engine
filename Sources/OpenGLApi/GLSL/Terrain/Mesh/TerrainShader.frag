@@ -1,6 +1,4 @@
 #version 440 core
-#define LARGE_DETAIL_RANGE 325.f
-
 struct TerrainData
 {
     vec4 color;
@@ -15,8 +13,7 @@ in VS_OUT
     vec4 shadowCoords;
     float useShadows;
     float shadowMapSize;
-    vec3 passTangent;
-    float useNormalMap;
+    mat3 tbn;
 } fs_in;
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;
@@ -38,6 +35,14 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 SpecularOut;
 
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
+
 layout (std140, binding = 1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
@@ -45,19 +50,11 @@ layout (std140, binding = 1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
-vec3 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, vec4 normal_map)
+vec3 CalcBumpedNormal(vec4 normalMapColor)
 {
-    vec3 normal  = normalize(surface_normal);
-    vec3 tangent = normalize(pass_tangent);
-    tangent = normalize(tangent - dot(tangent, normal) * normal);
-    vec3 bitangent = cross(tangent, normal);
-    vec3 bumpMapNormal = normal_map.xyz ;
-    bumpMapNormal = 2.f * bumpMapNormal - vec3(1.f, 1.f, 1.f);
-    vec3 new_normal;
-    mat3 tbn = mat3(tangent, bitangent, normal);
-    new_normal = tbn * bumpMapNormal;
-    new_normal = normalize(new_normal);
-    return new_normal;
+    vec3 bumpMapNormal = normalMapColor.xyz;
+    bumpMapNormal = bumpMapNormal * 2.f - 1.f;
+    return normalize(fs_in.tbn * bumpMapNormal);
 }
 
 float CalculateShadowFactor()
@@ -95,11 +92,16 @@ bool Is(float f)
 bool NormalMaping()
 {
     float dist = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
-    return Is(fs_in.useNormalMap) && (dist < LARGE_DETAIL_RANGE);
+    return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
 }
 
 vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
 {
+    if (!Is(perApp.useTextures.x))
+    {
+        return vec4(.8f, .8f, .8f, 1.f);
+    }
+
     vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
     vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;
@@ -117,7 +119,8 @@ vec4 CalculateTerrainNormal(vec2 tiledCoords, vec4 blendMapColor, float backText
         vec4 greenNormalTextureColor = texture(greenTextureNormal, tiledCoords) * blendMapColor.g;
         vec4 blueNormalTextureColor  = texture(blueTextureNormal, tiledCoords) * blendMapColor.b;
         vec4 alphaNormalTextureColor = texture(alphaTextureNormal, tiledCoords) * blendMapColor.a;
-        return vec4(CalcBumpedNormal(fs_in.normal, fs_in.passTangent, backgorundNormalColor + redNormalTextureColor + greenNormalTextureColor + blueNormalTextureColor + alphaNormalTextureColor), 1.f); // w use fog
+        vec3 bumpNormal              = CalcBumpedNormal(backgorundNormalColor + redNormalTextureColor + greenNormalTextureColor + blueNormalTextureColor + alphaNormalTextureColor);
+        return vec4(bumpNormal, 1.f); // w use fog
     }
     else
     {

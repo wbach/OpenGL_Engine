@@ -1,10 +1,16 @@
-#version 430 core
+#version 440 core
 #define TEXTURE_TILED_FACTOR 800.f
-#define LARGE_DETAIL_RANGE 325.f
-//#define scaleXZ 6000.f
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out; // line_strip
+
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
 
 layout (std140, binding = 1) uniform PerFrame
 {
@@ -24,7 +30,7 @@ layout (std140, binding = 3) uniform PerTerrain
 in vec2 mapCoord_GS[];
 
 layout(binding = 2) uniform sampler2D blendMap;
-layout(binding = 3) uniform sampler2D normalmap;
+layout(binding = 3) uniform sampler2D meshNormal;
 layout(binding = 6) uniform sampler2D backgorundTextureDisplacement;
 layout(binding = 9) uniform sampler2D redTextureDisplacement;
 layout(binding = 12) uniform sampler2D greenTextureDisplacement;
@@ -44,7 +50,6 @@ out GS_OUT
     float useShadows;
     float shadowMapSize;
     vec3 passTangent;
-    float useNormalMap;
 }  go_out;
 
 
@@ -57,6 +62,11 @@ struct Normal
 {
     vec3 array[3];
 };
+
+bool Is(float f)
+{
+    return f > .5f;
+}
 
 vec3 calcTangent()
 {
@@ -118,7 +128,7 @@ Normal GetNormal()
     for (int i = 0; i < gl_in.length(); ++i)
     {
         vec2 mapCoords = (gl_in[i].gl_Position.xz + perTerrain.scaleAndOffset.x / 2.f) / perTerrain.scaleAndOffset.x;
-        normal.array[i] = texture(normalmap, mapCoords).xyz;
+        normal.array[i] = texture(meshNormal, mapCoords).xyz;
     }
 
     return normal;
@@ -130,10 +140,13 @@ void main()
 
     Displacement displacement;
 
-    if (false)//if (dist < LARGE_DETAIL_RANGE)
+    if (dist < perApp.viewDistance.y)
     {
         go_out.passTangent = calcTangent();
-        displacement = calculateDisplacment();
+        if (Is(perApp.useTextures.w))
+        {
+            displacement = calculateDisplacment();
+        }
     }
     else
     {
@@ -148,7 +161,6 @@ void main()
         vec4 position       = gl_in[i].gl_Position + vec4(displacement.array[i], 0);
         go_out.texCoord     = mapCoord_GS[i];
         go_out.worldPos     =  perFrame.projectionViewMatrix * position;
-        go_out.useNormalMap = 0.f;
         go_out.normal       = GetNormal().array[i];
         gl_Position         = go_out.worldPos;
         EmitVertex();

@@ -122,6 +122,8 @@ void ReadFromFile(const std::string& filename)
     if (Utils::CheckFileExist(filename))
     {
         ReadConfiguration(EngineConf, filename);
+        // Update 
+        WriteConfigurationToFile(EngineConf, filename);
     }
     else
     {

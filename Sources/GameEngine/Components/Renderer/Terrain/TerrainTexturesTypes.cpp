@@ -11,6 +11,7 @@ void std::from_string(const std::string& type, GameEngine::TerrainTextureType& t
     FROM_STRING(blendMap);
     FROM_STRING(normalmap);
     FROM_STRING(backgorundTexture);
+    FROM_STRING(backgorundTextureNormal);
     FROM_STRING(backgorundTextureDisplacement);
     FROM_STRING(redTexture);
     FROM_STRING(redTextureNormal);

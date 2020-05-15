@@ -1,4 +1,4 @@
-#version 440
+#version 440 core
 const int MAX_BONES = 25;
 const int MAX_WEIGHTS = 3;
 
@@ -6,14 +6,6 @@ layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 layout (location = 4) in vec3 Weights;
 layout (location = 5) in ivec3 BoneIds;
-
-layout (std140, align=16, binding=0) uniform PerApp
-{
-    float useTextures;
-    float viewDistance;
-    vec3 shadowVariables;
-    vec4 clipPlane;
-} perApp;
 
 layout (std140, binding=1) uniform PerResize
 {

@@ -1,4 +1,4 @@
-#version 430
+#version 440
 #define EPSILON 0.001
 
 layout (location = 0) out vec3 WorldPosOut;
@@ -9,6 +9,14 @@ layout (location = 3) out vec3 MaterialSpecular;
 uniform sampler2D Texture0;
 uniform sampler2DShadow ShadowMap;
 
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
+
 in GS_OUT
 {
     vec4 shadowCoords;
@@ -17,6 +25,11 @@ in GS_OUT
     vec2 texCoord;
     vec3 worldPos;
 } fs_in;
+
+bool Is(float v)
+{
+    return v > 0.5f;
+}
 
 float CalculateShadowFactor()
 {
@@ -49,13 +62,18 @@ float CalculateShadowFactor()
 
 void main()
 {
-    vec4 texture_color  = texture(Texture0, fs_in.texCoord);
-    if(texture_color.a < .5f) discard;
+    vec4 diffTexture = vec4(1.f, 1.f, 1.f, 1.f);
 
-    float shadow_factor = fs_in.useShadows > 0.5f ? CalculateShadowFactor() : 1.0;
+    if (Is(perApp.useTextures.x))
+    {
+        diffTexture  = texture(Texture0, fs_in.texCoord);
+        if(diffTexture.a < .5f) discard; // ?
+    }
+
+    float shadowFactor = fs_in.useShadows > 0.5f ? CalculateShadowFactor() : 1.0;
 
     WorldPosOut      = fs_in.worldPos;
-    DiffuseOut       = texture_color * shadow_factor;
+    DiffuseOut       = diffTexture * shadowFactor;
     NormalOut        = vec4(.0f, 1.f, .0f, 1.f);
     MaterialSpecular = vec3(.0f);
 }

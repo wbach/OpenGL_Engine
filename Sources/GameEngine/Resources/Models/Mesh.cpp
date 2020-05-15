@@ -134,30 +134,30 @@ void Mesh::CreateBufferObject()
         if (material_.diffuseTexture != nullptr)
         {
             perMeshObject.numberOfRows = material_.diffuseTexture->numberOfRows;
-            perMeshObject.useTexture   = 1.f;
+            perMeshObject.haveDiffTexture   = 1.f;
         }
         else
         {
             perMeshObject.numberOfRows = 1;
-            perMeshObject.useTexture   = 0.f;
+            perMeshObject.haveDiffTexture = 0.f;
         }
 
         if (material_.normalTexture != nullptr)
         {
-            perMeshObject.useNormalMap = 1.f;
+            perMeshObject.haveNormalMap = 1.f;
         }
         else
         {
-            perMeshObject.useNormalMap = 0.f;
+            perMeshObject.haveNormalMap = 0.f;
         }
 
         if (material_.specularTexture != nullptr)
         {
-            perMeshObject.useSpecularMap = 1.f;
+            perMeshObject.haveSpecularMap = 1.f;
         }
         else
         {
-            perMeshObject.useSpecularMap = 0.f;
+            perMeshObject.haveSpecularMap = 0.f;
         }
         graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perMeshObjectBuffer_, &perMeshObject);
     }

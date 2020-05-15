@@ -1,12 +1,19 @@
-#version 430 core
+#version 440 core
 #define TEXTURE_TILED_FACTOR 800.f
-#define LARGE_DETAIL_RANGE 325.f
 
 struct TerrainData
 {
     vec4 color;
     vec4 normal;
 };
+
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
 
 layout (std140, binding = 1) uniform PerFrame
 {
@@ -41,7 +48,6 @@ in GS_OUT
     float useShadows;
     float shadowMapSize;
     vec3 passTangent;
-    float useNormalMap;
 } fs_in;
 
 layout (location = 0) out vec4 WorldPosOut;
@@ -66,8 +72,8 @@ vec3 CalcBumpedNormal(vec3 surface_normal, vec3 pass_tangent, vec4 normal_map)
 
 float CalculateShadowFactor()
 {
-    float xOffset = 1.0/fs_in.shadowMapSize;
-    float yOffset = 1.0/fs_in.shadowMapSize;
+    float xOffset = 1.f/fs_in.shadowMapSize;
+    float yOffset = 1.f/fs_in.shadowMapSize;
 
     float factor = 0.0;
 
@@ -99,11 +105,16 @@ bool Is(float f)
 bool NormalMaping()
 {
     float dist = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
-    return Is(fs_in.useNormalMap) && (dist < LARGE_DETAIL_RANGE);
+    return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
 }
 
 vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
 {
+    if (!Is(perApp.useTextures.x))
+    {
+        return vec4(.8f, .8f, .8f, 1.f);
+    }
+
     vec4 backgorundTextureColour = texture(backgorundTexture, tiledCoords) * backTextureAmount;
     vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;

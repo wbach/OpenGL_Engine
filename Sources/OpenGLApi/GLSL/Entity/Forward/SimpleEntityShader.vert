@@ -12,7 +12,7 @@ layout (location = 5) in ivec4 BoneIds;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
-    float useTextures;
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
     float viewDistance;
     vec3 shadowVariables;
     vec4 clipPlane;

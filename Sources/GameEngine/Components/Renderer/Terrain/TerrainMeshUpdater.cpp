@@ -133,12 +133,16 @@ bool TerrainMeshUpdater::UpdatePart(TerrainHeightTools& tools, GraphicsApi::Mesh
 
             if (forceToUpdateMesh_ or not compare(currentHeight, newHeightValue))
             {
-                currentHeight                          = newHeightValue;
-                isHeightChangedInTerrainPart           = true;
-                auto newNormal                         = tools.GetNormal(j, i);
-                meshData.normals_[meshVertexIndex]     = newNormal.x;
-                meshData.normals_[meshVertexIndex + 1] = newNormal.y;
-                meshData.normals_[meshVertexIndex + 2] = newNormal.z;
+                currentHeight                           = newHeightValue;
+                isHeightChangedInTerrainPart            = true;
+                auto newNormal                          = tools.GetNormal(j, i);
+                auto newTangent                         = tools.GetTangent(newNormal);
+                meshData.normals_[meshVertexIndex]      = newNormal.x;
+                meshData.normals_[meshVertexIndex + 1]  = newNormal.y;
+                meshData.normals_[meshVertexIndex + 2]  = newNormal.z;
+                meshData.tangents_[meshVertexIndex]     = newTangent.x;
+                meshData.tangents_[meshVertexIndex + 1] = newTangent.y;
+                meshData.tangents_[meshVertexIndex + 2] = newTangent.z;
             }
 
             meshVertexIndex += 3;

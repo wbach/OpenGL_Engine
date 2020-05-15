@@ -1,5 +1,20 @@
-#version 440
+#version 440 core
 #define EPSILON 0.0002
+
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
+
+layout (std140,binding=1) uniform PerFrame
+{
+    mat4 projectionViewMatrix;
+    mat4 toShadowMapSpace;
+    vec3 cameraPosition;
+} perFrame;
 
 layout (std140, align=16, binding=6) uniform PerMeshObject
 {
@@ -7,9 +22,9 @@ layout (std140, align=16, binding=6) uniform PerMeshObject
     vec4 diffuse;
     vec4 specular;
     uint numberOfRows;
-    float useTexture;
-    float useNormalMap;
-    float useSpecularMap;
+    float haveDiffTexture;
+    float haveNormalMap;
+    float haveSpecularMap;
     float shineDamper;
     float useFakeLighting;
 } perMeshObject;
@@ -46,6 +61,12 @@ bool Is(float v)
     return v > 0.5f;
 }
 
+bool NormalMaping()
+{
+    float dist = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
+    return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
+}
+
 vec4 GetNormal(vec2 textCoord)
 {
     if (Is(perMeshObject.useFakeLighting))
@@ -54,13 +75,13 @@ vec4 GetNormal(vec2 textCoord)
     }
     else
     {
-        return Is(perMeshObject.useNormalMap) ? CalcBumpedNormal(textCoord) : vec4(normalize(fs_in.normal), 1.f);
+        return (Is(perMeshObject.haveNormalMap) && NormalMaping()) ? CalcBumpedNormal(textCoord) : vec4(normalize(fs_in.normal), 1.f);
     }
 }
 
 vec4 GetSpecular(vec2 textCoord)
 {
-    if (Is(perMeshObject.useSpecularMap))
+    if (Is(perMeshObject.haveSpecularMap) && Is(perApp.useTextures.z))
     {
         return vec4((texture(SpecularMap, textCoord) * perMeshObject.specular).xyz , perMeshObject.shineDamper);
 
@@ -76,7 +97,7 @@ void main()
     vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
     vec2 textCoord = (fs_in.texCoord / perMeshObject.numberOfRows) + fs_in.textureOffset;
 
-    if (Is(perMeshObject.useTexture))
+    if (Is(perMeshObject.haveDiffTexture) && Is(perApp.useTextures.x))
     {
         colorFromTexture = texture(DiffuseTexture, textCoord);
         if(!Is(colorFromTexture.a))
