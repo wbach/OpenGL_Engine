@@ -15,7 +15,8 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
-#include "GameEngine/DebugTools/TerrainPainter/TerrainPainter.h"
+#include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
+#include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -161,6 +162,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
     REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
     REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
+    REGISTER_COMMAND("generateTerrainBlendMap", GenerateTerrainBlendMap);
     REGISTER_COMMAND("reloadShaders", ReloadShaders);
     REGISTER_COMMAND("takeSnapshot", Takesnapshot);
     REGISTER_COMMAND("exit", Exit);
@@ -1024,46 +1026,36 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
     scene_.ClearGameObjects();
 }
 
-DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(TerrainPainter &painter)
+DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter)
 {
     DebugNetworkInterface::TerrainPainterEnabled msg;
-    msg.type               = std::to_string(painter.paintType_);
+    msg.type               = std::to_string(painter.GetPaintType());
     msg.strength           = painter.strength_;
     msg.brushSize          = painter.brushSize_;
-    msg.selectedBrushType  = std::to_string(painter.heightBrushType_);
+    msg.selectedBrushType  = painter.SelectedBrush();
     msg.stepInterpolation  = std::to_string(painter.stepInterpolation_);
     msg.stepInterpolations = AvaiableStepInterpolationsStrs();
+    msg.brushTypes         = painter.AvaiableBrushTypes();
 
-    switch (painter.paintType_)
-    {
-        case PaintType::HeightMap:
-            msg.brushTypes = AvaiableHeightBrushTypeStrs();
-            break;
-        case PaintType::BlendMap:
-            msg.brushTypes = AvaiableTextureBrushTypeStrs();
-            break;
-    }
     return msg;
 }
 
-void NetworkEditorInterface::EnableTerrainPainter(PaintType type)
+Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
 {
-    terrainPainter_ = std::make_unique<TerrainPainter>(
-        *scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
-        scene_.displayManager_->GetWindowSize(), scene_.componentController_);
-
-    terrainPainter_->paintType_ = type;
-    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
+    return Painter::EntryParamters{*scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
+                                   scene_.displayManager_->GetWindowSize(), scene_.componentController_};
 }
 
 void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
 {
-    EnableTerrainPainter(PaintType::HeightMap);
+    terrainPainter_ = std::make_unique<TerrainHeightPainter>(GetPainterEntryParameters());
+    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
 }
 
 void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &)
 {
-    EnableTerrainPainter(PaintType::BlendMap);
+    terrainPainter_ = std::make_unique<TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
+    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
 }
 
 void NetworkEditorInterface::DisableTerrainPainter(const NetworkEditorInterface::EntryParameters &)
@@ -1094,19 +1086,28 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
         }
         if (params.count("brushType"))
         {
-            std::from_string(params.at("brushType"), terrainPainter_->heightBrushType_);
+            terrainPainter_->SetBrush(params.at("brushType"));
         }
         if (params.count("color"))
         {
+            if (terrainPainter_->GetPaintType() != PaintType::BlendMap)
+            {
+                ERROR_LOG("Incompatible paint mode.");
+                return;
+            }
+
             auto inputColor = params.at("color");
             size_t i        = 0;
+            Color color;
             for (auto c : inputColor)
             {
                 if (i < 4)
-                    terrainPainter_->paintBlendMapColor_[i++] = c == '1' ? 1.f : 0.f;
+                    color[i++] = c == '1' ? 1.f : 0.f;
                 else
                     ERROR_LOG("to many bits.");
             }
+
+            static_cast<TerrainTexturePainter *>(terrainPainter_.get())->SetColor(color);
         }
     }
     catch (...)
@@ -1118,19 +1119,19 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
 void NetworkEditorInterface::RecalculateTerrainYOffset(const NetworkEditorInterface::EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_)
+    if (not terrainPainter_ and terrainPainter_->GetPaintType() == PaintType::HeightMap)
         return;
 
-    terrainPainter_->RecalcualteYOffset();
+    static_cast<TerrainHeightPainter *>(terrainPainter_.get())->RecalcualteTerrainYOffset();
 }
 
 void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterface::EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_)
+    if (not terrainPainter_ and terrainPainter_->GetPaintType() == PaintType::HeightMap)
         return;
 
-    terrainPainter_->RecalculateNormals();
+    static_cast<TerrainHeightPainter *>(terrainPainter_.get())->RecalculateTerrainNormals();
 }
 void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
 {
@@ -1146,8 +1147,8 @@ void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
         const auto &heightMap = *tc->GetHeightMap();
         auto image            = GenerateBlendMapImage(tc->GetTerrainConfiguration().GetScale(), heightMap);
 
-        auto blendMap        = static_cast<MaterialTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
-        blendMap->GetImage() = std::move(image);
+        auto blendMap = static_cast<MaterialTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
+        blendMap->SetImage(std::move(image));
         tc->BlendMapChanged();
     }
 }
@@ -1186,7 +1187,7 @@ void NetworkEditorInterface::ReloadShaders(const NetworkEditorInterface::EntryPa
     scene_.renderersManager_->ReloadShaders();
 }
 
-void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryParameters & params)
+void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryParameters &params)
 {
     std::string path{"./snapshoot/"};
     if (params.count("location"))
@@ -1295,5 +1296,4 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
     }
     return result;
 }
-
 }  // namespace GameEngine

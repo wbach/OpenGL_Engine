@@ -1,7 +1,8 @@
 #pragma once
-#include <vector>
-#include "Types.h"
 #include <optional>
+#include <vector>
+
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -14,7 +15,17 @@ struct Image
     uint32 height{0};
 
     vec2ui Size() const;
+
+    const void* GetDataRaw() const
+    {
+        if (not data.empty())
+            return &data[0];
+        if (not floatData.empty())
+            return &data[0];
+        return nullptr;
+    }
+
+    std::optional<Color> GetPixel(const vec2ui&) const;
+    void SetPixel(const vec2ui&, const Color&);
 };
-std::optional<Color> GetPixel(Image&, const vec2ui&);
-void SetPixel(Image&, const vec2ui&, const Color&);
 }  // namespace GameEngine

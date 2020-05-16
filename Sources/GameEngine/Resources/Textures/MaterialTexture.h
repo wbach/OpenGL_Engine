@@ -11,11 +11,12 @@ public:
     MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
                     const std::string& filepath, Image& image);
     void GpuLoadingPass() override;
-    Image& GetImage();
+    void SetImage(Image);
     const Image& GetImage() const;
+    void SetPixel(const vec2ui&, const Color&);
 
 private:
-    Image image;
+    Image image_;
     bool keepData = false;
 };
 }  // namespace GameEngine

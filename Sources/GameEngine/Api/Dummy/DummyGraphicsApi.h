@@ -47,6 +47,7 @@ public:
     }
     const Color& GetBackgroundColor() const override
     {
+        return bgColor;
     }
     void EnableDepthTest() override
     {
@@ -85,7 +86,7 @@ public:
         return {};
     }
     GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap,
-                                  const vec2ui&, void* data) override
+                                  const vec2ui&, const void*) override
     {
         return ++id;
     }
@@ -93,10 +94,10 @@ public:
     {
         return ++id;
     }
-    void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override
+    void UpdateTexture(uint32, const vec2ui&, const vec2ui&, const void*) override
     {
     }
-    void UpdateTexture(uint32, const vec2ui&, void* data) override
+    void UpdateTexture(uint32, const vec2ui&, const void*) override
     {
     }
     void ClearTexture(uint32, const Color&) override
@@ -247,6 +248,7 @@ public:
     }
 
 private:
+    Color bgColor;
     uint32 id;
     std::unique_ptr<GraphicsApi::IWindowApi> dummyWindowApiPtr_;
     GraphicsApi::TextureInfo textureInfo_;

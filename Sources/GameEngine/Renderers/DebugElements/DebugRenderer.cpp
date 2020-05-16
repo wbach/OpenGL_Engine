@@ -114,7 +114,7 @@ void DebugRenderer::Render(const Scene&, const Time&)
     graphicsApi_.EnableBlend();
     graphicsApi_.DisableCulling();
 
-    DrawGrid();
+    //DrawGrid();
     DrawDebugObjects();
 
     graphicsApi_.EnableCulling();

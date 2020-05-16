@@ -70,7 +70,7 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     }
     //ambient color
     diffuse_color = diffuse_color * material.diffuse_;
-    ambient_color =  material.ambient_ + (0.05f * material.diffuse_);
+    ambient_color =  material.ambient_ + (0.1f * material.diffuse_);
 
     if (length(material.specular_) > .01f)
     {
@@ -213,11 +213,12 @@ void main()
         final_color = material.diffuse_;
     }
 
-    final_color = pow(final_color, vec3(1.f / gamma));
+
+    //final_color = pow(final_color, vec3(1.f / gamma));
     FragColor = vec4(final_color, 1.f);
 //return;
-    const float contrast = 0.5f;
-    FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
+    //const float contrast = 0.5f;
+   // FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
     FragColor     = mix(lightsPass.skyColor, FragColor, visibility);
     //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);
     //FragColor = vec4(lightsPass.lights[0].color_, 1.f);

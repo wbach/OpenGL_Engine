@@ -6,7 +6,8 @@ namespace GameEngine
 enum class PaintType
 {
     BlendMap,
-    HeightMap
+    HeightMap,
+    Plant
 };
 }  // namespace GameEngine
 

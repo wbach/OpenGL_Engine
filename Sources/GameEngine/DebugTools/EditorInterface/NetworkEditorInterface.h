@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
-#include "GameEngine/DebugTools/TerrainPainter/PaintType.h"
+#include "GameEngine/DebugTools/Painter/Painter.h"
 #include "IEditorInterface.hpp"
 
 namespace GameEngine
@@ -18,7 +18,6 @@ namespace GameEngine
 class Scene;
 class GameObject;
 class DragObject;
-class TerrainPainter;
 
 class NetworkEditorInterface : public IEditorInterface
 {
@@ -98,7 +97,7 @@ private:
     void UnsubscribeCameraUpdateIfExist();
     void SetOrignalCamera();
     std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
-    void EnableTerrainPainter(PaintType);
+    Painter::EntryParamters GetPainterEntryParameters();
 
 private:
     Scene& scene_;
@@ -127,7 +126,7 @@ private:
     std::mutex dragObjectMutex_;
     std::unique_ptr<DragObject> dragObject_;
     std::mutex terrainPainterMutex_;
-    std::unique_ptr<TerrainPainter> terrainPainter_;
+    std::unique_ptr<Painter> terrainPainter_;
     Utils::Timer terrainPainterTimer_;
 };
 }  // namespace GameEngine

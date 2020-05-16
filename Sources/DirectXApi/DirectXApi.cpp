@@ -418,7 +418,7 @@ void DirectXApi::SetBackgroundColor(const Color &background)
     bgColor_[1] = background.color.y;
     bgColor_[2] = background.color.z;
     bgColor_[3] = background.color.w;
-    bgColor = background;
+    bgColor     = background;
 }
 
 const Color &DirectXApi::GetBackgroundColor() const
@@ -574,7 +574,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
 
 std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateTexture2DDesc(ID3D11Device &dev,
                                                                                              const vec2ui &size,
-                                                                                             void *data)
+                                                                                             const void *data)
 {
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
@@ -637,7 +637,7 @@ std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateT
 }
 
 GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, const vec2ui &size, void *data)
+                                          GraphicsApi::TextureMipmap, const vec2ui &size, const void *data)
 {
     if (type != GraphicsApi::TextureType::U8_RGBA)
         return {};
@@ -657,10 +657,10 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
 {
     return {};
 }
-void DirectXApi::UpdateTexture(uint32, const vec2ui &, const vec2ui &, void *data)
+void DirectXApi::UpdateTexture(uint32, const vec2ui &, const vec2ui &, const void *)
 {
 }
-void DirectXApi::UpdateTexture(uint32 id, const vec2ui &size, void *data)
+void DirectXApi::UpdateTexture(uint32 id, const vec2ui &size, const void *data)
 {
     // TO DO: maybe is better way to update texture than delete and create new one
 

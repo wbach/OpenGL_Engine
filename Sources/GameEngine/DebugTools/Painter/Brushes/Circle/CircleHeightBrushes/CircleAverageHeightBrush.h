@@ -7,7 +7,7 @@ class HeightMap;
 class CircleAverageHeightBrush : public CircleBrushBase
 {
 public:
-    CircleAverageHeightBrush(TerrainPoint&, bool, const vec2&, float, int32);
+    CircleAverageHeightBrush(const TerrainPoint&, bool, const vec2&, float, int32);
     bool Paint() override;
 
 private:

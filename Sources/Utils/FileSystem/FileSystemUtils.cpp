@@ -105,7 +105,7 @@ std::string GetAbsolutePath(const std::string& file)
     {
         return std::filesystem::canonical(file).string();
     }
-    catch (std::filesystem::filesystem_error e)
+    catch (const std::filesystem::filesystem_error& e)
     {
         ERROR_LOG(e.what());
         return file;
@@ -138,7 +138,7 @@ std::string GetRelativePath(const std::string& absoultePath, const std::string& 
     {
         return std::filesystem::relative(absoultePath, workingPath).string();
     }
-    catch (std::filesystem::filesystem_error e)
+    catch (const std::filesystem::filesystem_error& e)
     {
         ERROR_LOG(e.what());
         return absoultePath;

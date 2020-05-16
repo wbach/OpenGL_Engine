@@ -110,11 +110,11 @@ vec3 TerrainHeightTools::GetTangent(const vec3& normal) const
     vec3 up(0, 1, 0);
     vec3 tangent(1, 0, 0); // flat terrain is regular grid
 
-    auto v = normal - up;
     if (glm::dot(normal, up) > 0.999999 and glm::dot(normal, up) < -0.999999)
     {
         return tangent;
     }
+
     Quaternion q;
     vec3 a = glm::cross(up, normal);
     q.x = a.x;

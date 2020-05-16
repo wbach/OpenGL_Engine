@@ -34,13 +34,13 @@ public:
     uint32 BindShaderBuffer(uint32) override;
 
     GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, const vec2ui&, void* data) override;
+                                          GraphicsApi::TextureMipmap, const vec2ui&, const void* data) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
                                                        int32) override;
     GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override;
 
-    void UpdateTexture(uint32, const vec2ui&, const vec2ui&, void* data) override;
-    void UpdateTexture(uint32, const vec2ui&, void* data) override;
+    void UpdateTexture(uint32, const vec2ui&, const vec2ui&, const void* data) override;
+    void UpdateTexture(uint32, const vec2ui&, const void* data) override;
 
     void ClearTexture(uint32, const Color&) override;
 

@@ -41,6 +41,7 @@ int EditorScene::Initialize()
         componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainShape);
 
     vec3 cratePosition(2, 0, 1);
+    vec3 palmPosition(3, 0, 3);
 
     DEBUG_LOG("terrainShapeComponents.count : " + std::to_string(terrainShapeComponents.size()));
 
@@ -62,6 +63,19 @@ int EditorScene::Initialize()
             {
                 DEBUG_LOG("outside of terrain.");
             }
+
+            terrainHeight = terrainShapeComponent->GetHeightOfTerrain(palmPosition);
+
+            if (terrainHeight)
+            {
+                palmPosition.y = *terrainHeight;
+                DEBUG_LOG("Succes, get terrain height : " + std::to_string(palmPosition));
+                break;
+            }
+            else
+            {
+                DEBUG_LOG("outside of terrain.");
+            }
         }
         else
         {
@@ -77,6 +91,16 @@ int EditorScene::Initialize()
                                                                                GameEngine::LevelOfDetail::L1);
         go->GetTransform().SetPosition(cratePosition);
         go->GetTransform().SetRotation(DegreesVec3(0, 45, 0));
+        AddGameObject(std::move(go));
+    }
+
+    {
+        auto go = CreateGameObject("Palm");
+        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Trees/palm.obj",
+                                                                               GameEngine::LevelOfDetail::L1);
+        go->GetTransform().SetPosition(palmPosition);
+        go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
+        go->GetTransform().SetScale(vec3(5));
         AddGameObject(std::move(go));
     }
 

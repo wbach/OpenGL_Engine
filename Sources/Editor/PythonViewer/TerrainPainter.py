@@ -102,6 +102,8 @@ class TerrainPainterView:
         texturesLabel = tk.LabelFrame(self.dialog, text="Textures")
         texturesLabel.pack(fill=tk.X)
 
+        tk.Button(texturesLabel, text="Generate blend map", command=lambda: self.networkClient.SendCommand(
+                      "generateTerrainBlendMap")).pack(fill=tk.X)
         tk.Button(texturesLabel, text="Texture D", command=lambda: self.networkClient.SendCommand(
                       "updateTerrainPainterParam color=0000")).pack(fill=tk.X)
         tk.Button(texturesLabel, text="Texture R", command=lambda: self.networkClient.SendCommand(

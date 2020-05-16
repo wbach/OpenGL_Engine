@@ -31,13 +31,15 @@ void TerrainComponentBase::CleanUp()
 void TerrainComponentBase::BlendMapChanged()
 {
     auto texture = GetTexture(TerrainTextureType::blendMap);
+    DEBUG_LOG("");
     if (texture and texture->GetGraphicsObjectId())
     {
+        DEBUG_LOG("");
         auto blendMap = static_cast<MaterialTexture *>(texture);
 
         componentContext_.gpuResourceLoader_.AddFunctionToCall([blendMap, api = &componentContext_.graphicsApi_]() {
             api->UpdateTexture(*blendMap->GetGraphicsObjectId(), blendMap->GetImage().Size(),
-                               &blendMap->GetImage().data[0]);
+                               blendMap->GetImage().GetDataRaw());
         });
     }
 }

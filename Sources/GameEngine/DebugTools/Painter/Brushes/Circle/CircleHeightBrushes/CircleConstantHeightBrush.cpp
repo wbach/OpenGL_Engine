@@ -1,24 +1,27 @@
-#include "CircleLinearHeightBrush.h"
+#include "CircleConstantHeightBrush.h"
+
+#include <Logger/Log.h>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
-CircleLinearHeightBrush::CircleLinearHeightBrush(TerrainPoint& terrainPoint, bool linearDistance,
-                                                 const vec2& mousePosition, float strength, int32 brushSize)
+CircleConstantHeightBrush::CircleConstantHeightBrush(const TerrainPoint& terrainPoint, bool linearDistance,
+                                                     const vec2& mousePosition, float strength, int32 brushSize)
     : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, mousePosition,
                       strength, brushSize)
     , heightMap_(*terrainPoint.terrainComponent.GetHeightMap())
 {
 }
-bool CircleLinearHeightBrush::Main(const vec2ui& paintedPoint)
+bool CircleConstantHeightBrush::Main(const vec2ui& paintedPoint)
 {
     auto currentHeightOpt = heightMap_.GetHeight(paintedPoint);
+
     if (currentHeightOpt)
     {
-        auto currentHeight = *currentHeightOpt;
-        auto newHeight     = currentHeight + (inputStrength_ * intensity_);
+        auto heightFactor = terrainPoint_.terrainComponent.GetTerrainConfiguration().GetScale().y;
+        auto newHeight = glm::mix(*currentHeightOpt, inputStrength_ / heightFactor, intensity_);
         return heightMap_.SetHeight(paintedPoint, newHeight);
     }
     return false;

@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-CircleBrushBase::CircleBrushBase(Texture& texture, TerrainPoint& terrainPoint, bool linearDistance,
+CircleBrushBase::CircleBrushBase(Texture& texture, const TerrainPoint& terrainPoint, bool linearDistance,
                                  const vec2& mousePosition, float strength, int32 brushSize)
     : terrainPoint_(terrainPoint)
     , texture_(texture)

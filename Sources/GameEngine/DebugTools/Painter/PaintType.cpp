@@ -10,6 +10,8 @@ string to_string(GameEngine::PaintType input)
             return "BlendMap";
         case GameEngine::PaintType::HeightMap:
             return "HeightMap";
+        case GameEngine::PaintType::Plant:
+            return "Plant";
     }
     return "unknown";
 }
@@ -23,6 +25,10 @@ void from_string(const string& input, GameEngine::PaintType& output)
     else if (input == "HeightMap")
     {
         output = GameEngine::PaintType::HeightMap;
+    }
+    else if (input == "Plant")
+    {
+        output = GameEngine::PaintType::Plant;
     }
 }
 }  // namespace std

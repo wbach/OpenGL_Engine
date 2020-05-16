@@ -558,7 +558,7 @@ uint32 OpenGLApi::BindShaderBuffer(uint32 id)
 }
 
 void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                     GraphicsApi::TextureMipmap mimpamp, const vec2ui& size, void* data)
+                     GraphicsApi::TextureMipmap mimpamp, const vec2ui& size, const void* data)
 {
     auto params = GetTextureTypeParams(type);
 
@@ -581,7 +581,7 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
 }
 
 GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                                         GraphicsApi::TextureMipmap mipmap, const vec2ui& size, void* data)
+                                         GraphicsApi::TextureMipmap mipmap, const vec2ui& size, const void* data)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -673,7 +673,7 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> d
     return rid;
 }
 
-void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& size, void* data)
+void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& size, const void* data)
 {
     if (impl_->textureInfos_.count(id) == 0)
     {
@@ -687,7 +687,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& siz
     glTexSubImage2D(params.target, 0, static_cast<GLint>(offset.x), static_cast<GLint>(offset.y),
                     static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), params.format, params.dataType, data);
 }
-void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, void* data)
+void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, const void* data)
 {
     if (impl_->textureInfos_.count(id) == 0)
     {

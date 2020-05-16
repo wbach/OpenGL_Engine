@@ -30,34 +30,45 @@ namespace Components
 class ComponentController;
 }  // namespace Components
 
-class TerrainPainter
+class Painter
 {
 public:
-    TerrainPainter(Input::InputManager&, const CameraWrapper&, const Projection&, const vec2ui&, const Components::ComponentController&);
-    ~TerrainPainter();
+    struct EntryParamters
+    {
+        Input::InputManager& inputManager;
+        const CameraWrapper& camera;
+        const Projection& projection;
+        const vec2ui& windowSize;
+        const Components::ComponentController& componentController;
+    };
+    Painter(const EntryParamters&, PaintType);
+    ~Painter();
+    virtual void SetBrush(const std::string&) = 0;
+    virtual std::string SelectedBrush() const = 0;
+    virtual std::vector<std::string> AvaiableBrushTypes() const = 0;
+
     void Paint(const vec2&);
     std::optional<vec3> GetMouseTerrainPosition(const vec2&);
-    void RecalculateNormals();
-    void RecalcualteYOffset();
-
-private:
-    void PaintBlendMap(const vec2&);
-    void PaintHeightMap(const vec2&);
+    PaintType GetPaintType() const;
 
 public:
-    PaintType paintType_;
-    Color paintBlendMapColor_;
     float strength_;
     int32 brushSize_;
-    HeightBrushType heightBrushType_;
+
     StepInterpolation stepInterpolation_;
 
-private:
+protected:
+    virtual void Paint(const vec2&, const TerrainPoint&) = 0;
+
+protected:
     Input::InputManager& inputManager_;
     TerrainPointGetter pointGetter_;
     std::optional<uint32> mouseKeyDownSubscribtion_;
     std::optional<uint32> mouseKeyUpSubscribtion_;
     bool lmouseKeyIsPressed_;
+
+private:
+    PaintType paintType_;
 };
 }  // namespace GameEngine
 

@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-CircleLinearTextureBrush::CircleLinearTextureBrush(TerrainPoint& terrainPoint, bool linearDistance,
+CircleLinearTextureBrush::CircleLinearTextureBrush(const TerrainPoint& terrainPoint, bool linearDistance,
                                                    const vec2& mousePosition, float strength, int32 brushSize)
     : CircleBrushBase(*terrainPoint.terrainComponent.GetTexture(TerrainTextureType::blendMap), terrainPoint,
                       linearDistance, mousePosition, strength, brushSize)
@@ -23,12 +23,13 @@ CircleLinearTextureBrush& CircleLinearTextureBrush::SetColor(const Color& inputC
 }
 bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
 {
-    auto currentColor = GetPixel(blendMap_.GetImage(), imageCoord);
+    auto currentColor = blendMap_.GetImage().GetPixel(imageCoord);
+
     if (currentColor)
     {
         auto scaledInputColor = glm::mix(currentColor->color, inputColor_.color, inputStrength_);
         auto newColor = glm::mix(currentColor->color, scaledInputColor, intensity_);
-        SetPixel(blendMap_.GetImage(), imageCoord, Color(newColor));
+        blendMap_.SetPixel(imageCoord, Color(newColor));
         return true;
     }
     return false;
