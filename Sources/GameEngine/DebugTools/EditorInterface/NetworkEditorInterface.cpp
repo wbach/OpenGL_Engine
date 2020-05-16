@@ -12,11 +12,13 @@
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
 #include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
+#include "GameEngine/DebugTools/Painter/PlantPainter.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -141,7 +143,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("createGameObject", CreateGameObject);
     REGISTER_COMMAND("deleteGameObject", DeleteGameObject);
     REGISTER_COMMAND("renameGameObject", RenameGameObject);
-    REGISTER_COMMAND("renameGameObject", AddComponent);
+    REGISTER_COMMAND("addComponent", AddComponent);
     REGISTER_COMMAND("startScene", StartScene);
     REGISTER_COMMAND("stopScene", StopScene);
     REGISTER_COMMAND("getComponentList", GetComponentsList);
@@ -158,6 +160,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("goCameraToObject", GoCameraToObject);
     REGISTER_COMMAND("enableTerrainHeightPainter", EnableTerrainHeightPainter);
     REGISTER_COMMAND("enableTerrainTexturePainter", EnableTerrainTexturePainter);
+    REGISTER_COMMAND("enablePlantPainter", EnablePlantPainter);
     REGISTER_COMMAND("disablePainter", DisableTerrainPainter);
     REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
     REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
@@ -1048,18 +1051,51 @@ Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
 
 void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
 {
+    DisableTerrainPainter({});
     terrainPainter_ = std::make_unique<TerrainHeightPainter>(GetPainterEntryParameters());
     gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
 }
 
 void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &)
 {
+    DisableTerrainPainter({});
     terrainPainter_ = std::make_unique<TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
     gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
 }
 
-void NetworkEditorInterface::DisableTerrainPainter(const NetworkEditorInterface::EntryParameters &)
+void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
 {
+    if (not params.count("gameObjectId"))
+    {
+        ERROR_LOG("GameObject Id is necessary to get plant component.");
+        return;
+    }
+
+    auto gameObject = GetGameObject(params.at("gameObjectId"));
+
+    if (gameObject)
+    {
+        auto component = gameObject->GetComponent<Components::GrassRendererComponent>();
+
+        if (not component)
+        {
+            ERROR_LOG("Grass component not found in object : " + params.at("gameObjectId"));
+            return;
+        }
+
+        DisableTerrainPainter({});
+        terrainPainter_ = std::make_unique<PlantPainter>(GetPainterEntryParameters(), *component);
+        gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
+    }
+}
+
+void NetworkEditorInterface::DisableTerrainPainter(const EntryParameters &)
+{
+    if (not terrainPainter_)
+    {
+        return;
+    }
+
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
     terrainPainter_.reset(nullptr);
 }

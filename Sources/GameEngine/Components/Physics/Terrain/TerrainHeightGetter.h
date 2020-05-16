@@ -15,6 +15,7 @@ public:
     TerrainHeightGetter(const TerrainConfiguration&, const HeightMap&, const vec2& terrainPosition);
     std::optional<float> GetHeightofTerrain(const vec2& worldPositionXZ) const;
     std::optional<float> GetHeightofTerrain(float worldX, float worldZ) const;
+    std::optional<vec3> GetPointOnTerrain(float worldX, float worldZ) const;
 
 private:
     std::optional<vec2ui> GetGridCoord(const vec2& position) const;

@@ -47,7 +47,7 @@ void Painter::Paint(const vec2& mousePosition)
 
     if (terrainPoint)
     {
-        Paint(mousePosition, *terrainPoint);
+        Paint(*terrainPoint);
     }
 }
 

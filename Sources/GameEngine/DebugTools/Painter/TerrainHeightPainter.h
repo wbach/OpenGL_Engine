@@ -9,7 +9,7 @@ public:
     using Painter::EntryParamters;
     TerrainHeightPainter(const EntryParamters&);
 
-    void Paint(const vec2&, const TerrainPoint&) override;
+    void Paint(const TerrainPoint&) override;
     void SetBrush(const std::string&) override;
     void RecalculateTerrainNormals();
     void RecalcualteTerrainYOffset();

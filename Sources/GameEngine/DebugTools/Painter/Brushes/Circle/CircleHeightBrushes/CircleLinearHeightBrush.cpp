@@ -5,10 +5,9 @@
 
 namespace GameEngine
 {
-CircleLinearHeightBrush::CircleLinearHeightBrush(const  TerrainPoint& terrainPoint, bool linearDistance,
-                                                 const vec2& mousePosition, float strength, int32 brushSize)
-    : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, mousePosition,
-                      strength, brushSize)
+CircleLinearHeightBrush::CircleLinearHeightBrush(const TerrainPoint& terrainPoint, bool linearDistance, float strength,
+                                                 int32 brushSize)
+    : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, strength, brushSize)
     , heightMap_(*terrainPoint.terrainComponent.GetHeightMap())
 {
 }

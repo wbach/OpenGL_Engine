@@ -9,7 +9,7 @@ public:
     using Painter::EntryParamters;
 
     TerrainTexturePainter(const EntryParamters&, const Color&);
-    void Paint(const vec2&, const TerrainPoint&) override;
+    void Paint(const TerrainPoint&) override;
     void SetColor(const Color&);
     void SetBrush(const std::string&) override;
     std::string SelectedBrush() const override;

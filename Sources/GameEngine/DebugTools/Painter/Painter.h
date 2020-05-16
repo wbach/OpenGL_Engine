@@ -58,7 +58,7 @@ public:
     StepInterpolation stepInterpolation_;
 
 protected:
-    virtual void Paint(const vec2&, const TerrainPoint&) = 0;
+    virtual void Paint(const TerrainPoint&) = 0;
 
 protected:
     Input::InputManager& inputManager_;

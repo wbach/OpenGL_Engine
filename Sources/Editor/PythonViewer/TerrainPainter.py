@@ -28,10 +28,11 @@ class TerrainPainterView:
         if msg.get("type") == "HeightMap":
             self.PainterBaseDialog(msg)
             self.AddToDialogHeightPostProcessFunctions()
-
-        if msg.get("type") == "BlendMap":
+        elif msg.get("type") == "BlendMap":
             self.PainterBaseDialog(msg)
             self.AddToTexturesToDialog()
+        elif msg.get("type") == "Plant":
+            self.PainterBaseDialog(msg)
 
     def PainterBaseDialog(self, msg):
         inputBrushTypes = []

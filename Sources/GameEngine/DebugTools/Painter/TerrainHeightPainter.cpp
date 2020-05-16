@@ -10,7 +10,7 @@
 
 namespace GameEngine
 {
-#define BRUSH(X) X(terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_)
+#define BRUSH(X) X(terrainPoint, stepInterpolation_ == StepInterpolation::Linear, strength_, brushSize_)
 
 TerrainHeightPainter::TerrainHeightPainter(const EntryParamters& entryParameters)
     : Painter(entryParameters, PaintType::HeightMap)
@@ -18,7 +18,7 @@ TerrainHeightPainter::TerrainHeightPainter(const EntryParamters& entryParameters
 
 {
 }
-void TerrainHeightPainter::Paint(const vec2& mousePosition, const TerrainPoint& terrainPoint)
+void TerrainHeightPainter::Paint(const TerrainPoint& terrainPoint)
 {
     auto heightMap = terrainPoint.terrainComponent.GetHeightMap();
     if (not heightMap)

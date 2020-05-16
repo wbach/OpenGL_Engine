@@ -18,7 +18,7 @@ GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
 {
-    __RegisterRenderFunction__(RendererFunctionType::UPDATE, GrassRenderer::Render);
+    __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, GrassRenderer::Render);
 }
 
 GrassRenderer::~GrassRenderer()
@@ -93,11 +93,13 @@ void GrassRenderer::PrepareRender(const Scene& scene)
 {
     PrepareShader(scene);
     context_.graphicsApi_.DisableCulling();
+    context_.graphicsApi_.EnableBlend();
 }
 
 void GrassRenderer::EndRender() const
 {
     context_.graphicsApi_.EnableCulling();
+    context_.graphicsApi_.DisableBlend();
 }
 
 void GrassRenderer::RenderSubscribes()
@@ -135,7 +137,7 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
 void GrassRenderer::PrepareShader(const Scene& scene)
 {
     shader_.Start();
-    grassShaderBuffer_.variables.value.y = scene.GetGlobalTime();
+    grassShaderBuffer_.variables.value.y += 0.01f; //scene.GetGlobalTime();
     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*grassShaderBufferId_);
 }

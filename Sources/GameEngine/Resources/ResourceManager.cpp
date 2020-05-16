@@ -54,12 +54,11 @@ Model* ResourceManager::LoadModel(const std::string& file)
 void ResourceManager::AddModel(std::unique_ptr<Model> model)
 {
     auto modelPtr = model.get();
+    auto filename = model->GetFileName().empty() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
+                                                 : model->GetFileName();
 
     ResourceInfo<Model> modelInfo;
     modelInfo.resource_ = std::move(model);
-
-    auto filename = model->GetFileName().empty() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
-                                                 : model->GetFileName();
 
     models_.insert({filename, std::move(modelInfo)});
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);

@@ -9,7 +9,7 @@ class Texture;
 class CircleBrushBase
 {
 public:
-    CircleBrushBase(Texture&, const TerrainPoint&, bool, const vec2&, float, int32);
+    CircleBrushBase(Texture&, const TerrainPoint&, bool, float, int32);
     virtual bool Paint();
 
 protected:
@@ -25,7 +25,6 @@ protected:
     const TerrainPoint& terrainPoint_;
     Texture& texture_;
     bool linearDistance_;
-    const vec2& mousePosition_;
     float inputStrength_;
     int32 brushSize_;
     float intensity_;

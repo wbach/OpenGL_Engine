@@ -8,9 +8,8 @@
 namespace GameEngine
 {
 CircleAverageHeightBrush::CircleAverageHeightBrush(const TerrainPoint& terrainPoint, bool linearDistance,
-                                                   const vec2& mousePosition, float strength, int32 brushSize)
-    : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, mousePosition,
-                      strength, brushSize)
+                                                   float strength, int32 brushSize)
+    : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, strength, brushSize)
     , heightMap_(*terrainPoint.terrainComponent.GetHeightMap())
     , average_(0)
 {

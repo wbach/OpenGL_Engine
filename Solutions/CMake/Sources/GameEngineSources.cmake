@@ -101,6 +101,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/TextureBrushType.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Painter.cpp
 ../../Sources/GameEngine/DebugTools/Painter/PaintType.cpp
+../../Sources/GameEngine/DebugTools/Painter/PlantPainter.cpp
 ../../Sources/GameEngine/DebugTools/Painter/StepInterpolation.cpp
 ../../Sources/GameEngine/DebugTools/Painter/TerrainHeightPainter.cpp
 ../../Sources/GameEngine/DebugTools/Painter/TerrainPointGetter.cpp

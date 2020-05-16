@@ -16,11 +16,16 @@ public:
     void ReqisterFunctions() override;
 
     inline ModelWrapper& GetModel();
+    void UpdateModel();
     inline const std::vector<float>& GetPositions() const;
     inline const std::string& GetTextureFileName() const;
 
+    void AddNextPosition(const vec3&);
     GrassRendererComponent& SetPositions(const std::vector<float>& positions);
     GrassRendererComponent& SetTexture(const std::string& filename);
+
+    void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
+    std::unordered_map<ParamName, Param> GetParams() const override;
 
 private:
     void CreateModelAndSubscribe();

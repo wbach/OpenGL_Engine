@@ -30,6 +30,39 @@ void GrassRendererComponent::CleanUp()
     }
 }
 
+void GrassRendererComponent::UpdateModel()
+{
+    auto model = model_.Get(LevelOfDetail::L1);
+
+    if (model and not model->GetMeshes().empty())
+    {
+        auto& mesh = model->GetMeshes()[0];
+
+        auto& meshData      = mesh.GetMeshDataRef();
+        meshData.positions_ = positions_;
+
+        if (mesh.GetGraphicsObjectId())
+        {
+            componentContext_.gpuResourceLoader_.AddFunctionToCall(
+                [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
+                    graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData, {VertexBufferObjects::POSITION});
+                });
+        }
+    }
+    else
+    {
+        ERROR_LOG("Mesh not set!.");
+        return;
+    }
+}
+
+void GrassRendererComponent::AddNextPosition(const vec3& v)
+{
+    positions_.push_back(v.x);
+    positions_.push_back(v.y);
+    positions_.push_back(v.z);
+}
+
 GrassRendererComponent& GrassRendererComponent::SetPositions(const std::vector<float>& positions)
 {
     positions_ = positions;
@@ -40,6 +73,15 @@ GrassRendererComponent& GrassRendererComponent::SetTexture(const std::string& fi
 {
     textureFile_ = filename;
     return *this;
+}
+
+void GrassRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>&)
+{
+}
+
+std::unordered_map<ParamName, Param> GrassRendererComponent::GetParams() const
+{
+    return std::unordered_map<ParamName, Param>();
 }
 
 void GrassRendererComponent::ReqisterFunctions()

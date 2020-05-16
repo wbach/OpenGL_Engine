@@ -23,23 +23,6 @@ int main(int, char**)
     CLogger::Instance().EnableLogs();
     CLogger::Instance().ImmeditalyLog();
 
-    //vec3 vc(10, 1, 10);
-    //vec3 z0(vc.x - 1, 1, vc.z - 1);
-    //vec3 z3(vc.x - 1, 1, 0);
-
-    //auto v1 = z0 - vc;
-    //auto v2 = z3 - vc;
-
-
-    //DEBUG_LOG(std::to_string(glm::normalize(glm::cross(v2, v1))));
-
-    //vec3 ab = vc - z0;
-    //vec3 cb = z3 - vc;
-    //DEBUG_LOG(std::to_string(glm::normalize(glm::cross(ab, cb))));
-
-
-   // return 0;
-
     GameEngine::ReadFromFile(configFile);
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 

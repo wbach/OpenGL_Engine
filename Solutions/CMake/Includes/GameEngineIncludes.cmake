@@ -136,6 +136,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/TextureBrushType.h
 ../../Sources/GameEngine/DebugTools/Painter/Painter.h
 ../../Sources/GameEngine/DebugTools/Painter/PaintType.h
+../../Sources/GameEngine/DebugTools/Painter/PlantPainter.h
 ../../Sources/GameEngine/DebugTools/Painter/StepInterpolation.h
 ../../Sources/GameEngine/DebugTools/Painter/TerrainHeightPainter.h
 ../../Sources/GameEngine/DebugTools/Painter/TerrainPoint.h

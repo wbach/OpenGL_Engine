@@ -1,10 +1,11 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+import traceback
 from tkinter import messagebox
 from functools import partial
 from PIL import Image, ImageTk
 from os import path
-
+import sys
 class ComponentsView:
     def __init__(self, context, rootFrame, fileManager):
         self.size = 0
@@ -197,11 +198,16 @@ class ComponentsView:
                                   onvalue=True, offvalue=False)
         checkBox.grid(column=0, row=self.size, padx=5, pady=0)
 
-        id = self.size
         btn = tk.Button(self.componentsFrame, text=msg.get("name"), command=lambda: self.SendGetComponentParamRequest(msg.get("name")), width=30)
         btn.grid(column=1, row=self.size, padx=5, pady=0)
-
         self.size = self.size + 1
+
+        if msg.get("name") == "Grass":
+            btn = tk.Button(self.componentsFrame, text="Enable grass painter",
+                            command=lambda: self.networkClient.SendCommand("enablePlantPainter gameObjectId=" + str(self.gameObjectId)), width=30)
+            btn.grid(column=1, row=self.size, padx=5, pady=0)
+            self.size = self.size + 1
+
 
     def SendGetComponentParamRequest(self, name):
         self.networkClient.SendCommand("getComponentParams gameObjectId=" + str(self.gameObjectId) + " name=" + name);

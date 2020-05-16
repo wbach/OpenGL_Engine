@@ -8,11 +8,10 @@
 namespace GameEngine
 {
 CircleBrushBase::CircleBrushBase(Texture& texture, const TerrainPoint& terrainPoint, bool linearDistance,
-                                 const vec2& mousePosition, float strength, int32 brushSize)
+                                 float strength, int32 brushSize)
     : terrainPoint_(terrainPoint)
     , texture_(texture)
     , linearDistance_(linearDistance)
-    , mousePosition_(mousePosition)
     , inputStrength_(strength)
     , brushSize_(brushSize)
 {
@@ -67,8 +66,8 @@ void CircleBrushBase::CalculateIntensity(const vec2ui& paintedPoint)
         vec2 centerPointf(centerPoint.x, centerPoint.y);
 
         auto currentPoint = vec2(paintedPoint.x, paintedPoint.y);
-        float distance = glm::length(currentPoint - centerPointf) / static_cast<float>(brushSize_);
-        intensity_     = 1.f - distance;
+        float distance    = glm::length(currentPoint - centerPointf) / static_cast<float>(brushSize_);
+        intensity_        = 1.f - distance;
 
         if (intensity_ < 0)
             intensity_ = 0.f;

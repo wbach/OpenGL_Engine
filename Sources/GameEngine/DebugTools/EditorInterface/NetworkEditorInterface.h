@@ -77,6 +77,7 @@ private:
     void ClearAllGameObjects(const EntryParameters&);
     void EnableTerrainHeightPainter(const EntryParameters&);
     void EnableTerrainTexturePainter(const EntryParameters&);
+    void EnablePlantPainter(const EntryParameters&);
     void DisableTerrainPainter(const EntryParameters&);
     void UpdateTerrainPainterParam(const EntryParameters&);
     void RecalculateTerrainYOffset(const EntryParameters&);

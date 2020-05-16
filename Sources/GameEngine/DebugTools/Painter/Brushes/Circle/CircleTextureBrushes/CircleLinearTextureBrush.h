@@ -8,7 +8,7 @@ class MaterialTexture;
 class CircleLinearTextureBrush : public CircleBrushBase
 {
 public:
-    CircleLinearTextureBrush(const TerrainPoint&, bool, const vec2&, float, int32);
+    CircleLinearTextureBrush(const TerrainPoint&, bool, float, int32);
     CircleLinearTextureBrush& SetColor(const Color&);
 
 private:

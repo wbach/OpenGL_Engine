@@ -24,6 +24,15 @@ std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float
     return GetHeightofTerrain(vec2(worldX, worldZ));
 }
 
+std::optional<vec3> TerrainHeightGetter::GetPointOnTerrain(float worldX, float worldZ) const
+{
+    auto height = GetHeightofTerrain(worldX, worldZ);
+    if (height)
+        return vec3(worldX, *height, worldZ);
+
+    return std::nullopt;
+}
+
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& worldPosition) const
 {
     auto localPosition = GetLocalPositionOnTerrain(worldPosition);

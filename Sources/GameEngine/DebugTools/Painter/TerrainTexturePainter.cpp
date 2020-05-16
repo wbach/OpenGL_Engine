@@ -5,7 +5,7 @@
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/MaterialTexture.h"
 
-#define BRUSH(X) X(terrainPoint, stepInterpolation_ == StepInterpolation::Linear, mousePosition, strength_, brushSize_)
+#define BRUSH(X) X(terrainPoint, stepInterpolation_ == StepInterpolation::Linear, strength_, brushSize_)
 
 namespace GameEngine
 {
@@ -15,7 +15,7 @@ TerrainTexturePainter::TerrainTexturePainter(const EntryParamters& entryParamter
 
 {
 }
-void TerrainTexturePainter::Paint(const vec2& mousePosition, const TerrainPoint& terrainPoint)
+void TerrainTexturePainter::Paint(const TerrainPoint& terrainPoint)
 {
     auto blendMapTexture = terrainPoint.terrainComponent.GetTexture(TerrainTextureType::blendMap);
 

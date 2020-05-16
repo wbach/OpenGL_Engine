@@ -73,7 +73,7 @@ void main()
     float shadowFactor = fs_in.useShadows > 0.5f ? CalculateShadowFactor() : 1.0;
 
     WorldPosOut      = fs_in.worldPos;
-    DiffuseOut       = diffTexture * shadowFactor;
+    DiffuseOut       = diffTexture /** shadowFactor*/;
     NormalOut        = vec4(.0f, 1.f, .0f, 1.f);
     MaterialSpecular = vec3(.0f);
 }
