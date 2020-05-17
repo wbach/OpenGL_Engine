@@ -16,6 +16,7 @@ public:
     std::optional<float> GetHeightofTerrain(const vec2& worldPositionXZ) const;
     std::optional<float> GetHeightofTerrain(float worldX, float worldZ) const;
     std::optional<vec3> GetPointOnTerrain(float worldX, float worldZ) const;
+    std::optional<vec3> GetNormalOfTerrain(float worldX, float worldZ) const;
 
 private:
     std::optional<vec2ui> GetGridCoord(const vec2& position) const;
@@ -24,6 +25,7 @@ private:
     bool IsValidGridCoordinate(const vec2i &position) const;
     std::optional<vec2> GetLocalPositionOnTerrain(const vec2&) const;
     float GetHeightInTerrainQuad(const vec2ui& gridCoord, const vec2& localPosition) const;
+    vec3 GetNormalInTerrainQuad(const vec2ui& gridCoord, const vec2& localPosition) const;
 
 private:
     const TerrainConfiguration& terrainConfiguration_;

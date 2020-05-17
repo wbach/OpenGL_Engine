@@ -9,6 +9,21 @@ namespace Components
 class GrassRendererComponent : public BaseComponent
 {
 public:
+    struct GrassMeshData
+    {
+        vec3 position;
+        vec2 sizeAndRotation;
+        vec3 normal;
+        Color color;
+    };
+
+    struct GrassMeshes
+    {
+        std::vector<float> positions;
+        std::vector<float> sizesAndRotations;
+        std::vector<float> normals;
+        std::vector<float> colors;
+    };
     GrassRendererComponent(ComponentContext&, GameObject&);
     ~GrassRendererComponent();
 
@@ -17,11 +32,13 @@ public:
 
     inline ModelWrapper& GetModel();
     void UpdateModel();
-    inline const std::vector<float>& GetPositions() const;
+
+    inline const GrassMeshes& GetGrassMeshesData() const;
     inline const std::string& GetTextureFileName() const;
 
-    void AddNextPosition(const vec3&);
-    GrassRendererComponent& SetPositions(const std::vector<float>& positions);
+    void AddGrassMesh(const GrassMeshData&);
+
+    GrassRendererComponent& SetMeshesData(GrassMeshes);
     GrassRendererComponent& SetTexture(const std::string& filename);
 
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
@@ -32,12 +49,13 @@ private:
     void UnSubscribe();
     Material CreateGrassMaterial() const;
     Mesh CreateGrassMesh(const Material& material) const;
+    void CopyDataToMesh(Mesh&) const;
     void CreateGrassModel();
 
 private:
     ModelWrapper model_;
     std::string textureFile_;
-    std::vector<float> positions_;
+    GrassMeshes meshData_;
     bool isSubscribed_;
 
 public:
@@ -49,9 +67,9 @@ ModelWrapper& GrassRendererComponent::GetModel()
     return model_;
 }
 
-const std::vector<float>& GrassRendererComponent::GetPositions() const
+const GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshesData() const
 {
-    return positions_;
+    return meshData_;
 }
 
 const std::string& GrassRendererComponent::GetTextureFileName() const

@@ -14,11 +14,17 @@
 namespace GameEngine
 {
 Painter::Painter(const EntryParamters& entryParamters, PaintType paintType)
-    : strength_(0.01f)
-    , brushSize_(16)
+    : Painter(entryParamters, paintType, 0.01f, 16)
+{
+}
+
+Painter::Painter(const EntryParamters& entryParamters, PaintType paintType, float strength, int32 brushSize)
+    : strength_(strength)
+    , brushSize_(brushSize)
     , stepInterpolation_(StepInterpolation::Linear)
     , inputManager_(entryParamters.inputManager)
-    , pointGetter_(entryParamters.camera, entryParamters.projection, entryParamters.windowSize, entryParamters.componentController)
+    , pointGetter_(entryParamters.camera, entryParamters.projection, entryParamters.windowSize,
+                   entryParamters.componentController)
     , lmouseKeyIsPressed_(false)
     , paintType_(paintType)
 {

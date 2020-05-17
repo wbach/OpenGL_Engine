@@ -312,25 +312,25 @@ struct DegreesVec3
 struct Color
 {
     Color()
-        : color(1.f)
+        : value(1.f)
     {
     }
     Color(float v)
-        : color(v)
+        : value(v)
     {
     }
     Color(const vec4& floatColor)
-        : color(floatColor)
+        : value(floatColor)
     {
     }
     Color(const vec3& floatColor)
-        : color(floatColor, 1.f)
+        : value(floatColor, 1.f)
     {
     }
     Color(const vec3ui& color)
     {
         rgb(color);
-        this->color.w = 1.f;
+        this->value.w = 1.f;
     }
     Color(const vec4ui& color)
     {
@@ -341,7 +341,7 @@ struct Color
     {
     }
     Color(int r, int g, int b, int a)
-        : color(static_cast<float>(r) / 255.f, static_cast<float>(g) / 255.f, static_cast<float>(b) / 255.f,
+        : value(static_cast<float>(r) / 255.f, static_cast<float>(g) / 255.f, static_cast<float>(b) / 255.f,
                 static_cast<float>(a) / 255.f)
     {
     }
@@ -350,24 +350,24 @@ struct Color
     {
     }
     Color(float r, float g, float b, float a)
-        : color(r, g, b, a)
+        : value(r, g, b, a)
     {
     }
     void r(uint8 r)
     {
-        color.x = static_cast<float>(r) / 255.f;
+        value.x = static_cast<float>(r) / 255.f;
     }
     void g(uint8 g)
     {
-        color.y = static_cast<float>(g) / 255.f;
+        value.y = static_cast<float>(g) / 255.f;
     }
     void b(uint8 b)
     {
-        color.z = static_cast<float>(b) / 255.f;
+        value.z = static_cast<float>(b) / 255.f;
     }
     void a(uint8 a)
     {
-        color.w = static_cast<float>(a) / 255.f;
+        value.w = static_cast<float>(a) / 255.f;
     }
     void rgb(const vec3ui& color)
     {
@@ -384,19 +384,19 @@ struct Color
     }
     uint8 r() const
     {
-        return static_cast<uint8>(color.x * 255.f);
+        return static_cast<uint8>(value.x * 255.f);
     }
     uint8 g() const
     {
-        return static_cast<uint8>(color.y * 255.f);
+        return static_cast<uint8>(value.y * 255.f);
     }
     uint8 b() const
     {
-        return static_cast<uint8>(color.z * 255.f);
+        return static_cast<uint8>(value.z * 255.f);
     }
     uint8 a() const
     {
-        return static_cast<uint8>(color.w * 255.f);
+        return static_cast<uint8>(value.w * 255.f);
     }
     vec3ui rgb() const
     {
@@ -408,13 +408,22 @@ struct Color
     }
     float& operator[](std::size_t idx)
     {
-        return color[idx];
+        return value[idx];
     }
     float operator[](std::size_t idx) const
     {
-        return color[idx];
+        return value[idx];
     }
-    vec4 color;
+    vec4* operator->()
+    {
+        return &value;
+    }
+    vec4& operator*()
+    {
+        return value;
+    }
+
+    vec4 value;
 };
 
 vec4 ToVec4(const vec3& v3);

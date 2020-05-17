@@ -23,7 +23,6 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                      engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
-    engineContext_.GetGraphicsApi().SetBackgroundColor(vec3(.8f));
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     SetDisplay();
     sceneManager_.SetFactor();

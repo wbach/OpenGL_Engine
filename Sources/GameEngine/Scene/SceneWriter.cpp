@@ -264,16 +264,28 @@ void Create(XmlNode& node, const Components::WaterRendererComponent& component)
         Create(node.AddChild(CSTR_NORMAL_MAP), component.GetNormalTexture()->GetFilPath());
 }
 
+std::string DataVectorToString(const std::vector<float>& input)
+{
+    std::string result;
+    for (const auto& p : input)
+    {
+        result += std::to_string(p) + ' ';
+    }
+    result.pop_back();
+    return result;
+}
 void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 {
-    std::string positionsValue = "";
-    for (const auto& p : component.GetPositions())
-    {
-        positionsValue += std::to_string(p) + ' ';
-    }
-    positionsValue.pop_back();
+    const auto& meshData              = component.GetGrassMeshesData();
+    std::string positionsValue        = DataVectorToString(meshData.positions);
+    std::string normalsValue          = DataVectorToString(meshData.normals);
+    std::string colorsValue           = DataVectorToString(meshData.colors);
+    std::string sizeAndRotationsValue = DataVectorToString(meshData.sizesAndRotations);
 
     Create(node.AddChild(CSTR_POSITIONS), positionsValue);
+    Create(node.AddChild(CSTR_NORMALS), normalsValue);
+    Create(node.AddChild(CSTR_COLORS), colorsValue);
+    Create(node.AddChild(CSTR_SIZE_AND_ROTATION), sizeAndRotationsValue);
     Create(node.AddChild(CSTR_TEXTURE_FILENAME), component.GetTextureFileName());
 }
 

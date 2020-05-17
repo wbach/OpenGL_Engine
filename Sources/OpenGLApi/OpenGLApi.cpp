@@ -264,7 +264,7 @@ void OpenGLApi::PrepareFrame()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(bgColor_.color.x, bgColor_.color.y, bgColor_.color.z, bgColor_.color.w);
+    glClearColor(bgColor_.value.x, bgColor_.value.y, bgColor_.value.z, bgColor_.value.w);
 
     auto errorString = GetGlError();
 
@@ -704,7 +704,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, const void* data)
 
 void OpenGLApi::ClearTexture(uint32 id, const Color& color)
 {
-    glClearTexImage(impl_->idPool_.ToGL(id), 0, GL_RGBA, GL_FLOAT, &color.color);
+    glClearTexImage(impl_->idPool_.ToGL(id), 0, GL_RGBA, GL_FLOAT, &color.value);
 }
 
 void OpenGLApi::EnableBlend()

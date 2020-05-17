@@ -414,10 +414,10 @@ void DirectXApi::SetDefaultTarget()
 }
 void DirectXApi::SetBackgroundColor(const Color &background)
 {
-    bgColor_[0] = background.color.x;
-    bgColor_[1] = background.color.y;
-    bgColor_[2] = background.color.z;
-    bgColor_[3] = background.color.w;
+    bgColor_[0] = background.value.x;
+    bgColor_[1] = background.value.y;
+    bgColor_[2] = background.value.z;
+    bgColor_[3] = background.value.w;
     bgColor     = background;
 }
 

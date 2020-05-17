@@ -33,6 +33,20 @@ std::optional<vec3> TerrainHeightGetter::GetPointOnTerrain(float worldX, float w
     return std::nullopt;
 }
 
+std::optional<vec3> TerrainHeightGetter::GetNormalOfTerrain(float worldX, float worldZ) const
+{
+    auto localPosition = GetLocalPositionOnTerrain(vec2(worldX, worldZ));
+
+    if (not localPosition)
+        return std::nullopt;
+
+    auto gridCoord = GetGridCoord(*localPosition);
+    if (not gridCoord)
+        return std::nullopt;
+
+    return GetNormalInTerrainQuad(*gridCoord, *localPosition);
+}
+
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& worldPosition) const
 {
     auto localPosition = GetLocalPositionOnTerrain(worldPosition);
@@ -95,20 +109,44 @@ float TerrainHeightGetter::GetHeightInTerrainQuad(const vec2ui& gridCoord, const
 {
     auto positionInQuad = GetPositionInQuad(localPosition);
 
-    vec3 p3(0, tools_.GetHeight(gridCoord.x, gridCoord.y + 1), 1);
+    auto gridSquereSize = terrainConfiguration_.GetScale().x / (heightMap_.GetImage().width - 1.f);
+
+    vec3 p3(0, tools_.GetHeight(gridCoord.x, gridCoord.y + 1), gridSquereSize);
     vec3 p1, p2;
 
     if (IsInLeftTriangle(positionInQuad))
     {
         p1 = vec3(0, tools_.GetHeight(gridCoord.x, gridCoord.y), 0);
-        p2 = vec3(1, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+        p2 = vec3(gridSquereSize, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
     }
     else
     {
-        p1 = vec3(1, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
-        p2 = vec3(1, tools_.GetHeight(gridCoord.x + 1, gridCoord.y + 1), 1);
+        p1 = vec3(gridSquereSize, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+        p2 = vec3(gridSquereSize, tools_.GetHeight(gridCoord.x + 1, gridCoord.y + 1), gridSquereSize);
     }
 
     return Utils::BarryCentric(p1, p2, p3, positionInQuad);
+}
+
+vec3 TerrainHeightGetter::GetNormalInTerrainQuad(const vec2ui& gridCoord, const vec2& localPosition) const
+{
+    auto positionInQuad = GetPositionInQuad(localPosition);
+
+    if (IsInLeftTriangle(positionInQuad))
+    {
+        auto n1 = tools_.GetNormal(gridCoord.x, gridCoord.y);
+        auto n2 = tools_.GetNormal(gridCoord.x + 1, gridCoord.y);
+        auto n3 = tools_.GetNormal(gridCoord.x, gridCoord.y + 1);
+        auto normal = n1 + n2 + n3 / 3.f;
+        return glm::normalize(normal);
+    }
+    else
+    {
+        auto n1 = tools_.GetNormal(gridCoord.x + 1, gridCoord.y);
+        auto n2 = tools_.GetNormal(gridCoord.x + 1, gridCoord.y + 1);
+        auto n3 = tools_.GetNormal(gridCoord.x, gridCoord.y + 1);
+        auto normal = n1 + n2 + n3 / 3.f;
+        return glm::normalize(normal);
+    }
 }
 }  // namespace GameEngine

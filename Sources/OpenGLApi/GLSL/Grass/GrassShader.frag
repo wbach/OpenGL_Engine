@@ -4,7 +4,7 @@
 layout (location = 0) out vec3 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
-layout (location = 3) out vec3 MaterialSpecular;
+layout (location = 3) out vec4 MaterialSpecular;
 
 uniform sampler2D Texture0;
 uniform sampler2DShadow ShadowMap;
@@ -24,6 +24,7 @@ in GS_OUT
     float shadowMapSize;
     vec2 texCoord;
     vec3 worldPos;
+    vec3 normal;
 } fs_in;
 
 bool Is(float v)
@@ -67,13 +68,16 @@ void main()
     if (Is(perApp.useTextures.x))
     {
         diffTexture  = texture(Texture0, fs_in.texCoord);
-        if(diffTexture.a < .5f) discard; // ?
+        //diffTexture.xyz *= 2.f;
+        if(diffTexture.a < .5f) discard;
+       //if(diffTexture.a < .5f) diffTexture = vec4(0, 0, 0, 0);
     }
 
     float shadowFactor = fs_in.useShadows > 0.5f ? CalculateShadowFactor() : 1.0;
+    vec3 normal = fs_in.normal;
 
     WorldPosOut      = fs_in.worldPos;
     DiffuseOut       = diffTexture /** shadowFactor*/;
-    NormalOut        = vec4(.0f, 1.f, .0f, 1.f);
-    MaterialSpecular = vec3(.0f);
+    NormalOut        = vec4(normal, 1.f);//vec4(.0f, 1.f, .0f, 1.f);
+    MaterialSpecular = vec4(.0f);
 }

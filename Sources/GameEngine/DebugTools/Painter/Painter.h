@@ -42,6 +42,7 @@ public:
         const Components::ComponentController& componentController;
     };
     Painter(const EntryParamters&, PaintType);
+    Painter(const EntryParamters&, PaintType, float, int32);
     ~Painter();
     virtual void SetBrush(const std::string&) = 0;
     virtual std::string SelectedBrush() const = 0;

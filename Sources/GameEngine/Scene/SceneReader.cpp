@@ -300,7 +300,17 @@ std::unordered_map<TerrainTextureType, std::string> ReadTerrainTextures(Utils::X
 void Read(Utils::XmlNode& node, Components::GrassRendererComponent& component)
 {
     component.SetTexture(node.GetChild(CSTR_TEXTURE_FILENAME)->value_);
-    component.SetPositions(ReadFloatVector(*node.GetChild(CSTR_POSITIONS)));
+
+    if (node.GetChild(CSTR_POSITIONS) and node.GetChild(CSTR_NORMALS) and node.GetChild(CSTR_COLORS) and
+        node.GetChild(CSTR_SIZE_AND_ROTATION))
+    {
+        Components::GrassRendererComponent::GrassMeshes meshesData;
+        meshesData.positions         = ReadFloatVector(*node.GetChild(CSTR_POSITIONS));
+        meshesData.normals           = ReadFloatVector(*node.GetChild(CSTR_NORMALS));
+        meshesData.colors            = ReadFloatVector(*node.GetChild(CSTR_COLORS));
+        meshesData.sizesAndRotations = ReadFloatVector(*node.GetChild(CSTR_SIZE_AND_ROTATION));
+        component.SetMeshesData(std::move(meshesData));
+    }
 }
 
 void Read(Utils::XmlNode& node, Components::TerrainRendererComponent& component)

@@ -37,15 +37,16 @@ void GrassRendererComponent::UpdateModel()
     if (model and not model->GetMeshes().empty())
     {
         auto& mesh = model->GetMeshes()[0];
+        CopyDataToMesh(mesh);
 
-        auto& meshData      = mesh.GetMeshDataRef();
-        meshData.positions_ = positions_;
-
+        auto& meshData = mesh.GetMeshDataRef();
         if (mesh.GetGraphicsObjectId())
         {
             componentContext_.gpuResourceLoader_.AddFunctionToCall(
                 [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
-                    graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData, {VertexBufferObjects::POSITION});
+                    graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
+                                           {VertexBufferObjects::POSITION, VertexBufferObjects::TEXT_COORD,
+                                            VertexBufferObjects::NORMAL, VertexBufferObjects::TANGENT});
                 });
         }
     }
@@ -56,16 +57,27 @@ void GrassRendererComponent::UpdateModel()
     }
 }
 
-void GrassRendererComponent::AddNextPosition(const vec3& v)
+void GrassRendererComponent::AddGrassMesh(const GrassMeshData& mesh)
 {
-    positions_.push_back(v.x);
-    positions_.push_back(v.y);
-    positions_.push_back(v.z);
+    meshData_.positions.push_back(mesh.position.x);
+    meshData_.positions.push_back(mesh.position.y);
+    meshData_.positions.push_back(mesh.position.z);
+
+    meshData_.sizesAndRotations.push_back(mesh.sizeAndRotation.x);
+    meshData_.sizesAndRotations.push_back(mesh.sizeAndRotation.y);
+
+    meshData_.normals.push_back(mesh.normal.x);
+    meshData_.normals.push_back(mesh.normal.y);
+    meshData_.normals.push_back(mesh.normal.z);
+
+    meshData_.colors.push_back(mesh.color.value.x);
+    meshData_.colors.push_back(mesh.color.value.y);
+    meshData_.colors.push_back(mesh.color.value.z);
 }
 
-GrassRendererComponent& GrassRendererComponent::SetPositions(const std::vector<float>& positions)
+GrassRendererComponent& GrassRendererComponent::SetMeshesData(GrassMeshes data)
 {
-    positions_ = positions;
+    meshData_ = std::move(data);
     return *this;
 }
 
@@ -109,8 +121,16 @@ void GrassRendererComponent::UnSubscribe()
 Mesh GrassRendererComponent::CreateGrassMesh(const Material& material) const
 {
     Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, material);
-    mesh.GetMeshDataRef().positions_ = positions_;
+    CopyDataToMesh(mesh);
     return mesh;
+}
+void GrassRendererComponent::CopyDataToMesh(Mesh& mesh) const
+{
+    auto& data       = mesh.GetMeshDataRef();
+    data.positions_  = meshData_.positions;
+    data.textCoords_ = meshData_.sizesAndRotations;
+    data.normals_    = meshData_.normals;
+    data.tangents_   = meshData_.colors;
 }
 void GrassRendererComponent::CreateGrassModel()
 {

@@ -70,7 +70,7 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     }
     //ambient color
     diffuse_color = diffuse_color * material.diffuse_;
-    ambient_color =  material.ambient_ + (0.1f * material.diffuse_);
+    ambient_color =  material.ambient_;
 
     if (length(material.specular_) > .01f)
     {
@@ -176,7 +176,7 @@ void main()
 {
     vec2 tex_coord  = vs_in.textureCoords;
     tex_coord.y    *= - 1;
-   // FragColor = texture(ColorMap, tex_coord); return;
+  //  FragColor = texture(ColorMap, tex_coord); return;
     float distance  = ToZBuffer(DepthTexture, tex_coord);
 
     vec4 normal4    = texture(NormalMap, tex_coord);

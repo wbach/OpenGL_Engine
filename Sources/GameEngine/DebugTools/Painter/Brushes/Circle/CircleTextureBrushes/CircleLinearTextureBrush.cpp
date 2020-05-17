@@ -28,8 +28,8 @@ bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
 
     if (currentColor)
     {
-        auto scaledInputColor = glm::mix(currentColor->color, inputColor_.color, inputStrength_);
-        auto newColor         = glm::mix(currentColor->color, scaledInputColor, intensity_);
+        auto scaledInputColor = glm::mix(currentColor->value, inputColor_.value, inputStrength_);
+        auto newColor         = glm::mix(currentColor->value, scaledInputColor, intensity_);
         blendMap_.SetPixel(imageCoord, Color(newColor));
         return true;
     }

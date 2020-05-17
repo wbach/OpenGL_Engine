@@ -1,11 +1,5 @@
 #version 440 core
-const float size = 0.35f;
 const vec3 up = vec3(0, 1, 0);
-const float pi = 3.14159265359;
-const float v1angle = 3*pi/4;
-const float v2angle = pi;
-const float v3angle = pi / 4;
-const float v4angle = 2*pi - pi /4;
 
 layout (points) in;
 layout (triangle_strip, max_vertices = 16) out;
@@ -37,7 +31,15 @@ out GS_OUT
     float shadowMapSize;
     vec2 texCoord;
     vec3 worldPos;
+    vec3 normal;
 } gs_out;
+
+in VS_OUT
+{
+    vec2 sizeAndRotation;
+    vec3 normal;
+    vec3 color;
+} gs_in[];
 
 int CreateVertex(vec3 offset, vec2 textCoord)
 {
@@ -48,15 +50,16 @@ int CreateVertex(vec3 offset, vec2 textCoord)
     //     offset.z += cos(globalTime);
     // }
 
-    vec4 actual_offset = vec4(offset * size, .0f);
-   // actual_offset.y += size;
+   // const float size = 0.35f;
+    vec4 actual_offset = vec4(offset , .0f);
+    offset.y -= 0.1f;
     vec4 worldPosition = (gl_in[0].gl_Position + actual_offset);
 
     gl_Position = perFrame.projectionViewMatrix * worldPosition;
 
     gs_out.texCoord = vec2((textCoord.x + 1.0) / 2.0, 1 - (-textCoord.y + 1.0) / 2.0);
     gs_out.worldPos = worldPosition.xyz;
-   // gs_out.worldPos.y += size;
+    gs_out.normal   = gs_in[0].normal;
 
     if (perApp.shadowVariables.x > 0.5f)
     {
@@ -77,6 +80,11 @@ int CreateVertex(vec3 offset, vec2 textCoord)
 
 vec4 CreateQuaternion(vec3 normal)
 {
+    if(dot(normal, up) > 0.999999f && dot(normal, up) < -0.999999f)
+    {
+        return vec4(0, 0, 0, 1);
+    }
+
     vec4 q;
     vec3 a = cross(normal, up );
     q.x = a.x;
@@ -174,8 +182,8 @@ void main(void)
     quadTextCoord[3] = vec2(1,-1);
 
    // vec3 normal = vec3(1, 1, 1);
-    vec3 normal = vec3(0, 1, 0);
-    vec4 quaternion = CreateQuaternion(normalize(normal));
+    //vec3 normal = vec3(0, 1, 0);
+    vec4 quaternion = CreateQuaternion(normalize(gs_in[0].normal));
     CreateXYquad(quaternion, quadTextCoord);
     CreateZYquad(quaternion, quadTextCoord);
     CreateXYZquad(quaternion, quadTextCoord);

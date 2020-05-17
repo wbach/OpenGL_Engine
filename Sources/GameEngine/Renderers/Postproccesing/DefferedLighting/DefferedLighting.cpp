@@ -25,7 +25,7 @@ void DefferedLighting::Init()
                                                                         sizeof(DefferedLighting::LightPass));
     }
 
-    lightPass_.skyColor = rendererContext_.graphicsApi_.GetBackgroundColor().color;
+    lightPass_.skyColor = rendererContext_.graphicsApi_.GetBackgroundColor().value;
 }
 void DefferedLighting::Prepare()
 {
