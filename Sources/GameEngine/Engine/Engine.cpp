@@ -117,8 +117,8 @@ void Engine::Init()
 {
     engineContext_.GetGraphicsApi().EnableDepthTest();
     engineContext_.GetRenderersManager().Init();
-    engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(
-        [&]() { return engineContext_.GetPhysicsApi().DebugDraw(); });
+    engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(std::bind(&Physics::IPhysicsApi::DebugDraw, &engineContext_.GetPhysicsApi()));
+        //[&]() { return engineContext_.GetPhysicsApi().DebugDraw(); });
 }
 
 void Engine::RuntimeGpuTasks()

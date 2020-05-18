@@ -157,7 +157,20 @@ void SaveHeightMap(const HeightMap& heightmap, const std::string& outfile)
 
     if (std::filesystem::exists(output))
     {
-        std::filesystem::copy(output, output + ".backup");
+        try
+        {
+            auto backupFile = output + ".backup";
+            if (std::filesystem::exists(backupFile))
+            {
+                std::filesystem::remove(backupFile);
+            }
+
+            std::filesystem::copy(output, backupFile);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Create heightmap backup error.");
+        }
     }
 
     auto fp = fopen(output.c_str(), "wb");
@@ -205,8 +218,8 @@ Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap
     TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
 
     Image outputImage;
-    auto& imageData = outputImage.data;
-    outputImage.width = heightMap.GetImage().width;
+    auto& imageData    = outputImage.data;
+    outputImage.width  = heightMap.GetImage().width;
     outputImage.height = heightMap.GetImage().height;
 
     for (uint32 j = 0; j < width; ++j)
@@ -224,14 +237,15 @@ Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap
 
     return outputImage;
 }
-std::unique_ptr<NormalTexture> CreateNormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const vec3& terrainScale, const HeightMap& heightMap)
+std::unique_ptr<NormalTexture> CreateNormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const vec3& terrainScale,
+                                                   const HeightMap& heightMap)
 {
     auto width = heightMap.GetImage().width;
     TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
 
     Image normalImage;
-    auto& imageData = normalImage.floatData;
-    normalImage.width = heightMap.GetImage().width;
+    auto& imageData    = normalImage.floatData;
+    normalImage.width  = heightMap.GetImage().width;
     normalImage.height = heightMap.GetImage().height;
     imageData.reserve(normalImage.width * normalImage.height * 3);
 
@@ -251,7 +265,8 @@ float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui&
 {
     return data[position.x + position.y * size.x];
 }
-void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, const OutputFileName& file, const vec2& thresholds)
+void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, const OutputFileName& file,
+                      const vec2& thresholds)
 {
     auto image = GenerateBlendMapImage(terrainScale, heightMap, thresholds);
     Utils::SaveImage(image.data, heightMap.GetSize(), file, vec2(4));

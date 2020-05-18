@@ -5,16 +5,16 @@
 
 namespace GameEngine
 {
-GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const vec2ui& size,
+GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, const vec2ui& size,
                                void* data)
-    : Texture(graphicsApi, file, file, size)
+    : Texture(graphicsApi, file, size)
     , data_(data)
 {
 }
 
 void GeneralTexture::GpuLoadingPass()
 {
-    DEBUG_LOG("Create texutre filename : " + fullpath);
+    DEBUG_LOG("Create texutre filename : " + filename);
 
     if (not data_ or graphicsObjectId_)
     {
@@ -33,7 +33,7 @@ void GeneralTexture::GpuLoadingPass()
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + fullpath);
+        ERROR_LOG("Texutre not created. Filename : " + filename);
     }
 }
 }  // namespace GameEngine

@@ -64,13 +64,15 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     vec3 diffuse_color   = vec3(0.f);
     vec3 specular_color  = vec3(0.f);
 
+    ambient_color =  material.ambient_;
+
     if (diffuse_factor > 0.f)
     {
         diffuse_color = light_color * diffuse_factor;
+       // ambient_color = vec3(0.f);
     }
-    //ambient color
+
     diffuse_color = diffuse_color * material.diffuse_;
-    ambient_color =  material.ambient_;
 
     if (length(material.specular_) > .01f)
     {
@@ -191,7 +193,7 @@ void main()
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
     SMaterial material;
-    material.ambient_ = color * 0.1f;
+    material.ambient_ = color * 0.2f;
     material.diffuse_ = color;
     material.specular_ = specular.xyz;
     material.shineDamper_ = specular.a * 255.f;
@@ -203,7 +205,6 @@ void main()
         visibility = 1.f;
     }
 
-    const float gamma = 1.75f;
     if (normal4.a > .5f)
     {
         final_color = CalculateColor(material, world_pos, normal).rgb;
@@ -213,11 +214,11 @@ void main()
         final_color = material.diffuse_;
     }
 
-
-    //final_color = pow(final_color, vec3(1.f / gamma));
+    const float gamma = 2.0f;
+    final_color = pow(final_color, vec3(1.f / gamma));
     FragColor = vec4(final_color, 1.f);
 //return;
-    //const float contrast = 0.5f;
+   // const float contrast = 0.5f;
    // FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
     FragColor     = mix(lightsPass.skyColor, FragColor, visibility);
     //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);

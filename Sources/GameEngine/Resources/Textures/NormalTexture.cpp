@@ -3,8 +3,8 @@
 
 namespace GameEngine
 {
-NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name, Image image)
-    : Texture(graphicsApi, name, name, vec2ui(image.width, image.height))
+NormalTexture::NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& name, Image image)
+    : Texture(graphicsApi, name, vec2ui(image.width, image.height))
     , image_(std::move(image))
 {
 }
@@ -17,7 +17,7 @@ void NormalTexture::GpuLoadingPass()
         return;
     }
 
-    DEBUG_LOG("Create normal texture filename : " + fullpath);
+    DEBUG_LOG("Create normal texture filename : " + filename);
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_3C, GraphicsApi::TextureFilter::LINEAR,
                                    GraphicsApi::TextureMipmap::NONE, size_, &image_.floatData[0]);
@@ -29,7 +29,7 @@ void NormalTexture::GpuLoadingPass()
     }
     else
     {
-        ERROR_LOG("Texutre not created. Name : " + fullpath);
+        ERROR_LOG("Texutre not created. Name : " + filename);
     }
 
     image_.floatData.clear();

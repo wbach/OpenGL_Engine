@@ -1,12 +1,12 @@
 #include "MaterialTexture.h"
-
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
-MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
-                                 const std::string& filepath, Image& image)
-    : Texture(graphicsApi, file, filepath, vec2ui(image.width, image.height))
+MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const InputFileName& filename,
+                                 Image& image)
+    : Texture(graphicsApi, filename, vec2ui(image.width, image.height))
     , image_(std::move(image))
     , keepData(keepData)
 {
@@ -20,7 +20,7 @@ void MaterialTexture::GpuLoadingPass()
         return;
     }
 
-    DEBUG_LOG("Create texutre filneame : " + fullpath);
+    DEBUG_LOG("Create texutre filneame : " + filename);
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
@@ -34,7 +34,7 @@ void MaterialTexture::GpuLoadingPass()
     else
     {
         image_.data.clear();
-        ERROR_LOG("Texutre not created. Filename : " + fullpath);
+        ERROR_LOG("Texutre not created. Filename : " + filename);
     }
 
     if (not keepData)
@@ -46,7 +46,7 @@ void MaterialTexture::GpuLoadingPass()
 void MaterialTexture::SetImage(Image image)
 {
     image_ = std::move(image);
-    size_ = vec2ui(image.width, image.height);
+    size_  = vec2ui(image.width, image.height);
 }
 
 const Image& MaterialTexture::GetImage() const

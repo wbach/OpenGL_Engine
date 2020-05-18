@@ -1,7 +1,7 @@
 #version 440
 #define EPSILON 0.001
 
-layout (location = 0) out vec3 WorldPosOut;
+layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
@@ -23,7 +23,7 @@ in GS_OUT
     float useShadows;
     float shadowMapSize;
     vec2 texCoord;
-    vec3 worldPos;
+    vec4 worldPos;
     vec3 normal;
 } fs_in;
 

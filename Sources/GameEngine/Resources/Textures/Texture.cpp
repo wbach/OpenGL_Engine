@@ -35,11 +35,10 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& 
     graphicsObjectId_ = id;
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath, const vec2ui &size,
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, const vec2ui &size,
                  bool applySizeLimit)
     : graphicsApi_(graphicsApi)
-    , filename(file)
-    , fullpath(filepath)
+    , filename(Utils::ReplaceSlash(file))
     , size_(size)
     , applySizeLimit(applySizeLimit)
 {

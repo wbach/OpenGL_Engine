@@ -87,7 +87,7 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
     if (filename.empty())
         return *this;
 
-    filenames_.insert({filename, lvl});
+    filenames_.insert({Utils::ReplaceSlash(filename), lvl});
 
     auto model = componentContext_.resourceManager_.LoadModel(filename);
 

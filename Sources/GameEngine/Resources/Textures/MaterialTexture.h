@@ -8,8 +8,7 @@ namespace GameEngine
 class MaterialTexture : public Texture
 {
 public:
-    MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const std::string& file,
-                    const std::string& filepath, Image& image);
+    MaterialTexture(GraphicsApi::IGraphicsApi&, bool keepData, const InputFileName&, Image&);
     void GpuLoadingPass() override;
     void SetImage(Image);
     const Image& GetImage() const;

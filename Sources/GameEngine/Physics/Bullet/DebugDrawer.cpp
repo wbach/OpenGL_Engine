@@ -50,7 +50,7 @@ void BulletDebugDrawer::setDebugMode(int)
 }
 int BulletDebugDrawer::getDebugMode(void) const
 {
-    return 3;
+    return DebugDrawModes::DBG_DrawWireframe;//3;
 }
 const GraphicsApi::LineMesh &BulletDebugDrawer::getMesh() const
 {

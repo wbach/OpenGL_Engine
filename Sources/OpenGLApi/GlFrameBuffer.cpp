@@ -13,6 +13,8 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLuint> AttachmentType 
     {GraphicsApi::FrameBuffer::Type::Color1, GL_COLOR_ATTACHMENT1},
     {GraphicsApi::FrameBuffer::Type::Color2, GL_COLOR_ATTACHMENT2},
     {GraphicsApi::FrameBuffer::Type::Color3, GL_COLOR_ATTACHMENT3},
+    {GraphicsApi::FrameBuffer::Type::Color4, GL_COLOR_ATTACHMENT4},
+    {GraphicsApi::FrameBuffer::Type::Color5, GL_COLOR_ATTACHMENT5},
     {GraphicsApi::FrameBuffer::Type::Depth, GL_DEPTH_ATTACHMENT}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLenum> BufferType = {

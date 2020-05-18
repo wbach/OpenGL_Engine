@@ -100,10 +100,10 @@ void main()
     if (Is(perMeshObject.haveDiffTexture) && Is(perApp.useTextures.x))
     {
         colorFromTexture = texture(DiffuseTexture, textCoord);
-        // if(!Is(colorFromTexture.a))
-        // {
-        //     discard;
-        // }
+        if(colorFromTexture.a < 0.485f)
+        {
+            discard;
+        }
     }
 
     WorldPosOut      = fs_in.worldPos;

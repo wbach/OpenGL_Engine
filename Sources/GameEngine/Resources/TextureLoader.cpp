@@ -65,8 +65,7 @@ Texture* TextureLoader::LoadTexture(const InputFileName& inputFileName, const Te
     if (not image)
         return GetTextureNotFound();
 
-    auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, params.keepData, Utils::GetFilename(inputFileName),
-                                                             Utils::GetFilePath(inputFileName), *image);
+    auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, params.keepData, inputFileName, *image);
 
     return AddTexture(inputFileName, std::move(materialTexture), params.loadType);
 }
@@ -201,8 +200,7 @@ Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, 
         return nullptr;
     }
 
-    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, Utils::GetFilename(inputFileName),
-                                                        GetRelativeDataPath(inputFileName), std::move(image));
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, inputFileName, std::move(image));
     heightmapTexture->SetScale(header.scale);
 
     return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
@@ -235,8 +233,7 @@ Texture* TextureLoader::LoadHeightMapTexture(const InputFileName& inputFileName,
         image.data.clear();
     }
 
-    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, Utils::GetFilename(inputFileName),
-                                                        GetRelativeDataPath(inputFileName), std::move(image));
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, inputFileName, std::move(image));
 
     return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
 }
@@ -282,8 +279,7 @@ Texture* TextureLoader::GetTextureNotFound()
 
     if (image)
     {
-        auto materialTexture   = std::make_unique<MaterialTexture>(graphicsApi_, false, Utils::GetFilename(filename),
-                                                                 Utils::GetFilePath(filename), *image);
+        auto materialTexture   = std::make_unique<MaterialTexture>(graphicsApi_, false, filename, *image);
         textureNotFound_.first = AddTexture(filename, std::move(materialTexture), params.loadType);
     }
 

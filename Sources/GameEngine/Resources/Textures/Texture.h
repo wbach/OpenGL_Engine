@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include "../GpuObject.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "TextureFlip.h"
@@ -16,15 +17,14 @@ class Texture : public GpuObject
 public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
-           const vec2ui& size, bool applySizeLimit = true);
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, const vec2ui& size,
+            bool applySizeLimit = true);
     ~Texture() override;
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
     inline const vec2ui& GetSize() const;
     inline const std::string& GetFileName() const;
-    inline const std::string& GetFilPath() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;
     inline float GetTextureYOffset(uint32 textureIndex) const;
     inline vec2 GetTextureOffset(uint32 textureIndex) const;
@@ -38,20 +38,15 @@ public:
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::string filename;
-    std::string fullpath;
     vec2ui size_ = vec2ui(0);
 
     bool applySizeLimit = true;
     bool orginalData_   = true;
 };
 
-const std::string& Texture::GetFileName() const
+const InputFileName& Texture::GetFileName() const
 {
     return filename;
-}
-const std::string& Texture::GetFilPath() const
-{
-    return fullpath;
 }
 
 float Texture::GetTextureXOffset(uint32 textureIndex) const

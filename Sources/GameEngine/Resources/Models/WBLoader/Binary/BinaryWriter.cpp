@@ -46,7 +46,7 @@ void WriteToFile(std::fstream& file, Texture* texture)
     }
     else
     {
-        WriteToFile(file, texture->GetFilPath());
+        WriteToFile(file, texture->GetFileName());
     }
 }
 void WriteToFile(std::fstream& file, const Animation::JointTransform& jointTransform)

@@ -14,7 +14,7 @@ void DefferedLighting::Init()
 {
     shader_.Init();
 
-    lightPass_.skyColor     = vec4(0.8, 0.8, 0.8, 1.f);
+    lightPass_.skyColor = rendererContext_.graphicsApi_.GetBackgroundColor().value;
     lightPass_.viewDistance = rendererContext_.projection_.GetViewDistance();
     lightPass_.screenSize =
         vec2(rendererContext_.projection_.GetRenderingSize().x, rendererContext_.projection_.GetRenderingSize().y);
@@ -25,7 +25,6 @@ void DefferedLighting::Init()
                                                                         sizeof(DefferedLighting::LightPass));
     }
 
-    lightPass_.skyColor = rendererContext_.graphicsApi_.GetBackgroundColor().value;
 }
 void DefferedLighting::Prepare()
 {
@@ -64,13 +63,13 @@ void DefferedLighting::PrepareApiStateToRender()
     rendererContext_.graphicsApi_.PolygonModeRender();
     rendererContext_.graphicsApi_.DisableDepthMask();
     rendererContext_.graphicsApi_.DisableDepthTest();
-    rendererContext_.graphicsApi_.EnableBlend();
+  //  rendererContext_.graphicsApi_.EnableBlend();
 }
 void DefferedLighting::RetriveChanges()
 {
     rendererContext_.graphicsApi_.EnableDepthMask();
     rendererContext_.graphicsApi_.EnableDepthTest();
-    rendererContext_.graphicsApi_.DisableBlend();
+    //rendererContext_.graphicsApi_.DisableBlend();
 }
 void DefferedLighting::Convert(const Light& light, int index)
 {

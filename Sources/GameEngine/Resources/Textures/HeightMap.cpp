@@ -1,12 +1,13 @@
 #include "HeightMap.h"
+
 #include <Logger/Log.h>
+
 #include <algorithm>
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file, const std::string& filepath,
-                     Image image)
-    : Texture(graphicsApi, file, filepath, vec2ui(image.width, image.height))
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, Image image)
+    : Texture(graphicsApi, file, vec2ui(image.width, image.height))
     , image_(std::move(image))
     , maximumHeight_(0)
 {
@@ -20,8 +21,8 @@ void HeightMap::GpuLoadingPass()
         ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
         return;
     }
+    DEBUG_LOG("Create texutre filneame : " + filename);
 
-    DEBUG_LOG("Create texutre filneame : " + fullpath);
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
                                    GraphicsApi::TextureMipmap::NONE, size_, &image_.floatData[0]);
@@ -33,7 +34,7 @@ void HeightMap::GpuLoadingPass()
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + fullpath);
+        ERROR_LOG("Texutre not created. Filename : " + filename);
     }
 }
 

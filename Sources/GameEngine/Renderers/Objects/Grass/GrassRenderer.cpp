@@ -93,13 +93,11 @@ void GrassRenderer::PrepareRender(const Scene& scene)
 {
     PrepareShader(scene);
     context_.graphicsApi_.DisableCulling();
-    context_.graphicsApi_.EnableBlend();
 }
 
 void GrassRenderer::EndRender() const
 {
     context_.graphicsApi_.EnableCulling();
-    context_.graphicsApi_.DisableBlend();
 }
 
 void GrassRenderer::RenderSubscribes()

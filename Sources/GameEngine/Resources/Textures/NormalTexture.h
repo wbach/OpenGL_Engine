@@ -8,7 +8,7 @@ namespace GameEngine
 class NormalTexture : public Texture
 {
 public:
-    NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name, Image image);
+    NormalTexture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& name, Image image);
     void GpuLoadingPass() override;
     Image& GetImage();
 

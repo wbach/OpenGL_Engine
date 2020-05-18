@@ -30,7 +30,7 @@ out GS_OUT
     float useShadows;
     float shadowMapSize;
     vec2 texCoord;
-    vec3 worldPos;
+    vec4 worldPos;
     vec3 normal;
 } gs_out;
 
@@ -58,7 +58,7 @@ int CreateVertex(vec3 offset, vec2 textCoord)
     gl_Position = perFrame.projectionViewMatrix * worldPosition;
 
     gs_out.texCoord = vec2((textCoord.x + 1.0) / 2.0, 1 - (-textCoord.y + 1.0) / 2.0);
-    gs_out.worldPos = worldPosition.xyz;
+    gs_out.worldPos = worldPosition;
     gs_out.normal   = gs_in[0].normal;
 
     if (perApp.shadowVariables.x > 0.5f)

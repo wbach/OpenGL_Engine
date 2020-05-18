@@ -6,7 +6,7 @@ namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& name,
                                std::array<Image, 6> images, bool keepData)
-    : Texture(graphicsApi, name, name, vec2ui(0, 0))
+    : Texture(graphicsApi, name, vec2ui(0, 0))
     , images_(std::move(images))
     , keepData_(keepData)
 {
@@ -47,7 +47,7 @@ void CubeMapTexture::GpuLoadingPass()
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + fullpath);
+        ERROR_LOG("Texutre not created. Filename : " + filename);
     }
 
     for (auto& i : images_)

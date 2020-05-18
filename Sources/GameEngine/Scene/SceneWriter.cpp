@@ -68,6 +68,11 @@ void Create(XmlNode& node, const vec4& v)
     node.attributes_[CSTR_W] = std::to_string(v.w);
 }
 
+void Create(XmlNode& node, const Texture& texture)
+{
+    Create(node, texture.GetFileName());
+}
+
 void Create(XmlNode& node, const std::vector<vec3>& v)
 {
     for (const auto& value : v)
@@ -258,10 +263,10 @@ void Create(XmlNode& node, const Components::WaterRendererComponent& component)
     Create(node.AddChild(CSTR_WAVE_SPEED), component.GetWaveSpeed());
 
     if (component.GetDudvTexture())
-        Create(node.AddChild(CSTR_DUDV_MAP), component.GetDudvTexture()->GetFilPath());
+        Create(node.AddChild(CSTR_DUDV_MAP), *component.GetDudvTexture());
 
     if (component.GetNormalTexture())
-        Create(node.AddChild(CSTR_NORMAL_MAP), component.GetNormalTexture()->GetFilPath());
+        Create(node.AddChild(CSTR_NORMAL_MAP), *component.GetNormalTexture());
 }
 
 std::string DataVectorToString(const std::vector<float>& input)

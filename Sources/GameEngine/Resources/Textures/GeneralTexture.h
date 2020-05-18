@@ -8,7 +8,7 @@ namespace GameEngine
 class GeneralTexture : public Texture
 {
 public:
-    GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std::string& file,
+    GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file,
                    const vec2ui& size, void* data);
     void GpuLoadingPass() override;
 
