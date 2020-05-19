@@ -1,11 +1,15 @@
 #include "BulletAdapter.h"
+
 #include <Logger/Log.h>
+
 #include <algorithm>
 #include <unordered_map>
+
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "Converter.h"
 #include "DebugDrawer.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "Utils.h"
 #include "btBulletDynamicsCommon.h"
 
@@ -21,6 +25,7 @@ struct Shape
 {
     std::unique_ptr<btCollisionShape> shape_;
     btVector3 positionOffset_;
+    bool setOffsetAsTransformPos_{false};  // tmp for terrain usage
 };
 
 struct Rigidbody
@@ -174,22 +179,22 @@ uint32 BulletAdapter::CreateCapsuleColider(const vec3& positionOffset, float rad
     return id_++;
 }
 
-uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const vec2ui& size,
-                                           const std::vector<float>& data, const vec3& scale)
+uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const HeightMap& heightMap, const vec3& scale)
 {
-    auto maxElementIter = std::max_element(data.begin(), data.end());
-    auto maxElement     = maxElementIter != data.end() ? *maxElementIter : 0.f;
-
     impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).shape_.reset(
-        new btHeightfieldTerrainShape(size.x, size.y, &data[0], 1.f, 0.f, maxElement, 1, PHY_FLOAT, false));
+    auto& shape = impl_->shapes_.at(id_);
+    shape.shape_.reset(new btHeightfieldTerrainShape(
+        heightMap.GetImage().width, heightMap.GetImage().height, &heightMap.GetImage().floatData[0], 1.f,
+        heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
 
-    float scaleX = scale.x / static_cast<float>(size.x);
-    float scaleY = scale.z / static_cast<float>(size.y);
+    float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
+    float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
 
-    impl_->shapes_.at(id_).shape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
-    impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
+    shape.shape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
 
+    auto offset           = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
+    shape.positionOffset_ = Convert(vec3(0, offset, 0));
+    shape.setOffsetAsTransformPos_ = true;
     return id_++;
 }
 uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
@@ -243,6 +248,12 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
 
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), &impl_->shapes_.at(shapeId).positionOffset_, shapeId, true};
 
+    if (impl_->shapes_.at(shapeId).setOffsetAsTransformPos_)
+    {
+        auto worldTransform = body.btRigidbody_->getWorldTransform();
+        worldTransform.setOrigin(impl_->shapes_.at(shapeId).positionOffset_);
+        body.btRigidbody_->setWorldTransform(worldTransform);
+    }
     impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
     impl_->transforms[id_] = &transform;
 

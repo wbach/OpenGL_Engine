@@ -215,7 +215,7 @@ uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)
 Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap, const vec2& thresholds)
 {
     auto width = heightMap.GetImage().width;
-    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
+    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width);
 
     Image outputImage;
     auto& imageData    = outputImage.data;
@@ -241,7 +241,7 @@ std::unique_ptr<NormalTexture> CreateNormalTexture(GraphicsApi::IGraphicsApi& gr
                                                    const HeightMap& heightMap)
 {
     auto width = heightMap.GetImage().width;
-    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width, 0);
+    TerrainHeightTools tools(terrainScale, heightMap.GetImage().floatData, width);
 
     Image normalImage;
     auto& imageData    = normalImage.floatData;

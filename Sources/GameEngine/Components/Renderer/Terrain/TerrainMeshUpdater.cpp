@@ -15,7 +15,7 @@ TerrainMeshUpdater::TerrainMeshUpdater(const EntryParameters& entry)
     , config_(entry.config_)
     , modelWrapper_(entry.modelWrapper_)
     , heightMap_(entry.heightMap_)
-    , halfMaximumHeight_(heightMap_.GetMaximumHeight() / 2.f * config_.GetScale().y)
+    , halfMaximumHeight_(heightMap_.GetDeltaHeight() / 2.f * config_.GetScale().y)
     , forceToUpdateMesh_(false)
 {
 }
@@ -40,7 +40,7 @@ void TerrainMeshUpdater::RecalculateYOffset()
 
     if (difference)
     {
-        halfMaximumHeight_ = heightMap_.GetMaximumHeight() / 2.f * config_.GetScale().y;
+        halfMaximumHeight_ = heightMap_.GetDeltaHeight() / 2.f * config_.GetScale().y;
         Update();
     }
 }
@@ -59,8 +59,7 @@ void TerrainMeshUpdater::UpdatePartialTerrainMeshes()
 
     std::vector<std::pair<uint32, GraphicsApi::MeshRawData*>> meshesToUpdate;
 
-    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage().floatData, heightMap_.GetImage().width,
-                             halfMaximumHeight_);
+    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage().floatData, heightMap_.GetImage().width);
 
     for (uint32 j = 0; j < partsCount; ++j)
     {
@@ -106,8 +105,7 @@ void TerrainMeshUpdater::UpdateSingleTerrainMesh()
     auto& mesh     = model->GetMeshes()[0];
     auto& meshData = mesh.GetMeshDataRef();
 
-    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage().floatData, heightMap_.GetImage().width,
-                             halfMaximumHeight_);
+    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage().floatData, heightMap_.GetImage().width);
 
     if (mesh.GetGraphicsObjectId() and
         UpdatePart(tools, meshData, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))

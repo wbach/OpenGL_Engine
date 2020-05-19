@@ -63,6 +63,16 @@ float HeightMap::GetMaximumHeight() const
     return maximumHeight_;
 }
 
+float HeightMap::GetMinimumHeight() const
+{
+    return minimumHeight_;
+}
+
+float HeightMap::GetDeltaHeight() const
+{
+    return deltaHeight_;
+}
+
 bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
 {
     if (cooridnate.x < image_.width and cooridnate.y < image_.height)
@@ -89,17 +99,19 @@ std::optional<float> HeightMap::GetHeight(const vec2ui& cooridnate)
 
     return std::nullopt;
 }
-std::optional<float> HeightMap::UpdateMaximumHeight()
+bool HeightMap::UpdateMaximumHeight()
 {
     auto maximumHeight = *std::max_element(image_.floatData.begin(), image_.floatData.end());
+    auto minimumHeight = *std::min_element(image_.floatData.begin(), image_.floatData.end());
 
-    if (not compare(maximumHeight_, maximumHeight))
+    if (not compare(maximumHeight_, maximumHeight) or not compare(minimumHeight_, minimumHeight))
     {
-        float diff     = maximumHeight - maximumHeight_;
+        minimumHeight_ = minimumHeight;
         maximumHeight_ = maximumHeight;
-        return diff;
+        deltaHeight_   = maximumHeight_ - minimumHeight;
+        return true;
     }
 
-    return std::nullopt;
+    return false;
 }
 }  // namespace GameEngine

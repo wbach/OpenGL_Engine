@@ -43,7 +43,7 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& file
         componentContext_.resourceManager_.GetTextureLoader().CreateNormalMap(*heightMap_, config_.GetScale());
     SetTexture(TerrainTextureType::normalmap, normalMap);
 
-    auto yoffset = heightMap_->GetMaximumHeight() / 2.f * config_.GetScale().y;
+    auto yoffset = heightMap_->GetDeltaHeight() / 2.f * config_.GetScale().y;
     config_.SetTerrainYOffset(yoffset);
     terrainQuadTree_.CreateNodes();
 }

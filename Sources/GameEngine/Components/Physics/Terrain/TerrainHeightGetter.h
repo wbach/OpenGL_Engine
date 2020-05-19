@@ -35,7 +35,6 @@ private:
 private:
     uint32 heightMapResolution_;
     float gridSquereSize_;
-    float yOffset_;
 
     TerrainHeightTools tools_;
 };

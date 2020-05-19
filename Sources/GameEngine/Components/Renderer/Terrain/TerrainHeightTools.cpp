@@ -7,13 +7,11 @@
 
 namespace GameEngine
 {
-TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const std::vector<float>& data, uint32 heightMapWidth,
-                                       float offset)
+TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const std::vector<float>& data, uint32 heightMapWidth)
     : data_(data)
     , terrainScale_(terrainScale.x, terrainScale.z)
     , heightFactor_(terrainScale.y)
     , heightMapWidth_(heightMapWidth)
-    , offset_(offset)
 {
 }
 float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
@@ -22,7 +20,7 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     if (index > data_.size())
         return 0.f;
 
-    return (data_[index] * heightFactor_) - offset_;
+    return (data_[index] * heightFactor_);
 }
 vec2 TerrainHeightTools::GetTexCoord(uint32 x, uint32 y) const
 {

@@ -101,7 +101,7 @@ void CharacterController::Update()
     velocityChange.x    = glm::clamp(velocityChange.x, -runSpeed_, runSpeed_);
     velocityChange.z    = glm::clamp(velocityChange.z, -runSpeed_, runSpeed_);
     velocityChange.y    = 0;
-    rigidbody_->ApplyImpulse(velocityChange);
+    rigidbody_->SetVelocity(velocityChange);
 }
 
 void CharacterController::AddState(CharacterController::Action action)

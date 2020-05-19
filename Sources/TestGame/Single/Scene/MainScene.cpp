@@ -634,7 +634,7 @@ void MainScene::CreateExmapleStrtupObject()
         auto grass_position = CreateGrassPositions(nullptr, vec2(0, 0));
 
         grass->AddComponent<Components::GrassRendererComponent>()
-            .SetPositions(grass_position)
+          //  .SetPositions(grass_position)
             .SetTexture("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png");
 
         AddGameObject(std::move(grass));

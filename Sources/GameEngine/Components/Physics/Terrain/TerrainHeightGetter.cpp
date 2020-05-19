@@ -12,8 +12,7 @@ TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConf
     : terrainConfiguration_(terrainConfiguration)
     , heightMap_(heightMap)
     , terrainPosition_(terrainPosition)
-    , yOffset_(heightMap.GetMaximumHeight() / 2.f * terrainConfiguration.GetScale().y)
-    , tools_(terrainConfiguration.GetScale(), heightMap.GetImage().floatData, heightMap_.GetImage().width, yOffset_)
+    , tools_(terrainConfiguration.GetScale(), heightMap.GetImage().floatData, heightMap_.GetImage().width)
 {
     heightMapResolution_ = heightMap_.GetImage().width;
     gridSquereSize_      = terrainConfiguration_.GetScale().x / (heightMapResolution_ - 1.f);

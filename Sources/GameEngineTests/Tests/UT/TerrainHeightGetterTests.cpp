@@ -23,7 +23,7 @@ struct TerrainHeightGetterShould : public ::testing::Test
             image.floatData[i] = 0;
         }
 
-        heightMap_ = std::make_unique<HeightMap>(graphicsApiMock_, "file", "path", image);
+        heightMap_ = std::make_unique<HeightMap>(graphicsApiMock_, "file", image);
 
         heightMap_->SetHeight(vec2ui(0, 0), 10.f);
         heightMap_->SetHeight(vec2ui(0, heightMapSize - 1), 10.f);

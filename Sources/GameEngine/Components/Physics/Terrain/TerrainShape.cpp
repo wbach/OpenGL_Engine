@@ -2,6 +2,7 @@
 #include "TerrainShape.h"
 
 #include <algorithm>
+
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -48,8 +49,7 @@ void TerrainShape::OnAwake()
     {
         LoadHeightMap(heightMapFile_);
         const auto& scale = terrainRendererComponent_->GetTerrainConfiguration().GetScale();
-        const auto& data  = heightMap_->GetImage().floatData;
-        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, size_, data, scale);
+        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, *heightMap_, scale);
     }
     else
     {
@@ -63,7 +63,7 @@ TerrainShape& TerrainShape::SetHeightMap(const std::string& filename)
 }
 void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
 {
-    heightMapFile_        = hightMapFile;
+    heightMapFile_ = hightMapFile;
 
     TextureParameters params;
     params.applySizeLimit = false;

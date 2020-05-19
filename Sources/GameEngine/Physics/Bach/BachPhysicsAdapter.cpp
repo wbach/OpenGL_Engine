@@ -186,7 +186,7 @@ uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3&, float, float)
 {
     return uint32();
 }
-uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec2ui&, const std::vector<float>&, const vec3&)
+uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const HeightMap&, const vec3&)
 {
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;

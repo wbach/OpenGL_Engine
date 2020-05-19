@@ -39,11 +39,10 @@ void TerrainMeshLoader::ParseFile(const std::string& filename)
 
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage().width;
-    auto yoffset         = hm->GetMaximumHeight() / 2.f * terrainScale_.y;
 
     model_ = std::make_unique<Model>();
 
-    TerrainHeightTools tools(terrainConfig.GetScale(), hm->GetImage().floatData, heightMapResolution_, yoffset);
+    TerrainHeightTools tools(terrainConfig.GetScale(), hm->GetImage().floatData, heightMapResolution_);
 
     auto partsCount = terrainConfig.GetPartsCount();
     if (partsCount)
