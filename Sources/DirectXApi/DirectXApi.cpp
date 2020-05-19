@@ -827,6 +827,9 @@ void DirectXApi::RenderMesh(uint32 id)
     impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->GetDxObject(id).Draw();
 }
+void DirectXApi::RenderDebugNormals()
+{
+}
 void DirectXApi::RenderTriangleStripMesh(uint32 id)
 {
     if (id == 0)

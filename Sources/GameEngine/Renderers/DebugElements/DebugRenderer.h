@@ -77,6 +77,7 @@ private:
     void CreateDebugObjects();
     void UpdateDebugObjectsIfNeeded();
     void RenderDebugObjects();
+    void LoadDefaultPerObjectBuffer();
     void DrawGrid();
     void DrawDebugObjects();
     void RenderModel(const Model&) const;
@@ -88,6 +89,7 @@ private:
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
+    ShaderProgram lineShader_;
 
     std::vector<DebugObject> debugObjects_;
     std::vector<DebugObject*> toCreateDebugObjects_;

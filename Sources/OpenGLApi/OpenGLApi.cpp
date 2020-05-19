@@ -102,6 +102,12 @@ struct ShaderBuffer
     uint32 bindLocation;
 };
 
+struct DebugNormalMesh
+{
+    GraphicsApi::LineMesh data;
+    GraphicsApi::ID lineMeshId;
+};
+
 struct OpenGLApi::Pimpl
 {
     Pimpl()
@@ -116,6 +122,8 @@ struct OpenGLApi::Pimpl
     std::vector<std::unique_ptr<FrameBuffer>> frameBuffers_;
 
     std::unordered_map<uint64, ObjectType> createdGraphicsObjects_;
+
+    std::unordered_map<uint32, DebugNormalMesh> debugNormalsMesh_;
 };
 
 OpenGLMesh Convert(const Vao& v)
@@ -502,6 +510,47 @@ void OpenGLApi::DeleteFrameBuffer(OpenGLApi::IFrameBuffer& framebuffer)
     }
 }
 
+void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData& meshRawData)
+{
+    if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
+    {
+        impl_->debugNormalsMesh_.insert({ rid, {} });
+        auto& debugNormalMesh = impl_->debugNormalsMesh_.at(rid);
+        auto& data = debugNormalMesh.data;
+        data.positions_.reserve(2 * meshRawData.positions_.size());
+        data.colors_.reserve(2 * meshRawData.positions_.size());
+
+        for (size_t i = 0; i < meshRawData.positions_.size(); i += 3)
+        {
+            auto p1 = meshRawData.positions_[i];
+            auto p2 = meshRawData.positions_[i + 1];
+            auto p3 = meshRawData.positions_[i + 2];
+            auto n1 = meshRawData.normals_[i];
+            auto n2 = meshRawData.normals_[i + 1];
+            auto n3 = meshRawData.normals_[i + 2];
+            data.positions_.push_back(p1);
+            data.positions_.push_back(p2);
+            data.positions_.push_back(p3);
+            data.positions_.push_back(p1 + n1);
+            data.positions_.push_back(p2 + n2);
+            data.positions_.push_back(p3 + n3);
+            data.colors_.push_back(1);
+            data.colors_.push_back(0);
+            data.colors_.push_back(0);
+            data.colors_.push_back(0);
+            data.colors_.push_back(0);
+            data.colors_.push_back(1);
+        }
+
+        debugNormalMesh.lineMeshId = CreateDynamicLineMesh();
+
+        if (debugNormalMesh.lineMeshId)
+        {
+            UpdateLineMesh(*debugNormalMesh.lineMeshId, data);
+        }
+    }
+}
+
 void OpenGLApi::DeleteMesh(uint32 id)
 {
     if (openGlMeshes_.count(id) == 0)
@@ -862,6 +911,8 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     openGlMeshes_.insert({rid, {}});
     auto& mesh = openGlMeshes_.at(rid);
 
+    CreateDebugNormalMesh(rid, meshRawData);
+
     VaoCreator vaoCreator;
     vaoCreator.SetSize(meshRawData.size_);
     vaoCreator.AddIndicesBuffer(meshRawData.indices_);
@@ -1088,6 +1139,17 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
 
     glBindVertexArray(mesh.vao);
     glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, nullptr, istanced);
+}
+
+void OpenGLApi::RenderDebugNormals()
+{
+    for (const auto& debugNormalMesh : impl_->debugNormalsMesh_)
+    {
+        if (debugNormalMesh.second.lineMeshId)
+        {
+            RenderMesh(*debugNormalMesh.second.lineMeshId);
+        }
+    }
 }
 
 void OpenGLApi::RenderPoints(uint32 id)

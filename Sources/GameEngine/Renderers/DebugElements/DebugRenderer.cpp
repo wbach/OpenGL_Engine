@@ -34,7 +34,6 @@ void DebugObject::CreateBuffer()
     transform_.TakeSnapShoot();
     buffer.TransformationMatrix = transform_.GetMatrix();
     UpdateBuffer();
-
     toUpdate_ = false;
 
     transform_.SubscribeOnChange([&](const common::Transform&) {
@@ -64,6 +63,7 @@ DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thre
     , physicsVisualizator_(graphicsApi, threadSync)
     , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
+    , lineShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
     , isActive_(false)
 {
 }
@@ -77,8 +77,9 @@ void DebugRenderer::Init()
 {
     debugObjectShader_.Init();
     gridShader_.Init();
-    physicsVisualizator_.Init();
+    lineShader_.Init();
 
+    physicsVisualizator_.Init();
     physicsVisualizator_.Disable();  // explicit default disable
 
     gridPerObjectUpdateBufferId_ =
@@ -201,6 +202,10 @@ void DebugRenderer::RenderDebugObjects()
     }
 }
 
+void DebugRenderer::LoadDefaultPerObjectBuffer()
+{
+}
+
 void DebugRenderer::DrawGrid()
 {
     if (not gridShader_.IsReady() and not gridPerObjectUpdateBufferId_)
@@ -222,7 +227,11 @@ void DebugRenderer::DrawDebugObjects()
 
     debugObjectShader_.Start();
     RenderDebugObjects();
-    debugObjectShader_.Stop();
+  //  debugObjectShader_.Stop();
+
+    lineShader_.Start();
+    graphicsApi_.RenderDebugNormals();
+    lineShader_.Stop();
 }
 
 void DebugRenderer::RenderModel(const Model& model) const
