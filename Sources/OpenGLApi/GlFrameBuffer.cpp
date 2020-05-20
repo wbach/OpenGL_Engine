@@ -1,6 +1,9 @@
 #include "GlFrameBuffer.h"
+
 #include <Logger/Log.h>
+
 #include <unordered_map>
+
 #include "OpenGLApi/OpenGLUtils.h"
 #include "Utils/Image/ImageUtils.h"
 
@@ -250,8 +253,8 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         texturesIds_.insert({attachment.type, engineId});
         attachments_.push_back(std::move(glAttachment));
     }
-
-    glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
+    if (not drawBuffers.empty())
+        glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
 }
 
 void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)

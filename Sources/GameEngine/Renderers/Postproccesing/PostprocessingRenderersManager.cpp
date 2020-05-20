@@ -44,7 +44,6 @@ void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer
         ERROR_LOG("No activePostProcessing effects.");
         return;
     }
-
     fboManager_->StartFrame();
 
     if (IsLastRenderer(0))

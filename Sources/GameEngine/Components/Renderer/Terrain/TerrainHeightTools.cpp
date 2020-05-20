@@ -17,7 +17,7 @@ TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const std::vect
 float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 {
     auto index = x + y * heightMapWidth_;
-    if (index > data_.size())
+    if (index >= data_.size())
     {
         ERROR_LOG("outOfRange");
         return 0.f;
@@ -128,28 +128,36 @@ vec3 TerrainHeightTools::GetTangent(const vec3& normal) const
 uint32 TerrainHeightTools::Left(uint32 x) const
 {
     if (x == 0)
+    {
         return 0;
+    }
 
     return x - 1;
 }
 uint32 TerrainHeightTools::Right(uint32 x) const
 {
-    if (x >= heightMapWidth_)
+    if (x >= heightMapWidth_ - 1)
+    {
         return heightMapWidth_ - 1;
+    }
 
     return x + 1;
 }
 uint32 TerrainHeightTools::Up(uint32 z) const
 {
     if (z == 0)
+    {
         return 0;
+    }
 
     return z - 1;
 }
 uint32 TerrainHeightTools::Down(uint32 z) const
 {
-    if (z >= heightMapWidth_)
+    if (z >= heightMapWidth_ - 1)
+    {
         return heightMapWidth_ - 1;
+    }
 
     return z + 1;
 }
