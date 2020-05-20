@@ -13,6 +13,7 @@ class Menu:
         self.networkClient  = networkClient
         self.fileManger = fileManger
         self.exitRequested  = False
+        self.currentSceneFileName = ""
 
         menubar = tk.Menu(root)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -20,7 +21,8 @@ class Menu:
         filemenu.add_command(label="Disconnect", command=self.networkClient.Disconnect)
         filemenu.add_command(label="New", command=self.DoNothing)
         filemenu.add_command(label="Open", command=self.fileManger.OpenSceneFile)
-        filemenu.add_command(label="Save", command=self.fileManger.SaveSceneFile)
+        filemenu.add_command(label="Save", command=self.SaveSceneFile)
+        filemenu.add_command(label="SaveAs", command=self.fileManger.SaveSceneFile)
         menubar.add_cascade(label="File", menu=filemenu)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.Exit)
@@ -80,6 +82,7 @@ class Menu:
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
+        self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
 
     def TexturesControlDiffuseChange(self, *args):
         if self.networkClient.IsConnected():
@@ -178,3 +181,13 @@ class Menu:
     def Listen(self):
         print("Listen")
         self.root.after(100, self.Listen)
+
+    def OnSceneFileMsg(self, msg):
+        self.currentSceneFileName = msg.get("filename")
+        print(self.currentSceneFileName)
+
+    def SaveSceneFile(self):
+        if self.currentSceneFileName:
+            self.networkClient.SendCommand("saveToFile filename=" + self.currentSceneFileName)
+        else:
+            self.fileManger.SaveSceneFile()
