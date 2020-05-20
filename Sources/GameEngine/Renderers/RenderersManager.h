@@ -47,6 +47,7 @@ public:
     GUIRenderer& GetGuiRenderer();
     DebugRenderer& GetDebugRenderer();
     bool IsTesselationSupported() const;
+    void UpdatePerAppBuffer() const;
 
 private:
     void ReloadShadersExecution();
@@ -78,6 +79,7 @@ private:
     RendererFunctions rendererFunctions_;
 
     GraphicsApi::ID perFrameId_;
+    GraphicsApi::ID perAppId_;
     mat4 viewProjectionMatrix_;
     BufferDataUpdater bufferDataUpdater_;
 };

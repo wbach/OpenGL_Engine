@@ -57,29 +57,66 @@ class Menu:
         debugMenu.add_checkbutton(label="Normals Visualization", onvalue=1, offvalue=0, variable=self.normalsVisual)
         menubar.add_cascade(label="Debug", menu=debugMenu)
 
+        self.texturesControlDiffuse = tk.BooleanVar()
+        self.texturesControlDiffuse.set(True)
+        self.texturesControlDiffuse.trace("w", self.TexturesControlDiffuseChange)
+        self.texturesControlNormals = tk.BooleanVar()
+        self.texturesControlNormals.set(True)
+        self.texturesControlNormals.trace("w", self.TexturesControlNormalsChange)
+        self.texturesControlSpecular = tk.BooleanVar()
+        self.texturesControlSpecular.set(True)
+        self.texturesControlSpecular.trace("w", self.TexturesControlSpecularChange)
+        self.texturesControlDisplacement = tk.BooleanVar()
+        self.texturesControlDisplacement.set(True)
+        self.texturesControlDisplacement.trace("w", self.TexturesControlDisplacementChange)
+
+        texturesControl = tk.Menu(menubar, tearoff=0)
+        texturesControl.add_checkbutton(label="Diffuse", onvalue=1, offvalue=0, variable=self.texturesControlDiffuse)
+        texturesControl.add_checkbutton(label="Normals", onvalue=1, offvalue=0, variable=self.texturesControlNormals)
+        texturesControl.add_checkbutton(label="Specular", onvalue=1, offvalue=0, variable=self.texturesControlSpecular)
+        texturesControl.add_checkbutton(label="Displacement", onvalue=1, offvalue=0, variable=self.texturesControlDisplacement)
+        debugMenu.add_cascade(label="Textures", menu=texturesControl)
+
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
+    def TexturesControlDiffuseChange(self, *args):
+        if self.networkClient.IsConnected():
+            if self.texturesControlDiffuse.get():
+                self.networkClient.SendCommand("controlTextureUsage enabled=true textureType=diffuse")
+            else:
+                self.networkClient.SendCommand("controlTextureUsage enabled=false textureType=diffuse")
+    def TexturesControlNormalsChange(self, *args):
+        if self.networkClient.IsConnected():
+            if self.texturesControlNormals.get():
+                self.networkClient.SendCommand("controlTextureUsage enabled=true textureType=normal")
+            else:
+                self.networkClient.SendCommand("controlTextureUsage enabled=false textureType=normal")
+    def TexturesControlSpecularChange(self, *args):
+        if self.networkClient.IsConnected():
+            if self.texturesControlSpecular.get():
+                self.networkClient.SendCommand("controlTextureUsage enabled=true textureType=specular")
+            else:
+                self.networkClient.SendCommand("controlTextureUsage enabled=false textureType=specular")
+    def TexturesControlDisplacementChange(self, *args):
+        if self.networkClient.IsConnected():
+            if self.texturesControlDisplacement.get():
+                self.networkClient.SendCommand("controlTextureUsage enabled=true textureType=displacement")
+            else:
+                self.networkClient.SendCommand("controlTextureUsage enabled=false textureType=displacement")
     def PhysicsVisualChange(self, *args):
         if self.networkClient.IsConnected():
             if self.physicsVisual.get():
                 self.networkClient.SendCommand("setPhysicsVisualization enabled=true")
             else:
                 self.networkClient.SendCommand("setPhysicsVisualization enabled=false")
-        # else:
-        #     messagebox.showinfo(title="Info", message="Not connected")
-        #     self.physicsVisual.set(False)
-
     def NormalsVisualChange(self, *args):
         if self.networkClient.IsConnected():
             if self.normalsVisual.get():
                 self.networkClient.SendCommand("setNormalsVisualization enabled=true")
             else:
                 self.networkClient.SendCommand("setNormalsVisualization enabled=false")
-        # else:
-        #     messagebox.showinfo(title="Info", message="Not connected")
-        #     self.normalsVisual.set(False)
 
     def TakeSnapshot(self):
         self.networkClient.SendCommand("takeSnapshot")

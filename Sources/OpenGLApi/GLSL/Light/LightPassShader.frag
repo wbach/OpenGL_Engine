@@ -214,8 +214,8 @@ void main()
         final_color = material.diffuse_;
     }
 
-    //const float gamma = 1.5f;
-    //final_color = pow(final_color, vec3(1.f / gamma));
+    const float gamma = 1.3f;
+    final_color = pow(final_color, vec3(1.f / gamma));
     FragColor = vec4(final_color, 1.f);
 //return;
    // const float contrast = 0.5f;

@@ -167,6 +167,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
     REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
     REGISTER_COMMAND("generateTerrainBlendMap", GenerateTerrainBlendMap);
+    REGISTER_COMMAND("controlTextureUsage", ControlTextureUsage);
     REGISTER_COMMAND("reloadShaders", ReloadShaders);
     REGISTER_COMMAND("takeSnapshot", Takesnapshot);
     REGISTER_COMMAND("exit", Exit);
@@ -879,7 +880,7 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
     gateway_.Send(userId_, msg);
 }
 
-void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState state, const EntryParameters& params)
+void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState state, const EntryParameters &params)
 {
     bool set = scene_.renderersManager_->GetDebugRenderer().IsStateEnabled(state);
     if (params.count("enabled"))
@@ -1061,7 +1062,7 @@ DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Pai
 Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
 {
     return Painter::EntryParamters{*scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
-                scene_.displayManager_->GetWindowSize(), scene_.componentController_};
+                                   scene_.displayManager_->GetWindowSize(), scene_.componentController_};
 }
 
 void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
@@ -1202,6 +1203,37 @@ void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
         blendMap->SetImage(std::move(image));
         tc->BlendMapChanged();
     }
+}
+
+void NetworkEditorInterface::ControlTextureUsage(const NetworkEditorInterface::EntryParameters &params)
+{
+    if (not params.count("enabled") or not params.count("textureType"))
+        return;
+
+    auto enabled     = Utils::StringToBool(params.at("enabled"));
+    auto textureType = params.at("textureType");
+
+    auto &textConf = EngineConf.renderer.textures;
+
+    if (textureType == "diffuse")
+    {
+        textConf.useDiffuse = enabled;
+    }
+    else if (textureType == "normal")
+    {
+        textConf.useNormal = enabled;
+    }
+    else if (textureType == "specular")
+    {
+        textConf.useSpecular = enabled;
+    }
+    else if (textureType == "displacement")
+    {
+        textConf.useDisplacement = enabled;
+    }
+
+    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(
+        [&]() { scene_.renderersManager_->UpdatePerAppBuffer(); });
 }
 
 void NetworkEditorInterface::GenerateTerrainBlendMapToFile()

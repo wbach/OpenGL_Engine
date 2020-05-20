@@ -85,6 +85,7 @@ private:
     void RecalculateTerrainYOffset(const EntryParameters&);
     void RecalculateTerrainNormals(const EntryParameters&);
     void GenerateTerrainBlendMap(const EntryParameters&);
+    void ControlTextureUsage(const EntryParameters&);
     void GenerateTerrainBlendMapToFile();
     void ReloadShaders(const EntryParameters&);
     void Takesnapshot(const EntryParameters&);

@@ -247,6 +247,7 @@ bool RenderersManager::IsTesselationSupported() const
 {
     return graphicsApi_.IsTesselationSupported();
 }
+
 void RenderersManager::Render(RendererFunctionType type, Scene* scene, const Time& threadTime)
 {
     if (scene == nullptr)
@@ -263,33 +264,40 @@ void RenderersManager::CreateBuffers()
     CreatePerAppBuffer();
     CreatePerFrameBuffer();
 }
+void RenderersManager::CreatePerAppBuffer()
+{
+    if (not perAppId_)
+        perAppId_ = graphicsApi_.CreateShaderBuffer(PER_APP_BIND_LOCATION, sizeof(PerAppBuffer));
 
-namespace{}
+    UpdatePerAppBuffer();
+}
+namespace
+{
 float F(bool v)
 {
     return v ? 1.f : 0.f;
 }
-void RenderersManager::CreatePerAppBuffer()
+}  // namespace
+void RenderersManager::UpdatePerAppBuffer() const
 {
-    auto perAppId = graphicsApi_.CreateShaderBuffer(PER_APP_BIND_LOCATION, sizeof(PerAppBuffer));
-
-    if (perAppId)
+    if (perAppId_)
     {
-        const auto& textureConfig = EngineConf.renderer.textures;
-        const auto& shadowsConfig = EngineConf.renderer.shadows;
-        const auto& floraConfig = EngineConf.renderer.flora;
+        const auto& textureConfig  = EngineConf.renderer.textures;
+        const auto& shadowsConfig  = EngineConf.renderer.shadows;
+        const auto& floraConfig    = EngineConf.renderer.flora;
         const auto& rendererConfig = EngineConf.renderer;
 
         PerAppBuffer perApp;
-        perApp.clipPlane       = vec4{0.f, 1.f, 0.f, 100000.f};
-        perApp.useTextures     = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular), F(textureConfig.useDisplacement));
+        perApp.clipPlane   = vec4{0.f, 1.f, 0.f, 100000.f};
+        perApp.useTextures = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular),
+                                  F(textureConfig.useDisplacement));
         perApp.shadowVariables = vec4(F(shadowsConfig.isEnabled), shadowsConfig.distance, shadowsConfig.mapSize, 0.f);
-        perApp.viewDistance    = vec4(rendererConfig.viewDistance, rendererConfig.normalMappingDistance, floraConfig.viewDistance, rendererConfig.viewDistance);
-        graphicsApi_.UpdateShaderBuffer(*perAppId, &perApp);
-        graphicsApi_.BindShaderBuffer(*perAppId);
+        perApp.viewDistance    = vec4(rendererConfig.viewDistance, rendererConfig.normalMappingDistance,
+                                   floraConfig.viewDistance, rendererConfig.viewDistance);
+        graphicsApi_.UpdateShaderBuffer(*perAppId_, &perApp);
+        graphicsApi_.BindShaderBuffer(*perAppId_);
     }
 }
-
 void RenderersManager::CreatePerFrameBuffer()
 {
     if (not perFrameId_)

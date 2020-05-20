@@ -100,9 +100,14 @@ void main()
     if (Is(perMeshObject.haveDiffTexture) && Is(perApp.useTextures.x))
     {
         colorFromTexture = texture(DiffuseTexture, textCoord);
-        if(colorFromTexture.a < 0.485f)
+        //if(colorFromTexture.a < 0.485f)
+        if(colorFromTexture.a < 0.1f)
         {
             discard;
+        }
+        else
+        {
+            colorFromTexture.a = 1.f;
         }
     }
 
