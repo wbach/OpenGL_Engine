@@ -151,7 +151,7 @@ void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& dat
             const auto& i = optI.constValue();
             data.indices_.push_back(i);
 
-            auto index  = 3 * i;
+            auto index  = 3 * static_cast<size_t>(i);
             auto index2 = index + 1;
             auto index3 = index + 2;
 
@@ -214,18 +214,7 @@ float Mesh::GetScaleFactor() const
         minMax(v.position.y, min.y, max.y);
         minMax(v.position.z, min.z, max.z);
     }
-
-    float lx = fabs(max.x - min.x);
-    float ly = fabs(max.y - min.y);
-    float lz = fabs(max.z - min.z);
-
-    float maxD = lx;
-    if (ly > maxD)
-        maxD = ly;
-    if (lz > maxD)
-        maxD = lz;
-
-    return maxD;
+    return glm::compMax(glm::abs(max - min));
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

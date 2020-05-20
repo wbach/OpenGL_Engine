@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <list>
 #include <vector>
 #include "../Material.h"
@@ -49,9 +49,9 @@ struct Mesh
     std::vector<vec3> normals;
     std::vector<VertexBuffer> vertexBuffer;
     std::unordered_map<uint32, std::vector<int>> vertexPlacesInVertexBuffer_;
-    float GetScaleFactor() const;
     Animation::Joint skeleton_;
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
+    float GetScaleFactor() const;
 };
 
 struct Object

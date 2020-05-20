@@ -55,14 +55,13 @@ std::unique_ptr<Model> AbstractLoader::Create()
 
     auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    DEBUG_LOG("Model created. " + fileName_ + ". Time : " + std::to_string(duration) + "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()) );
+    DEBUG_LOG("Model created. " + fileName_ + ". Time : " + std::to_string(duration) +
+              "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()));
     return newModel;
 }
 std::unique_ptr<Model> AbstractLoader::CreateModel()
 {
     float maxFactor = FindMaxFactor();
-    DEBUG_LOG(std::to_string(1.f / maxFactor));
-
     auto newModel = std::make_unique<Model>(maxFactor);
 
     if (objects.empty())
@@ -80,8 +79,8 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
         for (auto& mesh : obj.meshes)
         {
-            auto& newMesh = newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material,
-                obj.transformMatrix);
+            auto& newMesh =
+                newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material, obj.transformMatrix);
 
             IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
             newMesh.SetUseArmatorIfHaveBones();
@@ -115,6 +114,7 @@ float AbstractLoader::FindMaxFactor() const
                 maxFactor = f;
         }
     }
+    DEBUG_LOG("Normalize factor : " + std::to_string(1.f / maxFactor));
     return maxFactor;
 }
 }  // namespace WBLoader
