@@ -18,7 +18,10 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 {
     auto index = x + y * heightMapWidth_;
     if (index > data_.size())
+    {
+        ERROR_LOG("outOfRange");
         return 0.f;
+    }
 
     return (data_[index] * heightFactor_);
 }
@@ -46,12 +49,13 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
     float heightDownLeft  = GetHeight(Left(x), Down(z));
     float heightDownRight = GetHeight(Right(x), Down(z));
 
-    auto gridSquereSize = terrainScale_ / (heightMapWidth_ - 1.f);
+    auto gridSquereSize = terrainScale_ / (static_cast<float>(heightMapWidth_) - 1.f);
+    gridSquereSize      = vec3(1.f);
 
     auto vh = vec3(0, GetHeight(x, z), 0);
 
     auto v0 = vec3(-gridSquereSize.x, heightUpLeft, -gridSquereSize.y);
-    auto v1 = vec3(0, heightUp, z - gridSquereSize.y);
+    auto v1 = vec3(0, heightUp, -gridSquereSize.y);
     auto v2 = vec3(gridSquereSize.x, heightUpRight, -gridSquereSize.y);
 
     auto v3 = vec3(-gridSquereSize.x, heightLeft, 0);
@@ -64,6 +68,7 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
     auto v0vh = v0 - vh;
     auto v3vh = v3 - vh;
     auto vn1  = glm::normalize(glm::cross(v0vh, v3vh));
+    // return vn1;
 
     auto v1vh = v1 - vh;
     // auto v0vh = v0 - vh;
@@ -93,11 +98,7 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
     // auto v5vh = v5 - vh;
     auto vn8 = glm::normalize(glm::cross(v3vh, v5vh));
 
-    auto normal = glm::normalize((vn1 + vn2 + vn3 + vn4 + vn5 + vn6 + vn7 + vn8) / 8.f);
-    normal.x *= -1.f;
-    normal.z *= -1.f;
-
-    return normal;
+    return glm::normalize((vn1 + vn2 + vn3 + vn4 + vn5 + vn6 + vn7 + vn8) / 8.f);
 }
 vec3 TerrainHeightTools::GetTangent(uint32 x, uint32 z) const
 {
@@ -106,19 +107,20 @@ vec3 TerrainHeightTools::GetTangent(uint32 x, uint32 z) const
 vec3 TerrainHeightTools::GetTangent(const vec3& normal) const
 {
     vec3 up(0, 1, 0);
-    vec3 tangent(1, 0, 0); // flat terrain is regular grid
+    vec3 tangent(1, 0, 0);  // flat terrain is regular grid
 
-    if (glm::dot(normal, up) > 0.999999 and glm::dot(normal, up) < -0.999999)
+    if (glm::dot(normal, up) > 0.999999f and glm::dot(normal, up) < -0.999999f)
     {
         return tangent;
     }
 
     Quaternion q;
     vec3 a = glm::cross(up, normal);
-    q.x = a.x;
-    q.y = a.y;
-    q.z = a.z;
-    q.w = sqrt((glm::length(normal) * glm::length(normal)) * (glm::length(up) * glm::length(up))) + glm::dot(up, normal);
+    q.x    = a.x;
+    q.y    = a.y;
+    q.z    = a.z;
+    q.w =
+        sqrtf((glm::length(normal) * glm::length(normal)) * (glm::length(up) * glm::length(up))) + glm::dot(up, normal);
 
     tangent = glm::normalize(q) * tangent;
     return glm::normalize(tangent);
@@ -139,16 +141,16 @@ uint32 TerrainHeightTools::Right(uint32 x) const
 }
 uint32 TerrainHeightTools::Up(uint32 z) const
 {
-    if (z >= heightMapWidth_)
-        return heightMapWidth_ - 1;
-
-    return z + 1;
-}
-uint32 TerrainHeightTools::Down(uint32 z) const
-{
     if (z == 0)
         return 0;
 
     return z - 1;
+}
+uint32 TerrainHeightTools::Down(uint32 z) const
+{
+    if (z >= heightMapWidth_)
+        return heightMapWidth_ - 1;
+
+    return z + 1;
 }
 }  // namespace GameEngine

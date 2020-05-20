@@ -514,9 +514,12 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 {
     if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
     {
-        impl_->debugNormalsMesh_.insert({ rid, {} });
+        impl_->debugNormalsMesh_.insert({rid, {}});
         auto& debugNormalMesh = impl_->debugNormalsMesh_.at(rid);
-        auto& data = debugNormalMesh.data;
+        auto& data            = debugNormalMesh.data;
+        data.positions_.clear();
+        data.colors_.clear();
+
         data.positions_.reserve(2 * meshRawData.positions_.size());
         data.colors_.reserve(2 * meshRawData.positions_.size());
 
@@ -542,7 +545,8 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
             data.colors_.push_back(1);
         }
 
-        debugNormalMesh.lineMeshId = CreateDynamicLineMesh();
+        if (not debugNormalMesh.lineMeshId)
+            debugNormalMesh.lineMeshId = CreateDynamicLineMesh();
 
         if (debugNormalMesh.lineMeshId)
         {
@@ -1063,6 +1067,8 @@ void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data
                 DEBUG_LOG("Update not implemented.");
         }
     }
+
+    CreateDebugNormalMesh(objectId, data);
 }
 void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mesh)
 {

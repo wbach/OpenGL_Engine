@@ -193,7 +193,7 @@ void main()
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
     SMaterial material;
-    material.ambient_ = color * 0.2f;
+    material.ambient_ = color * 0.05f;
     material.diffuse_ = color;
     material.specular_ = specular.xyz;
     material.shineDamper_ = specular.a * 255.f;
@@ -214,8 +214,8 @@ void main()
         final_color = material.diffuse_;
     }
 
-    const float gamma = 2.0f;
-    final_color = pow(final_color, vec3(1.f / gamma));
+    //const float gamma = 1.5f;
+    //final_color = pow(final_color, vec3(1.f / gamma));
     FragColor = vec4(final_color, 1.f);
 //return;
    // const float contrast = 0.5f;

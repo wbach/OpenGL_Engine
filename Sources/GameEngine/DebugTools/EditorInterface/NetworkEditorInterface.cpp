@@ -16,9 +16,9 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
+#include "GameEngine/DebugTools/Painter/PlantPainter.h"
 #include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
 #include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
-#include "GameEngine/DebugTools/Painter/PlantPainter.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -156,6 +156,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("clearAll", ClearAll);
     REGISTER_COMMAND("clearAllGameObjects", ClearAllGameObjects);
     REGISTER_COMMAND("setPhysicsVisualization", SetPhysicsVisualization);
+    REGISTER_COMMAND("setNormalsVisualization", SetNormalsVisualization);
     REGISTER_COMMAND("selectGameObject", SelectGameObject);
     REGISTER_COMMAND("goCameraToObject", GoCameraToObject);
     REGISTER_COMMAND("enableTerrainHeightPainter", EnableTerrainHeightPainter);
@@ -878,16 +879,30 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
     gateway_.Send(userId_, msg);
 }
 
-void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
+void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState state, const EntryParameters& params)
 {
-    bool set = not scene_.renderersManager_->GetDebugRenderer().IsEnable();
+    bool set = scene_.renderersManager_->GetDebugRenderer().IsStateEnabled(state);
     if (params.count("enabled"))
     {
         set = Utils::StringToBool(params.at("enabled"));
     }
+    else
+    {
+        set = !set;
+    }
 
-    set ? scene_.renderersManager_->GetDebugRenderer().EnablePhysics()
-        : scene_.renderersManager_->GetDebugRenderer().DisablPhysics();
+    auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+    set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
+}
+
+void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
+{
+    SetDeubgRendererState(DebugRenderer::RenderState::Physics, params);
+}
+
+void NetworkEditorInterface::SetNormalsVisualization(const NetworkEditorInterface::EntryParameters &params)
+{
+    SetDeubgRendererState(DebugRenderer::RenderState::Normals, params);
 }
 
 void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
@@ -1046,7 +1061,7 @@ DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Pai
 Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
 {
     return Painter::EntryParamters{*scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
-                                   scene_.displayManager_->GetWindowSize(), scene_.componentController_};
+                scene_.displayManager_->GetWindowSize(), scene_.componentController_};
 }
 
 void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)

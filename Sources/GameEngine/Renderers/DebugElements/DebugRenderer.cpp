@@ -64,7 +64,6 @@ DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thre
     , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , lineShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
-    , isActive_(false)
 {
 }
 
@@ -75,12 +74,10 @@ DebugRenderer::~DebugRenderer()
 
 void DebugRenderer::Init()
 {
+    physicsVisualizator_.Init();
     debugObjectShader_.Init();
     gridShader_.Init();
     lineShader_.Init();
-
-    physicsVisualizator_.Init();
-    physicsVisualizator_.Disable();  // explicit default disable
 
     gridPerObjectUpdateBufferId_ =
         graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
@@ -107,19 +104,24 @@ void DebugRenderer::ReloadShaders()
 
 void DebugRenderer::Render(const Scene&, const Time&)
 {
-    physicsVisualizator_.Render();
-
-    if (not isActive_)
-        return;
-
-    graphicsApi_.EnableBlend();
-    graphicsApi_.DisableCulling();
-
-    //DrawGrid();
-    DrawDebugObjects();
-
-    graphicsApi_.EnableCulling();
-    graphicsApi_.DisableBlend();
+    for (auto state : states_)
+    {
+        switch (state)
+        {
+            case RenderState::Physics:
+                physicsVisualizator_.Render();
+                break;
+            case RenderState::Normals:
+                DrawNormals();
+                break;
+            case RenderState::Grid:
+                DrawGrid();
+                break;
+            case RenderState::Objects:
+                DrawDebugObjects();
+                break;
+        }
+    }
 }
 
 void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
@@ -136,38 +138,60 @@ void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)
 
 void DebugRenderer::Enable()
 {
-    isActive_ = true;
+    if (stashedStates_.empty())
+    {
+        states_ = {RenderState::Objects/*, RenderState::Grid*/};
+    }
+    else
+    {
+        states_ = stashedStates_;
+    }
 }
 
 void DebugRenderer::Disable()
 {
-    isActive_ = false;
+    stashedStates_ = states_;
+    states_.clear();
 }
 
 bool DebugRenderer::IsEnable() const
 {
-    return isActive_;
+    return not states_.empty();
 }
 
-void DebugRenderer::EnablePhysics()
+bool DebugRenderer::IsStateEnabled(DebugRenderer::RenderState state) const
 {
-    physicsVisualizator_.Enable();
+    auto iter = std::find(states_.begin(), states_.end(), state);
+    return iter != states_.end();
 }
 
-void DebugRenderer::DisablPhysics()
+const std::vector<DebugRenderer::RenderState> &DebugRenderer::GetStates() const
 {
-    physicsVisualizator_.Disable();
-}
-
-bool DebugRenderer::IsEnablePhysics() const
-{
-    return physicsVisualizator_.IsEnabled();
+    return states_;
 }
 
 void DebugRenderer::ClearDebugObjects()
 {
     std::lock_guard<std::mutex> lk(debugObjectsMutex_);
     debugObjects_.clear();
+}
+
+void DebugRenderer::AddState(DebugRenderer::RenderState state)
+{
+    if (not IsStateEnabled(state))
+    {
+        states_.push_back(state);
+    }
+}
+
+void DebugRenderer::RemoveState(DebugRenderer::RenderState state)
+{
+    auto iter = std::find(states_.begin(), states_.end(), state);
+
+    if (iter != states_.end())
+    {
+        states_.erase(iter);
+    }
 }
 
 void DebugRenderer::CreateDebugObjects()
@@ -208,30 +232,41 @@ void DebugRenderer::LoadDefaultPerObjectBuffer()
 
 void DebugRenderer::DrawGrid()
 {
-    if (not gridShader_.IsReady() and not gridPerObjectUpdateBufferId_)
-        return;
-
-    gridShader_.Start();
-    graphicsApi_.BindShaderBuffer(*gridPerObjectUpdateBufferId_);
-    graphicsApi_.RenderQuad();
-    gridShader_.Stop();
+    if (gridShader_.IsReady() and gridPerObjectUpdateBufferId_)
+    {
+        gridShader_.Start();
+        graphicsApi_.BindShaderBuffer(*gridPerObjectUpdateBufferId_);
+        graphicsApi_.RenderQuad();
+        gridShader_.Stop();
+    }
 }
 
 void DebugRenderer::DrawDebugObjects()
 {
-    if (not debugObjectShader_.IsReady())
-        return;
+    graphicsApi_.EnableBlend();
+    graphicsApi_.DisableCulling();
 
-    CreateDebugObjects();
-    UpdateDebugObjectsIfNeeded();
+    if (debugObjectShader_.IsReady())
+    {
+        CreateDebugObjects();
+        UpdateDebugObjectsIfNeeded();
 
-    debugObjectShader_.Start();
-    RenderDebugObjects();
-  //  debugObjectShader_.Stop();
+        debugObjectShader_.Start();
+        RenderDebugObjects();
+        debugObjectShader_.Stop();
+    }
+    graphicsApi_.EnableCulling();
+    graphicsApi_.DisableBlend();
+}
 
-    lineShader_.Start();
-    graphicsApi_.RenderDebugNormals();
-    lineShader_.Stop();
+void DebugRenderer::DrawNormals()
+{
+    if (lineShader_.IsReady())
+    {
+        lineShader_.Start();
+        graphicsApi_.RenderDebugNormals();
+        lineShader_.Stop();
+    }
 }
 
 void DebugRenderer::RenderModel(const Model& model) const

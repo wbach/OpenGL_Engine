@@ -12,7 +12,6 @@ PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi,
     , threadSync_(threadSync)
     , shader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
     , refreshRateStepDown_(1)
-    , isActive_(true)
     , frameRefreshNumber_(0)
     , worker_(nullptr)
     , isUpdated_(true)
@@ -43,7 +42,7 @@ void PhysicsVisualizator::Init()
 
 void PhysicsVisualizator::Render()
 {
-    if (not isActive_ or not IsReady())
+    if (not IsReady())
         return;
 
     if (useWorkerToUpdate_)
@@ -71,21 +70,6 @@ void PhysicsVisualizator::SetPhysicsDebugDraw(std::function<const GraphicsApi::L
 void PhysicsVisualizator::ReloadShader()
 {
     shader_.Reload();
-}
-
-void PhysicsVisualizator::Enable()
-{
-    isActive_ = true;
-}
-
-void PhysicsVisualizator::Disable()
-{
-    isActive_ = false;
-}
-
-bool PhysicsVisualizator::IsEnabled() const
-{
-    return isActive_;
 }
 
 void PhysicsVisualizator::UpdatePhycisLineMesh()

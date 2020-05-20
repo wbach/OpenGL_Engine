@@ -11,6 +11,7 @@
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/DebugTools/Painter/Painter.h"
+#include "GameEngine/Renderers/DebugElements/DebugRenderer.h"
 #include "IEditorInterface.hpp"
 
 namespace GameEngine
@@ -66,6 +67,7 @@ private:
     void AddComponent(const EntryParameters&);
     void GetComponentParams(const EntryParameters&);
     void SetPhysicsVisualization(const EntryParameters&);
+    void SetNormalsVisualization(const EntryParameters&);
     void SelectGameObject(const EntryParameters&);
     void GoCameraToObject(const EntryParameters&);
     void StartScene(const EntryParameters&);
@@ -99,6 +101,7 @@ private:
     void SetOrignalCamera();
     std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
     Painter::EntryParamters GetPainterEntryParameters();
+    void SetDeubgRendererState(DebugRenderer::RenderState, const EntryParameters&);
 
 private:
     Scene& scene_;

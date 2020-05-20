@@ -78,7 +78,7 @@ void Console::AddAndUpdateHistoryFileIfNeeded(const std::string &command)
 void Console::RegisterActions()
 {
     commandsActions_.insert({"freecam", [this](const auto &params) { SetFreeCamera(params); }});
-    commandsActions_.insert({"showphysics", [this](const auto& params) { SetPhysicsVisualization(params); } });
+    commandsActions_.insert({"showphysics", [this](const auto &params) { SetPhysicsVisualization(params); }});
     commandsActions_.insert({"disablefreecam", [this](const auto &params) { DisableFreeCam(params); }});
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
@@ -356,8 +356,10 @@ void Console::PrintPosition(const std::vector<std::string> &args)
 
     if (auto gameObject = GetGameObject(args[0]))
     {
-        PrintMsgInConsole("Local Position of " + args[0] + " : " + std::to_string(gameObject->GetTransform().GetPosition()));
-        PrintMsgInConsole("World Position of " + args[0] + " : " + std::to_string(gameObject->GetWorldTransform().GetPosition()));
+        PrintMsgInConsole("Local Position of " + args[0] + " : " +
+                          std::to_string(gameObject->GetTransform().GetPosition()));
+        PrintMsgInConsole("World Position of " + args[0] + " : " +
+                          std::to_string(gameObject->GetWorldTransform().GetPosition()));
     }
     else
     {
@@ -465,17 +467,22 @@ void Console::EnableEditorNetworkInterface(const std::vector<std::string> &param
     }
 }
 
-void Console::SetPhysicsVisualization(const std::vector<std::string>& params)
+void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
 {
-    bool set = not scene_.renderersManager_->GetDebugRenderer().IsEnable();
+    auto state = DebugRenderer::RenderState::Physics;
+    bool set   = not scene_.renderersManager_->GetDebugRenderer().IsStateEnabled(state);
 
-    if (params.empty() or params[0] == "on" or params[0] == "true")
+    if (params.empty())
     {
-        set = true;
+        set = !set;
+    }
+    else
+    {
+        set = (params[0] == "on" or params[0] == "true");
     }
 
-    set ? scene_.renderersManager_->GetDebugRenderer().EnablePhysics()
-        : scene_.renderersManager_->GetDebugRenderer().DisablPhysics();
+    auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+    set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 }
 
 void Console::Help(const std::vector<std::string> &)

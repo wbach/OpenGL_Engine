@@ -45,9 +45,41 @@ class Menu:
         #rendererMenu.add_command(label="Change renderer", command=self.EnableTerrainTexturePainter)
         menubar.add_cascade(label="Renderer", menu=rendererMenu)
 
+        self.physicsVisual = tk.BooleanVar()
+        self.physicsVisual.set(False)
+        self.physicsVisual.trace("w", self.PhysicsVisualChange)
+        self.normalsVisual = tk.BooleanVar()
+        self.normalsVisual.set(False)
+        self.normalsVisual.trace("w", self.NormalsVisualChange)
+
+        debugMenu = tk.Menu(menubar, tearoff=0)
+        debugMenu.add_checkbutton(label="Physics Visualization", onvalue=1, offvalue=0, variable=self.physicsVisual)
+        debugMenu.add_checkbutton(label="Normals Visualization", onvalue=1, offvalue=0, variable=self.normalsVisual)
+        menubar.add_cascade(label="Debug", menu=debugMenu)
+
         root.config(menu=menubar)
 
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
+
+    def PhysicsVisualChange(self, *args):
+        if self.networkClient.IsConnected():
+            if self.physicsVisual.get():
+                self.networkClient.SendCommand("setPhysicsVisualization enabled=true")
+            else:
+                self.networkClient.SendCommand("setPhysicsVisualization enabled=false")
+        # else:
+        #     messagebox.showinfo(title="Info", message="Not connected")
+        #     self.physicsVisual.set(False)
+
+    def NormalsVisualChange(self, *args):
+        if self.networkClient.IsConnected():
+            if self.normalsVisual.get():
+                self.networkClient.SendCommand("setNormalsVisualization enabled=true")
+            else:
+                self.networkClient.SendCommand("setNormalsVisualization enabled=false")
+        # else:
+        #     messagebox.showinfo(title="Info", message="Not connected")
+        #     self.normalsVisual.set(False)
 
     def TakeSnapshot(self):
         self.networkClient.SendCommand("takeSnapshot")
@@ -84,6 +116,8 @@ class Menu:
             self.root.quit()
 
     def OnDisconnect(self):
+        self.physicsVisual.set(False)
+        self.normalsVisual.set(False)
         if self.exitRequested:
             self.root.quit()
 

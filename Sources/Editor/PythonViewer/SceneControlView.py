@@ -14,10 +14,6 @@ class SceneControlView:
         btn = tk.Button(infoFrame, text="Stop", command=self.StopScene)
         btn.grid(column=1, row=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.physicsVisualization = tk.BooleanVar()
-        checkbox = tk.Checkbutton(infoFrame, text="Physics Visualization", variable=self.physicsVisualization, command=self.SetPhysicsVisualization)
-        checkbox.grid(column=0, row=2, sticky=(tk.N, tk.S, tk.E, tk.W), columnspan=3)
-
         self.statusStr = tk.StringVar()
         self.statusStr.set("Status : stopped")
 
@@ -28,16 +24,6 @@ class SceneControlView:
         self.networkClient.SubscribeOnConnect(self.OnConnect)
         self.networkClient.SubscribeOnMessage("SceneStartedNotifMsg", self.OnStartSceneMsg)
         self.networkClient.SubscribeOnMessage("SceneStopedNotifMsg", self.OnStopedMsg)
-
-    def SetPhysicsVisualization(self):
-        if self.networkClient.IsConnected():
-            if self.physicsVisualization.get():
-                self.networkClient.SendCommand("setPhysicsVisualization enabled=true")
-            else:
-                self.networkClient.SendCommand("setPhysicsVisualization enabled=false")
-        else:
-            messagebox.showinfo(title="Info", message="Not connected")
-            self.physicsVisualization.set(False)
 
     def OnDisconnect(self):
         self.statusStr.set("Status : disconnected")

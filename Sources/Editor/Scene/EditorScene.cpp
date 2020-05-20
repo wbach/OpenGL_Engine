@@ -82,36 +82,36 @@ int EditorScene::Initialize()
             DEBUG_LOG("cast error.count ");
         }
     }
+    camera.SetPosition(cratePosition + vec3(0, 2, 0));
+//    DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
 
-    DEBUG_LOG("Crate pos : " + std::to_string(cratePosition));
+//    {
+//        auto go = CreateGameObject("Crate");
+//        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
+//                                                                               GameEngine::LevelOfDetail::L1);
+//        go->GetTransform().SetPosition(cratePosition);
+//        go->GetTransform().SetRotation(DegreesVec3(0, 45, 0));
+//        AddGameObject(std::move(go));
+//    }
 
-    {
-        auto go = CreateGameObject("Crate");
-        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Crate/crate.obj",
-                                                                               GameEngine::LevelOfDetail::L1);
-        go->GetTransform().SetPosition(cratePosition);
-        go->GetTransform().SetRotation(DegreesVec3(0, 45, 0));
-        AddGameObject(std::move(go));
-    }
+//    {
+//        auto go = CreateGameObject("Palm");
+//        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Trees/palm.obj",
+//                                                                               GameEngine::LevelOfDetail::L1);
+//        go->GetTransform().SetPosition(palmPosition);
+//        go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
+//        go->GetTransform().SetScale(vec3(5));
+//        AddGameObject(std::move(go));
+//    }
 
-    {
-        auto go = CreateGameObject("Palm");
-        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Trees/palm.obj",
-                                                                               GameEngine::LevelOfDetail::L1);
-        go->GetTransform().SetPosition(palmPosition);
-        go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
-        go->GetTransform().SetScale(vec3(5));
-        AddGameObject(std::move(go));
-    }
-
-    {
-        auto go = CreateGameObject("Crate2");
-        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Test/testCube.obj",
-                                                                               GameEngine::LevelOfDetail::L1);
-        go->GetTransform().SetPosition(vec3(0, 0, 0));
-        go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
-        AddGameObject(std::move(go));
-    }
+//    {
+//        auto go = CreateGameObject("Crate2");
+//        go->AddComponent<GameEngine::Components::RendererComponent>().AddModel("Meshes/Test/testCube.obj",
+//                                                                               GameEngine::LevelOfDetail::L1);
+//        go->GetTransform().SetPosition(vec3(0, 0, 0));
+//        go->GetTransform().SetRotation(DegreesVec3(0, 0, 0));
+//        AddGameObject(std::move(go));
+//    }
 
     {
         auto go = CreateGameObject("Sun visualization");

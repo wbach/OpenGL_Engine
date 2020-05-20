@@ -23,9 +23,6 @@ public:
     void Render();
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void ReloadShader();
-    void Enable();
-    void Disable();
-    bool IsEnabled() const;
 
 private:
     void UpdatePhycisLineMesh();
@@ -43,7 +40,6 @@ private:
     GraphicsApi::ID lineMeshId_;
     std::atomic_bool physicsLineMeshReady_;
     uint32 updatePhycisLineMesh_;
-    bool isActive_;
 
     uint32 frameRefreshNumber_;
     Utils::Thread::Worker* worker_;
