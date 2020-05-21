@@ -20,15 +20,6 @@ TerrainMeshRendererComponent::TerrainMeshRendererComponent(ComponentContext &com
 TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 {
 }
-
-void TerrainMeshRendererComponent::RecalculateYOffset()
-{
-    if (not heightMap_)
-        return;
-
-    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).RecalculateYOffset();
-}
-
 void TerrainMeshRendererComponent::RecalculateNormals()
 {
     if (not heightMap_)
@@ -58,20 +49,20 @@ ModelWrapper &TerrainMeshRendererComponent::GetModel()
 {
     return modelWrapper_;
 }
-void TerrainMeshRendererComponent::LoadHeightMap(const std::string &terrainFile)
+void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 {
     heightMapParameters_.loadType       = TextureLoadType::None;
     heightMapParameters_.flipMode       = TextureFlip::NONE;
     heightMapParameters_.applySizeLimit = false;
 
-    TerrainComponentBase::LoadHeightMap(terrainFile);
+    TerrainComponentBase::LoadHeightMap(file);
 
-    auto model = componentContext_.resourceManager_.LoadModel(terrainFile);
+    auto model = componentContext_.resourceManager_.LoadModel(file);
     modelWrapper_.Add(model, LevelOfDetail::L1);
     CreateShaderBuffers(*model);
 }
 
-void TerrainMeshRendererComponent::UpdateHeightMap(const std::string &)
+void TerrainMeshRendererComponent::UpdateHeightMap(const File &)
 {
     DEBUG_LOG("Not implemented.");
 }

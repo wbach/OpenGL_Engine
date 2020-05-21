@@ -16,7 +16,7 @@ public:
     ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader);
     ~ResourceManager() override;
 
-    Model* LoadModel(const std::string& file) override;
+    Model* LoadModel(const File&) override;
     void AddModel(std::unique_ptr<Model>) override;
     void ReleaseModel(Model&) override;
 

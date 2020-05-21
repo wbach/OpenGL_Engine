@@ -110,15 +110,16 @@ Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextElement& text)
     return textNode;
 }
 
-Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextureElement& texture)
+Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextureElement& element)
 {
     auto& textureNode = node.AddChild(Gui::TEXTURE);
 
-    writeBasicParams(textureNode, texture);
+    writeBasicParams(textureNode, element);
     auto& file = textureNode.AddChild(Gui::FILE);
-    write(file, EngineConf_RemoveDataPath(texture.GetFilename()));
+    auto texture = element.GetTexture();
+    write(file, texture ? texture->GetFile()->GetDataRelativeDir() : "");
     auto& color = textureNode.AddChild(Gui::COLOR);
-    write(color, texture.GetColor());
+    write(color, element.GetColor());
     return textureNode;
 }
 

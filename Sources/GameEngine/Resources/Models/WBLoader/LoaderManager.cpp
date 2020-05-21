@@ -22,21 +22,19 @@ LoaderManager::LoaderManager(ITextureLoader& textureloader)
     loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
 }
 
-std::unique_ptr<Model> LoaderManager::Load(const std::string& fileName)
+std::unique_ptr<Model> LoaderManager::Load(const File& file)
 {
-    auto extension = Utils::GetFileExtension(fileName);
-
-    auto loaderPtr = GetLoader(extension);
+    auto loaderPtr = GetLoader(file);
 
     if (loaderPtr == nullptr)
     {
-        ERROR_LOG("Try parse unkonwn file extension : " + extension);
+        ERROR_LOG("Try parse unkonwn file extension : " + file.GetExtension());
         return nullptr;
     }
 
-    loaderPtr->Parse(fileName);
+    loaderPtr->Parse(file);
     auto result = loaderPtr->Create();
-    result->SetFileName(fileName);
+    result->SetFile(file);
     return result;
 }
 
@@ -44,11 +42,11 @@ LoaderManager::~LoaderManager()
 {
 }
 
-WBLoader::AbstractLoader* LoaderManager::GetLoader(const std::string& extension)
+WBLoader::AbstractLoader* LoaderManager::GetLoader(const File& file)
 {
     for (auto& loader : loaders_)
     {
-        if (loader->CheckExtension(extension))
+        if (loader->CheckExtension(file.GetExtension()))
             return loader.get();
     }
     return nullptr;

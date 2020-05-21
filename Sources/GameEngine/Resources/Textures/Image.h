@@ -16,16 +16,16 @@ struct Image
 
     vec2ui Size() const;
 
-    const void* GetDataRaw() const
+    const void* GetRawDataPtr() const
     {
         if (not data.empty())
             return &data[0];
         if (not floatData.empty())
-            return &data[0];
+            return &floatData[0];
         return nullptr;
     }
 
     std::optional<Color> GetPixel(const vec2ui&) const;
-    void SetPixel(const vec2ui&, const Color&);
+    bool SetPixel(const vec2ui&, const Color&);
 };
 }  // namespace GameEngine

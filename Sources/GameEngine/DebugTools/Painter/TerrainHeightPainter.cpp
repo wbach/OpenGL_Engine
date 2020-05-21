@@ -63,13 +63,5 @@ void TerrainHeightPainter::RecalculateTerrainNormals()
         terrain->RecalculateNormals();
     }
 }
-
-void TerrainHeightPainter::RecalcualteTerrainYOffset()
-{
-    for (auto& terrain : pointGetter_.GetSceneTerrains())
-    {
-        terrain->RecalculateYOffset();
-    }
-}
 }  // namespace GameEngine
 #undef BRUSH

@@ -4,7 +4,7 @@
 #include <GameEngine/Engine/Configuration.h>
 #include <Logger/Log.h>
 #include <Utils/Image/ImageUtils.h>
-
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
 #include "GLM/GLMUtils.h"
@@ -13,19 +13,26 @@
 
 namespace GameEngine
 {
-std::optional<Image> ReadFile(const InputFileName& inputFileName, const TextureParameters& params)
+std::optional<Image> ReadFile(const File& inputFileName, const TextureParameters& params)
 {
-    FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(inputFileName.c_str(), 0);
+    auto absoultePath = inputFileName.GetAbsoultePath();
+    FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(absoultePath.c_str(), 0);
+
+    if (not std::filesystem::exists(absoultePath))
+    {
+        ERROR_LOG("File not exist : " + absoultePath);
+        return {};
+    }
     if (formato == FIF_UNKNOWN)
     {
-        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + inputFileName);
+        ERROR_LOG("GetFileType: wrong image format : " + absoultePath);
         return {};
     }
 
-    FIBITMAP* imagen2 = FreeImage_Load(formato, inputFileName.c_str());
+    FIBITMAP* imagen2 = FreeImage_Load(formato, absoultePath.c_str());
     if (!imagen2)
     {
-        ERROR_LOG("FreeImageLoad: wrong image format or file does not exist : " + inputFileName);
+        ERROR_LOG("FreeImageLoad load failed  : " + absoultePath);
         return {};
     }
 
@@ -33,7 +40,7 @@ std::optional<Image> ReadFile(const InputFileName& inputFileName, const TextureP
     if (!imagen)
     {
         FreeImage_Unload(imagen2);
-        ERROR_LOG("Cant convert to 32 bits : " + inputFileName);
+        ERROR_LOG("Cant convert to 32 bits : " + inputFileName.GetDataRelativeDir());
         return {};
     }
     FreeImage_Unload(imagen2);
@@ -89,27 +96,25 @@ std::optional<Image> ReadFile(const InputFileName& inputFileName, const TextureP
     }
 
     FreeImage_Unload(imagen);
-    DEBUG_LOG("File: " + inputFileName + " is loaded.");
+    DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded.");
     return std::move(resultImage);
 }
 
-void CreateHeightMap(const std::string& in, const std::string& out, const vec3& scale)
+void CreateHeightMap(const File& in, const File& out, const vec3& scale)
 {
-    auto input  = EngineConf_GetFullDataPath(in);
-    auto output = EngineConf_GetFullDataPath(out);
 
-    auto fp = fopen(output.c_str(), "wb+");
+    auto fp = fopen(out.GetAbsoultePath().c_str(), "wb+");
 
     if (!fp)
     {
-        ERROR_LOG("cannot open file : " + output);
+        ERROR_LOG("cannot open file : " + out.GetAbsoultePath());
         return;
     }
 
     TextureParameters textureParams;
     textureParams.applySizeLimit = false;
 
-    auto optImage = ReadFile(input, textureParams);
+    auto optImage = ReadFile(in, textureParams);
 
     if (not optImage)
     {
@@ -155,24 +160,7 @@ void SaveHeightMap(const HeightMap& heightmap, const std::string& outfile)
 
     auto output = EngineConf_GetFullDataPath(outfile);
 
-    if (std::filesystem::exists(output))
-    {
-        try
-        {
-            auto backupFile = output + ".backup";
-            if (std::filesystem::exists(backupFile))
-            {
-                std::filesystem::remove(backupFile);
-            }
-
-            std::filesystem::copy(output, backupFile);
-        }
-        catch (...)
-        {
-            ERROR_LOG("Create heightmap backup error.");
-        }
-    }
-
+    Utils::CreateBackupFile(output);
     auto fp = fopen(output.c_str(), "wb");
 
     if (not fp)
@@ -180,6 +168,8 @@ void SaveHeightMap(const HeightMap& heightmap, const std::string& outfile)
         ERROR_LOG("cannot open file : " + output);
         return;
     }
+
+    DEBUG_LOG(outfile);
 
     HeightMapHeader header;
     header.height = image.height;
@@ -259,22 +249,39 @@ std::unique_ptr<NormalTexture> CreateNormalTexture(GraphicsApi::IGraphicsApi& gr
             imageData.push_back(normal.z);
         }
     }
-    return std::make_unique<NormalTexture>(graphicsApi, heightMap.GetFileName() + "_normalMap", std::move(normalImage));
+    return std::make_unique<NormalTexture>(graphicsApi, std::move(normalImage));
 }
 float getPixel(const std::vector<float>& data, const vec2ui& size, const vec2ui& position)
 {
     return data[position.x + position.y * size.x];
 }
-void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, const OutputFileName& file,
+void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, const File& file,
                       const vec2& thresholds)
 {
     auto image = GenerateBlendMapImage(terrainScale, heightMap, thresholds);
-    Utils::SaveImage(image.data, heightMap.GetSize(), file, vec2(4));
+    Utils::SaveImage(image.data, heightMap.GetSize(), file.GetAbsoultePath(), vec2(4));
 
     for (size_t i = 3; i < image.data.size(); i += 4)
         image.data[i] = 255;
 
-    Utils::SaveImage(image.data, image.Size(), file + "_alpha1_preview");
-    Utils::SaveImage(image.data, image.Size(), file + "_alpha1_preview_scaled", vec2(4));
+    Utils::SaveImage(image.data, image.Size(), file.GetAbsoultePath() + "_alpha1_preview");
+    Utils::SaveImage(image.data, image.Size(), file.GetAbsoultePath() + "_alpha1_preview_scaled", vec2(4));
 }
+
+Image CreateZerosImage(const vec2ui& size)
+{
+    Image image;
+    image.width  = size.x;
+    image.height = size.y;
+    image.data.resize(size.x * size.y * 4);
+    for (uint32 j = 0; j < size.y; ++j)
+    {
+        for (uint32 i = 0; i < size.x; ++i)
+        {
+            image.SetPixel(vec2ui(i, j), Color(0.f));
+        }
+    }
+    return image;
+}
+
 }  // namespace GameEngine

@@ -4,6 +4,7 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <filesystem>
 
 namespace Utils
 {
@@ -44,9 +45,9 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
         FreeImage_Unload(bitmap);
         bitmap = scaledBitmap;
     }
-
+    auto outputFilename = std::filesystem::path(filename).replace_extension(".png").string();
     FreeImage_FlipVertical(bitmap);
-    FreeImage_Save(FIF_PNG, bitmap, (filename + ".png").c_str());
+    FreeImage_Save(FIF_PNG, bitmap, outputFilename.c_str());
     FreeImage_Unload(bitmap);
 }
 }  // namespace Utils

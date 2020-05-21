@@ -74,7 +74,7 @@ void WaterRendererComponent::SetScale(const vec3& s)
     scale_ = s;
 }
 
-WaterRendererComponent& WaterRendererComponent::LoadTextures(const std::string& dudv, const std::string& normal)
+WaterRendererComponent& WaterRendererComponent::LoadTextures(const File& dudv, const File& normal)
 {
     normalMap_ = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(normal, TextureParameters());
     dudvMap_   = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(dudv, TextureParameters());

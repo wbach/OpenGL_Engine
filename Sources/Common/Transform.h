@@ -77,6 +77,7 @@ private:
     mat4 matrix_;
 
     uint32 idPool_;
+    std::mutex subscribeMutex_;
     std::vector<std::pair<uint32, std::function<void(const Transform&)>>> subscribers_;
 };
 }  // namespace common

@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include "../Model.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -16,11 +17,11 @@ class LoaderManager
 {
 public:
     LoaderManager(ITextureLoader& textureloader);
-    std::unique_ptr<Model> Load(const std::string& file_name);
+    std::unique_ptr<Model> Load(const File&);
     ~LoaderManager();
 
 private:
-    WBLoader::AbstractLoader* GetLoader(const std::string& extension);
+    WBLoader::AbstractLoader* GetLoader(const File&);
 
 private:
     typedef std::vector<std::unique_ptr<WBLoader::AbstractLoader>> LoadersVector;

@@ -96,15 +96,13 @@ class TerrainPainterView:
     def AddToDialogHeightPostProcessFunctions(self):
         tk.Button(self.dialog, text="Recalculate normals",
                   command=lambda: self.networkClient.SendCommand("recalculateTerrainNormals")).pack(fill=tk.X)
-        tk.Button(self.dialog, text="Recalculate Y offset", command=lambda: self.networkClient.SendCommand(
-                      "recalculateTerrainYOffset")).pack(fill=tk.X)
 
     def AddToTexturesToDialog(self):
         texturesLabel = tk.LabelFrame(self.dialog, text="Textures")
         texturesLabel.pack(fill=tk.X)
 
-        tk.Button(texturesLabel, text="Generate blend map", command=lambda: self.networkClient.SendCommand(
-                      "generateTerrainBlendMap")).pack(fill=tk.X)
+        tk.Button(texturesLabel, text="Clear blend map", command=lambda: self.networkClient.SendCommand(
+                      "clearTerrainsBlendMap")).pack(fill=tk.X)
         tk.Button(texturesLabel, text="Texture D", command=lambda: self.networkClient.SendCommand(
                       "updateTerrainPainterParam color=0000")).pack(fill=tk.X)
         tk.Button(texturesLabel, text="Texture R", command=lambda: self.networkClient.SendCommand(

@@ -57,6 +57,8 @@ std::unique_ptr<Network::IMessage> BinaryMessageConverter::Convert(Network::IMes
         default:
             DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
     }
+
+    return nullptr;
 }
 
 Network::IMessageData BinaryMessageConverter::Convert(const Network::IMessage& message)

@@ -12,7 +12,6 @@ public:
     void Paint(const TerrainPoint&) override;
     void SetBrush(const std::string&) override;
     void RecalculateTerrainNormals();
-    void RecalcualteTerrainYOffset();
     std::string SelectedBrush() const override;
     std::vector<std::string> AvaiableBrushTypes() const override;
 

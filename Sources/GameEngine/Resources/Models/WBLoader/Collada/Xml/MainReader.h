@@ -1,10 +1,11 @@
 #pragma once
 #include "../Types/ColladaData.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
 namespace Collada
 {
-void ReadCollada(const std::string& filename, ColladaData& data);
+void ReadCollada(const File& filename, ColladaData& data);
 }  // Collada
 }  // GameEngine

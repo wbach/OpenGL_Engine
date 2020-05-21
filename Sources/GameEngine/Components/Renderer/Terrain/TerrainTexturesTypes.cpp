@@ -25,6 +25,9 @@ void std::from_string(const std::string& type, GameEngine::TerrainTextureType& t
     FROM_STRING(alphaTexture);
     FROM_STRING(alphaTextureNormal);
     FROM_STRING(alphaTextureDisplacement);
+    FROM_STRING(rockTexture);
+    FROM_STRING(rockTextureNormal);
+    FROM_STRING(rockTextureDisplacement);
     ERROR_LOG("unknow terrainTextureType=" + type);
 }
 #undef FROM_STRING
@@ -49,6 +52,9 @@ std::string std::to_string(GameEngine::TerrainTextureType type)
     if (type == GameEngine::TerrainTextureType::alphaTexture) return "alphaTexture";
     if (type == GameEngine::TerrainTextureType::alphaTextureNormal) return "alphaTextureNormal";
     if (type == GameEngine::TerrainTextureType::alphaTextureDisplacement) return "alphaTextureDisplacement";
+    if (type == GameEngine::TerrainTextureType::rockTexture) return "rockTexture";
+    if (type == GameEngine::TerrainTextureType::rockTextureNormal) return "rockTextureNormal";
+    if (type == GameEngine::TerrainTextureType::rockTextureDisplacement) return "rockTextureDisplacement";
     return "Unknown type";
 }
 
@@ -72,6 +78,9 @@ bool GameEngine::IsTerrainTextureType(const std::string& type)
     if (type == "alphaTexture") return true;
     if (type == "alphaTextureNormal") return true;
     if (type == "alphaTextureDisplacement") return true;
+    if (type == "rockTexture") return true;
+    if (type == "rockTextureNormal") return true;
+    if (type == "rockTextureDisplacement") return true;
     return false;
 }
 // clang-format on

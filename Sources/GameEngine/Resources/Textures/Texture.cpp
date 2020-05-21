@@ -1,20 +1,21 @@
 #include "Texture.h"
 
 #include <algorithm>
-
-#include "Logger/Log.h"
-#include "Utils.h"
+#include <Logger/Log.h>
+#include <Utils.h>
+#include "GameEngine/Engine/Configuration.h"
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 namespace GameEngine
 {
 float GetTextureXOffset(uint32 textureIndex, uint32 numberOfRows)
 {
-    int column = textureIndex % numberOfRows;
+    auto column = textureIndex % numberOfRows;
     return static_cast<float>(column) / static_cast<float>(numberOfRows);
 }
 float GetTextureYOffset(uint32 textureIndex, uint32 numberOfRows)
 {
-    int row = textureIndex / numberOfRows;
+    auto row = textureIndex / numberOfRows;
     return static_cast<float>(row) / static_cast<float>(numberOfRows);
 }
 vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
@@ -35,14 +36,21 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& 
     graphicsObjectId_ = id;
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, const vec2ui &size,
-                 bool applySizeLimit)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, bool applySizeLimit)
     : graphicsApi_(graphicsApi)
-    , filename(Utils::ReplaceSlash(file))
     , size_(size)
     , applySizeLimit(applySizeLimit)
 {
-    auto rows = GetNumberOfRowsBasedOnTextureFileName(file);
+}
+
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const File& file, const vec2ui &size,
+                 bool applySizeLimit)
+    : graphicsApi_(graphicsApi)
+    , file_(file)
+    , size_(size)
+    , applySizeLimit(applySizeLimit)
+{
+    auto rows = GetNumberOfRowsBasedOnTextureFileName(file_->GetBaseName());
     if (rows)
     {
         numberOfRows = *rows;
@@ -64,7 +72,10 @@ void Texture::ReleaseGpuPass()
     if (not graphicsObjectId_)
         return;
 
+    auto filename = file_ ? file_->GetBaseName() : "";
+
     DEBUG_LOG("Clean gpu resources, " + filename + ", graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
+
     graphicsApi_.DeleteObject(*graphicsObjectId_);
     GpuObject::ReleaseGpuPass();
 }

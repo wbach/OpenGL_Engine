@@ -4,6 +4,7 @@
 #include "GameEngine/Resources/GpuObject.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Resources/File.h"
 #include "Mesh.h"
 
 namespace GameEngine
@@ -16,9 +17,9 @@ public:
     Model();
     Model(float scaleFactor);
     Model(const Model&) = delete;
-    ~Model();
+    ~Model() override;
 
-    void SetFileName(const std::string& filename);
+    void SetFile(const File &);
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
@@ -28,13 +29,13 @@ public:
     bool IsAnyMeshUseTransform() const;
 
     inline float GetScaleFactor();
-    inline const std::string& GetFileName() const;
+    const File& GetFile() const;
     inline const std::vector<Mesh>& GetMeshes() const;
     inline std::vector<Mesh>& GetMeshes();
     const std::vector<mat4>& GetBoneTransforms();
 
     inline bool operator==(const Model& q) const;
-    inline bool operator==(const std::string& file) const;
+    inline bool operator==(const File& file) const;
 
 public:
     Animation::Joint skeleton_;
@@ -44,7 +45,7 @@ protected:
     void AddJoints(Animation::Joint& joint);
 
 protected:
-    std::string filename_;
+    File file_;
     std::vector<Mesh> meshes_;
     std::vector<mat4> boneTransforms_;
     float scaleFactor_;
@@ -60,18 +61,14 @@ std::vector<Mesh> &Model::GetMeshes()
 }
 bool Model::operator==(const Model& q) const
 {
-    return filename_.compare(q.filename_) == 0;
+    return file_ == q.file_;
 }
-bool Model::operator==(const std::string& file) const
+bool Model::operator==(const File& file) const
 {
-    return filename_.compare(file) == 0;
-}
-const std::string& Model::GetFileName() const
-{
-    return filename_;
+    return file_ == file;
 }
 float Model::GetScaleFactor()
 {
     return scaleFactor_;
-}
+} 
 } // namespace GameEngine

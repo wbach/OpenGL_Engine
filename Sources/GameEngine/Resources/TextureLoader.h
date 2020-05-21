@@ -17,17 +17,17 @@ public:
     ~TextureLoader() override;
 
     Texture* CreateTexture(const std::string&, const TextureParameters&, const TextureSize&, RawData) override;
-    Texture* LoadTexture(const InputFileName&, const TextureParameters&) override;
-    Texture* LoadCubeMap(const std::array<InputFileName, 6>&, const TextureParameters&) override;
+    Texture* LoadTexture(const File&, const TextureParameters&) override;
+    Texture* LoadCubeMap(const std::array<File, 6>&, const TextureParameters&) override;
     Texture* CreateNormalMap(const HeightMap&, const vec3&) override;
-    Texture* LoadHeightMap(const InputFileName&, const TextureParameters&) override;
+    Texture* LoadHeightMap(const File&, const TextureParameters&) override;
     GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
-    void SaveTextureToFile(const std::string& name, const std::vector<uint8>&, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat) const override;
+    void SaveTextureToFile(const File&, const std::vector<uint8>&, const vec2ui& size, uint8 bytes, GraphicsApi::TextureFormat) const override;
     void DeleteTexture(Texture& texture) override;
 
 private:
-    Texture* LoadHeightMapBinary(const InputFileName&, const TextureParameters&);
-    Texture* LoadHeightMapTexture(const InputFileName&, const TextureParameters&);
+    Texture* LoadHeightMapBinary(const File&, const TextureParameters&);
+    Texture* LoadHeightMapTexture(const File&, const TextureParameters&);
     Texture* GetTextureIfLoaded(const std::string&, const TextureParameters&);
     Texture* GetTextureNotFound();
 

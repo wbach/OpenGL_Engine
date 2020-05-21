@@ -164,7 +164,8 @@ void GuiEditScene::FillGuiElementInTreeObject(const std::unique_ptr<GuiElement>&
     else if (element->GetType() == GuiElementTypes::Texture)
     {
         auto guiTexture = static_cast<GuiTextureElement*>(element.get());
-        printedText += " (" + guiTexture->GetFilename() + ")";
+        if (guiTexture and guiTexture->GetTexture() and guiTexture->GetTexture()->GetFile())
+        printedText += " (" + guiTexture->GetTexture()->GetFile()->GetBaseName() + ")";
     }
 
     auto id = objectTree_->Add(printedText, parent);

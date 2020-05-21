@@ -1,7 +1,9 @@
 #pragma once
 #include <vector>
+
 #include "GameEngine/Components/Physics/CollisionShape.h"
 #include "TerrainHeightGetter.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -22,21 +24,21 @@ public:
     void ReqisterFunctions() override;
 
     void Update();
-    TerrainShape& SetHeightMap(const std::string& filename);
+    TerrainShape& SetHeightMap(const File&);
     HeightMap* GetHeightMap();
-    const std::string GetHeightMapFileName() const;
+    const File& GetHeightMapFile() const;
     std::optional<float> GetHeightOfTerrain(const vec3& worldPosition) const;
 
 private:
     void OnAwake();
-    void LoadHeightMap(const std::string& hightMapFile);
+    void LoadHeightMap(const File&);
 
 private:
     std::unique_ptr<TerrainHeightGetter> terrainHeightGetter_;
     Components::TerrainRendererComponent* terrainRendererComponent_;
     vec2ui size_;
     HeightMap* heightMap_;
-    std::string heightMapFile_;
+    File heightMapFile_;
 
 public:
     static ComponentsType type;

@@ -56,20 +56,19 @@ void TerrainShape::OnAwake()
         ERROR_LOG("TerrainRendererComponent not found !");
     }
 }
-TerrainShape& TerrainShape::SetHeightMap(const std::string& filename)
+TerrainShape& TerrainShape::SetHeightMap(const File& filename)
 {
     heightMapFile_ = filename;
     return *this;
 }
-void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
+void TerrainShape::LoadHeightMap(const File& hightMapFile)
 {
     heightMapFile_ = hightMapFile;
 
     TextureParameters params;
     params.applySizeLimit = false;
 
-    auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(
-        EngineConf_GetFullDataPathAddToRequierd(hightMapFile), params);
+    auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(hightMapFile, params);
 
     if (not heightMapTexture)
     {
@@ -92,7 +91,7 @@ void TerrainShape::LoadHeightMap(const std::string& hightMapFile)
         ERROR_LOG("terrainHeightGetter creating error! terrainRendererComponent not found.");
     }
 }
-const std::string TerrainShape::GetHeightMapFileName() const
+const File& TerrainShape::GetHeightMapFile() const
 {
     return heightMapFile_;
 }

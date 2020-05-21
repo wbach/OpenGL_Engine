@@ -164,9 +164,8 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("enablePlantPainter", EnablePlantPainter);
     REGISTER_COMMAND("disablePainter", DisableTerrainPainter);
     REGISTER_COMMAND("updateTerrainPainterParam", UpdateTerrainPainterParam);
-    REGISTER_COMMAND("recalculateTerrainYOffset", RecalculateTerrainYOffset);
     REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
-    REGISTER_COMMAND("generateTerrainBlendMap", GenerateTerrainBlendMap);
+    REGISTER_COMMAND("clearTerrainsBlendMap", ClearTerrainsBlendMap);
     REGISTER_COMMAND("controlTextureUsage", ControlTextureUsage);
     REGISTER_COMMAND("reloadShaders", ReloadShaders);
     REGISTER_COMMAND("takeSnapshot", Takesnapshot);
@@ -289,9 +288,6 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { GenerateTerrainBlendMapToFile(); });
-
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::H, [this]() { GenerateTerrainBlendMap({}); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -1168,15 +1164,6 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
     }
 }
 
-void NetworkEditorInterface::RecalculateTerrainYOffset(const NetworkEditorInterface::EntryParameters &)
-{
-    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_ and terrainPainter_->GetPaintType() == PaintType::HeightMap)
-        return;
-
-    static_cast<TerrainHeightPainter *>(terrainPainter_.get())->RecalcualteTerrainYOffset();
-}
-
 void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterface::EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
@@ -1185,7 +1172,7 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
 
     static_cast<TerrainHeightPainter *>(terrainPainter_.get())->RecalculateTerrainNormals();
 }
-void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
+void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters&)
 {
     auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
 
@@ -1196,9 +1183,7 @@ void NetworkEditorInterface::GenerateTerrainBlendMap(const EntryParameters &)
         if (not tc)
             continue;
 
-        const auto &heightMap = *tc->GetHeightMap();
-        auto image            = GenerateBlendMapImage(tc->GetTerrainConfiguration().GetScale(), heightMap);
-
+        auto image = CreateZerosImage(vec2ui(4096, 4096));
         auto blendMap = static_cast<MaterialTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
         blendMap->SetImage(std::move(image));
         tc->BlendMapChanged();
@@ -1253,14 +1238,12 @@ void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 
         auto heightMapFile = tc->GetTextureFileNames().at(TerrainTextureType::heightmap);
 
-        if (not generetedBlendMaps.count(heightMapFile))
+        if (not generetedBlendMaps.count(heightMapFile.GetAbsoultePath()))
         {
-            std::filesystem::path path(EngineConf_GetFullDataPath(heightMapFile));
-            path.replace_extension("");
+            heightMapFile.AddSuffixToBaseName("_generatedBlendmap");
 
-            auto resultFileName = path.string() + "_generatedBlendmap";
-            GenerateBlendMap(tc->GetTerrainConfiguration().GetScale(), heightMap, resultFileName);
-            generetedBlendMaps.insert(heightMapFile);
+            GenerateBlendMap(tc->GetTerrainConfiguration().GetScale(), heightMap, heightMapFile);
+            generetedBlendMaps.insert(heightMapFile.GetAbsoultePath());
         }
     }
 }

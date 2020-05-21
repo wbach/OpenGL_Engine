@@ -14,7 +14,6 @@ public:
     TerrainMeshRendererComponent(ComponentContext& componentContext, GameObject& gameObject);
     ~TerrainMeshRendererComponent() override;
 
-    void RecalculateYOffset() override;
     void RecalculateNormals() override;
     void CleanUp() override;
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
@@ -24,8 +23,8 @@ public:
     void HeightMapChanged() override;
 
 private:
-    void LoadHeightMap(const std::string& terrainFile) override;
-    void UpdateHeightMap(const std::string&) override;
+    void LoadHeightMap(const File&) override;
+    void UpdateHeightMap(const File&) override;
     void CreateShaderBuffers(const GameEngine::Model&);
     BufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
     void LoadObjectToGpu(GpuObject&);

@@ -40,7 +40,7 @@ std::string GetShaderLocationFromString(const std::string& str)
 
 void AddToRequierdFilesIfNotExist(const std::string& file)
 {
-    if (std::find(requiredFiles.begin(), requiredFiles.end(), file) != requiredFiles.end())
+    if (std::find(requiredFiles.begin(), requiredFiles.end(), file) == requiredFiles.end())
     {
         requiredFiles.push_back(file);
     }
@@ -97,7 +97,7 @@ std::string GetFilePatch(const std::string& file_full_path)
 
 void AddRequiredFile(const std::string& file)
 {
-    requiredFiles.push_back(file);
+    AddToRequierdFilesIfNotExist(file);
 }
 
 void SaveRequiredFiles()

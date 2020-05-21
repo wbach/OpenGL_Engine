@@ -12,11 +12,11 @@ class WaveFrontObjLoader : public AbstractLoader
 {
 public:
     WaveFrontObjLoader(ITextureLoader& textureLodaer);
-    virtual void ParseFile(const std::string& filename) override;
+    virtual void ParseFile(const File& filename) override;
     virtual bool CheckExtension(const std::string& filename) override;
 
 private:
-    void GetFileData(const std::string& file_name);
+    void GetFileData(const File& file_name);
     void ProcessFileData();
     void ReadMaterialFile(const std::string& file);
     void ProcesVertex(WBLoader::Object* object, const std::string& value);

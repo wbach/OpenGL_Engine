@@ -1,21 +1,22 @@
 #include "WaveFrontObj.h"
-#include "../MeshData.h"
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Resources/Models/Mesh.h"
-#include "GameEngine/Resources/ITextureLoader.h"
-#include "ParseUtils.h"
 
 #include <algorithm>
+
+#include "../MeshData.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Models/Mesh.h"
+#include "ParseUtils.h"
 
 namespace GameEngine
 {
 namespace WBLoader
 {
-WaveFrontObjLoader::WaveFrontObjLoader(ITextureLoader &textureLodaer)
+WaveFrontObjLoader::WaveFrontObjLoader(ITextureLoader& textureLodaer)
     : AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 {
 }
-void WaveFrontObjLoader::ParseFile(const std::string& filename)
+void WaveFrontObjLoader::ParseFile(const File& filename)
 {
     GetFileData(filename);
 
@@ -32,16 +33,15 @@ bool WaveFrontObjLoader::CheckExtension(const std::string& filename)
     return ext == "obj" || ext == "OBJ" || ext == "Obj";
 }
 
-void WaveFrontObjLoader::GetFileData(const std::string& file_name)
+void WaveFrontObjLoader::GetFileData(const File& file)
 {
-    auto filePath = EngineConf_GetFullDataPathAddToRequierd(file_name);
-    fileData      = Utils::ReadFileLines(filePath);
+    fileData = Utils::ReadFileLines(file.GetAbsoultePath());
 
     if (fileData.empty())
         return;
 
-    filename = Utils::GetFilenameWithExtension(filePath);
-    path = Utils::GetFilePath(filePath);
+    filename = file.GetFilename();
+    path     = file.GetParentDir();
 }
 void WaveFrontObjLoader::ProcessFileData()
 {
@@ -140,26 +140,23 @@ void WaveFrontObjLoader::ReadMaterialFile(const std::string& file_name)
         }
         if (!prefix.compare("map_Kd"))
         {
-                current_material->diffuseTexture =
-                    textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+            current_material->diffuseTexture = textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
         }
         if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
         {
             if (current_material != nullptr)
-                current_material->normalTexture =
-                    textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+                current_material->normalTexture = textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
         }
         if (!prefix.compare("map_Ks"))
         {
             if (current_material != nullptr)
                 current_material->specularTexture =
-                textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+                    textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
         }
         if (!prefix.compare("map_Ka"))
         {
             if (current_material != nullptr)
-                current_material->ambientTexture =
-                textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+                current_material->ambientTexture = textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
         }
     }
 }
@@ -286,5 +283,5 @@ void WaveFrontObjLoader::Clear()
     text_coords.clear();
     normals.clear();
 }
-}
+}  // namespace WBLoader
 }  // namespace GameEngine

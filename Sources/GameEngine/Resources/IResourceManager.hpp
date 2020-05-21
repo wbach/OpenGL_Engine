@@ -3,6 +3,7 @@
 
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
+#include "File.h"
 
 namespace GameEngine
 {
@@ -16,7 +17,7 @@ class IResourceManager
 public:
     virtual ~IResourceManager() = default;
 
-    virtual Model* LoadModel(const std::string&)        = 0;
+    virtual Model* LoadModel(const File&)               = 0;
     virtual void AddModel(std::unique_ptr<Model>)       = 0;
     virtual void ReleaseModel(Model&)                   = 0;
     virtual IGpuResourceLoader& GetGpuResourceLoader()  = 0;

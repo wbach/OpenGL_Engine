@@ -39,17 +39,17 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
     file.close();
 }
 
-TerrainConfiguration TerrainConfiguration::ReadFromFile(const std::string& filename)
+TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
 {
-    DEBUG_LOG("filename : " + filename);
+    DEBUG_LOG("filename : " + configFile.GetDataRelativeDir());
     TerrainConfiguration config;
 
-    std::fstream file(filename);
+    std::fstream file(configFile.GetAbsoultePath());
 
     if (not file.is_open())
     {
-        DEBUG_LOG("Terrain config file not found, creating default : " + filename);
-        SaveTerrainConfigurationToFile(config, filename);
+        DEBUG_LOG("Terrain config file not found, creating default : " + configFile.GetFilename());
+        SaveTerrainConfigurationToFile(config, configFile.GetAbsoultePath());
         return config;
     }
 

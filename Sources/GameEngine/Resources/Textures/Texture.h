@@ -5,6 +5,7 @@
 #include "GraphicsApi/IGraphicsApi.h"
 #include "TextureFlip.h"
 #include "Types.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -17,14 +18,14 @@ class Texture : public GpuObject
 public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, const vec2ui& size,
-            bool applySizeLimit = true);
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, bool applySizeLimit = true);
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const File&, const vec2ui& size, bool applySizeLimit = true);
     ~Texture() override;
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
     inline const vec2ui& GetSize() const;
-    inline const std::string& GetFileName() const;
+    inline const std::optional<File>& GetFile() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;
     inline float GetTextureYOffset(uint32 textureIndex) const;
     inline vec2 GetTextureOffset(uint32 textureIndex) const;
@@ -37,16 +38,16 @@ public:
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    std::string filename;
+    std::optional<File> file_;
     vec2ui size_ = vec2ui(0);
 
     bool applySizeLimit = true;
     bool orginalData_   = true;
 };
 
-const InputFileName& Texture::GetFileName() const
+const std::optional<File>& Texture::GetFile() const
 {
-    return filename;
+    return file_;
 }
 
 float Texture::GetTextureXOffset(uint32 textureIndex) const

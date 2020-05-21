@@ -4,7 +4,7 @@
 
 namespace GameEngine
 {
-void Image::SetPixel(const vec2ui& position, const Color& color)
+bool Image::SetPixel(const vec2ui& position, const Color& color)
 {
     auto startIndex = 4 * (position.x + position.y * width);
 
@@ -16,6 +16,7 @@ void Image::SetPixel(const vec2ui& position, const Color& color)
             data[startIndex + 1] = color.g();
             data[startIndex + 2] = color.b();
             data[startIndex + 3] = color.a();
+            return true;
         }
     }
     else if (not floatData.empty())
@@ -26,8 +27,10 @@ void Image::SetPixel(const vec2ui& position, const Color& color)
             floatData[startIndex + 1] = color.g();
             floatData[startIndex + 2] = color.b();
             floatData[startIndex + 3] = color.a();
+            return true;
         }
     }
+    return false;
 }
 vec2ui Image::Size() const
 {

@@ -21,6 +21,7 @@ public:
     inline std::optional<uint32> GetTextureId() const;
     inline const mat4& GetTransformMatrix() const;
     inline const vec4& GetColor() const;
+    const Texture* GetTexture() const;
 
 protected:
     void CalculateMatrix();
@@ -33,7 +34,6 @@ protected:
     vec2 offset_;
     mat4 transformMatrix_;
 };
-
 std::optional<uint32> GuiRendererElementBase::GetTextureId() const
 {
     return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
@@ -45,5 +45,9 @@ const mat4& GuiRendererElementBase::GetTransformMatrix() const
 const vec4& GuiRendererElementBase::GetColor() const
 {
     return color_;
+}
+inline const Texture* GuiRendererElementBase::GetTexture() const
+{
+    return texture_;
 }
 }  // namespace GameEngine

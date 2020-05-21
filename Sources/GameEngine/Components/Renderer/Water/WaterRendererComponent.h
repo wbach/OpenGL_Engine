@@ -32,7 +32,7 @@ public:
     void SetScale(const vec3&);
     void SetWaterColor(const vec4&);
     WaterRendererComponent& SetWaveSpeed(float);
-    WaterRendererComponent& LoadTextures(const std::string& dudv, const std::string& normal);
+    WaterRendererComponent& LoadTextures(const File& dudv, const File& normal);
 
 private:
     void Subscribe();

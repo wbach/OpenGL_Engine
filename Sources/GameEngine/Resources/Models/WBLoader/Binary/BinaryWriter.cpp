@@ -46,7 +46,7 @@ void WriteToFile(std::fstream& file, Texture* texture)
     }
     else
     {
-        WriteToFile(file, texture->GetFileName());
+        WriteToFile(file, texture->GetFile()->GetDataRelativeDir());
     }
 }
 void WriteToFile(std::fstream& file, const Animation::JointTransform& jointTransform)
@@ -138,7 +138,7 @@ void CreateBinFile(const std::unique_ptr<Model>& model, const std::string& filen
 
     std::fstream binaryFile(CreateBinPath(filename), std::ios::binary | std::ios::out);
 
-    WriteToFile(binaryFile, model->GetFileName());
+    WriteToFile(binaryFile, model->GetFile().GetDataRelativeDir());
     WriteToFile(binaryFile, model->GetScaleFactor());
     WriteToFile(binaryFile, model->GetMeshes().size());
     for (auto& mesh : model->GetMeshes())

@@ -11,7 +11,7 @@ BinaryLoader::BinaryLoader(TextureLoader& textureLodaer)
 {
 }
 
-void BinaryLoader::ParseFile(const std::string& filename)
+void BinaryLoader::ParseFile(const File&)
 {
 }
 

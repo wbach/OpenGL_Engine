@@ -1,6 +1,7 @@
 #include "GuiElementFactory.h"
 
 #include <algorithm>
+#include <Logger/Log.h>
 
 #include "Button/GuiButton.h"
 #include "EditText/GuiEditText.h"
@@ -260,16 +261,16 @@ const GuiTheme &GuiElementFactory::GetTheme() const
     return theme_;
 }
 
-std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const std::string &filename)
+std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File& file)
 {
     TextureParameters params;
     params.applySizeLimit = false;
     params.flipMode       = TextureFlip::VERTICAL;
 
-    auto texture = resourceManager_.GetTextureLoader().LoadTexture(filename, params);
+    auto texture = resourceManager_.GetTextureLoader().LoadTexture(file, params);
     if (not texture)
     {
-        DEBUG_LOG("Texture not loaded : " + filename);
+        DEBUG_LOG("Texture not loaded : " + file.GetAbsoultePath());
         return nullptr;
     }
 

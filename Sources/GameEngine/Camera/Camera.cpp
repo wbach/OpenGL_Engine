@@ -91,11 +91,14 @@ uint32 BaseCamera::SubscribeOnChange(std::function<void(const ICamera&)> callbac
 }
 void BaseCamera::UnsubscribeOnChange(uint32 id)
 {
-    auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
-
-    if (iter != subscribers_.end())
+    if (not subscribers_.empty())
     {
-        subscribers_.erase(iter);
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
+
+        if (iter != subscribers_.end())
+        {
+            subscribers_.erase(iter);
+        }
     }
 }
 void BaseCamera::LookAt(const vec3& lookAtPosition)

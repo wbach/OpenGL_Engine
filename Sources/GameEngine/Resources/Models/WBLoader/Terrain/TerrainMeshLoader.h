@@ -14,7 +14,7 @@ class TerrainMeshLoader : public AbstractLoader
 {
 public:
     TerrainMeshLoader(ITextureLoader& textureLodaer);
-    virtual void ParseFile(const std::string& filename) override;
+    virtual void ParseFile(const File&) override;
     virtual bool CheckExtension(const std::string& filename) override;
     virtual std::unique_ptr<Model> Create() override;
 

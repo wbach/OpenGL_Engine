@@ -25,6 +25,7 @@ class GuiEditBoxElement;
 class VerticalLayout;
 class HorizontalLayout;
 class TreeView;
+class File;
 
 namespace Renderer
 {
@@ -77,7 +78,7 @@ public:
     void CreateMessageBox(const std::string& title, const std::string& message, std::function<void()> = nullptr);
 
 private:
-    std::unique_ptr<GuiTextureElement> MakeGuiTexture(const std::string&);
+    std::unique_ptr<GuiTextureElement> MakeGuiTexture(const File&);
     void CreateWindowBar(GuiWindowStyle, GuiWindowElement& window);
 
 private:

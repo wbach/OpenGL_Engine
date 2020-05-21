@@ -1,5 +1,6 @@
 #pragma once
 #include "CollisionShape.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -19,14 +20,14 @@ public:
 public:
     MeshShape& SetSize(float size);
     MeshShape& SetModel(Model* model);
-    MeshShape& SetModel(const std::string& filename);
+    MeshShape& SetModel(const File&);
+    const Model* GetModel() const;
+
     inline float GetSize() const;
-    const std::string& GetModelFileName() const;
 
 private:
     float size_;
     Model* model_;
-    std::string modelFileName_;
 
 public:
     static ComponentsType type;

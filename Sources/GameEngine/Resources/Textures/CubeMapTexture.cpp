@@ -20,7 +20,7 @@ void CubeMapTexture::GpuLoadingPass()
 {
     if (graphicsObjectId_ or images_.size() != 6)
     {
-        ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
+        ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() + ". data is null or is initialized.");
         return;
     }
 
@@ -31,7 +31,7 @@ void CubeMapTexture::GpuLoadingPass()
     {
         if (images_[x].data.empty())
         {
-            ERROR_LOG("There was an error loading the texture : " + filename +
+            ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() +
                       ". data is null or is initialized. Wrong image : " + std::to_string(x));
             return;
         }
@@ -43,11 +43,11 @@ void CubeMapTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("File " + filename + " is in GPU.");
+        DEBUG_LOG("File " + file_->GetBaseName() + " is in GPU.");
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + filename);
+        ERROR_LOG("Texutre not created. Filename : " + file_->GetBaseName());
     }
 
     for (auto& i : images_)

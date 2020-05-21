@@ -26,4 +26,5 @@ std::string GetRelativePath(const std::string&, const std::string&);
 bool IsAbsolutePath(const std::string&);
 bool IsRelativePath(const std::string&);
 bool DirectoryExist(const std::string&);
+std::string CreateBackupFile(const std::string&);
 }  // namespace Utils

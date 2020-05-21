@@ -61,7 +61,7 @@ void TerrainRendererComponent::CleanUp()
 }
 
 TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
-    const std::unordered_map<TerrainTextureType, std::string>& textures)
+    const std::unordered_map<TerrainTextureType, File>& textures)
 {
     terrainComponent_->LoadTextures(textures);
     return *this;
@@ -72,7 +72,7 @@ Texture *TerrainRendererComponent::GetTexture(TerrainTextureType type) const
     return terrainComponent_->GetTexture(type);
 }
 
-const std::unordered_map<TerrainTextureType, std::string>& TerrainRendererComponent::GetTextureFileNames() const
+const std::unordered_map<TerrainTextureType, File>& TerrainRendererComponent::GetTextureFileNames() const
 {
     return terrainComponent_->GetTextureFileNames();
 }
@@ -181,15 +181,10 @@ std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
     {
         auto varType = texture.first == TerrainTextureType::heightmap ? FILE : IMAGE_FILE;
         result.insert(
-            {std::to_string(texture.first), {varType, Utils::GetAbsolutePath(GetFullDataPath(texture.second))}});
+            {std::to_string(texture.first), {varType, texture.second.GetAbsoultePath()}});
     }
 
     return result;
-}
-
-void TerrainRendererComponent::RecalculateYOffset()
-{
-    terrainComponent_->RecalculateYOffset();
 }
 
 void TerrainRendererComponent::RecalculateNormals()

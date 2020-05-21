@@ -4,7 +4,7 @@
 
 namespace GameEngine
 {
-MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const InputFileName& filename,
+MaterialTexture::MaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, bool keepData, const File& filename,
                                  Image& image)
     : Texture(graphicsApi, filename, vec2ui(image.width, image.height))
     , image_(std::move(image))
@@ -16,11 +16,11 @@ void MaterialTexture::GpuLoadingPass()
 {
     if (image_.data.empty() or graphicsObjectId_)
     {
-        ERROR_LOG("There was an error loading the texture : " + filename + ". data is null or is initialized.");
+        ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() + ". data is null or is initialized.");
         return;
     }
 
-    DEBUG_LOG("Create texutre filneame : " + filename);
+    DEBUG_LOG("Create texutre filneame : " + file_->GetBaseName());
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::NEAREST,
@@ -29,12 +29,12 @@ void MaterialTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("File " + filename + " is in GPU.");
+        DEBUG_LOG("File " + file_->GetBaseName() + " is in GPU.");
     }
     else
     {
         image_.data.clear();
-        ERROR_LOG("Texutre not created. Filename : " + filename);
+        ERROR_LOG("Texutre not created. Filename : " + file_->GetBaseName());
     }
 
     if (not keepData)
@@ -55,6 +55,7 @@ const Image& MaterialTexture::GetImage() const
 }
 void MaterialTexture::SetPixel(const vec2ui& position, const Color& color)
 {
-    image_.SetPixel(position, color);
+    if (image_.SetPixel(position, color))
+        orginalData_ = false;
 }
 }  // namespace GameEngine

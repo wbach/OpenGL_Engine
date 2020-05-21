@@ -15,12 +15,12 @@ class AbstractLoader
 {
 public:
     AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader& textureLoader);
-    void Parse(const std::string& filename);
+    void Parse(const File&);
     virtual bool CheckExtension(const std::string& filename) = 0;
     virtual std::unique_ptr<Model> Create();
 
 protected:
-    virtual void ParseFile(const std::string& filename) = 0;
+    virtual void ParseFile(const File&) = 0;
     std::list<WBLoader::Object> objects;
     std::unique_ptr<Model> CreateModel();
     std::unique_ptr<Model> CreateModelFromBin();

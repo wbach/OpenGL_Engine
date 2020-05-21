@@ -1,12 +1,11 @@
 #include "Transform.h"
 
 #include <GLM/GLMUtils.h>
-#include <Utils/math.hpp>
+#include <Logger/Log.h>
 
+#include <Utils/math.hpp>
 #include <algorithm>
 #include <limits>
-
-#include <Logger/Log.h>
 
 namespace common
 {
@@ -52,16 +51,23 @@ uint32 Transform::SubscribeOnChange(std::function<void(const Transform&)> callba
 
 void Transform::UnsubscribeOnChange(uint32 id)
 {
-    auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto& pair) { return pair.first == id; });
-    if (iter != subscribers_.end())
-        subscribers_.erase(iter);
+    if (not subscribers_.empty())
+    {
+        auto iter =
+            std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto& pair) { return pair.first == id; });
+
+        if (iter != subscribers_.end())
+        {
+            std::lock_guard<std::mutex> lk(subscribeMutex_);
+            subscribers_.erase(iter);
+        }
+    }
 }
 
 void Transform::SetYPosition(float pos)
 {
     context_.position.y = pos;
     NotifySubscribers();
-    ;
 }
 
 void Transform::SetPosition(const vec3& pos)
@@ -238,6 +244,7 @@ void Transform::UpdateMatrix()
 
 void Transform::NotifySubscribers()
 {
+    std::lock_guard<std::mutex> lk(subscribeMutex_);
     for (auto& sub : subscribers_)
     {
         sub.second(*this);

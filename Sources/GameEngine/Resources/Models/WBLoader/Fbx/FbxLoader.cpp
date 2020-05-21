@@ -149,21 +149,20 @@ struct FbxLoader::Pimpl
         }
     }
 
-    void ReadFile(const std::string& filename)
+    void ReadFile(const File& file)
     {
-        auto fullpath = EngineConf_GetFullDataPath(filename);
-        DEBUG_LOG("Read fullpath : " + fullpath);
+        DEBUG_LOG("Read fullpath : " + file.GetAbsoultePath());
 
-        if (not manager_->GetIOPluginRegistry()->DetectReaderFileFormat(fullpath.c_str(), fileFormat))
+        if (not manager_->GetIOPluginRegistry()->DetectReaderFileFormat(file.GetAbsoultePath().c_str(), fileFormat))
         {
             // Unrecognizable file format. Try to fall back to FbxImporter::eFBX_BINARY
             fileFormat = manager_->GetIOPluginRegistry()->FindReaderIDByDescription("FBX binary (*.fbx)");
         }
 
         // Initialize the importer by providing a filename.
-        if (not importer_->Initialize(fullpath.c_str(), fileFormat))
+        if (not importer_->Initialize(file.GetAbsoultePath().c_str(), fileFormat))
         {
-            DEBUG_LOG("Initialize importer error : " + filename);
+            DEBUG_LOG("Initialize importer error : " + file.GetFilename());
             return;
         }
 
@@ -486,7 +485,7 @@ FbxLoader::~FbxLoader()
 {
 }
 
-void FbxLoader::ParseFile(const std::string& filename)
+void FbxLoader::ParseFile(const File& filename)
 {
     impl_ = std::make_unique<Pimpl>(textureLoader_, objects);
     impl_->ReadFile(filename);

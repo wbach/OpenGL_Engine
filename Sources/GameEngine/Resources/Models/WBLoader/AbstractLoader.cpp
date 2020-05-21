@@ -18,10 +18,10 @@ AbstractLoader::AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureL
     , loadedFromBin_(false)
 {
 }
-void AbstractLoader::Parse(const std::string& filename)
+void AbstractLoader::Parse(const File& file)
 {
-    fileName_ = Utils::GetFilenameWithExtension(filename);
-    filePath_ = Utils::GetFilePath(filename);
+    fileName_ = file.GetFilename();
+    filePath_ = file.GetParentDir();
 
     auto binFile = CreateBinPath(fileName_);
     if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))
@@ -29,11 +29,11 @@ void AbstractLoader::Parse(const std::string& filename)
         ReadBinFile(binFile, textureLoader_);
         loadedFromBin_ = true;
         fileName_      = binFile;
-        DEBUG_LOG("Load from bin file :" + filename);
+        DEBUG_LOG("Load from bin file :" + fileName_);
     }
     else
     {
-        ParseFile(filename);
+        ParseFile(file);
     }
 }
 std::unique_ptr<Model> AbstractLoader::Create()

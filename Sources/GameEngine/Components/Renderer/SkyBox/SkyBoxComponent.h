@@ -19,14 +19,14 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
-    SkyBoxComponent& SetDayTexture(const std::array<std::string, 6>&);
-    SkyBoxComponent& SetNightTexture(const std::array<std::string, 6>&);
+    SkyBoxComponent& SetDayTexture(const std::array<File, 6>&);
+    SkyBoxComponent& SetNightTexture(const std::array<File, 6>&);
     SkyBoxComponent& SetModel(const std::string& filename);
     Texture* GetDayTexture();
     Texture* GetNightTexture();
     Model* GetModel();
-    const std::array<std::string, 6>& GetDayTextureFiles() const;
-    const std::array<std::string, 6>& GetNightTextureFiles() const;
+    const std::array<File, 6>& GetDayTextureFiles() const;
+    const std::array<File, 6>& GetNightTextureFiles() const;
     const std::string& GetModelFileName() const;
 
 private:
@@ -38,8 +38,8 @@ private:
     Texture* dayTexture_;
     Texture* nightTexture_;
     Model* model_;
-    std::array<std::string, 6> dayTextureFiles_;
-    std::array<std::string, 6> nightTextureFiles_;
+    std::array<File, 6> dayTextureFiles_;
+    std::array<File, 6> nightTextureFiles_;
     std::string modelFileName_;
     bool isSubscribed_;
 

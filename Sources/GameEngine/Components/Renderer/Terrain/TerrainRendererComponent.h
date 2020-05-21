@@ -35,17 +35,16 @@ public:
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     std::unordered_map<ParamName, Param> GetParams() const override;
 
-    void RecalculateYOffset();
     void RecalculateNormals();
     void HeightMapChanged();
     void BlendMapChanged();
     void UpdateTexture(TerrainTextureType, const std::string&);
-    TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
+    TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, File>&);
     Texture* GetTexture(TerrainTextureType) const;
 
     HeightMap* GetHeightMap();
     const TerrainConfiguration& GetTerrainConfiguration() const;
-    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
+    const std::unordered_map<TerrainTextureType, File>& GetTextureFileNames() const;
 
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();

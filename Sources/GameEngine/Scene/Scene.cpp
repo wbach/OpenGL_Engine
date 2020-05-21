@@ -232,13 +232,16 @@ const std::vector<Light>& Scene::GetLights() const
 }
 void Scene::SaveToFile(const std::string& filename)
 {
+    DEBUG_LOG("Save scene to file : " + filename);
     SaveSceneState(*this, filename);
+    DEBUG_LOG("Scene save complete  , file : " + filename);
 }
 void Scene::LoadFromFile(const std::string& filename)
 {
     DEBUG_LOG("Load scene from file : " + filename);
     file_ = filename;
     SceneReader::LoadScene(*this, filename);
+    DEBUG_LOG("Load scene from file : \"" + filename + "\" complete");
 }
 
 GameObject* Scene::LoadPrefab(const std::string& filename, const std::string& name)

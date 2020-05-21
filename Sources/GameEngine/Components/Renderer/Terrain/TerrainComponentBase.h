@@ -25,15 +25,14 @@ public:
 
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() = 0;
 
-    virtual void RecalculateYOffset() = 0;
     virtual void RecalculateNormals() = 0;
     virtual void HeightMapChanged() = 0;
     virtual void CleanUp();
 
     void BlendMapChanged();
 
-    void LoadTextures(const std::unordered_map<TerrainTextureType, std::string>&);
-    const std::unordered_map<TerrainTextureType, std::string>& GetTextureFileNames() const;
+    void LoadTextures(const std::unordered_map<TerrainTextureType, File>&);
+    const std::unordered_map<TerrainTextureType, File>& GetTextureFileNames() const;
     const TerrainTexturesMap& GetTextures() const;
     Texture* GetTexture(TerrainTextureType) const;
     const TerrainConfiguration& GetConfiguration() const;
@@ -41,9 +40,9 @@ public:
     void UpdateTexture(TerrainTextureType, const std::string&);
 
 protected:
-    virtual void LoadHeightMap(const std::string&)   = 0;
-    virtual void UpdateHeightMap(const std::string&) = 0;
-    void LoadTerrainConfiguration(const std::string&);
+    virtual void LoadHeightMap(const File&)   = 0;
+    virtual void UpdateHeightMap(const File&) = 0;
+    void LoadTerrainConfiguration(const File&);
     void SetTexture(TerrainTextureType, Texture*);
     void UpdateTexture(TerrainTextureType, Texture*);
     void Subscribe();
@@ -61,7 +60,7 @@ protected:
     TerrainTexturesMap textures_;
     HeightMap* heightMap_;
 
-    std::unordered_map<TerrainTextureType, std::string> texturedFileNames_;
+    std::unordered_map<TerrainTextureType, File> texturedFileNames_;
     bool isSubscribed_;
 
 public:

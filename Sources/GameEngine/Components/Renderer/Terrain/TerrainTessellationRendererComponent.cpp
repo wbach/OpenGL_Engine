@@ -24,20 +24,15 @@ std::vector<std::pair<FunctionType, std::function<void()>>> TerrainTessellationR
 {
     return {{FunctionType::Awake, [&]() { Subscribe(); }}, {FunctionType::AlwaysUpdate, [&]() { Update(); }}};
 }
-
-void TerrainTessellationRendererComponent::RecalculateYOffset()
-{
-}
-
 void TerrainTessellationRendererComponent::RecalculateNormals()
 {
 }
-void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& filename)
+void TerrainTessellationRendererComponent::LoadHeightMap(const File& file)
 {
     heightMapParameters_.flipMode       = TextureFlip::NONE;
     heightMapParameters_.loadType       = TextureLoadType::AddToGpuPass;
     heightMapParameters_.applySizeLimit = false;
-    TerrainComponentBase::LoadHeightMap(filename);
+    TerrainComponentBase::LoadHeightMap(file);
 
     auto normalMap =
         componentContext_.resourceManager_.GetTextureLoader().CreateNormalMap(*heightMap_, config_.GetScale());
@@ -47,12 +42,10 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const std::string& file
     config_.SetTerrainYOffset(yoffset);
     terrainQuadTree_.CreateNodes();
 }
-void TerrainTessellationRendererComponent::UpdateHeightMap(const std::string& filename)
+void TerrainTessellationRendererComponent::UpdateHeightMap(const File& file)
 {
-    const auto fullNameWithPath = EngineConf_GetFullDataPathAddToRequierd(filename);
-
     auto texture =
-        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(fullNameWithPath, TextureParameters());
+        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, TextureParameters());
 
     if (not texture)
     {
@@ -61,7 +54,7 @@ void TerrainTessellationRendererComponent::UpdateHeightMap(const std::string& fi
 
     heightMap_ = static_cast<HeightMap*>(texture);
     UpdateTexture(TerrainTextureType::heightmap, heightMap_);
-    LoadTerrainConfiguration(filename);
+    LoadTerrainConfiguration(file);
     terrainQuadTree_.CreateNodes();
 }
 const TerrainQuadTree& TerrainTessellationRendererComponent::GetTree() const

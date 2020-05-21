@@ -27,8 +27,6 @@ namespace
 uint32 unknownTextureNameId{0};
 }
 
-const std::string HEIGHTMAP_EXTENSION = "terrain";
-
 TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
                              std::unordered_map<std::string, ResourceInfo<Texture>>& textures)
     : graphicsApi_(graphicsApi)
@@ -48,28 +46,27 @@ Texture* TextureLoader::CreateTexture(const std::string& name, const TexturePara
     if (auto texture = GetTextureIfLoaded(name, params))
         return texture;
 
-    return AddTexture(name, std::make_unique<GeneralTexture>(graphicsApi_, name, size, data), params.loadType);
+    return AddTexture(name, std::make_unique<GeneralTexture>(graphicsApi_, size, data), params.loadType);
 }
-Texture* TextureLoader::LoadTexture(const InputFileName& inputFileName, const TextureParameters& params)
+Texture* TextureLoader::LoadTexture(const File& inputFileName, const TextureParameters& params)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    if (inputFileName.empty())
+    if (not inputFileName)
         return nullptr;
 
-    if (auto texture = GetTextureIfLoaded(inputFileName, params))
+    if (auto texture = GetTextureIfLoaded(inputFileName.GetAbsoultePath(), params))
         return texture;
 
-    auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(inputFileName), params);
+    auto image = ReadFile(inputFileName, params);
 
     if (not image)
         return GetTextureNotFound();
 
     auto materialTexture = std::make_unique<MaterialTexture>(graphicsApi_, params.keepData, inputFileName, *image);
-
-    return AddTexture(inputFileName, std::move(materialTexture), params.loadType);
+    return AddTexture(inputFileName.GetAbsoultePath(), std::move(materialTexture), params.loadType);
 }
-Texture* TextureLoader::LoadCubeMap(const std::array<InputFileName, 6>& files, const TextureParameters& params)
+Texture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, const TextureParameters& params)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
@@ -85,7 +82,7 @@ Texture* TextureLoader::LoadCubeMap(const std::array<InputFileName, 6>& files, c
     size_t index = 0;
     for (const auto& file : files)
     {
-        auto image = ReadFile(EngineConf_GetFullDataPathAddToRequierd(file), params);
+        auto image = ReadFile(file, params);
 
         if (not image)
             return GetTextureNotFound();
@@ -96,16 +93,16 @@ Texture* TextureLoader::LoadCubeMap(const std::array<InputFileName, 6>& files, c
     return AddTexture(textureName.str(), std::make_unique<CubeMapTexture>(graphicsApi_, textureName.str(), images, params.keepData),
                       params.loadType);
 }
-Texture* TextureLoader::LoadHeightMap(const InputFileName& inputFileName, const TextureParameters& params)
+Texture* TextureLoader::LoadHeightMap(const File& inputFileName, const TextureParameters& params)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    if (auto texture = GetTextureIfLoaded(inputFileName, params))
+    if (auto texture = GetTextureIfLoaded(inputFileName.GetAbsoultePath(), params))
     {
         return texture;
     }
 
-    auto isBinnary = Utils::CheckExtension(inputFileName, HEIGHTMAP_EXTENSION);
+    auto isBinnary = inputFileName.IsExtension(".terrain");
     return isBinnary ? LoadHeightMapBinary(inputFileName, params) : LoadHeightMapTexture(inputFileName, params);
 }
 Texture* TextureLoader::CreateNormalMap(const HeightMap& heightMap, const vec3& terrainScale)
@@ -119,7 +116,7 @@ GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()
 {
     return graphicsApi_;
 }
-void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector<uint8>& data, const vec2ui& size,
+void TextureLoader::SaveTextureToFile(const File& name, const std::vector<uint8>& data, const vec2ui& size,
                                       uint8 bytes, GraphicsApi::TextureFormat format) const
 {
     auto bytesData = const_cast<uint8*>(&data[0]);
@@ -141,7 +138,7 @@ void TextureLoader::SaveTextureToFile(const std::string& name, const std::vector
         ext     = ".jpeg";
     }
 
-    FreeImage_Save(fformat, im, (name + ext).c_str(), 0);
+    FreeImage_Save(fformat, im, (name.GetAbsoultePath() + ext).c_str(), 0);
 }
 
 void TextureLoader::DeleteTexture(Texture& texture)
@@ -162,13 +159,13 @@ void TextureLoader::DeleteTexture(Texture& texture)
     textures_.erase(iter);
 }
 
-Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, const TextureParameters& params)
+Texture* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const TextureParameters& params)
 {
-    auto fp = fopen(inputFileName.c_str(), "rb");
+    auto fp = fopen(inputFileName.GetAbsoultePath().c_str(), "rb");
 
     if (!fp)
     {
-        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + inputFileName);
+        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + inputFileName.GetAbsoultePath());
         return nullptr;
     }
 
@@ -177,7 +174,7 @@ Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, 
 
     if (bytes == 0)
     {
-        ERROR_LOG("Read file error." + inputFileName);
+        ERROR_LOG("Read file error." + inputFileName.GetAbsoultePath());
     }
 
     DEBUG_LOG("Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
@@ -195,7 +192,7 @@ Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, 
 
     if (bytes < size)
     {
-        ERROR_LOG("Read file error." + inputFileName + " " + ", bytes : " + std::to_string(bytes) + "/" +
+        ERROR_LOG("Read file error." + inputFileName.GetAbsoultePath() + " " + ", bytes : " + std::to_string(bytes) + "/" +
                   std::to_string(sizeof(float) * size));
         return nullptr;
     }
@@ -203,20 +200,18 @@ Texture* TextureLoader::LoadHeightMapBinary(const InputFileName& inputFileName, 
     auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, inputFileName, std::move(image));
     heightmapTexture->SetScale(header.scale);
 
-    return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
+    return AddTexture(inputFileName.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
 }
-Texture* TextureLoader::LoadHeightMapTexture(const InputFileName& inputFileName, const TextureParameters& params)
+Texture* TextureLoader::LoadHeightMapTexture(const File& inputFileName, const TextureParameters& params)
 {
-    DEBUG_LOG(inputFileName);
+    auto maybeImage= ReadFile(inputFileName, params);
 
-    auto optImage = ReadFile(inputFileName, params);
-
-    if (not optImage)
+    if (not maybeImage)
     {
         return nullptr;
     }
 
-    auto& image = *optImage;
+    auto& image = *maybeImage;
 
     if (image.floatData.empty())
     {
@@ -235,7 +230,7 @@ Texture* TextureLoader::LoadHeightMapTexture(const InputFileName& inputFileName,
 
     auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, inputFileName, std::move(image));
 
-    return AddTexture(inputFileName, std::move(heightmapTexture), params.loadType);
+    return AddTexture(inputFileName.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
 }
 
 Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const TextureParameters& params)

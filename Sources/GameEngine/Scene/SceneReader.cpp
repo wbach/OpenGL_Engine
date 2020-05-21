@@ -201,9 +201,9 @@ std::vector<std::string> ReadStringVector(Utils::XmlNode& node, const std::strin
     return textures;
 }
 
-std::array<std::string, 6> ReadCubeMapArray(Utils::XmlNode& node, const std::string& str)
+std::array<File, 6> ReadCubeMapArray(Utils::XmlNode& node, const std::string& str)
 {
-    std::array<std::string, 6> textures;
+    std::array<File, 6> textures;
     uint32 index = 0;
     for (const auto& modelFileName : node.GetChild(str)->GetChildren())
     {
@@ -282,9 +282,9 @@ void Read(Utils::XmlNode& node, Components::WaterRendererComponent& component)
         component.LoadTextures(dudvNode->value_, normalMapNode->value_);
 }
 
-std::unordered_map<TerrainTextureType, std::string> ReadTerrainTextures(Utils::XmlNode& node)
+std::unordered_map<TerrainTextureType, File> ReadTerrainTextures(Utils::XmlNode& node)
 {
-    std::unordered_map<TerrainTextureType, std::string> result;
+    std::unordered_map<TerrainTextureType, File> result;
 
     for (const auto& texture : node.GetChildren())
     {

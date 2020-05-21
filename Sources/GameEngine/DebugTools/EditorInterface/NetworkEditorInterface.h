@@ -82,9 +82,8 @@ private:
     void EnablePlantPainter(const EntryParameters&);
     void DisableTerrainPainter(const EntryParameters&);
     void UpdateTerrainPainterParam(const EntryParameters&);
-    void RecalculateTerrainYOffset(const EntryParameters&);
     void RecalculateTerrainNormals(const EntryParameters&);
-    void GenerateTerrainBlendMap(const EntryParameters&);
+    void ClearTerrainsBlendMap(const EntryParameters&);
     void ControlTextureUsage(const EntryParameters&);
     void GenerateTerrainBlendMapToFile();
     void ReloadShaders(const EntryParameters&);

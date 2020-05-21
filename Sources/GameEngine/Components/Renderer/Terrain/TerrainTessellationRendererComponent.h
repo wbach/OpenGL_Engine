@@ -19,15 +19,14 @@ public:
 
     std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
 
-    void RecalculateYOffset() override;
     void RecalculateNormals() override;
     void CleanUp() override;
     const TerrainQuadTree& GetTree() const;
     void HeightMapChanged();
 
 private:
-    void LoadHeightMap(const std::string&) override;
-    void UpdateHeightMap(const std::string&) override;
+    void LoadHeightMap(const File&) override;
+    void UpdateHeightMap(const File&) override;
     void Update();
 
 private:

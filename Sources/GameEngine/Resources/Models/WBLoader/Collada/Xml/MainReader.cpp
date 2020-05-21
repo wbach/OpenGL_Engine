@@ -1,5 +1,7 @@
 #include "MainReader.h"
+
 #include <rapidxml.hpp>
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GeometryReader.h"
 #include "LibraryAnimationsReader.h"
@@ -16,10 +18,9 @@ namespace GameEngine
 {
 namespace Collada
 {
-void ReadCollada(const std::string& filename, ColladaData& colladaData)
+void ReadCollada(const File& filename, ColladaData& colladaData)
 {
-    auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
-    auto fileData     = Utils::ReadFile(fullFilePath);
+    auto fileData = Utils::ReadFile(filename.GetAbsoultePath());
 
     if (fileData.empty())
         return;
@@ -32,7 +33,7 @@ void ReadCollada(const std::string& filename, ColladaData& colladaData)
     }
     catch (...)
     {
-       ERROR_LOG("Can not parse file " + filename);
+        ERROR_LOG("Can not parse file " + filename.GetFilename());
         return;
     }
     auto root = document.first_node();
@@ -67,5 +68,5 @@ void ReadCollada(const std::string& filename, ColladaData& colladaData)
         }
     });
 }
-}  // Collada
-}  // GameEngine
+}  // namespace Collada
+}  // namespace GameEngine

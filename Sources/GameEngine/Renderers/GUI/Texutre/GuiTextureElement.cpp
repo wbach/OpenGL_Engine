@@ -20,8 +20,4 @@ void GuiTextureElement::Flip()
 {
     scale_.y *= -1;
 }
-const std::string& GuiTextureElement::GetFilename() const
-{
-    return texture_ ? texture_->GetFileName() : emptyString;
-}
 }  // namespace GameEngine

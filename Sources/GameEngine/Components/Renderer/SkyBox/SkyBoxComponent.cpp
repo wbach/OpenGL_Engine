@@ -30,13 +30,13 @@ void SkyBoxComponent::DeleteTexture(Texture*& texture)
     }
     texture = nullptr;
 }
-SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<std::string, 6>& filenames)
+SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<File, 6>& filenames)
 {
     dayTextureFiles_ = filenames;
     dayTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
     return *this;
 }
-SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<std::string, 6>& filenames)
+SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<File, 6>& filenames)
 {
     nightTextureFiles_ = filenames;
     nightTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
@@ -64,11 +64,11 @@ Model* SkyBoxComponent::GetModel()
 {
     return model_;
 }
-const std::array<std::string, 6>& SkyBoxComponent::GetDayTextureFiles() const
+const std::array<File, 6>& SkyBoxComponent::GetDayTextureFiles() const
 {
     return dayTextureFiles_;
 }
-const std::array<std::string, 6>& SkyBoxComponent::GetNightTextureFiles() const
+const std::array<File, 6>& SkyBoxComponent::GetNightTextureFiles() const
 {
     return nightTextureFiles_;
 }

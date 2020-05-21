@@ -8,7 +8,7 @@ namespace GameEngine
 class HeightMap : public Texture
 {
 public:
-    HeightMap(GraphicsApi::IGraphicsApi&, const InputFileName&, Image);
+    HeightMap(GraphicsApi::IGraphicsApi&, const File&, Image);
 
     void GpuLoadingPass() override;
 

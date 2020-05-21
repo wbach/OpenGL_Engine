@@ -31,20 +31,19 @@ void TerrainComponentBase::CleanUp()
 void TerrainComponentBase::BlendMapChanged()
 {
     auto texture = GetTexture(TerrainTextureType::blendMap);
-    DEBUG_LOG("");
+
     if (texture and texture->GetGraphicsObjectId())
     {
-        DEBUG_LOG("");
-        auto blendMap = static_cast<MaterialTexture *>(texture);
+        auto blendMap = static_cast<MaterialTexture*>(texture);
 
         componentContext_.gpuResourceLoader_.AddFunctionToCall([blendMap, api = &componentContext_.graphicsApi_]() {
             api->UpdateTexture(*blendMap->GetGraphicsObjectId(), blendMap->GetImage().Size(),
-                               blendMap->GetImage().GetDataRaw());
+                               blendMap->GetImage().GetRawDataPtr());
         });
     }
 }
 
-void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureType, std::string> &textures)
+void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureType, File> &textures)
 {
     texturedFileNames_ = textures;
 
@@ -55,6 +54,7 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
 
         if (texturePair.first == TerrainTextureType::heightmap)
         {
+            textureParams.applySizeLimit = false;
             LoadTerrainConfiguration(texturePair.second);
             LoadHeightMap(texturePair.second);
             continue;
@@ -62,6 +62,7 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
         else if (texturePair.first == TerrainTextureType::blendMap)
         {
             textureParams.keepData = true;
+            textureParams.applySizeLimit = false;
         }
 
         auto texture =
@@ -70,7 +71,7 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
     }
 }
 
-const std::unordered_map<TerrainTextureType, std::string> &TerrainComponentBase::GetTextureFileNames() const
+const std::unordered_map<TerrainTextureType, File> &TerrainComponentBase::GetTextureFileNames() const
 {
     return texturedFileNames_;
 }
@@ -113,11 +114,10 @@ void TerrainComponentBase::UpdateTexture(TerrainTextureType type, const std::str
     }
 }
 
-void TerrainComponentBase::LoadHeightMap(const std::string &filename)
+void TerrainComponentBase::LoadHeightMap(const File& file)
 {
-    auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
     auto texture =
-        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(fullFilePath, heightMapParameters_);
+        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, heightMapParameters_);
 
     if (texture)
     {
@@ -126,12 +126,9 @@ void TerrainComponentBase::LoadHeightMap(const std::string &filename)
     }
 }
 
-void TerrainComponentBase::LoadTerrainConfiguration(const std::string &terrainFileName)
+void TerrainComponentBase::LoadTerrainConfiguration(const File& terrainConfigFile)
 {
-    auto terrainFileFullpath = EngineConf_GetFullDataPath(terrainFileName);
-    auto terrainConfigFile   = Utils::GetPathAndFilenameWithoutExtension(terrainFileFullpath) + ".terrainConfig";
-
-    config_ = TerrainConfiguration::ReadFromFile(terrainConfigFile);
+    config_ = TerrainConfiguration::ReadFromFile(terrainConfigFile.CreateFileWithExtension("terrainConfig"));
 }
 
 void TerrainComponentBase::SetTexture(TerrainTextureType type, Texture *texture)

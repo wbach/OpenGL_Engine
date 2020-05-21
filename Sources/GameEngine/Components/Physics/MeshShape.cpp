@@ -55,22 +55,21 @@ void MeshShape::OnAwake()
 MeshShape& MeshShape::SetModel(Model* model)
 {
     model_ = model;
-    modelFileName_ = model->GetFileName();
     return *this;
 }
-MeshShape& MeshShape::SetModel(const std::string& filename)
+MeshShape& MeshShape::SetModel(const File& filename)
 {
     model_ = componentContext_.resourceManager_.LoadModel(filename);
     return *this;
+}
+const Model* MeshShape::GetModel() const
+{
+	return model_;
 }
 MeshShape& MeshShape::SetSize(float size)
 {
     size_ = size;
     return *this;
-}
-const std::string& MeshShape::GetModelFileName() const
-{
-    return modelFileName_;
 }
 }  // namespace Components
 }  // namespace GameEngine

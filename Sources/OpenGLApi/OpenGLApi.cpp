@@ -744,6 +744,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, const void* data)
 {
     if (impl_->textureInfos_.count(id) == 0)
     {
+        ERROR_LOG("Texture not found id : " + std::to_string(id));
         return;
     }
 

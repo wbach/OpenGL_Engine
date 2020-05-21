@@ -18,24 +18,23 @@ TerrainMeshLoader::TerrainMeshLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
 }
-void TerrainMeshLoader::ParseFile(const std::string& filename)
+void TerrainMeshLoader::ParseFile(const File& file)
 {
-    auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
-
     TextureParameters params;
     params.loadType = TextureLoadType::None;
 
-    auto texture = textureLoader_.LoadHeightMap(fullFilePath, params);
+    auto texture = textureLoader_.LoadHeightMap(file, params);
 
     if (not texture)
     {
-        ERROR_LOG("Height mapt not loaded. " + filename);
+        ERROR_LOG("Height mapt not loaded. " + file.GetFilename());
         return;
     }
 
-    auto terrainConfigFile = Utils::GetPathAndFilenameWithoutExtension(fullFilePath) + ".terrainConfig";
-    auto terrainConfig     = TerrainConfiguration::ReadFromFile(terrainConfigFile);
-    terrainScale_          = terrainConfig.GetScale();
+    File terrainConfigFile = file;
+    terrainConfigFile.ChangeExtension("terrainConfig");
+    auto terrainConfig = TerrainConfiguration::ReadFromFile(terrainConfigFile);
+    terrainScale_      = terrainConfig.GetScale();
 
     auto hm              = static_cast<HeightMap*>(texture);
     heightMapResolution_ = hm->GetImage().width;
@@ -126,7 +125,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
     auto& vertices      = mesh.GetMeshDataRef().positions_;
     auto& normals       = mesh.GetMeshDataRef().normals_;
     auto& textureCoords = mesh.GetMeshDataRef().textCoords_;
-    auto& tangents = mesh.GetMeshDataRef().tangents_;
+    auto& tangents      = mesh.GetMeshDataRef().tangents_;
 
     for (uint32 i = y_start; i < height; i++)
     {
@@ -142,7 +141,6 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
 
             vec3 normal  = tools.GetNormal(j, i);
             vec3 tangnet = tools.GetTangent(normal);
-
 
             normals.push_back(normal.x);
             normals.push_back(normal.y);

@@ -1,8 +1,9 @@
 #include "ResourceManager.h"
 
+#include <Logger/Log.h>
+
 #include <algorithm>
 
-#include <Logger/Log.h>
 #include "GpuResourceLoader.h"
 #include "TextureLoader.h"
 
@@ -21,20 +22,22 @@ ResourceManager::~ResourceManager()
     DEBUG_LOG("destructor");
 }
 
-Model* ResourceManager::LoadModel(const std::string& file)
+Model* ResourceManager::LoadModel(const File& file)
 {
+    auto absoultePath = file.GetAbsoultePath();
     std::lock_guard<std::mutex> lk(modelMutex_);
-    auto count = models_.count(file);
+    auto count = models_.count(absoultePath);
 
     if (count > 0)
     {
-        auto& modelInfo = models_.at(file);
+        auto& modelInfo = models_.at(absoultePath);
         ++modelInfo.instances_;
         modelInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
         // ResourceGpuStatus::NotLoaded for models not implmented. T
         // To do: Can be useful for simplified physics collision mesh shapes.
         // Visual representation of physics shape not needed
-        DEBUG_LOG(file + " model already loaded, instances count : " + std::to_string(modelInfo.instances_));
+        DEBUG_LOG(file.GetBaseName() +
+                  " model already loaded, instances count : " + std::to_string(modelInfo.instances_));
         return modelInfo.resource_.get();
     }
 
@@ -45,7 +48,7 @@ Model* ResourceManager::LoadModel(const std::string& file)
         return nullptr;
 
     auto modelPtr = modelInfo.resource_.get();
-    models_.insert({file, std::move(modelInfo)});
+    models_.insert({absoultePath, std::move(modelInfo)});
 
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
     return modelPtr;
@@ -54,8 +57,8 @@ Model* ResourceManager::LoadModel(const std::string& file)
 void ResourceManager::AddModel(std::unique_ptr<Model> model)
 {
     auto modelPtr = model.get();
-    auto filename = model->GetFileName().empty() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
-                                                 : model->GetFileName();
+    auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
+                                     : model->GetFile().GetAbsoultePath();
 
     ResourceInfo<Model> modelInfo;
     modelInfo.resource_ = std::move(model);
@@ -67,10 +70,12 @@ void ResourceManager::ReleaseModel(Model& model)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
 
-    if (not models_.count(model.GetFileName()))
+    auto absoultePath = model.GetFile().GetAbsoultePath();
+
+    if (not models_.count(absoultePath))
         return;
 
-    auto& modelInfo = models_.at(model.GetFileName());
+    auto& modelInfo = models_.at(absoultePath);
     --modelInfo.instances_;
 
     if (modelInfo.instances_ > 0)
@@ -82,7 +87,7 @@ void ResourceManager::ReleaseModel(Model& model)
     }
 
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
-    models_.erase(model.GetFileName());
+    models_.erase(absoultePath);
 }
 
 void ResourceManager::DeleteMaterial(const Material& material)

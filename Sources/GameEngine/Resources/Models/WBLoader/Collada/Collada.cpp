@@ -17,7 +17,7 @@ ColladaDae::ColladaDae(ITextureLoader& textureLodaer)
     : AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 {
 }
-void ColladaDae::ParseFile(const std::string& filename)
+void ColladaDae::ParseFile(const File& filename)
 {
     Collada::ReadCollada(filename, data_);
     ConstructModel();

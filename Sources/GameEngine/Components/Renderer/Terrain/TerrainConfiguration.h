@@ -3,13 +3,14 @@
 #include <optional>
 #include "PerrTerrainBuffer.h"
 #include "Types.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
 class TerrainConfiguration
 {
 public:
-    static TerrainConfiguration ReadFromFile(const std::string&);
+    static TerrainConfiguration ReadFromFile(const File&);
 
 public:
     TerrainConfiguration();

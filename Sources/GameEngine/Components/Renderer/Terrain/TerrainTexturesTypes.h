@@ -26,7 +26,10 @@ enum class TerrainTextureType
     blueTextureDisplacement       = 15,
     alphaTexture                  = 16,
     alphaTextureNormal            = 17,
-    alphaTextureDisplacement      = 18
+    alphaTextureDisplacement      = 18,
+    rockTexture                   = 19,
+    rockTextureNormal             = 20,
+    rockTextureDisplacement       = 21
 
 };
 bool IsTerrainTextureType(const std::string&);
@@ -36,4 +39,4 @@ namespace std
 {
 void from_string(const std::string& type, GameEngine::TerrainTextureType&);
 std::string to_string(GameEngine::TerrainTextureType);
-}
+}  // namespace std

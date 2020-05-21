@@ -185,6 +185,17 @@ typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::fquat Quaternion;
 
+extern const std::string DEFAULT_STRING;
+extern const vec3 VECTOR_ZERO;
+extern const vec2 DEFAULT_VEC2;
+extern const vec3 VECTOR_UP;
+extern const vec3 VECTOR_DOWN;
+extern const vec3 VECTOR_LEFT;
+extern const vec3 VECTOR_RIGHT;
+extern const vec3 VECTOR_FORWARD;
+extern const vec3 VECTOR_BACKWARD;
+extern const vec3 VECTOR_ONE;
+
 template <class type>
 type ToRadians(type a)
 {

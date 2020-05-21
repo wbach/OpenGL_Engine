@@ -32,7 +32,7 @@ void PlantPainter::Paint(const TerrainPoint& point)
         point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
 
     bool positionAdded{false};
-    numberOfInstances_ = strength_ < 0.f ? 1.f : static_cast<uint32>(strength_);
+    numberOfInstances_ = strength_ < 0.f ? 1 : static_cast<uint32>(strength_);
 
     for (uint32 i = 0; i < numberOfInstances_; ++i)
     {

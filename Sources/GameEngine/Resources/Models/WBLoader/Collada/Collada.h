@@ -14,7 +14,7 @@ class ColladaDae : public AbstractLoader
 {
 public:
     ColladaDae(ITextureLoader& textureLodaer);
-    virtual void ParseFile(const std::string& filename) override;
+    virtual void ParseFile(const File&) override;
     virtual bool CheckExtension(const std::string& filename) override;
 
 private:

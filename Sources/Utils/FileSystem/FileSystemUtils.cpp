@@ -150,4 +150,30 @@ std::string GetRelativePath(const std::string& absoultePath, const std::string& 
     }
 }
 
+std::string CreateBackupFile(const std::string& output)
+{
+    if (std::filesystem::exists(output))
+    {
+        try
+        {
+            auto backupFile = output + ".backup";
+            if (std::filesystem::exists(backupFile))
+            {
+                DEBUG_LOG("Remove old backup file " + backupFile);
+                std::filesystem::remove(backupFile);
+            }
+
+            std::filesystem::copy(output, backupFile);
+            DEBUG_LOG("Backup created. " + backupFile);
+            return backupFile;
+        }
+        catch (...)
+        {
+            ERROR_LOG("Create backup error. " + output);
+        }
+    }
+
+    return {};
+}
+
 }  // namespace Utils

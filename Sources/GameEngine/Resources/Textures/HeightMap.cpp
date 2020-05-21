@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const InputFileName& file, Image image)
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const File& file, Image image)
     : Texture(graphicsApi, file, vec2ui(image.width, image.height))
     , image_(std::move(image))
     , maximumHeight_(0)
@@ -18,10 +18,11 @@ void HeightMap::GpuLoadingPass()
 {
     if (image_.floatData.empty() or graphicsObjectId_)
     {
-        ERROR_LOG("There was an error loading the texture : " + filename + ". floatData is null or is initialized.");
+        ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() +
+                  ". floatData is null or is initialized.");
         return;
     }
-    DEBUG_LOG("Create texutre filneame : " + filename);
+    DEBUG_LOG("Create texutre filneame : " + file_->GetBaseName());
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
@@ -30,11 +31,11 @@ void HeightMap::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("File " + filename + " is in GPU.");
+        DEBUG_LOG("File " + file_->GetBaseName() + " is in GPU.");
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + filename);
+        ERROR_LOG("Texutre not created. Filename : " + file_->GetBaseName());
     }
 }
 

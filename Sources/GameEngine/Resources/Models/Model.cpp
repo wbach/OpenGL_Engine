@@ -9,22 +9,18 @@ Model::Model()
     : Model(1.f)
 {
 }
-
 Model::Model(float scaleFactor)
     : scaleFactor_(scaleFactor)
 {
 }
-
-void Model::SetFileName(const std::string& fileName)
+void Model::SetFile(const File& file)
 {
-    filename_ = fileName;
+    file_ = file;
 }
-
 Model::~Model()
 {
-    DEBUG_LOG(filename_);
+    DEBUG_LOG(file_.GetDataRelativeDir());
 }
-
 void Model::GpuLoadingPass()
 {
     for (auto& mesh : meshes_)
@@ -36,26 +32,22 @@ void Model::ReleaseGpuPass()
     for (auto& mesh : meshes_)
         mesh.ReleaseGpuPass();
 }
-
 Mesh& Model::AddMesh(Mesh& mesh)
 {
     meshes_.push_back(std::move(mesh));
     return meshes_.back();
 }
-
 Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api)
 {
     meshes_.emplace_back(type, api);
     return meshes_.back();
 }
-
 Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api, const Material& material,
                      const mat4& transformMatix)
 {
     meshes_.emplace_back(type, api, material, transformMatix);
     return meshes_.back();
 }
-
 bool Model::IsAnyMeshUseTransform() const
 {
     for (const auto& mesh : meshes_)
@@ -65,7 +57,6 @@ bool Model::IsAnyMeshUseTransform() const
     }
     return false;
 }
-
 const std::vector<mat4>& Model::GetBoneTransforms()
 {
     if (skeleton_.size == 0)
@@ -77,7 +68,6 @@ const std::vector<mat4>& Model::GetBoneTransforms()
     AddJoints(skeleton_);
     return boneTransforms_;
 }
-
 void Model::AddJoints(Animation::Joint& joint)
 {
     boneTransforms_[joint.id] = joint.animatedTransform;
@@ -85,5 +75,9 @@ void Model::AddJoints(Animation::Joint& joint)
     {
         AddJoints(childJoint);
     }
+}
+const File& Model::GetFile() const
+{
+    return file_;
 }
 }  // namespace GameEngine

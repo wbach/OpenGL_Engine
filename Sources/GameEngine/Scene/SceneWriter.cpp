@@ -1,5 +1,11 @@
 #include "SceneWriter.h"
 
+#include <Utils.h>
+#include <Utils/GLM/GLMUtils.h>
+#include <Utils/XML/XmlWriter.h>
+
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
@@ -19,11 +25,9 @@
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Resources/ResourceUtils.h"
+#include "GameEngine/Resources/Textures/MaterialTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "SceneDef.h"
-#include "Utils.h"
-#include "Utils/GLM/GLMUtils.h"
-#include "Utils/XML/XmlWriter.h"
 
 using namespace Utils;
 
@@ -44,6 +48,10 @@ void Create(XmlNode& node, uint32 v)
 void Create(XmlNode& node, bool b)
 {
     node.value_ = Utils::BoolToString(b);
+}
+void Create(XmlNode& node, const File& file)
+{
+    node.value_ = file.GetDataRelativeDir();
 }
 void Create(XmlNode& node, const std::string& str)
 {
@@ -70,7 +78,7 @@ void Create(XmlNode& node, const vec4& v)
 
 void Create(XmlNode& node, const Texture& texture)
 {
-    Create(node, texture.GetFileName());
+    Create(node, *texture.GetFile());
 }
 
 void Create(XmlNode& node, const std::vector<vec3>& v)
@@ -89,7 +97,7 @@ void Create(XmlNode& node, const std::vector<std::string>& str)
     }
 }
 
-void Create(XmlNode& node, const std::array<std::string, 6>& str)
+void Create(XmlNode& node, const std::array<File, 6>& str)
 {
     for (const auto& value : str)
     {
@@ -115,11 +123,11 @@ void Create(XmlNode& node, TerrainTextureType type, const std::string& filename)
     Create(node.AddChild(CSTR_TEXTURE_FILENAME), filename);
 }
 
-void Create(XmlNode& node, const std::unordered_map<TerrainTextureType, std::string>& str)
+void Create(XmlNode& node, const std::unordered_map<TerrainTextureType, File>& str)
 {
     for (const auto& value : str)
     {
-        Create(node.AddChild(CSTR_TEXTURE), value.first, value.second);
+        Create(node.AddChild(CSTR_TEXTURE), value.first, value.second.GetDataRelativeDir());
     }
 }
 
@@ -151,7 +159,9 @@ void Create(XmlNode& node, const Components::MeshShape& component)
 {
     Create(node.AddChild(CSTR_SIZE), component.GetSize());
     Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
-    Create(node.AddChild(CSTR_MODEL_FILE_NAME), component.GetModelFileName());
+
+    auto model = component.GetModel();
+    Create(node.AddChild(CSTR_MODEL_FILE_NAME), model ? model->GetFile() : "");
 }
 
 void Create(XmlNode& node, const Components::SphereShape& component)
@@ -163,7 +173,7 @@ void Create(XmlNode& node, const Components::SphereShape& component)
 void Create(XmlNode& node, const Components::TerrainShape& component)
 {
     Create(node.AddChild(CSTR_POSITION_OFFSET), component.GetPositionOffset());
-    Create(node.AddChild(CSTR_HEIGHTMAP_FILENAME), component.GetHeightMapFileName());
+    Create(node.AddChild(CSTR_HEIGHTMAP_FILENAME), component.GetHeightMapFile());
 }
 
 void Create(XmlNode& node, const Components::CapsuleShape& component)
@@ -303,10 +313,10 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
     if (heightMapTexture and heightMapTexture->IsModified())
     {
         auto heightMap = static_cast<HeightMap*>(heightMapTexture);
-        if (heightMap)
+        if (heightMap and heightMap->GetFile())
         {
-            auto heightMapFile = component.GetTextureFileNames().at(TerrainTextureType::heightmap);
-            SaveHeightMap(*heightMap, heightMapFile);
+            Utils::CreateBackupFile(heightMap->GetFile()->GetAbsoultePath());
+            SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsoultePath());
         }
         else
         {
@@ -314,10 +324,17 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
         }
     }
 
-    auto blendMap = component.GetTexture(TerrainTextureType::blendMap);
+    auto blendMapTexture = component.GetTexture(TerrainTextureType::blendMap);
 
-    if (blendMap and blendMap->IsModified())
+    if (blendMapTexture)
     {
+        if (blendMapTexture->IsModified() and blendMapTexture->GetFile())
+        {
+            auto blendMap     = static_cast<MaterialTexture*>(blendMapTexture);
+            const auto& image = blendMap->GetImage();
+            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
+            Utils::SaveImage(image.data, image.Size(), blendMapTexture->GetFile()->GetAbsoultePath());
+        }
     }
 }
 
@@ -432,6 +449,7 @@ void SaveSceneState(const Scene& input, const std::string& filename)
     scene.attributes_[CSTR_NAME] = input.GetName();
     Create(scene.AddChild(CSTR_GAMEOBJECTS), input.GetGameObjects());
 
+    Utils::CreateBackupFile(filename);
     Xml::Write(filename, scene);
 }
 }  // namespace GameEngine
