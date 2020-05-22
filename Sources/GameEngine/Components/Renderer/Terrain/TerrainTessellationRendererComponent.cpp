@@ -29,9 +29,9 @@ void TerrainTessellationRendererComponent::RecalculateNormals()
 }
 void TerrainTessellationRendererComponent::LoadHeightMap(const File& file)
 {
-    heightMapParameters_.flipMode       = TextureFlip::NONE;
-    heightMapParameters_.loadType       = TextureLoadType::AddToGpuPass;
-    heightMapParameters_.applySizeLimit = false;
+    heightMapParameters_.flipMode        = TextureFlip::NONE;
+    heightMapParameters_.loadType        = TextureLoadType::AddToGpuPass;
+    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
     TerrainComponentBase::LoadHeightMap(file);
 
     auto normalMap =
@@ -44,8 +44,7 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const File& file)
 }
 void TerrainTessellationRendererComponent::UpdateHeightMap(const File& file)
 {
-    auto texture =
-        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, TextureParameters());
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, TextureParameters());
 
     if (not texture)
     {

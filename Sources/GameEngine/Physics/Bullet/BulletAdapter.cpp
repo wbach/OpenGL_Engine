@@ -11,6 +11,7 @@
 #include "DebugDrawer.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "Utils.h"
+#include "Utils/Variant.h"
 #include "btBulletDynamicsCommon.h"
 
 namespace GameEngine
@@ -183,9 +184,21 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
 {
     impl_->shapes_.insert({id_, Shape()});
     auto& shape = impl_->shapes_.at(id_);
-    shape.shape_.reset(new btHeightfieldTerrainShape(
-        heightMap.GetImage().width, heightMap.GetImage().height, &heightMap.GetImage().floatData[0], 1.f,
-        heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
+
+    std::visit(visitor{
+                   [&](const std::vector<uint8>& data) {
+                       shape.shape_.reset(new btHeightfieldTerrainShape(
+                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
+                   },
+                   [&](const std::vector<float>& data) {
+                       shape.shape_.reset(new btHeightfieldTerrainShape(
+                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
+                   },
+                   [](std::monostate) {ERROR_LOG("Height map data is not set!."); },
+               },
+               heightMap.GetImage().getImageData());
 
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
     float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);

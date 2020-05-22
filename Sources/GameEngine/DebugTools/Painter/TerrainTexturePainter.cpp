@@ -3,7 +3,6 @@
 #include "Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
 
 #define BRUSH(X) X(terrainPoint, stepInterpolation_ == StepInterpolation::Linear, strength_, brushSize_)
 

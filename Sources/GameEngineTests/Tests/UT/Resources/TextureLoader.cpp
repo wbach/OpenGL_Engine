@@ -1,6 +1,5 @@
 #include <Resources/GpuResourceLoader.h>
 #include <Resources/TextureLoader.h>
-#include <Resources/Textures/Image.h>
 #include <Resources/Textures/Texture.h>
 #include <gtest/gtest.h>
 #include "../../Mocks/Api/GraphicsApiMock.h"

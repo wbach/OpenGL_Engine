@@ -1,6 +1,7 @@
 #include "SkyBoxComponent.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/Textures/CubeMapTexture.h"
 
 namespace GameEngine
 {
@@ -22,7 +23,7 @@ void SkyBoxComponent::CleanUp()
     DeleteTexture(dayTexture_);
     DeleteTexture(nightTexture_);
 }
-void SkyBoxComponent::DeleteTexture(Texture*& texture)
+void SkyBoxComponent::DeleteTexture(CubeMapTexture*& texture)
 {
     if (texture)
     {

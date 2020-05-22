@@ -14,15 +14,11 @@ struct TerrainHeightGetterShould : public ::testing::Test
     TerrainHeightGetterShould()
     {
         uint32 heightMapSize = 100;
-        Image image;
+        GraphicsApi::Image image;
         image.width  = heightMapSize;
         image.height = heightMapSize;
-        image.floatData.resize(heightMapSize * heightMapSize);
-        for (size_t i = 0; i < heightMapSize * heightMapSize; ++i)
-        {
-            image.floatData[i] = 0;
-        }
-
+        image.setChannels(1);
+        image.allocateImage<float>();
         heightMap_ = std::make_unique<HeightMap>(graphicsApiMock_, "file", image);
 
         heightMap_->SetHeight(vec2ui(0, 0), 10.f);

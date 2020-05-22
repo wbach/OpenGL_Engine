@@ -3,7 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 
 namespace GameEngine
 {
@@ -11,7 +11,7 @@ CircleLinearTextureBrush::CircleLinearTextureBrush(const TerrainPoint& terrainPo
                                                    float strength, int32 brushSize)
     : CircleBrushBase(*terrainPoint.terrainComponent.GetTexture(TerrainTextureType::blendMap), terrainPoint,
                       linearDistance, strength, brushSize)
-    , blendMap_(*static_cast<MaterialTexture*>(&texture_))
+    , blendMap_(*static_cast<GeneralTexture*>(&texture_))
     , inputColor_(255, 0, 0, 0)
 {
     if (inputStrength_ < 0.1f)
@@ -24,7 +24,7 @@ CircleLinearTextureBrush& CircleLinearTextureBrush::SetColor(const Color& inputC
 }
 bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
 {
-    auto currentColor = blendMap_.GetImage().GetPixel(imageCoord);
+    auto currentColor = blendMap_.GetImage().getPixel(imageCoord);
 
     if (currentColor)
     {

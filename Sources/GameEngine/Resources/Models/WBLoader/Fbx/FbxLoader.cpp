@@ -82,7 +82,7 @@ struct MaterialProperty
 {
     vec3 color_;
     char unused0[4];
-    Texture* texture_{nullptr};
+    GeneralTexture* texture_{nullptr};
 };
 struct FbxLoader::Pimpl
 {
@@ -233,8 +233,10 @@ struct FbxLoader::Pimpl
                         fileName = fileName.substr(found);
                     }
                     DEBUG_LOG("New file name path : " + fileName);
+                    TextureParameters params;
+                    params.mimap = GraphicsApi::TextureMipmap::LINEAR;
 
-                    auto texture = textureLoader_.LoadTexture(fileName, TextureParameters());
+                    auto texture = textureLoader_.LoadTexture(fileName, params);
                     if (texture)
                         textureFile->SetUserDataPtr(texture);
                 }
@@ -303,7 +305,7 @@ struct FbxLoader::Pimpl
                 const FbxFileTexture* texture = property.GetSrcObject<FbxFileTexture>();
                 if (texture and texture->GetUserDataPtr())
                 {
-                    result.texture_ = (static_cast<Texture*>(texture->GetUserDataPtr()));
+                    result.texture_ = (static_cast<GeneralTexture*>(texture->GetUserDataPtr()));
                 }
             }
         }

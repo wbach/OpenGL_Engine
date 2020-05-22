@@ -1,6 +1,8 @@
 #include "Collada.h"
+
 #include <algorithm>
 #include <numeric>
+
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "Logger/Log.h"
 #include "Utils/GLM/GLMUtils.h"
@@ -438,8 +440,11 @@ void ColladaDae::ApplyMaterials(Material& material, const std::string& materialI
             if (surface)
             {
                 const auto& textureFileName = data_.libraryImages_.images_[surface.constValue().initfrom_].initFrom_;
-                material.diffuseTexture =
-                    textureLoader_.LoadTexture("Textures/" + textureFileName, TextureParameters());
+
+                TextureParameters params;
+                params.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+                material.diffuseTexture = textureLoader_.LoadTexture("Textures/" + textureFileName, params);
             }
         }
         if (param.surface_)

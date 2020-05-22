@@ -1,4 +1,5 @@
 #include "GuiElementWriter.h"
+
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/EditText/GuiEditText.h>
@@ -11,6 +12,7 @@
 #include <Logger/Log.h>
 #include <Utils/Utils.h>
 #include <Utils/XML/XmlWriter.h>
+
 #include "GuiElementsDef.h"
 
 namespace GameEngine
@@ -29,10 +31,10 @@ void writeChildren(Utils::XmlNode& node, const GuiElement& element)
 
 void write(Utils::XmlNode& node, const vec4& v)
 {
-    node.attributes_.insert({ Gui::X, std::to_string(v.x) });
-    node.attributes_.insert({ Gui::Y, std::to_string(v.y) });
-    node.attributes_.insert({ Gui::Z, std::to_string(v.z) });
-    node.attributes_.insert({ Gui::W, std::to_string(v.w) });
+    node.attributes_.insert({Gui::X, std::to_string(v.x)});
+    node.attributes_.insert({Gui::Y, std::to_string(v.y)});
+    node.attributes_.insert({Gui::Z, std::to_string(v.z)});
+    node.attributes_.insert({Gui::W, std::to_string(v.w)});
 }
 
 void write(Utils::XmlNode& node, const vec3& v)
@@ -73,6 +75,11 @@ void write(Utils::XmlNode& node, T v)
     node.value_ = std::to_string(v);
 }
 
+void write(Utils::XmlNode& node, const File& v)
+{
+    node.value_ = v.GetDataRelativeDir();
+}
+
 void write(Utils::XmlNode& node, const std::string& v)
 {
     node.value_ = v;
@@ -98,7 +105,7 @@ Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextElement& text)
 
     writeBasicParams(textNode, text);
     auto& font = textNode.AddChild(Gui::FONT);
-    write(font, EngineConf_RemoveDataPath(text.GetFontInfo().font_));
+    write(font, text.GetFontInfo().file_);
     auto& fontSize = textNode.AddChild(Gui::FONT_SIZE);
     write(fontSize, text.GetFontInfo().fontSize_);
     auto& outline = textNode.AddChild(Gui::FONT_OUTLINE);
@@ -115,7 +122,7 @@ Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextureElement& element)
     auto& textureNode = node.AddChild(Gui::TEXTURE);
 
     writeBasicParams(textureNode, element);
-    auto& file = textureNode.AddChild(Gui::FILE);
+    auto& file   = textureNode.AddChild(Gui::FILE);
     auto texture = element.GetTexture();
     write(file, texture ? texture->GetFile()->GetDataRelativeDir() : "");
     auto& color = textureNode.AddChild(Gui::COLOR);

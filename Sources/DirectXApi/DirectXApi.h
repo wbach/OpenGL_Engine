@@ -33,14 +33,13 @@ public:
     void UpdateShaderBuffer(uint32 id, void const* buffer) override;
     uint32 BindShaderBuffer(uint32) override;
 
-    GraphicsApi::ID CreateTexture(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, const vec2ui&, const void* data) override;
-    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter,
-                                                       int32) override;
-    GraphicsApi::ID CreateCubMapTexture(vec2ui, std::vector<void*>) override;
+    GraphicsApi::ID CreateTexture(const GraphicsApi::Image&, GraphicsApi::TextureFilter,
+                                  GraphicsApi::TextureMipmap) override;
+    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override;
+    GraphicsApi::ID CreateCubMapTexture(const std::array<GraphicsApi::Image, 6>&) override;
 
-    void UpdateTexture(uint32, const vec2ui&, const vec2ui&, const void* data) override;
-    void UpdateTexture(uint32, const vec2ui&, const void* data) override;
+    void UpdateTexture(uint32, const vec2ui&, const GraphicsApi::Image&) override;
+    void UpdateTexture(uint32, const GraphicsApi::Image&) override;
 
     void ClearTexture(uint32, const Color&) override;
 
@@ -98,7 +97,7 @@ public:
 
     void BindDefaultFrameBuffer() override;
     GraphicsApi::IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override;
-    void DeleteFrameBuffer(GraphicsApi::IFrameBuffer&)override;
+    void DeleteFrameBuffer(GraphicsApi::IFrameBuffer&) override;
 
 private:
     void InitRenderTarget();

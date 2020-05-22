@@ -27,7 +27,7 @@ private:
     ResourceManager resourceManager_;
 
     ShaderProgram shader_;
-    Texture* backgroundTexture_;
+    GeneralTexture* backgroundTexture_;
 
     bool initialized_;
 };

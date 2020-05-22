@@ -1,6 +1,6 @@
 #pragma once
 #include "GameEngine/Renderers/GUI/GuiElement.h"
-#include "GameEngine/Resources/Textures/Texture.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 
 namespace GameEngine
 {
@@ -10,7 +10,7 @@ class IResourceManager;
 class GuiRendererElementBase : public GuiElement
 {
 public:
-    GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes, const vec2ui&);
+    GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes, const WindowSize&);
     ~GuiRendererElementBase() override;
 
     void SetScale(const vec2&) override;
@@ -21,7 +21,7 @@ public:
     inline std::optional<uint32> GetTextureId() const;
     inline const mat4& GetTransformMatrix() const;
     inline const vec4& GetColor() const;
-    const Texture* GetTexture() const;
+    const GeneralTexture* GetTexture() const;
 
 protected:
     void CalculateMatrix();
@@ -29,7 +29,7 @@ protected:
 protected:
     IResourceManager& resourceManager_;
     GUIRenderer& guiRenderer_;
-    Texture* texture_;
+    GeneralTexture* texture_;
     vec4 color_;
     vec2 offset_;
     mat4 transformMatrix_;
@@ -46,7 +46,7 @@ const vec4& GuiRendererElementBase::GetColor() const
 {
     return color_;
 }
-inline const Texture* GuiRendererElementBase::GetTexture() const
+inline const GeneralTexture* GuiRendererElementBase::GetTexture() const
 {
     return texture_;
 }

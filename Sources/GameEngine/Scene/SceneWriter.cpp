@@ -25,9 +25,9 @@
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Resources/ResourceUtils.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "SceneDef.h"
+#include "Utils/Variant.h"
 
 using namespace Utils;
 
@@ -330,10 +330,22 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
     {
         if (blendMapTexture->IsModified() and blendMapTexture->GetFile())
         {
-            auto blendMap     = static_cast<MaterialTexture*>(blendMapTexture);
+            auto blendMap     = static_cast<GeneralTexture*>(blendMapTexture);
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
-            Utils::SaveImage(image.data, image.Size(), blendMapTexture->GetFile()->GetAbsoultePath());
+
+            std::visit(visitor{
+                           [&](const std::vector<uint8>& data) {
+                               Utils::SaveImage(data, image.size(),
+                                                blendMapTexture->GetFile()->GetAbsoultePath());
+                           },
+                           [](const std::vector<float>& data) 
+                           {
+                               DEBUG_LOG("Float version not implemented.");
+                           },
+                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                       },
+                       image.getImageData());
         }
     }
 }

@@ -1,10 +1,12 @@
 #include "IntroRenderer.h"
 
 #include <Logger/Log.h>
+
 #include "../Display/DisplayManager.hpp"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 
 namespace GameEngine
 {
@@ -28,7 +30,7 @@ void IntroRenderer::Render()
         Init();
 
     displayManager_.ProcessEvents();
-    
+
     RenderThis();
     displayManager_.UpdateWindow();
 }
@@ -38,9 +40,9 @@ void IntroRenderer::Init()
     shader_.Start();
 
     TextureParameters params;
-    params.loadType       = TextureLoadType::Immediately;
-    params.flipMode       = TextureFlip::VERTICAL;
-    params.applySizeLimit = false;
+    params.loadType        = TextureLoadType::Immediately;
+    params.flipMode        = TextureFlip::VERTICAL;
+    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
 
     backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("GUI/BENGINE.png", params);
 

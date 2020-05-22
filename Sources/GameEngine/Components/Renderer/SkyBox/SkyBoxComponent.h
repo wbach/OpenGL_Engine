@@ -1,10 +1,12 @@
 #pragma once
 #include <array>
+
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 
 namespace GameEngine
 {
+class CubeMapTexture;
 class Texture;
 class Model;
 
@@ -30,13 +32,13 @@ public:
     const std::string& GetModelFileName() const;
 
 private:
-    void DeleteTexture(Texture*&);
+    void DeleteTexture(CubeMapTexture*&);
     void Subscribe();
     void UnSubscribe();
 
 private:
-    Texture* dayTexture_;
-    Texture* nightTexture_;
+    CubeMapTexture* dayTexture_;
+    CubeMapTexture* nightTexture_;
     Model* model_;
     std::array<File, 6> dayTextureFiles_;
     std::array<File, 6> nightTextureFiles_;

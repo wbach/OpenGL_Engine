@@ -140,23 +140,43 @@ void WaveFrontObjLoader::ReadMaterialFile(const std::string& file_name)
         }
         if (!prefix.compare("map_Kd"))
         {
-            current_material->diffuseTexture = textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+            if (current_material)
+            {
+                TextureParameters params;
+                params.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+                current_material->diffuseTexture = textureLoader_.LoadTexture("Textures/" + value, params);
+            }
         }
         if (!prefix.compare("map_bump") || !prefix.compare("map_Bump"))
         {
-            if (current_material != nullptr)
-                current_material->normalTexture = textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+            if (current_material)
+            {
+                TextureParameters params;
+                params.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+                current_material->normalTexture = textureLoader_.LoadTexture("Textures/" + value, params);
+            }
         }
         if (!prefix.compare("map_Ks"))
         {
-            if (current_material != nullptr)
-                current_material->specularTexture =
-                    textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+            if (current_material)
+            {
+                TextureParameters params;
+                params.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+                current_material->specularTexture = textureLoader_.LoadTexture("Textures/" + value, params);
+            }
         }
         if (!prefix.compare("map_Ka"))
         {
-            if (current_material != nullptr)
-                current_material->ambientTexture = textureLoader_.LoadTexture("Textures/" + value, TextureParameters());
+            if (current_material)
+            {
+                TextureParameters params;
+                params.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+                current_material->ambientTexture = textureLoader_.LoadTexture("Textures/" + value, params);
+            }
         }
     }
 }

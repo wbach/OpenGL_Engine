@@ -1,10 +1,12 @@
 #include "Texture.h"
 
-#include <algorithm>
 #include <Logger/Log.h>
 #include <Utils.h>
-#include "GameEngine/Engine/Configuration.h"
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
+
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -26,38 +28,34 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
 Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
     , size_(0)
+    , numberOfRows_(1)
+    , orginalData_(true)
 {
 }
 
 Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id)
     : graphicsApi_(graphicsApi)
     , size_(0)
+    , numberOfRows_(1)
+    , orginalData_(true)
 {
     graphicsObjectId_ = id;
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, bool applySizeLimit)
-    : graphicsApi_(graphicsApi)
-    , size_(size)
-    , applySizeLimit(applySizeLimit)
-{
-}
-
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const File& file, const vec2ui &size,
-                 bool applySizeLimit)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, const std::optional<File>& file)
     : graphicsApi_(graphicsApi)
     , file_(file)
     , size_(size)
-    , applySizeLimit(applySizeLimit)
+    , numberOfRows_(1)
+    , orginalData_(true)
 {
-    auto rows = GetNumberOfRowsBasedOnTextureFileName(file_->GetBaseName());
-    if (rows)
+    if (file_)
     {
-        numberOfRows = *rows;
-    }
-    else
-    {
-        numberOfRows = 1;
+        auto rows = GetNumberOfRowsBasedOnTextureFileName(file_->GetBaseName());
+        if (rows)
+        {
+            numberOfRows_ = *rows;
+        }
     }
 }
 Texture::~Texture()
@@ -106,5 +104,9 @@ bool Texture::IsModified() const
 void Texture::ResetModifyAcknowlage()
 {
     orginalData_ = true;
+}
+uint32 Texture::getNumberOfRows() const
+{
+    return numberOfRows_;
 }
 }  // namespace GameEngine

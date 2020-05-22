@@ -162,8 +162,10 @@ struct Tvec4
 typedef Tvec2<int32> vec2i;
 typedef Tvec2<uint32> vec2ui;
 typedef Tvec3<int32> vec3i;
+typedef Tvec3<uint8> vec3ui8;
 typedef Tvec3<uint32> vec3ui;
 typedef Tvec4<int32> vec4i;
+typedef Tvec4<uint8> vec4ui8;
 typedef Tvec4<uint32> vec4ui;
 
 std::string to_string(const vec2i& v);
@@ -174,8 +176,10 @@ typedef wb::vec2i vec2i;
 typedef wb::vec2ui vec2ui;
 typedef wb::vec3i vec3i;
 typedef wb::vec3ui vec3ui;
+typedef wb::vec3ui8 vec3ui8;
 typedef wb::vec4i vec4i;
 typedef wb::vec4ui vec4ui;
+typedef wb::vec4ui8 vec4ui8;
 
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
@@ -184,6 +188,8 @@ typedef glm::vec4 vec4;
 typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::fquat Quaternion;
+
+typedef vec2ui WindowSize;
 
 extern const std::string DEFAULT_STRING;
 extern const vec3 VECTOR_ZERO;
@@ -338,14 +344,18 @@ struct Color
         : value(floatColor, 1.f)
     {
     }
-    Color(const vec3ui& color)
+    Color(const vec3ui8& color)
     {
         rgb(color);
         this->value.w = 1.f;
     }
-    Color(const vec4ui& color)
+    Color(const vec4ui8& color)
     {
         rgba(color);
+    }
+    Color(int v)
+        : Color(v, v, v, v)
+    {
     }
     Color(int r, int g, int b)
         : Color(r, g, b, 255)
@@ -380,13 +390,30 @@ struct Color
     {
         value.w = static_cast<float>(a) / 255.f;
     }
-    void rgb(const vec3ui& color)
+    void r(float r)
+    {
+        value.x = r;
+    }
+    void g(float g)
+    {
+        value.y = g;
+    }
+    void b(float b)
+    {
+        value.z = b;
+    }
+    void a(float a)
+    {
+        value.w = a;
+    }
+
+    void rgb(const vec3ui8& color)
     {
         r(color.x);
         g(color.y);
         b(color.z);
     }
-    void rgba(const vec4ui& color)
+    void rgba(const vec4ui8& color)
     {
         r(color.x);
         g(color.y);

@@ -1,9 +1,12 @@
 #include "SceneLoader.h"
+
 #include <Logger/Log.h>
 #include <Utils/Time/Timer.h>
+
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "Scene.hpp"
 
 namespace GameEngine
@@ -39,9 +42,11 @@ void SceneLoader::Load(Scene& scene)
 void SceneLoader::Init()
 {
     TextureParameters params;
-    params.loadType       = TextureLoadType::Immediately;
-    params.flipMode       = TextureFlip::VERTICAL;
-    params.applySizeLimit = false;
+    params.loadType        = TextureLoadType::Immediately;
+    params.flipMode        = TextureFlip::VERTICAL;
+    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.filter          = GraphicsApi::TextureFilter::LINEAR;
+    params.mimap           = GraphicsApi::TextureMipmap::LINEAR;
 
     auto& texureLoader = resorceManager_.GetTextureLoader();
     auto circleTexture = texureLoader.LoadTexture("GUI/circle2.png", params);

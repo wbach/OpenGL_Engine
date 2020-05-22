@@ -1,22 +1,28 @@
 #include "HeightMap.h"
 
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
 
 #include <algorithm>
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const File& file, Image image)
-    : Texture(graphicsApi, file, vec2ui(image.width, image.height))
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const File& file, GraphicsApi::Image image)
+    : Texture(graphicsApi, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
     , maximumHeight_(0)
 {
+    if (image_.getChannelsCount() > 1)
+    {
+        ERROR_LOG("Height map shouldbe one channel float data, but is : " + std::to_string(image.getChannelsCount()));
+    }
+
     UpdateMaximumHeight();
 }
 
 void HeightMap::GpuLoadingPass()
 {
-    if (image_.floatData.empty() or graphicsObjectId_)
+    if (image_.empty() or graphicsObjectId_)
     {
         ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() +
                   ". floatData is null or is initialized.");
@@ -25,8 +31,7 @@ void HeightMap::GpuLoadingPass()
     DEBUG_LOG("Create texutre filneame : " + file_->GetBaseName());
 
     auto graphicsObjectId =
-        graphicsApi_.CreateTexture(GraphicsApi::TextureType::FLOAT_TEXTURE_1C, GraphicsApi::TextureFilter::LINEAR,
-                                   GraphicsApi::TextureMipmap::NONE, size_, &image_.floatData[0]);
+        graphicsApi_.CreateTexture(image_, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
 
     if (graphicsObjectId)
     {
@@ -39,12 +44,12 @@ void HeightMap::GpuLoadingPass()
     }
 }
 
-const Image& HeightMap::GetImage() const
+const GraphicsApi::Image& HeightMap::GetImage() const
 {
     return image_;
 }
 
-Image& HeightMap::GetImage()
+GraphicsApi::Image& HeightMap::GetImage()
 {
     return image_;
 }
@@ -76,15 +81,22 @@ float HeightMap::GetDeltaHeight() const
 
 bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
 {
-    if (cooridnate.x < image_.width and cooridnate.y < image_.height)
+    if (image_.getChannelsCount() > 1)
     {
-        auto index       = cooridnate.x + cooridnate.y * image_.width;
-        auto actualValue = image_.floatData[index];
+        ERROR_LOG("Only one channel in height map is supported");
+        return false;
+    }
+
+    auto currentValue = image_.getPixel(cooridnate);
+
+    if (currentValue)
+    {
+        auto actualValue = currentValue->value.x;
 
         if (not compare(actualValue, value))
         {
-            image_.floatData[index] = value;
-            orginalData_            = false;
+            image_.setPixel(cooridnate, Color(value));
+            orginalData_ = false;
             return true;
         }
     }
@@ -92,18 +104,28 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
 }
 std::optional<float> HeightMap::GetHeight(const vec2ui& cooridnate)
 {
-    if (cooridnate.x < image_.width and cooridnate.y < image_.height)
-    {
-        auto index = cooridnate.x + cooridnate.y * image_.width;
-        return image_.floatData[index];
-    }
+    auto currentValue = image_.getPixel(cooridnate);
+
+    if (currentValue)
+        return currentValue->value.x;
 
     return std::nullopt;
 }
 bool HeightMap::UpdateMaximumHeight()
 {
-    auto maximumHeight = *std::max_element(image_.floatData.begin(), image_.floatData.end());
-    auto minimumHeight = *std::min_element(image_.floatData.begin(), image_.floatData.end());
+    auto maximumHeight{0.f};
+    auto minimumHeight{0.f};
+
+    std::visit(visitor{[&](const std::vector<uint8>& data) {
+                           maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end()) / 255.f);
+                           minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end()) / 255.f);
+                       },
+                       [&](const std::vector<float>& data) {
+                           maximumHeight = *std::max_element(data.begin(), data.end());
+                           minimumHeight = *std::min_element(data.begin(), data.end());
+                       },
+                       [](std::monostate) { ERROR_LOG("Image data not set!."); }},
+               image_.getImageData());
 
     if (not compare(maximumHeight_, maximumHeight) or not compare(minimumHeight_, minimumHeight))
     {

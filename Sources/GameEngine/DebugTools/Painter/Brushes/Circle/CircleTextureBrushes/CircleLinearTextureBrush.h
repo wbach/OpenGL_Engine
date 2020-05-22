@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-class MaterialTexture;
+class GeneralTexture;
 
 class CircleLinearTextureBrush : public CircleBrushBase
 {
@@ -15,7 +15,7 @@ private:
     bool Main(const vec2ui&) override;
 
 private:
-    MaterialTexture& blendMap_;
+    GeneralTexture& blendMap_;
     Color inputColor_;
 };
 }  // namespace GameEngine

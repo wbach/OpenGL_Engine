@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "Engine/Configuration.h"
 #include "GameEngine/Resources/Models/WBLoader/Collada/Collada.h"
-#include "GameEngine/Resources/Textures/Image.h"
 #include "GameEngineTests/Tests/Mocks/Resources/TextureLoaderMock.h"
 
 using namespace ::testing;

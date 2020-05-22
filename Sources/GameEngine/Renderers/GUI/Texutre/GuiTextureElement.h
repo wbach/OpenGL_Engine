@@ -8,7 +8,7 @@ class Texture;
 class GuiTextureElement : public GuiRendererElementBase
 {
 public:
-    GuiTextureElement(IResourceManager&, GUIRenderer&, const vec2ui&, Texture&);
+    GuiTextureElement(IResourceManager&, GUIRenderer&, const WindowSize&, GeneralTexture&);
     void Flip();
 
 public:

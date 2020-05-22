@@ -18,8 +18,8 @@ class Texture : public GpuObject
 public:
     Texture(GraphicsApi::IGraphicsApi& graphicsApi);
     Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, bool applySizeLimit = true);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const File&, const vec2ui& size, bool applySizeLimit = true);
+    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, const std::optional<File>&);
+    Texture(const Texture&) = delete;
     ~Texture() override;
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
@@ -32,17 +32,14 @@ public:
     std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const;
     bool IsModified() const;
     void ResetModifyAcknowlage();
-
-public:
-    uint32 numberOfRows = 1;
+    uint32 getNumberOfRows() const;
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::optional<File> file_;
-    vec2ui size_ = vec2ui(0);
-
-    bool applySizeLimit = true;
-    bool orginalData_   = true;
+    vec2ui size_;
+    uint32 numberOfRows_;
+    bool orginalData_ ;
 };
 
 const std::optional<File>& Texture::GetFile() const
@@ -52,15 +49,15 @@ const std::optional<File>& Texture::GetFile() const
 
 float Texture::GetTextureXOffset(uint32 textureIndex) const
 {
-    return GameEngine::GetTextureXOffset(textureIndex, numberOfRows);
+    return GameEngine::GetTextureXOffset(textureIndex, numberOfRows_);
 }
 float Texture::GetTextureYOffset(uint32 textureIndex) const
 {
-    return GameEngine::GetTextureYOffset(textureIndex, numberOfRows);
+    return GameEngine::GetTextureYOffset(textureIndex, numberOfRows_);
 }
 vec2 Texture::GetTextureOffset(uint32 textureIndex) const
 {
-    return GameEngine::GetTextureOffset(textureIndex, numberOfRows);
+    return GameEngine::GetTextureOffset(textureIndex, numberOfRows_);
 }
 const vec2ui& Texture::GetSize() const
 {

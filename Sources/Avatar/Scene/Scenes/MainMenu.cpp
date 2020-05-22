@@ -5,7 +5,6 @@
 
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
-#include <GameEngine/Resources/Textures/Image.h>
 
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>

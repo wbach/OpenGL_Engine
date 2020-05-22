@@ -8,8 +8,8 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
 
 namespace GameEngine
 {
@@ -30,16 +30,12 @@ void TerrainComponentBase::CleanUp()
 
 void TerrainComponentBase::BlendMapChanged()
 {
-    auto texture = GetTexture(TerrainTextureType::blendMap);
+    auto blendMap = GetTexture(TerrainTextureType::blendMap);
 
-    if (texture and texture->GetGraphicsObjectId())
+    if (blendMap and blendMap->GetGraphicsObjectId())
     {
-        auto blendMap = static_cast<MaterialTexture*>(texture);
-
-        componentContext_.gpuResourceLoader_.AddFunctionToCall([blendMap, api = &componentContext_.graphicsApi_]() {
-            api->UpdateTexture(*blendMap->GetGraphicsObjectId(), blendMap->GetImage().Size(),
-                               blendMap->GetImage().GetRawDataPtr());
-        });
+        auto general = static_cast<GeneralTexture *>(blendMap);
+        componentContext_.resourceManager_.GetTextureLoader().UpdateTexture(*general);
     }
 }
 
@@ -51,18 +47,19 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
     {
         TextureParameters textureParams;
         textureParams.flipMode = TextureFlip::VERTICAL;
+        textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
 
         if (texturePair.first == TerrainTextureType::heightmap)
         {
-            textureParams.applySizeLimit = false;
+            textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
             LoadTerrainConfiguration(texturePair.second);
             LoadHeightMap(texturePair.second);
             continue;
         }
         else if (texturePair.first == TerrainTextureType::blendMap)
         {
-            textureParams.keepData = true;
-            textureParams.applySizeLimit = false;
+            textureParams.dataStorePolicy = DataStorePolicy::Store;
+            textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         }
 
         auto texture =
@@ -114,10 +111,9 @@ void TerrainComponentBase::UpdateTexture(TerrainTextureType type, const std::str
     }
 }
 
-void TerrainComponentBase::LoadHeightMap(const File& file)
+void TerrainComponentBase::LoadHeightMap(const File &file)
 {
-    auto texture =
-        componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, heightMapParameters_);
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, heightMapParameters_);
 
     if (texture)
     {
@@ -126,7 +122,7 @@ void TerrainComponentBase::LoadHeightMap(const File& file)
     }
 }
 
-void TerrainComponentBase::LoadTerrainConfiguration(const File& terrainConfigFile)
+void TerrainComponentBase::LoadTerrainConfiguration(const File &terrainConfigFile)
 {
     config_ = TerrainConfiguration::ReadFromFile(terrainConfigFile.CreateFileWithExtension("terrainConfig"));
 }

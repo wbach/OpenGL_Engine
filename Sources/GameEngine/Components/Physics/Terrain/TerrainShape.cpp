@@ -12,7 +12,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/TextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -66,7 +66,7 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
     heightMapFile_ = hightMapFile;
 
     TextureParameters params;
-    params.applySizeLimit = false;
+    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
 
     auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(hightMapFile, params);
 

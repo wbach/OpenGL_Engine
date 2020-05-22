@@ -51,9 +51,10 @@ ModelWrapper &TerrainMeshRendererComponent::GetModel()
 }
 void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 {
-    heightMapParameters_.loadType       = TextureLoadType::None;
-    heightMapParameters_.flipMode       = TextureFlip::NONE;
-    heightMapParameters_.applySizeLimit = false;
+    heightMapParameters_.loadType        = TextureLoadType::None;
+    heightMapParameters_.flipMode        = TextureFlip::NONE;
+    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
 
     TerrainComponentBase::LoadHeightMap(file);
 

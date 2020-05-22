@@ -1,11 +1,11 @@
 #include "GuiTextElement.h"
 
-#include "FontManager.h"
+#include <Logger/Log.h>
+
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
-#include "GameEngine/Engine/Configuration.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -44,11 +44,6 @@ GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRendere
     SetZPositionOffset(-0.5f);
 }
 
-const std::optional<Surface>& GuiTextElement::GetSurface() const
-{
-    return surface_;
-}
-
 std::optional<uint32> GuiTextElement::GetTextureId() const
 {
     return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
@@ -59,7 +54,7 @@ const std::string& GuiTextElement::GetText() const
     return text_;
 }
 
-void GuiTextElement::SetTexture(Texture* texture)
+void GuiTextElement::SetTexture(GeneralTexture* texture)
 {
     texture_ = texture;
     CalculateAlginOffset();
@@ -117,12 +112,12 @@ void GuiTextElement::SetOutline(uint32 outline)
     RenderText();
 }
 
-void GuiTextElement::SetFont(const std::string& font)
+void GuiTextElement::SetFont(const File& font)
 {
-    if (fontInfo_.font_ == font)
+    if (fontInfo_.file_ == font)
         return;
 
-    fontInfo_.font_ = font;
+    fontInfo_.file_ = font;
     RenderText(true);
 }
 
@@ -174,7 +169,7 @@ void GuiTextElement::RenderText(bool fontOverride)
     {
         if (not fontId_ or fontOverride)
         {
-            fontId_ = fontManager_.OpenFont(EngineConf_GetFullDataPathAddToRequierd(fontInfo_.font_), fontInfo_.fontSize_);
+            fontId_ = fontManager_.openFont(fontInfo_.file_, fontInfo_.fontSize_);
 
             if (not fontId_)
             {
@@ -183,20 +178,14 @@ void GuiTextElement::RenderText(bool fontOverride)
             }
         }
 
-        if (surface_)
+        auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_);
+        if (imageData)
         {
-            fontManager_.DeleteSurface(static_cast<uint32>(surface_->id));
-        }
-
-        const vec4 textBaseColor(1.f);
-        surface_ = fontManager_.RenderFont(*fontId_, text_, textBaseColor, fontInfo_.outline_);
-
-        if (surface_)
-        {
-            scale_ = ConvertToScale(surface_->size, windowSize_);
+            textureName_ = imageData->name;
+            scale_       = ConvertToScale(imageData->image.size(), windowSize_);
             CalculateMatrix();
             CallOnChange();
-            UpdateTexture();
+            UpdateTexture(std::move(*imageData));
         }
         else
         {
@@ -211,33 +200,29 @@ void GuiTextElement::RenderText(bool fontOverride)
     }
 }
 
-void GuiTextElement::UpdateTexture()
+void GuiTextElement::UpdateTexture(FontManager::TextureData data)
 {
-    if (not GetSurface())
+    if (texture_)
     {
-        return;
-    }
+        texture_->SetImage(std::move(data.image));
 
-    if (GetTextureId())
-    {
-        resourceManager_.GetGpuResourceLoader().AddFunctionToCall([this]() {
-            resourceManager_.GetGraphicsApi().UpdateTexture(*GetTextureId(), surface_->size, surface_->pixels);
-        });
+        if (texture_->GetGraphicsObjectId())
+        {
+            resourceManager_.GetTextureLoader().UpdateTexture(*texture_, data.name);
+        }
         return;
     }
 
     TextureParameters params;
-    params.applySizeLimit = false;
-
-    auto fontTexture = resourceManager_.GetTextureLoader().CreateTexture(
-        "FontImage_" + std::to_string(surface_->id) + "_" + text_, params, surface_->size, surface_->pixels);
+    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.filter          = GraphicsApi::TextureFilter::LINEAR;
+    auto fontTexture = resourceManager_.GetTextureLoader().CreateTexture(textureName_, params, std::move(data.image));
 
     if (fontTexture)
     {
         SetTexture(fontTexture);
     }
 }
-
 void GuiTextElement::CalculateAlginOffset()
 {
     if (algin_ == Algin::LEFT)

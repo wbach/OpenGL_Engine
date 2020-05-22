@@ -133,7 +133,7 @@ void Mesh::CreateBufferObject()
 
         if (material_.diffuseTexture != nullptr)
         {
-            perMeshObject.numberOfRows = material_.diffuseTexture->numberOfRows;
+            perMeshObject.numberOfRows = material_.diffuseTexture->getNumberOfRows();
             perMeshObject.haveDiffTexture   = 1.f;
         }
         else

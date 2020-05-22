@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include "Image.h"
+#include <GraphicsApi/Image.h>
 #include "Texture.h"
 
 namespace GameEngine
@@ -8,11 +8,10 @@ namespace GameEngine
 class CubeMapTexture : public Texture
 {
 public:
-    CubeMapTexture(GraphicsApi::IGraphicsApi&, const std::string& name, std::array<Image, 6>, bool keepData);
+    CubeMapTexture(GraphicsApi::IGraphicsApi&, const std::string& name, std::array<GraphicsApi::Image, 6>);
     void GpuLoadingPass() override;
 
 private:
-    std::array<Image, 6> images_;
-    bool keepData_;
+    std::array<GraphicsApi::Image, 6> images_;
 };
 }  // namespace GameEngine

@@ -196,11 +196,11 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
 
     if (currentUseAnimation)
     {
-        textureNumberOfrows                     = texture->numberOfRows;
-        particleInputBuffer.textureNumberOfRows = static_cast<float>(texture->numberOfRows);
+        textureNumberOfrows                     = texture->getNumberOfRows();
+
+        particleInputBuffer.textureNumberOfRows = static_cast<float>(textureNumberOfrows);
         context_.graphicsApi_.UpdateShaderBuffer(*particleInputBufferId, &particleInputBuffer);
         context_.graphicsApi_.BindShaderBuffer(*particleInputBufferId);
-        // animatedShader_->Load(ParticlesShadersUniforms::NumberOfRows, static_cast<float>(textureNumberOfrows));
     }
 
     if (texture->GetGraphicsObjectId())

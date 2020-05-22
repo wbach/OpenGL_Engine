@@ -1,6 +1,6 @@
 #pragma once
 #include <Types.h>
-
+#include <GraphicsApi/Image.h>
 #include <functional>
 
 namespace GameEngine
@@ -8,7 +8,7 @@ namespace GameEngine
 class TerrainHeightTools
 {
 public:
-    TerrainHeightTools(const vec3& terrainScale, const std::vector<float>& data, uint32 heightMapWidth);
+    TerrainHeightTools(const vec3& terrainScale, const GraphicsApi::Image&);
     float GetHeight(uint32 x, uint32 y) const;
     vec2 GetTexCoord(uint32 x, uint32 y) const;
     vec3 GetNormal(uint32 x, uint32 z) const;
@@ -22,9 +22,8 @@ private:
     uint32 Down(uint32 z) const;
 
 private:
-    const std::vector<float>& data_;
+    const GraphicsApi::Image& heightMapImage_;
     vec2 terrainScale_;
     float heightFactor_;
-    uint32 heightMapWidth_;
 };
 }  // namespace GameEngine

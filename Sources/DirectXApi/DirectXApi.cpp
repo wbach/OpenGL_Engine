@@ -7,6 +7,8 @@
 #include <xnamath.h>
 #undef CreateFont
 #undef CreateWindow
+#include <Utils/Variant.h>
+
 #include <algorithm>
 #include <string>
 
@@ -636,13 +638,52 @@ std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateT
     return std::make_pair(sampDesc, rv);
 }
 
-GraphicsApi::ID DirectXApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap, const vec2ui &size, const void *data)
+GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, GraphicsApi::TextureFilter,
+                                          GraphicsApi::TextureMipmap)
 {
-    if (type != GraphicsApi::TextureType::U8_RGBA)
-        return {};
+    GraphicsApi::TextureType type{GraphicsApi::TextureType::U8_RGBA};
+    auto channels = image.getChannelsCount();
+    std::visit(visitor{
+                   [&](const std::vector<uint8> &data) {
+                       switch (channels)
+                       {
+                           case 4:
+                               type = GraphicsApi::TextureType::U8_RGBA;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [&](const std::vector<float> &data) {
+                       switch (channels)
+                       {
+                           case 1:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                               break;
+                           case 2:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                               break;
+                           case 3:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                               break;
+                           case 4:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
+               },
+               image.getImageData());
 
-    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, size, data);
+    if (type != GraphicsApi::TextureType::U8_RGBA)
+    {
+        DEBUG_LOG("Not implmented.");
+        return {};
+    }
+
+    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, image.size(), image.getRawDataPtr());
 
     if (not result)
         return {};
@@ -653,21 +694,21 @@ std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType,
 {
     return std::optional<uint32>();
 }
-GraphicsApi::ID DirectXApi::CreateCubMapTexture(vec2ui, std::vector<void *>)
+GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<GraphicsApi::Image, 6> &)
 {
     return {};
 }
-void DirectXApi::UpdateTexture(uint32, const vec2ui &, const vec2ui &, const void *)
+void DirectXApi::UpdateTexture(uint32, const vec2ui &, const GraphicsApi::Image &)
 {
 }
-void DirectXApi::UpdateTexture(uint32 id, const vec2ui &size, const void *data)
+void DirectXApi::UpdateTexture(uint32 id, const GraphicsApi::Image &image)
 {
     // TO DO: maybe is better way to update texture than delete and create new one
 
     auto &texture = impl_->GetTexture(id);
     texture.Release();
 
-    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, size, data);
+    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, image.size(), image.getRawDataPtr());
 
     if (not result)
         return;

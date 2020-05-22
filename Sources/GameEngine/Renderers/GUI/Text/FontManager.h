@@ -1,29 +1,35 @@
 #pragma once
+#include <GameEngine/Resources/File.h>
+#include <GraphicsApi/Image.h>
 #include <Types.h>
 
 #include <memory>
 #include <optional>
 #include <unordered_map>
-#include "Surface.h"
+
 #include "RenderedText.h"
+#include "Surface.h"
 
 namespace GameEngine
 {
 class FontManager
 {
 public:
-    FontManager(const vec2ui& windowSize);
+    struct TextureData
+    {
+        std::string name;
+        GraphicsApi::Image image;
+    };
+    FontManager(const WindowSize&);
     ~FontManager();
 
-    std::optional<uint32> OpenFont(const std::string& filename, uint32 size);
-    std::optional<Surface> RenderFont(uint32 id, const std::string& text, const vec4& color, uint32 outline);
-    void DeleteSurface(uint32 surfaceId);
+    std::optional<uint32> openFont(const File&, uint32 size);
+    std::optional<TextureData> renderFont(uint32 id, const std::string& text, uint32 outline);
 
 private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
     std::unordered_map<std::string, uint32> fontNameToIdMap_;
-    std::vector<RenderedText> rendererdTexts_;
-    const vec2ui& windowSize_;
+    const WindowSize& windowSize_;
 };
 }  // namespace GameEngine

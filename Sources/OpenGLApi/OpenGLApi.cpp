@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <Utils/Image/ImageUtils.h>
+#include <Utils/Variant.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -65,7 +66,7 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
             params.internalFormat = GL_RGBA16F;
         }
     }
-    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1C)
+    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_1D)
     {
         params.format         = GL_RED;
         params.dataType       = GL_FLOAT;
@@ -77,13 +78,13 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
         params.dataType       = GL_UNSIGNED_BYTE;
         params.internalFormat = GL_RGBA;
     }
-    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3C)
+    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_3D)
     {
         params.format         = GL_RGB;
         params.dataType       = GL_FLOAT;
         params.internalFormat = GL_RGB32F;
     }
-    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_4C)
+    else if (type == GraphicsApi::TextureType::FLOAT_TEXTURE_4D)
     {
         params.format         = GL_RGBA;
         params.dataType       = GL_FLOAT;
@@ -633,8 +634,8 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
     glBindTexture(params.target, 0);
 }
 
-GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, GraphicsApi::TextureFilter filter,
-                                         GraphicsApi::TextureMipmap mipmap, const vec2ui& size, const void* data)
+GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, GraphicsApi::TextureFilter filter,
+                                         GraphicsApi::TextureMipmap mipmap)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -645,15 +646,50 @@ GraphicsApi::ID OpenGLApi::CreateTexture(GraphicsApi::TextureType type, Graphics
         ERROR_LOG(errorString);
         return {};
     }
+    GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
+    auto channels = image.getChannelsCount();
+    std::visit(visitor{
+                   [&](const std::vector<uint8>& data) {
+                       switch (channels)
+                       {
+                           case 4:
+                               type = GraphicsApi::TextureType::U8_RGBA;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [&](const std::vector<float>& data) {
+                       switch (channels)
+                       {
+                           case 1:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                               break;
+                           case 2:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                               break;
+                           case 3:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                               break;
+                           case 4:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
+               },
+               image.getImageData());
 
-    CreateGlTexture(texture, type, filter, mipmap, size, data);
+    CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
 
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
 
     GraphicsApi::TextureInfo texutreInfo;
     texutreInfo.id            = rid;
-    texutreInfo.size          = size;
+    texutreInfo.size          = image.size();
     texutreInfo.textureFilter = filter;
     texutreInfo.textureMipmap = mipmap;
     texutreInfo.textureType   = type;
@@ -688,17 +724,14 @@ GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, Graphi
     texutreInfo.size          = vec2ui(static_cast<uint32>(N));
     texutreInfo.textureFilter = filter;
     texutreInfo.textureMipmap = GraphicsApi::TextureMipmap::NONE;
-    texutreInfo.textureType   = GraphicsApi::TextureType::FLOAT_TEXTURE_4C;
+    texutreInfo.textureType   = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
     impl_->textureInfos_.insert({rid, texutreInfo});
 
     return rid;
 }
 
-GraphicsApi::ID OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> data)
+GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<GraphicsApi::Image, 6>& images)
 {
-    if (data.size() != 6)
-        return {};
-
     uint32 id;
     glGenTextures(1, &id);
     GLenum hubo_error = glGetError();
@@ -709,11 +742,12 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> d
     }
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-    for (size_t x = 0; x < 6; x++)
+    int i = 0;
+    for (const auto& image : images)
     {
-        auto ptr = data[x];
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(x), 0, GL_RGBA, static_cast<GLsizei>(size.x),
-                     static_cast<GLsizei>(size.y), 0, GL_RGBA, GL_UNSIGNED_BYTE, ptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i++), 0, GL_RGBA,
+                     static_cast<GLsizei>(image.width), static_cast<GLsizei>(image.height), 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, image.getRawDataPtr());
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -726,8 +760,14 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(vec2ui size, std::vector<void*> d
     return rid;
 }
 
-void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& size, const void* data)
+void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const GraphicsApi::Image& image)
 {
+    if (image.empty())
+    {
+        ERROR_LOG("Update image without data");
+        return;
+    }
+
     if (impl_->textureInfos_.count(id) == 0)
     {
         return;
@@ -738,9 +778,10 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const vec2ui& siz
 
     BindTexture(id);
     glTexSubImage2D(params.target, 0, static_cast<GLint>(offset.x), static_cast<GLint>(offset.y),
-                    static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), params.format, params.dataType, data);
+                    static_cast<GLsizei>(image.width), static_cast<GLsizei>(image.height), params.format,
+                    params.dataType, image.getRawDataPtr());
 }
-void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, const void* data)
+void OpenGLApi::UpdateTexture(uint32 id, const GraphicsApi::Image& image)
 {
     if (impl_->textureInfos_.count(id) == 0)
     {
@@ -751,9 +792,9 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& size, const void* data)
     auto& textureInfo = impl_->textureInfos_.at(id);
     auto glId         = impl_->idPool_.ToGL(id);
 
-    BindTexture(id);
-    CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap, size, data);
-    textureInfo.size = size;
+    CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap, image.size(),
+                    image.getRawDataPtr());
+    textureInfo.size = image.size();
 }
 
 void OpenGLApi::ClearTexture(uint32 id, const Color& color)
@@ -788,8 +829,9 @@ void OpenGLApi::ActiveTexture(uint32 nr)
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    if (id == 0)
+    if (id == 0 or not createdObjectIds.count(id))
     {
+        ERROR_LOG("Wrong image id : " + std::to_string(id));
         return;
     }
 

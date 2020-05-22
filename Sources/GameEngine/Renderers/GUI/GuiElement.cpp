@@ -6,7 +6,7 @@ namespace GameEngine
 {
 uint32 GuiElement::ID = 0;
 
-GuiElement::GuiElement(GuiElementTypes type, const vec2ui& windowSize)
+GuiElement::GuiElement(GuiElementTypes type, const WindowSize& windowSize)
     : type_(type)
     , changeNotif_{true}
     , windowSize_{windowSize}

@@ -24,7 +24,6 @@
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Resources/Textures/Image.h"
 #include "GraphicsApi/BlendFunctionsTypes.h"
 #include "Renderers/GUI/Button/GuiButton.h"
 #include "Renderers/GUI/Texutre/GuiTextureElement.h"

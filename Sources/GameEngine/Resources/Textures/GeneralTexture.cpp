@@ -1,35 +1,68 @@
 #include "GeneralTexture.h"
 
 #include <Logger/Log.h>
-#include <Utils/Utils.h>
+
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 namespace GameEngine
 {
-GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, void* data)
-    : Texture(graphicsApi, size)
-    , data_(data)
+GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::Image image,
+                               const TextureParameters& paramters, const std::optional<File>& file)
+    : Texture(graphicsApi, vec2ui(image.width, image.height), file)
+    , image_(std::move(image))
+    , paramters_(paramters)
 {
 }
-
 void GeneralTexture::GpuLoadingPass()
 {
-    if (not data_ or graphicsObjectId_)
+    std::string debugFileNamePrint{"{genertated}"};
+    if (file_)
     {
-        ERROR_LOG("There was an error loading the texture. data is null or is initialized.");
+        debugFileNamePrint = file_->GetBaseName();
+    }
+    if (image_.empty() or graphicsObjectId_)
+    {
+        ERROR_LOG("There was an error loading the texture : " + debugFileNamePrint +
+                  ". data is null or is initialized.");
         return;
     }
 
+    DEBUG_LOG("Create texutre : " + debugFileNamePrint);
+
     auto graphicsObjectId =
-        graphicsApi_.CreateTexture(GraphicsApi::TextureType::U8_RGBA, GraphicsApi::TextureFilter::LINEAR,
-                                   GraphicsApi::TextureMipmap::NONE, size_, data_);
+        graphicsApi_.CreateTexture(image_, paramters_.filter, paramters_.mimap);
 
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
+        DEBUG_LOG("Texture " + debugFileNamePrint +
+                  " is in GPU. GraphicsObjectId :" + std::to_string(*graphicsObjectId));
     }
     else
     {
-        ERROR_LOG("GeneralTexture not created.");
+        image_.clearData();
+        ERROR_LOG("Texutre not created. " + debugFileNamePrint);
     }
+
+    if (paramters_.dataStorePolicy == DataStorePolicy::ToRelease)
+    {
+        image_.clearData();
+    }
+}
+void GeneralTexture::SetImage(GraphicsApi::Image image)
+{
+    image_       = std::move(image);
+    size_        = vec2ui(image.width, image.height);
+    orginalData_ = false;
+}
+
+const GraphicsApi::Image& GeneralTexture::GetImage() const
+{
+    return image_;
+}
+void GeneralTexture::SetPixel(const vec2ui& position, const Color& color)
+{
+    if (image_.setPixel(position, color))
+        orginalData_ = false;
 }
 }  // namespace GameEngine

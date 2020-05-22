@@ -29,16 +29,5 @@ struct GuiTextElementShould : public BaseComponentTestSchould
     FontManager fontManager_;
     std::unique_ptr<GuiTextElement> sut_;
 };
-TEST_F(GuiTextElementShould, MCT_SDL_UpdateText)
-{
-    for (int i = 0; i < 1000; ++i)
-        sut_->SetText("New text " + std::to_string(i));
-
-    ASSERT_TRUE(sut_->GetSurface());
-    auto& surface = *sut_->GetSurface();
-    DEBUG_LOG("Surface size : " + std::to_string(surface.size));
-    EXPECT_TRUE(surface.size.x > 0);
-    EXPECT_TRUE(surface.size.y > 0);
-}
 }  // namespace MT
 }  // namespace GameEngine

@@ -8,7 +8,6 @@
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <GameEngine/Renderers/RenderersManager.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
-#include <GameEngine/Resources/Textures/Image.h>
 #include <GameEngine/Resources/ResourceManager.h>
 
 #include <Thread.hpp>

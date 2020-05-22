@@ -7,29 +7,37 @@
 
 namespace GameEngine
 {
-TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const std::vector<float>& data, uint32 heightMapWidth)
-    : data_(data)
+TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const GraphicsApi::Image& heightMapImage)
+    : heightMapImage_(heightMapImage)
     , terrainScale_(terrainScale.x, terrainScale.z)
     , heightFactor_(terrainScale.y)
-    , heightMapWidth_(heightMapWidth)
 {
 }
 float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 {
-    auto index = x + y * heightMapWidth_;
-    if (index >= data_.size())
+    auto maybeColor = heightMapImage_.getPixel({ x, y });
+    if (not maybeColor)
     {
         ERROR_LOG("outOfRange");
         return 0.f;
     }
 
-    return (data_[index] * heightFactor_);
+    if (heightMapImage_.getChannelsCount() == 1)
+    {
+        return (maybeColor->value.x * heightFactor_);
+    }
+    else
+    {
+        DEBUG_LOG("Multi channel heightmap not implemented.");
+    }
+
+    return 0.f;
 }
 vec2 TerrainHeightTools::GetTexCoord(uint32 x, uint32 y) const
 {
     vec2 result;
-    result.x = static_cast<float>(x) / static_cast<float>(heightMapWidth_ - 1);
-    result.y = static_cast<float>(y) / static_cast<float>(heightMapWidth_ - 1);
+    result.x = static_cast<float>(x) / static_cast<float>(heightMapImage_.width - 1);
+    result.y = static_cast<float>(y) / static_cast<float>(heightMapImage_.height - 1);
     return result;
 }
 vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
@@ -49,7 +57,7 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
     float heightDownLeft  = GetHeight(Left(x), Down(z));
     float heightDownRight = GetHeight(Right(x), Down(z));
 
-    auto gridSquereSize = terrainScale_ / (static_cast<float>(heightMapWidth_) - 1.f);
+    auto gridSquereSize = terrainScale_ / (static_cast<float>(heightMapImage_.width) - 1.f);
     gridSquereSize      = vec3(1.f);
 
     auto vh = vec3(0, GetHeight(x, z), 0);
@@ -136,9 +144,9 @@ uint32 TerrainHeightTools::Left(uint32 x) const
 }
 uint32 TerrainHeightTools::Right(uint32 x) const
 {
-    if (x >= heightMapWidth_ - 1)
+    if (x >= heightMapImage_.width - 1)
     {
-        return heightMapWidth_ - 1;
+        return heightMapImage_.width - 1;
     }
 
     return x + 1;
@@ -154,9 +162,9 @@ uint32 TerrainHeightTools::Up(uint32 z) const
 }
 uint32 TerrainHeightTools::Down(uint32 z) const
 {
-    if (z >= heightMapWidth_ - 1)
+    if (z >= heightMapImage_.height - 1)
     {
-        return heightMapWidth_ - 1;
+        return heightMapImage_.height - 1;
     }
 
     return z + 1;

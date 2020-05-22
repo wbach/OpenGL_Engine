@@ -4,8 +4,6 @@
 
 namespace GameEngine
 {
-class Texture;
-
 enum class TerrainTextureType
 {
     // shadowMap                   = 0,
@@ -32,6 +30,7 @@ enum class TerrainTextureType
     rockTextureDisplacement       = 21
 
 };
+class Texture;
 bool IsTerrainTextureType(const std::string&);
 typedef std::unordered_map<TerrainTextureType, Texture*> TerrainTexturesMap;
 }  // namespace GameEngine

@@ -24,7 +24,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceUtils.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
@@ -1183,8 +1183,8 @@ void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters&)
         if (not tc)
             continue;
 
-        auto image = CreateZerosImage(vec2ui(4096, 4096));
-        auto blendMap = static_cast<MaterialTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
+        auto image = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
+        auto blendMap = static_cast<GeneralTexture*>(tc->GetTexture(TerrainTextureType::blendMap));
         blendMap->SetImage(std::move(image));
         tc->BlendMapChanged();
     }

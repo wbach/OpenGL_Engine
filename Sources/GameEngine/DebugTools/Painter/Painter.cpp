@@ -9,7 +9,6 @@
 #include "Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Resources/Textures/MaterialTexture.h"
 
 namespace GameEngine
 {

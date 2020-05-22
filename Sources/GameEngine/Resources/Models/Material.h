@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../Textures/Texture.h"
+#include "../Textures/GeneralTexture.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -21,9 +21,9 @@ struct Material
     bool isTransparency  = false;
     bool useFakeLighting = false;
 
-    Texture* diffuseTexture  = nullptr;
-    Texture* ambientTexture  = nullptr;
-    Texture* specularTexture = nullptr;
-    Texture* normalTexture   = nullptr;
+    GeneralTexture* diffuseTexture  = nullptr;
+    GeneralTexture* ambientTexture  = nullptr;
+    GeneralTexture* specularTexture = nullptr;
+    GeneralTexture* normalTexture   = nullptr;
 };
 }  // namespace GameEngine

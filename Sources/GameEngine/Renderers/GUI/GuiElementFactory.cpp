@@ -1,7 +1,8 @@
 #include "GuiElementFactory.h"
 
-#include <algorithm>
 #include <Logger/Log.h>
+
+#include <algorithm>
 
 #include "Button/GuiButton.h"
 #include "EditText/GuiEditText.h"
@@ -17,7 +18,6 @@
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"
-#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -261,11 +261,13 @@ const GuiTheme &GuiElementFactory::GetTheme() const
     return theme_;
 }
 
-std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File& file)
+std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File &file)
 {
     TextureParameters params;
-    params.applySizeLimit = false;
-    params.flipMode       = TextureFlip::VERTICAL;
+    params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    params.flipMode        = TextureFlip::VERTICAL;
+    params.filter          = GraphicsApi::TextureFilter::LINEAR;
+    params.mimap           = GraphicsApi::TextureMipmap::LINEAR;
 
     auto texture = resourceManager_.GetTextureLoader().LoadTexture(file, params);
     if (not texture)
