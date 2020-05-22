@@ -199,7 +199,7 @@ int MainScene::Initialize()
         .SetWaveSpeed(10.f);
     AddGameObject(std::move(water));
 
-    SetDirectionalLightColor(vec3(0.4));
+    SetDirectionalLightColor(vec3(.4f));
     pointLight_ = &AddLight(Light(vec3(2, 4, 2), vec3(1), vec3(0, 0, 0.1)));
 
     {
@@ -501,11 +501,11 @@ void MainScene::CreateExmapleStrtupObject()
 {
     // clang-format off
     {
-        std::array<std::string, 6> nightTextures{ "Skybox/Night/right.png", "Skybox/Night/left.png",
+        std::array<File, 6> nightTextures{ "Skybox/Night/right.png", "Skybox/Night/left.png",
                                                 "Skybox/Night/top.png",   "Skybox/Night/bottom.png",
                                                 "Skybox/Night/back.png",  "Skybox/Night/front.png" };
 
-        std::array<std::string, 6> dayTextures{ "Skybox/TropicalSunnyDay/right.png", "Skybox/TropicalSunnyDay/left.png",
+        std::array<File, 6> dayTextures{ "Skybox/TropicalSunnyDay/right.png", "Skybox/TropicalSunnyDay/left.png",
                                                 "Skybox/TropicalSunnyDay/top.png",   "Skybox/TropicalSunnyDay/bottom.png",
                                                 "Skybox/TropicalSunnyDay/back.png",  "Skybox/TropicalSunnyDay/front.png" };
 

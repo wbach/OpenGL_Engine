@@ -6,6 +6,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "TestGame/Single/PlayerInputController.h"
+#include "GameEngine/Resources/File.h"
 
 class CPlayer;
 namespace GameEngine
@@ -21,7 +22,7 @@ enum class CameraType
 
 namespace PhysicsTestGame
 {
-typedef std::unordered_map<GameEngine::TerrainTextureType, std::string> TerrainTexturesFilesMap;
+typedef std::unordered_map<GameEngine::TerrainTextureType, GameEngine::File> TerrainTexturesFilesMap;
 
 class PhysicsScene : public GameEngine::Scene
 {

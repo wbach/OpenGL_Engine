@@ -6,6 +6,7 @@
 #include "TestGame/Single/PlayerInputController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
+#include "GameEngine/Resources/File.h"
 #include <optional>
 #include <functional>
 
@@ -21,7 +22,7 @@ enum class CameraType
     ThridPerson
 };
 
-typedef std::unordered_map<GameEngine::TerrainTextureType, std::string> TerrainTexturesFilesMap;
+typedef std::unordered_map<GameEngine::TerrainTextureType, GameEngine::File> TerrainTexturesFilesMap;
 
 class MainScene : public GameEngine::Scene
 {
