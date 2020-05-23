@@ -1,77 +1,29 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
+SamplerState linearSamplerState : register(s0);
 Texture2D shadowMap : register(t0);
-SamplerState shadowMapState : register(s0);
-
 Texture2D heightMap : register(t1);
-SamplerState heightMapState : register(s1);
-
 Texture2D blendMap : register(t2);
-SamplerState blendMapState : register(s2);
-
 Texture2D normalMap : register(t3);
-SamplerState normalMapState : register(s3);
-
 Texture2D backgorundTexture : register(t4);
-SamplerState backgorundTextureState : register(s4);
-
 Texture2D backgorundTextureNormal : register(t5);
-SamplerState backgorundTextureNormalState : register(s5);
-
 Texture2D backgorundTextureDisplacment : register(t6);
-SamplerState backgorundTextureDisplacementState : register(s6);
-
 Texture2D redTexture : register(t7);
-SamplerState redTextureState : register(s7);
-
 Texture2D redTextureNormal : register(t8);
-SamplerState redTextureNormalState : register(s8);
-
 Texture2D redTextureDisplacement : register(t9);
-SamplerState redTextureDisplacementState : register(s9);
-
 Texture2D greenTexture : register(t10);
-SamplerState greenTextureState : register(s10);
-
 Texture2D greenTextureNormal : register(t11);
-SamplerState greenTextureNormalState : register(s11);
-
 Texture2D greenTextureDisplacement : register(t12);
-SamplerState greenTextureDisplacementState : register(s12);
-
 Texture2D blueTexture : register(t13);
-SamplerState blueTextureState : register(s13);
-
 Texture2D blueTextureNormal : register(t14);
-SamplerState blueTextureNormalState : register(s14);
-
 Texture2D blueTextureDisplacement : register(t15);
-SamplerState blueTextureDisplacementState : register(s15);
-
 Texture2D alphaTexture : register(t16);
-SamplerState alphaTextureState : register(s16);
-
 Texture2D alphaTextureNormal : register(t17);
-SamplerState alphaTextureNormalState : register(s17);
-
 Texture2D alphaTextureDisplacement : register(t18);
-SamplerState alphaTextureDisplacementState : register(s18);
-
 Texture2D rockTexture : register(t19);
-SamplerState rockTextureState : register(s19);
-
 Texture2D rockTextureNormal : register(t20);
-SamplerState rockTextureNormalState : register(s20);
-
 Texture2D rockTextureDisplacement : register(t21);
-SamplerState rockTextureDisplacementState : register(s21);
-
-// Texture2D snowTexture : register(t12);
-// SamplerState snowTextureState : register(s12);
-
-// Texture2D snowTextureNormal : register(t13);
-// SamplerState snowTextureStateNormal : register(s13);
 
 cbuffer PerApp : register(b0)
 {
@@ -260,28 +212,98 @@ float4 CalculateColor(LightPass lightsPass, Material material, float3 world_pos,
     return total_color;
 }
 
-
-float4 CalculateTerrainColor(float3 normal, float2 textCoord)
+struct TerrainData
 {
-    float4 blendMapColour = blendMap.Sample(blendMapState, textCoord);
-    float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
-    float2 tiledCoords = textCoord * 40.0f;
-    float4 backgorundTextureColour = backgorundTexture.Sample(backgorundTextureState, tiledCoords) * backTextureAmount;
-    float4 redTextureColour = redTexture.Sample(redTextureState, tiledCoords) * blendMapColour.r;
-    float4 greenTextureColour = greenTexture.Sample(greenTextureState, tiledCoords) * blendMapColour.g;
-    float4 blueTextureColour = blueTexture.Sample(blueTextureState, tiledCoords) * blendMapColour.b;
+    float4 color;
+    float4 normal;
+};
 
-    return backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
+float4 textureColor(Texture2D texture2d, float2 textCoord)
+{
+    return texture2d.Sample(linearSamplerState, textCoord);
+}
+
+bool Is(float f)
+{
+    return f > .5f;
+}
+
+static const float2 thresholds = float2(.5f, .1f);
+
+float GetRockBlendFactor(float normalY)
+{
+    float value = 1.f - normalY;
+
+    if (value > thresholds.x)
+    {
+        value = 1.f;
+    }
+    else if (value > thresholds.y)
+    {
+        value = (value - thresholds.y) / (thresholds.x - thresholds.y);
+    }
+    else
+    {
+        value = 0.f;
+    }
+
+    return value;
+}
+
+float4 CalculateBackgroundColor(float2 tiledCoords, float backTextureAmount, float normalY)
+{
+    float blendFactor = GetRockBlendFactor(normalY);
+    float4 backgorundTextureColor = textureColor(backgorundTexture, tiledCoords) * backTextureAmount * (1.f - blendFactor);
+    float4 rockTextureColor       = textureColor(rockTexture, tiledCoords) * backTextureAmount * blendFactor;
+    return backgorundTextureColor + rockTextureColor;
+}
+
+float4 CalculateTerrainColor(float2 tiledCoords, float4 blendMapColor, float backTextureAmount, float normalY)
+{
+    // if (!Is(perApp.useTextures.x))
+    // {
+    //     return vec4(.8f, .8f, .8f, 1.f);
+    // }
+
+    float4 backgorundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount, normalY);
+    float4 redTextureColor         = textureColor(redTexture, tiledCoords) * blendMapColor.r;
+    float4 greenTextureColor       = textureColor(greenTexture, tiledCoords) * blendMapColor.g;
+    float4 blueTextureColor        = textureColor(blueTexture, tiledCoords) * blendMapColor.b;
+    float4 alphaTextureColor       = textureColor(alphaTexture, tiledCoords) * blendMapColor.a;
+    return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
+}
+
+
+// float4 CalculateTerrainColor(float3 normal, float2 textCoord)
+// {
+//     float4 blendMapColour = blendMap.Sample(linearSamplerState, textCoord);
+//     float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
+//     float2 tiledCoords = textCoord * 40.0f;
+//     float4 backgorundTextureColour = backgorundTexture.Sample(linearSamplerState, tiledCoords) * backTextureAmount;
+//     float4 redTextureColour = redTexture.Sample(linearSamplerState, tiledCoords) * blendMapColour.r;
+//     float4 greenTextureColour = greenTexture.Sample(linearSamplerState, tiledCoords) * blendMapColour.g;
+//     float4 blueTextureColour = blueTexture.Sample(linearSamplerState, tiledCoords) * blendMapColour.b;
+
+//     return backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
+// }
+
+TerrainData GetTerrainData(float3 normal, float2 texCoord)
+{
+    float2 tiledCoords   = texCoord * 40.0f ;
+    float4 blendMapColor = textureColor(blendMap, texCoord);
+    float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
+
+    TerrainData result;
+    result.color  = CalculateTerrainColor(tiledCoords, blendMapColor, backTextureAmount, normal.y);
+    result.normal = float4(normal, 0.f);//CalculateTerrainNormal(tiledCoords, blendMapColor, backTextureAmount);
+    return result;
 }
 
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-    float4 samplerColor = float4(1, 1, 1, 1);
-    //return samplerColor;
-    samplerColor = CalculateTerrainColor(input.N, input.Tex);//backgorundTexture.Sample(backgorundTextureState, input.Tex);
-    //samplerColor = backgorundTexture.Sample(backgorundTextureState, input.Tex);
-
+    //return float4(1, 1, 1, 1);
+    TerrainData terrainData = GetTerrainData(input.N, input.Tex);
 
     LightPass lightsPass;
     lightsPass.numberOfLights  = 1;
@@ -292,8 +314,8 @@ float4 PS(PS_INPUT input)
     lightsPass.cutOff_[0]      = 0.f;
 
     Material material;
-    material.ambient_     = float3(0.05, 0.05, 0.05) * samplerColor.xyz;
-    material.diffuse_     = float3(0.8, 0.8, 0.8) * samplerColor.xyz;
+    material.ambient_     = float3(0.05, 0.05, 0.05) * terrainData.color.xyz;
+    material.diffuse_     = float3(0.8, 0.8, 0.8) * terrainData.color.xyz;
     material.specular_    = float3(0.0, 0.0, 0.0);
     material.shineDamper_ = 20;
 

@@ -61,12 +61,11 @@ struct Triangle : public Vao
 struct Texture
 {
     ID3D11ShaderResourceView *resourceView_ = nullptr;
-    ID3D11SamplerState *samplerState_       = nullptr;
+    uint32 samplerStateId                   = 0;
 
     void Release()
     {
         ReleasePtr(resourceView_);
-        ReleasePtr(samplerState_);
     }
 };
 
@@ -169,11 +168,34 @@ void Release(T &t)
     }
 }
 
+struct GraphicsApiTextureInfo
+{
+    GraphicsApi::TextureFilter filter{GraphicsApi::TextureFilter::LINEAR};
+    GraphicsApi::TextureMipmap mimap{GraphicsApi::TextureMipmap::LINEAR};
+};
+
+bool operator==(const GraphicsApiTextureInfo &a, const GraphicsApiTextureInfo &b)
+{
+    return a.filter == b.filter and a.mimap == b.mimap;
+}
+
+struct SamplerState
+{
+    ID3D11SamplerState *samplerState_{nullptr};
+    GraphicsApiTextureInfo textureInfo_;
+
+    void Release()
+    {
+        ReleasePtr(samplerState_);
+    }
+};
+
 class DirectXApi::Pimpl
 {
 public:
     ID3D11BlendState *alphaBlendState = nullptr;
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc_;
+    std::vector<SamplerState> samplerStates_;
     uint32 quadId;
     DirectXContext dxCondext_;
     std::vector<Buffer> buffers_;
@@ -201,22 +223,49 @@ public:
         return objects_.size();
     }
 
-    Texture CreateDirectXTexture(const D3D11_SAMPLER_DESC &samplerDesc, ID3D11ShaderResourceView *rv)
+    size_t CreateSamplerState(const GraphicsApiTextureInfo &textureInfo)
     {
-        Texture texture;
-        texture.resourceView_ = rv;
-        auto hr               = dxCondext_.dev->CreateSamplerState(&samplerDesc, &texture.samplerState_);
+        D3D11_SAMPLER_DESC sampDesc;
+        ZeroMemory(&sampDesc, sizeof(sampDesc));
+        sampDesc.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.AddressU       = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressV       = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressW       = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+        sampDesc.MinLOD         = 0;
+        sampDesc.MaxLOD         = D3D11_FLOAT32_MAX;
+        sampDesc.MipLODBias     = 0;
+        sampDesc.MaxAnisotropy  = 1;
+        sampDesc.BorderColor[0] = sampDesc.BorderColor[1] = sampDesc.BorderColor[2] = sampDesc.BorderColor[3] = 0;
+
+        ID3D11SamplerState *samplerState;
+        auto hr = dxCondext_.dev->CreateSamplerState(&sampDesc, &samplerState);
 
         if (FAILED(hr))
         {
             MessageBox(NULL, "Create texture error.", "Error", MB_OK);
         }
-        return texture;
+        samplerStates_.push_back({samplerState, textureInfo});
+        return samplerStates_.size() - 1;
     }
 
-    uint32 CreateTexture(const D3D11_SAMPLER_DESC &samplerDesc, ID3D11ShaderResourceView *rv)
+    size_t GetSamplerState(const GraphicsApiTextureInfo &textureInfo)
     {
-        textures_.push_back(CreateDirectXTexture(samplerDesc, rv));
+        size_t index = 0;
+        for (auto &sampler : samplerStates_)
+        {
+            if (textureInfo == sampler.textureInfo_)
+            {
+                return index;
+            }
+            ++index;
+        }
+        return CreateSamplerState(textureInfo);
+    }
+
+    size_t AddTexture(ID3D11ShaderResourceView *rv, uint32 samplerStateId)
+    {
+        textures_.push_back({rv, samplerStateId});
         return textures_.size();
     }
 
@@ -575,9 +624,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     return 0;  // to do return last binded buffer
 }
 
-std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateTexture2DDesc(ID3D11Device &dev,
-                                                                                             const vec2ui &size,
-                                                                                             const void *data)
+ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext& context, const vec2ui &size, const void *data)
 {
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
@@ -592,55 +639,44 @@ std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateT
     // desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
     desc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
     desc.Usage            = D3D11_USAGE_DEFAULT;
-    desc.BindFlags        = D3D11_BIND_SHADER_RESOURCE;
+    desc.BindFlags        = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
     desc.CPUAccessFlags   = 0;
+    desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
     D3D11_SUBRESOURCE_DATA subResource;
     subResource.pSysMem          = data;
     subResource.SysMemPitch      = desc.Width * 4;
     subResource.SysMemSlicePitch = 0;
-    auto result                  = dev.CreateTexture2D(&desc, &subResource, &texture2d);
+    auto result                  = context.dev->CreateTexture2D(&desc, &subResource, &texture2d);
 
     if (FAILED(result))
     {
         ERROR_LOG("Create CreateTexture2D failed.");
-        return {};
+        return nullptr;
     }
 
     // Create texture view
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     ZeroMemory(&srvDesc, sizeof(srvDesc));
-    srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.Format                    = desc.Format;
     srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels       = desc.MipLevels;
+    srvDesc.Texture2D.MipLevels       = 1;
     srvDesc.Texture2D.MostDetailedMip = 0;
-    result                            = dev.CreateShaderResourceView(texture2d, &srvDesc, &rv);
+    result                            = context.dev->CreateShaderResourceView(texture2d, &srvDesc, &rv);
     texture2d->Release();
-
     if (FAILED(result))
     {
         ERROR_LOG("Create shaderResourceView failed.");
-        return {};
+        return nullptr;
     }
-
-    // Create the sample state
-    D3D11_SAMPLER_DESC sampDesc;
-    ZeroMemory(&sampDesc, sizeof(sampDesc));
-    sampDesc.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sampDesc.AddressU       = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressV       = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressW       = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    sampDesc.MinLOD         = 0;
-    sampDesc.MaxLOD         = D3D11_FLOAT32_MAX;
-    sampDesc.MipLODBias     = 0;
-
-    return std::make_pair(sampDesc, rv);
+    context.devcon->GenerateMips(rv);
+    return rv;
 }
 
-GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, GraphicsApi::TextureFilter,
-                                          GraphicsApi::TextureMipmap)
+GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, GraphicsApi::TextureFilter filter,
+                                          GraphicsApi::TextureMipmap mipmap)
 {
     GraphicsApi::TextureType type{GraphicsApi::TextureType::DEPTH_BUFFER_2D};
     auto channels = image.getChannelsCount();
@@ -684,12 +720,13 @@ GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, Graph
         return {};
     }
 
-    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, image.size(), image.getRawDataPtr());
+    auto resourceview = CreateTexture2DDesc(impl_->dxCondext_, image.size(), image.getRawDataPtr());
 
-    if (not result)
+    if (not resourceview)
         return {};
 
-    return impl_->CreateTexture(result->first, result->second);
+    auto samplerId = impl_->GetSamplerState({filter, mipmap});
+    return impl_->AddTexture(resourceview, samplerId);
 }
 std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32)
 {
@@ -708,14 +745,9 @@ void DirectXApi::UpdateTexture(uint32 id, const GraphicsApi::Image &image)
 
     auto &texture = impl_->GetTexture(id);
     texture.Release();
-
-    auto result = CreateTexture2DDesc(*impl_->dxCondext_.dev, image.size(), image.getRawDataPtr());
-
-    if (not result)
-        return;
-
-    texture = impl_->CreateDirectXTexture(result->first, result->second);
+    texture.resourceView_ = CreateTexture2DDesc(impl_->dxCondext_, image.size(), image.getRawDataPtr());
 }
+
 // void DirectXApi::ClearBuffer(GraphicsApi::BufferType type)
 //{
 //    FLOAT color[] = {0.0f, 0.2f, 0.4f, 1.0f};
@@ -750,26 +782,24 @@ void DirectXApi::ActiveTexture(uint32 id)
     if (id == 0)
         return;
 
-    const auto &texture = impl_->GetTexture(id);
-
+    const auto &texture      = impl_->GetTexture(id);
+    const auto &samplerState = impl_->samplerStates_[texture.samplerStateId];
     impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
-    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
+    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &samplerState.samplerState_);
 }
 void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
 {
     if (id == 0)
         return;
 
-    const auto &texture = impl_->GetTexture(id);
+    const auto &texture      = impl_->GetTexture(id);
+    const auto &samplerState = impl_->samplerStates_[texture.samplerStateId];
 
-    if (texture.resourceView_ and texture.samplerState_)
-    {
-        if (nr < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT - 1)
-            impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
+    if (nr < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT - 1)
+        impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
 
-        if (nr < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT - 1)
-            impl_->dxCondext_.devcon->PSSetSamplers(nr, 1, &texture.samplerState_);
-    }
+    // if ( < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT - 1)
+    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &samplerState.samplerState_);
 }
 void DirectXApi::DeleteObject(uint32)
 {
@@ -920,9 +950,10 @@ void DirectXApi::BindTexture(uint32 id) const
     if (id == 0)
         return;
 
-    const auto &texture = impl_->GetTexture(id);
+    const auto &texture      = impl_->GetTexture(id);
+    const auto &samplerState = impl_->samplerStates_[texture.samplerStateId];
     impl_->dxCondext_.devcon->PSSetShaderResources(0, 1, &texture.resourceView_);
-    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &texture.samplerState_);
+    impl_->dxCondext_.devcon->PSSetSamplers(0, 1, &samplerState.samplerState_);
 }
 void DirectXApi::BindImageTexture(uint32, GraphicsApi::TextureAccess)
 {

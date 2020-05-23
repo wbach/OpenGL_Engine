@@ -1,20 +1,12 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
+SamplerState linearSamplerState : register(s0);
 Texture2D reflectionTexture : register(t0);
-SamplerState reflectionTextureSampler : register(s0);
-
 Texture2D refractionTexture : register(t1);
-SamplerState refractionTextureSampler : register(s1);
-
 Texture2D normalMap : register(t2);
-SamplerState normalMapSampler : register(s2);
-
 Texture2D dudvMap : register(t4);
-SamplerState dudvMapSampler : register(s4);
-
 Texture2D depthMap : register(t5);
-SamplerState depthMapSampler : register(s5);
 
 cbuffer PerFrame : register(b1)
 {
