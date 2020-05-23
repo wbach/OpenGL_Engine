@@ -514,6 +514,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     }
 
     impl_->shaders_.push_back(shader);
+    DEBUG_LOG("Shader created : " + vsShaderFileName);
     return impl_->shaders_.size();
 }
 void DirectXApi::UseShader(uint32 id)
@@ -641,7 +642,7 @@ std::optional<std::pair<D3D11_SAMPLER_DESC, ID3D11ShaderResourceView *>> CreateT
 GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, GraphicsApi::TextureFilter,
                                           GraphicsApi::TextureMipmap)
 {
-    GraphicsApi::TextureType type{GraphicsApi::TextureType::U8_RGBA};
+    GraphicsApi::TextureType type{GraphicsApi::TextureType::DEPTH_BUFFER_2D};
     auto channels = image.getChannelsCount();
     std::visit(visitor{
                    [&](const std::vector<uint8> &data) {
@@ -760,8 +761,15 @@ void DirectXApi::ActiveTexture(uint32 nr, uint32 id)
         return;
 
     const auto &texture = impl_->GetTexture(id);
-    impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
-    impl_->dxCondext_.devcon->PSSetSamplers(nr, 1, &texture.samplerState_);
+
+    if (texture.resourceView_ and texture.samplerState_)
+    {
+        if (nr < D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT - 1)
+            impl_->dxCondext_.devcon->PSSetShaderResources(nr, 1, &texture.resourceView_);
+
+        if (nr < D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT - 1)
+            impl_->dxCondext_.devcon->PSSetSamplers(nr, 1, &texture.samplerState_);
+    }
 }
 void DirectXApi::DeleteObject(uint32)
 {

@@ -9,9 +9,9 @@ static const int MAX_WEIGHTS = 4;
 
 cbuffer PerApp : register(b0)
 {
-    float useTextures;
-    float viewDistance;
-    float3 shadowVariables;
+    float4 useTextures;
+    float4 viewDistance;
+    float4 shadowVariables;
     float4 clipPlane;
 };
 
@@ -44,9 +44,9 @@ cbuffer PerMeshObject : register(b6)
     float4 diffuse;
     float4 specular;
     uint numberOfRows;
-    float useTexture;
-    float useNormalMap;
-    float useSpecularMap;
+    float haveDiffTexture;
+    float haveNormalMap;
+    float haveSpecularMap;
     float shineDamper;
     float useFakeLighting;
 }

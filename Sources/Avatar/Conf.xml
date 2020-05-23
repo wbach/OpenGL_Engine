@@ -6,7 +6,7 @@
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer graphicsApi="DirectX11" resolutionX="800" type="0" resolutionY="480" viewDistance="250.000000" fpsLimit="60" normalMappingDistance="150.000000">
+	<Renderer graphicsApi="DirectX11" resolutionX="800" type="1" resolutionY="480" viewDistance="250.000000" fpsLimit="60" normalMappingDistance="150.000000">
 		<Terrain>
 			<TerrainRenderer>Mesh</TerrainRenderer>
 		</Terrain>

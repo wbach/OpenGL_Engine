@@ -145,7 +145,7 @@ void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 }
 void TerrainMeshRenderer::BindTexture(Texture* texture, uint32 id) const
 {
-    context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
+   context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
 }
 void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
 {

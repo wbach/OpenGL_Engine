@@ -49,11 +49,23 @@ SamplerState blueTextureNormalState : register(s14);
 Texture2D blueTextureDisplacement : register(t15);
 SamplerState blueTextureDisplacementState : register(s15);
 
-// Texture2D rockTexture : register(t10);
-// SamplerState rockTextureState : register(s10);
+Texture2D alphaTexture : register(t16);
+SamplerState alphaTextureState : register(s16);
 
-// Texture2D rockTextureNormal : register(t11);
-// SamplerState rockTextureNormalState : register(s11);
+Texture2D alphaTextureNormal : register(t17);
+SamplerState alphaTextureNormalState : register(s17);
+
+Texture2D alphaTextureDisplacement : register(t18);
+SamplerState alphaTextureDisplacementState : register(s18);
+
+Texture2D rockTexture : register(t19);
+SamplerState rockTextureState : register(s19);
+
+Texture2D rockTextureNormal : register(t20);
+SamplerState rockTextureNormalState : register(s20);
+
+Texture2D rockTextureDisplacement : register(t21);
+SamplerState rockTextureDisplacementState : register(s21);
 
 // Texture2D snowTexture : register(t12);
 // SamplerState snowTextureState : register(s12);
@@ -63,9 +75,9 @@ SamplerState blueTextureDisplacementState : register(s15);
 
 cbuffer PerApp : register(b0)
 {
-    float useTextures;
-    float viewDistance;
-    float3 shadowVariables;
+    float4 useTextures;
+    float4 viewDistance;
+    float4 shadowVariables;
     float4 clipPlane;
 };
 
@@ -89,7 +101,7 @@ cbuffer PerObjectUpdate : register(b3)
 
 cbuffer PerPoseUpdate : register(b4)
 {
-    matrix bonesTransforms[25];
+    matrix bonesTransforms[100];
 };
 
 cbuffer PerMeshObject : register(b6)
@@ -266,12 +278,10 @@ float4 PS(PS_INPUT input)
     : SV_Target
 {
     float4 samplerColor = float4(1, 1, 1, 1);
+    //return samplerColor;
     samplerColor = CalculateTerrainColor(input.N, input.Tex);//backgorundTexture.Sample(backgorundTextureState, input.Tex);
     //samplerColor = backgorundTexture.Sample(backgorundTextureState, input.Tex);
-    if (samplerColor.w < 0.5)
-    {
-        discard;
-    }
+
 
     LightPass lightsPass;
     lightsPass.numberOfLights  = 1;
