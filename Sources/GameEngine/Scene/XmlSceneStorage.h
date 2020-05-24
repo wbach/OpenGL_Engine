@@ -1,6 +1,7 @@
 #pragma once
 #include "ISceneStorage.h"
 #include <Utils/XML/XmlNode.h>
+#include <optional>
 
 namespace GameEngine
 {
@@ -12,11 +13,13 @@ public:
     ~XmlSceneStorage() override;
 
     void store() override;
+    void restore() override;
     void saveToFile(const File&) override;
     void readFromFile(const File&) override;
+    GameObject* loadPrefab(const File&, const std::string&) override;
 
 private:
     Scene& scene_;
-    Utils::XmlNode rootNode_;
+    std::optional<Utils::XmlNode> rootNode_;
 };
 }  // namespace GameEngine

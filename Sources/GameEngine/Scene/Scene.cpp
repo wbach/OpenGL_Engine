@@ -16,8 +16,7 @@
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "SceneReader.h"
-#include "SceneWriter.h"
+#include "XmlSceneStorage.h"
 
 namespace GameEngine
 {
@@ -33,6 +32,7 @@ Scene::Scene(const std::string& name)
     , directionalLight(vec3(1000.f, 15000.f, 10000.f), vec3(.8f))
     , simulatePhysics_(true)
     , start_(true)
+    , sceneStorage_(std::make_unique<XmlSceneStorage>(*this))
 {
 }
 
@@ -230,23 +230,23 @@ const std::vector<Light>& Scene::GetLights() const
 {
     return lights;
 }
-void Scene::SaveToFile(const std::string& filename)
+void Scene::SaveToFile(const File& file)
 {
-    DEBUG_LOG("Save scene to file : " + filename);
-    SaveSceneState(*this, filename);
-    DEBUG_LOG("Scene save complete  , file : " + filename);
+    DEBUG_LOG("Save scene to file : " + file.GetAbsoultePath());
+    sceneStorage_->saveToFile(file);
+    DEBUG_LOG("Scene save complete  , file : " + file.GetAbsoultePath());
 }
-void Scene::LoadFromFile(const std::string& filename)
+void Scene::LoadFromFile(const File& file)
 {
-    DEBUG_LOG("Load scene from file : " + filename);
-    file_ = filename;
-    SceneReader::LoadScene(*this, filename);
-    DEBUG_LOG("Load scene from file : \"" + filename + "\" complete");
+    DEBUG_LOG("Load scene from file : " + file.GetAbsoultePath());
+    file_ = file;
+    sceneStorage_->readFromFile(file);
+    DEBUG_LOG("Load scene from file : \"" + file.GetAbsoultePath() + "\" complete");
 }
 
-GameObject* Scene::LoadPrefab(const std::string& filename, const std::string& name)
+GameObject* Scene::LoadPrefab(const File& file, const std::string& name)
 {
-    return SceneReader::LoadPrefab(*this, filename, name);
+    return sceneStorage_->loadPrefab(file, name);
 }
 
 int Scene::Initialize()

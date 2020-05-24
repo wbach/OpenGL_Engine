@@ -1,27 +1,30 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include <atomic>
 #include <list>
 #include <memory>
 #include <optional>
 #include <vector>
+
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/IComponentFactory.h"
+#include "GameEngine/DebugTools/Console/Console.h"
+#include "GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h"
+#include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include <GraphicsApi/IGraphicsApi.h>
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
+#include "ISceneStorage.h"
 #include "SceneEvents.h"
-#include "GameEngine/Engine/EngineContext.h"
 #include "Types.h"
-#include "GameEngine/Engine/EngineEvent.h"
-#include "GameEngine/DebugTools/Console/Console.h"
-#include "GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h"
 
 namespace Input
 {
@@ -57,7 +60,7 @@ public:
     void Stop();
 
     inline const std::string& GetName() const;
-    inline const std::string& GetFile() const;
+    inline const File& GetFile() const;
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
     inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
 
@@ -92,9 +95,9 @@ public:
     inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
 
-    void SaveToFile(const std::string& filename);
-    void LoadFromFile(const std::string& filename);
-    GameObject* LoadPrefab(const std::string& filename, const std::string& name);
+    void SaveToFile(const File&);
+    void LoadFromFile(const File&);
+    GameObject* LoadPrefab(const File&, const std::string&);
     void RunNetworkEditorInterface();
     void StopNetworkEditorInterface();
 
@@ -124,10 +127,10 @@ protected:
     Utils::Thread::ThreadSync* threadSync_;
 
     std::string name;
-    std::string file_;
+    File file_;
     AddEvent addSceneEvent;
     std::function<void(EngineEvent)> addEngineEvent;
-    
+
     // Minimum one light on scene only (night - decrease strength)
     Time time_;
     float gloabalTime = 0.f;
@@ -143,6 +146,7 @@ private:
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;
+    std::unique_ptr<ISceneStorage> sceneStorage_;
 
     friend class NetworkEditorInterface;
     friend class Debug::Console;
@@ -153,7 +157,7 @@ const std::string& Scene::GetName() const
     return name;
 }
 
-inline const std::string& Scene::GetFile() const
+inline const File& Scene::GetFile() const
 {
     return file_;
 }

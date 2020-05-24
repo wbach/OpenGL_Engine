@@ -32,6 +32,7 @@ public:
     bool operator==(const File&) const;
     File operator=(const char*) const;
     operator bool() const;
+    bool empty() const;
 
 private:
     void ConvertSlashes(const std::string&, const std::string&, const std::string&);

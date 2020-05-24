@@ -405,7 +405,7 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 
     if (not scene_.GetFile().empty())
     {
-        DebugNetworkInterface::SceneFileMsg msg(Utils::GetAbsolutePath(scene_.GetFile()));
+        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile().GetAbsoultePath());
         gateway_.Send(userId_, msg);
     }
 }
@@ -949,6 +949,7 @@ void NetworkEditorInterface::StartScene()
     keysSubscriptionsManager_.Clear();
     SetOrignalCamera();
     scene_.inputManager_->StashPopSubscribers();
+  //  scene_.sceneStorage_->store();
     scene_.Start();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
 }
@@ -959,6 +960,8 @@ void NetworkEditorInterface::StopScene()
         return;
 
     scene_.Stop();
+   // UnsubscribeTransformUpdateIfExist();
+  //  scene_.sceneStorage_->restore();
     scene_.inputManager_->StashSubscribers();
     SetupCamera();
     KeysSubscribtions();

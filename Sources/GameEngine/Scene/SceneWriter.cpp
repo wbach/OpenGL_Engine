@@ -2,7 +2,6 @@
 
 #include <Utils.h>
 #include <Utils/GLM/GLMUtils.h>
-#include <Utils/XML/XmlWriter.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
@@ -336,13 +335,9 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
 
             std::visit(visitor{
                            [&](const std::vector<uint8>& data) {
-                               Utils::SaveImage(data, image.size(),
-                                                blendMapTexture->GetFile()->GetAbsoultePath());
+                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
                            },
-                           [](const std::vector<float>& data) 
-                           {
-                               DEBUG_LOG("Float version not implemented.");
-                           },
+                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
                            [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
                        },
                        image.getImageData());
@@ -455,13 +450,11 @@ void Create(XmlNode& node, const GameObjects& gameObjects)
         Create(node.AddChild(CSTR_GAMEOBJECT), *gameObject);
     }
 }
-void SaveSceneState(const Scene& input, const std::string& filename)
+Utils::XmlNode createTree(const Scene& input)
 {
     XmlNode scene(CSTR_SCENE);
     scene.attributes_[CSTR_NAME] = input.GetName();
     Create(scene.AddChild(CSTR_GAMEOBJECTS), input.GetGameObjects());
-
-    Utils::CreateBackupFile(filename);
-    Xml::Write(filename, scene);
+    return scene;
 }
 }  // namespace GameEngine

@@ -1,4 +1,6 @@
 #pragma once
+#include <Utils/XML/XmlNode.h>
+#include "GameEngine/Resources/File.h"
 #include <string>
 
 namespace GameEngine
@@ -8,7 +10,8 @@ class GameObject;
 
 namespace SceneReader
 {
-void LoadScene(Scene& scene, const std::string& filename);
-GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::string& name);
+void readNode(const Utils::XmlNode& , Scene&);
+void loadScene(Scene&, const File&);
+GameObject* loadPrefab(Scene&, const File&, const std::string&);
 }  // namespace SceneReader
 }  // namespace GameEngine

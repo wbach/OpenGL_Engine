@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 
+#include "File.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
-#include "File.h"
 
 namespace GameEngine
 {
@@ -23,5 +23,7 @@ public:
     virtual IGpuResourceLoader& GetGpuResourceLoader()  = 0;
     virtual ITextureLoader& GetTextureLoader()          = 0;
     virtual GraphicsApi::IGraphicsApi& GetGraphicsApi() = 0;
+    //virtual void StartReleaseResources()                = 0;
+    //virtual void StopReleaseResources()                 = 0;
 };
 }  // namespace GameEngine

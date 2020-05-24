@@ -87,37 +87,37 @@ std::string File::GetParentDir() const
     return Utils::GetParent(absoultePath_);
 }
 
-File File::CreateFileWithExtension(const std::string& extension) const
+File File::CreateFileWithExtension(const std::string &extension) const
 {
     File f(*this);
     f.ChangeExtension(extension);
     return f;
 }
 
-void File::ChangeFileName(const std::string& filename)
+void File::ChangeFileName(const std::string &filename)
 {
-    auto absoultePath = std::filesystem::path(absoultePath_).replace_filename(filename).string();
-    auto dataRelative = std::filesystem::path(dataRelative_).replace_filename(filename).string();
+    auto absoultePath    = std::filesystem::path(absoultePath_).replace_filename(filename).string();
+    auto dataRelative    = std::filesystem::path(dataRelative_).replace_filename(filename).string();
     auto projectRelative = std::filesystem::path(projectRelative_).replace_filename(filename).string();
     ConvertSlashes(absoultePath, dataRelative, projectRelative);
 }
 
-void File::ChangeBaseName(const std::string& basename)
+void File::ChangeBaseName(const std::string &basename)
 {
     auto filenameWithExtension = basename + GetExtension();
-    auto absoultePath = std::filesystem::path(absoultePath_).replace_filename(filenameWithExtension).string();
-    auto dataRelative = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
+    auto absoultePath          = std::filesystem::path(absoultePath_).replace_filename(filenameWithExtension).string();
+    auto dataRelative          = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
     auto projectRelative = std::filesystem::path(projectRelative_).replace_filename(filenameWithExtension).string();
     ConvertSlashes(absoultePath, dataRelative, projectRelative);
 }
 
-void File::AddSuffixToBaseName(const std::string& suffix)
+void File::AddSuffixToBaseName(const std::string &suffix)
 {
     auto newBaseName = GetBaseName() + suffix;
     ChangeBaseName(newBaseName);
 }
 
-bool File::IsExtension(const std::string&  extension) const
+bool File::IsExtension(const std::string &extension) const
 {
     return GetExtension() == extension;
 }
@@ -133,6 +133,10 @@ File File::operator=(const char *str) const
 File::operator bool() const
 {
     return not absoultePath_.empty() and std::filesystem::exists(absoultePath_);
+}
+bool File::empty() const
+{
+    return absoultePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
 }
 void File::ConvertSlashes(const std::string &absoultePath, const std::string &dataRelative,
                           const std::string &projectRelative)

@@ -50,7 +50,7 @@ public:
         childrenMap_.insert({ptr->GetName(), ptr});
     }
 
-    XmlNode* GetChild(const std::string& name)
+    XmlNode* GetChild(const std::string& name) const
     {
         if (childrenMap_.count(name))
         {

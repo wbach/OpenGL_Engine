@@ -37,7 +37,7 @@ namespace
 Scene* currentReadingScene = nullptr;
 }
 
-std::vector<vec3> ReadVectorVec3(Utils::XmlNode& node)
+std::vector<vec3> ReadVectorVec3(const Utils::XmlNode& node)
 {
     std::vector<vec3> result;
     for (const auto& v : node.GetChildren())
@@ -48,7 +48,7 @@ std::vector<vec3> ReadVectorVec3(Utils::XmlNode& node)
     return result;
 }
 
-void Read(Utils::XmlNode& node, common::Transform& tranfsorm)
+void Read(const Utils::XmlNode& node, common::Transform& tranfsorm)
 {
     auto position = ReadVec3(*node.GetChild(CSTR_POSITION));
     auto rotation = ReadVec3(*node.GetChild(CSTR_ROTATION));
@@ -57,22 +57,22 @@ void Read(Utils::XmlNode& node, common::Transform& tranfsorm)
     tranfsorm.SetPositionAndRotationAndScale(position, DegreesVec3(rotation), scale);
 }
 
-void Read(Utils::XmlNode&, Components::ThridPersonCameraComponent&)
+void Read(const Utils::XmlNode&, Components::ThridPersonCameraComponent&)
 {
 }
 
-void Read(Utils::XmlNode& node, Components::Animator& component)
+void Read(const Utils::XmlNode& node, Components::Animator& component)
 {
     component.SetAnimation(node.GetChild(CSTR_CURRENT_ANIMATION)->value_);
 }
 
-void Read(Utils::XmlNode& node, Components::BoxShape& component)
+void Read(const Utils::XmlNode& node, Components::BoxShape& component)
 {
     component.SetSize(ReadVec3(*node.GetChild(CSTR_SIZE)));
     component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
 }
 
-void Read(Utils::XmlNode& node, Components::MeshShape& component)
+void Read(const Utils::XmlNode& node, Components::MeshShape& component)
 {
     component.SetSize(ReadFloat(*node.GetChild(CSTR_SIZE)));
     component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
@@ -80,26 +80,26 @@ void Read(Utils::XmlNode& node, Components::MeshShape& component)
     component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
 }
 
-void Read(Utils::XmlNode& node, Components::SphereShape& component)
+void Read(const Utils::XmlNode& node, Components::SphereShape& component)
 {
     component.SetSize(ReadFloat(*node.GetChild(CSTR_SIZE)));
     component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
 }
 
-void Read(Utils::XmlNode& node, Components::CapsuleShape& component)
+void Read(const Utils::XmlNode& node, Components::CapsuleShape& component)
 {
     component.SetHeight(ReadFloat(*node.GetChild(CSTR_HEIGHT)));
     component.SetRadius(ReadFloat(*node.GetChild(CSTR_RADIUS)));
     component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
 }
 
-void Read(Utils::XmlNode& node, Components::TerrainShape& component)
+void Read(const Utils::XmlNode& node, Components::TerrainShape& component)
 {
     component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
     component.SetHeightMap(node.GetChild(CSTR_HEIGHTMAP_FILENAME)->value_);
 }
 
-void Read(Utils::XmlNode& node, Components::Rigidbody& component)
+void Read(const Utils::XmlNode& node, Components::Rigidbody& component)
 {
     component.SetMass(ReadFloat(*node.GetChild(CSTR_MASS)));
     component.SetIsStatic(ReadBool(*node.GetChild(CSTR_IS_STATIC)));
@@ -121,7 +121,7 @@ void Read(Utils::XmlNode& node, Components::Rigidbody& component)
     component.SetCollisionShape(collShape);
 }
 
-void Read(Utils::XmlNode& node, Components::RendererComponent& component)
+void Read(const Utils::XmlNode& node, Components::RendererComponent& component)
 {
     auto textureIndex = std::stoul(node.GetChild(CSTR_TEXTURE_INDEX)->value_);
     component.SetTextureIndex(textureIndex);
@@ -134,7 +134,7 @@ void Read(Utils::XmlNode& node, Components::RendererComponent& component)
     }
 }
 
-void Read(Utils::XmlNode& node, Components::TreeRendererComponent& component)
+void Read(const Utils::XmlNode& node, Components::TreeRendererComponent& component)
 {
     for (const auto& fileNode : node.GetChild(CSTR_BOTTOM_FILENAMES)->GetChildren())
     {
@@ -152,7 +152,7 @@ void Read(Utils::XmlNode& node, Components::TreeRendererComponent& component)
     component.SetPositions(ReadVectorVec3(*node.GetChild(CSTR_POSITIONS)), ReadVec2ui(*node.GetChild(CSTR_SIZE_2D)));
 }
 
-Particle ReadParticle(Utils::XmlNode& node)
+Particle ReadParticle(const Utils::XmlNode& node)
 {
     Particle particle;
 
@@ -166,7 +166,7 @@ Particle ReadParticle(Utils::XmlNode& node)
     return particle;
 }
 
-void Read(Utils::XmlNode& node, Components::ParticleEffectComponent& component)
+void Read(const Utils::XmlNode& node, Components::ParticleEffectComponent& component)
 {
     auto particle = ReadParticle(*node.GetChild(CSTR_PARTICLE));
     component.SetParticle(particle);
@@ -191,7 +191,7 @@ void Read(Utils::XmlNode& node, Components::ParticleEffectComponent& component)
     component.SetParticlesLimit(std::stoul(node.GetChild(CSTR_PARTICLE_LIMT)->value_));
 }
 
-std::vector<std::string> ReadStringVector(Utils::XmlNode& node, const std::string& str)
+std::vector<std::string> ReadStringVector(const Utils::XmlNode& node, const std::string& str)
 {
     std::vector<std::string> textures;
     for (const auto& modelFileName : node.GetChild(str)->GetChildren())
@@ -201,7 +201,7 @@ std::vector<std::string> ReadStringVector(Utils::XmlNode& node, const std::strin
     return textures;
 }
 
-std::array<File, 6> ReadCubeMapArray(Utils::XmlNode& node, const std::string& str)
+std::array<File, 6> ReadCubeMapArray(const Utils::XmlNode& node, const std::string& str)
 {
     std::array<File, 6> textures;
     uint32 index = 0;
@@ -219,7 +219,7 @@ std::array<File, 6> ReadCubeMapArray(Utils::XmlNode& node, const std::string& st
     return textures;
 }
 
-std::vector<float> ReadFloatVector(Utils::XmlNode& node)
+std::vector<float> ReadFloatVector(const Utils::XmlNode& node)
 {
     auto strings = Utils::SplitString(node.value_, ' ');
     DEBUG_LOG("string size : " + std::to_string(strings.size()));
@@ -239,26 +239,26 @@ std::vector<float> ReadFloatVector(Utils::XmlNode& node)
     return v;
 }
 
-void Read(Utils::XmlNode& node, Components::SkyBoxComponent& component)
+void Read(const Utils::XmlNode& node, Components::SkyBoxComponent& component)
 {
     component.SetDayTexture(ReadCubeMapArray(node, CSTR_DAY_TEXTURES));
     component.SetNightTexture(ReadCubeMapArray(node, CSTR_NIGHT_TEXTURES));
     component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
 }
 
-void Read(Utils::XmlNode&, Components::SkydomeComponent&)
+void Read(const Utils::XmlNode&, Components::SkydomeComponent&)
 {
 }
 
-void Read(Utils::XmlNode&, Components::CharacterController&)
+void Read(const Utils::XmlNode&, Components::CharacterController&)
 {
 }
 
-void Read(Utils::XmlNode&, Components::PlayerInputController&)
+void Read(const Utils::XmlNode&, Components::PlayerInputController&)
 {
 }
 
-void Read(Utils::XmlNode& node, Components::WaterRendererComponent& component)
+void Read(const Utils::XmlNode& node, Components::WaterRendererComponent& component)
 {
     auto waveSpeedNode = node.GetChild(CSTR_WAVE_SPEED);
     if (waveSpeedNode)
@@ -282,7 +282,7 @@ void Read(Utils::XmlNode& node, Components::WaterRendererComponent& component)
         component.LoadTextures(dudvNode->value_, normalMapNode->value_);
 }
 
-std::unordered_map<TerrainTextureType, File> ReadTerrainTextures(Utils::XmlNode& node)
+std::unordered_map<TerrainTextureType, File> ReadTerrainTextures(const Utils::XmlNode& node)
 {
     std::unordered_map<TerrainTextureType, File> result;
 
@@ -297,7 +297,7 @@ std::unordered_map<TerrainTextureType, File> ReadTerrainTextures(Utils::XmlNode&
     return result;
 }
 
-void Read(Utils::XmlNode& node, Components::GrassRendererComponent& component)
+void Read(const Utils::XmlNode& node, Components::GrassRendererComponent& component)
 {
     component.SetTexture(node.GetChild(CSTR_TEXTURE_FILENAME)->value_);
 
@@ -313,7 +313,7 @@ void Read(Utils::XmlNode& node, Components::GrassRendererComponent& component)
     }
 }
 
-void Read(Utils::XmlNode& node, Components::TerrainRendererComponent& component)
+void Read(const Utils::XmlNode& node, Components::TerrainRendererComponent& component)
 {
     auto texturesNode = node.GetChild(CSTR_TEXTURE_FILENAMES);
 
@@ -329,13 +329,13 @@ void Read(Utils::XmlNode& node, Components::TerrainRendererComponent& component)
 }
 
 template <typename T>
-void AddComponent(Utils::XmlNode& node, GameObject& gameObject)
+void AddComponent(const Utils::XmlNode& node, GameObject& gameObject)
 {
     auto& comp = gameObject.AddComponent<T>();
     Read(node, comp);
 }
 
-void Read(Scene& scene, Utils::XmlNode& node, GameObject& gameObject)
+void Read(Scene& scene, const Utils::XmlNode& node, GameObject& gameObject)
 {
     Read(*node.GetChild(CSTR_TRANSFORM), gameObject.GetTransform());
 
@@ -418,16 +418,10 @@ void Read(Scene& scene, Utils::XmlNode& node, GameObject& gameObject)
     }
 }
 
-GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::string& name)
+GameObject* loadPrefab(Scene& scene, const File& file, const std::string& name)
 {
     Utils::XmlReader xmlReader;
-
-    auto fullpath = EngineConf_GetFullDataPathAddToRequierd(filename);
-
-    DEBUG_LOG("filename : " + filename);
-    DEBUG_LOG("fullpath : " + fullpath);
-
-    if (not xmlReader.Read(fullpath))
+    if (not xmlReader.Read(file.GetAbsoultePath()))
     {
         ERROR_LOG("Prefab read error");
         return nullptr;
@@ -444,7 +438,7 @@ GameObject* LoadPrefab(Scene& scene, const std::string& filename, const std::str
     return result;
 }
 
-void Read(Utils::XmlNode& node, Scene& scene)
+void readNode(const Utils::XmlNode& node, Scene& scene)
 {
     for (const auto& child : node.GetChild(CSTR_GAMEOBJECTS)->GetChildren())
     {
@@ -454,14 +448,14 @@ void Read(Utils::XmlNode& node, Scene& scene)
     }
 }
 
-void LoadScene(Scene& scene, const std::string& filename)
+void loadScene(Scene& scene, const File& file)
 {
     Utils::XmlReader xmlReader;
-    if (not xmlReader.Read(filename))
+    if (not xmlReader.Read(file.GetAbsoultePath()))
         return;
 
     currentReadingScene = &scene;
-    Read(*xmlReader.Get(CSTR_SCENE), scene);
+    readNode(*xmlReader.Get(CSTR_SCENE), scene);
 }
 }  // namespace SceneReader
 }  // namespace GameEngine
