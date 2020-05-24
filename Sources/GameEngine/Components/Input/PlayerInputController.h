@@ -3,6 +3,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
 #include <Common/Controllers/CharacterController/CharacterActions.h>
+#include <Input/KeysSubscriptionsManager.h>
 
 namespace GameEngine
 {
@@ -30,6 +31,7 @@ private:
     Animator* animator_;
     CharacterController* characterController_;
     std::vector<CharacterController::Action> states_;
+    Input::KeysSubscriptionsManager subscriptions_;
 
 public:
     static ComponentsType type;

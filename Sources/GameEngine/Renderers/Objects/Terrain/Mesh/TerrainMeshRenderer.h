@@ -53,5 +53,6 @@ private:
     MeasurementValue* measurementValue_;
     ShaderProgram shader_;
     std::vector<std::pair<uint32_t, Subscriber>> subscribes_;
+    std::mutex subscriberMutex_;
 };
 }  // namespace GameEngine

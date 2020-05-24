@@ -64,8 +64,8 @@ public:
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
     inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
 
-    std::unique_ptr<GameObject> CreateGameObject() const;
-    std::unique_ptr<GameObject> CreateGameObject(const std::string& name) const;
+    std::unique_ptr<GameObject> CreateGameObject(const std::optional<uint32>& = std::nullopt) const;
+    std::unique_ptr<GameObject> CreateGameObject(const std::string&, const std::optional<uint32>& = std::nullopt) const;
 
     void SetDirectionalLightColor(const vec3& color);
     Light& AddLight(const Light& light);

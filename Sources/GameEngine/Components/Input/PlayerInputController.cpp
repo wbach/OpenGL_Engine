@@ -14,12 +14,12 @@ PlayerInputController::PlayerInputController(ComponentContext& componentContext,
     : BaseComponent(type, componentContext, gameObject)
     , animator_{nullptr}
     , characterController_{nullptr}
+    , subscriptions_{componentContext.inputManager_}
 {
 }
 
 void PlayerInputController::CleanUp()
 {
-
 }
 
 void PlayerInputController::ReqisterFunctions()
@@ -38,34 +38,34 @@ void PlayerInputController::Init()
 
 void PlayerInputController::SubscribeForPushActions()
 {
-    componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::W, [&]() {
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::W, [&]() {
         AddState(CharacterController::Action::MOVE_FORWARD);
         SetRunAnim();
         animator_->animationSpeed_ = fabsf(animator_->animationSpeed_);
     });
-    componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
+    subscriptions_ =  componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
         AddState(CharacterController::Action::MOVE_BACKWARD);
         SetRunAnim();
         animator_->animationSpeed_ = -1.f * fabsf(animator_->animationSpeed_);
     });
-    componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() { AddState(CharacterController::Action::ROTATE_LEFT); });
-    componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::D,
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() { AddState(CharacterController::Action::ROTATE_LEFT); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::D,
                                                        [&]() { AddState(CharacterController::Action::ROTATE_RIGHT); });
 }
 
 void PlayerInputController::SubscribeForPopActions()
 {
-    componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::W, [&]() {
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::W, [&]() {
         RemoveState(CharacterController::Action::MOVE_FORWARD);
         SetIdleAnim();
     });
-    componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::S, [&]() {
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::S, [&]() {
         RemoveState(CharacterController::Action::MOVE_BACKWARD);
         SetIdleAnim();
     });
-    componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::A,
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::A,
                                                      [&]() { RemoveState(CharacterController::Action::ROTATE_LEFT); });
-    componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::D,
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::D,
                                                      [&]() { RemoveState(CharacterController::Action::ROTATE_RIGHT); });
 }
 

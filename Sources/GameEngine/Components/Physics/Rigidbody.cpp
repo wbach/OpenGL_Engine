@@ -38,7 +38,7 @@ void Rigidbody::CleanUp()
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
     rigidBodyId_ = std::nullopt;
 }
-void Rigidbody::OnStart()
+void Rigidbody::OnAwake()
 {
     GetCollisionShape();
 
@@ -46,13 +46,6 @@ void Rigidbody::OnStart()
     {
         ERROR_LOG("Can not create Rigidbody without shape.");
         return;
-    }
-
-    if (not isStatic_)
-    {
-        // add offst prevent set position on shape (collision error)
-        // exmaple loading from file, when file was saved when object is on the ground
-        thisObject_.GetTransform().IncrasePosition(vec3(0.f, 1.f, 0.f));
     }
 
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
@@ -71,7 +64,7 @@ void Rigidbody::OnStart()
 }
 void Rigidbody::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&Rigidbody::OnAwake, this));
 }
 bool Rigidbody::IsReady() const
 {

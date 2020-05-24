@@ -13,10 +13,13 @@ namespace GameEngine
 {
 class GameObject;
 typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
+
 class GameObject
 {
 public:
-    GameObject(const std::string& name, Components::IComponentFactory& componentFactory);
+    GameObject(const std::string&, Components::IComponentFactory&);
+    GameObject(const std::string&, Components::IComponentFactory&, uint32);
+
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
 
@@ -73,7 +76,7 @@ protected:
 
 private:
     static uint32 s_id;
-    uint32 id;
+    uint32 id_;
     Components::IComponentFactory& componentFactory_;
 };
 
@@ -91,7 +94,7 @@ inline const GameObjects& GameObject::GetChildren() const
 }
 uint32 GameObject::GetId() const
 {
-    return id;
+    return id_;
 }
 template <class T>
 inline T* GameObject::GetComponent()

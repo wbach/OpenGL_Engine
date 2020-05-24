@@ -1,4 +1,5 @@
 #include "BufferDataUpdater.h"
+
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
@@ -60,23 +61,27 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
     {
         rendererComponent->UpdateBuffers();
 
-        //auto subscribtionId =
-            gameObject->SubscribeOnWorldTransfomChange([this, rendererComponent](const auto&) mutable {
-                AddEvent(std::make_unique<TransformDataEvent>(*rendererComponent));
+        auto subscribtionId =
+            gameObject->SubscribeOnWorldTransfomChange([id = gameObject->GetId(), this, rendererComponent](const auto&) mutable {
+                AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent));
             });
 
         if (rendererComponent->GetModelWrapper().Get()->IsAnyMeshUseTransform())
         {
-            subscribers_.emplace_back(new BonesDataSubcriber(graphicsApi_, gameObject->GetId(), *rendererComponent));
+            std::lock_guard<std::mutex> lk(subsribtionMutex_);
+            subscribers_.push_back({subscribtionId, std::make_unique<BonesDataSubcriber>(
+                                                        graphicsApi_, gameObject->GetId(), *rendererComponent)});
         }
     }
 }
 void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
 {
+    std::lock_guard<std::mutex> lk(subsribtionMutex_);
     for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
     {
-        if ((**iter).GetId() == gameObject->GetId())
+        if (iter->bufferDataUpdater_->GetId() == gameObject->GetId())
         {
+            gameObject->UnsubscribeOnWorldTransfromChange(iter->transformSubscribtionId);
             iter = subscribers_.erase(iter);
         }
         else
@@ -87,11 +92,11 @@ void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
 }
 void BufferDataUpdater::Update()
 {
+    std::lock_guard<std::mutex> lk(subsribtionMutex_);
     ProcessEvents();
-
     for (auto& sub : subscribers_)
     {
-        sub->Update();
+        sub.bufferDataUpdater_->Update();
     }
 }
 void BufferDataUpdater::UnSubscribeAll()
@@ -102,12 +107,12 @@ void BufferDataUpdater::ProcessEvents()
 {
     std::lock_guard<std::mutex> lk(eventMutex_);
     for (auto& e : events_)
-        e->Execute();
+        e.second->Execute();
     events_.clear();
 }
-void BufferDataUpdater::AddEvent(std::unique_ptr<IBufferDataUpdaterEvent> event)
+void BufferDataUpdater::AddEvent(uint32 gameobjectId, std::unique_ptr<IBufferDataUpdaterEvent> event)
 {
     std::lock_guard<std::mutex> lk(eventMutex_);
-    events_.push_back(std::move(event));
+    events_.push_back({ gameobjectId, std::move(event) });
 }
 }  // namespace GameEngine

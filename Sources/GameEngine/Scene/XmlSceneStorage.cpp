@@ -19,12 +19,14 @@ XmlSceneStorage::~XmlSceneStorage()
 }
 void XmlSceneStorage::store()
 {
+    DEBUG_LOG("store");
     rootNode_ = createTree(scene_);
 }
 void XmlSceneStorage::restore()
 {
     if (rootNode_)
     {
+        DEBUG_LOG("restore");
         scene_.ClearGameObjects();
         SceneReader::readNode(*rootNode_, scene_);
     }

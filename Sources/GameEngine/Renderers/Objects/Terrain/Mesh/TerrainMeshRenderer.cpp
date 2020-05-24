@@ -47,8 +47,8 @@ void TerrainMeshRenderer::Render(const Scene& scene, const Time&)
     context_.graphicsApi_.EnableCulling();
     context_.graphicsApi_.EnableBlend();
     shader_.Start();
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     RenderSubscribers(scene);
-
     *measurementValue_ = std::to_string(renderedTerrains);
 }
 void TerrainMeshRenderer::RenderSubscribers(const Scene& scene) const
@@ -155,6 +155,7 @@ void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
         return;
 
     DEBUG_LOG("Subscribe goId : " + std::to_string(gameObject->GetId()));
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.push_back({gameObject->GetId(), {gameObject, terrain->GetMeshTerrain()}});
 }
 void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
@@ -164,6 +165,7 @@ void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
 
     if (iter != subscribes_.end())
     {
+        std::lock_guard<std::mutex> lk(subscriberMutex_);
         subscribes_.erase(iter);
     }
 }

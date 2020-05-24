@@ -53,7 +53,7 @@ public:
     const Params &InputParams() const;
 
 private:
-    void OnStart();
+    void OnAwake();
     void GetCollisionShape();
     bool isShapeTypeValid(ComponentsType shapeType);
 

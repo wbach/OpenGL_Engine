@@ -13,8 +13,14 @@ namespace Components
 class RendererComponent;
 }  // namespace Components
 
-typedef std::vector<std::unique_ptr<IBufferDataUpdaterSubcriber>> BufferDataUpdaterSubcribers;
-typedef std::vector<std::unique_ptr<IBufferDataUpdaterEvent>> BufferDataUpdaterEvents;
+struct BufferDataUpdaterSubscriber
+{
+    uint32 transformSubscribtionId{0};
+    std::unique_ptr<IBufferDataUpdaterSubcriber> bufferDataUpdater_{nullptr};
+};
+
+typedef std::vector<BufferDataUpdaterSubscriber> BufferDataUpdaterSubcribers;
+typedef std::vector<std::pair<uint32, std::unique_ptr<IBufferDataUpdaterEvent>>> BufferDataUpdaterEvents;
 
 class BufferDataUpdater
 {
@@ -27,13 +33,14 @@ public:
     void Update();
     void UnSubscribeAll();
     void ProcessEvents();
-    void AddEvent(std::unique_ptr<IBufferDataUpdaterEvent>);
+    void AddEvent(uint32, std::unique_ptr<IBufferDataUpdaterEvent>);
 
 private:
     BufferDataUpdaterSubcribers subscribers_;
     BufferDataUpdaterEvents events_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::mutex eventMutex_;
+    std::mutex subsribtionMutex_;
 };
 
 }  // namespace GameEngine

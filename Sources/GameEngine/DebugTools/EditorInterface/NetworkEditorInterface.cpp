@@ -949,7 +949,7 @@ void NetworkEditorInterface::StartScene()
     keysSubscriptionsManager_.Clear();
     SetOrignalCamera();
     scene_.inputManager_->StashPopSubscribers();
-  //  scene_.sceneStorage_->store();
+
     scene_.Start();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
 }
@@ -959,14 +959,15 @@ void NetworkEditorInterface::StopScene()
     if (not scene_.start_.load())
         return;
 
+    UnsubscribeTransformUpdateIfExist();
     scene_.Stop();
-   // UnsubscribeTransformUpdateIfExist();
-  //  scene_.sceneStorage_->restore();
+
     scene_.inputManager_->StashSubscribers();
     SetupCamera();
     KeysSubscribtions();
-    gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
     scene_.renderersManager_->GetDebugRenderer().Enable();
+
+    gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
 }
 
 void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
@@ -1175,7 +1176,7 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
 
     static_cast<TerrainHeightPainter *>(terrainPainter_.get())->RecalculateTerrainNormals();
 }
-void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters&)
+void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 {
     auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
 
@@ -1186,8 +1187,8 @@ void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters&)
         if (not tc)
             continue;
 
-        auto image = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
-        auto blendMap = static_cast<GeneralTexture*>(tc->GetTexture(TerrainTextureType::blendMap));
+        auto image    = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
+        auto blendMap = static_cast<GeneralTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
         blendMap->SetImage(std::move(image));
         tc->BlendMapChanged();
     }
@@ -1323,6 +1324,8 @@ void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
         }
 
         transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
+        transformChangeSubscription_   = nullptr;
+        transformChangeSubscriptionId_ = std::nullopt;
     }
 }
 
@@ -1332,6 +1335,7 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
     {
         scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
         cameraEditor->UnsubscribeOnChange(*cameraChangeSubscriptionId_);
+        cameraChangeSubscriptionId_ = std::nullopt;
     }
 }
 

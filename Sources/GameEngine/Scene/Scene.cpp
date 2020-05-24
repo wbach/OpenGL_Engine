@@ -31,7 +31,7 @@ Scene::Scene(const std::string& name)
     , gloabalTime(0.f)
     , directionalLight(vec3(1000.f, 15000.f, 10000.f), vec3(.8f))
     , simulatePhysics_(true)
-    , start_(true)
+    , start_(false)
     , sceneStorage_(std::make_unique<XmlSceneStorage>(*this))
 {
 }
@@ -81,6 +81,7 @@ void Scene::InitResources(EngineContext& context)
 void Scene::Init()
 {
     Initialize();
+    Start();
     componentController_.OnStart();
 }
 
@@ -136,12 +137,14 @@ void Scene::PostUpdate()
 
 void Scene::Start()
 {
+    sceneStorage_->store();
     start_.store(true);
 }
 
 void Scene::Stop()
 {
     start_.store(false);
+    sceneStorage_->restore();
 }
 
 void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
@@ -149,14 +152,21 @@ void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuRes
     resourceManager_ = std::make_unique<ResourceManager>(graphicsApi, gpuResourceLoader);
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject() const
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>& maybeId) const
 {
-    return std::make_unique<GameObject>("gameObject", *componentFactory_);
+    return CreateGameObject("gameObject", maybeId);
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name) const
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<uint32>& maybeId) const
 {
-    return std::make_unique<GameObject>(name, *componentFactory_);
+    if (maybeId)
+    {
+        return std::make_unique<GameObject>(name, *componentFactory_, *maybeId);
+    }
+    else
+    {
+        return std::make_unique<GameObject>(name, *componentFactory_);
+    }
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)

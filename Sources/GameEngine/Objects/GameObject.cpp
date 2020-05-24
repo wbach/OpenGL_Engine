@@ -12,9 +12,14 @@ namespace GameEngine
 uint32 GameObject::s_id = 1;
 
 GameObject::GameObject(const std::string& name, Components::IComponentFactory& componentFactory)
+    : GameObject(name, componentFactory, s_id++)
+{
+}
+
+GameObject::GameObject(const std::string& name, Components::IComponentFactory& componentFactory, uint32 id)
     : parent_(nullptr)
     , name_(name)
-    , id(s_id++)
+    , id_(id)
     , componentFactory_(componentFactory)
 {
 }
@@ -139,7 +144,7 @@ Components::IComponent* GameObject::GetComponent(Components::ComponentsType type
         if (c->GetType() == type)
             return c.get();
     }
-    ERROR_LOG("Component not found, gameObjectId=" + std::to_string(id) + ", component=" + std::to_string(type));
+    ERROR_LOG("Component not found, gameObjectId=" + std::to_string(id_) + ", component=" + std::to_string(type));
     return nullptr;
 }
 

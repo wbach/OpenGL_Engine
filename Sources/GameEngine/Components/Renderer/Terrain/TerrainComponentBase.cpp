@@ -64,7 +64,15 @@ void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureT
 
         auto texture =
             componentContext_.resourceManager_.GetTextureLoader().LoadTexture(texturePair.second, textureParams);
-        SetTexture(texturePair.first, texture);
+
+        if (texture)
+        {
+            SetTexture(texturePair.first, texture);
+        }
+        else
+        {
+            ERROR_LOG("Texture not loaded correctly. " + std::to_string(texturePair.first) + ", file : " + texturePair.second.GetAbsoultePath());
+        }
     }
 }
 
