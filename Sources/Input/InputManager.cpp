@@ -22,6 +22,7 @@ MouseState mouseState;
 
 InputManager::InputManager()
     : idCounter_(0)
+    , needToQueue_{false}
     , stashedSubsribtions_(false)
 {
     SetDefaultKeys();

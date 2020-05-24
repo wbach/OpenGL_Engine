@@ -13,8 +13,10 @@ CLogger& CLogger::Instance()
     return logger;
 }
 
-void CLogger::EnableLogs()
+void CLogger::EnableLogs(LogginLvl lvl)
 {
+    logginLvl_ = lvl;
+
     enabled = true;
     CreateLogFile();
     if (not logImmeditaly)
@@ -29,17 +31,25 @@ void CLogger::LazyLog()
     std::lock_guard<std::mutex> lk(printMutex_);
     logImmeditaly = false;
 }
+
+void CLogger::InfoLog(const std::string& log)
+{
+    if (logginLvl_ == LogginLvl::ErrorWarningInfoDebug or logginLvl_ == LogginLvl::ErrorWarningInfo)
+        Logg("[INFO] " + prefixTotal_ + log);
+}
 void CLogger::ErrorLog(const std::string& log)
 {
     Logg("[ERROR] " + prefixTotal_ + log);
 }
 void CLogger::WarningLog(const std::string& log)
 {
-    Logg("[WARNING] " + prefixTotal_ + log);
+    if (logginLvl_ != LogginLvl::Error)
+        Logg("[WARNING] " + prefixTotal_ + log);
 }
 void CLogger::DebugLog(const std::string& log)
 {
-    Logg("[DEBUG] " + prefixTotal_ + log);
+    if (logginLvl_ == LogginLvl::ErrorWarningInfoDebug)
+        Logg("[DEBUG] " + prefixTotal_ + log);
 }
 void CLogger::Logg(const std::string& log)
 {
@@ -66,7 +76,7 @@ void CLogger::Logg(const std::string& log)
     }
     else
     {
-        logs.push_back(ss.str());
+        // logs.push_back(ss.str());
     }
 }
 void CLogger::LoggToFileOnly(const std::string& log)

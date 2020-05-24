@@ -12,7 +12,7 @@ const std::string configFile = "./Conf.xml";
 
 int main(int, char**)
 {
-    CLogger::Instance().EnableLogs();
+    CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
     CLogger::Instance().ImmeditalyLog();
 
     GameEngine::ReadFromFile(configFile);

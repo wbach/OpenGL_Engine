@@ -19,7 +19,7 @@ class GameObject
 public:
     GameObject(const std::string&, Components::IComponentFactory&);
     GameObject(const std::string&, Components::IComponentFactory&, uint32);
-
+    GameObject(const GameObject&) = delete;
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
 

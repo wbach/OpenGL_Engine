@@ -12,6 +12,7 @@ class GeneralTexture : public Texture
 public:
     GeneralTexture(GraphicsApi::IGraphicsApi&, GraphicsApi::Image, const TextureParameters&,
                    const std::optional<File>& = std::nullopt);
+    ~GeneralTexture();
     void GpuLoadingPass() override;
     void SetImage(GraphicsApi::Image);
     const GraphicsApi::Image& GetImage() const;

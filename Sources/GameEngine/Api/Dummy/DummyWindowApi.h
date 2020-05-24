@@ -8,8 +8,8 @@ class DummyWindowApi : public GraphicsApi::IWindowApi
 {
 public:
     DummyWindowApi()
+        :time(0.f)
     {
-        time = 0;
     }
     virtual void Init() override
     {

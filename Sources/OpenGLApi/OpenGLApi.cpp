@@ -179,7 +179,7 @@ void GetInfoAndPrint(const std::string& str, GLenum i)
 {
     int info;
     glGetIntegerv(i, &info);
-    DEBUG_LOG(str + " : " + std::to_string(info));
+    INFO_LOG(str + " : " + std::to_string(info));
 }
 
 void OpenGLApi::Init()
@@ -227,15 +227,15 @@ void OpenGLApi::DeleteContext()
 void OpenGLApi::PrintVersion()
 {
     std::string ver(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
-    DEBUG_LOG("GL version: " + ver);
+    INFO_LOG("GL version: " + ver);
 
     std::string glslver(reinterpret_cast<char const*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
-    DEBUG_LOG("GLSL version: " + glslver);
+    INFO_LOG("GLSL version: " + glslver);
 
     if (not useLowGLversion_)
     {
         glGetIntegerv(GL_MAX_PATCH_VERTICES, &impl_->maxPatchVertices_);
-        DEBUG_LOG("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
+        INFO_LOG("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
 
         if (impl_->maxPatchVertices_)
         {

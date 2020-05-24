@@ -72,7 +72,7 @@ struct Water
 
 struct Textures
 {
-    vec2ui maxSize       = {1024, 1024};
+    vec2ui maxSize       = {4096, 4096};
     bool useDisplacement = false;
     bool useAmbient      = false;
     bool useDiffuse      = true;

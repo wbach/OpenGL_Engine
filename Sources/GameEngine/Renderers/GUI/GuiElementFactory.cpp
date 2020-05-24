@@ -78,8 +78,7 @@ std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::stri
 
 std::unique_ptr<GuiTextureElement> GuiElementFactory::CreateGuiTexture(const std::string &filename)
 {
-    auto texture = MakeGuiTexture(filename);
-    return texture;
+    return MakeGuiTexture(filename);
 }
 
 std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowStyle style, const vec2 &position,
@@ -112,10 +111,10 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
     {
         auto &bg                  = backgorund.empty() ? theme_.backgroundTexture : backgorund;
         auto backgroundGuiTexture = MakeGuiTexture(bg);
-        backgroundGuiTexture->SetColor(backgorundColor);
 
         if (backgroundGuiTexture)
         {
+            backgroundGuiTexture->SetColor(backgorundColor);
             guiWindow->SetBackground(std::move(backgroundGuiTexture));
         }
     }
@@ -153,17 +152,26 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::functi
     if (not bgtexture.empty())
     {
         auto texture = CreateGuiTexture(bgtexture);
-        button->SetBackgroundTexture(std::move(texture));
+        if (texture)
+        {
+            button->SetBackgroundTexture(std::move(texture));
+        }
     }
     if (not hoverTexture.empty())
     {
         auto texture = CreateGuiTexture(hoverTexture);
-        button->SetOnHoverTexture(std::move(texture));
+        if (texture)
+        {
+            button->SetOnHoverTexture(std::move(texture));
+        }
     }
     if (not activeTexture.empty())
     {
         auto texture = CreateGuiTexture(activeTexture);
-        button->SetOnActiveTexture(std::move(texture));
+        if (texture)
+        {
+            button->SetOnActiveTexture(std::move(texture));
+        }
     }
 
     return button;
@@ -206,7 +214,10 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(std::unique_
     auto cursor  = CreateGuiText("|");
     auto editBox = std::make_unique<GuiEditBoxElement>(std::move(text), std::move(cursor), inputManager_, windowSize_);
     auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
-    editBox->SetBackgroundTexture(std::move(editBoxBgTexture));
+    if (editBoxBgTexture)
+    {
+        editBox->SetBackgroundTexture(std::move(editBoxBgTexture));
+    }
     return editBox;
 }
 
@@ -289,20 +300,28 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
     horizontalLayout->SetPostion(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
 
-    auto barButton  = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
-    auto barTexture = CreateGuiTexture(theme_.windowBarTexture);
+    auto barButton = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
     barButton->SetScale(vec2(window.GetScale().x, GUI_WINDOW_BAR_HEIGHT));
     barButton->SetPostion(barPosition);
-    barButton->SetBackgroundTexture(std::move(barTexture));
+
+    auto barTexture = CreateGuiTexture(theme_.windowBarTexture);
+    if (barTexture)
+    {
+        barButton->SetBackgroundTexture(std::move(barTexture));
+    }
+
     horizontalLayout->AddChild(std::move(barButton));
 
     if (style != GuiWindowStyle::WITHOUT_BUTTONS)
     {
         auto closeButton        = CreateGuiButton([this, ptr](auto &) { guiManager_.AddRemoveTask(ptr); });
         auto closeButtonTexture = CreateGuiTexture("GUI/close.png");
-        closeButtonTexture->SetScale(.5f * vec2(GUI_WINDOW_BAR_HEIGHT));
-        closeButton->SetScale(closeButtonTexture->GetScale());
-        closeButton->SetBackgroundTexture(std::move(closeButtonTexture));
+        if (closeButtonTexture)
+        {
+            closeButtonTexture->SetScale(.5f * vec2(GUI_WINDOW_BAR_HEIGHT));
+            closeButton->SetScale(closeButtonTexture->GetScale());
+            closeButton->SetBackgroundTexture(std::move(closeButtonTexture));
+        }
         closeButton->SetZPosition(-1.f);
         horizontalLayout->AddChild(std::move(closeButton));
     }

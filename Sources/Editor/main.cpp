@@ -12,6 +12,7 @@
 #include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
 #include "Scene/SceneFactory.h"
+#include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
 
 const std::string configFile = "./Conf.xml";
 
@@ -20,7 +21,7 @@ using namespace GameEngine::Physics;
 
 int main(int, char**)
 {
-    CLogger::Instance().EnableLogs();
+    CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
     CLogger::Instance().ImmeditalyLog();
 
     GameEngine::ReadFromFile(configFile);
@@ -45,6 +46,7 @@ int main(int, char**)
         DEBUG_LOG("GNU support only OpenGL");
     }
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    //graphicsApi = std::make_unique<GameEngine::DummyGraphicsApi>();
 #endif
     Editor::Context editorContext;
     graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));

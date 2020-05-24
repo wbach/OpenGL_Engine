@@ -88,6 +88,7 @@ void ResourceManager::ReleaseModel(Model& model)
 
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(absoultePath);
+    DEBUG_LOG("models_ erase , size : " + std::to_string(models_.size()));
 }
 
 void ResourceManager::DeleteMaterial(const Material& material)

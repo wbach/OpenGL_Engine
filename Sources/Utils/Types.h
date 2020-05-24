@@ -216,7 +216,10 @@ type ToDegrees(type a)
 
 struct RadianFloat
 {
-    RadianFloat() = default;
+    RadianFloat()
+        : value(0.f)
+    {
+    }
     RadianFloat(float v)
         : value(v)
     {
@@ -240,7 +243,10 @@ struct RadianFloat
 
 struct RadiansVec3
 {
-    RadiansVec3() = default;
+    RadiansVec3()
+        : value(0.f)
+    {
+    }
     RadiansVec3(float x, float y, float z)
         : value(x, y, z)
     {
@@ -272,7 +278,10 @@ struct RadiansVec3
 
 struct DegreesFloat
 {
-    DegreesFloat() = default;
+    DegreesFloat()
+        : value(0.f)
+    {
+    }
     DegreesFloat(float v)
         : value(v)
     {
@@ -296,7 +305,10 @@ struct DegreesFloat
 
 struct DegreesVec3
 {
-    DegreesVec3() = default;
+    DegreesVec3()
+        : value(0.f)
+    {
+    }
     DegreesVec3(float x, float y, float z)
         : value(x, y, z)
     {
@@ -444,11 +456,11 @@ struct Color
     {
         return vec4ui(r(), g(), b(), a());
     }
-    float& operator[](std::size_t idx)
+    float& operator[](int idx)
     {
         return value[idx];
     }
-    float operator[](std::size_t idx) const
+    float operator[](int idx) const
     {
         return value[idx];
     }

@@ -12,6 +12,8 @@ typedef std::variant<std::monostate, std::vector<uint8>, std::vector<float>> Ima
 class Image
 {
 public:
+    Image() = default;
+    ~Image();
     uint32 width{0};
     uint32 height{0};
 

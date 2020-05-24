@@ -35,6 +35,7 @@ int EditorScene::Initialize()
     renderersManager_->GetDebugRenderer().Enable();
 
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
+    //const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
     LoadFromFile(sceneFile);
 
     const auto& terrainShapeComponents =

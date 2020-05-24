@@ -5,6 +5,33 @@
 
 namespace GameEngine
 {
+class DummyFrameBuffer : public GraphicsApi::IFrameBuffer
+{
+public:
+    bool Init()
+    {
+        return true;
+    }
+    void Bind(GraphicsApi::FrameBuffer::BindType)
+    {
+    }
+    void UnBind()
+    {
+    }
+    void Clear()
+    {
+    }
+    void CleanUp()
+    {
+    }
+    GraphicsApi::ID GetAttachmentTexture(GraphicsApi::FrameBuffer::Type) const
+    {
+        return 0;
+    }
+    void TakeSnapshot(const std::string&)
+    {
+    }
+};
 class DummyGraphicsApi : public GraphicsApi::IGraphicsApi
 {
 public:
@@ -81,7 +108,7 @@ public:
     void UseShader(uint32) override
     {
     }
-    std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override
+    GraphicsApi::ID CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override
     {
         return {};
     }
@@ -173,7 +200,7 @@ public:
     void RenderQuad() override
     {
     }
-    void RenderQuadTs()
+    void RenderQuadTs() override
     {
     }
     void EnableCulling() override
@@ -246,12 +273,25 @@ public:
     void BindDefaultFrameBuffer() override
     {
     }
+    void SetShadersFilesLocations(const std::string&) override
+    {
+    }
+    void RenderDebugNormals() override
+    {
+    }
+    GraphicsApi::IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override
+    {
+        return dummyFrameBuffer_;
+    }
+    void DeleteFrameBuffer(GraphicsApi::IFrameBuffer&) override
+    {
+    }
 
 private:
-    Color bgColor;
-    uint32 id;
-    std::unique_ptr<GraphicsApi::IWindowApi> dummyWindowApiPtr_;
-    GraphicsApi::TextureInfo textureInfo_;
+    Color bgColor{0.f};
+    uint32 id{0};
+    std::unique_ptr<GraphicsApi::IWindowApi> dummyWindowApiPtr_{nullptr};
+    GraphicsApi::TextureInfo textureInfo_{};
+    DummyFrameBuffer dummyFrameBuffer_{};
 };
-typedef std::shared_ptr<DummyGraphicsApi> DummyGraphicsApiPtr;
 }  // namespace GameEngine

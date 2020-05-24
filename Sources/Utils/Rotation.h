@@ -3,7 +3,7 @@
 
 struct Rotation
 {
-    Rotation() = default;
+    Rotation();
     Rotation(const DegreesVec3& v);
     Rotation(const RadiansVec3& v);
     Rotation(const Quaternion& v);

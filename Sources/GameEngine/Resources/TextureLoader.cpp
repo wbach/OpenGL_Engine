@@ -57,21 +57,21 @@ void TextureLoader::UpdateTexture(const GeneralTexture& texture)
         });
     }
 }
-void TextureLoader::UpdateTexture(const GeneralTexture& texture, const std::string& newName)
+void TextureLoader::UpdateTexture(const GeneralTexture& texture, const std::string& /*newName*/)
 {
     if (not textures_.empty())
     {
-        auto iter =
-            std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
-                return (texture.second.resource_->GetGpuObjectId() == id);
-            });
+//        auto iter =
+//            std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
+//                return (texture.second.resource_->GetGpuObjectId() == id);
+//            });
 
-        if (iter != textures_.end())
-        {
-            auto nh  = textures_.extract(iter->first);
-            nh.key() = newName;
-            textures_.insert(move(nh));
-        }
+//        if (iter != textures_.end())
+//        {
+//            auto nh  = textures_.extract(iter->first);
+//            nh.key() = newName;
+//            textures_.insert(move(nh));
+//        }
         UpdateTexture(texture);
     }
 }
@@ -165,6 +165,7 @@ void TextureLoader::DeleteTexture(Texture& texture)
 
     gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
     textures_.erase(iter);
+    DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
 }
 
 HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const TextureParameters& params)

@@ -13,6 +13,11 @@ GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsA
     , paramters_(paramters)
 {
 }
+
+GeneralTexture::~GeneralTexture()
+{
+}
+
 void GeneralTexture::GpuLoadingPass()
 {
     std::string debugFileNamePrint{"{genertated}"};

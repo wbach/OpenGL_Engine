@@ -16,7 +16,7 @@ struct ImageDataPtrVisitor
         return &input[0];
     }
     template <class T>
-    const void* operator()(const T& input) const
+    const void* operator()(const T&) const
     {
         return nullptr;
     }
@@ -61,8 +61,7 @@ class ImageDataSetVisitor
 {
 public:
     ImageDataSetVisitor(const vec2ui& position, const Color& color, uint32 width, uint8 channels)
-        : position(position)
-        , color(color)
+        : color(color)
         , startIndex(channels * (position.x + position.y * width))
         , channels(channels)
     {
@@ -129,13 +128,12 @@ public:
     }
 
     template <class T>
-    bool operator()(const T& input) const
+    bool operator()(const T&) const
     {
         return false;
     }
 
 private:
-    const vec2ui& position;
     const Color& color;
     uint32 startIndex;
     uint8 channels;
@@ -145,8 +143,7 @@ class ImageDataGetVisitor
 {
 public:
     ImageDataGetVisitor(const vec2ui& position, uint32 width, uint8 channels)
-        : position(position)
-        , startIndex(channels * (position.x + position.y * width))
+        : startIndex(channels * (position.x + position.y * width))
         , channels(channels)
     {
     }
@@ -190,13 +187,12 @@ public:
     }
 
     template <class T>
-    std::optional<Color> operator()(const T& input) const
+    std::optional<Color> operator()(const T&) const
     {
         return std::nullopt;
     }
 
 private:
-    const vec2ui& position;
     uint32 startIndex;
     uint8 channels;
 };
@@ -205,6 +201,10 @@ bool Image::setPixel(const vec2ui& position, const Color& color)
 {
     return std::visit(ImageDataSetVisitor(position, color, width, channels_), data_);
 }
+Image::~Image()
+{
+}
+
 vec2ui Image::size() const
 {
     return vec2ui(width, height);

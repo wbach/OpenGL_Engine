@@ -47,16 +47,28 @@ void GuiButtonElement::Update()
 
 void GuiButtonElement::Show()
 {
-   GuiElement::Show();
-   onHoverTexture_->Hide();
-   onActiveTextue_->Hide();
+    GuiElement::Show();
+    if (onHoverTexture_)
+    {
+        onHoverTexture_->Hide();
+    }
+    if (onActiveTextue_)
+    {
+        onActiveTextue_->Hide();
+    }
 }
 
 void GuiButtonElement::Show(bool b)
 {
     GuiElement::Show(b);
-    onHoverTexture_->Hide();
-    onActiveTextue_->Hide();
+    if (onHoverTexture_)
+    {
+        onHoverTexture_->Hide();
+    }
+    if (onActiveTextue_)
+    {
+        onActiveTextue_->Hide();
+    }
 }
 
 GuiElement *GuiButtonElement::GetCollisonElement(const vec2 &mousePosition)
@@ -81,6 +93,11 @@ void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
 
 void GuiButtonElement::SetTexture(std::unique_ptr<GuiTextureElement> &newTexture, GuiTextureElement *&texture)
 {
+    if (not texture or not newTexture)
+    {
+        return;
+    }
+
     newTexture->SetScale(scale_);
     newTexture->SetPostion(position_);
 
@@ -102,14 +119,20 @@ void GuiButtonElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> t
 
 void GuiButtonElement::SetOnHoverTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    texture->Hide();
-    SetTexture(texture, onHoverTexture_);
+    if (texture)
+    {
+        texture->Hide();
+        SetTexture(texture, onHoverTexture_);
+    }
 }
 
 void GuiButtonElement::SetOnActiveTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    texture->Hide();
-    SetTexture(texture, onActiveTextue_);
+    if (texture)
+    {
+        texture->Hide();
+        SetTexture(texture, onActiveTextue_);
+    }
 }
 
 void GuiButtonElement::ResetBackgroundTexture()

@@ -59,6 +59,7 @@ void Mesh::ReleaseGpuPass()
         graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
     }
     GpuObject::ReleaseGpuPass();
+    DEBUG_LOG("Clean gpu resources, done");
 }
 
 void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
@@ -133,12 +134,12 @@ void Mesh::CreateBufferObject()
 
         if (material_.diffuseTexture != nullptr)
         {
-            perMeshObject.numberOfRows = material_.diffuseTexture->getNumberOfRows();
-            perMeshObject.haveDiffTexture   = 1.f;
+            perMeshObject.numberOfRows    = material_.diffuseTexture->getNumberOfRows();
+            perMeshObject.haveDiffTexture = 1.f;
         }
         else
         {
-            perMeshObject.numberOfRows = 1;
+            perMeshObject.numberOfRows    = 1;
             perMeshObject.haveDiffTexture = 0.f;
         }
 

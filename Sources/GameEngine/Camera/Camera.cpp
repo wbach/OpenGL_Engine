@@ -19,6 +19,7 @@ BaseCamera::BaseCamera()
 }
 BaseCamera::BaseCamera(float pitch, float yaw)
     : lock_(false)
+    , idPool_(0)
     , position_(0.f)
     , rotation_(DegreesVec3(pitch, yaw, 0))
     , viewMatrix_(1.f)

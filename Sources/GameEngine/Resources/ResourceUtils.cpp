@@ -15,84 +15,130 @@
 
 namespace GameEngine
 {
+FIBITMAP* convertTo32bppIfDifferent(FIBITMAP* image)
+{
+    auto bpp = FreeImage_GetBPP(image);
+
+    if (bpp != 32)
+    {
+        DEBUG_LOG("Convert image from " + std::to_string(bpp) + " bpp to 32 bpp");
+
+        FIBITMAP* image32bit = FreeImage_ConvertTo32Bits(image);
+        FreeImage_Unload(image);
+
+        if (not image32bit)
+        {
+            return nullptr;
+        }
+        return image32bit;
+    }
+    return image;
+}
+
+FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolicy)
+{
+    if (sizeLimitPolicy == SizeLimitPolicy::Limited)
+    {
+        auto& textureSize{EngineConf.renderer.textures.maxSize};
+        bool resize_texture{false};
+
+        uint32 w = FreeImage_GetWidth(image);
+        uint32 h = FreeImage_GetHeight(image);
+        vec2ui newImageSize(w, h);
+
+        if (w > textureSize.x)
+        {
+            newImageSize.x = textureSize.x;
+            resize_texture = true;
+        }
+        if (h > textureSize.y)
+        {
+            newImageSize.y = textureSize.y;
+            resize_texture = true;
+        }
+
+        if (resize_texture)
+        {
+            DEBUG_LOG("Resize image from " + std::to_string(vec2ui(w, h)) + " to " + std::to_string(newImageSize));
+
+            auto resizedImage = FreeImage_Rescale(image, static_cast<int>(newImageSize.x),
+                                                  static_cast<int>(newImageSize.y), FILTER_BSPLINE);
+
+            if (resizedImage)
+            {
+                FreeImage_Unload(image);
+                return resizedImage;
+            }
+            else
+            {
+                ERROR_LOG("Resize error.");
+            }
+        }
+    }
+
+    return image;
+}
+
+void flipImageIfRequest(FIBITMAP* image, TextureFlip flipMode)
+{
+    if (flipMode == TextureFlip::VERTICAL or flipMode == TextureFlip::BOTH)
+    {
+        FreeImage_FlipVertical(image);
+    }
+    if (flipMode == TextureFlip::HORIZONTAL or flipMode == TextureFlip::BOTH)
+    {
+        FreeImage_FlipHorizontal(image);
+    }
+}
+
 std::optional<GraphicsApi::Image> ReadFile(const File& inputFileName, const TextureParameters& params)
 {
-    auto absoultePath         = inputFileName.GetAbsoultePath();
-    FREE_IMAGE_FORMAT formato = FreeImage_GetFileType(absoultePath.c_str(), 0);
+    auto absoultePath = inputFileName.GetAbsoultePath();
+
+    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(absoultePath.c_str(), 0);
 
     if (not std::filesystem::exists(absoultePath))
     {
         ERROR_LOG("File not exist : " + absoultePath);
         return {};
     }
-    if (formato == FIF_UNKNOWN)
+    if (imageFormat == FIF_UNKNOWN)
     {
         ERROR_LOG("GetFileType: wrong image format : " + absoultePath);
         return {};
     }
 
-    FIBITMAP* imagen2 = FreeImage_Load(formato, absoultePath.c_str());
-    if (!imagen2)
+    FIBITMAP* image = FreeImage_Load(imageFormat, absoultePath.c_str());
+    if (not image)
     {
         ERROR_LOG("FreeImageLoad load failed  : " + absoultePath);
         return {};
     }
 
-    FIBITMAP* imagen = FreeImage_ConvertTo32Bits(imagen2);
-    if (!imagen)
+    image = resizeImageIfisLimited(image, params.sizeLimitPolicy);
+    flipImageIfRequest(image, params.flipMode);
+    image = convertTo32bppIfDifferent(image);
+
+    if (not image)
     {
-        FreeImage_Unload(imagen2);
         ERROR_LOG("Cant convert to 32 bits : " + inputFileName.GetDataRelativeDir());
         return {};
     }
-    FreeImage_Unload(imagen2);
-
-    if (params.flipMode == TextureFlip::VERTICAL or params.flipMode == TextureFlip::BOTH)
-    {
-        FreeImage_FlipVertical(imagen);
-    }
-
-    if (params.flipMode == TextureFlip::HORIZONTAL or params.flipMode == TextureFlip::BOTH)
-    {
-        FreeImage_FlipHorizontal(imagen);
-    }
-
-    uint32 w = FreeImage_GetWidth(imagen);
-    uint32 h = FreeImage_GetHeight(imagen);
-
-    if (params.sizeLimitPolicy == SizeLimitPolicy::Limited)
-    {
-        auto& texture_size  = EngineConf.renderer.textures.maxSize;
-        bool resize_texture = false;
-
-        if (w > texture_size.x)
-        {
-            w              = texture_size.x;
-            resize_texture = true;
-        }
-        if (h > texture_size.y)
-        {
-            h              = texture_size.y;
-            resize_texture = true;
-        }
-        if (resize_texture)
-            imagen = FreeImage_Rescale(imagen, static_cast<int>(w), static_cast<int>(h), FILTER_BSPLINE);
-    }
 
     GraphicsApi::Image resultImage;
-    resultImage.width  = w;
-    resultImage.height = h;
+    resultImage.width  = FreeImage_GetWidth(image);
+    resultImage.height = FreeImage_GetHeight(image);
     resultImage.setChannels(4);
     resultImage.allocateImage<uint8>();
 
-    auto pixeles = FreeImage_GetBits(imagen);
+    auto pixeles = FreeImage_GetBits(image);
     // bgr2rgb
-    for (uint32 j = 0; j < w * h; j++)
+    for (uint32 j = 0; j < resultImage.width * resultImage.height; j++)
     {
         resultImage.setPixel(vec2ui(j % resultImage.width, j / resultImage.width),
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
-    FreeImage_Unload(imagen);
+    FreeImage_Unload(image);
     DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded.");
     return std::move(resultImage);
 }

@@ -16,6 +16,12 @@ vec3 EulerAngles(const Quaternion &quaternion)
     return euler;
 }
 }  // namespace
+Rotation::Rotation()
+    : value_(RadiansVec3(0).value)
+{
+
+}
+
 Rotation::Rotation(const DegreesVec3 &v)
     : value_(v.Radians())
 {

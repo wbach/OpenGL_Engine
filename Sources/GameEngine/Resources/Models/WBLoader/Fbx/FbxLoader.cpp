@@ -126,7 +126,7 @@ struct FbxLoader::Pimpl
         }
         else
         {
-            ERROR_LOG("Autodesk FBX SDK version :" + std::string(manager_->GetVersion()));
+            INFO_LOG("Autodesk FBX SDK version :" + std::string(manager_->GetVersion()));
         }
 
         // Create an IOSettings object. This object holds all import/export settings.

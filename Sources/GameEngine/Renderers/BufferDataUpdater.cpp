@@ -89,6 +89,18 @@ void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
             ++iter;
         }
     }
+
+    for (auto iter = events_.begin(); iter != events_.end();)
+    {
+        if (iter->first == gameObject->GetId())
+        {
+            iter = events_.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }
 void BufferDataUpdater::Update()
 {
