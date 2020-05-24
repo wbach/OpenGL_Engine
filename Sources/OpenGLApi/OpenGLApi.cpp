@@ -558,6 +558,7 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
 void OpenGLApi::DeleteMesh(uint32 id)
 {
+    DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
     if (openGlMeshes_.count(id) == 0)
         return;
 
@@ -572,6 +573,19 @@ void OpenGLApi::DeleteMesh(uint32 id)
     glDeleteVertexArrays(1, &mesh.vao);
 
     openGlMeshes_.erase(id);
+    DeleteDebugNormalMesh(id);
+    DEBUG_LOG("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+}
+
+void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
+{
+    if (impl_->debugNormalsMesh_.count(id) == 0)
+        return;
+
+    auto& mesh = impl_->debugNormalsMesh_.at(id);
+    if (mesh.lineMeshId)
+        DeleteMesh(*mesh.lineMeshId);
+    impl_->debugNormalsMesh_.erase(id);
 }
 
 void OpenGLApi::UseShader(uint32 id)

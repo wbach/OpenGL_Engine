@@ -1334,7 +1334,8 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
     if (cameraChangeSubscriptionId_)
     {
         scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
-        cameraEditor->UnsubscribeOnChange(*cameraChangeSubscriptionId_);
+        if (cameraEditor)
+            cameraEditor->UnsubscribeOnChange(*cameraChangeSubscriptionId_);
         cameraChangeSubscriptionId_ = std::nullopt;
     }
 }

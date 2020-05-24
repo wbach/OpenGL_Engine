@@ -111,6 +111,7 @@ public:
 private:
     void CreateDebugNormalMesh(uint32, const GraphicsApi::MeshRawData&);
     void DeleteMesh(uint32);
+    void DeleteDebugNormalMesh(uint32);
     void DeleteShader(uint32);
     void ClearRest();
 
