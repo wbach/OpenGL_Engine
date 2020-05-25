@@ -12,7 +12,7 @@ class TerrainRendererComponent;
 class TerrainHeightGenerator
 {
 public:
-    TerrainHeightGenerator(const Components::ComponentController&, const vec2ui&);
+    TerrainHeightGenerator(const Components::ComponentController&, const vec2ui&, uint32, float, float);
     void generateHeightMapsImage();
 
 private:
@@ -24,9 +24,9 @@ private:
     const Components::ComponentController& componentController_;
     std::vector<Components::TerrainRendererComponent*> terrains_;
     std::vector<float> noiseSeed_;
-    //std::vector<float> perlinNoise_;
     vec2ui perTerrainHeightMapsize_;
     uint32 octaves_;
     float bias_;
+    float heightFactor_;
 };
 }  // namespace GameEngine

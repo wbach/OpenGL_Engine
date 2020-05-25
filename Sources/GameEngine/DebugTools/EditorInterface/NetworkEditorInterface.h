@@ -84,6 +84,7 @@ private:
     void UpdateTerrainPainterParam(const EntryParameters&);
     void RecalculateTerrainNormals(const EntryParameters&);
     void ClearTerrainsBlendMap(const EntryParameters&);
+    void GenerateTerrains(const EntryParameters&);
     void ControlTextureUsage(const EntryParameters&);
     void GenerateTerrainBlendMapToFile();
     void ReloadShaders(const EntryParameters&);

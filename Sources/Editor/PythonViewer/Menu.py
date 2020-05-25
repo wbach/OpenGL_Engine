@@ -37,6 +37,7 @@ class Menu:
         menubar.add_cascade(label="Scene", menu=createMenu)
 
         toolsMenu = tk.Menu(menubar, tearoff=0)
+        toolsMenu.add_command(label="Generate terrain", command=self.GenerateTerrain)
         toolsMenu.add_command(label="Terrain height painter", command=self.EnableTerrainHeightPainter)
         toolsMenu.add_command(label="Terrain texture painter", command=self.EnableTerrainTexturePainter)
         menubar.add_cascade(label="Tools", menu=toolsMenu)
@@ -84,12 +85,59 @@ class Menu:
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
 
+        self.bias = tk.StringVar()
+        self.bias.set("1.6")
+        self.octaves = tk.StringVar()
+        self.octaves.set("7")
+        self.width = tk.StringVar()
+        self.width.set("513")
+        self.height = tk.StringVar()
+        self.height.set("513")
+        self.heightFactor = tk.StringVar()
+        self.heightFactor.set("10")
+
+    def GenerateTerrain(self):
+        if self.networkClient.IsConnected():
+            dialog = tk.Toplevel(self.root)
+            dialog.title("Terran generate view")
+
+            biasLabel = tk.LabelFrame(dialog, text="Bias")
+            biasLabel.pack(fill=tk.X)
+            biasInput = tk.Entry(biasLabel, textvariable=self.bias)
+            biasInput.pack(fill=tk.X, expand=1)
+
+            octavesLabel = tk.LabelFrame(dialog, text="Octaves")
+            octavesLabel.pack(fill=tk.X)
+            octavesLabel = tk.Entry(octavesLabel, textvariable=self.octaves)
+            octavesLabel.pack(fill=tk.X, expand=1)
+
+            widthLabel = tk.LabelFrame(dialog, text="Width")
+            widthLabel.pack(fill=tk.X)
+            widthLabel = tk.Entry(widthLabel, textvariable=self.width)
+            widthLabel.pack(fill=tk.X, expand=1)
+
+            heightLabel = tk.LabelFrame(dialog, text="Height")
+            heightLabel.pack(fill=tk.X)
+            heightLabel = tk.Entry(heightLabel, textvariable=self.height)
+            heightLabel.pack(fill=tk.X, expand=1)
+
+            heightFactorLabel = tk.LabelFrame(dialog, text="Height Factor")
+            heightFactorLabel.pack(fill=tk.X)
+            tk.Entry(heightFactorLabel, textvariable=self.heightFactor).pack(fill=tk.X, expand=1)
+
+            tk.Button(dialog, text="Generate", command=self.SendGenerateTerrain).pack(fill=tk.X)
+
+    def SendGenerateTerrain(self):
+        if self.networkClient.IsConnected():
+            self.networkClient.SendCommand("generateTerrains width=" + self.width.get() + " height=" + self.height.get() + " octaves=" + self.octaves.get() + " bias=" + self.bias.get() + " heightFactor=" + self.heightFactor.get())
+
     def TexturesControlDiffuseChange(self, *args):
         if self.networkClient.IsConnected():
             if self.texturesControlDiffuse.get():
                 self.networkClient.SendCommand("controlTextureUsage enabled=true textureType=diffuse")
             else:
                 self.networkClient.SendCommand("controlTextureUsage enabled=false textureType=diffuse")
+
     def TexturesControlNormalsChange(self, *args):
         if self.networkClient.IsConnected():
             if self.texturesControlNormals.get():

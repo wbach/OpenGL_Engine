@@ -17,6 +17,7 @@
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/DebugTools/Painter/PlantPainter.h"
+#include "GameEngine/DebugTools/Painter/TerrainHeightGenerator.h"
 #include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
 #include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -167,6 +168,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("recalculateTerrainNormals", RecalculateTerrainNormals);
     REGISTER_COMMAND("clearTerrainsBlendMap", ClearTerrainsBlendMap);
     REGISTER_COMMAND("controlTextureUsage", ControlTextureUsage);
+    REGISTER_COMMAND("generateTerrains", GenerateTerrains);
     REGISTER_COMMAND("reloadShaders", ReloadShaders);
     REGISTER_COMMAND("takeSnapshot", Takesnapshot);
     REGISTER_COMMAND("exit", Exit);
@@ -1194,6 +1196,44 @@ void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
     }
 }
 
+void NetworkEditorInterface::GenerateTerrains(const EntryParameters & params)
+{
+    float bias = 2.f;
+    uint32 octaves = 6;
+    vec2ui size(513, 513);
+    float heighFactor{ 1.f };
+    try
+    {
+        if (params.count("bias"))
+        {
+            bias = std::stof(params.at("bias"));
+        }
+        if (params.count("octaves"))
+        {
+            octaves = std::stoi(params.at("octaves"));
+        }
+        if (params.count("width"))
+        {
+            size.x = std::stoi(params.at("width"));
+        }
+        if (params.count("height"))
+        {
+            size.y = std::stoi(params.at("height"));
+        }
+        if (params.count("heightFactor"))
+        {
+            heighFactor = std::stof(params.at("heightFactor"));
+        }
+    }
+    catch (...)
+    {
+        ERROR_LOG("Pram parsing failed.");
+    }
+
+    TerrainHeightGenerator(scene_.componentController_, size, octaves, bias, heighFactor).generateHeightMapsImage();
+    DEBUG_LOG("completed");
+}
+
 void NetworkEditorInterface::ControlTextureUsage(const NetworkEditorInterface::EntryParameters &params)
 {
     if (not params.count("enabled") or not params.count("textureType"))
@@ -1343,7 +1383,8 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
 void NetworkEditorInterface::SetOrignalCamera()
 {
     scene_.SetCamera(*sceneCamera_);
-    sceneCamera_->Unlock();
+    if (sceneCamera_)
+        sceneCamera_->Unlock();
     cameraEditor.reset();
 }
 std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameters &params,
