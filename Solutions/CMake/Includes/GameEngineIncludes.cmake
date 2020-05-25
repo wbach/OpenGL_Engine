@@ -9,6 +9,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/Painter/TerrainTexturePainter.h
 ../../Sources/GameEngine/DebugTools/Painter/TerrainHeightPainter.h
 ../../Sources/GameEngine/DebugTools/Painter/TerrainPoint.h
+../../Sources/GameEngine/DebugTools/Painter/TerrainHeightGenerator.h
 ../../Sources/GameEngine/DebugTools/Painter/StepInterpolation.h
 ../../Sources/GameEngine/DebugTools/Painter/Painter.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h

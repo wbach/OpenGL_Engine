@@ -15,7 +15,7 @@ TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConf
     , tools_(terrainConfiguration.GetScale(), heightMap.GetImage())
 {
     heightMapResolution_ = heightMap_.GetImage().width;
-    gridSquereSize_      = terrainConfiguration_.GetScale().x / (heightMapResolution_ - 1.f);
+    gridSquereSize_      = terrainConfiguration_.GetScale().x / heightMapResolution_;
 }
 
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float worldZ) const

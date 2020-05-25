@@ -5,6 +5,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/DebugTools/MousePicker/MousePicker.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Painter.cpp
 ../../Sources/GameEngine/DebugTools/Painter/TerrainTexturePainter.cpp
+../../Sources/GameEngine/DebugTools/Painter/TerrainHeightGenerator.cpp
 ../../Sources/GameEngine/DebugTools/Painter/StepInterpolation.cpp
 ../../Sources/GameEngine/DebugTools/Painter/PaintType.cpp
 ../../Sources/GameEngine/DebugTools/Painter/TerrainHeightPainter.cpp
