@@ -31,5 +31,7 @@ public:
     virtual GeneralTexture* CreateNormalMap(const HeightMap&, const vec3&)                                         = 0;
     virtual GraphicsApi::IGraphicsApi& GetGraphicsApi()                                                            = 0;
     virtual void DeleteTexture(Texture&)                                                                           = 0;
+    virtual void LockReleaseResources()                                                                            = 0;
+    virtual void UnlockReleaseResources()                                                                          = 0;
 };
 }  // namespace GameEngine

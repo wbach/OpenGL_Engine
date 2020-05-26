@@ -14,12 +14,19 @@ ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuRes
     , gpuResourceLoader_(gpuResourceLoader)
     , textureLoader_(std::make_unique<TextureLoader>(graphicsApi, gpuResourceLoader_, textures_))
     , loaderManager_(*textureLoader_)
+    , releaseLockState_(true)
 {
 }
 
 ResourceManager::~ResourceManager()
 {
-    DEBUG_LOG("destructor");
+    releaseLockState_ = true;
+    std::vector<Model*> toRelease;
+    for (auto& model : models_)
+        toRelease.push_back(model.second.resource_.get());
+    DEBUG_LOG("Release not deleted models. size :" + std::to_string(toRelease.size()));
+    for (auto model : toRelease)
+        ReleaseModel(*model);
 }
 
 Model* ResourceManager::LoadModel(const File& file)
@@ -78,7 +85,7 @@ void ResourceManager::ReleaseModel(Model& model)
     auto& modelInfo = models_.at(absoultePath);
     --modelInfo.instances_;
 
-    if (modelInfo.instances_ > 0)
+    if (modelInfo.instances_ > 0 and releaseLockState_)
         return;
 
     for (auto& mesh : modelInfo.resource_->GetMeshes())
@@ -89,6 +96,18 @@ void ResourceManager::ReleaseModel(Model& model)
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(absoultePath);
     DEBUG_LOG("models_ erase , size : " + std::to_string(models_.size()));
+}
+
+void ResourceManager::LockReleaseResources()
+{
+    releaseLockState_ = false;
+    textureLoader_->LockReleaseResources();
+}
+
+void ResourceManager::UnlockReleaseResources()
+{
+    releaseLockState_ = true;
+    textureLoader_->UnlockReleaseResources();
 }
 
 void ResourceManager::DeleteMaterial(const Material& material)

@@ -28,6 +28,8 @@ public:
     HeightMap* LoadHeightMap(const File&, const TextureParameters&) override;
     GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
     void DeleteTexture(Texture& texture) override;
+    void LockReleaseResources() override;
+    void UnlockReleaseResources() override;
 
 private:
     HeightMap* LoadHeightMapBinary(const File&, const TextureParameters&);
@@ -46,5 +48,6 @@ private:
     std::unordered_map<std::string, ResourceInfo<Texture>>& textures_;
     std::pair<GeneralTexture*, bool> textureNotFound_;
     std::mutex textureMutex_;
+    bool releaseLockState_;
 };
 }  // namespace GameEngine

@@ -42,7 +42,7 @@ void Mesh::GpuLoadingPass()
 
 void Mesh::ReleaseGpuPass()
 {
-    DEBUG_LOG("Clean gpu resources");
+   // DEBUG_LOG("Clean gpu resources");
     if (graphicsObjectId_)
     {
         DEBUG_LOG("Mesh, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
@@ -59,7 +59,7 @@ void Mesh::ReleaseGpuPass()
         graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
     }
     GpuObject::ReleaseGpuPass();
-    DEBUG_LOG("Clean gpu resources, done");
+   // DEBUG_LOG("Clean gpu resources, done");
 }
 
 void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)

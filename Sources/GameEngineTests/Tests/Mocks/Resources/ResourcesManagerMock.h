@@ -16,6 +16,8 @@ public:
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());
     MOCK_METHOD0(GetTextureLoader, ITextureLoader&());
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
+    MOCK_METHOD0(LockReleaseResources, void());
+    MOCK_METHOD0(UnlockReleaseResources, void());
 
     void AddModel(std::unique_ptr<Model> model) override
     {

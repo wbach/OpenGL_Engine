@@ -86,7 +86,7 @@ void TerrainHeightGenerator::perlinNoise2D()
 
         if (terrain->GetMeshTerrain())
         {
-            if (compare(width, image.width) or compare(height, image.height))
+            if (not compare(width, image.width) or not compare(height, image.height))
             {
                 width  = image.width;
                 height = image.height;

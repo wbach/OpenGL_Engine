@@ -30,10 +30,18 @@ TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourc
     , gpuResourceLoader_(gpuLoader)
     , textures_(textures)
     , textureNotFound_({nullptr, false})
+    , releaseLockState_(true)
 {
 }
 TextureLoader::~TextureLoader()
 {
+    releaseLockState_ = true;
+    std::vector<Texture*> toRelease;
+    for(auto& texture : textures_)
+        toRelease.push_back(texture.second.resource_.get());
+    DEBUG_LOG("Release not deleted textures. size :" + std::to_string(toRelease.size()));
+    for(auto texture : toRelease)
+        DeleteTexture(*texture);
 }
 GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params,
                                              const GraphicsApi::Image& image)
@@ -160,12 +168,22 @@ void TextureLoader::DeleteTexture(Texture& texture)
     auto& textureInfo = iter->second;
     --textureInfo.instances_;
 
-    if (textureInfo.instances_ > 0)
+    if (textureInfo.instances_ > 0 or not releaseLockState_)
         return;
 
     gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
     textures_.erase(iter);
     DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
+}
+
+void TextureLoader::LockReleaseResources()
+{
+    releaseLockState_ = false;
+}
+
+void TextureLoader::UnlockReleaseResources()
+{
+    releaseLockState_ = true;
 }
 
 HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const TextureParameters& params)

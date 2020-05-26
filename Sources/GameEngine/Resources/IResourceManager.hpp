@@ -23,7 +23,7 @@ public:
     virtual IGpuResourceLoader& GetGpuResourceLoader()  = 0;
     virtual ITextureLoader& GetTextureLoader()          = 0;
     virtual GraphicsApi::IGraphicsApi& GetGraphicsApi() = 0;
-    //virtual void StartReleaseResources()                = 0;
-    //virtual void StopReleaseResources()                 = 0;
+    virtual void LockReleaseResources()                 = 0;
+    virtual void UnlockReleaseResources()               = 0;
 };
 }  // namespace GameEngine

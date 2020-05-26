@@ -68,12 +68,18 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::Thre
     , userId_{0}
     , keysSubscriptionsManager_(*scene_.inputManager_)
     , running_{false}
+    , arrowsIndicator_{nullptr}
 {
 }
 
 NetworkEditorInterface::~NetworkEditorInterface()
 {
     DEBUG_LOG("destructor");
+    if (arrowsIndicator_)
+    {
+        scene_.resourceManager_->ReleaseModel(*arrowsIndicator_);
+    }
+
     UnsubscribeCameraUpdateIfExist();
     SetOrignalCamera();
     cameraEditor.reset();
@@ -207,11 +213,11 @@ void NetworkEditorInterface::StartGatway()
 
 void NetworkEditorInterface::PrepareDebugModels()
 {
-    auto model = scene_.resourceManager_->LoadModel("Meshes/Indicators/Arrows.obj");
+    arrowsIndicator_ = scene_.resourceManager_->LoadModel("Meshes/Indicators/Arrows.obj");
 
-    if (model)
+    if (arrowsIndicator_)
     {
-        scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*model, arrowsIndicatorTransform_);
+        scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*arrowsIndicator_, arrowsIndicatorTransform_);
     }
 }
 

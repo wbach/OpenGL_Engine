@@ -133,5 +133,7 @@ private:
     std::mutex terrainPainterMutex_;
     std::unique_ptr<Painter> terrainPainter_;
     Utils::Timer terrainPainterTimer_;
+
+    Model* arrowsIndicator_;
 };
 }  // namespace GameEngine

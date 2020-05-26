@@ -23,6 +23,8 @@ public:
     inline ITextureLoader& GetTextureLoader() override;
     inline IGpuResourceLoader& GetGpuResourceLoader() override;
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
+    void LockReleaseResources() override;
+    void UnlockReleaseResources() override;
 
 private:
     void DeleteMaterial(const Material&);
@@ -38,6 +40,7 @@ private:
 
     uint32 unknowFileNameResourceId_;
     std::mutex modelMutex_;
+    bool releaseLockState_;
 };
 
 IGpuResourceLoader& ResourceManager::GetGpuResourceLoader()

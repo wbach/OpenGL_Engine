@@ -144,7 +144,9 @@ void Scene::Start()
 void Scene::Stop()
 {
     start_.store(false);
+    resourceManager_->LockReleaseResources();
     sceneStorage_->restore();
+    resourceManager_->UnlockReleaseResources();
 }
 
 void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
