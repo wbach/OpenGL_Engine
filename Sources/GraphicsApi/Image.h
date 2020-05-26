@@ -26,6 +26,7 @@ public:
     void setChannels(uint8);
     uint8 getChannelsCount() const;
     const ImageData& getImageData() const;
+    void applyFilter(const std::vector<float>&, const vec2ui&);
 
     template <typename T>
     void allocateImage()

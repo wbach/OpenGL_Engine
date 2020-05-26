@@ -97,7 +97,7 @@ bool NormalMaping()
     return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
 }
 
-const vec2 thresholds = vec2(.4f, .01f);
+const vec2 thresholds = vec2(.2f, .01f);
 
 float GetRockBlendFactor()
 {

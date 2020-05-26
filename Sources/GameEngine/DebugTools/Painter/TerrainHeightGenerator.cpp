@@ -20,7 +20,31 @@ enum class Interpolation
 namespace
 {
 std::vector<float> noiseSeed;
-}
+
+// clang-format off
+std::vector<float> gaussian3x3 = {
+    0.077847, 0.123317, 0.077847,
+    0.123317, 0.195346, 0.123317,
+    0.077847, 0.123317, 0.077847
+};
+std::vector<float> gaussian5x5 = {
+0.003765, 0.015019, 0.023792, 0.015019, 0.003765,
+0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
+0.023792, 0.094907, 0.150342, 0.094907, 0.023792,
+0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
+0.003765, 0.015019, 0.023792, 0.015019, 0.003765
+};
+std::vector<float> gaussian7x7 = {
+0.000036, 0.000363, 0.001446, 0.002291, 0.001446, 0.000363, 0.000036,
+0.000363, 0.003676, 0.014662, 0.023226, 0.014662, 0.003676, 0.000363,
+0.001446, 0.014662, 0.058488, 0.092651, 0.058488, 0.014662, 0.001446,
+0.002291, 0.023226, 0.092651, 0.146768, 0.092651, 0.023226, 0.002291,
+0.001446, 0.014662, 0.058488, 0.092651, 0.058488, 0.014662, 0.001446,
+0.000363, 0.003676, 0.014662, 0.023226, 0.014662, 0.003676, 0.000363,
+0.000036, 0.000363, 0.001446, 0.002291, 0.001446, 0.000363, 0.000036
+};
+// clang-format on
+}  // namespace
 TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
                                                const EntryParamters& parmaters)
     : componentController_(componentController)
@@ -176,7 +200,7 @@ void TerrainHeightGenerator::perlinNoise2D()
                     auto sampleB =
                         interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
-                    scaleAcc += 1.f;//scale;
+                    scaleAcc += 1.f;  // scale;
                     noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
                     // noise = interpolate(sampleT, sampleB, blendY) * scale;
                     scale = scale / bias_;
@@ -186,6 +210,7 @@ void TerrainHeightGenerator::perlinNoise2D()
                 image.setPixel(vec2ui(x, y), Color((heightFactor_ * normalizedHeight), 0.f, 0.f, 0.f));
             }
         }
+        image.applyFilter(gaussian7x7, vec2ui(7, 7));
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }

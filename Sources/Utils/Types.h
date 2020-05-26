@@ -482,7 +482,14 @@ struct Color
     {
         return value;
     }
-
+    void operator*=(float v)
+    {
+        value *= v;
+    }
+    void operator+=(const Color& v)
+    {
+        value += v.value;
+    }
     vec4 value;
 };
 
