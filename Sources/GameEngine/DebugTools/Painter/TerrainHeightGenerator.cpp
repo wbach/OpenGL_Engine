@@ -158,7 +158,8 @@ void TerrainHeightGenerator::perlinNoise2D()
                         interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
                     scaleAcc += scale;
-                    noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
+                    //noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
+                    noise = interpolate(sampleT, sampleB, blendY);
                     scale = scale / bias_;
                 }
 
