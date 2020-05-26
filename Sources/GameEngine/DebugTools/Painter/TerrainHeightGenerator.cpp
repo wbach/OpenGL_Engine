@@ -12,6 +12,11 @@
 
 namespace GameEngine
 {
+enum class Interpolation
+{
+    Linear,
+    Cosinus
+};
 TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
                                                const vec2ui& perTerrainHeightMapsize, uint32 octaves, float bias,
                                                float heightFactor)
@@ -30,15 +35,19 @@ TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentContro
 void TerrainHeightGenerator::generateHeightMapsImage()
 {
     getAllSceneTerrains();
+
+    if (terrains_.size() != 1)
+    {
+        DEBUG_LOG("Support only 1 terrain, Current terrain size : " + std::to_string(terrains_.size()));
+        return;
+    }
+
     createSeed();
     perlinNoise2D();
 }
 
 void TerrainHeightGenerator::createSeed()
 {
-    if (terrains_.size() != 1)
-        return;
-
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0.f, 1.f);
@@ -49,8 +58,9 @@ void TerrainHeightGenerator::createSeed()
     for (auto& noise : noiseSeed_)
     {
         // noise = dist(mt);
-        noise = (float)rand() / (float)RAND_MAX;
+        noise = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     }
+    DEBUG_LOG("Noise size : " + std::to_string(noiseSeed_.size()));
 }
 
 void TerrainHeightGenerator::getAllSceneTerrains()
@@ -69,16 +79,33 @@ float linearInterpolation(float a, float b, float blend)
 }
 float cosinusInterpolation(float a, float b, float blend)
 {
-    float theta = blend * M_PI;
+    float theta = blend * static_cast<float>(M_PI);
     float f     = (1.f - cosf(theta)) * .5f;
     return a * (1.f - f) + b * f;
 }
 
+float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::Cosinus)
+{
+    switch (interpolation)
+    {
+        case Interpolation::Linear:
+            return linearInterpolation(a, b, blend);
+        case Interpolation::Cosinus:
+            return cosinusInterpolation(a, b, blend);
+    }
+
+    return 0.f;
+}
+
 void TerrainHeightGenerator::perlinNoise2D()
 {
+    if (noiseSeed_.empty())
+        return;
+
     auto width  = perTerrainHeightMapsize_.x;
     auto height = perTerrainHeightMapsize_.y;
 
+    DEBUG_LOG("Start generating terrains.");
     for (auto& terrain : terrains_)
     {
         auto heightMap = terrain->GetHeightMap();
@@ -105,9 +132,9 @@ void TerrainHeightGenerator::perlinNoise2D()
         image.setChannels(1);
         image.allocateImage<float>();
 
-        for (uint32 x = 0; x < width; x++)
+        for (uint32 y = 0; y < height; y++)
         {
-            for (uint32 y = 0; y < height; y++)
+            for (uint32 x = 0; x < width; x++)
             {
                 float noise    = 0.0f;
                 float scaleAcc = 0.0f;
@@ -125,11 +152,10 @@ void TerrainHeightGenerator::perlinNoise2D()
                     float blendX = static_cast<float>(x - sampleX1) / static_cast<float>(pitch);
                     float blendY = static_cast<float>(y - sampleY1) / static_cast<float>(pitch);
 
-                    // linearInterpolation
-                    auto sampleT = cosinusInterpolation(noiseSeed_[sampleY1 * width + sampleX1],
-                                                        noiseSeed_[sampleY1 * width + sampleX2], blendX);
-                    auto sampleB = cosinusInterpolation(noiseSeed_[sampleY2 * width + sampleX1],
-                                                        noiseSeed_[sampleY2 * width + sampleX2], blendX);
+                    auto sampleT =
+                        interpolate(getNoiseSample(sampleX1, sampleY1), getNoiseSample(sampleX2, sampleY1), blendX);
+                    auto sampleB =
+                        interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
                     scaleAcc += scale;
                     noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
@@ -137,10 +163,22 @@ void TerrainHeightGenerator::perlinNoise2D()
                 }
 
                 float normalizedHeight = 2.f * noise / scaleAcc - 1.f;
-                image.setPixel(vec2ui(y, x), Color((heightFactor_ * normalizedHeight), 0.f, 0.f, 0.f));
+                image.setPixel(vec2ui(x, y), Color((heightFactor_ * normalizedHeight), 0.f, 0.f, 0.f));
             }
         }
         terrain->HeightMapChanged();
     }
+    DEBUG_LOG("completed");
+}
+
+float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
+{
+    auto index = x + perTerrainHeightMapsize_.x * y;
+    if (index < noiseSeed_.size())
+        return noiseSeed_[index];
+
+    ERROR_LOG("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
+              std::to_string(noiseSeed_.size()) + ")");
+    return 0.f;
 }
 }  // namespace GameEngine

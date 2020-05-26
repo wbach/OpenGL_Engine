@@ -19,6 +19,7 @@ private:
     void createSeed();
     void getAllSceneTerrains();
     void perlinNoise2D();
+    float getNoiseSample(uint32 x, uint32 y);
 
 private:
     const Components::ComponentController& componentController_;

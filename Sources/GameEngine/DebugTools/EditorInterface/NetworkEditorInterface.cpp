@@ -1237,7 +1237,6 @@ void NetworkEditorInterface::GenerateTerrains(const EntryParameters & params)
     }
 
     TerrainHeightGenerator(scene_.componentController_, size, octaves, bias, heighFactor).generateHeightMapsImage();
-    DEBUG_LOG("completed");
 }
 
 void NetworkEditorInterface::ControlTextureUsage(const NetworkEditorInterface::EntryParameters &params)

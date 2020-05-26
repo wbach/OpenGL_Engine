@@ -17,13 +17,21 @@ BaseComponent::BaseComponent(ComponentsType type, ComponentContext& componentCon
 }
 BaseComponent::~BaseComponent()
 {
-    //   DEBUG_LOG("destructor " + std::to_string(type_));
+    DEBUG_LOG("destructor " + std::to_string(type_));
 
     for (auto id : ids_)
+    {
         componentContext_.componentController_.UnRegisterFunction(id.second, id.first);
+    }
 
     if (componentRegistredId_)
-        componentContext_.componentController_.UnRegisterComponent(type_, componentRegistredId_);
+    {
+        componentContext_.componentController_.UnRegisterComponent(type_, *componentRegistredId_);
+    }
+    else
+    {
+        ERROR_LOG("componentRegistredId not set!");
+    }
 }
 void BaseComponent::Activate()
 {

@@ -53,6 +53,7 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
 
 TerrainRendererComponent::~TerrainRendererComponent()
 {
+    DEBUG_LOG("destructor " + std::to_string(type_));
 }
 
 void TerrainRendererComponent::CleanUp()
