@@ -57,6 +57,7 @@ class Editor:
     def OnSceneFileMsg(self, msg):
         self.root.title(self.titleBase + " (connected) Scene : " + os.path.basename(msg.get("filename")))
 
+
 if __name__ == "__main__":
     TCP_IP = 'localhost'
     TCP_PORT = 1991

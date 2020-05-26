@@ -67,6 +67,11 @@ const std::string &File::GetAbsoultePath() const
     return absoultePath_;
 }
 
+std::string File::GetAbsolutePathWithDifferentExtension(const std::string& extension) const
+{
+	return std::filesystem::path(absoultePath_).replace_extension(extension).string();
+}
+
 std::string File::GetBaseName() const
 {
     return std::filesystem::path(dataRelative_).stem().string();

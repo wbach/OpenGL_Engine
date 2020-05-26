@@ -233,6 +233,16 @@ void RenderersManager::SwapLineFaceRender()
     renderAsLines.store(!renderAsLines.load());
 }
 
+void RenderersManager::setLineRenderMode(bool v)
+{
+    renderAsLines.store(v);
+}
+
+bool RenderersManager::getLineRenderMode() const
+{
+    return renderAsLines.load();
+}
+
 GUIRenderer& RenderersManager::GetGuiRenderer()
 {
     return guiRenderer_;

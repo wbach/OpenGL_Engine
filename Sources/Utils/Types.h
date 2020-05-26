@@ -10,6 +10,8 @@
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
 #endif
 
+bool compare(float, float);
+
 typedef unsigned char uchar;
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -81,6 +83,14 @@ struct Tvec2
     Tvec2 operator+(const Tvec2& l)
     {
         return Tvec2(x + l.x, y + l.y);
+    }
+    bool operator==(const Tvec2& v) const
+    {
+        return x == v.x and y == v.y;
+    }
+    bool operator!=(const Tvec2& v) const
+    {
+        return x != v.x or y != v.y;
     }
 };
 
@@ -543,5 +553,3 @@ struct hash<vec3i>
     }
 };
 }  // namespace std
-
-bool compare(float, float);

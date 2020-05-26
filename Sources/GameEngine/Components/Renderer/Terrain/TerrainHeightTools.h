@@ -9,6 +9,8 @@ class TerrainHeightTools
 {
 public:
     TerrainHeightTools(const vec3& terrainScale, const GraphicsApi::Image&);
+    const vec3& getTerrainScale() const;
+    uint32 getHeightMapResolution() const;
     float GetHeight(uint32 x, uint32 y) const;
     vec2 GetTexCoord(uint32 x, uint32 y) const;
     vec3 GetNormal(uint32 x, uint32 z) const;
@@ -23,6 +25,7 @@ private:
 
 private:
     const GraphicsApi::Image& heightMapImage_;
+    vec3 terrainScaleVec3_;
     vec2 terrainScale_;
     float heightFactor_;
 };

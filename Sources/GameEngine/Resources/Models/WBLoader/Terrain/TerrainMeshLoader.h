@@ -7,6 +7,7 @@ namespace GameEngine
 class ITextureLoader;
 class TerrainConfiguration;
 class TerrainHeightTools;
+class HeightMap;
 
 namespace WBLoader
 {
@@ -17,20 +18,18 @@ public:
     virtual void ParseFile(const File&) override;
     virtual bool CheckExtension(const std::string& filename) override;
     virtual std::unique_ptr<Model> Create() override;
+    std::unique_ptr<Model> createModel(const HeightMap&);
 
 private:
-    void CreateAsSingleTerrain(TerrainHeightTools&);
-    void CreatePartial(TerrainHeightTools&, uint32 partsCount);
+    void CreateAsSingleTerrain(Model&, TerrainHeightTools&);
+    void CreatePartial(Model&, TerrainHeightTools&, uint32 partsCount);
     void ReserveMeshData(GameEngine::Mesh& mesh, uint32 size);
-    void CreateTerrainVertexes(TerrainHeightTools&, GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start, uint32 width, uint32 height);
+    void CreateTerrainVertexes(TerrainHeightTools&, GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start,
+                               uint32 width, uint32 height);
     void CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size);
-    void Clear();
 
 private:
     std::unique_ptr<Model> model_;
-
-    uint32 heightMapResolution_;
-    vec3 terrainScale_;
 };
-}  // WBLoader
-} // namespace GameEngine
+}  // namespace WBLoader
+}  // namespace GameEngine

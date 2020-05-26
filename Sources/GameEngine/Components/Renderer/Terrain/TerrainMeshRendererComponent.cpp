@@ -7,6 +7,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "TerrainMeshUpdater.h"
 
 namespace GameEngine
@@ -25,14 +26,24 @@ void TerrainMeshRendererComponent::RecalculateNormals()
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).RecalculateNormals();
+    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).recalculateNormals();
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).Update();
+    TerrainMeshUpdater meshUpdater({componentContext_, config_, modelWrapper_, *heightMap_});
+
+    if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
+    {
+        meshUpdater.update();
+    }
+    else
+    {
+        meshUpdater.reCreate();
+        heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
+    }
 }
 void TerrainMeshRendererComponent::CleanUp()
 {
@@ -57,8 +68,8 @@ void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
     heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
 
     TerrainComponentBase::LoadHeightMap(file);
-
-    auto model = componentContext_.resourceManager_.LoadModel(file);
+    heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
+    auto model                          = componentContext_.resourceManager_.LoadModel(file);
     modelWrapper_.Add(model, LevelOfDetail::L1);
     CreateShaderBuffers(*model);
 }

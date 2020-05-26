@@ -36,6 +36,7 @@ private:
 private:
     ModelWrapper modelWrapper_;
     std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    vec2ui heightMapSizeUsedToTerrainCreation_;
 };
 
 inline const GraphicsApi::ID& TerrainMeshRendererComponent::GetPerObjectUpdateBuffer(uint32 id) const

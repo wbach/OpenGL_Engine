@@ -43,17 +43,16 @@ void HeightMap::GpuLoadingPass()
         ERROR_LOG("Texutre not created. Filename : " + file_->GetBaseName());
     }
 }
-
 const GraphicsApi::Image& HeightMap::GetImage() const
 {
     return image_;
 }
-
-GraphicsApi::Image& HeightMap::GetImage()
+void HeightMap::setImage(GraphicsApi::Image image)
 {
-    return image_;
+    image_ = std::move(image);
+    size_ = vec2ui(image.width, image.height);
+    orginalData_ = false;
 }
-
 void HeightMap::SetScale(const vec3& scale)
 {
     scale_ = scale;

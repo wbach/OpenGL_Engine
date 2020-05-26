@@ -60,7 +60,6 @@ void GeneralTexture::SetImage(GraphicsApi::Image image)
     size_        = vec2ui(image.width, image.height);
     orginalData_ = false;
 }
-
 const GraphicsApi::Image& GeneralTexture::GetImage() const
 {
     return image_;

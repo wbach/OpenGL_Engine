@@ -20,6 +20,7 @@ public:
     Model* Get(LevelOfDetail lvl = LevelOfDetail::L1);
     const std::unordered_map<LevelOfDetail, Model*>& Get() const;
     std::vector<Model*> PopModels();
+    void clear();
 
 private:
     std::mutex mutex_;

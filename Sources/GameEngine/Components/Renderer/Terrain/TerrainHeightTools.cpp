@@ -9,13 +9,22 @@ namespace GameEngine
 {
 TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const GraphicsApi::Image& heightMapImage)
     : heightMapImage_(heightMapImage)
+    , terrainScaleVec3_(terrainScale)
     , terrainScale_(terrainScale.x, terrainScale.z)
     , heightFactor_(terrainScale.y)
 {
 }
+const vec3& TerrainHeightTools::getTerrainScale() const
+{
+    return terrainScaleVec3_;
+}
+uint32 TerrainHeightTools::getHeightMapResolution() const
+{
+    return heightMapImage_.width;
+}
 float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 {
-    auto maybeColor = heightMapImage_.getPixel({ x, y });
+    auto maybeColor = heightMapImage_.getPixel({x, y});
     if (not maybeColor)
     {
         ERROR_LOG("outOfRange");

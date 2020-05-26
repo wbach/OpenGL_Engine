@@ -1,4 +1,5 @@
 import tkinter as tk
+from functools import partial
 from tkinter import messagebox
 from tkinter import filedialog
 from tkinter import simpledialog
@@ -56,6 +57,7 @@ class Menu:
         self.normalsVisual.trace("w", self.NormalsVisualChange)
 
         debugMenu = tk.Menu(menubar, tearoff=0)
+        debugMenu.add_command(label="Swap Line render mode", command=lambda: self.networkClient.SendCommand("setLineRenderMode"))
         debugMenu.add_checkbutton(label="Physics Visualization", onvalue=1, offvalue=0, variable=self.physicsVisual)
         debugMenu.add_checkbutton(label="Normals Visualization", onvalue=1, offvalue=0, variable=self.normalsVisual)
         menubar.add_cascade(label="Debug", menu=debugMenu)
@@ -86,15 +88,15 @@ class Menu:
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
 
         self.bias = tk.StringVar()
-        self.bias.set("1.6")
+        self.bias.set("2.0")
         self.octaves = tk.StringVar()
-        self.octaves.set("7")
+        self.octaves.set("9")
         self.width = tk.StringVar()
-        self.width.set("513")
-        self.height = tk.StringVar()
-        self.height.set("513")
+        self.width.set("512")
+        self.scale = tk.StringVar()
+        self.scale.set("10.0")
         self.heightFactor = tk.StringVar()
-        self.heightFactor.set("10")
+        self.heightFactor.set("20.0")
 
     def GenerateTerrain(self):
         if self.networkClient.IsConnected():
@@ -116,20 +118,26 @@ class Menu:
             widthLabel = tk.Entry(widthLabel, textvariable=self.width)
             widthLabel.pack(fill=tk.X, expand=1)
 
-            heightLabel = tk.LabelFrame(dialog, text="Height")
-            heightLabel.pack(fill=tk.X)
-            heightLabel = tk.Entry(heightLabel, textvariable=self.height)
-            heightLabel.pack(fill=tk.X, expand=1)
+            scaleLabel = tk.LabelFrame(dialog, text="Scale")
+            scaleLabel.pack(fill=tk.X)
+            scaleLabel = tk.Entry(scaleLabel, textvariable=self.scale)
+            scaleLabel.pack(fill=tk.X, expand=1)
 
             heightFactorLabel = tk.LabelFrame(dialog, text="Height Factor")
             heightFactorLabel.pack(fill=tk.X)
             tk.Entry(heightFactorLabel, textvariable=self.heightFactor).pack(fill=tk.X, expand=1)
 
-            tk.Button(dialog, text="Generate", command=self.SendGenerateTerrain).pack(fill=tk.X)
+            tk.Button(dialog, text="Generate with the same seed", command=partial(self.SendGenerateTerrain, "false"))\
+                .pack(fill=tk.X)
+            tk.Button(dialog, text="Generate terrain with new seed", command=partial(self.SendGenerateTerrain, "true"))\
+                .pack(fill=tk.X)
 
-    def SendGenerateTerrain(self):
+    def SendGenerateTerrain(self, updateNoiseSeed):
         if self.networkClient.IsConnected():
-            self.networkClient.SendCommand("generateTerrains width=" + self.width.get() + " height=" + self.height.get() + " octaves=" + self.octaves.get() + " bias=" + self.bias.get() + " heightFactor=" + self.heightFactor.get())
+            self.networkClient.SendCommand("generateTerrains width=" + self.width.get() + " height=" +
+                                           self.width.get() + " octaves=" + self.octaves.get() + " bias=" +
+                                           self.bias.get() + " scale=" + self.scale.get() + " heightFactor=" +
+                                           self.heightFactor.get() + " updateNoiseSeed=" + updateNoiseSeed)
 
     def TexturesControlDiffuseChange(self, *args):
         if self.networkClient.IsConnected():

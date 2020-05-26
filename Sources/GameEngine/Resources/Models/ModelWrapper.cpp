@@ -44,4 +44,8 @@ std::vector<Model*> ModelWrapper::PopModels()
 
     return result;
 }
+void ModelWrapper::clear()
+{
+    models_.clear();
+}
 }  // namespace GameEngine

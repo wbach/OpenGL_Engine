@@ -18,6 +18,7 @@ public:
     const std::string& GetDataRelativeDir() const;
     const std::string& GetProjectRelativeDir() const;
     const std::string& GetAbsoultePath() const;
+    std::string GetAbsolutePathWithDifferentExtension(const std::string&) const;
 
     std::string GetBaseName() const;
     std::string GetExtension() const;

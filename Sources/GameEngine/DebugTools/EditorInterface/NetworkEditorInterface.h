@@ -68,6 +68,7 @@ private:
     void GetComponentParams(const EntryParameters&);
     void SetPhysicsVisualization(const EntryParameters&);
     void SetNormalsVisualization(const EntryParameters&);
+    void SetLineRenderMode(const EntryParameters&);
     void SelectGameObject(const EntryParameters&);
     void GoCameraToObject(const EntryParameters&);
     void StartScene(const EntryParameters&);

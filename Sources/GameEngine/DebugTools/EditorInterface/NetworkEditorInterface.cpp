@@ -164,6 +164,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("clearAllGameObjects", ClearAllGameObjects);
     REGISTER_COMMAND("setPhysicsVisualization", SetPhysicsVisualization);
     REGISTER_COMMAND("setNormalsVisualization", SetNormalsVisualization);
+    REGISTER_COMMAND("setLineRenderMode", SetLineRenderMode);
     REGISTER_COMMAND("selectGameObject", SelectGameObject);
     REGISTER_COMMAND("goCameraToObject", GoCameraToObject);
     REGISTER_COMMAND("enableTerrainHeightPainter", EnableTerrainHeightPainter);
@@ -910,6 +911,21 @@ void NetworkEditorInterface::SetNormalsVisualization(const NetworkEditorInterfac
     SetDeubgRendererState(DebugRenderer::RenderState::Normals, params);
 }
 
+void NetworkEditorInterface::SetLineRenderMode(const EntryParameters &params)
+{
+    bool set = scene_.renderersManager_->getLineRenderMode();
+
+    if (params.count("enabled"))
+    {
+        set = Utils::StringToBool(params.at("enabled"));
+    }
+    else
+    {
+        set = !set;
+    }
+    scene_.renderersManager_->setLineRenderMode(set);
+}
+
 void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
 {
     if (not paramters.count("gameObjectId"))
@@ -1202,33 +1218,40 @@ void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
     }
 }
 
-void NetworkEditorInterface::GenerateTerrains(const EntryParameters & params)
+void NetworkEditorInterface::GenerateTerrains(const EntryParameters &params)
 {
-    float bias = 2.f;
-    uint32 octaves = 6;
-    vec2ui size(513, 513);
-    float heighFactor{ 1.f };
+    TerrainHeightGenerator::EntryParamters entryParamters;
+    bool updateNoiseSeed{true};
+
     try
     {
         if (params.count("bias"))
         {
-            bias = std::stof(params.at("bias"));
+            entryParamters.bias = std::stof(params.at("bias"));
         }
         if (params.count("octaves"))
         {
-            octaves = std::stoi(params.at("octaves"));
+            entryParamters.octaves = std::stoi(params.at("octaves"));
         }
         if (params.count("width"))
         {
-            size.x = std::stoi(params.at("width"));
+            entryParamters.perTerrainHeightMapsize.x = std::stoi(params.at("width"));
         }
         if (params.count("height"))
         {
-            size.y = std::stoi(params.at("height"));
+            entryParamters.perTerrainHeightMapsize.y = std::stoi(params.at("height"));
+        }
+        if (params.count("scale"))
+        {
+            entryParamters.scale = std::stof(params.at("scale"));
         }
         if (params.count("heightFactor"))
         {
-            heighFactor = std::stof(params.at("heightFactor"));
+            entryParamters.heightFactor = std::stof(params.at("heightFactor"));
+        }
+        if (params.count("updateNoiseSeed"))
+        {
+            updateNoiseSeed = Utils::StringToBool(params.at("updateNoiseSeed"));
         }
     }
     catch (...)
@@ -1236,7 +1259,14 @@ void NetworkEditorInterface::GenerateTerrains(const EntryParameters & params)
         ERROR_LOG("Pram parsing failed.");
     }
 
-    TerrainHeightGenerator(scene_.componentController_, size, octaves, bias, heighFactor).generateHeightMapsImage();
+    TerrainHeightGenerator generator(scene_.componentController_, entryParamters);
+
+    if (updateNoiseSeed)
+    {
+        generator.generateNoiseSeed();
+    }
+
+    generator.generateHeightMapsImage();
 }
 
 void NetworkEditorInterface::ControlTextureUsage(const NetworkEditorInterface::EntryParameters &params)

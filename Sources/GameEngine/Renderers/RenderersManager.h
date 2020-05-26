@@ -43,6 +43,8 @@ public:
     void UnSubscribeAll();
     void UnSubscribeAll(std::function<void()>);
     void SwapLineFaceRender();
+    void setLineRenderMode(bool);
+    bool getLineRenderMode() const;
 
     GUIRenderer& GetGuiRenderer();
     DebugRenderer& GetDebugRenderer();

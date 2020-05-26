@@ -17,23 +17,57 @@ enum class Interpolation
     Linear,
     Cosinus
 };
-TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
-                                               const vec2ui& perTerrainHeightMapsize, uint32 octaves, float bias,
-                                               float heightFactor)
-    : componentController_(componentController)
-    , perTerrainHeightMapsize_(perTerrainHeightMapsize)
-    , octaves_(octaves)
-    , bias_(bias)
-    , heightFactor_(heightFactor)
+namespace
 {
-    if (bias < 0.1f)
-        bias = 0.1f;
-    if (octaves_ > 10)
-        octaves = 10;
+std::vector<float> noiseSeed;
+}
+TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
+                                               const EntryParamters& parmaters)
+    : componentController_(componentController)
+    , perTerrainHeightMapsize_(parmaters.perTerrainHeightMapsize)
+    , octaves_(parmaters.octaves)
+    , bias_(parmaters.bias)
+    , scale_(parmaters.scale)
+    , heightFactor_(parmaters.heightFactor)
+{
+    if (bias_ < 0.1f)
+        bias_ = 0.1f;
+
+    uint32 maxOctaves = 0;
+    for (uint32 o = 0; o < octaves_; o++)
+    {
+        uint32 pitch = perTerrainHeightMapsize_.x >> o;
+        if (pitch > 0)
+        {
+            ++maxOctaves;
+        }
+        else
+        {
+            break;
+        }
+    }
+    DEBUG_LOG("maxOctaves : " + std::to_string(maxOctaves));
+    if (octaves_ > maxOctaves)
+    {
+        octaves_ = maxOctaves;
+        DEBUG_LOG("To hight value of octaves. Set max value");
+    }
+}
+
+void TerrainHeightGenerator::generateNoiseSeed()
+{
+    createSeed();
 }
 
 void TerrainHeightGenerator::generateHeightMapsImage()
 {
+    auto count = perTerrainHeightMapsize_.x * perTerrainHeightMapsize_.y;
+    if (count != noiseSeed.size())
+    {
+        DEBUG_LOG("regenerate noise seed");
+        createSeed();
+    }
+
     getAllSceneTerrains();
 
     if (terrains_.size() != 1)
@@ -42,7 +76,6 @@ void TerrainHeightGenerator::generateHeightMapsImage()
         return;
     }
 
-    createSeed();
     perlinNoise2D();
 }
 
@@ -53,14 +86,16 @@ void TerrainHeightGenerator::createSeed()
     std::uniform_real_distribution<float> dist(0.f, 1.f);
 
     auto count = perTerrainHeightMapsize_.x * perTerrainHeightMapsize_.y;
-    noiseSeed_.resize(count);
 
-    for (auto& noise : noiseSeed_)
+    noiseSeed.clear();
+    noiseSeed.resize(count);
+
+    for (auto& noise : noiseSeed)
     {
         // noise = dist(mt);
         noise = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     }
-    DEBUG_LOG("Noise size : " + std::to_string(noiseSeed_.size()));
+    DEBUG_LOG("Noise size : " + std::to_string(noiseSeed.size()));
 }
 
 void TerrainHeightGenerator::getAllSceneTerrains()
@@ -84,7 +119,7 @@ float cosinusInterpolation(float a, float b, float blend)
     return a * (1.f - f) + b * f;
 }
 
-float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::Cosinus)
+float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::Linear)
 {
     switch (interpolation)
     {
@@ -99,7 +134,7 @@ float interpolate(float a, float b, float blend, Interpolation interpolation = I
 
 void TerrainHeightGenerator::perlinNoise2D()
 {
-    if (noiseSeed_.empty())
+    if (noiseSeed.empty())
         return;
 
     auto width  = perTerrainHeightMapsize_.x;
@@ -108,25 +143,9 @@ void TerrainHeightGenerator::perlinNoise2D()
     DEBUG_LOG("Start generating terrains.");
     for (auto& terrain : terrains_)
     {
-        auto heightMap = terrain->GetHeightMap();
-        auto& image    = heightMap->GetImage();
+        auto& heightMap = *terrain->GetHeightMap();
 
-        if (terrain->GetMeshTerrain())
-        {
-            if (not compare(width, image.width) or not compare(height, image.height))
-            {
-                width  = image.width;
-                height = image.height;
-
-                DEBUG_LOG(
-                    "Currently not supported resize current heightmap for terrain mesh renderer. (To do : recreacte "
-                    "whole "
-                    "mesh). Size set to : " +
-                    std::to_string(image.size()));
-            }
-        }
-
-        image        = GraphicsApi::Image();
+        GraphicsApi::Image image;
         image.width  = width;
         image.height = height;
         image.setChannels(1);
@@ -138,7 +157,7 @@ void TerrainHeightGenerator::perlinNoise2D()
             {
                 float noise    = 0.0f;
                 float scaleAcc = 0.0f;
-                float scale    = 1.f;
+                float scale    = scale_;
 
                 for (uint32 o = 0; o < octaves_; o++)
                 {
@@ -157,9 +176,9 @@ void TerrainHeightGenerator::perlinNoise2D()
                     auto sampleB =
                         interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
-                    scaleAcc += scale;
-                    //noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
-                    noise = interpolate(sampleT, sampleB, blendY);
+                    scaleAcc += 1.f;//scale;
+                    noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
+                    // noise = interpolate(sampleT, sampleB, blendY) * scale;
                     scale = scale / bias_;
                 }
 
@@ -167,6 +186,7 @@ void TerrainHeightGenerator::perlinNoise2D()
                 image.setPixel(vec2ui(x, y), Color((heightFactor_ * normalizedHeight), 0.f, 0.f, 0.f));
             }
         }
+        heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }
     DEBUG_LOG("completed");
@@ -175,11 +195,11 @@ void TerrainHeightGenerator::perlinNoise2D()
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 {
     auto index = x + perTerrainHeightMapsize_.x * y;
-    if (index < noiseSeed_.size())
-        return noiseSeed_[index];
+    if (index < noiseSeed.size())
+        return noiseSeed[index];
 
     ERROR_LOG("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
-              std::to_string(noiseSeed_.size()) + ")");
+              std::to_string(noiseSeed.size()) + ")");
     return 0.f;
 }
 }  // namespace GameEngine

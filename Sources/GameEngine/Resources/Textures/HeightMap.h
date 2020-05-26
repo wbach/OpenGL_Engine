@@ -12,7 +12,8 @@ public:
 
     void GpuLoadingPass() override;
 
-    GraphicsApi::Image& GetImage();
+    //GraphicsApi::Image& GetImage();
+    void setImage(GraphicsApi::Image);
     const GraphicsApi::Image& GetImage() const;
     void SetScale(const vec3&);
     const vec3& GetScale() const;

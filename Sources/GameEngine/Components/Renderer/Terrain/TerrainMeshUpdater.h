@@ -22,14 +22,15 @@ public:
     };
     TerrainMeshUpdater(const EntryParameters&);
     ~TerrainMeshUpdater();
-    void Update();
-    void RecalculateYOffset();
-    void RecalculateNormals();
+    void reCreate();
+    void update();
+    void recalculateYOffset();
+    void recalculateNormals();
 
 private:
-    void UpdatePartialTerrainMeshes();
-    void UpdateSingleTerrainMesh();
-    bool UpdatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData&, uint32 startX, uint32 startY, uint32 endX, uint32 endY);
+    void updatePartialTerrainMeshes();
+    void updateSingleTerrainMesh();
+    bool updatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData&, uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
 private:
     ComponentContext& componentContext_;
