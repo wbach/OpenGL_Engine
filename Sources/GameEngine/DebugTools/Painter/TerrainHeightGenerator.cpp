@@ -23,25 +23,25 @@ std::vector<float> noiseSeed;
 
 // clang-format off
 std::vector<float> gaussian3x3 = {
-    0.077847, 0.123317, 0.077847,
-    0.123317, 0.195346, 0.123317,
-    0.077847, 0.123317, 0.077847
+    0.077847f, 0.123317f, 0.077847f,
+    0.123317f, 0.195346f, 0.123317f,
+    0.077847f, 0.123317f, 0.077847f
 };
 std::vector<float> gaussian5x5 = {
-0.003765, 0.015019, 0.023792, 0.015019, 0.003765,
-0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
-0.023792, 0.094907, 0.150342, 0.094907, 0.023792,
-0.015019, 0.059912, 0.094907, 0.059912, 0.015019,
-0.003765, 0.015019, 0.023792, 0.015019, 0.003765
+0.003765f, 0.015019f, 0.023792f, 0.015019f, 0.003765f,
+0.015019f, 0.059912f, 0.094907f, 0.059912f, 0.015019f,
+0.023792f, 0.094907f, 0.150342f, 0.094907f, 0.023792f,
+0.015019f, 0.059912f, 0.094907f, 0.059912f, 0.015019f,
+0.003765f, 0.015019f, 0.023792f, 0.015019f, 0.003765f
 };
 std::vector<float> gaussian7x7 = {
-0.000036, 0.000363, 0.001446, 0.002291, 0.001446, 0.000363, 0.000036,
-0.000363, 0.003676, 0.014662, 0.023226, 0.014662, 0.003676, 0.000363,
-0.001446, 0.014662, 0.058488, 0.092651, 0.058488, 0.014662, 0.001446,
-0.002291, 0.023226, 0.092651, 0.146768, 0.092651, 0.023226, 0.002291,
-0.001446, 0.014662, 0.058488, 0.092651, 0.058488, 0.014662, 0.001446,
-0.000363, 0.003676, 0.014662, 0.023226, 0.014662, 0.003676, 0.000363,
-0.000036, 0.000363, 0.001446, 0.002291, 0.001446, 0.000363, 0.000036
+0.000036f, 0.000363f, 0.001446f, 0.002291f, 0.001446f, 0.000363f, 0.000036f,
+0.000363f, 0.003676f, 0.014662f, 0.023226f, 0.014662f, 0.003676f, 0.000363f,
+0.001446f, 0.014662f, 0.058488f, 0.092651f, 0.058488f, 0.014662f, 0.001446f,
+0.002291f, 0.023226f, 0.092651f, 0.146768f, 0.092651f, 0.023226f, 0.002291f,
+0.001446f, 0.014662f, 0.058488f, 0.092651f, 0.058488f, 0.014662f, 0.001446f,
+0.000363f, 0.003676f, 0.014662f, 0.023226f, 0.014662f, 0.003676f, 0.000363f,
+0.000036f, 0.000363f, 0.001446f, 0.002291f, 0.001446f, 0.000363f, 0.000036f
 };
 // clang-format on
 }  // namespace
@@ -169,19 +169,19 @@ void TerrainHeightGenerator::perlinNoise2D()
     {
         auto& heightMap = *terrain->GetHeightMap();
 
-        GraphicsApi::Image image;
-        image.width  = width;
-        image.height = height;
-        image.setChannels(1);
-        image.allocateImage<float>();
+        std::vector<float> heights;
+        heights.resize(width * height);
+        // image.allocateImage<float>();
+
+        float maxHeight = -std::numeric_limits<float>::max();
+        float minHeight = std::numeric_limits<float>::max();
 
         for (uint32 y = 0; y < height; y++)
         {
             for (uint32 x = 0; x < width; x++)
             {
-                float noise    = 0.0f;
-                float scaleAcc = 0.0f;
-                float scale    = scale_;
+                float noise = 0.0f;
+                float scale = scale_;
 
                 for (uint32 o = 0; o < octaves_; o++)
                 {
@@ -200,16 +200,36 @@ void TerrainHeightGenerator::perlinNoise2D()
                     auto sampleB =
                         interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
-                    scaleAcc += 1.f;  // scale;
                     noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
-                    // noise = interpolate(sampleT, sampleB, blendY) * scale;
                     scale = scale / bias_;
                 }
 
-                float normalizedHeight = 2.f * noise / scaleAcc - 1.f;
-                image.setPixel(vec2ui(x, y), Color((heightFactor_ * normalizedHeight), 0.f, 0.f, 0.f));
+                float normalizedHeight = noise / static_cast<float>(octaves_);
+                auto& height           = heights[x + y * width];
+
+                height = heightFactor_ * normalizedHeight;
+
+                if (height < minHeight)
+                    minHeight = height;
+                if (height > maxHeight)
+                    maxHeight = height;
             }
         }
+
+        auto delta = maxHeight - minHeight;
+        auto halfDelta = delta / 2.f;
+
+        for(auto& height : heights)
+        {
+            height -= (maxHeight - halfDelta);
+        }
+
+        GraphicsApi::Image image;
+        image.width  = width;
+        image.height = height;
+        image.setChannels(1);
+        image.moveData(heights);
+
         image.applyFilter(gaussian7x7, vec2ui(7, 7));
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
