@@ -97,26 +97,11 @@ void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subsc
     if (not model)
         return;
 
-    const auto& terrainPosition = subscriber.gameObject_->GetWorldTransform().GetPosition();
-    const auto& config          = subscriber.component_->GetConfiguration();
-
-    auto partsCount = *config.GetPartsCount();
-    auto scaleXZ    = config.GetScaleXZ();
-    auto partScale  = scaleXZ / partsCount;
-
-    auto firstIndex = -static_cast<float>(partsCount) / 2.f * partScale + partScale / 2.f;
-    auto position   = terrainPosition + vec3(firstIndex, 0, firstIndex);
-
     uint32 index = 0;
 
     for (const auto& mesh : model->GetMeshes())
     {
-        auto x              = index % partsCount;
-        auto z              = index / partsCount;
-        auto centerPosition = position + vec3(x * partScale, 0, z * partScale);
-
-        auto isVisible = context_.frustrum_.SphereIntersection(centerPosition, (partScale * 1.41f) / 2.f);
-
+        auto isVisible = context_.frustrum_.aabbIntersection(mesh.getBoundingBox());
         if (isVisible)
         {
             RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index));

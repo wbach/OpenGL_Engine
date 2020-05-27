@@ -155,13 +155,13 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
     ReadFile(file, file_name);
     DEBUG_LOG("file : " + file_name);
 
-    float scaleFactor = 1.f;
-    ReadFile(file, scaleFactor);
+    BoundingBox boundingBox;
+    ReadFile(file, boundingBox);
 
     uint32 meshesSize = 0;
     ReadFile(file, meshesSize);
 
-    auto out = std::make_unique<Model>(scaleFactor);
+    auto out = std::make_unique<Model>();
 
     for (uint32 m = 0; m < meshesSize; ++m)
     {

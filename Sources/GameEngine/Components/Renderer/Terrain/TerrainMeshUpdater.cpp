@@ -92,7 +92,7 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
             uint32 endX   = (i + 1) * partialSize + 1;
             uint32 endY   = (j + 1) * partialSize + 1;
 
-            if (mesh.GetGraphicsObjectId() and updatePart(tools, meshData, startX, startY, endX, endY))
+            if (mesh.GetGraphicsObjectId() and updatePart(tools, mesh, startX, startY, endX, endY))
             {
                 meshesToUpdate.push_back({*mesh.GetGraphicsObjectId(), &meshData});
             }
@@ -127,7 +127,7 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
     TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage());
 
     if (mesh.GetGraphicsObjectId() and
-        updatePart(tools, meshData, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
+        updatePart(tools, mesh, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
     {
         componentContext_.gpuResourceLoader_.AddFunctionToCall(
             [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
@@ -136,11 +136,17 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
             });
     }
 }
-bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData& meshData, uint32 startX,
-                                    uint32 startY, uint32 endX, uint32 endY)
+bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint32 startX, uint32 startY, uint32 endX,
+                                    uint32 endY)
 {
+    auto& meshData = mesh.GetMeshDataRef();
+
     size_t meshVertexIndex = 0;
     bool isHeightChangedInTerrainPart{false};
+
+    float maxHeight = -std::numeric_limits<float>::max();
+    float minHeight = std::numeric_limits<float>::max();
+
     for (uint32 i = startY; i < endY; i++)
     {
         for (uint32 j = startX; j < endX; j++)
@@ -160,11 +166,32 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, GraphicsApi::Mesh
                 meshData.tangents_[meshVertexIndex]     = newTangent.x;
                 meshData.tangents_[meshVertexIndex + 1] = newTangent.y;
                 meshData.tangents_[meshVertexIndex + 2] = newTangent.z;
+
+                if (newHeightValue < minHeight)
+                    minHeight = newHeightValue;
+                if (newHeightValue > maxHeight)
+                    maxHeight = newHeightValue;
             }
 
             meshVertexIndex += 3;
         }
     }
+
+    if (isHeightChangedInTerrainPart)
+    {
+        auto boundingBox = mesh.getBoundingBox();
+
+        if (boundingBox.min().y > minHeight)
+        {
+            boundingBox.minY(minHeight);
+        }
+        if (boundingBox.max().y > maxHeight)
+        {
+            boundingBox.maxY(maxHeight);
+        }
+        mesh.setBoundingBox(boundingBox);
+    }
+
     return isHeightChangedInTerrainPart;
 }
 }  // namespace Components

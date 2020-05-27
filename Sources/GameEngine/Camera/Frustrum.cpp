@@ -1,8 +1,8 @@
 #include "Frustrum.h"
-#include <Logger/Log.h>
-#include "Utils.h"
 #include <Glm.h>
+#include <Logger/Log.h>
 #include <algorithm>
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -40,7 +40,7 @@ void Frustrum::CalculatePlanes(const mat4& projectionViewMatrix)
     planes_[5].normal_.z = m[2][3] - m[2][2];
     planes_[5].d_        = m[3][3] - m[3][2];
 
-    for(auto& plane : planes_)
+    for (auto& plane : planes_)
         plane.Normalize();
 }
 
@@ -57,16 +57,47 @@ Halfspace ClassifyPoint(const Plane& plane, const vec3& pt)
 
 bool Frustrum::PointIntersection(const vec3& point) const
 {
-    return std::all_of(planes_.begin(), planes_.end(), [&point](const auto& plane) { return ClassifyPoint(plane, point) != Halfspace::NEGATIVE; });
+    return std::all_of(planes_.begin(), planes_.end(),
+                       [&point](const auto& plane) { return ClassifyPoint(plane, point) != Halfspace::NEGATIVE; });
 }
 
 bool Frustrum::SphereIntersection(const vec3& center, float radius) const
 {
     for (const auto& plane : planes_)
     {
-        // Plane-sphere intersection test. If p*n + d + r < 0 then we're outside the plane.
         if (glm::dot(center, plane.normal_) + plane.d_ + radius <= 0)
             return false;
+    }
+    return true;
+}
+
+bool Frustrum::aabbIntersection(const BoundingBox& boundingBox) const
+{
+    constexpr float bias = 0.05f;
+
+    for (const auto& plane : planes_)
+    {
+        vec3 axisVert;
+
+        if (plane.normal_.x < 0.0f)
+            axisVert.x = boundingBox.min().x - bias;
+        else
+            axisVert.x = boundingBox.max().x + bias;
+
+        if (plane.normal_.y < 0.0f)
+            axisVert.y = boundingBox.min().y - bias;
+        else
+            axisVert.y = boundingBox.max().y + bias;
+
+        if (plane.normal_.z < 0.0f)
+            axisVert.z = boundingBox.min().z - bias;
+        else
+            axisVert.z = boundingBox.max().z + bias;
+
+        if (glm::dot(plane.normal_, axisVert) + plane.d_ < 0.0f)
+        {
+            return false;
+        }
     }
     return true;
 }

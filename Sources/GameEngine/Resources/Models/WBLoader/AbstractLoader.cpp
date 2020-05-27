@@ -40,18 +40,18 @@ std::unique_ptr<Model> AbstractLoader::Create()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    std::unique_ptr<Model> newModel;
+    std::unique_ptr<Model> newModel = CreateModel();
 
-    if (loadedFromBin_)
-    {
-        newModel       = CreateModelFromBin();
-        loadedFromBin_ = false;
-    }
-    else
-    {
-        newModel = CreateModel();
-        CreateBinFile(newModel, fileName_);
-    }
+    //   if (loadedFromBin_)
+    //   {
+    //       newModel       = CreateModelFromBin();
+    //       loadedFromBin_ = false;
+    //   }
+    //   else
+    //   {
+    //       newModel = CreateModel();
+    //       CreateBinFile(newModel, fileName_);
+    //   }
 
     auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
@@ -61,8 +61,11 @@ std::unique_ptr<Model> AbstractLoader::Create()
 }
 std::unique_ptr<Model> AbstractLoader::CreateModel()
 {
-    float maxFactor = FindMaxFactor();
-    auto newModel = std::make_unique<Model>(maxFactor);
+    auto boundingBox     = getModelBoundingBox();
+    auto normalizeFactor = 1.f / boundingBox.maxScale();
+    auto newModel        = std::make_unique<Model>(boundingBox);
+
+    boundingBox.scale(vec3(normalizeFactor));
 
     if (objects.empty())
     {
@@ -75,18 +78,17 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
             ERROR_LOG(fileName_ + ". No meshes in object!");
         }
 
-        NormalizeMatrix(obj.transformMatrix, maxFactor);
+        NormalizeMatrix(obj.transformMatrix, normalizeFactor);
 
         for (auto& mesh : obj.meshes)
         {
-            auto& newMesh =
-                newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.material, obj.transformMatrix);
+            auto& newMesh = newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_,
+                                              mesh.createMeshRawData(), mesh.material, obj.transformMatrix);
 
-            IndexinVBO(mesh.vertexBuffer, newMesh.GetMeshDataRef());
             newMesh.SetUseArmatorIfHaveBones();
             newModel->animationClips_ = mesh.animationClips_;
             newModel->skeleton_       = mesh.skeleton_;
-            Animation::CalcInverseBindTransform(newModel->skeleton_, mat4(1.f));
+            Animation::CalcInverseBindTransform(newModel->skeleton_);
         }
     }
     objects.clear();
@@ -99,23 +101,39 @@ std::unique_ptr<Model> AbstractLoader::CreateModelFromBin()
 }
 void AbstractLoader::NormalizeMatrix(mat4& mat, float factor) const
 {
-    mat *= glm::scale(vec3(1.f / factor));
+    mat *= glm::scale(vec3(factor));
 }
-float AbstractLoader::FindMaxFactor() const
+BoundingBox AbstractLoader::getModelBoundingBox() const
 {
-    float maxFactor = -std::numeric_limits<float>::max();
+    vec3 min = vec3(std::numeric_limits<float>::max());
+    vec3 max = vec3(-std::numeric_limits<float>::max());
 
     for (auto& obj : objects)
     {
         for (auto& mesh : obj.meshes)
         {
-            float f = mesh.GetScaleFactor();
-            if (f > maxFactor)
-                maxFactor = f;
+            auto meshBox = mesh.getBoundingBox();
+
+            if (min.x > meshBox.min().x)
+                min.x = meshBox.min().x;
+            if (min.y > meshBox.min().y)
+                min.y = meshBox.min().y;
+            if (min.z > meshBox.min().z)
+                min.z = meshBox.min().z;
+
+            if (max.x < meshBox.max().x)
+                max.x = meshBox.max().x;
+            if (max.y < meshBox.max().y)
+                max.y = meshBox.max().y;
+            if (max.z < meshBox.max().z)
+                max.z = meshBox.max().z;
         }
     }
-    DEBUG_LOG("Normalize factor : " + std::to_string(1.f / maxFactor));
-    return maxFactor;
+
+    BoundingBox modelBox;
+    modelBox.minMax(min, max);
+    DEBUG_LOG("Normalize factor : " + std::to_string(1.f / modelBox.maxScale()));
+    return modelBox;
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

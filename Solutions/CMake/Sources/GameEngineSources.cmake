@@ -214,6 +214,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/LoaderManager.cpp
 ../../Sources/GameEngine/Resources/Models/Model.cpp
+../../Sources/GameEngine/Resources/Models/BoundingBox.cpp
 ../../Sources/GameEngine/Resources/Models/Bone.cpp
 ../../Sources/GameEngine/Resources/Models/Mesh.cpp
 ../../Sources/GameEngine/Resources/Models/Assimp/AssimpModel.cpp

@@ -16,9 +16,10 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi)
 {
 }
 
-Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, const Material& material,
-           const mat4& transformMatix)
+Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::MeshRawData data,
+           const Material& material, const mat4& transformMatix)
     : graphicsApi_(graphicsApi)
+    , meshRawData_(std::move(data))
     , renderType_(type)
     , material_(material)
     , transform_(transformMatix)
@@ -42,7 +43,7 @@ void Mesh::GpuLoadingPass()
 
 void Mesh::ReleaseGpuPass()
 {
-   // DEBUG_LOG("Clean gpu resources");
+    // DEBUG_LOG("Clean gpu resources");
     if (graphicsObjectId_)
     {
         DEBUG_LOG("Mesh, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
@@ -59,12 +60,7 @@ void Mesh::ReleaseGpuPass()
         graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
     }
     GpuObject::ReleaseGpuPass();
-   // DEBUG_LOG("Clean gpu resources, done");
-}
-
-void Mesh::CalculateBoudnigBox(const std::vector<float>& positions)
-{
-    Utils::CalculateBoudnigBox(positions, boundingBox.min, boundingBox.max, boundingBox.size, boundingBox.center);
+    // DEBUG_LOG("Clean gpu resources, done");
 }
 
 void Mesh::CreateMesh()
@@ -90,6 +86,11 @@ void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 bool Mesh::UseArmature() const
 {
     return not meshRawData_.bonesWeights_.empty() and not meshRawData_.joinIds_.empty();
+}
+
+void Mesh::setBoundingBox(const BoundingBox& boundingBox)
+{
+    boundingBox_ = boundingBox;
 }
 
 void Mesh::SetTransformMatrix(const glm::mat4& m)
@@ -182,8 +183,8 @@ void Mesh::ClearData()
     meshRawData_ = GraphicsApi::MeshRawData();
 }
 
-const BoundingBox& Mesh::GetBoundingBox() const
+const BoundingBox& Mesh::getBoundingBox() const
 {
-    return boundingBox;
+    return boundingBox_;
 }
 }  // namespace GameEngine

@@ -4,6 +4,7 @@
 #include "../Material.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "Types.h"
 #include "optional.hpp"
 
@@ -23,7 +24,7 @@ struct JointInfo
 };
 struct VertexBuffer
 {
-    vec3i indexes{0,0,0};
+    vec3i indexes{0, 0, 0};
     vec2 uvs{0};
     vec3 position{0};
     vec3 normal{0};
@@ -39,8 +40,9 @@ struct MaterialLayer
     std::string textureName;
 };
 
-struct Mesh
+class Mesh
 {
+public:
     bool needIndexing{true};
     std::string name;
     Material material;
@@ -51,7 +53,12 @@ struct Mesh
     std::unordered_map<uint32, std::vector<int>> vertexPlacesInVertexBuffer_;
     Animation::Joint skeleton_;
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-    float GetScaleFactor() const;
+
+    GraphicsApi::MeshRawData createMeshRawData();
+    BoundingBox getBoundingBox() const;
+
+private:
+    void computeTriangleVectors();
 };
 
 struct Object
@@ -61,6 +68,6 @@ struct Object
     mat4 transformMatrix{1.f};
 };
 
-void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& data);
+
 }  // namespace WBLoader
 }  // namespace GameEngine

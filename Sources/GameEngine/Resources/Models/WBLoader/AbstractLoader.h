@@ -30,7 +30,7 @@ protected:
 
 private:
     void NormalizeMatrix(mat4& mat, float factor) const;
-    float FindMaxFactor() const;
+    BoundingBox getModelBoundingBox() const;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;

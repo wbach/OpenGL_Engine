@@ -61,15 +61,6 @@ void AddToBuffer(std::vector<float>& buffer, const vec4& v)
     buffer.push_back(v.w);
 }
 
-void minMax(float v, float& min, float& max)
-{
-    if (v < min)
-        min = v;
-
-    if (v > max)
-        max = v;
-}
-
 void ScaleJoint(Animation::Joint& j, float f)
 {
     j.transform *= glm::scale(vec3(1.f / f));
@@ -100,7 +91,23 @@ vec3 GetSmoothTanget(const vec3& perTriangleNormal, const vec3 perTriangleTangen
     return glm::normalize(q) * perTriangleTangent;
 }
 
-void computeTriangleVectors(std::vector<VertexBuffer>& vertexBuffer)
+void minMax(float v, float& min, float& max)
+{
+    if (v < min)
+        min = v;
+
+    if (v > max)
+        max = v;
+}
+
+void minMax(const vec3& v, vec3& min, vec3& max)
+{
+    minMax(v.x, min.x, max.x);
+    minMax(v.y, min.y, max.y);
+    minMax(v.z, min.z, max.z);
+}
+
+void Mesh::computeTriangleVectors()
 {
     for (uint32 i = 0; i < vertexBuffer.size(); i += 3)
     {
@@ -167,13 +174,16 @@ void computeTriangleVectors(std::vector<VertexBuffer>& vertexBuffer)
     }
 }
 
-void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& data)
+GraphicsApi::MeshRawData Mesh::createMeshRawData()
 {
-    computeTriangleVectors(buffer);
-    std::unordered_map<wb::vec3i, int32> out_indexes;
-    data.indices_.reserve(buffer.size());
+    computeTriangleVectors();
 
-    for (auto& v : buffer)
+    std::unordered_map<vec3i, int32> out_indexes;
+
+    GraphicsApi::MeshRawData data;
+    data.indices_.reserve(vertexBuffer.size());
+
+    for (auto& v : vertexBuffer)
     {
         auto maybeIndex = FindIndexFast(out_indexes, v.indexes);
         if (maybeIndex)
@@ -230,20 +240,20 @@ void IndexinVBO(std::vector<VertexBuffer>& buffer, GraphicsApi::MeshRawData& dat
             data.indices_.push_back(static_cast<IndicesDataType>(newIndex));
         }
     }
+    return data;
 }
 
-float Mesh::GetScaleFactor() const
+BoundingBox Mesh::getBoundingBox() const
 {
     vec3 min(std::numeric_limits<float>::max());
     vec3 max(-std::numeric_limits<float>::max());
 
-    for (const auto& v : vertexBuffer)
+    for (auto& v : vertexBuffer)
     {
-        minMax(v.position.x, min.x, max.x);
-        minMax(v.position.y, min.y, max.y);
-        minMax(v.position.z, min.z, max.z);
+        minMax(v.position, min, max);
     }
-    return glm::compMax(glm::abs(max - min));
+
+    return BoundingBox(min, max);
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

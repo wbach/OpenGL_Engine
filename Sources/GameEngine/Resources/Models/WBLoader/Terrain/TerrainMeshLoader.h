@@ -27,6 +27,7 @@ private:
     void CreateTerrainVertexes(TerrainHeightTools&, GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start,
                                uint32 width, uint32 height);
     void CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size);
+    void calcualteAabb(Model&) const;
 
 private:
     std::unique_ptr<Model> model_;

@@ -49,7 +49,7 @@ void MeshShape::OnAwake()
     {
         auto data         = mesh.GetCMeshDataRef();
         collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(
-            positionOffset_, data.positions_, data.indices_, size_ / model_->GetScaleFactor());
+            positionOffset_, data.positions_, data.indices_, size_ / model_->getBoundingBox().maxScale());
     }
 }
 MeshShape& MeshShape::SetModel(Model* model)

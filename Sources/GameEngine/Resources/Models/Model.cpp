@@ -6,11 +6,11 @@
 namespace GameEngine
 {
 Model::Model()
-    : Model(1.f)
+    : Model(BoundingBox())
 {
 }
-Model::Model(float scaleFactor)
-    : scaleFactor_(scaleFactor)
+Model::Model(const BoundingBox& boundingBox)
+    : boundingBox_(boundingBox)
 {
 }
 void Model::SetFile(const File& file)
@@ -42,10 +42,10 @@ Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& ap
     meshes_.emplace_back(type, api);
     return meshes_.back();
 }
-Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api, const Material& material,
+Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api, GraphicsApi::MeshRawData data, const Material& material,
                      const mat4& transformMatix)
 {
-    meshes_.emplace_back(type, api, material, transformMatix);
+    meshes_.emplace_back(type, api, std::move(data), material, transformMatix);
     return meshes_.back();
 }
 bool Model::IsAnyMeshUseTransform() const
@@ -56,6 +56,16 @@ bool Model::IsAnyMeshUseTransform() const
             return true;
     }
     return false;
+}
+
+void Model::setBoundingBox(const BoundingBox& boundingBox)
+{
+    boundingBox_ = boundingBox;
+}
+
+const BoundingBox& Model::getBoundingBox() const
+{
+    return boundingBox_;
 }
 const std::vector<mat4>& Model::GetBoneTransforms()
 {

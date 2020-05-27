@@ -88,8 +88,9 @@ void TreeRendererComponent::CreatePerObjectUpdateBuffer()
     const auto& tmodel = top_.Get(L1);
     const auto& bmodel = bottom_.Get(L1);
 
-    float factor =
-        tmodel->GetScaleFactor() > bmodel->GetScaleFactor() ? bmodel->GetScaleFactor() : bmodel->GetScaleFactor();
+    float factor = tmodel->getBoundingBox().maxScale() > bmodel->getBoundingBox().maxScale()
+                       ? bmodel->getBoundingBox().maxScale()
+                       : bmodel->getBoundingBox().maxScale();
 
     perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(
         componentContext_.resourceManager_.GetGraphicsApi(), PER_OBJECT_UPDATE_BIND_LOCATION);

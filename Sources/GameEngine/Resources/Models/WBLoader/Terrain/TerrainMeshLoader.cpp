@@ -67,12 +67,14 @@ std::unique_ptr<Model> TerrainMeshLoader::createModel(const HeightMap& heightMap
     {
         CreateAsSingleTerrain(*model, tools);
     }
+
     return model;
 }
 
 void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& tools)
 {
-    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), Material());
+    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(),
+                             GraphicsApi::MeshRawData(), Material());
     auto heightMapResolution = tools.getHeightMapResolution();
 
     ReserveMeshData(newMesh, heightMapResolution);
@@ -93,9 +95,7 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
     {
         for (uint32 i = 0; i < partsCount; ++i)
         {
-            Material material;
-            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(),
-                                     material);
+            GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi());
 
             uint32 startX = i * partialSize;
             uint32 startY = j * partialSize;
@@ -128,7 +128,10 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
     auto heightMapResolution = static_cast<float>(tools.getHeightMapResolution() - 1);
     auto terrainScale        = tools.getTerrainScale();
     auto halfTerrainScale    = terrainScale * .5f;
-    auto gridSize = terrainScale / heightMapResolution;
+    auto gridSize            = terrainScale / heightMapResolution;
+
+    float maxHeight = -std::numeric_limits<float>::max();
+    float minHeight = std::numeric_limits<float>::max();
 
     for (uint32 i = y_start; i < height; i++)
     {
@@ -159,8 +162,23 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
 
             textureCoords.push_back(static_cast<float>(j) / static_cast<float>(heightMapResolution - 1));
             textureCoords.push_back(static_cast<float>(i) / static_cast<float>(heightMapResolution - 1));
+
+            if (height < minHeight)
+                minHeight = height;
+            if (height > maxHeight)
+                maxHeight = height;
         }
     }
+
+    BoundingBox boundingBox;
+
+    auto minX = -halfTerrainScale.x + (gridSize.x * static_cast<float>(x_start));
+    auto minZ = -halfTerrainScale.z + (gridSize.z * static_cast<float>(y_start));
+    auto maxX = -halfTerrainScale.x + (gridSize.x * static_cast<float>(width));
+    auto maxZ = -halfTerrainScale.z + (gridSize.z * static_cast<float>(height));
+
+    boundingBox.minMax(vec3(minX, minHeight, minZ), vec3(maxX, maxHeight, maxZ));
+    mesh.setBoundingBox(boundingBox);
 }
 void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType size)
 {
@@ -190,6 +208,10 @@ void TerrainMeshLoader::CreateIndicies(GameEngine::Mesh& mesh, IndicesDataType s
     auto row = size - 1;
     auto col = 0;
     indices.push_back(col + row * size);
+}
+
+void TerrainMeshLoader::calcualteAabb(Model& model) const
+{
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

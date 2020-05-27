@@ -5,6 +5,7 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Resources/File.h"
+#include "BoundingBox.h"
 #include "Mesh.h"
 
 namespace GameEngine
@@ -15,7 +16,7 @@ class Model : public GpuObject
 {
 public:
     Model();
-    Model(float scaleFactor);
+    Model(const BoundingBox&);
     Model(const Model&) = delete;
     ~Model() override;
 
@@ -25,10 +26,12 @@ public:
 
     Mesh& AddMesh(Mesh&);
     Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
-    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, const Material&, const mat4& transformMatix = mat4(1.f));
+    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&, const mat4& = mat4(1.f));
     bool IsAnyMeshUseTransform() const;
 
-    inline float GetScaleFactor();
+    void setBoundingBox(const BoundingBox&);
+    const BoundingBox& getBoundingBox() const;
+
     const File& GetFile() const;
     inline const std::vector<Mesh>& GetMeshes() const;
     inline std::vector<Mesh>& GetMeshes();
@@ -48,7 +51,7 @@ protected:
     File file_;
     std::vector<Mesh> meshes_;
     std::vector<mat4> boneTransforms_;
-    float scaleFactor_;
+    BoundingBox boundingBox_;
 };
 
 const std::vector<Mesh>& Model::GetMeshes() const
@@ -67,8 +70,4 @@ bool Model::operator==(const File& file) const
 {
     return file_ == file;
 }
-float Model::GetScaleFactor()
-{
-    return scaleFactor_;
-} 
 } // namespace GameEngine

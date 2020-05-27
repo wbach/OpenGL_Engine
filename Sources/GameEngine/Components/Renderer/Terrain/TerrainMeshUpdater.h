@@ -30,7 +30,7 @@ public:
 private:
     void updatePartialTerrainMeshes();
     void updateSingleTerrainMesh();
-    bool updatePart(TerrainHeightTools& tools, GraphicsApi::MeshRawData&, uint32 startX, uint32 startY, uint32 endX, uint32 endY);
+    bool updatePart(TerrainHeightTools&, Mesh&, uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
 private:
     ComponentContext& componentContext_;

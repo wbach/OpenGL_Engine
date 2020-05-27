@@ -17,9 +17,9 @@ struct MeshBufferes
 class Mesh : public GpuObject
 {
 public:
-    Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi);
-    Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, const Material& material,
-         const mat4& transformMatix = mat4(1.f));
+    Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
+    Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
+         const mat4& = mat4(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&)      = default;
     ~Mesh() override;
@@ -33,7 +33,9 @@ public:
 
     void SetTransformMatrix(const mat4& m);
     bool UseArmature() const;
-    const BoundingBox& GetBoundingBox() const;
+
+    void setBoundingBox(const BoundingBox&);
+    const BoundingBox& getBoundingBox() const;
 
     const Material& GetMaterial() const;
     inline const mat4& GetMeshTransform() const;
@@ -41,12 +43,11 @@ public:
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
     void SetUseArmatorIfHaveBones();
+
 private:
     void CreateBufferObject();
     void CreateMesh();
-    void CalculateBoudnigBox(const std::vector<float>& positions);
-    void SetInstancedMatrixes(const std::vector<mat4>& m);
-
+    void SetInstancedMatrixes(const std::vector<mat4>&);
     void ClearData();
 
 private:
@@ -61,7 +62,7 @@ private:
 
     // local transform in mesh
     mat4 transform_;
-    BoundingBox boundingBox;
+    BoundingBox boundingBox_;
     MeshBufferes meshBuffers_;
 };
 
