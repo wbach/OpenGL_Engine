@@ -3,10 +3,17 @@
 
 namespace GameEngine
 {
+
 class BoundingBox
 {
 public:
+    enum NumericLimits
+    {
+        MaxOppositeValues
+    };
+
     BoundingBox() = default;
+    BoundingBox(NumericLimits);
     BoundingBox(const vec3&, const vec3&);
     void minMax(const vec3&, const vec3&);
     void minY(float);

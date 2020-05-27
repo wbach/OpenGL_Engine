@@ -47,6 +47,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
 {
+    frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
 }
 RenderersManager::~RenderersManager()
 {
@@ -158,7 +159,7 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
     UpdateCamera(scene);
 
     viewProjectionMatrix_ = projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix();
-    frustrum_.CalculatePlanes(viewProjectionMatrix_);
+    frustrum_.prepareFrame(viewProjectionMatrix_);
     UpdatePerFrameBuffer(scene);
 
     {
@@ -171,6 +172,8 @@ void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
         Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
         Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
     }
+
+    *frustrumCheckCount_ = std::to_string(frustrum_.getIntersectionsCountInFrame());
 
     debugRenderer_.Render(*scene, threadTime);
     guiRenderer_.Render(*scene, threadTime);

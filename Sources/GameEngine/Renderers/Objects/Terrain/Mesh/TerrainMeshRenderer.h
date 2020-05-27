@@ -46,7 +46,7 @@ private:
     void RenderSubscribers(const Scene&) const;
     void RenderSubscriber(const Scene&, const Subscriber&) const;
     void RenderMesh(const Mesh&, const GraphicsApi::ID&) const;
-    void PartialRendering(const Scene&, const Subscriber&) const;
+    void PartialRendering(const Model&, const Scene&, const Components::TerrainMeshRendererComponent&) const;
 
 private:
     RendererContext& context_;

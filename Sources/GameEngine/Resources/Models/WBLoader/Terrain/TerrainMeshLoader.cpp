@@ -80,6 +80,7 @@ void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& 
     ReserveMeshData(newMesh, heightMapResolution);
     CreateTerrainVertexes(tools, newMesh, 0, 0, heightMapResolution, heightMapResolution);
     CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution));
+    model.setBoundingBox(newMesh.getBoundingBox());
     model.AddMesh(newMesh);
 }
 
@@ -90,6 +91,10 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
     auto rest                = heightMapResolution - (partsCount * partialSize);
 
     DEBUG_LOG("Rest : " + std::to_string(rest));
+
+    auto halfTerrainScale = tools.getTerrainScale() * .5f;
+    vec3 modelBoundingBoxMin(-halfTerrainScale.x, std::numeric_limits<float>::max(), -halfTerrainScale.z);
+    vec3 modelBoundingBoxMax(halfTerrainScale.x, -std::numeric_limits<float>::max(), halfTerrainScale.z);
 
     for (uint32 j = 0; j < partsCount; ++j)
     {
@@ -106,8 +111,17 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
             CreateTerrainVertexes(tools, newMesh, startX, startY, endX, endY);
             CreateIndicies(newMesh, static_cast<IndicesDataType>(partialSize + 1));
             model.AddMesh(newMesh);
+
+            auto boundingBox = newMesh.getBoundingBox();
+
+            if (boundingBox.min().y < modelBoundingBoxMin.y)
+                modelBoundingBoxMin.y = boundingBox.min().y;
+            if (boundingBox.max().y > modelBoundingBoxMax.y)
+                modelBoundingBoxMax.y = boundingBox.max().y;
         }
     }
+
+    model.setBoundingBox(BoundingBox(modelBoundingBoxMin, modelBoundingBoxMax));
 }
 
 void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)

@@ -22,6 +22,7 @@ namespace GameEngine
 namespace
 {
 uint32 renderedTerrains = 0;
+
 const std::string TERRAIN_MEASURMENT_NAME{"TerrainMeshesRendered"};
 }  // namespace
 TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
@@ -61,24 +62,30 @@ void TerrainMeshRenderer::RenderSubscribers(const Scene& scene) const
 
 void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber& subscriber) const
 {
-    BindTextures(subscriber.component_->GetTextures());
-
-    if (subscriber.component_->GetConfiguration().GetPartsCount())
-    {
-        PartialRendering(scene, subscriber);
-        return;
-    }
-
     const auto& model = subscriber.component_->GetModel().Get(LevelOfDetail::L1);
 
-    if (not model)
+    if (not model or not subscriber.component_)
         return;
 
-    uint32 index = 0;
-    for (const auto& mesh : model->GetMeshes())
+    auto isVisible = context_.frustrum_.intersection(model->getBoundingBox());
+
+    if (isVisible)
     {
-        if (mesh.GetGraphicsObjectId())
-            RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
+        BindTextures(subscriber.component_->GetTextures());
+
+        if (subscriber.component_->GetConfiguration().GetPartsCount())
+        {
+            PartialRendering(*model, scene, *subscriber.component_);
+        }
+        else
+        {
+            uint32 index = 0;
+            for (const auto& mesh : model->GetMeshes())
+            {
+                if (mesh.GetGraphicsObjectId())
+                    RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
+            }
+        }
     }
 }
 void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId) const
@@ -90,33 +97,29 @@ void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& bu
         ++renderedTerrains;
     }
 }
-void TerrainMeshRenderer::PartialRendering(const Scene&, const Subscriber& subscriber) const
+void TerrainMeshRenderer::PartialRendering(const Model& model, const Scene&,
+                                           const Components::TerrainMeshRendererComponent& component) const
 {
-    const auto& model = subscriber.component_->GetModel().Get(LevelOfDetail::L1);
-
-    if (not model)
-        return;
-
     uint32 index = 0;
 
-    for (const auto& mesh : model->GetMeshes())
+    for (const auto& mesh : model.GetMeshes())
     {
-        auto isVisible = context_.frustrum_.aabbIntersection(mesh.getBoundingBox());
+        auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
         if (isVisible)
         {
-            RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index));
+            RenderMesh(mesh, component.GetPerObjectUpdateBuffer(index));
         }
         ++index;
     }
 }
 void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 {
-//    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
+    //    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
 
-//    if (shadowMap)
-//    {
-//        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
-//    }
+    //    if (shadowMap)
+    //    {
+    //        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
+    //    }
 
     for (const auto& t : textures)
     {
@@ -130,7 +133,7 @@ void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
 }
 void TerrainMeshRenderer::BindTexture(Texture* texture, uint32 id) const
 {
-   context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
+    context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
 }
 void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
 {

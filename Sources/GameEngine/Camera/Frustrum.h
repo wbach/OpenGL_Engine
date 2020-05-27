@@ -15,10 +15,11 @@ enum class Halfspace
 class Frustrum
 {
 public:
-    void CalculatePlanes(const mat4& projectionViewMatrix);
-    bool PointIntersection(const vec3& point) const;
-    bool SphereIntersection(const vec3& center, float radius) const;
-    bool aabbIntersection(const BoundingBox&) const;
+    void prepareFrame(const mat4& projectionViewMatrix);
+    bool intersection(const vec3& point) const;
+    bool intersection(const vec3& center, float radius) const;
+    bool intersection(const BoundingBox&) const;
+    uint64 getIntersectionsCountInFrame() const;
 
 private:
     std::array<Plane, 6> planes_;

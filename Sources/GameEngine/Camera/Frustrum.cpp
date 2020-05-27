@@ -6,7 +6,11 @@
 
 namespace GameEngine
 {
-void Frustrum::CalculatePlanes(const mat4& projectionViewMatrix)
+namespace
+{
+uint64 intersectionCheckCount{0};
+}
+void Frustrum::prepareFrame(const mat4& projectionViewMatrix)
 {
     const auto& m = projectionViewMatrix;
     // Left clipping plane
@@ -42,6 +46,8 @@ void Frustrum::CalculatePlanes(const mat4& projectionViewMatrix)
 
     for (auto& plane : planes_)
         plane.Normalize();
+
+    intersectionCheckCount = 0;
 }
 
 Halfspace ClassifyPoint(const Plane& plane, const vec3& pt)
@@ -55,14 +61,17 @@ Halfspace ClassifyPoint(const Plane& plane, const vec3& pt)
     return Halfspace::ON_PLANE;
 }
 
-bool Frustrum::PointIntersection(const vec3& point) const
+bool Frustrum::intersection(const vec3& point) const
 {
+    ++intersectionCheckCount;
     return std::all_of(planes_.begin(), planes_.end(),
                        [&point](const auto& plane) { return ClassifyPoint(plane, point) != Halfspace::NEGATIVE; });
 }
 
-bool Frustrum::SphereIntersection(const vec3& center, float radius) const
+bool Frustrum::intersection(const vec3& center, float radius) const
 {
+    ++intersectionCheckCount;
+
     for (const auto& plane : planes_)
     {
         if (glm::dot(center, plane.normal_) + plane.d_ + radius <= 0)
@@ -71,8 +80,10 @@ bool Frustrum::SphereIntersection(const vec3& center, float radius) const
     return true;
 }
 
-bool Frustrum::aabbIntersection(const BoundingBox& boundingBox) const
+bool Frustrum::intersection(const BoundingBox& boundingBox) const
 {
+    ++intersectionCheckCount;
+
     constexpr float bias = 0.05f;
 
     for (const auto& plane : planes_)
@@ -100,5 +111,10 @@ bool Frustrum::aabbIntersection(const BoundingBox& boundingBox) const
         }
     }
     return true;
+}
+
+uint64 Frustrum::getIntersectionsCountInFrame() const
+{
+    return intersectionCheckCount;
 }
 }  // namespace GameEngine

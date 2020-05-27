@@ -27,7 +27,7 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     auto maybeColor = heightMapImage_.getPixel({x, y});
     if (not maybeColor)
     {
-        ERROR_LOG("outOfRange");
+      //  ERROR_LOG("outOfRange");
         return 0.f;
     }
 

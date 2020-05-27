@@ -84,6 +84,7 @@ private:
     GraphicsApi::ID perAppId_;
     mat4 viewProjectionMatrix_;
     BufferDataUpdater bufferDataUpdater_;
+    MeasurementValue* frustrumCheckCount_;
 };
 }  // namespace Renderer
 }  // namespace GameEngine

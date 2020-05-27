@@ -30,6 +30,7 @@ public:
 private:
     void updatePartialTerrainMeshes();
     void updateSingleTerrainMesh();
+    void updateModelBoundingBox(Model&);
     bool updatePart(TerrainHeightTools&, Mesh&, uint32 startX, uint32 startY, uint32 endX, uint32 endY);
 
 private:

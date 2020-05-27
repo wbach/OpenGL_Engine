@@ -2,6 +2,12 @@
 
 namespace GameEngine
 {
+BoundingBox::BoundingBox(NumericLimits)
+    : min_(std::numeric_limits<float>::max())
+    , max_(-std::numeric_limits<float>::max())
+{
+}
+
 BoundingBox::BoundingBox(const vec3 &min, const vec3 &max)
     : min_(min)
     , max_(max)
