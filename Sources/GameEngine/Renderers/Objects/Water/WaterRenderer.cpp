@@ -3,6 +3,7 @@
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -11,9 +12,12 @@ const float WAVE_SPEED = 0.0025f;
 struct WaterTileMeshBuffer
 {
     AlignWrapper<vec4> waterColor;
+    AlignWrapper<float> tiledValue;
     AlignWrapper<float> isSimpleRender;
     AlignWrapper<float> moveFactor;
 };
+
+const float DEFAULT_TILED_VALUE{0.01f};
 
 WaterRenderer::WaterRenderer(RendererContext& context)
     : context_(context)
@@ -23,10 +27,10 @@ WaterRenderer::WaterRenderer(RendererContext& context)
 }
 WaterRenderer::~WaterRenderer()
 {
-    if (perObjectUpdateId_)
-    {
-        context_.graphicsApi_.DeleteShaderBuffer(*perObjectUpdateId_);
-    }
+//    if (perObjectUpdateId_)
+//    {
+//        context_.graphicsApi_.DeleteShaderBuffer(*perObjectUpdateId_);
+//    }
 
     if (perMeshObjectId_)
     {
@@ -37,11 +41,11 @@ void WaterRenderer::Init()
 {
     shader_.Init();
 
-    if (not perObjectUpdateId_)
-    {
-        perObjectUpdateId_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-    }
+//    if (not perObjectUpdateId_)
+//    {
+//        perObjectUpdateId_ =
+//            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+//    }
 
     if (not perMeshObjectId_)
     {
@@ -59,11 +63,16 @@ void WaterRenderer::Render(const Scene&, const Time& time)
 
     for (auto& subscriber : subscribers_)
     {
-        context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &subscriber.second.perObjectUpdate_);
-        context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
-
         auto& component = *subscriber.second.waterRendererComponent_;
 
+        auto perObjectBufferId = component.getPerObjectUpdateBufferId();
+
+        if (perObjectBufferId)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*perObjectBufferId);
+        }
+
+        waterTileMeshBuffer.tiledValue = DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
         waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(time.deltaTime * WAVE_SPEED);
         waterTileMeshBuffer.waterColor = component.GetWaterColor();
 
@@ -94,9 +103,7 @@ void WaterRenderer::Subscribe(GameObject* gameObject)
         return;
     }
 
-    subscribers_.insert(
-        {gameObject->GetId(),
-         {CalculateTransformMatrix(waterComponent->GetPosition(), waterComponent->GetScale()), waterComponent}});
+    subscribers_.insert({gameObject->GetId(), {waterComponent}});
 }
 void WaterRenderer::UnSubscribe(GameObject* gameObject)
 {

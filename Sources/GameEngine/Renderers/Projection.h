@@ -39,7 +39,7 @@ private:
 
 float Projection::GetViewDistance() const
 {
-    return 0.4f * farPlane_;
+    return 0.95f * farPlane_;
 }
 float Projection::GetFoV() const
 {

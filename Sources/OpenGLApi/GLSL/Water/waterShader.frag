@@ -3,13 +3,13 @@
 const float waveStrength = 0.02 ;
 const float shineDamper  = 20.0f;
 const float reflectivity = 0.6f;
-const float tiledValue   = 120.f;
 const float near         = 0.1f;
 const float far          = 1000.0f;
 
 layout (std140, align=16, binding=6) uniform PerMeshObject
 {
     vec4 waterColor;
+    float tiledValue;
     float isSimpleRender;
     float moveFactor;
 } perMeshObject;
@@ -55,8 +55,8 @@ float calculateEdgesFactor()
 
 vec2 calculateDisctortionCoords()
 {
-    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * tiledValue + perMeshObject.moveFactor, vs_out.texCoord.y * tiledValue)).rg * 0.1f;
-    return vs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ perMeshObject.moveFactor);
+    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * perMeshObject.tiledValue + perMeshObject.moveFactor, vs_out.texCoord.y * perMeshObject.tiledValue)).rg * 0.1f;
+    return vs_out.texCoord * perMeshObject.tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ perMeshObject.moveFactor);
 }
 
 vec3 calculateNormal(vec4 normalMapValue)

@@ -23,6 +23,7 @@ cbuffer PerObjectUpdate : register(b3)
 cbuffer PerMeshObject : register(b6)
 {
     float4 waterColor;
+    float tiledValue;
     float isSimpleRender;
     float moveFactor;
 }

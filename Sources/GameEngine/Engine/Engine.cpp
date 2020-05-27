@@ -125,6 +125,7 @@ void Engine::RuntimeGpuTasks()
 {
     RuntimeReleaseObjectGpu();
     RuntimeLoadObjectToGpu();
+    RuntimeUpdateObjectGpu();
     RuntimeCallFunctionGpu();
 }
 
@@ -145,6 +146,26 @@ void Engine::RuntimeLoadObjectToGpu()
         }
 
         obj = gpuLoader.GetObjectToGpuLoadingPass();
+    }
+}
+
+void Engine::RuntimeUpdateObjectGpu()
+{
+    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
+    auto obj        = gpuLoader.GetObjectToUpdateGpuPass();
+
+    while (obj)
+    {
+        if (obj->GetGraphicsObjectId())
+        {
+            obj->UpdateGpuPass();
+        }
+        else
+        {
+            ERROR_LOG("Object not loaded");
+        }
+
+        obj = gpuLoader.GetObjectToUpdateGpuPass();
     }
 }
 

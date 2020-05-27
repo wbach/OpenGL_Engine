@@ -268,14 +268,6 @@ void Read(const Utils::XmlNode& node, Components::WaterRendererComponent& compon
     if (colorNode)
         component.SetWaterColor(ReadVec4(*colorNode));
 
-    auto positionNode = node.GetChild(CSTR_POSITION);
-    if (positionNode)
-        component.SetPosition(ReadVec3(*positionNode));
-
-    auto scaleNode = node.GetChild(CSTR_SCALE);
-    if (scaleNode)
-        component.SetScale(ReadVec3(*scaleNode));
-
     auto dudvNode      = node.GetChild(CSTR_DUDV_MAP);
     auto normalMapNode = node.GetChild(CSTR_NORMAL_MAP);
     if (dudvNode and normalMapNode)

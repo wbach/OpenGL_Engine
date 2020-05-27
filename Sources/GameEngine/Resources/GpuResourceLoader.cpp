@@ -1,6 +1,6 @@
 #include "GpuResourceLoader.h"
-#include "Types.h"
 #include <algorithm>
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -42,9 +42,27 @@ GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
     return obj;
 }
 
+void GpuResourceLoader::AddObjectToUpdateGpuPass(GpuObject& obj)
+{
+    std::lock_guard<std::mutex> lock(updateMutex);
+    objectsToUpdate.push_back(&obj);
+}
+
+GpuObject* GpuResourceLoader::GetObjectToUpdateGpuPass()
+{
+    if (objectsToUpdate.empty())
+        return nullptr;
+
+    std::lock_guard<std::mutex> lock(updateMutex);
+    GpuObject* obj = objectsToUpdate.back();
+    objectsToUpdate.pop_back();
+    return obj;
+}
+
 void GpuResourceLoader::AddObjectToRelease(std::unique_ptr<GpuObject> object)
 {
     IsRemoveObjectIfIsToLoadState(*object);
+    IsRemoveObjectIfIsToUpdateState(*object);
 
     std::lock_guard<std::mutex> lock(releaseMutex);
     objectsToRelease.push_back(std::move(object));
@@ -59,11 +77,30 @@ std::unique_ptr<GpuObject> GpuResourceLoader::GetObjectToRelease()
     objectsToRelease.pop_back();
     return object;
 }
+void GpuResourceLoader::IsRemoveObjectIfIsToUpdateState(GpuObject& obj)
+{
+    std::lock_guard<std::mutex> lock(updateMutex);
+
+    if (not objectsToUpdate.empty())
+    {
+        auto iter = std::find_if(
+            objectsToUpdate.begin(), objectsToUpdate.end(),
+            [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
+        if (iter != objectsToUpdate.end())
+            objectsToUpdate.erase(iter);
+    }
+}
 void GpuResourceLoader::IsRemoveObjectIfIsToLoadState(GpuObject& obj)
 {
     std::lock_guard<std::mutex> lock(gpuPassMutex);
-    auto iter = std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(), [id = obj.GetGpuObjectId()](const auto& gpuObject){ return id == gpuObject->GetGpuObjectId(); });
-    if (iter != gpuPassLoad.end())
-        gpuPassLoad.erase(iter);
+
+    if (not gpuPassLoad.empty())
+    {
+        auto iter = std::find_if(
+            gpuPassLoad.begin(), gpuPassLoad.end(),
+            [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
+        if (iter != gpuPassLoad.end())
+            gpuPassLoad.erase(iter);
+    }
 }
 }  // namespace GameEngine

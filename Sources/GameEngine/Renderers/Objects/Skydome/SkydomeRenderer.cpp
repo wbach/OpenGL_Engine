@@ -68,10 +68,13 @@ void SkydomRenderer::Render(const Scene& scene, const Time&)
 
     shader_.Stop();
 }
-void SkydomRenderer::UpdateBuffer(const vec3&)
+void SkydomRenderer::UpdateBuffer(const vec3& cameraPosition)
 {
+    vec3 position = cameraPosition;
+    position.y = 0;
+
     perObjectUpdate_.TransformationMatrix =
-        Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(0), vec3(context_.projection_.GetViewDistance()));
+        Utils::CreateTransformationMatrix(position, DegreesVec3(0), vec3(context_.projection_.GetViewDistance()));
     context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdate_);
 }
 }  // namespace GameEngine

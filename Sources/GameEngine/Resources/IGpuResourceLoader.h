@@ -20,6 +20,9 @@ public:
     virtual void AddObjectToGpuLoadingPass(GpuObject&)     = 0;
     virtual GpuObject* GetObjectToGpuLoadingPass()         = 0;
 
+    virtual void AddObjectToUpdateGpuPass(GpuObject&)     = 0;
+    virtual GpuObject* GetObjectToUpdateGpuPass()         = 0;
+
     virtual void AddObjectToRelease(std::unique_ptr<GpuObject>) = 0;
     virtual std::unique_ptr<GpuObject> GetObjectToRelease()     = 0;
 };

@@ -266,8 +266,6 @@ void Create(XmlNode&, const Components::CharacterController&)
 
 void Create(XmlNode& node, const Components::WaterRendererComponent& component)
 {
-    Create(node.AddChild(CSTR_POSITION), component.GetPosition());
-    Create(node.AddChild(CSTR_SCALE), component.GetScale());
     Create(node.AddChild(CSTR_COLOR), component.GetWaterColor());
     Create(node.AddChild(CSTR_WAVE_SPEED), component.GetWaveSpeed());
 

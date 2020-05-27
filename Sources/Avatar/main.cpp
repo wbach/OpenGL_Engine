@@ -1,9 +1,9 @@
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "Logger/Log.h"
 #include "OpenGLApi/OpenGLApi.h"
 #include "StartGame.h"
-#include <Utils/FileSystem/FileSystemUtils.hpp>
 #ifndef USE_GNU
 #include "DirectXApi/DirectXApi.h"
 #endif
@@ -38,7 +38,7 @@ int main(int, char**)
     }
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
 #endif
-
+    graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
     AvatarGame::Start(std::move(graphicsApi));
     return 0;
 }

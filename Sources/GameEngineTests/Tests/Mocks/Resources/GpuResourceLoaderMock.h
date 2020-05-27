@@ -12,6 +12,9 @@ public:
     MOCK_METHOD1(AddObjectToGpuLoadingPass, void(GpuObject&));
     MOCK_METHOD0(GetObjectToGpuLoadingPass, GpuObject*());
 
+    MOCK_METHOD1(AddObjectToUpdateGpuPass, void(GpuObject&));
+    MOCK_METHOD0(GetObjectToUpdateGpuPass, GpuObject*());
+
     MOCK_METHOD1(AddObjectToRelease, void(std::unique_ptr<GpuObject>));
     MOCK_METHOD0(GetObjectToRelease, std::unique_ptr<GpuObject>());
 };

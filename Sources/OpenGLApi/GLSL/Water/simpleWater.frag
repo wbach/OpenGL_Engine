@@ -10,6 +10,7 @@ const float far          = 1000.0f;
 layout (std140, align=16, binding=6) uniform PerMeshObject
 {
     vec4 waterColor;
+    float tiledValue;
     float isSimpleRender;
     float moveFactor;
 } perMeshObject;

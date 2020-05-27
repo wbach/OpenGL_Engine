@@ -208,7 +208,7 @@ void RendererComponent::UpdateBuffers()
         {
             const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
             poc->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-            poc->UpdateBuffer();
+            poc->UpdateGpuPass();
         }
     }
 }

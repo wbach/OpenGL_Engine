@@ -23,4 +23,9 @@ void BaseBufferObject::ReleaseGpuPass()
     }
     GpuObject::ReleaseGpuPass();
 }
+
+void BaseBufferObject::UpdateGpuPass()
+{
+
+}
 }  // namespace GameEngine

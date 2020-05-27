@@ -16,7 +16,6 @@ class WaterRenderer : public IRenderer
 {
     struct Subscriber
     {
-        PerObjectUpdate perObjectUpdate_;
         Components::WaterRendererComponent* waterRendererComponent_;
     };
 
@@ -39,7 +38,6 @@ private:
     ShaderProgram shader_;
     std::unordered_map<uint32, Subscriber> subscribers_;
 
-    GraphicsApi::ID perObjectUpdateId_;
     GraphicsApi::ID perMeshObjectId_;
 };
 }  // namespace GameEngine

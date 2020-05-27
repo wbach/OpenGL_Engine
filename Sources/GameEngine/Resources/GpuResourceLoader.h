@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <Mutex.hpp>
+#include <vector>
 #include "GpuObject.h"
 #include "IGpuResourceLoader.h"
 
@@ -16,19 +16,25 @@ public:
     void AddObjectToGpuLoadingPass(GpuObject&) override;
     GpuObject* GetObjectToGpuLoadingPass() override;
 
+    void AddObjectToUpdateGpuPass(GpuObject&) override;
+    GpuObject* GetObjectToUpdateGpuPass() override;
+
     void AddObjectToRelease(std::unique_ptr<GpuObject>) override;
     std::unique_ptr<GpuObject> GetObjectToRelease() override;
 
 private:
+    void IsRemoveObjectIfIsToUpdateState(GpuObject&);
     void IsRemoveObjectIfIsToLoadState(GpuObject&);
 
 private:
     std::vector<std::function<void()>> functions;
     std::vector<GpuObject*> gpuPassLoad;
+    std::vector<GpuObject*> objectsToUpdate;
     std::vector<std::unique_ptr<GpuObject>> objectsToRelease;
 
 private:
     std::mutex gpuPassMutex;
+    std::mutex updateMutex;
     std::mutex releaseMutex;
     std::mutex functionMutex;
 };

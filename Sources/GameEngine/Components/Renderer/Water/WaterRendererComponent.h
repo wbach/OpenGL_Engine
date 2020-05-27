@@ -21,29 +21,29 @@ public:
     float moveFactor() const;
     float increaseAndGetMoveFactor(float deltaTime);
 
-    const vec3& GetPosition() const;
-    const vec3& GetScale() const;
     const vec4& GetWaterColor() const;
     float GetWaveSpeed() const;
     const Texture* GetDudvTexture() const;
     const Texture* GetNormalTexture() const;
 
-    void SetPosition(const vec3&);
-    void SetScale(const vec3&);
     void SetWaterColor(const vec4&);
     WaterRendererComponent& SetWaveSpeed(float);
     WaterRendererComponent& LoadTextures(const File& dudv, const File& normal);
 
+    GraphicsApi::ID getPerObjectUpdateBufferId() const;
+
 private:
-    void Subscribe();
+    void OnAwake();
     void UnSubscribe();
+    void updatePerObjectUpdateBuffer();
 
 private:
     void DeleteTextures();
 
 private:
-    vec3 position_;
-    vec3 scale_;
+    std::unique_ptr<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
+    std::optional<uint32> onTransformChangeSubscribtion_;
+
     float moveFactor_;
     vec4 waterColor_;
     float waveSpeed_;

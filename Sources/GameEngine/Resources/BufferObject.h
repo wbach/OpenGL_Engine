@@ -12,7 +12,7 @@ public:
     BaseBufferObject(GraphicsApi::IGraphicsApi&, uint32);
     ~BaseBufferObject() override;
     void ReleaseGpuPass() override;
-    virtual void UpdateBuffer() = 0;
+    void UpdateGpuPass() override;
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
@@ -40,7 +40,7 @@ public:
         return data_;
     }
 
-    void UpdateBuffer() override
+    void UpdateGpuPass() override
     {
         if (graphicsObjectId_)
         {
@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    virtual void GpuLoadingPass() override
+    void GpuLoadingPass() override
     {
         if (not graphicsObjectId_)
         {

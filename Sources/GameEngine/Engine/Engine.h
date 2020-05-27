@@ -29,6 +29,7 @@ public:
 private:
     void RuntimeGpuTasks();
     void RuntimeLoadObjectToGpu();
+    void RuntimeUpdateObjectGpu();
     void RuntimeReleaseObjectGpu();
     void RuntimeCallFunctionGpu();
     void CheckThreadsBeforeQuit();
