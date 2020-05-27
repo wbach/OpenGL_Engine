@@ -53,9 +53,6 @@ std::unique_ptr<Model> TerrainMeshLoader::createModel(const HeightMap& heightMap
 {
     auto terrainConfig =
         TerrainConfiguration::ReadFromFile(heightMap.GetFile()->GetAbsolutePathWithDifferentExtension("terrainConfig"));
-    auto terrainScale = terrainConfig.GetScale();
-
-    auto heightMapResolution = heightMap.GetImage().width;
 
     auto model = std::make_unique<Model>();
 
@@ -128,8 +125,10 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
     auto& normals            = mesh.GetMeshDataRef().normals_;
     auto& textureCoords      = mesh.GetMeshDataRef().textCoords_;
     auto& tangents           = mesh.GetMeshDataRef().tangents_;
-    auto heightMapResolution = tools.getHeightMapResolution();
+    auto heightMapResolution = static_cast<float>(tools.getHeightMapResolution() - 1);
     auto terrainScale        = tools.getTerrainScale();
+    auto halfTerrainScale    = terrainScale * .5f;
+    auto gridSize = terrainScale / heightMapResolution;
 
     for (uint32 i = y_start; i < height; i++)
     {
@@ -137,11 +136,15 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
         {
             float height = tools.GetHeight(j, i);
 
-            vertices.push_back(static_cast<float>(j - (terrainScale.x / 2)) /
-                               (static_cast<float>(heightMapResolution - 1)) * terrainScale.x);
+            float fj = static_cast<float>(j);
+            float fi = static_cast<float>(i);
+
+            auto x = -halfTerrainScale.x + (gridSize.x * fj);
+            auto z = -halfTerrainScale.z + (gridSize.z * fi);
+
+            vertices.push_back(x);
             vertices.push_back(height);
-            vertices.push_back(static_cast<float>(i - (terrainScale.z / 2)) /
-                               (static_cast<float>(heightMapResolution) - 1) * terrainScale.z);
+            vertices.push_back(z);
 
             vec3 normal  = tools.GetNormal(j, i);
             vec3 tangnet = tools.GetTangent(normal);
