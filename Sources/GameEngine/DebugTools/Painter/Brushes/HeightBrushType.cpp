@@ -5,7 +5,8 @@ namespace GameEngine
 {
 std::vector<HeightBrushType> AvaiableHeightBrushType()
 {
-    return {HeightBrushType::CircleLinear, HeightBrushType::CircleAverage, HeightBrushType::CircleConstantValue};
+    return {HeightBrushType::CircleLinear, HeightBrushType::CircleAverage, HeightBrushType::CircleConstantValue,
+            HeightBrushType::CircleGaussianHeightBrush};
 }
 
 std::vector<std::string> AvaiableHeightBrushTypeStrs()
@@ -13,7 +14,7 @@ std::vector<std::string> AvaiableHeightBrushTypeStrs()
     std::vector<std::string> result;
     auto input = AvaiableHeightBrushType();
 
-    std::transform(input.begin(), input.end(), std::back_inserter(result), [](auto hb){ return std::to_string(hb);});
+    std::transform(input.begin(), input.end(), std::back_inserter(result), [](auto hb) { return std::to_string(hb); });
     return result;
 }
 
@@ -31,6 +32,8 @@ string to_string(GameEngine::HeightBrushType input)
             return "CircleAverage";
         case GameEngine::HeightBrushType::CircleConstantValue:
             return "CircleConstantValue";
+        case GameEngine::HeightBrushType::CircleGaussianHeightBrush:
+            return "CircleGaussianHeightBrush";
     }
     return "unknown";
 }
@@ -48,6 +51,10 @@ void from_string(const string& input, GameEngine::HeightBrushType& output)
     else if (input == "CircleConstantValue")
     {
         output = GameEngine::HeightBrushType::CircleConstantValue;
+    }
+    else if (input == "CircleGaussianHeightBrush")
+    {
+        output = GameEngine::HeightBrushType::CircleGaussianHeightBrush;
     }
 }
 

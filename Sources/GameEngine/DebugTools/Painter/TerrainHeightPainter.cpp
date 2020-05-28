@@ -4,6 +4,7 @@
 
 #include "Brushes/Circle/CircleHeightBrushes/CircleAverageHeightBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleConstantHeightBrush.h"
+#include "Brushes/Circle/CircleHeightBrushes/CircleGaussianHeightBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -39,6 +40,9 @@ void TerrainHeightPainter::Paint(const TerrainPoint& terrainPoint)
         case HeightBrushType::CircleConstantValue:
             heightmapChange = BRUSH(CircleConstantHeightBrush).Paint();
             break;
+        case HeightBrushType::CircleGaussianHeightBrush:
+            heightmapChange = BRUSH(CircleGaussianHeightBrush).Paint();
+            break;
     }
 
     if (heightmapChange)
@@ -50,7 +54,7 @@ void TerrainHeightPainter::SetBrush(const std::string& input)
 }
 std::string TerrainHeightPainter::SelectedBrush() const
 {
-    return  std::to_string(heightBrushType_);
+    return std::to_string(heightBrushType_);
 }
 std::vector<std::string> TerrainHeightPainter::AvaiableBrushTypes() const
 {

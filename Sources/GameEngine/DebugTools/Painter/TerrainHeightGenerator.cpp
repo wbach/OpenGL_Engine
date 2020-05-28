@@ -9,6 +9,7 @@
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include <GraphicsApi/ImageFilters.h>
 
 namespace GameEngine
 {
@@ -20,30 +21,6 @@ enum class Interpolation
 namespace
 {
 std::vector<float> noiseSeed;
-
-// clang-format off
-std::vector<float> gaussian3x3 = {
-    0.077847f, 0.123317f, 0.077847f,
-    0.123317f, 0.195346f, 0.123317f,
-    0.077847f, 0.123317f, 0.077847f
-};
-std::vector<float> gaussian5x5 = {
-0.003765f, 0.015019f, 0.023792f, 0.015019f, 0.003765f,
-0.015019f, 0.059912f, 0.094907f, 0.059912f, 0.015019f,
-0.023792f, 0.094907f, 0.150342f, 0.094907f, 0.023792f,
-0.015019f, 0.059912f, 0.094907f, 0.059912f, 0.015019f,
-0.003765f, 0.015019f, 0.023792f, 0.015019f, 0.003765f
-};
-std::vector<float> gaussian7x7 = {
-0.000036f, 0.000363f, 0.001446f, 0.002291f, 0.001446f, 0.000363f, 0.000036f,
-0.000363f, 0.003676f, 0.014662f, 0.023226f, 0.014662f, 0.003676f, 0.000363f,
-0.001446f, 0.014662f, 0.058488f, 0.092651f, 0.058488f, 0.014662f, 0.001446f,
-0.002291f, 0.023226f, 0.092651f, 0.146768f, 0.092651f, 0.023226f, 0.002291f,
-0.001446f, 0.014662f, 0.058488f, 0.092651f, 0.058488f, 0.014662f, 0.001446f,
-0.000363f, 0.003676f, 0.014662f, 0.023226f, 0.014662f, 0.003676f, 0.000363f,
-0.000036f, 0.000363f, 0.001446f, 0.002291f, 0.001446f, 0.000363f, 0.000036f
-};
-// clang-format on
 }  // namespace
 TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
                                                const EntryParamters& parmaters)
@@ -230,7 +207,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         image.setChannels(1);
         image.moveData(heights);
 
-        image.applyFilter(gaussian7x7, vec2ui(7, 7));
+        image.applyFilter(GraphicsApi::gaussian7x7Filter());
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }

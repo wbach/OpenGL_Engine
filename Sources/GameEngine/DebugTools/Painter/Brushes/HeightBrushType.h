@@ -8,7 +8,8 @@ enum class HeightBrushType
 {
     CircleLinear,
     CircleAverage,
-    CircleConstantValue
+    CircleConstantValue,
+    CircleGaussianHeightBrush
 };
 std::vector<HeightBrushType> AvaiableHeightBrushType();
 std::vector<std::string> AvaiableHeightBrushTypeStrs();

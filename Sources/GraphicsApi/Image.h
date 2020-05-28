@@ -2,7 +2,7 @@
 #include <optional>
 #include <variant>
 #include <vector>
-
+#include "ImageFilters.h"
 #include "Types.h"
 
 namespace GraphicsApi
@@ -26,7 +26,7 @@ public:
     void setChannels(uint8);
     uint8 getChannelsCount() const;
     const ImageData& getImageData() const;
-    void applyFilter(const std::vector<float>&, const vec2ui&);
+    void applyFilter(const ImageFilter&);
 
     template <typename T>
     void allocateImage()

@@ -248,43 +248,36 @@ const ImageData& Image::getImageData() const
     return data_;
 }
 
-std::optional<float> getValue(const vec2ui& pos, const std::vector<float>& filter, float width)
+void Image::applyFilter(const ImageFilter& imageFilter)
 {
-    auto index = pos.x + pos.y * width;
+    auto& size = imageFilter.size;
 
-    if (index < filter.size())
-        return filter[index];
-    return std::nullopt;
-}
-
-void Image::applyFilter(const std::vector<float>& filter, const vec2ui& size)
-{
     if (size.x % 2 == 0 or size.y % 2 == 0)
     {
         DEBUG_LOG("Wrong filter size. Filter not applied");
         return;
     }
     DEBUG_LOG("Applying filter");
-    int halfsizeY = size.y / 2;
-    int halfsizeX = size.x / 2;
+    uint32 halfsizeY = size.y / 2;
+    uint32 halfsizeX = size.x / 2;
 
-    for (int y = halfsizeY; y < height - halfsizeY; ++y)
+    for (uint32 y = halfsizeY; y < height - halfsizeY; ++y)
     {
-        for (int x = halfsizeX; x < width - halfsizeX; ++x)
+        for (uint32 x = halfsizeX; x < width - halfsizeX; ++x)
         {
             Color pixelColor(0.f);
 
-            for (int fy = 0; fy < size.y; ++fy)
+            for (uint32 fy = 0; fy < size.y; ++fy)
             {
-                for (int fx = 0; fx < size.x; ++fx)
+                for (uint32 fx = 0; fx < size.x; ++fx)
                 {
-                    int imageX = (x - halfsizeX + fx + width) % width;
-                    int imageY = (y - halfsizeY + fy + height) % height;
+                    uint32 imageX = (x + fx + width - halfsizeX) % width;
+                    uint32 imageY = (y + fy + height - halfsizeY) % height;
 
                     auto color = getPixel(vec2ui(imageX, imageY));
                     if (color)
                     {
-                        auto maybeFilterWight = getValue(vec2ui(fx, fy), filter, size.x);
+                        auto maybeFilterWight = imageFilter.getSample(fx, fy);
                         if (maybeFilterWight)
                         {
                             *color *= *maybeFilterWight;

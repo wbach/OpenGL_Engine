@@ -13,6 +13,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/HeightBrushType.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleBrushBase.cpp
+../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleGaussianHeightBrush.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleConstantHeightBrush.cpp
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleAverageHeightBrush.cpp

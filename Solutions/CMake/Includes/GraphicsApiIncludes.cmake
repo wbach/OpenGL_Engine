@@ -1,6 +1,7 @@
 set(GraphicsApiIncludes
 ../../Sources/GraphicsApi/FunctionsTypes.h
 ../../Sources/GraphicsApi/MeshRawData.h
+../../Sources/GraphicsApi/ImageFilters.h
 ../../Sources/GraphicsApi/ShaderTypes.h
 ../../Sources/GraphicsApi/IGraphicsApi.h
 ../../Sources/GraphicsApi/TextureParamters.h
