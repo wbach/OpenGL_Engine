@@ -33,12 +33,12 @@ struct TerrainHeightGetterShould : public ::testing::Test
     {
     }
 
-    void SetupSut(const vec2& terrainPosition)
+    void SetupSut(const vec3& terrainPosition)
     {
         sut_ = std::make_unique<TerrainHeightGetter>(terrainConfig_, *heightMap_, terrainPosition);
     }
 
-    void ExpectOutOfRange(const vec2& terrainPosition)
+    void ExpectOutOfRange(const vec3& terrainPosition)
     {
         SetupSut(terrainPosition);
 
@@ -69,7 +69,7 @@ struct TerrainHeightGetterShould : public ::testing::Test
             EXPECT_FALSE(h.has_value());
         }
     }
-    void ExpectInside(const vec2& terrainPosition)
+    void ExpectInside(const vec3& terrainPosition)
     {
         SetupSut(terrainPosition);
 
@@ -112,34 +112,34 @@ struct TerrainHeightGetterShould : public ::testing::Test
 
 TEST_F(TerrainHeightGetterShould, vauleInRangeInZeroPos)
 {
-    ExpectInside(vec2(0));
+    ExpectInside(vec3(0));
 }
 TEST_F(TerrainHeightGetterShould, vauleInRangeInOtherPos)
 {
-    ExpectInside(vec2(500, 300));
+    ExpectInside(vec3(500, 0, 300));
 }
 TEST_F(TerrainHeightGetterShould, vauleInRangeInOtherPos2)
 {
-    ExpectInside(vec2(-500, 300));
+    ExpectInside(vec3(-500, 0, 300));
 }
 TEST_F(TerrainHeightGetterShould, vauleInRangeInOtherPos3)
 {
-    ExpectInside(vec2(-3500, 2221300));
+    ExpectInside(vec3(-3500, 0, 2221300));
 }
 TEST_F(TerrainHeightGetterShould, vauleInOutOfRangeInZeroPos)
 {
-    ExpectOutOfRange(vec2(0));
+    ExpectOutOfRange(vec3(0));
 }
 TEST_F(TerrainHeightGetterShould, vauleInOutOfRangeInOtherPos)
 {
-    ExpectOutOfRange(vec2(100, 20));
+    ExpectOutOfRange(vec3(100, 0, 20));
 }
 TEST_F(TerrainHeightGetterShould, vauleInOutOfRangeInOtherPos2)
 {
-    ExpectOutOfRange(vec2(100, -20));
+    ExpectOutOfRange(vec3(100, 0, -20));
 }
 TEST_F(TerrainHeightGetterShould, vauleInOutOfRangeInOtherPos3)
 {
-    ExpectOutOfRange(vec2(10000, -23000));
+    ExpectOutOfRange(vec3(10000, 0, -23000));
 }
 }  // namespace GameEngine

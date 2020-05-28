@@ -82,9 +82,8 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
 
     if (terrainRendererComponent_)
     {
-        vec2 terrainPosition(0.f);  // To do position terrain in grid of terrains
         terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(
-            terrainRendererComponent_->GetTerrainConfiguration(), *heightMap_, terrainPosition);
+            terrainRendererComponent_->GetTerrainConfiguration(), *heightMap_, thisObject_.GetTransform().GetPosition());
     }
     else
     {

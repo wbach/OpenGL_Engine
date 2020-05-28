@@ -12,7 +12,7 @@ class TerrainConfiguration;
 class TerrainHeightGetter
 {
 public:
-    TerrainHeightGetter(const TerrainConfiguration&, const HeightMap&, const vec2& terrainPosition);
+    TerrainHeightGetter(const TerrainConfiguration&, const HeightMap&, const vec3& terrainPosition);
     std::optional<float> GetHeightofTerrain(const vec2& worldPositionXZ) const;
     std::optional<float> GetHeightofTerrain(float worldX, float worldZ) const;
     std::optional<vec3> GetPointOnTerrain(float worldX, float worldZ) const;
@@ -30,11 +30,11 @@ private:
 private:
     const TerrainConfiguration& terrainConfiguration_;
     const HeightMap& heightMap_;
-    vec2 terrainPosition_;
+    vec3 terrainPosition_;
 
 private:
     uint32 heightMapResolution_;
-    float gridSquereSize_;
+    vec3 gridSquereSize_;
 
     TerrainHeightTools tools_;
 };

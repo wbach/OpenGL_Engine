@@ -8,14 +8,14 @@
 namespace GameEngine
 {
 TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConfiguration, const HeightMap& heightMap,
-                                         const vec2& terrainPosition)
+                                         const vec3& terrainPosition)
     : terrainConfiguration_(terrainConfiguration)
     , heightMap_(heightMap)
     , terrainPosition_(terrainPosition)
     , tools_(terrainConfiguration.GetScale(), heightMap.GetImage())
 {
     heightMapResolution_ = heightMap_.GetImage().width;
-    gridSquereSize_      = terrainConfiguration_.GetScale().x / heightMapResolution_;
+    gridSquereSize_      = terrainConfiguration_.GetScale() / static_cast<float>(heightMapResolution_ - 1.f);
 }
 
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float worldZ) const
@@ -63,8 +63,8 @@ std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& worldPo
 std::optional<vec2> TerrainHeightGetter::GetLocalPositionOnTerrain(const vec2& worldPostion) const
 {
     auto halfTerrainScale = terrainConfiguration_.GetScale() / 2.f;
-    auto terrain_x        = worldPostion.x - terrainPosition_.x + halfTerrainScale.x;
-    auto terrain_z        = worldPostion.y - terrainPosition_.y + halfTerrainScale.z;
+    auto terrain_x        = worldPostion.x + halfTerrainScale.x; // to do + terrainPosition_.x
+    auto terrain_z        = worldPostion.y + halfTerrainScale.z; // to do + terrainPosition_.z
 
     if (terrain_x > terrainConfiguration_.GetScale().x or terrain_z > terrainConfiguration_.GetScale().z)
         return std::nullopt;
@@ -74,8 +74,8 @@ std::optional<vec2> TerrainHeightGetter::GetLocalPositionOnTerrain(const vec2& w
 
 std::optional<vec2ui> TerrainHeightGetter::GetGridCoord(const vec2& position) const
 {
-    auto xi = static_cast<int32>(floorf(position.x / gridSquereSize_));
-    auto yi = static_cast<int32>(floorf(position.y / gridSquereSize_));
+    auto xi = static_cast<int32>(floorf(position.x / gridSquereSize_.x));
+    auto yi = static_cast<int32>(floorf(position.y / gridSquereSize_.z));
 
     if (not IsValidGridCoordinate(vec2i(xi, yi)))
         return std::nullopt;
@@ -85,8 +85,8 @@ std::optional<vec2ui> TerrainHeightGetter::GetGridCoord(const vec2& position) co
 
 vec2 TerrainHeightGetter::GetPositionInQuad(const vec2& position) const
 {
-    float x_coord = (fmodf(position.x, gridSquereSize_)) / gridSquereSize_;
-    float z_coord = (fmodf(position.y, gridSquereSize_)) / gridSquereSize_;
+    float x_coord = (fmodf(position.x, gridSquereSize_.x)) / gridSquereSize_.x;
+    float z_coord = (fmodf(position.y, gridSquereSize_.z)) / gridSquereSize_.z;
 
     return vec2(x_coord, z_coord);
 }
@@ -108,20 +108,18 @@ float TerrainHeightGetter::GetHeightInTerrainQuad(const vec2ui& gridCoord, const
 {
     auto positionInQuad = GetPositionInQuad(localPosition);
 
-    auto gridSquereSize = terrainConfiguration_.GetScale().x / (heightMap_.GetImage().width - 1.f);
-
-    vec3 p3(0, tools_.GetHeight(gridCoord.x, gridCoord.y + 1), gridSquereSize);
+    vec3 p3(0, tools_.GetHeight(gridCoord.x, gridCoord.y + 1), gridSquereSize_.z);
     vec3 p1, p2;
 
     if (IsInLeftTriangle(positionInQuad))
     {
         p1 = vec3(0, tools_.GetHeight(gridCoord.x, gridCoord.y), 0);
-        p2 = vec3(gridSquereSize, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+        p2 = vec3(gridSquereSize_.x, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
     }
     else
     {
-        p1 = vec3(gridSquereSize, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
-        p2 = vec3(gridSquereSize, tools_.GetHeight(gridCoord.x + 1, gridCoord.y + 1), gridSquereSize);
+        p1 = vec3(gridSquereSize_.x, tools_.GetHeight(gridCoord.x + 1, gridCoord.y), 0);
+        p2 = vec3(gridSquereSize_.x, tools_.GetHeight(gridCoord.x + 1, gridCoord.y + 1), gridSquereSize_.z);
     }
 
     return Utils::BarryCentric(p1, p2, p3, positionInQuad);

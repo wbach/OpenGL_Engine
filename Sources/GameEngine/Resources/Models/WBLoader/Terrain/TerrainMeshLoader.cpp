@@ -174,8 +174,8 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
             tangents.push_back(tangnet.y);
             tangents.push_back(tangnet.z);
 
-            textureCoords.push_back(static_cast<float>(j) / static_cast<float>(heightMapResolution - 1));
-            textureCoords.push_back(static_cast<float>(i) / static_cast<float>(heightMapResolution - 1));
+            textureCoords.push_back(fj / heightMapResolution);
+            textureCoords.push_back(fi / heightMapResolution);
 
             if (height < minHeight)
                 minHeight = height;
