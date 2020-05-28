@@ -25,6 +25,7 @@ in GS_OUT
     vec2 texCoord;
     vec4 worldPos;
     vec3 normal;
+    vec3 color;
 } fs_in;
 
 bool Is(float v)
@@ -77,7 +78,7 @@ void main()
     vec3 normal = fs_in.normal;
 
     WorldPosOut      = fs_in.worldPos;
-    DiffuseOut       = diffTexture /** shadowFactor*/;
+    DiffuseOut       = diffTexture * vec4(fs_in.color, 1.f) /** shadowFactor*/;
     NormalOut        = vec4(normal, 1.f);//vec4(.0f, 1.f, .0f, 1.f);
     MaterialSpecular = vec4(.0f);
 }

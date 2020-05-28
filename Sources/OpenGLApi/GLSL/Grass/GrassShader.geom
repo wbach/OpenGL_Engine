@@ -32,6 +32,7 @@ out GS_OUT
     vec2 texCoord;
     vec4 worldPos;
     vec3 normal;
+    vec3 color;
 } gs_out;
 
 in VS_OUT
@@ -43,12 +44,16 @@ in VS_OUT
 
 int CreateVertex(vec3 offset, vec2 textCoord)
 {
-    // if( offset.y > 0.f)
-    // {
-    //     float globalTime = grassShaderBuffer.variables.y;
-    //     offset.x += sin(globalTime);
-    //     offset.z += cos(globalTime);
-    // }
+    if( offset.y > 0.5f)
+    {
+        offset.y = gs_in[0].sizeAndRotation.x;
+    }
+    if( offset.y > 0.f)
+    {
+        float globalTime = grassShaderBuffer.variables.y;
+        offset.x += 0.1f * sin(globalTime);
+        offset.z += 0.1f * cos(globalTime);
+    }
 
    // const float size = 0.35f;
     vec4 actual_offset = vec4(offset , .0f);
@@ -60,6 +65,7 @@ int CreateVertex(vec3 offset, vec2 textCoord)
     gs_out.texCoord = vec2((textCoord.x + 1.0) / 2.0, 1 - (-textCoord.y + 1.0) / 2.0);
     gs_out.worldPos = worldPosition;
     gs_out.normal   = gs_in[0].normal;
+    gs_out.color    = gs_in[0].color;
 
     if (perApp.shadowVariables.x > 0.5f)
     {

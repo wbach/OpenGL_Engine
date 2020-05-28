@@ -1,5 +1,6 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
+#include <Input/KeysSubscriptionsManager.h>
 
 namespace GameEngine
 {
@@ -15,6 +16,7 @@ public:
     void ReqisterFunctions() override;
 
 private:
+    Input::KeysSubscriptionsManager keysSubscriptionsManager_;
     float zoomSpeed_;
     std::unique_ptr<ICamera> camera_;
     vec3 offset_;

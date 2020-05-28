@@ -27,6 +27,11 @@ void PlantPainter::Paint(const TerrainPoint& point)
     auto range = static_cast<float>(brushSize_ / 2);
     std::uniform_real_distribution<float> dist(-range, static_cast<float>(range));
 
+    std::uniform_real_distribution<float> ySizeDist(0.75, 1.25);
+    std::uniform_real_distribution<float> rotationDist(0.f, 360.f);
+    std::uniform_int_distribution<int> colorGreenDist(200, 255);
+    std::uniform_int_distribution<int> colorBlueDist(200, 255);
+
     TerrainHeightGetter terrainHeightGetter(
         point.terrainComponent.GetTerrainConfiguration(), *point.terrainComponent.GetHeightMap(),
         point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
@@ -43,8 +48,8 @@ void PlantPainter::Paint(const TerrainPoint& point)
        // DEBUG_LOG(std::to_string(normal));
         if (position)
         {
-            vec2 sizeAndRotation(1.f, 0.f);
-            Color color(255, 255, 255);
+            vec2 sizeAndRotation(ySizeDist(mt), rotationDist(mt));
+            Color color(255, colorGreenDist(mt), colorBlueDist(mt));
             Components::GrassRendererComponent::GrassMeshData grassMesh{*position, sizeAndRotation, normal, color};
             grassComponent_.AddGrassMesh(grassMesh);
             positionAdded = true;
