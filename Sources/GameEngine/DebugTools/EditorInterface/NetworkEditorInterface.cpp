@@ -847,6 +847,7 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
         if (componentType)
         {
             auto component = go->AddComponent(*componentType);
+            component->ReqisterFunctions();
             DebugNetworkInterface::NewComponentMsgInd componentNameMsg(componentName, component->IsActive());
             gateway_.Send(userId_, componentNameMsg);
         }

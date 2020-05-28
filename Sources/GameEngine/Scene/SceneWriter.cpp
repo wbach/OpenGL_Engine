@@ -4,7 +4,6 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
-
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
@@ -23,6 +22,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "SceneDef.h"
@@ -286,19 +286,28 @@ std::string DataVectorToString(const std::vector<float>& input)
     result.pop_back();
     return result;
 }
+
 void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 {
-    const auto& meshData              = component.GetGrassMeshesData();
-    std::string positionsValue        = DataVectorToString(meshData.positions);
-    std::string normalsValue          = DataVectorToString(meshData.normals);
-    std::string colorsValue           = DataVectorToString(meshData.colors);
-    std::string sizeAndRotationsValue = DataVectorToString(meshData.sizesAndRotations);
+    const auto& meshData = component.GetGrassMeshesData();
 
-    Create(node.AddChild(CSTR_POSITIONS), positionsValue);
-    Create(node.AddChild(CSTR_NORMALS), normalsValue);
-    Create(node.AddChild(CSTR_COLORS), colorsValue);
-    Create(node.AddChild(CSTR_SIZE_AND_ROTATION), sizeAndRotationsValue);
-    Create(node.AddChild(CSTR_TEXTURE_FILENAME), component.GetTextureFileName());
+    auto file = component.getDataFile();
+
+    if (file.empty())
+        file.DataRelative("Generated/grassMeshData_" + std::to_string(component.getParentGameObject().GetId()) + ".bin");
+
+    auto opened = file.openToWrite();
+    if (opened)
+    {
+        file.addVectorToFile(meshData.positions);
+        file.addVectorToFile(meshData.normals);
+        file.addVectorToFile(meshData.colors);
+        file.addVectorToFile(meshData.sizesAndRotations);
+        file.close();
+    }
+
+    Create(node.AddChild(CSTR_FILE_NAME), file);
+    Create(node.AddChild(CSTR_TEXTURE_FILENAME), component.getTextureFile());
 }
 
 void Create(XmlNode& node, const Components::TerrainRendererComponent& component)
@@ -331,14 +340,15 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(visitor{
-                           [&](const std::vector<uint8>& data) {
-                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                           },
-                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                       },
-                       image.getImageData());
+            std::visit(
+                visitor{
+                    [&](const std::vector<uint8>& data) {
+                        Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                    },
+                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                },
+                image.getImageData());
         }
     }
 }

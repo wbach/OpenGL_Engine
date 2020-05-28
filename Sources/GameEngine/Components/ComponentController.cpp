@@ -118,7 +118,8 @@ void ComponentController::CallFunctionIfControllerStarted(FunctionType type, std
 {
     if (type == FunctionType::Awake)
         func();
-    else if (isStarted && type == FunctionType::OnStart)
+
+    if (isStarted && type == FunctionType::OnStart)
         func();
 }
 }  // namespace Components

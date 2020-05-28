@@ -515,7 +515,11 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 {
     if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
     {
-        impl_->debugNormalsMesh_.insert({rid, {}});
+        if (not impl_->debugNormalsMesh_.count(rid))
+        {
+            impl_->debugNormalsMesh_.insert({rid, {}});
+        }
+
         auto& debugNormalMesh = impl_->debugNormalsMesh_.at(rid);
         auto& data            = debugNormalMesh.data;
         data.positions_.clear();
@@ -662,39 +666,40 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
     }
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
     auto channels = image.getChannelsCount();
-    std::visit(visitor{
-                   [&](const std::vector<uint8>& data) {
-                       switch (channels)
-                       {
-                           case 4:
-                               type = GraphicsApi::TextureType::U8_RGBA;
-                               break;
-                           default:
-                               DEBUG_LOG("Not implmented.");
-                       }
-                   },
-                   [&](const std::vector<float>& data) {
-                       switch (channels)
-                       {
-                           case 1:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
-                               break;
-                           case 2:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
-                               break;
-                           case 3:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
-                               break;
-                           case 4:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
-                               break;
-                           default:
-                               DEBUG_LOG("Not implmented.");
-                       }
-                   },
-                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
-               },
-               image.getImageData());
+    std::visit(
+        visitor{
+            [&](const std::vector<uint8>& data) {
+                switch (channels)
+                {
+                    case 4:
+                        type = GraphicsApi::TextureType::U8_RGBA;
+                        break;
+                    default:
+                        DEBUG_LOG("Not implmented.");
+                }
+            },
+            [&](const std::vector<float>& data) {
+                switch (channels)
+                {
+                    case 1:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                        break;
+                    case 2:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                        break;
+                    case 3:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                        break;
+                    case 4:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                        break;
+                    default:
+                        DEBUG_LOG("Not implmented.");
+                }
+            },
+            [](std::monostate) { ERROR_LOG("Image data not set!"); },
+        },
+        image.getImageData());
 
     CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
 
@@ -1113,6 +1118,9 @@ void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data
                     obj.vertexCount = static_cast<GLsizei>(data.positions_.size() / 3);
                 }
                 UpdateVBO(obj, buffer, data.positions_);
+                break;
+            case VertexBufferObjects::TEXT_COORD:
+                UpdateVBO(obj, buffer, data.textCoords_);
                 break;
             case VertexBufferObjects::NORMAL:
                 UpdateVBO(obj, buffer, data.normals_);

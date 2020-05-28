@@ -49,6 +49,10 @@ GameObject& BaseComponent::GetParentGameObject()
 {
     return thisObject_;
 }
+const GameObject &BaseComponent::getParentGameObject() const
+{
+    return thisObject_;
+}
 bool BaseComponent::IsActive() const
 {
     return isActive_;

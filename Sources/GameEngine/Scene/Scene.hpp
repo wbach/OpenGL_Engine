@@ -58,6 +58,7 @@ public:
     void PostUpdate();
     void Start();
     void Stop();
+    bool isStarted() const;
 
     inline const std::string& GetName() const;
     inline const File& GetFile() const;

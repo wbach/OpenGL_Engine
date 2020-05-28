@@ -40,6 +40,7 @@ public:
     virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) = 0;
     virtual std::unordered_map<ParamName, Param> GetParams() const                   = 0;
     virtual GameObject& GetParentGameObject()                                        = 0;
+    virtual const GameObject& getParentGameObject() const                            = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

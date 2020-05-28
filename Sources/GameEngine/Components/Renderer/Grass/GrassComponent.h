@@ -34,12 +34,14 @@ public:
     void UpdateModel();
 
     inline const GrassMeshes& GetGrassMeshesData() const;
-    inline const std::string& GetTextureFileName() const;
+    inline const File& getTextureFile() const;
+    inline const File& getDataFile() const;
 
     void AddGrassMesh(const GrassMeshData&);
 
     GrassRendererComponent& SetMeshesData(GrassMeshes);
-    GrassRendererComponent& SetTexture(const std::string& filename);
+    GrassRendererComponent& setTexture(const File&);
+    GrassRendererComponent& setMeshDataFile(const File&);
 
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     std::unordered_map<ParamName, Param> GetParams() const override;
@@ -54,7 +56,8 @@ private:
 
 private:
     ModelWrapper model_;
-    std::string textureFile_;
+    File textureFile_;
+    File meshDataFile_;
     GrassMeshes meshData_;
     bool isSubscribed_;
 
@@ -72,9 +75,14 @@ const GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshe
     return meshData_;
 }
 
-const std::string& GrassRendererComponent::GetTextureFileName() const
+const File& GrassRendererComponent::getTextureFile() const
 {
     return textureFile_;
+}
+
+const File& GrassRendererComponent::getDataFile() const
+{
+    return meshDataFile_;
 }
 
 }  // namespace Components

@@ -1,5 +1,6 @@
 #include "File.h"
 
+#include <Logger/Log.h>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
@@ -7,7 +8,13 @@
 
 namespace GameEngine
 {
+File::File()
+    : fp_{nullptr}
+{
+}
+
 File::File(const std::string &input)
+    : fp_{nullptr}
 {
     if (Utils::IsAbsolutePath(input))
         AbsoultePath(input);
@@ -24,7 +31,31 @@ void File::DataRelative(const std::string &filename)
 {
     auto dataRelative    = filename;
     auto projectRelative = EngineConf_GetFullDataPath(filename);
-    auto absoultePath    = Utils::GetAbsolutePath(projectRelative);
+
+    std::string absoultePath;
+
+    if (std::filesystem::exists(projectRelative))
+    {
+        absoultePath = Utils::GetAbsolutePath(projectRelative);
+    }
+    else
+    {
+        auto parentPath = Utils::GetAbsolutePath(Utils::GetParent(projectRelative));
+
+        if (not std::filesystem::exists(parentPath))
+        {
+            try
+            {
+                std::filesystem::create_directories(parentPath);
+            }
+            catch (const std::exception &e)
+            {
+                ERROR_LOG(e.what());
+            }
+        }
+
+        absoultePath = parentPath + "/" + std::filesystem::path(filename).filename().string();
+    }
     ConvertSlashesAndAddToRequired(absoultePath, dataRelative, absoultePath);
 }
 
@@ -67,9 +98,9 @@ const std::string &File::GetAbsoultePath() const
     return absoultePath_;
 }
 
-std::string File::GetAbsolutePathWithDifferentExtension(const std::string& extension) const
+std::string File::GetAbsolutePathWithDifferentExtension(const std::string &extension) const
 {
-	return std::filesystem::path(absoultePath_).replace_extension(extension).string();
+    return std::filesystem::path(absoultePath_).replace_extension(extension).string();
 }
 
 std::string File::GetBaseName() const
@@ -142,6 +173,49 @@ File::operator bool() const
 bool File::empty() const
 {
     return absoultePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
+}
+bool File::openToWrite()
+{
+    if (fp_)
+    {
+        ERROR_LOG("Can not write to openned file!.");
+        return false;
+    }
+
+    fp_ = fopen(absoultePath_.c_str(), "wb");
+
+    if (not fp_)
+    {
+        ERROR_LOG("cannot open file : " + absoultePath_);
+        return false;
+    }
+    return true;
+}
+bool File::openToRead()
+{
+    if (fp_)
+    {
+        ERROR_LOG("Can not open to openned file!.");
+        return false;
+    }
+
+    fp_ = fopen(absoultePath_.c_str(), "rb");
+
+    if (not fp_)
+    {
+        ERROR_LOG("cannot open file : " + absoultePath_);
+        return false;
+    }
+    return true;
+}
+void File::close()
+{
+    if (fp_)
+    {
+        fclose(fp_);
+    }
+
+    fp_ = nullptr;
 }
 void File::ConvertSlashes(const std::string &absoultePath, const std::string &dataRelative,
                           const std::string &projectRelative)

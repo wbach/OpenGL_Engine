@@ -149,6 +149,11 @@ void Scene::Stop()
     resourceManager_->UnlockReleaseResources();
 }
 
+bool Scene::isStarted() const
+{
+    return start_.load();
+}
+
 void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
 {
     resourceManager_ = std::make_unique<ResourceManager>(graphicsApi, gpuResourceLoader);

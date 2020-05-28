@@ -63,6 +63,7 @@ Model* ResourceManager::LoadModel(const File& file)
 
 void ResourceManager::AddModel(std::unique_ptr<Model> model)
 {
+    DEBUG_LOG("add model.");
     auto modelPtr = model.get();
     auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
                                      : model->GetFile().GetAbsoultePath();

@@ -28,6 +28,7 @@ public:
     std::unordered_map<ParamName, Param> GetParams() const override;
 
     GameObject& GetParentGameObject() override;
+    const GameObject& getParentGameObject() const override;
 
 protected:
     inline void RegisterFunction(FunctionType, std::function<void()> func);

@@ -1,12 +1,13 @@
 #pragma once
 #include <Types.h>
+#include <fstream>
 
 namespace GameEngine
 {
 class File
 {
 public:
-    File() = default;
+    File();
     File(const std::string&);
     File(const char*);
     File(const File&) = default;
@@ -35,6 +36,38 @@ public:
     operator bool() const;
     bool empty() const;
 
+    bool openToWrite();
+    bool openToRead();
+    void close();
+
+    template <typename T>
+    void addVectorToFile(const std::vector<T>& data)
+    {
+        if (fp_)
+        {
+            size_t dataSize = data.size();
+            fwrite(&dataSize, sizeof(size_t), 1, fp_);
+
+            if (not data.empty())
+            {
+                fwrite(&data[0], sizeof(T), dataSize, fp_);
+            }
+        }
+    }
+
+    template <class T>
+    void readVectorFromFile(std::vector<T>& data)
+    {
+        if (fp_)
+        {
+            data.clear();
+            size_t dataSize = 0;
+            fread(&dataSize, sizeof(size_t), 1, fp_);
+            data.resize(dataSize);
+            fread(&data[0], sizeof(T), dataSize, fp_);
+        }
+    }
+
 private:
     void ConvertSlashes(const std::string&, const std::string&, const std::string&);
     void ConvertSlashesAndAddToRequired(const std::string&, const std::string&, const std::string&);
@@ -44,5 +77,7 @@ private:
     std::string absoultePath_;
     std::string dataRelative_;
     std::string projectRelative_;
+
+    FILE* fp_;
 };
 }  // namespace GameEngine

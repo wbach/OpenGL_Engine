@@ -291,16 +291,27 @@ std::unordered_map<TerrainTextureType, File> ReadTerrainTextures(const Utils::Xm
 
 void Read(const Utils::XmlNode& node, Components::GrassRendererComponent& component)
 {
-    component.SetTexture(node.GetChild(CSTR_TEXTURE_FILENAME)->value_);
+    component.setTexture(node.GetChild(CSTR_TEXTURE_FILENAME)->value_);
 
-    if (node.GetChild(CSTR_POSITIONS) and node.GetChild(CSTR_NORMALS) and node.GetChild(CSTR_COLORS) and
-        node.GetChild(CSTR_SIZE_AND_ROTATION))
+    if (node.GetChild(CSTR_FILE_NAME))
     {
         Components::GrassRendererComponent::GrassMeshes meshesData;
-        meshesData.positions         = ReadFloatVector(*node.GetChild(CSTR_POSITIONS));
-        meshesData.normals           = ReadFloatVector(*node.GetChild(CSTR_NORMALS));
-        meshesData.colors            = ReadFloatVector(*node.GetChild(CSTR_COLORS));
-        meshesData.sizesAndRotations = ReadFloatVector(*node.GetChild(CSTR_SIZE_AND_ROTATION));
+
+        auto filename = node.GetChild(CSTR_FILE_NAME)->value_;
+
+        if (not filename.empty())
+        {
+            File file(filename);
+            auto succes = file.openToRead();
+            if (succes)
+            {
+                file.readVectorFromFile(meshesData.positions);
+                file.readVectorFromFile(meshesData.normals);
+                file.readVectorFromFile(meshesData.colors);
+                file.readVectorFromFile(meshesData.sizesAndRotations);
+                file.close();
+            }
+        }
         component.SetMeshesData(std::move(meshesData));
     }
 }

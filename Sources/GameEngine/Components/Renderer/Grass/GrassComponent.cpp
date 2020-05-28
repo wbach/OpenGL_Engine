@@ -12,6 +12,7 @@ ComponentsType GrassRendererComponent::type = ComponentsType::Grass;
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Grass, componentContext, gameObject)
+    , textureFile_("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     , isSubscribed_(false)
 {
 }
@@ -37,11 +38,12 @@ void GrassRendererComponent::UpdateModel()
     if (model and not model->GetMeshes().empty())
     {
         auto& mesh = model->GetMeshes()[0];
-        CopyDataToMesh(mesh);
 
-        auto& meshData = mesh.GetMeshDataRef();
         if (mesh.GetGraphicsObjectId())
         {
+            CopyDataToMesh(mesh);
+            auto& meshData = mesh.GetMeshDataRef();
+
             componentContext_.gpuResourceLoader_.AddFunctionToCall(
                 [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
                     graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
@@ -52,8 +54,7 @@ void GrassRendererComponent::UpdateModel()
     }
     else
     {
-        ERROR_LOG("Mesh not set!.");
-        return;
+        CreateGrassModel();
     }
 }
 
@@ -81,7 +82,13 @@ GrassRendererComponent& GrassRendererComponent::SetMeshesData(GrassMeshes data)
     return *this;
 }
 
-GrassRendererComponent& GrassRendererComponent::SetTexture(const std::string& filename)
+GrassRendererComponent& GrassRendererComponent::setMeshDataFile(const File& file)
+{
+    meshDataFile_ = file;
+    return *this;
+}
+
+GrassRendererComponent& GrassRendererComponent::setTexture(const File& filename)
 {
     textureFile_ = filename;
     return *this;
@@ -102,7 +109,10 @@ void GrassRendererComponent::ReqisterFunctions()
 }
 void GrassRendererComponent::CreateModelAndSubscribe()
 {
-    CreateGrassModel();
+    if (not model_.Get(LevelOfDetail::L1))
+    {
+        CreateGrassModel();
+    }
 
     if (not isSubscribed_)
     {
@@ -134,15 +144,15 @@ void GrassRendererComponent::CopyDataToMesh(Mesh& mesh) const
 }
 void GrassRendererComponent::CreateGrassModel()
 {
-    if (not model_.Get(LevelOfDetail::L1))
-    {
-        auto model    = std::make_unique<Model>();
-        auto material = CreateGrassMaterial();
-        auto mesh     = CreateGrassMesh(material);
-        model->AddMesh(mesh);
-        model_.Add(model.get(), LevelOfDetail::L1);
-        componentContext_.resourceManager_.AddModel(std::move(model));
-    }
+    if (meshData_.positions.empty())
+        return;
+
+    auto model    = std::make_unique<Model>();
+    auto material = CreateGrassMaterial();
+    auto mesh     = CreateGrassMesh(material);
+    model->AddMesh(mesh);
+    model_.Add(model.get(), LevelOfDetail::L1);
+    componentContext_.resourceManager_.AddModel(std::move(model));
 }
 Material GrassRendererComponent::CreateGrassMaterial() const
 {

@@ -37,13 +37,20 @@ void XmlSceneStorage::restore()
 }
 void XmlSceneStorage::saveToFile(const File& file)
 {
-    if (not rootNode_)
+    if (not scene_.isStarted())
     {
         store();
     }
 
-    Utils::CreateBackupFile(file.GetAbsoultePath());
-    Utils::Xml::Write(file.GetAbsoultePath(), *rootNode_);
+    if (rootNode_)
+    {
+        Utils::CreateBackupFile(file.GetAbsoultePath());
+        Utils::Xml::Write(file.GetAbsoultePath(), *rootNode_);
+    }
+    else
+    {
+        ERROR_LOG("Save scene to file wihout storing scene.");
+    }
 }
 void XmlSceneStorage::readFromFile(const File& file)
 {
