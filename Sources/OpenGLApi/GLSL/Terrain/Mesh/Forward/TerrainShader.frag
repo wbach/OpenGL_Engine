@@ -117,9 +117,8 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
     {
         return vec4(.8f, .8f, .8f, 1.f);
     }
-    return calculateBackgroundColor(tiledCoords, 1.f);
 
-    vec4 backgorundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount);
+    vec4 backgorundTextureColour = calculateBackgroundColor(tiledCoords, backTextureAmount);
     vec4 redTextureColor         = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor       = texture(greenTexture, tiledCoords) * blendMapColor.g;
     vec4 blueTextureColor        = texture(blueTexture, tiledCoords) * blendMapColor.b;

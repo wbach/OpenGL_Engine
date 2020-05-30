@@ -1,11 +1,13 @@
 #version 440 core
+const float EPSILON = 0.00001f;
+
 struct TerrainData
 {
     vec4 color;
     vec4 normal;
 };
 
-in VS_OUT
+in GS_OUT
 {
     vec2 texCoord;
     vec3 normal;
@@ -14,6 +16,7 @@ in VS_OUT
     float useShadows;
     float shadowMapSize;
     mat3 tbn;
+    vec3 faceNormal;
 } fs_in;
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;
@@ -119,6 +122,42 @@ float GetRockBlendFactor()
     return value;
 }
 
+vec3 getTriPlanarTextureBlendingFactor()
+{
+    vec3 normal = fs_in.faceNormal;
+    vec3 blending = abs(normal);
+    blending = normalize(max(blending, EPSILON));
+    float b = (blending.x + blending.y + blending.z);
+    blending /= vec3(b, b, b);
+    //blending.y = 0;
+    return blending;
+}
+
+vec4 getTriPlanarMappingColor(sampler2D terrainTexture, vec3 worldCoordinates)
+{
+    float scale = 0.01f;
+    vec4 xaxis = texture(terrainTexture, worldCoordinates.yz * scale);
+    vec4 yaxis = texture(terrainTexture, worldCoordinates.xz * scale);
+    vec4 zaxis = texture(terrainTexture, worldCoordinates.xy * scale);
+
+    vec3 blending = getTriPlanarTextureBlendingFactor();
+
+    return xaxis * blending.x + yaxis * blending.y + zaxis * blending.z;
+}
+
+vec4 calculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
+{
+    if (abs(backTextureAmount) < EPSILON)
+    {
+        return vec4(0.f);
+    }
+
+    float blendFactor = GetRockBlendFactor();
+    vec4 backgorundTextureColor = getTriPlanarMappingColor(backgorundTexture, fs_in.worldPos.xyz) * backTextureAmount * (1.f - blendFactor);
+    vec4 rockTextureColor       = getTriPlanarMappingColor(rockTexture, fs_in.worldPos.xyz) * backTextureAmount * blendFactor;
+    return backgorundTextureColor + rockTextureColor;
+}
+
 vec4 CalculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
 {
     float blendFactor = GetRockBlendFactor();
@@ -134,7 +173,7 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
         return vec4(.8f, .8f, .8f, 1.f);
     }
 
-    vec4 backgorundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount);
+    vec4 backgorundTextureColour = calculateBackgroundColor(tiledCoords, backTextureAmount);
     vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;
     vec4 blueTextureColor       = texture(blueTexture, tiledCoords) * blendMapColor.b;
@@ -142,11 +181,24 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
     return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
 }
 
+vec4 calculateBackgroundNormal(vec2 tiledCoords, float backTextureAmount)
+{
+    if (abs(backTextureAmount) < EPSILON)
+    {
+        return vec4(0.f);
+    }
+
+    float blendFactor = GetRockBlendFactor();
+    vec4 backgorundTextureColor = getTriPlanarMappingColor(backgorundTextureNormal, fs_in.worldPos.xyz) * backTextureAmount * (1.f - blendFactor);
+    vec4 rockTextureColor       = getTriPlanarMappingColor(rockTextureNormal, fs_in.worldPos.xyz) * backTextureAmount * blendFactor;
+    return backgorundTextureColor + rockTextureColor;
+}
+
 vec4 CalculateTerrainNormal(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
 {
     if (NormalMaping())
     {
-        vec4 backgorundNormalColor   = texture(backgorundTextureNormal, tiledCoords) * backTextureAmount;
+        vec4 backgorundNormalColor   = calculateBackgroundNormal(tiledCoords, backTextureAmount);
         vec4 redNormalTextureColor   = texture(redTextureNormal, tiledCoords) * blendMapColor.r;
         vec4 greenNormalTextureColor = texture(greenTextureNormal, tiledCoords) * blendMapColor.g;
         vec4 blueNormalTextureColor  = texture(blueTextureNormal, tiledCoords) * blendMapColor.b;
