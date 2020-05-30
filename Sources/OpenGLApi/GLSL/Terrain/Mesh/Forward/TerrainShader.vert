@@ -19,14 +19,15 @@ layout (std140, binding=3) uniform PerObjectUpdate
 
 out VS_OUT
 {
+    vec4 worldPosition;
     vec2 texCoord;
     vec3 normal;
 } vs_out;
 
 void main()
 {
-    vec4 worldPos           = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
-    vs_out.texCoord         = TEXTCOORD;
-    vs_out.normal           = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
-    gl_Position = perFrame.projectionViewMatrix * worldPos;
+    vs_out.worldPosition = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
+    vs_out.texCoord      = TEXTCOORD;
+    vs_out.normal        = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
+    gl_Position = perFrame.projectionViewMatrix * vs_out.worldPosition;
 }
