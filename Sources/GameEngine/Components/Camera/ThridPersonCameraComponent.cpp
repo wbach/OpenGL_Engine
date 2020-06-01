@@ -22,12 +22,15 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& compone
         KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(zoomSpeed_); });
     keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
+
+    previousCamera_ = componentContext_.camera_.Get();
     componentContext_.camera_.Set(*camera_);
 }
 
 void ThridPersonCameraComponent::CleanUp()
 {
     keysSubscriptionsManager_.UnsubscribeKeys();
+    componentContext_.camera_.Set(*previousCamera_);
 }
 
 void ThridPersonCameraComponent::ReqisterFunctions()

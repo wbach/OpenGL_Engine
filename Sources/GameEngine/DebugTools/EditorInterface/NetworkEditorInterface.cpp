@@ -1316,7 +1316,7 @@ void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 
         const auto &heightMap = *tc->GetHeightMap();
 
-        auto heightMapFile = tc->GetTextureFileNames().at(TerrainTextureType::heightmap);
+        auto heightMapFile = *tc->GetTexture(TerrainTextureType::heightmap)->GetFile();
 
         if (not generetedBlendMaps.count(heightMapFile.GetAbsoultePath()))
         {

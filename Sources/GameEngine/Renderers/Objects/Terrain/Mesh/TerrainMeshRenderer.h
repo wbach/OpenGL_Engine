@@ -42,7 +42,7 @@ private:
 
 private:
     void BindTexture(Texture*, uint32 id) const;
-    void BindTextures(const TerrainTexturesMap&) const;
+    void BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>&) const;
     void RenderSubscribers(const Scene&) const;
     void RenderSubscriber(const Scene&, const Subscriber&) const;
     void RenderMesh(const Mesh&, const GraphicsApi::ID&) const;

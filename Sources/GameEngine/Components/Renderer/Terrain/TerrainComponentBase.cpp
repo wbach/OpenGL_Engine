@@ -39,56 +39,158 @@ void TerrainComponentBase::BlendMapChanged()
     }
 }
 
-void TerrainComponentBase::LoadTextures(const std::unordered_map<TerrainTextureType, File> &textures)
+void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textures)
 {
-    texturedFileNames_ = textures;
+    perTerrainTexturesBuffer_ =
+        std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6);
 
-    for (const auto &texturePair : textures)
+    for (const auto &terrainTexture : textures)
     {
         TextureParameters textureParams;
         textureParams.flipMode = TextureFlip::VERTICAL;
         textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
 
-        if (texturePair.first == TerrainTextureType::heightmap)
+        switch (terrainTexture.type)
         {
-            textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
-            LoadTerrainConfiguration(texturePair.second);
-            LoadHeightMap(texturePair.second);
-            continue;
-        }
-        else if (texturePair.first == TerrainTextureType::blendMap)
-        {
-            textureParams.dataStorePolicy = DataStorePolicy::Store;
-            textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+            case TerrainTextureType::heightmap:
+                textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+                LoadTerrainConfiguration(terrainTexture.file);
+                LoadHeightMap(terrainTexture.file);
+                break;
+            case TerrainTextureType::blendMap:
+                textureParams.dataStorePolicy = DataStorePolicy::Store;
+                textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+                break;
+            case TerrainTextureType::redTexture:
+            case TerrainTextureType::redTextureNormal:
+            case TerrainTextureType::redTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.r = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::greenTexture:
+            case TerrainTextureType::greenTextureNormal:
+            case TerrainTextureType::greenTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.g = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::blueTexture:
+            case TerrainTextureType::blueTextureNormal:
+            case TerrainTextureType::blueTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.b = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::alphaTexture:
+            case TerrainTextureType::alphaTextureNormal:
+            case TerrainTextureType::alphaTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.w = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::backgorundTexture:
+            case TerrainTextureType::backgorundTextureNormal:
+            case TerrainTextureType::backgorundTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::rockTexture:
+            case TerrainTextureType::rockTextureNormal:
+            case TerrainTextureType::rockTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                break;
         }
 
         auto texture =
-            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(texturePair.second, textureParams);
+            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(terrainTexture.file, textureParams);
 
         if (texture)
         {
-            SetTexture(texturePair.first, texture);
+            SetTexture(terrainTexture.type, texture);
         }
         else
         {
-            ERROR_LOG("Texture not loaded correctly. " + std::to_string(texturePair.first) + ", file : " + texturePair.second.GetAbsoultePath());
+            ERROR_LOG("Texture not loaded correctly. " + std::to_string(terrainTexture.type) +
+                      ", file : " + terrainTexture.file.GetAbsoultePath());
         }
     }
+    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*perTerrainTexturesBuffer_);
+    inputData_ = textures;
 }
 
-const std::unordered_map<TerrainTextureType, File> &TerrainComponentBase::GetTextureFileNames() const
+const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
 {
-    return texturedFileNames_;
+    auto iter = std::find_if(inputData_.begin(), inputData_.end(),
+                             [type](const auto &texture) { return texture.type == type; });
+    if (iter != inputData_.end())
+        return &iter->file;
+
+    return nullptr;
 }
 
-const TerrainTexturesMap &TerrainComponentBase::GetTextures() const
+TerrainComponentBase::TerrainTexture *TerrainComponentBase::getTerrainTexture(TerrainTextureType type)
+{
+    auto iter = std::find_if(inputData_.begin(), inputData_.end(),
+                             [type](const auto &texture) { return texture.type == type; });
+
+    if (iter != inputData_.end())
+        return &*iter;
+
+    return nullptr;
+}
+
+void TerrainComponentBase::updateTerrainTextureBuffer()
+{
+    for (const auto &terrainTexture : inputData_)
+    {
+        switch (terrainTexture.type)
+        {
+            case TerrainTextureType::redTexture:
+            case TerrainTextureType::redTextureNormal:
+            case TerrainTextureType::redTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.r = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::greenTexture:
+            case TerrainTextureType::greenTextureNormal:
+            case TerrainTextureType::greenTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.g = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::blueTexture:
+            case TerrainTextureType::blueTextureNormal:
+            case TerrainTextureType::blueTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.b = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::alphaTexture:
+            case TerrainTextureType::alphaTextureNormal:
+            case TerrainTextureType::alphaTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.w = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::backgorundTexture:
+            case TerrainTextureType::backgorundTextureNormal:
+            case TerrainTextureType::backgorundTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::rockTexture:
+            case TerrainTextureType::rockTextureNormal:
+            case TerrainTextureType::rockTextureDisplacement:
+                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                break;
+        }
+    }
+    componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*perTerrainTexturesBuffer_);
+}
+
+const std::vector<TerrainComponentBase::TerrainTexture> &TerrainComponentBase::GetInputDataTextures() const
+{
+    return inputData_;
+}
+
+const std::vector<std::pair<TerrainTextureType, Texture *>> &TerrainComponentBase::GetTextures() const
 {
     return textures_;
 }
 
 Texture *TerrainComponentBase::GetTexture(TerrainTextureType type) const
 {
-    return textures_.count(type) ? textures_.at(type) : nullptr;
+    auto iter =
+        std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
+
+    if (iter != textures_.end())
+        return iter->second;
+
+    return nullptr;
 }
 
 const TerrainConfiguration &TerrainComponentBase::GetConfiguration() const
@@ -101,22 +203,35 @@ HeightMap *TerrainComponentBase::GetHeightMap()
     return heightMap_;
 }
 
-void TerrainComponentBase::UpdateTexture(TerrainTextureType type, const std::string &filename)
+void TerrainComponentBase::UpdateTexture(TerrainTextureType type, const File &file)
 {
-    texturedFileNames_[type] = filename;
+    auto iter = std::find_if(inputData_.begin(), inputData_.end(),
+                             [type](const auto &terrainTexture) { return terrainTexture.type == type; });
+
+    if (iter != inputData_.end())
+        iter->file = file;
+    else
+        inputData_.push_back({file, 1.f, type});
 
     if (type == TerrainTextureType::heightmap)
     {
-        UpdateHeightMap(filename);
+        UpdateHeightMap(file);
     }
     else
     {
-        auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(filename, TextureParameters());
+        auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(file, TextureParameters());
         if (texture)
         {
             UpdateTexture(type, texture);
         }
     }
+}
+
+GraphicsApi::ID TerrainComponentBase::getPerTerrainTexturesBufferId() const
+{
+    if (perTerrainTexturesBuffer_)
+        return perTerrainTexturesBuffer_->GetGraphicsObjectId();
+    return std::nullopt;
 }
 
 void TerrainComponentBase::LoadHeightMap(const File &file)
@@ -137,20 +252,26 @@ void TerrainComponentBase::LoadTerrainConfiguration(const File &terrainConfigFil
 
 void TerrainComponentBase::SetTexture(TerrainTextureType type, Texture *texture)
 {
-    if (textures_.count(type))
+    auto iter =
+        std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
+
+    if (iter != textures_.end())
     {
         ERROR_LOG("Texture type " + std::to_string(type) + " already exist.");
         return;
     }
 
-    textures_.insert({type, texture});
+    textures_.push_back({type, texture});
 }
 
 void TerrainComponentBase::UpdateTexture(TerrainTextureType type, Texture *texture)
 {
-    if (textures_.count(type))
+    auto iter =
+        std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
+
+    if (iter != textures_.end())
     {
-        textures_.at(type) = texture;
+        iter->second = texture;
     }
     else
     {

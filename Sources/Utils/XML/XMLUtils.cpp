@@ -128,7 +128,14 @@ vec3 ConvertToVec3(XmlNode& node)
 
 float ReadFloat(Utils::XmlNode& node)
 {
-    return std::stof(node.value_);
+    try
+    {
+        return std::stof(node.value_);
+    }
+    catch (...)
+    {
+        ERROR_LOG("read error " + node.value_);
+    }
 }
 
 bool ReadBool(XmlNode& node)

@@ -274,18 +274,27 @@ void Read(const Utils::XmlNode& node, Components::WaterRendererComponent& compon
         component.LoadTextures(dudvNode->value_, normalMapNode->value_);
 }
 
-std::unordered_map<TerrainTextureType, File> ReadTerrainTextures(const Utils::XmlNode& node)
+std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTextures(const Utils::XmlNode& node)
 {
-    std::unordered_map<TerrainTextureType, File> result;
+    std::vector<Components::TerrainComponentBase::TerrainTexture> result;
 
     for (const auto& texture : node.GetChildren())
     {
-        const auto& filename = texture->GetChild(CSTR_TEXTURE_FILENAME)->value_;
-        TerrainTextureType type;
-        std::from_string(texture->GetChild(CSTR_TEXTURE_TYPE)->value_, type);
-        result.insert({type, filename});
-    }
+        Components::TerrainComponentBase::TerrainTexture terrainTexture;
+        if (texture->GetChild(CSTR_TEXTURE_FILENAME))
+            terrainTexture.file = File(texture->GetChild(CSTR_TEXTURE_FILENAME)->value_);
 
+        if (texture->GetChild(CSTR_TEXTURE_TYPE))
+            std::from_string(texture->GetChild(CSTR_TEXTURE_TYPE)->value_, terrainTexture.type);
+        else
+            WARNING_LOG("Read texture without type");
+
+        if (texture->GetChild(CSTR_SCALE))
+            terrainTexture.tiledScale = ReadFloat(*texture->GetChild(CSTR_SCALE));
+
+        result.push_back(terrainTexture);
+    }
+    std::sort(result.begin(), result.end(), [](const auto& l, const auto& r) { return static_cast<int>(l.type) < static_cast<int>(r.type); });
     return result;
 }
 

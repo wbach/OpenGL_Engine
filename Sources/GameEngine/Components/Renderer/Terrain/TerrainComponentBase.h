@@ -4,6 +4,7 @@
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "PerTerrainTexturesBuffer.h"
 #include "TerrainConfiguration.h"
 #include "TerrainTexturesTypes.h"
 #include "GameEngine/Resources/TextureParameters.h"
@@ -20,6 +21,13 @@ namespace Components
 class TerrainComponentBase
 {
 public:
+    struct TerrainTexture
+    {
+        File file;
+        float tiledScale{1.f};
+        TerrainTextureType type;
+    };
+
     TerrainComponentBase(ComponentContext&, GameObject&);
     virtual ~TerrainComponentBase() = default;
 
@@ -31,13 +39,17 @@ public:
 
     void BlendMapChanged();
 
-    void LoadTextures(const std::unordered_map<TerrainTextureType, File>&);
-    const std::unordered_map<TerrainTextureType, File>& GetTextureFileNames() const;
-    const TerrainTexturesMap& GetTextures() const;
+    void LoadTextures(const std::vector<TerrainTexture>&);
+    const File* getTextureFile(TerrainTextureType) const;
+    TerrainTexture* getTerrainTexture(TerrainTextureType);
+    void updateTerrainTextureBuffer();
+    const std::vector<TerrainTexture>& GetInputDataTextures() const;
+    const std::vector<std::pair<TerrainTextureType, Texture*>>& GetTextures() const;
     Texture* GetTexture(TerrainTextureType) const;
     const TerrainConfiguration& GetConfiguration() const;
     HeightMap* GetHeightMap();
-    void UpdateTexture(TerrainTextureType, const std::string&);
+    void UpdateTexture(TerrainTextureType, const File&);
+    GraphicsApi::ID getPerTerrainTexturesBufferId() const;
 
 protected:
     virtual void LoadHeightMap(const File&)   = 0;
@@ -54,14 +66,15 @@ private:
 protected:
     ComponentContext& componentContext_;
     GameObject& thisObject_;
+    std::unique_ptr<BufferObject<PerTerrainTexturesBuffer>> perTerrainTexturesBuffer_;
 
     TextureParameters heightMapParameters_;
     TerrainConfiguration config_;
-    TerrainTexturesMap textures_;
     HeightMap* heightMap_;
-
-    std::unordered_map<TerrainTextureType, File> texturedFileNames_;
     bool isSubscribed_;
+
+    std::vector<TerrainTexture> inputData_;
+    std::vector<std::pair<TerrainTextureType, Texture*>> textures_;
 
 public:
     static ComponentsType type;

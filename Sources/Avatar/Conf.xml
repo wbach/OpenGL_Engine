@@ -1,12 +1,12 @@
 <Config>
-	<Window name="Default Window Name" width="800" height="480" fullscreen="false"/>
+	<Window name="Default Window Name" width="1366" height="768" fullscreen="false"/>
 	<Files>
 		<DataLocation>../../Data/</DataLocation>
 		<ShadersLocation>../../Sources/</ShadersLocation>
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer graphicsApi="OpenGL" resolutionX="800" type="1" resolutionY="480" viewDistance="250.000000" fpsLimit="60" normalMappingDistance="150.000000">
+	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" resolutionY="768" viewDistance="250.000000" fpsLimit="60" normalMappingDistance="1050.000000">
 		<Terrain>
 			<TerrainRenderer>Mesh</TerrainRenderer>
 		</Terrain>
@@ -15,7 +15,7 @@
 			<Refraction width="320" height="240"/>
 		</Water>
 		<Flora enabled="true" grass="1" viewDistance="10.000000"/>
-		<Shadows enabled="true" viewDistance="35.000000" shadowMapSize="4096"/>
+		<Shadows enabled="false" viewDistance="35.000000" shadowMapSize="4096"/>
 		<Textures ambient="true" maxWidth="1024" displacement="false" maxHeight="1024" diffuse="true" normal="true" specular="true"/>
 		<Particles enabled="true"/>
 	</Renderer>

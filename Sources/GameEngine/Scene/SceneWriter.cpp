@@ -116,17 +116,18 @@ void Create(XmlNode&, const Components::ThridPersonCameraComponent&)
 {
 }
 
-void Create(XmlNode& node, TerrainTextureType type, const std::string& filename)
+void Create(XmlNode& node, TerrainTextureType type, float scale, const std::string& filename)
 {
     Create(node.AddChild(CSTR_TEXTURE_TYPE), std::to_string(type));
+    Create(node.AddChild(CSTR_SCALE), std::to_string(scale));
     Create(node.AddChild(CSTR_TEXTURE_FILENAME), filename);
 }
 
-void Create(XmlNode& node, const std::unordered_map<TerrainTextureType, File>& str)
+void Create(XmlNode& node, const std::vector<Components::TerrainComponentBase::TerrainTexture>& textures)
 {
-    for (const auto& value : str)
+    for (const auto& value : textures)
     {
-        Create(node.AddChild(CSTR_TEXTURE), value.first, value.second.GetDataRelativeDir());
+        Create(node.AddChild(CSTR_TEXTURE), value.type, value.tiledScale, value.file.GetDataRelativeDir());
     }
 }
 
@@ -312,7 +313,7 @@ void Create(XmlNode& node, const Components::GrassRendererComponent& component)
 
 void Create(XmlNode& node, const Components::TerrainRendererComponent& component)
 {
-    Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetTextureFileNames());
+    Create(node.AddChild(CSTR_TEXTURE_FILENAMES), component.GetInputDataTextures());
 
     auto heightMapTexture = component.GetTexture(TerrainTextureType::heightmap);
 

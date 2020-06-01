@@ -69,6 +69,12 @@ void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber&
 
     auto isVisible = context_.frustrum_.intersection(model->getBoundingBox());
 
+    auto textureBufferId = subscriber.component_->getPerTerrainTexturesBufferId();
+    if (textureBufferId)
+    {
+        context_.graphicsApi_.BindShaderBuffer(*textureBufferId);
+    }
+
     if (isVisible)
     {
         BindTextures(subscriber.component_->GetTextures());
@@ -112,7 +118,7 @@ void TerrainMeshRenderer::PartialRendering(const Model& model, const Scene&,
         ++index;
     }
 }
-void TerrainMeshRenderer::BindTextures(const TerrainTexturesMap& textures) const
+void TerrainMeshRenderer::BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
     //    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
 

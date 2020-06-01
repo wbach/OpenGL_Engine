@@ -34,6 +34,18 @@ TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentContro
     if (bias_ < 0.1f)
         bias_ = 0.1f;
 
+    if (perTerrainHeightMapsize_.x % 2 == 0)
+    {
+        perTerrainHeightMapsize_.x += 1;
+    }
+
+    if (perTerrainHeightMapsize_.y % 2 == 0)
+    {
+        perTerrainHeightMapsize_.y += 1;
+    }
+
+    DEBUG_LOG("perTerrainHeightMapsize_ " + std::to_string(perTerrainHeightMapsize_));
+
     uint32 maxOctaves = 0;
     for (uint32 o = 0; o < octaves_; o++)
     {

@@ -101,7 +101,7 @@ void TerrainRenderer::RenderSubscribers() const
         }
     }
 }
-void TerrainRenderer::RenderSubscriber(const TerrainTexturesMap& textures) const
+void TerrainRenderer::RenderSubscriber(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
     BindTextures(textures);
     context_.graphicsApi_.RenderPurePatchedMeshInstances(*objectId);
@@ -124,7 +124,7 @@ void TerrainRenderer::RenderNode(const TerrainNode& node) const
         }
     }
 }
-void TerrainRenderer::BindTextures(const TerrainTexturesMap& textures) const
+void TerrainRenderer::BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
 //    auto shadowMap = context_.GetShadowMap();
 

@@ -62,9 +62,11 @@ const TerrainQuadTree& TerrainTessellationRendererComponent::GetTree() const
 }
 void TerrainTessellationRendererComponent::HeightMapChanged()
 {
-    if (texturedFileNames_.count(TerrainTextureType::heightmap))
+    auto file = getTextureFile(TerrainTextureType::heightmap);
+
+    if (file)
     {
-        UpdateHeightMap(texturedFileNames_.at(TerrainTextureType::heightmap));
+        UpdateHeightMap(*file);
     }
     else
     {

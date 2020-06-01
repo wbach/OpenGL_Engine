@@ -33,9 +33,9 @@ private:
 private:
     bool IsInit() const;
     void BindTexture(Texture &, uint32 id) const;
-    void BindTextures(const TerrainTexturesMap& textures) const;
+    void BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const;
     void RenderSubscribers() const;
-    void RenderSubscriber(const TerrainTexturesMap& textures) const;
+    void RenderSubscriber(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const;
     void RenderNode(const TerrainNode& node) const;
 
 private:

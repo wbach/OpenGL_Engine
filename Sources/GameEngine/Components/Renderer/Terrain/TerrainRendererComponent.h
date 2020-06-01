@@ -39,12 +39,12 @@ public:
     void HeightMapChanged();
     void BlendMapChanged();
     void UpdateTexture(TerrainTextureType, const std::string&);
-    TerrainRendererComponent& LoadTextures(const std::unordered_map<TerrainTextureType, File>&);
+    TerrainRendererComponent& LoadTextures(const std::vector<TerrainComponentBase::TerrainTexture>&);
     Texture* GetTexture(TerrainTextureType) const;
 
     HeightMap* GetHeightMap();
     const TerrainConfiguration& GetTerrainConfiguration() const;
-    const std::unordered_map<TerrainTextureType, File>& GetTextureFileNames() const;
+    const std::vector<TerrainComponentBase::TerrainTexture>& GetInputDataTextures() const;
 
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();

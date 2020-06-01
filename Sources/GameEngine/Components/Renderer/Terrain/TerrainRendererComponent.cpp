@@ -62,20 +62,20 @@ void TerrainRendererComponent::CleanUp()
 }
 
 TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
-    const std::unordered_map<TerrainTextureType, File>& textures)
+    const std::vector<TerrainComponentBase::TerrainTexture>& textures)
 {
     terrainComponent_->LoadTextures(textures);
     return *this;
 }
 
-Texture *TerrainRendererComponent::GetTexture(TerrainTextureType type) const
+Texture* TerrainRendererComponent::GetTexture(TerrainTextureType type) const
 {
     return terrainComponent_->GetTexture(type);
 }
 
-const std::unordered_map<TerrainTextureType, File>& TerrainRendererComponent::GetTextureFileNames() const
+const std::vector<TerrainComponentBase::TerrainTexture>& TerrainRendererComponent::GetInputDataTextures() const
 {
-    return terrainComponent_->GetTextureFileNames();
+    return terrainComponent_->GetInputDataTextures();
 }
 
 void TerrainRendererComponent::UpdateTexture(TerrainTextureType textureType, const std::string& texture)
@@ -169,22 +169,88 @@ void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::stri
             std::from_string(param.first, textureType);
             UpdateTexture(textureType, GetRelativeDataPath(param.second));
         }
+        else if (param.first == "redTiledScale")
+        {
+            float v = Utils::StringToFloat(param.second);
+            terrainComponent_->getTerrainTexture(TerrainTextureType::redTexture)->tiledScale             = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::redTextureDisplacement)->tiledScale = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::redTextureNormal)->tiledScale       = v;
+        }
+        else if (param.first == "blueTiledScale")
+        {
+            float v = Utils::StringToFloat(param.second);
+            terrainComponent_->getTerrainTexture(TerrainTextureType::blueTexture)->tiledScale             = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::blueTextureNormal)->tiledScale       = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::blueTextureDisplacement)->tiledScale = v;
+        }
+        else if (param.first == "greenTiledScale")
+        {
+            float v = Utils::StringToFloat(param.second);
+            terrainComponent_->getTerrainTexture(TerrainTextureType::greenTexture)->tiledScale             = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::greenTextureNormal)->tiledScale       = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::greenTextureDisplacement)->tiledScale = v;
+        }
+        else if (param.first == "alphaTiledScale")
+        {
+            float v = Utils::StringToFloat(param.second);
+            terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTexture)->tiledScale             = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTextureDisplacement)->tiledScale = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTextureNormal)->tiledScale       = v;
+        }
+        else if (param.first == "rockTiledScale")
+        {
+            float v = Utils::StringToFloat(param.second);
+            terrainComponent_->getTerrainTexture(TerrainTextureType::rockTexture)->tiledScale             = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::rockTextureNormal)->tiledScale       = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::rockTextureDisplacement)->tiledScale = v;
+        }
+        else if (param.first == "bgTiledScale")
+        {
+            float v = Utils::StringToFloat(param.second);
+            terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTexture)->tiledScale             = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTextureNormal)->tiledScale       = v;
+            terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTextureDisplacement)->tiledScale = v;
+        }
     }
+    terrainComponent_->updateTerrainTextureBuffer();
 }
 
 std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
 {
     std::unordered_map<ParamName, Param> result;
 
-    const auto& textures = GetTextureFileNames();
+    const auto& textures = GetInputDataTextures();
 
     for (const auto& texture : textures)
     {
-        auto varType = texture.first == TerrainTextureType::heightmap ? FILE : IMAGE_FILE;
-        result.insert(
-            {std::to_string(texture.first), {varType, texture.second.GetAbsoultePath()}});
+        auto varType = texture.type == TerrainTextureType::heightmap ? FILE : IMAGE_FILE;
+        result.insert({std::to_string(texture.type), {varType, texture.file.GetAbsoultePath()}});
     }
 
+    {
+        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::redTexture);
+        result.insert({"redTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
+    }
+    {
+        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::blueTexture);
+        result.insert({"blueTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
+    }
+    {
+        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::greenTexture);
+        result.insert({"greenTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
+    }
+    {
+        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTexture);
+        result.insert({"alphaTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
+    }
+    {
+        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::rockTexture);
+        result.insert({"rockTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
+    }
+    {
+        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTexture);
+        result.insert({"bgTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
+    }
     return result;
 }
 

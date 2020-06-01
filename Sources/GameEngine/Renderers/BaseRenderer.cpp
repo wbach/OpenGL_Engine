@@ -1,3 +1,4 @@
+
 #include "BaseRenderer.h"
 
 #include "Objects/Entity/EntityRenderer.h"
@@ -63,8 +64,8 @@ void BaseRenderer::InitRenderers()
 }
 void BaseRenderer::CreateRenderers()
 {
-    AddRenderer<SkyBoxRenderer>();
-    AddRenderer<SkydomRenderer>();
+   // AddRenderer<SkyBoxRenderer>();
+ //   AddRenderer<SkydomRenderer>();
 
     if (EngineConf.renderer.flora.isGrass)
         AddRenderer<GrassRenderer>();
