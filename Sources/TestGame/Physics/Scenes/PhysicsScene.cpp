@@ -32,20 +32,6 @@ using namespace GameEngine;
 
 namespace PhysicsTestGame
 {
-TerrainTexturesFilesMap CreateTerrainTexturesMap()
-{
-    // clang-format off
-    return
-    {
-        {TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
-        {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png"},
-        {TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
-        {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/TerrainFlat.terrain"}
-    };
-    // clang-format on
-}
 
 const float SEARCH_DEBUG = 1000;
 
@@ -154,8 +140,6 @@ void PhysicsScene::AddStartupObjects()
     AddExampleMesh(vec3(10, 2, 20), 2.f);
     AddExampleMesh(vec3(20, 2, 20), 3.f);
     AddExampleMesh(vec3(30, 2, 20), 4.f);
-
-    AddTerrain();
 }
 void PhysicsScene::CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position,
                                           uint32_t textureIndex, bool isDynamic)
@@ -186,22 +170,6 @@ int PhysicsScene::Initialize()
 
 void PhysicsScene::PostInitialize()
 {
-}
-
-void PhysicsScene::AddTerrain()
-{
-    auto textures = CreateTerrainTexturesMap();
-    auto object   = CreateGameObjectInstance(1.f, vec2(0));
-    object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
-
-    auto& terrainShapeComponent =
-        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
-
-    auto rigidbody = object->AddComponent<Components::Rigidbody>()
-                         .SetCollisionShape(terrainShapeComponent.GetType())
-                         .SetIsStatic(true);
-
-    AddGameObject(std::move(object));
 }
 
 std::unique_ptr<GameEngine::GameObject> PhysicsScene::CreateGameObjectInstance(float scale, const vec2& position, bool)

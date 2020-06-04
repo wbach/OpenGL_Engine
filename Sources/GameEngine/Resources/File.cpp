@@ -10,11 +10,13 @@ namespace GameEngine
 {
 File::File()
     : fp_{nullptr}
+    , fileSize_(0)
 {
 }
 
 File::File(const std::string &input)
     : fp_{nullptr}
+    , fileSize_(0)
 {
     if (Utils::IsAbsolutePath(input))
         AbsoultePath(input);
@@ -199,6 +201,12 @@ bool File::openToRead()
         return false;
     }
 
+    if (not std::filesystem::exists(absoultePath_))
+    {
+        ERROR_LOG("file not exist! " + absoultePath_);
+        return false;
+    }
+
     fp_ = fopen(absoultePath_.c_str(), "rb");
 
     if (not fp_)
@@ -206,6 +214,11 @@ bool File::openToRead()
         ERROR_LOG("cannot open file : " + absoultePath_);
         return false;
     }
+
+    fseek(fp_, 0L, SEEK_END);
+    fileSize_ = ftell(fp_);
+    fseek(fp_, 0, SEEK_SET);
+
     return true;
 }
 void File::close()
@@ -240,5 +253,10 @@ bool File::IsProjectRelativePath(const std::string &inputpath) const
     {
         return false;
     }
+}
+
+void File::printError(const std::string &str) const
+{
+    ERROR_LOG(str);
 }
 }  // namespace GameEngine

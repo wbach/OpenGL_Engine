@@ -189,14 +189,28 @@ struct FbxLoader::Pimpl
         {
             FbxSystemUnit::cm.ConvertScene(scene_);
         }
+
         scene_->FillAnimStackNameArray(animStackNameArray_);
+
+        for (int i = 0; i < animStackNameArray_.Size(); ++i)
+        {
+            DEBUG_LOG(" " + animStackNameArray_.GetAt(i)->Buffer());
+        }
 
         // Get the list of all the cameras in the scene.
         // FillCameraArray(mScene, mCameraArray);
 
         FbxGeometryConverter geom_converter(manager_);
-        geom_converter.Triangulate(scene_, true, true);
-        geom_converter.SplitMeshesPerMaterial(scene_, true);
+        if (not geom_converter.Triangulate(scene_, true))
+        {
+            ERROR_LOG("Triangulate mesh failed.");
+            return;
+        }
+
+        if (not geom_converter.SplitMeshesPerMaterial(scene_, true))
+        {
+            WARNING_LOG("Split mesh per material failed.");
+        }
 
         LoadTextures();
 
@@ -249,7 +263,7 @@ struct FbxLoader::Pimpl
         }
     }
 
-    void LoadCacheRecursive(FbxNode* node)
+    void LoadCacheRecursive(FbxNode* node, std::string t = "")
     {
         for (int i = 0; i < node->GetMaterialCount(); ++i)
         {
@@ -260,12 +274,14 @@ struct FbxLoader::Pimpl
             }
         }
 
-        FbxNodeAttribute* nodeAttribute = node->GetNodeAttribute();
-        if (nodeAttribute)
+        for (int i = 0; i < node->GetNodeAttributeCount(); ++i)
         {
-            if (nodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
+            FbxNodeAttribute* nodeAttribute = node->GetNodeAttributeByIndex(i);
+
+            if (nodeAttribute and nodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
             {
-                FbxMesh* mesh = node->GetMesh();
+                FbxMesh* mesh = static_cast<FbxMesh*>(nodeAttribute);
+
                 if (mesh and not mesh->GetUserDataPtr())
                 {
                     InitializeMesh(*mesh);
@@ -275,7 +291,7 @@ struct FbxLoader::Pimpl
 
         for (int i = 0; i < node->GetChildCount(); ++i)
         {
-            LoadCacheRecursive(node->GetChild(i));
+            LoadCacheRecursive(node->GetChild(i), t + "-");
         }
     }
 
@@ -316,6 +332,7 @@ struct FbxLoader::Pimpl
     Material InitializeMaterial(const FbxSurfaceMaterial& material)
     {
         Material result;
+        result.name = material.GetName();
 
         auto ambient = GetMaterialProperty(material, FbxSurfaceMaterial::sAmbient, FbxSurfaceMaterial::sAmbientFactor);
         result.ambient        = ambient.color_;
@@ -342,19 +359,19 @@ struct FbxLoader::Pimpl
 
     void InitializeMesh(const FbxMesh& fbxMesh)
     {
-        if (not fbxMesh.GetNode())
+        if (fbxMesh.GetPolygonCount() == 0)
             return;
+
+        objects_.back().meshes.emplace_back();
+        auto& newMesh = objects_.back().meshes.back();
 
         /* m_BonesInfo.push_back(SBonesInfo());
          SBonesInfo& bones_info = m_BonesInfo.back();*/
 
-        // Count the polygon count of each material
-        FbxLayerElementArrayTemplate<int>* materialIndice{nullptr};
-        FbxGeometryElement::EMappingMode materialMappingMode{FbxGeometryElement::eNone};
         if (fbxMesh.GetElementMaterial())
         {
-            materialIndice      = &fbxMesh.GetElementMaterial()->GetIndexArray();
-            materialMappingMode = fbxMesh.GetElementMaterial()->GetMappingMode();
+            auto materialIndice = &fbxMesh.GetElementMaterial()->GetIndexArray();
+            newMesh.material = materials_[static_cast<size_t>(materialIndice->GetAt(0))];
         }
 
         FbxStringList uvNames;
@@ -366,18 +383,10 @@ struct FbxLoader::Pimpl
             uvName = uvNames[0];
         }
 
-        objects_.back().meshes.emplace_back();
-        auto& newMesh = objects_.back().meshes.back();
-
         newMesh.vertexBuffer.reserve(static_cast<size_t>(fbxMesh.GetControlPointsCount()));
 
         for (int polygonIndex = 0; polygonIndex < fbxMesh.GetPolygonCount(); ++polygonIndex)
         {
-            if (materialIndice)
-            {
-                newMesh.material = materials_[static_cast<size_t>(materialIndice->GetAt(polygonIndex))];
-            }
-
             for (int verticeIndex = 0; verticeIndex < 3; ++verticeIndex)
             {
                 const int controlPointIndex       = fbxMesh.GetPolygonVertex(polygonIndex, verticeIndex);
@@ -455,7 +464,7 @@ struct FbxLoader::Pimpl
                         continue;
 
                     auto weight = static_cast<float>(cluster->GetControlPointWeights()[k]);
-                    newMesh.vertexBuffer[index].jointInfo.push_back(JointInfo{0, weight });
+                    newMesh.vertexBuffer[index].jointInfo.push_back(JointInfo{0, weight});
 
                     // DEBUG_LOG("Weight : " + std::to_string(weight));
 

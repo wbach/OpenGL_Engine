@@ -7,6 +7,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "TestGame/Single/PlayerInputController.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainComponentBase.h"
 
 class CPlayer;
 namespace GameEngine
@@ -22,7 +23,7 @@ enum class CameraType
 
 namespace PhysicsTestGame
 {
-typedef std::unordered_map<GameEngine::TerrainTextureType, GameEngine::File> TerrainTexturesFilesMap;
+typedef std::vector<GameEngine::Components::TerrainComponentBase::TerrainTexture> TerrainTexturesFiles;
 
 class PhysicsScene : public GameEngine::Scene
 {
@@ -34,7 +35,6 @@ public:
     int Update(float deltaTime) override;
 
 private:
-    void AddTerrain();
     std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
     void CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position, uint32_t textureIndex = 0, bool isDynamic = false);
     void AddBoxes(const vec3& pos);

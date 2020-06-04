@@ -45,8 +45,8 @@ public:
     {
         if (fp_)
         {
-            size_t dataSize = data.size();
-            fwrite(&dataSize, sizeof(size_t), 1, fp_);
+            uint32 dataSize = data.size();
+            fwrite(&dataSize, sizeof(uint32), 1, fp_);
 
             if (not data.empty())
             {
@@ -60,11 +60,29 @@ public:
     {
         if (fp_)
         {
-            data.clear();
-            size_t dataSize = 0;
-            fread(&dataSize, sizeof(size_t), 1, fp_);
-            data.resize(dataSize);
-            fread(&data[0], sizeof(T), dataSize, fp_);
+            uint32 dataSize = 0;
+
+            auto currentPosition = ftell(fp_);
+            if (currentPosition < sizeof(uint32))
+            {
+                data.clear();
+                fread(&dataSize, sizeof(uint32), 1, fp_);
+            }
+            else
+            {
+                printError("Reading file error, to many bits requested");
+            }
+
+            currentPosition = ftell(fp_);
+            if (currentPosition < sizeof(T) * dataSize)
+            {
+                data.resize(dataSize);
+                fread(&data[0], sizeof(T), dataSize, fp_);
+            }
+            else
+            {
+                printError("Reading file error, to many bits requested");
+            }
         }
     }
 
@@ -72,6 +90,7 @@ private:
     void ConvertSlashes(const std::string&, const std::string&, const std::string&);
     void ConvertSlashesAndAddToRequired(const std::string&, const std::string&, const std::string&);
     bool IsProjectRelativePath(const std::string&) const;
+    void printError(const std::string&) const;
 
 private:
     std::string absoultePath_;
@@ -79,5 +98,6 @@ private:
     std::string projectRelative_;
 
     FILE* fp_;
+    long fileSize_;
 };
 }  // namespace GameEngine

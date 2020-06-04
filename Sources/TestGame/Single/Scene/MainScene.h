@@ -22,7 +22,6 @@ enum class CameraType
     ThridPerson
 };
 
-typedef std::unordered_map<GameEngine::TerrainTextureType, GameEngine::File> TerrainTexturesFilesMap;
 
 class MainScene : public GameEngine::Scene
 {
@@ -38,7 +37,6 @@ private:
     void UpdatePlayerandCamera(float time);
     void KeyOperations();
     void CheckCollisions(float dt);
-    void AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position);
     std::vector<float> CreateGrassPositions(GameEngine::GameObject*, vec2);
 
     std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);

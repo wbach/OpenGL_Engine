@@ -36,37 +36,6 @@ using namespace GameEngine;
 const std::string sceneFile = "partScene.xml";
 const std::string GUI_FILE  = "gui.xml";
 
-TerrainTexturesFilesMap CreateTerrainTexturesMap()
-{
-    // clang-format off
-    return
-    {
-        {TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
-        {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png"},
-        {TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
-        {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/ExportedTerrain.terrain"}
-    };
-    // clang-format on
-}
-
-TerrainTexturesFilesMap CreateOreonTerrainTexturesMap()
-{
-    // clang-format off
-    return
-    {
-        {TerrainTextureType::blendMap, "Textures/Terrain/BlendMaps/testBlendMap.png"},
-        {TerrainTextureType::backgorundTexture, "Textures/Terrain/Ground/oreon/grass0_DIF.jpg"},
-        {TerrainTextureType::backgorundTextureNormal, "Textures/Terrain/Ground/oreon/grass0_NRM.jpg"},
-        {TerrainTextureType::redTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Path_03_Diffuse_01.png"},
-        {TerrainTextureType::greenTexture, "Textures/Terrain/Ground/grassFlowers.png"},
-        {TerrainTextureType::blueTexture, "Textures/Terrain/Ground/G3_Nature_Ground_Forest_01_Diffuse_01.png"},
-        {TerrainTextureType::heightmap, "Textures/Terrain/HeightMaps/ExportedTerrain.terrain"}
-    };
-    // clang-format on
-}
-
 MainScene::MainScene()
     : Scene("MainScene")
 {
@@ -413,23 +382,6 @@ void MainScene::CheckCollisions(float)
         player->GetTransform().IncrasePosition(0.f, -g, 0.f);
 }
 
-void MainScene::AddTerrain(const TerrainTexturesFilesMap& textures, const glm::vec3& position)
-{
-    auto object = CreateGameObjectInstance("Terrain", 1.f, vec2(0));
-    object->AddComponent<Components::TerrainRendererComponent>().LoadTextures(textures);
-
-    auto& terrainShapeComponent =
-        object->AddComponent<Components::TerrainShape>().SetHeightMap(textures.at(TerrainTextureType::heightmap));
-
-    auto rigidbody = object->AddComponent<Components::Rigidbody>()
-                         .SetCollisionShape(terrainShapeComponent.GetType())
-                         .SetIsStatic(true);
-
-    auto image = terrainShapeComponent.GetHeightMap()->GetImage();
-
-    AddGameObject(std::move(object));
-}
-
 std::vector<float> MainScene::CreateGrassPositions(GameObject* object, vec2 pos)
 {
     std::vector<float> grass_positions;
@@ -517,9 +469,6 @@ void MainScene::CreateExmapleStrtupObject()
         AddGameObject(std::move(skybox));
     }
     // clang-format on
-
-    auto terrain_textures = CreateTerrainTexturesMap();
-    AddTerrain(terrain_textures, glm::vec3(1));
 
     {
         std::vector<vec3> treePositions;
