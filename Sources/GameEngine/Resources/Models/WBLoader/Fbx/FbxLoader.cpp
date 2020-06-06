@@ -508,7 +508,6 @@ struct FbxLoader::Pimpl
                     childJoint.name      = linkName;
                     childJoint.id        = jointId++;
                     childJoint.transform = jointMatrix;
-                    // childJoint.animatedTransform = childJoint.transform;
                     rootJoint->addChild(std::move(childJoint));
                 }
                 else
@@ -521,7 +520,6 @@ struct FbxLoader::Pimpl
                         childJoint.name      = linkName;
                         childJoint.id        = jointId++;
                         childJoint.transform = jointMatrix;
-                        // childJoint.animatedTransform = childJoint.transform;
                         parentJoint->addChild(std::move(childJoint));
                     }
                     else

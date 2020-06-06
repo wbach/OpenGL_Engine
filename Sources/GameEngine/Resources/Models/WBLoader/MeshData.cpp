@@ -176,6 +176,9 @@ void Mesh::computeTriangleVectors()
 
 GraphicsApi::MeshRawData Mesh::createMeshRawData()
 {
+    if (meshRawData_)
+        return std::move(*meshRawData_);
+
     computeTriangleVectors();
 
     std::unordered_map<vec3i, int32> out_indexes;

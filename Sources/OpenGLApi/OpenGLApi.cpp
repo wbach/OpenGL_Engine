@@ -980,7 +980,6 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     CreateDebugNormalMesh(rid, meshRawData);
 
     VaoCreator vaoCreator;
-    vaoCreator.SetSize(meshRawData.size_);
     vaoCreator.AddIndicesBuffer(meshRawData.indices_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::POSITION, 3, meshRawData.positions_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, meshRawData.textCoords_);

@@ -5,7 +5,6 @@ namespace GraphicsApi
 {
 struct MeshRawData
 {
-    uint32 size_ = 0;
     FloatAttributeVec positions_;
     FloatAttributeVec textCoords_;
     FloatAttributeVec normals_;

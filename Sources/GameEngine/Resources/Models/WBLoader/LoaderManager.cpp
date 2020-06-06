@@ -3,6 +3,7 @@
 #include "Fbx/FbxLoader.h"
 #include "Terrain/TerrainMeshLoader.h"
 #include "WaveFront/WaveFrontObj.h"
+#include "Assimp/AssimpLoader.h"
 
 #include "GameEngine/Engine/Configuration.h"
 
@@ -20,6 +21,7 @@ LoaderManager::LoaderManager(ITextureLoader& textureloader)
     loaders_.emplace_back(new WBLoader::ColladaDae(textureloader));
     loaders_.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
     loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
+    loaders_.emplace_back(new WBLoader::AssimpLoader(textureloader));
 }
 
 std::unique_ptr<Model> LoaderManager::Load(const File& file)
