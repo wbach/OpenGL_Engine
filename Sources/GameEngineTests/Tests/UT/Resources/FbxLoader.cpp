@@ -1,4 +1,5 @@
 #include <GameEngine/Resources/Models/WBLoader/Fbx/FbxLoader.h>
+#include <Logger/Log.h>
 #include <gtest/gtest.h>
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
@@ -15,6 +16,8 @@ struct FbxLoaderShould : public ::testing::Test
     FbxLoaderShould()
     {
         EngineConf.useBinaryLoading = false;
+        CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
+        CLogger::Instance().ImmeditalyLog();
     }
 
     void SetUp() override
@@ -59,36 +62,41 @@ TEST_F(FbxLoaderShould, ReadSimpleCube)
 
 void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
 {
-    std::cout << of << joint.name << std::endl;
+    DEBUG_LOG(of + joint.name + " (size : " + std::to_string(joint.size) + ")");
 
     for (const auto& child : joint.children)
     {
-       PrintJoints(child, of + "--");
+        PrintJoints(child, of + "--");
     }
 }
 
 void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std::string& of = "")
 {
-    std::cout << of << joint.name << std::endl;
-    std::cout << of << std::to_string(joint.transform) << std::endl;
+    DEBUG_LOG(of + joint.name);
+    DEBUG_LOG(of + std::to_string(joint.transform));
 
     for (const auto& child : joint.children)
     {
-       PrintJointsWithMatrix(child, of + "--");
+        PrintJointsWithMatrix(child, of + "--");
     }
 }
 
 TEST_F(FbxLoaderShould, ReadGarenAnimations)
 {
     EXPECT_CALL(textureLoaderMock_, LoadTexture(_, _)).WillOnce(Return(nullptr));
-    std::string file{"Meshes/Garen/garen_idle_b.fbx"};
+
+    // std::string file{"Meshes/DaeAnimationExample/Character.fbx"};
+    std::string file{"Meshes/Avatar/aangMakeHumanRig.Walkblend.fbx"};
+    //std::string file{"Meshes/Garen/garen_idle_b.fbx"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + file));
     sut_->Parse(file);
     auto model = sut_->Create();
     auto data  = model->GetMeshes().front().GetCMeshDataRef();
-    //EXPECT_EQ( model->skeleton_.children.size(), 1);
+    // EXPECT_EQ( model->skeleton_.children.size(), 1);
 
+    DEBUG_LOG("Print skeleton");
     PrintJoints(model->skeleton_);
+    DEBUG_LOG("end print skeleton");
 }
 }  // namespace UT
 }  // namespace GameEngine

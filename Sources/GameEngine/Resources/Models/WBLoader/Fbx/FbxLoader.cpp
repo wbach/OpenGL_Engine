@@ -12,8 +12,9 @@ namespace WBLoader
 {
 namespace
 {
+const char* clusterModes[] = {"Normalize", "Additive", "Total1"};
 std::unordered_map<std::string, mat4*> boneMatrixes;
-}
+}  // namespace
 vec3 convert(const FbxVector4& v)
 {
     vec3 result;
@@ -51,6 +52,20 @@ glm::mat4 convert(FbxAMatrix& mx)
     m[3][2] = static_cast<float>(mx[3][2]);
     m[3][3] = static_cast<float>(mx[3][3]);
     return m;
+}
+
+Animation::Joint* findJointByName(Animation::Joint& rootJoint, const std::string& name)
+{
+    if (rootJoint.name == name)
+        return &rootJoint;
+
+    for (auto& child : rootJoint.children)
+    {
+        auto result = findJointByName(child, name);
+        if (result)
+            return result;
+    }
+    return nullptr;
 }
 
 void createSkeleton(Animation::Joint& joint, FbxNode* node)
@@ -357,6 +372,15 @@ struct FbxLoader::Pimpl
         return result;
     }
 
+    FbxAMatrix GetGeometry(FbxNode* node)
+    {
+        const FbxVector4 lt = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+        const FbxVector4 lr = node->GetGeometricRotation(FbxNode::eSourcePivot);
+        const FbxVector4 ls = node->GetGeometricScaling(FbxNode::eSourcePivot);
+
+        return FbxAMatrix(lt, lr, ls);
+    }
+
     void InitializeMesh(const FbxMesh& fbxMesh)
     {
         if (fbxMesh.GetPolygonCount() == 0)
@@ -365,13 +389,10 @@ struct FbxLoader::Pimpl
         objects_.back().meshes.emplace_back();
         auto& newMesh = objects_.back().meshes.back();
 
-        /* m_BonesInfo.push_back(SBonesInfo());
-         SBonesInfo& bones_info = m_BonesInfo.back();*/
-
         if (fbxMesh.GetElementMaterial())
         {
             auto materialIndice = &fbxMesh.GetElementMaterial()->GetIndexArray();
-            newMesh.material = materials_[static_cast<size_t>(materialIndice->GetAt(0))];
+            newMesh.material    = materials_[static_cast<size_t>(materialIndice->GetAt(0))];
         }
 
         FbxStringList uvNames;
@@ -408,81 +429,119 @@ struct FbxLoader::Pimpl
             }
         }
 
-        return;
-        // FbxCluster::ELinkMode clusterMode =
-        //    ((FbxSkin*)fbxMesh.GetDeformer(0, FbxDeformer::eSkin))->GetCluster(0)->GetLinkMode();
+        InitializeSkeleton(fbxMesh, newMesh);
+    }
 
+    void InitializeSkeleton(const FbxMesh& fbxMesh, Mesh& newMesh)
+    {
         int skinCount = fbxMesh.GetDeformerCount(FbxDeformer::eSkin);
 
-        // bones_info.bones.resize(lPolygonCount * 3);
-        // int count              = 0;
-        // unsigned int boneIndex = 0;
         DEBUG_LOG("Skin count " + std::to_string(skinCount));
 
         if (skinCount > 1)
         {
             DEBUG_LOG("More than 1 skin detected. Not supported");
+            return;
         }
 
         for (int skinIndex = 0; skinIndex < skinCount; ++skinIndex)
         {
+            std::optional<Animation::Joint> rootJoint;
+            uint32 jointId = 1;
+
             auto skinDeformer = static_cast<FbxSkin*>(fbxMesh.GetDeformer(skinIndex, FbxDeformer::eSkin));
 
             DEBUG_LOG("Cluster count " + std::to_string(skinDeformer->GetClusterCount()));
 
-            auto cluster = skinDeformer->GetCluster(0);
-            if (not cluster->GetLink())
-                continue;
-
-            auto link = cluster->GetLink();
-
-            createSkeleton(newMesh.skeleton_, link);
-
             for (int clusterIndex = 0; clusterIndex < skinDeformer->GetClusterCount(); ++clusterIndex)
             {
-                auto cluster = skinDeformer->GetCluster(clusterIndex);
-                if (not cluster->GetLink())
+                auto cluster     = skinDeformer->GetCluster(clusterIndex);
+                auto clusterMode = cluster->GetLinkMode();
+                auto link        = cluster->GetLink();
+                if (not link)
                     continue;
 
-                auto link = cluster->GetLink();
+                int indexCount  = cluster->GetControlPointIndicesCount();
+                int* indices    = cluster->GetControlPointIndices();
+                double* weights = cluster->GetControlPointWeights();
 
-                if (boneMatrixes.count(link->GetName()) == 0)
+                for (int k = 0; k < indexCount; k++)
                 {
-                    DEBUG_LOG("Bone not found : " + link->GetName());
-                    continue;
+                    JointInfo jointInfo;
+                    jointInfo.weight = clusterMode != FbxCluster::eAdditive ? static_cast<float>(weights[k]) : 1.f;
+                    jointInfo.id     = jointId;
+
+                    auto iter = std::find_if(
+                        newMesh.vertexBuffer.begin(), newMesh.vertexBuffer.end(),
+                        [vertexBufferIndex = indices[k]](const auto& vb) { return vb.indexes == vertexBufferIndex; });
+
+                    if (iter != newMesh.vertexBuffer.end())
+                        iter->jointInfo.push_back(jointInfo);
                 }
+                FbxAMatrix transformMatrix;
+                transformMatrix = cluster->GetTransformMatrix(transformMatrix);
 
                 FbxAMatrix linkMatrix;
-                cluster->GetTransformLinkMatrix(linkMatrix);
-                (*boneMatrixes.at(link->GetName())) = convert(linkMatrix);
+                linkMatrix = cluster->GetTransformLinkMatrix(linkMatrix);
 
-                for (int k = 0; k < cluster->GetControlPointIndicesCount(); ++k)
+                auto lReferenceGeometry = GetGeometry(fbxMesh.GetNode());
+                transformMatrix *= lReferenceGeometry;
+
+                auto fbxJointMatrix = linkMatrix.Inverse() * transformMatrix;
+                // fbxJointMatrix      = fbxJointMatrix.Inverse().Transpose();
+
+                auto linkName       = link->GetName();
+                auto parentLinkName = link->GetParent() ? link->GetParent()->GetName() : "noParent";
+
+                // fbxJointMatrix = fbxMesh.GetNode()->EvaluateGlobalTransform();
+
+                //                auto lReferenceGlobalCurrentPosition = fbxMesh.GetNode()->EvaluateLocalTransform();
+                //                fbxJointMatrix = lReferenceGlobalCurrentPosition.Inverse() * fbxJointMatrix;
+                auto jointMatrix = convert(fbxJointMatrix);
+
+                if (not rootJoint)
                 {
-                    int index         = cluster->GetControlPointIndices()[k];
-                    auto vertextCount = fbxMesh.GetPolygonCount() * 3;
-                    if (index >= vertextCount)
-                        continue;
+                    rootJoint       = Animation::Joint();
+                    rootJoint->name = parentLinkName;
 
-                    auto weight = static_cast<float>(cluster->GetControlPointWeights()[k]);
-                    newMesh.vertexBuffer[index].jointInfo.push_back(JointInfo{0, weight});
+                    Animation::Joint childJoint;
+                    childJoint.name      = linkName;
+                    childJoint.id        = jointId++;
+                    childJoint.transform = jointMatrix;
+                    // childJoint.animatedTransform = childJoint.transform;
+                    rootJoint->addChild(std::move(childJoint));
+                }
+                else
+                {
+                    auto parentJoint = findJointByName(*rootJoint, parentLinkName);
 
-                    // DEBUG_LOG("Weight : " + std::to_string(weight));
-
-                    // for (auto& v : newMesh.vertexBuffer)
-                    //                   {
-                    //                       if (v.indexes.x == index)
-                    //                       {
-                    //
-                    //                       }
-                    //                   }
-                    //                   for (int x = 0; x < 100; ++x)
-                    //                   {
-                    //                       cluster->GetControlPointWeights()[x];
-                    // std::cout << "x : " << x << " " << cluster->GetControlPointIndicesCount() << std::endl;
-                    //}
-                    // newMesh.vertexBuffer[index].weights
+                    if (parentJoint)
+                    {
+                        Animation::Joint childJoint;
+                        childJoint.name      = linkName;
+                        childJoint.id        = jointId++;
+                        childJoint.transform = jointMatrix;
+                        // childJoint.animatedTransform = childJoint.transform;
+                        parentJoint->addChild(std::move(childJoint));
+                    }
+                    else
+                    {
+                        WARNING_LOG("parent not found. Parent name : " + parentLinkName + ", link name : " + linkName);
+                    }
                 }
             }
+
+//            for (auto& vb : newMesh.vertexBuffer)
+//            {
+//                float totalWeight = 0.f;
+//                for (auto ji : vb.jointInfo)
+//                {
+//                    totalWeight += ji.weight;
+//                }
+//                DEBUG_LOG("Joints per vertex :" + std::to_string(vb.jointInfo.size()));
+//                DEBUG_LOG("Total weight : " + std::to_string(totalWeight));
+//            }
+            newMesh.skeleton_ = std::move(*rootJoint);
         }
     }
 };

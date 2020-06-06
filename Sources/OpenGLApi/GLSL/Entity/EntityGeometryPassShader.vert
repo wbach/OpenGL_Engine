@@ -1,5 +1,5 @@
 #version 440 core
-const int MAX_BONES = 100;
+const int MAX_BONES = 512;
 const int MAX_WEIGHTS = 4;
 
 //Attributes

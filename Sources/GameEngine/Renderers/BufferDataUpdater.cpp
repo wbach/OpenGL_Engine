@@ -1,5 +1,6 @@
 #include "BufferDataUpdater.h"
 
+#include <Logger/Log.h>
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
@@ -24,9 +25,17 @@ public:
         int index = 0;
 
         PerPoseUpdate pose;
-        for (auto& boneTransform : model_->GetBoneTransforms())
+
+        if (model_->GetBoneTransforms().size() < MAX_BONES)
         {
-            pose.bonesTransforms[index++] = graphicsApi_.PrepareMatrixToLoad(boneTransform);
+            for (auto& boneTransform : model_->GetBoneTransforms())
+            {
+                pose.bonesTransforms[index++] = graphicsApi_.PrepareMatrixToLoad(boneTransform);
+            }
+        }
+        else
+        {
+            ERROR_LOG("Too many bones in model!.");
         }
 
         for (auto& mesh : model_->GetMeshes())
@@ -61,8 +70,8 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
     {
         rendererComponent->UpdateBuffers();
 
-        auto subscribtionId =
-            gameObject->SubscribeOnWorldTransfomChange([id = gameObject->GetId(), this, rendererComponent](const auto&) mutable {
+        auto subscribtionId = gameObject->SubscribeOnWorldTransfomChange(
+            [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable {
                 AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent));
             });
 
@@ -125,6 +134,6 @@ void BufferDataUpdater::ProcessEvents()
 void BufferDataUpdater::AddEvent(uint32 gameobjectId, std::unique_ptr<IBufferDataUpdaterEvent> event)
 {
     std::lock_guard<std::mutex> lk(eventMutex_);
-    events_.push_back({ gameobjectId, std::move(event) });
+    events_.push_back({gameobjectId, std::move(event)});
 }
 }  // namespace GameEngine
