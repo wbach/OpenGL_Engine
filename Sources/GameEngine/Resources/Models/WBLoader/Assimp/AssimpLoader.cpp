@@ -3,6 +3,7 @@
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <assimp/version.h>
 
 #include <assimp/Importer.hpp>
 
@@ -17,6 +18,8 @@ namespace WBLoader
 AssimpLoader::AssimpLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
+    auto version = std::to_string(aiGetVersionMajor()) + "." + std::to_string(aiGetVersionMinor());
+    DEBUG_LOG("Assimp version : " + version);
 }
 
 AssimpLoader::~AssimpLoader()
