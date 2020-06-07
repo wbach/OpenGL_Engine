@@ -251,9 +251,20 @@ BoundingBox Mesh::getBoundingBox() const
     vec3 min(std::numeric_limits<float>::max());
     vec3 max(-std::numeric_limits<float>::max());
 
-    for (auto& v : vertexBuffer)
+    if (meshRawData_)
     {
-        minMax(v.position, min, max);
+        const auto& v = meshRawData_->positions_;
+        for (size_t i = 0; i < v.size(); i += 3)
+        {
+            minMax(vec3(v[i], v[i + 1], v[i + 2]), min, max);
+        }
+    }
+    else
+    {
+        for (auto& v : vertexBuffer)
+        {
+            minMax(v.position, min, max);
+        }
     }
 
     return BoundingBox(min, max);

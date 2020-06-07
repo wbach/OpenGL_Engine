@@ -50,7 +50,7 @@ public:
     std::unordered_map<uint32, std::vector<int>> vertexPlacesInVertexBuffer_;
     Animation::Joint skeleton_;
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-    std::optional< GraphicsApi::MeshRawData> meshRawData_;
+    std::optional< GraphicsApi::MeshRawData> meshRawData_{std::nullopt};
 
     GraphicsApi::MeshRawData createMeshRawData();
     BoundingBox getBoundingBox() const;

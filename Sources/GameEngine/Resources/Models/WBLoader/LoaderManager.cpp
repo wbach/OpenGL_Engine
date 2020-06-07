@@ -20,7 +20,7 @@ LoaderManager::LoaderManager(ITextureLoader& textureloader)
     loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
     loaders_.emplace_back(new WBLoader::ColladaDae(textureloader));
     loaders_.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
-    loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
+    //loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
     loaders_.emplace_back(new WBLoader::AssimpLoader(textureloader));
 }
 

@@ -1,4 +1,4 @@
-#include <GameEngine/Resources/Models/WBLoader/Fbx/FbxLoader.h>
+#include <GameEngine/Resources/Models/WBLoader/Assimp/AssimpLoader.h>
 #include <Logger/Log.h>
 #include <gtest/gtest.h>
 #include "GameEngine/Engine/Configuration.h"
@@ -11,9 +11,9 @@ namespace GameEngine
 {
 namespace UT
 {
-struct FbxLoaderShould : public ::testing::Test
+struct AssimpLoaderShould : public ::testing::Test
 {
-    FbxLoaderShould()
+    AssimpLoaderShould()
     {
         EngineConf.useBinaryLoading = false;
         CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
@@ -24,7 +24,7 @@ struct FbxLoaderShould : public ::testing::Test
     {
         EXPECT_CALL(textureLoaderMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(graphicsApiMock_));
 
-        sut_ = std::make_unique<WBLoader::FbxLoader>(textureLoaderMock_);
+        sut_ = std::make_unique<WBLoader::AssimpLoader>(textureLoaderMock_);
     }
 
     void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
@@ -50,9 +50,9 @@ struct FbxLoaderShould : public ::testing::Test
 
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
     TextureLoaderMock textureLoaderMock_;
-    std::unique_ptr<WBLoader::FbxLoader> sut_;
+    std::unique_ptr<WBLoader::AssimpLoader> sut_;
 };
-TEST_F(FbxLoaderShould, ReadSimpleCube)
+TEST_F(AssimpLoaderShould, ReadSimpleCube)
 {
     std::string cubeFile{"Meshes/box.fbx"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + cubeFile));
@@ -81,13 +81,13 @@ TEST_F(FbxLoaderShould, ReadSimpleCube)
     std::cout << std::endl;
 }
 
-TEST_F(FbxLoaderShould, ReadGarenAnimations)
+TEST_F(AssimpLoaderShould, ReadGarenAnimations)
 {
     EXPECT_CALL(textureLoaderMock_, LoadTexture(_, _)).WillOnce(Return(nullptr));
 
     // std::string file{"Meshes/DaeAnimationExample/Character.fbx"};
-    std::string file{"Meshes/Avatar/aangMakeHumanRig.Walkblend.fbx"};
-    //std::string file{"Meshes/Garen/garen_idle_b.fbx"};
+    //std::string file{"Meshes/Avatar/aangMakeHumanRig.Walkblend.fbx"};
+    std::string file{"Meshes/Garen/garen_idle_b.fbx"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + file));
     sut_->Parse(file);
     auto model = sut_->Create();
@@ -100,3 +100,5 @@ TEST_F(FbxLoaderShould, ReadGarenAnimations)
 }
 }  // namespace UT
 }  // namespace GameEngine
+
+

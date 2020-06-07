@@ -44,14 +44,15 @@ void AssimpLoader::ParseFile(const File& file)
 
     objects.push_back(WBLoader::Object());
     RecursiveProcess(*scene->mRootNode, *scene);
-    aiReleaseImport(scene);
+    importer.FreeScene();
 }
 
 bool AssimpLoader::CheckExtension(const std::string& filename)
 {
     auto ext = Utils::GetFileExtension(filename);
     return ext == "fbx" or ext == "FBX" or ext == "Fbx" or ext == "3ds" or ext == "obj";
-    //AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ OGRE OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
+    // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ OGRE
+    // OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
 }
 
 void AssimpLoader::RecursiveProcess(const aiNode& node, const aiScene& scene)
@@ -82,20 +83,52 @@ void AssimpLoader::ProcessMesh(const aiMesh& mesh, const aiScene& scene)
         meshData.positions_.push_back(mesh.mVertices[i].y);
         meshData.positions_.push_back(mesh.mVertices[i].z);
 
-        meshData.textCoords_.push_back(mesh.mTextureCoords[0][i].x);
-        meshData.textCoords_.push_back(mesh.mTextureCoords[0][i].y);
-
-        meshData.normals_.push_back(mesh.mNormals[i].x);
-        meshData.normals_.push_back(mesh.mNormals[i].y);
-        meshData.normals_.push_back(mesh.mNormals[i].z);
-
-        meshData.tangents_.push_back(mesh.mTangents[i].x);
-        meshData.tangents_.push_back(mesh.mTangents[i].y);
-        meshData.tangents_.push_back(mesh.mTangents[i].z);
-
-        meshData.bitangents_.push_back(mesh.mBitangents[i].x);
-        meshData.bitangents_.push_back(mesh.mBitangents[i].y);
-        meshData.bitangents_.push_back(mesh.mBitangents[i].z);
+        if (mesh.mTextureCoords[0])
+        {
+            meshData.textCoords_.push_back(mesh.mTextureCoords[0][i].x);
+            meshData.textCoords_.push_back(mesh.mTextureCoords[0][i].y);
+        }
+        else
+        {
+            meshData.textCoords_.push_back(0);
+            meshData.textCoords_.push_back(0);
+        }
+        if (mesh.mNormals)
+        {
+            meshData.normals_.push_back(mesh.mNormals[i].x);
+            meshData.normals_.push_back(mesh.mNormals[i].y);
+            meshData.normals_.push_back(mesh.mNormals[i].z);
+        }
+        else
+        {
+            meshData.normals_.push_back(0);
+            meshData.normals_.push_back(0);
+            meshData.normals_.push_back(0);
+        }
+        if (mesh.mTangents)
+        {
+            meshData.tangents_.push_back(mesh.mTangents[i].x);
+            meshData.tangents_.push_back(mesh.mTangents[i].y);
+            meshData.tangents_.push_back(mesh.mTangents[i].z);
+        }
+        else
+        {
+            meshData.tangents_.push_back(0);
+            meshData.tangents_.push_back(0);
+            meshData.tangents_.push_back(0);
+        }
+        if (mesh.mBitangents)
+        {
+            meshData.bitangents_.push_back(mesh.mBitangents[i].x);
+            meshData.bitangents_.push_back(mesh.mBitangents[i].y);
+            meshData.bitangents_.push_back(mesh.mBitangents[i].z);
+        }
+        else
+        {
+            meshData.bitangents_.push_back(0);
+            meshData.bitangents_.push_back(0);
+            meshData.bitangents_.push_back(0);
+        }
     }
     for (uint16 i = 0; i < mesh.mNumFaces; i++)
     {
@@ -154,7 +187,7 @@ void AssimpLoader::ProcessMesh(const aiMesh& mesh, const aiScene& scene)
     aiGetMaterialFloat(mat, AI_MATKEY_REFLECTIVITY, &reflectivity);
     aiGetMaterialFloat(mat, AI_MATKEY_OPACITY, &transparent);
 
-    Material material;
+    auto& material          = newMesh.material;
     material.name           = std::string(name.C_Str());
     material.ambient        = vec3(amb.r, amb.g, amb.b);
     material.diffuse        = vec3(diff.r, diff.g, diff.b);
