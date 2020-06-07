@@ -16,7 +16,7 @@ do
 	projectDepend=()
 	for ar in "${array[@]}"
 	do
-		d=$((d+1))		
+		d=$((d+1))
 		case "$d" in
 		  "1") projectName=$ar;;
 		  "2") projectId=$ar;;
@@ -27,7 +27,7 @@ do
 
 	if [ -z "$projectName" ]; then
 		continue
-	fi	
+	fi
 
 	output=$output$'\n''Project("'$projectGlobalId'") = "'$projectName'", "../../Sources/'$projectName'/'$projectName'.vcxproj", "'$projectId'"'
 
@@ -49,7 +49,9 @@ done
 	output=$output'
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection'
 output=$output'
@@ -62,4 +64,3 @@ output=$output'
 EndGlobal'
 echo "$output"
 
-	

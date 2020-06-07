@@ -24,11 +24,9 @@ namespace
 {
 uint32 unknownTextureNameId{0};
 }
-TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
-                             std::unordered_map<std::string, ResourceInfo<Texture>>& textures)
+TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader)
     : graphicsApi_(graphicsApi)
     , gpuResourceLoader_(gpuLoader)
-    , textures_(textures)
     , textureNotFound_({nullptr, false})
     , releaseLockState_(true)
 {

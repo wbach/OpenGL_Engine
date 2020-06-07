@@ -20,11 +20,19 @@ SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoa
     , objectLoaded_(0)
     , loadingScreenRenderer(nullptr)
     , resorceManager_(graphicsApi, gpuResourceLoader)
+    , bgTexture_(nullptr)
+    , circleTexture_(nullptr)
 {
 }
 
 SceneLoader::~SceneLoader()
 {
+    loadingScreenRenderer.reset();
+
+    if (bgTexture_)
+        resorceManager_.GetTextureLoader().DeleteTexture(*bgTexture_);
+    if (circleTexture_)
+        resorceManager_.GetTextureLoader().DeleteTexture(*circleTexture_);
 }
 
 void SceneLoader::Load(Scene& scene)
@@ -49,12 +57,12 @@ void SceneLoader::Init()
     params.mimap           = GraphicsApi::TextureMipmap::LINEAR;
 
     auto& texureLoader = resorceManager_.GetTextureLoader();
-    auto circleTexture = texureLoader.LoadTexture("GUI/circle2.png", params);
-    auto bgtexture     = texureLoader.LoadTexture("GUI/black-knight-dark-souls.png", params);
+    circleTexture_     = texureLoader.LoadTexture("GUI/circle2.png", params);
+    bgTexture_         = texureLoader.LoadTexture("GUI/black-knight-dark-souls.png", params);
 
-    if (circleTexture and bgtexture)
+    if (circleTexture_ and bgTexture_)
     {
-        loadingScreenRenderer = std::make_unique<LoadingScreenRenderer>(graphicsApi_, *bgtexture, *circleTexture);
+        loadingScreenRenderer = std::make_unique<LoadingScreenRenderer>(graphicsApi_, *bgTexture_, *circleTexture_);
         loadingScreenRenderer->Init();
     }
     else

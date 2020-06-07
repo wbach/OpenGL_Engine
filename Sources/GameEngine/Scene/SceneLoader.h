@@ -38,5 +38,8 @@ private:
     size_t objectLoaded_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
     ResourceManager resorceManager_;
+
+    GeneralTexture* bgTexture_;
+    GeneralTexture* circleTexture_;
 };
 }  // namespace GameEngine

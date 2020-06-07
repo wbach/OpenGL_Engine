@@ -36,7 +36,6 @@ private:
     LoaderManager loaderManager_;
 
     std::unordered_map<std::string, ResourceInfo<Model>> models_;
-    std::unordered_map<std::string, ResourceInfo<Texture>> textures_;
 
     uint32 unknowFileNameResourceId_;
     std::mutex modelMutex_;

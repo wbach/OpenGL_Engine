@@ -35,15 +35,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 done < "$includeFilePath"
 
 sdkVersion="10.0.16299.0"
+toolkit="v141"
 projectName=$1
 projectNameFile=$projectName".vcxproj";
-
-configurationPlatformString=$'"\'$(Configuration)|$(Platform)\' '
-configuration_1=$'== \'Debug|Win32\'"'
-configuration_2=$'== \'Release|Win32\'"'
-configuration_1=$configurationPlatformString$configuration_1
-configuration_2=$configurationPlatformString$configuration_2
-rootConditions=$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'
 ProjectGuid=$2
 OutputType=$3
 
@@ -58,6 +52,49 @@ done
 #"{1AB884C5-B769-46D2-BDD0-8CEF3AD7AEB2}"
 toolsDir='..\..\Tools\Windows'
 
+bulletReleaseLibs='
+Bullet2FileLoader.lib;
+BulletInverseDynamicsUtils.lib;
+Bullet3Collision.lib;
+BulletRobotics.lib;
+Bullet3Common.lib;
+BulletSoftBody.lib;
+Bullet3Dynamics.lib;
+BulletWorldImporter.lib;
+Bullet3Geometry.lib;
+BulletXmlWorldImporter.lib;
+Bullet3OpenCL_clew.lib;
+ConvexDecomposition.lib;
+BulletCollision.lib;
+GIMPACTUtils.lib;
+BulletDynamics.lib;
+HACD.lib;
+BulletFileLoader.lib;
+LinearMath.lib;
+BulletInverseDynamics.lib;
+'
+bulletDebugLibs='
+Bullet2FileLoader_Debug.lib;
+BulletInverseDynamicsUtils_Debug.lib;
+Bullet3Collision_Debug.lib;
+BulletRobotics_Debug.lib;
+Bullet3Common_Debug.lib;
+BulletSoftBody_Debug.lib;
+Bullet3Dynamics_Debug.lib;
+BulletWorldImporter_Debug.lib;
+Bullet3Geometry_Debug.lib;
+BulletXmlWorldImporter_Debug.lib;
+Bullet3OpenCL_clew_Debug.lib;
+ConvexDecomposition_Debug.lib;
+BulletCollision_Debug.lib;
+GIMPACTUtils_Debug.lib;
+BulletDynamics_Debug.lib;
+HACD_Debug.lib;
+BulletFileLoader_Debug.lib;
+LinearMath_Debug.lib;
+BulletInverseDynamics_Debug.lib;
+'
+
 additionalIncludesDir='
 ..\..\Sources\OpenGLApi;
 ..\..\Sources\GraphicsApi;
@@ -65,7 +102,7 @@ additionalIncludesDir='
 ..\..\Sources;
 ..\..\Tools\common\rapidxml-1.13;
 ..\..\Tools\Windows\fbx_sdk\include;
-..\..\Tools\Windows\Assimp\include;
+..\..\Tools\Windows\assimp-5.0.1\include;
 ..\..\Tools\Windows\SDL2-2.0.12\include\;
 ..\..\Tools\Windows\SDL2-2.0.12\include\SDL2\;
 ..\..\Tools\Windows\SDL2_net-2.0.1\include\;
@@ -102,37 +139,12 @@ SDL2_image.lib;
 SDL2_ttf.lib;
 opengl32.lib;
 assimp.lib;
-libfreetype.lib;
+freetype.lib;
 glfw3.lib;
 glfw3dll.lib;
 gtest.lib;
 gmock.lib;
-Bullet2FileLoader_Debug.lib;
-Bullet3Collision_Debug.lib;
-Bullet3Common_Debug.lib;
-Bullet3Dynamics_Debug.lib;
-Bullet3Geometry_Debug.lib;
-Bullet3OpenCL_clew_Debug.lib;
-BulletCollision_Debug.lib;
-BulletDynamics_Debug.lib;
-BulletExampleBrowserLib_Debug.lib;
-BulletFileLoader_Debug.lib;
-BulletInverseDynamics_Debug.lib;
-BulletInverseDynamicsUtils_Debug.lib;
-BulletRobotics_Debug.lib;
-BulletSoftBody_Debug.lib;
-BulletWorldImporter_Debug.lib;
-BulletXmlWorldImporter_Debug.lib;
-BussIK_Debug.lib;
-clsocket_Debug.lib;
-ConvexDecomposition_Debug.lib;
-GIMPACTUtils_Debug.lib;
-gtest_Debug.lib;
-gwen_Debug.lib;
-HACD_Debug.lib;
-LinearMath_Debug.lib;
-OpenGLWindow_Debug.lib;
-d2d1.lib;
+'$bulletDebugLibs'
 d3d10.lib;
 d3d10_1.lib;
 d3d11.lib;
@@ -148,7 +160,6 @@ d3dx9.lib;
 d3dx9d.lib;
 d3dxof.lib;
 dinput8.lib;
-dsetup.lib;
 dsound.lib;
 dwrite.lib;
 DxErr.lib;
@@ -176,36 +187,12 @@ SDL2_image.lib;
 SDL2_ttf.lib;
 opengl32.lib;
 assimp.lib;
-libfreetype.lib;
+freetype.lib;
 glfw3.lib;
 glfw3dll.lib;
 gtest.lib;
 gmock.lib;
-Bullet2FileLoader.lib;
-Bullet3Collision.lib;
-Bullet3Common.lib;
-Bullet3Dynamics.lib;
-Bullet3Geometry.lib;
-Bullet3OpenCL_clew.lib;
-BulletCollision.lib;
-BulletDynamics.lib;
-BulletExampleBrowserLib.lib;
-BulletFileLoader.lib;
-BulletInverseDynamics.lib;
-BulletInverseDynamicsUtils.lib;
-BulletRobotics.lib;
-BulletSoftBody.lib;
-BulletWorldImporter.lib;
-BulletXmlWorldImporter.lib;
-BussIK.lib;
-clsocket.lib;
-ConvexDecomposition.lib;
-GIMPACTUtils.lib;
-gtest.lib;
-gwen.lib;
-HACD.lib;
-LinearMath.lib;
-OpenGLWindow.lib;
+'$bulletReleaseLibs'
 d2d1.lib;
 d3d10.lib;
 d3d10_1.lib;
@@ -222,7 +209,6 @@ d3dx9.lib;
 d3dx9d.lib;
 d3dxof.lib;
 dinput8.lib;
-dsetup.lib;
 dsound.lib;
 dwrite.lib;
 DxErr.lib;
@@ -244,56 +230,106 @@ do
   additionalReleaseLibs=$additionalReleaseLibs$d'.lib;'
 done
 
-additionalDebugLibsDir='
+additionalDebug32LibsDir='
 '$toolsDir'\fbx_sdk\lib\vs2017\x86\debug;
-'$toolsDir'\Assimp\lib\x86;
+'$toolsDir'\assimp-5.0.1\lib\x86\release;
 '$toolsDir'\GL;
 '$toolsDir'\glew-2.1.0\lib\Release\Win32;
 '$toolsDir'\SDL2_ttf-2.0.15\lib\x86;
 '$toolsDir'\SDL2-2.0.12\lib\x86;
 '$toolsDir'\SDL2_net-2.0.1\lib\x86;
 '$toolsDir'\SDL2_image-2.0.4\lib\x86;
-'$toolsDir'\freeImage;
-'$toolsDir'\freetype\lib;
+'$toolsDir'\freeImage\x86;
+'$toolsDir'\freetype\win32;
 '$toolsDir'\GLFW3\lib-vc2015;
 '$toolsDir'\gtest\lib\x86\Release;
 '$toolsDir'\gmock\lib\x86\Release;
 '$toolsDir'\Directx\Lib\x86;
-..\..\Tools\common\bullet\lib\Debug;
+'$toolsDir'\bullet\x86\Debug;
 '
-additionalReleaseLibsDir='
+additionalRelease32LibsDir='
 '$toolsDir'\fbx_sdk\lib\vs2017\x86\release;
-'$toolsDir'\Assimp\lib\x86;
+'$toolsDir'\assimp-5.0.1\lib\x86\release;
 '$toolsDir'\GL;
 '$toolsDir'\glew-2.1.0\lib\Release\Win32;
 '$toolsDir'\SDL2_ttf-2.0.15\lib\x86;
 '$toolsDir'\SDL2-2.0.12\lib\x86;
 '$toolsDir'\SDL2_net-2.0.1\lib\x86;
 '$toolsDir'\SDL2_image-2.0.4\lib\x86;
-'$toolsDir'\freeImage;
-'$toolsDir'\freetype\lib;
+'$toolsDir'\freeImage\x86;
+'$toolsDir'\freetype\win32;
 '$toolsDir'\GLFW3\lib-vc2015;
 '$toolsDir'\gtest\lib\x86\Release;
 '$toolsDir'\gmock\lib\x86\Release;
 '$toolsDir'\Directx\Lib\x86;
-..\..\Tools\common\bullet\lib\Release;
+'$toolsDir'\bullet\x86\Release;
+'
+
+additionalDebug64LibsDir='
+'$toolsDir'\fbx_sdk\lib\vs2017\x64\debug;
+'$toolsDir'\assimp-5.0.1\lib\x64\release;
+'$toolsDir'\GL;
+'$toolsDir'\glew-2.1.0\lib\Release\x64;
+'$toolsDir'\SDL2_ttf-2.0.15\lib\x64;
+'$toolsDir'\SDL2-2.0.12\lib\x64;
+'$toolsDir'\SDL2_net-2.0.1\lib\x64;
+'$toolsDir'\SDL2_image-2.0.4\lib\x64;
+'$toolsDir'\freeImage\x64;
+'$toolsDir'\freetype\win64;
+'$toolsDir'\GLFW3\lib-vc2015;
+'$toolsDir'\gtest\lib\x64\Release;
+'$toolsDir'\gmock\lib\x64\Release;
+'$toolsDir'\Directx\Lib\x64;
+'$toolsDir'\bullet\x64\Debug;
+'
+additionalRelease64LibsDir='
+'$toolsDir'\fbx_sdk\lib\vs2017\x64\release;
+'$toolsDir'\assimp-5.0.1\lib\x64\release;
+'$toolsDir'\GL;
+'$toolsDir'\glew-2.1.0\lib\Release\x64;
+'$toolsDir'\SDL2_ttf-2.0.15\lib\x64;
+'$toolsDir'\SDL2-2.0.12\lib\x64;
+'$toolsDir'\SDL2_net-2.0.1\lib\x64;
+'$toolsDir'\SDL2_image-2.0.4\lib\x64;
+'$toolsDir'\freeImage\x64;
+'$toolsDir'\freetype\win64;
+'$toolsDir'\GLFW3\lib-vc2015;
+'$toolsDir'\gtest\lib\x64\Release;
+'$toolsDir'\gmock\lib\x64\Release;
+'$toolsDir'\Directx\Lib\x64;
+'$toolsDir'\bullet\x64\Release;
 '
 
 for d in "${depend[@]}"
 do
-  additionalDebugLibsDir=$additionalDebugLibsDir'..\..\Build\bin\'$d'\$(Configuration)\;'
+  additionalDebug32LibsDir=$additionalDebug32LibsDir'..\..\build\bin\'$d'\$(Configuration)\Win32\;'
 done
 
 for d in "${depend[@]}"
 do
-  additionalReleaseLibsDir=$additionalReleaseLibsDir'..\..\Build\bin\'$d'\$(Configuration)\;'
+  additionalRelease32LibsDir=$additionalRelease32LibsDir'..\..\build\bin\'$d'\$(Configuration)\Win32\;'
 done
 
-outDir='$(SolutionDir)..\..\Build\bin\'$projectName'\$(Configuration)\'
-inDir='$(SolutionDir)..\..\Build\Intermediate\'$projectName'\$(Configuration)\'
+for d in "${depend[@]}"
+do
+  additionalDebug64LibsDir=$additionalDebug64LibsDir'..\..\build\bin\'$d'\$(Configuration)\x64\;'
+done
+
+for d in "${depend[@]}"
+do
+  additionalRelease64LibsDir=$additionalRelease64LibsDir'..\..\build\bin\'$d'\$(Configuration)\x64\;'
+done
+
+outDir='$(SolutionDir)..\..\build\bin\'$projectName'\$(Configuration)\$(Platform)\'
+inDir='$(SolutionDir)..\..\build\Intermediate\'$projectName'\$(Configuration)\$(Platform)\'$projectName'\'$projectName'\'
+
+configurationPlatformStringD32=$'"\'$(Configuration)|$(Platform)\'==\'Debug|Win32\'"'
+configurationPlatformStringR32=$'"\'$(Configuration)|$(Platform)\'==\'Release|Win32\'"'
+configurationPlatformStringD64=$'"\'$(Configuration)|$(Platform)\'==\'Debug|x64\'"'
+configurationPlatformStringR64=$'"\'$(Configuration)|$(Platform)\'==\'Release|x64\'"'
 
 echo '<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -303,23 +339,44 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
-    <PropertyGroup Label="Globals">
+  <PropertyGroup Label="Globals">
     <ProjectGuid>'$ProjectGuid'</ProjectGuid>
-    <RootNamespace>Utils</RootNamespace>
+    <RootNamespace>'$projectName'</RootNamespace>
     <WindowsTargetPlatformVersion>'$sdkVersion'</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-      <PropertyGroup Condition='$configuration_1' Label="Configuration">
+  <PropertyGroup Condition='$configurationPlatformStringD32' Label="Configuration">
     <ConfigurationType>'$OutputType'</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>'$toolkit'</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition='$configuration_2' Label="Configuration">
+  <PropertyGroup Condition='$configurationPlatformStringR32' Label="Configuration">
     <ConfigurationType>'$OutputType'</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>'$toolkit'</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition='$configurationPlatformStringD64' Label="Configuration">
+    <ConfigurationType>'$OutputType'</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>'$toolkit'</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition='$configurationPlatformStringR64' Label="Configuration">
+    <ConfigurationType>'$OutputType'</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>'$toolkit'</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -328,48 +385,88 @@ echo '<?xml version="1.0" encoding="utf-8"?>
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition='$configuration_1'>
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$rootConditions' Label="LocalAppDataPlatform" />
+  <ImportGroup Label="PropertySheets" Condition='$configurationPlatformStringD32'>
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition='$configuration_2'>
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$rootConditions' Label="LocalAppDataPlatform" />
+  <ImportGroup Label="PropertySheets" Condition='$configurationPlatformStringR32'>
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition='$configurationPlatformStringD64'>
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition='$configurationPlatformStringR64'>
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-   <PropertyGroup Condition='$configuration_1'>
-    <OutDir>'$outDir'</OutDir>
-    <IntDir>'$inDir'</IntDir>
+  <PropertyGroup Condition='$configurationPlatformStringD32'>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>'$outDir'\</OutDir>
+    <IntDir>'$inDir'\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition='$configuration_2'>
-    <OutDir>'$outDir'</OutDir>
-    <IntDir>'$inDir'</IntDir>
+  <PropertyGroup Condition='$configurationPlatformStringD64'>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>'$outDir'\</OutDir>
+    <IntDir>'$inDir'\</IntDir>
   </PropertyGroup>
-    <ItemDefinitionGroup Condition='$configuration_1'>
+  <PropertyGroup Condition='$configurationPlatformStringR32'>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>'$outDir'\</OutDir>
+    <IntDir>'$inDir'\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition='$configurationPlatformStringR64'>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>'$outDir'\</OutDir>
+    <IntDir>'$inDir'\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition='$configurationPlatformStringD32'>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ConformanceMode>false</ConformanceMode>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>'$additionalDebugLibs'%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>'$additionalDebugLibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>'$additionalDebug32LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition='$configuration_2'>
+  <ItemDefinitionGroup Condition='$configurationPlatformStringD64'>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+        <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>'$additionalDebugLibs'%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>'$additionalDebug64LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition='$configurationPlatformStringR32'>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -380,12 +477,38 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>'$additionalReleaseLibs'%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>'$additionalReleaseLibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>'$additionalReleaseLibs'%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>'$additionalRelease32LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition='$configurationPlatformStringR64'>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <Optimization>MaxSpeed</Optimization>
+      <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>'$additionalReleaseLibs'%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>'$additionalRelease64LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup><ItemGroup>
   '

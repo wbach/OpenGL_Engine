@@ -12,7 +12,7 @@ namespace GameEngine
 ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
     : graphicsApi_(graphicsApi)
     , gpuResourceLoader_(gpuResourceLoader)
-    , textureLoader_(std::make_unique<TextureLoader>(graphicsApi, gpuResourceLoader_, textures_))
+    , textureLoader_(std::make_unique<TextureLoader>(graphicsApi, gpuResourceLoader_))
     , loaderManager_(*textureLoader_)
     , releaseLockState_(true)
 {
@@ -27,6 +27,8 @@ ResourceManager::~ResourceManager()
     DEBUG_LOG("Release not deleted models. size :" + std::to_string(toRelease.size()));
     for (auto model : toRelease)
         ReleaseModel(*model);
+
+    textureLoader_.reset();
 }
 
 Model* ResourceManager::LoadModel(const File& file)

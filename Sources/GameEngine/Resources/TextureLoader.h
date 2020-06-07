@@ -15,8 +15,7 @@ namespace GameEngine
 class TextureLoader : public ITextureLoader
 {
 public:
-    TextureLoader(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&,
-                  std::unordered_map<std::string, ResourceInfo<Texture>>&);
+    TextureLoader(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&);
     ~TextureLoader() override;
 
     GeneralTexture* CreateTexture(const std::string&, const TextureParameters&, const GraphicsApi::Image&) override;
@@ -45,7 +44,7 @@ private:
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     IGpuResourceLoader& gpuResourceLoader_;
-    std::unordered_map<std::string, ResourceInfo<Texture>>& textures_;
+    std::unordered_map<std::string, ResourceInfo<Texture>> textures_;
     std::pair<GeneralTexture*, bool> textureNotFound_;
     std::mutex textureMutex_;
     bool releaseLockState_;
