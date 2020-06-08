@@ -85,7 +85,7 @@ void FileExplorer::FillFileList(const std::string &dir)
         {
             case Utils::File::Type::RegularFile:
             {
-                auto rawFileName = Utils::GetFilenameWithExtension(file.name);
+                auto rawFileName = Utils::GetFileName(file.name);
                 auto onClick     = [rawFileName, this](auto &) { seletedFileText_->SetText(rawFileName); };
                 CreateButtonWithFilename(rawFileName, onClick);
             }
@@ -93,7 +93,7 @@ void FileExplorer::FillFileList(const std::string &dir)
             case Utils::File::Type::Directory:
             {
                 auto onClick = [this, file](auto &) { AddRefillTask(file.name); };
-                CreateButtonWithFilename(Utils::GetFilenameWithExtension(file.name) + "/", onClick);
+                CreateButtonWithFilename(Utils::GetFileName(file.name) + "/", onClick);
             }
             break;
             case Utils::File::Type::Other:

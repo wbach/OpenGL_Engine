@@ -50,10 +50,14 @@ void AssimpLoader::ParseFile(const File& file)
     importer.FreeScene();
 }
 
-bool AssimpLoader::CheckExtension(const std::string& filename)
+bool AssimpLoader::CheckExtension(const File& file)
 {
-    auto ext = Utils::GetFileExtension(filename);
-    return ext == "fbx" or ext == "FBX" or ext == "Fbx" or ext == "3ds" or ext == "obj";
+    return file.IsExtension({"AMF", "3DS",     "AC",  "ASE",  "ASSBIN", "B3D",     "BVH", "COLLADA", "DXF", "CSM",
+                             "HMP", "IRRMESH", "IRR", "LWO",  "LWS",    "MD2",     "MD3", "MD5",     "MDC", "MDL",
+                             "NFF", "NDO",     "OFF", "OBJ",  "OGRE",   "OPENGEX", "PLY", "MS3D",    "COB", "BLEND",
+                             "IFC", "XGL",     "FBX", "Q3D",  "Q3BSP",  "RAW",     "SIB", "SMD",     "STL", "TERRAGEN",
+                             "3D",  "X",       "X3D", "GLTF", "3MF",    "MMD",     "STEP"});
+
     // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ OGRE
     // OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
 }

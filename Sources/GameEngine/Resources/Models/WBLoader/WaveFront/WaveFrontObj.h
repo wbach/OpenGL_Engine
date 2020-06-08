@@ -12,8 +12,8 @@ class WaveFrontObjLoader : public AbstractLoader
 {
 public:
     WaveFrontObjLoader(ITextureLoader& textureLodaer);
-    virtual void ParseFile(const File& filename) override;
-    virtual bool CheckExtension(const std::string& filename) override;
+    void ParseFile(const File&) override;
+    bool CheckExtension(const File&) override;
 
 private:
     void GetFileData(const File& file_name);

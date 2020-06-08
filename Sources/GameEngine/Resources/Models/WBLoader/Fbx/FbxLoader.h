@@ -12,8 +12,8 @@ class FbxLoader : public AbstractLoader
 public:
     FbxLoader(ITextureLoader&);
     ~FbxLoader();
-    virtual void ParseFile(const File&) override;
-    virtual bool CheckExtension(const std::string&) override;
+    void ParseFile(const File&) override;
+    bool CheckExtension(const File&) override;
 
 private:
     struct Pimpl;

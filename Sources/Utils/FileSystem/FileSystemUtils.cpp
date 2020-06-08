@@ -14,6 +14,18 @@
 
 namespace Utils
 {
+std::string GetFileName(const std::string& filename)
+{
+    return std::filesystem::path(filename).filename().string();
+}
+std::string GetExtension(const std::string& filename)
+{
+    return std::filesystem::path(filename).extension().string();
+}
+std::string GetFileBaseName(const std::string& filename)
+{
+    return std::filesystem::path(filename).stem().string();
+}
 void PrintFilesInDirectory(const std::string& dirPath, const std::string& t)
 {
     for (auto& p : std::filesystem::directory_iterator(dirPath))
@@ -71,8 +83,8 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
     }
 
     std::sort(result.begin(), result.end(), [](const File& l, const File& r) {
-        auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFilenameWithExtension(l.name);
-        auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFilenameWithExtension(r.name);
+        auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFileName(l.name);
+        auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFileName(r.name);
         std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
         std::transform(rname.begin(), rname.end(), rname.begin(), ::tolower);
         return lname < rname;

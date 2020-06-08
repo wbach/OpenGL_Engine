@@ -26,10 +26,9 @@ void ColladaDae::ParseFile(const File& filename)
     FillAnimationData();
     Clear();
 }
-bool ColladaDae::CheckExtension(const std::string& filename)
+bool ColladaDae::CheckExtension(const File& file)
 {
-    auto ext = Utils::GetFileExtension(filename);
-    return ext == "dae" || ext == "DAE" || ext == "Dae";
+    return file.IsExtension("dae");
 }
 void ColladaDae::ConstructModel()
 {

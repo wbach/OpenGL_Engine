@@ -30,6 +30,7 @@
 #include "Renderers/GUI/Window/GuiWindow.h"
 #include "SingleTon.h"
 #include "Thread.hpp"
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 using namespace GameEngine;
 
@@ -222,7 +223,7 @@ template <typename Shape>
 void MainScene::AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset,
                                 const vec3& dir, float scale, bool isStatic)
 {
-    auto object = CreateGameObject(Utils::GetFilename(modelFilename));
+    auto object = CreateGameObject(Utils::GetFileName(modelFilename));
     object->GetTransform().SetPosition(pos);
     object->GetTransform().SetScale(scale);
     object->AddComponent<Components::RendererComponent>().AddModel(modelFilename);
@@ -433,7 +434,7 @@ std::unique_ptr<GameEngine::GameObject> MainScene::CreateGameObjectInstance(cons
 void MainScene::CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position,
                                        uint32_t textureIndex, bool isDynamic)
 {
-    auto object = CreateGameObjectInstance(Utils::GetFilename(filename), scale, position, isDynamic);
+    auto object = CreateGameObjectInstance(Utils::GetFileName(filename), scale, position, isDynamic);
 
     if (terrainHeightGetter_)
     {

@@ -1,7 +1,9 @@
 #include "File.h"
 
 #include <Logger/Log.h>
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 #include <filesystem>
 
 #include "GameEngine/Engine/Configuration.h"
@@ -112,7 +114,9 @@ std::string File::GetBaseName() const
 
 std::string File::GetExtension() const
 {
-    return std::filesystem::path(dataRelative_).extension().string();
+    auto str = std::filesystem::path(dataRelative_).extension().string();
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
 }
 
 std::string File::GetFilename() const
@@ -155,9 +159,29 @@ void File::AddSuffixToBaseName(const std::string &suffix)
     ChangeBaseName(newBaseName);
 }
 
+std::string getExtensionToCompare(std::string input)
+{
+    if (input[0] != '.')
+        input = '.' + input;
+    std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+    return input;
+}
+
 bool File::IsExtension(const std::string &extension) const
 {
-    return GetExtension() == extension;
+    if (extension.empty())
+        return true;
+
+    return GetExtension() == getExtensionToCompare(extension);
+}
+
+bool File::IsExtension(const std::vector<std::string> &extensions) const
+{
+    auto ext = GetExtension();
+
+    return std::any_of(extensions.begin(), extensions.end(), [&ext](const auto& s) {
+        return getExtensionToCompare(s) == ext;
+    });
 }
 
 bool File::operator==(const File &f) const

@@ -190,7 +190,7 @@ void GuiEditScene::AddMenuButtonAction()
             guiManager_->RemoveLayersExpect(notCleanLayers_);
             processingFilename_ = str;
             currentLayer_       = str;
-            lastOpenedLocation_ = Utils::GetFilePath(str);
+            lastOpenedLocation_ = Utils::GetParent(str);
 
             auto result = guiElementFactory_->ReadGuiFile(str);
 

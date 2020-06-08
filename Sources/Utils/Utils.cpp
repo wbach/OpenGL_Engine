@@ -136,23 +136,6 @@ std::string ReplaceSlash(const std::string& str)
     return result;
 }
 
-FileInfo GetFileInfo(const std::string& fullpath)
-{
-    FileInfo info;
-    info.extension = GetFileExtension(fullpath);
-    info.filename  = GetFilename(fullpath);
-    info.path      = GetFilePath(fullpath);
-    return FileInfo();
-}
-
-void GetFileInfo(const std::string& full, std::string& filename, std::string& path)
-{
-    auto file = full;
-    std::replace(file.begin(), file.end(), '\\', '/');
-    path     = file.substr(0, file.find_last_of('/'));
-    filename = file.substr(file.find_last_of('/') + 1);
-}
-
 bool IsWindowsDriveName(const std::string& path)
 {
     return (path.size() == 3 and path[1] == ':' and path[2] == '/');

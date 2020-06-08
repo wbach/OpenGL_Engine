@@ -17,7 +17,7 @@ public:
     AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader& textureLoader);
     virtual ~AbstractLoader() = default;
     void Parse(const File&);
-    virtual bool CheckExtension(const std::string& filename) = 0;
+    virtual bool CheckExtension(const File&) = 0;
     virtual std::unique_ptr<Model> Create();
 
 protected:

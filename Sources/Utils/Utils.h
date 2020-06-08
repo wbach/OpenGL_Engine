@@ -46,12 +46,6 @@ private:
     vec2i offset;
 };
 
-struct FileInfo
-{
-    std::string filename;
-    std::string path;
-    std::string extension;
-};
 
 std::vector<std::string> SplitString(char* s, int size, char split_char);
 std::vector<std::string> SplitString(const std::string& s, char split_char);
@@ -61,12 +55,6 @@ std::string ReadFile(const std::string& file_name);
 std::list<std::string> ReadFileLines(const std::string& file_name);
 void WrtieToFile(const std::string& filename, const std::string& content);
 std::string ReplaceSlash(const std::string& str);
-FileInfo GetFileInfo(const std::string& fullpath);
-std::string GetFilename(const std::string& fullpath);
-std::string GetFilePath(const std::string& fullpath);
-std::string GetFileExtension(const std::string& file_name);
-std::string GetFilenameWithExtension(const std::string& fullpath);
-std::string GetPathAndFilenameWithoutExtension(const std::string& path);
 int NextP2(int a);
 bool CheckFileExist(const std::string& file);
 bool CheckExtension(const std::string& file, const std::string& ext);

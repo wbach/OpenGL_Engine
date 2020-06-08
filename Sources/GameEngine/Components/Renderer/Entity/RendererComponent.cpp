@@ -73,11 +73,17 @@ std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
     std::unordered_map<ParamName, Param> result;
     auto models = model_.Get();
     result.insert(
-        {MODEL_L1, {MODEL_FILE, models.count(LevelOfDetail::L1) ? models.at(LevelOfDetail::L1)->GetFile().GetDataRelativeDir() : ""}});
+        {MODEL_L1,
+         {MODEL_FILE,
+          models.count(LevelOfDetail::L1) ? models.at(LevelOfDetail::L1)->GetFile().GetDataRelativeDir() : ""}});
     result.insert(
-        {MODEL_L2, {MODEL_FILE, models.count(LevelOfDetail::L2) ? models.at(LevelOfDetail::L2)->GetFile().GetDataRelativeDir() : ""}});
+        {MODEL_L2,
+         {MODEL_FILE,
+          models.count(LevelOfDetail::L2) ? models.at(LevelOfDetail::L2)->GetFile().GetDataRelativeDir() : ""}});
     result.insert(
-        {MODEL_L3, {MODEL_FILE, models.count(LevelOfDetail::L3) ? models.at(LevelOfDetail::L3)->GetFile().GetDataRelativeDir() : ""}});
+        {MODEL_L3,
+         {MODEL_FILE,
+          models.count(LevelOfDetail::L3) ? models.at(LevelOfDetail::L3)->GetFile().GetDataRelativeDir() : ""}});
     result.insert({TEXTURE_INDEX, {INT, std::to_string(textureIndex_)}});
 
     return result;
@@ -200,15 +206,21 @@ void RendererComponent::UpdateBuffers()
     size_t index = 0;
     thisObject_.TakeWorldTransfromSnapshot();
 
-    for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
-    {
-        auto& poc = perObjectUpdateBuffer_[index++];
+    auto model = model_.Get(LevelOfDetail::L1);
 
-        if (poc)
+    if (model)
+    {
+        for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
         {
-            const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
-            poc->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-            poc->UpdateGpuPass();
+            auto& poc = perObjectUpdateBuffer_[index++];
+
+            if (poc)
+            {
+                const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+                poc->GetData().TransformationMatrix =
+                    componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
+                poc->UpdateGpuPass();
+            }
         }
     }
 }

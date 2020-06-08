@@ -12,8 +12,8 @@ class BinaryLoader : public AbstractLoader
 {
 public:
     BinaryLoader(TextureLoader& textureLodaer);
-    virtual void ParseFile(const File&) override;
-    virtual bool CheckExtension(const std::string& filename) override;
+    void ParseFile(const File&) override;
+    bool CheckExtension(const File&) override;
 };
 }
 }  // namespace GameEngine

@@ -560,10 +560,9 @@ void FbxLoader::ParseFile(const File& filename)
     impl_.reset();
 }
 
-bool FbxLoader::CheckExtension(const std::string& filename)
+bool FbxLoader::CheckExtension(const File& file)
 {
-    auto ext = Utils::GetFileExtension(filename);
-    return ext == "fbx" or ext == "FBX" or ext == "Fbx";
+    return file.IsExtension("fbx");
 }
 
 }  // namespace WBLoader

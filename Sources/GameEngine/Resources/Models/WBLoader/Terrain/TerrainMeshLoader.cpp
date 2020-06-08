@@ -34,10 +34,9 @@ void TerrainMeshLoader::ParseFile(const File& file)
     model_ = createModel(*heightMap);
     textureLoader_.DeleteTexture(*heightMap);
 }
-bool TerrainMeshLoader::CheckExtension(const std::string& filename)
+bool TerrainMeshLoader::CheckExtension(const File& file)
 {
-    auto ext = Utils::GetFileExtension(filename);
-    return ext == "terrain";
+    return file.IsExtension("terrain");
 }
 std::unique_ptr<Model> TerrainMeshLoader::Create()
 {

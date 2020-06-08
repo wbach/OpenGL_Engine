@@ -17,6 +17,9 @@ struct File
     std::string name;
 };
 
+std::string GetFileName(const std::string&);
+std::string GetExtension(const std::string&);
+std::string GetFileBaseName(const std::string&);
 void PrintFilesInDirectory(const std::string& dirPath, const std::string& t = "");
 std::vector<File> GetFilesInDirectory(const std::string& dirPath);
 std::string GetParent(const std::string&);

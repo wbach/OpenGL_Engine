@@ -26,13 +26,10 @@ void WaveFrontObjLoader::ParseFile(const File& filename)
     ProcessFileData();
     Clear();
 }
-
-bool WaveFrontObjLoader::CheckExtension(const std::string& filename)
+bool WaveFrontObjLoader::CheckExtension(const File& filename)
 {
-    auto ext = Utils::GetFileExtension(filename);
-    return ext == "obj" || ext == "OBJ" || ext == "Obj";
+    return filename.IsExtension("obj");
 }
-
 void WaveFrontObjLoader::GetFileData(const File& file)
 {
     fileData = Utils::ReadFileLines(file.GetAbsoultePath());

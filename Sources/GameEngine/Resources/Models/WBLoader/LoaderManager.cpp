@@ -48,7 +48,7 @@ WBLoader::AbstractLoader* LoaderManager::GetLoader(const File& file)
 {
     for (auto& loader : loaders_)
     {
-        if (loader->CheckExtension(file.GetExtension()))
+        if (loader->CheckExtension(file))
             return loader.get();
     }
     return nullptr;

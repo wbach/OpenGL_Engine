@@ -1,6 +1,6 @@
-#include <Resources/GpuResourceLoader.h>
-#include <Resources/TextureLoader.h>
-#include <Resources/Textures/Texture.h>
+#include <GameEngine/Resources/GpuResourceLoader.h>
+#include <GameEngine/Resources/TextureLoader.h>
+#include <GameEngine/Resources/Textures/Texture.h>
 #include <Utils/Time/Timer.h>
 #include <gtest/gtest.h>
 #include <filesystem>
@@ -24,7 +24,7 @@ struct TextureLoaderTest : public ::testing::Test
 
     virtual void SetUp() override
     {
-        sut_.reset(new TextureLoader(apiMock_, gpuLoader_, textures_));
+        sut_.reset(new TextureLoader(apiMock_, gpuLoader_));
     }
     GraphicsApi::GraphicsApiMock apiMock_;
     std::unordered_map<std::string, ResourceInfo<Texture>> textures_;

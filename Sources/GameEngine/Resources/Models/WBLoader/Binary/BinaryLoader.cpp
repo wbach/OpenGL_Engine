@@ -15,10 +15,9 @@ void BinaryLoader::ParseFile(const File&)
 {
 }
 
-bool BinaryLoader::CheckExtension(const std::string& filename)
+bool BinaryLoader::CheckExtension(const File& file)
 {
-    auto ext = Utils::GetFileExtension(filename);
-    return ext == "bin" || ext == "BIN" || ext == "Bin";
+    return file.IsExtension("bin");
 }
 
 }  // WBLoader

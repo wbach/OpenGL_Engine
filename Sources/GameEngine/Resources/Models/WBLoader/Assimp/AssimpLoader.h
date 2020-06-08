@@ -19,7 +19,7 @@ public:
     AssimpLoader(ITextureLoader&);
     ~AssimpLoader() override;
     void ParseFile(const File&) override;
-    bool CheckExtension(const std::string&) override;
+    bool CheckExtension(const File&) override;
 
 private:
     void RecursiveProcess(const aiNode&, const aiScene&);
