@@ -67,6 +67,7 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::Thre
     , selectedGameObject_{nullptr}
     , userId_{0}
     , keysSubscriptionsManager_(*scene_.inputManager_)
+    , sceneCamera_{nullptr}
     , running_{false}
     , arrowsIndicator_{nullptr}
 {
