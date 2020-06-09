@@ -49,15 +49,10 @@ void Mesh::ReleaseGpuPass()
         DEBUG_LOG("Mesh, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
         graphicsApi_.DeleteObject(*graphicsObjectId_);
     }
-    if (meshBuffers_.perMeshObjectBuffer_)
+    if (perMeshObjectBuffer_)
     {
         DEBUG_LOG("perMeshObjectBuffer, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
-        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perMeshObjectBuffer_);
-    }
-    if (meshBuffers_.perPoseUpdateBuffer_)
-    {
-        DEBUG_LOG("perPoseUpdateBuffer_, graphicsObjectId_ = " + std::to_string(*graphicsObjectId_));
-        graphicsApi_.DeleteShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_);
+        graphicsApi_.DeleteShaderBuffer(*perMeshObjectBuffer_);
     }
     GpuObject::ReleaseGpuPass();
     // DEBUG_LOG("Clean gpu resources, done");
@@ -73,9 +68,14 @@ void Mesh::CreateMesh()
     }
 }
 
-void Mesh::SetUseArmatorIfHaveBones()
+void Mesh::setRootJoint(Animation::Joint joint)
 {
-    useAramture = not meshRawData_.bonesWeights_.empty() and not meshRawData_.joinIds_.empty();
+    skeleton_ = std::move(joint);
+}
+
+const Animation::Joint& Mesh::getRootJoint() const
+{
+    return skeleton_;
 }
 
 void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
@@ -110,21 +110,9 @@ void Mesh::SetMaterial(const Material& mat)
 
 void Mesh::CreateBufferObject()
 {
-    meshBuffers_.perPoseUpdateBuffer_ =
-        graphicsApi_.CreateShaderBuffer(PER_POSE_UPDATE_BIND_LOCATION, sizeof(PerPoseUpdate));
-    if (meshBuffers_.perPoseUpdateBuffer_)
-    {
-        PerPoseUpdate perPoseUpdate;
-        for (uint32 i = 0; i < MAX_BONES; ++i)
-        {
-            perPoseUpdate.bonesTransforms[i] = mat4(1.f);
-        }
-        graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_, &perPoseUpdate);
-    }
-
-    meshBuffers_.perMeshObjectBuffer_ =
+    perMeshObjectBuffer_ =
         graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
-    if (meshBuffers_.perMeshObjectBuffer_)
+    if (perMeshObjectBuffer_)
     {
         PerMeshObject perMeshObject;
         perMeshObject.ambient         = ToVec4(material_.ambient);
@@ -161,21 +149,13 @@ void Mesh::CreateBufferObject()
         {
             perMeshObject.haveSpecularMap = 0.f;
         }
-        graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perMeshObjectBuffer_, &perMeshObject);
+        graphicsApi_.UpdateShaderBuffer(*perMeshObjectBuffer_, &perMeshObject);
     }
 }
 
-const MeshBufferes& Mesh::GetBuffers() const
+const GraphicsApi::ID& Mesh::getShaderBufferId() const
 {
-    return meshBuffers_;
-}
-
-void Mesh::UpdatePoseBuffer(void* pose) const
-{
-    if (meshBuffers_.perPoseUpdateBuffer_)
-    {
-        graphicsApi_.UpdateShaderBuffer(*meshBuffers_.perPoseUpdateBuffer_, pose);
-    }
+    return perMeshObjectBuffer_;
 }
 
 void Mesh::ClearData()

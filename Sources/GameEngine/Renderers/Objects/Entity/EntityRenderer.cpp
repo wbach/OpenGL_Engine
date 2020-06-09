@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "EntityRendererDef.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -66,8 +67,10 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     if (not model)
         return;
 
+    auto animator = gameObject->GetComponent<Components::Animator>();
+
     std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
-    subscribes_.push_back({gameObject, rendererComponent});
+    subscribes_.push_back({gameObject, animator, rendererComponent});
     subscribesIds_.insert(gameObject->GetId());
 }
 
@@ -132,13 +135,19 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
         if (not mesh.GetGraphicsObjectId())
             continue;
 
-        const auto& buffers = mesh.GetBuffers();
+        const auto& meshBuffer = mesh.getShaderBufferId();
 
-        context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
-
-        if (mesh.UseArmature())
+        if (meshBuffer)
         {
-            context_.graphicsApi_.BindShaderBuffer(*buffers.perPoseUpdateBuffer_);
+            context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
+        }
+
+        if (subsriber.animator and mesh.UseArmature())
+        {
+            const auto& perPoseBuffer = subsriber.animator->getPerPoseBufferId(meshId);
+
+            if (perPoseBuffer)
+                context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
         }
 
         const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(meshId);

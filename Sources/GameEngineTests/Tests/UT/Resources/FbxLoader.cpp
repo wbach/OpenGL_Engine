@@ -95,7 +95,7 @@ TEST_F(FbxLoaderShould, ReadGarenAnimations)
     // EXPECT_EQ( model->skeleton_.children.size(), 1);
 
     DEBUG_LOG("Print skeleton");
-    PrintJoints(model->skeleton_);
+   // PrintJoints(model->skeleton_);
     DEBUG_LOG("end print skeleton");
 }
 }  // namespace UT

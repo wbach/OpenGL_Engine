@@ -1,5 +1,6 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -18,6 +19,7 @@ struct Time;
 
 namespace Components
 {
+class Animator;
 class RendererComponent;
 }  // namespace Components
 
@@ -26,16 +28,17 @@ class ShadowMapRenderer : public IRenderer
     struct ShadowMapSubscriber
     {
         GameObject* gameObject                         = nullptr;
+        Components::Animator* animator                 = nullptr;
         Components::RendererComponent* renderComponent = nullptr;
     };
     typedef std::vector<ShadowMapSubscriber> Subscribers;
 
 public:
-    ShadowMapRenderer(RendererContext& context);
+    ShadowMapRenderer(RendererContext&);
     ~ShadowMapRenderer();
     virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
+    virtual void Subscribe(GameObject*) override;
+    virtual void UnSubscribe(GameObject*) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
 

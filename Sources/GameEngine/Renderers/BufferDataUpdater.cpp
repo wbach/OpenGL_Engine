@@ -3,58 +3,10 @@
 #include <Logger/Log.h>
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "TransformDataEvent.h"
 
 namespace GameEngine
 {
-class BonesDataSubcriber : public IBufferDataUpdaterSubcriber
-{
-public:
-    BonesDataSubcriber(GraphicsApi::IGraphicsApi& graphicsApi, uint32 goId,
-                       Components::RendererComponent& renderComponent)
-        : goId_(goId)
-        , graphicsApi_(graphicsApi)
-    {
-        model_ = renderComponent.GetModelWrapper().Get(LevelOfDetail::L1);
-    }
-    ~BonesDataSubcriber() override = default;
-
-    virtual void Update() override
-    {
-        int index = 0;
-
-        PerPoseUpdate pose;
-
-        if (model_->GetBoneTransforms().size() < MAX_BONES)
-        {
-            for (auto& boneTransform : model_->GetBoneTransforms())
-            {
-                pose.bonesTransforms[index++] = graphicsApi_.PrepareMatrixToLoad(boneTransform);
-            }
-        }
-        else
-        {
-            ERROR_LOG("Too many bones in model!.");
-        }
-
-        for (auto& mesh : model_->GetMeshes())
-        {
-            mesh.UpdatePoseBuffer(&pose);
-        }
-    }
-
-    virtual uint32 GetId() const override
-    {
-        return goId_;
-    }
-
-private:
-    uint32 goId_;
-    Model* model_;
-    GraphicsApi::IGraphicsApi& graphicsApi_;
-};
-
 BufferDataUpdater::BufferDataUpdater(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
 {
@@ -74,13 +26,6 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
             [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable {
                 AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent));
             });
-
-        if (rendererComponent->GetModelWrapper().Get()->IsAnyMeshUseTransform())
-        {
-            std::lock_guard<std::mutex> lk(subsribtionMutex_);
-            subscribers_.push_back({subscribtionId, std::make_unique<BonesDataSubcriber>(
-                                                        graphicsApi_, gameObject->GetId(), *rendererComponent)});
-        }
     }
 }
 void BufferDataUpdater::UnSubscribe(GameObject* gameObject)

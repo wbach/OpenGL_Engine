@@ -1,19 +1,17 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+#include <GraphicsApi/MeshRawData.h>
+#include <Types.h>
+#include <Utils.h>
+
 #include <vector>
+
 #include "BoundingBox.h"
-#include "GraphicsApi/IGraphicsApi.h"
-#include "GraphicsApi/MeshRawData.h"
+#include "GameEngine/Animations/Joint.h"
 #include "Material.h"
-#include "Types.h"
-#include "Utils.h"
 
 namespace GameEngine
 {
-struct MeshBufferes
-{
-    GraphicsApi::ID perPoseUpdateBuffer_;
-    GraphicsApi::ID perMeshObjectBuffer_;
-};
 class Mesh : public GpuObject
 {
 public:
@@ -28,8 +26,7 @@ public:
     void ReleaseGpuPass() override;
 
     void SetMaterial(const Material& material);
-    const MeshBufferes& GetBuffers() const;
-    void UpdatePoseBuffer(void* pose) const;
+    const GraphicsApi::ID& getShaderBufferId() const;
 
     void SetTransformMatrix(const mat4& m);
     bool UseArmature() const;
@@ -42,7 +39,8 @@ public:
     inline GraphicsApi::MeshRawData& GetMeshDataRef();
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
-    void SetUseArmatorIfHaveBones();
+    void setRootJoint(Animation::Joint);
+    const Animation::Joint& getRootJoint() const;
 
 private:
     void CreateBufferObject();
@@ -55,15 +53,15 @@ private:
     GraphicsApi::MeshRawData meshRawData_;
     GraphicsApi::RenderType renderType_;
     Material material_;
+    Animation::Joint skeleton_;
 
     bool isInit              = false;
     bool transformVboCreated = false;
-    bool useAramture         = false;
 
     // local transform in mesh
     mat4 transform_;
     BoundingBox boundingBox_;
-    MeshBufferes meshBuffers_;
+    GraphicsApi::ID perMeshObjectBuffer_;
 };
 
 const mat4& Mesh::GetMeshTransform() const

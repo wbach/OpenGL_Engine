@@ -1,5 +1,7 @@
 #include "GpuResourceLoader.h"
+
 #include <algorithm>
+
 #include "Types.h"
 
 namespace GameEngine
@@ -45,7 +47,13 @@ GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
 void GpuResourceLoader::AddObjectToUpdateGpuPass(GpuObject& obj)
 {
     std::lock_guard<std::mutex> lock(updateMutex);
-    objectsToUpdate.push_back(&obj);
+
+    auto iter =
+        std::find_if(objectsToUpdate.begin(), objectsToUpdate.end(),
+                     [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
+    
+    if (iter == objectsToUpdate.end())
+        objectsToUpdate.push_back(&obj);
 }
 
 GpuObject* GpuResourceLoader::GetObjectToUpdateGpuPass()

@@ -308,7 +308,7 @@ void AssimpLoader::processAnimations(const aiScene& scene)
         if (name.empty())
             name = "noname";
         DEBUG_LOG("Animation : " + name);
-        objects.back().meshes[0].animationClips_.insert({name, processAnimation(aiAnim)});
+        objects.back().animationClips_.insert({name, processAnimation(aiAnim)});
     }
 }
 

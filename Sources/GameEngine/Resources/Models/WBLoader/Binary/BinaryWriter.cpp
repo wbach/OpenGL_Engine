@@ -140,7 +140,7 @@ void CreateBinFile(const std::unique_ptr<Model>& model, const std::string& filen
         WriteToFile(binaryFile, mesh.GetCMeshDataRef(), mesh.GetMaterial(), mesh.GetMeshTransform());
     }
     WriteToFile(binaryFile, model->animationClips_);
-    WriteToFile(binaryFile, model->skeleton_);
+//    WriteToFile(binaryFile, model->skeleton_);
 
     binaryFile.close();
 }

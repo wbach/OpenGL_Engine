@@ -1,5 +1,7 @@
 #include "AbstractLoader.h"
+
 #include <fstream>
+
 #include "Binary/BinaryReader.h"
 #include "Binary/BinaryWriter.h"
 #include "GameEngine/Animations/AnimationUtils.h"
@@ -78,17 +80,16 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
             ERROR_LOG(fileName_ + ". No meshes in object!");
         }
 
+        newModel->animationClips_ = std::move(obj.animationClips_);
         NormalizeMatrix(obj.transformMatrix, normalizeFactor);
 
         for (auto& mesh : obj.meshes)
         {
             auto& newMesh = newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_,
-                mesh.createMeshRawData(), mesh.material, obj.transformMatrix);
+                                              mesh.createMeshRawData(), mesh.material, obj.transformMatrix);
 
-            newMesh.SetUseArmatorIfHaveBones();
-            newModel->animationClips_ = mesh.animationClips_;
-            newModel->skeleton_       = mesh.skeleton_;
-            Animation::CalcInverseBindTransform(newModel->skeleton_);
+            Animation::CalcInverseBindTransform(mesh.skeleton_);
+            newMesh.setRootJoint(std::move(mesh.skeleton_));
         }
     }
     objects.clear();

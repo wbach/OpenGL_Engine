@@ -1,8 +1,9 @@
 #pragma once
+#include <set>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include <set>
 
 namespace GameEngine
 {
@@ -18,13 +19,15 @@ struct Material;
 
 namespace Components
 {
+class Animator;
 class RendererComponent;
 }  // namespace Components
 
 struct EntitySubscriber
 {
-    GameObject* gameObject;
-    Components::RendererComponent* renderComponent;
+    GameObject* gameObject{nullptr};
+    Components::Animator* animator{nullptr};
+    Components::RendererComponent* renderComponent{nullptr};
 };
 
 typedef std::vector<EntitySubscriber> EnitySubscribers;
@@ -37,18 +40,18 @@ public:
 
     // Loading lights itp to shader
     virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
+    virtual void Subscribe(GameObject*) override;
+    virtual void UnSubscribe(GameObject*) override;
     virtual void UnSubscribeAll() override;
     virtual void ReloadShaders() override;
-    void Render(const Scene& scene, const Time& threadTime);
+    void Render(const Scene&, const Time&);
 
 private:
-    void RenderModel(const EntitySubscriber& subsriber, const Model& model) const;
-    void RenderMesh(const Mesh& mesh) const;
+    void RenderModel(const EntitySubscriber&, const Model&) const;
+    void RenderMesh(const Mesh&) const;
     void RenderEntities();
-    void BindMaterial(const Material& material) const;
-    void UnBindMaterial(const Material& material) const;
+    void BindMaterial(const Material&) const;
+    void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, Texture*, bool) const;
 
 private:

@@ -1,4 +1,5 @@
 set(GameEngineSources
+../../Sources/GameEngine/Animations/AnimationClip.cpp
 ../../Sources/GameEngine/Animations/AnimationUtils.cpp
 ../../Sources/GameEngine/Animations/Joint.cpp
 ../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.cpp

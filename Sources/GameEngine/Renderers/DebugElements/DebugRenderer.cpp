@@ -283,7 +283,7 @@ void DebugRenderer::RenderModel(const Model& model) const
 
 void DebugRenderer::BindMeshBuffers(const Mesh& mesh) const
 {
-    const auto& perMeshObjectBuffer = mesh.GetBuffers().perMeshObjectBuffer_;
+    const auto& perMeshObjectBuffer = mesh.getShaderBufferId();
     if (perMeshObjectBuffer)
     {
         graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);

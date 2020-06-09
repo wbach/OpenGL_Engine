@@ -3,9 +3,11 @@
 #include <GLM/GLMUtils.h>
 #include <GraphicsApi/ShaderProgramType.h>
 #include <Logger/Log.h>
+
 #include <math.hpp>
 
 #include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -45,8 +47,9 @@ ShadowMapRenderer::~ShadowMapRenderer()
 void ShadowMapRenderer::Init()
 {
     shader_.Init();
-    GraphicsApi::FrameBuffer::Attachment depthAttachment(EngineConf.renderer.shadows.mapSize, GraphicsApi::FrameBuffer::Type::Depth,
-                                         GraphicsApi::FrameBuffer::Format::Depth);
+    GraphicsApi::FrameBuffer::Attachment depthAttachment(EngineConf.renderer.shadows.mapSize,
+                                                         GraphicsApi::FrameBuffer::Type::Depth,
+                                                         GraphicsApi::FrameBuffer::Format::Depth);
 
     perFrameBuffer_    = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
     shadowFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer({depthAttachment});
@@ -92,8 +95,10 @@ void ShadowMapRenderer::Subscribe(GameObject* gameObject)
     if (rendererComponent == nullptr)
         return;
 
+    auto animator = gameObject->GetComponent<Components::Animator>();
+
     std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
-    subscribes_.push_back({gameObject, rendererComponent});
+    subscribes_.push_back({gameObject, animator, rendererComponent});
 }
 
 void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
@@ -160,16 +165,19 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
         if (not mesh.GetGraphicsObjectId())
             continue;
 
-        const auto& buffers = mesh.GetBuffers();
+        const auto& meshBuffer = mesh.getShaderBufferId();
 
-        if (buffers.perMeshObjectBuffer_)
+        if (meshBuffer)
         {
-            context_.graphicsApi_.BindShaderBuffer(*buffers.perMeshObjectBuffer_);
+            context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
         }
 
-        if (mesh.UseArmature())
+        if (sub.animator and mesh.UseArmature())
         {
-            context_.graphicsApi_.BindShaderBuffer(*buffers.perPoseUpdateBuffer_);
+            const auto& perPoseBuffer = sub.animator->getPerPoseBufferId(meshId);
+
+            if (perPoseBuffer)
+                context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
         }
 
         const auto& perMeshUpdateBuffer = sub.renderComponent->GetPerObjectUpdateBuffer(meshId);

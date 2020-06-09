@@ -3,7 +3,6 @@
 #include <memory>
 #include "GameEngine/Resources/GpuObject.h"
 #include "GameEngine/Animations/AnimationClip.h"
-#include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Resources/File.h"
 #include "BoundingBox.h"
 #include "Mesh.h"
@@ -35,17 +34,12 @@ public:
     const File& GetFile() const;
     inline const std::vector<Mesh>& GetMeshes() const;
     inline std::vector<Mesh>& GetMeshes();
-    const std::vector<mat4>& GetBoneTransforms();
 
     inline bool operator==(const Model& q) const;
     inline bool operator==(const File& file) const;
 
 public:
-    Animation::Joint skeleton_;
     AnimationClipsMap animationClips_;
-
-protected:
-    void AddJoints(Animation::Joint& joint);
 
 protected:
     File file_;

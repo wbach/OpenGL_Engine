@@ -108,7 +108,7 @@ TEST_F(ColladaLoaderShould, ReadAnimations)
     auto data = model->GetMeshes().front().GetCMeshDataRef();
 
     DEBUG_LOG("Print skeleton");
-    PrintJointsWithMatrix(model->skeleton_);
+  //  PrintJointsWithMatrix(model->skeleton_);
     DEBUG_LOG("end print skeleton");
 }
 }  // namespace WBLoader

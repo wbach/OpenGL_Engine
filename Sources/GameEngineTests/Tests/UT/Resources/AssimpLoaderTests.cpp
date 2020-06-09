@@ -97,7 +97,7 @@ TEST_F(AssimpLoaderShould, ReadGarenAnimations)
     // EXPECT_EQ( model->skeleton_.children.size(), 1);
 
     DEBUG_LOG("Print skeleton");
-    PrintJointsWithMatrix(model->skeleton_);
+    //PrintJointsWithMatrix(model->skeleton_);
     DEBUG_LOG("end print skeleton");
 }
 }  // namespace UT

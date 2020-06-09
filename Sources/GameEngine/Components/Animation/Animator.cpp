@@ -1,8 +1,11 @@
 #include "Animator.h"
+
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
@@ -10,11 +13,27 @@ using namespace Animation;
 
 namespace Components
 {
+void JointData::updateBufferTransform()
+{
+    if (buffer)
+        updateBufferTransform(rootJoint);
+}
+void JointData::updateBufferTransform(Animation::Joint& joint)
+{
+    if (joint.id < MAX_BONES)
+    {
+        buffer->GetData().bonesTransforms[joint.id] = joint.animatedTransform;
+    }
+    for (auto& childJoint : joint.children)
+    {
+        updateBufferTransform(childJoint);
+    }
+}
+
 ComponentsType Animator::type = ComponentsType::Animator;
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Animator, componentContext, gameObject)
-    , rootJoint_(nullptr)
     , currentTime_(0.f)
     , animationSpeed_(1.f)
     , changeAnimTime_(0.25f)
@@ -25,18 +44,19 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
 
 void Animator::CleanUp()
 {
-
+    for (auto& jd : meshRootJoints_)
+    {
+        if (jd.buffer and jd.buffer->GetGraphicsObjectId())
+            componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(jd.buffer));
+    }
+    meshRootJoints_.clear();
 }
 void Animator::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
     RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this));
 }
-Animator& Animator::SetSkeleton(Animation::Joint* skeleton)
-{
-    rootJoint_ = skeleton;
-    return *this;
-}
+
 Animator& Animator::SetAnimation(const std::string& name)
 {
     current_     = name;
@@ -47,6 +67,10 @@ Animator& Animator::SetAnimation(const std::string& name)
 const std::string& Animator::GetCurrentAnimationName() const
 {
     return current_;
+}
+const GraphicsApi::ID& Animator::getPerPoseBufferId(uint32 i) const
+{
+    return meshRootJoints_[i].buffer->GetGraphicsObjectId();
 }
 void Animator::ChangeAnimation(const std::string& name)
 {
@@ -71,16 +95,47 @@ void Animator::GetSkeletonAndAnimations()
     if (renderer == nullptr)
         return;
 
-    auto model      = renderer->GetModelWrapper().Get(GameEngine::L1);
-    rootJoint_      = &model->skeleton_;
-    animationClips_ = model->animationClips_;
+    auto model = renderer->GetModelWrapper().Get(GameEngine::L1);
 
-    if (not animationClips_.empty())
+    if (model)
     {
-        if (not animationClips_.count(current_))
+        for (auto& mesh : model->GetMeshes())
         {
-            current_ = animationClips_.begin()->first;
+            meshRootJoints_.emplace_back();
+            auto& jd = meshRootJoints_.back();
+
+            jd.rootJoint = mesh.getRootJoint();
+            jd.buffer    = std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_,
+                                                                      PER_POSE_UPDATE_BIND_LOCATION);
         }
+
+        for (auto& jd : meshRootJoints_)
+        {
+            auto& bufferData = jd.buffer->GetData();
+            for (size_t i = 0; i < MAX_BONES; ++i)
+            {
+                bufferData.bonesTransforms[i] = mat4(1.f);
+            }
+            componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jd.buffer);
+        }
+
+        animationClips_ = model->animationClips_;
+
+        if (not animationClips_.empty())
+        {
+            if (not animationClips_.count(current_))
+            {
+                current_ = animationClips_.begin()->first;
+            }
+        }
+    }
+}
+void Animator::updateShaderBuffers()
+{
+    for (auto& jd : meshRootJoints_)
+    {
+        jd.updateBufferTransform();
+        componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jd.buffer);
     }
 }
 void Animator::ChangeAnimState()
@@ -95,11 +150,19 @@ void Animator::ChangeAnimState()
         currentChangeAnimTime_ = 1.f;
     }
     auto pos = interpolatePoses(startChaneAnimPose, endChangeAnimPose, currentChangeAnimTime_);
-    applyPoseToJoints(pos, *rootJoint_, mat4(1.f));
+    applyPoseToJoints(pos);
+}
+void Animator::applyPoseToJoints(const Pose& pose)
+{
+    for (auto& jd : meshRootJoints_)
+    {
+        applyPoseToJoints(pose, jd.rootJoint, mat4(1.f));
+    }
+    updateShaderBuffers();
 }
 bool Animator::IsReady()
 {
-    return (rootJoint_ != nullptr && !current_.empty() && animationClips_.count(current_) != 0);
+    return (not meshRootJoints_.empty() && !current_.empty() && animationClips_.count(current_) != 0);
 }
 void Animator::Update()
 {
@@ -114,9 +177,8 @@ void Animator::Update()
 
     increaseAnimationTime();
     auto currentPose = calculateCurrentAnimationPose();
-    applyPoseToJoints(currentPose, *rootJoint_, mat4(1.f));
+    applyPoseToJoints(currentPose);
 }
-
 void Animator::increaseAnimationTime()
 {
     auto animationLength = animationClips_[current_].GetLength();

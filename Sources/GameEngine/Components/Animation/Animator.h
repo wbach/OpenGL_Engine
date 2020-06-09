@@ -1,8 +1,11 @@
 #pragma once
 #include <unordered_map>
+
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
+#include "GameEngine/Resources/BufferObject.h"
 
 namespace GameEngine
 {
@@ -12,6 +15,15 @@ namespace Components
 {
 typedef std::unordered_map<std::string, mat4> Pose;
 
+struct JointData
+{
+    Animation::Joint rootJoint;
+    std::unique_ptr<BufferObject<PerPoseUpdate>> buffer;
+
+    void updateBufferTransform();
+    void updateBufferTransform(Animation::Joint&);
+};
+
 class Animator : public BaseComponent
 {
 public:
@@ -20,19 +32,20 @@ public:
     void ReqisterFunctions() override;
 
     void Update();
-    Animator& SetSkeleton(Animation::Joint* skeleton);
-    Animator& SetAnimation(const std::string& name);
-    void ChangeAnimation(const std::string& name);
+    Animator& SetAnimation(const std::string&);
+    void ChangeAnimation(const std::string&);
     const std::string& GetCurrentAnimationName() const;
+    const GraphicsApi::ID& getPerPoseBufferId(uint32) const;
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-    Animation::Joint* rootJoint_;
+    std::vector<JointData> meshRootJoints_;
     float currentTime_;
     float animationSpeed_;
     float changeAnimTime_;
 
 protected:
+    void updateShaderBuffers();
     void ChangeAnimState();
     bool IsReady();
     void increaseAnimationTime();
@@ -42,7 +55,8 @@ protected:
     Pose calculateCurrentAnimationPose();
     Pose interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame,
                           float progression);
-    void applyPoseToJoints(const Pose& currentPose, Animation::Joint& joint, const mat4& parentTransform);
+    void applyPoseToJoints(const Pose&, Animation::Joint&, const mat4&);
+    void applyPoseToJoints(const Pose&);
 
 protected:
     uint32 currentFrameId_ = 0;

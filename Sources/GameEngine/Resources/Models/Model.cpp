@@ -67,35 +67,6 @@ const BoundingBox& Model::getBoundingBox() const
 {
     return boundingBox_;
 }
-const std::vector<mat4>& Model::GetBoneTransforms()
-{
-    if (skeleton_.size == 0)
-        return boneTransforms_;
-
-    if (boneTransforms_.empty())
-    {
-        boneTransforms_.resize(skeleton_.size);
-        for (auto& mat : boneTransforms_)
-            mat = mat4(1.0f);
-    }
-
-    AddJoints(skeleton_);
-    return boneTransforms_;
-}
-void Model::AddJoints(Animation::Joint& joint)
-{
-    if (joint.id >= boneTransforms_.size())
-    {
-        ERROR_LOG("joint id > skeleton size {" + std::to_string(joint.id) + ", " + std::to_string(skeleton_.size) +
-                  "}");
-        return;
-    }
-    boneTransforms_[joint.id] = joint.animatedTransform;
-    for (auto& childJoint : joint.children)
-    {
-        AddJoints(childJoint);
-    }
-}
 const File& Model::GetFile() const
 {
     return file_;

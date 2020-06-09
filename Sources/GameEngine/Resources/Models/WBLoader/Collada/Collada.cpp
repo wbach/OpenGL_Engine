@@ -127,24 +127,7 @@ void ColladaDae::FillAnimationData()
                     }
                 }
                 CreateSkeleton(node, mesh->skeleton_, joints);
-                FillAnimator(mesh->animationClips_, joints);
-
-                //for (auto& clip : mesh->animationClips_)
-                //{
-                //    DEBUG_LOG("Clip name : " + clip.second.name);
-
-                //    for (auto& k : clip.second.GetFrames())
-                //    {
-                //        DEBUG_LOG("frame time : " + std::to_string(k.timeStamp));
-                //        for (auto& transform : k.transforms)
-                //        {
-                //            DEBUG_LOG("name : " + transform.first +
-                //                      " position : " + std::to_string(transform.second.position) +
-                //                      " rotation : " + std::to_string(transform.second.rotation));
-                //        }
-                //        DEBUG_LOG("*********************************************");
-                //    }
-                //}
+              //  FillAnimator(mesh->animationClips_, joints);
             }
         }
     }
@@ -372,11 +355,11 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
         for (const auto& anim_pair : animationClipPair.second.animations_)
         {
             auto& anim     = anim_pair.second;
-            auto& animName = anim_pair.first;
+            auto& jointName = anim_pair.first;
 
             for (const auto& joint : joints)
             {
-                if (ContainJoint(animName, joint.first))
+                if (ContainJoint(jointName, joint.first))
                 {
                     for (const auto& input : anim.sampler_.inputs_)
                     {
@@ -415,7 +398,7 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
                                     vec3 position(mat[3][0], mat[3][1], mat[3][2]);
                                     auto rotation = glm::quat_cast(mat);
 
-                                    frames[frameId].transforms.insert({joint.first, {position, rotation}});
+                                    frames[frameId].transforms.insert({ jointName, {position, rotation}});
                                     ++frameId;
                                 }
                             }

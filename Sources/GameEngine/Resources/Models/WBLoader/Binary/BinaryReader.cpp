@@ -212,7 +212,7 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
     }
 
     ReadFile(file, out->animationClips_);
-    ReadFile(file, out->skeleton_);
+   // ReadFile(file, out->skeleton_);
 
     file.close();
 
