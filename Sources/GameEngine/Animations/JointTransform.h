@@ -8,8 +8,8 @@ namespace Animation
 {
 struct JointTransform
 {
-    vec3 position;
-    Quaternion rotation;
+    vec3 position{0.f};
+    Quaternion rotation{0.f, 0.f, 0.f, 0.f};
 };
 }  // namespace Animation
 }  // namespace GameEngine

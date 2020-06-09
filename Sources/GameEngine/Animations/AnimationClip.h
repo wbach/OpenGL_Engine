@@ -9,11 +9,13 @@ class AnimationClip
 {
 public:
     AnimationClip();
-    AnimationClip(const std::string& name);
-    inline float GetLength() const;
-    inline void AddFrame(const KeyFrame& frame);
-    inline const std::vector<KeyFrame>& GetFrames() const;
-    inline void SetLength(float l);
+    AnimationClip(const std::string&);
+    float GetLength() const;
+    void AddFrame(const KeyFrame&);
+    const std::vector<KeyFrame>& GetFrames() const;
+    void SetLength(float l);
+    KeyFrame* getFrame(float);
+    KeyFrame* getFrame(size_t);
 
 public:
     std::string name;
@@ -22,39 +24,10 @@ private:
     float length;
     std::vector<KeyFrame> frames;
 };
-
-inline AnimationClip::AnimationClip()
-    : AnimationClip("No name")
-{
-}
-
-inline AnimationClip::AnimationClip(const std::string& name)
-    : name(name)
-    , length(-std::numeric_limits<float>::max())
-{
-}
-
-float AnimationClip::GetLength() const
-{
-    return length;
-}
-
-void AnimationClip::AddFrame(const KeyFrame& frame)
-{
-    frames.push_back(frame);
-    if (frame.timeStamp > length)
-        length = frame.timeStamp;
-}
-
-inline const std::vector<KeyFrame>& AnimationClip::GetFrames() const
-{
-    return frames;
-}
-
-inline void AnimationClip::SetLength(float l)
-{
-    length = l;
-}
-
 }  // namespace Animation
 }  // namespace GameEngine
+
+namespace std
+{
+string to_string(const GameEngine::Animation::AnimationClip&);
+} // namespace std

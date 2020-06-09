@@ -54,20 +54,6 @@ glm::mat4 convert(FbxAMatrix& mx)
     return m;
 }
 
-Animation::Joint* findJointByName(Animation::Joint& rootJoint, const std::string& name)
-{
-    if (rootJoint.name == name)
-        return &rootJoint;
-
-    for (auto& child : rootJoint.children)
-    {
-        auto result = findJointByName(child, name);
-        if (result)
-            return result;
-    }
-    return nullptr;
-}
-
 void createSkeleton(Animation::Joint& joint, FbxNode* node)
 {
     if (not node)

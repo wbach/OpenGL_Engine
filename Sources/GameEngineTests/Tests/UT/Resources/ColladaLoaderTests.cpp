@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-#include "Engine/Configuration.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/Models/WBLoader/Collada/Collada.h"
 #include "GameEngineTests/Tests/Mocks/Resources/TextureLoaderMock.h"
+#include <Logger/Log.h>
 
 using namespace ::testing;
 
@@ -20,6 +21,30 @@ struct ColladaLoaderShould : public ::testing::Test
         EXPECT_CALL(textureLoaderMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(apiMock_));
         sut_.reset(new ColladaDae(textureLoaderMock_));
     }
+
+
+    void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
+    {
+        DEBUG_LOG(of + joint.name + " (size : " + std::to_string(joint.size) + ")");
+
+        for (const auto& child : joint.children)
+        {
+            PrintJoints(child, of + "--");
+        }
+    }
+
+    void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std::string& of = "")
+    {
+        DEBUG_LOG(of + joint.name);
+        DEBUG_LOG(of + std::to_string(joint.id));
+        DEBUG_LOG(of + std::to_string(joint.transform));
+
+        for (const auto& child : joint.children)
+        {
+            PrintJointsWithMatrix(child, of + "--");
+        }
+    }
+
     TextureLoaderMock textureLoaderMock_;
     GraphicsApi::GraphicsApiMock apiMock_;
     std::unique_ptr<ColladaDae> sut_;
@@ -71,6 +96,20 @@ TEST_F(ColladaLoaderShould, ReadSimpleCube)
     }
 
     std::cout << std::endl;
+}
+TEST_F(ColladaLoaderShould, ReadAnimations)
+{
+ //   EXPECT_CALL(textureLoaderMock_, LoadTexture(_, _)).WillOnce(Return(nullptr));
+
+    std::string file{ "Meshes/DaeAnimationExample/CharacterRunning.dae" };
+    ASSERT_TRUE(Utils::CheckFileExist("../Data/" + file));
+    sut_->Parse(file);
+    auto model = sut_->Create();
+    auto data = model->GetMeshes().front().GetCMeshDataRef();
+
+    DEBUG_LOG("Print skeleton");
+    PrintJointsWithMatrix(model->skeleton_);
+    DEBUG_LOG("end print skeleton");
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

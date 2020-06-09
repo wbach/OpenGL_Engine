@@ -128,6 +128,23 @@ void ColladaDae::FillAnimationData()
                 }
                 CreateSkeleton(node, mesh->skeleton_, joints);
                 FillAnimator(mesh->animationClips_, joints);
+
+                //for (auto& clip : mesh->animationClips_)
+                //{
+                //    DEBUG_LOG("Clip name : " + clip.second.name);
+
+                //    for (auto& k : clip.second.GetFrames())
+                //    {
+                //        DEBUG_LOG("frame time : " + std::to_string(k.timeStamp));
+                //        for (auto& transform : k.transforms)
+                //        {
+                //            DEBUG_LOG("name : " + transform.first +
+                //                      " position : " + std::to_string(transform.second.position) +
+                //                      " rotation : " + std::to_string(transform.second.rotation));
+                //        }
+                //        DEBUG_LOG("*********************************************");
+                //    }
+                //}
             }
         }
     }
@@ -398,11 +415,7 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
                                     vec3 position(mat[3][0], mat[3][1], mat[3][2]);
                                     auto rotation = glm::quat_cast(mat);
 
-                                    frames[frameId].transforms[joint.first].position = position;
-                                    frames[frameId].transforms[joint.first].rotation = rotation;
-
-                                    frames[frameId].idTransforms_[joint.second].position = position;
-                                    frames[frameId].idTransforms_[joint.second].rotation = rotation;
+                                    frames[frameId].transforms.insert({joint.first, {position, rotation}});
                                     ++frameId;
                                 }
                             }

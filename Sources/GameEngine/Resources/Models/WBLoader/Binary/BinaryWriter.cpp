@@ -63,12 +63,6 @@ void WriteToFile(std::fstream& file, const Animation::KeyFrame& keyFrame)
         WriteToFile(file, jointTransform.first);
         WriteToFile(file, jointTransform.second);
     }
-    WriteToFile(file, keyFrame.idTransforms_.size());
-    for (const auto& jointTransform : keyFrame.idTransforms_)
-    {
-        WriteToFile(file, jointTransform.first);
-        WriteToFile(file, jointTransform.second);
-    }
 }
 void WriteToFile(std::fstream& file, const Animation::AnimationClip& clip)
 {

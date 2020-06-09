@@ -77,7 +77,7 @@ void Animator::GetSkeletonAndAnimations()
 
     if (not animationClips_.empty())
     {
-        if (animationClips_.count(current_) == 0)
+        if (not animationClips_.count(current_))
         {
             current_ = animationClips_.begin()->first;
         }

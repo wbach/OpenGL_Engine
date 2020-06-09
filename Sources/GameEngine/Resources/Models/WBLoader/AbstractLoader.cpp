@@ -83,7 +83,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
         for (auto& mesh : obj.meshes)
         {
             auto& newMesh = newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_,
-                                              mesh.createMeshRawData(), mesh.material, obj.transformMatrix);
+                mesh.createMeshRawData(), mesh.material, obj.transformMatrix);
 
             newMesh.SetUseArmatorIfHaveBones();
             newModel->animationClips_ = mesh.animationClips_;

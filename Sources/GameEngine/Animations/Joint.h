@@ -1,6 +1,7 @@
 #pragma once
+#include <Types.h>
+
 #include <vector>
-#include "Types.h"
 
 namespace GameEngine
 {
@@ -20,21 +21,23 @@ struct Joint
 
     std::vector<Joint> children;
 
-    void increaseSize()
+    void increaseSize(uint32 i)
     {
         if (parent)
         {
-            parent->increaseSize();
+            parent->increaseSize(i);
         }
-        ++size;
+        size += i;
     }
 
     void addChild(Joint joint)
     {
-        increaseSize();
+        increaseSize(joint.size);
         joint.parent = this;
         children.push_back(std::move(joint));
     }
 };
+Joint* findJointByName(Joint&, const std::string&);
+Joint* findJointById(Joint&, uint32);
 }  // namespace Animation
 }  // namespace GameEngine

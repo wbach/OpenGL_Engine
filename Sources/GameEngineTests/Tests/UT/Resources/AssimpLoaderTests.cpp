@@ -40,6 +40,7 @@ struct AssimpLoaderShould : public ::testing::Test
     void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std::string& of = "")
     {
         DEBUG_LOG(of + joint.name);
+        DEBUG_LOG(of + std::to_string(joint.id));
         DEBUG_LOG(of + std::to_string(joint.transform));
 
         for (const auto& child : joint.children)
@@ -87,7 +88,8 @@ TEST_F(AssimpLoaderShould, ReadGarenAnimations)
 
     // std::string file{"Meshes/DaeAnimationExample/Character.fbx"};
     //std::string file{"Meshes/Avatar/aangMakeHumanRig.Walkblend.fbx"};
-    std::string file{"Meshes/Garen/garen_idle_b.fbx"};
+    //std::string file{"Meshes/Garen/garen_idle_b.fbx"};
+    std::string file{ "Meshes/DaeAnimationExample/CharacterRunning.dae" };
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + file));
     sut_->Parse(file);
     auto model = sut_->Create();
@@ -95,7 +97,7 @@ TEST_F(AssimpLoaderShould, ReadGarenAnimations)
     // EXPECT_EQ( model->skeleton_.children.size(), 1);
 
     DEBUG_LOG("Print skeleton");
-    PrintJoints(model->skeleton_);
+    PrintJointsWithMatrix(model->skeleton_);
     DEBUG_LOG("end print skeleton");
 }
 }  // namespace UT

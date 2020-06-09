@@ -72,6 +72,10 @@ std::string to_string(const vec4& v)
 {
     return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w);
 }
+std::string to_string(const Quaternion& v)
+{
+    return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ", " + std::to_string(v.w);
+}
 std::string to_string(const glm::mat4& m)
 {
     std::string s{"\n"};
