@@ -223,13 +223,13 @@ std::pair<KeyFrame, KeyFrame> Animator::getPreviousAndNextFrames()
 
 void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const mat4& parentTransform)
 {
-    if (currentPose.count(joint.name) == 0)
-        return;
-
-    const auto& currentLocalTransform = currentPose.at(joint.name);
-
-    auto currentTransform   = parentTransform * currentLocalTransform;
-    joint.animatedTransform = currentTransform * joint.offset;
+    mat4 currentTransform(1.f);
+    if (currentPose.count(joint.name))
+    {
+        const auto& currentLocalTransform = currentPose.at(joint.name);
+        currentTransform   = parentTransform * currentLocalTransform;
+        joint.animatedTransform = currentTransform * joint.offset;
+    }
 
     for (Joint& childJoint : joint.children)
     {

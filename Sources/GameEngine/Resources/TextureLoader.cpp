@@ -89,11 +89,12 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     File inputFile = inputFileName;
     if (not inputFileName)
     {
-        WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in texture directory");
-        auto filename = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data + "Textures");
+        WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in data directory");
+        auto filename = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
         if (not filename.empty())
         {
             inputFile = File(filename);
+            DEBUG_LOG("Found texture in : " + inputFile.GetAbsoultePath());
         }
         else
         {
