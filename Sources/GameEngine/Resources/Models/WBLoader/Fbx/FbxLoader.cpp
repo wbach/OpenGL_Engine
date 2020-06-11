@@ -525,7 +525,7 @@ struct FbxLoader::Pimpl
 //                DEBUG_LOG("Joints per vertex :" + std::to_string(vb.jointInfo.size()));
 //                DEBUG_LOG("Total weight : " + std::to_string(totalWeight));
 //            }
-            newMesh.skeleton_ = std::move(*rootJoint);
+           // newMesh.skeleton_ = std::move(*rootJoint);
         }
     }
 };

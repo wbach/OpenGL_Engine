@@ -8,7 +8,7 @@ namespace GameEngine
 {
 struct Material
 {
-    std::string name;
+    std::string name{"noName"};
 
     vec3 ambient  = vec3(0.f);
     vec3 diffuse  = vec3(.8f);

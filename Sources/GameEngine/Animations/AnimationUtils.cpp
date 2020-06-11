@@ -1,4 +1,5 @@
 #include "AnimationUtils.h"
+
 #include "GLM/GLMUtils.h"
 
 namespace GameEngine
@@ -46,6 +47,7 @@ JointTransform Interpolate(const JointTransform& frameA, const JointTransform& f
     JointTransform out;
     out.position = glm::mix(frameA.position, frameB.position, progress);
     out.rotation = Utils::Interpolate(frameA.rotation, frameB.rotation, progress);
+    out.scale    = glm::mix(frameA.scale, frameB.scale, progress);
     return out;
 }
 }  // namespace Animation

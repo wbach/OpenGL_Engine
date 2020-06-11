@@ -1,15 +1,18 @@
 #include "AssimpLoader.h"
 
+#include <GLM/GLMUtils.h>
+#include <Logger/Log.h>
+#include <XML/XMLUtils.h>
+#include <XML/XmlReader.h>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/version.h>
 
 #include <assimp/Importer.hpp>
+#include <filesystem>
 
-#include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ITextureLoader.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -69,10 +72,15 @@ AssimpLoader::~AssimpLoader()
 
 void AssimpLoader::ParseFile(const File& file)
 {
-    uint32 flags = aiProcess_Triangulate | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace;
+    // to do create factory and loader per one loading
+    bones_.clear();
+    objects.clear();
+    boneIdPool_.reset();
 
-    flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph |
-             aiProcess_OptimizeMeshes;  // aiProcess_GenSmoothNormals
+    uint32 flags =
+        aiProcess_Triangulate | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
+
+    flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
 
     Assimp::Importer importer;
     auto scene = importer.ReadFile(file.GetAbsoultePath().c_str(), flags);
@@ -87,22 +95,29 @@ void AssimpLoader::ParseFile(const File& file)
     {
         WARNING_LOG("import scene incomplete");
     }
+
     auto globalInverseTransform = scene->mRootNode->mTransformation;
     globalInverseTransform.Inverse();
 
     objects.push_back(WBLoader::Object());
+    object_ = &objects.back();
+
+    readAdditionInfoFile(file);
+    //printTree(*scene->mRootNode);
     recursiveProcess(*scene, *scene->mRootNode);
+    processSkeleton(*scene);
     processAnimations(*scene);
     importer.FreeScene();
 }
 
 bool AssimpLoader::CheckExtension(const File& file)
 {
-    return file.IsExtension(
-        {"AMF",     "3DS",  "AC",      "ASE", "ASSBIN",   "B3D", "BVH",   "COLLADA", "DXF",  "CSM", "DAE", "HMP",
-         "IRRMESH", "IRR",  "LWO",     "LWS", "MD2",      "MD3", "MD5",   "MDC",     "MDL",  "NFF", "NDO", "OFF",
-         "OBJ",     "OGRE", "OPENGEX", "PLY", "MS3D",     "COB", "BLEND", "IFC",     "XGL",  "FBX", "Q3D", "Q3BSP",
-         "RAW",     "SIB",  "SMD",     "STL", "TERRAGEN", "3D",  "X",     "X3D",     "GLTF", "3MF", "MMD", "STEP"});
+    return file.IsExtension({"AMF",     "3DS",     "AC",   "ASE",     "ASSBIN", "B3D",      "BVH", "COLLADA", "DXF",
+                             "CSM",     "DAE",     "HMP",  "IRRMESH", "IRR",    "LWO",      "LWS", "MD2",     "MD3",
+                             "MD5",     "MD5MESH", "MDC",  "MDL",     "NFF",    "NDO",      "OFF", "OBJ",     "OGRE",
+                             "OPENGEX", "PLY",     "MS3D", "COB",     "BLEND",  "IFC",      "XGL", "FBX",     "Q3D",
+                             "Q3BSP",   "RAW",     "SIB",  "SMD",     "STL",    "TERRAGEN", "3D",  "X",       "X3D",
+                             "GLTF",    "3MF",     "MMD",  "STEP"});
 
     // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ OGRE
     // OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
@@ -123,8 +138,8 @@ void AssimpLoader::recursiveProcess(const aiScene& scene, const aiNode& node)
 
 void AssimpLoader::processMesh(const aiScene& scene, const aiMesh& mesh)
 {
-    objects.back().meshes.emplace_back();
-    auto& newMesh        = objects.back().meshes.back();
+    object_->meshes.emplace_back();
+    auto& newMesh        = object_->meshes.back();
     newMesh.meshRawData_ = GraphicsApi::MeshRawData();
 
     loadVertexData(mesh, *newMesh.meshRawData_);
@@ -212,31 +227,33 @@ void AssimpLoader::loadBonesData(const aiScene& scene, const aiMesh& mesh, Mesh&
     meshData.joinIds_.resize(vertexCount);
     meshData.bonesWeights_.resize(vertexCount);
 
-    BoneIdPool boneIdPool;
-    BonesMap bones;
     for (uint32 i = 0; i < mesh.mNumBones; i++)
     {
         std::string name(mesh.mBones[i]->mName.data);
-        if (not bones.count(name))
+
+        uint32 boneId = 0;
+
+        if (not bones_.count(name))
         {
-            auto boneId = boneIdPool.nextId();
+            boneId = boneIdPool_.nextId();
 
             BoneInfo info;
-            info.id = boneId;
+            info.id     = boneId;
             info.matrix = convert(mesh.mBones[i]->mOffsetMatrix);
-            bones.insert({ name, info });
-            for (uint32 j = 0; j < mesh.mBones[i]->mNumWeights; j++)
-            {
-                const auto& mWeights = mesh.mBones[i]->mWeights[j];
-                auto vertexId        = mWeights.mVertexId;
-                auto weight          = mWeights.mWeight;
-                jointInfos[vertexId].push_back({ boneId, weight});
-            }
-
+            bones_.insert({name, info});
         }
         else
         {
-            WARNING_LOG("bone duplicated");
+            boneId                 = bones_.at(name).id;
+            bones_.at(name).matrix = convert(mesh.mBones[i]->mOffsetMatrix);
+        }
+
+        for (uint32 j = 0; j < mesh.mBones[i]->mNumWeights; j++)
+        {
+            const auto& mWeights = mesh.mBones[i]->mWeights[j];
+            auto vertexId        = mWeights.mVertexId;
+            auto weight          = mWeights.mWeight;
+            jointInfos[vertexId].push_back({boneId, weight});
         }
     }
 
@@ -259,43 +276,42 @@ void AssimpLoader::loadBonesData(const aiScene& scene, const aiMesh& mesh, Mesh&
         }
         ++i;
     }
-
-    processSkeleton(scene, newMesh, bones, boneIdPool);
 }
-void AssimpLoader::processSkeleton(const aiScene& scene, Mesh& mesh, const BonesMap& bones, BoneIdPool& boneIdPool)
+void AssimpLoader::processSkeleton(const aiScene& scene)
 {
-    if (not bones.empty())
+    if (not bones_.empty())
     {
-        auto armatureNode = findArmatureRootNode(*scene.mRootNode, bones);
+        auto armatureNode = findArmatureRootNode(*scene.mRootNode);
         if (armatureNode)
         {
-            createSkeleton(*armatureNode, mesh.skeleton_, bones, boneIdPool);
+            DEBUG_LOG("Root node found : " + armatureNode->mName.data);
+            createSkeleton(*armatureNode, object_->skeleton_);
         }
     }
 }
-void AssimpLoader::createSkeleton(const aiNode& node, Animation::Joint& rootJoint, const BonesMap& bones, BoneIdPool& boneIdPool)
+void AssimpLoader::createSkeleton(const aiNode& node, Animation::Joint& rootJoint)
 {
     std::string name(node.mName.data);
     Animation::Joint child;
 
-    if (bones.count(name))
+    if (bones_.count(name))
     {
-        auto& info = bones.at(name);
-        rootJoint.id = info.id;
-
+        auto& info       = bones_.at(name);
+        rootJoint.id     = info.id;
+        rootJoint.offset = info.matrix;
     }
     else
     {
-        rootJoint.id = boneIdPool.nextId();
+        rootJoint.id = boneIdPool_.nextId();
     }
 
-    rootJoint.name = name;
-    rootJoint.transform = convert(node.mTransformation);  // *info.matrix;
+    rootJoint.name      = name;
+    rootJoint.transform = convert(node.mTransformation);
 
     for (uint32 i = 0; i < node.mNumChildren; ++i)
     {
         Animation::Joint child;
-        createSkeleton(*node.mChildren[i], child, bones, boneIdPool);
+        createSkeleton(*node.mChildren[i], child);
         rootJoint.addChild(std::move(child));
     }
 }
@@ -314,6 +330,9 @@ void AssimpLoader::processAnimations(const aiScene& scene)
 
 Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh) const
 {
+    if (not scene.HasMaterials())
+        return Material();
+
     aiString name;
     aiColor4D diff;
     aiColor4D amb;
@@ -323,28 +342,40 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
     float reflectivity;
 
     aiMaterial* mat = scene.mMaterials[mesh.mMaterialIndex];
-    aiGetMaterialString(mat, AI_MATKEY_NAME, &name);
-    aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &diff);
-    aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &amb);
-    aiGetMaterialColor(mat, AI_MATKEY_COLOR_SPECULAR, &spec);
-    aiGetMaterialFloat(mat, AI_MATKEY_SHININESS, &shine_damper);
-    aiGetMaterialFloat(mat, AI_MATKEY_REFLECTIVITY, &reflectivity);
-    aiGetMaterialFloat(mat, AI_MATKEY_OPACITY, &transparent);
-
     Material material;
-    material.name           = std::string(name.C_Str());
-    material.ambient        = vec3(amb.r, amb.g, amb.b);
-    material.diffuse        = vec3(diff.r, diff.g, diff.b);
-    material.specular       = vec3(spec.r, spec.g, spec.b);
-    material.shineDamper    = shine_damper;
-    material.reflectivity   = reflectivity;
-    material.isTransparency = transparent > 0.5f;
 
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_NAME, name))
+    {
+        material.name = std::string(name.C_Str());
+    }
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_DIFFUSE, diff))
+    {
+        material.diffuse = vec3(diff.r, diff.g, diff.b);
+    }
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_AMBIENT, amb))
+    {
+        material.ambient = vec3(amb.r, amb.g, amb.b);
+    }
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_SPECULAR, spec))
+    {
+        material.specular = vec3(spec.r, spec.g, spec.b);
+    }
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_SHININESS, shine_damper))
+    {
+        material.shineDamper = shine_damper;
+    }
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_REFLECTIVITY, reflectivity))
+    {
+        material.reflectivity = reflectivity;
+    }
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_OPACITY, transparent))
+    {
+        material.isTransparency = transparent > 0.5f;
+    }
     if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 1)
     {
-        DEBUG_LOG("MultiTexturing not supported.");
+        WARNING_LOG("MultiTexturing not supported.");
     }
-
     for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_DIFFUSE); ++i)
     {
         aiString path;
@@ -369,6 +400,9 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
     Animation::AnimationClip clip;
     clip.name = aiAnim.mName.data;
 
+    auto totalAnimationTime = aiAnim.mDuration / aiAnim.mTicksPerSecond;
+    clip.SetLength(static_cast<float>(totalAnimationTime));
+
     for (uint32 i = 0; i < aiAnim.mNumChannels; i++)
     {
         const auto& animChannel = *aiAnim.mChannels[i];
@@ -376,20 +410,27 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
 
         for (uint32 i = 0; i < animChannel.mNumRotationKeys; i++)
         {
-            const auto& rotationKey              = animChannel.mRotationKeys[i];
-            auto& frame                          = getFrameByTimeStamp(clip, static_cast<float>(rotationKey.mTime));
+            const auto& rotationKey = animChannel.mRotationKeys[i];
+            auto& frame = getFrameByTimeStamp(clip, static_cast<float>(rotationKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[jointName].rotation = covnertQuat(rotationKey.mValue);
         }
 
-        for (uint32 i = 0; i < animChannel.mNumRotationKeys; i++)
+        for (uint32 i = 0; i < animChannel.mNumPositionKeys; i++)
         {
-            const auto& positionKey              = animChannel.mPositionKeys[i];
-            auto& frame                          = getFrameByTimeStamp(clip, static_cast<float>(positionKey.mTime));
+            const auto& positionKey = animChannel.mPositionKeys[i];
+            auto& frame = getFrameByTimeStamp(clip, static_cast<float>(positionKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[jointName].position = covnertVec3(positionKey.mValue);
+        }
+
+        for (uint32 i = 0; i < animChannel.mNumScalingKeys; i++)
+        {
+            const auto& scalingKey = animChannel.mScalingKeys[i];
+            auto& frame = getFrameByTimeStamp(clip, static_cast<float>(scalingKey.mTime / aiAnim.mTicksPerSecond));
+            frame.transforms[jointName].scale = covnertVec3(scalingKey.mValue);
         }
     }
 
-    clip.SetLength(static_cast<float>(aiAnim.mDuration));
+    //  DEBUG_LOG(std::to_string(clip));
     return clip;
 }
 
@@ -407,18 +448,79 @@ Animation::KeyFrame& AssimpLoader::getFrameByTimeStamp(Animation::AnimationClip&
     return *clip.getFrame(time);
 }
 
-const aiNode* AssimpLoader::findArmatureRootNode(const aiNode& node, const BonesMap& bones)
+void AssimpLoader::readAdditionInfoFile(const File& file)
+{
+    auto additionInfoFile = file.GetAbsolutePathWithDifferentExtension("xml");
+    if (std::filesystem::exists(additionInfoFile))
+    {
+        Utils::XmlReader xmlReader;
+        if (xmlReader.Read(additionInfoFile))
+        {
+            auto correction = xmlReader.Get("correction");
+            if (correction)
+            {
+                vec3 position(0.f);
+                vec3 rotation(0.f);
+                vec3 scale(1.f);
+                auto positionNode = xmlReader.Get("position", correction);
+                if (positionNode)
+                {
+                    position = Utils::ReadVec3(*positionNode);
+                }
+                auto rotationNode = xmlReader.Get("rotation", correction);
+                if (rotationNode)
+                {
+                    rotation = Utils::ReadVec3(*rotationNode);
+                }
+                auto scaleNode = xmlReader.Get("scale", correction);
+                if (scaleNode)
+                {
+                    scale = Utils::ReadVec3(*scaleNode);
+                }
+                object_->transformMatrix = Utils::CreateTransformationMatrix(position, DegreesVec3(rotation), scale);
+            }
+        }
+    }
+}
+
+void AssimpLoader::printTree(const aiNode& node, uint32 depth) const
+{
+    std::string name(node.mName.data);
+    std::string str;
+
+    for (int i = 0; i < depth; ++i)
+        str += "---";
+
+    DEBUG_LOG(str + name + "( Depth : " + std::to_string(depth) + ")");
+
+    for (uint32 i = 0; i < node.mNumChildren; ++i)
+    {
+        printTree(*node.mChildren[i], depth + 1);
+    }
+}
+
+const aiNode* AssimpLoader::findArmatureRootNode(const aiNode& node)
 {
     std::string name(node.mName.data);
 
-    if (bones.count(name))
+    if (bones_.count(name))
         return &node;
 
     for (uint32 i = 0; i < node.mNumChildren; ++i)
     {
-        auto child = findArmatureRootNode(*node.mChildren[i], bones);
+        auto child = findArmatureRootNode(*node.mChildren[i]);
         if (child)
+        {
+            for (uint32 j = i; j < node.mNumChildren; ++j)
+            {
+                std::string childName(node.mChildren[i]->mName.data);
+                if (bones_.count(childName))
+                {
+                    return &node;
+                }
+            }
             return child;
+        }
     }
 
     return nullptr;

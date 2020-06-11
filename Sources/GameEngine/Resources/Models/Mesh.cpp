@@ -68,16 +68,6 @@ void Mesh::CreateMesh()
     }
 }
 
-void Mesh::setRootJoint(Animation::Joint joint)
-{
-    skeleton_ = std::move(joint);
-}
-
-const Animation::Joint& Mesh::getRootJoint() const
-{
-    return skeleton_;
-}
-
 void Mesh::SetInstancedMatrixes(const std::vector<mat4>& m)
 {
     meshRawData_.instancedMatrixes_ = m;

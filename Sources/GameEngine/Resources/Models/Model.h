@@ -1,10 +1,11 @@
 #pragma once
 #include <list>
 #include <memory>
-#include "GameEngine/Resources/GpuObject.h"
+
+#include "BoundingBox.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Resources/File.h"
-#include "BoundingBox.h"
+#include "GameEngine/Resources/GpuObject.h"
 #include "Mesh.h"
 
 namespace GameEngine
@@ -19,13 +20,14 @@ public:
     Model(const Model&) = delete;
     ~Model() override;
 
-    void SetFile(const File &);
+    void SetFile(const File&);
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
     Mesh& AddMesh(Mesh&);
     Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
-    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&, const mat4& = mat4(1.f));
+    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
+                  const mat4& = mat4(1.f));
     bool IsAnyMeshUseTransform() const;
 
     void setBoundingBox(const BoundingBox&);
@@ -38,6 +40,9 @@ public:
     inline bool operator==(const Model& q) const;
     inline bool operator==(const File& file) const;
 
+    void setRootJoint(Animation::Joint);
+    const std::optional<Animation::Joint>& getRootJoint() const;
+
 public:
     AnimationClipsMap animationClips_;
 
@@ -46,13 +51,14 @@ protected:
     std::vector<Mesh> meshes_;
     std::vector<mat4> boneTransforms_;
     BoundingBox boundingBox_;
+    std::optional<Animation::Joint> skeleton_;
 };
 
 const std::vector<Mesh>& Model::GetMeshes() const
 {
     return meshes_;
 }
-std::vector<Mesh> &Model::GetMeshes()
+std::vector<Mesh>& Model::GetMeshes()
 {
     return meshes_;
 }
@@ -64,4 +70,4 @@ bool Model::operator==(const File& file) const
 {
     return file_ == file;
 }
-} // namespace GameEngine
+}  // namespace GameEngine

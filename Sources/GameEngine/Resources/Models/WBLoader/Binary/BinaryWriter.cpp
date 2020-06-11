@@ -82,7 +82,7 @@ void WriteToFile(std::fstream& file, const Animation::Joint& joint)
     WriteToFile(file, joint.name);
     WriteToFile(file, joint.transform);
     WriteToFile(file, joint.invtransform);
-    WriteToFile(file, joint.animatedTransform);
+//    WriteToFile(file, joint.animatedTransform);
     WriteToFile(file, joint.children.size());
     for (const auto& child : joint.children)
     {

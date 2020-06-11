@@ -16,6 +16,7 @@ struct Joint
     std::string name = "";
 
     mat4 transform         = glm::mat4(1.f);
+    mat4 offset            = glm::mat4(1.f);
     mat4 invtransform      = glm::mat4(1.f);
     mat4 animatedTransform = glm::mat4(1.f);
 

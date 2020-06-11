@@ -17,6 +17,7 @@ struct File
     std::string name;
 };
 
+std::string FindFile(const std::string&, const std::string&);
 std::string GetFileName(const std::string&);
 std::string GetExtension(const std::string&);
 std::string GetFileBaseName(const std::string&);

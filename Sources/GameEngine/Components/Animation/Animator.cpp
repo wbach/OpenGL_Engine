@@ -44,12 +44,8 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
 
 void Animator::CleanUp()
 {
-    for (auto& jd : meshRootJoints_)
-    {
-        if (jd.buffer and jd.buffer->GetGraphicsObjectId())
-            componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(jd.buffer));
-    }
-    meshRootJoints_.clear();
+    if (jointData_.buffer and jointData_.buffer->GetGraphicsObjectId())
+        componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(jointData_.buffer));
 }
 void Animator::ReqisterFunctions()
 {
@@ -68,13 +64,16 @@ const std::string& Animator::GetCurrentAnimationName() const
 {
     return current_;
 }
-const GraphicsApi::ID& Animator::getPerPoseBufferId(uint32 i) const
+GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
-    return meshRootJoints_[i].buffer->GetGraphicsObjectId();
+    return jointData_.buffer ? jointData_.buffer->GetGraphicsObjectId() : std::nullopt;
 }
 void Animator::ChangeAnimation(const std::string& name)
 {
-    auto& endFrames = animationClips_[name].GetFrames();
+    if (not animationClips_.count(name))
+        return;
+
+    auto& endFrames = animationClips_.at(name).GetFrames();
     if (endFrames.empty())
         return;
 
@@ -86,7 +85,7 @@ void Animator::ChangeAnimation(const std::string& name)
 
     startChaneAnimPose = KeyFrame();
     for (const auto& p : calculateCurrentAnimationPose())
-        startChaneAnimPose.transforms[p.first] = GetJointTransform(p.second);
+        startChaneAnimPose.transforms.insert({p.first, GetJointTransform(p.second)});
 }
 void Animator::GetSkeletonAndAnimations()
 {
@@ -99,24 +98,20 @@ void Animator::GetSkeletonAndAnimations()
 
     if (model)
     {
-        for (auto& mesh : model->GetMeshes())
-        {
-            meshRootJoints_.emplace_back();
-            auto& jd = meshRootJoints_.back();
+        auto maybeRootJoint = model->getRootJoint();
 
-            jd.rootJoint = mesh.getRootJoint();
-            jd.buffer    = std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_,
-                                                                      PER_POSE_UPDATE_BIND_LOCATION);
-        }
-
-        for (auto& jd : meshRootJoints_)
+        if (maybeRootJoint)
         {
-            auto& bufferData = jd.buffer->GetData();
+            jointData_.rootJoint = *maybeRootJoint;
+            jointData_.buffer    = std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_,
+                                                                              PER_POSE_UPDATE_BIND_LOCATION);
+
+            auto& bufferData = jointData_.buffer->GetData();
             for (size_t i = 0; i < MAX_BONES; ++i)
             {
                 bufferData.bonesTransforms[i] = mat4(1.f);
             }
-            componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jd.buffer);
+            componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jointData_.buffer);
         }
 
         animationClips_ = model->animationClips_;
@@ -132,11 +127,8 @@ void Animator::GetSkeletonAndAnimations()
 }
 void Animator::updateShaderBuffers()
 {
-    for (auto& jd : meshRootJoints_)
-    {
-        jd.updateBufferTransform();
-        componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jd.buffer);
-    }
+    jointData_.updateBufferTransform();
+    componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
 }
 void Animator::ChangeAnimState()
 {
@@ -154,19 +146,17 @@ void Animator::ChangeAnimState()
 }
 void Animator::applyPoseToJoints(const Pose& pose)
 {
-    for (auto& jd : meshRootJoints_)
-    {
-        applyPoseToJoints(pose, jd.rootJoint, mat4(1.f));
-    }
+    applyPoseToJoints(pose, jointData_.rootJoint, mat4(1.f));
+
     updateShaderBuffers();
 }
 bool Animator::IsReady()
 {
-    return (not meshRootJoints_.empty() && !current_.empty() && animationClips_.count(current_) != 0);
+    return (not current_.empty() and animationClips_.count(current_));
 }
 void Animator::Update()
 {
-    if (!IsReady())
+    if (not IsReady())
         return;
 
     if (changeAnim)
@@ -181,7 +171,7 @@ void Animator::Update()
 }
 void Animator::increaseAnimationTime()
 {
-    auto animationLength = animationClips_[current_].GetLength();
+    auto animationLength = animationClips_.at(current_).GetLength();
 
     currentTime_ += componentContext_.time_.deltaTime * animationSpeed_;
     if (currentTime_ > animationLength)
@@ -209,14 +199,14 @@ Pose Animator::interpolatePoses(const KeyFrame& previousFrame, const KeyFrame& n
         JointTransform previousTransform = previousFrame.transforms.at(jointName);
         JointTransform nextTransform     = nextFrame.transforms.at(jointName);
         JointTransform currentTransform  = Interpolate(previousTransform, nextTransform, progression);
-        currentPose[jointName]           = GetLocalTransform(currentTransform);
+        currentPose.insert({jointName, GetLocalTransform(currentTransform)});
     }
     return currentPose;
 }
 
 std::pair<KeyFrame, KeyFrame> Animator::getPreviousAndNextFrames()
 {
-    const auto& allFrames = animationClips_[current_].GetFrames();
+    const auto& allFrames = animationClips_.at(current_).GetFrames();
 
     KeyFrame previousFrame = allFrames[0];
     KeyFrame nextFrame     = allFrames[0];
@@ -237,8 +227,9 @@ void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const ma
         return;
 
     const auto& currentLocalTransform = currentPose.at(joint.name);
-    auto currentTransform             = parentTransform * currentLocalTransform;
-    joint.animatedTransform           = currentTransform * joint.invtransform;
+
+    auto currentTransform   = parentTransform * currentLocalTransform;
+    joint.animatedTransform = currentTransform * joint.offset;
 
     for (Joint& childJoint : joint.children)
     {

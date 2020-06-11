@@ -157,6 +157,14 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
     if (not model)
         return;
 
+    if (sub.animator and model->getRootJoint())
+    {
+        const auto& perPoseBuffer = sub.animator->getPerPoseBufferId();
+
+        if (perPoseBuffer)
+            context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
+    }
+
     const auto& meshes = model->GetMeshes();
 
     uint32 meshId = 0;
@@ -170,14 +178,6 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
         if (meshBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
-        }
-
-        if (sub.animator and mesh.UseArmature())
-        {
-            const auto& perPoseBuffer = sub.animator->getPerPoseBufferId(meshId);
-
-            if (perPoseBuffer)
-                context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
         }
 
         const auto& perMeshUpdateBuffer = sub.renderComponent->GetPerObjectUpdateBuffer(meshId);

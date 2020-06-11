@@ -126,8 +126,8 @@ void ColladaDae::FillAnimationData()
                         break;
                     }
                 }
-                CreateSkeleton(node, mesh->skeleton_, joints);
-              //  FillAnimator(mesh->animationClips_, joints);
+                CreateSkeleton(node, objects.back().skeleton_, joints);
+                FillAnimator(objects.back().animationClips_, joints);
             }
         }
     }

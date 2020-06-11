@@ -25,6 +25,10 @@ public:
     {
         return id_++;
     }
+    void reset()
+    {
+        id_ = 0;
+    }
 
 private:
     uint32 id_{0};
@@ -50,13 +54,20 @@ private:
     void loadVertexData(const aiMesh&, GraphicsApi::MeshRawData&);
     void loadBonesData(const aiScene&, const aiMesh&, Mesh&);
     Material processMaterial(const aiScene&, const aiMesh&) const;
-    void processSkeleton(const aiScene&, Mesh&, const BonesMap&, BoneIdPool&);
+    void processSkeleton(const aiScene&);
     void processAnimations(const aiScene&);
 
     Animation::AnimationClip processAnimation(const aiAnimation&);
-    const aiNode* findArmatureRootNode(const aiNode&, const BonesMap&);
-    void createSkeleton(const aiNode&, Animation::Joint&, const BonesMap&, BoneIdPool&);
+    const aiNode* findArmatureRootNode(const aiNode&);
+    void createSkeleton(const aiNode&, Animation::Joint&);
     Animation::KeyFrame& getFrameByTimeStamp(Animation::AnimationClip&, float);
+    void readAdditionInfoFile(const File&);
+    void printTree(const aiNode&, uint32 = 0) const;
+
+private:
+    WBLoader::Object* object_;
+    BonesMap bones_;
+    BoneIdPool boneIdPool_;
 };
 }  // namespace WBLoader
 }  // namespace GameEngine

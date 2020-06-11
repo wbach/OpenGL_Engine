@@ -71,4 +71,13 @@ const File& Model::GetFile() const
 {
     return file_;
 }
+void Model::setRootJoint(Animation::Joint joint)
+{
+    skeleton_ = std::move(joint);
+}
+
+const std::optional<Animation::Joint>& Model::getRootJoint() const
+{
+    return skeleton_;
+}
 }  // namespace GameEngine

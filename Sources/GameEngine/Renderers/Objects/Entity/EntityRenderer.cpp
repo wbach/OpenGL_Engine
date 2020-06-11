@@ -127,6 +127,14 @@ void EntityRenderer::RenderEntities()
 
 void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model& model) const
 {
+    if (subsriber.animator and model.getRootJoint())
+    {
+        const auto& perPoseBuffer = subsriber.animator->getPerPoseBufferId();
+
+        if (perPoseBuffer)
+            context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
+    }
+
     const auto& meshes = model.GetMeshes();
 
     uint32 meshId = 0;
@@ -140,14 +148,6 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
         if (meshBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
-        }
-
-        if (subsriber.animator and mesh.UseArmature())
-        {
-            const auto& perPoseBuffer = subsriber.animator->getPerPoseBufferId(meshId);
-
-            if (perPoseBuffer)
-                context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
         }
 
         const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(meshId);

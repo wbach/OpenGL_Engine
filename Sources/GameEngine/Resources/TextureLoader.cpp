@@ -35,10 +35,10 @@ TextureLoader::~TextureLoader()
 {
     releaseLockState_ = true;
     std::vector<Texture*> toRelease;
-    for(auto& texture : textures_)
+    for (auto& texture : textures_)
         toRelease.push_back(texture.second.resource_.get());
     DEBUG_LOG("Release not deleted textures. size :" + std::to_string(toRelease.size()));
-    for(auto texture : toRelease)
+    for (auto texture : toRelease)
         DeleteTexture(*texture);
 }
 GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params,
@@ -67,17 +67,18 @@ void TextureLoader::UpdateTexture(const GeneralTexture& texture, const std::stri
 {
     if (not textures_.empty())
     {
-//        auto iter =
-//            std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
-//                return (texture.second.resource_->GetGpuObjectId() == id);
-//            });
+        //        auto iter =
+        //            std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto&
+        //            texture) {
+        //                return (texture.second.resource_->GetGpuObjectId() == id);
+        //            });
 
-//        if (iter != textures_.end())
-//        {
-//            auto nh  = textures_.extract(iter->first);
-//            nh.key() = newName;
-//            textures_.insert(move(nh));
-//        }
+        //        if (iter != textures_.end())
+        //        {
+        //            auto nh  = textures_.extract(iter->first);
+        //            nh.key() = newName;
+        //            textures_.insert(move(nh));
+        //        }
         UpdateTexture(texture);
     }
 }
@@ -85,20 +86,33 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
+    File inputFile = inputFileName;
     if (not inputFileName)
-        return nullptr;
+    {
+        WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in texture directory");
+        auto filename = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data + "Textures");
+        if (not filename.empty())
+        {
+            inputFile = File(filename);
+        }
+        else
+        {
+            ERROR_LOG("File not exist : " + inputFileName.GetAbsoultePath());
+            return nullptr;
+        }
+    }
 
-    if (auto texture = GetTextureIfLoaded(inputFileName.GetAbsoultePath(), params))
+    if (auto texture = GetTextureIfLoaded(inputFile.GetAbsoultePath(), params))
         return static_cast<GeneralTexture*>(texture);
 
-    auto image = ReadFile(inputFileName, params);
+    auto image = ReadFile(inputFile, params);
 
     if (not image)
         return GetTextureNotFound();
 
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, inputFileName);
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, inputFile);
     auto texturePtr = texture.get();
-    AddTexture(inputFileName.GetAbsoultePath(), std::move(texture), params.loadType);
+    AddTexture(inputFile.GetAbsoultePath(), std::move(texture), params.loadType);
     return texturePtr;
 }
 CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, const TextureParameters& params)
@@ -284,7 +298,7 @@ GeneralTexture* TextureLoader::GetTextureNotFound()
 
     if (image)
     {
-        auto texture = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, file);
+        auto texture           = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, file);
         textureNotFound_.first = texture.get();
         AddTexture(file.GetAbsoultePath(), std::move(texture), params.loadType);
     }

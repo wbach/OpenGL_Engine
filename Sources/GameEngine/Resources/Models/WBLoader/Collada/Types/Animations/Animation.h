@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+
 #include "../Common/Source.h"
 #include "AnimationSampler.h"
 #include "Channel.h"
@@ -16,5 +17,5 @@ struct Animation
     AnimationSampler sampler_;
     std::unordered_map<std::string, Source> sources_;
 };
-}
-}
+}  // namespace Collada
+}  // namespace GameEngine

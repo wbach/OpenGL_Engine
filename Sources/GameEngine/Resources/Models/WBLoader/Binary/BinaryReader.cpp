@@ -129,7 +129,7 @@ void ReadFile(std::ifstream& file, Animation::Joint& skeleton)
     ReadFile(file, skeleton.name);
     ReadFile(file, skeleton.transform);
     ReadFile(file, skeleton.invtransform);
-    ReadFile(file, skeleton.animatedTransform);
+//    ReadFile(file, skeleton.animatedTransform);
 
     uint32 size = 0;
     file.read(reinterpret_cast<char*>(&size), sizeof(uint32));

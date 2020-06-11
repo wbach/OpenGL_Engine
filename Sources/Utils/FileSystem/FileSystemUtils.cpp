@@ -14,6 +14,25 @@
 
 namespace Utils
 {
+std::string FindFile(const std::string& filename, const std::string& dir)
+{
+    for (auto& p : std::filesystem::directory_iterator(dir))
+    {
+        if (p.is_directory())
+        {
+            auto maybeFileName = FindFile(filename, p.path().string());
+            if (not maybeFileName.empty())
+                return maybeFileName;
+        }
+        else
+        {
+            if (p.path().filename() == filename)
+                return Utils::ReplaceSlash(p.path().string());
+        }
+    }
+
+    return std::string();
+}
 std::string GetFileName(const std::string& filename)
 {
     return std::filesystem::path(filename).filename().string();

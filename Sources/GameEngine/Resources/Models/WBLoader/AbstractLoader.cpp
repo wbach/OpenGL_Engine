@@ -80,16 +80,16 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
             ERROR_LOG(fileName_ + ". No meshes in object!");
         }
 
-        newModel->animationClips_ = std::move(obj.animationClips_);
         NormalizeMatrix(obj.transformMatrix, normalizeFactor);
+
+        Animation::CalcInverseBindTransform(obj.skeleton_);
+        newModel->setRootJoint(std::move(obj.skeleton_));
+        newModel->animationClips_ = std::move(obj.animationClips_);
 
         for (auto& mesh : obj.meshes)
         {
-            auto& newMesh = newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_,
-                                              mesh.createMeshRawData(), mesh.material, obj.transformMatrix);
-
-            Animation::CalcInverseBindTransform(mesh.skeleton_);
-            newMesh.setRootJoint(std::move(mesh.skeleton_));
+            newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.createMeshRawData(), mesh.material,
+                              obj.transformMatrix);
         }
     }
     objects.clear();

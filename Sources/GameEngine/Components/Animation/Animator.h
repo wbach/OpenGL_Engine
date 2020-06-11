@@ -35,11 +35,11 @@ public:
     Animator& SetAnimation(const std::string&);
     void ChangeAnimation(const std::string&);
     const std::string& GetCurrentAnimationName() const;
-    const GraphicsApi::ID& getPerPoseBufferId(uint32) const;
+    GraphicsApi::ID getPerPoseBufferId() const;
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-    std::vector<JointData> meshRootJoints_;
+    JointData jointData_;
     float currentTime_;
     float animationSpeed_;
     float changeAnimTime_;

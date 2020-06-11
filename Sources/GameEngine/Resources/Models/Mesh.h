@@ -39,9 +39,6 @@ public:
     inline GraphicsApi::MeshRawData& GetMeshDataRef();
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
-    void setRootJoint(Animation::Joint);
-    const Animation::Joint& getRootJoint() const;
-
 private:
     void CreateBufferObject();
     void CreateMesh();
@@ -53,7 +50,6 @@ private:
     GraphicsApi::MeshRawData meshRawData_;
     GraphicsApi::RenderType renderType_;
     Material material_;
-    Animation::Joint skeleton_;
 
     bool isInit              = false;
     bool transformVboCreated = false;
