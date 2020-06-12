@@ -16,19 +16,26 @@ namespace Utils
 {
 std::string FindFile(const std::string& filename, const std::string& dir)
 {
-    for (auto& p : std::filesystem::directory_iterator(dir))
+    try
     {
-        if (p.is_directory())
+        for (auto& p : std::filesystem::directory_iterator(GetAbsolutePath(dir)))
         {
-            auto maybeFileName = FindFile(filename, p.path().string());
-            if (not maybeFileName.empty())
-                return maybeFileName;
+            if (p.is_directory())
+            {
+                auto maybeFileName = FindFile(filename, p.path().string());
+                if (not maybeFileName.empty())
+                    return maybeFileName;
+            }
+            else
+            {
+                if (p.path().filename() == filename)
+                    return Utils::ReplaceSlash(p.path().string());
+            }
         }
-        else
-        {
-            if (p.path().filename() == filename)
-                return Utils::ReplaceSlash(p.path().string());
-        }
+    }
+    catch (...)
+    {
+        ERROR_LOG("Find file error.");
     }
 
     return std::string();

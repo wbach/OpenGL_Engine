@@ -84,6 +84,7 @@ include_directories(
     ${PROJECT_BINARY_DIR}/../Tools/linux/fbx/
     ${PROJECT_BINARY_DIR}/../Tools/common/
     ${PROJECT_BINARY_DIR}/../Tools/common/glm
+    ${PROJECT_BINARY_DIR}/../Tools/common/assimp-5.0.1/include/
     ${PROJECT_BINARY_DIR}/../Tools/common/bullet/src/
     ${PROJECT_BINARY_DIR}/../Tools/common/rapidxml-1.13/
 )
