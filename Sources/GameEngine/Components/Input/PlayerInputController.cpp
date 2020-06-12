@@ -12,6 +12,9 @@ ComponentsType PlayerInputController::type = ComponentsType::PlayerInputControll
 
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
+    , idleAnimationName_{"Idle"}
+    , walkAnimationName_{"Walk"}
+    , runAnimationName_{"Run"}
     , animator_{nullptr}
     , characterController_{nullptr}
     , subscriptions_{componentContext.inputManager_}
@@ -101,15 +104,15 @@ void PlayerInputController::SetRunAnim()
 {
     auto anim = animator_->GetCurrentAnimationName();
 
-    if (anim != "Run")
-        animator_->ChangeAnimation("Run");
+    if (anim != runAnimationName_)
+        animator_->ChangeAnimation(runAnimationName_);
 }
 
 void PlayerInputController::SetIdleAnim()
 {
     auto anim = animator_->GetCurrentAnimationName();
-    if (anim != "Idle")
-        animator_->ChangeAnimation("Idle");
+    if (anim != idleAnimationName_)
+        animator_->ChangeAnimation(idleAnimationName_);
 }
 }  // namespace Components
 }  // namespace GameEngine

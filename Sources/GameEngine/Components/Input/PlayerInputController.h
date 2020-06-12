@@ -17,6 +17,11 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
+public:
+    std::string idleAnimationName_;
+    std::string walkAnimationName_;
+    std::string runAnimationName_;
+
 private:
     void Init();
     void SubscribeForPushActions();

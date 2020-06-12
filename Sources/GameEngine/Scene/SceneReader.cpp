@@ -254,8 +254,24 @@ void Read(const Utils::XmlNode&, Components::CharacterController&)
 {
 }
 
-void Read(const Utils::XmlNode&, Components::PlayerInputController&)
+void Read(const Utils::XmlNode& node, Components::PlayerInputController& component)
 {
+    auto animationClipsNode = node.GetChild(CSTR_ANIMATION_CLIPS);
+    if (animationClipsNode)
+    {
+        if (auto animationNode = node.GetChild(CSTR_IDLE_ANIMATION))
+        {
+            component.idleAnimationName_ = animationNode->value_;
+        }
+        if (auto animationNode = node.GetChild(CSTR_WALK_ANIMATION))
+        {
+            component.walkAnimationName_ = animationNode->value_;
+        }
+        if (auto animationNode = node.GetChild(CSTR_RUN_ANIMATION))
+        {
+            component.runAnimationName_ = animationNode->value_;
+        }
+    }
 }
 
 void Read(const Utils::XmlNode& node, Components::WaterRendererComponent& component)
@@ -294,7 +310,8 @@ std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTexture
 
         result.push_back(terrainTexture);
     }
-    std::sort(result.begin(), result.end(), [](const auto& l, const auto& r) { return static_cast<int>(l.type) < static_cast<int>(r.type); });
+    std::sort(result.begin(), result.end(),
+              [](const auto& l, const auto& r) { return static_cast<int>(l.type) < static_cast<int>(r.type); });
     return result;
 }
 

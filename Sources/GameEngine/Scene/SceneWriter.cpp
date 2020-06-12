@@ -4,6 +4,7 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
@@ -257,8 +258,13 @@ void Create(XmlNode&, const Components::SkydomeComponent&)
 {
 }
 
-void Create(XmlNode&, const Components::PlayerInputController&)
+void Create(XmlNode& node, const Components::PlayerInputController& component)
 {
+    auto& animationClipsNode = node.AddChild(CSTR_ANIMATION_CLIPS);
+
+    node.AddChild(CSTR_IDLE_ANIMATION).value_ = component.idleAnimationName_;
+    node.AddChild(CSTR_WALK_ANIMATION).value_ = component.walkAnimationName_;
+    node.AddChild(CSTR_RUN_ANIMATION).value_ = component.runAnimationName_;
 }
 
 void Create(XmlNode&, const Components::CharacterController&)
@@ -295,7 +301,8 @@ void Create(XmlNode& node, const Components::GrassRendererComponent& component)
     auto file = component.getDataFile();
 
     if (file.empty())
-        file.DataRelative("Generated/grassMeshData_" + std::to_string(component.getParentGameObject().GetId()) + ".bin");
+        file.DataRelative("Generated/grassMeshData_" + std::to_string(component.getParentGameObject().GetId()) +
+                          ".bin");
 
     auto opened = file.openToWrite();
     if (opened)
@@ -341,15 +348,14 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(
-                visitor{
-                    [&](const std::vector<uint8>& data) {
-                        Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                    },
-                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                },
-                image.getImageData());
+            std::visit(visitor{
+                           [&](const std::vector<uint8>& data) {
+                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                           },
+                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                       },
+                       image.getImageData());
         }
     }
 }
