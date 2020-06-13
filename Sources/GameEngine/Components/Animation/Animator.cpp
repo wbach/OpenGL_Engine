@@ -132,7 +132,7 @@ void Animator::updateShaderBuffers()
 }
 void Animator::ChangeAnimState()
 {
-    currentChangeAnimTime_ += (1.f / changeAnimTime_) * componentContext_.time_.deltaTime * animationSpeed_;
+    currentChangeAnimTime_ += (1.f / changeAnimTime_) * componentContext_.time_.deltaTime * fabsf(animationSpeed_);
 
     if (currentChangeAnimTime_ > 1.f)
     {
