@@ -165,6 +165,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiVertexShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}
         }
+    },
+    {
+        GraphicsApi::ShaderProgramType::Fxaa,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Fxaa/Fxaa.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Fxaa/Fxaa.frag"}
+        }
     }
 };
 // clang-format on

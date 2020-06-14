@@ -64,7 +64,7 @@ void BaseRenderer::InitRenderers()
 }
 void BaseRenderer::CreateRenderers()
 {
-   // AddRenderer<SkyBoxRenderer>();
+    AddRenderer<SkyBoxRenderer>();
  //   AddRenderer<SkydomRenderer>();
 
     if (EngineConf.renderer.flora.isGrass)

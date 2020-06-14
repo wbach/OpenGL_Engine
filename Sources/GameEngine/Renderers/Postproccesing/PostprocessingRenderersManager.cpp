@@ -93,5 +93,6 @@ void PostProcessingManager::AddEffects()
     AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
     //AddEffect(PostprocessingRendererType::COLOR_FLIPER);
    // AddEffect(PostprocessingRendererType::BLUR);
+    AddEffect(PostprocessingRendererType::FXAA);
 }
 }  // namespace GameEngine

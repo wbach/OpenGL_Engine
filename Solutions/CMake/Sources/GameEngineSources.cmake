@@ -172,6 +172,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Postproccesing/Blur/Blur.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.cpp
+../../Sources/GameEngine/Renderers/Postproccesing/Fxaa/Fxaa.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersFactory.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersManager.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.cpp

@@ -174,6 +174,11 @@ float ToZBuffer(sampler2D tex, vec2 coord)
     return z_e;
 }
 
+float max3(vec3 v)
+{
+  return max(max (v.x, v.y), v.z);
+}
+
 void main()
 {
     vec2 tex_coord  = vs_in.textureCoords;
@@ -193,8 +198,11 @@ void main()
     visibility = clamp(visibility, 0.0f, 1.0f) ;
 
     SMaterial material;
-    material.ambient_ = color * 0.05f;
-    material.diffuse_ = color;
+    float maxValue = max3(color);
+    float norm = 1.f - maxValue;
+    float ambientFactor = 0.2f;
+    material.ambient_ = (color + vec3(maxValue, maxValue, maxValue)) * ambientFactor;
+    material.diffuse_ = color - material.ambient_;
     material.specular_ = specular.xyz;
     material.shineDamper_ = specular.a * 255.f;
 

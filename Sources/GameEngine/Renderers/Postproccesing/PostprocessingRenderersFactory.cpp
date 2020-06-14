@@ -2,6 +2,7 @@
 #include "Blur/Blur.h"
 #include "ColorFliper/ColorFliper.h"
 #include "DefferedLighting/DefferedLighting.h"
+#include "Fxaa/Fxaa.h"
 #include "SSAO/SSAO.h"
 
 namespace GameEngine
@@ -22,9 +23,9 @@ std::unique_ptr<PostprocessingRenderer> PostprocessingRenderersFactory::Create(P
             return std::make_unique<ColorFliper>(context_);
         case PostprocessingRendererType::DEFFERED_LIGHT:
             return std::make_unique<DefferedLighting>(context_);
-        case PostprocessingRendererType::CONTRAST_CHANGER:
-            return nullptr;
         case PostprocessingRendererType::FXAA:
+            return std::make_unique<Fxaa>(context_);
+        case PostprocessingRendererType::CONTRAST_CHANGER:
             return nullptr;
     }
     return nullptr;

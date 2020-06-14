@@ -227,6 +227,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Postproccesing/Blur/Blur.h
 ../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.h
 ../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.h
+../../Sources/GameEngine/Renderers/Postproccesing/Fxaa/Fxaa.h
 ../../Sources/GameEngine/Renderers/Postproccesing/IPostprocessingRenderersFactory.h
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h
 ../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersFactory.h

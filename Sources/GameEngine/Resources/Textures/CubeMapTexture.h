@@ -13,5 +13,6 @@ public:
 
 private:
     std::array<GraphicsApi::Image, 6> images_;
+    std::string name_;
 };
 }  // namespace GameEngine

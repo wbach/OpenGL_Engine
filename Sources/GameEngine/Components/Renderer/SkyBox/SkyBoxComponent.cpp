@@ -1,4 +1,5 @@
 #include "SkyBoxComponent.h"
+
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/CubeMapTexture.h"
@@ -13,6 +14,8 @@ SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject&
     : BaseComponent(ComponentsType::SkyBox, componentContext, gameObject)
     , isSubscribed_(false)
 {
+    dayTextureFiles_ = {"right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp"};
+    nightTextureFiles_ = { "right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp" };
 }
 SkyBoxComponent::~SkyBoxComponent()
 {
@@ -34,13 +37,17 @@ void SkyBoxComponent::DeleteTexture(CubeMapTexture*& texture)
 SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<File, 6>& filenames)
 {
     dayTextureFiles_ = filenames;
-    dayTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
+    TextureParameters params;
+    params.flipMode = TextureFlip::VERTICAL;
+    dayTexture_     = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, params);
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<File, 6>& filenames)
 {
     nightTextureFiles_ = filenames;
-    nightTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, TextureParameters());
+    TextureParameters params;
+    params.flipMode = TextureFlip::VERTICAL;
+    nightTexture_ = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, params);
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetModel(const std::string& filename)

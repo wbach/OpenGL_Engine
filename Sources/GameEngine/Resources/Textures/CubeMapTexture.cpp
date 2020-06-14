@@ -8,6 +8,7 @@ CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const std
                                std::array<GraphicsApi::Image, 6> images)
     : Texture(graphicsApi, vec2ui(0, 0), std::nullopt)
     , images_(std::move(images))
+    , name_(name)
 {
     if (images_.size() != 6)
     {
@@ -19,7 +20,7 @@ void CubeMapTexture::GpuLoadingPass()
 {
     if (graphicsObjectId_ or images_.size() != 6)
     {
-        ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() +
+        ERROR_LOG("There was an error loading the texture : " + name_ +
                   ". data is null or is initialized.");
         return;
     }
@@ -28,11 +29,11 @@ void CubeMapTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("File " + file_->GetBaseName() + " is in GPU.");
+        DEBUG_LOG("File " + name_ + " is in GPU.");
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + file_->GetBaseName());
+        ERROR_LOG("Texutre not created. Filename : " + name_);
     }
 
     for (auto& i : images_)

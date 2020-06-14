@@ -25,6 +25,7 @@ enum class ShaderProgramType
     Font,
     Texture,
     Grid,
-    Line
+    Line,
+    Fxaa
 };
 }  // namespace GraphicsApi
