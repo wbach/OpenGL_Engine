@@ -1,6 +1,7 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
@@ -20,8 +21,8 @@ class TreeRendererComponent;
 
 struct TreeSubscriber
 {
-    GameObject* gameObject_;
-    Components::TreeRendererComponent* treeRendererComponent_;
+    GameObject* gameObject_{nullptr};
+    Components::TreeRendererComponent* treeRendererComponent_{nullptr};
 };
 
 class TreeRenderer : public IRenderer
@@ -30,15 +31,13 @@ class TreeRenderer : public IRenderer
 
 public:
     TreeRenderer(RendererContext&);
-    // Loading lights itp to shader
-    virtual void Init() override;
-    virtual void Subscribe(GameObject*) override;
-    virtual void UnSubscribe(GameObject*) override;
-    virtual void UnSubscribeAll() override;
-    virtual void ReloadShaders() override;
 
-private:
-    void Render(const Scene&, const Time&);
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
+    void reloadShaders() override;
+    void render() override;
 
 private:
     void RenderModel(const Model&, const TreeSubscriber&) const;

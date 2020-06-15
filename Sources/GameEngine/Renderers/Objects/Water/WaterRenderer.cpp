@@ -23,29 +23,17 @@ WaterRenderer::WaterRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Water)
 {
-    __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, WaterRenderer::Render);
 }
 WaterRenderer::~WaterRenderer()
 {
-//    if (perObjectUpdateId_)
-//    {
-//        context_.graphicsApi_.DeleteShaderBuffer(*perObjectUpdateId_);
-//    }
-
     if (perMeshObjectId_)
     {
         context_.graphicsApi_.DeleteShaderBuffer(*perMeshObjectId_);
     }
 }
-void WaterRenderer::Init()
+void WaterRenderer::init()
 {
     shader_.Init();
-
-//    if (not perObjectUpdateId_)
-//    {
-//        perObjectUpdateId_ =
-//            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-//    }
 
     if (not perMeshObjectId_)
     {
@@ -53,7 +41,11 @@ void WaterRenderer::Init()
             context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
 }
-void WaterRenderer::Render(const Scene&, const Time& time)
+void WaterRenderer::prepare()
+{
+    // render reflect refract texture
+}
+void WaterRenderer::render()
 {
     context_.graphicsApi_.EnableBlend();
     shader_.Start();
@@ -73,7 +65,7 @@ void WaterRenderer::Render(const Scene&, const Time& time)
         }
 
         waterTileMeshBuffer.tiledValue = DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
-        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(time.deltaTime * WAVE_SPEED);
+        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(context_.time_.deltaTime * WAVE_SPEED);
         waterTileMeshBuffer.waterColor = component.GetWaterColor();
 
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
@@ -94,31 +86,31 @@ PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, co
     return {context_.graphicsApi_.PrepareMatrixToLoad(
         Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
 }
-void WaterRenderer::Subscribe(GameObject* gameObject)
+void WaterRenderer::subscribe(GameObject& gameObject)
 {
-    auto waterComponent = gameObject->GetComponent<Components::WaterRendererComponent>();
+    auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
     if (not waterComponent)
     {
         return;
     }
 
-    subscribers_.insert({gameObject->GetId(), {waterComponent}});
+    subscribers_.insert({gameObject.GetId(), {waterComponent}});
 }
-void WaterRenderer::UnSubscribe(GameObject* gameObject)
+void WaterRenderer::unSubscribe(GameObject& gameObject)
 {
-    auto waterComponent = gameObject->GetComponent<Components::WaterRendererComponent>();
+    auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
     if (waterComponent)
     {
-        subscribers_.erase(gameObject->GetId());
+        subscribers_.erase(gameObject.GetId());
     }
 }
-void WaterRenderer::UnSubscribeAll()
+void WaterRenderer::unSubscribeAll()
 {
     subscribers_.clear();
 }
-void WaterRenderer::ReloadShaders()
+void WaterRenderer::reloadShaders()
 {
     shader_.Reload();
 }

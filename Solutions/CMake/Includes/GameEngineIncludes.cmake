@@ -210,13 +210,10 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/IRenderer.h
 ../../Sources/GameEngine/Renderers/LoadingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.h
-../../Sources/GameEngine/Renderers/Objects/Entity/EntityRendererDef.h
 ../../Sources/GameEngine/Renderers/Objects/Grass/GrassRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Grass/GrassShaderBuffer.h
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticleInputBuffer.h
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticlesRenderer.h
-../../Sources/GameEngine/Renderers/Objects/Plants/PlantsRenderer.h
-../../Sources/GameEngine/Renderers/Objects/Plants/Shaders/PlantsShader.h
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.h
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.h
@@ -236,7 +233,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.h
 ../../Sources/GameEngine/Renderers/Projection.h
 ../../Sources/GameEngine/Renderers/RendererContext.h
-../../Sources/GameEngine/Renderers/RendererFunctionType.h
 ../../Sources/GameEngine/Renderers/RenderersManager.h
 ../../Sources/GameEngine/Renderers/TransformDataEvent.h
 ../../Sources/GameEngine/Resources/BufferObject.h

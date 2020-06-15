@@ -1,7 +1,8 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "ParticleInputBuffer.h"
 
@@ -26,15 +27,13 @@ class ParticlesRenderer : public IRenderer
 
 public:
     ParticlesRenderer(RendererContext& context);
-    // Loading lights itp to shader
-    virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
-    virtual void UnSubscribeAll() override;
-    virtual void ReloadShaders() override;
 
-private:
-    void Render(const Scene& scene, const Time&);
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
+    void reloadShaders() override;
+    void render() override;
 
 private:
     bool IsInit() const;

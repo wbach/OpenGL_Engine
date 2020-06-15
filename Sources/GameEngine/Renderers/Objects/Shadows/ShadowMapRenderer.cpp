@@ -29,7 +29,6 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , viewOffset_(Utils::CreateOffset())
     , shadowFrameBuffer_(nullptr)
 {
-    __RegisterRenderFunction__(RendererFunctionType::PRERENDER, ShadowMapRenderer::Render);
 }
 
 ShadowMapRenderer::~ShadowMapRenderer()
@@ -44,7 +43,7 @@ ShadowMapRenderer::~ShadowMapRenderer()
     }
 }
 
-void ShadowMapRenderer::Init()
+void ShadowMapRenderer::init()
 {
     shader_.Init();
     GraphicsApi::FrameBuffer::Attachment depthAttachment(EngineConf.renderer.shadows.mapSize,
@@ -61,7 +60,10 @@ void ShadowMapRenderer::Init()
         context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer_);
         shadowFrameBuffer_ = nullptr;
         ERROR_LOG("Shadow framebuffer creation error.");
+        return;
     }
+
+    context_.shadowMapId_ = shadowFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth);
 }
 
 bool ShadowMapRenderer::IsInit() const
@@ -69,7 +71,7 @@ bool ShadowMapRenderer::IsInit() const
     return shader_.IsReady() and perFrameBuffer_.has_value();
 }
 
-void ShadowMapRenderer::Render(const Scene& scene, const Time&)
+void ShadowMapRenderer::prepare()
 {
     if (not IsInit() and shadowFrameBuffer_)
         return;
@@ -79,7 +81,7 @@ void ShadowMapRenderer::Render(const Scene& scene, const Time&)
     shadowFrameBuffer_->Clear();
     shadowFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 
-    PrepareRender(scene);
+    prepareRender();
     shader_.Start();
     RenderSubscribes();
 
@@ -88,25 +90,25 @@ void ShadowMapRenderer::Render(const Scene& scene, const Time&)
     context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
 }
 
-void ShadowMapRenderer::Subscribe(GameObject* gameObject)
+void ShadowMapRenderer::subscribe(GameObject& gameObject)
 {
-    auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
+    auto rendererComponent = gameObject.GetComponent<Components::RendererComponent>();
 
-    if (rendererComponent == nullptr)
-        return;
+    if (rendererComponent)
+    {
+        auto animator = gameObject.GetComponent<Components::Animator>();
 
-    auto animator = gameObject->GetComponent<Components::Animator>();
-
-    std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
-    subscribes_.push_back({gameObject, animator, rendererComponent});
+        std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
+        subscribes_.push_back({&gameObject, rendererComponent, animator});
+    }
 }
 
-void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
+void ShadowMapRenderer::unSubscribe(GameObject& gameObject)
 {
     std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
     for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
     {
-        if ((*iter).gameObject->GetId() == gameObject->GetId())
+        if ((*iter).gameObject->GetId() == gameObject.GetId())
         {
             iter = subscribes_.erase(iter);
         }
@@ -117,22 +119,22 @@ void ShadowMapRenderer::UnSubscribe(GameObject* gameObject)
     }
 }
 
-void ShadowMapRenderer::UnSubscribeAll()
+void ShadowMapRenderer::unSubscribeAll()
 {
     subscribes_.clear();
 }
 
-void ShadowMapRenderer::ReloadShaders()
+void ShadowMapRenderer::reloadShaders()
 {
     shader_.Reload();
 }
 
-void ShadowMapRenderer::PrepareRender(const Scene& scene)
+void ShadowMapRenderer::prepareRender()
 {
     context_.graphicsApi_.EnableDepthTest();
-    shadowBox_.Update(scene.GetCamera());
+    shadowBox_.Update(context_.scene_->GetCamera());
 
-    auto light_direction = scene.GetDirectionalLight().GetDirection();
+    auto light_direction = context_.scene_->GetDirectionalLight().GetDirection();
     shadowBox_.CalculateMatrixes(light_direction);
 
     context_.toShadowMapZeroMatrix_ = viewOffset_ * shadowBox_.GetProjectionViewMatrix();

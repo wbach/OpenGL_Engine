@@ -1,16 +1,17 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 class WaterRendererComponent;
-} // namespace Components
+}  // namespace Components
 
 class WaterRenderer : public IRenderer
 {
@@ -23,14 +24,15 @@ public:
     WaterRenderer(RendererContext&);
     ~WaterRenderer();
 
-    virtual void Init() override;
-    virtual void Subscribe(GameObject*) override;
-    virtual void UnSubscribe(GameObject*) override;
-    virtual void UnSubscribeAll() override;
-    virtual void ReloadShaders() override;
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
+    void reloadShaders() override;
+    void prepare() override;
+    void render() override;
 
 private:
-    void Render(const Scene&, const Time&);
     PerObjectUpdate CalculateTransformMatrix(const vec3&, const vec3&) const;
 
 private:

@@ -1,6 +1,6 @@
 #include "TreeRenderer.h"
 #include <algorithm>
-#include "Common/Transform.h"
+#include <Common/Transform.h>
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
@@ -17,15 +17,14 @@ TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Tree)
 {
-    __RegisterRenderFunction__(RendererFunctionType::UPDATE, TreeRenderer::Render);
 }
 
-void TreeRenderer::Init()
+void TreeRenderer::init()
 {
     shader_.Init();
 }
 
-void TreeRenderer::Render(const Scene&, const Time&)
+void TreeRenderer::render()
 {
     if (subscribes_.empty())
         return;
@@ -55,22 +54,19 @@ void TreeRenderer::Render(const Scene&, const Time&)
         RenderModel(*sub.treeRendererComponent_->GetBottomModelWrapper().Get(LevelOfDetail::L1), sub);
     }
 }  // namespace GameEngine
-void TreeRenderer::Subscribe(GameObject* gameObject)
+void TreeRenderer::subscribe(GameObject& gameObject)
 {
-    if (not gameObject)
-        return;
-
-    auto component = gameObject->GetComponent<Components::TreeRendererComponent>();
+    auto component = gameObject.GetComponent<Components::TreeRendererComponent>();
 
     if (not component)
         return;
 
-    subscribes_.push_back({gameObject, component});
+    subscribes_.push_back({&gameObject, component});
 }
-void TreeRenderer::UnSubscribe(GameObject* gameObject)
+void TreeRenderer::unSubscribe(GameObject& gameObject)
 {
     auto sub = std::find_if(subscribes_.begin(), subscribes_.end(), [&gameObject](const TreeSubscriber& sub) {
-        return gameObject->GetId() == sub.gameObject_->GetId();
+        return gameObject.GetId() == sub.gameObject_->GetId();
     });
 
     if (sub != subscribes_.end())
@@ -78,10 +74,11 @@ void TreeRenderer::UnSubscribe(GameObject* gameObject)
         subscribes_.erase(sub);
     }
 }
-void TreeRenderer::UnSubscribeAll()
+void TreeRenderer::unSubscribeAll()
 {
+    subscribes_.clear();
 }
-void TreeRenderer::ReloadShaders()
+void TreeRenderer::reloadShaders()
 {
     shader_.Reload();
 }

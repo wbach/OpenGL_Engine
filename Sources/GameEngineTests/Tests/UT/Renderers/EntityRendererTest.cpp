@@ -1,11 +1,12 @@
 
 #include <Utils/MeasurementHandler.h>
 #include <gtest/gtest.h>
+
 #include <functional>
+
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
-#include "GameEngine/Renderers/Objects/Entity/EntityRendererDef.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -34,9 +35,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         , engineContext_(std::unique_ptr<IGraphicsApi>(graphicsMock_), std::make_unique<PhysicsApiMock>())
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, engineContext_.GetGraphicsApi())
-        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(),
-                   measurmentHandler_,
-                   std::bind(&EntityRendererShould::RenderFunction, this, std::placeholders::_1, std::placeholders::_2))
+        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(), measurmentHandler_, time_)
     {
     }
     void SetUp()
@@ -49,9 +48,6 @@ struct EntityRendererShould : public BaseComponentTestSchould
         scene_.InitResources(engineContext_);
         scene_.Init();
         sut_.reset(new EntityRenderer(context_));
-    }
-    void RenderFunction(RendererFunctionType, RendererFunction)
-    {
     }
     void ExpectCalls()
     {
@@ -76,7 +72,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
 
         auto entity = scene_.CreateGameObject();
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
-        sut_->Subscribe(entity.get());
+        sut_->subscribe(*entity);
         transformToShader_ = entity->GetWorldTransform().GetMatrix() * mesh_.GetMeshTransform();
         scene_.AddGameObject(std::move(entity));
     }
@@ -90,6 +86,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         mesh_.SetMaterial(m);
         model_.AddMesh(mesh_);
     }
+    Time time_;
     GraphicsApi::GraphicsApiMock* graphicsMock_;
     EngineContext engineContext_;
     GpuResourceLoaderMock gpuResourceLoaderMock_;
@@ -104,7 +101,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
     std::unique_ptr<EntityRenderer> sut_;
 };
 
-//TEST_F(EntityRendererShould, RenderWithoutObjectsTest)
+// TEST_F(EntityRendererShould, RenderWithoutObjectsTest)
 //{
 //    ExpectShaderInit();
 //    sut_->Init();

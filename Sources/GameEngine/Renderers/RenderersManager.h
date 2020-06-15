@@ -7,7 +7,6 @@
 #include "DebugElements/DebugRenderer.h"
 #include "IRenderer.h"
 #include "Projection.h"
-#include "RendererFunctionType.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include <functional>
 
@@ -31,11 +30,11 @@ namespace Renderer
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&);
+    RenderersManager(GraphicsApi::IGraphicsApi&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&, const Time&);
     ~RenderersManager();
     void Init();
     const Projection& GetProjection() const;
-    void RenderScene(Scene* scene, const Time& threadTime);
+    void renderScene(Scene&);
     void ReloadShaders();
     void Subscribe(GameObject* gameObject);
     void UnSubscribe(GameObject* gameObject);
@@ -53,16 +52,13 @@ public:
 
 private:
     void ReloadShadersExecution();
-    void UpdateCamera(Scene* scene);
     void InitProjection();
-    void InitMainRenderer();
+    void createMainRenderer();
     void InitGuiRenderer();
-    void RegisterRenderFunction(RendererFunctionType, RendererFunction);
-    void Render(RendererFunctionType type, Scene* scene, const Time& threadTime);
     void CreateBuffers();
     void CreatePerAppBuffer();
     void CreatePerFrameBuffer();
-    void UpdatePerFrameBuffer(Scene* scene);
+    void updatePerFrameBuffer(Scene&);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
@@ -75,16 +71,17 @@ private:
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;
 
-    IRenderersPtrVec renderers_;
+    std::unique_ptr<IRenderer> mainRenderer_;
     GUIRenderer guiRenderer_;
     DebugRenderer debugRenderer_;
-    RendererFunctions rendererFunctions_;
 
     GraphicsApi::ID perFrameId_;
     GraphicsApi::ID perAppId_;
     mat4 viewProjectionMatrix_;
     BufferDataUpdater bufferDataUpdater_;
     MeasurementValue* frustrumCheckCount_;
+
+    const Time& renderThreadTime_;
 };
 }  // namespace Renderer
 }  // namespace GameEngine

@@ -1,7 +1,8 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
@@ -18,21 +19,21 @@ typedef TerrainWrapper* TerrainPtr;
 class TerrainRenderer : public IRenderer
 {
 public:
-    TerrainRenderer(RendererContext& context);
+    TerrainRenderer(RendererContext&);
     ~TerrainRenderer();
-    // Loading lights itp to shader
-    void Init() override;
-    void Subscribe(GameObject* gameObject) override;
-    void UnSubscribe(GameObject* gameObject) override;
-    void UnSubscribeAll();
-    void ReloadShaders() override;
+
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
+    void reloadShaders() override;
+    void render() override;
 
 private:
-    void Render(const Scene& scene, const Time& threadTime);
 
 private:
     bool IsInit() const;
-    void BindTexture(Texture &, uint32 id) const;
+    void BindTexture(Texture&, uint32 id) const;
     void BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const;
     void RenderSubscribers() const;
     void RenderSubscriber(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const;

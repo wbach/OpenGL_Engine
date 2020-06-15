@@ -6,9 +6,10 @@
 #include "Objects/Entity/EntityRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
-#include "Objects/Plants/PlantsRenderer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
+#include "Objects/Skydome/SkydomeRenderer.h"
+#include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
@@ -32,45 +33,50 @@ DefferedRenderer::~DefferedRenderer()
         context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
 }
 
-void DefferedRenderer::Init()
+void DefferedRenderer::render()
+{
+    if (isReady_)
+    {
+        bindDefferedFbo();
+        BaseRenderer::render();
+        unbindDefferedFbo();
+    }
+}
+
+void DefferedRenderer::init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
 
     resizeRenderingMode_ = (context_.projection_.GetRenderingSize().x != EngineConf.window.size.x or
                             context_.projection_.GetRenderingSize().y != EngineConf.window.size.y);
 
-    CreateFrameBuffer();
-    CreateRenderers();
+    createFrameBuffer();
+    createRenderers();
 
     DEBUG_LOG("Rendering size : " + std::to_string(context_.projection_.GetRenderingSize()) +
               ", resizeRenderingMode : " + Utils::BoolToString(resizeRenderingMode_));
 
-    InitRenderers();
+    initRenderers();
     postprocessingRenderersManager_.Init();
-    __RegisterRenderFunction__(RendererFunctionType::PRECONFIGURE, DefferedRenderer::Prepare);
-    __RegisterRenderFunction__(RendererFunctionType::ONENDFRAME, DefferedRenderer::OnEndFrame);
 
     DEBUG_LOG("DefferedRenderer initialized.");
 }
 
-void DefferedRenderer::ReloadShaders()
+void DefferedRenderer::reloadShaders()
 {
-    BaseRenderer::ReloadShaders();
+    BaseRenderer::reloadShaders();
     postprocessingRenderersManager_.ReloadShaders();
 }
 
-void DefferedRenderer::CreateRenderers()
+void DefferedRenderer::createRenderers()
 {
-    BaseRenderer::CreateRenderers();
+    BaseRenderer::createRenderers();
 
     if (EngineConf.renderer.shadows.isEnabled)
-        AddRenderer<ShadowMapRenderer>();
+        addRenderer<ShadowMapRenderer>();
 }
-void DefferedRenderer::Prepare(const Scene&, const Time&)
+void DefferedRenderer::bindDefferedFbo()
 {
-    if (not isReady_)
-        return;
-
     defferedFrameBuffer_->Clear();
     defferedFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 
@@ -80,21 +86,18 @@ void DefferedRenderer::Prepare(const Scene&, const Time&)
         context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
     }
 }
-void DefferedRenderer::OnEndFrame(const Scene& scene, const Time&)
+void DefferedRenderer::unbindDefferedFbo()
 {
-    if (not isReady_)
-        return;
-
     if (resizeRenderingMode_)
     {
         const auto& windowSize = EngineConf.window.size;
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
 
-    postprocessingRenderersManager_.Render(*defferedFrameBuffer_, scene);
+    postprocessingRenderersManager_.Render(*defferedFrameBuffer_, *context_.scene_);
 }
 
-void DefferedRenderer::CreateFrameBuffer()
+void DefferedRenderer::createFrameBuffer()
 {
     using namespace GraphicsApi::FrameBuffer;
     const auto& size = context_.projection_.GetRenderingSize();

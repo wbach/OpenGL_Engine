@@ -14,9 +14,9 @@ class LoadingScreenRenderer : public IRenderer
 public:
     LoadingScreenRenderer(GraphicsApi::IGraphicsApi&, Texture& bgTexture, Texture& circleTexture);
     ~LoadingScreenRenderer();
-    virtual void Init() override;
-    void Render();
-    virtual void ReloadShaders() override;
+    void init() override;
+    void render() override;
+    void reloadShaders() override;
 
 private:
     void prepareRender();

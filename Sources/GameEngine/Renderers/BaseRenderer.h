@@ -13,32 +13,35 @@ namespace GameEngine
 {
 class Projection;
 typedef std::unique_ptr<IRenderer> RendererPtr;
-typedef std::vector<RendererPtr> RendererVecPtr;
+typedef std::vector<RendererPtr> Renderers;
 
 class BaseRenderer : public IRenderer
 {
 public:
     BaseRenderer(RendererContext& context);
     ~BaseRenderer();
-    // Loading lights itp to shader
-    virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject) override;
-    virtual void UnSubscribeAll() override;
-    virtual void ReloadShaders() override;
+
+    void init() override;
+    void prepare() override;
+    void render() override;
+    void blendRender() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
+    void reloadShaders() override;
 
 protected:
-    void InitRenderers();
-    void CreateRenderers();
+    void initRenderers();
+    void createRenderers();
 
     template <class T>
-    void AddRenderer()
+    void addRenderer()
     {
-        renderers.emplace_back(new T(context_));
+        renderers.push_back(std::make_unique<T>(context_));
     }
 
 protected:
     RendererContext& context_;
-    RendererVecPtr renderers;
+    Renderers renderers;
 };
 }  // namespace GameEngine

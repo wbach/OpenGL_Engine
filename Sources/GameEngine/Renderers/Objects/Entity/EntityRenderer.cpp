@@ -5,7 +5,6 @@
 #include <Mutex.hpp>
 #include <algorithm>
 
-#include "EntityRendererDef.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
@@ -26,22 +25,21 @@ EntityRenderer::EntityRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
-    __RegisterRenderFunction__(RendererFunctionType::UPDATE, EntityRenderer::Render);
 }
 
 EntityRenderer::~EntityRenderer()
 {
     DEBUG_LOG("");
-    UnSubscribeAll();
+    unSubscribeAll();
 }
 
-void EntityRenderer::Init()
+void EntityRenderer::init()
 {
     DEBUG_LOG("");
     shader_.Init();
 }
 
-void EntityRenderer::Render(const Scene&, const Time&)
+void EntityRenderer::render()
 {
     if (not shader_.IsReady() or subscribes_.empty())
         return;
@@ -50,15 +48,15 @@ void EntityRenderer::Render(const Scene&, const Time&)
     RenderEntities();
 }
 
-void EntityRenderer::Subscribe(GameObject* gameObject)
+void EntityRenderer::subscribe(GameObject& gameObject)
 {
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                             [id = gameObject->GetId()](const auto& sub) { return sub.gameObject->GetId() == id; });
+                             [id = gameObject.GetId()](const auto& sub) { return sub.gameObject->GetId() == id; });
 
     if (iter != subscribes_.end())
         return;
 
-    auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
+    auto rendererComponent = gameObject.GetComponent<Components::RendererComponent>();
 
     if (rendererComponent == nullptr)
         return;
@@ -67,16 +65,16 @@ void EntityRenderer::Subscribe(GameObject* gameObject)
     if (not model)
         return;
 
-    auto animator = gameObject->GetComponent<Components::Animator>();
+    auto animator = gameObject.GetComponent<Components::Animator>();
 
     std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
-    subscribes_.push_back({gameObject, animator, rendererComponent});
-    subscribesIds_.insert(gameObject->GetId());
+    subscribes_.push_back({&gameObject, rendererComponent, animator});
+    subscribesIds_.insert(gameObject.GetId());
 }
 
-void EntityRenderer::UnSubscribe(GameObject* gameObject)
+void EntityRenderer::unSubscribe(GameObject& gameObject)
 {
-    if (not subscribesIds_.count(gameObject->GetId()))
+    if (not subscribesIds_.count(gameObject.GetId()))
     {
         return;
     }
@@ -85,7 +83,7 @@ void EntityRenderer::UnSubscribe(GameObject* gameObject)
 
     for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
     {
-        if ((*iter).gameObject->GetId() == gameObject->GetId())
+        if ((*iter).gameObject->GetId() == gameObject.GetId())
         {
             iter = subscribes_.erase(iter);
         }
@@ -95,15 +93,15 @@ void EntityRenderer::UnSubscribe(GameObject* gameObject)
         }
     }
 
-    subscribesIds_.erase(gameObject->GetId());
+    subscribesIds_.erase(gameObject.GetId());
 }
 
-void EntityRenderer::UnSubscribeAll()
+void EntityRenderer::unSubscribeAll()
 {
     subscribes_.clear();
 }
 
-void EntityRenderer::ReloadShaders()
+void EntityRenderer::reloadShaders()
 {
     DEBUG_LOG("");
     shader_.Reload();
@@ -115,8 +113,7 @@ void EntityRenderer::RenderEntities()
 
     for (const auto& sub : subscribes_)
     {
-        const auto& rcomp = sub.renderComponent;
-        auto model        = rcomp->GetModelWrapper().Get(LevelOfDetail::L1);
+        auto model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
 
         if (not model)
             continue;

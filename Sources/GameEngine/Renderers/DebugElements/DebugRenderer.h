@@ -66,10 +66,10 @@ public:
     DebugRenderer(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
     ~DebugRenderer();
 
-    void Init() override;
-    void ReloadShaders() override;
+    void init() override;
+    void reloadShaders() override;
+    void render() override;
 
-    void Render(const Scene&, const Time&);
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void AddDebugObject(Model&, common::Transform&);
     void Enable();

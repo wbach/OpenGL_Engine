@@ -1,8 +1,9 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "GraphicsApi/IGraphicsApi.h"
 
 namespace GameEngine
 {
@@ -24,29 +25,27 @@ class TerrainMeshRenderer : public IRenderer
 {
     struct Subscriber
     {
-        GameObject* gameObject_;
-        Components::TerrainMeshRendererComponent* component_;
+        GameObject* gameObject_{nullptr};
+        Components::TerrainMeshRendererComponent* component_{nullptr};
     };
 
 public:
     TerrainMeshRenderer(RendererContext& context);
     ~TerrainMeshRenderer();
 
-    void Init() override;
-    void Subscribe(GameObject*) override;
-    void UnSubscribe(GameObject*) override;
-    void ReloadShaders() override;
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void reloadShaders() override;
+    void render() override;
 
 private:
-    void Render(const Scene&, const Time&);
-
-private:
-    void BindTexture(Texture*, uint32 id) const;
-    void BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>&) const;
-    void RenderSubscribers(const Scene&) const;
-    void RenderSubscriber(const Scene&, const Subscriber&) const;
-    void RenderMesh(const Mesh&, const GraphicsApi::ID&) const;
-    void PartialRendering(const Model&, const Scene&, const Components::TerrainMeshRendererComponent&) const;
+    void bindTexture(Texture*, uint32 id) const;
+    void bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>&) const;
+    void renderSubscribers() const;
+    void renderSubscriber(const Subscriber&) const;
+    void renderMesh(const Mesh&, const GraphicsApi::ID&) const;
+    void partialRendering(const Model&, const Components::TerrainMeshRendererComponent&) const;
 
 private:
     RendererContext& context_;

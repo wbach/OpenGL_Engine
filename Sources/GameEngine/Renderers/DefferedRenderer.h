@@ -11,14 +11,15 @@ public:
     DefferedRenderer(RendererContext& context);
     ~DefferedRenderer() override;
 
-    void Init() override;
-    void ReloadShaders() override;
+    void init() override;
+    void render() override;
+    void reloadShaders() override;
 
 private:
-    void CreateRenderers();
-    void Prepare(const Scene&, const Time&);
-    void OnEndFrame(const Scene&, const Time&);
-    void CreateFrameBuffer();
+    void createRenderers();
+    void bindDefferedFbo();
+    void unbindDefferedFbo();
+    void createFrameBuffer();
 
 private:
     GraphicsApi::IFrameBuffer* defferedFrameBuffer_;

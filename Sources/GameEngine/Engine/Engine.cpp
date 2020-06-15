@@ -1,12 +1,12 @@
 #include "Engine.h"
 
-#include "Configuration.h"
-#include "EngineContext.h"
-#include "GameEngine/Display/DisplayManager.hpp"
-
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
+
+#include "Configuration.h"
+#include "EngineContext.h"
+#include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
 {
@@ -67,7 +67,6 @@ SceneManager& Engine::GetSceneManager()
 void Engine::MainLoop()
 {
     auto& displayManager = engineContext_.GetDisplayManager();
-    const auto& time     = displayManager.GetTime();
 
     displayManager.StartFrame();
     RuntimeGpuTasks();
@@ -75,8 +74,12 @@ void Engine::MainLoop()
     engineContext_.GetInputManager().GetPressedKeys();
     displayManager.ProcessEvents();
     sceneManager_.Update();
-
-    engineContext_.GetRenderersManager().RenderScene(sceneManager_.GetActiveScene(), time);
+    engineContext_.GetGraphicsApi().PrepareFrame();
+    auto scene = sceneManager_.GetActiveScene();
+    if (scene)
+    {
+        engineContext_.GetRenderersManager().renderScene(*scene);
+    }
     displayManager.UpdateWindow();
 
     ProcessEngineEvents();
@@ -117,8 +120,9 @@ void Engine::Init()
 {
     engineContext_.GetGraphicsApi().EnableDepthTest();
     engineContext_.GetRenderersManager().Init();
-    engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(std::bind(&Physics::IPhysicsApi::DebugDraw, &engineContext_.GetPhysicsApi()));
-        //[&]() { return engineContext_.GetPhysicsApi().DebugDraw(); });
+    engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(
+        std::bind(&Physics::IPhysicsApi::DebugDraw, &engineContext_.GetPhysicsApi()));
+    //[&]() { return engineContext_.GetPhysicsApi().DebugDraw(); });
 }
 
 void Engine::RuntimeGpuTasks()

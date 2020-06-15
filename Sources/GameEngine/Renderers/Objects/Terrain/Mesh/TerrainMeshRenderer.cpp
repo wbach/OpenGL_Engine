@@ -29,17 +29,16 @@ TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainMesh)
 {
-    __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainMeshRenderer::Render);
     measurementValue_ = &context.measurmentHandler_.AddNewMeasurment(TERRAIN_MEASURMENT_NAME, "0");
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
 {
 }
-void TerrainMeshRenderer::Init()
+void TerrainMeshRenderer::init()
 {
     shader_.Init();
 }
-void TerrainMeshRenderer::Render(const Scene& scene, const Time&)
+void TerrainMeshRenderer::render()
 {
     renderedTerrains = 0;
 
@@ -49,18 +48,18 @@ void TerrainMeshRenderer::Render(const Scene& scene, const Time&)
     context_.graphicsApi_.EnableBlend();
     shader_.Start();
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    RenderSubscribers(scene);
+    renderSubscribers();
     *measurementValue_ = std::to_string(renderedTerrains);
 }
-void TerrainMeshRenderer::RenderSubscribers(const Scene& scene) const
+void TerrainMeshRenderer::renderSubscribers() const
 {
     for (const auto& sub : subscribes_)
     {
-        RenderSubscriber(scene, sub.second);
+        renderSubscriber(sub.second);
     }
 }
 
-void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber& subscriber) const
+void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber) const
 {
     const auto& model = subscriber.component_->GetModel().Get(LevelOfDetail::L1);
 
@@ -77,11 +76,11 @@ void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber&
 
     if (isVisible)
     {
-        BindTextures(subscriber.component_->GetTextures());
+        bindTextures(subscriber.component_->GetTextures());
 
         if (subscriber.component_->GetConfiguration().GetPartsCount())
         {
-            PartialRendering(*model, scene, *subscriber.component_);
+            partialRendering(*model, *subscriber.component_);
         }
         else
         {
@@ -89,12 +88,12 @@ void TerrainMeshRenderer::RenderSubscriber(const Scene& scene, const Subscriber&
             for (const auto& mesh : model->GetMeshes())
             {
                 if (mesh.GetGraphicsObjectId())
-                    RenderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
+                    renderMesh(mesh, subscriber.component_->GetPerObjectUpdateBuffer(index++));
             }
         }
     }
 }
-void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId) const
+void TerrainMeshRenderer::renderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId) const
 {
     if (bufferId)
     {
@@ -103,7 +102,7 @@ void TerrainMeshRenderer::RenderMesh(const Mesh& mesh, const GraphicsApi::ID& bu
         ++renderedTerrains;
     }
 }
-void TerrainMeshRenderer::PartialRendering(const Model& model, const Scene&,
+void TerrainMeshRenderer::partialRendering(const Model& model,
                                            const Components::TerrainMeshRendererComponent& component) const
 {
     uint32 index = 0;
@@ -113,19 +112,17 @@ void TerrainMeshRenderer::PartialRendering(const Model& model, const Scene&,
         auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
         if (isVisible)
         {
-            RenderMesh(mesh, component.GetPerObjectUpdateBuffer(index));
+            renderMesh(mesh, component.GetPerObjectUpdateBuffer(index));
         }
         ++index;
     }
 }
-void TerrainMeshRenderer::BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
+void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
-    //    auto shadowMap = context_.shadowsFrameBuffer_.GetShadowMap();
-
-    //    if (shadowMap)
-    //    {
-    //        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
-    //    }
+    if (context_.shadowMapId_)
+    {
+        context_.graphicsApi_.ActiveTexture(0, *context_.shadowMapId_);
+    }
 
     for (const auto& t : textures)
     {
@@ -133,29 +130,29 @@ void TerrainMeshRenderer::BindTextures(const std::vector<std::pair<TerrainTextur
 
         if (texture and texture->GetGraphicsObjectId())
         {
-            BindTexture(texture, static_cast<uint32>(t.first));
+            bindTexture(texture, static_cast<uint32>(t.first));
         }
     }
 }
-void TerrainMeshRenderer::BindTexture(Texture* texture, uint32 id) const
+void TerrainMeshRenderer::bindTexture(Texture* texture, uint32 id) const
 {
     context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
 }
-void TerrainMeshRenderer::Subscribe(GameObject* gameObject)
+void TerrainMeshRenderer::subscribe(GameObject& gameObject)
 {
-    auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
+    auto terrain = gameObject.GetComponent<Components::TerrainRendererComponent>();
 
     if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
         return;
 
-    DEBUG_LOG("Subscribe goId : " + std::to_string(gameObject->GetId()));
+    DEBUG_LOG("Subscribe goId : " + std::to_string(gameObject.GetId()));
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    subscribes_.push_back({gameObject->GetId(), {gameObject, terrain->GetMeshTerrain()}});
+    subscribes_.push_back({gameObject.GetId(), {&gameObject, terrain->GetMeshTerrain()}});
 }
-void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
+void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
 {
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                             [gameObject](const auto& obj) { return obj.first == gameObject->GetId(); });
+                             [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
 
     if (iter != subscribes_.end())
     {
@@ -163,7 +160,7 @@ void TerrainMeshRenderer::UnSubscribe(GameObject* gameObject)
         subscribes_.erase(iter);
     }
 }
-void TerrainMeshRenderer::ReloadShaders()
+void TerrainMeshRenderer::reloadShaders()
 {
     shader_.Reload();
 }

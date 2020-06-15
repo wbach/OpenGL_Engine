@@ -72,7 +72,7 @@ DebugRenderer::~DebugRenderer()
     DEBUG_LOG("");
 }
 
-void DebugRenderer::Init()
+void DebugRenderer::init()
 {
     physicsVisualizator_.Init();
     debugObjectShader_.Init();
@@ -95,14 +95,14 @@ void DebugRenderer::Init()
     }
 }
 
-void DebugRenderer::ReloadShaders()
+void DebugRenderer::reloadShaders()
 {
     debugObjectShader_.Reload();
     gridShader_.Reload();
     physicsVisualizator_.ReloadShader();
 }
 
-void DebugRenderer::Render(const Scene&, const Time&)
+void DebugRenderer::render()
 {
     for (auto state : states_)
     {

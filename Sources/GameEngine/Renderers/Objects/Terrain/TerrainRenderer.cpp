@@ -1,7 +1,10 @@
 #include "TerrainRenderer.h"
+
+#include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
+
 #include <algorithm>
-#include "GLM/GLMUtils.h"
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -19,7 +22,6 @@ TerrainRenderer::TerrainRenderer(RendererContext& context)
     , perTerrainId(0)
     , perNodeId(0)
 {
-    __RegisterRenderFunction__(RendererFunctionType::UPDATE, TerrainRenderer::Render);
 }
 
 TerrainRenderer::~TerrainRenderer()
@@ -29,7 +31,7 @@ TerrainRenderer::~TerrainRenderer()
         context_.graphicsApi_.DeleteObject(*objectId);
     }
 }
-void TerrainRenderer::Init()
+void TerrainRenderer::init()
 {
     shader_.Init();
 
@@ -73,7 +75,7 @@ void TerrainRenderer::Init()
     }
 }
 
-void TerrainRenderer::Render(const Scene&, const Time&)
+void TerrainRenderer::render()
 {
     if (not IsInit() or subscribes_.empty())
         return;
@@ -89,7 +91,7 @@ void TerrainRenderer::RenderSubscribers() const
     {
         const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfiguration();
-    //    DEBUG_LOG(std::to_string(config.GetPerTerrainBuffer().scale.value));
+        //    DEBUG_LOG(std::to_string(config.GetPerTerrainBuffer().scale.value));
         context_.graphicsApi_.UpdateShaderBuffer(*perTerrainId, &config.GetPerTerrainBuffer());
         context_.graphicsApi_.BindShaderBuffer(*perTerrainId);
 
@@ -126,12 +128,12 @@ void TerrainRenderer::RenderNode(const TerrainNode& node) const
 }
 void TerrainRenderer::BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
-//    auto shadowMap = context_.GetShadowMap();
+    //    auto shadowMap = context_.GetShadowMap();
 
-//    if (shadowMap)
-//    {
-//        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
-//    }
+    //    if (shadowMap)
+    //    {
+    //        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
+    //    }
 
     for (const auto& t : textures)
     {
@@ -150,30 +152,30 @@ void TerrainRenderer::BindTexture(Texture& texture, uint32 id) const
 {
     context_.graphicsApi_.ActiveTexture(id, *texture.GetGraphicsObjectId());
 }
-void TerrainRenderer::Subscribe(GameObject* gameObject)
+void TerrainRenderer::subscribe(GameObject& gameObject)
 {
-    auto terrain = gameObject->GetComponent<Components::TerrainRendererComponent>();
+    auto terrain = gameObject.GetComponent<Components::TerrainRendererComponent>();
 
     if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Tessellation)
         return;
 
-    subscribes_.push_back({gameObject->GetId(), terrain->GetTesselationTerrain()});
+    subscribes_.push_back({gameObject.GetId(), terrain->GetTesselationTerrain()});
 }
-void TerrainRenderer::UnSubscribe(GameObject* gameObject)
+void TerrainRenderer::unSubscribe(GameObject& gameObject)
 {
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                             [gameObject](const auto& obj) { return obj.first == gameObject->GetId(); });
+                             [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
 
     if (iter != subscribes_.end())
     {
         subscribes_.erase(iter);
     }
 }
-void TerrainRenderer::UnSubscribeAll()
+void TerrainRenderer::unSubscribeAll()
 {
     subscribes_.clear();
 }
-void TerrainRenderer::ReloadShaders()
+void TerrainRenderer::reloadShaders()
 {
     shader_.Reload();
 }

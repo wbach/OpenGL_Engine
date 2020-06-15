@@ -1,11 +1,12 @@
 
 #include "BaseRenderer.h"
 
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "Logger/Log.h"
 #include "Objects/Entity/EntityRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
-#include "Objects/Plants/PlantsRenderer.h"
-
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
 #include "Objects/Skydome/SkydomeRenderer.h"
@@ -13,11 +14,6 @@
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
-
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
-
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -28,59 +24,65 @@ BaseRenderer::BaseRenderer(RendererContext& context)
 BaseRenderer::~BaseRenderer()
 {
 }
-
-void BaseRenderer::Init()
+void BaseRenderer::init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
-    CreateRenderers();
-    InitRenderers();
+    createRenderers();
+    initRenderers();
 }
-void BaseRenderer::Subscribe(GameObject* gameObject)
+void BaseRenderer::prepare()
 {
     for (auto& renderer : renderers)
-        renderer->Subscribe(gameObject);
+        renderer->prepare();
 }
-void BaseRenderer::UnSubscribe(GameObject* gameObject)
+void BaseRenderer::subscribe(GameObject& gameObject)
+{
+    for (auto& renderer : renderers)
+        renderer->subscribe(gameObject);
+}
+void BaseRenderer::unSubscribe(GameObject& gameObject)
 {
     for (auto& r : renderers)
-        r->UnSubscribe(gameObject);
+        r->unSubscribe(gameObject);
 }
-void BaseRenderer::UnSubscribeAll()
+void BaseRenderer::unSubscribeAll()
 {
     for (auto& r : renderers)
-        r->UnSubscribeAll();
+        r->unSubscribeAll();
 }
-void BaseRenderer::ReloadShaders()
+void BaseRenderer::reloadShaders()
 {
     for (auto& renderer : renderers)
-        renderer->ReloadShaders();
+        renderer->reloadShaders();
 }
-void BaseRenderer::InitRenderers()
+void BaseRenderer::initRenderers()
 {
     for (auto& renderer : renderers)
-    {
-        renderer->Init();
-    }
+        renderer->init();
 }
-void BaseRenderer::CreateRenderers()
+void BaseRenderer::render()
 {
-    AddRenderer<SkyBoxRenderer>();
- //   AddRenderer<SkydomRenderer>();
-
-    if (EngineConf.renderer.flora.isGrass)
-        AddRenderer<GrassRenderer>();
-
+    for (auto& renderer : renderers)
+        renderer->render();
+}
+void BaseRenderer::blendRender()
+{
+    for (auto& renderer : renderers)
+        renderer->blendRender();
+}
+void BaseRenderer::createRenderers()
+{
+    addRenderer<SkyBoxRenderer>();
+    addRenderer<SkydomRenderer>();
     if (context_.graphicsApi_.IsTesselationSupported())
-        AddRenderer<TerrainRenderer>();
-
-    AddRenderer<TerrainMeshRenderer>();
-    AddRenderer<TreeRenderer>();
-    AddRenderer<PlantsRenderer>();
-    AddRenderer<EntityRenderer>();
-
+        addRenderer<TerrainRenderer>();
+    addRenderer<TerrainMeshRenderer>();
+    addRenderer<TreeRenderer>();
+    if (EngineConf.renderer.flora.isGrass)
+        addRenderer<GrassRenderer>();
+    addRenderer<EntityRenderer>();
     if (EngineConf.renderer.particles.useParticles)
-        AddRenderer<ParticlesRenderer>();
-
-    AddRenderer<WaterRenderer>();
+        addRenderer<ParticlesRenderer>();
+    addRenderer<WaterRenderer>();
 }
 }  // namespace GameEngine

@@ -14,9 +14,8 @@ SkydomRenderer::SkydomRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Skydome)
 {
-    __RegisterRenderFunction__(RendererFunctionType::CONFIGURE, SkydomRenderer::Render);
 }
-void SkydomRenderer::Init()
+void SkydomRenderer::init()
 {
     shader_.Init();
 
@@ -27,37 +26,38 @@ void SkydomRenderer::Init()
         UpdateBuffer(vec3(0));
     }
 }
-void SkydomRenderer::Subscribe(GameObject* gameObject)
+void SkydomRenderer::subscribe(GameObject& gameObject)
 {
-    auto component = gameObject->GetComponent<Components::SkydomeComponent>();
+    auto component = gameObject.GetComponent<Components::SkydomeComponent>();
 
     if (component == nullptr)
         return;
 
     subscriber_.model_ = component->GetModel();
 }
-void SkydomRenderer::ReloadShaders()
+void SkydomRenderer::reloadShaders()
 {
     shader_.Reload();
 }
-void SkydomRenderer::UnSubscribe(GameObject* gameObject)
+void SkydomRenderer::unSubscribe(GameObject& gameObject)
 {
-    auto component = gameObject->GetComponent<Components::SkydomeComponent>();
+    auto component = gameObject.GetComponent<Components::SkydomeComponent>();
 
     if (component)
         subscriber_.model_ = nullptr;
 }
-void SkydomRenderer::UnSubscribeAll()
+void SkydomRenderer::unSubscribeAll()
 {
     subscriber_.model_ = nullptr;
 }
-void SkydomRenderer::Render(const Scene& scene, const Time&)
+void SkydomRenderer::render()
 {
     if (not subscriber_.model_)
         return;
 
     shader_.Start();
-    UpdateBuffer(scene.GetCamera().GetPosition());
+    auto position = context_.scene_ ? context_.scene_->GetCamera().GetPosition() : vec3(0);
+    UpdateBuffer(position);
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
 
     for (const auto& mesh : subscriber_.model_->GetMeshes())

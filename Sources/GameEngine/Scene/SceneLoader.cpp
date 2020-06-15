@@ -63,7 +63,7 @@ void SceneLoader::Init()
     if (circleTexture_ and bgTexture_)
     {
         loadingScreenRenderer = std::make_unique<LoadingScreenRenderer>(graphicsApi_, *bgTexture_, *circleTexture_);
-        loadingScreenRenderer->Init();
+        loadingScreenRenderer->init();
     }
     else
     {
@@ -84,7 +84,7 @@ bool SceneLoader::GetIsLoading()
 void SceneLoader::UpdateScreen()
 {
     if (loadingScreenRenderer)
-        loadingScreenRenderer->Render();
+        loadingScreenRenderer->render();
 
     displayManager_.UpdateWindow();
 }

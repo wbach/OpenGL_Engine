@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GameEngine/Renderers/RendererFunctionType.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GuiRendererElementBase.h"
@@ -25,7 +24,7 @@ public:
     void UnSubscribe(const GuiElement&);
     void ReloadShaders();
     void Subscribe(GuiElement&);
-    void Render(const Scene&, const Time&);
+    void render();
 
 private:
     void SortSubscribers();

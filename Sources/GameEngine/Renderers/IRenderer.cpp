@@ -5,16 +5,25 @@ namespace GameEngine
 IRenderer::~IRenderer()
 {
 }
-void IRenderer::ReloadShaders()
+void IRenderer::reloadShaders()
 {
 }
-void IRenderer::Subscribe(GameObject*)
+void IRenderer::prepare()
 {
 }
-void IRenderer::UnSubscribe(GameObject*)
+void IRenderer::render()
 {
 }
-void IRenderer::UnSubscribeAll()
+void IRenderer::blendRender()
+{
+}
+void IRenderer::subscribe(GameObject&)
+{
+}
+void IRenderer::unSubscribe(GameObject&)
+{
+}
+void IRenderer::unSubscribeAll()
 {
 }
 } // GameEngine

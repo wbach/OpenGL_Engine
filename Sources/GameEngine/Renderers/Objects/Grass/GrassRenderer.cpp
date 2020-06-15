@@ -1,5 +1,8 @@
 #include "GrassRenderer.h"
 
+#include <GraphicsApi/ShaderProgramType.h>
+#include <Logger/Log.h>
+
 #include <algorithm>
 
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
@@ -9,8 +12,6 @@
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GraphicsApi/ShaderProgramType.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -18,46 +19,47 @@ GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
 {
-    __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, GrassRenderer::Render);
 }
 
 GrassRenderer::~GrassRenderer()
 {
 }
 
-void GrassRenderer::Init()
+void GrassRenderer::init()
 {
     shader_.Init();
     InitShaderBuffer();
     DEBUG_LOG("Grass renderer initialized.");
 }
 
-void GrassRenderer::Render(const Scene& scene, const Time&)
+void GrassRenderer::render()
 {
     if (not shader_.IsReady() or subscribes_.empty())
         return;
 
-    PrepareRender(scene);
+    prepareShader();
+    context_.graphicsApi_.DisableCulling();
+
     RenderSubscribes();
     EndRender();
 }
 
-void GrassRenderer::Subscribe(GameObject* gameObject)
+void GrassRenderer::subscribe(GameObject& gameObject)
 {
-    auto grass = gameObject->GetComponent<Components::GrassRendererComponent>();
+    auto grass = gameObject.GetComponent<Components::GrassRendererComponent>();
 
     if (grass != nullptr)
     {
-        subscribes_.push_back({gameObject->GetId(), grass});
+        subscribes_.push_back({gameObject.GetId(), grass});
     }
 }
 
-void GrassRenderer::UnSubscribe(GameObject* gameObject)
+void GrassRenderer::unSubscribe(GameObject& gameObject)
 {
     auto iter = subscribes_.begin();
     while (iter != subscribes_.end())
     {
-        if (iter->first == gameObject->GetId())
+        if (iter->first == gameObject.GetId())
         {
             iter = subscribes_.erase(iter);
         }
@@ -68,12 +70,12 @@ void GrassRenderer::UnSubscribe(GameObject* gameObject)
     }
 }
 
-void GrassRenderer::UnSubscribeAll()
+void GrassRenderer::unSubscribeAll()
 {
     subscribes_.clear();
 }
 
-void GrassRenderer::ReloadShaders()
+void GrassRenderer::reloadShaders()
 {
     shader_.Reload();
 }
@@ -87,12 +89,6 @@ void GrassRenderer::InitShaderBuffer()
     grassShaderBuffer_.variables.value.y = 0;
 
     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
-}
-
-void GrassRenderer::PrepareRender(const Scene& scene)
-{
-    PrepareShader(scene);
-    context_.graphicsApi_.DisableCulling();
 }
 
 void GrassRenderer::EndRender() const
@@ -132,10 +128,10 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
     context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
 }
 
-void GrassRenderer::PrepareShader(const Scene& scene)
+void GrassRenderer::prepareShader()
 {
     shader_.Start();
-    grassShaderBuffer_.variables.value.y += 0.01f; //scene.GetGlobalTime();
+    grassShaderBuffer_.variables.value.y += 0.1f * context_.time_.deltaTime;
     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*grassShaderBufferId_);
 }

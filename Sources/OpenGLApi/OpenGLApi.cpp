@@ -848,17 +848,17 @@ void OpenGLApi::ActiveTexture(uint32 nr)
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    if (id == 0 or not createdObjectIds.count(id))
-    {
-        ERROR_LOG("Wrong image id : " + std::to_string(id));
-        return;
-    }
+    //if (id == 0 or not createdObjectIds.count(id))
+    //{
+    //    ERROR_LOG("Wrong image id : " + std::to_string(id));
+    //    return;
+    //}
 
     auto openGLId = impl_->idPool_.ToGL(id);
 
     glActiveTexture(GL_TEXTURE0 + nr);
 
-    if (createdObjectIds.at(id) == ObjectType::TEXTURE_CUBE_MAP)
+    if (createdObjectIds.count(id) and createdObjectIds.at(id) == ObjectType::TEXTURE_CUBE_MAP)
         glBindTexture(GL_TEXTURE_CUBE_MAP, openGLId);
     else
         glBindTexture(GL_TEXTURE_2D, openGLId);

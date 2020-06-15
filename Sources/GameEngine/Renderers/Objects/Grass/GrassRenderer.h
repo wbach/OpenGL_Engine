@@ -1,7 +1,8 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GrassShaderBuffer.h"
 
@@ -20,25 +21,22 @@ class GrassRendererComponent;
 class GrassRenderer : public IRenderer
 {
 public:
-    GrassRenderer(RendererContext& context);
+    GrassRenderer(RendererContext&);
     ~GrassRenderer();
-    virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void UnSubscribe(GameObject* gameObject);
-    virtual void UnSubscribeAll();
-    virtual void ReloadShaders() override;
-
-private:
-    void Render(const Scene& scene, const Time& threadTime);
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&);
+    void unSubscribeAll() override;
+    void reloadShaders() override;
+    void render() override;
 
 private:
     void InitShaderBuffer();
-    void PrepareRender(const Scene& scene);
     void EndRender() const;
     void RenderSubscribes();
     void RenderModel(const Model& model);
     void RenderMesh(const Mesh& mesh);
-    void PrepareShader(const Scene& scene);
+    void prepareShader();
 
 private:
     RendererContext& context_;

@@ -37,7 +37,7 @@ struct RenderAsLine
 namespace Renderer
 {
 RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils::MeasurementHandler& measurmentHandler,
-                                   Utils::Thread::ThreadSync& threadSync)
+                                   Utils::Thread::ThreadSync& threadSync, const Time& renderThreadTime)
     : graphicsApi_(graphicsApi)
     , measurmentHandler_(measurmentHandler)
     , renderAsLines(false)
@@ -46,6 +46,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils
     , debugRenderer_(graphicsApi, threadSync)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
+    , renderThreadTime_(renderThreadTime)
 {
     frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
 }
@@ -62,41 +63,29 @@ const Projection& RenderersManager::GetProjection() const
 {
     return projection_;
 }
-void RenderersManager::UpdateCamera(Scene* scene)
-{
-    scene->UpdateCamera();
-}
-
 void RenderersManager::Init()
 {
     InitProjection();
-    InitMainRenderer();
     InitGuiRenderer();
-    debugRenderer_.Init();
+    debugRenderer_.init();
     CreateBuffers();
 
-    for (auto& r : renderers_)
-        r->Init();
+    createMainRenderer();
+    mainRenderer_->init();
 }
 void RenderersManager::InitProjection()
 {
     projection_.Init(EngineConf.renderer.resolution);
     projection_.CreateProjectionMatrix();
 }
-void RenderersManager::InitMainRenderer()
+void RenderersManager::createMainRenderer()
 {
-    if (!renderers_.empty())
-        return;
-
     graphicsApi_.EnableCulling();
 
     auto rendererType = EngineConf.renderer.type;
 
-    auto registerFunc =
-        std::bind(&RenderersManager::RegisterRenderFunction, this, std::placeholders::_1, std::placeholders::_2);
-
     rendererContext_ =
-        std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, measurmentHandler_, registerFunc);
+        std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, measurmentHandler_, renderThreadTime_);
 
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 
@@ -112,13 +101,13 @@ void RenderersManager::InitMainRenderer()
         if (iter != supportedRenderers.end())
         {
             DEBUG_LOG("Create base renderer");
-            renderers_.emplace_back(new BaseRenderer(*rendererContext_));
+            mainRenderer_ = std::make_unique<BaseRenderer>(*rendererContext_);
         }
         else
         {
             DEBUG_LOG("Graphics api are not supporting SIMPLE renderer try using full");
             DEBUG_LOG("Create deffered renderer");
-            renderers_.emplace_back(new DefferedRenderer(*rendererContext_));
+            mainRenderer_ = std::make_unique<DefferedRenderer>(*rendererContext_);
         }
         return;
     }
@@ -129,13 +118,13 @@ void RenderersManager::InitMainRenderer()
         if (iter != supportedRenderers.end())
         {
             DEBUG_LOG("Create deffered renderer");
-            renderers_.emplace_back(new DefferedRenderer(*rendererContext_));
+            mainRenderer_ = std::make_unique<DefferedRenderer>(*rendererContext_);
         }
         else
         {
             DEBUG_LOG("Graphics api are not supporting FULL renderer try using simple");
             DEBUG_LOG("Create base renderer");
-            renderers_.emplace_back(new BaseRenderer(*rendererContext_));
+            mainRenderer_ = std::make_unique<BaseRenderer>(*rendererContext_);
         }
         return;
     }
@@ -144,39 +133,30 @@ void RenderersManager::InitGuiRenderer()
 {
     guiRenderer_.Init();
 }
-void RenderersManager::RegisterRenderFunction(RendererFunctionType type, RendererFunction function)
+void RenderersManager::renderScene(Scene& scene)
 {
-    rendererFunctions_[type].push_back(function);
-}
-void RenderersManager::RenderScene(Scene* scene, const Time& threadTime)
-{
-    graphicsApi_.PrepareFrame();
+    rendererContext_->scene_ = &scene;
 
-    if (scene == nullptr)
-        return;
     ReloadShadersExecution();
     bufferDataUpdater_.Update();
-    UpdateCamera(scene);
+    scene.UpdateCamera();
 
-    viewProjectionMatrix_ = projection_.GetProjectionMatrix() * scene->GetCamera().GetViewMatrix();
+    viewProjectionMatrix_ = projection_.GetProjectionMatrix() * scene.GetCamera().GetViewMatrix();
     frustrum_.prepareFrame(viewProjectionMatrix_);
-    UpdatePerFrameBuffer(scene);
+    updatePerFrameBuffer(scene);
+
+    mainRenderer_->prepare();
 
     {
         RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
-
-        Render(RendererFunctionType::PRERENDER, scene, threadTime);
-        Render(RendererFunctionType::PRECONFIGURE, scene, threadTime);
-        Render(RendererFunctionType::CONFIGURE, scene, threadTime);
-        Render(RendererFunctionType::UPDATE, scene, threadTime);
-        Render(RendererFunctionType::POSTUPDATE, scene, threadTime);
-        Render(RendererFunctionType::ONENDFRAME, scene, threadTime);
+        mainRenderer_->render();
+        mainRenderer_->blendRender();
     }
 
     *frustrumCheckCount_ = std::to_string(frustrum_.getIntersectionsCountInFrame());
 
-    debugRenderer_.Render(*scene, threadTime);
-    guiRenderer_.Render(*scene, threadTime);
+    debugRenderer_.render();
+    guiRenderer_.render();
 
     if (unsubscribeAllCallback_)
     {
@@ -191,13 +171,12 @@ void RenderersManager::ReloadShaders()
 }
 void RenderersManager::ReloadShadersExecution()
 {
-    if (!markToReloadShaders_.load())
+    if (not markToReloadShaders_.load())
         return;
 
-    for (auto& renderer : renderers_)
-        renderer->ReloadShaders();
-
+    mainRenderer_->reloadShaders();
     guiRenderer_.ReloadShaders();
+    debugRenderer_.reloadShaders();
 
     markToReloadShaders_.store(false);
 }
@@ -207,23 +186,17 @@ void RenderersManager::Subscribe(GameObject* gameObject)
         return;
 
     bufferDataUpdater_.Subscribe(gameObject);
-
-    for (auto& renderer : renderers_)
-        renderer->Subscribe(gameObject);
+    mainRenderer_->subscribe(*gameObject);
 }
 void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
     bufferDataUpdater_.UnSubscribe(gameObject);
-
-    for (auto& r : renderers_)
-        r->UnSubscribe(gameObject);
+    mainRenderer_->unSubscribe(*gameObject);
 }
 
 void RenderersManager::UnSubscribeAll()
 {
-    for (auto& r : renderers_)
-        r->UnSubscribeAll();
-
+    mainRenderer_->unSubscribeAll();
     bufferDataUpdater_.UnSubscribeAll();
     guiRenderer_.UnSubscribeAll();
 }
@@ -235,42 +208,25 @@ void RenderersManager::SwapLineFaceRender()
 {
     renderAsLines.store(!renderAsLines.load());
 }
-
 void RenderersManager::setLineRenderMode(bool v)
 {
     renderAsLines.store(v);
 }
-
 bool RenderersManager::getLineRenderMode() const
 {
     return renderAsLines.load();
 }
-
 GUIRenderer& RenderersManager::GetGuiRenderer()
 {
     return guiRenderer_;
 }
-
 DebugRenderer& RenderersManager::GetDebugRenderer()
 {
     return debugRenderer_;
 }
-
 bool RenderersManager::IsTesselationSupported() const
 {
     return graphicsApi_.IsTesselationSupported();
-}
-
-void RenderersManager::Render(RendererFunctionType type, Scene* scene, const Time& threadTime)
-{
-    if (scene == nullptr)
-        return;
-
-    if (rendererFunctions_.count(type))
-    {
-        for (auto& f : rendererFunctions_.at(type))
-            f(*scene, threadTime);
-    }
 }
 void RenderersManager::CreateBuffers()
 {
@@ -329,13 +285,13 @@ void RenderersManager::CreatePerFrameBuffer()
     }
 }
 
-void RenderersManager::UpdatePerFrameBuffer(Scene* scene)
+void RenderersManager::updatePerFrameBuffer(Scene& scene)
 {
     if (perFrameId_)
     {
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
-        buffer.cameraPosition       = scene->GetCamera().GetPosition();
+        buffer.cameraPosition       = scene.GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }

@@ -54,7 +54,7 @@ void GUIRenderer::Init()
     DEBUG_LOG("GUIRenderer is initialize status : " + std::to_string(isInit_));
 }
 
-void GUIRenderer::Render(const Scene&, const Time&)
+void GUIRenderer::render()
 {
     if (not isInit_ or not shader_.IsReady() or subscribers_.empty())
     {

@@ -33,9 +33,8 @@ ParticlesRenderer::ParticlesRenderer(RendererContext& context)
     , currentUseAnimation(false)
     , textureNumberOfrows(1)
 {
-    __RegisterRenderFunction__(RendererFunctionType::POSTUPDATE, ParticlesRenderer::Render);
 }
-void ParticlesRenderer::Init()
+void ParticlesRenderer::init()
 {
     aniamtedParticleObjecId = context_.graphicsApi_.CreateAnimatedParticle();
     staticParticleObjecId   = context_.graphicsApi_.CreateParticle();
@@ -45,46 +44,36 @@ void ParticlesRenderer::Init()
 
     InitShaderBuffer();
 }
-void ParticlesRenderer::Render(const Scene& scene, const Time&)
+void ParticlesRenderer::render()
 {
-    if (not IsInit() or subscribers_.empty())
-        return;
-
-    PrepareFrame();
-    RenderSubscribes(scene.GetCamera().GetViewMatrix());
-    ClearFrame();
-}
-void ParticlesRenderer::Subscribe(GameObject* gameObject)
-{
-    if (gameObject == nullptr)
-        return;
-
-    auto effect = gameObject->GetComponent<Components::ParticleEffectComponent>();
-
-    if (effect == nullptr)
-        return;
-
-    subscribers_[gameObject->GetId()].particles     = &effect->GetParticles();
-    subscribers_[gameObject->GetId()].blendFunction = effect->GetBlendType();
-    subscribers_[gameObject->GetId()].isAnimated    = effect->IsAnimated();
-
-    if (effect->GetTexture() != nullptr)
+    if (IsInit() and not subscribers_.empty() and context_.scene_)
     {
-        subscribers_[gameObject->GetId()].texture = effect->GetTexture();
+        PrepareFrame();
+        RenderSubscribes(context_.scene_->GetCamera().GetViewMatrix());
+        ClearFrame();
     }
 }
-void ParticlesRenderer::UnSubscribe(GameObject* gameObject)
+void ParticlesRenderer::subscribe(GameObject& gameObject)
 {
-    if (gameObject == nullptr)
-        return;
-    if (subscribers_.count(gameObject->GetId()))
-        subscribers_.erase(gameObject->GetId());
+    auto effect = gameObject.GetComponent<Components::ParticleEffectComponent>();
+
+    if (effect)
+    {
+        subscribers_.insert(
+            {gameObject.GetId(),
+             {effect->IsAnimated(), effect->GetTexture(), effect->GetBlendType(), &effect->GetParticles()}});
+    }
 }
-void ParticlesRenderer::UnSubscribeAll()
+void ParticlesRenderer::unSubscribe(GameObject& gameObject)
+{
+    if (subscribers_.count(gameObject.GetId()))
+        subscribers_.erase(gameObject.GetId());
+}
+void ParticlesRenderer::unSubscribeAll()
 {
     subscribers_.clear();
 }
-void ParticlesRenderer::ReloadShaders()
+void ParticlesRenderer::reloadShaders()
 {
     shader_.Reload();
     animatedShader_.Reload();
@@ -108,7 +97,7 @@ void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)
     for (const auto& sub : subscribers_)
     {
         auto& effect = sub.second;
-        if (effect.particles == nullptr)
+        if (not effect.particles)
             continue;
 
         currentUseAnimation = effect.isAnimated;
@@ -196,7 +185,7 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
 
     if (currentUseAnimation)
     {
-        textureNumberOfrows                     = texture->getNumberOfRows();
+        textureNumberOfrows = texture->getNumberOfRows();
 
         particleInputBuffer.textureNumberOfRows = static_cast<float>(textureNumberOfrows);
         context_.graphicsApi_.UpdateShaderBuffer(*particleInputBufferId, &particleInputBuffer);

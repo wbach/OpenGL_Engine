@@ -20,14 +20,14 @@ LoadingScreenRenderer::~LoadingScreenRenderer()
 {
 }
 
-void LoadingScreenRenderer::Init()
+void LoadingScreenRenderer::init()
 {
     shader_.Init();
     CreateBuffers();
     graphicsApi_.SetViewPort(0, 0, EngineConf.window.size.x, EngineConf.window.size.y);
 }
 
-void LoadingScreenRenderer::Render()
+void LoadingScreenRenderer::render()
 {
     prepareRender();
     shader_.Start();
@@ -40,8 +40,9 @@ void LoadingScreenRenderer::Render()
     timer_ = Utils::Timer();
 }
 
-void LoadingScreenRenderer::ReloadShaders()
+void LoadingScreenRenderer::reloadShaders()
 {
+    shader_.Reload();
 }
 
 void LoadingScreenRenderer::prepareRender()

@@ -1,9 +1,10 @@
 #pragma once
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "GameEngine/Shaders/ShaderProgram.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -18,7 +19,7 @@ class IShaderProgram;
 
 struct SkyBoxSubscriber
 {
-    Model* model_;
+    Model& model_;
     Texture* dayTexture_;
     Texture* nightTexture_;
 };
@@ -28,20 +29,20 @@ typedef std::unordered_map<uint32_t, SkyBoxSubscriber> SkyBoxSubscriberMap;
 class SkyBoxRenderer : public IRenderer
 {
 public:
-    SkyBoxRenderer(RendererContext& context);
-    virtual void Init() override;
-    virtual void Subscribe(GameObject* gameObject) override;
-    virtual void ReloadShaders() override;
+    SkyBoxRenderer(RendererContext&);
+    void init() override;
+    void subscribe(GameObject&) override;
+    void reloadShaders() override;
+    void render();
 
 private:
-    void Render(const Scene& scene, const Time&);
     void BindTextures(const SkyBoxSubscriber& sub) const;
     void RenderSkyBoxMesh(const Mesh& mesh) const;
     void RenderSkyBoxModel(const SkyBoxSubscriber& sub);
-    void PrepareShaderBeforeFrameRender(const Scene& scene);
+    void prepareShaderBeforeFrameRender();
     void BindCubeMapTexture(const Texture& texture, uint32 id) const;
-    void PrepareToRendering(const Scene& scene);
-    void UpdateBuffer(const Scene& scene, const Time&);
+    void prepareToRendering();
+    void updateBuffer();
 
 private:
     struct PerMeshObject

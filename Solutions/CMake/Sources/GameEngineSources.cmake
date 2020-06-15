@@ -159,8 +159,6 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Grass/GrassRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticlesRenderer.cpp
-../../Sources/GameEngine/Renderers/Objects/Plants/PlantsRenderer.cpp
-../../Sources/GameEngine/Renderers/Objects/Plants/Shaders/PlantsShader.cpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.cpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.cpp

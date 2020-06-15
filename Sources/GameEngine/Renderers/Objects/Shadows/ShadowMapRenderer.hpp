@@ -27,25 +27,25 @@ class ShadowMapRenderer : public IRenderer
 {
     struct ShadowMapSubscriber
     {
-        GameObject* gameObject                         = nullptr;
-        Components::Animator* animator                 = nullptr;
-        Components::RendererComponent* renderComponent = nullptr;
+        GameObject* gameObject{nullptr};
+        Components::RendererComponent* renderComponent{nullptr};
+        Components::Animator* animator{nullptr};
     };
     typedef std::vector<ShadowMapSubscriber> Subscribers;
 
 public:
     ShadowMapRenderer(RendererContext&);
     ~ShadowMapRenderer();
-    virtual void Init() override;
-    virtual void Subscribe(GameObject*) override;
-    virtual void UnSubscribe(GameObject*) override;
-    virtual void UnSubscribeAll() override;
-    virtual void ReloadShaders() override;
+    void init() override;
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
+    void reloadShaders() override;
+    void prepare() override;
 
 private:
     bool IsInit() const;
-    void Render(const Scene&, const Time&);
-    void PrepareRender(const Scene&);
+    void prepareRender();
     void RenderSubscribes() const;
     void RenderSubscriber(const ShadowMapSubscriber&) const;
     void RenderMesh(const Mesh& mesh) const;
