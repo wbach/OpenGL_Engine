@@ -69,8 +69,8 @@ void main()
     {
         vs_out.shadowMapSize  = perApp.shadowVariables.z;
         vs_out.shadowCoords   = perFrame.toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f);
-        vs_out.shadowCoords.w = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
-        vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
+      //  vs_out.shadowCoords.w = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
+       // vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
     }
 
     gl_Position = perFrame.projectionViewMatrix * vs_out.worldPos;

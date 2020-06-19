@@ -137,22 +137,14 @@ void ShadowMapRenderer::reloadShaders()
 void ShadowMapRenderer::prepareRender()
 {
     context_.graphicsApi_.EnableDepthTest();
-    shadowBox_.Update(context_.scene_->GetCamera());
-
-    auto light_direction = context_.scene_->GetDirectionalLight().GetDirection();
-    shadowBox_.CalculateMatrixes(light_direction);
+    shadowBox_.Update(context_.scene_->GetCamera(), context_.scene_->GetDirectionalLight());
 
     PerFrameBuffer perFrame;
-    perFrame.ProjectionViewMatrix = shadowBox_.GetProjectionViewMatrix();
+    perFrame.ProjectionViewMatrix =
+        context_.graphicsApi_.PrepareMatrixToLoad(shadowBox_.GetLightProjectionViewMatrix());
     context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
 
-    context_.toShadowMapZeroMatrix_ = viewOffset_ * perFrame.ProjectionViewMatrix;
-
-    context_.shadowBoxCenter_ = shadowBox_.GetCenter();
-
-    DEBUG_LOG("shadowBoxCenter_ " + std::to_string(shadowBox_.GetCenter()));
-    DEBUG_LOG("cameraPos " + std::to_string(context_.scene_->GetCamera().GetPosition()));
-    DEBUG_LOG("cameraDir " + std::to_string(context_.scene_->GetCamera().GetDirection()));
+    context_.toShadowMapZeroMatrix_ = shadowBox_.GetLightProjectionViewMatrix();
 }
 
 void ShadowMapRenderer::RenderSubscribes() const
