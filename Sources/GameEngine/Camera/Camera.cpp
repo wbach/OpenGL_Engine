@@ -94,7 +94,8 @@ void BaseCamera::UnsubscribeOnChange(uint32 id)
 {
     if (not subscribers_.empty())
     {
-        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
+        auto iter =
+            std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
 
         if (iter != subscribers_.end())
         {
@@ -116,11 +117,15 @@ const vec3& BaseCamera::GetDirection() const
 {
     return direction_;
 }
+const mat4& BaseCamera::GetTranslationMatrix() const
+{
+    return translationMatrix_;
+}
 const vec3& BaseCamera::GetPosition() const
 {
     return position_;
 }
-const Rotation &BaseCamera::GetRotation() const
+const Rotation& BaseCamera::GetRotation() const
 {
     return rotation_;
 }
@@ -157,9 +162,14 @@ void BaseCamera::CalculateDirection()
 }
 void BaseCamera::UpdateViewMatrix()
 {
-    viewMatrix_ = mat4(1.f);
-    viewMatrix_ *= glm::mat4_cast(rotation_.value_);
-    viewMatrix_ *= glm::translate(-position_);
+    rotationMatrix_    = glm::mat4_cast(rotation_.value_);
+    translationMatrix_ = glm::translate(-position_);
+
+    viewMatrix_ = rotationMatrix_ * translationMatrix_;
+}
+const mat4& BaseCamera::GetRotationMatrix() const
+{
+    return rotationMatrix_;
 }
 const mat4& BaseCamera::GetViewMatrix() const
 {

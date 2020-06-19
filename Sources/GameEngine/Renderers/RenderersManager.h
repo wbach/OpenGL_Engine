@@ -1,19 +1,21 @@
 #pragma once
 #include <atomic>
+#include <functional>
 #include <list>
+
 #include "BufferDataUpdater.h"
-#include "GUI/GuiRenderer.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "DebugElements/DebugRenderer.h"
+#include "GUI/GuiRenderer.h"
+#include "GameEngine/Camera/Frustrum.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "Projection.h"
-#include "GameEngine/Camera/Frustrum.h"
-#include <functional>
+#include "RendererContext.h"
 
 namespace Utils
 {
 class MeasurementHandler;
-} // namespace Utils
+}  // namespace Utils
 
 namespace GameEngine
 {
@@ -23,7 +25,6 @@ class GuiTextElement;
 class GuiTextureElement;
 class IFrameBuffer;
 class IShadowFrameBuffer;
-struct RendererContext;
 
 namespace Renderer
 {
@@ -63,7 +64,6 @@ private:
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     Utils::MeasurementHandler& measurmentHandler_;
-    std::unique_ptr<RendererContext> rendererContext_;
 
     Frustrum frustrum_;
     Projection projection_;
@@ -73,7 +73,6 @@ private:
 
     std::unique_ptr<IRenderer> mainRenderer_;
     GUIRenderer guiRenderer_;
-    DebugRenderer debugRenderer_;
 
     GraphicsApi::ID perFrameId_;
     GraphicsApi::ID perAppId_;
@@ -81,7 +80,8 @@ private:
     BufferDataUpdater bufferDataUpdater_;
     MeasurementValue* frustrumCheckCount_;
 
-    const Time& renderThreadTime_;
+    RendererContext rendererContext_;
+    DebugRenderer debugRenderer_;
 };
 }  // namespace Renderer
 }  // namespace GameEngine

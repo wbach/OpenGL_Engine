@@ -1,4 +1,5 @@
 #include "CameraWrapper.h"
+
 #include <Utils/Mutex.hpp>
 
 namespace GameEngine
@@ -105,6 +106,16 @@ const vec3 &CameraWrapper::GetDirection() const
 {
     std::lock_guard<std::mutex> m(cameraMutex);
     return camera_->GetDirection();
+}
+
+const mat4 &CameraWrapper::GetTranslationMatrix() const
+{
+    return camera_->GetTranslationMatrix();
+}
+
+const mat4 &CameraWrapper::GetRotationMatrix() const
+{
+    return camera_->GetRotationMatrix();
 }
 
 const mat4 &CameraWrapper::GetViewMatrix() const

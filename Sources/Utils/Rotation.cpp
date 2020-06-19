@@ -30,6 +30,10 @@ Rotation::Rotation(const DegreesVec3 &v)
 Rotation::Rotation(const RadiansVec3 &v)
     : value_(v.value)
 {
+    //Quaternion QuatAroundX = glm::angleAxis(v.value.x, vec3(1.0, 0.0, 0.0));
+    //Quaternion QuatAroundY = glm::angleAxis(v.value.y, vec3(0.0, 1.0, 0.0));
+    //Quaternion QuatAroundZ = glm::angleAxis(v.value.z, vec3(0.0, 0.0, 1.0));
+    //value_ = QuatAroundX * QuatAroundY * QuatAroundZ;
 }
 
 Rotation::Rotation(const Quaternion &v)

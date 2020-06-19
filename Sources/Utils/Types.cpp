@@ -10,7 +10,7 @@ const vec3 VECTOR_DOWN{0.f, 1.f, 0.f};
 const vec3 VECTOR_LEFT{-1.f, 0.f, 0.f};
 const vec3 VECTOR_RIGHT{1.f, 0.f, 0.f};
 const vec3 VECTOR_FORWARD{0.f, 0.f, 1.f};
-const vec3 VECTOR_BACK{0.f, 0.f, -1.f};
+const vec3 VECTOR_BACKWARD{0.f, 0.f, -1.f};
 const vec3 VECTOR_ONE{ 1.f };
 
 namespace wb

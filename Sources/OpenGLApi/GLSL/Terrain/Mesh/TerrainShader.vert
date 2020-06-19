@@ -53,17 +53,16 @@ mat3 CreateTBNMatrix(vec3 normal)
 
 void main()
 {
-    vec4 worldPos      = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
-    vs_out.texCoord    = TEXTCOORD;
+    vs_out.worldPos    = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
     vs_out.normal      = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
-    vs_out.worldPos    = worldPos;
+    vs_out.texCoord    = TEXTCOORD;
 
     if (Is(perApp.useTextures.y))
     {
         vs_out.tbn = CreateTBNMatrix(vs_out.normal);
     }
 
-    float distanceToCam = length(perFrame.cameraPosition - worldPos.xyz);
+    float distanceToCam = length(perFrame.cameraPosition - vs_out.worldPos.xyz);
     vs_out.useShadows   = perApp.shadowVariables.x;
 
     if (Is(vs_out.useShadows))
@@ -74,5 +73,5 @@ void main()
         vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
     }
 
-    gl_Position = perFrame.projectionViewMatrix * worldPos;
+    gl_Position = perFrame.projectionViewMatrix * vs_out.worldPos;
 }

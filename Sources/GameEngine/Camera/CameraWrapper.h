@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+
 #include "Camera.h"
 
 namespace GameEngine
@@ -29,6 +30,9 @@ public:
     const Rotation& GetRotation() const;
     const vec3& GetPosition() const;
     const vec3& GetDirection() const;
+
+    const mat4& GetTranslationMatrix() const;
+    const mat4& GetRotationMatrix() const;
     const mat4& GetViewMatrix() const;
 
     void LookAt(const vec3&);

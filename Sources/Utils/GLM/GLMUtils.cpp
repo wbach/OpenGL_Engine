@@ -1,6 +1,8 @@
 #include "GLMUtils.h"
-#include "../math.hpp"
+
 #include <Logger/Log.h>
+
+#include "../math.hpp"
 
 glm::vec3 Utils::Vec4ToVec3(const glm::vec4& v)
 {
@@ -220,10 +222,9 @@ glm::vec3 Utils::RotateObject(const vec3& center, const vec3& point, float angle
 
 glm::mat4 Utils::CreateOffset()
 {
-    glm::mat4 offset;
-    offset *= glm::translate(glm::vec3(0.5f, 0.5f, 0.5f));
-    offset *= glm::scale(glm::vec3(0.5f, 0.5f, 0.5f));
-    return offset;
+    auto translate = glm::translate(vec3(0.5f, 0.5f, 0.5f));
+    auto scale     = glm::scale(vec3(0.5f, 0.5f, 0.5f));
+    return translate * scale;
 }
 
 glm::vec2 Utils::toScreenSpace(glm::vec2& position, glm::vec2& window_size)
@@ -241,25 +242,28 @@ mat4 Utils::CreateOrthoProjectionMatrix(float width, float height, float length)
     return projectonMatrix;
 }
 
-mat4 Utils::CreateLightViewMatrix(glm::vec3 direction, glm::vec3 center)
+mat4 Utils::CreateLightViewMatrix(const vec3& dir, const vec3& center)
 {
-    direction = glm::normalize(direction);
-    center *= -1.0f;
+    auto direction = glm::normalize(dir);
 
-    mat4 lightViewMatrix(1.0);
+    float length = glm::length(vec2(direction.x, direction.z));
+    float pitch  = acosf(length);
+    float yaw    = atanf(direction.x / direction.z);
+    yaw          = direction.z > 0 ? yaw - M_PI : yaw;
 
-    float length = glm::length(glm::vec2(direction.x, direction.z));
-    float pitch  = (float)glm::degrees(acos(length));
-
-    lightViewMatrix *= glm::rotate(pitch, glm::vec3(1, 0, 0));
-
-    float yaw = (float)glm::degrees(((float)atan(direction.x / direction.z)));
-    yaw       = direction.z > 0 ? yaw - 180 : yaw;
-
-    lightViewMatrix *= glm::rotate((float)-(yaw), glm::vec3(0, 1, 0));
-    lightViewMatrix *= glm::translate(center);
-
+    auto lightViewMatrix = glm::rotate(pitch, vec3(1, 0, 0));
+    lightViewMatrix *= glm::rotate(-yaw, vec3(0, 1, 0));
+    lightViewMatrix *= glm::translate(-center);
     return lightViewMatrix;
+
+    // auto yaw               = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
+    // auto pitch             = atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z));
+    // auto qPitch            = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+    // auto qYaw              = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+    // auto rotationMatrix    = glm::mat4_cast(qPitch * qYaw);
+    // auto translationMatrix = glm::translate(-center);
+
+    // return rotationMatrix * translationMatrix;
 }
 
 Quaternion Utils::Interpolate(const Quaternion& a, const Quaternion& b, float blend)

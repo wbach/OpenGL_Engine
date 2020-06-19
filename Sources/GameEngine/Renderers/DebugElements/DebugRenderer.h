@@ -6,6 +6,7 @@
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "PhysicsVisualizator.h"
+#include "GameEngine/Renderers/RendererContext.h"
 
 namespace common
 {
@@ -63,13 +64,14 @@ public:
         Normals
     };
 
-    DebugRenderer(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
+    DebugRenderer(RendererContext&, Utils::Thread::ThreadSync&);
     ~DebugRenderer();
 
     void init() override;
     void reloadShaders() override;
     void render() override;
 
+    void renderTextures(const std::vector<GraphicsApi::ID>&);
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void AddDebugObject(Model&, common::Transform&);
     void Enable();
@@ -93,16 +95,19 @@ private:
     void BindMeshBuffers(const Mesh&) const;
 
 private:
-    GraphicsApi::IGraphicsApi& graphicsApi_;
+    RendererContext& rendererContext_;
     PhysicsVisualizator physicsVisualizator_;
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
     ShaderProgram lineShader_;
+    ShaderProgram textureShader_;
 
     std::vector<DebugObject> debugObjects_;
     std::vector<DebugObject*> toCreateDebugObjects_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
+    GraphicsApi::ID texturePerObjectUpdateBufferId_;
+    GraphicsApi::ID textureColorBufferId_;
     std::mutex debugObjectsMutex_;
 
     std::vector<RenderState> states_;

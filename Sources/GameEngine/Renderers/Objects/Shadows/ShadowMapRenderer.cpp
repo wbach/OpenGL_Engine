@@ -77,15 +77,20 @@ void ShadowMapRenderer::prepare()
         return;
 
     uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
-
     shadowFrameBuffer_->Clear();
     shadowFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
+
+    auto shadowMapSize = static_cast<float>(EngineConf.renderer.shadows.mapSize);
+    context_.graphicsApi_.SetViewPort(0, 0, shadowMapSize, shadowMapSize);
 
     prepareRender();
     shader_.Start();
     RenderSubscribes();
 
     shadowFrameBuffer_->UnBind();
+
+    const auto& renderingSize = context_.projection_.GetRenderingSize();
+    context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
 
     context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
 }
@@ -137,12 +142,17 @@ void ShadowMapRenderer::prepareRender()
     auto light_direction = context_.scene_->GetDirectionalLight().GetDirection();
     shadowBox_.CalculateMatrixes(light_direction);
 
-    context_.toShadowMapZeroMatrix_ = viewOffset_ * shadowBox_.GetProjectionViewMatrix();
-
     PerFrameBuffer perFrame;
     perFrame.ProjectionViewMatrix = shadowBox_.GetProjectionViewMatrix();
-
     context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
+
+    context_.toShadowMapZeroMatrix_ = viewOffset_ * perFrame.ProjectionViewMatrix;
+
+    context_.shadowBoxCenter_ = shadowBox_.GetCenter();
+
+    DEBUG_LOG("shadowBoxCenter_ " + std::to_string(shadowBox_.GetCenter()));
+    DEBUG_LOG("cameraPos " + std::to_string(context_.scene_->GetCamera().GetPosition()));
+    DEBUG_LOG("cameraDir " + std::to_string(context_.scene_->GetCamera().GetDirection()));
 }
 
 void ShadowMapRenderer::RenderSubscribes() const

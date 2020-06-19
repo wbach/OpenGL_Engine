@@ -19,7 +19,7 @@ in GS_OUT
     vec3 faceNormal;
 } fs_in;
 
-layout(binding = 0) uniform sampler2DShadow shadowMap;
+layout(binding = 0) uniform sampler2D shadowMap;
 layout(binding = 2) uniform sampler2D blendMap;
 layout(binding = 3) uniform sampler2D normalmap;
 layout(binding = 4) uniform sampler2D backgorundTexture;
@@ -70,30 +70,42 @@ vec3 CalcBumpedNormal(vec4 normalMapColor)
 
 float CalculateShadowFactor()
 {
-    float xOffset = 1.0/fs_in.shadowMapSize;
-    float yOffset = 1.0/fs_in.shadowMapSize;
+    float onl = texture(shadowMap, fs_in.shadowCoords.xy).r;
+    float lightFactor = 1.f;
 
-    float factor = 0.0;
-
-    float a = 0;
-    for (int y = -1 ; y <= 1 ; y++)
+    if (fs_in.shadowCoords.z > onl)
     {
-        for (int x = -1 ; x <= 1 ; x++)
-        {
-            vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
-            vec3 uvc = vec3(fs_in.shadowCoords.xy + offsets, fs_in.shadowCoords.z);
-
-            if (texture(shadowMap, uvc) >  0.f)
-                factor += (fs_in.shadowCoords.w * 0.4f);
-           a++;
-        }
+        lightFactor = 1.f -  (fs_in.shadowCoords.w * .4f);
     }
-    float value = (.5f + (factor / a));
-    if( value > 1.f )
-        value = 1.f ;
-
-    return value ;
+    return lightFactor;
 }
+
+// float CalculateShadowFactor()
+// {
+//     float xOffset = 1.0/fs_in.shadowMapSize;
+//     float yOffset = 1.0/fs_in.shadowMapSize;
+
+//     float factor = 0.0;
+
+//     float a = 0;
+//     for (int y = -1 ; y <= 1 ; y++)
+//     {
+//         for (int x = -1 ; x <= 1 ; x++)
+//         {
+//             vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
+//             vec3 uvc = vec3(fs_in.shadowCoords.xy + offsets, fs_in.shadowCoords.z);
+
+//             if (texture(shadowMap, uvc) >  0.f)
+//                 factor += (fs_in.shadowCoords.w * 0.4f);
+//            a++;
+//         }
+//     }
+//     float value = (.5f + (factor / a));
+//     if( value > 1.f )
+//         value = 1.f ;
+
+//     return value ;
+// }
 
 bool Is(float f)
 {
@@ -235,7 +247,7 @@ void main()
     float shadowFactor = Is(fs_in.useShadows) ? CalculateShadowFactor() : 1.f;
 
     WorldPosOut     = fs_in.worldPos;
-    DiffuseOut      = terrainData.color * shadowFactor;
+    DiffuseOut      = vec4(terrainData.color.xyz * shadowFactor, terrainData.color.a);
     NormalOut       = terrainData.normal;
     SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
 }

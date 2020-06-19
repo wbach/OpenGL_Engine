@@ -50,7 +50,7 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {
     {GraphicsApi::FrameBuffer::Format::Rgba8, 4},
     {GraphicsApi::FrameBuffer::Format::Rgba16f, 4},
     {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
-    {GraphicsApi::FrameBuffer::Format::Depth, 1}};
+    {GraphicsApi::FrameBuffer::Format::Depth, 4}};
 }  // namespace
 
 FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
@@ -158,6 +158,7 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
     for (auto& attachment : attachments_)
     {
         glBindTexture(GL_TEXTURE_2D, attachment.glId_);
+
         size_t dataSize = static_cast<size_t>(attachment.textureChannels_ * attachment.width_ * attachment.height_);
         std::vector<uint8> outputData;
         outputData.resize(static_cast<size_t>(4 * attachment.width_ * attachment.height_));
@@ -254,7 +255,14 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         attachments_.push_back(std::move(glAttachment));
     }
     if (not drawBuffers.empty())
+    {
         glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
+    }
+    else
+    {
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
 }
 
 void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)
@@ -262,6 +270,7 @@ void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)
     glGenTextures(1, &attachment.glId_);
     glBindTexture(GL_TEXTURE_2D, attachment.glId_);
     glTexStorage2D(GL_TEXTURE_2D, 1, attachment.internalFormat_, attachment.width_, attachment.height_);
+    DEBUG_LOG("Attachment size = " + std::to_string(vec2ui(attachment.width_, attachment.width_)));
     glFramebufferTexture(GL_FRAMEBUFFER, attachment.type_, attachment.glId_, 0);
 }
 }  // namespace OpenGLApi

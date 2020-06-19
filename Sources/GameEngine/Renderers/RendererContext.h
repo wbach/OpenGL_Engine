@@ -39,5 +39,6 @@ struct RendererContext
     mat4 toShadowMapZeroMatrix_ = glm::mat4(1.f);
     GraphicsApi::ID shadowMapId_;
     Scene* scene_;
+    vec3 shadowBoxCenter_{0.f};
 };
 }  // namespace GameEngine

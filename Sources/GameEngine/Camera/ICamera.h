@@ -1,6 +1,8 @@
 #pragma once
 #include <Rotation.h>
+
 #include <functional>
+
 #include "Types.h"
 
 namespace GameEngine
@@ -25,7 +27,10 @@ struct ICamera
     virtual const Rotation& GetRotation() const = 0;
     virtual const vec3& GetPosition() const     = 0;
     virtual const vec3& GetDirection() const    = 0;
-    virtual const mat4& GetViewMatrix() const   = 0;
+
+    virtual const mat4& GetTranslationMatrix() const = 0;
+    virtual const mat4& GetRotationMatrix() const    = 0;
+    virtual const mat4& GetViewMatrix() const        = 0;
 
     virtual void IncreaseYaw(float yaw)          = 0;
     virtual void IncreasePitch(float pitch)      = 0;
