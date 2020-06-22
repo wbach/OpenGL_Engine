@@ -4,7 +4,7 @@
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
-static const int MAX_BONES   = 100;
+static const int MAX_BONES   = 512;
 static const int MAX_WEIGHTS = 4;
 
 cbuffer PerApp : register(b0)

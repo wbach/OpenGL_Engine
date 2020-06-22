@@ -17,11 +17,14 @@ typedef std::unordered_map<std::string, mat4> Pose;
 
 struct JointData
 {
+    JointData(GraphicsApi::IGraphicsApi& api) : api_(api){}
     Animation::Joint rootJoint;
     std::unique_ptr<BufferObject<PerPoseUpdate>> buffer;
 
     void updateBufferTransform();
     void updateBufferTransform(Animation::Joint&);
+
+    GraphicsApi::IGraphicsApi& api_;
 };
 
 class Animator : public BaseComponent
