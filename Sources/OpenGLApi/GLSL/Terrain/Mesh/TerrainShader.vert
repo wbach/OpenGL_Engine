@@ -16,9 +16,13 @@ layout (std140, align=16, binding=0) uniform PerApp
 layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
+
+layout (std140,binding=7) uniform ShadowsBuffer
+{
+    mat4 directionalLightSpace;
+} shadowsBuffer;
 
 layout (std140, binding=3) uniform PerObjectUpdate
 {
@@ -68,7 +72,7 @@ void main()
     if (Is(vs_out.useShadows))
     {
         vs_out.shadowMapSize  = perApp.shadowVariables.z;
-        vs_out.shadowCoords   = perFrame.toShadowMapSpace * vec4(vs_out.worldPos.xyz, 1.f);
+        vs_out.shadowCoords   = shadowsBuffer.directionalLightSpace * vec4(vs_out.worldPos.xyz, 1.f);
         vs_out.shadowCoords.w = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
         vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
     }

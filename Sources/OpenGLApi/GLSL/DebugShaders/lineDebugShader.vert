@@ -7,7 +7,6 @@ layout (location = 1) in vec3 Color;
 layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
 

@@ -11,7 +11,6 @@ Texture2D depthMap : register(t5);
 cbuffer PerFrame : register(b1)
 {
     matrix projectionViewMatrix;
-    matrix toShadowMapSpace;
     float3 cameraPosition;
 };
 

@@ -15,9 +15,13 @@ layout (std140, align=16, binding=0) uniform PerApp
 layout (std140, align=16, binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
+
+layout (std140,binding=7) uniform ShadowsBuffer
+{
+    mat4 directionalLightSpace;
+} shadowsBuffer;
 
 layout (std140, align=16, binding=6) uniform GrassShaderBuffer
 {
@@ -75,7 +79,7 @@ int CreateVertex(vec3 offset, vec2 textCoord)
         const float transition_distance = 10.f;
 
         float distance_to_cam   = length(perFrame.cameraPosition - worldPosition.xyz);
-        gs_out.shadowCoords     = perFrame.toShadowMapSpace * worldPosition;
+        gs_out.shadowCoords     = shadowsBuffer.directionalLightSpace * worldPosition;
         distance_to_cam         = distance_to_cam - (shadow_distance - transition_distance);
         distance_to_cam         = distance_to_cam / shadow_distance;
         gs_out.shadowCoords.w   = clamp(1.f - distance_to_cam, 0.f, 1.f);

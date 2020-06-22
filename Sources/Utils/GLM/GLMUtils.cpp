@@ -220,7 +220,7 @@ glm::vec3 Utils::RotateObject(const vec3& center, const vec3& point, float angle
     return result;
 }
 
-glm::mat4 Utils::CreateOffset()
+glm::mat4 Utils::CreateBiasNdcToTextureCoordinates()
 {
     auto translate = glm::translate(vec3(0.5f, 0.5f, 0.5f));
     auto scale     = glm::scale(vec3(0.5f, 0.5f, 0.5f));

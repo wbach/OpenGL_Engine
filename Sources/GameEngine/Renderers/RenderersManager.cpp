@@ -141,7 +141,6 @@ void RenderersManager::renderScene(Scene& scene)
     updatePerFrameBuffer(scene);
 
     mainRenderer_->prepare();
-
     {
         RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
         mainRenderer_->render();
@@ -178,7 +177,7 @@ void RenderersManager::ReloadShadersExecution()
 }
 void RenderersManager::Subscribe(GameObject* gameObject)
 {
-    if (gameObject == nullptr)
+    if (not gameObject)
         return;
 
     bufferDataUpdater_.Subscribe(gameObject);
@@ -274,7 +273,6 @@ void RenderersManager::CreatePerFrameBuffer()
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix =
             projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
-        buffer.ToShadowMapSpace = mat4(1.f);
         buffer.cameraPosition   = vec3(0);
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
@@ -287,7 +285,6 @@ void RenderersManager::updatePerFrameBuffer(Scene& scene)
     {
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
-        buffer.ToShadowMapSpace     = graphicsApi_.PrepareMatrixToLoad(rendererContext_.toShadowMapZeroMatrix_);
         buffer.cameraPosition       = scene.GetCamera().GetPosition();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }

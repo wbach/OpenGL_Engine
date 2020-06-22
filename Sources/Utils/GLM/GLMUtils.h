@@ -37,7 +37,7 @@ void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& boundin
 
 float GetMaxFromVector(const glm::vec3& vector);
 
-mat4 CreateOffset();
+mat4 CreateBiasNdcToTextureCoordinates();
 mat4 CreateLightViewMatrix(const vec3& direction, const vec3& center);
 mat4 CreateOrthoProjectionMatrix(float width, float height, float length);
 mat4 CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation);

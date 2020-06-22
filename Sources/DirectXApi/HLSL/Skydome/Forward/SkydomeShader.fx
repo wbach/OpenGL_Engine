@@ -5,7 +5,6 @@
 cbuffer PerFrame : register(b1)
 {
     matrix projectionViewMatrix;
-    matrix toShadowMapSpace;
     float3 cameraPosition;
 };
 

@@ -158,7 +158,7 @@ void BaseCamera::SetYaw(float angle)
 }
 void BaseCamera::CalculateDirection()
 {
-    direction_ = glm::normalize(vec3(0.f, 0.f, -1.f) * rotation_.value_);
+    direction_ = glm::normalize(VECTOR_FORWARD * rotation_.value_);
 }
 void BaseCamera::UpdateViewMatrix()
 {

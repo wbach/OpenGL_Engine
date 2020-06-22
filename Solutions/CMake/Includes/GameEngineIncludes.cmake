@@ -325,6 +325,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h
 ../../Sources/GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h
+../../Sources/GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h
 ../../Sources/GameEngine/Resources/TextureLoader.h
 ../../Sources/GameEngine/Resources/TextureParameters.h
 ../../Sources/GameEngine/Resources/Textures/CubeMapTexture.h

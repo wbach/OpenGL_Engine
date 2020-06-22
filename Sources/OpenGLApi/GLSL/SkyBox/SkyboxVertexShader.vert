@@ -7,7 +7,6 @@ out vec3 TextureCoords;
 layout (std140, binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
 
