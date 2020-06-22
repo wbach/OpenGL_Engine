@@ -68,31 +68,31 @@ vec3 CalcBumpedNormal(vec4 normalMapColor)
     return normalize(fs_in.tbn * bumpMapNormal);
 }
 
-// float CalculateShadowFactor()
-// {
-//     float onl = texture(shadowMap, fs_in.shadowCoords.xy).r;
-//     float lightFactor = 1.f;
-
-//     if (fs_in.shadowCoords.z > onl)
-//     {
-//         lightFactor = 1.f -  (fs_in.shadowCoords.w * .4f);
-//     }
-//     return lightFactor;
-// }
-
 float CalculateShadowFactor()
 {
-    vec3 ProjCoords = fs_in.shadowCoords.xyz / fs_in.shadowCoords.w;
-    vec2 UVCoords;
-    UVCoords.x = 0.5 * ProjCoords.x + 0.5;
-    UVCoords.y = 0.5 * ProjCoords.y + 0.5;
-    float z = 0.5 * ProjCoords.z + 0.5;
-    float Depth = texture(shadowMap, UVCoords).x;
-    if (Depth < z + 0.00001)
-        return 0.5;
-    else
-        return 1.0;
+    float onl = texture(shadowMap, fs_in.shadowCoords.xy).r;
+    float lightFactor = 1.f;
+
+    if (fs_in.shadowCoords.z > onl)
+    {
+        lightFactor = 1.f -  (fs_in.shadowCoords.w * .4f);
+    }
+    return lightFactor;
 }
+
+// float CalculateShadowFactor()
+// {
+//     vec3 ProjCoords = fs_in.shadowCoords.xyz / fs_in.shadowCoords.w;
+//     vec2 UVCoords;
+//     UVCoords.x = 0.5 * ProjCoords.x + 0.5;
+//     UVCoords.y = 0.5 * ProjCoords.y + 0.5;
+//     float z = 0.5 * ProjCoords.z + 0.5;
+//     float Depth = texture(shadowMap, UVCoords).x;
+//     if (Depth < z + 0.00001)
+//         return 0.5;
+//     else
+//         return 1.0;
+// }
 
 // float CalculateShadowFactor()
 // {

@@ -87,9 +87,9 @@ void ShadowMapRenderer::prepare()
 
     shader_.Start();
     context_.graphicsApi_.EnableDepthTest();
-    context_.graphicsApi_.EnableDepthMask();
+    //context_.graphicsApi_.EnableDepthMask();
     RenderSubscribes();
-    context_.graphicsApi_.DisableDepthMask();
+    //context_.graphicsApi_.DisableDepthMask();
     context_.graphicsApi_.DisableDepthTest();
 
     shadowFrameBuffer_->UnBind();
@@ -147,7 +147,7 @@ void ShadowMapRenderer::prepareFrameBuffer()
     perFrame.ProjectionViewMatrix =
         context_.graphicsApi_.PrepareMatrixToLoad(shadowBox_.GetLightProjectionViewMatrix());
     context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
-    context_.toShadowMapZeroMatrix_ = shadowBox_.GetLightProjectionViewMatrix();
+    context_.toShadowMapZeroMatrix_ = viewOffset_* shadowBox_.GetLightProjectionViewMatrix();
 }
 
 void ShadowMapRenderer::RenderSubscribes() const
