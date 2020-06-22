@@ -14,6 +14,7 @@
 namespace GameEngine
 {
 std::optional<GraphicsApi::Image> ReadFile(const File&, const TextureParameters&);
+void CreateHeightMap(const File&, const vec2ui&);
 void CreateHeightMap(const File&, const File&, const vec3&);
 void SaveHeightMap(const HeightMap&, const File&);
 GraphicsApi::Image GenerateBlendMapImage(const vec3&, const HeightMap&, const vec2& = vec2(.5f, .1f));

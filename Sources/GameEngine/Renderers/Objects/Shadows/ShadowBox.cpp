@@ -21,7 +21,8 @@ ShadowBox::ShadowBox(const Projection& projection)
 
 std::vector<vec4> ShadowBox::CalculateFrustumPoints()
 {
-    float ar = projection_.GetAspectRatio();
+    //float ar = projection_.GetAspectRatio();
+    float ar = projection_.GetRenderingSize().y / projection_.GetRenderingSize().x;
     float tanHalfHFOV = tanf(glm::radians(projection_.GetFoV() / 2.0f));
     float tanHalfVFOV = tanf(glm::radians((projection_.GetFoV() * ar) / 2.0f));
 
@@ -53,28 +54,31 @@ std::vector<vec4> ShadowBox::CalculateFrustumPoints()
 
 mat4 ShadowBox::CreateLightViewMatrix(const Light& directionalLight)
 {
-    auto N = directionalLight.GetDirection();
-    auto U = glm::normalize(glm::cross(VECTOR_UP, N));
-    auto V = glm::cross(N, U);
+    return glm::lookAt(vec3(0.f), directionalLight.GetDirection(), VECTOR_UP);
+//    auto N = directionalLight.GetDirection();
+//    auto U = glm::normalize(glm::cross(VECTOR_UP, N));
+//    auto V = glm::cross(N, U);
 
-    //auto U2 = vec3(N.x, 0, N.z);
-    //U2.y = (-(N.x * N.x + N.z * N.z) / N.y);
+//    //auto U2 = vec3(N.x, 0, N.z);
+//    //U2.y = (-(N.x * N.x + N.z * N.z) / N.y);
 
-    //DEBUG_LOG("Dot : " + std::to_string(glm::dot(N, U)));
-    //DEBUG_LOG("Dot2 : " + std::to_string(glm::dot(N, U2)));
+//    //DEBUG_LOG("Dot : " + std::to_string(glm::dot(N, U)));
+//    //DEBUG_LOG("Dot2 : " + std::to_string(glm::dot(N, U2)));
 
-    mat4 m(1.f);
-    // clang-format off
-    m[0][0] = U.x;   m[0][1] = U.y;   m[0][2] = U.z;   m[0][3] = 0.0f;
-    m[1][0] = V.x;   m[1][1] = V.y;   m[1][2] = V.z;   m[1][3] = 0.0f;
-    m[2][0] = N.x;   m[2][1] = N.y;   m[2][2] = N.z;   m[2][3] = 0.0f;
-    m[3][0] = 0.0f;  m[3][1] = 0.0f;  m[3][2] = 0.0f;  m[3][3] = 1.0f;
-    // clang-format on
-    return m;
+//    mat4 m(1.f);
+//    // clang-format off
+//    m[0][0] = U.x;   m[0][1] = U.y;   m[0][2] = U.z;   m[0][3] = 0.0f;
+//    m[1][0] = V.x;   m[1][1] = V.y;   m[1][2] = V.z;   m[1][3] = 0.0f;
+//    m[2][0] = N.x;   m[2][1] = N.y;   m[2][2] = N.z;   m[2][3] = 0.0f;
+//    m[3][0] = 0.0f;  m[3][1] = 0.0f;  m[3][2] = 0.0f;  m[3][3] = 1.0f;
+//    // clang-format on
+//    return m;
 }
 
 mat4 ShadowBox::CreateOrthoProjTransform(const vec3& min, const vec3& max) const
 {
+    auto m1 = glm::ortho(min.x, max.x, min.y, max.y, min.z, max.z);
+
     float l = min.x;
     float r = max.x;
     float b = min.y;
@@ -82,14 +86,24 @@ mat4 ShadowBox::CreateOrthoProjTransform(const vec3& min, const vec3& max) const
     float n = min.z;
     float f = max.z;
 
-    mat4 m;
-    // clang-format off
+    mat4 m(1.f);
+//    // clang-format off
     m[0][0] = 2.0f / (r - l); m[0][1] = 0.0f;           m[0][2] = 0.0f;           m[0][3] = -(r + l) / (r - l);
     m[1][0] = 0.0f;           m[1][1] = 2.0f / (t - b); m[1][2] = 0.0f;           m[1][3] = -(t + b) / (t - b);
     m[2][0] = 0.0f;           m[2][1] = 0.0f;           m[2][2] = 2.0f / (f - n); m[2][3] = -(f + n) / (f - n);
     m[3][0] = 0.0f;           m[3][1] = 0.0f;           m[3][2] = 0.0f;           m[3][3] = 1.0;
+
+   // mat4 m;
+    // clang-format off
+//    m[0][0] = 2.0f / (r - l); m[0][1] = 0.0f;           m[0][2] = 0.0f;           m[0][3] = 0.0f;
+//    m[1][0] = 0.0f;           m[1][1] = 2.0f / (t - b); m[1][2] = 0.0f;           m[1][3] = 0.0f;
+//    m[2][0] = 0.0f;           m[2][1] = 0.0f;           m[2][2] = 2.0f / (f - n); m[2][3] = 0.0f;
+//    m[3][0] = -(r + l) / (r - l); m[3][1] = -(t + b) / (t - b);  m[3][2] = -(f + n) / (f - n);  m[3][3] = 1.0;
     // clang-format on
-    return m;
+
+    DEBUG_LOG("glm: " + std::to_string(m1));
+    DEBUG_LOG("m: " + std::to_string(glm::transpose(m)));
+    return m1;
 }
 
 const mat4& ShadowBox::GetLightProjectionViewMatrix() const
@@ -123,7 +137,7 @@ void ShadowBox::Update(const CameraWrapper& camera, const Light& directionalLigh
     //  auto lightViewMatrix = Utils::CreateLightViewMatrix(directionalLight.GetDirection(), vec3(0));
 
     vec3 min(std::numeric_limits<float>::max());
-    vec3 max(std::numeric_limits<float>::min());
+    vec3 max(-std::numeric_limits<float>::max());
 
     auto points = CalculateFrustumPoints();
 

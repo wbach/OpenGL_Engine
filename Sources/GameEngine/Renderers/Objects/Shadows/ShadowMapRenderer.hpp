@@ -45,7 +45,7 @@ public:
 
 private:
     bool IsInit() const;
-    void prepareRender();
+    void prepareFrameBuffer();
     void RenderSubscribes() const;
     void RenderSubscriber(const ShadowMapSubscriber&) const;
     void RenderMesh(const Mesh& mesh) const;

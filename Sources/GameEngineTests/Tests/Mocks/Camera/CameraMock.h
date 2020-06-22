@@ -20,6 +20,8 @@ public:
     MOCK_CONST_METHOD0(GetRotation, const Rotation&());
     MOCK_CONST_METHOD0(GetPosition, const vec3&());
     MOCK_CONST_METHOD0(GetDirection, const vec3&());
+    MOCK_CONST_METHOD0(GetTranslationMatrix, const mat4&());
+    MOCK_CONST_METHOD0(GetRotationMatrix, const mat4&());
     MOCK_CONST_METHOD0(GetViewMatrix, const mat4&());
     MOCK_METHOD1(IncreaseYaw, void(float));
     MOCK_METHOD1(IncreasePitch, void(float));

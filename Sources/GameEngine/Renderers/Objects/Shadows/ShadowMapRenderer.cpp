@@ -76,16 +76,21 @@ void ShadowMapRenderer::prepare()
     if (not IsInit() and shadowFrameBuffer_)
         return;
 
+    prepareFrameBuffer();
+
     uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
     shadowFrameBuffer_->Clear();
     shadowFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 
-    auto shadowMapSize = static_cast<float>(EngineConf.renderer.shadows.mapSize);
+    auto shadowMapSize = EngineConf.renderer.shadows.mapSize;
     context_.graphicsApi_.SetViewPort(0, 0, shadowMapSize, shadowMapSize);
 
-    prepareRender();
     shader_.Start();
+    context_.graphicsApi_.EnableDepthTest();
+    context_.graphicsApi_.EnableDepthMask();
     RenderSubscribes();
+    context_.graphicsApi_.DisableDepthMask();
+    context_.graphicsApi_.DisableDepthTest();
 
     shadowFrameBuffer_->UnBind();
 
@@ -134,16 +139,14 @@ void ShadowMapRenderer::reloadShaders()
     shader_.Reload();
 }
 
-void ShadowMapRenderer::prepareRender()
+void ShadowMapRenderer::prepareFrameBuffer()
 {
-    context_.graphicsApi_.EnableDepthTest();
     shadowBox_.Update(context_.scene_->GetCamera(), context_.scene_->GetDirectionalLight());
 
     PerFrameBuffer perFrame;
     perFrame.ProjectionViewMatrix =
         context_.graphicsApi_.PrepareMatrixToLoad(shadowBox_.GetLightProjectionViewMatrix());
     context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
-
     context_.toShadowMapZeroMatrix_ = shadowBox_.GetLightProjectionViewMatrix();
 }
 
@@ -199,6 +202,7 @@ void ShadowMapRenderer::RenderSubscriber(const ShadowMapSubscriber& sub) const
         ++meshId;
         RenderMesh(mesh);
     }
+  //  DEBUG_LOG("gameObject " + std::to_string(sub.gameObject->GetWorldTransform().GetMatrix()));
 }
 
 void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
@@ -209,6 +213,8 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
         context_.graphicsApi_.ActiveTexture(0, *material.diffuseTexture->GetGraphicsObjectId());
 
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
+
+  //  DEBUG_LOG("mesh " + std::to_string(mesh.GetMeshTransform()));
 }
 
 }  // namespace GameEngine

@@ -1302,6 +1302,62 @@ void NetworkEditorInterface::ControlTextureUsage(const NetworkEditorInterface::E
         [&]() { scene_.renderersManager_->UpdatePerAppBuffer(); });
 }
 
+void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryParameters &params)
+{
+    std::string heightMapFile{};
+    if (params.count("filename"))
+    {
+        heightMapFile = std::filesystem::path(params.at("filename")).filename().stem().string();
+    }
+    else
+    {
+        std::string heightMapName{"heightMap"};
+        if (params.count("heightMapName"))
+        {
+            heightMapName = params.at("heightMapName");
+        }
+        vec2ui size(513);
+        if (params.count("sizeX"))
+        {
+            size.x = std::stoi(params.at("sizeX"));
+        }
+        if (params.count("sizeY"))
+        {
+            size.y = std::stoi(params.at("sizeY"));
+        }
+
+        heightMapFile = heightMapName + "_" + std::to_string(size.x) + "_" + std::to_string(size.y) + ".terrain";
+        CreateHeightMap(heightMapFile, size);
+    }
+
+    std::string goName{"Terrain"};
+    if (params.count("name"))
+    {
+        goName = params.at("name");
+    }
+
+    auto gameObject = scene_.CreateGameObject(goName);
+    try
+    {
+        auto &terrainComponent = gameObject->AddComponent<Components::TerrainRendererComponent>();
+
+        std::vector<Components::TerrainComponentBase::TerrainTexture> textures{{heightMapFile, 1.f, TerrainTextureType::heightmap}};
+        terrainComponent.LoadTextures(textures);
+
+        DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+        auto parentId = AddGameObject(params, gameObject);
+        if (parentId)
+        {
+            message.parentId = *parentId;
+        }
+        gateway_.Send(userId_, message);
+    }
+    catch (...)
+    {
+        ERROR_LOG("Exception caught");
+    }
+}
+
 void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 {
     auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);

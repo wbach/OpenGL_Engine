@@ -38,7 +38,11 @@ void DefferedRenderer::render()
     if (isReady_)
     {
         bindDefferedFbo();
+        context_.graphicsApi_.EnableDepthTest();
+        context_.graphicsApi_.EnableDepthMask();
         BaseRenderer::render();
+        context_.graphicsApi_.DisableDepthMask();
+        context_.graphicsApi_.DisableDepthTest();
         unbindDefferedFbo();
     }
 }
