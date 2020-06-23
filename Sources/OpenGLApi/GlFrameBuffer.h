@@ -18,6 +18,9 @@ class FrameBuffer : public GraphicsApi::IFrameBuffer
         GLint drawbufferIndex_;
         GLint textureChannels_;
         GLint dataType_;
+        GLint wrapMode_;
+        GLint compareMode_;
+        GLint filter_;
 
         GLsizei width_;
         GLsizei height_;

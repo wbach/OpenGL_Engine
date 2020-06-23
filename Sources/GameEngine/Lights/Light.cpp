@@ -70,7 +70,7 @@ const vec3& Light::GetAttenuation() const
 
 vec3 Light::GetDirection() const
 {
-    return type == LightType::DIRECTIONAL_LIGHT ? position * -1.f : direction;
+    return direction;
 }
 
 float Light::GetCutoff() const

@@ -22,7 +22,7 @@ void JointData::updateBufferTransform(Animation::Joint& joint)
 {
     if (joint.id < MAX_BONES)
     {
-        buffer->GetData().bonesTransforms[joint.id] = joint.animatedTransform;
+        buffer->GetData().bonesTransforms[joint.id] = api_.PrepareMatrixToLoad(joint.animatedTransform);
     }
     for (auto& childJoint : joint.children)
     {
@@ -34,6 +34,7 @@ ComponentsType Animator::type = ComponentsType::Animator;
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(ComponentsType::Animator, componentContext, gameObject)
+    , jointData_(componentContext_.graphicsApi_)
     , currentTime_(0.f)
     , animationSpeed_(1.f)
     , changeAnimTime_(0.25f)

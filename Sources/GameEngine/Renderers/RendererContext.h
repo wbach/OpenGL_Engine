@@ -36,8 +36,9 @@ struct RendererContext
     GraphicsApi::IGraphicsApi& graphicsApi_;
     Utils::MeasurementHandler& measurmentHandler_;
     const Time& time_;
-    mat4 toShadowMapZeroMatrix_ = glm::mat4(1.f);
-    GraphicsApi::ID shadowMapId_;
     Scene* scene_;
+
+    GraphicsApi::ID shadowMapId_;
+    GraphicsApi::ID shadowsBufferId_;
 };
 }  // namespace GameEngine

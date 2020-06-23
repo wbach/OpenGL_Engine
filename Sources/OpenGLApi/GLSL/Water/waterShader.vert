@@ -14,7 +14,6 @@ layout (location = 3) in vec3 Tangent;
 layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
 

@@ -87,6 +87,7 @@ private:
     void ClearTerrainsBlendMap(const EntryParameters&);
     void GenerateTerrains(const EntryParameters&);
     void ControlTextureUsage(const EntryParameters&);
+    void CreateTerrain(const EntryParameters&);
     void GenerateTerrainBlendMapToFile();
     void ReloadShaders(const EntryParameters&);
     void Takesnapshot(const EntryParameters&);

@@ -12,7 +12,6 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
-#include "RendererContext.h"
 
 namespace GameEngine
 {
@@ -43,10 +42,10 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
-    , debugRenderer_(graphicsApi, threadSync)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
-    , renderThreadTime_(renderThreadTime)
+    , rendererContext_(projection_, frustrum_, graphicsApi_, measurmentHandler_, renderThreadTime)
+    , debugRenderer_(rendererContext_, threadSync)
 {
     frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
 }
@@ -83,10 +82,6 @@ void RenderersManager::createMainRenderer()
     graphicsApi_.EnableCulling();
 
     auto rendererType = EngineConf.renderer.type;
-
-    rendererContext_ =
-        std::make_unique<RendererContext>(projection_, frustrum_, graphicsApi_, measurmentHandler_, renderThreadTime_);
-
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 
     if (supportedRenderers.empty())
@@ -101,13 +96,13 @@ void RenderersManager::createMainRenderer()
         if (iter != supportedRenderers.end())
         {
             DEBUG_LOG("Create base renderer");
-            mainRenderer_ = std::make_unique<BaseRenderer>(*rendererContext_);
+            mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
         }
         else
         {
             DEBUG_LOG("Graphics api are not supporting SIMPLE renderer try using full");
             DEBUG_LOG("Create deffered renderer");
-            mainRenderer_ = std::make_unique<DefferedRenderer>(*rendererContext_);
+            mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
         }
         return;
     }
@@ -118,13 +113,13 @@ void RenderersManager::createMainRenderer()
         if (iter != supportedRenderers.end())
         {
             DEBUG_LOG("Create deffered renderer");
-            mainRenderer_ = std::make_unique<DefferedRenderer>(*rendererContext_);
+            mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
         }
         else
         {
             DEBUG_LOG("Graphics api are not supporting FULL renderer try using simple");
             DEBUG_LOG("Create base renderer");
-            mainRenderer_ = std::make_unique<BaseRenderer>(*rendererContext_);
+            mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
         }
         return;
     }
@@ -135,7 +130,7 @@ void RenderersManager::InitGuiRenderer()
 }
 void RenderersManager::renderScene(Scene& scene)
 {
-    rendererContext_->scene_ = &scene;
+    rendererContext_.scene_ = &scene;
 
     ReloadShadersExecution();
     bufferDataUpdater_.Update();
@@ -146,7 +141,6 @@ void RenderersManager::renderScene(Scene& scene)
     updatePerFrameBuffer(scene);
 
     mainRenderer_->prepare();
-
     {
         RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
         mainRenderer_->render();
@@ -157,6 +151,7 @@ void RenderersManager::renderScene(Scene& scene)
 
     debugRenderer_.render();
     guiRenderer_.render();
+    //debugRenderer_.renderTextures({rendererContext_.shadowMapId_});
 
     if (unsubscribeAllCallback_)
     {
@@ -182,7 +177,7 @@ void RenderersManager::ReloadShadersExecution()
 }
 void RenderersManager::Subscribe(GameObject* gameObject)
 {
-    if (gameObject == nullptr)
+    if (not gameObject)
         return;
 
     bufferDataUpdater_.Subscribe(gameObject);
@@ -278,7 +273,6 @@ void RenderersManager::CreatePerFrameBuffer()
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix =
             projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
-        buffer.ToShadowMapSpace = mat4(1.f);
         buffer.cameraPosition   = vec3(0);
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);

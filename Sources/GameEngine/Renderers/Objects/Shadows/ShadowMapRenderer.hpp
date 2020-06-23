@@ -45,17 +45,18 @@ public:
 
 private:
     bool IsInit() const;
-    void prepareRender();
+    void prepareFrameBuffer();
     void RenderSubscribes() const;
     void RenderSubscriber(const ShadowMapSubscriber&) const;
     void RenderMesh(const Mesh& mesh) const;
+    mat4 convertNdcToTextureCooridates(const mat4&) const;
 
 private:
     RendererContext& context_;
     ShaderProgram shader_;
     ShadowBox shadowBox_;
     mat4 projectionViewMatrix_;
-    mat4 viewOffset_;
+    mat4 biasMatrix_;
     Subscribers subscribes_;
     GraphicsApi::ID perFrameBuffer_;
     GraphicsApi::IFrameBuffer* shadowFrameBuffer_;

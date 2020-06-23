@@ -11,42 +11,44 @@ public:
     BaseCamera(float pitch, float yaw);
     BaseCamera(const vec3& position, const vec3& lookAt);
 
-    virtual ~BaseCamera() override = default;
+    ~BaseCamera() override = default;
 
-    virtual void Move() override;
-    virtual void CalculateInput() override;
-    virtual void CalculateZoom(float) override;
-    virtual void Lock() override;
-    virtual void Unlock() override;
-    virtual bool IsLocked() const override;
+    void Move() override;
+    void CalculateInput() override;
+    void CalculateZoom(float) override;
+    void Lock() override;
+    void Unlock() override;
+    bool IsLocked() const override;
 
-    virtual void UpdateMatrix() override;
+    void UpdateMatrix() override;
 
-    virtual float GetPitch() const override;
-    virtual float GetYaw() const override;
+    float GetPitch() const override;
+    float GetYaw() const override;
 
-    virtual const Rotation& GetRotation() const override;
-    virtual const vec3& GetPosition() const override;
-    virtual const vec3& GetDirection() const override;
-    virtual const mat4& GetViewMatrix() const override;
+    const Rotation& GetRotation() const override;
+    const vec3& GetPosition() const override;
+    const vec3& GetDirection() const override;
+    const mat4& GetTranslationMatrix() const override;
+    const mat4& GetRotationMatrix() const override;
+    const mat4& GetViewMatrix() const override;
 
-    virtual void IncreaseYaw(float yaw) override;
-    virtual void IncreasePitch(float pitch) override;
-    virtual void IncreasePosition(const vec3&) override;
-    virtual void IncreasePositionX(float) override;
-    virtual void IncreasePositionY(float) override;
-    virtual void IncreasePositionZ(float) override;
-    virtual void IncreasePositionXZ(const vec2&) override;
+    void IncreaseYaw(float yaw) override;
+    void IncreasePitch(float pitch) override;
+    void IncreasePosition(const vec3&) override;
+    void IncreasePositionX(float) override;
+    void IncreasePositionY(float) override;
+    void IncreasePositionZ(float) override;
+    void IncreasePositionXZ(const vec2&) override;
 
-    virtual void LookAt(const vec3&) override;
-    virtual void SetYaw(float yaw) override;
-    virtual void SetPitch(float pitch) override;
-    virtual void SetRotation(const Rotation&) override;
-    virtual void SetPosition(const vec3&) override;
-
-    void NotifySubscribers();
+    void LookAt(const vec3&) override;
+    void SetYaw(float yaw) override;
+    void SetPitch(float pitch) override;
+    void SetRotation(const Rotation&) override;
+    void SetPosition(const vec3&) override;
     uint32 SubscribeOnChange(std::function<void(const ICamera&)>) override;
     void UnsubscribeOnChange(uint32) override;
+
+    void NotifySubscribers();
 
 protected:
     void CalculateDirection();
@@ -62,6 +64,9 @@ private:
     vec3 position_;
     Rotation rotation_;
     vec3 direction_;
+
+    mat4 translationMatrix_;
+    mat4 rotationMatrix_;
     mat4 viewMatrix_;
 
 private:

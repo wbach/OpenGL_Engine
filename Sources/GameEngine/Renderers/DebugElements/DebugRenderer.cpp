@@ -13,6 +13,13 @@
 
 namespace GameEngine
 {
+namespace
+{
+struct ColorBuffer
+{
+    AlignWrapper<vec4> color;
+};
+}  // namespace
 DebugObject::DebugObject(GraphicsApi::IGraphicsApi& graphicsApi, Model& model, common::Transform& transform)
     : graphicsApi_(graphicsApi)
     , model_(model)
@@ -58,12 +65,13 @@ void DebugObject::BindBuffer() const
     }
 }
 
-DebugRenderer::DebugRenderer(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::ThreadSync& threadSync)
-    : graphicsApi_(graphicsApi)
-    , physicsVisualizator_(graphicsApi, threadSync)
-    , debugObjectShader_(graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
-    , gridShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
-    , lineShader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
+DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::ThreadSync& threadSync)
+    : rendererContext_(rendererContext)
+    , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
+    , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
+    , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
+    , lineShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Line)
+    , textureShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Texture)
 {
 }
 
@@ -78,20 +86,43 @@ void DebugRenderer::init()
     debugObjectShader_.Init();
     gridShader_.Init();
     lineShader_.Init();
+    textureShader_.Init();
 
     gridPerObjectUpdateBufferId_ =
-        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
     if (gridPerObjectUpdateBufferId_)
     {
         PerObjectUpdate gridPerObjectUpdate;
         gridPerObjectUpdate.TransformationMatrix =
             Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(100));
-        graphicsApi_.UpdateShaderBuffer(*gridPerObjectUpdateBufferId_, &gridPerObjectUpdate);
+        rendererContext_.graphicsApi_.UpdateShaderBuffer(*gridPerObjectUpdateBufferId_, &gridPerObjectUpdate);
     }
     else
     {
         ERROR_LOG("gridPerObjectUpdateBufferId_ error!");
+    }
+
+    texturePerObjectUpdateBufferId_ =
+        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+
+    if (texturePerObjectUpdateBufferId_)
+    {
+        PerObjectUpdate gridPerObjectUpdate;
+        gridPerObjectUpdate.TransformationMatrix = Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(0), vec3(1));
+        rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_, &gridPerObjectUpdate);
+    }
+    else
+    {
+        ERROR_LOG("texturePerObjectUpdateBufferId_ error!");
+    }
+
+    textureColorBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
+    if (textureColorBufferId_)
+    {
+        ColorBuffer b;
+        b.color = vec4(1.f);
+        rendererContext_.graphicsApi_.UpdateShaderBuffer(*textureColorBufferId_, &b);
     }
 }
 
@@ -124,6 +155,41 @@ void DebugRenderer::render()
     }
 }
 
+void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
+{
+    if (texturePerObjectUpdateBufferId_)
+    {
+        rendererContext_.graphicsApi_.DisableDepthTest();
+        rendererContext_.graphicsApi_.DisableDepthMask();
+
+        textureShader_.Start();
+        rendererContext_.graphicsApi_.BindShaderBuffer(*texturePerObjectUpdateBufferId_);
+        rendererContext_.graphicsApi_.BindShaderBuffer(*textureColorBufferId_);
+        float i = 0;
+        const vec2 size(0.25f);
+        rendererContext_.graphicsApi_.ActiveTexture(0);
+        for (auto& textureId : textures)
+        {
+            if (textureId)
+            {
+                auto pos = vec3(-.99f + (size.x), .99f - size.y - (2.f * size.y * i), 0);
+                PerObjectUpdate gridPerObjectUpdate;
+                gridPerObjectUpdate.TransformationMatrix =
+                    Utils::CreateTransformationMatrix(pos, size, DegreesFloat(0.f));
+                rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_, &gridPerObjectUpdate);
+
+                rendererContext_.graphicsApi_.BindTexture(*textureId);
+                rendererContext_.graphicsApi_.RenderQuad();
+                ++i;
+            }
+        }
+        textureShader_.Stop();
+
+        rendererContext_.graphicsApi_.EnableDepthMask();
+        rendererContext_.graphicsApi_.EnableDepthTest();
+    }
+}
+
 void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
 {
     physicsVisualizator_.SetPhysicsDebugDraw(func);
@@ -132,7 +198,7 @@ void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMes
 void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)
 {
     std::lock_guard<std::mutex> lk(debugObjectsMutex_);
-    debugObjects_.emplace_back(graphicsApi_, model, transform);
+    debugObjects_.emplace_back(rendererContext_.graphicsApi_, model, transform);
     toCreateDebugObjects_.push_back(&debugObjects_.back());
 }
 
@@ -140,7 +206,7 @@ void DebugRenderer::Enable()
 {
     if (stashedStates_.empty())
     {
-        states_ = {RenderState::Objects/*, RenderState::Grid*/};
+        states_ = {RenderState::Objects /*, RenderState::Grid*/};
     }
     else
     {
@@ -165,7 +231,7 @@ bool DebugRenderer::IsStateEnabled(DebugRenderer::RenderState state) const
     return iter != states_.end();
 }
 
-const std::vector<DebugRenderer::RenderState> &DebugRenderer::GetStates() const
+const std::vector<DebugRenderer::RenderState>& DebugRenderer::GetStates() const
 {
     return states_;
 }
@@ -235,16 +301,16 @@ void DebugRenderer::DrawGrid()
     if (gridShader_.IsReady() and gridPerObjectUpdateBufferId_)
     {
         gridShader_.Start();
-        graphicsApi_.BindShaderBuffer(*gridPerObjectUpdateBufferId_);
-        graphicsApi_.RenderQuad();
+        rendererContext_.graphicsApi_.BindShaderBuffer(*gridPerObjectUpdateBufferId_);
+        rendererContext_.graphicsApi_.RenderQuad();
         gridShader_.Stop();
     }
 }
 
 void DebugRenderer::DrawDebugObjects()
 {
-    graphicsApi_.EnableBlend();
-    graphicsApi_.DisableCulling();
+    rendererContext_.graphicsApi_.EnableBlend();
+    rendererContext_.graphicsApi_.DisableCulling();
 
     if (debugObjectShader_.IsReady())
     {
@@ -255,8 +321,8 @@ void DebugRenderer::DrawDebugObjects()
         RenderDebugObjects();
         debugObjectShader_.Stop();
     }
-    graphicsApi_.EnableCulling();
-    graphicsApi_.DisableBlend();
+    rendererContext_.graphicsApi_.EnableCulling();
+    rendererContext_.graphicsApi_.DisableBlend();
 }
 
 void DebugRenderer::DrawNormals()
@@ -264,7 +330,7 @@ void DebugRenderer::DrawNormals()
     if (lineShader_.IsReady())
     {
         lineShader_.Start();
-        graphicsApi_.RenderDebugNormals();
+        rendererContext_.graphicsApi_.RenderDebugNormals();
         lineShader_.Stop();
     }
 }
@@ -276,7 +342,7 @@ void DebugRenderer::RenderModel(const Model& model) const
         if (mesh.GetGraphicsObjectId())
         {
             BindMeshBuffers(mesh);
-            graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
+            rendererContext_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
         }
     }
 }
@@ -286,7 +352,7 @@ void DebugRenderer::BindMeshBuffers(const Mesh& mesh) const
     const auto& perMeshObjectBuffer = mesh.getShaderBufferId();
     if (perMeshObjectBuffer)
     {
-        graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);
+        rendererContext_.graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);
     }
 }
 }  // namespace GameEngine

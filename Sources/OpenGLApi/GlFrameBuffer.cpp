@@ -50,7 +50,18 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {
     {GraphicsApi::FrameBuffer::Format::Rgba8, 4},
     {GraphicsApi::FrameBuffer::Format::Rgba16f, 4},
     {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
-    {GraphicsApi::FrameBuffer::Format::Depth, 1}};
+    {GraphicsApi::FrameBuffer::Format::Depth, 4}};
+
+const std::unordered_map<GraphicsApi::FrameBuffer::CompareMode, GLint> CompareMode = {
+    {GraphicsApi::FrameBuffer::CompareMode::None, GL_NONE},
+    {GraphicsApi::FrameBuffer::CompareMode::RefToTexture, GL_COMPARE_REF_TO_TEXTURE}};
+
+const std::unordered_map<GraphicsApi::FrameBuffer::Filter, GLint> Filter = {
+    {GraphicsApi::FrameBuffer::Filter::Nearest, GL_NEAREST}, {GraphicsApi::FrameBuffer::Filter::Linear, GL_LINEAR}};
+
+const std::unordered_map<GraphicsApi::FrameBuffer::WrapMode, GLint> WrapMode = {
+    {GraphicsApi::FrameBuffer::WrapMode::Repeat, GL_REPEAT},
+    {GraphicsApi::FrameBuffer::WrapMode::ClampToEdge, GL_CLAMP_TO_EDGE}};
 }  // namespace
 
 FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
@@ -158,6 +169,7 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
     for (auto& attachment : attachments_)
     {
         glBindTexture(GL_TEXTURE_2D, attachment.glId_);
+
         size_t dataSize = static_cast<size_t>(attachment.textureChannels_ * attachment.width_ * attachment.height_);
         std::vector<uint8> outputData;
         outputData.resize(static_cast<size_t>(4 * attachment.width_ * attachment.height_));
@@ -235,6 +247,10 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         glAttachment.defaultValue_[1] = attachment.defaultValue.y;
         glAttachment.defaultValue_[2] = attachment.defaultValue.z;
         glAttachment.defaultValue_[3] = attachment.defaultValue.w;
+        glAttachment.compareMode_     = CompareMode.at(attachment.compareMode);
+        glAttachment.filter_          = Filter.at(attachment.filter);
+        glAttachment.wrapMode_        = WrapMode.at(attachment.wrapMode);
+
         CreateGlAttachment(glAttachment);
 
         auto errorString = GetGlError();
@@ -254,7 +270,15 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         attachments_.push_back(std::move(glAttachment));
     }
     if (not drawBuffers.empty())
+    {
+
         glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
+    }
+    else
+    {
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
 }
 
 void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)
@@ -262,6 +286,11 @@ void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)
     glGenTextures(1, &attachment.glId_);
     glBindTexture(GL_TEXTURE_2D, attachment.glId_);
     glTexStorage2D(GL_TEXTURE_2D, 1, attachment.internalFormat_, attachment.width_, attachment.height_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, attachment.filter_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, attachment.filter_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, attachment.wrapMode_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, attachment.wrapMode_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, attachment.compareMode_);
     glFramebufferTexture(GL_FRAMEBUFFER, attachment.type_, attachment.glId_, 0);
 }
 }  // namespace OpenGLApi

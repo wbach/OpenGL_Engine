@@ -121,7 +121,8 @@ void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextur
 {
     if (context_.shadowMapId_)
     {
-        context_.graphicsApi_.ActiveTexture(0, *context_.shadowMapId_);
+        context_.graphicsApi_.ActiveTexture(0);
+        context_.graphicsApi_.BindTexture(*context_.shadowMapId_);
     }
 
     for (const auto& t : textures)

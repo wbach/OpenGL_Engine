@@ -37,7 +37,7 @@ bool Is(float v)
 
 void main(void)
 {
-    if (Is(perApp.useTextures.x))
+    if (Is(perApp.useTextures.x) && Is(perMeshObject.useTexture))
     {
         vec2 textCoord = (vs_in.texCoord / perMeshObject.numberOfRows) + vs_in.textureOffset;
         float alpha = texture(ModelTexture, textCoord ).a;

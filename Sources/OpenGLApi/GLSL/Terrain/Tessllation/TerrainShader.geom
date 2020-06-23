@@ -15,7 +15,6 @@ layout (std140, align=16, binding=0) uniform PerApp
 layout (std140, binding = 1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
 

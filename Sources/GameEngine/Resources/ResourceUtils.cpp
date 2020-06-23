@@ -192,6 +192,30 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
     fclose(fp);
 }
 
+void CreateHeightMap(const File& out, const vec2ui& size)
+{
+    HeightMapHeader header;
+    header.height = size.x;
+    header.width  = size.y;
+    header.scale  = vec3(1);
+    auto dataSize = header.width * header.height;
+
+    auto fp = fopen(out.GetAbsoultePath().c_str(), "wb+");
+
+    if (!fp)
+    {
+        ERROR_LOG("cannot open file : " + out.GetAbsoultePath());
+        return;
+    }
+
+    fwrite(&header, sizeof(HeightMapHeader), 1, fp);
+    std::vector<float> floatData;
+    floatData.resize(dataSize);
+    memset(&floatData[0], 0, dataSize);
+    fwrite(&floatData[0], sizeof(float), dataSize, fp);
+    fclose(fp);
+}
+
 void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
 {
     auto& image = heightmap.GetImage();
@@ -317,4 +341,5 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                 [](std::monostate) { ERROR_LOG("Data not set!"); }},
         image.getImageData());
 }
+
 }  // namespace GameEngine

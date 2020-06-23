@@ -1,4 +1,5 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "Logger/Log.h"
@@ -7,6 +8,8 @@
 #ifndef USE_GNU
 #include "DirectXApi/DirectXApi.h"
 #endif
+
+#include <GLM/GLMUtils.h>
 
 const std::string configFile = "./Conf.xml";
 

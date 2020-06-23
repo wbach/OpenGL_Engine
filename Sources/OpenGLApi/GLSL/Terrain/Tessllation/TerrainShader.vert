@@ -6,7 +6,6 @@ layout (location = 0) in vec2 Position;
 layout (std140, binding = 1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
 

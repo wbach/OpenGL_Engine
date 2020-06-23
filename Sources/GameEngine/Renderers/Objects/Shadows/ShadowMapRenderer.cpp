@@ -14,6 +14,7 @@
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
 
 namespace GameEngine
 {
@@ -26,7 +27,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
-    , viewOffset_(Utils::CreateOffset())
+    , biasMatrix_(Utils::CreateBiasNdcToTextureCoordinates())
     , shadowFrameBuffer_(nullptr)
 {
 }
@@ -50,8 +51,18 @@ void ShadowMapRenderer::init()
                                                          GraphicsApi::FrameBuffer::Type::Depth,
                                                          GraphicsApi::FrameBuffer::Format::Depth);
 
+    depthAttachment.wrapMode    = GraphicsApi::FrameBuffer::WrapMode::ClampToEdge;
+    depthAttachment.filter      = GraphicsApi::FrameBuffer::Filter::Linear;
+    depthAttachment.compareMode = GraphicsApi::FrameBuffer::CompareMode::RefToTexture;
+
     perFrameBuffer_    = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
     shadowFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer({depthAttachment});
+
+    if (not context_.shadowsBufferId_)
+        context_.shadowsBufferId_ =
+            context_.graphicsApi_.CreateShaderBuffer(SHADOW_BUFFER_BIND_LOCATION, sizeof(ShadowsBuffer));
+    if (context_.shadowsBufferId_)
+        context_.graphicsApi_.BindShaderBuffer(*context_.shadowsBufferId_);
 
     auto status = shadowFrameBuffer_->Init();
 
@@ -76,16 +87,24 @@ void ShadowMapRenderer::prepare()
     if (not IsInit() and shadowFrameBuffer_)
         return;
 
-    uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
+    prepareFrameBuffer();
 
+    uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
     shadowFrameBuffer_->Clear();
     shadowFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 
-    prepareRender();
+    auto shadowMapSize = EngineConf.renderer.shadows.mapSize;
+    context_.graphicsApi_.SetViewPort(0, 0, shadowMapSize, shadowMapSize);
+
     shader_.Start();
+    context_.graphicsApi_.EnableDepthTest();
     RenderSubscribes();
+    context_.graphicsApi_.DisableDepthTest();
 
     shadowFrameBuffer_->UnBind();
+
+    const auto& renderingSize = context_.projection_.GetRenderingSize();
+    context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
 
     context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
 }
@@ -129,20 +148,19 @@ void ShadowMapRenderer::reloadShaders()
     shader_.Reload();
 }
 
-void ShadowMapRenderer::prepareRender()
+void ShadowMapRenderer::prepareFrameBuffer()
 {
-    context_.graphicsApi_.EnableDepthTest();
-    shadowBox_.Update(context_.scene_->GetCamera());
-
-    auto light_direction = context_.scene_->GetDirectionalLight().GetDirection();
-    shadowBox_.CalculateMatrixes(light_direction);
-
-    context_.toShadowMapZeroMatrix_ = viewOffset_ * shadowBox_.GetProjectionViewMatrix();
+    shadowBox_.update(context_.scene_->GetCamera(), context_.scene_->GetDirectionalLight());
 
     PerFrameBuffer perFrame;
-    perFrame.ProjectionViewMatrix = shadowBox_.GetProjectionViewMatrix();
-
+    perFrame.ProjectionViewMatrix =
+        context_.graphicsApi_.PrepareMatrixToLoad(shadowBox_.getLightProjectionViewMatrix());
     context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
+
+    ShadowsBuffer buffer;
+    buffer.directionalLightSpace = context_.graphicsApi_.PrepareMatrixToLoad(
+        convertNdcToTextureCooridates(shadowBox_.getLightProjectionViewMatrix()));
+    context_.graphicsApi_.UpdateShaderBuffer(*context_.shadowsBufferId_, &buffer);
 }
 
 void ShadowMapRenderer::RenderSubscribes() const
@@ -208,5 +226,8 @@ void ShadowMapRenderer::RenderMesh(const Mesh& mesh) const
 
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
 }
-
+mat4 ShadowMapRenderer::convertNdcToTextureCooridates(const mat4& lightSpaceMatrix) const
+{
+    return biasMatrix_ * lightSpaceMatrix;
+}
 }  // namespace GameEngine

@@ -1,35 +1,38 @@
 #version 440 core
-const int MAX_BONES = 25;
-const int MAX_WEIGHTS = 3;
+const int MAX_BONES = 512;
+const int MAX_WEIGHTS = 4;
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 layout (location = 4) in vec3 Weights;
 layout (location = 5) in ivec3 BoneIds;
 
-layout (std140, binding=1) uniform PerResize
+layout (std140, align=16, binding=0) uniform PerApp
 {
-    mat4 projectionMatrix;
-} perResize;
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 clipPlane;
+} perApp;
 
-layout (std140,binding=2) uniform PerFrame
+layout (std140,binding=1) uniform PerFrame
 {
-    mat4 viewMatrix;
-    mat4 toShadowMapSpace;
+    mat4 projectionViewMatrix;
+    vec3 cameraPosition;
 } perFrame;
 
-layout (std140, align=16, binding=3) uniform PerObjectConstants
+layout (std140, align=16, binding=2) uniform PerObjectConstants
 {
     float useBoneTransform;
     vec2 textureOffset;
 } perObjectConstants;
 
-layout (std140, binding=4) uniform PerObjectUpdate
+layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
 } perObjectUpdate;
 
-layout (std140, binding=5) uniform PerPoseUpdate
+layout (std140, align=16, binding=4) uniform PerPoseUpdate
 {
     mat4 bonesTransforms[MAX_BONES];
 } perPoseUpdate;
@@ -63,7 +66,7 @@ vec4 caluclateWorldPosition()
 
 void main(void)
 {
-    gl_Position =  perResize.projectionMatrix * perFrame.viewMatrix * caluclateWorldPosition();
+    gl_Position =  perFrame.projectionViewMatrix * caluclateWorldPosition();
     vs_out.texCoord = TexCoord;
     vs_out.textureOffset = perObjectConstants.textureOffset;
 }

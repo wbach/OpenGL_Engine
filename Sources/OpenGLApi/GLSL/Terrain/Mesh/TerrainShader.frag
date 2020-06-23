@@ -51,7 +51,6 @@ layout (std140, align=16, binding=0) uniform PerApp
 layout (std140, binding = 1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
-    mat4 toShadowMapSpace;
     vec3 cameraPosition;
 } perFrame;
 
@@ -67,6 +66,18 @@ vec3 CalcBumpedNormal(vec4 normalMapColor)
     bumpMapNormal = bumpMapNormal * 2.f - 1.f;
     return normalize(fs_in.tbn * bumpMapNormal);
 }
+
+// float CalculateShadowFactor()
+// {
+//     float onl = texture(shadowMap, fs_in.shadowCoords.xy).r;
+//     float lightFactor = 1.f;
+
+//     if (fs_in.shadowCoords.z > onl)
+//     {
+//         lightFactor = 1.f -  (fs_in.shadowCoords.w * .4f);
+//     }
+//     return lightFactor;
+// }
 
 float CalculateShadowFactor()
 {
@@ -235,7 +246,7 @@ void main()
     float shadowFactor = Is(fs_in.useShadows) ? CalculateShadowFactor() : 1.f;
 
     WorldPosOut     = fs_in.worldPos;
-    DiffuseOut      = terrainData.color * shadowFactor;
+    DiffuseOut      = vec4(terrainData.color.xyz * shadowFactor, terrainData.color.a);
     NormalOut       = terrainData.normal;
     SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
 }

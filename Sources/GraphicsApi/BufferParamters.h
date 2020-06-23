@@ -30,12 +30,34 @@ enum class Format
     Rgba32f,
     Depth
 };
+
+enum class CompareMode
+{
+    None,
+    RefToTexture
+};
+
+enum class Filter
+{
+    Nearest,
+    Linear
+};
+
+enum class WrapMode
+{
+    Repeat,
+    ClampToEdge
+};
+
 struct Attachment
 {
     Type type;
     Format format;
     vec2ui size;
     vec4 defaultValue;
+    CompareMode compareMode;
+    Filter filter;
+    WrapMode wrapMode;
 
     Attachment()
         : Attachment(vec2ui(640, 480), Type::Color0, Format::Rgba8, vec4(0))
@@ -50,6 +72,9 @@ struct Attachment
         , format{format}
         , size{size}
         , defaultValue{defaultValue}
+        , compareMode{CompareMode::None}
+        , filter{Filter::Nearest}
+        , wrapMode{WrapMode::Repeat}
     {
     }
 };
