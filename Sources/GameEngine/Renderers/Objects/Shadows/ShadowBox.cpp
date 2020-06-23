@@ -14,50 +14,49 @@ namespace GameEngine
 {
 ShadowBox::ShadowBox(const Projection& projection)
     : projection_(projection)
-    , shadowDistance_(EngineConf.renderer.shadows.distance)
 {
+    calculateTangentHalfFov();
 }
 
-std::vector<vec4> ShadowBox::CalculateFrustumPoints()
+std::vector<vec4> ShadowBox::calculateFrustumPoints(float near, float far)
 {
-    float ar = projection_.GetAspectRatio();
-    float tanHalfHFOV = tanf(glm::radians(projection_.GetFoV() / 2.0f));
-    float tanHalfVFOV = tanf(glm::radians((projection_.GetFoV() * ar) / 2.0f));
+    float xn = near * tanHalfFov_.x;
+    float xf = far * tanHalfFov_.x;
 
-    float xn = projection_.GetNear() * tanHalfHFOV;
-    float xf = shadowDistance_ * tanHalfHFOV;
+    float yn = near * tanHalfFov_.y;
+    float yf = far * tanHalfFov_.y;
 
-    float yn = projection_.GetNear() * tanHalfVFOV;
-    float yf = shadowDistance_ * tanHalfVFOV;
+    near *= VECTOR_FORWARD.z;
+    far *= VECTOR_FORWARD.z;
 
     // clang-format off
     return
     {
         // near face forward is z -1
-        vec4(xn, yn, -projection_.GetNear(), 1.0),
-        vec4(-xn, yn, -projection_.GetNear(), 1.0),
-        vec4(xn, -yn, -projection_.GetNear(), 1.0),
-        vec4(-xn, -yn, -projection_.GetNear(), 1.0),
+        vec4(xn, yn, near, 1.0),
+        vec4(-xn, yn, near, 1.0),
+        vec4(xn, -yn, near, 1.0),
+        vec4(-xn, -yn, near, 1.0),
 
         // far face
-        vec4(xf, yf, -shadowDistance_, 1.0),
-        vec4(-xf, yf, -shadowDistance_, 1.0),
-        vec4(xf, -yf, -shadowDistance_, 1.0),
-        vec4(-xf, -yf, -shadowDistance_, 1.0)
+        vec4(xf, yf, far, 1.0),
+        vec4(-xf, yf, far, 1.0),
+        vec4(xf, -yf, far, 1.0),
+        vec4(-xf, -yf, far, 1.0)
     };
     // clang-format on
 }
 
-mat4 ShadowBox::CreateLightViewMatrix(const Light& directionalLight)
+mat4 ShadowBox::createLightViewMatrix(const Light& directionalLight)
 {
     return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
 }
 
-mat4 ShadowBox::CreateOrthoProjTransform(const vec3& min, const vec3& max) const
+mat4 ShadowBox::createOrthoProjTransform(const vec3& min, const vec3& max) const
 {
-    //auto m1 = glm::ortho(min.x, max.x, min.y, max.y, min.z, max.z);
-    //m1[2][2] *= -1.f; ???
-    //return m1;
+    // auto m1 = glm::ortho(min.x, max.x, min.y, max.y, min.z, max.z);
+    // m1[2][2] *= -1.f; ???
+    // return m1;
 
     float l = min.x;
     float r = max.x;
@@ -77,19 +76,26 @@ mat4 ShadowBox::CreateOrthoProjTransform(const vec3& min, const vec3& max) const
     return m;
 }
 
-const mat4& ShadowBox::GetLightProjectionViewMatrix() const
+const mat4& ShadowBox::getLightProjectionViewMatrix() const
 {
     return lightProjectionViewMatrix_;
 }
 
-void ShadowBox::FindMinMax(const vec4& point, vec3& min, vec3& max)
+void ShadowBox::calculateTangentHalfFov()
 {
-    CheckMinMax(min.x, max.x, point.x);
-    CheckMinMax(min.y, max.y, point.y);
-    CheckMinMax(min.z, max.z, point.z);
+    auto halfFov = projection_.GetFoV() / 2.0f;
+    tanHalfFov_.x = tanf(glm::radians(halfFov));
+    tanHalfFov_.y = tanf(glm::radians(halfFov * projection_.GetAspectRatio()));
 }
 
-void ShadowBox::CheckMinMax(float& min, float& max, float point)
+void ShadowBox::checkMinMax(const vec4& point, vec3& min, vec3& max)
+{
+    checkMinMax(min.x, max.x, point.x);
+    checkMinMax(min.y, max.y, point.y);
+    checkMinMax(min.z, max.z, point.z);
+}
+
+void ShadowBox::checkMinMax(float& min, float& max, float point)
 {
     if (point > max)
     {
@@ -102,23 +108,23 @@ void ShadowBox::CheckMinMax(float& min, float& max, float point)
     }
 }
 
-void ShadowBox::Update(const CameraWrapper& camera, const Light& directionalLight)
+void ShadowBox::update(const CameraWrapper& camera, const Light& directionalLight)
 {
     auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
-    auto lightViewMatrix = CreateLightViewMatrix(directionalLight);
+    auto lightViewMatrix = createLightViewMatrix(directionalLight);
 
     vec3 min(std::numeric_limits<float>::max());
     vec3 max(-std::numeric_limits<float>::max());
 
-    auto points = CalculateFrustumPoints();
+    auto points = calculateFrustumPoints(projection_.GetNear(), EngineConf.renderer.shadows.distance);
 
     for (const vec4& point : points)
     {
         auto pointInWorldSpace = invViewMatrix * point;
         auto pointInLightSpace = lightViewMatrix * pointInWorldSpace;
 
-        FindMinMax(pointInLightSpace, min, max);
+        checkMinMax(pointInLightSpace, min, max);
     }
-    lightProjectionViewMatrix_ = CreateOrthoProjTransform(min, max) * lightViewMatrix;
+    lightProjectionViewMatrix_ = createOrthoProjTransform(min, max) * lightViewMatrix;
 }
 }  // namespace GameEngine

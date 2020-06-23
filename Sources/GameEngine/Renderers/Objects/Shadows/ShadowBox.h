@@ -15,19 +15,20 @@ class ShadowBox
 {
 public:
     ShadowBox(const Projection&);
-    void Update(const CameraWrapper&, const Light&);
-    const mat4& GetLightProjectionViewMatrix() const;
+    void update(const CameraWrapper&, const Light&);
+    const mat4& getLightProjectionViewMatrix() const;
 
 private:
-    void FindMinMax(const vec4& point, vec3& min, vec3& max);
-    void CheckMinMax(float& min, float& max, float point);
-    std::vector<vec4> CalculateFrustumPoints();
-    mat4 CreateLightViewMatrix(const Light&);
-    mat4 CreateOrthoProjTransform(const vec3& min, const vec3& max) const;
+    void calculateTangentHalfFov();
+    void checkMinMax(const vec4& point, vec3& min, vec3& max);
+    void checkMinMax(float& min, float& max, float point);
+    std::vector<vec4> calculateFrustumPoints(float near, float far);
+    mat4 createLightViewMatrix(const Light&);
+    mat4 createOrthoProjTransform(const vec3& min, const vec3& max) const;
 
 private:
     const Projection& projection_;
     mat4 lightProjectionViewMatrix_;
-    float shadowDistance_;
+    vec2 tanHalfFov_;
 };
 }  // namespace GameEngine

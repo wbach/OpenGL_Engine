@@ -146,16 +146,16 @@ void ShadowMapRenderer::reloadShaders()
 
 void ShadowMapRenderer::prepareFrameBuffer()
 {
-    shadowBox_.Update(context_.scene_->GetCamera(), context_.scene_->GetDirectionalLight());
+    shadowBox_.update(context_.scene_->GetCamera(), context_.scene_->GetDirectionalLight());
 
     PerFrameBuffer perFrame;
     perFrame.ProjectionViewMatrix =
-        context_.graphicsApi_.PrepareMatrixToLoad(shadowBox_.GetLightProjectionViewMatrix());
+        context_.graphicsApi_.PrepareMatrixToLoad(shadowBox_.getLightProjectionViewMatrix());
     context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
 
     ShadowsBuffer buffer;
     buffer.directionalLightSpace = context_.graphicsApi_.PrepareMatrixToLoad(
-        convertNdcToTextureCooridates(shadowBox_.GetLightProjectionViewMatrix()));
+        convertNdcToTextureCooridates(shadowBox_.getLightProjectionViewMatrix()));
     context_.graphicsApi_.UpdateShaderBuffer(*context_.shadowsBufferId_, &buffer);
 }
 
