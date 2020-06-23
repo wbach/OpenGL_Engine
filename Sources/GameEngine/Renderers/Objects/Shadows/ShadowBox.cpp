@@ -95,7 +95,8 @@ void ShadowBox::CheckMinMax(float& min, float& max, float point)
     {
         max = point;
     }
-    else if (point < min)
+
+    if (point < min)
     {
         min = point;
     }
