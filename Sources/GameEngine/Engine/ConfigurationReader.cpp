@@ -9,6 +9,25 @@
 
 namespace GameEngine
 {
+void SetParamIfExist(Params::Shadows::CascadeDistanceFunc& param, const Utils::Attributes& attributes,
+                     const std::string& paramName)
+{
+    if (attributes.count(paramName))
+    {
+        if (attributes.at(paramName) == "linear")
+        {
+            param = Params::Shadows::CascadeDistanceFunc::linear;
+        }
+        else if (attributes.at(paramName) == "quadratic")
+        {
+            param = Params::Shadows::CascadeDistanceFunc::quadratic;
+        }
+        else if (attributes.at(paramName) == "exp")
+        {
+            param = Params::Shadows::CascadeDistanceFunc::exp;
+        }
+    }
+}
 void SetParamIfExist(bool& param, const Utils::Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
@@ -56,6 +75,25 @@ void Read(Utils::XmlNode& node, Params::Shadows& shadows)
     SetParamIfExist(shadows.isEnabled, node.attributes_, CSTR_SHADOWS_ENABLED);
     SetParamIfExist(shadows.distance, node.attributes_, CSTR_SHADOWS_VIEW_DISTANCE);
     SetParamIfExist(shadows.mapSize, node.attributes_, CSTR_SHADOWS_MAP_SIZE);
+    SetParamIfExist(shadows.cascadesSize, node.attributes_, CSTR_CASCADE_SIZE);
+    SetParamIfExist(shadows.firstCascadeDistance, node.attributes_, CSTR_CASCADE_FIRST_DISTANCE);
+    SetParamIfExist(shadows.cascadeDistanceFunc, node.attributes_, CSTR_CASCADE_DISTANCE_FUNCTION);
+
+    if (shadows.cascadesSize < 1)
+    {
+        shadows.cascadesSize = 1;
+        ERROR_LOG("Cascade size must be set minimum to 1");
+    }
+    if (shadows.cascadesSize > Params::MAX_SHADOW_MAP_CASADES)
+    {
+        ERROR_LOG("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
+        shadows.cascadesSize = Params::MAX_SHADOW_MAP_CASADES;
+    }
+    if (shadows.firstCascadeDistance < 1.f)
+    {
+        shadows.firstCascadeDistance = 1.f;
+    }
+
 }
 
 void Read(Utils::XmlNode& node, Params::Particles& particles)

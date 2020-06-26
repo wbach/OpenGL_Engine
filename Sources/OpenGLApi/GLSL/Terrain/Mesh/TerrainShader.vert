@@ -1,4 +1,5 @@
 #version 440 core
+const int MAX_SHADOW_MAP_CASADES = 4;
 
 layout (location = 0) in vec3 POSITION;
 layout (location = 1) in vec2 TEXTCOORD;
@@ -21,7 +22,9 @@ layout (std140,binding=1) uniform PerFrame
 
 layout (std140,binding=7) uniform ShadowsBuffer
 {
-    mat4 directionalLightSpace;
+    mat4 directionalLightSpace[MAX_SHADOW_MAP_CASADES];
+    vec4 cascadesDistance;
+    float cascadesSize;
 } shadowsBuffer;
 
 layout (std140, binding=3) uniform PerObjectUpdate
@@ -36,7 +39,9 @@ out VS_OUT
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    vec4 shadowCoords;
+    float clipSpaceZ;
+    float shadowTransition;
+    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
     float useShadows;
     float shadowMapSize;
     mat3 tbn;
@@ -71,11 +76,16 @@ void main()
 
     if (Is(vs_out.useShadows))
     {
+         for (int i = 0 ; i < MAX_SHADOW_MAP_CASADES ; i++)
+          {
+            vs_out.positionInLightSpace[i] = shadowsBuffer.directionalLightSpace[i] * vec4(vs_out.worldPos.xyz, 1.f);;
+        }
+
         vs_out.shadowMapSize  = perApp.shadowVariables.z;
-        vs_out.shadowCoords   = shadowsBuffer.directionalLightSpace * vec4(vs_out.worldPos.xyz, 1.f);
-        vs_out.shadowCoords.w = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
-        vs_out.shadowCoords.w = clamp(1.f - vs_out.shadowCoords.w, 0.f, 1.f);
+        vs_out.shadowTransition = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
+        vs_out.shadowTransition = clamp(1.f - vs_out.shadowTransition, 0.f, 1.f);
     }
 
     gl_Position = perFrame.projectionViewMatrix * vs_out.worldPos;
+    vs_out.clipSpaceZ = gl_Position.z;
 }

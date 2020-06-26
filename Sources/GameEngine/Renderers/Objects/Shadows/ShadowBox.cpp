@@ -14,8 +14,11 @@ namespace GameEngine
 {
 ShadowBox::ShadowBox(const Projection& projection)
     : projection_(projection)
+    , shadowDistance_(EngineConf.renderer.shadows.distance /
+                      static_cast<float>(EngineConf.renderer.shadows.cascadesSize))
 {
     calculateTangentHalfFov();
+    caclulateCascadeDistances();
 }
 
 std::vector<vec4> ShadowBox::calculateFrustumPoints(float near, float far)
@@ -76,14 +79,80 @@ mat4 ShadowBox::createOrthoProjTransform(const vec3& min, const vec3& max) const
     return m;
 }
 
-const mat4& ShadowBox::getLightProjectionViewMatrix() const
+const mat4* ShadowBox::getLightProjectionViewMatrices() const
 {
-    return lightProjectionViewMatrix_;
+    return lightProjectionViewMatrices_;
+}
+
+const float* ShadowBox::getLightCascadeDistances() const
+{
+    return cascadeDistances_;
+}
+
+void expDistances(float* cascadeDistances)
+{
+    float a = pow(EngineConf.renderer.shadows.distance, 1.f / (EngineConf.renderer.shadows.cascadesSize - 1));
+
+    for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+    {
+        cascadeDistances[i] = pow(a, i);
+        DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances[i]));
+    }
+}
+
+void quadraticDistances(float* cascadeDistances)
+{
+    float s0 = EngineConf.renderer.shadows.firstCascadeDistance;
+    float a  = (EngineConf.renderer.shadows.distance - s0) / pow(EngineConf.renderer.shadows.cascadesSize - 1, 2);
+
+    for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+    {
+        cascadeDistances[i] = a * pow(i, 2) + s0;
+        DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances[i]));
+    }
+}
+
+void linearDistances(float* cascadeDistances)
+{
+    float s0 = EngineConf.renderer.shadows.firstCascadeDistance;
+    float a  = (EngineConf.renderer.shadows.distance - s0) / (EngineConf.renderer.shadows.cascadesSize - 1);
+
+    for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+    {
+        cascadeDistances[i] = a * i + s0;
+        DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances[i]));
+    }
+}
+
+void ShadowBox::caclulateCascadeDistances()
+{
+    if (EngineConf.renderer.shadows.cascadesSize == 1)
+    {
+        for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+        {
+            cascadeDistances_[i] = EngineConf.renderer.shadows.distance;
+            DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances_[i]));
+        }
+        return;
+    }
+
+    switch (EngineConf.renderer.shadows.cascadeDistanceFunc)
+    {
+        case Params::Shadows::CascadeDistanceFunc::linear:
+            linearDistances(cascadeDistances_);
+            break;
+        case Params::Shadows::CascadeDistanceFunc::quadratic:
+            quadraticDistances(cascadeDistances_);
+            break;
+        case Params::Shadows::CascadeDistanceFunc::exp:
+            expDistances(cascadeDistances_);
+            break;
+    }
 }
 
 void ShadowBox::calculateTangentHalfFov()
 {
-    auto halfFov = projection_.GetFoV() / 2.0f;
+    auto halfFov  = projection_.GetFoV() / 2.0f;
     tanHalfFov_.x = tanf(glm::radians(halfFov));
     tanHalfFov_.y = tanf(glm::radians(halfFov * projection_.GetAspectRatio()));
 }
@@ -113,18 +182,24 @@ void ShadowBox::update(const CameraWrapper& camera, const Light& directionalLigh
     auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
     auto lightViewMatrix = createLightViewMatrix(directionalLight);
 
-    vec3 min(std::numeric_limits<float>::max());
-    vec3 max(-std::numeric_limits<float>::max());
-
-    auto points = calculateFrustumPoints(projection_.GetNear(), EngineConf.renderer.shadows.distance);
-
-    for (const vec4& point : points)
+    for (uint32 cascadeIndex = 0; cascadeIndex < EngineConf.renderer.shadows.cascadesSize; ++cascadeIndex)
     {
-        auto pointInWorldSpace = invViewMatrix * point;
-        auto pointInLightSpace = lightViewMatrix * pointInWorldSpace;
+        vec3 min(std::numeric_limits<float>::max());
+        vec3 max(-std::numeric_limits<float>::max());
 
-        checkMinMax(pointInLightSpace, min, max);
+        float near  = cascadeIndex == 0 ? projection_.GetNear() : cascadeDistances_[cascadeIndex - 1];
+        float far   = cascadeDistances_[cascadeIndex];
+        auto points = calculateFrustumPoints(near, far);
+
+        for (const vec4& point : points)
+        {
+            auto pointInWorldSpace = invViewMatrix * point;
+            auto pointInLightSpace = lightViewMatrix * pointInWorldSpace;
+
+            checkMinMax(pointInLightSpace, min, max);
+        }
+        auto bias                                  = .1f * (max - min);
+        lightProjectionViewMatrices_[cascadeIndex] = createOrthoProjTransform(min - bias, max + bias) * lightViewMatrix;
     }
-    lightProjectionViewMatrix_ = createOrthoProjTransform(min, max) * lightViewMatrix;
 }
 }  // namespace GameEngine

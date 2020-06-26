@@ -19,6 +19,8 @@ namespace GameEngine
 {
 namespace Params
 {
+const uint32 MAX_SHADOW_MAP_CASADES = 4;
+
 struct Window
 {
     vec2ui size      = DEFAULT_WINDOW_SIZE;
@@ -39,9 +41,18 @@ struct Files
 
 struct Shadows
 {
-    bool isEnabled = false;
-    float distance = 35.f;
-    uint32 mapSize = 4096;
+    enum class CascadeDistanceFunc
+    {
+        linear,
+        quadratic,
+        exp
+    };
+    bool isEnabled                          = false;
+    float distance                          = 400.f;
+    uint32 mapSize                          = 4096;
+    float firstCascadeDistance              = 25.f;
+    uint32 cascadesSize                     = MAX_SHADOW_MAP_CASADES;
+    CascadeDistanceFunc cascadeDistanceFunc = CascadeDistanceFunc::quadratic;
 };
 
 struct Flora

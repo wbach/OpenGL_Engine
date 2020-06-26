@@ -6,7 +6,7 @@ namespace GameEngine
 {
 enum class TerrainTextureType
 {
-    // shadowMap                   = 0,
+    // shadowMap0                 = 0,
     heightmap                     = 1,
     blendMap                      = 2,
     normalmap                     = 3,
@@ -28,6 +28,9 @@ enum class TerrainTextureType
     rockTexture                   = 19,
     rockTextureNormal             = 20,
     rockTextureDisplacement       = 21
+    // shadowMap1                 = 22,
+    // shadowMap2                 = 23,
+    // shadowMap3                 = 24,
 
 };
 class Texture;

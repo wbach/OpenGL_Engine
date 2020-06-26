@@ -5,6 +5,8 @@
 #include <functional>
 #include <memory>
 
+#include "GameEngine/Engine/Configuration.h"
+
 namespace Utils
 {
 class MeasurementHandler;
@@ -38,7 +40,7 @@ struct RendererContext
     const Time& time_;
     Scene* scene_;
 
-    GraphicsApi::ID shadowMapId_;
+    GraphicsApi::ID cascadedShadowMapsIds_[Params::MAX_SHADOW_MAP_CASADES];
     GraphicsApi::ID shadowsBufferId_;
 };
 }  // namespace GameEngine

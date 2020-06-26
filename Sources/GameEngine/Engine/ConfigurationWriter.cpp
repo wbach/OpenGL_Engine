@@ -4,6 +4,25 @@
 #include "EngineDef.h"
 #include "Utils/XML/XmlWriter.h"
 
+namespace std
+{
+string to_string(GameEngine::Params::Shadows::CascadeDistanceFunc func)
+{
+    if (func == GameEngine::Params::Shadows::CascadeDistanceFunc::linear)
+    {
+        return "linear";
+    }
+    else if (func == GameEngine::Params::Shadows::CascadeDistanceFunc::quadratic)
+    {
+        return "quadratic";
+    }
+    else if (func == GameEngine::Params::Shadows::CascadeDistanceFunc::exp)
+    {
+        return "exp";
+    }
+}
+}  // namespace std
+
 namespace GameEngine
 {
 using namespace Utils;
@@ -24,9 +43,12 @@ void Create(XmlNode& node, const Params::Particles& param)
 }
 void Create(XmlNode& node, const Params::Shadows& param)
 {
-    node.attributes_[CSTR_SHADOWS_ENABLED]       = Utils::BoolToString(param.isEnabled);
-    node.attributes_[CSTR_SHADOWS_VIEW_DISTANCE] = std::to_string(param.distance);
-    node.attributes_[CSTR_SHADOWS_MAP_SIZE]      = std::to_string(param.mapSize);
+    node.attributes_[CSTR_SHADOWS_ENABLED]           = Utils::BoolToString(param.isEnabled);
+    node.attributes_[CSTR_SHADOWS_VIEW_DISTANCE]     = std::to_string(param.distance);
+    node.attributes_[CSTR_SHADOWS_MAP_SIZE]          = std::to_string(param.mapSize);
+    node.attributes_[CSTR_CASCADE_SIZE]              = std::to_string(param.cascadesSize);
+    node.attributes_[CSTR_CASCADE_FIRST_DISTANCE]    = std::to_string(param.firstCascadeDistance);
+    node.attributes_[CSTR_CASCADE_DISTANCE_FUNCTION] = std::to_string(param.cascadeDistanceFunc);
 }
 void Create(XmlNode& node, const Params::Flora& param)
 {

@@ -32,6 +32,9 @@ extern const std::string CSTR_SHADOWS;
 extern const std::string CSTR_SHADOWS_ENABLED;
 extern const std::string CSTR_SHADOWS_VIEW_DISTANCE;
 extern const std::string CSTR_SHADOWS_MAP_SIZE;
+extern const std::string CSTR_CASCADE_SIZE;
+extern const std::string CSTR_CASCADE_FIRST_DISTANCE;
+extern const std::string CSTR_CASCADE_DISTANCE_FUNCTION;
 // Particles
 extern const std::string CSTR_PARTICLES;
 extern const std::string CSTR_PARTICLES_ENABLED;

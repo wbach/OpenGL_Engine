@@ -27,10 +27,13 @@ const std::string CSTR_RENDERER_FPS_LIMIT              = "fpsLimit";
 const std::string CSTR_RENDERER_FPS_RESOLUTION_X       = "resolutionX";
 const std::string CSTR_RENDERER_FPS_RESOLUTION_Y       = "resolutionY";
 // Shadows
-const std::string CSTR_SHADOWS               = "Shadows";
-const std::string CSTR_SHADOWS_ENABLED       = "enabled";
-const std::string CSTR_SHADOWS_VIEW_DISTANCE = "viewDistance";
-const std::string CSTR_SHADOWS_MAP_SIZE      = "shadowMapSize";
+const std::string CSTR_SHADOWS                   = "Shadows";
+const std::string CSTR_SHADOWS_ENABLED           = "enabled";
+const std::string CSTR_SHADOWS_VIEW_DISTANCE     = "viewDistance";
+const std::string CSTR_SHADOWS_MAP_SIZE          = "shadowMapSize";
+const std::string CSTR_CASCADE_SIZE              = "cascadesSize";
+const std::string CSTR_CASCADE_FIRST_DISTANCE    = "firstCascadeDistance";
+const std::string CSTR_CASCADE_DISTANCE_FUNCTION = "cascadeDistanceFunc";
 // Particles
 const std::string CSTR_PARTICLES         = "Particles";
 const std::string CSTR_PARTICLES_ENABLED = "enabled";

@@ -81,7 +81,7 @@ void RenderersManager::createMainRenderer()
 {
     graphicsApi_.EnableCulling();
 
-    auto rendererType = EngineConf.renderer.type;
+    auto rendererType       = EngineConf.renderer.type;
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 
     if (supportedRenderers.empty())
@@ -151,7 +151,10 @@ void RenderersManager::renderScene(Scene& scene)
 
     debugRenderer_.render();
     guiRenderer_.render();
-    //debugRenderer_.renderTextures({rendererContext_.shadowMapId_});
+
+    /*debugRenderer_.renderTextures(
+        {rendererContext_.cascadedShadowMapsIds_[0], rendererContext_.cascadedShadowMapsIds_[1],
+         rendererContext_.cascadedShadowMapsIds_[2], rendererContext_.cascadedShadowMapsIds_[3]});*/
 
     if (unsubscribeAllCallback_)
     {
@@ -273,7 +276,7 @@ void RenderersManager::CreatePerFrameBuffer()
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix =
             projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
-        buffer.cameraPosition   = vec3(0);
+        buffer.cameraPosition = vec3(0);
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
     }

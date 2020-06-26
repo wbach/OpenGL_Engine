@@ -5,6 +5,8 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
 #include "ShadowBox.h"
 
 namespace GameEngine
@@ -44,11 +46,12 @@ public:
     void prepare() override;
 
 private:
-    bool IsInit() const;
+    bool isInit() const;
     void prepareFrameBuffer();
-    void RenderSubscribes() const;
-    void RenderSubscriber(const ShadowMapSubscriber&) const;
-    void RenderMesh(const Mesh& mesh) const;
+    void renderCascades() const;
+    void renderSubscribes() const;
+    void renderSubscriber(const ShadowMapSubscriber&) const;
+    void renderMesh(const Mesh& mesh) const;
     mat4 convertNdcToTextureCooridates(const mat4&) const;
 
 private:
@@ -57,8 +60,9 @@ private:
     ShadowBox shadowBox_;
     mat4 projectionViewMatrix_;
     mat4 biasMatrix_;
+    ShadowsBuffer buffer_;
     Subscribers subscribes_;
     GraphicsApi::ID perFrameBuffer_;
-    GraphicsApi::IFrameBuffer* shadowFrameBuffer_;
+    GraphicsApi::IFrameBuffer* shadowFrameBuffer_[Params::MAX_SHADOW_MAP_CASADES];
 };
 }  // namespace GameEngine

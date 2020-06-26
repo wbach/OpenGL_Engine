@@ -1,5 +1,6 @@
 #version 440 core
 const float EPSILON = 0.00001f;
+const int MAX_SHADOW_MAP_CASADES = 4;
 
 struct TerrainData
 {
@@ -12,7 +13,9 @@ in GS_OUT
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    vec4 shadowCoords;
+    float clipSpaceZ;
+    float shadowTransition;
+    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
     float useShadows;
     float shadowMapSize;
     mat3 tbn;
@@ -20,6 +23,9 @@ in GS_OUT
 } fs_in;
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;
+layout(binding = 22) uniform sampler2DShadow shadowMap1;
+layout(binding = 23) uniform sampler2DShadow shadowMap2;
+layout(binding = 24) uniform sampler2DShadow shadowMap3;
 layout(binding = 2) uniform sampler2D blendMap;
 layout(binding = 3) uniform sampler2D normalmap;
 layout(binding = 4) uniform sampler2D backgorundTexture;
@@ -54,6 +60,13 @@ layout (std140, binding = 1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
+layout (std140,binding=7) uniform ShadowsBuffer
+{
+    mat4 directionalLightSpace[MAX_SHADOW_MAP_CASADES];
+    vec4 cascadesDistance;
+    float cascadesSize;
+} shadowsBuffer;
+
 layout (std140, binding = 6) uniform PerTerrainTexturesBuffer
 {
     vec4 rgbaTextureScales;
@@ -79,10 +92,9 @@ vec3 CalcBumpedNormal(vec4 normalMapColor)
 //     return lightFactor;
 // }
 
-float CalculateShadowFactor()
+float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 positionInLightSpace)
 {
-    float xOffset = 1.0/fs_in.shadowMapSize;
-    float yOffset = 1.0/fs_in.shadowMapSize;
+    float texelSize = 1.f / fs_in.shadowMapSize;
 
     float factor = 0.0;
 
@@ -91,11 +103,12 @@ float CalculateShadowFactor()
     {
         for (int x = -1 ; x <= 1 ; x++)
         {
-            vec2 offsets = vec2(float(x) * xOffset, float(y) * yOffset);
-            vec3 uvc = vec3(fs_in.shadowCoords.xy + offsets, fs_in.shadowCoords.z);
+            vec2 offsets = vec2(float(x) * texelSize, float(y) * texelSize);
+            vec3 uvc = vec3(positionInLightSpace.xy + offsets, positionInLightSpace.z);
 
-            if (texture(shadowMap, uvc) >  0.f)
-                factor += (fs_in.shadowCoords.w * 0.4f);
+            if (texture(cascadeShadowMap, uvc) >  0.f)
+                //factor += (fs_in.shadowTransition * 0.4f);
+                factor += 1.f;
            a++;
         }
     }
@@ -104,6 +117,37 @@ float CalculateShadowFactor()
         value = 1.f ;
 
     return value ;
+}
+
+float CalculateShadowFactor()
+{
+    if (shadowsBuffer.cascadesSize > 0)
+    {
+        if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.x && shadowsBuffer.cascadesSize >= 1)
+        {
+            return CalculateShadowFactorValue(shadowMap, fs_in.positionInLightSpace[0].xyz);
+        }
+        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.y && shadowsBuffer.cascadesSize >= 2 )
+        {
+            return CalculateShadowFactorValue(shadowMap1, fs_in.positionInLightSpace[1].xyz);
+        }
+        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.z && shadowsBuffer.cascadesSize >= 3)
+        {
+            return CalculateShadowFactorValue(shadowMap2, fs_in.positionInLightSpace[2].xyz);
+        }
+        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w && shadowsBuffer.cascadesSize >= 4)
+        {
+            return CalculateShadowFactorValue(shadowMap3, fs_in.positionInLightSpace[3].xyz);
+        }
+        else
+        {
+            return 1.f;
+        }
+    }
+    else
+    {
+        return 1.f;
+    }
 }
 
 bool Is(float f)
@@ -249,4 +293,26 @@ void main()
     DiffuseOut      = vec4(terrainData.color.xyz * shadowFactor, terrainData.color.a);
     NormalOut       = terrainData.normal;
     SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
+
+    // float diff = shadowsBuffer.cascadesDistance.z -  shadowsBuffer.cascadesDistance.y;
+    //     if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.y)
+    //     {
+    //         DiffuseOut = vec4(1, 0, 0, 1);
+    //     }
+    //     else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.z)
+    //     {
+    //         DiffuseOut = vec4(1, 1, 0, 1);
+    //     }
+    //     else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w)
+    //     {
+    //          DiffuseOut = vec4(0, 1, 0, 1);
+    //     }
+    //     else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w + diff)
+    //     {
+    //        DiffuseOut = vec4(0, 0, 1, 1);
+    //     }
+    //     else
+    //     {
+
+    //     }
 }
