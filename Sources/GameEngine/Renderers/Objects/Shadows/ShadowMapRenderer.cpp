@@ -117,7 +117,9 @@ void ShadowMapRenderer::prepare()
 
     shader_.Start();
     context_.graphicsApi_.EnableDepthTest();
+    context_.graphicsApi_.DisableCulling();
     renderCascades();
+    context_.graphicsApi_.EnableCulling();
     context_.graphicsApi_.DisableDepthTest();
 
     const auto& renderingSize = context_.projection_.GetRenderingSize();

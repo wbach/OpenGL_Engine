@@ -80,18 +80,6 @@ vec3 CalcBumpedNormal(vec4 normalMapColor)
     return normalize(fs_in.tbn * bumpMapNormal);
 }
 
-// float CalculateShadowFactor()
-// {
-//     float onl = texture(shadowMap, fs_in.shadowCoords.xy).r;
-//     float lightFactor = 1.f;
-
-//     if (fs_in.shadowCoords.z > onl)
-//     {
-//         lightFactor = 1.f -  (fs_in.shadowCoords.w * .4f);
-//     }
-//     return lightFactor;
-// }
-
 float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 positionInLightSpace)
 {
     float texelSize = 1.f / fs_in.shadowMapSize;
@@ -293,26 +281,4 @@ void main()
     DiffuseOut      = vec4(terrainData.color.xyz * shadowFactor, terrainData.color.a);
     NormalOut       = terrainData.normal;
     SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
-
-    // float diff = shadowsBuffer.cascadesDistance.z -  shadowsBuffer.cascadesDistance.y;
-    //     if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.y)
-    //     {
-    //         DiffuseOut = vec4(1, 0, 0, 1);
-    //     }
-    //     else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.z)
-    //     {
-    //         DiffuseOut = vec4(1, 1, 0, 1);
-    //     }
-    //     else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w)
-    //     {
-    //          DiffuseOut = vec4(0, 1, 0, 1);
-    //     }
-    //     else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w + diff)
-    //     {
-    //        DiffuseOut = vec4(0, 0, 1, 1);
-    //     }
-    //     else
-    //     {
-
-    //     }
 }

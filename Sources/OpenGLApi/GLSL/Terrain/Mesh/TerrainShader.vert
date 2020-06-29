@@ -1,5 +1,6 @@
 #version 440 core
 const int MAX_SHADOW_MAP_CASADES = 4;
+const float TRANSITION_DISTANCE = 2.f;
 
 layout (location = 0) in vec3 POSITION;
 layout (location = 1) in vec2 TEXTCOORD;
@@ -31,8 +32,6 @@ layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
 } perObjectUpdate;
-
-const float TRANSITION_DISTANCE = 2.f;
 
 out VS_OUT
 {
@@ -76,8 +75,8 @@ void main()
 
     if (Is(vs_out.useShadows))
     {
-         for (int i = 0 ; i < MAX_SHADOW_MAP_CASADES ; i++)
-          {
+        for (int i = 0 ; i < MAX_SHADOW_MAP_CASADES ; i++)
+        {
             vs_out.positionInLightSpace[i] = shadowsBuffer.directionalLightSpace[i] * vec4(vs_out.worldPos.xyz, 1.f);;
         }
 
