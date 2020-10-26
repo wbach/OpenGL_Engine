@@ -35,11 +35,22 @@ void DefferedLighting::Render(const Scene& scene)
     PrepareApiStateToRender();
     shader_.Start();
     LoadLights(scene);
+    bindShadowMap(0, 5);
+    bindShadowMap(1, 6);
+    bindShadowMap(2, 7);
+    bindShadowMap(3, 8);
     rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);
     rendererContext_.graphicsApi_.RenderQuad();
     RetriveChanges();
 }
-
+void DefferedLighting::bindShadowMap(uint32 id, uint32 nr) const
+{
+    if (rendererContext_.cascadedShadowMapsIds_[id])
+    {
+        rendererContext_.graphicsApi_.ActiveTexture(nr);
+        rendererContext_.graphicsApi_.BindTexture(*rendererContext_.cascadedShadowMapsIds_[id]);
+    }
+}
 void DefferedLighting::ReloadShaders()
 {
     shader_.Reload();

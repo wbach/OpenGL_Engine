@@ -1,61 +1,97 @@
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Engine/Engine.h"
-#include "Logger/Log.h"
-#include "OpenGLApi/OpenGLApi.h"
-
-#ifndef USE_GNU
-#include "DirectXApi/DirectXApi.h"
-#endif
+#include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Engine/Engine.h>
+#include <Logger/Log.h>
+#include <OpenGLApi/OpenGLApi.h>
 
 #include "Editor/Context.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
 #include "Scene/SceneFactory.h"
-#include "GameEngine/Api/Dummy/DummyGraphicsApi.h"
+
+#include <wx/wxprec.h>
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
 
 const std::string configFile = "./Conf.xml";
 
 using namespace GameEngine;
 using namespace GameEngine::Physics;
 
-int main(int, char**)
+class MyApp : public wxApp
 {
-    CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
-    CLogger::Instance().ImmeditalyLog();
+public:
+    virtual bool OnInit();
+};
 
-    GameEngine::ReadFromFile(configFile);
-    std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
+class MyFrame : public wxFrame
+{
+public:
+    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
-#ifndef USE_GNU
-    if (EngineConf.renderer.graphicsApi == "OpenGL")
-    {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-    }
-    else if (EngineConf.renderer.graphicsApi == "DirectX11")
-    {
-        graphicsApi = std::make_unique<DirectX::DirectXApi>();
-    }
-    else
-    {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-    }
-#else
-    if (EngineConf.renderer.graphicsApi != "OpenGL")
-    {
-        DEBUG_LOG("GNU support only OpenGL");
-    }
-    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
-    //graphicsApi = std::make_unique<GameEngine::DummyGraphicsApi>();
-#endif
-    Editor::Context editorContext;
-    graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
-    GraphicsApi::IGraphicsApi& apiRef = *graphicsApi;
-    Engine engine(std::move(graphicsApi), std::make_unique<BulletAdapter>(apiRef),
-                  std::make_unique<Editor::SceneFactory>(editorContext));
-    engine.Init();
-    engine.GetSceneManager().SetActiveScene("EditorScene");
-    engine.GameLoop();
+private:
+    void OnHello(wxCommandEvent& event);
+    void OnExit(wxCommandEvent& event);
+    void OnAbout(wxCommandEvent& event);
+    wxDECLARE_EVENT_TABLE();
+};
 
-    return 0;
+void MyFrame::OnHello(wxCommandEvent& event)
+{
+    wxLogMessage("Hello world from wxWidgets!");
 }
+
+void MyFrame::OnExit(wxCommandEvent& event)
+{
+    Close(true);
+}
+
+void MyFrame::OnAbout(wxCommandEvent& event)
+{
+    wxMessageBox("This is a wxWidgets' Hello world sample",
+        "About Hello World", wxOK | wxICON_INFORMATION);
+}
+enum
+{
+    ID_Hello = 1
+};
+
+wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
+EVT_MENU(ID_Hello, MyFrame::OnHello)
+EVT_MENU(wxID_EXIT, MyFrame::OnExit)
+EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
+wxEND_EVENT_TABLE()
+
+wxIMPLEMENT_APP(MyApp);
+
+bool MyApp::OnInit()
+{
+    if (!wxApp::OnInit())
+        return false;
+
+    MyFrame* frame = new MyFrame("Hello World", wxPoint(50, 50), wxSize(450, 340));
+
+    frame->Show(true);
+    return true;
+}
+
+MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
+    : wxFrame(NULL, wxID_ANY, title, pos, size)
+{
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
+        "Help string shown in status bar for this menu item");
+    menuFile->AppendSeparator();
+    menuFile->Append(wxID_EXIT);
+    wxMenu* menuHelp = new wxMenu;
+    menuHelp->Append(wxID_ABOUT);
+    wxMenuBar* menuBar = new wxMenuBar;
+    menuBar->Append(menuFile, "&File");
+    menuBar->Append(menuHelp, "&Help");
+
+    SetMenuBar(menuBar);
+    CreateStatusBar();
+    SetStatusText("Welcome to wxWidgets!");
+}
+

@@ -1,5 +1,4 @@
 #version 440 core
-const int MAX_SHADOW_MAP_CASADES = 4;
 const float TRANSITION_DISTANCE = 2.f;
 
 layout (location = 0) in vec3 POSITION;
@@ -21,13 +20,6 @@ layout (std140,binding=1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
-layout (std140,binding=7) uniform ShadowsBuffer
-{
-    mat4 directionalLightSpace[MAX_SHADOW_MAP_CASADES];
-    vec4 cascadesDistance;
-    float cascadesSize;
-} shadowsBuffer;
-
 layout (std140, binding=3) uniform PerObjectUpdate
 {
     mat4 transformationMatrix;
@@ -38,11 +30,6 @@ out VS_OUT
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    float clipSpaceZ;
-    float shadowTransition;
-    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
-    float useShadows;
-    float shadowMapSize;
     mat3 tbn;
 } vs_out;
 
@@ -70,21 +57,6 @@ void main()
         vs_out.tbn = CreateTBNMatrix(vs_out.normal);
     }
 
-    float distanceToCam = length(perFrame.cameraPosition - vs_out.worldPos.xyz);
-    vs_out.useShadows   = perApp.shadowVariables.x;
-
-    if (Is(vs_out.useShadows))
-    {
-        for (int i = 0 ; i < MAX_SHADOW_MAP_CASADES ; i++)
-        {
-            vs_out.positionInLightSpace[i] = shadowsBuffer.directionalLightSpace[i] * vec4(vs_out.worldPos.xyz, 1.f);;
-        }
-
-        vs_out.shadowMapSize  = perApp.shadowVariables.z;
-        vs_out.shadowTransition = (distanceToCam - (perApp.shadowVariables.y - TRANSITION_DISTANCE)) / perApp.shadowVariables.y;
-        vs_out.shadowTransition = clamp(1.f - vs_out.shadowTransition, 0.f, 1.f);
-    }
-
     gl_Position = perFrame.projectionViewMatrix * vs_out.worldPos;
-    vs_out.clipSpaceZ = gl_Position.z;
+    vs_out.worldPos.w = gl_Position.z;
 }

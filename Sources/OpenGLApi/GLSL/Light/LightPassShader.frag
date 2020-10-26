@@ -5,6 +5,7 @@
 #define LIGHT_TYPE_POINT        1
 #define LIGHT_TYPE_SPOT         2
 
+const int MAX_SHADOW_MAP_CASADES = 4;
 const float density = 0.0025;
 const float gradient = 2.5;
 
@@ -38,11 +39,22 @@ layout (std140, align=16, binding=6) uniform LightPass
     int type_[MAX_LIGHTS];
 } lightsPass;
 
+layout (std140,binding=7) uniform ShadowsBuffer
+{
+    mat4 directionalLightSpace[MAX_SHADOW_MAP_CASADES];
+    vec4 cascadesDistance;
+    float cascadesSize;
+} shadowsBuffer;
+
 layout(binding = 0) uniform sampler2D PositionMap;
 layout(binding = 1) uniform sampler2D ColorMap;
 layout(binding = 2) uniform sampler2D NormalMap;
 layout(binding = 3) uniform sampler2D SpecularMap;
 layout(binding = 4) uniform sampler2D DepthTexture;
+layout(binding = 5) uniform sampler2DShadow ShadowMap;
+layout(binding = 6) uniform sampler2DShadow ShadowMap1;
+layout(binding = 7) uniform sampler2DShadow ShadowMap2;
+layout(binding = 8) uniform sampler2DShadow ShadowMap3;
 
 in VS_OUT
 {
@@ -51,6 +63,83 @@ in VS_OUT
 } vs_in;
 
 out vec4 FragColor;
+
+float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 positionInLightSpace)
+{
+    float texelSize = 1.f / 4096.f;//fs_in.shadowMapSize;
+
+    float factor = 0.0;
+
+    // vec3 lightPosition = vec3(100000.f, 150000.f, 100000.f);
+    // vec3 l = normalize(lightPosition - fs_in.worldPos.xyz);
+    // float cosTheta = dot(fs_in.normal, l);
+
+    // float bias = 0.005*tan(acos(cosTheta)); // cosTheta is dot( n,l ), clamped between 0 and 1
+    // bias = clamp(bias, 0.f, 0.01f);
+    // bias = 0.002f;
+
+    const int filterSize = 1;
+    float a = 0;
+    for (int y = -filterSize ; y <= filterSize ; y++)
+    {
+        for (int x = -filterSize ; x <= filterSize ; x++)
+        {
+            vec2 offsets = vec2(float(x) * texelSize, float(y) * texelSize);
+            vec3 uvc = vec3(positionInLightSpace.xy + offsets, positionInLightSpace.z);
+
+            if (texture(cascadeShadowMap, uvc) > 0.f)
+            {
+                //return 1.f;
+                //factor += (fs_in.shadowTransition * 0.4f);
+                factor += 1.f;
+            }
+           a++;
+        }
+    }
+    float value = (.5f + (factor / a));
+    if( value > 1.f )
+        value = 1.f ;
+
+    return value ;
+}
+
+float CalculateShadowFactor(vec4 worldPositionWithClipSpaceZ)
+{
+    if (shadowsBuffer.cascadesSize > 0)
+    {
+        float clipSpaceZ   = worldPositionWithClipSpaceZ.w;
+        vec4 worldPosition = vec4(worldPositionWithClipSpaceZ.xyz, 1.f);
+
+        if (clipSpaceZ < shadowsBuffer.cascadesDistance.x && shadowsBuffer.cascadesSize >= 1)
+        {
+            vec4 positionInLightSpace = shadowsBuffer.directionalLightSpace[0] * worldPosition;
+            return CalculateShadowFactorValue(ShadowMap, positionInLightSpace.xyz);
+        }
+        else if (clipSpaceZ < shadowsBuffer.cascadesDistance.y && shadowsBuffer.cascadesSize >= 2 )
+        {
+            vec4 positionInLightSpace = shadowsBuffer.directionalLightSpace[1] * worldPosition;
+            return CalculateShadowFactorValue(ShadowMap1, positionInLightSpace.xyz);
+        }
+        else if (clipSpaceZ < shadowsBuffer.cascadesDistance.z && shadowsBuffer.cascadesSize >= 3)
+        {
+            vec4 positionInLightSpace = shadowsBuffer.directionalLightSpace[2] * worldPosition;
+            return CalculateShadowFactorValue(ShadowMap2, positionInLightSpace.xyz);
+        }
+        else if (clipSpaceZ < shadowsBuffer.cascadesDistance.w && shadowsBuffer.cascadesSize >= 4)
+        {
+            vec4 positionInLightSpace = shadowsBuffer.directionalLightSpace[3] * worldPosition;
+            return CalculateShadowFactorValue(ShadowMap3, positionInLightSpace.xyz);
+        }
+        else
+        {
+            return 1.f;
+        }
+    }
+    else
+    {
+        return 1.f;
+    }
+}
 
 vec2 CalcTexCoord()
 {
@@ -188,7 +277,7 @@ void main()
 
     vec4 normal4    = texture(NormalMap, tex_coord);
     vec4 specular   = texture(SpecularMap, tex_coord);
-    vec3 world_pos  = texture(PositionMap, tex_coord).xyz;
+    vec4 worldPosition  = texture(PositionMap, tex_coord);
     vec3 color      = texture(ColorMap, tex_coord).xyz;
     vec3 normal     = normalize(normal4.xyz);
 
@@ -215,7 +304,7 @@ void main()
 
     if (normal4.a > .5f)
     {
-        final_color = CalculateColor(material, world_pos, normal).rgb;
+        final_color = CalculateColor(material, worldPosition.xyz, normal).rgb;
     }
     else
     {
@@ -228,7 +317,8 @@ void main()
 //return;
    // const float contrast = 0.5f;
    // FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
-    FragColor     = mix(lightsPass.skyColor, FragColor, visibility);
+  //#  FragColor     = mix(lightsPass.skyColor, FragColor, visibility);
     //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);
     //FragColor = vec4(lightsPass.lights[0].color_, 1.f);
+    FragColor.xyz *= CalculateShadowFactor(worldPosition);
 }

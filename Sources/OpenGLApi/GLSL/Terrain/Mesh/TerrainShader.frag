@@ -1,6 +1,5 @@
 #version 440 core
 const float EPSILON = 0.00001f;
-const int MAX_SHADOW_MAP_CASADES = 4;
 
 struct TerrainData
 {
@@ -13,19 +12,10 @@ in GS_OUT
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    float clipSpaceZ;
-    float shadowTransition;
-    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
-    float useShadows;
-    float shadowMapSize;
     mat3 tbn;
     vec3 faceNormal;
 } fs_in;
 
-layout(binding = 0) uniform sampler2DShadow shadowMap;
-layout(binding = 22) uniform sampler2DShadow shadowMap1;
-layout(binding = 23) uniform sampler2DShadow shadowMap2;
-layout(binding = 24) uniform sampler2DShadow shadowMap3;
 layout(binding = 2) uniform sampler2D blendMap;
 layout(binding = 3) uniform sampler2D normalmap;
 layout(binding = 4) uniform sampler2D backgorundTexture;
@@ -60,13 +50,6 @@ layout (std140, binding = 1) uniform PerFrame
     vec3 cameraPosition;
 } perFrame;
 
-layout (std140,binding=7) uniform ShadowsBuffer
-{
-    mat4 directionalLightSpace[MAX_SHADOW_MAP_CASADES];
-    vec4 cascadesDistance;
-    float cascadesSize;
-} shadowsBuffer;
-
 layout (std140, binding = 6) uniform PerTerrainTexturesBuffer
 {
     vec4 rgbaTextureScales;
@@ -78,64 +61,6 @@ vec3 CalcBumpedNormal(vec4 normalMapColor)
     vec3 bumpMapNormal = normalMapColor.xyz;
     bumpMapNormal = bumpMapNormal * 2.f - 1.f;
     return normalize(fs_in.tbn * bumpMapNormal);
-}
-
-float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 positionInLightSpace)
-{
-    float texelSize = 1.f / fs_in.shadowMapSize;
-
-    float factor = 0.0;
-
-    float a = 0;
-    for (int y = -1 ; y <= 1 ; y++)
-    {
-        for (int x = -1 ; x <= 1 ; x++)
-        {
-            vec2 offsets = vec2(float(x) * texelSize, float(y) * texelSize);
-            vec3 uvc = vec3(positionInLightSpace.xy + offsets, positionInLightSpace.z);
-
-            if (texture(cascadeShadowMap, uvc) >  0.f)
-                //factor += (fs_in.shadowTransition * 0.4f);
-                factor += 1.f;
-           a++;
-        }
-    }
-    float value = (.5f + (factor / a));
-    if( value > 1.f )
-        value = 1.f ;
-
-    return value ;
-}
-
-float CalculateShadowFactor()
-{
-    if (shadowsBuffer.cascadesSize > 0)
-    {
-        if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.x && shadowsBuffer.cascadesSize >= 1)
-        {
-            return CalculateShadowFactorValue(shadowMap, fs_in.positionInLightSpace[0].xyz);
-        }
-        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.y && shadowsBuffer.cascadesSize >= 2 )
-        {
-            return CalculateShadowFactorValue(shadowMap1, fs_in.positionInLightSpace[1].xyz);
-        }
-        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.z && shadowsBuffer.cascadesSize >= 3)
-        {
-            return CalculateShadowFactorValue(shadowMap2, fs_in.positionInLightSpace[2].xyz);
-        }
-        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w && shadowsBuffer.cascadesSize >= 4)
-        {
-            return CalculateShadowFactorValue(shadowMap3, fs_in.positionInLightSpace[3].xyz);
-        }
-        else
-        {
-            return 1.f;
-        }
-    }
-    else
-    {
-        return 1.f;
-    }
 }
 
 bool Is(float f)
@@ -275,10 +200,9 @@ TerrainData GetTerrainData()
 void main()
 {
     TerrainData terrainData = GetTerrainData();
-    float shadowFactor = Is(fs_in.useShadows) ? CalculateShadowFactor() : 1.f;
 
-    WorldPosOut     = fs_in.worldPos;
-    DiffuseOut      = vec4(terrainData.color.xyz * shadowFactor, terrainData.color.a);
-    NormalOut       = terrainData.normal;
-    SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
+    WorldPosOut = fs_in.worldPos;
+    DiffuseOut  = terrainData.color;
+    NormalOut   = terrainData.normal;
+    SpecularOut = vec4(0.f, 0.f, 0.f, 0.f);
 }

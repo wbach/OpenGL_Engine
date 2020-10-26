@@ -16,7 +16,6 @@ class OpenGLApi : public GraphicsApi::IGraphicsApi
 public:
     using IFrameBuffer = GraphicsApi::IFrameBuffer;
 
-    OpenGLApi();
     OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi);
     ~OpenGLApi();
     void Init() override;

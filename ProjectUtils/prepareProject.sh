@@ -1,10 +1,13 @@
 #!/bin/bash
 
 #$1 - Project name
-# ./prepareProject.sh GameEngine ProjectGuid outputType depProject... > gameEngine.xml
+# ./prepareProject.sh GameEngine ProjectGuid outputType SubSystem depProject... > gameEngine.xml
 # outputType :
 #   StaticLibrary
 #   Application
+# SubSystem :
+#    Console
+#    Windows
 
 includeFilePath="../Solutions/CMake/Includes/"$1"Includes.cmake"
 sourceFilePath="../Solutions/CMake/Sources/"$1"Sources.cmake"
@@ -40,11 +43,12 @@ projectName=$1
 projectNameFile=$projectName".vcxproj";
 ProjectGuid=$2
 OutputType=$3
+SubSystem=$4
 
 inputArg=0
 depend=()
 
-for dep in "${@:4}"
+for dep in "${@:5}"
 do
   depend+=($dep)
 done
@@ -117,6 +121,8 @@ additionalIncludesDir='
 ..\..\Tools\Windows\gtest\include;
 ..\..\Tools\Windows\gmock\include;
 ../../Tools/common/bullet/src/;
+..\..\Tools\Windows\WxWidgets\include;
+..\..\Tools\Windows\WxWidgets\include\msvc;
 ../../Tools/Windows/Directx/Include/;
 '
 for d in "${depend[@]}"
@@ -246,6 +252,7 @@ additionalDebug32LibsDir='
 '$toolsDir'\gmock\lib\x86\Release;
 '$toolsDir'\Directx\Lib\x86;
 '$toolsDir'\bullet\x86\Debug;
+'$toolsDir'\WxWidgets\lib\vc_lib;
 '
 additionalRelease32LibsDir='
 '$toolsDir'\fbx_sdk\lib\vs2017\x86\release;
@@ -263,6 +270,7 @@ additionalRelease32LibsDir='
 '$toolsDir'\gmock\lib\x86\Release;
 '$toolsDir'\Directx\Lib\x86;
 '$toolsDir'\bullet\x86\Release;
+'$toolsDir'\WxWidgets\lib\vc_lib;
 '
 
 additionalDebug64LibsDir='
@@ -281,6 +289,7 @@ additionalDebug64LibsDir='
 '$toolsDir'\gmock\lib\x64\Release;
 '$toolsDir'\Directx\Lib\x64;
 '$toolsDir'\bullet\x64\Debug;
+'$toolsDir'\WxWidgets\lib\vc_lib;
 '
 additionalRelease64LibsDir='
 '$toolsDir'\fbx_sdk\lib\vs2017\x64\release;
@@ -298,6 +307,7 @@ additionalRelease64LibsDir='
 '$toolsDir'\gmock\lib\x64\Release;
 '$toolsDir'\Directx\Lib\x64;
 '$toolsDir'\bullet\x64\Release;
+'$toolsDir'\WxWidgets\lib\vc_lib;
 '
 
 for d in "${depend[@]}"
@@ -430,10 +440,10 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>'$SubSystem'</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>'$additionalDebugLibs'%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>'$additionalDebug32LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -451,10 +461,10 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>'$SubSystem'</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>'$additionalDebugLibs'%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>'$additionalDebug64LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -471,13 +481,13 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>'$SubSystem'</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -492,7 +502,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -503,7 +513,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>'$SubSystem'</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -3,10 +3,11 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "Logger/Log.h"
-#include "OpenGLApi/OpenGLApi.h"
+#include <OpenGLApi/OpenGLApi.h>
+#include <SdlOpenGL/SDLOpenGL.h>
 #include "StartGame.h"
 #ifndef USE_GNU
-#include "DirectXApi/DirectXApi.h"
+#include <DirectXApi/DirectXApi.h>
 #endif
 
 #include <GLM/GLMUtils.h>
@@ -24,7 +25,7 @@ int main(int, char**)
 #ifndef USE_GNU
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>(std::make_unique<OpenGLApi::SdlOpenGlApi>());
     }
     else if (EngineConf.renderer.graphicsApi == "DirectX11")
     {
@@ -32,7 +33,7 @@ int main(int, char**)
     }
     else
     {
-        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>(std::make_unique<OpenGLApi::SdlOpenGlApi>());
     }
 #else
     if (EngineConf.renderer.graphicsApi != "OpenGL")

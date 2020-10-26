@@ -32,6 +32,7 @@ public:
     virtual void ReloadShaders() override;
 
 private:
+    void bindShadowMap(uint32 id, uint32 nr) const;
     void LoadLights(const Scene& scene);
     void PrepareApiStateToRender();
     void RetriveChanges();

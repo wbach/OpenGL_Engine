@@ -28,5 +28,6 @@ createSrc WindowAppCreator
 createSrc RpgGameServer
 createSrc Common
 createSrc Avatar
+createSrc SdlOpenGL
 
 cd ../../ProjectUtils/

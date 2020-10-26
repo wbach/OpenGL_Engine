@@ -5,9 +5,6 @@ set(OpenGLApiIncludes
 ../../Sources/OpenGLApi/OpenGLApi.h
 ../../Sources/OpenGLApi/OpenGLMesh.h
 ../../Sources/OpenGLApi/OpenGLUtils.h
-../../Sources/OpenGLApi/SDL2/InputSDL.h
-../../Sources/OpenGLApi/SDL2/SdlKeyConverter.h
-../../Sources/OpenGLApi/SDL2/SDLOpenGL.h
 ../../Sources/OpenGLApi/Shaders/FullDefferedShaderFiles.h
 ../../Sources/OpenGLApi/Shaders/OpenGLShaderProgram.h
 ../../Sources/OpenGLApi/Shaders/ShaderManager.h

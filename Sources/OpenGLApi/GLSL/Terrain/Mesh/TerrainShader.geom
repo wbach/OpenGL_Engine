@@ -9,11 +9,6 @@ in VS_OUT
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    float clipSpaceZ;
-    float shadowTransition;
-    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
-    float useShadows;
-    float shadowMapSize;
     mat3 tbn;
 } gs_in[];
 
@@ -22,11 +17,6 @@ out GS_OUT
     vec2 texCoord;
     vec3 normal;
     vec4 worldPos;
-    float clipSpaceZ;
-    float shadowTransition;
-    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
-    float useShadows;
-    float shadowMapSize;
     mat3 tbn;
     vec3 faceNormal;
 } gs_out;
@@ -47,11 +37,6 @@ void main()
         gs_out.texCoord         = gs_in[i].texCoord;
         gs_out.normal           = gs_in[i].normal;
         gs_out.worldPos         = gs_in[i].worldPos;
-        gs_out.positionInLightSpace  = gs_in[i].positionInLightSpace;
-        gs_out.useShadows       = gs_in[i].useShadows;
-        gs_out.shadowTransition = gs_in[i].shadowTransition;
-        gs_out.shadowMapSize    = gs_in[i].shadowMapSize;
-        gs_out.clipSpaceZ       = gs_in[i].clipSpaceZ;
         gs_out.tbn              = gs_in[i].tbn;
         gs_out.faceNormal       = faceNormal;
         gl_Position             = gl_in[i].gl_Position;

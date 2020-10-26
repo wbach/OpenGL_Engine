@@ -41,7 +41,6 @@ public:
 
 private:
     void bindTexture(Texture*, uint32 id) const;
-    void bindShadowMap(uint32 id, uint32 nr) const;
     void bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>&) const;
     void renderSubscribers() const;
     void renderSubscriber(const Subscriber&) const;

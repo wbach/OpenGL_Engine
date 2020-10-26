@@ -180,19 +180,6 @@ void EntityRenderer::BindMaterial(const Material& material) const
     BindMaterialTexture(1, material.ambientTexture, config.useAmbient);
     BindMaterialTexture(2, material.normalTexture, config.useNormal);
     BindMaterialTexture(3, material.specularTexture, config.useSpecular);
-    bindShadowMap(0, 4);
-    bindShadowMap(1, 5);
-    bindShadowMap(2, 6);
-    bindShadowMap(3, 7);
-}
-
-void EntityRenderer::bindShadowMap(uint32 id, uint32 nr) const
-{
-    if (context_.cascadedShadowMapsIds_[id])
-    {
-        context_.graphicsApi_.ActiveTexture(nr);
-        context_.graphicsApi_.BindTexture(*context_.cascadedShadowMapsIds_[id]);
-    }
 }
 
 void EntityRenderer::UnBindMaterial(const Material& material) const

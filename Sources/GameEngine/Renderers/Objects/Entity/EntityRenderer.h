@@ -51,7 +51,6 @@ private:
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, Texture*, bool) const;
-    void bindShadowMap(uint32 id, uint32 nr) const;
 
 private:
     RendererContext& context_;

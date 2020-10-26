@@ -4,9 +4,6 @@ set(OpenGLApiSources
 ../../Sources/OpenGLApi/IdPool.cpp
 ../../Sources/OpenGLApi/OpenGLApi.cpp
 ../../Sources/OpenGLApi/OpenGLUtils.cpp
-../../Sources/OpenGLApi/SDL2/InputSDL.cpp
-../../Sources/OpenGLApi/SDL2/SdlKeyConverter.cpp
-../../Sources/OpenGLApi/SDL2/SDLOpenGL.cpp
 ../../Sources/OpenGLApi/Shaders/FullDefferedShaderFiles.cpp
 ../../Sources/OpenGLApi/Shaders/ShaderManager.cpp
 ../../Sources/OpenGLApi/Shaders/SimpleDeprecetedShaders.cpp

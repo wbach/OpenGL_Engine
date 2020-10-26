@@ -17,7 +17,6 @@
 #include "IdPool.h"
 #include "Logger/Log.h"
 #include "OpenGLUtils.h"
-#include "SDL2/SDLOpenGL.h"
 
 enum class ObjectType
 {
@@ -137,10 +136,6 @@ OpenGLMesh Convert(const Vao& v)
     mesh.useIndiecies = v.useIndicies;
 
     return mesh;
-}
-OpenGLApi::OpenGLApi()
-    : OpenGLApi(std::make_unique<SdlOpenGlApi>())
-{
 }
 OpenGLApi::OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi)
     : activeBuffer_(0)
@@ -666,40 +661,39 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
     }
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
     auto channels = image.getChannelsCount();
-    std::visit(
-        visitor{
-            [&](const std::vector<uint8>& data) {
-                switch (channels)
-                {
-                    case 4:
-                        type = GraphicsApi::TextureType::U8_RGBA;
-                        break;
-                    default:
-                        DEBUG_LOG("Not implmented.");
-                }
-            },
-            [&](const std::vector<float>& data) {
-                switch (channels)
-                {
-                    case 1:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
-                        break;
-                    case 2:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
-                        break;
-                    case 3:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
-                        break;
-                    case 4:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
-                        break;
-                    default:
-                        DEBUG_LOG("Not implmented.");
-                }
-            },
-            [](std::monostate) { ERROR_LOG("Image data not set!"); },
-        },
-        image.getImageData());
+    std::visit(visitor{
+                   [&](const std::vector<uint8>& data) {
+                       switch (channels)
+                       {
+                           case 4:
+                               type = GraphicsApi::TextureType::U8_RGBA;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [&](const std::vector<float>& data) {
+                       switch (channels)
+                       {
+                           case 1:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                               break;
+                           case 2:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                               break;
+                           case 3:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                               break;
+                           case 4:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
+               },
+               image.getImageData());
 
     CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
 
@@ -848,7 +842,7 @@ void OpenGLApi::ActiveTexture(uint32 nr)
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    //if (id == 0 or not createdObjectIds.count(id))
+    // if (id == 0 or not createdObjectIds.count(id))
     //{
     //    ERROR_LOG("Wrong image id : " + std::to_string(id));
     //    return;

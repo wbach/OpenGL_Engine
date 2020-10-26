@@ -16,56 +16,60 @@ TerrainGenerationId='{B89BB922-72D9-4471-825E-BFC2B53B9F4C}'
 CommonId='{5ADAA6FD-1BB7-4369-825D-7777126B7817}'
 AvatarId='{68764853-a2a7-4c1a-97f3-95302edac572}'
 EditorId='{000f8fb9-aaa2-4c7c-8aea-9cf258537f01}'
+SdlOpenGLId='{e6c4bf79-609b-4805-9bbd-f0fcfb1ba788}'
 
 #ge='GameEngine:'$gameEngineId':'$utilsId
 #./prepareSolution.sh name:id:dependID...:dependId...:..
 echo "Generate VisualStudio solution"
-./prepareSolution.sh 'DirectXApi':$DirectXApiId:$GraphicsApiId:$utilsId 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId 'Avatar':$AvatarId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Editor':$EditorId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
+./prepareSolution.sh 'DirectXApi':$DirectXApiId:$GraphicsApiId:$utilsId 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'SdlOpenGL':$SdlOpenGLId:$utilsId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'TestGame:'$testGameId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId 'Avatar':$AvatarId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Editor':$EditorId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Gwint:'$GwintId':'$gameEngineId 'GwintServer:'$GwintServerId':'$gameEngineId 'GameEngineTests:'$GameEngineTestsId':'$gameEngineId 'TerrainGeneration:'$TerrainGenerationId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
+
+echo "Generate VisualStudio DirectXApi project"
+./prepareProject.sh DirectXApi $DirectXApiId StaticLibrary Console> ../Sources/DirectXApi/DirectXApi.vcxproj
 
 echo "Generate VisualStudio OpenGLApi project"
-./prepareProject.sh DirectXApi $DirectXApiId StaticLibrary > ../Sources/DirectXApi/DirectXApi.vcxproj
-
-echo "Generate VisualStudio OpenGLApi project"
-./prepareProject.sh OpenGLApi $openGlApiId StaticLibrary > ../Sources/OpenGLApi/OpenGLApi.vcxproj
+./prepareProject.sh OpenGLApi $openGlApiId StaticLibrary Console> ../Sources/OpenGLApi/OpenGLApi.vcxproj
 
 echo "Generate VisualStudio GraphicsApi project"
-./prepareProject.sh GraphicsApi $GraphicsApiId StaticLibrary > ../Sources/GraphicsApi/GraphicsApi.vcxproj
+./prepareProject.sh GraphicsApi $GraphicsApiId StaticLibrary Console> ../Sources/GraphicsApi/GraphicsApi.vcxproj
 
 echo "Generate VisualStudio Input project"
-./prepareProject.sh Input $InputId StaticLibrary > ../Sources/Input/Input.vcxproj
+./prepareProject.sh Input $InputId StaticLibrary Console> ../Sources/Input/Input.vcxproj
 
 echo "Generate VisualStudio GameEngine project"
-./prepareProject.sh GameEngine $gameEngineId StaticLibrary  > ../Sources/GameEngine/GameEngine.vcxproj
+./prepareProject.sh GameEngine $gameEngineId StaticLibrary  Console> ../Sources/GameEngine/GameEngine.vcxproj
 
 echo "Generate VisualStudio Common project"
-./prepareProject.sh Common $CommonId StaticLibrary Utils > ../Sources/Common/Common.vcxproj
+./prepareProject.sh Common $CommonId StaticLibrary Console Utils > ../Sources/Common/Common.vcxproj
 
 echo "Generate VisualStudio TestGame project"
-./prepareProject.sh TestGame $testGameId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
+./prepareProject.sh TestGame $testGameId Application Console GameEngine Input DirectXApi SdlOpenGL OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/TestGame/TestGame.vcxproj
 
 echo "Generate VisualStudio Avatar project"
-./prepareProject.sh Avatar $AvatarId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Avatar/Avatar.vcxproj
+./prepareProject.sh Avatar $AvatarId Application Console GameEngine Input DirectXApi SdlOpenGL OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Avatar/Avatar.vcxproj
 
 echo "Generate VisualStudio Editor project"
-./prepareProject.sh Editor $EditorId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Editor/Editor.vcxproj
+./prepareProject.sh Editor $EditorId Application Windows GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Editor/Editor.vcxproj
 
 echo "Generate VisualStudio RpgGameServer project"
-./prepareProject.sh RpgGameServer $testGameId Application Utils UtilsNetwork Common > ../Sources/RpgGameServer/RpgGameServer.vcxproj
+./prepareProject.sh RpgGameServer $testGameId Application Console Utils UtilsNetwork Common > ../Sources/RpgGameServer/RpgGameServer.vcxproj
 
 echo "Generate VisualStudio Gwint project"
-./prepareProject.sh Gwint $GwintId Application GameEngine Utils > ../Sources/Gwint/Gwint.vcxproj
+./prepareProject.sh Gwint $GwintId Application Console GameEngine Utils > ../Sources/Gwint/Gwint.vcxproj
 
 echo "Generate VisualStudio GwintServer project"
-./prepareProject.sh GwintServer $GwintServerId Application GameEngine Utils > ../Sources/GwintServer/GwintServer.vcxproj
+./prepareProject.sh GwintServer $GwintServerId Application Console GameEngine Utils > ../Sources/GwintServer/GwintServer.vcxproj
 
 echo "Generate VisualStudio Utils project"
-./prepareProject.sh Utils $utilsId StaticLibrary > ../Sources/Utils/Utils.vcxproj
+./prepareProject.sh Utils $utilsId StaticLibrary Console > ../Sources/Utils/Utils.vcxproj
 
 echo "Generate VisualStudio UtilsNetwork project"
-./prepareProject.sh UtilsNetwork $utilsNetworkId StaticLibrary Utils > ../Sources/UtilsNetwork/UtilsNetwork.vcxproj
+./prepareProject.sh UtilsNetwork $utilsNetworkId StaticLibrary Console Utils > ../Sources/UtilsNetwork/UtilsNetwork.vcxproj
 
 echo "Generate VisualStudio TerrainGeneration project"
-./prepareProject.sh TerrainGeneration $TerrainGenerationId Application > ../Sources/TerrainGeneration/TerrainGeneration.vcxproj
+./prepareProject.sh TerrainGeneration $TerrainGenerationId Application Console > ../Sources/TerrainGeneration/TerrainGeneration.vcxproj
 
 echo "Generate VisualStudio GameEngineTests project"
-./prepareProject.sh GameEngineTests $GameEngineTestsId GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/GameEngineTests/GameEngineTests.vcxproj
+./prepareProject.sh GameEngineTests $GameEngineTestsId Application Console GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/GameEngineTests/GameEngineTests.vcxproj
+
+echo "Generate VisualStudio SdlOpenGL project"
+./prepareProject.sh SdlOpenGL $SdlOpenGLId StaticLibrary Console Input OpenGLApi GraphicsApi Utils > ../Sources/SdlOpenGL/SdlOpenGL.vcxproj

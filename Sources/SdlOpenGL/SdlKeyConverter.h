@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Input/KeyCodes.h"
+#include <Input/KeyCodes.h>
 #include "BidirectionalUnorderedMap.h"
 #include "Types.h"
 

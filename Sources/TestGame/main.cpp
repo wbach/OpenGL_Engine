@@ -10,6 +10,7 @@
 #include "OpenGLApi/OpenGLApi.h"
 #include "Physics/PhyscisTestScene.h"
 #include "Single/SingleStart.h"
+#include <SdlOpenGL/SDLOpenGL.h>
 
 void StartMessage()
 {
@@ -30,7 +31,7 @@ void PrintFiles()
 int main(int argc, char* argv[])
 {
     GameEngine::ReadFromFile("./Conf.xml");
-    auto api = std::make_unique<OpenGLApi::OpenGLApi>();
+    auto api = std::make_unique<OpenGLApi::OpenGLApi>(std::make_unique<OpenGLApi::SdlOpenGlApi>());
     // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();

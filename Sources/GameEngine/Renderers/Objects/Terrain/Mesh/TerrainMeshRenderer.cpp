@@ -119,11 +119,6 @@ void TerrainMeshRenderer::partialRendering(const Model& model,
 }
 void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
-    bindShadowMap(0, 0);
-    bindShadowMap(1, 22);
-    bindShadowMap(2, 23);
-    bindShadowMap(3, 24);
-
     for (const auto& t : textures)
     {
         auto texture = t.second;
@@ -137,14 +132,6 @@ void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextur
 void TerrainMeshRenderer::bindTexture(Texture* texture, uint32 id) const
 {
     context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
-}
-void TerrainMeshRenderer::bindShadowMap(uint32 id, uint32 nr) const
-{
-    if (context_.cascadedShadowMapsIds_[id])
-    {
-        context_.graphicsApi_.ActiveTexture(nr);
-        context_.graphicsApi_.BindTexture(*context_.cascadedShadowMapsIds_[id]);
-    }
 }
 void TerrainMeshRenderer::subscribe(GameObject& gameObject)
 {
