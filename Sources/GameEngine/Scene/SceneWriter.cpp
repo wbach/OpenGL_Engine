@@ -2,7 +2,6 @@
 
 #include <Utils.h>
 #include <Utils/GLM/GLMUtils.h>
-
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Components/Animation/Animator.h"

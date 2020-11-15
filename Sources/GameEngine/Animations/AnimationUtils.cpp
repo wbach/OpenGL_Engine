@@ -1,6 +1,9 @@
 #include "AnimationUtils.h"
 
-#include "GLM/GLMUtils.h"
+#include <Utils/GLM/GLMUtils.h>
+#include <Utils/XML/XMLUtils.h>
+#include <Utils/XML/XmlReader.h>
+#include <Utils/XML/XmlWriter.h>
 
 namespace GameEngine
 {
@@ -8,16 +11,11 @@ namespace Animation
 {
 mat4 GetLocalTransform(const JointTransform& jt)
 {
-    mat4 m(1.f);
-    m *= glm::translate(jt.position);
-    return m * glm::mat4_cast(jt.rotation);
+    return glm::translate(jt.position) * glm::mat4_cast(jt.rotation);
 }
 JointTransform GetJointTransform(const glm::mat4& mat)
 {
-    JointTransform out;
-    out.position = vec3(mat[3][0], mat[3][1], mat[3][2]);
-    out.rotation = glm::quat_cast(mat);
-    return out;
+    return {vec3(mat[3][0], mat[3][1], mat[3][2]), glm::quat_cast(mat)};
 }
 const Joint* GetJoint(const Joint& from, uint32 fid)
 {
@@ -49,6 +47,82 @@ JointTransform Interpolate(const JointTransform& frameA, const JointTransform& f
     out.rotation = Utils::Interpolate(frameA.rotation, frameB.rotation, progress);
     out.scale    = glm::mix(frameA.scale, frameB.scale, progress);
     return out;
+}
+
+AnimationClip ReadAnimationClip(const File& file)
+{
+    Utils::XmlReader reader;
+    reader.Read(file.GetAbsoultePath());
+    auto root = reader.Get();
+
+    if (root)
+    {
+        AnimationClip animationClip(root->attributes_["name"]);
+        animationClip.SetLength(std::stof(root->attributes_["length"]));
+
+        for (const auto& keyframeNode : reader.Get("KeyFrames")->GetChildren())
+        {
+            KeyFrame keyFrame;
+            auto timeStamp     = keyframeNode->GetChild("timeStamp");
+            keyFrame.timeStamp = std::stof(timeStamp->value_);
+            for (const auto& transformNode : keyframeNode->GetChild("Transforms")->GetChildren())
+            {
+                JointTransform transform;
+                auto jointName    = transformNode->attributes_.at("jointName");
+                auto positionNode = transformNode->GetChild("Position");
+                if (positionNode)
+                {
+                    transform.position = Utils::ReadVec3(*positionNode);
+                }
+
+                auto rotationNode = transformNode->GetChild("Rotation");
+                if (rotationNode)
+                {
+                    transform.rotation = Utils::ReadQuat(*rotationNode);
+                }
+
+                auto scaleNode = transformNode->GetChild("Scale");
+                if (scaleNode)
+                {
+                    transform.scale = Utils::ReadVec3(*scaleNode);
+                }
+                keyFrame.transforms.insert({jointName, transform});
+            }
+            animationClip.AddFrame(keyFrame);
+        }
+        return animationClip;
+    }
+
+    return AnimationClip();
+}
+
+void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip)
+{
+    Utils::XmlNode rootNode("AnimationClip");
+
+    rootNode.attributes_.insert({"name", animationClip.name.empty() ? "NoName" : animationClip.name});
+    rootNode.attributes_.insert({"length", std::to_string(animationClip.GetLength())});
+
+    auto& keyFramesNode = rootNode.AddChild("KeyFrames");
+    keyFramesNode.attributes_.insert({"count", std::to_string(animationClip.GetFrames().size())});
+
+    for (const auto& frame : animationClip.GetFrames())
+    {
+        auto& keyFrame = keyFramesNode.AddChild("KeyFrame");
+        keyFrame.AddChild("timeStamp", std::to_string(frame.timeStamp));
+        auto& jontTransformsNode = keyFrame.AddChild("Transforms");
+
+        for (const auto& transformPair : frame.transforms)
+        {
+            auto& transformNode = jontTransformsNode.AddChild("Transform");
+            transformNode.attributes_.insert({"jointName", transformPair.first});
+            const auto& transform = transformPair.second;
+            transformNode.AddChild(Utils::Convert("Position", transform.position));
+            transformNode.AddChild(Utils::Convert("Rotation", transform.rotation));
+            transformNode.AddChild(Utils::Convert("Scale", transform.scale));
+        }
+    }
+    Utils::Xml::Write(file.GetAbsoultePath(), rootNode);
 }
 }  // namespace Animation
 }  // namespace GameEngine

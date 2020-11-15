@@ -1,5 +1,5 @@
 #include "XMLUtils.h"
-#include <sstream>
+
 #include "Logger/Log.h"
 #include "Utils.h"
 #include "XmlNode.h"
@@ -94,18 +94,43 @@ std::string MessageBuilder(std::multimap<std::string, std::string>& messeges)
 
 std::unique_ptr<XmlNode> Convert(const std::string& label, const vec2& v)
 {
+    // clang-format off
     auto root = std::make_unique<XmlNode>(label);
-    root->attributes_.insert({"x", std::to_string(v.x)});
-    root->attributes_.insert({"y", std::to_string(v.y)});
+    root->attributes_ =
+    {
+        { CSTR_X, std::to_string(v.x) },
+        { CSTR_Y, std::to_string(v.y) }
+    };
+    // clang-format on
     return std::move(root);
 }
 
 std::unique_ptr<XmlNode> Convert(const std::string& label, const vec3& v)
 {
+    // clang-format off
     auto root = std::make_unique<XmlNode>(label);
-    root->attributes_.insert({"x", std::to_string(v.x)});
-    root->attributes_.insert({"y", std::to_string(v.y)});
-    root->attributes_.insert({"z", std::to_string(v.z)});
+    root->attributes_ =
+    {
+        { CSTR_X, std::to_string(v.x) },
+        { CSTR_Y, std::to_string(v.y) },
+        { CSTR_Z, std::to_string(v.z) }
+    };
+    // clang-format on
+    return std::move(root);
+}
+
+std::unique_ptr<XmlNode> Convert(const std::string& label, const Quaternion& v)
+{
+    auto root = std::make_unique<XmlNode>(label);
+    // clang-format off
+    root->attributes_ =
+    {
+        { CSTR_X, std::to_string(v.x) },
+        { CSTR_Y, std::to_string(v.y) },
+        { CSTR_Z, std::to_string(v.z) },
+        { CSTR_W, std::to_string(v.w) }
+    };
+    // clang-format on
     return std::move(root);
 }
 
@@ -146,19 +171,50 @@ bool ReadBool(XmlNode& node)
 vec3 ReadVec3(XmlNode& node)
 {
     vec3 v;
-    v.x = std::stof(node.attributes_[CSTR_X]);
-    v.y = std::stof(node.attributes_[CSTR_Y]);
-    v.z = std::stof(node.attributes_[CSTR_Z]);
+    try
+    {
+        v.x = std::stof(node.attributes_[CSTR_X]);
+        v.y = std::stof(node.attributes_[CSTR_Y]);
+        v.z = std::stof(node.attributes_[CSTR_Z]);
+    }
+    catch (...)
+    {
+        ERROR_LOG("Read error");
+    }
     return v;
 }
 
 vec4 ReadVec4(XmlNode& node)
 {
-    vec4 v;
-    v.x = std::stof(node.attributes_[CSTR_X]);
-    v.y = std::stof(node.attributes_[CSTR_Y]);
-    v.z = std::stof(node.attributes_[CSTR_Z]);
-    v.w = std::stof(node.attributes_[CSTR_W]);
+    vec4 v(0.f);
+    try
+    {
+        v.x = std::stof(node.attributes_[CSTR_X]);
+        v.y = std::stof(node.attributes_[CSTR_Y]);
+        v.z = std::stof(node.attributes_[CSTR_Z]);
+        v.w = std::stof(node.attributes_[CSTR_W]);
+    }
+    catch (...)
+    {
+        ERROR_LOG("Read error");
+    }
+    return v;
+}
+
+Quaternion ReadQuat(XmlNode& node)
+{
+    Quaternion v;
+    try
+    {
+        v.x = std::stof(node.attributes_[CSTR_X]);
+        v.y = std::stof(node.attributes_[CSTR_Y]);
+        v.z = std::stof(node.attributes_[CSTR_Z]);
+        v.w = std::stof(node.attributes_[CSTR_W]);
+    }
+    catch (...)
+    {
+        ERROR_LOG("Read error");
+    }
     return v;
 }
 

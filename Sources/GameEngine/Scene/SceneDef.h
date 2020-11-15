@@ -86,6 +86,7 @@ extern const std::string CSTR_HEIGHT;
 extern const std::string CSTR_RADIUS;
 extern const std::string CSTR_ANGULAR_FACTOR;
 extern const std::string CSTR_ANIMATION_CLIPS;
+extern const std::string CSTR_ANIMATION_CLIP;
 extern const std::string CSTR_IDLE_ANIMATION;
 extern const std::string CSTR_RUN_ANIMATION;
 extern const std::string CSTR_WALK_ANIMATION;

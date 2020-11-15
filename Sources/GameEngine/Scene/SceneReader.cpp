@@ -63,6 +63,16 @@ void Read(const Utils::XmlNode&, Components::ThridPersonCameraComponent&)
 
 void Read(const Utils::XmlNode& node, Components::Animator& component)
 {
+    auto animationClipsNode = node.GetChild(CSTR_ANIMATION_CLIPS);
+
+    if (animationClipsNode)
+    {
+        for (const auto& childNode : animationClipsNode->GetChildren())
+        {
+            component.AddAnimationClip(GameEngine::File(childNode->value_));
+        }
+    }
+
     component.SetAnimation(node.GetChild(CSTR_CURRENT_ANIMATION)->value_);
 }
 

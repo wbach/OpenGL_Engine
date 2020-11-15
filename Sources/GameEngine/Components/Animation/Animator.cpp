@@ -1,5 +1,7 @@
 #include "Animator.h"
 
+#include <Logger/Log.h>
+
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
@@ -115,7 +117,10 @@ void Animator::GetSkeletonAndAnimations()
             componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jointData_.buffer);
         }
 
-        animationClips_ = model->animationClips_;
+        for (const auto& clip : model->animationClips_)
+        {
+            animationClips_.insert(clip);
+        }
 
         if (not animationClips_.empty())
         {
@@ -170,6 +175,21 @@ void Animator::Update()
     auto currentPose = calculateCurrentAnimationPose();
     applyPoseToJoints(currentPose);
 }
+void Animator::AddAnimationClip(const GameEngine::File& file)
+{
+    AddAnimationClip(Animation::ReadAnimationClip(file));
+}
+void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
+{
+    if (not animationClips_.count(clip.name))
+    {
+        animationClips_.insert({clip.name, clip});
+    }
+    else
+    {
+        ERROR_LOG("Clip already exist :" + clip.name);
+    }
+}
 void Animator::increaseAnimationTime()
 {
     auto animationLength = animationClips_.at(current_).GetLength();
@@ -193,14 +213,16 @@ Pose Animator::interpolatePoses(const KeyFrame& previousFrame, const KeyFrame& n
     Pose currentPose;
     for (const auto& pair : previousFrame.transforms)
     {
-        auto& jointName = pair.first;
-        if (previousFrame.transforms.count(jointName) == 0 || nextFrame.transforms.count(jointName) == 0)
-            continue;
+        const auto& jointName = pair.first;
+        const auto& nextFrameTransformIter = nextFrame.transforms.find(jointName);
 
-        JointTransform previousTransform = previousFrame.transforms.at(jointName);
-        JointTransform nextTransform     = nextFrame.transforms.at(jointName);
-        JointTransform currentTransform  = Interpolate(previousTransform, nextTransform, progression);
-        currentPose.insert({jointName, GetLocalTransform(currentTransform)});
+        if (nextFrameTransformIter != nextFrame.transforms.cend())
+        {
+            const auto& previousTransform = pair.second;
+            const auto& nextTransform = nextFrameTransformIter->second;
+            JointTransform currentTransform = Interpolate(previousTransform, nextTransform, progression);
+            currentPose.insert({ jointName, GetLocalTransform(currentTransform) });
+        }
     }
     return currentPose;
 }
@@ -225,11 +247,14 @@ std::pair<KeyFrame, KeyFrame> Animator::getPreviousAndNextFrames()
 void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const mat4& parentTransform)
 {
     mat4 currentTransform(1.f);
-    if (currentPose.count(joint.name))
+
+    auto currentPoseIter = currentPose.find(joint.name);
+
+    if (currentPoseIter != currentPose.end())
     {
-        const auto& currentLocalTransform = currentPose.at(joint.name);
-        currentTransform   = parentTransform * currentLocalTransform;
-        joint.animatedTransform = currentTransform * joint.offset;
+        const auto& currentLocalTransform = currentPoseIter->second;
+        currentTransform                  = parentTransform * currentLocalTransform;
+        joint.animatedTransform           = currentTransform * joint.offset;
     }
 
     for (Joint& childJoint : joint.children)

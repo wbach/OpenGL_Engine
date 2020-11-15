@@ -11,6 +11,12 @@
 #include "Physics/PhyscisTestScene.h"
 #include "Single/SingleStart.h"
 
+#include <GameEngine/Resources/Models/WBLoader/LoaderManager.h>
+#include <GameEngine/Resources/TextureLoader.h>
+#include <GameEngine/Resources/GpuResourceLoader.h>
+#include <GameEngine/Animations/AnimationUtils.h>
+#include <GameEngine/Api/Dummy/DummyGraphicsApi.h>
+
 void StartMessage()
 {
     std::string stars = "********************************************\n";
@@ -27,15 +33,35 @@ void PrintFiles()
     Utils::PrintFilesInDirectory(".");
 }
 
+void ExportAnimationClips(const GameEngine::File& file)
+{
+    GameEngine::DummyGraphicsApi api;
+    GameEngine::GpuResourceLoader gpuLoader;
+    GameEngine::TextureLoader textureLoader(api, gpuLoader);
+    GameEngine::LoaderManager loader(textureLoader);
+
+    auto model = loader.Load(file);
+
+    DEBUG_LOG("Animation clips : " + std::to_string(model->animationClips_.size()));
+    for (const auto& animation : model->animationClips_)
+    {
+        GameEngine::Animation::ExportAnimationClipToFile("D:/Tmp/" + animation.first + "_animationClip.xml", animation.second);
+    }
+}
+
 int main(int argc, char* argv[])
 {
+    CLogger::Instance().EnableLogs();
+    CLogger::Instance().ImmeditalyLog();
+
+    ExportAnimationClips("D:/Projects/OpenGL_Engine/Data/Meshes/DaeAnimationExample/characeterIdle.dae");
+    return 0;
     GameEngine::ReadFromFile("./Conf.xml");
     auto api = std::make_unique<OpenGLApi::OpenGLApi>();
     // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();
 
-    CLogger::Instance().EnableLogs();
 
     bool choosedApp = false;
 

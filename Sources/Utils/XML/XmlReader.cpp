@@ -69,6 +69,11 @@ bool XmlReader::ReadXml(std::string fileContent)
     return true;
 }
 
+XmlNode* XmlReader::Get()
+{
+    return root_.get();
+}
+
 XmlNode* XmlReader::Get(const std::string& name, XmlNode* node)
 {
     if (node == nullptr)

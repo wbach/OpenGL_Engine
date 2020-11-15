@@ -6,6 +6,7 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -35,6 +36,8 @@ public:
     void ReqisterFunctions() override;
 
     void Update();
+    void AddAnimationClip(const GameEngine::File&);
+    void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
     void ChangeAnimation(const std::string&);
     const std::string& GetCurrentAnimationName() const;

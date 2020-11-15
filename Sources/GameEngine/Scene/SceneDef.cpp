@@ -85,6 +85,7 @@ const std::string CSTR_HEIGHT                            = "height";
 const std::string CSTR_RADIUS                            = "radius";
 const std::string CSTR_ANGULAR_FACTOR                    = "angularFactor";
 const std::string CSTR_ANIMATION_CLIPS                   = "animationClips";
+const std::string CSTR_ANIMATION_CLIP                    = "animationClip";
 const std::string CSTR_IDLE_ANIMATION                    = "idle";
 const std::string CSTR_RUN_ANIMATION                     = "run";
 const std::string CSTR_WALK_ANIMATION                    = "walk";
