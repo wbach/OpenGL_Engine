@@ -33,7 +33,7 @@ private:
     void NormalizeMatrix(mat4& mat, float factor) const;
     BoundingBox getModelBoundingBox() const;
 
-private:
+protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::string fileName_;
     std::string filePath_;
