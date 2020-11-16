@@ -33,7 +33,7 @@ def export(context, keywords):
                     if ob_main.type == 'MESH':
                         mesh = ob_main.to_mesh()
                         mesh_triangulate(mesh)
-                        fw("<mesh name=\"" + ob_main.name + "\"/>")
+                        fw("<mesh name=\"" + ob_main.name + "\">")
                         fw("<v>")
                         for v in mesh.vertices[:]:
                             fw('%.6f %.6f %.6f ' % v.co[:])
@@ -46,7 +46,7 @@ def export(context, keywords):
                         fw("</mesh>")
                     else:
                         print(ob_main.type)
-                
+
 
                 fw("</model>")
 

@@ -4,7 +4,7 @@
 #include "Terrain/TerrainMeshLoader.h"
 #include "WaveFront/WaveFrontObj.h"
 #include "Assimp/AssimpLoader.h"
-
+#include "BEngine/BEngineLoader.h"
 #include "GameEngine/Engine/Configuration.h"
 
 #include <Logger/Log.h>
@@ -17,7 +17,8 @@ namespace GameEngine
 LoaderManager::LoaderManager(ITextureLoader& textureloader)
     : textureloader(textureloader)
 {
-    loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
+    loaders_.emplace_back(new WBLoader::BEngineLoader(textureloader));
+   // loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
    // loaders_.emplace_back(new WBLoader::ColladaDae(textureloader));
     loaders_.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
     //loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
