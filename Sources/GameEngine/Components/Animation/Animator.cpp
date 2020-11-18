@@ -1,7 +1,7 @@
 #include "Animator.h"
 
 #include <Logger/Log.h>
-
+#include <algorithm>
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
@@ -15,6 +15,8 @@ using namespace Animation;
 
 namespace Components
 {
+const std::string ANIMATION_NOT_SET{"animation clip no set"};
+
 void JointData::updateBufferTransform()
 {
     if (buffer)
@@ -40,7 +42,8 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     , currentTime_(0.f)
     , animationSpeed_(1.f)
     , changeAnimTime_(0.25f)
-    , current_("DefaultAnimationClip")
+    , currentAnimationClip_(nullptr)
+    , nextAnimationClip_(nullptr)
     , changeAnim(false)
 {
 }
@@ -58,14 +61,21 @@ void Animator::ReqisterFunctions()
 
 Animator& Animator::SetAnimation(const std::string& name)
 {
-    current_     = name;
-    currentTime_ = 0.f;
-
+    auto clipIter = animationClips_.find(name);
+    if (clipIter != animationClips_.end())
+    {
+        currentAnimationClip_ = &clipIter->second;
+        currentTime_          = 0.f;
+    }
+    else
+    {
+        requestedAnimationToset_ = name;
+    }
     return *this;
 }
 const std::string& Animator::GetCurrentAnimationName() const
 {
-    return current_;
+    return currentAnimationClip_ ? currentAnimationClip_->name : ANIMATION_NOT_SET;
 }
 GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
@@ -73,16 +83,19 @@ GraphicsApi::ID Animator::getPerPoseBufferId() const
 }
 void Animator::ChangeAnimation(const std::string& name)
 {
-    if (not animationClips_.count(name))
-        return;
+    auto clipIter = animationClips_.find(name);
 
-    auto& endFrames = animationClips_.at(name).GetFrames();
+    if (clipIter == animationClips_.end())
+    {
+        return;
+    }
+
+    auto& endFrames = clipIter->second.GetFrames();
     if (endFrames.empty())
         return;
 
-    endChangeAnimPose = endFrames[0];
-
-    nextClip_              = name;
+    endChangeAnimPose      = endFrames[0];
+    nextAnimationClip_     = &clipIter->second;
     changeAnim             = true;
     currentChangeAnimTime_ = 0;
 
@@ -120,13 +133,11 @@ void Animator::GetSkeletonAndAnimations()
         for (const auto& clip : model->animationClips_)
         {
             animationClips_.insert(clip);
-        }
 
-        if (not animationClips_.empty())
-        {
-            if (not animationClips_.count(current_))
+            if (requestedAnimationToset_ == clip.first)
             {
-                current_ = animationClips_.begin()->first;
+                SetAnimation(clip.first);
+                requestedAnimationToset_.clear();
             }
         }
     }
@@ -143,9 +154,10 @@ void Animator::ChangeAnimState()
     if (currentChangeAnimTime_ > 1.f)
     {
         changeAnim             = false;
-        current_               = nextClip_;
+        currentAnimationClip_  = nextAnimationClip_;
         currentTime_           = 0.f;
         currentChangeAnimTime_ = 1.f;
+        nextAnimationClip_     = nullptr;
     }
     auto pos = interpolatePoses(startChaneAnimPose, endChangeAnimPose, currentChangeAnimTime_);
     applyPoseToJoints(pos);
@@ -158,7 +170,7 @@ void Animator::applyPoseToJoints(const Pose& pose)
 }
 bool Animator::IsReady()
 {
-    return (not current_.empty() and animationClips_.count(current_));
+    return (currentAnimationClip_ != nullptr and not currentAnimationClip_->GetFrames().empty());
 }
 void Animator::Update()
 {
@@ -192,7 +204,7 @@ void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
 }
 void Animator::increaseAnimationTime()
 {
-    auto animationLength = animationClips_.at(current_).GetLength();
+    auto animationLength = currentAnimationClip_->GetLength();
 
     currentTime_ += componentContext_.time_.deltaTime * animationSpeed_;
     if (currentTime_ > animationLength)
@@ -213,15 +225,15 @@ Pose Animator::interpolatePoses(const KeyFrame& previousFrame, const KeyFrame& n
     Pose currentPose;
     for (const auto& pair : previousFrame.transforms)
     {
-        const auto& jointName = pair.first;
+        const auto& jointName              = pair.first;
         const auto& nextFrameTransformIter = nextFrame.transforms.find(jointName);
 
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
-            const auto& previousTransform = pair.second;
-            const auto& nextTransform = nextFrameTransformIter->second;
+            const auto& previousTransform   = pair.second;
+            const auto& nextTransform       = nextFrameTransformIter->second;
             JointTransform currentTransform = Interpolate(previousTransform, nextTransform, progression);
-            currentPose.insert({ jointName, GetLocalTransform(currentTransform) });
+            currentPose.insert({jointName, GetLocalTransform(currentTransform)});
         }
     }
     return currentPose;
@@ -229,7 +241,7 @@ Pose Animator::interpolatePoses(const KeyFrame& previousFrame, const KeyFrame& n
 
 std::pair<KeyFrame, KeyFrame> Animator::getPreviousAndNextFrames()
 {
-    const auto& allFrames = animationClips_.at(current_).GetFrames();
+    const auto& allFrames = currentAnimationClip_->GetFrames();
 
     KeyFrame previousFrame = allFrames[0];
     KeyFrame nextFrame     = allFrames[0];

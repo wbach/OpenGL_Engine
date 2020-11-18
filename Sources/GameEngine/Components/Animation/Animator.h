@@ -4,9 +4,9 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 
 namespace GameEngine
 {
@@ -18,7 +18,10 @@ typedef std::unordered_map<std::string, mat4> Pose;
 
 struct JointData
 {
-    JointData(GraphicsApi::IGraphicsApi& api) : api_(api){}
+    JointData(GraphicsApi::IGraphicsApi& api)
+        : api_(api)
+    {
+    }
     Animation::Joint rootJoint;
     std::unique_ptr<BufferObject<PerPoseUpdate>> buffer;
 
@@ -65,10 +68,10 @@ protected:
     void applyPoseToJoints(const Pose&);
 
 protected:
+    Animation::AnimationClip* currentAnimationClip_;
+    Animation::AnimationClip* nextAnimationClip_;
+	std::string requestedAnimationToset_;
     uint32 currentFrameId_ = 0;
-    std::string current_;
-
-    std::string nextClip_;
     bool changeAnim              = false;
     float currentChangeAnimTime_ = 0;
     Animation::KeyFrame startChaneAnimPose;
