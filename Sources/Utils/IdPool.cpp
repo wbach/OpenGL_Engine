@@ -8,7 +8,7 @@ IdPool::IdPool()
     : counter_{0}
 {
 }
-IdType IdPool::getId(std::optional<IdType> requestedId)
+IdType IdPool::getId(const std::optional<IdType>& requestedId)
 {
     if (requestedId)
     {
@@ -60,5 +60,10 @@ void IdPool::releaseId(IdType id)
 {
     freeIds_.push_back(id);
     freeIds_.sort();
+}
+void IdPool::clear()
+{
+    counter_ = 0;
+    freeIds_.clear();
 }
 }  // namespace Utils

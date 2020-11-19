@@ -1,8 +1,7 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
-
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GameEngine/Shaders/ShaderProgram.h"
+#include <Mutex.hpp>
 
 namespace GameEngine
 {
@@ -37,28 +36,26 @@ public:
     EntityRenderer(RendererContext&);
     ~EntityRenderer();
 
-    void init() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
     void unSubscribeAll() override;
-    void reloadShaders() override;
     void render() override;
 
 private:
-    void RenderModel(const EntitySubscriber&, const Model&) const;
-    void RenderMesh(const Mesh&) const;
-    void RenderEntities();
-    void BindMaterial(const Material&) const;
-    void UnBindMaterial(const Material&) const;
-    void BindMaterialTexture(uint32, Texture*, bool) const;
-    void bindShadowMap(uint32 id, uint32 nr) const;
+    void renderModel(const EntitySubscriber&, const Model&) const;
+    void renderMesh(const Mesh&) const;
+    void renderEntities();
+    void bindMaterial(const Material&) const;
+    void unBindMaterial(const Material&) const;
+    void bindMaterialTexture(uint32, Texture*, bool) const;
 
 private:
     RendererContext& context_;
-    ShaderProgram shader_;
 
     EnitySubscribers subscribes_;
     std::set<uint32> subscribesIds_;
+
+    std::mutex subscriberMutex_;
 };
 
 }  // namespace GameEngine

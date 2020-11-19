@@ -23,6 +23,7 @@ std::mutex rendererSubscriberMutex;
 }
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
+    , entityRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
@@ -98,6 +99,11 @@ void ShadowMapRenderer::init()
     buffer_.cascadesDistance.w = distances[3];
 }
 
+void ShadowMapRenderer::renderScene()
+{
+    entityRenderer_.render();
+}
+
 bool ShadowMapRenderer::isInit() const
 {
     return shader_.IsReady() and perFrameBuffer_.has_value();
@@ -129,36 +135,17 @@ void ShadowMapRenderer::prepare()
 
 void ShadowMapRenderer::subscribe(GameObject& gameObject)
 {
-    auto rendererComponent = gameObject.GetComponent<Components::RendererComponent>();
-
-    if (rendererComponent)
-    {
-        auto animator = gameObject.GetComponent<Components::Animator>();
-
-        std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
-        subscribes_.push_back({&gameObject, rendererComponent, animator});
-    }
+    entityRenderer_.subscribe(gameObject);
 }
 
 void ShadowMapRenderer::unSubscribe(GameObject& gameObject)
 {
-    std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
-    for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
-    {
-        if ((*iter).gameObject->GetId() == gameObject.GetId())
-        {
-            iter = subscribes_.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
-    }
+    entityRenderer_.unSubscribe(gameObject);
 }
 
 void ShadowMapRenderer::unSubscribeAll()
 {
-    subscribes_.clear();
+    entityRenderer_.unSubscribeAll();
 }
 
 void ShadowMapRenderer::reloadShaders()
@@ -180,7 +167,7 @@ void ShadowMapRenderer::prepareFrameBuffer()
     context_.graphicsApi_.UpdateShaderBuffer(*context_.shadowsBufferId_, &buffer_);
 }
 
-void ShadowMapRenderer::renderCascades() const
+void ShadowMapRenderer::renderCascades()
 {
     auto lightMatrixes = shadowBox_.getLightProjectionViewMatrices();
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
@@ -191,74 +178,12 @@ void ShadowMapRenderer::renderCascades() const
         PerFrameBuffer perFrame;
         perFrame.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(lightMatrixes[cascadeIndex]);
         context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
-        renderSubscribes();
+       
+        renderScene();
         shadowFrameBuffer_[cascadeIndex]->UnBind();
     }
 }
 
-void ShadowMapRenderer::renderSubscribes() const
-{
-    std::lock_guard<std::mutex> lk(rendererSubscriberMutex);
-    for (auto& sub : subscribes_)
-        renderSubscriber(sub);
-}
-
-void ShadowMapRenderer::renderSubscriber(const ShadowMapSubscriber& sub) const
-{
-    auto model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-
-    if (not model)
-        return;
-
-    if (sub.animator and model->getRootJoint())
-    {
-        const auto& perPoseBuffer = sub.animator->getPerPoseBufferId();
-
-        if (perPoseBuffer)
-            context_.graphicsApi_.BindShaderBuffer(*perPoseBuffer);
-    }
-
-    const auto& meshes = model->GetMeshes();
-
-    uint32 meshId = 0;
-    for (const auto& mesh : meshes)
-    {
-        if (not mesh.GetGraphicsObjectId())
-            continue;
-
-        const auto& meshBuffer = mesh.getShaderBufferId();
-
-        if (meshBuffer)
-        {
-            context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
-        }
-
-        const auto& perMeshUpdateBuffer = sub.renderComponent->GetPerObjectUpdateBuffer(meshId);
-        if (perMeshUpdateBuffer)
-        {
-            context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
-        }
-
-        const auto& perMeshConstantBuffer = sub.renderComponent->GetPerObjectConstantsBuffer(meshId);
-        if (perMeshConstantBuffer)
-        {
-            context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
-        }
-
-        ++meshId;
-        renderMesh(mesh);
-    }
-}
-
-void ShadowMapRenderer::renderMesh(const Mesh& mesh) const
-{
-    const auto& material = mesh.GetMaterial();
-
-    if (material.diffuseTexture)
-        context_.graphicsApi_.ActiveTexture(0, *material.diffuseTexture->GetGraphicsObjectId());
-
-    context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
-}
 mat4 ShadowMapRenderer::convertNdcToTextureCooridates(const mat4& lightSpaceMatrix) const
 {
     return biasMatrix_ * lightSpaceMatrix;

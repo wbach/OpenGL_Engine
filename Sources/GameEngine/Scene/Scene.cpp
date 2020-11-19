@@ -159,21 +159,14 @@ void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuRes
     resourceManager_ = std::make_unique<ResourceManager>(graphicsApi, gpuResourceLoader);
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>& maybeId) const
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>& maybeId)
 {
     return CreateGameObject("gameObject", maybeId);
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<uint32>& maybeId) const
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    if (maybeId)
-    {
-        return std::make_unique<GameObject>(name, *componentFactory_, *maybeId);
-    }
-    else
-    {
-        return std::make_unique<GameObject>(name, *componentFactory_);
-    }
+    return std::make_unique<GameObject>(name, *componentFactory_, gameObjectIdPool_.getId(maybeId));
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -195,12 +188,14 @@ void Scene::AddGameObject(std::unique_ptr<GameObject> object)
 
 bool Scene::RemoveGameObject(GameObject& object)
 {
+    gameObjectIdPool_.releaseId(object.GetId());
     gameObjectsIds_.erase(object.GetId());
     return rootGameObject_->RemoveChild(object);
 }
 
 void Scene::ClearGameObjects()
 {
+    gameObjectIdPool_.clear();
     gameObjectsIds_.clear();
     rootGameObject_->RemoveAllChildren();
 }

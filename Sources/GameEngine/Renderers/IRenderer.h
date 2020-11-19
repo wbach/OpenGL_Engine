@@ -7,7 +7,7 @@ class GameObject;
 struct IRenderer
 {
     virtual ~IRenderer();
-    virtual void init()          = 0;
+    virtual void init();
     virtual void reloadShaders();
     virtual void prepare();
     virtual void render();

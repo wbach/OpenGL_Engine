@@ -5,6 +5,9 @@ namespace GameEngine
 IRenderer::~IRenderer()
 {
 }
+void IRenderer::init()
+{
+}
 void IRenderer::reloadShaders()
 {
 }

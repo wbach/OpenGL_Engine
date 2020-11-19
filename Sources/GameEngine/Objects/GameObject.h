@@ -2,12 +2,12 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <Utils/IdPool.h>
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/IComponentFactory.h"
-#include "optional.hpp"
 
 namespace GameEngine
 {
@@ -17,24 +17,23 @@ typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
 class GameObject
 {
 public:
-    GameObject(const std::string&, Components::IComponentFactory&);
-    GameObject(const std::string&, Components::IComponentFactory&, uint32);
+    GameObject(const std::string&, Components::IComponentFactory&, IdType);
     GameObject(const GameObject&) = delete;
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
 
     void AddChild(std::unique_ptr<GameObject>);
     bool RemoveChild(GameObject&);
-    bool RemoveChild(uint32);
+    bool RemoveChild(IdType);
     void SetParent(GameObject*);
     GameObject* GetParent() const;
-    GameObject* GetChild(uint32 id) const;
+    GameObject* GetChild(IdType id) const;
     // return first child with name
     GameObject* GetChild(const std::string&) const;
     inline const GameObjects& GetChildren() const;
     void RemoveAllChildren();
 
-    inline uint32 GetId() const;
+    inline IdType GetId() const;
     inline void SetName(const std::string&);
     inline const std::string& GetName() const;
 
@@ -75,8 +74,7 @@ protected:
     std::optional<uint32> localTransfromSubscribtion_;
 
 private:
-    static uint32 s_id;
-    uint32 id_;
+    IdType id_;
     Components::IComponentFactory& componentFactory_;
 };
 

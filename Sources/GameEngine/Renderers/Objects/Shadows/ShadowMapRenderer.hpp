@@ -1,5 +1,6 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
+#include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
 
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -27,14 +28,6 @@ class RendererComponent;
 
 class ShadowMapRenderer : public IRenderer
 {
-    struct ShadowMapSubscriber
-    {
-        GameObject* gameObject{nullptr};
-        Components::RendererComponent* renderComponent{nullptr};
-        Components::Animator* animator{nullptr};
-    };
-    typedef std::vector<ShadowMapSubscriber> Subscribers;
-
 public:
     ShadowMapRenderer(RendererContext&);
     ~ShadowMapRenderer();
@@ -46,22 +39,21 @@ public:
     void prepare() override;
 
 private:
+    void renderScene();
     bool isInit() const;
     void prepareFrameBuffer();
-    void renderCascades() const;
-    void renderSubscribes() const;
-    void renderSubscriber(const ShadowMapSubscriber&) const;
-    void renderMesh(const Mesh& mesh) const;
+    void renderCascades();
     mat4 convertNdcToTextureCooridates(const mat4&) const;
 
 private:
     RendererContext& context_;
+    EntityRenderer entityRenderer_;
+
     ShaderProgram shader_;
     ShadowBox shadowBox_;
     mat4 projectionViewMatrix_;
     mat4 biasMatrix_;
     ShadowsBuffer buffer_;
-    Subscribers subscribes_;
     GraphicsApi::ID perFrameBuffer_;
     GraphicsApi::IFrameBuffer* shadowFrameBuffer_[Params::MAX_SHADOW_MAP_CASADES];
 };

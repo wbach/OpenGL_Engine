@@ -1,5 +1,6 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
+#include <Utils/IdPool.h>
 
 #include <atomic>
 #include <list>
@@ -65,8 +66,8 @@ public:
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
     inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
 
-    std::unique_ptr<GameObject> CreateGameObject(const std::optional<uint32>& = std::nullopt) const;
-    std::unique_ptr<GameObject> CreateGameObject(const std::string&, const std::optional<uint32>& = std::nullopt) const;
+    std::unique_ptr<GameObject> CreateGameObject(const std::optional<uint32>& = std::nullopt);
+    std::unique_ptr<GameObject> CreateGameObject(const std::string&, const std::optional<uint32>& = std::nullopt);
 
     void SetDirectionalLightColor(const vec3& color);
     Light& AddLight(const Light& light);
@@ -141,6 +142,7 @@ protected:
 
     std::atomic_bool simulatePhysics_;
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
+    Utils::IdPool gameObjectIdPool_;
 
 private:
     void CreateResourceManger(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&);

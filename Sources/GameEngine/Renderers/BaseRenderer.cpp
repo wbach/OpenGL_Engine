@@ -4,7 +4,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "Logger/Log.h"
-#include "Objects/Entity/EntityRenderer.h"
+#include "Objects/Entity/ConcreteEntityRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
@@ -80,7 +80,7 @@ void BaseRenderer::createRenderers()
     addRenderer<TreeRenderer>();
     if (EngineConf.renderer.flora.isGrass)
         addRenderer<GrassRenderer>();
-    addRenderer<EntityRenderer>();
+    addRenderer<ConcreteEntityRenderer>();
     if (EngineConf.renderer.particles.useParticles)
         addRenderer<ParticlesRenderer>();
     addRenderer<WaterRenderer>();

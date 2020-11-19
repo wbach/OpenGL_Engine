@@ -9,14 +9,7 @@
 
 namespace GameEngine
 {
-uint32 GameObject::s_id = 1;
-
-GameObject::GameObject(const std::string& name, Components::IComponentFactory& componentFactory)
-    : GameObject(name, componentFactory, s_id++)
-{
-}
-
-GameObject::GameObject(const std::string& name, Components::IComponentFactory& componentFactory, uint32 id)
+GameObject::GameObject(const std::string& name, Components::IComponentFactory& componentFactory, IdType id)
     : parent_(nullptr)
     , name_(name)
     , id_(id)
@@ -50,7 +43,7 @@ bool GameObject::RemoveChild(GameObject& gameObject)
     return RemoveChild(gameObject.GetId());
 }
 
-bool GameObject::RemoveChild(uint32 id)
+bool GameObject::RemoveChild(IdType id)
 {
     auto iter = std::find_if(children_.begin(), children_.end(),
                              [id](const auto& gameObject) { return id == gameObject->GetId(); });
@@ -89,7 +82,7 @@ void GameObject::RemoveAllChildren()
 {
     children_.clear();
 }
-GameObject* GameObject::GetChild(uint32 id) const
+GameObject* GameObject::GetChild(IdType id) const
 {
     auto iter =
         std::find_if(children_.begin(), children_.end(), [id](const auto& object) { return object->GetId() == id; });

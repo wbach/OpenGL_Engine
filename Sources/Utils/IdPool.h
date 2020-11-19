@@ -9,8 +9,9 @@ class IdPool
 {
 public:
     IdPool();
-    IdType getId(std::optional<IdType> = std::nullopt);
+    IdType getId(const std::optional<IdType>& = std::nullopt);
     void releaseId(IdType);
+    void clear();
 
 private:
     IdType getNextId();

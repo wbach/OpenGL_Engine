@@ -1,8 +1,6 @@
 #include "EntityRenderer.h"
 
 #include <Logger/Log.h>
-
-#include <Mutex.hpp>
 #include <algorithm>
 
 #include "GameEngine/Components/Animation/Animator.h"
@@ -17,13 +15,8 @@
 
 namespace GameEngine
 {
-namespace
-{
-std::mutex entityRendererSubscriberMutex;
-}
 EntityRenderer::EntityRenderer(RendererContext& context)
     : context_(context)
-    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
 }
 
@@ -33,19 +26,12 @@ EntityRenderer::~EntityRenderer()
     unSubscribeAll();
 }
 
-void EntityRenderer::init()
-{
-    DEBUG_LOG("");
-    shader_.Init();
-}
-
 void EntityRenderer::render()
 {
-    if (not shader_.IsReady() or subscribes_.empty())
-        return;
-
-    shader_.Start();
-    RenderEntities();
+    if (not subscribes_.empty())
+    {
+        renderEntities();
+    }
 }
 
 void EntityRenderer::subscribe(GameObject& gameObject)
@@ -67,7 +53,7 @@ void EntityRenderer::subscribe(GameObject& gameObject)
 
     auto animator = gameObject.GetComponent<Components::Animator>();
 
-    std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.push_back({&gameObject, rendererComponent, animator});
     subscribesIds_.insert(gameObject.GetId());
 }
@@ -78,9 +64,7 @@ void EntityRenderer::unSubscribe(GameObject& gameObject)
     {
         return;
     }
-
-    std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
-
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     for (auto iter = subscribes_.begin(); iter != subscribes_.end();)
     {
         if ((*iter).gameObject->GetId() == gameObject.GetId())
@@ -92,7 +76,6 @@ void EntityRenderer::unSubscribe(GameObject& gameObject)
             ++iter;
         }
     }
-
     subscribesIds_.erase(gameObject.GetId());
 }
 
@@ -101,28 +84,22 @@ void EntityRenderer::unSubscribeAll()
     subscribes_.clear();
 }
 
-void EntityRenderer::reloadShaders()
+void EntityRenderer::renderEntities()
 {
-    DEBUG_LOG("");
-    shader_.Reload();
-}
-
-void EntityRenderer::RenderEntities()
-{
-    std::lock_guard<std::mutex> lk(entityRendererSubscriberMutex);
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
 
     for (const auto& sub : subscribes_)
     {
         auto model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
 
-        if (not model)
-            continue;
-
-        RenderModel(sub, *model);
+        if (model)
+        {
+            renderModel(sub, *model);
+        }
     }
 }
 
-void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model& model) const
+void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model) const
 {
     if (subsriber.animator and model.getRootJoint())
     {
@@ -159,49 +136,36 @@ void EntityRenderer::RenderModel(const EntitySubscriber& subsriber, const Model&
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
         }
         ++meshId;
-        RenderMesh(mesh);
+        renderMesh(mesh);
     }
 }
 
-void EntityRenderer::RenderMesh(const Mesh& mesh) const
+void EntityRenderer::renderMesh(const Mesh& mesh) const
 {
-    BindMaterial(mesh.GetMaterial());
+    bindMaterial(mesh.GetMaterial());
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
-    UnBindMaterial(mesh.GetMaterial());
+    unBindMaterial(mesh.GetMaterial());
 }
 
-void EntityRenderer::BindMaterial(const Material& material) const
+void EntityRenderer::bindMaterial(const Material& material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_.DisableCulling();
 
     const auto& config = EngineConf.renderer.textures;
-    BindMaterialTexture(0, material.diffuseTexture, config.useDiffuse);
-    BindMaterialTexture(1, material.ambientTexture, config.useAmbient);
-    BindMaterialTexture(2, material.normalTexture, config.useNormal);
-    BindMaterialTexture(3, material.specularTexture, config.useSpecular);
-    bindShadowMap(0, 4);
-    bindShadowMap(1, 5);
-    bindShadowMap(2, 6);
-    bindShadowMap(3, 7);
+    bindMaterialTexture(0, material.diffuseTexture, config.useDiffuse);
+    bindMaterialTexture(1, material.ambientTexture, config.useAmbient);
+    bindMaterialTexture(2, material.normalTexture, config.useNormal);
+    bindMaterialTexture(3, material.specularTexture, config.useSpecular);
 }
 
-void EntityRenderer::bindShadowMap(uint32 id, uint32 nr) const
-{
-    if (context_.cascadedShadowMapsIds_[id])
-    {
-        context_.graphicsApi_.ActiveTexture(nr);
-        context_.graphicsApi_.BindTexture(*context_.cascadedShadowMapsIds_[id]);
-    }
-}
-
-void EntityRenderer::UnBindMaterial(const Material& material) const
+void EntityRenderer::unBindMaterial(const Material& material) const
 {
     if (material.isTransparency)
         context_.graphicsApi_.EnableCulling();
 }
 
-void EntityRenderer::BindMaterialTexture(uint32 location, Texture* texture, bool enabled) const
+void EntityRenderer::bindMaterialTexture(uint32 location, Texture* texture, bool enabled) const
 {
     if (enabled and texture and texture->GetGraphicsObjectId())
     {
