@@ -10,7 +10,7 @@
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
 #include "Objects/Skydome/SkydomeRenderer.h"
-#include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
+#include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
@@ -76,7 +76,7 @@ void BaseRenderer::createRenderers()
     addRenderer<SkydomRenderer>();
     if (context_.graphicsApi_.IsTesselationSupported())
         addRenderer<TerrainRenderer>();
-    addRenderer<TerrainMeshRenderer>();
+    addRenderer<ConcreteTerrainMeshRenderer>();
     addRenderer<TreeRenderer>();
     if (EngineConf.renderer.flora.isGrass)
         addRenderer<GrassRenderer>();

@@ -19,47 +19,25 @@
 
 namespace GameEngine
 {
-namespace
-{
-uint32 renderedTerrains = 0;
-
-const std::string TERRAIN_MEASURMENT_NAME{"TerrainMeshesRendered"};
-}  // namespace
 TerrainMeshRenderer::TerrainMeshRenderer(RendererContext& context)
     : context_(context)
-    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TerrainMesh)
 {
-    measurementValue_ = &context.measurmentHandler_.AddNewMeasurment(TERRAIN_MEASURMENT_NAME, "0");
 }
 TerrainMeshRenderer::~TerrainMeshRenderer()
 {
 }
-void TerrainMeshRenderer::init()
+uint32 TerrainMeshRenderer::renderSubscribers()
 {
-    shader_.Init();
-}
-void TerrainMeshRenderer::render()
-{
-    renderedTerrains = 0;
-
-    if (subscribes_.empty())
-        return;
-    context_.graphicsApi_.EnableCulling();
-    context_.graphicsApi_.EnableBlend();
-    shader_.Start();
+    renderedTerrains_ = 0;
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    renderSubscribers();
-    *measurementValue_ = std::to_string(renderedTerrains);
-}
-void TerrainMeshRenderer::renderSubscribers() const
-{
     for (const auto& sub : subscribes_)
     {
         renderSubscriber(sub.second);
     }
+    return renderedTerrains_;
 }
 
-void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber) const
+void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber)
 {
     const auto& model = subscriber.component_->GetModel().Get(LevelOfDetail::L1);
 
@@ -93,20 +71,19 @@ void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber) const
         }
     }
 }
-void TerrainMeshRenderer::renderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId) const
+void TerrainMeshRenderer::renderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId)
 {
     if (bufferId)
     {
         context_.graphicsApi_.BindShaderBuffer(*bufferId);
         context_.graphicsApi_.RenderTriangleStripMesh(*mesh.GetGraphicsObjectId());
-        ++renderedTerrains;
+        ++renderedTerrains_;
     }
 }
 void TerrainMeshRenderer::partialRendering(const Model& model,
-                                           const Components::TerrainMeshRendererComponent& component) const
+                                           const Components::TerrainMeshRendererComponent& component)
 {
     uint32 index = 0;
-
     for (const auto& mesh : model.GetMeshes())
     {
         auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
@@ -119,11 +96,6 @@ void TerrainMeshRenderer::partialRendering(const Model& model,
 }
 void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
-    bindShadowMap(0, 0);
-    bindShadowMap(1, 22);
-    bindShadowMap(2, 23);
-    bindShadowMap(3, 24);
-
     for (const auto& t : textures)
     {
         auto texture = t.second;
@@ -137,14 +109,6 @@ void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextur
 void TerrainMeshRenderer::bindTexture(Texture* texture, uint32 id) const
 {
     context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
-}
-void TerrainMeshRenderer::bindShadowMap(uint32 id, uint32 nr) const
-{
-    if (context_.cascadedShadowMapsIds_[id])
-    {
-        context_.graphicsApi_.ActiveTexture(nr);
-        context_.graphicsApi_.BindTexture(*context_.cascadedShadowMapsIds_[id]);
-    }
 }
 void TerrainMeshRenderer::subscribe(GameObject& gameObject)
 {
@@ -167,9 +131,5 @@ void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
         std::lock_guard<std::mutex> lk(subscriberMutex_);
         subscribes_.erase(iter);
     }
-}
-void TerrainMeshRenderer::reloadShaders()
-{
-    shader_.Reload();
 }
 }  // namespace GameEngine
