@@ -12,6 +12,7 @@
 #include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
+#include "Objects/Water/WaterReflectionRefractionRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
 
 namespace GameEngine
@@ -77,7 +78,16 @@ void DefferedRenderer::createRenderers()
     BaseRenderer::createRenderers();
 
     if (EngineConf.renderer.shadows.isEnabled)
+    {
         addRenderer<ShadowMapRenderer>();
+    }
+
+    auto waterType = EngineConf.renderer.water.type;
+    if (waterType == GameEngine::Params::WaterType::REFLECTED_REFRACTED or
+        waterType == GameEngine::Params::WaterType::FULL)
+    {
+        addRenderer<WaterReflectionRefractionRenderer>();
+    }
 }
 void DefferedRenderer::bindDefferedFbo()
 {
@@ -97,7 +107,6 @@ void DefferedRenderer::unbindDefferedFbo()
         const auto& windowSize = EngineConf.window.size;
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
-
     postprocessingRenderersManager_.Render(*defferedFrameBuffer_, *context_.scene_);
 }
 

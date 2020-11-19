@@ -20,7 +20,7 @@ namespace Components
 class TerrainMeshRendererComponent;
 }  // namespace Components
 
-class TerrainMeshRenderer : public IRenderer
+class TerrainMeshRenderer
 {
     struct Subscriber
     {
@@ -32,8 +32,9 @@ public:
     TerrainMeshRenderer(RendererContext& context);
     ~TerrainMeshRenderer();
 
-    void subscribe(GameObject&) override;
-    void unSubscribe(GameObject&) override;
+    void subscribe(GameObject&);
+    void unSubscribe(GameObject&);
+    void unSubscribeAll();
     uint32 renderSubscribers();
 
 private:

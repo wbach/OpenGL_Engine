@@ -162,12 +162,14 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticlesRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.cpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.cpp
+../../Sources/GameEngine/Renderers/Objects/SkyBox/ConcreteSkyBoxRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Terrain/TerrainRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.cpp
+../../Sources/GameEngine/Renderers/Objects/Water/WaterReflectionRefractionRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/Blur/Blur.cpp
 ../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.cpp

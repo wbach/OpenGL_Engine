@@ -22,6 +22,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::SimpleForwadEntity,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::DebugObject,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/debugObjectShader.vert"},
@@ -86,6 +93,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::ForwardSkyBox,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "SkyBox/Forward/SkyboxVertexShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "SkyBox/Forward/SkyboxFragmentShader.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::Skydome,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Skydome/Skydome.vert"},
@@ -108,6 +122,14 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/TerrainShader.vert"},
             {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Terrain/Mesh/TerrainShader.geom"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Terrain/Mesh/TerrainShader.frag"}
+        }
+    },
+    {
+        GraphicsApi::ShaderProgramType::SimpleForwardTerrainMesh,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/Forward/TerrainShader.vert"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Terrain/Mesh/Forward/TerrainShader.geom"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/Forward/TerrainShader.frag"}
         }
     },
     {

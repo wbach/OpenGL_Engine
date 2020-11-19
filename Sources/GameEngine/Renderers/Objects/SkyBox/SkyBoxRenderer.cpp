@@ -16,7 +16,6 @@ namespace GameEngine
 {
 SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     : context_(context)
-    , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SkyBox)
     , rotationSpeed_(1.f)
     , rotation_(0.f)
     , scale_(150.f)
@@ -25,8 +24,6 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
 
 void SkyBoxRenderer::init()
 {
-    shader_.Init();
-
     if (not perObjectUpdateId_)
     {
         perObjectUpdateId_ =
@@ -46,7 +43,7 @@ void SkyBoxRenderer::init()
 
 void SkyBoxRenderer::prepareToRendering()
 {
-    shader_.Start();
+    updateBuffer();
     prepareShaderBeforeFrameRender();
 }
 
@@ -63,14 +60,20 @@ void SkyBoxRenderer::updateBuffer()
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
 }
 
+void SkyBoxRenderer::unSubscribeAll()
+{
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+    subscribes_.clear();
+}
+
 void SkyBoxRenderer::render()
 {
     if (subscribes_.empty())
         return;
 
-    updateBuffer();
     prepareToRendering();
 
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     for (const auto& subscriber : subscribes_)
     {
         RenderSkyBoxModel(subscriber.second);
@@ -98,6 +101,7 @@ void SkyBoxRenderer::RenderSkyBoxModel(const SkyBoxSubscriber& sub)
 
 void SkyBoxRenderer::subscribe(GameObject& gameObject)
 {
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     auto component = gameObject.GetComponent<Components::SkyBoxComponent>();
 
     if (component)
@@ -107,9 +111,15 @@ void SkyBoxRenderer::subscribe(GameObject& gameObject)
     }
 }
 
-void SkyBoxRenderer::reloadShaders()
+void SkyBoxRenderer::unSubscribe(GameObject& gameObject)
 {
-    shader_.Reload();
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+    auto iter = subscribes_.find(gameObject.GetId());
+
+    if (iter != subscribes_.end())
+    {
+        subscribes_.erase(iter);
+    }
 }
 
 void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const

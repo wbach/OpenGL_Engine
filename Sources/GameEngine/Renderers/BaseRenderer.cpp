@@ -8,7 +8,7 @@
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
-#include "Objects/SkyBox/SkyBoxRenderer.h"
+#include "Objects/SkyBox/ConcreteSkyBoxRenderer.h"
 #include "Objects/Skydome/SkydomeRenderer.h"
 #include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
@@ -72,7 +72,7 @@ void BaseRenderer::blendRender()
 }
 void BaseRenderer::createRenderers()
 {
-    addRenderer<SkyBoxRenderer>();
+    addRenderer<ConcreteSkyBoxRenderer>();
     addRenderer<SkydomRenderer>();
     if (context_.graphicsApi_.IsTesselationSupported())
         addRenderer<TerrainRenderer>();

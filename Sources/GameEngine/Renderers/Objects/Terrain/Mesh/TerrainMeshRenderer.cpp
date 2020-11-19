@@ -132,4 +132,9 @@ void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
         subscribes_.erase(iter);
     }
 }
+void TerrainMeshRenderer::unSubscribeAll()
+{
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+    subscribes_.clear();
+}
 }  // namespace GameEngine

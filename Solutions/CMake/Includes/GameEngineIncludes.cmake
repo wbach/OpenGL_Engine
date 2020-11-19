@@ -216,12 +216,14 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticleInputBuffer.h
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticlesRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.h
+../../Sources/GameEngine/Renderers/Objects/SkyBox/ConcreteSkyBoxRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Skydome/SkydomeRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Terrain/TerrainRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.h
+../../Sources/GameEngine/Renderers/Objects/Water/WaterReflectionRefractionRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Water/WaterRenderer.h
 ../../Sources/GameEngine/Renderers/Postproccesing/Blur/Blur.h
 ../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.h

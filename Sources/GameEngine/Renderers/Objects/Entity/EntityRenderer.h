@@ -30,16 +30,16 @@ struct EntitySubscriber
 
 typedef std::vector<EntitySubscriber> EnitySubscribers;
 
-class EntityRenderer : public IRenderer
+class EntityRenderer
 {
 public:
     EntityRenderer(RendererContext&);
     ~EntityRenderer();
 
-    void subscribe(GameObject&) override;
-    void unSubscribe(GameObject&) override;
-    void unSubscribeAll() override;
-    void render() override;
+    void subscribe(GameObject&);
+    void unSubscribe(GameObject&);
+    void unSubscribeAll();
+    void render();
 
 private:
     void renderModel(const EntitySubscriber&, const Model&) const;

@@ -42,5 +42,8 @@ struct RendererContext
 
     GraphicsApi::ID cascadedShadowMapsIds_[Params::MAX_SHADOW_MAP_CASADES];
     GraphicsApi::ID shadowsBufferId_;
+    GraphicsApi::ID waterReflectionTextureId_;
+    GraphicsApi::ID waterRefractionTextureId_;
+    GraphicsApi::ID waterRefractionDepthTextureId_;
 };
 }  // namespace GameEngine

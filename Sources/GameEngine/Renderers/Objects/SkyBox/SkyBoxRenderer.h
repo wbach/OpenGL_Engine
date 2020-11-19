@@ -4,7 +4,6 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
@@ -26,13 +25,14 @@ struct SkyBoxSubscriber
 
 typedef std::unordered_map<uint32_t, SkyBoxSubscriber> SkyBoxSubscriberMap;
 
-class SkyBoxRenderer : public IRenderer
+class SkyBoxRenderer
 {
 public:
     SkyBoxRenderer(RendererContext&);
-    void init() override;
-    void subscribe(GameObject&) override;
-    void reloadShaders() override;
+    void init();
+    void subscribe(GameObject&);
+    void unSubscribe(GameObject&);
+    void unSubscribeAll();
     void render();
 
 private:
@@ -53,8 +53,8 @@ private:
 
 private:
     RendererContext& context_;
-    ShaderProgram shader_;
     SkyBoxSubscriberMap subscribes_;
+    std::mutex subscriberMutex_;
     GraphicsApi::ID perMeshObjectId_;
     GraphicsApi::ID perObjectUpdateId_;
     PerMeshObject perMeshObject_;
