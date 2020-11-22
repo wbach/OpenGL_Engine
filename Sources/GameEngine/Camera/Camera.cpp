@@ -1,4 +1,4 @@
-#include "Camera.h"
+﻿#include "Camera.h"
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
@@ -13,11 +13,11 @@ namespace
 const float NOTIF_EPSILON{std::numeric_limits<float>::epsilon()};
 }  // namespace
 
-BaseCamera::BaseCamera()
-    : BaseCamera(0, 0)
+Camera::Camera()
+    : Camera(0, 0)
 {
 }
-BaseCamera::BaseCamera(float pitch, float yaw)
+Camera::Camera(float pitch, float yaw)
     : lock_(false)
     , idPool_(0)
     , position_(0.f)
@@ -28,48 +28,44 @@ BaseCamera::BaseCamera(float pitch, float yaw)
 {
     UpdateMatrix();
 }
-BaseCamera::BaseCamera(const vec3& position, const vec3& lookAt)
+Camera::Camera(const vec3& position, const vec3& lookAt)
     : lock_(false)
     , position_(position)
 {
     LookAt(lookAt);
 }
-void BaseCamera::Move()
+void Camera::Move()
 {
 }
-void BaseCamera::CalculateInput()
+void Camera::CalculateInput()
 {
 }
-void BaseCamera::CalculateZoom(float)
+void Camera::CalculateZoom(float)
 {
 }
-
-void BaseCamera::Lock()
+void Camera::Lock()
 {
     lock_ = true;
 }
-
-void BaseCamera::Unlock()
+void Camera::Unlock()
 {
     lock_ = false;
 }
-
-bool BaseCamera::IsLocked() const
+bool Camera::IsLocked() const
 {
     return lock_;
 }
-
-void BaseCamera::UpdateMatrix()
+void Camera::UpdateMatrix()
 {
     UpdateViewMatrix();
     CalculateDirection();
 }
-void BaseCamera::SetPosition(const vec3& position)
+void Camera::SetPosition(const vec3& position)
 {
     position_ = position;
     NotifySubscribers();
 }
-void BaseCamera::NotifySubscribers()
+void Camera::NotifySubscribers()
 {
     auto l1 = glm::length(position_ - lastNotifiedPosition_);
     auto l2 = glm::length(rotation_.value_ - lastNotifRotation_.value_);
@@ -84,13 +80,13 @@ void BaseCamera::NotifySubscribers()
         lastNotifiedPosition_ = position_;
     }
 }
-uint32 BaseCamera::SubscribeOnChange(std::function<void(const ICamera&)> callback)
+uint32 Camera::SubscribeOnChange(std::function<void(const ICamera&)> callback)
 {
     subscribers_.push_back({idPool_, callback});
     ++idPool_;
     return idPool_ - 1;
 }
-void BaseCamera::UnsubscribeOnChange(uint32 id)
+void Camera::UnsubscribeOnChange(uint32 id)
 {
     if (not subscribers_.empty())
     {
@@ -103,112 +99,107 @@ void BaseCamera::UnsubscribeOnChange(uint32 id)
         }
     }
 }
-void BaseCamera::LookAt(const vec3& lookAtPosition)
+void Camera::LookAt(const vec3& lookAtPosition)
 {
-    auto direction   = position_ - lookAtPosition;
-    auto yaw         = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
-    auto pitch       = atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z));
-    glm::quat qPitch = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
-    glm::quat qYaw   = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
-    rotation_.value_ = qPitch * qYaw;
+    rotation_.value_ = Utils::lookAt(lookAtPosition, position_);
     NotifySubscribers();
 }
-const vec3& BaseCamera::GetDirection() const
+const vec3& Camera::GetDirection() const
 {
     return direction_;
 }
-const mat4& BaseCamera::GetTranslationMatrix() const
+const mat4& Camera::GetTranslationMatrix() const
 {
     return translationMatrix_;
 }
-const vec3& BaseCamera::GetPosition() const
+const vec3& Camera::GetPosition() const
 {
     return position_;
 }
-const Rotation& BaseCamera::GetRotation() const
+const Rotation& Camera::GetRotation() const
 {
     return rotation_;
 }
-float BaseCamera::GetPitch() const
+float Camera::GetPitch() const
 {
     return rotation_.GetEulerDegrees()->x;
 }
-void BaseCamera::SetPitch(float angle)
+void Camera::SetPitch(float angle)
 {
     glm::quat pitch  = glm::angleAxis(glm::radians(angle), vec3(1.f, 0.f, 0.f));
-    glm::quat yaw    = glm::angleAxis(glm::eulerAngles(rotation_.value_).y, vec3(0.f, 1.f, 0.f));
-    rotation_.value_ = pitch * yaw;
+    glm::quat yaw    = glm::angleAxis(glm::yaw(rotation_.value_), vec3(0.f, 1.f, 0.f));
+    rotation_.value_ = glm::normalize(pitch * yaw);
     NotifySubscribers();
 }
-void BaseCamera::SetRotation(const Rotation& rotation)
+void Camera::SetRotation(const Rotation& rotation)
 {
     rotation_ = rotation;
     NotifySubscribers();
 }
-float BaseCamera::GetYaw() const
+float Camera::GetYaw() const
 {
     return rotation_.GetEulerDegrees()->y;
 }
-void BaseCamera::SetYaw(float angle)
+void Camera::SetYaw(float angle)
 {
-    glm::quat pitch  = glm::angleAxis(glm::eulerAngles(rotation_.value_).x, vec3(1.f, 0.f, 0.f));
+    glm::quat pitch  = glm::angleAxis(glm::pitch(rotation_.value_), vec3(1.f, 0.f, 0.f));
     glm::quat yaw    = glm::angleAxis(glm::radians(angle), vec3(0.f, 1.f, 0.f));
-    rotation_.value_ = pitch * yaw;
+    rotation_.value_ = glm::normalize(pitch * yaw);
     NotifySubscribers();
 }
-void BaseCamera::CalculateDirection()
+void Camera::CalculateDirection()
 {
     direction_ = glm::normalize(VECTOR_FORWARD * rotation_.value_);
 }
-void BaseCamera::UpdateViewMatrix()
+void Camera::UpdateViewMatrix()
 {
     rotationMatrix_    = glm::mat4_cast(rotation_.value_);
     translationMatrix_ = glm::translate(-position_);
 
     viewMatrix_ = rotationMatrix_ * translationMatrix_;
 }
-const mat4& BaseCamera::GetRotationMatrix() const
+const mat4& Camera::GetRotationMatrix() const
 {
     return rotationMatrix_;
 }
-const mat4& BaseCamera::GetViewMatrix() const
+const mat4& Camera::GetViewMatrix() const
 {
     return viewMatrix_;
 }
-void BaseCamera::IncreaseYaw(float yaw)
+void Camera::IncreaseYaw(float yaw)
 {
-    rotation_.value_ *= glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f));
+    rotation_.value_ *= glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
     NotifySubscribers();
 }
-void BaseCamera::IncreasePitch(float pitch)
+void Camera::IncreasePitch(float pitch)
 {
     glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
-    rotation_.value_ = qPitch * rotation_.value_;
+    rotation_.value_ = glm::normalize(qPitch * rotation_.value_);
     NotifySubscribers();
 }
-void BaseCamera::IncreasePosition(const vec3& v)
+void Camera::IncreasePosition(const vec3& v)
 {
     position_.x += v.x;
     position_.y += v.y;
     position_.z += v.z;
     NotifySubscribers();
 }
-void BaseCamera::IncreasePositionX(float x)
+void Camera::IncreasePositionX(float x)
 {
     position_.x += x;
     NotifySubscribers();
 }
-void BaseCamera::IncreasePositionY(float y)
+void Camera::IncreasePositionY(float y)
 {
     position_.y += y;
     NotifySubscribers();
 }
-void BaseCamera::IncreasePositionZ(float z)
+void Camera::IncreasePositionZ(float z)
 {
     position_.z += z;
     NotifySubscribers();
 }
-void BaseCamera::IncreasePositionXZ(const vec2& v)
+void Camera::IncreasePositionXZ(const vec2& v)
 {
     position_.x += v.x;
     position_.z += v.y;

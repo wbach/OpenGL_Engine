@@ -10,7 +10,7 @@ namespace GameEngine
 {
 class DisplayManager;
 
-class FirstPersonCamera : public BaseCamera
+class FirstPersonCamera : public Camera
 {
 public:
     FirstPersonCamera(Input::InputManager&, DisplayManager&);

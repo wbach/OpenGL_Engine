@@ -46,6 +46,7 @@ private:
     void renderScene();
     void createRefractionTexture();
     void createReflectionTexture();
+    void createWaterTilesTextures(IdType);
 
 private:
     RendererContext& context_;
@@ -59,5 +60,8 @@ private:
 
     GraphicsApi::IFrameBuffer* reflectionFrameBuffer_;
     GraphicsApi::IFrameBuffer* refractionFrameBuffer_;
+
+    GraphicsApi::ID reflectionPerFrameBuffer_;
+    GraphicsApi::ID refractionPerFrameBuffer_;
 };
 }  // namespace GameEngine

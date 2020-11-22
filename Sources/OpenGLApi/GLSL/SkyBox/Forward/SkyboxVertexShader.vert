@@ -8,6 +8,7 @@ layout (std140, binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
     vec3 cameraPosition;
+    vec4 clipPlane;
 } perFrame;
 
 layout (std140, binding=3) uniform PerObjectUpdate
@@ -17,6 +18,8 @@ layout (std140, binding=3) uniform PerObjectUpdate
 
 void main(void)
 {
-    gl_Position = perFrame.projectionViewMatrix * perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
+    vec4 worldPosition = perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
+    gl_Position = perFrame.projectionViewMatrix * worldPosition;
+    gl_ClipDistance[0] = dot(worldPosition, perFrame.clipPlane);
     TextureCoords = Position;
 }

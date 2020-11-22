@@ -87,6 +87,7 @@ public:
     // Cameras
     void UpdateCamera();
     void SetCamera(ICamera& camera);
+    CameraWrapper& GetCamera();
     const CameraWrapper& GetCamera() const;
 
     // Lights

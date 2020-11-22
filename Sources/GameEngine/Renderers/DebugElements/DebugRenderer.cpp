@@ -117,7 +117,8 @@ void DebugRenderer::init()
         ERROR_LOG("texturePerObjectUpdateBufferId_ error!");
     }
 
-    textureColorBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
+    textureColorBufferId_ =
+        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
     if (textureColorBufferId_)
     {
         ColorBuffer b;
@@ -174,9 +175,10 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
             {
                 auto pos = vec3(-.99f + (size.x), .99f - size.y - (2.f * size.y * i), 0);
                 PerObjectUpdate gridPerObjectUpdate;
-                gridPerObjectUpdate.TransformationMatrix =
-                    Utils::CreateTransformationMatrix(pos, size, DegreesFloat(0.f));
-                rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_, &gridPerObjectUpdate);
+                gridPerObjectUpdate.TransformationMatrix = rendererContext_.graphicsApi_.PrepareMatrixToLoad(
+                    Utils::CreateTransformationMatrix(pos, size, DegreesFloat(180.f)));
+                rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_,
+                                                                 &gridPerObjectUpdate);
 
                 rendererContext_.graphicsApi_.BindTexture(*textureId);
                 rendererContext_.graphicsApi_.RenderQuad();

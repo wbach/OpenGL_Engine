@@ -48,6 +48,7 @@ void WaterRenderer::prepare()
 void WaterRenderer::render()
 {
     context_.graphicsApi_.EnableBlend();
+    context_.graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     shader_.Start();
 
     WaterTileMeshBuffer waterTileMeshBuffer;
@@ -71,11 +72,21 @@ void WaterRenderer::render()
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 
+        if (context_.waterReflectionTextureId_)
+            context_.graphicsApi_.ActiveTexture(0, *context_.waterReflectionTextureId_);
+
+        if (context_.waterRefractionTextureId_)
+            context_.graphicsApi_.ActiveTexture(1, *context_.waterRefractionTextureId_);
+
+        if (context_.waterRefractionDepthTextureId_)
+            context_.graphicsApi_.ActiveTexture(2, *context_.waterRefractionDepthTextureId_);
+
         if (component.GetNormalTexture() and component.GetNormalTexture()->GetGraphicsObjectId())
-            context_.graphicsApi_.ActiveTexture(2, *component.GetNormalTexture()->GetGraphicsObjectId());
+            context_.graphicsApi_.ActiveTexture(3, *component.GetNormalTexture()->GetGraphicsObjectId());
 
         if (component.GetDudvTexture() and component.GetDudvTexture()->GetGraphicsObjectId())
             context_.graphicsApi_.ActiveTexture(4, *component.GetDudvTexture()->GetGraphicsObjectId());
+
 
         context_.graphicsApi_.RenderQuad();
     }

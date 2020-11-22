@@ -259,7 +259,6 @@ void RenderersManager::UpdatePerAppBuffer() const
         const auto& rendererConfig = EngineConf.renderer;
 
         PerAppBuffer perApp;
-        perApp.clipPlane   = vec4{0.f, 1.f, 0.f, 100000.f};
         perApp.useTextures = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular),
                                   F(textureConfig.useDisplacement));
         perApp.shadowVariables = vec4(F(shadowsConfig.isEnabled), shadowsConfig.distance, shadowsConfig.mapSize, 0.f);
@@ -281,6 +280,7 @@ void RenderersManager::CreatePerFrameBuffer()
         buffer.ProjectionViewMatrix =
             projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
         buffer.cameraPosition = vec3(0);
+        buffer.clipPlane      = vec4{0.f, 1.f, 0.f, 100000.f};
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
     }
@@ -293,6 +293,7 @@ void RenderersManager::updatePerFrameBuffer(Scene& scene)
         PerFrameBuffer buffer;
         buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
         buffer.cameraPosition       = scene.GetCamera().GetPosition();
+        buffer.clipPlane            = vec4{0.f, 1.f, 0.f, 100000.f};
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }

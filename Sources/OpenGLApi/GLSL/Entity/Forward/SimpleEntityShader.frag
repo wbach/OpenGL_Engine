@@ -6,7 +6,6 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
     float viewDistance;
     vec3 shadowVariables;
-    vec4 clipPlane;
 } perApp;
 
 layout (std140, align=16, binding=6) uniform PerMeshObject

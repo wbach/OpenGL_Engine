@@ -58,6 +58,8 @@ public:
     MOCK_METHOD1(RenderPoints, void(uint32));
     MOCK_METHOD0(RenderQuad, void());
     MOCK_METHOD0(RenderQuadTs, void());
+    MOCK_METHOD1(EnableClipingPlane, void(uint32));
+    MOCK_METHOD1(DisableCliping, void(uint32));
     MOCK_METHOD0(EnableCulling, void());
     MOCK_METHOD0(DisableCulling, void());
     MOCK_METHOD4(SetViewPort, void(uint32, uint32, uint32, uint32));

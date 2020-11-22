@@ -25,9 +25,9 @@ in VS_OUT
 
 layout(binding = 0) uniform sampler2D reflectionTexture;
 layout(binding = 1) uniform sampler2D refractionTexture;
-layout(binding = 2) uniform sampler2D normalMap;
+layout(binding = 2) uniform sampler2D depthMap;
+layout(binding = 3) uniform sampler2D normalMap;
 layout(binding = 4) uniform sampler2D dudvMap;
-layout(binding = 5) uniform sampler2D depthMap;
 
 layout (location = 0) out vec4 outputColor;
 

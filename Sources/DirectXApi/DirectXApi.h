@@ -70,6 +70,8 @@ public:
     void RenderPoints(uint32) override;
     void RenderQuad() override;
     void RenderQuadTs() override;
+    void EnableClipingPlane(uint32) override;
+    void DisableCliping(uint32) override;
     void EnableCulling() override;
     void DisableCulling() override;
     void SetViewPort(uint32, uint32, uint32, uint32) override;

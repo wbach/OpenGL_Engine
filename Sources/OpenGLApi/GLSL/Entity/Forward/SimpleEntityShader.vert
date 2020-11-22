@@ -15,13 +15,13 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
     float viewDistance;
     vec3 shadowVariables;
-    vec4 clipPlane;
 } perApp;
 
 layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
     vec3 cameraPosition;
+    vec4 clipPlane;
 } perFrame;
 
 layout (std140, align=16, binding=2) uniform PerObjectConstants
@@ -94,5 +94,5 @@ void main()
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.outOfViewRange = 0.f; //length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
     gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
-    gl_ClipDistance[0] = dot(worldData.worldPosition, perApp.clipPlane);
+    gl_ClipDistance[0] = dot(worldData.worldPosition, perFrame.clipPlane);
 }

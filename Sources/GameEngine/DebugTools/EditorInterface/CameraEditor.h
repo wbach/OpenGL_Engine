@@ -11,7 +11,7 @@ namespace GameEngine
 {
 class DisplayManager;
 
-class CameraEditor : public BaseCamera
+class CameraEditor : public Camera
 {
 public:
     CameraEditor(Input::InputManager&, DisplayManager&);

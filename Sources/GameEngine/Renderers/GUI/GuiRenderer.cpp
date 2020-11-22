@@ -65,7 +65,7 @@ void GUIRenderer::render()
     graphicsApi_.EnableBlend();
     graphicsApi_.DisableDepthTest();
     graphicsApi_.DisableDepthMask();
-    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     std::lock_guard<std::mutex> lk(subscriberMutex);
 
     float min = 100000000.f;

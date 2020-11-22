@@ -11,8 +11,8 @@
 			<TerrainRenderer>Mesh</TerrainRenderer>
 		</Terrain>
 		<Water type="2">
-			<Reflection width="640" height="240"/>
-			<Refraction width="320" height="240"/>
+			<Reflection width="1366" height="768"/>
+			<Refraction width="1366" height="768"/>
 		</Water>
 		<Flora enabled="true" grass="1" viewDistance="10.000000"/>
 		<Shadows firstCascadeDistance="25.000000" enabled="true" cascadesSize="4" viewDistance="400.000000" cascadeDistanceFunc="quadratic" shadowMapSize="4096"/>

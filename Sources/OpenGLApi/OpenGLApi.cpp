@@ -666,40 +666,39 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
     }
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
     auto channels = image.getChannelsCount();
-    std::visit(
-        visitor{
-            [&](const std::vector<uint8>& data) {
-                switch (channels)
-                {
-                    case 4:
-                        type = GraphicsApi::TextureType::U8_RGBA;
-                        break;
-                    default:
-                        DEBUG_LOG("Not implmented.");
-                }
-            },
-            [&](const std::vector<float>& data) {
-                switch (channels)
-                {
-                    case 1:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
-                        break;
-                    case 2:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
-                        break;
-                    case 3:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
-                        break;
-                    case 4:
-                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
-                        break;
-                    default:
-                        DEBUG_LOG("Not implmented.");
-                }
-            },
-            [](std::monostate) { ERROR_LOG("Image data not set!"); },
-        },
-        image.getImageData());
+    std::visit(visitor{
+                   [&](const std::vector<uint8>& data) {
+                       switch (channels)
+                       {
+                           case 4:
+                               type = GraphicsApi::TextureType::U8_RGBA;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [&](const std::vector<float>& data) {
+                       switch (channels)
+                       {
+                           case 1:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                               break;
+                           case 2:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                               break;
+                           case 3:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                               break;
+                           case 4:
+                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                               break;
+                           default:
+                               DEBUG_LOG("Not implmented.");
+                       }
+                   },
+                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
+               },
+               image.getImageData());
 
     CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
 
@@ -848,7 +847,7 @@ void OpenGLApi::ActiveTexture(uint32 nr)
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    //if (id == 0 or not createdObjectIds.count(id))
+    // if (id == 0 or not createdObjectIds.count(id))
     //{
     //    ERROR_LOG("Wrong image id : " + std::to_string(id));
     //    return;
@@ -1242,6 +1241,16 @@ void OpenGLApi::RenderQuadTs()
     quadTs_.Render(2);
 }
 
+void OpenGLApi::EnableClipingPlane(uint32 i)
+{
+    glEnable(GL_CLIP_DISTANCE0 + i);
+}
+
+void OpenGLApi::DisableCliping(uint32 i)
+{
+    glDisable(GL_CLIP_DISTANCE0 + i);
+}
+
 void OpenGLApi::EnableCulling()
 {
     glEnable(GL_CULL_FACE);
@@ -1301,7 +1310,7 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
     glBlendEquation(GL_FUNC_ADD);
     switch (type)
     {
-        case GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA:
+        case GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA:
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             break;
         case GraphicsApi::BlendFunctionType::ONE:

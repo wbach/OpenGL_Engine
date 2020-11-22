@@ -228,6 +228,11 @@ void Scene::SetCamera(ICamera& cam)
     camera.Set(cam);
 }
 
+CameraWrapper& Scene::GetCamera()
+{
+    return camera;
+}
+
 const CameraWrapper& Scene::GetCamera() const
 {
     return camera;

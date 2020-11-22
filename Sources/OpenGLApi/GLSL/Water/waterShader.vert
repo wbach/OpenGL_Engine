@@ -15,6 +15,7 @@ layout (std140,binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
     vec3 cameraPosition;
+    vec4 clipPlane;
 } perFrame;
 
 layout (std140, binding=3) uniform PerObjectUpdate
@@ -25,25 +26,20 @@ layout (std140, binding=3) uniform PerObjectUpdate
 out VS_OUT
 {
     vec2 texCoord;
-    vec2 refractTexCoords;
-    vec2 reflectTexCoords;
     vec3 normal;
     vec3 worldPos;
     vec3 toCameraVector;
+    vec4 clipSpace;
 } vs_out;
 
 void main(void)
  {
+    vec4 worldSpace       = perObjectUpdate.transformationMatrix * vec4(Position, 1.0);
     vs_out.texCoord       = TexCoord * tiling;
     vs_out.normal         = (perObjectUpdate.transformationMatrix * vec4(Normal, 0.0)).xyz;
-    vs_out.worldPos       = (perObjectUpdate.transformationMatrix * vec4(Position, 1.0)).xyz;
-    vs_out.toCameraVector = perFrame.cameraPosition - vs_out.worldPos;
+    vs_out.worldPos       = worldSpace.xyz;
+    vs_out.toCameraVector = normalize(perFrame.cameraPosition - worldSpace.xyz);
+    vs_out.clipSpace      = perFrame.projectionViewMatrix * worldSpace;
 
-    vec4 position         = perFrame.projectionViewMatrix * vec4(vs_out.worldPos, 1.0f);
-    vec2 ndc              = (position.xy/position.w) /2.0 + 0.5;
-
-    vs_out.refractTexCoords = vec2(ndc.x,ndc.y);
-    vs_out.reflectTexCoords = vec2(ndc.x,-ndc.y);
-
-    gl_Position = position;
+    gl_Position = vs_out.clipSpace;
 }

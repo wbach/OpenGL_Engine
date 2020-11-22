@@ -936,6 +936,12 @@ void DirectXApi::RenderQuadTs()
 {
     impl_->GetDxObject(impl_->quadId).Draw();
 }
+void DirectXApi::EnableClipingPlane(uint32)
+{
+}
+void DirectXApi::DisableCliping(uint32)
+{
+}
 void DirectXApi::EnableCulling()
 {
 }

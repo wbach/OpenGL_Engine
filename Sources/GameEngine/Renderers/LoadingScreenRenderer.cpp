@@ -32,7 +32,7 @@ void LoadingScreenRenderer::render()
     prepareRender();
     shader_.Start();
     graphicsApi_.EnableBlend();
-    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+    graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     renderQuad(backgroundBufferId_, backgroundTexture.GetGraphicsObjectId());
     renderQuad(circleBufferId_, circleTexture.GetGraphicsObjectId());
     graphicsApi_.DisableBlend();

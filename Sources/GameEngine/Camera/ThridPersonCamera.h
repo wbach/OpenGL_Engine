@@ -14,7 +14,7 @@ class InputManager;
 
 namespace GameEngine
 {
-class ThirdPersonCamera : public BaseCamera
+class ThirdPersonCamera : public Camera
 {
 public:
     ThirdPersonCamera(Input::InputManager&, const common::Transform&);

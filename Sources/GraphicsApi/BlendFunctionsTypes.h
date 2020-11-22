@@ -10,6 +10,6 @@ enum class BlendFunctionType
     DST_COLOR,
     ONE_MINUS_DST_COLOR,
     SRC_ALPHA,
-    ALPHA_ONE_MINUS_ALPHA
+    ONE_MINUS_SRC_ALPHA
 };
 }  // namespace GraphicsApi

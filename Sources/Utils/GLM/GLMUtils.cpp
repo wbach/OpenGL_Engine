@@ -200,6 +200,21 @@ float Utils::BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::v
     return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
+mat4 Utils::createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition)
+{
+    return glm::mat4_cast(rotation) * glm::translate(-cameraPosition);
+}
+
+Quaternion Utils::lookAt(const vec3& lookAtPosition, const vec3& position)
+{
+    auto direction   = position - lookAtPosition;
+    auto yaw         = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
+    auto pitch       = atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z));
+    glm::quat qPitch = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+    glm::quat qYaw   = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+    return glm::normalize(qPitch * qYaw);
+}
+
 glm::vec3 Utils::BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
 {
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);

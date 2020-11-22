@@ -1,17 +1,18 @@
 #pragma once
 #include <functional>
+
 #include "ICamera.h"
 
 namespace GameEngine
 {
-class BaseCamera : public ICamera
+class Camera : public ICamera
 {
 public:
-    BaseCamera();
-    BaseCamera(float pitch, float yaw);
-    BaseCamera(const vec3& position, const vec3& lookAt);
+    Camera();
+    Camera(float pitch, float yaw);
+    Camera(const vec3& position, const vec3& lookAt);
 
-    ~BaseCamera() override = default;
+    ~Camera() override = default;
 
     void Move() override;
     void CalculateInput() override;

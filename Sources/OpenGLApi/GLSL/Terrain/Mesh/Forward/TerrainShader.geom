@@ -3,6 +3,13 @@
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
+layout (std140,binding=1) uniform PerFrame
+{
+    mat4 projectionViewMatrix;
+    vec3 cameraPosition;
+    vec4 clipPlane;
+} perFrame;
+
 in VS_OUT
 {
     vec4 worldPosition;
@@ -34,7 +41,8 @@ void main()
         gs_out.worldPosition  = gs_in[i].worldPosition.xyz;
         gs_out.texCoord       = gs_in[i].texCoord;
         gs_out.normal         = gs_in[i].normal;
-        gs_out.faceNormal     = faceNormal; 
+        gs_out.faceNormal     = faceNormal;
+        gl_ClipDistance[0]    = dot(gs_in[i].worldPosition, perFrame.clipPlane);
         gl_Position           = gl_in[i].gl_Position;
         EmitVertex();
     }

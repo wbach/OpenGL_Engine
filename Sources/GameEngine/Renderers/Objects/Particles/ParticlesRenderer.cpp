@@ -89,7 +89,7 @@ void ParticlesRenderer::ClearFrame()
 {
     context_.graphicsApi_.EnableCulling();
     context_.graphicsApi_.EnableDepthMask();
-    context_.graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA);
+    context_.graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     context_.graphicsApi_.DisableBlend();
 }
 void ParticlesRenderer::RenderSubscribes(const mat4& viewMatrix)

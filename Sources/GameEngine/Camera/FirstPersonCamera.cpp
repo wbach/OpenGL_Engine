@@ -13,7 +13,7 @@ const float defaultCamSpeed         = Utils::KmToMs<float>(135);
 }  // namespace
 
 FirstPersonCamera::FirstPersonCamera(Input::InputManager& inputManager, GameEngine::DisplayManager& displayManager)
-    : BaseCamera(vec3(2.f), vec3(0.f))
+    : Camera(vec3(2.f), vec3(0.f))
     , inputManager_(inputManager)
     , displayManager_(displayManager)
 {
@@ -79,14 +79,14 @@ vec2 FirstPersonCamera::CalcualteMouseMove()
 
 void FirstPersonCamera::Lock()
 {
-    BaseCamera::Lock();
+    Camera::Lock();
     inputManager_.SetReleativeMouseMode(false);
     inputManager_.ShowCursor(true);
 }
 
 void FirstPersonCamera::Unlock()
 {
-    BaseCamera::Unlock();
+    Camera::Unlock();
     inputManager_.SetReleativeMouseMode(true);
     inputManager_.ShowCursor(false);
 }

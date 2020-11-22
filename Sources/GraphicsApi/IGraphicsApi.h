@@ -85,6 +85,8 @@ public:
     virtual void RenderPoints(uint32)                                                         = 0;
     virtual void RenderQuad()                                                                 = 0;
     virtual void RenderQuadTs()                                                               = 0;
+    virtual void EnableClipingPlane(uint32)                                                   = 0;
+    virtual void DisableCliping(uint32)                                                       = 0;
     virtual void EnableCulling()                                                              = 0;
     virtual void DisableCulling()                                                             = 0;
     virtual void SetViewPort(uint32, uint32, uint32, uint32)                                  = 0;

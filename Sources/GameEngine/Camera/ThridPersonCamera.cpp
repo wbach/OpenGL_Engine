@@ -66,13 +66,13 @@ void ThirdPersonCamera::CalculateZoom(float v)
 }
 void ThirdPersonCamera::Lock()
 {
-    BaseCamera::Lock();
+    Camera::Lock();
     SetRelativeMode(false);
     inputManager_.ShowCursor(true);
 }
 void ThirdPersonCamera::Unlock()
 {
-    BaseCamera::Unlock();
+    Camera::Unlock();
     SetRelativeMode(true);
     inputManager_.ShowCursor(false);
 }

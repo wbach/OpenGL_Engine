@@ -15,7 +15,7 @@ const float defaultCamRotationSpeed = 0.25f;
 }  // namespace
 
 CameraEditor::CameraEditor(Input::InputManager& inputManager, DisplayManager& displayManager)
-    : BaseCamera(vec3(2.f), vec3(0.f))
+    : Camera(vec3(2.f), vec3(0.f))
     , inputManager_(inputManager)
     , displayManager_(displayManager)
 {

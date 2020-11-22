@@ -45,7 +45,7 @@ public:
     void UnsubscribeOnChange(uint32);
 
 private:
-    BaseCamera baseCamera_;
+    Camera baseCamera_;
     ICamera* camera_;
 };
 }  // namespace GameEngine

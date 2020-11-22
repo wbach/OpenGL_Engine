@@ -19,7 +19,7 @@ ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentCont
     , particlesPerSecond_(10)
     , particlesLimit_(10000)
     , isAnimated_(false)
-    , blendFunction_(GraphicsApi::BlendFunctionType::ALPHA_ONE_MINUS_ALPHA)
+    , blendFunction_(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA)
     , rest(0)
     , isSubscribed_(false)
 {

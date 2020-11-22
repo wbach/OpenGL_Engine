@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include "../Types.h"
 #include "Glm.h"
 
@@ -51,4 +52,7 @@ mat4 CreateTransformationMatrix(const vec3& translation, const vec2& scale, Radi
 
 Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend);
 float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
+
+mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition);
+Quaternion lookAt(const vec3& lookAtPosition, const vec3& position);
 }  // namespace Utils

@@ -203,6 +203,12 @@ public:
     void RenderQuadTs() override
     {
     }
+    void EnableClipingPlane(uint32) override
+    {
+    }
+    void DisableCliping(uint32) override
+    {
+    }
     void EnableCulling() override
     {
     }

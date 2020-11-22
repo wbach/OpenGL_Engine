@@ -57,7 +57,7 @@ struct CameraFrustrumShould : public ::testing::Test
     }
 
     Frustrum sut_;
-    BaseCamera camera_;
+    Camera camera_;
     Projection projection_;
 };
 
