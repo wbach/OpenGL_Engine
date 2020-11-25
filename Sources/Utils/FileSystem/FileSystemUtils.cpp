@@ -255,13 +255,9 @@ void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& o
 
             auto filename = line.substr(startFileNamePos, endNamePos - startFileNamePos);
             std::string includedFileName{std::filesystem::path(filename).make_preferred().string()};
-
-            DEBUG_LOG("includedFileName : " + includedFileName);
-
             auto absultePath =
                 std::filesystem::canonical(std::filesystem::canonical(fullPath).replace_filename(includedFileName))
                     .string();
-            DEBUG_LOG("absultePath : " + absultePath);
             ReadFilesWithIncludesImpl(absultePath, output);
             output << '\n';
         }
