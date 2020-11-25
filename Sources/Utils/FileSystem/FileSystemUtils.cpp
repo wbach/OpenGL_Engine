@@ -155,6 +155,24 @@ std::string GetAbsolutePath(const std::string& file)
     }
 }
 
+std::string GetAbsoluteParentPath(const std::string& file)
+{
+    try
+    {
+        return std::filesystem::canonical(file).parent_path().string();
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        ERROR_LOG(e.what());
+        return file;
+    }
+    catch (...)
+    {
+        ERROR_LOG("error " + file);
+        return file;
+    }
+}
+
 bool DirectoryExist(const std::string& pathDir)
 {
     return std::filesystem::exists(pathDir) and std::filesystem::is_directory(pathDir);
@@ -212,6 +230,60 @@ std::string CreateBackupFile(const std::string& output)
     }
 
     return {};
+}
+
+void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& output)
+{
+    const std::string includeStr{"#include"};
+
+    auto lines = Utils::ReadFileLines(fullPath);
+
+    for (const auto& line : lines)
+    {
+        auto lineWithInclude = line.find(includeStr);
+
+        if (lineWithInclude != std::string::npos)
+        {
+            auto startFileNamePos = line.find_first_of('"') + 1;
+            auto endNamePos       = line.find_last_of('"');
+
+            if (startFileNamePos >= endNamePos)
+            {
+                ERROR_LOG(fullPath + " : inncorect include line : " + line);
+                continue;
+            }
+
+            auto filename = line.substr(startFileNamePos, endNamePos - startFileNamePos);
+            std::string includedFileName{std::filesystem::path(filename).make_preferred().string()};
+
+            DEBUG_LOG("includedFileName : " + includedFileName);
+
+            auto absultePath =
+                std::filesystem::canonical(std::filesystem::canonical(fullPath).replace_filename(includedFileName))
+                    .string();
+            DEBUG_LOG("absultePath : " + absultePath);
+            ReadFilesWithIncludesImpl(absultePath, output);
+            output << '\n';
+        }
+        else
+        {
+            output << line << '\n';
+        }
+    }
+}
+
+std::string ReadFilesWithIncludes(const std::string& filename)
+{
+    std::stringstream sourceCode;
+    try
+    {
+        ReadFilesWithIncludesImpl(filename, sourceCode);
+    }
+    catch (...)
+    {
+        ERROR_LOG(filename + " including error");
+    }
+    return sourceCode.str();
 }
 
 }  // namespace Utils

@@ -1,6 +1,7 @@
 #include "WaveFrontObj.h"
 
 #include <algorithm>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "../MeshData.h"
 #include "GameEngine/Engine/Configuration.h"

@@ -1,21 +1,27 @@
 <Config>
 	<Window name="Game" width="1366" height="768" fullscreen="false"/>
 	<Files>
-		<DataLocation>../../Data</DataLocation>
+		<DataLocation>../../Data/</DataLocation>
 		<ShadersLocation>../OpenGLApi/GLSL/</ShadersLocation>
 		<RequiredFilesOutputFile>required_files.inf</RequiredFilesOutputFile>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer resolutionX="1366" type="1" resolutionY="768" fpsLimit="60">
+	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" resolutionY="768" viewDistance="250.000000" fpsLimit="60" normalMappingDistance="50.000000">
+		<Terrain>
+			<TerrainRenderer>Mesh</TerrainRenderer>
+		</Terrain>
 		<Water type="2">
-			<Reflection width="640" height="480"/>
+			<Reflection width="640" height="240"/>
 			<Refraction width="320" height="240"/>
 		</Water>
-		<Textures ambient="true" maxWidth="4096" maxHeight="4096" diffuse="true" normal="true" specular="true"/>
 		<Flora enabled="true" grass="1" viewDistance="10.000000"/>
-		<Shadows enabled="false" viewDistance="35.000000" shadowMapSize="2048"/>
+		<Shadows firstCascadeDistance="25.000000" enabled="false" cascadesSize="4" viewDistance="35.000000" cascadeDistanceFunc="quadratic" shadowMapSize="2048"/>
+		<Textures ambient="true" maxWidth="4096" displacement="false" maxHeight="4096" diffuse="true" normal="true" specular="true"/>
 		<Particles enabled="true"/>
 	</Renderer>
+	<DebugParams>
+		<PhysicsVisualizator useWorker="false" refreshStepDown="0"/>
+	</DebugParams>
 	<EnableBinaryLoading>true</EnableBinaryLoading>
 </Config>
 

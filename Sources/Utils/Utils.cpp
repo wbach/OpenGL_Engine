@@ -3,6 +3,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "Logger/Log.h"
+#include "FileSystem\FileSystemUtils.hpp"
 
 namespace Utils
 {
@@ -98,9 +99,9 @@ std::string ReadFile(const std::string& file_name)
     return out;
 }
 
-std::list<std::string> ReadFileLines(const std::string& file_name)
+std::vector<std::string> ReadFileLines(const std::string& file_name)
 {
-    std::list<std::string> output;
+    std::vector<std::string> output;
     std::ifstream f(file_name);
     if (!f.is_open())
     {

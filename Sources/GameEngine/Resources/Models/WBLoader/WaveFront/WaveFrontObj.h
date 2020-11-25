@@ -1,5 +1,5 @@
 #pragma once
-#include <list>
+#include <vector>
 #include "../AbstractLoader.h"
 
 namespace GameEngine
@@ -28,7 +28,7 @@ private:
     void Clear();
 
 private:
-    std::list<std::string> fileData;
+    std::vector<std::string> fileData;
     std::string path;
     std::string filename;
 

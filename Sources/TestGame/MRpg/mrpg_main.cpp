@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "GameEngine/Physics/Bach/BachPhysicsAdapter.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
+#include "Utils/FileSystem/FileSystemUtils.hpp"
 #include "MrpgGameContext.h"
 #include "PlayerMock.h"
 #include "Scenes/ScenesFactory.h"

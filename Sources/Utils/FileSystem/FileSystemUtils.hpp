@@ -26,9 +26,15 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath);
 std::string GetParent(const std::string&);
 std::string GetCurrentDir();
 std::string GetAbsolutePath(const std::string&);
+std::string GetAbsoluteParentPath(const std::string&);
 std::string GetRelativePath(const std::string&, const std::string&);
 bool IsAbsolutePath(const std::string&);
 bool IsRelativePath(const std::string&);
 bool DirectoryExist(const std::string&);
 std::string CreateBackupFile(const std::string&);
+std::string ReadFileBinary(const std::string& file_name);
+std::string ReadFile(const std::string& file_name);
+std::string ReadFilesWithIncludes(const std::string& filename);
+std::vector<std::string> ReadFileLines(const std::string& file_name);
+void WrtieToFile(const std::string& filename, const std::string& content);
 }  // namespace Utils

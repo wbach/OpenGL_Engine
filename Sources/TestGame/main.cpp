@@ -11,11 +11,13 @@
 #include "Physics/PhyscisTestScene.h"
 #include "Single/SingleStart.h"
 
-#include <GameEngine/Resources/Models/WBLoader/LoaderManager.h>
-#include <GameEngine/Resources/TextureLoader.h>
-#include <GameEngine/Resources/GpuResourceLoader.h>
 #include <GameEngine/Animations/AnimationUtils.h>
 #include <GameEngine/Api/Dummy/DummyGraphicsApi.h>
+#include <GameEngine/Resources/GpuResourceLoader.h>
+#include <GameEngine/Resources/Models/WBLoader/LoaderManager.h>
+#include <GameEngine/Resources/TextureLoader.h>
+
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 void StartMessage()
 {
@@ -45,8 +47,22 @@ void ExportAnimationClips(const GameEngine::File& file)
     DEBUG_LOG("Animation clips : " + std::to_string(model->animationClips_.size()));
     for (const auto& animation : model->animationClips_)
     {
-        GameEngine::Animation::ExportAnimationClipToFile("D:/Tmp/" + animation.first + "_animationClip.xml", animation.second);
+        GameEngine::Animation::ExportAnimationClipToFile("D:/Tmp/" + animation.first + "_animationClip.xml",
+                                                         animation.second);
     }
+}
+
+void exportAnimationClips()
+{
+    ExportAnimationClips("D:/Projects/OpenGL_Engine/Data/Meshes/DaeAnimationExample/characeterIdle.dae");
+}
+
+void glslInclude()
+{
+    std::string filename{"D:/tmp/tmp1/testShader.txt"};
+    auto sourceCode = Utils::ReadFilesWithIncludes(filename);
+    auto testFile   = std::filesystem::path(filename).stem().string();
+    Utils::WrtieToFile("D:\\tmp\\" + testFile + "_all.txt", sourceCode);
 }
 
 int main(int argc, char* argv[])
@@ -54,14 +70,14 @@ int main(int argc, char* argv[])
     CLogger::Instance().EnableLogs();
     CLogger::Instance().ImmeditalyLog();
 
-    ExportAnimationClips("D:/Projects/OpenGL_Engine/Data/Meshes/DaeAnimationExample/characeterIdle.dae");
-    return 0;
+    // exportAnimationClips(); return 0;
+    glslInclude(); return 0;
+
     GameEngine::ReadFromFile("./Conf.xml");
     auto api = std::make_unique<OpenGLApi::OpenGLApi>();
     // GameEngine::ReadFromFile("./ConfDx11.xml"); auto api = std::make_unique<DirectX::DirectXApi>();
 
     StartMessage();
-
 
     bool choosedApp = false;
 

@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
-#include <filesystem>
 #include "FullDefferedShaderFiles.h"
 #include "Logger/Log.h"
 #include "OpenGLApi/IdPool.h"
@@ -111,9 +111,9 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
         shadersFileLocation_ += '/';
     }
 
-    auto full_path = shadersFileLocation_ + filename;
+    auto fullPath = shadersFileLocation_ + filename;
 
-    std::string source = Utils::ReadFile(full_path);
+    std::string source = Utils::ReadFilesWithIncludes(fullPath);
 
     uint32 id;
     id = glCreateShader(shaderTypeMap.at(mode));

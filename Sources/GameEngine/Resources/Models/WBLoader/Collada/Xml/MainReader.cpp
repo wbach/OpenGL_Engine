@@ -1,5 +1,6 @@
 #include "MainReader.h"
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <rapidxml.hpp>
 
 #include "GameEngine/Engine/Configuration.h"

@@ -3,6 +3,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 #include "Utils/XML/XMLUtils.h"
+#include "Utils/FileSystem/FileSystemUtils.hpp"
 
 using namespace rapidxml;
 

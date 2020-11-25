@@ -4,6 +4,7 @@
 #include <Utils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 
 #include "GuiElement.h"

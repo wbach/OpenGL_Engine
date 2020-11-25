@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <filesystem>
 
 namespace Utils
 {
@@ -46,14 +47,9 @@ private:
     vec2i offset;
 };
 
-
 std::vector<std::string> SplitString(char* s, int size, char split_char);
 std::vector<std::string> SplitString(const std::string& s, char split_char);
 std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char);
-std::string ReadFileBinary(const std::string& file_name);
-std::string ReadFile(const std::string& file_name);
-std::list<std::string> ReadFileLines(const std::string& file_name);
-void WrtieToFile(const std::string& filename, const std::string& content);
 std::string ReplaceSlash(const std::string& str);
 int NextP2(int a);
 bool CheckFileExist(const std::string& file);
