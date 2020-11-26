@@ -225,30 +225,15 @@ void NetworkEditorInterface::PrepareDebugModels()
 
 void NetworkEditorInterface::KeysSubscribtions()
 {
-    float rotationSpeed       = 2.f;
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
-        if (selectedGameObject_)
-        {
-            IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, 1.f));
-
-            auto moveVector = GetPositionChangeValueBasedOnKeys(0.1f, 1.f);
-            moveVector      = selectedGameObject_->GetTransform().GetRotation().value_ * moveVector;
-            moveVector      = moveVector + selectedGameObject_->GetTransform().GetPosition();
-            selectedGameObject_->GetTransform().SetPosition(moveVector);
-        }
-    });
     keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this, rotationSpeed]() {
-            if (selectedGameObject_)
-            {
-                IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, -1.f));
+        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() { ObjectControlAction(1.f); });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this]() { ObjectControlAction(-1.f); });
 
-                auto moveVector = GetPositionChangeValueBasedOnKeys(0.1f, -1.f);
-                moveVector      = selectedGameObject_->GetTransform().GetRotation().value_ * moveVector;
-                moveVector      = moveVector + selectedGameObject_->GetTransform().GetPosition();
-                selectedGameObject_->GetTransform().SetPosition(moveVector);
-            }
-        });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { CreateDragObjectBasedOnSelected(); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::G, [this]() { ReleaseDragObject(); });
+	
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
@@ -266,8 +251,7 @@ void NetworkEditorInterface::KeysSubscribtions()
         {
             DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
 
-            dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                       scene_.renderersManager_->GetProjection());
+            CreateDragObjectBasedOnSelected();
 
             if (not lastSelectedGameObject or *lastSelectedGameObject != selectedGameObject_->GetId())
             {
@@ -283,12 +267,8 @@ void NetworkEditorInterface::KeysSubscribtions()
             DEBUG_LOG("no object selected");
         }
     });
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() {
-        {
-            std::lock_guard<std::mutex> lk(dragObjectMutex_);
-            dragObject_.reset(nullptr);
-        }
-    });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { ReleaseDragObject(); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         KeyCodes::ESCAPE, [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
@@ -903,6 +883,35 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 }
 
+void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed)
+{
+    if (selectedGameObject_)
+    {
+        IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, direction));
+
+        auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
+        moveVector      = selectedGameObject_->GetTransform().GetRotation().value_ * moveVector;
+        moveVector      = moveVector + selectedGameObject_->GetTransform().GetPosition();
+        selectedGameObject_->GetTransform().SetPosition(moveVector);
+    }
+}
+
+void NetworkEditorInterface::CreateDragObjectBasedOnSelected()
+{
+    if (selectedGameObject_)
+    {
+        std::lock_guard<std::mutex> lk(dragObjectMutex_);
+        dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
+                                                   scene_.renderersManager_->GetProjection());
+    }
+}
+
+void NetworkEditorInterface::ReleaseDragObject()
+{
+    std::lock_guard<std::mutex> lk(dragObjectMutex_);
+    dragObject_.reset(nullptr);
+}
+
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
 {
     SetDeubgRendererState(DebugRenderer::RenderState::Physics, params);
@@ -1341,7 +1350,8 @@ void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryPa
     {
         auto &terrainComponent = gameObject->AddComponent<Components::TerrainRendererComponent>();
 
-        std::vector<Components::TerrainComponentBase::TerrainTexture> textures{{heightMapFile, 1.f, TerrainTextureType::heightmap}};
+        std::vector<Components::TerrainComponentBase::TerrainTexture> textures{
+            {heightMapFile, 1.f, TerrainTextureType::heightmap}};
         terrainComponent.LoadTextures(textures);
 
         DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());

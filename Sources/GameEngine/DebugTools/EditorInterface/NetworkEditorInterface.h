@@ -105,6 +105,9 @@ private:
     std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
     Painter::EntryParamters GetPainterEntryParameters();
     void SetDeubgRendererState(DebugRenderer::RenderState, const EntryParameters&);
+    void ObjectControlAction(float direction, float rotationSpeed = 2.f, float moveSpeed = 0.1f);
+    void CreateDragObjectBasedOnSelected();
+    void ReleaseDragObject();
 
 private:
     Scene& scene_;
