@@ -55,7 +55,7 @@ std::optional<TerrainPoint> TerrainPointGetter::GetMousePointOnTerrain(const vec
 
     if (not terrains_.empty())
     {
-        auto ray = CalculateMouseRay(projection_, camera_, mousePosition);
+        auto ray = CalculateMouseRayDirection(projection_, camera_, mousePosition);
 
         if (IntersectionInRange(0, RAY_RANGE, ray))
         {

@@ -3,16 +3,16 @@
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
-#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
-std::optional<float> SphereIntersect(const vec3& objectPosition, float radius, const vec3& rayDirection,
-                                     const vec3& rayPosition)
+std::optional<float> SphereIntersect(const MousePicker::Ray& ray, const vec3& objectPosition, float radius)
 {
-    const auto& o = rayPosition;
-    const auto& d = glm::normalize(rayDirection);
+    const auto& o = ray.position;
+    const auto& d = glm::normalize(ray.direction);
     const auto& c = objectPosition;
     auto v        = o - c;
 
@@ -34,6 +34,57 @@ std::optional<float> SphereIntersect(const vec3& objectPosition, float radius, c
     return {};
 }
 
+void swap(float& a, float& b)
+{
+    float tmp = a;
+    a         = b;
+    b         = tmp;
+}
+
+bool BoundingBoxIntersect(const MousePicker::Ray& ray, const BoundingBox& boundingBox)
+{
+    const auto& min = boundingBox.min();
+    const auto& max = boundingBox.max();
+
+    float tmin = (min.x - ray.position.x) / ray.direction.x;
+    float tmax = (max.x - ray.position.x) / ray.direction.x;
+
+    if (tmin > tmax)
+        swap(tmin, tmax);
+
+    float tymin = (min.y - ray.position.y) / ray.direction.y;
+    float tymax = (max.y - ray.position.y) / ray.direction.y;
+
+    if (tymin > tymax)
+        swap(tymin, tymax);
+
+    if ((tmin > tymax) || (tymin > tmax))
+        return false;
+
+    if (tymin > tmin)
+        tmin = tymin;
+
+    if (tymax < tmax)
+        tmax = tymax;
+
+    float tzmin = (min.z - ray.position.z) / ray.direction.z;
+    float tzmax = (max.z - ray.position.z) / ray.direction.z;
+
+    if (tzmin > tzmax)
+        swap(tzmin, tzmax);
+
+    if ((tmin > tzmax) || (tzmin > tmax))
+        return false;
+
+    if (tzmin > tmin)
+        tmin = tzmin;
+
+    if (tzmax < tmax)
+        tmax = tzmax;
+
+    return true;
+}
+
 MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize)
     : camera_(camera)
     , projection_(projection)
@@ -43,9 +94,11 @@ MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projecti
 GameObject* MousePicker::SelectObject(const vec2& mousePosition,
                                       const std::vector<std::unique_ptr<GameObject>>& objectList)
 {
-    return Intersect(objectList, CalculateMouseRay(projection_, camera_, mousePosition));
+    Ray ray{camera_.GetPosition(), CalculateMouseRayDirection(projection_, camera_, mousePosition)};
+    return Intersect(objectList, ray);
 }
-GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList, const vec3& ray)
+GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList,
+                                   const MousePicker::Ray& ray)
 {
     for (auto& object : objectList)
     {
@@ -54,6 +107,19 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
         if (child)
             return child;
 
+        auto renderComponent = object->GetComponent<Components::RendererComponent>();
+
+        if (not renderComponent)
+            continue;
+
+        auto model = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+
+        //auto localBoundingBox = model->getBoundingBox();
+        //BoundingBox worldBoundingBox;
+        //worldBoundingBox.min(object->GetWorldTransform().GetMatrix() * vec4(localBoundingBox.min(), 1.f));
+        //worldBoundingBox.max(object->GetWorldTransform().GetMatrix() * vec4(localBoundingBox.max(), 1.f));
+
+        //auto intersection = BoundingBoxIntersect(ray, worldBoundingBox);
         auto intersection = Intersect(*object, ray);
         if (intersection)
             return object.get();
@@ -61,16 +127,16 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
     return nullptr;
 }
 
-std::optional<float> MousePicker::Intersect(const GameObject& object, const vec3& ray)
+std::optional<float> MousePicker::Intersect(const GameObject& object, const MousePicker::Ray& ray)
 {
     auto radius = CalculateBoundingSphereRadius(object);
-    return SphereIntersect(object.GetWorldTransform().GetPosition(), radius, ray, camera_.GetPosition());
+    return SphereIntersect(ray, object.GetWorldTransform().GetPosition(), radius);
 }
 
 float MousePicker::CalculateBoundingSphereRadius(const GameObject& gameObject)
 {
-	auto max = glm::compMax(gameObject.GetTransform().GetScale());
-    return max;
+    auto max = glm::compMax(gameObject.GetTransform().GetScale());
+    return max / 2.f;
 }
 
 }  // namespace GameEngine

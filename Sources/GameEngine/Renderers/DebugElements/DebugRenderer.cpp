@@ -136,6 +136,10 @@ void DebugRenderer::reloadShaders()
 
 void DebugRenderer::render()
 {
+    rendererContext_.graphicsApi_.DisableDepthTest();
+    rendererContext_.graphicsApi_.DisableDepthMask();
+    rendererContext_.graphicsApi_.DisableCulling();
+
     for (auto state : states_)
     {
         switch (state)
@@ -160,9 +164,6 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
 {
     if (texturePerObjectUpdateBufferId_)
     {
-        rendererContext_.graphicsApi_.DisableDepthTest();
-        rendererContext_.graphicsApi_.DisableDepthMask();
-
         textureShader_.Start();
         rendererContext_.graphicsApi_.BindShaderBuffer(*texturePerObjectUpdateBufferId_);
         rendererContext_.graphicsApi_.BindShaderBuffer(*textureColorBufferId_);
@@ -186,9 +187,6 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
             }
         }
         textureShader_.Stop();
-
-        rendererContext_.graphicsApi_.EnableDepthMask();
-        rendererContext_.graphicsApi_.EnableDepthTest();
     }
 }
 
@@ -311,9 +309,6 @@ void DebugRenderer::DrawGrid()
 
 void DebugRenderer::DrawDebugObjects()
 {
-    rendererContext_.graphicsApi_.EnableBlend();
-    rendererContext_.graphicsApi_.DisableCulling();
-
     if (debugObjectShader_.IsReady())
     {
         CreateDebugObjects();
@@ -323,8 +318,6 @@ void DebugRenderer::DrawDebugObjects()
         RenderDebugObjects();
         debugObjectShader_.Stop();
     }
-    rendererContext_.graphicsApi_.EnableCulling();
-    rendererContext_.graphicsApi_.DisableBlend();
 }
 
 void DebugRenderer::DrawNormals()

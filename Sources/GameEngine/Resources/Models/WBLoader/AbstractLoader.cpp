@@ -65,9 +65,9 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 {
     auto boundingBox     = getModelBoundingBox();
     auto normalizeFactor = 1.f / boundingBox.maxScale();
-    auto newModel        = std::make_unique<Model>(boundingBox);
-
     boundingBox.scale(vec3(normalizeFactor));
+
+    auto newModel = std::make_unique<Model>(boundingBox);
 
     if (objects.empty())
     {

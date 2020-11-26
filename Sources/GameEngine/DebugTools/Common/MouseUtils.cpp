@@ -20,7 +20,7 @@ vec3 ConvertToWorldCoords(const CameraWrapper& camera, const vec4& eyeCoords)
     return glm::normalize(Utils::Vec4ToVec3(coords));
 }
 
-vec3 CalculateMouseRay(const Projection& projection, const CameraWrapper& camera, const vec2& mousePosition)
+vec3 CalculateMouseRayDirection(const Projection& projection, const CameraWrapper& camera, const vec2& mousePosition)
 {
     vec4 clipCoords(mousePosition.x, mousePosition.y, -1.0f, 1.0f);
     auto eyeCoords = ConvertToEyeCoords(projection, clipCoords);
