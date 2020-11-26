@@ -21,8 +21,8 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
 {
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
 
-    mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetTransform().GetPosition());
-    offset_ = gameObject_.GetTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+    mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetWorldTransform().GetPosition());
+    offset_ = gameObject_.GetWorldTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
 }
 DragObject::~DragObject()
 {
@@ -37,7 +37,7 @@ void DragObject::Update()
 
     KeyDirectionLock(newPosition);
 
-    gameObject_.GetTransform().SetPosition(newPosition);
+    gameObject_.SetWorldPosition(newPosition);
 
     if (rigidbody_)
     {

@@ -156,9 +156,9 @@ void RenderersManager::renderScene(Scene& scene)
         {rendererContext_.cascadedShadowMapsIds_[0], rendererContext_.cascadedShadowMapsIds_[1],
          rendererContext_.cascadedShadowMapsIds_[2], rendererContext_.cascadedShadowMapsIds_[3]});*/
 
-    debugRenderer_.renderTextures({rendererContext_.waterReflectionTextureId_,
-                                   rendererContext_.waterRefractionTextureId_,
-                                   rendererContext_.waterRefractionDepthTextureId_});
+    //debugRenderer_.renderTextures({rendererContext_.waterReflectionTextureId_,
+    //                               rendererContext_.waterRefractionTextureId_,
+    //                               rendererContext_.waterRefractionDepthTextureId_});
 
     if (unsubscribeAllCallback_)
     {

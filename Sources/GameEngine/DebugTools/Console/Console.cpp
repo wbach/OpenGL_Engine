@@ -91,6 +91,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
     commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
     commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
+	commandsActions_.insert({"editor", [this](const auto &params) { EnableEditorNetworkInterface(params); } });
     commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
     commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
     commandsActions_.insert({"exit", [this](const auto &params) { Exit(params); }});

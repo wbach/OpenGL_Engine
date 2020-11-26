@@ -67,9 +67,10 @@ std::optional<float> MousePicker::Intersect(const GameObject& object, const vec3
     return SphereIntersect(object.GetWorldTransform().GetPosition(), radius, ray, camera_.GetPosition());
 }
 
-float MousePicker::CalculateBoundingSphereRadius(const GameObject&)
+float MousePicker::CalculateBoundingSphereRadius(const GameObject& gameObject)
 {
-    return 1.0f;
+	auto max = glm::compMax(gameObject.GetTransform().GetScale());
+    return max;
 }
 
 }  // namespace GameEngine

@@ -19,7 +19,7 @@ GameObject::GameObject(const std::string& name, Components::IComponentFactory& c
 
 GameObject::~GameObject()
 {
-    for(auto& component : components_)
+    for (auto& component : components_)
     {
         component->CleanUp();
     }
@@ -189,6 +189,20 @@ uint32 GameObject::SubscribeOnWorldTransfomChange(std::function<void(const commo
 void GameObject::UnsubscribeOnWorldTransfromChange(uint32 id)
 {
     worldTransform_.UnsubscribeOnChange(id);
+}
+
+void GameObject::SetWorldPosition(const vec3& worldPosition)
+{
+    if (parent_)
+    {
+        auto localPosition = glm::inverse(parent_->GetWorldTransform().GetRotation().value_) *
+                             (worldPosition - parent_->GetWorldTransform().GetPosition());
+        localTransform_.SetPosition(localPosition);
+    }
+    else
+    {
+        localTransform_.SetPosition(worldPosition);
+    }
 }
 
 void GameObject::CalculateWorldTransform()

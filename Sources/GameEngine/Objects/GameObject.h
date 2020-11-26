@@ -1,8 +1,8 @@
 #pragma once
+#include <Utils/IdPool.h>
 #include <list>
 #include <memory>
 #include <string>
-#include <Utils/IdPool.h>
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
@@ -18,7 +18,7 @@ class GameObject
 {
 public:
     GameObject(const std::string&, Components::IComponentFactory&, IdType);
-    GameObject(const GameObject&) = delete;
+    GameObject(const GameObject&)  = delete;
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
 
@@ -59,6 +59,8 @@ public:
     void TakeWorldTransfromSnapshot();
     uint32 SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)>);
     void UnsubscribeOnWorldTransfromChange(uint32);
+
+    void SetWorldPosition(const vec3&);
 
 private:
     void CalculateWorldTransform();
@@ -110,7 +112,7 @@ inline T& GameObject::AddComponent()
     auto component = AddComponent(T::type);
     return *static_cast<T*>(component);
 }
-template<class T>
+template <class T>
 void GameObject::RemoveComponent()
 {
     RemoveComponent(T::type);
