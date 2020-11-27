@@ -108,31 +108,13 @@ void NetworkEditorInterface::AddObject(const std::string &path)
     DEBUG_LOG("AddObject not implemented : path=" + path);
 }
 
-void NetworkEditorInterface::Main()
+void NetworkEditorInterface::MainLoop()
 {
     gateway_.Update();
-
     NotifIfObjectIsChanged();
-
-    if (selectedGameObject_)
-    {
-        arrowsIndicatorTransform_.SetPositionAndRotation(selectedGameObject_->GetWorldTransform().GetPosition(),
-                                                         selectedGameObject_->GetWorldTransform().GetRotation());
-    }
-    {
-        std::lock_guard<std::mutex> lk(dragObjectMutex_);
-        if (dragObject_)
-            dragObject_->Update();
-    }
-
-    {
-        std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-        if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
-        {
-            terrainPainter_->Paint(scene_.inputManager_->GetMousePosition());
-            terrainPainterTimer_.Reset();
-        }
-    }
+    UpdateArrowsIndicatorPosition();
+    UpdateDragObject();
+    PaintTerrain();
 }
 
 #define REGISTER_COMMAND(X, Y) commands_.insert({X, [&](const EntryParameters &v) { Y(v); }})
@@ -180,6 +162,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("reloadShaders", ReloadShaders);
     REGISTER_COMMAND("takeSnapshot", Takesnapshot);
     REGISTER_COMMAND("exit", Exit);
+    REGISTER_COMMAND("moveObjectToCameraPosition", MoveObjectToCameraPosition);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 }
@@ -210,7 +193,7 @@ void NetworkEditorInterface::StartGatway()
         Network::MessageTypes::Text,
         std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
 
-    threadId_ = threadSync_.Subscribe([&](float) { Main(); }, "NetworkEditorFps");
+    threadId_ = threadSync_.Subscribe([&](float) { MainLoop(); }, "NetworkEditorFps");
 }
 
 void NetworkEditorInterface::PrepareDebugModels()
@@ -230,42 +213,21 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this]() { ObjectControlAction(-1.f); });
 
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { CreateDragObjectBasedOnSelected(); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::G, [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
+
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::G, [this]() { ReleaseDragObject(); });
-	
+
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
 
-        std::optional<uint32> lastSelectedGameObject;
+        SetSelectedGameObject(
+            mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
 
-        if (selectedGameObject_)
-        {
-            lastSelectedGameObject = selectedGameObject_->GetId();
-        }
-
-        selectedGameObject_ =
-            mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects());
-
-        if (selectedGameObject_)
-        {
-            DEBUG_LOG("selected object : " + selectedGameObject_->GetName());
-
-            CreateDragObjectBasedOnSelected();
-
-            if (not lastSelectedGameObject or *lastSelectedGameObject != selectedGameObject_->GetId())
-            {
-                if (userId_ > 0)
-                {
-                    DebugNetworkInterface::SelectedObjectChanged msg(selectedGameObject_->GetId());
-                    gateway_.Send(userId_, msg);
-                }
-            }
-        }
-        else
-        {
-            DEBUG_LOG("no object selected");
-        }
+        UseSelectedGameObject([this](auto &gameObject) {
+            DEBUG_LOG("selected object : " + gameObject.GetName());
+            CreateDragObject(gameObject);
+        });
     });
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { ReleaseDragObject(); });
@@ -885,31 +847,96 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
 
 void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed)
 {
-    if (selectedGameObject_)
-    {
-        IncreseGameObjectRotation(*selectedGameObject_, GetRotationValueBasedOnKeys(rotationSpeed, direction));
-
+    UseSelectedGameObject([this, direction, rotationSpeed, moveSpeed](auto &gameObject) {
+        IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
         auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
-        moveVector      = selectedGameObject_->GetTransform().GetRotation().value_ * moveVector;
-        moveVector      = moveVector + selectedGameObject_->GetTransform().GetPosition();
-        selectedGameObject_->GetTransform().SetPosition(moveVector);
-    }
+        moveVector      = gameObject.GetTransform().GetRotation().value_ * moveVector;
+        moveVector      = moveVector + gameObject.GetTransform().GetPosition();
+        gameObject.GetTransform().SetPosition(moveVector);
+    });
 }
 
-void NetworkEditorInterface::CreateDragObjectBasedOnSelected()
+void NetworkEditorInterface::CreateDragObject(GameObject &gameObject)
 {
-    if (selectedGameObject_)
-    {
-        std::lock_guard<std::mutex> lk(dragObjectMutex_);
-        dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, *selectedGameObject_, scene_.camera,
-                                                   scene_.renderersManager_->GetProjection());
-    }
+    std::lock_guard<std::mutex> lk(dragObjectMutex_);
+    dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, gameObject, scene_.camera,
+                                               scene_.renderersManager_->GetProjection());
 }
 
 void NetworkEditorInterface::ReleaseDragObject()
 {
     std::lock_guard<std::mutex> lk(dragObjectMutex_);
     dragObject_.reset(nullptr);
+}
+
+void NetworkEditorInterface::SetSelectedGameObject(GameObject *gameObject)
+{
+    std::lock_guard<std::mutex> m(selectedGameObjectMutex_);
+
+    if (not gameObject and dragObject_)
+    {
+        ReleaseDragObject();
+    }
+
+    bool sentNotif{true};
+    if (selectedGameObject_)
+    {
+        if (gameObject and selectedGameObject_->GetId() == gameObject->GetId())
+        {
+            sentNotif = false;
+        }
+    }
+    else
+    {
+        if (not gameObject)
+        {
+            sentNotif = false;
+        }
+    }
+
+    if (sentNotif)
+    {
+        DebugNetworkInterface::SelectedObjectChanged msg(gameObject ? gameObject->GetId() : 0);
+        gateway_.Send(userId_, msg);
+    }
+
+    selectedGameObject_ = gameObject;
+}
+
+void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject &)> action)
+{
+    std::lock_guard<std::mutex> m(selectedGameObjectMutex_);
+    if (selectedGameObject_)
+    {
+        action(*selectedGameObject_);
+    }
+}
+
+void NetworkEditorInterface::UpdateDragObject()
+{
+    std::lock_guard<std::mutex> lk(dragObjectMutex_);
+    if (dragObject_)
+    {
+        dragObject_->Update();
+    }
+}
+
+void NetworkEditorInterface::PaintTerrain()
+{
+    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
+    {
+        terrainPainter_->Paint(scene_.inputManager_->GetMousePosition());
+        terrainPainterTimer_.Reset();
+    }
+}
+
+void NetworkEditorInterface::UpdateArrowsIndicatorPosition()
+{
+    UseSelectedGameObject([this](auto &gameObject) {
+        arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
+                                                         gameObject.GetWorldTransform().GetRotation());
+    });
 }
 
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
@@ -947,7 +974,7 @@ void NetworkEditorInterface::SelectGameObject(const EntryParameters &paramters)
     if (not gameObject)
         return;
 
-    selectedGameObject_ = gameObject;
+    SetSelectedGameObject(gameObject);
 }
 
 void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::EntryParameters &paramters)
@@ -979,6 +1006,8 @@ void NetworkEditorInterface::StartScene()
 {
     if (scene_.start_.load())
         return;
+
+    SetSelectedGameObject(nullptr);
 
     scene_.renderersManager_->GetDebugRenderer().Disable();
     keysSubscriptionsManager_.Clear();
@@ -1415,6 +1444,22 @@ void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryPar
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)
 {
     scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT));
+}
+
+void NetworkEditorInterface::MoveObjectToCameraPosition(const EntryParameters &params)
+{
+    auto iter = params.find("gameObjectId");
+
+    if (iter != params.end())
+    {
+        auto gameObject = GetGameObject(iter->second);
+
+        if (gameObject)
+        {
+            auto newPostion = scene_.GetCamera().GetPosition() + (scene_.GetCamera().GetDirection() * 5.f);
+            gameObject->SetWorldPosition(newPostion);
+        }
+    }
 }
 
 NetworkEditorInterface::EntryParameters NetworkEditorInterface::CreateParamMap(const std::vector<std::string> &param)

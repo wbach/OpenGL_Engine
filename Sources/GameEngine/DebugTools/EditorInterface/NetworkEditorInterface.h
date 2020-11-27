@@ -29,7 +29,7 @@ public:
     virtual void AddObject(const std::string&) override;
 
 private:
-    void Main();
+    void MainLoop();
     typedef std::unordered_map<std::string, std::string> EntryParameters;
     void DefineCommands();
     void SetupCamera();
@@ -92,6 +92,7 @@ private:
     void ReloadShaders(const EntryParameters&);
     void Takesnapshot(const EntryParameters&);
     void Exit(const EntryParameters&);
+    void MoveObjectToCameraPosition(const EntryParameters&);
 
     void StartScene();
     void StopScene();
@@ -106,8 +107,13 @@ private:
     Painter::EntryParamters GetPainterEntryParameters();
     void SetDeubgRendererState(DebugRenderer::RenderState, const EntryParameters&);
     void ObjectControlAction(float direction, float rotationSpeed = 2.f, float moveSpeed = 0.1f);
-    void CreateDragObjectBasedOnSelected();
+    void CreateDragObject(GameObject&);
     void ReleaseDragObject();
+    void SetSelectedGameObject(GameObject*);
+    void UseSelectedGameObject(std::function<void(GameObject&)>);
+    void UpdateDragObject();
+    void PaintTerrain();
+    void UpdateArrowsIndicatorPosition();
 
 private:
     Scene& scene_;
@@ -133,6 +139,7 @@ private:
     ICamera* sceneCamera_;
     bool running_;
 
+    std::mutex selectedGameObjectMutex_;
     std::mutex dragObjectMutex_;
     std::unique_ptr<DragObject> dragObject_;
     std::mutex terrainPainterMutex_;

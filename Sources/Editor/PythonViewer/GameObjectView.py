@@ -33,6 +33,7 @@ class GameObjectView:
         self.popupMenu.add_command(label="Go to object", command=self.GoToObject)
         self.popupMenu.add_command(label="Create child", command=self.CreateChild)
         self.popupMenu.add_command(label="Create child with model", command=self.CreateChildWithModel)
+        self.popupMenu.add_command(label="Move object to camera", command=self.SendMoveObjectToCameraRequest)
         self.popupMenu.add_command(label="Rename gameObject", command=self.RenameObject)
         self.popupMenu.add_command(label="Delete gameObject", command=self.DeleteSelected)
         self.tree.bind("<Button-3>", self.Popup)
@@ -216,3 +217,7 @@ class GameObjectView:
             self.tree.focus(hwnd)
             self.tree.selection_set(hwnd)
             self.trigerObjectSelectChange = True
+
+    def SendMoveObjectToCameraRequest(self):
+        name, gameObjectId, type = self.GetGameObjectNameAndId()
+        self.networkClient.SendCommand("moveObjectToCameraPosition gameObjectId=" + str(gameObjectId))
