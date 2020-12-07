@@ -131,11 +131,14 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleBrushBase.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleAverageHeightBrush.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleConstantHeightBrush.h
+../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleConstantRelativeBrush.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleGaussianHeightBrush.h
+../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleHeightBrush.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/HeightBrushType.h
 ../../Sources/GameEngine/DebugTools/Painter/Brushes/TextureBrushType.h
+../../Sources/GameEngine/DebugTools/Painter/PaintContext.h
 ../../Sources/GameEngine/DebugTools/Painter/Painter.h
 ../../Sources/GameEngine/DebugTools/Painter/PaintType.h
 ../../Sources/GameEngine/DebugTools/Painter/PlantPainter.h

@@ -5,10 +5,10 @@
 #include <optional>
 
 #include "TerrainPointGetter.h"
-#include "StepInterpolation.h"
 #include "Brushes/HeightBrushType.h"
 #include "Brushes/TextureBrushType.h"
 #include "PaintType.h"
+#include "PaintContext.h"
 
 namespace Input
 {
@@ -44,22 +44,23 @@ public:
     Painter(const EntryParamters&, PaintType);
     Painter(const EntryParamters&, PaintType, float, int32);
     ~Painter();
-    virtual void SetBrush(const std::string&) = 0;
-    virtual std::string SelectedBrush() const = 0;
-    virtual std::vector<std::string> AvaiableBrushTypes() const = 0;
+    virtual void setBrush(const std::string&) = 0;
+    virtual std::string selectedBrush() const = 0;
+    virtual std::vector<std::string> avaiableBrushTypes() const = 0;
 
-    void Paint(const vec2&);
-    std::optional<vec3> GetMouseTerrainPosition(const vec2&);
-    PaintType GetPaintType() const;
+    void paint();
+    PaintType getPaintType() const;
 
-public:
-    float strength_;
-    int32 brushSize_;
-
-    StepInterpolation stepInterpolation_;
+    float strength() const;
+    int32 brushSize() const;
+    StepInterpolation stepInterpolation() const;
+    void strength(float);
+    void brushSize(int32);
+    void stepInterpolation(StepInterpolation);
 
 protected:
-    virtual void Paint(const TerrainPoint&) = 0;
+    virtual void paintImpl() = 0;
+    PaintContext paintContext_;
 
 protected:
     Input::InputManager& inputManager_;

@@ -1,18 +1,15 @@
 #pragma once
-#include "../CircleBrushBase.h"
+#include "CircleHeightBrush.h"
 
 namespace GameEngine
 {
 class HeightMap;
-class CircleConstantHeightBrush : public CircleBrushBase
+class CircleConstantHeightBrush : public CircleHeightBrush
 {
 public:
-    CircleConstantHeightBrush(const TerrainPoint&, bool, float, int32);
+    CircleConstantHeightBrush(PaintContext&);
 
 private:
-    bool Main(const vec2ui&) override;
-
-private:
-    HeightMap& heightMap_;
+    bool main(const vec2ui&) override;
 };
 }  // namespace GameEngine

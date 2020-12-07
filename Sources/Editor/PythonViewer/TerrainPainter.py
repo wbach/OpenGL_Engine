@@ -23,7 +23,7 @@ class TerrainPainterView:
         self.context.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
 
     def OnTerrainPainterEnabled(self, msg):
-        self.CloseDialog()
+        self.OnClose()
 
         if msg.get("type") == "HeightMap":
             self.PainterBaseDialog(msg)
@@ -130,8 +130,9 @@ class TerrainPainterView:
         self.networkClient.SendCommand("updateTerrainPainterParam brushType=" + str(self.brushTypes.get()))
 
     def OnClose(self, *args):
-        self.networkClient.SendCommand("disablePainter")
-        self.CloseDialog()
+        if self.IsDialogVisible:
+            self.networkClient.SendCommand("disablePainter")
+            self.CloseDialog()
 
     def OnDisconnect(self):
         self.CloseDialog()

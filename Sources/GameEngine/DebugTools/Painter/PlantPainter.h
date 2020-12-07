@@ -1,7 +1,7 @@
 #pragma once
-#include "Painter.h"
-#include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
+#include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
+#include "Painter.h"
 
 namespace GameEngine
 {
@@ -10,13 +10,15 @@ class PlantPainter : public Painter
 public:
     using Painter::EntryParamters;
     PlantPainter(const EntryParamters&, Components::GrassRendererComponent&);
-    
-    void SetNumberOfInstances(uint32);
-    
-    void Paint(const TerrainPoint&) override;
-    void SetBrush(const std::string&) override;
-    std::string SelectedBrush() const override;
-    std::vector<std::string> AvaiableBrushTypes() const override;
+
+    void setNumberOfInstances(uint32);
+    void paintImpl() override;
+    void setBrush(const std::string&) override;
+    std::string selectedBrush() const override;
+    std::vector<std::string> avaiableBrushTypes() const override;
+
+private:
+    void updateNumberOfInstances();
 
 private:
     Components::GrassRendererComponent& grassComponent_;

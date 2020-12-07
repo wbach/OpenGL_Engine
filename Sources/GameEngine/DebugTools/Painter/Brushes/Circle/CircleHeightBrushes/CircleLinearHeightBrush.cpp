@@ -5,20 +5,23 @@
 
 namespace GameEngine
 {
-CircleLinearHeightBrush::CircleLinearHeightBrush(const TerrainPoint& terrainPoint, bool linearDistance, float strength,
-                                                 int32 brushSize)
-    : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, strength, brushSize)
-    , heightMap_(*terrainPoint.terrainComponent.GetHeightMap())
+CircleLinearHeightBrush::CircleLinearHeightBrush(PaintContext& context)
+    : CircleHeightBrush(context)
 {
 }
-bool CircleLinearHeightBrush::Main(const vec2ui& paintedPoint)
+bool CircleLinearHeightBrush::main(const vec2ui& paintedPoint)
 {
-    auto currentHeightOpt = heightMap_.GetHeight(paintedPoint);
-    if (currentHeightOpt)
+    auto heightMap = getHeightMap();
+
+    if (heightMap)
     {
-        auto currentHeight = *currentHeightOpt;
-        auto newHeight     = currentHeight + (inputStrength_ * intensity_);
-        return heightMap_.SetHeight(paintedPoint, newHeight);
+        auto currentHeightOpt = heightMap->GetHeight(paintedPoint);
+        if (currentHeightOpt)
+        {
+            auto currentHeight = *currentHeightOpt;
+            auto newHeight     = currentHeight + (paintContext_.strength * intensity_);
+            return heightMap->SetHeight(paintedPoint, newHeight);
+        }
     }
     return false;
 }

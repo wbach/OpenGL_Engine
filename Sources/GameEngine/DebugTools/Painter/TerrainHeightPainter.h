@@ -1,21 +1,30 @@
 #pragma once
+#include "Brushes/Circle/CircleHeightBrushes/CircleHeightBrush.h"
 #include "Painter.h"
 
 namespace GameEngine
 {
+class CircleBrushBase;
 class TerrainHeightPainter : public Painter
 {
 public:
     using Painter::EntryParamters;
     TerrainHeightPainter(const EntryParamters&);
+    ~TerrainHeightPainter();
 
-    void Paint(const TerrainPoint&) override;
-    void SetBrush(const std::string&) override;
-    void RecalculateTerrainNormals();
-    std::string SelectedBrush() const override;
-    std::vector<std::string> AvaiableBrushTypes() const override;
+    void paintImpl() override;
+    void setBrush(const std::string&) override;
+    void recalculateTerrainNormals();
+    std::string selectedBrush() const override;
+    std::vector<std::string> avaiableBrushTypes() const override;
+
+private:
+    void createBrush();
+    template <class T>
+    void makeBrush();
 
 private:
     HeightBrushType heightBrushType_;
+    std::unique_ptr<CircleHeightBrush> brush_;
 };
 }  // namespace GameEngine

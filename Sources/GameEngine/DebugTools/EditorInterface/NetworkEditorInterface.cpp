@@ -926,7 +926,7 @@ void NetworkEditorInterface::PaintTerrain()
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
     if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
     {
-        terrainPainter_->Paint(scene_.inputManager_->GetMousePosition());
+        terrainPainter_->paint();
         terrainPainterTimer_.Reset();
     }
 }
@@ -1112,13 +1112,13 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
 DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter)
 {
     DebugNetworkInterface::TerrainPainterEnabled msg;
-    msg.type               = std::to_string(painter.GetPaintType());
-    msg.strength           = painter.strength_;
-    msg.brushSize          = painter.brushSize_;
-    msg.selectedBrushType  = painter.SelectedBrush();
-    msg.stepInterpolation  = std::to_string(painter.stepInterpolation_);
+    msg.type               = std::to_string(painter.getPaintType());
+    msg.strength           = painter.strength();
+    msg.brushSize          = painter.brushSize();
+    msg.selectedBrushType  = painter.selectedBrush();
+    msg.stepInterpolation  = std::to_string(painter.stepInterpolation());
     msg.stepInterpolations = AvaiableStepInterpolationsStrs();
-    msg.brushTypes         = painter.AvaiableBrushTypes();
+    msg.brushTypes         = painter.avaiableBrushTypes();
 
     return msg;
 }
@@ -1171,13 +1171,11 @@ void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
 
 void NetworkEditorInterface::DisableTerrainPainter(const EntryParameters &)
 {
-    if (not terrainPainter_)
-    {
-        return;
-    }
-
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    terrainPainter_.reset(nullptr);
+    if (terrainPainter_)
+    {
+        terrainPainter_.reset(nullptr);
+    }
 }
 
 void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterface::EntryParameters &params)
@@ -1190,23 +1188,25 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
     {
         if (params.count("strength"))
         {
-            terrainPainter_->strength_ = std::stof(params.at("strength"));
+            terrainPainter_->strength(std::stof(params.at("strength")));
         }
         if (params.count("brushSize"))
         {
-            terrainPainter_->brushSize_ = std::stoi(params.at("brushSize"));
+            terrainPainter_->brushSize(std::stoi(params.at("brushSize")));
         }
         if (params.count("stepInterpolation"))
         {
-            std::from_string(params.at("stepInterpolation"), terrainPainter_->stepInterpolation_);
+            StepInterpolation step;
+            std::from_string(params.at("stepInterpolation"), step);
+            terrainPainter_->stepInterpolation(step);
         }
         if (params.count("brushType"))
         {
-            terrainPainter_->SetBrush(params.at("brushType"));
+            terrainPainter_->setBrush(params.at("brushType"));
         }
         if (params.count("color"))
         {
-            if (terrainPainter_->GetPaintType() != PaintType::BlendMap)
+            if (terrainPainter_->getPaintType() != PaintType::BlendMap)
             {
                 ERROR_LOG("Incompatible paint mode.");
                 return;
@@ -1222,8 +1222,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
                 else
                     ERROR_LOG("to many bits.");
             }
-
-            static_cast<TerrainTexturePainter *>(terrainPainter_.get())->SetColor(color);
+            static_cast<TerrainTexturePainter *>(terrainPainter_.get())->setColor(color);
         }
     }
     catch (...)
@@ -1235,10 +1234,10 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
 void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterface::EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_ and terrainPainter_->GetPaintType() == PaintType::HeightMap)
+    if (not terrainPainter_ and terrainPainter_->getPaintType() == PaintType::HeightMap)
         return;
 
-    static_cast<TerrainHeightPainter *>(terrainPainter_.get())->RecalculateTerrainNormals();
+    static_cast<TerrainHeightPainter *>(terrainPainter_.get())->recalculateTerrainNormals();
 }
 void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 {

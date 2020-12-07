@@ -1,20 +1,19 @@
 #pragma once
-#include "../CircleBrushBase.h"
+#include "CircleHeightBrush.h"
 #include <GraphicsApi/ImageFilters.h>
 
 namespace GameEngine
 {
 class HeightMap;
-class CircleGaussianHeightBrush : public CircleBrushBase
+class CircleGaussianHeightBrush : public CircleHeightBrush
 {
 public:
-    CircleGaussianHeightBrush(const TerrainPoint&, bool, float, int32);
+    CircleGaussianHeightBrush(PaintContext&);
 
 private:
-    bool Main(const vec2ui&) override;
+    bool main(const vec2ui&) override;
 
 private:
-    HeightMap& heightMap_;
     GraphicsApi::ImageFilter imageFilter_;
     vec2ui halfFilterSize_;
 };

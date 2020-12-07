@@ -1,5 +1,7 @@
 from collections import defaultdict
 from tkinter import messagebox
+import traceback
+import sys
 import socket
 import _thread
 import time

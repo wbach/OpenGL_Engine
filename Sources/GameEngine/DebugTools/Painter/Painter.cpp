@@ -18,20 +18,27 @@ Painter::Painter(const EntryParamters& entryParamters, PaintType paintType)
 }
 
 Painter::Painter(const EntryParamters& entryParamters, PaintType paintType, float strength, int32 brushSize)
-    : strength_(strength)
-    , brushSize_(brushSize)
-    , stepInterpolation_(StepInterpolation::Linear)
+    : paintContext_{strength, brushSize, StepInterpolation::Linear}
     , inputManager_(entryParamters.inputManager)
     , pointGetter_(entryParamters.camera, entryParamters.projection, entryParamters.windowSize,
                    entryParamters.componentController)
     , lmouseKeyIsPressed_(false)
     , paintType_(paintType)
 {
-    mouseKeyDownSubscribtion_ =
-        inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() { lmouseKeyIsPressed_ = true; });
+    mouseKeyDownSubscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
+        auto terrainPoint = pointGetter_.GetMousePointOnTerrain(inputManager_.GetMousePosition());
+        if (terrainPoint)
+        {
+            paintContext_.startedTerrainPoint = std::make_unique<TerrainPoint>(*terrainPoint);
+        }
+        lmouseKeyIsPressed_ = true;
+    });
 
-    mouseKeyUpSubscribtion_ =
-        inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { lmouseKeyIsPressed_ = false; });
+    mouseKeyUpSubscribtion_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() {
+        paintContext_.startedTerrainPoint.reset();
+        paintContext_.currentTerrainPoint.reset();
+        lmouseKeyIsPressed_ = false;
+    });
 }
 
 Painter::~Painter()
@@ -43,30 +50,46 @@ Painter::~Painter()
         inputManager_.UnsubscribeOnKeyUp(KeyCodes::LMOUSE, *mouseKeyUpSubscribtion_);
 }
 
-void Painter::Paint(const vec2& mousePosition)
+void Painter::paint()
 {
-    if (not lmouseKeyIsPressed_)
-        return;
-
-    auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
-
-    if (terrainPoint)
+    if (lmouseKeyIsPressed_)
     {
-        Paint(*terrainPoint);
+        auto terrainPoint = pointGetter_.GetMousePointOnTerrain(inputManager_.GetMousePosition());
+
+        if (terrainPoint)
+        {
+            paintContext_.currentTerrainPoint = std::make_unique<TerrainPoint>(*terrainPoint);
+            paintImpl();
+        }
     }
 }
 
-std::optional<vec3> Painter::GetMouseTerrainPosition(const vec2& mousePosition)
-{
-    auto terrainPoint = pointGetter_.GetMousePointOnTerrain(mousePosition);
-
-    if (terrainPoint)
-        return terrainPoint->pointOnTerrain;
-
-    return std::nullopt;
-}
-PaintType Painter::GetPaintType() const
+PaintType Painter::getPaintType() const
 {
     return paintType_;
+}
+float Painter::strength() const
+{
+    return paintContext_.strength;
+}
+int32 Painter::brushSize() const
+{
+    return paintContext_.brushSize;
+}
+StepInterpolation Painter::stepInterpolation() const
+{
+    return paintContext_.stepInterpolation;
+}
+void Painter::strength(float v)
+{
+    paintContext_.strength = v;
+}
+void Painter::brushSize(int32 v)
+{
+    paintContext_.brushSize = v;
+}
+void Painter::stepInterpolation(StepInterpolation v)
+{
+    paintContext_.stepInterpolation = v;
 }
 }  // namespace GameEngine

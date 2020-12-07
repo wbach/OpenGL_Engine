@@ -13,18 +13,18 @@ namespace GameEngine
 PlantPainter::PlantPainter(const EntryParamters& entryParamters, Components::GrassRendererComponent& component)
     : Painter(entryParamters, PaintType::Plant, 30.f, 16)
     , grassComponent_(component)
-    , numberOfInstances_(strength_ < 0.f ? 1 : static_cast<uint32>(strength_))
+    , numberOfInstances_(0)
 {
 }
-void PlantPainter::SetNumberOfInstances(uint32 v)
+void PlantPainter::setNumberOfInstances(uint32 v)
 {
     numberOfInstances_ = v;
 }
-void PlantPainter::Paint(const TerrainPoint& point)
+void PlantPainter::paintImpl()
 {
     std::random_device rd;
     std::mt19937 mt(rd());
-    auto range = static_cast<float>(brushSize_ / 2);
+    auto range = static_cast<float>(paintContext_.brushSize / 2);
     std::uniform_real_distribution<float> dist(-range, static_cast<float>(range));
 
     std::uniform_real_distribution<float> ySizeDist(0.75, 1.25);
@@ -32,12 +32,14 @@ void PlantPainter::Paint(const TerrainPoint& point)
     std::uniform_int_distribution<int> colorGreenDist(200, 255);
     std::uniform_int_distribution<int> colorBlueDist(200, 255);
 
+    const auto& point = *paintContext_.currentTerrainPoint;
+
     TerrainHeightGetter terrainHeightGetter(
         point.terrainComponent.GetTerrainConfiguration(), *point.terrainComponent.GetHeightMap(),
         point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
 
     bool positionAdded{false};
-    numberOfInstances_ = strength_ < 0.f ? 1 : static_cast<uint32>(strength_);
+    updateNumberOfInstances();
 
     for (uint32 i = 0; i < numberOfInstances_; ++i)
     {
@@ -58,14 +60,18 @@ void PlantPainter::Paint(const TerrainPoint& point)
     if (positionAdded)
         grassComponent_.UpdateModel();
 }
-void PlantPainter::SetBrush(const std::string&)
+void PlantPainter::updateNumberOfInstances()
+{
+    numberOfInstances_ = paintContext_.strength < 0.f ? 1 : static_cast<uint32>(paintContext_.strength);
+}
+void PlantPainter::setBrush(const std::string&)
 {
 }
-std::string PlantPainter::SelectedBrush() const
+std::string PlantPainter::selectedBrush() const
 {
     return "CircleBrush";
 }
-std::vector<std::string> PlantPainter::AvaiableBrushTypes() const
+std::vector<std::string> PlantPainter::avaiableBrushTypes() const
 {
     return {"CircleBrush"};
 }

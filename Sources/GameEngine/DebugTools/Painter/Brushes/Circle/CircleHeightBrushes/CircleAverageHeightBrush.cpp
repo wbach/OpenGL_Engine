@@ -7,55 +7,62 @@
 
 namespace GameEngine
 {
-CircleAverageHeightBrush::CircleAverageHeightBrush(const TerrainPoint& terrainPoint, bool linearDistance,
-                                                   float strength, int32 brushSize)
-    : CircleBrushBase(*terrainPoint.terrainComponent.GetHeightMap(), terrainPoint, linearDistance, strength, brushSize)
-    , heightMap_(*terrainPoint.terrainComponent.GetHeightMap())
+CircleAverageHeightBrush::CircleAverageHeightBrush(PaintContext& context)
+    : CircleHeightBrush(context)
     , average_(0)
 {
 }
-bool CircleAverageHeightBrush::Paint()
+bool CircleAverageHeightBrush::paint()
 {
-    CalcualteAverage();
-    return CircleBrushBase::Paint();
+    calcualteAverage();
+    return CircleBrushBase::paint();
 }
-bool CircleAverageHeightBrush::Main(const vec2ui& paintedPoint)
+bool CircleAverageHeightBrush::main(const vec2ui& paintedPoint)
 {
-    auto currentHeightOpt = heightMap_.GetHeight(paintedPoint);
+    const auto heightMap = getHeightMap();
 
-    if (currentHeightOpt)
+    if (heightMap)
     {
-        auto currentHeight = *currentHeightOpt;
-        auto distance      = fabsf(average_ - currentHeight);
+        auto currentHeightOpt = heightMap->GetHeight(paintedPoint);
 
-        float newHeight = currentHeight;
-        if (distance > std::numeric_limits<float>::epsilon())
+        if (currentHeightOpt)
         {
-            if (average_ > newHeight)
-            {
-                newHeight += inputStrength_ * intensity_;
-            }
-            else
-            {
-                newHeight -= inputStrength_ * intensity_;
-            }
+            auto currentHeight = *currentHeightOpt;
+            auto distance      = fabsf(average_ - currentHeight);
 
-            return heightMap_.SetHeight(paintedPoint, newHeight);
+            float newHeight = currentHeight;
+            if (distance > std::numeric_limits<float>::epsilon())
+            {
+                if (average_ > newHeight)
+                {
+                    newHeight += paintContext_.strength * intensity_;
+                }
+                else
+                {
+                    newHeight -= paintContext_.strength * intensity_;
+                }
+
+                return heightMap->SetHeight(paintedPoint, newHeight);
+            }
         }
     }
     return false;
 }
-void CircleAverageHeightBrush::CalcualteAverage()
+void CircleAverageHeightBrush::calcualteAverage()
 {
     average_ = 0.f;
     float pointsCount{0.f};
 
-    MainLoop([&](const auto& paintedPoint) {
-        auto heightOpt = terrainPoint_.terrainComponent.GetHeightMap()->GetHeight(paintedPoint);
-        if (heightOpt)
+    mainLoop([&](const auto& paintedPoint) {
+        const auto heightMap = getHeightMap();
+        if (heightMap)
         {
-            average_ += *heightOpt;
-            ++pointsCount;
+            auto heightOpt = heightMap->GetHeight(paintedPoint);
+            if (heightOpt)
+            {
+                average_ += *heightOpt;
+                ++pointsCount;
+            }
         }
     });
 

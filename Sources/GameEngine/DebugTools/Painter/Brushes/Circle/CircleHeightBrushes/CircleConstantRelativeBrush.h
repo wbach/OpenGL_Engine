@@ -1,13 +1,14 @@
 #pragma once
 #include "CircleHeightBrush.h"
+#include <optional>
 
 namespace GameEngine
 {
 class HeightMap;
-class CircleLinearHeightBrush : public CircleHeightBrush
+class CircleConstantRelative : public CircleHeightBrush
 {
 public:
-    CircleLinearHeightBrush(PaintContext&);
+    CircleConstantRelative(PaintContext&);
 
 private:
     bool main(const vec2ui&) override;

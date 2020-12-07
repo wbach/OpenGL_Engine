@@ -1,21 +1,21 @@
 #pragma once
-#include "../CircleBrushBase.h"
+#include "CircleHeightBrush.h"
+#include "../../../PaintContext.h"
 
 namespace GameEngine
 {
 class HeightMap;
-class CircleAverageHeightBrush : public CircleBrushBase
+class CircleAverageHeightBrush : public CircleHeightBrush
 {
 public:
-    CircleAverageHeightBrush(const TerrainPoint&, bool, float, int32);
-    bool Paint() override;
+    CircleAverageHeightBrush(PaintContext&);
+    bool paint() override;
 
 private:
-    bool Main(const vec2ui&) override;
-    void CalcualteAverage();
+    bool main(const vec2ui&) override;
+    void calcualteAverage();
 
 private:
-    HeightMap& heightMap_;
     float average_;
 };
 }  // namespace GameEngine

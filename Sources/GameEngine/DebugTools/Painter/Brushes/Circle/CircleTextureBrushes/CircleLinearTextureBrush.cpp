@@ -7,32 +7,50 @@
 
 namespace GameEngine
 {
-CircleLinearTextureBrush::CircleLinearTextureBrush(const TerrainPoint& terrainPoint, bool linearDistance,
-                                                   float strength, int32 brushSize)
-    : CircleBrushBase(*terrainPoint.terrainComponent.GetTexture(TerrainTextureType::blendMap), terrainPoint,
-                      linearDistance, strength, brushSize)
-    , blendMap_(*static_cast<GeneralTexture*>(&texture_))
+namespace
+{
+const vec2ui defaultTextureSize(0);
+}
+CircleLinearTextureBrush::CircleLinearTextureBrush(PaintContext& context)
+    : CircleBrushBase(context)
     , inputColor_(255, 0, 0, 0)
 {
-    if (inputStrength_ < 0.1f)
-        inputStrength_ = 0.1f;
 }
-CircleLinearTextureBrush& CircleLinearTextureBrush::SetColor(const Color& inputColor)
+CircleLinearTextureBrush& CircleLinearTextureBrush::setColor(const Color& inputColor)
 {
     inputColor_ = inputColor;
     return *this;
 }
-bool CircleLinearTextureBrush::Main(const vec2ui& imageCoord)
+bool CircleLinearTextureBrush::main(const vec2ui& imageCoord)
 {
-    auto currentColor = blendMap_.GetImage().getPixel(imageCoord);
+    auto blendMap = getBlendMap();
 
-    if (currentColor)
+    if (blendMap)
     {
-        auto scaledInputColor = glm::mix(currentColor->value, inputColor_.value, inputStrength_);
-        auto newColor         = glm::mix(currentColor->value, scaledInputColor, intensity_);
-        blendMap_.SetPixel(imageCoord, Color(newColor));
-        return true;
+        auto currentColor = blendMap->GetImage().getPixel(imageCoord);
+
+        if (currentColor)
+        {
+            auto inputStrength = paintContext_.strength;
+            if (inputStrength < 0.1f)
+                inputStrength = 0.1f;
+
+            auto scaledInputColor = glm::mix(currentColor->value, inputColor_.value, inputStrength);
+            auto newColor         = glm::mix(currentColor->value, scaledInputColor, intensity_);
+            blendMap->SetPixel(imageCoord, Color(newColor));
+            return true;
+        }
     }
     return false;
+}
+const vec2ui& CircleLinearTextureBrush::getTextureSize() const
+{
+    auto blendMap = getBlendMap();
+    return blendMap ? blendMap->GetSize() : defaultTextureSize;
+}
+GeneralTexture* CircleLinearTextureBrush::getBlendMap() const
+{
+    return static_cast<GeneralTexture*>(
+        paintContext_.currentTerrainPoint->terrainComponent.GetTexture(TerrainTextureType::blendMap));
 }
 }  // namespace GameEngine

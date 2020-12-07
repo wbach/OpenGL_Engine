@@ -4,6 +4,7 @@
 
 #include "Brushes/Circle/CircleHeightBrushes/CircleAverageHeightBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleConstantHeightBrush.h"
+#include "Brushes/Circle/CircleHeightBrushes/CircleConstantRelativeBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleGaussianHeightBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -11,61 +12,68 @@
 
 namespace GameEngine
 {
-#define BRUSH(X) X(terrainPoint, stepInterpolation_ == StepInterpolation::Linear, strength_, brushSize_)
-
 TerrainHeightPainter::TerrainHeightPainter(const EntryParamters& entryParameters)
     : Painter(entryParameters, PaintType::HeightMap)
     , heightBrushType_(HeightBrushType::CircleLinear)
-
+{
+    createBrush();
+}
+TerrainHeightPainter::~TerrainHeightPainter()
 {
 }
-void TerrainHeightPainter::Paint(const TerrainPoint& terrainPoint)
+void TerrainHeightPainter::paintImpl()
 {
-    auto heightMap = terrainPoint.terrainComponent.GetHeightMap();
-    if (not heightMap)
+    if (brush_)
     {
-        return;
+        bool heightmapChange = brush_->paint();
+        if (heightmapChange)
+            paintContext_.currentTerrainPoint->terrainComponent.HeightMapChanged();
     }
-
-    bool heightmapChange{false};
-
-    switch (heightBrushType_)
-    {
-        case HeightBrushType::CircleLinear:
-            heightmapChange = BRUSH(CircleLinearHeightBrush).Paint();
-            break;
-        case HeightBrushType::CircleAverage:
-            heightmapChange = BRUSH(CircleAverageHeightBrush).Paint();
-            break;
-        case HeightBrushType::CircleConstantValue:
-            heightmapChange = BRUSH(CircleConstantHeightBrush).Paint();
-            break;
-        case HeightBrushType::CircleGaussianHeightBrush:
-            heightmapChange = BRUSH(CircleGaussianHeightBrush).Paint();
-            break;
-    }
-
-    if (heightmapChange)
-        terrainPoint.terrainComponent.HeightMapChanged();
 }
-void TerrainHeightPainter::SetBrush(const std::string& input)
+void TerrainHeightPainter::setBrush(const std::string& input)
 {
     std::from_string(input, heightBrushType_);
+    createBrush();
 }
-std::string TerrainHeightPainter::SelectedBrush() const
+std::string TerrainHeightPainter::selectedBrush() const
 {
     return std::to_string(heightBrushType_);
 }
-std::vector<std::string> TerrainHeightPainter::AvaiableBrushTypes() const
+std::vector<std::string> TerrainHeightPainter::avaiableBrushTypes() const
 {
     return AvaiableHeightBrushTypeStrs();
 }
-void TerrainHeightPainter::RecalculateTerrainNormals()
+void TerrainHeightPainter::createBrush()
+{
+    switch (heightBrushType_)
+    {
+        case HeightBrushType::CircleLinear:
+            makeBrush<CircleLinearHeightBrush>();
+            break;
+        case HeightBrushType::CircleAverage:
+            makeBrush<CircleAverageHeightBrush>();
+            break;
+        case HeightBrushType::CircleConstantValue:
+            makeBrush<CircleConstantHeightBrush>();
+            break;
+        case HeightBrushType::CircleConstantRelative:
+            makeBrush<CircleConstantRelative>();
+            break;
+        case HeightBrushType::CircleGaussianHeightBrush:
+            makeBrush<CircleGaussianHeightBrush>();
+            break;
+    }
+}
+void TerrainHeightPainter::recalculateTerrainNormals()
 {
     for (auto& terrain : pointGetter_.GetSceneTerrains())
     {
         terrain->RecalculateNormals();
     }
 }
+template<class T>
+void TerrainHeightPainter::makeBrush()
+{
+    brush_ = std::make_unique<T>(paintContext_);
+}
 }  // namespace GameEngine
-#undef BRUSH

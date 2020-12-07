@@ -1,4 +1,5 @@
 #include "HeightBrushType.h"
+
 #include <algorithm>
 
 namespace GameEngine
@@ -6,7 +7,7 @@ namespace GameEngine
 std::vector<HeightBrushType> AvaiableHeightBrushType()
 {
     return {HeightBrushType::CircleLinear, HeightBrushType::CircleAverage, HeightBrushType::CircleConstantValue,
-            HeightBrushType::CircleGaussianHeightBrush};
+            HeightBrushType::CircleConstantRelative, HeightBrushType::CircleGaussianHeightBrush};
 }
 
 std::vector<std::string> AvaiableHeightBrushTypeStrs()
@@ -32,6 +33,8 @@ string to_string(GameEngine::HeightBrushType input)
             return "CircleAverage";
         case GameEngine::HeightBrushType::CircleConstantValue:
             return "CircleConstantValue";
+        case GameEngine::HeightBrushType::CircleConstantRelative:
+            return "CircleConstantRelative";
         case GameEngine::HeightBrushType::CircleGaussianHeightBrush:
             return "CircleGaussianHeightBrush";
     }
@@ -51,6 +54,10 @@ void from_string(const string& input, GameEngine::HeightBrushType& output)
     else if (input == "CircleConstantValue")
     {
         output = GameEngine::HeightBrushType::CircleConstantValue;
+    }
+    else if (input == "CircleConstantRelative")
+    {
+        output = GameEngine::HeightBrushType::CircleConstantRelative;
     }
     else if (input == "CircleGaussianHeightBrush")
     {

@@ -1,6 +1,8 @@
 #pragma once
-#include "GameEngine/DebugTools/Painter/TerrainPoint.h"
 #include <functional>
+
+#include "GameEngine/DebugTools/Painter/PaintContext.h"
+#include "GameEngine/DebugTools/Painter/TerrainPoint.h"
 
 namespace GameEngine
 {
@@ -9,24 +11,23 @@ class Texture;
 class CircleBrushBase
 {
 public:
-    CircleBrushBase(Texture&, const TerrainPoint&, bool, float, int32);
-    virtual bool Paint();
+    CircleBrushBase(PaintContext&);
+    virtual bool paint();
 
 protected:
-    vec2ui GetBrushPoint(int32 x, int32 y);
-    bool IsInRange(const vec2ui &);
-    virtual bool Main(const vec2ui&) = 0;
-    void MainLoop(std::function<void(const vec2ui&)>);
+    virtual bool main(const vec2ui&)             = 0;
+    virtual const vec2ui& getTextureSize() const = 0;
+    vec2ui getBrushPoint(int32 x = 0, int32 y = 0);
+    vec2ui getBrushPoint(const TerrainPoint&, int32 x = 0, int32 y = 0);
+    bool isInRange(const vec2ui&);
+    bool isInRange(const vec2ui&, const vec2ui&);
+    void mainLoop(std::function<void(const vec2ui&)>);
 
 private:
-    void CalculateIntensity(const vec2ui&);
+    void calculateIntensity(const vec2ui&);
 
 protected:
-    const TerrainPoint& terrainPoint_;
-    Texture& texture_;
-    bool linearDistance_;
-    float inputStrength_;
-    int32 brushSize_;
+    PaintContext& paintContext_;
     float intensity_;
 };
 }  // namespace GameEngine

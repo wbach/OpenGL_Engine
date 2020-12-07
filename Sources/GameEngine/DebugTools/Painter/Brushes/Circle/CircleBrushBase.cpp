@@ -7,66 +7,72 @@
 
 namespace GameEngine
 {
-CircleBrushBase::CircleBrushBase(Texture& texture, const TerrainPoint& terrainPoint, bool linearDistance,
-                                 float strength, int32 brushSize)
-    : terrainPoint_(terrainPoint)
-    , texture_(texture)
-    , linearDistance_(linearDistance)
-    , inputStrength_(strength)
-    , brushSize_(brushSize)
+CircleBrushBase::CircleBrushBase(PaintContext& context)
+    : paintContext_(context)
 {
 }
-bool CircleBrushBase::Paint()
+bool CircleBrushBase::paint()
 {
     bool isChanged{false};
-    MainLoop([&](const auto& paintedPoint) {
-        if (Main(paintedPoint))
+    mainLoop([&](const auto& paintedPoint) {
+        if (main(paintedPoint))
         {
             isChanged = true;
         }
     });
     return isChanged;
 }
-vec2ui CircleBrushBase::GetBrushPoint(int32 x, int32 y)
+vec2ui CircleBrushBase::getBrushPoint(int32 x, int32 y)
 {
-    const auto& terrainLocalPoint = terrainPoint_.terrainSpacePoint;
+    return getBrushPoint(*paintContext_.currentTerrainPoint, x, y);
+}
+vec2ui CircleBrushBase::getBrushPoint(const TerrainPoint& terrainPoint, int32 x, int32 y)
+{
+    const auto& terrainLocalPoint = terrainPoint.terrainSpacePoint;
 
-    auto imageCoordX = static_cast<int32>(terrainLocalPoint.x * static_cast<float>(texture_.GetSize().x));
-    auto imageCoordY = static_cast<int32>(terrainLocalPoint.y * static_cast<float>(texture_.GetSize().y));
+    const auto& textureSize = getTextureSize();
+    auto imageCoordX        = static_cast<int32>(terrainLocalPoint.x * static_cast<float>(textureSize.x));
+    auto imageCoordY        = static_cast<int32>(terrainLocalPoint.y * static_cast<float>(textureSize.y));
 
     return vec2ui(static_cast<uint32>(imageCoordX + x), static_cast<uint32>(imageCoordY + y));
 }
-bool CircleBrushBase::IsInRange(const vec2ui& brushPoint)
+bool CircleBrushBase::isInRange(const vec2ui& brushPoint)
 {
-    return (brushPoint.x < texture_.GetSize().x) and (brushPoint.y < texture_.GetSize().y);
+    return isInRange(getTextureSize(), brushPoint);
 }
-void CircleBrushBase::MainLoop(std::function<void(const vec2ui&)> action)
+bool CircleBrushBase::isInRange(const vec2ui& textureSize, const vec2ui& brushPoint)
 {
-    for (int32 y = -brushSize_; y < brushSize_; y++)
+    return (brushPoint.x < textureSize.x) and (brushPoint.y < textureSize.y);
+}
+void CircleBrushBase::mainLoop(std::function<void(const vec2ui&)> action)
+{
+    auto brushSize = paintContext_.brushSize;
+
+    for (int32 y = -brushSize; y < brushSize; y++)
     {
-        for (int32 x = -brushSize_; x < brushSize_; x++)
+        for (int32 x = -brushSize; x < brushSize; x++)
         {
-            auto paintedPoint = GetBrushPoint(x, y);
-            if (not IsInRange(paintedPoint))
+            auto paintedPoint = getBrushPoint(x, y);
+            if (not isInRange(paintedPoint))
                 continue;
 
-            if (((x) * (x) + (y) * (y)) <= brushSize_ * brushSize_)
+            if (((x) * (x) + (y) * (y)) <= brushSize * brushSize)
             {
-                CalculateIntensity(paintedPoint);
+                calculateIntensity(paintedPoint);
                 action(paintedPoint);
             }
         }
     }
 }
-void CircleBrushBase::CalculateIntensity(const vec2ui& paintedPoint)
+void CircleBrushBase::calculateIntensity(const vec2ui& paintedPoint)
 {
-    if (linearDistance_)
+    if (paintContext_.stepInterpolation == StepInterpolation::Linear)
     {
-        auto centerPoint = GetBrushPoint(0, 0);
+        auto centerPoint = getBrushPoint(0, 0);
         vec2 centerPointf(centerPoint.x, centerPoint.y);
 
         auto currentPoint = vec2(paintedPoint.x, paintedPoint.y);
-        float distance    = glm::length(currentPoint - centerPointf) / static_cast<float>(brushSize_);
+        float distance    = glm::length(currentPoint - centerPointf) / static_cast<float>(paintContext_.brushSize);
         intensity_        = 1.f - distance;
 
         if (intensity_ < 0)
