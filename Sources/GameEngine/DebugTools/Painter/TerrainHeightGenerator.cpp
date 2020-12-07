@@ -228,6 +228,10 @@ void TerrainHeightGenerator::perlinNoise2D()
 
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 {
+    uint32 offset = 10;
+    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - offset) or y > (perTerrainHeightMapsize_.y - offset) )
+        return 0.f;
+
     auto index = x + perTerrainHeightMapsize_.x * y;
     if (index < noiseSeed.size())
         return noiseSeed[index];

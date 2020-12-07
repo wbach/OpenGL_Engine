@@ -35,7 +35,7 @@ void SkyBoxRenderer::init()
                                                                     sizeof(SkyBoxRenderer::PerMeshObject));
 
         perMeshObject_.blendFactor_ = 1.f;
-        perMeshObject_.fogColor_    = vec4(.8f, .8f, .8f, 1.f);
+        perMeshObject_.fogColor_    = context_.fogColor_;
     }
     // max size : skybox width <= (2 * sqrt(3) / 3)
     scale_ = vec3(context_.projection_.GetViewDistance() * sqrtf(3) / 3.f);

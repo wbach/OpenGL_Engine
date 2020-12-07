@@ -915,7 +915,7 @@ void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject
 void NetworkEditorInterface::UpdateDragObject()
 {
     std::lock_guard<std::mutex> lk(dragObjectMutex_);
-    if (dragObject_)
+    if (dragObject_ and not terrainPainter_)
     {
         dragObject_->Update();
     }

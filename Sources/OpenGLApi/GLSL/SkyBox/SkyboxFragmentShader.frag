@@ -21,16 +21,14 @@ layout (location = 3) out vec4 MaterialSpecular;
 
 void main(void)
 {
-    vec4 texture1     = texture(DayCubeMap, TextureCoords);
-    vec4 texture2     = texture(NightCubeMap, TextureCoords);
-    vec4 final_colour = mix(texture2, texture1, perMeshObject.blendFactor);
+    vec4 texture1   = texture(DayCubeMap, TextureCoords);
+    vec4 texture2   = texture(NightCubeMap, TextureCoords);
+    vec4 finalColor = mix(texture2, texture1, perMeshObject.blendFactor);
 
-    float factor    = (TextureCoords.y - LowerLimit)/(UpperLimit - LowerLimit );
-    factor          = clamp(factor, 0.f, 1.f);
-    final_colour    = mix(perMeshObject.fogColour, final_colour, factor);
+    float fogFactor = (TextureCoords.y - LowerLimit)/(UpperLimit - LowerLimit );
 
     WorldPosOut      = vec4(TextureCoords, 1.f);
-    DiffuseOut       = final_colour;
-    NormalOut        = vec4(0.f, 1.f, 0.f, 0.f); // w = 0; dont use fog on skybox
+    DiffuseOut       = mix(perMeshObject.fogColour, finalColor, clamp(fogFactor, 0.f, 1.f));
+    NormalOut        = vec4(0.f, 1.f, 0.f, 0.f); // w = 0; dont use fog on skybox,
     MaterialSpecular = vec4(0.f);
 }

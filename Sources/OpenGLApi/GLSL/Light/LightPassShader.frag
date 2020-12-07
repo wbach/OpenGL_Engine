@@ -181,21 +181,14 @@ float max3(vec3 v)
 
 void main()
 {
-    vec2 tex_coord  = vs_in.textureCoords;
-    tex_coord.y    *= - 1;
   //  FragColor = texture(ColorMap, tex_coord); return;
-    float distance  = ToZBuffer(DepthTexture, tex_coord);
+    float distance  = ToZBuffer(DepthTexture, vs_in.textureCoords);
 
-    vec4 normal4    = texture(NormalMap, tex_coord);
-    vec4 specular   = texture(SpecularMap, tex_coord);
-    vec3 world_pos  = texture(PositionMap, tex_coord).xyz;
-    vec3 color      = texture(ColorMap, tex_coord).xyz;
+    vec4 normal4    = texture(NormalMap, vs_in.textureCoords);
+    vec4 specular   = texture(SpecularMap, vs_in.textureCoords);
+    vec3 world_pos  = texture(PositionMap, vs_in.textureCoords).xyz;
+    vec3 color      = texture(ColorMap, vs_in.textureCoords).xyz;
     vec3 normal     = normalize(normal4.xyz);
-
-
-    float visibility;
-    visibility = exp(-pow((distance*((1.5 / lightsPass.viewDistance))), gradient));
-    visibility = clamp(visibility, 0.0f, 1.0f) ;
 
     SMaterial material;
     float maxValue = max3(color);
@@ -206,29 +199,31 @@ void main()
     material.specular_ = specular.xyz;
     material.shineDamper_ = specular.a * 255.f;
 
-    vec3 final_color;
-
-    if (normal4.a < .5f)
-    {
-        visibility = 1.f;
-    }
+    vec4 finalColor;
+    float visibility = 1.f;
 
     if (normal4.a > .5f)
     {
-        final_color = CalculateColor(material, world_pos, normal).rgb;
+        visibility = exp(-pow((distance*( ( 45.0f / lightsPass.viewDistance))), gradient));
+        visibility = clamp(visibility, 0.0f, 1.0f) ;
+        finalColor = CalculateColor(material, world_pos, normal);
     }
     else
     {
-        final_color = material.diffuse_;
+        visibility = 1.f;
+        finalColor = vec4(color, 1.f);
     }
 
-    const float gamma = 1.3f;
-    final_color = pow(final_color, vec3(1.f / gamma));
-    FragColor = vec4(final_color, 1.f);
+    finalColor = mix(lightsPass.skyColor, finalColor, visibility);
+
+    // const float gamma = 1.3f;
+    // finalColor = pow(finalColor, vec4(1.f / gamma));
+     FragColor = vec4(finalColor.rgb, 1.f);
+
 //return;
    // const float contrast = 0.5f;
    // FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
-    FragColor     = mix(lightsPass.skyColor, FragColor, visibility);
+ //   FragColor     = mix(vec4(0.8), FragColor, visibility);
     //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);
     //FragColor = vec4(lightsPass.lights[0].color_, 1.f);
 }

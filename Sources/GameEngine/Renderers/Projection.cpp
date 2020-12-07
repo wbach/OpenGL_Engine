@@ -15,7 +15,7 @@ std::mutex mmutex;
 std::mutex wmutex;
 
 const float DEFAULT_NEAR_PLANE{.3f};
-const float DEFAULT_FAR_PLANE{1000.f};
+const float DEFAULT_FAR_PLANE{10000.f};
 const float DEFAULT_FOV{60.f};
 }  // namespace
 Projection::Projection()

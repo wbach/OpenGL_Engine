@@ -18,7 +18,8 @@ out VS_OUT
 
 void main()
 {
-    vs_out.textureCoords = TexCoord;
-    vs_out.cameraPosition = perFrame.cameraPosition;
+    vs_out.textureCoords   = TexCoord;
+    vs_out.textureCoords.y *= - 1;
+    vs_out.cameraPosition  = perFrame.cameraPosition;
     gl_Position = vec4(Position, 1.0);
 }

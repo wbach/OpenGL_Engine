@@ -14,7 +14,7 @@ void DefferedLighting::Init()
 {
     shader_.Init();
 
-    lightPass_.skyColor = rendererContext_.graphicsApi_.GetBackgroundColor().value;
+    lightPass_.skyColor = rendererContext_.fogColor_;
     lightPass_.viewDistance = rendererContext_.projection_.GetViewDistance();
     lightPass_.screenSize =
         vec2(rendererContext_.projection_.GetRenderingSize().x, rendererContext_.projection_.GetRenderingSize().y);
