@@ -60,6 +60,8 @@ void WaterReflectionRefractionRenderer::prepare()
             createRefractionTexture(*fbo);
             subscriber.second.waterTextures_ = &fbo->waterTextures_;
         }
+
+        cleanNotUsedFbos();
     }
 
     context_.graphicsApi_.DisableCliping(0);
@@ -88,6 +90,12 @@ void WaterReflectionRefractionRenderer::unSubscribe(GameObject& gameObject)
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribers_.erase(gameObject.GetId());
+    auto fbo = findFbo(gameObject.GetWorldTransform().GetPosition().y);
+
+    if (fbo)
+    {
+        fbo->usingByObjects.erase(gameObject.GetId());
+    }
 }
 void WaterReflectionRefractionRenderer::unSubscribeAll()
 {
@@ -97,6 +105,11 @@ void WaterReflectionRefractionRenderer::unSubscribeAll()
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribers_.clear();
+
+    for (auto& fbo : waterFbos_)
+    {
+        fbo.usingByObjects.clear();
+    }
 }
 void WaterReflectionRefractionRenderer::reloadShaders()
 {
@@ -211,6 +224,26 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo)
     context_.frustrum_.pop();
     fbo.reflectionFrameBuffer_->UnBind();
     context_.graphicsApi_.BindShaderBuffer(lastBindedShaderBuffer);
+}
+
+void WaterReflectionRefractionRenderer::cleanNotUsedFbos()
+{
+    for (auto iter = waterFbos_.begin(); iter != waterFbos_.end();)
+    {
+        if (iter->usingByObjects.empty())
+        {
+            if (iter->reflectionFrameBuffer_)
+                context_.graphicsApi_.DeleteFrameBuffer(*iter->reflectionFrameBuffer_);
+            if (iter->refractionFrameBuffer_)
+                context_.graphicsApi_.DeleteFrameBuffer(*iter->refractionFrameBuffer_);
+
+            iter = waterFbos_.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }
 
 WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::getFbo(uint32 gameObjectId,

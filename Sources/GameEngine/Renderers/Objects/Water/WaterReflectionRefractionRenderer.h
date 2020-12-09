@@ -72,6 +72,7 @@ private:
     void renderScene();
     void createRefractionTexture(WaterFbo&);
     void createReflectionTexture(WaterFbo&);
+    void cleanNotUsedFbos();
     WaterFbo* getFbo(uint32, Subscriber&);
     WaterFbo* findFbo(float);
     WaterFbo* createWaterTilesTextures(float);
