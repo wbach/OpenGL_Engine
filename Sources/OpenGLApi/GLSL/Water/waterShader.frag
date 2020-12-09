@@ -19,7 +19,7 @@ in VS_OUT
     vec2 texCoord;
     vec3 normal;
     vec3 worldPos;
-    vec3 toCameraVector;
+    vec3 cameraPosition;
     vec4 clipSpace;
 } vs_out;
 
@@ -99,9 +99,11 @@ void main(void)
     refractTexCoords = refractTexCoords + totalDistortion;
     refractTexCoords = clamp(refractTexCoords, 0.001f, 0.999f);
 
-    float refractiveFactor  = dot(vs_out.toCameraVector, normal);
-   // refractiveFactor        = pow(refractiveFactor, 0.5);
-    refractiveFactor        = clamp(refractiveFactor,0.0f, 1.0f);
+    vec3 toCameraVector = normalize(vs_out.cameraPosition - vs_out.worldPos);
+
+    float refractiveFactor  = dot(toCameraVector, vec3(0, 1, 0));
+    refractiveFactor        = pow(refractiveFactor, 0.2);
+    refractiveFactor        = clamp(refractiveFactor, 0.0f, 1.0f);
 
 
     float colorInte = 0.f;
@@ -124,13 +126,6 @@ void main(void)
     refractColor      = mix(refractColor, vec4(perMeshObject.waterColor.xyz, 1.f), colorInte);
 
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
-    DiffuseOut        = mix(reflectColor, refractColor, 0.75);
+    DiffuseOut        = mix(reflectColor, refractColor, refractiveFactor);
     NormalOut         = vec4(normal, 1.f);
-
-    //NormalOut  = vec4(0,1,0,1);
-   // DiffuseOut = vec4(normal, 1.f);
-    //DiffuseOut = vec4(1.f, 0, 0, 1.f);
-   // DiffuseOut = outColor;
-    //DiffuseOut.a = 1.f;
-    //DiffuseOut.a     = edgesFactor;
 }

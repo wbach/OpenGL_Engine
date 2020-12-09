@@ -28,7 +28,7 @@ out VS_OUT
     vec2 texCoord;
     vec3 normal;
     vec3 worldPos;
-    vec3 toCameraVector;
+    vec3 cameraPosition;
     vec4 clipSpace;
 } vs_out;
 
@@ -38,7 +38,7 @@ void main(void)
     vs_out.texCoord       = TexCoord * tiling;
     vs_out.normal         = (perObjectUpdate.transformationMatrix * vec4(Normal, 0.0)).xyz;
     vs_out.worldPos       = worldSpace.xyz;
-    vs_out.toCameraVector = normalize(perFrame.cameraPosition - worldSpace.xyz);
+    vs_out.cameraPosition = perFrame.cameraPosition;
     vs_out.clipSpace      = perFrame.projectionViewMatrix * worldSpace;
 
     gl_Position = vs_out.clipSpace;

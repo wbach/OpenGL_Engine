@@ -12,7 +12,7 @@ uniform samplerCube DayCubeMap;
 uniform samplerCube NightCubeMap;
 
 const float LowerLimit = 0.0;
-const float UpperLimit = 0.2;
+const float UpperLimit = 0.1;
 
 out vec4 outputColor;
 
