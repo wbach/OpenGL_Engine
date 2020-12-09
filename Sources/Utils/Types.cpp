@@ -46,6 +46,11 @@ bool compare(float x, float y)
     return fabsf(x - y) <= std::numeric_limits<float>::epsilon();
 }
 
+bool compare(float x, float y, float epsilon)
+{
+    return fabsf(x - y) <= epsilon;
+}
+
 namespace std
 {
 std::string to_string(const vec2& v)

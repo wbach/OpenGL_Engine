@@ -1,9 +1,10 @@
 #include "WaterRenderer.h"
 
+#include <Logger/Log.h>
+
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -20,7 +21,8 @@ struct WaterTileMeshBuffer
 const float DEFAULT_TILED_VALUE{0.01f};
 
 WaterRenderer::WaterRenderer(RendererContext& context)
-    : context_(context)
+    : waterReflectionRefractionRenderer_(context)
+    , context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Water)
 {
 }
@@ -40,10 +42,14 @@ void WaterRenderer::init()
         perMeshObjectId_ =
             context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
+
+    if (useReflectionRefractionTextures())
+        waterReflectionRefractionRenderer_.init();
 }
 void WaterRenderer::prepare()
 {
-    // render reflect refract texture
+    if (useReflectionRefractionTextures())
+        waterReflectionRefractionRenderer_.prepare();
 }
 void WaterRenderer::render()
 {
@@ -56,7 +62,7 @@ void WaterRenderer::render()
 
     for (auto& subscriber : subscribers_)
     {
-        auto& component = *subscriber.second.waterRendererComponent_;
+        auto& component = subscriber.second.waterRendererComponent_;
 
         auto perObjectBufferId = component.getPerObjectUpdateBufferId();
 
@@ -65,21 +71,27 @@ void WaterRenderer::render()
             context_.graphicsApi_.BindShaderBuffer(*perObjectBufferId);
         }
 
-        waterTileMeshBuffer.tiledValue = DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
+        waterTileMeshBuffer.tiledValue =
+            DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
         waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(context_.time_.deltaTime * WAVE_SPEED);
         waterTileMeshBuffer.waterColor = component.GetWaterColor();
 
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 
-        if (context_.waterReflectionTextureId_)
-            context_.graphicsApi_.ActiveTexture(0, *context_.waterReflectionTextureId_);
+        const auto waterTextures = waterReflectionRefractionRenderer_.GetWaterTextures(subscriber.first);
 
-        if (context_.waterRefractionTextureId_)
-            context_.graphicsApi_.ActiveTexture(1, *context_.waterRefractionTextureId_);
+        if (waterTextures)
+        {
+            if (waterTextures->waterReflectionTextureId)
+                context_.graphicsApi_.ActiveTexture(0, *waterTextures->waterReflectionTextureId);
 
-        if (context_.waterRefractionDepthTextureId_)
-            context_.graphicsApi_.ActiveTexture(2, *context_.waterRefractionDepthTextureId_);
+            if (waterTextures->waterRefractionTextureId)
+                context_.graphicsApi_.ActiveTexture(1, *waterTextures->waterRefractionTextureId);
+
+            if (waterTextures->waterRefractionDepthTextureId)
+                context_.graphicsApi_.ActiveTexture(2, *waterTextures->waterRefractionDepthTextureId);
+        }
 
         if (component.GetNormalTexture() and component.GetNormalTexture()->GetGraphicsObjectId())
             context_.graphicsApi_.ActiveTexture(3, *component.GetNormalTexture()->GetGraphicsObjectId());
@@ -87,10 +99,15 @@ void WaterRenderer::render()
         if (component.GetDudvTexture() and component.GetDudvTexture()->GetGraphicsObjectId())
             context_.graphicsApi_.ActiveTexture(4, *component.GetDudvTexture()->GetGraphicsObjectId());
 
-
         context_.graphicsApi_.RenderQuad();
     }
     context_.graphicsApi_.DisableBlend();
+}
+bool WaterRenderer::useReflectionRefractionTextures()
+{
+    auto waterType = EngineConf.renderer.water.type;
+    return (waterType == GameEngine::Params::WaterType::REFLECTED_REFRACTED or
+            waterType == GameEngine::Params::WaterType::FULL);
 }
 PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
 {
@@ -99,6 +116,9 @@ PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, co
 }
 void WaterRenderer::subscribe(GameObject& gameObject)
 {
+    if (useReflectionRefractionTextures())
+        waterReflectionRefractionRenderer_.subscribe(gameObject);
+
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
     if (not waterComponent)
@@ -106,10 +126,13 @@ void WaterRenderer::subscribe(GameObject& gameObject)
         return;
     }
 
-    subscribers_.insert({gameObject.GetId(), {waterComponent}});
+    subscribers_.insert({gameObject.GetId(), {*waterComponent}});
 }
 void WaterRenderer::unSubscribe(GameObject& gameObject)
 {
+    if (useReflectionRefractionTextures())
+        waterReflectionRefractionRenderer_.unSubscribe(gameObject);
+
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
     if (waterComponent)
@@ -119,10 +142,14 @@ void WaterRenderer::unSubscribe(GameObject& gameObject)
 }
 void WaterRenderer::unSubscribeAll()
 {
+    if (useReflectionRefractionTextures())
+        waterReflectionRefractionRenderer_.unSubscribeAll();
     subscribers_.clear();
 }
 void WaterRenderer::reloadShaders()
 {
+    if (useReflectionRefractionTextures())
+        waterReflectionRefractionRenderer_.reloadShaders();
     shader_.Reload();
 }
 }  // namespace GameEngine

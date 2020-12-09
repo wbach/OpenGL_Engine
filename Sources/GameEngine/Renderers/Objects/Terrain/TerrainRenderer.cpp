@@ -91,7 +91,7 @@ void TerrainRenderer::RenderSubscribers() const
     {
         const auto& tree   = sub.second->GetTree();
         const auto& config = sub.second->GetConfiguration();
-        //    DEBUG_LOG(std::to_string(config.GetPerTerrainBuffer().scale.value));
+
         context_.graphicsApi_.UpdateShaderBuffer(*perTerrainId, &config.GetPerTerrainBuffer());
         context_.graphicsApi_.BindShaderBuffer(*perTerrainId);
 
@@ -128,13 +128,6 @@ void TerrainRenderer::RenderNode(const TerrainNode& node) const
 }
 void TerrainRenderer::BindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
-    //    auto shadowMap = context_.GetShadowMap();
-
-    //    if (shadowMap)
-    //    {
-    //        context_.graphicsApi_.ActiveTexture(0, *shadowMap);
-    //    }
-
     for (const auto& t : textures)
     {
         auto texture = t.second;

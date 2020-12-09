@@ -5,6 +5,7 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "WaterReflectionRefractionRenderer.h"
 
 namespace GameEngine
 {
@@ -17,7 +18,7 @@ class WaterRenderer : public IRenderer
 {
     struct Subscriber
     {
-        Components::WaterRendererComponent* waterRendererComponent_;
+        Components::WaterRendererComponent& waterRendererComponent_;
     };
 
 public:
@@ -33,9 +34,11 @@ public:
     void render() override;
 
 private:
+    bool useReflectionRefractionTextures();
     PerObjectUpdate CalculateTransformMatrix(const vec3&, const vec3&) const;
 
 private:
+    WaterReflectionRefractionRenderer waterReflectionRefractionRenderer_;
     RendererContext& context_;
     ShaderProgram shader_;
     std::unordered_map<uint32, Subscriber> subscribers_;

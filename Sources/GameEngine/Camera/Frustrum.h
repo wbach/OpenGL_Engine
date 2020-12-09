@@ -15,13 +15,16 @@ enum class Halfspace
 class Frustrum
 {
 public:
+    Frustrum();
     void prepareFrame(const mat4& projectionViewMatrix);
     bool intersection(const vec3& point) const;
     bool intersection(const vec3& center, float radius) const;
     bool intersection(const BoundingBox&) const;
     uint64 getIntersectionsCountInFrame() const;
+    void push(const mat4& projectionViewMatrix);
+    void pop();
 
 private:
-    std::array<Plane, 6> planes_;
+    std::list<std::array<Plane, 6>> planes_;
 };
 }  // namespace GameEngine

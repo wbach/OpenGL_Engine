@@ -11,6 +11,7 @@
 #endif
 
 bool compare(float, float);
+bool compare(float, float, float);
 
 typedef unsigned char uchar;
 typedef uint8_t uint8;

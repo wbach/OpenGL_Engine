@@ -4,12 +4,13 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
-#include "GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h"
+#include "GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include <set>
 
 namespace GameEngine
 {
@@ -30,6 +31,29 @@ class RendererComponent;
 class WaterReflectionRefractionRenderer : public IRenderer
 {
 public:
+    struct WaterTextures
+    {
+        GraphicsApi::ID waterReflectionTextureId;
+        GraphicsApi::ID waterRefractionTextureId;
+        GraphicsApi::ID waterRefractionDepthTextureId;
+    };
+
+    struct WaterFbo
+    {
+        float positionY;
+        GraphicsApi::IFrameBuffer* reflectionFrameBuffer_;
+        GraphicsApi::IFrameBuffer* refractionFrameBuffer_;
+        WaterTextures waterTextures_;
+        std::set<uint32> usingByObjects;
+    };
+
+    struct Subscriber
+    {
+        GameObject& gameObject;
+        WaterTextures* waterTextures_{nullptr};
+        std::optional<float> positionY;
+    };
+
     WaterReflectionRefractionRenderer(RendererContext&);
     ~WaterReflectionRefractionRenderer();
 
@@ -40,13 +64,17 @@ public:
     void unSubscribeAll() override;
     void reloadShaders() override;
 
+    WaterReflectionRefractionRenderer::WaterTextures* GetWaterTextures(uint32) const;
+
 private:
     GraphicsApi::IFrameBuffer* createWaterFbo(const vec2ui&);
 
     void renderScene();
-    void createRefractionTexture();
-    void createReflectionTexture();
-    void createWaterTilesTextures(IdType);
+    void createRefractionTexture(WaterFbo&);
+    void createReflectionTexture(WaterFbo&);
+    WaterFbo* getFbo(uint32, Subscriber&);
+    WaterFbo* findFbo(float);
+    WaterFbo* createWaterTilesTextures(float);
 
 private:
     RendererContext& context_;
@@ -58,10 +86,12 @@ private:
     ShaderProgram terrainShader_;
     ShaderProgram skyBoxShader_;
 
-    GraphicsApi::IFrameBuffer* reflectionFrameBuffer_;
-    GraphicsApi::IFrameBuffer* refractionFrameBuffer_;
-
     GraphicsApi::ID reflectionPerFrameBuffer_;
     GraphicsApi::ID refractionPerFrameBuffer_;
+
+    std::list<WaterFbo> waterFbos_;
+    std::unordered_map<uint32, Subscriber> subscribers_;
+
+    std::mutex subscriberMutex_;
 };
 }  // namespace GameEngine
