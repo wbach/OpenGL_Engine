@@ -11,6 +11,7 @@
 #include "Physics/SphereShape.h"
 #include "Physics/Terrain/TerrainShape.h"
 #include "Renderer/Entity/RendererComponent.hpp"
+#include "Renderer/Entity/PreviewComponent.h"
 #include "Renderer/Grass/GrassComponent.h"
 #include "Renderer/Particles/ParticleEffectComponent.h"
 #include "Renderer/SkyBox/SkyBoxComponent.h"
@@ -41,6 +42,10 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::Renderer:
         {
             return std::make_unique<RendererComponent>(context_, ptr);
+        }
+        case ComponentsType::PreviewComponent:
+        {
+            return std::make_unique<PreviewComponent>(context_, ptr);
         }
         case ComponentsType::TreeRenderer:
         {

@@ -12,6 +12,7 @@
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Entity/PreviewComponent.h"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
@@ -163,6 +164,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("takeSnapshot", Takesnapshot);
     REGISTER_COMMAND("exit", Exit);
     REGISTER_COMMAND("moveObjectToCameraPosition", MoveObjectToCameraPosition);
+    REGISTER_COMMAND("modelPreviewRequest", ModelPreviewRequest);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 }
@@ -1458,6 +1460,20 @@ void NetworkEditorInterface::MoveObjectToCameraPosition(const EntryParameters &p
             auto newPostion = scene_.GetCamera().GetPosition() + (scene_.GetCamera().GetDirection() * 5.f);
             gameObject->SetWorldPosition(newPostion);
         }
+    }
+}
+
+void NetworkEditorInterface::ModelPreviewRequest(const EntryParameters& params)
+{
+    auto input = params.find("input");
+    auto output = params.find("output");
+
+    if (input != params.end() and output != params.end())
+    {
+        auto gameObject = scene_.CreateGameObject();
+        auto& component = gameObject->AddComponent<Components::PreviewComponent>();
+        component.addModel(input->second, output->second);
+        scene_.AddGameObject(std::move(gameObject));
     }
 }
 

@@ -35,6 +35,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Physics/SphereShape.h
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainShape.h
+../../Sources/GameEngine/Components/Renderer/Entity/PreviewComponent.h
 ../../Sources/GameEngine/Components/Renderer/Grass/GrassComponent.h
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h
@@ -214,6 +215,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/LoadingScreenRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/ConcreteEntityRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.h
+../../Sources/GameEngine/Renderers/Objects/Entity/PreviewRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Grass/GrassRenderer.h
 ../../Sources/GameEngine/Renderers/Objects/Grass/GrassShaderBuffer.h
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticleInputBuffer.h

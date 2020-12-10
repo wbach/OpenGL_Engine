@@ -42,11 +42,12 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     {
         auto scaledBitmap =
             FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
+       
         FreeImage_Unload(bitmap);
         bitmap = scaledBitmap;
     }
     auto outputFilename = std::filesystem::path(filename).replace_extension(".png").string();
-    FreeImage_FlipVertical(bitmap);
+    //FreeImage_FlipVertical(bitmap);
     FreeImage_Save(FIF_PNG, bitmap, outputFilename.c_str());
     FreeImage_Unload(bitmap);
 }

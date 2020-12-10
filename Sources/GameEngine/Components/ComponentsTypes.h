@@ -17,6 +17,7 @@ enum class ComponentsType
     CapsuleShape,
     Rigidbody,
     Renderer,
+    PreviewComponent,
     TreeRenderer,
     ParticleEffect,
     SkyBox,

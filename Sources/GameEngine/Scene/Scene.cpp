@@ -186,6 +186,13 @@ void Scene::AddGameObject(std::unique_ptr<GameObject> object)
     rootGameObject_->AddChild(std::move(object));
 }
 
+bool Scene::RemoveGameObject(IdType id)
+{
+    gameObjectIdPool_.releaseId(id);
+    gameObjectsIds_.erase(id);
+    return rootGameObject_->RemoveChild(id);
+}
+
 bool Scene::RemoveGameObject(GameObject& object)
 {
     gameObjectIdPool_.releaseId(object.GetId());

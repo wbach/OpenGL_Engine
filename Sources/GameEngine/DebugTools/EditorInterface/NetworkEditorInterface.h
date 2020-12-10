@@ -93,6 +93,7 @@ private:
     void Takesnapshot(const EntryParameters&);
     void Exit(const EntryParameters&);
     void MoveObjectToCameraPosition(const EntryParameters&);
+    void ModelPreviewRequest(const EntryParameters&);
 
     void StartScene();
     void StopScene();

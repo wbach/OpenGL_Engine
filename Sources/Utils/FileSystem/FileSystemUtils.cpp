@@ -281,5 +281,15 @@ std::string ReadFilesWithIncludes(const std::string& filename)
     }
     return sourceCode.str();
 }
-
+void RenameFile(const std::string& path, const std::string& newName)
+{
+    try
+    {
+        std::filesystem::rename(path, newName);
+    }
+    catch (...)
+    {
+        DEBUG_LOG("rename error");
+    }
+}
 }  // namespace Utils

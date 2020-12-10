@@ -27,6 +27,7 @@ std::vector<ComponentsType> GetComponentTypes()
         ComponentsType::CapsuleShape,
         ComponentsType::Rigidbody,
         ComponentsType::Renderer,
+        ComponentsType::PreviewComponent,
         ComponentsType::TreeRenderer,
         ComponentsType::ParticleEffect,
         ComponentsType::SkyBox,
@@ -49,6 +50,7 @@ std::optional<GameEngine::Components::ComponentsType> from_string(const std::str
     FROM_STR(TerrainShape);
     FROM_STR(CapsuleShape);
     FROM_STR(Rigidbody);
+    FROM_STR(PreviewComponent);
     FROM_STR(Renderer);
     FROM_STR(TreeRenderer);
     FROM_STR(ParticleEffect);
@@ -81,6 +83,7 @@ std::string to_string(GameEngine::Components::ComponentsType type)
         RETURN_STR(CapsuleShape);
         RETURN_STR(Rigidbody);
         RETURN_STR(Renderer);
+        RETURN_STR(PreviewComponent);
         RETURN_STR(TreeRenderer);
         RETURN_STR(ParticleEffect);
         RETURN_STR(SkyBox);

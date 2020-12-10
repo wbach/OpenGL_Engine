@@ -11,6 +11,7 @@ class FrameBuffer : public GraphicsApi::IFrameBuffer
 {
     struct GlAttachment
     {
+        GraphicsApi::FrameBuffer::Type attachmentType;
         GLuint glId_;
         GLuint type_;
         GLint internalFormat_;

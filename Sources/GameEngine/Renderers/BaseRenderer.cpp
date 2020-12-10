@@ -5,6 +5,7 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "Logger/Log.h"
 #include "Objects/Entity/ConcreteEntityRenderer.h"
+#include "Objects/Entity/PreviewRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
@@ -72,6 +73,7 @@ void BaseRenderer::blendRender()
 }
 void BaseRenderer::createRenderers()
 {
+    addRenderer<PreviewRenderer>();
     addRenderer<ConcreteSkyBoxRenderer>();
     addRenderer<SkydomRenderer>();
     if (context_.graphicsApi_.IsTesselationSupported())

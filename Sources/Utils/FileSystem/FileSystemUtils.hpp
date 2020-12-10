@@ -16,7 +16,7 @@ struct File
     Type type;
     std::string name;
 };
-
+void RenameFile(const std::string&, const std::string&);
 std::string FindFile(const std::string&, const std::string&);
 std::string GetFileName(const std::string&);
 std::string GetExtension(const std::string&);

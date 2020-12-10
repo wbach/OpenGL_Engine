@@ -30,6 +30,7 @@ class Menu:
 
         createMenu = tk.Menu(menubar, tearoff=0)
         createMenu.add_command(label="Add game object", command=self.AddGameObjct)
+        createMenu.add_command(label="PreviewGameObject test", command=self.PreviewGameObject)
         createMenu.add_command(label="Add object with model", command=self.AddModel)
         createMenu.add_command(label="Load prefab", command=self.LoadPrefab)
         createMenu.add_command(label="Reload scene", command=self.ReloadScene)
@@ -220,6 +221,9 @@ class Menu:
     def AddGameObjct(self):
         answer = simpledialog.askstring("Input", "Game object name", parent=self.root, initialvalue="GameObject")
         self.networkClient.SendCommand("createGameObject name=" + answer)
+
+    def PreviewGameObject(self):
+        self.networkClient.SendCommand("modelPreviewRequest input=Meshes/Gothic/G3_Myrtana_Castle_Mainhouse/G3_Myrtana_Castle_Mainhouse.obj output=D:/Tmp/castle.png")
 
     def AddModel(self):
         filename = self.fileManger.OpenModelFile()

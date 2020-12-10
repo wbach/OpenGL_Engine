@@ -22,6 +22,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::PreviewEntity,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/PreviewEntity.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/PreviewEntity.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::SimpleForwadEntity,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/SimpleEntityShader.vert"},

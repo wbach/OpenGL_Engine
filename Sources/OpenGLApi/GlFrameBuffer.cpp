@@ -224,7 +224,7 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
         }
 
         Utils::SaveImage(outputData, vec2ui(attachment.width_, attachment.height_),
-                         path + std::to_string(attachment.glId_));
+                         path + "/" + std::to_string(*GetAttachmentTexture(attachment.attachmentType)));
     }
 }
 
@@ -235,6 +235,7 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
     for (auto& attachment : attachments)
     {
         GlAttachment glAttachment;
+        glAttachment.attachmentType   = attachment.type;
         glAttachment.bufferType_      = BufferType.at(attachment.type);
         glAttachment.drawbufferIndex_ = DrawBufferIndex.at(attachment.type);
         glAttachment.type_            = AttachmentType.at(attachment.type);
@@ -271,7 +272,6 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
     }
     if (not drawBuffers.empty())
     {
-
         glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
     }
     else

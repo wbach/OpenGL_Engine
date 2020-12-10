@@ -23,8 +23,8 @@ public:
     virtual ~GameObject();
 
     void AddChild(std::unique_ptr<GameObject>);
-    bool RemoveChild(GameObject&);
     bool RemoveChild(IdType);
+    bool RemoveChild(GameObject&);
     void SetParent(GameObject*);
     GameObject* GetParent() const;
     GameObject* GetChild(IdType id) const;

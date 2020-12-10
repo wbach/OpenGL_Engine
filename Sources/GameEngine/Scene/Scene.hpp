@@ -74,6 +74,7 @@ public:
 
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject> object);
+    bool RemoveGameObject(IdType);
     bool RemoveGameObject(GameObject& object);
     void ClearGameObjects();
     void SetAddSceneEventCallback(AddEvent func);

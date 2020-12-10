@@ -25,6 +25,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Physics/SphereShape.cpp
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainHeightGetter.cpp
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainShape.cpp
+../../Sources/GameEngine/Components/Renderer/Entity/PreviewComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Grass/GrassComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.cpp
@@ -160,6 +161,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Renderers/LoadingScreenRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Entity/ConcreteEntityRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Entity/EntityRenderer.cpp
+../../Sources/GameEngine/Renderers/Objects/Entity/PreviewRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Grass/GrassRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Particles/ParticlesRenderer.cpp
 ../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.cpp
