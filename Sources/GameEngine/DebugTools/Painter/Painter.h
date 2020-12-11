@@ -48,7 +48,7 @@ public:
     virtual std::string selectedBrush() const = 0;
     virtual std::vector<std::string> avaiableBrushTypes() const = 0;
 
-    void paint();
+    std::optional<vec3> paint();
     PaintType getPaintType() const;
 
     float strength() const;

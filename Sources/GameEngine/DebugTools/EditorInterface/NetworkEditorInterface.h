@@ -128,7 +128,7 @@ private:
     std::optional<uint32> transformChangeSubscriptionId_;
     std::optional<uint32> cameraChangeSubscriptionId_;
     common::Transform* transformChangeSubscription_;
-    common::Transform arrowsIndicatorTransform_;
+
     uint32 keyDownSub_;
     uint32 keyUpSub_;
     uint32 scrollKeyUpSub_;
@@ -152,5 +152,10 @@ private:
     Utils::Timer terrainPainterTimer_;
 
     Model* arrowsIndicator_;
+    Model* brushCircle_;
+    int32 brushSize_{1};
+
+    common::Transform arrowsIndicatorTransform_;
+    common::Transform brushCircleTransform_;
 };
 }  // namespace GameEngine

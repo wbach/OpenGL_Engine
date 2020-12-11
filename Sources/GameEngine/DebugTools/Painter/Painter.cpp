@@ -13,7 +13,7 @@
 namespace GameEngine
 {
 Painter::Painter(const EntryParamters& entryParamters, PaintType paintType)
-    : Painter(entryParamters, paintType, 0.01f, 16)
+    : Painter(entryParamters, paintType, 0.01f, 4)
 {
 }
 
@@ -50,18 +50,20 @@ Painter::~Painter()
         inputManager_.UnsubscribeOnKeyUp(KeyCodes::LMOUSE, *mouseKeyUpSubscribtion_);
 }
 
-void Painter::paint()
+std::optional<vec3> Painter::paint()
 {
+    auto terrainPoint = pointGetter_.GetMousePointOnTerrain(inputManager_.GetMousePosition());
+
     if (lmouseKeyIsPressed_)
     {
-        auto terrainPoint = pointGetter_.GetMousePointOnTerrain(inputManager_.GetMousePosition());
-
         if (terrainPoint)
         {
             paintContext_.currentTerrainPoint = std::make_unique<TerrainPoint>(*terrainPoint);
             paintImpl();
         }
     }
+
+    return terrainPoint ? std::make_optional(terrainPoint->pointOnTerrain) : std::nullopt;
 }
 
 PaintType Painter::getPaintType() const

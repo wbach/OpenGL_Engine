@@ -262,6 +262,7 @@ void DebugRenderer::RemoveState(DebugRenderer::RenderState state)
 
 void DebugRenderer::CreateDebugObjects()
 {
+    std::lock_guard<std::mutex> lk(debugObjectsMutex_);
     for (auto iter = toCreateDebugObjects_.begin(); iter != toCreateDebugObjects_.end();)
     {
         (*iter)->CreateBuffer();

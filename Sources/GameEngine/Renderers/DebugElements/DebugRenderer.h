@@ -103,8 +103,8 @@ private:
     ShaderProgram lineShader_;
     ShaderProgram textureShader_;
 
-    std::vector<DebugObject> debugObjects_;
-    std::vector<DebugObject*> toCreateDebugObjects_;
+    std::list<DebugObject> debugObjects_;
+    std::list<DebugObject*> toCreateDebugObjects_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
     GraphicsApi::ID texturePerObjectUpdateBufferId_;
     GraphicsApi::ID textureColorBufferId_;

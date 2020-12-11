@@ -209,6 +209,13 @@ void NetworkEditorInterface::PrepareDebugModels()
     {
         scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*arrowsIndicator_, arrowsIndicatorTransform_);
     }
+
+    brushCircle_ = scene_.resourceManager_->LoadModel("Meshes/Indicators/circle2.obj");
+
+    if (brushCircle_)
+    {
+        scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*brushCircle_, brushCircleTransform_);
+    }
 }
 
 void NetworkEditorInterface::KeysSubscribtions()
@@ -933,7 +940,12 @@ void NetworkEditorInterface::PaintTerrain()
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
     if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
     {
-        terrainPainter_->paint();
+        auto pointOnTerrain = terrainPainter_->paint();
+        if (pointOnTerrain)
+        {
+            brushCircleTransform_.SetPosition(*pointOnTerrain);
+        }
+        brushCircleTransform_.SetScale(vec3(static_cast<float>(brushSize_), 1.f, static_cast<float>(brushSize_)));
         terrainPainterTimer_.Reset();
     }
 }
@@ -1131,7 +1143,7 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
     scene_.ClearGameObjects();
 }
 
-DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter)
+DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter, int32& brushSize)
 {
     DebugNetworkInterface::TerrainPainterEnabled msg;
     msg.type               = std::to_string(painter.getPaintType());
@@ -1141,7 +1153,7 @@ DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Pai
     msg.stepInterpolation  = std::to_string(painter.stepInterpolation());
     msg.stepInterpolations = AvaiableStepInterpolationsStrs();
     msg.brushTypes         = painter.avaiableBrushTypes();
-
+    brushSize = painter.brushSize();
     return msg;
 }
 
@@ -1155,14 +1167,14 @@ void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
 {
     DisableTerrainPainter({});
     terrainPainter_ = std::make_unique<TerrainHeightPainter>(GetPainterEntryParameters());
-    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
+    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
 }
 
 void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &)
 {
     DisableTerrainPainter({});
     terrainPainter_ = std::make_unique<TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
-    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
+    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
 }
 
 void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
@@ -1187,7 +1199,7 @@ void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
 
         DisableTerrainPainter({});
         terrainPainter_ = std::make_unique<PlantPainter>(GetPainterEntryParameters(), *component);
-        gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_));
+        gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
     }
 }
 
@@ -1198,6 +1210,7 @@ void NetworkEditorInterface::DisableTerrainPainter(const EntryParameters &)
     {
         terrainPainter_.reset(nullptr);
     }
+    brushCircleTransform_.SetPosition(vec3(std::numeric_limits<float>::max()));
 }
 
 void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterface::EntryParameters &params)
@@ -1215,6 +1228,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
         if (params.count("brushSize"))
         {
             terrainPainter_->brushSize(std::stoi(params.at("brushSize")));
+            brushSize_ = std::stoi(params.at("brushSize"));
         }
         if (params.count("stepInterpolation"))
         {
