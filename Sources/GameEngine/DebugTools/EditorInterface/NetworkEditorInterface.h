@@ -94,6 +94,9 @@ private:
     void Exit(const EntryParameters&);
     void MoveObjectToCameraPosition(const EntryParameters&);
     void ModelPreviewRequest(const EntryParameters&);
+    void ChangeGameObjectParent(const EntryParameters&);
+    void CloneGameObject(const EntryParameters&);
+    void CreatePrefabFromObject(const EntryParameters&);
 
     void StartScene();
     void StopScene();
@@ -115,6 +118,7 @@ private:
     void UpdateDragObject();
     void PaintTerrain();
     void UpdateArrowsIndicatorPosition();
+    void SendObjectCreatedNotf(const GameObject&);
 
 private:
     Scene& scene_;

@@ -2,6 +2,7 @@
 
 #include <Utils.h>
 #include <Utils/GLM/GLMUtils.h>
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Components/Animation/Animator.h"
@@ -131,7 +132,7 @@ void Create(XmlNode& node, const std::vector<Components::TerrainComponentBase::T
     }
 }
 
-void Create(XmlNode& node, common::Transform transform)
+void Create(XmlNode& node, const common::Transform& transform)
 {
     Create(node.AddChild(CSTR_POSITION), transform.GetPosition());
     Create(node.AddChild(CSTR_ROTATION), transform.GetRotation().GetEulerDegrees().value);
@@ -263,7 +264,7 @@ void Create(XmlNode& node, const Components::PlayerInputController& component)
 
     node.AddChild(CSTR_IDLE_ANIMATION).value_ = component.idleAnimationName_;
     node.AddChild(CSTR_WALK_ANIMATION).value_ = component.walkAnimationName_;
-    node.AddChild(CSTR_RUN_ANIMATION).value_ = component.runAnimationName_;
+    node.AddChild(CSTR_RUN_ANIMATION).value_  = component.runAnimationName_;
 }
 
 void Create(XmlNode&, const Components::CharacterController&)
@@ -471,5 +472,11 @@ Utils::XmlNode createTree(const Scene& input)
     scene.attributes_[CSTR_NAME] = input.GetName();
     Create(scene.AddChild(CSTR_GAMEOBJECTS), input.GetGameObjects());
     return scene;
+}
+Utils::XmlNode createPrefab(const GameObject& gameObject)
+{
+    Utils::XmlNode rootNode(CSTR_PREFAB);
+    Create(rootNode, gameObject);
+    return rootNode;
 }
 }  // namespace GameEngine

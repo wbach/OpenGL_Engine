@@ -30,7 +30,7 @@ class Menu:
 
         createMenu = tk.Menu(menubar, tearoff=0)
         createMenu.add_command(label="Add game object", command=self.AddGameObjct)
-        createMenu.add_command(label="PreviewGameObject test", command=self.PreviewGameObject)
+        createMenu.add_command(label="[TEST] PreviewGameObject", command=self.PreviewGameObject)
         createMenu.add_command(label="Add object with model", command=self.AddModel)
         createMenu.add_command(label="Load prefab", command=self.LoadPrefab)
         createMenu.add_command(label="Reload scene", command=self.ReloadScene)

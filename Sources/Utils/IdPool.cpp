@@ -1,11 +1,14 @@
 #include "IdPool.h"
+
 #include <algorithm>
+
 #include "Logger/Log.h"
 
 namespace Utils
 {
-IdPool::IdPool()
-    : counter_{0}
+IdPool::IdPool(IdType startupValue)
+    : counter_{startupValue}
+    , startupValue_{startupValue}
 {
 }
 IdType IdPool::getId(const std::optional<IdType>& requestedId)
@@ -63,7 +66,11 @@ void IdPool::releaseId(IdType id)
 }
 void IdPool::clear()
 {
-    counter_ = 0;
+    clear(startupValue_);
+}
+void IdPool::clear(IdType value)
+{
+    counter_ = value;
     freeIds_.clear();
 }
 }  // namespace Utils

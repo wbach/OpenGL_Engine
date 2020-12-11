@@ -15,6 +15,7 @@ GameObject::GameObject(const std::string& name, Components::IComponentFactory& c
     , id_(id)
     , componentFactory_(componentFactory)
 {
+    localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
 }
 
 GameObject::~GameObject()
@@ -70,8 +71,6 @@ void GameObject::SetParent(GameObject* parent)
 
     parentIdTransfromSubscribtion_ =
         parent->SubscribeOnWorldTransfomChange([this](const auto&) { CalculateWorldTransform(); });
-
-    localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
 }
 
 GameObject* GameObject::GetParent() const
@@ -99,6 +98,29 @@ GameObject* GameObject::GetChild(IdType id) const
         if (result)
             return result;
     }
+    return nullptr;
+}
+
+std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
+{
+    auto iter =
+        std::find_if(children_.begin(), children_.end(), [id](const auto& object) { return object->GetId() == id; });
+
+    if (iter != children_.end())
+    {
+        auto result = std::move(*iter);
+        children_.erase(iter);
+        return std::move(result);
+    }
+
+    for (const auto& child : children_)
+    {
+        auto result = child->MoveChild(id);
+
+        if (result)
+            return std::move(result);
+    }
+
     return nullptr;
 }
 
@@ -203,6 +225,16 @@ void GameObject::SetWorldPosition(const vec3& worldPosition)
     {
         localTransform_.SetPosition(worldPosition);
     }
+}
+
+void GameObject::SetWorldRotation(const Rotation& rotation)
+{
+    localTransform_.SetRotation(glm::inverse(parent_->GetWorldTransform().GetRotation().value_) * rotation.value_);
+}
+
+void GameObject::SetWorldScale(const vec3& worldScale)
+{
+    localTransform_.SetScale(worldScale / parent_->GetWorldTransform().GetScale());
 }
 
 void GameObject::CalculateWorldTransform()

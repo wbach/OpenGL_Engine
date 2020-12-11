@@ -28,6 +28,7 @@ public:
     void SetParent(GameObject*);
     GameObject* GetParent() const;
     GameObject* GetChild(IdType id) const;
+    std::unique_ptr<GameObject> MoveChild(IdType);
     // return first child with name
     GameObject* GetChild(const std::string&) const;
     inline const GameObjects& GetChildren() const;
@@ -61,6 +62,8 @@ public:
     void UnsubscribeOnWorldTransfromChange(uint32);
 
     void SetWorldPosition(const vec3&);
+    void SetWorldRotation(const Rotation&);
+    void SetWorldScale(const vec3&);
 
 private:
     void CalculateWorldTransform();

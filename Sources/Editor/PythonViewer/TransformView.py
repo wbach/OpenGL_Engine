@@ -1,7 +1,7 @@
 from lxml import objectify
 
 from CommonWidgetTools import CreateVectorInput
-
+import tkinter as tk
 
 class TransformView:
     def __init__(self, networkClient, frame, infoView):
@@ -9,12 +9,15 @@ class TransformView:
         self.infoView = infoView
         self.selfEntering = False
 
-        self.positionX, self.positionY, self.positionZ = CreateVectorInput(rootFrame=frame, label="Position",
+        vframe = tk.LabelFrame(frame, text="Local Transform",  padx=5, pady=5)
+        vframe.pack()
+
+        self.positionX, self.positionY, self.positionZ = CreateVectorInput(rootFrame=vframe, label="Position",
                                                                            startColumn=0, startRow=1,
                                                                            inputCallback=self.EnterPosition)
-        self.rotX, self.rotY, self.rotZ = CreateVectorInput(rootFrame=frame, label="Rotation", startColumn=0,
+        self.rotX, self.rotY, self.rotZ = CreateVectorInput(rootFrame=vframe, label="Rotation", startColumn=0,
                                                             startRow=2, inputCallback=self.EnterRotation)
-        self.scaleX, self.scaleY, self.scaleZ = CreateVectorInput(rootFrame=frame, label="Scale", startColumn=0,
+        self.scaleX, self.scaleY, self.scaleZ = CreateVectorInput(rootFrame=vframe, label="Scale", startColumn=0,
                                                                   startRow=3, inputCallback=self.EnterScale)
 
         self.networkClient.SubscribeOnMessage("Transform", self.RecevieTransform)

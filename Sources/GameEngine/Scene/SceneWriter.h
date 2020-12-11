@@ -5,5 +5,7 @@
 namespace GameEngine
 {
 class Scene;
-Utils::XmlNode createTree(const Scene& scene);
+class GameObject;
+Utils::XmlNode createTree(const Scene&);
+Utils::XmlNode createPrefab(const GameObject&);
 }  // namespace GameEngine

@@ -78,6 +78,7 @@ public:
     bool RemoveGameObject(GameObject& object);
     void ClearGameObjects();
     void SetAddSceneEventCallback(AddEvent func);
+    GameObject* CloneGameObject(GameObject&);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
@@ -102,6 +103,7 @@ public:
     void SaveToFile(const File&);
     void LoadFromFile(const File&);
     GameObject* LoadPrefab(const File&, const std::string&);
+    void CreatePrefab(const File&, const GameObject&);
     void RunNetworkEditorInterface();
     void StopNetworkEditorInterface();
 

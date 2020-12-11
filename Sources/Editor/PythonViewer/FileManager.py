@@ -93,6 +93,12 @@ class FileManager:
             self.WriteToHistFile(filename)
         return filename
 
+    def SavePrefabFile(self):
+        filename = self.SaveFile("", (("Prefab files","*.xml"),("all files","*.*")))
+        if filename:
+            self.WriteToHistFile(filename)
+        return filename
+
     def SaveFile(self, initialFile, fileTypes):
         if not AskAndTryConnect(self.networkClient):
             return ""

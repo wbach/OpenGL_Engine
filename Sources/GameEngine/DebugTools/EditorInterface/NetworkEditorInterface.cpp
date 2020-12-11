@@ -11,8 +11,8 @@
 #include "CameraEditor.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Entity/PreviewComponent.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
@@ -165,6 +165,9 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("exit", Exit);
     REGISTER_COMMAND("moveObjectToCameraPosition", MoveObjectToCameraPosition);
     REGISTER_COMMAND("modelPreviewRequest", ModelPreviewRequest);
+    REGISTER_COMMAND("changeGameObjectParent", ChangeGameObjectParent);
+    REGISTER_COMMAND("cloneGameObject", CloneGameObject);
+    REGISTER_COMMAND("createPrefabFromObject", CreatePrefabFromObject);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 }
@@ -392,7 +395,7 @@ void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network:
     }
     else
     {
-        DEBUG_LOG("Unknown command : \"" + splitCommand[0] + "\"");
+        DEBUG_LOG("Unknown command : \"" + command + "\"");
     }
 }
 void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
@@ -715,6 +718,8 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
         }
 
         auto gameObject = scene_.CreateGameObject(goName);
+        auto gameObjectId = gameObject->GetId();
+
         try
         {
             gameObject->AddComponent<Components::RendererComponent>().AddModel(
@@ -941,6 +946,21 @@ void NetworkEditorInterface::UpdateArrowsIndicatorPosition()
     });
 }
 
+void NetworkEditorInterface::SendObjectCreatedNotf(const GameObject &gameObject)
+{
+    DebugNetworkInterface::NewGameObjectInd message(gameObject.GetId(), 0, gameObject.GetName());
+    if (gameObject.GetParent())
+    {
+        message.parentId = gameObject.GetParent()->GetId();
+    }
+    gateway_.Send(userId_, message);
+
+    for (const auto &child : gameObject.GetChildren())
+    {
+        SendObjectCreatedNotf(*child);
+    }
+}
+
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
 {
     SetDeubgRendererState(DebugRenderer::RenderState::Physics, params);
@@ -990,7 +1010,7 @@ void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::Entr
         return;
 
     cameraEditor->SetPosition(gameObject->GetWorldTransform().GetPosition() +
-                              (3.f * gameObject->GetWorldTransform().GetScale()));
+                              (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
     cameraEditor->LookAt(gameObject->GetWorldTransform().GetPosition());
 }
 
@@ -1463,17 +1483,83 @@ void NetworkEditorInterface::MoveObjectToCameraPosition(const EntryParameters &p
     }
 }
 
-void NetworkEditorInterface::ModelPreviewRequest(const EntryParameters& params)
+void NetworkEditorInterface::ModelPreviewRequest(const EntryParameters &params)
 {
-    auto input = params.find("input");
+    auto input  = params.find("input");
     auto output = params.find("output");
 
     if (input != params.end() and output != params.end())
     {
         auto gameObject = scene_.CreateGameObject();
-        auto& component = gameObject->AddComponent<Components::PreviewComponent>();
+        auto &component = gameObject->AddComponent<Components::PreviewComponent>();
         component.addModel(input->second, output->second);
         scene_.AddGameObject(std::move(gameObject));
+    }
+}
+
+void NetworkEditorInterface::ChangeGameObjectParent(const EntryParameters &params)
+{
+    auto gameObjectIdIter          = params.find("gameObjectId");
+    auto newParentGameObjectIdIter = params.find("newParentGameObjectId");
+
+    if (gameObjectIdIter != params.end() and newParentGameObjectIdIter != params.end())
+    {
+        auto gameObject = GetGameObject(gameObjectIdIter->second);
+        auto newParent  = GetGameObject(newParentGameObjectIdIter->second);
+
+        if (gameObject and newParent)
+        {
+            auto currentParent = gameObject->GetParent();
+            if (currentParent)
+            {
+                auto worldPosition = gameObject->GetWorldTransform().GetPosition();
+                auto worldRotation = gameObject->GetWorldTransform().GetRotation();
+                auto worldScale = gameObject->GetWorldTransform().GetScale();
+
+                auto freeGameObject = currentParent->MoveChild(gameObject->GetId());
+
+                if (freeGameObject)
+                {
+                    auto go = freeGameObject.get();
+                    newParent->AddChild(std::move(freeGameObject));
+                    go->SetWorldPosition(worldPosition);
+                    go->SetWorldRotation(worldRotation);
+                    go->SetWorldScale(worldScale);
+                }
+            }
+        }
+    }
+}
+
+void NetworkEditorInterface::CloneGameObject(const EntryParameters &params)
+{
+    auto gameObjectIdIter = params.find("gameObjectId");
+    if (gameObjectIdIter != params.end())
+    {
+        auto gameObject = GetGameObject(gameObjectIdIter->second);
+        if (gameObject)
+        {
+            auto clonedGameObject = scene_.CloneGameObject(*gameObject);
+            if (clonedGameObject)
+            {
+                SendObjectCreatedNotf(*clonedGameObject);
+            }
+        }
+    }
+}
+
+void NetworkEditorInterface::CreatePrefabFromObject(const EntryParameters &params)
+{
+    auto gameObjectIdIter = params.find("gameObjectId");
+    auto filenameIter     = params.find("filename");
+
+    if (gameObjectIdIter != params.end() and filenameIter != params.end())
+    {
+        auto gameObject = GetGameObject(gameObjectIdIter->second);
+        if (gameObject)
+        {
+            scene_.CreatePrefab(filenameIter->second, *gameObject);
+        }
     }
 }
 
@@ -1561,7 +1647,14 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
         if (parentGameObject)
         {
             result = parentGameObject->GetId();
+            auto go = gameObject.get();
+            auto worldPosition = gameObject->GetWorldTransform().GetPosition();
+            auto worldRotation = gameObject->GetWorldTransform().GetRotation();
+            auto worldScale = gameObject->GetWorldTransform().GetScale();
             parentGameObject->AddChild(std::move(gameObject));
+            go->SetWorldPosition(worldPosition);
+            go->SetWorldRotation(worldRotation);
+            go->SetWorldScale(worldScale);
         }
         else
         {

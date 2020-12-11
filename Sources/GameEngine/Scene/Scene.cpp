@@ -202,7 +202,7 @@ bool Scene::RemoveGameObject(GameObject& object)
 
 void Scene::ClearGameObjects()
 {
-    gameObjectIdPool_.clear();
+    gameObjectIdPool_.clear(1); // root gameObject stay at id 1
     gameObjectsIds_.clear();
     rootGameObject_->RemoveAllChildren();
 }
@@ -210,6 +210,17 @@ void Scene::ClearGameObjects()
 void Scene::SetAddSceneEventCallback(AddEvent func)
 {
     addSceneEvent = func;
+}
+
+GameObject* Scene::CloneGameObject(GameObject& gameObject)
+{
+    auto cloned = sceneStorage_->clone(gameObject);
+    if (gameObject.GetParent())
+    {
+        auto free = rootGameObject_->MoveChild(cloned->GetId());
+        gameObject.GetParent()->AddChild(std::move(free));
+    }
+    return cloned;
 }
 
 GameObject* Scene::GetGameObject(uint32 id) const
@@ -271,6 +282,11 @@ void Scene::LoadFromFile(const File& file)
 GameObject* Scene::LoadPrefab(const File& file, const std::string& name)
 {
     return sceneStorage_->loadPrefab(file, name);
+}
+
+void Scene::CreatePrefab(const File& file, const GameObject& gameObject)
+{
+    sceneStorage_->createPrefab(file, gameObject);
 }
 
 int Scene::Initialize()

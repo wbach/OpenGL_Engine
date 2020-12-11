@@ -60,4 +60,14 @@ GameObject* XmlSceneStorage::loadPrefab(const File& file, const std::string& nam
 {
     return SceneReader::loadPrefab(scene_, file, name);
 }
+void XmlSceneStorage::createPrefab(const File& file, const GameObject& gameObject)
+{
+    auto prefabRootNode = GameEngine::createPrefab(gameObject);
+    Utils::Xml::Write(file.GetAbsoultePath(), prefabRootNode);
+}
+GameObject* XmlSceneStorage::clone(const GameObject& gameObject)
+{
+    auto prefabRootNode = GameEngine::createPrefab(gameObject);
+    return SceneReader::createGameObjectFromPrefabNode(scene_, prefabRootNode, "clone_of_" + gameObject.GetName());
+}
 }  // namespace GameEngine

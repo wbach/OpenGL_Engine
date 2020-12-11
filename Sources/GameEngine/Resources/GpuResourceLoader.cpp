@@ -48,12 +48,19 @@ void GpuResourceLoader::AddObjectToUpdateGpuPass(GpuObject& obj)
 {
     std::lock_guard<std::mutex> lock(updateMutex);
 
-    auto iter =
-        std::find_if(objectsToUpdate.begin(), objectsToUpdate.end(),
-                     [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
-    
-    if (iter == objectsToUpdate.end())
+    if (not objectsToUpdate.empty())
+    {
+        auto iter = std::find_if(
+            objectsToUpdate.begin(), objectsToUpdate.end(),
+            [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
+
+        if (iter == objectsToUpdate.end())
+            objectsToUpdate.push_back(&obj);
+    }
+    else
+    {
         objectsToUpdate.push_back(&obj);
+    }
 }
 
 GpuObject* GpuResourceLoader::GetObjectToUpdateGpuPass()

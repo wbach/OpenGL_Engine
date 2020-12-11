@@ -13,5 +13,6 @@ namespace SceneReader
 void readNode(const Utils::XmlNode& , Scene&);
 void loadScene(Scene&, const File&);
 GameObject* loadPrefab(Scene&, const File&, const std::string&);
+GameObject* createGameObjectFromPrefabNode(Scene&, const Utils::XmlNode&, const std::string&);
 }  // namespace SceneReader
 }  // namespace GameEngine

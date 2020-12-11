@@ -476,6 +476,14 @@ GameObject* loadPrefab(Scene& scene, const File& file, const std::string& name)
     scene.AddGameObject(std::move(gameObject));
     return result;
 }
+GameObject* createGameObjectFromPrefabNode(Scene& scene, const Utils::XmlNode& node, const std::string& name)
+{
+    auto gameObject = scene.CreateGameObject(name);
+    Read(scene, node, *gameObject);
+    auto result = gameObject.get();
+    scene.AddGameObject(std::move(gameObject));
+    return result;
+}
 std::unique_ptr<GameObject> createGameObject(const Utils::XmlNode& node, Scene& scene)
 {
     if (node.attributes_.count(CSTR_ID))

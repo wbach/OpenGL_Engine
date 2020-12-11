@@ -22,6 +22,12 @@ class GameObjectView:
         self.tree.column("#0", width=300, minwidth=100)
         self.tree.bind('<<TreeviewSelect>>', self.OnSelectGameObject)
 
+        self.tree.bind("<ButtonPress-1>", self.DragObjectOnMouseClick)
+        self.tree.bind("<ButtonRelease-1>", self.DragObjectOnMouseRelease, add='+')
+        self.tree.bind("<B1-Motion>", self.DragObjectOnMouseMove, add='+')
+        self.tree.bind("<Button-3>", self.Popup)
+        self.tree.bind('<Double-1>', self.OnDoubleClick)
+
         self.gameObjectsCountStr = tk.StringVar()
         self.gameObjectsCountStr.set("Game objects count : 0")
 
@@ -33,11 +39,12 @@ class GameObjectView:
         self.popupMenu.add_command(label="Go to object", command=self.GoToObject)
         self.popupMenu.add_command(label="Create child", command=self.CreateChild)
         self.popupMenu.add_command(label="Create child with model", command=self.CreateChildWithModel)
+        self.popupMenu.add_command(label="Clone", command=self.CreateCloneObject)
+        self.popupMenu.add_command(label="Save as prefab", command=self.CreatePrefab)
+       # self.popupMenu.add_command(label="ChangeParent", command=self.CreateCloneObject)
         self.popupMenu.add_command(label="Move object to camera", command=self.SendMoveObjectToCameraRequest)
         self.popupMenu.add_command(label="Rename gameObject", command=self.RenameObject)
         self.popupMenu.add_command(label="Delete gameObject", command=self.DeleteSelected)
-        self.tree.bind("<Button-3>", self.Popup)
-        self.tree.bind('<Double-1>', self.OnDoubleClick)
 
         self.networkClient.SubscribeOnMessage("ReloadScene", self.Clear)
         self.networkClient.SubscribeOnMessage("GameObjectRenamed", self.OnGameObjectRenamed)
@@ -47,6 +54,45 @@ class GameObjectView:
         self.networkClient.SubscribeOnMessage("SelectedObjectChanged", self.OnSelectedObjectChanged)
         self.networkClient.SubscribeOnConnect(self.OnConnect)
         self.networkClient.SubscribeOnDisconnect(self.Clear)
+
+    def DragObjectOnMouseRelease(self, event):
+        tv = event.widget
+        print("DragObjectOnMouseRelease")
+        if tv.identify_row(event.y) not in tv.selection():
+            tv.selection_set(tv.identify_row(event.y))
+            print("DragObjectOnMouseRelease 2")
+
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        parentItem = self.tree.parent(curItem)
+        parent = self.tree.item(parentItem)
+        parentId = parent['values'][0]
+        gameObjectId = item['values'][0]
+
+        self.networkClient.SendCommand(
+            "changeGameObjectParent newParentGameObjectId=" + str(parentId) + " gameObjectId=" + str(gameObjectId))
+
+    def DragObjectOnMouseClick(self, event):
+        tv = event.widget
+        if tv.identify_row(event.y) in tv.selection():
+            tv.selection_set(tv.identify_row(event.y))
+
+    def DragObjectOnMouseMove(self, event):
+        tv = event.widget
+        moveto = tv.index(tv.identify_row(event.y))
+        parent = tv.identify_row(event.y)
+        for s in tv.selection():
+            if s != parent:
+                #parent = ''
+                tv.move(s, parent , moveto)
+                tv.item(parent, open=True)
+
+    def CreatePrefab(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+        filename = self.fileManger.SavePrefabFile()
+        self.networkClient.SendCommand("createPrefabFromObject gameObjectId=" + str(gameObjectId) + " filename=" + filename)
 
     def OnConnect(self):
         self.GetObjectList()
@@ -68,6 +114,13 @@ class GameObjectView:
             self.networkClient.SendCommand(
                 "createGameObjectWithModel filename=" + filename + " frontCamera=5 " + "parentGameObjectId=" + str(
                     gameObjectId))
+
+    def CreateCloneObject(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+        self.networkClient.SendCommand(
+            "cloneGameObject gameObjectId=" + str(gameObjectId))
 
     def Popup(self, event):
         self.popupMenuSelection = self.tree.identify_row(event.y)
