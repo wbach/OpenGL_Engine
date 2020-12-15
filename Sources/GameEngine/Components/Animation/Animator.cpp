@@ -1,7 +1,9 @@
 #include "Animator.h"
 
 #include <Logger/Log.h>
+
 #include <algorithm>
+
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
@@ -111,12 +113,12 @@ void Animator::ChangeAnimation(const std::string& name)
 }
 void Animator::GetSkeletonAndAnimations()
 {
-    auto renderer = thisObject_.GetComponent<RendererComponent>();
+    rendererComponent_ = thisObject_.GetComponent<RendererComponent>();
 
-    if (renderer == nullptr)
+    if (not rendererComponent_)
         return;
 
-    auto model = renderer->GetModelWrapper().Get(GameEngine::L1);
+    auto model = rendererComponent_->GetModelWrapper().Get(GameEngine::L1);
 
     if (model)
     {
@@ -146,6 +148,9 @@ void Animator::GetSkeletonAndAnimations()
                 requestedAnimationToset_.clear();
             }
         }
+
+        if (animationClips_.size() > 0)
+            rendererComponent_->useArmature(true);
     }
 }
 void Animator::updateShaderBuffers()

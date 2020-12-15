@@ -8,7 +8,7 @@ namespace Components
 {
 ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
-const float DEFAULT_RUN_SPEED  = Utils::KmToMs(15.f);
+const float DEFAULT_RUN_SPEED  = Utils::KmToMs(10.f);
 const float DEFAULT_TURN_SPEED = 160.f;
 const float DEFAULT_JUMP_POWER = 25.f;
 
@@ -96,11 +96,12 @@ void CharacterController::Update()
     targetVelocity = glm::normalize(targetVelocity);
     targetVelocity *= runSpeed_;
 
+
     auto velocity       = rigidbody_->GetVelocity();
     auto velocityChange = (targetVelocity - velocity);
     velocityChange.x    = glm::clamp(velocityChange.x, -runSpeed_, runSpeed_);
     velocityChange.z    = glm::clamp(velocityChange.z, -runSpeed_, runSpeed_);
-    velocityChange.y    = 0;
+    velocityChange.y    = velocity.y;
     rigidbody_->SetVelocity(velocityChange);
 }
 

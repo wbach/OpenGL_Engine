@@ -18,7 +18,7 @@ public:
     void Add(Model*, LevelOfDetail);
     void Update(Model*, LevelOfDetail);
     Model* Get(LevelOfDetail lvl = LevelOfDetail::L1);
-    const std::unordered_map<LevelOfDetail, Model*>& Get() const;
+    const std::unordered_map<LevelOfDetail, Model*>& GetAll() const;
     std::vector<Model*> PopModels();
     void clear();
 

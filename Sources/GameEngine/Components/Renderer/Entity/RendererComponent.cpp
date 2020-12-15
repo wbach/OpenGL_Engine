@@ -71,7 +71,7 @@ void RendererComponent::InitFromParams(const std::unordered_map<std::string, std
 std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
 {
     std::unordered_map<ParamName, Param> result;
-    auto models = model_.Get();
+    auto models = model_.GetAll();
     result.insert(
         {MODEL_L1,
          {MODEL_FILE,
@@ -197,7 +197,8 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     {
         buffer.GetData().textureOffset = vec2(0);
     }
-    buffer.GetData().UseBoneTransform = mesh.UseArmature();
+
+    buffer.GetData().UseBoneTransform = 0.f; //mesh.UseArmature();
 
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
@@ -220,6 +221,26 @@ void RendererComponent::UpdateBuffers()
                 poc->GetData().TransformationMatrix =
                     componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
                 poc->UpdateGpuPass();
+            }
+        }
+    }
+}
+void RendererComponent::useArmature(bool value)
+{
+    for (const auto& model : model_.GetAll())
+    {
+        if (not model.second)
+            continue;
+
+        auto i = 0;
+        for (auto& mesh : model.second->GetMeshes())
+        {
+            auto& buffer = perObjectConstantsBuffer_[i++];
+            float useBoneTransform = (value and mesh.UseArmature()) ? 1.f : 0.f;
+            if (not compare(buffer->GetData().UseBoneTransform.value, useBoneTransform, 0.1f))
+            {
+                buffer->GetData().UseBoneTransform = useBoneTransform;
+                componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*buffer);
             }
         }
     }

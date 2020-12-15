@@ -14,6 +14,7 @@ class Mesh;
 
 namespace Components
 {
+class RendererComponent;
 typedef std::unordered_map<std::string, mat4> Pose;
 
 struct JointData
@@ -68,10 +69,11 @@ protected:
     void applyPoseToJoints(const Pose&);
 
 protected:
+    RendererComponent* rendererComponent_;
     Animation::AnimationClip* currentAnimationClip_;
     Animation::AnimationClip* nextAnimationClip_;
-	std::string requestedAnimationToset_;
-    uint32 currentFrameId_ = 0;
+    std::string requestedAnimationToset_;
+    uint32 currentFrameId_       = 0;
     bool changeAnim              = false;
     float currentChangeAnimTime_ = 0;
     Animation::KeyFrame startChaneAnimPose;

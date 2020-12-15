@@ -29,12 +29,13 @@ public:
     inline const std::unordered_map<std::string, LevelOfDetail>& GetFileNames() const;
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 meshId) const;
     inline const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint32 meshId) const;
+    void useArmature(bool);
 
     virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     virtual std::unordered_map<ParamName, Param> GetParams() const override;
 
 public:
-    void UpdateBuffers(); // Call on rendering thread
+    void UpdateBuffers();  // Call on rendering thread
 
 private:
     void ClearShaderBuffers();
@@ -54,7 +55,7 @@ private:
 private:
     std::unordered_map<std::string, LevelOfDetail> filenames_;
     std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
-    std::vector< std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
+    std::vector<std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
 
 public:
     static ComponentsType type;
