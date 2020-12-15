@@ -37,6 +37,7 @@ public:
     void SetPosition(uint32 rigidBodyId, const vec3&) override;
     std::optional<Quaternion> GetRotation(uint32 rigidBodyId) const override;
     std::optional<common::Transform> GetTransfrom(uint32 rigidBodyId) const override;
+    std::optional<RayHit> RayTest(const vec3&, const vec3&) const override;
 
 private:
     struct Pimpl;

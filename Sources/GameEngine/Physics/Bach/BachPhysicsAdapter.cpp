@@ -1,11 +1,13 @@
 #include "BachPhysicsAdapter.h"
 
+#include <Logger/Log.h>
+
 #include <iomanip>
 #include <optional>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
-#include <Logger/Log.h>
+
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "Types.h"
@@ -72,14 +74,13 @@ void collision(const BoxShape&, const TerrainShape&)
 template <typename T>
 void collision(const Shape& collisionShape, const T& shape)
 {
-    std::visit(
-        overloaded{
-            [&shape](const SphehreShape& arg) { collision(arg, shape); },
-            [&shape](const TerrainShape& arg) { collision(arg, shape); },
-            [&shape](const MeshShape& arg) { collision(arg, shape); },
-            [&shape](const BoxShape& arg) { collision(arg, shape); },
-        },
-        collisionShape);
+    std::visit(overloaded{
+                   [&shape](const SphehreShape& arg) { collision(arg, shape); },
+                   [&shape](const TerrainShape& arg) { collision(arg, shape); },
+                   [&shape](const MeshShape& arg) { collision(arg, shape); },
+                   [&shape](const BoxShape& arg) { collision(arg, shape); },
+               },
+               collisionShape);
 }
 
 class Rigidbody
@@ -249,6 +250,10 @@ std::optional<Quaternion> BachPhysicsAdapter::GetRotation(uint32 rigidBodyId) co
 std::optional<common::Transform> BachPhysicsAdapter::GetTransfrom(uint32 rigidBodyId) const
 {
     return std::nullopt;
+}
+std::optional<RayHit> BachPhysicsAdapter::RayTest(const vec3&, const vec3&) const
+{
+    return std::optional<RayHit>();
 }
 }  // namespace Physics
 }  // namespace GameEngine

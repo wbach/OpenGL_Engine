@@ -6,6 +6,7 @@
 #include <optional>
 #include <vector>
 
+#include "RayHit.h"
 #include "ShapeType.h"
 #include "Types.h"
 
@@ -43,6 +44,7 @@ struct IPhysicsApi
     virtual void SetPosition(uint32 rigidBodyId, const vec3&)                                            = 0;
     virtual std::optional<Quaternion> GetRotation(uint32 rigidBodyId) const                              = 0;
     virtual std::optional<common::Transform> GetTransfrom(uint32 rigidBodyId) const                      = 0;
+    virtual std::optional<RayHit> RayTest(const vec3&, const vec3&) const                                = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

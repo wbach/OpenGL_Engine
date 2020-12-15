@@ -21,16 +21,15 @@ public:
     std::string idleAnimationName_;
     std::string walkAnimationName_;
     std::string runAnimationName_;
+    std::string jumpAnimationName_;
 
 private:
     void Init();
     void SubscribeForPushActions();
     void SubscribeForPopActions();
-    bool FindState(CharacterController::Action type);
-    void AddState(CharacterController::Action state);
-    void RemoveState(CharacterController::Action state);
-    void SetRunAnim();
-    void SetIdleAnim();
+    bool FindState(CharacterController::Action);
+    void AddState(CharacterController::Action);
+    void RemoveState(CharacterController::Action);
 
 private:
     Animator* animator_;

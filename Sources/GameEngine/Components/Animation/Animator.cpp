@@ -83,7 +83,7 @@ GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
     return jointData_.buffer ? jointData_.buffer->GetGraphicsObjectId() : std::nullopt;
 }
-void Animator::ChangeAnimation(const std::string& name)
+void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection)
 {
     auto clipIter = animationClips_.find(name);
 
@@ -95,6 +95,22 @@ void Animator::ChangeAnimation(const std::string& name)
     if (not currentAnimationClip_)
     {
         SetAnimation(name);
+        return;
+    }
+
+    if (playDirection == PlayDirection::forward)
+    {
+        animationSpeed_ = fabsf(animationSpeed_);
+    }
+    else
+    {
+        animationSpeed_ = -1.f * fabsf(animationSpeed_);
+    }
+
+    if (changeType == AnimationChangeType::direct)
+    {
+        currentAnimationClip_ = &clipIter->second;
+        currentTime_          = 0.f;
         return;
     }
 
@@ -194,9 +210,11 @@ void Animator::Update()
         return;
     }
 
-    increaseAnimationTime();
-    auto currentPose = calculateCurrentAnimationPose();
-    applyPoseToJoints(currentPose);
+    if (increaseAnimationTime())
+    {
+        auto currentPose = calculateCurrentAnimationPose();
+        applyPoseToJoints(currentPose);
+    }
 }
 void Animator::AddAnimationClip(const GameEngine::File& file)
 {
@@ -213,15 +231,24 @@ void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
         ERROR_LOG("Clip already exist :" + clip.name);
     }
 }
-void Animator::increaseAnimationTime()
+bool Animator::increaseAnimationTime()
 {
     auto animationLength = currentAnimationClip_->GetLength();
 
     currentTime_ += componentContext_.time_.deltaTime * animationSpeed_;
     if (currentTime_ > animationLength)
+    {
+        if (currentAnimationClip_->playType == AnimationClip::PlayType::once)
+            return false;
+
         currentTime_ = fmodf(currentTime_, animationLength);
+    }
     if (currentTime_ < 0)
+    {
         currentTime_ = animationLength + currentTime_;
+    }
+
+    return true;
 }
 
 Pose Animator::calculateCurrentAnimationPose()

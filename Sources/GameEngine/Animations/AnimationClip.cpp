@@ -13,6 +13,7 @@ AnimationClip::AnimationClip()
 
 AnimationClip::AnimationClip(const std::string& name)
     : name(name)
+    , playType(PlayType::loop)
     , length(-std::numeric_limits<float>::max())
 {
 }

@@ -196,7 +196,7 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
                            heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
                            heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
                    },
-                   [](std::monostate) {ERROR_LOG("Height map data is not set!."); },
+                   [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
                },
                heightMap.GetImage().getImageData());
 
@@ -395,6 +395,21 @@ std::optional<common::Transform> BulletAdapter::GetTransfrom(uint32 rigidBodyId)
         return std::nullopt;
     }
     return Convert(impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform());
+}
+std::optional<RayHit> BulletAdapter::RayTest(const vec3& from, const vec3& to) const
+{
+    btVector3 btFrom = Convert(from);
+    btVector3 btTo   = Convert(to);
+    btCollisionWorld::ClosestRayResultCallback res(btFrom, btTo);
+
+    impl_->btDynamicWorld->rayTest(btFrom, btTo, res);
+
+    if (res.hasHit())
+    {
+        return RayHit{Convert(res.m_hitPointWorld), Convert(res.m_hitNormalWorld)};
+    }
+
+    return std::nullopt;
 }
 }  // namespace Physics
 

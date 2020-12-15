@@ -32,19 +32,22 @@ public:
     void Init();
     void Update();
 
-    void AddState(Action action);
-    void RemoveState(Action action);
+    void AddState(Action);
+    void RemoveState(Action);
 
     void SetRunSpeed(float);
     void SetTurnSpeed(float);
     void SetJumpPower(float);
+    void SetJumpCallback(std::function<void()>);
 
 private:
     std::vector<Action> actions_;
+    std::function<void()> jumpCallback_;
     Rigidbody* rigidbody_;
     float jumpPower_;
     float turnSpeed_;
     float runSpeed_;
+    bool isJumping_;
 
 public:
     static ComponentsType type;

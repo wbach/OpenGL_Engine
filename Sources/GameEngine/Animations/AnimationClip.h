@@ -8,6 +8,12 @@ namespace Animation
 class AnimationClip
 {
 public:
+    enum class PlayType
+    {
+        loop,
+        once
+    };
+
     AnimationClip();
     AnimationClip(const std::string&);
     float GetLength() const;
@@ -20,6 +26,7 @@ public:
 public:
     std::string name;
     std::string filePath;
+    PlayType playType;
 
 private:
     float length;

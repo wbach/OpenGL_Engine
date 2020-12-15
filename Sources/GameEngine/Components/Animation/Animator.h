@@ -35,6 +35,18 @@ struct JointData
 class Animator : public BaseComponent
 {
 public:
+    enum class AnimationChangeType
+    {
+        smooth,
+        direct
+    };
+
+    enum class PlayDirection
+    {
+        forward,
+        backward
+    };
+
     Animator(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -43,7 +55,7 @@ public:
     void AddAnimationClip(const GameEngine::File&);
     void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
-    void ChangeAnimation(const std::string&);
+    void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward);
     const std::string& GetCurrentAnimationName() const;
     GraphicsApi::ID getPerPoseBufferId() const;
 
@@ -58,7 +70,7 @@ protected:
     void updateShaderBuffers();
     void ChangeAnimState();
     bool IsReady();
-    void increaseAnimationTime();
+    bool increaseAnimationTime();
     void GetSkeletonAndAnimations();
     std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames();
     float calculateProgression(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame);

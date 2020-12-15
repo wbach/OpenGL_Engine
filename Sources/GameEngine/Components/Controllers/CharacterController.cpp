@@ -3,6 +3,7 @@
 #include <Utils/math.hpp>
 
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
@@ -12,7 +13,7 @@ ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
 const float DEFAULT_RUN_SPEED  = Utils::KmToMs(12.f);
 const float DEFAULT_TURN_SPEED = 160.f;
-const float DEFAULT_JUMP_POWER = 25.f;
+const float DEFAULT_JUMP_POWER = 10.f;
 
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
@@ -20,6 +21,7 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , jumpPower_(DEFAULT_JUMP_POWER)
     , turnSpeed_(DEFAULT_TURN_SPEED)
     , runSpeed_(DEFAULT_RUN_SPEED)
+    , isJumping_(false)
 {
 }
 
@@ -48,6 +50,24 @@ void CharacterController::Update()
         return;
     }
 
+    if (isJumping_)
+    {
+        auto position = thisObject_.GetWorldTransform().GetPosition();
+        auto hitTest  = componentContext_.physicsApi_.RayTest(position, vec3(position.x, -10000.f, position.z));
+
+        if (hitTest)
+        {
+            if (glm::length(position - hitTest->pointWorld) < 0.01f)
+            {
+                isJumping_ = false;
+                if (jumpCallback_)
+                {
+                    jumpCallback_();
+                }
+            }
+        }
+    }
+
     vec3 direction(0.f);
     for (const auto& action : actions_)
     {
@@ -60,7 +80,11 @@ void CharacterController::Update()
                 direction.z = 1.f;
                 break;
             case Action::JUMP:
-                direction.y += jumpPower_;
+                if (not isJumping_)
+                {
+                    isJumping_  = true;
+                    direction.y = 1.f;
+                }
                 break;
             case Action::MOVE_LEFT:
                 direction.x = 1.f;
@@ -92,7 +116,10 @@ void CharacterController::Update()
 
     if (glm::length(direction) < std::numeric_limits<float>::epsilon())
     {
-        rigidbody_->SetVelocity(vec3(0));
+        if (not isJumping_)
+        {
+            rigidbody_->SetVelocity(vec3(0));
+        }
         return;
     }
 
@@ -104,7 +131,7 @@ void CharacterController::Update()
     auto velocityChange = (targetVelocity - velocity);
     velocityChange.x    = glm::clamp(velocityChange.x, -runSpeed_, runSpeed_);
     velocityChange.z    = glm::clamp(velocityChange.z, -runSpeed_, runSpeed_);
-    velocityChange.y    = 0;
+    velocityChange.y    = direction.y * jumpPower_;
 
     auto newVelocity = velocity + velocityChange;
     rigidbody_->SetVelocity(newVelocity);
@@ -132,6 +159,11 @@ void CharacterController::RemoveState(CharacterController::Action action)
 void CharacterController::SetJumpPower(float v)
 {
     jumpPower_ = v;
+}
+
+void CharacterController::SetJumpCallback(std::function<void()> action)
+{
+    jumpCallback_ = action;
 }
 
 void CharacterController::SetTurnSpeed(float v)
