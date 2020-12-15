@@ -1,5 +1,7 @@
 #include "CharacterController.h"
+
 #include <Utils/math.hpp>
+
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -8,7 +10,7 @@ namespace Components
 {
 ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
-const float DEFAULT_RUN_SPEED  = Utils::KmToMs(10.f);
+const float DEFAULT_RUN_SPEED  = Utils::KmToMs(12.f);
 const float DEFAULT_TURN_SPEED = 160.f;
 const float DEFAULT_JUMP_POWER = 25.f;
 
@@ -23,7 +25,6 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
 
 void CharacterController::CleanUp()
 {
-
 }
 
 void CharacterController::ReqisterFunctions()
@@ -42,30 +43,30 @@ void CharacterController::Init()
 
 void CharacterController::Update()
 {
-    if (not rigidbody_ or not rigidbody_->IsReady() or actions_.empty())
+    if (not rigidbody_ or not rigidbody_->IsReady())
     {
         return;
     }
 
-    vec3 targetVelocity(0.f);
+    vec3 direction(0.f);
     for (const auto& action : actions_)
     {
         switch (action)
         {
             case Action::MOVE_BACKWARD:
-                targetVelocity.z = -1.f;
+                direction.z = -1.f;
                 break;
             case Action::MOVE_FORWARD:
-                targetVelocity.z = 1.f;
+                direction.z = 1.f;
                 break;
             case Action::JUMP:
-                targetVelocity.y += jumpPower_;
+                direction.y += jumpPower_;
                 break;
             case Action::MOVE_LEFT:
-                targetVelocity.x = 1.f;
+                direction.x = 1.f;
                 break;
             case Action::MOVE_RIGHT:
-                targetVelocity.x = -1.f;
+                direction.x = -1.f;
                 break;
             case Action::ROTATE_LEFT:
             {
@@ -89,20 +90,24 @@ void CharacterController::Update()
         }
     }
 
-    if (glm::length(targetVelocity) < std::numeric_limits<float>::epsilon())
+    if (glm::length(direction) < std::numeric_limits<float>::epsilon())
+    {
+        rigidbody_->SetVelocity(vec3(0));
         return;
+    }
 
-    targetVelocity = rigidbody_->GetRotation() * targetVelocity;
-    targetVelocity = glm::normalize(targetVelocity);
+    auto targetVelocity = rigidbody_->GetRotation() * direction;
+    targetVelocity      = glm::normalize(targetVelocity);
     targetVelocity *= runSpeed_;
-
 
     auto velocity       = rigidbody_->GetVelocity();
     auto velocityChange = (targetVelocity - velocity);
     velocityChange.x    = glm::clamp(velocityChange.x, -runSpeed_, runSpeed_);
     velocityChange.z    = glm::clamp(velocityChange.z, -runSpeed_, runSpeed_);
-    velocityChange.y    = velocity.y;
-    rigidbody_->SetVelocity(velocityChange);
+    velocityChange.y    = 0;
+
+    auto newVelocity = velocity + velocityChange;
+    rigidbody_->SetVelocity(newVelocity);
 }
 
 void CharacterController::AddState(CharacterController::Action action)

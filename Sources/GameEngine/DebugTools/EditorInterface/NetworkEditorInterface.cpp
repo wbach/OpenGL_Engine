@@ -793,8 +793,7 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
         auto &idParam       = params.at("id");
         auto &componentName = params.at("name");
 
-        auto objectId = std::stoi(idParam);
-        auto go       = scene_.GetGameObject(objectId);
+        auto go = GetGameObject(idParam);
 
         if (not go)
             return;
