@@ -33,6 +33,6 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD2(SetPosition, void(uint32, const vec3&));
     MOCK_CONST_METHOD1(GetRotation, std::optional<Quaternion>(uint32));
     MOCK_CONST_METHOD1(GetTransfrom, std::optional<common::Transform>(uint32));
-    MOCK_CONST_METHOD1(RayTest, std::optional<Physics::RayHit>(const vec3&, const vec3&));
+    MOCK_CONST_METHOD2(RayTest, std::optional<Physics::RayHit>(const vec3&, const vec3&));
 };
 }  // namespace GameEngine

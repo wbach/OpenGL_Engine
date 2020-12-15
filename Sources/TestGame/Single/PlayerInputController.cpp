@@ -75,13 +75,13 @@ void PlayerInputController::SetRunAnim()
 {
     auto anim = animator_->GetCurrentAnimationName();
 
-    if (anim != "Run")
-        animator_->ChangeAnimation("Run");
+  /*  if (anim != "Run")
+        animator_->ChangeAnimation("Run");*/
 }
 
 void PlayerInputController::SetIdleAnim()
 {
-    auto anim = animator_->GetCurrentAnimationName();
-    if (anim != "Idle")
-        animator_->ChangeAnimation("Idle");
+    //auto anim = animator_->GetCurrentAnimationName();
+    //if (anim != "Idle")
+    //    animator_->ChangeAnimation("Idle");
 }

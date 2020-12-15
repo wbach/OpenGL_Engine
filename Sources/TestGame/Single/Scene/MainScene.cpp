@@ -309,12 +309,12 @@ void MainScene::KeyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::M, [&, run]() mutable {
         if (run)
         {
-            player->GetComponent<Components::Animator>()->ChangeAnimation("Idle");
+//            player->GetComponent<Components::Animator>()->ChangeAnimation("Idle");
             run = false;
         }
         else
         {
-            player->GetComponent<Components::Animator>()->ChangeAnimation("Run");
+ //           player->GetComponent<Components::Animator>()->ChangeAnimation("Run");
             run = true;
         }
     });
