@@ -82,7 +82,7 @@ class FileManager:
     def OpenModelFile(self, parentId=-1):
         if not AskAndTryConnect(self.networkClient):
             return ""
-        filename = self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.terrain")))
+        filename = self.OpenFile("", (("3DModel files","*.obj"), ("3DModel files","*.fbx"), ("3DModel files","*.dae"), ("3DModel files","*.md5mesh"), ("3DModel files","*.terrain")))
         if filename:
             self.WriteToHistFile(filename)
         return filename

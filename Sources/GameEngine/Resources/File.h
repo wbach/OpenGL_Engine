@@ -21,6 +21,7 @@ public:
     const std::string& GetAbsoultePath() const;
     std::string GetAbsolutePathWithDifferentExtension(const std::string&) const;
 
+    const std::string& GetInitValue() const;
     std::string GetBaseName() const;
     std::string GetExtension() const;
     std::string GetFilename() const;
@@ -94,6 +95,7 @@ private:
     void printError(const std::string&) const;
 
 private:
+    std::string initValue_;
     std::string absoultePath_;
     std::string dataRelative_;
     std::string projectRelative_;

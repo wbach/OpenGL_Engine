@@ -15,7 +15,7 @@ using namespace Animation;
 
 namespace Components
 {
-const std::string ANIMATION_NOT_SET{"animation clip no set"};
+const std::string ANIMATION_NOT_SET{"AnimationClipNotSet"};
 
 void JointData::updateBufferTransform()
 {
@@ -87,6 +87,12 @@ void Animator::ChangeAnimation(const std::string& name)
 
     if (clipIter == animationClips_.end())
     {
+        return;
+    }
+
+    if (not currentAnimationClip_)
+    {
+        SetAnimation(name);
         return;
     }
 

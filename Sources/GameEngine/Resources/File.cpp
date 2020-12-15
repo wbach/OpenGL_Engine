@@ -17,7 +17,8 @@ File::File()
 }
 
 File::File(const std::string &input)
-    : fp_{nullptr}
+    : initValue_(input)
+    , fp_{nullptr}
     , fileSize_(0)
 {
     if (Utils::IsAbsolutePath(input))
@@ -105,6 +106,11 @@ const std::string &File::GetAbsoultePath() const
 std::string File::GetAbsolutePathWithDifferentExtension(const std::string &extension) const
 {
     return std::filesystem::path(absoultePath_).replace_extension(extension).string();
+}
+
+const std::string& File::GetInitValue() const
+{
+    return initValue_;
 }
 
 std::string File::GetBaseName() const

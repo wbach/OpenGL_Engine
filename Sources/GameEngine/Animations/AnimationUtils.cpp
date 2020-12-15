@@ -58,6 +58,7 @@ AnimationClip ReadAnimationClip(const File& file)
     if (root)
     {
         AnimationClip animationClip(root->attributes_["name"]);
+        animationClip.filePath = file.GetInitValue();
         animationClip.SetLength(std::stof(root->attributes_["length"]));
 
         for (const auto& keyframeNode : reader.Get("KeyFrames")->GetChildren())

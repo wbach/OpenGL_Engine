@@ -148,6 +148,16 @@ void Create(XmlNode& node, const std::string& filename, LevelOfDetail lvl)
 void Create(XmlNode& node, const Components::Animator& component)
 {
     Create(node.AddChild(CSTR_CURRENT_ANIMATION), component.GetCurrentAnimationName());
+
+    auto& animationClipsNode = node.AddChild(CSTR_ANIMATION_CLIPS);
+
+    for (const auto& clip : component.animationClips_)
+    {
+        if (not clip.second.filePath.empty())
+        {
+            Create(animationClipsNode.AddChild(CSTR_ANIMATION_CLIP), clip.second.filePath);
+        }
+    }
 }
 
 void Create(XmlNode& node, const Components::BoxShape& component)

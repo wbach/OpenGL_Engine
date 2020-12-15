@@ -19,6 +19,7 @@ public:
 
 public:
     std::string name;
+    std::string filePath;
 
 private:
     float length;

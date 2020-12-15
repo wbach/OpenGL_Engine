@@ -85,6 +85,7 @@ public:
            ERROR_LOG("cannot open file " + filename);
             return;
         }
+        DEBUG_LOG("Xml save : " + filename);
         file << document_;
         file.close();
     }
