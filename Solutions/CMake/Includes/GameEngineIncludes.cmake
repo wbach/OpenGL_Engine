@@ -172,6 +172,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Physics/Bullet/DebugDrawer.h
 ../../Sources/GameEngine/Physics/IPhysicsApi.h
 ../../Sources/GameEngine/Physics/PhysicsScene.h
+../../Sources/GameEngine/Physics/RayHit.h
 ../../Sources/GameEngine/Physics/Rigidbody.h
 ../../Sources/GameEngine/Physics/ShapeType.h
 ../../Sources/GameEngine/Renderers/BaseRenderer.h

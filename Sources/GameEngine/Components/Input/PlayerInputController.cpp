@@ -2,8 +2,8 @@
 
 #include <Input/InputManager.h>
 
-#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Objects/GameObject.h"
 
 using namespace common::Controllers;
 
@@ -87,14 +87,27 @@ void PlayerInputController::SubscribeForPushActions()
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::W, [&]() {
         AddState(CharacterController::Action::MOVE_FORWARD);
         RemoveState(CharacterController::Action::MOVE_BACKWARD);
-        animator_->ChangeAnimation(runAnimationName_, Animator::AnimationChangeType::smooth,
-                                   Animator::PlayDirection::forward);
+
+        auto jumpState = std::find_if(states_.begin(), states_.end(),
+                                      [](const auto& state) { return state == CharacterController::Action::JUMP; });
+
+        if (jumpState == states_.end())
+        {
+            animator_->ChangeAnimation(runAnimationName_, Animator::AnimationChangeType::smooth,
+                                       Animator::PlayDirection::forward);
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
         AddState(CharacterController::Action::MOVE_BACKWARD);
         RemoveState(CharacterController::Action::MOVE_FORWARD);
-        animator_->ChangeAnimation(runAnimationName_, Animator::AnimationChangeType::smooth,
-                                   Animator::PlayDirection::backward);
+        auto jumpState = std::find_if(states_.begin(), states_.end(),
+                                      [](const auto& state) { return state == CharacterController::Action::JUMP; });
+
+        if (jumpState == states_.end())
+        {
+            animator_->ChangeAnimation(runAnimationName_, Animator::AnimationChangeType::smooth,
+                                       Animator::PlayDirection::backward);
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() {
         AddState(CharacterController::Action::ROTATE_LEFT);
@@ -115,11 +128,23 @@ void PlayerInputController::SubscribeForPopActions()
 {
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::W, [&]() {
         RemoveState(CharacterController::Action::MOVE_FORWARD);
-        animator_->ChangeAnimation(idleAnimationName_, Animator::AnimationChangeType::smooth);
+        auto jumpState = std::find_if(states_.begin(), states_.end(),
+                                      [](const auto& state) { return state == CharacterController::Action::JUMP; });
+
+        if (jumpState == states_.end())
+        {
+            animator_->ChangeAnimation(idleAnimationName_, Animator::AnimationChangeType::smooth);
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::S, [&]() {
         RemoveState(CharacterController::Action::MOVE_BACKWARD);
-        animator_->ChangeAnimation(idleAnimationName_, Animator::AnimationChangeType::smooth);
+        auto jumpState = std::find_if(states_.begin(), states_.end(),
+                                      [](const auto& state) { return state == CharacterController::Action::JUMP; });
+
+        if (jumpState == states_.end())
+        {
+            animator_->ChangeAnimation(idleAnimationName_, Animator::AnimationChangeType::smooth);
+        }
     });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
