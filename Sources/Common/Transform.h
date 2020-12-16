@@ -66,6 +66,8 @@ public:
     const mat4& GetMatrix() const;
     const TransformContext& GetSnapShoot() const;
 
+    void SetMatrix(const mat4&);
+
 private:
     void UpdateMatrix();
     void NotifySubscribers();

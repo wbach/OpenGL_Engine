@@ -36,6 +36,7 @@ private:
     CharacterController* characterController_;
     std::vector<CharacterController::Action> states_;
     Input::KeysSubscriptionsManager subscriptions_;
+    std::optional<uint32> connectedBone_;
 
 public:
     static ComponentsType type;

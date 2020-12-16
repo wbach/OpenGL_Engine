@@ -31,6 +31,11 @@ void PlayerInputController::CleanUp()
     {
         characterController_->SetJumpCallback(nullptr);
     }
+
+    if (animator_ and connectedBone_)
+    {
+        animator_->disconnectObjectFromBone(*connectedBone_);
+    }
 }
 
 void PlayerInputController::ReqisterFunctions()
@@ -45,8 +50,13 @@ void PlayerInputController::Init()
 
     if (animator_ and characterController_)
     {
-        characterController_->SetJumpCallback([&]() {
+        auto weaponObject = thisObject_.GetChild("Weapon");
+        if (weaponObject)
+        {
+            connectedBone_ = animator_->connectBoneWithObject("b_HandR", *weaponObject);
+        }
 
+        characterController_->SetJumpCallback([&]() {
             auto moveState = std::find_if(states_.begin(), states_.end(), [](const auto& state) {
                 return state == CharacterController::Action::MOVE_FORWARD or
                        state == CharacterController::Action::MOVE_BACKWARD;

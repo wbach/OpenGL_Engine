@@ -215,26 +215,38 @@ void GameObject::UnsubscribeOnWorldTransfromChange(uint32 id)
 
 void GameObject::SetWorldPosition(const vec3& worldPosition)
 {
-    if (parent_)
-    {
-        auto localPosition = glm::inverse(parent_->GetWorldTransform().GetRotation().value_) *
-                             (worldPosition - parent_->GetWorldTransform().GetPosition());
-        localTransform_.SetPosition(localPosition);
-    }
-    else
-    {
-        localTransform_.SetPosition(worldPosition);
-    }
+    localTransform_.SetPosition(ConvertWorldToLocalPosition(worldPosition));
 }
 
 void GameObject::SetWorldRotation(const Rotation& rotation)
 {
-    localTransform_.SetRotation(glm::inverse(parent_->GetWorldTransform().GetRotation().value_) * rotation.value_);
+    localTransform_.SetRotation(ConvertWorldToLocalRotation(rotation.value_));
 }
 
 void GameObject::SetWorldScale(const vec3& worldScale)
 {
-    localTransform_.SetScale(worldScale / parent_->GetWorldTransform().GetScale());
+    localTransform_.SetScale(ConvertWorldToLocalScale(worldScale));
+}
+
+void GameObject::SetWorldMatrix(const mat4& worldMatrix)
+{
+    vec3 scale;
+    Quaternion rotation;
+    vec3 translation;
+    vec3 skew;
+    vec4 perspective;
+    glm::decompose(worldMatrix, scale, rotation, translation, skew, perspective);
+
+    SetWorldPositionRotationScale(translation, rotation, scale);
+}
+
+void GameObject::SetWorldPositionRotationScale(const vec3& position, const Quaternion& rotation, const vec3& scale)
+{
+    auto localPosition = ConvertWorldToLocalPosition(position);
+    auto localRotation = ConvertWorldToLocalRotation(rotation);
+    auto localScale    = ConvertWorldToLocalScale(scale);
+
+    localTransform_.SetPositionAndRotationAndScale(localPosition, localRotation, localScale);
 }
 
 void GameObject::CalculateWorldTransform()
@@ -244,7 +256,7 @@ void GameObject::CalculateWorldTransform()
         auto position = parent_->GetWorldTransform().GetRotation().value_ * localTransform_.GetPosition();
         position      = position + parent_->GetWorldTransform().GetPosition();
 
-        auto rotation = localTransform_.GetRotation().value_ * parent_->GetWorldTransform().GetRotation().value_;
+        auto rotation = parent_->GetWorldTransform().GetRotation().value_ * localTransform_.GetRotation().value_;
         auto scale    = parent_->GetWorldTransform().GetScale() * localTransform_.GetScale();
 
         worldTransform_.SetPositionAndRotationAndScale(position, rotation, scale);
@@ -254,5 +266,33 @@ void GameObject::CalculateWorldTransform()
         worldTransform_.SetPositionAndRotationAndScale(localTransform_.GetPosition(), localTransform_.GetRotation(),
                                                        localTransform_.GetScale());
     }
+}
+vec3 GameObject::ConvertWorldToLocalPosition(const vec3& worldPosition)
+{
+    if (parent_)
+    {
+        return glm::inverse(parent_->GetWorldTransform().GetRotation().value_) *
+               (worldPosition - parent_->GetWorldTransform().GetPosition());
+    }
+
+    return worldPosition;
+}
+vec3 GameObject::ConvertWorldToLocalScale(const vec3& worldScale)
+{
+    if (parent_)
+    {
+        return worldScale / parent_->GetWorldTransform().GetScale();
+    }
+
+    return worldScale;
+}
+Quaternion GameObject::ConvertWorldToLocalRotation(const Quaternion& rotatnion)
+{
+    if (parent_)
+    {
+        return glm::inverse(parent_->GetWorldTransform().GetRotation().value_) * rotatnion;
+    }
+
+    return rotatnion;
 }
 }  // namespace GameEngine

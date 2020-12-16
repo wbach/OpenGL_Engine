@@ -8,6 +8,11 @@
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 
+namespace common
+{
+class Trasnform;
+} // namespace common
+
 namespace GameEngine
 {
 class Mesh;
@@ -58,6 +63,8 @@ public:
     void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward);
     const std::string& GetCurrentAnimationName() const;
     GraphicsApi::ID getPerPoseBufferId() const;
+    std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&);
+    void disconnectObjectFromBone(uint32);
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
@@ -79,6 +86,7 @@ protected:
                           float progression);
     void applyPoseToJoints(const Pose&, Animation::Joint&, const mat4&);
     void applyPoseToJoints(const Pose&);
+    void updateConnectedObjectToJoint(uint32, const glm::mat4&);
 
 protected:
     RendererComponent* rendererComponent_;
@@ -90,6 +98,8 @@ protected:
     float currentChangeAnimTime_ = 0;
     Animation::KeyFrame startChaneAnimPose;
     Animation::KeyFrame endChangeAnimPose;
+
+    std::unordered_map<uint32, GameObject*> connectedObjects_;
 
 public:
     static ComponentsType type;

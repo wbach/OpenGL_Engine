@@ -250,4 +250,17 @@ void Transform::NotifySubscribers()
         sub.second(*this);
     }
 }
+
+void Transform::SetMatrix(const mat4& matrix)
+{
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+    SetPositionAndRotationAndScale(translation, rotation, scale);
+}
+
 }  // namespace common

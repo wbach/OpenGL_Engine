@@ -64,9 +64,14 @@ public:
     void SetWorldPosition(const vec3&);
     void SetWorldRotation(const Rotation&);
     void SetWorldScale(const vec3&);
+    void SetWorldMatrix(const mat4&);
+    void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
 
 private:
     void CalculateWorldTransform();
+    vec3 ConvertWorldToLocalPosition(const vec3&);
+    vec3 ConvertWorldToLocalScale(const vec3&);
+	Quaternion ConvertWorldToLocalRotation(const Quaternion&);
 
 protected:
     GameObject* parent_;

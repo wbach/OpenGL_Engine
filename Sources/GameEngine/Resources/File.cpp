@@ -108,7 +108,7 @@ std::string File::GetAbsolutePathWithDifferentExtension(const std::string &exten
     return std::filesystem::path(absoultePath_).replace_extension(extension).string();
 }
 
-const std::string& File::GetInitValue() const
+const std::string &File::GetInitValue() const
 {
     return initValue_;
 }
@@ -185,9 +185,8 @@ bool File::IsExtension(const std::vector<std::string> &extensions) const
 {
     auto ext = GetExtension();
 
-    return std::any_of(extensions.begin(), extensions.end(), [&ext](const auto& s) {
-        return getExtensionToCompare(s) == ext;
-    });
+    return std::any_of(extensions.begin(), extensions.end(),
+                       [&ext](const auto &s) { return getExtensionToCompare(s) == ext; });
 }
 
 bool File::operator==(const File &f) const
@@ -200,7 +199,14 @@ File File::operator=(const char *str) const
 }
 File::operator bool() const
 {
-    return not absoultePath_.empty() and std::filesystem::exists(absoultePath_);
+    try
+    {
+        return not absoultePath_.empty() and std::filesystem::exists(absoultePath_);
+    }
+    catch (...)
+    {
+        return false;
+    }
 }
 bool File::empty() const
 {

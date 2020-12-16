@@ -22,21 +22,10 @@ struct Joint
 
     std::vector<Joint> children;
 
-    void increaseSize(uint32 i)
-    {
-        if (parent)
-        {
-            parent->increaseSize(i);
-        }
-        size += i;
-    }
-
-    void addChild(Joint joint)
-    {
-        increaseSize(joint.size);
-        joint.parent = this;
-        children.push_back(std::move(joint));
-    }
+    void increaseSize(uint32 i);
+    void addChild(Joint joint);
+    Joint* getChild(const std::string& boneName);
+    Joint* getChild(uint32 boneId);
 };
 Joint* findJointByName(Joint&, const std::string&);
 Joint* findJointById(Joint&, uint32);
