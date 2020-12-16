@@ -68,7 +68,7 @@ public:
 
 protected:
     void updateShaderBuffers();
-    void ChangeAnimState();
+    bool ChangeAnimState();
     bool IsReady();
     bool increaseAnimationTime();
     void GetSkeletonAndAnimations();

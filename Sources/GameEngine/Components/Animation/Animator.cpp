@@ -174,7 +174,7 @@ void Animator::updateShaderBuffers()
     jointData_.updateBufferTransform();
     componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
 }
-void Animator::ChangeAnimState()
+bool Animator::ChangeAnimState()
 {
     currentChangeAnimTime_ += (1.f / changeAnimTime_) * componentContext_.time_.deltaTime * fabsf(animationSpeed_);
 
@@ -185,9 +185,11 @@ void Animator::ChangeAnimState()
         currentTime_           = 0.f;
         currentChangeAnimTime_ = 1.f;
         nextAnimationClip_     = nullptr;
+        return true;
     }
     auto pos = interpolatePoses(startChaneAnimPose, endChangeAnimPose, currentChangeAnimTime_);
     applyPoseToJoints(pos);
+    return false;
 }
 void Animator::applyPoseToJoints(const Pose& pose)
 {
@@ -204,9 +206,8 @@ void Animator::Update()
     if (not IsReady())
         return;
 
-    if (changeAnim)
+    if (changeAnim and not ChangeAnimState())
     {
-        ChangeAnimState();
         return;
     }
 
@@ -317,7 +318,7 @@ float Animator::calculateProgression(const KeyFrame& previousFrame, const KeyFra
 {
     float totalTime   = nextFrame.timeStamp - previousFrame.timeStamp;
     float currentTime = currentTime_ - previousFrame.timeStamp;
-    return currentTime / totalTime;
+    return glm::clamp(currentTime / totalTime, 0.f, 1.f);
 }
 }  // namespace Components
 }  // namespace GameEngine

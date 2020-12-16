@@ -57,7 +57,7 @@ void CharacterController::Update()
 
         if (hitTest)
         {
-            if (glm::length(position - hitTest->pointWorld) < 0.01f)
+            if (glm::length(position - hitTest->pointWorld) < 0.1f)
             {
                 isJumping_ = false;
                 if (jumpCallback_)
