@@ -50,23 +50,7 @@ void CharacterController::Update()
         return;
     }
 
-    if (isJumping_)
-    {
-        auto position = thisObject_.GetWorldTransform().GetPosition();
-        auto hitTest  = componentContext_.physicsApi_.RayTest(position, vec3(position.x, -10000.f, position.z));
-
-        if (hitTest)
-        {
-            if (glm::length(position - hitTest->pointWorld) < 0.1f)
-            {
-                isJumping_ = false;
-                if (jumpCallback_)
-                {
-                    jumpCallback_();
-                }
-            }
-        }
-    }
+    isOnGround();
 
     vec3 direction(0.f);
     for (const auto& action : actions_)
@@ -164,6 +148,27 @@ void CharacterController::SetJumpPower(float v)
 void CharacterController::SetJumpCallback(std::function<void()> action)
 {
     jumpCallback_ = action;
+}
+
+void CharacterController::isOnGround()
+{
+    if (isJumping_)
+    {
+        auto position = thisObject_.GetWorldTransform().GetPosition();
+        auto hitTest  = componentContext_.physicsApi_.RayTest(position + vec3(0, 1.f, 0), vec3(position.x, -10000.f, position.z));
+
+        if (hitTest)
+        {
+            if (glm::length(position - hitTest->pointWorld) < .1f)
+            {
+                isJumping_ = false;
+                if (jumpCallback_)
+                {
+                    jumpCallback_();
+                }
+            }
+        }
+    }
 }
 
 void CharacterController::SetTurnSpeed(float v)

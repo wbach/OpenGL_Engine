@@ -1,7 +1,7 @@
 #pragma once
 #include <Common/Controllers/CharacterController/Character.h>
-#include "GameEngine/Components/BaseComponent.h"
 #include <GameEngine/Components/Physics/Rigidbody.h>
+#include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
 {
@@ -39,6 +39,9 @@ public:
     void SetTurnSpeed(float);
     void SetJumpPower(float);
     void SetJumpCallback(std::function<void()>);
+
+private:
+    void isOnGround();
 
 private:
     std::vector<Action> actions_;

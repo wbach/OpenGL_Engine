@@ -46,6 +46,7 @@ void PlayerInputController::Init()
     if (animator_ and characterController_)
     {
         characterController_->SetJumpCallback([&]() {
+
             auto moveState = std::find_if(states_.begin(), states_.end(), [](const auto& state) {
                 return state == CharacterController::Action::MOVE_FORWARD or
                        state == CharacterController::Action::MOVE_BACKWARD;
