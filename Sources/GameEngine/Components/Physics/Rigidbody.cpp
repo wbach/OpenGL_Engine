@@ -1,5 +1,5 @@
-
 #include "Rigidbody.h"
+
 #include "BoxShape.h"
 #include "CapsuleShape.h"
 #include "CollisionShape.h"
@@ -40,7 +40,7 @@ void Rigidbody::CleanUp()
 }
 void Rigidbody::OnAwake()
 {
-    GetCollisionShape();
+    collisionShape_ = GetCollisionShape();
 
     if (not collisionShape_)
     {
@@ -103,46 +103,73 @@ bool Rigidbody::isShapeTypeValid(ComponentsType shapeType)
 }
 Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, velocity);
     return *this;
 }
 Rigidbody& Rigidbody::SetAngularFactor(float v)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, v);
     return *this;
 }
 
 Rigidbody& Rigidbody::SetAngularFactor(const vec3& angularFactor)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, angularFactor);
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const DegreesVec3& rotation)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation.Radians());
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const RadiansVec3& rotation)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation.value);
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const Quaternion& rotation)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation);
     return *this;
 }
 Rigidbody& Rigidbody::SetPosition(const vec3& pos)
 {
+    if (not rigidBodyId_)
+        return *this;
+
     componentContext_.physicsApi_.SetPosition(*rigidBodyId_, pos);
     return *this;
 }
 void Rigidbody::ApplyImpulse(const vec3& v)
 {
+    if (not rigidBodyId_)
+        return;
+
     componentContext_.physicsApi_.ApplyImpulse(*rigidBodyId_, v);
 }
 void Rigidbody::IncreaseVelocity(const vec3& v)
 {
+    if (not rigidBodyId_)
+        return;
+
     componentContext_.physicsApi_.IncreaseVelocityRigidbody(*rigidBodyId_, v);
 }
 float Rigidbody::GetMass() const
@@ -155,24 +182,40 @@ bool Rigidbody::IsStatic() const
 }
 ComponentsType Rigidbody::GetCollisionShapeType() const
 {
+    if (not collisionShape_)
+    {
+        return ComponentsType::Rigidbody;
+    }
+
     return collisionShape_->GetType();
 }
 vec3 Rigidbody::GetVelocity() const
 {
+    if (not rigidBodyId_)
+        return {};
     return *componentContext_.physicsApi_.GetVelocity(*rigidBodyId_);
 }
 vec3 Rigidbody::GetAngularFactor() const
 {
+    if (not rigidBodyId_)
+        return {};
+
     return *componentContext_.physicsApi_.GetAngularFactor(*rigidBodyId_);
 }
 
 Quaternion Rigidbody::GetRotation() const
 {
+    if (not rigidBodyId_)
+        return {};
+
     return *componentContext_.physicsApi_.GetRotation(*rigidBodyId_);
 }
 
 common::Transform Rigidbody::GetTransform() const
 {
+    if (not rigidBodyId_)
+        return {};
+
     return *componentContext_.physicsApi_.GetTransfrom(*rigidBodyId_);
 }
 
@@ -185,32 +228,52 @@ const Rigidbody::Params& Rigidbody::InputParams() const
 {
     return inputParams_;
 }
-void Rigidbody::GetCollisionShape()
-{
-    if (not shapeType_)
-        return;
 
-    switch (*shapeType_)
+template <class T>
+void Rigidbody::detectShape()
+{
+    auto shape = thisObject_.GetComponent<T>();
+
+    if (shape)
     {
-        case ComponentsType::BoxShape:
-            collisionShape_ = thisObject_.GetComponent<BoxShape>();
-            break;
-        case ComponentsType::TerrainShape:
-            collisionShape_ = thisObject_.GetComponent<TerrainShape>();
-            break;
-        case ComponentsType::MeshShape:
-            collisionShape_ = thisObject_.GetComponent<MeshShape>();
-            break;
-        case ComponentsType::SphereShape:
-            collisionShape_ = thisObject_.GetComponent<SphereShape>();
-            break;
-        case ComponentsType::CapsuleShape:
-            collisionShape_ = thisObject_.GetComponent<CapsuleShape>();
-            break;
-        default:
-            ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(*shapeType_)) + ") is not found.");
-            break;
-    };
+        detectedCollisionShapes_.insert({shape->GetType(), shape});
+    }
+}
+
+CollisionShape* Rigidbody::GetCollisionShape()
+{
+    detectShape<BoxShape>();
+    detectShape<TerrainShape>();
+    detectShape<MeshShape>();
+    detectShape<SphereShape>();
+    detectShape<CapsuleShape>();
+
+    if (not shapeType_)
+    {
+        WARNING_LOG("Shape type is not set, searching another shape component.");
+        for (auto& pair : detectedCollisionShapes_)
+        {
+            WARNING_LOG("Shape type is found, shape type is set to : " + std::to_string(pair.first));
+            return pair.second;
+        }
+        return nullptr;
+    }
+
+    auto shapeDetectedIter = detectedCollisionShapes_.find(*shapeType_);
+    if (shapeDetectedIter != detectedCollisionShapes_.end())
+    {
+        return shapeDetectedIter->second;
+    }
+
+    for (auto& pair : detectedCollisionShapes_)
+    {
+        WARNING_LOG("Requsted shape (" + std::to_string(*shapeType_) +
+                    ") not found but another is detected, shape type is set to : " + std::to_string(pair.first));
+        return pair.second;
+    }
+
+    ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(*shapeType_)) + ") is not found.");
+    return nullptr;
 }
 }  // namespace Components
 }  // namespace GameEngine

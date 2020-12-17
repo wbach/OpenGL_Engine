@@ -1,8 +1,10 @@
 #pragma once
 #include <optional>
+#include <unordered_map>
+
+#include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Physics/ShapeType.h"
-#include "Common/Transform.h"
 
 namespace GameEngine
 {
@@ -49,12 +51,12 @@ public:
     Quaternion GetRotation() const;
     common::Transform GetTransform() const;
 
-    Params &InputParams();
-    const Params &InputParams() const;
+    Params& InputParams();
+    const Params& InputParams() const;
 
 private:
     void OnAwake();
-    void GetCollisionShape();
+    CollisionShape* GetCollisionShape();
     bool isShapeTypeValid(ComponentsType shapeType);
 
 private:
@@ -62,10 +64,14 @@ private:
     std::optional<ComponentsType> shapeType_;
     CollisionShape* collisionShape_;
 
-    float mass_ = 1.f;
+    float mass_    = 1.f;
     bool isStatic_ = false;
 
     Params inputParams_;
+
+    template <class T>
+    void detectShape();
+    std::unordered_map<ComponentsType, CollisionShape*> detectedCollisionShapes_;
 
 public:
     static ComponentsType type;
