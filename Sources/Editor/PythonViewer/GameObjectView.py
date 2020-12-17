@@ -65,10 +65,14 @@ class GameObjectView:
         curItem = self.tree.focus()
         item = self.tree.item(curItem)
         parentItem = self.tree.parent(curItem)
+
+        if not parentItem or item['values'][1] == self.cameraType:
+            return
+
         parent = self.tree.item(parentItem)
         parentId = parent['values'][0]
-        gameObjectId = item['values'][0]
 
+        gameObjectId = item['values'][0]
         self.networkClient.SendCommand(
             "changeGameObjectParent newParentGameObjectId=" + str(parentId) + " gameObjectId=" + str(gameObjectId))
 
@@ -78,12 +82,17 @@ class GameObjectView:
             tv.selection_set(tv.identify_row(event.y))
 
     def DragObjectOnMouseMove(self, event):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+
+        if item['values'][1] == self.cameraType:
+            return
+
         tv = event.widget
         moveto = tv.index(tv.identify_row(event.y))
         parent = tv.identify_row(event.y)
         for s in tv.selection():
             if s != parent:
-                #parent = ''
                 tv.move(s, parent , moveto)
                 tv.item(parent, open=True)
 
@@ -229,9 +238,6 @@ class GameObjectView:
         name, gameObjectId, type = self.GetGameObjectNameAndId()
 
         if type == self.goType:
-            self.infoView.UpdateInfoWidget(name, gameObjectId)
-            self.transformView.ReqAndFill(gameObjectId)
-            self.componentsView.Fill(gameObjectId)
             self.networkClient.SendCommand("selectGameObject gameObjectId=" + str(gameObjectId))
         elif type == self.cameraType:
             self.ShowCameraInView()
