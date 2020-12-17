@@ -1,5 +1,6 @@
 #pragma once
 #include <Utils/IdPool.h>
+
 #include <list>
 #include <memory>
 #include <string>
@@ -65,13 +66,14 @@ public:
     void SetWorldRotation(const Rotation&);
     void SetWorldScale(const vec3&);
     void SetWorldMatrix(const mat4&);
+    void SetWorldPositionRotation(const vec3&, const Quaternion&);
     void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
 
 private:
     void CalculateWorldTransform();
     vec3 ConvertWorldToLocalPosition(const vec3&);
     vec3 ConvertWorldToLocalScale(const vec3&);
-	Quaternion ConvertWorldToLocalRotation(const Quaternion&);
+    Quaternion ConvertWorldToLocalRotation(const Quaternion&);
 
 protected:
     GameObject* parent_;

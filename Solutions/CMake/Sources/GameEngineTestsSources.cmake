@@ -1,7 +1,6 @@
 set(GameEngineTestsSources
 ../../Sources/GameEngineTests/main.cpp
 ../../Sources/GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.cpp
-../../Sources/GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.cpp
 ../../Sources/GameEngineTests/Tests/MT/GUI/GuiTextTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Camera/CameraFrustrumTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Components/AnimatorTests.cpp

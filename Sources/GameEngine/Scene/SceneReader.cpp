@@ -48,11 +48,39 @@ std::vector<vec3> ReadVectorVec3(const Utils::XmlNode& node)
     return result;
 }
 
+void setIfExist(const Utils::XmlNode& node, const std::string& childNodeName, std::string& value)
+{
+    auto childNode = node.GetChild(childNodeName);
+    if (childNode)
+    {
+        value = childNode->value_;
+    }
+}
+
+void setIfExist(const Utils::XmlNode& node, const std::string& childNodeName, vec3& value)
+{
+    auto childNode = node.GetChild(childNodeName);
+    if (childNode)
+    {
+        value = ReadVec3(*childNode);
+    }
+}
+
+void setIfExist(const Utils::XmlNode& node, const std::string& childNodeName, Rotation& value)
+{
+    auto childNode = node.GetChild(childNodeName);
+    if (childNode)
+    {
+        value = Rotation(DegreesVec3(ReadVec3(*childNode)));
+    }
+}
+
 void Read(const Utils::XmlNode& node, common::Transform& tranfsorm)
 {
-    auto position = ReadVec3(*node.GetChild(CSTR_POSITION));
-    auto rotation = ReadVec3(*node.GetChild(CSTR_ROTATION));
-    auto scale    = ReadVec3(*node.GetChild(CSTR_SCALE));
+    vec3 position(0), rotation(0), scale(1);
+    setIfExist(node, CSTR_POSITION, position);
+    setIfExist(node, CSTR_ROTATION, rotation);
+    setIfExist(node, CSTR_SCALE, scale);
 
     tranfsorm.SetPositionAndRotationAndScale(position, DegreesVec3(rotation), scale);
 }
@@ -73,7 +101,11 @@ void Read(const Utils::XmlNode& node, Components::Animator& component)
         }
     }
 
-    component.SetAnimation(node.GetChild(CSTR_CURRENT_ANIMATION)->value_);
+    auto currentAnimationNode = node.GetChild(CSTR_CURRENT_ANIMATION);
+    if (currentAnimationNode)
+    {
+        component.SetAnimation(currentAnimationNode->value_);
+    }
 }
 
 void Read(const Utils::XmlNode& node, Components::BoxShape& component)
@@ -269,19 +301,15 @@ void Read(const Utils::XmlNode& node, Components::PlayerInputController& compone
     auto animationClipsNode = node.GetChild(CSTR_ANIMATION_CLIPS);
     if (animationClipsNode)
     {
-        if (auto animationNode = node.GetChild(CSTR_IDLE_ANIMATION))
-        {
-            component.idleAnimationName_ = animationNode->value_;
-        }
-        if (auto animationNode = node.GetChild(CSTR_WALK_ANIMATION))
-        {
-            component.walkAnimationName_ = animationNode->value_;
-        }
-        if (auto animationNode = node.GetChild(CSTR_RUN_ANIMATION))
-        {
-            component.runAnimationName_ = animationNode->value_;
-        }
+        setIfExist(*animationClipsNode, CSTR_IDLE_ANIMATION, component.idleAnimationName_);
+        setIfExist(*animationClipsNode, CSTR_WALK_ANIMATION, component.walkAnimationName_);
+        setIfExist(*animationClipsNode, CSTR_RUN_ANIMATION, component.runAnimationName_);
     }
+
+    setIfExist(node, CSTR_WEAPON_CHILD_NAME, component.weaponChildObjectName_);
+    setIfExist(node, CSTR_WEAPON_BONE_NAME, component.weaponBoneName_);
+    setIfExist(node, CSTR_WEAPON_BONE_POSITION_OFFSET, component.weponBonePositionOffset_);
+    setIfExist(node, CSTR_WEAPON_BONE_ROTATION_OFFSET, component.weponBoneRotationOffsetDegreesEulers_);
 }
 
 void Read(const Utils::XmlNode& node, Components::WaterRendererComponent& component)

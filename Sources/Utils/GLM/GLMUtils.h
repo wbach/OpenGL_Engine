@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "../Types.h"
 #include "Glm.h"
@@ -55,4 +56,7 @@ float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3
 
 mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition);
 Quaternion lookAt(const vec3& lookAtPosition, const vec3& position);
+
+std::tuple<vec3, Quaternion, vec3> decompose(const mat4&);
+std::tuple<vec3, Quaternion, vec3, vec3, vec4> fullDecompose(const mat4&);
 }  // namespace Utils

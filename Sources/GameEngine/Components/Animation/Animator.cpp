@@ -84,12 +84,13 @@ GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
     return jointData_.buffer ? jointData_.buffer->GetGraphicsObjectId() : std::nullopt;
 }
-std::optional<uint32> Animator::connectBoneWithObject(const std::string& boneName, GameObject& object)
+std::optional<uint32> Animator::connectBoneWithObject(const std::string& boneName, GameObject& object, const std::optional<vec3>& po,
+    const std::optional<Rotation>& ro)
 {
     auto bone = jointData_.rootJoint.getChild(boneName);
     if (bone)
     {
-        connectedObjects_.insert({bone->id, &object});
+        connectedObjects_.insert({ bone->id, {object, po ? *po : vec3(0), ro ? *ro : Rotation(RadiansVec3(0))} });
         return bone->id;
     }
     ERROR_LOG("Bone not found. Name :" + boneName);
@@ -213,41 +214,6 @@ void Animator::applyPoseToJoints(const Pose& pose)
 
     updateShaderBuffers();
 }
-void Animator::updateConnectedObjectToJoint(uint32 jointId, const glm::mat4& animatedTransform)
-{
-    // first attempt
-    auto connectedObjectIter = connectedObjects_.find(jointId);
-    if (connectedObjectIter != connectedObjects_.end())
-    {
-        auto rendererCopmponent      = thisObject_.GetComponent<RendererComponent>();
-        auto childRendererCopmponent = connectedObjectIter->second->GetComponent<RendererComponent>();
-
-        if (not rendererCopmponent or not childRendererCopmponent)
-            return;
-
-        auto model      = rendererCopmponent->GetModelWrapper().Get();
-        auto childModel = childRendererCopmponent->GetModelWrapper().Get();
-
-        if (not model or not childModel or model->GetMeshes().size() < 0 or childModel->GetMeshes().size() < 0)
-            return;
-
-        const auto& meshTransfrom      = model->GetMeshes()[0].GetMeshTransform();
-        const auto& childMeshTransfrom = childModel->GetMeshes()[0].GetMeshTransform();
-
-        auto childLocalTransform = meshTransfrom * animatedTransform * glm::inverse(childMeshTransfrom);
-
-        // connectedObjectIter->second->SetWorldMatrix(thisObject_.GetWorldTransform().GetMatrix() * meshTransfrom2
-        //                                            joint.animatedTransform);
-
-        // DEBUG_LOG(std::to_string(thisObject_.GetWorldTransform().GetMatrix() * meshTransfrom2 *
-        // joint.animatedTransform)); DEBUG_LOG(std::to_string(thisObject_.GetWorldTransform().GetMatrix() *
-        // childLocalTransform * childMeshTransfrom));
-
-        auto offset =
-            Utils::CreateTransformationMatrix(vec3(-3.5, 5.5, 0), Rotation(DegreesVec3(90, 0, 0)).value_, vec3(10.f)); // ????
-        connectedObjectIter->second->GetTransform().SetMatrix(childLocalTransform * offset);
-    }
-}
 bool Animator::IsReady()
 {
     return (currentAnimationClip_ != nullptr and not currentAnimationClip_->GetFrames().empty());
@@ -358,8 +324,7 @@ void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const ma
         currentTransform                  = parentTransform * currentLocalTransform;
 
         joint.animatedTransform = currentTransform * joint.offset;
-
-        updateConnectedObjectToJoint(joint.id, joint.animatedTransform);
+        updateConnectedObjectToJoint(joint.id, joint);
     }
 
     for (Joint& childJoint : joint.children)
@@ -367,7 +332,37 @@ void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const ma
         applyPoseToJoints(currentPose, childJoint, currentTransform);
     }
 }
+void Animator::updateConnectedObjectToJoint(uint32 jointId, const Animation::Joint& joint)
+{
+    auto connectedObjectIter = connectedObjects_.find(jointId);
+    if (connectedObjectIter != connectedObjects_.end())
+    {
+        auto rendererCopmponent = thisObject_.GetComponent<RendererComponent>();
 
+        if (not rendererCopmponent)
+            return;
+
+        auto model = rendererCopmponent->GetModelWrapper().Get();
+
+        if (not model or model->GetMeshes().size() < 1)
+            return;
+
+        const auto& meshTransfrom = model->GetMeshes().front().GetMeshTransform();
+
+        // path bone to world pos
+        // worldPosition = parentMatrix * parentMeshMatrix * jointMatrix * inverse(jointOffset) * point
+
+        auto worldBoneMatrix =
+            thisObject_.GetWorldTransform().GetMatrix() * meshTransfrom * joint.animatedTransform * joint.offset;
+
+        worldBoneMatrix = worldBoneMatrix * glm::translate(connectedObjectIter->second.worldPositionOffset);
+
+        auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);
+
+        const auto& rotationOffset = connectedObjectIter->second.worldRotationOffset;
+        connectedObjectIter->second.gameObject.SetWorldPositionRotation(boneWorldPosition, boneWorldRotation * rotationOffset.value_);
+    }
+}
 float Animator::calculateProgression(const KeyFrame& previousFrame, const KeyFrame& nextFrame)
 {
     float totalTime   = nextFrame.timeStamp - previousFrame.timeStamp;

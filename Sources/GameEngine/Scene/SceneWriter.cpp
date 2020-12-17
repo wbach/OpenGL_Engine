@@ -272,9 +272,14 @@ void Create(XmlNode& node, const Components::PlayerInputController& component)
 {
     auto& animationClipsNode = node.AddChild(CSTR_ANIMATION_CLIPS);
 
-    node.AddChild(CSTR_IDLE_ANIMATION).value_ = component.idleAnimationName_;
-    node.AddChild(CSTR_WALK_ANIMATION).value_ = component.walkAnimationName_;
-    node.AddChild(CSTR_RUN_ANIMATION).value_  = component.runAnimationName_;
+    animationClipsNode.AddChild(CSTR_IDLE_ANIMATION).value_ = component.idleAnimationName_;
+    animationClipsNode.AddChild(CSTR_WALK_ANIMATION).value_ = component.walkAnimationName_;
+    animationClipsNode.AddChild(CSTR_RUN_ANIMATION).value_  = component.runAnimationName_;
+
+    node.AddChild(CSTR_WEAPON_CHILD_NAME).value_ = component.weaponChildObjectName_;
+    node.AddChild(CSTR_WEAPON_BONE_NAME).value_  = component.weaponBoneName_;
+    Create(node.AddChild(CSTR_WEAPON_BONE_POSITION_OFFSET), component.weponBonePositionOffset_);
+    Create(node.AddChild(CSTR_WEAPON_BONE_ROTATION_OFFSET), component.weponBoneRotationOffsetDegreesEulers_);
 }
 
 void Create(XmlNode&, const Components::CharacterController&)

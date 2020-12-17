@@ -11,7 +11,7 @@
 namespace common
 {
 class Trasnform;
-} // namespace common
+}  // namespace common
 
 namespace GameEngine
 {
@@ -39,6 +39,13 @@ struct JointData
 
 class Animator : public BaseComponent
 {
+    struct ConnectedObject
+    {
+        GameObject& gameObject;
+        vec3 worldPositionOffset;
+        Rotation worldRotationOffset;
+    };
+
 public:
     enum class AnimationChangeType
     {
@@ -63,7 +70,8 @@ public:
     void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward);
     const std::string& GetCurrentAnimationName() const;
     GraphicsApi::ID getPerPoseBufferId() const;
-    std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&);
+    std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&, const std::optional<vec3>& po = {},
+                                                const std::optional<Rotation>& ro = {});
     void disconnectObjectFromBone(uint32);
 
 public:
@@ -86,7 +94,7 @@ protected:
                           float progression);
     void applyPoseToJoints(const Pose&, Animation::Joint&, const mat4&);
     void applyPoseToJoints(const Pose&);
-    void updateConnectedObjectToJoint(uint32, const glm::mat4&);
+    void updateConnectedObjectToJoint(uint32, const Animation::Joint&);
 
 protected:
     RendererComponent* rendererComponent_;
@@ -99,7 +107,7 @@ protected:
     Animation::KeyFrame startChaneAnimPose;
     Animation::KeyFrame endChangeAnimPose;
 
-    std::unordered_map<uint32, GameObject*> connectedObjects_;
+    std::unordered_map<uint32, ConnectedObject> connectedObjects_;
 
 public:
     static ComponentsType type;

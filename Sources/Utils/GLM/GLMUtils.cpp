@@ -1,15 +1,16 @@
 #include "GLMUtils.h"
 
 #include <Logger/Log.h>
-
 #include "../math.hpp"
 
-glm::vec3 Utils::Vec4ToVec3(const glm::vec4& v)
+namespace Utils
+{
+glm::vec3 Vec4ToVec3(const glm::vec4& v)
 {
     return glm::vec3(v.x, v.y, v.z);
 }
 
-glm::vec3 Utils::ColorLerpRGB(const glm::vec3& c1, const glm::vec3& c2, const float& blend)
+glm::vec3 ColorLerpRGB(const glm::vec3& c1, const glm::vec3& c2, const float& blend)
 {
     glm::vec3 color;
     color.x = c1.x + (c2.x - c1.x) * blend;
@@ -18,66 +19,66 @@ glm::vec3 Utils::ColorLerpRGB(const glm::vec3& c1, const glm::vec3& c2, const fl
     return color;
 }
 
-glm::vec3 Utils::TransformPoint(const glm::vec3& point, const glm::mat4& matrix)
+glm::vec3 TransformPoint(const glm::vec3& point, const glm::mat4& matrix)
 {
     glm::vec4 n = matrix * glm::vec4(point, 1.0f);
     return glm::vec3(n.x, n.y, n.z);
 }
 
-glm::vec3 Utils::RGBtoFloat(const glm::vec3& color)
+glm::vec3 RGBtoFloat(const glm::vec3& color)
 {
     return color / 255.f;
 }
 
-float Utils::RGBtoFloat(float rgb)
+float RGBtoFloat(float rgb)
 {
     return rgb / 255.f;
 }
 
-float Utils::RGBtoFloat(uint8 rgb)
+float RGBtoFloat(uint8 rgb)
 {
     return RGBtoFloat(static_cast<float>(rgb));
 }
 
-glm::vec3 Utils::RGBtoFloat(const float& r, const float& g, const float& b)
+glm::vec3 RGBtoFloat(const float& r, const float& g, const float& b)
 {
     return RGBtoFloat(glm::vec3(r, g, b));
 }
 
-void Utils::PrintVector(const std::string& text, const glm::vec3& v)
+void PrintVector(const std::string& text, const glm::vec3& v)
 {
     std::cout << text << v.x << " " << v.y << " " << v.z << std::endl;
 }
 
-void Utils::PrintVector(const std::string& text, const glm::vec2& v)
+void PrintVector(const std::string& text, const glm::vec2& v)
 {
     std::cout << text << v.x << " " << v.y << std::endl;
 }
 
-void Utils::PrintMatrix(const std::string& text, const glm::mat4& m)
+void PrintMatrix(const std::string& text, const glm::mat4& m)
 {
     for (uint32 y = 0; y < 4; y++)
         std::cout << text << m[y][0] << " " << m[y][1] << " " << m[y][2] << " " << m[y][3] << std::endl;
 }
 
-bool Utils::Compare(const glm::vec2& v1, const glm::vec2& v2)
+bool Compare(const glm::vec2& v1, const glm::vec2& v2)
 {
     return glm::length(v1 - v2) < std::numeric_limits<float>::epsilon();
 }
 
-bool Utils::Compare(const glm::vec3& v1, const glm::vec3& v2)
+bool Compare(const glm::vec3& v1, const glm::vec3& v2)
 {
     return glm::length(v1 - v2) < std::numeric_limits<float>::epsilon();
 }
 
-void Utils::PrtintMat4(const glm::mat4& mat)
+void PrtintMat4(const glm::mat4& mat)
 {
     printf("\nMat:\n %f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n\n", mat[0][0], mat[0][1], mat[0][2],
            mat[0][3], mat[1][0], mat[1][1], mat[1][2], mat[1][3], mat[2][0], mat[2][1], mat[2][2], mat[2][3], mat[3][0],
            mat[3][1], mat[3][2], mat[3][3]);
 }
 
-float Utils::GetMaxFromVector(const glm::vec3& vector)
+float GetMaxFromVector(const glm::vec3& vector)
 {
     if (vector.x > vector.y && vector.x > vector.z)
         return vector.x;
@@ -87,7 +88,7 @@ float Utils::GetMaxFromVector(const glm::vec3& vector)
         return vector.z;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation)
+mat4 CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation)
 {
     mat4 matrix = mat4(1.0);
     matrix *= glm::translate(translation);
@@ -95,7 +96,7 @@ mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation, const vec3& scale)
+mat4 CreateTransformationMatrix(const vec3& translation, const Quaternion& rotation, const vec3& scale)
 {
     mat4 matrix = mat4(1.0);
     matrix *= glm::translate(translation);
@@ -104,7 +105,7 @@ mat4 Utils::CreateTransformationMatrix(const vec3& translation, const Quaternion
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec3& translation, const DegreesVec3& rotation, const vec3& scale)
+mat4 CreateTransformationMatrix(const vec3& translation, const DegreesVec3& rotation, const vec3& scale)
 {
     glm::mat4 matrix = glm::translate(translation);
     matrix *= glm::mat4_cast(Quaternion(rotation.Radians()));
@@ -112,7 +113,7 @@ mat4 Utils::CreateTransformationMatrix(const vec3& translation, const DegreesVec
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec3& translation, const RadiansVec3& rotation, const vec3& scale)
+mat4 CreateTransformationMatrix(const vec3& translation, const RadiansVec3& rotation, const vec3& scale)
 {
     glm::mat4 matrix = glm::translate(translation);
     matrix *= glm::mat4_cast(Quaternion(rotation.value));
@@ -120,7 +121,7 @@ mat4 Utils::CreateTransformationMatrix(const vec3& translation, const RadiansVec
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const glm::vec2& translation, const vec2& scale, DegreesFloat rotation)
+mat4 CreateTransformationMatrix(const glm::vec2& translation, const vec2& scale, DegreesFloat rotation)
 {
     mat4 matrix = glm::translate(glm::mat4(1.0f), vec3(translation, 0.0f));
     matrix *= glm::rotate(rotation.Radians(), vec3(0.0f, 0.0f, 1.0f));
@@ -128,7 +129,7 @@ mat4 Utils::CreateTransformationMatrix(const glm::vec2& translation, const vec2&
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec3& translation, const vec2& scale, DegreesFloat rotation)
+mat4 CreateTransformationMatrix(const vec3& translation, const vec2& scale, DegreesFloat rotation)
 {
     mat4 matrix = mat4(1.0);
     matrix *= glm::translate(translation);
@@ -137,7 +138,7 @@ mat4 Utils::CreateTransformationMatrix(const vec3& translation, const vec2& scal
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec2& translation, const vec2& scale, RadianFloat rotation)
+mat4 CreateTransformationMatrix(const vec2& translation, const vec2& scale, RadianFloat rotation)
 {
     mat4 matrix = mat4(1.0);
     matrix *= glm::translate(glm::vec3(translation, 0.0f));
@@ -146,7 +147,7 @@ mat4 Utils::CreateTransformationMatrix(const vec2& translation, const vec2& scal
     return matrix;
 }
 
-mat4 Utils::CreateTransformationMatrix(const vec3& translation, const vec2& scale, RadianFloat rotation)
+mat4 CreateTransformationMatrix(const vec3& translation, const vec2& scale, RadianFloat rotation)
 {
     glm::mat4 matrix = glm::translate(translation);
     matrix *= glm::rotate(rotation.value, vec3(0.0f, 0.0f, 1.0f));
@@ -154,8 +155,8 @@ mat4 Utils::CreateTransformationMatrix(const vec3& translation, const vec2& scal
     return matrix;
 }
 
-void Utils::CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max,
-                                glm::vec3& bounding_size, glm::vec3& bounding_center)
+void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max,
+                         glm::vec3& bounding_size, glm::vec3& bounding_center)
 {
     if (positions.size() == 0)
         return;
@@ -182,7 +183,7 @@ void Utils::CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& 
     bounding_center = (bounding_max + bounding_min) / 2.f;
 }
 
-glm::vec3 Utils::CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b)
+glm::vec3 CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b)
 {
     glm::vec3 result;
     result.x = a.x < b.x ? a.x : b.x;
@@ -191,7 +192,7 @@ glm::vec3 Utils::CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b)
     return result;
 }
 
-float Utils::BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
+float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
 {
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
     float l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
@@ -200,12 +201,12 @@ float Utils::BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::v
     return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
-mat4 Utils::createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition)
+mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition)
 {
     return glm::mat4_cast(rotation) * glm::translate(-cameraPosition);
 }
 
-Quaternion Utils::lookAt(const vec3& lookAtPosition, const vec3& position)
+Quaternion lookAt(const vec3& lookAtPosition, const vec3& position)
 {
     auto direction   = position - lookAtPosition;
     auto yaw         = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
@@ -215,7 +216,7 @@ Quaternion Utils::lookAt(const vec3& lookAtPosition, const vec3& position)
     return glm::normalize(qPitch * qYaw);
 }
 
-glm::vec3 Utils::BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
+glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
 {
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
     float l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
@@ -224,7 +225,7 @@ glm::vec3 Utils::BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, cons
     return glm::vec3(l1, l2, l3);
 }
 
-glm::vec3 Utils::RotateObject(const vec3& center, const vec3& point, float angle)
+glm::vec3 RotateObject(const vec3& center, const vec3& point, float angle)
 {
     vec3 result;
     float x  = point.x - center.x;
@@ -235,19 +236,19 @@ glm::vec3 Utils::RotateObject(const vec3& center, const vec3& point, float angle
     return result;
 }
 
-glm::mat4 Utils::CreateBiasNdcToTextureCoordinates()
+glm::mat4 CreateBiasNdcToTextureCoordinates()
 {
     auto translate = glm::translate(vec3(0.5f, 0.5f, 0.5f));
     auto scale     = glm::scale(vec3(0.5f, 0.5f, 0.5f));
     return translate * scale;
 }
 
-glm::vec2 Utils::toScreenSpace(glm::vec2& position, glm::vec2& window_size)
+glm::vec2 toScreenSpace(glm::vec2& position, glm::vec2& window_size)
 {
     return glm::vec2((position.x / window_size.x) * 2 - 1, (1 - (position.y / window_size.y)) * 2 - 1);
 }
 
-mat4 Utils::CreateOrthoProjectionMatrix(float width, float height, float length)
+mat4 CreateOrthoProjectionMatrix(float width, float height, float length)
 {
     mat4 projectonMatrix(1.f);
     projectonMatrix[0][0] = 2.f / width;
@@ -257,14 +258,14 @@ mat4 Utils::CreateOrthoProjectionMatrix(float width, float height, float length)
     return projectonMatrix;
 }
 
-mat4 Utils::CreateLightViewMatrix(const vec3& dir, const vec3& center)
+mat4 CreateLightViewMatrix(const vec3& dir, const vec3& center)
 {
     auto direction = glm::normalize(dir);
 
     float length = glm::length(vec2(direction.x, direction.z));
     float pitch  = acosf(length);
     float yaw    = atanf(direction.x / direction.z);
-    yaw          = direction.z > 0 ? yaw - M_PI : yaw;
+    yaw          = direction.z > 0 ? yaw - glm::pi<float>() : yaw;
 
     auto lightViewMatrix = glm::rotate(pitch, vec3(1, 0, 0));
     lightViewMatrix *= glm::rotate(-yaw, vec3(0, 1, 0));
@@ -281,7 +282,7 @@ mat4 Utils::CreateLightViewMatrix(const vec3& dir, const vec3& center)
     // return rotationMatrix * translationMatrix;
 }
 
-Quaternion Utils::Interpolate(const Quaternion& a, const Quaternion& b, float blend)
+Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend)
 {
     Quaternion result(0, 0, 0, 1);
     float dot    = a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
@@ -303,3 +304,28 @@ Quaternion Utils::Interpolate(const Quaternion& a, const Quaternion& b, float bl
     result = glm::normalize(result);
     return result;
 }
+
+std::tuple<vec3, Quaternion, vec3, vec3, vec4> fullDecompose(const mat4& matrix)
+{
+    vec3 scale;
+    Quaternion rotation;
+    vec3 translation;
+    vec3 skew;
+    vec4 perspective;
+    glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+
+    return {translation, rotation, scale, skew, perspective};
+}
+
+std::tuple<vec3, Quaternion, vec3> decompose(const mat4& matrix)
+{
+    vec3 scale;
+    Quaternion rotation;
+    vec3 translation;
+    vec3 skew;
+    vec4 perspective;
+    glm::decompose(matrix, scale, rotation, translation, skew, perspective);
+
+    return {translation, rotation, scale};
+}
+}  // namespace Utils

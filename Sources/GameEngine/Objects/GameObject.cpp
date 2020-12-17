@@ -240,6 +240,14 @@ void GameObject::SetWorldMatrix(const mat4& worldMatrix)
     SetWorldPositionRotationScale(translation, rotation, scale);
 }
 
+void GameObject::SetWorldPositionRotation(const vec3& position, const Quaternion& rotation)
+{
+    auto localPosition = ConvertWorldToLocalPosition(position);
+    auto localRotation = ConvertWorldToLocalRotation(rotation);
+
+    localTransform_.SetPositionAndRotation(localPosition, localRotation);
+}
+
 void GameObject::SetWorldPositionRotationScale(const vec3& position, const Quaternion& rotation, const vec3& scale)
 {
     auto localPosition = ConvertWorldToLocalPosition(position);

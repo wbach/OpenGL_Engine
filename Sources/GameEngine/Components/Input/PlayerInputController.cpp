@@ -50,10 +50,15 @@ void PlayerInputController::Init()
 
     if (animator_ and characterController_)
     {
-        auto weaponObject = thisObject_.GetChild("Weapon");
-        if (weaponObject)
+        if (not weaponChildObjectName_.empty() and not weaponBoneName_.empty())
         {
-            connectedBone_ = animator_->connectBoneWithObject("b_HandR", *weaponObject);
+            auto weaponObject = thisObject_.GetChild(weaponChildObjectName_);
+            if (weaponObject)
+            {
+                connectedBone_ =
+                    animator_->connectBoneWithObject(weaponBoneName_, *weaponObject, weponBonePositionOffset_,
+                                                     Rotation(DegreesVec3(weponBoneRotationOffsetDegreesEulers_)));
+            }
         }
 
         characterController_->SetJumpCallback([&]() {

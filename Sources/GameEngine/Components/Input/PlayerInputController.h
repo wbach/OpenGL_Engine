@@ -23,6 +23,11 @@ public:
     std::string runAnimationName_;
     std::string jumpAnimationName_;
 
+    std::string weaponChildObjectName_;
+    std::string weaponBoneName_;
+    vec3 weponBonePositionOffset_;
+    vec3 weponBoneRotationOffsetDegreesEulers_;
+
 private:
     void Init();
     void SubscribeForPushActions();
@@ -36,7 +41,9 @@ private:
     CharacterController* characterController_;
     std::vector<CharacterController::Action> states_;
     Input::KeysSubscriptionsManager subscriptions_;
+
     std::optional<uint32> connectedBone_;
+
 
 public:
     static ComponentsType type;
