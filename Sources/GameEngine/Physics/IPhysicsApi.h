@@ -45,6 +45,9 @@ struct IPhysicsApi
     virtual std::optional<Quaternion> GetRotation(uint32 rigidBodyId) const                              = 0;
     virtual std::optional<common::Transform> GetTransfrom(uint32 rigidBodyId) const                      = 0;
     virtual std::optional<RayHit> RayTest(const vec3&, const vec3&) const                                = 0;
+    virtual void setVisualizatedRigidbody(uint32)                                                        = 0;
+    virtual void enableVisualizationForAllRigidbodys()                                                   = 0;
+    virtual void disableVisualizationForAllRigidbodys()                                                  = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

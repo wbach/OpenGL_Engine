@@ -53,6 +53,9 @@ class Menu:
         self.physicsVisual = tk.BooleanVar()
         self.physicsVisual.set(False)
         self.physicsVisual.trace("w", self.PhysicsVisualChange)
+        self.physicsVisualAllObjects = tk.BooleanVar()
+        self.physicsVisualAllObjects.set(False)
+        self.physicsVisualAllObjects.trace("w", self.PhysicsVisualAllObjectsChange)
         self.normalsVisual = tk.BooleanVar()
         self.normalsVisual.set(False)
         self.normalsVisual.trace("w", self.NormalsVisualChange)
@@ -60,6 +63,7 @@ class Menu:
         debugMenu = tk.Menu(menubar, tearoff=0)
         debugMenu.add_command(label="Swap Line render mode", command=lambda: self.networkClient.SendCommand("setLineRenderMode"))
         debugMenu.add_checkbutton(label="Physics Visualization", onvalue=1, offvalue=0, variable=self.physicsVisual)
+        debugMenu.add_checkbutton(label="Physics Visualization all objects", onvalue=1, offvalue=0, variable=self.physicsVisualAllObjects)
         debugMenu.add_checkbutton(label="Normals Visualization", onvalue=1, offvalue=0, variable=self.normalsVisual)
         menubar.add_cascade(label="Debug", menu=debugMenu)
 
@@ -171,6 +175,16 @@ class Menu:
                 self.networkClient.SendCommand("setPhysicsVisualization enabled=true")
             else:
                 self.networkClient.SendCommand("setPhysicsVisualization enabled=false")
+
+    def PhysicsVisualAllObjectsChange(self, *args):
+        if self.networkClient.IsConnected():
+            if not self.physicsVisual:
+                self.physicsVisual.set(True)
+            if self.physicsVisualAllObjects.get():
+                self.networkClient.SendCommand("setPhysicsVisualizationAllObjects enabled=true")
+            else:
+                self.networkClient.SendCommand("setPhysicsVisualizationAllObjects enabled=false")
+
     def NormalsVisualChange(self, *args):
         if self.networkClient.IsConnected():
             if self.normalsVisual.get():

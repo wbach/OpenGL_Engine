@@ -1,12 +1,12 @@
 #pragma once
 #include <Mutex.hpp>
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "PhysicsVisualizator.h"
-#include "GameEngine/Renderers/RendererContext.h"
 
 namespace common
 {
@@ -70,6 +70,7 @@ public:
     void init() override;
     void reloadShaders() override;
     void render() override;
+	void clear();
 
     void renderTextures(const std::vector<GraphicsApi::ID>&);
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
@@ -81,7 +82,7 @@ public:
     void RemoveState(RenderState);
     bool IsStateEnabled(RenderState) const;
     const std::vector<RenderState>& GetStates() const;
-    void ClearDebugObjects();
+    void clearDebugObjects();
 
 private:
     void CreateDebugObjects();

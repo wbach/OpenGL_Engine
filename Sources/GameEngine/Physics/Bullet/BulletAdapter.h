@@ -4,12 +4,11 @@
 
 namespace GraphicsApi
 {
-    class IGraphicsApi;
-} // GraphicsApi
+class IGraphicsApi;
+}  // namespace GraphicsApi
 
 namespace GameEngine
 {
-
 namespace Physics
 {
 class BulletAdapter : public IPhysicsApi
@@ -28,8 +27,8 @@ public:
     uint32 CreateCapsuleColider(const vec3& positionOffset, float radius, float height) override;
     // virtual void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     uint32 CreateTerrainColider(const vec3& positionOffset, const HeightMap& heightMap, const vec3& scale) override;
-    uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                                      const IndicesVector& indicies, float scaleFactor) override;
+    uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
+                              float scaleFactor) override;
     uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) override;
     void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
     void ApplyImpulse(uint32 rigidBodyId, const vec3& impulse) override;
@@ -45,6 +44,9 @@ public:
     std::optional<Quaternion> GetRotation(uint32 rigidBodyId) const override;
     std::optional<common::Transform> GetTransfrom(uint32 rigidBodyId) const override;
     std::optional<RayHit> RayTest(const vec3&, const vec3&) const override;
+    void setVisualizatedRigidbody(uint32) override;
+    void enableVisualizationForAllRigidbodys() override;
+    void disableVisualizationForAllRigidbodys() override;
 
 private:
     struct Pimpl;

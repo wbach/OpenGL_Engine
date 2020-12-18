@@ -38,6 +38,9 @@ public:
     std::optional<Quaternion> GetRotation(uint32 rigidBodyId) const override;
     std::optional<common::Transform> GetTransfrom(uint32 rigidBodyId) const override;
     std::optional<RayHit> RayTest(const vec3&, const vec3&) const override;
+    void setVisualizatedRigidbody(uint32) override;
+    void enableVisualizationForAllRigidbodys() override;
+    void disableVisualizationForAllRigidbodys() override;
 
 private:
     struct Pimpl;

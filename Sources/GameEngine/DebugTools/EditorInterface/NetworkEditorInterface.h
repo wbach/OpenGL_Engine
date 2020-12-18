@@ -67,6 +67,7 @@ private:
     void AddComponent(const EntryParameters&);
     void GetComponentParams(const EntryParameters&);
     void SetPhysicsVisualization(const EntryParameters&);
+    void SetPhysicsVisualizationAllObjcts(const EntryParameters&);
     void SetNormalsVisualization(const EntryParameters&);
     void SetLineRenderMode(const EntryParameters&);
     void SelectGameObject(const EntryParameters&);
@@ -114,7 +115,7 @@ private:
     void CreateDragObject(GameObject&);
     void ReleaseDragObject();
     void SetSelectedGameObject(GameObject*);
-    void UseSelectedGameObject(std::function<void(GameObject&)>);
+    void UseSelectedGameObject(std::function<void(GameObject&)>, std::function<void()> = nullptr);
     void UpdateDragObject();
     void PaintTerrain();
     void UpdateArrowsIndicatorPosition();

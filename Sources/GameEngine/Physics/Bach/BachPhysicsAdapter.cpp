@@ -255,5 +255,14 @@ std::optional<RayHit> BachPhysicsAdapter::RayTest(const vec3&, const vec3&) cons
 {
     return std::optional<RayHit>();
 }
+void BachPhysicsAdapter::setVisualizatedRigidbody(uint32)
+{
+}
+void BachPhysicsAdapter::enableVisualizationForAllRigidbodys()
+{
+}
+void BachPhysicsAdapter::disableVisualizationForAllRigidbodys()
+{
+}
 }  // namespace Physics
 }  // namespace GameEngine

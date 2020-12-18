@@ -82,6 +82,10 @@ void PhysicsVisualizator::UpdatePhycisLineMesh()
             graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
             physicsLineMeshReady_.store(true);
         }
+		else
+		{
+			physicsLineMeshReady_.store(false);
+		}
 
         frameRefreshNumber_ = 0;
     }

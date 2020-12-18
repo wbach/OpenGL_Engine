@@ -185,20 +185,21 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
     impl_->shapes_.insert({id_, Shape()});
     auto& shape = impl_->shapes_.at(id_);
 
-    std::visit(visitor{
-                   [&](const std::vector<uint8>& data) {
-                       shape.shape_.reset(new btHeightfieldTerrainShape(
-                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
-                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
-                   },
-                   [&](const std::vector<float>& data) {
-                       shape.shape_.reset(new btHeightfieldTerrainShape(
-                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
-                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
-                   },
-                   [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
-               },
-               heightMap.GetImage().getImageData());
+    std::visit(
+        visitor{
+            [&](const std::vector<uint8>& data) {
+                shape.shape_.reset(new btHeightfieldTerrainShape(
+                    heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                    heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
+            },
+            [&](const std::vector<float>& data) {
+                shape.shape_.reset(new btHeightfieldTerrainShape(
+                    heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                    heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
+            },
+            [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
+        },
+        heightMap.GetImage().getImageData());
 
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
     float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
@@ -260,6 +261,8 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transfo
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
 
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), &impl_->shapes_.at(shapeId).positionOffset_, shapeId, true};
+    body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() |
+                                         btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 
     if (impl_->shapes_.at(shapeId).setOffsetAsTransformPos_)
     {
@@ -390,11 +393,13 @@ std::optional<Quaternion> BulletAdapter::GetRotation(uint32 rigidBodyId) const
 
 std::optional<common::Transform> BulletAdapter::GetTransfrom(uint32 rigidBodyId) const
 {
-    if (not impl_->rigidBodies.count(rigidBodyId))
+    auto rigidbodyIter = impl_->rigidBodies.find(rigidBodyId);
+
+    if (rigidbodyIter == impl_->rigidBodies.end())
     {
         return std::nullopt;
     }
-    return Convert(impl_->rigidBodies.at(rigidBodyId).btRigidbody_->getWorldTransform());
+    return Convert(rigidbodyIter->second.btRigidbody_->getWorldTransform());
 }
 std::optional<RayHit> BulletAdapter::RayTest(const vec3& from, const vec3& to) const
 {
@@ -410,6 +415,33 @@ std::optional<RayHit> BulletAdapter::RayTest(const vec3& from, const vec3& to) c
     }
 
     return std::nullopt;
+}
+void BulletAdapter::setVisualizatedRigidbody(uint32 rigidBodyId)
+{
+    auto rigidbodyIter = impl_->rigidBodies.find(rigidBodyId);
+
+    if (rigidbodyIter != impl_->rigidBodies.end())
+    {
+        disableVisualizationForAllRigidbodys();
+        auto& body = *rigidbodyIter->second.btRigidbody_;
+        body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
+    }
+}
+void BulletAdapter::enableVisualizationForAllRigidbodys()
+{
+    for (auto& rigidbody : impl_->rigidBodies)
+    {
+        auto& body = *rigidbody.second.btRigidbody_;
+        body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
+    }
+}
+void BulletAdapter::disableVisualizationForAllRigidbodys()
+{
+    for (auto& rigidbody : impl_->rigidBodies)
+    {
+        auto& body = *rigidbody.second.btRigidbody_;
+        body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+    }
 }
 }  // namespace Physics
 

@@ -87,7 +87,7 @@ NetworkEditorInterface::~NetworkEditorInterface()
     cameraEditor.reset();
     KeysUnsubscribe();
     UnsubscribeTransformUpdateIfExist();
-    scene_.renderersManager_->GetDebugRenderer().ClearDebugObjects();
+    scene_.renderersManager_->GetDebugRenderer().clear();
     threadSync_.Unsubscribe(threadId_);
 }
 
@@ -147,6 +147,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("clearAll", ClearAll);
     REGISTER_COMMAND("clearAllGameObjects", ClearAllGameObjects);
     REGISTER_COMMAND("setPhysicsVisualization", SetPhysicsVisualization);
+    REGISTER_COMMAND("setPhysicsVisualizationAllObjects", SetPhysicsVisualizationAllObjcts);
     REGISTER_COMMAND("setNormalsVisualization", SetNormalsVisualization);
     REGISTER_COMMAND("setLineRenderMode", SetLineRenderMode);
     REGISTER_COMMAND("selectGameObject", SelectGameObject);
@@ -724,8 +725,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
             goName = params.at("name");
         }
 
-        auto gameObject = scene_.CreateGameObject(goName);
-        auto gameObjectId = gameObject->GetId();
+        auto gameObject   = scene_.CreateGameObject(goName);
 
         try
         {
@@ -907,6 +907,19 @@ void NetworkEditorInterface::SetSelectedGameObject(GameObject *gameObject)
         }
     }
 
+    if (gameObject)
+    {
+        auto rigidBody = gameObject->GetComponent<Components::Rigidbody>();
+        if (rigidBody)
+        {
+            rigidBody->SetAsVisualizatedObject();
+        }
+        else
+        {
+            scene_.physicsApi_->disableVisualizationForAllRigidbodys();
+        }
+    }
+
     if (sentNotif)
     {
         DebugNetworkInterface::SelectedObjectChanged msg(gameObject ? gameObject->GetId() : 0);
@@ -916,12 +929,20 @@ void NetworkEditorInterface::SetSelectedGameObject(GameObject *gameObject)
     selectedGameObject_ = gameObject;
 }
 
-void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject &)> action)
+void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject &)> action,
+                                                   std::function<void()> notExistAction)
 {
     std::lock_guard<std::mutex> m(selectedGameObjectMutex_);
     if (selectedGameObject_)
     {
         action(*selectedGameObject_);
+    }
+    else
+    {
+        if (notExistAction)
+        {
+            notExistAction();
+        }
     }
 }
 
@@ -975,6 +996,36 @@ void NetworkEditorInterface::SendObjectCreatedNotf(const GameObject &gameObject)
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
 {
     SetDeubgRendererState(DebugRenderer::RenderState::Physics, params);
+}
+
+void NetworkEditorInterface::SetPhysicsVisualizationAllObjcts(const EntryParameters &params)
+{
+    auto enabledPram = params.find("enabled");
+
+    if (enabledPram != params.end())
+    {
+        auto isEabled = Utils::StringToBool(enabledPram->second);
+        if (isEabled)
+        {
+            scene_.physicsApi_->enableVisualizationForAllRigidbodys();
+        }
+        else
+        {
+            UseSelectedGameObject(
+                [&](GameObject &go) {
+                    auto rigidBody = go.GetComponent<Components::Rigidbody>();
+                    if (rigidBody)
+                    {
+                        rigidBody->SetAsVisualizatedObject();
+                    }
+                    else
+                    {
+                        scene_.physicsApi_->disableVisualizationForAllRigidbodys();
+                    }
+                },
+                [&]() { scene_.physicsApi_->disableVisualizationForAllRigidbodys(); });
+        }
+    }
 }
 
 void NetworkEditorInterface::SetNormalsVisualization(const NetworkEditorInterface::EntryParameters &params)
@@ -1142,7 +1193,7 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
     scene_.ClearGameObjects();
 }
 
-DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter, int32& brushSize)
+DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter, int32 &brushSize)
 {
     DebugNetworkInterface::TerrainPainterEnabled msg;
     msg.type               = std::to_string(painter.getPaintType());
@@ -1152,7 +1203,7 @@ DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Pai
     msg.stepInterpolation  = std::to_string(painter.stepInterpolation());
     msg.stepInterpolations = AvaiableStepInterpolationsStrs();
     msg.brushTypes         = painter.avaiableBrushTypes();
-    brushSize = painter.brushSize();
+    brushSize              = painter.brushSize();
     return msg;
 }
 
@@ -1527,7 +1578,7 @@ void NetworkEditorInterface::ChangeGameObjectParent(const EntryParameters &param
             {
                 auto worldPosition = gameObject->GetWorldTransform().GetPosition();
                 auto worldRotation = gameObject->GetWorldTransform().GetRotation();
-                auto worldScale = gameObject->GetWorldTransform().GetScale();
+                auto worldScale    = gameObject->GetWorldTransform().GetScale();
 
                 auto freeGameObject = currentParent->MoveChild(gameObject->GetId());
 
@@ -1659,11 +1710,11 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
 
         if (parentGameObject)
         {
-            result = parentGameObject->GetId();
-            auto go = gameObject.get();
+            result             = parentGameObject->GetId();
+            auto go            = gameObject.get();
             auto worldPosition = gameObject->GetWorldTransform().GetPosition();
             auto worldRotation = gameObject->GetWorldTransform().GetRotation();
-            auto worldScale = gameObject->GetWorldTransform().GetScale();
+            auto worldScale    = gameObject->GetWorldTransform().GetScale();
             parentGameObject->AddChild(std::move(gameObject));
             go->SetWorldPosition(worldPosition);
             go->SetWorldRotation(worldRotation);

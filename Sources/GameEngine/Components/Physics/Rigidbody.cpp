@@ -172,6 +172,13 @@ void Rigidbody::IncreaseVelocity(const vec3& v)
 
     componentContext_.physicsApi_.IncreaseVelocityRigidbody(*rigidBodyId_, v);
 }
+void Rigidbody::SetAsVisualizatedObject()
+{
+    if (rigidBodyId_)
+    {
+        componentContext_.physicsApi_.setVisualizatedRigidbody(*rigidBodyId_);
+    }
+}
 float Rigidbody::GetMass() const
 {
     return mass_;

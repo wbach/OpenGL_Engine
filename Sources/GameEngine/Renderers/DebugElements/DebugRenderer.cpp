@@ -160,6 +160,12 @@ void DebugRenderer::render()
     }
 }
 
+void DebugRenderer::clear()
+{
+    states_.clear();
+    clearDebugObjects();
+}
+
 void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
 {
     if (texturePerObjectUpdateBufferId_)
@@ -236,7 +242,7 @@ const std::vector<DebugRenderer::RenderState>& DebugRenderer::GetStates() const
     return states_;
 }
 
-void DebugRenderer::ClearDebugObjects()
+void DebugRenderer::clearDebugObjects()
 {
     std::lock_guard<std::mutex> lk(debugObjectsMutex_);
     debugObjects_.clear();

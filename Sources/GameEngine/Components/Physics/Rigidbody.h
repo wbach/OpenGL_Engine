@@ -42,6 +42,7 @@ public:
 
     void ApplyImpulse(const vec3&);
     void IncreaseVelocity(const vec3& v);
+    void SetAsVisualizatedObject();
 
     float GetMass() const;
     bool IsStatic() const;
