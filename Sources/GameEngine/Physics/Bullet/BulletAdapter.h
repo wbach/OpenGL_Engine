@@ -29,7 +29,7 @@ public:
     uint32 CreateTerrainColider(const vec3& positionOffset, const HeightMap& heightMap, const vec3& scale) override;
     uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
                               float scaleFactor) override;
-    uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic) override;
+    uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic) override;
     void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
     void ApplyImpulse(uint32 rigidBodyId, const vec3& impulse) override;
     void IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;

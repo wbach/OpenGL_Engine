@@ -6,6 +6,7 @@
 #include <optional>
 #include <vector>
 
+#include "GameEngine/Objects/GameObject.h"
 #include "RayHit.h"
 #include "ShapeType.h"
 #include "Types.h"
@@ -30,7 +31,7 @@ struct IPhysicsApi
     virtual uint32 CreateTerrainColider(const vec3& positionOffset, const HeightMap&, const vec3& scale) = 0;
     virtual uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
                                       const IndicesVector& indicies, float scaleFactor)                  = 0;
-    virtual uint32 CreateRigidbody(uint32 shapeId, common::Transform&, float mass, bool isStatic)        = 0;
+    virtual uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic)               = 0;
     virtual void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)                          = 0;
     virtual void ApplyImpulse(uint32 rigidBodyId, const vec3& impulse)                                   = 0;
     virtual void IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)                     = 0;

@@ -86,8 +86,8 @@ void collision(const Shape& collisionShape, const T& shape)
 class Rigidbody
 {
 public:
-    Rigidbody(common::Transform& transform, float mass, bool isStatic, uint32 shapeId)
-        : transform_(transform)
+    Rigidbody(GameObject& gameObject, float mass, bool isStatic, uint32 shapeId)
+        : gameObject_(gameObject)
         , mass_(mass)
         , isStatic_(isStatic)
         , shapeId_(shapeId)
@@ -95,7 +95,7 @@ public:
     }
 
     vec3 velocity_;
-    common::Transform& transform_;
+    GameObject& gameObject_;
     float mass_;
     bool isStatic_;
     uint32 shapeId_;
@@ -153,7 +153,7 @@ void BachPhysicsAdapter::Simulate()
 
             if (collisionData)
             {
-                rigidbody.second.transform_.SetPosition(collisionData->position_);
+                rigidbody.second.gameObject_.SetWorldPosition(collisionData->position_);
             }
         }
     }
@@ -196,7 +196,7 @@ uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<flo
 {
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)
+uint32 BachPhysicsAdapter::CreateRigidbody(uint32 shapeId, GameObject& transform, float mass, bool isStatic)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, isStatic, shapeId)});
     return impl_->id_++;

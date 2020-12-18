@@ -24,7 +24,7 @@ const float TRANSFROM_CHANGED_EPSILON = std::numeric_limits<float>::epsilon();
 }
 struct Shape
 {
-    std::unique_ptr<btCollisionShape> shape_;
+    std::unique_ptr<btCollisionShape> btShape_;
     btVector3 positionOffset_;
     bool setOffsetAsTransformPos_{false};  // tmp for terrain usage
 };
@@ -66,7 +66,7 @@ struct BulletAdapter::Pimpl
     std::unique_ptr<btDispatcher> btDispacher;
     std::unordered_map<uint32, Rigidbody> rigidBodies;
     std::unordered_map<uint32, Rigidbody> staticRigidBodies;
-    std::unordered_map<uint32, common::Transform*> transforms;
+    std::unordered_map<uint32, GameObject*> gameObjects;
     std::unordered_map<uint32, Shape> shapes_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     std::mutex worldMutex_;
@@ -95,7 +95,7 @@ void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>
         btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
     }
     rigidBodies.erase(id);
-    transforms.erase(id);
+    gameObjects.erase(id);
 }
 BulletAdapter::BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi)
     : simulationStep_(1.f / 60.f)
@@ -127,20 +127,20 @@ void BulletAdapter::Simulate()
 
     for (auto& pair : impl_->rigidBodies)
     {
-        auto& transform = impl_->transforms.at(pair.first);
-        auto& rigidbody = pair.second;
+        auto& gameObject = impl_->gameObjects.at(pair.first);
+        auto& rigidbody  = pair.second;
 
         auto newPosition =
             Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_);
 
         Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
 
-        auto l1 = glm::length(transform->GetPosition() - newPosition);
-        auto l2 = glm::length(transform->GetRotation().value_ - newRotation);
+        auto l1 = glm::length(gameObject->GetWorldTransform().GetPosition() - newPosition);
+        auto l2 = glm::length(gameObject->GetWorldTransform().GetRotation().value_ - newRotation);
 
         if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
         {
-            transform->SetPositionAndRotation(newPosition, newRotation);
+            gameObject->SetWorldPositionRotation(newPosition, newRotation);
         }
     }
 }
@@ -160,14 +160,14 @@ void BulletAdapter::DisableSimulation()
 uint32 BulletAdapter::CreateBoxColider(const vec3& positionOffset, const vec3& size)
 {
     impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).shape_.reset(new btBoxShape(Convert(size)));
+    impl_->shapes_.at(id_).btShape_.reset(new btBoxShape(Convert(size)));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
     return id_++;
 }
 uint32 BulletAdapter::CreateSphereColider(const vec3& positionOffset, float radius)
 {
     impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).shape_.reset(new btSphereShape(radius));
+    impl_->shapes_.at(id_).btShape_.reset(new btSphereShape(radius));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
     return id_++;
 }
@@ -175,7 +175,7 @@ uint32 BulletAdapter::CreateSphereColider(const vec3& positionOffset, float radi
 uint32 BulletAdapter::CreateCapsuleColider(const vec3& positionOffset, float radius, float height)
 {
     impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).shape_.reset(new btCapsuleShape(radius, height));
+    impl_->shapes_.at(id_).btShape_.reset(new btCapsuleShape(radius, height));
     impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
     return id_++;
 }
@@ -185,26 +185,25 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
     impl_->shapes_.insert({id_, Shape()});
     auto& shape = impl_->shapes_.at(id_);
 
-    std::visit(
-        visitor{
-            [&](const std::vector<uint8>& data) {
-                shape.shape_.reset(new btHeightfieldTerrainShape(
-                    heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
-                    heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
-            },
-            [&](const std::vector<float>& data) {
-                shape.shape_.reset(new btHeightfieldTerrainShape(
-                    heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
-                    heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
-            },
-            [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
-        },
-        heightMap.GetImage().getImageData());
+    std::visit(visitor{
+                   [&](const std::vector<uint8>& data) {
+                       shape.btShape_.reset(new btHeightfieldTerrainShape(
+                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
+                   },
+                   [&](const std::vector<float>& data) {
+                       shape.btShape_.reset(new btHeightfieldTerrainShape(
+                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
+                   },
+                   [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
+               },
+               heightMap.GetImage().getImageData());
 
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
     float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
 
-    shape.shape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
+    shape.btShape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
 
     auto offset           = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
     shape.positionOffset_ = Convert(vec3(0, offset, 0));
@@ -230,7 +229,7 @@ uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::
     btConvexShape* tmpshape = new btConvexTriangleMeshShape(trimesh);
     tmpshape->setLocalScaling(btVector3(scaleFactor, scaleFactor, scaleFactor));
 
-    shape.shape_          = std::unique_ptr<btCollisionShape>(tmpshape);
+    shape.btShape_ = std::unique_ptr<btCollisionShape>(tmpshape);
     shape.positionOffset_ = Convert(positionOffset);
 
     btShapeHull* hull = new btShapeHull(tmpshape);
@@ -240,39 +239,40 @@ uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::
 
     return id_++;
 }
-uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, common::Transform& transform, float mass, bool isStatic)
+uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, GameObject& gameObject, float mass, bool isStatic)
 {
-    if (impl_->shapes_.count(shapeId) == 0)
+    auto shapeIter = impl_->shapes_.find(shapeId);
+    if (shapeIter == impl_->shapes_.end())
     {
         return 0;
     }
+    auto& shape               = shapeIter->second;
+    btCollisionShape* btShape = shape.btShape_.get();
 
-    btCollisionShape* shape = impl_->shapes_.at(shapeId).shape_.get();
-    // shape->setLocalScaling(Convert(transform.GetScale()));
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     btVector3 localInertia(0, 0, 0);
+    if (not isStatic)
+    {
+        btShape->calculateLocalInertia(mass, localInertia);
+    }
 
-    if (!isStatic)
-        shape->calculateLocalInertia(mass, localInertia);
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform()));
 
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(Convert(transform));
+    btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
 
-    btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
-
-    Rigidbody body{std::make_unique<btRigidBody>(cInfo), &impl_->shapes_.at(shapeId).positionOffset_, shapeId, true};
+    Rigidbody body{std::make_unique<btRigidBody>(cInfo), &shape.positionOffset_, shapeId, isStatic};
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() |
                                          btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 
-    if (impl_->shapes_.at(shapeId).setOffsetAsTransformPos_)
+    if (shape.setOffsetAsTransformPos_)
     {
         auto worldTransform = body.btRigidbody_->getWorldTransform();
-        worldTransform.setOrigin(impl_->shapes_.at(shapeId).positionOffset_);
+        worldTransform.setOrigin(shape.positionOffset_);
         body.btRigidbody_->setWorldTransform(worldTransform);
     }
     impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
-    impl_->transforms[id_] = &transform;
-
+    impl_->gameObjects.insert({id_, &gameObject});
     return id_++;
 }
 void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)

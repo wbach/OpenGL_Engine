@@ -49,7 +49,7 @@ void Rigidbody::OnAwake()
     }
 
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
-                                                                     thisObject_.GetTransform(), mass_, isStatic_);
+                                                                     thisObject_, mass_, isStatic_);
 
     if (rigidBodyId == 0)
         return;
