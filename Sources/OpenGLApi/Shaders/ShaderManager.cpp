@@ -71,8 +71,14 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     DEBUG_LOG("Create shader, type : " + std::to_string(static_cast<int>(shaderType)));
 
     auto files = GetShaderFiles(shaderType);
+    if (not files)
+    {
+        ERROR_LOG("Expected files not found for shader type " + std::to_string(static_cast<int>(shaderType)));
+        return std::nullopt;
+    }
+
     std::string logFilesString;
-    for (const auto& f : files)
+    for (const auto& f : *files)
     {
         logFilesString += " " + f.second;
     }
@@ -86,10 +92,10 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     auto programId = *program;
     auto uId       = idPool_.ToUint(programId);
 
-    auto shaderName = std::filesystem::path(files.begin()->second).filename().replace_extension("").string();
+    auto shaderName = std::filesystem::path(files->begin()->second).filename().replace_extension("").string();
     shaderPrograms_.insert({uId, OpenGLShaderProgram(programId, shaderName)});
 
-    for (const auto& p : files)
+    for (const auto& p : *files)
     {
         if (not AddShader(shaderPrograms_.at(uId), p.second, p.first))
             return {};
@@ -227,7 +233,7 @@ void ShaderManager::CheckAndPrintGLError(OpenGLShaderProgram& shaderProgram)
     }
 }
 
-GraphicsApi::ShadersFiles ShaderManager::GetShaderFiles(GraphicsApi::ShaderProgramType shaderType)
+std::optional<GraphicsApi::ShadersFiles> ShaderManager::GetShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
     if (useDeprectedShaders_)
     {

@@ -404,7 +404,11 @@ void AddComponent(const Utils::XmlNode& node, GameObject& gameObject)
 
 void Read(Scene& scene, const Utils::XmlNode& node, GameObject& gameObject)
 {
-    Read(*node.GetChild(CSTR_TRANSFORM), gameObject.GetTransform());
+    auto transformNode = node.GetChild(CSTR_TRANSFORM);
+    if (transformNode)
+    {
+        Read(*transformNode, gameObject.GetTransform());
+    }
 
     auto& componentsNode = *node.GetChild(CSTR_COMPONENTS);
 

@@ -176,8 +176,14 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
 // clang-format on
 }  // namespace
 
-GraphicsApi::ShadersFiles GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
+std::optional<GraphicsApi::ShadersFiles> GetSimpleForwardShaderFiles(GraphicsApi::ShaderProgramType shaderType)
 {
-    return simpleForwardShaderFiles.at(shaderType);
+    auto filesIter = simpleForwardShaderFiles.find(shaderType);
+    if (filesIter != simpleForwardShaderFiles.end())
+    {
+        return filesIter->second;
+    }
+
+    return std::nullopt;
 }
 }  // namespace OpenGLApi

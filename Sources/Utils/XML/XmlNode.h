@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 #include <vector>
 
 namespace Utils
@@ -34,27 +35,26 @@ public:
     XmlNode& AddChild(const std::string& name)
     {
         children_.emplace_back(new XmlNode(name));
-        childrenMap_.insert({name, children_.back().get()});
         return *children_.back();
     }
     XmlNode& AddChild(const std::string& name, const std::string& value)
     {
         children_.emplace_back(new XmlNode(name, value));
-        childrenMap_.insert({name, children_.back().get()});
         return *children_.back();
     }
     void AddChild(std::unique_ptr<XmlNode> child)
     {
         children_.push_back(std::move(child));
-        auto ptr = children_.back().get();
-        childrenMap_.insert({ptr->GetName(), ptr});
     }
 
     XmlNode* GetChild(const std::string& name) const
     {
-        if (childrenMap_.count(name))
+        auto childIter = std::find_if(children_.begin(), children_.end(), [&name](const auto& child) {
+            return child->GetName() == name;
+        });
+        if (childIter != children_.end())
         {
-            return childrenMap_.at(name);
+            return childIter->get();
         }
         return nullptr;
     }
@@ -71,7 +71,6 @@ public:
 
 private:
     std::vector<std::unique_ptr<XmlNode>> children_;
-    std::unordered_map<std::string, XmlNode*> childrenMap_;
     std::string name_;
 };
 }  // namespace Utils

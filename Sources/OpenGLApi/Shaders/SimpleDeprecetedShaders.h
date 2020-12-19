@@ -4,5 +4,5 @@
 
 namespace OpenGLApi
 {
-GraphicsApi::ShadersFiles GetSimpleDeprecetedShaders(GraphicsApi::ShaderProgramType shaderType);
+std::optional<GraphicsApi::ShadersFiles> GetSimpleDeprecetedShaders(GraphicsApi::ShaderProgramType shaderType);
 } // namespace OpenGLApi

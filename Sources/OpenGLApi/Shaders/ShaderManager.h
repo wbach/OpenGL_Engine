@@ -35,7 +35,7 @@ private:
     std::optional<GLuint> CreateShaderProgram();
     bool AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode);
     bool FinalizeShader(OpenGLShaderProgram& shaderProgram);
-    GraphicsApi::ShadersFiles GetShaderFiles(GraphicsApi::ShaderProgramType);
+    std::optional<GraphicsApi::ShadersFiles> GetShaderFiles(GraphicsApi::ShaderProgramType);
 
 private:
     bool useDeprectedShaders_;
