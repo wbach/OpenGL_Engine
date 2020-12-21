@@ -39,17 +39,17 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
 
     shadowEnabledSubscriptionId_ =
         EngineConf.renderer.shadows.isEnabled.subscribeForChange([this](const auto& isEnabled) {
-            // be carful to run cleanUp and init resources on gpu thread
-            // if (isEnabled and not isInit())
-            //{
-            //    init();
-            //}
-            // else if (not isEnabled and isInit())
-            //{
-            //    cleanUp();
-            //}
-
-            isActive_ = isEnabled;
+            context_.gpuLoader_.AddFunctionToCall([this, isEnabled]() {
+                if (isEnabled and not isInit())
+                {
+                    init();
+                }
+                else if (not isEnabled and isInit())
+                {
+                    cleanUp();
+                }
+                isActive_ = isEnabled;
+            });
         });
 }
 
@@ -126,6 +126,7 @@ void ShadowMapRenderer::cleanUp()
     if (perFrameBuffer_)
     {
         context_.graphicsApi_.DeleteShaderBuffer(*perFrameBuffer_);
+        perFrameBuffer_ = std::nullopt;
     }
 
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
@@ -133,6 +134,7 @@ void ShadowMapRenderer::cleanUp()
         if (shadowFrameBuffer_[cascadeIndex])
         {
             context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer_[cascadeIndex]);
+            shadowFrameBuffer_[cascadeIndex] = nullptr;
         }
     }
 }

@@ -63,6 +63,11 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
+bool Is(float v)
+{
+    return v > 0.5f;
+}
+
 float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 positionInLightSpace)
 {
     float texelSize = 1.f / fs_in.shadowMapSize;
@@ -101,6 +106,9 @@ float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 position
 
 float CalculateShadowFactor()
 {
+    if (!Is(perApp.shadowVariables.x))
+        return 1.f;
+
     if (shadowsBuffer.cascadesSize > 0)
     {
         if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.x && shadowsBuffer.cascadesSize >= 1)
@@ -135,11 +143,6 @@ vec4 CalcBumpedNormal(vec2 text_coords)
     vec3 bumpMapNormal = texture(NormalMap, text_coords).xyz;
     bumpMapNormal = bumpMapNormal * 2.f - 1.f;
     return vec4(normalize(fs_in.tbn * bumpMapNormal) , 1.f);
-}
-
-bool Is(float v)
-{
-    return v > 0.5f;
 }
 
 bool NormalMaping()
