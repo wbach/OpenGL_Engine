@@ -21,6 +21,16 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , isFullScreen_(EngineConf.window.fullScreen)
     , windowsSize_(EngineConf.window.size)
 {
+    changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange([this](const auto& newSize)
+    {
+        graphicsApi_.GetWindowApi().SetWindowSize(newSize);
+    });
+
+    changeFullScreenSubscription_ = EngineConf.window.fullScreen.subscribeForChange([this](const auto& newValue)
+    {
+        SetFullScreen(newValue);
+    });
+
     auto windowType =
         EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
@@ -47,6 +57,9 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
 
 DisplayManager::~DisplayManager()
 {
+    EngineConf.window.size.unsubscribe(changeWindowSizeSubscription_);
+    EngineConf.window.fullScreen.unsubscribe(changeFullScreenSubscription_);
+
     DEBUG_LOG("destructor");
     graphicsApi_.DeleteContext();
 }

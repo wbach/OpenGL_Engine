@@ -112,6 +112,9 @@ void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint
 
     ::ShowWindow(impl_->directXContext_.mainWindow, SW_SHOWDEFAULT);
 }
+void WinApi::SetWindowSize(const vec2ui&)
+{
+}
 void WinApi::CreateContext()
 {
 }

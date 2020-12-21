@@ -14,6 +14,7 @@ public:
     void Init() override;
     void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                           GraphicsApi::WindowType full_screen) override;
+    void SetWindowSize(const vec2ui&) override;
     void CreateContext() override;
     void DeleteContext() override;
 

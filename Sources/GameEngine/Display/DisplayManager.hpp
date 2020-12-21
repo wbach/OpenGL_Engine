@@ -45,6 +45,9 @@ private:
     bool sync_;
     bool isFullScreen_;
     vec2ui windowsSize_;
+
+    IdType changeWindowSizeSubscription_;
+    IdType changeFullScreenSubscription_;
 };
 
 const Time& DisplayManager::GetTime() const

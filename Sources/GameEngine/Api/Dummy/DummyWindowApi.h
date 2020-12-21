@@ -18,6 +18,9 @@ public:
     virtual void CreateGameWindow(const std::string&, uint32, uint32, GraphicsApi::WindowType) override
     {
     }
+    void SetWindowSize(const vec2ui&) override
+    {
+    }
     virtual void CreateContext() override
     {
     }
