@@ -43,13 +43,11 @@ void WaterRenderer::init()
             context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
 
-    if (useReflectionRefractionTextures())
-        waterReflectionRefractionRenderer_.init();
+    waterReflectionRefractionRenderer_.init();
 }
 void WaterRenderer::prepare()
 {
-    if (useReflectionRefractionTextures())
-        waterReflectionRefractionRenderer_.prepare();
+    waterReflectionRefractionRenderer_.prepare();
 }
 void WaterRenderer::render()
 {
@@ -71,14 +69,6 @@ void WaterRenderer::render()
             context_.graphicsApi_.BindShaderBuffer(*perObjectBufferId);
         }
 
-        waterTileMeshBuffer.tiledValue =
-            DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
-        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(context_.time_.deltaTime * WAVE_SPEED);
-        waterTileMeshBuffer.waterColor = component.GetWaterColor();
-
-        context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
-        context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
-
         const auto waterTextures = waterReflectionRefractionRenderer_.GetWaterTextures(subscriber.first);
 
         if (waterTextures)
@@ -91,7 +81,21 @@ void WaterRenderer::render()
 
             if (waterTextures->waterRefractionDepthTextureId)
                 context_.graphicsApi_.ActiveTexture(2, *waterTextures->waterRefractionDepthTextureId);
+
+            waterTileMeshBuffer.isSimpleRender = 0.f;
         }
+        else
+        {
+            waterTileMeshBuffer.isSimpleRender = 1.f;
+        }
+
+        waterTileMeshBuffer.tiledValue =
+            DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
+        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(context_.time_.deltaTime * WAVE_SPEED);
+        waterTileMeshBuffer.waterColor = component.GetWaterColor();
+
+        context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
+        context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 
         if (component.GetNormalTexture() and component.GetNormalTexture()->GetGraphicsObjectId())
             context_.graphicsApi_.ActiveTexture(3, *component.GetNormalTexture()->GetGraphicsObjectId());
@@ -103,12 +107,6 @@ void WaterRenderer::render()
     }
     context_.graphicsApi_.DisableBlend();
 }
-bool WaterRenderer::useReflectionRefractionTextures()
-{
-    const auto& waterType = *EngineConf.renderer.water.type;
-    return (waterType == GameEngine::Params::WaterType::REFLECTED_REFRACTED or
-            waterType == GameEngine::Params::WaterType::FULL);
-}
 PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
 {
     return {context_.graphicsApi_.PrepareMatrixToLoad(
@@ -116,8 +114,7 @@ PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, co
 }
 void WaterRenderer::subscribe(GameObject& gameObject)
 {
-    if (useReflectionRefractionTextures())
-        waterReflectionRefractionRenderer_.subscribe(gameObject);
+    waterReflectionRefractionRenderer_.subscribe(gameObject);
 
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
@@ -130,8 +127,7 @@ void WaterRenderer::subscribe(GameObject& gameObject)
 }
 void WaterRenderer::unSubscribe(GameObject& gameObject)
 {
-    if (useReflectionRefractionTextures())
-        waterReflectionRefractionRenderer_.unSubscribe(gameObject);
+    waterReflectionRefractionRenderer_.unSubscribe(gameObject);
 
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
 
@@ -142,14 +138,12 @@ void WaterRenderer::unSubscribe(GameObject& gameObject)
 }
 void WaterRenderer::unSubscribeAll()
 {
-    if (useReflectionRefractionTextures())
-        waterReflectionRefractionRenderer_.unSubscribeAll();
+    waterReflectionRefractionRenderer_.unSubscribeAll();
     subscribers_.clear();
 }
 void WaterRenderer::reloadShaders()
 {
-    if (useReflectionRefractionTextures())
-        waterReflectionRefractionRenderer_.reloadShaders();
+    waterReflectionRefractionRenderer_.reloadShaders();
     shader_.Reload();
 }
 }  // namespace GameEngine

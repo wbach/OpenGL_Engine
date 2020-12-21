@@ -34,7 +34,6 @@ public:
     void render() override;
 
 private:
-    bool useReflectionRefractionTextures();
     PerObjectUpdate CalculateTransformMatrix(const vec3&, const vec3&) const;
 
 private:

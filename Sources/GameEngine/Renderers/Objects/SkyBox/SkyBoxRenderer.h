@@ -29,11 +29,14 @@ class SkyBoxRenderer
 {
 public:
     SkyBoxRenderer(RendererContext&);
+    ~SkyBoxRenderer();
+
     void init();
     void subscribe(GameObject&);
     void unSubscribe(GameObject&);
     void unSubscribeAll();
     void render();
+    void cleanUp();
 
 private:
     void BindTextures(const SkyBoxSubscriber& sub) const;

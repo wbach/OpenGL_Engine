@@ -43,12 +43,13 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
                 if (isEnabled and not isInit())
                 {
                     init();
+                    isActive_ = true;
                 }
                 else if (not isEnabled and isInit())
                 {
+                    isActive_ = false;
                     cleanUp();
                 }
-                isActive_ = isEnabled;
             });
         });
 }

@@ -81,12 +81,12 @@ void main(void)
     vec4 normalMapValue = texture(normalMap, distortedTexCoords);
     vec3 normal = calculateNormal(normalMapValue);
 
-    // if (Is(perMeshObject.isSimpleRender))
-    // {
-    //         DiffuseOut       = vec4(perMeshObject.waterColor.xyz, 0.5f) ;//* normalMapValue;
-    //         NormalOut        = vec4(normal, 1.f);
-    //         return;
-    // }
+    if (Is(perMeshObject.isSimpleRender))
+    {
+        DiffuseOut       = vec4(perMeshObject.waterColor.xyz, 0.5f) ;//* normalMapValue;
+        NormalOut        = vec4(normal, 1.f);
+        return;
+    }
 
     float waterDepth = calculateWaterDepth(refractTexCoords);
     float edgesFactor    = calculateEdgesFactor(waterDepth);

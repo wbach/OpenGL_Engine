@@ -20,32 +20,136 @@ WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererCon
     , entityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwadEntity)
     , terrainShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwardTerrainMesh)
     , skyBoxShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::ForwardSkyBox)
+    , isInit_(false)
+    , isActive_(true)
 {
+    enabledSubscriptionId_ = EngineConf.renderer.water.type.subscribeForChange([this](const auto& waterType) {
+        context_.gpuLoader_.AddFunctionToCall([this, waterType]() {
+            if (waterType == Params::WaterType::FULL or waterType == Params::WaterType::REFLECTED_REFRACTED)
+            {
+                initResources();
+                isActive_ = true;
+            }
+            else
+            {
+                isActive_ = false;
+                cleanUp();
+            }
+        });
+    });
 }
 WaterReflectionRefractionRenderer::~WaterReflectionRefractionRenderer()
 {
+    EngineConf.renderer.water.type.unsubscribe(enabledSubscriptionId_);
+    cleanUp();
 }
 void WaterReflectionRefractionRenderer::init()
 {
+    auto waterType = *EngineConf.renderer.water.type;
+    if (waterType == Params::WaterType::FULL or waterType == Params::WaterType::REFLECTED_REFRACTED)
+        initResources();
+}
+
+void WaterReflectionRefractionRenderer::initResources()
+{
+    if (isInit_)
+        return;
+
     entityShader_.Init();
+    if (not entityShader_.IsReady())
+    {
+        cleanUp();
+        return;
+    }
+
     terrainShader_.Init();
+    if (not terrainShader_.IsReady())
+    {
+        cleanUp();
+        return;
+    }
+
     skyBoxShader_.Init();
+    if (not skyBoxShader_.IsReady())
+    {
+        cleanUp();
+        return;
+    }
+
     skyBoxRenderer_.init();
+    if (not skyBoxShader_.IsReady())
+    {
+        cleanUp();
+        return;
+    }
 
     if (not reflectionPerFrameBuffer_)
     {
         reflectionPerFrameBuffer_ =
             context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+
+        if (not reflectionPerFrameBuffer_)
+        {
+            cleanUp();
+            return;
+        }
     }
 
     if (not refractionPerFrameBuffer_)
     {
         refractionPerFrameBuffer_ =
             context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+
+        if (not refractionPerFrameBuffer_)
+        {
+            cleanUp();
+            return;
+        }
     }
+
+    isInit_ = true;
+}
+
+void WaterReflectionRefractionRenderer::cleanUp()
+{
+    entityShader_.Clear();
+    terrainShader_.Clear();
+    skyBoxShader_.Clear();
+    skyBoxRenderer_.cleanUp();
+
+    if (reflectionPerFrameBuffer_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*reflectionPerFrameBuffer_);
+        reflectionPerFrameBuffer_ = std::nullopt;
+    }
+
+    if (refractionPerFrameBuffer_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*refractionPerFrameBuffer_);
+        refractionPerFrameBuffer_ = std::nullopt;
+    }
+
+    for (auto& sub : subscribers_)
+    {
+        sub.second.waterFboPositionY = std::nullopt;
+    }
+
+    for (auto& waterFbo : waterFbos_)
+    {
+        if (waterFbo.reflectionFrameBuffer_)
+            context_.graphicsApi_.DeleteFrameBuffer(*waterFbo.reflectionFrameBuffer_);
+        if (waterFbo.refractionFrameBuffer_)
+            context_.graphicsApi_.DeleteFrameBuffer(*waterFbo.refractionFrameBuffer_);
+    }
+    waterFbos_.clear();
+
+    isInit_ = false;
 }
 void WaterReflectionRefractionRenderer::prepare()
 {
+    if (not isInit_ or not isActive_)
+        return;
+
     context_.graphicsApi_.EnableDepthTest();
     context_.graphicsApi_.EnableClipingPlane(0);
 
@@ -120,6 +224,9 @@ void WaterReflectionRefractionRenderer::reloadShaders()
 WaterReflectionRefractionRenderer::WaterTextures* WaterReflectionRefractionRenderer::GetWaterTextures(
     uint32 gameObjectId) const
 {
+    if (not isActive_)
+        return nullptr;
+
     auto iter = subscribers_.find(gameObjectId);
     return iter != subscribers_.end() ? iter->second.waterTextures_ : nullptr;
 }
@@ -168,7 +275,6 @@ void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo)
     context_.graphicsApi_.SetViewPort(0, 0, renderSize.x, renderSize.y);
 
     auto& camera              = context_.scene_->GetCamera();
-    float waterTilePositionY  = fbo.positionY;
     auto projectionViewMatrix = context_.projection_.GetProjectionMatrix() * camera.GetViewMatrix();
 
     PerFrameBuffer perFrameBuffer;
@@ -252,15 +358,15 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
     auto currentPositionY = subscriber.gameObject.GetWorldTransform().GetPosition().y;
 
     WaterFbo* fbo{nullptr};
-    if (subscriber.positionY)
+    if (subscriber.waterFboPositionY)
     {
-        if (compare(*subscriber.positionY, currentPositionY, POSITION_EPSILON))
+        if (compare(*subscriber.waterFboPositionY, currentPositionY, POSITION_EPSILON))
         {
             fbo = findFbo(currentPositionY);
         }
         else
         {
-            fbo = findFbo(*subscriber.positionY);
+            fbo = findFbo(*subscriber.waterFboPositionY);
             if (fbo->usingByObjects.size() > 1)
             {
                 fbo->usingByObjects.erase(gameObjectId);
@@ -269,13 +375,13 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
                 if (fbo)
                 {
                     fbo->usingByObjects.insert(gameObjectId);
-                    subscriber.positionY = currentPositionY;
+                    subscriber.waterFboPositionY = currentPositionY;
                 }
             }
             else
             {
                 fbo->positionY       = currentPositionY;
-                subscriber.positionY = currentPositionY;
+                subscriber.waterFboPositionY = currentPositionY;
             }
         }
     }
@@ -292,7 +398,7 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
             if (fbo)
             {
                 fbo->usingByObjects.insert(gameObjectId);
-                subscriber.positionY = currentPositionY;
+                subscriber.waterFboPositionY = currentPositionY;
             }
         }
     }

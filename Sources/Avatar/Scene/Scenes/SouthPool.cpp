@@ -64,9 +64,17 @@ int SouthPool::Initialize()
         }
     });
 
+    //inputManager_->SubscribeOnKeyDown(KeyCodes::TAB, [&]() {
+    //    auto state = *EngineConf.renderer.shadows.isEnabled;
+    //    EngineConf.renderer.shadows.isEnabled.set(not state);
+    //});
+
     inputManager_->SubscribeOnKeyDown(KeyCodes::TAB, [&]() {
-        auto state = *EngineConf.renderer.shadows.isEnabled;
-        EngineConf.renderer.shadows.isEnabled.set(not state);
+        auto state = *EngineConf.renderer.water.type;
+        if (state == GameEngine::Params::WaterType::FULL)
+            EngineConf.renderer.water.type.set(GameEngine::Params::WaterType::SIMPLE);
+        else
+            EngineConf.renderer.water.type.set(GameEngine::Params::WaterType::FULL);
     });
 
     guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {

@@ -51,7 +51,7 @@ public:
     {
         GameObject& gameObject;
         WaterTextures* waterTextures_{nullptr};
-        std::optional<float> positionY;
+        std::optional<float> waterFboPositionY;
     };
 
     WaterReflectionRefractionRenderer(RendererContext&);
@@ -68,7 +68,8 @@ public:
 
 private:
     GraphicsApi::IFrameBuffer* createWaterFbo(const vec2ui&);
-
+    void initResources();
+    void cleanUp();
     void renderScene();
     void createRefractionTexture(WaterFbo&);
     void createReflectionTexture(WaterFbo&);
@@ -94,5 +95,9 @@ private:
     std::unordered_map<uint32, Subscriber> subscribers_;
 
     std::mutex subscriberMutex_;
+    IdType enabledSubscriptionId_;
+
+    bool isInit_;
+    bool isActive_;
 };
 }  // namespace GameEngine

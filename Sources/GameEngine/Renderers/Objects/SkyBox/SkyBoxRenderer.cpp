@@ -22,6 +22,11 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
 {
 }
 
+SkyBoxRenderer::~SkyBoxRenderer()
+{
+    cleanUp();
+}
+
 void SkyBoxRenderer::init()
 {
     if (not perObjectUpdateId_)
@@ -39,6 +44,20 @@ void SkyBoxRenderer::init()
     }
     // max size : skybox width <= (2 * sqrt(3) / 3)
     scale_ = vec3(context_.projection_.GetViewDistance() * sqrtf(3) / 3.f);
+}
+
+void SkyBoxRenderer::cleanUp()
+{
+    if (perObjectUpdateId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perObjectUpdateId_);
+        perObjectUpdateId_ = std::nullopt;
+    }
+    if (perMeshObjectId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perMeshObjectId_);
+        perMeshObjectId_ = std::nullopt;
+    }
 }
 
 void SkyBoxRenderer::prepareToRendering()
