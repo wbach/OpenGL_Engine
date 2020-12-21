@@ -12,7 +12,7 @@ namespace WBLoader
 {
 namespace
 {
-const char* clusterModes[] = {"Normalize", "Additive", "Total1"};
+//const char* clusterModes[] = {"Normalize", "Additive", "Total1"};
 std::unordered_map<std::string, mat4*> boneMatrixes;
 }  // namespace
 vec3 convert(const FbxVector4& v)

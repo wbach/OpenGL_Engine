@@ -22,7 +22,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
     {
         rendererComponent->UpdateBuffers();
 
-        auto subscribtionId = gameObject->SubscribeOnWorldTransfomChange(
+        gameObject->SubscribeOnWorldTransfomChange(
             [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable {
                 AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent));
             });

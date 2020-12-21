@@ -17,7 +17,7 @@ public:
     ~WinApi() override;
     void Init() override;
     void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                              GraphicsApi::WindowType full_screen) override;
+                          GraphicsApi::WindowType full_screen) override;
     void CreateContext() override;
     void DeleteContext() override;
 
@@ -34,6 +34,8 @@ public:
 
     void ShowMessageBox(const std::string&, const std::string&) const override;
     void ShowMessageBox(const std::string&, const std::string&, std::function<void(bool)>) const override;
+
+    const std::vector<GraphicsApi::DisplayMode>& GetDisplayModes() const override;
 
 private:
     uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;
@@ -52,5 +54,6 @@ private:
     bool fullScreenActive;
 
     std::function<void(uint32, uint32)> addKeyEvent_;
+    std::vector<GraphicsApi::DisplayMode> dispalyModes_;
 };
 }  // namespace DirectX

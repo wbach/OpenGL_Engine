@@ -363,14 +363,15 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(visitor{
-                           [&](const std::vector<uint8>& data) {
-                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                           },
-                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                       },
-                       image.getImageData());
+            std::visit(
+                visitor{
+                    [&](const std::vector<uint8>& data) {
+                        Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                    },
+                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                },
+                image.getImageData());
         }
     }
 }
@@ -441,6 +442,8 @@ void Create(XmlNode& node, const Components::IComponent& component)
             break;
         case Components::ComponentsType::PlayerInputController:
             CreateComponent<Components::PlayerInputController>(node, component);
+            break;
+        default:
             break;
     }
 }

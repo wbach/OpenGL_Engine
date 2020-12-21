@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <optional>
+#include <vector>
 
 #include "ApiMessages.h"
 #include "Surface.h"
@@ -14,6 +15,14 @@ class InputManager;
 
 namespace GraphicsApi
 {
+struct DisplayMode
+{
+    int w;
+    int h;
+    int refreshRate;
+    int displayIndex;
+};
+
 class IWindowApi
 {
 public:
@@ -34,6 +43,7 @@ public:
     virtual void ShowMessageBox(const std::string& title, const std::string& message) const                     = 0;
     virtual void ShowMessageBox(const std::string& title, const std::string& message,
                                 std::function<void(bool)>) const                                                = 0;
+    virtual const std::vector<DisplayMode>& GetDisplayModes() const                                             = 0;
     // Take time function to lock fps, shuld be on begin main loop
     virtual void BeginFrame() = 0;
 };

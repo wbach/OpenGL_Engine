@@ -23,5 +23,6 @@ public:
     MOCK_METHOD0(BeginFrame, void());
     MOCK_CONST_METHOD2(ShowMessageBox, void(const std::string &, const std::string &));
     MOCK_CONST_METHOD3(ShowMessageBox, void(const std::string &, const std::string &, std::function<void(bool)>));
+    MOCK_CONST_METHOD0(GetDisplayModes, const std::vector<DisplayMode>&());
 };
 }  // namespace GraphicsApi

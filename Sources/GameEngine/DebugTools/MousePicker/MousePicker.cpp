@@ -112,8 +112,7 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
         if (not renderComponent)
             continue;
 
-        auto model = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-
+        //auto model = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
         //auto localBoundingBox = model->getBoundingBox();
         //BoundingBox worldBoundingBox;
         //worldBoundingBox.min(object->GetWorldTransform().GetMatrix() * vec4(localBoundingBox.min(), 1.f));

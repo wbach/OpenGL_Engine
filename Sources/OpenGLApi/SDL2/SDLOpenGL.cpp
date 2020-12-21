@@ -7,6 +7,7 @@
 #include "InputSDL.h"
 #include "Logger/Log.h"
 
+#include <iostream>
 /*
 SDL_INIT_TIMER	Initializes the timer subsystem.
 SDL_INIT_AUDIO	Initializes the audio subsystem.
@@ -22,14 +23,12 @@ namespace OpenGLApi
 {
 #ifndef USE_GNU
 const SDL_MessageBoxButtonData buttons[] = {
-    {/* .flags, .buttonid, .text */ 0, 0, "no"},
-    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"}
- //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
+    {/* .flags, .buttonid, .text */ 0, 0, "no"}, {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"}
+    //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
 };
 #else
-    const SDL_MessageBoxButtonData buttons[] = {
-    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"},
-    {/* .flags, .buttonid, .text */ 0, 0, "no"}
+const SDL_MessageBoxButtonData buttons[] = {
+    {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "yes"}, {/* .flags, .buttonid, .text */ 0, 0, "no"}
     //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
 };
 #endif
@@ -71,6 +70,7 @@ SdlOpenGlApi::~SdlOpenGlApi()
 void SdlOpenGlApi::Init()
 {
     SDL_Init(SDL_INIT_VIDEO);
+    FillDisplayModes();
 }
 
 void SdlOpenGlApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
@@ -142,7 +142,8 @@ void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& m
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title.c_str(), message.c_str(), nullptr);
 }
 
-void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& msg, std::function<void(bool)> selectedFunc) const
+void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& msg,
+                                  std::function<void(bool)> selectedFunc) const
 {
     const SDL_MessageBoxData messageboxdata = {
         SDL_MESSAGEBOX_INFORMATION, /* .flags */
@@ -151,7 +152,7 @@ void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& m
         msg.c_str(),                /* .message */
         SDL_arraysize(buttons),     /* .numbuttons */
         buttons,                    /* .buttons */
-        nullptr     //&colorScheme  /* .colorScheme */
+        nullptr                     //&colorScheme  /* .colorScheme */
     };
     int buttonid;
     if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
@@ -161,6 +162,30 @@ void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& m
     }
 
     selectedFunc(buttonid == 1);
+}
+
+const std::vector<GraphicsApi::DisplayMode>& SdlOpenGlApi::GetDisplayModes() const
+{
+    return displayModes_;
+}
+
+void SdlOpenGlApi::FillDisplayModes()
+{
+    auto displayCount = SDL_GetNumVideoDisplays();
+
+    for (int displayIndex = 0; displayIndex < displayCount; ++displayIndex)
+    {
+        SDL_DisplayMode mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+        for (int modeIndex = 0; modeIndex < SDL_GetNumDisplayModes(displayIndex); ++modeIndex)
+        {
+            if (SDL_GetDisplayMode(displayIndex, modeIndex, &mode) != 0)
+            {
+                ERROR_LOG("SDL_GetDisplayMode failed: " + SDL_GetError());
+                continue;
+            }
+            displayModes_.push_back({mode.w, mode.h, mode.refresh_rate, displayIndex});
+        }
+    }
 }
 
 uint32 SdlOpenGlApi::CreateWindowFlags(GraphicsApi::WindowType type) const

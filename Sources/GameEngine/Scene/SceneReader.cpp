@@ -475,6 +475,8 @@ void Read(Scene& scene, const Utils::XmlNode& node, GameObject& gameObject)
             case Components::ComponentsType::PlayerInputController:
                 AddComponent<Components::PlayerInputController>(*component, gameObject);
                 break;
+            default:
+                break;
         }
     }
     auto childrenNode = node.GetChild(CSTR_CHILDREN);

@@ -8,7 +8,8 @@ class DummyWindowApi : public GraphicsApi::IWindowApi
 {
 public:
     DummyWindowApi()
-        :time(0.f)
+        : time(0.f)
+        , displayModes_{{640, 480, 60, 0}}
     {
     }
     virtual void Init() override
@@ -63,7 +64,13 @@ public:
         func(true);
     }
 
+    const std::vector<GraphicsApi::DisplayMode>& GetDisplayModes() const override
+    {
+        return displayModes_;
+    }
+
 private:
     float time;
+    std::vector<GraphicsApi::DisplayMode> displayModes_;
 };
 }  // namespace GameEngine

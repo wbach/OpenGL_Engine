@@ -1,10 +1,10 @@
 
+#include "WinApi.h"
 #include <D3D11.h>
+#include <Logger/Log.h>
 #include <Windows.h>
 #include "DirectXApi/DirectXContext.h"
-#include "WinApi.h"
 #include "XInput/XInputManager.h"
-#include <Logger/Log.h>
 
 #undef CreateWindow
 
@@ -91,9 +91,10 @@ WinApi::~WinApi()
 void WinApi::Init()
 {
     RegiesterWindowClass();
+    dispalyModes_ = {{640, 480, 60, 0}, {1280, 800, 60, 0}, {1366, 768, 60, 0}, {1920, 1080, 60, 0}};
 }
 void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                          GraphicsApi::WindowType full_screen)
+                              GraphicsApi::WindowType full_screen)
 {
     RECT r{0, 0, width, height};
     impl_->rect_ = r;
@@ -217,5 +218,9 @@ void WinApi::ShowMessageBox(const std::string& title, const std::string& msg, st
 {
     int msgboxID = MessageBox(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_YESNO);
     func(msgboxID == IDYES);
+}
+const std::vector<GraphicsApi::DisplayMode>& WinApi::GetDisplayModes() const
+{
+    return dispalyModes_;
 }
 }  // namespace DirectX

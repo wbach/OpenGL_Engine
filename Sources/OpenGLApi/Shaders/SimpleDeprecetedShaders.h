@@ -1,6 +1,7 @@
 #pragma once
 #include "GraphicsApi/ShaderFiles.h"
 #include "GraphicsApi/ShaderProgramType.h"
+#include <optional>
 
 namespace OpenGLApi
 {
