@@ -14,7 +14,7 @@ namespace Physics
 class BulletAdapter : public IPhysicsApi
 {
 public:
-    BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi);
+    BulletAdapter();
     ~BulletAdapter() override;
 
     void Simulate() override;

@@ -24,8 +24,8 @@ const std::string CSTR_RENDERER_TYPE                   = "type";
 const std::string CSTR_RENDERER_VIEW_DISTANCE          = "viewDistance";
 const std::string CSTR_RENDERER_NORMALMAPPING_DISTANCE = "normalMappingDistance";
 const std::string CSTR_RENDERER_FPS_LIMIT              = "fpsLimit";
-const std::string CSTR_RENDERER_FPS_RESOLUTION_X       = "resolutionX";
-const std::string CSTR_RENDERER_FPS_RESOLUTION_Y       = "resolutionY";
+const std::string CSTR_RENDERER_RESOLUTION_X           = "resolutionX";
+const std::string CSTR_RENDERER_RESOLUTION_Y           = "resolutionY";
 // Shadows
 const std::string CSTR_SHADOWS                   = "Shadows";
 const std::string CSTR_SHADOWS_ENABLED           = "enabled";

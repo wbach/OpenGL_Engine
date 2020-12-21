@@ -164,7 +164,7 @@ void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo)
     if (not fbo.refractionFrameBuffer_)
         return;
 
-    auto renderSize = EngineConf.renderer.water.waterRefractionResolution;
+    const auto& renderSize = *EngineConf.renderer.water.waterRefractionResolution;
     context_.graphicsApi_.SetViewPort(0, 0, renderSize.x, renderSize.y);
 
     auto& camera              = context_.scene_->GetCamera();
@@ -194,7 +194,7 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo)
     if (not fbo.reflectionFrameBuffer_)
         return;
 
-    auto renderSize = EngineConf.renderer.water.waterReflectionResolution;
+    const auto& renderSize = *EngineConf.renderer.water.waterRefractionResolution;
     context_.graphicsApi_.SetViewPort(0, 0, renderSize.x, renderSize.y);
 
     auto& camera = context_.scene_->GetCamera();

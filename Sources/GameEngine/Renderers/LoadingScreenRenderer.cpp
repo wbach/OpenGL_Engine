@@ -24,7 +24,8 @@ void LoadingScreenRenderer::init()
 {
     shader_.Init();
     CreateBuffers();
-    graphicsApi_.SetViewPort(0, 0, EngineConf.window.size.x, EngineConf.window.size.y);
+    const auto& windowSize = EngineConf.window.size.get();
+    graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
 }
 
 void LoadingScreenRenderer::render()

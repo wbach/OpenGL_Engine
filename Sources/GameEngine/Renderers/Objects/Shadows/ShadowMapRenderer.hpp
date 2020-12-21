@@ -39,6 +39,7 @@ public:
     void prepare() override;
 
 private:
+    void cleanUp();
     void renderScene();
     bool isInit() const;
     void prepareFrameBuffer();
@@ -56,5 +57,8 @@ private:
     ShadowsBuffer buffer_;
     GraphicsApi::ID perFrameBuffer_;
     GraphicsApi::IFrameBuffer* shadowFrameBuffer_[Params::MAX_SHADOW_MAP_CASADES];
+
+    bool isActive_;
+    IdType shadowEnabledSubscriptionId_;
 };
 }  // namespace GameEngine

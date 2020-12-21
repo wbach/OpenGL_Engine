@@ -105,7 +105,7 @@ void WaterRenderer::render()
 }
 bool WaterRenderer::useReflectionRefractionTextures()
 {
-    auto waterType = EngineConf.renderer.water.type;
+    const auto& waterType = *EngineConf.renderer.water.type;
     return (waterType == GameEngine::Params::WaterType::REFLECTED_REFRACTED or
             waterType == GameEngine::Params::WaterType::FULL);
 }

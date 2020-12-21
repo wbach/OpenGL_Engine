@@ -39,8 +39,7 @@ struct Rigidbody
 
 struct BulletAdapter::Pimpl
 {
-    Pimpl(GraphicsApi::IGraphicsApi& graphicsApi)
-        : graphicsApi_(graphicsApi)
+    Pimpl()
     {
         collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
         btDispacher            = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
@@ -68,7 +67,6 @@ struct BulletAdapter::Pimpl
     std::unordered_map<uint32, Rigidbody> staticRigidBodies;
     std::unordered_map<uint32, GameObject*> gameObjects;
     std::unordered_map<uint32, Shape> shapes_;
-    GraphicsApi::IGraphicsApi& graphicsApi_;
     std::mutex worldMutex_;
 };
 void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody)
@@ -97,12 +95,12 @@ void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>
     rigidBodies.erase(id);
     gameObjects.erase(id);
 }
-BulletAdapter::BulletAdapter(GraphicsApi::IGraphicsApi& graphicsApi)
+BulletAdapter::BulletAdapter()
     : simulationStep_(1.f / 60.f)
     , simualtePhysics_(true)
     , id_(1)
 {
-    impl_.reset(new Pimpl(graphicsApi));
+    impl_.reset(new Pimpl());
 }
 BulletAdapter::~BulletAdapter()
 {
@@ -249,7 +247,7 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, GameObject& gameObject, fl
     auto& shape               = shapeIter->second;
     btCollisionShape* btShape = shape.btShape_.get();
 
-    btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
+    btAssert((!btShape || btShape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     btVector3 localInertia(0, 0, 0);
     if (not isStatic)

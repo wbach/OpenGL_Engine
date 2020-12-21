@@ -20,12 +20,10 @@ public:
 
     void Init() override;
     void Reload() override;
+    void Clear() override;
     bool IsReady() const override;
     void Start() const override;
     void Stop() const override;
-
-private:
-    void Clear();
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;

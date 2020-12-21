@@ -7,8 +7,8 @@
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <GameEngine/Renderers/RenderersManager.h>
-#include <GameEngine/Resources/Textures/HeightMap.h>
 #include <GameEngine/Resources/ResourceManager.h>
+#include <GameEngine/Resources/Textures/HeightMap.h>
 
 #include <Thread.hpp>
 
@@ -32,7 +32,7 @@ int SouthPool::Initialize()
 {
     DEBUG_LOG("SouthPool::Initialize()");
 
-    //resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
+    // resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
     //                                                     "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
@@ -62,6 +62,11 @@ int SouthPool::Initialize()
         {
             camera.Unlock();
         }
+    });
+
+    inputManager_->SubscribeOnKeyDown(KeyCodes::TAB, [&]() {
+        auto state = *EngineConf.renderer.shadows.isEnabled;
+        EngineConf.renderer.shadows.isEnabled.set(not state);
     });
 
     guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {

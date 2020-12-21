@@ -50,8 +50,8 @@ int main(int, char**)
 #endif
     Editor::Context editorContext;
     graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
-    GraphicsApi::IGraphicsApi& apiRef = *graphicsApi;
-    Engine engine(std::move(graphicsApi), std::make_unique<BulletAdapter>(apiRef),
+
+    Engine engine(std::move(graphicsApi), std::make_unique<BulletAdapter>(),
                   std::make_unique<Editor::SceneFactory>(editorContext));
     engine.Init();
     engine.GetSceneManager().SetActiveScene("EditorScene");

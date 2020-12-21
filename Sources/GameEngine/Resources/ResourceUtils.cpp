@@ -46,14 +46,14 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
         uint32 h = FreeImage_GetHeight(image);
         vec2ui newImageSize(w, h);
 
-        if (w > textureSize.x)
+        if (w > textureSize->x)
         {
-            newImageSize.x = textureSize.x;
+            newImageSize.x = textureSize->x;
             resize_texture = true;
         }
-        if (h > textureSize.y)
+        if (h > textureSize->y)
         {
-            newImageSize.y = textureSize.y;
+            newImageSize.y = textureSize->y;
             resize_texture = true;
         }
 

@@ -35,7 +35,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         , engineContext_(std::unique_ptr<IGraphicsApi>(graphicsMock_), std::make_unique<PhysicsApiMock>())
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, engineContext_.GetGraphicsApi())
-        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(), measurmentHandler_, time_)
+        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(), gpuResourceLoaderMock_, measurmentHandler_, time_)
     {
     }
     void SetUp()

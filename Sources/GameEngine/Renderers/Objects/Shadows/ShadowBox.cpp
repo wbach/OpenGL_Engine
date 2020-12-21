@@ -14,8 +14,8 @@ namespace GameEngine
 {
 ShadowBox::ShadowBox(const Projection& projection)
     : projection_(projection)
-    , shadowDistance_(EngineConf.renderer.shadows.distance /
-                      static_cast<float>(EngineConf.renderer.shadows.cascadesSize))
+    , shadowDistance_(EngineConf.renderer.shadows.distance.get() /
+                      static_cast<float>(EngineConf.renderer.shadows.cascadesSize.get()))
 {
     calculateTangentHalfFov();
     caclulateCascadeDistances();
@@ -91,7 +91,7 @@ const float* ShadowBox::getLightCascadeDistances() const
 
 void expDistances(float* cascadeDistances)
 {
-    float a = pow(EngineConf.renderer.shadows.distance, 1.f / (EngineConf.renderer.shadows.cascadesSize - 1));
+    float a = pow(EngineConf.renderer.shadows.distance.get() , 1.f / (EngineConf.renderer.shadows.cascadesSize.get() - 1));
 
     for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
@@ -102,8 +102,8 @@ void expDistances(float* cascadeDistances)
 
 void quadraticDistances(float* cascadeDistances)
 {
-    float s0 = EngineConf.renderer.shadows.firstCascadeDistance;
-    float a  = (EngineConf.renderer.shadows.distance - s0) / pow(EngineConf.renderer.shadows.cascadesSize - 1, 2);
+    float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
+    float a  = (*EngineConf.renderer.shadows.distance - s0) / pow(*EngineConf.renderer.shadows.cascadesSize - 1, 2);
 
     for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
@@ -114,8 +114,8 @@ void quadraticDistances(float* cascadeDistances)
 
 void linearDistances(float* cascadeDistances)
 {
-    float s0 = EngineConf.renderer.shadows.firstCascadeDistance;
-    float a  = (EngineConf.renderer.shadows.distance - s0) / (EngineConf.renderer.shadows.cascadesSize - 1);
+    float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
+    float a  = (*EngineConf.renderer.shadows.distance - s0) / (*EngineConf.renderer.shadows.cascadesSize - 1);
 
     for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
@@ -126,11 +126,11 @@ void linearDistances(float* cascadeDistances)
 
 void ShadowBox::caclulateCascadeDistances()
 {
-    if (EngineConf.renderer.shadows.cascadesSize == 1)
+    if (EngineConf.renderer.shadows.cascadesSize.get() == 1)
     {
         for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
         {
-            cascadeDistances_[i] = EngineConf.renderer.shadows.distance;
+            cascadeDistances_[i] = *EngineConf.renderer.shadows.distance;
             DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances_[i]));
         }
         return;
@@ -182,7 +182,7 @@ void ShadowBox::update(const CameraWrapper& camera, const Light& directionalLigh
     auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
     auto lightViewMatrix = createLightViewMatrix(directionalLight);
 
-    for (uint32 cascadeIndex = 0; cascadeIndex < EngineConf.renderer.shadows.cascadesSize; ++cascadeIndex)
+    for (uint32 cascadeIndex = 0; cascadeIndex < *EngineConf.renderer.shadows.cascadesSize; ++cascadeIndex)
     {
         vec3 min(std::numeric_limits<float>::max());
         vec3 max(-std::numeric_limits<float>::max());

@@ -12,22 +12,25 @@ namespace GameEngine
 void SetParamIfExist(Params::Shadows::CascadeDistanceFunc& param, const Utils::Attributes& attributes,
                      const std::string& paramName)
 {
-    if (attributes.count(paramName))
+    auto attIter = attributes.find(paramName);
+
+    if (attIter != attributes.end())
     {
-        if (attributes.at(paramName) == "linear")
+        if (attIter->second == "linear")
         {
             param = Params::Shadows::CascadeDistanceFunc::linear;
         }
-        else if (attributes.at(paramName) == "quadratic")
+        else if (attIter->second == "quadratic")
         {
             param = Params::Shadows::CascadeDistanceFunc::quadratic;
         }
-        else if (attributes.at(paramName) == "exp")
+        else if (attIter->second == "exp")
         {
             param = Params::Shadows::CascadeDistanceFunc::exp;
         }
     }
 }
+
 void SetParamIfExist(bool& param, const Utils::Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
@@ -42,6 +45,7 @@ void SetParamIfExist(float& param, const Utils::Attributes& attributes, const st
         param = Utils::StringToFloat(attributes.at(paramName));
     }
 }
+
 void SetParamIfExist(uint32& param, const Utils::Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
@@ -49,6 +53,7 @@ void SetParamIfExist(uint32& param, const Utils::Attributes& attributes, const s
         param = Utils::StringToInt(attributes.at(paramName));
     }
 }
+
 void SetParamIfExist(std::string& param, const Utils::Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
@@ -56,12 +61,59 @@ void SetParamIfExist(std::string& param, const Utils::Attributes& attributes, co
         param = attributes.at(paramName);
     }
 }
+
+void SetParam(bool& param, Utils::Attributes::const_iterator iter, const std::string& paramName)
+{
+    param = Utils::StringToBool(iter->second);
+}
+
+void SetParam(float& param, Utils::Attributes::const_iterator iter, const std::string& paramName)
+{
+    param = Utils::StringToFloat(iter->second);
+}
+
+void SetParam(uint32& param, const Utils::Attributes::const_iterator& iter, const std::string& paramName)
+{
+    param = Utils::StringToInt(iter->second);
+}
+
+void SetParam(std::string& param, Utils::Attributes::const_iterator iter, const std::string& paramName)
+{
+    param = iter->second;
+}
+
+template <class T>
+void SetParamIfExist(Params::ConfigurationParam<T>& param, const Utils::Attributes& attributes,
+                     const std::string& paramName)
+{
+    const auto iter = attributes.find(paramName);
+    if (iter != attributes.end())
+    {
+        T v;
+        SetParam(v, iter, paramName);
+        param.set(v);
+    }
+}
+
+void SetParamIfExist(Params::ConfigurationParam<vec2ui>& param, const Utils::Attributes& attributes,
+                     const std::string& paramName1, const std::string& paramName2)
+{
+    auto p1i = attributes.find(paramName1);
+    auto p2i = attributes.find(paramName2);
+
+    if (p1i != attributes.end() and p2i != attributes.end())
+    {
+        auto p1 = Utils::StringToInt(p1i->second);
+        auto p2 = Utils::StringToInt(p2i->second);
+        param.set(vec2ui(p1, p2));
+    }
+}
+
 void Read(Utils::XmlNode& node, Params::Window& window)
 {
     SetParamIfExist(window.name, node.attributes_, CSTR_WINDOW_NAME);
-    SetParamIfExist(window.size.x, node.attributes_, CSTR_WINDOW_WIDTH);
-    SetParamIfExist(window.size.y, node.attributes_, CSTR_WINDOW_HEIGHT);
     SetParamIfExist(window.fullScreen, node.attributes_, CSTR_WINDOW_FULLSCREEN);
+    SetParamIfExist(window.size, node.attributes_, CSTR_WINDOW_WIDTH, CSTR_WINDOW_HEIGHT);
 }
 
 void Read(Utils::XmlNode& node, Params::Sound& sound)
@@ -79,12 +131,12 @@ void Read(Utils::XmlNode& node, Params::Shadows& shadows)
     SetParamIfExist(shadows.firstCascadeDistance, node.attributes_, CSTR_CASCADE_FIRST_DISTANCE);
     SetParamIfExist(shadows.cascadeDistanceFunc, node.attributes_, CSTR_CASCADE_DISTANCE_FUNCTION);
 
-    if (shadows.cascadesSize < 1)
+    if (*shadows.cascadesSize < 1)
     {
         shadows.cascadesSize = 1;
         ERROR_LOG("Cascade size must be set minimum to 1");
     }
-    if (shadows.cascadesSize > Params::MAX_SHADOW_MAP_CASADES)
+    if (*shadows.cascadesSize > Params::MAX_SHADOW_MAP_CASADES)
     {
         ERROR_LOG("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
         shadows.cascadesSize = Params::MAX_SHADOW_MAP_CASADES;
@@ -93,7 +145,6 @@ void Read(Utils::XmlNode& node, Params::Shadows& shadows)
     {
         shadows.firstCascadeDistance = 1.f;
     }
-
 }
 
 void Read(Utils::XmlNode& node, Params::Particles& particles)
@@ -104,7 +155,6 @@ void Read(Utils::XmlNode& node, Params::Particles& particles)
 void Read(Utils::XmlNode& node, Params::Flora& flora)
 {
     SetParamIfExist(flora.isEnabled, node.attributes_, CSTR_FLORA_ENABLED);
-    SetParamIfExist(flora.isGrass, node.attributes_, CSTR_FLORA_GRASS);
     SetParamIfExist(flora.viewDistance, node.attributes_, CSTR_FLORA_VIEW_DISTANCE);
 }
 
@@ -115,24 +165,20 @@ void Read(Utils::XmlNode& node, Params::Water& water)
 
     if (node.GetChild(CSTR_WATER_REFLECTION))
     {
-        SetParamIfExist(water.waterReflectionResolution.x, node.GetChild(CSTR_WATER_REFLECTION)->attributes_,
-                        CSTR_WATER_REFLECTION_WIDTH);
-        SetParamIfExist(water.waterReflectionResolution.y, node.GetChild(CSTR_WATER_REFRACTION)->attributes_,
-                        CSTR_WATER_REFLECTION_HEIGHT);
+        SetParamIfExist(water.waterReflectionResolution, node.GetChild(CSTR_WATER_REFLECTION)->attributes_,
+                        CSTR_WATER_REFLECTION_WIDTH, CSTR_WATER_REFLECTION_HEIGHT);
     }
     if (node.GetChild(CSTR_WATER_REFRACTION))
     {
-        SetParamIfExist(water.waterRefractionResolution.x, node.GetChild(CSTR_WATER_REFRACTION)->attributes_,
-                        CSTR_WATER_REFRACTION_WIDTH);
-        SetParamIfExist(water.waterRefractionResolution.y, node.GetChild(CSTR_WATER_REFRACTION)->attributes_,
-                        CSTR_WATER_REFRACTION_HEIGHT);
+        SetParamIfExist(water.waterRefractionResolution, node.GetChild(CSTR_WATER_REFRACTION)->attributes_,
+                        CSTR_WATER_REFRACTION_WIDTH, CSTR_WATER_REFRACTION_HEIGHT);
     }
 }
 
 void Read(Utils::XmlNode& node, Params::Textures& textures)
 {
-    SetParamIfExist(textures.maxSize.x, node.attributes_, CSTR_TEXTURE_MAX_RESOLUTION_WIDTH);
-    SetParamIfExist(textures.maxSize.y, node.attributes_, CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT);
+    SetParamIfExist(textures.maxSize, node.attributes_, CSTR_TEXTURE_MAX_RESOLUTION_WIDTH,
+                    CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT);
     SetParamIfExist(textures.useAmbient, node.attributes_, CSTR_TEXTURE_AMBIENT);
     SetParamIfExist(textures.useDisplacement, node.attributes_, CSTR_TEXTURE_DISPLACEMENT);
     SetParamIfExist(textures.useDiffuse, node.attributes_, CSTR_TEXTURE_DIFFUSE);
@@ -167,15 +213,20 @@ void Read(Utils::XmlNode& node, Params::Renderer& renderer)
     SetParamIfExist(renderer.viewDistance, node.attributes_, CSTR_RENDERER_VIEW_DISTANCE);
     SetParamIfExist(renderer.normalMappingDistance, node.attributes_, CSTR_RENDERER_NORMALMAPPING_DISTANCE);
     SetParamIfExist(renderer.fpsLimt, node.attributes_, CSTR_RENDERER_FPS_LIMIT);
-    SetParamIfExist(renderer.resolution.x, node.attributes_, CSTR_RENDERER_FPS_RESOLUTION_X);
-    SetParamIfExist(renderer.resolution.y, node.attributes_, CSTR_RENDERER_FPS_RESOLUTION_Y);
+    SetParamIfExist(renderer.resolution, node.attributes_, CSTR_RENDERER_RESOLUTION_X, CSTR_RENDERER_RESOLUTION_Y);
 
     Read(node.GetChild(CSTR_TERRAIN), renderer.terrain);
-    Read(*node.GetChild(CSTR_WATER), renderer.water);
-    Read(*node.GetChild(CSTR_FLORA), renderer.flora);
-    Read(*node.GetChild(CSTR_SHADOWS), renderer.shadows);
-    Read(*node.GetChild(CSTR_TEXTURES), renderer.textures);
-    Read(*node.GetChild(CSTR_PARTICLES), renderer.particles);
+
+    if (node.GetChild(CSTR_WATER))
+        Read(*node.GetChild(CSTR_WATER), renderer.water);
+    if (node.GetChild(CSTR_FLORA))
+        Read(*node.GetChild(CSTR_FLORA), renderer.flora);
+    if (node.GetChild(CSTR_SHADOWS))
+        Read(*node.GetChild(CSTR_SHADOWS), renderer.shadows);
+    if (node.GetChild(CSTR_TEXTURES))
+        Read(*node.GetChild(CSTR_TEXTURES), renderer.textures);
+    if (node.GetChild(CSTR_PARTICLES))
+        Read(*node.GetChild(CSTR_PARTICLES), renderer.particles);
 }
 
 void Read(Utils::XmlNode& node, Params::Files& files)

@@ -76,15 +76,13 @@ void BaseRenderer::createRenderers()
     addRenderer<PreviewRenderer>();
     addRenderer<ConcreteSkyBoxRenderer>();
     addRenderer<SkydomRenderer>();
-    if (context_.graphicsApi_.IsTesselationSupported())
-        addRenderer<TerrainRenderer>();
+    addRenderer<TerrainRenderer>();
     addRenderer<ConcreteTerrainMeshRenderer>();
     addRenderer<TreeRenderer>();
-    if (EngineConf.renderer.flora.isGrass)
-        addRenderer<GrassRenderer>();
+    addRenderer<GrassRenderer>();
     addRenderer<ConcreteEntityRenderer>();
-    if (EngineConf.renderer.particles.useParticles)
-        addRenderer<ParticlesRenderer>();
+    addRenderer<ParticlesRenderer>();
     addRenderer<WaterRenderer>();
+    addRenderer<ShadowMapRenderer>();
 }
 }  // namespace GameEngine

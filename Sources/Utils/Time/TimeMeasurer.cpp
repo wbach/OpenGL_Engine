@@ -1,9 +1,9 @@
 #include "TimeMeasurer.h"
+
 #include <chrono>
 #include <iostream>
 #include <thread>
-#include "../GameEngine/Engine/Configuration.h"
-#include "Logger/Log.h"
+
 #include "Thread.hpp"
 
 namespace Utils
@@ -15,9 +15,8 @@ const int64 E9 = 1000000000;
 const int64 E6 = 1000000;
 
 CTimeMeasurer::CTimeMeasurer()
-    : CTimeMeasurer(static_cast<uint32>(EngineConf.renderer.fpsLimt))
+    : CTimeMeasurer(60u, 1000u)
 {
-    DEBUG_LOG("Vsync : " + std::to_string(vsync) + ", Refresh rate : " + std::to_string(lockFps_));
 }
 
 // frequency in ms
@@ -33,6 +32,10 @@ CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)
     , lockframeTime_(vsync ? E9 / lockFps_ : 0)
 {
 }
+CTimeMeasurer::~CTimeMeasurer()
+{
+}
+
 double CTimeMeasurer::GetDeltaTime() const
 {
     return deltaTime_ / 1e9;

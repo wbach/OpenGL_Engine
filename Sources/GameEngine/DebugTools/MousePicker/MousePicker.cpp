@@ -85,10 +85,9 @@ bool BoundingBoxIntersect(const MousePicker::Ray& ray, const BoundingBox& boundi
     return true;
 }
 
-MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize)
+MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projection)
     : camera_(camera)
     , projection_(projection)
-    , windowSize_(windowSize)
 {
 }
 GameObject* MousePicker::SelectObject(const vec2& mousePosition,

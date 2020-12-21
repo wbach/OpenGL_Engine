@@ -51,8 +51,8 @@ void DefferedRenderer::init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
 
-    resizeRenderingMode_ = (context_.projection_.GetRenderingSize().x != EngineConf.window.size.x or
-                            context_.projection_.GetRenderingSize().y != EngineConf.window.size.y);
+    resizeRenderingMode_ = (context_.projection_.GetRenderingSize().x != EngineConf.window.size.get().x or
+                            context_.projection_.GetRenderingSize().y != EngineConf.window.size.get().y);
 
     createFrameBuffer();
     createRenderers();
@@ -71,16 +71,6 @@ void DefferedRenderer::reloadShaders()
     BaseRenderer::reloadShaders();
     postprocessingRenderersManager_.ReloadShaders();
 }
-
-void DefferedRenderer::createRenderers()
-{
-    BaseRenderer::createRenderers();
-
-    if (EngineConf.renderer.shadows.isEnabled)
-    {
-        addRenderer<ShadowMapRenderer>();
-    }
-}
 void DefferedRenderer::bindDefferedFbo()
 {
     defferedFrameBuffer_->Clear();
@@ -96,7 +86,7 @@ void DefferedRenderer::unbindDefferedFbo()
 {
     if (resizeRenderingMode_)
     {
-        const auto& windowSize = EngineConf.window.size;
+        const auto& windowSize = EngineConf.window.size.get();
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
     postprocessingRenderersManager_.Render(*defferedFrameBuffer_, *context_.scene_);

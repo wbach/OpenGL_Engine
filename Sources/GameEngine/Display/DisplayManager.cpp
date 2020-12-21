@@ -1,5 +1,7 @@
 #include "DisplayManager.hpp"
+
 #include <Input/InputManager.h>
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "Logger/Log.h"
@@ -19,7 +21,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , isFullScreen_(EngineConf.window.fullScreen)
     , windowsSize_(EngineConf.window.size)
 {
-    auto windowType = EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
+    auto windowType =
+        EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
     graphicsApi_.GetWindowApi().Init();
     graphicsApi_.GetWindowApi().CreateGameWindow(EngineConf.window.name, windowsSize_.x, windowsSize_.y, windowType);
@@ -28,6 +31,11 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     graphicsApi_.PrintVersion();
     graphicsApi_.PrepareFrame();
     graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
+
+    for (const auto& mode : graphicsApi_.GetWindowApi().GetDisplayModes())
+    {
+        EngineConf.window.size.AddDefaultValue(vec2ui(mode.w, mode.h));
+    }
 
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 

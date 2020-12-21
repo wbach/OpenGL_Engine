@@ -58,7 +58,7 @@ vec2 CalcTexCoord()
 }
 vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos, vec3 unit_normal, vec3 light_color)
 {
-    float diffuse_factor = dot(unit_normal, light_direction);
+    float diffuse_factor = dot(light_direction, unit_normal);
 
     vec3 ambient_color   = vec3(0.f);
     vec3 diffuse_color   = vec3(0.f);

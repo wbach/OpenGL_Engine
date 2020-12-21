@@ -232,7 +232,7 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::G, [this]() { ReleaseDragObject(); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
-        MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection(), EngineConf.window.size);
+        MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
 
         SetSelectedGameObject(
             mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));

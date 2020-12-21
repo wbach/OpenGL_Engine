@@ -11,6 +11,7 @@ public:
 
     virtual void Init()   = 0;
     virtual void Reload() = 0;
+    virtual void Clear() = 0;
 
     virtual bool IsReady() const = 0;
     virtual void Start() const   = 0;

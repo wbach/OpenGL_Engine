@@ -20,6 +20,8 @@ string to_string(GameEngine::Params::Shadows::CascadeDistanceFunc func)
     {
         return "exp";
     }
+
+    return {};
 }
 }  // namespace std
 
@@ -29,8 +31,8 @@ using namespace Utils;
 
 void Create(XmlNode& node, const Params::Textures& param)
 {
-    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]  = std::to_string(param.maxSize.x);
-    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT] = std::to_string(param.maxSize.y);
+    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]  = std::to_string(param.maxSize->x);
+    node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT] = std::to_string(param.maxSize->y);
     node.attributes_[CSTR_TEXTURE_AMBIENT]               = Utils::BoolToString(param.useAmbient);
     node.attributes_[CSTR_TEXTURE_DISPLACEMENT]          = Utils::BoolToString(param.useDisplacement);
     node.attributes_[CSTR_TEXTURE_DIFFUSE]               = Utils::BoolToString(param.useDiffuse);
@@ -53,20 +55,19 @@ void Create(XmlNode& node, const Params::Shadows& param)
 void Create(XmlNode& node, const Params::Flora& param)
 {
     node.attributes_[CSTR_FLORA_ENABLED]       = Utils::BoolToString(param.isEnabled);
-    node.attributes_[CSTR_FLORA_GRASS]         = std::to_string(param.isGrass);
     node.attributes_[CSTR_FLORA_VIEW_DISTANCE] = std::to_string(param.viewDistance);
 }
 void Create(XmlNode& node, const Params::Water& param)
 {
-    node.attributes_[CSTR_WATER_TYPE] = std::to_string(static_cast<uint32>(param.type));
+    node.attributes_[CSTR_WATER_TYPE] = std::to_string(static_cast<uint32>(*param.type));
 
     auto& reflection                                     = node.AddChild(CSTR_WATER_REFLECTION);
-    reflection.attributes_[CSTR_WATER_REFLECTION_WIDTH]  = std::to_string(param.waterReflectionResolution.x);
-    reflection.attributes_[CSTR_WATER_REFLECTION_HEIGHT] = std::to_string(param.waterReflectionResolution.y);
+    reflection.attributes_[CSTR_WATER_REFLECTION_WIDTH]  = std::to_string(param.waterReflectionResolution->x);
+    reflection.attributes_[CSTR_WATER_REFLECTION_HEIGHT] = std::to_string(param.waterReflectionResolution->y);
 
     auto& refraction                                     = node.AddChild(CSTR_WATER_REFRACTION);
-    refraction.attributes_[CSTR_WATER_REFRACTION_WIDTH]  = std::to_string(param.waterRefractionResolution.x);
-    refraction.attributes_[CSTR_WATER_REFRACTION_HEIGHT] = std::to_string(param.waterRefractionResolution.y);
+    refraction.attributes_[CSTR_WATER_REFRACTION_WIDTH]  = std::to_string(param.waterRefractionResolution->x);
+    refraction.attributes_[CSTR_WATER_REFRACTION_HEIGHT] = std::to_string(param.waterRefractionResolution->y);
 }
 void Create(XmlNode& node, const Params::TerrainType& param)
 {
@@ -79,9 +80,9 @@ void Create(XmlNode& node, const Params::Terrain& param)
 void Create(XmlNode& node, const Params::Renderer& param)
 {
     node.attributes_[CSTR_GRAPHICS_API]                    = param.graphicsApi;
-    node.attributes_[CSTR_RENDERER_TYPE]                   = std::to_string(static_cast<uint32>(param.type));
-    node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_X]       = std::to_string(param.resolution.x);
-    node.attributes_[CSTR_RENDERER_FPS_RESOLUTION_Y]       = std::to_string(param.resolution.y);
+    node.attributes_[CSTR_RENDERER_TYPE]                   = std::to_string(static_cast<uint32>(*param.type));
+    node.attributes_[CSTR_RENDERER_RESOLUTION_X]           = std::to_string(param.resolution->x);
+    node.attributes_[CSTR_RENDERER_RESOLUTION_Y]           = std::to_string(param.resolution->y);
     node.attributes_[CSTR_RENDERER_FPS_LIMIT]              = std::to_string(param.fpsLimt);
     node.attributes_[CSTR_RENDERER_VIEW_DISTANCE]          = std::to_string(param.viewDistance);
     node.attributes_[CSTR_RENDERER_NORMALMAPPING_DISTANCE] = std::to_string(param.normalMappingDistance);
@@ -96,8 +97,8 @@ void Create(XmlNode& node, const Params::Renderer& param)
 void Create(XmlNode& node, const Params::Window& param)
 {
     node.attributes_[CSTR_WINDOW_NAME]       = param.name;
-    node.attributes_[CSTR_WINDOW_WIDTH]      = std::to_string(param.size.x);
-    node.attributes_[CSTR_WINDOW_HEIGHT]     = std::to_string(param.size.y);
+    node.attributes_[CSTR_WINDOW_WIDTH]      = std::to_string(param.size->x);
+    node.attributes_[CSTR_WINDOW_HEIGHT]     = std::to_string(param.size->y);
     node.attributes_[CSTR_WINDOW_FULLSCREEN] = Utils::BoolToString(param.fullScreen);
 }
 void Create(XmlNode& node, const Params::Files& param)

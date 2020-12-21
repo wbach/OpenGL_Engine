@@ -12,7 +12,7 @@ public:
     Projection(const Projection& p);
     Projection& operator=(const Projection& p);
 
-    void Init(const vec2ui& renderingSize);
+    void Init();
 
     void CreateProjectionMatrix();
     void OrthographiProjection();

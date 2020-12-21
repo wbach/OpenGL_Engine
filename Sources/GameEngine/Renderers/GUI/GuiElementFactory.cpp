@@ -27,7 +27,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
     , renderersManager_(entryParameters.renderersManager_)
-    , windowSize_(EngineConf.window.size)
+    , windowSize_(*EngineConf.window.size)
     , fontManger_(windowSize_)
     , guiElementCounter_(0)
 {

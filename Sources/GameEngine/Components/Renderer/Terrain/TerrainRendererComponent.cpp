@@ -3,7 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Engine/ConfigurationParams/TerrainParam/TerrainType.h"
+#include "GameEngine/Engine/ConfigurationParams/RendererParams/TerrainParam/TerrainType.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "TerrainMeshRendererComponent.h"

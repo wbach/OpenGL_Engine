@@ -7,7 +7,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -32,26 +32,40 @@ struct RenderAsLine
     GraphicsApi::IGraphicsApi& graphicsApi_;
     bool use = false;
 };
+namespace
+{
+float F(bool v)
+{
+    return v ? 1.f : 0.f;
+}
+}  // namespace
 
 namespace Renderer
 {
-RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, Utils::MeasurementHandler& measurmentHandler,
-                                   Utils::Thread::ThreadSync& threadSync, const Time& renderThreadTime)
+RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
+                                   Utils::MeasurementHandler& measurmentHandler, Utils::Thread::ThreadSync& threadSync,
+                                   const Time& renderThreadTime)
     : graphicsApi_(graphicsApi)
+    , gpuLoader_(gpuLoader)
     , measurmentHandler_(measurmentHandler)
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
     , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_(graphicsApi)
-    , rendererContext_(projection_, frustrum_, graphicsApi_, measurmentHandler_, renderThreadTime)
+    , rendererContext_(projection_, frustrum_, graphicsApi_, gpuLoader_, measurmentHandler_, renderThreadTime)
     , debugRenderer_(rendererContext_, threadSync)
 {
     frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
+
+    shadowEnabledSubscriptionId_ = EngineConf.renderer.shadows.isEnabled.subscribeForChange(
+        [this](const auto&) { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
 }
 RenderersManager::~RenderersManager()
 {
     DEBUG_LOG("destructor");
+
+    EngineConf.renderer.shadows.isEnabled.unsubscribe(shadowEnabledSubscriptionId_);
 
     if (perFrameId_)
     {
@@ -74,14 +88,14 @@ void RenderersManager::Init()
 }
 void RenderersManager::InitProjection()
 {
-    projection_.Init(EngineConf.renderer.resolution);
+    projection_.Init();
     projection_.CreateProjectionMatrix();
 }
 void RenderersManager::createMainRenderer()
 {
     graphicsApi_.EnableCulling();
 
-    auto rendererType       = EngineConf.renderer.type;
+    const auto rendererType = EngineConf.renderer.type.get();
     auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
 
     if (supportedRenderers.empty())
@@ -242,29 +256,23 @@ void RenderersManager::CreatePerAppBuffer()
 
     UpdatePerAppBuffer();
 }
-namespace
-{
-float F(bool v)
-{
-    return v ? 1.f : 0.f;
-}
-}  // namespace
-void RenderersManager::UpdatePerAppBuffer() const
+
+void RenderersManager::UpdatePerAppBuffer()
 {
     if (perAppId_)
     {
         const auto& textureConfig  = EngineConf.renderer.textures;
-        const auto& shadowsConfig  = EngineConf.renderer.shadows;
+        auto& shadowsConfig        = EngineConf.renderer.shadows;
         const auto& floraConfig    = EngineConf.renderer.flora;
         const auto& rendererConfig = EngineConf.renderer;
 
-        PerAppBuffer perApp;
-        perApp.useTextures = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular),
-                                  F(textureConfig.useDisplacement));
-        perApp.shadowVariables = vec4(F(shadowsConfig.isEnabled), shadowsConfig.distance, shadowsConfig.mapSize, 0.f);
-        perApp.viewDistance    = vec4(rendererConfig.viewDistance, rendererConfig.normalMappingDistance,
-                                   floraConfig.viewDistance, rendererConfig.viewDistance);
-        graphicsApi_.UpdateShaderBuffer(*perAppId_, &perApp);
+        perApp_.useTextures = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal),
+                                   F(textureConfig.useSpecular), F(textureConfig.useDisplacement));
+        perApp_.shadowVariables =
+            vec4(F(*shadowsConfig.isEnabled), *shadowsConfig.distance, *shadowsConfig.mapSize, 0.f);
+        perApp_.viewDistance = vec4(*rendererConfig.viewDistance, *rendererConfig.normalMappingDistance,
+                                    *floraConfig.viewDistance, *rendererConfig.viewDistance);
+        graphicsApi_.UpdateShaderBuffer(*perAppId_, &perApp_);
         graphicsApi_.BindShaderBuffer(*perAppId_);
     }
 }

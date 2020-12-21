@@ -16,6 +16,7 @@ class CTimeMeasurer
 public:
     CTimeMeasurer();
     CTimeMeasurer(uint32 lockFps, uint32 frequency = 1000);
+    ~CTimeMeasurer();
     void AddOnTickCallback(Callback);
     void StartFrame();
     void EndFrame();
@@ -44,7 +45,7 @@ private:
     int64 periodTime_;
     int64 fps_;
     uint32 frameCount_;
-    const int64 lockframeTime_;
+    int64 lockframeTime_;
 };
 
 }  // namespace Time

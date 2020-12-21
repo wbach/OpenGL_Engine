@@ -2,10 +2,12 @@
 
 #include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
+#include <Utils.h>
 
-#include "Mutex.hpp"
-#include "Utils.h"
-#include "math.hpp"
+#include <Mutex.hpp>
+#include <math.hpp>
+
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -54,9 +56,9 @@ Projection &Projection::operator=(const Projection &p)
     projectionMatrix_ = p.projectionMatrix_;
     return *this;
 }
-void Projection::Init(const vec2ui &renderingSize)
+void Projection::Init()
 {
-    renderingSize_ = renderingSize;
+    renderingSize_ = EngineConf.renderer.resolution.get();
     aspectRatio_   = CalculateAspectRatio();
 }
 const mat4 &Projection::GetProjectionMatrix() const

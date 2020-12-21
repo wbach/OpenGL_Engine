@@ -18,7 +18,7 @@ public:
         vec3 direction;
     };
 
-    MousePicker(const CameraWrapper&, const Projection&, const vec2ui&);
+    MousePicker(const CameraWrapper&, const Projection&);
     GameObject* SelectObject(const vec2& mousePosition, const std::vector<std::unique_ptr<GameObject>>&);
 
 private:
@@ -29,6 +29,5 @@ private:
 private:
     const CameraWrapper& camera_;
     const Projection& projection_;
-    const vec2ui& windowSize_;
 };
 }  // namespace GameEngine

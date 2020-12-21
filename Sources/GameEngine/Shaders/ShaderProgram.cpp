@@ -55,7 +55,7 @@ void ShaderProgram::Clear()
     if (programID_)
     {
         graphicsApi_.DeleteObject(*programID_);
-        programID_ = {};
+        programID_ = std::nullopt;
     }
 }
 }  // namespace GameEngine

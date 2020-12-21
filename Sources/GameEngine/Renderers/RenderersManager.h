@@ -7,6 +7,7 @@
 #include "DebugElements/DebugRenderer.h"
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Frustrum.h"
+#include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "Projection.h"
@@ -25,13 +26,14 @@ class GuiTextElement;
 class GuiTextureElement;
 class IFrameBuffer;
 class IShadowFrameBuffer;
+class IGpuResourceLoader;
 
 namespace Renderer
 {
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&, const Time&);
+    RenderersManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&, const Time&);
     ~RenderersManager();
     void Init();
     const Projection& GetProjection() const;
@@ -49,7 +51,7 @@ public:
     GUIRenderer& GetGuiRenderer();
     DebugRenderer& GetDebugRenderer();
     bool IsTesselationSupported() const;
-    void UpdatePerAppBuffer() const;
+    void UpdatePerAppBuffer();
 
 private:
     void ReloadShadersExecution();
@@ -63,6 +65,7 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    IGpuResourceLoader& gpuLoader_;
     Utils::MeasurementHandler& measurmentHandler_;
 
     Frustrum frustrum_;
@@ -80,8 +83,10 @@ private:
     BufferDataUpdater bufferDataUpdater_;
     MeasurementValue* frustrumCheckCount_;
 
+    PerAppBuffer perApp_;
     RendererContext rendererContext_;
     DebugRenderer debugRenderer_;
+    IdType shadowEnabledSubscriptionId_;
 };
 }  // namespace Renderer
 }  // namespace GameEngine

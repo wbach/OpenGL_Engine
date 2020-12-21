@@ -16,7 +16,6 @@ public:
     void reloadShaders() override;
 
 private:
-    void createRenderers();
     void bindDefferedFbo();
     void unbindDefferedFbo();
     void createFrameBuffer();

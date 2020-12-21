@@ -28,33 +28,45 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
     , biasMatrix_(Utils::CreateBiasNdcToTextureCoordinates())
+    , isActive_{true}
 {
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
     {
         shadowFrameBuffer_[cascadeIndex] = nullptr;
     }
+
+    isActive_ = *EngineConf.renderer.shadows.isEnabled;
+
+    shadowEnabledSubscriptionId_ =
+        EngineConf.renderer.shadows.isEnabled.subscribeForChange([this](const auto& isEnabled) {
+            // be carful to run cleanUp and init resources on gpu thread
+            // if (isEnabled and not isInit())
+            //{
+            //    init();
+            //}
+            // else if (not isEnabled and isInit())
+            //{
+            //    cleanUp();
+            //}
+
+            isActive_ = isEnabled;
+        });
 }
 
 ShadowMapRenderer::~ShadowMapRenderer()
 {
-    if (perFrameBuffer_)
-    {
-        context_.graphicsApi_.DeleteShaderBuffer(*perFrameBuffer_);
-    }
-
-    for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
-    {
-        if (shadowFrameBuffer_[cascadeIndex])
-        {
-            context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer_[cascadeIndex]);
-        }
-    }
+    EngineConf.renderer.shadows.isEnabled.unsubscribe(shadowEnabledSubscriptionId_);
+    cleanUp();
 }
 
 void ShadowMapRenderer::init()
 {
     shader_.Init();
-    GraphicsApi::FrameBuffer::Attachment depthAttachment(EngineConf.renderer.shadows.mapSize,
+
+    if (not shader_.IsReady())
+        return;
+
+    GraphicsApi::FrameBuffer::Attachment depthAttachment(*EngineConf.renderer.shadows.mapSize,
                                                          GraphicsApi::FrameBuffer::Type::Depth,
                                                          GraphicsApi::FrameBuffer::Format::Depth);
 
@@ -63,6 +75,13 @@ void ShadowMapRenderer::init()
     depthAttachment.compareMode = GraphicsApi::FrameBuffer::CompareMode::RefToTexture;
 
     perFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+
+    if (not perFrameBuffer_)
+    {
+        ERROR_LOG("Shadow perframebuffer creation error.");
+        shader_.Clear();
+        return;
+    }
 
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
     {
@@ -82,6 +101,7 @@ void ShadowMapRenderer::init()
             context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer);
             shadowFrameBuffer = nullptr;
             ERROR_LOG("Shadow framebuffer creation error.");
+            shader_.Clear();
             return;
         }
 
@@ -92,11 +112,29 @@ void ShadowMapRenderer::init()
     // relevant to shadowbox
     const auto& distances = shadowBox_.getLightCascadeDistances();
 
-    buffer_.cascadesSize = static_cast<float>(EngineConf.renderer.shadows.cascadesSize);
+    buffer_.cascadesSize       = static_cast<float>(*EngineConf.renderer.shadows.cascadesSize);
     buffer_.cascadesDistance.x = distances[0];
     buffer_.cascadesDistance.y = distances[1];
     buffer_.cascadesDistance.z = distances[2];
     buffer_.cascadesDistance.w = distances[3];
+}
+
+void ShadowMapRenderer::cleanUp()
+{
+    shader_.Clear();
+
+    if (perFrameBuffer_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perFrameBuffer_);
+    }
+
+    for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
+    {
+        if (shadowFrameBuffer_[cascadeIndex])
+        {
+            context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer_[cascadeIndex]);
+        }
+    }
 }
 
 void ShadowMapRenderer::renderScene()
@@ -111,14 +149,14 @@ bool ShadowMapRenderer::isInit() const
 
 void ShadowMapRenderer::prepare()
 {
-    if (not isInit())
+    if (not isInit() or not isActive_)
         return;
 
     prepareFrameBuffer();
 
     uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
 
-    auto shadowMapSize = EngineConf.renderer.shadows.mapSize;
+    auto shadowMapSize = *EngineConf.renderer.shadows.mapSize;
     context_.graphicsApi_.SetViewPort(0, 0, shadowMapSize, shadowMapSize);
 
     shader_.Start();
@@ -178,7 +216,7 @@ void ShadowMapRenderer::renderCascades()
         PerFrameBuffer perFrame;
         perFrame.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(lightMatrixes[cascadeIndex]);
         context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
-       
+
         renderScene();
         shadowFrameBuffer_[cascadeIndex]->UnBind();
     }
