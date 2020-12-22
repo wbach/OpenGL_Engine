@@ -19,7 +19,7 @@ GuiElement::GuiElement(GuiElementTypes type)
 }
 void GuiElement::AddChild(std::unique_ptr<GuiElement> child)
 {
-    child->SetZPositionOffset(GetZValue());
+    child->SetZPositionOffset(GetZValue() - .1f);
     child->Show(IsShow());
     child->SetPostion(position_ + child->GetPosition());
 

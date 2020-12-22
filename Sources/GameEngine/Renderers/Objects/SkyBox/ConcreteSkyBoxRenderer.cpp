@@ -40,7 +40,7 @@ void ConcreteSkyBoxRenderer::subscribe(GameObject& gameObject)
 
 void ConcreteSkyBoxRenderer::unSubscribe(GameObject& gameObject)
 {
-    skyBoxRenderer_.subscribe(gameObject);
+    skyBoxRenderer_.unSubscribe(gameObject);
 }
 
 void ConcreteSkyBoxRenderer::unSubscribeAll()

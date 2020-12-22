@@ -85,6 +85,7 @@ void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
 
     text_ = text.get();
     text_->SetPostion(position_);
+    text_->SetZPosition(-0.2);
     AddChild(std::move(text));
     backgroundTextColor_ = text_->GetColor();
     onHoverTextColor_    = text_->GetColor();
@@ -93,11 +94,7 @@ void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
 
 void GuiButtonElement::SetTexture(std::unique_ptr<GuiTextureElement> &newTexture, GuiTextureElement *&texture)
 {
-    if (not texture or not newTexture)
-    {
-        return;
-    }
-
+    newTexture->SetZPosition(-0.1);
     newTexture->SetScale(scale_);
     newTexture->SetPostion(position_);
 
@@ -107,14 +104,15 @@ void GuiButtonElement::SetTexture(std::unique_ptr<GuiTextureElement> &newTexture
     }
 
     texture = newTexture.get();
-    texture->Hide();
     AddChild(std::move(newTexture));
-    ApplyState(currentState_);
 }
 
 void GuiButtonElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
 {
-    SetTexture(texture, backgroundTexture_);
+    if (texture)
+    {
+        SetTexture(texture, backgroundTexture_);
+    }
 }
 
 void GuiButtonElement::SetOnHoverTexture(std::unique_ptr<GuiTextureElement> texture)
@@ -137,16 +135,28 @@ void GuiButtonElement::SetOnActiveTexture(std::unique_ptr<GuiTextureElement> tex
 
 void GuiButtonElement::ResetBackgroundTexture()
 {
+    if (backgroundTexture_)
+    {
+        RemoveChild(backgroundTexture_->GetId());
+    }
     backgroundTexture_ = nullptr;
 }
 
 void GuiButtonElement::ResetOnHoverTexture()
 {
+    if (onHoverTexture_)
+    {
+        RemoveChild(onHoverTexture_->GetId());
+    }
     onHoverTexture_ = nullptr;
 }
 
 void GuiButtonElement::ResetOnActiveTexture()
 {
+    if (onActiveTextue_)
+    {
+        RemoveChild(onActiveTextue_->GetId());
+    }
     onActiveTextue_ = nullptr;
 }
 
