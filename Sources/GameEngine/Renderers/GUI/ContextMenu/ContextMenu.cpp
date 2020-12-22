@@ -4,8 +4,11 @@ namespace GameEngine
 {
 GuiElementTypes ContextMenu::type = GuiElementTypes::EditBox;
 
-ContextMenu::ContextMenu(const vec2ui& windowSize)
-    : GuiElement(type, windowSize)
+ContextMenu::ContextMenu()
+    : GuiElement(type)
+{
+}
+void ContextMenu::Update()
 {
 }
 }  // namespace GameEngine

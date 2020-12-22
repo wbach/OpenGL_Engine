@@ -27,8 +27,6 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
     , renderersManager_(entryParameters.renderersManager_)
-    , windowSize_(*EngineConf.window.size)
-    , fontManger_(windowSize_)
     , guiElementCounter_(0)
 {
     isOnTop_ = [this](const GuiElement &checkingElement) {
@@ -61,7 +59,7 @@ GuiElementFactory::~GuiElementFactory()
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,
                                                                  uint32 fontSize, uint32 outline)
 {
-    auto textElement = std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, windowSize_, font,
+    auto textElement = std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, font,
                                                         text, fontSize, outline);
     return textElement;
 }
@@ -103,7 +101,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
                                                                      const vec2 &scale, const std::string &backgorund,
                                                                      const vec4 &backgorundColor)
 {
-    auto guiWindow = std::make_unique<GuiWindowElement>(style, windowSize_, inputManager_);
+    auto guiWindow = std::make_unique<GuiWindowElement>(style, inputManager_);
     guiWindow->SetPostion(position);
     guiWindow->SetScale(scale);
 
@@ -128,7 +126,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
 
 std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::function<void(GuiElement &)> onClick)
 {
-    auto button = std::make_unique<GuiButtonElement>(isOnTop_, inputManager_, onClick, windowSize_);
+    auto button = std::make_unique<GuiButtonElement>(isOnTop_, inputManager_, onClick);
     return CreateGuiButton(onClick, theme_.buttonTexture, theme_.buttonHoverTexture, theme_.buttonActiveTexture);
 }
 
@@ -147,7 +145,7 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::functi
                                                                      const std::string &hoverTexture,
                                                                      const std::string &activeTexture)
 {
-    auto button = std::make_unique<GuiButtonElement>(isOnTop_, inputManager_, onClick, windowSize_);
+    auto button = std::make_unique<GuiButtonElement>(isOnTop_, inputManager_, onClick);
 
     if (not bgtexture.empty())
     {
@@ -212,7 +210,7 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::s
 std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(std::unique_ptr<GuiTextElement> text)
 {
     auto cursor  = CreateGuiText("|");
-    auto editBox = std::make_unique<GuiEditBoxElement>(std::move(text), std::move(cursor), inputManager_, windowSize_);
+    auto editBox = std::make_unique<GuiEditBoxElement>(std::move(text), std::move(cursor), inputManager_);
     auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
     if (editBoxBgTexture)
     {
@@ -223,17 +221,17 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(std::unique_
 
 std::unique_ptr<VerticalLayout> GuiElementFactory::CreateVerticalLayout()
 {
-    return std::make_unique<VerticalLayout>(windowSize_, inputManager_);
+    return std::make_unique<VerticalLayout>(inputManager_);
 }
 
 std::unique_ptr<HorizontalLayout> GuiElementFactory::CreateHorizontalLayout()
 {
-    return std::make_unique<HorizontalLayout>(windowSize_, inputManager_);
+    return std::make_unique<HorizontalLayout>(inputManager_);
 }
 
 std::unique_ptr<TreeView> GuiElementFactory::CreateTreeView(std::function<void(GuiElement &)> action)
 {
-    return std::make_unique<TreeView>(*this, action, windowSize_);
+    return std::make_unique<TreeView>(*this, action);
 }
 
 void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message,
@@ -287,7 +285,7 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File 
         return nullptr;
     }
 
-    return std::make_unique<GuiTextureElement>(resourceManager_, guiRenderer_, windowSize_, *texture);
+    return std::make_unique<GuiTextureElement>(resourceManager_, guiRenderer_, *texture);
 }
 
 void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &window)

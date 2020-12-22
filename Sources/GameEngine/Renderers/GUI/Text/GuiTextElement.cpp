@@ -12,27 +12,27 @@ namespace GameEngine
 GuiElementTypes GuiTextElement::type = GuiElementTypes::Text;
 
 GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const vec2ui& windowSize, const std::string& font)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, windowSize, font, "")
+                               const std::string& font)
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, "")
 {
 }
 
 GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, windowSize, font, str, 10)
+                               const std::string& font, const std::string& str)
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, 10)
 {
 }
 
 GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size)
-    : GuiTextElement(fontManager, guiRenderer, resourceManager, windowSize, font, str, size, 0)
+                               const std::string& font, const std::string& str, uint32 size)
+    : GuiTextElement(fontManager, guiRenderer, resourceManager, font, str, size, 0)
 {
 }
 
 GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size,
+                               const std::string& font, const std::string& str, uint32 size,
                                uint32 outline)
-    : GuiRendererElementBase(resourceManager, guiRenderer, type, windowSize)
+    : GuiRendererElementBase(resourceManager, guiRenderer, type)
     , fontManager_(fontManager)
     , text_(str)
     , fontInfo_{outline, size, font}
@@ -182,7 +182,7 @@ void GuiTextElement::RenderText(bool fontOverride)
         if (imageData)
         {
             textureName_ = imageData->name;
-            scale_       = ConvertToScale(imageData->image.size(), windowSize_);
+            scale_       = ConvertToScale(imageData->image.size(), EngineConf.window.size);
             CalculateMatrix();
             CallOnChange();
             UpdateTexture(std::move(*imageData));

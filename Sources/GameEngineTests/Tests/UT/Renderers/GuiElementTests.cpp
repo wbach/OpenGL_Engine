@@ -5,13 +5,12 @@ namespace GameEngine
 {
 namespace UT
 {
-const vec2ui WINDOW_SIZE{640, 480};
 const float BIAS = 0.001f;
 
 struct GuiElementShould : public ::testing::Test
 {
     GuiElementShould()
-        : sut_(GuiElementTypes::Button, WINDOW_SIZE)
+        : sut_(GuiElementTypes::Button)
     {
     }
 

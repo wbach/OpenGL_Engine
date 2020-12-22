@@ -6,7 +6,7 @@ namespace GameEngine
 class HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout(const vec2ui& windowSize, Input::InputManager& inputManager);
+    HorizontalLayout(Input::InputManager&);
     virtual void Update() override;
 
 private:

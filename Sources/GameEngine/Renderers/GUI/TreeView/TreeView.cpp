@@ -18,8 +18,8 @@ const std::string EXAPND_BUTTON_LABEL = "expandButton";
 }  // namespace
 GuiElementTypes TreeView::type = GuiElementTypes::TreeView;
 
-TreeView::TreeView(GuiElementFactory& factory, std::function<void(GuiElement&)> action, const vec2ui& windowSize)
-    : GuiElement(type, windowSize)
+TreeView::TreeView(GuiElementFactory& factory, std::function<void(GuiElement&)> action)
+    : GuiElement(type)
     , elementfactory_(factory)
     , selectedItemAction_{action}
     , idPool_{0}

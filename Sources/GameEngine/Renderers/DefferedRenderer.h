@@ -23,7 +23,7 @@ private:
 private:
     GraphicsApi::IFrameBuffer* defferedFrameBuffer_;
     PostProcessingManager postprocessingRenderersManager_;
-    bool resizeRenderingMode_;
     bool isReady_;
+	IdType windowSizeSubscribtionChange_;
 };
 }  // namespace GameEngine

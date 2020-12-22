@@ -8,8 +8,8 @@ namespace GameEngine
 GuiElementTypes GuiEditBoxElement::type = GuiElementTypes::EditBox;
 
 GuiEditBoxElement::GuiEditBoxElement(std::unique_ptr<GuiTextElement> text, std::unique_ptr<GuiTextElement> cursor,
-                                     Input::InputManager &inputManager, const vec2ui &windowSize)
-    : GuiElement(type, windowSize)
+                                     Input::InputManager &inputManager)
+    : GuiElement(type)
     , inputManager_(inputManager)
     , text_(text.get())
     , cursor_(cursor.get())

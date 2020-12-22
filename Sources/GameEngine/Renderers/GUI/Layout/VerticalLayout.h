@@ -6,7 +6,7 @@ namespace GameEngine
 class VerticalLayout : public Layout
 {
 public:
-    VerticalLayout(const vec2ui& windowSize, Input::InputManager& inputManager);
+    VerticalLayout(Input::InputManager& inputManager);
     ~VerticalLayout() override;
     virtual void SetScale(const vec2& scale);
     virtual void ResetView() override;

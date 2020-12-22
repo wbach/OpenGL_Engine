@@ -21,15 +21,13 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , isFullScreen_(EngineConf.window.fullScreen)
     , windowsSize_(EngineConf.window.size)
 {
-    changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange([this](const auto& newSize)
-    {
+    changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange([this](const auto& newSize) {
         graphicsApi_.GetWindowApi().SetWindowSize(newSize);
+       // graphicsApi_.SetViewPort(0, 0, newSize.x, newSize.y);
     });
 
-    changeFullScreenSubscription_ = EngineConf.window.fullScreen.subscribeForChange([this](const auto& newValue)
-    {
-        SetFullScreen(newValue);
-    });
+    changeFullScreenSubscription_ =
+        EngineConf.window.fullScreen.subscribeForChange([this](const auto& newValue) { SetFullScreen(newValue); });
 
     auto windowType =
         EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;

@@ -34,7 +34,6 @@ private:
     std::mutex keyEventMutex_;
     SDL_Window* sdlWindow_;
     vec2i windowsSize_;
-    vec2i halfWindowsSize_;
     bool isRelativeMouseMode;
     vec2i lastMouseMovmentPosition_;
 };

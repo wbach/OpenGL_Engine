@@ -72,6 +72,7 @@ private:
     void AddEffect(PostprocessingRendererType);
     bool IsLastRenderer(size_t i);
     void AddEffects();
+    void bindDefaultFrameBuffer();
 
 private:
     RendererContext& context_;

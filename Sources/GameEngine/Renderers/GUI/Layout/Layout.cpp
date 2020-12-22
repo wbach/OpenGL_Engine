@@ -4,8 +4,8 @@
 
 namespace GameEngine
 {
-Layout::Layout(GuiElementTypes type, const vec2ui& windowSize)
-    : GuiElement(type, windowSize)
+Layout::Layout(GuiElementTypes type)
+    : GuiElement(type)
     , algin_(Algin::CENTER)
 {
     SubscribeForChange([this]() { OnChange(); });

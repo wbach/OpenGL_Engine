@@ -94,6 +94,19 @@ struct Tvec2
     {
         return x != v.x or y != v.y;
     }
+    bool operator<(const Tvec2& a)
+    {
+        if (x < a.x)
+        {
+            return true;
+        }
+        else if (x == a.x)
+        {
+            return y < a.y;
+        }
+
+        return false;
+    }
 };
 
 template <class T>

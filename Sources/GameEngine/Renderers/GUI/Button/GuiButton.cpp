@@ -11,8 +11,8 @@ const uint64 SHOW_ACTIVE_TIME = 100;
 GuiElementTypes GuiButtonElement::type = GuiElementTypes::Button;
 
 GuiButtonElement::GuiButtonElement(std::function<bool(const GuiElement &)> isOnTop, Input::InputManager &inputManager,
-                                   OnClick onClick, const vec2ui &windowSize)
-    : GuiElement(type, windowSize)
+                                   OnClick onClick)
+    : GuiElement(type)
     , inputManager_(inputManager)
     , onClick_(onClick)
     , text_{nullptr}

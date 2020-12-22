@@ -15,8 +15,6 @@ InputSDL::InputSDL(SDL_Window* sdlWindow)
     , isRelativeMouseMode(false)
     , lastMouseMovmentPosition_(GetPixelMousePosition())
 {
-    SDL_GetWindowSize(sdlWindow_, &windowsSize_.x, &windowsSize_.y);
-    halfWindowsSize_ = vec2i{windowsSize_.x / 2, windowsSize_.y / 2};
 }
 bool InputSDL::GetKey(KeyCodes::Type key)
 {
@@ -62,6 +60,7 @@ vec2i InputSDL::GetPixelMousePosition()
 vec2 InputSDL::GetMousePosition()
 {
     auto mousePosition = GetPixelMousePosition();
+    SDL_GetWindowSize(sdlWindow_, &windowsSize_.x, &windowsSize_.y);
 
     vec2 out;
     out.x = 2.f * (static_cast<float>(mousePosition.x) / static_cast<float>(windowsSize_.x)) - 1.f;

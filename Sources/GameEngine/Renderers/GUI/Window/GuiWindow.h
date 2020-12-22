@@ -13,7 +13,7 @@ const float GUI_WINDOW_BAR_HEIGHT{0.4f};
 class GuiWindowElement : public GuiElement
 {
 public:
-    GuiWindowElement(GuiWindowStyle style, const vec2ui& windowSize, Input::InputManager& inputManager);
+    GuiWindowElement(GuiWindowStyle style, Input::InputManager& inputManager);
     ~GuiWindowElement() override;
     virtual void Update() override;
     void CheckCollisionPoint();

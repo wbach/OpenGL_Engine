@@ -10,7 +10,7 @@ class IResourceManager;
 class GuiRendererElementBase : public GuiElement
 {
 public:
-    GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes, const WindowSize&);
+    GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes);
     ~GuiRendererElementBase() override;
 
     void SetScale(const vec2&) override;

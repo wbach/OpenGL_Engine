@@ -6,10 +6,9 @@ namespace GameEngine
 {
 uint32 GuiElement::ID = 0;
 
-GuiElement::GuiElement(GuiElementTypes type, const WindowSize& windowSize)
+GuiElement::GuiElement(GuiElementTypes type)
     : type_(type)
     , changeNotif_{true}
-    , windowSize_{windowSize}
     , position_{0, 0}
     , scale_{0.05, 0.05}
     , show_{true}

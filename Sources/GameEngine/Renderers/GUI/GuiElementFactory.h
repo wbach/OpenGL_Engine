@@ -79,7 +79,7 @@ public:
 
 private:
     std::unique_ptr<GuiTextureElement> MakeGuiTexture(const File&);
-    void CreateWindowBar(GuiWindowStyle, GuiWindowElement& window);
+    void CreateWindowBar(GuiWindowStyle, GuiWindowElement&);
 
 private:
     GuiManager& guiManager_;
@@ -87,7 +87,6 @@ private:
     Input::InputManager& inputManager_;
     IResourceManager& resourceManager_;
     Renderer::RenderersManager& renderersManager_;
-    const vec2ui& windowSize_;
     FontManager fontManger_;
     std::function<bool(const GuiElement&)> isOnTop_;
     GuiTheme theme_;

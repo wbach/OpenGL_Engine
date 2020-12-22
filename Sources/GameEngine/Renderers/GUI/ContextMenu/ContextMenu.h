@@ -12,7 +12,7 @@ namespace GameEngine
 class ContextMenu : public GuiElement
 {
 public:
-    ContextMenu(const vec2ui& windowSize);
+    ContextMenu();
     virtual void Update() override;
 
 private:

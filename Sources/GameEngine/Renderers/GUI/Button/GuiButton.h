@@ -21,7 +21,7 @@ class GuiButtonElement : public GuiElement
     };
 
 public:
-    GuiButtonElement(std::function<bool(const GuiElement&)>, Input::InputManager&, OnClick, const vec2ui&);
+    GuiButtonElement(std::function<bool(const GuiElement&)>, Input::InputManager&, OnClick);
     GuiButtonElement(const GuiButtonElement&) = delete;
     ~GuiButtonElement();
     void Update() override;

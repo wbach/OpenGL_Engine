@@ -5,8 +5,8 @@ namespace GameEngine
 {
 GuiElementTypes HorizontalLayout::type = GuiElementTypes::HorizontalLayout;
 
-HorizontalLayout::HorizontalLayout(const vec2ui &windowSize, Input::InputManager &inputManager)
-    : Layout(type, windowSize)
+HorizontalLayout::HorizontalLayout(Input::InputManager &inputManager)
+    : Layout(type)
     , inputManager_(inputManager)
     , totalChildrenScale_{0}
 {

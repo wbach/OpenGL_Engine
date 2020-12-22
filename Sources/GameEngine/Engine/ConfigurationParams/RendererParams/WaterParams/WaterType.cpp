@@ -13,3 +13,8 @@ std::string GameEngine::Params::paramToString(WaterType type)
 
     return std::string();
 }
+
+bool operator<(GameEngine::Params::WaterType a, GameEngine::Params::WaterType b)
+{
+    return static_cast<int>(a) < static_cast<int>(b);
+}

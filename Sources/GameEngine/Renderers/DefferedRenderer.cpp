@@ -20,15 +20,19 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     : BaseRenderer(context)
     , defferedFrameBuffer_(nullptr)
     , postprocessingRenderersManager_(context)
-    , resizeRenderingMode_(false)
     , isReady_(false)
 {
+    windowSizeSubscribtionChange_ = EngineConf.window.size.subscribeForChange([this](const auto& newWindowSize) {
+        DEBUG_LOG("Resize mode enabled. Window size :  " + std::to_string(newWindowSize) +
+                  ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
+    });
 }
 
 DefferedRenderer::~DefferedRenderer()
 {
     DEBUG_LOG("");
 
+    EngineConf.window.size.unsubscribe(windowSizeSubscribtionChange_);
     if (defferedFrameBuffer_)
         context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
 }
@@ -51,14 +55,14 @@ void DefferedRenderer::init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
 
-    resizeRenderingMode_ = (context_.projection_.GetRenderingSize().x != EngineConf.window.size.get().x or
-                            context_.projection_.GetRenderingSize().y != EngineConf.window.size.get().y);
-
     createFrameBuffer();
     createRenderers();
 
-    DEBUG_LOG("Rendering size : " + std::to_string(context_.projection_.GetRenderingSize()) +
-              ", resizeRenderingMode : " + Utils::BoolToString(resizeRenderingMode_));
+    if (context_.projection_.GetRenderingSize() != *EngineConf.window.size)
+    {
+        DEBUG_LOG("Resize mode enabled. Window size :  " + std::to_string(*EngineConf.window.size) +
+                  ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
+    }
 
     initRenderers();
     postprocessingRenderersManager_.Init();
@@ -76,7 +80,7 @@ void DefferedRenderer::bindDefferedFbo()
     defferedFrameBuffer_->Clear();
     defferedFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 
-    if (resizeRenderingMode_)
+    if (context_.projection_.GetRenderingSize() != *EngineConf.window.size)
     {
         const auto& renderingSize = context_.projection_.GetRenderingSize();
         context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
@@ -84,11 +88,6 @@ void DefferedRenderer::bindDefferedFbo()
 }
 void DefferedRenderer::unbindDefferedFbo()
 {
-    if (resizeRenderingMode_)
-    {
-        const auto& windowSize = EngineConf.window.size.get();
-        context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
-    }
     postprocessingRenderersManager_.Render(*defferedFrameBuffer_, *context_.scene_);
 }
 

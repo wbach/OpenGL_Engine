@@ -11,16 +11,14 @@ namespace GameEngine
 {
 namespace MT
 {
-const vec2ui windowSize{640, 480};
 const std::string fontStr = "../Data/GUI/Ubuntu-M.ttf";
 
 struct GuiTextElementShould : public BaseComponentTestSchould
 {
     GuiTextElementShould()
         : guiRenderer_(graphicsApi_)
-        , fontManager_(windowSize)
     {
-        sut_ = std::make_unique<GuiTextElement>(fontManager_, guiRenderer_, resourcesManager_, windowSize, fontStr);
+        sut_ = std::make_unique<GuiTextElement>(fontManager_, guiRenderer_, resourcesManager_, fontStr);
     }
 
     GraphicsApi::GraphicsApiMock graphicsApi_;

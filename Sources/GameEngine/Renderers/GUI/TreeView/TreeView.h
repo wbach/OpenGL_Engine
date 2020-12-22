@@ -26,7 +26,7 @@ typedef std::vector<std::tuple<uint32, std::string, std::optional<uint32>>> Adde
 class TreeView : public GuiElement
 {
 public:
-    TreeView(GuiElementFactory&, std::function<void(GuiElement&)>, const vec2ui& windowSize);
+    TreeView(GuiElementFactory&, std::function<void(GuiElement&)>);
     uint32 Add(const std::string& str, std::optional<uint32> parent = {});
     const AddedElementCommands& GetAddedElementCommands() const;
 

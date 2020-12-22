@@ -14,7 +14,7 @@ class TextInput;
 class GuiEditBoxElement : public GuiElement
 {
 public:
-    GuiEditBoxElement(std::unique_ptr<GuiTextElement>, std::unique_ptr<GuiTextElement>, Input::InputManager&, const vec2ui&);
+    GuiEditBoxElement(std::unique_ptr<GuiTextElement>, std::unique_ptr<GuiTextElement>, Input::InputManager&);
     ~GuiEditBoxElement();
     virtual void Update() override;
 

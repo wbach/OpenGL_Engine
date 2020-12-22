@@ -2,7 +2,7 @@
 
 #include <Logger/Log.h>
 #include <SDL2/SDL_ttf.h>
-
+#include "GameEngine/Engine/Configuration.h"
 #include <algorithm>
 
 namespace GameEngine
@@ -20,8 +20,7 @@ struct FontManager::Pimpl
     }
 };
 
-FontManager::FontManager(const WindowSize& windowSize)
-    : windowSize_(windowSize)
+FontManager::FontManager()
 {
     impl_ = std::make_unique<FontManager::Pimpl>();
 
@@ -44,8 +43,8 @@ std::optional<uint32> FontManager::openFont(const File& filename, uint32 size)
         return fontNameToIdMap_.at(fname);
     }
 
-    auto percentFontSize = windowSize_.y * size / 768;
-    // auto percentFontSize = windowSize_.y / size;
+    auto percentFontSize = EngineConf.window.size->y * size / 768;
+    // auto percentFontSize = windowSize.y / size;
 
     DEBUG_LOG("Font percent size : " + std::to_string(percentFontSize) + "/" + std::to_string(size));
 

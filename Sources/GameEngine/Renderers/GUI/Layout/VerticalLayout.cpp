@@ -5,8 +5,8 @@ namespace GameEngine
 {
 GuiElementTypes VerticalLayout::type = GuiElementTypes::VerticalLayout;
 
-VerticalLayout::VerticalLayout(const vec2ui &windowSize, Input::InputManager &inputManager)
-    : Layout(type, windowSize)
+VerticalLayout::VerticalLayout(Input::InputManager &inputManager)
+    : Layout(type)
     , inputManager_(inputManager)
     , viewPosition_(0.f)
     , scrollSensitive_(0.02f)

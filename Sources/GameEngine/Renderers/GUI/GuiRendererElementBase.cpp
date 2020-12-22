@@ -7,8 +7,8 @@
 namespace GameEngine
 {
 GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager, GUIRenderer& guiRenderer,
-                                               GuiElementTypes type, const WindowSize& windowSize)
-    : GuiElement(type, windowSize)
+                                               GuiElementTypes type)
+    : GuiElement(type)
     , resourceManager_(resourceManager)
     , guiRenderer_(guiRenderer)
     , texture_{nullptr}

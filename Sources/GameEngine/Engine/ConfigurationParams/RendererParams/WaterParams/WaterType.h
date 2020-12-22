@@ -12,5 +12,8 @@ enum class WaterType
     FULL
 };
 std::string paramToString(WaterType);
+
 }  // namespace Params
 }  // namespace GameEngine
+
+bool operator<(GameEngine::Params::WaterType, GameEngine::Params::WaterType);

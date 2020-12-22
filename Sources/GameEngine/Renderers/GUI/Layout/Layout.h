@@ -18,7 +18,7 @@ public:
         RIGHT
     };
 
-    Layout(GuiElementTypes type, const vec2ui& windowSize);
+    Layout(GuiElementTypes type);
     ~Layout();
     virtual void Update() override;
     virtual void ResetView();

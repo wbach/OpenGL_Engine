@@ -6,8 +6,8 @@ namespace GameEngine
 {
 GuiElementTypes GuiWindowElement::type = GuiElementTypes::Window;
 
-GuiWindowElement::GuiWindowElement(GuiWindowStyle style, const vec2ui& windowSize, Input::InputManager& inputManager)
-    : GuiElement(GuiWindowElement::type, windowSize)
+GuiWindowElement::GuiWindowElement(GuiWindowStyle style, Input::InputManager& inputManager)
+    : GuiElement(GuiWindowElement::type)
     , inputManager_(inputManager)
     , titleBarSize_(0.43f)
     , style_(style)

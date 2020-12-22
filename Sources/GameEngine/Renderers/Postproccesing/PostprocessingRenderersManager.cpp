@@ -48,7 +48,7 @@ void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer
 
     if (IsLastRenderer(0))
     {
-        context_.graphicsApi_.BindDefaultFrameBuffer();
+        bindDefaultFrameBuffer();
     }
     else
     {
@@ -63,7 +63,7 @@ void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer
     {
         if (IsLastRenderer(index))
         {
-            context_.graphicsApi_.BindDefaultFrameBuffer();
+            bindDefaultFrameBuffer();
         }
         else
         {
@@ -91,8 +91,18 @@ bool PostProcessingManager::IsLastRenderer(size_t i)
 void PostProcessingManager::AddEffects()
 {
     AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
-    //AddEffect(PostprocessingRendererType::COLOR_FLIPER);
-   // AddEffect(PostprocessingRendererType::BLUR);
+    // AddEffect(PostprocessingRendererType::COLOR_FLIPER);
+    // AddEffect(PostprocessingRendererType::BLUR);
     AddEffect(PostprocessingRendererType::FXAA);
+}
+void PostProcessingManager::bindDefaultFrameBuffer()
+{
+    const auto& windowSize = EngineConf.window.size.get();
+
+    if (context_.projection_.GetRenderingSize() != windowSize)
+    {
+        context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
+    }
+    context_.graphicsApi_.BindDefaultFrameBuffer();
 }
 }  // namespace GameEngine

@@ -3,12 +3,12 @@
 #include <Utils/IdPool.h>
 
 #include <Mutex.hpp>
+#include <functional>
 #include <memory>
 #include <unordered_map>
-#include <functional>
 
-#include "ParamToString.h"
 #include "IConfigurationParam.h"
+#include "ParamToString.h"
 
 namespace GameEngine
 {
@@ -34,7 +34,14 @@ public:
     }
     void AddDefaultValue(const T& value)
     {
+        auto iter = std::find(defaultValues_.begin(), defaultValues_.end(), value);
+        if (iter != defaultValues_.end())
+            return;
+
         defaultValues_.push_back(value);
+        std::sort(defaultValues_.begin(), defaultValues_.end());
+
+        updatetValueIndex();
     }
     const std::vector<T>& GetDefaultValues() const
     {
@@ -48,14 +55,14 @@ public:
     {
         if (not defaultValues_.empty())
         {
-            auto result = defaultValues_[defaultValueIndex_++];
+            ++defaultValueIndex_;
 
-            if (defaultValueIndex_ > defaultValues_.size())
+            if (defaultValueIndex_ > defaultValues_.size() - 1)
             {
                 defaultValueIndex_ = 0;
             }
 
-            return paramToString(result);
+            return paramToString(defaultValues_[defaultValueIndex_]);
         }
 
         return toString();
@@ -64,8 +71,6 @@ public:
     {
         if (not defaultValues_.empty())
         {
-            auto result = defaultValues_[defaultValueIndex_];
-
             if (defaultValueIndex_ == 0)
             {
                 defaultValueIndex_ = defaultValues_.size() - 1;
@@ -74,7 +79,8 @@ public:
             {
                 --defaultValueIndex_;
             }
-            return paramToString(result);
+
+            return paramToString(defaultValues_[defaultValueIndex_]);
         }
         return toString();
     }
@@ -149,6 +155,21 @@ public:
     constexpr const T* operator->() const
     {
         return std::addressof(value_);
+    }
+
+private:
+    void updatetValueIndex()
+    {
+        size_t i = 0;
+        for (auto& v : defaultValues_)
+        {
+            if (v == value_)
+            {
+                defaultValueIndex_ = i;
+                break;
+            }
+            ++i;
+        }
     }
 
 private:

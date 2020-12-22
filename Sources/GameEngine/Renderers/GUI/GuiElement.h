@@ -21,7 +21,7 @@ class GuiElement
     };
 
 public:
-    GuiElement(GuiElementTypes type, const WindowSize& windowSize);
+    GuiElement(GuiElementTypes);
     virtual ~GuiElement() = default;
 
 public:
@@ -88,7 +88,6 @@ protected:
     std::string startupFunctionName_;
 
     std::string label_;
-    WindowSize windowSize_;
     vec2 position_;
     ZValue zPosition_;
     vec2 scale_;

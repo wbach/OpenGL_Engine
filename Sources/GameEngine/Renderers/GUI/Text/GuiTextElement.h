@@ -31,10 +31,10 @@ public:
     };
 
 public:
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font);
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font, const std::string& str);
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size);
-    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const vec2ui& windowSize, const std::string& font, const std::string& str, uint32 size, uint32 outline);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size);
+    GuiTextElement(FontManager&, GUIRenderer&, IResourceManager&, const std::string& font, const std::string& str, uint32 size, uint32 outline);
 
 public:
     std::optional<uint32> GetTextureId() const;

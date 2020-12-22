@@ -20,7 +20,7 @@ public:
         std::string name;
         GraphicsApi::Image image;
     };
-    FontManager(const WindowSize&);
+    FontManager();
     ~FontManager();
 
     std::optional<uint32> openFont(const File&, uint32 size);
@@ -30,6 +30,5 @@ private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
     std::unordered_map<std::string, uint32> fontNameToIdMap_;
-    const WindowSize& windowSize_;
 };
 }  // namespace GameEngine
