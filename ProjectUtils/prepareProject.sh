@@ -35,6 +35,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 done < "$includeFilePath"
 
 sdkVersion="10.0.16299.0"
+#sdkVersion="10.0.17763.0"
 toolkit="v141"
 projectName=$1
 projectNameFile=$projectName".vcxproj";

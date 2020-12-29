@@ -7,7 +7,8 @@ class HorizontalLayout : public Layout
 {
 public:
     HorizontalLayout(Input::InputManager&);
-    virtual void Update() override;
+    void AddChild(std::unique_ptr<GuiElement>) override;
+    void Update() override;
 
 private:
     float CalculateXPosition(const GuiElement&);

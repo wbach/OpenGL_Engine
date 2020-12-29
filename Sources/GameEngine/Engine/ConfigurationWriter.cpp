@@ -125,6 +125,10 @@ void CreateBinary(XmlNode& node, bool param)
 {
     node.value_ = Utils::BoolToString(param);
 }
+void WriteConfigurationToFile(const Configuration& configuration)
+{
+    WriteConfigurationToFile(configuration, configuration.filename);
+}
 void WriteConfigurationToFile(const Configuration& configuration, const std::string& filename)
 {
     XmlNode config(CSTR_CONFIG);

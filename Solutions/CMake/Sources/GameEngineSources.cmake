@@ -115,6 +115,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/DebugTools/Painter/TerrainTexturePainter.cpp
 ../../Sources/GameEngine/Display/DisplayManager.cpp
 ../../Sources/GameEngine/Engine/Configuration.cpp
+../../Sources/GameEngine/Engine/ConfigurationExplorer.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/ParamToString.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/FloraParams/FloraParams.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ParticlesParams/ParticlesParams.cpp

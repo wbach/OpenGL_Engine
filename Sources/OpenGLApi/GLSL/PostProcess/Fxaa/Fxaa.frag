@@ -1,4 +1,4 @@
-#version 450 core
+#version 440 core
 const vec3 luma = vec3(0.299, 0.587, 0.114);
 // http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
 uniform sampler2D FilterTexture;

@@ -13,6 +13,16 @@ HorizontalLayout::HorizontalLayout(Input::InputManager &inputManager)
     algin_ = Algin::LEFT;
 }
 
+void HorizontalLayout::AddChild(std::unique_ptr<GuiElement> child)
+{
+    if (scale_.y < child->GetScale().y)
+    {
+        SetScale({scale_.x, child->GetScale().y});
+    }
+
+    GuiElement::AddChild(std::move(child));
+}
+
 void HorizontalLayout::Update()
 {
     UpdateVisibility();

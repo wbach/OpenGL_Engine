@@ -81,7 +81,8 @@ void GuiElement::SetPostion(const vec2& position)
     auto moveVec = position - position_;
     for (auto& child : children_)
     {
-        UpdatePosition(*child, moveVec);
+        //UpdatePosition(*child, moveVec);
+        child->SetPostion(child->GetPosition() + moveVec);
     }
     position_ = position;
     CallOnChange();

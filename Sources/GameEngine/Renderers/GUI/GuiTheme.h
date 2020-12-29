@@ -9,7 +9,7 @@ struct GuiTheme
     uint32 fontSize_                = 32;
     std::string font                = "GUI/segoe-ui.ttf";
     std::string editBoxBackground   = "GUI/whiteClear.png";
-    std::string backgroundTexture   = "GUI/gray.png";
+    std::string backgroundTexture   = "GUI/darkGrayButton.png";
     std::string buttonTexture       = "GUI/darkGrayButton.png";
     std::string buttonHoverTexture  = "GUI/darkGrayButtonHover.png";
     std::string buttonActiveTexture = "GUI/darkGrayButtonActive.png";

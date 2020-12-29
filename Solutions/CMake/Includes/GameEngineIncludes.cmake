@@ -150,6 +150,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/DebugTools/Painter/TerrainPointGetter.h
 ../../Sources/GameEngine/DebugTools/Painter/TerrainTexturePainter.h
 ../../Sources/GameEngine/Engine/Configuration.h
+../../Sources/GameEngine/Engine/ConfigurationExplorer.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/ConfigurationParam.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/IConfigurationParam.h

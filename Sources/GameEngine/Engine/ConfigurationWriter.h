@@ -4,5 +4,6 @@
 namespace GameEngine
 {
 struct Configuration;
-void WriteConfigurationToFile(const Configuration& configuration, const std::string& filename);
+void WriteConfigurationToFile(const Configuration&);
+void WriteConfigurationToFile(const Configuration&, const std::string&);
 }  // namespace GameEngine

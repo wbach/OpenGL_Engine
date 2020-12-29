@@ -35,6 +35,7 @@ struct DebugParams
 
 struct Configuration
 {
+    std::string filename;
     Params::Files files;
     Params::Sound sound;
     Params::Window window;

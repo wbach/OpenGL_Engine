@@ -130,6 +130,7 @@ void ReadFromFile(const std::string& filename)
         WriteConfigurationToFile(EngineConf, filename);
     }
     AddRequiredFile(filename);
+    EngineConf.filename = filename;
 }
 std::string RemoveDataPath(const std::string& path)
 {
