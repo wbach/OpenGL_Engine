@@ -141,6 +141,15 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::
     return button;
 }
 
+std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::string& text, std::function<void(GuiElement&)> onClick, const std::string& bgtexture)
+{
+    auto button = CreateGuiButton(onClick, bgtexture, theme_.buttonHoverTexture, theme_.buttonActiveTexture);
+    auto guiText = CreateGuiText(text);
+    button->SetLocalScale(guiText->GetLocalScale());
+    button->SetText(std::move(guiText));
+    return button;
+}
+
 std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::function<void(GuiElement &)> onClick,
                                                                      const std::string &bgtexture,
                                                                      const std::string &hoverTexture,

@@ -217,7 +217,7 @@ float GuiElement::GetZValue() const
 {
     if (parent_)
     {
-        return transform_.zValue + parent_->transform_.zValue;
+        return transform_.zValue + parent_->GetZValue();
     }
     return transform_.zValue;
 }

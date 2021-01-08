@@ -28,6 +28,7 @@ public:
         : scene_{scene}
         , factory_{factory}
         , guiManager_{guiManager}
+        , messageBox_{nullptr}
         , mainWindow_{nullptr}
         , settingsLayout_{nullptr}
         , pauseMenuLayout_{nullptr}
@@ -48,12 +49,14 @@ public:
     {
         scene_.GetCamera().Lock();
         enablePauseMenuState();
+        onePramaterNeedRestart_ = false;
     }
     void hide()
     {
         scene_.GetCamera().Unlock();
         hideSettingWindows();
         mainWindow_->Hide();
+        onePramaterNeedRestart_ = false;
     }
     bool isShow() const
     {
@@ -195,23 +198,39 @@ private:
             auto paramText = factory_.CreateGuiText(" " + param.configurationParam.toString() + " ");
             paramText->SetLocalScale({0.2f, 1.f});
 
-            auto previousValueButton = factory_.CreateGuiButton(" < ", [&param, paramTextPtr = paramText.get()](auto&) {
-                auto str = param.configurationParam.previous();
-                paramTextPtr->SetText(str);
-            });
+            auto previousValueButton =
+                factory_.CreateGuiButton(" < ", [this, &param, paramTextPtr = paramText.get()](auto&) {
+                    auto str = param.configurationParam.previous();
+                    paramTextPtr->SetText(str);
+
+                    if (param.restartRequierd)
+                    {
+                        onePramaterNeedRestart_ = true;
+                    }
+                });
             previousValueButton->SetLocalScale({0.05f, 1.f});
 
-            auto nextValueButton = factory_.CreateGuiButton(" > ", [&param, paramTextPtr = paramText.get()](auto&) {
-                auto str = param.configurationParam.next();
-                paramTextPtr->SetText(str);
-            });
+            auto nextValueButton =
+                factory_.CreateGuiButton(" > ", [this, &param, paramTextPtr = paramText.get()](auto&) {
+                    auto str = param.configurationParam.next();
+                    paramTextPtr->SetText(str);
+
+                    if (param.restartRequierd)
+                    {
+                        onePramaterNeedRestart_ = true;
+                    }
+                });
             nextValueButton->SetLocalScale({0.05f, 1.f});
 
-            auto apllyButton =
-                factory_.CreateGuiButton(" apply ", [this, &param](auto&) {
-                    configurationChanged_ = true;
-                    param.configurationParam.apply();
-                });
+            std::string applyStr = param.restartRequierd ? " apply. " : " apply ";
+            auto apllyButton     = factory_.CreateGuiButton(applyStr, [this, &param](auto&) {
+                configurationChanged_ = true;
+                param.configurationParam.apply();
+                if (param.restartRequierd)
+                {
+                    createMessageBox("Change will be visible after game restart");
+                }
+            });
             apllyButton->SetLocalScale({0.1f, 1.f});
             horizontalLayout->AddChild(std::move(paramNameText));
             horizontalLayout->AddChild(std::move(previousValueButton));
@@ -220,6 +239,34 @@ private:
             horizontalLayout->AddChild(std::move(apllyButton));
             paramsVerticalLayout.AddChild(std::move(horizontalLayout));
         }
+
+        auto horizontalLayout = factory_.CreateHorizontalLayout();
+        horizontalLayout->SetAlgin(Layout::Algin::CENTER);
+        horizontalLayout->SetLocalScale({ 1.f, 0.0375f });
+        auto apllyButton = factory_.CreateGuiButton(" apply all ", [this, categoryName](auto&) {
+            if (configurationChanged_)
+            {
+                const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
+                for (auto& param : params)
+                {
+                    param.configurationParam.apply();
+                }
+
+                if (onePramaterNeedRestart_)
+                {
+                    createMessageBox("One from changed param need restart game");
+                    onePramaterNeedRestart_ = false;
+                }
+                configurationChanged_ = false;
+                WriteConfigurationToFile(EngineConf);
+            }
+        });
+
+        // to do : button without horizontal layout position issue
+
+        horizontalLayout->SetLocalScale({1.f, 0.0375f});
+        horizontalLayout->AddChild(std::move(apllyButton));
+        paramsVerticalLayout.AddChild(std::move(horizontalLayout));
     }
 
     void hideSettingWindows()
@@ -245,12 +292,54 @@ private:
         }
     }
 
+    void createMessageBox(const std::string& messageText)
+    {
+        if (messageBox_)
+        {
+            guiManager_.Remove(*messageBox_);
+        }
+        auto orginalTheme               = factory_.GetTheme();
+        auto modifiedTheme              = orginalTheme;
+        modifiedTheme.backgroundTexture = "GUI/darkGrayButtonActive.png";
+        modifiedTheme.buttonTexture     = "GUI/darkGrayButtonActive.png";
+        factory_.SetTheme(modifiedTheme);
+
+        vec2 buttonSize{0.3f, 0.1f};
+        auto messageBoxWindow = factory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, {0.5f, 0.5f}, {0.5f, 0.25f});
+        messageBox_           = messageBoxWindow.get();
+        messageBoxWindow->SetZPosition(-100.f);
+
+        auto text = factory_.CreateGuiText(messageText);
+        text->SetLocalScale({0.9f, 0.5f});
+        text->SetLocalPostion({0.5f, 0.5f});
+        messageBoxWindow->AddChild(std::move(text));
+
+        auto okbutton = factory_.CreateGuiButton("ok", [this](auto&) {
+            if (messageBox_)
+            {
+                guiManager_.AddRemoveTask(messageBox_);
+                messageBox_ = nullptr;
+            }
+        });
+
+        okbutton->SetLocalScale(buttonSize);
+        okbutton->SetLocalPostion({0.5f, 0.2f});
+        messageBoxWindow->AddChild(std::move(okbutton));
+
+        guiManager_.Add(std::move(messageBoxWindow));
+
+        factory_.SetTheme(orginalTheme);
+    }
+
 private:
     bool configurationChanged_{false};
+    bool onePramaterNeedRestart_{false};
+
     Scene& scene_;
     GuiElementFactory& factory_;
     GuiManager& guiManager_;
 
+    GuiWindowElement* messageBox_;
     GuiWindowElement* mainWindow_;
     VerticalLayout* settingsLayout_;
     VerticalLayout* pauseMenuLayout_;

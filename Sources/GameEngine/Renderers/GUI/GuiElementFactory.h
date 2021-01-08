@@ -62,6 +62,7 @@ public:
     // GuiButton
     std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>);
     std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>, const std::string&);
     std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>, const std::string&, const std::string&, const std::string&);
     std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>, const std::string&, const std::string&, const std::string&);
     // GuiEditBox

@@ -11,6 +11,7 @@ public:
     {
         std::string name;
         Params::IConfigurationParam& configurationParam;
+        bool restartRequierd;
     };
     using Params = std::vector<Param>;
     struct Category

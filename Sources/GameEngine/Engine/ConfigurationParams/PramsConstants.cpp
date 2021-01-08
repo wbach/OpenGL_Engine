@@ -27,5 +27,6 @@ const std::vector<vec2ui> defaultResolutions()
            };
     // clang format on
 }
+const vec2ui DEFAULT_WINDOW_SIZE = { 1000, 600 };
 }  // namespace Params
 }  // namespace GameEngine

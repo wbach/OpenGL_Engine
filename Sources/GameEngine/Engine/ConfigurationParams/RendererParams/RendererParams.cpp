@@ -1,4 +1,5 @@
 #include "RendererParams.h"
+#include "GameEngine/Engine/ConfigurationParams/PramsConstants.h"
 
 namespace GameEngine
 {
@@ -6,7 +7,6 @@ namespace Params
 {
 namespace
 {
-const vec2ui DEFAULT_WINDOW_SIZE = {1000, 600};
 std::vector<std::string> avaiablesApis()
 {
     std::vector<std::string> result{{"OpenGL"}};
@@ -26,7 +26,7 @@ Renderer::Renderer()
                    {800.f, 1000.f, 1200.f, 1500.f, 2000.f, 3000.f, 4000.f, 5000.f, 10000.f}}
     , normalMappingDistance{IConfigurationParam::Type::Float, 200.f, {100.f, 200.f, 400.f}}
     , fpsLimt{IConfigurationParam::Type::Integer, 60, {30, 60, 75, 144}}
-    , resolution{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, {DEFAULT_WINDOW_SIZE}}
+    , resolution{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions()}
 {
 }
 }  // namespace Params
