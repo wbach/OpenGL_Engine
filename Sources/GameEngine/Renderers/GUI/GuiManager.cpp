@@ -1,5 +1,7 @@
 #include "GuiManager.h"
+
 #include <algorithm>
+
 #include "GuiElementWriter.h"
 
 namespace GameEngine
@@ -97,14 +99,12 @@ void GuiManager::Update()
         }
     }
 
-    if (not tasks_.empty())
+    std::lock_guard<std::mutex> lk(taskMutex_);
+    for (auto& task : tasks_)
     {
-        for (auto& task : tasks_)
-        {
-            task();
-        }
-        tasks_.clear();
+        task();
     }
+    tasks_.clear();
 }
 
 ActionFunction GuiManager::GetActionFunction(const std::string& name)
@@ -122,12 +122,14 @@ ActionFunction GuiManager::GetActionFunction(const std::string& name)
 
 void GuiManager::AddTask(std::function<void()> task)
 {
+    std::lock_guard<std::mutex> lk(taskMutex_);
     tasks_.push_back(task);
 }
 
 void GuiManager::AddRemoveTask(GuiElement* element)
 {
-    tasks_.push_back([this, element](){ Remove(element->GetId());});
+    std::lock_guard<std::mutex> lk(taskMutex_);
+    tasks_.push_back([this, element]() { Remove(element->GetId()); });
 }
 
 void GuiManager::RegisterAction(const std::string& name, ActionFunction action)

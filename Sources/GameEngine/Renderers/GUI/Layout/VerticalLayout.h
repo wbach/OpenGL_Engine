@@ -6,7 +6,7 @@ namespace GameEngine
 class VerticalLayout : public Layout
 {
 public:
-    VerticalLayout(Input::InputManager& inputManager);
+    VerticalLayout(Input::InputManager&);
     ~VerticalLayout() override;
     virtual void SetScale(const vec2& scale);
     virtual void ResetView() override;
@@ -34,7 +34,6 @@ private:
     std::optional<uint32> mouseWheelDownSub_;
     float scrollSensitive_;
     bool adjustSize_;
-    float xOffset_;
 
     std::vector<uint32> hiddenELements_;
 

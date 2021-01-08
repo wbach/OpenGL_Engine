@@ -162,8 +162,8 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
         guiTexts_.push_back(result);
     }
 
-    const auto &windowPosition = window_->GetPosition();
-    result->SetPostion(windowPosition + DEFAULT_TEXT_POSITION);
+    const auto &windowPosition = window_->GetScreenPosition();
+    result->SetScreenPostion(windowPosition + DEFAULT_TEXT_POSITION);
     return result;
 }
 
@@ -177,10 +177,10 @@ void Console::MoveUpTexts()
 {
     for (auto &guiText : guiTexts_)
     {
-        auto position = guiText->GetPosition();
-        auto scale    = guiText->GetScale();
+        auto position = guiText->GetScreenPosition();
+        auto scale    = guiText->GetScreenScale();
         position.y += 2.f * scale.y;
-        guiText->SetPostion(position);
+        guiText->SetScreenPostion(position);
     }
 }
 

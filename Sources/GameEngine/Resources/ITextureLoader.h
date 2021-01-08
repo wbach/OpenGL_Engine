@@ -24,7 +24,7 @@ public:
 
     virtual GeneralTexture* CreateTexture(const std::string&, const TextureParameters&, const GraphicsApi::Image&) = 0;
     virtual void UpdateTexture(const GeneralTexture&)                                                              = 0;
-    virtual void UpdateTexture(const GeneralTexture&, const std::string&)                                          = 0;
+    virtual void UpdateTexture(GeneralTexture*&, const std::string&)                                               = 0;
     virtual GeneralTexture* LoadTexture(const File&, const TextureParameters&)                                     = 0;
     virtual CubeMapTexture* LoadCubeMap(const std::array<File, 6>&, const TextureParameters&)                      = 0;
     virtual HeightMap* LoadHeightMap(const File&, const TextureParameters&)                                        = 0;

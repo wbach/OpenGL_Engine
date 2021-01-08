@@ -124,7 +124,7 @@ void FileExplorer::CreateSeletedFileText()
     auto seletedFileText = guiFactory_.CreateEditBox();
     seletedFileText_     = seletedFileText.get();
     seletedFileText_->SetTextColor(vec3(0.2));
-    seletedFileText_->SetScale(vec2(windowLayout_->GetScale().x, windowLayout_->GetScale().y * SELECTED_FILE_PERCENT_SIZE));
+    seletedFileText_->SetLocalScale(vec2(windowLayout_->GetLocalScale().x, windowLayout_->GetLocalScale().y * SELECTED_FILE_PERCENT_SIZE));
     seletedFileText_->SetZPosition(-1.f);
     windowLayout_->AddChild(std::move(seletedFileText));
 }
@@ -158,7 +158,7 @@ void FileExplorer::CreateCurrentDirBar()
     auto currentDirBar = guiFactory_.CreateEditBox();
     currentDir_ = currentDirBar.get();
     currentDir_->SetTextColor(vec3(0.2));
-    currentDir_->SetScale(vec2(windowLayout_->GetScale().x, windowLayout_->GetScale().y * CURRENT_DIR_PERCENT_SIZE));
+    currentDir_->SetLocalScale(vec2(windowLayout_->GetLocalScale().x, windowLayout_->GetLocalScale().y * CURRENT_DIR_PERCENT_SIZE));
     currentDir_->SetZPosition(-1.f);
     currentDir_->SetOnEnterAction([this](const std::string &text) {
         if (Utils::DirectoryExist(text))
@@ -174,7 +174,7 @@ void FileExplorer::CreateFileListLayout()
     fileLayout_ = layout.get();
 
     fileLayout_->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
-    fileLayout_->SetScale(vec2(windowLayout_->GetScale().x, windowLayout_->GetScale().y * FILE_LIST_PERCENT_SIZE));
+    fileLayout_->SetScale(vec2(windowLayout_->GetLocalScale().x, windowLayout_->GetLocalScale().y * FILE_LIST_PERCENT_SIZE));
     windowLayout_->AddChild(std::move(layout));
 }
 }  // namespace Editor

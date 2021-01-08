@@ -84,8 +84,7 @@ void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
     }
 
     text_ = text.get();
-    text_->SetPostion(position_);
-    text_->SetZPosition(-0.2);
+    text_->SetZPosition(-0.2f);
     AddChild(std::move(text));
     backgroundTextColor_ = text_->GetColor();
     onHoverTextColor_    = text_->GetColor();
@@ -94,9 +93,7 @@ void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
 
 void GuiButtonElement::SetTexture(std::unique_ptr<GuiTextureElement> &newTexture, GuiTextureElement *&texture)
 {
-    newTexture->SetZPosition(-0.1);
-    newTexture->SetScale(scale_);
-    newTexture->SetPostion(position_);
+    newTexture->SetZPosition(-0.1f);
 
     if (texture)
     {

@@ -1,4 +1,5 @@
 #include "WindowParams.h"
+#include "GameEngine/Engine/ConfigurationParams/PramsConstants.h"
 
 namespace GameEngine
 {
@@ -10,7 +11,7 @@ const vec2ui DEFAULT_WINDOW_SIZE = {1000, 600};
 }  // namespace
 
 Window::Window()
-    : size{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, {DEFAULT_WINDOW_SIZE}}
+    : size{ IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions() }
     , fullScreen{IConfigurationParam::Type::Boolean, false, {false, true}}
     , name{IConfigurationParam::Type::String, "Default Window Name", {}}
 {

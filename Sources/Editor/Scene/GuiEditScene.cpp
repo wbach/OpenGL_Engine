@@ -63,8 +63,8 @@ int GuiEditScene::Update(float)
 
         for (auto& element : guiElementsChoose_)
         {
-            const auto& pos = element->GetPosition();
-            element->SetPostion(pos + mouseVec);
+            const auto& pos = element->GetLocalPosition();
+            element->SetLocalPostion(pos + mouseVec);
         }
     }
     return 0;
@@ -302,13 +302,13 @@ void GuiEditScene::EnableAlginToFirstX()
     inputManager_->SubscribeOnKeyDown(KeyCodes::X, [&]() {
         if (not guiElementsChoose_.empty())
         {
-            auto x = guiElementsChoose_[0]->GetPosition().x;
+            auto x = guiElementsChoose_[0]->GetLocalPosition().x;
 
             for (auto& element : guiElementsChoose_)
             {
-                auto pos = element->GetPosition();
+                auto pos = element->GetLocalPosition();
                 pos.x    = x;
-                element->SetPostion(pos);
+                element->SetLocalPostion(pos);
             }
         }
     });
@@ -319,13 +319,13 @@ void GuiEditScene::EnableSetTheSameYDistance()
     inputManager_->SubscribeOnKeyDown(KeyCodes::Y, [&]() {
         if (guiElementsChoose_.size() > 2)
         {
-            auto distance = guiElementsChoose_[1]->GetPosition().y - guiElementsChoose_[0]->GetPosition().y;
+            auto distance = guiElementsChoose_[1]->GetLocalPosition().y - guiElementsChoose_[0]->GetLocalPosition().y;
 
             for (size_t i = 2; i < guiElementsChoose_.size(); ++i)
             {
-                auto pos = guiElementsChoose_[i]->GetPosition();
-                pos.y    = guiElementsChoose_[i - 1]->GetPosition().y + distance;
-                guiElementsChoose_[i]->SetPostion(pos);
+                auto pos = guiElementsChoose_[i]->GetLocalPosition();
+                pos.y    = guiElementsChoose_[i - 1]->GetLocalPosition().y + distance;
+                guiElementsChoose_[i]->SetLocalPostion(pos);
             }
         }
     });

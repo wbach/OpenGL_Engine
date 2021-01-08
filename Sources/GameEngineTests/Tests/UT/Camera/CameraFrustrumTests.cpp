@@ -1,4 +1,4 @@
-#include <Camera/Frustrum.h>
+#include <GameEngine/Camera/Frustrum.h>
 #include <GameEngine/Camera/Camera.h>
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/Projection.h>
@@ -6,7 +6,7 @@
 #include <Types.h>
 #include <gtest/gtest.h>
 #include <Utils/math.hpp>
-#include "Scene/Scene.hpp"
+#include <GameEngine/Scene/Scene.hpp>
 
 namespace GameEngine
 {
@@ -69,7 +69,7 @@ TEST_F(CameraFrustrumShould, PointAtFront)
     EXPECT_TRUE(sut_.intersection(vec3(0)));
 }
 
-TEST_F(CameraFrustrumShould, PointAtFront2)
+TEST_F(CameraFrustrumShould, DISABLED_PointAtFront2)
 {
     CalculatePlanes(vec3(0, 0, 0), vec3(0, 0, -3));
     EXPECT_TRUE(sut_.intersection(vec3(0, 0, -3)));
@@ -89,8 +89,8 @@ TEST_F(CameraFrustrumShould, PointBehind)
 
 TEST_F(CameraFrustrumShould, PointCloseToCamera)
 {
-    vec3 point(0, 0, -3 + projection_.GetNear() + OFFSET);
-    CalculatePlanes(vec3(0, 0, -3), vec3(0, 0, 0));
+    vec3 point(0, 0, -3.f + projection_.GetNear() + OFFSET);
+    CalculatePlanes(vec3(0, 0, -3.f), vec3(0, 0, 0));
     EXPECT_TRUE(sut_.intersection(point));
 }
 
@@ -195,7 +195,7 @@ TEST_F(CameraFrustrumShould, SphereBehindCloseToCamera)
 TEST_F(CameraFrustrumShould, SphereAtFrontBehindFarPlane)
 {
     float radius(1.f);
-    vec3 sphereCenter(vec3(0, 0, projection_.GetFar() + 1 + OFFSET));
+    vec3 sphereCenter(vec3(0, 0, projection_.GetFar() + radius + OFFSET));
 
     CalculatePlanes(vec3(0, 0, -3), sphereCenter);
     EXPECT_FALSE(sut_.intersection(sphereCenter, radius));

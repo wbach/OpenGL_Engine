@@ -1,5 +1,7 @@
 #include "GuiElement.h"
+
 #include <algorithm>
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -9,8 +11,7 @@ uint32 GuiElement::ID = 0;
 GuiElement::GuiElement(GuiElementTypes type)
     : type_(type)
     , changeNotif_{true}
-    , position_{0, 0}
-    , scale_{0.05, 0.05}
+    , parent_{nullptr}
     , show_{true}
     , isActive_{true}
     , isInternal_{false}
@@ -19,10 +20,7 @@ GuiElement::GuiElement(GuiElementTypes type)
 }
 void GuiElement::AddChild(std::unique_ptr<GuiElement> child)
 {
-    child->SetZPositionOffset(GetZValue() - .1f);
-    child->Show(IsShow());
-    child->SetPostion(position_ + child->GetPosition());
-
+    child->setParent(this);
     for (auto& sub : changeSubscribers_)
     {
         child->SubscribeForChange(sub);
@@ -55,8 +53,14 @@ void GuiElement::Update()
 }
 bool GuiElement::IsCollision(const vec2& mousePosition) const
 {
-    return mousePosition.x >= position_.x - scale_.x and mousePosition.x <= position_.x + scale_.x and
-           mousePosition.y >= position_.y - scale_.y and mousePosition.y <= position_.y + scale_.y;
+    auto convertedMousePosition = (mousePosition + 1.f) / 2.f;
+    auto screenPosition         = GetScreenPosition();
+    auto halfScreenScale        = GetScreenScale() / 2.f;
+
+    return convertedMousePosition.x >= screenPosition.x - halfScreenScale.x and
+           convertedMousePosition.x <= screenPosition.x + halfScreenScale.x and
+           convertedMousePosition.y >= screenPosition.y - halfScreenScale.y and
+           convertedMousePosition.y <= screenPosition.y + halfScreenScale.y;
 }
 std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
 {
@@ -64,27 +68,16 @@ std::optional<vec2> GuiElement::GetCollisionPoint(const vec2& pos) const
     {
         return {};
     }
-    return pos - position_;
+    return pos - transform_.position;
 }
-void GuiElement::SetScale(const vec2& scale)
+void GuiElement::SetLocalScale(const vec2& scale)
 {
-    for (auto& child : children_)
-    {
-        if (not child->isInternal_)
-            child->SetScale(scale);
-    }
-    scale_ = scale;
+    transform_.scale = scale;
     CallOnChange();
 }
-void GuiElement::SetPostion(const vec2& position)
+void GuiElement::SetLocalPostion(const vec2& position)
 {
-    auto moveVec = position - position_;
-    for (auto& child : children_)
-    {
-        //UpdatePosition(*child, moveVec);
-        child->SetPostion(child->GetPosition() + moveVec);
-    }
-    position_ = position;
+    transform_.position = position;
     CallOnChange();
 }
 const std::string& GuiElement::GetLabel() const
@@ -117,22 +110,39 @@ void GuiElement::DisableChangeNotif()
     for (auto& child : children_)
         child->DisableChangeNotif();
 }
+const GuiElementTransform& GuiElement::getTransform() const
+{
+    return transform_;
+}
+void GuiElement::SetScreenScale(const vec2& scale)
+{ 
+    if (parent_)
+    {
+        GuiElement::SetLocalScale(scale / parent_->GetScreenScale());
+    }
+    else
+    {
+        GuiElement::SetLocalScale(scale);
+    }
+}
+void GuiElement::SetScreenPostion(const vec2& position)
+{
+    if (parent_)
+    {
+        SetLocalPostion(((position - parent_->GetScreenPosition()) / parent_->GetScreenScale()) + vec2(0.5f));
+    }
+    else
+    {
+        SetLocalPostion(position);
+    }
+}
 void GuiElement::Show(bool b)
 {
-    for (auto& child : children_)
-    {
-        child->Show(b);
-    }
-
     show_ = b;
     CallOnChange();
 }
 void GuiElement::Show()
 {
-    for (auto& child : children_)
-    {
-        child->Show();
-    }
     show_ = true;
     CallOnChange();
 }
@@ -150,10 +160,6 @@ void GuiElement::ShowPartial(uint32 depth)
 }
 void GuiElement::Hide()
 {
-    for (auto& child : children_)
-    {
-        child->Hide();
-    }
     show_ = false;
     CallOnChange();
 }
@@ -161,52 +167,59 @@ void GuiElement::Hide()
 void GuiElement::Activate()
 {
     isActive_ = true;
-    for (auto& child : children_)
-        child->Activate();
 }
 
 void GuiElement::Deactivate()
 {
     isActive_ = false;
-    for (auto& child : children_)
-        child->Deactivate();
 }
 
 bool GuiElement::IsActive() const
 {
+    if (parent_ and not parent_->IsActive())
+    {
+        return false;
+    }
+
     return isActive_;
 }
-const vec2& GuiElement::GetScale() const
+const vec2& GuiElement::GetLocalScale() const
 {
-    return scale_;
+    return transform_.scale;
 }
-const vec2& GuiElement::GetPosition() const
+const vec2& GuiElement::GetLocalPosition() const
 {
-    return position_;
+    return transform_.position;
+}
+vec2 GuiElement::GetScreenScale() const
+{
+    if (parent_)
+    {
+        return transform_.scale * parent_->GetScreenScale();
+    }
+
+    return transform_.scale;
+}
+vec2 GuiElement::GetScreenPosition() const
+{
+    if (parent_)
+    {
+         return parent_->GetScreenScale() * (transform_.position - vec2(0.5f)) + parent_->GetScreenPosition();
+    }
+
+    return transform_.position;
 }
 void GuiElement::SetZPosition(float z)
 {
-    zPosition_.value  = z;
-    zPosition_.total_ = zPosition_.value + zPosition_.offset_;
-
-    for (auto& child : children_)
-    {
-        child->SetZPositionOffset(GetZValue());
-    }
-}
-void GuiElement::SetZPositionOffset(float offset)
-{
-    zPosition_.offset_ = offset;
-    zPosition_.total_  = zPosition_.value + zPosition_.offset_;
-
-    for (auto& child : children_)
-    {
-        child->SetZPositionOffset(GetZValue());
-    }
+    transform_.zValue = z;
 }
 float GuiElement::GetZValue() const
 {
-    return zPosition_.total_;
+    if (parent_)
+    {
+        return transform_.zValue + parent_->transform_.zValue;
+    }
+    return transform_.zValue;
 }
 void GuiElement::SetIsInternal()
 {
@@ -222,6 +235,10 @@ GuiElementTypes GuiElement::GetType() const
 }
 bool GuiElement::IsShow() const
 {
+    if (parent_ and not parent_->IsShow())
+    {
+        return false;
+    }
     return show_;
 }
 void GuiElement::SetIsInternal(bool is)
@@ -296,6 +313,11 @@ GuiElement* GuiElement::GetChild(uint32 childId)
     return child != children_.end() ? child->get() : nullptr;
 }
 
+void GuiElement::setParent(GuiElement* parent)
+{
+    parent_ = parent;
+}
+
 void GuiElement::CallOnChange()
 {
     if (changeNotif_)
@@ -305,13 +327,6 @@ void GuiElement::CallOnChange()
             subscriber();
         }
     }
-}
-
-void GuiElement::UpdatePosition(GuiElement& element, const vec2& v)
-{
-    auto position = element.GetPosition();
-    position      = position + v;
-    element.SetPostion(position);
 }
 void GuiElement::SubscribeForChange(std::function<void()> function)
 {

@@ -41,6 +41,7 @@ public:
     const std::string& GetText() const;
     void SetTexture(GeneralTexture*);
     void UnsetTexture();
+    void setUniqueTextureName(const std::string&);
     void SetText(const std::string&);
     void Append(const std::string&);
     void Append(char);
@@ -49,23 +50,23 @@ public:
     void SetOutline(uint32 outline);
     void SetFont(const File& font);
     void SetAlgin(Algin algin);
-    void SetScale(const vec2&) override;
-    void SetZPositionOffset(float offset) override;
     const FontInfo& GetFontInfo() const;
+    mat4 GetTransformMatrix() const override;
 
 private:
     void UpdateTexture(FontManager::TextureData);
     void RenderText(bool fontOverride = false);
-    void CalculateAlginOffset();
 
 private:
     FontManager& fontManager_;
     std::string text_;
     std::string textureName_;
+    bool uniqueName_;
     FontInfo fontInfo_;
     std::optional<uint32> fontId_;
     bool openFontFailed_;
     Algin algin_;
+    vec2 rendererdTextScale_;
 
 public:
     static GuiElementTypes type;

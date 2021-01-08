@@ -7,7 +7,9 @@ set(GameEngineTestsSources
 ../../Sources/GameEngineTests/Tests/UT/Components/BaseComponent.cpp
 ../../Sources/GameEngineTests/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Renderers/EntityRendererTest.cpp
-../../Sources/GameEngineTests/Tests/UT/Renderers/GuiElementTests.cpp
+../../Sources/GameEngineTests/Tests/UT/Renderers/Gui/GuiElementTests.cpp
+../../Sources/GameEngineTests/Tests/UT/Renderers/Gui/HorizontalLayoutTests.cpp
+../../Sources/GameEngineTests/Tests/UT/Renderers/Gui/VerticalLayoutTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Renderers/TerrainNormalCalulation.cpp
 ../../Sources/GameEngineTests/Tests/UT/Resources/AssimpLoaderTests.cpp
 ../../Sources/GameEngineTests/Tests/UT/Resources/ColladaLoaderTests.cpp

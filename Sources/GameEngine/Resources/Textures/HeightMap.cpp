@@ -7,8 +7,8 @@
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const File& file, GraphicsApi::Image image)
-    : Texture(graphicsApi, vec2ui(image.width, image.height), file)
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& params, const File& file, GraphicsApi::Image image)
+    : Texture(graphicsApi, params, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
     , maximumHeight_(0)
 {

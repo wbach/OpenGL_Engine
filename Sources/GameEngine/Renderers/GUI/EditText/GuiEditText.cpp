@@ -88,11 +88,11 @@ void GuiEditBoxElement::Update()
     {
         if (not text_->GetText().empty())
         {
-            cursor_->SetPostion(text_->GetPosition() + vec2(text_->GetScale().x + cursor_->GetScale().x, 0));
+            cursor_->SetLocalPostion(text_->GetLocalPosition() + vec2(text_->GetLocalScale().x + cursor_->GetLocalScale().x, 0));
         }
         else
         {
-            cursor_->SetPostion(GetPosition());
+            cursor_->SetLocalPostion(GetLocalPosition());
         }
     }
 
@@ -101,7 +101,7 @@ void GuiEditBoxElement::Update()
 void GuiEditBoxElement::SetBackgroundTexture(std::unique_ptr<GuiTextureElement> texture)
 {
     backgroundTexture_ = texture.get();
-    backgroundTexture_->SetScale(scale_);
+    backgroundTexture_->SetScreenScale(transform_.scale);
     AddChild(std::move(texture));
 }
 

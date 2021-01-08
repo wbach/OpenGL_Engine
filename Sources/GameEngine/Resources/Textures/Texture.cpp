@@ -25,16 +25,18 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows)
     return vec2(GetTextureXOffset(textureIndex, numberOfRows), GetTextureYOffset(textureIndex, numberOfRows));
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& textureParamters)
     : graphicsApi_(graphicsApi)
+    , textureParamters_(textureParamters)
     , size_(0)
     , numberOfRows_(1)
     , orginalData_(true)
 {
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& textureParamters, const GraphicsApi::ID& id)
     : graphicsApi_(graphicsApi)
+    , textureParamters_(textureParamters)
     , size_(0)
     , numberOfRows_(1)
     , orginalData_(true)
@@ -42,8 +44,9 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& 
     graphicsObjectId_ = id;
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, const std::optional<File>& file)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& textureParamters, const vec2ui& size, const std::optional<File>& file)
     : graphicsApi_(graphicsApi)
+    , textureParamters_(textureParamters)
     , file_(file)
     , size_(size)
     , numberOfRows_(1)
@@ -108,5 +111,9 @@ void Texture::ResetModifyAcknowlage()
 uint32 Texture::getNumberOfRows() const
 {
     return numberOfRows_;
+}
+const TextureParameters& Texture::getTextureParameters() const
+{
+    return textureParamters_;
 }
 }  // namespace GameEngine

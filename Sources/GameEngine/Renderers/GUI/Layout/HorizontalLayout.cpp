@@ -1,4 +1,5 @@
 #include "HorizontalLayout.h"
+
 #include <Logger/Log.h>
 
 namespace GameEngine
@@ -8,44 +9,53 @@ GuiElementTypes HorizontalLayout::type = GuiElementTypes::HorizontalLayout;
 HorizontalLayout::HorizontalLayout(Input::InputManager &inputManager)
     : Layout(type)
     , inputManager_(inputManager)
-    , totalChildrenScale_{0}
+    , totalChildrenScaleX_{0}
+    , resizeAble_{false}
 {
-    algin_ = Algin::LEFT;
 }
 
 void HorizontalLayout::AddChild(std::unique_ptr<GuiElement> child)
 {
-    if (scale_.y < child->GetScale().y)
+    if (resizeAble_)
     {
-        SetScale({scale_.x, child->GetScale().y});
+        if (transform_.scale.y < child->GetLocalScale().y)
+        {
+            SetLocalScale({transform_.scale.x, child->GetLocalScale().y});
+        }
     }
 
     GuiElement::AddChild(std::move(child));
 }
 
-void HorizontalLayout::Update()
+void HorizontalLayout::autoResize()
 {
-    UpdateVisibility();
-    Layout::Update();
+    resizeAble_      = true;
+    transform_.scale = {0, 0};
+
+    for (auto &child : children_)
+    {
+        if (transform_.scale.y < child->GetLocalScale().y)
+        {
+            SetLocalScale({transform_.scale.x, child->GetLocalScale().y});
+        }
+    }
 }
 
-float HorizontalLayout::CalculateXPosition(const GuiElement &)
+float HorizontalLayout::calculateFirstChildXPosition() const
 {
-    if (children_.empty())
-        return 0.f;
-
-    float result = position_.x;
-
-    if (algin_ == Algin::LEFT)
+    if (not resizeAble_)
     {
-        return 0.f;
-    }
-    else if (algin_ == Algin::RIGHT)
-    {
-        return scale_.x - totalChildrenScale_;
-    }
+        if (algin_ == Algin::LEFT)
+        {
+            return children_.front()->GetLocalScale().x / 2.f;
+        }
 
-    return result;
+        if (algin_ == Algin::RIGHT)
+        {
+            return 1.f -totalChildrenScaleX_ + children_.front()->GetLocalScale().x / 2.f;
+        }
+    }
+    return 0.5f - (totalChildrenScaleX_ / 2.f) + children_.front()->GetLocalScale().x / 2.f;
 }
 
 void HorizontalLayout::OnChange()
@@ -54,30 +64,33 @@ void HorizontalLayout::OnChange()
         return;
 
     DisableChangeNotif();
-    children_[0]->SetPostion(position_ + vec2(children_[0]->GetScale().x + CalculateXPosition(*children_[0]), 0));
+    calculateTotalChildrenScaleX();
+
+    children_.front()->SetLocalPostion({calculateFirstChildXPosition(), 0});
 
     for (std::size_t i = 1; i < children_.size(); ++i)
     {
         const auto &parent = *children_[i - 1];
-        const auto &child  = *children_[i];
+        auto &current      = *children_[i];
 
-        const auto &parentPosition = parent.GetPosition().x;
-        const auto &parentScale    = parent.GetScale().x;
-
-        auto posX = parentPosition + child.GetScale().x + parentScale;
-        children_[i]->SetPostion(vec2(posX, position_.y));
+        auto posX = parent.GetLocalPosition().x + (parent.GetLocalScale().x / 2.f) + (current.GetLocalScale().x / 2.f);
+        current.SetLocalPostion({posX, 0.f});
     }
+
     EnableChangeNotif();
 }
 
-void HorizontalLayout::UpdateVisibility()
+void GameEngine::HorizontalLayout::calculateTotalChildrenScaleX()
 {
-    totalChildrenScale_ = 0.f;
-
+    totalChildrenScaleX_ = 0.f;
     for (auto &child : children_)
     {
-        totalChildrenScale_ += 2.f * child->GetScale().x;
+        totalChildrenScaleX_ += child->GetLocalScale().x;
+    }
+
+    if (resizeAble_)
+    {
+        SetLocalScale({totalChildrenScaleX_, GetLocalScale().y});
     }
 }
-
 }  // namespace GameEngine

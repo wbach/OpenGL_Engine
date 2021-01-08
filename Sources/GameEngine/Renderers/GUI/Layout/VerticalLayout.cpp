@@ -1,4 +1,5 @@
 #include "VerticalLayout.h"
+
 #include <Logger/Log.h>
 
 namespace GameEngine
@@ -11,7 +12,6 @@ VerticalLayout::VerticalLayout(Input::InputManager &inputManager)
     , viewPosition_(0.f)
     , scrollSensitive_(0.02f)
     , adjustSize_{false}
-    , xOffset_{0.f}
 
 {
     EnableScroll();
@@ -26,12 +26,12 @@ void VerticalLayout::SetScale(const vec2 &scale)
 {
     if (adjustSize_)
     {
-        vec2 newScale(scale_.x, scale.y);
-        GuiElement::SetScale(newScale);
+        vec2 newScale(transform_.scale.x, scale.y);
+        GuiElement::SetLocalScale(newScale);
     }
     else
     {
-        GuiElement::SetScale(scale);
+        GuiElement::SetLocalScale(scale);
     }
 }
 
@@ -51,7 +51,7 @@ void VerticalLayout::OnChange()
     if (children_.empty() or not IsShow())
     {
         if (adjustSize_)
-            scale_.y = 0;
+            transform_.scale.y = 0;
         return;
     }
 
@@ -62,7 +62,7 @@ void VerticalLayout::OnChange()
     if (visibility.empty())
     {
         if (adjustSize_)
-            scale_.y = 0;
+            transform_.scale.y = 0;
         return;
     }
 
@@ -71,25 +71,20 @@ void VerticalLayout::OnChange()
 
     vec2 newPosition{};
     newPosition.x = CalculateXPosition(firstChild);
-    newPosition.y = position_.y + scale_.y - firstChild.GetScale().y - viewPosition_;
-    firstChild.SetPostion(newPosition);
+    newPosition.y = 1.f - (firstChild.GetLocalScale().y / 2.f) - viewPosition_;
+    firstChild.SetLocalPostion(newPosition);
 
     for (std::size_t i = 1; i < visibility.size(); ++i)
     {
         const auto &parent = *visibility[i - 1];
         auto &child        = *visibility[i];
 
-        const auto &oldPosition     = child.GetPosition();
-        const auto &parentPositionY = parent.GetPosition().y;
-        const auto &parentScaleY    = parent.GetScale().y;
+        const auto &parentPositionY = parent.GetLocalPosition().y;
+        const auto &parentScaleY    = parent.GetLocalScale().y;
 
         newPosition.x = CalculateXPosition(child);
-        newPosition.y = parentPositionY - (child.GetScale().y + parentScaleY);
-
-        if (oldPosition != newPosition)
-        {
-            child.SetPostion(newPosition);
-        }
+        newPosition.y = parentPositionY - (parentScaleY / 2.f) - ((child.GetLocalScale().y / 2.f));
+        child.SetLocalPostion(newPosition);
     }
     UpdateVisibility();
     EnableChangeNotif();
@@ -97,18 +92,18 @@ void VerticalLayout::OnChange()
 
 float VerticalLayout::CalculateXPosition(const GuiElement &element)
 {
-    float result = position_.x;
+    float result = 0.5f;
 
     if (algin_ == Algin::LEFT)
     {
-        result -= scale_.x - element.GetScale().x;
+        result -= (1.f - element.GetLocalScale().x) / 2.f;
     }
     else if (algin_ == Algin::RIGHT)
     {
-        result += scale_.x - element.GetScale().x;
+        result += (1.f - element.GetLocalScale().x) / 2.f;
     }
 
-    return result + xOffset_;
+    return result;
 }
 
 void VerticalLayout::UpdateVisibility()
@@ -184,26 +179,25 @@ void VerticalLayout::AdjustSize(const std::vector<GuiElement *> &elements)
     if (not adjustSize_ or elements.empty())
         return;
 
-    scale_.y = 0;
+    transform_.scale.y = 0;
     for (const auto &element : elements)
     {
-        scale_.y += element->GetScale().y;
+        transform_.scale.y += element->GetLocalScale().y;
     }
 }
 
 bool VerticalLayout::IsVisible(const GuiElement &child) const
 {
-    bool bottomBorder =
-        child.GetPosition().y - child.GetScale().y < (position_.y - scale_.y - std::numeric_limits<float>::epsilon());
-    bool upperBorder =
-        child.GetPosition().y + child.GetScale().y > (position_.y + scale_.y + std::numeric_limits<float>::epsilon());
+    bool bottomBorder = child.GetLocalPosition().y - (child.GetLocalScale().y / 2.f) <
+                        (- std::numeric_limits<float>::epsilon());
+    bool upperBorder = child.GetLocalPosition().y + (child.GetLocalScale().y / 2.f) >
+                       (1.f + std::numeric_limits<float>::epsilon());
 
     return not(bottomBorder or upperBorder);
 }
 
 void VerticalLayout::SetXOffset(float value)
 {
-    xOffset_ = value;
 }
 
 void VerticalLayout::EnableFixedSize()
@@ -226,7 +220,7 @@ void VerticalLayout::Deactivate()
 
 float VerticalLayout::GetXOffset() const
 {
-    return xOffset_;
+    return 0;
 }
 
 }  // namespace GameEngine

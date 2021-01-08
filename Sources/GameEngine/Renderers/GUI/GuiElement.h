@@ -1,25 +1,27 @@
 
 #pragma once
 #include <Types.h>
+
 #include <functional>
 #include <memory>
 #include <optional>
 #include <vector>
+
 #include "GLM/GLMUtils.h"
 #include "GuiElementTypes.h"
 #include "Rect.h"
 
 namespace GameEngine
 {
+struct GuiElementTransform
+{
+    float zValue{0.f};
+    vec2 position{0.5f};
+    vec2 scale{1.0f};
+};
+
 class GuiElement
 {
-    struct ZValue
-    {
-        float value   = 0.f;
-        float offset_ = 0.f;
-        float total_  = 0.f;
-    };
-
 public:
     GuiElement(GuiElementTypes);
     virtual ~GuiElement() = default;
@@ -33,8 +35,10 @@ public:
     virtual void Update();
     virtual bool IsCollision(const vec2&) const;
     virtual std::optional<vec2> GetCollisionPoint(const vec2&) const;
-    virtual void SetScale(const vec2& scale);
-    virtual void SetPostion(const vec2& position);
+    virtual void SetLocalScale(const vec2&);
+    virtual void SetLocalPostion(const vec2&);
+    virtual void SetScreenScale(const vec2&);
+    virtual void SetScreenPostion(const vec2&);
     virtual void Show(bool);
     virtual void Show();
     virtual void ShowPartial(uint32 depth);
@@ -43,11 +47,13 @@ public:
     virtual void Deactivate();
     virtual bool IsActive() const;
 
-    virtual const vec2& GetScale() const;
-    virtual const vec2& GetPosition() const;
+    virtual const vec2& GetLocalScale() const;
+    virtual const vec2& GetLocalPosition() const;
+
+    virtual vec2 GetScreenScale() const;
+    virtual vec2 GetScreenPosition() const;
 
     virtual void SetZPosition(float z);
-    virtual void SetZPositionOffset(float offset);
     virtual float GetZValue() const;
     virtual void SetIsInternal();
     virtual void SetIsInternal(bool);
@@ -57,6 +63,8 @@ public:
     virtual GuiElement* GetCollisonElement(const vec2& mousePosition);
     virtual GuiElement* Get(const std::string& label);
     virtual GuiElement* GetChild(uint32);
+
+    virtual void setParent(GuiElement*);
 
 protected:
     void CallOnChange();
@@ -71,11 +79,11 @@ public:
 
     void SetStartupFunctionName(const std::string&);
     const std::string& GetStartupFunctionName() const;
+
     void EnableChangeNotif();
     void DisableChangeNotif();
 
-protected:
-    void UpdatePosition(GuiElement& element, const vec2& v);
+    const GuiElementTransform& getTransform() const;
     void SubscribeForChange(std::function<void()>);
 
 private:
@@ -84,13 +92,13 @@ private:
     bool changeNotif_;
 
 protected:
+    GuiElement* parent_;
     std::vector<std::unique_ptr<GuiElement>> children_;
     std::string startupFunctionName_;
 
     std::string label_;
-    vec2 position_;
-    ZValue zPosition_;
-    vec2 scale_;
+
+    GuiElementTransform transform_;
 
     bool show_;
     bool isActive_;

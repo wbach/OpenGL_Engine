@@ -63,8 +63,8 @@ std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& worldPo
 std::optional<vec2> TerrainHeightGetter::GetLocalPositionOnTerrain(const vec2& worldPostion) const
 {
     auto halfTerrainScale = terrainConfiguration_.GetScale() / 2.f;
-    auto terrain_x        = worldPostion.x + halfTerrainScale.x; // to do + terrainPosition_.x
-    auto terrain_z        = worldPostion.y + halfTerrainScale.z; // to do + terrainPosition_.z
+    auto terrain_x = worldPostion.x + halfTerrainScale.x - terrainPosition_.x;
+    auto terrain_z = worldPostion.y + halfTerrainScale.z - terrainPosition_.z;
 
     if (terrain_x > terrainConfiguration_.GetScale().x or terrain_z > terrainConfiguration_.GetScale().z)
         return std::nullopt;

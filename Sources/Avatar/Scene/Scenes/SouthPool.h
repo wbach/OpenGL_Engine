@@ -12,5 +12,8 @@ public:
     virtual int Initialize() override;
     virtual void PostInitialize() override;
     virtual int Update(float) override;
+
+private:
+    void prepareMenu();
 };
 }  // namespace AvatarGame

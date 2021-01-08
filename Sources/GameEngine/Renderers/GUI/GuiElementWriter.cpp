@@ -88,11 +88,11 @@ void write(Utils::XmlNode& node, const std::string& v)
 void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
 {
     auto& position = node.AddChild(Gui::POSITION);
-    write(position, element.GetPosition());
+    write(position, element.GetLocalPosition());
     auto& show = node.AddChild(Gui::SHOW);
     write(show, element.IsShow());
     auto& scale = node.AddChild(Gui::SCALE);
-    write(scale, element.GetScale());
+    write(scale, element.GetLocalScale());
     auto& label = node.AddChild(Gui::LABEL);
     write(label, element.GetLabel());
     auto& startupFunctionName = node.AddChild(Gui::STARTUP_FUNCTION);

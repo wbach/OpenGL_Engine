@@ -23,12 +23,13 @@ public:
     FontManager();
     ~FontManager();
 
-    std::optional<uint32> openFont(const File&, uint32 size);
-    std::optional<TextureData> renderFont(uint32 id, const std::string& text, uint32 outline);
+    std::optional<uint32> openFont(const File&, uint32);
+    std::optional<TextureData> renderFont(uint32, const std::string&, uint32);
 
 private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
     std::unordered_map<std::string, uint32> fontNameToIdMap_;
+    bool isInit_;
 };
 }  // namespace GameEngine

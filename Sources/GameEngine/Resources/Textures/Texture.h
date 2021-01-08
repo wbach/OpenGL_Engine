@@ -2,10 +2,11 @@
 #include <string>
 
 #include "../GpuObject.h"
+#include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/TextureParameters.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "TextureFlip.h"
 #include "Types.h"
-#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -16,9 +17,9 @@ vec2 GetTextureOffset(uint32 textureIndex, uint32 numberOfRows);
 class Texture : public GpuObject
 {
 public:
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const GraphicsApi::ID& id);
-    Texture(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size, const std::optional<File>&);
+    Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&);
+    Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&, const GraphicsApi::ID& id);
+    Texture(GraphicsApi::IGraphicsApi&, const TextureParameters&, const vec2ui&, const std::optional<File>&);
     Texture(const Texture&) = delete;
     ~Texture() override;
     void GpuLoadingPass() override;
@@ -33,13 +34,15 @@ public:
     bool IsModified() const;
     void ResetModifyAcknowlage();
     uint32 getNumberOfRows() const;
+    const TextureParameters& getTextureParameters() const;
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    TextureParameters textureParamters_;
     std::optional<File> file_;
     vec2ui size_;
     uint32 numberOfRows_;
-    bool orginalData_ ;
+    bool orginalData_;
 };
 
 const std::optional<File>& Texture::GetFile() const

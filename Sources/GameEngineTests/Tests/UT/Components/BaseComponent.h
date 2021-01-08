@@ -24,7 +24,6 @@ class BaseComponentTestSchould : public ::testing::Test
 {
 public:
     BaseComponentTestSchould();
-    void Init(BaseComponent*);
 
     GpuResourceLoader gpuResourceLoader_;
     Utils::MeasurementHandler measurementHandler_;
@@ -33,7 +32,7 @@ public:
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
     ComponentFactoryMock componentFactoryMock_;
     Time time_;
-    CameraMock* cameraMock_;
+    CameraMock cameraMock_;
     GameObject obj_;
     ResourceManager resourcesManager_;
     ComponentController componentController_;

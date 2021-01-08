@@ -110,7 +110,7 @@ std::unique_ptr<HorizontalLayout> TreeView::CreateHorizonalLayout(const std::str
 {
     auto horizontalLayout = elementfactory_.CreateHorizontalLayout();
 
-    horizontalLayout->SetScale(vec2(0.1, 0.05));
+    horizontalLayout->SetLocalScale(vec2(0.1, 0.05));
 
     // Roll button
     {

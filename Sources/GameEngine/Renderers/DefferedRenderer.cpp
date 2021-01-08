@@ -85,6 +85,10 @@ void DefferedRenderer::bindDefferedFbo()
         const auto& renderingSize = context_.projection_.GetRenderingSize();
         context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
     }
+    else
+    {
+        context_.graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
+    }
 }
 void DefferedRenderer::unbindDefferedFbo()
 {

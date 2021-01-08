@@ -63,23 +63,21 @@ void TextureLoader::UpdateTexture(const GeneralTexture& texture)
         });
     }
 }
-void TextureLoader::UpdateTexture(const GeneralTexture& texture, const std::string& /*newName*/)
+void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& newName)
 {
     if (not textures_.empty())
     {
-        //        auto iter =
-        //            std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto&
-        //            texture) {
-        //                return (texture.second.resource_->GetGpuObjectId() == id);
-        //            });
+        auto iter =
+            std::find_if(textures_.begin(), textures_.end(), [id = texture->GetGpuObjectId()](const auto& texture) {
+                return (texture.second.resource_->GetGpuObjectId() == id);
+            });
 
-        //        if (iter != textures_.end())
-        //        {
-        //            auto nh  = textures_.extract(iter->first);
-        //            nh.key() = newName;
-        //            textures_.insert(move(nh));
-        //        }
-        UpdateTexture(texture);
+        texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->GetImage());
+
+        if (iter != textures_.end())
+        {
+            DeleteTexture(*iter->second.resource_);
+        }
     }
 }
 GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const TextureParameters& params)
@@ -140,7 +138,7 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
         images[index++] = std::move(*image);
     }
 
-    auto cubeMap    = std::make_unique<CubeMapTexture>(graphicsApi_, textureName.str(), images);
+    auto cubeMap    = std::make_unique<CubeMapTexture>(graphicsApi_, params, textureName.str(), images);
     auto cubeMapPtr = cubeMap.get();
     AddTexture(textureName.str(), std::move(cubeMap), params.loadType);
     return cubeMapPtr;
@@ -239,7 +237,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
     image.setChannels(1);
     image.moveData(std::move(floatData));
 
-    auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, inputFileName, std::move(image));
+    auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
     auto heightmapTexturePtr = heightmapTexture.get();
     AddTexture(inputFileName.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;
@@ -254,7 +252,7 @@ HeightMap* TextureLoader::LoadHeightMapTexture(const File& inputFileName, const 
     }
 
     auto& image              = *maybeImage;
-    auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, inputFileName, std::move(image));
+    auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
     auto heightmapTexturePtr = heightmapTexture.get();
     AddTexture(inputFileName.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;

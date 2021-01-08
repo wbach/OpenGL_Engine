@@ -1,5 +1,7 @@
 #include "GuiRendererElementBase.h"
+
 #include <Logger/Log.h>
+
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -13,10 +15,7 @@ GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager
     , guiRenderer_(guiRenderer)
     , texture_{nullptr}
     , color_(vec4(1.f))
-    , offset_(0)
-    , transformMatrix_(1.f)
 {
-    CalculateMatrix();
     guiRenderer_.Subscribe(*this);
 }
 
@@ -30,17 +29,26 @@ GuiRendererElementBase::~GuiRendererElementBase()
     }
 }
 
-void GuiRendererElementBase::SetScale(const vec2 &scale)
+void GuiRendererElementBase::SetLocalScale(const vec2& scale)
 {
-    GuiElement::SetScale(scale);
-    CalculateMatrix();
+    GuiElement::SetLocalScale(scale);
 }
 
-void GuiRendererElementBase::SetPostion(const vec2 &position)
+void GuiRendererElementBase::SetLocalPostion(const vec2& position)
 {
-    GuiElement::SetPostion(position);
-    CalculateMatrix();
+    GuiElement::SetLocalPostion(position);
 }
+
+void GuiRendererElementBase::SetScreenScale(const vec2& scale)
+{
+    GuiElement::SetScreenScale(scale);
+}
+
+void GuiRendererElementBase::SetScreenPostion(const vec2& position)
+{
+    GuiElement::SetScreenPostion(position);
+}
+
 void GuiRendererElementBase::SetColor(const vec3& color)
 {
     color_.x = color.x;
@@ -52,8 +60,16 @@ void GuiRendererElementBase::SetColor(const vec4& color)
 {
     color_ = color;
 }
-void GuiRendererElementBase::CalculateMatrix()
+void GuiRendererElementBase::setParent(GuiElement* parent)
 {
-    transformMatrix_ = Utils::CreateTransformationMatrix(position_ + offset_, scale_, DegreesFloat(0.f));
+    GuiElement::setParent(parent);
+}
+
+mat4 GuiRendererElementBase::GetTransformMatrix() const
+{
+    // convert from range 0.f - 1.f to -1.f - 1.f
+    // api rendering quad -1 - 1f  (*2f not needed)
+    return Utils::CreateTransformationMatrix(GetScreenPosition() * 2.f - 1.f, GetScreenScale(),
+                                             DegreesFloat(0.f));
 }
 }  // namespace GameEngine

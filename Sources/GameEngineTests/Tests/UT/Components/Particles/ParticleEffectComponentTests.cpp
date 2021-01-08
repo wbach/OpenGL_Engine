@@ -14,25 +14,24 @@ struct ParicleComponentTestSchould : public BaseComponentTestSchould
     ParicleComponentTestSchould()
         : sut_(context_, obj_)
     {
-        Init(&sut_);
     }
-    virtual void SetUp() override
+    void SetUp() override
     {
         sut_.SetParticlesLimit(1000);
         sut_.SetEmitFunction(std::bind(&ParicleComponentTestSchould::Emit, this, std::placeholders::_1));
     }
-    GameEngine::Particle Emit(const GameEngine::Particle& p)
+    GameEngine::Particle Emit(const GameEngine::Particle& p) const
     {
         return EmitParticle(p);
     }
-    MOCK_METHOD1(EmitParticle, GameEngine::Particle(const GameEngine::Particle&));
+    MOCK_CONST_METHOD1(EmitParticle, GameEngine::Particle(const GameEngine::Particle&));
     ParticleEffectComponent sut_;
 };
 
 TEST_F(ParicleComponentTestSchould, EmitParticlesCountTest)
 {
     vec3 camPosition(0);
-    EXPECT_CALL(*cameraMock_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
+    EXPECT_CALL(cameraMock_, GetPosition()).WillRepeatedly(ReturnRef(camPosition));
     GameEngine::Particle particle;
     EXPECT_CALL(*this, EmitParticle(_)).WillRepeatedly(Return(particle));
 

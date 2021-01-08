@@ -8,7 +8,7 @@
 
 namespace GameEngine
 {
-const float GUI_WINDOW_BAR_HEIGHT{0.4f};
+const float GUI_WINDOW_BAR_HEIGHT{0.05f};
 
 class GuiWindowElement : public GuiElement
 {
@@ -22,8 +22,6 @@ public:
     void SetBar(std::unique_ptr<GuiElement>);
 
 public:
-    void SetScale(const vec2& scale) override;
-    void SetPostion(const vec2& position) override;
     void Show(bool) override;
     void Show() override;
     void Hide() override;

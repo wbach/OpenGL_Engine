@@ -8,16 +8,17 @@ class HorizontalLayout : public Layout
 public:
     HorizontalLayout(Input::InputManager&);
     void AddChild(std::unique_ptr<GuiElement>) override;
-    void Update() override;
+    void autoResize();
 
 private:
-    float CalculateXPosition(const GuiElement&);
+    float calculateFirstChildXPosition() const;
     void OnChange() override;
-    void UpdateVisibility();
+    void calculateTotalChildrenScaleX();
 
 private:
     Input::InputManager& inputManager_;
-    float totalChildrenScale_;
+    float totalChildrenScaleX_;
+    bool resizeAble_;
 
 public:
     static GuiElementTypes type;

@@ -8,7 +8,7 @@ namespace GameEngine
 {
 GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::Image image,
                                const TextureParameters& paramters, const std::optional<File>& file)
-    : Texture(graphicsApi, vec2ui(image.width, image.height), file)
+    : Texture(graphicsApi, paramters, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
     , paramters_(paramters)
 {

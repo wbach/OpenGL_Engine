@@ -13,40 +13,35 @@ public:
     GuiRendererElementBase(IResourceManager&, GUIRenderer&, GuiElementTypes);
     ~GuiRendererElementBase() override;
 
-    void SetScale(const vec2&) override;
-    void SetPostion(const vec2&) override;
+    void SetLocalScale(const vec2&) override;
+    void SetLocalPostion(const vec2&) override;
+
+    void SetScreenScale(const vec2&) override;
+    void SetScreenPostion(const vec2&) override;
 
     void SetColor(const vec3&);
     void SetColor(const vec4&);
     inline std::optional<uint32> GetTextureId() const;
-    inline const mat4& GetTransformMatrix() const;
     inline const vec4& GetColor() const;
-    const GeneralTexture* GetTexture() const;
-
-protected:
-    void CalculateMatrix();
+    inline const GeneralTexture* GetTexture() const;
+    void setParent(GuiElement*) override;
+    virtual mat4 GetTransformMatrix() const;
 
 protected:
     IResourceManager& resourceManager_;
     GUIRenderer& guiRenderer_;
     GeneralTexture* texture_;
     vec4 color_;
-    vec2 offset_;
-    mat4 transformMatrix_;
 };
 std::optional<uint32> GuiRendererElementBase::GetTextureId() const
 {
     return texture_ ? texture_->GetGraphicsObjectId() : std::optional<uint32>();
 }
-const mat4& GuiRendererElementBase::GetTransformMatrix() const
-{
-    return transformMatrix_;
-}
 const vec4& GuiRendererElementBase::GetColor() const
 {
     return color_;
 }
-inline const GeneralTexture* GuiRendererElementBase::GetTexture() const
+const GeneralTexture* GuiRendererElementBase::GetTexture() const
 {
     return texture_;
 }

@@ -155,6 +155,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/IConfigurationParam.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/ParamToString.h
+../../Sources/GameEngine/Engine/ConfigurationParams/PramsConstants.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/FloraParams/FloraParams.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ParticlesParams/ParticlesParams.h
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/RendererParams.h

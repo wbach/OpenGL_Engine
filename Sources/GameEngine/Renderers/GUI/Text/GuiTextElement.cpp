@@ -30,18 +30,18 @@ GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRendere
 }
 
 GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRenderer, IResourceManager& resourceManager,
-                               const std::string& font, const std::string& str, uint32 size,
-                               uint32 outline)
+                               const std::string& font, const std::string& str, uint32 size, uint32 outline)
     : GuiRendererElementBase(resourceManager, guiRenderer, type)
     , fontManager_(fontManager)
     , text_(str)
+    , uniqueName_{false}
     , fontInfo_{outline, size, font}
     , openFontFailed_(false)
     , algin_(Algin::CENTER)
+    , rendererdTextScale_(0)
 {
     DEBUG_LOG(text_);
     RenderText();
-    SetZPositionOffset(-0.5f);
 }
 
 std::optional<uint32> GuiTextElement::GetTextureId() const
@@ -57,7 +57,6 @@ const std::string& GuiTextElement::GetText() const
 void GuiTextElement::SetTexture(GeneralTexture* texture)
 {
     texture_ = texture;
-    CalculateAlginOffset();
 }
 
 void GuiTextElement::SetText(const std::string& text)
@@ -67,21 +66,18 @@ void GuiTextElement::SetText(const std::string& text)
 
     text_ = text;
     RenderText();
-    CalculateAlginOffset();
 }
 
 void GuiTextElement::Append(const std::string& text)
 {
     text_ = text_ + text;
     RenderText();
-    CalculateAlginOffset();
 }
 
 void GuiTextElement::Append(char c)
 {
     text_ = text_ + c;
     RenderText();
-    CalculateAlginOffset();
 }
 
 void GuiTextElement::Pop()
@@ -90,7 +86,6 @@ void GuiTextElement::Pop()
     {
         text_.pop_back();
         RenderText();
-        CalculateAlginOffset();
     }
 }
 
@@ -124,16 +119,6 @@ void GuiTextElement::SetFont(const File& font)
 void GuiTextElement::SetAlgin(GuiTextElement::Algin algin)
 {
     algin_ = algin;
-    CalculateAlginOffset();
-}
-
-void GuiTextElement::SetScale(const vec2&)
-{
-}
-
-void GuiTextElement::SetZPositionOffset(float offset)
-{
-    GuiElement::SetZPositionOffset(offset - 0.5f);
 }
 
 const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
@@ -141,17 +126,62 @@ const GuiTextElement::FontInfo& GuiTextElement::GetFontInfo() const
     return fontInfo_;
 }
 
+mat4 GuiTextElement::GetTransformMatrix() const
+{
+    auto scale   = GetScreenScale();
+    auto factorX = scale.x / rendererdTextScale_.x;
+    auto factorY = scale.y / rendererdTextScale_.y;
+
+    auto renderScale    = rendererdTextScale_ * ((factorX < factorY) ? factorX : factorY);
+    auto renderPosition = GetScreenPosition();
+
+    if (algin_ == Algin::LEFT)
+    {
+        renderPosition.x += (renderScale.x / 2.f) - scale.x / 2.f;
+    }
+    else if (algin_ == Algin::RIGHT)
+    {
+        renderPosition.x -= renderScale.x / 2.f;
+        renderPosition.x += scale.x / 2.f;
+    }
+
+    return Utils::CreateTransformationMatrix(renderPosition * 2.f - 1.f, renderScale, DegreesFloat(0.f));
+}
+
 void GuiTextElement::UnsetTexture()
 {
     texture_ = nullptr;
 }
 
-vec2 ConvertToScale(const vec2ui& size, const vec2ui& windowSize)
+void GuiTextElement::setUniqueTextureName(const std::string& name)
 {
-    vec2 scale(size.x, size.y);
-    scale.x *= 1.f / (windowSize.x * 2.f);
-    scale.y *= 1.f / (windowSize.y * 2.f);
+    textureName_ = name + "_" + std::to_string(GetId());
+    uniqueName_  = true;
+
+    if (texture_)
+    {
+        if (texture_->GetGraphicsObjectId())
+        {
+            resourceManager_.GetTextureLoader().UpdateTexture(texture_, textureName_);
+        }
+        return;
+    }
+}
+
+vec2 ConvertSizeToScale(const vec2ui& size, const vec2ui& windowSize)
+{
+    vec2 scale(0);
+    scale.x = static_cast<float>(size.x) / static_cast<float>(windowSize.x);
+    scale.y = static_cast<float>(size.y) / static_cast<float>(windowSize.y);
     return scale;
+}
+
+vec2ui ConvertScaleToSize(const vec2& scale, const vec2ui& windowSize)
+{
+    vec2ui size(0);
+    size.x = static_cast<uint32>(scale.x * static_cast<float>(windowSize.x));
+    size.y = static_cast<uint32>(scale.y * static_cast<float>(windowSize.y));
+    return size;
 }
 
 void GuiTextElement::RenderText(bool fontOverride)
@@ -181,9 +211,10 @@ void GuiTextElement::RenderText(bool fontOverride)
         auto imageData = fontManager_.renderFont(*fontId_, text_, fontInfo_.outline_);
         if (imageData)
         {
-            textureName_ = imageData->name;
-            scale_       = ConvertToScale(imageData->image.size(), EngineConf.window.size);
-            CalculateMatrix();
+            rendererdTextScale_ = ConvertSizeToScale(imageData->image.size(), EngineConf.window.size);
+            if (not uniqueName_)
+                textureName_ = imageData->name;
+
             CallOnChange();
             UpdateTexture(std::move(*imageData));
         }
@@ -208,7 +239,14 @@ void GuiTextElement::UpdateTexture(FontManager::TextureData data)
 
         if (texture_->GetGraphicsObjectId())
         {
-            resourceManager_.GetTextureLoader().UpdateTexture(*texture_, data.name);
+            if (not uniqueName_)
+            {
+                resourceManager_.GetTextureLoader().UpdateTexture(texture_, data.name);
+            }
+            else
+            {
+                resourceManager_.GetTextureLoader().UpdateTexture(*texture_);
+            }
         }
         return;
     }
@@ -222,14 +260,5 @@ void GuiTextElement::UpdateTexture(FontManager::TextureData data)
     {
         SetTexture(fontTexture);
     }
-}
-void GuiTextElement::CalculateAlginOffset()
-{
-    if (algin_ == Algin::LEFT)
-        offset_.x = scale_.x;
-    else if (algin_ == Algin::RIGHT)
-        offset_.x = -scale_.x;
-    CalculateMatrix();
-    CallOnChange();
 }
 }  // namespace GameEngine

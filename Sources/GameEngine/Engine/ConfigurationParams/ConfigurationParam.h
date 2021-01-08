@@ -24,6 +24,7 @@ public:
         , defaultValueIndex_{0}
         , defaultValues_{defaultValues}
     {
+        updatetValueIndex();
     }
     void AddDefaultValues(const std::vector<T>& defaultValues)
     {
@@ -160,15 +161,12 @@ public:
 private:
     void updatetValueIndex()
     {
-        size_t i = 0;
-        for (auto& v : defaultValues_)
+        for (size_t i = 0; i < defaultValues_.size(); ++i)
         {
-            if (v == value_)
+            if (value_ == defaultValues_[i])
             {
                 defaultValueIndex_ = i;
-                break;
             }
-            ++i;
         }
     }
 

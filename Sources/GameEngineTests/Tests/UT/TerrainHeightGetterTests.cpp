@@ -19,7 +19,7 @@ struct TerrainHeightGetterShould : public ::testing::Test
         image.height = heightMapSize;
         image.setChannels(1);
         image.allocateImage<float>();
-        heightMap_ = std::make_unique<HeightMap>(graphicsApiMock_, "file", image);
+        heightMap_ = std::make_unique<HeightMap>(graphicsApiMock_, GameEngine::TextureParameters(), "file", image);
 
         heightMap_->SetHeight(vec2ui(0, 0), 10.f);
         heightMap_->SetHeight(vec2ui(0, heightMapSize - 1), 10.f);
@@ -45,27 +45,27 @@ struct TerrainHeightGetterShould : public ::testing::Test
         auto scale = terrainConfig_.GetScale() / 2.f + 0.01f;
 
         {
-            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, terrainPosition.z);
             EXPECT_FALSE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(terrainPosition.x, scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(terrainPosition.x, scale.z + terrainPosition.z);
             EXPECT_FALSE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, scale.z + terrainPosition.z);
             EXPECT_FALSE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, terrainPosition.z);
             EXPECT_FALSE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(terrainPosition.x, -scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(terrainPosition.x, -scale.z + terrainPosition.z);
             EXPECT_FALSE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, -scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, -scale.z + terrainPosition.z);
             EXPECT_FALSE(h.has_value());
         }
     }
@@ -76,31 +76,31 @@ struct TerrainHeightGetterShould : public ::testing::Test
         auto scale = terrainConfig_.GetScale() / 2.f - 0.01f;
 
         {
-            auto h = sut_->GetHeightofTerrain(terrainPosition.x, terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(terrainPosition.x, terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(terrainPosition.x, scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(terrainPosition.x, scale.z + terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, scale.z + terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(terrainPosition.x, -scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(terrainPosition.x, -scale.z + terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
         {
-            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, -scale.z + terrainPosition.y);
+            auto h = sut_->GetHeightofTerrain(-scale.x + terrainPosition.x, -scale.z + terrainPosition.z);
             EXPECT_TRUE(h.has_value());
         }
     }

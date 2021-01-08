@@ -1,11 +1,16 @@
 #include <gtest/gtest.h>
-#include "GameEngine/Components/Animation/Animator.h"
 
 #include "BaseComponent.h"
+#include "GameEngine/Components/Animation/Animator.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Animation;
 using namespace GameEngine::Components;
+
+namespace
+{
+const std::string CLIP_NAME{"DefaultAnimationClip"};
+}
 
 struct AnimatorTestWrapper : public Animator
 {
@@ -32,8 +37,8 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
     }
     virtual void SetUp() override
     {
-        auto& anim = sut_.animationClips_["DefaultAnimationClip"];
-        anim.name  = "DefaultAnimationClip";
+        auto& anim = sut_.animationClips_[CLIP_NAME];
+        anim.name  = CLIP_NAME;
 
         KeyFrame frame;
         frame.timeStamp = 0;
@@ -44,6 +49,8 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
         anim.AddFrame(frame);
         frame.timeStamp = 0.99f;
         anim.AddFrame(frame);
+
+        sut_.SetAnimation(CLIP_NAME);
     }
     AnimatorTestWrapper sut_;
 };

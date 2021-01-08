@@ -32,56 +32,22 @@ void GuiWindowElement::Update()
     auto position = inputManager_.GetMousePosition();
 
     auto newPosition = position - *collisionPoint_;
-    auto moveVec     = newPosition - position_;
+    auto moveVec     = newPosition - transform_.position;
 
-    if (glm::length(moveVec) > std::numeric_limits<float>::min())
+    if (glm::length(moveVec) > std::numeric_limits<float>::epsilon())
     {
-        GuiElement::SetPostion(newPosition);
+        GuiElement::SetScreenPostion(newPosition);
     }
 }
 
 void GuiWindowElement::CheckCollisionPoint()
 {
     auto position   = inputManager_.GetMousePosition();
-    collisionPoint_ = position - position_;
+    collisionPoint_ = position - transform_.position;
 }
 GuiWindowStyle GuiWindowElement::GetStyle() const
 {
     return style_;
-}
-
-void GuiWindowElement::SetScale(const vec2& scale)
-{
-    GuiElement::SetScale(scale);
-
-    if (background_)
-    {
-        background_->SetScale(scale);
-    }
-
-    if (bar_)
-    {
-        auto barScale = bar_->GetScale();
-        barScale.x    = scale.x;
-        bar_->SetScale(barScale);
-        const vec2 barPosition(0, GetScale().y + GUI_WINDOW_BAR_HEIGHT);
-        bar_->SetPostion(barPosition);
-    }
-}
-
-void GuiWindowElement::SetPostion(const vec2& position)
-{
-    GuiElement::SetPostion(position);
-
-    if (background_)
-    {
-        background_->SetPostion(position);
-    }
-
-    if (bar_)
-    {
-        bar_->SetPostion(position);
-    }
 }
 
 void GuiWindowElement::Show(bool v)
@@ -132,13 +98,20 @@ void GuiWindowElement::Hide()
 void GuiWindowElement::SetBackground(std::unique_ptr<GuiElement> background)
 {
     background_ = std::move(background);
-    background_->SetPostion(position_);
-    background_->SetScale(scale_);
+    background_->setParent(this);
     background_->SetZPosition(0.5f);
+    DEBUG_LOG("Id : " + std::to_string(GetId()));
+    DEBUG_LOG("BId : " + std::to_string(background_->GetId()));
+    DEBUG_LOG("Screen scale " + std::to_string(GetScreenScale()));
+    DEBUG_LOG("BScreen scale " + std::to_string(background_->GetScreenScale()));
+    DEBUG_LOG("Screen pos " + std::to_string(GetScreenPosition()));
+    DEBUG_LOG("BScreen pos " + std::to_string(background_->GetScreenPosition()));
 }
 
 void GuiWindowElement::SetBar(std::unique_ptr<GuiElement> bar)
 {
-    bar_ = std::move(bar);
+    DEBUG_LOG("Not implemented");
+    //bar_ = std::move(bar);
+    //bar_->setParent(this);
 }
 }  // namespace GameEngine

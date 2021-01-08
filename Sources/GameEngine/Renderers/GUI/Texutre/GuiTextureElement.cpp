@@ -18,6 +18,6 @@ GuiTextureElement::GuiTextureElement(IResourceManager& resourceManager, GUIRende
 
 void GuiTextureElement::Flip()
 {
-    scale_.y *= -1;
+    transform_.scale.y *= -1;
 }
 }  // namespace GameEngine

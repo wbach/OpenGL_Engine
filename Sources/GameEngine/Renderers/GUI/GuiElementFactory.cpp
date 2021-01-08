@@ -102,8 +102,8 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
                                                                      const vec4 &backgorundColor)
 {
     auto guiWindow = std::make_unique<GuiWindowElement>(style, inputManager_);
-    guiWindow->SetPostion(position);
-    guiWindow->SetScale(scale);
+    guiWindow->SetLocalPostion(position);
+    guiWindow->SetLocalScale(scale);
 
     if (style != GuiWindowStyle::EMPTY)
     {
@@ -112,6 +112,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
 
         if (backgroundGuiTexture)
         {
+            backgroundGuiTexture->SetLocalScale({ 1.f, 1.f });
             backgroundGuiTexture->SetColor(backgorundColor);
             guiWindow->SetBackground(std::move(backgroundGuiTexture));
         }
@@ -135,7 +136,7 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::
 {
     auto button  = CreateGuiButton(onclick);
     auto guiText = CreateGuiText(text);
-    button->SetScale(guiText->GetScale());
+    button->SetLocalScale(guiText->GetLocalScale());
     button->SetText(std::move(guiText));
     return button;
 }
@@ -183,7 +184,7 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::
 {
     auto button  = CreateGuiButton(onclick, bgtexture, hoverTexture, activeTexture);
     auto guiText = CreateGuiText(text);
-    button->SetScale(guiText->GetScale());
+    button->SetLocalScale(guiText->GetLocalScale());
     button->SetText(std::move(guiText));
     return button;
 }
@@ -241,7 +242,7 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     window->SetZPosition(-100.f);
 
     auto titleText = CreateGuiText(title);
-    titleText->SetPostion(vec2(0, 0.275));
+    titleText->SetLocalPostion(vec2(0, 0.275));
     window->AddChild(std::move(titleText));
 
     auto messageText = CreateGuiText(message);
@@ -254,8 +255,8 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
         guiManager_.AddRemoveTask(windowPtr);
     });
 
-    button->SetScale(1.5f * button->GetScale());
-    button->SetPostion(vec2(0, -0.25));
+    button->SetLocalScale(1.5f * button->GetLocalScale());
+    button->SetLocalPostion(vec2(0, -0.25));
     window->AddChild(std::move(button));
     guiManager_.Add(std::move(window));
 }
@@ -291,16 +292,16 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File 
 void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &window)
 {
     auto ptr = &window;
-    const vec2 barPosition(0, window.GetScale().y + GUI_WINDOW_BAR_HEIGHT);
+    const vec2 barPosition(0, window.GetLocalScale().y + GUI_WINDOW_BAR_HEIGHT);
 
     auto horizontalLayout = CreateHorizontalLayout();
-    horizontalLayout->SetScale(0.99f * vec2(window.GetScale().x, GUI_WINDOW_BAR_HEIGHT));
-    horizontalLayout->SetPostion(barPosition);
+    horizontalLayout->SetLocalScale({ 0.99f, GUI_WINDOW_BAR_HEIGHT });
+    horizontalLayout->SetLocalPostion(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
 
     auto barButton = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
-    barButton->SetScale(vec2(window.GetScale().x, GUI_WINDOW_BAR_HEIGHT));
-    barButton->SetPostion(barPosition);
+    barButton->SetLocalScale({ 1.f, 1.f });
+    barButton->SetLocalPostion(barPosition);
 
     auto barTexture = CreateGuiTexture(theme_.windowBarTexture);
     if (barTexture)
@@ -316,8 +317,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
         auto closeButtonTexture = CreateGuiTexture("GUI/close.png");
         if (closeButtonTexture)
         {
-            closeButtonTexture->SetScale(.5f * vec2(GUI_WINDOW_BAR_HEIGHT));
-            closeButton->SetScale(closeButtonTexture->GetScale());
+            closeButtonTexture->SetLocalScale({1.f, 1.f});
             closeButton->SetBackgroundTexture(std::move(closeButtonTexture));
         }
         closeButton->SetZPosition(-1.f);

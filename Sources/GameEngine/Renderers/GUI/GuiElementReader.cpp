@@ -4,16 +4,16 @@
 #include <Utils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 
+#include "Button/GuiButton.h"
+#include "EditText/GuiEditText.h"
 #include "GuiElement.h"
 #include "GuiElementFactory.h"
 #include "GuiElementsDef.h"
 #include "GuiManager.h"
-
-#include "Button/GuiButton.h"
-#include "EditText/GuiEditText.h"
 #include "Layout/HorizontalLayout.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
@@ -138,7 +138,7 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &
     if (paramNode)
     {
         auto position = Utils::ReadVec2(*paramNode);
-        element.SetPostion(position);
+        element.SetLocalPostion(position);
     }
     paramNode = node.GetChild(Gui::SHOW);
     if (paramNode)
@@ -149,7 +149,7 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &
     paramNode = node.GetChild(Gui::SCALE);
     if (paramNode)
     {
-        element.SetScale(Utils::ReadVec2(*paramNode));
+        element.SetLocalScale(Utils::ReadVec2(*paramNode));
     }
 
     paramNode = node.GetChild(Gui::LABEL);
@@ -248,12 +248,12 @@ std::unique_ptr<GuiTextureElement> GuiElementReader::ReadGuiTexture(Utils::XmlNo
     ReadGuiElementBasic(*texture, node);
 
     paramNode = node.GetChild(Gui::COLOR);
+
     if (paramNode)
-        if (paramNode)
-        {
-            auto color = Utils::ReadVec3(*paramNode);
-            texture->SetColor(color);
-        }
+    {
+        auto color = Utils::ReadVec3(*paramNode);
+        texture->SetColor(color);
+    }
     return texture;
 }
 std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode &node)

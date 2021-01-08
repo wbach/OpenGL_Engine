@@ -1,5 +1,7 @@
 #include "GuiEngineContextManger.h"
+
 #include <Logger/Log.h>
+
 #include "GuiElementFactory.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
@@ -12,12 +14,11 @@ GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measur
     : measurementHandler_(measurementHandler)
     , guiFactory_(guiFactory)
 {
-    rootWindow_ = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.75, 1.0), vec2(0.25, 0),
+    rootWindow_ = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.85, 1.f), vec2(0.3f, 0),
                                               vec4(1.f, 1.f, 1.f, 0.5f));
     rootWindow_->SetZPosition(-11.f);
-    auto verticalLayout = guiFactory.CreateVerticalLayout();
-    verticalLayout->SetAlgin(GameEngine::VerticalLayout::Algin::LEFT);
-    verticalLayout->SetScale(rootWindow_->GetScale());
+    auto verticalLayout = guiFactory_.CreateVerticalLayout();
+    verticalLayout->SetAlgin(GameEngine::VerticalLayout::Algin::CENTER);
     verticalLayout_ = verticalLayout.get();
     rootWindow_->AddChild(std::move(verticalLayout));
 }
@@ -37,9 +38,11 @@ void GuiEngineContextManger::Update()
         {
             auto text = guiFactory_.CreateGuiText(printedText, 40);
             text->SetColor(vec3(.1f));
+            text->SetAlgin(GuiTextElement::Algin::LEFT);
+            text->setUniqueTextureName(measurment.first);
             guiTexts_.insert({measurment.first, text.get()});
-            AdjustSize(text->GetScale().y);
             verticalLayout_->AddChild(std::move(text));
+            AdjustSize(0.025);
         }
         else
         {
@@ -56,12 +59,18 @@ void GuiEngineContextManger::Update()
 
 void GuiEngineContextManger::AdjustSize(float textYscale)
 {
-    auto windowScale = rootWindow_->GetScale();
-    windowScale.y += textYscale;
-    auto windowPosition = rootWindow_->GetPosition();
-    windowPosition.y -= textYscale;
-    rootWindow_->SetPostion(windowPosition);
-    rootWindow_->SetScale(windowScale);
-    verticalLayout_->SetScale(rootWindow_->GetScale());
+    const float childSize = 0.025f;
+    auto windowScale      = rootWindow_->GetScreenScale();
+    windowScale.y         = verticalLayout_->GetChildren().size() * childSize;
+    auto windowPosition   = rootWindow_->GetScreenPosition();
+    windowPosition.y      = 1.f - (childSize * verticalLayout_->GetChildren().size() / 2.f);
+
+    rootWindow_->SetScreenPostion(windowPosition);
+    rootWindow_->SetScreenScale(windowScale);
+
+    for (auto& child : verticalLayout_->GetChildren())
+    {
+        child->SetScreenScale({child->GetScreenScale().x, childSize});
+    }
 }
 }  // namespace GameEngine

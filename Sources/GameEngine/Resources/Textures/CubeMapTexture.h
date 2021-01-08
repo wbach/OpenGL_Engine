@@ -8,7 +8,7 @@ namespace GameEngine
 class CubeMapTexture : public Texture
 {
 public:
-    CubeMapTexture(GraphicsApi::IGraphicsApi&, const std::string& name, std::array<GraphicsApi::Image, 6>);
+    CubeMapTexture(GraphicsApi::IGraphicsApi&, const TextureParameters&, const std::string&, std::array<GraphicsApi::Image, 6>);
     void GpuLoadingPass() override;
 
 private:

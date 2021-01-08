@@ -2,8 +2,10 @@
 
 #include <Logger/Log.h>
 #include <SDL2/SDL_ttf.h>
-#include "GameEngine/Engine/Configuration.h"
+
 #include <algorithm>
+
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -21,10 +23,12 @@ struct FontManager::Pimpl
 };
 
 FontManager::FontManager()
+    : isInit_{false}
 {
-    impl_ = std::make_unique<FontManager::Pimpl>();
+    impl_   = std::make_unique<FontManager::Pimpl>();
+    isInit_ = TTF_Init() >= 0;
 
-    if (TTF_Init() < 0)
+    if (not isInit_)
     {
         ERROR_LOG("Failed to init TTF");
     }
@@ -37,6 +41,9 @@ FontManager::~FontManager()
 }
 std::optional<uint32> FontManager::openFont(const File& filename, uint32 size)
 {
+    if (not isInit_)
+        return std::nullopt;
+
     auto fname = filename.GetAbsoultePath() + std::to_string(size);
     if (fontNameToIdMap_.count(fname) > 0)
     {
@@ -61,8 +68,12 @@ std::optional<uint32> FontManager::openFont(const File& filename, uint32 size)
     ERROR_LOG("Cannot open font : " + filename.GetFilename());
     return {};
 }
+
 std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, const std::string& text, uint32 outline)
 {
+    if (not isInit_ or text.empty())
+        return std::nullopt;
+
     auto index = fontId - 1;
     if (index >= impl_->fonts_.size())
     {
@@ -88,13 +99,14 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
         return {};
     }
 
-    FontManager::TextureData result;
-    result.name = text + "_" + std::to_string(fontId) + "_" + std::to_string(outline);
-    result.image.width = static_cast<uint32>(sdlSurface->w);
-    result.image.height = static_cast<uint32>(sdlSurface->h);
-    result.image.setChannels(sdlSurface->format->BytesPerPixel);
-    result.image.copyImage<uint8>(sdlSurface->pixels);
+    FontManager::TextureData sdlSizeImage;
+    sdlSizeImage.name = text + "_" + std::to_string(fontId) + "_" + std::to_string(outline);
+    sdlSizeImage.image.setChannels(sdlSurface->format->BytesPerPixel);
+    sdlSizeImage.image.width  = static_cast<uint32>(sdlSurface->w);
+    sdlSizeImage.image.height = static_cast<uint32>(sdlSurface->h);
+    sdlSizeImage.image.copyImage<uint8>(sdlSurface->pixels);
+
     SDL_FreeSurface(sdlSurface);
-    return result;
+    return sdlSizeImage;
 }
 }  // namespace GameEngine

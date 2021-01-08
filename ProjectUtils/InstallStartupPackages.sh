@@ -1,5 +1,6 @@
 #!/bin/bash
 #sudo usermod -a -G vboxsf baszek
+#sudo mount --bind /some/source /else/dest alternative for ln -s
 sudo apt-get update -y
 sudo apt-get upgrade -y
 sudo apt-get install -y openssh-server

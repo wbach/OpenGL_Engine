@@ -14,132 +14,258 @@
 #include <GameEngine/Resources/ResourceManager.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
 #include <Logger/Log.h>
+
 #include <Thread.hpp>
 
 using namespace GameEngine;
 
 namespace AvatarGame
 {
-class SettingViewer
+class Menu
 {
 public:
-    SettingViewer(GuiElementFactory& factory, GuiManager& guiManager)
-        : factory_{factory}
+    Menu(Scene& scene, GuiElementFactory& factory, GuiManager& guiManager)
+        : scene_{scene}
+        , factory_{factory}
         , guiManager_{guiManager}
-        , categoriesWindow_{nullptr}
-        , paramsWindow_{nullptr}
+        , mainWindow_{nullptr}
+        , settingsLayout_{nullptr}
+        , pauseMenuLayout_{nullptr}
+        , mainMenuLayout_{nullptr}
+        , menuButtonSize_{1.f, 0.075f}
     {
-        auto categoriesWindow =
-            factory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(-0.5, 0.f), vec2(0.2f, 1.f));
-        categoriesWindow_ = categoriesWindow.get();
-        auto logo         = factory_.CreateGuiTexture("Gui/1200px-Avatar_The_Last_Airbender_logo.svg.png");
-        logo->SetScale({categoriesWindow->GetScale().x, categoriesWindow->GetScale().x});
-        logo->SetPostion({0, 0.5f});
-        categoriesWindow_->AddChild(std::move(logo));
+        init();
+    }
+    ~Menu()
+    {
+        if (mainWindow_)
+            guiManager_.Remove(*mainWindow_);
+        for (auto& pair : settingWindows_)
+            guiManager_.Remove(*pair.second);
+    }
+
+    void show()
+    {
+        scene_.GetCamera().Lock();
+        enablePauseMenuState();
+    }
+    void hide()
+    {
+        scene_.GetCamera().Unlock();
+        hideSettingWindows();
+        mainWindow_->Hide();
+    }
+    bool isShow() const
+    {
+        return mainWindow_->IsShow();
+    }
+
+private:
+    void enablePauseMenuState()
+    {
+        guiManager_.AddTask([this]() {
+            hideSettingWindows();
+            settingsLayout_->Hide();
+            pauseMenuLayout_->Show();
+            mainWindow_->Show();
+        });
+    }
+    void enableSettingsViewState()
+    {
+        guiManager_.AddTask([this]() {
+            hideSettingWindows();
+            pauseMenuLayout_->Hide();
+            settingsLayout_->Show();
+            mainWindow_->Show();
+        });
+    }
+
+    void init()
+    {
+        auto mainWindow = factory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.25f, 0.5f), vec2(0.2f, 1.f));
+        mainWindow->Hide();
+
+        mainWindow_ = mainWindow.get();
+        auto logo   = factory_.CreateGuiTexture("Gui/1200px-Avatar_The_Last_Airbender_logo.svg.png");
+        logo->SetLocalScale({1.f, 0.15f});
+        logo->SetLocalPostion({0.5f, 0.75f});
+        mainWindow_->AddChild(std::move(logo));
+
+        auto pauseLayout = createPauseMenuLayout();
+        pauseMenuLayout_ = pauseLayout.get();
+        setMainWindowVerticalLayoutTransform(*pauseLayout);
+        mainWindow_->AddChild(std::move(pauseLayout));
+
+        auto settingsLayout = createSettingsLayout();
+        settingsLayout_     = settingsLayout.get();
+        setMainWindowVerticalLayoutTransform(*settingsLayout);
+        mainWindow_->AddChild(std::move(settingsLayout));
+
+        guiManager_.Add(std::move(mainWindow));
+    }
+
+    void setMainWindowVerticalLayoutTransform(VerticalLayout& layout)
+    {
+        layout.SetLocalPostion({0.5f, 0.25});
+        layout.SetLocalScale({1.f, 0.5f});
+        layout.SetAlgin(Layout::Algin::CENTER);
+    }
+
+    std::unique_ptr<VerticalLayout> createPauseMenuLayout()
+    {
         auto verticalLayout = factory_.CreateVerticalLayout();
-        verticalLayout->SetPostion({0, -0.5});
-        verticalLayout->SetScale(categoriesWindow->GetScale() * 0.5f);
-        verticalLayout->SetAlgin(Layout::Algin::CENTER);
+        {
+            auto guiButton = factory_.CreateGuiButton("Resume", [this](auto&) { hide(); });
+            guiButton->SetLocalScale(menuButtonSize_);
+            verticalLayout->AddChild(std::move(guiButton));
+        }
+        {
+            auto guiButton = factory_.CreateGuiButton("Settings", [this](auto&) { enableSettingsViewState(); });
+
+            guiButton->SetLocalScale(menuButtonSize_);
+            verticalLayout->AddChild(std::move(guiButton));
+        }
+        {
+            auto guiButton =
+                factory_.CreateGuiButton("Back to main menu", guiManager_.GetActionFunction("BackToMainMenu()"));
+            guiButton->SetLocalScale(menuButtonSize_);
+            verticalLayout->AddChild(std::move(guiButton));
+        }
+        {
+            auto guiButton = factory_.CreateGuiButton("Exit game", guiManager_.GetActionFunction("ExitGame()"));
+            guiButton->SetLocalScale(menuButtonSize_);
+            verticalLayout->AddChild(std::move(guiButton));
+        }
+
+        return verticalLayout;
+    }
+
+    std::unique_ptr<VerticalLayout> createSettingsLayout()
+    {
+        auto verticalLayout = factory_.CreateVerticalLayout();
 
         auto categories = configurationExplorer_.getCatogiresList();
         for (auto& category : categories)
         {
+            auto paramsWindow =
+                factory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.675, 0.5f), vec2(0.64f, 1.0f));
+            paramsWindow->Hide();
+            settingWindows_.insert({category, paramsWindow.get()});
+            auto paramsVerticalLayout = factory_.CreateVerticalLayout();
+            fillSettingsParamWindow(*paramsVerticalLayout, category);
+            paramsWindow->AddChild(std::move(paramsVerticalLayout));
+            guiManager_.Add(std::move(paramsWindow));
+
             auto categoryText = factory_.CreateGuiText(category);
             auto categoryButton =
                 factory_.CreateGuiButton([&, categoryName = category, categoryTextPtr = categoryText.get()](auto&) {
-                    if (paramsWindow_)
-                    {
-                        guiManager_.Remove(*paramsWindow_);
-                    }
-
-                    auto paramsWindow =
-                        factory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.25f, 0.f), vec2(0.5f, 0.5f));
-                    paramsWindow_ = paramsWindow.get();
-
-                    auto paramsVerticalLayout = factory_.CreateVerticalLayout();
-                    paramsVerticalLayout->SetScale(paramsWindow->GetScale() * 0.99f);
-                    paramsVerticalLayout->SetAlgin(Layout::Algin::LEFT);
-                    paramsVerticalLayout->SetPostion({-.25, 0});
-
-                    const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
-                    for (auto& param : params)
-                    {
-                        auto horizontalLayout = factory_.CreateHorizontalLayout();
-                        horizontalLayout->SetScale({paramsWindow->GetScale().x * 0.99f, 0.f});
-                        horizontalLayout->SetAlgin(Layout::Algin::LEFT);
-
-                        auto paramNameText = factory_.CreateGuiText(param.name);
-
-                        auto paramText = factory_.CreateGuiText(" " + param.configurationParam.toString() + " ");
-
-                        auto previousValueButton =
-                            factory_.CreateGuiButton(" < ", [&param, paramTextPtr = paramText.get()](auto&) {
-                                auto str = param.configurationParam.previous();
-                                paramTextPtr->SetText(str);
-                            });
-
-                        auto nextValueButton =
-                            factory_.CreateGuiButton(" > ", [&param, paramTextPtr = paramText.get()](auto&) {
-                                auto str = param.configurationParam.next();
-                                paramTextPtr->SetText(str);
-                            });
-
-                        auto apllyButton =
-                            factory_.CreateGuiButton(" apply ", [this, &param, paramTextPtr = paramText.get()](auto&) {
-                                configurationChanged_ = true;
-                                param.configurationParam.apply();
-                            });
-
-                        horizontalLayout->AddChild(std::move(paramNameText));
-                        horizontalLayout->AddChild(std::move(previousValueButton));
-                        horizontalLayout->AddChild(std::move(paramText));
-                        horizontalLayout->AddChild(std::move(nextValueButton));
-                        horizontalLayout->AddChild(std::move(apllyButton));
-                        paramsVerticalLayout->AddChild(std::move(horizontalLayout));
-                    }
-
-                    paramsWindow_->AddChild(std::move(paramsVerticalLayout));
-                    guiManager_.Add(std::move(paramsWindow));
+                    showSettingWindow(categoryName);
                 });
-            categoryButton->SetScale({0.2, 0.05});
+
+            categoryButton->SetLocalScale(menuButtonSize_);
             categoryButton->SetText(std::move(categoryText));
             verticalLayout->AddChild(std::move(categoryButton));
         }
 
         auto backButton = factory_.CreateGuiButton("Back", [&](auto&) {
-            auto window = guiManager_.GetElement("PauseMenuMainWindow");
-            if (window)
-                window->Show();
-            if (categoriesWindow_)
-                categoriesWindow_->Hide();
-            if (paramsWindow_)
-                paramsWindow_->Hide();
+            enablePauseMenuState();
             if (configurationChanged_)
                 WriteConfigurationToFile(EngineConf);
         });
-        backButton->SetScale({0.2, 0.05});
+
+        backButton->SetLocalScale(menuButtonSize_);
         verticalLayout->AddChild(std::move(backButton));
-        categoriesWindow->AddChild(std::move(verticalLayout));
-        guiManager_.Add(std::move(categoriesWindow));
+
+        return verticalLayout;
     }
 
-    ~SettingViewer()
+    void fillSettingsParamWindow(VerticalLayout& paramsVerticalLayout, const std::string& categoryName)
     {
-        guiManager_.Remove(*categoriesWindow_);
-        if (paramsWindow_)
-            guiManager_.Remove(*paramsWindow_);
+        const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
+
+        for (auto& param : params)
+        {
+            auto horizontalLayout = factory_.CreateHorizontalLayout();
+            horizontalLayout->SetAlgin(Layout::Algin::CENTER);
+            horizontalLayout->SetLocalScale({1.f, 0.0375f});
+
+            auto paramNameText = factory_.CreateGuiText(param.name);
+            paramNameText->SetLocalScale({0.5f, 1.f});
+
+            auto paramText = factory_.CreateGuiText(" " + param.configurationParam.toString() + " ");
+            paramText->SetLocalScale({0.2f, 1.f});
+
+            auto previousValueButton = factory_.CreateGuiButton(" < ", [&param, paramTextPtr = paramText.get()](auto&) {
+                auto str = param.configurationParam.previous();
+                paramTextPtr->SetText(str);
+            });
+            previousValueButton->SetLocalScale({0.05f, 1.f});
+
+            auto nextValueButton = factory_.CreateGuiButton(" > ", [&param, paramTextPtr = paramText.get()](auto&) {
+                auto str = param.configurationParam.next();
+                paramTextPtr->SetText(str);
+            });
+            nextValueButton->SetLocalScale({0.05f, 1.f});
+
+            auto apllyButton =
+                factory_.CreateGuiButton(" apply ", [this, &param](auto&) {
+                    configurationChanged_ = true;
+                    param.configurationParam.apply();
+                });
+            apllyButton->SetLocalScale({0.1f, 1.f});
+            horizontalLayout->AddChild(std::move(paramNameText));
+            horizontalLayout->AddChild(std::move(previousValueButton));
+            horizontalLayout->AddChild(std::move(paramText));
+            horizontalLayout->AddChild(std::move(nextValueButton));
+            horizontalLayout->AddChild(std::move(apllyButton));
+            paramsVerticalLayout.AddChild(std::move(horizontalLayout));
+        }
     }
 
+    void hideSettingWindows()
+    {
+        for (auto& pair : settingWindows_)
+        {
+            pair.second->Hide();
+        }
+    }
+
+    void showSettingWindow(const std::string& name)
+    {
+        for (auto& pair : settingWindows_)
+        {
+            if (pair.first == name)
+            {
+                pair.second->Show();
+            }
+            else
+            {
+                pair.second->Hide();
+            }
+        }
+    }
+
+private:
     bool configurationChanged_{false};
+    Scene& scene_;
     GuiElementFactory& factory_;
     GuiManager& guiManager_;
 
-    GuiWindowElement* categoriesWindow_;
-    GuiWindowElement* paramsWindow_;
+    GuiWindowElement* mainWindow_;
+    VerticalLayout* settingsLayout_;
+    VerticalLayout* pauseMenuLayout_;
+    VerticalLayout* mainMenuLayout_;
     GameEngine::ConfigurationExplorer configurationExplorer_;
+
+    std::unordered_map<std::string, GuiWindowElement*> settingWindows_;
+
+    std::mutex eventMutex_;
+    std::vector<std::function<void()>> events_;
+
+    const vec2& menuButtonSize_;
 };  // namespace AvatarGame
 
-std::unique_ptr<SettingViewer> settingViewer_;
+std::unique_ptr<Menu> menu_;
 
 const std::string pauseMenuFile = "Scenes/PauseMenu/PauseMenu.xml";
 
@@ -151,21 +277,18 @@ SouthPool::SouthPool()
 SouthPool::~SouthPool()
 {
     DEBUG_LOG(__FUNCTION__);
-    settingViewer_.reset();
+    menu_.reset();
 }
 
 int SouthPool::Initialize()
 {
     DEBUG_LOG("SouthPool::Initialize()");
 
+    prepareMenu();
+
     // resourceManager_->GetTextureLaoder().CreateHeightMap("Textures/Terrain/HeightMaps/World.png",
     //                                                     "Textures/Terrain/HeightMaps/output.terrain", vec3(1.f));
 
-    GuiTheme guiTheme;
-    guiTheme.font      = "GUI/herculanum.ttf";
-    guiTheme.fontSize_ = 50;
-
-    guiElementFactory_->SetTheme(guiTheme);
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
     const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
@@ -174,92 +297,7 @@ int SouthPool::Initialize()
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
 
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() {
-        auto window = guiManager_->GetElement("PauseMenuMainWindow");
-        if (window)
-        {
-            if (window->IsShow())
-            {
-                window->Hide();
-                camera.Unlock();
-            }
-            else
-            {
-                window->Show();
-                camera.Lock();
-            }
-        }
-        else
-        {
-            camera.Unlock();
-        }
-
-        if (settingViewer_)
-            settingViewer_.reset();
-    });
-
-    // inputManager_->SubscribeOnKeyDown(KeyCodes::TAB, [&]() {
-    //    auto state = *EngineConf.renderer.shadows.isEnabled;
-    //    EngineConf.renderer.shadows.isEnabled.set(not state);
-    //});
-
-    // inputManager_->SubscribeOnKeyDown(KeyCodes::TAB, [&]() {
-    //    auto state = *EngineConf.renderer.water.type;
-    //    if (state == GameEngine::Params::WaterType::FULL)
-    //        EngineConf.renderer.water.type.set(GameEngine::Params::WaterType::SIMPLE);
-    //    else
-    //        EngineConf.renderer.water.type.set(GameEngine::Params::WaterType::FULL);
-    //});
-
-    inputManager_->SubscribeOnKeyDown(KeyCodes::TAB, [&]() {
-        auto& windowSizeParam = EngineConf.window.size;
-        auto nextValue        = windowSizeParam.next();
-        DEBUG_LOG("windowSizeParam nextValue : " + nextValue);
-        windowSizeParam.apply();
-    });
-
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
-        auto& param = EngineConf.window.fullScreen;
-        param.set(not*param);
-    });
-
-    guiManager_->RegisterAction("Settings()", [&](auto&) {
-        settingViewer_.reset(new SettingViewer(*guiElementFactory_, *guiManager_));
-        auto window = guiManager_->GetElement("PauseMenuMainWindow");
-        if (window)
-        {
-            window->Hide();
-        }
-    });
-
-    guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {
-        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
-        addSceneEvent(sceneEvent);
-    });
-
-    guiManager_->RegisterAction("Resume()", [&](auto&) {
-        auto window = guiManager_->GetElement("PauseMenuMainWindow");
-        if (window)
-        {
-            if (window->IsShow())
-            {
-                window->Hide();
-                camera.Unlock();
-            }
-            else
-            {
-                window->Show();
-                camera.Lock();
-            }
-        }
-
-        if (settingViewer_)
-            settingViewer_.reset();
-    });
-
-    guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
-
-    guiElementFactory_->ReadGuiFile(EngineConf_GetFullDataPath(pauseMenuFile));
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { menu_->isShow() ? menu_->hide() : menu_->show(); });
 
     DEBUG_LOG("SouthPool::Initialized");
     return 0;
@@ -272,5 +310,20 @@ void SouthPool::PostInitialize()
 int SouthPool::Update(float)
 {
     return 0;
+}
+void SouthPool::prepareMenu()
+{
+    GuiTheme guiTheme;
+    guiTheme.font      = "GUI/herculanum.ttf";
+    guiTheme.fontSize_ = 50;
+    guiElementFactory_->SetTheme(guiTheme);
+
+    guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {
+        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
+        addSceneEvent(sceneEvent);
+    });
+    guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
+
+    menu_ = std::make_unique<Menu>(*this, *guiElementFactory_, *guiManager_);
 }
 }  // namespace AvatarGame

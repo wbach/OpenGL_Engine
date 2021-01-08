@@ -50,6 +50,7 @@ public:
 
 private:
     GuiLayers layers_;
+    std::mutex taskMutex_;
     std::unordered_map<std::string, ActionFunction> registeredActions_;
     std::vector<std::function<void()>> tasks_;
 };
