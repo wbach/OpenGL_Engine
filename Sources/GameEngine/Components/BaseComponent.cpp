@@ -1,6 +1,6 @@
 #include "BaseComponent.h"
-
 #include <Logger/Log.h>
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -21,7 +21,7 @@ BaseComponent::~BaseComponent()
 
     for (auto id : ids_)
     {
-        componentContext_.componentController_.UnRegisterFunction(id.second, id.first);
+        componentContext_.componentController_.UnRegisterFunction(thisObject_.GetId(), id.second, id.first);
     }
 
     if (componentRegistredId_)
@@ -49,7 +49,7 @@ GameObject& BaseComponent::GetParentGameObject()
 {
     return thisObject_;
 }
-const GameObject &BaseComponent::getParentGameObject() const
+const GameObject& BaseComponent::getParentGameObject() const
 {
     return thisObject_;
 }
@@ -60,5 +60,10 @@ bool BaseComponent::IsActive() const
 void BaseComponent::InitFromParams(const std::unordered_map<std::string, std::string>&)
 {
 }
+void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
+{
+    ids_.insert({componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type, func), type});
+}
+
 }  // namespace Components
 }  // namespace GameEngine

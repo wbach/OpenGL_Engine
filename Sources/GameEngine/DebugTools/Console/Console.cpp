@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
@@ -19,8 +20,6 @@ namespace Debug
 {
 namespace
 {
-const size_t MAX_GUI_TEXTS{20};
-const vec2 DEFAULT_TEXT_POSITION(-0.99f, -0.45f);
 const std::string COMMAND_CURRSOR{"> "};
 const std::string CONSOLE_LAYER_NAME{"consoleLayer"};
 Input::SingleCharType inputType{Input::SingleCharType::SMALL};
@@ -91,7 +90,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
     commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
     commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
-	commandsActions_.insert({"editor", [this](const auto &params) { EnableEditorNetworkInterface(params); } });
+    commandsActions_.insert({"editor", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
     commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
     commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
     commandsActions_.insert({"exit", [this](const auto &params) { Exit(params); }});
@@ -146,24 +145,21 @@ GuiTextElement *Console::AddOrUpdateGuiText(const std::string &command)
     MoveUpTexts();
     GuiTextElement *result{nullptr};
 
-    if (guiTexts_.size() < MAX_GUI_TEXTS)
+    const float textHeight = 0.05f;
+
+    if (guiTexts_.size() * textHeight > 1.f - textHeight)
     {
-        auto text = scene_.guiElementFactory_->CreateGuiText("GUI/Ubuntu-M.ttf", COMMAND_CURRSOR + command, 35, 0);
-        text->SetAlgin(GuiTextElement::Algin::LEFT);
-        result = text.get();
-        guiTexts_.push_back(result);
-        window_->AddChild(std::move(text));
-    }
-    else
-    {
-        result = guiTexts_.front();
-        result->SetText(COMMAND_CURRSOR + command);
+        windowVerticalLayout_->RemoveChild(guiTexts_.front()->GetId());
         guiTexts_.pop_front();
-        guiTexts_.push_back(result);
     }
 
-    const auto &windowPosition = window_->GetScreenPosition();
-    result->SetScreenPostion(windowPosition + DEFAULT_TEXT_POSITION);
+    auto text = scene_.guiElementFactory_->CreateGuiText("GUI/Ubuntu-M.ttf", COMMAND_CURRSOR + command, 35, 0);
+    text->SetAlgin(GuiTextElement::Algin::LEFT);
+    text->SetLocalScale({1.f, 0.05f});
+    result = text.get();
+    guiTexts_.push_back(result);
+    windowVerticalLayout_->AddChild(std::move(text));
+
     return result;
 }
 
@@ -625,11 +621,16 @@ void Console::PrepareConsoleWindow()
     scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
 
     auto window =
-        scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0, 0.5), vec2(1, 0.5));
+        scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.5, 0.75), vec2(1, 0.5f));
 
     window_ = window.get();
     window_->Hide();
     window_->SetZPosition(WINDOW_Z_POSITION);
+
+    auto vl = scene_.guiElementFactory_->CreateVerticalLayout();
+
+    windowVerticalLayout_ = vl.get();
+    window_->AddChild(std::move(vl));
 
     scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
 

@@ -31,7 +31,7 @@ public:
     const GameObject& getParentGameObject() const override;
 
 protected:
-    inline void RegisterFunction(FunctionType, std::function<void()> func);
+    void RegisterFunction(FunctionType, std::function<void()> func);
 
 protected:
     ComponentsType type_;
@@ -43,11 +43,6 @@ private:
     std::unordered_map<uint32, FunctionType> ids_;
     std::optional<uint32> componentRegistredId_;
 };
-
-void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
-{
-    ids_.insert({componentContext_.componentController_.RegisterFunction(type, func), type});
-}
 
 ComponentsType BaseComponent::GetType() const
 {

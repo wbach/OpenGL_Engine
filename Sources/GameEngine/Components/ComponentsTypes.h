@@ -27,7 +27,10 @@ enum class ComponentsType
     Water,
     ThridPersonCamera,
     PlayerInputController,
-    CharacterController
+    CharacterController,
+    EnemyController,
+    Player,
+    Enemy
 };
 std::vector<ComponentsType> GetComponentTypes();
 std::optional<GameEngine::Components::ComponentsType> from_string(const std::string&);

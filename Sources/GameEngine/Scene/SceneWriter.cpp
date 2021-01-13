@@ -23,6 +23,9 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Components/Controllers/EnemyController.h"
+#include "GameEngine/Components/Characters/Enemy.h"
+#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -286,6 +289,21 @@ void Create(XmlNode&, const Components::CharacterController&)
 {
 }
 
+void Create(XmlNode& node, const Components::EnemyController& component)
+{
+    Create(node.AddChild(CSTR_IDLE_ANIMATION), component.idleAnimationName_);
+    Create(node.AddChild(CSTR_RUN_ANIMATION), component.runAnimationName_);
+    Create(node.AddChild(CSTR_ATTACK_ANIMATION), component.attackAnimationName_);
+}
+
+void Create(XmlNode&, const Components::Player&)
+{
+}
+
+void Create(XmlNode&, const Components::Enemy&)
+{
+}
+
 void Create(XmlNode& node, const Components::WaterRendererComponent& component)
 {
     Create(node.AddChild(CSTR_COLOR), component.GetWaterColor());
@@ -442,6 +460,15 @@ void Create(XmlNode& node, const Components::IComponent& component)
             break;
         case Components::ComponentsType::PlayerInputController:
             CreateComponent<Components::PlayerInputController>(node, component);
+            break;
+        case Components::ComponentsType::EnemyController:
+            CreateComponent<Components::EnemyController>(node, component);
+            break;
+        case Components::ComponentsType::Enemy:
+            CreateComponent<Components::Enemy>(node, component);
+            break;
+        case Components::ComponentsType::Player:
+            CreateComponent<Components::Player>(node, component);
             break;
         default:
             break;

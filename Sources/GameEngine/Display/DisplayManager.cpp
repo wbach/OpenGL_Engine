@@ -21,10 +21,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , isFullScreen_(EngineConf.window.fullScreen)
     , windowsSize_(EngineConf.window.size)
 {
-    changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange([this](const auto& newSize) {
-        graphicsApi_.GetWindowApi().SetWindowSize(newSize);
-       // graphicsApi_.SetViewPort(0, 0, newSize.x, newSize.y);
-    });
+    changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange(
+        [this](const auto& newSize) { graphicsApi_.GetWindowApi().SetWindowSize(newSize); });
 
     changeFullScreenSubscription_ =
         EngineConf.window.fullScreen.subscribeForChange([this](const auto& newValue) { SetFullScreen(newValue); });
@@ -38,6 +36,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
     graphicsApi_.PrepareFrame();
+
     graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
 
     for (const auto& mode : graphicsApi_.GetWindowApi().GetDisplayModes())

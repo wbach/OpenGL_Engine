@@ -44,8 +44,8 @@ private:
     void UnSubscribe();
     void ReserveBufferVectors(size_t);
     void CreateBuffers(Model&);
-    void CreatePerObjectUpdateBuffer(const Mesh& mesh);
-    void CreatePerObjectConstantsBuffer(const Mesh& mesh);
+    void CreatePerObjectUpdateBuffer(const Mesh&);
+    void CreatePerObjectConstantsBuffer(const Mesh&);
 
 private:
     ModelWrapper model_;

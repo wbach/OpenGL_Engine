@@ -53,9 +53,9 @@ void CharacterController::Update()
     isOnGround();
 
     vec3 direction(0.f);
-    for (const auto& action : actions_)
+    for (auto iter = actions_.begin(); iter != actions_.end();)
     {
-        switch (action)
+        switch (*iter)
         {
             case Action::MOVE_BACKWARD:
                 direction.z = -1.f;
@@ -92,10 +92,27 @@ void CharacterController::Update()
                 rigidbody_->SetRotation(rotation);
             }
             break;
+            case Action::ROTATE_TARGET:
+            {
+                progress_ += componentContext_.time_.deltaTime;
+                if (progress_ > 1.f)
+                    progress_ = 1.f;
+
+                auto newRotation = glm::slerp(startedRotation, rotateTarget, progress_);
+                rigidbody_->SetRotation(newRotation);
+
+                if (compare(progress_, 1.f))
+                {
+                    iter = actions_.erase(iter);
+                    continue;
+                }
+            }
+            break;
             default:
                 DEBUG_LOG("unknown action!");
                 break;
         }
+        ++iter;
     }
 
     if (glm::length(direction) < std::numeric_limits<float>::epsilon())
@@ -150,12 +167,40 @@ void CharacterController::SetJumpCallback(std::function<void()> action)
     jumpCallback_ = action;
 }
 
+void CharacterController::setRotationTarget(const Rotation& rotation)
+{
+    if (rigidbody_)
+    {
+        auto iter = std::find(actions_.begin(), actions_.end(), Action::ROTATE_TARGET);
+        if (iter == actions_.end())
+        {
+            if (rotation.value_ != rigidbody_->GetRotation())
+            {
+                AddState(Action::ROTATE_TARGET);
+                rotateTarget = rotation.value_;
+                startedRotation = rigidbody_->GetRotation();
+                progress_ = 0.f;
+            }
+        }
+        else
+        {
+            if (rotation.value_ != rotateTarget)
+            {
+                rotateTarget    = rotation.value_;
+                startedRotation = rigidbody_->GetRotation();
+                progress_       = 0.f;
+            }
+        }
+    }
+}
+
 void CharacterController::isOnGround()
 {
     if (isJumping_)
     {
         auto position = thisObject_.GetWorldTransform().GetPosition();
-        auto hitTest  = componentContext_.physicsApi_.RayTest(position + vec3(0, 1.f, 0), vec3(position.x, -10000.f, position.z));
+        auto hitTest =
+            componentContext_.physicsApi_.RayTest(position + vec3(0, 1.f, 0), vec3(position.x, -10000.f, position.z));
 
         if (hitTest)
         {

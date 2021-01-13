@@ -8,6 +8,7 @@
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/IComponentFactory.h"
 
 namespace GameEngine
@@ -18,7 +19,7 @@ typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
 class GameObject
 {
 public:
-    GameObject(const std::string&, Components::IComponentFactory&, IdType);
+    GameObject(const std::string&, Components::ComponentController&, Components::IComponentFactory&, IdType);
     GameObject(const GameObject&)  = delete;
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
@@ -40,6 +41,7 @@ public:
     inline const std::string& GetName() const;
 
     void RegisterComponentFunctions();
+
     template <class T>
     T* GetComponent();
 
@@ -88,6 +90,7 @@ protected:
 private:
     IdType id_;
     Components::IComponentFactory& componentFactory_;
+    Components::ComponentController& componentController_;
 };
 
 inline const std::string& GameObject::GetName() const

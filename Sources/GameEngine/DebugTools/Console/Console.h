@@ -17,6 +17,7 @@ class Scene;
 class GameObject;
 class GuiTextElement;
 class GuiWindowElement;
+class VerticalLayout;
 
 namespace Debug
 {
@@ -72,6 +73,7 @@ private:
 private:
     Scene& scene_;
     GuiWindowElement* window_;
+    VerticalLayout* windowVerticalLayout_;
     std::list<GuiTextElement*> guiTexts_;
     std::vector<std::string> commandsHistory_;
     std::list<std::string> commandsToExecute_;

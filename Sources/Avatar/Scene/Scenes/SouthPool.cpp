@@ -69,7 +69,7 @@ private:
         guiManager_.AddTask([this]() {
             hideSettingWindows();
             settingsLayout_->Hide();
-            pauseMenuLayout_->Show();
+            pauseMenuLayout_->Show();;
             mainWindow_->Show();
         });
     }
@@ -242,7 +242,7 @@ private:
 
         auto horizontalLayout = factory_.CreateHorizontalLayout();
         horizontalLayout->SetAlgin(Layout::Algin::CENTER);
-        horizontalLayout->SetLocalScale({ 1.f, 0.0375f });
+        horizontalLayout->SetLocalScale({1.f, 0.0375f});
         auto apllyButton = factory_.CreateGuiButton(" apply all ", [this, categoryName](auto&) {
             if (configurationChanged_)
             {

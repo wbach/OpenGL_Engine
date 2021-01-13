@@ -2,7 +2,10 @@
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Characters/Enemy.h"
+#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Controllers/EnemyController.h"
 #include "GameEngine/Components/Input/PlayerInputController.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
@@ -395,6 +398,21 @@ void Read(const Utils::XmlNode& node, Components::TerrainRendererComponent& comp
     }
 }
 
+void Read(const Utils::XmlNode& node, Components::EnemyController& component)
+{
+    setIfExist(node, CSTR_IDLE_ANIMATION, component.idleAnimationName_);
+    setIfExist(node, CSTR_RUN_ANIMATION, component.runAnimationName_);
+    setIfExist(node, CSTR_ATTACK_ANIMATION, component.attackAnimationName_);
+}
+
+void Read(const Utils::XmlNode&, Components::Enemy&)
+{
+}
+
+void Read(const Utils::XmlNode&, Components::Player&)
+{
+}
+
 template <typename T>
 void AddComponent(const Utils::XmlNode& node, GameObject& gameObject)
 {
@@ -474,6 +492,15 @@ void Read(Scene& scene, const Utils::XmlNode& node, GameObject& gameObject)
                 break;
             case Components::ComponentsType::PlayerInputController:
                 AddComponent<Components::PlayerInputController>(*component, gameObject);
+                break;
+            case Components::ComponentsType::EnemyController:
+                AddComponent<Components::EnemyController>(*component, gameObject);
+                break;
+            case Components::ComponentsType::Enemy:
+                AddComponent<Components::Enemy>(*component, gameObject);
+                break;
+            case Components::ComponentsType::Player:
+                AddComponent<Components::Player>(*component, gameObject);
                 break;
             default:
                 break;

@@ -14,6 +14,7 @@ public:
     void init() override;
     void render() override;
     void reloadShaders() override;
+    void setViewPort() override;
 
 private:
     void bindDefferedFbo();

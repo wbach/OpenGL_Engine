@@ -24,6 +24,7 @@ public:
     void init() override;
     void prepare() override;
     void render() override;
+    virtual void setViewPort();
     void blendRender() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;

@@ -9,11 +9,13 @@
 
 namespace GameEngine
 {
-GameObject::GameObject(const std::string& name, Components::IComponentFactory& componentFactory, IdType id)
+GameObject::GameObject(const std::string& name,
+                       Components::ComponentController& componentController, Components::IComponentFactory& componentFactory, IdType id)
     : parent_(nullptr)
     , name_(name)
     , id_(id)
     , componentFactory_(componentFactory)
+    , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
 }
@@ -36,6 +38,7 @@ void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
     object->SetParent(this);
     object->RegisterComponentFunctions();
+    componentController_.OnObjectCreated(object->GetId());
     children_.push_back(std::move(object));
 }
 

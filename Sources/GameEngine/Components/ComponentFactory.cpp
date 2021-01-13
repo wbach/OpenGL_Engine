@@ -2,7 +2,10 @@
 #include "Animation/Animator.h"
 #include "BaseComponent.h"
 #include "Camera/ThridPersonCameraComponent.h"
+#include "Characters/Player.h"
+#include "Characters/Enemy.h"
 #include "Controllers/CharacterController.h"
+#include "Controllers/EnemyController.h"
 #include "Input/PlayerInputController.h"
 #include "Physics/BoxShape.h"
 #include "Physics/CapsuleShape.h"
@@ -10,8 +13,8 @@
 #include "Physics/Rigidbody.h"
 #include "Physics/SphereShape.h"
 #include "Physics/Terrain/TerrainShape.h"
-#include "Renderer/Entity/RendererComponent.hpp"
 #include "Renderer/Entity/PreviewComponent.h"
+#include "Renderer/Entity/RendererComponent.hpp"
 #include "Renderer/Grass/GrassComponent.h"
 #include "Renderer/Particles/ParticleEffectComponent.h"
 #include "Renderer/SkyBox/SkyBoxComponent.h"
@@ -25,10 +28,12 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentFactory::ComponentFactory(ComponentController& componentController, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time, Input::InputManager& input,
+ComponentFactory::ComponentFactory(ComponentController& componentController, GraphicsApi::IGraphicsApi& graphicsApi,
+                                   IGpuResourceLoader& gpuResourceLoader, Time& time, Input::InputManager& input,
                                    IResourceManager& resourceManager, Renderer::RenderersManager& rendererManager,
                                    CameraWrapper& camera, Physics::IPhysicsApi& physicsApi)
-    : context_(graphicsApi, gpuResourceLoader, time, input, camera, physicsApi, resourceManager, rendererManager, componentController)
+    : context_(graphicsApi, gpuResourceLoader, time, input, camera, physicsApi, resourceManager, rendererManager,
+               componentController)
 {
 }
 std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameObject& ptr)
@@ -110,6 +115,18 @@ std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameOb
         case ComponentsType::PlayerInputController:
         {
             return std::make_unique<PlayerInputController>(context_, ptr);
+        }
+        case ComponentsType::EnemyController:
+        {
+            return std::make_unique<EnemyController>(context_, ptr);
+        }
+        case ComponentsType::Player:
+        {
+            return std::make_unique<Player>(context_, ptr);
+        }
+        case ComponentsType::Enemy:
+        {
+            return std::make_unique<Enemy>(context_, ptr);
         }
     }
     return nullptr;

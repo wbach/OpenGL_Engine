@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "ComponentsTypes.h"
 #include "Types.h"
+#include <Utils/IdPool.h>
 
 namespace GameEngine
 {
@@ -19,39 +20,45 @@ enum class FunctionType
     AlwaysUpdate,
 };
 
-typedef std::unordered_map<uint32, std::function<void()> > FunctionMap;
-typedef std::unordered_map<uint32, IComponent*> RegistredComponentsMap;
+typedef std::unordered_map<uint32, IComponent *> RegistredComponentsMap;
 
 class ComponentController final
 {
 public:
+    using GameObjectId = IdType;
+
+    struct ComponentFunction
+    {
+        IdType id;
+        std::function<void()> function;
+    };
+
     ComponentController();
     ~ComponentController();
 
     const RegistredComponentsMap &GetAllComonentsOfType(ComponentsType) const;
 
-    uint32 RegisterFunction(FunctionType, std::function<void()>);
-    void UnRegisterFunction(FunctionType, uint32);
+    uint32 RegisterFunction(IdType, FunctionType, std::function<void()>);
+    void UnRegisterFunction(GameObjectId, FunctionType, uint32);
 
-    uint32 RegisterComponent(ComponentsType, IComponent*);
+    uint32 RegisterComponent(ComponentsType, IComponent *);
     void UnRegisterComponent(ComponentsType, uint32);
 
     void UnRegisterAll();
 
 public:
+    void OnObjectCreated(IdType);
     void OnStart();
     void Update();
     void PostUpdate();
     void AlwaysUpdate();
-    void CallFunc(FunctionType type);
+    void CallFunctions(FunctionType);
+    void CallGameObjectFunctions(FunctionType, IdType);
 
 private:
-    void CallFunctionIfControllerStarted(FunctionType type, std::function<void()> func);
-
-private:
-    std::unordered_map<FunctionType, FunctionMap> functions_;
+    std::unordered_map<GameObjectId, std::unordered_map<FunctionType, std::vector<ComponentFunction>>> functions_;
     std::unordered_map<ComponentsType, RegistredComponentsMap> registredComponents_;
-    uint32 functionId;
+    Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;
 };

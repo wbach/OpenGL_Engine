@@ -63,8 +63,13 @@ void BaseRenderer::initRenderers()
 }
 void BaseRenderer::render()
 {
+    setViewPort();
     for (auto& renderer : renderers)
         renderer->render();
+}
+void BaseRenderer::setViewPort()
+{
+    context_.graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
 }
 void BaseRenderer::blendRender()
 {

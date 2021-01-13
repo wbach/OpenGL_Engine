@@ -12,10 +12,13 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
 ../../Sources/GameEngine/Components/BaseComponent.cpp
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
+../../Sources/GameEngine/Components/Characters/Enemy.cpp
+../../Sources/GameEngine/Components/Characters/Player.cpp
 ../../Sources/GameEngine/Components/ComponentController.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
 ../../Sources/GameEngine/Components/ComponentsType.cpp
 ../../Sources/GameEngine/Components/Controllers/CharacterController.cpp
+../../Sources/GameEngine/Components/Controllers/EnemyController.cpp
 ../../Sources/GameEngine/Components/Input/PlayerInputController.cpp
 ../../Sources/GameEngine/Components/Physics/BoxShape.cpp
 ../../Sources/GameEngine/Components/Physics/CapsuleShape.cpp

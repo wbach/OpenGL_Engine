@@ -5,7 +5,7 @@ using namespace testing;
 BaseComponentTestSchould::BaseComponentTestSchould()
     : threadSync_(measurementHandler_)
     , graphicsApiMock_()
-    , obj_("Test GameObject", componentFactoryMock_, IdType(0))
+    , obj_("Test GameObject", componentController_, componentFactoryMock_, IdType(0))
     , resourcesManager_(graphicsApiMock_, gpuResourceLoader_)
     , renderersManager_(graphicsApiMock_, gpuResourceLoader_, measurementHandler_, threadSync_, time_)
     , cameraWrapper_(cameraMock_)

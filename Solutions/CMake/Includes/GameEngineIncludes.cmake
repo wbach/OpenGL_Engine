@@ -19,11 +19,14 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/BaseComponent.h
 ../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.h
+../../Sources/GameEngine/Components/Characters/Enemy.h
+../../Sources/GameEngine/Components/Characters/Player.h
 ../../Sources/GameEngine/Components/ComponentContext.h
 ../../Sources/GameEngine/Components/ComponentController.h
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Components/Controllers/CharacterController.h
+../../Sources/GameEngine/Components/Controllers/EnemyController.h
 ../../Sources/GameEngine/Components/IComponent.h
 ../../Sources/GameEngine/Components/IComponentFactory.h
 ../../Sources/GameEngine/Components/Input/PlayerInputController.h

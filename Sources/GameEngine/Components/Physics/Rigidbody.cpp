@@ -38,7 +38,7 @@ void Rigidbody::CleanUp()
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
     rigidBodyId_ = std::nullopt;
 }
-void Rigidbody::OnAwake()
+void Rigidbody::OnStart()
 {
     collisionShape_ = GetCollisionShape();
 
@@ -52,7 +52,10 @@ void Rigidbody::OnAwake()
                                                                      thisObject_, mass_, isStatic_);
 
     if (rigidBodyId == 0)
+    {
+        ERROR_LOG("create rigidbody error.");
         return;
+    }
 
     rigidBodyId_ = rigidBodyId;
 
@@ -64,7 +67,7 @@ void Rigidbody::OnAwake()
 }
 void Rigidbody::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&Rigidbody::OnAwake, this));
+    RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
 }
 bool Rigidbody::IsReady() const
 {

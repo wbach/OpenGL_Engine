@@ -37,7 +37,10 @@ std::vector<ComponentsType> GetComponentTypes()
         ComponentsType::Water,
         ComponentsType::ThridPersonCamera,
         ComponentsType::PlayerInputController,
-        ComponentsType::CharacterController
+        ComponentsType::CharacterController,
+        ComponentsType::EnemyController,
+        ComponentsType::Player,
+        ComponentsType::Enemy
     };
     // clang-format on
 }
@@ -62,7 +65,9 @@ std::optional<GameEngine::Components::ComponentsType> from_string(const std::str
     FROM_STR(ThridPersonCamera);
     FROM_STR(PlayerInputController);
     FROM_STR(CharacterController);
-
+    FROM_STR(EnemyController);
+    FROM_STR(Player);
+    FROM_STR(Enemy);
     ERROR_LOG("Invalid name : " + name);
     return {};
 }
@@ -94,6 +99,9 @@ std::string to_string(GameEngine::Components::ComponentsType type)
         RETURN_STR(ThridPersonCamera);
         RETURN_STR(PlayerInputController);
         RETURN_STR(CharacterController);
+        RETURN_STR(EnemyController);
+        RETURN_STR(Player);
+        RETURN_STR(Enemy);
     }
     return std::to_string(static_cast<int>(type));
 }

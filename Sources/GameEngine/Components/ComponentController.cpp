@@ -1,5 +1,7 @@
 #include "ComponentController.h"
 
+#include <algorithm>
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -12,8 +14,7 @@ const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;
 }
 
 ComponentController::ComponentController()
-    : functionId(0)
-    , componentId(0)
+    : componentId(0)
     , isStarted(false)
 {
 }
@@ -40,25 +41,27 @@ ComponentController::~ComponentController()
 
 const RegistredComponentsMap& ComponentController::GetAllComonentsOfType(ComponentsType type) const
 {
-    if (registredComponents_.count(type))
-        return registredComponents_.at(type);
+    auto iter = registredComponents_.find(type);
+
+    if (iter != registredComponents_.end())
+    {
+        return iter->second;
+    }
 
     return DEFAULT_COMPONETNS_MAP;
 }
-uint32 ComponentController::RegisterFunction(FunctionType type, std::function<void()> func)
+uint32 ComponentController::RegisterFunction(IdType gameObjectId, FunctionType type, std::function<void()> func)
 {
-    CallFunctionIfControllerStarted(type, func);
-
-    auto currentId              = functionId++;
-    functions_[type][currentId] = func;
-    return currentId;
+    auto id = functionIdsPool_.getId();
+    functions_[gameObjectId][type].push_back({id, func});
+    return id;
 }
 
 uint32 ComponentController::RegisterComponent(ComponentsType type, IComponent* component)
 {
     auto currentComponentId = componentId++;
 
-    registredComponents_[type][currentComponentId] = component;
+    registredComponents_[type].insert({currentComponentId, component});
     return currentComponentId;
 }
 
@@ -73,11 +76,26 @@ void ComponentController::UnRegisterComponent(ComponentsType type, uint32 id)
         WARNING_LOG("ComponentsType not found.");
     }
 }
-void ComponentController::UnRegisterFunction(FunctionType type, uint32 id)
+void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type,
+                                             uint32 id)
 {
-    if (functions_.count(type) > 0)
+    auto iter = functions_.find(gameObjectId);
+    if (iter != functions_.end())
     {
-        functions_.at(type).erase(id);
+        auto typeIter = iter->second.find(type);
+
+        if (typeIter != iter->second.end())
+        {
+            auto functionIter =
+                std::find_if(typeIter->second.begin(), typeIter->second.end(),
+                             [id](const auto& componentFunction) { return id == componentFunction.id; });
+            if (functionIter != typeIter->second.end())
+            {
+                typeIter->second.erase(functionIter);
+            }
+
+            functionIdsPool_.releaseId(id);
+        }
     }
     else
     {
@@ -89,38 +107,63 @@ void ComponentController::UnRegisterAll()
     functions_.clear();
     registredComponents_.clear();
 }
+void ComponentController::OnObjectCreated(IdType gameObjectId)
+{
+    CallGameObjectFunctions(FunctionType::Awake, gameObjectId);
+
+    if (isStarted)
+    {
+        CallGameObjectFunctions(FunctionType::OnStart, gameObjectId);
+    }
+}
 void ComponentController::OnStart()
 {
-    CallFunc(FunctionType::OnStart);
+    CallFunctions(FunctionType::OnStart);
     isStarted = true;
 }
 void ComponentController::Update()
 {
-    CallFunc(FunctionType::Update);
+    CallFunctions(FunctionType::Update);
 }
 void ComponentController::PostUpdate()
 {
-    CallFunc(FunctionType::PostUpdate);
+    CallFunctions(FunctionType::PostUpdate);
 }
 void ComponentController::AlwaysUpdate()
 {
-    CallFunc(FunctionType::AlwaysUpdate);
+    CallFunctions(FunctionType::AlwaysUpdate);
 }
-void ComponentController::CallFunc(FunctionType type)
+void ComponentController::CallFunctions(FunctionType type)
 {
-    if (functions_.count(type) > 0)
+    for (auto& pair : functions_)
     {
-        for (const auto& funcPair : functions_.at(type))
-            funcPair.second();
+        auto iter = pair.second.find(type);
+
+        if (iter != pair.second.end())
+        {
+            for (auto& componentFunction : iter->second)
+            {
+                componentFunction.function();
+            }
+        }
     }
 }
-void ComponentController::CallFunctionIfControllerStarted(FunctionType type, std::function<void()> func)
-{
-    if (type == FunctionType::Awake)
-        func();
 
-    if (isStarted && type == FunctionType::OnStart)
-        func();
+void ComponentController::CallGameObjectFunctions(FunctionType funcType, IdType gameObjectId)
+{
+    auto gameObjectFunctionsIter = functions_.find(gameObjectId);
+
+    if (gameObjectFunctionsIter != functions_.end())
+    {
+        auto iter = gameObjectFunctionsIter->second.find(funcType);
+        if (iter != gameObjectFunctionsIter->second.end())
+        {
+            for (auto& componentFunction : iter->second)
+            {
+                componentFunction.function();
+            }
+        }
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

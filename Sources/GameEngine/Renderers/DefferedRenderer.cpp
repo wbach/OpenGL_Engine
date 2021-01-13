@@ -75,11 +75,8 @@ void DefferedRenderer::reloadShaders()
     BaseRenderer::reloadShaders();
     postprocessingRenderersManager_.ReloadShaders();
 }
-void DefferedRenderer::bindDefferedFbo()
+void DefferedRenderer::setViewPort()
 {
-    defferedFrameBuffer_->Clear();
-    defferedFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
-
     if (context_.projection_.GetRenderingSize() != *EngineConf.window.size)
     {
         const auto& renderingSize = context_.projection_.GetRenderingSize();
@@ -89,6 +86,11 @@ void DefferedRenderer::bindDefferedFbo()
     {
         context_.graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
     }
+}
+void DefferedRenderer::bindDefferedFbo()
+{
+    defferedFrameBuffer_->Clear();
+    defferedFrameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::Write);
 }
 void DefferedRenderer::unbindDefferedFbo()
 {

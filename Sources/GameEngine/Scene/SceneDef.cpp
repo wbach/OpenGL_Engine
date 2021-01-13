@@ -93,3 +93,4 @@ const std::string CSTR_ANIMATION_CLIP                    = "animationClip";
 const std::string CSTR_IDLE_ANIMATION                    = "idle";
 const std::string CSTR_RUN_ANIMATION                     = "run";
 const std::string CSTR_WALK_ANIMATION                    = "walk";
+const std::string CSTR_ATTACK_ANIMATION                  = "attack";

@@ -94,3 +94,4 @@ extern const std::string CSTR_ANIMATION_CLIP;
 extern const std::string CSTR_IDLE_ANIMATION;
 extern const std::string CSTR_RUN_ANIMATION;
 extern const std::string CSTR_WALK_ANIMATION;
+extern const std::string CSTR_ATTACK_ANIMATION;

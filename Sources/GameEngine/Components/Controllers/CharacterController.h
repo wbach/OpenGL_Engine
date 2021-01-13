@@ -19,6 +19,7 @@ public:
         MOVE_RIGHT,
         ROTATE_LEFT,
         ROTATE_RIGHT,
+        ROTATE_TARGET,
         RUN,
         WALK,
         JUMP
@@ -39,6 +40,7 @@ public:
     void SetTurnSpeed(float);
     void SetJumpPower(float);
     void SetJumpCallback(std::function<void()>);
+    void setRotationTarget(const Rotation&);
 
 private:
     void isOnGround();
@@ -51,6 +53,11 @@ private:
     float turnSpeed_;
     float runSpeed_;
     bool isJumping_;
+
+private:
+    Quaternion rotateTarget;
+    Quaternion startedRotation;
+    float progress_;
 
 public:
     static ComponentsType type;

@@ -242,6 +242,7 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, GameObject& gameObject, fl
     auto shapeIter = impl_->shapes_.find(shapeId);
     if (shapeIter == impl_->shapes_.end())
     {
+        ERROR_LOG("Shape not found");
         return 0;
     }
     auto& shape               = shapeIter->second;
