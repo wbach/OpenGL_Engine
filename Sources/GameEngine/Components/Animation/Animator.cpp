@@ -256,6 +256,12 @@ bool Animator::increaseAnimationTime()
     currentTime_ += componentContext_.time_.deltaTime * animationSpeed_;
     if (currentTime_ > animationLength)
     {
+        auto iter = onAnimationEnd_.find(currentAnimationClip_->name);
+        if (iter != onAnimationEnd_.end())
+        {
+            iter->second();
+        }
+
         if (currentAnimationClip_->playType == AnimationClip::PlayType::once)
             return false;
 

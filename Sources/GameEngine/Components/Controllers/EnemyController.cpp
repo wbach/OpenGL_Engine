@@ -43,6 +43,16 @@ void EnemyController::Init()
     {
         characterController_->SetRunSpeed(Utils::KmToMs(8.f));
     }
+
+    if (animator_)
+    {
+        animator_->onAnimationEnd_.insert({attackAnimationName_, [this]() {
+                                               if (closestPlayerComponent_)
+                                               {
+                                                   closestPlayerComponent_->hurt();
+                                               }
+                                           }});
+    }
 }
 void EnemyController::Update()
 {
@@ -52,7 +62,7 @@ void EnemyController::Update()
     auto& playerComponents = componentContext_.componentController_.GetAllComonentsOfType(ComponentsType::Player);
     const auto& thisEnemyPosition = thisObject_.GetWorldTransform().GetPosition();
 
-    Player* closestPlayerComponent{nullptr};
+    closestPlayerComponent_ = nullptr;
     vec3 toPlayer{0.f};
 
     float distance = std::numeric_limits<float>::max();
@@ -66,13 +76,13 @@ void EnemyController::Update()
 
         if (distanceToPlayer < distance)
         {
-            distance               = distanceToPlayer;
-            toPlayer               = dist;
-            closestPlayerComponent = static_cast<Player*>(playerComponent.second);
+            distance                = distanceToPlayer;
+            toPlayer                = dist;
+            closestPlayerComponent_ = static_cast<Player*>(playerComponent.second);
         }
     }
 
-    if (closestPlayerComponent)
+    if (closestPlayerComponent_)
     {
         if (distance < playerDetectionRange)
         {

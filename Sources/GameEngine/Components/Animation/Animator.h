@@ -76,6 +76,8 @@ public:
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
+    std::unordered_map<std::string, std::function<void()>> onAnimationEnd_;
+
     JointData jointData_;
     float currentTime_;
     float animationSpeed_;
@@ -106,7 +108,6 @@ protected:
     float currentChangeAnimTime_ = 0;
     Animation::KeyFrame startChaneAnimPose;
     Animation::KeyFrame endChangeAnimPose;
-
     std::unordered_map<uint32, ConnectedObject> connectedObjects_;
 
 public:

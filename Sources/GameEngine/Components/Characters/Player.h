@@ -21,6 +21,10 @@ public:
 
     void Init();
     void Update();
+    void hurt();
+
+public:
+    std::string hurtAnimationName_;
 
 private:
     void isOnGround();
@@ -28,6 +32,7 @@ private:
 private:
     Animator* animator_;
     CharacterController* characterController_;
+    std::string currentAnimationClip_;
 
 public:
     static ComponentsType type;
