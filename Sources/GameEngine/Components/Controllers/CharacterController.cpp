@@ -9,6 +9,25 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+const std::unordered_map<CharacterControllerState::Type, uint8> statePriorities{
+    // clang-format off
+    {CharacterControllerState::Type::DEATH, 0},
+    {CharacterControllerState::Type::HURT, 1},
+    {CharacterControllerState::Type::ATTACK, 2},
+    {CharacterControllerState::Type::JUMP, 3},
+    {CharacterControllerState::Type::MOVE_FORWARD, 4},
+    {CharacterControllerState::Type::MOVE_BACKWARD, 5},
+    {CharacterControllerState::Type::MOVE_LEFT, 6},
+    {CharacterControllerState::Type::MOVE_RIGHT, 7},
+    {CharacterControllerState::Type::ROTATE_LEFT, 8},
+    {CharacterControllerState::Type::ROTATE_RIGHT, 9},
+    {CharacterControllerState::Type::ROTATE_TARGET, 10},
+    {CharacterControllerState::Type::IDLE, 11}
+    // clang-format on
+};
+}
 ComponentsType CharacterController::type = ComponentsType::CharacterController;
 
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
@@ -24,8 +43,19 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , jumpPower_(DEFAULT_JUMP_POWER)
     , turnSpeed_(DEFAULT_TURN_SPEED)
     , runSpeed_(DEFAULT_RUN_SPEED)
-    , isJumping_(false)
 {
+    stateTypeToAnimName_ = {{CharacterControllerState::Type::DEATH, &deathAnimationName},
+                            {CharacterControllerState::Type::HURT, &hurtAnimationName},
+                            {CharacterControllerState::Type::ATTACK, &attackAnimationName},
+                            {CharacterControllerState::Type::JUMP, &jumpAnimationName},
+                            {CharacterControllerState::Type::MOVE_FORWARD, &moveForwardAnimationName},
+                            //{CharacterControllerState::Type::MOVE_BACKWARD, &moveBackwardAnimationName},
+                            //{CharacterControllerState::Type::MOVE_LEFT, 6},
+                            //{CharacterControllerState::Type::MOVE_RIGHT, 7},
+                            //{CharacterControllerState::Type::ROTATE_LEFT, 8},
+                            //{CharacterControllerState::Type::ROTATE_RIGHT, 9},
+                            //{CharacterControllerState::Type::ROTATE_TARGET, 10},
+                            {CharacterControllerState::Type::IDLE, &idleAnimationName}};
 }
 
 void CharacterController::CleanUp()
@@ -53,14 +83,10 @@ void CharacterController::Init()
         animator_->setPlayOnceForAnimationClip(attackAnimationName);
         animator_->setPlayOnceForAnimationClip(deathAnimationName);
 
-        animator_->onAnimationEnd_[hurtAnimationName].push_back([this]() {
-            DEBUG_LOG("HURT animation end remove state ");
-            removeState(CharacterControllerState::Type::HURT);
-        });
-        animator_->onAnimationEnd_[attackAnimationName].push_back([this]() {
-            DEBUG_LOG("ATTACK animation end remove state ");
-            removeState(CharacterControllerState::Type::ATTACK);
-        });
+        animator_->onAnimationEnd_[hurtAnimationName].push_back(
+            [this]() { removeState(CharacterControllerState::Type::HURT); });
+        animator_->onAnimationEnd_[attackAnimationName].push_back(
+            [this]() { removeState(CharacterControllerState::Type::ATTACK); });
     }
 }
 
@@ -99,9 +125,9 @@ void CharacterController::addState(std::unique_ptr<CharacterControllerState> sta
 
     if (state->onStart())
     {
-        DEBUG_LOG("add state " + std::to_string((int)state->getType()) + " " + thisObject_.GetName());
+        auto type = state->getType();
         states_.push_back(std::move(state));
-        onStateChange();
+        onStateAdittion(type);
     }
 }
 
@@ -113,13 +139,8 @@ void CharacterController::removeState(CharacterControllerState::Type type)
 
     if (iter != states_.end())
     {
-        DEBUG_LOG("remove state " + std::to_string((int)type) + " " + thisObject_.GetName());
         states_.erase(iter);
-        onStateChange();
-    }
-    else
-    {
-        // DEBUG_LOG("State not found " + std::to_string((int)type) + " " + thisObject_.GetName());
+        onStateRemove(type);
     }
 }
 
@@ -146,49 +167,64 @@ void CharacterController::isOnGround()
     }
 }
 
-void CharacterController::onStateChange()
+void CharacterController::onStateAdittion(CharacterControllerState::Type type)
 {
-    if (isState(CharacterControllerState::Type::DEATH))
-    {
-        setAnimation(deathAnimationName);
-        return;
-    }
+    auto incomingPrioIter = statePriorities.find(type);
+    auto changeAnimation =
+        std::all_of(states_.begin(), states_.end(), [incomingPrio = incomingPrioIter->second](const auto& state) {
+            auto prioIter = statePriorities.find(state->getType());
+            return incomingPrio <= prioIter->second;
+        });
 
-    if (isState(CharacterControllerState::Type::HURT))
+    if (changeAnimation)
     {
-        setAnimation(hurtAnimationName);
-        return;
-    }
+        auto animNameIter = stateTypeToAnimName_.find(type);
 
-    if (isState(CharacterControllerState::Type::ATTACK))
-    {
-        setAnimation(attackAnimationName);
-        return;
-    }
-
-    if (isState(CharacterControllerState::Type::JUMP))
-    {
-        setAnimation(jumpAnimationName);
-        return;
-    }
-
-    if (isState(CharacterControllerState::Type::MOVE_FORWARD))
-    {
-        setAnimation(moveForwardAnimationName);
-        return;
-    }
-
-    if (isState(CharacterControllerState::Type::MOVE_BACKWARD))
-    {
-        if (moveBackwardAnimationName.empty())
+        if (animNameIter != stateTypeToAnimName_.end() and not animNameIter->second->empty())
+        {
+            setAnimation(*animNameIter->second);
+        }
+        else if (type == CharacterControllerState::Type::MOVE_BACKWARD and not moveForwardAnimationName.empty())
         {
             setAnimation(moveForwardAnimationName, PlayDirection::backward);
         }
-        else
-        {
-            setAnimation(moveBackwardAnimationName);
-        }
+    }
+}
+
+void CharacterController::onStateRemove(CharacterControllerState::Type type)
+{
+    auto incomingPrioIter = statePriorities.find(type);
+
+    auto doNotchangeAnimation =
+        std::any_of(states_.begin(), states_.end(), [incomingPrio = incomingPrioIter->second](const auto& state) {
+            auto prioIter = statePriorities.find(state->getType());
+            return (incomingPrio > prioIter->second);
+        });
+
+    if (doNotchangeAnimation)
+    {
         return;
+    }
+
+    if (not states_.empty())
+    {
+        auto result = std::min_element(states_.begin(), states_.end(), [](const auto& l, const auto& r) {
+            auto lp = statePriorities.find(l->getType());
+            auto rp = statePriorities.find(r->getType());
+
+            if (lp != statePriorities.end() and rp != statePriorities.end())
+            {
+                return lp->second < rp->second;
+            }
+            return false;
+        });
+
+        auto animNameIter = stateTypeToAnimName_.find((**result).getType());
+        if (animNameIter != stateTypeToAnimName_.end() and not animNameIter->second->empty())
+        {
+            setAnimation(*animNameIter->second);
+            return;
+        }
     }
 
     setAnimation(idleAnimationName);
@@ -204,8 +240,9 @@ void CharacterController::processStates()
 
         if (state.isEnd())
         {
+            auto type = state.getType();
             stateIter = states_.erase(stateIter);
-            onStateChange();
+            onStateRemove(type);
         }
         else
         {
@@ -219,11 +256,7 @@ void CharacterController::clearVelocityIfNotMoving()
     if (not isStates({CharacterControllerState::Type::MOVE_FORWARD, CharacterControllerState::Type::MOVE_BACKWARD,
                       CharacterControllerState::Type::JUMP}))
     {
-        if (not isJumping_)
-        {
-            rigidbody_->SetVelocity(vec3(0));
-        }
-        return;
+        rigidbody_->SetVelocity(vec3(0));
     }
 }
 

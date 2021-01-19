@@ -21,11 +21,9 @@ AnimationTransitionEvent::AnimationTransitionEvent(const Pose& currentPose,
     , currentPose{currentPose}
     , nextClipInfo{ nextAnimationClipInfo }
 {
-    DEBUG_LOG("AnimationTransitionEvent created, nextClipInfo.clip.name="  + nextClipInfo.clip.name);
 }
 void AnimationTransitionEvent::process()
 {
-    DEBUG_LOG("AnimationTransitionEvent process,  nextClipInfo.clip.name=" + nextClipInfo.clip.name);
     machine->currentState_ = std::make_unique<AnimationTransition>(*this);
 }
 }  // namespace Components

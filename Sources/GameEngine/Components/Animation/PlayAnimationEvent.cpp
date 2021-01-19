@@ -26,11 +26,9 @@ PlayAnimationEvent::PlayAnimationEvent(const Animation::AnimationClip& clip, flo
                                        PlayDirection playDirection, const std::vector<std::function<void()>>& endCallbacks)
     : animationPlayingInfo_{clip, playSpeed, playDirection, endCallbacks}
 {
-    DEBUG_LOG("PlayAnimationEvent process clip.name=" + clip.name);
 }
 void PlayAnimationEvent::process()
 {
-    DEBUG_LOG("PlayAnimationEvent process clip.name=" + animationPlayingInfo_.clip.name);
     machine->currentState_ = std::make_unique<PlayAnimation>(*this);
 }
 }  // namespace Components

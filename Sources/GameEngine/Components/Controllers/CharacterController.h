@@ -3,9 +3,10 @@
 #include <GameEngine/Components/Physics/Rigidbody.h>
 
 #include <Utils/math.hpp>
+#include <unordered_map>
 
-#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
 {
@@ -28,8 +29,6 @@ public:
         ROTATE_LEFT,
         ROTATE_RIGHT,
         ROTATE_TARGET,
-        RUN,
-        WALK,
         JUMP,
         HURT,
         ATTACK,
@@ -305,7 +304,8 @@ public:
 
 private:
     void isOnGround();
-    void onStateChange();
+    void onStateAdittion(CharacterControllerState::Type);
+    void onStateRemove(CharacterControllerState::Type);
     void processStates();
     void clearVelocityIfNotMoving();
 
@@ -317,6 +317,7 @@ private:
 
 private:
     std::vector<std::unique_ptr<CharacterControllerState>> states_;
+    std::unordered_map<CharacterControllerState::Type, std::string*> stateTypeToAnimName_;
     std::function<void()> jumpCallback_;
     Rigidbody* rigidbody_;
     Animator* animator_;
@@ -324,7 +325,6 @@ private:
     float jumpPower_;
     float turnSpeed_;
     float runSpeed_;
-    bool isJumping_;
 
 private:
     Quaternion rotateTarget;
