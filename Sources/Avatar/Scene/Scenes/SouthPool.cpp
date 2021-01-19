@@ -69,7 +69,8 @@ private:
         guiManager_.AddTask([this]() {
             hideSettingWindows();
             settingsLayout_->Hide();
-            pauseMenuLayout_->Show();;
+            pauseMenuLayout_->Show();
+            ;
             mainWindow_->Show();
         });
     }
@@ -89,7 +90,7 @@ private:
         mainWindow->Hide();
 
         mainWindow_ = mainWindow.get();
-        auto logo   = factory_.CreateGuiTexture("Gui/1200px-Avatar_The_Last_Airbender_logo.svg.png");
+        auto logo   = factory_.CreateGuiTexture("GUI/1200px-Avatar_The_Last_Airbender_logo.svg.png");
         logo->SetLocalScale({1.f, 0.15f});
         logo->SetLocalPostion({0.5f, 0.75f});
         mainWindow_->AddChild(std::move(logo));
@@ -172,8 +173,6 @@ private:
 
         auto backButton = factory_.CreateGuiButton("Back", [&](auto&) {
             enablePauseMenuState();
-            if (configurationChanged_)
-                WriteConfigurationToFile(EngineConf);
         });
 
         backButton->SetLocalScale(menuButtonSize_);
@@ -224,12 +223,12 @@ private:
 
             std::string applyStr = param.restartRequierd ? " apply. " : " apply ";
             auto apllyButton     = factory_.CreateGuiButton(applyStr, [this, &param](auto&) {
-                configurationChanged_ = true;
                 param.configurationParam.apply();
                 if (param.restartRequierd)
                 {
                     createMessageBox("Change will be visible after game restart");
                 }
+                WriteConfigurationToFile(EngineConf);
             });
             apllyButton->SetLocalScale({0.1f, 1.f});
             horizontalLayout->AddChild(std::move(paramNameText));
@@ -244,22 +243,18 @@ private:
         horizontalLayout->SetAlgin(Layout::Algin::CENTER);
         horizontalLayout->SetLocalScale({1.f, 0.0375f});
         auto apllyButton = factory_.CreateGuiButton(" apply all ", [this, categoryName](auto&) {
-            if (configurationChanged_)
+            const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
+            for (auto& param : params)
             {
-                const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
-                for (auto& param : params)
-                {
-                    param.configurationParam.apply();
-                }
-
-                if (onePramaterNeedRestart_)
-                {
-                    createMessageBox("One from changed param need restart game");
-                    onePramaterNeedRestart_ = false;
-                }
-                configurationChanged_ = false;
-                WriteConfigurationToFile(EngineConf);
+                param.configurationParam.apply();
             }
+
+            if (onePramaterNeedRestart_)
+            {
+                createMessageBox("One from changed param need restart game");
+                onePramaterNeedRestart_ = false;
+            }
+            WriteConfigurationToFile(EngineConf);
         });
 
         // to do : button without horizontal layout position issue
@@ -332,7 +327,6 @@ private:
     }
 
 private:
-    bool configurationChanged_{false};
     bool onePramaterNeedRestart_{false};
 
     Scene& scene_;

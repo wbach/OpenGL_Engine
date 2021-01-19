@@ -1,0 +1,32 @@
+#include "AnimationTransitionEvent.h"
+
+#include "AnimationTransition.h"
+#include "StateMachine.h"
+
+#include <Logger/Log.h>
+
+namespace GameEngine
+{
+namespace Components
+{
+AnimationTransitionEvent::AnimationTransitionEvent(const Pose& currentPose,
+                                                   const AnimationPlayingInfo& nextAnimationClipInfo)
+    : AnimationTransitionEvent(currentPose, nextAnimationClipInfo, 0.25f)
+{
+}
+AnimationTransitionEvent::AnimationTransitionEvent(const Pose& currentPose,
+                                                   const AnimationPlayingInfo& nextAnimationClipInfo,
+                                                   float timeForChange)
+    : timeForChange{timeForChange}
+    , currentPose{currentPose}
+    , nextClipInfo{ nextAnimationClipInfo }
+{
+    DEBUG_LOG("AnimationTransitionEvent created, nextClipInfo.clip.name="  + nextClipInfo.clip.name);
+}
+void AnimationTransitionEvent::process()
+{
+    DEBUG_LOG("AnimationTransitionEvent process,  nextClipInfo.clip.name=" + nextClipInfo.clip.name);
+    machine->currentState_ = std::make_unique<AnimationTransition>(*this);
+}
+}  // namespace Components
+}  // namespace GameEngine

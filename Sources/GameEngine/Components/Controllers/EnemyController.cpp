@@ -21,9 +21,6 @@ ComponentsType EnemyController::type = ComponentsType::EnemyController;
 
 EnemyController::EnemyController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
-    , idleAnimationName_{"Idle"}
-    , runAnimationName_{"Walk"}
-    , attackAnimationName_{"Pound"}
 {
 }
 void EnemyController::CleanUp()
@@ -39,19 +36,14 @@ void EnemyController::Init()
     animator_            = thisObject_.GetComponent<Animator>();
     characterController_ = thisObject_.GetComponent<CharacterController>();
 
-    if (characterController_)
-    {
-        characterController_->SetRunSpeed(Utils::KmToMs(8.f));
-    }
-
     if (animator_)
     {
-        animator_->onAnimationEnd_.insert({attackAnimationName_, [this]() {
-                                               if (closestPlayerComponent_)
-                                               {
-                                                   closestPlayerComponent_->hurt();
-                                               }
-                                           }});
+        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
+            if (closestPlayerComponent_)
+            {
+                closestPlayerComponent_->hurt();
+            }
+        });
     }
 }
 void EnemyController::Update()
@@ -82,57 +74,39 @@ void EnemyController::Update()
         }
     }
 
-    if (closestPlayerComponent_)
+    if (closestPlayerComponent_ and distance < playerDetectionRange)
     {
-        if (distance < playerDetectionRange)
+        if (distance > ATTACK_RANGE)
         {
-            if (distance > ATTACK_RANGE)
-            {
-                if (animator_)
-                {
-                    if (animator_->GetCurrentAnimationName() != runAnimationName_)
-                        animator_->ChangeAnimation(runAnimationName_, Animator::AnimationChangeType::direct);
-                }
-
-                characterController_->AddState(CharacterController::Action::MOVE_FORWARD);
-            }
-            else
-            {
-                if (animator_)
-                {
-                    if (animator_->GetCurrentAnimationName() != attackAnimationName_)
-                        animator_->ChangeAnimation(attackAnimationName_, Animator::AnimationChangeType::direct);
-                }
-                characterController_->RemoveState(CharacterController::Action::MOVE_FORWARD);
-            }
-
-            auto angle2 = atan2(toPlayer.x, toPlayer.z);
-            Quaternion targertRotation;
-            targertRotation.x = 0.f;
-            targertRotation.y = 1.f * sinf(angle2 / 2.f);
-            targertRotation.z = 0.f;
-            targertRotation.w = cosf(angle2 / 2.f);
-            characterController_->setRotationTarget(targertRotation);
+            characterController_->addState(std::make_unique<MoveForward>(Utils::KmToMs(8.f)));
         }
         else
         {
-            if (animator_)
-            {
-                if (animator_->GetCurrentAnimationName() != idleAnimationName_)
-                    animator_->ChangeAnimation(idleAnimationName_, Animator::AnimationChangeType::direct);
-            }
-            characterController_->RemoveState(CharacterController::Action::MOVE_FORWARD);
+            characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
+            characterController_->addState(std::make_unique<Attack>());
         }
+        characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(toPlayer)));
+        return;
     }
-    else
-    {
-        if (animator_)
-        {
-            if (animator_->GetCurrentAnimationName() != idleAnimationName_)
-                animator_->ChangeAnimation(idleAnimationName_, Animator::AnimationChangeType::direct);
-        }
-        characterController_->RemoveState(CharacterController::Action::MOVE_FORWARD);
-    }
+
+    clearStates();
+}
+Quaternion EnemyController::caclulateTargetRotation(const vec3& toPlayer) const
+{
+    auto angle2 = atan2(toPlayer.x, toPlayer.z);
+    Quaternion targertRotation;
+    targertRotation.x = 0.f;
+    targertRotation.y = 1.f * sinf(angle2 / 2.f);
+    targertRotation.z = 0.f;
+    targertRotation.w = cosf(angle2 / 2.f);
+
+    return targertRotation;
+}
+void EnemyController::clearStates()
+{
+    characterController_->removeState(CharacterControllerState::Type::ATTACK);
+    characterController_->removeState(CharacterControllerState::Type::ROTATE_TARGET);
+    characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
 }
 }  // namespace Components
 }  // namespace GameEngine

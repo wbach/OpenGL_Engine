@@ -36,14 +36,13 @@ void Player::Init()
         {
             iter->second.playType = Animation::AnimationClip::PlayType::once;
 
-            animator_->onAnimationEnd_.insert(
-                {hurtAnimationName_, [this]() {
-                     auto currentAnimationClip = animator_->GetCurrentAnimationName();
-                     if (currentAnimationClip == hurtAnimationName_)
-                     {
-                         animator_->ChangeAnimation(currentAnimationClip_, Animator::AnimationChangeType::smooth);
-                     }
-                 }});
+            animator_->onAnimationEnd_[hurtAnimationName_].push_back([this]() {
+                auto currentAnimationClip = animator_->GetCurrentAnimationName();
+                if (currentAnimationClip == hurtAnimationName_)
+                {
+                    animator_->ChangeAnimation(currentAnimationClip_, Animator::AnimationChangeType::smooth);
+                }
+            });
         }
     }
 }
@@ -52,10 +51,10 @@ void Player::Update()
 }
 void Player::hurt()
 {
-    if (animator_)
+    DEBUG_LOG("hurt 1");
+    if (characterController_)
     {
-        currentAnimationClip_ = animator_->GetCurrentAnimationName();
-        animator_->ChangeAnimation(hurtAnimationName_, Animator::AnimationChangeType::smooth);
+        characterController_->addState(std::make_unique<Hurt>());
     }
 }
 void Player::isOnGround()

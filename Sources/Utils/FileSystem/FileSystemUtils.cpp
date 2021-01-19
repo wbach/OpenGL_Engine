@@ -18,24 +18,30 @@ std::string FindFile(const std::string& filename, const std::string& dir)
 {
     try
     {
-        for (auto& p : std::filesystem::directory_iterator(GetAbsolutePath(dir)))
+        if (not dir.empty())
         {
-            if (p.is_directory())
+            for (auto& p : std::filesystem::directory_iterator(std::filesystem::canonical(dir)))
             {
-                auto maybeFileName = FindFile(filename, p.path().string());
-                if (not maybeFileName.empty())
-                    return maybeFileName;
-            }
-            else
-            {
-                if (p.path().filename() == filename)
-                    return Utils::ReplaceSlash(p.path().string());
+                if (p.is_directory())
+                {
+                    if (p.path().string() != dir)
+                    {
+                        auto maybeFileName = FindFile(filename, p.path().string());
+                        if (not maybeFileName.empty())
+                            return maybeFileName;
+                    }
+                }
+                else
+                {
+                    if (p.path().filename() == filename)
+                        return Utils::ReplaceSlash(p.path().string());
+                }
             }
         }
     }
     catch (...)
     {
-        ERROR_LOG("Find file error.");
+        ERROR_LOG("Find file error. searching file : " + filename + " in dir : " + dir);
     }
 
     return std::string();
@@ -175,17 +181,38 @@ std::string GetAbsoluteParentPath(const std::string& file)
 
 bool DirectoryExist(const std::string& pathDir)
 {
-    return std::filesystem::exists(pathDir) and std::filesystem::is_directory(pathDir);
+    try
+    {
+        return std::filesystem::exists(pathDir) and std::filesystem::is_directory(pathDir);
+    }
+    catch (...)
+    {
+        return false;
+    }
 }
 
 bool IsAbsolutePath(const std::string& path)
 {
-    return std::filesystem::path(path).is_absolute();
+    try
+    {
+        return std::filesystem::path(path).is_absolute();
+    }
+    catch (...)
+    {
+        return false;
+    }
 }
 
 bool IsRelativePath(const std::string& path)
 {
-    return std::filesystem::path(path).is_relative();
+    try
+    {
+        return std::filesystem::path(path).is_relative();
+    }
+    catch (...)
+    {
+        return false;
+    }
 }
 
 std::string GetRelativePath(const std::string& absoultePath, const std::string& workingPath)
@@ -254,12 +281,19 @@ void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& o
             }
 
             auto filename = line.substr(startFileNamePos, endNamePos - startFileNamePos);
-            std::string includedFileName{std::filesystem::path(filename).make_preferred().string()};
-            auto absultePath =
-                std::filesystem::canonical(std::filesystem::canonical(fullPath).replace_filename(includedFileName))
-                    .string();
-            ReadFilesWithIncludesImpl(absultePath, output);
-            output << '\n';
+            try
+            {
+                std::string includedFileName{std::filesystem::path(filename).make_preferred().string()};
+                auto absultePath =
+                    std::filesystem::canonical(std::filesystem::canonical(fullPath).replace_filename(includedFileName))
+                        .string();
+                ReadFilesWithIncludesImpl(absultePath, output);
+                output << '\n';
+            }
+            catch (...)
+            {
+                output << line << '\n';
+            }
         }
         else
         {

@@ -18,11 +18,6 @@ public:
     void ReqisterFunctions() override;
 
 public:
-    std::string idleAnimationName_;
-    std::string walkAnimationName_;
-    std::string runAnimationName_;
-    std::string jumpAnimationName_;
-
     std::string weaponChildObjectName_;
     std::string weaponBoneName_;
     vec3 weponBonePositionOffset_;
@@ -32,18 +27,16 @@ private:
     void Init();
     void SubscribeForPushActions();
     void SubscribeForPopActions();
-    bool FindState(CharacterController::Action);
-    void AddState(CharacterController::Action);
-    void RemoveState(CharacterController::Action);
 
 private:
     Animator* animator_;
     CharacterController* characterController_;
-    std::vector<CharacterController::Action> states_;
+    std::vector<CharacterControllerState::Type> states_;
     Input::KeysSubscriptionsManager subscriptions_;
 
     std::optional<uint32> connectedBone_;
 
+    std::function<void()> jumpCallback_;
 
 public:
     static ComponentsType type;

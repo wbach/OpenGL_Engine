@@ -7,7 +7,10 @@
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Characters/Enemy.h"
+#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Controllers/EnemyController.h"
 #include "GameEngine/Components/Input/PlayerInputController.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
@@ -23,9 +26,6 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
-#include "GameEngine/Components/Controllers/EnemyController.h"
-#include "GameEngine/Components/Characters/Enemy.h"
-#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -273,27 +273,27 @@ void Create(XmlNode&, const Components::SkydomeComponent&)
 
 void Create(XmlNode& node, const Components::PlayerInputController& component)
 {
-    auto& animationClipsNode = node.AddChild(CSTR_ANIMATION_CLIPS);
-
-    animationClipsNode.AddChild(CSTR_IDLE_ANIMATION).value_ = component.idleAnimationName_;
-    animationClipsNode.AddChild(CSTR_WALK_ANIMATION).value_ = component.walkAnimationName_;
-    animationClipsNode.AddChild(CSTR_RUN_ANIMATION).value_  = component.runAnimationName_;
-
     node.AddChild(CSTR_WEAPON_CHILD_NAME).value_ = component.weaponChildObjectName_;
     node.AddChild(CSTR_WEAPON_BONE_NAME).value_  = component.weaponBoneName_;
     Create(node.AddChild(CSTR_WEAPON_BONE_POSITION_OFFSET), component.weponBonePositionOffset_);
     Create(node.AddChild(CSTR_WEAPON_BONE_ROTATION_OFFSET), component.weponBoneRotationOffsetDegreesEulers_);
 }
 
-void Create(XmlNode&, const Components::CharacterController&)
+void Create(XmlNode& node, const Components::CharacterController& component)
 {
+    auto& animationClipsNode = node.AddChild(CSTR_ANIMATION_CLIPS);
+
+    Create(animationClipsNode.AddChild(CSTR_IDLE_ANIMATION), component.idleAnimationName);
+    Create(animationClipsNode.AddChild(CSTR_HURT_ANIMATION), component.hurtAnimationName);
+    Create(animationClipsNode.AddChild(CSTR_RUN_ANIMATION), component.moveForwardAnimationName);
+    Create(animationClipsNode.AddChild(CSTR_MOVEBACKWARD_ANIMATION), component.moveBackwardAnimationName);
+    Create(animationClipsNode.AddChild(CSTR_DEATH_ANIMATION), component.deathAnimationName);
+    Create(animationClipsNode.AddChild(CSTR_ATTACK_ANIMATION), component.attackAnimationName);
+    Create(animationClipsNode.AddChild(CSTR_JUMP_ANIMATION), component.jumpAnimationName);
 }
 
-void Create(XmlNode& node, const Components::EnemyController& component)
+void Create(XmlNode&, const Components::EnemyController& component)
 {
-    Create(node.AddChild(CSTR_IDLE_ANIMATION), component.idleAnimationName_);
-    Create(node.AddChild(CSTR_RUN_ANIMATION), component.runAnimationName_);
-    Create(node.AddChild(CSTR_ATTACK_ANIMATION), component.attackAnimationName_);
 }
 
 void Create(XmlNode&, const Components::Player&)
@@ -381,15 +381,14 @@ void Create(XmlNode& node, const Components::TerrainRendererComponent& component
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(
-                visitor{
-                    [&](const std::vector<uint8>& data) {
-                        Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                    },
-                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                },
-                image.getImageData());
+            std::visit(visitor{
+                           [&](const std::vector<uint8>& data) {
+                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                           },
+                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                       },
+                       image.getImageData());
         }
     }
 }

@@ -295,20 +295,23 @@ void Read(const Utils::XmlNode&, Components::SkydomeComponent&)
 {
 }
 
-void Read(const Utils::XmlNode&, Components::CharacterController&)
-{
-}
-
-void Read(const Utils::XmlNode& node, Components::PlayerInputController& component)
+void Read(const Utils::XmlNode& node, Components::CharacterController& component)
 {
     auto animationClipsNode = node.GetChild(CSTR_ANIMATION_CLIPS);
     if (animationClipsNode)
     {
-        setIfExist(*animationClipsNode, CSTR_IDLE_ANIMATION, component.idleAnimationName_);
-        setIfExist(*animationClipsNode, CSTR_WALK_ANIMATION, component.walkAnimationName_);
-        setIfExist(*animationClipsNode, CSTR_RUN_ANIMATION, component.runAnimationName_);
+        setIfExist(*animationClipsNode, CSTR_IDLE_ANIMATION, component.idleAnimationName);
+        setIfExist(*animationClipsNode, CSTR_HURT_ANIMATION, component.hurtAnimationName);
+        setIfExist(*animationClipsNode, CSTR_RUN_ANIMATION, component.moveForwardAnimationName);
+        setIfExist(*animationClipsNode, CSTR_MOVEBACKWARD_ANIMATION, component.moveBackwardAnimationName);
+        setIfExist(*animationClipsNode, CSTR_DEATH_ANIMATION, component.deathAnimationName);
+        setIfExist(*animationClipsNode, CSTR_ATTACK_ANIMATION, component.attackAnimationName);
+        setIfExist(*animationClipsNode, CSTR_JUMP_ANIMATION, component.jumpAnimationName);
     }
+}
 
+void Read(const Utils::XmlNode& node, Components::PlayerInputController& component)
+{
     setIfExist(node, CSTR_WEAPON_CHILD_NAME, component.weaponChildObjectName_);
     setIfExist(node, CSTR_WEAPON_BONE_NAME, component.weaponBoneName_);
     setIfExist(node, CSTR_WEAPON_BONE_POSITION_OFFSET, component.weponBonePositionOffset_);
@@ -398,11 +401,8 @@ void Read(const Utils::XmlNode& node, Components::TerrainRendererComponent& comp
     }
 }
 
-void Read(const Utils::XmlNode& node, Components::EnemyController& component)
+void Read(const Utils::XmlNode&, Components::EnemyController&)
 {
-    setIfExist(node, CSTR_IDLE_ANIMATION, component.idleAnimationName_);
-    setIfExist(node, CSTR_RUN_ANIMATION, component.runAnimationName_);
-    setIfExist(node, CSTR_ATTACK_ANIMATION, component.attackAnimationName_);
 }
 
 void Read(const Utils::XmlNode&, Components::Enemy&)

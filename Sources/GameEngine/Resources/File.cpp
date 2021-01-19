@@ -51,7 +51,7 @@ void File::DataRelative(const std::string &filename)
         {
             try
             {
-                std::filesystem::create_directories(parentPath);
+                ///std::filesystem::create_directories(parentPath);
             }
             catch (const std::exception &e)
             {

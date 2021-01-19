@@ -9,7 +9,14 @@ set(GameEngineSources
 ../../Sources/GameEngine/Camera/FirstPersonCamera.cpp
 ../../Sources/GameEngine/Camera/Frustrum.cpp
 ../../Sources/GameEngine/Camera/ThridPersonCamera.cpp
+../../Sources/GameEngine/Components/Animation/AnimationTransition.cpp
+../../Sources/GameEngine/Components/Animation/AnimationTransitionEvent.cpp
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
+../../Sources/GameEngine/Components/Animation/Common.cpp
+../../Sources/GameEngine/Components/Animation/EndAnimationTransitionEvent.cpp
+../../Sources/GameEngine/Components/Animation/PlayAnimation.cpp
+../../Sources/GameEngine/Components/Animation/PlayAnimationEvent.cpp
+../../Sources/GameEngine/Components/Animation/StateMachine.cpp
 ../../Sources/GameEngine/Components/BaseComponent.cpp
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
 ../../Sources/GameEngine/Components/Characters/Enemy.cpp

@@ -97,7 +97,7 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
         else
         {
             ERROR_LOG("File not exist : " + inputFileName.GetAbsoultePath());
-            return nullptr;
+            return GetTextureNotFound();
         }
     }
 
@@ -176,15 +176,22 @@ void TextureLoader::DeleteTexture(Texture& texture)
         return (texture.second.resource_->GetGpuObjectId() == id);
     });
 
-    auto& textureInfo = iter->second;
-    --textureInfo.instances_;
+    if (iter != textures_.end())
+    {
+        auto& textureInfo = iter->second;
+        --textureInfo.instances_;
 
-    if (textureInfo.instances_ > 0 or not releaseLockState_)
-        return;
+        if (textureInfo.instances_ > 0 or not releaseLockState_)
+            return;
 
-    gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
-    textures_.erase(iter);
-    DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
+        gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
+        textures_.erase(iter);
+        DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
+    }
+    else
+    {
+        ERROR_LOG("Texture not found. GpuObjectId=" + std::to_string(texture.GetGpuObjectId()));
+    }
 }
 
 void TextureLoader::LockReleaseResources()
@@ -287,11 +294,19 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const Textur
 }
 GeneralTexture* TextureLoader::GetTextureNotFound()
 {
+    File file("Textures/textureNotFound.png");
+
     if (textureNotFound_.second)
+    {
+        auto texture = textures_.find(file.GetAbsoultePath());
+        if (texture != textures_.end())
+        {
+            ++texture->second.instances_;
+        }
         return textureNotFound_.first;
+    }
 
     textureNotFound_.second = true;
-    File file("Textures/textureNotFound.png");
     TextureParameters params;
     auto image = ReadFile(file, params);
 

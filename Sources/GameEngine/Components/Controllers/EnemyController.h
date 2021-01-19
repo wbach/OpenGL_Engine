@@ -24,9 +24,9 @@ public:
     void Init();
     void Update();
 
-    std::string idleAnimationName_;
-    std::string runAnimationName_;
-    std::string attackAnimationName_;
+private:
+    Quaternion caclulateTargetRotation(const vec3&) const;
+    void clearStates();
 
 private:
     Animator* animator_;
