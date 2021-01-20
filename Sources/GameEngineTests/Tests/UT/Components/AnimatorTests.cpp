@@ -13,6 +13,7 @@ namespace
 {
 const std::string CLIP_NAME{"DefaultAnimationClip"};
 const uint32 BONE_COUNT{100};
+const std::string boneName{"bone_"};
 }  // namespace
 
 struct AnimatorTestWrapper : public Animator
@@ -20,6 +21,18 @@ struct AnimatorTestWrapper : public Animator
     AnimatorTestWrapper(ComponentContext& context, GameObject& go)
         : Animator(context, go)
     {
+        rootJoint = &jointData_.rootJoint;
+
+        jointData_.rootJoint.id   = 0;
+        jointData_.rootJoint.name = boneName + std::to_string(jointData_.rootJoint.id);
+
+        for (auto i = 1u; i < BONE_COUNT - 1; ++i)
+        {
+            Joint joint;
+            joint.id   = i;
+            joint.name = boneName + std::to_string(joint.id);
+            jointData_.rootJoint.addChild(joint);
+        }
     }
     std::pair<KeyFrame, KeyFrame> _getPreviousAndNextFrames()
     {
@@ -29,6 +42,8 @@ struct AnimatorTestWrapper : public Animator
     {
         componentContext_.time_.deltaTime = t;
     }
+
+    Joint* rootJoint{nullptr};
 };
 
 struct AnimatorTestSchould : public BaseComponentTestSchould
@@ -46,10 +61,10 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
         anim.playType = AnimationClip::PlayType::once;
 
         KeyFrame frame;
-        std::string boneName{"bone_"};
+
         for (auto i = 0u; i < BONE_COUNT; ++i)
         {
-            frame.transforms.insert({boneName + std::to_string(i), JointTransform{}});
+            frame.transforms.insert({i, JointTransform{}});
         }
 
         frame.timeStamp = 0;
@@ -109,6 +124,8 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
             ++frameCounter;
         }
     }
-    DEBUG_LOG("Avarage frame time : " + std::to_string(static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter)));
-    DEBUG_LOG("Avarage animation time : " + std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
+    DEBUG_LOG("Avarage frame time : " +
+              std::to_string(static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter)));
+    DEBUG_LOG("Avarage animation time : " +
+              std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
 }

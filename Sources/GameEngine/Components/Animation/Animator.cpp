@@ -148,6 +148,11 @@ void Animator::GetSkeletonAndAnimations()
             componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jointData_.buffer);
         }
 
+        for (auto& file : clipsToRead_)
+        {
+            AddAnimationClip(Animation::ReadAnimationClip(file, jointData_.rootJoint));
+        }
+
         for (const auto& clip : model->animationClips_)
         {
             animationClips_.insert(clip);
@@ -191,7 +196,7 @@ void Animator::Update()
 }
 void Animator::AddAnimationClip(const GameEngine::File& file)
 {
-    AddAnimationClip(Animation::ReadAnimationClip(file));
+    clipsToRead_.push_back(file);
 }
 void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
 {
@@ -209,7 +214,7 @@ void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const ma
 {
     mat4 currentTransform(1.f);
 
-    auto currentPoseIter = currentPose.find(joint.name);
+    auto currentPoseIter = currentPose.find(joint.id);
 
     if (currentPoseIter != currentPose.end())
     {

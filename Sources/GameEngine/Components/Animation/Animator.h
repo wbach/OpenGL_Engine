@@ -93,6 +93,7 @@ protected:
     RendererComponent* rendererComponent_;
     std::string requestedAnimationToset_;
     std::unordered_map<uint32, ConnectedObject> connectedObjects_;
+    std::vector<GameEngine::File> clipsToRead_;
 
 public:
     static ComponentsType type;

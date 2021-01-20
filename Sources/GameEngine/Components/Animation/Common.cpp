@@ -12,15 +12,15 @@ Pose interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation:
     Pose currentPose;
     for (const auto& pair : previousFrame.transforms)
     {
-        const auto& jointName              = pair.first;
-        const auto& nextFrameTransformIter = nextFrame.transforms.find(jointName);
+        const auto& jointId                = pair.first;
+        const auto& nextFrameTransformIter = nextFrame.transforms.find(jointId);
 
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
             const auto& previousTransform = pair.second;
             const auto& nextTransform     = nextFrameTransformIter->second;
             auto currentTransform         = Interpolate(previousTransform, nextTransform, progression);
-            currentPose.insert({jointName, GetLocalTransform(currentTransform)});
+            currentPose.insert({jointId, GetLocalTransform(currentTransform)});
         }
     }
     return currentPose;

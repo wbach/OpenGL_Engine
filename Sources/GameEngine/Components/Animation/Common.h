@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-typedef std::unordered_map<std::string, mat4> Pose;
+typedef std::unordered_map<uint32, mat4> Pose;
 
 Pose interpolatePoses(const Animation::KeyFrame&, const Animation::KeyFrame&, float);
 float calculateProgression(const Animation::KeyFrame&, const Animation::KeyFrame&, float);

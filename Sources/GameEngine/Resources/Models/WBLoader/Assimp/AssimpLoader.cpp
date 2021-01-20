@@ -407,26 +407,33 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
     {
         const auto& animChannel = *aiAnim.mChannels[i];
         std::string jointName   = animChannel.mNodeName.data;
+        auto joint = object_->skeleton_.getChild(jointName);
+   
+        if (not joint)
+        {
+            ERROR_LOG("Joint not found in skeleton : " + jointName);
+            continue;
+        }
 
         for (uint32 i = 0; i < animChannel.mNumRotationKeys; i++)
         {
             const auto& rotationKey = animChannel.mRotationKeys[i];
             auto& frame = getFrameByTimeStamp(clip, static_cast<float>(rotationKey.mTime / aiAnim.mTicksPerSecond));
-            frame.transforms[jointName].rotation = covnertQuat(rotationKey.mValue);
+            frame.transforms[joint->id].rotation = covnertQuat(rotationKey.mValue);
         }
 
         for (uint32 i = 0; i < animChannel.mNumPositionKeys; i++)
         {
             const auto& positionKey = animChannel.mPositionKeys[i];
             auto& frame = getFrameByTimeStamp(clip, static_cast<float>(positionKey.mTime / aiAnim.mTicksPerSecond));
-            frame.transforms[jointName].position = covnertVec3(positionKey.mValue);
+            frame.transforms[joint->id].position = covnertVec3(positionKey.mValue);
         }
 
         for (uint32 i = 0; i < animChannel.mNumScalingKeys; i++)
         {
             const auto& scalingKey = animChannel.mScalingKeys[i];
             auto& frame = getFrameByTimeStamp(clip, static_cast<float>(scalingKey.mTime / aiAnim.mTicksPerSecond));
-            frame.transforms[jointName].scale = covnertVec3(scalingKey.mValue);
+            frame.transforms[joint->id].scale = covnertVec3(scalingKey.mValue);
         }
     }
 

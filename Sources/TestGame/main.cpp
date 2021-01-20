@@ -56,11 +56,16 @@ void ExportAnimationClips(const GameEngine::File& file)
     auto outputpath = "./output/" + file.GetBaseName() + "_animationClips/";
     std::filesystem::create_directories(outputpath);
 
-    for (const auto& animation : model->animationClips_)
+    auto maybeRootJoint = model->getRootJoint();
+
+    if (maybeRootJoint)
     {
-        std::cout << "-- " << animation.first << std::endl;
-        GameEngine::Animation::ExportAnimationClipToFile(
-            Utils::GetAbsolutePath(outputpath) + "/" + animation.first + ".xml", animation.second);
+        for (const auto& animation : model->animationClips_)
+        {
+            std::cout << "-- " << animation.first << std::endl;
+            GameEngine::Animation::ExportAnimationClipToFile(
+                Utils::GetAbsolutePath(outputpath) + "/" + animation.first + ".xml", animation.second, *maybeRootJoint);
+        }
     }
 
     std::cout << file.GetBaseName() << " done." << std::endl;

@@ -59,7 +59,7 @@ void ReadFile(std::ifstream& file, Animation::KeyFrame& keyFrame)
             Animation::JointTransform transform;
             ReadFile(file, name);
             ReadFile(file, transform);
-            keyFrame.transforms[name] = transform;
+//            keyFrame.transforms[name] = transform;
         }
     }
 

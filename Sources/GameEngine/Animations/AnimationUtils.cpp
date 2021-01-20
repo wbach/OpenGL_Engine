@@ -49,7 +49,7 @@ JointTransform Interpolate(const JointTransform& frameA, const JointTransform& f
     return out;
 }
 
-AnimationClip ReadAnimationClip(const File& file)
+AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
 {
     Utils::XmlReader reader;
     reader.Read(file.GetAbsoultePath());
@@ -87,7 +87,16 @@ AnimationClip ReadAnimationClip(const File& file)
                 {
                     transform.scale = Utils::ReadVec3(*scaleNode);
                 }
-                keyFrame.transforms.insert({jointName, transform});
+                uint32 jointId(rootJoint.id);
+                if (rootJoint.name != jointName)
+                {
+                    auto jointPtr = rootJoint.getChild(jointName);
+                    if (jointPtr)
+                    {
+                        jointId = jointPtr->id;
+                    }
+                }
+                keyFrame.transforms.insert({jointId, transform});
             }
             animationClip.AddFrame(keyFrame);
         }
@@ -97,7 +106,7 @@ AnimationClip ReadAnimationClip(const File& file)
     return AnimationClip();
 }
 
-void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip)
+void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, Joint& rootJoint)
 {
     Utils::XmlNode rootNode("AnimationClip");
 
@@ -116,7 +125,19 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
         for (const auto& transformPair : frame.transforms)
         {
             auto& transformNode = jontTransformsNode.AddChild("Transform");
-            transformNode.attributes_.insert({"jointName", transformPair.first});
+            if (transformPair.first == rootJoint.id)
+            {
+                transformNode.attributes_.insert({"jointName", rootJoint.name});
+            }
+            else
+            {
+                auto joint = rootJoint.getChild(transformPair.first);
+                if (joint)
+                {
+                    transformNode.attributes_.insert({ "jointName", joint->name });
+                }
+            }
+
             const auto& transform = transformPair.second;
             transformNode.AddChild(Utils::Convert("Position", transform.position));
             transformNode.AddChild(Utils::Convert("Rotation", transform.rotation));
