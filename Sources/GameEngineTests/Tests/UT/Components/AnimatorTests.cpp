@@ -1,3 +1,4 @@
+#include <Utils/Time/Timer.h>
 #include <gtest/gtest.h>
 
 #include "BaseComponent.h"
@@ -6,11 +7,13 @@
 using namespace GameEngine;
 using namespace GameEngine::Animation;
 using namespace GameEngine::Components;
+using namespace ::testing;
 
 namespace
 {
 const std::string CLIP_NAME{"DefaultAnimationClip"};
-}
+const uint32 BONE_COUNT{100};
+}  // namespace
 
 struct AnimatorTestWrapper : public Animator
 {
@@ -20,11 +23,11 @@ struct AnimatorTestWrapper : public Animator
     }
     std::pair<KeyFrame, KeyFrame> _getPreviousAndNextFrames()
     {
-        return getPreviousAndNextFrames();
+        return {};
     }
-    void SetTime(float t)
+    void setDeltaTime(float t)
     {
-        currentTime_ = t;
+        componentContext_.time_.deltaTime = t;
     }
 };
 
@@ -37,10 +40,18 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
     }
     virtual void SetUp() override
     {
-        auto& anim = sut_.animationClips_[CLIP_NAME];
-        anim.name  = CLIP_NAME;
+        sut_.setDeltaTime(.01f);
+        auto& anim    = sut_.animationClips_[CLIP_NAME];
+        anim.name     = CLIP_NAME;
+        anim.playType = AnimationClip::PlayType::once;
 
         KeyFrame frame;
+        std::string boneName{"bone_"};
+        for (auto i = 0u; i < BONE_COUNT; ++i)
+        {
+            frame.transforms.insert({boneName + std::to_string(i), JointTransform{}});
+        }
+
         frame.timeStamp = 0;
         anim.AddFrame(frame);
         frame.timeStamp = 0.33f;
@@ -52,13 +63,52 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
 
         sut_.SetAnimation(CLIP_NAME);
     }
+
     AnimatorTestWrapper sut_;
 };
 
 TEST_F(AnimatorTestSchould, GetLastNextFrame)
 {
-    sut_.SetTime(.5f);
-    auto result = sut_._getPreviousAndNextFrames();
+    float currentTime{.5f};
+    sut_.setDeltaTime(currentTime);
+    auto& anim  = sut_.animationClips_[CLIP_NAME];
+    auto result = getPreviousAndNextFrames(anim, currentTime);
     ASSERT_FLOAT_EQ(result.first.timeStamp, 0.33f);
     ASSERT_FLOAT_EQ(result.second.timeStamp, 0.6f);
+}
+
+TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
+{
+    Utils::Timer timer;
+    Utils::Timer frameTimer;
+    bool run{true};
+    uint64 avarageTime{0};
+    uint64 avarageFrameTime{0};
+
+    sut_.onAnimationEnd_[CLIP_NAME].push_back([&timer, &run, &avarageTime]() {
+        run       = false;
+        auto time = timer.GetTimeNanoseconds();
+        avarageTime += time;
+        DEBUG_LOG("Execute time : " + std::to_string(time));
+    });
+
+    DEBUG_LOG("Start timer...");
+
+    int repeatCount{30};
+    int frameCounter{0};
+    for (int i = 0; i < repeatCount; ++i)
+    {
+        run = true;
+        sut_.ChangeAnimation(CLIP_NAME, Animator::AnimationChangeType::smooth);
+        timer.Reset();
+        while (run)
+        {
+            frameTimer.Reset();
+            sut_.Update();
+            avarageFrameTime += frameTimer.GetTimeNanoseconds();
+            ++frameCounter;
+        }
+    }
+    DEBUG_LOG("Avarage frame time : " + std::to_string(static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter)));
+    DEBUG_LOG("Avarage animation time : " + std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
 }

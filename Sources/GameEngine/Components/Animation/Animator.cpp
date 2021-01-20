@@ -166,7 +166,10 @@ void Animator::GetSkeletonAndAnimations()
 void Animator::updateShaderBuffers()
 {
     jointData_.updateBufferTransform();
-    componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
+    if (jointData_.buffer)
+    {
+        componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
+    }
 }
 bool Animator::IsReady()
 {

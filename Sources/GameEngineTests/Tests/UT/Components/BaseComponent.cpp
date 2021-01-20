@@ -13,5 +13,6 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                componentController_)
 {
     EXPECT_CALL(graphicsApiMock_, GetSupportedRenderers()).WillOnce(Return(std::vector<GraphicsApi::RendererType>{ GraphicsApi::RendererType::SIMPLE }));
+    EXPECT_CALL(graphicsApiMock_, CreateFrameBuffer(_)).WillRepeatedly(ReturnRef(frameBufferMock_));
     renderersManager_.Init();
 }

@@ -15,6 +15,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Camera/ICamera.h
 ../../Sources/GameEngine/Camera/Plane.h
 ../../Sources/GameEngine/Camera/ThridPersonCamera.h
+../../Sources/GameEngine/Components/Animation/AnimationPlayingInfo.h
 ../../Sources/GameEngine/Components/Animation/AnimationTransition.h
 ../../Sources/GameEngine/Components/Animation/AnimationTransitionEvent.h
 ../../Sources/GameEngine/Components/Animation/Animator.h

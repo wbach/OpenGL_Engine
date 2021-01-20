@@ -14,6 +14,7 @@
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Api/InputManagerMock.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngineTests/Tests/Mocks/Api/FrameBufferMock.h"
 #include <Utils/MeasurementHandler.h>
 #include <Utils/ThreadSync.h>
 
@@ -29,7 +30,8 @@ public:
     Utils::MeasurementHandler measurementHandler_;
     Utils::Thread::ThreadSync threadSync_;
     Input::InputManagerMock inputManagerMock_;
-    GraphicsApi::GraphicsApiMock graphicsApiMock_;
+    ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
+    GraphicsApi::FrameBufferMock frameBufferMock_;
     ComponentFactoryMock componentFactoryMock_;
     Time time_;
     CameraMock cameraMock_;
