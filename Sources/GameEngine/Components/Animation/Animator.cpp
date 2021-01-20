@@ -20,23 +20,6 @@ using namespace Animation;
 
 namespace Components
 {
-void JointData::updateBufferTransform()
-{
-    if (buffer)
-        updateBufferTransform(rootJoint);
-}
-void JointData::updateBufferTransform(Animation::Joint& joint)
-{
-    if (joint.id < MAX_BONES)
-    {
-        buffer->GetData().bonesTransforms[joint.id] = api_.PrepareMatrixToLoad(joint.animatedTransform);
-    }
-    for (auto& childJoint : joint.children)
-    {
-        updateBufferTransform(childJoint);
-    }
-}
-
 ComponentsType Animator::type = ComponentsType::Animator;
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
@@ -62,12 +45,8 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClips_.find(name);
     if (clipIter != animationClips_.end())
     {
-        machine_.handle(std::make_unique<PlayAnimationEvent>(clipIter->second, animationSpeed_, PlayDirection::forward,
-                                                             onAnimationEnd_[name]));
-    }
-    else
-    {
-        requestedAnimationToset_ = name;
+        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, clipIter->second, animationSpeed_,
+                                                             PlayDirection::forward, onAnimationEnd_[name]));
     }
     return *this;
 }
@@ -79,16 +58,16 @@ GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
     return jointData_.buffer ? jointData_.buffer->GetGraphicsObjectId() : std::nullopt;
 }
-std::optional<uint32> Animator::connectBoneWithObject(const std::string& boneName, GameObject& object,
+std::optional<uint32> Animator::connectBoneWithObject(const std::string& jointName, GameObject& object,
                                                       const std::optional<vec3>& po, const std::optional<Rotation>& ro)
 {
-    auto bone = jointData_.rootJoint.getChild(boneName);
+    auto bone = jointData_.rootJoint.getJoint(jointName);
     if (bone)
     {
         connectedObjects_.insert({bone->id, {object, po ? *po : vec3(0), ro ? *ro : Rotation(RadiansVec3(0))}});
         return bone->id;
     }
-    ERROR_LOG("Bone not found. Name :" + boneName);
+    ERROR_LOG("Joint not found. Name :" + jointName);
     return std::nullopt;
 }
 void Animator::disconnectObjectFromBone(uint32 boneId)
@@ -115,7 +94,7 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
 
     if (changeType == AnimationChangeType::direct)
     {
-        machine_.handle(std::make_unique<PlayAnimationEvent>(info));
+        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, info));
         return;
     }
 
@@ -137,35 +116,9 @@ void Animator::GetSkeletonAndAnimations()
         if (maybeRootJoint)
         {
             jointData_.rootJoint = *maybeRootJoint;
-            jointData_.buffer    = std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_,
-                                                                              PER_POSE_UPDATE_BIND_LOCATION);
-
-            auto& bufferData = jointData_.buffer->GetData();
-            for (size_t i = 0; i < MAX_BONES; ++i)
-            {
-                bufferData.bonesTransforms[i] = mat4(1.f);
-            }
-            componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jointData_.buffer);
+            initAnimationClips(*model);
+            createShaderJointBuffers();
         }
-
-        for (auto& file : clipsToRead_)
-        {
-            AddAnimationClip(Animation::ReadAnimationClip(file, jointData_.rootJoint));
-        }
-
-        for (const auto& clip : model->animationClips_)
-        {
-            animationClips_.insert(clip);
-
-            if (requestedAnimationToset_ == clip.first)
-            {
-                SetAnimation(clip.first);
-                requestedAnimationToset_.clear();
-            }
-        }
-
-        if (animationClips_.size() > 0)
-            rendererComponent_->useArmature(true);
     }
 }
 void Animator::updateShaderBuffers()
@@ -176,22 +129,14 @@ void Animator::updateShaderBuffers()
         componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
     }
 }
-bool Animator::IsReady()
-{
-    // return (currentAnimationClip_ != nullptr and not currentAnimationClip_->GetFrames().empty());
-    return true;
-}
 void Animator::Update()
 {
-    if (not IsReady())
-        return;
-
     machine_.processEvents();
-    auto maybePose = machine_.update(componentContext_.time_.deltaTime);
+    auto status = machine_.update(componentContext_.time_.deltaTime);
 
-    if (maybePose)
+    if (status == PoseUpdateAction::update)
     {
-        applyPoseToJoints(*maybePose);
+        applyPoseToJoints();
     }
 }
 void Animator::AddAnimationClip(const GameEngine::File& file)
@@ -210,15 +155,15 @@ void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
     }
 }
 
-void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const mat4& parentTransform)
+void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 {
     mat4 currentTransform(1.f);
 
-    auto currentPoseIter = currentPose.find(joint.id);
+    auto currentPoseIter = jointData_.pose.find(joint.id);
 
-    if (currentPoseIter != currentPose.end())
+    if (currentPoseIter != jointData_.pose.end())
     {
-        const auto& currentLocalTransform = currentPoseIter->second;
+        const auto& currentLocalTransform = currentPoseIter->second.matrix;
         currentTransform                  = parentTransform * currentLocalTransform;
 
         joint.animatedTransform = currentTransform * joint.offset;
@@ -227,13 +172,12 @@ void Animator::applyPoseToJoints(const Pose& currentPose, Joint& joint, const ma
 
     for (Joint& childJoint : joint.children)
     {
-        applyPoseToJoints(currentPose, childJoint, currentTransform);
+        applyPoseToJoints(childJoint, currentTransform);
     }
 }
-void Animator::applyPoseToJoints(const Pose& pose)
+void Animator::applyPoseToJoints()
 {
-    jointData_.pose = pose;
-    applyPoseToJoints(pose, jointData_.rootJoint, mat4(1.f));
+    applyPoseToJoints(jointData_.rootJoint, mat4(1.f));
     updateShaderBuffers();
 }
 void Animator::updateConnectedObjectToJoint(uint32 jointId, const Animation::Joint& joint)
@@ -267,6 +211,39 @@ void Animator::updateConnectedObjectToJoint(uint32 jointId, const Animation::Joi
         connectedObjectIter->second.gameObject.SetWorldPositionRotation(boneWorldPosition,
                                                                         boneWorldRotation * rotationOffset.value_);
     }
+}
+void Animator::createShaderJointBuffers()
+{
+    jointData_.buffer =
+        std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_, PER_POSE_UPDATE_BIND_LOCATION);
+
+    auto& bufferData = jointData_.buffer->GetData();
+    for (size_t i = 0; i < MAX_BONES; ++i)
+    {
+        bufferData.bonesTransforms[i] = mat4(1.f);
+    }
+    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*jointData_.buffer);
+}
+void Animator::initAnimationClips(const Model& model)
+{
+    for (auto& file : clipsToRead_)
+    {
+        AddAnimationClip(Animation::ReadAnimationClip(file, jointData_.rootJoint));
+    }
+
+    for (const auto& clip : model.animationClips_)
+    {
+        animationClips_.insert(clip);
+    }
+
+    auto clipIter = animationClips_.find(startupAnimationClipName_);
+    if (clipIter != animationClips_.end())
+    {
+        SetAnimation(clipIter->first);
+    }
+
+    if (animationClips_.size() > 0)
+        rendererComponent_->useArmature(true);
 }
 }  // namespace Components
 }  // namespace GameEngine

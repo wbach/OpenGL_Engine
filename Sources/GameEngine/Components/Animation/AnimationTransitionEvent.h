@@ -9,13 +9,12 @@ namespace Components
 {
 struct AnimationTransitionEvent : public Event
 {
-    AnimationTransitionEvent(const Pose&, const AnimationPlayingInfo&);
-    AnimationTransitionEvent(const Pose&, const AnimationPlayingInfo&, float);
+    AnimationTransitionEvent(Pose&, const AnimationPlayingInfo&);
+    AnimationTransitionEvent(Pose&, const AnimationPlayingInfo&, float);
     void process() override;
 
+    Pose& currentPose;
     float timeForChange;
-    const Pose& currentPose;
-
     AnimationPlayingInfo nextClipInfo;
 };
 

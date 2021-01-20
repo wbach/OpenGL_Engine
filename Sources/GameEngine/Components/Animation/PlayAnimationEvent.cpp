@@ -1,30 +1,34 @@
 #include "PlayAnimationEvent.h"
 
+#include <Logger/Log.h>
+
 #include "PlayAnimation.h"
 #include "StateMachine.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
 namespace Components
 {
-PlayAnimationEvent::PlayAnimationEvent(const AnimationPlayingInfo& animationPlayingInfo)
-    : animationPlayingInfo_{animationPlayingInfo}
+PlayAnimationEvent::PlayAnimationEvent(Pose& pose, const AnimationPlayingInfo& animationPlayingInfo)
+    : currentPose{pose}
+    , animationPlayingInfo_{animationPlayingInfo}
 {
 }
-PlayAnimationEvent::PlayAnimationEvent(const Animation::AnimationClip& clip)
-    : PlayAnimationEvent(clip, 1.f, PlayDirection::forward)
+PlayAnimationEvent::PlayAnimationEvent(Pose& pose, const Animation::AnimationClip& clip)
+    : PlayAnimationEvent(pose, clip, 1.f, PlayDirection::forward)
 {
 }
 
-PlayAnimationEvent::PlayAnimationEvent(const Animation::AnimationClip& clip, float playSpeed,
+PlayAnimationEvent::PlayAnimationEvent(Pose& pose, const Animation::AnimationClip& clip, float playSpeed,
                                        PlayDirection playDirection)
-    : PlayAnimationEvent(clip, playSpeed, playDirection, {})
+    : PlayAnimationEvent(pose, clip, playSpeed, playDirection, {})
 {
 }
-PlayAnimationEvent::PlayAnimationEvent(const Animation::AnimationClip& clip, float playSpeed,
-                                       PlayDirection playDirection, const std::vector<std::function<void()>>& endCallbacks)
-    : animationPlayingInfo_{clip, playSpeed, playDirection, endCallbacks}
+PlayAnimationEvent::PlayAnimationEvent(Pose& pose, const Animation::AnimationClip& clip, float playSpeed,
+                                       PlayDirection playDirection,
+                                       const std::vector<std::function<void()>>& endCallbacks)
+    : currentPose{pose}
+    , animationPlayingInfo_{clip, playSpeed, playDirection, endCallbacks}
 {
 }
 void PlayAnimationEvent::process()

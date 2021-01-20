@@ -43,7 +43,7 @@ void Joint::addChild(Joint joint)
     joint.parent = this;
     children.push_back(std::move(joint));
 }
-Joint* Joint::getChild(const std::string& boneName)
+Joint* Joint::getJoint(const std::string& boneName)
 {
     if (name == boneName)
     {
@@ -52,14 +52,14 @@ Joint* Joint::getChild(const std::string& boneName)
 
     for (auto& child : children)
     {
-        auto result = child.getChild(boneName);
+        auto result = child.getJoint(boneName);
         if (result)
             return result;
     }
 
     return nullptr;
 }
-Joint* Joint::getChild(uint32 boneId)
+Joint* Joint::getJoint(JointId boneId)
 {
     if (id == boneId)
     {
@@ -67,7 +67,37 @@ Joint* Joint::getChild(uint32 boneId)
     }
     for (auto& child : children)
     {
-        auto result = child.getChild(name);
+        auto result = child.getJoint(name);
+        if (result)
+            return result;
+    }
+    return nullptr;
+}
+const Joint* Joint::getJoint(const std::string& jointName) const
+{
+    if (name == jointName)
+    {
+        return this;
+    }
+
+    for (auto& child : children)
+    {
+        auto result = child.getJoint(jointName);
+        if (result)
+            return result;
+    }
+
+    return nullptr;
+}
+const Joint* Joint::getJoint(JointId boneId) const
+{
+    if (id == boneId)
+    {
+        return this;
+    }
+    for (auto& child : children)
+    {
+        auto result = child.getJoint(name);
         if (result)
             return result;
     }

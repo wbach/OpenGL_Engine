@@ -14,6 +14,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Animation/Animator.cpp
 ../../Sources/GameEngine/Components/Animation/Common.cpp
 ../../Sources/GameEngine/Components/Animation/EndAnimationTransitionEvent.cpp
+../../Sources/GameEngine/Components/Animation/JointData.cpp
 ../../Sources/GameEngine/Components/Animation/PlayAnimation.cpp
 ../../Sources/GameEngine/Components/Animation/PlayAnimationEvent.cpp
 ../../Sources/GameEngine/Components/Animation/StateMachine.cpp

@@ -407,7 +407,7 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
     {
         const auto& animChannel = *aiAnim.mChannels[i];
         std::string jointName   = animChannel.mNodeName.data;
-        auto joint = object_->skeleton_.getChild(jointName);
+        auto joint = object_->skeleton_.getJoint(jointName);
    
         if (not joint)
         {

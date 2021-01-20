@@ -150,7 +150,7 @@ void Create(XmlNode& node, const std::string& filename, LevelOfDetail lvl)
 
 void Create(XmlNode& node, const Components::Animator& component)
 {
-    Create(node.AddChild(CSTR_CURRENT_ANIMATION), component.GetCurrentAnimationName());
+    Create(node.AddChild(CSTR_STARTUP_ANIMATION), component.startupAnimationClipName_);
 
     auto& animationClipsNode = node.AddChild(CSTR_ANIMATION_CLIPS);
 

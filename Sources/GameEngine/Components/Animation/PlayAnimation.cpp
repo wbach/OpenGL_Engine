@@ -10,6 +10,7 @@ namespace Components
 PlayAnimation::PlayAnimation(const PlayAnimationEvent& event)
     : machine_{*event.machine}
     , clip_{event.animationPlayingInfo_.clip}
+    , currentPose_{event.currentPose}
     , time_{0}
     , playingSpeed_{event.animationPlayingInfo_.playDirection_ == PlayDirection::forward
                         ? fabsf(event.animationPlayingInfo_.playSpeed_)
@@ -17,11 +18,10 @@ PlayAnimation::PlayAnimation(const PlayAnimationEvent& event)
     , endCallbacks_{event.animationPlayingInfo_.endCallbacks_}
 {
 }
-Pose PlayAnimation::update(float deltaTime)
+void PlayAnimation::update(float deltaTime)
 {
-    auto currentPose = calculateCurrentAnimationPose(clip_, time_);
+    calculateCurrentAnimationPose(currentPose_, clip_, time_);
     increaseAnimationTime(deltaTime);
-    return currentPose;
 }
 const std::string& PlayAnimation::getAnimationClipName() const
 {

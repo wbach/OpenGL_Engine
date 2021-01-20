@@ -9,14 +9,15 @@ namespace Components
 StateMachine::~StateMachine()
 {
 }
-std::optional<Pose> StateMachine::update(float deltaTime)
+PoseUpdateAction StateMachine::update(float deltaTime)
 {
     if (currentState_)
     {
-        return currentState_->update(deltaTime);
+        currentState_->update(deltaTime);
+        return PoseUpdateAction::update;
     }
 
-    return std::nullopt;
+    return PoseUpdateAction::nothingToDo;
 }
 void StateMachine::handle(std::unique_ptr<Event> event)
 {

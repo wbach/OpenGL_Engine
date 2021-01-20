@@ -7,9 +7,8 @@ namespace GameEngine
 {
 namespace Components
 {
-Pose interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float progression)
+void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float progression)
 {
-    Pose currentPose;
     for (const auto& pair : previousFrame.transforms)
     {
         const auto& jointId                = pair.first;
@@ -17,13 +16,13 @@ Pose interpolatePoses(const Animation::KeyFrame& previousFrame, const Animation:
 
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
+            auto& poseData = currentPose[jointId];
             const auto& previousTransform = pair.second;
             const auto& nextTransform     = nextFrameTransformIter->second;
-            auto currentTransform         = Interpolate(previousTransform, nextTransform, progression);
-            currentPose.insert({jointId, GetLocalTransform(currentTransform)});
+            poseData.transform = Interpolate(previousTransform, nextTransform, progression);
+            poseData.matrix = GetLocalTransform(poseData.transform);
         }
     }
-    return currentPose;
 }
 float calculateProgression(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float time)
 {
@@ -49,11 +48,11 @@ std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames(con
     }
     return {previousFrame, nextFrame};
 }
-Pose calculateCurrentAnimationPose(const Animation::AnimationClip& clip, float time)
+void calculateCurrentAnimationPose(Pose& currentPose, const Animation::AnimationClip& clip, float time)
 {
     auto frames       = getPreviousAndNextFrames(clip, time);
     float progression = calculateProgression(frames.first, frames.second, time);
-    return interpolatePoses(frames.first, frames.second, progression);
+    interpolatePoses(currentPose, frames.first, frames.second, progression);
 }
 Animation::KeyFrame convert(const Pose& pose, float timestamp)
 {
@@ -62,7 +61,7 @@ Animation::KeyFrame convert(const Pose& pose, float timestamp)
 
     for (const auto& pair : pose)
     {
-        result.transforms.insert({pair.first, Animation::GetJointTransform(pair.second)});
+        result.transforms.insert({pair.first, pair.second.transform});
     }
     return result;
 }

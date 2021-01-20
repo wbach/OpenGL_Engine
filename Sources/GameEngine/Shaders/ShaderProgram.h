@@ -8,8 +8,6 @@
 #include "Types.h"
 #include "Utils.h"
 
-const int MAX_BONES = 50;
-
 namespace GameEngine
 {
 class ShaderProgram : public IShaderProgram

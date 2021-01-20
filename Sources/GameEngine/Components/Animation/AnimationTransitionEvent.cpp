@@ -9,12 +9,12 @@ namespace GameEngine
 {
 namespace Components
 {
-AnimationTransitionEvent::AnimationTransitionEvent(const Pose& currentPose,
+AnimationTransitionEvent::AnimationTransitionEvent(Pose& currentPose,
                                                    const AnimationPlayingInfo& nextAnimationClipInfo)
     : AnimationTransitionEvent(currentPose, nextAnimationClipInfo, 0.25f)
 {
 }
-AnimationTransitionEvent::AnimationTransitionEvent(const Pose& currentPose,
+AnimationTransitionEvent::AnimationTransitionEvent(Pose& currentPose,
                                                    const AnimationPlayingInfo& nextAnimationClipInfo,
                                                    float timeForChange)
     : timeForChange{timeForChange}

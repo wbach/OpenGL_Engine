@@ -1,19 +1,29 @@
 #pragma once
 #include <Types.h>
+
 #include <unordered_map>
-#include "GameEngine/Animations/KeyFrame.h"
+
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Animations/KeyFrame.h"
+#include "GameEngine/Animations/JointId.h"
+#include "GameEngine/Animations/JointTransform.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-typedef std::unordered_map<uint32, mat4> Pose;
+struct PoseData
+{
+    Animation::JointTransform transform;
+    mat4 matrix;
+};
 
-Pose interpolatePoses(const Animation::KeyFrame&, const Animation::KeyFrame&, float);
+typedef std::unordered_map<Animation::JointId, PoseData> Pose;
+
+void interpolatePoses(Pose& currentPose, const Animation::KeyFrame&, const Animation::KeyFrame&, float);
 float calculateProgression(const Animation::KeyFrame&, const Animation::KeyFrame&, float);
 std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames(const Animation::AnimationClip&, float);
-Pose calculateCurrentAnimationPose(const Animation::AnimationClip&, float);
+void calculateCurrentAnimationPose(Pose&, const Animation::AnimationClip&, float);
 Animation::KeyFrame convert(const Pose&, float = 0.f);
 }  // namespace Components
 }  // namespace GameEngine

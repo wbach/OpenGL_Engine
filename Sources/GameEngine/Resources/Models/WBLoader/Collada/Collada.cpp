@@ -398,7 +398,7 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
                                     vec3 position(mat[3][0], mat[3][1], mat[3][2]);
                                     auto rotation = glm::quat_cast(mat);
 
-                                    auto jointId = objects.back().skeleton_.getChild(jointName)->id;
+                                    auto jointId = objects.back().skeleton_.getJoint(jointName)->id;
                                     frames[frameId].transforms.insert({ jointId, {position, rotation}});
                                     ++frameId;
                                 }

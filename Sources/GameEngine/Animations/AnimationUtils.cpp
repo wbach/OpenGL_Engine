@@ -4,6 +4,7 @@
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -87,16 +88,14 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
                 {
                     transform.scale = Utils::ReadVec3(*scaleNode);
                 }
-                uint32 jointId(rootJoint.id);
-                if (rootJoint.name != jointName)
+                if (auto joint = rootJoint.getJoint(jointName))
                 {
-                    auto jointPtr = rootJoint.getChild(jointName);
-                    if (jointPtr)
-                    {
-                        jointId = jointPtr->id;
-                    }
+                    keyFrame.transforms.insert({ joint->id, transform });
                 }
-                keyFrame.transforms.insert({jointId, transform});
+                else
+                {
+                    ERROR_LOG("Joint \"" + jointName + "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
+                }
             }
             animationClip.AddFrame(keyFrame);
         }
@@ -131,10 +130,14 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
             }
             else
             {
-                auto joint = rootJoint.getChild(transformPair.first);
+                auto joint = rootJoint.getJoint(transformPair.first);
                 if (joint)
                 {
                     transformNode.attributes_.insert({ "jointName", joint->name });
+                }
+                else
+                {
+                    ERROR_LOG("Joint id=\"" + std::to_string(transformPair.first) + "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
                 }
             }
 

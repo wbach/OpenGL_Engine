@@ -54,7 +54,7 @@ extern const std::string CSTR_MASS;
 extern const std::string CSTR_IS_STATIC;
 extern const std::string CSTR_VELOCITY;
 extern const std::string CSTR_COLLISION_SHAPE;
-extern const std::string CSTR_CURRENT_ANIMATION;
+extern const std::string CSTR_STARTUP_ANIMATION;
 extern const std::string CSTR_WEAPON_CHILD_NAME;
 extern const std::string CSTR_WEAPON_BONE_NAME;
 extern const std::string CSTR_WEAPON_BONE_POSITION_OFFSET;

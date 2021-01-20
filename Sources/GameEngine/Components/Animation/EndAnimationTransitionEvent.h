@@ -11,10 +11,8 @@ namespace Components
 struct EndAnimationTransitionEvent : public Event
 {
     EndAnimationTransitionEvent() = default;
-    EndAnimationTransitionEvent(const std::vector<std::function<void()>>& onEntryCallbacks)
-        : onEntryCallbacks{onEntryCallbacks}
-    {
-    }
+    EndAnimationTransitionEvent(const std::vector<std::function<void()>>&);
+
     void process() override;
     const std::vector<std::function<void()>> onEntryCallbacks;
 };

@@ -1,9 +1,11 @@
 #pragma once
+#include <memory>
 #include <optional>
 #include <vector>
-#include <memory>
+
 #include "Common.h"
 #include "IState.h"
+#include "PoseUpdateAction.h"
 
 namespace GameEngine
 {
@@ -14,7 +16,7 @@ struct Event;
 struct StateMachine
 {
     ~StateMachine();
-    std::optional<Pose> update(float);
+    PoseUpdateAction update(float);
     void handle(std::unique_ptr<Event>);
     void processEvents();
     const std::string& getCurrentAnimationClipName() const;

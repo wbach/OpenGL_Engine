@@ -13,7 +13,7 @@ class AnimationTransition : public IState
 {
 public:
     AnimationTransition(const AnimationTransitionEvent&);
-    Pose update(float) override;
+    void update(float) override;
     const std::string& getAnimationClipName() const override;
 
 private:
@@ -22,6 +22,7 @@ private:
 private:
     StateMachine& machine_;
     const AnimationPlayingInfo info_;
+    Pose& currentPose_;
 
     Animation::KeyFrame startChaneAnimKeyFrame_;
     Animation::KeyFrame endChangeAnimKeyFrame_;

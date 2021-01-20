@@ -13,12 +13,13 @@ namespace Components
 {
 struct PlayAnimationEvent : public Event
 {
-    PlayAnimationEvent(const AnimationPlayingInfo&);
-    PlayAnimationEvent(const Animation::AnimationClip&);
-    PlayAnimationEvent(const Animation::AnimationClip&, float, PlayDirection);
-    PlayAnimationEvent(const Animation::AnimationClip&, float, PlayDirection, const std::vector<std::function<void()>>&);
+    PlayAnimationEvent(Pose&, const AnimationPlayingInfo&);
+    PlayAnimationEvent(Pose&, const Animation::AnimationClip&);
+    PlayAnimationEvent(Pose&, const Animation::AnimationClip&, float, PlayDirection);
+    PlayAnimationEvent(Pose&, const Animation::AnimationClip&, float, PlayDirection, const std::vector<std::function<void()>>&);
     void process() override;
 
+    Pose& currentPose;
     AnimationPlayingInfo animationPlayingInfo_;
 };
 }  // namespace Components

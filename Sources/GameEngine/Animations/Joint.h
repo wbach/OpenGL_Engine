@@ -7,11 +7,13 @@ namespace GameEngine
 {
 namespace Animation
 {
+using JointId = uint32;
+
 struct Joint
 {
     Joint* parent{nullptr};
 
-    uint32 id        = 0;
+    JointId id       = 0;
     uint32 size      = 1;
     std::string name = "";
 
@@ -24,8 +26,10 @@ struct Joint
 
     void increaseSize(uint32 i);
     void addChild(Joint joint);
-    Joint* getChild(const std::string& boneName);
-    Joint* getChild(uint32 boneId);
+    Joint* getJoint(const std::string&);
+    Joint* getJoint(JointId);
+    const Joint* getJoint(const std::string&) const;
+    const Joint* getJoint(JointId) const;
 };
 Joint* findJointByName(Joint&, const std::string&);
 Joint* findJointById(Joint&, uint32);

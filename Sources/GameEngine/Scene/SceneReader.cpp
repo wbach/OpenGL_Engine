@@ -104,11 +104,7 @@ void Read(const Utils::XmlNode& node, Components::Animator& component)
         }
     }
 
-    auto currentAnimationNode = node.GetChild(CSTR_CURRENT_ANIMATION);
-    if (currentAnimationNode)
-    {
-        component.SetAnimation(currentAnimationNode->value_);
-    }
+    setIfExist(node, CSTR_STARTUP_ANIMATION, component.startupAnimationClipName_);
 }
 
 void Read(const Utils::XmlNode& node, Components::BoxShape& component)

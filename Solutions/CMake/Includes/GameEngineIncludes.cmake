@@ -2,6 +2,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Animations/AnimationClip.h
 ../../Sources/GameEngine/Animations/AnimationUtils.h
 ../../Sources/GameEngine/Animations/Joint.h
+../../Sources/GameEngine/Animations/JointId.h
 ../../Sources/GameEngine/Animations/JointTransform.h
 ../../Sources/GameEngine/Animations/KeyFrame.h
 ../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.h
@@ -23,9 +24,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Animation/EndAnimationTransitionEvent.h
 ../../Sources/GameEngine/Components/Animation/Event.h
 ../../Sources/GameEngine/Components/Animation/IState.h
+../../Sources/GameEngine/Components/Animation/JointData.h
 ../../Sources/GameEngine/Components/Animation/PlayAnimation.h
 ../../Sources/GameEngine/Components/Animation/PlayAnimationEvent.h
 ../../Sources/GameEngine/Components/Animation/PlayDirection.h
+../../Sources/GameEngine/Components/Animation/PoseUpdateAction.h
 ../../Sources/GameEngine/Components/Animation/StateMachine.h
 ../../Sources/GameEngine/Components/BaseComponent.h
 ../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h

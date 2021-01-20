@@ -3,13 +3,12 @@
 
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
-#include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "PlayDirection.h"
 #include "StateMachine.h"
+#include "JointData.h"
 
 namespace common
 {
@@ -19,26 +18,11 @@ class Trasnform;
 namespace GameEngine
 {
 class Mesh;
+class Model;
 
 namespace Components
 {
 class RendererComponent;
-
-struct JointData
-{
-    JointData(GraphicsApi::IGraphicsApi& api)
-        : api_(api)
-    {
-    }
-    Pose pose;
-    Animation::Joint rootJoint;
-    std::unique_ptr<BufferObject<PerPoseUpdate>> buffer;
-
-    void updateBufferTransform();
-    void updateBufferTransform(Animation::Joint&);
-
-    GraphicsApi::IGraphicsApi& api_;
-};
 
 class Animator : public BaseComponent
 {
@@ -78,20 +62,21 @@ public:
 
     JointData jointData_;
     float animationSpeed_;
+    std::string startupAnimationClipName_;
 
 protected:
     void updateShaderBuffers();
-    bool IsReady();
     void GetSkeletonAndAnimations();
-    void applyPoseToJoints(const Pose&, Animation::Joint&, const mat4&);
-    void applyPoseToJoints(const Pose&);
+    void applyPoseToJoints(Animation::Joint&, const mat4&);
+    void applyPoseToJoints();
     void updateConnectedObjectToJoint(uint32, const Animation::Joint&);
+    void createShaderJointBuffers();
+    void initAnimationClips(const Model&);
 
 protected:
     StateMachine machine_;
 
     RendererComponent* rendererComponent_;
-    std::string requestedAnimationToset_;
     std::unordered_map<uint32, ConnectedObject> connectedObjects_;
     std::vector<GameEngine::File> clipsToRead_;
 

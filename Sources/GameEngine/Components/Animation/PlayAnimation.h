@@ -13,7 +13,7 @@ class PlayAnimation : public IState
 {
 public:
     PlayAnimation(const PlayAnimationEvent&);
-    Pose update(float) override;
+    void update(float) override;
     const std::string& getAnimationClipName() const override;
 
 private:
@@ -22,6 +22,7 @@ private:
 private:
     StateMachine& machine_;
     const Animation::AnimationClip& clip_;
+    Pose& currentPose_;
     float time_;
     float playingSpeed_;
     const std::vector<std::function<void()>>& endCallbacks_;
