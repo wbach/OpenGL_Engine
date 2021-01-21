@@ -44,6 +44,7 @@ out VS_OUT
 {
     vec2 texCoord;
     vec2 textureOffset;
+    vec3 normal;
     float outOfViewRange;
 } vs_out;
 
@@ -90,6 +91,7 @@ void main()
 {
     VertexWorldData worldData = caluclateWorldData();
 
+    vs_out.normal        = normalize(worldData.worldNormal.xyz);
     vs_out.texCoord      = TexCoord;
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.outOfViewRange = 0.f; //length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;

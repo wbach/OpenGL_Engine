@@ -9,8 +9,8 @@ Water::Water()
     : type{IConfigurationParam::Type::Enum,
            WaterType::FULL,
            {WaterType::SIMPLE, WaterType::REFLECTED_REFRACTED, WaterType::FULL}}
-    , waterReflectionResolution{IConfigurationParam::Type::Vec2i, {640, 480}, defaultResolutions()}
-    , waterRefractionResolution{IConfigurationParam::Type::Vec2i, {320, 240}, defaultResolutions()}
+    , waterReflectionResolution{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions()}
+    , waterRefractionResolution{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions()}
 {
 }
 }  // namespace Params

@@ -31,8 +31,8 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
     {
         GraphicsApi::ShaderProgramType::DebugObject,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/debugObject.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/debugObject.frag"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/debugObjectShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "DebugShaders/debugObjectShader.frag"}
         }
     },
     {

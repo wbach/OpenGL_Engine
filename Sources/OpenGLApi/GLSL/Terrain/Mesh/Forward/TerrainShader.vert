@@ -28,6 +28,6 @@ void main()
 {
     vs_out.worldPosition = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
     vs_out.texCoord      = TEXTCOORD;
-    vs_out.normal        = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
+    vs_out.normal        = normalize(perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
     gl_Position = perFrame.projectionViewMatrix * vs_out.worldPosition;
 }

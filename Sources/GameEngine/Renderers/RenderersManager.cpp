@@ -157,6 +157,7 @@ void RenderersManager::renderScene(Scene& scene)
     mainRenderer_->prepare();
     {
         RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
+        graphicsApi_.EnableDepthTest();
         mainRenderer_->render();
         mainRenderer_->blendRender();
     }
