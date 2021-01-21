@@ -20,11 +20,14 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     , rotation_(0.f)
     , scale_(150.f)
 {
+    viewDistanceChangeSubscription_ =
+        EngineConf.renderer.viewDistance.subscribeForChange([this](const auto&) { calculateBoxScale(); });
 }
 
 SkyBoxRenderer::~SkyBoxRenderer()
 {
     cleanUp();
+    EngineConf.renderer.viewDistance.unsubscribe(viewDistanceChangeSubscription_);
 }
 
 void SkyBoxRenderer::init()
@@ -43,7 +46,7 @@ void SkyBoxRenderer::init()
         perMeshObject_.fogColor_    = context_.fogColor_;
     }
     // max size : skybox width <= (2 * sqrt(3) / 3)
-    scale_ = vec3(context_.projection_.GetViewDistance() * sqrtf(3) / 3.f);
+    calculateBoxScale();
 }
 
 void SkyBoxRenderer::cleanUp()
@@ -77,6 +80,11 @@ void SkyBoxRenderer::updateBuffer()
 
     context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdateBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
+}
+
+void SkyBoxRenderer::calculateBoxScale()
+{
+    scale_ = vec3(context_.projection_.GetViewDistance() * sqrtf(3) / 3.f);
 }
 
 void SkyBoxRenderer::unSubscribeAll()

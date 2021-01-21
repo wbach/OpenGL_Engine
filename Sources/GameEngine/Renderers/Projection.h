@@ -10,6 +10,8 @@ public:
     Projection(const vec2ui& renderingSize);
     Projection(const vec2ui& renderingSize, float near, float far, float fov);
     Projection(const Projection& p);
+    ~Projection();
+
     Projection& operator=(const Projection& p);
 
     void Init();
@@ -35,6 +37,7 @@ private:
     float farPlane_;
     float fov_;
     mat4 projectionMatrix_;
+    IdType viewDistanceChangeSubscription_;
 };
 
 float Projection::GetViewDistance() const

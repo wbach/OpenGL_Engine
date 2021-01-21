@@ -48,6 +48,8 @@ private:
     void updateBuffer();
 
 private:
+    void calculateBoxScale();
+
     struct PerMeshObject
     {
         AlignWrapper<vec4> fogColor_;
@@ -65,5 +67,6 @@ private:
     float rotationSpeed_;
     vec3 rotation_;
     vec3 scale_;
+    IdType viewDistanceChangeSubscription_;
 };
 }  // namespace GameEngine

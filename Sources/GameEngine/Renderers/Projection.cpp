@@ -25,7 +25,7 @@ Projection::Projection()
 {
 }
 Projection::Projection(const vec2ui &renderingSize)
-    : Projection(renderingSize, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE, DEFAULT_FOV)
+    : Projection(renderingSize, DEFAULT_NEAR_PLANE, EngineConf.renderer.viewDistance, DEFAULT_FOV)
 {
 }
 Projection::Projection(const vec2ui &renderingSize, float near, float far, float fov)
@@ -36,6 +36,12 @@ Projection::Projection(const vec2ui &renderingSize, float near, float far, float
     , fov_(fov)
 {
     CreateProjectionMatrix();
+
+    viewDistanceChangeSubscription_ =
+        EngineConf.renderer.viewDistance.subscribeForChange([this](const auto &newViewDistance) {
+            farPlane_ = newViewDistance;
+            CreateProjectionMatrix();
+        });
 }
 Projection::Projection(const Projection &p)
     : renderingSize_(p.renderingSize_)
@@ -45,6 +51,10 @@ Projection::Projection(const Projection &p)
     , fov_(p.fov_)
     , projectionMatrix_(p.projectionMatrix_)
 {
+}
+Projection::~Projection()
+{
+    EngineConf.renderer.viewDistance.unsubscribe(viewDistanceChangeSubscription_);
 }
 Projection &Projection::operator=(const Projection &p)
 {

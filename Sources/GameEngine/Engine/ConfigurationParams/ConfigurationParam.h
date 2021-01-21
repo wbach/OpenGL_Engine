@@ -112,6 +112,7 @@ public:
         {
             subscriber.second(value_);
         }
+        updatetValueIndex();
     }
     IdType subscribeForChange(std::function<void(const T&)> action)
     {
