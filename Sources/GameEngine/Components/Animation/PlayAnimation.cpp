@@ -1,12 +1,26 @@
 #include "PlayAnimation.h"
 
 #include "EndAnimationTransitionEvent.h"
+#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "StateMachine.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+struct TimeSnap
+{
+    float frameTime;
+    std::array<mat4, MAX_BONES> boneTransforms;
+};
+using ModelId = uint32;
+using Clipname = std::string;
+
+std::unordered_map<ModelId, std::unordered_map<Clipname, std::vector<TimeSnap>>> precaculatedAnimationTransforms;
+}  // namespace
+
 PlayAnimation::PlayAnimation(const PlayAnimationEvent& event)
     : machine_{*event.machine}
     , clip_{event.animationPlayingInfo_.clip}

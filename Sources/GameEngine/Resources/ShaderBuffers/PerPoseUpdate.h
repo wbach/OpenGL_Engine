@@ -1,5 +1,6 @@
 #pragma once
 #include "Types.h"
+#include <array>
 
 namespace GameEngine
 {
@@ -7,7 +8,7 @@ const int MAX_BONES = 512;
 
 struct PerPoseUpdate
 {
-    mat4 bonesTransforms[MAX_BONES];
+    std::array<mat4, MAX_BONES> bonesTransforms;
 
     PerPoseUpdate()
     {

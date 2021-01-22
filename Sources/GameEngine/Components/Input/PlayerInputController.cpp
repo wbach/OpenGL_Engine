@@ -3,6 +3,8 @@
 #include <Input/InputManager.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Characters/Enemy.h"
+#include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 
 using namespace common::Controllers;
@@ -11,6 +13,10 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+const float ATTACK_RANGE{2.f};
+}
 ComponentsType PlayerInputController::type = ComponentsType::PlayerInputController;
 
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
@@ -52,6 +58,22 @@ void PlayerInputController::Init()
             }
         }
 
+        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
+            auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
+                componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
+
+            if (componentPtr)
+            {
+                if (distance < ATTACK_RANGE)
+                {
+                    componentPtr->hurt();
+                }
+            }
+        });
+
+        if (not characterController_)
+            return;
+
         SubscribeForPushActions();
         SubscribeForPopActions();
     }
@@ -75,9 +97,10 @@ void PlayerInputController::SubscribeForPushActions()
         characterController_->addState(std::make_unique<RotateRight>());
         characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT);
     });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::SPACE, [&]() {
-        characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER));
-    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        KeyCodes::SPACE, [&]() { characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER)); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
 }
 
 void PlayerInputController::SubscribeForPopActions()
@@ -91,5 +114,6 @@ void PlayerInputController::SubscribeForPopActions()
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
 }
+
 }  // namespace Components
 }  // namespace GameEngine

@@ -21,6 +21,7 @@ public:
 
     void Init();
     void Update();
+    void hurt();
 
 private:
     void isOnGround();

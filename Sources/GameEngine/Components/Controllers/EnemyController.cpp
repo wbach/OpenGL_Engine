@@ -2,6 +2,7 @@
 
 #include <Utils/math.hpp>
 
+#include "ControllerUtlis.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
@@ -41,7 +42,15 @@ void EnemyController::Init()
         animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
             if (closestPlayerComponent_)
             {
-                closestPlayerComponent_->hurt();
+                auto playerPosition  = closestPlayerComponent_->getParentGameObject().GetWorldTransform().GetPosition();
+                auto currentPosition = thisObject_.GetWorldTransform().GetPosition();
+                auto toTargetVector  = playerPosition - currentPosition;
+                auto distance        = glm::length(toTargetVector);
+
+                if (distance < ATTACK_RANGE)
+                {
+                    closestPlayerComponent_->hurt();
+                }
             }
         });
     }
@@ -51,28 +60,10 @@ void EnemyController::Update()
     if (not characterController_)
         return;
 
-    auto& playerComponents = componentContext_.componentController_.GetAllComonentsOfType(ComponentsType::Player);
-    const auto& thisEnemyPosition = thisObject_.GetWorldTransform().GetPosition();
+    auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
+        componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
-    closestPlayerComponent_ = nullptr;
-    vec3 toPlayer{0.f};
-
-    float distance = std::numeric_limits<float>::max();
-
-    for (const auto& playerComponent : playerComponents)
-    {
-        const auto& playerPosition = playerComponent.second->getParentGameObject().GetWorldTransform().GetPosition();
-
-        const auto dist              = playerPosition - thisEnemyPosition;
-        const auto& distanceToPlayer = glm::length(dist);
-
-        if (distanceToPlayer < distance)
-        {
-            distance                = distanceToPlayer;
-            toPlayer                = dist;
-            closestPlayerComponent_ = static_cast<Player*>(playerComponent.second);
-        }
-    }
+    closestPlayerComponent_ = componentPtr;
 
     if (closestPlayerComponent_ and distance < playerDetectionRange)
     {
@@ -85,7 +76,7 @@ void EnemyController::Update()
             characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
             characterController_->addState(std::make_unique<Attack>());
         }
-        characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(toPlayer)));
+        characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(vectorToPlayer)));
         return;
     }
 

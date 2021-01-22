@@ -1,9 +1,10 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Controllers/CharacterController.h"
 #include <Common/Controllers/CharacterController/CharacterActions.h>
 #include <Input/KeysSubscriptionsManager.h>
+
+#include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController.h"
 
 namespace GameEngine
 {

@@ -68,6 +68,8 @@ public:
 
     void SetMatrix(const mat4&);
 
+    const vec3 getDirection() const;
+
 private:
     void UpdateMatrix();
     void NotifySubscribers();

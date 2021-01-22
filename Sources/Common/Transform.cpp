@@ -210,6 +210,11 @@ void Transform::SetScale(float s)
     NotifySubscribers();
 }
 
+const vec3 Transform::getDirection() const
+{
+    return glm::normalize(VECTOR_FORWARD * context_.rotation.value_);
+}
+
 void Transform::SetScale(const vec3& s)
 {
     context_.scale = s;
