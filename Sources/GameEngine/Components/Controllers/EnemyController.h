@@ -11,8 +11,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class Player;
-
+class Enemy;
 class EnemyController : public BaseComponent
 {
 public:
@@ -29,9 +28,9 @@ private:
     void clearStates();
 
 private:
+    Enemy* enemy_;
     Animator* animator_;
     CharacterController* characterController_;
-    Player* closestPlayerComponent_{nullptr};
 
 public:
     static ComponentsType type;

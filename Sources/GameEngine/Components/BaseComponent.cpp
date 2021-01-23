@@ -36,10 +36,12 @@ BaseComponent::~BaseComponent()
 void BaseComponent::Activate()
 {
     isActive_ = true;
+    changeActivateStateRegisteredFunctions();
 }
 void BaseComponent::Deactivate()
 {
     isActive_ = false;
+    changeActivateStateRegisteredFunctions();
 }
 std::unordered_map<ParamName, Param> BaseComponent::GetParams() const
 {
@@ -63,6 +65,15 @@ void BaseComponent::InitFromParams(const std::unordered_map<std::string, std::st
 void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
 {
     ids_.insert({componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type, func), type});
+}
+
+void BaseComponent::changeActivateStateRegisteredFunctions()
+{
+    for (auto id : ids_)
+    {
+        componentContext_.componentController_.setActivateStateOfComponentFunction(thisObject_.GetId(), id.second,
+                                                                                   id.first, isActive_);
+    }
 }
 
 }  // namespace Components

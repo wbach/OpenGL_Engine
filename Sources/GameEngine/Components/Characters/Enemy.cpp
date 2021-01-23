@@ -1,7 +1,9 @@
 #include "Enemy.h"
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -12,8 +14,8 @@ ComponentsType Enemy::type = ComponentsType::Enemy;
 
 Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
-    , characterController_{nullptr}
     , animator_{nullptr}
+    , characterController_{nullptr}
 {
 }
 void Enemy::CleanUp()
@@ -44,18 +46,51 @@ void Enemy::Init()
                 }
             });
         }
+
+        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
+            auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
+                componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
+
+            if (componentPtr)
+            {
+                auto playerPosition  = componentPtr->getParentGameObject().GetWorldTransform().GetPosition();
+                auto currentPosition = thisObject_.GetWorldTransform().GetPosition();
+                auto toTargetVector  = playerPosition - currentPosition;
+                auto distance        = glm::length(toTargetVector);
+
+                if (distance < characterStatistic_.attackRange)
+                {
+                    componentPtr->hurt(characterStatistic_.attackDmg);
+                }
+            }
+        });
     }
 }
 void Enemy::Update()
 {
 }
-void Enemy::hurt()
+void Enemy::hurt(int64 dmg)
 {
     if (characterController_)
     {
         DEBUG_LOG("");
-        characterController_->addState(std::make_unique<Hurt>());
+        characterStatistic_.currentHp -= dmg;
+
+        if (characterStatistic_.currentHp > 0)
+        {
+            characterController_->addState(std::make_unique<Hurt>());
+        }
+        else
+        {
+            characterController_->addState(std::make_unique<Death>());
+            characterController_->Deactivate();
+        }
     }
+}
+
+const CharacterStatistic &Enemy::characterStatistic() const
+{
+    return characterStatistic_;
 }
 void Enemy::isOnGround()
 {

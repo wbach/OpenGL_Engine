@@ -1,9 +1,9 @@
 #pragma once
+#include <Utils/IdPool.h>
 #include <functional>
 #include <unordered_map>
 #include "ComponentsTypes.h"
 #include "Types.h"
-#include <Utils/IdPool.h>
 
 namespace GameEngine
 {
@@ -25,13 +25,16 @@ typedef std::unordered_map<uint32, IComponent *> RegistredComponentsMap;
 class ComponentController final
 {
 public:
-    using GameObjectId = IdType;
-
     struct ComponentFunction
     {
-        IdType id;
+        IdType id{0};
+        bool isActive{true};
         std::function<void()> function;
     };
+
+    using GameObjectId = IdType;
+    using ComponentFunctions =
+        std::unordered_map<GameObjectId, std::unordered_map<FunctionType, std::vector<ComponentFunction>>>;
 
     ComponentController();
     ~ComponentController();
@@ -40,6 +43,7 @@ public:
 
     uint32 RegisterFunction(IdType, FunctionType, std::function<void()>);
     void UnRegisterFunction(GameObjectId, FunctionType, uint32);
+    void setActivateStateOfComponentFunction(GameObjectId, FunctionType, uint32, bool);
 
     uint32 RegisterComponent(ComponentsType, IComponent *);
     void UnRegisterComponent(ComponentsType, uint32);
@@ -56,7 +60,7 @@ public:
     void CallGameObjectFunctions(FunctionType, IdType);
 
 private:
-    std::unordered_map<GameObjectId, std::unordered_map<FunctionType, std::vector<ComponentFunction>>> functions_;
+    ComponentFunctions functions_;
     std::unordered_map<ComponentsType, RegistredComponentsMap> registredComponents_;
     Utils::IdPool functionIdsPool_;
     uint32 componentId;

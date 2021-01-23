@@ -53,7 +53,7 @@ const RegistredComponentsMap& ComponentController::GetAllComonentsOfType(Compone
 uint32 ComponentController::RegisterFunction(IdType gameObjectId, FunctionType type, std::function<void()> func)
 {
     auto id = functionIdsPool_.getId();
-    functions_[gameObjectId][type].push_back({id, func});
+    functions_[gameObjectId][type].push_back({id, true, func});
     return id;
 }
 
@@ -102,6 +102,31 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
         WARNING_LOG("Function not found.");
     }
 }
+
+void ComponentController::setActivateStateOfComponentFunction(ComponentController::GameObjectId gameObjectId,
+                                                              FunctionType type, uint32 id, bool activeStatus)
+{
+    auto iter = functions_.find(gameObjectId);
+    if (iter != functions_.end())
+    {
+        auto typeIter = iter->second.find(type);
+
+        if (typeIter != iter->second.end())
+        {
+            auto functionIter =
+                std::find_if(typeIter->second.begin(), typeIter->second.end(),
+                             [id](const auto& componentFunction) { return id == componentFunction.id; });
+            if (functionIter != typeIter->second.end())
+            {
+                functionIter->isActive = activeStatus;
+            }
+        }
+    }
+    else
+    {
+        WARNING_LOG("Function not found.");
+    }
+}
 void ComponentController::UnRegisterAll()
 {
     functions_.clear();
@@ -143,7 +168,8 @@ void ComponentController::CallFunctions(FunctionType type)
         {
             for (auto& componentFunction : iter->second)
             {
-                componentFunction.function();
+                if (componentFunction.isActive)
+                    componentFunction.function();
             }
         }
     }

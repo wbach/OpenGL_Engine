@@ -6,6 +6,7 @@
 #include <Common/Controllers/CharacterController/CharacterActions.h>
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
+#include "CharacterStatistic.h"
 
 namespace GameEngine
 {
@@ -21,7 +22,8 @@ public:
 
     void Init();
     void Update();
-    void hurt();
+    void hurt(int64);
+    const CharacterStatistic& characterStatistic() const;
 
 private:
     void isOnGround();
@@ -29,6 +31,7 @@ private:
 private:
     Animator* animator_;
     CharacterController* characterController_;
+    CharacterStatistic characterStatistic_;
 
 public:
     static ComponentsType type;

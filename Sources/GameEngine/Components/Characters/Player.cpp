@@ -1,20 +1,27 @@
 #include "Player.h"
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+const float ATTACK_RANGE{2.f};
+}
+
 ComponentsType Player::type = ComponentsType::Player;
 
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
+    , hurtAnimationName_{"Hurt"}
     , animator_{nullptr}
     , characterController_{nullptr}
-    , hurtAnimationName_{"Hurt"}
 {
 }
 void Player::CleanUp()
@@ -44,17 +51,39 @@ void Player::Init()
                 }
             });
         }
+
+        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
+            auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
+                componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
+
+            if (componentPtr)
+            {
+                if (distance < ATTACK_RANGE)
+                {
+                    componentPtr->hurt(characterStatistic_.attackDmg);
+                }
+            }
+        });
     }
 }
 void Player::Update()
 {
 }
-void Player::hurt()
+void Player::hurt(int64 dmg)
 {
     DEBUG_LOG("hurt 1");
     if (characterController_)
     {
-        characterController_->addState(std::make_unique<Hurt>());
+        characterStatistic_.currentHp -= dmg;
+        if (characterStatistic_.currentHp > 0)
+        {
+            characterController_->addState(std::make_unique<Hurt>());
+        }
+        else
+        {
+            characterController_->addState(std::make_unique<Death>());
+            characterController_->Deactivate();
+        }
     }
 }
 void Player::isOnGround()

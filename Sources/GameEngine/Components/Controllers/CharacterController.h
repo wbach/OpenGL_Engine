@@ -41,8 +41,8 @@ public:
     };
 
     CharacterControllerState(Type type)
-        : type_{type}
-        , rigidbody_{nullptr}
+        : rigidbody_{nullptr}
+        , type_{type}
     {
     }
 

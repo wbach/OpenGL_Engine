@@ -39,6 +39,9 @@ protected:
     ComponentContext& componentContext_;
 
 private:
+    void changeActivateStateRegisteredFunctions();
+
+private:
     bool isActive_;
     std::unordered_map<uint32, FunctionType> ids_;
     std::optional<uint32> componentRegistredId_;

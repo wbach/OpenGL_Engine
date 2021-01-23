@@ -3,8 +3,6 @@
 #include <Input/InputManager.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
-#include "GameEngine/Components/Characters/Enemy.h"
-#include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 
 using namespace common::Controllers;
@@ -13,10 +11,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const float ATTACK_RANGE{2.f};
-}
 ComponentsType PlayerInputController::type = ComponentsType::PlayerInputController;
 
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
@@ -57,20 +51,6 @@ void PlayerInputController::Init()
                                                      Rotation(DegreesVec3(weponBoneRotationOffsetDegreesEulers_)));
             }
         }
-
-        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
-            auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
-                componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
-
-            if (componentPtr)
-            {
-                if (distance < ATTACK_RANGE)
-                {
-                    componentPtr->hurt();
-                }
-            }
-        });
-
         if (not characterController_)
             return;
 
