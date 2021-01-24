@@ -42,7 +42,7 @@ private:
     EngineContext engineContext_;
     SceneManager sceneManager_;
     IntroRenderer introRenderer_;
-
+    IdType loggingLvlParamSub_;
     bool isRunning_;
 };
 }  // namespace GameEngine

@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "Configuration.h"
+#include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
 #include "Utils.h"
 #include "Utils/XML/XmlReader.h"
@@ -259,7 +260,21 @@ void Read(Utils::XmlNode* node, Params::DebugParams& params)
     if (not node)
         return;
 
-    Read(node->GetChild(CSTR_PHYSICS_VISUALIZATION_PARAMS), params.physicsVisualizator);
+    auto pvNode = node->GetChild(CSTR_PHYSICS_VISUALIZATION_PARAMS);
+    if (pvNode)
+        Read(pvNode, params.physicsVisualizator);
+
+    auto loggingNode = node->GetChild(CSTR_LOGGING_LVL);
+    if (loggingNode)
+    {
+        params.logLvl = Params::paramFromString(loggingNode->value_);
+    }
+
+    auto showRenderInfoNode = node->GetChild(CSTR_SHOW_RENDER_INFO);
+    if (showRenderInfoNode)
+    {
+        params.showRenderInfo = Utils::StringToBool(showRenderInfoNode->value_);
+    }
 }
 
 void ReadConfiguration(Configuration& configuration, const std::string& filename)

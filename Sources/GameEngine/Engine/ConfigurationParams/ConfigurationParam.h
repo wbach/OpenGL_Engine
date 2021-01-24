@@ -18,9 +18,8 @@ template <class T>
 class ConfigurationParam : public IConfigurationParam
 {
 public:
-    ConfigurationParam(IConfigurationParam::Type type, const T& v, const std::vector<T>& defaultValues)
-        : type_{type}
-        , value_{v}
+    ConfigurationParam(const T& v, const std::vector<T>& defaultValues)
+        : value_{v}
         , defaultValueIndex_{0}
         , defaultValues_{defaultValues}
     {
@@ -91,10 +90,6 @@ public:
         {
             set(defaultValues_[defaultValueIndex_]);
         }
-    }
-    IConfigurationParam::Type getType() const override
-    {
-        return type_;
     }
     const T& get() const
     {
@@ -175,7 +170,6 @@ private:
     std::mutex subscriberMock_;
     std::unordered_map<IdType, std::function<void(const T&)>> subscribers_;
     Utils::IdPool idPool_;
-    IConfigurationParam::Type type_;
     T value_;
     size_t defaultValueIndex_;
     std::vector<T> defaultValues_;

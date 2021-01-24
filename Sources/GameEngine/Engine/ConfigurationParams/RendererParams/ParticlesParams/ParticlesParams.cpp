@@ -5,7 +5,7 @@ namespace GameEngine
 namespace Params
 {
 Particles::Particles()
-    : useParticles{IConfigurationParam::Type::Boolean, false, {false, true}}
+    : useParticles{false, {false, true}}
 {
 }
 }  // namespace Params

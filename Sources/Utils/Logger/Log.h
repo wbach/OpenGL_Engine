@@ -13,7 +13,8 @@ enum class LogginLvl
     ErrorWarningInfoDebug,
     ErrorWarningInfo,
     ErrorWarning,
-    Error
+    Error,
+    None
 };
 
 class CLogger
@@ -21,6 +22,7 @@ class CLogger
 public:
     static CLogger& Instance();
     void EnableLogs(LogginLvl = LogginLvl::ErrorWarningInfoDebug);
+    void DisableLogs();
     void ImmeditalyLog();
     void LazyLog();
     void InfoLog(const std::string& log);

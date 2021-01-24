@@ -6,9 +6,9 @@ namespace GameEngine
 namespace Params
 {
 Window::Window()
-    : size{ IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions() }
-    , fullScreen{IConfigurationParam::Type::Boolean, false, {false, true}}
-    , name{IConfigurationParam::Type::String, "Default Window Name", {}}
+    : size{DEFAULT_WINDOW_SIZE, defaultResolutions()}
+    , fullScreen{false, {false, true}}
+    , name{"Default Window Name", {}}
 {
 }
 }  // namespace Params

@@ -22,6 +22,12 @@ void CLogger::EnableLogs(LogginLvl lvl)
     if (not logImmeditaly)
         loggerThread_ = std::thread(std::bind(&CLogger::ProccesLog, this));
 }
+
+void CLogger::DisableLogs()
+{
+    enabled = false;
+    running_.store(false);
+}
 void CLogger::ImmeditalyLog()
 {
     logImmeditaly = true;

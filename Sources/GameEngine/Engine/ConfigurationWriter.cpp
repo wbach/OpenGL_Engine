@@ -1,6 +1,7 @@
 #include "ConfigurationWriter.h"
 
 #include "Configuration.h"
+#include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
 #include "Utils/XML/XmlWriter.h"
 
@@ -117,9 +118,15 @@ void Create(XmlNode& node, const Params::PhysicsVisualizatorParams& param)
     node.attributes_[CSTR_USE_WORKER]        = Utils::BoolToString(param.useWorkredToUpdatePhysicsVisualization_);
     node.attributes_[CSTR_REFRESH_STEP_DOWN] = std::to_string(param.refreshRateStepDown_);
 }
+void Create(XmlNode& node, LogginLvl param)
+{
+    node.value_ = Params::paramToString(param);
+}
 void Create(XmlNode& node, const Params::DebugParams& param)
 {
     Create(node.AddChild(CSTR_PHYSICS_VISUALIZATION_PARAMS), param.physicsVisualizator);
+    Create(node.AddChild(CSTR_LOGGING_LVL), param.logLvl);
+    node.AddChild(CSTR_SHOW_RENDER_INFO, Utils::BoolToString(param.showRenderInfo));
 }
 void CreateBinary(XmlNode& node, bool param)
 {

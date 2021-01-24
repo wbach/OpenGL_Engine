@@ -25,5 +25,6 @@ private:
     VerticalLayout* verticalLayout_;
     std::unique_ptr<GuiWindowElement> rootWindow_;
     std::unordered_map<std::string, GuiTextElement*> guiTexts_;
+    IdType isShowSub_;
 };
 }  // namespace GameEngine

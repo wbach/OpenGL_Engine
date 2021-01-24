@@ -6,11 +6,9 @@ namespace GameEngine
 namespace Params
 {
 Water::Water()
-    : type{IConfigurationParam::Type::Enum,
-           WaterType::FULL,
-           {WaterType::SIMPLE, WaterType::REFLECTED_REFRACTED, WaterType::FULL}}
-    , waterReflectionResolution{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions()}
-    , waterRefractionResolution{IConfigurationParam::Type::Vec2i, DEFAULT_WINDOW_SIZE, defaultResolutions()}
+    : type{WaterType::FULL, {WaterType::SIMPLE, WaterType::REFLECTED_REFRACTED, WaterType::FULL}}
+    , waterReflectionResolution{DEFAULT_WINDOW_SIZE, defaultResolutions()}
+    , waterRefractionResolution{DEFAULT_WINDOW_SIZE, defaultResolutions()}
 {
 }
 }  // namespace Params

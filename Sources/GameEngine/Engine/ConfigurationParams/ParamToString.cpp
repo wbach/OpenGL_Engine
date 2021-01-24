@@ -48,5 +48,40 @@ std::string paramToString(GraphicsApi::RendererType renderType)
 
     return "simple";
 }
+
+std::string paramToString(LogginLvl lvl)
+{
+    switch (lvl)
+    {
+        case LogginLvl::None:
+            return "none";
+        case LogginLvl::Error:
+            return "error";
+        case LogginLvl::ErrorWarning:
+            return "error/warning";
+        case LogginLvl::ErrorWarningInfo:
+            return "error/warning/info";
+        case LogginLvl::ErrorWarningInfoDebug:
+            return "error/warning/info/debug";
+    }
+    return {"unknown"};
+}
+
+LogginLvl paramFromString(const std::string & str)
+{
+    if (str=="none")
+        return LogginLvl::None;
+    if (str == "error")
+        return LogginLvl::Error;
+    if (str == "error/warning")
+        return LogginLvl::ErrorWarning;
+    if (str == "error/warning/info")
+        return LogginLvl::ErrorWarningInfo;
+    if (str == "error/warning/info/debug")
+        return LogginLvl::ErrorWarningInfoDebug;
+
+    return LogginLvl::None;
+}
+
 }  // namespace Params
 }  // namespace GameEngine

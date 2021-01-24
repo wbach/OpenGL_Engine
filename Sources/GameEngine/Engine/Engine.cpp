@@ -23,6 +23,24 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                      engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
+    if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    {
+        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+        CLogger::Instance().ImmeditalyLog();
+    }
+
+    loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange([](auto&) {
+        if (EngineConf.debugParams.logLvl != LogginLvl::None)
+        {
+            CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+            CLogger::Instance().ImmeditalyLog();
+        }
+        else
+        {
+            CLogger::Instance().DisableLogs();
+        }
+    });
+
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     SetDisplay();
     sceneManager_.SetFactor();
@@ -30,6 +48,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
 
 Engine::~Engine()
 {
+    EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     DEBUG_LOG("destructor");
     sceneManager_.Reset();
     EngineConf_SaveRequiredFiles();

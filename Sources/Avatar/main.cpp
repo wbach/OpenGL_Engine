@@ -15,9 +15,6 @@ const std::string configFile = "./Conf.xml";
 
 int main(int, char**)
 {
-    CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
-    CLogger::Instance().ImmeditalyLog();
-
     GameEngine::ReadFromFile(configFile);
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 

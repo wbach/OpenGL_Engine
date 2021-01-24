@@ -17,15 +17,22 @@ GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measur
     rootWindow_ = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.85, 1.f), vec2(0.3f, 0),
                                               vec4(1.f, 1.f, 1.f, 0.5f));
     rootWindow_->SetZPosition(-11.f);
+    rootWindow_->Show(EngineConf.debugParams.showRenderInfo);
     auto verticalLayout = guiFactory_.CreateVerticalLayout();
     verticalLayout->SetAlgin(GameEngine::VerticalLayout::Algin::CENTER);
     verticalLayout_ = verticalLayout.get();
     rootWindow_->AddChild(std::move(verticalLayout));
+
+    isShowSub_ = EngineConf.debugParams.showRenderInfo.subscribeForChange([this](const auto& newValue)
+    {
+        rootWindow_->Show(newValue);
+    });
 }
 
 GuiEngineContextManger::~GuiEngineContextManger()
 {
     DEBUG_LOG("destructor");
+    EngineConf.debugParams.showRenderInfo.unsubscribe(isShowSub_);
 }
 
 void GuiEngineContextManger::Update()

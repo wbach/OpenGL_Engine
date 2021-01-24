@@ -67,5 +67,7 @@ const std::string CSTR_TERRAIN_RENDERER_TYPE = "TerrainRenderer";
 const std::string CSTR_ENABLE_BINARY_LOADING        = "EnableBinaryLoading";
 const std::string CSTR_DEBUG_PARAMS                 = "DebugParams";
 const std::string CSTR_PHYSICS_VISUALIZATION_PARAMS = "PhysicsVisualizator";
+const std::string CSTR_LOGGING_LVL                  = "loggingLvl";
+const std::string CSTR_SHOW_RENDER_INFO             = "showRenderInfo";
 const std::string CSTR_REFRESH_STEP_DOWN            = "refreshStepDown";
 const std::string CSTR_USE_WORKER                   = "useWorker";

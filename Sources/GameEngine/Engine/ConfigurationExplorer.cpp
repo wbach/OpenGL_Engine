@@ -44,6 +44,11 @@ ConfigurationExplorer::ConfigurationExplorer()
                               {"Enabled", EngineConf.sound.isEnabled, false},
                               {"Volume", EngineConf.sound.volume, false},
                           }});
+    categories.push_back({"Debug",
+                          {
+                              {"Logger lvl", EngineConf.debugParams.logLvl, false},
+                              {"Show render info", EngineConf.debugParams.showRenderInfo, false}
+                          }});
 }
 const ConfigurationExplorer::Categories& ConfigurationExplorer::getParamsByCategories() const
 {

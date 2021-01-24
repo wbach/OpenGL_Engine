@@ -11,6 +11,7 @@
 #include "ConfigurationParams/SoundParams/SoundParams.h"
 #include "ConfigurationParams/WindowParams/WindowParams.h"
 #include "LoD.h"
+#include <Logger/Log.h>
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
 const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
@@ -29,12 +30,16 @@ struct Files
 
 struct DebugParams
 {
+    DebugParams();
     PhysicsVisualizatorParams physicsVisualizator;
+    Params::ConfigurationParam<LogginLvl> logLvl;
+    Params::ConfigurationParam<bool> showRenderInfo;
 };
 }  // namespace Params
 
 struct Configuration
 {
+    Configuration();
     std::string filename;
     Params::Files files;
     Params::Sound sound;

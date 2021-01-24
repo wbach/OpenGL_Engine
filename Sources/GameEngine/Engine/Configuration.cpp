@@ -122,7 +122,7 @@ void ReadFromFile(const std::string& filename)
     if (Utils::CheckFileExist(filename))
     {
         ReadConfiguration(EngineConf, filename);
-        // Update 
+        // Update
         WriteConfigurationToFile(EngineConf, filename);
     }
     else
@@ -141,6 +141,18 @@ std::string GetRelativeDataPath(const std::string& str)
 {
     auto absoluteDataPath = Utils::GetAbsolutePath(EngineConf.files.data);
     return Utils::GetRelativePath(str, absoluteDataPath);
+}
+
+Configuration::Configuration()
+{
+}
+
+Params::DebugParams::DebugParams()
+    : logLvl{LogginLvl::None,
+             {LogginLvl::None, LogginLvl::Error, LogginLvl::ErrorWarning, LogginLvl::ErrorWarningInfo,
+              LogginLvl::ErrorWarningInfoDebug}}
+    , showRenderInfo{false, {false, true}}
+{
 }
 
 }  // namespace GameEngine
