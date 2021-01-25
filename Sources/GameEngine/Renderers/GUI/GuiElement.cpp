@@ -33,12 +33,17 @@ const std::vector<std::unique_ptr<GuiElement>>& GuiElement::GetChildren() const
 {
     return children_;
 }
-void GuiElement::RemoveChild(uint32 id)
+bool GuiElement::RemoveChild(uint32 id)
 {
     auto iter =
         std::remove_if(children_.begin(), children_.end(), [id](const auto& child) { return child->GetId() == id; });
 
-    children_.erase(iter);
+    if (iter != children_.end())
+    {
+        children_.erase(iter);
+        return true;
+    }
+    return false;
 }
 void GuiElement::RemoveAll()
 {
@@ -115,7 +120,7 @@ const GuiElementTransform& GuiElement::getTransform() const
     return transform_;
 }
 void GuiElement::SetScreenScale(const vec2& scale)
-{ 
+{
     if (parent_)
     {
         GuiElement::SetLocalScale(scale / parent_->GetScreenScale());
@@ -204,7 +209,7 @@ vec2 GuiElement::GetScreenPosition() const
 {
     if (parent_)
     {
-         return parent_->GetScreenScale() * (transform_.position - vec2(0.5f)) + parent_->GetScreenPosition();
+        return parent_->GetScreenScale() * (transform_.position - vec2(0.5f)) + parent_->GetScreenPosition();
     }
 
     return transform_.position;

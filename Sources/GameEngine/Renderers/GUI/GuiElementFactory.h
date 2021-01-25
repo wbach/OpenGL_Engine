@@ -47,6 +47,7 @@ public:
     bool ReadGuiFile(const std::string& filename);
     void SetTheme(const GuiTheme&);
     const GuiTheme& GetTheme() const;
+    GuiManager& getManager();
 
     // GuiText
     std::unique_ptr<GuiTextElement> CreateGuiText(const std::string&, const std::string&, uint32, uint32);
@@ -58,13 +59,17 @@ public:
     std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&);
     std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const vec4&);
     std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const std::string&);
-    std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const std::string&, const vec4&);
+    std::unique_ptr<GuiWindowElement> CreateGuiWindow(GuiWindowStyle, const vec2&, const vec2&, const std::string&,
+                                                      const vec4&);
     // GuiButton
     std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>);
     std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>);
-    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>, const std::string&);
-    std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>, const std::string&, const std::string&, const std::string&);
-    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>, const std::string&, const std::string&, const std::string&);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>,
+                                                      const std::string&);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(std::function<void(GuiElement&)>, const std::string&,
+                                                      const std::string&, const std::string&);
+    std::unique_ptr<GuiButtonElement> CreateGuiButton(const std::string&, std::function<void(GuiElement&)>,
+                                                      const std::string&, const std::string&, const std::string&);
     // GuiEditBox
     std::unique_ptr<GuiEditBoxElement> CreateEditBox();
     std::unique_ptr<GuiEditBoxElement> CreateEditBox(const std::string&);

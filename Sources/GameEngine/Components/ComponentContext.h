@@ -8,15 +8,16 @@
 namespace Input
 {
 class InputManager;
-} // namespace Input
+}  // namespace Input
 namespace GraphicsApi
 {
 class IGraphicsApi;
-} //namespace GraphicsApi
+}  // namespace GraphicsApi
 namespace GameEngine
 {
 class IResourceManager;
 class IGpuResourceLoader;
+class GuiElementFactory;
 
 namespace Physics
 {
@@ -33,9 +34,10 @@ typedef std::unordered_map<uint32, FunctionType> ComponentIdsMap;
 
 struct ComponentContext
 {
-    ComponentContext(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time, Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
+    ComponentContext(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time,
+                     Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
                      IResourceManager& resourceManager, Renderer::RenderersManager& renderersManager,
-                     ComponentController& componentController)
+                     ComponentController& componentController, GuiElementFactory& guiElementFactory)
         : graphicsApi_(graphicsApi)
         , gpuResourceLoader_(gpuResourceLoader)
         , time_(time)
@@ -45,6 +47,7 @@ struct ComponentContext
         , resourceManager_(resourceManager)
         , componentController_(componentController)
         , renderersManager_(renderersManager)
+        , guiElementFactory_(guiElementFactory)
     {
     }
 
@@ -57,7 +60,8 @@ struct ComponentContext
     IResourceManager& resourceManager_;
     ComponentController& componentController_;
     Renderer::RenderersManager& renderersManager_;
-    //ComponentIdsMap ids_;
+    GuiElementFactory& guiElementFactory_;
+    // ComponentIdsMap ids_;
 };
 }  // namespace Components
 }  // namespace GameEngine

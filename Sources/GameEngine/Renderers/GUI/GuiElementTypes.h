@@ -6,6 +6,7 @@ namespace GameEngine
 {
 enum class GuiElementTypes
 {
+    Layer,
     Text,
     Texture,
     Button,

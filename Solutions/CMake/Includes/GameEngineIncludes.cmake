@@ -33,6 +33,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/BaseComponent.h
 ../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.h
+../../Sources/GameEngine/Components/Characters/CharacterStatistic.h
 ../../Sources/GameEngine/Components/Characters/Enemy.h
 ../../Sources/GameEngine/Components/Characters/Player.h
 ../../Sources/GameEngine/Components/ComponentContext.h
@@ -40,6 +41,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/ComponentFactory.h
 ../../Sources/GameEngine/Components/ComponentsTypes.h
 ../../Sources/GameEngine/Components/Controllers/CharacterController.h
+../../Sources/GameEngine/Components/Controllers/ControllerUtlis.h
 ../../Sources/GameEngine/Components/Controllers/EnemyController.h
 ../../Sources/GameEngine/Components/IComponent.h
 ../../Sources/GameEngine/Components/IComponentFactory.h
@@ -226,6 +228,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/GuiRendererElementBase.h
 ../../Sources/GameEngine/Renderers/GUI/GuiTheme.h
 ../../Sources/GameEngine/Renderers/GUI/IGuiRenderer.h
+../../Sources/GameEngine/Renderers/GUI/Layer/DefaultLayers.h
 ../../Sources/GameEngine/Renderers/GUI/Layer/GuiLayer.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/HorizontalLayout.h
 ../../Sources/GameEngine/Renderers/GUI/Layout/Layout.h

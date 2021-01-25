@@ -12,38 +12,38 @@ GuiLayer::GuiLayer()
 
 GuiLayer::GuiLayer(const std::string& name)
     : name(name)
+    , rootElement_(GuiElementTypes::Layer)
 {
 }
 
 void GuiLayer::Show()
 {
-    for (auto& child : children_)
-    {
-        child->Show();
-    }
+    rootElement_.Show();
 }
 
 void GuiLayer::Hide()
 {
-    for (auto& child : children_)
-    {
-        child->Hide();
-    }
+    rootElement_.Hide();
+}
+
+bool GuiLayer::isShow() const
+{
+    return rootElement_.IsShow();
 }
 
 void GuiLayer::Add(std::unique_ptr<GuiElement> element)
 {
-    children_.push_back(std::move(element));
+    rootElement_.AddChild(std::move(element));
 }
 
-std::vector<std::unique_ptr<GuiElement>>& GuiLayer::GetElements()
-{
-    return children_;
-}
+// std::vector<std::unique_ptr<GuiElement>>& GuiLayer::GetElements()
+//{
+//    return rootElement_.GetChildren();
+//}
 
 const std::vector<std::unique_ptr<GuiElement>>& GuiLayer::GetElements() const
 {
-    return children_;
+    return rootElement_.GetChildren();
 }
 
 const std::string& GuiLayer::GetName() const
@@ -53,9 +53,14 @@ const std::string& GuiLayer::GetName() const
 
 void GuiLayer::SetZPosition(float z)
 {
-    for (auto& element : children_)
-    {
-        element->SetZPosition(z);
-    }
+    rootElement_.SetZPosition(z);
+}
+bool GuiLayer::removeElement(const GuiElement& element)
+{
+    return rootElement_.RemoveChild(element.GetId());
+}
+void GuiLayer::clear()
+{
+    rootElement_.RemoveAll();
 }
 }  // namespace GameEngine

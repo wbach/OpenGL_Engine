@@ -13,6 +13,7 @@
 #include <GameEngine/Renderers/RenderersManager.h>
 #include <GameEngine/Resources/ResourceManager.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
+#include <GameEngine/Renderers/GUI/Layer/DefaultLayers.h>
 #include <Logger/Log.h>
 
 #include <Thread.hpp>
@@ -50,6 +51,12 @@ public:
         scene_.GetCamera().Lock();
         enablePauseMenuState();
         onePramaterNeedRestart_ = false;
+
+        auto hudLayer = guiManager_.GetLayer(DefaultGuiLayers::hud);
+        if (hudLayer)
+        {
+            hudLayer->Hide();
+        }
     }
     void hide()
     {
@@ -57,6 +64,12 @@ public:
         hideSettingWindows();
         mainWindow_->Hide();
         onePramaterNeedRestart_ = false;
+
+        auto hudLayer = guiManager_.GetLayer(DefaultGuiLayers::hud);
+        if (hudLayer)
+        {
+            hudLayer->Show();
+        }
     }
     bool isShow() const
     {
@@ -171,9 +184,7 @@ private:
             verticalLayout->AddChild(std::move(categoryButton));
         }
 
-        auto backButton = factory_.CreateGuiButton("Back", [&](auto&) {
-            enablePauseMenuState();
-        });
+        auto backButton = factory_.CreateGuiButton("Back", [&](auto&) { enablePauseMenuState(); });
 
         backButton->SetLocalScale(menuButtonSize_);
         verticalLayout->AddChild(std::move(backButton));

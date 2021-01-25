@@ -59,8 +59,8 @@ GuiElementFactory::~GuiElementFactory()
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,
                                                                  uint32 fontSize, uint32 outline)
 {
-    auto textElement = std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, font,
-                                                        text, fontSize, outline);
+    auto textElement =
+        std::make_unique<GuiTextElement>(fontManger_, guiRenderer_, resourceManager_, font, text, fontSize, outline);
     return textElement;
 }
 
@@ -112,7 +112,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
 
         if (backgroundGuiTexture)
         {
-            backgroundGuiTexture->SetLocalScale({ 1.f, 1.f });
+            backgroundGuiTexture->SetLocalScale({1.f, 1.f});
             backgroundGuiTexture->SetColor(backgorundColor);
             guiWindow->SetBackground(std::move(backgroundGuiTexture));
         }
@@ -141,9 +141,11 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::
     return button;
 }
 
-std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::string& text, std::function<void(GuiElement&)> onClick, const std::string& bgtexture)
+std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(const std::string &text,
+                                                                     std::function<void(GuiElement &)> onClick,
+                                                                     const std::string &bgtexture)
 {
-    auto button = CreateGuiButton(onClick, bgtexture, theme_.buttonHoverTexture, theme_.buttonActiveTexture);
+    auto button  = CreateGuiButton(onClick, bgtexture, theme_.buttonHoverTexture, theme_.buttonActiveTexture);
     auto guiText = CreateGuiText(text);
     button->SetLocalScale(guiText->GetLocalScale());
     button->SetText(std::move(guiText));
@@ -219,8 +221,8 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(const std::s
 
 std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(std::unique_ptr<GuiTextElement> text)
 {
-    auto cursor  = CreateGuiText("|");
-    auto editBox = std::make_unique<GuiEditBoxElement>(std::move(text), std::move(cursor), inputManager_);
+    auto cursor           = CreateGuiText("|");
+    auto editBox          = std::make_unique<GuiEditBoxElement>(std::move(text), std::move(cursor), inputManager_);
     auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
     if (editBoxBgTexture)
     {
@@ -280,6 +282,11 @@ const GuiTheme &GuiElementFactory::GetTheme() const
     return theme_;
 }
 
+GuiManager &GuiElementFactory::getManager()
+{
+    return guiManager_;
+}
+
 std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File &file)
 {
     TextureParameters params;
@@ -304,12 +311,12 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
     const vec2 barPosition(0, window.GetLocalScale().y + GUI_WINDOW_BAR_HEIGHT);
 
     auto horizontalLayout = CreateHorizontalLayout();
-    horizontalLayout->SetLocalScale({ 0.99f, GUI_WINDOW_BAR_HEIGHT });
+    horizontalLayout->SetLocalScale({0.99f, GUI_WINDOW_BAR_HEIGHT});
     horizontalLayout->SetLocalPostion(barPosition);
     horizontalLayout->SetAlgin(Layout::Algin::RIGHT);
 
     auto barButton = CreateGuiButton([ptr](auto &) { ptr->CheckCollisionPoint(); });
-    barButton->SetLocalScale({ 1.f, 1.f });
+    barButton->SetLocalScale({1.f, 1.f});
     barButton->SetLocalPostion(barPosition);
 
     auto barTexture = CreateGuiTexture(theme_.windowBarTexture);

@@ -3,14 +3,15 @@
 #include <string>
 #include "GuiElement.h"
 #include "Input/KeyCodes.h"
+#include "Layer/GuiLayer.h"
 #include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
-#include "Layer/GuiLayer.h"
+#include <list>
 
 namespace GameEngine
 {
-typedef std::vector<GuiLayer> GuiLayers;
+typedef std::list<GuiLayer> GuiLayers;
 typedef std::unordered_map<std::string, GuiElement*> GuiElementsMap;
 
 using ActionFunction = std::function<void(GuiElement&)>;
@@ -68,7 +69,8 @@ T* GuiManager::Get(uint32 id)
         }
         else
         {
-            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) + ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
+            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) +
+                      ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
         }
     }
     else
@@ -91,7 +93,8 @@ T* GuiManager::Get(const std::string& label)
         }
         else
         {
-            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) + ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
+            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) +
+                      ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
         }
     }
     return nullptr;

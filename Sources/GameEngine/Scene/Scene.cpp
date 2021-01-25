@@ -73,7 +73,7 @@ void Scene::InitResources(EngineContext& context)
 
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
         componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_, *inputManager_,
-        *resourceManager_, *renderersManager_, camera, *physicsApi_);
+        *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_);
 
     rootGameObject_ = CreateGameObject("root");
 }

@@ -29,7 +29,7 @@ public:
 public:
     virtual void AddChild(std::unique_ptr<GuiElement>);
     const std::vector<std::unique_ptr<GuiElement>>& GetChildren() const;
-    void RemoveChild(uint32 id);
+    bool RemoveChild(uint32 id);
     void RemoveAll();
 
     virtual void Update();

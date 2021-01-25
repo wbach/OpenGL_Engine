@@ -4,16 +4,39 @@
 #include "GameEngine/Components/BaseComponent.h"
 
 #include <Common/Controllers/CharacterController/CharacterActions.h>
+#include "CharacterStatistic.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
-#include "CharacterStatistic.h"
 
 namespace GameEngine
 {
+class GuiManager;
+class GuiTextElement;
+class GuiTextureElement;
+
 namespace Components
 {
 class Player : public BaseComponent
 {
+    struct HudElements
+    {
+        struct Bar
+        {
+            int64& current;
+            int64& maxValue;
+
+            GuiTextureElement* texture{nullptr};
+            int64 maxRendered{0};
+            int64 currentRendered{0};
+
+            void update();
+        };
+
+        Bar hp;
+        Bar stamina;
+        Bar mana;
+    };
+
 public:
     Player(ComponentContext&, GameObject&);
 
@@ -24,17 +47,12 @@ public:
     void Update();
     void hurt(int64);
 
-public:
-    std::string hurtAnimationName_;
-
 private:
-    void isOnGround();
-
-private:
+    GuiManager& guiManager_;
     Animator* animator_;
     CharacterController* characterController_;
-    std::string currentAnimationClip_;
     CharacterStatistic characterStatistic_;
+    HudElements hudElements_;
 
 public:
     static ComponentsType type;

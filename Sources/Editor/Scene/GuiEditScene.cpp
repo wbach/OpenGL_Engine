@@ -197,7 +197,7 @@ void GuiEditScene::AddMenuButtonAction()
             if (objectTree_ and result)
             {
                 auto currentLayer = guiManager_->GetLayer(currentLayer_);
-                for (auto& element : currentLayer->GetElements())
+                for (const auto& element : currentLayer->GetElements())
                 {
                     FillGuiElementInTreeObject(element);
                 }

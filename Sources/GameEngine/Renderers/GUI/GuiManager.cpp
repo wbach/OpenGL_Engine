@@ -203,17 +203,10 @@ void GuiManager::Remove(uint32 id)
 
 void GuiManager::Remove(const GuiElement& element)
 {
-    auto id = element.GetId();
-
     for (auto& layer : layers_)
     {
-        auto iter = std::find_if(layer.GetElements().begin(), layer.GetElements().end(),
-                                 [id](const auto& element) { return element->GetId() == id; });
-
-        if (iter != layer.GetElements().end())
-        {
-            layer.GetElements().erase(iter);
-        }
+        if (layer.removeElement(element))
+            return;
     }
 }
 
@@ -221,7 +214,7 @@ void GuiManager::RemoveAll()
 {
     for (auto& layer : layers_)
     {
-        layer.GetElements().clear();
+        layer.clear();
     }
 }
 

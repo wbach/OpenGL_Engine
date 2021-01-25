@@ -31,9 +31,9 @@ namespace Components
 ComponentFactory::ComponentFactory(ComponentController& componentController, GraphicsApi::IGraphicsApi& graphicsApi,
                                    IGpuResourceLoader& gpuResourceLoader, Time& time, Input::InputManager& input,
                                    IResourceManager& resourceManager, Renderer::RenderersManager& rendererManager,
-                                   CameraWrapper& camera, Physics::IPhysicsApi& physicsApi)
+                                   CameraWrapper& camera, Physics::IPhysicsApi& physicsApi, GuiElementFactory& guiElementFactory)
     : context_(graphicsApi, gpuResourceLoader, time, input, camera, physicsApi, resourceManager, rendererManager,
-               componentController)
+               componentController, guiElementFactory)
 {
 }
 std::unique_ptr<IComponent> ComponentFactory::Create(ComponentsType type, GameObject& ptr)

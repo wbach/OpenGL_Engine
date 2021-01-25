@@ -36,15 +36,6 @@ void Enemy::Init()
         if (iter != animator_->animationClips_.end())
         {
             iter->second.playType = Animation::AnimationClip::PlayType::once;
-
-            animator_->onAnimationEnd_[characterController_->hurtAnimationName].push_back([this]() {
-                auto currentAnimationClip = animator_->GetCurrentAnimationName();
-                if (currentAnimationClip == characterController_->hurtAnimationName)
-                {
-                    animator_->ChangeAnimation(characterController_->hurtAnimationName,
-                                               Animator::AnimationChangeType::smooth);
-                }
-            });
         }
 
         animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
@@ -53,11 +44,6 @@ void Enemy::Init()
 
             if (componentPtr)
             {
-                auto playerPosition  = componentPtr->getParentGameObject().GetWorldTransform().GetPosition();
-                auto currentPosition = thisObject_.GetWorldTransform().GetPosition();
-                auto toTargetVector  = playerPosition - currentPosition;
-                auto distance        = glm::length(toTargetVector);
-
                 if (distance < characterStatistic_.attackRange)
                 {
                     componentPtr->hurt(characterStatistic_.attackDmg);
@@ -65,6 +51,7 @@ void Enemy::Init()
             }
         });
     }
+
 }
 void Enemy::Update()
 {

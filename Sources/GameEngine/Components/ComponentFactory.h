@@ -9,6 +9,7 @@ namespace GameEngine
 class CameraWrapper;
 class GameObject;
 class IResourceManager;
+class GuiElementFactory;
 struct Time;
 
 namespace Renderer
@@ -27,7 +28,7 @@ class ComponentFactory : public IComponentFactory
 {
 public:
     ComponentFactory(ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&, Input::InputManager&,
-                     IResourceManager&, Renderer::RenderersManager&, CameraWrapper&, Physics::IPhysicsApi&);
+                     IResourceManager&, Renderer::RenderersManager&, CameraWrapper&, Physics::IPhysicsApi&, GuiElementFactory&);
     virtual std::unique_ptr<IComponent> Create(ComponentsType, GameObject&) override;
 
 private:
