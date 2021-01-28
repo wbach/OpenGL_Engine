@@ -277,6 +277,20 @@ void RenderersManager::UpdatePerAppBuffer()
         graphicsApi_.BindShaderBuffer(*perAppId_);
     }
 }
+vec2 RenderersManager::convertToNdcPosition(const vec3& point) const
+{
+    auto clipSpace = viewProjectionMatrix_ * vec4(point, 1.f);
+    return vec2(clipSpace.x, clipSpace.y) / clipSpace.w;
+}
+vec3 RenderersManager::convertToNdcPosition2(const vec3& point) const
+{
+    auto clipSpace = viewProjectionMatrix_ * vec4(point, 1.f);
+    return vec3(clipSpace.x, clipSpace.y, clipSpace.z) / clipSpace.w;
+}
+vec2 RenderersManager::convertToScreenPosition(const vec3& point) const
+{
+    return convertToNdcPosition(point) / 2.f + 0.5f;
+}
 void RenderersManager::CreatePerFrameBuffer()
 {
     if (not perFrameId_)

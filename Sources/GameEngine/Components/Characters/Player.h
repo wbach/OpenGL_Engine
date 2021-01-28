@@ -11,7 +11,6 @@
 namespace GameEngine
 {
 class GuiManager;
-class GuiTextElement;
 class GuiTextureElement;
 
 namespace Components

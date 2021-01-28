@@ -53,6 +53,10 @@ public:
     bool IsTesselationSupported() const;
     void UpdatePerAppBuffer();
 
+    vec2 convertToNdcPosition(const vec3&) const;
+    vec3 convertToNdcPosition2(const vec3&) const;
+    vec2 convertToScreenPosition(const vec3&) const;
+
 private:
     void ReloadShadersExecution();
     void InitProjection();
