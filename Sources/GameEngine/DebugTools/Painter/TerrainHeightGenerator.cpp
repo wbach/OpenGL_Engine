@@ -113,7 +113,7 @@ void TerrainHeightGenerator::createSeed()
 
 void TerrainHeightGenerator::getAllSceneTerrains()
 {
-    const auto& components = componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
+    const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
     for (auto& terrain : components)
     {

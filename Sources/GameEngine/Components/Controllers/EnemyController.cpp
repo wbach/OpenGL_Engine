@@ -7,6 +7,7 @@
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -16,12 +17,11 @@ namespace Components
 namespace
 {
 const float playerDetectionRange{10.f};
+const std::string COMPONENT_STR = "EnemyController";
 }  // namespace
 
-ComponentsType EnemyController::type = ComponentsType::EnemyController;
-
 EnemyController::EnemyController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+    : BaseComponent(typeid(EnemyController).hash_code(), componentContext, gameObject)
     , enemy_{nullptr}
     , animator_{nullptr}
     , characterController_{nullptr}
@@ -82,6 +82,17 @@ void EnemyController::clearStates()
     characterController_->removeState(CharacterControllerState::Type::ATTACK);
     characterController_->removeState(CharacterControllerState::Type::ROTATE_TARGET);
     characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
+}
+void EnemyController::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
+        return std::make_unique<EnemyController>(componentContext, gameObject);
+    };
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+void EnemyController::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 }  // namespace Components
 }  // namespace GameEngine

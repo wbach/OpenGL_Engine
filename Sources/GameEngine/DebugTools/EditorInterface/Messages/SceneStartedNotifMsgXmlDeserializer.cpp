@@ -5,9 +5,9 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(SceneStartedNotifMsg& output, Utils::XmlNode& input)
+void SetParam(SceneStartedNotifMsg& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("name"))
+    if (input.isAttributePresent("name"))
     {
         output.name = input.attributes_.at("name");
     }

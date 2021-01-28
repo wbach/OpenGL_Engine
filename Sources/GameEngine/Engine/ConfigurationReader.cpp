@@ -10,7 +10,7 @@
 
 namespace GameEngine
 {
-void SetParamIfExist(Params::Shadows::CascadeDistanceFunc& param, const Utils::Attributes& attributes,
+void SetParamIfExist(Params::Shadows::CascadeDistanceFunc& param, const Attributes& attributes,
                      const std::string& paramName)
 {
     auto attIter = attributes.find(paramName);
@@ -32,14 +32,14 @@ void SetParamIfExist(Params::Shadows::CascadeDistanceFunc& param, const Utils::A
     }
 }
 
-void SetParamIfExist(bool& param, const Utils::Attributes& attributes, const std::string& paramName)
+void SetParamIfExist(bool& param, const Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
     {
         param = Utils::StringToBool(attributes.at(paramName));
     }
 }
-void SetParamIfExist(float& param, const Utils::Attributes& attributes, const std::string& paramName)
+void SetParamIfExist(float& param, const Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
     {
@@ -47,7 +47,7 @@ void SetParamIfExist(float& param, const Utils::Attributes& attributes, const st
     }
 }
 
-void SetParamIfExist(uint32& param, const Utils::Attributes& attributes, const std::string& paramName)
+void SetParamIfExist(uint32& param, const Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
     {
@@ -55,7 +55,7 @@ void SetParamIfExist(uint32& param, const Utils::Attributes& attributes, const s
     }
 }
 
-void SetParamIfExist(std::string& param, const Utils::Attributes& attributes, const std::string& paramName)
+void SetParamIfExist(std::string& param, const Attributes& attributes, const std::string& paramName)
 {
     if (attributes.count(paramName))
     {
@@ -63,28 +63,28 @@ void SetParamIfExist(std::string& param, const Utils::Attributes& attributes, co
     }
 }
 
-void SetParam(bool& param, Utils::Attributes::const_iterator iter, const std::string& paramName)
+void SetParam(bool& param, Attributes::const_iterator iter, const std::string& paramName)
 {
     param = Utils::StringToBool(iter->second);
 }
 
-void SetParam(float& param, Utils::Attributes::const_iterator iter, const std::string& paramName)
+void SetParam(float& param, Attributes::const_iterator iter, const std::string& paramName)
 {
     param = Utils::StringToFloat(iter->second);
 }
 
-void SetParam(uint32& param, const Utils::Attributes::const_iterator& iter, const std::string& paramName)
+void SetParam(uint32& param, const Attributes::const_iterator& iter, const std::string& paramName)
 {
     param = Utils::StringToInt(iter->second);
 }
 
-void SetParam(std::string& param, Utils::Attributes::const_iterator iter, const std::string& paramName)
+void SetParam(std::string& param, Attributes::const_iterator iter, const std::string& paramName)
 {
     param = iter->second;
 }
 
 template <class T>
-void SetParamIfExist(Params::ConfigurationParam<T>& param, const Utils::Attributes& attributes,
+void SetParamIfExist(Params::ConfigurationParam<T>& param, const Attributes& attributes,
                      const std::string& paramName)
 {
     const auto iter = attributes.find(paramName);
@@ -96,7 +96,7 @@ void SetParamIfExist(Params::ConfigurationParam<T>& param, const Utils::Attribut
     }
 }
 
-void SetParamIfExist(Params::ConfigurationParam<vec2ui>& param, const Utils::Attributes& attributes,
+void SetParamIfExist(Params::ConfigurationParam<vec2ui>& param, const Attributes& attributes,
                      const std::string& paramName1, const std::string& paramName2)
 {
     auto p1i = attributes.find(paramName1);
@@ -110,20 +110,20 @@ void SetParamIfExist(Params::ConfigurationParam<vec2ui>& param, const Utils::Att
     }
 }
 
-void Read(Utils::XmlNode& node, Params::Window& window)
+void Read(TreeNode& node, Params::Window& window)
 {
     SetParamIfExist(window.name, node.attributes_, CSTR_WINDOW_NAME);
     SetParamIfExist(window.fullScreen, node.attributes_, CSTR_WINDOW_FULLSCREEN);
     SetParamIfExist(window.size, node.attributes_, CSTR_WINDOW_WIDTH, CSTR_WINDOW_HEIGHT);
 }
 
-void Read(Utils::XmlNode& node, Params::Sound& sound)
+void Read(TreeNode& node, Params::Sound& sound)
 {
     SetParamIfExist(sound.isEnabled, node.attributes_, CSTR_SOUND_ENABLED);
     SetParamIfExist(sound.volume, node.attributes_, CSTR_SOUND_VOLUME);
 }
 
-void Read(Utils::XmlNode& node, Params::Shadows& shadows)
+void Read(TreeNode& node, Params::Shadows& shadows)
 {
     SetParamIfExist(shadows.isEnabled, node.attributes_, CSTR_SHADOWS_ENABLED);
     SetParamIfExist(shadows.distance, node.attributes_, CSTR_SHADOWS_VIEW_DISTANCE);
@@ -148,35 +148,35 @@ void Read(Utils::XmlNode& node, Params::Shadows& shadows)
     }
 }
 
-void Read(Utils::XmlNode& node, Params::Particles& particles)
+void Read(TreeNode& node, Params::Particles& particles)
 {
     SetParamIfExist(particles.useParticles, node.attributes_, CSTR_PARTICLES_ENABLED);
 }
 
-void Read(Utils::XmlNode& node, Params::Flora& flora)
+void Read(TreeNode& node, Params::Flora& flora)
 {
     SetParamIfExist(flora.isEnabled, node.attributes_, CSTR_FLORA_ENABLED);
     SetParamIfExist(flora.viewDistance, node.attributes_, CSTR_FLORA_VIEW_DISTANCE);
 }
 
-void Read(Utils::XmlNode& node, Params::Water& water)
+void Read(TreeNode& node, Params::Water& water)
 {
     if (node.attributes_.count(CSTR_WATER_TYPE))
         water.type = static_cast<Params::WaterType>(Utils::StringToInt(node.attributes_.at(CSTR_WATER_TYPE)));
 
-    if (node.GetChild(CSTR_WATER_REFLECTION))
+    if (node.getChild(CSTR_WATER_REFLECTION))
     {
-        SetParamIfExist(water.waterReflectionResolution, node.GetChild(CSTR_WATER_REFLECTION)->attributes_,
+        SetParamIfExist(water.waterReflectionResolution, node.getChild(CSTR_WATER_REFLECTION)->attributes_,
                         CSTR_WATER_REFLECTION_WIDTH, CSTR_WATER_REFLECTION_HEIGHT);
     }
-    if (node.GetChild(CSTR_WATER_REFRACTION))
+    if (node.getChild(CSTR_WATER_REFRACTION))
     {
-        SetParamIfExist(water.waterRefractionResolution, node.GetChild(CSTR_WATER_REFRACTION)->attributes_,
+        SetParamIfExist(water.waterRefractionResolution, node.getChild(CSTR_WATER_REFRACTION)->attributes_,
                         CSTR_WATER_REFRACTION_WIDTH, CSTR_WATER_REFRACTION_HEIGHT);
     }
 }
 
-void Read(Utils::XmlNode& node, Params::Textures& textures)
+void Read(TreeNode& node, Params::Textures& textures)
 {
     SetParamIfExist(textures.maxSize, node.attributes_, CSTR_TEXTURE_MAX_RESOLUTION_WIDTH,
                     CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT);
@@ -187,7 +187,7 @@ void Read(Utils::XmlNode& node, Params::Textures& textures)
     SetParamIfExist(textures.useSpecular, node.attributes_, CSTR_TEXTURE_SPECULAR);
 }
 
-void Read(Utils::XmlNode* node, Params::TerrainType& param)
+void Read(TreeNode* node, Params::TerrainType& param)
 {
     if (not node)
         return;
@@ -196,15 +196,15 @@ void Read(Utils::XmlNode* node, Params::TerrainType& param)
     DEBUG_LOG(node->value_);
 }
 
-void Read(Utils::XmlNode* node, Params::Terrain& param)
+void Read(TreeNode* node, Params::Terrain& param)
 {
     if (not node)
         return;
 
-    Read(node->GetChild(CSTR_TERRAIN_RENDERER_TYPE), param.terrainType);
+    Read(node->getChild(CSTR_TERRAIN_RENDERER_TYPE), param.terrainType);
 }  // namespace GameEngine
 
-void Read(Utils::XmlNode& node, Params::Renderer& renderer)
+void Read(TreeNode& node, Params::Renderer& renderer)
 {
     if (node.attributes_.count(CSTR_RENDERER_TYPE))
         renderer.type =
@@ -216,29 +216,29 @@ void Read(Utils::XmlNode& node, Params::Renderer& renderer)
     SetParamIfExist(renderer.fpsLimt, node.attributes_, CSTR_RENDERER_FPS_LIMIT);
     SetParamIfExist(renderer.resolution, node.attributes_, CSTR_RENDERER_RESOLUTION_X, CSTR_RENDERER_RESOLUTION_Y);
 
-    Read(node.GetChild(CSTR_TERRAIN), renderer.terrain);
+    Read(node.getChild(CSTR_TERRAIN), renderer.terrain);
 
-    if (node.GetChild(CSTR_WATER))
-        Read(*node.GetChild(CSTR_WATER), renderer.water);
-    if (node.GetChild(CSTR_FLORA))
-        Read(*node.GetChild(CSTR_FLORA), renderer.flora);
-    if (node.GetChild(CSTR_SHADOWS))
-        Read(*node.GetChild(CSTR_SHADOWS), renderer.shadows);
-    if (node.GetChild(CSTR_TEXTURES))
-        Read(*node.GetChild(CSTR_TEXTURES), renderer.textures);
-    if (node.GetChild(CSTR_PARTICLES))
-        Read(*node.GetChild(CSTR_PARTICLES), renderer.particles);
+    if (node.getChild(CSTR_WATER))
+        Read(*node.getChild(CSTR_WATER), renderer.water);
+    if (node.getChild(CSTR_FLORA))
+        Read(*node.getChild(CSTR_FLORA), renderer.flora);
+    if (node.getChild(CSTR_SHADOWS))
+        Read(*node.getChild(CSTR_SHADOWS), renderer.shadows);
+    if (node.getChild(CSTR_TEXTURES))
+        Read(*node.getChild(CSTR_TEXTURES), renderer.textures);
+    if (node.getChild(CSTR_PARTICLES))
+        Read(*node.getChild(CSTR_PARTICLES), renderer.particles);
 }
 
-void Read(Utils::XmlNode& node, Params::Files& files)
+void Read(TreeNode& node, Params::Files& files)
 {
-    files.data    = GetDataLocationFromString(node.GetChild(CSTR_DATA_LOCATION)->value_);
-    files.shaders = GetShaderLocationFromString(node.GetChild(CSTR_SHADER_LOCATION)->value_);
-    if (node.GetChild(CSTR_REQUIRED_FILE_OUTPUT))
-        files.requiredFilesOutputFile = node.GetChild(CSTR_REQUIRED_FILE_OUTPUT)->value_;
+    files.data    = GetDataLocationFromString(node.getChild(CSTR_DATA_LOCATION)->value_);
+    files.shaders = GetShaderLocationFromString(node.getChild(CSTR_SHADER_LOCATION)->value_);
+    if (node.getChild(CSTR_REQUIRED_FILE_OUTPUT))
+        files.requiredFilesOutputFile = node.getChild(CSTR_REQUIRED_FILE_OUTPUT)->value_;
 }
 
-void Read(Utils::XmlNode* node, Params::PhysicsVisualizatorParams& params)
+void Read(TreeNode* node, Params::PhysicsVisualizatorParams& params)
 {
     if (not node)
         return;
@@ -255,22 +255,22 @@ void Read(Utils::XmlNode* node, Params::PhysicsVisualizatorParams& params)
     }
 }
 
-void Read(Utils::XmlNode* node, Params::DebugParams& params)
+void Read(TreeNode* node, Params::DebugParams& params)
 {
     if (not node)
         return;
 
-    auto pvNode = node->GetChild(CSTR_PHYSICS_VISUALIZATION_PARAMS);
+    auto pvNode = node->getChild(CSTR_PHYSICS_VISUALIZATION_PARAMS);
     if (pvNode)
         Read(pvNode, params.physicsVisualizator);
 
-    auto loggingNode = node->GetChild(CSTR_LOGGING_LVL);
+    auto loggingNode = node->getChild(CSTR_LOGGING_LVL);
     if (loggingNode)
     {
         params.logLvl = Params::paramFromString(loggingNode->value_);
     }
 
-    auto showRenderInfoNode = node->GetChild(CSTR_SHOW_RENDER_INFO);
+    auto showRenderInfoNode = node->getChild(CSTR_SHOW_RENDER_INFO);
     if (showRenderInfoNode)
     {
         params.showRenderInfo = Utils::StringToBool(showRenderInfoNode->value_);

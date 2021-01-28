@@ -25,7 +25,9 @@ private:
     vec3 size_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
+    static const std::string name;
 };
 }  // namespace Components
 }  // namespace GameEngine

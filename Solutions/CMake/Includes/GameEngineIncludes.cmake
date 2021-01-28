@@ -36,10 +36,11 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Characters/CharacterStatistic.h
 ../../Sources/GameEngine/Components/Characters/Enemy.h
 ../../Sources/GameEngine/Components/Characters/Player.h
+../../Sources/GameEngine/Components/CommonReadDef.h
 ../../Sources/GameEngine/Components/ComponentContext.h
 ../../Sources/GameEngine/Components/ComponentController.h
 ../../Sources/GameEngine/Components/ComponentFactory.h
-../../Sources/GameEngine/Components/ComponentsTypes.h
+../../Sources/GameEngine/Components/ComponentsReadFunctions.h
 ../../Sources/GameEngine/Components/Controllers/CharacterController.h
 ../../Sources/GameEngine/Components/Controllers/ControllerUtlis.h
 ../../Sources/GameEngine/Components/Controllers/EnemyController.h
@@ -54,8 +55,9 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Physics/SphereShape.h
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainShape.h
+../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h
 ../../Sources/GameEngine/Components/Renderer/Entity/PreviewComponent.h
-../../Sources/GameEngine/Components/Renderer/Grass/GrassComponent.h
+../../Sources/GameEngine/Components/Renderer/Grass/GrassRendererComponent.h
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.h

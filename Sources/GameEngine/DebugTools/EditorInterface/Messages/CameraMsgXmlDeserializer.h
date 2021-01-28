@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(CameraMsg&, Utils::XmlNode&);
+void SetParam(CameraMsg&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeCameraMsg(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

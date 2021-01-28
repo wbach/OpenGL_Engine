@@ -1,4 +1,7 @@
 #include "MeshShape.h"
+
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
@@ -11,10 +14,10 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType MeshShape::type = ComponentsType::MeshShape;
+const std::string MeshShape::name = "MeshShape";
 
 MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(ComponentsType::MeshShape, componentContext, gameObject)
+    : CollisionShape(typeid(MeshShape).hash_code(), componentContext, gameObject)
     , size_(1.f)
     , model_(nullptr)
 {
@@ -64,12 +67,43 @@ MeshShape& MeshShape::SetModel(const File& filename)
 }
 const Model* MeshShape::GetModel() const
 {
-	return model_;
+    return model_;
 }
 MeshShape& MeshShape::SetSize(float size)
 {
     size_ = size;
     return *this;
+}
+void MeshShape::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<MeshShape>(componentContext, gameObject);
+
+        vec3 positionOffset(0.f);
+        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
+        component->SetPostionOffset(positionOffset);
+
+        float size(1.f);
+        ::Read(node.getChild(CSTR_SIZE), size);
+        component->SetSize(size);
+
+        std::string model;
+        ::Read(node.getChild(CSTR_MODEL_FILE_NAME), size);
+        if (not model.empty())
+        {
+            component->SetModel(model);
+        }
+
+        return component;
+    };
+    regsiterComponentReadFunction(MeshShape::name, readFunc);
+}
+void MeshShape::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, MeshShape::name});
+
+    ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
+    ::write(node.addChild(CSTR_SIZE), GetSize());
 }
 }  // namespace Components
 }  // namespace GameEngine

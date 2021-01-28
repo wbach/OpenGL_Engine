@@ -13,7 +13,7 @@ long FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v)
     auto it    = std::find(vertexes.begin(), vertexes.end(), v);
     auto index = std::distance(vertexes.begin(), it);
 
-    return it != vertexes.end() ? index : -1;
+    return static_cast<long>(it != vertexes.end() ? index : -1);
 }
 
 std::optional<int32> FindIndexFast(std::unordered_map<wb::vec3i, int32>& vertexes, const wb::vec3i& v)
@@ -238,7 +238,7 @@ GraphicsApi::MeshRawData Mesh::createMeshRawData()
                 data.bonesWeights_.push_back(joint.weight / sumWeights);
             }
 
-            auto newIndex = out_indexes.size();
+            auto newIndex = static_cast<int32>(out_indexes.size());
             out_indexes.insert({v.indexes, newIndex});
             data.indices_.push_back(static_cast<IndicesDataType>(newIndex));
         }

@@ -1,5 +1,8 @@
-#include "GrassComponent.h"
+#include "GrassRendererComponent.h"
 
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -8,10 +11,13 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType GrassRendererComponent::type = ComponentsType::Grass;
+namespace
+{
+const std::string COMPONENT_STR{"GrassRenderer"};
+}  // namespace
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(ComponentsType::Grass, componentContext, gameObject)
+    : BaseComponent(typeid(GrassRendererComponent).hash_code(), componentContext, gameObject)
     , textureFile_("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     , isSubscribed_(false)
 {
@@ -161,6 +167,58 @@ Material GrassRendererComponent::CreateGrassMaterial() const
         componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile_, TextureParameters());
     return grass_material;
 }
+void GrassRendererComponent::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
+        component->setTexture(node.getChild(CSTR_TEXTURE_FILENAME)->value_);
+        if (node.getChild(CSTR_FILE_NAME))
+        {
+            Components::GrassRendererComponent::GrassMeshes meshesData;
 
+            auto filename = node.getChild(CSTR_FILE_NAME)->value_;
+
+            if (not filename.empty())
+            {
+                File file(filename);
+                auto succes = file.openToRead();
+                if (succes)
+                {
+                    file.readVectorFromFile(meshesData.positions);
+                    file.readVectorFromFile(meshesData.normals);
+                    file.readVectorFromFile(meshesData.colors);
+                    file.readVectorFromFile(meshesData.sizesAndRotations);
+                    file.close();
+                }
+            }
+            component->SetMeshesData(std::move(meshesData));
+        }
+        return component;
+    };
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+void GrassRendererComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+
+    const auto& meshData = GetGrassMeshesData();
+
+    auto file = getDataFile();
+    if (file.empty())
+        file.DataRelative("Generated/grassMeshData_" + std::to_string(getParentGameObject().GetId()) + ".bin");
+
+    auto opened = file.openToWrite();
+    if (opened)
+    {
+        file.addVectorToFile(meshData.positions);
+        file.addVectorToFile(meshData.normals);
+        file.addVectorToFile(meshData.colors);
+        file.addVectorToFile(meshData.sizesAndRotations);
+        file.close();
+    }
+
+    ::write(node.addChild(CSTR_FILE_NAME), file.GetDataRelativeDir());
+    ::write(node.addChild(CSTR_TEXTURE_FILENAME), getTextureFile().GetDataRelativeDir());
+}
 }  // namespace Components
 }  // namespace GameEngine

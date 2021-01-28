@@ -5,19 +5,20 @@
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
+#include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/Time.h"
 #include "GameEngineTests/Tests/Mocks/Api/FrameBufferMock.h"
 #include "GameEngineTests/Tests/Mocks/Api/GraphicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Api/InputManagerMock.h"
 #include "GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
-#include "GameEngineTests/Tests/Mocks/Components/ComponentFactoryMock.h"
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
 
 using namespace GameEngine;
@@ -30,23 +31,26 @@ public:
 
     GpuResourceLoader gpuResourceLoader_;
     Utils::MeasurementHandler measurementHandler_;
-    Utils::Thread::ThreadSync threadSync_;
     Input::InputManagerMock inputManagerMock_;
-    ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
     GraphicsApi::FrameBufferMock frameBufferMock_;
-    ComponentFactoryMock componentFactoryMock_;
     Time time_;
-    CameraMock cameraMock_;
-    GameObject obj_;
-    ResourceManager resourcesManager_;
     ComponentController componentController_;
-    Renderer::RenderersManager renderersManager_;
     PhysicsApiMock physicsApiMock_;
     GraphicsApi::WindowApiMock windowApiMock_;
-    CameraWrapper cameraWrapper_;
     GuiManager guiManager_;
-	GuiElementFactory::EntryParameters guiFactoryEntryParameters_;
+    Frustrum frustrum_;
+
+
+    Utils::Thread::ThreadSync threadSync_;
+    ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
+    Scene scene;
+    ResourceManager resourcesManager_;
+    Renderer::RenderersManager renderersManager_;
+    CameraMock cameraMock_;
+    CameraWrapper cameraWrapper_;
+    GuiElementFactory::EntryParameters guiFactoryEntryParameters_;
     GuiElementFactory guiElementFactory_;
     ComponentContext context_;
-    Frustrum frustrum_;
+    ComponentFactory componentFactory_;
+    GameObject obj_;
 };

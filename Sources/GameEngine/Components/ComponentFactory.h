@@ -1,11 +1,15 @@
 #pragma once
+#include <Utils/TreeNode.h>
+
+#include <functional>
 #include <memory>
+#include <unordered_map>
 
 #include "ComponentContext.h"
-#include "IComponentFactory.h"
 
 namespace GameEngine
 {
+class Scene;
 class CameraWrapper;
 class GameObject;
 class IResourceManager;
@@ -24,12 +28,20 @@ struct IPhysicsApi;
 
 namespace Components
 {
-class ComponentFactory : public IComponentFactory
+class ComponentFactory
 {
 public:
-    ComponentFactory(ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&, Input::InputManager&,
-                     IResourceManager&, Renderer::RenderersManager&, CameraWrapper&, Physics::IPhysicsApi&, GuiElementFactory&);
-    virtual std::unique_ptr<IComponent> Create(ComponentsType, GameObject&) override;
+    ComponentFactory(Scene&, ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&,
+                     Input::InputManager&, IResourceManager&, Renderer::RenderersManager&, CameraWrapper&,
+                     Physics::IPhysicsApi&, GuiElementFactory&);
+
+    template <typename Component>
+    std::unique_ptr<IComponent> Create(GameObject& gameObject)
+    {
+        return std::make_unique<Component>(context_, gameObject);
+    }
+
+    std::unique_ptr<IComponent> Create(const TreeNode&, GameObject&);
 
 private:
     ComponentContext context_;

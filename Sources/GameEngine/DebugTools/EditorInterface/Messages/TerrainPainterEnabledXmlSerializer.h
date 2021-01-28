@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-std::unique_ptr<Utils::XmlNode> Convert(const TerrainPainterEnabled&);
+std::unique_ptr<TreeNode> Convert(const TerrainPainterEnabled&);
 Network::IMessageData Serialize(const TerrainPainterEnabled&);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

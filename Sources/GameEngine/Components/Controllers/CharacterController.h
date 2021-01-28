@@ -333,7 +333,8 @@ private:
     std::mutex stateMutex_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

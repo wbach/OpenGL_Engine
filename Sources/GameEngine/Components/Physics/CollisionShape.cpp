@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-CollisionShape::CollisionShape(ComponentsType type, ComponentContext& componentContext, GameObject& gameObject)
+CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , collisionShapeId_(0)
     , positionOffset_(0.f)
@@ -25,6 +25,12 @@ void CollisionShape::SetPostionOffset(const vec3& position)
 const vec3& CollisionShape::GetPositionOffset() const
 {
     return positionOffset_;
+}
+void CollisionShape::registerReadFunctions()
+{
+}
+void CollisionShape::write(TreeNode&) const
+{
 }
 }  // namespace Components
 }  // namespace GameEngine

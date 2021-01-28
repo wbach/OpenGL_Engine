@@ -20,7 +20,7 @@ std::string CreateBinPath(const std::string& filename)
 template <class T>
 void WriteToFile(std::fstream& file, const std::vector<T>& v)
 {
-    uint32 size = v.size();
+    uint32 size = static_cast<uint32>(v.size());
     file.write(reinterpret_cast<const char*>(&size), sizeof(uint32));
 
     if (!v.empty())
@@ -33,7 +33,7 @@ void WriteToFile(std::fstream& file, T value)
 }
 void WriteToFile(std::fstream& file, const std::string& str)
 {
-    uint32 size = str.size();
+    uint32 size = static_cast<uint32>(str.size());
     file.write(reinterpret_cast<const char*>(&size), sizeof(uint32));
     if (!str.empty())
         file.write(str.c_str(), sizeof(char) * str.size());

@@ -5,20 +5,20 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(PlantBrushEnabled& output, Utils::XmlNode& input)
+void SetParam(PlantBrushEnabled& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("brushTypes"))
+    if (input.isAttributePresent("brushTypes"))
     {
-        for (auto& child : input.GetChild("brushTypes")->GetChildren())
+        for (auto& child : input.getChild("brushTypes")->getChildren())
         {
             output.brushTypes.push_back(child->value_);
         }
     }
-    if (input.IsAttributePresent("texture"))
+    if (input.isAttributePresent("texture"))
     {
         output.texture = input.attributes_.at("texture");
     }
-    if (input.IsAttributePresent("brushSize"))
+    if (input.isAttributePresent("brushSize"))
     {
         output.brushSize = std::stoi(input.attributes_.at("brushSize"));
     }

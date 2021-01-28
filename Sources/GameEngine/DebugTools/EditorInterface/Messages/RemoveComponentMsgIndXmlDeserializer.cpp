@@ -5,9 +5,9 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(RemoveComponentMsgInd& output, Utils::XmlNode& input)
+void SetParam(RemoveComponentMsgInd& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("name"))
+    if (input.isAttributePresent("name"))
     {
         output.name = input.attributes_.at("name");
     }

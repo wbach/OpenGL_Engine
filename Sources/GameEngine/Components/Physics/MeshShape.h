@@ -30,11 +30,13 @@ private:
     Model* model_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
+    static const std::string name;
 };
 float MeshShape::GetSize() const
 {
     return size_;
 }
-}  // Components
-}  // GameEngine
+}  // namespace Components
+}  // namespace GameEngine

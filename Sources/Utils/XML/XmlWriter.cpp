@@ -1,5 +1,7 @@
 #include "XmlWriter.h"
+
 #include <fstream>
+
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
 #include "rapidxml.hpp"
@@ -82,7 +84,7 @@ public:
         std::ofstream file(filename.c_str());
         if (!file.is_open())
         {
-           ERROR_LOG("cannot open file " + filename);
+            ERROR_LOG("cannot open file " + filename);
             return;
         }
         DEBUG_LOG("Xml save : " + filename);
@@ -102,41 +104,41 @@ private:
     std::unique_ptr<XmlNodeWrapper> root_;
 };
 
-void WriteNode(XmlNode& node, XmlNodeWrapper& nodeWrapper);
+void WriteNode(TreeNode& node, XmlNodeWrapper& nodeWrapper);
 
-void WroteNodeMembers(XmlNode& parent, XmlNodeWrapper& node)
+void WroteNodeMembers(TreeNode& parent, XmlNodeWrapper& node)
 {
     for (auto& attribute : parent.attributes_)
     {
         node = node.AddAtributte(attribute.first, attribute.second);
     }
 
-    for (auto& c : parent.GetChildren())
+    for (auto& c : parent.getChildren())
     {
         WriteNode(*c, node);
     }
 }
 
-void WriteNode(XmlNode& node, XmlNodeWrapper& nodeWrapper)
+void WriteNode(TreeNode& node, XmlNodeWrapper& nodeWrapper)
 {
-    auto child = nodeWrapper.AddChild(node.GetName(), node.value_);
+    auto child = nodeWrapper.AddChild(node.name(), node.value_);
     WroteNodeMembers(node, child);
 }
 
-void Xml::Write(const std::string& filename, XmlNode& root)
+void Xml::Write(const std::string& filename, TreeNode& root)
 {
     XmlCreator creator;
-    auto& builderRoot = creator.CreateRoot(root.GetName(), root.value_);
+    auto& builderRoot = creator.CreateRoot(root.name(), root.value_);
 
     WroteNodeMembers(root, builderRoot);
 
     creator.Save(filename);
 }
 
-std::string Xml::Write(XmlNode &root)
+std::string Xml::Write(TreeNode& root)
 {
     XmlCreator creator;
-    auto& builderRoot = creator.CreateRoot(root.GetName(), root.value_);
+    auto& builderRoot = creator.CreateRoot(root.name(), root.value_);
 
     WroteNodeMembers(root, builderRoot);
 

@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(SceneStartedNotifMsg&, Utils::XmlNode&);
+void SetParam(SceneStartedNotifMsg&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeSceneStartedNotifMsg(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

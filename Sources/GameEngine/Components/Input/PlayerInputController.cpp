@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 
 using namespace common::Controllers;
@@ -11,10 +12,17 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType PlayerInputController::type = ComponentsType::PlayerInputController;
+namespace
+{
+const std::string COMPONENT_STR{"PlayerInputController"};
+const std::string CSTR_WEAPON_CHILD_NAME = "weaponChildName";
+const std::string CSTR_WEAPON_BONE_NAME = "weaponBoneName";
+const std::string CSTR_WEAPON_BONE_POSITION_OFFSET = "weaponBonePositionOffset";
+const std::string CSTR_WEAPON_BONE_ROTATION_OFFSET = "weaponBoneRotationOffset";
+}  // namespace
 
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+    : BaseComponent(typeid(PlayerInputController).hash_code(), componentContext, gameObject)
     , animator_{nullptr}
     , characterController_{nullptr}
     , subscriptions_{componentContext.inputManager_}
@@ -93,6 +101,30 @@ void PlayerInputController::SubscribeForPopActions()
         KeyCodes::A, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT); });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
+}
+
+void PlayerInputController::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<PlayerInputController>(componentContext, gameObject);
+        ::Read(node.getChild(CSTR_WEAPON_CHILD_NAME), component->weaponChildObjectName_);
+        ::Read(node.getChild(CSTR_WEAPON_BONE_NAME), component->weaponBoneName_);
+        ::Read(node.getChild(CSTR_WEAPON_BONE_POSITION_OFFSET), component->weponBonePositionOffset_);
+        ::Read(node.getChild(CSTR_WEAPON_BONE_ROTATION_OFFSET), component->weponBoneRotationOffsetDegreesEulers_);
+        return component;
+    };
+
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+
+void PlayerInputController::write(TreeNode& node) const
+{
+    node.attributes_.insert({ CSTR_TYPE, COMPONENT_STR });
+    node.addChild(CSTR_WEAPON_CHILD_NAME, weaponChildObjectName_);
+    node.addChild(CSTR_WEAPON_BONE_NAME, weaponBoneName_);
+
+    ::write(node.addChild(CSTR_WEAPON_BONE_POSITION_OFFSET), weponBonePositionOffset_);
+    ::write(node.addChild(CSTR_WEAPON_BONE_ROTATION_OFFSET), weponBoneRotationOffsetDegreesEulers_);
 }
 
 }  // namespace Components

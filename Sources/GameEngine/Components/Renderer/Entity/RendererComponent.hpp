@@ -58,7 +58,8 @@ private:
     std::vector<std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 
 ModelWrapper& RendererComponent::GetModelWrapper()

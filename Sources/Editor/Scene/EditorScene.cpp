@@ -39,7 +39,7 @@ int EditorScene::Initialize()
     LoadFromFile(sceneFile);
 
     const auto& terrainShapeComponents =
-        componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainShape);
+        componentController_.GetAllComonentsOfType<Components::TerrainShape>();
 
     vec3 cratePosition(2, 0, 1);
     vec3 palmPosition(3, 0, 3);

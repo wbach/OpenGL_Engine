@@ -16,13 +16,13 @@ set(UtilsIncludes
 ../../Sources/Utils/ThreadSync.h
 ../../Sources/Utils/Time/TimeMeasurer.h
 ../../Sources/Utils/Time/Timer.h
+../../Sources/Utils/TreeNode.h
 ../../Sources/Utils/Types.h
 ../../Sources/Utils/UndifineWindows.h
 ../../Sources/Utils/Utils.h
 ../../Sources/Utils/Variant.h
 ../../Sources/Utils/Worker.h
 ../../Sources/Utils/XML/SceneReader.h
-../../Sources/Utils/XML/XmlNode.h
 ../../Sources/Utils/XML/XmlReader.h
 ../../Sources/Utils/XML/XMLUtils.h
 ../../Sources/Utils/XML/XmlWriter.h

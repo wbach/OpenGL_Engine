@@ -25,33 +25,33 @@ namespace GameEngine
 {
 namespace
 {
-GuiTheme ReadTheme(Utils::XmlNode &node)
+GuiTheme ReadTheme(TreeNode &node)
 {
     GuiTheme theme;
-    for (auto &child : node.GetChildren())
+    for (auto &child : node.getChildren())
     {
-        if (child->GetName() == Gui::BACKGROUND_TEXTURE)
+        if (child->name() == Gui::BACKGROUND_TEXTURE)
         {
             theme.backgroundTexture = child->value_;
         }
-        else if (child->GetName() == Gui::BUTTON_TEXTURE)
+        else if (child->name() == Gui::BUTTON_TEXTURE)
         {
             theme.buttonTexture = child->value_;
         }
-        else if (child->GetName() == "buttonHoverTexture")
+        else if (child->name() == "buttonHoverTexture")
         {
             theme.buttonHoverTexture = child->value_;
         }
-        else if (child->GetName() == "buttonActiveTexture")
+        else if (child->name() == "buttonActiveTexture")
         {
             theme.buttonActiveTexture = child->value_;
         }
     }
     return theme;
 }
-Layout::Algin ReadLayoutAlgin(Utils::XmlNode &node)
+Layout::Algin ReadLayoutAlgin(TreeNode &node)
 {
-    auto paramNode = node.GetChild(Gui::ALGIN);
+    auto paramNode = node.getChild(Gui::ALGIN);
     if (paramNode)
     {
         if (paramNode->value_ == Gui::LEFT)
@@ -108,7 +108,7 @@ bool GuiElementReader::Read(const std::string &filename)
         return false;
     }
 
-    auto theme = guiNode->GetChild(Gui::THEME);
+    auto theme = guiNode->getChild(Gui::THEME);
 
     auto oldTheme = factory_.GetTheme();
     if (theme)
@@ -132,33 +132,38 @@ bool GuiElementReader::Read(const std::string &filename)
     return true;
 }
 
-void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &node)
+void GuiElementReader::ReadGuiElementBasic(GuiElement &element, TreeNode &node)
 {
-    auto paramNode = node.GetChild(Gui::POSITION);
+    auto paramNode = node.getChild(Gui::POSITION);
     if (paramNode)
     {
-        auto position = Utils::ReadVec2(*paramNode);
+        vec2 position(0);
+        ::Read(*paramNode, position);
         element.SetLocalPostion(position);
     }
-    paramNode = node.GetChild(Gui::SHOW);
+    paramNode = node.getChild(Gui::SHOW);
     if (paramNode)
     {
-        element.Show(Utils::ReadBool(*paramNode));
+        bool isShow(true);
+        ::Read(*paramNode, isShow);
+        element.Show(isShow);
     }
 
-    paramNode = node.GetChild(Gui::SCALE);
+    paramNode = node.getChild(Gui::SCALE);
     if (paramNode)
     {
-        element.SetLocalScale(Utils::ReadVec2(*paramNode));
+        vec2 scale(1.f);
+        ::Read(*paramNode, scale);
+        element.SetLocalScale(scale);
     }
 
-    paramNode = node.GetChild(Gui::LABEL);
+    paramNode = node.getChild(Gui::LABEL);
     if (paramNode)
     {
         element.SetLabel(paramNode->value_);
     }
 
-    paramNode = node.GetChild(Gui::STARTUP_FUNCTION);
+    paramNode = node.getChild(Gui::STARTUP_FUNCTION);
 
     if (paramNode and not paramNode->value_.empty())
     {
@@ -172,24 +177,24 @@ void GuiElementReader::ReadGuiElementBasic(GuiElement &element, Utils::XmlNode &
     }
 }
 
-std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(Utils::XmlNode &node)
+std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
 {
     std::string font = "GUI/Ubuntu-M.ttf", value = "empty string";
     uint32 fontSize = 10, outline = 0;
 
-    auto paramNode = node.GetChild(Gui::FONT);
+    auto paramNode = node.getChild(Gui::FONT);
     if (paramNode)
     {
         font = paramNode->value_;
     }
 
-    paramNode = node.GetChild(Gui::VALUE);
+    paramNode = node.getChild(Gui::VALUE);
     if (paramNode)
     {
         value = paramNode->value_;
     }
 
-    paramNode = node.GetChild(Gui::FONT_SIZE);
+    paramNode = node.getChild(Gui::FONT_SIZE);
     if (paramNode)
     {
         try
@@ -202,7 +207,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(Utils::XmlNode &no
         }
     }
 
-    paramNode = node.GetChild(Gui::FONT_OUTLINE);
+    paramNode = node.getChild(Gui::FONT_OUTLINE);
     if (paramNode)
     {
         try
@@ -218,20 +223,22 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(Utils::XmlNode &no
     auto text = factory_.CreateGuiText(font, value, fontSize, outline);
     ReadGuiElementBasic(*text, node);
 
-    paramNode = node.GetChild(Gui::COLOR);
+    paramNode = node.getChild(Gui::COLOR);
     if (paramNode)
     {
-        auto color = Utils::ReadVec4(*paramNode);
+        vec4 color(0.f, 0.f, 0.f, 1.f);
+        ::Read(*paramNode, color);
+
         DEBUG_LOG("SetColor " + std::to_string(color));
         text->SetColor(color);
     }
     return text;
 }
 
-std::unique_ptr<GuiTextureElement> GuiElementReader::ReadGuiTexture(Utils::XmlNode &node)
+std::unique_ptr<GuiTextureElement> GuiElementReader::ReadGuiTexture(TreeNode &node)
 {
     std::string filename;
-    auto paramNode = node.GetChild(Gui::FILE);
+    auto paramNode = node.getChild(Gui::FILE);
 
     if (paramNode)
     {
@@ -247,20 +254,21 @@ std::unique_ptr<GuiTextureElement> GuiElementReader::ReadGuiTexture(Utils::XmlNo
 
     ReadGuiElementBasic(*texture, node);
 
-    paramNode = node.GetChild(Gui::COLOR);
+    paramNode = node.getChild(Gui::COLOR);
 
     if (paramNode)
     {
-        auto color = Utils::ReadVec3(*paramNode);
+        vec3 color(0);
+        ::Read(*paramNode, color);
         texture->SetColor(color);
     }
     return texture;
 }
-std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode &node)
+std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(TreeNode &node)
 {
     ActionFunction onClick;
     std::string actionName;
-    auto paramNode = node.GetChild(Gui::ACTION);
+    auto paramNode = node.getChild(Gui::ACTION);
     if (paramNode)
     {
         actionName = paramNode->value_;
@@ -269,9 +277,9 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
     auto button = factory_.CreateGuiButton(onClick);
     button->SetActionName(actionName);
 
-    auto &children             = node.GetChildren();
+    auto &children             = node.getChildren();
     auto backgroundTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
-        auto c = child->GetChild(Gui::LABEL);
+        auto c = child->getChild(Gui::LABEL);
         if (c)
         {
             return c->value_ == Gui::BACKGROUND_TEXTURE;
@@ -281,7 +289,7 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
 
     if (backgroundTextureNode != children.end())
     {
-        if ((**backgroundTextureNode).GetChild(Gui::FILE)->value_ != Gui::NONE)
+        if ((**backgroundTextureNode).getChild(Gui::FILE)->value_ != Gui::NONE)
         {
             auto texture = ReadGuiTexture(**backgroundTextureNode);
             if (texture)
@@ -296,7 +304,7 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
     }
 
     auto hoverTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
-        auto c = child->GetChild(Gui::LABEL);
+        auto c = child->getChild(Gui::LABEL);
         if (c)
         {
             return c->value_ == Gui::HOVER_TEXTURE;
@@ -305,7 +313,7 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
     });
     if (hoverTextureNode != children.end())
     {
-        if ((**hoverTextureNode).GetChild(Gui::FILE)->value_ != Gui::NONE)
+        if ((**hoverTextureNode).getChild(Gui::FILE)->value_ != Gui::NONE)
         {
             auto texture = ReadGuiTexture(**hoverTextureNode);
             if (texture)
@@ -318,7 +326,7 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
     }
 
     auto activeTextureNode = std::find_if(children.begin(), children.end(), [](const auto &child) {
-        auto c = child->GetChild(Gui::LABEL);
+        auto c = child->getChild(Gui::LABEL);
         if (c)
         {
             return c->value_ == Gui::ACTIVE_TEXTURE;
@@ -328,7 +336,7 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
 
     if (activeTextureNode != children.end())
     {
-        if ((**activeTextureNode).GetChild(Gui::FILE)->value_ != Gui::NONE)
+        if ((**activeTextureNode).getChild(Gui::FILE)->value_ != Gui::NONE)
         {
             auto texture = ReadGuiTexture(**activeTextureNode);
             if (texture)
@@ -340,7 +348,7 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
         }
     }
 
-    auto textNode = node.GetChild(Gui::TEXT);
+    auto textNode = node.getChild(Gui::TEXT);
     if (textNode)
     {
         auto text = ReadGuiText(*textNode);
@@ -352,9 +360,9 @@ std::unique_ptr<GuiButtonElement> GuiElementReader::ReadGuiButton(Utils::XmlNode
     ReadGuiElementBasic(*button, node);
     return button;
 }
-std::unique_ptr<GuiEditBoxElement> GuiElementReader::ReadEditBox(Utils::XmlNode &node)
+std::unique_ptr<GuiEditBoxElement> GuiElementReader::ReadEditBox(TreeNode &node)
 {
-    auto textNode = node.GetChild(Gui::TEXT);
+    auto textNode = node.getChild(Gui::TEXT);
     if (textNode)
     {
         auto text    = ReadGuiText(*textNode);
@@ -390,9 +398,9 @@ VerticalLayout *GetVerticalLayoutById(VerticalLayout &root, uint32 id)
     return nullptr;
 }
 
-std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(Utils::XmlNode &treeNode)
+std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(TreeNode &treeNode)
 {
-    auto actionNode = treeNode.GetChild(Gui::ACTION);
+    auto actionNode = treeNode.getChild(Gui::ACTION);
     auto action     = manager_.GetActionFunction(actionNode->value_);
 
     if (not action)
@@ -404,14 +412,14 @@ std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(Utils::XmlNode &treeNod
     auto treeView = factory_.CreateTreeView(action);
     ReadGuiElementBasic(*treeView, treeNode);
 
-    auto elementsNode = treeNode.GetChild(Gui::ELEMENTS);
+    auto elementsNode = treeNode.getChild(Gui::ELEMENTS);
 
     if (elementsNode)
     {
-        for (const auto &node : elementsNode->GetChildren())
+        for (const auto &node : elementsNode->getChildren())
         {
-            auto x = node->GetChild(Gui::X)->value_;
-            auto y = node->GetChild(Gui::Y)->value_;
+            auto x = node->getChild(Gui::X)->value_;
+            auto y = node->getChild(Gui::Y)->value_;
 
             std::optional<uint32> parent{};
             if (y != "-")
@@ -426,33 +434,33 @@ std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(Utils::XmlNode &treeNod
     return treeView;
 }
 
-std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(Utils::XmlNode &node)
+std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(TreeNode &node)
 {
     std::vector<std::unique_ptr<GuiElement>> result;
 
-    for (auto &child : node.GetChildren())
+    for (auto &child : node.getChildren())
     {
-        if (child->GetName() == Gui::TEXT)
+        if (child->name() == Gui::TEXT)
         {
             result.push_back(ReadGuiText(*child));
         }
-        else if (child->GetName() == Gui::TEXTURE)
+        else if (child->name() == Gui::TEXTURE)
         {
             result.push_back(ReadGuiTexture(*child));
         }
-        else if (child->GetName() == Gui::BUTTON)
+        else if (child->name() == Gui::BUTTON)
         {
             result.push_back(ReadGuiButton(*child));
         }
-        else if (child->GetName() == Gui::EDIT_BOX)
+        else if (child->name() == Gui::EDIT_BOX)
         {
             result.push_back(ReadEditBox(*child));
         }
-        else if (child->GetName() == Gui::HORIZONTAL_LAYOUT)
+        else if (child->name() == Gui::HORIZONTAL_LAYOUT)
         {
             result.push_back(ReadHorizontalLayout(*child));
         }
-        else if (child->GetName() == Gui::VERTICAL_LAYOUT)
+        else if (child->name() == Gui::VERTICAL_LAYOUT)
         {
             auto vlayout = ReadVerticalLayout(*child);
             if (vlayout)
@@ -464,7 +472,7 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(U
                 ERROR_LOG("read vertical layout error.");
             }
         }
-        else if (child->GetName() == Gui::WINDOW)
+        else if (child->name() == Gui::WINDOW)
         {
             auto window = ReadGuiWindow(*child);
             if (window)
@@ -476,7 +484,7 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(U
                 ERROR_LOG("read window error.");
             }
         }
-        else if (child->GetName() == Gui::TREE_VIEW)
+        else if (child->name() == Gui::TREE_VIEW)
         {
             auto treeView = ReadTreeView(*child);
             if (treeView)
@@ -490,14 +498,14 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(U
         }
         else
         {
-            ERROR_LOG("try read unknown gui element type : " + child->GetName());
+            ERROR_LOG("try read unknown gui element type : " + child->name());
             continue;
         }
     }
     return result;
 }
 
-std::unique_ptr<VerticalLayout> GuiElementReader::ReadVerticalLayout(Utils::XmlNode &node)
+std::unique_ptr<VerticalLayout> GuiElementReader::ReadVerticalLayout(TreeNode &node)
 {
     auto layout = factory_.CreateVerticalLayout();
     ReadGuiElementBasic(*layout, node);
@@ -511,7 +519,7 @@ std::unique_ptr<VerticalLayout> GuiElementReader::ReadVerticalLayout(Utils::XmlN
     return layout;
 }
 
-std::unique_ptr<HorizontalLayout> GuiElementReader::ReadHorizontalLayout(Utils::XmlNode &node)
+std::unique_ptr<HorizontalLayout> GuiElementReader::ReadHorizontalLayout(TreeNode &node)
 {
     auto layout = factory_.CreateHorizontalLayout();
     ReadGuiElementBasic(*layout, node);
@@ -525,35 +533,22 @@ std::unique_ptr<HorizontalLayout> GuiElementReader::ReadHorizontalLayout(Utils::
     return layout;
 }
 
-std::unique_ptr<GuiWindowElement> GuiElementReader::ReadGuiWindow(Utils::XmlNode &node)
+std::unique_ptr<GuiWindowElement> GuiElementReader::ReadGuiWindow(TreeNode &node)
 {
     std::string background;
-    auto paramNode = node.GetChild(Gui::BACKGROUND);
+    auto paramNode = node.getChild(Gui::BACKGROUND);
     if (paramNode)
     {
         background = paramNode->value_;
     }
 
-    paramNode = node.GetChild(Gui::SCALE);
 
     vec2 position(0.f), scale(0.25f);
-    if (paramNode)
-    {
-        scale = Utils::ReadVec2(*paramNode);
-    }
-
-    paramNode = node.GetChild(Gui::POSITION);
-    if (paramNode)
-    {
-        position = Utils::ReadVec2(*paramNode);
-    }
-
     std::string style;
-    paramNode = node.GetChild(Gui::STYLE);
-    if (paramNode)
-    {
-        style = paramNode->value_;
-    }
+
+    ::Read(node.getChild(Gui::SCALE), scale);
+    ::Read(node.getChild(Gui::POSITION), position);
+    ::Read(node.getChild(Gui::STYLE), style);
 
     auto window = factory_.CreateGuiWindow(convert(style), position, scale, background);
     ReadGuiElementBasic(*window, node);

@@ -5,39 +5,39 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(TerrainPainterEnabled& output, Utils::XmlNode& input)
+void SetParam(TerrainPainterEnabled& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("brushTypes"))
+    if (input.isAttributePresent("brushTypes"))
     {
-        for (auto& child : input.GetChild("brushTypes")->GetChildren())
+        for (auto& child : input.getChild("brushTypes")->getChildren())
         {
             output.brushTypes.push_back(child->value_);
         }
     }
-    if (input.IsAttributePresent("stepInterpolations"))
+    if (input.isAttributePresent("stepInterpolations"))
     {
-        for (auto& child : input.GetChild("stepInterpolations")->GetChildren())
+        for (auto& child : input.getChild("stepInterpolations")->getChildren())
         {
             output.stepInterpolations.push_back(child->value_);
         }
     }
-    if (input.IsAttributePresent("selectedBrushType"))
+    if (input.isAttributePresent("selectedBrushType"))
     {
         output.selectedBrushType = input.attributes_.at("selectedBrushType");
     }
-    if (input.IsAttributePresent("type"))
+    if (input.isAttributePresent("type"))
     {
         output.type = input.attributes_.at("type");
     }
-    if (input.IsAttributePresent("stepInterpolation"))
+    if (input.isAttributePresent("stepInterpolation"))
     {
         output.stepInterpolation = input.attributes_.at("stepInterpolation");
     }
-    if (input.IsAttributePresent("strength"))
+    if (input.isAttributePresent("strength"))
     {
         output.strength = std::stof(input.attributes_.at("strength"));
     }
-    if (input.IsAttributePresent("brushSize"))
+    if (input.isAttributePresent("brushSize"))
     {
         output.brushSize = std::stoi(input.attributes_.at("brushSize"));
     }

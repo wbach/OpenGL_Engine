@@ -3,6 +3,8 @@
 #include "BoxShape.h"
 #include "CapsuleShape.h"
 #include "CollisionShape.h"
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "Logger/Log.h"
@@ -14,14 +16,32 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType Rigidbody::type = ComponentsType::Rigidbody;
+namespace
+{
+const std::string COMPONENT_STR        = "Rigidbody";
+const std::string CSTR_MASS            = "mass";
+const std::string CSTR_IS_STATIC       = "isStatic";
+const std::string CSTR_VELOCITY        = "velocity";
+const std::string CSTR_ANGULAR_FACTOR  = "angularFactor";
+const std::string CSTR_COLLISION_SHAPE = "collisionShape";
+}  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(ComponentsType::Rigidbody, componentContext, gameObject)
+    : BaseComponent(typeid(Rigidbody).hash_code(), componentContext, gameObject)
     , collisionShape_(nullptr)
     , mass_(1.0f)
     , isStatic_(false)
 {
+    // clang-format off
+    nameToTypeMap_ = 
+    {
+        {BoxShape::name,     typeid(BoxShape).hash_code()},
+        {TerrainShape::name, typeid(TerrainShape).hash_code()},
+        {MeshShape::name,    typeid(MeshShape).hash_code()},
+        {SphereShape::name,  typeid(SphereShape).hash_code()},
+        {CapsuleShape::name, typeid(CapsuleShape).hash_code()},
+    };
+    // clang-format on
 }
 
 Rigidbody::~Rigidbody()
@@ -87,22 +107,10 @@ Rigidbody& Rigidbody::SetIsStatic(bool is)
     }
     return *this;
 }
-Rigidbody& Rigidbody::SetCollisionShape(ComponentsType shapeType)
+Rigidbody& Rigidbody::SetCollisionShape(const std::string& shapeName)
 {
-    if (not isShapeTypeValid(shapeType))
-    {
-        ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(shapeType)) + ") is not valid.");
-        return *this;
-    }
-
-    shapeType_ = shapeType;
+    shapeName_ = shapeName;
     return *this;
-}
-bool Rigidbody::isShapeTypeValid(ComponentsType shapeType)
-{
-    return shapeType == ComponentsType::BoxShape or shapeType == ComponentsType::TerrainShape or
-           shapeType == ComponentsType::MeshShape or shapeType == ComponentsType::SphereShape or
-           shapeType == ComponentsType::CapsuleShape;
 }
 Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
@@ -190,14 +198,9 @@ bool Rigidbody::IsStatic() const
 {
     return isStatic_;
 }
-ComponentsType Rigidbody::GetCollisionShapeType() const
+const std::string& Rigidbody::GetCollisionShapeType() const
 {
-    if (not collisionShape_)
-    {
-        return ComponentsType::Rigidbody;
-    }
-
-    return collisionShape_->GetType();
+    return shapeName_;
 }
 vec3 Rigidbody::GetVelocity() const
 {
@@ -246,7 +249,7 @@ void Rigidbody::detectShape()
 
     if (shape)
     {
-        detectedCollisionShapes_.insert({shape->GetType(), shape});
+        detectedCollisionShapes_.insert({typeid(T).hash_code(), shape});
     }
 }
 
@@ -258,7 +261,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
     detectShape<SphereShape>();
     detectShape<CapsuleShape>();
 
-    if (not shapeType_)
+    if (shapeName_.empty())
     {
         WARNING_LOG("Shape type is not set, searching another shape component.");
         for (auto& pair : detectedCollisionShapes_)
@@ -269,7 +272,15 @@ CollisionShape* Rigidbody::GetCollisionShape()
         return nullptr;
     }
 
-    auto shapeDetectedIter = detectedCollisionShapes_.find(*shapeType_);
+    auto shapeTypeIter = nameToTypeMap_.find(shapeName_);
+    if (shapeTypeIter == nameToTypeMap_.end())
+    {
+        ERROR_LOG("Shape name " + shapeName_ + " not found in nameToTypeMap");
+        return nullptr;
+    }
+
+    auto shapeType         = shapeTypeIter->second;
+    auto shapeDetectedIter = detectedCollisionShapes_.find(shapeType);
     if (shapeDetectedIter != detectedCollisionShapes_.end())
     {
         return shapeDetectedIter->second;
@@ -277,13 +288,71 @@ CollisionShape* Rigidbody::GetCollisionShape()
 
     for (auto& pair : detectedCollisionShapes_)
     {
-        WARNING_LOG("Requsted shape (" + std::to_string(*shapeType_) +
-                    ") not found but another is detected, shape type is set to : " + std::to_string(pair.first));
+        WARNING_LOG("Requsted shape (" + shapeName_ +
+                    ") not found but another is detected, shape type is set to : " + std::to_string(shapeType));
         return pair.second;
     }
 
-    ERROR_LOG("Shape type (" + std::to_string(static_cast<int>(*shapeType_)) + ") is not found.");
+    ERROR_LOG("Shape type (" + shapeName_ + ") is not found.");
     return nullptr;
+}
+void Rigidbody::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<Rigidbody>(componentContext, gameObject);
+
+        float mass{1.f};
+        ::Read(node.getChild(CSTR_MASS), mass);
+        component->SetMass(mass);
+
+        bool isStatic(true);
+        ::Read(node.getChild(CSTR_IS_STATIC), isStatic);
+        component->SetIsStatic(isStatic);
+
+        vec3 velocity(0.f);
+        ::Read(node.getChild(CSTR_VELOCITY), velocity);
+        component->SetVelocity(velocity);
+
+        vec3 angularFactor(1.f);
+        const auto& angularFactorNode = node.getChild(CSTR_ANGULAR_FACTOR);
+        if (angularFactorNode and not angularFactorNode->value_.empty())
+        {
+            float angularFactorFloat{1.f};
+            ::Read(angularFactorNode, angularFactorFloat);
+            angularFactor = vec3(angularFactorFloat);
+        }
+        else
+        {
+            ::Read(angularFactorNode, angularFactor);
+        }
+        component->SetAngularFactor(angularFactor);
+
+        std::string collisionShapeName;
+        ::Read(node.getChild(CSTR_COLLISION_SHAPE), collisionShapeName);
+        component->SetCollisionShape(collisionShapeName);
+        return component;
+    };
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+void Rigidbody::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+
+    ::write(node.addChild(CSTR_MASS), GetMass());
+    ::write(node.addChild(CSTR_IS_STATIC), IsStatic());
+    ::write(node.addChild(CSTR_COLLISION_SHAPE), GetCollisionShapeType());
+
+    auto angularFactor = InputParams().angularFactor_;
+    if (angularFactor)
+    {
+        ::write(node.addChild(CSTR_ANGULAR_FACTOR), *angularFactor);
+    }
+
+    auto velocty = InputParams().velocity_;
+    if (velocty)
+    {
+        ::write(node.addChild(CSTR_VELOCITY), *velocty);
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

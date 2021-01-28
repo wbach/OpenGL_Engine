@@ -8,7 +8,7 @@ namespace Components
 class CollisionShape : public BaseComponent
 {
 public:
-    CollisionShape(ComponentsType type, ComponentContext& componentContext, GameObject& gameObject);
+    CollisionShape(size_t type, ComponentContext& componentContext, GameObject& gameObject);
     uint32 GetCollisionShapeId() const;
 
 public:
@@ -18,6 +18,10 @@ public:
 protected:
     uint32 collisionShapeId_;
     vec3 positionOffset_;
+
+public:
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

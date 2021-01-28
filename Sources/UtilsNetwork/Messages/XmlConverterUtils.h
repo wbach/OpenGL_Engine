@@ -4,5 +4,5 @@
 
 namespace Network
 {
-IMessageData CreatePayload(Utils::XmlNode& root);
+IMessageData CreatePayload(TreeNode&);
 }

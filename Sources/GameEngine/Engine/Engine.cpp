@@ -7,6 +7,7 @@
 #include "Configuration.h"
 #include "EngineContext.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 
 namespace GameEngine
 {
@@ -23,6 +24,8 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                      engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
+    Components::RegisterReadFunctionForDefaultEngineComponents();
+
     if (EngineConf.debugParams.logLvl != LogginLvl::None)
     {
         CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);

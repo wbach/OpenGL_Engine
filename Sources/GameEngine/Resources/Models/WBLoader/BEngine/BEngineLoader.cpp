@@ -12,7 +12,7 @@ namespace GameEngine
 {
 namespace WBLoader
 {
-std::vector<float> convertFloatNode(const Utils::XmlNode& node)
+std::vector<float> convertFloatNode(const TreeNode& node)
 {
     std::vector<float> result;
     auto v = Utils::SplitString(node.value_, ' ');
@@ -31,7 +31,7 @@ std::vector<float> convertFloatNode(const Utils::XmlNode& node)
 
     return result;
 }
-std::vector<int32> convertIntNode(const Utils::XmlNode& node)
+std::vector<int32> convertIntNode(const TreeNode& node)
 {
     std::vector<int32> result;
     auto v = Utils::SplitString(node.value_, ' ');
@@ -68,11 +68,11 @@ void BEngineLoader::ParseFile(const File& file)
         return;
     }
 
-    for (const auto& meshes : reader.Get()->GetChildren())
+    for (const auto& meshes : reader.Get()->getChildren())
     {
         auto& mesh = model_->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_);
 
-        auto verticesNode = meshes->GetChild("v");
+        auto verticesNode = meshes->getChild("v");
         if (verticesNode)
         {
             mesh.GetMeshDataRef().positions_ = convertFloatNode(*verticesNode);
@@ -84,7 +84,7 @@ void BEngineLoader::ParseFile(const File& file)
         }
         auto positionSize = mesh.GetMeshDataRef().positions_.size();
 
-        auto indicesNode = meshes->GetChild("i");
+        auto indicesNode = meshes->getChild("i");
         if (indicesNode)
         {
             mesh.GetMeshDataRef().indices_ = convertIntNode(*indicesNode);
@@ -95,7 +95,7 @@ void BEngineLoader::ParseFile(const File& file)
             continue;
         }
 
-        auto normalsNode = meshes->GetChild("vn");
+        auto normalsNode = meshes->getChild("vn");
         if (normalsNode)
         {
             mesh.GetMeshDataRef().normals_ = convertFloatNode(*normalsNode);
@@ -110,7 +110,7 @@ void BEngineLoader::ParseFile(const File& file)
             }
         }
 
-        auto uvNode = meshes->GetChild("uv");
+        auto uvNode = meshes->getChild("uv");
         if (uvNode)
         {
             mesh.GetMeshDataRef().textCoords_ = convertFloatNode(*uvNode);
@@ -120,7 +120,7 @@ void BEngineLoader::ParseFile(const File& file)
             mesh.GetMeshDataRef().textCoords_ = std::vector<float>(positionSize, 0);
         }
 
-        auto tanNode = meshes->GetChild("tan");
+        auto tanNode = meshes->getChild("tan");
         if (tanNode)
         {
             mesh.GetMeshDataRef().tangents_ = convertFloatNode(*tanNode);
@@ -130,7 +130,7 @@ void BEngineLoader::ParseFile(const File& file)
             mesh.GetMeshDataRef().tangents_ = std::vector<float>(positionSize, 0);
         }
 
-        auto btanNode = meshes->GetChild("btan");
+        auto btanNode = meshes->getChild("btan");
         if (btanNode)
         {
             mesh.GetMeshDataRef().bitangents_ = convertFloatNode(*btanNode);
@@ -140,7 +140,7 @@ void BEngineLoader::ParseFile(const File& file)
             mesh.GetMeshDataRef().bitangents_ = std::vector<float>(positionSize, 0);
         }
 
-        auto joinIdsNode = meshes->GetChild("joinIds");
+        auto joinIdsNode = meshes->getChild("joinIds");
         if (joinIdsNode)
         {
             mesh.GetMeshDataRef().joinIds_ = convertIntNode(*joinIdsNode);
@@ -150,7 +150,7 @@ void BEngineLoader::ParseFile(const File& file)
             mesh.GetMeshDataRef().joinIds_ = std::vector<int32>(positionSize, 0);
         }
 
-        auto boneWeightsNode = meshes->GetChild("boneWeights");
+        auto boneWeightsNode = meshes->getChild("boneWeights");
         if (boneWeightsNode)
         {
             mesh.GetMeshDataRef().bonesWeights_ = convertFloatNode(*boneWeightsNode);

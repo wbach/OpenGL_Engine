@@ -3,10 +3,7 @@
 #include <vector>
 #include <string>
 
-namespace Utils
-{
-class XmlNode;
-}
+class TreeNode;
 
 namespace GameEngine
 {
@@ -29,16 +26,16 @@ public:
     bool Read(const std::string &filename);
 
 private:
-    void ReadGuiElementBasic(GuiElement& element, Utils::XmlNode& node);
-    std::unique_ptr<GuiTextElement> ReadGuiText(Utils::XmlNode& node);
-    std::unique_ptr<GuiTextureElement> ReadGuiTexture(Utils::XmlNode& node);
-    std::unique_ptr<GuiButtonElement> ReadGuiButton(Utils::XmlNode& node);
-    std::unique_ptr<GuiEditBoxElement> ReadEditBox(Utils::XmlNode& node);
-    std::vector<std::unique_ptr<GuiElement>> ReadChildrenElemets(Utils::XmlNode& node);
-    std::unique_ptr<VerticalLayout> ReadVerticalLayout(Utils::XmlNode& node);
-    std::unique_ptr<HorizontalLayout> ReadHorizontalLayout(Utils::XmlNode& node);
-    std::unique_ptr<GuiWindowElement> ReadGuiWindow(Utils::XmlNode &node);
-    std::unique_ptr<TreeView> ReadTreeView(Utils::XmlNode &node);
+    void ReadGuiElementBasic(GuiElement& element, TreeNode& node);
+    std::unique_ptr<GuiTextElement> ReadGuiText(TreeNode& node);
+    std::unique_ptr<GuiTextureElement> ReadGuiTexture(TreeNode& node);
+    std::unique_ptr<GuiButtonElement> ReadGuiButton(TreeNode& node);
+    std::unique_ptr<GuiEditBoxElement> ReadEditBox(TreeNode& node);
+    std::vector<std::unique_ptr<GuiElement>> ReadChildrenElemets(TreeNode& node);
+    std::unique_ptr<VerticalLayout> ReadVerticalLayout(TreeNode& node);
+    std::unique_ptr<HorizontalLayout> ReadHorizontalLayout(TreeNode& node);
+    std::unique_ptr<GuiWindowElement> ReadGuiWindow(TreeNode &node);
+    std::unique_ptr<TreeView> ReadTreeView(TreeNode &node);
 
 private:
     GuiManager& manager_;

@@ -1,8 +1,8 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Objects/Particle.h"
 
 namespace GameEngine
 {
@@ -68,7 +68,8 @@ private:
     bool isSubscribed_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 
 std::vector<Particle>& ParticleEffectComponent::GetParticles()
@@ -102,7 +103,7 @@ GraphicsApi::BlendFunctionType ParticleEffectComponent::GetBlendType() const
 }
 uint32 ParticleEffectComponent::GetParticlesCount() const
 {
-    return particles_.size();
+    return static_cast<uint32>(particles_.size());
 }
 const Particle& ParticleEffectComponent::GetReferenceParticle() const
 {

@@ -8,7 +8,7 @@
 
 namespace Utils
 {
-void ParseNode(rapidxml::xml_node<>* node, XmlNode& n)
+void ParseNode(rapidxml::xml_node<>* node, TreeNode& n)
 {
     if (node == nullptr)
         return;
@@ -31,7 +31,7 @@ void ParseNode(rapidxml::xml_node<>* node, XmlNode& n)
         std::string name = snode->name();
         if (name.empty())
             return;
-        auto& child = n.AddChild(name);
+        auto& child = n.addChild(name);
         ParseNode(snode, child);
         child.parent = &n;
     }
@@ -64,33 +64,33 @@ bool XmlReader::ReadXml(std::string fileContent)
         ERROR_LOG(fileContent);
         return false;
     }
-    root_ = std::make_unique<XmlNode>(document.first_node()->name());
+    root_ = std::make_unique<TreeNode>(document.first_node()->name());
     ParseNode(document.first_node(), *root_);
     return true;
 }
 
-XmlNode* XmlReader::Get()
+TreeNode* XmlReader::Get()
 {
     return root_.get();
 }
 
-XmlNode* XmlReader::Get(const std::string& name, XmlNode* node)
+TreeNode* XmlReader::Get(const std::string& name, TreeNode* node)
 {
     if (node == nullptr)
         node = root_.get();
 
-    if (node->GetName() == name)
+    if (node->name() == name)
         return node;
 
-    auto childIter = std::find_if(node->GetChildren().begin(), node->GetChildren().end(),
-                                  [&name](const auto& child) { return (child->GetName() == name); });
+    auto childIter = std::find_if(node->getChildren().begin(), node->getChildren().end(),
+                                  [&name](const auto& child) { return (child->name() == name); });
 
-    if (childIter != node->GetChildren().end())
+    if (childIter != node->getChildren().end())
     {
         return childIter->get();
     }
 
-    for (const auto& child : node->GetChildren())
+    for (const auto& child : node->getChildren())
     {
         auto n = Get(name, child.get());
         if (n)

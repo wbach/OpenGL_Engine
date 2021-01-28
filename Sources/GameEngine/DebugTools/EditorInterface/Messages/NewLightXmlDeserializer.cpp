@@ -5,35 +5,35 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(NewLight& output, Utils::XmlNode& input)
+void SetParam(NewLight& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("id"))
+    if (input.isAttributePresent("id"))
     {
         output.id = std::stoi(input.attributes_.at("id"));
     }
-    if (input.IsAttributePresent("type"))
+    if (input.isAttributePresent("type"))
     {
         output.type = std::stoi(input.attributes_.at("type"));
     }
-    if (input.IsAttributePresent("position"))
+    if (input.isAttributePresent("position"))
     {
-        output.position = Utils::ConvertToVec3(*input.GetChild("position"));
+        output.position = ::ConvertToVec3(*input.getChild("position"));
     }
-    if (input.IsAttributePresent("colour"))
+    if (input.isAttributePresent("colour"))
     {
-        output.colour = Utils::ConvertToVec3(*input.GetChild("colour"));
+        output.colour = ::ConvertToVec3(*input.getChild("colour"));
     }
-    if (input.IsAttributePresent("attenuation"))
+    if (input.isAttributePresent("attenuation"))
     {
-        output.attenuation = Utils::ConvertToVec3(*input.GetChild("attenuation"));
+        output.attenuation = ::ConvertToVec3(*input.getChild("attenuation"));
     }
-    if (input.IsAttributePresent("cutOff"))
+    if (input.isAttributePresent("cutOff"))
     {
         output.cutOff = std::stof(input.attributes_.at("cutOff"));
     }
-    if (input.IsAttributePresent("direction"))
+    if (input.isAttributePresent("direction"))
     {
-        output.direction = Utils::ConvertToVec3(*input.GetChild("direction"));
+        output.direction = ::ConvertToVec3(*input.getChild("direction"));
     }
 }
 std::unique_ptr<Network::IMessage> DeserializeNewLight(Utils::XmlReader& reader)

@@ -10,7 +10,7 @@
 
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Components/ComponentController.h"
-#include "GameEngine/Components/IComponentFactory.h"
+#include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/DebugTools/Console/Console.h"
 #include "GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h"
 #include "GameEngine/Engine/EngineContext.h"
@@ -118,7 +118,7 @@ protected:
 protected:
     std::unique_ptr<IResourceManager> resourceManager_;
     Components::ComponentController componentController_;
-    std::unique_ptr<Components::IComponentFactory> componentFactory_;
+    std::unique_ptr<Components::ComponentFactory> componentFactory_;
     std::unique_ptr<GuiManager> guiManager_;
     std::unique_ptr<GuiElementFactory> guiElementFactory_;
     std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;

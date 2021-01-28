@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
-#include <Utils/XML/XMLUtils.h>
+#include <Utils/TreeNode.h>
 
 namespace GameEngine
 {
 class Scene;
 class GameObject;
-Utils::XmlNode createTree(const Scene&);
-Utils::XmlNode createPrefab(const GameObject&);
+TreeNode createTree(const Scene&);
+TreeNode createPrefab(const GameObject&);
 }  // namespace GameEngine

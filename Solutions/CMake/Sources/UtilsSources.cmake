@@ -14,6 +14,7 @@ set(UtilsSources
 ../../Sources/Utils/ThreadSync.cpp
 ../../Sources/Utils/Time/TimeMeasurer.cpp
 ../../Sources/Utils/Time/Timer.cpp
+../../Sources/Utils/TreeNode.cpp
 ../../Sources/Utils/Types.cpp
 ../../Sources/Utils/Utils.cpp
 ../../Sources/Utils/Worker.cpp

@@ -1,4 +1,7 @@
 #include "TreeRendererComponent.h"
+
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -9,10 +12,17 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType TreeRendererComponent::type = ComponentsType::TreeRenderer;
+namespace
+{
+const std::string COMPONENT_STR         = "TreeRenderer";
+const std::string CSTR_TOP_FILENAMES    = "topFileNames";
+const std::string CSTR_BOTTOM_FILENAMES = "bottomFileNames";
+const std::string CSTR_SIZE_2D          = "size2d";
+const std::string CSTR_POSITIONS        = "positions";
+}  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(ComponentsType::TreeRenderer, componentContext, gameObject)
+    : BaseComponent(typeid(TreeRendererComponent).hash_code(), componentContext, gameObject)
     , isSubsribed_(false)
 {
 }
@@ -133,6 +143,89 @@ void TreeRendererComponent::DeleteShaderBuffers()
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perObjectUpdateBuffer_));
     if (perInstances_)
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perInstances_));
+}
+void TreeRendererComponent::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<TreeRendererComponent>(componentContext, gameObject);
+
+        auto bottomFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES);
+        if (bottomFilesNode)
+        {
+            for (const auto& fileNode : bottomFilesNode->getChildren())
+            {
+                auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
+                auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
+
+                if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
+                {
+                    const auto& filename = fileNameNode->value_;
+                    auto lod             = static_cast<LevelOfDetail>(std::stoi(lvlOfDetailNode->value_));
+                    component->SetBottomModel(filename, lod);
+                }
+            }
+        }
+        auto topFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES);
+        {
+            for (const auto& fileNode : topFilesNode->getChildren())
+            {
+                auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
+                auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
+
+                if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
+                {
+                    const auto& filename = fileNameNode->value_;
+                    auto lod             = static_cast<LevelOfDetail>(std::stoi(lvlOfDetailNode->value_));
+                    component->SetTopModel(filename, lod);
+                }
+            }
+        }
+
+        vec2ui size2d(0);
+        std::vector<vec3> positions;
+
+        ::Read(node.getChild(CSTR_SIZE_2D), size2d);
+        ::Read(node.getChild(CSTR_POSITIONS), positions);
+
+        component->SetPositions(positions, size2d);
+
+        return component;
+    };
+
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+
+namespace
+{
+void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
+{
+    node.addChild(CSTR_FILE_NAME, filename);
+    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
+}
+
+void write(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
+{
+    node.addChild(CSTR_FILE_NAME, filename);
+    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
+}
+
+void write(TreeNode& node, const std::unordered_map<std::string, LevelOfDetail>& files)
+{
+    for (const auto& files : files)
+    {
+        write(node.addChild(CSTR_MODEL_FILE_NAME), files.first, files.second);
+    }
+}
+}  // namespace
+
+void TreeRendererComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+
+    Components::write(node.addChild(CSTR_TOP_FILENAMES), topFilenames_);
+    Components::write(node.addChild(CSTR_BOTTOM_FILENAMES), bottomFilenames_);
+    ::write(node.addChild(CSTR_SIZE_2D), size2d_);
+    ::write(node.addChild(CSTR_POSITIONS), positions_);
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(SceneFileMsg&, Utils::XmlNode&);
+void SetParam(SceneFileMsg&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeSceneFileMsg(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(SelectedObjectChanged&, Utils::XmlNode&);
+void SetParam(SelectedObjectChanged&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeSelectedObjectChanged(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

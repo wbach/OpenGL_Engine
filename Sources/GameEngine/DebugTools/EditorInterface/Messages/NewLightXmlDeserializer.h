@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(NewLight&, Utils::XmlNode&);
+void SetParam(NewLight&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeNewLight(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

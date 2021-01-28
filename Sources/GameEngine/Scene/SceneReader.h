@@ -1,5 +1,5 @@
 #pragma once
-#include <Utils/XML/XmlNode.h>
+#include <Utils/TreeNode.h>
 #include "GameEngine/Resources/File.h"
 #include <string>
 
@@ -10,9 +10,9 @@ class GameObject;
 
 namespace SceneReader
 {
-void readNode(const Utils::XmlNode& , Scene&);
+void readNode(const TreeNode& , Scene&);
 void loadScene(Scene&, const File&);
 GameObject* loadPrefab(Scene&, const File&, const std::string&);
-GameObject* createGameObjectFromPrefabNode(Scene&, const Utils::XmlNode&, const std::string&);
+GameObject* createGameObjectFromPrefabNode(Scene&, const TreeNode&, const std::string&);
 }  // namespace SceneReader
 }  // namespace GameEngine

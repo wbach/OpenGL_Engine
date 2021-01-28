@@ -26,7 +26,9 @@ private:
     float radius_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
+    static const std::string name;
 };
 
 float CapsuleShape::GetHeight() const

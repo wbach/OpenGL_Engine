@@ -10,10 +10,8 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType PreviewComponent::type = ComponentsType::PreviewComponent;
-
 PreviewComponent::PreviewComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(PreviewComponent::type, componentContext, gameObject)
+    : BaseComponent(typeid(PreviewComponent).hash_code(), componentContext, gameObject)
     , isSubscribed_(false)
 {
 }

@@ -1,10 +1,10 @@
 #include "AnimationUtils.h"
 
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -62,39 +62,28 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
         animationClip.filePath = file.GetInitValue();
         animationClip.SetLength(std::stof(root->attributes_["length"]));
 
-        for (const auto& keyframeNode : reader.Get("KeyFrames")->GetChildren())
+        for (const auto& keyframeNode : reader.Get("KeyFrames")->getChildren())
         {
             KeyFrame keyFrame;
-            auto timeStamp     = keyframeNode->GetChild("timeStamp");
+            auto timeStamp     = keyframeNode->getChild("timeStamp");
             keyFrame.timeStamp = std::stof(timeStamp->value_);
-            for (const auto& transformNode : keyframeNode->GetChild("Transforms")->GetChildren())
+            for (const auto& transformNode : keyframeNode->getChild("Transforms")->getChildren())
             {
                 JointTransform transform;
-                auto jointName    = transformNode->attributes_.at("jointName");
-                auto positionNode = transformNode->GetChild("Position");
-                if (positionNode)
-                {
-                    transform.position = Utils::ReadVec3(*positionNode);
-                }
+                auto jointName = transformNode->attributes_.at("jointName");
 
-                auto rotationNode = transformNode->GetChild("Rotation");
-                if (rotationNode)
-                {
-                    transform.rotation = Utils::ReadQuat(*rotationNode);
-                }
+                Read(transformNode->getChild("Position"), transform.position);
+                Read(transformNode->getChild("Rotation"), transform.rotation);
+                Read(transformNode->getChild("Scale"), transform.scale);
 
-                auto scaleNode = transformNode->GetChild("Scale");
-                if (scaleNode)
-                {
-                    transform.scale = Utils::ReadVec3(*scaleNode);
-                }
                 if (auto joint = rootJoint.getJoint(jointName))
                 {
-                    keyFrame.transforms.insert({ joint->id, transform });
+                    keyFrame.transforms.insert({joint->id, transform});
                 }
                 else
                 {
-                    ERROR_LOG("Joint \"" + jointName + "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
+                    ERROR_LOG("Joint \"" 
+                              "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
                 }
             }
             animationClip.AddFrame(keyFrame);
@@ -107,23 +96,23 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
 
 void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, Joint& rootJoint)
 {
-    Utils::XmlNode rootNode("AnimationClip");
+    TreeNode rootNode("AnimationClip");
 
     rootNode.attributes_.insert({"name", animationClip.name.empty() ? "NoName" : animationClip.name});
     rootNode.attributes_.insert({"length", std::to_string(animationClip.GetLength())});
 
-    auto& keyFramesNode = rootNode.AddChild("KeyFrames");
+    auto& keyFramesNode = rootNode.addChild("KeyFrames");
     keyFramesNode.attributes_.insert({"count", std::to_string(animationClip.GetFrames().size())});
 
     for (const auto& frame : animationClip.GetFrames())
     {
-        auto& keyFrame = keyFramesNode.AddChild("KeyFrame");
-        keyFrame.AddChild("timeStamp", std::to_string(frame.timeStamp));
-        auto& jontTransformsNode = keyFrame.AddChild("Transforms");
+        auto& keyFrame = keyFramesNode.addChild("KeyFrame");
+        keyFrame.addChild("timeStamp", std::to_string(frame.timeStamp));
+        auto& jontTransformsNode = keyFrame.addChild("Transforms");
 
         for (const auto& transformPair : frame.transforms)
         {
-            auto& transformNode = jontTransformsNode.AddChild("Transform");
+            auto& transformNode = jontTransformsNode.addChild("Transform");
             if (transformPair.first == rootJoint.id)
             {
                 transformNode.attributes_.insert({"jointName", rootJoint.name});
@@ -133,18 +122,19 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
                 auto joint = rootJoint.getJoint(transformPair.first);
                 if (joint)
                 {
-                    transformNode.attributes_.insert({ "jointName", joint->name });
+                    transformNode.attributes_.insert({"jointName", joint->name});
                 }
                 else
                 {
-                    ERROR_LOG("Joint id=\"" + std::to_string(transformPair.first) + "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
+                    ERROR_LOG("Joint id=\"" + std::to_string(transformPair.first) +
+                              "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
                 }
             }
 
             const auto& transform = transformPair.second;
-            transformNode.AddChild(Utils::Convert("Position", transform.position));
-            transformNode.AddChild(Utils::Convert("Rotation", transform.rotation));
-            transformNode.AddChild(Utils::Convert("Scale", transform.scale));
+            transformNode.addChild(Convert("Position", transform.position));
+            transformNode.addChild(Convert("Rotation", transform.rotation));
+            transformNode.addChild(Convert("Scale", transform.scale));
         }
     }
     Utils::Xml::Write(file.GetAbsoultePath(), rootNode);

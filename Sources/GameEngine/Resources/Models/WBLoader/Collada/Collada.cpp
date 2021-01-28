@@ -60,7 +60,11 @@ void ColladaDae::FillAnimationData()
 
                 const auto& ic  = node.second.instanceController_.constValue();
                 auto skinSource = Collada::GetSource(ic.url_);
-                auto& skin      = data_.libraryControllers_.controllers_[skinSource].skins_.begin()->second;
+
+                if (data_.libraryControllers_.controllers_.count(skinSource) == 0)
+                    continue;
+
+                auto& skin = data_.libraryControllers_.controllers_[skinSource].skins_.begin()->second;
 
                 for (const auto& in : skin.vertexWeights_.inputs_)
                 {
@@ -97,7 +101,7 @@ void ColladaDae::FillAnimationData()
                                 joints.back().weight = weightValue;
                             }
                         }
-                        i += skin.vertexWeights_.inputs_.size();
+                        i += static_cast<uint32>(skin.vertexWeights_.inputs_.size());
                     }
 
                     std::sort(joints.begin(), joints.end(),
@@ -194,7 +198,7 @@ void ColladaDae::NewMesh(const Collada::Mesh& mesh, const std::string& geometryN
                 }
                 newMesh.vertexBuffer.push_back(vb);
                 ++vbId;
-                i += polyList.inputs_.size();
+                i += static_cast<uint32>(polyList.inputs_.size());
             }
         }
     }

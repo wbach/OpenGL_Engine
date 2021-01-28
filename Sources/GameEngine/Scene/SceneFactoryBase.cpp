@@ -36,7 +36,7 @@ void SceneFactoryBase::SetMenagersAndApi(Scene& scene)
 }
 void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)
 {
-    auto currentId = scenesMap_.size();
+    auto currentId = static_cast<uint32>(scenesMap_.size());
 
     idMap_[sceneName]     = currentId;
     orderMap_[currentId]  = sceneName;

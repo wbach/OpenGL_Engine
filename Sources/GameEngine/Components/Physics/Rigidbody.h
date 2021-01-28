@@ -31,7 +31,7 @@ public:
     bool IsReady() const;
     Rigidbody& SetMass(float mass);
     Rigidbody& SetIsStatic(bool is);
-    Rigidbody& SetCollisionShape(ComponentsType shapeType);
+    Rigidbody& SetCollisionShape(const std::string&);
     Rigidbody& SetVelocity(const vec3& velocity);
     Rigidbody& SetAngularFactor(float);
     Rigidbody& SetAngularFactor(const vec3&);
@@ -46,7 +46,7 @@ public:
 
     float GetMass() const;
     bool IsStatic() const;
-    ComponentsType GetCollisionShapeType() const;
+    const std::string& GetCollisionShapeType() const;
     vec3 GetVelocity() const;
     vec3 GetAngularFactor() const;
     Quaternion GetRotation() const;
@@ -58,11 +58,11 @@ public:
 private:
     void OnStart();
     CollisionShape* GetCollisionShape();
-    bool isShapeTypeValid(ComponentsType shapeType);
+    bool isShapeTypeValid(const std::string&);
 
 private:
     std::optional<uint32> rigidBodyId_;
-    std::optional<ComponentsType> shapeType_;
+    std::string shapeName_;
     CollisionShape* collisionShape_;
 
     float mass_    = 1.f;
@@ -72,10 +72,12 @@ private:
 
     template <class T>
     void detectShape();
-    std::unordered_map<ComponentsType, CollisionShape*> detectedCollisionShapes_;
+    std::unordered_map<size_t, CollisionShape*> detectedCollisionShapes_;
+    std::unordered_map<std::string, size_t> nameToTypeMap_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

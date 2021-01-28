@@ -27,8 +27,6 @@ public:
     Texture* GetDayTexture();
     Texture* GetNightTexture();
     Model* GetModel();
-    const std::array<File, 6>& GetDayTextureFiles() const;
-    const std::array<File, 6>& GetNightTextureFiles() const;
     const std::string& GetModelFileName() const;
 
 private:
@@ -46,7 +44,8 @@ private:
     bool isSubscribed_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

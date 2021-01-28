@@ -13,7 +13,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/PreviewComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
+#include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
@@ -507,20 +507,20 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
 
 void NetworkEditorInterface::GetGameObjectComponentsListReq(const EntryParameters &param)
 {
-    if (not param.count("id"))
-        return;
+    //if (not param.count("id"))
+    //    return;
 
-    auto gameObject = GetGameObject(param.at("id"));
+    //auto gameObject = GetGameObject(param.at("id"));
 
-    if (not gameObject)
-        return;
+    //if (not gameObject)
+    //    return;
 
-    for (auto &component : gameObject->GetComponents())
-    {
-        DebugNetworkInterface::NewComponentMsgInd componentNameMsg(std::to_string(component->GetType()),
-                                                                   component->IsActive());
-        gateway_.Send(userId_, componentNameMsg);
-    }
+    //for (auto &component : gameObject->GetComponents())
+    //{
+    //    DebugNetworkInterface::NewComponentMsgInd componentNameMsg(std::to_string(component->GetType()),
+    //                                                               component->IsActive());
+    //    gateway_.Send(userId_, componentNameMsg);
+    //}
 }
 
 void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
@@ -779,67 +779,67 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
 
 void NetworkEditorInterface::GetComponentsList(const EntryParameters &)
 {
-    for (auto type : Components::GetComponentTypes())
-    {
-        DebugNetworkInterface::AvailableComponentMsgInd msg(std::to_string(type));
-        gateway_.Send(userId_, msg);
-    }
+    //for (auto type : Components::GetComponentTypes())
+    //{
+    //    DebugNetworkInterface::AvailableComponentMsgInd msg(std::to_string(type));
+    //    gateway_.Send(userId_, msg);
+    //}
 }
 
 void NetworkEditorInterface::AddComponent(const EntryParameters &params)
 {
-    if (params.count("id") > 0 and params.count("name") > 0)
-    {
-        auto &idParam       = params.at("id");
-        auto &componentName = params.at("name");
+    //if (params.count("id") > 0 and params.count("name") > 0)
+    //{
+    //    auto &idParam       = params.at("id");
+    //    auto &componentName = params.at("name");
 
-        auto go = GetGameObject(idParam);
+    //    auto go = GetGameObject(idParam);
 
-        if (not go)
-            return;
+    //    if (not go)
+    //        return;
 
-        auto componentType = Components::from_string(componentName);
+    //    auto componentType = Components::from_string(componentName);
 
-        if (componentType)
-        {
-            auto component = go->AddComponent(*componentType);
-            component->ReqisterFunctions();
-            DebugNetworkInterface::NewComponentMsgInd componentNameMsg(componentName, component->IsActive());
-            gateway_.Send(userId_, componentNameMsg);
-        }
-    }
+    //    if (componentType)
+    //    {
+    //        auto component = go->AddComponent(*componentType);
+    //        component->ReqisterFunctions();
+    //        DebugNetworkInterface::NewComponentMsgInd componentNameMsg(componentName, component->IsActive());
+    //        gateway_.Send(userId_, componentNameMsg);
+    //    }
+    //}
 }
 
 void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
 {
-    if (not params.count("gameObjectId") or not params.count("name"))
-        return;
+    //if (not params.count("gameObjectId") or not params.count("name"))
+    //    return;
 
-    auto gameObject = GetGameObject(params.at("gameObjectId"));
+    //auto gameObject = GetGameObject(params.at("gameObjectId"));
 
-    if (not gameObject)
-        return;
+    //if (not gameObject)
+    //    return;
 
-    auto componentType = Components::from_string(params.at("name"));
+    //auto componentType = Components::from_string(params.at("name"));
 
-    if (not componentType)
-        return;
+    //if (not componentType)
+    //    return;
 
-    auto component = gameObject->GetComponent(*componentType);
+    //auto component = gameObject->GetComponent(*componentType);
 
-    if (not component)
-        return;
+    //if (not component)
+    //    return;
 
-    std::vector<DebugNetworkInterface::Param> componentParams;
+    //std::vector<DebugNetworkInterface::Param> componentParams;
 
-    for (auto &p : component->GetParams())
-    {
-        componentParams.push_back({p.first, p.second.value, p.second.type});
-    }
+    //for (auto &p : component->GetParams())
+    //{
+    //    componentParams.push_back({p.first, p.second.value, p.second.type});
+    //}
 
-    DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")),
-                                                    componentParams);
-    gateway_.Send(userId_, msg);
+    //DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")),
+    //                                                componentParams);
+    //gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState state, const EntryParameters &params)
@@ -1120,40 +1120,40 @@ void NetworkEditorInterface::StopScene()
 
 void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
 {
-    if (not paramters.count("gameObjectId"))
-        return;
+    //if (not paramters.count("gameObjectId"))
+    //    return;
 
-    auto gameObject = GetGameObject(paramters.at("gameObjectId"));
+    //auto gameObject = GetGameObject(paramters.at("gameObjectId"));
 
-    if (not gameObject)
-        return;
+    //if (not gameObject)
+    //    return;
 
-    auto componentType = Components::from_string(paramters.at("componentName"));
+    //auto componentType = Components::from_string(paramters.at("componentName"));
 
-    if (not componentType)
-        return;
+    //if (not componentType)
+    //    return;
 
-    auto component = gameObject->GetComponent(*componentType);
+    //auto component = gameObject->GetComponent(*componentType);
 
-    if (not component)
-        return;
+    //if (not component)
+    //    return;
 
-    auto p = paramters;
+    //auto p = paramters;
 
-    auto iter = p.begin();
-    while (iter != p.end())
-    {
-        if (iter->first == "gameObjectId" or iter->first == "componentName")
-        {
-            iter = p.erase(iter);
-        }
-        else
-        {
-            std::replace(iter->second.begin(), iter->second.end(), '%', ' ');
-            ++iter;
-        }
-    }
-    component->InitFromParams(p);
+    //auto iter = p.begin();
+    //while (iter != p.end())
+    //{
+    //    if (iter->first == "gameObjectId" or iter->first == "componentName")
+    //    {
+    //        iter = p.erase(iter);
+    //    }
+    //    else
+    //    {
+    //        std::replace(iter->second.begin(), iter->second.end(), '%', ' ');
+    //        ++iter;
+    //    }
+    //}
+    //component->InitFromParams(p);
 }
 
 void NetworkEditorInterface::GetRunningStatus(const NetworkEditorInterface::EntryParameters &)
@@ -1299,7 +1299,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
             }
 
             auto inputColor = params.at("color");
-            size_t i        = 0;
+            int i        = 0;
             Color color;
             for (auto c : inputColor)
             {
@@ -1327,20 +1327,20 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
 }
 void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 {
-    auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
+    //auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
 
-    for (auto &terrain : terrains)
-    {
-        auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
+    //for (auto &terrain : terrains)
+    //{
+    //    auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
 
-        if (not tc)
-            continue;
+    //    if (not tc)
+    //        continue;
 
-        auto image    = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
-        auto blendMap = static_cast<GeneralTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
-        blendMap->SetImage(std::move(image));
-        tc->BlendMapChanged();
-    }
+    //    auto image    = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
+    //    auto blendMap = static_cast<GeneralTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
+    //    blendMap->SetImage(std::move(image));
+    //    tc->BlendMapChanged();
+    //}
 }
 
 void NetworkEditorInterface::GenerateTerrains(const EntryParameters &params)
@@ -1484,7 +1484,7 @@ void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryPa
 
 void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 {
-    auto terrains = scene_.componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
+    auto terrains = scene_.componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
     std::set<std::string> generetedBlendMaps;
 

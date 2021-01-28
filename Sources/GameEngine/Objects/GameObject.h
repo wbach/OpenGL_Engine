@@ -9,7 +9,7 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/ComponentController.h"
-#include "GameEngine/Components/IComponentFactory.h"
+#include "GameEngine/Components/ComponentFactory.h"
 
 namespace GameEngine
 {
@@ -19,7 +19,7 @@ typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
 class GameObject
 {
 public:
-    GameObject(const std::string&, Components::ComponentController&, Components::IComponentFactory&, IdType);
+    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, IdType);
     GameObject(const GameObject&)  = delete;
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
@@ -48,12 +48,11 @@ public:
     template <class T>
     T& AddComponent();
 
+    void InitComponent(const TreeNode&);
+
     template <class T>
     void RemoveComponent();
 
-    Components::IComponent* GetComponent(Components::ComponentsType);
-    Components::IComponent* AddComponent(Components::ComponentsType);
-    void RemoveComponent(Components::ComponentsType);
     inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
 
     common::Transform& GetTransform();
@@ -89,7 +88,7 @@ protected:
 
 private:
     IdType id_;
-    Components::IComponentFactory& componentFactory_;
+    Components::ComponentFactory& componentFactory_;
     Components::ComponentController& componentController_;
 };
 
@@ -112,23 +111,34 @@ uint32 GameObject::GetId() const
 template <class T>
 inline T* GameObject::GetComponent()
 {
-    for (const auto& c : components_)
+    for (auto& component : components_)
     {
-        if (c->GetType() == T::type)
-            return static_cast<T*>(c.get());
+        if (typeid(*component) == typeid(T))
+        {
+            return static_cast<T*>(component.get());
+        }
     }
     return nullptr;
 }
 template <class T>
 inline T& GameObject::AddComponent()
 {
-    auto component = AddComponent(T::type);
-    return *static_cast<T*>(component);
+    auto component = componentFactory_.Create<T>(*this);
+    components_.push_back(std::move(component));
+    return *static_cast<T*>(components_.back().get());
 }
 template <class T>
 void GameObject::RemoveComponent()
 {
-    RemoveComponent(T::type);
+    for (auto iter = components_.begin(); iter != components_.end(); ++iter)
+    {
+        if (typeid(**iter) == typeid(T))
+        {
+            (**iter).CleanUp();
+            components_.erase(iter);
+            return;
+        }
+    }
 }
 const std::vector<std::unique_ptr<Components::IComponent>>& GameObject::GetComponents() const
 {

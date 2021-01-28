@@ -2,7 +2,7 @@
 
 namespace Network
 {
-IMessageData CreatePayload(Utils::XmlNode& root)
+IMessageData CreatePayload(TreeNode& root)
 {
     auto s = Utils::Xml::Write(root);
     std::vector<int8> v;

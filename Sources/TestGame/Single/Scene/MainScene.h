@@ -16,13 +16,6 @@ namespace GameEngine
 class GameObject;
 } // namespace GameEngine
 
-enum class CameraType
-{
-    FirstPerson,
-    ThridPerson
-};
-
-
 class MainScene : public GameEngine::Scene
 {
 public:
@@ -33,37 +26,5 @@ public:
     virtual int Update(float deltaTime) override;
 
 private:
-    void InitGui();
-    void UpdatePlayerandCamera(float time);
     void KeyOperations();
-    void CheckCollisions(float dt);
-    std::vector<float> CreateGrassPositions(GameEngine::GameObject*, vec2);
-
-    std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(float scale, const vec2& position, bool isDynamic = false);
-    std::unique_ptr<GameEngine::GameObject> CreateGameObjectInstance(const std::string& name, float scale, const vec2& position, bool isDynamic = false);
-    void CreateAndAddGameEntity(const std::string& filename, float scale, const vec2& position, uint32_t textureIndex = 0, bool isDynamic = false);
-    template <typename Shape>
-    void AddPhysicObject(const std::string& modelFilename, const vec3& pos, const vec3& shapePositionOffset, const vec3& dir, float scale, bool isStatic);
-    void CreateExmapleStrtupObject();
-
-private:
-    std::unique_ptr<GameEngine::ICamera> camera_;
-    std::shared_ptr<common::Controllers::CharacterController> characterController_;
-    std::shared_ptr<PlayerInputController> playerInputController_;
-    common::Hero::CommonStats playerStats_;
-    common::Transform lookAtCameraTransform_;
-
-    double timeClock = 0;
-    float deltaTime;
-
-    CameraType camType;
-    GameEngine::GameObject* player;
-    std::unique_ptr<GameEngine::TerrainHeightGetter> terrainHeightGetter_;
-
-    std::unordered_map<std::string, uint32> guiIds_;
-
-private:
-    vec3 centerObjectPosition_;
-    GameEngine::Light* pointLight_;
-    GameEngine::GameObject* lightBulb_;
 };

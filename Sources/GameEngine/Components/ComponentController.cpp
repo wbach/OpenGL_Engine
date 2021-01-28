@@ -8,10 +8,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;
-}
 
 ComponentController::ComponentController()
     : componentId(0)
@@ -38,18 +34,6 @@ ComponentController::~ComponentController()
         }
     }
 }
-
-const RegistredComponentsMap& ComponentController::GetAllComonentsOfType(ComponentsType type) const
-{
-    auto iter = registredComponents_.find(type);
-
-    if (iter != registredComponents_.end())
-    {
-        return iter->second;
-    }
-
-    return DEFAULT_COMPONETNS_MAP;
-}
 uint32 ComponentController::RegisterFunction(IdType gameObjectId, FunctionType type, std::function<void()> func)
 {
     auto id = functionIdsPool_.getId();
@@ -57,7 +41,7 @@ uint32 ComponentController::RegisterFunction(IdType gameObjectId, FunctionType t
     return id;
 }
 
-uint32 ComponentController::RegisterComponent(ComponentsType type, IComponent* component)
+uint32 ComponentController::RegisterComponent(size_t type, IComponent* component)
 {
     auto currentComponentId = componentId++;
 
@@ -65,7 +49,7 @@ uint32 ComponentController::RegisterComponent(ComponentsType type, IComponent* c
     return currentComponentId;
 }
 
-void ComponentController::UnRegisterComponent(ComponentsType type, uint32 id)
+void ComponentController::UnRegisterComponent(size_t type, uint32 id)
 {
     if (registredComponents_.count(type) > 0)
     {

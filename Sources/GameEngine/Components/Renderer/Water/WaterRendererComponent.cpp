@@ -1,4 +1,7 @@
 #include "WaterRendererComponent.h"
+
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -9,10 +12,16 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType WaterRendererComponent::type = ComponentsType::Water;
-
+namespace
+{
+const std::string COMPONENT_STR   = "Water";
+const std::string CSTR_COLOR      = "color";
+const std::string CSTR_WAVE_SPEED = "waveSpeed";
+const std::string CSTR_DUDV_MAP   = "dudv";
+const std::string CSTR_NORMAL_MAP = "normalMap";
+}  // namespace
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(WaterRendererComponent::type, componentContext, gameObject)
+    : BaseComponent(typeid(WaterRendererComponent).hash_code(), componentContext, gameObject)
     , moveFactor_(0)
     , waterColor_(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
     , waveSpeed_(.1f)
@@ -159,6 +168,43 @@ void WaterRendererComponent::DeleteTextures()
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*dudvMap_);
         dudvMap_ = nullptr;
     }
+}
+void WaterRendererComponent::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<WaterRendererComponent>(componentContext, gameObject);
+
+        float waveSpeed{1.f};
+        vec4 color(0, 0, 0.4f, 0.5f);
+        std::string dudvMap, normalMap;
+        ::Read(node.getChild(CSTR_WAVE_SPEED), waveSpeed);
+        ::Read(node.getChild(CSTR_COLOR), color);
+        ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
+        ::Read(node.getChild(CSTR_NORMAL_MAP), normalMap);
+
+        component->SetWaveSpeed(waveSpeed);
+        component->SetWaterColor(color);
+        if (not dudvMap.empty() and not normalMap.empty())
+        {
+            component->LoadTextures(dudvMap, normalMap);
+        }
+        return component;
+    };
+
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+void WaterRendererComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+
+    ::write(node.addChild(CSTR_COLOR), GetWaterColor());
+    ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());
+
+    if (GetDudvTexture() and GetDudvTexture()->GetFile())
+        ::write(node.addChild(CSTR_DUDV_MAP), GetDudvTexture()->GetFile()->GetDataRelativeDir());
+
+    if (GetNormalTexture() and GetNormalTexture()->GetFile())
+        ::write(node.addChild(CSTR_NORMAL_MAP), GetNormalTexture()->GetFile()->GetDataRelativeDir());
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -124,7 +124,7 @@ def CreateSerializationFile(filename, params):
     file.write("\n")
 
     StartNamespace(file)
-    file.write("std::unique_ptr<Utils::XmlNode> Convert(const "+ fileName[0] + "&);\n")
+    file.write("std::unique_ptr<TreeNode> Convert(const "+ fileName[0] + "&);\n")
     file.write("Network::IMessageData Serialize(const "+ fileName[0] + "&);\n")
     EndNamespace(file)
     file.close()
@@ -132,7 +132,7 @@ def CreateSerializationFile(filename, params):
     file = open(resultPath + filename[0] + "XmlSerializer.cpp","w")
     file.write("#include \"" + fileName[0] + "XmlSerializer.h\"\n")
     file.write("#include <Utils.h>\n")
-    file.write("#include <Utils/XML/XMLUtils.h>\n")
+    file.write("#include <Utils/TreeNode.h>\n")
     file.write("#include <UtilsNetwork/MessageFormat.h>\n")
     file.write("#include <UtilsNetwork/Messages/XmlConverterUtils.h>\n")
     for param in params:
@@ -144,22 +144,22 @@ def CreateSerializationFile(filename, params):
     file.write("\n")
 
     StartNamespace(file)
-    file.write("std::unique_ptr<Utils::XmlNode> Convert(const "+ fileName[0] + "& input)\n")
+    file.write("std::unique_ptr<TreeNode> Convert(const "+ fileName[0] + "& input)\n")
     file.write("{\n")
-    file.write(indent + "auto root = std::make_unique<Utils::XmlNode>(\"" + fileName[0] + "\");\n")
+    file.write(indent + "auto root = std::make_unique<TreeNode>(\"" + fileName[0] + "\");\n")
 
     for param in params:
         if param[0] in basicTypes:
             if param[0] == "std::string":
                 file.write(indent + "root->attributes_.insert({\"" + param[1] + "\", input." + param[1] + "});\n")
             elif param[0] == "vec3" or param[0] == "vec2":
-                file.write(indent + "root->AddChild(Utils::Convert(\"" + param[1] + "\", input." + param[1] +"));\n")
+                file.write(indent + "root->addChild(::Convert(\"" + param[1] + "\", input." + param[1] +"));\n")
             else:
                 file.write(indent + "root->attributes_.insert({\"" + param[1] + "\", std::to_string(input." + param[1] + ")});\n")
         elif IsComplextType(param[0]):
-            file.write(indent + "root->AddChild(Utils::Convert(\""+ param[1] + "\", input." + param[1] + "));\n")
+            file.write(indent + "root->addChild(::Convert(\""+ param[1] + "\", input." + param[1] + "));\n")
         else:
-            file.write(indent + "root->AddChild(std::move(Convert(input." + param[1] +")));\n")
+            file.write(indent + "root->addChild(std::move(Convert(input." + param[1] +")));\n")
 
     file.write(indent + "return root;\n")
     file.write("}\n")
@@ -179,7 +179,7 @@ def CreateDeserializationFile(filename, params):
     file.write("#include <Utils/XML/XmlReader.h>\n")
     file.write("\n")
     StartNamespace(file)
-    file.write("void SetParam(" + filename[0] + "&, Utils::XmlNode&);\n")
+    file.write("void SetParam(" + filename[0] + "&, TreeNode&);\n")
     file.write("std::unique_ptr<Network::IMessage> Deserialize"+ filename[0] +"(Utils::XmlReader& reader);\n")
     EndNamespace(file)
     file.close()
@@ -195,10 +195,10 @@ def CreateDeserializationFile(filename, params):
 
     file.write("\n")
     StartNamespace(file)
-    file.write("void SetParam(" + filename[0] + "& output, Utils::XmlNode& input)\n")
+    file.write("void SetParam(" + filename[0] + "& output, TreeNode& input)\n")
     file.write("{\n")
     for param in params:
-        file.write(indent + "if (input.IsAttributePresent(\"" + param[1] + "\"))\n")
+        file.write(indent + "if (input.isAttributePresent(\"" + param[1] + "\"))\n")
         file.write(indent + "{\n")
 
         if param[0] in basicTypes:
@@ -209,11 +209,11 @@ def CreateDeserializationFile(filename, params):
             if param[0] == "float":
                 file.write(indent + indent + "output." + param[1] + " = std::stof(input.attributes_.at(\"" + param[1] + "\"));\n")
             if param[0] == "vec2":
-                file.write(indent + indent + "output." + param[1] + " = Utils::ConvertToVec2(*input.GetChild(\"" + param[1] + "\"));\n")
+                file.write(indent + indent + "output." + param[1] + " = ::ConvertToVec2(*input.getChild(\"" + param[1] + "\"));\n")
             if param[0] == "vec3":
-                file.write(indent + indent + "output." + param[1] + " = Utils::ConvertToVec3(*input.GetChild(\"" + param[1] + "\"));\n")
+                file.write(indent + indent + "output." + param[1] + " = ::ConvertToVec3(*input.getChild(\"" + param[1] + "\"));\n")
         elif IsComplextType(param[0]):
-            file.write(indent + indent + "for (auto& child : input.GetChild(\"" + param[1] + "\")->GetChildren())\n")
+            file.write(indent + indent + "for (auto& child : input.getChild(\"" + param[1] + "\")->getChildren())\n")
             file.write(indent + indent + "{\n")
 
             typeInside=GetHeaderFromCustomType(param[0])
@@ -229,13 +229,13 @@ def CreateDeserializationFile(filename, params):
                 if typeInside == "float":
                     file.write(indent + indent + indent + "output." + param[1] + " .push_back(std::stof(child->value_));\n")
                 if typeInside == "vec2":
-                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(Utils::ConvertToVec2(*child->GetChild(\"" + param[1] + "\")));\n")
+                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(::ConvertToVec2(*child->GetChild(\"" + param[1] + "\")));\n")
                 if typeInside == "vec3":
-                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(Utils::ConvertToVec3(*child->GetChild(\"" + param[1] + "\")));\n")
+                    file.write(indent + indent + indent + "output." + param[1] + " .push_back(::ConvertToVec3(*child->GetChild(\"" + param[1] + "\")));\n")
 
             file.write(indent + indent + "}\n")
         else:
-            file.write(indent + indent + "SetParam(output." + param[1] + ", *input.GetChild(\"" + param[1] + "\"));\n")
+            file.write(indent + indent + "SetParam(output." + param[1] + ", *input.getChild(\"" + param[1] + "\"));\n")
 
         file.write(indent + "}\n")
     file.write("}\n")

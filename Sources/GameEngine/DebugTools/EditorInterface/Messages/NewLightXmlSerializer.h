@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-std::unique_ptr<Utils::XmlNode> Convert(const NewLight&);
+std::unique_ptr<TreeNode> Convert(const NewLight&);
 Network::IMessageData Serialize(const NewLight&);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

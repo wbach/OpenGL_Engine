@@ -5,9 +5,9 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(RemoveGameObjectInd& output, Utils::XmlNode& input)
+void SetParam(RemoveGameObjectInd& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("id"))
+    if (input.isAttributePresent("id"))
     {
         output.id = std::stoi(input.attributes_.at("id"));
     }

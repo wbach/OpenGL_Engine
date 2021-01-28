@@ -19,9 +19,9 @@ namespace GameEngine
 {
 namespace GuiElementWriter
 {
-void write(Utils::XmlNode& node, const GuiElement& element);
+void write(TreeNode& node, const GuiElement& element);
 
-void writeChildren(Utils::XmlNode& node, const GuiElement& element)
+void writeChildren(TreeNode& node, const GuiElement& element)
 {
     for (const auto& child : element.GetChildren())
     {
@@ -29,122 +29,66 @@ void writeChildren(Utils::XmlNode& node, const GuiElement& element)
     }
 }
 
-void write(Utils::XmlNode& node, const vec4& v)
-{
-    node.attributes_.insert({Gui::X, std::to_string(v.x)});
-    node.attributes_.insert({Gui::Y, std::to_string(v.y)});
-    node.attributes_.insert({Gui::Z, std::to_string(v.z)});
-    node.attributes_.insert({Gui::W, std::to_string(v.w)});
-}
-
-void write(Utils::XmlNode& node, const vec3& v)
-{
-    node.attributes_.insert({Gui::X, std::to_string(v.x)});
-    node.attributes_.insert({Gui::Y, std::to_string(v.y)});
-    node.attributes_.insert({Gui::Z, std::to_string(v.z)});
-}
-
-void write(Utils::XmlNode& node, const vec2& v)
-{
-    node.attributes_.insert({Gui::X, std::to_string(v.x)});
-    node.attributes_.insert({Gui::Y, std::to_string(v.y)});
-}
-
-void write(Utils::XmlNode& node, const vec2ui& v)
-{
-    node.attributes_.insert({Gui::X, std::to_string(v.x)});
-    node.attributes_.insert({Gui::Y, std::to_string(v.y)});
-}
-
-void write(Utils::XmlNode& node, bool v)
-{
-    node.value_ = Utils::BoolToString(v);
-}
-
-void write(Utils::XmlNode& node, std::optional<uint32> v)
-{
-    if (v)
-        node.value_ = std::to_string(*v);
-    else
-        node.value_ = "-";
-}
-
-template <class T>
-void write(Utils::XmlNode& node, T v)
-{
-    node.value_ = std::to_string(v);
-}
-
-void write(Utils::XmlNode& node, const File& v)
+void write(TreeNode& node, const File& v)
 {
     node.value_ = v.GetDataRelativeDir();
 }
 
-void write(Utils::XmlNode& node, const std::string& v)
+void writeBasicParams(TreeNode& node, const GuiElement& element)
 {
-    node.value_ = v;
+    ::write(node.addChild(Gui::POSITION), element.GetLocalPosition());
+    ::write(node.addChild(Gui::SHOW), element.IsShow());
+    ::write(node.addChild(Gui::SCALE), element.GetLocalScale());
+    ::write(node.addChild(Gui::LABEL), element.GetLabel());
+    ::write(node.addChild(Gui::STARTUP_FUNCTION), element.GetStartupFunctionName());
 }
 
-void writeBasicParams(Utils::XmlNode& node, const GuiElement& element)
+TreeNode& write(TreeNode& node, const GuiTextElement& text)
 {
-    auto& position = node.AddChild(Gui::POSITION);
-    write(position, element.GetLocalPosition());
-    auto& show = node.AddChild(Gui::SHOW);
-    write(show, element.IsShow());
-    auto& scale = node.AddChild(Gui::SCALE);
-    write(scale, element.GetLocalScale());
-    auto& label = node.AddChild(Gui::LABEL);
-    write(label, element.GetLabel());
-    auto& startupFunctionName = node.AddChild(Gui::STARTUP_FUNCTION);
-    write(startupFunctionName, element.GetStartupFunctionName());
-}
-
-Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextElement& text)
-{
-    auto& textNode = node.AddChild(Gui::TEXT);
+    auto& textNode = node.addChild(Gui::TEXT);
 
     writeBasicParams(textNode, text);
-    auto& font = textNode.AddChild(Gui::FONT);
+    auto& font = textNode.addChild(Gui::FONT);
     write(font, text.GetFontInfo().file_);
-    auto& fontSize = textNode.AddChild(Gui::FONT_SIZE);
+    auto& fontSize = textNode.addChild(Gui::FONT_SIZE);
     write(fontSize, text.GetFontInfo().fontSize_);
-    auto& outline = textNode.AddChild(Gui::FONT_OUTLINE);
+    auto& outline = textNode.addChild(Gui::FONT_OUTLINE);
     write(outline, text.GetFontInfo().outline_);
-    auto& value = textNode.AddChild(Gui::VALUE);
+    auto& value = textNode.addChild(Gui::VALUE);
     write(value, text.GetText());
-    auto& color = textNode.AddChild(Gui::COLOR);
+    auto& color = textNode.addChild(Gui::COLOR);
     write(color, text.GetColor());
     return textNode;
 }
 
-Utils::XmlNode& write(Utils::XmlNode& node, const GuiTextureElement& element)
+TreeNode& write(TreeNode& node, const GuiTextureElement& element)
 {
-    auto& textureNode = node.AddChild(Gui::TEXTURE);
+    auto& textureNode = node.addChild(Gui::TEXTURE);
 
     writeBasicParams(textureNode, element);
-    auto& file   = textureNode.AddChild(Gui::FILE);
+    auto& file   = textureNode.addChild(Gui::FILE);
     auto texture = element.GetTexture();
     write(file, texture ? texture->GetFile()->GetDataRelativeDir() : "");
-    auto& color = textureNode.AddChild(Gui::COLOR);
+    auto& color = textureNode.addChild(Gui::COLOR);
     write(color, element.GetColor());
     return textureNode;
 }
 
-Utils::XmlNode& writeNoneTexture(Utils::XmlNode& node, const std::string& label)
+TreeNode& writeNoneTexture(TreeNode& node, const std::string& label)
 {
-    auto& textureNode = node.AddChild(Gui::TEXTURE);
+    auto& textureNode = node.addChild(Gui::TEXTURE);
 
-    textureNode.AddChild(Gui::LABEL).value_ = label;
-    textureNode.AddChild(Gui::FILE).value_  = Gui::NONE;
+    textureNode.addChild(Gui::LABEL).value_ = label;
+    textureNode.addChild(Gui::FILE).value_  = Gui::NONE;
     return textureNode;
 }
 
-void write(Utils::XmlNode& node, const GuiButtonElement& button)
+void write(TreeNode& node, const GuiButtonElement& button)
 {
-    auto& buttonNode = node.AddChild(Gui::BUTTON);
+    auto& buttonNode = node.addChild(Gui::BUTTON);
 
     writeBasicParams(buttonNode, button);
-    auto& value = buttonNode.AddChild(Gui::ACTION);
+    auto& value = buttonNode.addChild(Gui::ACTION);
     write(value, button.GetActionName());
 
     if (button.GetText())
@@ -160,27 +104,27 @@ void write(Utils::XmlNode& node, const GuiButtonElement& button)
                                : writeNoneTexture(buttonNode, Gui::HOVER_TEXTURE);
 }
 
-void write(Utils::XmlNode& node, const GuiWindowElement& window)
+void write(TreeNode& node, const GuiWindowElement& window)
 {
-    auto& windowNode = node.AddChild(Gui::WINDOW);
+    auto& windowNode = node.addChild(Gui::WINDOW);
     writeBasicParams(windowNode, window);
 
-    auto& styleNode  = windowNode.AddChild(Gui::STYLE);
+    auto& styleNode  = windowNode.addChild(Gui::STYLE);
     styleNode.value_ = convert(window.GetStyle());
 
     writeChildren(windowNode, window);
 }
 
-void write(Utils::XmlNode& node, const GuiEditBoxElement& editBox)
+void write(TreeNode& node, const GuiEditBoxElement& editBox)
 {
-    auto& editBoxNode = node.AddChild(Gui::EDIT_BOX);
+    auto& editBoxNode = node.addChild(Gui::EDIT_BOX);
     writeBasicParams(editBoxNode, editBox);
     writeChildren(editBoxNode, editBox);
 }
 
-void write(Utils::XmlNode& node, Layout::Algin algin)
+void write(TreeNode& node, Layout::Algin algin)
 {
-    auto& verticalLayutNode = node.AddChild(Gui::ALGIN);
+    auto& verticalLayutNode = node.addChild(Gui::ALGIN);
 
     if (algin == Layout::Algin::LEFT)
         verticalLayutNode.value_ = Gui::LEFT;
@@ -190,35 +134,35 @@ void write(Utils::XmlNode& node, Layout::Algin algin)
         verticalLayutNode.value_ = Gui::CENTER;
 }
 
-void write(Utils::XmlNode& node, const VerticalLayout& verticalLayout)
+void write(TreeNode& node, const VerticalLayout& verticalLayout)
 {
-    auto& verticalLayutNode = node.AddChild(Gui::VERTICAL_LAYOUT);
+    auto& verticalLayutNode = node.addChild(Gui::VERTICAL_LAYOUT);
     writeBasicParams(verticalLayutNode, verticalLayout);
     write(verticalLayutNode, verticalLayout.GetAlgin());
     writeChildren(verticalLayutNode, verticalLayout);
 }
 
-void write(Utils::XmlNode& node, const HorizontalLayout& horizontalLayout)
+void write(TreeNode& node, const HorizontalLayout& horizontalLayout)
 {
-    auto& horizontalLayoutNode = node.AddChild(Gui::HORIZONTAL_LAYOUT);
+    auto& horizontalLayoutNode = node.addChild(Gui::HORIZONTAL_LAYOUT);
     writeBasicParams(horizontalLayoutNode, horizontalLayout);
     write(horizontalLayoutNode, horizontalLayout.GetAlgin());
     writeChildren(horizontalLayoutNode, horizontalLayout);
 }
 
-void write(Utils::XmlNode& node, const TreeView& treeView)
+void write(TreeNode& node, const TreeView& treeView)
 {
-    auto& treeViewNode = node.AddChild(Gui::TREE_VIEW);
+    auto& treeViewNode = node.addChild(Gui::TREE_VIEW);
     writeBasicParams(treeViewNode, treeView);
-    auto& value = treeViewNode.AddChild(Gui::ACTION);
+    auto& value = treeViewNode.addChild(Gui::ACTION);
     write(value, treeView.GetActionName());
 
-    auto& elementsNode = treeViewNode.AddChild(Gui::ELEMENTS);
+    auto& elementsNode = treeViewNode.addChild(Gui::ELEMENTS);
     for (const auto& element : treeView.GetAddedElementCommands())
     {
-        auto& pairNode = elementsNode.AddChild(Gui::PAIR);
-        auto& x        = pairNode.AddChild(Gui::X);
-        auto& y        = pairNode.AddChild(Gui::Y);
+        auto& pairNode = elementsNode.addChild(Gui::PAIR);
+        auto& x        = pairNode.addChild(Gui::X);
+        auto& y        = pairNode.addChild(Gui::Y);
 
         pairNode.attributes_.insert({Gui::ID, std::to_string(std::get<0>(element))});
 
@@ -227,7 +171,7 @@ void write(Utils::XmlNode& node, const TreeView& treeView)
     }
 }
 
-void write(Utils::XmlNode& node, const GuiElement& element)
+void write(TreeNode& node, const GuiElement& element)
 {
     switch (element.GetType())
     {
@@ -261,6 +205,8 @@ void write(Utils::XmlNode& node, const GuiElement& element)
         case GuiElementTypes::HorizontalLayout:
             write(node, *static_cast<const HorizontalLayout*>(&element));
             break;
+        case GuiElementTypes::Layer:
+            break;
     }
 }
 
@@ -274,7 +220,7 @@ void write(std::vector<GuiLayer> layers)
 
 void write(const std::string& name, const GuiLayer& layer)
 {
-    Utils::XmlNode root(Gui::ROOT);
+    TreeNode root(Gui::ROOT);
 
     for (const auto& element : layer.GetElements())
     {

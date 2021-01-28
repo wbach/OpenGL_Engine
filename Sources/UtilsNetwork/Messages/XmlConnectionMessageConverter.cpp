@@ -41,7 +41,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
             auto result = std::make_unique<ConnectionMessage>();
             auto msg    = reader.Get("ConnectionMessage");
 
-            if (msg and msg->IsAttributePresent("connectionStatus"))
+            if (msg and msg->isAttributePresent("connectionStatus"))
             {
                 result->connectionStatus = static_cast<uint8>(std::stoi(msg->attributes_.at("connectionStatus")));
                 return std::move(result);
@@ -52,7 +52,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
         {
             auto msg = reader.Get("AuthenticationMessage");
 
-            if (not msg and (not msg->IsAttributePresent("username") or not msg->IsAttributePresent("password")))
+            if (not msg and (not msg->isAttributePresent("username") or not msg->isAttributePresent("password")))
             {
                 DEBUG_LOG("AuthenticationMessage : format error");
                 break;
@@ -67,7 +67,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
         {
             auto text = reader.Get("TextMessage");
 
-            if (text and text->IsAttributePresent("text"))
+            if (text and text->isAttributePresent("text"))
             {
                 auto t = text->attributes_.at("text");
                 return std::make_unique<TextMessage>(t);
@@ -100,7 +100,7 @@ IMessageData XmlConnectionMessageConverter::ConvertConnectionMessage(const IMess
 {
     auto connectionMessage = castMessageAs<ConnectionMessage>(message);
 
-    Utils::XmlNode root("ConnectionMessage");
+    TreeNode root("ConnectionMessage");
     root.attributes_.insert({"connectionStatus", std::to_string(connectionMessage->connectionStatus)});
 
     auto v = CreatePayload(root);
@@ -112,7 +112,7 @@ IMessageData XmlConnectionMessageConverter::ConvertAuthenticationMessage(const I
 {
     auto msg = castMessageAs<AuthenticationMessage>(message);
 
-    Utils::XmlNode root("AuthenticationMessage");
+    TreeNode root("AuthenticationMessage");
     root.attributes_.insert({"username", msg->GetUserName()});
     root.attributes_.insert({"password", msg->GetPassword()});
 
@@ -127,7 +127,7 @@ IMessageData XmlConnectionMessageConverter::ConvertTextMessage(const IMessage& m
 
     DEBUG_LOG("testShortMessage_ : " +  msg->GetText());
 
-    Utils::XmlNode root("TextMessage");
+    TreeNode root("TextMessage");
     root.attributes_.insert({"text", msg->GetText()});
 
     auto v = CreatePayload(root);

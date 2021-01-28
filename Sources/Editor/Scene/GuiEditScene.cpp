@@ -384,6 +384,12 @@ void GuiEditScene::ShowCreateWindow(GuiElementTypes type)
             DEBUG_LOG("Create TreeView not imeplement.");
         }
         break;
+        case GameEngine::GuiElementTypes::Layer:
+        {
+            guiElementFactory_->CreateMessageBox("Error", "Create Layer not imeplement.");
+            DEBUG_LOG("Create Layer not imeplement.");
+        }
+        break;
         case GameEngine::GuiElementTypes::VerticalLayout:
         {
             auto layout = guiElementFactory_->CreateVerticalLayout();

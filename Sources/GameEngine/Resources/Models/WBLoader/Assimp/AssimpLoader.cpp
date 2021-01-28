@@ -103,7 +103,7 @@ void AssimpLoader::ParseFile(const File& file)
     object_ = &objects.back();
 
     readAdditionInfoFile(file);
-    //printTree(*scene->mRootNode);
+    // printTree(*scene->mRootNode);
     recursiveProcess(*scene, *scene->mRootNode);
     processSkeleton(*scene);
     processAnimations(*scene);
@@ -407,8 +407,8 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
     {
         const auto& animChannel = *aiAnim.mChannels[i];
         std::string jointName   = animChannel.mNodeName.data;
-        auto joint = object_->skeleton_.getJoint(jointName);
-   
+        auto joint              = object_->skeleton_.getJoint(jointName);
+
         if (not joint)
         {
             ERROR_LOG("Joint not found in skeleton : " + jointName);
@@ -469,21 +469,11 @@ void AssimpLoader::readAdditionInfoFile(const File& file)
                 vec3 position(0.f);
                 vec3 rotation(0.f);
                 vec3 scale(1.f);
-                auto positionNode = xmlReader.Get("position", correction);
-                if (positionNode)
-                {
-                    position = Utils::ReadVec3(*positionNode);
-                }
-                auto rotationNode = xmlReader.Get("rotation", correction);
-                if (rotationNode)
-                {
-                    rotation = Utils::ReadVec3(*rotationNode);
-                }
-                auto scaleNode = xmlReader.Get("scale", correction);
-                if (scaleNode)
-                {
-                    scale = Utils::ReadVec3(*scaleNode);
-                }
+
+                ::Read(xmlReader.Get("position", correction), position);
+                ::Read(xmlReader.Get("rotation", correction), rotation);
+                ::Read(xmlReader.Get("scale", correction), scale);
+
                 object_->transformMatrix = Utils::CreateTransformationMatrix(position, DegreesVec3(rotation), scale);
             }
         }
@@ -495,7 +485,7 @@ void AssimpLoader::printTree(const aiNode& node, uint32 depth) const
     std::string name(node.mName.data);
     std::string str;
 
-    for (int i = 0; i < depth; ++i)
+    for (uint32 i = 0; i < depth; ++i)
         str += "---";
 
     DEBUG_LOG(str + name + "( Depth : " + std::to_string(depth) + ")");

@@ -9,8 +9,8 @@
 
 namespace GameEngine
 {
-GameObject::GameObject(const std::string& name,
-                       Components::ComponentController& componentController, Components::IComponentFactory& componentFactory, IdType id)
+GameObject::GameObject(const std::string& name, Components::ComponentController& componentController,
+                       Components::ComponentFactory& componentFactory, IdType id)
     : parent_(nullptr)
     , name_(name)
     , id_(id)
@@ -33,7 +33,14 @@ GameObject::~GameObject()
     if (localTransfromSubscribtion_)
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 }
-
+void GameObject::InitComponent(const TreeNode& node)
+{
+    auto component = componentFactory_.Create(node, *this);
+    if (component)
+    {
+        components_.push_back(std::move(component));
+    }
+}
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
     object->SetParent(this);
@@ -152,37 +159,6 @@ void GameObject::RegisterComponentFunctions()
     for (const auto& c : components_)
     {
         c->ReqisterFunctions();
-    }
-}
-
-Components::IComponent* GameObject::GetComponent(Components::ComponentsType type)
-{
-    for (auto& c : components_)
-    {
-        if (c->GetType() == type)
-            return c.get();
-    }
-    ERROR_LOG("Component not found, gameObjectId=" + std::to_string(id_) + ", component=" + std::to_string(type));
-    return nullptr;
-}
-
-Components::IComponent* GameObject::AddComponent(Components::ComponentsType type)
-{
-    auto component = componentFactory_.Create(type, *this);
-    components_.push_back(std::move(component));
-    return components_.back().get();
-}
-
-void GameObject::RemoveComponent(Components::ComponentsType type)
-{
-    for (auto iter = components_.begin(); iter != components_.end(); ++iter)
-    {
-        if ((**iter).GetType() == type)
-        {
-            (**iter).CleanUp();
-            components_.erase(iter);
-            return;
-        }
     }
 }
 

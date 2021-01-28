@@ -16,10 +16,9 @@ namespace Components
 class BaseComponent : public IComponent
 {
 public:
-    BaseComponent(ComponentsType, ComponentContext&, GameObject&);
+    BaseComponent(size_t, ComponentContext&, GameObject&);
     ~BaseComponent() override;
 
-    inline ComponentsType GetType() const override;
     bool IsActive() const override;
     void Activate() override;
     void Deactivate() override;
@@ -30,11 +29,13 @@ public:
     GameObject& GetParentGameObject() override;
     const GameObject& getParentGameObject() const override;
 
+    void write(TreeNode&) const override;
+
 protected:
     void RegisterFunction(FunctionType, std::function<void()> func);
 
 protected:
-    ComponentsType type_;
+    size_t type_;
     GameObject& thisObject_;
     ComponentContext& componentContext_;
 
@@ -46,10 +47,5 @@ private:
     std::unordered_map<uint32, FunctionType> ids_;
     std::optional<uint32> componentRegistredId_;
 };
-
-ComponentsType BaseComponent::GetType() const
-{
-    return type_;
-}
 }  // namespace Components
 }  // namespace GameEngine

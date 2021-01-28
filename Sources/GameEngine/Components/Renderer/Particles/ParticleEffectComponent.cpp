@@ -3,17 +3,34 @@
 #include <algorithm>
 
 #include "GameEngine/Camera/Camera.h"
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
 namespace Components
 {
-ComponentsType ParticleEffectComponent::type = ComponentsType::ParticleEffect;
+namespace
+{
+const std::string COMPONENT_STR         = "ParticleEffectComponent";
+const std::string CSTR_VELOCITY         = "velocity";
+const std::string CSTR_GRAVITY_EFFECT   = "gravityEffect";
+const std::string CSTR_LIFE_TIME        = "lifeTime";
+const std::string CSTR_PARTICLE         = "particle";
+const std::string CSTR_PARTICLE_PER_SER = "particlePerSec";
+const std::string CSTR_PARTICLE_LIMT    = "particleLimt";
+const std::string CSTR_EMIT_FUNCTION    = "emitFunciton";
+const std::string CSTR_BLEND_TYPE       = "blendType";
+const std::string CSTR_IS_ANIMATED      = "isAnimated";
+const std::string CSTR_SPEED            = "speed";
+
+}  // namespace
 
 ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(ComponentsType::ParticleEffect, componentContext, gameObject)
+    : BaseComponent(typeid(ParticleEffectComponent).hash_code(), componentContext, gameObject)
     , texture_(nullptr)
     , particlesSpeed_(10.f)
     , particlesPerSecond_(10)
@@ -181,6 +198,57 @@ void ParticleEffectComponent::SortParticlesByCameraDistance()
         auto distance2 = glm::distance(r.position, camPosition);
         return distance > distance2;
     });
+}
+
+Particle ReadParticle(const TreeNode& node)
+{
+    Particle particle;
+
+    ::Read(*node.getChild(CSTR_POSITION), particle.position);
+    ::Read(node.getChild(CSTR_ROTATION)->value_, particle.rotation);
+    ::Read(node.getChild(CSTR_SCALE)->value_, particle.scale);
+    ::Read(node.getChild(CSTR_VELOCITY), particle.velocity);
+    ::Read(node.getChild(CSTR_GRAVITY_EFFECT), particle.gravityEffect);
+    ::Read(node.getChild(CSTR_LIFE_TIME)->value_, particle.lifeTime);
+
+    return particle;
+}
+
+void ParticleEffectComponent::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<ParticleEffectComponent>(componentContext, gameObject);
+
+        auto particle = ReadParticle(*node.getChild(CSTR_PARTICLE));
+        component->SetParticle(particle);
+        component->SetTexture(node.getChild(CSTR_TEXTURE)->value_);
+        component->SetParticlesPerSec(std::stoul(node.getChild(CSTR_PARTICLE_PER_SER)->value_));
+        component->SetBlendFunction(
+            static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.getChild(CSTR_BLEND_TYPE)->value_)));
+
+        auto emitFunctionName = node.getChild(CSTR_EMIT_FUNCTION)->value_;
+        auto emitFunction     = componentContext.scene_.GetParticleEmitFunction(emitFunctionName);
+        if (emitFunction)
+        {
+            component->SetEmitFunction(emitFunctionName, *emitFunction);
+        }
+        component->SetSpeed(std::stof(node.getChild(CSTR_SPEED)->value_));
+        auto animated = Utils::StringToBool(node.getChild(CSTR_IS_ANIMATED)->value_);
+
+        if (animated)
+        {
+            component->EnableAnimation();
+        }
+        component->SetParticlesLimit(std::stoul(node.getChild(CSTR_PARTICLE_LIMT)->value_));
+
+        return component;
+    };
+
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+void ParticleEffectComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
@@ -11,6 +13,16 @@ namespace Components
 {
 namespace
 {
+const std::string COMPONENT_STR               = "CharacterController";
+const std::string CSTR_IDLE_ANIMATION         = "idle";
+const std::string CSTR_RUN_ANIMATION          = "run";
+const std::string CSTR_MOVEBACKWARD_ANIMATION = "moveBackward";
+const std::string CSTR_WALK_ANIMATION         = "walk";
+const std::string CSTR_ATTACK_ANIMATION       = "attack";
+const std::string CSTR_HURT_ANIMATION         = "hurt";
+const std::string CSTR_DEATH_ANIMATION        = "death";
+const std::string CSTR_JUMP_ANIMATION         = "jump";
+
 const std::unordered_map<CharacterControllerState::Type, uint8> statePriorities{
     // clang-format off
     {CharacterControllerState::Type::DEATH, 0},
@@ -27,11 +39,9 @@ const std::unordered_map<CharacterControllerState::Type, uint8> statePriorities{
     {CharacterControllerState::Type::IDLE, 11}
     // clang-format on
 };
-}
-ComponentsType CharacterController::type = ComponentsType::CharacterController;
-
+}  // namespace
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+    : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
     , hurtAnimationName{"Hurt"}
     , attackAnimationName{"Attack"}
     , deathAnimationName{"Death"}
@@ -289,7 +299,6 @@ CharacterController::States::iterator CharacterController::findState(CharacterCo
 {
     return std::find_if(states_.begin(), states_.end(), [type](const auto& state) { return state->getType() == type; });
 }
-
 void CharacterController::SetTurnSpeed(float v)
 {
     turnSpeed_ = v;
@@ -304,6 +313,32 @@ void CharacterController::clearStates()
 void CharacterController::SetRunSpeed(float v)
 {
     runSpeed_ = v;
+}
+void CharacterController::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<CharacterController>(componentContext, gameObject);
+
+        auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
+        if (animationClipsNode)
+        {
+            ::Read(animationClipsNode->getChild(CSTR_IDLE_ANIMATION), component->idleAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_HURT_ANIMATION), component->hurtAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_RUN_ANIMATION), component->moveForwardAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_MOVEBACKWARD_ANIMATION), component->moveBackwardAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_DEATH_ANIMATION), component->deathAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION), component->attackAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_JUMP_ANIMATION), component->jumpAnimationName);
+        }
+        return component;
+    };
+
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+
+void CharacterController::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 }  // namespace Components
 }  // namespace GameEngine

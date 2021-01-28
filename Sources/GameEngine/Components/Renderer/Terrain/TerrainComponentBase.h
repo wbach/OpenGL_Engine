@@ -75,9 +75,6 @@ protected:
 
     std::vector<TerrainTexture> inputData_;
     std::vector<std::pair<TerrainTextureType, Texture*>> textures_;
-
-public:
-    static ComponentsType type;
 };
 }  // namespace Components
 }  // namespace GameEngine

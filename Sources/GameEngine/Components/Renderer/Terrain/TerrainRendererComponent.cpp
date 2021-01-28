@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/ConfigurationParams/RendererParams/TerrainParam/TerrainType.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -14,7 +15,14 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType TerrainRendererComponent::type = ComponentsType::TerrainRenderer;
+namespace
+{
+const std::string CSTR_SCALE        = "scale";
+const std::string CSTR_TEXTURE_TYPE = "textureType";
+const std::string COMPONENT_STR{"TerrainRenderer"};
+const std::string CSTR_TEXTURE_FILENAME  = "textureFileName";
+const std::string CSTR_TEXTURE_FILENAMES = "textureFileNames";
+}  // namespace
 
 TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
 {
@@ -30,7 +38,7 @@ TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
 }
 
 TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+    : BaseComponent(typeid(TerrainRendererComponent).hash_code(), componentContext, gameObject)
     , functionsRegistered_(false)
 {
     if (EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE)
@@ -268,5 +276,55 @@ void TerrainRendererComponent::ReqisterFunctions()
     }
     functionsRegistered_ = true;
 }
+
+std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTextures(const TreeNode& node)
+{
+    std::vector<Components::TerrainComponentBase::TerrainTexture> result;
+
+    for (const auto& texture : node.getChildren())
+    {
+        Components::TerrainComponentBase::TerrainTexture terrainTexture;
+        if (texture->getChild(CSTR_TEXTURE_FILENAME))
+            terrainTexture.file = File(texture->getChild(CSTR_TEXTURE_FILENAME)->value_);
+
+        if (texture->getChild(CSTR_TEXTURE_TYPE))
+            std::from_string(texture->getChild(CSTR_TEXTURE_TYPE)->value_, terrainTexture.type);
+        else
+            WARNING_LOG("Read texture without type");
+
+        Read(texture->getChild(CSTR_SCALE), terrainTexture.tiledScale);
+
+        result.push_back(terrainTexture);
+    }
+    std::sort(result.begin(), result.end(),
+              [](const auto& l, const auto& r) { return static_cast<int>(l.type) < static_cast<int>(r.type); });
+    return result;
+}
+void TerrainRendererComponent::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<TerrainRendererComponent>(componentContext, gameObject);
+
+        auto texturesNode = node.getChild(CSTR_TEXTURE_FILENAMES);
+        if (texturesNode)
+        {
+            auto textures = ReadTerrainTextures(*node.getChild(CSTR_TEXTURE_FILENAMES));
+            component->LoadTextures(textures);
+        }
+        else
+        {
+            ERROR_LOG("Child node with textures not found in terrain render component.");
+        }
+        return component;
+    };
+
+    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+}
+
+void TerrainRendererComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+}
+
 }  // namespace Components
 }  // namespace GameEngine

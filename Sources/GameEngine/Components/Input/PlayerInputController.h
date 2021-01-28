@@ -40,7 +40,8 @@ private:
     std::function<void()> jumpCallback_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

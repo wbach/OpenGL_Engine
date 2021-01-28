@@ -5,9 +5,9 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(SceneFileMsg& output, Utils::XmlNode& input)
+void SetParam(SceneFileMsg& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("filename"))
+    if (input.isAttributePresent("filename"))
     {
         output.filename = input.attributes_.at("filename");
     }

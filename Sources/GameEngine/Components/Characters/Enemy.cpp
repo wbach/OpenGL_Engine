@@ -3,6 +3,7 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 
@@ -10,10 +11,13 @@ namespace GameEngine
 {
 namespace Components
 {
-ComponentsType Enemy::type = ComponentsType::Enemy;
+namespace
+{
+const std::string COMPONENT_STR{"Enemy"};
+}  // namespace
 
 Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+    : BaseComponent(typeid(Enemy).hash_code(), componentContext, gameObject)
     , animator_{nullptr}
     , characterController_{nullptr}
 {
@@ -30,7 +34,7 @@ void Enemy::Init()
     animator_            = thisObject_.GetComponent<Animator>();
     characterController_ = thisObject_.GetComponent<CharacterController>();
 
-    if (animator_)
+    if (animator_ and characterController_)
     {
         auto iter = animator_->animationClips_.find(characterController_->hurtAnimationName);
         if (iter != animator_->animationClips_.end())
@@ -51,7 +55,6 @@ void Enemy::Init()
             }
         });
     }
-
 }
 void Enemy::Update()
 {
@@ -75,12 +78,23 @@ void Enemy::hurt(int64 dmg)
     }
 }
 
-const CharacterStatistic &Enemy::characterStatistic() const
+const CharacterStatistic& Enemy::characterStatistic() const
 {
     return characterStatistic_;
 }
 void Enemy::isOnGround()
 {
+}
+void Enemy::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
+        return std::make_unique<Enemy>(componentContext, gameObject);
+    };
+    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+}
+void Enemy::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -33,7 +33,7 @@ TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projec
 
 std::vector<Components::TerrainRendererComponent*> TerrainPointGetter::GetSceneTerrains() const
 {
-    const auto& components = componentController_.GetAllComonentsOfType(Components::ComponentsType::TerrainRenderer);
+    const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
     std::vector<Components::TerrainRendererComponent*> terrains;
     for (auto& terrain : components)

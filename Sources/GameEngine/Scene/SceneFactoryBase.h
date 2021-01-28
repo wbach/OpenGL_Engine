@@ -47,6 +47,6 @@ private:
 
 uint32 SceneFactoryBase::ScenesSize()
 {
-    return scenesMap_.size();
+    return static_cast<uint32>(scenesMap_.size());
 }
 }  // namespace GameEngine

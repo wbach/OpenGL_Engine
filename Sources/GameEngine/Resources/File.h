@@ -47,7 +47,7 @@ public:
     {
         if (fp_)
         {
-            uint32 dataSize = data.size();
+            uint32 dataSize = static_cast<uint32>(data.size());
             fwrite(&dataSize, sizeof(uint32), 1, fp_);
 
             if (not data.empty())

@@ -5,17 +5,17 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(Param& output, Utils::XmlNode& input)
+void SetParam(Param& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("name"))
+    if (input.isAttributePresent("name"))
     {
         output.name = input.attributes_.at("name");
     }
-    if (input.IsAttributePresent("value"))
+    if (input.isAttributePresent("value"))
     {
         output.value = input.attributes_.at("value");
     }
-    if (input.IsAttributePresent("type"))
+    if (input.isAttributePresent("type"))
     {
         output.type = input.attributes_.at("type");
     }

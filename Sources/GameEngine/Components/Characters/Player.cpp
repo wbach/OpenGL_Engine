@@ -3,6 +3,7 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
@@ -17,13 +18,11 @@ namespace Components
 {
 namespace
 {
+const std::string COMPONENT_STR{"Player"};
 const float ATTACK_RANGE{2.f};
-}
-
-ComponentsType Player::type = ComponentsType::Player;
-
+}  // namespace
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+    : BaseComponent(typeid(Player).hash_code(), componentContext, gameObject)
     , guiManager_{componentContext.guiElementFactory_.getManager()}
     , animator_{nullptr}
     , characterController_{nullptr}
@@ -112,6 +111,17 @@ void Player::hurt(int64 dmg)
             characterController_->Deactivate();
         }
     }
+}
+void Player::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
+        return std::make_unique<Player>(componentContext, gameObject);
+    };
+    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+}
+void Player::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
 void Player::HudElements::Bar::update()
 {

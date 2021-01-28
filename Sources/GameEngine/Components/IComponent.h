@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "ComponentsTypes.h"
+class TreeNode;
 
 namespace GameEngine
 {
@@ -33,7 +33,6 @@ public:
     virtual ~IComponent()                                                            = default;
     virtual void CleanUp()                                                           = 0;
     virtual void ReqisterFunctions()                                                 = 0;
-    virtual ComponentsType GetType() const                                           = 0;
     virtual bool IsActive() const                                                    = 0;
     virtual void Activate()                                                          = 0;
     virtual void Deactivate()                                                        = 0;
@@ -41,6 +40,7 @@ public:
     virtual std::unordered_map<ParamName, Param> GetParams() const                   = 0;
     virtual GameObject& GetParentGameObject()                                        = 0;
     virtual const GameObject& getParentGameObject() const                            = 0;
+    virtual void write(TreeNode&) const                                              = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

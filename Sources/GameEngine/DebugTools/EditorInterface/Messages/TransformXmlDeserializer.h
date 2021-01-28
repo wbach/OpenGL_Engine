@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(Transform&, Utils::XmlNode&);
+void SetParam(Transform&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeTransform(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

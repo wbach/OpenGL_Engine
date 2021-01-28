@@ -64,7 +64,7 @@ void PhysicsScene::AddPhysicObject(const std::string& modelFilename, const vec3&
     shape.SetPostionOffset(shapePositionOffset);
     object->AddComponent<Components::Rigidbody>()
         .SetIsStatic(isStatic)
-        .SetCollisionShape(shape.GetType())
+        .SetCollisionShape(Shape::name)
         .SetVelocity(dir);
 
     AddGameObject(std::move(object));
@@ -83,7 +83,7 @@ void PhysicsScene::AddDebuxBoxesPlane(const vec2& offset)
     {
         for (int x = static_cast<int>(offset.x); x < static_cast<int>(offset.x) + 50; x += 2)
         {
-            AddPhysicObject<Components::SphereShape>("Meshes/SimpleCube.obj", vec3(x, 200, y), vec3(0), vec3(0), 1.f,
+            AddPhysicObject<Components::BoxShape>("Meshes/SimpleCube.obj", vec3(x, 200, y), vec3(0), vec3(0), 1.f,
                                                      false);
         }
     }
@@ -96,15 +96,6 @@ void PhysicsScene::RemoveObjectsUnderYValue(float)
 void PhysicsScene::KeyOperations()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
-
-    inputManager_->SubscribeOnKeyDown(KeyCodes::F, [&]() {
-        auto dir = GetCamera().GetDirection();
-        dir      = glm::normalize(dir);
-        auto pos = GetCamera().GetPosition();
-        AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", pos, vec3(0), dir * 20.f, 1.f, false);
-        DEBUG_LOG("Dir : " + std::to_string(dir) + ", Pos : " + std::to_string(pos) +
-                  ", Objecsts : " + std::to_string(GetAllGameObjectsPtrs().size()));
-    });
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::T, [&]() { simulatePhysics_.store(!simulatePhysics_.load()); });
 
@@ -124,10 +115,6 @@ void PhysicsScene::KeyOperations()
 }
 void PhysicsScene::AddStartupObjects()
 {
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(0, 2, 10), vec3(0), vec3(0), 1.f, true);
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(10, 2, 10), vec3(0), vec3(0), 2.f, true);
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(20, 2, 10), vec3(0), vec3(0), 3.f, true);
-    AddPhysicObject<Components::SphereShape>("Meshes/sphere.obj", vec3(30, 2, 10), vec3(0), vec3(0), 4.f, true);
     AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(0, 2, 0), vec3(0, -.5f, 0), vec3(0), 1.f,
                                           true);
     AddPhysicObject<Components::BoxShape>("Meshes/Crate/crate.obj", vec3(10, 2, 0), vec3(0, -1.f, 0), vec3(0), 2.f,
@@ -189,7 +176,7 @@ void PhysicsScene::AddBoxes(const vec3& pos)
         {
             for (int j = 0; j < ARRAY_SIZE_Z; j++)
             {
-                AddPhysicObject<Components::SphereShape>("Meshes/SimpleCube.obj", pos + vec3(i, 2 + k + 50, j), vec3(0),
+                AddPhysicObject<Components::BoxShape>("Meshes/SimpleCube.obj", pos + vec3(i, 2 + k + 50, j), vec3(0),
                                                          vec3(0), 1.f, false);
             }
         }
@@ -204,8 +191,8 @@ void PhysicsScene::AddExampleMesh(const vec3& pos, float scale)
 
     object->AddComponent<Components::RendererComponent>().AddModel("Meshes/Rampa.obj");
 
-    auto& meshShape = object->AddComponent<Components::MeshShape>().SetSize(scale);
-    object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(meshShape.GetType());
+    object->AddComponent<Components::MeshShape>().SetSize(scale);
+    object->AddComponent<Components::Rigidbody>().SetIsStatic(true).SetCollisionShape(Components::MeshShape::name);
 
     AddGameObject(std::move(object));
 }

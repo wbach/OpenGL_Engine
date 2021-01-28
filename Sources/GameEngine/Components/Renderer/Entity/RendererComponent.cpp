@@ -1,5 +1,7 @@
 #include "RendererComponent.hpp"
 
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -12,15 +14,16 @@ namespace Components
 {
 namespace
 {
+const std::string COMPONENT_STR{"Renderer"};
+const std::string CSTR_TEXTURE_INDEX       = "textureIndex";
+const std::string CSTR_MODEL_FILE_NAMES    = "modelFileNames";
 const std::string MODEL_L1      = "model_l1";
 const std::string MODEL_L2      = "model_l2";
 const std::string MODEL_L3      = "model_l3";
 const std::string TEXTURE_INDEX = "textureIndex";
 }  // namespace
-ComponentsType RendererComponent::type = ComponentsType::Renderer;
-
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(RendererComponent::type, componentContext, gameObject)
+    : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
     , isSubscribed_(false)
     , textureIndex_(0)
 {
@@ -198,7 +201,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
         buffer.GetData().textureOffset = vec2(0);
     }
 
-    buffer.GetData().UseBoneTransform = 0.f; //mesh.UseArmature();
+    buffer.GetData().UseBoneTransform = 0.f;  // mesh.UseArmature();
 
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
@@ -235,7 +238,7 @@ void RendererComponent::useArmature(bool value)
         auto i = 0;
         for (auto& mesh : model.second->GetMeshes())
         {
-            auto& buffer = perObjectConstantsBuffer_[i++];
+            auto& buffer           = perObjectConstantsBuffer_[i++];
             float useBoneTransform = (value and mesh.UseArmature()) ? 1.f : 0.f;
             if (not compare(buffer->GetData().UseBoneTransform.value, useBoneTransform, 0.1f))
             {
@@ -244,6 +247,48 @@ void RendererComponent::useArmature(bool value)
             }
         }
     }
+}
+void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
+{
+    node.addChild(CSTR_FILE_NAME, filename);
+    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
+}
+void create(TreeNode& node, const std::unordered_map<std::string, LevelOfDetail>& files)
+{
+    for (const auto& files : files)
+    {
+        create(node.addChild(CSTR_MODEL_FILE_NAME), files.first, files.second);
+    }
+}
+void RendererComponent::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component = std::make_unique<RendererComponent>(componentContext, gameObject);
+
+        auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);
+        if (textureIndexNode)
+        {
+            auto textureIndex = std::stoul(node.getChild(CSTR_TEXTURE_INDEX)->value_);
+            component->SetTextureIndex(textureIndex);
+        }
+
+        for (const auto& fileNode : node.getChild(CSTR_MODEL_FILE_NAMES)->getChildren())
+        {
+            const auto& filename = fileNode->getChild(CSTR_FILE_NAME)->value_;
+            auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
+            component->AddModel(filename, lod);
+        }
+
+        return component;
+    };
+
+    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+}
+void RendererComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex_));
+    create(node.addChild(CSTR_MODEL_FILE_NAMES), filenames_);
 }
 }  // namespace Components
 }  // namespace GameEngine

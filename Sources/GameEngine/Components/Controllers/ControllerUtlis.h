@@ -10,7 +10,7 @@ template <class T>
 std::tuple<float, vec3, T*> getComponentsInRange(const ComponentController& componentController,
                                                  const vec3& sourcePosition)
 {
-    auto& components = componentController.GetAllComonentsOfType(T::type);
+    auto& components = componentController.GetAllComonentsOfType<T>();
 
     T* closestComponent{nullptr};
     vec3 vectorToTarget{0.f};

@@ -5,17 +5,17 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(NewGameObjectInd& output, Utils::XmlNode& input)
+void SetParam(NewGameObjectInd& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("id"))
+    if (input.isAttributePresent("id"))
     {
         output.id = std::stoi(input.attributes_.at("id"));
     }
-    if (input.IsAttributePresent("parentId"))
+    if (input.isAttributePresent("parentId"))
     {
         output.parentId = std::stoi(input.attributes_.at("parentId"));
     }
-    if (input.IsAttributePresent("name"))
+    if (input.isAttributePresent("name"))
     {
         output.name = input.attributes_.at("name");
     }

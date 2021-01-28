@@ -18,6 +18,7 @@ namespace GameEngine
 class IResourceManager;
 class IGpuResourceLoader;
 class GuiElementFactory;
+class Scene;
 
 namespace Physics
 {
@@ -34,11 +35,12 @@ typedef std::unordered_map<uint32, FunctionType> ComponentIdsMap;
 
 struct ComponentContext
 {
-    ComponentContext(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time,
+    ComponentContext(Scene& scene, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time,
                      Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
                      IResourceManager& resourceManager, Renderer::RenderersManager& renderersManager,
                      ComponentController& componentController, GuiElementFactory& guiElementFactory)
-        : graphicsApi_(graphicsApi)
+        : scene_(scene)
+        , graphicsApi_(graphicsApi)
         , gpuResourceLoader_(gpuResourceLoader)
         , time_(time)
         , inputManager_(input)
@@ -50,7 +52,7 @@ struct ComponentContext
         , guiElementFactory_(guiElementFactory)
     {
     }
-
+    Scene& scene_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     IGpuResourceLoader& gpuResourceLoader_;
     Time& time_;

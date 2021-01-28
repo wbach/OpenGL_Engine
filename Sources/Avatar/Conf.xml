@@ -21,7 +21,7 @@
 	</Renderer>
 	<DebugParams>
 		<PhysicsVisualizator useWorker="false" refreshStepDown="0"/>
-		<loggingLvl>none</loggingLvl>
+		<loggingLvl>error/warning/info/debug</loggingLvl>
 		<showRenderInfo>false</showRenderInfo>
 	</DebugParams>
 	<EnableBinaryLoading>false</EnableBinaryLoading>

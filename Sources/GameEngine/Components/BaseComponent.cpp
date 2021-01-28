@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace Components
 {
-BaseComponent::BaseComponent(ComponentsType type, ComponentContext& componentContext, GameObject& gameObject)
+BaseComponent::BaseComponent(size_t type, ComponentContext& componentContext, GameObject& gameObject)
     : type_(type)
     , thisObject_(gameObject)
     , componentContext_(componentContext)
@@ -54,6 +54,9 @@ GameObject& BaseComponent::GetParentGameObject()
 const GameObject& BaseComponent::getParentGameObject() const
 {
     return thisObject_;
+}
+void BaseComponent::write(TreeNode&) const
+{
 }
 bool BaseComponent::IsActive() const
 {

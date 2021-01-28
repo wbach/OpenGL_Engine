@@ -15,18 +15,20 @@ public:
     void OnAwake();
 
 public:
-    SphereShape& SetSize(float size);
-    inline float GetSize() const;
+    SphereShape& SetRadius(float size);
+    inline float GetRadius() const;
 
 private:
-    float size_;
+    float radius_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
+    static std::string name;
 };
-float SphereShape::GetSize() const
+float SphereShape::GetRadius() const
 {
-    return size_;
+    return radius_;
 }
 }  // namespace Components
 }  // namespace GameEngine

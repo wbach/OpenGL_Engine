@@ -5,9 +5,9 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(ExitResp& output, Utils::XmlNode& input)
+void SetParam(ExitResp& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("status"))
+    if (input.isAttributePresent("status"))
     {
         output.status = std::stoi(input.attributes_.at("status"));
     }

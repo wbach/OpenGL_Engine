@@ -57,7 +57,8 @@ private:
     bool isSubsribed_;
 
 public:
-    static ComponentsType type;
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
 
 ModelWrapper& TreeRendererComponent::GetTopModelWrapper()
@@ -74,7 +75,7 @@ std::vector<vec3>& TreeRendererComponent::GetPositions()
 }
 inline uint32 TreeRendererComponent::GetInstancesSize() const
 {
-    return positions_.size();
+    return static_cast<uint32>(positions_.size());
 }
 const vec2ui& TreeRendererComponent::GetPositionSize2d() const
 {

@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(ReloadScene&, Utils::XmlNode&);
+void SetParam(ReloadScene&, TreeNode&);
 std::unique_ptr<Network::IMessage> DeserializeReloadScene(Utils::XmlReader& reader);
 } // namespace DebugNetworkInterface
 } // namespace GameEngine

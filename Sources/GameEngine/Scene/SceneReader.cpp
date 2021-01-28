@@ -1,26 +1,5 @@
 #include "SceneReader.h"
 
-#include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
-#include "GameEngine/Components/Characters/Enemy.h"
-#include "GameEngine/Components/Characters/Player.h"
-#include "GameEngine/Components/Controllers/CharacterController.h"
-#include "GameEngine/Components/Controllers/EnemyController.h"
-#include "GameEngine/Components/Input/PlayerInputController.h"
-#include "GameEngine/Components/Physics/BoxShape.h"
-#include "GameEngine/Components/Physics/CapsuleShape.h"
-#include "GameEngine/Components/Physics/MeshShape.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Components/Physics/SphereShape.h"
-#include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Components/Renderer/Grass/GrassComponent.h"
-#include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
-#include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
-#include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
-#include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "Logger/Log.h"
 #include "Scene.hpp"
@@ -40,472 +19,43 @@ namespace
 Scene* currentReadingScene = nullptr;
 }
 
-std::vector<vec3> ReadVectorVec3(const Utils::XmlNode& node)
-{
-    std::vector<vec3> result;
-    for (const auto& v : node.GetChildren())
-    {
-        result.emplace_back(std::stof(v->attributes_[CSTR_X]), std::stof(v->attributes_[CSTR_Y]),
-                            std::stof(v->attributes_[CSTR_Z]));
-    }
-    return result;
-}
-
-void setIfExist(const Utils::XmlNode& node, const std::string& childNodeName, std::string& value)
-{
-    auto childNode = node.GetChild(childNodeName);
-    if (childNode)
-    {
-        value = childNode->value_;
-    }
-}
-
-void setIfExist(const Utils::XmlNode& node, const std::string& childNodeName, vec3& value)
-{
-    auto childNode = node.GetChild(childNodeName);
-    if (childNode)
-    {
-        value = ReadVec3(*childNode);
-    }
-}
-
-void setIfExist(const Utils::XmlNode& node, const std::string& childNodeName, Rotation& value)
-{
-    auto childNode = node.GetChild(childNodeName);
-    if (childNode)
-    {
-        value = Rotation(DegreesVec3(ReadVec3(*childNode)));
-    }
-}
-
-void Read(const Utils::XmlNode& node, common::Transform& tranfsorm)
+void Read(const TreeNode& node, common::Transform& tranfsorm)
 {
     vec3 position(0), rotation(0), scale(1);
-    setIfExist(node, CSTR_POSITION, position);
-    setIfExist(node, CSTR_ROTATION, rotation);
-    setIfExist(node, CSTR_SCALE, scale);
-
+    Read(node.getChild(CSTR_POSITION), position);
+    Read(node.getChild(CSTR_ROTATION), rotation);
+    Read(node.getChild(CSTR_SCALE), scale);
     tranfsorm.SetPositionAndRotationAndScale(position, DegreesVec3(rotation), scale);
 }
 
-void Read(const Utils::XmlNode&, Components::ThridPersonCameraComponent&)
-{
-}
-
-void Read(const Utils::XmlNode& node, Components::Animator& component)
-{
-    auto animationClipsNode = node.GetChild(CSTR_ANIMATION_CLIPS);
-
-    if (animationClipsNode)
-    {
-        for (const auto& childNode : animationClipsNode->GetChildren())
-        {
-            component.AddAnimationClip(GameEngine::File(childNode->value_));
-        }
-    }
-
-    setIfExist(node, CSTR_STARTUP_ANIMATION, component.startupAnimationClipName_);
-}
-
-void Read(const Utils::XmlNode& node, Components::BoxShape& component)
-{
-    component.SetSize(ReadVec3(*node.GetChild(CSTR_SIZE)));
-    component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
-}
-
-void Read(const Utils::XmlNode& node, Components::MeshShape& component)
-{
-    component.SetSize(ReadFloat(*node.GetChild(CSTR_SIZE)));
-    component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
-
-    component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
-}
-
-void Read(const Utils::XmlNode& node, Components::SphereShape& component)
-{
-    component.SetSize(ReadFloat(*node.GetChild(CSTR_SIZE)));
-    component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
-}
-
-void Read(const Utils::XmlNode& node, Components::CapsuleShape& component)
-{
-    component.SetHeight(ReadFloat(*node.GetChild(CSTR_HEIGHT)));
-    component.SetRadius(ReadFloat(*node.GetChild(CSTR_RADIUS)));
-    component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
-}
-
-void Read(const Utils::XmlNode& node, Components::TerrainShape& component)
-{
-    component.SetPostionOffset(ReadVec3(*node.GetChild(CSTR_POSITION_OFFSET)));
-    component.SetHeightMap(node.GetChild(CSTR_HEIGHTMAP_FILENAME)->value_);
-}
-
-void Read(const Utils::XmlNode& node, Components::Rigidbody& component)
-{
-    component.SetMass(ReadFloat(*node.GetChild(CSTR_MASS)));
-    component.SetIsStatic(ReadBool(*node.GetChild(CSTR_IS_STATIC)));
-
-    auto velocityNode = node.GetChild(CSTR_VELOCITY);
-    if (velocityNode)
-        component.InputParams().velocity_ = ReadVec3(*velocityNode);
-
-    auto angularFactorNode = node.GetChild(CSTR_ANGULAR_FACTOR);
-    if (angularFactorNode)
-    {
-        if (angularFactorNode->value_.empty())
-            component.InputParams().angularFactor_ = ReadVec3(*angularFactorNode);
-        else
-            component.InputParams().angularFactor_ = vec3(ReadFloat(*angularFactorNode));
-    }
-
-    auto collShape = static_cast<Components::ComponentsType>(std::stoi(node.GetChild(CSTR_COLLISION_SHAPE)->value_));
-    component.SetCollisionShape(collShape);
-}
-
-void Read(const Utils::XmlNode& node, Components::RendererComponent& component)
-{
-    auto textureIndex = std::stoul(node.GetChild(CSTR_TEXTURE_INDEX)->value_);
-    component.SetTextureIndex(textureIndex);
-
-    for (const auto& fileNode : node.GetChild(CSTR_MODEL_FILE_NAMES)->GetChildren())
-    {
-        const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
-        component.AddModel(filename, lod);
-    }
-}
-
-void Read(const Utils::XmlNode& node, Components::TreeRendererComponent& component)
-{
-    for (const auto& fileNode : node.GetChild(CSTR_BOTTOM_FILENAMES)->GetChildren())
-    {
-        const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
-        component.SetBottomModel(filename, lod);
-    }
-    for (const auto& fileNode : node.GetChild(CSTR_TOP_FILENAMES)->GetChildren())
-    {
-        const auto& filename = fileNode->GetChild(CSTR_FILE_NAME)->value_;
-        auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->GetChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
-        component.SetTopModel(filename, lod);
-    }
-
-    component.SetPositions(ReadVectorVec3(*node.GetChild(CSTR_POSITIONS)), ReadVec2ui(*node.GetChild(CSTR_SIZE_2D)));
-}
-
-Particle ReadParticle(const Utils::XmlNode& node)
-{
-    Particle particle;
-
-    particle.position      = ReadVec3(*node.GetChild(CSTR_POSITION));
-    particle.rotation      = std::stof(node.GetChild(CSTR_ROTATION)->value_);
-    particle.scale         = std::stof(node.GetChild(CSTR_SCALE)->value_);
-    particle.velocity      = ReadVec3(*node.GetChild(CSTR_VELOCITY));
-    particle.gravityEffect = ReadBool(*node.GetChild(CSTR_GRAVITY_EFFECT));
-    particle.lifeTime      = std::stof(node.GetChild(CSTR_LIFE_TIME)->value_);
-
-    return particle;
-}
-
-void Read(const Utils::XmlNode& node, Components::ParticleEffectComponent& component)
-{
-    auto particle = ReadParticle(*node.GetChild(CSTR_PARTICLE));
-    component.SetParticle(particle);
-    component.SetTexture(node.GetChild(CSTR_TEXTURE)->value_);
-    component.SetParticlesPerSec(std::stoul(node.GetChild(CSTR_PARTICLE_PER_SER)->value_));
-    component.SetBlendFunction(
-        static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.GetChild(CSTR_BLEND_TYPE)->value_)));
-
-    auto emitFunctionName = node.GetChild(CSTR_EMIT_FUNCTION)->value_;
-    auto emitFunction     = currentReadingScene->GetParticleEmitFunction(emitFunctionName);
-    if (emitFunction)
-    {
-        component.SetEmitFunction(emitFunctionName, *emitFunction);
-    }
-    component.SetSpeed(std::stof(node.GetChild(CSTR_SPEED)->value_));
-    auto animated = Utils::StringToBool(node.GetChild(CSTR_IS_ANIMATED)->value_);
-
-    if (animated)
-    {
-        component.EnableAnimation();
-    }
-    component.SetParticlesLimit(std::stoul(node.GetChild(CSTR_PARTICLE_LIMT)->value_));
-}
-
-std::vector<std::string> ReadStringVector(const Utils::XmlNode& node, const std::string& str)
-{
-    std::vector<std::string> textures;
-    for (const auto& modelFileName : node.GetChild(str)->GetChildren())
-    {
-        textures.push_back(modelFileName->value_);
-    }
-    return textures;
-}
-
-std::array<File, 6> ReadCubeMapArray(const Utils::XmlNode& node, const std::string& str)
-{
-    std::array<File, 6> textures;
-    uint32 index = 0;
-    for (const auto& modelFileName : node.GetChild(str)->GetChildren())
-    {
-        if (index < 6)
-        {
-            textures[index++] = modelFileName->value_;
-        }
-        else
-        {
-            ERROR_LOG("To many textures in cubeMap texture.");
-        }
-    }
-    return textures;
-}
-
-std::vector<float> ReadFloatVector(const Utils::XmlNode& node)
-{
-    auto strings = Utils::SplitString(node.value_, ' ');
-    DEBUG_LOG("string size : " + std::to_string(strings.size()));
-    std::vector<float> v;
-    v.reserve(strings.size());
-    for (const auto& value : strings)
-    {
-        try
-        {
-            v.push_back(std::stof(value));
-        }
-        catch (...)
-        {
-            DEBUG_LOG("stof exceptrion : " + value);
-        }
-    }
-    return v;
-}
-
-void Read(const Utils::XmlNode& node, Components::SkyBoxComponent& component)
-{
-    component.SetDayTexture(ReadCubeMapArray(node, CSTR_DAY_TEXTURES));
-    component.SetNightTexture(ReadCubeMapArray(node, CSTR_NIGHT_TEXTURES));
-    component.SetModel(node.GetChild(CSTR_MODEL_FILE_NAME)->value_);
-}
-
-void Read(const Utils::XmlNode&, Components::SkydomeComponent&)
-{
-}
-
-void Read(const Utils::XmlNode& node, Components::CharacterController& component)
-{
-    auto animationClipsNode = node.GetChild(CSTR_ANIMATION_CLIPS);
-    if (animationClipsNode)
-    {
-        setIfExist(*animationClipsNode, CSTR_IDLE_ANIMATION, component.idleAnimationName);
-        setIfExist(*animationClipsNode, CSTR_HURT_ANIMATION, component.hurtAnimationName);
-        setIfExist(*animationClipsNode, CSTR_RUN_ANIMATION, component.moveForwardAnimationName);
-        setIfExist(*animationClipsNode, CSTR_MOVEBACKWARD_ANIMATION, component.moveBackwardAnimationName);
-        setIfExist(*animationClipsNode, CSTR_DEATH_ANIMATION, component.deathAnimationName);
-        setIfExist(*animationClipsNode, CSTR_ATTACK_ANIMATION, component.attackAnimationName);
-        setIfExist(*animationClipsNode, CSTR_JUMP_ANIMATION, component.jumpAnimationName);
-    }
-}
-
-void Read(const Utils::XmlNode& node, Components::PlayerInputController& component)
-{
-    setIfExist(node, CSTR_WEAPON_CHILD_NAME, component.weaponChildObjectName_);
-    setIfExist(node, CSTR_WEAPON_BONE_NAME, component.weaponBoneName_);
-    setIfExist(node, CSTR_WEAPON_BONE_POSITION_OFFSET, component.weponBonePositionOffset_);
-    setIfExist(node, CSTR_WEAPON_BONE_ROTATION_OFFSET, component.weponBoneRotationOffsetDegreesEulers_);
-}
-
-void Read(const Utils::XmlNode& node, Components::WaterRendererComponent& component)
-{
-    auto waveSpeedNode = node.GetChild(CSTR_WAVE_SPEED);
-    if (waveSpeedNode)
-        component.SetWaveSpeed(ReadFloat(*waveSpeedNode));
-
-    auto colorNode = node.GetChild(CSTR_COLOR);
-    if (colorNode)
-        component.SetWaterColor(ReadVec4(*colorNode));
-
-    auto dudvNode      = node.GetChild(CSTR_DUDV_MAP);
-    auto normalMapNode = node.GetChild(CSTR_NORMAL_MAP);
-    if (dudvNode and normalMapNode)
-        component.LoadTextures(dudvNode->value_, normalMapNode->value_);
-}
-
-std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTextures(const Utils::XmlNode& node)
-{
-    std::vector<Components::TerrainComponentBase::TerrainTexture> result;
-
-    for (const auto& texture : node.GetChildren())
-    {
-        Components::TerrainComponentBase::TerrainTexture terrainTexture;
-        if (texture->GetChild(CSTR_TEXTURE_FILENAME))
-            terrainTexture.file = File(texture->GetChild(CSTR_TEXTURE_FILENAME)->value_);
-
-        if (texture->GetChild(CSTR_TEXTURE_TYPE))
-            std::from_string(texture->GetChild(CSTR_TEXTURE_TYPE)->value_, terrainTexture.type);
-        else
-            WARNING_LOG("Read texture without type");
-
-        if (texture->GetChild(CSTR_SCALE))
-            terrainTexture.tiledScale = ReadFloat(*texture->GetChild(CSTR_SCALE));
-
-        result.push_back(terrainTexture);
-    }
-    std::sort(result.begin(), result.end(),
-              [](const auto& l, const auto& r) { return static_cast<int>(l.type) < static_cast<int>(r.type); });
-    return result;
-}
-
-void Read(const Utils::XmlNode& node, Components::GrassRendererComponent& component)
-{
-    component.setTexture(node.GetChild(CSTR_TEXTURE_FILENAME)->value_);
-
-    if (node.GetChild(CSTR_FILE_NAME))
-    {
-        Components::GrassRendererComponent::GrassMeshes meshesData;
-
-        auto filename = node.GetChild(CSTR_FILE_NAME)->value_;
-
-        if (not filename.empty())
-        {
-            File file(filename);
-            auto succes = file.openToRead();
-            if (succes)
-            {
-                file.readVectorFromFile(meshesData.positions);
-                file.readVectorFromFile(meshesData.normals);
-                file.readVectorFromFile(meshesData.colors);
-                file.readVectorFromFile(meshesData.sizesAndRotations);
-                file.close();
-            }
-        }
-        component.SetMeshesData(std::move(meshesData));
-    }
-}
-
-void Read(const Utils::XmlNode& node, Components::TerrainRendererComponent& component)
-{
-    auto texturesNode = node.GetChild(CSTR_TEXTURE_FILENAMES);
-
-    if (texturesNode)
-    {
-        auto textures = ReadTerrainTextures(*node.GetChild(CSTR_TEXTURE_FILENAMES));
-        component.LoadTextures(textures);
-    }
-    else
-    {
-        ERROR_LOG("Child node with textures not found in terrain render component.");
-    }
-}
-
-void Read(const Utils::XmlNode&, Components::EnemyController&)
-{
-}
-
-void Read(const Utils::XmlNode&, Components::Enemy&)
-{
-}
-
-void Read(const Utils::XmlNode&, Components::Player&)
-{
-}
-
 template <typename T>
-void AddComponent(const Utils::XmlNode& node, GameObject& gameObject)
+void AddComponent(const TreeNode& node, GameObject& gameObject)
 {
     auto& comp = gameObject.AddComponent<T>();
     Read(node, comp);
 }
 
-void Read(Scene& scene, const Utils::XmlNode& node, GameObject& gameObject)
+void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
 {
-    auto transformNode = node.GetChild(CSTR_TRANSFORM);
+    auto transformNode = node.getChild(CSTR_TRANSFORM);
     if (transformNode)
     {
         Read(*transformNode, gameObject.GetTransform());
     }
 
-    auto& componentsNode = *node.GetChild(CSTR_COMPONENTS);
-
-    for (const auto& component : componentsNode.GetChildren())
+    auto componentsNode = node.getChild(CSTR_COMPONENTS);
+    if (componentsNode)
     {
-        auto type = Components::from_string(component->attributes_[CSTR_TYPE]);
-
-        if (not type)
-            continue;
-
-        switch (*type)
+        for (const auto& component : componentsNode->getChildren())
         {
-            case Components::ComponentsType::Animator:
-                AddComponent<Components::Animator>(*component, gameObject);
-                break;
-            case Components::ComponentsType::BoxShape:
-                AddComponent<Components::BoxShape>(*component, gameObject);
-                break;
-            case Components::ComponentsType::MeshShape:
-                AddComponent<Components::MeshShape>(*component, gameObject);
-                break;
-            case Components::ComponentsType::SphereShape:
-                AddComponent<Components::SphereShape>(*component, gameObject);
-                break;
-            case Components::ComponentsType::TerrainShape:
-                AddComponent<Components::TerrainShape>(*component, gameObject);
-                break;
-            case Components::ComponentsType::CapsuleShape:
-                AddComponent<Components::CapsuleShape>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Rigidbody:
-                AddComponent<Components::Rigidbody>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Renderer:
-                AddComponent<Components::RendererComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::TreeRenderer:
-                AddComponent<Components::TreeRendererComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::ParticleEffect:
-                AddComponent<Components::ParticleEffectComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::SkyBox:
-                AddComponent<Components::SkyBoxComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Skydome:
-                AddComponent<Components::SkydomeComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Grass:
-                AddComponent<Components::GrassRendererComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::TerrainRenderer:
-                AddComponent<Components::TerrainRendererComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Water:
-                AddComponent<Components::WaterRendererComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::ThridPersonCamera:
-                AddComponent<Components::ThridPersonCameraComponent>(*component, gameObject);
-                break;
-            case Components::ComponentsType::CharacterController:
-                AddComponent<Components::CharacterController>(*component, gameObject);
-                break;
-            case Components::ComponentsType::PlayerInputController:
-                AddComponent<Components::PlayerInputController>(*component, gameObject);
-                break;
-            case Components::ComponentsType::EnemyController:
-                AddComponent<Components::EnemyController>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Enemy:
-                AddComponent<Components::Enemy>(*component, gameObject);
-                break;
-            case Components::ComponentsType::Player:
-                AddComponent<Components::Player>(*component, gameObject);
-                break;
-            default:
-                break;
+            gameObject.InitComponent(*component);
         }
     }
-    auto childrenNode = node.GetChild(CSTR_CHILDREN);
+
+    auto childrenNode = node.getChild(CSTR_CHILDREN);
     if (childrenNode)
     {
-        for (auto& childNode : childrenNode->GetChildren())
+        for (auto& childNode : childrenNode->getChildren())
         {
             auto child = scene.CreateGameObject(childNode->attributes_.at(CSTR_NAME));
             Read(scene, *childNode, *child);
@@ -533,7 +83,7 @@ GameObject* loadPrefab(Scene& scene, const File& file, const std::string& name)
     scene.AddGameObject(std::move(gameObject));
     return result;
 }
-GameObject* createGameObjectFromPrefabNode(Scene& scene, const Utils::XmlNode& node, const std::string& name)
+GameObject* createGameObjectFromPrefabNode(Scene& scene, const TreeNode& node, const std::string& name)
 {
     auto gameObject = scene.CreateGameObject(name);
     Read(scene, node, *gameObject);
@@ -541,7 +91,7 @@ GameObject* createGameObjectFromPrefabNode(Scene& scene, const Utils::XmlNode& n
     scene.AddGameObject(std::move(gameObject));
     return result;
 }
-std::unique_ptr<GameObject> createGameObject(const Utils::XmlNode& node, Scene& scene)
+std::unique_ptr<GameObject> createGameObject(const TreeNode& node, Scene& scene)
 {
     if (node.attributes_.count(CSTR_ID))
     {
@@ -551,9 +101,9 @@ std::unique_ptr<GameObject> createGameObject(const Utils::XmlNode& node, Scene& 
 
     return scene.CreateGameObject(node.attributes_.at(CSTR_NAME));
 }
-void readNode(const Utils::XmlNode& node, Scene& scene)
+void readNode(const TreeNode& node, Scene& scene)
 {
-    for (const auto& child : node.GetChild(CSTR_GAMEOBJECTS)->GetChildren())
+    for (const auto& child : node.getChild(CSTR_GAMEOBJECTS)->getChildren())
     {
         auto gameObject = createGameObject(*child, scene);
         Read(scene, *child, *gameObject);

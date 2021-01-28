@@ -1,11 +1,11 @@
 #pragma once
-#include "XmlNode.h"
+#include "Utils/TreeNode.h"
 
 namespace Utils
 {
 namespace Xml
 {
-void Write(const std::string& filename, XmlNode& root);
-std::string Write(XmlNode& root);
+void Write(const std::string&, TreeNode&);
+std::string Write(TreeNode&);
 }
 }  // namespace Utils

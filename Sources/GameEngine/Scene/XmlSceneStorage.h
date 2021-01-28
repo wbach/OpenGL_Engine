@@ -1,6 +1,6 @@
 #pragma once
 #include "ISceneStorage.h"
-#include <Utils/XML/XmlNode.h>
+#include <Utils/TreeNode.h>
 #include <optional>
 
 namespace GameEngine
@@ -22,6 +22,6 @@ public:
 
 private:
     Scene& scene_;
-    std::optional<Utils::XmlNode> rootNode_;
+    std::optional<TreeNode> rootNode_;
 };
 }  // namespace GameEngine

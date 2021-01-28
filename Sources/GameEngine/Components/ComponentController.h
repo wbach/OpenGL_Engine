@@ -1,8 +1,9 @@
 #pragma once
 #include <Utils/IdPool.h>
+
 #include <functional>
 #include <unordered_map>
-#include "ComponentsTypes.h"
+
 #include "Types.h"
 
 namespace GameEngine
@@ -20,7 +21,7 @@ enum class FunctionType
     AlwaysUpdate,
 };
 
-typedef std::unordered_map<uint32, IComponent *> RegistredComponentsMap;
+typedef std::unordered_map<uint32, IComponent*> RegistredComponentsMap;
 
 class ComponentController final
 {
@@ -39,14 +40,25 @@ public:
     ComponentController();
     ~ComponentController();
 
-    const RegistredComponentsMap &GetAllComonentsOfType(ComponentsType) const;
+    template <class T>
+    const RegistredComponentsMap& GetAllComonentsOfType() const
+    {
+        auto iter = registredComponents_.find(typeid(T).hash_code());
+
+        if (iter != registredComponents_.end())
+        {
+            return iter->second;
+        }
+
+        return DEFAULT_COMPONETNS_MAP;
+    }
 
     uint32 RegisterFunction(IdType, FunctionType, std::function<void()>);
     void UnRegisterFunction(GameObjectId, FunctionType, uint32);
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, uint32, bool);
 
-    uint32 RegisterComponent(ComponentsType, IComponent *);
-    void UnRegisterComponent(ComponentsType, uint32);
+    uint32 RegisterComponent(size_t, IComponent*);
+    void UnRegisterComponent(size_t, uint32);
 
     void UnRegisterAll();
 
@@ -61,10 +73,13 @@ public:
 
 private:
     ComponentFunctions functions_;
-    std::unordered_map<ComponentsType, RegistredComponentsMap> registredComponents_;
+    std::unordered_map<size_t, RegistredComponentsMap> registredComponents_;
     Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;
+
+private:
+    const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;
 };
 }  // namespace Components
 }  // namespace GameEngine

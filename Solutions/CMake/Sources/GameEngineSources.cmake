@@ -22,9 +22,10 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
 ../../Sources/GameEngine/Components/Characters/Enemy.cpp
 ../../Sources/GameEngine/Components/Characters/Player.cpp
+../../Sources/GameEngine/Components/CommonReadDef.cpp
 ../../Sources/GameEngine/Components/ComponentController.cpp
 ../../Sources/GameEngine/Components/ComponentFactory.cpp
-../../Sources/GameEngine/Components/ComponentsType.cpp
+../../Sources/GameEngine/Components/ComponentsReadFunctions.cpp
 ../../Sources/GameEngine/Components/Controllers/CharacterController.cpp
 ../../Sources/GameEngine/Components/Controllers/EnemyController.cpp
 ../../Sources/GameEngine/Components/Input/PlayerInputController.cpp
@@ -36,9 +37,10 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Physics/SphereShape.cpp
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainHeightGetter.cpp
 ../../Sources/GameEngine/Components/Physics/Terrain/TerrainShape.cpp
+../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.cpp
 ../../Sources/GameEngine/Components/Renderer/Entity/PreviewComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.cpp
-../../Sources/GameEngine/Components/Renderer/Grass/GrassComponent.cpp
+../../Sources/GameEngine/Components/Renderer/Grass/GrassRendererComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Particles/ParticleEffectComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.cpp
 ../../Sources/GameEngine/Components/Renderer/Skydome/SkydomeComponent.cpp

@@ -5,15 +5,15 @@ namespace GameEngine
 {
 namespace DebugNetworkInterface
 {
-void SetParam(CameraMsg& output, Utils::XmlNode& input)
+void SetParam(CameraMsg& output, TreeNode& input)
 {
-    if (input.IsAttributePresent("position"))
+    if (input.isAttributePresent("position"))
     {
-        output.position = Utils::ConvertToVec3(*input.GetChild("position"));
+        output.position = ::ConvertToVec3(*input.getChild("position"));
     }
-    if (input.IsAttributePresent("rotation"))
+    if (input.isAttributePresent("rotation"))
     {
-        output.rotation = Utils::ConvertToVec3(*input.GetChild("rotation"));
+        output.rotation = ::ConvertToVec3(*input.getChild("rotation"));
     }
 }
 std::unique_ptr<Network::IMessage> DeserializeCameraMsg(Utils::XmlReader& reader)

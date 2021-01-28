@@ -36,9 +36,6 @@ private:
 
 private:
     std::unordered_map<std::string, LevelOfDetail> filenames_;
-
-public:
-    static ComponentsType type;
 };
 
 ModelWrapper& PreviewComponent::GetModelWrapper()

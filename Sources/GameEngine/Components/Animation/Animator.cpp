@@ -14,16 +14,23 @@
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "PlayAnimationEvent.h"
 
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
+
 namespace GameEngine
 {
 using namespace Animation;
 
 namespace Components
 {
-ComponentsType Animator::type = ComponentsType::Animator;
+namespace
+{
+const std::string COMPONENT_STR{"Animator"};
+const std::string CSTR_STARTUP_ANIMATION = "startupAnimationClip";
+}  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(ComponentsType::Animator, componentContext, gameObject)
+    : BaseComponent(typeid(Animator).hash_code(), componentContext, gameObject)
     , jointData_(componentContext_.graphicsApi_)
     , animationSpeed_{1.f}
 {
@@ -244,6 +251,45 @@ void Animator::initAnimationClips(const Model& model)
 
     if (animationClips_.size() > 0)
         rendererComponent_->useArmature(true);
+}
+void Animator::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        auto component          = std::make_unique<Animator>(componentContext, gameObject);
+        auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
+
+        if (animationClipsNode)
+        {
+            for (const auto& childNode : animationClipsNode->getChildren())
+            {
+                component->AddAnimationClip(GameEngine::File(childNode->value_));
+            }
+        }
+
+        auto startupAnimationNode = node.getChild(CSTR_STARTUP_ANIMATION);
+        if (startupAnimationNode)
+        {
+            component->startupAnimationClipName_ = startupAnimationNode->value_;
+        }
+
+        return component;
+    };
+
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
+void Animator::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.addChild(CSTR_STARTUP_ANIMATION, startupAnimationClipName_);
+    auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
+
+    for (const auto& clip : animationClips_)
+    {
+        if (not clip.second.filePath.empty())
+        {
+            animationClipsNode.addChild(CSTR_ANIMATION_CLIP, clip.second.filePath);
+        }
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine
