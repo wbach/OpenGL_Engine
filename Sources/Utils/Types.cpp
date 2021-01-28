@@ -51,6 +51,11 @@ bool compare(float x, float y, float epsilon)
     return fabsf(x - y) <= epsilon;
 }
 
+float getRandomFloat()
+{
+    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+}
+
 namespace std
 {
 std::string to_string(const vec2& v)

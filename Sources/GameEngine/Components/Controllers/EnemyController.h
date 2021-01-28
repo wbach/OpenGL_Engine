@@ -26,6 +26,7 @@ public:
 private:
     Quaternion caclulateTargetRotation(const vec3&) const;
     void clearStates();
+    void calculateMovingPoints();
 
 private:
     Enemy* enemy_;
@@ -35,6 +36,10 @@ private:
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
+
+    vec3 freeWalkingTargetPoint;
+    size_t freeWalkingTargetPointIndex;
+    std::array<vec3, 4> movingPoints_;
 };
 }  // namespace Components
 }  // namespace GameEngine

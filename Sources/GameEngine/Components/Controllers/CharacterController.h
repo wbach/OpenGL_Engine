@@ -171,7 +171,7 @@ public:
 class RotateToTarget : public CharacterControllerState
 {
 public:
-    RotateToTarget(const Quaternion& target, float speed = DEFAULT_TURN_SPEED)
+    RotateToTarget(const Quaternion& target, float speed = 1.f)
         : CharacterControllerState(CharacterControllerState::Type::ROTATE_TARGET)
         , rotateSpeed_{speed}
         , progress_{0.f}
@@ -199,7 +199,7 @@ public:
 
     void process(float deltaTime) override
     {
-        progress_ += deltaTime;
+        progress_ += (deltaTime / rotateSpeed_);
 
         if (progress_ > 1.f)
         {

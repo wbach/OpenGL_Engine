@@ -24,6 +24,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
                      engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
+    srand((unsigned)time(NULL));
     Components::RegisterReadFunctionForDefaultEngineComponents();
 
     if (EngineConf.debugParams.logLvl != LogginLvl::None)
