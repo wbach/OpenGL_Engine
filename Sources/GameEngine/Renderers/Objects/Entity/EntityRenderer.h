@@ -39,11 +39,11 @@ public:
     void subscribe(GameObject&);
     void unSubscribe(GameObject&);
     void unSubscribeAll();
-    void render();
+    uint32 render();
 
 private:
-    void renderModel(const EntitySubscriber&, const Model&) const;
-    void renderMesh(const Mesh&) const;
+    void renderModel(const EntitySubscriber&, const Model&);
+    void renderMesh(const Mesh&);
     void renderEntities();
     void bindMaterial(const Material&) const;
     void unBindMaterial(const Material&) const;
@@ -56,6 +56,8 @@ private:
     std::set<uint32> subscribesIds_;
 
     std::mutex subscriberMutex_;
+
+    uint32 renderedMeshes_;
 };
 
 }  // namespace GameEngine

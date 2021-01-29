@@ -26,12 +26,16 @@ EntityRenderer::~EntityRenderer()
     unSubscribeAll();
 }
 
-void EntityRenderer::render()
+uint32 EntityRenderer::render()
 {
+    renderedMeshes_ = 0;
+
     if (not subscribes_.empty())
     {
         renderEntities();
     }
+
+    return renderedMeshes_;
 }
 
 void EntityRenderer::subscribe(GameObject& gameObject)
@@ -99,8 +103,14 @@ void EntityRenderer::renderEntities()
     }
 }
 
-void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model) const
+void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model)
 {
+    auto radius = glm::compMax(subsriber.gameObject->GetWorldTransform().GetScale());
+    auto isVisible = context_.frustrum_.intersection(subsriber.gameObject->GetWorldTransform().GetPosition(), radius);
+
+    if (not isVisible)
+        return;
+
     if (subsriber.animator and model.getRootJoint())
     {
         const auto& perPoseBuffer = subsriber.animator->getPerPoseBufferId();
@@ -140,8 +150,9 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
     }
 }
 
-void EntityRenderer::renderMesh(const Mesh& mesh) const
+void EntityRenderer::renderMesh(const Mesh& mesh)
 {
+    ++renderedMeshes_;
     bindMaterial(mesh.GetMaterial());
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
     unBindMaterial(mesh.GetMaterial());

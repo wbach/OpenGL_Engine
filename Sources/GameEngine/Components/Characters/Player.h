@@ -1,17 +1,19 @@
 #pragma once
 #include <Common/Controllers/CharacterController/Character.h>
-#include <GameEngine/Components/Physics/Rigidbody.h>
-#include "GameEngine/Components/BaseComponent.h"
-
 #include <Common/Controllers/CharacterController/CharacterActions.h>
+#include <GameEngine/Components/Physics/Rigidbody.h>
+
 #include "CharacterStatistic.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
+#include "Bar.h"
 
 namespace GameEngine
 {
 class GuiManager;
 class GuiTextureElement;
+class GuiWindowElement;
 
 namespace Components
 {
@@ -19,21 +21,10 @@ class Player : public BaseComponent
 {
     struct HudElements
     {
-        struct Bar
-        {
-            int64& current;
-            int64& maxValue;
-
-            GuiTextureElement* texture{nullptr};
-            int64 maxRendered{0};
-            int64 currentRendered{0};
-
-            void update();
-        };
-
         Bar hp;
         Bar stamina;
         Bar mana;
+        GuiWindowElement* window{nullptr};
     };
 
 public:

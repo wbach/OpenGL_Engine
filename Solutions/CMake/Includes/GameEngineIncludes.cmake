@@ -33,6 +33,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/BaseComponent.h
 ../../Sources/GameEngine/Components/Camera/FirstPersonCamera.h
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.h
+../../Sources/GameEngine/Components/Characters/Bar.h
 ../../Sources/GameEngine/Components/Characters/CharacterStatistic.h
 ../../Sources/GameEngine/Components/Characters/Enemy.h
 ../../Sources/GameEngine/Components/Characters/Player.h
@@ -45,7 +46,6 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Controllers/ControllerUtlis.h
 ../../Sources/GameEngine/Components/Controllers/EnemyController.h
 ../../Sources/GameEngine/Components/IComponent.h
-../../Sources/GameEngine/Components/IComponentFactory.h
 ../../Sources/GameEngine/Components/Input/PlayerInputController.h
 ../../Sources/GameEngine/Components/Physics/BoxShape.h
 ../../Sources/GameEngine/Components/Physics/CapsuleShape.h

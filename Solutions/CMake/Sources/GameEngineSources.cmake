@@ -20,6 +20,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Animation/StateMachine.cpp
 ../../Sources/GameEngine/Components/BaseComponent.cpp
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
+../../Sources/GameEngine/Components/Characters/Bar.cpp
 ../../Sources/GameEngine/Components/Characters/Enemy.cpp
 ../../Sources/GameEngine/Components/Characters/Player.cpp
 ../../Sources/GameEngine/Components/CommonReadDef.cpp

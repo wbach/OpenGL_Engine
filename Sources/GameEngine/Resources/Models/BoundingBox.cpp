@@ -46,9 +46,11 @@ void BoundingBox::max(const vec3 &max)
     calculate();
 }
 
-void BoundingBox::scale(const vec3 &)
+void BoundingBox::scale(const vec3 & scaleFactor)
 {
-    // to do
+    min_ *= scaleFactor;
+    max_ *= scaleFactor;
+    calculate();
 }
 
 const vec3 &BoundingBox::min() const

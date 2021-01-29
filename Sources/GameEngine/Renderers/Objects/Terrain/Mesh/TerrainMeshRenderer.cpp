@@ -46,14 +46,13 @@ void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber)
 
     auto isVisible = context_.frustrum_.intersection(model->getBoundingBox());
 
-    auto textureBufferId = subscriber.component_->getPerTerrainTexturesBufferId();
-    if (textureBufferId)
-    {
-        context_.graphicsApi_.BindShaderBuffer(*textureBufferId);
-    }
-
     if (isVisible)
     {
+        auto textureBufferId = subscriber.component_->getPerTerrainTexturesBufferId();
+        if (textureBufferId)
+        {
+            context_.graphicsApi_.BindShaderBuffer(*textureBufferId);
+        }
         bindTextures(subscriber.component_->GetTextures());
 
         if (subscriber.component_->GetConfiguration().GetPartsCount())

@@ -1,6 +1,7 @@
 #include "Enemy.h"
 
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -13,7 +14,6 @@
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Camera/CameraWrapper.h"
 
 namespace GameEngine
 {
@@ -34,6 +34,8 @@ Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
 }
 void Enemy::CleanUp()
 {
+    if (hud_.window)
+        guiManager_.Remove(*hud_.window);
 }
 void Enemy::ReqisterFunctions()
 {
@@ -91,15 +93,24 @@ void Enemy::Update()
     hud_.hp.update();
     if (hud_.window)
     {
-         auto screenPosition =
-            componentContext_.renderersManager_.convertToScreenPosition(thisObject_.GetWorldTransform().GetPosition());
-         hud_.window->SetScreenPostion(screenPosition);
+        auto cameraPostion  = componentContext_.scene_.GetCamera().GetPosition();
+        auto toCameraVector = cameraPostion - thisObject_.GetWorldTransform().GetPosition();
 
-         //auto ndcPos =
-         //    componentContext_.renderersManager_.convertToNdcPosition2(thisObject_.GetWorldTransform().GetPosition());
-         //
-         //auto cameraPostion = componentContext_.scene_.GetCamera().GetPosition();
-          //DEBUG_LOG("ndcPos : " + std::to_string(ndcPos));
+        if (glm::length(toCameraVector) > 10.f)
+        {
+            if (hud_.window->IsShow())
+                hud_.window->Hide();
+        }
+        else
+        {
+            if (not hud_.window->IsShow())
+                hud_.window->Show();
+        }
+
+        return;
+        // auto screenPosition =
+        //    componentContext_.renderersManager_.convertToScreenPosition(thisObject_.GetWorldTransform().GetPosition());
+        // hud_.window->SetScreenPostion(screenPosition);
     }
 }
 void Enemy::hurt(int64 dmg)
@@ -138,17 +149,6 @@ void Enemy::registerReadFunctions()
 void Enemy::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
-}
-void Enemy::HudElements::Bar::update()
-{
-    if (texture and (currentRendered != current or maxRendered != maxValue))
-    {
-        maxRendered     = maxValue;
-        currentRendered = current;
-
-        auto p = static_cast<float>(current) / static_cast<float>(maxValue);
-        texture->SetLocalScale(vec2(p, texture->GetLocalScale().y));
-    }
 }
 }  // namespace Components
 }  // namespace GameEngine

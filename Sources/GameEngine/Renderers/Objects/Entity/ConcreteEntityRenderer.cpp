@@ -25,6 +25,7 @@ ConcreteEntityRenderer::ConcreteEntityRenderer(RendererContext& context)
     , entityRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
+    measurementValue_ = &context.measurmentHandler_.AddNewMeasurment("EnityRendererdMeshes", "0");
 }
 
 ConcreteEntityRenderer::~ConcreteEntityRenderer()
@@ -48,7 +49,7 @@ void ConcreteEntityRenderer::render()
         bindShadowMap(CASCADE_INDEX1, 5);
         bindShadowMap(CASCADE_INDEX2, 6);
         bindShadowMap(CASCADE_INDEX3, 7);
-        entityRenderer_.render();
+        *measurementValue_ = std::to_string(entityRenderer_.render());
         shader_.Stop();
     }
 }

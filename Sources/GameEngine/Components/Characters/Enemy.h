@@ -3,6 +3,7 @@
 #include <Common/Controllers/CharacterController/CharacterActions.h>
 #include <GameEngine/Components/Physics/Rigidbody.h>
 
+#include "Bar.h"
 #include "CharacterStatistic.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
@@ -20,18 +21,6 @@ class Enemy : public BaseComponent
 {
     struct HudElements
     {
-        struct Bar
-        {
-            int64& current;
-            int64& maxValue;
-
-            GuiTextureElement* texture{nullptr};
-            int64 maxRendered{0};
-            int64 currentRendered{0};
-
-            void update();
-        };
-
         Bar hp;
         GuiWindowElement* window{nullptr};
     };

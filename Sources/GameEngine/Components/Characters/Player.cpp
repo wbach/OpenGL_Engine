@@ -33,6 +33,10 @@ Player::Player(ComponentContext& componentContext, GameObject& gameObject)
 }
 void Player::CleanUp()
 {
+    if (hudElements_.window)
+    {
+        guiManager_.Remove(*hudElements_.window);
+    }
 }
 void Player::ReqisterFunctions()
 {
@@ -65,6 +69,8 @@ void Player::Init()
 
     auto window         = componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY,
                                                                        windowPosition + 0.5f * windowSize, windowSize);
+
+    hudElements_.window = window.get();
     auto verticalLayout = componentContext_.guiElementFactory_.CreateVerticalLayout();
     verticalLayout->SetAlgin(Layout::Algin::LEFT);
 
@@ -122,17 +128,6 @@ void Player::registerReadFunctions()
 void Player::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
-}
-void Player::HudElements::Bar::update()
-{
-    if (texture and (currentRendered != current or maxRendered != maxValue))
-    {
-        maxRendered     = maxValue;
-        currentRendered = current;
-
-        auto p = static_cast<float>(current) / static_cast<float>(maxValue);
-        texture->SetLocalScale(vec2(p, texture->GetLocalScale().y));
-    }
 }
 }  // namespace Components
 }  // namespace GameEngine
