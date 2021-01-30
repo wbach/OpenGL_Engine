@@ -96,7 +96,7 @@ void Enemy::Update()
         auto cameraPostion  = componentContext_.scene_.GetCamera().GetPosition();
         auto toCameraVector = cameraPostion - thisObject_.GetWorldTransform().GetPosition();
 
-        if (glm::length(toCameraVector) > 10.f)
+        if (glm::length(toCameraVector) > 20.f)
         {
             if (hud_.window->IsShow())
                 hud_.window->Hide();

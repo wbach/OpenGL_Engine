@@ -48,7 +48,7 @@ public:
     template <class T>
     T& AddComponent();
 
-    void InitComponent(const TreeNode&);
+    Components::IComponent* InitComponent(const TreeNode&);
 
     template <class T>
     void RemoveComponent();

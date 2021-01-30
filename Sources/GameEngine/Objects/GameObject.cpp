@@ -33,13 +33,15 @@ GameObject::~GameObject()
     if (localTransfromSubscribtion_)
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 }
-void GameObject::InitComponent(const TreeNode& node)
+Components::IComponent* GameObject::InitComponent(const TreeNode& node)
 {
     auto component = componentFactory_.Create(node, *this);
     if (component)
     {
         components_.push_back(std::move(component));
+        return components_.back().get();
     }
+    return nullptr;
 }
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {

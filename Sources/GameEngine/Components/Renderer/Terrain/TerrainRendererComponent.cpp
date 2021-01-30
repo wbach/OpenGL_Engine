@@ -1,15 +1,20 @@
 #include "TerrainRendererComponent.h"
 
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+
+#include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/ConfigurationParams/RendererParams/TerrainParam/TerrainType.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/ResourceUtils.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 #include "TerrainMeshRendererComponent.h"
 #include "TerrainTessellationRendererComponent.h"
-#include "Utils/FileSystem/FileSystemUtils.hpp"
 
 namespace GameEngine
 {
@@ -17,11 +22,9 @@ namespace Components
 {
 namespace
 {
-const std::string CSTR_SCALE        = "scale";
-const std::string CSTR_TEXTURE_TYPE = "textureType";
-const std::string COMPONENT_STR{"TerrainRenderer"};
-const std::string CSTR_TEXTURE_FILENAME  = "textureFileName";
 const std::string CSTR_TEXTURE_FILENAMES = "textureFileNames";
+const std::string CSTR_TEXTURE_TYPE      = "textureType";
+const std::string COMPONENT_STR          = "TerrainRenderer";
 }  // namespace
 
 TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
@@ -321,9 +324,66 @@ void TerrainRendererComponent::registerReadFunctions()
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
 }
 
+namespace
+{
+void create(TreeNode& node, TerrainTextureType type, float scale, const std::string& filename)
+{
+    ::write(node.addChild(CSTR_TEXTURE_TYPE), std::to_string(type));
+    ::write(node.addChild(CSTR_SCALE), std::to_string(scale));
+    ::write(node.addChild(CSTR_TEXTURE_FILENAME), filename);
+}
+
+void create(TreeNode& node, const std::vector<Components::TerrainComponentBase::TerrainTexture>& textures)
+{
+    for (const auto& value : textures)
+    {
+        create(node.addChild(CSTR_TEXTURE), value.type, value.tiledScale, value.file.GetDataRelativeDir());
+    }
+}
+}  // namespace
+
 void TerrainRendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+
+    create(node.addChild(CSTR_TEXTURE_FILENAMES), GetInputDataTextures());
+
+    auto heightMapTexture = GetTexture(TerrainTextureType::heightmap);
+
+    if (heightMapTexture and heightMapTexture->IsModified())
+    {
+        auto heightMap = static_cast<HeightMap*>(heightMapTexture);
+        if (heightMap and heightMap->GetFile())
+        {
+            Utils::CreateBackupFile(heightMap->GetFile()->GetAbsoultePath());
+            SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsoultePath());
+        }
+        else
+        {
+            ERROR_LOG("Heightmap texture cast error");
+        }
+    }
+
+    auto blendMapTexture = GetTexture(TerrainTextureType::blendMap);
+
+    if (blendMapTexture)
+    {
+        if (blendMapTexture->IsModified() and blendMapTexture->GetFile())
+        {
+            auto blendMap     = static_cast<GeneralTexture*>(blendMapTexture);
+            const auto& image = blendMap->GetImage();
+            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
+
+            std::visit(visitor{
+                           [&](const std::vector<uint8>& data) {
+                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                           },
+                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                       },
+                       image.getImageData());
+        }
+    }
 }
 
 }  // namespace Components
