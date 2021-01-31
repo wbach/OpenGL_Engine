@@ -113,11 +113,10 @@ void Enemy::Update()
         // hud_.window->SetScreenPostion(screenPosition);
     }
 }
-void Enemy::hurt(int64 dmg)
+std::optional<int64> Enemy::hurt(int64 dmg)
 {
     if (characterController_ and characterStatistic_.currentHp > 0)
     {
-        DEBUG_LOG("");
         characterStatistic_.currentHp -= dmg;
 
         if (characterStatistic_.currentHp > 0)
@@ -128,8 +127,12 @@ void Enemy::hurt(int64 dmg)
         {
             characterController_->addState(std::make_unique<Death>());
             characterController_->Deactivate();
+            Deactivate();
         }
+
+        return dmg;
     }
+    return std::nullopt;
 }
 
 const CharacterStatistic& Enemy::characterStatistic() const

@@ -17,9 +17,14 @@ std::tuple<float, vec3, T*> getComponentsInRange(const ComponentController& comp
 
     float distance = std::numeric_limits<float>::max();
 
-    for (const auto& component : components)
+    for (const auto& icomponent : components)
     {
-        const auto& targetPosition = component.second->getParentGameObject().GetWorldTransform().GetPosition();
+        auto& component = *static_cast<T*>(icomponent.second);
+
+        if (not component.IsActive())
+            continue;
+
+        const auto& targetPosition = component.getParentGameObject().GetWorldTransform().GetPosition();
 
         const auto dist              = targetPosition - sourcePosition;
         const auto& distanceToPlayer = glm::length(dist);
@@ -28,7 +33,7 @@ std::tuple<float, vec3, T*> getComponentsInRange(const ComponentController& comp
         {
             distance         = distanceToPlayer;
             vectorToTarget   = dist;
-            closestComponent = static_cast<T*>(component.second);
+            closestComponent = &component;
         }
     }
     return {distance, vectorToTarget, closestComponent};

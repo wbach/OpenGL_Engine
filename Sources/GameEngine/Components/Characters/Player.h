@@ -36,6 +36,7 @@ public:
     void Init();
     void Update();
     void hurt(int64);
+    void renderDmg(const common::Transform&, int64);
 
 private:
     GuiManager& guiManager_;

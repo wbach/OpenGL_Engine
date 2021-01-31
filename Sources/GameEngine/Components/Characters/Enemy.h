@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
+#include <optional>
 
 namespace GameEngine
 {
@@ -33,7 +34,7 @@ public:
 
     void Init();
     void Update();
-    void hurt(int64);
+    std::optional<int64> hurt(int64);
     const CharacterStatistic& characterStatistic() const;
 
 private:

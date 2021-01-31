@@ -285,7 +285,7 @@ public:
     void Init();
     void Update();
 
-    void addState(std::unique_ptr<CharacterControllerState>);
+    bool addState(std::unique_ptr<CharacterControllerState>);
     void removeState(CharacterControllerState::Type);
     void clearStates();
 

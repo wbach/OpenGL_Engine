@@ -1,13 +1,15 @@
 #pragma once
 #include <functional>
+#include <list>
 #include <string>
+
+#include "GuiAnimation.h"
 #include "GuiElement.h"
 #include "Input/KeyCodes.h"
 #include "Layer/GuiLayer.h"
 #include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
-#include <list>
 
 namespace GameEngine
 {
@@ -24,7 +26,8 @@ public:
     GuiLayer& AddLayer(const std::string&);
     void Add(const std::string& layerName, std::unique_ptr<GuiElement> element);
     void Add(std::unique_ptr<GuiElement> element);
-    void Update();
+    void add(GuiAnimation&);
+    void Update(float);
     void RegisterAction(const std::string&, ActionFunction);
     void RegisterDefaultAction(ActionFunction);
     bool SaveToFile(const std::string&);
@@ -54,6 +57,7 @@ private:
     std::mutex taskMutex_;
     std::unordered_map<std::string, ActionFunction> registeredActions_;
     std::vector<std::function<void()>> tasks_;
+    std::vector<GuiAnimation> animations;
 };
 
 template <class T>

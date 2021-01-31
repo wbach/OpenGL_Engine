@@ -97,7 +97,7 @@ void Scene::FullUpdate(float deltaTime)
     }
     if (guiManager_)
     {
-        guiManager_->Update();
+        guiManager_->Update(deltaTime);
     }
     if (guiEngineContextManger_)
     {

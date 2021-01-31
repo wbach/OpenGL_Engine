@@ -54,6 +54,10 @@ void GuiManager::Add(std::unique_ptr<GuiElement> element)
 {
     Add(DEFAULT_LAYER, std::move(element));
 }
+void GuiManager::add(GuiAnimation& element)
+{
+    animations.push_back(std::move(element));
+}
 GuiElement* GuiManager::GetElement(const std::string& label)
 {
     for (auto& layer : layers_)
@@ -89,8 +93,20 @@ const GuiLayers& GuiManager::GetGuiLayers() const
     return layers_;
 }
 
-void GuiManager::Update()
+void GuiManager::Update(float deltaTime)
 {
+    for (auto iter = animations.begin(); iter != animations.end();)
+    {
+        if (iter->update(deltaTime) == GuiAnimation::Status::done)
+        {
+            iter = animations.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
     for (auto& layer : layers_)
     {
         for (auto& element : layer.GetElements())

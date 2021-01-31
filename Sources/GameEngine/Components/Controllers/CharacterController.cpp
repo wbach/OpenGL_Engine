@@ -112,13 +112,13 @@ void CharacterController::Update()
     clearVelocityIfNotMoving();
 }
 
-void CharacterController::addState(std::unique_ptr<CharacterControllerState> state)
+bool CharacterController::addState(std::unique_ptr<CharacterControllerState> state)
 {
     std::lock_guard<std::mutex> lk(stateMutex_);
 
     if (not rigidbody_)
     {
-        return;
+        return false;
     }
 
     state->setup(rigidbody_);
@@ -128,7 +128,7 @@ void CharacterController::addState(std::unique_ptr<CharacterControllerState> sta
     {
         if ((*stateIter)->isUpToDate(*state))
         {
-            return;
+            return false;
         }
         states_.erase(stateIter);
     }
@@ -139,6 +139,8 @@ void CharacterController::addState(std::unique_ptr<CharacterControllerState> sta
         states_.push_back(std::move(state));
         onStateAdittion(type);
     }
+
+    return true;
 }
 
 void CharacterController::removeState(CharacterControllerState::Type type)

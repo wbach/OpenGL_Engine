@@ -6,11 +6,13 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/GUI/GuiAnimation.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Renderers/GUI/Layer/DefaultLayers.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 
 namespace GameEngine
 {
@@ -58,7 +60,12 @@ void Player::Init()
             {
                 if (distance < ATTACK_RANGE)
                 {
-                    componentPtr->hurt(characterStatistic_.attackDmg);
+                    auto dmg = componentPtr->hurt(characterStatistic_.attackDmg);
+
+                    if (dmg)
+                    {
+                        renderDmg(componentPtr->getParentGameObject().GetWorldTransform(), *dmg);
+                    }
                 }
             }
         });
@@ -67,7 +74,7 @@ void Player::Init()
     const vec2 windowSize(0.2f, 0.1f);
     const vec2 windowPosition(0.01f);
 
-    auto window         = componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY,
+    auto window = componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY,
                                                                        windowPosition + 0.5f * windowSize, windowSize);
 
     hudElements_.window = window.get();
@@ -115,8 +122,56 @@ void Player::hurt(int64 dmg)
         {
             characterController_->addState(std::make_unique<Death>());
             characterController_->Deactivate();
+            Deactivate();
         }
     }
+}
+void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
+{
+    vec2 offset(getRandomFloat() / 20.f, getRandomFloat() / 20.f);
+    auto hitInfoWorldPoision   = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
+    auto hitInfoScreenPosition = componentContext_.renderersManager_.convertToScreenPosition(hitInfoWorldPoision);
+    auto hitText               = componentContext_.guiElementFactory_.CreateGuiText(std::to_string(dmg));
+    hitText->SetScreenScale(vec2(0.05f));
+    hitText->SetScreenPostion(hitInfoScreenPosition + offset);
+    hitText->SetColor(vec4(1.f, 1.f, 1.f, 0.f));
+
+    auto hitTextPtr = hitText.get();
+
+    guiManager_.add(GuiAnimation(
+        std::move(hitText), GuiAnimation::Duration(1.f),
+        [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
+            GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable {
+
+            if (elapsedTime > 0.5f)
+            {
+                const float speed    = 0.05f;
+                auto currentPosition = text.GetScreenPosition();
+                currentPosition.y += (speed * deltaTime);
+                offset.y += (speed * deltaTime);
+            }
+
+            auto hitInfoWorldPoision = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
+            auto hitInfoScreenPosition = rendererManager.convertToScreenPosition(hitInfoWorldPoision);
+            text.SetScreenPostion(hitInfoScreenPosition + offset);
+
+            auto currentColor = hitTextPtr->GetColor();
+            if (elapsedTime < 0.4f)
+            {
+                if (currentColor.a < 1.f)
+                {
+                    currentColor.a += 3.f * deltaTime;
+                }
+            }
+            else if (elapsedTime > 0.6f)
+            {
+                if (currentColor.a > 0.f)
+                {
+                    currentColor.a -= 3.f * deltaTime;
+                }
+            }
+            hitTextPtr->SetColor(currentColor);
+        }));
 }
 void Player::registerReadFunctions()
 {
