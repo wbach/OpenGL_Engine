@@ -54,7 +54,7 @@ void GuiManager::Add(std::unique_ptr<GuiElement> element)
 {
     Add(DEFAULT_LAYER, std::move(element));
 }
-void GuiManager::add(GuiAnimation& element)
+void GuiManager::add(GuiAnimation element)
 {
     animations.push_back(std::move(element));
 }

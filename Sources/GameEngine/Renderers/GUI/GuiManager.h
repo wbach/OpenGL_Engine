@@ -26,7 +26,7 @@ public:
     GuiLayer& AddLayer(const std::string&);
     void Add(const std::string& layerName, std::unique_ptr<GuiElement> element);
     void Add(std::unique_ptr<GuiElement> element);
-    void add(GuiAnimation&);
+    void add(GuiAnimation);
     void Update(float);
     void RegisterAction(const std::string&, ActionFunction);
     void RegisterDefaultAction(ActionFunction);

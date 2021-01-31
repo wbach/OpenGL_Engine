@@ -218,6 +218,7 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Renderers/GUI/Button/GuiButton.h
 ../../Sources/GameEngine/Renderers/GUI/ContextMenu/ContextMenu.h
 ../../Sources/GameEngine/Renderers/GUI/EditText/GuiEditText.h
+../../Sources/GameEngine/Renderers/GUI/GuiAnimation.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElement.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElementFactory.h
 ../../Sources/GameEngine/Renderers/GUI/GuiElementReader.h
