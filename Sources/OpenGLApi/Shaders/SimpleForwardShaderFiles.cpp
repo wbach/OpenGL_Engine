@@ -171,7 +171,15 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Gui/guiVertexShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Gui/guiFragmentShader.frag"}
         }
-    }
+    },
+    {
+        GraphicsApi::ShaderProgramType::DebugNormal,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/NormalShader.vert"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "DebugShaders/NormalShader.geom"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER,"DebugShaders/NormalShader.frag"}
+        }
+   }
 };
 // clang-format on
 }  // namespace

@@ -202,7 +202,7 @@ class ComponentsView:
         btn.grid(column=1, row=self.size, padx=5, pady=0)
         self.size = self.size + 1
 
-        if msg.get("name") == "Grass":
+        if msg.get("name") == "GrassRenderer":
             btn = tk.Button(self.componentsFrame, text="Enable grass painter",
                             command=lambda: self.networkClient.SendCommand("enablePlantPainter gameObjectId=" + str(self.gameObjectId)), width=30)
             btn.grid(column=1, row=self.size, padx=5, pady=0)

@@ -32,6 +32,8 @@ struct IPhysicsApi
     virtual uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
                                       const IndicesVector& indicies, float scaleFactor)                  = 0;
     virtual uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic)               = 0;
+    virtual void RemoveRigidBody(uint32 id)                                                              = 0;
+    virtual void RemoveShape(uint32 id)                                                                  = 0;
     virtual void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)                          = 0;
     virtual void ApplyImpulse(uint32 rigidBodyId, const vec3& impulse)                                   = 0;
     virtual void IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)                     = 0;
@@ -39,7 +41,6 @@ struct IPhysicsApi
     virtual void SetAngularFactor(uint32 rigidBodyId, float value)                                       = 0;
     virtual void SetAngularFactor(uint32 rigidBodyId, const vec3& value)                                 = 0;
     virtual std::optional<vec3> GetAngularFactor(uint32 rigidBodyId)                                     = 0;
-    virtual void RemoveRigidBody(uint32 id)                                                              = 0;
     virtual void SetRotation(uint32 rigidBodyId, const vec3&)                                            = 0;
     virtual void SetRotation(uint32 rigidBodyId, const Quaternion&)                                      = 0;
     virtual void SetPosition(uint32 rigidBodyId, const vec3&)                                            = 0;

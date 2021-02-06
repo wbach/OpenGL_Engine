@@ -38,6 +38,8 @@ extern const std::string CSTR_VEC3;
 
 void Read(const TreeNode&, float&);
 void Read(const TreeNode&, bool&);
+void Read(const TreeNode&, int32&);
+void Read(const TreeNode&, uint32&);
 void Read(const TreeNode&, vec2&);
 void Read(const TreeNode&, vec2ui&);
 void Read(const TreeNode&, vec3&);

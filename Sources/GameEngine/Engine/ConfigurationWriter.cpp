@@ -77,6 +77,8 @@ void Create(TreeNode& node, const Params::TerrainType& param)
 void Create(TreeNode& node, const Params::Terrain& param)
 {
     Create(node.addChild(CSTR_TERRAIN_RENDERER_TYPE), param.terrainType);
+    node.addChild(CSTR_TERRAIN_MESH_RESOLUTION_DIVIDER, std::to_string(param.resolutionDivideFactor));
+    node.addChild(CSTR_TERRAIN_MESH_PARTS_COUNT, std::to_string(param.meshPartsCount));
 }
 void Create(TreeNode& node, const Params::Renderer& param)
 {

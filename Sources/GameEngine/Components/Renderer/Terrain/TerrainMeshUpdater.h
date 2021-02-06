@@ -16,12 +16,13 @@ public:
     struct EntryParameters
     {
         ComponentContext& componentContext_;
-        TerrainConfiguration& config_;
         ModelWrapper& modelWrapper_;
         HeightMap& heightMap_;
+        vec3 scale_;
     };
     TerrainMeshUpdater(const EntryParameters&);
     ~TerrainMeshUpdater();
+    void create();
     void reCreate();
     void update();
     void recalculateYOffset();
@@ -35,9 +36,9 @@ private:
 
 private:
     ComponentContext& componentContext_;
-    TerrainConfiguration& config_;
     ModelWrapper& modelWrapper_;
     HeightMap& heightMap_;
+    const vec3& scale_;
     float halfMaximumHeight_;
     bool forceToUpdateMesh_;
 };

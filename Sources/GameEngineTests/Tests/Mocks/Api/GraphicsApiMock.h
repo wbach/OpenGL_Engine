@@ -52,7 +52,7 @@ public:
     MOCK_METHOD3(Compute, void(uint32, uint32, uint32));
     MOCK_METHOD1(RenderPurePatchedMeshInstances, void(uint32));
     MOCK_METHOD1(RenderMesh, void(uint32));
-    MOCK_METHOD0(RenderDebugNormals, void());
+    MOCK_METHOD1(RenderDebugNormals, void(uint32));
     MOCK_METHOD1(RenderTriangleStripMesh, void(uint32));
     MOCK_METHOD2(RenderMeshInstanced, void(uint32, uint32));
     MOCK_METHOD1(RenderPoints, void(uint32));

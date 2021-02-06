@@ -68,8 +68,14 @@ void Rigidbody::OnStart()
         return;
     }
 
-    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(collisionShape_->GetCollisionShapeId(),
-                                                                     thisObject_, mass_, isStatic_);
+    auto maybeShapeId = collisionShape_->GetCollisionShapeId();
+
+    if (not maybeShapeId)
+    {
+        return;
+    }
+
+    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_);
 
     if (rigidBodyId == 0)
     {

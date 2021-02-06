@@ -11,10 +11,15 @@ layout (std140,binding=1) uniform PerFrame
     vec4 clipPlane;
 } perFrame;
 
+layout (std140, binding=3) uniform PerObjectUpdate
+{
+    mat4 transformationMatrix;
+} perObjectUpdate;
+
 out vec3 color;
 
 void main()
 {
-    gl_Position = perFrame.projectionViewMatrix * vec4(Position, 1.f);
+    gl_Position = perFrame.projectionViewMatrix * perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
     color = Color;
 }

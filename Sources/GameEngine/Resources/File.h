@@ -1,5 +1,6 @@
 #pragma once
 #include <Types.h>
+
 #include <fstream>
 
 namespace GameEngine
@@ -63,28 +64,10 @@ public:
         if (fp_)
         {
             uint32 dataSize = 0;
-
-            auto currentPosition = ftell(fp_);
-            if (currentPosition < sizeof(uint32))
-            {
-                data.clear();
-                fread(&dataSize, sizeof(uint32), 1, fp_);
-            }
-            else
-            {
-                printError("Reading file error, to many bits requested");
-            }
-
-            currentPosition = ftell(fp_);
-            if (currentPosition < sizeof(T) * dataSize)
-            {
-                data.resize(dataSize);
-                fread(&data[0], sizeof(T), dataSize, fp_);
-            }
-            else
-            {
-                printError("Reading file error, to many bits requested");
-            }
+            data.clear();
+            fread(&dataSize, sizeof(uint32), 1, fp_);
+            data.resize(dataSize);
+            fread(&data[0], sizeof(T), dataSize, fp_);
         }
     }
 

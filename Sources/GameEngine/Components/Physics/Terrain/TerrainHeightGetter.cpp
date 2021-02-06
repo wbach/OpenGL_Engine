@@ -7,15 +7,15 @@
 
 namespace GameEngine
 {
-TerrainHeightGetter::TerrainHeightGetter(const TerrainConfiguration& terrainConfiguration, const HeightMap& heightMap,
+TerrainHeightGetter::TerrainHeightGetter(const vec3& terrainScale, const HeightMap& heightMap,
                                          const vec3& terrainPosition)
-    : terrainConfiguration_(terrainConfiguration)
+    : terrainScale_(terrainScale)
     , heightMap_(heightMap)
     , terrainPosition_(terrainPosition)
-    , tools_(terrainConfiguration.GetScale(), heightMap.GetImage())
+    , tools_(terrainScale, heightMap.GetImage())
 {
     heightMapResolution_ = heightMap_.GetImage().width;
-    gridSquereSize_      = terrainConfiguration_.GetScale() / static_cast<float>(heightMapResolution_ - 1.f);
+    gridSquereSize_      = terrainScale / static_cast<float>(heightMapResolution_ - 1.f);
 }
 
 std::optional<float> TerrainHeightGetter::GetHeightofTerrain(float worldX, float worldZ) const
@@ -62,11 +62,11 @@ std::optional<float> TerrainHeightGetter::GetHeightofTerrain(const vec2& worldPo
 
 std::optional<vec2> TerrainHeightGetter::GetLocalPositionOnTerrain(const vec2& worldPostion) const
 {
-    auto halfTerrainScale = terrainConfiguration_.GetScale() / 2.f;
+    auto halfTerrainScale = terrainScale_ / 2.f;
     auto terrain_x = worldPostion.x + halfTerrainScale.x - terrainPosition_.x;
     auto terrain_z = worldPostion.y + halfTerrainScale.z - terrainPosition_.z;
 
-    if (terrain_x > terrainConfiguration_.GetScale().x or terrain_z > terrainConfiguration_.GetScale().z)
+    if (terrain_x > terrainScale_.x or terrain_z > terrainScale_.z)
         return std::nullopt;
 
     return vec2(terrain_x, terrain_z);

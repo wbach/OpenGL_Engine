@@ -26,9 +26,7 @@ MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
 void MeshShape::CleanUp()
 {
     // Render comonent loading model
-}
-void MeshShape::Update()
-{
+    CollisionShape::CleanUp();
 }
 void MeshShape::ReqisterFunctions()
 {

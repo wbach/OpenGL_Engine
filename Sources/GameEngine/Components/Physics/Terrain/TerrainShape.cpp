@@ -41,9 +41,8 @@ void TerrainShape::CleanUp()
 {
     if (heightMap_)
         componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*heightMap_);
-}
-void TerrainShape::Update()
-{
+
+    CollisionShape::CleanUp();
 }
 void TerrainShape::ReqisterFunctions()
 {
@@ -51,18 +50,8 @@ void TerrainShape::ReqisterFunctions()
 }
 void TerrainShape::OnAwake()
 {
-    terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
-
-    if (terrainRendererComponent_)
-    {
-        LoadHeightMap(heightMapFile_);
-        const auto& scale = terrainRendererComponent_->GetTerrainConfiguration().GetScale();
-        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, *heightMap_, scale);
-    }
-    else
-    {
-        ERROR_LOG("TerrainRendererComponent not found !");
-    }
+    LoadHeightMap(heightMapFile_);
+    create();
 }
 TerrainShape& TerrainShape::SetHeightMap(const File& filename)
 {
@@ -91,13 +80,17 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
     if (terrainRendererComponent_)
     {
         terrainHeightGetter_ =
-            std::make_unique<TerrainHeightGetter>(terrainRendererComponent_->GetTerrainConfiguration(), *heightMap_,
+            std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale(), *heightMap_,
                                                   thisObject_.GetTransform().GetPosition());
     }
     else
     {
         ERROR_LOG("terrainHeightGetter creating error! terrainRendererComponent not found.");
     }
+}
+void TerrainShape::create()
+{
+    collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, *heightMap_, thisObject_.GetWorldTransform().GetScale());
 }
 void TerrainShape::registerReadFunctions()
 {

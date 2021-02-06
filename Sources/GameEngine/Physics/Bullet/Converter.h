@@ -7,11 +7,12 @@ namespace GameEngine
 {
 namespace Physics
 {
-vec3 Convert(const btVector3& v);
-btVector3 Convert(const vec3& v);
-btQuaternion Convert(const Quaternion& quat);
-Quaternion Convert(const btQuaternion& quat);
-btTransform Convert(const common::Transform& transform);
-common::Transform Convert(const btTransform& transform);
+vec3 Convert(const btVector3&);
+btVector3 Convert(const vec3&);
+btQuaternion Convert(const Quaternion&);
+Quaternion Convert(const btQuaternion&);
+btTransform Convert(const common::Transform&);
+btTransform Convert(const common::Transform&, const vec3&);
+common::Transform Convert(const btTransform&);
 }  // namespace Physics
 }  // namespace GameEngine

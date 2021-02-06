@@ -22,6 +22,9 @@ void PlantPainter::setNumberOfInstances(uint32 v)
 }
 void PlantPainter::paintImpl()
 {
+    if (not paintContext_.currentTerrainPoint)
+        return;
+
     std::random_device rd;
     std::mt19937 mt(rd());
     auto range = static_cast<float>(paintContext_.brushSize / 2);
@@ -35,7 +38,7 @@ void PlantPainter::paintImpl()
     const auto& point = *paintContext_.currentTerrainPoint;
 
     TerrainHeightGetter terrainHeightGetter(
-        point.terrainComponent.GetTerrainConfiguration(), *point.terrainComponent.GetHeightMap(),
+        point.terrainComponent.getParentGameObject().GetWorldTransform().GetScale(), *point.terrainComponent.GetHeightMap(),
         point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
 
     bool positionAdded{false};
@@ -47,7 +50,7 @@ void PlantPainter::paintImpl()
         auto position    = terrainHeightGetter.GetPointOnTerrain(newPoint.x, newPoint.z);
         auto maybeNormal = terrainHeightGetter.GetNormalOfTerrain(newPoint.x, newPoint.z);
         vec3 normal      = maybeNormal ? *maybeNormal : vec3(0, 1, 0);
-       // DEBUG_LOG(std::to_string(normal));
+
         if (position)
         {
             vec2 sizeAndRotation(ySizeDist(mt), rotationDist(mt));

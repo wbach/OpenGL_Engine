@@ -232,6 +232,9 @@ void BachPhysicsAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->rigidbodies_.erase(id);
 }
+void BachPhysicsAdapter::RemoveShape(uint32)
+{
+}
 void BachPhysicsAdapter::SetRotation(uint32, const vec3&)
 {
 }

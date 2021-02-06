@@ -22,12 +22,6 @@ CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameO
 {
 }
 
-void CapsuleShape::CleanUp()
-{
-}
-void CapsuleShape::Update()
-{
-}
 void CapsuleShape::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&CapsuleShape::OnAwake, this));

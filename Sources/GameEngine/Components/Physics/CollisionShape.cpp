@@ -14,9 +14,20 @@ CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, 
     , positionOffset_(0.f)
 {
 }
-uint32 CollisionShape::GetCollisionShapeId() const
+CollisionShape::~CollisionShape()
+{
+}
+std::optional<uint32> CollisionShape::GetCollisionShapeId() const
 {
     return collisionShapeId_;
+}
+void CollisionShape::CleanUp()
+{
+    if (collisionShapeId_)
+    {
+        componentContext_.physicsApi_.RemoveShape(*collisionShapeId_);
+        collisionShapeId_ = std::nullopt;
+    }
 }
 void CollisionShape::SetPostionOffset(const vec3& position)
 {

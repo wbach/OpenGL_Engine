@@ -32,9 +32,9 @@ struct Shape
 struct Rigidbody
 {
     std::unique_ptr<btRigidBody> btRigidbody_;
-    btVector3* positionOffset_;
-    uint32 shapeId = 0;
-    bool isStatic  = false;
+    GameObject& gameObject;
+    btVector3& positionOffset_;
+    uint32 shapeId{0};
 };
 
 struct BulletAdapter::Pimpl
@@ -65,7 +65,6 @@ struct BulletAdapter::Pimpl
     std::unique_ptr<btDispatcher> btDispacher;
     std::unordered_map<uint32, Rigidbody> rigidBodies;
     std::unordered_map<uint32, Rigidbody> staticRigidBodies;
-    std::unordered_map<uint32, GameObject*> gameObjects;
     std::unordered_map<uint32, Shape> shapes_;
     std::mutex worldMutex_;
 };
@@ -87,13 +86,12 @@ void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>
     }
 
     auto& rigidbody = target.at(id);
-    shapes_.erase(rigidbody.shapeId);
+    //    shapes_.erase(rigidbody.shapeId);
     {
         std::lock_guard<std::mutex> lk(worldMutex_);
         btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
     }
     rigidBodies.erase(id);
-    gameObjects.erase(id);
 }
 BulletAdapter::BulletAdapter()
     : simulationStep_(1.f / 60.f)
@@ -123,22 +121,18 @@ void BulletAdapter::Simulate()
 
     impl_->btDynamicWorld->stepSimulation(simulationStep_);
 
-    for (auto& pair : impl_->rigidBodies)
+    for (auto& [id, rigidbody] : impl_->rigidBodies)
     {
-        auto& gameObject = impl_->gameObjects.at(pair.first);
-        auto& rigidbody  = pair.second;
-
-        auto newPosition =
-            Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() + *rigidbody.positionOffset_);
+        auto newPosition = Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() + rigidbody.positionOffset_);
 
         Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
 
-        auto l1 = glm::length(gameObject->GetWorldTransform().GetPosition() - newPosition);
-        auto l2 = glm::length(gameObject->GetWorldTransform().GetRotation().value_ - newRotation);
+        auto l1 = glm::length(rigidbody.gameObject.GetWorldTransform().GetPosition() - newPosition);
+        auto l2 = glm::length(rigidbody.gameObject.GetWorldTransform().GetRotation().value_ - newRotation);
 
         if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
         {
-            gameObject->SetWorldPositionRotation(newPosition, newRotation);
+            rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
         }
     }
 }
@@ -204,7 +198,7 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
     shape.btShape_->setLocalScaling(btVector3(scaleX, scale.y, scaleY));
 
     auto offset           = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
-    shape.positionOffset_ = Convert(vec3(0, offset, 0));
+    shape.positionOffset_ = Convert(positionOffset + vec3(0, offset, 0));
     shape.setOffsetAsTransformPos_ = true;
     return id_++;
 }
@@ -227,7 +221,7 @@ uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::
     btConvexShape* tmpshape = new btConvexTriangleMeshShape(trimesh);
     tmpshape->setLocalScaling(btVector3(scaleFactor, scaleFactor, scaleFactor));
 
-    shape.btShape_ = std::unique_ptr<btCollisionShape>(tmpshape);
+    shape.btShape_        = std::unique_ptr<btCollisionShape>(tmpshape);
     shape.positionOffset_ = Convert(positionOffset);
 
     btShapeHull* hull = new btShapeHull(tmpshape);
@@ -247,31 +241,28 @@ uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, GameObject& gameObject, fl
     }
     auto& shape               = shapeIter->second;
     btCollisionShape* btShape = shape.btShape_.get();
-
     btAssert((!btShape || btShape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     btVector3 localInertia(0, 0, 0);
-    if (not isStatic)
+    btDefaultMotionState* myMotionState{nullptr};
+    int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
+
+    if (isStatic)
+    {
+        myMotionState =
+            new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
+        flags |= btCollisionObject::CF_STATIC_OBJECT;
+    }
+    else
     {
         btShape->calculateLocalInertia(mass, localInertia);
+        myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform()));
     }
-
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform()));
 
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
-
-    Rigidbody body{std::make_unique<btRigidBody>(cInfo), &shape.positionOffset_, shapeId, isStatic};
-    body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() |
-                                         btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
-
-    if (shape.setOffsetAsTransformPos_)
-    {
-        auto worldTransform = body.btRigidbody_->getWorldTransform();
-        worldTransform.setOrigin(shape.positionOffset_);
-        body.btRigidbody_->setWorldTransform(worldTransform);
-    }
-    impl_->AddRigidbody(impl_->rigidBodies, id_, std::move(body));
-    impl_->gameObjects.insert({id_, &gameObject});
+    Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, shapeId};
+    body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
+    impl_->AddRigidbody(isStatic ? impl_->staticRigidBodies : impl_->rigidBodies, id_, std::move(body));
     return id_++;
 }
 void BulletAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
@@ -356,6 +347,14 @@ void BulletAdapter::RemoveRigidBody(uint32 id)
 {
     impl_->RemoveRigidBody(impl_->rigidBodies, id);
     impl_->RemoveRigidBody(impl_->staticRigidBodies, id);
+}
+void BulletAdapter::RemoveShape(uint32 id)
+{
+    auto shapeIter = impl_->shapes_.find(id);
+    if (shapeIter != impl_->shapes_.end())
+    {
+        impl_->shapes_.erase(id);
+    }
 }
 void BulletAdapter::SetRotation(uint32 rigidBodyId, const vec3& rotation)
 {

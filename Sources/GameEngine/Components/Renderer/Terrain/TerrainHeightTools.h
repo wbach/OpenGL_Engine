@@ -8,7 +8,7 @@ namespace GameEngine
 class TerrainHeightTools
 {
 public:
-    TerrainHeightTools(const vec3& terrainScale, const GraphicsApi::Image&);
+    TerrainHeightTools(const vec3&, const GraphicsApi::Image&);
     const vec3& getTerrainScale() const;
     uint32 getHeightMapResolution() const;
     float GetHeight(uint32 x, uint32 y) const;

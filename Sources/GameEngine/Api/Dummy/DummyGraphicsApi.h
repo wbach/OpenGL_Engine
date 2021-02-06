@@ -282,7 +282,7 @@ public:
     void SetShadersFilesLocations(const std::string&) override
     {
     }
-    void RenderDebugNormals() override
+    void RenderDebugNormals(uint32) override
     {
     }
     GraphicsApi::IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override

@@ -58,7 +58,6 @@ public:
 private:
     void OnStart();
     CollisionShape* GetCollisionShape();
-    bool isShapeTypeValid(const std::string&);
 
 private:
     std::optional<uint32> rigidBodyId_;

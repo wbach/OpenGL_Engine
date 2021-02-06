@@ -23,7 +23,6 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
-    void Update();
     TerrainShape& SetHeightMap(const File&);
     HeightMap* GetHeightMap();
     const File& GetHeightMapFile() const;
@@ -32,6 +31,7 @@ public:
 private:
     void OnAwake();
     void LoadHeightMap(const File&);
+    void create();
 
 private:
     std::unique_ptr<TerrainHeightGetter> terrainHeightGetter_;

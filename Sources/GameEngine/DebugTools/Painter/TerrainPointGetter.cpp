@@ -88,8 +88,7 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
         ERROR_LOG("No terrain or height map in terrain.");
         return false;
     }
-
-    TerrainHeightGetter terrainHeightGetter(terrain->GetTerrainConfiguration(), *terrain->GetHeightMap(),
+    TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(), *terrain->GetHeightMap(),
                                             terrain->GetParentGameObject().GetTransform().GetPosition());
 
     auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
@@ -98,7 +97,6 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
     {
         return (testPoint.y <= *height);
     }
-
     return false;
 }
 
@@ -141,10 +139,10 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float
 }
 vec2 TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3& worldPointOnTerrain)
 {
-    const auto& scale = terrain.GetTerrainConfiguration().GetScale();
+    const auto& scale = terrain.GetParentGameObject().GetWorldTransform().GetScale();
     vec2 result;
     auto halfScale       = scale / 2.f;
-    auto terrainPosition = terrain.GetParentGameObject().GetTransform().GetPosition();
+    auto terrainPosition = terrain.GetParentGameObject().GetWorldTransform().GetPosition();
     result.x             = (worldPointOnTerrain.x + halfScale.x + terrainPosition.x) / scale.x;
     result.y             = (worldPointOnTerrain.z + halfScale.z + terrainPosition.z) / scale.z;
     // point on terrain in <0, 1>

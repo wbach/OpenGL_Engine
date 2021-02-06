@@ -64,7 +64,7 @@ public:
     void Compute(uint32, uint32, uint32) override;
     void RenderPurePatchedMeshInstances(uint32) override;
     void RenderMesh(uint32) override;
-    void RenderDebugNormals() override;
+    void RenderDebugNormals(uint32) override;
     void RenderTriangleStripMesh(uint32) override;
     void RenderMeshInstanced(uint32, uint32) override;
     void RenderPoints(uint32) override;

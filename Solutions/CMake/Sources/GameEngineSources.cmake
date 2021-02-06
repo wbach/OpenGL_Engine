@@ -136,6 +136,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ParticlesParams/ParticlesParams.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/RendererParams.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ShadowsParams/ShadowsParams.cpp
+../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/TerrainParam/TerrainParam.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/TerrainParam/TerrainType.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/TexturesParams/TexturesParams.cpp
 ../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/WaterParams/WaterParams.cpp

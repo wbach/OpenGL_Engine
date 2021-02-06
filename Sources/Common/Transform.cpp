@@ -232,6 +232,11 @@ void Transform::TakeSnapShoot()
     UpdateMatrix();
 }
 
+mat4 Transform::CalculateCurrentMatrix() const
+{
+    return Utils::CreateTransformationMatrix(context_.position, context_.rotation.value_, context_.scale);
+}
+
 const mat4& Transform::GetMatrix() const
 {
     return matrix_;

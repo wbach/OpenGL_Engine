@@ -85,6 +85,11 @@ void Read(const TreeNode& node, bool& v)
     v = Utils::StringToBool(node.value_);
 }
 
+void Read(const TreeNode& node, int32& v)
+{
+    v = std::stoi(node.value_);
+}
+
 void setIfExist(const TreeNode& node, const std::string& attributeName, float& v)
 {
     auto attributeValueStr = node.getAttributeValue(attributeName);
@@ -175,6 +180,11 @@ void Read(const TreeNode& node, vec2ui& v)
 {
     setIfExist(node, CSTR_X, v.x);
     setIfExist(node, CSTR_Y, v.y);
+}
+
+void Read(const TreeNode& node, uint32& v)
+{
+    v = std::stoi(node.value_);
 }
 
 void Read(const TreeNode& node, vec2& v)

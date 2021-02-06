@@ -19,6 +19,7 @@ const std::string COMPONENT_STR{"GrassRenderer"};
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(GrassRendererComponent).hash_code(), componentContext, gameObject)
     , textureFile_("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
+    , meshDataFile_(EngineConf.files.data + "/grassMeshData.bin")
     , isSubscribed_(false)
 {
 }
@@ -97,6 +98,7 @@ GrassRendererComponent& GrassRendererComponent::setMeshDataFile(const File& file
 GrassRendererComponent& GrassRendererComponent::setTexture(const File& filename)
 {
     textureFile_ = filename;
+    DEBUG_LOG(filename.GetAbsoultePath());
     return *this;
 }
 
@@ -171,7 +173,12 @@ void GrassRendererComponent::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
-        component->setTexture(node.getChild(CSTR_TEXTURE_FILENAME)->value_);
+        auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME);
+        if (textureFileNameNode)
+        {
+            component->setTexture(textureFileNameNode->value_);
+        }
+
         if (node.getChild(CSTR_FILE_NAME))
         {
             Components::GrassRendererComponent::GrassMeshes meshesData;

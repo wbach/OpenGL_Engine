@@ -14,26 +14,35 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+BoundingBox defaultBoundingBox;
+}
 TerrainMeshRendererComponent::TerrainMeshRendererComponent(ComponentContext &componentContext, GameObject &gameObject)
     : TerrainComponentBase(componentContext, gameObject)
 {
+    subscribeForEngineConfChange();
 }
 TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
 {
+    EngineConf.renderer.terrain.resolutionDivideFactor.unsubscribe(resolutionDivideFactorSubscription_);
+    EngineConf.renderer.terrain.meshPartsCount.unsubscribe(partsCountSubscription_);
 }
 void TerrainMeshRendererComponent::RecalculateNormals()
 {
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater({componentContext_, config_, modelWrapper_, *heightMap_}).recalculateNormals();
+    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, thisObject_.GetWorldTransform().GetScale()})
+        .recalculateNormals();
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater meshUpdater({componentContext_, config_, modelWrapper_, *heightMap_});
+    TerrainMeshUpdater meshUpdater(
+        {componentContext_, modelWrapper_, *heightMap_, thisObject_.GetWorldTransform().GetScale()});
 
     if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
     {
@@ -51,6 +60,11 @@ void TerrainMeshRendererComponent::CleanUp()
 
     ReleaseModels();
     ClearShaderBuffers();
+
+    if (worldTransfomChangeSubscrbtion_)
+    {
+        thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransfomChangeSubscrbtion_);
+    }
 }
 std::vector<std::pair<FunctionType, std::function<void()>>> TerrainMeshRendererComponent::FunctionsToRegister()
 {
@@ -60,18 +74,59 @@ ModelWrapper &TerrainMeshRendererComponent::GetModel()
 {
     return modelWrapper_;
 }
+const BoundingBox &TerrainMeshRendererComponent::getModelBoundingBox() const
+{
+    if (boundingBoxes_.empty())
+        return defaultBoundingBox;
+
+    return boundingBoxes_.front();
+}
+const BoundingBox &TerrainMeshRendererComponent::getMeshBoundingBox(uint32 index) const
+{
+    if (index > boundingBoxes_.size())
+        return defaultBoundingBox;
+    return boundingBoxes_[index + 1];
+}
 void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 {
+    heightMapFile_ = file;
+
     heightMapParameters_.loadType        = TextureLoadType::None;
     heightMapParameters_.flipMode        = TextureFlip::NONE;
     heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
     heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
 
     TerrainComponentBase::LoadHeightMap(file);
+    if (not heightMap_)
+        return;
+
     heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
-    auto model                          = componentContext_.resourceManager_.LoadModel(file);
-    modelWrapper_.Add(model, LevelOfDetail::L1);
-    CreateShaderBuffers(*model);
+
+    createModels();
+
+    auto model = modelWrapper_.Get(LevelOfDetail::L1);
+    if (model)
+    {
+        createBoundongBoxes(*model);
+        CreateShaderBuffers(*model);
+
+        worldTransfomChangeSubscrbtion_ =
+            thisObject_.SubscribeOnWorldTransfomChange([this, model](const auto &transform) {
+                DEBUG_LOG("Terrain transform changed, " + std::to_string(transform.GetPosition()));
+
+                createBoundongBoxes(*model);
+
+                int i = 0;
+                for (auto &mesh : model->GetMeshes())
+                {
+                    auto &obj = perObjectUpdateBuffer_[i++];
+
+                    obj->GetData().TransformationMatrix =
+                        componentContext_.graphicsApi_.PrepareMatrixToLoad(transform.CalculateCurrentMatrix());
+                    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*obj);
+                }
+            });
+    }
 }
 
 void TerrainMeshRendererComponent::UpdateHeightMap(const File &)
@@ -89,9 +144,25 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
         auto &obj         = CreatePerObjectBuffer(graphicsApi);
 
         obj.GetData().TransformationMatrix =
-            graphicsApi.PrepareMatrixToLoad(thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform());
+            graphicsApi.PrepareMatrixToLoad(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
 
         LoadObjectToGpu(obj);
+    }
+}
+
+void TerrainMeshRendererComponent::createBoundongBoxes(const GameEngine::Model &model)
+{
+    boundingBoxes_.clear();
+
+    auto boundingBox = model.getBoundingBox();
+    boundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+    boundingBoxes_.push_back(boundingBox);
+
+    for (const auto &mesh : model.GetMeshes())
+    {
+        auto boundingBox = mesh.getBoundingBox();
+        boundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+        boundingBoxes_.push_back(boundingBox);
     }
 }
 
@@ -108,6 +179,12 @@ void TerrainMeshRendererComponent::LoadObjectToGpu(GpuObject &obj)
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(obj);
 }
 
+void TerrainMeshRendererComponent::createModels()
+{
+    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, thisObject_.GetWorldTransform().GetScale()})
+        .create();
+}
+
 void TerrainMeshRendererComponent::ClearShaderBuffers()
 {
     for (auto iter = perObjectUpdateBuffer_.begin(); iter != perObjectUpdateBuffer_.end();)
@@ -115,6 +192,36 @@ void TerrainMeshRendererComponent::ClearShaderBuffers()
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(*iter));
         iter = perObjectUpdateBuffer_.erase(iter);
     }
+}
+void TerrainMeshRendererComponent::subscribeForEngineConfChange()
+{
+    resolutionDivideFactorSubscription_ =
+        EngineConf.renderer.terrain.resolutionDivideFactor.subscribeForChange([this](const auto &) {
+            if (not heightMapFile_.empty())
+            {
+                UnSubscribe();
+                ReleaseModels();
+                createModels();
+                Subscribe();
+            }
+        });
+    partsCountSubscription_ = EngineConf.renderer.terrain.meshPartsCount.subscribeForChange([this](const auto &) {
+        if (not heightMapFile_.empty())
+        {
+            ClearShaderBuffers();
+            UnSubscribe();
+            ReleaseModels();
+            createModels();
+
+            auto model = modelWrapper_.Get(LevelOfDetail::L1);
+            if (model)
+            {
+                CreateShaderBuffers(*model);
+                createBoundongBoxes(*model);
+                Subscribe();
+            }
+        }
+    });
 }
 void TerrainMeshRendererComponent::ReleaseModels()
 {

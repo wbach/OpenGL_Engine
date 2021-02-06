@@ -19,6 +19,9 @@ public:
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
 
     ModelWrapper& GetModel();
+    const BoundingBox& getModelBoundingBox() const;
+    const BoundingBox& getMeshBoundingBox(uint32) const;
+
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
     void HeightMapChanged() override;
 
@@ -26,17 +29,23 @@ private:
     void LoadHeightMap(const File&) override;
     void UpdateHeightMap(const File&) override;
     void CreateShaderBuffers(const GameEngine::Model&);
+    void createBoundongBoxes(const GameEngine::Model&);
     BufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
     void LoadObjectToGpu(GpuObject&);
-
-private:
+    void createModels();
     void ReleaseModels();
     void ClearShaderBuffers();
+    void subscribeForEngineConfChange();
 
 private:
+    std::vector<BoundingBox> boundingBoxes_;
+    File heightMapFile_;
     ModelWrapper modelWrapper_;
     std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
     vec2ui heightMapSizeUsedToTerrainCreation_;
+    IdType resolutionDivideFactorSubscription_;
+    IdType partsCountSubscription_;
+    std::optional<IdType> worldTransfomChangeSubscrbtion_;
 };
 
 inline const GraphicsApi::ID& TerrainMeshRendererComponent::GetPerObjectUpdateBuffer(uint32 id) const

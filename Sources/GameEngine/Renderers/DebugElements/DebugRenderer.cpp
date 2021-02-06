@@ -4,12 +4,16 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include <algorithm>
 
 namespace GameEngine
 {
@@ -44,8 +48,7 @@ void DebugObject::CreateBuffer()
     toUpdate_ = false;
 
     transform_.SubscribeOnChange([&](const common::Transform&) {
-        transform_.TakeSnapShoot();
-        buffer.TransformationMatrix = transform_.GetMatrix();
+        buffer.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(transform_.CalculateCurrentMatrix());
         toUpdate_                   = true;
     });
 }
@@ -70,7 +73,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::Th
     , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
     , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
-    , lineShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Line)
+    , debugNormalShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugNormal)
     , textureShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Texture)
 {
 }
@@ -85,7 +88,7 @@ void DebugRenderer::init()
     physicsVisualizator_.Init();
     debugObjectShader_.Init();
     gridShader_.Init();
-    lineShader_.Init();
+    debugNormalShader_.Init();
     textureShader_.Init();
 
     gridPerObjectUpdateBufferId_ =
@@ -125,6 +128,9 @@ void DebugRenderer::init()
         b.color = vec4(1.f);
         rendererContext_.graphicsApi_.UpdateShaderBuffer(*textureColorBufferId_, &b);
     }
+
+    meshDebugPerObjectBufferId_ =
+        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 }
 
 void DebugRenderer::reloadShaders()
@@ -132,6 +138,7 @@ void DebugRenderer::reloadShaders()
     debugObjectShader_.Reload();
     gridShader_.Reload();
     physicsVisualizator_.ReloadShader();
+    debugNormalShader_.Reload();
 }
 
 void DebugRenderer::render()
@@ -164,6 +171,45 @@ void DebugRenderer::clear()
 {
     states_.clear();
     clearDebugObjects();
+}
+
+void DebugRenderer::subscribe(GameObject& gameObject)
+{
+    std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
+    auto terrain = gameObject.GetComponent<Components::TerrainRendererComponent>();
+
+    if (terrain and terrain->GetRendererType() == Components::TerrainRendererComponent::RendererType::Mesh)
+    {
+        auto terrainMeshComponent = terrain->GetMeshTerrain();
+        if (terrainMeshComponent)
+        {
+            meshDebugInfoSubscribers_.insert({ gameObject.GetId(), {gameObject, terrainMeshComponent->GetModel()} });
+        }
+    }
+    auto rc = gameObject.GetComponent<Components::RendererComponent>();
+
+    if (rc)
+    {
+        meshDebugInfoSubscribers_.insert({ gameObject.GetId(), {gameObject, rc->GetModelWrapper()} });
+    }
+}
+
+void DebugRenderer::unSubscribe(GameObject& gameObject)
+{
+    std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
+
+    auto iter = meshDebugInfoSubscribers_.find(gameObject.GetId());
+
+    if (iter != meshDebugInfoSubscribers_.end())
+    {
+        meshDebugInfoSubscribers_.erase(iter);
+    }
+}
+
+void DebugRenderer::unSubscribeAll()
+{
+    std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
+    meshDebugInfoSubscribers_.clear();
 }
 
 void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
@@ -329,11 +375,31 @@ void DebugRenderer::DrawDebugObjects()
 
 void DebugRenderer::DrawNormals()
 {
-    if (lineShader_.IsReady())
+    if (debugNormalShader_.IsReady() and meshDebugPerObjectBufferId_)
     {
-        lineShader_.Start();
-        rendererContext_.graphicsApi_.RenderDebugNormals();
-        lineShader_.Stop();
+        debugNormalShader_.Start();
+        std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
+        for (auto& [id, debugInfoMesh] : meshDebugInfoSubscribers_)
+        {
+            auto model = debugInfoMesh.modelWrapper.Get(LevelOfDetail::L1);
+            if (model)
+            {
+                for (auto& mesh : model->GetMeshes())
+                {
+                    auto meshId = mesh.GetGraphicsObjectId();
+                    if (meshId)
+                    {
+                        PerObjectUpdate update{rendererContext_.graphicsApi_.PrepareMatrixToLoad(
+                            debugInfoMesh.gameObject.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform())};
+
+                        rendererContext_.graphicsApi_.UpdateShaderBuffer(*meshDebugPerObjectBufferId_, &update);
+                        rendererContext_.graphicsApi_.BindShaderBuffer(*meshDebugPerObjectBufferId_);
+                        rendererContext_.graphicsApi_.RenderDebugNormals(*meshId);
+                    }
+                }
+            }
+        }
+        debugNormalShader_.Stop();
     }
 }
 

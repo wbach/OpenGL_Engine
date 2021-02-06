@@ -30,6 +30,7 @@ enum class ShaderProgramType
     Texture,
     Grid,
     Line,
+    DebugNormal,
     Fxaa
 };
 }  // namespace GraphicsApi

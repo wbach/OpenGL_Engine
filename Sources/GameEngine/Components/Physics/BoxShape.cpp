@@ -17,13 +17,6 @@ BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
     , size_(1.f)
 {
 }
-
-void BoxShape::CleanUp()
-{
-}
-void BoxShape::Update()
-{
-}
 void BoxShape::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&BoxShape::OnAwake, this));

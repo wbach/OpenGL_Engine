@@ -105,8 +105,10 @@ struct ShaderBuffer
 
 struct DebugNormalMesh
 {
-    GraphicsApi::LineMesh data;
-    GraphicsApi::ID lineMeshId;
+    std::vector<float> position_;
+    std::vector<float> normal_;
+    std::vector<float> tangent_;
+    GraphicsApi::ID id_;
 };
 
 struct OpenGLApi::Pimpl
@@ -521,12 +523,13 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
         }
 
         auto& debugNormalMesh = impl_->debugNormalsMesh_.at(rid);
-        auto& data            = debugNormalMesh.data;
-        data.positions_.clear();
-        data.colors_.clear();
+        debugNormalMesh.position_.clear();
+        debugNormalMesh.normal_.clear();
+        debugNormalMesh.tangent_.clear();
 
-        data.positions_.reserve(2 * meshRawData.positions_.size());
-        data.colors_.reserve(2 * meshRawData.positions_.size());
+        debugNormalMesh.position_.reserve(meshRawData.positions_.size());
+        debugNormalMesh.normal_.reserve(meshRawData.positions_.size());
+        debugNormalMesh.tangent_.reserve(meshRawData.positions_.size());
 
         for (size_t i = 0; i < meshRawData.positions_.size(); i += 3)
         {
@@ -536,26 +539,51 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
             auto n1 = meshRawData.normals_[i];
             auto n2 = meshRawData.normals_[i + 1];
             auto n3 = meshRawData.normals_[i + 2];
-            data.positions_.push_back(p1);
-            data.positions_.push_back(p2);
-            data.positions_.push_back(p3);
-            data.positions_.push_back(p1 + n1);
-            data.positions_.push_back(p2 + n2);
-            data.positions_.push_back(p3 + n3);
-            data.colors_.push_back(1);
-            data.colors_.push_back(0);
-            data.colors_.push_back(0);
-            data.colors_.push_back(0);
-            data.colors_.push_back(0);
-            data.colors_.push_back(1);
+            auto t1 = meshRawData.tangents_[i];
+            auto t2 = meshRawData.tangents_[i + 1];
+            auto t3 = meshRawData.tangents_[i + 2];
+            debugNormalMesh.position_.push_back(p1);
+            debugNormalMesh.position_.push_back(p2);
+            debugNormalMesh.position_.push_back(p3);
+            debugNormalMesh.normal_.push_back(n1);
+            debugNormalMesh.normal_.push_back(n2);
+            debugNormalMesh.normal_.push_back(n3);
+            debugNormalMesh.tangent_.push_back(t1);
+            debugNormalMesh.tangent_.push_back(t2);
+            debugNormalMesh.tangent_.push_back(t3);
         }
 
-        if (not debugNormalMesh.lineMeshId)
-            debugNormalMesh.lineMeshId = CreateDynamicLineMesh();
-
-        if (debugNormalMesh.lineMeshId)
+        if (not debugNormalMesh.id_)
         {
-            UpdateLineMesh(*debugNormalMesh.lineMeshId, data);
+            debugNormalMesh.id_ = impl_->idPool_.ToUint(0);
+            createdObjectIds.insert({*debugNormalMesh.id_, ObjectType::MESH});
+
+            openGlMeshes_.insert({*debugNormalMesh.id_, {}});
+            auto& mesh = openGlMeshes_.at(*debugNormalMesh.id_);
+
+            VaoCreator vaoCreator;
+            vaoCreator.SetSize(0);
+            vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::POSITION, 3);
+            vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::NORMAL, 3);
+            vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TANGENT, 3);
+            mesh            = Convert(vaoCreator.Get());
+            mesh.renderType = GraphicsApi::RenderType::POINTS;
+        }
+
+        if (debugNormalMesh.id_)
+        {
+            auto& obj = openGlMeshes_.at(*debugNormalMesh.id_);
+
+            obj.vertexCount = static_cast<GLsizei>(debugNormalMesh.position_.size());
+
+            glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(), &debugNormalMesh.position_[0], GL_STREAM_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.normal_.size(), &debugNormalMesh.normal_[0], GL_STREAM_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TANGENT]);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.tangent_.size(), &debugNormalMesh.tangent_[0], GL_STREAM_DRAW);
         }
     }
 }
@@ -587,8 +615,8 @@ void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
         return;
 
     auto& mesh = impl_->debugNormalsMesh_.at(id);
-    if (mesh.lineMeshId)
-        DeleteMesh(*mesh.lineMeshId);
+    if (mesh.id_)
+        DeleteMesh(*mesh.id_);
     impl_->debugNormalsMesh_.erase(id);
 }
 
@@ -1210,13 +1238,14 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
     glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, nullptr, istanced);
 }
 
-void OpenGLApi::RenderDebugNormals()
+void OpenGLApi::RenderDebugNormals(uint32 referentMeshId)
 {
-    for (const auto& debugNormalMesh : impl_->debugNormalsMesh_)
+    auto meshIdIter = impl_->debugNormalsMesh_.find(referentMeshId);
+    if (meshIdIter != impl_->debugNormalsMesh_.end())
     {
-        if (debugNormalMesh.second.lineMeshId)
+        if (meshIdIter->second.id_)
         {
-            RenderMesh(*debugNormalMesh.second.lineMeshId);
+            RenderMesh(*meshIdIter->second.id_);
         }
     }
 }

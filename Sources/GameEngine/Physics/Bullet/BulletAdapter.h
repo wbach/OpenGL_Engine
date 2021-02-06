@@ -30,6 +30,8 @@ public:
     uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
                               float scaleFactor) override;
     uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic) override;
+    void RemoveRigidBody(uint32 id) override;
+    void RemoveShape(uint32 id) override;
     void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
     void ApplyImpulse(uint32 rigidBodyId, const vec3& impulse) override;
     void IncreaseVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
@@ -37,7 +39,6 @@ public:
     void SetAngularFactor(uint32 rigidBodyId, float value) override;
     void SetAngularFactor(uint32 rigidBodyId, const vec3& value) override;
     std::optional<vec3> GetAngularFactor(uint32 rigidBodyId) override;
-    void RemoveRigidBody(uint32 id) override;
     void SetRotation(uint32 rigidBodyId, const vec3&) override;
     void SetRotation(uint32 rigidBodyId, const Quaternion&) override;
     void SetPosition(uint32 rigidBodyId, const vec3&) override;

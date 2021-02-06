@@ -38,6 +38,8 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Shadows distance", EngineConf.renderer.shadows.distance, true},
              {"Shadow map size", EngineConf.renderer.shadows.mapSize, true},
              {"Shadows cascades size", EngineConf.renderer.shadows.cascadesSize, true},
+             {"Terrain mesh resolution divide factor", EngineConf.renderer.terrain.resolutionDivideFactor, false},
+             {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, false},
          }});
     categories.push_back({"Sound",
                           {

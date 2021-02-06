@@ -35,14 +35,14 @@ struct TerrainHeightGetterShould : public ::testing::Test
 
     void SetupSut(const vec3& terrainPosition)
     {
-        sut_ = std::make_unique<TerrainHeightGetter>(terrainConfig_, *heightMap_, terrainPosition);
+        sut_ = std::make_unique<TerrainHeightGetter>(terrainScale_, *heightMap_, terrainPosition);
     }
 
     void ExpectOutOfRange(const vec3& terrainPosition)
     {
         SetupSut(terrainPosition);
 
-        auto scale = terrainConfig_.GetScale() / 2.f + 0.01f;
+        auto scale = terrainScale_ / 2.f + 0.01f;
 
         {
             auto h = sut_->GetHeightofTerrain(scale.x + terrainPosition.x, terrainPosition.z);
@@ -73,7 +73,7 @@ struct TerrainHeightGetterShould : public ::testing::Test
     {
         SetupSut(terrainPosition);
 
-        auto scale = terrainConfig_.GetScale() / 2.f - 0.01f;
+        auto scale = terrainScale_ / 2.f - 0.01f;
 
         {
             auto h = sut_->GetHeightofTerrain(terrainPosition.x, terrainPosition.z);
@@ -105,7 +105,7 @@ struct TerrainHeightGetterShould : public ::testing::Test
         }
     }
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
-    TerrainConfiguration terrainConfig_;
+    vec3 terrainScale_{ 513, 20, 513 };
     std::unique_ptr<HeightMap> heightMap_;
     std::unique_ptr<TerrainHeightGetter> sut_;
 };

@@ -65,6 +65,8 @@ extern const std::string CSTR_WATER_REFRACTION_HEIGHT;
 //Terrain
 extern const std::string CSTR_TERRAIN;
 extern const std::string CSTR_TERRAIN_RENDERER_TYPE;
+extern const std::string CSTR_TERRAIN_MESH_RESOLUTION_DIVIDER;
+extern const std::string CSTR_TERRAIN_MESH_PARTS_COUNT;
 // Other
 extern const std::string CSTR_ENABLE_BINARY_LOADING;
 extern const std::string CSTR_DEBUG_PARAMS;

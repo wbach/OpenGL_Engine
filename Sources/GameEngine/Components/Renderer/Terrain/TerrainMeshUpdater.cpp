@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -14,25 +15,20 @@ namespace Components
 {
 TerrainMeshUpdater::TerrainMeshUpdater(const EntryParameters& entry)
     : componentContext_(entry.componentContext_)
-    , config_(entry.config_)
     , modelWrapper_(entry.modelWrapper_)
     , heightMap_(entry.heightMap_)
-    , halfMaximumHeight_(heightMap_.GetDeltaHeight() / 2.f * config_.GetScale().y)
+    , scale_(entry.scale_)
+    , halfMaximumHeight_(heightMap_.GetDeltaHeight() / 2.f * scale_.y)
     , forceToUpdateMesh_(false)
 {
 }
 TerrainMeshUpdater::~TerrainMeshUpdater()
 {
 }
-void TerrainMeshUpdater::reCreate()
+void TerrainMeshUpdater::create()
 {
-    DEBUG_LOG("recreate terrain mesh");
-    auto model = modelWrapper_.Get(LevelOfDetail::L1);
-    componentContext_.resourceManager_.ReleaseModel(*model);
-    modelWrapper_.clear();
-
     WBLoader::TerrainMeshLoader loader(componentContext_.resourceManager_.GetTextureLoader());
-    auto newModel = loader.createModel(heightMap_);
+    auto newModel = loader.createModel(heightMap_, EngineConf.renderer.terrain.meshPartsCount);
 
     if (heightMap_.GetFile())
     {
@@ -41,9 +37,22 @@ void TerrainMeshUpdater::reCreate()
     modelWrapper_.Add(newModel.get(), LevelOfDetail::L1);
     componentContext_.resourceManager_.AddModel(std::move(newModel));
 }
+void TerrainMeshUpdater::reCreate()
+{
+    DEBUG_LOG("recreate terrain mesh");
+    auto model = modelWrapper_.Get(LevelOfDetail::L1);
+    if (model)
+    {
+        componentContext_.resourceManager_.ReleaseModel(*model);
+    }
+    modelWrapper_.clear();
+    create();
+}
 void TerrainMeshUpdater::update()
 {
-    if (config_.GetPartsCount())
+    const auto& partsCount = EngineConf.renderer.terrain.meshPartsCount;
+
+    if (partsCount and *partsCount > 1)
     {
         updatePartialTerrainMeshes();
     }
@@ -59,7 +68,7 @@ void TerrainMeshUpdater::recalculateYOffset()
 
     if (difference)
     {
-        halfMaximumHeight_ = heightMap_.GetDeltaHeight() / 2.f * config_.GetScale().y;
+        halfMaximumHeight_ = heightMap_.GetDeltaHeight() / 2.f * scale_.y;
         update();
     }
 }
@@ -73,12 +82,12 @@ void TerrainMeshUpdater::recalculateNormals()
 void TerrainMeshUpdater::updatePartialTerrainMeshes()
 {
     auto model       = modelWrapper_.Get(LevelOfDetail::L1);
-    auto partsCount  = *config_.GetPartsCount();
+    auto partsCount  = *EngineConf.renderer.terrain.meshPartsCount;
     auto partialSize = heightMap_.GetImage().width / partsCount;
 
     std::vector<std::pair<uint32, GraphicsApi::MeshRawData*>> meshesToUpdate;
 
-    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage());
+    TerrainHeightTools tools(scale_, heightMap_.GetImage());
 
     for (uint32 j = 0; j < partsCount; ++j)
     {
@@ -126,7 +135,7 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
     auto& mesh     = model->GetMeshes()[0];
     auto& meshData = mesh.GetMeshDataRef();
 
-    TerrainHeightTools tools(config_.GetScale(), heightMap_.GetImage());
+    TerrainHeightTools tools(scale_, heightMap_.GetImage());
 
     if (mesh.GetGraphicsObjectId() and
         updatePart(tools, mesh, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))

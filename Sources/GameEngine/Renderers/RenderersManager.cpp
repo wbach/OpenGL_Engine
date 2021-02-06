@@ -202,17 +202,23 @@ void RenderersManager::Subscribe(GameObject* gameObject)
     if (not gameObject)
         return;
 
+    debugRenderer_.subscribe(*gameObject);
     bufferDataUpdater_.Subscribe(gameObject);
     mainRenderer_->subscribe(*gameObject);
 }
 void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
-    bufferDataUpdater_.UnSubscribe(gameObject);
-    mainRenderer_->unSubscribe(*gameObject);
+    if (gameObject)
+    {
+        debugRenderer_.unSubscribe(*gameObject);
+        bufferDataUpdater_.UnSubscribe(gameObject);
+        mainRenderer_->unSubscribe(*gameObject);
+    }
 }
 
 void RenderersManager::UnSubscribeAll()
 {
+    debugRenderer_.unSubscribeAll();
     mainRenderer_->unSubscribeAll();
     bufferDataUpdater_.UnSubscribeAll();
     guiRenderer_.UnSubscribeAll();

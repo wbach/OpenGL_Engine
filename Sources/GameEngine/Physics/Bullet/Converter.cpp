@@ -33,6 +33,14 @@ btTransform Convert(const common::Transform& transform)
     return result;
 }
 
+btTransform Convert(const common::Transform& transform, const vec3& positionOffset)
+{
+    btTransform result;
+    result.setOrigin(Convert(transform.GetPosition() + positionOffset));
+    result.setRotation(Convert(transform.GetRotation().value_));
+    return result;
+}
+
 common::Transform Convert(const btTransform &transform)
 {
     common::Transform result;

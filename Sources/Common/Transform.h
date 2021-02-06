@@ -63,6 +63,7 @@ public:
     const vec3& GetScale() const;
 
     void TakeSnapShoot();
+    mat4 CalculateCurrentMatrix() const;
     const mat4& GetMatrix() const;
     const TransformContext& GetSnapShoot() const;
 

@@ -23,7 +23,10 @@ void ColladaDae::ParseFile(const File& filename)
 {
     Collada::ReadCollada(filename, data_);
     ConstructModel();
-    FillAnimationData();
+    if (objects.size() > 0)
+    {
+        FillAnimationData();
+    }
     Clear();
 }
 bool ColladaDae::CheckExtension(const File& file)
@@ -402,8 +405,12 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
                                     vec3 position(mat[3][0], mat[3][1], mat[3][2]);
                                     auto rotation = glm::quat_cast(mat);
 
-                                    auto jointId = objects.back().skeleton_.getJoint(jointName)->id;
-                                    frames[frameId].transforms.insert({ jointId, {position, rotation}});
+                                    auto jointInSkeleton = objects.back().skeleton_.getJoint(jointName);
+                                    if (jointInSkeleton)
+                                    {
+                                        auto jointId = jointInSkeleton->id;
+                                        frames[frameId].transforms.insert({ jointId, {position, rotation} });
+                                    }
                                     ++frameId;
                                 }
                             }

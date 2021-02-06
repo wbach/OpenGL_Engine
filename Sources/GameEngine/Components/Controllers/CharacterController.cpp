@@ -340,7 +340,15 @@ void CharacterController::registerReadFunctions()
 
 void CharacterController::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({ CSTR_TYPE, COMPONENT_STR });
+    auto& animClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
+    ::write(animClipsNode.addChild(CSTR_IDLE_ANIMATION), idleAnimationName);
+    ::write(animClipsNode.addChild(CSTR_HURT_ANIMATION), hurtAnimationName);
+    ::write(animClipsNode.addChild(CSTR_RUN_ANIMATION), moveForwardAnimationName);
+    ::write(animClipsNode.addChild(CSTR_MOVEBACKWARD_ANIMATION), moveBackwardAnimationName);
+    ::write(animClipsNode.addChild(CSTR_DEATH_ANIMATION), deathAnimationName);
+    ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION), attackAnimationName);
+    ::write(animClipsNode.addChild(CSTR_JUMP_ANIMATION), jumpAnimationName);
 }
 }  // namespace Components
 }  // namespace GameEngine

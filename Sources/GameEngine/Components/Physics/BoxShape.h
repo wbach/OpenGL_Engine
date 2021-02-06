@@ -9,9 +9,7 @@ class BoxShape : public CollisionShape
 {
 public:
     BoxShape(ComponentContext& componentContext, GameObject& gameObject);
-    void CleanUp() override;
     void ReqisterFunctions() override;
-    void Update();
 
 public:
     BoxShape& SetSize(const vec3& size);

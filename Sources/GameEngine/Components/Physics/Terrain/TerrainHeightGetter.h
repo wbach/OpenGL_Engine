@@ -12,7 +12,7 @@ class TerrainConfiguration;
 class TerrainHeightGetter
 {
 public:
-    TerrainHeightGetter(const TerrainConfiguration&, const HeightMap&, const vec3& terrainPosition);
+    TerrainHeightGetter(const vec3&, const HeightMap&, const vec3& terrainPosition);
     std::optional<float> GetHeightofTerrain(const vec2& worldPositionXZ) const;
     std::optional<float> GetHeightofTerrain(float worldX, float worldZ) const;
     std::optional<vec3> GetPointOnTerrain(float worldX, float worldZ) const;
@@ -28,7 +28,7 @@ private:
     vec3 GetNormalInTerrainQuad(const vec2ui& gridCoord, const vec2& localPosition) const;
 
 private:
-    const TerrainConfiguration& terrainConfiguration_;
+    const vec3 terrainScale_;
     const HeightMap& heightMap_;
     vec3 terrainPosition_;
 

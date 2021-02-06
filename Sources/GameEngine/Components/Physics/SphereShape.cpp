@@ -17,13 +17,6 @@ SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObj
     , radius_(1.f)
 {
 }
-
-void SphereShape::CleanUp()
-{
-}
-void SphereShape::Update()
-{
-}
 void SphereShape::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&SphereShape::OnAwake, this));

@@ -1,5 +1,6 @@
 #pragma once
 #include <Mutex.hpp>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/BufferObject.h"
@@ -51,6 +52,12 @@ struct DebugObject
     bool toUpdate_;
 };
 
+struct DebugMeshInfo
+{
+    GameObject& gameObject;
+    ModelWrapper& modelWrapper;
+};
+
 typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
 
 class DebugRenderer : public IRenderer
@@ -70,8 +77,11 @@ public:
     void init() override;
     void reloadShaders() override;
     void render() override;
-	void clear();
+    void clear();
 
+    void subscribe(GameObject&) override;
+    void unSubscribe(GameObject&) override;
+    void unSubscribeAll() override;
     void renderTextures(const std::vector<GraphicsApi::ID>&);
     void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
     void AddDebugObject(Model&, common::Transform&);
@@ -101,14 +111,18 @@ private:
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;
-    ShaderProgram lineShader_;
+    ShaderProgram debugNormalShader_;
     ShaderProgram textureShader_;
 
     std::list<DebugObject> debugObjects_;
     std::list<DebugObject*> toCreateDebugObjects_;
+    std::unordered_map<uint32, DebugMeshInfo> meshDebugInfoSubscribers_;
+
+    GraphicsApi::ID meshDebugPerObjectBufferId_;
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
     GraphicsApi::ID texturePerObjectUpdateBufferId_;
     GraphicsApi::ID textureColorBufferId_;
+    std::mutex meshInfoDebugObjectsMutex_;
     std::mutex debugObjectsMutex_;
 
     std::vector<RenderState> states_;

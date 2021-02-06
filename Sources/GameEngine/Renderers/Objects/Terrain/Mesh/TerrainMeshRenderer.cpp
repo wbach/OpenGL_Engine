@@ -44,7 +44,7 @@ void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber)
     if (not model or not subscriber.component_)
         return;
 
-    auto isVisible = context_.frustrum_.intersection(model->getBoundingBox());
+    auto isVisible = context_.frustrum_.intersection(subscriber.component_->getModelBoundingBox());
 
     if (isVisible)
     {
@@ -85,7 +85,7 @@ void TerrainMeshRenderer::partialRendering(const Model& model,
     uint32 index = 0;
     for (const auto& mesh : model.GetMeshes())
     {
-        auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
+        auto isVisible = context_.frustrum_.intersection(component.getMeshBoundingBox(index));
         if (isVisible)
         {
             renderMesh(mesh, component.GetPerObjectUpdateBuffer(index));
@@ -117,8 +117,12 @@ void TerrainMeshRenderer::subscribe(GameObject& gameObject)
         return;
 
     DEBUG_LOG("Subscribe goId : " + std::to_string(gameObject.GetId()));
-    std::lock_guard<std::mutex> lk(subscriberMutex_);
-    subscribes_.push_back({gameObject.GetId(), {&gameObject, terrain->GetMeshTerrain()}});
+    auto terrainMeshComponent = terrain->GetMeshTerrain();
+    if (terrainMeshComponent)
+    {
+        std::lock_guard<std::mutex> lk(subscriberMutex_);
+        subscribes_.push_back({gameObject.GetId(), {&gameObject, terrainMeshComponent}});
+    }
 }
 void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
 {

@@ -84,8 +84,7 @@ void SetParam(std::string& param, Attributes::const_iterator iter, const std::st
 }
 
 template <class T>
-void SetParamIfExist(Params::ConfigurationParam<T>& param, const Attributes& attributes,
-                     const std::string& paramName)
+void SetParamIfExist(Params::ConfigurationParam<T>& param, const Attributes& attributes, const std::string& paramName)
 {
     const auto iter = attributes.find(paramName);
     if (iter != attributes.end())
@@ -202,6 +201,15 @@ void Read(TreeNode* node, Params::Terrain& param)
         return;
 
     Read(node->getChild(CSTR_TERRAIN_RENDERER_TYPE), param.terrainType);
+
+    uint32 resolutionDivideFactor{param.resolutionDivideFactor};
+    Read(node->getChild(CSTR_TERRAIN_MESH_RESOLUTION_DIVIDER), resolutionDivideFactor);
+    param.resolutionDivideFactor = resolutionDivideFactor;
+
+    uint32 partsCount{param.meshPartsCount};
+    Read(node->getChild(CSTR_TERRAIN_MESH_PARTS_COUNT), partsCount);
+    param.meshPartsCount = partsCount;
+
 }  // namespace GameEngine
 
 void Read(TreeNode& node, Params::Renderer& renderer)
