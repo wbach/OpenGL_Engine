@@ -27,13 +27,7 @@ public:
     SceneManager& GetSceneManager();
 
 private:
-    void RuntimeGpuTasks();
-    void RuntimeLoadObjectToGpu();
-    void RuntimeUpdateObjectGpu();
-    void RuntimeReleaseObjectGpu();
-    void RuntimeCallFunctionGpu();
     void CheckThreadsBeforeQuit();
-    void SetDisplay();
     void MainLoop();
     void ProcessEngineEvents();
     void Quit();

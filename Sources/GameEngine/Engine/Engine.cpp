@@ -6,8 +6,8 @@
 
 #include "Configuration.h"
 #include "EngineContext.h"
-#include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
+#include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
 {
@@ -46,7 +46,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
     });
 
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
-    SetDisplay();
+    introRenderer_.Render();
     sceneManager_.SetFactor();
 }
 
@@ -65,11 +65,6 @@ void Engine::CheckThreadsBeforeQuit()
         WARNING_LOG("Not closed threads. Force to close.");
         engineContext_.GetThreadSync().Stop();
     }
-}
-
-void Engine::SetDisplay()
-{
-    introRenderer_.Render();
 }
 
 void Engine::GameLoop()
@@ -92,7 +87,7 @@ void Engine::MainLoop()
     auto& displayManager = engineContext_.GetDisplayManager();
 
     displayManager.StartFrame();
-    RuntimeGpuTasks();
+    engineContext_.GetGpuResourceLoader().RuntimeGpuTasks();
 
     engineContext_.GetInputManager().GetPressedKeys();
     displayManager.ProcessEvents();
@@ -102,8 +97,8 @@ void Engine::MainLoop()
     if (scene)
     {
         engineContext_.GetRenderersManager().renderScene(*scene);
+        displayManager.UpdateWindow();
     }
-    displayManager.UpdateWindow();
 
     ProcessEngineEvents();
     displayManager.EndFrame();
@@ -145,75 +140,6 @@ void Engine::Init()
     engineContext_.GetRenderersManager().Init();
     engineContext_.GetRenderersManager().GetDebugRenderer().SetPhysicsDebugDraw(
         std::bind(&Physics::IPhysicsApi::DebugDraw, &engineContext_.GetPhysicsApi()));
-    //[&]() { return engineContext_.GetPhysicsApi().DebugDraw(); });
 }
 
-void Engine::RuntimeGpuTasks()
-{
-    RuntimeReleaseObjectGpu();
-    RuntimeLoadObjectToGpu();
-    RuntimeUpdateObjectGpu();
-    RuntimeCallFunctionGpu();
-}
-
-void Engine::RuntimeLoadObjectToGpu()
-{
-    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
-    auto obj        = gpuLoader.GetObjectToGpuLoadingPass();
-
-    while (obj)
-    {
-        if (not obj->GetGraphicsObjectId())
-        {
-            obj->GpuLoadingPass();
-        }
-        else
-        {
-            DEBUG_LOG("Is already loaded.");
-        }
-
-        obj = gpuLoader.GetObjectToGpuLoadingPass();
-    }
-}
-
-void Engine::RuntimeUpdateObjectGpu()
-{
-    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
-    auto obj        = gpuLoader.GetObjectToUpdateGpuPass();
-
-    while (obj)
-    {
-        if (obj->GetGraphicsObjectId())
-        {
-            obj->UpdateGpuPass();
-        }
-        else
-        {
-            ERROR_LOG("Object not loaded");
-        }
-
-        obj = gpuLoader.GetObjectToUpdateGpuPass();
-    }
-}
-
-void Engine::RuntimeReleaseObjectGpu()
-{
-    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
-    auto obj        = gpuLoader.GetObjectToRelease();
-
-    while (obj)
-    {
-        if (obj->GetGraphicsObjectId())
-        {
-            obj->ReleaseGpuPass();
-        }
-        obj = gpuLoader.GetObjectToRelease();
-    }
-}
-
-void Engine::RuntimeCallFunctionGpu()
-{
-    auto& gpuLoader = engineContext_.GetGpuResourceLoader();
-    gpuLoader.CallFunctions();
-}
 }  // namespace GameEngine

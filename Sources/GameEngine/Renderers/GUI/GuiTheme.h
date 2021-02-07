@@ -14,5 +14,10 @@ struct GuiTheme
     std::string buttonHoverTexture  = "GUI/darkGrayButtonHover.png";
     std::string buttonActiveTexture = "GUI/darkGrayButtonActive.png";
     std::string windowBarTexture    = "GUI/darkGrayButton.png";
+    Color backgroundColor;
+    Color editBoxBackgroundColor;
+    Color buttonBackgroundColor;
+    Color buttonHoverColor;
+    Color buttonActiveColor;
 };
 }  // namespace GameEngine

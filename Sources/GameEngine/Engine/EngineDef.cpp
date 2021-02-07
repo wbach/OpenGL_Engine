@@ -13,10 +13,12 @@ const std::string CSTR_SOUND         = "Sound";
 const std::string CSTR_SOUND_ENABLED = "enabled";
 const std::string CSTR_SOUND_VOLUME  = "volume";
 // Files
-const std::string CSTR_FILES                = "Files";
-const std::string CSTR_DATA_LOCATION        = "DataLocation";
-const std::string CSTR_SHADER_LOCATION      = "ShadersLocation";
-const std::string CSTR_REQUIRED_FILE_OUTPUT = "RequiredFilesOutputFile";
+const std::string CSTR_FILES                     = "Files";
+const std::string CSTR_DATA_LOCATION             = "DataLocation";
+const std::string CSTR_SHADER_LOCATION           = "ShadersLocation";
+const std::string CSTR_REQUIRED_FILE_OUTPUT      = "RequiredFilesOutputFile";
+const std::string CSTR_LOADING_SCREEN_BACKGROUND = "loadingScreenBackground";
+const std::string CSTR_LOADING_SCREEN_CIRCLE     = "loadingScreenCircle";
 // Renderer
 const std::string CSTR_RENDERER                        = "Renderer";
 const std::string CSTR_GRAPHICS_API                    = "graphicsApi";

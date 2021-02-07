@@ -1,8 +1,8 @@
 #include "GpuResourceLoader.h"
 
+#include <Logger/Log.h>
+#include <Types.h>
 #include <algorithm>
-
-#include "Types.h"
 
 namespace GameEngine
 {
@@ -116,6 +116,81 @@ void GpuResourceLoader::IsRemoveObjectIfIsToLoadState(GpuObject& obj)
             [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
         if (iter != gpuPassLoad.end())
             gpuPassLoad.erase(iter);
+    }
+}
+
+void GpuResourceLoader::RuntimeGpuTasks()
+{
+    RuntimeReleaseObjectGpu();
+    RuntimeLoadObjectToGpu();
+    RuntimeUpdateObjectGpu();
+    CallFunctions();
+}
+
+size_t GpuResourceLoader::CountObjectsToAdd()
+{
+    return gpuPassLoad.size();
+}
+
+size_t GpuResourceLoader::CountObjectsToUpdate()
+{
+    return objectsToUpdate.size();
+}
+
+size_t GpuResourceLoader::CountObjectsToRelease()
+{
+    return objectsToRelease.size();
+}
+
+void GpuResourceLoader::RuntimeLoadObjectToGpu()
+{
+    auto obj = GetObjectToGpuLoadingPass();
+
+    while (obj)
+    {
+        if (not obj->GetGraphicsObjectId())
+        {
+            obj->GpuLoadingPass();
+        }
+        else
+        {
+            DEBUG_LOG("Is already loaded.");
+        }
+
+        obj = GetObjectToGpuLoadingPass();
+    }
+}
+
+void GpuResourceLoader::RuntimeUpdateObjectGpu()
+{
+    auto obj = GetObjectToUpdateGpuPass();
+
+    while (obj)
+    {
+        if (obj->GetGraphicsObjectId())
+        {
+            obj->UpdateGpuPass();
+        }
+        else
+        {
+            ERROR_LOG("Object not loaded");
+        }
+
+        obj = GetObjectToUpdateGpuPass();
+    }
+}
+
+void GpuResourceLoader::RuntimeReleaseObjectGpu()
+{
+    auto obj = GetObjectToRelease();
+
+    while (obj)
+    {
+        if (obj->GetGraphicsObjectId())
+        {
+            obj->ReleaseGpuPass();
+        }
+        obj = GetObjectToRelease();
     }
 }
 }  // namespace GameEngine

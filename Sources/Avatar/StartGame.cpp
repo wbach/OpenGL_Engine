@@ -13,8 +13,8 @@ void Start(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
 {
     Engine engine(std::move(gptr), std::make_unique<BulletAdapter>(), std::make_unique<SceneFactory>());
     engine.Init();
-    // engine.GetSceneManager().SetActiveScene("MainMenu");
-    engine.GetSceneManager().SetActiveScene("SouthPole");
+    engine.GetSceneManager().SetActiveScene("MainMenu");
+    //engine.GetSceneManager().SetActiveScene("GreenIsland");
     engine.GameLoop();
 }
 }  // namespace AvatarGame

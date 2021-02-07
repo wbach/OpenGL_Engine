@@ -1,5 +1,5 @@
-
 #include "GuiWindow.h"
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -111,7 +111,7 @@ void GuiWindowElement::SetBackground(std::unique_ptr<GuiElement> background)
 void GuiWindowElement::SetBar(std::unique_ptr<GuiElement> bar)
 {
     DEBUG_LOG("Not implemented");
-    //bar_ = std::move(bar);
-    //bar_->setParent(this);
+    // bar_ = std::move(bar);
+    // bar_->setParent(this);
 }
 }  // namespace GameEngine

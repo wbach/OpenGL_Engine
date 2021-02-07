@@ -106,9 +106,11 @@ void Create(TreeNode& node, const Params::Window& param)
 }
 void Create(TreeNode& node, const Params::Files& param)
 {
-    node.addChild(CSTR_DATA_LOCATION).value_        = param.data;
-    node.addChild(CSTR_SHADER_LOCATION).value_      = param.shaders;
-    node.addChild(CSTR_REQUIRED_FILE_OUTPUT).value_ = param.requiredFilesOutputFile;
+    node.addChild(CSTR_DATA_LOCATION, param.data);
+    node.addChild(CSTR_SHADER_LOCATION, param.shaders);
+    node.addChild(CSTR_REQUIRED_FILE_OUTPUT, param.requiredFilesOutputFile);
+    node.addChild(CSTR_LOADING_SCREEN_BACKGROUND, param.loadingScreenBackgroundTexture);
+    node.addChild(CSTR_LOADING_SCREEN_CIRCLE, param.loadingScreenCircleTexture);
 }
 void Create(TreeNode& node, const Params::Sound& param)
 {

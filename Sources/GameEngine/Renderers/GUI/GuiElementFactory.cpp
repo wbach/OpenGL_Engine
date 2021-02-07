@@ -94,7 +94,7 @@ std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowSt
 std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowStyle style, const vec2 &position,
                                                                      const vec2 &scale, const std::string &backgorund)
 {
-    return CreateGuiWindow(style, position, scale, backgorund, vec4(1.f));
+    return CreateGuiWindow(style, position, scale, backgorund, theme_.backgroundColor.value);
 }
 
 std::unique_ptr<GuiWindowElement> GuiElementFactory::CreateGuiWindow(GuiWindowStyle style, const vec2 &position,
@@ -164,6 +164,7 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::functi
         auto texture = CreateGuiTexture(bgtexture);
         if (texture)
         {
+            texture->SetColor(theme_.buttonBackgroundColor.value);
             button->SetBackgroundTexture(std::move(texture));
         }
     }
@@ -172,6 +173,7 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::functi
         auto texture = CreateGuiTexture(hoverTexture);
         if (texture)
         {
+            texture->SetColor(theme_.buttonHoverColor.value);
             button->SetOnHoverTexture(std::move(texture));
         }
     }
@@ -180,6 +182,7 @@ std::unique_ptr<GuiButtonElement> GuiElementFactory::CreateGuiButton(std::functi
         auto texture = CreateGuiTexture(activeTexture);
         if (texture)
         {
+            texture->SetColor(theme_.buttonActiveColor.value);
             button->SetOnActiveTexture(std::move(texture));
         }
     }
@@ -226,6 +229,7 @@ std::unique_ptr<GuiEditBoxElement> GuiElementFactory::CreateEditBox(std::unique_
     auto editBoxBgTexture = CreateGuiTexture(theme_.editBoxBackground);
     if (editBoxBgTexture)
     {
+        editBoxBgTexture->SetColor(theme_.editBoxBackgroundColor.value);
         editBox->SetBackgroundTexture(std::move(editBoxBgTexture));
     }
     return editBox;

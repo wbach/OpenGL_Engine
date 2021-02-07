@@ -1,17 +1,15 @@
 #pragma once
-#include <functional>
-
 #include "GameEngine/Scene/Scene.hpp"
 
 namespace AvatarGame
 {
 class PauseMenu;
 
-class MainMenu : public GameEngine::Scene
+class GreenIsland : public GameEngine::Scene
 {
 public:
-    MainMenu();
-    virtual ~MainMenu() override;
+    GreenIsland();
+    virtual ~GreenIsland() override;
 
     virtual int Initialize() override;
     virtual void PostInitialize() override;
@@ -19,6 +17,7 @@ public:
 
 private:
     void prepareMenu();
+    void keyOperations();
 
 private:
     std::unique_ptr<PauseMenu> menu_;

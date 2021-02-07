@@ -23,8 +23,8 @@ public:
 private:
     void Init();
     void LoadScene(Scene&);
-    void SetIsLoading(bool);
-    bool GetIsLoading();
+    void IsLoading(bool);
+    bool IsLoading();
     void UpdateScreen();
     void ScreenRenderLoop();
     void CheckObjectCount(Scene&);
@@ -38,6 +38,7 @@ private:
     size_t objectLoaded_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
     ResourceManager resorceManager_;
+    IGpuResourceLoader& gpuLoader_;
 
     GeneralTexture* bgTexture_;
     GeneralTexture* circleTexture_;

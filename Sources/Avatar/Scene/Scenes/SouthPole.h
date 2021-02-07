@@ -3,17 +3,23 @@
 
 namespace AvatarGame
 {
+class PauseMenu;
+
 class SouthPole : public GameEngine::Scene
 {
 public:
     SouthPole();
-    virtual ~SouthPole() override;
+    ~SouthPole() override;
 
-    virtual int Initialize() override;
-    virtual void PostInitialize() override;
-    virtual int Update(float) override;
+    int Initialize() override;
+    void PostInitialize() override;
+    int Update(float) override;
 
 private:
     void prepareMenu();
+    void keyOperations();
+
+private:
+    std::unique_ptr<PauseMenu> menu_;
 };
 }  // namespace AvatarGame

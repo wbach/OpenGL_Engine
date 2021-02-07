@@ -1,4 +1,4 @@
-#include "SouthPole.h"
+#include "GreenIsland.h"
 
 #include <GLM/GLMUtils.h>
 #include <GameEngine/Engine/Configuration.h>
@@ -6,7 +6,6 @@
 #include <GameEngine/Engine/ConfigurationWriter.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
-#include <GameEngine/Renderers/GUI/Layer/DefaultLayers.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
@@ -14,51 +13,50 @@
 #include <GameEngine/Renderers/RenderersManager.h>
 #include <GameEngine/Resources/ResourceManager.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
+#include <GameEngine/Renderers/GUI/Layer/DefaultLayers.h>
 #include <Logger/Log.h>
-
-#include <Thread.hpp>
-
 #include "Avatar/Game/PauseMenu.h"
 #include "PauseMenuTheme.h"
+#include <Thread.hpp>
 
 using namespace GameEngine;
 
 namespace AvatarGame
 {
-SouthPole::SouthPole()
-    : Scene("SouthPole")
+GreenIsland::GreenIsland()
+    : Scene("GreenIsland")
 {
 }
 
-SouthPole::~SouthPole()
+GreenIsland::~GreenIsland()
 {
     DEBUG_LOG(__FUNCTION__);
     menu_.reset();
 }
 
-int SouthPole::Initialize()
+int GreenIsland::Initialize()
 {
-    DEBUG_LOG("SouthPole::Initialize()");
+    DEBUG_LOG("GreenIsland::Initialize()");
 
     prepareMenu();
     keyOperations();
 
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPole/SouthPole.xml");
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/GreenIsland/GreenIsland.xml");
     LoadFromFile(sceneFile);
 
-    DEBUG_LOG("SouthPole::Initialized");
+    DEBUG_LOG("GreenIsland::Initialized");
     return 0;
 }
 
-void SouthPole::PostInitialize()
+void GreenIsland::PostInitialize()
 {
 }
 
-int SouthPole::Update(float)
+int GreenIsland::Update(float)
 {
     return 0;
 }
-void SouthPole::prepareMenu()
+void GreenIsland::prepareMenu()
 {
     guiElementFactory_->SetTheme(getGuiTheme());
 
@@ -71,12 +69,12 @@ void SouthPole::prepareMenu()
     menu_ = std::make_unique<PauseMenu>(*this, *guiElementFactory_, *guiManager_);
 }
 
-void SouthPole::keyOperations()
+void GreenIsland::keyOperations()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
-    inputManager_->SubscribeOnKeyDown(
-        KeyCodes::ESCAPE, [&]() { menu_->isShow() ? menu_->hide() : menu_->show(PauseMenu::State::PauseMenu); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { menu_->isShow() ? menu_->hide() : menu_->show(PauseMenu::State::PauseMenu); });
+
 }
 }  // namespace AvatarGame

@@ -22,7 +22,15 @@ public:
     void AddObjectToRelease(std::unique_ptr<GpuObject>) override;
     std::unique_ptr<GpuObject> GetObjectToRelease() override;
 
+    void RuntimeGpuTasks() override;
+    size_t CountObjectsToAdd() override;
+    size_t CountObjectsToUpdate() override;
+    size_t CountObjectsToRelease() override;
+
 private:
+    void RuntimeLoadObjectToGpu();
+    void RuntimeUpdateObjectGpu();
+    void RuntimeReleaseObjectGpu();
     void IsRemoveObjectIfIsToUpdateState(GpuObject&);
     void IsRemoveObjectIfIsToLoadState(GpuObject&);
 

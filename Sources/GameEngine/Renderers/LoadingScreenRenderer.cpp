@@ -13,6 +13,7 @@ LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Tex
     , circleTexture(circleTexture)
     , backgroundTexture(bgTexture)
     , circleMatrix_(1.f)
+    , timer_(0, 16)
 {
 }
 
@@ -26,10 +27,16 @@ void LoadingScreenRenderer::init()
     CreateBuffers();
     const auto& windowSize = EngineConf.window.size.get();
     graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
+
+    timer_.AddOnTickCallback([this]()
+    {
+        circleMatrix_ *= glm::rotate(glm::radians(-1.f), glm::vec3(0.f, 0.f, 1.f));
+    });
 }
 
 void LoadingScreenRenderer::render()
 {
+    timer_.StartFrame();
     prepareRender();
     shader_.Start();
     graphicsApi_.EnableBlend();
@@ -38,7 +45,7 @@ void LoadingScreenRenderer::render()
     renderQuad(circleBufferId_, circleTexture.GetGraphicsObjectId());
     graphicsApi_.DisableBlend();
     shader_.Stop();
-    timer_ = Utils::Timer();
+    timer_.EndFrame();
 }
 
 void LoadingScreenRenderer::reloadShaders()
@@ -51,9 +58,6 @@ void LoadingScreenRenderer::prepareRender()
     graphicsApi_.PrepareFrame();
     if (circleBufferId_)
     {
-        float deltaTime = timer_.GetTimeMiliSeconds() / 10.f;
-        circleMatrix_ *= glm::rotate(-ToRadians(deltaTime), vec3(0.0f, 0.0f, 1.0f));
-
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
         graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &perObjectUpdate_);

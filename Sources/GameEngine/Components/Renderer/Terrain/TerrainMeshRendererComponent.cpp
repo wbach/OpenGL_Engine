@@ -116,10 +116,9 @@ void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 
                 createBoundongBoxes(*model);
 
-                int i = 0;
-                for (auto &mesh : model->GetMeshes())
+                for (size_t i = 0; i < model->GetMeshes().size(); ++i)
                 {
-                    auto &obj = perObjectUpdateBuffer_[i++];
+                    auto &obj = perObjectUpdateBuffer_[i];
 
                     obj->GetData().TransformationMatrix =
                         componentContext_.graphicsApi_.PrepareMatrixToLoad(transform.CalculateCurrentMatrix());
@@ -138,7 +137,7 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
 {
     perObjectUpdateBuffer_.reserve(model.GetMeshes().size());
 
-    for (auto &mesh : model.GetMeshes())
+    for (size_t i = 0; i < model.GetMeshes().size(); ++i)
     {
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
         auto &obj         = CreatePerObjectBuffer(graphicsApi);
@@ -202,19 +201,22 @@ void TerrainMeshRendererComponent::subscribeForEngineConfChange()
                 UnSubscribe();
                 ReleaseModels();
                 createModels();
-                Subscribe();
+
+                if (modelWrapper_.Get(LevelOfDetail::L1))
+                {
+                    Subscribe();
+                }
             }
         });
     partsCountSubscription_ = EngineConf.renderer.terrain.meshPartsCount.subscribeForChange([this](const auto &) {
         if (not heightMapFile_.empty())
         {
-            ClearShaderBuffers();
             UnSubscribe();
+            ClearShaderBuffers();
             ReleaseModels();
             createModels();
 
-            auto model = modelWrapper_.Get(LevelOfDetail::L1);
-            if (model)
+            if (auto model = modelWrapper_.Get(LevelOfDetail::L1))
             {
                 CreateShaderBuffers(*model);
                 createBoundongBoxes(*model);

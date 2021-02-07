@@ -91,6 +91,8 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
             case TerrainTextureType::rockTextureDisplacement:
                 perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.y = terrainTexture.tiledScale;
                 break;
+            default:
+                DEBUG_LOG("unknown");
         }
 
         auto texture =

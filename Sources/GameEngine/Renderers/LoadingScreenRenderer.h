@@ -1,7 +1,7 @@
 #pragma once
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
-#include "Utils/Time/Timer.h"
+#include "Utils/Time/TimeMeasurer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
@@ -32,6 +32,6 @@ private:
     Texture& circleTexture;
     Texture& backgroundTexture;
     mat4 circleMatrix_;
-    Utils::Timer timer_;
+    Utils::Time::CTimeMeasurer timer_;
 };
 }  // namespace GameEngine

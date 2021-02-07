@@ -240,10 +240,16 @@ void Read(TreeNode& node, Params::Renderer& renderer)
 
 void Read(TreeNode& node, Params::Files& files)
 {
-    files.data    = GetDataLocationFromString(node.getChild(CSTR_DATA_LOCATION)->value_);
-    files.shaders = GetShaderLocationFromString(node.getChild(CSTR_SHADER_LOCATION)->value_);
-    if (node.getChild(CSTR_REQUIRED_FILE_OUTPUT))
-        files.requiredFilesOutputFile = node.getChild(CSTR_REQUIRED_FILE_OUTPUT)->value_;
+    if (auto child = node.getChild(CSTR_DATA_LOCATION))
+        files.data = GetDataLocationFromString(node.getChild(CSTR_DATA_LOCATION)->value_);
+    if (auto child = node.getChild(CSTR_SHADER_LOCATION))
+        files.shaders = GetShaderLocationFromString(child->value_);
+    if (auto child = node.getChild(CSTR_REQUIRED_FILE_OUTPUT))
+        files.requiredFilesOutputFile = child->value_;
+    if (auto child = node.getChild(CSTR_LOADING_SCREEN_BACKGROUND))
+        files.loadingScreenBackgroundTexture = child->value_;
+    if (auto child = node.getChild(CSTR_LOADING_SCREEN_CIRCLE))
+        files.loadingScreenCircleTexture = child->value_;
 }
 
 void Read(TreeNode* node, Params::PhysicsVisualizatorParams& params)
