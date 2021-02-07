@@ -16,6 +16,9 @@ public:
     void ReqisterFunctions() override;
 
 private:
+    void init();
+
+private:
     Input::KeysSubscriptionsManager keysSubscriptionsManager_;
     float zoomSpeed_;
     std::unique_ptr<ICamera> camera_;

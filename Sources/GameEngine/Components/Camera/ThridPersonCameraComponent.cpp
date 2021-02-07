@@ -20,16 +20,6 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& compone
     , zoomSpeed_(0.1f)
     , offset_(0, 1.8f, 0)
 {
-    camera_ = std::make_unique<ThirdPersonCamera>(componentContext.inputManager_, gameObject.GetTransform(), offset_);
-    auto ptrCam = camera_.get();
-
-    keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(zoomSpeed_); });
-    keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
-
-    previousCamera_ = componentContext_.camera_.Get();
-    componentContext_.camera_.Set(*camera_);
 }
 
 void ThridPersonCameraComponent::CleanUp()
@@ -40,6 +30,21 @@ void ThridPersonCameraComponent::CleanUp()
 
 void ThridPersonCameraComponent::ReqisterFunctions()
 {
+    RegisterFunction(FunctionType::OnStart, [this]() { init(); });
+}
+
+void ThridPersonCameraComponent::init()
+{
+    camera_ = std::make_unique<ThirdPersonCamera>(componentContext_.inputManager_, thisObject_.GetTransform(), offset_);
+    auto ptrCam = camera_.get();
+
+    keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyUp(
+        KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(zoomSpeed_); });
+    keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
+
+    previousCamera_ = componentContext_.camera_.Get();
+    componentContext_.camera_.Set(*camera_);
 }
 
 void ThridPersonCameraComponent::registerReadFunctions()

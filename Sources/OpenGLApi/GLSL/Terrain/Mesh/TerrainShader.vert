@@ -62,7 +62,7 @@ mat3 CreateTBNMatrix(vec3 normal)
 void main()
 {
     vs_out.worldPos    = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
-    vs_out.normal      = (perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
+    vs_out.normal      = normalize((perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz);
     vs_out.texCoord    = TEXTCOORD;
 
     if (Is(perApp.useTextures.y))
