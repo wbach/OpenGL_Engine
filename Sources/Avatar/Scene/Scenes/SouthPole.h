@@ -3,11 +3,11 @@
 
 namespace AvatarGame
 {
-class SouthPool : public GameEngine::Scene
+class SouthPole : public GameEngine::Scene
 {
 public:
-    SouthPool();
-    virtual ~SouthPool() override;
+    SouthPole();
+    virtual ~SouthPole() override;
 
     virtual int Initialize() override;
     virtual void PostInitialize() override;

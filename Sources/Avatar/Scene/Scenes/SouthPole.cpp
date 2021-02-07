@@ -1,4 +1,4 @@
-#include "SouthPool.h"
+#include "SouthPole.h"
 
 #include <GLM/GLMUtils.h>
 #include <GameEngine/Engine/Configuration.h>
@@ -363,20 +363,20 @@ std::unique_ptr<Menu> menu_;
 
 const std::string pauseMenuFile = "Scenes/PauseMenu/PauseMenu.xml";
 
-SouthPool::SouthPool()
-    : Scene("SouthPool")
+SouthPole::SouthPole()
+    : Scene("SouthPole")
 {
 }
 
-SouthPool::~SouthPool()
+SouthPole::~SouthPole()
 {
     DEBUG_LOG(__FUNCTION__);
     menu_.reset();
 }
 
-int SouthPool::Initialize()
+int SouthPole::Initialize()
 {
-    DEBUG_LOG("SouthPool::Initialize()");
+    DEBUG_LOG("SouthPole::Initialize()");
 
     prepareMenu();
 
@@ -385,7 +385,7 @@ int SouthPool::Initialize()
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
 
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPool/SouthPool.xml");
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/SouthPole/SouthPole.xml");
     LoadFromFile(sceneFile);
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
@@ -393,19 +393,19 @@ int SouthPool::Initialize()
 
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { menu_->isShow() ? menu_->hide() : menu_->show(); });
 
-    DEBUG_LOG("SouthPool::Initialized");
+    DEBUG_LOG("SouthPole::Initialized");
     return 0;
 }
 
-void SouthPool::PostInitialize()
+void SouthPole::PostInitialize()
 {
 }
 
-int SouthPool::Update(float)
+int SouthPole::Update(float)
 {
     return 0;
 }
-void SouthPool::prepareMenu()
+void SouthPole::prepareMenu()
 {
     GuiTheme guiTheme;
     guiTheme.font      = "GUI/herculanum.ttf";
