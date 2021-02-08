@@ -19,7 +19,7 @@ in VS_OUT
 
 out GS_OUT
 {
-    vec3 worldPosition;
+    vec4 worldPosition;
     vec2 texCoord;
     vec3 normal;
     vec3 faceNormal;
@@ -38,7 +38,7 @@ void main()
 
     for (int i = 0; i < gl_in.length(); ++i)
     {
-        gs_out.worldPosition  = gs_in[i].worldPosition.xyz;
+        gs_out.worldPosition  = gs_in[i].worldPosition;
         gs_out.texCoord       = gs_in[i].texCoord;
         gs_out.normal         = gs_in[i].normal;
         gs_out.faceNormal     = faceNormal;

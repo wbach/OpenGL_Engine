@@ -33,16 +33,14 @@ void TerrainMeshRendererComponent::RecalculateNormals()
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, thisObject_.GetWorldTransform().GetScale()})
-        .recalculateNormals();
+    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)}).recalculateNormals();
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater meshUpdater(
-        {componentContext_, modelWrapper_, *heightMap_, thisObject_.GetWorldTransform().GetScale()});
+    TerrainMeshUpdater meshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)});
 
     if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
     {
@@ -180,8 +178,7 @@ void TerrainMeshRendererComponent::LoadObjectToGpu(GpuObject &obj)
 
 void TerrainMeshRendererComponent::createModels()
 {
-    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, thisObject_.GetWorldTransform().GetScale()})
-        .create();
+    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)}).create();
 }
 
 void TerrainMeshRendererComponent::ClearShaderBuffers()

@@ -355,7 +355,6 @@ void TerrainRendererComponent::write(TreeNode& node) const
         auto heightMap = static_cast<HeightMap*>(heightMapTexture);
         if (heightMap and heightMap->GetFile())
         {
-            Utils::CreateBackupFile(heightMap->GetFile()->GetAbsoultePath());
             SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsoultePath());
         }
         else

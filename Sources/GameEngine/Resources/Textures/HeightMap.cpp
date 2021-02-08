@@ -53,15 +53,6 @@ void HeightMap::setImage(GraphicsApi::Image image)
     size_ = vec2ui(image.width, image.height);
     orginalData_ = false;
 }
-void HeightMap::SetScale(const vec3& scale)
-{
-    scale_ = scale;
-}
-
-const vec3& HeightMap::GetScale() const
-{
-    return scale_;
-}
 
 float HeightMap::GetMaximumHeight() const
 {

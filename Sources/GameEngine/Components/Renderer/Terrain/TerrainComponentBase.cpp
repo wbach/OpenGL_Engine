@@ -56,7 +56,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
                 textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
                 LoadTerrainConfiguration(terrainTexture.file);
                 LoadHeightMap(terrainTexture.file);
-                break;
+                continue;
             case TerrainTextureType::blendMap:
                 textureParams.dataStorePolicy = DataStorePolicy::Store;
                 textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
@@ -244,6 +244,10 @@ void TerrainComponentBase::LoadHeightMap(const File &file)
     {
         SetTexture(TerrainTextureType::heightmap, texture);
         heightMap_ = static_cast<HeightMap *>(texture);
+    }
+    else
+    {
+        ERROR_LOG("load error");
     }
 }
 

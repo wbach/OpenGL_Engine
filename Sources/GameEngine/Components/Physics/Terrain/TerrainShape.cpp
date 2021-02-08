@@ -90,7 +90,14 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
 }
 void TerrainShape::create()
 {
-    collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, *heightMap_, thisObject_.GetWorldTransform().GetScale());
+    if (heightMap_)
+    {
+        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, *heightMap_, thisObject_.GetWorldTransform().GetScale());
+    }
+    else
+    {
+        ERROR_LOG("heightMap not set ");
+    }
 }
 void TerrainShape::registerReadFunctions()
 {

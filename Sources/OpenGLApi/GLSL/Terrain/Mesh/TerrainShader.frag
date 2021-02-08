@@ -193,7 +193,7 @@ vec4 getTriPlanarMappingColor(sampler2D terrainTexture, vec3 worldCoordinates, f
     return xaxis * blending.x + yaxis * blending.y + zaxis * blending.z;
 }
 
-vec4 calculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
+vec4 calculateBackgroundColor(float backTextureAmount)
 {
     if (abs(backTextureAmount) < EPSILON)
     {
@@ -221,7 +221,7 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
         return vec4(.8f, .8f, .8f, 1.f);
     }
 
-    vec4 backgorundTextureColour = calculateBackgroundColor(tiledCoords, backTextureAmount);
+    vec4 backgorundTextureColour = calculateBackgroundColor(backTextureAmount);
     vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;
     vec4 blueTextureColor       = texture(blueTexture, tiledCoords) * blendMapColor.b;

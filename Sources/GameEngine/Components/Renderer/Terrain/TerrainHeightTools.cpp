@@ -67,7 +67,6 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
     float heightDownRight = GetHeight(Right(x), Down(z));
 
     auto gridSquereSize = terrainScale_ / (static_cast<float>(heightMapImage_.width) - 1.f);
-    gridSquereSize      = vec3(1.f);
 
     auto vh = vec3(0, GetHeight(x, z), 0);
 

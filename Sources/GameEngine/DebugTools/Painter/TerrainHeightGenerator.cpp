@@ -6,10 +6,10 @@
 #include <numeric>
 #include <random>
 
+#include <GraphicsApi/ImageFilters.h>
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include <GraphicsApi/ImageFilters.h>
 
 namespace GameEngine
 {
@@ -156,21 +156,23 @@ void TerrainHeightGenerator::perlinNoise2D()
     DEBUG_LOG("Start generating terrains.");
     for (auto& terrain : terrains_)
     {
+        if (not terrain->GetHeightMap())
+        {
+
+        }
+
         auto& heightMap = *terrain->GetHeightMap();
 
         std::vector<float> heights;
         heights.resize(width * height);
-        // image.allocateImage<float>();
-
-        float maxHeight = -std::numeric_limits<float>::max();
-        float minHeight = std::numeric_limits<float>::max();
 
         for (uint32 y = 0; y < height; y++)
         {
             for (uint32 x = 0; x < width; x++)
             {
-                float noise = 0.0f;
-                float scale = scale_;
+                float noise    = 0.0f;
+                float scale    = 1.f;
+                float scaleAcc = 0.f;
 
                 for (uint32 o = 0; o < octaves_; o++)
                 {
@@ -190,27 +192,13 @@ void TerrainHeightGenerator::perlinNoise2D()
                         interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
                     noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
+
+                    scaleAcc += scale;
                     scale = scale / bias_;
                 }
 
-                float normalizedHeight = noise / static_cast<float>(octaves_);
-                auto& height           = heights[x + y * width];
-
-                height = heightFactor_ * normalizedHeight;
-
-                if (height < minHeight)
-                    minHeight = height;
-                if (height > maxHeight)
-                    maxHeight = height;
+                heights[x + y * width] = noise / scaleAcc;
             }
-        }
-
-        auto delta = maxHeight - minHeight;
-        auto halfDelta = delta / 2.f;
-
-        for(auto& height : heights)
-        {
-            height -= (maxHeight - halfDelta);
         }
 
         GraphicsApi::Image image;
@@ -229,7 +217,8 @@ void TerrainHeightGenerator::perlinNoise2D()
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 {
     uint32 offset = 10;
-    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - offset) or y > (perTerrainHeightMapsize_.y - offset) )
+    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - offset) or
+        y > (perTerrainHeightMapsize_.y - offset))
         return 0.f;
 
     auto index = x + perTerrainHeightMapsize_.x * y;

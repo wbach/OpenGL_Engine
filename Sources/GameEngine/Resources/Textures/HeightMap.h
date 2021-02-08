@@ -15,8 +15,6 @@ public:
     //GraphicsApi::Image& GetImage();
     void setImage(GraphicsApi::Image);
     const GraphicsApi::Image& GetImage() const;
-    void SetScale(const vec3&);
-    const vec3& GetScale() const;
     float GetMaximumHeight() const;
     float GetMinimumHeight() const;
     float GetDeltaHeight() const;

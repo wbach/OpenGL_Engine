@@ -166,6 +166,8 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
             vec3 normal  = tools.GetNormal(j, i);
             vec3 tangnet = tools.GetTangent(normal);
 
+            //DEBUG_LOG("normal : " + std::to_string(normal));
+
             normals.push_back(normal.x);
             normals.push_back(normal.y);
             normals.push_back(normal.z);
