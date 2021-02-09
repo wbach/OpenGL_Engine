@@ -38,6 +38,7 @@ public:
     void UpdateBuffers();  // Call on rendering thread
 
 private:
+    void init();
     void ClearShaderBuffers();
     void DeleteShaderBuffer(std::unique_ptr<GpuObject>);
     void Subscribe();

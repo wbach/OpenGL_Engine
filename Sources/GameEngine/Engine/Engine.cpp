@@ -16,9 +16,19 @@ namespace
 const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
 }
 
+EnableLogger::EnableLogger()
+{
+    if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    {
+        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+        CLogger::Instance().ImmeditalyLog();
+    }
+}
+
 Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
                std::unique_ptr<SceneFactoryBase> sceneFactory)
-    : engineContext_(std::move(graphicsApi), std::move(physicsApi))
+    : enableLogger_()
+    , engineContext_(std::move(graphicsApi), std::move(physicsApi))
     , sceneManager_(engineContext_, std::move(sceneFactory))
     , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(),
                      engineContext_.GetDisplayManager())
@@ -26,12 +36,6 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
 {
     srand((unsigned)time(NULL));
     Components::RegisterReadFunctionForDefaultEngineComponents();
-
-    if (EngineConf.debugParams.logLvl != LogginLvl::None)
-    {
-        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-        CLogger::Instance().ImmeditalyLog();
-    }
 
     loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange([](auto&) {
         if (EngineConf.debugParams.logLvl != LogginLvl::None)

@@ -20,7 +20,7 @@ sudo apt-get install -y libboost-all-dev
 sudo apt-get install -y font-manager
 sudo apt-get install -y lm-sensors
 sudo apt-get install -y clang-format
-#sudo apt-get install -y qtcreator
+sudo apt-get install -y qtcreator
 
 sudo apt-get install -y python-pip
 sudo apt-get install -y python3-pip
@@ -29,6 +29,8 @@ sudo apt-get install -y cifs-utils
 sudo apt-get install -y python-backports.functools-lru-cache
 sudo apt-get install -y python-tk
 sudo apt-get install -y python3-tk
+sudo apt-get install -y libdrm-dev
+sudo apt-get install -y gdb
 # sudo apt-get install python-support
 # sudo update-python-modules -a
 

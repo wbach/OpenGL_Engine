@@ -22,6 +22,8 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 
 GameObject::~GameObject()
 {
+    DEBUG_LOG(name_);
+
     for (auto& component : components_)
     {
         component->CleanUp();
@@ -122,7 +124,7 @@ std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
     {
         auto result = std::move(*iter);
         children_.erase(iter);
-        return std::move(result);
+        return result;
     }
 
     for (const auto& child : children_)
@@ -130,7 +132,7 @@ std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
         auto result = child->MoveChild(id);
 
         if (result)
-            return std::move(result);
+            return result;
     }
 
     return nullptr;

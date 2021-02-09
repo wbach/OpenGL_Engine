@@ -199,7 +199,7 @@ void Animator::updateConnectedObjectToJoint(uint32 jointId, const Animation::Joi
 
         auto model = rendererCopmponent->GetModelWrapper().Get();
 
-        if (not model or model->GetMeshes().size() < 1)
+        if (not model or model->GetMeshes().empty())
             return;
 
         const auto& meshTransfrom = model->GetMeshes().front().GetMeshTransform();

@@ -15,12 +15,12 @@ namespace Components
 namespace
 {
 const std::string COMPONENT_STR{"Renderer"};
-const std::string CSTR_TEXTURE_INDEX       = "textureIndex";
-const std::string CSTR_MODEL_FILE_NAMES    = "modelFileNames";
-const std::string MODEL_L1      = "model_l1";
-const std::string MODEL_L2      = "model_l2";
-const std::string MODEL_L3      = "model_l3";
-const std::string TEXTURE_INDEX = "textureIndex";
+const std::string CSTR_TEXTURE_INDEX    = "textureIndex";
+const std::string CSTR_MODEL_FILE_NAMES = "modelFileNames";
+const std::string MODEL_L1              = "model_l1";
+const std::string MODEL_L2              = "model_l2";
+const std::string MODEL_L3              = "model_l3";
+const std::string TEXTURE_INDEX         = "textureIndex";
 }  // namespace
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
@@ -46,7 +46,7 @@ void RendererComponent::CleanUp()
 
 void RendererComponent::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::Subscribe, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::init, this));
 }
 void RendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
 {
@@ -97,32 +97,45 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
         return *this;
 
     filenames_.insert({Utils::ReplaceSlash(filename), lvl});
-
-    auto model = componentContext_.resourceManager_.LoadModel(filename);
-
-    if (model)
-    {
-        ReserveBufferVectors(model->GetMeshes().size());
-        CreateBuffers(*model);
-
-        auto existModel = model_.Get(lvl);
-        if (not existModel)
-        {
-            model_.Add(model, lvl);
-        }
-        else
-        {
-            model_.Update(model, lvl);
-            componentContext_.resourceManager_.ReleaseModel(*existModel);
-        }
-    }
-
     return *this;
 }
 RendererComponent& RendererComponent::SetTextureIndex(uint32_t index)
 {
     textureIndex_ = index;
     return *this;
+}
+void RendererComponent::init()
+{
+    bool atLeastOneModelIsCreated{false};
+    for (auto& [filename, lvl] : filenames_)
+    {
+        auto model = componentContext_.resourceManager_.LoadModel(filename);
+
+        if (model)
+        {
+            ReserveBufferVectors(model->GetMeshes().size());
+            CreateBuffers(*model);
+
+            auto existModel = model_.Get(lvl);
+            if (not existModel)
+            {
+                model_.Add(model, lvl);
+            }
+            else
+            {
+                model_.Update(model, lvl);
+                componentContext_.resourceManager_.ReleaseModel(*existModel);
+            }
+
+            atLeastOneModelIsCreated = true;
+        }
+        else
+        {
+            ERROR_LOG("nullptr");
+        }
+    }
+    if (atLeastOneModelIsCreated)
+        Subscribe();
 }
 void RendererComponent::ClearShaderBuffers()
 {
@@ -207,23 +220,24 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 }
 void RendererComponent::UpdateBuffers()
 {
-    size_t index = 0;
     thisObject_.TakeWorldTransfromSnapshot();
 
-    auto model = model_.Get(LevelOfDetail::L1);
-
-    if (model)
+    if (auto model = model_.Get(LevelOfDetail::L1))
     {
-        for (auto& mesh : model_.Get(LevelOfDetail::L1)->GetMeshes())
+        size_t index = 0;
+        for (const auto& mesh : model->GetMeshes())
         {
-            auto& poc = perObjectUpdateBuffer_[index++];
-
-            if (poc)
+            if (index < perObjectUpdateBuffer_.size())
             {
-                const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
-                poc->GetData().TransformationMatrix =
-                    componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-                poc->UpdateGpuPass();
+                auto& poc = perObjectUpdateBuffer_[index++];
+
+                if (poc)
+                {
+                    const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+                    poc->GetData().TransformationMatrix =
+                        componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
+                    poc->UpdateGpuPass();
+                }
             }
         }
     }

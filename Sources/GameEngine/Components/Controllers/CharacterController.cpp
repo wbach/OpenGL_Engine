@@ -268,7 +268,7 @@ void CharacterController::clearVelocityIfNotMoving()
     if (not isStates({CharacterControllerState::Type::MOVE_FORWARD, CharacterControllerState::Type::MOVE_BACKWARD,
                       CharacterControllerState::Type::JUMP}))
     {
-        rigidbody_->SetVelocity(vec3(0));
+        rigidbody_->SetVelocity(vec3(0.f, rigidbody_->GetVelocity().y, 0.f));
     }
 }
 

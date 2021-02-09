@@ -15,6 +15,11 @@ namespace GameEngine
 class DisplayManager;
 class LoadingScreenRenderer;
 
+struct EnableLogger
+{
+    EnableLogger();
+};
+
 class Engine
 {
 public:
@@ -33,6 +38,7 @@ private:
     void Quit();
 
 private:
+    EnableLogger enableLogger_;
     EngineContext engineContext_;
     SceneManager sceneManager_;
     IntroRenderer introRenderer_;
