@@ -42,7 +42,7 @@ private:
     void bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>&) const;
     void renderSubscriber(const Subscriber&);
     void renderMesh(const Mesh&, const GraphicsApi::ID&);
-    void partialRendering(const Model&, const Components::TerrainMeshRendererComponent&);
+    void renderTerrainMeshes(const Model&, const Components::TerrainMeshRendererComponent&);
 
 private:
     RendererContext& context_;

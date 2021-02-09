@@ -114,6 +114,9 @@ PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, co
 }
 void WaterRenderer::subscribe(GameObject& gameObject)
 {
+    if (subscribers_.find(gameObject.GetId()) != subscribers_.end())
+        return;
+
     waterReflectionRefractionRenderer_.subscribe(gameObject);
 
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();

@@ -169,6 +169,8 @@ void TerrainComponentBase::updateTerrainTextureBuffer()
             case TerrainTextureType::rockTextureDisplacement:
                 perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.y = terrainTexture.tiledScale;
                 break;
+            default:
+                break;
         }
     }
     componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*perTerrainTexturesBuffer_);

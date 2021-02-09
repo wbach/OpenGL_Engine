@@ -46,11 +46,17 @@ void GrassRenderer::render()
 
 void GrassRenderer::subscribe(GameObject& gameObject)
 {
-    auto grass = gameObject.GetComponent<Components::GrassRendererComponent>();
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+            [id = gameObject.GetId()](const auto& pair){ return pair.first == id;});
 
-    if (grass != nullptr)
+    if (iter == subscribes_.end())
     {
-        subscribes_.push_back({gameObject.GetId(), grass});
+        auto grass = gameObject.GetComponent<Components::GrassRendererComponent>();
+
+        if (grass != nullptr)
+        {
+            subscribes_.push_back({gameObject.GetId(), grass});
+        }
     }
 }
 

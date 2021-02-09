@@ -58,7 +58,6 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
     else
     {
         SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
-        SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
     }
 }
 

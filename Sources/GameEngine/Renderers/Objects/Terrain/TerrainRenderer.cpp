@@ -147,12 +147,18 @@ void TerrainRenderer::BindTexture(Texture& texture, uint32 id) const
 }
 void TerrainRenderer::subscribe(GameObject& gameObject)
 {
-    auto terrain = gameObject.GetComponent<Components::TerrainRendererComponent>();
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                     [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
 
-    if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Tessellation)
-        return;
+    if (iter == subscribes_.end())
+    {
+        auto terrain = gameObject.GetComponent<Components::TerrainRendererComponent>();
 
-    subscribes_.push_back({gameObject.GetId(), terrain->GetTesselationTerrain()});
+        if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Tessellation)
+            return;
+
+        subscribes_.push_back({gameObject.GetId(), terrain->GetTesselationTerrain()});
+    }
 }
 void TerrainRenderer::unSubscribe(GameObject& gameObject)
 {

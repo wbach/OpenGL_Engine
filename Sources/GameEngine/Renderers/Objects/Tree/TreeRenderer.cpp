@@ -56,12 +56,19 @@ void TreeRenderer::render()
 }  // namespace GameEngine
 void TreeRenderer::subscribe(GameObject& gameObject)
 {
-    auto component = gameObject.GetComponent<Components::TreeRendererComponent>();
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(), [&gameObject](const TreeSubscriber& sub) {
+        return gameObject.GetId() == sub.gameObject_->GetId();
+    });
 
-    if (not component)
-        return;
+    if (iter == subscribes_.end())
+    {
+        auto component = gameObject.GetComponent<Components::TreeRendererComponent>();
 
-    subscribes_.push_back({&gameObject, component});
+        if (not component)
+            return;
+
+        subscribes_.push_back({&gameObject, component});
+    }
 }
 void TreeRenderer::unSubscribe(GameObject& gameObject)
 {

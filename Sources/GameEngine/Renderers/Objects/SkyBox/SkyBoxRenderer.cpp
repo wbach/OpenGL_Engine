@@ -129,6 +129,9 @@ void SkyBoxRenderer::RenderSkyBoxModel(const SkyBoxSubscriber& sub)
 void SkyBoxRenderer::subscribe(GameObject& gameObject)
 {
     std::lock_guard<std::mutex> lk(subscriberMutex_);
+    if (subscribes_.find(gameObject.GetId()) != subscribes_.end())
+        return;
+
     auto component = gameObject.GetComponent<Components::SkyBoxComponent>();
 
     if (component)

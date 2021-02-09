@@ -55,6 +55,9 @@ void ParticlesRenderer::render()
 }
 void ParticlesRenderer::subscribe(GameObject& gameObject)
 {
+    if (subscribers_.find(gameObject.GetId()) != subscribers_.end())
+        return;
+
     auto effect = gameObject.GetComponent<Components::ParticleEffectComponent>();
 
     if (effect)
