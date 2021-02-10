@@ -28,7 +28,7 @@ public:
     // virtual void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     uint32 CreateTerrainColider(const vec3& positionOffset, const HeightMap& heightMap, const vec3& scale) override;
     uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
-                              float scaleFactor) override;
+        const vec3&) override;
     uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic) override;
     void RemoveRigidBody(uint32 id) override;
     void RemoveShape(uint32 id) override;

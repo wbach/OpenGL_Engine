@@ -43,7 +43,6 @@ void GrassRenderer::render()
     RenderSubscribes();
     EndRender();
 }
-
 void GrassRenderer::subscribe(GameObject& gameObject)
 {
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),

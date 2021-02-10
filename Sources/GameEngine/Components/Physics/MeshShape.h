@@ -20,13 +20,14 @@ public:
     MeshShape& SetSize(float size);
     MeshShape& SetModel(Model* model);
     MeshShape& SetModel(const File&);
-    const Model* GetModel() const;
 
+    const Model* GetModel() const;
     inline float GetSize() const;
 
 private:
     float size_;
     Model* model_;
+    std::string requstedModelFileName_;
 
 public:
     static void registerReadFunctions();

@@ -203,31 +203,38 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
     return id_++;
 }
 uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                                         const IndicesVector& indicies, float scaleFactor)
+                                         const IndicesVector& indicies, const vec3& scale)
 {
     impl_->shapes_.insert({id_, Shape()});
     auto& shape = impl_->shapes_.at(id_);
 
-    auto trimesh = new btTriangleMesh();
+    auto trimesh = new btTriangleMesh(true, false);
 
-    for (uint32 i = 0; i < indicies.size(); i += 9)
+    for (uint32 i = 0; i < indicies.size(); i+=3)
     {
-        btVector3 v0(data[i], data[i + 1], data[i + 2]);
-        btVector3 v1(data[i + 3], data[i + 4], data[i + 5]);
-        btVector3 v2(data[i + 6], data[i + 7], data[i + 8]);
+        auto i1 = 3 * indicies[i];
+        auto i2 = 3 * indicies[i+1];
+        auto i3 = 3 * indicies[i+2];
+        btVector3 v0(data[i1], data[i1 + 1], data[i1 + 2]);
+        btVector3 v1(data[i2], data[i2 + 1], data[i2 + 2]);
+        btVector3 v2(data[i3], data[i3 + 1], data[i3 + 2]);
 
         trimesh->addTriangle(v0, v1, v2);
     }
+
+    DEBUG_LOG("getNumTriangles " + std::to_string(trimesh->getNumTriangles()));
+    DEBUG_LOG("indicies " + std::to_string(indicies.size()));
+
     btConvexShape* tmpshape = new btConvexTriangleMeshShape(trimesh);
-    tmpshape->setLocalScaling(btVector3(scaleFactor, scaleFactor, scaleFactor));
+    tmpshape->setLocalScaling(Convert(scale));
 
     shape.btShape_        = std::unique_ptr<btCollisionShape>(tmpshape);
     shape.positionOffset_ = Convert(positionOffset);
 
-    btShapeHull* hull = new btShapeHull(tmpshape);
-    btScalar margin   = tmpshape->getMargin();
-    hull->buildHull(margin);
-    tmpshape->setUserPointer(hull);
+    //btShapeHull* hull = new btShapeHull(tmpshape);
+    //btScalar margin   = tmpshape->getMargin();
+    //hull->buildHull(margin);
+    //tmpshape->setUserPointer(hull);
 
     return id_++;
 }

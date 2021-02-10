@@ -2,6 +2,7 @@
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
@@ -111,6 +112,11 @@ std::unordered_map<ParamName, Param> GrassRendererComponent::GetParams() const
     return std::unordered_map<ParamName, Param>();
 }
 
+void GrassRendererComponent::generatePositionsBasedOnTerrain()
+{
+   // auto terrainContext = thisObject_.GetComponent<TerrainRendererComponent>();
+}
+
 void GrassRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::CreateModelAndSubscribe, this));
@@ -172,7 +178,7 @@ Material GrassRendererComponent::CreateGrassMaterial() const
 void GrassRendererComponent::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
-        auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
+        auto component           = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
         auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME);
         if (textureFileNameNode)
         {

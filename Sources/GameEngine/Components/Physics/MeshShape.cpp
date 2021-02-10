@@ -1,5 +1,8 @@
 #include "MeshShape.h"
 
+#include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -46,11 +49,30 @@ void MeshShape::OnAwake()
 
     const auto& meshes = model_->GetMeshes();
 
-    for (const auto& mesh : meshes)
+    if (meshes.empty())
+        return;
+
+    auto [translation, rotation, meshScale] = Utils::decompose(meshes.front().GetMeshTransform());
+    auto scale                          = size_* thisObject_.GetWorldTransform().GetScale() * meshScale;
+    DEBUG_LOG("mesh.GetMeshTransform().scale " + std::to_string(scale));
+
+    if (meshes.size() == 1)
     {
-        auto data         = mesh.GetCMeshDataRef();
-        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(
-            positionOffset_, data.positions_, data.indices_, size_ / model_->getBoundingBox().maxScale());
+        auto data = meshes.front().GetCMeshDataRef();
+        collisionShapeId_ =
+            componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data.positions_, data.indices_, scale);
+    }
+    else
+    {
+        std::vector<float> data;
+        IndicesVector indicies;
+        for (const auto& mesh : meshes)
+        {
+            auto meshData = mesh.GetCMeshDataRef();
+            data.insert(std::end(data), std::begin(meshData.positions_), std::end(meshData.positions_));
+            indicies.insert(std::end(indicies), std::begin(meshData.indices_), std::end(meshData.indices_));
+        }
+        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data, indicies, scale);
     }
 }
 MeshShape& MeshShape::SetModel(Model* model)
@@ -60,6 +82,7 @@ MeshShape& MeshShape::SetModel(Model* model)
 }
 MeshShape& MeshShape::SetModel(const File& filename)
 {
+    requstedModelFileName_ = filename.GetInitValue();
     model_ = componentContext_.resourceManager_.LoadModel(filename);
     return *this;
 }
@@ -86,7 +109,7 @@ void MeshShape::registerReadFunctions()
         component->SetSize(size);
 
         std::string model;
-        ::Read(node.getChild(CSTR_MODEL_FILE_NAME), size);
+        ::Read(node.getChild(CSTR_MODEL_FILE_NAME), model);
         if (not model.empty())
         {
             component->SetModel(model);
@@ -102,6 +125,7 @@ void MeshShape::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_SIZE), GetSize());
+    ::write(node.addChild(CSTR_MODEL_FILE_NAME), requstedModelFileName_);
 }
 }  // namespace Components
 }  // namespace GameEngine

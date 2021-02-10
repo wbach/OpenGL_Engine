@@ -1,12 +1,12 @@
 #include "TerrainHeightGenerator.h"
 
+#include <GraphicsApi/ImageFilters.h>
 #include <Logger/Log.h>
 
 #include <algorithm>
 #include <numeric>
 #include <random>
 
-#include <GraphicsApi/ImageFilters.h>
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -15,8 +15,9 @@ namespace GameEngine
 {
 enum class Interpolation
 {
-    Linear,
-    Cosinus
+    linear,
+    cosinus,
+    smoothstep
 };
 namespace
 {
@@ -131,15 +132,43 @@ float cosinusInterpolation(float a, float b, float blend)
     float f     = (1.f - cosf(theta)) * .5f;
     return a * (1.f - f) + b * f;
 }
+float cubicHermite(float A, float B, float C, float D, float t)
+{
+    float a = -A / 2.0f + (3.0f * B) / 2.0f - (3.0f * C) / 2.0f + D / 2.0f;
+    float b = A - (5.0f * B) / 2.0f + 2.0f * C - D / 2.0f;
+    float c = -A / 2.0f + C / 2.0f;
+    float d = B;
 
-float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::Linear)
+    return a * t * t * t + b * t * t + c * t + d;
+}
+
+float clamp(float x, float lowerlimit, float upperlimit)
+{
+    if (x < lowerlimit)
+        x = lowerlimit;
+    if (x > upperlimit)
+        x = upperlimit;
+    return x;
+}
+
+float smoothstep(float edge0, float edge1, float x)
+{
+    // Scale, bias and saturate x to 0..1 range
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    // Evaluate polynomial
+    return x * x * (3 - 2 * x);
+}
+
+float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::linear)
 {
     switch (interpolation)
     {
-        case Interpolation::Linear:
+        case Interpolation::linear:
             return linearInterpolation(a, b, blend);
-        case Interpolation::Cosinus:
+        case Interpolation::cosinus:
             return cosinusInterpolation(a, b, blend);
+        case Interpolation::smoothstep:
+            return smoothstep(a, b, blend);
     }
 
     return 0.f;
@@ -158,7 +187,7 @@ void TerrainHeightGenerator::perlinNoise2D()
     {
         if (not terrain->GetHeightMap())
         {
-
+            continue;
         }
 
         auto& heightMap = *terrain->GetHeightMap();

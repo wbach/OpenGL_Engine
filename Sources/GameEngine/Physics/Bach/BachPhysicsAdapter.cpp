@@ -192,7 +192,7 @@ uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const HeightMap&, c
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, float)
+uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&)
 {
     return impl_->id_++;
 }
