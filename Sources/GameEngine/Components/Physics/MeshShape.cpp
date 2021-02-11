@@ -69,8 +69,14 @@ void MeshShape::OnAwake()
         for (const auto& mesh : meshes)
         {
             auto meshData = mesh.GetCMeshDataRef();
+
+            DEBUG_LOG(" data.size() " + std::to_string(data.size()));
+            for (auto& i : meshData.indices_)
+            {
+                indicies.push_back(i + (data.size() / 3.f));
+            }
             data.insert(std::end(data), std::begin(meshData.positions_), std::end(meshData.positions_));
-            indicies.insert(std::end(indicies), std::begin(meshData.indices_), std::end(meshData.indices_));
+           // indicies.insert(std::end(indicies), std::begin(meshData.indices_), std::end(meshData.indices_));
         }
         collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data, indicies, scale);
     }

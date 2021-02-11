@@ -1106,7 +1106,7 @@ void NetworkEditorInterface::StartScene()
 
     SetSelectedGameObject(nullptr);
 
-    scene_.renderersManager_->GetDebugRenderer().Disable();
+  //  scene_.renderersManager_->GetDebugRenderer().Disable();
     keysSubscriptionsManager_.Clear();
     SetOrignalCamera();
     scene_.inputManager_->StashPopSubscribers();

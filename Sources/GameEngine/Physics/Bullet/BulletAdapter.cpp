@@ -224,17 +224,25 @@ uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::
 
     DEBUG_LOG("getNumTriangles " + std::to_string(trimesh->getNumTriangles()));
     DEBUG_LOG("indicies " + std::to_string(indicies.size()));
+    btBvhTriangleMeshShape* tmpshape = new btBvhTriangleMeshShape(trimesh, true, true);
 
-    btConvexShape* tmpshape = new btConvexTriangleMeshShape(trimesh);
     tmpshape->setLocalScaling(Convert(scale));
 
     shape.btShape_        = std::unique_ptr<btCollisionShape>(tmpshape);
     shape.positionOffset_ = Convert(positionOffset);
 
-    //btShapeHull* hull = new btShapeHull(tmpshape);
-    //btScalar margin   = tmpshape->getMargin();
-    //hull->buildHull(margin);
-    //tmpshape->setUserPointer(hull);
+
+  //  {
+        //btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
+       // convexHull->optimizeConvexHull();
+        //if (m_data->m_flags & CUF_INITIALIZE_SAT_FEATURES)
+        //{
+        //    convexHull->initializePolyhedralFeatures();
+        //}
+        //convexHull->setMargin(gUrdfDefaultCollisionMargin);
+       // convexHull->recalcLocalAabb();
+        //convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
+   // }
 
     return id_++;
 }
